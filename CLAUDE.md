@@ -73,6 +73,9 @@ Work in this order; each milestone ends playable. The first slice is defined in 
    feels good here.**
 4. **M3 — Structures:** member-based buildings with a support graph, breakage, collapse, persistent
    sleeping rubble; then fire spread; then dynamite.
+   **Town build-out (runs alongside M4–M5):** once M3's systems exist, build the town from
+   `docs/TOWN.md` one building per session — every building, interior, set piece and piece of dressing,
+   in the order listed there.
 5. **M4 — People:** routines, needs, memory records and opinions, witnesses and sound, then AI
    conversation (voice + suggested replies) through the relay.
 6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,

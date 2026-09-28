@@ -434,6 +434,8 @@ knock out one stud and the wall shrugs it off.
 8. **Horses as creatures:** they tire, spook at gunfire, get hurt, can be stolen, remember who treats
    them well.
 
+Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
+
 ## 12. First slice (what to build first)
 
 **One small town** (saloon, jail, store, doctor, church, livery, a few homesteads), **about a dozen
