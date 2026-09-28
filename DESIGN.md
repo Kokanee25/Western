@@ -260,6 +260,23 @@ knock out one stud and the wall shrugs it off.
   secrets stay secret until earned by trust or pressure.
 - Critical information is never AI-only; must-work lines are authored.
 
+### Action commands (say or type what you do)
+- Two inputs: **talk** (speech to a person) and **act** (commands to your own hands). "Tell him to hold
+  still" is speech; "hold him still" is an action.
+- The AI turns an action command into a **sequence of real game actions**, each animated and taking real
+  time. Example: "cut his shirt open, find where he's hit, tear the shirt into strips and pack the wound"
+  → remove clothing (knife: fast / unbutton: slow) → examine → make bandages from the shirt (real items)
+  → pack the wound and apply pressure.
+- **Examination returns descriptions, not numbers:** "Entry wound under the left ribs, no exit. Blood
+  dark and steady. His skin's cold and clammy." The player interprets (bullet still in, shock) or the
+  doctor explains later.
+- **Guardrails:** the AI can only choose from actions the game implements; impossible requests get an
+  in-character "Don't know how to do that." Every step checks the world (knife? struggling? under fire?
+  does the shirt exist?).
+- A **radial menu** covers the obvious quick actions (pressure, tourniquet, drag) for controller play
+  and emergencies; commands are for anything detailed. Works beyond first aid: search pockets, tie hands
+  with his own belt, pour lamp oil along the back wall, hide money under the floorboards.
+
 ## 10. Law, evidence and society
 
 - Sound travels: gunshots are heard across town; people investigate, flee or fetch the law.
