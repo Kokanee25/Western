@@ -85,6 +85,7 @@ godot --headless --fixed-fps 60 -s res://tests/run_tests.gd     # all tests (exi
 godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --only=player   # one file or method
 xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- --out=/tmp/shots
 godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         # needs export templates
+python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  # before pushing CI edits
 ```
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
@@ -184,3 +185,7 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   draws every effect once at load (smoke, fog, flash, splinters, hole shader) to avoid first-shot
   shader-compile hitches. Couldn't reproduce a big slowdown on lavapipe (`tools/perf_probe.gd`
   measures frame time per effect part); asked Sean for F3 fps before/after. 75 tests pass.
+- 2026-09-28 (later): Builds 27 and 29 (PRs #7, #8) never ran: the build-number step's one-line
+  `run: echo "{\"number\": ...}"` has ": " in a plain YAML scalar, so GitHub rejected the workflow and
+  the web/releases stayed on build 26. Fixed with a block scalar + printf; always parse the workflow
+  YAML before pushing CI changes (command above).
