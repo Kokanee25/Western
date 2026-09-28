@@ -17,9 +17,18 @@ var _toast: Label
 var _toast_timer := 0.0
 
 
+## "build 23 (ad725f2)" from build_info.json, written by CI at export; "dev build" otherwise.
+static func build_label() -> String:
+	var text := FileAccess.get_file_as_string("res://build_info.json")
+	var info: Variant = JSON.parse_string(text) if text != "" else null
+	if info is Dictionary:
+		return "build %s (%s)" % [info.get("number", "?"), info.get("commit", "?")]
+	return "dev build"
+
+
 func _ready() -> void:
 	_help = _label(Vector2(16, 16))
-	_help.text = HELP
+	_help.text = HELP.replace("SALT CREEK — test street", "SALT CREEK — test street — " + build_label())
 	_readout = _label(Vector2(16, 16))
 	_readout.visible = false
 	# Flash the look settings whenever F2 / F6 / F7 change them.
@@ -79,5 +88,5 @@ func _readout_text() -> String:
 		var state := "crouching" if player.is_crouching else ("running" if player.is_running else "walking")
 		var p := player.global_position
 		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f" % [player.get_horizontal_speed(), state, p.x, p.y, p.z])
-	lines.append("%d fps   look: %s" % [Engine.get_frames_per_second(), Settings.look_description()])
+	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
 	return "\n".join(lines)

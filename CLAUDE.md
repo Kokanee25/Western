@@ -162,3 +162,7 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
     by themselves); no fouling yet; glass takes bullets but doesn't show holes or shatter (M3);
     nobody to shoot yet (M2).
   - Next: Sean's feel review of the gun, then M2 — bodies.
+- 2026-09-28 (later): Sean couldn't see/draw the gun. Exported Linux and web builds from main both show
+  it (checked by recording the exported binary with `--write-movie` and the web build in headless
+  Chromium) — most likely an older download. Fixes anyway: gun keys (Q/R/H) work without a captured
+  mouse (only mouse buttons wait for capture); CI stamps `build_info.json` so F1/F3 show "build N (sha)".

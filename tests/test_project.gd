@@ -89,3 +89,13 @@ func test_modern_lighting_enabled() -> void:
 	check(env.volumetric_fog_enabled, "volumetric fog")
 	var sun: DirectionalLight3D = main.get_node(^"GameViewport/TestStreet/Sun")
 	check(sun.shadow_enabled, "sun shadows")
+
+
+func test_build_label() -> void:
+	var overlay := load("res://src/debug/debug_overlay.gd")
+	check_eq(overlay.build_label(), "dev build", "no stamp: dev build")
+	var f := FileAccess.open("res://build_info.json", FileAccess.WRITE)
+	f.store_string('{"number": "99", "commit": "abc1234"}')
+	f.close()
+	check_eq(overlay.build_label(), "build 99 (abc1234)", "CI stamp shows")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("res://build_info.json"))
