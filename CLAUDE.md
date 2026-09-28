@@ -26,10 +26,11 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   model can be switched). **The key never goes in this repo or in the game build.** The AI is only
   called for conversation, asynchronously — never inside the frame loop.
 - **Asset pipeline: Blender, run headless by script** (`blender -b --python …`) in the cloud workspace.
-  Scripts live in the repo (`tools/blender/`) so every asset step is repeatable: clean up AI-generated
-  models (Meshy etc.: decimate, fix normals/UVs/scale), build member-based buildings (posts, beams,
-  studs, siding — framed the way a real false-front building is framed; ask Sean, he's a timber framer),
-  fit garments to body types, split bodies at joints with finished stumps, rig, and export glTF for Godot.
+  Most props and buildings are built in code (see DESIGN.md §4 and `src/structures/`); Blender is for
+  what code does poorly. Scripts live in the repo (`tools/blender/`) so every step is repeatable: bodies
+  and faces, fitting garments to body types, splitting bodies at joints with finished stumps, rigging
+  and retargeting mocap, cleaning up any AI-generated models (decimate, fix normals/UVs/scale), and
+  exporting glTF for Godot. Framing questions: ask Sean, he's a timber framer.
   Blender MCP (driving a live Blender window) is optional later, once Sean has a PC that can run it,
   for hands-on art-direction sessions.
 - **External asset APIs** (Meshy for 3D, image models, voice services) are called with keys stored as
