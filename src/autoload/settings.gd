@@ -20,6 +20,8 @@ var stick_look_speed := 150.0
 ## Degrees per pixel of touch drag.
 var touch_look_sensitivity := 0.25
 var invert_y := false
+## Pixel shading: banded colour levels and ordered dither on the final frame (F6).
+var pixel_shading := false
 ## Tests turn this off so they never touch the player's settings file.
 var autosave := true
 
@@ -35,6 +37,7 @@ func reset_to_defaults() -> void:
 	stick_look_speed = 150.0
 	touch_look_sensitivity = 0.25
 	invert_y = false
+	pixel_shading = false
 	changed.emit()
 
 
@@ -48,6 +51,7 @@ func load_from_disk() -> void:
 	stick_look_speed = cfg.get_value("controls", "stick_look_speed", stick_look_speed)
 	touch_look_sensitivity = cfg.get_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
 	invert_y = cfg.get_value("controls", "invert_y", invert_y)
+	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
 	changed.emit()
 
 
@@ -55,6 +59,7 @@ func save_to_disk() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("video", "internal_resolution", internal_resolution)
 	cfg.set_value("video", "integer_scaling", integer_scaling)
+	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
@@ -74,6 +79,11 @@ func cycle_internal_resolution() -> void:
 
 func set_integer_scaling(on: bool) -> void:
 	integer_scaling = on
+	_changed()
+
+
+func set_pixel_shading(on: bool) -> void:
+	pixel_shading = on
 	_changed()
 
 

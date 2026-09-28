@@ -4,8 +4,60 @@ class_name PixelArt
 ## the same every time. The long axis of the texture (u) is the direction of the grain.
 
 ## How many texels per metre the world uses. Walls, boards and ground all share it, so pixels are
-## the same size everywhere. (Duke Nukem 3D's walls were roughly 32 per metre.)
-const TEXELS_PER_METER := 40.0
+## the same size everywhere. Fewer = chunkier. Read when materials are first made.
+static var texels_per_meter := 40.0
+## Mipmaps smooth distant texels (less shimmer, softer look); off = crunchy all the way out.
+static var use_mipmaps := true
+
+
+## Texel-size presets F7 cycles through: [texels per metre, mipmaps].
+const DENSITY_PRESETS := [[40.0, true], [24.0, false], [16.0, false]]
+
+## Every material that uses the texel grid, so a density change can reach them all.
+static var _materials: Array[BaseMaterial3D] = []
+static var _ground: Array[ShaderMaterial] = []
+
+
+## Register a material laid out on the texel grid (UVs in metres).
+static func track(m: BaseMaterial3D) -> BaseMaterial3D:
+	_materials.append(m)
+	_apply(m)
+	return m
+
+
+static func track_ground(m: ShaderMaterial) -> void:
+	_ground.append(m)
+	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
+
+
+static func set_density(texels: float, mipmaps: bool) -> void:
+	texels_per_meter = texels
+	use_mipmaps = mipmaps
+	for m in _materials:
+		if is_instance_valid(m):
+			_apply(m)
+	for g in _ground:
+		if is_instance_valid(g):
+			g.set_shader_parameter(&"texels_per_meter", texels)
+
+
+static func cycle_density() -> void:
+	var i := 0
+	for j in DENSITY_PRESETS.size():
+		if is_equal_approx(DENSITY_PRESETS[j][0], texels_per_meter):
+			i = j
+	var next: Array = DENSITY_PRESETS[(i + 1) % DENSITY_PRESETS.size()]
+	set_density(next[0], next[1])
+
+
+static func _apply(m: BaseMaterial3D) -> void:
+	var t := texels_per_meter / SIZE
+	m.uv1_scale = Vector3(t, t, t)
+	m.texture_filter = texture_filter()
+
+
+static func texture_filter() -> BaseMaterial3D.TextureFilter:
+	return BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS if use_mipmaps else BaseMaterial3D.TEXTURE_FILTER_NEAREST
 const SIZE := 64
 
 static var _cache := {}

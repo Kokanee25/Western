@@ -8,7 +8,7 @@ uniform vec3 scrub_color : source_color = vec3(0.62, 0.52, 0.38);
 uniform vec3 sage_color : source_color = vec3(0.52, 0.49, 0.35);
 uniform float road_center_z = -8.4;
 uniform float road_half_width = 6.0;
-// Ground pixels per metre (matches the chunky texels on walls; PixelArt.TEXELS_PER_METER).
+// Ground pixels per metre (matches the chunky texels on walls; PixelArt.texels_per_meter).
 uniform float texels_per_meter = 40.0;
 
 varying vec3 world_pos;

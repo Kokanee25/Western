@@ -6,7 +6,7 @@ const HELP := """SALT CREEK — M0 test street
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T / Y     Debug readout: F3 / View
-Pixel size: F2     Jump to next place (street, store, saloon): F5 / D-pad up
+Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon): F5 / D-pad up
 Release mouse: Esc     This help: F1"""
 
 var _help: Label

@@ -1,6 +1,6 @@
 class_name WoodMaterials
 ## Shared materials for structure members: pixel-art textures (PixelArt) read with nearest
-## filtering at PixelArt.TEXELS_PER_METER. Each member picks a tint/offset variant from a hash of
+## filtering at PixelArt.texels_per_meter. Each member picks a tint/offset variant from a hash of
 ## its ID, so every board reads as its own piece of timber, and the same board always looks the same.
 
 const PALETTES := {
@@ -35,9 +35,7 @@ static func get_material(wood: StringName, variant: int) -> Material:
 		m.albedo_texture = texture_for(wood)
 		# Variants: the same texture, slightly re-tinted and shifted, so neighbouring boards differ.
 		m.albedo_color = Color(tint.r / base.r, tint.g / base.g, tint.b / base.b).clamp(Color(0, 0, 0), Color(1.2, 1.2, 1.2))
-		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
-		var texels := PixelArt.TEXELS_PER_METER / PixelArt.SIZE
-		m.uv1_scale = Vector3(texels, texels, 1.0)
+		PixelArt.track(m)
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(key)
 		m.uv1_offset = Vector3(rng.randf(), rng.randf(), 0.0)

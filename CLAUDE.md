@@ -130,3 +130,10 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   chunky pixel lettering. Renders in `docs/screenshots/pixel_textures/`. 47 tests pass.
   - Next: Sean's verdict on the look and resolution, then M1 (the revolver) — the gun can be the
     first detailed code-built model in the new style.
+- 2026-09-28 (later): Sean: "still looks very smooth, not really pixel". Added three live look knobs:
+  F2 render resolution, **F7 texel size** (`PixelArt.set_density`, presets 40/mip, 24, 16 texels/m;
+  every grid material is tracked and updated live), **F6 pixel shading** (`src/render/pixel_screen.gdshader`
+  on the Screen: per-channel levels + 4×4 Bayer dither in low-res pixel space; `Settings.pixel_shading`).
+  `tools/screenshots.gd` takes `--texels= --nomip --shade --res=WxH --window --suffix=` for comparisons.
+  49 tests pass.
+  - Next: Sean picks a combination (renders suggested ~480×270 + 24/m + shading); make it the default.
