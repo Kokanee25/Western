@@ -98,6 +98,14 @@ jobs:
           test -s build/linux/SaltCreek.x86_64
           test -s build/web/index.wasm
 
+      - name: Give the web build's game data a new name each build
+        # Browsers cache index.pck; a new name per build makes them fetch the new game at once.
+        run: |
+          pck="index-${{ github.run_number }}.pck"
+          mv build/web/index.pck "build/web/$pck"
+          sed -i "s/\"executable\":\"index\"/\"executable\":\"index\",\"mainPack\":\"$pck\"/; s/\"index\.pck\"/\"$pck\"/" build/web/index.html
+          grep -o "\"mainPack\":\"[^\"]*\"" build/web/index.html
+
       - name: Package
         id: package
         run: |

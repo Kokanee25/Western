@@ -134,3 +134,27 @@ func test_shoot_a_can_off_the_rail() -> void:
 	await physics_frames(40)
 	var moved := cans.filter(func(c: RigidBody3D) -> bool: return c.linear_velocity.length() > 0.5 or c.global_position.distance_to(start) > 0.05)
 	check(not moved.is_empty(), "a can went flying")
+
+
+func test_shooting_a_store_window_breaks_it() -> void:
+	var store: FalseFrontBuilding = street.get_node(^"Store")
+	var panes := store.members_of_kind(&"glass")
+	var pane: StructureMember = panes.filter(func(m: StructureMember) -> bool: return String(m.member_id).begins_with("store/front"))[0]
+	# Stand on the boardwalk in front of the window and aim at its middle.
+	player.global_position = store.to_global(Vector3(pane.position.x, 0.38, -2.0))
+	player.rotation = Vector3.ZERO
+	player.velocity = Vector3.ZERO
+	await physics_frames(3)
+	var eye := player.camera.global_position
+	var to := pane.global_position - eye
+	player.rotation = Vector3(0, atan2(-to.x, -to.z), 0)
+	player.add_look(Vector2(0, rad_to_deg(atan2(to.y, Vector2(to.x, to.z).length())) - player.get_pitch_degrees()))
+	Input.action_press(&"aim")
+	await process_frames(30)
+	await _tap(&"cock")
+	await _wait_ready()
+	await _tap(&"fire")
+	await physics_frames(30)
+	check(pane.broken, "the window broke (hits: %s)" % [hits.map(func(h: Dictionary) -> String: return String(h.member_id))])
+	check(not (pane.get_child(0) as MeshInstance3D).visible, "the pane is gone")
+	check(get_tree().get_nodes_in_group(&"glass_shards").size() >= 8, "shards on the ground")

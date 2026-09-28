@@ -42,6 +42,11 @@ static func spawn(parent: Node, at: Vector3, direction: Vector3) -> GunSmoke:
 	return s
 
 
+## The web build's renderer (Compatibility) has no volumetric fog; the particles do the work there.
+static func supports_fog_volumes() -> bool:
+	return RenderingServer.get_current_rendering_method() != "gl_compatibility"
+
+
 static func _load_tuning() -> void:
 	if tuning == null:
 		tuning = load("res://config/smoke.tres")
@@ -109,6 +114,8 @@ func _start(direction: Vector3, indoors: bool) -> void:
 	add_child(p)
 	p.emitting = true
 
+	if not supports_fog_volumes():
+		return
 	_fog = FogVolume.new()
 	_fog.shape = RenderingServer.FOG_VOLUME_SHAPE_ELLIPSOID
 	_fog.size = Vector3(0.8, 0.6, 0.8)
@@ -142,7 +149,8 @@ static func warm_up(parent: Node3D, camera: Camera3D) -> void:
 	parent.add_child(s)
 	s.global_position = at
 	s._start(Vector3.FORWARD, false)
-	s._fog_mat.density = 0.0
+	if s._fog_mat:
+		s._fog_mat.density = 0.0
 	s.scale = Vector3.ONE * 0.001
 	ImpactEffects.burst(parent, at, Vector3.UP, Color(0.6, 0.5, 0.4), 1, 0.0, 0.001)
 	var flash := ImpactEffects.flash_mesh()

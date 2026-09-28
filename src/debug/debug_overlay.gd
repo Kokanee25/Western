@@ -14,6 +14,7 @@ var _help: Label
 var _readout: Label
 var _help_timer := 14.0
 var _toast: Label
+var _corner: Label
 var _toast_timer := 0.0
 
 
@@ -28,7 +29,12 @@ static func build_label() -> String:
 
 func _ready() -> void:
 	_help = _label(Vector2(16, 16))
-	_help.text = HELP.replace("SALT CREEK — test street", "SALT CREEK — test street — " + build_label())
+	_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + HELP.replace("SALT CREEK — test street\n", "")
+	# Always in the corner, small, so it's obvious which build is running.
+	_corner = _label(Vector2.ZERO)
+	_corner.text = build_label()
+	_corner.add_theme_font_size_override(&"font_size", 12)
+	_corner.modulate = Color(1, 1, 1, 0.55)
 	_readout = _label(Vector2(16, 16))
 	_readout.visible = false
 	# Flash the look settings whenever F2 / F6 / F7 change them.
@@ -37,7 +43,7 @@ func _ready() -> void:
 	_toast.add_theme_font_size_override(&"font_size", 22)
 	Settings.changed.connect(_show_look)
 	if DisplayServer.is_touchscreen_available():
-		_help.text = "SALT CREEK — test street\nLeft thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time"
+		_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + "Left thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time"
 
 
 func _label(pos: Vector2) -> Label:
@@ -59,6 +65,8 @@ func _show_look() -> void:
 
 
 func _process(delta: float) -> void:
+	var vp_size := get_viewport().get_visible_rect().size
+	_corner.position = Vector2(vp_size.x - _corner.size.x - 8.0, vp_size.y - _corner.size.y - 4.0)
 	if _toast_timer > 0.0:
 		_toast_timer -= delta
 		_toast.visible = _toast_timer > 0.0
