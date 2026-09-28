@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
 [ext_resource type="Resource" path="res://config/player_tuning.tres" id="2_tuning"]
 [ext_resource type="Script" path="res://src/player/player_body.gd" id="3_body"]
+[ext_resource type="Script" path="res://src/weapons/revolver_viewmodel.gd" id="4_gun"]
+[ext_resource type="Resource" path="res://config/revolver.tres" id="5_revolver"]
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_player")
@@ -16,6 +18,10 @@ tuning = ExtResource("2_tuning")
 near = 0.05
 far = 800.0
 fov = 75.0
+
+[node name="Gun" type="Node3D" parent="Head/Camera3D"]
+script = ExtResource("4_gun")
+tuning = ExtResource("5_revolver")
 
 [node name="Body" type="Node3D" parent="."]
 script = ExtResource("3_body")

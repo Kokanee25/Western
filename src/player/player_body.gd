@@ -17,6 +17,7 @@ var _torso: Node3D
 var _thighs: Array[Node3D] = []
 var _knees: Array[Node3D] = []
 var _stride_amount := 0.0
+var _holstered_grip: MeshInstance3D
 
 static var _materials := {}
 
@@ -39,8 +40,9 @@ func _build() -> void:
 	_box(_torso, "Belt", Vector3(0.38, 0.06, 0.215), Vector3(0.0, 0.04, 0.0), _mat(&"leather", Color(0.36, 0.2, 0.1)))
 	_box(_torso, "Buckle", Vector3(0.05, 0.04, 0.01), Vector3(0.0, 0.04, -0.11), _mat(&"brass", Color(0.7, 0.55, 0.25), 0.6))
 	_box(_torso, "Holster", Vector3(0.05, 0.22, 0.1), Vector3(0.215, -0.08, 0.0), _mat(&"leather", Color(0.36, 0.2, 0.1)))
-	var grip := _box(_torso, "RevolverGrip", Vector3(0.035, 0.1, 0.035), Vector3(0.215, 0.06, 0.03), _mat(&"walnut", Color(0.2, 0.12, 0.07)))
-	grip.rotation.x = deg_to_rad(-25.0)
+	_holstered_grip = _box(_torso, "RevolverGrip", Vector3(0.035, 0.1, 0.035), Vector3(0.215, 0.06, 0.03), _mat(&"walnut", Color(0.2, 0.12, 0.07)))
+	_holstered_grip.rotation.x = deg_to_rad(-25.0)
+	_holstered_grip.visible = false  # the gun starts in your hand
 
 	# Shadow-only parts: you never see them, the sun does.
 	var shadow := GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
@@ -65,6 +67,12 @@ func _build() -> void:
 		_box(knee, "Boot", Vector3(0.11, 0.2, 0.27), Vector3(0.0, -SHIN + 0.02, -0.05), _mat(&"boot", Color(0.17, 0.1, 0.06)))
 		_thighs.append(thigh)
 		_knees.append(knee)
+
+
+## Show the revolver's grip in the holster (holstered) or not (in your hand).
+func set_gun_holstered(holstered: bool) -> void:
+	if _holstered_grip:
+		_holstered_grip.visible = holstered
 
 
 ## Pose the body for this frame. crouch is 0 (standing) to 1 (crouched); stride_phase counts head
