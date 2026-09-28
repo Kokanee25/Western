@@ -76,6 +76,27 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
   for 3D that reads as hand-made pixel art), painterly pixel-art textures generated with an image
   model and mapped onto models, and much denser dressing (bottles, glasses, pictures, people).
   Honest limit: faces won't reach the painting's portrait detail up close.
+- **Method for the look pass: a shot match** (Sean approved, 2026-09-28). Build the scene in
+  `docs/concept/saloon-night.png` in the game saloon and put a fixed camera at the painting's angle:
+  first-person, seated at a round table with a lamp, bottle and tin cup in the foreground; a man in a
+  coat and hat across the table; card players at a green-felt table on the left; the swinging doors
+  open onto a moonlit street; the staircase and balcony with a man leaning on the rail; a piano; the
+  long bar on the right with the bartender, back bar, mirror and bottles; oil sconces everywhere;
+  a stag head and framed paintings on the walls; smoke haze in the lamplight. Add the view to
+  `tools/screenshots.gd` as `shot_match_saloon`. Each art session: render it, put it **side by side
+  with the painting** (`docs/screenshots/shot_match/<date>_<n>.png` next to the concept), name the
+  **biggest difference**, fix that first, repeat. Keep every round's render so progress is visible.
+  - **Gap assessment (2026-09-28):** lighting and mood (dark and muddy → hot lamp glow, deep contrast,
+    amber vs moon blue, volumetric haze, colour grade) — reachable, mostly tuning; textures (flat →
+    richer palette and value range) — reachable; dressing (placeholder boxes → the full prop list in
+    `docs/TOWN.md`) — reachable, volume of work; **characters (primitive shapes → real proportions,
+    detailed skin/hair/clothing textures snapped to the pixel palette, animated faces) — the biggest
+    gap**: needs proper character models from the Blender pipeline (a free human base such as MakeHuman
+    is a reasonable start) and face animation (iPhone face capture); expect roughly two-thirds of the
+    painting's character detail; a saloon of 8–12 people.
+  - Order of attack: lighting → textures and palette → dressing → characters.
+  - Real-GPU caveat: cloud renders use software Vulkan; ask Sean for a screenshot of the same view from
+    his PC at milestones, since lighting can differ.
 - Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
   fraction of the pixels of 1080p, so rich lighting stays affordable on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.
