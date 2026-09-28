@@ -25,6 +25,15 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 - **AI characters:** called through a small relay server that holds the API key (OpenRouter, so the
   model can be switched). **The key never goes in this repo or in the game build.** The AI is only
   called for conversation, asynchronously — never inside the frame loop.
+- **Asset pipeline: Blender, run headless by script** (`blender -b --python …`) in the cloud workspace.
+  Scripts live in the repo (`tools/blender/`) so every asset step is repeatable: clean up AI-generated
+  models (Meshy etc.: decimate, fix normals/UVs/scale), build member-based buildings (posts, beams,
+  studs, siding — framed the way a real false-front building is framed; ask Sean, he's a timber framer),
+  fit garments to body types, split bodies at joints with finished stumps, rig, and export glTF for Godot.
+  Blender MCP (driving a live Blender window) is optional later, once Sean has a PC that can run it,
+  for hands-on art-direction sessions.
+- **External asset APIs** (Meshy for 3D, image models, voice services) are called with keys stored as
+  environment secrets — never in the repo.
 - **Saving:** only when the player sleeps in a bed. Save files store the difference from the authored
   town (broken members, debris positions, wounds, memories), per person where possible.
 
