@@ -70,6 +70,12 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
   (hat, vest, coat, shirt) — each layer takes damage separately.
 - Expectation: lighting, atmosphere and effects can come very close to the concept art; models and
   faces are deliberately simpler (low-poly, pixel-textured), while movement is fully realistic.
+- **Target: the saloon concept painting as a real-time game** (Sean, 2026-09-28: "a game that looked as
+  good as that would be amazing"). A look pass is planned after M2: a hand-pixelled final pass
+  (1-px outlines, lit-edge highlights, palette snapping, pixel-stable camera — the known technique
+  for 3D that reads as hand-made pixel art), painterly pixel-art textures generated with an image
+  model and mapped onto models, and much denser dressing (bottles, glasses, pictures, people).
+  Honest limit: faces won't reach the painting's portrait detail up close.
 - Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
   fraction of the pixels of 1080p, so rich lighting stays affordable on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.

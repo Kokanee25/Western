@@ -197,3 +197,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - 2026-09-28 (later): Sean confirmed build 35 in the browser: glass shatters, version shows. The cached
   build 32 was the problem; per-build pck names fix it from 35 on.
   - Next: Sean's feel review of the gun (rhythm, recoil, sound, smoke, auto-cock?), then M2 — bodies.
+- 2026-09-28 (later): Sean wants the saloon concept painting's look as the target. Look pass planned
+  **after M2** (DESIGN.md §4): outline/rim/palette final pass, image-model pixel textures, denser dressing.
+  - Next: M2 — bodies.
