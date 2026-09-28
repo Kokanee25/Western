@@ -275,6 +275,27 @@ later. Wounds last for the player too (a broken leg means weeks on a crutch).
   story if they witnessed it; scars and missing fingers go on wanted posters as identifying features;
   a beard, hat or bandana can hide them, and witnesses can pick you out by them.
 
+### Grazes, glass cuts and open wounds (visible interior)
+- **Grazes:** a bullet path that only clips the edge of a segment makes a furrow, not a hole — a
+  shallow bloody groove that bleeds for a while, stings (pain), and heals into a scar.
+- **Glass:** shattering windows throw shards as low-energy cutters: several small lacerations at once
+  (face, hands, forearms raised to cover), some shards **embedded** until the doctor removes them; a cut
+  near an artery can be serious.
+- **Visible interior:** every body carries a simple low-poly, pixel-textured interior built from
+  `config/anatomy.json` — ribs, sternum, spine, muscle, lungs, heart, liver, gut — hidden under the skin.
+  Each body keeps a list of **wound volumes** (centre, radius, depth). Small ones stay holes; large ones
+  make the skin and clothing shaders **discard** inside the volume and draw torn flesh edges, revealing
+  whatever's underneath.
+- **Shotguns:** each buckshot pellet is traced separately. At range they spread into separate small
+  wounds; at point-blank they arrive as one mass and **destroy a whole region** — ribs broken or gone
+  (fragments thrown as rigid pieces), lung or heart exposed. Tissue destruction accumulates per region;
+  past a threshold the region opens. Sean has seen real close-range shotgun wounds — his read on it is the
+  reference for getting it honest.
+- **Blasts** (dynamite) open wounds the same way through pressure and debris, alongside limb loss.
+- **Persistent:** the body stays opened; the undertaker and doctor can examine it (evidence).
+- **Tone:** pixel-style, grim and honest, never splatter; the **reduced gore** setting keeps the skin
+  closed and shows a dark soaked wound instead.
+
 ### Design traps to respect
 - **Realism makes fights short** — give the player ways to survive mistakes: cover, thick coats,
   a bible in the breast pocket, luck.

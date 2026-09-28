@@ -71,6 +71,9 @@ Work in this order; each milestone ends playable. The first slice is defined in 
 3. **M2 — Bodies:** hidden anatomy, ballistics through tissue, physiology (blood, shock, pain, adrenaline),
    fear and surrender, visible wound decals and clothing layers, one test outlaw. **Prove the gunfight
    feels good here.**
+   **M2 follow-ups** (after M3's core, before the people art pass): grazes, glass cuts and embedded
+   shards, visible interior anatomy with wound volumes, shotgun pellets (DESIGN.md §7 "Grazes, glass
+   cuts and open wounds"); outlaw cover, fleeing and tending himself; active ragdoll balance.
 4. **M3 — Structures:** member-based buildings with a support graph, breakage, collapse, persistent
    sleeping rubble; then fire spread; then dynamite.
    **Rope** comes right after M3's core (needs members, ragdolls and physics): lasso and tying people
