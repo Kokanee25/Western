@@ -24,6 +24,8 @@ func _ready() -> void:
 	_bind(&"release_mouse", [KEY_ESCAPE], [])
 	_bind(&"debug_help", [KEY_F1], [])
 	_bind(&"debug_resolution", [KEY_F2], [])
+	_bind(&"debug_pixel_shading", [KEY_F6], [])
+	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [JOY_BUTTON_Y])
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])

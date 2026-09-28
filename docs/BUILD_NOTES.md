@@ -25,7 +25,9 @@ plank, and a 45-minute day.
 | Jump | Space | A |
 | Speed up time (1× → 30× → 180×) | T | Y |
 | Debug readout (clock, speed, fps) | F3 | View / Back |
-| Change pixel size | F2 | |
+| Change pixel size (render resolution) | F2 | |
+| Pixel shading on/off (banded colour + dither) | F6 | |
+| Texel size (40 → 24 → 16 per metre) | F7 | |
 | Jump to next place (street, store, saloon door, inside saloon) | F5 | D-pad up |
 | Controls help | F1 | |
 | Free the mouse | Esc (click to grab it again) | |
@@ -36,8 +38,11 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 1. **The look.** You start at 17:00 on the street, sun low in the west. Every board, beam and the
    ground now has chunky pixel-art texture (made in code), under the same modern lighting. Everything
-   is rendered at 640×360 and scaled up with hard pixels. Press **F2** to cycle 480×270, 320×180, 960×540 and
-   1280×720 and pick what feels right.
+   is rendered at 640×360 and scaled up with hard pixels. Three knobs to find the look — try them
+   together and tell me the combination you like:
+   - **F2** render resolution (640×360 → 480×270 → 320×180 → 960×540 → 1280×720),
+   - **F7** texel size (smaller numbers = chunkier texture pixels, no smoothing in the distance),
+   - **F6** pixel shading (light and fog break into bands and dither patterns).
 2. **Time.** Press **T** twice (180×) and watch a whole day go by in 15 seconds: long shadows down the
    street at sunset, a purple dusk, blue moonlight and stars, lamps coming on at 18:00 and going out
    at 7:00. Press **F3** to see the clock.

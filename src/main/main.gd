@@ -14,6 +14,9 @@ func _ready() -> void:
 	screen.stretch_mode = TextureRect.STRETCH_SCALE
 	screen.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var post := ShaderMaterial.new()
+	post.shader = preload("res://src/render/pixel_screen.gdshader")
+	screen.material = post
 	Settings.changed.connect(_apply_settings)
 	get_viewport().size_changed.connect(_layout)
 	_apply_settings()
@@ -23,6 +26,9 @@ func _ready() -> void:
 
 func _apply_settings() -> void:
 	game_viewport.size = Settings.internal_resolution
+	var post := screen.material as ShaderMaterial
+	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
+	post.set_shader_parameter(&"source_size", Vector2(Settings.internal_resolution))
 	_layout()
 
 
@@ -59,3 +65,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	elif event.is_action_pressed(&"debug_resolution"):
 		Settings.cycle_internal_resolution()
+	elif event.is_action_pressed(&"debug_texel_size"):
+		PixelArt.cycle_density()
+	elif event.is_action_pressed(&"debug_pixel_shading"):
+		Settings.set_pixel_shading(not Settings.pixel_shading)

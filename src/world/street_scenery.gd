@@ -12,6 +12,9 @@ var _materials := {}
 
 
 func _ready() -> void:
+	var ground := get_node_or_null(^"../Ground/Mesh") as MeshInstance3D
+	if ground and ground.mesh and ground.mesh.surface_get_material(0) is ShaderMaterial:
+		PixelArt.track_ground(ground.mesh.surface_get_material(0) as ShaderMaterial)
 	_rng.seed = scenery_seed
 	_build_blockouts()
 	_build_props()
@@ -27,11 +30,9 @@ func _mat(color: Color, rough := 0.9, textured := true) -> StandardMaterial3D:
 		if textured:
 			# Blockouts get painted-board pixel art so they sit with the real buildings.
 			m.albedo_texture = PixelArt.painted("blockout:%s" % color.to_html(), color, Color(0.56, 0.48, 0.39), hash(key) % 1000, 0.25)
-			m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 			m.uv1_triplanar = true
 			m.uv1_world_triplanar = true
-			var t := PixelArt.TEXELS_PER_METER / PixelArt.SIZE
-			m.uv1_scale = Vector3(t, t, t)
+			PixelArt.track(m)
 		else:
 			m.albedo_color = color
 		_materials[key] = m

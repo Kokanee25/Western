@@ -29,16 +29,37 @@ func _initialize() -> void:
 func _run() -> void:
 	var out := "user://screenshots"
 	var only := ""
+	var window_shot := false
+	var suffix := ""
+	var settings = root.get_node(^"Settings")
+	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
+		# Look experiments: --texels=20 --nomip --shade --res=480x270 --window --suffix=_b
+		elif arg.begins_with("--texels="):
+			PixelArt.texels_per_meter = float(arg.substr(9))
+		elif arg == "--nomip":
+			PixelArt.use_mipmaps = false
+		elif arg == "--shade":
+			settings.pixel_shading = true
+		elif arg.begins_with("--res="):
+			var wh := arg.substr(6).split("x")
+			settings.internal_resolution = Vector2i(int(wh[0]), int(wh[1]))
+		elif arg == "--window":
+			window_shot = true
+		elif arg.begins_with("--suffix="):
+			suffix = arg.substr(9)
+	if window_shot:
+		DisplayServer.window_set_size(Vector2i(1920, 1080))
 	DirAccess.make_dir_recursive_absolute(out)
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	(main.get_node(^"DebugOverlay") as CanvasLayer).visible = false
 	var viewport: SubViewport = main.get_node(^"GameViewport")
 	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 	var player = main.get_node(^"GameViewport/TestStreet/Player")
@@ -56,6 +77,10 @@ func _run() -> void:
 		player.input_enabled = false
 		for i in 40:
 			await process_frame
+		if window_shot:
+			root.get_texture().get_image().save_png("%s/%s%s.png" % [out, v[0], suffix])
+			print("saved ", v[0])
+			continue
 		var img := viewport.get_texture().get_image()
 		img.save_png("%s/%s.png" % [out, v[0]])
 		var big := img.duplicate()

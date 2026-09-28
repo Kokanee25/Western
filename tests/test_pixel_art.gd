@@ -44,5 +44,27 @@ func test_member_uvs_follow_the_grain() -> void:
 func test_texel_density_is_the_same_everywhere() -> void:
 	for wood in [&"weathered_pine", &"framing", &"painted_ochre", &"floor"]:
 		var m := WoodMaterials.get_material(wood, 0) as StandardMaterial3D
-		check_near(m.uv1_scale.x * PixelArt.SIZE, PixelArt.TEXELS_PER_METER, 0.001, "%s: %d texels per metre" % [wood, PixelArt.TEXELS_PER_METER])
-		check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS, "%s: hard pixels" % wood)
+		check_near(m.uv1_scale.x * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
+		check_eq(m.texture_filter, PixelArt.texture_filter(), "%s: hard pixels" % wood)
+
+
+func test_texel_size_changes_live() -> void:
+	var m := WoodMaterials.get_material(&"framing", 1) as StandardMaterial3D
+	PixelArt.set_density(16.0, false)
+	check_near(m.uv1_scale.x * PixelArt.SIZE, 16.0, 0.001, "existing materials follow the new density")
+	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST, "no mipmaps: crunchy")
+	PixelArt.set_density(40.0, true)
+	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS, "and back")
+
+
+func test_pixel_shading_is_a_setting() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	get_tree().root.add_child(main)
+	await process_frames(2)
+	var post := (main.get_node(^"Screen") as TextureRect).material as ShaderMaterial
+	check(not post.get_shader_parameter(&"shading_enabled"), "off by default")
+	Settings.set_pixel_shading(true)
+	check(post.get_shader_parameter(&"shading_enabled"), "F6 turns it on")
+	Settings.reset_to_defaults()
+	main.queue_free()
+	await process_frames(2)

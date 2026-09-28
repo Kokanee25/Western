@@ -1,6 +1,6 @@
 class_name MemberMesh
 ## Box meshes for structure members with texture coordinates in metres, laid so the grain (u)
-## runs along each member's length on every face. With PixelArt.TEXELS_PER_METER applied in the
+## runs along each member's length on every face. With PixelArt.texels_per_meter applied in the
 ## material, texels are the same size on every board, beam and post.
 
 static var _cache := {}
