@@ -157,6 +157,23 @@ later. Wounds last for the player too (a broken leg means weeks on a crutch).
   the doctor may amputate a crushed leg. Survivors carry it for the rest of the game (crutch, peg leg,
   a new trade) and their AI mind knows it.
 
+### Fine detail and permanent marks
+- **Fingers:** hands are modelled finger by finger; a hand shot can take one or more off. Losing the
+  trigger finger means shooting with the middle finger (slower, less accurate) or learning the other
+  hand; losing a thumb makes cocking a single-action revolver awkward. Grip, reins, dealing cards and
+  playing piano all suffer. A missing finger is identifying.
+- **Brawling layer:** bruises, black eyes, broken noses, split lips, loosened and knocked-out teeth.
+  A missing tooth shows as a gap when the character talks, and can change their voice (a slight whistle
+  or lisp in the TTS). Bruises go yellow and fade over days; a broken nose sets crooked unless the doctor
+  straightens it.
+- **Grazes and scars:** shallow wounds bleed, scab and heal into a scar exactly where they were;
+  burns scar too. Scars are permanent.
+- **Healing timeline:** fresh wound → stitches or scab → pink scar → pale scar over weeks of game time.
+  Lost parts never come back.
+- **Marks feed other systems:** people notice and ask ("Where'd you get that?") and the AI knows the
+  story if they witnessed it; scars and missing fingers go on wanted posters as identifying features;
+  a beard, hat or bandana can hide them, and witnesses can pick you out by them.
+
 ### Design traps to respect
 - **Realism makes fights short** — give the player ways to survive mistakes: cover, thick coats,
   a bible in the breast pocket, luck.
