@@ -55,7 +55,7 @@ static func _load_tuning() -> void:
 ## A roof overhead within a few metres means indoors: no breeze.
 static func _is_indoors(node: Node3D, at: Vector3) -> bool:
 	var space := node.get_world_3d().direct_space_state
-	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.UP * 6.0))
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.UP * 6.0, Layers.WORLD))
 	return not hit.is_empty()
 
 

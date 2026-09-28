@@ -68,7 +68,7 @@ func step(b: Bullet, delta: float) -> void:
 		guard += 1
 		var dir := b.velocity.normalized()
 		var to := b.position + dir * remaining
-		var q := PhysicsRayQueryParameters3D.create(b.position, to)
+		var q := PhysicsRayQueryParameters3D.create(b.position, to, Layers.BULLETS)
 		q.exclude = b.exclude
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
@@ -94,7 +94,25 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	var e_before := b.energy()
 	var info := {"position": hit.position, "normal": hit.normal, "direction": dir, "collider": collider,
 			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0}
-	if collider is StructureMember:
+	if collider != null and collider.has_meta(&"human_body"):
+		var person: HumanBody = collider.get_meta(&"human_body")
+		var res := person.take_bullet(collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass)
+		info.person = person
+		info.segment = res.segment
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		if res.exit != null:
+			var exit_point: Vector3 = res.exit
+			var through: float = (hit.position as Vector3).distance_to(exit_point)
+			_set_energy(b, res.energy_out)
+			b.position = exit_point + dir * 0.002
+			b.path.append(b.position)
+			info.penetrated = true
+			info.energy_after = b.energy()
+			b.hits.append(info)
+			Events.bullet_hit.emit(info)
+			return maxf(remaining - through, 0.0)
+		b.alive = false
+	elif collider is StructureMember:
 		var member := collider as StructureMember
 		info.member_id = member.member_id
 		if member.kind == &"glass":

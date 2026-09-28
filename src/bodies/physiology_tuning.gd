@@ -1,0 +1,56 @@
+class_name PhysiologyTuning
+extends Resource
+## The numbers behind bleeding, shock, pain, breathing and adrenaline (config/physiology.tres).
+## Time is in real seconds at normal game speed (a game day is 45 real minutes, so one game hour is
+## 112.5 s). Bleed rates for arteries and organs live with the anatomy in config/anatomy.json.
+
+@export var blood_ml := 5000.0
+## Share of blood lost at which he's pale and weak / passes out / dies.
+@export var shock_at_loss := 0.2
+@export var unconscious_at_loss := 0.4
+@export var death_at_loss := 0.5
+## Healthy body slowly makes blood back (ml per second).
+@export var blood_regen := 0.004
+
+## Bleeding from the wound track itself (muscle, small vessels), ml/s per cm of track.
+@export var flesh_bleed_per_cm := 0.035
+## Bleeds up to this rate clot on their own; arteries bigger than this keep pumping.
+@export var clot_max_rate := 4.0
+## Seconds for a clotting bleed to slow to about a third.
+@export var clot_time := 150.0
+## Direct pressure keeps this share of the bleed going.
+@export var pressure_factor := 0.25
+## A tight tourniquet stops arterial bleeding below it completely.
+@export var tourniquet_factor := 0.0
+
+## Pain: each wound adds some; it arrives over a few seconds and adrenaline hides most of it.
+@export var pain_bone := 0.55
+@export var pain_organ := 0.35
+## A holed gut hurts more than anything (on top of pain_organ).
+@export var pain_gut := 0.6
+@export var pain_finger := 0.3
+@export var pain_per_cm := 0.012
+@export var pain_onset := 3.0
+## Adrenaline: rises when hurt or in a fight, fades over a couple of minutes, masks pain.
+@export var adrenaline_per_wound := 0.6
+@export var adrenaline_fade := 150.0
+@export var adrenaline_masks := 0.75
+## Felt pain above this and he can't do anything but hold the wound; far above and he faints.
+@export var pain_disabling := 0.9
+@export var pain_faint := 1.8
+
+## Breathing: a holed lung collapses over this long and takes this share of the breath with it.
+@export var lung_collapse_time := 60.0
+@export var lung_capacity_lost := 0.55
+## Oxygen falls when breath capacity is below what the body needs, recovers above.
+@export var oxygen_need := 0.5
+@export var oxygen_rate := 0.02
+## Can't run with breath below this; passes out with oxygen below this.
+@export var run_breath := 0.7
+@export var faint_oxygen := 0.3
+## Breaking the neck stops the breathing: out at once, dead in this long.
+@export var neck_death_time := 120.0
+
+## Gut shot: the bowel leaks and the belly poisons over game hours if no doctor.
+@export var gut_death_game_hours := 30.0
+@export var game_hour_seconds := 112.5

@@ -182,7 +182,7 @@ func _on_fired() -> void:
 	if cam:
 		aim_dir = -cam.global_transform.basis.z
 		aim_point = cam.global_position + aim_dir * 80.0
-		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point)
+		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
 		q.exclude = exclude
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
 		if not hit.is_empty() and cam.global_position.distance_to(hit.position) > 0.6:

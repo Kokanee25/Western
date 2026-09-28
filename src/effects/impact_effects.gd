@@ -13,6 +13,13 @@ func _ready() -> void:
 func _on_hit(info: Dictionary) -> void:
 	var pos: Vector3 = info.position
 	var normal: Vector3 = info.normal
+	if info.has("person"):
+		# A spray of blood: a little back out of the entry, more out of an exit.
+		burst(self, pos, -(info.direction as Vector3), Color(0.42, 0.04, 0.03), 5, 1.2, 0.02)
+		if info.penetrated:
+			var dir: Vector3 = info.direction
+			burst(self, pos + dir * 0.05, dir, Color(0.4, 0.03, 0.03), 12, 2.5, 0.025)
+		return
 	if info.collider is StructureMember and (info.collider as StructureMember).kind == &"glass":
 		return  # the pane's own shards are the debris
 	if info.collider is StructureMember:

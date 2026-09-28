@@ -18,3 +18,9 @@ signal member_broken(member_id: StringName)
 ## A bullet struck something. info: position, normal, direction, collider, member_id (if a building
 ## member), penetrated (bool), energy_before / energy_after (joules).
 signal bullet_hit(info: Dictionary)
+## A bullet went into a person. info: person (HumanBody), person_id, segment, hits
+## ([{id, effect}]), position, direction, exit (world point or null), lodged (bool).
+signal body_hit(info: Dictionary)
+## A person went down (can't stand: shot in the leg, fainted, dead).
+signal person_fell(person: Node, conscious: bool)
+signal person_died(person: Node, cause: StringName)
