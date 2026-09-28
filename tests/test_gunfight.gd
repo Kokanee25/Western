@@ -149,3 +149,43 @@ func test_blackout_and_come_round() -> void:
 	await physics_frames(60 * 5)
 	check(player.wounds.physiology.is_conscious(), "comes round")
 	check_eq(player.wounds.physiology.wounds, 0, "patched up")
+
+
+## How many body hits it takes to end the fight (down, dead or hands up), over many fresh outlaws
+## shot at random points on the chest and belly from 8 m. The gunfight's main tuning number.
+func test_body_hits_to_stop_him() -> void:
+	outlaw.queue_free()
+	await physics_frames(1)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1882
+	var counts: Array[int] = []
+	for trial in 24:
+		var man := HumanBody.new()
+		man.rng_seed = trial + 1
+		var b := OutlawBrain.new()
+		b.name = "Brain"
+		man.add_child(b)
+		world.add_child(man)
+		man.global_position = Vector3(0, 0, -8)
+		man.rotation_degrees.y = 180.0
+		await physics_frames(2)
+		var hits := 0
+		for shot in 8:
+			var at := man.global_position + Vector3(rng.randf_range(-0.14, 0.14), rng.randf_range(1.0, 1.42), 0)
+			var before := man.physiology.wounds
+			await _shoot(Vector3(at.x, at.y, -1), at, player)
+			if man.physiology.wounds > before:
+				hits += 1
+			await physics_frames(90)
+			if b.mood >= OutlawBrain.Mood.SURRENDERED:
+				break
+		counts.append(hits)
+		man.queue_free()
+		await physics_frames(1)
+	var total := 0
+	for c in counts:
+		total += c
+	var average := float(total) / counts.size()
+	print("  body hits to stop him: %s (average %.2f)" % [counts, average])
+	check(average >= 1.2 and average <= 2.3, "one to two good hits end it (average %.2f)" % average)
+	check(counts.count(1) > 0 and counts.max() >= 2, "sometimes one, sometimes more (%s)" % [counts])

@@ -34,7 +34,7 @@ extends Resource
 ## Adrenaline: rises when hurt or in a fight, fades over a couple of minutes, masks pain.
 @export var adrenaline_per_wound := 0.6
 @export var adrenaline_fade := 150.0
-@export var adrenaline_masks := 0.75
+@export var adrenaline_masks := 0.45
 ## Felt pain above this and he can't do anything but hold the wound; far above and he faints.
 @export var pain_disabling := 0.9
 @export var pain_faint := 1.8
@@ -52,8 +52,16 @@ extends Resource
 ## Blood in a holed windpipe takes this much of the breath.
 @export var airway_capacity_lost := 0.3
 
+## Knocked off his feet by the hit itself: no chance below `knockdown_energy` joules left in the
+## body, rising by `knockdown_per_100j` per 100 J above it, plus `knockdown_severe` if it broke
+## bone or tore something vital; never more than `knockdown_max`. Torso, hips, thighs and head only.
+@export var knockdown_energy := 180.0
+@export var knockdown_per_100j := 0.12
+@export var knockdown_severe := 0.15
+@export var knockdown_max := 0.45
+
 ## Breathing: a holed lung collapses over this long and takes this share of the breath with it.
-@export var lung_collapse_time := 60.0
+@export var lung_collapse_time := 35.0
 @export var lung_capacity_lost := 0.55
 ## Oxygen falls when breath capacity is below what the body needs, recovers above.
 @export var oxygen_need := 0.5

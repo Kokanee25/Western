@@ -486,8 +486,16 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	for h: Dictionary in tr.hits:
 		if h.effect == &"severed":
 			sever_finger(h.id, dir)
-	var speed := sqrt(2.0 * maxf(energy - tr.energy_out, 0.0) / maxf(mass, 0.001))
-	if limp and collider is RigidBody3D:
+	var deposited := maxf(energy - tr.energy_out, 0.0)
+	var severe := false
+	for h: Dictionary in tr.hits:
+		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
+			severe = true
+	var speed := sqrt(2.0 * deposited / maxf(mass, 0.001))
+	var knocked := not limp and _knocked_down(seg, deposited, severe)
+	if knocked:
+		go_limp(dir * 1.2)
+	elif limp and collider is RigidBody3D:
 		(collider as RigidBody3D).apply_impulse(dir * mass * speed * 2.0, pos - collider.global_position)
 	else:
 		_flinch_from(seg, pos, dir, mass * speed)
@@ -497,12 +505,25 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		var big := seg == &"head"
 		Blood.spray(get_parent() as Node3D, exit_world, dir, 40.0 if big else 12.0, 9 if big else 4, _rng)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": wound.hits,
-			"position": pos, "direction": dir, "exit": exit_world, "lodged": wound.lodged}
+			"position": pos, "direction": dir, "exit": exit_world, "lodged": wound.lodged,
+			"deposited": deposited, "severe": severe, "knocked_down": knocked}
 	hit.emit(info)
 	Events.body_hit.emit(info)
 	if xray:
 		set_xray(true)
 	return {"segment": seg, "exit": exit_world, "energy_out": tr.energy_out, "hits": tr.hits, "wound": wound}
+
+
+## Does the hit itself put him down? A heavy ball dumping its energy in the trunk often does.
+func _knocked_down(seg: StringName, deposited: float, severe: bool) -> bool:
+	var s := String(seg)
+	if not (seg in [&"chest", &"abdomen", &"pelvis", &"head", &"neck"] or s.begins_with("thigh")):
+		return false
+	var t := physiology.tuning
+	var chance := maxf(deposited - t.knockdown_energy, 0.0) / 100.0 * t.knockdown_per_100j
+	if severe:
+		chance += t.knockdown_severe
+	return _rng.randf() < minf(chance, t.knockdown_max)
 
 
 ## The normal of a segment's skin at a point (segment-local): from the capsule whose surface
