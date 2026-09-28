@@ -33,8 +33,23 @@ const TIERS := {
 @export var wood: StringName
 @export var size := Vector3.ONE
 
+## Emitted when something damages the member (a bullet hole): the structure re-checks its loads.
+signal damaged
+
+## Weight resting on this member that isn't a member (goods on a shelf, a man on the porch), N.
+@export var extra_load := 0.0
+
 var supported_by: Array[StringName] = []
+## Where it rests on each support (structure space), for how the load comes down.
+var support_points := {}
+## The contact region with each support (structure space AABB): a member lying along another
+## bears on the whole length of it.
+var support_boxes := {}
+## Every member it touches, above or below (for what falls together, and rafter pairs).
+var touching: Array[StringName] = []
 var grounded := false
+## Order supports come in: tier, then height (set by Structure.infer_supports).
+var stack_key := 0.0
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []
@@ -47,6 +62,87 @@ const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
 
 static func tier_of(member_kind: StringName) -> int:
 	return TIERS.get(member_kind, 5)
+
+
+# --- Geometry for the structural checks (structure space) --------------------------------------
+
+func axis_index() -> int:
+	var a := 0
+	for i in 3:
+		if size[i] > size[a]:
+			a = i
+	return a
+
+
+## Unit vector along the member's length.
+func axis() -> Vector3:
+	return transform.basis[axis_index()].normalized()
+
+
+func length() -> float:
+	return size[axis_index()]
+
+
+## Stands up (post, stud, upright board) rather than lies (beam, joist, rafter).
+func is_upright() -> bool:
+	return absf(axis().y) > 0.7
+
+
+## Vector2(breadth, depth) of the cross-section, depth being the side nearest vertical (what
+## resists bending under gravity).
+func cross_section() -> Vector2:
+	var ai := axis_index()
+	var others: Array[int] = []
+	for i in 3:
+		if i != ai:
+			others.append(i)
+	var d0 := absf(transform.basis[others[0]].normalized().y)
+	var d1 := absf(transform.basis[others[1]].normalized().y)
+	var deep := others[0] if d0 >= d1 else others[1]
+	var broad := others[1] if deep == others[0] else others[0]
+	return Vector2(size[broad], size[deep])
+
+
+func volume() -> float:
+	return size.x * size.y * size.z
+
+
+func weight(tuning: TimberTuning) -> float:
+	return volume() * float(tuning.wood(wood).density) * 9.81
+
+
+## Share of the section still there after bullet holes (1 = sound).
+func section_left(tuning: TimberTuning) -> float:
+	var ai := axis_index()
+	var lost := 0.0
+	for h in holes:
+		var e: Vector3 = h.entry
+		var x: Vector3 = h.exit
+		var through := x - e
+		# The hole's width comes out of the side it didn't go through. A blind hole went in
+		# through the thin side.
+		var others: Array[int] = []
+		for i in 3:
+			if i != ai:
+				others.append(i)
+		var across := others[0] if size[others[0]] <= size[others[1]] else others[1]
+		if through.length() > 1e-5:
+			across = others[0] if absf(through[others[0]]) >= absf(through[others[1]]) else others[1]
+		var side := -1
+		for i in 3:
+			if i != ai and i != across:
+				side = i
+		var fraction: float = float(h.radius) * 2.0 * tuning.hole_weakening / maxf(size[side], 0.001)
+		lost += fraction * (1.0 if h.through else 0.5)
+	return clampf(1.0 - lost, 0.02, 1.0)
+
+
+## Where along the member (t from its middle) it's weakest: its worst hole, else `default`.
+func weakest_t(default := 0.0) -> float:
+	if holes.is_empty():
+		return default
+	var ai := axis_index()
+	return float((holes[holes.size() - 1].entry as Vector3)[ai])
 
 
 ## Bounds in the owning structure's space.
@@ -77,6 +173,7 @@ func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
 	var local_exit: Vector3 = inv * (exit as Vector3) if through else local_entry
 	holes.append({"entry": local_entry, "exit": local_exit, "through": through, "radius": radius})
 	_draw_holes()
+	damaged.emit()
 
 
 func _draw_holes() -> void:

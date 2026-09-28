@@ -50,3 +50,20 @@ func test_outlaw_waits_at_the_range() -> void:
 	await physics_frames(3)
 	check(spawner.outlaw != man and not spawner.outlaw.limp, "F9 brings a fresh one")
 	check_eq(get_tree().get_nodes_in_group(&"people").size(), 1, "and clears the old one away")
+
+
+func test_f11_breaks_the_post_you_look_at() -> void:
+	var store: FalseFrontBuilding = street.get_node(^"Store")
+	var post := store.get_member(&"store/porch/post0")
+	# Stand in the street facing the post, eye level with it.
+	var at := post.global_position
+	player.global_position = at + Vector3(0, -at.y, -3.0)
+	player.rotation = Vector3(0, PI, 0)  # face +Z
+	player.velocity = Vector3.ZERO
+	await physics_frames(3)
+	player.add_look(Vector2(0, -player.get_pitch_degrees() - 5.0))
+	var breaker: DebugBreaker = street.get_node(^"DebugBreaker")
+	var m := breaker.break_looked_at()
+	check(m == post, "broke the post (%s)" % [m.member_id if m else "nothing"])
+	check(store.get_member(&"store/porch/beam").broken, "the beam can't carry the porch off one post")
+	check(not store.get_member(&"store/roof/ridge").broken, "the store stands")

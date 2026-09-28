@@ -5,6 +5,22 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: buildings that stand or fall (M3, first part)
+
+Every board, stud, joist, rafter and beam now has weight and strength (by wood and size), and the
+game works out how the building's weight comes down through it to the ground. Take away what holds
+something up and it breaks or falls: overloaded members snap where they're weakest, anything
+left hanging falls, pieces still nailed together fall together and break up when they land, and
+falling timber breaks what it lands on. The rubble stays.
+
+- **F11** breaks the member you're looking at (think axe or charge; dynamite comes later).
+- Try a **porch post** on the store: the awning can't hang off one post, so it comes down onto
+  the boardwalk. The store stands.
+- Try a **stud** in a wall: nothing happens. A wall shrugs off one stud.
+- Bullets make holes that weaken timber, but a revolver won't shoot a building down. Big timbers
+  laugh at it; a thin plank carrying weight will give after enough holes.
+- The shooting range's backstop timbers, the boardwalk, the hitching rail all obey the same rules.
+
 ### Download
 
 - **Windows:** `SaltCreek-windows.zip` → unzip → run `SaltCreek.exe`. SmartScreen may warn about

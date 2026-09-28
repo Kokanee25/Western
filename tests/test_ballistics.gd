@@ -15,6 +15,7 @@ func before_each() -> void:
 	world.add_child(ballistics)
 	wall = Structure.new()
 	wall.structure_id = &"testwall"
+	wall.collapses = false  # free-floating test boards
 	world.add_child(wall)
 	# A pine board 2.5 cm thick at z = -5, and a 20 cm framing beam at z = -8.
 	wall.add_member("board", &"board", &"weathered_pine", Vector3(2, 2, 0.025), Vector3(0, 1, -5))
