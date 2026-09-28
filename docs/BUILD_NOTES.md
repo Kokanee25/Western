@@ -13,7 +13,7 @@ something up and it breaks or falls: overloaded members snap where they're weake
 left hanging falls, pieces still nailed together fall together and break up when they land, and
 falling timber breaks what it lands on. The rubble stays.
 
-- **F11** breaks the member you're looking at (think axe or charge; dynamite comes later).
+- **K** (or F11 on the desktop build) breaks the member you're looking at (think axe or charge; dynamite comes later).
 - Try a **porch post** on the store: the awning can't hang off one post, so it comes down onto
   the boardwalk. The store stands.
 - Try a **stud** in a wall: nothing happens. A wall shrugs off one stud.
@@ -30,7 +30,8 @@ hot), and window glass cracks and falls out. Burning timber chars: it loses weig
 goes, so a burning building's own loads bring it down, the same way as breaking it. Boards burn away
 to nothing; fallen timber keeps burning where it lands. Char stays on what survives.
 
-- **F12** sets fire to whatever you're looking at.
+- **L** (or F12 on the desktop build) sets fire to whatever you're looking at. In a browser F11
+  and F12 belong to the browser, so use the letters.
 - **Shoot a lit oil lamp**: it smashes and the burning oil lands on whatever's under it. Press **T**
   to get to night (lamps are lit 18:00–07:00), go into the store, and shoot the lamp on the counter.
   Or the porch lantern, onto the boardwalk.
