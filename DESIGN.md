@@ -148,6 +148,22 @@ Most fights end when nerve breaks, not bodies. Wounded people panic, run, beg, s
 Bandages, tourniquets, packing wounds, the doctor, bullet probes, whiskey, amputation, infection a week
 later. Wounds last for the player too (a broken leg means weeks on a crutch).
 
+### Field first aid (player and every NPC)
+- **Direct pressure** slows bleeding but occupies your hands (no shooting, reloading or riding).
+- **Improvised tourniquets** (belt, twisted bandana and a stick, rope): tight stops arterial bleeding,
+  loose only slows it; left on too many hours, the limb may be lost (amputation at the doctor's).
+- **Packing and bandages** from torn shirt strips (the shirt is actually shorter afterwards); clean cloth
+  beats a filthy bandana, which raises infection risk later.
+- **Splints** from a rifle, a board off a rubble pile, fence rails. **Whiskey** for pain and bad
+  cleaning. **Moving casualties:** drag behind cover, carry, throw over a horse.
+- **NPCs do all of it:** outlaws drag a downed partner behind cover and cinch a belt on his leg (two men
+  not shooting); a lone wounded man stops to tourniquet his own arm (a chance to close in or call for
+  surrender). Whether they risk themselves depends on relationships: loyal friends help, hired guns are
+  left to bleed. Townsfolk who like you press a rag on your wound; the ones you wronged walk past.
+- **Choices it creates:** save the man who shot at you because he knows where the gang hides; keep a
+  prisoner alive long enough to stand trial; walk away and let the town judge you for it.
+- Treatment rules should be accurate (Sean has first-aid training — use it as the reference).
+
 ### Visible damage
 - **Wounds painted exactly where the anatomy was hit:** entry hole, blood spreading and soaking into
   clothing over time, larger exit wound. Bandages cover them; they're still there the next day.
