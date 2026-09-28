@@ -295,8 +295,10 @@ func _build_false_front(front: Dictionary) -> void:
 	var label := Label3D.new()
 	label.name = "SignText"
 	label.text = sign_text
-	label.font_size = 96
-	label.pixel_size = 0.0055
+	# Low font size, big pixels, no smoothing: chunky painted-on pixel lettering.
+	label.font_size = 20
+	label.pixel_size = 0.028
+	label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	label.outline_size = 0
 	label.modulate = Color(0.18, 0.12, 0.09)
 	label.shaded = true

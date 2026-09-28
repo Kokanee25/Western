@@ -8,6 +8,8 @@ uniform vec3 scrub_color : source_color = vec3(0.62, 0.52, 0.38);
 uniform vec3 sage_color : source_color = vec3(0.52, 0.49, 0.35);
 uniform float road_center_z = -8.4;
 uniform float road_half_width = 6.0;
+// Ground pixels per metre (matches the chunky texels on walls; PixelArt.TEXELS_PER_METER).
+uniform float texels_per_meter = 40.0;
 
 varying vec3 world_pos;
 
@@ -41,9 +43,10 @@ void vertex() {
 }
 
 void fragment() {
-	vec2 p = world_pos.xz;
+	// Snap to the texel grid so the ground reads as pixel art up close.
+	vec2 p = (floor(world_pos.xz * texels_per_meter) + 0.5) / texels_per_meter;
 	float n = fbm(p * 0.3);
-	float fine = vnoise(p * 7.0);
+	float fine = hash(floor(p * texels_per_meter));
 	float dz = abs(p.y - road_center_z);
 	float road = 1.0 - smoothstep(road_half_width - 1.0, road_half_width + 1.5, dz + (n - 0.5) * 3.0);
 	vec3 wild = mix(scrub_color, sage_color, smoothstep(0.45, 0.7, fbm(p * 0.08 + 3.0)));
@@ -53,7 +56,9 @@ void fragment() {
 	ruts += 1.0 - smoothstep(0.06, 0.28, abs(dz - 0.8 + wobble));
 	ruts += 1.0 - smoothstep(0.06, 0.28, abs(dz - 2.4 + wobble));
 	col = mix(col, dirt_dark, clamp(ruts, 0.0, 1.0) * 0.45 * road);
-	col *= 0.9 + 0.2 * fine;
+	col *= 0.88 + 0.24 * fine;
+	// a few shades per colour, like a hand-made palette
+	col = floor(col * 24.0 + 0.5) / 24.0;
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
 }

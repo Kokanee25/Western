@@ -1,6 +1,7 @@
 class_name WoodMaterials
-## Shared placeholder materials. Each member picks a tint variant from a hash of its ID, so every
-## board reads as its own piece of timber, and the same board is always the same colour.
+## Shared materials for structure members: pixel-art textures (PixelArt) read with nearest
+## filtering at PixelArt.TEXELS_PER_METER. Each member picks a tint/offset variant from a hash of
+## its ID, so every board reads as its own piece of timber, and the same board always looks the same.
 
 const PALETTES := {
 	&"weathered_pine": [Color(0.56, 0.48, 0.39), Color(0.5, 0.43, 0.35), Color(0.61, 0.53, 0.43), Color(0.47, 0.41, 0.34), Color(0.53, 0.47, 0.4)],
@@ -13,7 +14,6 @@ const PALETTES := {
 }
 
 static var _cache := {}
-static var _grain: Texture2D
 static var _glass: StandardMaterial3D
 static var _water: StandardMaterial3D
 
@@ -29,16 +29,41 @@ static func get_material(wood: StringName, variant: int) -> Material:
 	var i := posmod(variant, palette.size())
 	var key := "%s:%d" % [wood, i]
 	if not _cache.has(key):
+		var base: Color = palette[0]
+		var tint: Color = palette[i]
 		var m := StandardMaterial3D.new()
-		m.albedo_color = palette[i]
-		m.albedo_texture = _grain_texture()
-		m.uv1_triplanar = true
-		m.uv1_world_triplanar = true
-		m.uv1_scale = Vector3(0.6, 0.6, 0.6)
+		m.albedo_texture = texture_for(wood)
+		# Variants: the same texture, slightly re-tinted and shifted, so neighbouring boards differ.
+		m.albedo_color = Color(tint.r / base.r, tint.g / base.g, tint.b / base.b).clamp(Color(0, 0, 0), Color(1.2, 1.2, 1.2))
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+		var texels := PixelArt.TEXELS_PER_METER / PixelArt.SIZE
+		m.uv1_scale = Vector3(texels, texels, 1.0)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(key)
+		m.uv1_offset = Vector3(rng.randf(), rng.randf(), 0.0)
 		m.roughness = 0.95
 		m.metallic_specular = 0.2
 		_cache[key] = m
 	return _cache[key]
+
+
+## The pixel-art texture for a wood (see PixelArt). Grain runs along u.
+static func texture_for(wood: StringName) -> Texture2D:
+	var palette: Array = PALETTES.get(wood, [Color(0.5, 0.45, 0.4)])
+	var base: Color = palette[0]
+	match wood:
+		&"painted_ochre", &"painted_rust":
+			return PixelArt.painted(String(wood), base, Color(0.52, 0.42, 0.32), 31, 0.2)
+		&"sign":
+			return PixelArt.painted(String(wood), base, Color(0.52, 0.42, 0.32), 37, 0.1)
+		&"framing":
+			return PixelArt.wood(String(wood), base, 41, 1, 2, 1.2)
+		&"floor":
+			return PixelArt.wood(String(wood), base, 43, 2, 5)
+		&"dark_trim":
+			return PixelArt.wood(String(wood), base, 47, 0, 1, 0.8)
+		_:
+			return PixelArt.wood(String(wood), base, 53, 2, 4)
 
 
 static func glass() -> StandardMaterial3D:
@@ -59,23 +84,3 @@ static func water() -> StandardMaterial3D:
 		_water.roughness = 0.05
 		_water.metallic = 0.2
 	return _water
-
-
-## A stretched noise texture: reads as wood grain and grime at low resolution.
-static func _grain_texture() -> Texture2D:
-	if _grain == null:
-		var noise := FastNoiseLite.new()
-		noise.seed = 1882
-		noise.frequency = 0.035
-		noise.fractal_octaves = 3
-		var ramp := Gradient.new()
-		ramp.set_color(0, Color(0.72, 0.72, 0.72))
-		ramp.set_color(1, Color(1.0, 1.0, 1.0))
-		var tex := NoiseTexture2D.new()
-		tex.width = 256
-		tex.height = 32
-		tex.seamless = true
-		tex.noise = noise
-		tex.color_ramp = ramp
-		_grain = tex
-	return _grain

@@ -123,3 +123,10 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   props and buildings doable from code (pixel textures authored in code); Meshy is optional now.
   - Next: a proof pass on the store (code-made pixel textures, texel density ~32–64/m), and Sean to
     pick the internal resolution (fingers need ~960×540+ to read at table distance).
+- 2026-09-28 (later): **Pixel-texture proof done.** `src/art/pixel_art.gd` paints tileable 64×64
+  pixel-art textures in code (wood grain along u, knots, checks, peeling paint, dirt), 3–5 shades per
+  colour; `src/structures/member_mesh.gd` gives members UVs in metres with the grain along their
+  length; all members, blockouts and the ground use 40 texels/m with nearest filtering; sign text is
+  chunky pixel lettering. Renders in `docs/screenshots/pixel_textures/`. 47 tests pass.
+  - Next: Sean's verdict on the look and resolution, then M1 (the revolver) — the gun can be the
+    first detailed code-built model in the new style.

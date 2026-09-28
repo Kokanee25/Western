@@ -19,12 +19,21 @@ func _ready() -> void:
 	_build_hills()
 
 
-func _mat(color: Color, rough := 0.9) -> StandardMaterial3D:
-	var key := color.to_html()
+func _mat(color: Color, rough := 0.9, textured := true) -> StandardMaterial3D:
+	var key := "%s:%s" % [color.to_html(), textured]
 	if not _materials.has(key):
 		var m := StandardMaterial3D.new()
-		m.albedo_color = color
 		m.roughness = rough
+		if textured:
+			# Blockouts get painted-board pixel art so they sit with the real buildings.
+			m.albedo_texture = PixelArt.painted("blockout:%s" % color.to_html(), color, Color(0.56, 0.48, 0.39), hash(key) % 1000, 0.25)
+			m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+			m.uv1_triplanar = true
+			m.uv1_world_triplanar = true
+			var t := PixelArt.TEXELS_PER_METER / PixelArt.SIZE
+			m.uv1_scale = Vector3(t, t, t)
+		else:
+			m.albedo_color = color
 		_materials[key] = m
 	return _materials[key]
 
@@ -184,7 +193,7 @@ func _build_hills() -> void:
 		mesh.radial_segments = 10
 		mesh.rings = 5
 		hill.mesh = mesh
-		hill.material_override = _mat(colors[i % colors.size()], 1.0)
+		hill.material_override = _mat(colors[i % colors.size()], 1.0, false)
 		hill.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var r := _rng.randf_range(40.0, 80.0)
 		hill.scale = Vector3(r, _rng.randf_range(14.0, 38.0), r * _rng.randf_range(0.6, 1.0))
