@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://src/world/can_rail.gd" id="17_cans"]
 [ext_resource type="Script" path="res://src/debug/outlaw_spawner.gd" id="18_outlaw"]
 [ext_resource type="Script" path="res://src/debug/debug_breaker.gd" id="19_breaker"]
+[ext_resource type="Script" path="res://src/fire/fire_system.gd" id="20_fire"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("3_sky")
@@ -164,6 +165,9 @@ structure_id = &"can_rail"
 [node name="OutlawSpawn" type="Node3D" parent="."]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 25, 0, -12.5)
 script = ExtResource("18_outlaw")
+
+[node name="FireSystem" type="Node3D" parent="."]
+script = ExtResource("20_fire")
 
 [node name="DebugBreaker" type="Node" parent="."]
 script = ExtResource("19_breaker")

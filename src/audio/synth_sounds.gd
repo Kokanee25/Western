@@ -26,8 +26,13 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"zip": samples = _zip(rng)
 			&"timber_crack": samples = _timber_crack(rng)
 			&"timber_crash": samples = _timber_crash(rng)
+			&"fire": samples = _fire(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
-		_cache[id] = _to_wav(samples)
+		var wav := _to_wav(samples)
+		if id == &"fire":
+			wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+			wav.loop_end = samples.size()
+		_cache[id] = wav
 	return _cache[id]
 
 
@@ -167,6 +172,28 @@ static func _timber_crash(rng: RandomNumberGenerator) -> PackedFloat32Array:
 			var t := float(i - start) / RATE
 			out[i] += (sin(TAU * f * t) * 0.5 + rng.randf_range(-0.5, 0.5)) * exp(-t / 0.02) * 0.4
 	return _normalise(out, 0.9)
+
+
+## A fire going: a low roar with crackles and pops in it. Loops.
+static func _fire(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 3.0)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var white := rng.randf_range(-1, 1)
+		lp += (white - lp) * 0.05
+		lp2 += (lp - lp2) * 0.3
+		var t := float(i) / RATE
+		out[i] = lp2 * (0.8 + 0.2 * sin(TAU * 0.7 * t)) * 1.5
+	for k in 70:
+		var start := rng.randi_range(0, n - 400)
+		var level := rng.randf_range(0.2, 0.9)
+		for i in range(start, mini(n, start + int(RATE * 0.006))):
+			var t := float(i - start) / RATE
+			out[i] += rng.randf_range(-1, 1) * exp(-t / 0.0015) * level
+	return _normalise(out, 0.6)
 
 
 static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array:

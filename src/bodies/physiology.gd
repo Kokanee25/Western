@@ -30,6 +30,8 @@ var lung_damage := {}  ## lung id -> seconds since holed
 var gut_seconds := -1.0  ## seconds since the gut was holed, -1 if not
 var neck_seconds := -1.0
 var brain_dead := false
+## How badly burnt, summed over the body (1 = a bad burn on an arm; past burns_fatal he dies).
+var burns := 0.0
 var alive := true
 var cause_of_death := &""
 var wounds := 0
@@ -201,6 +203,17 @@ func apply_pressure(segment: StringName, on := true) -> void:
 			b.pressure = on
 
 
+## Burnt by fire: pain now, and shock and death if it's bad enough.
+func burn(amount: float) -> void:
+	if not alive or amount <= 0.0:
+		return
+	burns += amount
+	wound_pain += amount * tuning.pain_burn
+	adrenaline = minf(adrenaline + amount * 0.3, 1.0)
+	if burns >= tuning.burns_fatal:
+		_die(&"burns")
+
+
 func _die(cause: StringName) -> void:
 	if alive:
 		alive = false
@@ -360,6 +373,8 @@ func describe() -> String:
 		parts.append("an eye gone")
 	if gut_seconds >= 0.0:
 		parts.append("gut-shot")
+	if burns > 0.5:
+		parts.append("badly burnt" if burns > 2.0 else "burnt")
 	if not broken.is_empty():
 		parts.append("bone broken")
 	if not lost_fingers.is_empty():
@@ -378,7 +393,7 @@ func to_dict() -> Dictionary:
 			"severed": severed_segments.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
-			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds}
+			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -406,6 +421,7 @@ func from_dict(d: Dictionary) -> void:
 	alive = d.alive
 	cause_of_death = d.cause_of_death
 	wounds = d.wounds
+	burns = d.get("burns", 0.0)
 
 
 static func _set_of(keys: Array) -> Dictionary:

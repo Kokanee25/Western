@@ -21,6 +21,23 @@ falling timber breaks what it lands on. The rubble stays.
   laugh at it; a thin plank carrying weight will give after enough holes.
 - The shooting range's backstop timbers, the boardwalk, the hitching rail all obey the same rules.
 
+### New: fire
+
+Every member of every building has a temperature now. Burning timber heats what it touches and
+what's near it, most of all what's above it (flames climb), and across the gap to the next building.
+Thin dry boards catch in seconds, heavy timbers take a lot of heating, stone never burns (it gets
+hot), and window glass cracks and falls out. Burning timber chars: it loses weight and strength as it
+goes, so a burning building's own loads bring it down, the same way as breaking it. Boards burn away
+to nothing; fallen timber keeps burning where it lands. Char stays on what survives.
+
+- **F12** sets fire to whatever you're looking at.
+- **Shoot a lit oil lamp**: it smashes and the burning oil lands on whatever's under it. Press **T**
+  to get to night (lamps are lit 18:00–07:00), go into the store, and shoot the lamp on the counter.
+  Or the porch lantern, onto the boardwalk.
+- Stand in it and you get burnt: pain, and it can kill you. The outlaw doesn't like it either.
+- A whole store takes about two minutes for the roof to come in. Night is the time to watch it:
+  the firelight fills the street.
+
 ### Download
 
 - **Windows:** `SaltCreek-windows.zip` → unzip → run `SaltCreek.exe`. SmartScreen may warn about

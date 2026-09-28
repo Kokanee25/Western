@@ -33,6 +33,8 @@ const VIEWS := [
 	["outlaw_neck", 15.0, Vector3(22.8, 0.0, -11.6), -115.0, -4.0, "outlaw_neck"],
 	["outlaw_xray", 15.0, Vector3(22.9, 0.0, -12.5), -90.0, -8.0, "outlaw_xray"],
 	["porch_collapse", 15.0, Vector3(1.5, 0.0, -8.0), 165.0, 6.0, "porch_collapse"],
+	["store_fire_night", 21.0, Vector3(3.0, 0.0, -11.0), 180.0, 10.0, "store_fire"],
+	["store_fire_later", 21.0, Vector3(3.0, 0.0, -13.0), 180.0, 12.0, "store_fire_later"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 ]
 
@@ -123,6 +125,17 @@ func _run() -> void:
 				for i in 20:
 					await physics_frame
 			for i in 240:
+				await physics_frame
+		if setup == "store_fire" or setup == "store_fire_later":
+			var store = main.find_child("Store", true, false)
+			var fire = main.find_child("FireSystem", true, false)
+			fire.ignite(store.get_member(&"store/front/siding/r02_0"))
+			fire.ignite(store.get_member(&"store/front/siding/r02_1"))
+			fire.ignite(store.get_member(&"store/porch/post0"))
+			var sim := 40 if setup == "store_fire" else 130
+			for i in sim:
+				fire.step(0.5)
+			for i in 90:
 				await physics_frame
 		if setup == "porch_collapse":
 			var store = main.find_child("Store", true, false)

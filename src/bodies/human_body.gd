@@ -85,6 +85,7 @@ func _ready() -> void:
 	if has_gun:
 		_give_gun()
 	_apply_pose(0.0, true)
+	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))
 	if xray_all:
 		set_xray(true)
 

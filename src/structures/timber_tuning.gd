@@ -3,7 +3,8 @@ extends Resource
 ## What the timber can take (config/timber.tres): weight and strength per wood, and how members
 ## joined with nails behave. These are failure strengths (what breaks it), not the cautious design
 ## values a carpenter would size by. Rough-sawn, air-dried, 1880s western softwood.
-## Sean (timber framer) is the reference: ask him before changing the character of these.
+## Reference: the USDA Wood Handbook (clear-wood strengths, cut down for rough, knotty, weathered
+## stock) and period carpentry practice for how members were nailed.
 
 ## wood id -> {density kg/m³, bending Pa (modulus of rupture), compression Pa (along the grain),
 ## stiffness Pa (modulus of elasticity)}
@@ -16,6 +17,8 @@ extends Resource
 	&"dark_trim": {"density": 520.0, "bending": 42e6, "compression": 32e6, "stiffness": 10e9},
 	&"sign": {"density": 450.0, "bending": 38e6, "compression": 30e6, "stiffness": 9.5e9},
 	&"glass": {"density": 2500.0, "bending": 40e6, "compression": 100e6, "stiffness": 70e9},
+	# Rubble-stone laid in lime mortar: heavy and strong in compression, weak in bending.
+	&"stone": {"density": 2300.0, "bending": 1.5e6, "compression": 12e6, "stiffness": 15e9},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 

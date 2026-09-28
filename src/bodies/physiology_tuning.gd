@@ -29,6 +29,9 @@ extends Resource
 ## A holed gut hurts more than anything (on top of pain_organ).
 @export var pain_gut := 0.6
 @export var pain_finger := 0.3
+## Burns: pain per unit of burn, and how much burn kills.
+@export var pain_burn := 0.5
+@export var burns_fatal := 7.0
 @export var pain_per_cm := 0.012
 @export var pain_onset := 3.0
 ## Adrenaline: rises when hurt or in a fight, fades over a couple of minutes, masks pain.

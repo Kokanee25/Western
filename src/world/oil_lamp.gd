@@ -12,6 +12,8 @@ extends Node3D
 @export var show_mesh := true
 
 var lit := true
+## Shot or knocked to pieces: no light, and if it was lit, burning oil where it landed.
+var broken := false
 
 var _light: OmniLight3D
 var _flame: MeshInstance3D
@@ -105,3 +107,51 @@ func _build() -> void:
 	_light.shadow_bias = 0.05
 	_light.position.y = 0.16
 	add_child(_light)
+	# Something for a bullet to hit.
+	var hitbox := StaticBody3D.new()
+	hitbox.name = "Hitbox"
+	hitbox.collision_layer = Layers.WORLD
+	hitbox.collision_mask = 0
+	hitbox.set_meta(&"oil_lamp", self)
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.13, 0.24, 0.13)
+	shape.shape = box
+	shape.position.y = 0.12
+	hitbox.add_child(shape)
+	add_child(hitbox)
+
+
+## A bullet (or a fall) breaks it: glass everywhere, and a lit lamp throws its burning oil down
+## on whatever's below.
+func smash(direction := Vector3.DOWN) -> void:
+	if broken:
+		return
+	broken = true
+	var was_lit := lit
+	set_lit(false)
+	for c in get_children():
+		if c is MeshInstance3D:
+			(c as MeshInstance3D).visible = false
+	var hitbox := get_node_or_null(^"Hitbox") as StaticBody3D
+	var snd := AudioStreamPlayer3D.new()
+	snd.stream = SynthSounds.get_sound(&"glass")
+	snd.unit_size = 5.0
+	add_child(snd)
+	snd.play()
+	ImpactEffects.burst(get_parent(), global_position + Vector3.UP * 0.12, -direction, Color(0.8, 0.85, 0.8), 10, 1.5, 0.02)
+	if not was_lit:
+		return
+	# Where the oil lands: straight down from the lamp, onto the counter, the floor, the boardwalk.
+	var at := global_position
+	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.05, global_position + Vector3.DOWN * 4.0, Layers.WORLD)
+	if hitbox:
+		q.exclude = [hitbox.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty():
+		at = hit.position
+	if hitbox:
+		hitbox.queue_free()
+	var fire := FireSystem.find(get_tree())
+	if fire:
+		fire.spill(at)

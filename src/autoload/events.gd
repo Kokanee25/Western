@@ -32,3 +32,5 @@ signal near_miss(person: Node, shooter: Node, distance: float)
 signal person_surrendered(person: Node)
 ## Someone said something out loud (shown as a subtitle to a player in earshot).
 signal spoke(speaker: Node, text: String)
+## Someone's too close to a fire: `amount` is how badly it burnt them this moment.
+signal scorched(person: Node, amount: float)

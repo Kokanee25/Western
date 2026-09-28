@@ -36,6 +36,7 @@ var _shape_cache := {}
 
 
 func _ready() -> void:
+	add_to_group(&"structures")
 	tuning = StructuralAnalysis.load_tuning()
 	rebuild()
 
@@ -93,6 +94,7 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	m.add_child(cs)
 
 	add_child(m)
+	m.pieces = [[mi, cs]]
 	m.damaged.connect(_on_member_damaged)
 	members[id] = m
 	_order.append(m)
@@ -213,6 +215,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	var ai := m.axis_index()
 	var mi := m.get_child(0) as MeshInstance3D
 	var cs := m.get_child(1) as CollisionShape3D
+	var new_pieces: Array = []
 	if length < 0.4 or absf(t) > length * 0.5 - 0.1:
 		var rb := _new_rubble([m.member_id])
 		rb.global_transform = m.global_transform
@@ -243,6 +246,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 			var pcs := CollisionShape3D.new()
 			pcs.shape = _box_shape(piece_size)
 			rb.add_child(pcs)
+			new_pieces.append([pmi, pcs])
 			rb.mass = maxf(m.weight(tuning) / 9.81 * piece_len / length, 0.2)
 			# The two halves fold down about the break, never tidily: a snapped post doesn't stay
 			# stacked on its own stump.
@@ -253,6 +257,8 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 			rb.set_meta(&"start_v", rb.linear_velocity)
 		mi.queue_free()
 		cs.queue_free()
+		m.pieces = new_pieces
+		m.set_meta(&"snapped", true)
 	_wake_near(m.global_position, m.length() + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)

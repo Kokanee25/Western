@@ -56,6 +56,7 @@ func _ready() -> void:
 	body.fell.connect(_on_fell)
 	Events.near_miss.connect(_on_near_miss)
 	Events.shouted.connect(_on_shouted)
+	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: fear += amount * 0.6)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
 	_gun_sound.unit_size = 25.0
