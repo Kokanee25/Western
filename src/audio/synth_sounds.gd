@@ -24,6 +24,8 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"glass": samples = _glass(rng)
 			&"flesh": samples = _flesh(rng)
 			&"zip": samples = _zip(rng)
+			&"timber_crack": samples = _timber_crack(rng)
+			&"timber_crash": samples = _timber_crash(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		_cache[id] = _to_wav(samples)
 	return _cache[id]
@@ -129,6 +131,42 @@ static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		var env := sin(PI * t / 0.22) * sin(PI * t / 0.22)
 		out[i] = (bp * 0.6 + sin(TAU * lerpf(1900.0, 1100.0, t / 0.22) * t) * 0.35) * env
 	return _normalise(out, 0.7)
+
+
+## Timber giving way: a few sharp splintering cracks and a woody groan under them.
+static func _timber_crack(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.7)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	for k in 5:
+		var start := int(rng.randf_range(0.0, 0.12 + k * 0.05) * RATE)
+		var level := rng.randf_range(0.4, 1.0)
+		for i in range(start, mini(n, start + int(RATE * 0.03))):
+			var t := float(i - start) / RATE
+			out[i] += rng.randf_range(-1, 1) * exp(-t / 0.004) * level
+	for i in n:
+		var t := float(i) / RATE
+		out[i] += sin(TAU * (95.0 + 30.0 * sin(t * 9.0)) * t) * exp(-t / 0.25) * 0.35
+	return _normalise(out, 0.85)
+
+
+## Heavy timber hitting the ground: a deep thump, clatter of boards after it.
+static func _timber_crash(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.0)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.12
+		out[i] = lp * exp(-t / 0.12) * 1.2 + sin(TAU * lerpf(70.0, 45.0, minf(t / 0.2, 1.0)) * t) * exp(-t / 0.15)
+	for k in 7:
+		var start := int(rng.randf_range(0.05, 0.7) * RATE)
+		var f := rng.randf_range(180.0, 420.0)
+		for i in range(start, mini(n, start + int(RATE * 0.08))):
+			var t := float(i - start) / RATE
+			out[i] += (sin(TAU * f * t) * 0.5 + rng.randf_range(-0.5, 0.5)) * exp(-t / 0.02) * 0.4
+	return _normalise(out, 0.9)
 
 
 static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array:

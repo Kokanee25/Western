@@ -32,6 +32,7 @@ const VIEWS := [
 	["outlaw_down", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -45.0, "outlaw_down"],
 	["outlaw_neck", 15.0, Vector3(22.8, 0.0, -11.6), -115.0, -4.0, "outlaw_neck"],
 	["outlaw_xray", 15.0, Vector3(22.9, 0.0, -12.5), -90.0, -8.0, "outlaw_xray"],
+	["porch_collapse", 15.0, Vector3(1.5, 0.0, -8.0), 165.0, 6.0, "porch_collapse"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 ]
 
@@ -122,6 +123,11 @@ func _run() -> void:
 				for i in 20:
 					await physics_frame
 			for i in 240:
+				await physics_frame
+		if setup == "porch_collapse":
+			var store = main.find_child("Store", true, false)
+			store.break_member(store.get_member(&"store/porch/post0"), Vector3(0, 0, -1.0))
+			for i in 200:
 				await physics_frame
 		if setup.begins_with("outlaw_"):
 			await _outlaw_setup(main, setup, player)
