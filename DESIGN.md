@@ -260,6 +260,45 @@ later. Wounds last for the player too (a broken leg means weeks on a crutch).
 - **The player must understand what happened** — show it in the body (clutching the leg, going pale)
   and through the doctor's diagnosis ("Ball's lodged against the bone").
 
+### Bodies in motion: active ragdoll tied to the anatomy
+- Every living body is physical: virtual muscles drive it toward the animation pose and keep balance.
+- **Healthy:** follows the animation but reacts to shoves, bullets and uneven ground.
+- **Hit:** the bullet's impulse lands where it hit; the body twists, staggers, grabs; muscles fight to
+  recover.
+- **Wounded:** anatomy weakens specific muscles — a broken femur makes that leg go slack so he
+  collapses onto it; a shot shoulder drops the arm; blood loss slowly weakens everything.
+- **Unconscious:** slack but breathing and groaning. **Dead:** muscles off, pure ragdoll.
+- **Mocap covers the living moments before physics wins** (the stumble, catching himself on the rail,
+  the gut-shot stagger to cover); the handoff from animation to physics is what makes it read as real.
+  See `docs/MOCAP.md`.
+
+### Recoil (procedural, never recorded)
+- Each shot applies a real force at the gun hand, sized by the load (a black-powder .45 Colt is a
+  heavy, slow shove, not a sharp snap); with active ragdolls it travels wrist → elbow → shoulder and the
+  muscles bring the gun back down. Muzzle rise and settle on a spring, with variation per shot.
+- Depends on the shooter: one hand vs two, pistol skill (faster recovery), wounds and missing fingers
+  (more rise, slower recovery), fatigue and fear (shakier). Re-cocking the hammer between shots is done
+  with the hand's finger bones in code — that rhythm is what makes it feel like a single-action Colt.
+- Sean has fired real guns: his feel notes ("too snappy", "should push, not flip") are the tuning
+  reference.
+
+### Enemy combat behaviour (game rules, not the conversation AI — far too slow for a fight)
+- **Cover first:** troughs, wagons, building corners; because buildings are real members, the game
+  knows what's solid — plank walls stop little, pistol rounds punch through, cover wears away.
+- **Teamwork, not perfection:** one suppresses while another moves or flanks; instant pre-recorded
+  callouts ("He's behind the trough!", "I'm hit!", "Reloading!").
+- **Believable aim:** no aimbot — accuracy from distance, fear, skill, wounds, black-powder smoke
+  hiding the target, firing on the move. Outlaws miss a lot.
+- **Real reloads:** one cartridge at a time through the gate, ducking behind cover; listen for the click.
+- **Morale:** casualties break the weak (run, surrender, play dead); the leader's nerve holds them until
+  he goes down. Every fight ends differently.
+- **Fair tells** before they fire: raising the gun, stepping out, a shout.
+- **Presentation:** mocap combat moves (crouch-run, peek, lean out, blind fire over cover, dive, crouched
+  reload, dragging a wounded friend), **procedural aim** (arms and head track the real target), active
+  ragdoll hit reactions, life touches (hard breathing, glancing around, flinching at near misses).
+- Benchmark: F.E.A.R.'s enemy AI for decisions, RDR2 for physical reactions. First test: one outlaw on
+  the test street in M2, then a few.
+
 ## 8. Buildings, fire, dynamite, rubble
 
 ### Structures from real members

@@ -33,6 +33,10 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   exporting glTF for Godot. Framing questions: ask Sean, he's a timber framer.
   Blender MCP (driving a live Blender window) is optional later, once Sean has a PC that can run it,
   for hands-on art-direction sessions.
+- **Motion capture:** Sean records on his iPhone (Move One / Rokoko Vision) following
+  `docs/MOCAP.md` (shot list, recording rules, naming). Raw FBX goes in `assets/mocap/raw/`; a headless
+  Blender script retargets, cleans (foot sliding, jitter, loops) and exports glTF to `assets/animations/`.
+  Recoil and deaths are never recorded: recoil is procedural, deaths are ragdoll.
 - **External asset APIs** (Meshy for 3D, image models, voice services) are called with keys stored as
   environment secrets — never in the repo.
 - **Saving:** only when the player sleeps in a bed. Save files store the difference from the authored
