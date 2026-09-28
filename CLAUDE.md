@@ -73,6 +73,8 @@ Work in this order; each milestone ends playable. The first slice is defined in 
    feels good here.**
 4. **M3 — Structures:** member-based buildings with a support graph, breakage, collapse, persistent
    sleeping rubble; then fire spread; then dynamite.
+   **Rope** comes right after M3's core (needs members, ragdolls and physics): lasso and tying people
+   up first, then pulling walls down with a horse, hitching, pulleys (DESIGN.md §8 "Rope").
    **Town build-out (runs alongside M4–M5):** once M3's systems exist, build the town from
    `docs/TOWN.md` one building per session — every building, interior, set piece and piece of dressing,
    in the order listed there.

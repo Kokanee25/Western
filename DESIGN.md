@@ -355,6 +355,24 @@ knock out one stud and the wall shrugs it off.
   days and rebuilds member by member with new lumber. If nobody pays, the ruin stays.
 - Scorch marks, bullet holes in siding and bloodstains on the boardwalk persist the same way.
 
+### Rope (**must have** — it's a cowboy game)
+- **A real simulated rope:** a chain of segments that sags, swings, drags in the dirt and catches on
+  corners and edges; never a straight line between two points.
+- **Wrapping and friction (capstan effect):** each turn around a post, rail or saddle horn multiplies
+  the grip — two turns hold a lot, one slips. This is how a cowboy **dallies** around the saddle horn.
+  (Wreck Diver's wrap-and-tie rope — winding angle around a post, tie off after a full loop — is the
+  prototype of this.)
+- **Tension:** stretches under load, **snaps** past its breaking strength, frays where it rubs; holding
+  on too hard gives **rope burn** (a wound). Knots are real states: tied, slipping, cut, burned through.
+- **Uses:** lasso (a horse's neck, a steer's horns, a fleeing outlaw's legs — the ragdoll takes over
+  when he goes down); tie people up (wrists, ankles, to a post or chair; prisoners struggle, bad knots
+  slip); drag something or someone behind a horse; **pull a wall down** with a horse (the member-built
+  frame fails where it's weakest — the jailbreak); tie a horse to a hitching rail (a spooked horse can
+  pull free); the hay-loft pulley; the well bucket; climbing; rescues from the creek or a mine shaft;
+  the gallows (part of the law system, handled seriously).
+- **Attaches to real things:** building members, ragdoll limbs, horses, props — a lassoed man is
+  dragged by his actual leg.
+
 ## 9. People: AI minds, memory, conversation
 
 ### Memory architecture
