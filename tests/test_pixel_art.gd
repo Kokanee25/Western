@@ -57,6 +57,18 @@ func test_texel_size_changes_live() -> void:
 	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS, "and back")
 
 
+func test_texel_size_is_a_setting() -> void:
+	check_near(Settings.texels_per_meter, 40.0, 0.001, "starts at 40 per metre")
+	check(Settings.look_description().contains("40/m"), "described: %s" % Settings.look_description())
+	Settings.cycle_texel_density()
+	check_near(PixelArt.texels_per_meter, 24.0, 0.001, "F7 steps to 24")
+	Settings.cycle_texel_density()
+	Settings.cycle_texel_density()
+	check_near(PixelArt.texels_per_meter, 40.0, 0.001, "three presses come back to 40")
+	check(PixelArt.use_mipmaps, "smoothed again")
+	Settings.reset_to_defaults()
+
+
 func test_pixel_shading_is_a_setting() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	get_tree().root.add_child(main)

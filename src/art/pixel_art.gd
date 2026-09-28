@@ -41,15 +41,6 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 			g.set_shader_parameter(&"texels_per_meter", texels)
 
 
-static func cycle_density() -> void:
-	var i := 0
-	for j in DENSITY_PRESETS.size():
-		if is_equal_approx(DENSITY_PRESETS[j][0], texels_per_meter):
-			i = j
-	var next: Array = DENSITY_PRESETS[(i + 1) % DENSITY_PRESETS.size()]
-	set_density(next[0], next[1])
-
-
 static func _apply(m: BaseMaterial3D) -> void:
 	var t := texels_per_meter / SIZE
 	m.uv1_scale = Vector3(t, t, t)

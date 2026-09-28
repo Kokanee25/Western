@@ -12,6 +12,8 @@ Release mouse: Esc     This help: F1"""
 var _help: Label
 var _readout: Label
 var _help_timer := 14.0
+var _toast: Label
+var _toast_timer := 0.0
 
 
 func _ready() -> void:
@@ -19,6 +21,11 @@ func _ready() -> void:
 	_help.text = HELP
 	_readout = _label(Vector2(16, 16))
 	_readout.visible = false
+	# Flash the look settings whenever F2 / F6 / F7 change them.
+	_toast = _label(Vector2(16, 16))
+	_toast.visible = false
+	_toast.add_theme_font_size_override(&"font_size", 22)
+	Settings.changed.connect(_show_look)
 	if DisplayServer.is_touchscreen_available():
 		_help.text = "SALT CREEK — M0 test street\nLeft thumb: move   Right thumb: look\nButtons: jump, crouch, run, time speed"
 
@@ -35,7 +42,18 @@ func _label(pos: Vector2) -> Label:
 	return l
 
 
+func _show_look() -> void:
+	_toast.text = Settings.look_description()
+	_toast.visible = true
+	_toast_timer = 3.0
+
+
 func _process(delta: float) -> void:
+	if _toast_timer > 0.0:
+		_toast_timer -= delta
+		_toast.visible = _toast_timer > 0.0
+		var vp := get_viewport().get_visible_rect().size
+		_toast.position = Vector2((vp.x - _toast.size.x) * 0.5, vp.y - _toast.size.y - 40.0)
 	if Input.is_action_just_pressed(&"debug_help"):
 		_help.visible = not _help.visible
 		_help_timer = -1.0
@@ -60,5 +78,5 @@ func _readout_text() -> String:
 		var state := "crouching" if player.is_crouching else ("running" if player.is_running else "walking")
 		var p := player.global_position
 		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f" % [player.get_horizontal_speed(), state, p.x, p.y, p.z])
-	lines.append("%d fps   render %dx%d" % [Engine.get_frames_per_second(), Settings.internal_resolution.x, Settings.internal_resolution.y])
+	lines.append("%d fps   look: %s" % [Engine.get_frames_per_second(), Settings.look_description()])
 	return "\n".join(lines)
