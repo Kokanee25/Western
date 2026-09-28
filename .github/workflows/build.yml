@@ -82,7 +82,9 @@ jobs:
         run: ~/godot/godot --headless --import || true
 
       - name: Stamp the build number
-        run: echo "{\"number\": \"${{ github.run_number }}\", \"commit\": \"$(git rev-parse --short HEAD)\"}" > build_info.json
+        run: |
+          printf '{"number": "%s", "commit": "%s"}\n' "${{ github.run_number }}" "$(git rev-parse --short HEAD)" > build_info.json
+          cat build_info.json
 
       - name: Export
         run: |
