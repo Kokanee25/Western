@@ -29,7 +29,7 @@ void sky() {
 	vec3 sd = normalize(sun_dir);
 	float sun_dot = max(dot(d, sd), 0.0);
 	float sun_up = smoothstep(-0.25, 0.05, sd.y);
-	col += sun_color * pow(sun_dot, 12.0) * 0.45 * sun_up;
+	col += sun_color * pow(sun_dot, 12.0) * 0.3 * sun_up;
 	col += sun_color * pow(sun_dot, 3.0) * 0.12 * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0));
 	float disk = smoothstep(cos(sun_size), cos(sun_size * 0.7), sun_dot);
 	col = mix(col, sun_color * 8.0, disk * step(-0.02, h));

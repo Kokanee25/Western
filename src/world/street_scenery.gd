@@ -141,8 +141,10 @@ func _build_sagebrush() -> void:
 	mesh.radial_segments = 7
 	mesh.rings = 3
 	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.4, 0.44, 0.31)
 	mat.vertex_color_use_as_albedo = true
 	mat.roughness = 1.0
+	mat.metallic_specular = 0.1
 	mesh.material = mat
 	mm.mesh = mesh
 	var transforms: Array[Transform3D] = []
@@ -156,7 +158,7 @@ func _build_sagebrush() -> void:
 		var s := _rng.randf_range(0.4, 1.3)
 		var t := Transform3D(Basis.from_scale(Vector3(s, s * _rng.randf_range(0.6, 0.9), s)).rotated(Vector3.UP, _rng.randf() * TAU), p + Vector3(0, s * 0.15, 0))
 		transforms.append(t)
-		colors.append(Color(0.42, 0.46, 0.33).lerp(Color(0.55, 0.52, 0.4), _rng.randf()))
+		colors.append(Color(1, 1, 1).lerp(Color(1.25, 1.15, 1.1), _rng.randf()))
 	mm.instance_count = transforms.size()
 	for i in transforms.size():
 		mm.set_instance_transform(i, transforms[i])

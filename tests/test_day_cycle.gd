@@ -36,6 +36,7 @@ func _on_day(d: int) -> void:
 func test_day_is_45_minutes() -> void:
 	check_near(clock.config.day_length_seconds, 45.0 * 60.0, 0.001, "config says 45 minutes")
 	clock.set_time(12.0)
+	hours.clear()
 	for i in 2700:
 		clock.advance(1.0)
 	check_near(clock.time_of_day, 12.0, 0.0001, "back to noon after 2700 real seconds")
@@ -46,6 +47,8 @@ func test_day_is_45_minutes() -> void:
 
 func test_an_hour_is_112_and_a_half_seconds() -> void:
 	clock.set_time(9.0)
+	check_eq(hours, [9] as Array[int], "jumping the clock announces the hour")
+	hours.clear()
 	clock.advance(112.5)
 	check_near(clock.time_of_day, 10.0, 0.0001, "one in-game hour")
 	check_eq(hours, [10] as Array[int], "hour 10 announced")
@@ -87,7 +90,7 @@ func test_sun_path() -> void:
 	check(clock.get_sun_direction(6.5).x > 0.5 and clock.is_daytime(6.5), "morning sun in the east (+X)")
 	check(clock.get_sun_direction(18.0).x < -0.5 and clock.is_daytime(18.0), "evening sun in the west (-X)")
 	check(not clock.is_daytime(4.0) and not clock.is_daytime(21.0), "dark before dawn and after dusk")
-	check(clock.get_sun_direction(12.0).z > 0.3, "noon sun leans south (+Z)")
+	check(clock.get_sun_direction(12.0).z < -0.3, "noon sun leans south (-Z), onto the storefronts")
 	check(clock.get_moon_direction(0.0).y > 0.5, "moon up at midnight")
 
 
@@ -117,4 +120,8 @@ func test_lamps_light_at_dusk() -> void:
 	check(lamp.lit, "lamp lit after 18:00")
 	check(lamp.should_be_lit(23) and lamp.should_be_lit(3), "lit through the night")
 	check(not lamp.should_be_lit(7) and not lamp.should_be_lit(12), "out in the day")
+	clock.set_time(12.0)
+	check(not lamp.lit, "jumping to noon puts it out")
+	clock.set_time(22.5)
+	check(lamp.lit, "jumping to night lights it")
 	lamp.queue_free()

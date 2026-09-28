@@ -51,9 +51,11 @@ func advance(real_seconds: float) -> void:
 	time_of_day = fposmod(t, 24.0)
 
 
+## Jump the clock (debug, tests, waking up). Announces the hour so lamps and the like catch up.
 func set_time(hour: float) -> void:
 	time_of_day = fposmod(hour, 24.0)
 	apply_visuals()
+	Events.hour_changed.emit(get_hour())
 
 
 func set_time_scale(scale: float) -> void:
@@ -80,11 +82,11 @@ func get_clock_text() -> String:
 
 
 ## Unit vector from the ground toward the sun. Rises in the east (+X), sets in the west (-X),
-## and arcs toward the south (+Z) by the tilt.
+## and arcs toward the south (-Z, across the street, so the storefronts get the sun) by the tilt.
 func get_sun_direction(hour: float = time_of_day) -> Vector3:
 	var h := (hour / 24.0 - 0.5) * TAU
 	var v := Vector3(-sin(h), cos(h) + config.day_bias, 0.0).normalized()
-	return v.rotated(Vector3.RIGHT, deg_to_rad(config.sun_tilt_degrees))
+	return v.rotated(Vector3.RIGHT, -deg_to_rad(config.sun_tilt_degrees))
 
 
 ## A full moon opposite the sun, for now.
@@ -127,8 +129,9 @@ func apply_visuals() -> void:
 		env.fog_light_color = horizon.lerp(top, 0.3)
 		env.fog_density = config.fog_density
 		env.volumetric_fog_density = config.volumetric_fog_density
-		env.volumetric_fog_albedo = horizon.lerp(Color(0.9, 0.8, 0.65), 0.5)
 		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight)
+		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
+			(probe as ReflectionProbe).ambient_color_energy = lerpf(config.interior_ambient_night, config.interior_ambient_day, daylight)
 		var sky_mat: ShaderMaterial = env.sky.sky_material as ShaderMaterial if env.sky else null
 		if sky_mat:
 			sky_mat.set_shader_parameter(&"top_color", top)

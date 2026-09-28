@@ -17,13 +17,16 @@ extends Resource
 
 @export_group("Light")
 @export var sun_max_energy := 1.6
-@export var moon_max_energy := 0.22
+@export var moon_max_energy := 0.45
 @export var moon_color := Color(0.55, 0.65, 1.0)
 @export var sun_color: Gradient
 @export var sky_top: Gradient
 @export var sky_horizon: Gradient
 @export var ambient_energy_day := 1.0
-@export var ambient_energy_night := 1.6
+@export var ambient_energy_night := 2.5
+## Ambient light inside buildings (their interior probes), which the open sky doesn't reach.
+@export var interior_ambient_day := 0.45
+@export var interior_ambient_night := 0.04
 
 @export_group("Air")
 @export var fog_density := 0.0035

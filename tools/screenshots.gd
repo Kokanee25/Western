@@ -2,6 +2,7 @@ extends SceneTree
 ## Renders the test street from fixed views at several times of day and saves PNGs, for
 ## comparing against docs/concept/. Needs a real (or software) GPU, not --headless:
 ##   godot --path . -s res://tools/screenshots.gd -- --out=/some/dir [--scale=2]
+## Untyped on purpose: -s scripts compile before autoloads exist, so no DayCycle/Player types.
 ## The views: [name, hour, position, yaw degrees, pitch degrees].
 
 const VIEWS := [
@@ -34,8 +35,8 @@ func _run() -> void:
 	await process_frame
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var viewport: SubViewport = main.get_node(^"GameViewport")
-	var clock: DayCycle = main.get_node(^"GameViewport/TestStreet/DayCycle")
-	var player: Player = main.get_node(^"GameViewport/TestStreet/Player")
+	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
+	var player = main.get_node(^"GameViewport/TestStreet/Player")
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	for v in VIEWS:

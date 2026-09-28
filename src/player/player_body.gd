@@ -10,7 +10,7 @@ const THIGH := 0.46
 const SHIN := 0.41
 ## The body sits a little behind the eyes; looking down pushes it further back so you see your boots.
 const BACK_OFFSET := 0.08
-const LOOK_DOWN_BACK_OFFSET := 0.14
+const LOOK_DOWN_BACK_OFFSET := 0.26
 
 var _hips: Node3D
 var _torso: Node3D

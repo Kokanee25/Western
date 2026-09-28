@@ -63,6 +63,7 @@ func _build() -> void:
 	base.mesh = base_mesh
 	base.material_override = metal
 	base.position.y = 0.04
+	base.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(base)
 
 	_flame_material = StandardMaterial3D.new()

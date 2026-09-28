@@ -4,8 +4,8 @@ shader_type spatial;
 
 uniform vec3 dirt_color : source_color = vec3(0.6, 0.47, 0.33);
 uniform vec3 dirt_dark : source_color = vec3(0.4, 0.3, 0.21);
-uniform vec3 scrub_color : source_color = vec3(0.56, 0.52, 0.38);
-uniform vec3 sage_color : source_color = vec3(0.45, 0.47, 0.34);
+uniform vec3 scrub_color : source_color = vec3(0.62, 0.52, 0.38);
+uniform vec3 sage_color : source_color = vec3(0.52, 0.49, 0.35);
 uniform float road_center_z = -8.4;
 uniform float road_half_width = 6.0;
 

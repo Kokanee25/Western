@@ -105,4 +105,6 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
     one full moon every night; blockout buildings and props are plain boxes; no audio.
   - Support graph is "resting on any lower-tier member" — enough for load-path checks, not for spans
     or cantilevers (the porch rafters hang on the ledger alone). M3 needs loads and strengths.
+  - Reference renders (software Vulkan via lavapipe, so a real GPU may differ slightly):
+    `docs/screenshots/m0/`. Re-render with `tools/screenshots.gd` and compare after lighting changes.
   - Next: Sean's review of the look and feel, then M1 (the revolver).

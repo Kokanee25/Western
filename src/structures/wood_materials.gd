@@ -35,7 +35,8 @@ static func get_material(wood: StringName, variant: int) -> Material:
 		m.uv1_triplanar = true
 		m.uv1_world_triplanar = true
 		m.uv1_scale = Vector3(0.6, 0.6, 0.6)
-		m.roughness = 0.92
+		m.roughness = 0.95
+		m.metallic_specular = 0.2
 		_cache[key] = m
 	return _cache[key]
 

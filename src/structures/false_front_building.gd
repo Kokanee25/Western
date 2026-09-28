@@ -94,6 +94,27 @@ func build() -> void:
 	_build_roof(tanp)
 	_build_porch()
 	_build_furniture()
+	_add_interior_ambient()
+
+
+## The sky's ambient light shouldn't fill the inside of a closed building. This probe replaces it
+## indoors with a dim warm bounce that DayCycle scales with daylight.
+func _add_interior_ambient() -> void:
+	var probe := ReflectionProbe.new()
+	probe.name = "InteriorAmbient"
+	var ridge := wall_height + width * 0.5 * tan(deg_to_rad(roof_pitch_degrees))
+	probe.size = Vector3(width - STUD_D * 2.0, ridge, depth - STUD_D * 2.0)
+	probe.position = Vector3(width * 0.5, ridge * 0.5, depth * 0.5)
+	probe.interior = true
+	probe.box_projection = true
+	probe.intensity = 0.4
+	probe.blend_distance = 0.3
+	probe.ambient_mode = ReflectionProbe.AMBIENT_COLOR
+	probe.ambient_color = Color(1.0, 0.82, 0.62)
+	probe.ambient_color_energy = 0.45
+	probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	probe.add_to_group(&"interior_ambient")
+	add_child(probe)
 
 
 ## A wall is a line of framing. Positions on it are (x along, y up, d outward from the stud face).
