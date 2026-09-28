@@ -26,6 +26,7 @@ plank, and a 45-minute day.
 | Speed up time (1× → 30× → 180×) | T | Y |
 | Debug readout (clock, speed, fps) | F3 | View / Back |
 | Change pixel size | F2 | |
+| Jump to next place (street, store, saloon door, inside saloon) | F5 | D-pad up |
 | Controls help | F1 | |
 | Free the mouse | Esc (click to grab it again) | |
 
@@ -48,6 +49,10 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
    Everything is built from separate members (sills, joists, floor boards, studs, headers, plates,
    rafters, roof boards, siding, trim): that's what the structure system will break and burn in M3.
 6. **Controller.** Plug one in and play the whole thing with it.
+7. **The saloon (art test room).** Across the street from the store. Press **F5** three times to jump
+   inside, then **T** until it's night. The grey and coloured boxes are placeholder props (tables,
+   chairs, piano, bottles, stag head...) at their real sizes, waiting for Meshy models. Compare it with
+   the saloon concept art: the lamps, the moonlit street through the door, the bar.
 
 ### Tell me
 

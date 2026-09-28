@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://src/structures/water_trough.gd" id="8_trough"]
 [ext_resource type="Script" path="res://src/world/street_scenery.gd" id="9_scenery"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="10_player"]
+[ext_resource type="Script" path="res://src/structures/saloon_building.gd" id="11_saloon"]
+[ext_resource type="Script" path="res://src/debug/debug_spawns.gd" id="12_spawns"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("3_sky")
@@ -119,6 +121,34 @@ structure_id = &"hitching_rail"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0, -3.9)
 script = ExtResource("8_trough")
 structure_id = &"water_trough"
+
+[node name="Saloon" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 12, 0, -16.8)
+script = ExtResource("11_saloon")
+structure_id = &"saloon"
+build_seed = 11
+
+[node name="SouthBoardwalk" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 13, 0, -16.8)
+script = ExtResource("6_boardwalk")
+structure_id = &"south_boardwalk"
+build_seed = 5
+length = 11.5
+
+[node name="DebugSpawns" type="Node3D" parent="."]
+script = ExtResource("12_spawns")
+
+[node name="Street" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
+
+[node name="StoreInside" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1.5, 0.4, 7.5)
+
+[node name="SaloonDoor" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.4, -15.8)
+
+[node name="SaloonInside" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(0.766, 0, 0.643, 0, 1, 0, -0.643, 0, 0.766, 8.5, 0.4, -26.5)
 
 [node name="Scenery" type="Node3D" parent="."]
 script = ExtResource("9_scenery")

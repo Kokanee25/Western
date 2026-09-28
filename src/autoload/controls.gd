@@ -26,6 +26,7 @@ func _ready() -> void:
 	_bind(&"debug_resolution", [KEY_F2], [])
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [JOY_BUTTON_Y])
+	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = []) -> void:

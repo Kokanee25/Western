@@ -8,6 +8,8 @@ extends Node3D
 @export var energy := 1.4
 @export var light_range := 7.0
 @export var hanging := false
+## Off when a modelled lamp prop provides the look and this node only provides the light.
+@export var show_mesh := true
 
 var lit := true
 
@@ -91,6 +93,9 @@ func _build() -> void:
 		bail.position.y = 0.32
 		add_child(bail)
 
+	if not show_mesh:
+		base.visible = false
+		_flame.visible = false
 	_light = OmniLight3D.new()
 	_light.light_color = Color(1.0, 0.62, 0.3)
 	_light.light_energy = energy

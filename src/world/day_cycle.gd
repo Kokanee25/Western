@@ -131,7 +131,8 @@ func apply_visuals() -> void:
 		env.volumetric_fog_density = config.volumetric_fog_density
 		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight)
 		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
-			(probe as ReflectionProbe).ambient_color_energy = lerpf(config.interior_ambient_night, config.interior_ambient_day, daylight)
+			var night: float = probe.get_meta(&"night_ambient", config.interior_ambient_night)
+			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)
 		var sky_mat: ShaderMaterial = env.sky.sky_material as ShaderMaterial if env.sky else null
 		if sky_mat:
 			sky_mat.set_shader_parameter(&"top_color", top)

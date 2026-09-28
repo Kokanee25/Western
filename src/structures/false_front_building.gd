@@ -22,6 +22,8 @@ extends Structure
 ## How far the porch awning reaches out over the boardwalk.
 @export var porch_depth := 2.2
 @export var sign_text := "DRY GOODS"
+## Ambient light indoors at night: a dim bounce from the lamps. Busier, better-lit places set more.
+@export var night_ambient := 0.04
 
 const SILL := 0.2
 const STUD_W := 0.05
@@ -113,6 +115,7 @@ func _add_interior_ambient() -> void:
 	probe.ambient_color = Color(1.0, 0.82, 0.62)
 	probe.ambient_color_energy = 0.45
 	probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	probe.set_meta(&"night_ambient", night_ambient)
 	probe.add_to_group(&"interior_ambient")
 	add_child(probe)
 
