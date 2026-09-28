@@ -13,6 +13,8 @@ signal day_started(day: int)
 signal time_scale_changed(scale: float)
 ## A gun went off: where, which way, and who fired (for sound, witnesses, smoke...).
 signal shot_fired(origin: Vector3, direction: Vector3, shooter: Node)
+## A structure member broke (a pane shattered; in M3, boards and beams too).
+signal member_broken(member_id: StringName)
 ## A bullet struck something. info: position, normal, direction, collider, member_id (if a building
 ## member), penetrated (bool), energy_before / energy_after (joules).
 signal bullet_hit(info: Dictionary)

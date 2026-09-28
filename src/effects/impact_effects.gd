@@ -13,6 +13,8 @@ func _ready() -> void:
 func _on_hit(info: Dictionary) -> void:
 	var pos: Vector3 = info.position
 	var normal: Vector3 = info.normal
+	if info.collider is StructureMember and (info.collider as StructureMember).kind == &"glass":
+		return  # the pane's own shards are the debris
 	if info.collider is StructureMember:
 		burst(self, pos, normal, Color(0.62, 0.5, 0.36), 10, 2.5, 0.045)
 		if info.penetrated:
@@ -62,24 +64,34 @@ static func muzzle_flash(parent: Node, at: Vector3) -> void:
 	light.shadow_enabled = false
 	parent.add_child(light)
 	light.global_position = at
-	var flash := MeshInstance3D.new()
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.12, 0.12)
-	var m := StandardMaterial3D.new()
-	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	m.albedo_texture = PixelArt.puff("flash", 103)
-	m.albedo_color = Color(1.0, 0.85, 0.5)
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	quad.material = m
-	flash.mesh = quad
+	var flash := flash_mesh()
 	flash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(flash)
 	flash.global_position = at
 	var tree := parent.get_tree()
 	tree.create_timer(0.05).timeout.connect(flash.queue_free)
 	tree.create_timer(0.07).timeout.connect(light.queue_free)
+
+
+static var _flash_material: StandardMaterial3D
+
+
+static func flash_mesh() -> MeshInstance3D:
+	if _flash_material == null:
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.albedo_texture = PixelArt.puff("flash", 103)
+		m.albedo_color = Color(1.0, 0.85, 0.5)
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_flash_material = m
+	var flash := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.12, 0.12)
+	quad.material = _flash_material
+	flash.mesh = quad
+	return flash
 
 
 ## A spent case dropped out of the gate: real brass that lands and stays (evidence).

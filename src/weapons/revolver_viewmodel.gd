@@ -81,6 +81,13 @@ func _ready() -> void:
 	state.ejected.connect(_on_ejected)
 	state.inserted.connect(func() -> void: _play(&"insert"))
 	_apply_pose(1.0)
+	_warm_up.call_deferred()
+
+
+func _warm_up() -> void:
+	var cam := get_parent() as Camera3D
+	if cam and is_inside_tree() and DisplayServer.get_name() != "headless":
+		GunSmoke.warm_up(_ballistics().get_parent() as Node3D, cam)
 
 
 func _find_player() -> Player:

@@ -38,6 +38,8 @@ var grounded := false
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []
+## Broken members are gone from the world (a shattered pane). Saved.
+var broken := false
 
 const MAX_DRAWN_HOLES := 16
 const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
@@ -84,8 +86,8 @@ func _draw_holes() -> void:
 	var mat := mi.material_override as ShaderMaterial
 	if mat == null or mat.shader != HOLE_SHADER:
 		var base := mi.material_override as StandardMaterial3D
-		if base == null:
-			return  # glass and other special materials: no drawn holes yet
+		if base == null or base.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			return  # only opaque timber gets drawn holes
 		mat = ShaderMaterial.new()
 		mat.shader = HOLE_SHADER
 		mat.set_shader_parameter(&"albedo_tex", base.albedo_texture)
@@ -110,8 +112,63 @@ func _draw_holes() -> void:
 	mat.set_shader_parameter(&"hole_b", b)
 
 
+## Glass: the pane breaks into shards that fall (and stay), with the sound of it. The member is
+## then broken: no longer drawn or solid.
+func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
+	if broken:
+		return
+	broken = true
+	var mi := get_child(0) as MeshInstance3D
+	var cs := get_child(1) as CollisionShape3D
+	if mi:
+		mi.visible = false
+	if cs:
+		cs.set_deferred(&"disabled", true)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(member_id) + seed
+	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
+	var local_hit := global_transform.affine_inverse() * at
+	var count := clampi(int(size.x * size.y * 30.0), 8, 26)
+	for i in count:
+		var shard := RigidBody3D.new()
+		shard.name = "GlassShard"
+		shard.mass = 0.04
+		shard.add_to_group(&"glass_shards")
+		var w := rng.randf_range(0.03, 0.12)
+		var h := rng.randf_range(0.03, 0.14)
+		var t := maxf(size.z, 0.004)
+		var cshape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(w, h, t)
+		cshape.shape = box
+		shard.add_child(cshape)
+		var smi := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(w, h, t)
+		smi.mesh = mesh
+		smi.material_override = WoodMaterials.glass()
+		smi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		shard.add_child(smi)
+		host.add_child(shard)
+		var local := Vector3(rng.randf_range(-0.5, 0.5) * size.x, rng.randf_range(-0.5, 0.5) * size.y, 0.0)
+		shard.global_transform = Transform3D(global_transform.basis.rotated(global_transform.basis.z, rng.randf() * TAU), global_transform * local)
+		# Pieces near the hit fly with the bullet; the rest mostly drop.
+		var near := 1.0 - clampf(local.distance_to(Vector3(local_hit.x, local_hit.y, 0.0)) / maxf(size.x, 0.1), 0.0, 1.0)
+		shard.linear_velocity = direction * rng.randf_range(0.5, 3.0) * near + Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(-0.2, 0.6), rng.randf_range(-0.4, 0.4))
+		shard.angular_velocity = Vector3(rng.randf_range(-8, 8), rng.randf_range(-8, 8), rng.randf_range(-8, 8))
+	var snd := AudioStreamPlayer3D.new()
+	snd.stream = SynthSounds.get_sound(&"glass")
+	snd.unit_size = 6.0
+	host.add_child(snd)
+	snd.global_position = at
+	snd.play()
+	snd.finished.connect(snd.queue_free)
+	Events.member_broken.emit(member_id)
+
+
 func to_dict() -> Dictionary:
 	return {
+		"broken": broken,
 		"holes": holes.map(func(h: Dictionary) -> Dictionary: return {
 				"entry": [h.entry.x, h.entry.y, h.entry.z], "exit": [h.exit.x, h.exit.y, h.exit.z],
 				"through": h.through, "radius": h.radius}),

@@ -97,6 +97,16 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	if collider is StructureMember:
 		var member := collider as StructureMember
 		info.member_id = member.member_id
+		if member.kind == &"glass":
+			var glass_cost := member.exit_distance(hit.position, dir) * 100.0 * float(tuning.resistance_by_wood.get(&"glass", 8.0))
+			member.shatter(hit.position, dir)
+			_set_energy(b, maxf(e_before - glass_cost, 0.0))
+			b.exclude.append(member.get_rid())
+			info.penetrated = true
+			info.energy_after = b.energy()
+			b.hits.append(info)
+			Events.bullet_hit.emit(info)
+			return remaining
 		var thickness := member.exit_distance(hit.position, dir)
 		var resistance: float = tuning.resistance_by_wood.get(member.wood, tuning.default_resistance)
 		var cost := thickness * 100.0 * resistance

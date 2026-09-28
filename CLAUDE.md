@@ -176,3 +176,11 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   it (checked by recording the exported binary with `--write-movie` and the web build in headless
   Chromium) — most likely an older download. Fixes anyway: gun keys (Q/R/H) work without a captured
   mouse (only mouse buttons wait for capture); CI stamps `build_info.json` so F1/F3 show "build N (sha)".
+- 2026-09-28 (later): Sean: slows down after shooting, smoke sits still, shot windows go opaque.
+  Glass members now `shatter()` into rigid shards (group `glass_shards`, persist) with a synth
+  "glass" sound; `broken` is saved; the bullet carries on (Events.member_broken). Smoke: tuning in
+  `config/smoke.tres` (wind, indoor factor via roof raycast, rise, turbulence, caps: 8 clouds / 4 fog
+  volumes); particles ride the drifting node (local coords), no shadow casting. `GunSmoke.warm_up()`
+  draws every effect once at load (smoke, fog, flash, splinters, hole shader) to avoid first-shot
+  shader-compile hitches. Couldn't reproduce a big slowdown on lavapipe (`tools/perf_probe.gd`
+  measures frame time per effect part); asked Sean for F3 fps before/after. 75 tests pass.

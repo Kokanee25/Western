@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="SmokeTuning" format=3]
+
+[ext_resource type="Script" path="res://src/effects/smoke_tuning.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
