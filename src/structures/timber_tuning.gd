@@ -3,7 +3,8 @@ extends Resource
 ## What the timber can take (config/timber.tres): weight and strength per wood, and how members
 ## joined with nails behave. These are failure strengths (what breaks it), not the cautious design
 ## values a carpenter would size by. Rough-sawn, air-dried, 1880s western softwood.
-## Sean (timber framer) is the reference: ask him before changing the character of these.
+## Reference: the USDA Wood Handbook (clear-wood strengths, cut down for rough, knotty, weathered
+## stock) and period carpentry practice for how members were nailed.
 
 ## wood id -> {density kg/m³, bending Pa (modulus of rupture), compression Pa (along the grain),
 ## stiffness Pa (modulus of elasticity)}

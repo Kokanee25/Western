@@ -30,7 +30,8 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   what code does poorly. Scripts live in the repo (`tools/blender/`) so every step is repeatable: bodies
   and faces, fitting garments to body types, splitting bodies at joints with finished stumps, rigging
   and retargeting mocap, cleaning up any AI-generated models (decimate, fix normals/UVs/scale), and
-  exporting glTF for Godot. Framing questions: ask Sean, he's a timber framer.
+  exporting glTF for Godot. Framing and timber numbers: Sean is not a framer (he's framed two
+  things); use published references (USDA Wood Handbook, period carpentry manuals), not him.
   Blender MCP (driving a live Blender window) is optional later, once Sean has a PC that can run it,
   for hands-on art-direction sessions.
 - **Motion capture:** Sean records on his iPhone (Move One / Rokoko Vision) following
@@ -268,6 +269,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   overloaded member in two where it's weakest, drops unsupported members as connected clumps that
   break up on hard landings, falling timber breaks what it hits (`impact_toughness`), rubble stays and
   is in `to_dict()`. F11 breaks the member you look at. Crack/crash sounds, dust. 125 tests pass.
-  - Guessed numbers to check with Sean: wood strengths, nail joint 120 N·m / 600 N, rafter pairs as
-    trusses, whether a porch beam can carry the awning off one post (now: no).
+  - Guessed numbers, to check against published sources (not Sean): wood strengths, nail joint
+    120 N·m / 600 N, rafter pairs as trusses, a porch beam can't carry the awning off one post.
   - Next: Sean's review; then fire (spread along dry timber, not stone), then dynamite.
