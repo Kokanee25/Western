@@ -18,7 +18,6 @@ var members := {}
 
 var _order: Array[StructureMember] = []
 var _rng := RandomNumberGenerator.new()
-var _mesh_cache := {}
 var _shape_cache := {}
 
 
@@ -137,13 +136,8 @@ func chance(p: float) -> bool:
 	return _rng.randf() < p
 
 
-func _box_mesh(size: Vector3) -> BoxMesh:
-	var key := size.snappedf(0.001)
-	if not _mesh_cache.has(key):
-		var mesh := BoxMesh.new()
-		mesh.size = size
-		_mesh_cache[key] = mesh
-	return _mesh_cache[key]
+func _box_mesh(size: Vector3) -> Mesh:
+	return MemberMesh.box(size)
 
 
 func _box_shape(size: Vector3) -> BoxShape3D:

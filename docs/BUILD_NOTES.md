@@ -34,8 +34,9 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 ### What to try
 
-1. **The look.** You start at 17:00 on the street, sun low in the west. Everything is rendered at
-   640×360 and scaled up with hard pixels. Press **F2** to cycle 480×270, 320×180, 960×540 and
+1. **The look.** You start at 17:00 on the street, sun low in the west. Every board, beam and the
+   ground now has chunky pixel-art texture (made in code), under the same modern lighting. Everything
+   is rendered at 640×360 and scaled up with hard pixels. Press **F2** to cycle 480×270, 320×180, 960×540 and
    1280×720 and pick what feels right.
 2. **Time.** Press **T** twice (180×) and watch a whole day go by in 15 seconds: long shadows down the
    street at sunset, a purple dusk, blue moonlight and stars, lamps coming on at 18:00 and going out

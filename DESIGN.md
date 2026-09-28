@@ -46,16 +46,26 @@ when you push on it.
 
 Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
 
-- **Pixelated realism:** realistic models and environments rendered at low internal resolution and
-  scaled up with hard nearest-neighbour pixels, so everything reads as chunky pixels.
+- **"High-resolution Duke Nukem 3D", in real 3D** (Sean, 2026-09-28): solid, readable low-poly models
+  with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
+  texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The
+  concept art is the mood and lighting target; the models aim for this crisper, simpler look.
+- **Animation is realistic, not retro:** smooth motion-captured animation (Mixamo, the CMU library,
+  or video-to-mocap of Sean acting scenes out), procedural touches (feet planted on the ground,
+  looking, breathing, balance), full **physics ragdolls**, and **active ragdolls** for the living
+  (muscles driving the body towards the animation, so hits stagger, buckle and spin people). No
+  stepped, sprite-style animation.
+- **People are detailed enough to lose a finger:** a full skeleton down to three bones per finger,
+  and meshes with separate fingers, so a shot-off finger or hand is visible and physical (it falls
+  away as its own piece). Close up, at a table or on your own hand, it must read clearly.
 - **Modern lighting on top:** warm oil lamps against blue moonlight, long low sun, dust and smoke in
   the air, light shafts through gaps in plank walls, embers, bloom, fog. The lighting carries the
   atmosphere.
 - **Palette:** sun-bleached ochre, rust red, dusty sage, sky blue by day; deep blue and amber at night.
 - **People:** realistic faces and bodies with readable silhouettes and layered clothing
   (hat, vest, coat, shirt) — each layer takes damage separately.
-- Expectation: environments, lighting and effects can come very close to the concept art;
-  characters will be somewhat simpler than the painting's portrait-level faces.
+- Expectation: lighting, atmosphere and effects can come very close to the concept art; models and
+  faces are deliberately simpler (low-poly, pixel-textured), while movement is fully realistic.
 - Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
   fraction of the pixels of 1080p, so rich lighting stays affordable on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.

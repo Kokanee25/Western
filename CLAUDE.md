@@ -117,3 +117,16 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   F5 / D-pad up jumps between places. 43 tests pass.
   - Next: get the 12 models (script or Sean uploads GLBs), render the saloon views, judge against
     `docs/concept/saloon-night.png`. Watch GLB sizes in git (2K textures add up; downscale if needed).
+- 2026-09-28 (later): **Art direction clarified by Sean** (DESIGN.md §4 updated): "high-resolution
+  Duke Nukem 3D in real 3D" — low-poly models with pixel-art textures, modern lighting, but realistic
+  mocap animation + physics/active ragdolls, and people detailed down to finger bones. This makes most
+  props and buildings doable from code (pixel textures authored in code); Meshy is optional now.
+  - Next: a proof pass on the store (code-made pixel textures, texel density ~32–64/m), and Sean to
+    pick the internal resolution (fingers need ~960×540+ to read at table distance).
+- 2026-09-28 (later): **Pixel-texture proof done.** `src/art/pixel_art.gd` paints tileable 64×64
+  pixel-art textures in code (wood grain along u, knots, checks, peeling paint, dirt), 3–5 shades per
+  colour; `src/structures/member_mesh.gd` gives members UVs in metres with the grain along their
+  length; all members, blockouts and the ground use 40 texels/m with nearest filtering; sign text is
+  chunky pixel lettering. Renders in `docs/screenshots/pixel_textures/`. 47 tests pass.
+  - Next: Sean's verdict on the look and resolution, then M1 (the revolver) — the gun can be the
+    first detailed code-built model in the new style.
