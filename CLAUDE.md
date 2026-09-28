@@ -65,6 +65,44 @@ Work in this order; each milestone ends playable. The first slice is defined in 
    the doctor, the jail, saving in bed and waking at the doctor's.
 7. **M6+ —** the sheriff opening, the railroad clock, the drama manager, the mine, the full cast.
 
+## Commands and layout
+
+Godot **4.7.2** (pinned in `.github/workflows/build.yml`; bump both together).
+
+```sh
+godot --headless --import                                      # after adding class_name scripts
+godot --headless --fixed-fps 60 -s res://tests/run_tests.gd     # all tests (exit 1 on failure)
+godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --only=player   # one file or method
+xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- --out=/tmp/shots
+godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         # needs export templates
+```
+
+- `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
+  map, built in code: keyboard/mouse and controller).
+- `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
+  (SubViewport at `Settings.internal_resolution`), drawn to `Screen` with nearest filtering.
+- `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`).
+- `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
+  placeholder scenery.
+- `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
+  inferred support graph), `FalseFrontBuilding`, `Boardwalk`, `HitchingRail`, `WaterTrough`.
+- `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
+  A Logger turns any script error during a test into a failure.
+- CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
+  `docs/BUILD_NOTES.md` — update it each milestone) and the web build to GitHub Pages.
+
 ## Status
 
 - 2026-09-27: Design session done; DESIGN.md and concept art committed. No code yet. Next: M0.
+- 2026-09-28: **M0 built** on Godot 4.7.2. Pixel pipeline (640×360 default, F2 cycles, integer-scale
+  option in settings), first-person controller (walk/run/crouch/jump/look, mouse + controller + touch
+  on web, visible body with shadow-only head/hat/arms), test street (dirt road, boardwalk, member-built
+  false-front store with open door, counter, shelves and lamps, hitching rail, trough, blockout town,
+  hills), 45-minute day with sun/moon/stars/lamps and T to speed up (1×/30×/180×). 38 headless tests
+  pass (project, pixel pipeline, controller, day cycle, structure support graph, walk road→store).
+  Exports for all four platforms verified locally.
+  - Known placeholders: boardwalk edges are invisible ramps (controller has no step climbing yet);
+    one full moon every night; blockout buildings and props are plain boxes; no audio.
+  - Support graph is "resting on any lower-tier member" — enough for load-path checks, not for spans
+    or cantilevers (the porch rafters hang on the ledger alone). M3 needs loads and strengths.
+  - Next: Sean's review of the look and feel, then M1 (the revolver).

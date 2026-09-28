@@ -1,0 +1,9 @@
+# Godot
+.godot/
+/android/
+# Builds
+/build/
+export_credentials.cfg
+# OS
+.DS_Store
+Thumbs.db
