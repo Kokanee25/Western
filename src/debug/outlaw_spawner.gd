@@ -1,7 +1,8 @@
 class_name OutlawSpawner
 extends Node3D
 ## Puts the test outlaw (a HumanBody with an OutlawBrain) here, facing this node's -Z.
-## F9 (D-pad right) clears him away, with his dropped gun and any fingers, and brings a fresh one.
+## F9 (D-pad right) clears him away, with his dropped gun, any fingers and the blood, and brings a
+## fresh one.
 
 var outlaw: HumanBody
 var _count := 0
@@ -22,6 +23,7 @@ func spawn() -> HumanBody:
 	for group in [&"dropped_guns", &"severed_parts"]:
 		for n in get_tree().get_nodes_in_group(group):
 			n.queue_free()
+	Blood.clear()
 	_count += 1
 	outlaw = HumanBody.new()
 	outlaw.name = "Outlaw%d" % _count

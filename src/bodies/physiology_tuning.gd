@@ -39,6 +39,19 @@ extends Resource
 @export var pain_disabling := 0.9
 @export var pain_faint := 1.8
 
+## A ball through a muscle tears about this much of it (1 = useless).
+@export var muscle_tear := 0.55
+@export var pain_muscle := 0.15
+@export var pain_nerve := 0.45
+## Bleeding slows as blood pressure falls: at no pressure it's this share of the full rate.
+@export var bleed_at_no_pressure := 0.5
+## Heart rate at rest, and how far fear and blood loss drive it up (beats per minute).
+@export var resting_heart_rate := 72.0
+@export var adrenaline_heart_rate := 45.0
+@export var shock_heart_rate := 85.0
+## Blood in a holed windpipe takes this much of the breath.
+@export var airway_capacity_lost := 0.3
+
 ## Breathing: a holed lung collapses over this long and takes this share of the breath with it.
 @export var lung_collapse_time := 60.0
 @export var lung_capacity_lost := 0.55

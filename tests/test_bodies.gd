@@ -145,3 +145,55 @@ func test_wounds_are_saved() -> void:
 	check_eq(d.wounds.size(), 1, "the wound")
 	check((d.garment_holes.trousers as Array).size() == 1, "the hole in his trousers")
 	check(d.physiology.cut.has(&"femoral_r"), "and what it cut")
+
+
+func test_neck_artery_spurts_and_leaves_splats() -> void:
+	Blood.clear()
+	var at := _world(&"neck", Vector3(0.03, 1.5, -0.02))
+	await _shoot(at + Vector3(6, 0, 0), at)
+	var jets := man.find_children("*", "BloodJet", true, false)
+	check(jets.size() >= 1, "blood coming out of the neck (%d jets)" % jets.size())
+	if jets.is_empty():
+		return
+	await physics_frames(10)
+	var spurting := false
+	for j: BloodJet in jets:
+		var r := j.rates()
+		if r[&"artery"] > 1.0 or r[&"vein"] > 1.0:
+			spurting = true
+	check(spurting, "pumping, not oozing")
+	await wait_until(func() -> bool: return get_tree().get_nodes_in_group(&"blood_splats").size() > 0, 60 * 6)
+	check(get_tree().get_nodes_in_group(&"blood_splats").size() > 0, "and it lands on the ground")
+
+
+func test_through_and_through_spatters_the_wall_behind() -> void:
+	Blood.clear()
+	var wall := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(4, 3, 0.2)
+	shape.shape = box
+	wall.add_child(shape)
+	wall.position = Vector3(0, 1.5, 1.2)
+	world.add_child(wall)
+	await physics_frames(2)
+	var at := _world(&"forearm_r", man.anatomy.segment_center(&"forearm_r"))
+	await _shoot(at + Vector3(0, 0, -6), at)
+	var on_wall := 0
+	for d: Node3D in get_tree().get_nodes_in_group(&"blood_splats"):
+		if d.global_position.z > 1.0:
+			on_wall += 1
+	check(on_wall > 0, "blood on the wall behind him (%d splats)" % on_wall)
+
+
+func test_xray_shows_the_anatomy() -> void:
+	await _shoot(Vector3(0.07, 0.7, -6), Vector3(0.07, 0.7, 0))
+	man.set_xray(true)
+	var shown := 0
+	for sid: StringName in man.visuals:
+		var x := (man.visuals[sid] as Node3D).get_node_or_null(^"XRay")
+		if x:
+			shown += x.get_child_count()
+	check(shown >= man.anatomy.structures.size(), "every structure drawn, plus the ball's track (%d)" % shown)
+	man.set_xray(false)
+	check((man.visuals[&"chest"] as Node3D).get_node_or_null(^"XRay") == null, "and off again")

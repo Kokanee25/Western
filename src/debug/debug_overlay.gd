@@ -9,7 +9,7 @@ Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T / Y     Debug readout: F3 / View
 Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
-Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right
+Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     X-ray (see the anatomy): F10
 Release mouse: Esc     This help: F1"""
 
 var _help: Label
@@ -79,6 +79,12 @@ func _process(delta: float) -> void:
 		_help_timer = -1.0
 	if Input.is_action_just_pressed(&"debug_overlay"):
 		_readout.visible = not _readout.visible
+	if Input.is_action_just_pressed(&"debug_xray"):
+		HumanBody.xray_all = not HumanBody.xray_all
+		get_tree().call_group(&"people", &"set_xray", HumanBody.xray_all)
+		_toast.text = "X-ray %s: bones, arteries (red), veins (blue), organs, nerves (yellow); damage in orange" % ("on" if HumanBody.xray_all else "off")
+		_toast_timer = 3.0
+		_toast.visible = true
 	if _help_timer > 0.0:
 		_help_timer -= delta
 		if _help_timer <= 0.0:

@@ -84,7 +84,7 @@ func test_pressure_slows_bleeding() -> void:
 func test_gut_shot_lasts_hours() -> void:
 	var p := Physiology.new()
 	var tr := _shoot(p, &"abdomen", Vector3(-0.05, 1.02, -0.4), Vector3.BACK)
-	check(_hit_ids(tr).has(&"gut"), "holes the gut (hit %s)" % [_hit_ids(tr)])
+	check(_hit_ids(tr).has(&"small_intestine"), "holes the bowel (hit %s)" % [_hit_ids(tr)])
 	var hour := p.tuning.game_hour_seconds
 	_run(p, hour * 3, func() -> bool: return false)
 	check(p.alive and p.is_conscious(), "conscious and talking three game hours later")
@@ -180,3 +180,70 @@ func test_physiology_round_trips() -> void:
 	q.step(10.0)
 	p.step(10.0)
 	check_near(q.blood_ml, p.blood_ml, 0.001, "and carries on the same")
+
+
+func test_neck_shot_opens_carotid_and_jugular() -> void:
+	var p := Physiology.new()
+	var tr := _shoot(p, &"neck", Vector3(0.6, 1.5, -0.01), Vector3.LEFT)
+	var ids := _hit_ids(tr)
+	check(ids.has(&"carotid_r") or ids.has(&"jugular_r"), "cuts the big vessels in the neck (hit %s)" % [ids])
+	var kinds := p.bleeds.map(func(b: Dictionary) -> StringName: return b.kind)
+	check(kinds.has(&"artery") or kinds.has(&"vein"), "bleeds by vessel kind (%s)" % [kinds])
+	var t := _run(p, 600, func() -> bool: return not p.alive)
+	check(t < 240, "dead in a few minutes (%d s)" % t)
+
+
+func test_broken_vertebra_isnt_a_cut_cord() -> void:
+	var p := Physiology.new()
+	# Grazes the side of a lumbar vertebra: bone broken, cord intact.
+	_shoot(p, &"abdomen", Vector3(0.02, 1.1, 0.5), Vector3.FORWARD)
+	check(p.broken.has(&"lumbar_spine"), "vertebra broken")
+	check(not p.legs_paralysed(), "but he can feel his legs")
+	var q := Physiology.new()
+	_shoot(q, &"abdomen", Vector3(0.0, 1.12, 0.5), Vector3.FORWARD)
+	check(q.cut.has(&"cord_lumbar"), "straight through the spine cuts the cord")
+	check(q.legs_paralysed() and not q.can_stand(), "and his legs are gone")
+
+
+func test_windpipe_takes_his_voice() -> void:
+	var p := Physiology.new()
+	_shoot(p, &"neck", Vector3(0, 1.5, -0.4), Vector3.BACK, 120.0)
+	check(p.airway_blood, "blood in the windpipe")
+	check(not p.can_speak(), "can't speak")
+	check(p.breath_capacity() < 0.8, "and can't get his breath")
+
+
+func test_muscle_wound_makes_him_limp() -> void:
+	var p := Physiology.new()
+	var tr := _shoot(p, &"thigh_r", Vector3(0.13, 0.7, -0.4), Vector3.BACK)
+	check(_hit_ids(tr).has(&"quadriceps_r"), "through the thigh muscle (hit %s)" % [_hit_ids(tr)])
+	check(not p.broken.has(&"femur_r"), "missing the bone")
+	check(p.can_stand(), "still on his feet")
+	check(p.leg_strength() < 0.9, "but limping (%.2f)" % p.leg_strength())
+
+
+func test_heart_races_and_bleeding_slows_as_pressure_falls() -> void:
+	var p := Physiology.new()
+	var calm := p.heart_rate()
+	_shoot(p, &"thigh_r", Vector3(0.07, 0.7, -0.4), Vector3.BACK)
+	var early := p.total_bleed_rate()
+	_run(p, 150, func() -> bool: return false)
+	check(p.heart_rate() > calm + 30.0, "heart racing (%.0f -> %.0f bpm)" % [calm, p.heart_rate()])
+	check(p.pressure() < 0.6, "pressure falling (%.2f)" % p.pressure())
+	check(p.total_bleed_rate() < early * 0.85, "so the bleeding slows (%.1f -> %.1f ml/s)" % [early, p.total_bleed_rate()])
+
+
+func test_everything_is_inside_its_segment() -> void:
+	var outside: PackedStringArray = []
+	for st: Dictionary in anatomy.structures:
+		for p: Vector3 in [st.a, st.b]:
+			var inside := false
+			for c: Array in anatomy.segments[st.segment].capsules:
+				var a: Vector3 = c[0]
+				var ab: Vector3 = (c[1] as Vector3) - a
+				var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+				if p.distance_to(a + ab * t) <= float(c[2]) + 0.003:
+					inside = true
+			if not inside:
+				outside.append("%s %s" % [st.id, p])
+	check(outside.is_empty(), "structures sticking out of their hitbox: %s" % ", ".join(outside))

@@ -29,6 +29,7 @@ same body.
 | **Shout "Drop it!"** | G | D-pad left |
 | **Press on your wounds** (hold; keep holding for a belt round a bleeding limb) | B | D-pad down |
 | New outlaw (debug) | F9 | D-pad right |
+| X-ray: see the anatomy through him (debug) | F10 | |
 | Bullet paths (debug) | F8 | |
 | Move | WASD | Left stick |
 | Look | Mouse | Right stick |
@@ -72,7 +73,19 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
    Blood loss greys the edges of the screen. **Hold B** to press on the wound (gun away), and keep
    holding: a belt goes round a bleeding leg or arm. If you pass out you come round on the store
    floor. (The doctor comes in M5.)
-6. **F9** brings a fresh outlaw; the old one, his gun and any fingers are cleared away.
+6. **F9** brings a fresh outlaw; the old one, his gun, any fingers and the blood are cleared away.
+7. **Blood**: a cut artery spurts in time with his heartbeat, harder at first, weaker as his
+   pressure falls. Veins pour dark and steady; flesh wounds drip. It lands where it lands, on the
+   dirt, on the wall behind him if the ball went through, and it stays. Try the **side of his
+   neck**. Wounded, you leave a trail of your own.
+8. **X-ray (F10)**: see through him to what's inside: bones (white), arteries (red), veins (blue),
+   organs (pink), muscles (faint), nerves and spinal cord (yellow). Anything hit turns orange, and
+   each ball's path is a yellow line. Shoot him, then look.
+9. **More detail inside**: separate forearm and shin bones, kneecaps, shoulder blades, jaw, eyes,
+   windpipe, spinal cord, the big veins, muscles and nerves. A broken vertebra hurts, but only a
+   cut cord takes his legs. A windpipe shot takes his voice (and your "Drop it!" if it's yours). A ball
+   through the thigh muscle makes him limp without breaking anything. The nerve in the upper arm
+   takes his grip. His heart races as he bleeds, and the bleeding slows as the pressure goes.
 
 **The revolver (M1)**
 
