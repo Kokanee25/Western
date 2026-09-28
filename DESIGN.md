@@ -256,6 +256,24 @@ knock out one stud and the wall shrugs it off.
   background is a design advantage here — clean arrests and use of force should be rewarded over a
   body count.)
 - Ownership: locks, keys, lockpicking, deeds, property.
+
+### Recognition and disguise
+- **Witnesses store a description, not an identity flag:** face, build, clothes, hat, horse, gun, voice,
+  scars, missing fingers, a limp. Wanted posters are built from those descriptions.
+- **Recognition = matching** what they see now against what they remember, weighted by familiarity
+  (strangers go by clothes; friends know your walk and voice), distance and light, and how distinctive
+  the feature is (a plain brown coat means nothing; a silver-inlaid Colt, a pinto or two missing
+  fingers give you away).
+- **Disguise tools:** stolen clothes (the owner recognises his own coat), masks and bandanas (hide the
+  face but are suspicious in themselves — except in a dust storm), shaving / growing a beard / cutting
+  hair, swapping a distinctive horse or gun. **Voice is the hardest thing to hide:** people who know you
+  may place it, and the AI grows suspicious in conversation.
+- **Impersonation:** the dead deputy's badge and coat fool strangers, not locals; a gang member's hat
+  and duster might get you into their camp until someone hears you speak.
+- **Works both ways:** the Colters rob in masks too, and the lawman path becomes an investigation of
+  half-seen coats, horses and missing fingers.
+- **Descriptions go stale:** change enough and the poster stops matching; people who know you
+  personally are much harder to fool.
 - Rumour and the newspaper: news travels by word of mouth and the weekly paper prints a (slightly
   wrong) version of what you did.
 - Funerals when people die; people attend, speak, remember, and some blame you.
