@@ -1,0 +1,292 @@
+# Salt Creek — design document
+
+Working title. A first-person immersive-sim Western for PC, set in one small frontier town in 1882.
+Everything here came out of the first design session (Sept 27, 2026). Decisions are marked **decided**;
+anything still open is listed at the end.
+
+---
+
+## 1. The game in one paragraph
+
+You're a homesteader who bought the best spring claim in the valley a few months ago. The railroad is
+coming through in thirty days, and whoever owns the water when it arrives will be rich. On the first
+morning the sheriff is found gut-shot on the road outside town. From there you can become the law, ride
+with the gang, sell out to the cattle baron, work as a hired gun, or just try to keep your farm. Nothing
+is scripted: the town runs on rules, its people remember what you do, and the story is what happens
+when you push on it.
+
+## 2. Pillars
+
+1. **Systems, not scripts.** Everything obeys consistent rules — bodies, fire, wood, law, memory,
+   money — and stories emerge from how the rules meet. If the player burns the building where a
+   scene was meant to happen, the systems carry on.
+2. **Consequences that stay.** Wounds, rubble, bullet holes, scorch marks, grudges and reputations
+   persist until something in the world changes them.
+3. **People you can actually talk to.** Townsfolk with AI minds, real memories, their own goals and
+   the social rules of 1882.
+4. **Grounded and gritty, with humour** (**decided**). The world takes itself seriously; the people
+   in it don't always. Deadwood and Unforgiven more than a spaghetti Western. Violence is heavy and
+   has lasting consequences.
+5. **A small world, deep.** One valley done thoroughly beats a big empty map. Build a few systems that
+   interact heavily rather than many that don't.
+
+## 3. Platform, view, time, saving (all **decided**)
+
+| | |
+|---|---|
+| Platform | **PC / big screen first** (Windows, Mac, Linux; Steam later). Not phone-first. Controller and keyboard/mouse. |
+| Engine | **Godot 4** (see CLAUDE.md for why). |
+| View | **First person** only. You can look down and see your body, holster and boots. |
+| Day length | **45 real minutes** per in-game day. The railroad clock is 30 in-game days. |
+| Saving | **Only when you sleep in a bed.** No save-anywhere; consequences stay heavy. |
+| Death | **You wake up at the doctor's** — hurt, poorer, and the town knows what happened. |
+| World | **The town, its outskirts, and a mine.** Grow outward later (ranches, railroad camp, open country). |
+
+## 4. The look (**decided**)
+
+Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
+
+- **Pixelated realism:** realistic models and environments rendered at low internal resolution and
+  scaled up with hard nearest-neighbour pixels, so everything reads as chunky pixels.
+- **Modern lighting on top:** warm oil lamps against blue moonlight, long low sun, dust and smoke in
+  the air, light shafts through gaps in plank walls, embers, bloom, fog. The lighting carries the
+  atmosphere.
+- **Palette:** sun-bleached ochre, rust red, dusty sage, sky blue by day; deep blue and amber at night.
+- **People:** realistic faces and bodies with readable silhouettes and layered clothing
+  (hat, vest, coat, shirt) — each layer takes damage separately.
+- Expectation: environments, lighting and effects can come very close to the concept art;
+  characters will be somewhat simpler than the painting's portrait-level faces.
+- Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
+  fraction of the pixels of 1080p, so rich lighting stays affordable on modest PCs.
+- **Gore setting** (full / reduced), so the game can be shown to anyone.
+
+## 5. Setting and story
+
+### Premise: Salt Creek, 1882
+- A small frontier town in a dry valley. The railroad's survey line runs through it; the rails arrive
+  on **day 30** whatever the player does.
+- **Water is the stakes.** The player's claim holds the best spring.
+- **Day 1:** the sheriff is found **gut-shot** on the road. By the wound rules he has hours, not
+  minutes. He's conscious, knows who shot him, is frightened and unsure who to trust. He might tell
+  you, pin his badge on you, be saved by the doctor, or die while you're elsewhere — and the town
+  goes looking for someone to blame.
+
+### Cast (each has goals, secrets, relationships, and acts whether or not the player does)
+- **The sheriff** — dying on day 1. What he knows and who he trusts drives the opening.
+- **The cattle baron** — wants every drop of water in the valley, and is patient.
+- **The railroad land agent** — buying claims with forged deeds.
+- **The Colter gang** — hired to scare homesteaders off, with plans of their own. One of them
+  "knows" the player (see §6).
+- **The doctor** — knows more about the sheriff's wound than he says. The most important
+  character in the town, given the wound system.
+- **The saloon owner** — hears everything, sells it to whoever pays.
+- **The widow** — refuses to sell her claim, alone.
+- Plus ordinary townsfolk (barber, blacksmith, storekeeper, preacher, children, dogs) with routines,
+  feuds, debts, friendships and affairs among themselves.
+
+### How the story works
+- **Author the situation, not the scenes:** a place under pressure, people with goals, a clock.
+- A **timeline of what the antagonists do if unopposed** (the gang burns someone out, the agent
+  takes deeds to court, the survey comes through, the rails arrive).
+- A handful of **hand-built big moments** that fit any path (the sheriff's last hours, the
+  railroad's arrival).
+- A **drama manager** (the idea from the Façade-style project): an AI director that watches pacing —
+  gives someone a reason to act when it goes quiet, and lets survivors react instead of forcing the
+  plot back when the player breaks it.
+- **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
+  rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
+
+### History, handled with care
+An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
+vaqueros. They belong in the game as real people with their own lives and perspectives, written with
+research and care — never props or stereotypes. (Details still open; see §13.)
+
+## 6. The player character and paths
+
+- **Who you are:** a homesteader who arrived a few months ago and bought the spring claim. Known
+  enough for people to have opinions, open enough to go anywhere.
+- **An ambiguous past:** when the Colters ride in, one says "I know you." Rode with them once?
+  Mistaken identity? A lie to rattle you? What you say in that first conversation decides it, and the
+  townsfolk remember your answer.
+- **No class menu.** Paths open and close through actions:
+  - **Sheriff** — the badge from the dying man, a town vote after you stop a robbery, or the judge
+    deputising you. Kept by keeping order, lost by abusing it.
+  - **The gang** — noticed if you're violent, broke or crooked; tested with small jobs first.
+  - **Hired gun** — bounties, guarding shipments, muscle for the baron one week and the widow the next.
+  - **Rancher** — keep your head down and farm; the water war comes to you anyway.
+- **Rules:** actions outweigh words (witnesses matter more than what you claim); every faction (town,
+  law, Colters, baron, railroad) keeps its own opinion of you; paths can cross, including an
+  **undercover path** (the badge while riding with the gang, or the judge's man inside); some doors
+  close for good.
+
+## 7. Bodies: anatomy, wounds and visible damage
+
+### Hidden anatomy (under every person, player included)
+- **Bones:** skull, spine, ribs, pelvis, long bones of the arms and legs.
+- **Major arteries:** neck, arms, groin, legs.
+- **Organs:** brain, heart, lungs, liver, gut, kidneys.
+- **Muscle groups** that decide what each limb can do.
+- **Physiology, not hit points:** blood volume, blood pressure, breathing, pain, shock, and adrenaline
+  (delays pain; a man may run a few seconds before he knows he's hit).
+
+### Ballistics
+- A shot traces a path through the body; tissue slows it, bone stops, deflects or shatters under it.
+  Small pistol rounds can lodge in a thigh; rifle rounds go through and can hit someone behind.
+
+### Effects (examples)
+- **Femur breaks:** he drops, can still shoot from the ground.
+- **Upper arm bone:** the gun falls from that hand.
+- **Femoral artery:** heavy bleeding; dead in minutes without a tourniquet.
+- **Lung:** short of breath, can't run, may cough blood.
+- **Gut shot:** conscious and talking for hours, dying slowly without a doctor — time to confess,
+  beg, or say where the money is.
+
+### Fear and morale
+Most fights end when nerve breaks, not bodies. Wounded people panic, run, beg, surrender, play dead.
+
+### Treatment
+Bandages, tourniquets, packing wounds, the doctor, bullet probes, whiskey, amputation, infection a week
+later. Wounds last for the player too (a broken leg means weeks on a crutch).
+
+### Visible damage
+- **Wounds painted exactly where the anatomy was hit:** entry hole, blood spreading and soaking into
+  clothing over time, larger exit wound. Bandages cover them; they're still there the next day.
+- **Clothing layers tear and stain separately.** Strip a dead man's coat and the hole is in it.
+- **Dismemberment:** bodies built in segments split at joints (below/above knee, forearm, upper arm,
+  head) with finished stumps; the rest stays a working ragdoll. Dynamite at close range can take limbs;
+  the doctor may amputate a crushed leg. Survivors carry it for the rest of the game (crutch, peg leg,
+  a new trade) and their AI mind knows it.
+
+### Design traps to respect
+- **Realism makes fights short** — give the player ways to survive mistakes: cover, thick coats,
+  a bible in the breast pocket, luck.
+- **The player must understand what happened** — show it in the body (clutching the leg, going pale)
+  and through the doctor's diagnosis ("Ball's lodged against the bone").
+
+## 8. Buildings, fire, dynamite, rubble
+
+### Structures from real members
+Buildings are framed the way a timber framer would: posts, beams, studs, joists, siding boards,
+shingles, bricks — tracked as a **support graph**. When a member breaks, anything that has lost its
+load path to the ground sags, then collapses. Burn out the corner posts and the roof comes down;
+knock out one stud and the wall shrugs it off.
+
+### Fire
+- Materials burn differently: dry siding and hay fast, heavy beams smoulder, stone and adobe don't burn.
+- Heat spreads to neighbours; wind pushes it, rain slows it, water puts it out.
+- Burning members weaken, so fires end in real collapses.
+- Townsfolk respond: bucket lines from the trough, saving belongings and horses, remembering who
+  they saw with the lamp oil.
+
+### Dynamite
+- Breaks what's near it: plank walls splinter into holes, brick and adobe crack into chunks, doors
+  blow off.
+- Can start fires in dry wood.
+- Feeds the anatomy system: pressure, flying debris, burns, deafness and ringing ears.
+- Uses: blow the vault, collapse a mine entrance, open the jail's back wall.
+
+### Persistent rubble (**must have**)
+- **The pieces are the wall.** Destruction frees the actual boards, beams and bricks that made the
+  structure; they fall with physics and land where they land. No generic debris, no vanishing.
+- Settled pieces **go to sleep** (physics off), piles are **merged for drawing**, collision is
+  simplified. Only dust, splinters and sparks fade.
+- The save records only the difference from the original town (which members broke, where each piece
+  lies).
+- Rubble is part of the world: cover, firewood and reusable material, obstacles (a fallen beam blocks
+  the jail door), and evidence (a blasted safe in a scorched pile).
+- **Nobody tidies up by magic:** the owner demands payment; the carpenter is hired, hauls wreckage over
+  days and rebuilds member by member with new lumber. If nobody pays, the ruin stays.
+- Scorch marks, bullet holes in siding and bloodstains on the boardwalk persist the same way.
+
+## 9. People: AI minds, memory, conversation
+
+### Memory architecture
+1. **Events as small records**, not prose: who did what to whom, where, when, who saw it, importance.
+2. **Opinions as numbers** per person (trust, fear, liking, respect), nudged by events, driving
+   everyday behaviour **without** calling the AI (who serves you, who crosses the street).
+3. **Recall only what's relevant** when a conversation starts: ~15–30 memories scored by involvement
+   with the player, recency, importance and topic (the approach from Stanford's 2023 "Generative Agents").
+4. **Nightly consolidation:** minor old memories fade or merge into beliefs ("thinks the stranger is a
+   decent sort"); big events stay sharp.
+5. **Shared knowledge stored once:** the robbery is one town event; people store how they know it
+   (saw it, heard it from the barber, read it in the paper). Rumours can be wrong versions.
+6. **The AI is never on the frame loop.** Town life runs on game rules; the AI is called only for
+   conversation, asynchronously. The fixed part of each character sheet is prompt-cached.
+7. **Saved per person**, loaded when they matter.
+
+### Conversation
+- **Voice first:** hold a button and speak (speech-to-text → the character's AI → text-to-speech with
+  lip sync). **Suggested replies** generated for the moment, for controller play. **Typing** as fallback.
+- **No dead air:** the character fills the gap naturally (a grunt, a sip, a glance) while the reply
+  streams in.
+- **Context counts:** drawn or holstered gun, distance, blood on your shirt, clothing, time and place.
+- **Act mid-conversation:** hand over money, show a wanted poster, pour a drink, cock the hammer.
+- **Characters can walk away**, and remember why.
+- **Guardrails:** they stay in 1882 ("Don't know what a 'phone' is, mister"); the AI decides what they
+  *say*, the game decides what they *can do* (a shopkeeper only hands over what's in his store);
+  secrets stay secret until earned by trust or pressure.
+- Critical information is never AI-only; must-work lines are authored.
+
+## 10. Law, evidence and society
+
+- Sound travels: gunshots are heard across town; people investigate, flee or fetch the law.
+- Witnesses and identification: light and dark matter; wanted posters with a likeness good enough to
+  be recognised.
+- **Evidence:** footprints in mud, blood trails, shell casings, a bullet dug out of a wall and matched
+  to a gun. The lawman path is an actual investigation.
+- **The law as a real process:** arrest, a cell, a trial with a judge and a jury weighing what the
+  witnesses saw; verdicts can go against you; a hanging the whole town attends. (Sean's policing
+  background is a design advantage here — clean arrests and use of force should be rewarded over a
+  body count.)
+- Ownership: locks, keys, lockpicking, deeds, property.
+- Rumour and the newspaper: news travels by word of mouth and the weekly paper prints a (slightly
+  wrong) version of what you did.
+- Funerals when people die; people attend, speak, remember, and some blame you.
+
+## 11. Immersion features
+
+1. **Almost no on-screen display:** a pocket watch (or the sun and the church bell) for time; count the
+   bullets in your belt loops or open the loading gate; health shown by your body (blurred view from
+   blood loss, shaking hands, a limp); a real paper map you buy and mark; coins and notes you count.
+2. **Guns as machines:** single-action revolvers cocked for every shot, one-at-a-time reloads through
+   the gate, **black-powder smoke** that fills a saloon in a fight, misfires, fouling if you don't clean.
+3. **A body you can feel:** see your legs and boots; hands that hold the reins, strike a match, drink.
+   Hunger, thirst, sleep, cold, drunkenness and hygiene show in the body and in how people react.
+4. **Sound:** wind in the boards, the piano through the wall, a dog two streets over, spurs on the
+   boardwalk, gunshots echoing off the hills.
+5. **Townsfolk with their own lives:** routines, relationships among themselves, children who go quiet
+   when you pass with a gun, dogs that know their people.
+6. **A readable world:** letters in drawers, the store ledger, wanted posters, the newspaper, gravestones
+   — much of it written from the town's real events.
+7. **Weather and seasons:** mud that slows horses and holds footprints, dust storms, winter, drought
+   raising the stakes of the water war.
+8. **Horses as creatures:** they tire, spook at gunfire, get hurt, can be stolen, remember who treats
+   them well.
+
+## 12. First slice (what to build first)
+
+**One small town** (saloon, jail, store, doctor, church, livery, a few homesteads), **about a dozen
+people with real memories**, **a few in-game days**, and **one outlaw arriving in town**.
+
+It must prove, in this order of priority:
+1. **The gunfight feels good** — revolver handling, hits, wounds, fear. Combat feel is the longest tuning
+   job; prove it early.
+2. **The outlaw can end five different ways** depending on what the player does.
+3. **Systems feed each other:** fire, destruction and persistent rubble, sound, witnesses, wounds.
+4. **Talking works:** voice and suggested replies with memory-driven characters.
+5. **The immersion core:** no display, real guns, sound, townsfolk with lives.
+
+The test: **can the player cause a story nobody planned?**
+
+## 13. Open questions
+
+- **Tone details:** how dark the humour runs; how graphic the default gore setting is.
+- **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included
+  (needs research and care).
+- **Name:** "Salt Creek" is a working title.
+- **Mine:** what it's for (silver? a collapse? the gang's hideout?).
+- **Economy:** prices, wages, what farming earns; how crafting (if any) works.
+- **Voices:** which speech services; how much is pre-recorded vs live.
+- **AI cost model** if other people play: player pays, bring-your-own-key, or priced into the game.
+- **Hardware:** Sean needs a machine that can run the game once the town is lit and populated
+  (e.g. an M-series Mac mini or a mid-range gaming PC). The current mini PC may handle early builds only.
