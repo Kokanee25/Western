@@ -1,0 +1,135 @@
+name: Test and build
+
+# Every push runs the headless tests. Pushes to main also export Windows, macOS, Linux and Web
+# builds, attach the desktop builds to a GitHub Release, and publish the web build to GitHub Pages.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Run tests
+        run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
+
+  export:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-export-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot and export templates
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -fsSLO "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -fsSLO "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          dest=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p "$dest"
+          unzip -q -j "Godot_v${GODOT_VERSION}-stable_export_templates.tpz" \
+            'templates/linux_*x86_64' 'templates/windows_*x86_64*' 'templates/macos.zip' \
+            'templates/web_nothreads_*' 'templates/version.txt' -d "$dest"
+          rm ./*.zip ./*.tpz
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Export
+        run: |
+          mkdir -p build/windows build/macos build/linux build/web
+          ~/godot/godot --headless --export-release "Windows" build/windows/SaltCreek.exe
+          ~/godot/godot --headless --export-release "macOS" build/macos/SaltCreek.zip
+          ~/godot/godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64
+          ~/godot/godot --headless --export-release "Web" build/web/index.html
+          test -s build/windows/SaltCreek.exe
+          test -s build/macos/SaltCreek.zip
+          test -s build/linux/SaltCreek.x86_64
+          test -s build/web/index.wasm
+
+      - name: Package
+        id: package
+        run: |
+          short=$(git rev-parse --short HEAD)
+          echo "tag=build-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "name=Salt Creek build ${{ github.run_number }} (${short})" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          (cd build/windows && zip -q -9 ../../dist/SaltCreek-windows.zip SaltCreek.exe)
+          cp build/macos/SaltCreek.zip dist/SaltCreek-macos.zip
+          (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz SaltCreek.x86_64)
+          ls -la dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.tag }}
+          name: ${{ steps.package.outputs.name }}
+          target_commitish: ${{ github.sha }}
+          body_path: docs/BUILD_NOTES.md
+          make_latest: true
+          files: dist/*
+
+      - name: Upload web build for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  pages:
+    needs: export
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
