@@ -22,6 +22,8 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
 			&"eject": samples = _tink(rng)
 			&"glass": samples = _glass(rng)
+			&"flesh": samples = _flesh(rng)
+			&"zip": samples = _zip(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		_cache[id] = _to_wav(samples)
 	return _cache[id]
@@ -97,6 +99,36 @@ static func _glass(rng: RandomNumberGenerator) -> PackedFloat32Array:
 			var t := float(i - start) / RATE
 			out[i] += sin(TAU * f * t) * exp(-t / 0.025) * level
 	return _normalise(out, 0.9)
+
+
+## A ball striking a body: a dull, wet slap with a low thump under it.
+static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.25)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.18
+		out[i] = lp * exp(-t / 0.018) * 1.4 + sin(TAU * lerpf(140.0, 70.0, minf(t / 0.08, 1.0)) * t) * exp(-t / 0.05) * 0.8
+	return _normalise(out, 0.8)
+
+
+## A ball passing close by the ear: a short rising-falling zip of hissing air.
+static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.22)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var bp := 0.0
+	var prev := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var white := rng.randf_range(-1, 1)
+		bp = 0.7 * (bp + white - prev)
+		prev = white
+		var env := sin(PI * t / 0.22) * sin(PI * t / 0.22)
+		out[i] = (bp * 0.6 + sin(TAU * lerpf(1900.0, 1100.0, t / 0.22) * t) * 0.35) * env
+	return _normalise(out, 0.7)
 
 
 static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array:

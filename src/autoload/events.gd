@@ -24,3 +24,11 @@ signal body_hit(info: Dictionary)
 ## A person went down (can't stand: shot in the leg, fainted, dead).
 signal person_fell(person: Node, conscious: bool)
 signal person_died(person: Node, cause: StringName)
+## Someone shouted at the people around them ("Drop it!"). kind: &"drop_it" for now.
+signal shouted(speaker: Node, kind: StringName)
+## A bullet passed close by a person without hitting (the crack of a near miss).
+signal near_miss(person: Node, shooter: Node, distance: float)
+## Someone gave up: dropped their gun and put their hands up.
+signal person_surrendered(person: Node)
+## Someone said something out loud (shown as a subtitle to a player in earshot).
+signal spoke(speaker: Node, text: String)

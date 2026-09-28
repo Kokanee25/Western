@@ -8,6 +8,8 @@ Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T / Y     Debug readout: F3 / View
 Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
+The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
+Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right
 Release mouse: Esc     This help: F1"""
 
 var _help: Label
@@ -96,5 +98,13 @@ func _readout_text() -> String:
 		var state := "crouching" if player.is_crouching else ("running" if player.is_running else "walking")
 		var p := player.global_position
 		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f" % [player.get_horizontal_speed(), state, p.x, p.y, p.z])
+		if player.wounds:
+			lines.append(player.wounds.describe())
+	for n in get_tree().get_nodes_in_group(&"people"):
+		var brain := n.get_node_or_null(^"Brain") as OutlawBrain
+		if brain:
+			lines.append(brain.describe())
+			for w in (n as HumanBody).describe_wounds():
+				lines.append("  " + w)
 	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
 	return "\n".join(lines)

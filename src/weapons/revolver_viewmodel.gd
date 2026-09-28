@@ -23,6 +23,11 @@ const HAMMER_ANGLES := {RevolverState.Hammer.DOWN: 0.0, RevolverState.Hammer.HAL
 var state: RevolverState
 var drawn := true
 var aiming := false
+## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).
+var hands_busy := false
+var arm_disabled := false
+## Extra wobble from pain, shock and a wounded arm, degrees.
+var extra_spread := 0.0
 ## Tests and scripted scenes drive the gun without a captured mouse.
 var needs_captured_mouse := true
 
@@ -124,6 +129,11 @@ func _pressed_by_mouse_only(action: StringName) -> bool:
 
 
 func _read_controls(delta: float) -> void:
+	if hands_busy or arm_disabled:
+		if drawn:
+			toggle_holster()
+		aiming = false
+		return
 	if Input.is_action_just_pressed(&"holster"):
 		toggle_holster()
 	if not drawn or _draw < 0.9:
@@ -188,12 +198,13 @@ func _on_fired() -> void:
 		if not hit.is_empty() and cam.global_position.distance_to(hit.position) > 0.6:
 			aim_point = hit.position
 	var dir := (aim_point - origin).normalized()
-	var spread := tuning.spread_aim_degrees if aiming else tuning.spread_hip_degrees
+	var spread := (tuning.spread_aim_degrees if aiming else tuning.spread_hip_degrees) + extra_spread
 	if _player:
 		spread += _player.get_horizontal_speed() * 0.5
 	dir = _cone(dir, deg_to_rad(spread))
 	var ballistics := _ballistics()
-	ballistics.fire(origin, dir, tuning.muzzle_velocity, tuning.bullet_mass, tuning.bullet_diameter, exclude)
+	var bullet := ballistics.fire(origin, dir, tuning.muzzle_velocity, tuning.bullet_mass, tuning.bullet_diameter, exclude)
+	bullet.shooter = _player
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir)
 	ImpactEffects.muzzle_flash(world, origin)

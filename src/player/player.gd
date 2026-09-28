@@ -7,8 +7,14 @@ extends CharacterBody3D
 @export var tuning: PlayerTuning
 
 var input_enabled := true
+## Set by wounds (PlayerWounds): slower, no running or jumping, down on the ground.
+var move_factor := 1.0
+var can_sprint := true
+var can_jump := true
+var force_crouch := false
 var is_crouching := false
 var is_running := false
+var wounds: PlayerWounds
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -26,6 +32,9 @@ var _capsule: CapsuleShape3D
 func _ready() -> void:
 	add_to_group(&"player")
 	collision_mask |= Layers.PEOPLE
+	wounds = PlayerWounds.new()
+	wounds.name = "Wounds"
+	add_child(wounds)
 	if tuning == null:
 		tuning = PlayerTuning.new()
 	_capsule = CapsuleShape3D.new()
@@ -83,7 +92,9 @@ func _physics_process(delta: float) -> void:
 		if wants_run and move.length() > 0.1:
 			_crouch_toggled = false
 		wants_crouch = _crouch_toggled or Input.is_action_pressed(&"crouch")
-		wants_jump = Input.is_action_just_pressed(&"jump")
+		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump
+	wants_run = wants_run and can_sprint
+	wants_crouch = wants_crouch or force_crouch
 
 	_update_crouch(wants_crouch)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
@@ -93,6 +104,7 @@ func _physics_process(delta: float) -> void:
 		speed = tuning.crouch_speed
 	elif is_running:
 		speed = tuning.run_speed
+	speed *= move_factor
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
 	var target := Vector2(wish.x, wish.z) * speed

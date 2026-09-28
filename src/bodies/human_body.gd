@@ -528,6 +528,7 @@ func _update_pool() -> void:
 		_pool.name = "BloodPool"
 		_pool.texture_albedo = PixelArt.blood("pool", 21, false, 32)
 		_pool.cull_mask = Layers.WORLD
+		_pool.modulate = Color(0.75, 0.7, 0.7)
 		_pool.top_level = true
 		add_child(_pool)
 	var r := clampf(sqrt(_pool_ml / 1000.0 / 0.003 / PI), 0.05, 1.1)

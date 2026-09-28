@@ -8,12 +8,31 @@ static var _mats := {}
 
 func _ready() -> void:
 	Events.bullet_hit.connect(_on_hit)
+	Events.near_miss.connect(_on_near_miss)
+
+
+## The zip of a ball past your ear (only the listener's own near misses are worth playing).
+func _on_near_miss(person: Node, _shooter: Node, distance: float) -> void:
+	if person.is_in_group(&"player") and person is Node3D:
+		_play_at(&"zip", (person as Node3D).global_position + Vector3.UP * 1.6, -4.0 - distance * 3.0)
+
+
+func _play_at(id: StringName, at: Vector3, db := 0.0) -> void:
+	var p := AudioStreamPlayer3D.new()
+	p.stream = SynthSounds.get_sound(id)
+	p.volume_db = db
+	p.unit_size = 6.0
+	add_child(p)
+	p.global_position = at
+	p.play()
+	p.finished.connect(p.queue_free)
 
 
 func _on_hit(info: Dictionary) -> void:
 	var pos: Vector3 = info.position
 	var normal: Vector3 = info.normal
 	if info.has("person"):
+		_play_at(&"flesh", pos, -2.0)
 		# A spray of blood: a little back out of the entry, more out of an exit.
 		burst(self, pos, -(info.direction as Vector3), Color(0.42, 0.04, 0.03), 5, 1.2, 0.02)
 		if info.penetrated:

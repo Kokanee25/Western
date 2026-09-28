@@ -36,6 +36,10 @@ func _ready() -> void:
 	_bind(&"cock", [KEY_Q], [JOY_BUTTON_RIGHT_SHOULDER], [], [MOUSE_BUTTON_WHEEL_DOWN])
 	_bind(&"reload", [KEY_R], [JOY_BUTTON_X])
 	_bind(&"holster", [KEY_H], [JOY_BUTTON_LEFT_SHOULDER])
+	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
+	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])
+	_bind(&"shout", [KEY_G], [JOY_BUTTON_DPAD_LEFT])
+	_bind(&"debug_reset_outlaw", [KEY_F9], [JOY_BUTTON_DPAD_RIGHT])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:

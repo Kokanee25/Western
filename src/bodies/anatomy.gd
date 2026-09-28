@@ -194,6 +194,41 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 	return result
 
 
+## Follow a bullet through the whole body (for a body that's one collider, like the player's):
+## segment after segment in the order the path enters them, until it stops or comes out.
+## Returns {traces: [trace results], exit (Vector3 or null), energy_out}.
+func trace_through(origin: Vector3, dir: Vector3, energy: float, bullet_radius: float,
+		rng: RandomNumberGenerator) -> Dictionary:
+	dir = dir.normalized()
+	var entries: Array[Array] = []
+	for sid: StringName in segments:
+		var s: Dictionary = segments[sid]
+		var span := ray_capsule(origin, dir, s.a, s.b, s.radius)
+		if span.x < INF and span.y > 0.0:
+			entries.append([span.x, sid])
+	entries.sort_custom(func(p: Array, q: Array) -> bool: return p[0] < q[0])
+	var out := {"traces": [], "exit": null, "energy_out": energy}
+	var e := energy
+	var reached := -INF
+	for entry in entries:
+		var sid: StringName = entry[1]
+		var s: Dictionary = segments[sid]
+		var span := ray_capsule(origin, dir, s.a, s.b, s.radius)
+		if span.y <= reached:
+			continue  # already passed through (overlapping segments)
+		var start: float = maxf(span.x, reached)
+		var tr := trace(sid, origin + dir * (start - 0.001), dir, e, bullet_radius, rng)
+		out.traces.append(tr)
+		e = tr.energy_out
+		if tr.exit == null:
+			out.exit = null
+			break
+		out.exit = tr.exit
+		reached = (tr.exit - origin).dot(dir)
+	out.energy_out = e
+	return out
+
+
 func _add_hit(result: Dictionary, st: Dictionary, effect: StringName, at: Vector3) -> void:
 	for h: Dictionary in result.hits:
 		if h.id == st.id:
