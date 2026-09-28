@@ -38,8 +38,8 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 1. **The look.** You start at 17:00 on the street, sun low in the west. Every board, beam and the
    ground now has chunky pixel-art texture (made in code), under the same modern lighting. Everything
-   is rendered at 640×360 and scaled up with hard pixels. Three knobs to find the look — try them
-   together and tell me the combination you like:
+   is rendered at 640×360 and scaled up with hard pixels. That's the default look. You can switch it
+   on the fly; each key flashes the current settings at the bottom of the screen, and they're saved:
    - **F2** render resolution (640×360 → 480×270 → 320×180 → 960×540 → 1280×720),
    - **F7** texel size (smaller numbers = chunkier texture pixels, no smoothing in the distance),
    - **F6** pixel shading (light and fog break into bands and dither patterns).

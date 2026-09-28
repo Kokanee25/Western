@@ -141,3 +141,7 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   F7 texel size is now a saved setting like F2/F6 (`Settings.texels_per_meter`), each change flashes
   the look on screen (`Settings.look_description()`), and F3 lists all three. 50 tests pass.
   - Next: confirm Sean's exact combination (res + shading) and make it the default.
+- 2026-09-28 (later): **Look approved.** Sean likes the default (640×360, 40 texels/m smoothed, shading
+  off) and wants the graphics options kept switchable on the fly (F2/F6/F7, saved). Recorded in
+  DESIGN.md §4. The options go into a settings menu when there is one.
+  - Next: M1 — the single-action revolver, built in code in the new style.

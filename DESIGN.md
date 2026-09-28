@@ -50,6 +50,10 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
   texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The
   concept art is the mood and lighting target; the models aim for this crisper, simpler look.
+- **Default look (Sean approved, 2026-09-28):** 640×360 render, 40 texels per metre with distance
+  smoothing, pixel shading off. The look stays switchable in play as graphics options: render
+  resolution, texel size (40 / 24 / 16 per metre) and pixel shading (banded light + dither). They
+  are debug keys now (F2 / F7 / F6) and move into a settings menu later.
 - **Animation is realistic, not retro:** smooth motion-captured animation (Mixamo, the CMU library,
   or video-to-mocap of Sean acting scenes out), procedural touches (feet planted on the ground,
   looking, breathing, balance), full **physics ragdolls**, and **active ragdolls** for the living
