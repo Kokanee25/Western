@@ -31,8 +31,9 @@ func _ready() -> void:
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
 	_bind(&"debug_traces", [KEY_F8], [])
 	_bind(&"debug_xray", [KEY_F10], [])
-	_bind(&"debug_break", [KEY_F11], [])
-	_bind(&"debug_ignite", [KEY_F12], [])
+	# Letters too: in a browser F11 is full screen and F12 opens the developer tools.
+	_bind(&"debug_break", [KEY_F11, KEY_K], [])
+	_bind(&"debug_ignite", [KEY_F12, KEY_L], [])
 	# The revolver.
 	_bind(&"fire", [], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]], [MOUSE_BUTTON_LEFT])
 	_bind(&"aim", [], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]], [MOUSE_BUTTON_RIGHT])
