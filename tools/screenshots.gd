@@ -19,6 +19,8 @@ const VIEWS := [
 	["gun_loading", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -6.0, "loading"],
 	["gun_smoke_saloon", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0, "shot"],
 	["holes_from_inside", 15.0, Vector3(3.0, 0.38, 3.2), 0.0, 2.0, "holes"],
+	["window_shot", 13.0, Vector3(1.1, 0.38, -2.2), 180.0, -8.0, "window"],
+	["smoke_drift_street", 16.0, Vector3(14.0, 0.0, -8.4), -60.0, 2.0, "drift"],
 	["wall_closeup_noon", 12.5, Vector3(1.6, 0.38, -1.4), 180.0, 5.0],
 	["saloon_front_dusk", 19.0, Vector3(7.0, 0.0, -7.5), 0.0, 8.0],
 	["saloon_night", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, -6.0],
@@ -96,6 +98,23 @@ func _run() -> void:
 			gun.state.busy = 0.0
 			gun.pull_trigger()
 			for i in 90:
+				await physics_frame
+		if setup == "window" and gun:
+			gun.state.busy = 0.0
+			gun.state.cock()
+			gun.state.busy = 0.0
+			gun.pull_trigger()
+			for i in 50:
+				await physics_frame
+		if setup == "drift" and gun:
+			for k in 3:
+				gun.state.busy = 0.0
+				gun.state.cock()
+				gun.state.busy = 0.0
+				gun.pull_trigger()
+				for i in 20:
+					await physics_frame
+			for i in 240:
 				await physics_frame
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.

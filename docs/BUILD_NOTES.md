@@ -58,9 +58,11 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 6. **Holes:** shoot the target board, then walk up to it. Holes go right through the boards (look
    through them) and stop in the heavy timbers behind. Shoot the store's front wall, go inside, and
    look back at it — daylight through the holes. Shoot a stud and the bullet stops in it.
-7. **Tin cans:** knock them off the rail.
-8. **Smoke:** fire a few shots in the saloon at night (F5, T to night): the smoke hangs under the
-   roof and glows in the lamplight.
+7. **Tin cans:** knock them off the rail. **Windows** shatter: the pane breaks into shards that fall
+   and stay, and the bullet carries on into the room.
+8. **Smoke:** outside it drifts off on the breeze and rises; indoors it hangs. Fire a few shots in
+   the saloon at night (F5, T to night): the smoke hangs under the roof and glows in the lamplight.
+   If the game stutters or slows when you shoot, press **F3** and tell me the fps before and after.
 9. **F8** shows where every bullet went.
 10. Rare misfires: once in a while the hammer falls and nothing happens. Cock and try the next one.
 

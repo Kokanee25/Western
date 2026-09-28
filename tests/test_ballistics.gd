@@ -102,3 +102,24 @@ func test_holes_are_saved_with_the_member() -> void:
 	var d := wall.get_member(&"testwall/board").to_dict()
 	check_eq(d.holes.size(), 1, "hole in the save data")
 	check(d.holes[0].through, "through")
+
+
+func test_glass_shatters_and_the_bullet_goes_on() -> void:
+	wall.get_member(&"testwall/board").free()
+	var pane := wall.add_member("pane", &"glass", &"glass", Vector3(1.0, 1.2, 0.006), Vector3(0, 1, -3))
+	await physics_frames(2)
+	var broken: Array[StringName] = []
+	var on_broken := func(id: StringName) -> void: broken.append(id)
+	Events.member_broken.connect(on_broken)
+	var b := _fire()
+	await wait_until(func() -> bool: return not b.alive, 60)
+	Events.member_broken.disconnect(on_broken)
+	check(pane.broken, "the pane is broken")
+	check_eq(broken, [&"testwall/pane"] as Array[StringName], "announced")
+	check(not (pane.get_child(0) as MeshInstance3D).visible, "the pane is gone, not turned opaque")
+	var shards := get_tree().get_nodes_in_group(&"glass_shards")
+	check(shards.size() >= 8, "it broke into shards (%d)" % shards.size())
+	check(hits.size() == 2 and hits[1].member_id == &"testwall/beam", "the bullet carried on into the beam")
+	check(pane.to_dict().broken, "broken in the save data")
+	for s in shards:
+		s.queue_free()

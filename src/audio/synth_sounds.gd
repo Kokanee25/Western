@@ -21,6 +21,7 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"gate": samples = _clicks(rng, [0.0], 1800.0, 0.35)
 			&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
 			&"eject": samples = _tink(rng)
+			&"glass": samples = _glass(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		_cache[id] = _to_wav(samples)
 	return _cache[id]
@@ -73,6 +74,29 @@ static func _tink(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		out[i] = (sin(TAU * 4100.0 * t) * 0.5 + sin(TAU * 6300.0 * t) * 0.3) * exp(-t / 0.07) * 0.4
 		out[i] += (sin(TAU * 3900.0 * (t - 0.18)) * 0.3) * exp(-maxf(t - 0.18, 0.0) / 0.05) * (1.0 if t > 0.18 else 0.0) * 0.4
 	return out
+
+
+## Breaking glass: a sharp crash, then pieces tinkling down.
+static func _glass(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.3)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var hp := 0.0
+	var prev := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var white := rng.randf_range(-1, 1)
+		hp = 0.6 * (hp + white - prev)
+		prev = white
+		out[i] = hp * exp(-t / 0.05) * 0.9
+	for k in 26:
+		var start := int(rng.randf_range(0.02, 1.0) * RATE)
+		var f := rng.randf_range(3000.0, 7500.0)
+		var level := rng.randf_range(0.1, 0.35)
+		for i in range(start, mini(n, start + int(RATE * 0.12))):
+			var t := float(i - start) / RATE
+			out[i] += sin(TAU * f * t) * exp(-t / 0.025) * level
+	return _normalise(out, 0.9)
 
 
 static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array:
