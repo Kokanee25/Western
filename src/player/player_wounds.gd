@@ -24,6 +24,7 @@ var out_cold := 0.0
 
 var _rng := RandomNumberGenerator.new()
 var _flash := 0.0
+var _drip_ml := 0.0
 var _overlay: ColorRect
 var _message: Label
 var _message_time := 0.0
@@ -127,22 +128,23 @@ func _physics_process(delta: float) -> void:
 	if _day_cycle == null and is_inside_tree():
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0
-	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.is_conscious():
+	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 		Events.shouted.emit(player, &"drop_it")
 	_tend(delta)
 	physiology.step(delta * scale)
+	_drip(delta * scale)
 	var gun := player.get_node_or_null(^"Head/Camera3D/Gun") as RevolverViewmodel
 	var p := physiology
 	var legs := p.leg_ok("r") and p.leg_ok("l") and not p.legs_paralysed() and not p.broken.has(&"pelvis_bone")
 	player.force_crouch = not legs or p.shock() > 0.85
-	player.move_factor = (1.0 - p.shock() * 0.5) * (1.0 if legs else 0.35)
+	player.move_factor = (1.0 - p.shock() * 0.5) * (lerpf(0.45, 1.0, p.leg_strength()) if legs else 0.35)
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
 	if gun:
 		gun.hands_busy = tending > 0.0
 		gun.arm_disabled = not p.can_hold("r")
-		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0
+		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - p.arm_steadiness("r")) * 4.0
 	if not p.is_conscious():
 		out_cold += delta
 		if out_cold > 4.0:
@@ -159,6 +161,17 @@ func _physics_process(delta: float) -> void:
 		_message_time -= delta
 		if _message_time <= 0.0:
 			_message.text = ""
+
+
+## You leave a trail: drops of your blood on the ground where you go.
+func _drip(dt: float) -> void:
+	_drip_ml += physiology.total_bleed_rate() * dt
+	if _drip_ml < 4.0 or not player.is_inside_tree():
+		return
+	var exclude: Array[RID] = [player.get_rid()]
+	var from := player.global_position + Vector3(_rng.randf_range(-0.2, 0.2), 0.9, _rng.randf_range(-0.2, 0.2))
+	Blood.throw(player.get_parent() as Node3D, from, Vector3.DOWN * 0.5, _drip_ml, exclude)
+	_drip_ml = 0.0
 
 
 ## Hold the tend button: press on the worst bleeding; hold on and a belt goes round a limb.

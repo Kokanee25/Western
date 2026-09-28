@@ -30,6 +30,8 @@ const VIEWS := [
 	["outlaw_fight", 15.0, Vector3(16.0, 0.0, -12.5), -90.0, 0.0, "outlaw_fight"],
 	["outlaw_surrender", 15.0, Vector3(22.0, 0.0, -12.2), -94.0, -3.0, "outlaw_surrender"],
 	["outlaw_down", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -45.0, "outlaw_down"],
+	["outlaw_neck", 15.0, Vector3(22.8, 0.0, -11.6), -115.0, -4.0, "outlaw_neck"],
+	["outlaw_xray", 15.0, Vector3(22.9, 0.0, -12.5), -90.0, -8.0, "outlaw_xray"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 ]
 
@@ -182,6 +184,14 @@ func _outlaw_setup(main, setup, player) -> void:
 	var targets = []
 	if setup == "outlaw_fight":
 		targets = [man.global_position + Vector3(0.0, 1.7, 0.9)]
+	elif setup == "outlaw_neck" or setup == "outlaw_xray":
+		brain.set_physics_process(false)
+		# Through the side of the neck, in front of the spine: both carotids, not the cord.
+		var neck = parts[&"neck"]
+		var at = neck.global_transform * Vector3(0.0, -0.015, -0.022)
+		targets = [[at - man.global_basis.x * 3.0, at]]
+		if setup == "outlaw_xray":
+			targets.append(parts[&"upper_arm_r"].global_position)
 	elif setup == "outlaw_surrender":
 		brain.nerve = 99.0
 		targets = [parts[&"abdomen"].global_position + Vector3(0, 0.03, -0.06), parts[&"thigh_l"].global_position + Vector3(0, 0.08, 0.06)]
@@ -189,12 +199,23 @@ func _outlaw_setup(main, setup, player) -> void:
 		targets = [parts[&"chest"].global_position + Vector3(0, 0.02, 0.05)]
 	var exclude: Array[RID] = [player.get_rid()]
 	for target in targets:
-		var b = ballistics.fire(eye, (target - eye).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+		var from = eye
+		if target is Array:
+			from = target[0]
+			target = target[1]
+		var b = ballistics.fire(from, (target - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
 		b.shooter = player
 		for i in 10:
 			await physics_frame
 	if setup == "outlaw_fight":
 		for i in 70:
+			await physics_frame
+	elif setup == "outlaw_neck":
+		for i in 50:
+			await physics_frame
+	elif setup == "outlaw_xray":
+		man.set_xray(true)
+		for i in 5:
 			await physics_frame
 	elif setup == "outlaw_surrender":
 		man.physiology.step(40.0)

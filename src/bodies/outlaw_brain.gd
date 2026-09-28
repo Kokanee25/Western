@@ -60,9 +60,15 @@ func _ready() -> void:
 
 func say(kind: StringName) -> void:
 	var lines: Array = LINES.get(kind, [])
-	if lines.is_empty() or not body.physiology.is_conscious():
+	var p := body.physiology
+	if lines.is_empty() or not p.is_conscious():
 		return
-	Events.spoke.emit(body, lines[_rng.randi() % lines.size()])
+	if p.airway_blood:
+		Events.spoke.emit(body, "Hhhk— hhk—")  # blood in his windpipe: no words left
+	elif p.jaw_broken:
+		Events.spoke.emit(body, "Nnngh! Nnnh!")
+	else:
+		Events.spoke.emit(body, lines[_rng.randi() % lines.size()])
 
 
 func _set_mood(m: Mood) -> void:
@@ -214,7 +220,8 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var gun := body.held_gun as RevolverModel
 	var origin := gun.muzzle.global_position
 	var p := body.physiology
-	var spread := spread_degrees + p.felt_pain() * 3.0 + p.shock() * 6.0 + fear * 2.0
+	var spread := spread_degrees + p.felt_pain() * 3.0 + p.shock() * 6.0 + fear * 2.0 \
+			+ (1.0 - p.arm_steadiness("r")) * 6.0 + (2.5 if p.blind.has(&"eye_r") else 0.0)
 	if t is CharacterBody3D:
 		spread += Vector2((t as CharacterBody3D).velocity.x, (t as CharacterBody3D).velocity.z).length() * 0.7
 	if body.physiology.trigger_finger("r") != &"index_r":

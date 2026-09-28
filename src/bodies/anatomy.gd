@@ -13,9 +13,10 @@ static var _shared: Anatomy
 
 var height := 1.78
 var flesh_resistance := DEFAULT_FLESH_RESISTANCE
-## segment id -> {a: Vector3, b: Vector3, radius: float, parent: StringName}
+## segment id -> {a, b, radius (its main capsule), capsules: [[a, b, radius]...], parent}
 var segments := {}
-## Every structure: {id, kind, segment, a, b, radius, (strength, shell, cage, bleed, limb, organ, spine)}.
+## Every structure: {id, kind, segment, a, b, radius, and its kind's properties (strength, shell,
+## cage, spine, bleed, limb, organ, group, cord, disables): see tools/anatomy/build_anatomy.py.
 ## A sphere has a == b.
 var structures: Array[Dictionary] = []
 ## segment id -> Array of structures inside it.
@@ -38,9 +39,11 @@ func load_file(path: String) -> void:
 	flesh_resistance = float(data.get("flesh_resistance", DEFAULT_FLESH_RESISTANCE))
 	for sid: String in data.segments:
 		var s: Dictionary = data.segments[sid]
-		var c: Array = s.capsule
-		segments[StringName(sid)] = {"a": _v(c[0]), "b": _v(c[1]), "radius": float(c[2]),
-				"parent": StringName(s.get("parent", ""))}
+		var caps: Array = []
+		for c: Array in s.capsules:
+			caps.append([_v(c[0]), _v(c[1]), float(c[2])])
+		segments[StringName(sid)] = {"a": caps[0][0], "b": caps[0][1], "radius": caps[0][2],
+				"capsules": caps, "parent": StringName(s.get("parent", ""))}
 		by_segment[StringName(sid)] = []
 	for raw: Dictionary in data.structures:
 		var st := {}
@@ -105,12 +108,12 @@ func segments_below(segment: StringName) -> Array[StringName]:
 ## `origin` should be on or just outside the segment's skin. `energy` in joules.
 ## Returns {segment, entry, exit (Vector3 or null), stop (where it ended inside, or null),
 ## energy_in, energy_out, track_cm, hits: [{id, kind, effect, position}]}.
-## effect: "cut" (artery), "torn" (organ), "broken" / "stopped" (bone), "severed" (finger).
+## effect: "cut" (artery, vein, nerve), "torn" (organ, muscle), "broken" / "stopped" (bone),
+## "severed" (finger).
 func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bullet_radius: float,
 		rng: RandomNumberGenerator) -> Dictionary:
 	dir = dir.normalized()
-	var seg: Dictionary = segments[segment]
-	var skin := ray_capsule(origin, dir, seg.a, seg.b, seg.radius)
+	var skin := skin_span(segment, origin, dir)
 	var t_in := 0.0
 	var t_out := 0.02
 	if skin.x < INF:
@@ -160,8 +163,8 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 					continue  # slipped between the ribs
 				var strength: float = st.get(&"strength", 100.0)
 				if e > strength:
+					# Broken through; what's inside the bone (the spinal cord) is next.
 					e -= strength
-					t = ev.t_end
 					_add_hit(result, st, &"broken", at)
 				else:
 					e = 0.0
@@ -174,7 +177,7 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 				if e <= 0.0:
 					done = true
 					break
-			&"artery":
+			&"artery", &"vein", &"nerve":
 				_add_hit(result, st, &"cut", at)
 			_:
 				_add_hit(result, st, &"torn", at)
@@ -202,8 +205,7 @@ func trace_through(origin: Vector3, dir: Vector3, energy: float, bullet_radius: 
 	dir = dir.normalized()
 	var entries: Array[Array] = []
 	for sid: StringName in segments:
-		var s: Dictionary = segments[sid]
-		var span := ray_capsule(origin, dir, s.a, s.b, s.radius)
+		var span := skin_span(sid, origin, dir)
 		if span.x < INF and span.y > 0.0:
 			entries.append([span.x, sid])
 	entries.sort_custom(func(p: Array, q: Array) -> bool: return p[0] < q[0])
@@ -212,8 +214,7 @@ func trace_through(origin: Vector3, dir: Vector3, energy: float, bullet_radius: 
 	var reached := -INF
 	for entry in entries:
 		var sid: StringName = entry[1]
-		var s: Dictionary = segments[sid]
-		var span := ray_capsule(origin, dir, s.a, s.b, s.radius)
+		var span := skin_span(sid, origin, dir)
 		if span.y <= reached:
 			continue  # already passed through (overlapping segments)
 		var start: float = maxf(span.x, reached)
@@ -236,6 +237,18 @@ func _add_hit(result: Dictionary, st: Dictionary, effect: StringName, at: Vector
 				h.effect = effect
 			return
 	result.hits.append({"id": st.id, "kind": st.kind, "effect": effect, "position": at})
+
+
+## Where a ray is inside a segment's skin (all its capsules together): Vector2(t_in, t_out).
+func skin_span(segment: StringName, o: Vector3, dir: Vector3) -> Vector2:
+	var lo := INF
+	var hi := -INF
+	for c: Array in segments[segment].capsules:
+		var span := ray_capsule(o, dir, c[0], c[1], c[2])
+		if span.x < INF:
+			lo = minf(lo, span.x)
+			hi = maxf(hi, span.y)
+	return Vector2(lo, hi) if lo < INF else Vector2(INF, INF)
 
 
 static func _v(a: Array) -> Vector3:
