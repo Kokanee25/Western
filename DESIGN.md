@@ -164,6 +164,22 @@ later. Wounds last for the player too (a broken leg means weeks on a crutch).
   prisoner alive long enough to stand trial; walk away and let the town judge you for it.
 - Treatment rules should be accurate (Sean has first-aid training — use it as the reference).
 
+### Layered characters (Skyrim / Kingdom Come approach)
+- **One shared skeleton, many meshes:** a body mesh plus each garment as its own mesh skinned to the same
+  skeleton (Godot: several meshes under one Skeleton3D).
+- **Layers:** base (long johns — period-accurate, and the floor for stripping); middle (shirt, trousers);
+  outer (vest, then coat/duster; chaps); accessories (boots, hat, bandana, gloves, gun belt).
+- **Covered regions are hidden:** body and inner layers are split into regions; each garment declares
+  what it covers, so nothing pokes through and hidden parts aren't drawn.
+- **A few body types** (lean to heavy) via blend shapes; garments fit each type.
+- **Beyond equipment:** every layer has its own damage and stain map — a bullet leaves lined-up holes
+  through coat, vest and shirt; blood soaks outward through the layers; stripping reveals the damage in
+  order down to the wound. Clothes are items: torn into bandages, stolen for disguise, taken off the dead
+  with the hole still in them, washed, patched by the tailor, burned. They affect the body: a thick coat
+  slightly slows a small pistol round, wet clothes make you colder, dirty clothes change how people react.
+- **Asset cost:** every garment must fit every body type and move without clipping. AI generators are
+  weak at wearable clothing, so expect a mix of generated, adapted and hand-fixed pieces.
+
 ### Visible damage
 - **Wounds painted exactly where the anatomy was hit:** entry hole, blood spreading and soaking into
   clothing over time, larger exit wound. Bandages cover them; they're still there the next day.
