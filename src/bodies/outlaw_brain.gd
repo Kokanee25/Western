@@ -28,6 +28,9 @@ const LINES := {
 @export var rounds_per_load := 5
 @export var reload_seconds := 12.0
 @export var seconds_between_shots := 1.4
+## Fear from being hit at all, and more if it broke bone or tore something vital.
+@export var fear_per_hit := 0.25
+@export var fear_per_severe_hit := 0.14
 
 var body: HumanBody
 var mood := Mood.CALM
@@ -41,6 +44,8 @@ var _reload_left := 0.0
 var _aimed_at := 0.0
 var _gun_sound: AudioStreamPlayer3D
 var _said_gut := false
+## Seconds knocked off balance by a hit: no shooting until he recovers.
+var _stagger := 0.0
 
 
 func _ready() -> void:
@@ -103,7 +108,10 @@ func _on_near_miss(person: Node, shooter: Node, distance: float) -> void:
 
 
 func _on_hit(info: Dictionary) -> void:
-	fear += 0.22
+	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
+	fear += fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
+			+ float(info.get("deposited", 0.0)) / 2000.0
+	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
 	if mood == Mood.SURRENDERED:
 		say(&"shot_while_surrendered")
 		return
@@ -148,7 +156,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_update_aimed_at(delta)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
-	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0)
+	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
+			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
 	fear = maxf(move_toward(fear, floor_fear, 0.01 * delta), floor_fear * 0.9)
 	if mood == Mood.SURRENDERED:
 		return
@@ -193,6 +202,15 @@ func _fight(delta: float) -> void:
 		return
 	var aim_point := _aim_point(t)
 	body.face(aim_point)
+	_stagger -= delta
+	if body.physiology.felt_pain() > body.physiology.tuning.pain_disabling:
+		body.set_pose(&"clutch")  # doubled over, holding it
+		fear += 0.05 * delta
+		return
+	if _stagger > 0.0:
+		body.set_pose(&"stand")
+		_next_shot = maxf(_next_shot, 0.3)
+		return
 	body.set_pose(&"aim")
 	if body.held_gun == null or not body.physiology.can_hold("r"):
 		return

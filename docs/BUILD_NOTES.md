@@ -87,6 +87,13 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
    through the thigh muscle makes him limp without breaking anything. The nerve in the upper arm
    takes his grip. His heart races as he bleeds, and the bleeding slows as the pressure goes.
 
+**Gunfight tuning (latest)**: a good hit to the body now ends the fight about half the time, and
+two nearly always (it used to take two or three). Heavy hits in the trunk can knock him off his
+feet. Every hit staggers him so he can't fire back for a moment. Adrenaline hides less of the pain,
+and when the pain gets past him he doubles over instead of shooting. Bad wounds scare him more than
+grazes, and so does seeing his own blood. Liver, lung, spleen and kidney wounds bleed faster. Arm
+and leg hits still leave him fighting: he's a hired gun.
+
 **The revolver (M1)**
 
 1. Press **F5** until you're at **the range** (east end of the street, facing a target board and a

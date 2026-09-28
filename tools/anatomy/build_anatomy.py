@@ -92,7 +92,7 @@ sph("heart", "organ", "chest", [-0.03, 1.29, -0.035], 0.055, bleed=110.0, organ=
 for side, sx in (("r", 1), ("l", -1)):
     cap(f"ribs_{side}", "bone", "chest", m([0.065, 1.17, 0.0], sx), m([0.065, 1.42, 0.0], sx), 0.12,
         strength=45, shell=0.012, cage=0.32)
-    cap(f"lung_{side}", "organ", "chest", m([0.08, 1.2, 0.0], sx), m([0.08, 1.38, 0.0], sx), 0.065, bleed=0.6, organ="lung")
+    cap(f"lung_{side}", "organ", "chest", m([0.08, 1.2, 0.0], sx), m([0.08, 1.38, 0.0], sx), 0.065, bleed=2.0, organ="lung")
     cap(f"clavicle_{side}", "bone", "chest", m([0.02, 1.43, -0.05], sx), m([0.15, 1.43, -0.02], sx), 0.01, strength=60)
     cap(f"scapula_{side}", "bone", "chest", m([0.09, 1.26, 0.105], sx), m([0.13, 1.38, 0.095], sx), 0.012, strength=60)
     cap(f"subclavian_{side}", "artery", "chest", m([0.05, 1.42, -0.03], sx), m([0.18, 1.40, -0.01], sx), 0.009, bleed=14.0)
@@ -103,13 +103,13 @@ cap("abdominal_aorta", "artery", "abdomen", [-0.01, 0.98, 0.055], [-0.01, 1.17, 
 cap("abdominal_vena_cava", "vein", "abdomen", [0.02, 1.0, 0.045], [0.02, 1.17, 0.03], 0.012, bleed=35.0)
 cap("lumbar_spine", "bone", "abdomen", [0, 0.95, 0.085], [0, 1.18, 0.1], 0.024, strength=130, spine="lumbar")
 cap("cord_lumbar", "nerve", "abdomen", [0, 1.05, 0.09], [0, 1.18, 0.1], 0.007, cord="lumbar")
-sph("liver", "organ", "abdomen", [0.065, 1.12, -0.02], 0.07, bleed=3.0, organ="liver")
-sph("spleen", "organ", "abdomen", [-0.08, 1.12, 0.04], 0.035, bleed=2.0, organ="spleen")
+sph("liver", "organ", "abdomen", [0.065, 1.12, -0.02], 0.07, bleed=8.0, organ="liver")
+sph("spleen", "organ", "abdomen", [-0.08, 1.12, 0.04], 0.035, bleed=5.0, organ="spleen")
 sph("stomach", "organ", "abdomen", [-0.055, 1.12, -0.04], 0.05, bleed=0.3, organ="gut")
 cap("small_intestine", "organ", "abdomen", [0, 0.98, -0.03], [0, 1.06, -0.03], 0.085, bleed=0.2, organ="gut")
 cap("large_intestine", "organ", "abdomen", [-0.1, 0.99, 0.0], [0.1, 0.99, 0.0], 0.035, bleed=0.2, organ="gut")
 for side, sx in (("r", 1), ("l", -1)):
-    sph(f"kidney_{side}", "organ", "abdomen", m([0.06, 1.06, 0.065], sx), 0.032, bleed=1.2, organ="kidney")
+    sph(f"kidney_{side}", "organ", "abdomen", m([0.06, 1.06, 0.065], sx), 0.032, bleed=4.0, organ="kidney")
 cap("pelvis_bone", "bone", "pelvis", [-0.12, 0.93, 0.02], [0.12, 0.93, 0.02], 0.05, strength=220)
 sph("sacrum", "bone", "pelvis", [0, 0.9, 0.085], 0.035, strength=150)
 sph("bladder", "organ", "pelvis", [0, 0.85, -0.05], 0.04, bleed=0.3, organ="gut")
