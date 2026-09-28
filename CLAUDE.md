@@ -189,3 +189,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `run: echo "{\"number\": ...}"` has ": " in a plain YAML scalar, so GitHub rejected the workflow and
   the web/releases stayed on build 26. Fixed with a block scalar + printf; always parse the workflow
   YAML before pushing CI changes (command above).
+- 2026-09-28 (later): Build 32 had the glass fix but Sean's browser kept the cached `index.pck`. CI now
+  renames it `index-<run>.pck` and points `mainPack` at it, so every build is fetched fresh. F1 help's
+  first line is "SALT CREEK BUILD N (sha)" and a small build label sits in the bottom-right corner.
+  No FogVolumes on the Compatibility (web) renderer. New test: shooting a store window with the
+  player's gun breaks it. 76 tests pass.
