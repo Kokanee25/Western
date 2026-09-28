@@ -66,6 +66,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"debug_resolution"):
 		Settings.cycle_internal_resolution()
 	elif event.is_action_pressed(&"debug_texel_size"):
-		PixelArt.cycle_density()
+		Settings.cycle_texel_density()
 	elif event.is_action_pressed(&"debug_pixel_shading"):
 		Settings.set_pixel_shading(not Settings.pixel_shading)

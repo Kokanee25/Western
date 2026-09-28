@@ -22,6 +22,8 @@ var touch_look_sensitivity := 0.25
 var invert_y := false
 ## Pixel shading: banded colour levels and ordered dither on the final frame (F6).
 var pixel_shading := false
+## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.
+var texels_per_meter := 40.0
 ## Tests turn this off so they never touch the player's settings file.
 var autosave := true
 
@@ -38,6 +40,8 @@ func reset_to_defaults() -> void:
 	touch_look_sensitivity = 0.25
 	invert_y = false
 	pixel_shading = false
+	texels_per_meter = 40.0
+	_apply_texels()
 	changed.emit()
 
 
@@ -52,6 +56,8 @@ func load_from_disk() -> void:
 	touch_look_sensitivity = cfg.get_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
 	invert_y = cfg.get_value("controls", "invert_y", invert_y)
 	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
+	texels_per_meter = cfg.get_value("video", "texels_per_meter", texels_per_meter)
+	_apply_texels()
 	changed.emit()
 
 
@@ -60,6 +66,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "internal_resolution", internal_resolution)
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
+	cfg.set_value("video", "texels_per_meter", texels_per_meter)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
@@ -80,6 +87,31 @@ func cycle_internal_resolution() -> void:
 func set_integer_scaling(on: bool) -> void:
 	integer_scaling = on
 	_changed()
+
+
+func cycle_texel_density() -> void:
+	var presets := PixelArt.DENSITY_PRESETS
+	var i := 0
+	for j in presets.size():
+		if is_equal_approx(presets[j][0], texels_per_meter):
+			i = j
+	texels_per_meter = presets[(i + 1) % presets.size()][0]
+	_apply_texels()
+	_changed()
+
+
+## One line describing the current look, e.g. "640×360 · texels 40/m smoothed · shading off".
+func look_description() -> String:
+	return "%d×%d · texels %d/m %s · shading %s" % [internal_resolution.x, internal_resolution.y,
+			int(texels_per_meter), "smoothed" if PixelArt.use_mipmaps else "crisp", "on" if pixel_shading else "off"]
+
+
+func _apply_texels() -> void:
+	var mip := true
+	for p in PixelArt.DENSITY_PRESETS:
+		if is_equal_approx(p[0], texels_per_meter):
+			mip = p[1]
+	PixelArt.set_density(texels_per_meter, mip)
 
 
 func set_pixel_shading(on: bool) -> void:

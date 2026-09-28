@@ -137,3 +137,7 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   `tools/screenshots.gd` takes `--texels= --nomip --shade --res=WxH --window --suffix=` for comparisons.
   49 tests pass.
   - Next: Sean picks a combination (renders suggested ~480×270 + 24/m + shading); make it the default.
+- 2026-09-28 (later): Sean liked the starting look (640×360, 40 texels/m smoothed) before pressing F7.
+  F7 texel size is now a saved setting like F2/F6 (`Settings.texels_per_meter`), each change flashes
+  the look on screen (`Settings.look_description()`), and F3 lists all three. 50 tests pass.
+  - Next: confirm Sean's exact combination (res + shading) and make it the default.
