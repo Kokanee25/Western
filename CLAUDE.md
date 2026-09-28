@@ -97,6 +97,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   placeholder scenery.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph), `FalseFrontBuilding`, `Boardwalk`, `HitchingRail`, `WaterTrough`.
+- `src/bodies/` — `Anatomy` (config/anatomy.json: segments, bones, arteries, organs, fingers; traces a
+  bullet through them), `Physiology` (blood, bleeds, shock, pain, adrenaline, breathing;
+  config/physiology.tres), `HumanBody` (segment hitboxes, meshes, clothes, wound decals, ragdoll),
+  `OutlawBrain` (fear/nerve, fights, surrenders), `Layers` (physics/render layer bits).
+  `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
@@ -194,3 +199,29 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   first line is "SALT CREEK BUILD N (sha)" and a small build label sits in the bottom-right corner.
   No FogVolumes on the Compatibility (web) renderer. New test: shooting a store window with the
   player's gun breaks it. 76 tests pass.
+- 2026-09-28 (later): Sean confirmed build 35 in the browser: glass shatters, version shows. The cached
+  build 32 was the problem; per-build pck names fix it from 35 on.
+  - Next: Sean's feel review of the gun (rhythm, recoil, sound, smoke, auto-cock?), then M2 — bodies.
+- 2026-09-28 (later): Sean wants the saloon concept painting's look as the target. Look pass planned
+  **after M2** (DESIGN.md §4): outline/rim/palette final pass, image-model pixel textures, denser dressing.
+  - Next: M2 — bodies.
+- 2026-09-28 (later): **M2 — bodies — first playable.** `config/anatomy.json` (17 segments; skull,
+  spine, ribs, pelvis, long bones; carotid/subclavian/brachial/radial/femoral/popliteal arteries and the
+  aorta; brain, heart, lungs, liver, spleen, kidneys, gut; ten fingers). `Anatomy.trace()` follows the
+  ball through flesh (13 J/cm), breaks or stops on bone, cuts arteries, tears organs, takes fingers.
+  `Physiology`: bleeds with clotting, pressure and tourniquets; shock and blackout from blood loss;
+  pain arriving over seconds and masked by adrenaline; collapsing lungs; broken neck; the gut wound
+  that kills over ~30 game hours. `HumanBody`: the test outlaw (hitbox per segment, low-poly pixel
+  meshes, hands finger by finger, clothes with holes, entry/exit decals and stains that spread as he
+  bleeds, a blood pool, ConeTwist ragdoll when he can't stand, fingers and gun as rigid bodies).
+  `OutlawBrain`: calm until shot at, then fights (5 shots, 12 s reload); fear from near misses, hits,
+  pain, shock, an empty hand and "Drop it!" (G) while covered; surrenders past his nerve. Player wounds
+  (`PlayerWounds`): the same anatomy, red flash, grey edges, crawl on a broken leg, no running with a
+  holed lung, gun gone with a broken arm, hold B for pressure then a belt, blackout → come round in
+  the store. Sounds: flesh hit, near-miss zip. Subtitles for speech. F9 new outlaw. 108 tests pass.
+  Renders in `docs/screenshots/m2/`.
+  - Known gaps: no animation beyond poses and spring flinches (no mocap yet, no active ragdoll
+    balance, no clutching the wound or crawling for the outlaw); he doesn't move, take cover, flee
+    or tend himself; knees are cone joints (can bend the wrong way); player's own body doesn't show
+    wounds; no doctor, so blackout just puts you in the store; decals don't draw on web.
+  - Next: Sean's verdict on the gunfight, then tune (accuracy, nerve, bleed times) before M3.

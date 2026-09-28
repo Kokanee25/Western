@@ -25,6 +25,11 @@ const VIEWS := [
 	["saloon_front_dusk", 19.0, Vector3(7.0, 0.0, -7.5), 0.0, 8.0],
 	["saloon_night", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, -6.0],
 	["saloon_back_wall_night", 21.5, Vector3(7.0, 0.38, -19.0), 0.0, 4.0],
+	["outlaw_range", 15.0, Vector3(17.0, 0.0, -12.5), -90.0, -2.0],
+	["outlaw_close", 15.0, Vector3(23.6, 0.0, -12.3), -95.0, -8.0],
+	["outlaw_fight", 15.0, Vector3(16.0, 0.0, -12.5), -90.0, 0.0, "outlaw_fight"],
+	["outlaw_surrender", 15.0, Vector3(22.0, 0.0, -12.2), -94.0, -3.0, "outlaw_surrender"],
+	["outlaw_down", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -45.0, "outlaw_down"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 ]
 
@@ -116,6 +121,8 @@ func _run() -> void:
 					await physics_frame
 			for i in 240:
 				await physics_frame
+		if setup.begins_with("outlaw_"):
+			await _outlaw_setup(main, setup, player)
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
@@ -159,3 +166,47 @@ func _run() -> void:
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
 	quit()
+
+
+## Stage the test outlaw: provoked and shooting, shot and surrendering, or dead on the ground.
+func _outlaw_setup(main, setup, player) -> void:
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	var man = spawner.spawn()
+	for i in 5:
+		await physics_frame
+	var brain = man.get_node("Brain")
+	var ballistics = main.find_child("Ballistics", true, false)
+	var eye = player.global_position + Vector3.UP * 1.6
+	var parts = man.parts
+	var t = load("res://config/revolver.tres")
+	var targets = []
+	if setup == "outlaw_fight":
+		targets = [man.global_position + Vector3(0.0, 1.7, 0.9)]
+	elif setup == "outlaw_surrender":
+		brain.nerve = 99.0
+		targets = [parts[&"abdomen"].global_position + Vector3(0, 0.03, -0.06), parts[&"thigh_l"].global_position + Vector3(0, 0.08, 0.06)]
+	elif setup == "outlaw_down":
+		targets = [parts[&"chest"].global_position + Vector3(0, 0.02, 0.05)]
+	var exclude: Array[RID] = [player.get_rid()]
+	for target in targets:
+		var b = ballistics.fire(eye, (target - eye).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+		b.shooter = player
+		for i in 10:
+			await physics_frame
+	if setup == "outlaw_fight":
+		for i in 70:
+			await physics_frame
+	elif setup == "outlaw_surrender":
+		man.physiology.step(40.0)
+		brain.set_physics_process(true)
+		brain._surrender()
+		for i in 60:
+			await physics_frame
+	elif setup == "outlaw_down":
+		man.physiology.blood_ml = 2400.0
+		for i in 150:
+			await physics_frame
+		man.physiology.step(0.0)
+		for i in 30:
+			await physics_frame
+	player.wounds.physiology = Physiology.new()

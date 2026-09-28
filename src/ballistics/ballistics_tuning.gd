@@ -15,3 +15,5 @@ extends Resource
 @export var gravity := 9.8
 ## Share of the bullet's momentum pushed into loose objects it hits.
 @export var impulse_transfer := 0.6
+## A bullet passing this close to someone's head is a near miss (they hear it crack past).
+@export var near_miss_distance := 2.5

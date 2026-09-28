@@ -33,3 +33,20 @@ func test_walk_from_road_into_store() -> void:
 	var local := store.to_local(player.global_position)
 	check(inside, "walked through the door (ended at %s)" % local)
 	check_near(local.y, store.floor_top, 0.06, "standing on the store floor")
+
+
+func test_outlaw_waits_at_the_range() -> void:
+	var spawner: OutlawSpawner = street.get_node(^"OutlawSpawn")
+	var man := spawner.outlaw
+	check(man != null and man.is_inside_tree(), "an outlaw stands at the range")
+	check(man.global_position.distance_to(spawner.global_position) < 0.01, "where the spawn is")
+	check_eq(spawner.brain().mood, OutlawBrain.Mood.CALM, "minding his own business")
+	man.physiology.blood_ml = 2000.0
+	await physics_frames(3)
+	check(man.limp, "shot to pieces, he's down")
+	Input.action_press(&"debug_reset_outlaw")
+	await process_frames(2)
+	Input.action_release(&"debug_reset_outlaw")
+	await physics_frames(3)
+	check(spawner.outlaw != man and not spawner.outlaw.limp, "F9 brings a fresh one")
+	check_eq(get_tree().get_nodes_in_group(&"people").size(), 1, "and clears the old one away")

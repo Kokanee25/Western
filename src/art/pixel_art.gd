@@ -205,6 +205,31 @@ static func skin(key: String, base: Color, seed: int) -> ImageTexture:
 	return tex
 
 
+## Blood: an irregular blob in three reds, soaked darker in the middle. `hole` adds the dark
+## punched hole of a bullet wound at the centre. Alpha is hard-edged (use alpha scissor).
+static func blood(key: String, seed: int, hole := false, n := 32) -> ImageTexture:
+	if _cache.has(key):
+		return _cache[key]
+	var shades: Array[Color] = [Color(0.2, 0.02, 0.02), Color(0.33, 0.04, 0.03), Color(0.46, 0.07, 0.05)]
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var cells := maxi(n / 8, 2)
+	for y in n:
+		for x in n:
+			var d := Vector2(x + 0.5 - n * 0.5, y + 0.5 - n * 0.5).length() / (n * 0.5)
+			var wob := (_noise(x * 64 / n, y * 64 / n, cells, cells, seed) - 0.5) * 0.7
+			if d + wob > 0.95:
+				img.set_pixel(x, y, Color(0, 0, 0, 0))
+				continue
+			var soak := clampf(1.0 - d * 1.3 + (_noise(x * 64 / n, y * 64 / n, cells * 2, cells * 2, seed + 3) - 0.5) * 0.5, 0.0, 0.999)
+			var c := shades[2 - _band(soak, 3)]
+			if hole and d < 0.2:
+				c = Color(0.05, 0.01, 0.01) if d < 0.13 else Color(0.14, 0.02, 0.02)
+			img.set_pixel(x, y, c)
+	var tex := ImageTexture.create_from_image(img)
+	_cache[key] = tex
+	return tex
+
+
 ## A soft round puff in a few shades (smoke, dust), alpha falling off in steps.
 static func puff(key: String, seed: int) -> ImageTexture:
 	if _cache.has(key):

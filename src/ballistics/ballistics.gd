@@ -16,6 +16,9 @@ class Bullet:
 	var exclude: Array[RID] = []
 	var path := PackedVector3Array()
 	var hits: Array[Dictionary] = []
+	var shooter: Node
+	## People it has already cracked past (near misses are announced once each).
+	var passed := {}
 
 	func energy() -> float:
 		return 0.5 * mass * velocity.length_squared()
@@ -63,12 +66,13 @@ func step(b: Bullet, delta: float) -> void:
 	if space == null:
 		return
 	var remaining := b.velocity.length() * delta
+	var start := b.position
 	var guard := 0
 	while remaining > 0.0001 and b.alive and guard < 12:
 		guard += 1
 		var dir := b.velocity.normalized()
 		var to := b.position + dir * remaining
-		var q := PhysicsRayQueryParameters3D.create(b.position, to)
+		var q := PhysicsRayQueryParameters3D.create(b.position, to, Layers.BULLETS)
 		q.exclude = b.exclude
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
@@ -81,6 +85,7 @@ func step(b: Bullet, delta: float) -> void:
 		b.path.append(hit.position)
 		remaining = _impact(b, hit, remaining)
 	b.velocity.y -= tuning.gravity * delta
+	_near_misses(b, start, b.position)
 	if b.alive:
 		b.path.append(b.position)
 	if b.age > tuning.max_age or b.velocity.length() < tuning.min_speed or b.position.y < -50.0:
@@ -94,7 +99,27 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	var e_before := b.energy()
 	var info := {"position": hit.position, "normal": hit.normal, "direction": dir, "collider": collider,
 			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0}
-	if collider is StructureMember:
+	if collider != null and collider.has_meta(&"human_body"):
+		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
+		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass)
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		if res.segment == &"":
+			return remaining  # through the space round him without touching him
+		info.person = person
+		info.segment = res.segment
+		if res.exit != null:
+			var exit_point: Vector3 = res.exit
+			var through: float = (hit.position as Vector3).distance_to(exit_point)
+			_set_energy(b, res.energy_out)
+			b.position = exit_point + dir * 0.002
+			b.path.append(b.position)
+			info.penetrated = true
+			info.energy_after = b.energy()
+			b.hits.append(info)
+			Events.bullet_hit.emit(info)
+			return maxf(remaining - through, 0.0)
+		b.alive = false
+	elif collider is StructureMember:
 		var member := collider as StructureMember
 		info.member_id = member.member_id
 		if member.kind == &"glass":
@@ -141,6 +166,20 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	b.hits.append(info)
 	Events.bullet_hit.emit(info)
 	return remaining if b.alive else 0.0
+
+
+## Announce a bullet cracking past someone's head (within `tuning.near_miss_distance`).
+func _near_misses(b: Bullet, from: Vector3, to: Vector3) -> void:
+	var people := get_tree().get_nodes_in_group(&"people") + get_tree().get_nodes_in_group(&"player")
+	for p: Node in people:
+		if p == b.shooter or b.passed.has(p) or not p is Node3D:
+			continue
+		var head := (p as Node3D).global_position + Vector3.UP * 1.5
+		var closest := Geometry3D.get_closest_point_to_segment(head, from, to)
+		var d := closest.distance_to(head)
+		if d < tuning.near_miss_distance:
+			b.passed[p] = true
+			Events.near_miss.emit(p, b.shooter, d)
 
 
 func _set_energy(b: Bullet, joules: float) -> void:

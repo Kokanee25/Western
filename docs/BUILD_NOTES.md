@@ -1,8 +1,9 @@
-## Salt Creek — M1: the revolver
+## Salt Creek — M2: bodies
 
-A single-action Colt in your hand, built in code, firing real bullets that go through boards and
-leave holes you can see daylight through. On top of the M0 test street: the pixel look, a
-first-person body, member-built store and saloon, and a 45-minute day.
+There's a man at the range now. Under his clothes is a hidden anatomy (bones, arteries, organs,
+fingers three bones each) and a body that bleeds, goes into shock, feels pain late because of the
+adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
+same body.
 
 ### Download
 
@@ -12,7 +13,8 @@ first-person body, member-built store and saloon, and a 45-minute day.
   not notarised yet, so a plain double-click is refused the first time.)
 - **Linux:** `SaltCreek-linux.tar.gz` → extract → run `./SaltCreek.x86_64`.
 - **Phone / browser:** the web build is on the project's GitHub Pages site. It uses the simpler web
-  renderer, so no volumetric light shafts, softer lighting overall. It's for quick looks; judge the
+  renderer, so no volumetric light shafts, softer lighting overall, and wounds and blood don't
+  show on bodies (the web renderer has no decals). It's for quick looks; judge the
   look on PC.
 
 ### Controls
@@ -24,6 +26,9 @@ first-person body, member-built store and saloon, and a 45-minute day.
 | **Aim down the sights** | Right mouse (hold) | LT |
 | **Reload** (open gate, work round the cylinder) | R — hold to keep going, press again to close | X |
 | **Holster / draw** | H | LB |
+| **Shout "Drop it!"** | G | D-pad left |
+| **Press on your wounds** (hold; keep holding for a belt round a bleeding limb) | B | D-pad down |
+| New outlaw (debug) | F9 | D-pad right |
 | Bullet paths (debug) | F8 | |
 | Move | WASD | Left stick |
 | Look | Mouse | Right stick |
@@ -43,7 +48,33 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 ### What to try
 
-**The revolver (new in M1)**
+**The outlaw (new in M2)**
+
+1. Press **F5** until you're at **the outlaw** (east end of the street, a man in a vest and hat
+   ~10 m away, facing you). **F3** shows his state and wounds, and yours.
+2. He stands easy until you shoot **at** him. A ball cracking past his head counts. Then he says so,
+   turns, raises his gun and fires back: five shots, then a slow reload. That's your chance.
+3. **Where you hit matters**:
+   - **Thigh, inside front** (femoral artery): he keeps fighting, bleeding hard, and goes grey and
+     down in about three minutes. Watch the blood spread through his trousers.
+   - **Thigh bone**: he drops at once, still awake.
+   - **Upper arm**: the gun falls out of his hand.
+   - **Belly**: he'll live for game hours (press **T** to speed time), conscious and in pain.
+   - **Heart** or **head**: over quickly.
+   - **His gun hand**: fingers come off and fall in the dirt. Lose the trigger finger and he shoots
+     with the middle one (worse).
+   A ball through his forearm carries on into whatever's behind.
+4. **Nerve**: near misses, hits, pain, blood loss and losing his gun all frighten him. When fear
+   passes his nerve he drops his gun and puts his hands up. Wound him, keep your gun **on** him
+   and press **G** ("Drop it!") a few times, and he may quit without another shot.
+5. **Your own wounds**: when he hits you the screen flashes red and you're told where. A broken leg
+   puts you on the ground, crawling. A holed lung means no running. A broken gun arm takes your gun.
+   Blood loss greys the edges of the screen. **Hold B** to press on the wound (gun away), and keep
+   holding: a belt goes round a bleeding leg or arm. If you pass out you come round on the store
+   floor. (The doctor comes in M5.)
+6. **F9** brings a fresh outlaw; the old one, his gun and any fingers are cleared away.
+
+**The revolver (M1)**
 
 1. Press **F5** until you're at **the range** (east end of the street, facing a target board and a
    rail of tin cans).
@@ -94,6 +125,9 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 ### Tell me
 
+- **Does the gunfight feel good?** He's the first draft: does he shoot too well or too badly? Does
+  he give up too soon or too late? Is it clear where you hit him and what it did?
+- Is the blood too much, too little, too bright?
 - Does the gun feel good? Cock/fire rhythm, recoil, sound, smoke — too much, too little?
 - Is cocking on a separate button right, or should there be an "auto-cock" option?
 - Can you see the bullet holes well enough?
