@@ -98,11 +98,22 @@ func _process(delta: float) -> void:
 
 
 func _can_act() -> bool:
-	if _player and not _player.input_enabled:
-		return false
-	if needs_captured_mouse and DisplayServer.get_name() != "headless" and not DisplayServer.is_touchscreen_available():
-		return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	return true
+	return not (_player and not _player.input_enabled)
+
+
+## Mouse buttons only count once the game has the mouse (the click that grabs it shouldn't fire).
+## Keys, pads and touch always work.
+func _mouse_ready() -> bool:
+	if not needs_captured_mouse or DisplayServer.get_name() == "headless" or DisplayServer.is_touchscreen_available():
+		return true
+	return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+
+
+func _pressed_by_mouse_only(action: StringName) -> bool:
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventMouseButton and Input.is_mouse_button_pressed((ev as InputEventMouseButton).button_index):
+			return true
+	return false
 
 
 func _read_controls(delta: float) -> void:
@@ -111,7 +122,7 @@ func _read_controls(delta: float) -> void:
 	if not drawn or _draw < 0.9:
 		aiming = false
 		return
-	aiming = Input.is_action_pressed(&"aim") and not state.gate_open
+	aiming = Input.is_action_pressed(&"aim") and not state.gate_open and (_mouse_ready() or not _pressed_by_mouse_only(&"aim"))
 	if Input.is_action_just_pressed(&"reload"):
 		_reload_held = 0.0
 		reload_press()
@@ -121,7 +132,7 @@ func _read_controls(delta: float) -> void:
 			reload_press()
 	if Input.is_action_just_pressed(&"cock"):
 		cock_press()
-	if Input.is_action_just_pressed(&"fire"):
+	if Input.is_action_just_pressed(&"fire") and (_mouse_ready() or not _pressed_by_mouse_only(&"fire")):
 		pull_trigger()
 	if Settings.auto_cock and state.hammer == RevolverState.Hammer.DOWN and not state.gate_open and state.ready():
 		state.cock()

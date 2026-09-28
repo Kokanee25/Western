@@ -81,6 +81,9 @@ jobs:
       - name: Import project
         run: ~/godot/godot --headless --import || true
 
+      - name: Stamp the build number
+        run: echo "{\"number\": \"${{ github.run_number }}\", \"commit\": \"$(git rev-parse --short HEAD)\"}" > build_info.json
+
       - name: Export
         run: |
           mkdir -p build/windows build/macos build/linux build/web
