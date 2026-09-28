@@ -310,6 +310,11 @@ later. Wounds last for the player too (a broken leg means weeks on a crutch).
 - **Wounded:** anatomy weakens specific muscles — a broken femur makes that leg go slack so he
   collapses onto it; a shot shoulder drops the arm; blood loss slowly weakens everything.
 - **Unconscious:** slack but breathing and groaning. **Dead:** muscles off, pure ragdoll.
+- **Agility and hand switches:** a hand planted on a corner post to swing round at a run (tighter
+  turn, automatic near corners, not with a wounded arm); switching the pistol to the weak hand to shoot
+  around a left-hand corner or after a broken arm or lost trigger finger (shakier until the skill
+  grows); switching rifle shoulders. Enemies do the same — a wounded outlaw changing hands shows what
+  you did to him.
 - **Mocap covers the living moments before physics wins** (the stumble, catching himself on the rail,
   the gut-shot stagger to cover); the handoff from animation to physics is what makes it read as real.
   See `docs/MOCAP.md`.

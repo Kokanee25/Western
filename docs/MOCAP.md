@@ -74,6 +74,15 @@ real:
 `lean_one_hand_catch_breath`, `crouch_hand_on_cover` (barrel/trough), `steady_self_stumbling`,
 `push_off_cover_to_run`
 
+### Batch 1e — agility and hand switches (~8)
+- `corner_hand_plant_turn_left`, `corner_hand_plant_turn_right` — running at speed, plant a hand on
+  a corner and swing round (IK puts the hand on the real corner; triggered automatically on a sharp
+  turn near a corner at a run; gives a tighter turn without losing speed; not with a wounded arm).
+- `pistol_switch_to_weak_hand`, `pistol_switch_to_strong_hand` — pass the pistol between hands
+  (shooting around a left-hand corner; carrying on after a broken arm or lost trigger finger).
+- `pistol_weak_hand_aim_idle`, `pistol_weak_hand_walk`
+- `rifle_switch_shoulder_left`, `rifle_switch_shoulder_right` — move the stock to the other shoulder.
+
 ### Batch 2 — first aid (~8)
 `pressure_on_wound`, `tourniquet_thigh`, `bandage_arm`, `splint_leg`, `drag_by_collar`,
 `carry_over_shoulder`, `pour_whiskey_on_wound`, `check_pulse_breathing`
