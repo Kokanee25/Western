@@ -14,6 +14,10 @@ const VIEWS := [
 	["street_night", 23.0, Vector3(9.0, 0.0, -10.0), 135.0, 4.0],
 	["street_morning", 7.0, Vector3(-12.0, 0.0, -7.0), -95.0, 3.0],
 	["look_down_body", 15.0, Vector3(3.0, 0.0, -6.0), 180.0, -75.0],
+	["saloon_front_dusk", 19.0, Vector3(7.0, 0.0, -7.5), 0.0, 8.0],
+	["saloon_night", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, -6.0],
+	["saloon_back_wall_night", 21.5, Vector3(7.0, 0.38, -19.0), 0.0, 4.0],
+	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 ]
 
 

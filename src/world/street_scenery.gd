@@ -153,7 +153,7 @@ func _build_sagebrush() -> void:
 		var p := Vector3(_rng.randf_range(-120.0, 120.0), 0.0, _rng.randf_range(-120.0, 120.0))
 		if absf(p.z - road_center_z) < road_half_width + 1.5:
 			continue
-		if p.x > -34.0 and p.x < 10.0 and p.z > -27.0 and p.z < 12.0:
+		if p.x > -34.0 and p.x < 15.0 and p.z > -32.0 and p.z < 12.0:
 			continue  # keep the built-up area clear
 		var s := _rng.randf_range(0.4, 1.3)
 		var t := Transform3D(Basis.from_scale(Vector3(s, s * _rng.randf_range(0.6, 0.9), s)).rotated(Vector3.UP, _rng.randf() * TAU), p + Vector3(0, s * 0.15, 0))

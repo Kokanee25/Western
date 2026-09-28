@@ -108,3 +108,12 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   - Reference renders (software Vulkan via lavapipe, so a real GPU may differ slightly):
     `docs/screenshots/m0/`. Re-render with `tools/screenshots.gd` and compare after lighting changes.
   - Next: Sean's review of the look and feel, then M1 (the revolver).
+- 2026-09-28 (later): **Meshy art trial set up.** A member-built `SaloonBuilding` across the street
+  is the art test room (bar, back bar, card tables, piano, stag head, sconces; brighter night ambient).
+  Loose props come from `assets/props/manifest.json` via `PropLibrary`: `<id>.glb` if present (scaled
+  to the manifest's real size, anchored to floor or wall, box collision), else a placeholder box.
+  `tools/meshy_fetch.py` generates the GLBs from the manifest prompts (needs `MESHY_API_KEY` and
+  meshy.ai allowed in the environment's network settings; untested against the live API so far).
+  F5 / D-pad up jumps between places. 43 tests pass.
+  - Next: get the 12 models (script or Sean uploads GLBs), render the saloon views, judge against
+    `docs/concept/saloon-night.png`. Watch GLB sizes in git (2K textures add up; downscale if needed).
