@@ -14,6 +14,11 @@ const VIEWS := [
 	["street_night", 23.0, Vector3(9.0, 0.0, -10.0), 135.0, 4.0],
 	["street_morning", 7.0, Vector3(-12.0, 0.0, -7.0), -95.0, 3.0],
 	["look_down_body", 15.0, Vector3(3.0, 0.0, -6.0), 180.0, -75.0],
+	["gun_hip_range", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -1.0],
+	["gun_aim_range", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -1.2, "aim"],
+	["gun_loading", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -6.0, "loading"],
+	["gun_smoke_saloon", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0, "shot"],
+	["holes_from_inside", 15.0, Vector3(3.0, 0.38, 3.2), 0.0, 2.0, "holes"],
 	["wall_closeup_noon", 12.5, Vector3(1.6, 0.38, -1.4), 180.0, 5.0],
 	["saloon_front_dusk", 19.0, Vector3(7.0, 0.0, -7.5), 0.0, 8.0],
 	["saloon_night", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, -6.0],
@@ -75,6 +80,53 @@ func _run() -> void:
 		player.input_enabled = true
 		player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 		player.input_enabled = false
+		var gun = player.get_node_or_null(^"Head/Camera3D/Gun")
+		var setup: String = v[5] if v.size() > 5 else ""
+		if gun:
+			gun.aiming = setup == "aim"
+			if setup == "loading" and not gun.state.gate_open:
+				gun.state.busy = 0.0
+				gun.state.open_gate()
+			elif setup != "loading" and gun.state.gate_open:
+				gun.state.busy = 0.0
+				gun.state.close_gate()
+		if setup == "shot" and gun:
+			gun.state.busy = 0.0
+			gun.state.cock()
+			gun.state.busy = 0.0
+			gun.pull_trigger()
+			for i in 90:
+				await physics_frame
+		if setup == "holes" and gun:
+			# Shoot the front wall from the boardwalk, then look at it from inside.
+			var inside: Vector3 = player.global_position
+			player.global_position = Vector3(3.0, 0.38, -2.0)
+			player.rotation = Vector3(0.0, PI, 0.0)
+			for k in 7:
+				player.input_enabled = true
+				player.add_look(Vector2([-22, -15, 16, 24, -18, 20, -26][k] - (0.0 if k == 0 else [-22, -15, 16, 24, -18, 20, -26][k - 1]), ([8, -2, 4, 12, 20, 22, -6][k]) - player.get_pitch_degrees()))
+				player.input_enabled = false
+				await physics_frame
+				gun.state.busy = 0.0
+				if gun.state.rounds_loaded() == 0:
+					gun.state.chambers.fill(RevolverState.Chamber.LOADED)
+				gun.state.cock()
+				gun.state.busy = 0.0
+				gun.pull_trigger()
+				for i in 12:
+					await physics_frame
+			for i in 30:
+				await physics_frame
+			for n in get_nodes_in_group(&"spent_cases"):
+				n.queue_free()
+			for c in root.find_children("*", "GunSmoke", true, false):
+				c.queue_free()
+			player.global_position = inside
+			player.rotation = Vector3(0.0, deg_to_rad(v[3]), 0.0)
+			player.input_enabled = true
+			player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
+			player.input_enabled = false
+			gun.toggle_holster()
 		for i in 40:
 			await process_frame
 		if window_shot:

@@ -1,7 +1,8 @@
-## Salt Creek — M0: the test street
+## Salt Creek — M1: the revolver
 
-The project skeleton: the pixel look, a first-person body, one false-front store built plank by
-plank, and a 45-minute day.
+A single-action Colt in your hand, built in code, firing real bullets that go through boards and
+leave holes you can see daylight through. On top of the M0 test street: the pixel look, a
+first-person body, member-built store and saloon, and a 45-minute day.
 
 ### Download
 
@@ -18,6 +19,12 @@ plank, and a 45-minute day.
 
 | | Keyboard + mouse | Controller |
 |---|---|---|
+| **Cock the hammer** | Q or mouse wheel down | RB |
+| **Fire** (squeeze the trigger) | Left mouse | RT |
+| **Aim down the sights** | Right mouse (hold) | LT |
+| **Reload** (open gate, work round the cylinder) | R — hold to keep going, press again to close | X |
+| **Holster / draw** | H | LB |
+| Bullet paths (debug) | F8 | |
 | Move | WASD | Left stick |
 | Look | Mouse | Right stick |
 | Run | Hold Shift | Click left stick (runs until you stop) |
@@ -35,6 +42,29 @@ plank, and a 45-minute day.
 On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 ### What to try
+
+**The revolver (new in M1)**
+
+1. Press **F5** until you're at **the range** (east end of the street, facing a target board and a
+   rail of tin cans).
+2. **Squeeze the trigger first**: nothing happens. It's single action. **Cock** (Q / wheel / RB),
+   watch the hammer come back and the cylinder turn, then **fire**. Black-powder smoke fills the air
+   and hangs there; the shot echoes off the hills.
+3. Five shots, then a *click*: it's carried with the hammer down on an empty chamber, as they did.
+4. **Reload** (R / X): the gun rolls over, the gate opens, spent cases fall out — and stay on the
+   ground — and fresh rounds go in one at a time. Hold R to keep going; press once more to close.
+5. **Aim** (right mouse / LT) to raise the sights: tighter shots. From the hip, and moving, they
+   wander.
+6. **Holes:** shoot the target board, then walk up to it. Holes go right through the boards (look
+   through them) and stop in the heavy timbers behind. Shoot the store's front wall, go inside, and
+   look back at it — daylight through the holes. Shoot a stud and the bullet stops in it.
+7. **Tin cans:** knock them off the rail.
+8. **Smoke:** fire a few shots in the saloon at night (F5, T to night): the smoke hangs under the
+   roof and glows in the lamplight.
+9. **F8** shows where every bullet went.
+10. Rare misfires: once in a while the hammer falls and nothing happens. Cock and try the next one.
+
+**The world (M0)**
 
 1. **The look.** You start at 17:00 on the street, sun low in the west. Every board, beam and the
    ground now has chunky pixel-art texture (made in code), under the same modern lighting. Everything
@@ -62,6 +92,9 @@ On a phone: left thumb moves, right thumb looks, buttons bottom-right.
 
 ### Tell me
 
+- Does the gun feel good? Cock/fire rhythm, recoil, sound, smoke — too much, too little?
+- Is cocking on a separate button right, or should there be an "auto-cock" option?
+- Can you see the bullet holes well enough?
 - Does the pixel size and the lighting feel like the concept art? Too sharp, too soft, too dark?
 - Walk / run speed, mouse and stick feel, head bob: too much, too little?
 - Anything broken, stuck or ugly.

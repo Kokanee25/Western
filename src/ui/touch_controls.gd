@@ -4,6 +4,10 @@ extends Control
 ## Hidden when there is no touch screen.
 
 const BUTTONS := [
+	[&"fire", "FIRE"],
+	[&"cock", "COCK"],
+	[&"reload", "LOAD"],
+	[&"aim", "AIM"],
 	[&"jump", "JUMP"],
 	[&"crouch_toggle", "CROUCH"],
 	[&"run_toggle", "RUN"],
@@ -32,7 +36,9 @@ func _button_rects() -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	var r := size.y * 0.075
 	var base := Vector2(size.x - r * 2.6, size.y - r * 2.6)
-	var offsets := [Vector2(0, 0), Vector2(-r * 2.4, 0), Vector2(0, -r * 2.4), Vector2(-r * 2.4, -r * 2.4)]
+	# Gun buttons nearest the right thumb, movement buttons in the column beside them.
+	var offsets := [Vector2(0, 0), Vector2(0, -r * 2.4), Vector2(0, -r * 4.8), Vector2(0, -r * 7.2),
+			Vector2(-r * 2.4, 0), Vector2(-r * 2.4, -r * 2.4), Vector2(-r * 2.4, -r * 4.8), Vector2(-r * 2.4, -r * 7.2)]
 	for o in offsets:
 		rects.append(Rect2(base + o - Vector2(r, r), Vector2(r, r) * 2.0))
 	return rects

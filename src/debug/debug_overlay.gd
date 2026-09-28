@@ -2,11 +2,12 @@ extends CanvasLayer
 ## Developer overlay drawn at full window resolution (the game itself has almost no HUD).
 ## F1 shows the controls, F3 shows clock/speed/resolution readouts.
 
-const HELP := """SALT CREEK — M0 test street
+const HELP := """SALT CREEK — test street
+Revolver: cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T / Y     Debug readout: F3 / View
-Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon): F5 / D-pad up
+Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 Release mouse: Esc     This help: F1"""
 
 var _help: Label
@@ -27,7 +28,7 @@ func _ready() -> void:
 	_toast.add_theme_font_size_override(&"font_size", 22)
 	Settings.changed.connect(_show_look)
 	if DisplayServer.is_touchscreen_available():
-		_help.text = "SALT CREEK — M0 test street\nLeft thumb: move   Right thumb: look\nButtons: jump, crouch, run, time speed"
+		_help.text = "SALT CREEK — test street\nLeft thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time"
 
 
 func _label(pos: Vector2) -> Label:

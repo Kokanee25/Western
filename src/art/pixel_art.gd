@@ -25,6 +25,21 @@ static func track(m: BaseMaterial3D) -> BaseMaterial3D:
 	return m
 
 
+## Members with bullet holes switch to member_holes.gdshader; keep them on the texel grid too.
+static var _hole_materials: Array[ShaderMaterial] = []
+
+
+static func track_hole_material(m: ShaderMaterial) -> void:
+	_hole_materials.append(m)
+	_apply_hole(m)
+
+
+static func _apply_hole(m: ShaderMaterial) -> void:
+	var t := texels_per_meter / SIZE
+	m.set_shader_parameter(&"uv_scale", Vector2(t, t))
+	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
+
+
 static func track_ground(m: ShaderMaterial) -> void:
 	_ground.append(m)
 	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
@@ -36,6 +51,9 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 	for m in _materials:
 		if is_instance_valid(m):
 			_apply(m)
+	for h in _hole_materials:
+		if is_instance_valid(h):
+			_apply_hole(h)
 	for g in _ground:
 		if is_instance_valid(g):
 			g.set_shader_parameter(&"texels_per_meter", texels)
@@ -141,6 +159,66 @@ static func dirt(key: String, base: Color, seed: int) -> ImageTexture:
 		img.set_pixel(px, py, shades[4])
 		img.set_pixel((px + 1) % SIZE, (py + 1) % SIZE, shades[0])
 	img.generate_mipmaps()
+	var tex := ImageTexture.create_from_image(img)
+	_cache[key] = tex
+	return tex
+
+
+## Metal: speckled blued steel, brass, tin. `mottle` > 0 gives case-hardened colour patches
+## (the frame of a Colt: purple, blue and straw from the bone-charcoal quench).
+static func metal(key: String, base: Color, seed: int, mottle := 0.0) -> ImageTexture:
+	if _cache.has(key):
+		return _cache[key]
+	var shades := ramp(base, 4, 0.35)
+	var patches: Array[Color] = [Color(0.36, 0.28, 0.4), Color(0.27, 0.33, 0.45), Color(0.6, 0.5, 0.33), Color(0.4, 0.38, 0.36)]
+	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	for y in SIZE:
+		for x in SIZE:
+			var v := _noise(x, y, 8, 8, seed) * 0.5 + _noise(x, y, 16, 3, seed + 3) * 0.3 + rng.randf() * 0.2
+			var c := shades[_band(v, shades.size())]
+			if mottle > 0.0:
+				var m := _noise(x, y, 6, 6, seed + 9)
+				var pc := patches[_band(_noise(x, y, 4, 4, seed + 21), patches.size())]
+				c = c.lerp(pc, clampf((m - 0.35) * 2.0, 0.0, 1.0) * mottle)
+			img.set_pixel(x, y, c)
+	img.generate_mipmaps()
+	var tex := ImageTexture.create_from_image(img)
+	_cache[key] = tex
+	return tex
+
+
+## Skin: flat tones with a few darker creases and knuckle marks.
+static func skin(key: String, base: Color, seed: int) -> ImageTexture:
+	if _cache.has(key):
+		return _cache[key]
+	var shades := ramp(base, 4, 0.22)
+	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	for y in SIZE:
+		for x in SIZE:
+			var v := _noise(x, y, 8, 8, seed) * 0.7 + _noise(x, y, 32, 32, seed + 1) * 0.3
+			img.set_pixel(x, y, shades[_band(v * 0.8 + 0.2, shades.size())])
+	img.generate_mipmaps()
+	var tex := ImageTexture.create_from_image(img)
+	_cache[key] = tex
+	return tex
+
+
+## A soft round puff in a few shades (smoke, dust), alpha falling off in steps.
+static func puff(key: String, seed: int) -> ImageTexture:
+	if _cache.has(key):
+		return _cache[key]
+	var n := 16
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	for y in n:
+		for x in n:
+			var d := Vector2(x + 0.5 - n * 0.5, y + 0.5 - n * 0.5).length() / (n * 0.5)
+			var wob := (_noise(x * 4, y * 4, 4, 4, seed) - 0.5) * 0.35
+			var a := clampf(1.0 - (d + wob), 0.0, 1.0)
+			a = floor(a * 4.0) / 4.0
+			var shade: float = 0.82 + 0.18 * floor(_noise(x * 4, y * 4, 8, 8, seed + 5) * 3.0) / 2.0
+			img.set_pixel(x, y, Color(shade, shade, shade, a))
 	var tex := ImageTexture.create_from_image(img)
 	_cache[key] = tex
 	return tex

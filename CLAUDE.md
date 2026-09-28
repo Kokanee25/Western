@@ -145,3 +145,20 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
   off) and wants the graphics options kept switchable on the fly (F2/F6/F7, saved). Recorded in
   DESIGN.md §4. The options go into a settings menu when there is one.
   - Next: M1 — the single-action revolver, built in code in the new style.
+- 2026-09-28 (later): **M1 — the revolver — built.** `src/weapons/`: `RevolverState` (pure rules:
+  single action, 6 chambers carried 5-up, half-cock + gate + ejector reload one chamber at a time,
+  seeded misfires, belt ammo, to/from dict), `RevolverTuning` (`config/revolver.tres`), `RevolverModel`
+  (Colt SAA from parts in code: moving hammer/trigger/cylinder/gate/ejector, brass rims show loads),
+  `HandModel` (right hand, 3 bones per finger), `RevolverViewmodel` (controls, poses hip/aim/loading/
+  holster, recoil, firing). `src/ballistics/`: `Ballistics` flies bullets on the physics tick (travel
+  time, drop), penetrates members by thickness × `config/ballistics.tres` J/cm, pushes rigid bodies;
+  `StructureMember.add_hole()` records holes (saved in `to_dict`) and draws them with
+  `member_holes.gdshader` (through-holes are cut out, so light passes). Effects: `GunSmoke`
+  (lit particles + FogVolume), muzzle flash, splinters/dust, spent brass as rigid bodies that stay.
+  `SynthSounds`: gunshot with hill echoes, clicks, brass — generated in code. Range at the east end
+  (target board + backstop, tin cans), F8 bullet traces, touch buttons for the gun. 70 tests pass.
+  Renders in `docs/screenshots/m1/`.
+  - Known gaps: hand is blocky (proper hands come with M2 anatomy); no left hand (rounds slide in
+    by themselves); no fouling yet; glass takes bullets but doesn't show holes or shatter (M3);
+    nobody to shoot yet (M2).
+  - Next: Sean's feel review of the gun, then M2 — bodies.

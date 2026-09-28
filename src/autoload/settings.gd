@@ -20,6 +20,8 @@ var stick_look_speed := 150.0
 ## Degrees per pixel of touch drag.
 var touch_look_sensitivity := 0.25
 var invert_y := false
+## Cock the hammer automatically after each shot (an assist; the real thing is off).
+var auto_cock := false
 ## Pixel shading: banded colour levels and ordered dither on the final frame (F6).
 var pixel_shading := false
 ## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.

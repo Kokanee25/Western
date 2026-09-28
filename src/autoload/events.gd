@@ -11,3 +11,8 @@ signal hour_changed(hour: int)
 signal day_started(day: int)
 ## The debug time multiplier changed.
 signal time_scale_changed(scale: float)
+## A gun went off: where, which way, and who fired (for sound, witnesses, smoke...).
+signal shot_fired(origin: Vector3, direction: Vector3, shooter: Node)
+## A bullet struck something. info: position, normal, direction, collider, member_id (if a building
+## member), penetrated (bool), energy_before / energy_after (joules).
+signal bullet_hit(info: Dictionary)

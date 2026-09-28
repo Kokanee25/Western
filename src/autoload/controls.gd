@@ -29,9 +29,16 @@ func _ready() -> void:
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [JOY_BUTTON_Y])
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
+	_bind(&"debug_traces", [KEY_F8], [])
+	# The revolver.
+	_bind(&"fire", [], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]], [MOUSE_BUTTON_LEFT])
+	_bind(&"aim", [], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]], [MOUSE_BUTTON_RIGHT])
+	_bind(&"cock", [KEY_Q], [JOY_BUTTON_RIGHT_SHOULDER], [], [MOUSE_BUTTON_WHEEL_DOWN])
+	_bind(&"reload", [KEY_R], [JOY_BUTTON_X])
+	_bind(&"holster", [KEY_H], [JOY_BUTTON_LEFT_SHOULDER])
 
 
-func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = []) -> void:
+func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:
 	if not InputMap.has_action(action):
 		InputMap.add_action(action, STICK_DEADZONE)
 	for key in keys:
@@ -41,6 +48,10 @@ func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = []) ->
 	for button in buttons:
 		var ev := InputEventJoypadButton.new()
 		ev.button_index = button
+		InputMap.action_add_event(action, ev)
+	for m in mouse:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = m
 		InputMap.action_add_event(action, ev)
 	for axis in axes:
 		var ev := InputEventJoypadMotion.new()
