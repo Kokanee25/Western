@@ -26,6 +26,8 @@ func build() -> void:
 		can.mass = 0.06
 		can.set_meta(&"ballistic_thickness", 0.0004)
 		can.add_to_group(&"cans")
+		can.collision_layer = Layers.DEBRIS
+		can.collision_mask = Layers.DEBRIS_MASK
 		var shape := CollisionShape3D.new()
 		var cyl := CylinderShape3D.new()
 		cyl.radius = 0.034

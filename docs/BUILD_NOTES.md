@@ -5,6 +5,16 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### Fixed: reloading pushed you around; the gun went through walls
+
+- **Reloading no longer shoves you sideways or back.** The spent cases dropped out of the gate
+  were spawning inside your own body and pushing you out of the way (almost half a metre over a
+  full reload). Brass, glass shards, tin cans and dropped guns are now "debris": they land on the
+  ground and each other and bullets still hit them, but you walk through them.
+- **Walk up to a wall with the gun out**: it now pulls back to your chest, muzzle up, instead of
+  poking through. Back off and it comes up again. If you fire while tucked, the shot hits the wall
+  in front of you (before, the bullet could start on the far side of the wall and fly on).
+
 ### New: buildings that stand or fall (M3, first part)
 
 Every board, stud, joist, rafter and beam now has weight and strength (by wood and size), and the

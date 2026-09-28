@@ -16,6 +16,16 @@ const POSES := {
 	Pose.LOADING: [Vector3(0.03, -0.12, -0.29), Vector3(20.0, 24.0, 58.0)],
 }
 const HOLSTER_POS := Vector3(0.22, -0.55, -0.12)
+## Up close to a wall (or a person) the gun comes back to the chest, muzzle up, instead of
+## pushing through: a compressed high ready.
+const TUCK_POS := Vector3(0.15, -0.26, -0.14)
+const TUCK_ROT := Vector3(55.0, 22.0, -25.0)
+## Clearance kept between the muzzle and the wall, and over how much extra closeness the gun goes
+## from fully out to fully tucked (metres).
+const TUCK_MARGIN := 0.06
+const TUCK_RANGE := 0.22
+## What the gun can't pass through: the world and living people (not debris, not the player).
+const TUCK_MASK := Layers.WORLD | Layers.PEOPLE
 const HAMMER_ANGLES := {RevolverState.Hammer.DOWN: 0.0, RevolverState.Hammer.HALF_COCK: 22.0, RevolverState.Hammer.FULL_COCK: 44.0}
 
 @export var tuning: RevolverTuning
@@ -50,6 +60,13 @@ var _ejector := 0.0
 var _reload_held := 0.0
 var _base_fov := 75.0
 var _sounds := {}
+## 0 = gun out in its pose, 1 = pulled right back against a wall. Smoothed; see _probe_wall().
+var tuck := 0.0
+var _tuck_target := 0.0
+var _muzzle_local := Vector3.ZERO
+var _probe_shape := SphereShape3D.new()
+## Where the last bullet started (tests check it can't start beyond a wall).
+var last_shot_origin := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -86,6 +103,8 @@ func _ready() -> void:
 	state.ejected.connect(_on_ejected)
 	state.inserted.connect(func() -> void: _play(&"insert"))
 	_apply_pose(1.0)
+	_muzzle_local = model.transform * model.to_local(model.muzzle.global_position) if model.is_inside_tree() else Vector3(0, 0.02, -0.3)
+	_probe_shape.radius = 0.03
 	_warm_up.call_deferred()
 
 
@@ -107,6 +126,35 @@ func _process(delta: float) -> void:
 	if _can_act():
 		_read_controls(delta)
 	_animate(delta)
+
+
+func _physics_process(_delta: float) -> void:
+	_tuck_target = _probe_wall()
+
+
+## How far the gun must pull back so the muzzle, in the pose it's heading for, stops short of
+## whatever is in front: a small sphere swept from the eye to where the muzzle would be.
+func _probe_wall() -> float:
+	var cam := get_parent() as Node3D
+	if cam == null or not is_inside_tree() or _draw < 0.5:
+		return 0.0
+	var pose_basis := Basis.from_euler(_pose_rot * (PI / 180.0), EULER_ORDER_YXZ)
+	var muzzle_cam := Transform3D(pose_basis, _pose_pos) * _muzzle_local
+	var reach := muzzle_cam.length()
+	if reach < 0.01:
+		return 0.0
+	var from := cam.global_position
+	var to := cam.global_transform * (muzzle_cam * ((reach + TUCK_MARGIN) / reach))
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = _probe_shape
+	q.transform = Transform3D(Basis.IDENTITY, from)
+	q.motion = to - from
+	q.collision_mask = TUCK_MASK
+	if _player:
+		q.exclude = [_player.get_rid()]
+	var fractions := get_world_3d().direct_space_state.cast_motion(q)
+	var free := fractions[0] * (reach + TUCK_MARGIN)
+	return clampf((reach + TUCK_MARGIN - free) / TUCK_RANGE, 0.0, 1.0)
 
 
 func _can_act() -> bool:
@@ -190,6 +238,14 @@ func _on_fired() -> void:
 	if _player:
 		exclude.append(_player.get_rid())
 	if cam:
+		# Never start the bullet beyond a wall: if something lies between the eye and the muzzle,
+		# the ball leaves from just this side of it (and hits it).
+		var q0 := PhysicsRayQueryParameters3D.create(cam.global_position, origin, Layers.BULLETS)
+		q0.exclude = exclude
+		var blocked := get_world_3d().direct_space_state.intersect_ray(q0)
+		if not blocked.is_empty():
+			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
+	if cam:
 		aim_dir = -cam.global_transform.basis.z
 		aim_point = cam.global_position + aim_dir * 80.0
 		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
@@ -198,6 +254,7 @@ func _on_fired() -> void:
 		if not hit.is_empty() and cam.global_position.distance_to(hit.position) > 0.6:
 			aim_point = hit.position
 	var dir := (aim_point - origin).normalized()
+	last_shot_origin = origin
 	var spread := (tuning.spread_aim_degrees if aiming else tuning.spread_hip_degrees) + extra_spread
 	if _player:
 		spread += _player.get_horizontal_speed() * 0.5
@@ -259,6 +316,7 @@ func _animate(delta: float) -> void:
 	_pose_pos = _pose_pos.lerp(POSES[pose][0], k)
 	_pose_rot = _pose_rot.lerp(POSES[pose][1], k)
 	_recoil = move_toward(_recoil, 0.0, delta * 4.5)
+	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (18.0 if _tuck_target > tuck else 9.0)))
 	_apply_pose(_draw)
 
 	var hammer_target: float = HAMMER_ANGLES[state.hammer]
@@ -286,7 +344,8 @@ func _animate(delta: float) -> void:
 
 
 func _apply_pose(drawn_amount: float) -> void:
-	var pos := HOLSTER_POS.lerp(_pose_pos, drawn_amount) + Vector3(0.0, 0.012, 0.06) * _recoil
-	var rot := _pose_rot + Vector3(24.0 * _recoil, 0.0, 0.0)
+	var t := smoothstep(0.0, 1.0, tuck)
+	var pos := HOLSTER_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, 0.012, 0.06) * _recoil
+	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(24.0 * _recoil * (1.0 - t), 0.0, 0.0)
 	position = pos
 	rotation_degrees = rot

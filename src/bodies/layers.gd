@@ -7,6 +7,12 @@ const WORLD := 1
 const BODY_PARTS := 4
 ## Physics: the capsule that keeps a living person solid to walk into. Bullets ignore it.
 const PEOPLE := 8
+## Physics: small loose things (spent brass, glass shards, tin cans, a dropped gun). They land on the
+## world and on each other, bullets and falling timber hit them, but the player walks through them
+## (a 12 g case spawned at the gun used to shove the player's capsule aside on every reload).
+const DEBRIS := 16
+## What debris collides with.
+const DEBRIS_MASK := WORLD | DEBRIS
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE
 

@@ -36,6 +36,8 @@ const VIEWS := [
 	["store_fire_night", 21.0, Vector3(3.0, 0.0, -11.0), 180.0, 10.0, "store_fire"],
 	["store_fire_later", 21.0, Vector3(3.0, 0.0, -13.0), 180.0, 12.0, "store_fire_later"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
+	["gun_at_wall", 16.0, Vector3(1.5, 0.38, 7.5), 90.0, -4.0, "wall"],
+	["gun_at_wall_aim", 16.0, Vector3(1.5, 0.38, 7.5), 90.0, -4.0, "wall_aim"],
 ]
 
 
@@ -141,6 +143,21 @@ func _run() -> void:
 			var store = main.find_child("Store", true, false)
 			store.break_member(store.get_member(&"store/porch/post0"), Vector3(0, 0, -1.0))
 			for i in 200:
+				await physics_frame
+		if setup.begins_with("wall"):
+			# Walk up until the eye is 0.36 m from whatever is straight ahead (the capsule's 0.3 m
+			# radius stops you about there): the gun should tuck back, not poke through.
+			gun.aiming = setup == "wall_aim"
+			await physics_frame
+			var cam = player.get_node(^"Head/Camera3D")
+			var fwd: Vector3 = -(cam.global_transform.basis.z as Vector3)
+			var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position + fwd * 8.0, 1)
+			q.exclude = [player.get_rid()]
+			var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(q)
+			if not hit.is_empty():
+				var flat := Vector3(fwd.x, 0, fwd.z).normalized()
+				player.global_position += flat * (Vector2(hit.position.x - cam.global_position.x, hit.position.z - cam.global_position.z).length() - 0.36)
+			for i in 30:
 				await physics_frame
 		if setup.begins_with("outlaw_"):
 			await _outlaw_setup(main, setup, player)

@@ -273,6 +273,8 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		shard.name = "GlassShard"
 		shard.mass = 0.04
 		shard.add_to_group(&"glass_shards")
+		shard.collision_layer = Layers.DEBRIS
+		shard.collision_mask = Layers.DEBRIS_MASK
 		var w := rng.randf_range(0.03, 0.12)
 		var h := rng.randf_range(0.03, 0.14)
 		var t := maxf(size.z, 0.004)

@@ -126,6 +126,8 @@ static func spent_case(parent: Node, at: Vector3, push: Vector3) -> RigidBody3D:
 	body.name = "SpentCase"
 	body.mass = 0.012
 	body.add_to_group(&"spent_cases")
+	body.collision_layer = Layers.DEBRIS
+	body.collision_mask = Layers.DEBRIS_MASK
 	var shape := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
 	cyl.radius = 0.006

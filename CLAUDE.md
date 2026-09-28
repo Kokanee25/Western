@@ -298,3 +298,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   up), so nothing was exported and Sean still had build 59. The test now wants ≥85% of pieces down.
   Also F11/F12 belong to the browser (full screen / dev tools): debug break and ignite are now **K**
   and **L** as well. Always check the main run went green after a merge.
+- 2026-09-28 (later): Sean: "reloading moves the body to the side or back; shooting close to a wall
+  the arm goes through". Cause 1: spent cases spawn at the gate, inside the player's 0.3 m capsule,
+  and depenetration pushed the player 0.45 m over a reload. New physics layer `Layers.DEBRIS`
+  (brass, glass shards, cans, dropped gun; mask `DEBRIS_MASK` = world + debris): the player never
+  collides with it, bullets do. Fix 2: `RevolverViewmodel` sweeps a small sphere from the eye to
+  where the muzzle is heading each physics tick and blends to a tucked pose (`TUCK_POS/ROT`, `tuck`
+  0–1); bullets start on the near side of anything between eye and muzzle (`last_shot_origin`).
+  Tests: no drift over a reload, muzzle stays this side of a wall, wall shot hits that wall.
+  Screenshot views `gun_at_wall`, `gun_at_wall_aim`. 137 tests pass.
+  - Rule: loose small rigid bodies go on `Layers.DEBRIS`, never the default layer.

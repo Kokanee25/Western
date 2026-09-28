@@ -655,8 +655,8 @@ func drop_gun() -> void:
 	var rb := RigidBody3D.new()
 	rb.name = "DroppedGun"
 	rb.mass = 1.1
-	rb.collision_layer = Layers.WORLD
-	rb.collision_mask = Layers.WORLD
+	rb.collision_layer = Layers.DEBRIS
+	rb.collision_mask = Layers.DEBRIS_MASK
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
 	box.size = Vector3(0.04, 0.13, 0.3)

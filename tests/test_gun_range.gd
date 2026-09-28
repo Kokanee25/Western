@@ -158,3 +158,82 @@ func test_shooting_a_store_window_breaks_it() -> void:
 	check(pane.broken, "the window broke (hits: %s)" % [hits.map(func(h: Dictionary) -> String: return String(h.member_id))])
 	check(not (pane.get_child(0) as MeshInstance3D).visible, "the pane is gone")
 	check(get_tree().get_nodes_in_group(&"glass_shards").size() >= 8, "shards on the ground")
+
+
+func test_reloading_does_not_move_the_player() -> void:
+	for i in 5:
+		await _tap(&"cock")
+		await _wait_ready()
+		await _tap(&"fire")
+		await _wait_ready()
+	await physics_frames(30)
+	var start := player.global_position
+	Input.action_press(&"reload")
+	await wait_until(func() -> bool: return gun.state.rounds_loaded() == 6, 60 * 12)
+	Input.action_release(&"reload")
+	await physics_frames(60)
+	var drift := Vector2(player.global_position.x - start.x, player.global_position.z - start.z).length()
+	check(get_tree().get_nodes_in_group(&"spent_cases").size() >= 5, "brass fell")
+	check(drift < 0.005, "standing still while reloading (moved %.3f m)" % drift)
+
+
+## Face a solid wall from this close (eye to wall, metres) with the gun up.
+func _face_wall_inside_store(gap: float) -> Dictionary:
+	var spawn := street.get_node(^"DebugSpawns/StoreInside") as Node3D
+	player.global_position = spawn.global_position
+	player.velocity = Vector3.ZERO
+	player.add_look(Vector2(0, -player.get_pitch_degrees()))
+	await physics_frames(3)
+	var space := player.get_world_3d().direct_space_state
+	for i in 8:
+		var yaw := TAU * i / 8.0
+		player.rotation = Vector3(0, yaw, 0)
+		await physics_frames(1)
+		var eye := player.camera.global_position
+		var fwd := -player.camera.global_transform.basis.z
+		var q := PhysicsRayQueryParameters3D.create(eye, eye + fwd * 6.0, Layers.WORLD)
+		q.exclude = [player.get_rid()]
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or not hit.collider is StructureMember:
+			continue
+		var m := hit.collider as StructureMember
+		if m.kind == &"glass" or eye.distance_to(hit.position) < 1.0 or absf(hit.normal.dot(fwd)) < 0.9:
+			continue
+		var flat := Vector3(fwd.x, 0, fwd.z).normalized()
+		player.global_position += flat * (eye.distance_to(hit.position) - gap)
+		player.velocity = Vector3.ZERO
+		await physics_frames(2)
+		return {member = m, normal = hit.normal as Vector3}
+	return {}
+
+
+func test_gun_pulls_back_from_a_wall() -> void:
+	var wall := await _face_wall_inside_store(0.36)
+	if not check(not wall.is_empty(), "found a wall to face"):
+		return
+	await process_frames(40)
+	var eye := player.camera.global_position
+	var q := PhysicsRayQueryParameters3D.create(eye, gun.model.muzzle.global_position, Layers.WORLD)
+	q.exclude = [player.get_rid()]
+	check(player.get_world_3d().direct_space_state.intersect_ray(q).is_empty(), "the muzzle stays this side of the wall")
+	check(gun.tuck > 0.5, "gun tucked back (%.2f)" % gun.tuck)
+	# Backing off lets the gun come up again.
+	player.global_position -= -player.global_transform.basis.z * 1.2
+	await physics_frames(2)
+	await process_frames(40)
+	check(gun.tuck < 0.05, "gun back up away from the wall (%.2f)" % gun.tuck)
+
+
+func test_shot_against_a_wall_hits_that_wall() -> void:
+	var wall := await _face_wall_inside_store(0.36)
+	if not check(not wall.is_empty(), "found a wall to face"):
+		return
+	Input.action_press(&"aim")
+	await process_frames(40)
+	await _tap(&"cock")
+	await _wait_ready()
+	await _tap(&"fire")
+	await wait_until(func() -> bool: return not hits.is_empty(), 30)
+	check(not hits.is_empty(), "the shot hit something")
+	if not hits.is_empty():
+		check_eq(hits[0].member_id, (wall.member as StructureMember).member_id, "first thing hit is the wall in front")
