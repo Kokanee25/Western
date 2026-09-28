@@ -194,3 +194,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   first line is "SALT CREEK BUILD N (sha)" and a small build label sits in the bottom-right corner.
   No FogVolumes on the Compatibility (web) renderer. New test: shooting a store window with the
   player's gun breaks it. 76 tests pass.
+- 2026-09-28 (later): Sean confirmed build 35 in the browser: glass shatters, version shows. The cached
+  build 32 was the problem; per-build pck names fix it from 35 on.
+  - Next: Sean's feel review of the gun (rhythm, recoil, sound, smoke, auto-cock?), then M2 — bodies.
