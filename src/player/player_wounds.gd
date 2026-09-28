@@ -58,6 +58,16 @@ func _ready() -> void:
 	_message.add_theme_constant_override(&"outline_size", 4)
 	layer.add_child(_message)
 	Events.spoke.connect(_on_spoke)
+	Events.scorched.connect(_on_scorched)
+
+
+func _on_scorched(who: Node, amount: float) -> void:
+	if who != player:
+		return
+	physiology.burn(amount)
+	_flash = maxf(_flash, 0.5)
+	if _message_time <= 0.0:
+		say("You're burning!", 1.5)
 
 
 ## Subtitles for anyone talking within earshot.

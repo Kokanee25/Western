@@ -32,6 +32,7 @@ func _ready() -> void:
 	_bind(&"debug_traces", [KEY_F8], [])
 	_bind(&"debug_xray", [KEY_F10], [])
 	_bind(&"debug_break", [KEY_F11], [])
+	_bind(&"debug_ignite", [KEY_F12], [])
 	# The revolver.
 	_bind(&"fire", [], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]], [MOUSE_BUTTON_LEFT])
 	_bind(&"aim", [], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]], [MOUSE_BUTTON_RIGHT])

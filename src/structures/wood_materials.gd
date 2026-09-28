@@ -11,6 +11,7 @@ const PALETTES := {
 	&"painted_rust": [Color(0.55, 0.24, 0.16), Color(0.5, 0.22, 0.15), Color(0.58, 0.27, 0.18)],
 	&"dark_trim": [Color(0.26, 0.19, 0.14), Color(0.23, 0.17, 0.12)],
 	&"sign": [Color(0.86, 0.8, 0.66)],
+	&"stone": [Color(0.55, 0.52, 0.47), Color(0.5, 0.47, 0.43), Color(0.6, 0.56, 0.5)],
 }
 
 static var _cache := {}
@@ -60,6 +61,8 @@ static func texture_for(wood: StringName) -> Texture2D:
 			return PixelArt.wood(String(wood), base, 43, 2, 5)
 		&"dark_trim":
 			return PixelArt.wood(String(wood), base, 47, 0, 1, 0.8)
+		&"stone":
+			return PixelArt.metal(String(wood), base, 59, 0.9)
 		_:
 			return PixelArt.wood(String(wood), base, 53, 2, 4)
 

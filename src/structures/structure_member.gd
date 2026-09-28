@@ -50,6 +50,17 @@ var touching: Array[StringName] = []
 var grounded := false
 ## Order supports come in: tier, then height (set by Structure.infer_supports).
 var stack_key := 0.0
+## What's drawn and solid for this member: [MeshInstance3D, CollisionShape3D] pairs. One while it
+## stands; when it snaps, one per piece (they move into rubble but stay this member's).
+var pieces: Array = []
+
+# Fire (FireSystem runs it): degrees C, alight or not, how deep the char has gone from each face
+# (m), how long it's been alight, and whether it's burnt away to nothing.
+var temperature := 20.0
+var burning := false
+var char_depth := 0.0
+var burn_time := 0.0
+var consumed := false
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []
@@ -100,7 +111,17 @@ func cross_section() -> Vector2:
 	var d1 := absf(transform.basis[others[1]].normalized().y)
 	var deep := others[0] if d0 >= d1 else others[1]
 	var broad := others[1] if deep == others[0] else others[0]
-	return Vector2(size[broad], size[deep])
+	# Char has no strength: what's left is the sound wood inside it.
+	var burnt := char_depth * 2.0
+	return Vector2(maxf(size[broad] - burnt, 0.001), maxf(size[deep] - burnt, 0.001))
+
+
+## Thinnest side of the sound wood left (m).
+func thickness() -> float:
+	var t := INF
+	for i in 3:
+		t = minf(t, size[i] - char_depth * 2.0)
+	return maxf(t, 0.0)
 
 
 func volume() -> float:
@@ -108,7 +129,28 @@ func volume() -> float:
 
 
 func weight(tuning: TimberTuning) -> float:
-	return volume() * float(tuning.wood(wood).density) * 9.81
+	if consumed:
+		return 0.0
+	var c := char_depth * 2.0
+	var sound := maxf(size.x - c, 0.0) * maxf(size.y - c, 0.0) * maxf(size.z - c, 0.0)
+	# Char weighs about a fifth of the wood it was.
+	return (sound + (volume() - sound) * 0.2) * float(tuning.wood(wood).density) * 9.81
+
+
+## Where it is in the world now (it may be lying in the street as rubble).
+func world_aabb() -> AABB:
+	var box := AABB()
+	var first := true
+	for p: Array in pieces:
+		var mi := p[0] as MeshInstance3D
+		if mi == null or not is_instance_valid(mi) or not mi.is_inside_tree():
+			continue
+		var b := mi.global_transform * mi.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	if first and is_inside_tree():
+		box = get_parent_node_3d().global_transform * structure_aabb() if get_parent_node_3d() else AABB(global_position, Vector3.ZERO)
+	return box
 
 
 ## Share of the section still there after bullet holes (1 = sound).
@@ -270,6 +312,9 @@ func to_dict() -> Dictionary:
 				"entry": [h.entry.x, h.entry.y, h.entry.z], "exit": [h.exit.x, h.exit.y, h.exit.z],
 				"through": h.through, "radius": h.radius}),
 		"id": String(member_id),
+		"char": char_depth,
+		"burning": burning,
+		"consumed": consumed,
 		"kind": String(kind),
 		"wood": String(wood),
 		"size": [size.x, size.y, size.z],

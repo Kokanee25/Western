@@ -149,6 +149,15 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			return maxf(remaining - thickness, 0.0)
 		member.add_hole(hit.position, null, radius)
 		b.alive = false
+	elif collider != null and collider.has_meta(&"oil_lamp"):
+		(collider.get_meta(&"oil_lamp") as OilLamp).smash(dir)
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		_set_energy(b, maxf(e_before - 15.0, 0.0))
+		info.penetrated = true
+		info.energy_after = b.energy()
+		b.hits.append(info)
+		Events.bullet_hit.emit(info)
+		return remaining
 	elif collider is RigidBody3D:
 		var body := collider as RigidBody3D
 		body.apply_impulse(dir * b.mass * b.velocity.length() * tuning.impulse_transfer, hit.position - body.global_position)
