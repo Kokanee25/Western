@@ -24,6 +24,8 @@ animation hands over to the active ragdoll.
 - **Don't record recoil** — it's procedural (DESIGN.md "Recoil"). Record the stance and the settle
   between shots with a mimed kick; only the posture is used.
 - **Falls and "getting shot":** onto a mattress. Deaths aren't recorded at all — the ragdoll does those.
+- **Your own recordings are fine to commit** (the repo is public). **Mixamo downloads are not** —
+  their licence doesn't allow redistributing the files; use them only if the repo goes private.
 - Fingers are the weakest part of phone capture; hand poses (grip, cocking, bandaging) are finished in
   code.
 - **Adults play adults** (children move differently — bouncier gait, different balance — and it shows
@@ -55,6 +57,22 @@ animation hands over to the active ragdoll.
 ### Batch 1b — combat moves for enemies (~8)
 `crouch_run`, `peek_over_cover`, `lean_out_corner`, `blind_fire_over_cover`, `dive_to_cover`,
 `reload_crouched`, `drag_wounded_friend`, `fire_and_recover` (posture only)
+
+### Batch 1c — moving with a weapon (~12)
+Each weapon state needs its own movement set (people move differently with a rifle in hand). Use the
+weighted prop.
+- **Rifle:** `rifle_walk`, `rifle_run`, `rifle_crouch_walk`, `rifle_ready_carry` (held low across the
+  body), `rifle_turn_in_place`
+- **Pistol drawn:** `pistol_walk`, `pistol_crouch_walk`, `pistol_turn_in_place`
+- **Empty hands:** `crouch_walk`, `turn_in_place`
+
+### Batch 1d — touching the world (~6, finished by IK)
+Don't record one clip per object: the game uses **inverse kinematics** to put the hand exactly on the
+real rail, barrel or doorframe. Record general reaches so the body's lean, reach and weight shift are
+real:
+`reach_rest_hand_waist`, `reach_rest_hand_chest`, `reach_rest_hand_head` (rail, counter, doorframe),
+`lean_one_hand_catch_breath`, `crouch_hand_on_cover` (barrel/trough), `steady_self_stumbling`,
+`push_off_cover_to_run`
 
 ### Batch 2 — first aid (~8)
 `pressure_on_wound`, `tourniquet_thigh`, `bandage_arm`, `splint_leg`, `drag_by_collar`,
