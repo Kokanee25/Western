@@ -119,6 +119,16 @@ research and care — never props or stereotypes. (Details still open; see §13.
 
 - **Who you are:** a homesteader who arrived a few months ago and bought the spring claim. Known
   enough for people to have opinions, open enough to go anywhere.
+- **Former army (proposed backstory):** a Civil War veteran (about forty in 1882) who served as a
+  **hospital steward** — the enlisted medical rank that worked alongside the surgeons — and maybe
+  stayed on in the frontier army after the war. It explains why the player knows tourniquets, splints and
+  packing wounds, why they can handle a rifle, why they carry things they don't talk about, and why a
+  stranger might say "I know you." Historical note (verify when writing it): in that era ordinary
+  soldiers mostly weren't formally taught first aid — improvised tourniquets (a handkerchief and a
+  stick) were common on battlefields, and surgeons packed wounds with lint; organised first-aid
+  training for soldiers came later (Esmarch in Germany in the 1870s, the US Army Hospital Corps in
+  1887). A hospital steward is the believable way to know it in 1882. Knowledge is period-accurate:
+  germ theory and antiseptic practice were only partly adopted, so "clean" is a relative word.
 - **An ambiguous past:** when the Colters ride in, one says "I know you." Rode with them once?
   Mistaken identity? A lie to rattle you? What you say in that first conversation decides it, and the
   townsfolk remember your answer.
@@ -132,6 +142,24 @@ research and care — never props or stereotypes. (Details still open; see §13.
   law, Colters, baron, railroad) keeps its own opinion of you; paths can cross, including an
   **undercover path** (the badge while riding with the gang, or the judge's man inside); some doors
   close for good.
+
+### Skills: you get better by doing (no XP bar, no level-up screen)
+- Like Kingdom Come and Skyrim: each skill improves through use and training, not points.
+- **Skills and what they change:** *pistol* (steadier aim, faster cocking and gate reloads, quicker
+  recovery from recoil), *rifle*, *first aid / medicine* (faster and more reliable tourniquets, better
+  packing, reading a wound correctly, eventually setting bones and stitching), *riding*, *brawling*,
+  *tracking* (reading footprints and blood trails), *lockpicking*, *farming and ranch work*, *hunting*.
+  No speech skill: conversation is real talk; standing comes from reputation and relationships.
+- **Shown in the body, not numbers:** a better shot's hands sway less and reload faster; a practised
+  medic's hands move quicker. Occasional diary lines instead of pop-ups ("Getting steadier with the Colt").
+- **Ways to improve:** practise (tin cans behind the livery), real use, and **teachers** — the doctor
+  teaches setting bones, an old gunfighter teaches drawing from the holster, a rancher teaches roping.
+  Books and manuals for some skills.
+- **Limits:** skill improves the character's hands, never past what a real person could do; the player's
+  own aim and decisions still matter most. Injuries can lower skills (a lost trigger finger, a shoulder
+  that never healed right).
+- **Army start:** strong first aid and rifle, decent pistol, poor at farming (a homesteader who's
+  better at stopping bleeding than raising corn).
 
 ## 7. Bodies: anatomy, wounds and visible damage
 
