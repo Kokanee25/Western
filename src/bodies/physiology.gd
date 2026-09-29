@@ -11,7 +11,8 @@ var anatomy: Anatomy
 var blood_ml := 5000.0
 ## {id, source, kind, segment, rate (ml/s untreated), clots, clot (0..1 of the bleed left),
 ## pressure, tourniquet, lost (ml)}. `source` is the structure id, or &"flesh" / &"stump".
-## `kind` is &"artery" (a pulsing jet), &"vein" (a dark steady flow), or &"ooze" (the rest).
+## `kind` is &"artery" (a pulsing jet), &"vein" (a dark steady flow), &"ooze" (the rest), or
+## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
 var broken := {}  ## bone id -> true
 var torn := {}  ## organ id -> true
@@ -30,6 +31,8 @@ var lung_damage := {}  ## lung id -> seconds since holed
 var gut_seconds := -1.0  ## seconds since the gut was holed, -1 if not
 var neck_seconds := -1.0
 var brain_dead := false
+## Seconds knocked out cold by a blow to the head.
+var concussion := 0.0
 ## How badly burnt, summed over the body (1 = a bad burn on an arm; past burns_fatal he dies).
 var burns := 0.0
 var alive := true
@@ -51,7 +54,13 @@ func apply_trace(tr: Dictionary) -> Array:
 	adrenaline = minf(adrenaline + tuning.adrenaline_per_wound, 1.0)
 	var track: float = tr.track_cm
 	var seg: StringName = tr.segment
-	if track > 0.5:
+	var shallow: bool = tr.get("graze", false) or tr.get("cut", false)
+	if shallow:
+		# A furrow or a slice: bleeds from the length of it, stings, doesn't go deep.
+		adrenaline = minf(adrenaline, maxf(adrenaline - tuning.adrenaline_per_wound * 0.6, 0.2))
+		_add_bleed(&"flesh", seg, maxf(track, 1.0) * tuning.flesh_bleed_per_cm * tuning.graze_bleed)
+		wound_pain += tuning.pain_graze + track * tuning.pain_per_cm
+	elif track > 0.5:
 		_add_bleed(&"flesh", seg, track * tuning.flesh_bleed_per_cm)
 		wound_pain += track * tuning.pain_per_cm
 	for h: Dictionary in tr.hits:
@@ -112,8 +121,9 @@ func sever(segment: StringName) -> void:
 
 
 func _add_bleed(source: StringName, segment: StringName, rate: float, kind := &"ooze") -> void:
+	# A burst organ inside doesn't clot off like a cut on the skin: nothing presses on it.
 	bleeds.append({"id": bleeds.size(), "source": source, "kind": kind, "segment": segment, "rate": rate,
-			"clots": rate <= tuning.clot_max_rate, "clot": 1.0, "pressure": false, "tourniquet": false, "lost": 0.0})
+			"clots": rate <= tuning.clot_max_rate and kind != &"internal", "clot": 1.0, "pressure": false, "tourniquet": false, "lost": 0.0})
 
 
 func step(dt: float) -> void:
@@ -146,6 +156,7 @@ func step(dt: float) -> void:
 	adrenaline *= exp(-dt / tuning.adrenaline_fade)
 	if gut_seconds >= 0.0:
 		gut_seconds += dt
+	concussion = maxf(concussion - dt, 0.0)
 	# Death.
 	if blood_loss() >= tuning.death_at_loss:
 		_die(&"blood_loss")
@@ -190,7 +201,7 @@ func apply_tourniquet(segment: StringName) -> int:
 	var below := anatomy.segments_below(segment)
 	var n := 0
 	for b in bleeds:
-		if below.has(b.segment):
+		if below.has(b.segment) and b.get("kind", &"ooze") != &"internal":
 			b.tourniquet = true
 			n += 1
 	return n
@@ -199,8 +210,73 @@ func apply_tourniquet(segment: StringName) -> int:
 ## Hold pressure on (or pack) the bleeds in one segment.
 func apply_pressure(segment: StringName, on := true) -> void:
 	for b in bleeds:
-		if b.segment == segment:
+		if b.segment == segment and b.get("kind", &"ooze") != &"internal":
 			b.pressure = on
+
+
+## A blunt blow of `joules` on a segment (falling timber, a fall, a kick): bruising always, and
+## past the thresholds concussion, cracked ribs, bruised lungs, a burst spleen or liver bleeding
+## inside, broken bones. Returns what it did, for describing.
+func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if not alive or joules <= 0.0:
+		return out
+	var b: Dictionary = tuning.blunt
+	wounds += 1
+	var s := String(segment)
+	var side := s.right(1) if s.ends_with("_r") or s.ends_with("_l") else ("r" if rng.randf() < 0.5 else "l")
+	var region := s.trim_suffix("_r").trim_suffix("_l")
+	wound_pain += minf(joules / 400.0, 0.6)
+	adrenaline = minf(adrenaline + 0.3, 1.0)
+	var past := func(key: String) -> bool:
+		var limit: float = b.get(key, INF)
+		return joules > limit and rng.randf() < clampf((joules - limit) / limit + 0.4, 0.0, 1.0)
+	match region:
+		"head":
+			if joules > float(b.concussion):
+				concussion = maxf(concussion, maxf(3.0, (joules - float(b.concussion)) / 10.0 * tuning.concussion_seconds_per_10j))
+				out.append("concussion")
+			if past.call("skull"):
+				broken[&"skull"] = true
+				wound_pain += tuning.pain_bone
+				_add_bleed(&"skull", segment, 0.4, &"internal")
+				out.append("skull cracked")
+		"neck":
+			wound_pain += 0.2
+		"chest":
+			if past.call("ribs"):
+				broken[StringName("ribs_" + side)] = true
+				wound_pain += tuning.pain_bone
+				out.append("ribs broken")
+			if past.call("lung"):
+				var lung := StringName("lung_" + side)
+				lung_damage[lung] = 0.0
+				torn[lung] = true
+				_add_bleed(lung, segment, 1.2, &"internal")
+				out.append("lung bruised")
+		"abdomen":
+			if past.call("belly_organ"):
+				var organ := &"spleen" if side == "l" else &"liver"
+				torn[organ] = true
+				wound_pain += tuning.pain_organ
+				_add_bleed(organ, segment, float(anatomy.structure(organ).get(&"bleed", 5.0)) * tuning.internal_bleed_share, &"internal")
+				out.append("%s burst" % organ)
+		"pelvis":
+			if past.call("pelvis"):
+				broken[&"pelvis_bone"] = true
+				wound_pain += tuning.pain_bone
+				_add_bleed(&"pelvis_bone", segment, 3.0, &"internal")
+				out.append("pelvis broken")
+		_:
+			var bone: StringName = {"thigh": &"femur_", "shin": &"tibia_", "upper_arm": &"humerus_",
+					"forearm": &"radius_", "hand": &"hand_bones_", "foot": &"foot_bones_"}.get(region, &"")
+			if bone != &"" and past.call(region):
+				broken[StringName(String(bone) + side)] = true
+				wound_pain += tuning.pain_bone
+				out.append("%s broken" % region.replace("_", " "))
+	if out.is_empty():
+		out.append("bruised")
+	return out
 
 
 ## Burnt by fire: pain now, and shock and death if it's bad enough.
@@ -282,7 +358,7 @@ func breath_capacity() -> float:
 
 
 func is_conscious() -> bool:
-	return alive and not brain_dead and neck_seconds < 0.0 \
+	return alive and not brain_dead and neck_seconds < 0.0 and concussion <= 0.0 \
 			and blood_loss() < tuning.unconscious_at_loss \
 			and oxygen > tuning.faint_oxygen and felt_pain() < tuning.pain_faint
 
@@ -354,7 +430,15 @@ func describe() -> String:
 		parts.append("grey and cold, pulse thready")
 	elif s > 0.3:
 		parts.append("pale and sweating")
-	var r := total_bleed_rate()
+	var inside := 0.0
+	for b in bleeds:
+		if b.get("kind", &"ooze") == &"internal":
+			inside += bleed_rate(b)
+	var r := total_bleed_rate() - inside
+	if inside > 0.5 and s > 0.2:
+		parts.append("going pale with no wound to show for it")
+	if concussion > 0.0:
+		parts.append("knocked senseless")
 	if r > 6.0:
 		parts.append("blood pumping out bright")
 	elif r > 1.0:
@@ -393,7 +477,8 @@ func to_dict() -> Dictionary:
 			"severed": severed_segments.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
-			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns}
+			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
+			"concussion": concussion}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -422,6 +507,7 @@ func from_dict(d: Dictionary) -> void:
 	cause_of_death = d.cause_of_death
 	wounds = d.wounds
 	burns = d.get("burns", 0.0)
+	concussion = d.get("concussion", 0.0)
 
 
 static func _set_of(keys: Array) -> Dictionary:

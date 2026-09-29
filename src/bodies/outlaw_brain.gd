@@ -109,6 +109,18 @@ func _on_near_miss(person: Node, shooter: Node, distance: float) -> void:
 
 
 func _on_hit(info: Dictionary) -> void:
+	match info.get("kind", &"bullet"):
+		&"cut":
+			fear += 0.04
+			return
+		&"blow":
+			fear += clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5)
+			return
+		&"graze":
+			fear += fear_per_hit * 0.5
+			if mood == Mood.CALM:
+				_provoked(_find_target())
+			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	fear += fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
 			+ float(info.get("deposited", 0.0)) / 2000.0

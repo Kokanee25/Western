@@ -54,7 +54,9 @@ func rates() -> Dictionary:
 	for i: int in bleed_ids:
 		if i < p.bleeds.size():
 			var b: Dictionary = p.bleeds[i]
-			out[b.get("kind", &"ooze")] += p.bleed_rate(b) * share
+			var kind: StringName = b.get("kind", &"ooze")
+			if out.has(kind):
+				out[kind] += p.bleed_rate(b) * share
 	return out
 
 

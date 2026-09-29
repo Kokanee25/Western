@@ -8,6 +8,8 @@ extends RefCounted
 const PATH := "res://config/anatomy.json"
 ## Joules a bullet loses per centimetre of flesh when this isn't set in the data.
 const DEFAULT_FLESH_RESISTANCE := 13.0
+## A path through that never goes deeper than this under the skin is a graze: a furrow, not a hole.
+const GRAZE_DEPTH := 0.018
 
 static var _shared: Anatomy
 
@@ -107,7 +109,8 @@ func segments_below(segment: StringName) -> Array[StringName]:
 ## Follow a bullet through one segment. `origin` and `dir` are in the body's rest-pose space;
 ## `origin` should be on or just outside the segment's skin. `energy` in joules.
 ## Returns {segment, entry, exit (Vector3 or null), stop (where it ended inside, or null),
-## energy_in, energy_out, track_cm, hits: [{id, kind, effect, position}]}.
+## energy_in, energy_out, track_cm, depth (deepest under the skin, m), graze (only skimmed it),
+## hits: [{id, kind, effect, position}]}.
 ## effect: "cut" (artery, vein, nerve), "torn" (organ, muscle), "broken" / "stopped" (bone),
 ## "severed" (finger).
 func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bullet_radius: float,
@@ -194,6 +197,8 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 		result.stop = origin + dir * t
 	result.energy_out = e
 	result.track_cm = (t - t_in) * 100.0
+	result.depth = deepest(segment, origin + dir * t_in, origin + dir * t)
+	result.graze = result.exit != null and result.depth < GRAZE_DEPTH
 	return result
 
 
@@ -237,6 +242,21 @@ func _add_hit(result: Dictionary, st: Dictionary, effect: StringName, at: Vector
 				h.effect = effect
 			return
 	result.hits.append({"id": st.id, "kind": st.kind, "effect": effect, "position": at})
+
+
+## How far under the skin a straight path between two points gets at its deepest (m).
+func deepest(segment: StringName, a: Vector3, b: Vector3) -> float:
+	var best := 0.0
+	for i in 9:
+		var p := a.lerp(b, i / 8.0)
+		var d := 0.0
+		for c: Array in segments[segment].capsules:
+			var ca: Vector3 = c[0]
+			var ab: Vector3 = (c[1] as Vector3) - ca
+			var t := clampf((p - ca).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+			d = maxf(d, float(c[2]) - p.distance_to(ca + ab * t))
+		best = maxf(best, d)
+	return best
 
 
 ## Where a ray is inside a segment's skin (all its capsules together): Vector2(t_in, t_out).

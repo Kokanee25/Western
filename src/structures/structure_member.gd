@@ -297,6 +297,9 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		var near := 1.0 - clampf(local.distance_to(Vector3(local_hit.x, local_hit.y, 0.0)) / maxf(size.x, 0.1), 0.0, 1.0)
 		shard.linear_velocity = direction * rng.randf_range(0.5, 3.0) * near + Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(-0.2, 0.6), rng.randf_range(-0.4, 0.4))
 		shard.angular_velocity = Vector3(rng.randf_range(-8, 8), rng.randf_range(-8, 8), rng.randf_range(-8, 8))
+	# The shards cut whoever's close.
+	var excl: Array[RID] = [get_rid()]
+	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
 	var snd := AudioStreamPlayer3D.new()
 	snd.stream = SynthSounds.get_sound(&"glass")
 	snd.unit_size = 6.0

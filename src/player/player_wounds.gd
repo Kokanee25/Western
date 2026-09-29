@@ -122,6 +122,61 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	return {"segment": first.segment, "exit": exit_world, "energy_out": res.energy_out, "hits": hits}
 
 
+## Flying glass: a shallow slice where it hits (see HumanBody.take_cut).
+func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedded := false) -> Dictionary:
+	var seg := _segment_at(pos)
+	var xf := player.global_transform
+	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var o := xf.affine_inverse() * pos
+	o.y /= squash
+	var d := (xf.affine_inverse().basis * dir).normalized()
+	var tr := anatomy.trace(seg, o - d * 0.3, d, depth * 100.0 * anatomy.flesh_resistance, 0.002, _rng)
+	tr.cut = true
+	physiology.apply_trace(tr)
+	wounds.append({"segments": [seg], "lodged": embedded, "hits": [], "kind": &"cut"})
+	_flash = maxf(_flash, 0.4)
+	say("Glass cut your %s%s." % [_place(seg), ", and a shard's still in it" if embedded else ""], 2.5)
+	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": seg, "hits": [], "position": pos,
+			"direction": dir, "exit": null, "lodged": embedded, "kind": &"cut"})
+	return {}
+
+
+## Something heavy fell on you.
+func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN) -> PackedStringArray:
+	var seg := _segment_at(point)
+	var harm := physiology.blow(seg, joules, _rng)
+	_flash = 1.0
+	player.add_look(Vector2(_rng.randf_range(-6.0, 6.0), _rng.randf_range(-6.0, 2.0)))
+	say("Something heavy caught your %s: %s." % [_place(seg), ", ".join(harm)], 3.0)
+	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": seg, "hits": [], "position": point,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blow", "harm": harm, "joules": joules})
+	return harm
+
+
+## Which part of you is at a world point (standing, or crouched and squashed down).
+func _segment_at(point: Vector3) -> StringName:
+	var xf := player.global_transform
+	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var p := xf.affine_inverse() * point
+	p.y /= squash
+	var best := &"chest"
+	var best_d := INF
+	for sid: StringName in anatomy.segments:
+		for c: Array in anatomy.segments[sid].capsules:
+			var a: Vector3 = c[0]
+			var ab: Vector3 = (c[1] as Vector3) - a
+			var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+			var dist := p.distance_to(a + ab * t) - float(c[2])
+			if dist < best_d:
+				best_d = dist
+				best = sid
+	return best
+
+
+func _place(seg: StringName) -> String:
+	return String(seg).replace("_r", "").replace("_l", "").replace("_", " ")
+
+
 func _hit_words(segs: Array, hits: Array) -> String:
 	var where := String(segs[0]).replace("_r", "").replace("_l", "").replace("_", " ")
 	for h: Dictionary in hits:
@@ -196,7 +251,7 @@ func _tend(delta: float) -> void:
 		return
 	var worst: Dictionary = {}
 	for b in physiology.bleeds:
-		if not b.tourniquet and not b.get(&"bandaged", false) and (worst.is_empty() or physiology.bleed_rate(b) > physiology.bleed_rate(worst)):
+		if not b.tourniquet and not b.get(&"bandaged", false) and b.get("kind", &"ooze") != &"internal" and (worst.is_empty() or physiology.bleed_rate(b) > physiology.bleed_rate(worst)):
 			worst = b
 	if worst.is_empty():
 		if tending == 0.0:
