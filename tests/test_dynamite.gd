@@ -283,3 +283,75 @@ func test_hold_it_too_long() -> void:
 	check(p.severed_segments.has(&"hand_r"), "your hand's gone (%s)" % str(p.severed_segments.keys()))
 	check(player.wounds.ringing > 5.0, "your ears ring (%.0f s)" % player.wounds.ringing)
 	check(not p.can_hold("r"), "you can't hold anything in it")
+
+
+# --- On the real street (Sean: "it doesn't destroy the buildings nor damage the bad guy") ------
+
+func _street() -> Node3D:
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	add_child(street)
+	await physics_frames(5)
+	return street
+
+
+func _throw_from(player: Player, windup: float) -> DynamiteStick:
+	var d := player.dynamite()
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 200)
+	d.strike_match()
+	await wait_until(func() -> bool: return d.lit, 200)
+	d.windup = windup
+	return d.throw()
+
+
+func test_thrown_at_the_store_it_breaks_things() -> void:
+	var street := await _street()
+	var player: Player = street.get_node(^"Player")
+	player.global_position = Vector3(3.0, 0.0, -9.0)
+	player.rotation = Vector3(0, PI, 0)
+	await physics_frames(5)
+	var broken := []
+	var on_broken := func(id: StringName) -> void: broken.append(id)
+	Events.member_broken.connect(on_broken)
+	await _throw_from(player, 0.3)
+	await wait_until(func() -> bool: return not booms.is_empty(), 500)
+	Events.member_broken.disconnect(on_broken)
+	var timber := broken.filter(func(id: StringName) -> bool: return not String(id).contains("glass"))
+	print("  thrown at the store: %d broken, %d of them timber" % [broken.size(), timber.size()])
+	check(timber.size() >= 3, "it breaks timber where it lands (%d)" % timber.size())
+	street.queue_free()
+
+
+func test_on_the_floor_it_blows_through_the_boards() -> void:
+	var store := await _store()
+	var board: StructureMember = null
+	for m in store.get_members():
+		if String(m.member_id).contains("floor/board"):
+			board = m
+			break
+	var top := board.global_position + Vector3.UP * (board.size.y * 0.5 + DynamiteStick.RADIUS)
+	var report := Blast.detonate(world, top, Blast.t().tnt_per_stick)
+	var floor := (report.broken as Array).filter(func(id: StringName) -> bool: return String(id).contains("floor/board"))
+	check(floor.size() >= 2, "floorboards blown through (%d)" % floor.size())
+
+
+func test_thrown_near_him_it_hurts_him() -> void:
+	var street := await _street()
+	var player: Player = street.get_node(^"Player")
+	var man: HumanBody = street.find_child("OutlawSpawn", true, false).spawn()
+	await physics_frames(5)
+	man.get_node(^"Brain").set_physics_process(false)
+	var from := man.global_position - Vector3(10, 0, 0)
+	player.global_position = from
+	player.look_at_from_position(from, Vector3(man.global_position.x, 0, man.global_position.z))
+	await physics_frames(5)
+	await _throw_from(player, 0.35)
+	await wait_until(func() -> bool: return not booms.is_empty(), 500)
+	await physics_frames(10)
+	var d: float = (booms[0][0] as Vector3).distance_to(man.global_position) if not booms.is_empty() else -1.0
+	var lines := man.describe_wounds()
+	print("  went off %.1f m from him: %s" % [d, "; ".join(lines)])
+	check(d >= 0.0 and d < 3.0, "it landed near him (%.1f m)" % d)
+	check(man.limp, "knocked down")
+	check(lines.size() >= 1, "hurt: %s" % "; ".join(lines))
+	street.queue_free()

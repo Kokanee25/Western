@@ -25,6 +25,14 @@ Six sticks in your coat. A stick of 40% dynamite with a five-second fuse.
     if an eardrum went).
   - A bullet through a stick lying on the ground sets it off about one time in four. One blast sets
     off another stick lying close by.
+- **Fixed after the first try** ("it doesn't destroy the buildings or hurt the bad guy"): a
+  stick lying on a board counted as if it were half a metre off it, and a thrown stick rolled
+  away like a pencil. Now the blast is reckoned over each board's whole face (so what's right
+  under it takes the most), boards break right where they're hit, the stick skids to a stop,
+  and on the ground it throws gravel and grit that wound anyone within a few metres. A stick is
+  also a bit stronger (0.2 kg of TNT, not 0.15) and knocks a man down from further off. Thrown at
+  the store it now breaks about a dozen pieces where it lands; on the floor it blows through the
+  boards; a metre and a half from the outlaw it knocks him flat and puts gravel in him.
 - Try: set one at the store's wall and stand back; throw one at the outlaw from across the range;
   set one down, walk off and shoot it.
 

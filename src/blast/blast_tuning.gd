@@ -6,8 +6,9 @@ extends Resource
 ## (eardrum rupture from ~35 kPa, lung injury from a few hundred kPa for a short pulse).
 
 @export_group("The stick")
-## An 8" stick of 40% straight dynamite is about half a pound; this much TNT in effect.
-@export var tnt_per_stick := 0.15
+## An 8" stick of dynamite weighs about half a pound (0.2–0.23 kg) and hits about as hard as its
+## weight of TNT.
+@export var tnt_per_stick := 0.2
 ## Sticks carried, and how long the cut fuse burns (seconds).
 @export var sticks_carried := 6
 @export var fuse_seconds := 5.0
@@ -28,6 +29,8 @@ extends Resource
 ## Timber breaks when the kick the blast gives it (impulse² / 2m) passes the energy it can soak
 ## up bending: this share of f²/2E over its volume.
 @export var absorb_factor := 0.2
+## The length of a member (m) that can break on its own where a close charge hits it.
+@export var local_span := 0.3
 ## Panes crack at this pressure (kPa).
 @export var glass_kpa := 3.5
 ## The fastest a broken piece is thrown (m/s).
@@ -39,6 +42,14 @@ extends Resource
 @export var splinter_diameter := 0.006
 @export var splinter_speed_factor := 6.0
 @export var max_splinters := 40
+## On the ground it throws gravel and grit, low and fast: what hurts most people near a blast
+## who aren't right on it. Count, mass (kg), size (m), speed (m/s) and the highest they go
+## (degrees above the ground).
+@export var ejecta_count := 80
+@export var ejecta_mass := 0.003
+@export var ejecta_diameter := 0.006
+@export var ejecta_speed := Vector2(90.0, 220.0)
+@export var ejecta_elevation := 35.0
 ## How far the blast is reckoned (m): nothing beyond this notices (panes a bit further than this
 ## still crack at 3.5 kPa with more than one stick).
 @export var reach_per_cbrt_kg := 25.0
@@ -64,7 +75,7 @@ extends Resource
 ## Knocked senseless from this pressure at the head.
 @export var concussion_kpa := 150.0
 ## Knocked off his feet by this much pressure, or by being pushed faster than this (m/s).
-@export var knockdown_kpa := 60.0
+@export var knockdown_kpa := 35.0
 @export var knockdown_speed := 0.8
 ## The blast wind pushes a body with this share of impulse × its frontal area (0.7 m²).
 @export var throw_factor := 2.5

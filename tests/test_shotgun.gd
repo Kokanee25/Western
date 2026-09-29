@@ -286,6 +286,9 @@ func test_player_switches_to_the_shotgun_and_fires() -> void:
 	var hits := []
 	var on_hit := func(info: Dictionary) -> void: hits.append(info)
 	Events.bullet_hit.connect(on_hit)
+	# No misfire today (it's seeded from the node's path, which moves as tests are added).
+	sg.state.tuning = sg.state.tuning.duplicate()
+	sg.state.tuning.misfire_chance = 0.0
 	sg.state.cock()
 	sg.state.tick(1.0)
 	sg.pull_trigger()

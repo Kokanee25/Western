@@ -405,3 +405,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     player's own severed hand isn't shown (no visible player arms beyond the gun hand).
   - Next: Sean's review of dynamite; then the M2 follow-ups left (outlaw cover/fleeing/tending,
     active ragdoll balance) or rope.
+- 2026-09-29 (later): Sean: dynamite "doesn't destroy the buildings nor damage the bad guy". Causes:
+  impulse was sampled at 5 points on a member's centre line (a stick lying on a floorboard read as
+  ~0.4 m off it), and the round stick rolled away. `Blast.face_impulse()` now sums impulse over the
+  face with samples bunched at the nearest point, plus a local check over `local_span` 0.3 m (the
+  member snaps there: meta `blast_t`); the stick has friction/damping; ground blasts throw
+  `ejecta_count` 80 gravel projectiles (kind `gravel`, 3 g, 90–220 m/s, under 35°); a stick is
+  0.2 kg TNT; blast knockdown from 35 kPa. Blast RNG seeded by position (deterministic). Street
+  tests: thrown at the store 11 timber broken; floor blown through; 1.5 m from the outlaw he's down
+  with gravel wounds. The shotgun player test turns misfires off (seeded by node path). 182 pass.

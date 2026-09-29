@@ -44,6 +44,15 @@ func _ready() -> void:
 	collision_layer = Layers.DEBRIS
 	collision_mask = Layers.DEBRIS_MASK
 	continuous_cd = true
+	# Paper on dirt: it skids and rolls a little, then stops (a round stick would roll on for
+	# ever otherwise).
+	var pm := PhysicsMaterial.new()
+	pm.friction = 1.0
+	pm.rough = true
+	pm.bounce = 0.1
+	physics_material_override = pm
+	linear_damp = 0.4
+	angular_damp = 4.0
 	var shape := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
 	cyl.radius = RADIUS
