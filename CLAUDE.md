@@ -603,3 +603,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   texels of the painter's eye row/columns. `people.yml` runs paint + a second make when the repo
   secret `OPENROUTER_API_KEY` exists (optional repo variable `FACE_MODEL`); inputs `only`, `repaint`.
   - The workflow only shows in the Actions tab once it's on main.
+- 2026-09-29 (later): **Step 4 done: the first image-model face.** Sean added the repo secret; the
+  first People run failed with a 400 because an unset repo variable arrives as an empty string
+  (`FACE_MODEL=""` sent an empty model); fixed (`or` default) and errors now print OpenRouter's
+  reason. Run 2 (dispatched on the branch) painted `outlaw_face_portrait.png` (1024², Gemini 2.5
+  Flash Image; matched the guide's outline) and projected it; renders
+  `docs/screenshots/shot_match/round5_face_*`.
+  - Next: Sean's verdict; then more lighting (the painting's warm key on one cheek, rim light),
+    room dressing, and faces for the townsfolk (their own `people.json` entries).
