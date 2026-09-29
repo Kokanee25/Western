@@ -372,3 +372,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Sean also sees his right monitor (dual setup) blank for a moment when the shotgun fires or K
     breaks timber. Not reproducible here; asked which build, which screen the game is on, whether the
     revolver does it, and how the monitor's connected (HDMI with audio is a suspect).
+  - Sean's answers: Windows build on the left screen; only the shotgun and K do it (K very often);
+    the right monitor is HDMI and carries the sound (the sound stops when it blanks). Likely the
+    monitor's speaker amp dropping out on full-scale deep bass (the shotgun boom swept to 28 Hz, the
+    timber crash to 45 Hz). `Settings._protect_speakers()` puts a 40 Hz high-pass and a hard limiter
+    (−3 dB in, −1.5 dB ceiling) on the Master bus; the gunshot thump never goes below 40 Hz.
+    166 pass. If it still happens with sound sent elsewhere, it's the GPU/HDMI link instead.

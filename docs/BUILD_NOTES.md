@@ -26,6 +26,10 @@ blast behind them and tear one big hole: ribs smashed and thrown out, lung or he
   wider now (well over a metre at 25 m, so only 3–5 pellets find a man at 20 m), pellets slow in the
   air (so do bullets, a little), and each pellet counts for a share of the knockdown and fright. At
   20 m a charge put him down 14 times in 16 before, about 5 in 16 now. Up close is unchanged.
+- **Monitor blanking:** the loudest, deepest moments (the shotgun, timber coming down) were
+  hitting full volume with bass too deep for any small speaker, which can make a monitor's
+  built-in speakers drop out and take the screen with them. The game's sound now goes through a
+  limiter and a deep-bass cut.
 
 ### Fixed: reloading pushed you around; the gun went through walls
 

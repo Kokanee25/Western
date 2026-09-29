@@ -34,6 +34,25 @@ var autosave := true
 
 func _ready() -> void:
 	load_from_disk()
+	_protect_speakers()
+
+
+## The master output never clips and carries no sub-bass: a hard limiter just under full scale,
+## and a cut below ~40 Hz (nothing small can play it anyway). Loud, deep moments (the shotgun, a
+## building coming down) at full scale made a monitor's built-in speakers drop out and blank the
+## screen with them.
+func _protect_speakers() -> void:
+	var master := AudioServer.get_bus_index(&"Master")
+	for i in AudioServer.get_bus_effect_count(master):
+		if AudioServer.get_bus_effect(master, i) is AudioEffectHardLimiter:
+			return
+	var cut := AudioEffectHighPassFilter.new()
+	cut.cutoff_hz = 40.0
+	AudioServer.add_bus_effect(master, cut)
+	var limiter := AudioEffectHardLimiter.new()
+	limiter.ceiling_db = -1.5
+	limiter.pre_gain_db = -3.0
+	AudioServer.add_bus_effect(master, limiter)
 
 
 func reset_to_defaults() -> void:
