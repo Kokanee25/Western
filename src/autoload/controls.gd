@@ -27,7 +27,7 @@ func _ready() -> void:
 	_bind(&"debug_pixel_shading", [KEY_F6], [])
 	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
-	_bind(&"debug_time_scale", [KEY_T], [JOY_BUTTON_Y])
+	_bind(&"debug_time_scale", [KEY_T], [])
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
 	_bind(&"debug_traces", [KEY_F8], [])
 	_bind(&"debug_xray", [KEY_F10], [])
@@ -36,12 +36,16 @@ func _ready() -> void:
 	_bind(&"debug_ignite", [KEY_F12, KEY_L], [])
 	_bind(&"debug_wound", [KEY_J], [])
 	_bind(&"toggle_gore", [KEY_F4], [])
-	# The revolver.
+	# The guns.
 	_bind(&"fire", [], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]], [MOUSE_BUTTON_LEFT])
 	_bind(&"aim", [], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]], [MOUSE_BUTTON_RIGHT])
 	_bind(&"cock", [KEY_Q], [JOY_BUTTON_RIGHT_SHOULDER], [], [MOUSE_BUTTON_WHEEL_DOWN])
 	_bind(&"reload", [KEY_R], [JOY_BUTTON_X])
 	_bind(&"holster", [KEY_H], [JOY_BUTTON_LEFT_SHOULDER])
+	# Which gun: 1 the revolver, 2 the shotgun, or swap (wheel up / Y).
+	_bind(&"weapon_revolver", [KEY_1], [])
+	_bind(&"weapon_shotgun", [KEY_2], [])
+	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])
 	_bind(&"shout", [KEY_G], [JOY_BUTTON_DPAD_LEFT])

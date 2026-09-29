@@ -83,7 +83,7 @@ func say(text: String, seconds := 3.0) -> void:
 
 
 ## Ballistics reached the player's capsule. Traces the rest of the path through the body inside.
-func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165, _travelled := 99.0) -> Dictionary:
+func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165, _travelled := 99.0, _blast := -1.0) -> Dictionary:
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.
@@ -199,17 +199,18 @@ func _physics_process(delta: float) -> void:
 	_tend(delta)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
-	var gun := player.get_node_or_null(^"Head/Camera3D/Gun") as RevolverViewmodel
 	var p := physiology
 	var legs := p.leg_ok("r") and p.leg_ok("l") and not p.legs_paralysed() and not p.broken.has(&"pelvis_bone")
 	player.force_crouch = not legs or p.shock() > 0.85
 	player.move_factor = (1.0 - p.shock() * 0.5) * (lerpf(0.45, 1.0, p.leg_strength()) if legs else 0.35)
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
-	if gun:
+	for gun in player.weapons:
 		gun.hands_busy = tending > 0.0
-		gun.arm_disabled = not p.can_hold("r")
-		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - p.arm_steadiness("r")) * 4.0
+		# The shotgun takes both hands; the revolver only the right.
+		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
+		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
+		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - steadiness) * 4.0
 	if not p.is_conscious():
 		out_cold += delta
 		if out_cold > 4.0:

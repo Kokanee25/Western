@@ -3,10 +3,10 @@ extends CanvasLayer
 ## F1 shows the controls, F3 shows clock/speed/resolution readouts.
 
 const HELP := """SALT CREEK — test street
-Revolver: cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB
+Guns: cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB     Revolver 1, shotgun 2, swap wheel up / Y
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
-Jump: Space / A     Time speed: T / Y     Debug readout: F3 / View
+Jump: Space / A     Time speed: T     Debug readout: F3 / View
 Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
 Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L (or F12)     Tear a wound open: J     Reduced gore: F4
@@ -45,7 +45,7 @@ func _ready() -> void:
 	_toast.add_theme_font_size_override(&"font_size", 22)
 	Settings.changed.connect(_show_look)
 	if DisplayServer.is_touchscreen_available():
-		_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + "Left thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time"
+		_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + "Left thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time, gun (swap)"
 
 
 func _label(pos: Vector2) -> Label:

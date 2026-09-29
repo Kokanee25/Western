@@ -42,6 +42,8 @@ var _rng := RandomNumberGenerator.new()
 var _next_shot := 1.0
 var _reload_left := 0.0
 var _aimed_at := 0.0
+## Looking down the barrels of a scattergun: nobody argues with one of those for long.
+var _facing_shotgun := false
 var _gun_sound: AudioStreamPlayer3D
 var _said_gut := false
 ## Seconds knocked off balance by a hit: no shooting until he recovers.
@@ -153,6 +155,8 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 	if d > 30.0:
 		return
 	fear += 0.08 + (0.22 if _aimed_at > 0.3 else 0.0) + body.physiology.wounds * 0.08
+	if _facing_shotgun and _aimed_at > 0.3:
+		fear += 0.12
 	if mood == Mood.CALM:
 		fear += 0.1  # caught cold with a gun on him
 
@@ -199,14 +203,15 @@ func _physics_process(delta: float) -> void:
 ## How long the player has been aiming his way (seconds, decays).
 func _update_aimed_at(delta: float) -> void:
 	var t := _find_target()
-	var gun := t.get_node_or_null(^"Head/Camera3D/Gun") if t else null
+	var gun: Variant = (t as Player).weapon if t is Player else null
 	var aiming := false
-	if gun is RevolverViewmodel and (gun as RevolverViewmodel).drawn:
+	if gun is WeaponViewmodel and (gun as WeaponViewmodel).drawn:
 		var cam := (gun as Node3D).get_parent() as Node3D
 		var to := body.global_position + Vector3.UP * 1.2 - cam.global_position
 		var fwd := -cam.global_transform.basis.z
 		aiming = fwd.angle_to(to) < deg_to_rad(8.0)
 	_aimed_at = clampf(_aimed_at + (delta if aiming else -delta * 0.5), 0.0, 3.0)
+	_facing_shotgun = aiming and gun is ShotgunViewmodel
 
 
 func _fight(delta: float) -> void:

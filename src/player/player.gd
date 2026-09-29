@@ -15,6 +15,10 @@ var force_crouch := false
 var is_crouching := false
 var is_running := false
 var wounds: PlayerWounds
+## The guns under the camera (the revolver, the shotgun), and the one in your hands.
+var weapons: Array[WeaponViewmodel] = []
+var weapon: WeaponViewmodel
+var _switch_to: WeaponViewmodel
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -46,6 +50,59 @@ func _ready() -> void:
 	floor_snap_length = 0.3
 	floor_max_angle = deg_to_rad(46.0)
 	Events.look_input.connect(add_look)
+	_arm()
+
+
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun is added beside it, put away.
+func _arm() -> void:
+	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
+	if revolver:
+		weapons.append(revolver)
+	var shotgun := ShotgunViewmodel.new()
+	shotgun.name = "Shotgun"
+	shotgun.selected = false
+	shotgun.drawn = false
+	shotgun._draw = 0.0
+	camera.add_child(shotgun)
+	weapons.append(shotgun)
+	weapon = weapons[0]
+
+
+func revolver() -> RevolverViewmodel:
+	return camera.get_node_or_null(^"Gun") as RevolverViewmodel
+
+
+func shotgun() -> ShotgunViewmodel:
+	return camera.get_node_or_null(^"Shotgun") as ShotgunViewmodel
+
+
+## Put the gun in your hands away and bring out another once it is.
+func select_weapon(w: WeaponViewmodel) -> void:
+	if w == null:
+		return
+	if w == weapon and _switch_to == null:
+		w.take_out()
+		return
+	if weapon:
+		weapon.put_away()
+		weapon.selected = false
+	_switch_to = w
+
+
+func _update_weapon_switch() -> void:
+	if input_enabled:
+		if Input.is_action_just_pressed(&"weapon_revolver"):
+			select_weapon(revolver())
+		elif Input.is_action_just_pressed(&"weapon_shotgun"):
+			select_weapon(shotgun())
+		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
+			var current := _switch_to if _switch_to else weapon
+			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])
+	if _switch_to and (weapon == null or weapon.is_put_away()):
+		weapon = _switch_to
+		_switch_to = null
+		weapon.selected = true
+		weapon.take_out()
 
 
 ## Turn and pitch the view. x turns right, y pitches up, both in degrees.
@@ -75,6 +132,7 @@ func get_forward() -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
+	_update_weapon_switch()
 	var move := Vector2.ZERO
 	var wants_jump := false
 	var wants_run := false

@@ -121,24 +121,52 @@ static func flash_mesh() -> MeshInstance3D:
 
 
 ## A spent case dropped out of the gate: real brass that lands and stays (evidence).
-static func spent_case(parent: Node, at: Vector3, push: Vector3) -> RigidBody3D:
+## A spent case (a .45's by default; a shotgun's brass shell is bigger) thrown from `at`.
+static func spent_case(parent: Node, at: Vector3, push: Vector3, radius := 0.006, length := 0.032, mass := 0.012) -> RigidBody3D:
 	var body := RigidBody3D.new()
 	body.name = "SpentCase"
-	body.mass = 0.012
+	body.mass = mass
 	body.add_to_group(&"spent_cases")
 	body.collision_layer = Layers.DEBRIS
 	body.collision_mask = Layers.DEBRIS_MASK
 	var shape := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
-	cyl.radius = 0.006
-	cyl.height = 0.032
+	cyl.radius = radius
+	cyl.height = length
 	shape.shape = cyl
 	body.add_child(shape)
-	GunParts.tube(body, "Brass", 0.006, 0.032, Vector3.ZERO, GunParts.brass(), 8, Vector3.ZERO)
+	GunParts.tube(body, "Brass", radius, length, Vector3.ZERO, GunParts.brass(), 8, Vector3.ZERO)
 	parent.add_child(body)
 	body.global_position = at
 	body.linear_velocity = push
 	body.angular_velocity = Vector3(randf_range(-10, 10), randf_range(-10, 10), randf_range(-10, 10))
+	return body
+
+
+## A piece of smashed bone (rib, skull) thrown out of a destroyed wound. It stays where it lands.
+static func bone_fragment(parent: Node, at: Vector3, velocity: Vector3, rng: RandomNumberGenerator) -> RigidBody3D:
+	var body := RigidBody3D.new()
+	body.name = "BoneFragment"
+	body.mass = 0.006
+	body.add_to_group(&"bone_fragments")
+	body.collision_layer = Layers.DEBRIS
+	body.collision_mask = Layers.DEBRIS_MASK
+	var size := Vector3(rng.randf_range(0.008, 0.014), rng.randf_range(0.005, 0.009), rng.randf_range(0.014, 0.032))
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	var bloody := rng.randf() < 0.45
+	GunParts.box(body, "Bone", size, Vector3.ZERO, BodyInterior.material(&"flesh" if bloody else &"bone"))
+	if bloody:
+		# A bloody one: bone showing at one end.
+		GunParts.box(body, "End", Vector3(size.x * 1.05, size.y * 1.05, size.z * 0.4), Vector3(0, 0, size.z * 0.3), BodyInterior.material(&"bone"))
+	parent.add_child(body)
+	body.global_position = at
+	body.global_rotation = Vector3(rng.randf() * TAU, rng.randf() * TAU, 0.0)
+	body.linear_velocity = velocity
+	body.angular_velocity = Vector3(rng.randf_range(-15, 15), rng.randf_range(-15, 15), rng.randf_range(-15, 15))
 	return body
 
 

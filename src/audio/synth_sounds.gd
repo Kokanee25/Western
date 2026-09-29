@@ -15,6 +15,9 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 		var samples: PackedFloat32Array
 		match id:
 			&"gunshot": samples = _gunshot(rng)
+			&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
+			&"break_open": samples = _clicks(rng, [0.0, 0.06], 900.0, 0.55)
+			&"close": samples = _clicks(rng, [0.0], 1100.0, 0.7)
 			&"cock": samples = _clicks(rng, [0.0, 0.085], 3100.0, 0.5)
 			&"dry_fire": samples = _clicks(rng, [0.0], 2400.0, 0.6)
 			&"ratchet": samples = _clicks(rng, [0.0, 0.02, 0.04], 4200.0, 0.25)
@@ -36,7 +39,9 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 	return _cache[id]
 
 
-static func _gunshot(rng: RandomNumberGenerator) -> PackedFloat32Array:
+## A black-powder shot: `boom_hz` the low thump (a shotgun's is deeper), `boom_decay` and
+## `body_decay` how long the thump and the roar last.
+static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 0.16, body_decay := 0.09) -> PackedFloat32Array:
 	var n := int(RATE * 2.2)
 	var out := PackedFloat32Array()
 	out.resize(n)
@@ -48,8 +53,8 @@ static func _gunshot(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		lp += (white - lp) * 0.25
 		lp2 += (white - lp2) * 0.04
 		var crack := white * exp(-t / 0.006) * 1.0
-		var body := lp * exp(-t / 0.09) * 0.9
-		var boom := sin(TAU * lerpf(70.0, 38.0, minf(t / 0.3, 1.0)) * t) * exp(-t / 0.16) * 0.7
+		var body := lp * exp(-t / body_decay) * 0.9
+		var boom := sin(TAU * lerpf(boom_hz, boom_hz * 0.54, minf(t / 0.3, 1.0)) * t) * exp(-t / boom_decay) * 0.7
 		var roll := lp2 * exp(-t / 0.7) * 0.5
 		out[i] = crack + body + boom + roll
 	# Echoes off the valley walls.

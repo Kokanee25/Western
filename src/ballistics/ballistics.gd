@@ -17,8 +17,22 @@ class Bullet:
 	var path := PackedVector3Array()
 	var hits: Array[Dictionary] = []
 	var shooter: Node
-	## People it has already cracked past (near misses are announced once each).
+	## People it has already cracked past (near misses are announced once each). The pellets of
+	## one shotgun charge share this, so a charge cracks past a man once, not nine times.
 	var passed := {}
+	## Muzzle blast (and a shotgun's wad) this projectile carries into the first thing it touches,
+	## joules at contact, gone by `blast_reach` metres. A revolver's is 300 J.
+	var blast := 300.0
+	var blast_reach := 1.5
+	## Its share of a shotgun charge (1 for a single ball).
+	var pellets := 1
+
+	## The blast still with it after flying `travelled` metres: all of it right at the muzzle,
+	## then fading out.
+	func blast_at(travelled: float) -> float:
+		if travelled < 0.3:
+			return blast
+		return blast * 0.48 * maxf(blast_reach - travelled, 0.0) / maxf(blast_reach - 0.3, 0.01)
 
 	func energy() -> float:
 		return 0.5 * mass * velocity.length_squared()
@@ -47,6 +61,30 @@ func fire(origin: Vector3, direction: Vector3, speed: float, mass: float, diamet
 	b.path.append(origin)
 	bullets.append(b)
 	return b
+
+
+## A shotgun charge: `count` pellets leaving together along `direction`, each thrown off the line
+## by a normal spread of `pattern` radians (one standard deviation, capped at 2.5), each flown as
+## its own projectile. The muzzle blast is split between them. Returns the pellets.
+func fire_charge(origin: Vector3, direction: Vector3, count: int, pattern: float, speed: float, mass: float,
+		diameter: float, exclude: Array[RID], rng: RandomNumberGenerator, blast := 0.0, blast_reach := 1.5) -> Array[Bullet]:
+	var d := direction.normalized()
+	var side := d.cross(Vector3.UP if absf(d.y) < 0.99 else Vector3.RIGHT).normalized()
+	var up := side.cross(d).normalized()
+	var passed := {}
+	var out: Array[Bullet] = []
+	for i in count:
+		var off := Vector2(rng.randfn(0.0, 1.0), rng.randfn(0.0, 1.0))
+		if off.length() > 2.5:
+			off = off.normalized() * 2.5
+		var dir := (d + (side * off.x + up * off.y) * tan(pattern)).normalized()
+		var b := fire(origin, dir, speed * rng.randf_range(0.97, 1.03), mass, diameter, exclude.duplicate())
+		b.passed = passed
+		b.blast = blast / maxf(count, 1)
+		b.blast_reach = blast_reach
+		b.pellets = count
+		out.append(b)
+	return out
 
 
 func _physics_process(delta: float) -> void:
@@ -84,6 +122,8 @@ func step(b: Bullet, delta: float) -> void:
 		b.position = hit.position
 		b.path.append(hit.position)
 		remaining = _impact(b, hit, remaining)
+		# The blast spends itself on the first thing it meets.
+		b.blast = 0.0
 	b.velocity.y -= tuning.gravity * delta
 	_near_misses(b, start, b.position)
 	if b.alive:
@@ -102,7 +142,8 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	if collider != null and collider.has_meta(&"human_body"):
 		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
 		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0
-		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass, travelled)
+		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass, travelled, b.blast_at(travelled))
+		b.blast = 0.0
 		b.exclude.append((collider as CollisionObject3D).get_rid())
 		if res.segment == &"":
 			return remaining  # through the space round him without touching him

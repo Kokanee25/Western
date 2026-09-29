@@ -36,6 +36,11 @@ static func skin_material(base: StandardMaterial3D) -> ShaderMaterial:
 	return m
 
 
+## The plain pixel-textured material for a kind of tissue (fragments, loose bits).
+static func material(key: StringName) -> StandardMaterial3D:
+	return _tex_material(key, 93 if key == &"bone" else 91 if key == &"flesh" else 95 + COLOURS.keys().find(key))
+
+
 static func _tex_material(key: StringName, seed: int) -> StandardMaterial3D:
 	if not _mats.has(key):
 		var colour: Color = COLOURS.get(key, Color(0.5, 0.1, 0.1))
@@ -94,6 +99,36 @@ static func build(segment: StringName, vis: Node3D, anatomy: Anatomy) -> Node3D:
 		var pb := _pull_in(anatomy, segment, st.b, st.radius)
 		_capsule(root, String(st.id), pa, pb, st.radius, center, mat)
 	return root
+
+
+## Points through a bone (anatomy space): over the surface of a hollow one (skull, ribcage),
+## along the axis of a solid one. What a destroyed region smashes is what these fall inside.
+static func bone_points(st: Dictionary) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	var a: Vector3 = st.a
+	var b: Vector3 = st.b
+	var r: float = st.radius
+	var length := (b - a).length()
+	if st.get(&"shell", 0.0) > 0.0:
+		if length < 0.001:
+			for i in 48:
+				var y := 1.0 - 2.0 * (i + 0.5) / 48.0
+				var ring := sqrt(1.0 - y * y)
+				var ang := i * 2.39996
+				out.append(a + Vector3(cos(ang) * ring, y, sin(ang) * ring) * r)
+			return out
+		var basis := HumanBody._along(b - a)
+		var n := int(length / 0.026)
+		for i in n + 1:
+			var c := a.lerp(b, float(i) / maxf(n, 1))
+			for k in 16:
+				var ang := TAU * k / 16.0
+				out.append(c + (basis.x * cos(ang) + basis.z * sin(ang)) * r)
+		return out
+	var steps := maxi(1, int(length / 0.02))
+	for i in steps + 1:
+		out.append(a.lerp(b, float(i) / steps))
+	return out
 
 
 ## Ribs: bars round the cage, a couple of centimetres apart, not a solid wall.

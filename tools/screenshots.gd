@@ -43,6 +43,13 @@ const VIEWS := [
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["gun_at_wall", 16.0, Vector3(1.5, 0.38, 7.5), 90.0, -4.0, "wall"],
 	["gun_at_wall_aim", 16.0, Vector3(1.5, 0.38, 7.5), 90.0, -4.0, "wall_aim"],
+	["shotgun_hip_range", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -1.0, "sg_hip"],
+	["shotgun_aim_range", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -1.2, "sg_aim"],
+	["shotgun_open", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -10.0, "sg_open"],
+	["shotgun_shot_saloon", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0, "sg_shot"],
+	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
+	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
+	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
 ]
 
 
@@ -109,6 +116,23 @@ func _run() -> void:
 			elif setup != "loading" and gun.state.gate_open:
 				gun.state.busy = 0.0
 				gun.state.close_gate()
+		var sg = player.get_node_or_null(^"Head/Camera3D/Shotgun")
+		if sg and gun:
+			_hold(player, gun, sg, setup.begins_with("sg_"))
+		if sg and setup.begins_with("sg_"):
+			sg.aiming = setup == "sg_aim"
+			sg.state.busy = 0.0
+			if setup == "sg_open" and not sg.state.open:
+				sg.state.open_action()
+			elif setup != "sg_open" and sg.state.open:
+				sg.state.close_action()
+			sg.state.busy = 0.0
+			if setup == "sg_shot":
+				sg.state.cock()
+				sg.state.busy = 0.0
+				sg.pull_trigger()
+				for i in 90:
+					await physics_frame
 		if setup == "shot" and gun:
 			gun.state.busy = 0.0
 			gun.state.cock()
@@ -211,6 +235,22 @@ func _run() -> void:
 	quit()
 
 
+## Put the shotgun in the hands at once (or the revolver back).
+func _hold(player, gun, sg, shotgun: bool) -> void:
+	var take = sg if shotgun else gun
+	var leave = gun if shotgun else sg
+	leave.selected = false
+	leave.drawn = false
+	leave._draw = 0.0
+	leave.visible = false
+	take.selected = true
+	take.drawn = true
+	take._draw = 1.0
+	player.weapon = take
+	if player.body:
+		player.body.set_gun_holstered(shotgun)
+
+
 ## Stage the test outlaw: provoked and shooting, shot and surrendering, or dead on the ground.
 func _outlaw_setup(main, setup, player) -> void:
 	var spawner = main.find_child("OutlawSpawn", true, false)
@@ -239,6 +279,25 @@ func _outlaw_setup(main, setup, player) -> void:
 		man.open_wound(&"chest", Vector3(-0.05, 0.02, -0.125), 1600.0)
 		man.open_wound(&"abdomen", Vector3(0.04, -0.02, -0.12), 900.0)
 		man.physiology.step(30.0)
+	elif setup == "outlaw_buckshot" or setup == "outlaw_buckshot_room":
+		brain.set_physics_process(false)
+		# Kept on his feet for the picture (he'd go down).
+		man.physiology.tuning = man.physiology.tuning.duplicate()
+		man.physiology.tuning.knockdown_max = 0.0
+		man.set_physics_process(false)
+		var st = load("res://config/shotgun.tres")
+		var chest = parts[&"chest"].global_position + man.global_basis * Vector3(0.04, 0.02, 0.0)
+		var front = -man.global_basis.z
+		var from = chest + front * (0.3 if setup == "outlaw_buckshot" else 7.0)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 3
+		var ex: Array[RID] = [player.get_rid()]
+		ballistics.fire_charge(from, (chest - from).normalized(), st.pellets, deg_to_rad(st.pattern_degrees),
+				st.muzzle_velocity, st.pellet_mass, st.pellet_diameter, ex, rng, st.blast_joules, st.blast_reach)
+		for i in 10:
+			await physics_frame
+		for i in 60:
+			await physics_frame
 	elif setup == "outlaw_graze":
 		brain.set_physics_process(false)
 		# Skimming the outside of his left upper arm and left thigh.

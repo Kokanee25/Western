@@ -14,6 +14,9 @@ var blood_ml := 5000.0
 ## `kind` is &"artery" (a pulsing jet), &"vein" (a dark steady flow), &"ooze" (the rest), or
 ## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
+## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
+const BALL_RADIUS := 0.0057
+
 var broken := {}  ## bone id -> true
 var torn := {}  ## organ id -> true
 var cut := {}  ## artery, vein or nerve id -> true
@@ -61,7 +64,10 @@ func apply_trace(tr: Dictionary) -> Array:
 		_add_bleed(&"flesh", seg, maxf(track, 1.0) * tuning.flesh_bleed_per_cm * tuning.graze_bleed)
 		wound_pain += tuning.pain_graze + track * tuning.pain_per_cm
 	elif track > 0.5:
-		_add_bleed(&"flesh", seg, track * tuning.flesh_bleed_per_cm)
+		# A smaller hole bleeds less: by its cross-section against a .45 ball's (a buckshot pellet's
+		# track bleeds about half as much).
+		var bore := clampf(pow(float(tr.get("radius", BALL_RADIUS)) / BALL_RADIUS, 2.0), 0.2, 2.0)
+		_add_bleed(&"flesh", seg, track * tuning.flesh_bleed_per_cm * bore)
 		wound_pain += track * tuning.pain_per_cm
 	for h: Dictionary in tr.hits:
 		var st := anatomy.structure(h.id)
@@ -217,6 +223,21 @@ func apply_pressure(segment: StringName, on := true) -> void:
 ## A blunt blow of `joules` on a segment (falling timber, a fall, a kick): bruising always, and
 ## past the thresholds concussion, cracked ribs, bruised lungs, a burst spleen or liver bleeding
 ## inside, broken bones. Returns what it did, for describing.
+## A bone smashed outright (a region destroyed by point-blank buckshot or a blast). Ribs blown
+## out open the chest wall: that lung collapses as if holed (a sucking wound).
+func break_bone(id: StringName) -> void:
+	if broken.has(id):
+		return
+	broken[id] = true
+	wound_pain += tuning.pain_bone
+	if id == &"jaw":
+		jaw_broken = true
+	if String(id).begins_with("ribs_"):
+		var lung := StringName("lung_" + String(id).get_slice("_", 1))
+		if not lung_damage.has(lung):
+			lung_damage[lung] = 0.0
+
+
 func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
 	var out: PackedStringArray = []
 	if not alive or joules <= 0.0:

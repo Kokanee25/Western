@@ -465,8 +465,10 @@ func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: floa
 # --- Being shot --------------------------------------------------------------------------------
 
 ## A bullet reached a body part's hitbox. Traces it through the anatomy under the clothes; returns
-## {segment, exit (world Vector3 or null), energy_out, hits, wound}.
-func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165, travelled := 99.0) -> Dictionary:
+## {segment, exit (world Vector3 or null), energy_out, hits, wound}. `blast` is the muzzle blast it
+## brings (joules; Ballistics works it out from the range, or it's a revolver's from `travelled`).
+## Anything lighter than 6 g is a buckshot pellet.
+func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165, travelled := 99.0, blast := -1.0) -> Dictionary:
 	var seg: StringName = collider.get_meta(&"segment")
 	var xf := collider.global_transform
 	var center := anatomy.segment_center(seg)
@@ -487,7 +489,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
 			"stop": (tr.stop - center) if tr.stop != null else null,
 			"bleeds": bleeds, "garments": holed, "stain": null,
-			"kind": &"graze" if tr.graze else &"bullet", "dir": d}
+			"kind": &"graze" if tr.graze else (&"pellet" if mass < PELLET_MASS else &"bullet"), "dir": d}
 	wounds.append(wound)
 	_paint_wound(wound)
 	for h: Dictionary in tr.hits:
@@ -497,14 +499,13 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	# Where it tore: a little at the way in (a lot more with the muzzle's blast right on him), most
 	# at the way out.
 	var at_entry := deposited * (0.25 if tr.exit != null else 0.6)
-	if travelled < 0.3:
-		at_entry += 300.0
-	elif travelled < 1.5:
-		at_entry += 120.0 * (1.5 - travelled)
+	if blast < 0.0:
+		blast = 300.0 if travelled < 0.3 else 120.0 * maxf(1.5 - travelled, 0.0)
+	at_entry += blast
 	if not tr.graze:
-		open_wound(seg, tr.entry - center, at_entry)
+		open_wound(seg, tr.entry - center, at_entry, dir)
 		if tr.exit != null:
-			open_wound(seg, tr.exit - center, deposited * 0.75)
+			open_wound(seg, tr.exit - center, deposited * 0.75, dir)
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -658,10 +659,11 @@ func _paint_wound(w: Dictionary) -> void:
 		w.stain = _decal(vis, w.segment, mid, 0.03, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 		_add_jet(vis, w, mid, 1.0)
 		return
-	_decal(vis, w.segment, w.entry, 0.035, PixelArt.blood("wound_entry", 5, true, 16))
-	w.stain = _decal(vis, w.segment, w.entry, 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+	var pellet: bool = w.kind == &"pellet"
+	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
+	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	if w.exit != null:
-		_decal(vis, w.segment, w.exit, 0.06, PixelArt.blood("wound_exit", 9, true, 16))
+		_decal(vis, w.segment, w.exit, 0.035 if pellet else 0.06, PixelArt.blood("wound_exit", 9, true, 16))
 	var through: bool = w.exit != null
 	_add_jet(vis, w, w.entry, 0.5 if through else 1.0)
 	if through:
@@ -671,10 +673,25 @@ func _paint_wound(w: Dictionary) -> void:
 func _add_jet(vis: Node3D, w: Dictionary, local: Vector3, share: float) -> void:
 	if w.bleeds.is_empty():
 		return
+	if w.kind == &"pellet":
+		# Buckshot holes close together bleed as one: a pellet's bleeding joins a nearby pellet
+		# wound's stream rather than starting its own (nine jets from one shot is a fountain).
+		for other: Node in vis.get_children():
+			if other is BloodJet and other.has_meta(&"pellets") and (other as Node3D).position.distance_to(local) < PELLET_JET_MERGE:
+				var j := other as BloodJet
+				for id: int in w.bleeds:
+					if not j.bleed_ids.has(id):
+						j.bleed_ids.append(id)
+				w.get_or_add("jets", []).append(j)
+				return
 	var jet := BloodJet.new()
+	if w.kind == &"pellet":
+		jet.set_meta(&"pellets", true)
+		jet.bleed_ids = (w.bleeds as Array).duplicate()
 	jet.name = "BloodJet"
 	jet.body = self
-	jet.bleed_ids = w.bleeds
+	if not jet.has_meta(&"pellets"):
+		jet.bleed_ids = w.bleeds
 	jet.share = share
 	jet.position = local
 	jet.basis = _along(_skin_normal(w.segment, local))
@@ -847,6 +864,16 @@ func go_limp(push := Vector3.ZERO) -> void:
 const OPEN_MIN_RADIUS := 0.018
 const OPEN_PER_SQRT_JOULE := 0.0013
 const OPEN_MERGE := 0.06
+## An opening with this much energy in it has destroyed the region: the bone in it is smashed and
+## thrown out as fragments (point-blank buckshot, a blast; a single ball never gets there).
+const DESTROY_ENERGY := 1000.0
+const MAX_FRAGMENTS := 40
+## Below this, buckshot is a pellet (the ball of a .45 is 16.5 g).
+const PELLET_MASS := 0.006
+## Pellet wounds this close share one blood stream.
+const PELLET_JET_MERGE := 0.07
+
+var _fragments := 0
 
 
 func _use_wound_materials() -> void:
@@ -862,8 +889,9 @@ func _on_settings_changed() -> void:
 
 
 ## Tear the body open at a point (segment-centred rest space) with `energy` joules of damage:
-## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up.
-func open_wound(segment: StringName, at: Vector3, energy: float) -> Dictionary:
+## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up; past
+## DESTROY_ENERGY the region is destroyed and the bone in it flies out along `dir` (world).
+func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO) -> Dictionary:
 	var list: Array = openings.get_or_add(segment, [])
 	var o: Dictionary = {}
 	for existing: Dictionary in list:
@@ -873,6 +901,8 @@ func open_wound(segment: StringName, at: Vector3, energy: float) -> Dictionary:
 	if o.is_empty():
 		o = {"at": at, "energy": 0.0, "radius": 0.0}
 		list.append(o)
+	var old_at: Vector3 = o.at
+	var old_radius: float = o.radius if o.get("destroyed", false) else 0.0
 	var total: float = o.energy + energy
 	o.at = (o.at as Vector3).lerp(at, energy / maxf(total, 0.001))
 	o.energy = total
@@ -880,7 +910,44 @@ func open_wound(segment: StringName, at: Vector3, energy: float) -> Dictionary:
 	o.radius = minf(OPEN_PER_SQRT_JOULE * sqrt(total), cap)
 	if o.radius >= OPEN_MIN_RADIUS:
 		_apply_openings(segment)
+	if total >= DESTROY_ENERGY:
+		o.destroyed = true
+		_smash_bone(segment, o.at, o.radius, old_at, old_radius, dir)
 	return o
+
+
+## The bone that was inside a destroyed opening and isn't now: broken in the anatomy, and thrown
+## out as fragments (rigid pieces that stay where they land).
+func _smash_bone(segment: StringName, at: Vector3, radius: float, old_at: Vector3, old_radius: float, dir: Vector3) -> void:
+	var center := anatomy.segment_center(segment)
+	var gone: Array[Vector3] = []
+	for st: Dictionary in anatomy.by_segment.get(segment, []):
+		if st.kind != &"bone":
+			continue
+		var pts := BodyInterior.bone_points(st)
+		var hit := false
+		for p: Vector3 in pts:
+			var local := p - center
+			if local.distance_to(at) < radius:
+				hit = true
+				if old_radius <= 0.0 or local.distance_to(old_at) >= old_radius:
+					gone.append(local)
+		if hit and not physiology.broken.has(st.id):
+			physiology.break_bone(st.id)
+	var part: Node3D = parts.get(segment)
+	var world := get_parent() as Node3D
+	if part == null or world == null or gone.is_empty():
+		return
+	var fly := dir.normalized() if dir.length() > 0.01 else -part.global_basis.z
+	var every := maxi(1, gone.size() / 8)
+	for i in range(0, gone.size(), every):
+		if _fragments >= MAX_FRAGMENTS:
+			break
+		_fragments += 1
+		var from: Vector3 = part.global_transform * gone[i]
+		var out := (from - part.global_transform * at).normalized()
+		var v := fly * _rng.randf_range(1.5, 5.0) + out * _rng.randf_range(0.5, 2.5) + Vector3.UP * _rng.randf_range(0.0, 1.5)
+		ImpactEffects.bone_fragment(world, from, v, _rng)
 
 
 ## The same, from a world point on one of the body's parts.
@@ -1020,29 +1087,63 @@ static func _xray_material(colour: Color, order: int) -> StandardMaterial3D:
 
 func describe_wounds() -> PackedStringArray:
 	var out: PackedStringArray = []
+	var pellets := {}  # segment -> [wounds]
 	for w in wounds:
-		var place := String(w.segment).replace("_r", " (right)").replace("_l", " (left)").replace("_", " ")
+		if w.get("kind", &"bullet") == &"pellet":
+			pellets.get_or_add(w.segment, []).append(w)
+			continue
+		out.append("%s: %s" % [_place(w.segment), _describe_one(w)])
+	# Buckshot: one line per part, however many pellets.
+	for seg: StringName in pellets:
+		var list: Array = pellets[seg]
+		var lodged := list.filter(func(w: Dictionary) -> bool: return w.lodged).size()
 		var what: PackedStringArray = []
-		for h: Dictionary in w.hits:
-			match h.effect:
-				&"broken":
-					what.append("%s broken" % String(h.id).get_slice("_", 0))
-				&"stopped":
-					what.append("ball lodged against the %s" % String(h.id).get_slice("_", 0))
-				&"cut":
-					what.append("%s artery cut" % String(h.id).get_slice("_", 0))
-				&"torn":
-					what.append("%s torn" % String(h.id).get_slice("_", 0))
-				&"severed":
-					what.append("%s finger off" % String(h.id).get_slice("_", 0))
-		var how := "through and through" if not w.lodged else "no exit, ball still in"
-		match w.get("kind", &"bullet"):
-			&"graze":
-				how = "a graze, a bloody furrow"
-			&"cut":
-				how = "glass cut" + (", a shard still in it" if w.get("embedded", false) else "")
-		out.append("%s: %s%s" % [place, how, (" — " + ", ".join(what)) if not what.is_empty() else ""])
+		for w: Dictionary in list:
+			for x in _hit_words(w):
+				if not what.has(x):
+					what.append(x)
+		var how := "buckshot, %d pellet%s" % [list.size(), "s" if list.size() > 1 else ""]
+		if lodged > 0:
+			how += ", %d still in" % lodged
+		out.append("%s: %s%s" % [_place(seg), how, (" — " + ", ".join(what)) if not what.is_empty() else ""])
+	for seg: StringName in openings:
+		for o: Dictionary in openings[seg]:
+			if o.get("destroyed", false):
+				out.append("%s: torn wide open, the bone smashed" % _place(seg))
+				break
 	return out
+
+
+func _place(seg: StringName) -> String:
+	return String(seg).replace("_r", " (right)").replace("_l", " (left)").replace("_", " ")
+
+
+func _describe_one(w: Dictionary) -> String:
+	var what := _hit_words(w)
+	var how := "through and through" if not w.lodged else "no exit, ball still in"
+	match w.get("kind", &"bullet"):
+		&"graze":
+			how = "a graze, a bloody furrow"
+		&"cut":
+			how = "glass cut" + (", a shard still in it" if w.get("embedded", false) else "")
+	return "%s%s" % [how, (" — " + ", ".join(what)) if not what.is_empty() else ""]
+
+
+func _hit_words(w: Dictionary) -> PackedStringArray:
+	var what: PackedStringArray = []
+	for h: Dictionary in w.hits:
+		match h.effect:
+			&"broken":
+				what.append("%s broken" % String(h.id).get_slice("_", 0))
+			&"stopped":
+				what.append("ball lodged against the %s" % String(h.id).get_slice("_", 0))
+			&"cut":
+				what.append("%s artery cut" % String(h.id).get_slice("_", 0))
+			&"torn":
+				what.append("%s torn" % String(h.id).get_slice("_", 0))
+			&"severed":
+				what.append("%s finger off" % String(h.id).get_slice("_", 0))
+	return what
 
 
 func to_dict() -> Dictionary:

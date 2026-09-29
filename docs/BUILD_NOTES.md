@@ -5,6 +5,24 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: the shotgun
+
+A double-barrelled coach gun (12-bore, 20" barrels, two hammers, brass shells of 00 buckshot).
+Every shell is nine pellets, and each pellet is flown on its own: across a room they spread into a
+hand's width of separate small wounds; at arm's length they arrive as one mass with the wad and the
+blast behind them and tear one big hole: ribs smashed and thrown out, lung or heart showing.
+
+- **2** takes out the shotgun (the revolver goes back in the holster), **1** the revolver; **mouse
+  wheel up** or **Y** on a controller swaps. (Time speed is **T** only now; Y was it before.)
+- **Q** thumbs back a hammer (right barrel first, then the left); **left click** fires the next
+  cocked barrel. Cock both and you can fire twice quickly.
+- **R** breaks it open, pulls the empties (they fly over your shoulder), thumbs in fresh shells.
+  Hold R to do it all; press R again or Q to close it. You carry 12 shells.
+- **Right click** shoulders it: look along the rib, bead on the target.
+- Try him from across the street, from a few steps, and with the barrels almost on him. **F4**
+  reduced gore still closes it up.
+- He's more frightened looking down a shotgun when you shout "Drop it!" (G).
+
 ### Fixed: reloading pushed you around; the gun went through walls
 
 - **Reloading no longer shoves you sideways or back.** The spent cases dropped out of the gate
