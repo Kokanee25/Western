@@ -17,10 +17,12 @@ import base64
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 
 API = "https://openrouter.ai/api/v1/chat/completions"
-MODEL = os.environ.get("FACE_MODEL", "google/gemini-2.5-flash-image")
+# An unset repository variable arrives as an empty string, not a missing one.
+MODEL = os.environ.get("FACE_MODEL") or "google/gemini-2.5-flash-image"
 PEOPLE = "assets/people"
 
 STYLE = (
@@ -59,8 +61,12 @@ def paint(pid, description, key):
         "Content-Type": "application/json",
         "X-Title": "Salt Creek people pipeline",
     })
-    with urllib.request.urlopen(req, timeout=300) as r:
-        answer = json.load(r)
+    try:
+        with urllib.request.urlopen(req, timeout=300) as r:
+            answer = json.load(r)
+    except urllib.error.HTTPError as e:
+        # OpenRouter says why in the body; show it (it never contains the key).
+        raise RuntimeError("%s: OpenRouter said %d: %s" % (pid, e.code, e.read().decode(errors="replace")[:1000])) from None
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
