@@ -261,3 +261,38 @@ func _joint_bend(man: HumanBody, upper: StringName, lower: StringName) -> float:
 	var b_part := man.parts[lower] as Node3D
 	var right := a_part.global_basis.x.normalized()
 	return rad_to_deg((-a_part.global_basis.y).signed_angle_to(-b_part.global_basis.y, right))
+func test_skin_and_clothes_are_one_skinned_body() -> void:
+	check(man.skeleton != null, "a skeleton")
+	check_eq(man.skeleton.get_bone_count(), 17, "a bone per segment")
+	for key in ["skin/chest", "skin/thigh_l", "skin/forearm_r", "skin/hand_r", "head/head", "shirt/chest", "vest/chest",
+			"trousers/pelvis", "boots/foot_r", "gun_belt/pelvis", "holster/pelvis", "hat/head", "hat_brim/head", "bandana/neck"]:
+		var mi: MeshInstance3D = man.skin_meshes.get(key)
+		if check(mi != null and mi.mesh != null and mi.mesh.get_surface_count() == 1, "%s built" % key):
+			check(mi.layers & Layers.VIS_BODY != 0, "%s takes wound decals" % key)
+	# The skin wraps the hitboxes: every skin vertex lies near some segment's capsules.
+	var verts := PackedVector3Array()
+	for key: String in man.skin_meshes:
+		if key.begins_with("skin/"):
+			verts.append_array((man.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])
+	var worst := 0.0
+	for v in verts:
+		var best := INF
+		for sid: StringName in man.anatomy.segments:
+			for c: Array in man.anatomy.segments[sid].capsules:
+				var a: Vector3 = c[0]
+				var ab: Vector3 = (c[1] as Vector3) - a
+				var t := clampf((v - a).dot(ab) / maxf(ab.length_squared(), 1e-6), 0.0, 1.0)
+				best = minf(best, absf(v.distance_to(a + ab * t) - float(c[2])))
+		worst = maxf(worst, best)
+	check(worst < 0.07, "skin within 7 cm of the hitboxes everywhere (worst %.3f m)" % worst)
+
+
+func test_body_follows_the_ragdoll() -> void:
+	await _shoot(Vector3(0, 1.64, -6), Vector3(0, 1.64, 0))
+	await physics_frames(120)
+	await process_frames(2)
+	var head: Node3D = man.parts[&"head"]
+	var i := man.skeleton.find_bone("head")
+	var bone_world := man.skeleton.global_transform * man.skeleton.get_bone_global_pose(i)
+	check(bone_world.origin.distance_to(head.global_position) < 0.01, "the head's skin is where the ragdoll's head is")
+	check(head.global_position.y < 0.5, "and that's on the ground")

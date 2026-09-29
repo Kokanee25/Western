@@ -89,6 +89,10 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 @export var trousers_color := Color(0.3, 0.27, 0.23)
 ## Alpha 0: no hat.
 @export var hat_color := Color(0.18, 0.14, 0.11)
+## Alpha 0 = no bandana.
+@export var bandana_color := Color(0.55, 0.12, 0.1)
+## Face and hair: see PeopleArt.face (tone comes from skin_tone).
+@export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
 ## Starts with it in the holster (a man minding his own business); the brain draws it.
 @export var start_holstered := true
@@ -137,6 +141,12 @@ var _moved_this_tick := false
 var _pool: Decal
 var _pool_ml := 0.0
 var _day_cycle: Node
+## The generated body (BodyMesh): one skeleton, a bone per segment, following the hitboxes.
+var skeleton: Skeleton3D
+var skin_meshes := {}  ## "shape/segment" ("skin/chest", "shirt/upper_arm_r", "hat/head"...) -> MeshInstance3D
+var segment_pieces := {}  ## segment -> Array of its generated MeshInstance3Ds (skin and clothes)
+var _rigid_meshes := {}  ## MeshInstance3D -> the piece's rigid mesh (swapped in when a limb comes off)
+var _bone_parts: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -245,6 +255,7 @@ func _build() -> void:
 		part.add_child(vis)
 		visuals[sid] = vis
 		_build_visual(sid, vis)
+	_build_skin()
 	_blocker = StaticBody3D.new()
 	_blocker.name = "Blocker"
 	_blocker.set_meta(&"human_body", self)
@@ -280,80 +291,123 @@ static func _along(axis: Vector3) -> Basis:
 
 
 func _build_visual(sid: StringName, vis: Node3D) -> void:
-	var s: Dictionary = anatomy.segments[sid]
-	var center := anatomy.segment_center(sid)
-	var name_s := String(sid)
-	if name_s.begins_with("hand"):
-		_build_hand(sid, vis, center)
-		return
-	var mat := _material_for(sid)
-	if name_s.begins_with("foot"):
-		var boot := _box(vis, "Boot", Vector3(0.1, 0.1, 0.27), Vector3(0, 0, -0.02), outer_garment(sid).get("color", Color.BROWN))
-		boot.material_override = _material_for(sid)
-		return
-	for i in s.capsules.size():
-		var c: Array = s.capsules[i]
-		var mesh := CapsuleMesh.new()
-		mesh.radius = c[2]
-		mesh.height = ((c[1] as Vector3) - (c[0] as Vector3)).length() + 2.0 * float(c[2])
-		mesh.radial_segments = 8
-		mesh.rings = 2
-		var mi := MeshInstance3D.new()
-		mi.name = "Mesh%d" % i
-		mi.mesh = mesh
-		mi.material_override = mat
-		mi.basis = _along((c[1] as Vector3) - (c[0] as Vector3))
-		mi.position = ((c[0] as Vector3) + (c[1] as Vector3)) * 0.5 - center
-		mi.layers = Layers.VIS_BODY
-		vis.add_child(mi)
-	if name_s.begins_with("shin"):
-		# Boot tops over the lower leg.
-		var top := _cylinder(vis, "BootTop", s.radius + 0.008, 0.2, Vector3(0, -0.1, 0), Color(0.2, 0.13, 0.08))
-		top.material_override = GunParts.cloth("%s:boots" % person_id, Color(0.2, 0.13, 0.08))
-	match sid:
-		&"head":
-			_build_face(vis, center)
-		&"pelvis":
-			var belt := _cylinder(vis, "GunBelt", 0.165, 0.05, Vector3(0, 0.02, 0), Color(0.32, 0.2, 0.1))
-			belt.scale = Vector3(1.28, 1, 1)
-			_box(vis, "Holster", Vector3(0.05, 0.2, 0.08), Vector3(0.2, -0.08, 0.0), Color(0.36, 0.23, 0.12))
-		&"neck":
-			_cylinder(vis, "Bandana", 0.07, 0.06, Vector3(0, -0.01, 0), Color(0.55, 0.12, 0.1))
+	if String(sid).begins_with("hand"):
+		_build_hand(sid, vis, anatomy.segment_center(sid))
 
 
-func _build_face(vis: Node3D, center: Vector3) -> void:
-	var o := -center
-	var dark := Color(0.08, 0.06, 0.05)
-	var hair := Color(0.25, 0.17, 0.1)
-	for side in [-1.0, 1.0]:
-		_box(vis, "Eye", Vector3(0.02, 0.01, 0.01), o + Vector3(0.036 * side, 1.655, -0.092), dark)
-		_box(vis, "Brow", Vector3(0.03, 0.009, 0.012), o + Vector3(0.036 * side, 1.672, -0.093), hair)
-	_box(vis, "Nose", Vector3(0.02, 0.04, 0.03), o + Vector3(0, 1.632, -0.1), skin_tone.darkened(0.08))
-	_box(vis, "Moustache", Vector3(0.075, 0.018, 0.02), o + Vector3(0, 1.604, -0.095), hair)
-	_box(vis, "Stubble", Vector3(0.12, 0.05, 0.05), o + Vector3(0, 1.57, -0.07), skin_tone.darkened(0.25))
-	_box(vis, "Hair", Vector3(0.19, 0.06, 0.16), o + Vector3(0, 1.69, 0.03), hair)
-	if hat_color.a <= 0.0:
-		return  # bareheaded (indoors, behind his counter)
-	var brim := _cylinder(vis, "HatBrim", 0.17, 0.012, o + Vector3(0, 1.745, 0.0), hat_color)
-	brim.scale = Vector3(1.0, 1.0, 1.12)
-	_cylinder(vis, "HatCrown", 0.095, 0.11, o + Vector3(0, 1.8, 0.0), hat_color)
-	_cylinder(vis, "HatBand", 0.097, 0.018, o + Vector3(0, 1.758, 0.0), hat_color.darkened(0.5))
+## The skin and clothes: BodyMesh shapes skinned to a skeleton whose bones follow the parts.
+func _build_skin() -> void:
+	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
+			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
+	var data := BodyMesh.build(anatomy, outfit)
+	skeleton = Skeleton3D.new()
+	skeleton.name = "Skeleton"
+	add_child(skeleton)
+	var skin := Skin.new()
+	var rests: Array[Transform3D] = data.rests
+	for i in data.bones.size():
+		var sid: StringName = data.bones[i]
+		skeleton.add_bone(String(sid))
+		skeleton.set_bone_rest(i, rests[i])
+		skin.add_bind(i, rests[i].affine_inverse())
+		_bone_parts.append(sid)
+	skeleton.reset_bone_poses()
+	var f := look.duplicate()
+	f["tone"] = skin_tone
+	f["seed"] = rng_seed
+	var skin_mat := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
+	var mats := {
+		"skin": skin_mat,
+		"head": PeopleArt.face_material("face:%s" % person_id, PeopleArt.face(person_id, f)),
+		"shirt": _cloth("shirt", shirt_color, &"plain"),
+		"vest": _cloth("vest", vest_color, &"wool", false),
+		"coat": _cloth("coat", coat_color, &"wool", false),
+		"trousers": _cloth("trousers", trousers_color, &"wool", false),
+		"boots": _cloth("boots", Color(0.2, 0.13, 0.08), &"leather"),
+		"gun_belt": PeopleArt.material("gunbelt:%s" % person_id, PeopleArt.cartridge_belt(person_id, Color(0.34, 0.21, 0.11), rng_seed), 0.7, false),
+		"belt": _cloth("belt", Color(0.16, 0.1, 0.06), &"leather", false),
+		"holster": _cloth("holster", Color(0.38, 0.24, 0.12), &"leather"),
+		"bandana": _cloth("bandana", bandana_color, &"plain", false),
+		"hat": _cloth("hat", hat_color, &"felt"),
+		"hat_brim": _cloth("hat", hat_color, &"felt", false),
+		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
+	}
+	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band"]
+	for shape: String in data.shapes:
+		var base: StandardMaterial3D = mats.get(shape, skin_mat)
+		var pieces: Dictionary = data.shapes[shape]
+		for b: int in pieces:
+			var sid: StringName = data.bones[b]
+			var mi := MeshInstance3D.new()
+			mi.name = "%s_%s" % [shape.to_pascal_case(), sid]
+			mi.mesh = pieces[b][0]
+			_rigid_meshes[mi] = pieces[b][1]
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			mi.layers = Layers.VIS_BODY
+			mi.custom_aabb = AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
+			skeleton.add_child(mi)
+			mi.skin = skin
+			mi.skeleton = NodePath("..")
+			skin_meshes["%s/%s" % [shape, sid]] = mi
+			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
+	_update_skeleton()
+
+
+## The wound shader for a generated piece: textured by its UVs, opened by rest positions (CUSTOM0).
+func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMaterial:
+	var m := BodyInterior.skin_material(base)
+	if double_sided:
+		m.shader = BodyInterior.SKIN_DOUBLE_SHADER
+	m.set_shader_parameter(&"use_uv", true)
+	m.set_shader_parameter(&"use_custom_pos", true)
+	m.set_shader_parameter(&"uv_scale", base.uv1_scale.x)
+	return m
+
+
+## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on
+## its visual node (fingers, the gun, the inside once it's opened).
+func body_meshes(segment: StringName) -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for mi in segment_pieces.get(segment, []):
+		out.append(mi)
+	var vis: Node3D = visuals.get(segment)
+	if vis:
+		for mi in vis.find_children("*", "MeshInstance3D", true, false):
+			out.append(mi as MeshInstance3D)
+	return out
+
+
+## After an amputation nothing may stretch across a joint: every piece follows its own part only.
+func _stop_skinning_across_joints() -> void:
+	for mi: MeshInstance3D in _rigid_meshes:
+		if is_instance_valid(mi):
+			mi.mesh = _rigid_meshes[mi]
+
+
+func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -> StandardMaterial3D:
+	var key := "%s:%s" % [person_id, what]
+	return PeopleArt.material(key, PeopleArt.cloth(key, colour, rng_seed * 7 + what.length(), style), 0.95, cull_back)
+
+
+## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp).
+func _update_skeleton() -> void:
+	if skeleton == null:
+		return
+	var inv := skeleton.global_transform.affine_inverse()
+	for i in _bone_parts.size():
+		var part: Node3D = parts.get(_bone_parts[i])
+		if part != null and is_instance_valid(part) and part.is_inside_tree():
+			skeleton.set_bone_pose(i, inv * part.global_transform)
+
+
+func _process(_delta: float) -> void:
+	_update_skeleton()
 
 
 ## The hand: palm, then each finger as three bones from its knuckle, following the anatomy.
 func _build_hand(sid: StringName, vis: Node3D, center: Vector3) -> void:
 	var side := String(sid).right(1)
-	var skin := _skin()
-	var palm := MeshInstance3D.new()
-	palm.name = "Palm"
-	var pm := BoxMesh.new()
-	pm.size = Vector3(0.032, 0.085, 0.085)
-	palm.mesh = pm
-	palm.material_override = skin
-	palm.layers = Layers.VIS_BODY
-	var sx := 1.0 if side == "r" else -1.0
-	palm.position = Vector3(0.24 * sx, 0.815, -0.012) - center
-	vis.add_child(palm)
+	var skin := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
 	for f: String in FINGERS:
 		var fid := StringName("%s_%s" % [f, side])
 		var st := anatomy.structure(fid)
@@ -377,8 +431,12 @@ func _build_hand(sid: StringName, vis: Node3D, center: Vector3) -> void:
 			var l: float = length * lengths[i]
 			var w := 0.017 if f != "thumb" else 0.019
 			var mi := MeshInstance3D.new()
-			var bm := BoxMesh.new()
-			bm.size = Vector3(w, l, w)
+			var bm := CylinderMesh.new()
+			bm.height = l + w * 0.4  # overlap into the next bone so bent knuckles stay closed
+			bm.top_radius = w * 0.5 * (1.0 - 0.1 * i)
+			bm.bottom_radius = w * 0.5 * (0.9 - 0.1 * i) * (0.85 if i == 2 else 1.0)
+			bm.radial_segments = 6
+			bm.rings = 1
 			mi.mesh = bm
 			mi.material_override = skin
 			mi.layers = Layers.VIS_BODY
@@ -1276,6 +1334,7 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	var at: Vector3 = joint.global_position if joint else (parts[segment] as Node3D).global_position
 	var first := physiology.bleeds.size()
 	physiology.sever(segment)
+	_stop_skinning_across_joints()
 	if joint:
 		joint.queue_free()
 	for sid in anatomy.segments_below(segment):
@@ -1456,6 +1515,15 @@ func _apply_openings(segment: StringName) -> void:
 	if vis.get_node_or_null(^"Inside") == null:
 		BodyInterior.build(segment, vis, anatomy)
 	BodyInterior.apply(vis, list, Settings.reduced_gore)
+	# The generated skin and clothes: openings are already in the part's rest space.
+	var arr := PackedVector4Array(list)
+	while arr.size() < BodyInterior.MAX_OPENINGS:
+		arr.append(Vector4.ZERO)
+	for mi: MeshInstance3D in segment_pieces.get(segment, []):
+		var m := mi.material_override as ShaderMaterial
+		m.set_shader_parameter(&"wound_count", mini(list.size(), BodyInterior.MAX_OPENINGS))
+		m.set_shader_parameter(&"wounds", arr)
+		m.set_shader_parameter(&"reduced_gore", Settings.reduced_gore)
 
 
 # --- X-ray (debug, F10) -------------------------------------------------------------------------
@@ -1477,6 +1545,8 @@ static var _xray_mats := {}
 ## muscles (faint), nerves (yellow). Anything damaged shows orange; each ball's track is a line.
 func set_xray(on: bool) -> void:
 	xray = on
+	for mi: MeshInstance3D in skin_meshes.values():
+		mi.transparency = 0.88 if on else 0.0
 	for sid: StringName in visuals:
 		var vis: Node3D = visuals[sid]
 		var old := vis.get_node_or_null(^"XRay")

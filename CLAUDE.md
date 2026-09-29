@@ -476,6 +476,31 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     only matters once there's a gang (step 3–4).
   - Next: step 3, goals and a day in town for the gang (with called-out duels and the gang starting
     trouble), then step 4, gang teamwork.
+- 2026-09-28 (later): Sean: "the model for the bad guy is pretty horrible". **People art pass, first
+  step.** `BodyMesh` (src/bodies/body_mesh.gd) lofts one continuous skin through cross-sections
+  (trunk, neck, head, arms running into the palms, legs; tables `TRUNK/NECK/HEAD/ARM/LEG`, right side
+  mirrored) fitted round the anatomy hitboxes, plus clothes as looser shells (shirt with cuffs, vest
+  open in a V, trousers, boots with shaped feet, cartridge gun belt + trouser belt, holster, bandana,
+  hat with a creased crown and curled brim; optional coat). All skinned to a flat `Skeleton3D` in
+  `HumanBody` (a bone per segment, weights blended at joints); `_update_skeleton()` copies each part's
+  transform every frame, so it follows poses, flinches and the ragdoll. Each shape is **cut into a
+  piece per segment** (triangle → the bone that moves it most; `skin_meshes["shape/segment"]`,
+  `segment_pieces[sid]`, `body_meshes(sid)` = pieces + whatever's on the visual node) so the other
+  session's openings work: pieces use the wound shader with `use_uv` + `use_custom_pos` (CUSTOM0 =
+  rest position in the segment's centred space, so openings need no conversion; `_apply_openings`
+  feeds them), `body_skin_double.gdshader` for open garments (shared code in
+  `body_skin.gdshaderinc`). `sever_limb` swaps every piece to its rigid mesh so nothing stretches
+  across a lost joint. The trunk is as wide as the chest/pelvis hitboxes so the ribs stay inside. Fingers stay rigid (tapered
+  hex prisms). `PeopleArt` paints cloth (plain/wool/denim/stripe/felt/leather), skin, a cartridge
+  belt and **faces** (96×64 wrapped round the head: eyes, lids, brows, nose, mouth, moustache styles,
+  stubble/beard, age lines, scar, hair) from a `look` dict on HumanBody. Meshes cached per outfit.
+  Tests: 17 bones, every shape built on VIS_BODY, skin within 7 cm of hitboxes, skin follows the
+  ragdoll. New screenshot views `outlaw_face`, `outlaw_face_evening`, `outlaw_side`, `outlaw_back`;
+  renders in `docs/screenshots/people/` (this container had no Vulkan, so they're from the
+  Compatibility renderer: washed out at noon compared with earlier lavapipe renders). 213 tests pass.
+  - Next: Sean's verdict; then the player's own body from BodyMesh, more faces/outfits for townsfolk,
+    and a moustache/hair mesh pass if the painted ones don't read at distance.
+
 - 2026-09-29 (later): **M4 step 3: a day in town, backing down, call-outs and duels.**
   `TownLife` (in `scenes/test_street.tscn`) puts the storekeeper behind his counter and the barkeep
   behind the bar (`CivilianBrain`, no gun), and 45 s in (or **U**) three riders come in from the west:

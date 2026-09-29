@@ -8,6 +8,7 @@ class_name BodyInterior
 ## (src/bodies/shaders/), which cut the openings out; `apply()` hands them the openings.
 
 const SKIN_SHADER := preload("res://src/bodies/shaders/body_skin.gdshader")
+const SKIN_DOUBLE_SHADER := preload("res://src/bodies/shaders/body_skin_double.gdshader")
 const INSIDE_SHADER := preload("res://src/bodies/shaders/body_inside.gdshader")
 const MAX_OPENINGS := 8
 

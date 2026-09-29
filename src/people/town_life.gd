@@ -59,6 +59,7 @@ func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, 
 	man.shirt_color = shirt
 	man.vest_color = vest
 	man.hat_color = Color(0, 0, 0, 0)
+	man.bandana_color = Color(0, 0, 0, 0)
 	var brain := CivilianBrain.new()
 	brain.name = "Brain"
 	brain.post = places.at(at)
