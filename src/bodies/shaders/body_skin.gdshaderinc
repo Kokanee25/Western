@@ -18,6 +18,9 @@ uniform bool use_custom_pos = false;
 uniform vec3 eye_r_pos = vec3(0.0);
 uniform vec3 eye_l_pos = vec3(0.0);
 uniform float eye_radius = 0.0;
+// Light in flat steps, not a smooth ramp: the painting's faces and cloth are blocks of colour with
+// hard edges between light and shade. Steps per unit of (gamma-space) light; 0 = smooth.
+uniform float light_steps = 4.0;
 
 varying vec3 local_pos;
 varying vec3 local_normal;
@@ -58,4 +61,20 @@ void fragment() {
 		base = mix(base * vec3(0.45, 0.12, 0.1), base, (reach - 1.4) / 0.8);
 	}
 	ALBEDO = base;
+}
+
+void light() {
+	// Lambert, stepped in gamma space so the steps look even; shadows are in ATTENUATION.
+	float k = clamp(dot(NORMAL, LIGHT), 0.0, 1.0) * ATTENUATION;
+	if (light_steps > 0.0) {
+		float g = pow(k, 1.0 / 2.2);
+		k = pow(floor(g * light_steps + 0.5) / light_steps, 2.2);
+	}
+	DIFFUSE_LIGHT += k * LIGHT_COLOR / PI;
+	// Only wet things shine (the eyes): a small hard glint.
+	if (ROUGHNESS < 0.3) {
+		vec3 h = normalize(VIEW + LIGHT);
+		float s = pow(clamp(dot(NORMAL, h), 0.0, 1.0), 120.0) * ATTENUATION;
+		SPECULAR_LIGHT += step(0.5, s) * LIGHT_COLOR * 0.35;
+	}
 }

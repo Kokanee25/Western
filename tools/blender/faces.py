@@ -84,6 +84,16 @@ def _front_uv(p):
     return u, v
 
 
+## The face texture's size and palette. Small on purpose: at the painting's distance his face is
+## ~70x80 screen pixels at 640x360, and at 96x64 each texel covers 2-3 of them, the painting's
+## blocks. The portrait is projected at SUPERSAMPLE x this and averaged down, so each block is the
+## real average of its patch (not one sampled pixel), then cut to FACE_COLOURS and cleared of lone
+## stray pixels. It matches PeopleArt.FACE_W/FACE_H, the painted face it's laid over.
+FACE_W = 96
+FACE_H = 64
+FACE_COLOURS = 20
+SUPERSAMPLE = 4
+
 ## How far behind the nearest surface the front view saw a point may be and still count as seen
 ## (metres): the guide's pixels are 0.6 mm, and steep bits (the sides of the nose) change fast.
 DEPTH_SLACK = 0.004
@@ -151,7 +161,27 @@ def _fill_hidden(out, known, alpha, steps=24):
     return out
 
 
-def project(person, head_faces, head_uv, portrait_path, out_path, width=384, height=256, colours=40):
+def _despeckle(idx, keep, passes=2):
+    """A texel whose colour none of its four neighbours share takes the commonest colour of its
+    eight neighbours (only where the portrait shows): broad blocks, not salt and pepper."""
+    idx = idx.copy()
+    h, w = idx.shape
+    for _ in range(passes):
+        pad = np.pad(idx, 1, mode="edge")
+        same = np.zeros((h, w), dtype=bool)
+        for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            same |= pad[1 + dy:h + 1 + dy, 1 + dx:w + 1 + dx] == idx
+        lone = keep & ~same
+        if not lone.any():
+            break
+        for y, x in zip(*np.where(lone)):
+            nb = [pad[y + 1 + dy, x + 1 + dx] for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx]
+            vals, counts = np.unique(nb, return_counts=True)
+            idx[y, x] = vals[np.argmax(counts)]
+    return idx
+
+
+def project(person, head_faces, head_uv, portrait_path, out_path, width=None, height=None, colours=None):
     """Rasterise the portrait into the face layout, triangle by triangle. A point takes the
     portrait's colour if the front view really saw it (a depth test against the head seen from
     the front), and the portrait fades out only as the head turns away sideways (smooth normals,
@@ -159,6 +189,9 @@ def project(person, head_faces, head_uv, portrait_path, out_path, width=384, hei
     nose and moustache are painted too. What the front view couldn't see (behind the nose, under
     the brow) is filled from the seen texels next to it. Pure numpy: no bake needed, and exact."""
     from PIL import Image  # only here: the rest of the pipeline doesn't need PIL
+    final_w, final_h = width or FACE_W, height or FACE_H
+    colours = colours or FACE_COLOURS
+    width, height = final_w * SUPERSAMPLE, final_h * SUPERSAMPLE
     img = np.asarray(Image.open(portrait_path).convert("RGB").resize((GUIDE_PX, GUIDE_PX)), dtype=float) / 255.0
     out = np.zeros((height, width, 3))
     alpha = np.zeros((height, width))
@@ -198,9 +231,18 @@ def project(person, head_faces, head_uv, portrait_path, out_path, width=384, hei
         alpha[py, px] = np.maximum(alpha[py, px], np.clip((f - 0.2) / 0.22, 0, 1))
     out = _fill_hidden(out, seen, alpha)
     alpha[~seen & (alpha > 0) & (out.sum(2) == 0)] = 0.0
-    # A small palette, so it stays pixel art: the portrait's own colours, clustered.
-    pim = Image.fromarray((out * 255).astype(np.uint8)).quantize(colors=colours, method=Image.Quantize.MEDIANCUT)
-    rgb = np.asarray(pim.convert("RGB"), dtype=np.uint8)
+    # Down to the final size: each texel the alpha-weighted average of its block.
+    s = SUPERSAMPLE
+    a4 = alpha.reshape(final_h, s, final_w, s)
+    wsum = a4.sum(axis=(1, 3))
+    out = (out.reshape(final_h, s, final_w, s, 3) * a4[..., None]).sum(axis=(1, 3)) / np.maximum(wsum, 1e-9)[..., None]
+    alpha = a4.mean(axis=(1, 3))
+    # A small palette, so it stays pixel art: the portrait's own colours, clustered, lone texels
+    # cleared into the blocks round them.
+    pim = Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8)).quantize(colors=colours, method=Image.Quantize.MEDIANCUT)
+    pal = np.array(pim.getpalette()[:colours * 3], dtype=np.uint8).reshape(-1, 3)
+    idx = _despeckle(np.asarray(pim), alpha > 0.5)
+    rgb = pal[idx]
     rgba = np.concatenate([rgb, (alpha[:, :, None] * 255).astype(np.uint8)], axis=2)
     Image.fromarray(rgba, "RGBA").save(out_path)
     # His skin tone, from the painted cheeks, so the painted sides of the head match the front.
