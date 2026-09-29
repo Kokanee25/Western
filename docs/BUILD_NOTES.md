@@ -22,6 +22,10 @@ blast behind them and tear one big hole: ribs smashed and thrown out, lung or he
 - Try him from across the street, from a few steps, and with the barrels almost on him. **F4**
   reduced gore still closes it up.
 - He's more frightened looking down a shotgun when you shout "Drop it!" (G).
+- **Tuned after the first try:** it was felling men in one shot across the street. The pattern is
+  wider now (well over a metre at 25 m, so only 3–5 pellets find a man at 20 m), pellets slow in the
+  air (so do bullets, a little), and each pellet counts for a share of the knockdown and fright. At
+  20 m a charge put him down 14 times in 16 before, about 5 in 16 now. Up close is unchanged.
 
 ### Fixed: reloading pushed you around; the gun went through walls
 

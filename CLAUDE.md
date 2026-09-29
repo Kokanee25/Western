@@ -364,3 +364,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     barrels at once from the controls yet (`ShotgunState.pull_both()` exists); the outlaw only has
     a revolver.
   - Next: Sean's feel review of the shotgun (spread, how bad point blank looks); then dynamite.
+- 2026-09-29 (later): Sean: the shotgun drops men in one shot at long range. Pattern 0.5° → 0.85°
+  (σ; ~60% of pellets inside 0.5 m at 25 m); air drag for every projectile (`BallisticsTuning`
+  `air_density`/`drag_coefficient`: a pellet keeps ~80% of its energy at 25 m, a .45 ball ~92%);
+  pellets roll knockdown at `knockdown_pellet_share` 0.3 and fear at `fear_pellet_share` 0.4 of a
+  ball's. `test_at_twenty_metres_a_charge_rarely_drops_him`: 14/16 down before, ~5/16 now. 165 pass.
+  - Sean also sees his right monitor (dual setup) blank for a moment when the shotgun fires or K
+    breaks timber. Not reproducible here; asked which build, which screen the game is on, whether the
+    revolver does it, and how the monitor's connected (HDMI with audio is a suspect).

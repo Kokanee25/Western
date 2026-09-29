@@ -511,7 +511,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
 			severe = true
 	var speed := sqrt(2.0 * deposited / maxf(mass, 0.001))
-	var knocked := not limp and _knocked_down(seg, deposited, severe)
+	var knocked := not limp and _knocked_down(seg, deposited, severe, wound.kind == &"pellet")
 	if knocked:
 		go_limp(dir * 1.2)
 	elif limp and collider is RigidBody3D:
@@ -534,7 +534,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 
 
 ## Does the hit itself put him down? A heavy ball dumping its energy in the trunk often does.
-func _knocked_down(seg: StringName, deposited: float, severe: bool) -> bool:
+func _knocked_down(seg: StringName, deposited: float, severe: bool, pellet := false) -> bool:
 	var s := String(seg)
 	if not (seg in [&"chest", &"abdomen", &"pelvis", &"head", &"neck"] or s.begins_with("thigh")):
 		return false
@@ -542,6 +542,9 @@ func _knocked_down(seg: StringName, deposited: float, severe: bool) -> bool:
 	var chance := maxf(deposited - t.knockdown_energy, 0.0) / 100.0 * t.knockdown_per_100j
 	if severe:
 		chance += t.knockdown_severe
+	if pellet:
+		# One pellet of a charge: each gets its own roll, so each counts for a share.
+		chance *= t.knockdown_pellet_share
 	return _rng.randf() < minf(chance, t.knockdown_max)
 
 
