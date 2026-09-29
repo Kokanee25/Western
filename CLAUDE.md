@@ -125,7 +125,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
-  `Ballistics.fire_charge()` flies a shotgun charge as separate pellets.
+  `Ballistics.fire_charge()` flies a shotgun charge as separate pellets. `DynamiteViewmodel` is the
+  stick in hand.
+- `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance; `detonate()` breaks
+  members by impulse energy vs bending capacity, glass by pressure, throws splinters through
+  Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
+  on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
@@ -378,3 +384,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     timber crash to 45 Hz). `Settings._protect_speakers()` puts a 40 Hz high-pass and a hard limiter
     (−3 dB in, −1.5 dB ceiling) on the Master bus; the gunshot thump never goes below 40 Hz.
     166 pass. If it still happens with sound sent elsewhere, it's the GPU/HDMI link instead.
+
+- 2026-09-29 (later): **M3: dynamite.** `src/blast/`. One stick = 0.15 kg TNT (`tnt_per_stick`);
+  `Blast.overpressure_kpa`/`impulse` are the Kinney-Graham free-air fits (1 m ≈ 240 kPa, 3 m ≈ 23,
+  10 m ≈ 5). Timber breaks when (Σ impulse × face area)² / 2m, reflected ×2, beats `absorb_factor`
+  × f²/2E × volume (woods from `config/timber.tres`); `Structure.break_members()` snaps a batch and
+  settles once. One stick 25 cm from the store's side wall: 5 boards, no framing. Panes by pressure
+  (3.5 kPa, ~10 m). Splinters: 2 g projectiles, wound kind `splinter` (treated like pellets).
+  Fireball 0.75 m, 12% ignition per member in it. People: `HumanBody.take_blast` (pressure per part
+  by distance to its skin, ×0.35 behind a standing wall; `Physiology.blast_injury`: eardrums 35–140
+  kPa, blast lung 250/700, concussion 150; opens parts past 800 kPa; `sever_limb()` past
+  `sever_kpa` — frees the ragdoll joint, opens both ends, stump bleed; thrown down past 60 kPa).
+  `PlayerWounds.take_blast` (`held` = in your hand: the hand goes), ringing + Master low-pass
+  (`ringing`, permanent muffle per burst eardrum), view shake. `DynamiteViewmodel` (3): Q lights (0.9 s
+  match), hold/release LMB throws 6–15 m/s, RMB places, lit too long goes off in hand. Ballistics:
+  a bullet through a `DynamiteStick` sets it off 25%; `Bullet.kind`; `take_bullet(..., projectile)`.
+  Outlaw fears blasts by kPa. Events.exploded. Renders `docs/screenshots/dynamite/`. 179 pass.
+  - Known: no crater or thrown dirt piles; bodies thrown only a little (true for one stick);
+    brick/adobe members don't exist yet (TOWN.md); can't pick sticks back up; no bundles yet; the
+    player's own severed hand isn't shown (no visible player arms beyond the gun hand).
+  - Next: Sean's review of dynamite; then the M2 follow-ups left (outlaw cover/fleeing/tending,
+    active ragdoll balance) or rope.

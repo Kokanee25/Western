@@ -29,6 +29,11 @@ var _overlay: ColorRect
 var _message: Label
 var _message_time := 0.0
 var _day_cycle: Node
+## Seconds of ringing ears left, and how hard the view is shaking (from a blast).
+var ringing := 0.0
+var shake := 0.0
+var _ear_filter: AudioEffectLowPassFilter
+var _ring: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -83,7 +88,7 @@ func say(text: String, seconds := 3.0) -> void:
 
 
 ## Ballistics reached the player's capsule. Traces the rest of the path through the body inside.
-func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165, _travelled := 99.0, _blast := -1.0) -> Dictionary:
+func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165, _travelled := 99.0, _blast := -1.0, _projectile := &"") -> Dictionary:
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.
@@ -153,6 +158,86 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 	return harm
 
 
+## Caught by a charge going off at `at` (`held`: it went off in your own right hand). The same
+## rules as anyone: ears, lungs, head, burns, a hand or more torn off; and you hear nothing but
+## ringing for a while (for good, muffled, if an eardrum went).
+func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
+	var bt := Blast.t()
+	var xf := player.global_transform
+	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var kpa := {}
+	var chest := xf * Vector3(0, 1.3 * squash, 0)
+	var head := player.camera.global_position
+	var shield := 1.0 if held else Blast.shielding(player.get_parent() as Node3D, at, chest, [player.get_rid()])
+	for sid: StringName in anatomy.segments:
+		if physiology.severed_segments.has(sid):
+			continue
+		var c := anatomy.segment_center(sid)
+		c.y *= squash
+		var d := (xf * c).distance_to(at) - float(anatomy.segments[sid].radius)
+		if held:
+			# The stick in your right hand, out in front of you.
+			d = {&"hand_r": 0.03, &"forearm_r": 0.18, &"upper_arm_r": 0.42, &"head": 0.5, &"neck": 0.5,
+					&"chest": 0.45}.get(sid, maxf(d, 0.6))
+		kpa[sid] = Blast.overpressure_kpa(kg, maxf(d, 0.02)) * shield
+	var ear_kpa: float = kpa.get(&"head", Blast.overpressure_kpa(kg, head.distance_to(at)) * shield)
+	var harm := physiology.blast_injury(ear_kpa, kpa.get(&"chest", 0.0), ear_kpa, bt, _rng)
+	if chest.distance_to(at) < Blast.fireball_radius(kg) or held:
+		physiology.burn(bt.burn_in_fireball)
+		harm.append("burnt")
+	for side in ["r", "l"]:
+		for chain: Array in HumanBody.LIMBS:
+			var take := &""
+			for kind: String in chain:
+				var sid := StringName(kind + "_" + side)
+				if kpa.get(sid, 0.0) > float(bt.sever_kpa.get(kind, INF)):
+					take = sid
+			if take != &"":
+				physiology.sever(take)
+				harm.append("your %s is gone" % _place(take))
+	ringing = clampf(maxf(ringing, ear_kpa * bt.ringing_per_kpa), 0.0, bt.ringing_max)
+	var dir := (chest - at).normalized()
+	var speed := minf(Blast.impulse(kg, maxf(chest.distance_to(at), 0.05)) * shield * 0.7 * bt.throw_factor / 80.0, bt.max_throw)
+	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
+	_flash = 1.0
+	shake = maxf(shake, clampf(ear_kpa / 40.0, 0.2, 3.0))
+	if not harm.is_empty():
+		say("The blast: %s." % ", ".join(harm), 5.0)
+	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
+	var info := {"person": player, "person_id": &"player", "segment": &"chest", "hits": [], "position": chest,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm, "kpa": kpa.get(&"chest", 0.0)}
+	Events.body_hit.emit(info)
+	return info
+
+
+## Ears: after a blast you hear the world through a pillow under a high whine, fading; a burst
+## eardrum keeps it muffled for good (until the doctor, one day).
+func _update_ears(delta: float) -> void:
+	ringing = maxf(ringing - delta, 0.0)
+	var muffle := clampf(ringing / 12.0, 0.0, 1.0)
+	var deaf := physiology.deaf_ears() * 0.3
+	var cutoff := lerpf(20000.0, 500.0, maxf(muffle, deaf))
+	if _ear_filter == null:
+		var master := AudioServer.get_bus_index(&"Master")
+		for i in AudioServer.get_bus_effect_count(master):
+			if AudioServer.get_bus_effect(master, i) is AudioEffectLowPassFilter:
+				_ear_filter = AudioServer.get_bus_effect(master, i)
+		if _ear_filter == null:
+			_ear_filter = AudioEffectLowPassFilter.new()
+			AudioServer.add_bus_effect(master, _ear_filter, 0)
+	_ear_filter.cutoff_hz = cutoff
+	if _ring == null:
+		_ring = AudioStreamPlayer.new()
+		_ring.stream = SynthSounds.get_sound(&"ringing")
+		add_child(_ring)
+	if ringing > 0.05:
+		_ring.volume_db = linear_to_db(clampf(ringing / 20.0, 0.02, 0.5))
+		if not _ring.playing:
+			_ring.play()
+	elif _ring.playing:
+		_ring.stop()
+
+
 ## Which part of you is at a world point (standing, or crouched and squashed down).
 func _segment_at(point: Vector3) -> StringName:
 	var xf := player.global_transform
@@ -197,6 +282,10 @@ func _physics_process(delta: float) -> void:
 		say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 		Events.shouted.emit(player, &"drop_it")
 	_tend(delta)
+	_update_ears(delta)
+	if shake > 0.0:
+		player.add_look(Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-1.0, 1.0)) * shake)
+		shake = maxf(shake - delta * 4.0, 0.0)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
 	var p := physiology

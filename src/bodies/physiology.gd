@@ -26,6 +26,7 @@ var airway_blood := false  ## windpipe holed: blood in the breath, can't talk
 var jaw_broken := false
 var lost_fingers := {}  ## finger id -> true
 var severed_segments := {}  ## segment id -> true (the whole part is gone)
+var eardrums_burst := {}  ## &"r"/&"l" -> true
 var wound_pain := 0.0  ## what the wounds deserve
 var pain := 0.0  ## what's arrived so far (before adrenaline)
 var adrenaline := 0.0
@@ -115,6 +116,44 @@ func apply_trace(tr: Dictionary) -> Array:
 	if brain_dead:
 		_die(&"brain")
 	return range(first, bleeds.size())
+
+
+## A blast's pressure wave at the ears, the chest and the head (kPa): burst eardrums, bruised or
+## torn lungs (blast lung: no wound to see, blood in the breath), knocked senseless.
+func blast_injury(ear_kpa: float, lung_kpa: float, head_kpa: float, t: BlastTuning, rng: RandomNumberGenerator) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if not alive:
+		return out
+	var burst_chance := clampf((ear_kpa - t.eardrum_kpa) / maxf(t.eardrum_all_kpa - t.eardrum_kpa, 1.0), 0.0, 1.0)
+	for side in ["r", "l"]:
+		var ear := StringName(side)
+		if not eardrums_burst.has(ear) and ear_kpa > t.eardrum_kpa and rng.randf() < burst_chance:
+			eardrums_burst[ear] = true
+			wound_pain += 0.1
+			out.append("%s eardrum burst" % ("right" if side == "r" else "left"))
+	if lung_kpa > t.lung_kpa:
+		var severe := lung_kpa > t.lung_severe_kpa
+		for side in ["r", "l"]:
+			var lung := StringName("lung_" + side)
+			if severe:
+				torn[lung] = true
+				if not lung_damage.has(lung):
+					lung_damage[lung] = 0.0
+			_add_bleed(lung, &"chest", 1.5 if severe else 0.3, &"internal")
+		if severe:
+			airway_blood = true
+			wound_pain += tuning.pain_organ
+		wounds += 1
+		out.append("lungs torn by the blast" if severe else "lungs bruised by the blast")
+	if head_kpa > t.concussion_kpa:
+		concussion = maxf(concussion, maxf(3.0, (head_kpa - t.concussion_kpa) / 10.0 * tuning.concussion_seconds_per_10j))
+		out.append("knocked senseless")
+	adrenaline = minf(adrenaline + 0.5, 1.0)
+	return out
+
+
+func deaf_ears() -> int:
+	return eardrums_burst.size()
 
 
 ## Bleeding from where a part came off (a finger, a hand...).
@@ -495,7 +534,7 @@ func to_dict() -> Dictionary:
 			"torn": torn.keys(), "cut": cut.keys(), "lost_fingers": lost_fingers.keys(),
 			"muscle_damage": muscle_damage.duplicate(), "blind": blind.keys(),
 			"airway_blood": airway_blood, "jaw_broken": jaw_broken,
-			"severed": severed_segments.keys(), "wound_pain": wound_pain, "pain": pain,
+			"severed": severed_segments.keys(), "eardrums": eardrums_burst.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
@@ -516,6 +555,7 @@ func from_dict(d: Dictionary) -> void:
 	airway_blood = d.get("airway_blood", false)
 	jaw_broken = d.get("jaw_broken", false)
 	severed_segments = _set_of(d.severed)
+	eardrums_burst = _set_of(d.get("eardrums", []))
 	wound_pain = d.wound_pain
 	pain = d.pain
 	adrenaline = d.adrenaline

@@ -3,7 +3,8 @@ extends CanvasLayer
 ## F1 shows the controls, F3 shows clock/speed/resolution readouts.
 
 const HELP := """SALT CREEK — test street
-Guns: cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB     Revolver 1, shotgun 2, swap wheel up / Y
+Guns: cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB     Revolver 1, shotgun 2, dynamite 3, next wheel up / Y
+Dynamite: Q lights the fuse, hold LMB and let go to throw (longer = harder), RMB sets it down; don't hold it lit too long
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T     Debug readout: F3 / View
