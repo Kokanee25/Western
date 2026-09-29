@@ -401,6 +401,33 @@ knock out one stud and the wall shrugs it off.
 
 ## 9. People: AI minds, memory, conversation
 
+### Nobody is an enemy by default (**decided**, 2026-09-29)
+- **No hostile flag.** The player is one more person in town. Outlaws, lawmen and townsfolk each have
+  goals (the gang rides in to drink, see the baron's man, look over the bank) and opinions of
+  particular people. Nobody shoots on sight; a fight happens between particular people because of
+  what someone did.
+- **Deeds, judged the same for everyone:** drawing, aiming at someone, shooting, hitting, insults,
+  interfering with someone's business, hurting their friend, a badge. The player, the sheriff, a drunk
+  or one of their own are all judged by the same rules, through what each person saw or heard.
+- **What provokes a man depends on the man:** a hothead flares at a stare, standing too close or a
+  hand resting on the holster; a professional only at a real threat. The obvious ones (pointing a gun,
+  a shot, a blow) provoke everyone.
+- **An escalation ladder, every step readable and reversible:** ignore → notice → wary (watches you,
+  hand drifts to the holster) → warning ("Keep walking, friend") → threat (draws, aims) → fight.
+  Holster, back off, apologise, buy a drink or talk him down and it steps back. Most encounters should
+  end on the low rungs.
+- **Hostility is per person and per moment:** in a robbery they turn on whoever resists; a clerk with
+  his hands up is left alone; if the blacksmith fires on them, they fight the blacksmith. The player can
+  stand in a doorway and let it play out.
+- **The gang starts trouble on its own** (pushing the storekeeper around, a robbery, burning someone
+  out), following its own plans and the unopposed timeline (§5), so there are moments the player can
+  choose to step into, or not.
+- **Called-out duels:** a man can call you out into the street, and you him.
+- **Beaten men bargain:** a man who's lost can offer something for his life ("I'll tell you where
+  Colter's hiding"), through the conversation AI once it exists.
+- **It sticks:** grudges, debts and gratitude go into memory (below); the man you let walk away and the
+  one you pistol-whipped remember you, and so does anyone who saw it.
+
 ### Memory architecture
 1. **Events as small records**, not prose: who did what to whom, where, when, who saw it, importance.
 2. **Opinions as numbers** per person (trust, fear, liking, respect), nudged by events, driving

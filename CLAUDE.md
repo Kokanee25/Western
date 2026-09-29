@@ -436,3 +436,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: no real pathfinding (straight lines and one waypoint); prone men don't seek cover;
     the posed movement is stiff until mocap; he can't get up from a ragdoll fall.
   - Next: Sean plays it; then the people art pass or rope.
+- 2026-09-29 (later): **Decided with Sean (DESIGN.md §9 "Nobody is an enemy by default"):** no hostile
+  flag; deeds judged the same for everyone; provocation depends on the man; an escalation ladder
+  (ignore → notice → wary → warning → threat → fight) that can step back down; hostility per person
+  and moment; the gang starts trouble on its own; called-out duels; beaten men bargain.
+  - Next (agreed order, start of M4, not started): 1) senses for everyone (sight/hearing,
+    last-known position, searching); 2) deeds + per-person opinions + the escalation ladder (first
+    test: "a man at the bar" who does nothing until someone does something, then reacts to whoever
+    did it); 3) goals and a day in town for the gang; 4) gang teamwork in fights (callouts,
+    suppress-and-flank, dragging a wounded friend); 5) conversation hooks (talking down, bargaining).
+    Today's `OutlawBrain` targets the player only; that goes in step 2.
