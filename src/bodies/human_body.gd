@@ -24,6 +24,9 @@ const POSES := {
 	&"clutch": {&"upper_arm_r": Vector3(18, 0, -16), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(18, 0, 16), &"forearm_l": Vector3(100, 0, 0),
 			&"chest": Vector3(-18, 0, 0), &"head": Vector3(-10, 0, 0)},
+	# Watching someone: square on, gun hand hanging by the holster.
+	&"wary": {&"upper_arm_r": Vector3(-4, 0, 14), &"forearm_r": Vector3(18, 0, 0),
+			&"upper_arm_l": Vector3(0, 0, -9), &"forearm_l": Vector3(14, 0, 0), &"chest": Vector3(0, -6, 0)},
 	# Down on his heels behind something low, gun held ready.
 	&"crouch": {&"thigh_r": Vector3(95, 0, 8), &"thigh_l": Vector3(95, 0, -8), &"shin_r": Vector3(-125, 0, 0),
 			&"shin_l": Vector3(-125, 0, 0), &"foot_r": Vector3(30, 0, 0), &"foot_l": Vector3(30, 0, 0),
@@ -78,6 +81,8 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 @export var trousers_color := Color(0.3, 0.27, 0.23)
 @export var hat_color := Color(0.18, 0.14, 0.11)
 @export var has_gun := true
+## Starts with it in the holster (a man minding his own business); the brain draws it.
+@export var start_holstered := true
 @export var total_mass := 80.0
 
 var anatomy: Anatomy
@@ -95,6 +100,9 @@ var limp := false
 var pose := &"stand"
 var aim_pitch := 0.0
 var held_gun: Node3D
+var gun_holstered := false
+const DRAW_TIME := 0.5
+var _draw_left := 0.0
 var time_scale := 1.0
 
 var _rig: Node3D
@@ -393,6 +401,39 @@ func _give_gun() -> void:
 	gun.rotation_degrees = Vector3(-90, 0, 0)
 	held_gun = gun
 	curl_hand("r", 0.85)
+	if start_holstered:
+		holster_gun(true)
+
+
+## Put the gun in its holster on his right hip (or, `now`, without the half second it takes).
+func holster_gun(now := false) -> void:
+	if held_gun == null or gun_holstered:
+		return
+	gun_holstered = true
+	_draw_left = 0.0 if now else DRAW_TIME
+	var vis: Node3D = visuals[&"pelvis"]
+	held_gun.reparent(vis, false)
+	held_gun.position = Vector3(0.2, 0.9, 0.02) - anatomy.segment_center(&"pelvis")
+	held_gun.rotation_degrees = Vector3(-96, 0, 0)
+	curl_hand("r", 0.25)
+
+
+## Draw it: in his hand, ready to fire in half a second.
+func draw_gun() -> void:
+	if held_gun == null or not gun_holstered or not physiology.can_hold("r"):
+		return
+	gun_holstered = false
+	_draw_left = DRAW_TIME
+	var vis: Node3D = visuals[&"hand_r"]
+	held_gun.reparent(vis, false)
+	held_gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
+	held_gun.rotation_degrees = Vector3(-90, 0, 0)
+	curl_hand("r", 0.85)
+
+
+## Gun out and up, able to shoot.
+func gun_ready() -> bool:
+	return held_gun != null and not gun_holstered and _draw_left <= 0.0
 
 
 func _box(parent: Node3D, n: String, size: Vector3, pos: Vector3, color: Color) -> MeshInstance3D:
@@ -429,7 +470,8 @@ func _physics_process(delta: float) -> void:
 		if move_speed < 0.05:
 			gait = &""
 	_moved_this_tick = false
-	if held_gun != null and not physiology.can_hold("r"):
+	_draw_left = maxf(_draw_left - delta, 0.0)
+	if held_gun != null and not gun_holstered and not physiology.can_hold("r"):
 		drop_gun()
 	if limp:
 		_update_pool()
@@ -590,7 +632,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
 		(pivots[sid] as Node3D).rotation_degrees = rot
 	_place_rig(delta, snap)
-	if held_gun != null:
+	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 
 

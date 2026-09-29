@@ -156,6 +156,11 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			return remaining  # through the space round him without touching him
 		info.person = person
 		info.segment = res.segment
+		info.shooter = b.shooter
+		var victim: Node = person.get(&"player") if person is PlayerWounds else person
+		if b.shooter and victim:
+			victim.set_meta(&"last_hit_by", b.shooter)
+			Events.deed.emit(b.shooter, &"hit", victim, hit.position)
 		if res.exit != null:
 			var exit_point: Vector3 = res.exit
 			var through: float = (hit.position as Vector3).distance_to(exit_point)

@@ -17,6 +17,9 @@ func before_each() -> void:
 	player = street.get_node(^"Player")
 	gun = player.get_node(^"Head/Camera3D/Gun")
 	gun.needs_captured_mouse = false
+	# You walk about holstered; these tests start with it drawn.
+	gun.take_out()
+	await wait_until(func() -> bool: return gun.is_ready_in_hand(), 60)
 	hits.clear()
 	Events.bullet_hit.connect(_on_hit)
 	# Stand at the range line facing the target board, 16 m east, and line up on the black square.

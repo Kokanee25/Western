@@ -5,6 +5,32 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: nobody's your enemy until someone makes it so
+
+- **You start with your gun holstered.** Press **H** to draw it. Walking about with a gun in your
+  hand is something people notice.
+- **The outlaw minds his own business.** Walk up to him with your gun away and he'll look at you,
+  and that's all.
+- **He has eyes and ears.** He sees where he's facing, not behind him, not through walls, less far
+  at night, and a man crouched and still takes him longer to pick out. He hears gunshots from
+  across town, running feet close by (not creeping), shouts and talk, all muffled through walls.
+  He remembers where he last saw you.
+- **A ladder, not a switch.** Draw near him and he gets **wary**: squares up, hand by his holster
+  ("Easy, friend."). Keep at it and he **warns** you ("Keep that iron where it is."). Point your gun
+  at him and he **draws and covers you**, but doesn't fire. **Holster** and he steps back down, and
+  in the end puts his own gun away. Keep it on him long enough and he'll shoot first.
+- **He can only react to what he sees.** A gun at his back that he doesn't know about is nothing to
+  him. A shot, though, he hears, and he knows roughly where it came from.
+- **Tempers differ.** A hothead minds you standing too close or staring him out; a cool hand
+  doesn't. (The test outlaw is middling.)
+- **Fights are between particular people.** If someone else shoots at him, he fights *them*, not
+  you. Shoot him and it's you, and he doesn't forget it.
+- **Lose him and he looks for you:** where he last saw you, then a look round ("Where'd he go?").
+  In the end he gives it up, and stays wary of you.
+- Try: walk up to him with your gun away; draw it pointed off to the side; point it at him and then
+  holster; point it at him and wait; circle behind him with it drawn; shoot, then hide behind the
+  store and wait.
+
 ### New: the outlaw fights like a man who wants to live
 
 - **Cover.** Shoot at him (or near him) and he runs for something solid: the new woodpile,

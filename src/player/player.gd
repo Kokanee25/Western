@@ -19,6 +19,9 @@ var wounds: PlayerWounds
 var weapons: Array[WeaponViewmodel] = []
 var weapon: WeaponViewmodel
 var _switch_to: WeaponViewmodel
+var _step_left := 0.75
+## What you do that people notice (drawing, aiming at them, crowding them...).
+var deeds: PlayerDeeds
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -53,6 +56,19 @@ func _ready() -> void:
 	_arm()
 
 
+## Footfalls people can hear: running carries, walking a little, creeping crouched hardly at all.
+func _footsteps(delta: float) -> void:
+	var speed := get_horizontal_speed()
+	if speed < 0.3 or not is_on_floor():
+		return
+	_step_left -= speed * delta
+	if _step_left > 0.0:
+		return
+	_step_left = 0.75
+	var loud := 2.0 if is_crouching else (13.0 if is_running else 6.0)
+	Events.noise.emit(global_position, loud, &"footsteps", self)
+
+
 ## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun and the dynamite are added
 ## beside it, put away.
 func _arm() -> void:
@@ -74,6 +90,16 @@ func _arm() -> void:
 	camera.add_child(dynamite)
 	weapons.append(dynamite)
 	weapon = weapons[0]
+	# You walk about with the gun in its holster; drawing it is something people notice (H).
+	if revolver:
+		revolver.drawn = false
+		revolver._draw = 0.0
+		revolver.visible = false
+	if body:
+		body.set_gun_holstered.call_deferred(true)
+	deeds = PlayerDeeds.new()
+	deeds.name = "Deeds"
+	add_child(deeds)
 
 
 func revolver() -> RevolverViewmodel:
@@ -194,6 +220,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y -= tuning.gravity * delta
 	move_and_slide()
+	_footsteps(delta)
 	_update_head(delta)
 
 
