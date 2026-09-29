@@ -51,6 +51,14 @@ const POSES := {
 			&"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0), &"head": Vector3(-15, 0, 0),
 			&"upper_arm_r": Vector3(30, 0, -18), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(30, 0, 18), &"forearm_l": Vector3(100, 0, 0)},
+	# Cowering: hunched, arms over his head.
+	&"cower": {&"thigh_r": Vector3(40, 0, 6), &"thigh_l": Vector3(40, 0, -6), &"shin_r": Vector3(-70, 0, 0),
+			&"shin_l": Vector3(-70, 0, 0), &"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0),
+			&"head": Vector3(-20, 0, 0), &"upper_arm_r": Vector3(140, 0, -30), &"forearm_r": Vector3(110, 0, 0),
+			&"upper_arm_l": Vector3(140, 0, 30), &"forearm_l": Vector3(110, 0, 0)},
+	# Arms out at someone: a shove, a grab at his collar.
+	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
+			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},
 	# On his belly (the rig is laid flat): arms forward, head up.
 	&"prone": {&"upper_arm_r": Vector3(150, 0, 12), &"forearm_r": Vector3(25, 0, 0),
 			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
@@ -79,6 +87,7 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 @export var vest_color := Color(0.22, 0.17, 0.13)
 @export var coat_color := Color(0.4, 0.33, 0.25, 0.0)
 @export var trousers_color := Color(0.3, 0.27, 0.23)
+## Alpha 0: no hat.
 @export var hat_color := Color(0.18, 0.14, 0.11)
 @export var has_gun := true
 ## Starts with it in the holster (a man minding his own business); the brain draws it.
@@ -323,6 +332,8 @@ func _build_face(vis: Node3D, center: Vector3) -> void:
 	_box(vis, "Moustache", Vector3(0.075, 0.018, 0.02), o + Vector3(0, 1.604, -0.095), hair)
 	_box(vis, "Stubble", Vector3(0.12, 0.05, 0.05), o + Vector3(0, 1.57, -0.07), skin_tone.darkened(0.25))
 	_box(vis, "Hair", Vector3(0.19, 0.06, 0.16), o + Vector3(0, 1.69, 0.03), hair)
+	if hat_color.a <= 0.0:
+		return  # bareheaded (indoors, behind his counter)
 	var brim := _cylinder(vis, "HatBrim", 0.17, 0.012, o + Vector3(0, 1.745, 0.0), hat_color)
 	brim.scale = Vector3(1.0, 1.0, 1.12)
 	_cylinder(vis, "HatCrown", 0.095, 0.11, o + Vector3(0, 1.8, 0.0), hat_color)

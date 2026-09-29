@@ -13,6 +13,8 @@ extends Node
 ## Child of a HumanBody.
 
 signal mood_changed(mood: Mood)
+## He's walked out of town (and is about to be gone).
+signal left_town
 
 enum Mood { CALM, FIGHTING, RELOADING, SURRENDERED, DOWN, DEAD, FLEEING, TENDING }
 ## In a fight: in the open, on his way to cover, hidden behind it, up and shooting from it.
@@ -34,6 +36,18 @@ const LINES := {
 	&"search": ["Where'd he go?", "Come on out!", "I know you're there."],
 	&"lost": ["...Gone.", "Damn it. Lost him."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
+	&"drink": ["Whiskey. Leave the bottle.", "Another.", "This the best you got?"],
+	&"taunt": ["Hurry it up, old man.", "What's the matter, Pop? Hands shaking?",
+			"Nice store. Shame if something happened to it.", "You got a problem with my money?",
+			"Put it on my tab. What tab? That's a good one."],
+	&"rob": ["Open the drawer. Slow.", "The cash box, Pop. Now."],
+	&"done_harass": ["Pleasure doing business.", "We'll be back, Pop."],
+	&"back_down": ["Alright. Alright. It ain't worth it.", "Another time, mister.", "You win. For now."],
+	&"call_out": ["You! Step out into the street!", "I'm calling you out, mister! Out here!"],
+	&"coward": ["Coward! Whole town seen it!", "Yellow. Figured as much."],
+	&"duel": ["Whenever you're ready.", "Go on. Make your play."],
+	&"accept": ["Suits me.", "Alright. Right here, then."],
+	&"refuse": ["Not today.", "I got no quarrel with you. Yet."],
 }
 
 ## How much fear he can carry before he breaks. A hired gun; a family man would be lower.
@@ -60,6 +74,18 @@ const LINES := {
 ## Bleeding this hard (ml/s) and not being shot at for this long (s), he stops to tend it.
 @export var tend_bleed := 0.8
 @export var tend_quiet := 3.0
+## Faced down, he backs off now and calls the man out later.
+@export var proud := false
+## How long he sulks over a drink before he comes looking for the man who faced him down (s).
+@export var sulk_seconds := 60.0
+
+## Where he can go in this town (set by whoever brought him in: TownLife), and his place at the bar.
+var places: Waypoints
+var bar_spot := &""
+## What he means to do, in order. Steps: {do: &"go", to: <place>}, {do: &"drink", seconds, face},
+## {do: &"harass", who, seconds, rough}, {do: &"call_out", who}, {do: &"duel", who},
+## {do: &"wait", seconds}, {do: &"leave"}. He gets on with it while nobody's troubling him.
+var agenda: Array[Dictionary] = []
 
 var body: HumanBody
 var mood := Mood.CALM
@@ -115,6 +141,15 @@ var _last_pos := Vector3.ZERO
 var _tend_time := 0.0
 var _tend_bleed: Dictionary = {}
 var _after_tend := Mood.FIGHTING
+var _route: Array[Vector3] = []
+var _step_time := 0.0
+var _step_started := false
+var _pose_until := 0.0
+var _step_deed := 0.0
+## A duel: he stands and shoots it out, no ducking behind things.
+var _stand_and_fight := false
+## Seconds since someone told him to drop it.
+var _drop_it_heard := 99.0
 
 
 func _ready() -> void:
@@ -203,8 +238,12 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 		return
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
 	var to_me := deed_target == body
-	if not loud and not senses.sees(actor) and not (to_me and senses.aware_of(actor) > 0.6):
+	# Words shouted at him he hears whether he can see who it is or not.
+	var shouted := kind in [&"shout", &"call_out"] and to_me
+	if not loud and not shouted and not senses.sees(actor) and not (to_me and senses.aware_of(actor) > 0.6):
 		return
+	if shouted and not senses.sees(actor) and actor is Node3D:
+		senses.note(actor, (actor as Node3D).global_position, 1.5)
 	if loud and not to_me and not senses.sees(actor) and not senses.knows(actor):
 		# A shot somewhere: he knows someone's shooting, not who, unless he's seen them.
 		if kind != &"hit":
@@ -217,8 +256,10 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 			and (actor as Node3D).global_position.distance_to(body.global_position) < NEAR:
 		deed_target = body  # a gun drawn a few yards off is about him
 	relations.perceive(actor, kind, deed_target, dt)
-	if to_me and kind == &"aim_at":
-		fear += 0.02 * dt * (1.5 if _facing_shotgun else 1.0)
+	if to_me and kind == &"aim_at" and not relations.entry(actor).cowed:
+		fear += 0.045 * dt * (1.5 if _facing_shotgun else 1.0)
+	if to_me and kind == &"call_out":
+		_answer_call_out(actor)
 
 
 # --- What frightens him ------------------------------------------------------------------------
@@ -320,6 +361,7 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 	var d := (speaker as Node3D).global_position.distance_to(body.global_position)
 	if d > 30.0:
 		return
+	_drop_it_heard = 0.0
 	fear += 0.08 + (0.22 if _aimed_at > 0.3 else 0.0) + body.physiology.wounds * 0.08
 	if _facing_shotgun and _aimed_at > 0.3:
 		fear += 0.12
@@ -339,6 +381,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_update_aimed_at(delta)
 	_quiet += delta
+	_drop_it_heard += delta
 	suppressed = maxf(suppressed - delta, 0.0)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
@@ -361,7 +404,10 @@ func _physics_process(delta: float) -> void:
 	_pick_fight(delta)
 	match mood:
 		Mood.CALM:
-			_social(delta)
+			if _can_go_about():
+				_go_about(delta)
+			else:
+				_social(delta)
 		Mood.FIGHTING, Mood.RELOADING:
 			_combat(delta)
 
@@ -381,7 +427,7 @@ func _pick_fight(delta: float) -> void:
 	_retarget = 1.0
 	var best: Node = null
 	var best_p := -1.0
-	for who: Node in relations.entries:
+	for who in relations.entries:
 		if not is_instance_valid(who) or relations.stance(who) != Relations.Stance.FIGHT or _done_with(who):
 			continue
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (0.5 if who == t else 0.0)
@@ -393,6 +439,7 @@ func _pick_fight(delta: float) -> void:
 	elif t == null and mood != Mood.CALM:
 		_set_mood(Mood.CALM)
 		tactic = Tactic.OPEN
+		_after_fight()
 
 
 ## Is that man out of it (dead, down and out, or given up)?
@@ -414,13 +461,7 @@ func _done_with(who: Node) -> bool:
 ## wary, he squares up with his hand by the holster; he warns; he draws and covers him; he steps
 ## back down when the man does.
 func _social(delta: float) -> void:
-	# An empty gun gets reloaded while it's quiet.
-	if rounds < rounds_per_load:
-		if _reload_left <= 0.0:
-			_reload_left = reload_seconds
-		_reload_left -= delta
-		if _reload_left <= 0.0:
-			rounds = rounds_per_load
+	_reload_quietly(delta)
 	var who := relations.focus()
 	var st := relations.stance(who) if who else Relations.Stance.IGNORE
 	if who != _social_who or st != _social_stance:
@@ -461,6 +502,16 @@ func _social(delta: float) -> void:
 			if _say_again <= 0.0:
 				say(&"threat")
 				_say_again = 6.0
+
+
+## An empty gun gets reloaded while it's quiet.
+func _reload_quietly(delta: float) -> void:
+	if rounds < rounds_per_load:
+		if _reload_left <= 0.0:
+			_reload_left = reload_seconds
+		_reload_left -= delta
+		if _reload_left <= 0.0:
+			rounds = rounds_per_load
 
 
 ## Stepping onto a new rung: say so.
@@ -509,6 +560,275 @@ func _update_aimed_at(delta: float) -> void:
 	_facing_shotgun = aiming and gun is ShotgunViewmodel
 
 
+# --- Going about his day -------------------------------------------------------------------------
+
+## Nobody's troubling him (nobody he's squared up to, bar a man he's already backed down from),
+## or he's in the middle of calling someone out: he gets on with what he came to do.
+func _can_go_about() -> bool:
+	if agenda.is_empty():
+		return false
+	if agenda[0].do in [&"call_out", &"duel"]:
+		return true
+	for who in relations.entries:
+		var e: Dictionary = relations.entries[who]
+		if is_instance_valid(who) and e.stance >= Relations.Stance.WARY and not e.cowed:
+			return false
+	return true
+
+
+func _go_about(delta: float) -> void:
+	_reload_quietly(delta)
+	var step: Dictionary = agenda[0]
+	if not _step_started:
+		_begin_step(step)
+	_step_time += delta
+	_say_again -= delta
+	var done := false
+	match step.do:
+		&"go":
+			done = _walk_route(delta, walk_speed)
+			_ease_off(delta)
+		&"wait":
+			body.set_pose(&"stand")
+			if step.has("face"):
+				body.face(step.face)
+			done = _step_time >= float(step.get("seconds", 5.0))
+			_ease_off(delta)
+		&"drink":
+			done = _drink(step)
+			_ease_off(delta)
+		&"harass":
+			done = _harass(delta, step)
+		&"leave":
+			if _walk_route(delta, walk_speed):
+				left_town.emit()
+				body.queue_free()
+				agenda.clear()
+				return
+			_ease_off(delta)
+		&"call_out":
+			done = _call_out(delta, step)
+		&"duel":
+			done = _duel(step)
+		_:
+			done = true
+	if done and not agenda.is_empty() and agenda[0] == step:
+		_next_step()
+
+
+func _next_step() -> void:
+	agenda.pop_front()
+	_step_started = false
+
+
+## Starting on a step: work out the way there.
+func _begin_step(step: Dictionary) -> void:
+	_step_started = true
+	_step_time = 0.0
+	_route = []
+	_stuck = 0.0
+	_last_pos = body.global_position
+	var space := body.get_world_3d().direct_space_state
+	match step.do:
+		&"go":
+			if places and places.has(step.to):
+				_route = places.route(space, body.global_position, step.to, _exclude())
+		&"leave":
+			if places:
+				_route = places.route(space, body.global_position, &"west_edge", _exclude())
+		&"drink":
+			if step.get("first", true):
+				_say_again = _think.randf_range(1.0, 4.0)
+
+
+## Along the way he worked out; true when he's there. Stuck on something, he tries the next point.
+func _walk_route(delta: float, speed: float) -> bool:
+	if _route.is_empty():
+		return true
+	body.set_pose(&"stand")
+	var arrived := body.walk_to(_route[0], speed, delta)
+	_watch_stuck(delta)
+	if arrived or _stuck > 2.0:
+		_route.pop_front()
+		_stuck = 0.0
+	return _route.is_empty()
+
+
+## At the bar: leaning on it, a word to the barkeep now and then.
+func _drink(step: Dictionary) -> bool:
+	body.set_pose(&"stand")
+	if step.has("face"):
+		body.face(step.face)
+	if _say_again <= 0.0:
+		say(&"drink")
+		_say_again = _think.randf_range(20.0, 40.0)
+	return _step_time >= float(step.get("seconds", 30.0))
+
+
+## Leaning on a man who can't answer back: taunts, a shove across the counter, and a rough one
+## draws on him and has him open the cash box. Anyone who objects gets the ladder (above).
+func _harass(delta: float, step: Dictionary) -> bool:
+	var who := step.get("who") as HumanBody
+	if who == null or not is_instance_valid(who) or not who.physiology.is_conscious():
+		return true
+	var chest := (who.parts[&"chest"] as Node3D).global_position if who.parts.has(&"chest") else who.global_position + Vector3.UP * 1.2
+	body.face(chest)
+	var now := _step_time
+	if _say_again <= 0.0:
+		say(&"taunt")
+		_say_again = _think.randf_range(6.0, 9.0)
+	if not step.get("shoved", false) and now > 4.0:
+		step.shoved = true
+		_pose_until = now + 0.7
+		Events.deed.emit(body, &"shove", who, body.global_position)
+	var rough: bool = step.get("rough", false) and now > float(step.get("draw_after", 14.0))
+	if rough and body.held_gun != null:
+		if body.gun_holstered:
+			body.draw_gun()
+			Events.deed.emit(body, &"draw", who, body.global_position)
+			say(&"rob")
+			_say_again = 8.0
+		body.set_pose(&"aim")
+		_step_deed -= delta
+		if _step_deed <= 0.0:
+			_step_deed = PlayerDeeds.EVERY
+			Events.deed.emit(body, &"aim_at", who, senses.eye())
+	else:
+		body.set_pose(&"shove" if now < _pose_until else &"stand")
+	if now >= float(step.get("seconds", 45.0)):
+		say(&"done_harass")
+		_say_again = 6.0
+		if not body.gun_holstered:
+			body.holster_gun()
+			Events.deed.emit(body, &"holster", null, body.global_position)
+		return true
+	return false
+
+
+## Out into the street, down it from wherever the man is, and shout for him. When he comes out
+## where they can see each other, it's a duel; if he doesn't come, the whole town hears why.
+func _call_out(delta: float, step: Dictionary) -> bool:
+	var who := step.get("who") as Node3D
+	if who == null or not is_instance_valid(who) or _done_with(who):
+		return true
+	if not step.has("spot"):
+		var p := senses.last_known(who)
+		if p == Vector3.INF:
+			p = who.global_position  # he asks round town; somebody tells him
+		step.spot = _street_spot(p)
+		var space := body.get_world_3d().direct_space_state
+		_route = []
+		if places:
+			_route = places.route_to_point(space, body.global_position, step.spot, _exclude())
+		if _route.is_empty():
+			_route.append(step.spot)
+		relations.uncow(who)
+	if not _route.is_empty():
+		_walk_route(delta, walk_speed)
+		return false
+	var lk := senses.last_known(who)
+	body.face((lk if lk != Vector3.INF else who.global_position) + Vector3.UP * 1.5)
+	body.set_pose(&"wary")
+	step.waited = float(step.get("waited", 0.0)) + delta
+	if _say_again <= 0.0:
+		say(&"call_out")
+		Events.shouted.emit(body, &"call_out")
+		Events.deed.emit(body, &"call_out", who, body.global_position)
+		_say_again = 12.0
+	if senses.sees(who) and body.global_position.distance_to(who.global_position) < 30.0:
+		agenda.insert(1, {"do": &"duel", "who": who})
+		return true
+	if float(step.waited) > float(step.get("patience", 60.0)):
+		say(&"coward")
+		return true
+	return false
+
+
+## A spot out in the street, down it from `p` (a dozen paces, toward where he is now).
+func _street_spot(p: Vector3) -> Vector3:
+	var street_z := -9.0
+	var side := signf(body.global_position.x - p.x)
+	if side == 0.0:
+		side = 1.0
+	var x := p.x + side * 12.0
+	if x > 14.0 or x < -30.0:
+		x = p.x - side * 12.0
+	return Vector3(clampf(x, -30.0, 14.0), 0.0, street_z + _think.randf_range(-1.0, 1.0))
+
+
+## Face to face in the open, hand by the holster. He goes for his gun when you go for yours, or
+## when he's tired of waiting; then it's a straight fight, standing up.
+func _duel(step: Dictionary) -> bool:
+	var who := step.get("who") as Node3D
+	if who == null or not is_instance_valid(who) or _done_with(who):
+		return true
+	if not step.has("draw_at"):
+		step.draw_at = _think.randf_range(2.5, 5.0)
+		if not senses.knows(who):
+			senses.note(who, who.global_position, 1.0)  # he's squaring up to him: he knows where he is
+		say(&"duel")
+		_say_again = 99.0
+	body.face(_eye_of(who))
+	body.set_pose(&"wary")
+	if _armed(who) or _step_time >= float(step.draw_at):
+		_stand_and_fight = true
+		relations.provoke(who)
+		_start_fight(who)
+		return true
+	if body.global_position.distance_to(who.global_position) > 45.0 or senses.since_known(who) > 10.0:
+		say(&"coward")
+		return true
+	return false
+
+
+## Faced down before it came to shooting: holsters, lets it go for now, and gives up whatever he
+## was about. A proud man drinks on it and then comes looking for you.
+func _back_down(by: Node) -> void:
+	say(&"back_down")
+	relations.back_down(by)
+	fear = minf(fear, nerve * 0.6)
+	if body.held_gun != null and not body.gun_holstered:
+		body.holster_gun()
+		Events.deed.emit(body, &"holster", by, body.global_position)
+	Events.deed.emit(body, &"back_down", by, body.global_position)
+	var plan: Array[Dictionary] = []
+	if places and bar_spot != &"":
+		plan.append({"do": &"go", "to": bar_spot})
+		plan.append({"do": &"drink", "seconds": sulk_seconds, "face": places.at(bar_spot) + Vector3(-2.0, 1.2, 0.0)})
+	elif proud:
+		plan.append({"do": &"wait", "seconds": sulk_seconds})
+	if proud:
+		plan.append({"do": &"call_out", "who": by})
+	if places:
+		plan.append({"do": &"leave"})
+	agenda = plan
+	_step_started = false
+
+
+## Someone's called him out. A man with any temper, or a grudge against the caller, accepts.
+func _answer_call_out(caller: Node) -> void:
+	if mood != Mood.CALM or not caller is Node3D:
+		return
+	if not agenda.is_empty() and agenda[0].do in [&"duel", &"call_out"]:
+		return
+	var e := relations.entry(caller)
+	if temper >= 0.4 or e.grudge > 0.2 or proud:
+		say(&"accept")
+		relations.uncow(caller)
+		agenda.push_front({"do": &"duel", "who": caller})
+		_step_started = false
+	else:
+		say(&"refuse")
+
+
+## A fight's over and he's still standing: he's done with this town for today.
+func _after_fight() -> void:
+	_stand_and_fight = false
+	if places:
+		agenda = [{"do": &"leave"}]
+		_step_started = false
+
+
 # --- Fighting ----------------------------------------------------------------------------------
 
 func _combat(delta: float) -> void:
@@ -544,7 +864,7 @@ func _combat(delta: float) -> void:
 		return
 	match tactic:
 		Tactic.OPEN:
-			if _cover_search <= 0.0:
+			if _cover_search <= 0.0 and not _stand_and_fight:
 				_cover_search = 1.5
 				_seek_cover(eye, Vector3.INF)
 			if tactic == Tactic.OPEN:
@@ -605,6 +925,7 @@ func _hunt(delta: float, t: Node3D) -> void:
 		target = null
 		_set_mood(Mood.CALM)
 		tactic = Tactic.OPEN
+		_after_fight()
 		return
 	var flat := Vector3(spot.x, body.global_position.y, spot.z)
 	body.set_pose(&"aim")
@@ -849,6 +1170,11 @@ func _break() -> void:
 		t = _player()
 	var d := t.global_position.distance_to(body.global_position) if t else 99.0
 	var caught := _aimed_at > 0.8 and d < 12.0
+	if mood == Mood.CALM and t != null and relations.stance(t) >= Relations.Stance.WARY \
+			and not (caught and _drop_it_heard < 4.0):
+		# Not a fight yet: he backs down (told to drop it with a gun on him, he gives up instead).
+		_back_down(t)
+		return
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
 		_start_fleeing()
 	else:

@@ -299,9 +299,9 @@ static func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, 
 
 
 ## Can he get from one spot to the other on foot, in a straight line?
-static func path_clear(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID]) -> bool:
+static func path_clear(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID], radius := 0.22) -> bool:
 	var shape := SphereShape3D.new()
-	shape.radius = 0.22
+	shape.radius = radius
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = shape
 	q.collision_mask = Layers.WORLD

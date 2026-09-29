@@ -49,7 +49,8 @@ func test_outlaw_waits_at_the_range() -> void:
 	Input.action_release(&"debug_reset_outlaw")
 	await physics_frames(3)
 	check(spawner.outlaw != man and not spawner.outlaw.limp, "F9 brings a fresh one")
-	check_eq(get_tree().get_nodes_in_group(&"people").size(), 1, "and clears the old one away")
+	var outlaws := get_tree().get_nodes_in_group(&"people").filter(func(n: Node) -> bool: return n.get_node_or_null(^"Brain") is OutlawBrain)
+	check_eq(outlaws.size(), 1, "and clears the old one away (the townsfolk stay)")
 
 
 func test_f11_breaks_the_post_you_look_at() -> void:

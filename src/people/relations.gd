@@ -38,7 +38,13 @@ const WEIGHTS := {
 	&"hit": [INF, INF, 0.5],
 	&"kill": [INF, INF, 0.8],
 	&"surrender": [-1.5, -0.8, -0.3],
+	# Hands laid on someone: a shove, a grab at the collar.
+	&"shove": [0.8, 0.3, 0.05],
+	# "You! Step out into the street!"
+	&"call_out": [0.35, 0.1, 0.0],
 }
+## Deeds that stop counting for much once he's backed down to that man (he's letting it go).
+const COWED_BY := [&"aim_at", &"draw", &"shout", &"crowd", &"stare"]
 ## Deeds that are small only a hothead minds (scaled by temper); the rest move anyone.
 const PETTY := [&"crowd", &"stare", &"draw"]
 
@@ -57,7 +63,7 @@ func _init(owner_node: Node = null, temper_value := 0.5) -> void:
 func entry(who: Node) -> Dictionary:
 	if not entries.has(who):
 		entries[who] = {"pressure": 0.0, "grudge": 0.0, "fear": 0.0, "stance": Stance.IGNORE,
-				"below": 0.0, "climb": 0.0, "last": 0.0, "armed": false, "aiming": 0.0}
+				"below": 0.0, "climb": 0.0, "last": 0.0, "armed": false, "aiming": 0.0, "cowed": false}
 	return entries[who]
 
 
@@ -74,11 +80,15 @@ func aiming_at_me(who: Node) -> bool:
 func perceive(actor: Node, kind: StringName, target: Node, dt := 1.0) -> void:
 	if actor == null or actor == me or not WEIGHTS.has(kind):
 		return
+	if _is_friend(actor) and target != me:
+		return  # his friends' business with other people is their business
 	var e := entry(actor)
 	var w: Array = WEIGHTS[kind]
 	var weight: float = w[0] if target == me else (w[1] if _is_friend(target) else w[2])
 	if kind in PETTY:
 		weight *= lerpf(0.25, 1.6, temper)
+	if e.cowed and kind in COWED_BY:
+		weight *= 0.1
 	match kind:
 		&"draw":
 			e.armed = true
@@ -89,6 +99,9 @@ func perceive(actor: Node, kind: StringName, target: Node, dt := 1.0) -> void:
 			e.armed = true
 			if target == me:
 				e.aiming = 0.6  # seconds: the aim deeds come a few times a second
+				if e.stance >= Stance.THREAT:
+					# Guns on each other: a standoff, and how long he stands it depends on him.
+					weight *= 0.25 * lerpf(0.5, 1.5, temper)
 			weight *= dt
 		&"crowd", &"stare":
 			weight *= dt
@@ -112,13 +125,30 @@ func provoke(who: Node) -> void:
 	perceive(who, &"shoot_at", me)
 
 
+## He's backed down to that man: the ladder steps back down (and stays down unless it comes to
+## more than a gun on him), and it rankles.
+func back_down(who: Node) -> void:
+	var e := entry(who)
+	e.cowed = true
+	e.grudge = maxf(e.grudge, 0.5)
+	e.pressure = RUNG[Stance.WARY]
+	e.stance = mini(e.stance, Stance.WARY)
+	e.below = 0.0
+
+
+## Squared up to him again (calling him out): no longer letting it go.
+func uncow(who: Node) -> void:
+	if entries.has(who):
+		entries[who].cowed = false
+
+
 func _is_friend(who: Node) -> bool:
 	return who is HumanBody and friends.has((who as HumanBody).person_id)
 
 
 ## Time passing: pressure settles (faster when they've put the gun away), the ladder steps.
 func tick(delta: float) -> void:
-	for who: Node in entries.keys():
+	for who in entries.keys():
 		if not is_instance_valid(who):
 			entries.erase(who)
 			continue
@@ -131,6 +161,8 @@ func tick(delta: float) -> void:
 		e.fear = maxf(e.fear - 0.01 * delta, 0.0)
 		e.climb = maxf(e.climb - delta, 0.0)
 		var want := _rung_for(e.pressure)
+		if e.cowed and want < Stance.FIGHT:
+			want = Stance.WARY if want > Stance.WARY else want  # he's letting it go
 		if want > e.stance and e.climb <= 0.0:
 			e.stance += 1
 			e.climb = CLIMB_EVERY
@@ -157,7 +189,7 @@ func focus() -> Node:
 	var best: Node = null
 	var best_s := -1
 	var best_p := -1.0
-	for who: Node in entries:
+	for who in entries:
 		if not is_instance_valid(who):
 			continue
 		var e: Dictionary = entries[who]
@@ -182,7 +214,7 @@ func stand_down(who: Node) -> void:
 
 func to_dict() -> Dictionary:
 	var out := {}
-	for who: Node in entries:
+	for who in entries:
 		if is_instance_valid(who):
 			var key := String((who as HumanBody).person_id) if who is HumanBody else ("player" if who is Player else str(who.name))
 			var e: Dictionary = entries[who]

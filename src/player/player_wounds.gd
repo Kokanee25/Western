@@ -279,8 +279,14 @@ func _physics_process(delta: float) -> void:
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
-		say("\"Drop it! Hands where I can see 'em!\"", 2.5)
-		Events.shouted.emit(player, &"drop_it")
+		var w := player.weapon
+		if w != null and w.selected and w.drawn:
+			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
+			Events.shouted.emit(player, &"drop_it")
+		else:
+			# Gun in its holster: calling the man you're facing out.
+			say("\"You! Step out here and face me!\"", 2.5)
+			Events.shouted.emit(player, &"call_out")
 	_tend(delta)
 	_update_ears(delta)
 	if shake > 0.0:

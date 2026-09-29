@@ -10,7 +10,7 @@ Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T     Debug readout: F3 / View
 Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
-Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L (or F12)     Tear a wound open: J     Reduced gore: F4
+Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L (or F12)     Tear a wound open: J     Reduced gore: F4
 Release mouse: Esc     This help: F1"""
 
 var _help: Label
@@ -108,8 +108,8 @@ func _readout_text() -> String:
 		if player.wounds:
 			lines.append(player.wounds.describe())
 	for n in get_tree().get_nodes_in_group(&"people"):
-		var brain := n.get_node_or_null(^"Brain") as OutlawBrain
-		if brain:
+		var brain := n.get_node_or_null(^"Brain")
+		if brain and brain.has_method(&"describe"):
 			lines.append(brain.describe())
 			for w in (n as HumanBody).describe_wounds():
 				lines.append("  " + w)
