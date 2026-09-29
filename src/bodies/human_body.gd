@@ -69,6 +69,8 @@ var _breath := 0.0
 var _was_alive := true
 var _was_conscious := true
 var _cough_in := 3.0
+## Wound openings per segment: [{at (segment-centred), energy (J), radius (m)}].
+var openings := {}
 var xray := false
 var _pool: Decal
 var _pool_ml := 0.0
@@ -84,6 +86,8 @@ func _ready() -> void:
 	_build()
 	if has_gun:
 		_give_gun()
+	_use_wound_materials()
+	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))
 	if xray_all:
@@ -462,7 +466,7 @@ func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: floa
 
 ## A bullet reached a body part's hitbox. Traces it through the anatomy under the clothes; returns
 ## {segment, exit (world Vector3 or null), energy_out, hits, wound}.
-func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165) -> Dictionary:
+func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165, travelled := 99.0) -> Dictionary:
 	var seg: StringName = collider.get_meta(&"segment")
 	var xf := collider.global_transform
 	var center := anatomy.segment_center(seg)
@@ -490,6 +494,17 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		if h.effect == &"severed":
 			sever_finger(h.id, dir)
 	var deposited := maxf(energy - tr.energy_out, 0.0)
+	# Where it tore: a little at the way in (a lot more with the muzzle's blast right on him), most
+	# at the way out.
+	var at_entry := deposited * (0.25 if tr.exit != null else 0.6)
+	if travelled < 0.3:
+		at_entry += 300.0
+	elif travelled < 1.5:
+		at_entry += 120.0 * (1.5 - travelled)
+	if not tr.graze:
+		open_wound(seg, tr.entry - center, at_entry)
+		if tr.exit != null:
+			open_wound(seg, tr.exit - center, deposited * 0.75)
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -826,6 +841,80 @@ func go_limp(push := Vector3.ZERO) -> void:
 	Events.person_fell.emit(self, conscious)
 
 
+# --- Openings: bad wounds show what's inside --------------------------------------------------
+
+## A torn opening this big shows at the first; energy piles up where hits land close together.
+const OPEN_MIN_RADIUS := 0.018
+const OPEN_PER_SQRT_JOULE := 0.0013
+const OPEN_MERGE := 0.06
+
+
+func _use_wound_materials() -> void:
+	for sid: StringName in visuals:
+		for mi: MeshInstance3D in (visuals[sid] as Node3D).find_children("*", "MeshInstance3D", true, false):
+			if mi.layers == Layers.VIS_BODY and mi.material_override is StandardMaterial3D:
+				mi.material_override = BodyInterior.skin_material(mi.material_override as StandardMaterial3D)
+
+
+func _on_settings_changed() -> void:
+	for sid: StringName in openings:
+		_apply_openings(sid)
+
+
+## Tear the body open at a point (segment-centred rest space) with `energy` joules of damage:
+## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up.
+func open_wound(segment: StringName, at: Vector3, energy: float) -> Dictionary:
+	var list: Array = openings.get_or_add(segment, [])
+	var o: Dictionary = {}
+	for existing: Dictionary in list:
+		if (existing.at as Vector3).distance_to(at) < OPEN_MERGE:
+			o = existing
+			break
+	if o.is_empty():
+		o = {"at": at, "energy": 0.0, "radius": 0.0}
+		list.append(o)
+	var total: float = o.energy + energy
+	o.at = (o.at as Vector3).lerp(at, energy / maxf(total, 0.001))
+	o.energy = total
+	var cap: float = float(anatomy.segments[segment].radius) * 1.2
+	o.radius = minf(OPEN_PER_SQRT_JOULE * sqrt(total), cap)
+	if o.radius >= OPEN_MIN_RADIUS:
+		_apply_openings(segment)
+	return o
+
+
+## The same, from a world point on one of the body's parts.
+func open_wound_at(collider: Node3D, point: Vector3, energy: float) -> Dictionary:
+	var seg: StringName = collider.get_meta(&"segment", &"") if collider else &""
+	if seg == &"":
+		seg = segment_at(point)
+	var part: Node3D = parts[seg]
+	return open_wound(seg, part.global_transform.affine_inverse() * point, energy)
+
+
+func is_open(segment: StringName) -> bool:
+	for o: Dictionary in openings.get(segment, []):
+		if o.radius >= OPEN_MIN_RADIUS:
+			return true
+	return false
+
+
+func _apply_openings(segment: StringName) -> void:
+	var vis: Node3D = visuals.get(segment)
+	if vis == null:
+		return
+	var list: Array[Vector4] = []
+	for o: Dictionary in openings.get(segment, []):
+		if o.radius >= OPEN_MIN_RADIUS:
+			var at: Vector3 = o.at
+			list.append(Vector4(at.x, at.y, at.z, o.radius))
+	if list.is_empty():
+		return
+	if vis.get_node_or_null(^"Inside") == null:
+		BodyInterior.build(segment, vis, anatomy)
+	BodyInterior.apply(vis, list, Settings.reduced_gore)
+
+
 # --- X-ray (debug, F10) -------------------------------------------------------------------------
 
 const XRAY_COLOURS := {
@@ -965,5 +1054,9 @@ func to_dict() -> Dictionary:
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)
-	return {"person_id": person_id, "physiology": physiology.to_dict(), "wounds": ws,
+	var ops := {}
+	for sid: StringName in openings:
+		ops[String(sid)] = (openings[sid] as Array).map(func(o: Dictionary) -> Dictionary:
+			return {"at": [o.at.x, o.at.y, o.at.z], "energy": o.energy, "radius": o.radius})
+	return {"person_id": person_id, "physiology": physiology.to_dict(), "wounds": ws, "openings": ops,
 			"garment_holes": gs, "limp": limp, "gun_dropped": has_gun and held_gun == null}

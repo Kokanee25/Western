@@ -31,6 +31,9 @@ const VIEWS := [
 	["outlaw_surrender", 15.0, Vector3(22.0, 0.0, -12.2), -94.0, -3.0, "outlaw_surrender"],
 	["outlaw_down", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -45.0, "outlaw_down"],
 	["outlaw_graze", 15.0, Vector3(25.1, 0.0, -11.3), 5.0, -12.0, "outlaw_graze"],
+	["outlaw_open", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_open"],
+	["outlaw_open_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_open"],
+	["outlaw_open_reduced", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_open_reduced"],
 	["outlaw_neck", 15.0, Vector3(22.8, 0.0, -11.6), -115.0, -4.0, "outlaw_neck"],
 	["outlaw_xray", 15.0, Vector3(22.9, 0.0, -12.5), -90.0, -8.0, "outlaw_xray"],
 	["porch_collapse", 15.0, Vector3(1.5, 0.0, -8.0), 165.0, 6.0, "porch_collapse"],
@@ -230,6 +233,12 @@ func _outlaw_setup(main, setup, player) -> void:
 		targets = [[at - man.global_basis.x * 3.0, at]]
 		if setup == "outlaw_xray":
 			targets.append(parts[&"upper_arm_r"].global_position)
+	elif setup == "outlaw_open" or setup == "outlaw_open_reduced":
+		brain.set_physics_process(false)
+		root.get_node(^"Settings").reduced_gore = setup == "outlaw_open_reduced"
+		man.open_wound(&"chest", Vector3(-0.05, 0.02, -0.125), 1600.0)
+		man.open_wound(&"abdomen", Vector3(0.04, -0.02, -0.12), 900.0)
+		man.physiology.step(30.0)
 	elif setup == "outlaw_graze":
 		brain.set_physics_process(false)
 		# Skimming the outside of his left upper arm and left thigh.

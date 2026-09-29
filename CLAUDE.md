@@ -119,7 +119,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   edit the script, not the JSON: segments, bones, arteries, organs, fingers; traces a
   bullet through them), `Physiology` (blood, bleeds, shock, pain, adrenaline, breathing;
   config/physiology.tres), `HumanBody` (segment hitboxes, meshes, clothes, wound decals, ragdoll),
-  `OutlawBrain` (fear/nerve, fights, surrenders), `Layers` (physics/render layer bits).
+  `OutlawBrain` (fear/nerve, fights, surrenders), `Layers` (physics/render layer bits),
+  `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
+  `body_inside` cut wound openings, `wounds.gdshaderinc`).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
@@ -327,3 +329,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   finds the part by nearest capsule; big blows knock a man down. Wound `kind`: bullet/graze/cut/blow.
   Outlaw fear per kind. 144 tests pass.
   - Next: visible interior anatomy with wound volumes and a reduced-gore setting (DESIGN.md §7).
+- 2026-09-29: **M2 follow-ups, part 2: visible interior.** All body meshes use `body_skin.gdshader`
+  (their pixel texture, triplanar in mesh space, plus up to 8 wound openings per mesh: discard inside,
+  a ragged torn-flesh/soaked rim, blood beyond; reduced gore paints it dark and closed).
+  `HumanBody.open_wound(segment, at, joules)` merges hits within 6 cm; radius = 0.0013·√J (capped at
+  1.2× the segment radius), shown from 1.8 cm. take_bullet feeds it: 25% of deposited energy at the
+  entry (60% if it lodged) plus the muzzle's blast point-blank (+300 J under 0.3 m, tapering to 1.5 m),
+  75% at the exit; grazes don't open. On a part's first opening `BodyInterior.build()` adds (layer
+  `VIS_INSIDE`, no shadows) a flesh wall seen from inside (`body_inside.gdshader`, opened too where a
+  wound goes through), ribs as bars clipped to the skin, skull as an openable bone shell, and the
+  other structures as pixel-textured capsules pulled in 1.3 cm from the faceted skin. Openings are
+  saved. `Settings.reduced_gore` (F4, saved). J opens a 1500 J wound where you look (debug).
+  151 tests pass. Renders `docs/screenshots/m2/outlaw_open*.png`.
+  - Next: the shotgun (pellets traced separately; point-blank destroys a region, rib fragments fly).

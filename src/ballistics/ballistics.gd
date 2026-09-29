@@ -101,7 +101,8 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0}
 	if collider != null and collider.has_meta(&"human_body"):
 		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
-		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass)
+		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0
+		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass, travelled)
 		b.exclude.append((collider as CollisionObject3D).get_rid())
 		if res.segment == &"":
 			return remaining  # through the space round him without touching him

@@ -26,6 +26,8 @@ var auto_cock := false
 var pixel_shading := false
 ## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.
 var texels_per_meter := 40.0
+## Reduced gore: bad wounds show as dark soaked patches, the body never opens (F4).
+var reduced_gore := false
 ## Tests turn this off so they never touch the player's settings file.
 var autosave := true
 
@@ -43,6 +45,7 @@ func reset_to_defaults() -> void:
 	invert_y = false
 	pixel_shading = false
 	texels_per_meter = 40.0
+	reduced_gore = false
 	_apply_texels()
 	changed.emit()
 
@@ -59,6 +62,7 @@ func load_from_disk() -> void:
 	invert_y = cfg.get_value("controls", "invert_y", invert_y)
 	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
 	texels_per_meter = cfg.get_value("video", "texels_per_meter", texels_per_meter)
+	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
 	_apply_texels()
 	changed.emit()
 
@@ -73,6 +77,7 @@ func save_to_disk() -> void:
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
 	cfg.set_value("controls", "invert_y", invert_y)
+	cfg.set_value("content", "reduced_gore", reduced_gore)
 	cfg.save(PATH)
 
 
@@ -114,6 +119,11 @@ func _apply_texels() -> void:
 		if is_equal_approx(p[0], texels_per_meter):
 			mip = p[1]
 	PixelArt.set_density(texels_per_meter, mip)
+
+
+func set_reduced_gore(on: bool) -> void:
+	reduced_gore = on
+	_changed()
 
 
 func set_pixel_shading(on: bool) -> void:

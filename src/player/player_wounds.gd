@@ -83,7 +83,7 @@ func say(text: String, seconds := 3.0) -> void:
 
 
 ## Ballistics reached the player's capsule. Traces the rest of the path through the body inside.
-func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165) -> Dictionary:
+func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, _mass := 0.0165, _travelled := 99.0) -> Dictionary:
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.

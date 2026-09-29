@@ -31,6 +31,18 @@ falling timber breaks what it lands on. The rubble stays.
   laugh at it; a thin plank carrying weight will give after enough holes.
 - The shooting range's backstop timbers, the boardwalk, the hitching rail all obey the same rules.
 
+### New: bad wounds show what's inside
+
+People have insides now: a flesh wall, ribs, spine, lungs, heart, liver, gut, skull and brain,
+built from the same anatomy the bullets travel through. A bad wound tears the skin and clothes open
+and you see into it; a single revolver hit at range barely opens, hits close together add up, and
+a shot with the muzzle right on him opens him up. The openings stay.
+
+- **J** tears a big wound open in whoever you're looking at (a stand-in for point-blank buckshot and
+  dynamite, which come next).
+- **F4** is the **reduced gore** setting (saved): bad wounds stay closed and show as a dark soaked
+  patch instead.
+
 ### New: grazes, glass cuts, and being hit by something heavy
 
 - **Grazes:** a ball that only skims him (the outside of an arm or leg) leaves a bloody furrow,
