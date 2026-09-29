@@ -99,3 +99,15 @@ func test_build_label() -> void:
 	f.close()
 	check_eq(overlay.build_label(), "build 99 (abc1234)", "CI stamp shows")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("res://build_info.json"))
+
+
+func test_master_output_is_protected() -> void:
+	var master := AudioServer.get_bus_index(&"Master")
+	var limited := false
+	var cut := false
+	for i in AudioServer.get_bus_effect_count(master):
+		var e := AudioServer.get_bus_effect(master, i)
+		limited = limited or e is AudioEffectHardLimiter
+		cut = cut or e is AudioEffectHighPassFilter
+	check(limited, "a limiter on the master output (no clipping)")
+	check(cut, "sub-bass cut on the master output")

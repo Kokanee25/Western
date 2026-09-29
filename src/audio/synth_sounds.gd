@@ -54,7 +54,8 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 		lp2 += (white - lp2) * 0.04
 		var crack := white * exp(-t / 0.006) * 1.0
 		var body := lp * exp(-t / body_decay) * 0.9
-		var boom := sin(TAU * lerpf(boom_hz, boom_hz * 0.54, minf(t / 0.3, 1.0)) * t) * exp(-t / boom_decay) * 0.7
+		# The thump falls in pitch, but never below ~40 Hz (speakers can't play it; it only loads them).
+		var boom := sin(TAU * maxf(lerpf(boom_hz, boom_hz * 0.54, minf(t / 0.3, 1.0)), 40.0) * t) * exp(-t / boom_decay) * 0.7
 		var roll := lp2 * exp(-t / 0.7) * 0.5
 		out[i] = crack + body + boom + roll
 	# Echoes off the valley walls.
