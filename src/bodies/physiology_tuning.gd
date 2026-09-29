@@ -79,6 +79,9 @@ extends Resource
 @export var knockdown_per_100j := 0.12
 @export var knockdown_severe := 0.15
 @export var knockdown_max := 0.45
+## A buckshot pellet rolls for its own knockdown at this share of a ball's chance (a charge
+## lands several at once, so without it buckshot at range would drop nearly everyone).
+@export var knockdown_pellet_share := 0.3
 
 ## Breathing: a holed lung collapses over this long and takes this share of the breath with it.
 @export var lung_collapse_time := 35.0

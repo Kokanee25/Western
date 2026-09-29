@@ -132,7 +132,7 @@ func test_state_round_trips() -> void:
 # --- The charge ----------------------------------------------------------------------------------
 
 func test_the_pattern_opens_with_range() -> void:
-	# Buckshot from a cylinder bore: a pattern three-quarters of a metre or so across at 25 m.
+	# Buckshot from a worn cylinder bore: well over a metre across at 25 m.
 	var inside := 0
 	var total := 0
 	var widest := 0.0
@@ -147,8 +147,38 @@ func test_the_pattern_opens_with_range() -> void:
 				inside += 1
 		ballistics.bullets.clear()
 	var share := float(inside) / total
-	check(share > 0.7 and share < 0.99, "%.0f%% of pellets inside 0.5 m at 25 m" % (share * 100.0))
-	check(widest < 0.7, "the flyers stay within 70 cm of the line (%.2f m)" % widest)
+	check(share > 0.45 and share < 0.8, "%.0f%% of pellets inside 0.5 m at 25 m" % (share * 100.0))
+	check(widest < 1.1, "the flyers stay within a metre or so (%.2f m)" % widest)
+
+
+func test_pellets_slow_in_the_air() -> void:
+	var pellets := _charge(Vector3(0, 50, 0), Vector3(0, 50, -100))
+	var e0 := pellets[0].energy()
+	await wait_until(func() -> bool: return pellets[0].position.z < -25.0, 60)
+	var kept := pellets[0].energy() / e0
+	check(kept > 0.7 and kept < 0.9, "a pellet keeps %.0f%% of its energy at 25 m" % (kept * 100.0))
+
+
+func test_at_twenty_metres_a_charge_rarely_drops_him() -> void:
+	# Sean: "long range shooting guys and dropping them in one shot". Across the street, a charge
+	# should wound, not fell.
+	var down := 0
+	var hits := []
+	var n := 16
+	for k in n:
+		await _add_man()
+		var chest := (man.parts[&"chest"] as Node3D).global_position
+		var pellets := _charge(chest + Vector3(0, 0, -20), chest)
+		await wait_until(func() -> bool: return _all_done(pellets), 90)
+		await physics_frames(30)
+		var got := man.wounds.filter(func(w: Dictionary) -> bool: return w.kind == &"pellet").size()
+		hits.append(got)
+		if man.limp or not man.physiology.alive:
+			down += 1
+		man.queue_free()
+		await physics_frames(1)
+	print("  pellets on him from 20 m: %s; down %d of %d" % [hits, down, n])
+	check(down <= n / 2, "down from one charge at 20 m: %d of %d" % [down, n])
 
 
 func test_nine_separate_pellets() -> void:

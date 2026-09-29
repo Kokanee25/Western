@@ -17,3 +17,7 @@ extends Resource
 @export var impulse_transfer := 0.6
 ## A bullet passing this close to someone's head is a near miss (they hear it crack past).
 @export var near_miss_distance := 2.5
+## Air drag on a round ball: slows it by 0.5·ρ·Cd·A·v²/m. A light 00 pellet keeps ~80% of its
+## energy at 25 m and ~60% at 50 m; a heavy .45 ball ~92% at 25 m.
+@export var air_density := 1.2
+@export var drag_coefficient := 0.47

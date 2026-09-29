@@ -28,9 +28,10 @@ extends Resource
 @export var pellet_diameter := 0.0084  ## m
 @export var muzzle_velocity := 400.0  ## m/s
 ## The pattern: each pellet leaves this many degrees off the line at one standard deviation,
-## capped at 2.5 deviations. A cylinder bore throws buckshot into roughly 75 cm at 25 m, a hand's
-## width across a room, and one ragged hole at arm's length.
-@export var pattern_degrees := 0.5
+## capped at 2.5 deviations. A worn cylinder bore throws buckshot into well over a metre at
+## 25 m (only a few pellets find a man), a hand or two across a room, one ragged hole at arm's
+## length.
+@export var pattern_degrees := 0.85
 ## Aim wobble added to the whole charge: shouldered, and from the hip.
 @export var spread_aim_degrees := 0.3
 @export var spread_hip_degrees := 2.2

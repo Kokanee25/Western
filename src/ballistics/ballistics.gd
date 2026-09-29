@@ -125,6 +125,11 @@ func step(b: Bullet, delta: float) -> void:
 		# The blast spends itself on the first thing it meets.
 		b.blast = 0.0
 	b.velocity.y -= tuning.gravity * delta
+	# Air drag: speed falls off exponentially with distance, faster for light, fat projectiles.
+	if b.alive and b.mass > 0.0:
+		var area := PI * b.diameter * b.diameter * 0.25
+		var k := 0.5 * tuning.air_density * tuning.drag_coefficient * area / b.mass
+		b.velocity *= exp(-k * b.velocity.length() * delta)
 	_near_misses(b, start, b.position)
 	if b.alive:
 		b.path.append(b.position)

@@ -31,6 +31,7 @@ const LINES := {
 ## Fear from being hit at all, and more if it broke bone or tore something vital.
 @export var fear_per_hit := 0.25
 @export var fear_per_severe_hit := 0.14
+@export var fear_pellet_share := 0.4
 
 var body: HumanBody
 var mood := Mood.CALM
@@ -124,8 +125,10 @@ func _on_hit(info: Dictionary) -> void:
 				_provoked(_find_target())
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
-	fear += fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
-			+ float(info.get("deposited", 0.0)) / 2000.0
+	# Each buckshot pellet counts for a share: a charge lands several at once.
+	var share := fear_pellet_share if info.get("kind", &"bullet") == &"pellet" else 1.0
+	fear += (fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
+			+ float(info.get("deposited", 0.0)) / 2000.0) * share
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
 	if mood == Mood.SURRENDERED:
 		say(&"shot_while_surrendered")
