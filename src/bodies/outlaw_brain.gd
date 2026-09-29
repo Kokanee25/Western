@@ -127,7 +127,7 @@ func _on_hit(info: Dictionary) -> void:
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	# Each buckshot pellet counts for a share: a charge lands several at once.
-	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter"] else 1.0
+	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter", &"gravel"] else 1.0
 	fear += (fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
 			+ float(info.get("deposited", 0.0)) / 2000.0) * share
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)

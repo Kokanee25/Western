@@ -675,7 +675,7 @@ func _paint_wound(w: Dictionary) -> void:
 
 ## Buckshot and blast splinters: many small holes at once.
 static func _small_wound(kind: StringName) -> bool:
-	return kind == &"pellet" or kind == &"splinter"
+	return kind == &"pellet" or kind == &"splinter" or kind == &"gravel"
 
 
 func _add_jet(vis: Node3D, w: Dictionary, local: Vector3, share: float) -> void:
@@ -1255,6 +1255,8 @@ func describe_wounds() -> PackedStringArray:
 		var how := ""
 		if key[0] == &"pellet":
 			how = "buckshot, %d pellet%s" % [list.size(), "s" if list.size() > 1 else ""]
+		elif key[0] == &"gravel":
+			how = "gravel and grit from a blast, %d" % list.size()
 		else:
 			how = "blast splinters, %d" % list.size()
 		if lodged > 0:

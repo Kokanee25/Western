@@ -220,7 +220,8 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3]) -> Arra
 		if m.kind == &"glass":
 			m.shatter(m.global_position, push.normalized() if push.length() > 0.01 else Vector3.DOWN)
 		else:
-			_snap(m, m.weakest_t(), push)
+			# Where the blast hit it, if it says; else where it's weakest.
+			_snap(m, float(m.get_meta(&"blast_t", m.weakest_t())), push)
 		out.append(m.member_id)
 	out.append_array(settle())
 	return out

@@ -14,7 +14,6 @@ const P_ATM := 101.325  # kPa
 
 static var tuning: BlastTuning
 static var _rng := RandomNumberGenerator.new()
-static var _count := 0
 
 
 static func t() -> BlastTuning:
@@ -63,8 +62,8 @@ static func shielding(world: Node3D, from: Vector3, to: Vector3, exclude: Array[
 ## Set it off. Returns what happened: {broken: [member ids], people: [nodes], splinters: n}.
 static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null) -> Dictionary:
 	var tn := t()
-	_count += 1
-	_rng.seed = hash(at) + _count
+	# Seeded by where it went off (to the millimetre): the same blast throws the same way.
+	_rng.seed = hash(Vector3i((at * 1000.0).round()))
 	var report := {"broken": [], "people": [], "splinters": 0}
 	var r_max := reach(kg)
 	var space := world.get_world_3d().direct_space_state
@@ -132,6 +131,20 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 			for m in list:
 				if fire.flammable(m) and m.global_position.distance_to(at) < fireball and _rng.randf() < tn.ignite_chance:
 					fire.ignite(m)
+	# Gravel and grit off the ground, if it went off on (or near) it.
+	if ballistics:
+		var down := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD)
+		if not space.intersect_ray(down).is_empty():
+			var ground_at := at + Vector3.UP * 0.05
+			for k in tn.ejecta_count:
+				var az := _rng.randf() * TAU
+				var el := deg_to_rad(_rng.randf_range(2.0, tn.ejecta_elevation))
+				var dir := Vector3(cos(az) * cos(el), sin(el), sin(az) * cos(el))
+				var b := ballistics.fire(ground_at + dir * 0.1, dir, _rng.randf_range(tn.ejecta_speed.x, tn.ejecta_speed.y), tn.ejecta_mass, tn.ejecta_diameter)
+				b.kind = &"gravel"
+				b.blast = 0.0
+				b.passed = passed
+				splinters += 1
 	report.splinters = splinters
 	for pair: Array in pushes:
 		var rb: RigidBody3D = pair[0]
@@ -172,13 +185,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 		return {"break": kpa > tn.glass_kpa, "push": dir * minf(kpa * 0.2, 15.0), "distance": dist}
 	var length := m.length()
 	var cs := m.cross_section()
-	var face := length * maxf(cs.x, cs.y)
-	var n := 5
-	var total := 0.0
-	var axis := m.axis()
-	for i in n:
-		var p := m.global_position + axis * length * ((i + 0.5) / n - 0.5)
-		total += impulse(kg, maxf(p.distance_to(at), 0.03)) * tn.reflection * face / n
+	var total := face_impulse(m, at, kg) * tn.reflection
 	var timber: TimberTuning = s.tuning if s and s.tuning else load("res://config/timber.tres")
 	var mass := maxf(m.weight(timber) / 9.81, 0.05)
 	var kick := total * total / (2.0 * mass)
@@ -187,8 +194,60 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	var e: float = wood.stiffness
 	var sound := cs.x * cs.y * length
 	var capacity := fb * fb / (2.0 * e) * sound * tn.absorb_factor
-	var speed := minf(total / mass, tn.max_throw)
-	return {"break": kick > capacity, "push": (dir + Vector3.UP * 0.25).normalized() * speed, "distance": dist}
+	# Close in, it breaks where it's hit before the whole length feels it: the same test over the
+	# hand-span of it nearest the charge.
+	var span := minf(tn.local_span, length)
+	var near_j := face_impulse(m, at, kg, span) * tn.reflection
+	var share := span / maxf(length, 1e-4)
+	var near_kick := near_j * near_j / (2.0 * mass * share)
+	var broke := kick > capacity or near_kick > capacity * share
+	var speed := minf(maxf(total / mass, near_j / (mass * share) * 0.5), tn.max_throw)
+	if broke:
+		m.set_meta(&"blast_t", clampf((at - m.global_position).dot(m.axis()), -length * 0.5, length * 0.5))
+	return {"break": broke, "push": (dir + Vector3.UP * 0.25).normalized() * speed, "distance": dist}
+
+
+## The blast's push on a member (N·s): impulse per area summed over the face turned to it. The
+## samples bunch up round the point nearest the charge, where nearly all of it lands (a stick lying
+## on a floorboard hits the bit under it far harder than the rest of the board).
+static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := INF) -> float:
+	var length := m.length()
+	var cs := m.cross_section()
+	var width := maxf(cs.x, cs.y)
+	var axis := m.axis()
+	var half := length * 0.5
+	var t0 := clampf((at - m.global_position).dot(axis), -half, half)
+	# How far the charge is off the face at its nearest.
+	var perp := _nearest_on(m, at).distance_to(at)
+	var offsets := [0.0]
+	for d in [0.03, 0.08, 0.15, 0.3, 0.6, 1.2, 2.4, 4.8]:
+		offsets.append(d)
+		offsets.append(-d)
+	var ts: Array[float] = []
+	for o: float in offsets:
+		var t := clampf(t0 + o, -half, half)
+		if not ts.has(t):
+			ts.append(t)
+	ts.sort()
+	var total := 0.0
+	for i in ts.size():
+		var lo := -half if i == 0 else (ts[i - 1] + ts[i]) * 0.5
+		var hi := half if i == ts.size() - 1 else (ts[i] + ts[i + 1]) * 0.5
+		if window < INF:
+			lo = maxf(lo, t0 - window * 0.5)
+			hi = minf(hi, t0 + window * 0.5)
+		var seg := hi - lo
+		if seg <= 0.0:
+			continue
+		var along := ts[i] - t0
+		var r := maxf(sqrt(perp * perp + along * along), 0.02)
+		# Across the width, the part near the charge takes more: average over the strip.
+		var mean := 0.0
+		for k in 3:
+			var off := width * (k - 1) / 3.0
+			mean += impulse(kg, sqrt(r * r + off * off))
+		total += mean / 3.0 * seg * width
+	return total
 
 
 ## The point of a member nearest `at`.
