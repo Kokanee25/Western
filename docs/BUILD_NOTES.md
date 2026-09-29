@@ -5,6 +5,32 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: the outlaw fights like a man who wants to live
+
+- **Cover.** Shoot at him (or near him) and he runs for something solid: the new woodpile,
+  barrels, stacked crates and stretch of fence round his corner of the range, or the trough and
+  the boardwalk's edge in the street. He picks somewhere close that hides him from you and that
+  he can shoot back from. He'll go round a thing to get behind it.
+- **Head down.** Behind low cover he crouches or ducks; behind something really low he lies
+  flat. Rounds cracking past keep his head down longer. He won't shoot back while you're keeping
+  him pinned.
+- **Up and shooting.** Every so often he rises over it (or leans out past a wall), fires a shot
+  or two and ducks back. He reloads behind it. Now and then he moves to a new spot for a fresh
+  angle on you, and if you walk round his cover he'll find another.
+- **Breaking.** When his nerve goes and his legs are good, and you're not right on top of him,
+  he may **run for it** instead of giving up. He keeps his gun. Once he's far enough off he stops
+  to see to his wounds. Walk up on him and he'll give up.
+- **Tending himself.** Hurt and bleeding, with nobody shooting at him for a few seconds, he
+  presses on the wound, then cinches a belt round a pumping arm or leg, just like you can.
+- **Legs gone.** A broken leg no longer turns him into a rag doll: he goes down on his belly,
+  still conscious, and fights on from the ground, crawling.
+- **Limping.** A torn thigh muscle and he limps, slower.
+- Knees and elbows on the rag doll now only bend the right way.
+- It's all posed in code for now (a stiff, puppet-like walk and crouch) until real motion capture
+  replaces it; the behaviour stays.
+- Try: from the range line, shoot near him and watch where he goes. Keep firing over his cover.
+  Circle round it. Hit him in the thigh and stop shooting for a bit. Scare him badly from 15 m.
+
 ### New: dynamite
 
 Six sticks in your coat. A stick of 40% dynamite with a five-second fuse.

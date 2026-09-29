@@ -197,3 +197,65 @@ func test_xray_shows_the_anatomy() -> void:
 	check(shown >= man.anatomy.structures.size(), "every structure drawn, plus the ball's track (%d)" % shown)
 	man.set_xray(false)
 	check((man.visuals[&"chest"] as Node3D).get_node_or_null(^"XRay") == null, "and off again")
+
+
+## How far the knee is bent (degrees, signed about his right).
+func _knee_bend(man: HumanBody, side: String) -> float:
+	var thigh := man.parts[StringName("thigh_" + side)] as Node3D
+	var shin := man.parts[StringName("shin_" + side)] as Node3D
+	var right := thigh.global_basis.x.normalized()
+	var a := -thigh.global_basis.y.normalized()
+	var b := -shin.global_basis.y.normalized()
+	return rad_to_deg(a.signed_angle_to(b, right))
+
+
+func test_knees_only_bend_the_right_way() -> void:
+	var world := Node3D.new()
+	add_child(world)
+	var ground := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(20, 1, 20)
+	cs.shape = bs
+	ground.add_child(cs)
+	ground.position.y = -0.5
+	world.add_child(ground)
+	var man := HumanBody.new()
+	man.has_gun = false
+	world.add_child(man)
+	await physics_frames(3)
+	man.go_limp()
+	await physics_frames(2)
+	var shin_r := man.parts[&"shin_r"] as RigidBody3D
+	var shin_l := man.parts[&"shin_l"] as RigidBody3D
+	var right := man.global_basis.x
+	# Kick the right shin forwards (the wrong way for a knee), the left one backwards.
+	for i in 20:
+		shin_r.apply_torque_impulse(right * 4.0)
+		shin_l.apply_torque_impulse(-right * 4.0)
+		await physics_frames(1)
+	var r := _knee_bend(man, "r")
+	var l := _knee_bend(man, "l")
+	print("  knee bends after the kicks: right %.0f, left %.0f" % [r, l])
+	check(absf(r) < 15.0, "the right knee won't bend forwards (%.0f)" % r)
+	check(absf(l) > 20.0, "the left one bends back (%.0f)" % l)
+	# Elbows the other way: the forearm comes forward, never back past straight.
+	var fr := man.parts[&"forearm_r"] as RigidBody3D
+	var fl := man.parts[&"forearm_l"] as RigidBody3D
+	for i in 20:
+		fr.apply_torque_impulse(right * 1.5)
+		fl.apply_torque_impulse(-right * 1.5)
+		await physics_frames(1)
+	var er := _joint_bend(man, &"upper_arm_r", &"forearm_r")
+	var el := _joint_bend(man, &"upper_arm_l", &"forearm_l")
+	print("  elbow bends: right (pushed forward) %.0f, left (pushed back) %.0f" % [er, el])
+	check(er > 20.0, "the right elbow bends forward (%.0f)" % er)
+	check(el > -15.0, "the left never bends back past straight (%.0f)" % el)
+	world.queue_free()
+
+
+func _joint_bend(man: HumanBody, upper: StringName, lower: StringName) -> float:
+	var a_part := man.parts[upper] as Node3D
+	var b_part := man.parts[lower] as Node3D
+	var right := a_part.global_basis.x.normalized()
+	return rad_to_deg((-a_part.global_basis.y).signed_angle_to(-b_part.global_basis.y, right))
