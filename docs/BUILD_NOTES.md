@@ -5,6 +5,29 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: dynamite
+
+Six sticks in your coat. A stick of 40% dynamite with a five-second fuse.
+
+- **3** takes a stick out (wheel up / Y cycles revolver → shotgun → dynamite).
+- **Q** strikes a match and lights the fuse (it hisses and spits; you can see it burn down).
+- **Hold left click and let go** to throw: the longer you wind up, the further it goes. **Right
+  click** sets it down just in front of you (up against a wall, say).
+- **Don't hold it lit too long.** It goes off in your hand.
+- What it does, by the physics of a blast (pressure and kick falling off with distance):
+  - Against a wall it blows the boards in and throws them, with splinters flying like shot. The
+    heavy framing mostly stands. Windows crack much further out (about 10 m).
+  - Now and then it sets dry wood alight.
+  - People: at a few metres, ringing ears; at a couple of metres, burst eardrums; within a metre,
+    thrown down, lungs torn, knocked senseless; right at a man's feet or hand, it takes the foot or
+    the hand at the joint, and the stump bleeds hard. A wall between you and it takes most of it.
+  - You: the world goes muffled under a high whine for a while after a close one (for good, muffled,
+    if an eardrum went).
+  - A bullet through a stick lying on the ground sets it off about one time in four. One blast sets
+    off another stick lying close by.
+- Try: set one at the store's wall and stand back; throw one at the outlaw from across the range;
+  set one down, walk off and shoot it.
+
 ### New: the shotgun
 
 A double-barrelled coach gun (12-bore, 20" barrels, two hammers, brass shells of 00 buckshot).

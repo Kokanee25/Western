@@ -59,6 +59,7 @@ func _ready() -> void:
 	body.fell.connect(_on_fell)
 	Events.near_miss.connect(_on_near_miss)
 	Events.shouted.connect(_on_shouted)
+	Events.exploded.connect(_on_exploded)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: fear += amount * 0.6)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
@@ -126,7 +127,7 @@ func _on_hit(info: Dictionary) -> void:
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	# Each buckshot pellet counts for a share: a charge lands several at once.
-	var share := fear_pellet_share if info.get("kind", &"bullet") == &"pellet" else 1.0
+	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter"] else 1.0
 	fear += (fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
 			+ float(info.get("deposited", 0.0)) / 2000.0) * share
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
@@ -148,6 +149,19 @@ func _on_hit(info: Dictionary) -> void:
 func _on_fell(conscious: bool) -> void:
 	if conscious:
 		say(&"down")
+
+
+## Dynamite going off near him: frightening by how hard it hit him, and it starts the fight.
+func _on_exploded(at: Vector3, kg: float) -> void:
+	if mood >= Mood.DEAD or not is_instance_valid(body):
+		return
+	var d := body.global_position.distance_to(at)
+	if d > 60.0:
+		return
+	var kpa := Blast.overpressure_kpa(kg, d)
+	fear += clampf(kpa / 25.0, 0.05, 1.5)
+	if mood == Mood.CALM and d < 25.0:
+		_provoked(_find_target())
 
 
 ## "Drop it!" from someone aiming at him: frightening in proportion to how things are going.

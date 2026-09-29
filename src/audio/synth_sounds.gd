@@ -16,6 +16,10 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 		match id:
 			&"gunshot": samples = _gunshot(rng)
 			&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
+			&"dynamite": samples = _blast(rng)
+			&"fuse": samples = _fuse(rng)
+			&"match": samples = _match(rng)
+			&"ringing": samples = _ringing()
 			&"break_open": samples = _clicks(rng, [0.0, 0.06], 900.0, 0.55)
 			&"close": samples = _clicks(rng, [0.0], 1100.0, 0.7)
 			&"cock": samples = _clicks(rng, [0.0, 0.085], 3100.0, 0.5)
@@ -32,7 +36,7 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"fire": samples = _fire(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		var wav := _to_wav(samples)
-		if id == &"fire":
+		if id == &"fire" or id == &"fuse" or id == &"ringing":
 			wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 			wav.loop_end = samples.size()
 		_cache[id] = wav
@@ -66,6 +70,73 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 			lp3 += (out[i - d] - lp3) * 0.08
 			out[i] += lp3 * echo[1]
 	return _normalise(out, 0.95)
+
+
+## Dynamite: a hard crack, a heavy thump and a long roll back off the hills.
+static func _blast(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 3.5)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		lp += (white - lp) * 0.18
+		lp2 += (white - lp2) * 0.03
+		var crack := white * exp(-t / 0.012)
+		var body := lp * exp(-t / 0.25) * 1.1
+		var boom := sin(TAU * maxf(lerpf(60.0, 40.0, minf(t / 0.4, 1.0)), 40.0) * t) * exp(-t / 0.35) * 0.9
+		var roll := lp2 * exp(-t / 1.2) * 0.9
+		out[i] = crack + body + boom + roll
+	for echo in [[0.5, 0.3], [1.1, 0.18], [1.8, 0.1]]:
+		var d := int(echo[0] * RATE)
+		var lp3 := 0.0
+		for i in range(n - 1, d - 1, -1):
+			lp3 += (out[i - d] - lp3) * 0.06
+			out[i] += lp3 * echo[1]
+	return _normalise(out, 0.95)
+
+
+## A burning fuse: a spitting hiss. Loops.
+static func _fuse(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.0)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var prev := 0.0
+	for i in n:
+		var white := rng.randf_range(-1.0, 1.0)
+		var hp := white - prev  # thin and high
+		prev = white
+		var spit := 1.0 + (2.5 if rng.randf() < 0.004 else 0.0)
+		out[i] = hp * 0.3 * spit
+	return _normalise(out, 0.5)
+
+
+## A match struck: a scratch and a flare.
+static func _match(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.6)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * 0.5
+		var scratch := lp * (1.0 if t < 0.12 else 0.0) * 0.8
+		var flare := rng.randf_range(-1.0, 1.0) * exp(-(t - 0.12) / 0.15) * 0.5 if t >= 0.12 else 0.0
+		out[i] = scratch + flare
+	return _normalise(out, 0.6)
+
+
+## Ringing ears: a high whine with a slow waver. Loops.
+static func _ringing() -> PackedFloat32Array:
+	var n := RATE * 2
+	var out := PackedFloat32Array()
+	out.resize(n)
+	for i in n:
+		var t := float(i) / RATE
+		out[i] = sin(TAU * 3800.0 * t) * (0.8 + 0.2 * sin(TAU * 0.5 * t)) + sin(TAU * 3812.0 * t) * 0.3
+	return _normalise(out, 0.5)
 
 
 static func _clicks(rng: RandomNumberGenerator, times: Array, ring_hz: float, level: float) -> PackedFloat32Array:

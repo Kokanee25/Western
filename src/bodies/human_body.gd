@@ -468,7 +468,7 @@ func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: floa
 ## {segment, exit (world Vector3 or null), energy_out, hits, wound}. `blast` is the muzzle blast it
 ## brings (joules; Ballistics works it out from the range, or it's a revolver's from `travelled`).
 ## Anything lighter than 6 g is a buckshot pellet.
-func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165, travelled := 99.0, blast := -1.0) -> Dictionary:
+func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bullet_radius: float, mass := 0.0165, travelled := 99.0, blast := -1.0, projectile := &"") -> Dictionary:
 	var seg: StringName = collider.get_meta(&"segment")
 	var xf := collider.global_transform
 	var center := anatomy.segment_center(seg)
@@ -489,7 +489,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
 			"stop": (tr.stop - center) if tr.stop != null else null,
 			"bleeds": bleeds, "garments": holed, "stain": null,
-			"kind": &"graze" if tr.graze else (&"pellet" if mass < PELLET_MASS else &"bullet"), "dir": d}
+			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d}
 	wounds.append(wound)
 	_paint_wound(wound)
 	for h: Dictionary in tr.hits:
@@ -511,7 +511,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
 			severe = true
 	var speed := sqrt(2.0 * deposited / maxf(mass, 0.001))
-	var knocked := not limp and _knocked_down(seg, deposited, severe, wound.kind == &"pellet")
+	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
 		go_limp(dir * 1.2)
 	elif limp and collider is RigidBody3D:
@@ -662,7 +662,7 @@ func _paint_wound(w: Dictionary) -> void:
 		w.stain = _decal(vis, w.segment, mid, 0.03, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 		_add_jet(vis, w, mid, 1.0)
 		return
-	var pellet: bool = w.kind == &"pellet"
+	var pellet := _small_wound(w.kind)
 	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	if w.exit != null:
@@ -673,10 +673,15 @@ func _paint_wound(w: Dictionary) -> void:
 		_add_jet(vis, w, w.exit, 0.5)
 
 
+## Buckshot and blast splinters: many small holes at once.
+static func _small_wound(kind: StringName) -> bool:
+	return kind == &"pellet" or kind == &"splinter"
+
+
 func _add_jet(vis: Node3D, w: Dictionary, local: Vector3, share: float) -> void:
 	if w.bleeds.is_empty():
 		return
-	if w.kind == &"pellet":
+	if _small_wound(w.kind):
 		# Buckshot holes close together bleed as one: a pellet's bleeding joins a nearby pellet
 		# wound's stream rather than starting its own (nine jets from one shot is a fountain).
 		for other: Node in vis.get_children():
@@ -688,7 +693,7 @@ func _add_jet(vis: Node3D, w: Dictionary, local: Vector3, share: float) -> void:
 				w.get_or_add("jets", []).append(j)
 				return
 	var jet := BloodJet.new()
-	if w.kind == &"pellet":
+	if _small_wound(w.kind):
 		jet.set_meta(&"pellets", true)
 		jet.bleed_ids = (w.bleeds as Array).duplicate()
 	jet.name = "BloodJet"
@@ -859,6 +864,139 @@ func go_limp(push := Vector3.ZERO) -> void:
 	_blocker.queue_free()
 	fell.emit(conscious)
 	Events.person_fell.emit(self, conscious)
+
+
+# --- Blasts ------------------------------------------------------------------------------------
+
+const LIMBS := [["hand", "forearm", "upper_arm"], ["foot", "shin", "thigh"]]
+
+
+## Caught by a charge of `kg` TNT going off at `at`: the pressure at each part of him (less behind
+## a wall), then ears, lungs and head, burns in the fireball, parts torn open, limbs torn off at
+## the joint, and thrown down by the blast wind.
+func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
+	var bt := Blast.t()
+	var kpa := {}
+	var exclude: Array[RID] = []
+	for sid: StringName in parts:
+		exclude.append((parts[sid] as CollisionObject3D).get_rid())
+	if _blocker and is_instance_valid(_blocker):
+		exclude.append(_blocker.get_rid())
+	var chest: Vector3 = (parts[&"chest"] as Node3D).global_position
+	var shield := Blast.shielding(get_parent() as Node3D, at, chest, exclude)
+	for sid: StringName in parts:
+		var part := parts[sid] as Node3D
+		if part == null or not is_instance_valid(part) or physiology.severed_segments.has(sid):
+			continue
+		kpa[sid] = Blast.overpressure_kpa(kg, _distance_to_part(sid, at)) * shield
+	var harm := physiology.blast_injury(kpa.get(&"head", 0.0), kpa.get(&"chest", 0.0), kpa.get(&"head", 0.0), bt, _rng)
+	if chest.distance_to(at) < Blast.fireball_radius(kg):
+		physiology.burn(bt.burn_in_fireball)
+		harm.append("burnt")
+	# Torn open where the pressure was worst.
+	for sid: StringName in kpa:
+		var p: float = kpa[sid]
+		if p > bt.open_kpa:
+			var part := parts[sid] as Node3D
+			var local := part.global_transform.affine_inverse() * at
+			var toward := local.normalized() if local.length() > 0.001 else Vector3.FORWARD
+			var skin := toward * float(anatomy.segments[sid].radius)
+			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized())
+	# Limbs: the most of each arm and leg the blast can take.
+	var torn_off: Array[StringName] = []
+	for side in ["r", "l"]:
+		for chain: Array in LIMBS:
+			var take := &""
+			for kind: String in chain:
+				var sid := StringName(kind + "_" + side)
+				if kpa.get(sid, 0.0) > float(bt.sever_kpa.get(kind, INF)):
+					take = sid
+			if take != &"":
+				torn_off.append(take)
+	var dir := (chest - at).normalized()
+	var r := maxf(chest.distance_to(at), 0.05)
+	var speed := Blast.impulse(kg, r) * shield * 0.7 * bt.throw_factor / maxf(_body_mass(), 1.0)
+	var push := (dir + Vector3.UP * 0.35).normalized() * minf(speed, bt.max_throw)
+	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
+	if down and not limp:
+		go_limp(push)
+	elif limp:
+		for sid: StringName in parts:
+			var rb := parts[sid] as RigidBody3D
+			if rb:
+				rb.linear_velocity += push * clampf(kpa.get(sid, 0.0) / maxf(kpa.get(&"chest", 1.0), 1.0), 0.3, 3.0)
+	else:
+		_flinch_from(&"chest", chest, dir, speed * 2.0)
+	for sid in torn_off:
+		sever_limb(sid, push * 2.0 + dir * 3.0)
+		harm.append("%s torn off" % _place(sid))
+	var w := {"segment": &"chest", "entry": Vector3.ZERO, "exit": null, "lodged": false, "hits": [],
+			"bleeds": [], "garments": [], "stain": null, "kind": &"blast", "dir": dir, "harm": harm,
+			"kpa": kpa.get(&"chest", 0.0)}
+	wounds.append(w)
+	var info := {"person": self, "person_id": person_id, "segment": &"chest", "hits": [], "position": chest,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm,
+			"kpa": kpa.get(&"chest", 0.0), "knocked_down": down}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return info
+
+
+func _body_mass() -> float:
+	var m := 0.0
+	for sid: StringName in parts:
+		m += float((parts[sid] as Node).get_meta(&"mass", 5.0))
+	return m
+
+
+## Distance from a point to a body part's skin (nearest capsule surface).
+func _distance_to_part(sid: StringName, point: Vector3) -> float:
+	var part := parts[sid] as Node3D
+	var local := part.global_transform.affine_inverse() * point + anatomy.segment_center(sid)
+	var best := INF
+	for c: Array in anatomy.segments[sid].capsules:
+		var a: Vector3 = c[0]
+		var ab: Vector3 = (c[1] as Vector3) - a
+		var t := clampf((local - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+		best = minf(best, local.distance_to(a + ab * t) - float(c[2]))
+	return maxf(best, 0.02)
+
+
+## Tear a limb off at the joint above `segment` (it and everything below it go): he goes down, the
+## joint lets go, the stump opens and bleeds hard, and the limb flies.
+func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
+	if physiology.severed_segments.has(segment):
+		return
+	if not limp:
+		go_limp(push * 0.3)
+	var parent: StringName = anatomy.segments[segment].parent
+	var joint := get_node_or_null(NodePath("Joint_%s" % segment)) as Node3D
+	var at: Vector3 = joint.global_position if joint else (parts[segment] as Node3D).global_position
+	var first := physiology.bleeds.size()
+	physiology.sever(segment)
+	if joint:
+		joint.queue_free()
+	for sid in anatomy.segments_below(segment):
+		var rb := parts.get(sid) as RigidBody3D
+		if rb:
+			rb.linear_velocity += push
+			rb.angular_velocity += Vector3(_rng.randf_range(-8, 8), _rng.randf_range(-8, 8), _rng.randf_range(-8, 8))
+	# The stump and the torn end of the limb.
+	var parent_part := parts[parent] as Node3D
+	open_wound(parent, parent_part.global_transform.affine_inverse() * at, 2200.0)
+	var limb_part := parts[segment] as Node3D
+	open_wound(segment, limb_part.global_transform.affine_inverse() * at, 2200.0)
+	var w := {"segment": parent, "part": segment, "entry": parent_part.global_transform.affine_inverse() * at,
+			"exit": null, "lodged": false, "hits": [], "bleeds": range(first, physiology.bleeds.size()),
+			"garments": [], "stain": null, "kind": &"severed", "dir": push.normalized()}
+	wounds.append(w)
+	_add_jet(visuals[parent], w, w.entry, 1.0)
+	if get_parent() is Node3D:
+		ImpactEffects.burst(get_parent(), at, push.normalized(), Blood.ARTERIAL, 16, 3.0, 0.02)
+		Blood.spray(get_parent() as Node3D, at, push.normalized(), 60.0, 8, _rng)
+	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
+		if held_gun and String(segment).ends_with("_r"):
+			drop_gun()
 
 
 # --- Openings: bad wounds show what's inside --------------------------------------------------
@@ -1090,22 +1228,35 @@ static func _xray_material(colour: Color, order: int) -> StandardMaterial3D:
 
 func describe_wounds() -> PackedStringArray:
 	var out: PackedStringArray = []
-	var pellets := {}  # segment -> [wounds]
+	var groups := {}  # [kind, segment] -> [wounds]
 	for w in wounds:
-		if w.get("kind", &"bullet") == &"pellet":
-			pellets.get_or_add(w.segment, []).append(w)
+		var kind: StringName = w.get("kind", &"bullet")
+		if _small_wound(kind):
+			groups.get_or_add([kind, w.segment], []).append(w)
+			continue
+		if kind == &"severed":
+			out.append("%s: torn off at the joint, the stump bleeding" % _place(w.get("part", w.segment)))
+			continue
+		if kind == &"blast":
+			if not (w.harm as PackedStringArray).is_empty():
+				out.append("blast: %s" % ", ".join(w.harm))
 			continue
 		out.append("%s: %s" % [_place(w.segment), _describe_one(w)])
-	# Buckshot: one line per part, however many pellets.
-	for seg: StringName in pellets:
-		var list: Array = pellets[seg]
+	# Buckshot and splinters: one line per part, however many.
+	for key: Array in groups:
+		var list: Array = groups[key]
+		var seg: StringName = key[1]
 		var lodged := list.filter(func(w: Dictionary) -> bool: return w.lodged).size()
 		var what: PackedStringArray = []
 		for w: Dictionary in list:
 			for x in _hit_words(w):
 				if not what.has(x):
 					what.append(x)
-		var how := "buckshot, %d pellet%s" % [list.size(), "s" if list.size() > 1 else ""]
+		var how := ""
+		if key[0] == &"pellet":
+			how = "buckshot, %d pellet%s" % [list.size(), "s" if list.size() > 1 else ""]
+		else:
+			how = "blast splinters, %d" % list.size()
 		if lodged > 0:
 			how += ", %d still in" % lodged
 		out.append("%s: %s%s" % [_place(seg), how, (" — " + ", ".join(what)) if not what.is_empty() else ""])
@@ -1154,7 +1305,8 @@ func to_dict() -> Dictionary:
 	for w in wounds:
 		ws.append({"segment": w.segment, "entry": w.entry, "exit": w.exit, "lodged": w.lodged,
 				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments,
-				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false)})
+				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false),
+				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray())})
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)

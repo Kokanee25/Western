@@ -53,7 +53,8 @@ func _ready() -> void:
 	_arm()
 
 
-## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun is added beside it, put away.
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun and the dynamite are added
+## beside it, put away.
 func _arm() -> void:
 	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
 	if revolver:
@@ -65,6 +66,13 @@ func _arm() -> void:
 	shotgun._draw = 0.0
 	camera.add_child(shotgun)
 	weapons.append(shotgun)
+	var dynamite := DynamiteViewmodel.new()
+	dynamite.name = "Dynamite"
+	dynamite.selected = false
+	dynamite.drawn = false
+	dynamite._draw = 0.0
+	camera.add_child(dynamite)
+	weapons.append(dynamite)
 	weapon = weapons[0]
 
 
@@ -74,6 +82,10 @@ func revolver() -> RevolverViewmodel:
 
 func shotgun() -> ShotgunViewmodel:
 	return camera.get_node_or_null(^"Shotgun") as ShotgunViewmodel
+
+
+func dynamite() -> DynamiteViewmodel:
+	return camera.get_node_or_null(^"Dynamite") as DynamiteViewmodel
 
 
 ## Put the gun in your hands away and bring out another once it is.
@@ -95,6 +107,8 @@ func _update_weapon_switch() -> void:
 			select_weapon(revolver())
 		elif Input.is_action_just_pressed(&"weapon_shotgun"):
 			select_weapon(shotgun())
+		elif Input.is_action_just_pressed(&"weapon_dynamite"):
+			select_weapon(dynamite())
 		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
 			var current := _switch_to if _switch_to else weapon
 			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])

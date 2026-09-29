@@ -207,6 +207,25 @@ func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]
 	return out
 
 
+## Break several members at once (a blast), each thrown by its own push, then settle once.
+func break_members(list: Array[StructureMember], pushes: Array[Vector3]) -> Array[StringName]:
+	var out: Array[StringName] = []
+	if not collapses:
+		return out
+	for i in list.size():
+		var m := list[i]
+		if m == null or not is_instance_valid(m) or m.broken:
+			continue
+		var push: Vector3 = pushes[i] if i < pushes.size() else Vector3.ZERO
+		if m.kind == &"glass":
+			m.shatter(m.global_position, push.normalized() if push.length() > 0.01 else Vector3.DOWN)
+		else:
+			_snap(m, m.weakest_t(), push)
+		out.append(m.member_id)
+	out.append_array(settle())
+	return out
+
+
 ## An overloaded member snaps at `t` along its length into two falling pieces (short ones just
 ## fall whole).
 func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:

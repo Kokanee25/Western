@@ -47,6 +47,10 @@ const VIEWS := [
 	["shotgun_aim_range", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -1.2, "sg_aim"],
 	["shotgun_open", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -10.0, "sg_open"],
 	["shotgun_shot_saloon", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0, "sg_shot"],
+	["dynamite_lit", 16.0, Vector3(14.0, 0.0, -8.4), -90.0, -4.0, "dy_lit"],
+	["dynamite_store_blast", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast"],
+	["dynamite_store_after", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast_after"],
+	["outlaw_blast", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -40.0, "outlaw_blast"],
 	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
@@ -119,6 +123,28 @@ func _run() -> void:
 		var sg = player.get_node_or_null(^"Head/Camera3D/Shotgun")
 		if sg and gun:
 			_hold(player, gun, sg, setup.begins_with("sg_"))
+		var dy = player.get_node_or_null(^"Head/Camera3D/Dynamite")
+		if dy and setup == "dy_lit":
+			_hold(player, gun, dy, true)
+			dy.lit = true
+			dy.fuse_left = 1000.0  # frames are slow here; it mustn't go off in the picture
+			sg.visible = false
+		elif dy and dy.visible:
+			dy.selected = false
+			dy.drawn = false
+			dy._draw = 0.0
+			dy.visible = false
+		if setup.begins_with("store_blast"):
+			var store = main.find_child("Store", true, false)
+			var m = store.get_member(&"store/front/siding/r02_0")
+			var n: Vector3 = m.global_basis.z.normalized()
+			if n.dot(m.global_position - store.global_position) < 0.0:
+				n = -n
+			for k in 2:
+				load("res://src/blast/blast.gd").detonate(main.find_child("TestStreet", true, false), Vector3(m.global_position.x + 0.6 * k, 0.5, m.global_position.z) + n * 0.3, 0.15)
+			var wait := 6 if setup == "store_blast" else 240
+			for i in wait:
+				await physics_frame
 		if sg and setup.begins_with("sg_"):
 			sg.aiming = setup == "sg_aim"
 			sg.state.busy = 0.0
@@ -298,6 +324,13 @@ func _outlaw_setup(main, setup, player) -> void:
 			await physics_frame
 		for i in 60:
 			await physics_frame
+	elif setup == "outlaw_blast":
+		brain.set_physics_process(false)
+		var foot = parts[&"foot_l"].global_position
+		load("res://src/blast/blast.gd").detonate(man.get_parent(), foot + (-man.global_basis.z) * 0.15 + Vector3.UP * 0.05, 0.15)
+		for i in 150:
+			await physics_frame
+		man.physiology.step(0.0)
 	elif setup == "outlaw_graze":
 		brain.set_physics_process(false)
 		# Skimming the outside of his left upper arm and left thigh.

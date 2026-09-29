@@ -34,3 +34,5 @@ signal person_surrendered(person: Node)
 signal spoke(speaker: Node, text: String)
 ## Someone's too close to a fire: `amount` is how badly it burnt them this moment.
 signal scorched(person: Node, amount: float)
+## A charge went off: where, and how big (kg TNT).
+signal exploded(at: Vector3, kg: float)

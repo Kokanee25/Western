@@ -26,6 +26,8 @@ class Bullet:
 	var blast_reach := 1.5
 	## Its share of a shotgun charge (1 for a single ball).
 	var pellets := 1
+	## What it is, when it isn't a ball or a pellet (&"splinter" off a blast); the wound says so.
+	var kind := &""
 
 	## The blast still with it after flying `travelled` metres: all of it right at the muzzle,
 	## then fading out.
@@ -147,7 +149,7 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	if collider != null and collider.has_meta(&"human_body"):
 		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
 		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0
-		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass, travelled, b.blast_at(travelled))
+		var res: Dictionary = person.call(&"take_bullet", collider as Node3D, hit.position, dir, e_before, b.diameter * 0.5, b.mass, travelled, b.blast_at(travelled), b.kind)
 		b.blast = 0.0
 		b.exclude.append((collider as CollisionObject3D).get_rid())
 		if res.segment == &"":
@@ -196,6 +198,16 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			return maxf(remaining - thickness, 0.0)
 		member.add_hole(hit.position, null, radius)
 		b.alive = false
+	elif collider is DynamiteStick:
+		var stick := collider as DynamiteStick
+		b.exclude.append(stick.get_rid())
+		_set_energy(b, maxf(e_before - 20.0, 0.0))
+		info.penetrated = true
+		info.energy_after = b.energy()
+		b.hits.append(info)
+		Events.bullet_hit.emit(info)
+		stick.shot(dir * b.mass * sqrt(2.0 * e_before / maxf(b.mass, 1e-4)))
+		return remaining
 	elif collider != null and collider.has_meta(&"oil_lamp"):
 		(collider.get_meta(&"oil_lamp") as OilLamp).smash(dir)
 		b.exclude.append((collider as CollisionObject3D).get_rid())
