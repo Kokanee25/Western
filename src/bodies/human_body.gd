@@ -56,6 +56,13 @@ const POSES := {
 			&"shin_l": Vector3(-70, 0, 0), &"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0),
 			&"head": Vector3(-20, 0, 0), &"upper_arm_r": Vector3(140, 0, -30), &"forearm_r": Vector3(110, 0, 0),
 			&"upper_arm_l": Vector3(140, 0, 30), &"forearm_l": Vector3(110, 0, 0)},
+	# Sat at a table: knees bent square, leaning in on his forearms (the rig drops till his feet
+	# are on the floor, so the chair takes his weight).
+	&"sit": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
+			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
+			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
 	# Arms out at someone: a shove, a grab at his collar.
 	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
 			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},
@@ -94,6 +101,9 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
+## Which generated body he has (assets/people/<id>.glb, from tools/blender/make_people.py); empty
+## or missing = the code-lofted BodyMesh.
+@export var body_model := &"outlaw"
 ## Starts with it in the holster (a man minding his own business); the brain draws it.
 @export var start_holstered := true
 @export var total_mass := 80.0
@@ -295,11 +305,11 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 		_build_hand(sid, vis, anatomy.segment_center(sid))
 
 
-## The skin and clothes: BodyMesh shapes skinned to a skeleton whose bones follow the parts.
+## The skin and clothes (the generated body if there is one, else BodyMesh) skinned to a skeleton whose bones follow the parts.
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
-	var data := BodyMesh.build(anatomy, outfit)
+	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	skeleton = Skeleton3D.new()
 	skeleton.name = "Skeleton"
 	add_child(skeleton)
@@ -315,6 +325,10 @@ func _build_skin() -> void:
 	var f := look.duplicate()
 	f["tone"] = skin_tone
 	f["seed"] = rng_seed
+	if data.get("textures", {}).has("head_ao"):
+		f["ao"] = (data.textures.head_ao as Texture2D).get_image()
+	if data.get("textures", {}).has("face"):
+		f["portrait"] = (data.textures.face as Texture2D).get_image()
 	var skin_mat := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
 	var mats := {
 		"skin": skin_mat,
@@ -332,9 +346,12 @@ func _build_skin() -> void:
 		"hat_brim": _cloth("hat", hat_color, &"felt", false),
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
 	}
-	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band"]
+	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt"]
+	var baked: Dictionary = data.get("textures", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
+		if baked.has(shape):
+			base = _baked_cloth(shape, baked[shape])
 		var pieces: Dictionary = data.shapes[shape]
 		for b: int in pieces:
 			var sid: StringName = data.bones[b]
@@ -382,6 +399,17 @@ func _stop_skinning_across_joints() -> void:
 	for mi: MeshInstance3D in _rigid_meshes:
 		if is_instance_valid(mi):
 			mi.mesh = _rigid_meshes[mi]
+
+
+## A generated garment's own baked pixel texture (UVs 0..1 over it, not metres).
+func _baked_cloth(what: String, tex: Texture2D) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.resource_name = "%s:%s:baked" % [body_model, what]
+	m.albedo_texture = tex
+	m.texture_filter = PixelArt.texture_filter()
+	m.roughness = 0.95
+	m.uv1_scale = Vector3.ONE
+	return m
 
 
 func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -> StandardMaterial3D:

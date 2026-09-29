@@ -5,6 +5,20 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: real people, and the painting's shot
+
+- **The men have real bodies now.** Their skin and head come from MakeHuman's base human (free to
+  use, CC0), built by a script in Blender and fitted to the game's skeleton, so they have
+  cheekbones, brows, a jaw, collarbones and knees instead of the mannequin. Wounds, holes you can
+  see into, severed limbs, the ragdoll and the X-ray (F10) all work on them as before.
+- **Real clothes**: a shirt with a collar, a vest open at the neck, a string tie, and (on men who
+  wear one) a heavy coat with lapels whose skirt was draped by a cloth simulation, each with its
+  folds and shadows baked into a small pixel texture. The face is shaded by its own shape now.
+- **The painting's shot is in the saloon**: the back card table at night, a man sat at it on his
+  forearms with a tin cup, the lamp between you. It's for judging the look against the concept
+  painting; for now it's a screenshot view (`shot_match_saloon`), not a place you can sit.
+- Try: shoot the outlaw at the range and look at the wounds and the X-ray (F10) on his new body.
+
 ### New: a day in town
 
 - **The store and the saloon have people now.** The storekeeper stands behind his counter, the

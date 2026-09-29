@@ -123,6 +123,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
   `Layers` (physics/render layer bits),
+  `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
+  per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`).
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
@@ -145,6 +147,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
+- `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
+  `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
+- `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
+  v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
+  warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
+  — cut fingers, skin to our bones, decimate to 7k tris, export `.glb`), `clothes.py` (shirt,
+  trousers, vest, coat with skirt draped by cloth sim + lapels + collars, string tie; AO baked with
+  Cycles and quantized into `<id>_<garment>.png`; `<id>_head_ao.png` for the face painter; layer
+  separation after decimation), `faces.py` (a front "guide" render of each fitted head, and a painted
+  portrait projected into the face layout → `<id>_face.png`, RGBA). `tools/faces/paint_face.py`
+  asks an image model on OpenRouter (`OPENROUTER_API_KEY`, `FACE_MODEL`) to paint `people.json`'s
+  `face` onto the guide in the style of `assets/people/face_style_ref.png`. Runs on GitHub Actions
+  (`.github/workflows/people.yml`, manual; commits `assets/people/`) or here with
+  `pip install bpy==5.0.1` in a venv (PyPI is reachable from the workspace now).
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
@@ -532,4 +548,58 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   table, 2) MakeHuman base mesh via a Blender pipeline on GitHub Actions, fitted to the skeleton and
   hitboxes, 3) baked pixel textures and draped clothes, 4) image-model faces, then lighting.
   Compare every round side by side with `docs/concept/saloon-night.png`.
-
+- 2026-09-29 (later): **Characters, steps 1–2: the shot match and a MakeHuman body.**
+  `ShotMatch` stages the painting's shot at the saloon's back card table at night: round table
+  (0.7 m radius), lamp, bottle, cups, ashtray, a man sat at its left side (new `sit` pose, cup in
+  his left hand), camera at seated eye height with a 48° lens. `tools/side_by_side.py` composes
+  render vs painting; rounds in `docs/screenshots/shot_match/`. **Blender pipeline:** MakeHuman
+  base.obj + targets (caucasian male young/old mix, muscle, thin) → our body space → warp by
+  joints (per-bone move/turn/stretch, soft blend 1.2 cm) → cross-sections scaled to BodyMesh's
+  TRUNK/NECK/HEAD/ARM/LEG envelope (92nd percentile, clamped, smoothed; head heights remapped so
+  eyes/mouth sit at the face painter's 1.655/1.598 m) → fingers cut at the knuckles (ours are
+  separate parts) → weights from the same tables BodyMesh uses → decimate (5.6k skin + 1.4k head
+  tris) → `assets/people/outlaw.glb` (bones and meshes `body_skin`/`body_head`; a mesh named like
+  a bone makes Godot rename the bone). Byte-for-byte repeatable. `PeopleBodies` swaps the
+  generated skin/head into BodyMesh's shapes (`BodyMesh.split_pieces()` shared); clothes are still
+  BodyMesh's. 225 tests pass (new: `test_shot_match`, generated-body test).
+  - Known: painted face features only roughly line up with the sculpted face (step 4 replaces
+    them); lofted clothes over the MakeHuman body (step 3 drapes real ones); the MakeHuman eyes
+    are painted by the face texture; no teeth/tongue/eyelashes (dropped helpers).
+  - Next: step 3, baked pixel textures and draped clothes (coat with lapels, vest, shirt, cravat).
+- 2026-09-29 (later): **Characters, step 3: draped clothes, baked pixel textures.** `clothes.py`
+  makes garments as shells over the fitted body (shirt 5 mm, trousers 8, vest 13 with an open V,
+  coat 24 with an open front to the waist), extrudes a coat skirt from the hem (6 rings, flaring,
+  open at the front) and drapes it with Blender cloth (top pinned, heavy wool, body collider),
+  raised lapels, collars, a string tie. Each garment: smart-UV, Cycles AO (10 cm reach, 128
+  samples, blurred), a little weave, quantized to 5 shades at ~48 texels/m → PNG (lossless,
+  nearest in game; not embedded in the glb). After decimation, `separate()` pushes each layer
+  out of the ones under it. The head gets `outlaw_head_ao.png` in the face painter's layout;
+  `PeopleArt.face(look.ao)` then skips its painted eye-socket/nose/ear shadows and shades skin a
+  band at a time. `people.json` `outfit` sets garments and colours; a man whose outfit lacks one
+  (no coat) doesn't wear the model's. Bug fixed: the trunk's capsule reached past the chin, so
+  face vertices were trunk (a shirt patch over the face). 226 tests pass.
+  - Known: garments are made in the standing pose, so the skirt deforms by skinning when he sits
+    (thighs can poke through); no buttons/pockets; hat, boots, belts still lofted; the face is
+    still the code-painted one (step 4).
+  - Next: step 4, image-model faces (needs Sean's key), then the lighting pass.
+- 2026-09-29 (later): **Lighting pass, first round (on the shot match).** Lamps: glass chimney
+  (faint, lit from inside) with a small bright flame, warmer-golden light (1, 0.74, 0.48), and
+  `haze` (light_volumetric_fog_energy 1.2) so they glow in the air. `FalseFrontBuilding.room_haze`
+  fills a room with a FogVolume (Forward+ only; denser under the roof): the saloon has 0.012 of
+  tobacco smoke; its night ambient is 0.1 (was 0.2), so lamps make pools of light. Render:
+  `docs/screenshots/shot_match/round4_lighting_vs_concept.png`.
+  - Waiting on Sean: an image-model key for step 4 (faces). openrouter.ai is blocked by this
+    workspace's network policy, so the face step is meant to run on GitHub Actions with a repo
+    secret `OPENROUTER_API_KEY` (or the workspace needs the key as an env var and openrouter.ai
+    allowed).
+- 2026-09-29 (later): **Step 4 set up, waiting on the key.** `faces.guide()` renders the fitted head
+  front-on (Cycles on CPU: Workbench/EEVEE need a GPU; 512 px, 0.3 m frame centred at 1.665 m) →
+  `outlaw_face_guide.png`. `paint_face.py` sends it + the style crop + the prompt to OpenRouter
+  (chat completions, `modalities: [image, text]`, default `google/gemini-2.5-flash-image`; the API
+  call is untested — no key and openrouter.ai is blocked here) and saves `<id>_face_portrait.png`;
+  the next make_people run projects it (per-triangle raster in numpy, weighted by how square each
+  triangle faces front, 24-colour palette) into `<id>_face.png`, which `PeopleArt.face(look.portrait)`
+  lays over the painted face (dithered edge). Checked with a marker portrait: eyes land within 2
+  texels of the painter's eye row/columns. `people.yml` runs paint + a second make when the repo
+  secret `OPENROUTER_API_KEY` exists (optional repo variable `FACE_MODEL`); inputs `only`, `repaint`.
+  - The workflow only shows in the Actions tab once it's on main.

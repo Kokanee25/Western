@@ -24,6 +24,8 @@ extends Structure
 @export var sign_text := "DRY GOODS"
 ## Ambient light indoors at night: a dim bounce from the lamps. Busier, better-lit places set more.
 @export var night_ambient := 0.04
+## Haze in the room (fog density): tobacco smoke in a saloon, so the lamps glow in the air.
+@export var room_haze := 0.0
 
 const SILL := 0.2
 const STUD_W := 0.05
@@ -118,6 +120,18 @@ func _add_interior_ambient() -> void:
 	probe.set_meta(&"night_ambient", night_ambient)
 	probe.add_to_group(&"interior_ambient")
 	add_child(probe)
+	if room_haze > 0.0 and GunSmoke.supports_fog_volumes():
+		var haze := FogVolume.new()
+		haze.name = "RoomHaze"
+		haze.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+		haze.size = probe.size
+		haze.position = probe.position
+		var fm := FogMaterial.new()
+		fm.density = room_haze
+		fm.albedo = Color(0.72, 0.66, 0.6)
+		fm.height_falloff = 0.4  # thicker up under the roof, where the smoke collects
+		haze.material = fm
+		add_child(haze)
 
 
 ## A wall is a line of framing. Positions on it are (x along, y up, d outward from the stud face).
