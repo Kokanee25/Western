@@ -651,3 +651,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next for the face: light on his shadow side (comes with rebuilding the room to the painting's
     layout: wall close behind him, many sconces), long hair to the collar (geometry), hatband with
     conchos, a firmer expression (MakeHuman expression targets), skin contrast. Then the room.
+- 2026-09-29 (later): **Round 8: the pixelated finish.** Sean: "his face is still too smooth". Two
+  causes: the face texture had more texels than screen pixels (384×256), and light fell off in
+  smooth ramps. (1) `faces.FACE_W/FACE_H` 96×64 (PeopleArt's painted face size): each texel is 2–3
+  screen px at the painting's distance; projected at `SUPERSAMPLE` 4× and alpha-averaged down,
+  `FACE_COLOURS` 20, `_despeckle()` clears lone texels. (2) `body_skin` has its own `light()`:
+  Lambert stepped in gamma space (`light_steps` 4, 0 = smooth), shadows kept, a hard glint only
+  where rough < 0.3 (wet eyes). It applies to every person (skin and clothes); the world is still
+  smooth-lit. Renders `docs/screenshots/shot_match/round8*` (`round8_pixel_finish.png`: the face
+  box before / 96×64 / + steps). 228 pass.
+  - Open with Sean: steps on the world too (walls, table, props) so everything matches; the lit
+    side of his face is too hot and the shadow side too dark (the lamp is close and low; the
+    room's fill comes with the rebuild).
