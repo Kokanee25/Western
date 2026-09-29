@@ -257,6 +257,7 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	if broken:
 		return
 	broken = true
+	Events.noise.emit(at, 40.0, &"glass", null)
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
 	if mi:

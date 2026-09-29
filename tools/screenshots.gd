@@ -51,6 +51,8 @@ const VIEWS := [
 	["dynamite_store_blast", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast"],
 	["dynamite_store_after", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast_after"],
 	["outlaw_blast", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -40.0, "outlaw_blast"],
+	["outlaw_wary", 15.0, Vector3(20.0, 0.0, -12.5), -90.0, -4.0, "outlaw_wary"],
+	["outlaw_covering_you", 15.0, Vector3(20.0, 0.0, -12.5), -90.0, -4.0, "outlaw_covering"],
 	["outlaw_in_cover", 15.0, Vector3(14.0, 0.0, -8.4), -60.0, -3.0, "outlaw_cover"],
 	["outlaw_peeking", 15.0, Vector3(14.0, 0.0, -8.4), -60.0, -3.0, "outlaw_peek"],
 	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
@@ -326,6 +328,22 @@ func _outlaw_setup(main, setup, player) -> void:
 			await physics_frame
 		for i in 60:
 			await physics_frame
+	elif setup == "outlaw_wary" or setup == "outlaw_covering":
+		brain.nerve = 99.0
+		var rev = player.get_node(^"Head/Camera3D/Gun")
+		if setup == "outlaw_wary":
+			player.rotation = Vector3(0.0, deg_to_rad(-60.0), 0.0)  # gun out, not on him
+		rev.needs_captured_mouse = false
+		rev.take_out()
+		var want = 2 if setup == "outlaw_wary" else 4  # Relations.Stance WARY / THREAT
+		for i in 900:
+			await physics_frame
+			if brain.relations.stance(player) >= want and i > 60:
+				break
+		for i in 40:
+			await physics_frame
+		brain.set_physics_process(false)
+		player.rotation = Vector3(0.0, deg_to_rad(-90.0), 0.0)
 	elif setup == "outlaw_cover" or setup == "outlaw_peek":
 		brain.nerve = 99.0
 		var from = player.get_node(^"Head/Camera3D").global_position

@@ -16,7 +16,7 @@ signal mood_changed(mood: Mood)
 
 enum Mood { CALM, FIGHTING, RELOADING, SURRENDERED, DOWN, DEAD, FLEEING, TENDING }
 ## In a fight: in the open, on his way to cover, hidden behind it, up and shooting from it.
-enum Tactic { OPEN, MOVING, HIDDEN, PEEKING }
+enum Tactic { OPEN, MOVING, HIDDEN, PEEKING, SEARCHING }
 
 const LINES := {
 	&"provoked": ["You damn fool!", "Your funeral, friend.", "That's how it is? Fine!"],
@@ -27,6 +27,12 @@ const LINES := {
 	&"shot_while_surrendered": ["I give up, you bastard!", "I'm unarmed!"],
 	&"reloading": ["Hold still..."],
 	&"flee": ["To hell with this!", "I ain't dying for this!", "I'm gone!"],
+	&"wary": ["Easy, friend.", "Something I can do for you?", "Help you?"],
+	&"warning": ["Keep that iron where it is.", "That's close enough.", "Walk on, mister.", "Don't make it a problem."],
+	&"threat": ["Don't you do it.", "Put it down, or I put you down.", "One more move..."],
+	&"stand_down": ["That's better.", "Smart.", "Go on, then."],
+	&"search": ["Where'd he go?", "Come on out!", "I know you're there."],
+	&"lost": ["...Gone.", "Damn it. Lost him."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
 }
 
@@ -43,6 +49,11 @@ const LINES := {
 @export var fear_pellet_share := 0.4
 ## When his nerve goes and he can run, the chance he runs rather than gives up.
 @export var flee_chance := 0.55
+## How little it takes to rile him (0 a cool professional .. 1 a hothead): the small things,
+## a stare, crowding him, a drawn gun near him.
+@export var temper := 0.5
+## Men whose troubles are his troubles (person ids).
+@export var friends: Array[StringName] = []
 ## Running and walking speeds (m/s), before wounds.
 @export var run_speed := 3.8
 @export var walk_speed := 1.4
@@ -69,6 +80,16 @@ var _said_gut := false
 ## Seconds knocked off balance by a hit: no shooting until he recovers.
 var _stagger := 0.0
 var tactic := Tactic.OPEN
+var senses: Senses
+var relations: Relations
+## The rung he's on with the man he's watching, last tick (to speak when it changes).
+var _social_stance := Relations.Stance.IGNORE
+var _social_who: Node
+var _say_again := 0.0
+var _aim_deed := 0.0
+var _search_time := 0.0
+var _look_round := 0.0
+var _retarget := 0.0
 ## The spot he's using: {at, low, peek}; {} in the open.
 var cover := {}
 var _cover_search := 0.0
@@ -101,6 +122,13 @@ func _ready() -> void:
 	_rng.seed = body.rng_seed * 31 + 7
 	_think.seed = body.rng_seed * 17 + 3
 	rounds = rounds_per_load
+	senses = Senses.new()
+	senses.name = "Senses"
+	body.add_child.call_deferred(senses)
+	relations = Relations.new(body, temper)
+	relations.friends = friends
+	senses.spotted.connect(_on_spotted)
+	Events.deed.connect(_on_deed)
 	body.hit.connect(_on_hit)
 	body.fell.connect(_on_fell)
 	Events.near_miss.connect(_on_near_miss)
@@ -134,25 +162,97 @@ func _set_mood(m: Mood) -> void:
 		mood_changed.emit(m)
 
 
+## Who he's fighting (null when he isn't).
 func _find_target() -> Node3D:
-	if target == null or not is_instance_valid(target):
-		target = get_tree().get_first_node_in_group(&"player") as Node3D
+	if target != null and not is_instance_valid(target):
+		target = null
 	return target
+
+
+func _player() -> Player:
+	return get_tree().get_first_node_in_group(&"player") as Player
+
+
+# --- What he makes of people ------------------------------------------------------------------
+
+## He's just picked someone out: if the man's got a gun in his hand, that's the first thing he sees.
+func _on_spotted(who: Node3D) -> void:
+	if _armed(who) and not relations.entry(who).armed:
+		var close := who.global_position.distance_to(body.global_position) < NEAR
+		relations.perceive(who, &"draw", body if close else null)
+
+
+## Near enough that a drawn gun is his business.
+const NEAR := 12.0
+
+
+static func _armed(who: Node) -> bool:
+	if who is Player:
+		var w := (who as Player).weapon
+		return w != null and w.selected and w.drawn
+	if who is HumanBody:
+		var h := who as HumanBody
+		return h.held_gun != null and not h.gun_holstered
+	return false
+
+
+## Someone did something. He only judges it if he perceived it: saw them do it, or it was loud
+## (a shot, a hit), or it was done to him and he knows they're there.
+func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) -> void:
+	if actor == null or actor == body or senses == null or not body.physiology.is_conscious():
+		return
+	var loud := kind in [&"shoot_at", &"hit", &"kill"]
+	var to_me := deed_target == body
+	if not loud and not senses.sees(actor) and not (to_me and senses.aware_of(actor) > 0.6):
+		return
+	if loud and not to_me and not senses.sees(actor) and not senses.knows(actor):
+		# A shot somewhere: he knows someone's shooting, not who, unless he's seen them.
+		if kind != &"hit":
+			return
+	if loud and actor is Node3D and not senses.sees(actor):
+		# He knows which way it came from, roughly.
+		senses.note(actor, (actor as Node3D).global_position, 0.1 * body.global_position.distance_to((actor as Node3D).global_position))
+	var dt := PlayerDeeds.EVERY if kind in [&"aim_at", &"crowd", &"stare"] else 1.0
+	if kind in [&"draw", &"holster"] and deed_target == null and actor is Node3D \
+			and (actor as Node3D).global_position.distance_to(body.global_position) < NEAR:
+		deed_target = body  # a gun drawn a few yards off is about him
+	relations.perceive(actor, kind, deed_target, dt)
+	if to_me and kind == &"aim_at":
+		fear += 0.02 * dt * (1.5 if _facing_shotgun else 1.0)
 
 
 # --- What frightens him ------------------------------------------------------------------------
 
 func _provoked(by: Node) -> void:
-	if mood == Mood.CALM and by != null and by == _find_target():
+	if by == null or by == body or not (by is Player or by is HumanBody):
+		return
+	relations.provoke(by)
+	_start_fight(by)
+
+
+func _start_fight(with_who: Node) -> void:
+	if with_who == null or not is_instance_valid(with_who):
+		return
+	if mood == Mood.CALM:
 		say(&"provoked")
 		_set_mood(Mood.FIGHTING)
 		_next_shot = _rng.randf_range(0.6, 1.1)
+		tactic = Tactic.OPEN
+		_cover_search = 0.0
+	target = with_who as Node3D
+	if not senses.knows(with_who):
+		# It's come to a fight with him: he knows which way he is, at least.
+		senses.note(with_who, (with_who as Node3D).global_position, 1.0)
+	if body.gun_holstered:
+		body.draw_gun()
 
 
 func _on_near_miss(person: Node, shooter: Node, distance: float) -> void:
 	if person != body:
 		return
 	fear += 0.06 * clampf(2.5 - distance, 0.5, 2.5)
+	if shooter is Node3D and senses and not senses.sees(shooter):
+		senses.note(shooter, (shooter as Node3D).global_position, 0.1 * body.global_position.distance_to((shooter as Node3D).global_position))
 	# Heads down.
 	suppressed = maxf(suppressed, 1.0 + clampf(2.5 - distance, 0.0, 2.5) * 0.5)
 	if tactic == Tactic.PEEKING:
@@ -173,8 +273,8 @@ func _on_hit(info: Dictionary) -> void:
 			return
 		&"graze":
 			fear += fear_per_hit * 0.5
-			if mood == Mood.CALM:
-				_provoked(_find_target())
+			if info.get("shooter") != null:
+				_provoked(info.shooter)
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	# Each buckshot pellet counts for a share: a charge lands several at once.
@@ -185,9 +285,9 @@ func _on_hit(info: Dictionary) -> void:
 	if mood == Mood.SURRENDERED:
 		say(&"shot_while_surrendered")
 		return
-	if mood == Mood.CALM:
-		_provoked(_find_target())
-	else:
+	if info.get("shooter") != null:
+		_provoked(info.shooter)
+	if mood != Mood.CALM:
 		say(&"hit")
 	if not _said_gut and body.physiology.gut_seconds >= 0.0:
 		_said_gut = true
@@ -211,8 +311,6 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 		return
 	var kpa := Blast.overpressure_kpa(kg, d)
 	fear += clampf(kpa / 25.0, 0.05, 1.5)
-	if mood == Mood.CALM and d < 25.0:
-		_provoked(_find_target())
 
 
 ## "Drop it!" from someone aiming at him: frightening in proportion to how things are going.
@@ -259,16 +357,147 @@ func _physics_process(delta: float) -> void:
 	if fear > nerve:
 		_break()
 		return
+	relations.tick(delta)
+	_pick_fight(delta)
 	match mood:
 		Mood.CALM:
-			body.set_pose(&"stand")
+			_social(delta)
 		Mood.FIGHTING, Mood.RELOADING:
 			_combat(delta)
 
 
+## Who (if anyone) he's fighting: whoever it's come to that with. Keeps to the man in front of him
+## unless another one he can see is the bigger danger; stops when his man is down, dead, has given
+## up, or is gone.
+func _pick_fight(delta: float) -> void:
+	_retarget -= delta
+	var t := _find_target()
+	if t != null and _done_with(t):
+		relations.stand_down(t)
+		target = null
+		t = null
+	if t != null and _retarget > 0.0:
+		return
+	_retarget = 1.0
+	var best: Node = null
+	var best_p := -1.0
+	for who: Node in relations.entries:
+		if not is_instance_valid(who) or relations.stance(who) != Relations.Stance.FIGHT or _done_with(who):
+			continue
+		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (0.5 if who == t else 0.0)
+		if p > best_p:
+			best = who
+			best_p = p
+	if best != null:
+		_start_fight(best)
+	elif t == null and mood != Mood.CALM:
+		_set_mood(Mood.CALM)
+		tactic = Tactic.OPEN
+
+
+## Is that man out of it (dead, down and out, or given up)?
+func _done_with(who: Node) -> bool:
+	if who == null or not is_instance_valid(who):
+		return true
+	if who is Player:
+		return not (who as Player).wounds.physiology.is_conscious()
+	if who is HumanBody:
+		var h := who as HumanBody
+		if not h.physiology.is_conscious() or not h.physiology.alive:
+			return true
+		var b := h.get_node_or_null(^"Brain") as OutlawBrain
+		return b != null and b.mood == Mood.SURRENDERED
+	return false
+
+
+## Not fighting: the ladder with whoever he's watching. He looks at a man who's caught his eye;
+## wary, he squares up with his hand by the holster; he warns; he draws and covers him; he steps
+## back down when the man does.
+func _social(delta: float) -> void:
+	# An empty gun gets reloaded while it's quiet.
+	if rounds < rounds_per_load:
+		if _reload_left <= 0.0:
+			_reload_left = reload_seconds
+		_reload_left -= delta
+		if _reload_left <= 0.0:
+			rounds = rounds_per_load
+	var who := relations.focus()
+	var st := relations.stance(who) if who else Relations.Stance.IGNORE
+	if who != _social_who or st != _social_stance:
+		_on_rung(_social_stance, st)
+		_social_who = who
+		_social_stance = st
+	_say_again -= delta
+	var point := senses.last_known(who) if who else Vector3.INF
+	match st:
+		Relations.Stance.IGNORE:
+			body.set_pose(&"stand")
+			_ease_off(delta)
+		Relations.Stance.NOTICE:
+			if point != Vector3.INF:
+				body.face(point + Vector3.UP * 1.4)
+			body.set_pose(&"stand")
+			_ease_off(delta)
+		Relations.Stance.WARY, Relations.Stance.WARNING:
+			if point != Vector3.INF:
+				body.face(point + Vector3.UP * 1.4)
+			body.set_pose(&"wary")
+			if st == Relations.Stance.WARNING and _say_again <= 0.0:
+				say(&"warning")
+				_say_again = 7.0
+			_ease_off(delta)
+		Relations.Stance.THREAT:
+			# Covering him: gun out and on him, not firing unless it comes to it.
+			if body.gun_holstered:
+				body.draw_gun()
+				Events.deed.emit(body, &"draw", who, body.global_position)
+			var aim := _aim_point(who as Node3D)
+			body.face(aim)
+			body.set_pose(&"aim")
+			_aim_deed -= delta
+			if _aim_deed <= 0.0:
+				_aim_deed = PlayerDeeds.EVERY
+				Events.deed.emit(body, &"aim_at", who, senses.eye())
+			if _say_again <= 0.0:
+				say(&"threat")
+				_say_again = 6.0
+
+
+## Stepping onto a new rung: say so.
+func _on_rung(from: Relations.Stance, to: Relations.Stance) -> void:
+	if to > from:
+		match to:
+			Relations.Stance.WARY:
+				say(&"wary")
+			Relations.Stance.WARNING:
+				say(&"warning")
+				_say_again = 7.0
+			Relations.Stance.THREAT:
+				say(&"threat")
+				_say_again = 6.0
+	elif from >= Relations.Stance.WARNING and to < from:
+		say(&"stand_down")
+		_say_again = 5.0
+
+
+var _calm_for := 0.0
+
+
+## Calm again for a while: the gun goes back in the holster.
+func _ease_off(delta: float) -> void:
+	if body.gun_holstered:
+		_calm_for = 0.0
+		return
+	_calm_for += delta
+	if _calm_for > 3.0:
+		body.holster_gun()
+		Events.deed.emit(body, &"holster", null, body.global_position)
+		_calm_for = 0.0
+
+
 ## How long the player has been aiming his way (seconds, decays).
 func _update_aimed_at(delta: float) -> void:
-	var t := _find_target()
+	var t := _player()
 	var gun: Variant = (t as Player).weapon if t is Player else null
 	var aiming := false
 	if gun is WeaponViewmodel and (gun as WeaponViewmodel).drawn:
@@ -293,6 +522,15 @@ func _combat(delta: float) -> void:
 			_set_mood(Mood.FIGHTING)
 			_next_shot = 0.8
 	var eye := _eye_of(t)
+	# Lost sight of him for a while: go and look where he was.
+	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone:
+		tactic = Tactic.SEARCHING
+		_search_time = 0.0
+		_look_round = 0.0
+		say(&"search")
+	if tactic == Tactic.SEARCHING:
+		_hunt(delta, t)
+		return
 	_cover_search -= delta
 	if not body.prone:
 		_step_search()
@@ -339,10 +577,44 @@ func _combat(delta: float) -> void:
 			_peek(delta, t, eye)
 
 
+## Where he thinks the man's eyes are: where they are if he can see him, else where he last knew.
 func _eye_of(t: Node3D) -> Vector3:
+	if not senses.sees(t):
+		var p := senses.last_known(t)
+		if p != Vector3.INF:
+			return p + Vector3.UP * 1.6
 	if t is Player:
 		return (t as Player).camera.global_position
+	if t is HumanBody and (t as HumanBody).parts.has(&"head"):
+		return ((t as HumanBody).parts[&"head"] as Node3D).global_position
 	return t.global_position + Vector3.UP * 1.6
+
+
+## Looking for a man he's lost: to where he last saw him, then a look round; in the end he gives
+## it up and stays wary.
+func _hunt(delta: float, t: Node3D) -> void:
+	_search_time += delta
+	if senses.sees(t):
+		tactic = Tactic.OPEN
+		_cover_search = 0.0
+		return
+	var spot := senses.last_known(t)
+	if _search_time > 25.0 or spot == Vector3.INF:
+		say(&"lost")
+		relations.stand_down(t)
+		target = null
+		_set_mood(Mood.CALM)
+		tactic = Tactic.OPEN
+		return
+	var flat := Vector3(spot.x, body.global_position.y, spot.z)
+	body.set_pose(&"aim")
+	if body.global_position.distance_to(flat) > 1.5:
+		body.walk_to(flat, walk_speed * 1.3, delta)
+	else:
+		# There: turn about, looking.
+		_look_round += delta
+		body.global_rotation.y += delta * 1.2
+		body.aim_pitch = 0.0
 
 
 func _exclude(t: Node3D = null) -> Array[RID]:
@@ -449,6 +721,9 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 			_set_mood(Mood.RELOADING)
 			_duck_back()
 			return
+		if not _can_shoot_at(t):
+			_next_shot = 0.2
+			return
 		_fire_at(aim_point, t)
 		_peek_shots += 1
 		var p := body.physiology
@@ -495,16 +770,33 @@ func _fight(delta: float) -> void:
 		_reload_left = reload_seconds
 		_set_mood(Mood.RELOADING)
 		return
+	if not _can_shoot_at(t):
+		_next_shot = 0.2
+		return
 	_fire_at(aim_point, t)
 	var p := body.physiology
 	_next_shot = seconds_between_shots * _rng.randf_range(0.75, 1.3) + p.shock() * 1.5 + p.felt_pain() * 0.5
 
 
 func _aim_point(t: Node3D) -> Vector3:
+	if t is HumanBody and (t as HumanBody).parts.has(&"chest"):
+		if senses.sees(t):
+			return ((t as HumanBody).parts[&"chest"] as Node3D).global_position
+		var lk := senses.last_known(t)
+		return (lk if lk != Vector3.INF else t.global_position) + Vector3.UP * 1.25
 	var chest := 1.3
 	if t is Player and (t as Player).is_crouching:
 		chest = 0.75
-	return t.global_position + Vector3.UP * chest
+	var base := t.global_position if senses.sees(t) or senses.last_known(t) == Vector3.INF else senses.last_known(t)
+	return base + Vector3.UP * chest
+
+
+## Gun out and ready, and he can see the man (or only just lost him).
+func _can_shoot_at(t: Node3D) -> bool:
+	if body.gun_holstered:
+		body.draw_gun()
+		return false
+	return body.gun_ready() and senses.since_seen(t) < 0.8
 
 
 func _fire_at(point: Vector3, t: Node3D) -> void:
@@ -550,7 +842,11 @@ func _cone(dir: Vector3, radians: float) -> Vector3:
 
 ## Nerve's gone: run for it if he can, else give up.
 func _break() -> void:
-	var t := _find_target()
+	var t: Node3D = _find_target()
+	if t == null:
+		t = relations.focus() as Node3D
+	if t == null:
+		t = _player()
 	var d := t.global_position.distance_to(body.global_position) if t else 99.0
 	var caught := _aimed_at > 0.8 and d < 12.0
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
@@ -569,7 +865,9 @@ func _start_fleeing() -> void:
 
 ## Somewhere well away from the gun that he can run to in a straight line.
 func _pick_flight() -> void:
-	var t := _find_target()
+	var t: Node3D = _find_target()
+	if t == null:
+		t = _player()
 	var away := body.global_position - (t.global_position if t else body.global_position + Vector3.FORWARD)
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.01 else Vector3.BACK
@@ -587,7 +885,9 @@ func _pick_flight() -> void:
 
 func _flee(delta: float) -> void:
 	_flee_time += delta
-	var t := _find_target()
+	var t: Node3D = _find_target()
+	if t == null:
+		t = _player()
 	if not body.physiology.can_run():
 		# Can't run any more: done.
 		_surrender()
@@ -688,5 +988,10 @@ func describe() -> String:
 	var how: String = String(Mood.keys()[mood]).to_lower()
 	if mood == Mood.FIGHTING or mood == Mood.RELOADING:
 		how += " (%s%s)" % [String(Tactic.keys()[tactic]).to_lower(), ", pinned down" if suppressed > 0.0 else ""]
+	elif mood == Mood.CALM and relations:
+		var who := relations.focus()
+		if who:
+			how += " (%s of %s)" % [String(Relations.Stance.keys()[relations.stance(who)]).to_lower(),
+					"you" if who is Player else String((who as HumanBody).person_id) if who is HumanBody else str(who.name)]
 	return "%s: %s, fear %.2f / nerve %.2f, %d rounds. %s" % [String(body.person_id).capitalize(),
 			how, fear, nerve, rounds, body.physiology.describe()]

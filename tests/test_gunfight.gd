@@ -79,8 +79,11 @@ func test_he_shoots_back_and_hurts() -> void:
 	await physics_frames(60 * 9)
 	check(shots_by_outlaw >= 4, "fires again and again (%d shots)" % shots_by_outlaw)
 	check(player.wounds.physiology.wounds >= 1, "and hits the player at 8 m (%d hits)" % player.wounds.physiology.wounds)
-	await physics_frames(60 * 4)
-	check(brain.mood == OutlawBrain.Mood.RELOADING or shots_by_outlaw > 5, "reloads after five")
+	# (He has to draw first, and pick you out.)
+	var done := func() -> bool: return brain.mood == OutlawBrain.Mood.RELOADING or shots_by_outlaw > 5 \
+			or brain.rounds == brain.rounds_per_load and shots_by_outlaw >= 5
+	await wait_until(done, 60 * 12)
+	check(done.call(), "reloads after five (%d shots, %d rounds, %s)" % [shots_by_outlaw, brain.rounds, brain.describe().substr(0, 40)])
 
 
 func test_broken_gun_arm_breaks_his_nerve() -> void:

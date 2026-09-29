@@ -124,6 +124,8 @@ func test_shot_off_finger_falls() -> void:
 
 
 func test_arm_shot_drops_the_gun() -> void:
+	man.draw_gun()  # in his hand (a holstered gun stays in its holster)
+	await physics_frames(2)
 	await _shoot(Vector3(0.21, 1.3, -6), Vector3(0.21, 1.3, 0))
 	check(man.physiology.broken.has(&"humerus_r"), "upper arm broken")
 	await physics_frames(2)

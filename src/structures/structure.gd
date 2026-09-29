@@ -429,6 +429,7 @@ func _break_up(rb: RigidBody3D) -> void:
 func _play(id: StringName, at: Vector3) -> void:
 	if not is_inside_tree():
 		return
+	Events.noise.emit(at, 60.0, &"timber", null)
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(id)
 	p.unit_size = 10.0

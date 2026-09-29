@@ -36,3 +36,12 @@ signal spoke(speaker: Node, text: String)
 signal scorched(person: Node, amount: float)
 ## A charge went off: where, and how big (kg TNT).
 signal exploded(at: Vector3, kg: float)
+## A sound people might hear: where, how far it carries (m), what it was, and who made it.
+signal noise(at: Vector3, loudness: float, kind: StringName, source: Node)
+## Something someone did that others judge them by (Relations.WEIGHTS): drew, holstered, aimed at,
+## shouted at, crowded, stared at, shot at, hit, killed, surrendered. `target` may be null.
+signal deed(actor: Node, kind: StringName, target: Node, at: Vector3)
+
+
+func _ready() -> void:
+	DeedWatch.install(self)

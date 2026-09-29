@@ -125,6 +125,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `Layers` (physics/render layer bits),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`).
+- `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
+  hearing via `Events.noise`; `known[who]` last seen/heard), `Relations` (per person towards each
+  other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
+  `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
+  `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout deeds).
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
@@ -446,3 +451,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     did it); 3) goals and a day in town for the gang; 4) gang teamwork in fights (callouts,
     suppress-and-flank, dragging a wounded friend); 5) conversation hooks (talking down, bargaining).
     Today's `OutlawBrain` targets the player only; that goes in step 2.
+- 2026-09-29 (later): **M4 start, steps 1–2: senses, deeds, opinions, the escalation ladder.**
+  `src/people/`. Senses tick at ~8 Hz: sight 60 m by day / 14 m at night (`light`, or the DayCycle's
+  daylight), 35° sharp / 100° peripheral, awareness builds with visibility (distance, cone, moving
+  ×1.4, crouched/lying ×0.55) and must reach 1 to "see"; hearing takes `Events.noise(at, loudness,
+  kind, source)` (gunshot 350 m, blast 900, glass 40, timber 60, shout 45, speech 14, footsteps
+  2/6/13 crouch/walk/run), halved through a wall, placed with ~12% error. Deeds only count if
+  perceived (seen, or loud, or done to him while he's aware). Relations: pressure per deed
+  (`WEIGHTS` [to him, to a friend, near him]; petty ones × temper), grudge floor, a rung per 0.8 s up,
+  down after 2.5 s below; shot at / hit = straight to FIGHT with a grudge. `OutlawBrain`: `_social()`
+  runs the ladder (look, wary pose with hand by the holster, warnings, drawing and covering with aim
+  deeds of his own), `_pick_fight()` fights whoever it's FIGHT with (not "the player"), stands down
+  when that man is out of it; SEARCHING tactic goes to the last known spot, gives up after 25 s.
+  `HumanBody` holsters and draws (`start_holstered`, 0.5 s draw). **The player now starts holstered**
+  (H draws); tests that need a drawn gun draw it. The shooter is recorded on hits
+  (`last_hit_by`) for kill deeds. Renders `docs/screenshots/outlaw_ai/outlaw_wary.png`,
+  `outlaw_covering_you.png`. 211 tests pass.
+  - Known: the only NPC is the outlaw (the "someone else" in tests is a second outlaw); no insults
+    until conversation; lamps don't light people up for sight yet; no crowd reactions; friends list
+    only matters once there's a gang (step 3–4).
+  - Next: step 3, goals and a day in town for the gang (with called-out duels and the gang starting
+    trouble), then step 4, gang teamwork.
