@@ -8,3 +8,4 @@ export_credentials.cfg
 .DS_Store
 Thumbs.db
 build_info.json
+__pycache__/
