@@ -38,6 +38,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 			var png := TEXTURE_PATH % [model, k]
 			if ResourceLoader.exists(png):
 				textures[k] = load(png)
+	var face := TEXTURE_PATH % [model, "face"]
+	if ResourceLoader.exists(face):
+		textures["face"] = load(face)
 	var ao := TEXTURE_PATH % [model, "head_ao"]
 	if ResourceLoader.exists(ao):
 		textures["head_ao"] = load(ao)

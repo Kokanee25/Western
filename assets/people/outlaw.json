@@ -23,6 +23,7 @@
  },
  "faces_before_finger_cut": 13378,
  "faces_after_finger_cut": 11564,
+ "face": "projected from outlaw_face_portrait.png",
  "textures": {
   "shirt": 64,
   "trousers": 64,

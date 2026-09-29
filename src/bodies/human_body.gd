@@ -327,6 +327,8 @@ func _build_skin() -> void:
 	f["seed"] = rng_seed
 	if data.get("textures", {}).has("head_ao"):
 		f["ao"] = (data.textures.head_ao as Texture2D).get_image()
+	if data.get("textures", {}).has("face"):
+		f["portrait"] = (data.textures.face as Texture2D).get_image()
 	var skin_mat := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
 	var mats := {
 		"skin": skin_mat,

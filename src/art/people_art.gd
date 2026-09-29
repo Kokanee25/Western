@@ -41,6 +41,24 @@ static func face_material(key: String, tex: Texture2D) -> StandardMaterial3D:
 	return _mats[key]
 
 
+## `top` (RGBA, alpha = how much of it) laid over `base`, at `top`'s size (nearest: still pixels).
+static func _over(base: Image, top: Image) -> Image:
+	var out := base.duplicate() as Image
+	out.convert(Image.FORMAT_RGBA8)
+	out.resize(top.get_width(), top.get_height(), Image.INTERPOLATE_NEAREST)
+	for y in top.get_height():
+		for x in top.get_width():
+			var t := top.get_pixel(x, y)
+			if t.a > 0.0:
+				var b := out.get_pixel(x, y)
+				# Hard steps, not a soft blend: a pixel is the portrait's or it isn't (dithered edge).
+				if t.a >= 0.75 or (t.a > 0.25 and (x + y) % 2 == 0):
+					out.set_pixel(x, y, Color(t.r, t.g, t.b, 1.0))
+				else:
+					out.set_pixel(x, y, b)
+	return out
+
+
 ## Shade a painted face with its head's baked occlusion: skin steps down its ramp a band at a time
 ## (so it stays pixel art), anything else (hair, eyes) just darkens.
 static func _shade_with(img: Image, ao: Image, skin_sh: Array[Color]) -> void:
@@ -292,6 +310,11 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 				f.put(x, y, hair_sh[PixelArt._band(PixelArt._noise(x % 64, y % 64, 16, 32, seed + 4) * 0.8 + 0.1, hair_sh.size())])
 	if sculpted:
 		_shade_with(img, ao, skin_sh)
+	# A face painted by the image model (tools/faces/paint_face.py, projected by the people
+	# pipeline): over the front of the head; the painted hair, ears and back of the head round it.
+	var portrait: Image = look.get("portrait", null)
+	if portrait != null:
+		img = _over(img, portrait)
 	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
 	_cache[ck] = tex

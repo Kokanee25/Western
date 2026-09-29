@@ -155,7 +155,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   — cut fingers, skin to our bones, decimate to 7k tris, export `.glb`), `clothes.py` (shirt,
   trousers, vest, coat with skirt draped by cloth sim + lapels + collars, string tie; AO baked with
   Cycles and quantized into `<id>_<garment>.png`; `<id>_head_ao.png` for the face painter; layer
-  separation after decimation). Runs on GitHub Actions
+  separation after decimation), `faces.py` (a front "guide" render of each fitted head, and a painted
+  portrait projected into the face layout → `<id>_face.png`, RGBA). `tools/faces/paint_face.py`
+  asks an image model on OpenRouter (`OPENROUTER_API_KEY`, `FACE_MODEL`) to paint `people.json`'s
+  `face` onto the guide in the style of `assets/people/face_style_ref.png`. Runs on GitHub Actions
   (`.github/workflows/people.yml`, manual; commits `assets/people/`) or here with
   `pip install bpy==5.0.1` in a venv (PyPI is reachable from the workspace now).
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
@@ -589,3 +592,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     workspace's network policy, so the face step is meant to run on GitHub Actions with a repo
     secret `OPENROUTER_API_KEY` (or the workspace needs the key as an env var and openrouter.ai
     allowed).
+- 2026-09-29 (later): **Step 4 set up, waiting on the key.** `faces.guide()` renders the fitted head
+  front-on (Cycles on CPU: Workbench/EEVEE need a GPU; 512 px, 0.3 m frame centred at 1.665 m) →
+  `outlaw_face_guide.png`. `paint_face.py` sends it + the style crop + the prompt to OpenRouter
+  (chat completions, `modalities: [image, text]`, default `google/gemini-2.5-flash-image`; the API
+  call is untested — no key and openrouter.ai is blocked here) and saves `<id>_face_portrait.png`;
+  the next make_people run projects it (per-triangle raster in numpy, weighted by how square each
+  triangle faces front, 24-colour palette) into `<id>_face.png`, which `PeopleArt.face(look.portrait)`
+  lays over the painted face (dithered edge). Checked with a marker portrait: eyes land within 2
+  texels of the painter's eye row/columns. `people.yml` runs paint + a second make when the repo
+  secret `OPENROUTER_API_KEY` exists (optional repo variable `FACE_MODEL`); inputs `only`, `repaint`.
+  - The workflow only shows in the Actions tab once it's on main.

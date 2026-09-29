@@ -31,6 +31,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clothes  # noqa: E402
+import faces  # noqa: E402
 
 try:
     import bpy
@@ -555,6 +556,13 @@ def build_blender(person):
     # Skin UVs: MakeHuman's own layout, scaled to about a metre per unit for the tiling skin.
     skin = make("skin", skin_faces, lambda i, t: (person.uv[t][0] * 1.8, (1.0 - person.uv[t][1]) * 1.8))
     head = make("head", head_faces, lambda i, t: tuple(person.head_uv(person.v[i])))
+    # The face: a guide for the image model, and its portrait (if it's painted one) projected on.
+    person.normals = clothes.vertex_normals(person.v, person.body_faces)
+    faces.guide(head, os.path.abspath(os.path.join(OUT, "%s_face_guide.png" % person.id)))
+    portrait = os.path.join(OUT, "%s_face_portrait.png" % person.id)
+    if os.path.exists(portrait):
+        faces.project(person, head_faces, person.head_uv, portrait, os.path.join(OUT, "%s_face.png" % person.id))
+        person.report["face"] = "projected from " + os.path.basename(portrait)
     # Clothes: made on the fitted body, the coat draped, detail baked into pixel textures.
     outfit = person.spec.get("outfit", {})
     garments = clothes.make_all(person, outfit)
