@@ -527,3 +527,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     killed at the far end of town isn't mourned by the others (no memory records yet); agenda isn't
     saved (`to_dict`) — the gang is a test scenario, not yet part of saves.
   - Next: Sean plays the day (see BUILD_NOTES); then step 4, gang teamwork in fights.
+- 2026-09-29: Sean's handing the character look to the build sessions: **next art work is DESIGN.md §4
+  "Characters: how we get to the painting's men"** — 1) shot-match saloon scene with the man at the
+  table, 2) MakeHuman base mesh via a Blender pipeline on GitHub Actions, fitted to the skeleton and
+  hitboxes, 3) baked pixel textures and draped clothes, 4) image-model faces, then lighting.
+  Compare every round side by side with `docs/concept/saloon-night.png`.
+

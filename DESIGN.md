@@ -95,6 +95,31 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
     is a reasonable start) and face animation (iPhone face capture); expect roughly two-thirds of the
     painting's character detail; a saloon of 8–12 people.
   - Order of attack: lighting → textures and palette → dressing → characters.
+  - **Characters: how we get to the painting's men** (Sean, 2026-09-29, after the first generated
+    body: "how do we get our characters to look like this"). The code-lofted `BodyMesh` is a
+    mannequin; the painting's look needs four things, in this order:
+    1. **Shot-match scene first:** the man seated across a saloon table at night, lamp between
+       you, framed like the painting (`shot_match_saloon`), so every character change is judged
+       against it in lamplight, not at noon in the desert.
+    2. **A real human base mesh:** MakeHuman's base body (CC0, so it's fine in the public repo;
+       real face topology, hands, adjustable build/age) cut to ~4–8k triangles, fitted to our
+       17-segment skeleton and the anatomy hitboxes, split per segment exactly as `BodyMesh` pieces
+       are now (openings, `sever_limb`, ragdoll, X-ray must keep working; keep `HumanBody`'s API).
+    3. **Detail baked into pixel textures:** the painting's faces are flat pixel colour with the
+       light, wrinkles, stubble and cloth folds painted in. Model detail in Blender (creases,
+       folds, garments draped with cloth simulation: coat with lapels, vest, shirt, cravat,
+       bandana, hat), bake it (AO + curvature + detail) into small textures (~256 px face,
+       128–256 px per garment), then quantize to a pixel palette. Clothes stay separate layers.
+    4. **Faces painted by an image model** in the concept's style, projected onto the head UVs and
+       pixelated: a different face per townsperson from a prompt. Key as an environment secret
+       (OpenRouter has image models); never in the repo.
+    Then the lighting pass (warm key, rim light, haze) on the same shot.
+    - **Blender runs on GitHub Actions**, not in the cloud workspace: the workspace's network blocks
+      download.blender.org and pypi (bpy). A workflow (manual trigger) installs Blender and the
+      MakeHuman assets, runs `tools/blender/*.py`, and commits the generated `.glb` + textures to
+      `assets/people/`. Every step is a script; nothing hand-made. Keep sizes small (git).
+    - The game loads the generated people through the same `HumanBody` (`BodyMesh` stays as the
+      fallback when a generated body isn't there, and for tests).
   - Real-GPU caveat: cloud renders use software Vulkan; ask Sean for a screenshot of the same view from
     his PC at milestones, since lighting can differ.
 - Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
