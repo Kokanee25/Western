@@ -56,6 +56,13 @@ const POSES := {
 			&"shin_l": Vector3(-70, 0, 0), &"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0),
 			&"head": Vector3(-20, 0, 0), &"upper_arm_r": Vector3(140, 0, -30), &"forearm_r": Vector3(110, 0, 0),
 			&"upper_arm_l": Vector3(140, 0, 30), &"forearm_l": Vector3(110, 0, 0)},
+	# Sat at a table: knees bent square, leaning in on his forearms (the rig drops till his feet
+	# are on the floor, so the chair takes his weight).
+	&"sit": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
+			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
+			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
 	# Arms out at someone: a shove, a grab at his collar.
 	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
 			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},

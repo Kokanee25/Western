@@ -62,6 +62,7 @@ const VIEWS := [
 	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
+	["shot_match_saloon", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match"],
 	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
 	["town_bar", 15.0, Vector3(7.4, 0.38, -18.4), 22.0, -6.0, "town_bar"],
 	["town_duel", 18.0, Vector3(-1.0, 0.0, -9.0), -90.0, -1.0, "town_duel"],
@@ -229,6 +230,8 @@ func _run() -> void:
 			await _outlaw_setup(main, setup, player)
 		if setup.begins_with("town_"):
 			await _town_setup(main, setup, player)
+		if setup == "shot_match":
+			await _shot_match_setup(main, player)
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
@@ -288,6 +291,28 @@ func _hold(player, gun, sg, shotgun: bool) -> void:
 	player.weapon = take
 	if player.body:
 		player.body.set_gun_holstered(shotgun)
+
+
+## The painting's shot (src/art/shot_match.gd): sat at the card table, the man across the lamp.
+func _shot_match_setup(main, player) -> void:
+	var street = main.find_child("TestStreet", true, false)
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	if spawner.outlaw:
+		spawner.outlaw.queue_free()
+	var town = main.find_child("TownLife", true, false)
+	town.gang_arrives = 1e9
+	var sm = load("res://src/art/shot_match.gd")
+	sm.stage(street)
+	var gun = player.get_node(^"Head/Camera3D/Gun")
+	gun.drawn = false
+	gun._draw = 0.0
+	gun.visible = false
+	player.set_physics_process(false)
+	player.body.visible = false
+	for i in 30:
+		await physics_frame
+	player.camera.global_transform = sm.camera_transform(street)
+	player.camera.fov = sm.FOV
 
 
 ## Stage the town's day: Lyle holding up the storekeeper; the gang at the bar; Lyle facing you
