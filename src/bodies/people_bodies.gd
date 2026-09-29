@@ -11,6 +11,8 @@ class_name PeopleBodies
 const PATH := "res://assets/people/%s.glb"
 ## Each generated garment's baked pixel texture.
 const TEXTURE_PATH := "res://assets/people/%s_%s.png"
+## What make_people.py did for him (and what it measured, like his skin tone).
+const REPORT_PATH := "res://assets/people/%s.json"
 ## Garments an outfit turns on or off (the rest of a generated body is always worn).
 const OUTFIT_KEYS := ["shirt", "vest", "coat", "trousers", "boots", "bandana", "hat"]
 
@@ -29,6 +31,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if generated.is_empty():
 		return data
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
+	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
+	if generated.has("cravat"):
+		shapes.erase("bandana")
 	var textures := {}
 	for k: String in generated:
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
@@ -44,7 +49,15 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	var ao := TEXTURE_PATH % [model, "head_ao"]
 	if ResourceLoader.exists(ao):
 		textures["head_ao"] = load(ao)
-	return {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
+	var out := {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
+	# His skin tone, measured from his painted face, so body and painted sides match it.
+	var report := REPORT_PATH % model
+	if FileAccess.file_exists(report):
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(report))
+		if info is Dictionary and (info as Dictionary).has("skin_tone"):
+			var t: Array = info.skin_tone
+			out["skin_tone"] = Color(t[0], t[1], t[2])
+	return out
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.

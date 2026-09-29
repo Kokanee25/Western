@@ -127,9 +127,16 @@ def project(person, head_faces, head_uv, portrait_path, out_path, width=192, hei
                     ix = int(np.clip(su * GUIDE_PX, 0, GUIDE_PX - 1))
                     iy = int(np.clip(sv * GUIDE_PX, 0, GUIDE_PX - 1))
                     out[py, px] = img[iy, ix]
-                    alpha[py, px] = np.clip((f - 0.35) / 0.35, 0, 1)
+                    # Only what the front view really saw: past ~55 degrees the picture smears.
+                    alpha[py, px] = np.clip((f - 0.55) / 0.25, 0, 1)
     # A small palette, so it stays pixel art: the portrait's own colours, clustered.
     pim = Image.fromarray((out * 255).astype(np.uint8)).quantize(colors=colours, method=Image.Quantize.MEDIANCUT)
     rgb = np.asarray(pim.convert("RGB"), dtype=np.uint8)
     rgba = np.concatenate([rgb, (alpha[:, :, None] * 255).astype(np.uint8)], axis=2)
     Image.fromarray(rgba, "RGBA").save(out_path)
+    # His skin tone, from the painted cheeks, so the painted sides of the head match the front.
+    cheeks = out[alpha > 0.9]
+    if len(cheeks):
+        lum = cheeks.mean(1)
+        mid = cheeks[(lum > np.percentile(lum, 40)) & (lum < np.percentile(lum, 80))]
+        person.report["skin_tone"] = [round(float(x), 3) for x in (mid.mean(0) if len(mid) else cheeks.mean(0))]

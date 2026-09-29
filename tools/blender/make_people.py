@@ -172,9 +172,14 @@ class Person:
         """The warp: [name, MakeHuman a, b, our a, b, radius (for who pulls a vertex)]."""
         m, o = self.j, self.our_joints()
         hips = (m["r-upper-leg"] + m["l-upper-leg"]) / 2
-        out = [["trunk", hips, m["neck"], o["hips"], o["neck"], 0.15],
-               ["neck", m["neck"], m["head"], o["neck"], o["head"], 0.055],
-               ["head", m["head"], m["head-2"], o["head"], o["crown"], 0.085]]
+        # Trunk, neck and head move as one, at his own proportions (scaled to our height):
+        # MakeHuman's "head" joint is at the jaw hinge, not the chin, so stretching joint to joint
+        # onto our head segment made him a long thin neck and an egg of a head.
+        k = self.env["head_top"] / m["head-2"][1]
+        up = lambda p: np.array([0.0, p[1] * k, p[2] * k])
+        out = [["trunk", hips, m["neck"], up(hips), up(m["neck"]), 0.15],
+               ["neck", m["neck"], m["head"], up(m["neck"]), up(m["head"]), 0.055],
+               ["head", m["head"], m["head-2"], up(m["head"]), up(m["head-2"]), 0.085]]
         for side in "rl":
             knuckle = m[side + "-finger-3-2"]
             out += [["upper_arm_" + side, m[side + "-shoulder"], m[side + "-elbow"], o[side + "-shoulder"], o[side + "-elbow"], 0.05],
@@ -252,8 +257,10 @@ class Person:
         mouth_y = self.fit_joints["mouth"][1]
         chin_y = v[head, 1].min()
         crown_y = v[head, 1].max()
-        src = [chin_y, mouth_y, eye_y, crown_y]
-        dst = [self.env["head_bottom"], 1.598, 1.655, self.env["head_top"]]
+        # Chin, eyes and crown only: MakeHuman's "mouth" joint sits well above the lips, and
+        # pinning it to the painter's mouth row squashed his lower face.
+        src = [chin_y, eye_y, crown_y]
+        dst = [self.env["head_bottom"], 1.655, self.env["head_top"]]
         eyes = np.zeros(len(v), bool)
         for fv, _t in self.eye_faces:
             eyes[fv] = True
@@ -263,15 +270,17 @@ class Person:
             self.fit_joints[k][1] = float(np.interp(self.fit_joints[k][1], src, dst))
         self.report["head_map"] = {"from": [float(x) for x in src], "to": dst}
         # Trunk, neck and head cross-sections, by height.
-        self._fit_upright(mask & np.isin(reg, ["trunk"]), T["TRUNK"], strength=1.0)
-        self._fit_upright(mask & (reg == "neck"), T["NECK"], strength=0.8)
-        self._fit_upright(head, [[r[0], r[1], r[2], r[3]] for r in T["HEAD"]], strength=0.6, carry=eyes)
+        # Gently: the envelope is the old mannequin's, and squeezing a real man into it thins his
+        # neck and shrinks his head. Only the trunk and limbs are pulled toward it (the clothes
+        # are made from his own body now, so they fit him whatever his shape); neck and head
+        # keep MakeHuman's own proportions.
+        self._fit_upright(mask & np.isin(reg, ["trunk"]), T["TRUNK"], strength=0.45)
         # Arms and legs, along each limb.
         for side, sx in (("r", 1.0), ("l", -1.0)):
             arm = mask & np.isin(reg, ["upper_arm_" + side, "forearm_" + side, "hand_" + side])
-            self._fit_limb(arm, self._mirror(T["ARM"], sx), strength=0.9)
+            self._fit_limb(arm, self._mirror(T["ARM"], sx), strength=0.4)
             leg = mask & np.isin(reg, ["thigh_" + side, "shin_" + side])
-            self._fit_limb(leg, self._mirror(T["LEG"], sx), strength=0.9)
+            self._fit_limb(leg, self._mirror(T["LEG"], sx), strength=0.4)
         self.v = v
 
     @staticmethod

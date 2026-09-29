@@ -265,7 +265,7 @@ func test_skin_and_clothes_are_one_skinned_body() -> void:
 	check(man.skeleton != null, "a skeleton")
 	check_eq(man.skeleton.get_bone_count(), 17, "a bone per segment")
 	for key in ["skin/chest", "skin/thigh_l", "skin/forearm_r", "skin/hand_r", "head/head", "shirt/chest", "vest/chest",
-			"trousers/pelvis", "boots/foot_r", "gun_belt/pelvis", "holster/pelvis", "hat/head", "hat_brim/head", "bandana/neck"]:
+			"trousers/pelvis", "boots/foot_r", "gun_belt/pelvis", "holster/pelvis", "hat/head", "hat_brim/head"]:
 		var mi: MeshInstance3D = man.skin_meshes.get(key)
 		if check(mi != null and mi.mesh != null and mi.mesh.get_surface_count() == 1, "%s built" % key):
 			check(mi.layers & Layers.VIS_BODY != 0, "%s takes wound decals" % key)
@@ -322,6 +322,7 @@ func test_he_has_the_generated_makehuman_body() -> void:
 func test_generated_clothes_are_worn_as_the_outfit_says() -> void:
 	var keys: Array = man.skin_meshes.keys()
 	check(keys.any(func(k: String) -> bool: return k.begins_with("cravat/")), "the tie from the generated body")
+	check(not keys.any(func(k: String) -> bool: return k.begins_with("bandana/")), "and no lofted bandana floating round it")
 	check(not keys.any(func(k: String) -> bool: return k.begins_with("coat/")), "no coat on a man without one")
 	var coated := HumanBody.new()
 	coated.person_id = &"coated"

@@ -9,57 +9,60 @@
  "mh_height_m": 1.7444750000000002,
  "head_map": {
   "from": [
-   1.4539479354026497,
-   1.571453298962804,
-   1.621179336013036,
-   1.7841337461185112
+   1.551233551641611,
+   1.674378541538285,
+   1.7870924203556942
   ],
   "to": [
    1.545,
-   1.598,
    1.655,
    1.795
   ]
  },
  "faces_before_finger_cut": 13378,
- "faces_after_finger_cut": 11564,
+ "faces_after_finger_cut": 11416,
+ "skin_tone": [
+  0.68,
+  0.401,
+  0.244
+ ],
  "face": "projected from outlaw_face_portrait.png",
  "textures": {
   "shirt": 64,
   "trousers": 64,
-  "vest": 32,
+  "vest": 64,
   "coat": 128,
   "cravat": 32
  },
  "triangles": {
-  "skin": 4467,
-  "head": 2532,
+  "skin": 4435,
+  "head": 2564,
   "shirt": 1500,
-  "trousers": 1199,
-  "vest": 700,
-  "coat": 2200,
+  "trousers": 1200,
+  "vest": 699,
+  "coat": 2199,
   "cravat": 32
  },
  "fit_joints": {
   "r-eye": [
    0.0302,
    1.655,
-   -0.0849
+   -0.131
   ],
   "l-eye": [
    -0.0302,
    1.655,
-   -0.0849
+   -0.131
   ],
   "mouth": [
    -0.0,
-   1.598,
-   -0.0172
+   1.6264,
+   -0.062
   ],
   "jaw": [
    0.0,
-   1.4735,
-   -0.1005
+   1.5735,
+   -0.1426
   ]
  }
 }

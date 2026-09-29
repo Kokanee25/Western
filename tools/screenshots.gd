@@ -63,6 +63,7 @@ const VIEWS := [
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
 	["shot_match_saloon", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match"],
+	["portrait_day", 17.5, Vector3(20.0, 0.0, -12.5), -90.0, 0.0, "portrait"],
 	["shot_match_close", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match_close"],
 	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
 	["town_bar", 15.0, Vector3(7.4, 0.38, -18.4), 22.0, -6.0, "town_bar"],
@@ -231,6 +232,8 @@ func _run() -> void:
 			await _outlaw_setup(main, setup, player)
 		if setup.begins_with("town_"):
 			await _town_setup(main, setup, player)
+		if setup == "portrait":
+			await _portrait_setup(main, player)
 		if setup == "shot_match" or setup == "shot_match_close":
 			await _shot_match_setup(main, player, setup == "shot_match_close")
 		if setup == "holes" and gun:
@@ -292,6 +295,27 @@ func _hold(player, gun, sg, shotgun: bool) -> void:
 	player.weapon = take
 	if player.body:
 		player.body.set_gun_holstered(shotgun)
+
+
+## Face to face with the range outlaw, as close as you'd stand to talk (the view in Sean's
+## screenshot): his brain off so he stays put, the camera 0.9 m from his face.
+func _portrait_setup(main, player) -> void:
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	var man = spawner.spawn()
+	man.get_node("Brain").set_physics_process(false)
+	var gun = player.get_node(^"Head/Camera3D/Gun")
+	gun.drawn = false
+	gun._draw = 0.0
+	gun.visible = false
+	player.set_physics_process(false)
+	player.body.visible = false
+	for i in 30:
+		await physics_frame
+	var head = man.parts[&"head"]
+	var at: Vector3 = head.global_position + Vector3(0, -0.05, 0)
+	var eye: Vector3 = at + (-man.global_basis.z) * 0.9 + Vector3(0, 0.03, 0)
+	player.camera.global_transform = Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye)
+	player.camera.fov = 40.0
 
 
 ## The painting's shot (src/art/shot_match.gd): sat at the card table, the man across the lamp.
