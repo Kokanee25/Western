@@ -62,6 +62,9 @@ const VIEWS := [
 	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
+	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
+	["town_bar", 15.0, Vector3(7.4, 0.38, -18.4), 22.0, -6.0, "town_bar"],
+	["town_duel", 18.0, Vector3(-1.0, 0.0, -9.0), -90.0, -1.0, "town_duel"],
 ]
 
 
@@ -224,6 +227,8 @@ func _run() -> void:
 				await physics_frame
 		if setup.begins_with("outlaw_"):
 			await _outlaw_setup(main, setup, player)
+		if setup.begins_with("town_"):
+			await _town_setup(main, setup, player)
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
@@ -283,6 +288,46 @@ func _hold(player, gun, sg, shotgun: bool) -> void:
 	player.weapon = take
 	if player.body:
 		player.body.set_gun_holstered(shotgun)
+
+
+## Stage the town's day: Lyle holding up the storekeeper; the gang at the bar; Lyle facing you
+## in the street.
+func _town_setup(main, setup, player) -> void:
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	if spawner.outlaw:
+		spawner.outlaw.queue_free()
+	var town = main.find_child("TownLife", true, false)
+	for i in 5:
+		await physics_frame
+	var places = town.places
+	if setup == "town_holdup":
+		town.bring_gang([&"lyle"])
+		var lyle = town.gang[0]
+		lyle.global_position = places.at(&"store_counter")
+		lyle.get_node("Brain").agenda.assign([{"do": &"harass", "who": town.storekeeper, "seconds": 999.0, "rough": true, "draw_after": 0.5}])
+		for i in 150:
+			await physics_frame
+	elif setup == "town_bar":
+		town.bring_gang()
+		for g in town.gang:
+			var b = g.get_node("Brain")
+			g.global_position = places.at(b.bar_spot)
+			b.agenda.assign([{"do": &"drink", "seconds": 999.0, "face": places.at(b.bar_spot) + Vector3(-2.0, 1.2, 0.0)}])
+		for i in 60:
+			await physics_frame
+	elif setup == "town_duel":
+		# Your gun in its holster: nobody's drawn yet.
+		var rev = player.get_node(^"Head/Camera3D/Gun")
+		rev.drawn = false
+		rev._draw = 0.0
+		rev.visible = false
+		town.bring_gang([&"lyle"])
+		var lyle = town.gang[0]
+		lyle.global_position = Vector3(6.0, 0.0, -9.0)
+		lyle.get_node("Brain").agenda.assign([{"do": &"duel", "who": player}])
+		for i in 60:
+			await physics_frame
+		lyle.get_node("Brain").set_physics_process(false)
 
 
 ## Stage the test outlaw: provoked and shooting, shot and surrendering, or dead on the ground.

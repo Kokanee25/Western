@@ -129,7 +129,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   hearing via `Events.noise`; `known[who]` last seen/heard), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
-  `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout deeds).
+  `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
+  places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
+  saloon), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
+  test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in).
+  `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave.
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
@@ -497,3 +501,29 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: Sean's verdict; then the player's own body from BodyMesh, more faces/outfits for townsfolk,
     and a moustache/hair mesh pass if the painted ones don't read at distance.
 
+- 2026-09-29 (later): **M4 step 3: a day in town, backing down, call-outs and duels.**
+  `TownLife` (in `scenes/test_street.tscn`) puts the storekeeper behind his counter and the barkeep
+  behind the bar (`CivilianBrain`, no gun), and 45 s in (or **U**) three riders come in from the west:
+  Brody (cool, nerve 0.95, proud), Lyle (hothead 0.9, proud) and the Kid (0.45, nerve 0.3). Their
+  `agenda`: walk in (`Waypoints` routes, door-wide checks), drink at the bar, then Lyle and the Kid
+  go and lean on the storekeeper (taunts, a shove deed, Lyle draws on him at 14 s), back to the bar,
+  and out west (they're freed at the edge of town). They get on with it while nobody's troubling
+  them; any rung ≥ WARY with someone (not a man they've backed down from) switches to `_social()`.
+  Standoffs: at THREAT, aim_at pressure × 0.25 × lerp(0.5, 1.5, temper); being aimed at scares
+  0.045/s. Nerve breaking before it's a fight (CALM, stance ≥ WARY) = **backing down**: holster,
+  a line, `Relations.back_down()` (cowed: aim/draw/shout/crowd/stare count 0.1×, stance capped at
+  WARY), drop the plan, sulk at the bar, and a proud man then **calls you out**: goes to a street
+  spot 12 m from you, shouts, waits up to 60 s ("Coward!"); if he sees you within 30 m it's a
+  **duel**: wary pose, draws after 2.5–5 s or the moment you draw, fights with no cover
+  (`_stand_and_fight`). Told "Drop it!" with a gun on him instead, he still surrenders. **You can
+  call a man out**: G with your gun holstered (a `call_out` deed to the armed man you're facing);
+  temper ≥ 0.4, a grudge, or pride accepts ("Suits me."), else "Not today." Friends' deeds to
+  others don't provoke. After a fight a gang member leaves town. The storekeeper puts his hands up
+  when a gun's on him, cowers at shooting, and thanks whoever ran them off (a back_down or
+  surrender to you, or you hitting one). New poses `cower`, `shove`; `hat_color.a == 0` = no hat.
+  Renders `docs/screenshots/town_day/`. 221 tests pass (`test_town_day`, 9).
+  - Known: routes are a hand-made waypoint graph (no navmesh); no one sits (stools), drinks are
+    just standing at the bar; the storekeeper doesn't hand over money (no economy yet); a man
+    killed at the far end of town isn't mourned by the others (no memory records yet); agenda isn't
+    saved (`to_dict`) — the gang is a test scenario, not yet part of saves.
+  - Next: Sean plays the day (see BUILD_NOTES); then step 4, gang teamwork in fights.

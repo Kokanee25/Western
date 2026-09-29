@@ -5,7 +5,38 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
-### New: nobody's your enemy until someone makes it so
+### New: a day in town
+
+- **The store and the saloon have people now.** The storekeeper stands behind his counter, the
+  barkeep behind his bar. Neither has a gun.
+- **About 45 seconds in, three riders come in from the west** (press **U** to bring them now):
+  **Brody**, a cool hand who leads; **Lyle**, a hothead; and **the Kid**, green and jumpy. They walk
+  into the saloon and drink. They aren't your enemies. They don't know you.
+- **Then they start trouble on their own.** Lyle and the Kid walk over to the store and lean on
+  the storekeeper: taunts, a shove, and then Lyle draws on him ("Open the drawer. Slow."). The
+  storekeeper's hands go up and he begs. If you do nothing, they finish, go back for another drink,
+  and ride out west. (The whole day takes about four minutes.)
+- **If you step in, it's the ladder** from before: draw near them and they get wary; point your
+  gun and they draw and cover you. What happens next depends on the man:
+  - **The Kid backs down** if you hold your gun on him ("Alright. Alright. It ain't worth it."):
+    he holsters, drops the robbery and goes back to the bar.
+  - **Lyle** is likelier to shoot first. His friends join in if you shoot one of them.
+  - **Shout "Drop it!" (G)** with your gun on a man instead and he gives up.
+- **A proud man doesn't forget.** Faced down, Lyle (or Brody) drinks on it for a minute, then comes
+  out into the street and **calls you out** ("You! Step out into the street!"). Come out where he
+  can see you and it's a **duel**: he stands square with his hand by his holster, and he draws
+  after a few seconds, or the moment you go for yours. He won't run for cover: it's a stand-up
+  fight. Don't come out and he calls you a coward in front of the whole town and leaves.
+- **You can call a man out yourself**: face an armed man with your gun **holstered** and press
+  **G** ("You! Step out here and face me!"). A hothead or a man with a grudge accepts; a cooler one
+  says "Not today."
+- **The storekeeper remembers who helped.** Run them off and, once it's quiet, he thanks you.
+  Gunfire nearby and the townsfolk cower with their arms over their heads.
+- Try: let the day play out once without doing anything. Then stop the hold-up by holding your
+  gun on the Kid. Then face Lyle down and wait for him to call you out. Then call Lyle out yourself
+  at the bar (gun holstered, G).
+
+### Nobody's your enemy until someone makes it so
 
 - **You start with your gun holstered.** Press **H** to draw it. Walking about with a gun in your
   hand is something people notice.

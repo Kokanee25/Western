@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://src/debug/debug_breaker.gd" id="19_breaker"]
 [ext_resource type="Script" path="res://src/fire/fire_system.gd" id="20_fire"]
 [ext_resource type="Script" path="res://src/world/range_cover.gd" id="21_cover"]
+[ext_resource type="Script" path="res://src/people/town_life.gd" id="22_town"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("3_sky")
@@ -170,6 +171,9 @@ structure_id = &"range_cover"
 [node name="OutlawSpawn" type="Node3D" parent="."]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 25, 0, -12.5)
 script = ExtResource("18_outlaw")
+
+[node name="TownLife" type="Node3D" parent="."]
+script = ExtResource("22_town")
 
 [node name="FireSystem" type="Node3D" parent="."]
 script = ExtResource("20_fire")

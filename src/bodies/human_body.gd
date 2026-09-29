@@ -51,6 +51,14 @@ const POSES := {
 			&"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0), &"head": Vector3(-15, 0, 0),
 			&"upper_arm_r": Vector3(30, 0, -18), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(30, 0, 18), &"forearm_l": Vector3(100, 0, 0)},
+	# Cowering: hunched, arms over his head.
+	&"cower": {&"thigh_r": Vector3(40, 0, 6), &"thigh_l": Vector3(40, 0, -6), &"shin_r": Vector3(-70, 0, 0),
+			&"shin_l": Vector3(-70, 0, 0), &"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0),
+			&"head": Vector3(-20, 0, 0), &"upper_arm_r": Vector3(140, 0, -30), &"forearm_r": Vector3(110, 0, 0),
+			&"upper_arm_l": Vector3(140, 0, 30), &"forearm_l": Vector3(110, 0, 0)},
+	# Arms out at someone: a shove, a grab at his collar.
+	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
+			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},
 	# On his belly (the rig is laid flat): arms forward, head up.
 	&"prone": {&"upper_arm_r": Vector3(150, 0, 12), &"forearm_r": Vector3(25, 0, 0),
 			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
@@ -79,6 +87,7 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 @export var vest_color := Color(0.22, 0.17, 0.13)
 @export var coat_color := Color(0.4, 0.33, 0.25, 0.0)
 @export var trousers_color := Color(0.3, 0.27, 0.23)
+## Alpha 0: no hat.
 @export var hat_color := Color(0.18, 0.14, 0.11)
 ## Alpha 0 = no bandana.
 @export var bandana_color := Color(0.55, 0.12, 0.1)
