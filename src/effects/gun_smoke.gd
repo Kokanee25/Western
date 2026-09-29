@@ -16,7 +16,9 @@ var _age := 0.0
 var _drift := Vector3.ZERO
 
 
-static func spawn(parent: Node, at: Vector3, direction: Vector3) -> GunSmoke:
+## `amount`: how much powder burnt, relative to a .45 Colt load (a 12-bore shell makes nearly twice
+## the cloud).
+static func spawn(parent: Node, at: Vector3, direction: Vector3, amount := 1.0) -> GunSmoke:
 	_load_tuning()
 	var alive: Array[Node] = []
 	for c in _clouds:
@@ -37,7 +39,7 @@ static func spawn(parent: Node, at: Vector3, direction: Vector3) -> GunSmoke:
 	var s := GunSmoke.new()
 	parent.add_child(s)
 	s.global_position = at
-	s._start(direction, _is_indoors(s, at))
+	s._start(direction, _is_indoors(s, at), amount)
 	_clouds.append(s)
 	return s
 
@@ -59,13 +61,13 @@ static func _is_indoors(node: Node3D, at: Vector3) -> bool:
 	return not hit.is_empty()
 
 
-func _start(direction: Vector3, indoors: bool) -> void:
+func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 	var wind := tuning.wind * (tuning.indoor_wind if indoors else 1.0)
 	_drift = wind + Vector3.UP * tuning.rise
 	var p := GPUParticles3D.new()
 	p.name = "Puffs"
 	p.one_shot = true
-	p.amount = tuning.puffs
+	p.amount = maxi(1, int(tuning.puffs * amount))
 	p.lifetime = tuning.lifetime * 0.85
 	p.explosiveness = 0.92
 	p.randomness = 0.5
@@ -108,7 +110,7 @@ func _start(direction: Vector3, indoors: bool) -> void:
 	pm.angular_velocity_max = 12.0
 	p.process_material = pm
 	var quad := QuadMesh.new()
-	quad.size = Vector2(0.45, 0.45)
+	quad.size = Vector2(0.45, 0.45) * sqrt(amount)
 	quad.material = _puff_material()
 	p.draw_pass_1 = quad
 	add_child(p)
@@ -118,7 +120,7 @@ func _start(direction: Vector3, indoors: bool) -> void:
 		return
 	_fog = FogVolume.new()
 	_fog.shape = RenderingServer.FOG_VOLUME_SHAPE_ELLIPSOID
-	_fog.size = Vector3(0.8, 0.6, 0.8)
+	_fog.size = Vector3(0.8, 0.6, 0.8) * sqrt(amount)
 	_fog_mat = FogMaterial.new()
 	_fog_mat.density = tuning.fog_density
 	_fog_mat.albedo = Color(0.85, 0.84, 0.82)

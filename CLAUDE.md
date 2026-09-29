@@ -122,6 +122,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `OutlawBrain` (fear/nerve, fights, surrenders), `Layers` (physics/render layer bits),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`).
+- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
+  `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
+  `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
+  `Ballistics.fire_charge()` flies a shotgun charge as separate pellets.
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
@@ -342,3 +346,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   saved. `Settings.reduced_gore` (F4, saved). J opens a 1500 J wound where you look (debug).
   151 tests pass. Renders `docs/screenshots/m2/outlaw_open*.png`.
   - Next: the shotgun (pellets traced separately; point-blank destroys a region, rib fragments fly).
+- 2026-09-29: **M2 follow-ups, part 3: the shotgun.** A 12-bore hammer coach gun (`src/weapons/
+  shotgun_*.gd`, `config/shotgun.tres`): two barrels, two hammers, right barrel first; R breaks it
+  open, pulls the empties, loads, closes. 1/2 pick the gun, wheel up / Y swaps (Y no longer changes
+  time speed). The revolver moved onto a shared `WeaponViewmodel` base. `Ballistics.fire_charge`
+  flies 9 pellets of 00 buck (3.5 g, 400 m/s, ~280 J), each off the line by a normal spread
+  (`pattern_degrees` 0.5: ~75 cm at 25 m) and sharing one near-miss record. Bullets carry `blast`
+  (joules into the first thing they touch; revolver 300, the shotgun's 1600 split between pellets,
+  gone by `blast_reach` 2.5 m: the charge arriving as one mass). `take_bullet` takes it; wounds from
+  anything under 6 g are kind `pellet` (small decals, bleeding scaled by bore, nearby pellet wounds
+  share one blood stream; describe says "buckshot, N pellets"). An opening past
+  `HumanBody.DESTROY_ENERGY` (1000 J) destroys the region: bone inside it broken
+  (`Physiology.break_bone`; ribs blown out collapse that lung) and thrown as `bone_fragments`
+  (DEBRIS layer). A revolver ball never gets there. Renders `docs/screenshots/shotgun/`,
+  `tools/gun_views.gd` renders the viewmodel alone. 163 tests pass.
+  - Known: the stock and butt are hidden when shouldered (they'd fill the view); no firing both
+    barrels at once from the controls yet (`ShotgunState.pull_both()` exists); the outlaw only has
+    a revolver.
+  - Next: Sean's feel review of the shotgun (spread, how bad point blank looks); then dynamite.

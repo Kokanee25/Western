@@ -123,7 +123,7 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 		t_in = maxf(skin.x, 0.0)
 		t_out = skin.y
 	var result := {"segment": segment, "entry": origin + dir * t_in, "exit": null, "stop": null,
-			"energy_in": energy, "energy_out": 0.0, "track_cm": 0.0, "hits": []}
+			"energy_in": energy, "energy_out": 0.0, "track_cm": 0.0, "hits": [], "radius": bullet_radius}
 	# Everything the path crosses, in order.
 	var events: Array[Dictionary] = []
 	for st: Dictionary in by_segment.get(segment, []):

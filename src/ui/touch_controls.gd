@@ -12,6 +12,7 @@ const BUTTONS := [
 	[&"crouch_toggle", "CROUCH"],
 	[&"run_toggle", "RUN"],
 	[&"debug_time_scale", "TIME"],
+	[&"weapon_next", "GUN"],
 ]
 
 var _move_touch := -1
@@ -38,7 +39,8 @@ func _button_rects() -> Array[Rect2]:
 	var base := Vector2(size.x - r * 2.6, size.y - r * 2.6)
 	# Gun buttons nearest the right thumb, movement buttons in the column beside them.
 	var offsets := [Vector2(0, 0), Vector2(0, -r * 2.4), Vector2(0, -r * 4.8), Vector2(0, -r * 7.2),
-			Vector2(-r * 2.4, 0), Vector2(-r * 2.4, -r * 2.4), Vector2(-r * 2.4, -r * 4.8), Vector2(-r * 2.4, -r * 7.2)]
+			Vector2(-r * 2.4, 0), Vector2(-r * 2.4, -r * 2.4), Vector2(-r * 2.4, -r * 4.8), Vector2(-r * 2.4, -r * 7.2),
+			Vector2(0, -r * 9.6)]
 	for o in offsets:
 		rects.append(Rect2(base + o - Vector2(r, r), Vector2(r, r) * 2.0))
 	return rects
