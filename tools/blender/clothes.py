@@ -178,6 +178,7 @@ def make_all(person, outfit):
                 return c[1] < neck_y + 0.02 and c[2] > -0.02
             return arms(r) and pts[:, 1].min() > 0.895
         g = shell(person, "coat", keep_coat, OFFSET["coat"])
+        g.arm_bones = [i for i, n in enumerate(person.env["bones"]) if n.startswith(("upper_arm", "forearm", "hand"))]
         _coat_skirt(g)
         _lapels(g, neck_y)
         _collar(g, neck_y, 0.045, 0.012)
@@ -210,7 +211,10 @@ def _collar(g, above_y, height, lean):
 def _coat_skirt(g):
     """From the hem at the hips, down to mid-thigh, flaring a little and open at the front."""
     b = g.boundary()
-    hem = sorted({i for e in b for i in e if g.P[i][1] < 0.93})
+    # The hem round his hips only: the sleeve cuffs are low edges too, and a skirt stitched to
+    # them hangs from his wrists (and stretches like wings when he puts his hands up).
+    arm = getattr(g, "arm_bones", [])
+    hem = sorted({i for e in b for i in e if g.P[i][1] < 0.93 and (not arm or g.W[i][arm].max() < 0.1)})
     if len(hem) < 8:
         return
     loop = ordered_loop(g, hem, np.array([0, 0, 0.0]))
@@ -227,7 +231,11 @@ def _coat_skirt(g):
             d[1] = 0
             d[2] -= 0.01
             p = p + d * 0.045
-            cur.append(g.add_vertex(p, g.W[i]))
+            w = g.W[i].copy()
+            if arm:
+                w[arm] = 0.0  # the skirt hangs from his hips, whatever his arms do
+                w = w / max(w.sum(), 1e-6)
+            cur.append(g.add_vertex(p, w))
             g.skirt.add(cur[-1])
         for a in range(len(prev)):
             b2 = (a + 1) % len(prev)

@@ -63,6 +63,7 @@ const VIEWS := [
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
 	["shot_match_saloon", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match"],
+	["coat_hands_up", 18.0, Vector3(0.0, 0.0, -9.0), -90.0, 0.0, "coat_hands_up"],
 	["portrait_day", 17.5, Vector3(20.0, 0.0, -12.5), -90.0, 0.0, "portrait"],
 	["shot_match_close", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match_close"],
 	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
@@ -234,6 +235,16 @@ func _run() -> void:
 			await _town_setup(main, setup, player)
 		if setup == "portrait":
 			await _portrait_setup(main, player)
+		if setup == "coat_hands_up":
+			var town = main.find_child("TownLife", true, false)
+			town.bring_gang([&"brody"])
+			var man = town.gang[0]
+			man.get_node("Brain").set_physics_process(false)
+			man.global_position = Vector3(3.5, 0.0, -9.0)
+			man.rotation.y = -PI * 0.5
+			man.set_pose(&"hands_up")
+			for i in 60:
+				await physics_frame
 		if setup == "shot_match" or setup == "shot_match_close":
 			await _shot_match_setup(main, player, setup == "shot_match_close")
 		if setup == "holes" and gun:

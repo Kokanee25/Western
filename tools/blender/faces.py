@@ -84,7 +84,7 @@ def _front_uv(p):
     return u, v
 
 
-def project(person, head_faces, head_uv, portrait_path, out_path, width=192, height=128, colours=24):
+def project(person, head_faces, head_uv, portrait_path, out_path, width=384, height=256, colours=40):
     """Rasterise the portrait into the face layout, triangle by triangle, weighted by how square
     to the front each bit of the head is. Pure numpy: no bake needed, and exact."""
     from PIL import Image  # only here: the rest of the pipeline doesn't need PIL

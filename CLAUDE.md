@@ -611,3 +611,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `docs/screenshots/shot_match/round5_face_*`.
   - Next: Sean's verdict; then more lighting (the painting's warm key on one cheek, rim light),
     room dressing, and faces for the townsfolk (their own `people.json` entries).
+- 2026-09-29 (later): **People fixes from Sean's in-game screenshots.** (1) Long pencil neck and
+  egg head: the warp stretched MakeHuman's jaw-hinge "head" joint→crown onto our longer head
+  segment (×1.5); trunk/neck/head now move as one at his own proportions (scaled to our height),
+  the envelope fit is 0.45/0.4 on trunk/limbs and off for neck and head, and the face remap pins
+  only chin/eyes/crown (MakeHuman's mouth joint is above the lips). (2) Streaks round the neck:
+  collars are now bands built from the garment's own faces, and every neck height in
+  `clothes.py` comes from `person.neck_y`. (3) A red bandana floating off the neck: a generated
+  body with a tie drops the lofted bandana. (4) **Coat "bat wings" with hands up**: the skirt was
+  extruded from every low boundary edge, including the sleeve cuffs; the hem is now only verts
+  with no arm weight, and skirt weights never include arm bones (test
+  `test_the_coat_skirt_hangs_from_his_hips_not_his_arms`). Skin tone is measured from the painted
+  face (`outlaw.json` `skin_tone`). Face projected at 384×256, 40 colours. Face repainted on the
+  corrected head (People run 3). New screenshot views `portrait_day`, `coat_hands_up`. 227 pass.

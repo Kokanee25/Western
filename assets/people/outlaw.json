@@ -22,16 +22,16 @@
  "faces_before_finger_cut": 13378,
  "faces_after_finger_cut": 11416,
  "skin_tone": [
-  0.702,
-  0.457,
-  0.312
+  0.705,
+  0.46,
+  0.315
  ],
  "face": "projected from outlaw_face_portrait.png",
  "textures": {
   "shirt": 64,
   "trousers": 64,
   "vest": 64,
-  "coat": 128,
+  "coat": 64,
   "cravat": 32
  },
  "triangles": {
@@ -40,7 +40,7 @@
   "shirt": 1500,
   "trousers": 1200,
   "vest": 699,
-  "coat": 2199,
+  "coat": 2200,
   "cravat": 32
  },
  "fit_joints": {

@@ -334,3 +334,36 @@ func test_generated_clothes_are_worn_as_the_outfit_says() -> void:
 		var tex = (coat.material_override as ShaderMaterial).get_shader_parameter(&"albedo_tex")
 		check(tex is Texture2D and (tex as Texture2D).get_width() >= 64, "with its baked pixel texture")
 	coated.queue_free()
+
+
+func test_the_coat_skirt_hangs_from_his_hips_not_his_arms() -> void:
+	var coated := HumanBody.new()
+	coated.person_id = &"skirted"
+	coated.coat_color = Color(0.4, 0.3, 0.2, 1.0)
+	add_child(coated)
+	await physics_frames(2)
+	var arm_bones: Array[int] = []
+	var order := coated.anatomy.segment_order()
+	for i in order.size():
+		if String(order[i]).begins_with("forearm") or String(order[i]).begins_with("hand") or String(order[i]).begins_with("upper_arm"):
+			arm_bones.append(i)
+	var bad := 0
+	var low := 0
+	for key: String in coated.skin_meshes:
+		if not key.begins_with("coat/"):
+			continue
+		var a := (coated.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)
+		var vs: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var bs: PackedInt32Array = a[Mesh.ARRAY_BONES]
+		var ws: PackedFloat32Array = a[Mesh.ARRAY_WEIGHTS]
+		for i in vs.size():
+			if vs[i].y > 0.86:
+				continue
+			low += 1
+			for k in 4:
+				if arm_bones.has(bs[i * 4 + k]) and ws[i * 4 + k] > 0.05:
+					bad += 1
+					break
+	check(low > 20, "the coat has a skirt (%d vertices below the hips)" % low)
+	check_eq(bad, 0, "and none of it is tied to his arms")
+	coated.queue_free()
