@@ -296,3 +296,24 @@ func test_body_follows_the_ragdoll() -> void:
 	var bone_world := man.skeleton.global_transform * man.skeleton.get_bone_global_pose(i)
 	check(bone_world.origin.distance_to(head.global_position) < 0.01, "the head's skin is where the ragdoll's head is")
 	check(head.global_position.y < 0.5, "and that's on the ground")
+
+
+func test_he_has_the_generated_makehuman_body() -> void:
+	check(PeopleBodies.has_model(man.body_model), "assets/people/%s.glb is there" % man.body_model)
+	var tris := 0
+	for key: String in man.skin_meshes:
+		if key.begins_with("head/"):
+			tris += (man.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX].size() / 3
+	check(tris > 800, "a real head (%d triangles, the lofted one has a few hundred)" % tris)
+	# Without it he falls back to the lofted body.
+	var plain := HumanBody.new()
+	plain.body_model = &""
+	plain.person_id = &"plain"
+	add_child(plain)
+	await physics_frames(2)
+	var plain_tris := 0
+	for key: String in plain.skin_meshes:
+		if key.begins_with("head/"):
+			plain_tris += (plain.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX].size() / 3
+	check(plain_tris > 0 and plain_tris < tris, "BodyMesh when there's no model (%d)" % plain_tris)
+	plain.queue_free()

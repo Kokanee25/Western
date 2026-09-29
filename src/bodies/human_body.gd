@@ -101,6 +101,9 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
+## Which generated body he has (assets/people/<id>.glb, from tools/blender/make_people.py); empty
+## or missing = the code-lofted BodyMesh.
+@export var body_model := &"outlaw"
 ## Starts with it in the holster (a man minding his own business); the brain draws it.
 @export var start_holstered := true
 @export var total_mass := 80.0
@@ -302,11 +305,11 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 		_build_hand(sid, vis, anatomy.segment_center(sid))
 
 
-## The skin and clothes: BodyMesh shapes skinned to a skeleton whose bones follow the parts.
+## The skin and clothes (the generated body if there is one, else BodyMesh) skinned to a skeleton whose bones follow the parts.
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
-	var data := BodyMesh.build(anatomy, outfit)
+	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	skeleton = Skeleton3D.new()
 	skeleton.name = "Skeleton"
 	add_child(skeleton)

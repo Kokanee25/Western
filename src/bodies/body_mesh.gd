@@ -325,6 +325,60 @@ static func _nose_and_ears(head: Lofter) -> void:
 
 
 ## Builds skinned triangle lists: lofts through cross-sections, bands, loose triangles.
+## Cut a skinned mesh into a piece per bone: each triangle goes to the bone that moves its corners
+## most. Per bone: [skinned mesh, rigid mesh (every vertex on that bone only)], with CUSTOM0 = each
+## vertex's rest position relative to its bone's centre (the wound shader opens holes there).
+## `bones`/`weights` are 4 per vertex.
+static func split_pieces(verts: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array,
+		bones: PackedInt32Array, weights: PackedFloat32Array, tris: PackedInt32Array, centres: Dictionary) -> Dictionary:
+	var owner := {}  # bone -> Array of triangle starts (a plain Array: packed ones copy)
+	for t in range(0, tris.size(), 3):
+		var score := {}
+		for j in 3:
+			var v := tris[t + j]
+			for w in 4:
+				var b := bones[v * 4 + w]
+				score[b] = float(score.get(b, 0.0)) + weights[v * 4 + w]
+		var best := -1
+		var best_score := -1.0
+		for b: int in score:
+			if score[b] > best_score:
+				best_score = score[b]
+				best = b
+		(owner.get_or_add(best, []) as Array).append(t)
+	var out := {}
+	for b: int in owner:
+		var remap := {}
+		var pv := PackedVector3Array()
+		var pn := PackedVector3Array()
+		var pu := PackedVector2Array()
+		var pb := PackedInt32Array()
+		var pw := PackedFloat32Array()
+		var rb := PackedInt32Array()
+		var rw := PackedFloat32Array()
+		var pc := PackedFloat32Array()
+		var pi := PackedInt32Array()
+		var centre: Vector3 = centres.get(b, Vector3.ZERO)
+		for t: int in owner[b]:
+			for j in 3:
+				var v := tris[t + j]
+				if not remap.has(v):
+					remap[v] = pv.size()
+					pv.append(verts[v])
+					pn.append(normals[v].normalized() if normals[v].length_squared() > 1e-12 else Vector3.UP)
+					pu.append(uvs[v])
+					for w in 4:
+						pb.append(bones[v * 4 + w])
+						pw.append(weights[v * 4 + w])
+					rb.append_array([b, 0, 0, 0])
+					rw.append_array([1.0, 0.0, 0.0, 0.0])
+					var local := verts[v] - centre
+					pc.append_array([local.x, local.y, local.z])
+				pi.append(remap[v])
+		out[b] = [Lofter._mesh(pv, pn, pu, pb, pw, pc, pi), Lofter._mesh(pv, pn, pu, rb, rw, pc, pi)]
+	return out
+
+
 class Lofter:
 	var index: Dictionary
 	var verts := PackedVector3Array()
@@ -539,52 +593,7 @@ class Lofter:
 	## Cut into a piece per bone: {bone index: [skinned ArrayMesh, rigid ArrayMesh]}. Each vertex
 	## carries its rest position relative to its piece's bone centre in CUSTOM0 (for wounds).
 	func to_pieces(centres: Dictionary) -> Dictionary:
-		var owner := {}  # bone -> Array of triangle starts (a plain Array: packed ones copy)
-		for t in range(0, tris.size(), 3):
-			var score := {}
-			for j in 3:
-				var v := tris[t + j]
-				for w in 2:
-					var b := bones[v * 4 + w]
-					score[b] = float(score.get(b, 0.0)) + weights[v * 4 + w]
-			var best := -1
-			var best_score := -1.0
-			for b: int in score:
-				if score[b] > best_score:
-					best_score = score[b]
-					best = b
-			(owner.get_or_add(best, []) as Array).append(t)
-		var out := {}
-		for b: int in owner:
-			var remap := {}
-			var pv := PackedVector3Array()
-			var pn := PackedVector3Array()
-			var pu := PackedVector2Array()
-			var pb := PackedInt32Array()
-			var pw := PackedFloat32Array()
-			var rb := PackedInt32Array()
-			var rw := PackedFloat32Array()
-			var pc := PackedFloat32Array()
-			var pi := PackedInt32Array()
-			var centre: Vector3 = centres.get(b, Vector3.ZERO)
-			for t: int in owner[b]:
-				for j in 3:
-					var v := tris[t + j]
-					if not remap.has(v):
-						remap[v] = pv.size()
-						pv.append(verts[v])
-						pn.append(normals[v].normalized() if normals[v].length_squared() > 1e-12 else Vector3.UP)
-						pu.append(uvs[v])
-						for w in 4:
-							pb.append(bones[v * 4 + w])
-							pw.append(weights[v * 4 + w])
-						rb.append_array([b, 0, 0, 0])
-						rw.append_array([1.0, 0.0, 0.0, 0.0])
-						var local := verts[v] - centre
-						pc.append_array([local.x, local.y, local.z])
-					pi.append(remap[v])
-			out[b] = [_mesh(pv, pn, pu, pb, pw, pc, pi), _mesh(pv, pn, pu, rb, rw, pc, pi)]
-		return out
+		return BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres)
 
 	static func _mesh(pv: PackedVector3Array, pn: PackedVector3Array, pu: PackedVector2Array, pb: PackedInt32Array,
 			pw: PackedFloat32Array, pc: PackedFloat32Array, pi: PackedInt32Array) -> ArrayMesh:

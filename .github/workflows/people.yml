@@ -1,0 +1,88 @@
+name: People (Blender)
+
+# Builds the game's people from MakeHuman (CC0) with Blender, run by hand from the Actions tab:
+# writes the body envelope from the anatomy (Godot), fetches the pinned MakeHuman assets, runs
+# tools/blender/make_people.py (Blender as a Python module, bpy), and commits whatever changed in
+# assets/people/ back to the branch it ran on. Everything is a script: nothing is hand-made.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Just this person (an id in assets/people/people.json); empty = everyone"
+        required: false
+        default: ""
+
+env:
+  GODOT_VERSION: "4.7.2"
+  BPY_VERSION: "5.0.1"
+
+jobs:
+  people:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Cache MakeHuman assets
+        uses: actions/cache@v4
+        with:
+          path: build/makehuman
+          key: makehuman-${{ hashFiles('tools/blender/fetch_makehuman.py', 'assets/people/people.json') }}
+
+      - name: Install Blender (bpy) and numpy
+        run: pip install "bpy==${BPY_VERSION}" numpy
+
+      - name: Body envelope from the anatomy
+        run: |
+          ~/godot/godot --headless --import || true
+          ~/godot/godot --headless -s res://tools/people_envelope.gd
+
+      - name: Fetch MakeHuman assets
+        run: python tools/blender/fetch_makehuman.py
+
+      - name: Make people
+        run: |
+          if [ -n "${{ inputs.only }}" ]; then
+            python tools/blender/make_people.py --only="${{ inputs.only }}"
+          else
+            python tools/blender/make_people.py
+          fi
+
+      - name: Import and test with the new bodies
+        run: |
+          ~/godot/godot --headless --import || true
+          ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
+
+      - name: Commit the generated people
+        run: |
+          git add assets/people
+          if git diff --cached --quiet; then
+            echo "No change to the people."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "People: regenerate from MakeHuman (run ${{ github.run_number }})"
+          git push
