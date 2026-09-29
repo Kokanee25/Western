@@ -22,9 +22,9 @@
  "faces_before_finger_cut": 13378,
  "faces_after_finger_cut": 11416,
  "skin_tone": [
-  0.68,
-  0.401,
-  0.244
+  0.702,
+  0.457,
+  0.312
  ],
  "face": "projected from outlaw_face_portrait.png",
  "textures": {
