@@ -113,6 +113,17 @@ blast behind them and tear one big hole: ribs smashed and thrown out, lung or he
   hitting full volume with bass too deep for any small speaker, which can make a monitor's
   built-in speakers drop out and take the screen with them. The game's sound now goes through a
   limiter and a deep-bass cut.
+### New: the outlaw has a real body
+
+He's no longer sausages and a box head. One continuous skin that bends at the joints, a proper
+head with a painted pixel face (eyes, brows, nose, walrus moustache, stubble, hair), and clothes
+over it: shirt, open vest, trousers tucked into boots, a cartridge belt with a holster, a
+bandana and a creased hat. Everything underneath (hitboxes, wounds, ragdoll, X-ray) works as before,
+and the skin follows him when he falls.
+
+- Walk right up to him and look at his face, then back off to 10 m and see how he reads.
+- Shoot him down and watch the body fold with the ragdoll.
+- F10 (X-ray) still shows the anatomy through the new skin.
 
 ### Fixed: reloading pushed you around; the gun went through walls
 

@@ -27,16 +27,19 @@ func _chest_front() -> Vector3:
 
 func _count(seg: StringName) -> int:
 	var n := 0
-	for mi: MeshInstance3D in (man.visuals[seg] as Node3D).find_children("*", "MeshInstance3D", true, false):
+	for mi: MeshInstance3D in man.body_meshes(seg):
 		var m := mi.material_override as ShaderMaterial
-		if m and m.shader == BodyInterior.SKIN_SHADER and int(m.get_shader_parameter(&"wound_count")) > 0:
+		if m and (m.shader == BodyInterior.SKIN_SHADER or m.shader == BodyInterior.SKIN_DOUBLE_SHADER) and int(m.get_shader_parameter(&"wound_count")) > 0:
 			n += 1
 	return n
 
 
 func test_the_body_parts_can_open() -> void:
-	var mi := (man.visuals[&"chest"] as Node3D).get_node(^"Mesh0") as MeshInstance3D
-	check((mi.material_override as ShaderMaterial).shader == BodyInterior.SKIN_SHADER, "skin and clothes use the wound shader")
+	var meshes := man.body_meshes(&"chest")
+	check(not meshes.is_empty(), "the chest has skin and clothes")
+	for mi in meshes:
+		var shader := (mi.material_override as ShaderMaterial).shader if mi.material_override is ShaderMaterial else null
+		check(shader == BodyInterior.SKIN_SHADER or shader == BodyInterior.SKIN_DOUBLE_SHADER, "%s uses the wound shader" % mi.name)
 
 
 func test_a_small_wound_stays_a_hole() -> void:
@@ -83,7 +86,7 @@ func test_reduced_gore_keeps_it_closed() -> void:
 	man.open_wound(&"chest", _chest_front(), 1500.0)
 	Settings.reduced_gore = true
 	Settings.changed.emit()
-	var mi := (man.visuals[&"chest"] as Node3D).get_node(^"Mesh0") as MeshInstance3D
+	var mi := man.skin_meshes["skin/chest"] as MeshInstance3D
 	check((mi.material_override as ShaderMaterial).get_shader_parameter(&"reduced_gore") == true, "the skin stays closed")
 
 
