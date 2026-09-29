@@ -11,7 +11,9 @@ var member: StructureMember
 var _overlay: ShaderMaterial
 var _emitters: Array[GPUParticles3D] = []
 
-static var _flame_mat: StandardMaterial3D
+const FLAME := preload("res://src/fire/flame.gdshader")
+
+static var _flame_mat: ShaderMaterial
 static var _smoke_mat: StandardMaterial3D
 
 
@@ -60,8 +62,9 @@ func _flames_on(mi: MeshInstance3D) -> GPUParticles3D:
 	var p := _particles(clampi(int(area * 10.0), 4, 24), 0.9, _flame_material(), 0.42)
 	(p.draw_pass_1 as QuadMesh).size = Vector2(0.36, 0.6)
 	var pm := p.process_material as ParticleProcessMaterial
+	# Off the surface, not inside the wood: a shell a hand's breadth round it, weighted to its top.
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	pm.emission_box_extents = box.size * 0.5
+	pm.emission_box_extents = box.size * 0.5 + Vector3(0.07, 0.05, 0.07)
 	pm.direction = Vector3.UP
 	pm.spread = 12.0
 	pm.initial_velocity_min = 0.3
@@ -77,7 +80,7 @@ func _flames_on(mi: MeshInstance3D) -> GPUParticles3D:
 	st.curve = shrink
 	pm.scale_curve = st
 	var ramp := Gradient.new()
-	ramp.set_color(0, Color(1.0, 0.92, 0.55, 0.95))
+	ramp.set_color(0, Color(1.0, 0.78, 0.35, 0.95))
 	ramp.add_point(0.3, Color(1.0, 0.62, 0.16, 0.9))
 	ramp.add_point(0.65, Color(0.9, 0.28, 0.05, 0.6))
 	ramp.set_color(ramp.get_point_count() - 1, Color(0.3, 0.06, 0.02, 0.0))
@@ -85,7 +88,7 @@ func _flames_on(mi: MeshInstance3D) -> GPUParticles3D:
 	tex.gradient = ramp
 	pm.color_ramp = tex
 	mi.add_child(p)
-	p.position = box.get_center()
+	p.position = box.get_center() + Vector3.UP * box.size.y * 0.15
 	return p
 
 
@@ -130,16 +133,11 @@ static func _particles(amount: int, lifetime: float, mat: Material, size: float)
 	return p
 
 
-static func _flame_material() -> StandardMaterial3D:
+static func _flame_material() -> ShaderMaterial:
 	if _flame_mat == null:
-		_flame_mat = StandardMaterial3D.new()
-		_flame_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_flame_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		_flame_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_flame_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-		_flame_mat.vertex_color_use_as_albedo = true
-		_flame_mat.albedo_texture = PixelArt.puff("flame", 61)
-		_flame_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_flame_mat = ShaderMaterial.new()
+		_flame_mat.shader = FLAME
+		_flame_mat.set_shader_parameter(&"sprite", PixelArt.puff("flame", 61))
 	return _flame_mat
 
 

@@ -308,3 +308,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Tests: no drift over a reload, muzzle stays this side of a wall, wall shot hits that wall.
   Screenshot views `gun_at_wall`, `gun_at_wall_aim`. 137 tests pass.
   - Rule: loose small rigid bodies go on `Layers.DEBRIS`, never the default layer.
+- 2026-09-29: Sean: the fire "sits between the grain and the board". Two causes: flame particles spawned
+  inside the member's box (half of each flame hidden by the wood), and the char overlay's embers were
+  bright yellow squares on a grid, reading as fire inside the texture. Flames now spawn in a shell
+  round the member and use `src/fire/flame.gdshader` (billboard pulled 0.22 m toward the camera so
+  the board it's on can't clip it); embers are the odd dull-red pixel in deep char only.
