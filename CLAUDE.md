@@ -579,3 +579,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     (thighs can poke through); no buttons/pockets; hat, boots, belts still lofted; the face is
     still the code-painted one (step 4).
   - Next: step 4, image-model faces (needs Sean's key), then the lighting pass.
+- 2026-09-29 (later): **Lighting pass, first round (on the shot match).** Lamps: glass chimney
+  (faint, lit from inside) with a small bright flame, warmer-golden light (1, 0.74, 0.48), and
+  `haze` (light_volumetric_fog_energy 1.2) so they glow in the air. `FalseFrontBuilding.room_haze`
+  fills a room with a FogVolume (Forward+ only; denser under the roof): the saloon has 0.012 of
+  tobacco smoke; its night ambient is 0.1 (was 0.2), so lamps make pools of light. Render:
+  `docs/screenshots/shot_match/round4_lighting_vs_concept.png`.
+  - Waiting on Sean: an image-model key for step 4 (faces). openrouter.ai is blocked by this
+    workspace's network policy, so the face step is meant to run on GitHub Actions with a repo
+    secret `OPENROUTER_API_KEY` (or the workspace needs the key as an env var and openrouter.ai
+    allowed).

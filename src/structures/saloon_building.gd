@@ -11,7 +11,8 @@ func _init() -> void:
 	wall_height = 4.2
 	front_height = 7.0
 	sign_text = "SALOON"
-	night_ambient = 0.2
+	night_ambient = 0.1
+	room_haze = 0.012
 
 
 func _build_furniture() -> void:

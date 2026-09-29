@@ -10,6 +10,8 @@ extends Node3D
 @export var hanging := false
 ## Off when a modelled lamp prop provides the look and this node only provides the light.
 @export var show_mesh := true
+## How much its light shows in the air (smoke, haze): the halo round a lamp in a smoky room.
+@export var haze := 1.2
 
 var lit := true
 ## Shot or knocked to pieces: no light, and if it was lit, burning oil where it landed.
@@ -70,21 +72,44 @@ func _build() -> void:
 	base.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(base)
 
+	# The chimney: clear glass, faintly lit from inside; the flame itself is small and bright.
+	var glass_mat := StandardMaterial3D.new()
+	glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glass_mat.albedo_color = Color(0.95, 0.85, 0.7, 0.22)
+	glass_mat.emission_enabled = true
+	glass_mat.emission = Color(1.0, 0.72, 0.4)
+	glass_mat.emission_energy_multiplier = 0.35
+	glass_mat.roughness = 0.1
+	var chimney := MeshInstance3D.new()
+	chimney.name = "Chimney"
+	var glass := CylinderMesh.new()
+	glass.top_radius = 0.028
+	glass.bottom_radius = 0.045
+	glass.height = 0.16
+	glass.radial_segments = 10
+	chimney.mesh = glass
+	chimney.material_override = glass_mat
+	chimney.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	chimney.position.y = 0.16
+	add_child(chimney)
 	_flame_material = StandardMaterial3D.new()
 	_flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_flame_material.emission = Color(1.0, 0.6, 0.25)
-	_flame_material.emission_energy_multiplier = 4.0
+	_flame_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_flame_material.emission = Color(1.0, 0.68, 0.3)
+	_flame_material.emission_energy_multiplier = 5.0
 	_flame = MeshInstance3D.new()
-	var glass := CylinderMesh.new()
-	glass.top_radius = 0.035
-	glass.bottom_radius = 0.045
-	glass.height = 0.14
-	glass.radial_segments = 10
-	_flame.mesh = glass
+	var tongue := CylinderMesh.new()
+	tongue.top_radius = 0.002
+	tongue.bottom_radius = 0.011
+	tongue.height = 0.045
+	tongue.radial_segments = 6
+	_flame.mesh = tongue
 	_flame.material_override = _flame_material
 	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_flame.position.y = 0.15
+	_flame.position.y = 0.12
 	add_child(_flame)
+	if not show_mesh:
+		chimney.visible = false
 
 	if hanging:
 		var bail := MeshInstance3D.new()
@@ -99,7 +124,8 @@ func _build() -> void:
 		base.visible = false
 		_flame.visible = false
 	_light = OmniLight3D.new()
-	_light.light_color = Color(1.0, 0.62, 0.3)
+	_light.light_color = Color(1.0, 0.74, 0.48)
+	_light.light_volumetric_fog_energy = haze
 	_light.light_energy = energy
 	_light.omni_range = light_range
 	_light.omni_attenuation = 1.2
