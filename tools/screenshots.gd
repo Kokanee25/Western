@@ -315,9 +315,8 @@ func _portrait_setup(main, player) -> void:
 	var man = spawner.spawn()
 	man.get_node("Brain").set_physics_process(false)
 	var gun = player.get_node(^"Head/Camera3D/Gun")
-	gun.drawn = false
 	gun._draw = 0.0
-	gun.visible = false
+	load("res://src/art/shot_match.gd").hands_off_camera(player)
 	player.set_physics_process(false)
 	player.body.visible = false
 	for i in 30:
@@ -340,15 +339,12 @@ func _shot_match_setup(main, player, close := false) -> void:
 	var sm = load("res://src/art/shot_match.gd")
 	sm.stage(street)
 	var gun = player.get_node(^"Head/Camera3D/Gun")
-	gun.drawn = false
 	gun._draw = 0.0
-	gun.visible = false
 	player.set_physics_process(false)
 	player.body.visible = false
 	for i in 30:
 		await physics_frame
-	player.camera.global_transform = sm.camera_transform(street)
-	player.camera.fov = sm.FOV
+	sm.frame_camera(player, street)
 	if close:
 		# His face and chest, from in front of him across the table.
 		var head = street.find_child("SeatedMan", true, false).parts[&"head"]

@@ -88,12 +88,14 @@ const BOOT_FOOT := [
 	[Vector3(0.1, 0.034, -0.198), 0.026, 0.017, 0.034],
 ]
 
-## The hat's crown, band to top: [centre, half width, front, back] on the head bone.
+## The hat's crown, band to top: [centre, half width, front, back] on the head bone. Worn low, the
+## brim about 3 cm over the brows (the painting's), and roomy enough for the generated (MakeHuman)
+## skull, which is longer front to back than the lofted one: ~1 cm clear all round at the band.
 const HAT_CROWN := [
-	[Vector3(0, 1.728, 0.004), 0.087, 0.101, 0.099],
-	[Vector3(0, 1.79, 0.004), 0.085, 0.097, 0.095],
-	[Vector3(0, 1.838, 0.006), 0.081, 0.092, 0.09],
-	[Vector3(0, 1.866, 0.008), 0.075, 0.084, 0.082],
+	[Vector3(0, 1.708, -0.004), 0.084, 0.11, 0.104],
+	[Vector3(0, 1.77, -0.002), 0.083, 0.104, 0.098],
+	[Vector3(0, 1.815, 0.0), 0.079, 0.096, 0.092],
+	[Vector3(0, 1.842, 0.004), 0.072, 0.086, 0.083],
 ]
 ## The holster on his right hip, top to toe (flat against the thigh).
 const HOLSTER := [

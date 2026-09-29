@@ -121,6 +121,9 @@ var garments: Array[Dictionary] = []
 var wounds: Array[Dictionary] = []
 var limp := false
 var pose := &"stand"
+## Staged scenes' touch on top of whatever pose he's in: segment -> extra rotation (degrees, same
+## axes as POSES), e.g. {&"head": Vector3(0, 12, -10)} to turn his head to you and tip it.
+var pose_offsets := {}
 var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
@@ -714,7 +717,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var overlay := _gait_overlay(delta)
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO)
+		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)

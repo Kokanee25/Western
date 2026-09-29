@@ -11,10 +11,12 @@ const TABLE := Vector3(8.8, 0.0, -25.0)
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
-## it and back from its edge; and where you look (the man's chest, over the lamp).
-const EYE := Vector3(0.36, 1.2, -1.12)
-const LOOK := Vector3(0.57, 1.1, -0.14)
-## The painting's lens is longer than the game's: about 48° top to bottom (80° across).
+## it and back from its edge; and where you look. Fitted to the painting (2026-09-29): his eyes land
+## where the painting has them (0.39 across, 0.40 down) at the painting's size (eye to chin 106 of
+## its 941 px), and the props below are where the painting's pixels fall on the table top.
+const EYE := Vector3(-0.239, 1.15, -1.125)
+const LOOK := Vector3(0.566, 1.137, -0.352)
+## The painting's lens is longer than the game's: about 48° top to bottom (77° across).
 const FOV := 48.0
 ## Where he sits relative to the table: its left side (+X is your left, looking +Z).
 const SEAT := Vector3(0.9, 0.0, -0.42)
@@ -32,7 +34,8 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	root.global_position = t
 	_table(root)
 	_chair(root, SEAT + Vector3(0.1, 0.0, 0.07), 53.0)
-	# On the table: the lamp between you, his bottle to the right, cups.
+	# On the table: the lamp beside him, the bottle nearer you on the right, your cup, his ashtray.
+	# (The painting's lamp is about twice ours for a seated eye; ours stays the game's lamp.)
 	var lamp := OilLamp.new()
 	lamp.name = "TableLamp"
 	lamp.lit_from_hour = 0
@@ -40,10 +43,10 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.energy = 1.5
 	lamp.light_range = 7.0
 	root.add_child(lamp)
-	lamp.position = Vector3(-0.32, TABLE_HEIGHT, 0.22)
-	_bottle(root, Vector3(-0.5, TABLE_HEIGHT, 0.04))
-	_cup(root, Vector3(0.1, TABLE_HEIGHT, -0.58))
-	_ashtray(root, Vector3(0.3, TABLE_HEIGHT, -0.5))
+	lamp.position = Vector3(0.41, TABLE_HEIGHT, 0.132)
+	_bottle(root, Vector3(0.024, TABLE_HEIGHT, 0.057))
+	_cup(root, Vector3(0.282, TABLE_HEIGHT, -0.378))
+	_ashtray(root, Vector3(0.45, TABLE_HEIGHT, -0.397))
 	if man == null:
 		man = HumanBody.new()
 		man.name = "SeatedMan"
@@ -59,8 +62,28 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# Turned toward you: square to a point between you and the table's centre.
 	man.face(t + Vector3(0.0, 1.0, -0.75))
 	man.set_pose(&"sit")
+	# His head as the painting has it: turned to look you in the eye, chin up a touch, tipped
+	# toward his left shoulder.
+	man.pose_offsets = {&"head": Vector3(6.0, -14.0, 12.0)}
 	_cup_in_hand(man)
 	return man
+
+
+## Put the player's eye at the painting's viewpoint with its lens. Every gun goes out of his hands
+## first: the gun in hand drives the camera (kick and aim zoom, `WeaponViewmodel._animate_camera`),
+## and left selected it pulls the lens back to 75° and levels the view within a second.
+static func frame_camera(player: Player, street: Node3D) -> void:
+	hands_off_camera(player)
+	player.camera.global_transform = camera_transform(street)
+	player.camera.fov = FOV
+
+
+## Take every gun out of the player's hands so a staged camera keeps its lens and aim.
+static func hands_off_camera(player: Player) -> void:
+	for w: WeaponViewmodel in player.weapons:
+		w.selected = false
+		w.drawn = false
+		w.visible = false
 
 
 ## Your eye and the point you look at, in the world.
