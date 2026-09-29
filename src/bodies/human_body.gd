@@ -325,6 +325,8 @@ func _build_skin() -> void:
 	var f := look.duplicate()
 	f["tone"] = skin_tone
 	f["seed"] = rng_seed
+	if data.get("textures", {}).has("head_ao"):
+		f["ao"] = (data.textures.head_ao as Texture2D).get_image()
 	var skin_mat := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
 	var mats := {
 		"skin": skin_mat,
@@ -342,9 +344,12 @@ func _build_skin() -> void:
 		"hat_brim": _cloth("hat", hat_color, &"felt", false),
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
 	}
-	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band"]
+	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt"]
+	var baked: Dictionary = data.get("textures", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
+		if baked.has(shape):
+			base = _baked_cloth(shape, baked[shape])
 		var pieces: Dictionary = data.shapes[shape]
 		for b: int in pieces:
 			var sid: StringName = data.bones[b]
@@ -392,6 +397,17 @@ func _stop_skinning_across_joints() -> void:
 	for mi: MeshInstance3D in _rigid_meshes:
 		if is_instance_valid(mi):
 			mi.mesh = _rigid_meshes[mi]
+
+
+## A generated garment's own baked pixel texture (UVs 0..1 over it, not metres).
+func _baked_cloth(what: String, tex: Texture2D) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.resource_name = "%s:%s:baked" % [body_model, what]
+	m.albedo_texture = tex
+	m.texture_filter = PixelArt.texture_filter()
+	m.roughness = 0.95
+	m.uv1_scale = Vector3.ONE
+	return m
 
 
 func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -> StandardMaterial3D:

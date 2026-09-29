@@ -41,6 +41,21 @@ static func face_material(key: String, tex: Texture2D) -> StandardMaterial3D:
 	return _mats[key]
 
 
+## Shade a painted face with its head's baked occlusion: skin steps down its ramp a band at a time
+## (so it stays pixel art), anything else (hair, eyes) just darkens.
+static func _shade_with(img: Image, ao: Image, skin_sh: Array[Color]) -> void:
+	for y in img.get_height():
+		for x in img.get_width():
+			var a := ao.get_pixel(x * ao.get_width() / img.get_width(), y * ao.get_height() / img.get_height()).r
+			var c := img.get_pixel(x, y)
+			var k := clampi(int(round((1.0 - a) * 2.4 - 0.55)), 0, 2)
+			var i := skin_sh.find(c)
+			if i >= 0:
+				img.set_pixel(x, y, skin_sh[maxi(i - k, 0)])
+			elif k > 0:
+				img.set_pixel(x, y, c.darkened(0.14 * k))
+
+
 ## Woven cloth. style: &"plain" (shirting), &"wool" (heavy, felted), &"denim" (diagonal twill),
 ## &"stripe" (thin vertical stripes in `accent`), &"felt" (hats), &"leather".
 static func cloth(key: String, base: Color, seed: int, style := &"plain", accent := Color(0, 0, 0, 0)) -> ImageTexture:
@@ -154,6 +169,11 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 			img.set_pixel(x, FACE_H - 1 - y, skin_sh[PixelArt._band(0.28 + n + lit, skin_sh.size())])
 	var f := FaceCanvas.new(img)
 	var cx := FACE_W / 2
+	# A sculpted head (a generated body) brings its own shading, baked in this layout: its eye
+	# sockets, nose and ears are real, so none of that is painted, and the baked light and shadow
+	# shade the skin a band at a time.
+	var ao: Image = look.get("ao", null)
+	var sculpted := ao != null
 	# Heights on the head (metres) → rows.
 	var eye_row := f.row(1.655)
 	var brow_row := f.row(1.672)
@@ -163,11 +183,11 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 	var ear_row := f.row(1.635)
 	var hair_row := f.row(1.712)
 	# Sides of the face fall into shadow; the cheekbones catch light.
-	for dx in [7, 8, 9]:
+	for dx in ([] if sculpted else [7, 8, 9]):
 		f.shade(cx - dx, nose_row + 1, 1)
 		f.shade(cx + dx, nose_row + 1, 1)
 	# Eye sockets in shadow under the brow, then the eyes.
-	for dx in range(3, 10):
+	for dx in ([] if sculpted else range(3, 10)):
 		f.shade(cx - dx, eye_row, -1)
 		f.shade(cx + dx - 1, eye_row, -1)
 		f.shade(cx - dx, eye_row + 1, -2)
@@ -192,19 +212,20 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 			if thick > 0.5 and i > 2 and i < 8:
 				f.put(x, brow_row + lift - 1, hair_sh[1])
 	# Nose: a lit ridge, a shadowed side and dark nostrils.
-	for y in range(nose_row, eye_row):
-		f.shade(cx, y, 1)
-		f.shade(cx + 1, y, -1)
-	f.put(cx - 1, nose_row, skin_sh[0].darkened(0.3))
-	f.put(cx + 1, nose_row, skin_sh[0].darkened(0.3))
-	for dx in range(-2, 3):
-		f.shade(cx + dx, nose_row - 1, -2)
+	if not sculpted:
+		for y in range(nose_row, eye_row):
+			f.shade(cx, y, 1)
+			f.shade(cx + 1, y, -1)
+		f.put(cx - 1, nose_row, skin_sh[0].darkened(0.3))
+		f.put(cx + 1, nose_row, skin_sh[0].darkened(0.3))
+		for dx in range(-2, 3):
+			f.shade(cx + dx, nose_row - 1, -2)
 	# Mouth.
 	for dx in range(-4, 4):
 		f.put(cx + dx, mouth_row, skin_sh[0].darkened(0.2))
 		f.shade(cx + dx, mouth_row - 1, 1)
 	# Ears (the mesh adds a flap; this is the shadow round it).
-	for side in [-1, 1]:
+	for side in ([] if sculpted else [-1, 1]):
 		var ex: int = cx + side * (FACE_W / 4)
 		for y in range(ear_row - 3, ear_row + 4):
 			f.shade(ex, y, -1)
@@ -269,6 +290,8 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 				h = around > 0.62 or top > 1.66 or (around > 0.4 and top > 1.63)
 			if h:
 				f.put(x, y, hair_sh[PixelArt._band(PixelArt._noise(x % 64, y % 64, 16, 32, seed + 4) * 0.8 + 0.1, hair_sh.size())])
+	if sculpted:
+		_shade_with(img, ao, skin_sh)
 	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
 	_cache[ck] = tex

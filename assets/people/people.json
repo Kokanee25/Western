@@ -1,5 +1,5 @@
 {
-  "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. Output: assets/people/<id>.glb (+ .json with the joints it was fitted to).",
+  "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. `outfit`: the garments he wears and their colours (tools/blender/clothes.py makes and drapes them, and bakes each a pixel texture). Output: assets/people/<id>.glb, <id>_<garment>.png, and <id>.json (what was done).",
   "people": {
     "outlaw": {
       "note": "A hard man in his late thirties: lean, wiry, a little weathered.",
@@ -8,7 +8,8 @@
         "macrodetails/caucasian-male-old": 0.35,
         "macrodetails/universal-male-young-maxmuscle-averageweight": 0.35,
         "macrodetails/universal-male-young-averagemuscle-minweight": 0.25
-      }
+      },
+      "outfit": {"shirt": "#cdbf9f", "trousers": "#3a3129", "vest": "#3b2a1d", "coat": "#5c4029", "cravat": "#16120f"}
     }
   }
 }

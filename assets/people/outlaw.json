@@ -9,7 +9,7 @@
  "mh_height_m": 1.7444750000000002,
  "head_map": {
   "from": [
-   1.5432452936463816,
+   1.4539479354026497,
    1.571453298962804,
    1.621179336013036,
    1.7841337461185112
@@ -23,9 +23,21 @@
  },
  "faces_before_finger_cut": 13378,
  "faces_after_finger_cut": 11564,
+ "textures": {
+  "shirt": 64,
+  "trousers": 64,
+  "vest": 32,
+  "coat": 128,
+  "cravat": 32
+ },
  "triangles": {
-  "skin": 5610,
-  "head": 1388
+  "skin": 4467,
+  "head": 2532,
+  "shirt": 1500,
+  "trousers": 1199,
+  "vest": 700,
+  "coat": 2200,
+  "cravat": 32
  },
  "fit_joints": {
   "r-eye": [

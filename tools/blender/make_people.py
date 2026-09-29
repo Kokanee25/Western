@@ -29,6 +29,9 @@ import sys
 
 import numpy as np
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import clothes  # noqa: E402
+
 try:
     import bpy
 except ImportError:  # the fitting itself runs without Blender (for checks); export needs it
@@ -141,6 +144,7 @@ class Person:
         self.body_faces = groups["body"]
         self.eye_faces = groups["helper-r-eye"] + groups["helper-l-eye"]
         self.report = {"id": pid, "targets": spec.get("targets", {})}
+        self.spec = spec
 
     # Our side names: MakeHuman's "r" is his right, ours "_r" too.
     def our_joints(self):
@@ -187,6 +191,12 @@ class Person:
         mh_height = self.j["head-2"][1]
         radial = self.env["head_top"] / mh_height
         d = np.stack([seg_dist(v, b[1], b[2])[0] - b[5] for b in bones], axis=1)
+        # The trunk's fat capsule reaches past the chin: nothing above his neck joint is trunk,
+        # and nothing below it is head.
+        names = [b[0] for b in bones]
+        neck_y = self.j["neck"][1]
+        d[v[:, 1] > neck_y + 0.01, names.index("trunk")] += 1.0
+        d[v[:, 1] < neck_y, names.index("head")] += 1.0
         w = np.exp(-(d - d.min(1, keepdims=True)) / BLEND)
         w[w < 1e-3] = 0.0
         w /= w.sum(1, keepdims=True)
@@ -538,12 +548,29 @@ def build_blender(person):
                     obj.vertex_groups[b].add([new_i], float(w), "REPLACE")
         return obj
 
+    person.arm = arm
     head_ids = person.region == "head"
     skin_faces = [f for f in person.body_faces if not head_ids[f[0]].all()]
     head_faces = [f for f in person.body_faces if head_ids[f[0]].all()] + person.eye_faces
     # Skin UVs: MakeHuman's own layout, scaled to about a metre per unit for the tiling skin.
     skin = make("skin", skin_faces, lambda i, t: (person.uv[t][0] * 1.8, (1.0 - person.uv[t][1]) * 1.8))
     head = make("head", head_faces, lambda i, t: tuple(person.head_uv(person.v[i])))
+    # Clothes: made on the fitted body, the coat draped, detail baked into pixel textures.
+    outfit = person.spec.get("outfit", {})
+    garments = clothes.make_all(person, outfit)
+    cloth_objs = {n: clothes.to_object(g, to_blender, bones) for n, g in garments.items()}
+    if "coat" in cloth_objs:
+        clothes.drape(cloth_objs["coat"], garments["coat"], skin)
+    person.report["textures"] = {}
+    for n, obj in cloth_objs.items():
+        clothes.unwrap(obj)
+        png = os.path.join(OUT, "%s_%s.png" % (person.id, n))
+        size = clothes.bake_texture(obj, clothes.hex_colour(outfit[n]), os.path.abspath(png), seed=len(n) * 7 + 3,
+                                    style="wool" if n in ("coat", "vest", "trousers") else "cotton")
+        person.report["textures"][n] = size
+    clothes.bake_head_ao(head, os.path.abspath(os.path.join(OUT, "%s_head_ao.png" % person.id)))
+    for n, obj in cloth_objs.items():
+        clothes.decimate(obj, clothes.BUDGET.get(n, 1000))
     total = sum(len(o.data.polygons) * 2 for o in (skin, head))
     for obj in (skin, head):
         share = len(obj.data.polygons) * 2 / total
@@ -553,10 +580,16 @@ def build_blender(person):
         mod.use_collapse_triangulate = True
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.modifier_apply(modifier="decimate")
+    # Cutting everything down lets under-layers poke through: push each layer back out.
+    layers = dict(cloth_objs)
+    layers["skin"] = skin
+    clothes.separate(layers)
+    for obj in [skin, head] + list(cloth_objs.values()):
         m = obj.modifiers.new("skeleton", "ARMATURE")
         m.object = arm
         obj.parent = arm
-    person.report["triangles"] = {o.name[5:]: sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (skin, head)}
+    person.report["triangles"] = {o.name.split("_", 1)[1]: sum(len(p.vertices) - 2 for p in o.data.polygons)
+                                  for o in [skin, head] + list(cloth_objs.values())}
 
 
 def export(person):

@@ -10,8 +10,10 @@ same body.
 - **The men have real bodies now.** Their skin and head come from MakeHuman's base human (free to
   use, CC0), built by a script in Blender and fitted to the game's skeleton, so they have
   cheekbones, brows, a jaw, collarbones and knees instead of the mannequin. Wounds, holes you can
-  see into, severed limbs, the ragdoll and the X-ray (F10) all work on them as before. Clothes and
-  faces are still the old painted ones; those come next.
+  see into, severed limbs, the ragdoll and the X-ray (F10) all work on them as before.
+- **Real clothes**: a shirt with a collar, a vest open at the neck, a string tie, and (on men who
+  wear one) a heavy coat with lapels whose skirt was draped by a cloth simulation, each with its
+  folds and shadows baked into a small pixel texture. The face is shaded by its own shape now.
 - **The painting's shot is in the saloon**: the back card table at night, a man sat at it on his
   forearms with a tin cup, the lamp between you. It's for judging the look against the concept
   painting; for now it's a screenshot view (`shot_match_saloon`), not a place you can sit.

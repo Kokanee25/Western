@@ -2,11 +2,17 @@ class_name PeopleBodies
 ## The bodies made from MakeHuman by tools/blender/make_people.py (assets/people/<id>.glb): a real
 ## man's skin and head, fitted to our skeleton and the body envelope, skinned to our 17 bones.
 ## `build()` gives HumanBody the same thing BodyMesh.build() does — {bones, rests, shapes} with
-## every shape cut into a piece per body part — with the generated skin and head in place of the
-## lofted ones; the clothes still come from BodyMesh (they're fitted to the same envelope). With
-## no generated body (or `model` empty), it's BodyMesh as before.
+## every shape cut into a piece per body part — with the generated skin, head and clothes (shirt,
+## trousers, vest, draped coat, tie) in place of the lofted ones, plus `textures`: each generated
+## garment's baked pixel texture (assets/people/<id>_<garment>.png). What the model doesn't have
+## (boots, belts, hat) still comes from BodyMesh, fitted to the same envelope. With no generated
+## body (or `model` empty), it's BodyMesh as before.
 
 const PATH := "res://assets/people/%s.glb"
+## Each generated garment's baked pixel texture.
+const TEXTURE_PATH := "res://assets/people/%s_%s.png"
+## Garments an outfit turns on or off (the rest of a generated body is always worn).
+const OUTFIT_KEYS := ["shirt", "vest", "coat", "trousers", "boots", "bandana", "hat"]
 
 static var _cache := {}
 
@@ -23,9 +29,19 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if generated.is_empty():
 		return data
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
+	var textures := {}
 	for k: String in generated:
-		shapes[k] = generated[k]
-	return {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model}
+		# His own skin and head always; a garment only if this outfit has it (a man without a coat
+		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie).
+		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS:
+			shapes[k] = generated[k]
+			var png := TEXTURE_PATH % [model, k]
+			if ResourceLoader.exists(png):
+				textures[k] = load(png)
+	var ao := TEXTURE_PATH % [model, "head_ao"]
+	if ResourceLoader.exists(ao):
+		textures["head_ao"] = load(ao)
+	return {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.
@@ -46,8 +62,8 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	for i in order.size():
 		centres[i] = anatomy.segment_center(order[i])
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
-		var shape := String(mi.name).to_lower().trim_prefix("body_")
-		if not shape in ["skin", "head"] or mi.mesh == null:
+		var shape := String(mi.name).to_lower().trim_prefix("body_").trim_prefix("cloth_")
+		if mi.mesh == null:
 			continue
 		# The mesh's bone numbers are the skin's binds; ours are the anatomy's segment order.
 		var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D

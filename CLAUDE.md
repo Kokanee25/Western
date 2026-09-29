@@ -152,7 +152,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
-  — cut fingers, skin to our bones, decimate to 7k tris, export `.glb`). Runs on GitHub Actions
+  — cut fingers, skin to our bones, decimate to 7k tris, export `.glb`), `clothes.py` (shirt,
+  trousers, vest, coat with skirt draped by cloth sim + lapels + collars, string tie; AO baked with
+  Cycles and quantized into `<id>_<garment>.png`; `<id>_head_ao.png` for the face painter; layer
+  separation after decimation). Runs on GitHub Actions
   (`.github/workflows/people.yml`, manual; commits `assets/people/`) or here with
   `pip install bpy==5.0.1` in a venv (PyPI is reachable from the workspace now).
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
@@ -560,3 +563,19 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     them); lofted clothes over the MakeHuman body (step 3 drapes real ones); the MakeHuman eyes
     are painted by the face texture; no teeth/tongue/eyelashes (dropped helpers).
   - Next: step 3, baked pixel textures and draped clothes (coat with lapels, vest, shirt, cravat).
+- 2026-09-29 (later): **Characters, step 3: draped clothes, baked pixel textures.** `clothes.py`
+  makes garments as shells over the fitted body (shirt 5 mm, trousers 8, vest 13 with an open V,
+  coat 24 with an open front to the waist), extrudes a coat skirt from the hem (6 rings, flaring,
+  open at the front) and drapes it with Blender cloth (top pinned, heavy wool, body collider),
+  raised lapels, collars, a string tie. Each garment: smart-UV, Cycles AO (10 cm reach, 128
+  samples, blurred), a little weave, quantized to 5 shades at ~48 texels/m → PNG (lossless,
+  nearest in game; not embedded in the glb). After decimation, `separate()` pushes each layer
+  out of the ones under it. The head gets `outlaw_head_ao.png` in the face painter's layout;
+  `PeopleArt.face(look.ao)` then skips its painted eye-socket/nose/ear shadows and shades skin a
+  band at a time. `people.json` `outfit` sets garments and colours; a man whose outfit lacks one
+  (no coat) doesn't wear the model's. Bug fixed: the trunk's capsule reached past the chin, so
+  face vertices were trunk (a shirt patch over the face). 226 tests pass.
+  - Known: garments are made in the standing pose, so the skirt deforms by skinning when he sits
+    (thighs can poke through); no buttons/pockets; hat, boots, belts still lofted; the face is
+    still the code-painted one (step 4).
+  - Next: step 4, image-model faces (needs Sean's key), then the lighting pass.

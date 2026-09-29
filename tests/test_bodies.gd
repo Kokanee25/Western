@@ -317,3 +317,19 @@ func test_he_has_the_generated_makehuman_body() -> void:
 			plain_tris += (plain.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX].size() / 3
 	check(plain_tris > 0 and plain_tris < tris, "BodyMesh when there's no model (%d)" % plain_tris)
 	plain.queue_free()
+
+
+func test_generated_clothes_are_worn_as_the_outfit_says() -> void:
+	var keys: Array = man.skin_meshes.keys()
+	check(keys.any(func(k: String) -> bool: return k.begins_with("cravat/")), "the tie from the generated body")
+	check(not keys.any(func(k: String) -> bool: return k.begins_with("coat/")), "no coat on a man without one")
+	var coated := HumanBody.new()
+	coated.person_id = &"coated"
+	coated.coat_color = Color(0.4, 0.3, 0.2, 1.0)
+	add_child(coated)
+	await physics_frames(2)
+	var coat: MeshInstance3D = coated.skin_meshes.get("coat/chest")
+	if check(coat != null, "the draped coat when he wears one"):
+		var tex = (coat.material_override as ShaderMaterial).get_shader_parameter(&"albedo_tex")
+		check(tex is Texture2D and (tex as Texture2D).get_width() >= 64, "with its baked pixel texture")
+	coated.queue_free()
