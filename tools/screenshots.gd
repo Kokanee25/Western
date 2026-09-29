@@ -51,6 +51,8 @@ const VIEWS := [
 	["dynamite_store_blast", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast"],
 	["dynamite_store_after", 13.0, Vector3(3.0, 0.0, -9.5), 180.0, 8.0, "store_blast_after"],
 	["outlaw_blast", 15.0, Vector3(23.2, 0.0, -12.0), -100.0, -40.0, "outlaw_blast"],
+	["outlaw_in_cover", 15.0, Vector3(14.0, 0.0, -8.4), -60.0, -3.0, "outlaw_cover"],
+	["outlaw_peeking", 15.0, Vector3(14.0, 0.0, -8.4), -60.0, -3.0, "outlaw_peek"],
 	["outlaw_buckshot_room", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot_room"],
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
@@ -324,6 +326,22 @@ func _outlaw_setup(main, setup, player) -> void:
 			await physics_frame
 		for i in 60:
 			await physics_frame
+	elif setup == "outlaw_cover" or setup == "outlaw_peek":
+		brain.nerve = 99.0
+		var from = player.get_node(^"Head/Camera3D").global_position
+		var near = man.global_position + Vector3(0.0, 1.6, 1.0)
+		var ex: Array[RID] = [player.get_rid()]
+		var b = ballistics.fire(from, (near - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
+		b.shooter = player
+		var want = 2 if setup == "outlaw_cover" else 3  # OutlawBrain.Tactic.HIDDEN / PEEKING
+		for i in 900:
+			await physics_frame
+			if brain.tactic == want and i > 60:
+				break
+		for i in 20:
+			await physics_frame
+		# Freeze him as he is for the picture.
+		brain.set_physics_process(false)
 	elif setup == "outlaw_blast":
 		brain.set_physics_process(false)
 		var foot = parts[&"foot_l"].global_position

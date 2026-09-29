@@ -119,7 +119,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   edit the script, not the JSON: segments, bones, arteries, organs, fingers; traces a
   bullet through them), `Physiology` (blood, bleeds, shock, pain, adrenaline, breathing;
   config/physiology.tres), `HumanBody` (segment hitboxes, meshes, clothes, wound decals, ragdoll),
-  `OutlawBrain` (fear/nerve, fights, surrenders), `Layers` (physics/render layer bits),
+  `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
+  surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
+  `Layers` (physics/render layer bits),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`).
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
@@ -414,3 +417,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   0.2 kg TNT; blast knockdown from 35 kPa. Blast RNG seeded by position (deterministic). Street
   tests: thrown at the store 11 timber broken; floor blown through; 1.5 m from the outlaw he's down
   with gravel wounds. The shotgun player test turns misfires off (seeded by node path). 182 pass.
+- 2026-09-29 (overnight): **M2 follow-ups: the outlaw fights like a man.** `HumanBody`: code-made
+  poses crouch/crouch_aim/duck/tend/lie/prone/prone_aim (+X swings a hanging limb forward, leans the
+  trunk back; `_place_rig()` lowers the rig so the lower foot stays on the ground, or lays it
+  face-down), a gait overlay (walk/run/limp/crawl from `move_speed`), `walk_to()` (sphere-cast
+  slide along walls and people, ground snap, step up to the boardwalk), `prone` (legs gone but
+  conscious: posed on his belly, not a ragdoll; `_can_crawl()`), blocker follows the pose. Ragdoll
+  knees and elbows are `HingeJoint3D`s (limits from the current bend; the hinge's angle runs opposite
+  to the poses' X). `Cover`: a spot is hidden if rays from the threat's eye to his head/chest (and
+  18 cm either side) are stopped within 1.6 m of him (heights from the poses: duck head 0.97,
+  crouch 1.23, lying 0.42); needs a peek (rise, or lean out ±0.6–1.8 m) and a route (straight or
+  one waypoint round). `OutlawBrain`: tactics with cover, suppression from near misses, flanking
+  after ~10–18 s or 4 peeks, flee (`flee_chance`, needs `can_run`, not within 5 m or covered close),
+  tending (`tend_bleed`, `tend_quiet`: pressure, then tourniquet/bandage), prone fighting; a second
+  RNG (`_think`) so tactics don't change his aim. `RangeCover` (woodpile, barrels, crates, fence) on
+  the range. `tools/pose_views.gd` renders the poses. Renders `docs/screenshots/outlaw_ai/`.
+  197 tests pass.
+  - Known: no real pathfinding (straight lines and one waypoint); prone men don't seek cover;
+    the posed movement is stiff until mocap; he can't get up from a ragdoll fall.
+  - Next: Sean plays it; then the people art pass or rope.

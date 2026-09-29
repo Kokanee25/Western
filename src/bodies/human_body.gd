@@ -12,6 +12,8 @@ signal hit(info: Dictionary)
 signal fell(conscious: bool)
 signal died(cause: StringName)
 
+## Joint rotations per pose (degrees). A hanging limb swings forward with +X; the trunk and head
+## lean back with +X (forward with -X). The rig drops so the lower foot stays on the ground.
 const POSES := {
 	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
@@ -19,10 +21,45 @@ const POSES := {
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
 	&"hands_up": {&"upper_arm_r": Vector3(0, 0, 150), &"forearm_r": Vector3(0, 0, 25),
 			&"upper_arm_l": Vector3(0, 0, -150), &"forearm_l": Vector3(0, 0, -25), &"head": Vector3(8, 0, 0)},
-	&"clutch": {&"upper_arm_r": Vector3(30, 0, 12), &"forearm_r": Vector3(75, -30, 0),
-			&"upper_arm_l": Vector3(30, 0, -12), &"forearm_l": Vector3(75, 30, 0),
-			&"chest": Vector3(18, 0, 0), &"head": Vector3(15, 0, 0)},
+	&"clutch": {&"upper_arm_r": Vector3(18, 0, -16), &"forearm_r": Vector3(100, 0, 0),
+			&"upper_arm_l": Vector3(18, 0, 16), &"forearm_l": Vector3(100, 0, 0),
+			&"chest": Vector3(-18, 0, 0), &"head": Vector3(-10, 0, 0)},
+	# Down on his heels behind something low, gun held ready.
+	&"crouch": {&"thigh_r": Vector3(95, 0, 8), &"thigh_l": Vector3(95, 0, -8), &"shin_r": Vector3(-125, 0, 0),
+			&"shin_l": Vector3(-125, 0, 0), &"foot_r": Vector3(30, 0, 0), &"foot_l": Vector3(30, 0, 0),
+			&"abdomen": Vector3(-10, 0, 0), &"chest": Vector3(-15, 0, 0), &"head": Vector3(15, 0, 0),
+			&"upper_arm_r": Vector3(30, 0, 4), &"forearm_r": Vector3(60, 0, 0),
+			&"upper_arm_l": Vector3(22, 0, 14), &"forearm_l": Vector3(95, 0, 0)},
+	# Crouched and shooting over it.
+	&"crouch_aim": {&"thigh_r": Vector3(95, 0, 8), &"thigh_l": Vector3(95, 0, -8), &"shin_r": Vector3(-125, 0, 0),
+			&"shin_l": Vector3(-125, 0, 0), &"foot_r": Vector3(30, 0, 0), &"foot_l": Vector3(30, 0, 0),
+			&"chest": Vector3(-4, 8, 0), &"head": Vector3(4, 0, 0),
+			&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
+			&"upper_arm_l": Vector3(20, 0, 12), &"forearm_l": Vector3(95, 0, 0)},
+	# Hunched right down, head in: rounds cracking over.
+	&"duck": {&"thigh_r": Vector3(105, 0, 10), &"thigh_l": Vector3(105, 0, -10), &"shin_r": Vector3(-140, 0, 0),
+			&"shin_l": Vector3(-140, 0, 0), &"foot_r": Vector3(35, 0, 0), &"foot_l": Vector3(35, 0, 0),
+			&"abdomen": Vector3(-20, 0, 0), &"chest": Vector3(-30, 0, 0), &"head": Vector3(-5, 0, 0),
+			&"upper_arm_r": Vector3(35, 0, -10), &"forearm_r": Vector3(100, 0, 0),
+			&"upper_arm_l": Vector3(35, 0, 14), &"forearm_l": Vector3(105, 0, 0)},
+	# Crouched, pressing on a wound.
+	&"tend": {&"thigh_r": Vector3(95, 0, 8), &"thigh_l": Vector3(95, 0, -8), &"shin_r": Vector3(-125, 0, 0),
+			&"shin_l": Vector3(-125, 0, 0), &"foot_r": Vector3(30, 0, 0), &"foot_l": Vector3(30, 0, 0),
+			&"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-25, 0, 0), &"head": Vector3(-15, 0, 0),
+			&"upper_arm_r": Vector3(30, 0, -18), &"forearm_r": Vector3(100, 0, 0),
+			&"upper_arm_l": Vector3(30, 0, 18), &"forearm_l": Vector3(100, 0, 0)},
+	# On his belly (the rig is laid flat): arms forward, head up.
+	&"prone": {&"upper_arm_r": Vector3(150, 0, 12), &"forearm_r": Vector3(25, 0, 0),
+			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
+	&"lie": {&"upper_arm_r": Vector3(165, 0, 20), &"forearm_r": Vector3(60, 0, 0),
+			&"upper_arm_l": Vector3(165, 0, -20), &"forearm_l": Vector3(60, 0, 0), &"head": Vector3(20, 0, 0)},
+	&"prone_aim": {&"upper_arm_r": Vector3(172, 0, 4), &"forearm_r": Vector3(0, 0, 0),
+			&"upper_arm_l": Vector3(140, 0, -25), &"forearm_l": Vector3(45, 0, 0), &"head": Vector3(60, 0, 0)},
 }
+## Poses lying down (the rig is turned face-down). "lie" is lying flat by choice (behind something
+## low), and he can get up again; "prone" is down because his legs have gone.
+const PRONE_POSES := [&"prone", &"prone_aim"]
+
 ## Cone-twist limits at each segment's joint to its parent: [swing, twist] degrees.
 const JOINT_LIMITS := {
 	&"abdomen": [20, 12], &"chest": [22, 12], &"neck": [30, 25], &"head": [35, 30],
@@ -72,6 +109,14 @@ var _cough_in := 3.0
 ## Wound openings per segment: [{at (segment-centred), energy (J), radius (m)}].
 var openings := {}
 var xray := false
+## Moving: how fast (m/s) and how (&"walk", &"run", &"limp", &"crawl"; &"" standing still).
+var move_speed := 0.0
+var gait := &""
+## Down on the ground but still moving (legs gone, not knocked out): posed, not a ragdoll.
+var prone := false
+var _gait_phase := 0.0
+var _rest_foot_y := 0.0
+var _moved_this_tick := false
 var _pool: Decal
 var _pool_ml := 0.0
 var _day_cycle: Node
@@ -372,8 +417,18 @@ func _physics_process(delta: float) -> void:
 	_update_stains()
 	if not limp:
 		_apply_pose(delta)
-		if not physiology.can_stand():
+		if not physiology.can_stand() and not prone:
+			if _can_crawl():
+				go_prone()
+			else:
+				go_limp()
+		elif prone and not _can_crawl():
 			go_limp()
+	if not _moved_this_tick:
+		move_speed = move_toward(move_speed, 0.0, delta * 6.0)
+		if move_speed < 0.05:
+			gait = &""
+	_moved_this_tick = false
 	if held_gun != null and not physiology.can_hold("r"):
 		drop_gun()
 	if limp:
@@ -388,8 +443,115 @@ func _physics_process(delta: float) -> void:
 
 
 func set_pose(p: StringName) -> void:
-	if POSES.has(p):
-		pose = p
+	if not POSES.has(p):
+		return
+	if prone and not p in PRONE_POSES:
+		p = &"prone_aim" if p == &"aim" or p == &"crouch_aim" else &"prone"
+	pose = p
+
+
+## Legs gone but still with it: down on his belly, able to crawl and shoot.
+func _can_crawl() -> bool:
+	var p := physiology
+	return p.is_conscious() and p.shock() < 0.8 and (p.can_hold("r") or p.can_hold("l")) and not p.arms_paralysed()
+
+
+func go_prone() -> void:
+	if prone or limp:
+		return
+	prone = true
+	set_pose(&"prone")
+	fell.emit(true)
+	Events.person_fell.emit(self, true)
+
+
+## Walk (or run, or crawl) towards a point on the ground, this tick. Stops short of walls and
+## people; slides along them; climbs a step up to a boardwalk. Returns true on arrival.
+func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> bool:
+	if limp:
+		return false
+	var to := target - global_position
+	to.y = 0.0
+	var dist := to.length()
+	if dist < 0.1:
+		return true
+	var p := physiology
+	var how := &"run" if speed > 2.4 else &"walk"
+	# Hurt legs slow him and make him limp.
+	var legs := minf(p.muscle_strength("leg", "r"), p.muscle_strength("leg", "l"))
+	speed *= lerpf(0.4, 1.0, legs) * (1.0 - p.shock() * 0.5)
+	if legs < 0.75 and not prone:
+		how = &"limp"
+		speed = minf(speed, 1.3)
+	if prone:
+		how = &"crawl"
+		speed = minf(speed, 0.35)
+	var dir := to / dist
+	var step := minf(speed * delta, dist)
+	var moved := _slide(dir * step)
+	if facing and moved.length() > 0.001:
+		var look := global_position + (moved if not prone else dir)
+		var fwd := look - global_position
+		global_rotation.y = atan2(-fwd.x, -fwd.z)
+	_snap_to_ground()
+	gait = how
+	move_speed = moved.length() / maxf(delta, 1e-4)
+	_moved_this_tick = true
+	var left := target - global_position
+	left.y = 0.0
+	return left.length() < 0.1 or (dist < 0.4 and moved.length() < 0.001)
+
+
+## Move by `motion` (flat), stopping at and sliding along whatever's in the way.
+func _slide(motion: Vector3) -> Vector3:
+	var space := get_world_3d().direct_space_state
+	var shape := SphereShape3D.new()
+	shape.radius = 0.26
+	var exclude: Array[RID] = []
+	if _blocker and is_instance_valid(_blocker):
+		exclude.append(_blocker.get_rid())
+	var total := Vector3.ZERO
+	var left := motion
+	for attempt in 3:
+		if left.length() < 0.0005:
+			break
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape
+		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75))
+		q.motion = left
+		q.collision_mask = Layers.WORLD | Layers.PEOPLE
+		q.exclude = exclude
+		var frac := space.cast_motion(q)
+		var safe := left * frac[0]
+		total += safe
+		if frac[0] >= 1.0:
+			break
+		# Blocked: slide along it.
+		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75) + left.normalized() * 0.02)
+		q.motion = Vector3.ZERO
+		var rest := space.get_rest_info(q)
+		if rest.is_empty():
+			break
+		var n: Vector3 = rest.normal
+		n.y = 0.0
+		if n.length() < 0.01:
+			break
+		n = n.normalized()
+		left = (left - safe)
+		left -= n * left.dot(n)
+	global_position += total
+	return total
+
+
+## Keep his feet on whatever's under him (a boardwalk step up, a slope).
+func _snap_to_ground() -> void:
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.5, global_position + Vector3.DOWN * 1.0, Layers.WORLD)
+	if _blocker and is_instance_valid(_blocker):
+		q.exclude = [_blocker.get_rid()]
+	var hit := space.intersect_ray(q)
+	if not hit.is_empty():
+		global_position.y = hit.position.y
 
 
 ## Turn to face a point and, in the aim pose, raise the gun arm to it.
@@ -409,9 +571,10 @@ func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
+	var overlay := _gait_overlay(delta)
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO)
-		if sid == &"upper_arm_r" and pose == &"aim":
+		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO)
+		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
 		now = now.lerp(goal, blend)
@@ -426,8 +589,88 @@ func _apply_pose(delta: float, snap := false) -> void:
 		if sid == &"chest":
 			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
 		(pivots[sid] as Node3D).rotation_degrees = rot
+	_place_rig(delta, snap)
 	if held_gun != null:
 		curl_hand("r", 0.85)
+
+
+## Swinging legs and arms while he moves: a walk, a run, a limp favouring the bad leg, a crawl.
+func _gait_overlay(delta: float) -> Dictionary:
+	var out := {}
+	if gait == &"" or move_speed < 0.05:
+		return out
+	var stride: float = {&"walk": 1.3, &"run": 2.2, &"limp": 0.9, &"crawl": 0.5}.get(gait, 1.3)
+	_gait_phase = fmod(_gait_phase + delta * move_speed / stride * TAU, TAU)
+	var s := sin(_gait_phase)
+	var c := cos(_gait_phase)
+	var aiming := pose == &"aim" or pose == &"crouch_aim" or pose == &"prone_aim"
+	match gait:
+		&"crawl":
+			out[&"upper_arm_r"] = Vector3(s * 25.0, 0, 0)
+			out[&"upper_arm_l"] = Vector3(-s * 25.0, 0, 0)
+			out[&"thigh_r"] = Vector3(-maxf(s, 0.0) * 20.0, 0, 10)
+			out[&"thigh_l"] = Vector3(-maxf(-s, 0.0) * 20.0, 0, -10)
+			out[&"shin_r"] = Vector3(-maxf(s, 0.0) * 50.0, 0, 0)
+			out[&"shin_l"] = Vector3(-maxf(-s, 0.0) * 50.0, 0, 0)
+		_:
+			var run := gait == &"run"
+			var amp_t := 40.0 if run else 22.0
+			var amp_s := 75.0 if run else 38.0
+			var amp_a := 32.0 if run else 14.0
+			var bad_r := gait == &"limp" and physiology.muscle_strength("leg", "r") <= physiology.muscle_strength("leg", "l")
+			var k_r := 0.35 if gait == &"limp" and bad_r else 1.0
+			var k_l := 0.35 if gait == &"limp" and not bad_r else 1.0
+			out[&"thigh_r"] = Vector3(s * amp_t * k_r, 0, 0)
+			out[&"thigh_l"] = Vector3(-s * amp_t * k_l, 0, 0)
+			out[&"shin_r"] = Vector3(-maxf(c, 0.0) * amp_s * k_r, 0, 0)
+			out[&"shin_l"] = Vector3(-maxf(-c, 0.0) * amp_s * k_l, 0, 0)
+			if not aiming:
+				out[&"upper_arm_r"] = Vector3(-s * amp_a, 0, 0)
+				out[&"upper_arm_l"] = Vector3(s * amp_a, 0, 0)
+			if run:
+				out[&"chest"] = Vector3(-12.0, 0, 0)
+			if gait == &"limp":
+				out[&"chest"] = Vector3(-6.0, 0, 8.0 * (1.0 if bad_r else -1.0) * absf(s))
+	return out
+
+
+## The rig's height and tilt: lowered so the lower foot is on the ground, or laid face-down.
+func _place_rig(delta: float, snap: bool) -> void:
+	var k := 1.0 if snap else clampf(delta * 8.0, 0.0, 1.0)
+	if prone or pose == &"lie":
+		_rig.rotation.x = lerp_angle(_rig.rotation.x, deg_to_rad(-90.0), clampf(delta * 3.0, 0.0, 1.0) if not snap else 1.0)
+		_rig.position.y = lerpf(_rig.position.y, 0.16, k)
+		_set_blocker(true)
+		return
+	_rig.rotation.x = 0.0
+	if _rest_foot_y == 0.0:
+		_rest_foot_y = _foot_height()
+	var drop := _rest_foot_y - _foot_height() + _rig.position.y
+	_rig.position.y = lerpf(_rig.position.y, drop, k)
+	_set_blocker(false)
+
+
+func _foot_height() -> float:
+	var lowest := INF
+	for sid: StringName in [&"foot_r", &"foot_l"]:
+		var pv := pivots.get(sid) as Node3D
+		if pv:
+			lowest = minf(lowest, to_local(pv.global_position).y)
+	return lowest if lowest < INF else 0.0
+
+
+## The capsule that stops the player walking through him: upright, or lying along him.
+func _set_blocker(lying: bool) -> void:
+	if _blocker == null or not is_instance_valid(_blocker):
+		return
+	var bs := _blocker.get_child(0) as CollisionShape3D
+	if lying:
+		bs.position = Vector3(0, 0.18, -0.85)
+		bs.rotation_degrees = Vector3(90, 0, 0)
+	else:
+		var h := clampf(anatomy.height + _rig.position.y, 0.9, anatomy.height)
+		bs.position = Vector3(0, h * 0.5, 0)
+		bs.rotation_degrees = Vector3.ZERO
 
 
 ## Blood in the windpipe or a holed lung: he coughs it up, now and then.
@@ -843,6 +1086,10 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
 			continue
+		var key0 := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
+		if key0 == &"shin" or key0 == &"forearm":
+			_hinge(sid, parent, bodies, joint_at[sid])
+			continue
 		var j := ConeTwistJoint3D.new()
 		j.name = "Joint_%s" % sid
 		add_child(j)
@@ -918,6 +1165,8 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var speed := Blast.impulse(kg, r) * shield * 0.7 * bt.throw_factor / maxf(_body_mass(), 1.0)
 	var push := (dir + Vector3.UP * 0.35).normalized() * minf(speed, bt.max_throw)
 	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
+	if down:
+		harm.append("thrown off his feet")
 	if down and not limp:
 		go_limp(push)
 	elif limp:
@@ -997,6 +1246,39 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
 		if held_gun and String(segment).ends_with("_r"):
 			drop_gun()
+
+
+## Knees and elbows are hinges: a knee only bends back, an elbow only forward, however he falls.
+## The limits are measured from how bent the joint is as he goes limp.
+const KNEE_BEND := 150.0
+const ELBOW_BEND := 150.0
+
+
+func _hinge(sid: StringName, parent: StringName, bodies: Dictionary, at: Vector3) -> void:
+	var j := HingeJoint3D.new()
+	j.name = "Joint_%s" % sid
+	add_child(j)
+	# The hinge turns about its Z: lay that along his right (the parent's X), Y down the limb.
+	var right := (bodies[parent] as Node3D).global_basis.x.normalized()
+	var down := ((bodies[sid] as Node3D).global_position - at).normalized()
+	down = (down - right * down.dot(right)).normalized()
+	j.global_transform = Transform3D(Basis(down.cross(right), down, right), at)
+	j.node_a = j.get_path_to(bodies[parent])
+	j.node_b = j.get_path_to(bodies[sid])
+	var now: float = (_pose_now.get(sid, Vector3.ZERO) as Vector3).x
+	var lower := 0.0
+	var upper := 0.0
+	# The hinge's angle runs opposite to the poses' X (measured from where the joint is now).
+	if String(sid).begins_with("shin"):
+		# A knee bends with -X in the poses: from straight to fully bent.
+		lower = now
+		upper = KNEE_BEND + now
+	else:
+		lower = now - ELBOW_BEND
+		upper = now
+	j.set_flag(HingeJoint3D.FLAG_USE_LIMIT, true)
+	j.set_param(HingeJoint3D.PARAM_LIMIT_LOWER, deg_to_rad(lower))
+	j.set_param(HingeJoint3D.PARAM_LIMIT_UPPER, deg_to_rad(upper))
 
 
 # --- Openings: bad wounds show what's inside --------------------------------------------------
