@@ -365,6 +365,8 @@ func _build_skin() -> void:
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			if shape == "head" and sid == &"head":
+				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
 			mi.custom_aabb = AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
 			skeleton.add_child(mi)
@@ -384,6 +386,19 @@ func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMate
 	m.set_shader_parameter(&"use_custom_pos", true)
 	m.set_shader_parameter(&"uv_scale", base.uv1_scale.x)
 	return m
+
+
+## Glossy eyeballs on the head piece (the shader's rest positions are head-centred).
+func _wet_eyes(m: ShaderMaterial) -> void:
+	var centre := anatomy.segment_center(&"head")
+	var r := anatomy.structure(&"eye_r")
+	var l := anatomy.structure(&"eye_l")
+	if r.is_empty() or l.is_empty():
+		return
+	m.set_shader_parameter(&"eye_r_pos", (r.a as Vector3) - centre)
+	m.set_shader_parameter(&"eye_l_pos", (l.a as Vector3) - centre)
+	# The eyeball and a hair of the lids round it.
+	m.set_shader_parameter(&"eye_radius", float(r.radius) + 0.002)
 
 
 ## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on

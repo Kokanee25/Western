@@ -75,7 +75,11 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
   (1-px outlines, lit-edge highlights, palette snapping, pixel-stable camera — the known technique
   for 3D that reads as hand-made pixel art), painterly pixel-art textures generated with an image
   model and mapped onto models, and much denser dressing (bottles, glasses, pictures, people).
-  Honest limit: faces won't reach the painting's portrait detail up close.
+  **Faces as good as the painting's** (Sean, 2026-09-29: "I want the faces to look that good"):
+  reachable. At the game's 640×360 the painting's face is only about 70×80 pixels, and a 3D face can
+  make those pixels (image-model face on a sculpted head, framed and lit as the painting has him).
+  What's hard is keeping it that good in motion (talking, blinking), from other angles, for every
+  townsperson rather than one, and in the web build's simpler renderer.
 - **Method for the look pass: a shot match** (Sean approved, 2026-09-28). Build the scene in
   `docs/concept/saloon-night.png` in the game saloon and put a fixed camera at the painting's angle:
   first-person, seated at a round table with a lamp, bottle and tin cup in the foreground; a man in a
@@ -92,8 +96,8 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
     `docs/TOWN.md`) — reachable, volume of work; **characters (primitive shapes → real proportions,
     detailed skin/hair/clothing textures snapped to the pixel palette, animated faces) — the biggest
     gap**: needs proper character models from the Blender pipeline (a free human base such as MakeHuman
-    is a reasonable start) and face animation (iPhone face capture); expect roughly two-thirds of the
-    painting's character detail; a saloon of 8–12 people.
+    is a reasonable start) and face animation (iPhone face capture); the painting's face detail is
+    the target (see "Faces as good as the painting's" above); a saloon of 8–12 people.
   - Order of attack: lighting → textures and palette → dressing → characters.
   - **Characters: how we get to the painting's men** (Sean, 2026-09-29, after the first generated
     body: "how do we get our characters to look like this"). The code-lofted `BodyMesh` is a

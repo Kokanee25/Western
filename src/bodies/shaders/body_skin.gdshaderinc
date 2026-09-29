@@ -13,6 +13,11 @@ uniform float roughness_value = 0.8;
 // position in the segment's own space, carried in CUSTOM0 (the mesh itself is skinned).
 uniform bool use_uv = false;
 uniform bool use_custom_pos = false;
+// The eyes are wet: within eye_radius of either eyeball's centre (same space as local_pos) the
+// surface is glossy, so a lamp puts a glint in them. The head's pieces only; radius 0 = none.
+uniform vec3 eye_r_pos = vec3(0.0);
+uniform vec3 eye_l_pos = vec3(0.0);
+uniform float eye_radius = 0.0;
 
 varying vec3 local_pos;
 varying vec3 local_normal;
@@ -34,6 +39,10 @@ void fragment() {
 	vec3 base = (use_uv ? texture(albedo_tex, UV * uv_scale).rgb : triplanar(local_pos, local_normal)) * tint.rgb;
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;
+	if (eye_radius > 0.0 && min(distance(local_pos, eye_r_pos), distance(local_pos, eye_l_pos)) < eye_radius) {
+		ROUGHNESS = 0.12;
+		SPECULAR = 0.9;
+	}
 	if (reach < 1.0) {
 		if (!reduced_gore) {
 			discard;

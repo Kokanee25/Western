@@ -149,6 +149,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
+  Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
+  the camera's fov and pitch back to the game's (75°, level).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -624,3 +626,28 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `test_the_coat_skirt_hangs_from_his_hips_not_his_arms`). Skin tone is measured from the painted
   face (`outlaw.json` `skin_tone`). Face projected at 384×256, 40 colours. Face repainted on the
   corrected head (People run 3). New screenshot views `portrait_day`, `coat_hands_up`. 227 pass.
+- 2026-09-29 (later): **Shot match round 7: the painting's face.** Sean asked whether faces can look
+  as good as the painting's: yes (DESIGN.md §4 reworded) — at 640×360 the painting's face is ~70×80 px.
+  (1) **Every shot-match round before this was rendered at 75°**, not 48°: the screenshot setup hid
+  the revolver but left it `selected`, and `WeaponViewmodel._animate_camera` pulls fov to 75 and
+  levels the pitch. `ShotMatch.frame_camera()` takes every gun out of hand (portrait views too); test
+  `test_the_shot_keeps_its_lens_and_aim`. (2) Camera fitted to the painting (probe the staged
+  scene, project, grid-search a seated eye): his eyes land at its eye spot at its size (eye to chin
+  106 of 941 px); lamp, bottle, cup and ashtray are where its pixels fall on the table top. The
+  painting's lamp is ~2× ours for a seated eye; ours kept. (3) `faces.project()`: depth test against
+  the head seen from the front, fade only by angle round the head, hidden texels filled from seen
+  ones: the portrait covers 2.7× more (holes round eyes, nose and moustache let the code-painted
+  face through). (4) `make_people`: MakeHuman's neck leans forward more than our anatomy's, so the
+  generated head sat ~5 cm in front of its hitboxes (and the hat, which let the forehead through):
+  the head slides back till its eyes are the anatomy's eyes (neck sheared, `head_back_m` 0.048 in
+  `outlaw.json`). The pipeline ran here (bpy 5.0.1 in a venv, 15 s; glb byte-identical to Actions
+  before the change). (5) Hat worn lower (brim ~3 cm over the brows), crown roomier for the MakeHuman
+  skull. (6) `HumanBody.pose_offsets` (segment → extra degrees on any pose): the seated man turns
+  his head to look at you and tips it. (7) Wet eyes: `body_skin` gloss within the eyeballs (head
+  piece only) → a 1-px lamp glint like the painting's. Renders `docs/screenshots/shot_match/round7*`
+  (`round7_face_steps.png` is the painting's face box at each step). 228 pass.
+  - Tried and dropped: sconces at the painting's spots and a lamp over the table — our side wall is
+    2.5 m behind him (the painting's is right behind his head), so they can't fill his shadow side.
+  - Next for the face: light on his shadow side (comes with rebuilding the room to the painting's
+    layout: wall close behind him, many sconces), long hair to the collar (geometry), hatband with
+    conchos, a firmer expression (MakeHuman expression targets), skin contrast. Then the room.
