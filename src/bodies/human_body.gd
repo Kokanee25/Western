@@ -310,6 +310,8 @@ func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
+	if data.has("skin_tone"):
+		skin_tone = data.skin_tone
 	skeleton = Skeleton3D.new()
 	skeleton.name = "Skeleton"
 	add_child(skeleton)

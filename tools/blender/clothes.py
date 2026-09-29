@@ -132,6 +132,10 @@ def make_all(person, outfit):
     v = person.v
     person.normals = vertex_normals(v, person.body_faces)
     out = {}
+    # Where his neck meets his shoulders: the lowest of his neck (collars, the vest's top, the
+    # coat's V and the tie are all measured from it, not fixed heights).
+    neck_y = float(np.percentile(v[person.region == "neck"][:, 1], 5)) if (person.region == "neck").any() else 1.47
+    person.neck_y = neck_y
     arms = lambda r: r.startswith("upper_arm") or r.startswith("forearm")
     legs = lambda r: r.startswith("thigh") or r.startswith("shin")
 
@@ -146,10 +150,10 @@ def make_all(person, outfit):
             if r == "trunk":
                 return c[1] > 0.88
             if r == "neck":
-                return c[1] < 1.515
+                return c[1] < neck_y + 0.045
             return arms(r) and pts[:, 1].min() > 0.868
         g = shell(person, "shirt", keep_shirt, OFFSET["shirt"])
-        _collar(g, 1.49, 0.03, 0.006)
+        _collar(g, neck_y + 0.02, 0.03, 0.006)
         out["shirt"] = g
     if "trousers" in outfit:
         g = shell(person, "trousers", lambda c, r, pts: (r == "trunk" and c[1] < 1.02) or (legs(r) and c[1] > 0.1),
@@ -157,10 +161,11 @@ def make_all(person, outfit):
         out["trousers"] = g
     if "vest" in outfit:
         def keep_vest(c, r, pts):
-            if r != "trunk" or not (0.93 < c[1] < 1.445):
+            top = neck_y - 0.025
+            if r != "trunk" or not (0.93 < c[1] < top):
                 return False
             front = c[2] < 0.0
-            return not (front and abs(c[0]) < v_gap(c[1], 1.445, 1.27, 0.075))
+            return not (front and abs(c[0]) < v_gap(c[1], top, top - 0.175, 0.075))
         out["vest"] = shell(person, "vest", keep_vest, OFFSET["vest"])
     if "coat" in outfit:
         def keep_coat(c, r, pts):
@@ -168,14 +173,15 @@ def make_all(person, outfit):
                 if c[1] < 0.9:
                     return False
                 front = c[2] < 0.0
-                return not (front and abs(c[0]) < v_gap(c[1], 1.46, 1.05, 0.095))
+                return not (front and abs(c[0]) < v_gap(c[1], neck_y - 0.01, 1.05, 0.095))
             if r == "neck":
-                return c[1] < 1.49 and c[2] > -0.02
+                return c[1] < neck_y + 0.02 and c[2] > -0.02
             return arms(r) and pts[:, 1].min() > 0.895
         g = shell(person, "coat", keep_coat, OFFSET["coat"])
+        g.arm_bones = [i for i, n in enumerate(person.env["bones"]) if n.startswith(("upper_arm", "forearm", "hand"))]
         _coat_skirt(g)
-        _lapels(g)
-        _collar(g, 1.47, 0.045, 0.012)
+        _lapels(g, neck_y)
+        _collar(g, neck_y, 0.045, 0.012)
         out["coat"] = g
     if "cravat" in outfit:
         out["cravat"] = _string_tie(person)
@@ -183,21 +189,32 @@ def make_all(person, outfit):
 
 
 def _collar(g, above_y, height, lean):
-    """Turn the neck opening up into a collar."""
-    b = g.boundary()
-    vs = sorted({i for e in b for i in e if g.P[i][1] > above_y})
-    if len(vs) < 6:
-        return
-    loop = ordered_loop(g, vs, np.array([0, 0, 0.0]))
-    loop.append(loop[0])
-    extrude_edge_loop(g, loop, np.array([0, height, 0]), 1, flare=lean / 0.06,
-                      centre_fn=lambda p: np.array([0, p[1], 0.005]))
+    """A collar: the garment round the neck above `above_y`, doubled, raised `height` and turned
+    out by `lean` (a band of cloth standing round the neck). Built from the garment's own faces,
+    so it can't make crossed or stretched triangles the way extruding a ragged edge did."""
+    faces = [f for f in g.F if min(g.P[i][1] for i in f) > above_y - 0.02]
+    remap = {}
+    for f in faces:
+        nf = []
+        for i in f:
+            if i not in remap:
+                p = g.P[i].copy()
+                out = np.array([p[0], 0.0, p[2] - 0.005])
+                n = np.linalg.norm(out)
+                out = out / n if n > 1e-6 else out
+                t = np.clip((p[1] - (above_y - 0.02)) / 0.05, 0, 1)
+                remap[i] = g.add_vertex(p + out * (0.004 + lean * t) + np.array([0, height * 0.35 * t, 0]), g.W[i])
+            nf.append(remap[i])
+        g.F.append(nf)
 
 
 def _coat_skirt(g):
     """From the hem at the hips, down to mid-thigh, flaring a little and open at the front."""
     b = g.boundary()
-    hem = sorted({i for e in b for i in e if g.P[i][1] < 0.93})
+    # The hem round his hips only: the sleeve cuffs are low edges too, and a skirt stitched to
+    # them hangs from his wrists (and stretches like wings when he puts his hands up).
+    arm = getattr(g, "arm_bones", [])
+    hem = sorted({i for e in b for i in e if g.P[i][1] < 0.93 and (not arm or g.W[i][arm].max() < 0.1)})
     if len(hem) < 8:
         return
     loop = ordered_loop(g, hem, np.array([0, 0, 0.0]))
@@ -214,7 +231,11 @@ def _coat_skirt(g):
             d[1] = 0
             d[2] -= 0.01
             p = p + d * 0.045
-            cur.append(g.add_vertex(p, g.W[i]))
+            w = g.W[i].copy()
+            if arm:
+                w[arm] = 0.0  # the skirt hangs from his hips, whatever his arms do
+                w = w / max(w.sum(), 1e-6)
+            cur.append(g.add_vertex(p, w))
             g.skirt.add(cur[-1])
         for a in range(len(prev)):
             b2 = (a + 1) % len(prev)
@@ -227,19 +248,19 @@ def _coat_skirt(g):
         prev = cur
 
 
-def _lapels(g):
+def _lapels(g, neck_y=1.47):
     """The lapels: the coat's front edges above the waist, doubled and raised off the chest."""
     b = g.boundary()
-    edge = {i for e in b for i in e if 1.08 < g.P[i][1] < 1.47 and g.P[i][2] < -0.02}
+    edge = {i for e in b for i in e if 1.08 < g.P[i][1] < neck_y and g.P[i][2] < -0.02}
     if not edge:
         return
     ep = np.array([g.P[i] for i in edge])
     faces = []
     for f in g.F:
         c = np.mean([g.P[i] for i in f], axis=0)
-        if not (1.08 < c[1] < 1.47 and c[2] < -0.02):
+        if not (1.08 < c[1] < neck_y and c[2] < -0.02):
             continue
-        if np.min(np.linalg.norm(ep - c, axis=1)) < 0.055 * (0.4 + 0.6 * (c[1] - 1.08) / 0.39):
+        if np.min(np.linalg.norm(ep - c, axis=1)) < 0.055 * (0.4 + 0.6 * (c[1] - 1.08) / (neck_y - 1.08)):
             faces.append(f)
     remap = {}
     for f in faces:
@@ -258,7 +279,8 @@ def _lapels(g):
 def _string_tie(person):
     """A black string tie: a knot at the collar and two ends hanging down the shirt front."""
     v = person.v
-    neck = [i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and abs(v[i][1] - 1.455) < 0.012]
+    y = getattr(person, "neck_y", 1.47) - 0.015
+    neck = [i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and abs(v[i][1] - y) < 0.012]
     front = min(neck, key=lambda i: v[i][2])
     base = v[front] + np.array([0, 0.0, -0.012])
     w = person.W[front]
