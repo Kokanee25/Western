@@ -27,11 +27,10 @@ void fragment() {
 	vec3 charcoal = vec3(0.035, 0.03, 0.028);
 	ALBEDO = mix(scorched, charcoal, clamp(char_amount * 1.6, 0.0, 1.0));
 	ROUGHNESS = 1.0;
-	// Embers: chunky glowing patches in the deep char, slowly shifting, not a twinkle everywhere.
-	vec3 cell = floor(local_pos * texels_per_meter * 0.34);
-	float flick = floor(TIME * 1.5 + hash(cell) * 5.0);
-	float deep = smoothstep(0.35, 0.8, char_amount);
-	float ember = step(0.9, hash(cell + vec3(flick))) * glow * coverage * deep;
-	EMISSION = vec3(1.0, 0.33, 0.05) * ember * 1.8 + vec3(0.5, 0.12, 0.02) * glow * coverage * deep * 0.15;
+	// Embers: the odd dull-red glowing pixel in deep char, not a pattern over the whole board.
+	float flick = floor(TIME * 1.2 + fine * 5.0);
+	float deep = smoothstep(0.55, 0.9, char_amount);
+	float ember = step(0.975, hash(q + vec3(flick))) * glow * coverage * deep;
+	EMISSION = vec3(0.75, 0.16, 0.02) * ember * 0.9;
 	ALPHA = max(coverage * min(char_amount * 2.2 + 0.25, 1.0), ember);
 }
