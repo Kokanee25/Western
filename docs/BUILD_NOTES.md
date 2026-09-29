@@ -31,6 +31,16 @@ falling timber breaks what it lands on. The rubble stays.
   laugh at it; a thin plank carrying weight will give after enough holes.
 - The shooting range's backstop timbers, the boardwalk, the hitching rail all obey the same rules.
 
+### New: grazes, glass cuts, and being hit by something heavy
+
+- **Grazes:** a ball that only skims him (the outside of an arm or leg) leaves a bloody furrow,
+  not a hole. It stings and bleeds a little, and the ball flies on. Try the edge of his sleeve.
+- **Glass:** shoot a window with someone near it (or yourself close to it) and the flying shards
+  cut: a few shallow slices, mostly face and hands, sometimes with a shard left in the wound.
+- **Falling timber hurts.** Break a porch post (K) with the outlaw or yourself under the awning:
+  bruises, broken bones, a knock on the head that puts you out for a while, and a blow to the belly
+  can burst the spleen or liver: he goes pale and weak with no wound to see (F3 shows it).
+
 ### New: fire
 
 Every member of every building has a temperature now. Burning timber heats what it touches and

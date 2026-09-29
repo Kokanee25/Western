@@ -313,3 +313,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   bright yellow squares on a grid, reading as fire inside the texture. Flames now spawn in a shell
   round the member and use `src/fire/flame.gdshader` (billboard pulled 0.22 m toward the camera so
   the board it's on can't clip it); embers are the odd dull-red pixel in deep char only.
+- 2026-09-29: **M2 follow-ups, part 1: grazes, glass cuts, blunt trauma** (order agreed with Sean:
+  this, then visible interior + wound volumes + gore setting, then shotgun, then dynamite).
+  `Anatomy.trace()` reports `depth` and `graze` (exits and never deeper than 1.8 cm): grazes bleed
+  less, sting (`pain_graze`), draw a furrow decal along the path. `GlassCuts.spray()` (called from
+  `StructureMember.shatter`) traces 8–22 low-energy shards (80% onward, 20% back) and calls
+  `take_cut` on anyone hit (HumanBody and PlayerWounds): shallow slices, 30% leave a shard in
+  (`embedded`). `Physiology.blow(segment, joules, rng)`: bruise always; thresholds in
+  `PhysiologyTuning.blunt` for concussion (out cold for a while), skull, ribs, lung, a burst
+  spleen/liver (bleeds `internal`: no jet, no clotting, pressure/tourniquet can't reach it; describe
+  says "going pale with no wound to show"), pelvis and limb fractures. Rubble hitting a body part, a
+  standing man's blocker or the player calls `take_blow` once per piece per person; `segment_at()`
+  finds the part by nearest capsule; big blows knock a man down. Wound `kind`: bullet/graze/cut/blow.
+  Outlaw fear per kind. 144 tests pass.
+  - Next: visible interior anatomy with wound volumes and a reduced-gore setting (DESIGN.md §7).

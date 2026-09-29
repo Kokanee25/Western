@@ -181,6 +181,7 @@ func _build() -> void:
 		_build_visual(sid, vis)
 	_blocker = StaticBody3D.new()
 	_blocker.name = "Blocker"
+	_blocker.set_meta(&"human_body", self)
 	_blocker.collision_layer = Layers.PEOPLE
 	_blocker.collision_mask = 0
 	var bs := CollisionShape3D.new()
@@ -481,7 +482,8 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"exit": (tr.exit - center) if tr.exit != null else null, "lodged": tr.exit == null,
 			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
 			"stop": (tr.stop - center) if tr.stop != null else null,
-			"bleeds": bleeds, "garments": holed, "stain": null}
+			"bleeds": bleeds, "garments": holed, "stain": null,
+			"kind": &"graze" if tr.graze else &"bullet", "dir": d}
 	wounds.append(wound)
 	_paint_wound(wound)
 	for h: Dictionary in tr.hits:
@@ -507,7 +509,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		Blood.spray(get_parent() as Node3D, exit_world, dir, 40.0 if big else 12.0, 9 if big else 4, _rng)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": wound.hits,
 			"position": pos, "direction": dir, "exit": exit_world, "lodged": wound.lodged,
-			"deposited": deposited, "severe": severe, "knocked_down": knocked}
+			"deposited": deposited, "severe": severe, "knocked_down": knocked, "kind": wound.kind}
 	hit.emit(info)
 	Events.body_hit.emit(info)
 	if xray:
@@ -525,6 +527,83 @@ func _knocked_down(seg: StringName, deposited: float, severe: bool) -> bool:
 	if severe:
 		chance += t.knockdown_severe
 	return _rng.randf() < minf(chance, t.knockdown_max)
+
+
+## A glass cut: a shard flying at `pos` along `dir` slices `depth` metres into whatever part it
+## hits; `embedded` leaves the shard in the wound for the doctor.
+func take_cut(collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedded := false) -> Dictionary:
+	var seg: StringName = collider.get_meta(&"segment", &"")
+	if seg == &"":
+		seg = segment_at(pos)
+		collider = parts[seg]
+	var xf := collider.global_transform
+	var center := anatomy.segment_center(seg)
+	var inv := xf.affine_inverse()
+	var d := (inv.basis * dir).normalized()
+	var o := inv * pos + center - d * 0.02
+	var tr := anatomy.trace(seg, o, d, depth * 100.0 * anatomy.flesh_resistance, 0.002, _rng)
+	tr.cut = true
+	var bleeds := physiology.apply_trace(tr)
+	var wound := {"segment": seg, "entry": tr.entry - center, "exit": null, "lodged": embedded,
+			"stop": (tr.stop - center) if tr.stop != null else tr.entry - center,
+			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
+			"bleeds": bleeds, "garments": [], "stain": null, "kind": &"cut", "dir": d, "embedded": embedded}
+	wounds.append(wound)
+	_paint_wound(wound)
+	_flinch_from(seg, pos, dir, 0.3)
+	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": wound.hits,
+			"position": pos, "direction": dir, "exit": null, "lodged": embedded, "kind": &"cut"}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return wound
+
+
+## Hit by something heavy (falling timber, a fall): bruises, broken bones, a burst spleen or a
+## cracked skull by the energy of it. A standing man hit hard enough goes down.
+func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN) -> PackedStringArray:
+	var seg: StringName = collider.get_meta(&"segment", &"") if collider else &""
+	if seg == &"":
+		seg = segment_at(point)
+	var harm := physiology.blow(seg, joules, _rng)
+	var part: Node3D = parts.get(seg)
+	if part and joules > 20.0:
+		var local := part.global_transform.affine_inverse() * point + anatomy.segment_center(seg)
+		var s: Dictionary = anatomy.segments[seg]
+		# The bruise comes up on the skin nearest the blow.
+		var c := anatomy.segment_center(seg)
+		var axis_pt: Vector3 = s.a.lerp(s.b, clampf((local - s.a).dot(s.b - s.a) / maxf((s.b - s.a).length_squared(), 1e-6), 0.0, 1.0))
+		var skin := axis_pt + (local - axis_pt).normalized() * float(s.radius) if (local - axis_pt).length() > 0.001 else axis_pt
+		var bruise := _decal(visuals[seg], seg, skin - c, clampf(joules / 1500.0, 0.05, 0.18), PixelArt.blood("bruise", 29, false, 16))
+		bruise.modulate = Color(0.35, 0.22, 0.4)
+	if not limp and joules > 160.0:
+		go_limp(dir * clampf(joules / 300.0, 0.5, 3.0))
+	elif not limp:
+		_flinch_from(seg, point, dir, joules * 0.002)
+	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blow", "harm": harm, "joules": joules}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return harm
+
+
+## Which part of him is at a world point (for a standing man, by height and side).
+func segment_at(point: Vector3) -> StringName:
+	var best := &"chest"
+	var best_d := INF
+	for sid: StringName in parts:
+		var part := parts[sid] as Node3D
+		if part == null or not is_instance_valid(part):
+			continue
+		var local := part.global_transform.affine_inverse() * point + anatomy.segment_center(sid)
+		for c: Array in anatomy.segments[sid].capsules:
+			var a: Vector3 = c[0]
+			var ab: Vector3 = (c[1] as Vector3) - a
+			var t := clampf((local - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+			var dist := local.distance_to(a + ab * t) - float(c[2])
+			if dist < best_d:
+				best_d = dist
+				best = sid
+	return best
 
 
 ## The normal of a segment's skin at a point (segment-local): from the capsule whose surface
@@ -548,6 +627,22 @@ func _skin_normal(seg: StringName, local: Vector3) -> Vector3:
 func _paint_wound(w: Dictionary) -> void:
 	var vis: Node3D = visuals[w.segment]
 	var seed := wounds.size() * 13 + rng_seed
+	if w.kind == &"graze" or w.kind == &"cut":
+		# A furrow or a slice: a bloody line along the way it went, no hole.
+		var a: Vector3 = w.entry
+		var b: Vector3 = w.exit if w.exit != null else (w.stop if w.stop != null else a)
+		var length := maxf(a.distance_to(b), 0.03 if w.kind == &"cut" else 0.05)
+		var mid := (a + b) * 0.5
+		var along: Vector3 = w.dir
+		var line := _decal(vis, w.segment, mid, 0.02 if w.kind == &"graze" else 0.01, PixelArt.blood("furrow", 17, true, 16))
+		var n := line.basis.y
+		var z := (along - n * along.dot(n)).normalized()
+		if z.length() > 0.1:
+			line.basis = Basis(n.cross(z), n, z)
+		line.size = Vector3(0.022 if w.kind == &"graze" else 0.009, 0.06, length)
+		w.stain = _decal(vis, w.segment, mid, 0.03, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+		_add_jet(vis, w, mid, 1.0)
+		return
 	_decal(vis, w.segment, w.entry, 0.035, PixelArt.blood("wound_entry", 5, true, 16))
 	w.stain = _decal(vis, w.segment, w.entry, 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	if w.exit != null:
@@ -852,6 +947,11 @@ func describe_wounds() -> PackedStringArray:
 				&"severed":
 					what.append("%s finger off" % String(h.id).get_slice("_", 0))
 		var how := "through and through" if not w.lodged else "no exit, ball still in"
+		match w.get("kind", &"bullet"):
+			&"graze":
+				how = "a graze, a bloody furrow"
+			&"cut":
+				how = "glass cut" + (", a shard still in it" if w.get("embedded", false) else "")
 		out.append("%s: %s%s" % [place, how, (" — " + ", ".join(what)) if not what.is_empty() else ""])
 	return out
 
@@ -860,7 +960,8 @@ func to_dict() -> Dictionary:
 	var ws := []
 	for w in wounds:
 		ws.append({"segment": w.segment, "entry": w.entry, "exit": w.exit, "lodged": w.lodged,
-				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments})
+				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments,
+				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false)})
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)

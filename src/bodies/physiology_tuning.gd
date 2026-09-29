@@ -29,6 +29,23 @@ extends Resource
 ## A holed gut hurts more than anything (on top of pain_organ).
 @export var pain_gut := 0.6
 @export var pain_finger := 0.3
+## Grazes and cuts sting more than their depth deserves; grazes bleed a bit less than a hole.
+@export var pain_graze := 0.18
+@export var graze_bleed := 0.7
+
+## Blunt blows (falling timber, falls, kicks), in joules on the part hit: what it takes to do each
+## kind of harm. Past the threshold the chance rises with the energy.
+@export var blunt := {
+	"concussion": 45.0, "skull": 220.0, "ribs": 90.0, "lung": 260.0, "belly_organ": 160.0,
+	"pelvis": 380.0, "thigh": 300.0, "shin": 190.0, "upper_arm": 150.0, "forearm": 110.0,
+	"hand": 70.0, "foot": 90.0,
+}
+## Seconds out cold per 10 J over the concussion threshold (with at least a few).
+@export var concussion_seconds_per_10j := 1.5
+## A burst spleen or liver bleeds inside at this share of the organ's full rate: pale, cold, and
+## nothing to see.
+@export var internal_bleed_share := 0.6
+
 ## Burns: pain per unit of burn, and how much burn kills.
 @export var pain_burn := 0.5
 @export var burns_fatal := 7.0

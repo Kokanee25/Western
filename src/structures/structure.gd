@@ -354,6 +354,14 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 	if speed < tuning.harmless_speed:
 		return
 	var energy := 0.5 * rb.mass * speed * speed
+	if other.has_meta(&"human_body") and energy > 5.0:
+		# Timber coming down on someone: once per piece per person.
+		var person: Object = other.get_meta(&"human_body")
+		var hurt: Array = rb.get_meta(&"hurt", [])
+		if not hurt.has(person):
+			hurt.append(person)
+			rb.set_meta(&"hurt", hurt)
+			person.call_deferred(&"take_blow", other, energy, rb.global_position, v.normalized())
 	if other is StructureMember and not (other as StructureMember).broken:
 		var hit := other as StructureMember
 		if energy > tuning.impact_toughness * hit.volume():
