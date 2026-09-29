@@ -18,3 +18,5 @@ const BULLETS := 0xFFFFFFFF & ~PEOPLE
 
 ## Render: people's skin and clothes (wound and blood decals paint only these).
 const VIS_BODY := 2
+## Render: what's inside a body, seen through a wound (decals don't paint it).
+const VIS_INSIDE := 4

@@ -34,6 +34,8 @@ func _ready() -> void:
 	# Letters too: in a browser F11 is full screen and F12 opens the developer tools.
 	_bind(&"debug_break", [KEY_F11, KEY_K], [])
 	_bind(&"debug_ignite", [KEY_F12, KEY_L], [])
+	_bind(&"debug_wound", [KEY_J], [])
+	_bind(&"toggle_gore", [KEY_F4], [])
 	# The revolver.
 	_bind(&"fire", [], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]], [MOUSE_BUTTON_LEFT])
 	_bind(&"aim", [], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]], [MOUSE_BUTTON_RIGHT])
