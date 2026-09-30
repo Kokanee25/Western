@@ -53,8 +53,10 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if ResourceLoader.exists(ao):
 		textures["head_ao"] = load(ao)
 	var out := {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
-	# Painted from the painting: per shape, a texture and the UV rect it covers.
+	# Painted from the painting: per shape, a texture, the UV rect it covers and how many texels a
+	# side make one of its squares (the face: three, so its eyes can be drawn finer).
 	var paint := {}
+	var paint_squares := {}
 	if FileAccess.file_exists(PAINT_PATH % model):
 		var p: Variant = JSON.parse_string(FileAccess.get_file_as_string(PAINT_PATH % model))
 		if p is Dictionary:
@@ -64,7 +66,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 					textures["paint_" + shape] = load(png)
 					var r: Array = p.shapes[shape].uv_rect
 					paint[shape] = Vector4(r[0], r[1], r[2], r[3])
+					paint_squares[shape] = float(p.shapes[shape].get("texels_per_square", 1))
 	out["paint"] = paint
+	out["paint_squares"] = paint_squares
 	# His skin tone, measured from his painted face, so body and painted sides match it.
 	var report := REPORT_PATH % model
 	if FileAccess.file_exists(report):

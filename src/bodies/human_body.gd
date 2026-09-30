@@ -141,7 +141,8 @@ const DRAW_TIME := 0.5
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
 ## light making him more than paint_limit × painted. Tuned in
 ## the character lab so he matches the painting under its light. A static so the lab can try others.
-static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3}
+static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3,
+		&"light_steps": 4.0}
 var _draw_left := 0.0
 var time_scale := 1.0
 
@@ -386,6 +387,8 @@ func _build_skin() -> void:
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
+						float(data.get("paint_squares", {}).get(shape, 1.0)))
 				for k: StringName in paint_look:
 					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
 			if shape == "head" and sid == &"head":

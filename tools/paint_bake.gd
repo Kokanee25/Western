@@ -27,8 +27,9 @@ const DEPTH_FAR := 4.0
 ## Texels per metre of the raw bakes (finish.py averages them down to the finished blocks).
 const RAW_TEXELS_PER_M := 256.0
 ## Shapes whose UV layout isn't even in metres get a set size: the head's face layout gives the face
-## the middle third of it (finished 128x86: the face ~40 texels across, 2-3 screen px each).
-const RAW_SIZE := {"head": Vector2i(256, 172)}
+## the middle third of it, baked finer than the rest (~900 texels a metre round the head): his eyes
+## are drawn finer than the squares (finish.py DETAIL).
+const RAW_SIZE := {"head": Vector2i(512, 344)}
 const BAKE_LAYER := 1 << 19
 const ALL_VIEWS := ["shot", "front", "three_quarter", "side", "side_left", "back",
 		"head_front", "head_three_quarter", "head_side", "head_side_left", "head_back", "head_shot"]
@@ -270,6 +271,8 @@ func _bake(man, vp: SubViewport, frames: Dictionary, depths: Dictionary, painted
 		var size := Vector2i(clampi(ceili(rect.size.x * per_uv / 2.0) * 2, 16, 1024), clampi(ceili(rect.size.y * per_uv / 2.0) * 2, 16, 1024))
 		size = RAW_SIZE.get(shape, size)
 		info[shape] = {"uv_rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y], "size": [size.x, size.y]}
+		if shape == "head":
+			info[shape]["eyes"] = _eye_uvs(man, pieces, rect)
 		bvp.size = size
 		var mat := ShaderMaterial.new()
 		mat.shader = load("res://tools/paint/paint_bake.gdshader")
@@ -306,6 +309,34 @@ func _bake(man, vp: SubViewport, frames: Dictionary, depths: Dictionary, painted
 	var f := FileAccess.open("%s/raw/shapes.json" % out, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"person": man.body_model, "shapes": info, "views": painted.keys()}, "\t"))
 	f.close()
+
+
+## Where his eyes are in the head's texture (0..1 of its rect): the UV of the skin just in front of
+## each eyeball (finish.py draws them finer than the squares round them).
+func _eye_uvs(man, pieces: Array, rect: Rect2) -> Array:
+	var out := []
+	for id: StringName in [&"eye_r", &"eye_l"]:
+		var eye: Dictionary = man.anatomy.structure(id)
+		if eye.is_empty():
+			continue
+		var at: Vector3 = eye.a
+		var best := INF
+		var uv_at := Vector2.ZERO
+		for mi: MeshInstance3D in pieces:
+			var arrays: Array = mi.mesh.surface_get_arrays(0)
+			var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV] if arrays[Mesh.ARRAY_TEX_UV] != null else PackedVector2Array()
+			if uv.size() != v.size():
+				continue
+			for i in v.size():
+				var d: Vector3 = v[i] - at
+				# Nearest, and in front of the eyeball (he faces -z), not behind or beside it.
+				var cost := d.length() + maxf(0.0, d.z) * 4.0
+				if cost < best:
+					best = cost
+					uv_at = uv[i]
+		out.append([(uv_at.x - rect.position.x) / rect.size.x, (uv_at.y - rect.position.y) / rect.size.y])
+	return out
 
 
 ## A shape's UV bounds, its surface area (m², rest pose) and UV area.

@@ -14,6 +14,10 @@ same body.
   Your old saved settings move to the new look once; F2 and F7 still change it after that.
 - Try: walk into the saloon at night and look at the tables and walls up close, then press F2
   and F7 to compare with the old look. Tell me the frame rate (F3) at 1280×720 on your PC.
+- **The painted man's face is cleaner**: his eyes (with whites), brows and moustache now sit where
+  his head has them, his eyes are drawn finer than the squares round them, and his face is lit
+  evenly, as the painting lights it. Try: go to the range (F5) and look the outlaw in the face up
+  close, by day and by lamplight.
 
 ### New: real people, and the painting's shot
 

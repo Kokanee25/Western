@@ -18,10 +18,18 @@ channel), so the views agree with each other and with the painting.
 The shot view also gets <id>_shot_painting.png: the concept painting's own pixels, with alpha from
 the painting's man's outline (SHOT_OUTLINE, traced by hand in the painting's pixels), so the bake
 takes the painting itself only where it shows him.
+
+Then his face (face_warp): the model draws his features where it likes inside the outline (FLUX
+put his eyes ~2 cm higher and closer together than our head's), so painted eyes land on the brow
+ridge and the sockets' shadow on the cheeks. Where a face is found in both the guide and the
+painting (MediaPipe's face landmarker, a free model fetched into build/ on first use; pip install
+mediapipe), the painting is bent so its eyes, brows, nose, mouth and jaw land on the guide's,
+smoothly, fading to nothing away from the face and pinned along his outline.
 """
 import json
 import os
 import sys
+import urllib.request
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -44,6 +52,25 @@ SHOT_BOX = (105, 141, 905, 941)
 HEAD_BOX = (430, 180, 830, 620)
 # How far inside the painted outline to stop (px at 1024): the model's edge pixels are background.
 INSET = 3
+# The face landmarker (Apache 2.0) and the points of its face mesh the warp matches: irises, eye
+# corners and lids, brows, the nose's bridge, tip and wings, the mouth's corners and lips, chin,
+# jaw and forehead.
+LANDMARKER_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+LANDMARKER = "build/mediapipe/face_landmarker.task"
+FACE_POINTS = [468, 473, 33, 133, 362, 263, 159, 145, 386, 374, 70, 105, 107, 336, 334, 300, 168, 1, 2,
+        98, 327, 61, 291, 0, 17, 13, 14, 152, 172, 397, 150, 379, 234, 454, 10]
+# The warp's reach round each point (x the face's size, eyes to chin), how much it smooths
+# rather than hitting every point, and the most it may move a feature (x the face's size: past
+# that, one of the two faces was misread and the painting is left as it is).
+# Each eye's outline on the face mesh (corner, upper lid, corner, lower lid), and how much of the
+# painting's own colour the whites inside keep.
+EYE_OUTLINES = [[33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7],
+        [263, 466, 388, 387, 386, 385, 384, 398, 362, 382, 381, 380, 374, 373, 390, 249]]
+EYE_WHITE_KEEP = 0.8
+WARP_REACH = 0.45
+WARP_SMOOTH = 0.05
+WARP_MAX = 0.35
+_landmarker = None
 
 
 def painted_mask(img):
@@ -118,6 +145,99 @@ def match_colours(rgb, mask, ref):
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
+def face_points(img, points=None):
+    """FACE_POINTS (or points) on the face in img (RGB), in pixels (n, 2), or None."""
+    global _landmarker
+    try:
+        import mediapipe as mp
+        from mediapipe.tasks import python as mpt
+        from mediapipe.tasks.python import vision
+    except ImportError:
+        return None
+    if _landmarker is None:
+        if not os.path.exists(LANDMARKER):
+            os.makedirs(os.path.dirname(LANDMARKER), exist_ok=True)
+            urllib.request.urlretrieve(LANDMARKER_URL, LANDMARKER)
+        _landmarker = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
+                base_options=mpt.BaseOptions(model_asset_path=LANDMARKER), num_faces=1,
+                min_face_detection_confidence=0.2, min_face_presence_confidence=0.2))
+    rgb = np.ascontiguousarray(np.asarray(img.convert("RGB")))
+    found = _landmarker.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb))
+    if not found.face_landmarks:
+        return None
+    lm = found.face_landmarks[0]
+    return np.array([(lm[i].x * img.width, lm[i].y * img.height) for i in (points or FACE_POINTS)])
+
+
+def keep_eye_whites(painted, matched):
+    """matched, with the whites of his eyes as painted: inside each eye's outline (EYE_OUTLINES) the
+    painting's own colours at the matched brightness, where the colour match alone would turn them
+    the colour of his skin (the painting keeps them pale)."""
+    outlines = [face_points(painted, ring) for ring in EYE_OUTLINES]
+    if any(o is None for o in outlines):
+        return matched
+    mask = Image.new("L", painted.size, 0)
+    for ring in outlines:
+        ImageDraw.Draw(mask).polygon([tuple(p) for p in ring], fill=255)
+    k = np.asarray(mask.filter(ImageFilter.GaussianBlur(1.5)), dtype=float)[..., None] / 255.0 * EYE_WHITE_KEEP
+    a = np.asarray(painted.convert("RGB"), dtype=float) + 1.0
+    m = np.asarray(matched, dtype=float) + 1.0
+    lum = np.array([0.2126, 0.7152, 0.0722])
+    own = a * ((m @ lum) / (a @ lum))[..., None]
+    return Image.fromarray(np.clip(m * (1 - k) + own * k - 1.0, 0, 255).astype(np.uint8))
+
+
+def sample(a, x, y):
+    """a (h, w, c) at float pixel coordinates x, y (bilinear, clamped at the edges)."""
+    h, w = a.shape[:2]
+    x = np.clip(x, 0, w - 1.001)
+    y = np.clip(y, 0, h - 1.001)
+    x0, y0 = np.floor(x).astype(int), np.floor(y).astype(int)
+    fx, fy = (x - x0)[..., None], (y - y0)[..., None]
+    return (a[y0, x0] * (1 - fx) * (1 - fy) + a[y0, x0 + 1] * fx * (1 - fy)
+            + a[y0 + 1, x0] * (1 - fx) * fy + a[y0 + 1, x0 + 1] * fx * fy)
+
+
+def face_warp(rgba, guide, guide_mask):
+    """Bend rgba (the aligned painting, RGBA, in the guide's pixels) so its face's landmarks land on
+    the guide's. Returns (image, how far its features moved in px, what's left in px) or None."""
+    under = Image.new("RGB", rgba.size, (128, 128, 128))
+    under.paste(rgba, mask=rgba.getchannel("A"))
+    want, have = face_points(guide), face_points(under)
+    if want is None or have is None:
+        return None
+    size = np.linalg.norm(want[:2].mean(0) - want[FACE_POINTS.index(152)])
+    moved = np.linalg.norm(have - want, axis=1)
+    if np.median(moved) > WARP_MAX * size:
+        return None
+    # Pinned along his outline: nothing at his silhouette moves.
+    edge = np.asarray(guide_mask.filter(ImageFilter.FIND_EDGES)) > 127
+    ys, xs = np.nonzero(edge)
+    pins = np.stack([xs, ys], 1)[:: max(1, len(xs) // 120)].astype(float)
+    pins = pins[np.min(np.linalg.norm(pins[:, None] - want[None], axis=2), axis=1) > 0.25 * size]
+    at = np.concatenate([want, pins])
+    d = np.concatenate([have - want, np.zeros_like(pins)])
+    s = WARP_REACH * size
+    phi = np.exp(-((at[:, None] - at[None]) ** 2).sum(2) / (2 * s * s))
+    wts = np.linalg.solve(phi + WARP_SMOOTH * np.eye(len(at)), d)
+    h, w = rgba.height, rgba.width
+    gy, gx = np.mgrid[0:h, 0:w].astype(float)
+    dx, dy = np.zeros((h, w)), np.zeros((h, w))
+    for (px, py), (wx, wy) in zip(at, wts):
+        k = np.exp(-((gx - px) ** 2 + (gy - py) ** 2) / (2 * s * s))
+        dx += k * wx
+        dy += k * wy
+    src = np.asarray(rgba, dtype=float)
+    out = sample(src, gx + dx, gy + dy)
+    out[..., 3] = np.where(out[..., 3] > 127, 255, 0)
+    img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
+    under = Image.new("RGB", img.size, (128, 128, 128))
+    under.paste(img, mask=img.getchannel("A"))
+    after = face_points(under)
+    left = float(np.median(np.linalg.norm(after - want, axis=1))) if after is not None else -1.0
+    return img, float(np.median(moved)), left
+
+
 def painting_reference(box=None):
     """The painting's man's pixels (inside box, if given: his head for the close head views)."""
     img = Image.open(PAINTING).convert("RGB")
@@ -136,14 +256,23 @@ def align(src, pid, view, ref, source="painted"):
     pmask = painted_mask(painted)
     before = iou(np.asarray(pmask) > 127, np.asarray(guide_mask) > 127)
     v, s, tx, ty = fit(pmask, guide_mask)
-    painted = match_colours(painted, pmask, ref)
+    painted = keep_eye_whites(painted, match_colours(painted, pmask, ref))
     rgb = warp(painted, s, tx, ty, guide_mask.size, Image.BICUBIC)
     alpha = warp(pmask.filter(ImageFilter.MinFilter(2 * INSET + 1)), s, tx, ty, guide_mask.size, Image.NEAREST)
     rgb.putalpha(alpha)
-    rgb.save(os.path.join(src, "%s_%s_aligned.png" % (pid, view)))
-    print("%s %s: outline overlap %.2f -> %.2f (scale %.3f, shift %+.0f, %+.0f px)" % (pid, view, before, v, s, tx, ty))
-    return {"overlap_before": round(float(before), 3), "overlap": round(float(v), 3), "scale": round(float(s), 4),
+    report = {"overlap_before": round(float(before), 3), "overlap": round(float(v), 3), "scale": round(float(s), 4),
             "shift": [round(float(tx), 1), round(float(ty), 1)]}
+    line = "%s %s: outline overlap %.2f -> %.2f (scale %.3f, shift %+.0f, %+.0f px)" % (pid, view, before, v, s, tx, ty)
+    if not view.endswith("back"):
+        guide = Image.open(os.path.join(src, "%s_%s_guide.png" % (pid, view))).convert("RGB")
+        bent = face_warp(rgb, guide, guide_mask)
+        if bent:
+            rgb = bent[0]
+            report["face_moved_px"], report["face_left_px"] = round(bent[1], 1), round(bent[2], 1)
+            line += "; face moved %.0f px onto the guide's (%.0f px off after)" % (bent[1], bent[2])
+    rgb.save(os.path.join(src, "%s_%s_aligned.png" % (pid, view)))
+    print(line)
+    return report
 
 
 def painting_shot(src, pid):
@@ -151,7 +280,15 @@ def painting_shot(src, pid):
     mask = Image.new("L", img.size, 0)
     ImageDraw.Draw(mask).polygon(SHOT_OUTLINE, fill=255)
     img.putalpha(mask)
-    img.crop(SHOT_BOX).save(os.path.join(src, "%s_shot_painting.png" % pid))
+    img = img.crop(SHOT_BOX)
+    guide = os.path.join(src, "%s_shot_guide.png" % pid)
+    if os.path.exists(guide):
+        guide_mask = Image.open(os.path.join(src, "%s_shot_mask.png" % pid)).convert("L")
+        bent = face_warp(img.resize(guide_mask.size, Image.LANCZOS), Image.open(guide).convert("RGB"), guide_mask)
+        if bent:
+            img = bent[0]
+            print("%s shot (the painting itself): face moved %.0f px onto the guide's (%.0f px off after)" % (pid, bent[1], bent[2]))
+    img.save(os.path.join(src, "%s_shot_painting.png" % pid))
 
 
 def main():

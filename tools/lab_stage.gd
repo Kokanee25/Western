@@ -29,8 +29,9 @@ static func default_energy() -> Dictionary:
 	return {"key": KEY.energy, "rim": RIM.energy, "fill": FILL.energy, "lamp": TABLE_LAMP}
 
 
-## Build the set in `vp` (its own world). Returns {world, man, camera, env, lights}.
-static func build(vp: SubViewport, energy: Dictionary) -> Dictionary:
+## Build the set in `vp` (its own world). Returns {world, man, camera, env, lights}. `outlines`: the
+## game's line work on the camera (the paint bake's guides and depth maps go without).
+static func build(vp: SubViewport, energy: Dictionary, outlines := false) -> Dictionary:
 	var sm = load("res://src/art/shot_match.gd")
 	vp.own_world_3d = true
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -54,6 +55,8 @@ static func build(vp: SubViewport, energy: Dictionary) -> Dictionary:
 	var cam := Camera3D.new()
 	w.add_child(cam)
 	cam.current = true
+	if outlines:
+		load("res://src/render/outline.gd").attach(cam)
 	cam.global_transform = sm.camera_transform(w)
 	cam.fov = sm.FOV
 	return {"world": w, "man": man, "camera": cam, "env": env, "lights": lights}

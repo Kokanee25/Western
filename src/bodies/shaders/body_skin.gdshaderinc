@@ -35,6 +35,9 @@ uniform float paint_gain = 1.0;
 uniform float paint_wrap = 0.6;
 uniform float paint_limit = 1.3;
 uniform float paint_contrast = 1.08;
+// Texels a side in one of the painted texture's squares (lit as one): 1, or 3 on the face, whose
+// eyes are drawn finer than its squares.
+uniform float square_texels = 1.0;
 
 varying vec3 local_pos;
 varying vec3 local_normal;
@@ -96,7 +99,7 @@ vec3 painted_to_scene(vec3 c) {
 // surface point and its normal would be at the texel's centre comes from how they change across
 // the screen against the UVs; a quad of pixels over a seam gives nonsense, so big jumps are left.
 void light_whole_square(vec2 uv, vec3 vertex, vec3 normal, inout vec3 light_vertex, inout vec3 normal_out) {
-	vec2 size = vec2(textureSize(albedo_tex, 0));
+	vec2 size = vec2(textureSize(albedo_tex, 0)) / max(square_texels, 1.0);
 	vec2 to_centre = ((floor(uv * size) + 0.5) / size) - uv;
 	vec2 ux = dFdx(uv);
 	vec2 uy = dFdy(uv);

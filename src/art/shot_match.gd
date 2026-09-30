@@ -66,9 +66,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# Square to you, as the painting's man sits.
 	man.face(t + Vector3(EYE.x, 1.0, EYE.z))
 	man.set_pose(&"sit_lean")
-	# His head as the painting has it: looking you in the eye, chin up a touch, tipped toward his
-	# left shoulder.
-	man.pose_offsets = {&"head": Vector3(6.0, 0.0, 12.0)}
+	# His head as the painting has it: looking you in the eye, chin up a touch, turned a little and
+	# tipped toward his left shoulder (fitted so both his eyes land on the painting's man's).
+	man.pose_offsets = {&"head": Vector3(6.0, -8.5, 16.0)}
 	_cup_in_hand(man)
 	return man
 

@@ -4,7 +4,7 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/character_lab.gd -- --out=DIR
 ##   [--key= --rim= --fill= --lamp=] (light strengths, to try others)
 ##   [--self_lit= --paint_gain= --paint_wrap= --paint_limit=] (how his painted textures show: HumanBody.paint_look)
-##   [--size=WxH] (the frame; 1280x720 by default, the game's)
+##   [--size=WxH] (the frame; 1280x720 by default, the game's) [--outlines] (the line work, src/render/outline.gd)
 ##   [--view=shot|front|three_quarter|side|side_left|back|head_*] (shot, the painting's view, is the
 ##   default; the others orbit him at 1.8 m, looking at his chest, and write only lab.png)
 ## Writes lab.png (the frame, 640x360: him, his table and cup on black), in_painting.png (his pixels
@@ -29,7 +29,10 @@ func _run() -> void:
 	var out := "/tmp/character_lab"
 	var energy: Dictionary = stage.default_energy()
 	var view := "shot"
+	var outlines := false
 	for a in OS.get_cmdline_user_args():
+		if a == "--outlines":
+			outlines = true
 		if a.begins_with("--out="):
 			out = a.substr(6)
 		elif a.begins_with("--size="):
@@ -49,7 +52,7 @@ func _run() -> void:
 	var vp := SubViewport.new()
 	vp.size = SIZE
 	root.add_child(vp)
-	var set: Dictionary = stage.build(vp, energy)
+	var set: Dictionary = stage.build(vp, energy, outlines)
 	var man = set.man
 	for i in 90:
 		await physics_frame

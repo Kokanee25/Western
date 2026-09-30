@@ -29,7 +29,8 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.428,
+   "texels_per_square": 1,
+   "seen": 0.427,
    "colours": 5
   },
   "boots": {
@@ -44,6 +45,7 @@
     30
    ],
    "squares_per_m": 80.0,
+   "texels_per_square": 1,
    "seen": 0.135,
    "colours": 6
   },
@@ -59,7 +61,8 @@
     142
    ],
    "squares_per_m": 80.0,
-   "seen": 0.364,
+   "texels_per_square": 1,
+   "seen": 0.363,
    "colours": 12
   },
   "cravat": {
@@ -74,7 +77,8 @@
     18
    ],
    "squares_per_m": 110.0,
-   "seen": 0.243,
+   "texels_per_square": 1,
+   "seen": 0.245,
    "colours": 5
   },
   "gun_belt": {
@@ -89,6 +93,7 @@
     5
    ],
    "squares_per_m": 80.0,
+   "texels_per_square": 1,
    "seen": 0.602,
    "colours": 6
   },
@@ -104,7 +109,8 @@
     12
    ],
    "squares_per_m": 80.0,
-   "seen": 0.494,
+   "texels_per_square": 1,
+   "seen": 0.487,
    "colours": 6
   },
   "hat": {
@@ -119,7 +125,8 @@
     9
    ],
    "squares_per_m": 80.0,
-   "seen": 0.786,
+   "texels_per_square": 1,
+   "seen": 0.792,
    "colours": 8
   },
   "hat_band": {
@@ -134,7 +141,8 @@
     7
    ],
    "squares_per_m": 110.0,
-   "seen": 0.272,
+   "texels_per_square": 1,
+   "seen": 0.315,
    "colours": 8
   },
   "hat_brim": {
@@ -149,7 +157,8 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.412,
+   "texels_per_square": 1,
+   "seen": 0.33,
    "colours": 8
   },
   "head": {
@@ -160,12 +169,14 @@
     1.0
    ],
    "size": [
-    108,
-    48
+    324,
+    144
    ],
    "squares_per_m": 190.0,
-   "seen": 0.44,
-   "colours": 24
+   "texels_per_square": 3,
+   "seen": 0.425,
+   "detail_texels": 471,
+   "colours": 16
   },
   "holster": {
    "uv_rect": [
@@ -179,7 +190,8 @@
     19
    ],
    "squares_per_m": 80.0,
-   "seen": 0.319,
+   "texels_per_square": 1,
+   "seen": 0.318,
    "colours": 5
   },
   "shirt": {
@@ -194,6 +206,7 @@
     96
    ],
    "squares_per_m": 80.0,
+   "texels_per_square": 1,
    "seen": 0.054,
    "colours": 6
   },
@@ -209,7 +222,8 @@
     287
    ],
    "squares_per_m": 150.0,
-   "seen": 0.071,
+   "texels_per_square": 1,
+   "seen": 0.072,
    "colours": 10
   },
   "trousers": {
@@ -224,6 +238,7 @@
     100
    ],
    "squares_per_m": 80.0,
+   "texels_per_square": 1,
    "seen": 0.173,
    "colours": 8
   },
@@ -239,6 +254,7 @@
     84
    ],
    "squares_per_m": 80.0,
+   "texels_per_square": 1,
    "seen": 0.097,
    "colours": 10
   }

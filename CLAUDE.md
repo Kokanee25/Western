@@ -152,7 +152,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
   the camera's fov and pitch back to the game's (75°, level).
-  `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
+  creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
+  the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
   (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
   rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
@@ -163,11 +165,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   light, no pixelating) paints each view (`_painted.png`) and, with `--sheet`, all six in one
   turnaround picture cut back into `_tile.png` (the sheet follows our outline far better);
   `tools/paint/align.py [--source=tile]` fits each painting's outline onto the guide's (scale +
-  shift), matches its colours to the painting's man and writes `_aligned.png` (alpha = his
-  outline) plus `<id>_shot_painting.png` (the painting itself, masked to its man by a hand-traced
-  outline); `paint_bake.gd bake` projects every source into each shape's UV space (depth-tested,
-  needs Forward+); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
-  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150), each
+  shift), matches its colours to the painting's man (the whites of his eyes keep theirs), bends
+  his face so its landmarks land on the guide's (`face_warp`: MediaPipe's face landmarker, `pip
+  install mediapipe` + `apt-get install libegl1`, model fetched into build/) and writes
+  `_aligned.png` (alpha = his outline) plus `<id>_shot_painting.png` (the painting itself, masked
+  to its man by a hand-traced outline, face bent the same way); `paint_bake.gd bake` projects
+  every source into each shape's UV space (depth-tested, needs Forward+; writes where the eyes are
+  in the head's texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
+  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150; the
+  face's squares are 3×3 texels so its eyes can be drawn finer, `DETAIL`/`square_texels`), each
   the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
   (one texel per square) + `<id>_paint.json`. `body_skin` shows them as painted
   (`HumanBody.paint_look`: the game's ACES grade undone, lit by light brightness only, each light
@@ -801,4 +807,27 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     some views (the painting's man has none); his sides come from the body sheet only.
   - Next: the face's drawing (outlines, eyes), the vest V and pattern, the head's tilt (the painting's
     man looks up at you from under the brim), repaint the head sheet's side views.
-
+- 2026-09-30 (night): **Round 9: his face where his head is.** Sean: "getting kinda closer but you
+  can see it's not the same". Found why the face was mush: the FLUX head sheet's face (crisp in the
+  painting: eye whites, irises, a glint) was drawn ~2 cm higher and narrower than our head's, so
+  painted eyes sat on the brow ridge and the sockets' shadow on his cheeks; then the square-making
+  took each square's commoner colour (a thin eyelid line lost to the skin round it), the colour match
+  turned the eye whites the colour of his skin, and the face lit up one cheek. Fixes: (1)
+  `align.py` `face_warp` bends each painting's face (and the painting's own, for the shot) so its
+  eyes, brows, nose, mouth and jaw land on the clay guide's (FLUX's head_shot moved 71 px, 5 px
+  off after), pinned along his outline; `keep_eye_whites` keeps the painted whites. (2)
+  `finish.py`: face squares by `dark_kept` (the average, or the dark part when ≥30% of a square is
+  darker: brows, lids, moustache stay bold), a median over ~8 mm first and 16 colours (a calmer
+  mosaic), `FACE_EVEN` takes 60% of the painted light out of his face (the painting lights it
+  evenly), and his eyes are drawn finer than the squares: the head texture has 3×3 texels a square
+  (`DETAIL`), one colour a square except within 2 cm of an eye (`paint_bake.gd` writes where they
+  are), and `body_skin` lights 3×3 as one square (`square_texels`). Head raw bake 512×344. (3)
+  `ShotMatch` head fitted to the painting's eyes: (6, −8.5, 16)°. Tried and left: lighting knobs
+  (self_lit/limit/steps barely change it; `paint_look` has `light_steps` now), outline shader (off,
+  lab `--outlines`). 228 pass. Renders `docs/screenshots/character_lab/round9_*`.
+  - Known: the shirt V is still big and ragged and the tie reads as a bow (vest cut; the painting
+    shows a small collar, a hanging tie and a patterned vest); no studded hat band (the band's strip
+    is too thin for its squares); his hand and cup are smaller than the painting's; FLUX's
+    head_front has a goatee (it still blends in on his chin); his hair is patchy from the side.
+  - Next: the vest's V and pattern, the collar and tie, the hat band; then repaint the head sheet
+    (no goatee, eyes open to the viewer).
