@@ -104,6 +104,20 @@ const HAT_BRIM := [
 	[0.16, 0.172, 0.165, 0.012, 0.005],
 	[0.205, 0.215, 0.205, 0.046, 0.016],
 ]
+## Long hair to the collar (the painting's man): a shell from under the hat's band down the back
+## and sides of the head, hanging straight past the nape to rest on the collar, open round the
+## face (GAP: half-angle from straight ahead, radians; wider lower so the jaw stays clear). Sized
+## ~1.5 cm clear of the generated (MakeHuman) head, and inside the hat's crown at the top.
+## Bottom to top: [centre, half width, front, back].
+const HAIR := [
+	[Vector3(0, 1.49, 0.0), 0.08, 0.06, 0.095],
+	[Vector3(0, 1.54, 0.0), 0.078, 0.06, 0.095],
+	[Vector3(0, 1.58, 0.0), 0.08, 0.07, 0.097],
+	[Vector3(0, 1.62, -0.004), 0.1, 0.1, 0.108],
+	[Vector3(0, 1.66, -0.006), 0.104, 0.1, 0.118],
+	[Vector3(0, 1.70, -0.006), 0.085, 0.1, 0.108],
+]
+const HAIR_GAP := [2.05, 1.95, 1.85, 1.75, 1.72, 1.7]
 ## The holster on his right hip, top to toe (flat against the thigh).
 const HOLSTER := [
 	[Vector3(0.198, 0.905, 0.012), 0.042, 0.022, 0.018, &"pelvis", &"pelvis", 0.0],
@@ -131,8 +145,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary) -> Dictionary:
 	for sid in bones:
 		rests.append(Transform3D(Basis.IDENTITY, anatomy.segment_center(sid)))
 	var key := ""
-	for k in ["shirt", "vest", "coat", "trousers", "boots", "gun_belt", "bandana", "hat"]:
-		key += "1" if outfit.get(k, k != "coat") else "0"
+	for k in ["shirt", "vest", "coat", "trousers", "boots", "gun_belt", "bandana", "hat", "hair"]:
+		key += "1" if outfit.get(k, k != "coat" and k != "hair") else "0"
 	var shapes: Dictionary
 	if _cache.has(key):
 		shapes = _cache[key]
@@ -253,6 +267,18 @@ static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Call
 		band.loft([[b0[0], b0[1] + 0.003, b0[2] + 0.003, b0[3] + 0.003, &"head", &"head", 0.0],
 				[(b0[0] as Vector3) + Vector3(0, 0.022, 0), b0[1] + 0.002, b0[2] + 0.002, b0[3] + 0.002, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
 		out["hat_band"] = band
+	if outfit.get("hair", false):
+		var hair := Lofter.new(index)
+		var rings := []
+		for i in HAIR.size():
+			var r: Array = HAIR[i]
+			# Moves with his head; the ends on his collar a little with his neck.
+			var w := 0.35 if i == 0 else 0.0
+			rings.append([r[0], r[1], r[2], r[3], &"head", &"neck", w])
+		hair.gaps = HAIR_GAP
+		hair.loft(rings, 16, Vector3.FORWARD, 0.0, false, false)
+		hair.gaps = []
+		out["hair"] = hair
 	if outfit.get("gun_belt", true):
 		var holster := Lofter.new(index)
 		holster.loft(HOLSTER, 8, Vector3.RIGHT, 0.0, true, true)

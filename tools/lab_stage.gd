@@ -18,6 +18,11 @@ const VIEWS := {"front": [0.0, 0.1], "three_quarter": [-40.0, 0.15], "side": [-9
 		"side_left": [90.0, 0.1], "back": [180.0, 0.2]}
 const VIEW_DISTANCE := 1.8
 const VIEW_FOV := 40.0
+## Close views of his head (face, hair, hat, collar): degrees round from straight in front as
+## VIEWS, at HEAD_DISTANCE; "head_shot" looks from your seat at the table (the painting's side).
+const HEAD_VIEWS := {"head_front": 0.0, "head_three_quarter": -40.0, "head_side": -90.0,
+		"head_side_left": 90.0, "head_back": 180.0, "head_shot": INF}
+const HEAD_DISTANCE := 0.75
 
 
 static func default_energy() -> Dictionary:
@@ -63,6 +68,17 @@ static func aim(set: Dictionary, view: String) -> void:
 		cam.fov = sm.FOV
 		return
 	var man = set.man
+	if HEAD_VIEWS.has(view):
+		var head: Vector3 = (man.parts[&"head"] as Node3D).global_position + Vector3.DOWN * 0.03
+		var deg: float = HEAD_VIEWS[view]
+		var to: Vector3
+		if deg != INF:
+			to = (-man.global_basis.z as Vector3).rotated(Vector3.UP, deg_to_rad(deg))
+		else:
+			to = ((sm.camera_transform(set.world) as Transform3D).origin - head).normalized()
+		cam.fov = VIEW_FOV
+		cam.global_transform = Transform3D(Basis.looking_at(-to, Vector3.UP), head + to * HEAD_DISTANCE)
+		return
 	var chest: Vector3 = (man.parts[&"chest"] as Node3D).global_position
 	var v: Array = VIEWS[view]
 	var dir := (-man.global_basis.z as Vector3).rotated(Vector3.UP, deg_to_rad(v[0]))

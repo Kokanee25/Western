@@ -27,6 +27,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's there)
 
 VIEW_WEIGHT = {"shot": 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
+# The close head views (paint_views.py --head-sheet) see his head at ~3x the detail: on the shapes of
+# his head they outweigh everything; elsewhere (the collar and coat they catch) they barely count.
+HEAD_VIEW_WEIGHT = 10.0
+HEAD_VIEW_ELSEWHERE = 0.2
+HEAD_SHAPES = {"head", "hair", "hat", "hat_band", "hat_brim", "cravat"}
 # How hard the best view wins: each view's weight (VIEW_WEIGHT x how squarely it saw the texel) is
 # raised to this power before averaging.
 SHARPEN = 4.0
@@ -143,7 +148,12 @@ def finish(src):
             col, wt = _load(cp), _load(wp)
             # Sharpened, so where a view sees a texel far better than the others (the painting
             # itself, from your seat) it wins outright rather than being averaged with guesses.
-            k = ((wt[..., 0] * VIEW_WEIGHT.get(view, 1.0)) ** SHARPEN) * (col[..., 3] > 0.5)
+            vw = VIEW_WEIGHT.get(view, 1.0)
+            if view.startswith("head_"):
+                vw = HEAD_VIEW_WEIGHT if shape in HEAD_SHAPES else HEAD_VIEW_ELSEWHERE
+            elif shape == "hair":
+                vw *= 0.1  # the body views were painted before he had hair
+            k = ((wt[..., 0] * vw) ** SHARPEN) * (col[..., 3] > 0.5)
             acc += col[..., :3] * k[..., None]
             wsum += k
         known = wsum > 1e-4

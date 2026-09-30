@@ -30,7 +30,8 @@ const RAW_TEXELS_PER_M := 256.0
 ## the middle third of it (finished 128x86: the face ~40 texels across, 2-3 screen px each).
 const RAW_SIZE := {"head": Vector2i(256, 172)}
 const BAKE_LAYER := 1 << 19
-const ALL_VIEWS := ["shot", "front", "three_quarter", "side", "side_left", "back"]
+const ALL_VIEWS := ["shot", "front", "three_quarter", "side", "side_left", "back",
+		"head_front", "head_three_quarter", "head_side", "head_side_left", "head_back", "head_shot"]
 
 
 func _initialize() -> void:
@@ -146,13 +147,16 @@ func _restore(saved: Dictionary) -> void:
 			gi.material_override = saved[gi]
 
 
-## Him in plain grey clay under one soft light from over the camera, his table and props darker,
+## Him in plain grey clay under one soft light from over the camera (both sides of every face drawn:
+## open shells like his hair and brim face either way), his table and props darker,
 ## on a light grey ground: shapes the image model can read and paint over, keeping the outline.
 func _guide(stage, set: Dictionary, vp: SubViewport) -> Image:
 	var clay := StandardMaterial3D.new()
+	clay.cull_mode = BaseMaterial3D.CULL_DISABLED
 	clay.albedo_color = Color(0.62, 0.62, 0.62)
 	clay.roughness = 1.0
 	var dark := StandardMaterial3D.new()
+	dark.cull_mode = BaseMaterial3D.CULL_DISABLED
 	dark.albedo_color = Color(0.3, 0.3, 0.3)
 	dark.roughness = 1.0
 	var man: Node = set.man
@@ -186,9 +190,11 @@ func _guide(stage, set: Dictionary, vp: SubViewport) -> Image:
 ## tools/paint/align.py to fit the painted views onto.
 func _mask(stage, set: Dictionary, vp: SubViewport) -> Image:
 	var white := StandardMaterial3D.new()
+	white.cull_mode = BaseMaterial3D.CULL_DISABLED
 	white.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	white.albedo_color = Color.WHITE
 	var black := StandardMaterial3D.new()
+	black.cull_mode = BaseMaterial3D.CULL_DISABLED
 	black.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	black.albedo_color = Color.BLACK
 	var man: Node = set.man

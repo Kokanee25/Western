@@ -40,6 +40,8 @@ SHOT_OUTLINE = [
 ]
 # The shot guide's frame in the painting (tools/paint_bake.gd SHOT_CROP, in pixels).
 SHOT_BOX = (105, 141, 905, 941)
+# The painting's man's head, hat and collar (its pixels): the colours the close head views match.
+HEAD_BOX = (430, 180, 830, 620)
 # How far inside the painted outline to stop (px at 1024): the model's edge pixels are background.
 INSET = 3
 
@@ -116,10 +118,15 @@ def match_colours(rgb, mask, ref):
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
-def painting_reference():
+def painting_reference(box=None):
+    """The painting's man's pixels (inside box, if given: his head for the close head views)."""
     img = Image.open(PAINTING).convert("RGB")
     mask = Image.new("L", img.size, 0)
     ImageDraw.Draw(mask).polygon(SHOT_OUTLINE, fill=255)
+    if box:
+        keep = Image.new("L", img.size, 0)
+        ImageDraw.Draw(keep).rectangle(box, fill=255)
+        mask = Image.fromarray(np.minimum(np.asarray(mask), np.asarray(keep)))
     return man_pixels(img, mask)
 
 
@@ -160,12 +167,14 @@ def main():
             src = a
     report = {}
     ref = painting_reference()
+    ref_head = painting_reference(HEAD_BOX)
     for f in sorted(os.listdir(src)):
         if not f.endswith("_%s.png" % source):
             continue
         stem = f[: -len("_%s.png" % source)]
         pid, view = None, None
-        for v in ("three_quarter", "side_left", "shot", "front", "side", "back"):
+        for v in ("head_three_quarter", "head_side_left", "head_front", "head_side", "head_back", "head_shot",
+                "three_quarter", "side_left", "shot", "front", "side", "back"):
             if stem.endswith("_" + v):
                 pid, view = stem[: -len(v) - 1], v
                 break
@@ -174,7 +183,7 @@ def main():
         if not os.path.exists(os.path.join(src, "%s_%s_mask.png" % (pid, view))):
             print("no mask for", stem, "(run tools/paint_bake.gd guides)")
             continue
-        report.setdefault(pid, {"source": source})[view] = align(src, pid, view, ref, source)
+        report.setdefault(pid, {"source": source})[view] = align(src, pid, view, ref_head if view.startswith("head_") else ref, source)
         if view == "shot":
             painting_shot(src, pid)
     for pid, r in report.items():

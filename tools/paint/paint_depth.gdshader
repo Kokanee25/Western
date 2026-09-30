@@ -1,7 +1,8 @@
 shader_type spatial;
 // A view's depth map for tools/paint_bake.gd: distance from the camera over depth_far, in 16 bits
 // across red (high byte) and green (low byte), so the bake can tell what the view really saw.
-render_mode unshaded, cull_back, shadows_disabled;
+// Both sides: open shells (hair, brims, the coat's skirt) must stop the view from either side.
+render_mode unshaded, cull_disabled, shadows_disabled;
 
 #include "res://tools/paint/srgb.gdshaderinc"
 

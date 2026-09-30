@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Have an image model paint a man's grey views as the concept painting's man (DESIGN.md §4).
 
-    OPENROUTER_API_KEY=... python3 tools/paint/paint_views.py [--only=outlaw] [--views=shot,front,...]
-        [--sheet] [--repaint]
+    OPENROUTER_API_KEY=... python3 tools/paint/paint_views.py [--only=outlaw] [--views=shot,front,...|none]
+        [--sheet] [--head-sheet] [--repaint]
 
 For each view tools/paint_bake.gd rendered (assets/people/paint/<id>_<view>_guide.png: him in plain
 grey clay, square), sends the guide (his shape: keep every edge), the painting's man and a close-up
@@ -16,7 +16,9 @@ the guide and tools/paint_bake.gd projects it onto him. Skips views already pain
 
 --sheet also paints all six views in one picture (a turnaround: views painted together agree with
 each other): <id>_sheet_guide.png, <id>_sheet_painted.png, and each view cut back out as
-<id>_<view>_tile.png (align.py --source=tile uses those instead).
+<id>_<view>_tile.png (align.py --source=tile uses those instead). --head-sheet does the same for
+six close views of his head (HEAD_SHEET), with his painted front as the reference for who he is,
+so his face gets about three times the detail. --views=none paints no single views.
 
 The key comes from the environment (a GitHub Actions secret, never the repo). The model is
 OpenRouter's PAINT_MODEL (default FLUX.2 [max]: up to 8 reference images, the same style kit on
@@ -52,6 +54,8 @@ VIEWS = {
 }
 # The turnaround sheet: three across, two down.
 SHEET = ["front", "three_quarter", "side", "side_left", "back", "shot"]
+# The head sheet: his head close, the same layout (the face gets ~3x the pixels it gets on SHEET).
+HEAD_SHEET = ["head_front", "head_three_quarter", "head_side", "head_side_left", "head_back", "head_shot"]
 TILE = 640
 
 WHO = (
@@ -84,6 +88,22 @@ ASK_SHEET = (
     "degrees round to his right, from his right side; bottom row from his left side, from behind, and "
     "from where you sit across a card table from him. Paint every view on the sheet as that same man, "
     "identical in every view. " + WHO + KEEP.replace("image 1", "each view of image 1") + FINISH
+    + "Keep the sheet's layout exactly: six views, three across and two down, each where it is in image 1."
+)
+
+
+ASK_HEAD_SHEET = (
+    "Image 1 is a sheet of six close grey views of the same seated 3D man's head and shoulders: top row "
+    "from the front, from 40 degrees round to his right, from his right side; bottom row from his left "
+    "side, from behind, and from where you sit across a card table from him. Paint every view on the "
+    "sheet as that same man, identical in every view. He is the man in image 4 (already painted: match "
+    "his face, hat and clothes exactly) and the man in the painting (image 2, his face close up in "
+    "image 3). His face as the painting has it: a weathered, lined face, deep-set dark eyes each with "
+    "a small white glint, heavy dark brows, a thick dark drooping moustache, dark stubble; dark brown "
+    "hair falling long behind his ears to his collar; a dark brown hat with a studded band; a white "
+    "shirt collar and a dark tie at his throat; the heavy brown coat on his shoulders. Draw the eyes, "
+    "brows and moustache as crisp, strong, dark shapes. "
+    + KEEP.replace("image 1", "each view of image 1") + FINISH
     + "Keep the sheet's layout exactly: six views, three across and two down, each where it is in image 1."
 )
 
@@ -159,26 +179,39 @@ def paint_view(pid, view, refs, front, key):
     return img
 
 
-def sheet_guide(pid):
+def sheet_guide(pid, views=SHEET):
     sheet = Image.new("RGB", (TILE * 3, TILE * 2), (219, 219, 219))
-    for i, view in enumerate(SHEET):
+    for i, view in enumerate(views):
         g = Image.open(os.path.join(DIR, "%s_%s_guide.png" % (pid, view))).convert("RGB").resize((TILE, TILE), Image.LANCZOS)
         sheet.paste(g, ((i % 3) * TILE, (i // 3) * TILE))
     return sheet
 
 
-def paint_sheet(pid, refs, key):
-    guide = sheet_guide(pid)
-    guide.save(os.path.join(DIR, "%s_sheet_guide.png" % pid))
-    img = ask(ASK_SHEET, [guide] + refs, {"aspect_ratio": "3:2", "image_size": "2K"}, "%s sheet" % pid, key)
+def paint_sheet(pid, refs, key, views=SHEET, prompt=ASK_SHEET, name="sheet"):
+    guide = sheet_guide(pid, views)
+    guide.save(os.path.join(DIR, "%s_%s_guide.png" % (pid, name)))
+    img = ask(prompt, [guide] + refs, {"aspect_ratio": "3:2", "image_size": "2K"}, "%s %s" % (pid, name), key)
     got = img.size
-    img = fit_to(img, guide.size, "%s sheet" % pid)
-    img.save(os.path.join(DIR, "%s_sheet_painted.png" % pid))
-    for i, view in enumerate(SHEET):
+    img = fit_to(img, guide.size, "%s %s" % (pid, name))
+    img.save(os.path.join(DIR, "%s_%s_painted.png" % (pid, name)))
+    for i, view in enumerate(views):
         size = Image.open(os.path.join(DIR, "%s_%s_guide.png" % (pid, view))).size
         tile = img.crop(((i % 3) * TILE, (i // 3) * TILE, (i % 3 + 1) * TILE, (i // 3 + 1) * TILE))
         tile.resize(size, Image.LANCZOS).save(os.path.join(DIR, "%s_%s_tile.png" % (pid, view)))
-    print("painted the sheet for", pid, "(%dx%d from the model) by" % got, MODEL)
+    print("painted the %s for" % name, pid, "(%dx%d from the model) by" % got, MODEL)
+
+
+def paint_head_sheet(pid, refs, key):
+    # The man already painted from the front (the body sheet's view, else the single view) keeps the
+    # close head the same man.
+    for f in ("%s_front_tile.png", "%s_front_painted.png"):
+        path = os.path.join(DIR, f % pid)
+        if os.path.exists(path):
+            front = Image.open(path).convert("RGB")
+            break
+    else:
+        raise RuntimeError("%s head sheet: paint his front first (the body sheet)" % pid)
+    paint_sheet(pid, refs + [front], key, HEAD_SHEET, ASK_HEAD_SHEET, "head_sheet")
 
 
 def main():
@@ -190,9 +223,12 @@ def main():
     views = list(VIEWS)
     repaint = "--repaint" in sys.argv
     sheet = "--sheet" in sys.argv
+    head_sheet = "--head-sheet" in sys.argv
     for a in sys.argv[1:]:
         if a.startswith("--only=") and a.split("=", 1)[1]:
             only = a.split("=", 1)[1]
+        elif a.startswith("--views=") and a.split("=", 1)[1] == "none":
+            views = []
         elif a.startswith("--views=") and a.split("=", 1)[1] not in ("", "all"):
             views = a.split("=", 1)[1].split(",")
     # His front first: it's the reference that keeps his other sides the same man.
@@ -229,6 +265,13 @@ def main():
             except (RuntimeError, OSError, KeyError, ValueError) as e:
                 print("failed:", e)
                 failed.append("%s sheet" % pid)
+        if head_sheet:
+            try:
+                paint_head_sheet(pid, refs, key)
+                painted += 1
+            except (RuntimeError, OSError, KeyError, ValueError) as e:
+                print("failed:", e)
+                failed.append("%s head sheet" % pid)
     if failed:
         print("not painted:", ", ".join(failed))
         # Keep what did come back (it's committed); fail only if nothing did.

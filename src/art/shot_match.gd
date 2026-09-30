@@ -57,6 +57,10 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		man.shirt_color = Color(0.82, 0.77, 0.66)
 		man.hat_color = Color(0.27, 0.19, 0.13)
 		man.bandana_color = Color(0.1, 0.08, 0.07)
+		# His dark hair to the collar, as the painting has it.
+		var look: Dictionary = man.look.duplicate()
+		look["hair_long"] = true
+		man.look = look
 	street.add_child(man)
 	man.global_position = t + SEAT
 	# Square to you, as the painting's man sits.

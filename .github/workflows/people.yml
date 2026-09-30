@@ -32,6 +32,11 @@ on:
         type: boolean
         required: false
         default: false
+      paint_head_sheet:
+        description: "With paint_views, also paint six close views of his head in one picture"
+        type: boolean
+        required: false
+        default: false
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -89,11 +94,13 @@ jobs:
           VIEWS: ${{ inputs.paint_views }}
           REPAINT: ${{ inputs.repaint }}
           SHEET: ${{ inputs.paint_sheet }}
+          HEAD_SHEET: ${{ inputs.paint_head_sheet }}
         run: |
           pip install pillow
           args="--only=$ONLY --views=$VIEWS"
           if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
           if [ "$SHEET" = "true" ]; then args="$args --sheet"; fi
+          if [ "$HEAD_SHEET" = "true" ]; then args="$args --head-sheet"; fi
           python tools/paint/paint_views.py $args
 
       - name: Body envelope from the anatomy

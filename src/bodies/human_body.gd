@@ -325,7 +325,8 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 ## The skin and clothes (the generated body if there is one, else BodyMesh) skinned to a skeleton whose bones follow the parts.
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
-			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
+			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0,
+			"hair": look.get("hair_long", false)}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	if data.has("skin_tone"):
 		skin_tone = data.skin_tone
@@ -364,8 +365,9 @@ func _build_skin() -> void:
 		"hat": _cloth("hat", hat_color, &"felt"),
 		"hat_brim": _cloth("hat", hat_color, &"felt", false),
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
+		"hair": _cloth("hair", look.get("hair", Color(0.22, 0.15, 0.09)), &"felt", false),
 	}
-	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt"]
+	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
 	var baked: Dictionary = data.get("textures", {})
 	var paint: Dictionary = data.get("paint", {})
 	for shape: String in data.shapes:
