@@ -5,6 +5,16 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: the painting's pixel style
+
+- **The game now draws at 1280×720 by default** (it was 640×360), and every texture is in squares
+  of a set size on the surface (64 a metre on wood, finer on faces and hands), each a slightly
+  different shade, like the concept painting's mosaic. Squares stay crisp, and near things have big
+  squares and far things small ones. If it runs slowly, **F2** steps down to 960×540 or 640×360.
+  Your old saved settings move to the new look once; F2 and F7 still change it after that.
+- Try: walk into the saloon at night and look at the tables and walls up close, then press F2
+  and F7 to compare with the old look. Tell me the frame rate (F3) at 1280×720 on your PC.
+
 ### New: real people, and the painting's shot
 
 - **The men have real bodies now.** Their skin and head come from MakeHuman's base human (free to
@@ -271,7 +281,7 @@ to nothing; fallen timber keeps burning where it lands. Char stays on what survi
 | Debug readout (clock, speed, fps) | F3 | View / Back |
 | Change pixel size (render resolution) | F2 | |
 | Pixel shading on/off (banded colour + dither) | F6 | |
-| Texel size (40 → 24 → 16 per metre) | F7 | |
+| Texel size (64 → 40 → 24 → 16 per metre) | F7 | |
 | Jump to next place (street, store, saloon door, inside saloon) | F5 | D-pad up |
 | Controls help | F1 | |
 | Free the mouse | Esc (click to grab it again) | |
@@ -352,9 +362,10 @@ and leg hits still leave him fighting: he's a hired gun.
 
 1. **The look.** You start at 17:00 on the street, sun low in the west. Every board, beam and the
    ground now has chunky pixel-art texture (made in code), under the same modern lighting. Everything
-   is rendered at 640×360 and scaled up with hard pixels. That's the default look. You can switch it
-   on the fly; each key flashes the current settings at the bottom of the screen, and they're saved:
-   - **F2** render resolution (640×360 → 480×270 → 320×180 → 960×540 → 1280×720),
+   is rendered at 1280×720 and scaled up with hard pixels, so each texture square is several screen
+   pixels, crisp, as in the concept painting. That's the default look. You can switch it on the fly;
+   each key flashes the current settings at the bottom of the screen, and they're saved:
+   - **F2** render resolution (1280×720 → 960×540 → 640×360 → 480×270 → 320×180),
    - **F7** texel size (smaller numbers = chunkier texture pixels, no smoothing in the distance),
    - **F6** pixel shading (light and fog break into bands and dither patterns).
 2. **Time.** Press **T** twice (180×) and watch a whole day go by in 15 seconds: long shadows down the

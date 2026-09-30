@@ -14,7 +14,8 @@ func test_textures_are_deterministic_small_and_few_coloured() -> void:
 	for y in PixelArt.SIZE:
 		for x in PixelArt.SIZE:
 			colours[a.get_pixel(x, y).to_html()] = true
-	check(colours.size() <= 5, "a handful of shades, like pixel art (%d)" % colours.size())
+	# Six: the concept painting's mosaic of close browns (2026-09-30; was five).
+	check(colours.size() <= 6, "a handful of shades, like pixel art (%d)" % colours.size())
 
 
 func test_noise_tiles_seamlessly() -> void:
@@ -53,18 +54,20 @@ func test_texel_size_changes_live() -> void:
 	PixelArt.set_density(16.0, false)
 	check_near(m.uv1_scale.x * PixelArt.SIZE, 16.0, 0.001, "existing materials follow the new density")
 	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST, "no mipmaps: crunchy")
-	PixelArt.set_density(40.0, true)
+	PixelArt.set_density(64.0, true)
 	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS, "and back")
 
 
 func test_texel_size_is_a_setting() -> void:
-	check_near(Settings.texels_per_meter, 40.0, 0.001, "starts at 40 per metre")
-	check(Settings.look_description().contains("40/m"), "described: %s" % Settings.look_description())
+	check_near(Settings.texels_per_meter, 64.0, 0.001, "starts at 64 per metre")
+	check(Settings.look_description().contains("64/m"), "described: %s" % Settings.look_description())
 	Settings.cycle_texel_density()
-	check_near(PixelArt.texels_per_meter, 24.0, 0.001, "F7 steps to 24")
+	check_near(PixelArt.texels_per_meter, 40.0, 0.001, "F7 steps to 40")
+	Settings.cycle_texel_density()
+	check_near(PixelArt.texels_per_meter, 24.0, 0.001, "then 24")
 	Settings.cycle_texel_density()
 	Settings.cycle_texel_density()
-	check_near(PixelArt.texels_per_meter, 40.0, 0.001, "three presses come back to 40")
+	check_near(PixelArt.texels_per_meter, 64.0, 0.001, "four presses come back to 64")
 	check(PixelArt.use_mipmaps, "smoothed again")
 	Settings.reset_to_defaults()
 

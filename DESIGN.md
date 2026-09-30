@@ -50,10 +50,20 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
   texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The
   concept art is the mood and lighting target; the models aim for this crisper, simpler look.
-- **Default look (Sean approved, 2026-09-28):** 640×360 render, 40 texels per metre with distance
-  smoothing, pixel shading off. The look stays switchable in play as graphics options: render
-  resolution, texel size (40 / 24 / 16 per metre) and pixel shading (banded light + dither). They
+- **Default look (Sean approved, 2026-09-28; resolution raised 2026-09-30):** 1280×720 render (was
+  640×360: the concept painting's clean pixels are the textures' squares, each several screen
+  pixels big, which 640×360 smears), 64 texels per metre (was 40: the painting's squares on wood)
+  with distance smoothing, a mosaic of close shades square by square, pixel shading off. The look stays switchable in play as graphics options: render
+  resolution, texel size (64 / 40 / 24 / 16 per metre) and pixel shading (banded light + dither). They
   are debug keys now (F2 / F7 / F6) and move into a settings menu later.
+- **The concept painting's pixel style, as rules (Sean, 2026-09-30: "that exact art style"):**
+  (1) squares painted on the surfaces at a set size in metres (~64/m on wood and cloth, ~120–190/m on
+  faces and hands), drawn nearest, so near things have big squares and far things small; (2) each
+  square several screen pixels big, so it stays crisp and tilts with the surface (hence the
+  1280×720 default); (3) a mosaic: neighbouring squares differ a little in shade within a warm,
+  limited palette per material; (4) clean drawing: clear shapes, bold dark features (eyes, brows,
+  moustache, tie), a white collar that reads; (5) warm soft lamplight with glow and haze, deep brown
+  shadows. Everything in the game follows them, people and world alike.
 - **Animation is realistic, not retro:** smooth motion-captured animation (Mixamo, the CMU library,
   or video-to-mocap of Sean acting scenes out), procedural touches (feet planted on the ground,
   looking, breathing, balance), full **physics ragdolls**, and **active ragdolls** for the living
@@ -126,8 +136,8 @@ Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
       fallback when a generated body isn't there, and for tests).
   - Real-GPU caveat: cloud renders use software Vulkan; ask Sean for a screenshot of the same view from
     his PC at milestones, since lighting can differ.
-- Rendering at a low internal resolution (e.g. 640×360) is also the main performance lever: a
-  fraction of the pixels of 1080p, so rich lighting stays affordable on modest PCs.
+- The internal resolution is also the main performance lever: 1280×720 is under half the pixels
+  of 1080p, and F2 drops to 960×540 or 640×360 on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.
 
 ## 5. Setting and story

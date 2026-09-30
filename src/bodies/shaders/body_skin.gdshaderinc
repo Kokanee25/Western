@@ -152,6 +152,8 @@ void fragment() {
 	EMISSION = base * glow;
 	if (painted) {
 		AO = 0.0;
+		// Painted matt: no sheen of the sky or the room on him (a night sky turned his shirt blue).
+		SPECULAR = 0.0;
 	}
 }
 

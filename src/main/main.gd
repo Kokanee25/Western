@@ -1,7 +1,8 @@
 extends Node
-## Owns the pixel pipeline: the 3D world renders into a low-resolution SubViewport (a setting,
-## 640x360 by default) and is drawn to the window with nearest-neighbour scaling, so modern
-## lighting happens at low resolution and reads as chunky pixels. Also turns mouse motion into
+## Owns the pixel pipeline: the 3D world renders into a SubViewport at the internal resolution (a
+## setting, 1280x720 by default, F2 for coarser ones) and is drawn to the window with
+## nearest-neighbour scaling; the chunky pixels are the textures' squares, each several screen
+## pixels big. Also turns mouse motion into
 ## look input and handles capturing the mouse.
 
 @onready var game_viewport: SubViewport = $GameViewport

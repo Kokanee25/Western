@@ -47,6 +47,13 @@ SMOOTH_DEFAULT = 5
 SHAPE_COLOURS = {"head": 24, "coat": 12, "vest": 10, "shirt": 6, "trousers": 8, "hat": 8, "hat_band": 8,
         "hat_brim": 8, "cravat": 5, "skin": 10, "boots": 6, "belt": 5, "gun_belt": 6, "holster": 5}
 SHAPE_COLOURS_DEFAULT = 6
+# Garments drawn in their own colour, as the painting draws them (a clean white shirt, a black tie):
+# the painted light and shade are kept, the colour is set, so the collar and tie read at a glance
+# instead of taking the muddy browns round them. Colours as the painting shows them in lamplight.
+SHAPE_TONE = {"shirt": (0.95, 0.8, 0.52), "cravat": (0.07, 0.05, 0.04)}
+# The face's features bolder (unsharp mask: radius in raw texels, strength in %), like the
+# painting's dark eyes, brows and moustache.
+FACE_SHARPEN = (2, 90)
 # Samples a square looks at (per side) to find its dominant colour.
 SAMPLES = 4
 # Texels no view saw take their neighbours' colour, spreading this many texels; past that, the
@@ -144,6 +151,15 @@ def finish(src):
             continue
         rgb = np.where(known[..., None], acc / np.maximum(wsum, 1e-9)[..., None], 0.0)
         rgb = _fill(rgb, known)
+        if shape in SHAPE_TONE:
+            lum = rgb @ np.array([0.2126, 0.7152, 0.0722])
+            lo, hi = np.percentile(lum[known], [5, 95]) if known.any() else (0.0, 1.0)
+            t = np.clip((lum - lo) / max(hi - lo, 1e-3), 0, 1)[..., None]
+            rgb = np.array(SHAPE_TONE[shape]) * (0.55 + 0.45 * t)
+        if shape == "head":
+            img = Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8))
+            img = img.filter(ImageFilter.UnsharpMask(radius=FACE_SHARPEN[0], percent=FACE_SHARPEN[1], threshold=2))
+            rgb = np.asarray(img, dtype=float) / 255.0
         k = SMOOTH.get(shape, SMOOTH_DEFAULT)
         if k > 1:
             img = Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(k))

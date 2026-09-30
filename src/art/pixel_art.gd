@@ -5,13 +5,18 @@ class_name PixelArt
 
 ## How many texels per metre the world uses. Walls, boards and ground all share it, so pixels are
 ## the same size everywhere. Fewer = chunkier. Read when materials are first made.
-static var texels_per_meter := 40.0
+static var texels_per_meter := 64.0
 ## Mipmaps smooth distant texels (less shimmer, softer look); off = crunchy all the way out.
 static var use_mipmaps := true
+## The concept painting's mosaic: how much each texel's shade wanders from the pattern under it, in
+## small clusters (two-texel patches plus a little per texel), so wood and dirt read as a patchwork
+## of squares in a few close browns rather than smooth streaks. 0 = the plain pattern.
+static var mosaic := 0.6
 
 
-## Texel-size presets F7 cycles through: [texels per metre, mipmaps].
-const DENSITY_PRESETS := [[40.0, true], [24.0, false], [16.0, false]]
+## Texel-size presets F7 cycles through: [texels per metre, mipmaps]. The first is the default:
+## 64 a metre, the concept painting's squares on wood (2026-09-30; was 40).
+const DENSITY_PRESETS := [[64.0, true], [40.0, true], [24.0, false], [16.0, false]]
 
 ## Every material that uses the texel grid, so a density change can reach them all.
 static var _materials: Array[BaseMaterial3D] = []
@@ -91,7 +96,7 @@ static func ramp(base: Color, count := 5, spread := 0.42) -> Array[Color]:
 static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, grain := 1.0) -> ImageTexture:
 	if _cache.has(key):
 		return _cache[key]
-	var shades := ramp(base)
+	var shades := ramp(base, 6, 0.55)
 	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
@@ -102,7 +107,7 @@ static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, g
 			var g := _noise(x, int(round(y + wobble)), 3, 24, seed)
 			var broad := _noise(x, y, 4, 4, seed + 13)
 			var v := lerpf(broad, g, clampf(0.55 * grain, 0.0, 1.0))
-			img.set_pixel(x, y, shades[_band(v, shades.size())])
+			img.set_pixel(x, y, shades[_band(_mosaic(v, x, y, seed), shades.size())])
 	for i in knots:
 		_knot(img, shades, rng.randi_range(0, SIZE - 1), rng.randi_range(0, SIZE - 1), rng.randi_range(2, 3))
 	for i in cracks:
@@ -130,7 +135,7 @@ static func painted(key: String, paint: Color, timber: Color, seed: int, wear :=
 				img.set_pixel(x, y, under.get_pixel(x, y))
 				continue
 			var streak := _noise(x, y, 3, 20, seed + 11)
-			var s := _band(streak * 0.8 + 0.2 * _noise(x, y, 4, 4, seed + 17), shades.size())
+			var s := _band(_mosaic(streak * 0.8 + 0.2 * _noise(x, y, 4, 4, seed + 17), x, y, seed), shades.size())
 			# paint lifts at the edge of a peel: a darker rim
 			if peel < wear + 0.04:
 				s = 0
@@ -152,7 +157,7 @@ static func dirt(key: String, base: Color, seed: int) -> ImageTexture:
 	for y in SIZE:
 		for x in SIZE:
 			var v := _noise(x, y, 16, 16, seed) * 0.6 + _noise(x, y, 4, 4, seed + 1) * 0.25 + rng.randf() * 0.15
-			img.set_pixel(x, y, shades[_band(v, shades.size())])
+			img.set_pixel(x, y, shades[_band(_mosaic(v, x, y, seed), shades.size())])
 	for i in 18:
 		var px := rng.randi_range(0, SIZE - 1)
 		var py := rng.randi_range(0, SIZE - 1)
@@ -256,6 +261,14 @@ static func _knot(img: Image, shades: Array[Color], cx: int, cy: int, r: int) ->
 			if d <= r:
 				var s := 0 if d < r * 0.5 else 1
 				img.set_pixel(posmod(cx + dx, SIZE), posmod(cy + dy, SIZE), shades[s])
+
+
+## A pattern value v (0..1) at texel (x, y) with the mosaic laid over it.
+static func _mosaic(v: float, x: int, y: int, seed: int) -> float:
+	if mosaic <= 0.0:
+		return v
+	var patch := _noise(x, y, 32, 32, seed + 41) * 0.75 + _hash(posmod(x, SIZE), posmod(y, SIZE), seed + 43) * 0.25
+	return lerpf(v, v * 0.5 + patch * 0.5 + (patch - 0.5) * 0.3, mosaic)
 
 
 static func _band(v: float, count: int) -> int:

@@ -19,9 +19,9 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   and runs headless for automated tests.
 - **Language: GDScript** by default. Use C# only for a measured performance hotspot, and ask first.
 - **Target: PC / big screen**, keyboard + mouse and controller. First person only.
-- **Look:** render the 3D scene into a low-resolution SubViewport (start at 640×360) and scale it to the
-  window with nearest-neighbour filtering; modern lighting (shadows, fog, volumetric light, glow) happens
-  at the low resolution. Keep the internal resolution a setting.
+- **Look:** render the 3D scene into a SubViewport (1280×720 by default since 2026-09-30; was 640×360)
+  and scale it to the window with nearest-neighbour filtering; the chunky pixels are the textures'
+  squares, each several screen pixels big. Keep the internal resolution a setting (F2).
 - **AI characters:** called through a small relay server that holds the API key (OpenRouter, so the
   model can be switched). **The key never goes in this repo or in the game build.** The AI is only
   called for conversation, asynchronously — never inside the frame loop.
@@ -104,7 +104,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
-  (SubViewport at `Settings.internal_resolution`), drawn to `Screen` with nearest filtering.
+  (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
+  filtering.
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`).
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
@@ -764,4 +765,19 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   painting's table and walls. 228 pass.
   - Open with Sean: raise the internal resolution (F2 already has 960×540 and 1280×720) so the
     textures' squares are the pixels, as the painting's are.
+- 2026-09-30 (late): **Round 6: the painting's pixel style on the whole frame.** Sean: it's not the
+  painting he wants reproduced, it's that exact art style. Agreed the style as rules (DESIGN.md §4):
+  squares on the surfaces at a set size, several screen pixels each, a mosaic of close shades, clean
+  drawing, warm soft lamplight. Done: **default internal resolution 1280×720** (`RESOLUTION_PRESETS`
+  first; F2 steps down) and **64 texels/m** (`PixelArt.DENSITY_PRESETS` first; F7 40/24/16); an old
+  settings file moves from the old defaults once (`Settings.LOOK_VERSION` 2). `PixelArt.mosaic` 0.6:
+  wood, painted boards and dirt get per-square shade clusters (`_mosaic()`), wood six shades with more
+  contrast. The man: `finish.py` `SHAPE_TONE` draws the shirt cream and the tie black (painted light
+  kept, colour set), `FACE_SHARPEN` bolds the face; painted parts are matt (`SPECULAR` 0: the night
+  sky's sheen); ShotMatch's tin is dull (fully metallic it went black). 228 pass. Renders
+  `docs/screenshots/character_lab/round6_*` (the painting / this morning / now).
+  - Known: the room is still one plank wall behind him (the painting's depth, bar, balcony, lamps
+    and people are the room rebuild); props are plain shapes (cups, lamp, bottle); the shirt V is
+    bigger than the painting's (vest cut); frame rate at 1280×720 on Sean's PC unknown.
+  - Next: Sean's verdict and frame rate; then props as proper models in the style, the room.
 

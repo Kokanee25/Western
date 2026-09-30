@@ -4,10 +4,14 @@ extends Node
 signal changed
 
 const PATH := "user://settings.cfg"
-## F2 cycles through these. The first is the default look.
+## F2 cycles through these. The first is the default look: 1280x720 (Sean, 2026-09-30), so each of
+## a texture's squares covers several screen pixels and stays crisp, as the concept painting's do.
 const RESOLUTION_PRESETS: Array[Vector2i] = [
-	Vector2i(640, 360), Vector2i(480, 270), Vector2i(320, 180), Vector2i(960, 540), Vector2i(1280, 720),
+	Vector2i(1280, 720), Vector2i(960, 540), Vector2i(640, 360), Vector2i(480, 270), Vector2i(320, 180),
 ]
+## Bumped when the default look changes: a settings file from before keeps the player's choices
+## but moves an old default resolution to the new one.
+const LOOK_VERSION := 2
 
 ## Size of the low-resolution 3D render before it is scaled up with hard pixels.
 var internal_resolution := RESOLUTION_PRESETS[0]
@@ -25,7 +29,7 @@ var auto_cock := false
 ## Pixel shading: banded colour levels and ordered dither on the final frame (F6).
 var pixel_shading := false
 ## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.
-var texels_per_meter := 40.0
+var texels_per_meter := 64.0
 ## Reduced gore: bad wounds show as dark soaked patches, the body never opens (F4).
 var reduced_gore := false
 ## Tests turn this off so they never touch the player's settings file.
@@ -63,7 +67,7 @@ func reset_to_defaults() -> void:
 	touch_look_sensitivity = 0.25
 	invert_y = false
 	pixel_shading = false
-	texels_per_meter = 40.0
+	texels_per_meter = 64.0
 	reduced_gore = false
 	_apply_texels()
 	changed.emit()
@@ -74,6 +78,7 @@ func load_from_disk() -> void:
 	if cfg.load(PATH) != OK:
 		return
 	internal_resolution = cfg.get_value("video", "internal_resolution", internal_resolution)
+	var old_look := int(cfg.get_value("video", "look_version", 1)) < LOOK_VERSION
 	integer_scaling = cfg.get_value("video", "integer_scaling", integer_scaling)
 	mouse_sensitivity = cfg.get_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	stick_look_speed = cfg.get_value("controls", "stick_look_speed", stick_look_speed)
@@ -81,6 +86,10 @@ func load_from_disk() -> void:
 	invert_y = cfg.get_value("controls", "invert_y", invert_y)
 	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
 	texels_per_meter = cfg.get_value("video", "texels_per_meter", texels_per_meter)
+	if old_look and internal_resolution == Vector2i(640, 360):
+		internal_resolution = RESOLUTION_PRESETS[0]
+	if old_look and is_equal_approx(texels_per_meter, 40.0):
+		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
 	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
 	_apply_texels()
 	changed.emit()
@@ -89,6 +98,7 @@ func load_from_disk() -> void:
 func save_to_disk() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("video", "internal_resolution", internal_resolution)
+	cfg.set_value("video", "look_version", LOOK_VERSION)
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
@@ -126,7 +136,7 @@ func cycle_texel_density() -> void:
 	_changed()
 
 
-## One line describing the current look, e.g. "640×360 · texels 40/m smoothed · shading off".
+## One line describing the current look, e.g. "1280×720 · texels 64/m smoothed · shading off".
 func look_description() -> String:
 	return "%d×%d · texels %d/m %s · shading %s" % [internal_resolution.x, internal_resolution.y,
 			int(texels_per_meter), "smoothed" if PixelArt.use_mipmaps else "crisp", "on" if pixel_shading else "off"]

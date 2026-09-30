@@ -196,7 +196,8 @@ static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
 
 
 static func _tin() -> StandardMaterial3D:
-	return _mat("tin", PixelArt.metal("shot_tin", Color(0.55, 0.55, 0.52), 71, 0.5), Color.WHITE, 0.45, 0.8)
+	# Dull tin, lit mostly as paint (fully metallic it had nothing to reflect and went black).
+	return _mat("tin", PixelArt.metal("shot_tin", Color(0.62, 0.6, 0.55), 71, 0.5), Color.WHITE, 0.5, 0.25)
 
 
 static func _cup(root: Node3D, at: Vector3) -> MeshInstance3D:
