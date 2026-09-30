@@ -4,6 +4,7 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/character_lab.gd -- --out=DIR
 ##   [--key= --rim= --fill= --lamp=] (light strengths, to try others)
 ##   [--self_lit= --paint_gain= --paint_wrap= --paint_limit=] (how his painted textures show: HumanBody.paint_look)
+##   [--size=WxH] (the frame; 640x360 by default, the game's)
 ##   [--view=shot|front|three_quarter|side|side_left|back] (shot, the painting's view, is the
 ##   default; the others orbit him at 1.8 m, looking at his chest, and write only lab.png)
 ## Writes lab.png (the frame, 640x360: him, his table and cup on black), in_painting.png (his pixels
@@ -13,7 +14,9 @@ extends SceneTree
 ## are the same in both, so they stay the painting's.
 
 const PAINTING := "res://docs/concept/saloon-night.png"
-const SIZE := Vector2i(640, 360)
+## The frame's size (--size=WxH to try others: at the painting's own 1672x941, each painted square
+## on him gets several screen pixels, as the painting's do).
+var SIZE := Vector2i(640, 360)
 ## A pixel is his if it differs by more than this (0..1, any channel) between the two renders.
 const DIFF := 0.03
 
@@ -30,6 +33,8 @@ func _run() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
+		elif a.begins_with("--size="):
+			SIZE = Vector2i(int(a.substr(7).get_slice("x", 0)), int(a.substr(7).get_slice("x", 1)))
 		elif a.begins_with("--view="):
 			view = a.substr(7)
 		for k in energy:

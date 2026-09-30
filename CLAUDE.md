@@ -751,4 +751,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: Sean's verdict; the same rule on the world (a shared pixel-surface shader for members
     and props, squares per material from the painting), then image-model tileable textures per
     material; a second sheet pass that paints only the unseen parts of the coat; more men.
+- 2026-09-30 (night): **Round 5: what "super clean" is.** Sean: the FLUX version "loses that style";
+  it's the super clean pixel art he wants. Up close the painting's pixels are squares on the
+  surfaces, tilted and stretched with the coat's folds and the face, each crisp and several screen
+  pixels big (a high-resolution render of low-resolution textures), with light varying across them.
+  At our 640×360 each square gets 2–4 screen pixels and smears; rendered at the painting's own
+  1672×941 the same textures give crisp tilted squares like its own (`character_lab.gd --size=WxH`;
+  `docs/screenshots/character_lab/round5_*`). finish.py now smooths fine noise first (median,
+  `SMOOTH`) and gives each shape its own palette (`SHAPE_COLOURS`: coat 12, face 24): a 5-colour
+  coat was clean but flat. Still off: what's drawn in the squares (his collar, tie and eyes are
+  muddier than the painting's), and the world's code-drawn textures are plain and coarse beside the
+  painting's table and walls. 228 pass.
+  - Open with Sean: raise the internal resolution (F2 already has 960×540 and 1280×720) so the
+    textures' squares are the pixels, as the painting's are.
 

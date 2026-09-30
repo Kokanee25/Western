@@ -8,9 +8,10 @@ squarely that view saw each texel and by VIEW_WEIGHT (the painting's own view is
 others fill what it can't see), sharpened so the best view wins, averaged; texels no view saw take
 the colour of those next to them. Then the squares, the same rule for every man: each shape cut
 into squares of a set size on him (SQUARES_PER_M, measured on the painting: ~80 a metre on cloth,
-~190 on the face, ~150 on the hands), each square the dominant colour of what's under it (two
-colours found in the square, the commoner kept: crisp edges, not the blur of an average), and all
-of him cut to one small palette (COLOURS) so he reads as one painted man. Writes
+~190 on the face, ~150 on the hands), the fine detail under them smoothed away first (SMOOTH),
+each square the dominant colour of what's under it (two colours found in the square, the commoner
+kept: crisp edges, not the blur of an average), and each shape cut to a few colours of its own
+(SHAPE_COLOURS: a coat of twelve browns), so the squares form clean ramps, not noise. Writes
 assets/people/<id>_paint_<shape>.png (one texel per square: the game draws them nearest, and
 body_skin lights each square as one) and assets/people/<id>_paint.json ({shape: {uv_rect, size}}),
 which PeopleBodies loads.
@@ -20,7 +21,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "blender"))
 import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's there)
@@ -37,8 +38,15 @@ SQUARES_PER_M_CLOTH = 80.0
 # runs round the head (~0.57 m) in u and over BodyMesh's HEAD_BOTTOM..HEAD_TOP (0.25 m) in v.
 RAW_PER_M = {"head": (256 / 0.57, 172 / 0.25)}
 RAW_PER_M_DEFAULT = (256.0, 256.0)
-# One palette for all of him.
-COLOURS = 40
+# Clean squares: first the fine detail under them is smoothed away (a median over this many raw
+# texels, ~2 cm; less on the face, whose eyes and moustache are small), then each shape gets a
+# palette of its own: enough shades for the light to step across it (the painting's face runs
+# through ~20), few enough that neighbouring squares share them.
+SMOOTH = {"head": 3}
+SMOOTH_DEFAULT = 5
+SHAPE_COLOURS = {"head": 24, "coat": 12, "vest": 10, "shirt": 6, "trousers": 8, "hat": 8, "hat_band": 8,
+        "hat_brim": 8, "cravat": 5, "skin": 10, "boots": 6, "belt": 5, "gun_belt": 6, "holster": 5}
+SHAPE_COLOURS_DEFAULT = 6
 # Samples a square looks at (per side) to find its dominant colour.
 SAMPLES = 4
 # Texels no view saw take their neighbours' colour, spreading this many texels; past that, the
@@ -94,6 +102,20 @@ def dominant(rgb, size):
     return np.where((n1 >= n2)[..., None], c1, c2)
 
 
+def palette(q, n):
+    """The n colours that best cover q (h, w, 3; median cut, then k-means), and each square's."""
+    px = q.reshape(-1, 3)
+    im = Image.fromarray((np.clip(q, 0, 1) * 255).astype(np.uint8)).quantize(colors=n, method=Image.Quantize.MEDIANCUT)
+    pal = np.array(im.getpalette()[:n * 3], dtype=float).reshape(-1, 3)[:len(set(np.asarray(im).ravel()))] / 255.0
+    for _ in range(10):
+        near = ((px[:, None, :] - pal[None]) ** 2).sum(-1).argmin(1)
+        for c in range(len(pal)):
+            if (near == c).any():
+                pal[c] = px[near == c].mean(0)
+    near = ((px[:, None, :] - pal[None]) ** 2).sum(-1).argmin(1)
+    return near.reshape(q.shape[:2]), (np.clip(pal, 0, 1) * 255).astype(np.uint8)
+
+
 def finish(src):
     raw = os.path.join(src, "raw")
     with open(os.path.join(raw, "shapes.json")) as f:
@@ -122,33 +144,28 @@ def finish(src):
             continue
         rgb = np.where(known[..., None], acc / np.maximum(wsum, 1e-9)[..., None], 0.0)
         rgb = _fill(rgb, known)
+        k = SMOOTH.get(shape, SMOOTH_DEFAULT)
+        if k > 1:
+            img = Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(k))
+            rgb = np.asarray(img, dtype=float) / 255.0
         per_m = SQUARES_PER_M.get(shape, SQUARES_PER_M_CLOTH)
         raw_x, raw_y = RAW_PER_M.get(shape, RAW_PER_M_DEFAULT)
         size = (max(2, round(w * per_m / raw_x)), max(2, round(h * per_m / raw_y)))
         squares[shape] = dominant(rgb, size)
         report[shape] = {"uv_rect": s["uv_rect"], "size": list(size), "squares_per_m": per_m,
                 "seen": round(float(known.mean()), 3)}
-    # One palette for all of him, every shape counted about equally (the coat would drown the face).
-    most = max(q.shape[0] * q.shape[1] for q in squares.values())
-    sample = np.concatenate([np.tile(q.reshape(-1, 3), (max(1, most // (4 * q.shape[0] * q.shape[1])), 1))
-            for q in squares.values()])
-    side = int(np.ceil(np.sqrt(len(sample))))
-    sample = np.concatenate([sample, np.repeat(sample[:1], side * side - len(sample), 0)])
-    pal_img = Image.fromarray((np.clip(sample.reshape(side, side, 3), 0, 1) * 255).astype(np.uint8)).quantize(
-            colors=COLOURS, method=Image.Quantize.MEDIANCUT)
-    pal = np.array(pal_img.getpalette()[:COLOURS * 3], dtype=np.uint8).reshape(-1, 3)
     for shape, q in squares.items():
-        im = Image.fromarray((np.clip(q, 0, 1) * 255).astype(np.uint8)).quantize(palette=pal_img, dither=Image.Dither.NONE)
-        idx = np.asarray(im)
-        # Lone stray squares tidied on cloth only (a face's eye is one square).
+        idx, pal = palette(q, SHAPE_COLOURS.get(shape, SHAPE_COLOURS_DEFAULT))
+        # Lone stray squares tidied (not on the face: an eye is one square).
         if shape != "head":
-            idx = faces._despeckle(idx, np.ones(idx.shape, dtype=bool), passes=1)
+            idx = faces._despeckle(idx, np.ones(idx.shape, dtype=bool), passes=2)
         name = "%s_paint_%s.png" % (person, shape)
         Image.fromarray(pal[idx], "RGB").save(os.path.join(out_dir, name))
-        print(name, idx.shape[1], idx.shape[0], "(%d a metre)" % report[shape]["squares_per_m"],
+        report[shape]["colours"] = int(len(pal))
+        print(name, idx.shape[1], idx.shape[0], "(%d a metre, %d colours)" % (report[shape]["squares_per_m"], len(pal)),
                 "seen %.0f%%" % (100 * report[shape]["seen"]))
     with open(os.path.join(out_dir, "%s_paint.json" % person), "w") as f:
-        json.dump({"views": info["views"], "colours": COLOURS, "shapes": report}, f, indent=1)
+        json.dump({"views": info["views"], "shapes": report}, f, indent=1)
 
 
 if __name__ == "__main__":
