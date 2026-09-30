@@ -91,6 +91,33 @@ vec3 painted_to_scene(vec3 c) {
 	return aces_inverse(from_srgb(s));
 }
 
+// A painted texture's texels are its squares (tools/paint/finish.py): light each one as one, at its
+// centre, so light and shadow step square by square as in the painting, not across them. Where the
+// surface point and its normal would be at the texel's centre comes from how they change across
+// the screen against the UVs; a quad of pixels over a seam gives nonsense, so big jumps are left.
+void light_whole_square(vec2 uv, vec3 vertex, vec3 normal, inout vec3 light_vertex, inout vec3 normal_out) {
+	vec2 size = vec2(textureSize(albedo_tex, 0));
+	vec2 to_centre = ((floor(uv * size) + 0.5) / size) - uv;
+	vec2 ux = dFdx(uv);
+	vec2 uy = dFdy(uv);
+	float det = ux.x * uy.y - ux.y * uy.x;
+	if (abs(det) < 1e-14) {
+		return;
+	}
+	vec3 pu = (uy.y * dFdx(vertex) - ux.y * dFdy(vertex)) / det;
+	vec3 pv = (-uy.x * dFdx(vertex) + ux.x * dFdy(vertex)) / det;
+	vec3 off = pu * to_centre.x + pv * to_centre.y;
+	if (length(off) < 0.05) {
+		light_vertex = vertex + off;
+	}
+	vec3 nu = (uy.y * dFdx(normal) - ux.y * dFdy(normal)) / det;
+	vec3 nv = (-uy.x * dFdx(normal) + ux.x * dFdy(normal)) / det;
+	vec3 n = normal + nu * to_centre.x + nv * to_centre.y;
+	if (length(n - normal) < 0.4) {
+		normal_out = normalize(n);
+	}
+}
+
 void fragment() {
 	bool painted = uv_rect.z > 0.0;
 	vec2 tuv = painted ? (UV - uv_rect.xy) / uv_rect.zw : UV * uv_scale;
@@ -99,6 +126,7 @@ void fragment() {
 	if (painted) {
 		base = painted_to_scene(base);
 		glow = self_lit;
+		light_whole_square(tuv, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL);
 	}
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;
