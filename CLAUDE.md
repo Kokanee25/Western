@@ -151,6 +151,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
   the camera's fov and pitch back to the game's (75°, level).
+  `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world,
+  the fitted camera, light tuned to the painting's (not the saloon's), rendered with him and with
+  him shadow-only; the pixels that differ are his, pasted over the painting (`in_painting.png`).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -663,3 +666,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Open with Sean: steps on the world too (walls, table, props) so everything matches; the lit
     side of his face is too hot and the shadow side too dark (the lamp is close and low; the
     room's fill comes with the rebuild).
+- 2026-09-29 (later): **Character lab.** Sean wants the man as close to the painting as possible
+  before he goes in. `tools/character_lab.gd` (above) pastes him into the painting over its own man,
+  so the room stops muddying the comparison. Its light (key 0.3 over the lamp side, rim 0.8 behind
+  on your left, warm-grey fill 1.0, table lamp 0.8) was tuned against the painting's face and coat
+  brightness. Round 1: `docs/screenshots/character_lab/round1_*`. Biggest differences, in order:
+  posture (the painting's man leans in on his forearms, cup down on the table; ours sits upright,
+  cup at his chest), build (much broader, heavier shoulders), the coat (dark desaturated brown wool
+  in mottled blocks; ours bright orange-tan and flat), his front (white collar, big dark tie,
+  patterned vest; ours shows a big white shirt V), long hair behind the ear, then the face (skin
+  darker and more even in the painting; ours lighter with hotter highlights).
+  - Next (proposed to Sean): posture and build, then texture all of him from the painting's man
+    (image model repaints him flat-lit from front/side/back; projected like the face), then hair
+    and hat, judged in the lab each round.
