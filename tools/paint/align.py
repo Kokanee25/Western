@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Fit each painted view back onto its guide before the bake.
 
-    python3 tools/paint/align.py [assets/people/paint] [--only=outlaw]
+    python3 tools/paint/align.py [assets/people/paint] [--only=outlaw] [--source=painted|tile]
 
 The image model paints the man from each grey guide, but draws him a little bigger or smaller and
 off to one side. For every <id>_<view>_painted.png: his outline in the painting (whatever isn't
 its plain background) is fitted onto his outline in the guide (<id>_<view>_mask.png, from
 tools/paint_bake.gd) by the scale and shift that overlap them best, and the painting is moved to
 match. Saved as <id>_<view>_aligned.png, its alpha his outline in the painting (a little inside
-it, so no background at the edge), which tools/paint_bake.gd uses in place of the raw painting:
+it, so no background at the edge), which tools/paint_bake.gd uses in place of the raw painting
+(--source=tile: the views cut from the turnaround sheet, tools/paint/paint_views.py --sheet):
 where his outline and the painted one disagree, nothing is taken.
 
 Each painting's colours are matched to the concept painting's man first (mean and spread per
@@ -122,9 +123,9 @@ def painting_reference():
     return man_pixels(img, mask)
 
 
-def align(src, pid, view, ref):
+def align(src, pid, view, ref, source="painted"):
     guide_mask = Image.open(os.path.join(src, "%s_%s_mask.png" % (pid, view))).convert("L")
-    painted = Image.open(os.path.join(src, "%s_%s_painted.png" % (pid, view))).convert("RGB").resize(guide_mask.size, Image.LANCZOS)
+    painted = Image.open(os.path.join(src, "%s_%s_%s.png" % (pid, view, source))).convert("RGB").resize(guide_mask.size, Image.LANCZOS)
     pmask = painted_mask(painted)
     before = iou(np.asarray(pmask) > 127, np.asarray(guide_mask) > 127)
     v, s, tx, ty = fit(pmask, guide_mask)
@@ -149,17 +150,20 @@ def painting_shot(src, pid):
 def main():
     src = "assets/people/paint"
     only = None
+    source = "painted"
     for a in sys.argv[1:]:
         if a.startswith("--only="):
             only = a.split("=", 1)[1]
+        elif a.startswith("--source="):
+            source = a.split("=", 1)[1]
         elif not a.startswith("--"):
             src = a
     report = {}
     ref = painting_reference()
     for f in sorted(os.listdir(src)):
-        if not f.endswith("_painted.png"):
+        if not f.endswith("_%s.png" % source):
             continue
-        stem = f[: -len("_painted.png")]
+        stem = f[: -len("_%s.png" % source)]
         pid, view = None, None
         for v in ("three_quarter", "side_left", "shot", "front", "side", "back"):
             if stem.endswith("_" + v):
@@ -170,7 +174,7 @@ def main():
         if not os.path.exists(os.path.join(src, "%s_%s_mask.png" % (pid, view))):
             print("no mask for", stem, "(run tools/paint_bake.gd guides)")
             continue
-        report.setdefault(pid, {})[view] = align(src, pid, view, ref)
+        report.setdefault(pid, {"source": source})[view] = align(src, pid, view, ref, source)
         if view == "shot":
             painting_shot(src, pid)
     for pid, r in report.items():

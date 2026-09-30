@@ -23,6 +23,15 @@ on:
         description: "Only paint his views from the painting: all, or a list (shot,front,...); empty = make people"
         required: false
         default: ""
+      paint_model:
+        description: "OpenRouter image model for paint_views (empty = the PAINT_MODEL variable, else FLUX.2 [max])"
+        required: false
+        default: ""
+      paint_sheet:
+        description: "With paint_views, also paint all six views in one turnaround picture"
+        type: boolean
+        required: false
+        default: false
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -75,15 +84,16 @@ jobs:
         if: inputs.paint_views != ''
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          PAINT_MODEL: ${{ vars.PAINT_MODEL }}
-          FACE_MODEL: ${{ vars.FACE_MODEL }}
+          PAINT_MODEL: ${{ inputs.paint_model || vars.PAINT_MODEL }}
           ONLY: ${{ inputs.only }}
           VIEWS: ${{ inputs.paint_views }}
           REPAINT: ${{ inputs.repaint }}
+          SHEET: ${{ inputs.paint_sheet }}
         run: |
           pip install pillow
           args="--only=$ONLY --views=$VIEWS"
           if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          if [ "$SHEET" = "true" ]; then args="$args --sheet"; fi
           python tools/paint/paint_views.py $args
 
       - name: Body envelope from the anatomy
