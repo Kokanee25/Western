@@ -22,7 +22,7 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.427
+   "seen": 0.428
   },
   "boots": {
    "uv_rect": [
@@ -36,7 +36,7 @@
     30
    ],
    "squares_per_m": 80.0,
-   "seen": 0.123
+   "seen": 0.13
   },
   "coat": {
    "uv_rect": [
@@ -50,7 +50,7 @@
     142
    ],
    "squares_per_m": 80.0,
-   "seen": 0.363
+   "seen": 0.365
   },
   "cravat": {
    "uv_rect": [
@@ -64,7 +64,7 @@
     13
    ],
    "squares_per_m": 110.0,
-   "seen": 0.276
+   "seen": 0.278
   },
   "gun_belt": {
    "uv_rect": [
@@ -78,7 +78,7 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.6
+   "seen": 0.602
   },
   "hat": {
    "uv_rect": [
@@ -92,7 +92,7 @@
     9
    ],
    "squares_per_m": 80.0,
-   "seen": 0.825
+   "seen": 0.809
   },
   "hat_band": {
    "uv_rect": [
@@ -106,7 +106,7 @@
     7
    ],
    "squares_per_m": 110.0,
-   "seen": 0.428
+   "seen": 0.443
   },
   "hat_brim": {
    "uv_rect": [
@@ -120,7 +120,7 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.347
+   "seen": 0.357
   },
   "head": {
    "uv_rect": [
@@ -134,7 +134,7 @@
     48
    ],
    "squares_per_m": 190.0,
-   "seen": 0.576
+   "seen": 0.587
   },
   "holster": {
    "uv_rect": [
@@ -204,7 +204,7 @@
     84
    ],
    "squares_per_m": 80.0,
-   "seen": 0.098
+   "seen": 0.096
   }
  }
 }

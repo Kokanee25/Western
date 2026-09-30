@@ -157,15 +157,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
   renders him in grey clay from the painting's view and five round him, only him in the side
   views (`assets/people/paint/<id>_<view>_guide.png` + `_mask.png`); `tools/paint/paint_views.py`
-  (Actions: People workflow, input `paint_views: all`) has the image model paint each as the
-  painting's man (`_painted.png`); `tools/paint/align.py` fits each painting's outline onto the
-  guide's (scale + shift), matches its colours to the painting's man and writes `_aligned.png`
-  (alpha = his outline) plus `<id>_shot_painting.png` (the painting itself, masked to its man by
-  a hand-traced outline); `paint_bake.gd bake` projects every source into each shape's UV space
-  (depth-tested, needs Forward+); `tools/paint/finish.py` blends them (the painting wins where it
-  sees), fills, palettes → `assets/people/<id>_paint_<shape>.png` + `<id>_paint.json`. `body_skin`
-  shows them as painted (`HumanBody.paint_look`: the game's ACES grade undone, lit by light
-  brightness only, each light eased off at paint_limit, wrapped, a little self-lit).
+  (Actions: People workflow, inputs `paint_views: all`, `paint_sheet`, `paint_model`; default
+  FLUX.2 [max] on OpenRouter, the painting's man + his face as references on every call, even
+  light, no pixelating) paints each view (`_painted.png`) and, with `--sheet`, all six in one
+  turnaround picture cut back into `_tile.png` (the sheet follows our outline far better);
+  `tools/paint/align.py [--source=tile]` fits each painting's outline onto the guide's (scale +
+  shift), matches its colours to the painting's man and writes `_aligned.png` (alpha = his
+  outline) plus `<id>_shot_painting.png` (the painting itself, masked to its man by a hand-traced
+  outline); `paint_bake.gd bake` projects every source into each shape's UV space (depth-tested,
+  needs Forward+); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
+  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150), each
+  the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
+  (one texel per square) + `<id>_paint.json`. `body_skin` shows them as painted
+  (`HumanBody.paint_look`: the game's ACES grade undone, lit by light brightness only, each light
+  eased off at paint_limit, wrapped, a little self-lit) and lights each square as one (the light's
+  position and the normal at the texel's centre, `LIGHT_VERTEX`).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -721,4 +727,28 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     them); every man with the outlaw body wears this paint.
   - Next: Sean's verdict on round 3; then the head's turn and tilt to the painting's, hair, the
     build, and faces/paint for the other townsfolk.
+- 2026-09-30 (evening): **Round 4: squares, and FLUX.2 [max].** Sean: "how do we get this pixel style;
+  it's been hard". Diagnosis: the painting's squares are on the surfaces (fixed size in metres, so
+  near things have big squares and far ones small), each square one deliberate colour, light
+  stepping square by square; we'd been copying one painting's pixels onto a body that doesn't
+  match it, which smears. No engine change needed (Godot 4.7.2 has `LIGHT_VERTEX`). Reviewed
+  Gemini's pipeline advice with Sean: right about FLUX.2 [max] references and pixelating clean
+  images ourselves with a strict palette; wrong for us about 2D sprites/Phaser, img2img at 0.15–0.3
+  (returns the painting), Canny from the painting (locks every asset to that one picture) and plain
+  nearest downscaling (speckle). Built: (1) the squares in finish.py (dominant colour per square,
+  one 40-colour palette), (2) per-square lighting in body_skin, (3) the painter on FLUX.2 [max]
+  with a turnaround-sheet mode. People run 5 (FLUX.2 [max], ~$1.50): painted one view at a time
+  it drifts (overlap with our outline 0.47–0.90; the back view came back standing), but the
+  six-view sheet follows our model almost exactly (0.82–0.94 before fitting; Gemini 0.56–0.84)
+  and is the same man all round. With the sheet as master (finish.py `VIEW_WEIGHT` shot_model 6,
+  the painting's own pixels 0.5) his face reads clearly for the first time; the coat is FLUX's
+  brown check in squares. Renders `docs/screenshots/character_lab/round4_*`
+  (`round4_painting_gemini_flux.png`: the painting / Gemini / FLUX side by side). 228 pass.
+  - Known: ~64% of the coat is never seen by any view (under his arms, the skirt under his thighs,
+    inside) and is filled; his back and left side come out patchy (the check in squares); the
+    lab's light from behind is dim for painted parts (no ambient, self_lit only); the walls,
+    table and props don't have the square rule yet (world materials are StandardMaterial3D).
+  - Next: Sean's verdict; the same rule on the world (a shared pixel-surface shader for members
+    and props, squares per material from the painting), then image-model tileable textures per
+    material; a second sheet pass that paints only the unseen parts of the coat; more men.
 

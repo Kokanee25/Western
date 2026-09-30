@@ -25,7 +25,7 @@ from PIL import Image
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "blender"))
 import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's there)
 
-VIEW_WEIGHT = {"shot": 6.0, "shot_model": 1.5, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
+VIEW_WEIGHT = {"shot": 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
 # How hard the best view wins: each view's weight (VIEW_WEIGHT x how squarely it saw the texel) is
 # raised to this power before averaging.
 SHARPEN = 4.0
