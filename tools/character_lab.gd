@@ -3,7 +3,7 @@ extends SceneTree
 ## painting over its own man, so he can be judged by himself (not with our saloon round him):
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/character_lab.gd -- --out=DIR
 ##   [--key= --rim= --fill= --lamp=] (light strengths, to try others)
-##   [--self_lit= --paint_gain= --paint_wrap=] (how his painted textures show: HumanBody.paint_look)
+##   [--self_lit= --paint_gain= --paint_wrap= --paint_limit=] (how his painted textures show: HumanBody.paint_look)
 ##   [--view=shot|front|three_quarter|side|side_left|back] (shot, the painting's view, is the
 ##   default; the others orbit him at 1.8 m, looking at his chest, and write only lab.png)
 ## Writes lab.png (the frame, 640x360: him, his table and cup on black), in_painting.png (his pixels

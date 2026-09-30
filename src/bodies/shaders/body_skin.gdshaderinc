@@ -26,13 +26,14 @@ uniform float light_steps = 4.0;
 // light, shade and the lamps' warmth painted in, so they're turned back into what the game's grade
 // (ACES, then paint_contrast) shows as those colours. self_lit of that glows as painted; the rest
 // is lit by the scene's lights × paint_gain, by their brightness only (their colour is painted in
-// already), wrapped round him (paint_wrap: light reaches that far past side-on, as the shading is
+// already), each light easing off towards paint_limit × painted, wrapped round him (paint_wrap: light reaches that far past side-on, as the shading is
 // painted in too; a lamp behind him still only lights his back), and not by the sky or ambient
 // (self_lit stands in for it).
 uniform vec4 uv_rect = vec4(0.0);
 uniform float self_lit = 0.0;
 uniform float paint_gain = 1.0;
 uniform float paint_wrap = 0.6;
+uniform float paint_limit = 1.3;
 uniform float paint_contrast = 1.08;
 
 varying vec3 local_pos;
@@ -135,8 +136,14 @@ void light() {
 		float g = pow(k, 1.0 / 2.2);
 		k = pow(floor(g * light_steps + 0.5) / light_steps, 2.2);
 	}
-	vec3 lc = uv_rect.z > 0.0 ? vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))) : LIGHT_COLOR;
-	DIFFUSE_LIGHT += k * lc / PI;
+	if (uv_rect.z > 0.0) {
+		// How much brighter than painted this light makes him (ALBEDO carries paint_gain), eased
+		// off towards paint_limit so a lamp at his elbow doesn't burn the painted colours out.
+		float m = k * dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722)) / PI * paint_gain;
+		DIFFUSE_LIGHT += vec3(m / (1.0 + m / paint_limit) / paint_gain);
+	} else {
+		DIFFUSE_LIGHT += k * LIGHT_COLOR / PI;
+	}
 	// Only wet things shine (the eyes): a small hard glint.
 	if (ROUGHNESS < 0.3) {
 		vec3 h = normalize(VIEW + LIGHT);

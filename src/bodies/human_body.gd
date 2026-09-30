@@ -138,9 +138,10 @@ var gun_holstered := false
 const DRAW_TIME := 0.5
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
-## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in. Tuned in
+## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
+## light making him more than paint_limit × painted. Tuned in
 ## the character lab so he matches the painting under its light. A static so the lab can try others.
-static var paint_look := {&"self_lit": 0.35, &"paint_gain": 2.4, &"paint_wrap": 0.9}
+static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3}
 var _draw_left := 0.0
 var time_scale := 1.0
 

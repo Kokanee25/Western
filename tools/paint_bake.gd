@@ -3,15 +3,16 @@ extends SceneTree
 ## for its own view) projected onto every piece of him, so his textures carry the painting's detail.
 ## The set and pose are the character lab's (tools/lab_stage.gd).
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/paint_bake.gd -- guides
-##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/paint_bake.gd -- bake [--from-painting]
+##   python3 tools/paint/align.py      (between the two: fits the painted views onto the guides)
+##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/paint_bake.gd -- bake
 ##   [--views=shot,front,three_quarter,side,side_left,back]
 ## guides: for each view, DIR/<id>_<view>_guide.png (him in grey, the table and props darker, on a
-##   plain background: what the image model paints over) and DIR/<id>_views.json (each view's frame).
+##   plain background: what the image model paints over) and _mask.png (where he is, white).
 ## bake: renders each view's depth, then, for every shape of him (skin, head, coat, hat...) and
-##   every view with a painted image (DIR/<id>_<view>_painted.png, framed as its guide; with
-##   --from-painting the painting's own pixels stand in for the shot view), a projection of that
-##   view into the shape's texture space: DIR/raw/<shape>_<view>_col.png (colour where the view saw
-##   it) and _w.png (how squarely), plus DIR/raw/shapes.json (each shape's UV rect and size).
+##   every painted source (below: the painting itself and the model's paintings, framed as their
+##   guides, transparent where they don't show him), a projection of it into the shape's texture
+##   space: DIR/raw/<shape>_<source>_col.png (colour where that view saw it) and _w.png (how
+##   squarely), plus DIR/raw/shapes.json (each shape's UV rect and size, and the sources).
 ##   tools/paint/finish.py then combines the views into assets/people/<id>_paint_<shape>.png.
 
 const DIR := "res://assets/people/paint"
@@ -41,12 +42,9 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var mode := "guides" if args.is_empty() else args[0]
 	var views: Array = ALL_VIEWS.duplicate()
-	var from_painting := false
 	for a in args:
 		if a.begins_with("--views="):
 			views = Array(a.substr(8).split(","))
-		elif a == "--from-painting":
-			from_painting = true
 	root.get_node(^"Settings").autosave = false
 	if mode == "bake" and RenderingServer.get_current_rendering_method() != "forward_plus":
 		push_error("paint_bake: bake on Forward+ (--rendering-driver vulkan): paint_bake.gdshader counts on its clip space")
@@ -73,10 +71,15 @@ func _run() -> void:
 		frames[view] = {"view_proj": cam.get_camera_projection() * Projection(cam.get_camera_transform().affine_inverse()),
 				"cam_pos": cam.global_position, "crop": SHOT_CROP if view == "shot" else Rect2(0, 0, 1, 1)}
 		if mode == "guides":
-			var g: Image = await _guide(stage, set, vp)
-			if view == "shot":
-				g = g.get_region(_crop_px(SHOT_CROP, SHOT_SIZE))
-			g.save_png("%s/%s_%s_guide.png" % [out, pid, view])
+			for kind in ["guide", "mask"]:
+				var g: Image
+				if kind == "guide":
+					g = await _guide(stage, set, vp)
+				else:
+					g = await _mask(stage, set, vp)
+				if view == "shot":
+					g = g.get_region(_crop_px(SHOT_CROP, SHOT_SIZE))
+				g.save_png("%s/%s_%s_%s.png" % [out, pid, view, kind])
 			print("guide ", view)
 	if mode == "guides":
 		quit()
@@ -86,17 +89,23 @@ func _run() -> void:
 	for view: String in views:
 		_frame(stage, set, vp, view)
 		depths[view] = ImageTexture.create_from_image(await _depth(stage, set, vp))
+	# What's painted, from where: source -> [image, the view it was painted from]. The painting's view
+	# takes the painting itself where it shows him (DIR/<id>_shot_painting.png, tools/paint/align.py)
+	# and the model's painting of that view (shot_model) for the rest of him; the other views, the
+	# model's paintings fitted onto their guides (_aligned.png; the raw _painted.png if not aligned).
 	var painted := {}
 	for view: String in views:
-		var img: Image = null
-		if view == "shot" and from_painting:
-			img = Image.load_from_file(ProjectSettings.globalize_path(PAINTING))
-			img.convert(Image.FORMAT_RGBA8)
-			img = img.get_region(_crop_px(SHOT_CROP, Vector2i(img.get_width(), img.get_height())))
-		elif FileAccess.file_exists("%s/%s_%s_painted.png" % [out, pid, view]):
-			img = Image.load_from_file("%s/%s_%s_painted.png" % [out, pid, view])
-		if img:
-			painted[view] = ImageTexture.create_from_image(img)
+		var sources := {view: ["aligned", "painted"]}
+		if view == "shot":
+			sources = {"shot": ["painting"], "shot_model": ["aligned", "painted"]}
+		for source: String in sources:
+			for kind: String in sources[source]:
+				var path := "%s/%s_%s_%s.png" % [out, pid, view, kind]
+				if FileAccess.file_exists(path):
+					var img := Image.load_from_file(path)
+					img.convert(Image.FORMAT_RGBA8)
+					painted[source] = [ImageTexture.create_from_image(img), view]
+					break
 	if painted.is_empty():
 		push_error("paint_bake: no painted views in %s" % out)
 		quit(1)
@@ -168,6 +177,25 @@ func _guide(stage, set: Dictionary, vp: SubViewport) -> Image:
 			l.visible = true
 	sun.get_parent().remove_child(sun)
 	sun.free()
+	cam.environment = null
+	_restore(saved)
+	return img
+
+
+## Where he is in a view: white on black (the table and props in front of him black too), for
+## tools/paint/align.py to fit the painted views onto.
+func _mask(stage, set: Dictionary, vp: SubViewport) -> Image:
+	var white := StandardMaterial3D.new()
+	white.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	white.albedo_color = Color.WHITE
+	var black := StandardMaterial3D.new()
+	black.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	black.albedo_color = Color.BLACK
+	var man: Node = set.man
+	var saved := _override(set.world, func(gi): return white if man.is_ancestor_of(gi) else black)
+	var cam: Camera3D = set.camera
+	cam.environment = _flat_environment(Color.BLACK)
+	var img: Image = await stage.grab(self, vp)
 	cam.environment = null
 	_restore(saved)
 	return img
@@ -253,10 +281,11 @@ func _bake(man, vp: SubViewport, frames: Dictionary, depths: Dictionary, painted
 			mi.get_parent().add_child(d)
 			d.skeleton = mi.skeleton
 			dups.append(d)
-		for view: String in painted:
+		for source: String in painted:
+			var view: String = painted[source][1]
 			var f: Dictionary = frames[view]
 			var crop: Rect2 = f.crop
-			mat.set_shader_parameter(&"painted", painted[view])
+			mat.set_shader_parameter(&"painted", painted[source][0])
 			mat.set_shader_parameter(&"depth_map", depths[view])
 			mat.set_shader_parameter(&"view_proj", f.view_proj)
 			mat.set_shader_parameter(&"cam_pos", f.cam_pos)
@@ -264,7 +293,7 @@ func _bake(man, vp: SubViewport, frames: Dictionary, depths: Dictionary, painted
 			for pass_mode in [0, 1]:
 				mat.set_shader_parameter(&"mode", pass_mode)
 				var img: Image = await load("res://tools/lab_stage.gd").grab(self, bvp)
-				img.save_png("%s/raw/%s_%s_%s.png" % [out, shape, view, "col" if pass_mode == 0 else "w"])
+				img.save_png("%s/raw/%s_%s_%s.png" % [out, shape, source, "col" if pass_mode == 0 else "w"])
 		for d: Node in dups:
 			d.queue_free()
 		print("baked ", shape, " ", size)

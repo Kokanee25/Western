@@ -44,9 +44,11 @@ void fragment() {
 			vec4 dm = texture(depth_map, frame);
 			float nearest = (dm.r * 255.0 + dm.g) / 255.0 * depth_far;
 			float facing = dot(normalize(wnrm), normalize(cam_pos - wpos));
-			if (distance(wpos, cam_pos) <= nearest + slack && facing > 0.0) {
+			vec4 pc = texture(painted, p);
+			// Transparent where the painting doesn't show him (its background, or past his outline).
+			if (distance(wpos, cam_pos) <= nearest + slack && facing > 0.0 && pc.a > 0.5) {
 				seen_w = facing * facing;
-				col = texture(painted, p).rgb;
+				col = pc.rgb;
 			}
 		}
 	}

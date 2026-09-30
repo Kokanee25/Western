@@ -155,14 +155,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
   rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
-  renders him in grey clay from the painting's view and five round him
-  (`assets/people/paint/<id>_<view>_guide.png`); `tools/paint/paint_views.py` (Actions, People
-  workflow input `paint_views`) has the image model paint each as the painting's man
-  (`_painted.png`); `paint_bake.gd bake [--from-painting]` projects every painted view into each
-  shape's UV space (depth-tested, needs Forward+), `tools/paint/finish.py` blends the views, fills,
-  cuts to blocks and a palette → `assets/people/<id>_paint_<shape>.png` + `<id>_paint.json`.
-  `body_skin` shows them as painted (`HumanBody.paint_look`: the game's ACES grade undone, lit by
-  light brightness only, wrapped, a little self-lit).
+  renders him in grey clay from the painting's view and five round him, only him in the side
+  views (`assets/people/paint/<id>_<view>_guide.png` + `_mask.png`); `tools/paint/paint_views.py`
+  (Actions: People workflow, input `paint_views: all`) has the image model paint each as the
+  painting's man (`_painted.png`); `tools/paint/align.py` fits each painting's outline onto the
+  guide's (scale + shift), matches its colours to the painting's man and writes `_aligned.png`
+  (alpha = his outline) plus `<id>_shot_painting.png` (the painting itself, masked to its man by
+  a hand-traced outline); `paint_bake.gd bake` projects every source into each shape's UV space
+  (depth-tested, needs Forward+); `tools/paint/finish.py` blends them (the painting wins where it
+  sees), fills, palettes → `assets/people/<id>_paint_<shape>.png` + `<id>_paint.json`. `body_skin`
+  shows them as painted (`HumanBody.paint_look`: the game's ACES grade undone, lit by light
+  brightness only, each light eased off at paint_limit, wrapped, a little self-lit).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -701,7 +704,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   sticks out past the painting's man it picks up the lit floor behind him (pale patches on his
   left shoulder). Lab light tuned: `paint_look` self_lit 0.35, gain 2.4, wrap 0.9 (the same
   brightness as fully self-lit, median). `test_shot_match` checks the cup's in his right hand.
-  228 tests pass. Renders `docs/screenshots/character_lab/round2_*`.
-  - Next: the image model paints all six guides (People workflow, `paint_views: all`), then bake,
-    finish and judge in the lab; then his back and sides, hair, a heavier build.
+  228 tests pass. Renders `docs/screenshots/character_lab/round2_*`, `round3_*`.
+  - Later the same day, **round 3: the image model paints him round.** People run 4 painted all
+    six guides (Gemini 2.5 Flash Image: recognisably the painting's man every time, but redrawn
+    a little bigger or smaller and off to one side, lighter and cooler). `align.py` fits them back
+    (outline overlap 0.56–0.84 → 0.86–0.89) and matches colours; the shot view takes the painting's
+    own pixels inside its man's outline (the pale shoulder of round 2 was the lamp, not the floor)
+    and the model's view elsewhere; finish.py lets the best view win (weights⁴) at 256 texels/m (no
+    downsampling: the painting's own blocks survive). Lighting for painted parts: each light eased
+    off towards 1.3× painted (the table lamp at his elbow burnt the colours out), gain 4.0 to the
+    median. He now reads as one painted man from every side (`round3_around.png`). 228 pass.
+  - Known: our head is turned and shaped differently from the painting's, so its face lands a
+    little smeared; his outline still narrower than the painting's man on your left; the brim's
+    texture strip is thin (speckles); the Compatibility (web) renderer grades differently, so he's
+    hotter there; the model's views are smooth, not blocky (the palette cut is all that blocks
+    them); every man with the outlaw body wears this paint.
+  - Next: Sean's verdict on round 3; then the head's turn and tilt to the painting's, hair, the
+    build, and faces/paint for the other townsfolk.
 

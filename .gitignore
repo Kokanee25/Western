@@ -11,3 +11,5 @@ build_info.json
 __pycache__/
 # Paint bakes (tools/paint_bake.gd): intermediate, remade from the painted views
 /assets/people/paint/raw/
+/assets/people/paint/*_aligned.png
+/assets/people/paint/*_shot_painting.png

@@ -5,7 +5,7 @@
 
 For every shape of him (skin, head, coat, hat...): each painted view's projection, weighted by how
 squarely that view saw each texel and by VIEW_WEIGHT (the painting's own view is the master; the
-others fill what it can't see), averaged; texels no view saw take the colour of those next to them;
+others fill what it can't see), sharpened so the best view wins, averaged; texels no view saw take the colour of those next to them;
 then averaged down DOWN x DOWN into the finished blocks, cut to a small palette of the painting's
 own colours, and cleared of lone stray texels. Writes assets/people/<id>_paint_<shape>.png and
 assets/people/<id>_paint.json ({shape: {uv_rect, size}}), which PeopleBodies loads.
@@ -20,10 +20,13 @@ from PIL import Image
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "blender"))
 import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's there)
 
-VIEW_WEIGHT = {"shot": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
+VIEW_WEIGHT = {"shot": 6.0, "shot_model": 1.5, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
+# How hard the best view wins: each view's weight (VIEW_WEIGHT x how squarely it saw the texel) is
+# raised to this power before averaging.
+SHARPEN = 4.0
 # Raw texels per finished texel (paint_bake.gd bakes at 256/m: finished blocks at 128/m, ~2-3
 # screen pixels at the painting's distance).
-DOWN = 2
+DOWN = 1
 COLOURS = 24
 # Texels no view saw take their neighbours' colour, spreading this many texels; past that, the
 # shape's average.
@@ -71,7 +74,9 @@ def finish(src):
             if not (os.path.exists(cp) and os.path.exists(wp)):
                 continue
             col, wt = _load(cp), _load(wp)
-            k = wt[..., 0] * (col[..., 3] > 0.5) * VIEW_WEIGHT.get(view, 1.0)
+            # Sharpened, so where a view sees a texel far better than the others (the painting
+            # itself, from your seat) it wins outright rather than being averaged with guesses.
+            k = ((wt[..., 0] * VIEW_WEIGHT.get(view, 1.0)) ** SHARPEN) * (col[..., 3] > 0.5)
             acc += col[..., :3] * k[..., None]
             wsum += k
         known = wsum > 1e-4
