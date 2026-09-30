@@ -91,11 +91,18 @@ const BOOT_FOOT := [
 ## The hat's crown, band to top: [centre, half width, front, back] on the head bone. Worn low, the
 ## brim about 3 cm over the brows (the painting's), and roomy enough for the generated (MakeHuman)
 ## skull, which is longer front to back than the lofted one: ~1 cm clear all round at the band.
+## The painting's crown is low and wide at the band (about half the brim's width, 10 cm tall).
 const HAT_CROWN := [
-	[Vector3(0, 1.708, -0.004), 0.084, 0.11, 0.104],
-	[Vector3(0, 1.77, -0.002), 0.083, 0.104, 0.098],
-	[Vector3(0, 1.815, 0.0), 0.079, 0.096, 0.092],
-	[Vector3(0, 1.842, 0.004), 0.072, 0.086, 0.083],
+	[Vector3(0, 1.708, -0.004), 0.088, 0.114, 0.108],
+	[Vector3(0, 1.752, -0.002), 0.086, 0.108, 0.102],
+	[Vector3(0, 1.787, 0.0), 0.081, 0.099, 0.095],
+	[Vector3(0, 1.807, 0.004), 0.072, 0.086, 0.084],
+]
+## The brim, band outwards: [half width, front, back, side lift, front and back dip]. Rolled up hard
+## at the sides and dipping over the eyes, the painting's cattleman brim.
+const HAT_BRIM := [
+	[0.16, 0.172, 0.165, 0.012, 0.005],
+	[0.205, 0.215, 0.205, 0.046, 0.016],
 ]
 ## The holster on his right hip, top to toe (flat against the thigh).
 const HOLSTER := [
@@ -234,9 +241,13 @@ static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Call
 		out["hat"] = hat
 		var brim := Lofter.new(index)
 		var b0: Array = HAT_CROWN[0]
-		brim.curl = {1: 0.022}
-		brim.loft([[b0[0], b0[1] - 0.004, b0[2] - 0.004, b0[3] - 0.004, &"head", &"head", 0.0],
-				[(b0[0] as Vector3) + Vector3(0, -0.004, 0), 0.19, 0.2, 0.19, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
+		var brim_rings := [[b0[0], b0[1] - 0.004, b0[2] - 0.004, b0[3] - 0.004, &"head", &"head", 0.0]]
+		for i in HAT_BRIM.size():
+			var r: Array = HAT_BRIM[i]
+			brim_rings.append([(b0[0] as Vector3) + Vector3(0, -0.004, 0), r[0], r[1], r[2], &"head", &"head", 0.0])
+			brim.curl[i + 1] = r[3]
+			brim.dip[i + 1] = r[4]
+		brim.loft(brim_rings, 18, Vector3.FORWARD, 0.0, false, false)
 		out["hat_brim"] = brim
 		var band := Lofter.new(index)
 		band.loft([[b0[0], b0[1] + 0.003, b0[2] + 0.003, b0[3] + 0.003, &"head", &"head", 0.0],
@@ -397,6 +408,8 @@ class Lofter:
 	var gaps := []
 	## ring index -> how far the sides of that ring lift (hat brims curl up at the sides).
 	var curl := {}
+	## ring index -> how far the front and back of that ring drop (a brim dipping over the eyes).
+	var dip := {}
 
 	func _init(bone_index: Dictionary) -> void:
 		index = bone_index
@@ -449,7 +462,7 @@ class Lofter:
 					var d := wrapf(theta - float(b[0]), -PI, PI)
 					k_bump += float(b[2]) * exp(-(d * d) / (float(b[1]) * float(b[1])))
 				var p := c + (f * ct * depth + s * st * float(r[1])) * k_bump
-				p += Vector3.UP * float(curl.get(i, 0.0)) * st * st
+				p += Vector3.UP * (float(curl.get(i, 0.0)) * st * st - float(dip.get(i, 0.0)) * ct * ct)
 				verts.append(p)
 				normals.append(Vector3.ZERO)
 				if uv_mode == &"head":

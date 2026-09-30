@@ -27,6 +27,9 @@ TEXELS_PER_M = 48
 BUDGET = {"coat": 2200, "vest": 700, "shirt": 1500, "trousers": 1200, "cravat": 120}
 # How far each sits off the skin (m).
 OFFSET = {"shirt": 0.005, "trousers": 0.008, "vest": 0.013, "coat": 0.024, "cravat": 0.0}
+# The coat stands further off where it's cut loose and padded (the painting's man is broad in a
+# heavy sack coat): extra metres by how much of a vertex each bone moves.
+COAT_BULK = {"upper_arm": 0.026, "forearm": 0.014, "chest": 0.012}
 
 
 def hex_colour(h):
@@ -83,12 +86,18 @@ class Garment:
         return [e for e, c in count.items() if c == 1]
 
 
-def shell(person, name, keep, offset):
-    """The body faces `keep(face centre, region, vertex positions)` accepts, pushed out by `offset`."""
+def shell(person, name, keep, offset, bulk=None):
+    """The body faces `keep(face centre, region, vertex positions)` accepts, pushed out by `offset`
+    (plus `bulk`: {bone name prefix: extra metres}, weighted by how much each bone moves a vertex)."""
     v = person.v
     n = person.normals
     g = Garment(name)
     remap = {}
+    extra = np.zeros(len(v))
+    for prefix, m in (bulk or {}).items():
+        cols = [k for k, b in enumerate(person.env["bones"]) if b.startswith(prefix)]
+        if cols:
+            extra += m * np.asarray(person.W)[:, cols].sum(axis=1)
     for fv, _t in person.body_faces:
         pts = v[fv]
         if not keep(pts.mean(0), person.region[fv[0]], pts):
@@ -96,7 +105,7 @@ def shell(person, name, keep, offset):
         face = []
         for i in fv:
             if i not in remap:
-                remap[i] = g.add_vertex(v[i] + n[i] * offset, person.W[i])
+                remap[i] = g.add_vertex(v[i] + n[i] * (offset + extra[i]), person.W[i])
             face.append(remap[i])
         g.F.append(face)
     g.src = remap
@@ -177,7 +186,7 @@ def make_all(person, outfit):
             if r == "neck":
                 return c[1] < neck_y + 0.02 and c[2] > -0.02
             return arms(r) and pts[:, 1].min() > 0.895
-        g = shell(person, "coat", keep_coat, OFFSET["coat"])
+        g = shell(person, "coat", keep_coat, OFFSET["coat"], COAT_BULK)
         g.arm_bones = [i for i, n in enumerate(person.env["bones"]) if n.startswith(("upper_arm", "forearm", "hand"))]
         _coat_skirt(g)
         _lapels(g, neck_y)

@@ -11,9 +11,12 @@ func test_the_man_sits_at_the_table() -> void:
 	var pelvis := (man.parts[&"pelvis"] as Node3D).global_position.y - floor_y
 	check(pelvis > 0.4 and pelvis < 0.65, "sat on the chair, not standing (pelvis %.2f m up)" % pelvis)
 	var top := ShotMatch.TABLE_HEIGHT
-	for sid: StringName in [&"hand_l", &"forearm_l"]:
+	# The painting's pose: his right forearm along the table's edge, the cup in that hand.
+	for sid: StringName in [&"hand_r", &"forearm_r"]:
 		var h := (man.parts[sid] as Node3D).global_position.y - floor_y
 		check(h > top - 0.02 and h < top + 0.25, "%s on the table (%.2f m, top %.2f)" % [sid, h, top])
+	var cup := man.find_child("HeldCup", true, false) as Node3D
+	check(cup != null and man.parts[&"hand_r"].is_ancestor_of(cup), "the cup's in his right hand")
 	var lamp := street.find_child("TableLamp", true, false) as OilLamp
 	check(lamp != null and lamp.lit, "the lamp's lit")
 	var cam := ShotMatch.camera_transform(street)

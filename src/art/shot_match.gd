@@ -14,12 +14,12 @@ const TABLE_RADIUS := 0.7
 ## it and back from its edge; and where you look. Fitted to the painting (2026-09-29): his eyes land
 ## where the painting has them (0.39 across, 0.40 down) at the painting's size (eye to chin 106 of
 ## its 941 px), and the props below are where the painting's pixels fall on the table top.
-const EYE := Vector3(-0.239, 1.15, -1.125)
-const LOOK := Vector3(0.566, 1.137, -0.352)
+const EYE := Vector3(-0.504, 1.15, -1.034)
+const LOOK := Vector3(0.385, 1.093, -0.362)
 ## The painting's lens is longer than the game's: about 48° top to bottom (77° across).
 const FOV := 48.0
 ## Where he sits relative to the table: its left side (+X is your left, looking +Z).
-const SEAT := Vector3(0.9, 0.0, -0.42)
+const SEAT := Vector3(0.79, 0.0, -0.37)
 
 
 ## Build the scene in the test street (clearing that table's own props) and seat the man.
@@ -43,10 +43,10 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.energy = 1.5
 	lamp.light_range = 7.0
 	root.add_child(lamp)
-	lamp.position = Vector3(0.41, TABLE_HEIGHT, 0.132)
-	_bottle(root, Vector3(0.024, TABLE_HEIGHT, 0.057))
-	_cup(root, Vector3(0.282, TABLE_HEIGHT, -0.378))
-	_ashtray(root, Vector3(0.45, TABLE_HEIGHT, -0.397))
+	lamp.position = Vector3(0.183, TABLE_HEIGHT, -0.011)
+	_bottle(root, Vector3(-0.152, TABLE_HEIGHT, -0.006))
+	_cup(root, Vector3(0.027, TABLE_HEIGHT, -0.434))
+	_ashtray(root, Vector3(0.239, TABLE_HEIGHT, -0.523))
 	if man == null:
 		man = HumanBody.new()
 		man.name = "SeatedMan"
@@ -59,12 +59,12 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		man.bandana_color = Color(0.1, 0.08, 0.07)
 	street.add_child(man)
 	man.global_position = t + SEAT
-	# Turned toward you: square to a point between you and the table's centre.
-	man.face(t + Vector3(0.0, 1.0, -0.75))
-	man.set_pose(&"sit")
-	# His head as the painting has it: turned to look you in the eye, chin up a touch, tipped
-	# toward his left shoulder.
-	man.pose_offsets = {&"head": Vector3(6.0, -14.0, 12.0)}
+	# Square to you, as the painting's man sits.
+	man.face(t + Vector3(EYE.x, 1.0, EYE.z))
+	man.set_pose(&"sit_lean")
+	# His head as the painting has it: looking you in the eye, chin up a touch, tipped toward his
+	# left shoulder.
+	man.pose_offsets = {&"head": Vector3(6.0, 0.0, 12.0)}
 	_cup_in_hand(man)
 	return man
 
@@ -253,9 +253,9 @@ static func _upright(cup: Node3D) -> void:
 		cup.global_basis = Basis.IDENTITY
 
 
-## His tin cup, in his left hand (the one on the table in front of him).
+## His tin cup, in his right hand (that arm lies across the table in front of him).
 static func _cup_in_hand(man: HumanBody) -> void:
-	var hand := man.parts.get(&"hand_l") as Node3D
+	var hand := man.parts.get(&"hand_r") as Node3D
 	if hand == null:
 		return
 	var cup := CylinderMesh.new()
@@ -266,4 +266,4 @@ static func _cup_in_hand(man: HumanBody) -> void:
 	var mi := _mesh(hand, "HeldCup", cup, Vector3(0.0, -0.06, -0.05), _tin())
 	mi.layers = Layers.VIS_BODY
 	_upright.call_deferred(mi)
-	man.curl_hand("l", 0.7)
+	man.curl_hand("r", 0.7)

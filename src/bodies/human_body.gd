@@ -63,6 +63,14 @@ const POSES := {
 			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
 			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
 			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
+	# Leaning in over the table on his forearms, shoulders hunched, head up to look at you (the
+	# painting's man).
+	&"sit_lean": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(-16, 0, 0), &"chest": Vector3(-20, 0, 0), &"neck": Vector3(10, 0, 0),
+			&"head": Vector3(14, 0, 0),
+			&"upper_arm_r": Vector3(88, 6, 18), &"forearm_r": Vector3(98, 86, 0), &"hand_r": Vector3(-12, 0, 12),
+			&"upper_arm_l": Vector3(40, 0, -8), &"forearm_l": Vector3(60, 0, 0)},
 	# Arms out at someone: a shove, a grab at his collar.
 	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
 			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},
@@ -128,6 +136,11 @@ var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
 const DRAW_TIME := 0.5
+## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
+## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
+## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in. Tuned in
+## the character lab so he matches the painting under its light. A static so the lab can try others.
+static var paint_look := {&"self_lit": 0.35, &"paint_gain": 2.4, &"paint_wrap": 0.9}
 var _draw_left := 0.0
 var time_scale := 1.0
 
@@ -353,10 +366,13 @@ func _build_skin() -> void:
 	}
 	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt"]
 	var baked: Dictionary = data.get("textures", {})
+	var paint: Dictionary = data.get("paint", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
 			base = _baked_cloth(shape, baked[shape])
+		if paint.has(shape):
+			base = _baked_cloth("paint_" + shape, baked["paint_" + shape])
 		var pieces: Dictionary = data.shapes[shape]
 		for b: int in pieces:
 			var sid: StringName = data.bones[b]
@@ -365,6 +381,10 @@ func _build_skin() -> void:
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			if paint.has(shape):
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
+				for k: StringName in paint_look:
+					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY

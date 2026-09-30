@@ -151,9 +151,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
   the camera's fov and pitch back to the game's (75°, level).
-  `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world,
-  the fitted camera, light tuned to the painting's (not the saloon's), rendered with him and with
-  him shadow-only; the pixels that differ are his, pasted over the painting (`in_painting.png`).
+  `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
+  rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
+  painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
+  renders him in grey clay from the painting's view and five round him
+  (`assets/people/paint/<id>_<view>_guide.png`); `tools/paint/paint_views.py` (Actions, People
+  workflow input `paint_views`) has the image model paint each as the painting's man
+  (`_painted.png`); `paint_bake.gd bake [--from-painting]` projects every painted view into each
+  shape's UV space (depth-tested, needs Forward+), `tools/paint/finish.py` blends the views, fills,
+  cuts to blocks and a palette → `assets/people/<id>_paint_<shape>.png` + `<id>_paint.json`.
+  `body_skin` shows them as painted (`HumanBody.paint_look`: the game's ACES grade undone, lit by
+  light brightness only, wrapped, a little self-lit).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -679,3 +688,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next (proposed to Sean): posture and build, then texture all of him from the painting's man
     (image model repaints him flat-lit from front/side/back; projected like the face), then hair
     and hat, judged in the lab each round.
+- 2026-09-30: **Painting him from the painting, first working round.** Sean: "maybe 10% there".
+  (1) His outline: new pose `sit_lean` fitted to the painting by coordinate descent on the joint
+  angles (elbow, wrist and cup onto its pixels): right forearm along the table's edge with the cup
+  in that hand, left arm down by his side; hat reshaped (lower crown wide at the band, brim rolled
+  up hard at the sides and dipping at the front: `HAT_BRIM`, Lofter `dip`); coat cut looser and
+  padded (`clothes.COAT_BULK` by bone weight). (2) The paint bake (layout above). Two bugs found on
+  the way: the bake wrote its textures upside down (Forward+ clip space runs y down: everything
+  landed on the wrong texels), and the game's ACES + contrast brightened and saturated the painted
+  colours a second time (the skin shader now inverts Godot 4.7.2's ACES exactly). Painted from the
+  painting's own pixels (your seat only) he wears its face, collar, tie and coat; where his outline
+  sticks out past the painting's man it picks up the lit floor behind him (pale patches on his
+  left shoulder). Lab light tuned: `paint_look` self_lit 0.35, gain 2.4, wrap 0.9 (the same
+  brightness as fully self-lit, median). `test_shot_match` checks the cup's in his right hand.
+  228 tests pass. Renders `docs/screenshots/character_lab/round2_*`.
+  - Next: the image model paints all six guides (People workflow, `paint_views: all`), then bake,
+    finish and judge in the lab; then his back and sides, hair, a heavier build.
+
