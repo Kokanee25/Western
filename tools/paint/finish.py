@@ -30,6 +30,15 @@ VIEW_WEIGHT = {"shot": 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.
 # The close head views (paint_views.py --head-sheet) see his head at ~3x the detail: on the shapes of
 # his head they outweigh everything; elsewhere (the collar and coat they catch) they barely count.
 HEAD_VIEW_WEIGHT = 10.0
+# The view from your seat is the one that matters most: on his face it outweighs the other close views.
+HEAD_VIEW_BOOST = {"head_shot": 1.6}
+# A painting that didn't follow our model (its outline overlaps the guide's less than this after
+# fitting, tools/paint/align.py's <id>_aligned.json) is left out: an image model sometimes paints a
+# view from the wrong side (a front face where his profile should be), which would put the wrong
+# face on him.
+MIN_OVERLAP = 0.8
+# The close head views fill their frame, so a wrong one still overlaps well: they must fit closer.
+MIN_OVERLAP_HEAD = 0.88
 HEAD_VIEW_ELSEWHERE = 0.2
 HEAD_SHAPES = {"head", "hair", "hat", "hat_band", "hat_brim", "cravat"}
 # How hard the best view wins: each view's weight (VIEW_WEIGHT x how squarely it saw the texel) is
@@ -136,6 +145,18 @@ def finish(src):
     out_dir = os.path.dirname(os.path.normpath(src))
     report = {}
     squares = {}
+    dropped = set()
+    fits = os.path.join(src, "%s_aligned.json" % person)
+    if os.path.exists(fits):
+        with open(fits) as f:
+            for view, r in json.load(f).items():
+                need = MIN_OVERLAP_HEAD if view.startswith("head_") else MIN_OVERLAP
+                if isinstance(r, dict) and r.get("overlap", 1.0) < need:
+                    # align.py names the model's painting of your seat's view "shot"; in the bake
+                    # it's "shot_model" ("shot" there is the painting's own pixels, never left out).
+                    dropped.add("shot_model" if view == "shot" else view)
+    if dropped:
+        print("left out (didn't follow his outline):", ", ".join(sorted(dropped)))
     for shape, s in info["shapes"].items():
         w, h = s["size"]
         acc = np.zeros((h, w, 3))
@@ -148,9 +169,11 @@ def finish(src):
             col, wt = _load(cp), _load(wp)
             # Sharpened, so where a view sees a texel far better than the others (the painting
             # itself, from your seat) it wins outright rather than being averaged with guesses.
+            if view in dropped:
+                continue
             vw = VIEW_WEIGHT.get(view, 1.0)
             if view.startswith("head_"):
-                vw = HEAD_VIEW_WEIGHT if shape in HEAD_SHAPES else HEAD_VIEW_ELSEWHERE
+                vw = HEAD_VIEW_WEIGHT * HEAD_VIEW_BOOST.get(view, 1.0) if shape in HEAD_SHAPES else HEAD_VIEW_ELSEWHERE
             elif shape == "hair":
                 vw *= 0.1  # the body views were painted before he had hair
             k = ((wt[..., 0] * vw) ** SHARPEN) * (col[..., 3] > 0.5)
@@ -191,7 +214,8 @@ def finish(src):
         print(name, idx.shape[1], idx.shape[0], "(%d a metre, %d colours)" % (report[shape]["squares_per_m"], len(pal)),
                 "seen %.0f%%" % (100 * report[shape]["seen"]))
     with open(os.path.join(out_dir, "%s_paint.json" % person), "w") as f:
-        json.dump({"views": info["views"], "shapes": report}, f, indent=1)
+        json.dump({"views": [v for v in info["views"] if v not in dropped], "left_out": sorted(dropped),
+                "shapes": report}, f, indent=1)
 
 
 if __name__ == "__main__":

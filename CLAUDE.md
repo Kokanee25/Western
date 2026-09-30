@@ -780,4 +780,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     and people are the room rebuild); props are plain shapes (cups, lamp, bottle); the shirt V is
     bigger than the painting's (vest cut); frame rate at 1280×720 on Sean's PC unknown.
   - Next: Sean's verdict and frame rate; then props as proper models in the style, the room.
+- 2026-10-01: **Round 8: the man first (Sean: "not worried about props until our character looks
+  perfect").** (1) **Long hair to the collar:** `BodyMesh.HAIR` (+ `HAIR_GAP`, open round the face),
+  sized ~1.5 cm clear of the generated head (measured per height), worn when `look.hair_long` (the
+  painting's man). (2) **Necktie:** `clothes._string_tie` is now the painting's wide dark tie
+  (`TIE`), and it's at his throat: it used to take the most forward point at collar height, which is
+  on the chest muscle, so the tie (string tie too) sat ~10 cm low and off to one side. (3) **Close
+  head sheet:** six close views of his head (`lab_stage.HEAD_VIEWS`, one from your seat) painted in
+  one picture by FLUX.2 [max] with his painted front as the identity (`paint_views.py --head-sheet`,
+  People run 6, ~$0.30): crisp eyes, brows, moustache, hair, studded band. FLUX kept the front, back
+  and your-seat views in place (0.93–0.94 overlap) but shuffled the three side views (a profile in
+  the ¾ slot, a front face in the left-side slot); finish.py now **leaves out any painting that
+  doesn't follow his outline** (`MIN_OVERLAP` 0.8, `MIN_OVERLAP_HEAD` 0.88) and lets the head views
+  win on head/hair/hat/tie (`HEAD_VIEW_WEIGHT`, your seat ×1.6). Guides/masks/depth draw both sides
+  of every face (the hair shell faces inward and was invisible to them). The lab renders 1280×720.
+  228 pass. Renders `docs/screenshots/character_lab/round8_*` (the painting / round 7 / round 8).
+  - Known: his face is softer and paler than the painting's (no dark outlines round jaw and eyes,
+    no eye whites or glints yet; the lamp flattens it); the shirt V is too big and blotchy (the vest's
+    V is cut wider than the painting's and the vest isn't patterned); FLUX gives him a goatee in
+    some views (the painting's man has none); his sides come from the body sheet only.
+  - Next: the face's drawing (outlines, eyes), the vest V and pattern, the head's tilt (the painting's
+    man looks up at you from under the brim), repaint the head sheet's side views.
 

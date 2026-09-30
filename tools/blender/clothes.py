@@ -25,6 +25,9 @@ except ImportError:
 TEXELS_PER_M = 48
 # Triangles per garment after decimation.
 BUDGET = {"coat": 2200, "vest": 700, "shirt": 1500, "trousers": 1200, "cravat": 120}
+# The necktie: knot box (m), each end's half-width, segments down, step between them (the
+# painting's is a big loose dark tie, ~4-5 cm wide ends hanging ~16 cm).
+TIE = ([0.046, 0.032, 0.018], 0.012, 8, 0.023)
 # How far each sits off the skin (m).
 OFFSET = {"shirt": 0.005, "trousers": 0.008, "vest": 0.013, "coat": 0.024, "cravat": 0.0}
 # The coat stands further off where it's cut loose and padded (the painting's man is broad in a
@@ -286,11 +289,15 @@ def _lapels(g, neck_y=1.47):
 
 
 def _string_tie(person):
-    """A black string tie: a knot at the collar and two ends hanging down the shirt front."""
+    """A dark necktie, the painting's man's: a fat knot at the collar and two wide ends hanging
+    loose down the shirt front, splaying a little (TIE: knot size, end half-width, segments, step)."""
     v = person.v
-    y = getattr(person, "neck_y", 1.47) - 0.015
+    y = getattr(person, "neck_y", 1.47) + 0.02
     neck = [i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and abs(v[i][1] - y) < 0.012]
-    front = min(neck, key=lambda i: v[i][2])
+    # The front of the throat, on his centre line: the most forward point at that height is on his
+    # chest muscle, off to one side, and put the knot there.
+    middle = [i for i in neck if abs(v[i][0]) < 0.02] or neck
+    front = min(middle, key=lambda i: v[i][2])
     base = v[front] + np.array([0, 0.0, -0.012])
     w = person.W[front]
     g = Garment("cravat")
@@ -300,16 +307,19 @@ def _string_tie(person):
                for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]
         for q in ((0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)):
             g.F.append([ids[k] for k in q])
-    box(base, np.array([0.03, 0.022, 0.014]))
+    knot, half, segments, step = TIE
+    box(base, np.array(knot))
     chest = person.W[min(range(len(v)), key=lambda i: np.linalg.norm(v[i] - (base + [0, -0.1, 0])))]
     for side in (-1, 1):
-        top = base + np.array([0.006 * side, -0.01, -0.004])
+        top = base + np.array([0.008 * side, -0.012, -0.006])
         prev = None
-        for k in range(6):
-            y = -0.028 * k
-            p = top + np.array([0.012 * side * k / 5, y, 0.003 * k])
-            a = g.add_vertex(p + [-0.004, 0, 0], chest if k > 1 else w)
-            bb = g.add_vertex(p + [0.004, 0, 0], chest if k > 1 else w)
+        for k in range(segments):
+            y = -step * k
+            # Widening and splaying as they hang, lying a little further out over the shirt.
+            wk = half * (0.75 + 0.25 * k / (segments - 1))
+            p = top + np.array([0.018 * side * k / (segments - 1), y, -0.002 + 0.002 * k])
+            a = g.add_vertex(p + [-wk, 0, 0], chest if k > 1 else w)
+            bb = g.add_vertex(p + [wk, 0, 0], chest if k > 1 else w)
             if prev:
                 g.F.append([prev[0], prev[1], bb, a])
             prev = (a, bb)

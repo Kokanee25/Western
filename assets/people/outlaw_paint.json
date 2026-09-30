@@ -6,7 +6,15 @@
   "three_quarter",
   "side",
   "side_left",
-  "back"
+  "back",
+  "head_front",
+  "head_back",
+  "head_shot"
+ ],
+ "left_out": [
+  "head_side",
+  "head_side_left",
+  "head_three_quarter"
  ],
  "shapes": {
   "belt": {
@@ -36,7 +44,7 @@
     30
    ],
    "squares_per_m": 80.0,
-   "seen": 0.13,
+   "seen": 0.135,
    "colours": 6
   },
   "coat": {
@@ -51,22 +59,22 @@
     142
    ],
    "squares_per_m": 80.0,
-   "seen": 0.365,
+   "seen": 0.364,
    "colours": 12
   },
   "cravat": {
    "uv_rect": [
-    0.00173853198066354,
-    0.00173848867416382,
-    0.996522963047028,
-    0.996522963047028
+    0.00210551521740854,
+    0.00210559368133545,
+    0.995788991451263,
+    0.995788812637329
    ],
    "size": [
-    13,
-    13
+    18,
+    18
    ],
    "squares_per_m": 110.0,
-   "seen": 0.278,
+   "seen": 0.243,
    "colours": 5
   },
   "gun_belt": {
@@ -84,6 +92,21 @@
    "seen": 0.602,
    "colours": 6
   },
+  "hair": {
+   "uv_rect": [
+    0.0,
+    0.0,
+    0.567086696624756,
+    0.21024951338768
+   ],
+   "size": [
+    31,
+    12
+   ],
+   "squares_per_m": 80.0,
+   "seen": 0.494,
+   "colours": 6
+  },
   "hat": {
    "uv_rect": [
     0.0,
@@ -96,7 +119,7 @@
     9
    ],
    "squares_per_m": 80.0,
-   "seen": 0.809,
+   "seen": 0.786,
    "colours": 8
   },
   "hat_band": {
@@ -111,7 +134,7 @@
     7
    ],
    "squares_per_m": 110.0,
-   "seen": 0.443,
+   "seen": 0.272,
    "colours": 8
   },
   "hat_brim": {
@@ -126,7 +149,7 @@
     5
    ],
    "squares_per_m": 80.0,
-   "seen": 0.357,
+   "seen": 0.412,
    "colours": 8
   },
   "head": {
@@ -141,7 +164,7 @@
     48
    ],
    "squares_per_m": 190.0,
-   "seen": 0.587,
+   "seen": 0.44,
    "colours": 24
   },
   "holster": {
@@ -171,7 +194,7 @@
     96
    ],
    "squares_per_m": 80.0,
-   "seen": 0.052,
+   "seen": 0.054,
    "colours": 6
   },
   "skin": {
@@ -216,7 +239,7 @@
     84
    ],
    "squares_per_m": 80.0,
-   "seen": 0.096,
+   "seen": 0.097,
    "colours": 10
   }
  }
