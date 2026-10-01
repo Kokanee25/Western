@@ -40,7 +40,7 @@ func _build() -> void:
 	var steel := GunParts.blued()
 	var frame_mat := GunParts.case_hardened()
 	var wood := GunParts.walnut()
-	var bore := GunParts.material("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91))
+	var bore := GunParts.grid("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91))
 	# The action: the standing breech the shells sit against, the bar the barrels lie on, and a
 	# lockplate each side carrying a hammer.
 	GunParts.box(self, "Breech", Vector3(0.046, 0.042, 0.02), Vector3(0, 0.0, -0.03), frame_mat)
@@ -59,7 +59,7 @@ func _build() -> void:
 		# The shell head at the breech: brass rim and primer; the dark chamber shows when it's empty.
 		GunParts.tube(barrels, "Chamber%d" % i, 0.0098, 0.002, Vector3(x, BARREL_Y, BREECH_Z + 0.0005), bore, 8)
 		_heads.append(GunParts.tube(barrels, "Head%d" % i, 0.0112, 0.003, Vector3(x, BARREL_Y, BREECH_Z + 0.0015), GunParts.brass(), 10))
-		_primers.append(GunParts.tube(barrels, "Primer%d" % i, 0.0028, 0.002, Vector3(x, BARREL_Y, BREECH_Z + 0.0032), GunParts.material("primer", PixelArt.metal("primer", Color(0.55, 0.42, 0.28), 93)), 6))
+		_primers.append(GunParts.tube(barrels, "Primer%d" % i, 0.0028, 0.002, Vector3(x, BARREL_Y, BREECH_Z + 0.0032), GunParts.grid("primer", PixelArt.metal("primer", Color(0.55, 0.42, 0.28), 93)), 6))
 		var m := Marker3D.new()
 		m.name = "Muzzle%d" % i
 		m.position = Vector3(x, BARREL_Y, BREECH_Z - BARREL_LENGTH - 0.004)

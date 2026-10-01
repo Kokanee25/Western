@@ -1,0 +1,9 @@
+{
+ "about": "Men made by image-to-3D (tools/characters/): what the image model paints for each (what), and boxes of docs/concept/saloon-night.png shown to it as who he is (refs, [x0, y0, x1, y1]).",
+ "characters": {
+  "stranger": {
+   "what": "a weathered frontier gunman of about forty in 1882: a dark brown wide-brimmed hat with a dented crown and a studded band, long dark hair to his collar, deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble (no beard), a white shirt with a turned-down collar, a dark necktie, a patterned dark vest, a heavy dark-brown wool frock coat to his knees, dark trousers, a cartridge belt and holster, worn brown boots",
+   "refs": [[40, 120, 960, 941], [430, 180, 850, 560]]
+  }
+ }
+}

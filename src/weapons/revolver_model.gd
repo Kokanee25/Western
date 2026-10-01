@@ -37,7 +37,7 @@ func _build() -> void:
 	# Barrel, ejector housing and front sight.
 	var barrel_len := 0.19
 	GunParts.tube(self, "Barrel", 0.0085, barrel_len, Vector3(0, 0.04, -0.065 - barrel_len * 0.5), steel, 10)
-	GunParts.tube(self, "BarrelBore", 0.0058, 0.002, Vector3(0, 0.04, -0.065 - barrel_len - 0.0005), GunParts.material("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)), 8)
+	GunParts.tube(self, "BarrelBore", 0.0058, 0.002, Vector3(0, 0.04, -0.065 - barrel_len - 0.0005), GunParts.grid("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)), 8)
 	GunParts.box(self, "FrontSight", Vector3(0.003, 0.007, 0.012), Vector3(0, 0.051, -0.065 - barrel_len + 0.008), steel)
 	var housing_len := 0.14
 	GunParts.tube(self, "EjectorHousing", 0.0055, housing_len, Vector3(0.0085, 0.028, -0.07 - housing_len * 0.5), steel, 8)
@@ -56,10 +56,10 @@ func _build() -> void:
 		var p := Vector3(sin(a) * CHAMBER_RADIUS, cos(a) * CHAMBER_RADIUS, 0.0)
 		# Bolt notches between chambers, for the look.
 		var notch_a := a + deg_to_rad(30.0)
-		GunParts.box(cylinder, "Notch%d" % i, Vector3(0.003, 0.003, 0.006), Vector3(sin(notch_a) * 0.021, cos(notch_a) * 0.021, 0.0), GunParts.material("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)))
+		GunParts.box(cylinder, "Notch%d" % i, Vector3(0.003, 0.003, 0.006), Vector3(sin(notch_a) * 0.021, cos(notch_a) * 0.021, 0.0), GunParts.grid("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)))
 		var rim := GunParts.tube(cylinder, "Rim%d" % i, 0.0062, 0.002, p + Vector3(0, 0, CYLINDER_LENGTH * 0.5 + 0.001), GunParts.brass(), 8)
-		var primer := GunParts.tube(cylinder, "Primer%d" % i, 0.0022, 0.0022, p + Vector3(0, 0, CYLINDER_LENGTH * 0.5 + 0.0015), GunParts.material("primer", PixelArt.metal("primer", Color(0.55, 0.42, 0.28), 93)), 6)
-		GunParts.tube(cylinder, "Mouth%d" % i, 0.0058, 0.002, p - Vector3(0, 0, CYLINDER_LENGTH * 0.5 + 0.0005), GunParts.material("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)), 8)
+		var primer := GunParts.tube(cylinder, "Primer%d" % i, 0.0022, 0.0022, p + Vector3(0, 0, CYLINDER_LENGTH * 0.5 + 0.0015), GunParts.grid("primer", PixelArt.metal("primer", Color(0.55, 0.42, 0.28), 93)), 6)
+		GunParts.tube(cylinder, "Mouth%d" % i, 0.0058, 0.002, p - Vector3(0, 0, CYLINDER_LENGTH * 0.5 + 0.0005), GunParts.grid("bore", PixelArt.metal("bore", Color(0.04, 0.04, 0.05), 91)), 8)
 		_rims.append(rim)
 		_primers.append(primer)
 

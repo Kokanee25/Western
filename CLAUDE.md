@@ -257,6 +257,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
+- **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
+  input `characters`): `paint_full_length.py` has the image model paint each man in
+  `characters.json` full length in an A-pose (the painting's man as reference) →
+  `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
+  then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
+  `.gdignore`d (pipeline inputs, not game assets). Needs the repo
+  secret `TRIPO_API_KEY`; the client is untested against the live API. Fitting the result to our
+  skeleton and hitboxes in Blender is still to come; MakeHuman stays the fallback.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -1142,3 +1150,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: guns onto the texel grid; then the street's far side (real false fronts in place of the
     blockouts would be the town build-out, gameplay's call), the saloon's bar side (more lamps and
     bottles), and characters by image-to-3D once `TRIPO_API_KEY` is set.
+- 2026-10-01 (art session, later): **Guns on the texel grid; image-to-3D scaffolding.**
+  `GunParts.grid()` (gameplay's `src/weapons/gun_parts.gd`, `revolver_model.gd`,
+  `shotgun_model.gd`: Sean asked for the guns on the grid): metals, wood, bores and primers lit tile
+  by tile at the guns' own 320 texels a metre (not F7's). Skin and cloth stay StandardMaterial3Ds
+  because people's bodies read texture and scale from them (moving those is a people job).
+  `tools/characters/` (above): the full-length painting runs now; Tripo waits for
+  `TRIPO_API_KEY`, then a Blender fit (Tripo's rig → our 17 segments, the same warp, envelope and
+  per-segment cut as MakeHuman's) and the paint bake again.
+  - Next: when the key's there, run People with `characters: stranger`, read `_tripo.json`, fix the
+    client to the live API, then the Blender fit. Meanwhile: the street's far side and the
+    saloon's bar side (the judge's biggest left).
