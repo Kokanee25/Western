@@ -306,6 +306,9 @@ func _build_false_front(front: Dictionary) -> void:
 	_wall_member("front/cap", &"trim", &"dark_trim", front, -0.2, w + 0.2, front_height, front_height + 0.04, -STUD_D - 0.02, d0 + 0.22)
 	# The sign board.
 	var sign := _wall_member("front/sign", &"trim", &"sign", front, 0.7, w - 0.7, 4.15, 5.1, d0, d0 + 0.03)
+	# A painted board (art: SignArt, from the texture factory) where there's one for this text.
+	if SignArt.hang(self, sign, sign_text):
+		return
 	var label := Label3D.new()
 	label.name = "SignText"
 	label.text = sign_text
