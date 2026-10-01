@@ -12,3 +12,5 @@ One line per view per round (tools/judge.py). Score: mean severity of every meas
 | 2026-10-01_r3 | street | 0.903 | 50 / 38 | 27.0 / 21.2 | 4.78 / 6.82 | 6.1/6.0 vs 6.0/6.1 | 8.3 | top-right too bright (L* 83 vs 43) | street dressed (signs, lanterns, props, horse, wagon, poles, water tower), painted signs on the false fronts, golden-hour sky with clouds, sun at 17.6 |
 | 2026-10-01_r4 | saloon | 0.868 | 24 / 16 | 15.7 / 14.6 | 3.30 / 5.72 | 8.2/7.4 vs 6.5/6.1 | 6.4 | top-right mosaic too plain (2.2 vs 7.9 dE) | guns on the texel grid |
 | 2026-10-01_r4 | street | 0.902 | 50 / 38 | 27.0 / 21.2 | 4.78 / 6.82 | 6.1/6.0 vs 6.0/6.1 | 8.3 | top-right too bright (L* 83 vs 43) | guns on the texel grid |
+| 2026-10-01_r5 | saloon | 0.870 | 24 / 16 | 15.7 / 14.6 | 3.30 / 5.72 | 8.2/7.4 vs 6.5/6.1 | 6.3 | top-right mosaic too plain (2.2 vs 7.9 dE) | red-rock mesas and spires on the skyline |
+| 2026-10-01_r5 | street | 0.874 | 48 / 38 | 26.2 / 21.2 | 4.78 / 6.82 | 6.5/5.9 vs 6.0/6.1 | 8.5 | top-right too bright (L* 83 vs 43) | red-rock mesas and spires on the skyline |

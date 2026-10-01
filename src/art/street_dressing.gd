@@ -4,7 +4,7 @@ extends Node3D
 ## painted signs on the false fronts down the street (LIVERY and JAIL across from the store, GENERAL
 ## STORE next to it), carriage lanterns by the doors, barrels, crates and hay along the boardwalks,
 ## a horse saddled at a rail, a covered wagon down the street, telegraph poles and a water tower
-## over the roofs. Models from PropModels on the texel grid; the big ones have a box to bump into.
+## over the roofs, and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to bump into.
 ## Everything keeps off the road's middle (the gang rides in along z -9) and the store's porch.
 ##
 ## The blockout lots (their fronts) are StreetScenery's: [x0, x1, front z, faces +Z, wall height,
@@ -27,6 +27,9 @@ func _ready() -> void:
 	_lanterns()
 	_loose()
 	_far()
+	var mountains := Mountains.new()
+	mountains.name = "Mountains"
+	add_child(mountains)
 
 
 ## Where a lot's front face is, and which way it looks (+1: toward +Z).
