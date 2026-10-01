@@ -220,45 +220,23 @@ static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
 	_mesh(chair, "Rail", rail, Vector3(0, 0.93, 0.19), wood)
 
 
-static func _tin() -> ShaderMaterial:
-	# Dull tin, lit mostly as paint (fully metallic it had nothing to reflect and went black).
-	return _mat("tin", PixelArt.metal("shot_tin", Color(0.62, 0.6, 0.55), 71, 0.5), Color.WHITE, 0.5, 0.25)
+## Your tin mug (PropModels.cup).
+static func _cup(root: Node3D, at: Vector3) -> Node3D:
+	var cup := Node3D.new()
+	cup.name = "Cup"
+	PropModels.cup(cup)
+	root.add_child(cup)
+	cup.position = at
+	return cup
 
 
-static func _cup(root: Node3D, at: Vector3) -> MeshInstance3D:
-	var cup := CylinderMesh.new()
-	cup.top_radius = 0.04
-	cup.bottom_radius = 0.036
-	cup.height = 0.1
-	cup.radial_segments = 10
-	return _mesh(root, "Cup", cup, at + Vector3(0, 0.05, 0), _tin())
-
-
+## A labelled whiskey bottle in dark glass (PropModels.bottle).
 static func _bottle(root: Node3D, at: Vector3) -> void:
-	var glass := StandardMaterial3D.new()
-	glass.albedo_color = Color(0.2, 0.1, 0.04, 0.92)
-	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glass.roughness = 0.15
-	glass.metallic_specular = 0.8
-	var b := CylinderMesh.new()
-	b.top_radius = 0.043
-	b.bottom_radius = 0.045
-	b.height = 0.2
-	b.radial_segments = 10
-	_mesh(root, "Bottle", b, at + Vector3(0, 0.1, 0), glass)
-	var neck := CylinderMesh.new()
-	neck.top_radius = 0.014
-	neck.bottom_radius = 0.04
-	neck.height = 0.1
-	neck.radial_segments = 8
-	_mesh(root, "BottleNeck", neck, at + Vector3(0, 0.25, 0), glass)
-	var label := CylinderMesh.new()
-	label.top_radius = 0.046
-	label.bottom_radius = 0.046
-	label.height = 0.08
-	label.radial_segments = 10
-	var paper := _mat("label", PixelArt.painted("shot_label", Color(0.78, 0.7, 0.52), Color(0.5, 0.4, 0.3), 73, 0.5))
-	_mesh(root, "Label", label, at + Vector3(0, 0.1, 0), paper)
+	var bottle := Node3D.new()
+	bottle.name = "Bottle"
+	PropModels.bottle(bottle, 0)
+	root.add_child(bottle)
+	bottle.position = at
 
 
 static func _ashtray(root: Node3D, at: Vector3) -> void:
@@ -279,17 +257,21 @@ static func _upright(cup: Node3D) -> void:
 		cup.global_basis = Basis.IDENTITY
 
 
-## His tin cup, in his right hand (that arm lies across the table in front of him).
+## His tin cup, in his right hand (that arm lies across the table in front of him). CUP_IN_HAND is
+## the cup's middle; the model stands on its bottom, half its height below.
 static func _cup_in_hand(man: HumanBody) -> void:
 	var hand := man.parts.get(&"hand_r") as Node3D
 	if hand == null:
 		return
-	var cup := CylinderMesh.new()
-	cup.top_radius = 0.04
-	cup.bottom_radius = 0.036
-	cup.height = 0.1
-	cup.radial_segments = 10
-	var mi := _mesh(hand, "HeldCup", cup, CUP_IN_HAND, _tin())
-	mi.layers = Layers.VIS_BODY
-	_upright.call_deferred(mi)
+	var held := Node3D.new()
+	held.name = "HeldCup"
+	hand.add_child(held)
+	held.position = CUP_IN_HAND
+	var model := Node3D.new()
+	PropModels.cup(model)
+	model.position = Vector3(0, -0.05, 0)
+	held.add_child(model)
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		mi.layers = Layers.VIS_BODY
+	_upright.call_deferred(held)
 	man.curl_hand("r", 0.7)

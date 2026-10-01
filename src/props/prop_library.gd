@@ -1,13 +1,19 @@
 class_name PropLibrary
 ## Loose props (bottles, chairs, lamps...) described in assets/props/manifest.json. A prop uses
 ## assets/props/<id>.glb when that model exists (made in Meshy or anywhere else), scaled to the
-## manifest's real-world size; until then it's a coloured placeholder box of that size. Either way
-## it gets a collision box, so the room plays the same before and after the art arrives.
+## manifest's real-world size; else a model built in code (PropModels); else a coloured placeholder
+## box of that size. Either way it gets a collision box, so the room plays the same before and after
+## the art arrives.
 
 const MANIFEST_PATH := "res://assets/props/manifest.json"
 const MODEL_PATH := "res://assets/props/%s.glb"
 
 static var _manifest := {}
+## Build props with PropModels' code models where there's no .glb (off: the coloured boxes, as
+## before, for tests and comparisons).
+static var use_models := true
+## How many of each prop have been made: the next one's variant (bottles' glass and labels...).
+static var _made := {}
 
 
 static func manifest() -> Dictionary:
@@ -49,6 +55,10 @@ static func spawn(id: StringName, model: Node3D = null) -> StaticBody3D:
 	var bounds: AABB
 	if model == null and has_model(id):
 		model = (load(MODEL_PATH % id) as PackedScene).instantiate()
+	elif model == null and use_models and PropModels.has_model(id):
+		var n: int = _made.get(id, 0)
+		_made[id] = n + 1
+		model = PropModels.build(id, n)
 	if model:
 		visual = model
 		var raw := _model_bounds(visual)
