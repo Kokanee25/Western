@@ -1,0 +1,81 @@
+{
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at 64 a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
+ "texels_per_metre": 64,
+ "materials": {
+  "floor": {
+   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "what": "worn saloon floorboards: one continuous surface of old pine planking, the grain running left to right, scuffed by boots, darkened with spilt whiskey and tobacco, small knots and nail heads",
+   "ref": ["saloon", 840, 520, 1130, 650]
+  },
+  "saloon_wall": {
+   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "what": "the inside wall of an old saloon: rough-sawn pine boards stained dark reddish brown by years of lamp smoke, the grain running left to right, saw marks and the odd knot",
+   "ref": ["saloon", 600, 20, 860, 200]
+  },
+  "dark_trim": {
+   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "what": "dark stained and oiled hardwood, like a polished bar top worn by elbows and glasses, the grain running left to right",
+   "ref": ["saloon", 1350, 380, 1640, 560]
+  },
+  "shot_table": {
+   "for": "saloon", "kind": "tile", "metres": [1.0, 1.0], "colours": 14,
+   "what": "the top of an old saloon card table seen from above: warm honey-brown wood worn smooth, rings from glasses, scratches, the grain running left to right",
+   "ref": ["saloon", 900, 700, 1300, 900]
+  },
+  "framing": {
+   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "what": "a rough-hewn pine beam: weathered brown timber with deep checks (cracks) along the grain, the grain running left to right",
+   "ref": ["saloon", 600, 20, 860, 200]
+  },
+  "weathered_pine": {
+   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "what": "sun-bleached weathered siding of a frontier town building: grey and tan pine, silvered by the desert sun, cracks and open grain running left to right, rusty nail heads, warm sunlight",
+   "ref": ["street", 1300, 330, 1440, 500]
+  },
+  "painted_ochre": {
+   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "what": "old ochre-yellow paint on pine boards, faded, cracked and peeling in places to grey wood underneath, the grain running left to right",
+   "ref": ["street", 640, 120, 780, 330]
+  },
+  "painted_rust": {
+   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "what": "old barn-red paint on pine boards, sun-faded, cracked and peeling in places to grey wood underneath, the grain running left to right",
+   "ref": ["street", 60, 0, 440, 240]
+  },
+  "sign": {
+   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 10,
+   "what": "an old painted sign board with no lettering: cream-white paint, weathered and faded, cracked along the grain, which runs left to right",
+   "ref": ["street", 640, 120, 780, 330]
+  },
+  "road": {
+   "for": "street", "kind": "ground", "metres": [2.0, 2.0], "colours": 16,
+   "what": "the dry packed-dirt main street of a frontier desert town seen from straight above: warm ochre dust, scattered dark pebbles and small stones, hoof prints, a few pale specks",
+   "ref": ["street", 500, 620, 1000, 900]
+  },
+  "sign_saloon": {
+   "for": "street", "kind": "sign", "metres": [5.6, 1.6], "colours": 12, "text": "SALOON",
+   "what": "a big weathered frontier sign painted straight onto horizontal grey-tan lap siding boards, the word SALOON in tall dark-red slab-serif capitals with a thin red border line and small corner flourishes",
+   "ref": ["street", 60, 0, 440, 240]
+  },
+  "sign_general_store": {
+   "for": "street", "kind": "sign", "metres": [4.4, 1.1], "colours": 10, "text": "GENERAL STORE",
+   "what": "a weathered frontier sign painted straight onto horizontal pale grey lap siding boards, the words GENERAL STORE in dark brown-black condensed slab-serif capitals",
+   "ref": ["street", 640, 120, 780, 330]
+  },
+  "sign_dry_goods": {
+   "for": "street", "kind": "sign", "metres": [2.2, 1.3], "colours": 10, "text": "DRY GOODS / TOOLS / HARDWARE / PROVISIONS",
+   "what": "a weathered frontier sign painted onto pale grey boards, four lines of small dark capitals: DRY GOODS, TOOLS, HARDWARE, PROVISIONS",
+   "ref": ["street", 500, 200, 640, 320]
+  },
+  "sign_jail": {
+   "for": "street", "kind": "sign", "metres": [2.6, 0.9], "colours": 10, "text": "JAIL",
+   "what": "a weathered frontier sign on pale grey boards, the word JAIL in dark slab-serif capitals",
+   "ref": ["street", 1190, 340, 1300, 410]
+  },
+  "sign_livery": {
+   "for": "street", "kind": "sign", "metres": [2.0, 2.6], "colours": 10, "text": "LIVERY / FEED / HAY / STABLES",
+   "what": "a weathered frontier sign on pale grey vertical boards, LIVERY in big dark capitals across the top, then FEED, HAY, STABLES in smaller dark capitals",
+   "ref": ["street", 1470, 50, 1590, 300]
+  }
+ }
+}

@@ -46,14 +46,14 @@ func test_texel_density_is_the_same_everywhere() -> void:
 	for wood in [&"weathered_pine", &"framing", &"painted_ochre", &"floor"]:
 		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
 		check(m != null and m.shader == PixelArt.GRID_SHADER, "%s: on the texel grid" % wood)
-		check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
+		check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
 		check_eq(m.get_shader_parameter(&"use_mipmaps"), PixelArt.use_mipmaps, "%s: smoothing follows the setting" % wood)
 
 
 func test_texel_size_changes_live() -> void:
 	var m := WoodMaterials.get_material(&"framing", 1) as ShaderMaterial
 	PixelArt.set_density(16.0, false)
-	check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, 16.0, 0.001, "existing materials follow the new density")
+	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0, 0.001, "existing materials follow the new density")
 	check(not m.get_shader_parameter(&"use_mipmaps"), "no mipmaps: crunchy")
 	PixelArt.set_density(64.0, true)
 	check(m.get_shader_parameter(&"use_mipmaps"), "and back")
@@ -66,7 +66,7 @@ func test_holed_members_stay_on_the_grid() -> void:
 	check(holed.get_shader_parameter(&"albedo_tex") == base.get_shader_parameter(&"albedo_tex"), "same texture")
 	check_eq(holed.get_shader_parameter(&"uv_offset"), base.get_shader_parameter(&"uv_offset"), "same offset, so the board doesn't jump")
 	PixelArt.set_density(24.0, false)
-	check_near(holed.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, 24.0, 0.001, "follows the density")
+	check_near(holed.get_shader_parameter(&"texels_per_meter"), 24.0, 0.001, "follows the density")
 	PixelArt.set_density(64.0, true)
 
 
@@ -140,9 +140,9 @@ func test_tiled_materials_follow_the_texel_grid() -> void:
 	# Props (laid on by position, like the shot match's cups and table) are on the same grid.
 	var m := PixelArt.material(PixelArt.wood("test_tiles", Color(0.4, 0.25, 0.12), 3), Color.WHITE, PixelArt.Mapping.TRIPLANAR)
 	check(m.shader == PixelArt.GRID_SHADER, "the one grid material")
-	check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "on the world's grid")
+	check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter, 0.001, "on the world's grid")
 	PixelArt.set_density(16.0, false)
-	check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, 16.0, 0.001, "follows F7")
+	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0, 0.001, "follows F7")
 	PixelArt.set_density(64.0, true)
 
 
@@ -163,3 +163,23 @@ func test_portrait_is_brought_to_face_tiles_without_holes() -> void:
 	check(hole.a > 0.99, "the hole is filled")
 	check_near(hole.r, 0.7, 0.02, "with the skin round it")
 	check(t.get_pixel(2, 2).a < 0.01, "outside the face stays clear")
+
+
+func test_factory_textures_take_over_their_key_at_the_same_texel_size() -> void:
+	# The texture factory (tools/textures/) writes assets/textures/<key>.png at 64 texels a metre,
+	# any size: wherever one exists PixelArt hands it out for that key, and the grid lays its
+	# texels at the world's size (texel_grid works the repeat out from the texture's own size).
+	var img := Image.create(128, 64, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.3, 0.2, 0.1))
+	var old: Variant = PixelArt._cache.get("factory_test")
+	PixelArt._cache["factory_test"] = ImageTexture.create_from_image(img)
+	var tex := PixelArt.wood("factory_test", Color.RED, 1)
+	check(tex.get_width() == 128 and tex.get_height() == 64, "a 2 m x 1 m texture comes back as it is")
+	var m := PixelArt.material(tex)
+	check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter, 0.001, "on the world's grid")
+	PixelArt._cache.erase("factory_test")
+	if old != null:
+		PixelArt._cache["factory_test"] = old
+	PixelArt.use_factory = false
+	check(PixelArt.factory("floor") == null, "switched off, every key is painted in code")
+	PixelArt.use_factory = true
