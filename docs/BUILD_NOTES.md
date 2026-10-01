@@ -5,6 +5,19 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: texel lighting (P)
+
+- **Press P** to switch texel lighting on and off (it's saved, like F2/F6/F7; F3 shows it). With it
+  on, sunlight, lamplight, shadows and fog are worked out once per texture pixel, so every pixel of
+  wood and dirt is one flat lit colour and shadow edges step pixel by pixel instead of cutting
+  smoothly across them: the blocky look of the concept paintings. Off is the look you approved.
+- Try: stand by the hitching rail in front of the store around 17:00 (T speeds time up) and look
+  down at the rail's shadow on the street, then press P. Then press F7 twice (16 texels per metre)
+  and look at the awning's shadow on the store front, pressing P again. It's subtle at 40 per
+  metre and strong at 16.
+- Only the buildings, boardwalks, blockouts and ground use it so far; people, guns and props are
+  still lit smoothly.
+
 ### New: real people, and the painting's shot
 
 - **The men have real bodies now.** Their skin and head come from MakeHuman's base human (free to

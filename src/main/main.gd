@@ -69,3 +69,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.cycle_texel_density()
 	elif event.is_action_pressed(&"debug_pixel_shading"):
 		Settings.set_pixel_shading(not Settings.pixel_shading)
+	elif event.is_action_pressed(&"debug_texel_lighting"):
+		Settings.set_texel_lighting(not Settings.texel_lighting)

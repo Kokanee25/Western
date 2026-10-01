@@ -43,18 +43,50 @@ func test_member_uvs_follow_the_grain() -> void:
 
 func test_texel_density_is_the_same_everywhere() -> void:
 	for wood in [&"weathered_pine", &"framing", &"painted_ochre", &"floor"]:
-		var m := WoodMaterials.get_material(wood, 0) as StandardMaterial3D
-		check_near(m.uv1_scale.x * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
-		check_eq(m.texture_filter, PixelArt.texture_filter(), "%s: hard pixels" % wood)
+		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
+		check(m != null and m.shader == PixelArt.GRID_SHADER, "%s: on the texel grid" % wood)
+		check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
+		check_eq(m.get_shader_parameter(&"use_mipmaps"), PixelArt.use_mipmaps, "%s: smoothing follows the setting" % wood)
 
 
 func test_texel_size_changes_live() -> void:
-	var m := WoodMaterials.get_material(&"framing", 1) as StandardMaterial3D
+	var m := WoodMaterials.get_material(&"framing", 1) as ShaderMaterial
 	PixelArt.set_density(16.0, false)
-	check_near(m.uv1_scale.x * PixelArt.SIZE, 16.0, 0.001, "existing materials follow the new density")
-	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST, "no mipmaps: crunchy")
+	check_near(m.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, 16.0, 0.001, "existing materials follow the new density")
+	check(not m.get_shader_parameter(&"use_mipmaps"), "no mipmaps: crunchy")
 	PixelArt.set_density(40.0, true)
-	check_eq(m.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS, "and back")
+	check(m.get_shader_parameter(&"use_mipmaps"), "and back")
+
+
+func test_holed_members_stay_on_the_grid() -> void:
+	var base := WoodMaterials.get_material(&"weathered_pine", 2) as ShaderMaterial
+	var holed := PixelArt.hole_material(base)
+	check(holed.shader == PixelArt.HOLE_SHADER, "the hole shader")
+	check(holed.get_shader_parameter(&"albedo_tex") == base.get_shader_parameter(&"albedo_tex"), "same texture")
+	check_eq(holed.get_shader_parameter(&"uv_offset"), base.get_shader_parameter(&"uv_offset"), "same offset, so the board doesn't jump")
+	PixelArt.set_density(24.0, false)
+	check_near(holed.get_shader_parameter(&"uv_scale") * PixelArt.SIZE, 24.0, 0.001, "follows the density")
+	PixelArt.set_density(40.0, true)
+
+
+func test_texel_lighting_is_a_setting() -> void:
+	check(not Settings.texel_lighting, "off by default (the approved look)")
+	check(Settings.look_description().contains("texel lighting off"), "described: %s" % Settings.look_description())
+	Settings.set_texel_lighting(true)
+	check(Settings.look_description().contains("texel lighting on"), "P turns it on")
+	check(InputMap.has_action(&"debug_texel_lighting"), "bound to a key")
+	Settings.reset_to_defaults()
+	check(not Settings.texel_lighting, "reset turns it off")
+
+
+func test_every_grid_shader_lights_per_texel() -> void:
+	# The shaders that draw the store and the street all move LIGHT_VERTEX to the texel's centre.
+	for path in ["res://src/render/texel_grid.gdshaderinc", "res://src/world/ground.gdshader"]:
+		var code := FileAccess.get_file_as_string(path)
+		check(code.contains("texel_lighting.gdshaderinc"), "%s includes texel lighting" % path)
+		check(code.contains("LIGHT_VERTEX"), "%s sets LIGHT_VERTEX" % path)
+	check(FileAccess.get_file_as_string("res://src/structures/member_holes.gdshader").contains("texel_grid.gdshaderinc"), "holes too")
+	check(ProjectSettings.has_setting("shader_globals/texel_lighting"), "the global uniform is declared")
 
 
 func test_texel_size_is_a_setting() -> void:

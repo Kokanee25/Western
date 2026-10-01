@@ -17,6 +17,10 @@ static func box(size: Vector3) -> ArrayMesh:
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var uvs := PackedVector2Array()
 	uvs.resize(verts.size())
+	# The face's size in metres (its UVs run from 0 to this): texel lighting keeps the point it
+	# lights a texel at on the face (texel_grid.gdshaderinc).
+	var face_sizes := PackedVector2Array()
+	face_sizes.resize(verts.size())
 	var long_axis := 0
 	for a in 3:
 		if size[a] > size[long_axis]:
@@ -34,7 +38,9 @@ static func box(size: Vector3) -> ArrayMesh:
 		var v_axis := plane[0] if plane[0] != u_axis else plane[1]
 		var p := verts[i] + size * 0.5
 		uvs[i] = Vector2(p[u_axis], p[v_axis])
+		face_sizes[i] = Vector2(size[u_axis], size[v_axis])
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_TEX_UV2] = face_sizes
 	arrays[Mesh.ARRAY_TANGENT] = null
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)

@@ -13,60 +13,77 @@ static var use_mipmaps := true
 ## Texel-size presets F7 cycles through: [texels per metre, mipmaps].
 const DENSITY_PRESETS := [[40.0, true], [24.0, false], [16.0, false]]
 
+## The material for everything on the texel grid (src/render/texel_grid.gdshaderinc), and the
+## same with bullet holes cut in it (StructureMember).
+const GRID_SHADER := preload("res://src/render/texel_grid.gdshader")
+const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
+
+## How a grid material lays its texture on: the mesh's UVs (in metres; members), or by position
+## along whichever axis a face looks down most (blockouts, props), in mesh or world space.
+enum Mapping { UV, TRIPLANAR, WORLD_TRIPLANAR }
+
 ## Every material that uses the texel grid, so a density change can reach them all.
-static var _materials: Array[BaseMaterial3D] = []
-static var _ground: Array[ShaderMaterial] = []
+static var _materials: Array[ShaderMaterial] = []
 
 
-## Register a material laid out on the texel grid (UVs in metres).
-static func track(m: BaseMaterial3D) -> BaseMaterial3D:
+## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
+## nearest filtering, lit per texel when texel lighting is on (Settings.texel_lighting).
+static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV, offset := Vector3.ZERO,
+		roughness := 0.95, metallic := 0.0, specular := 0.2) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = GRID_SHADER
+	m.set_shader_parameter(&"albedo_tex", tex)
+	m.set_shader_parameter(&"tint", tint)
+	m.set_shader_parameter(&"mapping", mapping)
+	m.set_shader_parameter(&"uv_offset", offset)
+	m.set_shader_parameter(&"roughness", roughness)
+	m.set_shader_parameter(&"metallic", metallic)
+	m.set_shader_parameter(&"specular", specular)
+	return track(m)
+
+
+## The same material with bullet holes (the hole uniforms are set by the member).
+static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
+	var m := base.duplicate() as ShaderMaterial
+	m.shader = HOLE_SHADER
+	return track(m)
+
+
+## Keep a material laid out on the texel grid (the ground's shader too: it reads texels_per_meter).
+static func track(m: ShaderMaterial) -> ShaderMaterial:
 	_materials.append(m)
 	_apply(m)
 	return m
 
 
-## Members with bullet holes switch to member_holes.gdshader; keep them on the texel grid too.
-static var _hole_materials: Array[ShaderMaterial] = []
-
-
-static func track_hole_material(m: ShaderMaterial) -> void:
-	_hole_materials.append(m)
-	_apply_hole(m)
-
-
-static func _apply_hole(m: ShaderMaterial) -> void:
-	var t := texels_per_meter / SIZE
-	m.set_shader_parameter(&"uv_scale", Vector2(t, t))
-	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
-
-
-static func track_ground(m: ShaderMaterial) -> void:
-	_ground.append(m)
-	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
-
-
 static func set_density(texels: float, mipmaps: bool) -> void:
 	texels_per_meter = texels
 	use_mipmaps = mipmaps
+	var live: Array[ShaderMaterial] = []
 	for m in _materials:
 		if is_instance_valid(m):
 			_apply(m)
-	for h in _hole_materials:
-		if is_instance_valid(h):
-			_apply_hole(h)
-	for g in _ground:
-		if is_instance_valid(g):
-			g.set_shader_parameter(&"texels_per_meter", texels)
+			live.append(m)
+	_materials = live
 
 
-static func _apply(m: BaseMaterial3D) -> void:
-	var t := texels_per_meter / SIZE
-	m.uv1_scale = Vector3(t, t, t)
-	m.texture_filter = texture_filter()
+static func _apply(m: ShaderMaterial) -> void:
+	m.set_shader_parameter(&"uv_scale", texels_per_meter / SIZE)
+	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
+	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
 
 
+## Filtering for StandardMaterial3Ds that follow the mipmap setting (people's baked garments).
 static func texture_filter() -> BaseMaterial3D.TextureFilter:
 	return BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS if use_mipmaps else BaseMaterial3D.TEXTURE_FILTER_NEAREST
+
+
+## Texel lighting (light, shadows and fog flat across each texel) on or off for every material
+## at once: a global shader uniform, declared in project.godot [shader_globals].
+static func set_texel_lighting(on: bool) -> void:
+	RenderingServer.global_shader_parameter_set(&"texel_lighting", on)
+
+
 const SIZE := 64
 
 static var _cache := {}
