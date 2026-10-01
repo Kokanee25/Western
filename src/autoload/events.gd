@@ -41,6 +41,10 @@ signal noise(at: Vector3, loudness: float, kind: StringName, source: Node)
 ## Something someone did that others judge them by (Relations.WEIGHTS): drew, holstered, aimed at,
 ## shouted at, crowded, stared at, shot at, hit, killed, surrendered. `target` may be null.
 signal deed(actor: Node, kind: StringName, target: Node, at: Vector3)
+## A man shouting to his friends in a fight: kind (OutlawBrain.LINES "call_<kind>": &"reloading", &"hit",
+## &"spotted", &"flank", &"covering", &"help", &"drag", &"down", &"dead", &"quit", &"fall_back",
+## &"give_up"), who it's about (the man they're fighting, or a friend), and where (or Vector3.INF).
+signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
 
 
 func _ready() -> void:

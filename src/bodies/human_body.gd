@@ -79,6 +79,12 @@ const POSES := {
 			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
 	&"lie": {&"upper_arm_r": Vector3(165, 0, 20), &"forearm_r": Vector3(60, 0, 0),
 			&"upper_arm_l": Vector3(165, 0, -20), &"forearm_l": Vector3(60, 0, 0), &"head": Vector3(20, 0, 0)},
+	# Bent over, walking backwards, both hands down on a man's collar, dragging him.
+	&"drag": {&"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-30, 0, 0), &"head": Vector3(20, 0, 0),
+			&"upper_arm_r": Vector3(60, 0, 8), &"forearm_r": Vector3(10, 0, 0),
+			&"upper_arm_l": Vector3(60, 0, -8), &"forearm_l": Vector3(10, 0, 0),
+			&"thigh_r": Vector3(25, 0, 4), &"thigh_l": Vector3(25, 0, -4), &"shin_r": Vector3(-35, 0, 0),
+			&"shin_l": Vector3(-35, 0, 0)},
 	&"prone_aim": {&"upper_arm_r": Vector3(172, 0, 4), &"forearm_r": Vector3(0, 0, 0),
 			&"upper_arm_l": Vector3(140, 0, -25), &"forearm_l": Vector3(45, 0, 0), &"head": Vector3(60, 0, 0)},
 }
@@ -167,6 +173,8 @@ var move_speed := 0.0
 var gait := &""
 ## Down on the ground but still moving (legs gone, not knocked out): posed, not a ragdoll.
 var prone := false
+## Someone has him by the collar and is dragging him (a friend getting him out of the line of fire).
+var dragged_by: Node3D
 var _gait_phase := 0.0
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
@@ -688,6 +696,37 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 	var left := target - global_position
 	left.y = 0.0
 	return left.length() < 0.1 or (dist < 0.4 and moved.length() < 0.001)
+
+
+## Pulled along by the collar towards `holder` (the hands of whoever's dragging him), this tick.
+## Lying posed (prone): his head follows the hands and the rest of him trails behind, sliding over
+## the ground and along anything in the way. A rag doll: hauled by the chest, the rest following
+## on its joints.
+func drag_toward(holder: Vector3, delta: float) -> void:
+	if limp:
+		var chest := parts.get(&"chest") as RigidBody3D
+		if chest == null:
+			return
+		var to := holder + Vector3.UP * 0.3 - chest.global_position
+		var d := to.length()
+		if d > 0.4:
+			var want := to / d * clampf((d - 0.4) * 5.0, 0.0, 2.5)
+			want.y = chest.linear_velocity.y if to.y < 0.0 else minf(want.y, 0.8)
+			chest.linear_velocity = chest.linear_velocity.lerp(want, clampf(delta * 12.0, 0.0, 1.0))
+			chest.sleeping = false
+		return
+	# Prone: he lies from his feet (here) forward to his head, ~1.75 m.
+	var to := holder - global_position
+	to.y = 0.0
+	var d := to.length()
+	if d < 0.01:
+		return
+	var dir := to / d
+	global_rotation.y = atan2(-dir.x, -dir.z)
+	var length := anatomy.height + 0.1
+	if d > length:
+		_slide(dir * minf(d - length, 0.1))
+		_snap_to_ground()
 
 
 ## Move by `motion` (flat), stopping at and sliding along whatever's in the way.

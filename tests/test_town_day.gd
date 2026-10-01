@@ -286,3 +286,45 @@ func test_they_ride_out() -> void:
 	check(left, "walks out west and is gone")
 	await physics_frames(2)
 	check(not is_instance_valid(kid), "out of the world")
+
+
+func test_in_a_fight_they_work_together() -> void:
+	town.bring_gang()
+	for g in town.gang:
+		var gb := g.get_node(^"Brain") as OutlawBrain
+		gb.nerve = 99.0
+		g.global_position = town.places.at(gb.bar_spot)
+		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + Vector3(-2, 1.2, 0)}]
+		gb._step_started = false
+	player.remove_meta(&"human_body")  # their rounds stop on you: this is about them
+	_put_player(Vector3(7.0, 0.38, -18.6), 0.0)
+	var calls: Array[String] = []
+	var hear := func(who: Node, kind: StringName, _about: Node, _at: Vector3) -> void:
+		calls.append("%s %s" % [(who as HumanBody).person_id, kind])
+	Events.callout.connect(hear)
+	await physics_frames(30)
+	var brody := _man(&"brody")
+	var at := (brody.parts[&"thigh_r"] as Node3D).global_position
+	var bl := street.find_child("Ballistics", true, false) as Ballistics
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var ex: Array[RID] = [player.get_rid()]
+	var from := player.camera.global_position
+	var bullet := bl.fire(from, (at - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
+	bullet.shooter = player
+	await physics_frames(60 * 30)
+	Events.callout.disconnect(hear)
+	var kinds := {}
+	for c in calls:
+		kinds[c.get_slice(" ", 1)] = true
+	check(kinds.size() >= 3, "they shout to each other: %s" % str(calls))
+	for g in town.gang:
+		if not is_instance_valid(g):
+			continue
+		var by: Variant = g.get_meta(&"last_hit_by") if g.has_meta(&"last_hit_by") else null
+		check(not (by is HumanBody and town.gang.has(by)), "%s wasn't shot by a friend" % g.person_id)
+		var gb := g.get_node(^"Brain") as OutlawBrain
+		for other in town.gang:
+			if other != g and is_instance_valid(other):
+				check(gb.relations.stance(other) < Relations.Stance.FIGHT, "%s isn't fighting %s" % [g.person_id, other.person_id])
+	check(shots.size() >= 2, "more than one of them shooting at you (%s)" % str(shots.values()))
+	print("  the gang in a fight on the street: %s" % ", ".join(calls))
