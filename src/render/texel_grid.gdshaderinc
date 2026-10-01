@@ -8,8 +8,9 @@
 
 uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
-// Texture repeats per metre: texels_per_meter / texture size.
-uniform float uv_scale = 0.625;
+// Offset of the texture, in repeats (0..1 of the texture). The texture repeats every
+// texels_per_meter / its own size metres (code-painted textures are 64 square, the texture
+// factory's any size), so every texel is the same size whatever texture it's in.
 uniform vec3 uv_offset = vec3(0.0);
 uniform float texels_per_meter = 40.0;
 // Off: every texel crisp all the way out (the chunky texel presets).
@@ -38,6 +39,8 @@ float seg_dist(vec3 p, vec3 a, vec3 b) {
 
 void vertex() {
 	local_pos = VERTEX;
+	// Triplanar textures are square: one scale for every axis.
+	float uv_scale = texels_per_meter / float(textureSize(albedo_tex, 0).x);
 	if (mapping == 2) {
 		tri_weights = abs(mat3(MODEL_MATRIX) * NORMAL);
 		tri_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz * uv_scale + uv_offset;
@@ -59,6 +62,7 @@ void fragment() {
 	// The texture coordinates whose texels the lighting snaps to: the UVs, or for triplanar the
 	// projection that faces this surface most.
 	vec2 grid_uv;
+	vec2 uv_scale = vec2(texels_per_meter) / size;
 	if (mapping == 0) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
 		col = grid_sample(grid_uv);

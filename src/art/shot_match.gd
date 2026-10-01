@@ -6,8 +6,13 @@ class_name ShotMatch
 ## painting from here, in lamplight (tools/screenshots.gd view `shot_match_saloon`, and
 ## tools/side_by_side.py puts the two together). F5 in the game can jump here too (debug place).
 
-## The card table at the back of the saloon we take over (world space, test street).
-const TABLE := Vector3(8.8, 0.0, -25.0)
+## The card table at the back of the saloon we take over (world space, test street), and how far
+## the whole set (table, props, him, your seat) is turned about it from the way it was fitted
+## (degrees about Y): the set turns as one, so his fit to the painting holds, and only the room
+## behind him changes. Turned (2026-10-01) so you look up the room toward the street as the
+## painting does: the doors on your left, the stairs and balcony ahead, the bar on your right.
+const TABLE := Vector3(7.76, 0.0, -26.5)
+const ROOM_YAW := -72.8
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
@@ -32,13 +37,13 @@ const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
 ## Build the scene in the test street (clearing that table's own props) and seat the man.
 ## Returns him. `man` may be passed (a HumanBody not yet in the tree) to seat someone else.
 static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
-	var floor_y := _floor_at(street, TABLE)
-	var t := Vector3(TABLE.x, floor_y, TABLE.z)
+	var set := rig(street)
+	var t := set.origin
 	_clear_props(street, t)
 	var root := Node3D.new()
 	root.name = "ShotMatch"
 	street.add_child(root)
-	root.global_position = t
+	root.global_transform = set
 	_table(root)
 	_chair(root, SEAT + Vector3(0.1, 0.0, 0.07), 53.0)
 	# On the table: the lamp beside him, the bottle nearer you on the right, your cup, his ashtray.
@@ -71,9 +76,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		look["hair_long"] = true
 		man.look = look
 	street.add_child(man)
-	man.global_position = t + SEAT
+	man.global_position = set * SEAT
 	# Nearly square to you, as the painting's man sits.
-	man.face(t + Vector3(EYE.x, 1.0, EYE.z))
+	man.face(set * Vector3(EYE.x, 1.0, EYE.z))
 	man.global_rotation.y += deg_to_rad(TURN)
 	man.set_pose(&"sit_lean")
 	# His head as the painting has it: looking you in the eye, chin up a touch, turned a little and
@@ -85,7 +90,52 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 			&"chest": Vector3(0.0, 4.5, 0.0), &"upper_arm_r": Vector3(1.5, 6.5, 0.0),
 			&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
 	_cup_in_hand(man)
+	_extras(street)
 	return man
+
+
+## The painting's room has people in it: three men at cards by the door, one at the piano, one at
+## the bar and one up on the balcony (the barkeep is the town's own). Staged for the picture only
+## (no brains): who's in the saloon in play is TownLife's business.
+const EXTRAS := [
+	# [name, saloon-space position, saloon-space point he faces, pose, shirt, vest, coat, hat, look]
+	["CardPlayerA", Vector3(2.82, 0.0, 5.02), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.78, 0.74, 0.64), Color(0.2, 0.16, 0.12), Color(0, 0, 0, 0), Color(0.16, 0.12, 0.1),
+			{"hair": Color(0.15, 0.1, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
+	["CardPlayerB", Vector3(3.42, 0.0, 3.98), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.62, 0.5, 0.36), Color(0.3, 0.2, 0.12), Color(0, 0, 0, 0), Color(0.24, 0.18, 0.12),
+			{"hair": Color(0.3, 0.2, 0.1), "moustache": &"handlebar", "beard": &"none", "age": 0.6, "brows": 0.6}],
+	["CardPlayerC", Vector3(1.78, 0.0, 4.42), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.84, 0.82, 0.76), Color(0.12, 0.1, 0.09), Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08),
+			{"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"full", "age": 0.45, "brows": 0.8}],
+	["PianoPlayer", Vector3(2.95, 0.0, 1.25), Vector3(2.95, 1.2, 0.0), &"sit", Color(0.86, 0.84, 0.78), Color(0.22, 0.14, 0.1), Color(0, 0, 0, 0), Color(0, 0, 0, 0),
+			{"hair": Color(0.2, 0.14, 0.09), "moustache": &"trim", "beard": &"none", "age": 0.35, "brows": 0.5}],
+	["ManAtTheBar", Vector3(6.95, 0.0, 6.6), Vector3(8.5, 1.4, 6.9), &"stand", Color(0.55, 0.5, 0.42), Color(0.18, 0.14, 0.1), Color(0.3, 0.25, 0.18, 1.0), Color(0.2, 0.15, 0.1),
+			{"hair": Color(0.18, 0.12, 0.08), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
+	["ManOnTheBalcony", Vector3(8.9, 2.3, 1.25), Vector3(5.0, 3.3, 3.5), &"stand", Color(0.7, 0.64, 0.52), Color(0.16, 0.13, 0.1), Color(0, 0, 0, 0), Color(0.14, 0.11, 0.09),
+			{"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.8}],
+]
+
+
+static func _extras(street: Node3D) -> void:
+	var saloon := street.find_child("Saloon", true, false) as FalseFrontBuilding
+	if saloon == null:
+		return
+	var f := saloon.floor_top
+	for i in EXTRAS.size():
+		var e: Array = EXTRAS[i]
+		var man := HumanBody.new()
+		man.name = e[0]
+		man.person_id = StringName(String(e[0]).to_snake_case())
+		man.rng_seed = 31 + i
+		man.has_gun = false
+		man.shirt_color = e[4]
+		man.vest_color = e[5]
+		man.coat_color = e[6]
+		man.hat_color = e[7]
+		man.bandana_color = Color(0, 0, 0, 0)
+		man.look = e[8]
+		street.add_child(man)
+		man.global_position = saloon.to_global((e[1] as Vector3) + Vector3(0, f, 0))
+		man.face(saloon.to_global((e[2] as Vector3) + Vector3(0, f, 0)))
+		man.set_pose(e[3])
 
 
 ## Put the player's eye at the painting's viewpoint with its lens. Every gun goes out of his hands
@@ -107,9 +157,15 @@ static func hands_off_camera(player: Player) -> void:
 
 ## Your eye and the point you look at, in the world.
 static func camera_transform(street: Node3D) -> Transform3D:
-	var t := Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z)
-	var eye := t + EYE
-	return Transform3D(Basis.looking_at(t + LOOK - eye, Vector3.UP), eye)
+	var set := rig(street)
+	var eye := set * EYE
+	return Transform3D(Basis.looking_at(set * LOOK - eye, Vector3.UP), eye)
+
+
+## The set's place: the table's centre on the floor, turned by ROOM_YAW. EYE, LOOK, SEAT and the
+## props are in this space.
+static func rig(street: Node3D) -> Transform3D:
+	return Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW)), Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z))
 
 
 static func _floor_at(street: Node3D, at: Vector3) -> float:
@@ -126,7 +182,7 @@ static func _clear_props(street: Node3D, t: Vector3) -> void:
 		return
 	for p in props.get_children():
 		var d := Vector2((p as Node3D).global_position.x - t.x, (p as Node3D).global_position.z - t.z).length()
-		if d < 1.4:
+		if d < 2.4:
 			p.free()
 
 
@@ -149,7 +205,8 @@ static func _mesh(parent: Node3D, n: String, mesh: Mesh, pos: Vector3, mat: Mate
 
 ## A round card table: a thick top of dark boards on a turned pedestal and four splayed feet.
 static func _table(root: Node3D) -> void:
-	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9))
+	# Darkened under the lamp it stands next to (the judge: the painting's table is a deep orange).
+	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), Color(0.62, 0.52, 0.45))
 	var body := StaticBody3D.new()
 	body.name = "Table"
 	root.add_child(body)
@@ -209,45 +266,23 @@ static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
 	_mesh(chair, "Rail", rail, Vector3(0, 0.93, 0.19), wood)
 
 
-static func _tin() -> ShaderMaterial:
-	# Dull tin, lit mostly as paint (fully metallic it had nothing to reflect and went black).
-	return _mat("tin", PixelArt.metal("shot_tin", Color(0.62, 0.6, 0.55), 71, 0.5), Color.WHITE, 0.5, 0.25)
+## Your tin mug (PropModels.cup).
+static func _cup(root: Node3D, at: Vector3) -> Node3D:
+	var cup := Node3D.new()
+	cup.name = "Cup"
+	PropModels.cup(cup)
+	root.add_child(cup)
+	cup.position = at
+	return cup
 
 
-static func _cup(root: Node3D, at: Vector3) -> MeshInstance3D:
-	var cup := CylinderMesh.new()
-	cup.top_radius = 0.04
-	cup.bottom_radius = 0.036
-	cup.height = 0.1
-	cup.radial_segments = 10
-	return _mesh(root, "Cup", cup, at + Vector3(0, 0.05, 0), _tin())
-
-
+## A labelled whiskey bottle in dark glass (PropModels.bottle).
 static func _bottle(root: Node3D, at: Vector3) -> void:
-	var glass := StandardMaterial3D.new()
-	glass.albedo_color = Color(0.2, 0.1, 0.04, 0.92)
-	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glass.roughness = 0.15
-	glass.metallic_specular = 0.8
-	var b := CylinderMesh.new()
-	b.top_radius = 0.043
-	b.bottom_radius = 0.045
-	b.height = 0.2
-	b.radial_segments = 10
-	_mesh(root, "Bottle", b, at + Vector3(0, 0.1, 0), glass)
-	var neck := CylinderMesh.new()
-	neck.top_radius = 0.014
-	neck.bottom_radius = 0.04
-	neck.height = 0.1
-	neck.radial_segments = 8
-	_mesh(root, "BottleNeck", neck, at + Vector3(0, 0.25, 0), glass)
-	var label := CylinderMesh.new()
-	label.top_radius = 0.046
-	label.bottom_radius = 0.046
-	label.height = 0.08
-	label.radial_segments = 10
-	var paper := _mat("label", PixelArt.painted("shot_label", Color(0.78, 0.7, 0.52), Color(0.5, 0.4, 0.3), 73, 0.5))
-	_mesh(root, "Label", label, at + Vector3(0, 0.1, 0), paper)
+	var bottle := Node3D.new()
+	bottle.name = "Bottle"
+	PropModels.bottle(bottle, 0)
+	root.add_child(bottle)
+	bottle.position = at
 
 
 static func _ashtray(root: Node3D, at: Vector3) -> void:
@@ -268,17 +303,21 @@ static func _upright(cup: Node3D) -> void:
 		cup.global_basis = Basis.IDENTITY
 
 
-## His tin cup, in his right hand (that arm lies across the table in front of him).
+## His tin cup, in his right hand (that arm lies across the table in front of him). CUP_IN_HAND is
+## the cup's middle; the model stands on its bottom, half its height below.
 static func _cup_in_hand(man: HumanBody) -> void:
 	var hand := man.parts.get(&"hand_r") as Node3D
 	if hand == null:
 		return
-	var cup := CylinderMesh.new()
-	cup.top_radius = 0.04
-	cup.bottom_radius = 0.036
-	cup.height = 0.1
-	cup.radial_segments = 10
-	var mi := _mesh(hand, "HeldCup", cup, CUP_IN_HAND, _tin())
-	mi.layers = Layers.VIS_BODY
-	_upright.call_deferred(mi)
+	var held := Node3D.new()
+	held.name = "HeldCup"
+	hand.add_child(held)
+	held.position = CUP_IN_HAND
+	var model := Node3D.new()
+	PropModels.cup(model)
+	model.position = Vector3(0, -0.05, 0)
+	held.add_child(model)
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		mi.layers = Layers.VIS_BODY
+	_upright.call_deferred(held)
 	man.curl_hand("r", 0.7)

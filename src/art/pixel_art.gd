@@ -29,6 +29,10 @@ enum Mapping { UV, TRIPLANAR, WORLD_TRIPLANAR }
 
 ## Every material that uses the texel grid, so a density change can reach them all.
 static var _materials: Array[ShaderMaterial] = []
+## Use the texture factory's textures (assets/textures/<key>.png, tools/textures/) where there is
+## one for a key; off = every texture painted in code, as before (for comparisons).
+static var use_factory := true
+const FACTORY_PATH := "res://assets/textures/%s.png"
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -55,10 +59,15 @@ static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
 	return track(m)
 
 
-## Keep a material laid out on the texel grid (the ground's shader too: it reads texels_per_meter).
+## Keep a material laid out on the texel grid (the ground's shader too: it reads texels_per_meter,
+## and takes the texture factory's road).
 static func track(m: ShaderMaterial) -> ShaderMaterial:
 	_materials.append(m)
 	_apply(m)
+	if m.shader and m.shader.resource_path.ends_with("ground.gdshader"):
+		var road := factory("road")
+		m.set_shader_parameter(&"road_tex", road)
+		m.set_shader_parameter(&"use_road_tex", road != null)
 	return m
 
 
@@ -74,7 +83,6 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 
 
 static func _apply(m: ShaderMaterial) -> void:
-	m.set_shader_parameter(&"uv_scale", texels_per_meter / SIZE)
 	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
 	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
 
@@ -88,6 +96,22 @@ static func texture_filter() -> BaseMaterial3D.TextureFilter:
 const SIZE := 64
 
 static var _cache := {}
+
+
+## The texture factory's texture for `key` (an image-model painting cut to tiles at 64 texels a
+## metre, any size: the grid material lays every texel at texels_per_meter), or null.
+static func factory(key: String) -> Texture2D:
+	if not use_factory:
+		return null
+	var path := FACTORY_PATH % key
+	return load(path) as Texture2D if ResourceLoader.exists(path) else null
+
+
+static func _from_factory(key: String) -> Texture2D:
+	var tex := factory(key)
+	if tex:
+		_cache[key] = tex
+	return tex
 
 
 ## Shades from dark to light around a base colour, warmer in the shadows (like hand-picked
@@ -106,8 +130,10 @@ static func ramp(base: Color, count := 5, spread := 0.42) -> Array[Color]:
 
 
 ## Bare timber: grain streaks along u, the odd knot and check (crack).
-static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, grain := 1.0) -> ImageTexture:
+static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, grain := 1.0) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	if _from_factory(key):
 		return _cache[key]
 	var shades := ramp(base, 6, 0.55)
 	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
@@ -135,8 +161,10 @@ static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, g
 
 
 ## Painted boards: flat paint with brush streaks, worn and peeling to grey timber underneath.
-static func painted(key: String, paint: Color, timber: Color, seed: int, wear := 0.3) -> ImageTexture:
+static func painted(key: String, paint: Color, timber: Color, seed: int, wear := 0.3) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	if _from_factory(key):
 		return _cache[key]
 	var under: Image = wood(key + ":under", timber, seed + 101, 1, 2).get_image()
 	var shades := ramp(paint, 3, 0.16)
@@ -160,8 +188,10 @@ static func painted(key: String, paint: Color, timber: Color, seed: int, wear :=
 
 
 ## Packed dirt: speckled, with scattered pebbles.
-static func dirt(key: String, base: Color, seed: int) -> ImageTexture:
+static func dirt(key: String, base: Color, seed: int) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	if _from_factory(key):
 		return _cache[key]
 	var shades := ramp(base, 5, 0.3)
 	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
@@ -184,8 +214,10 @@ static func dirt(key: String, base: Color, seed: int) -> ImageTexture:
 
 ## Metal: speckled blued steel, brass, tin. `mottle` > 0 gives case-hardened colour patches
 ## (the frame of a Colt: purple, blue and straw from the bone-charcoal quench).
-static func metal(key: String, base: Color, seed: int, mottle := 0.0) -> ImageTexture:
+static func metal(key: String, base: Color, seed: int, mottle := 0.0) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	if _from_factory(key):
 		return _cache[key]
 	var shades := ramp(base, 4, 0.35)
 	var patches: Array[Color] = [Color(0.36, 0.28, 0.4), Color(0.27, 0.33, 0.45), Color(0.6, 0.5, 0.33), Color(0.4, 0.38, 0.36)]

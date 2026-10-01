@@ -18,8 +18,9 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   - **Art:** shaders, textures and how things are lit and drawn; the people's looks; dressing.
     Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
     `src/art/`, `src/props/`, `assets/` (`assets/people/`, `assets/props/`), `tools/blender/`,
-    `tools/faces/`, `tools/paint/`, `tools/style/`, the art tools in `tools/` (`paint_bake.gd`,
-    `character_lab.gd`, `lab_stage.gd`, `fit_shot.gd`, `side_by_side.py`, `people_envelope.gd`),
+    `tools/faces/`, `tools/paint/`, `tools/style/`, `tools/textures/`, `assets/textures/`, the art tools in `tools/` (`paint_bake.gd`,
+    `character_lab.gd`, `lab_stage.gd`, `fit_shot.gd`, `side_by_side.py`, `people_envelope.gd`,
+    `judge.py`, `prop_views.gd`),
     `src/bodies/body_mesh.gd`, `src/bodies/people_bodies.gd`, `.github/workflows/people.yml`,
     `docs/concept/` and `docs/screenshots/`.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
@@ -230,6 +231,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   and contrast, the mosaic (detail: dE to a 3 px blur), tile size across/down (autocorrelation of
   the high-passed luminance), palette gaps; one score per view (mean severity, lower is closer).
   `--from=DIR` judges renders already made. Every art change is judged with it; keep every round.
+- **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
+  the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
+  weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
+  crop of a painting for colour. `paint_textures.py` paints them on OpenRouter (FLUX.2 [max]; run
+  it on Actions: People workflow, input `textures` = all / saloon / street / ids; openrouter.ai is
+  blocked from the workspace) into `assets/textures/raw/<id>.jpg`; `reduce.py` (runs anywhere)
+  flattens the painting's light, wipes board joints (`boards`), makes it seamless, cuts it to 64
+  texels a metre with a pushed mosaic, applies the judge's `lightness`/`chroma`, snaps to a palette
+  → `assets/textures/<id>.png` + `textures.json`. `PixelArt.factory(key)` hands them out in place
+  of the code-painted texture of that key (`use_factory` off = the old ones); the grid material
+  sizes any texture by its own size; the ground shader takes `road`. Change a material's numbers
+  and re-run `reduce.py` here: no new painting needed.
+- `src/props/prop_models.gd` (`PropModels`): every manifest prop modelled in code (lathe + boxes,
+  UVs in metres, on `PixelArt.material()`); `PropLibrary` uses them where there's no .glb;
+  `OilLamp` draws `PropModels.lamp()`. `tools/prop_views.gd out.png [--close]` shows them all.
+- `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
+  stair and balcony (members), mirrors, piano by the door, stag, pictures, sconces.
+  `ShotMatch` turns its whole set (`ROOM_YAW`, `TABLE`) and stages extras (`EXTRAS`) for the shot.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -1054,3 +1073,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     leaked" warning at exit after the street fight test (doesn't fail anything; not chased yet).
   - Next: Sean plays it (BUILD_NOTES); then step 5, conversation hooks (talking a man down,
     bargaining), or gang teamwork tuning from his feel.
+- 2026-10-01 (art session, later): **The texture factory, prop models, the saloon dressed.**
+  Merged as one piece (judge round `2026-10-01_r2`). Factory above: People runs 10–12 painted 15
+  materials and signs on FLUX.2 [max] (~$1.10; the road failed once on an empty answer, so the
+  painter retries). Every saloon prop is a code model on the texel grid (`PropModels`), the shot
+  match uses them, and `OilLamp` draws the new 0.38 m lamp with a glass chimney (gameplay's
+  `src/world/oil_lamp.gd`, Sean asked for lamps on the grid; flame, light and hitbox moved up with
+  it; its brass font now casts the dark ring round a lamp's foot the painting has). The saloon
+  (`SaloonDressing`, one line in gameplay's `saloon_building.gd`): stained plank walls, a stair up
+  the front wall to a balcony over the bar's end, mirrors behind the back bar (glass members:
+  shootable), a piano by the door, the stag over the stair, pictures, more sconces and bottles;
+  the stair keeps clear of the gang's walk to the bar (`test_town_day`). The shot match's set now
+  faces up the room as the painting does (door left, stair ahead, bar right) with six extras.
+  Judge: saloon 0.90 → 0.85 (after correcting the factory's woods darker and less orange, the
+  table darker), street 1.45 → 1.33. Biggest left: saloon — the bar side's mosaic is plain (the
+  painting's bottles, lamps and balcony are busy), the wall tiles small and the left too yellow;
+  street — no clouds, the far side too bright and the road violet in shadow (golden-hour light),
+  and no dressing yet. 239 tests pass.
+  - Known: everyone wears the painted outlaw's body and paint (characters are step 4); the signs
+    are painted but not hung yet (street dressing); the extras exist only in the shot.
+  - Next: street dressing (signs, lanterns, barrels, crates, hay, wagon, water tower, horse), then
+    golden-hour light and haze, then guns onto the grid.

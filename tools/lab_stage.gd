@@ -50,7 +50,7 @@ static func build(vp: SubViewport, energy: Dictionary, outlines := false) -> Dic
 		o.omni_range = l[0].range
 		o.shadow_enabled = true
 		w.add_child(o)
-		o.global_position = sm.TABLE + (l[0].at as Vector3)
+		o.global_position = sm.rig(w) * (l[0].at as Vector3)
 		lights.append(o)
 	var cam := Camera3D.new()
 	w.add_child(cam)

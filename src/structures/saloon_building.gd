@@ -84,6 +84,8 @@ func _build_furniture() -> void:
 		_place(props, &"wall_sconce", Vector3(STUD_D, f + 1.9, z), 90.0)
 	_place(props, &"wall_sconce", Vector3(width * 0.5 - 2.0, f + 1.9, depth - STUD_D), 180.0)
 	_place(props, &"wall_sconce", Vector3(width * 0.5 + 2.0, f + 1.9, depth - STUD_D), 180.0)
+	# Dressed as the painting has it (art: plank walls, stair and balcony, mirrors, piano by the door...).
+	SaloonDressing.build(self)
 
 
 ## Put a prop at `pos` (building space) turned `yaw_degrees` about Y. Lamp props also get a light.
