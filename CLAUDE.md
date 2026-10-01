@@ -257,6 +257,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
+  `src/art/mountains.gd` (`Mountains`, added by StreetDressing): red-rock mesas, buttes, spire
+  clusters and a low ridge 450–750 m out (`FORMATIONS`; the biggest west, either side of the
+  sunset as the painting has them), built from stacked rings with fluted cliffs, banded strata
+  at 0.6 texels a metre, convex collision; `mountain.gdshader` is the grid material without the
+  scene's fog (it buried them) and with its own haze (`#define HAZE` in `texel_grid.gdshaderinc`:
+  `haze_color` follows the fog's colour, darkened violet).
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` has the image model paint each man in
   `characters.json` full length in an A-pose (the painting's man as reference) →
@@ -1176,3 +1182,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: nothing's tagged `metal` yet (no iron in the town); tin cans are thin rigid bodies and
     are shot through, never glanced off; a man hit by a ricochet takes it as a normal ball,
     flattened (no "ricochet" wording in his wounds).
+
+- 2026-10-01 (art session, later): **Mountains on the skyline** (Sean: "those mountains in the
+  distance like the concept art"). `Mountains` (above): spires left and right of the sun down the
+  street, a low ridge in the gap under it, mesas and buttes round the rest of the town (they show
+  at noon, dusk and night too). Judge round `2026-10-01_r5`: street 0.90 → 0.87 (saloon 0.87,
+  unchanged). StreetScenery's old sphere hills (gameplay's file) are left as they are, in front.
+  - Known: the spires are seen backlit at golden hour (their shadow sides; the painting's have
+    lit orange rims); the formations are simpler than the painting's cathedral rock (fewer towers
+    per cluster); the far plane is 800 m, so nothing can go further out.

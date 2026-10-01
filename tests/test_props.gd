@@ -102,3 +102,23 @@ func test_saloon_stands_and_is_furnished() -> void:
 	var lights := saloon.find_children("Light", "OilLamp", true, false)
 	check(lights.size() >= 7, "lamps and sconces give light (%d)" % lights.size())
 	saloon.queue_free()
+
+
+func test_red_rock_on_the_skyline_far_off_and_solid() -> void:
+	# Mountains: the street painting's mesas and spires, built in code a few hundred metres out,
+	# on the texel grid's coarse rock with their own haze, and something you can't walk through.
+	var m := Mountains.new()
+	add_child(m)
+	await physics_frames(1)
+	var rocks := m.find_children("*", "MeshInstance3D", false, false)
+	check(rocks.size() >= Mountains.FORMATIONS.size(), "every formation built (%d rocks)" % rocks.size())
+	for r: MeshInstance3D in rocks:
+		var d := Vector2(r.position.x, r.position.z).length()
+		check(d > 350.0 and d < 760.0, "out past the town, inside the camera's reach (%.0f m)" % d)
+		check((r.material_override as ShaderMaterial).shader == Mountains.SHADER, "on the rock's grid material")
+		check(r.get_child_count() > 0 and r.get_child(0) is StaticBody3D, "solid")
+	var tallest := 0.0
+	for r: MeshInstance3D in rocks:
+		tallest = maxf(tallest, r.get_aabb().end.y + r.position.y)
+	check(tallest > 150.0, "tall enough to stand over the false fronts (%.0f m)" % tallest)
+	m.queue_free()
