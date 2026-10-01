@@ -45,3 +45,34 @@ func test_the_shot_keeps_its_lens_and_aim() -> void:
 	check(off < 0.1, "still looking where it was put (%.2f° off)" % off)
 	main.queue_free()
 	await process_frames(2)
+
+
+func test_the_street_shot_looks_west_into_the_sun_with_the_gun_out() -> void:
+	# The street painting's shot (StreetMatch): down the street toward the low sun, the near false
+	# front on your left, the revolver in hand, the painting's lens held against the gun's pull.
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	get_tree().root.add_child(main)
+	await physics_frames(5)
+	var street := main.find_child("TestStreet", true, false) as Node3D
+	var player := main.find_child("Player", true, false) as Player
+	var clock := street.find_child("DayCycle", true, false) as DayCycle
+	clock.set_physics_process(false)
+	clock.set_time(StreetMatch.HOUR)
+	StreetMatch.stage(street)
+	var gun := player.get_node(^"Head/Camera3D/Gun") as WeaponViewmodel
+	gun.needs_captured_mouse = false
+	gun.take_out()
+	StreetMatch.frame_camera(player)
+	await process_frames(60)
+	check_near(player.camera.fov, StreetMatch.FOV, 0.01, "the painting's lens")
+	var fwd := -player.camera.global_basis.z
+	var sun := clock.get_sun_direction()
+	check(sun.y > 0.0 and sun.y < 0.15, "the sun is low (%.2f up)" % sun.y)
+	var to_sun := rad_to_deg(Vector2(fwd.x, fwd.z).angle_to(Vector2(sun.x, sun.z)))
+	check(absf(to_sun) < 25.0, "looking toward the sun (%.0f° off)" % to_sun)
+	var store := street.find_child("Store", true, false) as Node3D
+	var right := player.camera.global_basis.x
+	check(right.dot(store.global_position + Vector3(3, 0, 0) - player.camera.global_position) < 0.0, "the store's on your left")
+	check(gun.drawn and gun.visible, "the revolver's out")
+	main.queue_free()
+	await process_frames(2)
