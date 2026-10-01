@@ -63,6 +63,8 @@ const VIEWS := [
 	["outlaw_buckshot", 15.0, Vector3(23.9, 0.0, -12.45), -90.0, -12.0, "outlaw_buckshot"],
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
 	["shot_match_saloon", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match"],
+	# The street painting's shot (src/art/street_match.gd sets the place, turn and lens).
+	["shot_match_street", 18.05, Vector3(7.6, 0.0, -4.6), 100.0, 0.0, "street_match"],
 	["coat_hands_up", 18.0, Vector3(0.0, 0.0, -9.0), -90.0, 0.0, "coat_hands_up"],
 	["portrait_day", 17.5, Vector3(20.0, 0.0, -12.5), -90.0, 0.0, "portrait"],
 	["shot_match_close", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match_close"],
@@ -93,6 +95,7 @@ func _run() -> void:
 			out = arg.substr(6)
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
+		# --only=a,b renders every view whose name contains a or b.
 		# Look experiments: --texels=20 --nomip --shade --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
@@ -123,7 +126,7 @@ func _run() -> void:
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	for v in VIEWS:
-		if only != "" and not String(v[0]).contains(only):
+		if only != "" and not Array(only.split(",")).any(func(o: String) -> bool: return String(v[0]).contains(o)):
 			continue
 		clock.set_time(v[1])
 		player.global_position = v[2]
@@ -252,6 +255,18 @@ func _run() -> void:
 			man.set_pose(&"hands_up")
 			for i in 60:
 				await physics_frame
+		if setup == "street_match":
+			var sm = load("res://src/art/street_match.gd")
+			sm.stage(main.find_child("TestStreet", true, false))
+			# Undo what an earlier staged view (the saloon's) left: player still, body hidden, gun away.
+			player.set_physics_process(true)
+			player.body.visible = true
+			_hold(player, gun, sg, false)
+			gun.visible = true
+			sm.frame_camera(player)
+			for i in 60:
+				await physics_frame
+			sm.frame_camera(player)
 		if setup == "shot_match" or setup == "shot_match_close":
 			await _shot_match_setup(main, player, setup == "shot_match_close")
 		if setup == "holes" and gun:

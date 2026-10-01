@@ -218,6 +218,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (`HumanBody.paint_look`: the game's ACES grade undone, lit by light brightness only, each light
   eased off at paint_limit, wrapped, a little self-lit) and lights each square as one (the light's
   position and the normal at the texel's centre, `LIGHT_VERTEX`).
+- `src/art/street_match.gd` — the street painting's shot (`StreetMatch`, view `shot_match_street`:
+  feet, look point, lens and hour fitted to `docs/concept/street-golden-hour.png`, gun out).
+  **The reference judge:** `python3 tools/judge.py --note="what changed"` renders
+  `shot_match_saloon` and `shot_match_street` into a new round, `docs/screenshots/judge/<date>_r<n>/`
+  (each render + `<view>_judge.png`: render | painting with a 3×3 grid of numbers, both 16-colour
+  palettes, the biggest differences in words; `report.md`, `report.json`) and adds a line per view
+  to `docs/screenshots/judge/history.md`. Measures (Lab, at 1280×720): brightness, warmth, chroma
+  and contrast, the mosaic (detail: dE to a 3 px blur), tile size across/down (autocorrelation of
+  the high-passed luminance), palette gaps; one score per view (mean severity, lower is closer).
+  `--from=DIR` judges renders already made. Every art change is judged with it; keep every round.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -996,3 +1006,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Merged to `main` as build 147 (green: tests, exports, Pages). The four old branches are fully
     in `main`; this session couldn't delete them (git policy 403), so Sean deletes them on GitHub.
     From here on, two sessions: see **How we work** at the top.
+- 2026-10-01 (art session): **The reference judge** (branch `claude/art-salt-creek-9u73vk`; Sean's
+  order: 1 judge, 2 texture factory, 3 dressing, 4 characters by image-to-3D). New view
+  `shot_match_street` (`StreetMatch`: you stand in the street at 18:05 looking west into the low sun,
+  the store's porch on your left, revolver at the hip, 62° lens; the test street runs east-west and
+  the sun sets west-south-west, so the store's side is the painting's lit left-hand side) and
+  `tools/judge.py` (above). `screenshots.gd --only=` takes a comma list. Round 1
+  (`docs/screenshots/judge/2026-10-01_r1/`), biggest differences: saloon (score 0.90): wall tiles
+  ~3× taller than the painting's (the wood texture's grain streaks run down the planks; the
+  painting's tiles are about square, 5–8 px at 1280), its bottom-right (table top) too bright, the
+  walls' mosaic too plain; street (1.45): the sky has no clouds (no mosaic at all), the far right
+  too bright and the road grey-violet in shadow where the painting's is lit ochre (L* 18 vs 50).
+  OpenRouter is still blocked from this workspace (proxy 403), so image-model work runs on Actions.
+  237 tests pass.
+  - Next: the texture factory (image-model textures per material on Actions).
