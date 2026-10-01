@@ -456,3 +456,200 @@ static func landscape_texture(variant: int) -> ImageTexture:
 	var tex := ImageTexture.create_from_image(img)
 	_materials[key] = tex
 	return tex
+
+
+# --- the street ---------------------------------------------------------------------------------
+
+static func weathered() -> ShaderMaterial:
+	return _mat("weathered", PixelArt.wood("weathered_pine", Color(0.56, 0.48, 0.39), 53, 2, 4))
+
+
+static func straw() -> ShaderMaterial:
+	return _mat("straw", PixelArt.dirt("prop_straw", Color(0.74, 0.6, 0.33), 245))
+
+
+static func canvas() -> ShaderMaterial:
+	return _mat("canvas", PixelArt.painted("prop_canvas", Color(0.82, 0.76, 0.62), Color(0.6, 0.52, 0.4), 247, 0.05))
+
+
+## A packing crate, 0.6 m: boards with battens round its edges.
+static func crate(root: Node3D, s := 0.6) -> void:
+	var w := weathered()
+	_box(root, "Body", Vector3(s - 0.02, s - 0.02, s - 0.02), Vector3(0, s * 0.5, 0), w)
+	var b := 0.05
+	for x in [-1.0, 1.0]:
+		for z in [-1.0, 1.0]:
+			_box(root, "Corner", Vector3(b, s, b), Vector3(x * (s - b) * 0.5, s * 0.5, z * (s - b) * 0.5), dark_wood())
+	for y in [b * 0.5, s - b * 0.5]:
+		for x in [-1.0, 1.0]:
+			_box(root, "Batten", Vector3(b, b, s), Vector3(x * (s - b) * 0.5, y, 0), dark_wood())
+			_box(root, "Batten", Vector3(s, b, b), Vector3(0, y, x * (s - b) * 0.5), dark_wood())
+
+
+## A hay bale, 0.9 x 0.45 x 0.5 m, tied twice round.
+static func hay_bale(root: Node3D) -> void:
+	_box(root, "Hay", Vector3(0.9, 0.45, 0.5), Vector3(0, 0.225, 0), straw())
+	var twine := _mat("twine", PixelArt.dirt("prop_twine", Color(0.4, 0.3, 0.18), 249))
+	for x in [-0.22, 0.22]:
+		_box(root, "Twine", Vector3(0.02, 0.46, 0.51), Vector3(x, 0.225, 0), twine)
+
+
+## A carriage lantern on a wall bracket (its back on z = 0, facing +Z): a tin box with glass on
+## three sides, a peaked cap; the light comes from an OilLamp in it (StreetDressing adds one).
+static func lantern(root: Node3D) -> void:
+	var tin_dark := iron()
+	_box(root, "Bracket", Vector3(0.03, 0.03, 0.22), Vector3(0, 0.36, 0.11), tin_dark)
+	_box(root, "Plate", Vector3(0.1, 0.2, 0.015), Vector3(0, 0.32, 0.008), tin_dark)
+	var c := Vector3(0, 0.0, 0.2)
+	_box(root, "Base", Vector3(0.17, 0.03, 0.17), c + Vector3(0, 0.015, 0), tin_dark)
+	_box(root, "Top", Vector3(0.17, 0.03, 0.17), c + Vector3(0, 0.255, 0), tin_dark)
+	for x in [-1.0, 1.0]:
+		for z in [-1.0, 1.0]:
+			_box(root, "Post", Vector3(0.015, 0.24, 0.015), c + Vector3(x * 0.077, 0.135, z * 0.077), tin_dark)
+	var glass := MeshInstance3D.new()
+	glass.name = "Glass"
+	var g := BoxMesh.new()
+	g.size = Vector3(0.15, 0.21, 0.15)
+	glass.mesh = g
+	glass.material_override = chimney_glass()
+	glass.position = c + Vector3(0, 0.135, 0)
+	glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(glass)
+	_add(root, "Cap", lathe(_profile([[0.12, 0.27], [0.0, 0.36]]), 4), tin_dark, Transform3D(Basis(Vector3.UP, PI * 0.25), c))
+	_add(root, "Ring", lathe(_profile([[0.025, 0.36], [0.03, 0.38], [0.025, 0.4]]), 6), tin_dark, Transform3D(Basis.IDENTITY, c))
+
+
+## A wagon wheel of `radius` in the XY plane (axle along Z): iron tyre, felloe, spokes, hub.
+static func wheel(root: Node3D, at: Vector3, radius: float, spokes := 12) -> void:
+	var w := Node3D.new()
+	w.name = "Wheel"
+	w.position = at
+	root.add_child(w)
+	var rot := Basis(Vector3.RIGHT, PI * 0.5)
+	_add(w, "Tyre", lathe(_profile([[radius, -0.04], [radius, 0.04]]), 16), iron(), Transform3D(rot, Vector3.ZERO))
+	_add(w, "Felloe", lathe(_profile([[radius - 0.06, 0.035], [radius - 0.06, -0.035]]), 16, false, true), dark_wood(), Transform3D(rot, Vector3.ZERO))
+	_add(w, "Hub", lathe(_profile([[0.06, -0.09], [0.08, -0.03], [0.08, 0.03], [0.06, 0.09]]), 8), dark_wood(), Transform3D(rot, Vector3.ZERO))
+	for k in spokes:
+		var a := TAU * k / spokes
+		var b := Basis(Vector3.BACK, a)
+		_box(w, "Spoke", Vector3(0.03, radius - 0.08, 0.025), b * Vector3(0, (radius - 0.02) * 0.5, 0), mid_wood(), b)
+
+
+## A covered wagon, 3.4 m long along X (its tongue toward -X), canvas on hoops.
+static func wagon(root: Node3D) -> void:
+	var w := weathered()
+	var bed_y := 0.95
+	_box(root, "Floor", Vector3(3.2, 0.06, 1.2), Vector3(0, bed_y, 0), w)
+	for z in [-0.6, 0.6]:
+		_box(root, "Side", Vector3(3.2, 0.5, 0.04), Vector3(0, bed_y + 0.25, z), w)
+	for x in [-1.6, 1.6]:
+		_box(root, "End", Vector3(0.04, 0.5, 1.2), Vector3(x, bed_y + 0.25, 0), w)
+	for x in [-1.0, 1.15]:
+		_box(root, "Axle", Vector3(0.1, 0.1, 1.7), Vector3(x, 0.55, 0), dark_wood())
+	for z in [-0.82, 0.82]:
+		wheel(root, Vector3(-1.0, 0.5, z), 0.5)
+		wheel(root, Vector3(1.15, 0.65, z), 0.65)
+	_box(root, "Tongue", Vector3(2.2, 0.08, 0.08), Vector3(-2.6, 0.55, 0), dark_wood(), Basis(Vector3.BACK, 0.08))
+	# The canvas: a half-tube over five hoops, gathered a little at the ends.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := 10
+	var r := 0.72
+	var y0 := bed_y + 0.5
+	for i in n:
+		var a0 := PI * i / n
+		var a1 := PI * (i + 1) / n
+		var p := [Vector3(-1.75, y0 + sin(a0) * r * 0.95, -cos(a0) * r * 0.9), Vector3(1.75, y0 + sin(a0) * r * 0.95, -cos(a0) * r * 0.9),
+				Vector3(1.75, y0 + sin(a1) * r * 0.95, -cos(a1) * r * 0.9), Vector3(-1.75, y0 + sin(a1) * r * 0.95, -cos(a1) * r * 0.9)]
+		var mid := Vector3(0, y0, 0)
+		for tri in [[0, 1, 2], [0, 2, 3]]:
+			var v0: Vector3 = p[tri[0]]
+			var v1: Vector3 = p[tri[1]]
+			var v2: Vector3 = p[tri[2]]
+			var out := ((v0 + v1 + v2) / 3.0 - mid) * Vector3(0, 1, 1)
+			if (v1 - v0).cross(v2 - v0).dot(out) > 0.0:
+				var t := v1
+				v1 = v2
+				v2 = t
+			for v: Vector3 in [v0, v1, v2]:
+				st.set_normal(((v - mid) * Vector3(0, 1, 1)).normalized())
+				st.set_uv(Vector2(v.x + 1.75, (atan2(v.y - y0, -v.z) + 0.0) * r))
+				st.add_vertex(v)
+	_add(root, "Canvas", st.commit(), canvas())
+	for x in [-1.6, -0.8, 0.0, 0.8, 1.6]:
+		_add(root, "Hoop", lathe(_profile([[r * 0.92, -0.015], [r * 0.92, 0.015]]), 12), dark_wood(),
+				Transform3D(Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1, 1, 1)), Vector3(x, y0, 0)))
+
+
+## A water tower: four splayed legs braced across, a platform, a staved tank with hoops and a
+## pointed roof. About 11 m tall.
+static func water_tower(root: Node3D) -> void:
+	var legs := 7.0
+	var w := weathered()
+	for x in [-1.0, 1.0]:
+		for z in [-1.0, 1.0]:
+			var foot := Vector3(x * 1.9, 0, z * 1.9)
+			var top := Vector3(x * 1.3, legs, z * 1.3)
+			var b := Basis.looking_at(top - foot, Vector3.FORWARD)
+			_box(root, "Leg", Vector3(0.2, 0.2, foot.distance_to(top)), (foot + top) * 0.5, dark_wood(), b)
+	for y in [2.2, 4.6]:
+		var half := lerpf(1.9, 1.3, y / legs)
+		for side in 4:
+			var b := Basis(Vector3.UP, side * PI * 0.5)
+			_box(root, "Brace", Vector3(half * 2.0, 0.1, 0.06), b * Vector3(0, y, half), w, b)
+			var d := Basis(Vector3.UP, side * PI * 0.5) * Basis(Vector3.BACK, 0.75)
+			_box(root, "Cross", Vector3(half * 2.6, 0.08, 0.05), b * Vector3(0, y + 1.1, half), w, d)
+	_box(root, "Platform", Vector3(3.4, 0.12, 3.4), Vector3(0, legs + 0.06, 0), w)
+	var pts := []
+	for k in 6:
+		var t := float(k) / 5.0
+		pts.append([1.5 + 0.06 * sin(t * PI), legs + 0.12 + 3.0 * t])
+	_add(root, "Tank", lathe(_profile(pts), 16, true), staves())
+	for y in [0.5, 1.5, 2.5]:
+		_add(root, "Hoop", lathe(_profile([[1.56, legs + y - 0.04], [1.58, legs + y], [1.56, legs + y + 0.04]]), 16), iron())
+	_add(root, "Roof", lathe(_profile([[1.7, legs + 3.1], [0.05, legs + 4.4]]), 16), dark_wood())
+
+
+## A telegraph pole, 7 m, a crossarm with two glass insulators on it.
+static func telegraph_pole(root: Node3D) -> void:
+	_box(root, "Pole", Vector3(0.2, 7.0, 0.2), Vector3(0, 3.5, 0), dark_wood())
+	_box(root, "Arm", Vector3(1.4, 0.1, 0.1), Vector3(0, 6.6, 0), dark_wood())
+	var glass := _mat("insulator", PixelArt.metal("prop_insulator", Color(0.4, 0.55, 0.5), 251), Color.WHITE, 0.2, 0.0, 0.7)
+	for x in [-0.55, 0.55]:
+		_add(root, "Insulator", lathe(_profile([[0.03, 6.65], [0.045, 6.7], [0.02, 6.78]]), 6), glass, Transform3D(Basis.IDENTITY, Vector3(x, 0, 0)))
+
+
+## A saddled horse standing, facing -X, about 1.6 m at the withers: barrel body, neck and head,
+## legs in two parts with hooves, mane and tail; a saddle on a red blanket.
+static func horse(root: Node3D) -> void:
+	var hide := _mat("horse", PixelArt.dirt("prop_horse", Color(0.42, 0.24, 0.13), 253))
+	var dark := _mat("horse_dark", PixelArt.dirt("prop_horse_dark", Color(0.12, 0.08, 0.06), 255))
+	# The body: a lathe round X.
+	var body := []
+	for k in 9:
+		var t := float(k) / 8.0
+		body.append([0.12 + 0.28 * pow(sin(t * PI), 0.6), t * 1.5])
+	_add(root, "Body", lathe(_profile(body), 10), hide, Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0.75, 1.25, 0)))
+	_box(root, "Rump", Vector3(0.5, 0.5, 0.56), Vector3(0.55, 1.3, 0), hide)
+	_box(root, "Chest", Vector3(0.45, 0.55, 0.5), Vector3(-0.55, 1.25, 0), hide)
+	# Neck up and forward, the head down off it.
+	_box(root, "Neck", Vector3(0.3, 0.8, 0.26), Vector3(-0.92, 1.68, 0), hide, Basis(Vector3.BACK, 0.6))
+	_box(root, "Mane", Vector3(0.08, 0.78, 0.1), Vector3(-0.8, 1.82, 0), dark, Basis(Vector3.BACK, 0.6))
+	_box(root, "Head", Vector3(0.22, 0.6, 0.22), Vector3(-1.32, 1.8, 0), hide, Basis(Vector3.BACK, -0.9))
+	_box(root, "Muzzle", Vector3(0.16, 0.2, 0.18), Vector3(-1.52, 1.62, 0), dark, Basis(Vector3.BACK, -0.9))
+	for z in [-0.07, 0.07]:
+		_box(root, "Ear", Vector3(0.05, 0.14, 0.04), Vector3(-1.13, 2.1, z), hide)
+		_box(root, "Eye", Vector3(0.03, 0.03, 0.02), Vector3(-1.27, 1.93, z * 1.6), dark)
+	# Legs: upper (hide) and lower (dark), a hoof.
+	for x in [-0.55, 0.6]:
+		for z in [-0.17, 0.17]:
+			_box(root, "Upper", Vector3(0.16, 0.5, 0.15), Vector3(x, 0.85, z), hide)
+			_box(root, "Lower", Vector3(0.09, 0.52, 0.09), Vector3(x + 0.02, 0.36, z), dark)
+			_box(root, "Hoof", Vector3(0.13, 0.08, 0.12), Vector3(x + 0.03, 0.04, z), dark)
+	_box(root, "Tail", Vector3(0.1, 0.8, 0.12), Vector3(0.98, 1.05, 0), dark, Basis(Vector3.BACK, -0.35))
+	# Blanket and saddle.
+	_box(root, "Blanket", Vector3(0.62, 0.04, 0.7), Vector3(-0.1, 1.66, 0), _mat("blanket", PixelArt.painted("prop_blanket", Color(0.5, 0.12, 0.08), Color(0.3, 0.2, 0.15), 257, 0.1)))
+	_box(root, "Saddle", Vector3(0.5, 0.12, 0.42), Vector3(-0.1, 1.72, 0), _mat("leather", PixelArt.dirt("prop_leather", Color(0.32, 0.18, 0.09), 259)))
+	_box(root, "Horn", Vector3(0.06, 0.12, 0.06), Vector3(-0.32, 1.82, 0), _mat("leather", null))
+	for z in [-0.26, 0.26]:
+		_box(root, "Fender", Vector3(0.18, 0.42, 0.02), Vector3(-0.1, 1.45, z), _mat("leather", null))

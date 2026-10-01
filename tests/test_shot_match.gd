@@ -67,7 +67,7 @@ func test_the_street_shot_looks_west_into_the_sun_with_the_gun_out() -> void:
 	check_near(player.camera.fov, StreetMatch.FOV, 0.01, "the painting's lens")
 	var fwd := -player.camera.global_basis.z
 	var sun := clock.get_sun_direction()
-	check(sun.y > 0.0 and sun.y < 0.15, "the sun is low (%.2f up)" % sun.y)
+	check(sun.y > 0.05 and sun.y < 0.3, "the sun is low, about where the painting has it (%.2f up)" % sun.y)
 	var to_sun := rad_to_deg(Vector2(fwd.x, fwd.z).angle_to(Vector2(sun.x, sun.z)))
 	check(absf(to_sun) < 25.0, "looking toward the sun (%.0f° off)" % to_sun)
 	var store := street.find_child("Store", true, false) as Node3D

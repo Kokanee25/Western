@@ -250,6 +250,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
   stair and balcony (members), mirrors, piano by the door, stag, pictures, sconces.
   `ShotMatch` turns its whole set (`ROOM_YAW`, `TABLE`) and stages extras (`EXTRAS`) for the shot.
+- `src/art/sign_art.gd` (`SignArt`): the factory's painted sign boards, laid on once at their own
+  shape; `FalseFrontBuilding` hangs one for its `sign_text` (SALOON, DRY GOODS, …) where there is
+  one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
+  street): signs on the blockout lots (its `LOTS` copy StreetScenery's), carriage lanterns, barrels,
+  crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower. The
+  sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
+  near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -1117,3 +1124,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: there's no crosshair, so from the hip you only see the gun drift; no visual effect for
     being rattled beyond the gun (no blur or vignette: that's the art session's if wanted); the
     outlaws don't sway (they have spread from fear/pain already).
+- 2026-10-01 (art session, later): **The street dressed, painted signs, a golden-hour sky.**
+  Judge round `2026-10-01_r3`: street 1.33 → 0.90, saloon 0.87. Painted boards on the false fronts
+  (`SignArt`; two lines in gameplay's `false_front_building.gd`: hang the board, skip the label;
+  the plain sign member stays for bullets and fire, undrawn) and on the blockout lots; the street's
+  dressing (`StreetDressing`; a node added to gameplay's `scenes/test_street.tscn`), placed off the
+  road's middle and the gang's routes (`test_town_day` passes). New models in `PropModels`: crate,
+  hay bale, carriage lantern, wagon wheel and covered wagon, water tower, telegraph pole, a saddled
+  horse (a prop, not alive: shooting it hits a box). Light: the street shot's hour is 17.6 (the
+  painting's sun is ~15° up, not on the horizon: our road was in shadow); the sky shader no longer
+  takes the scene's fog (it washed the whole sky to the fog's peach; `fog_sky_affect` had no
+  effect) and paints its own haze; in the scene's environment (gameplay's file, lighting lines
+  only) the fog's `fog_sun_scatter` 0.25 → 0.05 and the sun's `light_volumetric_fog_energy` 0.35
+  (looking into a low sun the haze washed the shadowed fronts out). Biggest left: the street's far
+  right is still too bright (the sky and the pale blockout fronts; the painting's are dark
+  timber), its tiles finer than the painting's at distance; the saloon's bar side still plain.
+  - Next: guns onto the texel grid; then the street's far side (real false fronts in place of the
+    blockouts would be the town build-out, gameplay's call), the saloon's bar side (more lamps and
+    bottles), and characters by image-to-3D once `TRIPO_API_KEY` is set.

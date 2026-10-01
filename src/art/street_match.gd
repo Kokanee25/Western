@@ -8,7 +8,7 @@ class_name StreetMatch
 ## tools/judge.py compares it with the painting (next to `shot_match_saloon`).
 
 ## The hour: the sun a hand's width over the horizon, as in the painting.
-const HOUR := 18.05
+const HOUR := 17.6
 ## Where your feet are, and the point you look at (world space, test street).
 ## Fitted by eye to the painting (2026-10-01): the street's vanishing point ~59% across and a
 ## little below the middle, the near false front's porch filling the left third.
