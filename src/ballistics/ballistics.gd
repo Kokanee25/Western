@@ -33,6 +33,9 @@ class Bullet:
 	## It's glanced off something: flattened and tumbling (it whizzes past rather than snaps).
 	var tumbling := false
 	var ricochets := 0
+	## Its drag coefficient (a round ball 0.47, the revolver's blunt conical bullet ~0.28);
+	## below 0, the tuning's.
+	var drag := -1.0
 
 	## The blast still with it after flying `travelled` metres: all of it right at the muzzle,
 	## then fading out.
@@ -49,6 +52,7 @@ class Bullet:
 
 var bullets: Array[Bullet] = []
 var _rng := RandomNumberGenerator.new()
+var _flights := {}
 ## Every path flown, for the F8 debug traces.
 signal bullet_finished(bullet: Bullet)
 
@@ -141,9 +145,7 @@ func step(b: Bullet, delta: float) -> void:
 	b.velocity.y -= tuning.gravity * delta
 	# Air drag: speed falls off exponentially with distance, faster for light, fat projectiles.
 	if b.alive and b.mass > 0.0:
-		var area := PI * b.diameter * b.diameter * 0.25
-		var k := 0.5 * tuning.air_density * tuning.drag_coefficient * area / b.mass
-		b.velocity *= exp(-k * b.velocity.length() * delta)
+		b.velocity *= exp(-_drag_k(b.diameter, b.mass, b.drag) * b.velocity.length() * delta)
 	_near_misses(b, start, b.position)
 	if b.alive:
 		b.path.append(b.position)
@@ -256,6 +258,50 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	b.hits.append(info)
 	Events.bullet_hit.emit(info)
 	return remaining if b.alive else 0.0
+
+
+## Air drag per metre of flight per unit speed: 0.5·ρ·Cd·A/m (`cd` below 0: the tuning's).
+func _drag_k(diameter: float, mass: float, cd: float) -> float:
+	var area := PI * diameter * diameter * 0.25
+	return 0.5 * tuning.air_density * (cd if cd >= 0.0 else tuning.drag_coefficient) * area / maxf(mass, 1e-6)
+
+
+## Where a projectile fired level will be after `distance` metres: how far it's fallen below the
+## line it left on (m), how long it took (s) and how fast it's going (m/s). Flown with the same
+## steps, gravity and drag as the real thing, so sights and shooters that allow for it get exactly
+## the drop that happens. Remembered per load.
+func flight(distance: float, speed: float, mass: float, diameter: float, cd := -1.0) -> Dictionary:
+	var key := "%.3f/%.1f/%.5f/%.5f/%.3f" % [distance, speed, mass, diameter, cd]
+	if _flights.has(key):
+		return _flights[key]
+	var k := _drag_k(diameter, mass, cd)
+	var dt := 1.0 / float(Engine.physics_ticks_per_second)
+	var pos := Vector2.ZERO  # x along, y up
+	var vel := Vector2(speed, 0.0)
+	var t := 0.0
+	while pos.x < distance and t < tuning.max_age:
+		var step := vel * dt
+		if pos.x + step.x >= distance:
+			var f := (distance - pos.x) / maxf(step.x, 1e-9)
+			pos += step * f
+			t += dt * f
+			break
+		pos += step
+		t += dt
+		vel.y -= tuning.gravity * dt
+		vel *= exp(-k * vel.length() * dt)
+	var out := {"drop": -pos.y, "time": t, "speed": vel.length()}
+	_flights[key] = out
+	return out
+
+
+## The angle (radians) to raise a shot by so a ball fired at `speed` comes down onto a point
+## `distance` away: how a gun's sights are regulated for one range, and how a man who knows his
+## gun holds over for another.
+func holdover(distance: float, speed: float, mass: float, diameter: float, cd := -1.0) -> float:
+	if distance < 0.5:
+		return 0.0
+	return atan(float(flight(distance, speed, mass, diameter, cd).drop) / distance)
 
 
 ## What a surface is, for glancing off it: its `surface` meta (&"ground", &"stone", &"metal",

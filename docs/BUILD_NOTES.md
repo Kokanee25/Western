@@ -5,6 +5,24 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: real bullet drop, and targets at 50 and 100 metres
+
+- **Every ball falls and slows from the moment it leaves the barrel** (it always did; now the gun
+  is set up the way a real one is). The revolver's sights are regulated for **25 yards**: the ball
+  rises a hair above your line of sight, crosses it at 25 yards, and falls away beyond. Against
+  your sights: on out to 25 yards, **10 cm low at 50 m, 30 cm at 75 m, 65 cm at 100 m**. At 100 m
+  the ball takes nearly half a second to get there (lead them if they're moving).
+- The revolver's bullet now slows like the blunt conical bullet it is (it keeps about nine tenths of
+  its speed over 100 m); buckshot pellets, round and light, shed speed much faster. The shotgun's
+  bead is regulated for 40 yards.
+- **The outlaws know their guns**: at range they hold over by how far they judge you to be, and
+  they misjudge it a little.
+- **Two new boards down the range**, past the first: one at 50 m (left) and one at 100 m (right),
+  so you can see it and learn your holdover.
+- Try: F5 to the range. Shoot the near board, then the 50 m board with the sights on the black
+  square and see where the holes land, then the 100 m board (hold a good half a metre over it).
+  F8 shows each ball's flight.
+
 ### New: ricochets
 
 - **A ball that strikes something at a shallow angle glances off it.** Lead is soft, so it skips

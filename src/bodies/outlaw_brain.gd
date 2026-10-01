@@ -89,6 +89,9 @@ const LINES := {
 @export var temper := 0.5
 ## Men whose troubles are his troubles (person ids).
 @export var friends: Array[StringName] = []
+## How far off he judges a range (one standard deviation, a share of it): he holds over for the
+## drop at the range he thinks it is.
+@export var range_judgement := 0.12
 ## Running and walking speeds (m/s), before wounds.
 @export var run_speed := 3.8
 @export var walk_speed := 1.4
@@ -119,6 +122,8 @@ var target: Node3D
 var _rng := RandomNumberGenerator.new()
 ## Separate from his aim, so choosing where to hide doesn't change how he shoots.
 var _think := RandomNumberGenerator.new()
+## His judgement of range (separate again, so it doesn't shift his aim's sequence).
+var _range_rng := RandomNumberGenerator.new()
 var _next_shot := 1.0
 var _reload_left := 0.0
 var _aimed_at := 0.0
@@ -206,6 +211,7 @@ func _ready() -> void:
 	body = get_parent() as HumanBody
 	_rng.seed = body.rng_seed * 31 + 7
 	_think.seed = body.rng_seed * 17 + 3
+	_range_rng.seed = body.rng_seed * 23 + 11
 	rounds = rounds_per_load
 	senses = Senses.new()
 	senses.name = "Senses"
@@ -1257,15 +1263,16 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 		spread += 2.0
 	if not senses.sees(t):
 		spread += 3.0  # at where he was, not at him
-	var dir := _cone((point - origin).normalized(), deg_to_rad(spread))
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	if ballistics == null:
 		return
+	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var dir := _cone(_held_over(ballistics, origin, point), deg_to_rad(spread))
 	var exclude: Array[RID] = []
 	for sid: StringName in body.parts:
 		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
+	bullet.drag = t_rev.drag_coefficient
 	bullet.shooter = body
 	rounds -= 1
 	var world := ballistics.get_parent()
@@ -1273,6 +1280,19 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	ImpactEffects.muzzle_flash(world, origin)
 	_gun_sound.play()
 	Events.shot_fired.emit(origin, dir, body)
+
+
+## He knows his gun: aimed from `origin` at `point`, held over for the drop at the range he judges
+## it to be (off by `range_judgement`).
+func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vector3:
+	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var judged := origin.distance_to(point) * maxf(1.0 + _range_rng.randfn(0.0, range_judgement), 0.3)
+	var base := (point - origin).normalized()
+	var axis := base.cross(Vector3.UP)
+	if axis.length() < 1e-4:
+		return base
+	return base.rotated(axis.normalized(), ballistics.holdover(judged, t_rev.muzzle_velocity, t_rev.bullet_mass,
+			t_rev.bullet_diameter, t_rev.drag_coefficient))
 
 
 func _cone(dir: Vector3, radians: float) -> Vector3:
