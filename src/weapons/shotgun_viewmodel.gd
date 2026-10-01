@@ -45,6 +45,7 @@ var _reload_held := 0.0
 
 
 func _ready() -> void:
+	sway_factor = 0.75  # shouldered: steadier than a revolver at arm's length
 	add_to_group(&"shotgun")
 	if tuning == null:
 		tuning = load("res://config/shotgun.tres")
@@ -182,7 +183,7 @@ func _on_fired(barrel: int) -> void:
 	var origin: Vector3 = line[0]
 	var dir: Vector3 = line[1]
 	var exclude: Array[RID] = line[2]
-	var wobble := (tuning.spread_aim_degrees if aiming else tuning.spread_hip_degrees) + extra_spread
+	var wobble := (tuning.spread_aim_degrees if aiming else tuning.spread_hip_degrees) + _wobble()
 	if _player:
 		wobble += _player.get_horizontal_speed() * 0.5
 	dir = _cone(dir, deg_to_rad(wobble))
@@ -197,6 +198,7 @@ func _on_fired(barrel: int) -> void:
 	_play(&"shotgun")
 	Events.shot_fired.emit(origin, dir, _player)
 	_recoil = 1.0
+	_unsettle()
 	if _player:
 		_player.add_look(Vector2(_rng.randf_range(-0.8, 0.8), tuning.recoil_degrees * (1.0 - tuning.recoil_recovery)))
 	_view_kick += tuning.recoil_degrees * tuning.recoil_recovery
@@ -223,6 +225,7 @@ func _animate(delta: float) -> void:
 	_pose_rot = _pose_rot.lerp(POSES[pose][1], k)
 	_recoil = move_toward(_recoil, 0.0, delta * 3.5)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (16.0 if _tuck_target > tuck else 8.0)))
+	_update_sway(delta)
 	_apply_pose(_draw)
 
 	_open = move_toward(_open, OPEN_ANGLE if state.open else 0.0, delta * absf(OPEN_ANGLE) / 0.2)
@@ -245,6 +248,7 @@ func _animate(delta: float) -> void:
 func _apply_pose(drawn_amount: float) -> void:
 	var t := smoothstep(0.0, 1.0, tuck)
 	var pos := PUT_AWAY_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, 0.01, 0.07) * _recoil
-	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(14.0 * _recoil * (1.0 - t), 0.0, 0.0)
+	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(14.0 * _recoil * (1.0 - t), 0.0, 0.0) \
+			+ _sway_rotation() * (1.0 - t) * (0.0 if state.open else 1.0)
 	position = pos
 	rotation_degrees = rot

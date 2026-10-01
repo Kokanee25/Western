@@ -5,6 +5,28 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: steady hands, and being shot at
+
+- **Your gun doesn't hold still.** It drifts, rises and falls as you breathe, and has a fine
+  shake, and the shot goes where the barrel points, not where you're looking: watch the sights
+  and squeeze when they're on. It's worst from the hip, settles about a second after you raise the
+  sights and hold still (each shot unsettles it again), is steadier crouched, and worse while
+  moving. The shotgun, shouldered, is steadier than the revolver held out.
+- **Run and you're winded**: after a few seconds of running the sights heave with your breathing
+  for a good while.
+- **Being shot at gets to you.** A ball past your ear (or into the post by your head) makes you
+  flinch: the view jolts, the gun jerks off line and a shot fired that instant goes wide, for about
+  a second. Keep taking fire and you're **rattled**: the gun won't keep still until it's been quiet
+  a few seconds. That's what the gang's covering fire is for now.
+- **You hear them go by**, from the side they passed: shotgun pellets (and rifles, later) are faster
+  than sound and **crack** like a whip; the outlaws' revolver balls are slower than sound (black
+  powder, about 240 m/s), so they don't crack, they go by with a vicious **whip** of air and a tick.
+- **F3** shows your hands: flinch, rattled, winded, and how far the gun is off line.
+- Try: at the range (F5), aim at the target board from 20 m and fire as the sights settle, then
+  run up and down the street for ten seconds and try again. Then press **U**, start a fight with
+  the gang and try to shoot back while their rounds come in. Tell me if it's too hard, too easy,
+  or too much camera jolt (all the numbers are in `config/player_tuning.tres`).
+
 ### New: the gang fights together
 
 - **They shout to each other**, and you hear it (subtitles): "There he is!" when they spot you

@@ -11,17 +11,26 @@ func _ready() -> void:
 	Events.near_miss.connect(_on_near_miss)
 
 
-## The zip of a ball past your ear (only the listener's own near misses are worth playing).
-func _on_near_miss(person: Node, _shooter: Node, distance: float) -> void:
+## A ball going past your ear, heard from where it went by (only the listener's own near misses
+## are worth playing): faster than sound it cracks like a whip (shotgun pellets, rifle balls);
+## slower (a revolver's black-powder ball, ~240 m/s) it's a vicious hissing whip of air.
+const SPEED_OF_SOUND := 343.0
+
+
+func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, speed: float) -> void:
 	if person.is_in_group(&"player") and person is Node3D:
-		_play_at(&"zip", (person as Node3D).global_position + Vector3.UP * 1.6, -4.0 - distance * 3.0)
+		_play_at(sound_for_pass(speed), at, 2.0 - distance * 4.0, 2.0)
 
 
-func _play_at(id: StringName, at: Vector3, db := 0.0) -> void:
+static func sound_for_pass(speed: float) -> StringName:
+	return &"crack" if speed >= SPEED_OF_SOUND else &"zip"
+
+
+func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(id)
 	p.volume_db = db
-	p.unit_size = 6.0
+	p.unit_size = unit_size
 	add_child(p)
 	p.global_position = at
 	p.play()

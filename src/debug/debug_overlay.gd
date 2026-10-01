@@ -107,6 +107,8 @@ func _readout_text() -> String:
 		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f" % [player.get_horizontal_speed(), state, p.x, p.y, p.z])
 		if player.wounds:
 			lines.append(player.wounds.describe())
+		if player.composure and player.weapon:
+			lines.append("Hands: %s; gun %.2f° off line" % [player.composure.describe(), player.weapon.sway.length()])
 	for n in get_tree().get_nodes_in_group(&"people"):
 		var brain := n.get_node_or_null(^"Brain")
 		if brain and brain.has_method(&"describe"):
