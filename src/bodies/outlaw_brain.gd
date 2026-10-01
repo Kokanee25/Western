@@ -177,10 +177,8 @@ var _drop_it_heard := 99.0
 var crew: Crew
 ## His own clock (s), for what he heard when.
 var _now := 0.0
-## Covering a friend: seconds left keeping the man busy (up and shooting where he was, seen or
-## not), and the friend he's covering.
+## Covering a friend: seconds left keeping the man busy (up and shooting where he was, seen or not).
 var covering := 0.0
-var _cover_for: Node
 ## Going round on the man (a flank) with friends covering him: called once the spot's found.
 var _flanking := false
 ## Where he last shouted the man was, and how soon he'll shout it again.
@@ -1343,16 +1341,16 @@ func _on_callout(speaker: Node, kind: StringName, about: Node, at: Vector3) -> v
 			_join(about, speaker)
 		&"reloading":
 			_join(about, speaker)
-			_cover_mate(speaker, 5.0)
+			_cover_mate(5.0)
 		&"hit":
 			_join(about, speaker)
-			_cover_mate(speaker, 3.5)
+			_cover_mate(3.5)
 		&"flank":
 			_join(about, speaker)
-			_cover_mate(speaker, 7.0)
+			_cover_mate(7.0)
 		&"drag":
 			crew.helper[about] = speaker
-			_cover_mate(speaker, 6.0)
+			_cover_mate(6.0)
 		&"help":
 			_join(about, speaker)
 			_mate_out(speaker, &"down", false)
@@ -1377,11 +1375,10 @@ func _join(about: Node, mate: Node) -> void:
 
 
 ## Keep the man busy for a friend (reloading, hit, going round, dragging someone).
-func _cover_mate(mate: Node, seconds: float) -> void:
+func _cover_mate(seconds: float) -> void:
 	if mood != Mood.FIGHTING or _find_target() == null or rescuing != null or body.held_gun == null:
 		return
 	covering = maxf(covering, seconds)
-	_cover_for = mate
 	if tactic == Tactic.HIDDEN:
 		_tactic_time = minf(_tactic_time, 0.25)
 	callout(&"covering", _find_target())
