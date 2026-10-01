@@ -624,3 +624,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `test_the_coat_skirt_hangs_from_his_hips_not_his_arms`). Skin tone is measured from the painted
   face (`outlaw.json` `skin_tone`). Face projected at 384×256, 40 colours. Face repainted on the
   corrected head (People run 3). New screenshot views `portrait_day`, `coat_hands_up`. 227 pass.
+- 2026-10-01: **Style test on a still.** Sean asked whether a realistic image + our filter gets the
+  concept's look before buying Character Creator (and a new PC). `tools/style/photo_reference.py`
+  (People workflow, `style_test` input) has the image model redo the concept as a smoother,
+  realistic frame (`docs/style_test/photo_*.png`); `tools/style/paint_filter.py` grades toward the
+  painting, averages into blocks and cuts to the painting's palette (`compare.png`). Result: close
+  in mood and detail. What's left: the painting's blocks scale with distance (big on the near man,
+  fine on the far bar), so in game they should be texels on surfaces, not a flat screen filter.
+  - Next: Sean's PC, then one Character Creator man at the card table through the real pipeline.
