@@ -18,6 +18,9 @@ same body.
   his head has them, his eyes are drawn finer than the squares round them, and his face is lit
   evenly, as the painting lights it. Try: go to the range (F5) and look the outlaw in the face up
   close, by day and by lamplight.
+- **His shirt front is the painting's**: a narrow V of shirt under the vest, the collar turned down
+  either side of the knot, and the tie hanging straight down into the vest (it used to splay like
+  a bow). No goatee any more.
 
 ### New: real people, and the painting's shot
 

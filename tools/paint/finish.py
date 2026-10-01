@@ -41,6 +41,10 @@ HEAD_VIEW_BOOST = {"head_shot": 1.6}
 MIN_OVERLAP = 0.8
 # The close head views fill their frame, so a wrong one still overlaps well: they must fit closer.
 MIN_OVERLAP_HEAD = 0.88
+# Nor one whose face is too far from the guide's to be bent onto it (x his face's size, eyes to chin:
+# align.py's WARP_MAX), or that shows a face where the guide shows the back of his head (align.py
+# face_fit, face_mismatch).
+MAX_FACE_FIT = 0.35
 HEAD_VIEW_ELSEWHERE = 0.2
 HEAD_SHAPES = {"head", "hair", "hat", "hat_band", "hat_brim", "cravat"}
 # How hard the best view wins: each view's weight (VIEW_WEIGHT x how squarely it saw the texel) is
@@ -199,7 +203,8 @@ def finish(src):
         with open(fits) as f:
             for view, r in json.load(f).items():
                 need = MIN_OVERLAP_HEAD if view.startswith("head_") else MIN_OVERLAP
-                if isinstance(r, dict) and r.get("overlap", 1.0) < need:
+                if isinstance(r, dict) and (r.get("overlap", 1.0) < need or r.get("face_mismatch")
+                        or r.get("face_fit", 0.0) > MAX_FACE_FIT):
                     # align.py names the model's painting of your seat's view "shot"; in the bake
                     # it's "shot_model" ("shot" there is the painting's own pixels, never left out).
                     dropped.add("shot_model" if view == "shot" else view)

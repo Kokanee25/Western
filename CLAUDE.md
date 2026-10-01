@@ -167,11 +167,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `tools/paint/align.py [--source=tile]` fits each painting's outline onto the guide's (scale +
   shift), matches its colours to the painting's man (the whites of his eyes keep theirs), bends
   his face so its landmarks land on the guide's (`face_warp`: MediaPipe's face landmarker, `pip
-  install mediapipe` + `apt-get install libegl1`, model fetched into build/) and writes
+  install mediapipe` + `apt-get install libegl1`, model fetched into build/; reports `face_fit`
+  and `face_mismatch`, a face painted where the guide shows the back of his head) and writes
   `_aligned.png` (alpha = his outline) plus `<id>_shot_painting.png` (the painting itself, masked
   to its man by a hand-traced outline, face bent the same way); `paint_bake.gd bake` projects
-  every source into each shape's UV space (depth-tested, needs Forward+; writes where the eyes are
-  in the head's texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
+  every source into each shape's UV space (depth-tested, needs Forward+; shapes in
+  `HumanBody.DOUBLE_SIDED` are taken from either side; writes where the eyes are in the head's
+  texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
   **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150; the
   face's squares are 3×3 texels so its eyes can be drawn finer, `DETAIL`/`square_texels`), each
   the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
@@ -831,3 +833,31 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     head_front has a goatee (it still blends in on his chin); his hair is patchy from the side.
   - Next: the vest's V and pattern, the collar and tie, the hat band; then repaint the head sheet
     (no goatee, eyes open to the viewer).
+- 2026-10-01: **Round 10: his front, and a cleaner head sheet.** Sean: "Okay" to round 9's plan.
+  (1) `clothes.py`: the vest's V is the painting's (12 cm deep, 9 cm across, `VEST_V`) with its
+  edge laid on the line (`_clean_opening`: faces kept by their centres left a sawtooth of shirt
+  squares); the shirt's top edge is levelled before its collar (`_level_top`: the sawtooth made the
+  cream spikes round his neck); turned-down collar points either side of the knot
+  (`COLLAR_POINT`); the tie hangs straight down together and lies on his chest (`_front_surface`,
+  `TIE_OFF`: it used to run inside his chest and splay like a bow), tucking under the vest.
+  (2) **The bake never saw inward-facing shells**: it takes a texel only where its normal faces the
+  view, and the lofted hat band and hair shell face inward, so both were filled from their
+  neighbours (the dark band, the patchy hair). Shapes in `HumanBody.DOUBLE_SIDED` (now a class
+  constant) are taken from either side. The band is 3 cm deep (was 2.2) and stands 5 mm off the
+  crown. (3) People run 7 (FLUX.2 [max] head sheet, prompt: no beard or goatee, eyes open and on
+  you): the front and right profile came back right (no goatee, eyes open), but the
+  three-quarter cell was a front face, the back cell a front face, and your seat's cell lost the
+  moustache. `align.py` now reports `face_fit` (how far the face had to be bent, × its size) and
+  `face_mismatch` (a face where the guide shows the back of his head, or on a close head view no
+  face where the guide has one); `finish.py` leaves those out (`MAX_FACE_FIT` 0.35, the warp's own
+  limit: a painting made before his head was turned needs 0.33). The head_shot and head_back tiles
+  are run 6's (restored from git): run 7's had no moustache / was a front face. Tried and reverted:
+  a deeper brim dip at the front (to show the band from your seat): it covered his eye.
+  228 pass. Renders `docs/screenshots/character_lab/round10_*`.
+  - Known: the band still barely shows from your seat (our brim is flatter and the hat sits lower
+    than the painting's: the hat's shape needs redoing to the painting's, crown dented, brim rolled
+    hard on his right); his hand and cup are much smaller than the painting's and he's smaller and
+    slimmer in frame; the coat lacks the painting's lapels and fold shading; FLUX's head sheet gets
+    one or two cells wrong every run (the checks now catch them).
+  - Next: his build and the hand round the cup (the painting's biggest shapes), the coat's lapels,
+    then the hat's shape.

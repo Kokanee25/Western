@@ -198,18 +198,22 @@ def sample(a, x, y):
             + a[y0 + 1, x0] * (1 - fx) * fy + a[y0 + 1, x0 + 1] * fx * fy)
 
 
-def face_warp(rgba, guide, guide_mask):
+def face_warp(rgba, guide, guide_mask, close=False):
     """Bend rgba (the aligned painting, RGBA, in the guide's pixels) so its face's landmarks land on
-    the guide's. Returns (image, how far its features moved in px, what's left in px) or None."""
+    the guide's. Returns {image (None if not bent), moved (px, median), left (px after), fit (moved
+    over the face's size), mismatch (a face painted where the guide has none; or, on a close view
+    of his head, where a face is big enough always to be found, no face where the guide has one)}."""
     under = Image.new("RGB", rgba.size, (128, 128, 128))
     under.paste(rgba, mask=rgba.getchannel("A"))
     want, have = face_points(guide), face_points(under)
     if want is None or have is None:
-        return None
+        return {"image": None, "mismatch": (want is None and have is not None) or (close and want is not None)}
     size = np.linalg.norm(want[:2].mean(0) - want[FACE_POINTS.index(152)])
     moved = np.linalg.norm(have - want, axis=1)
+    result = {"image": None, "mismatch": False, "moved": float(np.median(moved)),
+            "fit": float(np.median(moved) / max(size, 1.0))}
     if np.median(moved) > WARP_MAX * size:
-        return None
+        return result
     # Pinned along his outline: nothing at his silhouette moves.
     edge = np.asarray(guide_mask.filter(ImageFilter.FIND_EDGES)) > 127
     ys, xs = np.nonzero(edge)
@@ -234,8 +238,9 @@ def face_warp(rgba, guide, guide_mask):
     under = Image.new("RGB", img.size, (128, 128, 128))
     under.paste(img, mask=img.getchannel("A"))
     after = face_points(under)
-    left = float(np.median(np.linalg.norm(after - want, axis=1))) if after is not None else -1.0
-    return img, float(np.median(moved)), left
+    result["left"] = float(np.median(np.linalg.norm(after - want, axis=1))) if after is not None else -1.0
+    result["image"] = img
+    return result
 
 
 def painting_reference(box=None):
@@ -263,13 +268,20 @@ def align(src, pid, view, ref, source="painted"):
     report = {"overlap_before": round(float(before), 3), "overlap": round(float(v), 3), "scale": round(float(s), 4),
             "shift": [round(float(tx), 1), round(float(ty), 1)]}
     line = "%s %s: outline overlap %.2f -> %.2f (scale %.3f, shift %+.0f, %+.0f px)" % (pid, view, before, v, s, tx, ty)
-    if not view.endswith("back"):
-        guide = Image.open(os.path.join(src, "%s_%s_guide.png" % (pid, view))).convert("RGB")
-        bent = face_warp(rgb, guide, guide_mask)
-        if bent:
-            rgb = bent[0]
-            report["face_moved_px"], report["face_left_px"] = round(bent[1], 1), round(bent[2], 1)
-            line += "; face moved %.0f px onto the guide's (%.0f px off after)" % (bent[1], bent[2])
+    guide = Image.open(os.path.join(src, "%s_%s_guide.png" % (pid, view))).convert("RGB")
+    bent = face_warp(rgb, guide, guide_mask, close=view.startswith("head_"))
+    if bent["mismatch"]:
+        # A face painted where the guide shows the back of his head (or none where it shows one):
+        # the model drew this view from the wrong side. finish.py leaves it out.
+        report["face_mismatch"] = True
+        line += "; FACE MISMATCH (painted from the wrong side)"
+    if "fit" in bent:
+        report["face_fit"] = round(bent["fit"], 3)
+    if bent["image"] is not None:
+        rgb = bent["image"]
+        report["face_moved_px"], report["face_left_px"] = round(bent["moved"], 1), round(bent["left"], 1)
+        line += "; face moved %.0f px (%.2f of his face) onto the guide's (%.0f px off after)" % (
+                bent["moved"], bent["fit"], bent["left"])
     rgb.save(os.path.join(src, "%s_%s_aligned.png" % (pid, view)))
     print(line)
     return report
@@ -285,9 +297,10 @@ def painting_shot(src, pid):
     if os.path.exists(guide):
         guide_mask = Image.open(os.path.join(src, "%s_shot_mask.png" % pid)).convert("L")
         bent = face_warp(img.resize(guide_mask.size, Image.LANCZOS), Image.open(guide).convert("RGB"), guide_mask)
-        if bent:
-            img = bent[0]
-            print("%s shot (the painting itself): face moved %.0f px onto the guide's (%.0f px off after)" % (pid, bent[1], bent[2]))
+        if bent["image"] is not None:
+            img = bent["image"]
+            print("%s shot (the painting itself): face moved %.0f px onto the guide's (%.0f px off after)" % (
+                    pid, bent["moved"], bent["left"]))
     img.save(os.path.join(src, "%s_shot_painting.png" % pid))
 
 

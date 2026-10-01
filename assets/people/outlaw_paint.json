@@ -8,13 +8,13 @@
   "side_left",
   "back",
   "head_front",
+  "head_three_quarter",
+  "head_side",
   "head_back",
   "head_shot"
  ],
  "left_out": [
-  "head_side",
-  "head_side_left",
-  "head_three_quarter"
+  "head_side_left"
  ],
  "shapes": {
   "belt": {
@@ -78,7 +78,7 @@
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.508,
+   "seen": 0.515,
    "colours": 5
   },
   "gun_belt": {
@@ -94,7 +94,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.603,
+   "seen": 0.602,
    "colours": 6
   },
   "hair": {
@@ -110,7 +110,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.588,
+   "seen": 0.597,
    "colours": 6
   },
   "hat": {
@@ -126,7 +126,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.787,
+   "seen": 0.798,
    "colours": 8
   },
   "hat_band": {
@@ -142,7 +142,7 @@
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.504,
+   "seen": 0.524,
    "colours": 8
   },
   "hat_brim": {
@@ -158,7 +158,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.768,
+   "seen": 0.942,
    "colours": 8
   },
   "head": {
@@ -174,7 +174,7 @@
    ],
    "squares_per_m": 190.0,
    "texels_per_square": 3,
-   "seen": 0.417,
+   "seen": 0.425,
    "detail_texels": 471,
    "colours": 16
   },
@@ -191,7 +191,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.319,
+   "seen": 0.318,
    "colours": 5
   },
   "shirt": {
