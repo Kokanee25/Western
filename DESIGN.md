@@ -44,7 +44,9 @@ when you push on it.
 
 ## 4. The look (**decided**)
 
-Reference: `docs/concept/saloon-night.png` and `docs/concept/livery-fire.png`.
+Reference: `docs/concept/saloon-night.png`, `docs/concept/livery-fire.png` and
+`docs/concept/street-golden-hour.png` (Sean, 2026-10-01: the main street at golden hour, first person
+with the revolver; the target for the street, materials and daylight).
 
 - **"High-resolution Duke Nukem 3D", in real 3D** (Sean, 2026-09-28): solid, readable low-poly models
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
