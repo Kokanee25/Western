@@ -320,8 +320,10 @@ func test_he_has_the_generated_makehuman_body() -> void:
 
 
 func test_the_hat_sits_on_his_own_head() -> void:
-	# The generated head sits further forward and is bigger than BodyMesh's: the crown is fitted to
-	# it, every bit of head above the band inside the crown, and the band low on his brow.
+	# The generated head sits further forward and is bigger than BodyMesh's: the crown has to clear
+	# it, every bit of head above the band inside the crown. The crown fitted to the painting's man
+	# (HAT_CROWN) already does, so it stays where it was fitted; a head it doesn't clear gets the
+	# crown moved round it, the band low on his brow.
 	var head := PackedVector3Array()
 	for key: String in man.skin_meshes:
 		if key.begins_with("head/"):
@@ -330,8 +332,8 @@ func test_the_hat_sits_on_his_own_head() -> void:
 	if not check(not fit.is_empty(), "a fit for his head"):
 		return
 	var rows := BodyMesh.hat_rows(fit)
+	check(rows == BodyMesh.HAT_CROWN, "the painted hat clears his head, so it stays where it was fitted")
 	var band: Array = rows[0]
-	check_near((band[0] as Vector3).y, PeopleBodies.EYE_HEIGHT + PeopleBodies.BAND_ABOVE_EYES, 0.001, "the band just above his brow")
 	var outside := 0
 	var checked := 0
 	for p in head:
@@ -346,6 +348,16 @@ func test_the_hat_sits_on_his_own_head() -> void:
 			outside += 1
 	check(checked > 50, "head above the band (%d)" % checked)
 	check_eq(outside, 0, "no part of his head pokes out of the crown")
+	# A bigger head, further forward: the crown is moved and widened round it.
+	var big := {"band": (fit.band as Vector3) + Vector3(0.0, 0.0, -0.03), "half_width": float(fit.half_width) + 0.02,
+			"half_depth": float(fit.half_depth) + 0.02}
+	check(not BodyMesh.hat_clears(big), "the crown as it is wouldn't clear that head")
+	var moved: Array = BodyMesh.hat_rows(big)[0]
+	check_near((moved[0] as Vector3).y, PeopleBodies.EYE_HEIGHT + PeopleBodies.BAND_ABOVE_EYES, 0.001, "the band just above his brow")
+	check(float(moved[1]) >= float(big.half_width) + BodyMesh.HAT_CLEARANCE - 0.0001, "wide enough")
+	var front := (moved[0] as Vector3).z - ((big.band as Vector3).z - float(big.half_depth))
+	var back := ((big.band as Vector3).z + float(big.half_depth)) - (moved[0] as Vector3).z
+	check(float(moved[2]) > front and float(moved[3]) > back, "deep enough front and back")
 
 
 func test_generated_clothes_are_worn_as_the_outfit_says() -> void:

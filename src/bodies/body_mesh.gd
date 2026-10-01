@@ -161,10 +161,11 @@ static func build(anatomy: Anatomy, outfit: Dictionary, hat_fit: Dictionary = {}
 	return {"bones": bones, "rests": rests, "shapes": shapes}
 
 
-## The hat's crown rows for a head: HAT_CROWN as it is, or moved so its band sits round `fit.band`
-## and sized to clear that head by HAT_CLEARANCE all round (never smaller than it was).
+## The hat's crown rows for a head: HAT_CROWN as it is when the head already fits inside it (the
+## painted hat stays where it was fitted to the painting), else moved so its band sits round
+## `fit.band` and sized to clear the head by about HAT_CLEARANCE (never smaller than it was).
 static func hat_rows(fit: Dictionary) -> Array:
-	if fit.is_empty():
+	if fit.is_empty() or hat_clears(fit):
 		return HAT_CROWN
 	var b0: Array = HAT_CROWN[0]
 	var sx := maxf(1.0, (float(fit.half_width) + HAT_CLEARANCE) / float(b0[1]))
@@ -175,6 +176,19 @@ static func hat_rows(fit: Dictionary) -> Array:
 		var c: Vector3 = r[0]
 		out.append([Vector3(c.x + shift.x, c.y + shift.y, c.z + shift.z), r[1] * sx, r[2] * sz, r[3] * sz])
 	return out
+
+
+## Whether HAT_CROWN's band, as it is, goes round a head with this fit (the head's extents at and
+## above the band inside it).
+static func hat_clears(fit: Dictionary) -> bool:
+	var b0: Array = HAT_CROWN[0]
+	var c: Vector3 = b0[0]
+	var band: Vector3 = fit.band
+	var hw := float(fit.half_width)
+	var hd := float(fit.half_depth)
+	return (absf(band.x - c.x) + hw <= float(b0[1])
+			and c.z - (band.z - hd) <= float(b0[2])
+			and (band.z + hd) - c.z <= float(b0[3]))
 
 
 ## How much room the crown leaves round a fitted head (m).

@@ -103,12 +103,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
-- `src/render/` — `texel_grid.gdshader(inc)`: the one material for everything on the texel grid
-  (`PixelArt.material()`: pixel texture at `texels_per_meter`, UV or triplanar mapping);
-  `texel_lighting.gdshaderinc`: moves `LIGHT_VERTEX` to the centre of the texel a fragment shows
-  (screen derivatives of texel coords vs position), so light, shadows and fog are flat per texel;
-  global uniform `texel_lighting` ([shader_globals] in project.godot; `Settings.texel_lighting`, P).
-  `MemberMesh` puts each face's size in UV2 so the point stays on thin faces. `pixel_screen`: F6.
+- `src/render/` — **one per-texel lighting system for the world, people and props:**
+  `tiles.gdshaderinc` (mosaic tiles: `tile_centre()`, `tile_light_at()` moves `LIGHT_VERTEX` and
+  the normal to the centre of the texel a fragment shows, from screen derivatives of texel coords,
+  so light, shadows and fog are flat per texel; ragged tile edges; shader globals
+  `tile_light`/`tile_ragged` in project.godot [shader_globals], set by `Settings.tile_look`,
+  **P** cycles square / ragged / off, default square). Users: `texel_grid.gdshader(inc)`, the one
+  material for everything in the world on the texel grid (`PixelArt.material()`: pixel texture at
+  `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
+  is the same with bullet holes), `src/world/ground.gdshader`, and the people's
+  `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
+  faces. `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
+  Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
@@ -154,11 +160,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
-- `src/render/` — `tiles.gdshaderinc` (mosaic tiles: light per texel via `LIGHT_VERTEX`, ragged
-  tile edges; shader globals `tile_light`/`tile_ragged` in project.godot, set by
-  `Settings.tile_look`, P), `Tiles.material()` + `tiled_lit.gdshader` (a StandardMaterial3D
-  stand-in on tiles; `PixelArt.track_tiled` keeps it on the texel grid), `pixel_screen.gdshader`.
-  `body_skin.gdshaderinc` (people) is on tiles too. `Settings.NATIVE` = render at the window's size.
 - `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
@@ -803,7 +804,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     and people are the room rebuild); props are plain shapes (cups, lamp, bottle); the shirt V is
     bigger than the painting's (vest cut); frame rate at 1280×720 on Sean's PC unknown.
   - Next: Sean's verdict and frame rate; then props as proper models in the style, the room.
-- 2026-10-01: **Round 8: the man first (Sean: "not worried about props until our character looks
+- 2026-09-30 (night): **Round 8: the man first (Sean: "not worried about props until our character looks
   perfect").** (1) **Long hair to the collar:** `BodyMesh.HAIR` (+ `HAIR_GAP`, open round the face),
   sized ~1.5 cm clear of the generated head (measured per height), worn when `look.hair_long` (the
   painting's man). (2) **Necktie:** `clothes._string_tie` is now the painting's wide dark tie
@@ -898,19 +899,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     still the old shape (band hidden by the brim from your seat).
   - Next: the hat's shape (crown dented, brim rolled hard on his right, sitting higher), the coat's
     lapels; then his hands.
-- 2026-10-01: **Style test on a still.** Sean asked whether a realistic image + our filter gets the
-  concept's look before buying Character Creator (and a new PC). `tools/style/photo_reference.py`
-  (People workflow, `style_test` input) has the image model redo the concept as a smoother,
-  realistic frame (`docs/style_test/photo_*.png`); `tools/style/paint_filter.py` grades toward the
-  painting, averages into blocks and cuts to the painting's palette (`compare.png`). Result: close
-  in mood and detail. What's left: the painting's blocks scale with distance (big on the near man,
-  fine on the far bar), so in game they should be texels on surfaces, not a flat screen filter.
-  - Next: Sean's PC, then one Character Creator man at the card table through the real pipeline.
-  - Proposed to Sean (no new PC needed): image-to-3D by API on GitHub Actions (Tripo, ~$1–1.50 a
-    rigged textured man, 2,000 free API credits; Meshy similar): image model paints a full-length
-    A-pose man → Tripo model + rig → our Blender fit to skeleton/hitboxes (our own hands) → card
-    table under the filter. Waiting on Sean: repo secret `TRIPO_API_KEY`, and optional reference
-    stills for tuning the filter (keep them out of the repo: public, not ours).
+- 2026-10-01: **Art pipeline, step 1: texel-space lighting** (branch `art/pipeline`; Sean's order:
+  1 texel lighting, 2 texture factory, 3 reference judge, 4 street dressing/lighting at golden hour
+  matched to `docs/concept/street-golden-hour.png`, added). Every grid material (members,
+  blockouts, shot-match props, holes) is now one ShaderMaterial (`PixelArt.material()`,
+  `src/render/texel_grid.gdshaderinc`) instead of StandardMaterial3Ds; the ground shader shares the
+  include. Godot evaluates lights, shadows and both fogs at `LIGHT_VERTEX` in Forward+ and
+  Compatibility (checked in the 4.7.2 sources), so one moved point snaps all three. Off by default
+  (the approved look), **P** toggles, saved. Thin faces (plank edges, narrower than a texel) clamp
+  the point onto the face via UV2 = face size, else they glint out of their neighbour's shadow.
+  New views `texel_rail_shadow`, `texel_porch`, `texel_store_golden`; `screenshots.gd
+  --texel-light`. Renders in `docs/screenshots/texel_lighting/` (lavapipe; Compatibility checked
+  too). 230 tests pass.
+  - At 40 texels/m a texel is ~1 render pixel beyond ~8 m, so the effect shows up close and on
+    shadow edges; at 16/m it's strong. People, guns, untextured props are not texel-lit yet.
+  - Next: Sean's verdict on the side-by-side, then step 2 (texture factory).
 - 2026-10-01: **The painting's pixels are tiles on the surfaces; the man is on tiles.** Studied the
   painting up close (DESIGN.md §4 "What the painting's pixels are"): tiles of a fixed real size,
   each lit as one colour, on a sharp picture, carrying realistic detail. Built: `tiles.gdshaderinc`
@@ -935,18 +938,34 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     `faces.py`; hair under the hat, a moustache with volume, real fingers, the shirt front and tie.
     Then the room on tiles (members, walls, props through `Tiles`), dressing, the moonlit doorway.
     Ask Sean: default resolution (640×360 or native) and tile look (square or ragged).
-- 2026-10-01: **Art pipeline, step 1: texel-space lighting** (branch `art/pipeline`; Sean's order:
-  1 texel lighting, 2 texture factory, 3 reference judge, 4 street dressing/lighting at golden hour
-  matched to `docs/concept/street-golden-hour.png`, added). Every grid material (members,
-  blockouts, shot-match props, holes) is now one ShaderMaterial (`PixelArt.material()`,
-  `src/render/texel_grid.gdshaderinc`) instead of StandardMaterial3Ds; the ground shader shares the
-  include. Godot evaluates lights, shadows and both fogs at `LIGHT_VERTEX` in Forward+ and
-  Compatibility (checked in the 4.7.2 sources), so one moved point snaps all three. Off by default
-  (the approved look), **P** toggles, saved. Thin faces (plank edges, narrower than a texel) clamp
-  the point onto the face via UV2 = face size, else they glint out of their neighbour's shadow.
-  New views `texel_rail_shadow`, `texel_porch`, `texel_store_golden`; `screenshots.gd
-  --texel-light`. Renders in `docs/screenshots/texel_lighting/` (lavapipe; Compatibility checked
-  too). 230 tests pass.
-  - At 40 texels/m a texel is ~1 render pixel beyond ~8 m, so the effect shows up close and on
-    shadow edges; at 16/m it's strong. People, guns, untextured props are not texel-lit yet.
-  - Next: Sean's verdict on the side-by-side, then step 2 (texture factory).
+- 2026-10-01: **Style test on a still.** Sean asked whether a realistic image + our filter gets the
+  concept's look before buying Character Creator (and a new PC). `tools/style/photo_reference.py`
+  (People workflow, `style_test` input) has the image model redo the concept as a smoother,
+  realistic frame (`docs/style_test/photo_*.png`); `tools/style/paint_filter.py` grades toward the
+  painting, averages into blocks and cuts to the painting's palette (`compare.png`). Result: close
+  in mood and detail. What's left: the painting's blocks scale with distance (big on the near man,
+  fine on the far bar), so in game they should be texels on surfaces, not a flat screen filter.
+  - Next: Sean's PC, then one Character Creator man at the card table through the real pipeline.
+  - Proposed to Sean (no new PC needed): image-to-3D by API on GitHub Actions (Tripo, ~$1–1.50 a
+    rigged textured man, 2,000 free API credits; Meshy similar): image model paints a full-length
+    A-pose man → Tripo model + rig → our Blender fit to skeleton/hitboxes (our own hands) → card
+    table under the filter. Waiting on Sean: repo secret `TRIPO_API_KEY`, and optional reference
+    stills for tuning the filter (keep them out of the repo: public, not ours).
+- 2026-10-01 (later): **Clean-up: the four art branches merged into one** (`cleanup/merge-art`, base
+  `claude/nifty-bohr-2uaq2z`). One per-texel lighting system on one key: `src/render/
+  tiles.gdshaderinc` (mosaic-tiles') is the core; art/pipeline's `PixelArt.material()` /
+  `texel_grid` carries it for the whole world (members, blockouts, holes, ground) and for props
+  (the shot match's); `body_skin` uses it for every person (nifty's private `light_whole_square`
+  folded in, with its seam guards and the face's 3×3 squares). **P** cycles square (default) /
+  ragged / off. Dropped: `texel_lighting.gdshaderinc` and the `texel_lighting` setting
+  (art/pipeline's P), `Tiles.material` / `tiled_lit*` (mosaic's prop stand-in). Defaults stay
+  nifty's (1280×720, 64 texels/m) with mosaic's native as F2's last stop. Kept nifty's people assets
+  (every one of the outlaw's 15 shapes is painted, so mosaic's regenerated garment PNGs never
+  showed on him) and nifty's hat; mosaic's `hat_fit` now leaves a crown that already clears the
+  head alone (nifty's does) and only moves/widens one that doesn't. Shot-match lamp stays 1.5
+  (`paint_look` was tuned under it). The style test is kept as a tool (`tools/style/`, People
+  workflow `style_test`), not in the game. Renders `docs/screenshots/merge_art/`.
+  - **Next `make_people` run:** `clothes.py` now has mosaic's upright UV islands and richer bake,
+    so garment UVs change: re-run the paint bake after it (`tools/paint_bake.gd guides` + `bake`,
+    `tools/paint/finish.py`), or the painted textures land on the wrong texels.
+  - Known: guns, lamps, `PropLibrary` props and effects are still StandardMaterial3D (smooth light).

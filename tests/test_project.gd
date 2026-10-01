@@ -123,4 +123,4 @@ func test_native_resolution_follows_the_window() -> void:
 	check_eq(Settings.RESOLUTION_PRESETS[-1], Settings.NATIVE, "F2's last stop")
 	Settings.reset_to_defaults()
 	await process_frames(1)
-	check_eq(vp.size, Vector2i(640, 360), "back to the default")
+	check_eq(vp.size, Vector2i(1280, 720), "back to the default")

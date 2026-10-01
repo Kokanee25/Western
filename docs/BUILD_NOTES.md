@@ -5,6 +5,24 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: tiles on everything (P)
+
+- **The painting's "pixels" are tiles on the surfaces**, not on the screen: each a fixed real size,
+  big up close and tiny far away, and each lit as one flat colour. Everything now works that way:
+  the buildings, boardwalks, blockouts and ground, the props, and the people (every texel of their
+  clothes and face). Sunlight, lamplight, shadows and fog are worked out once per tile, so shadow
+  edges step tile by tile instead of cutting smoothly across them. One key does all of it: **P**
+  switches tiles square (the default) / ragged (uneven edges, like dabs of paint) / off (smooth
+  light). It's saved, like F2/F6/F7, and F3 shows it.
+- **Full resolution:** press **F2** until the corner says **native**: the game renders at your
+  screen's size, so the tiles are the only pixels, like the painting. 1280×720 is the default.
+- **His hat fits his head** and his face is at the painting's tile size, about 20 tiles across.
+- Try: stand by the hitching rail in front of the store around 17:00 (T speeds time up), look down
+  at the rail's shadow on the street and press P to compare; then press F7 until it says 16 per
+  metre and look at the awning's shadow on the store front. Then F5 to the range and look at the
+  outlaw up close, pressing P. Tell me which tiles you like (square or ragged) and the frame rate
+  (F3) at 1280×720 and at native.
+
 ### New: the painting's pixel style
 
 - **The game now draws at 1280×720 by default** (it was 640×360), and every texture is in squares
@@ -25,38 +43,6 @@ same body.
   it. Try: press F5 until you're at the outlaw on the range and walk round him; press U to bring
   the gang in and look at them at the bar. (The painting's seated man, with his mug, is only in the
   comparison pictures for now.)
-
-### New: the painting's look, starting with the people
-
-- **The painting's "pixels" are tiles on the surfaces**, not on the screen: each a fixed real size,
-  big up close and tiny far away, and each lit as one flat colour. The people (and the table and
-  cups in the painting's shot) now work that way: every texel of their clothes and face is a tile
-  with one colour of light. **P** switches tiles off / square / ragged (uneven edges, like dabs
-  of paint).
-- **Full resolution:** press **F2** until the corner says **native**: the game renders at your
-  screen's size, so the tiles are the only pixels, like the painting. 640×360 is still the default.
-- **Richer clothes:** the coat, vest, shirt and trousers have creases, worn edges, dust on the
-  cuffs and mottled wool, 16 colours each, instead of a flat colour.
-- **His hat fits:** it sits low on his brow (before, the top of his head poked out of the front of
-  the crown), with a lower, tapered crown.
-- **His face** is at the painting's tile size, about 20 tiles across, and the holes round his eyes
-  and mouth are filled.
-- Try: **F5** to the range, **F2** to native, and look at the outlaw up close; press **P** to
-  compare off / square / ragged. The buildings and street aren't on tiles yet, so they look as
-  before. Tell me which resolution and which tiles you like.
-
-### New: texel lighting (P)
-
-- **Press P** to switch texel lighting on and off (it's saved, like F2/F6/F7; F3 shows it). With it
-  on, sunlight, lamplight, shadows and fog are worked out once per texture pixel, so every pixel of
-  wood and dirt is one flat lit colour and shadow edges step pixel by pixel instead of cutting
-  smoothly across them: the blocky look of the concept paintings. Off is the look you approved.
-- Try: stand by the hitching rail in front of the store around 17:00 (T speeds time up) and look
-  down at the rail's shadow on the street, then press P. Then press F7 twice (16 texels per metre)
-  and look at the awning's shadow on the store front, pressing P again. It's subtle at 40 per
-  metre and strong at 16.
-- Only the buildings, boardwalks, blockouts and ground use it so far; people, guns and props are
-  still lit smoothly.
 
 ### New: real people, and the painting's shot
 
@@ -325,6 +311,7 @@ to nothing; fallen timber keeps burning where it lands. Char stays on what survi
 | Change pixel size (render resolution) | F2 | |
 | Pixel shading on/off (banded colour + dither) | F6 | |
 | Texel size (64 → 40 → 24 → 16 per metre) | F7 | |
+| Tiles: square → ragged → off (light worked out once per texel) | P | |
 | Jump to next place (street, store, saloon door, inside saloon) | F5 | D-pad up |
 | Controls help | F1 | |
 | Free the mouse | Esc (click to grab it again) | |
@@ -408,7 +395,7 @@ and leg hits still leave him fighting: he's a hired gun.
    is rendered at 1280×720 and scaled up with hard pixels, so each texture square is several screen
    pixels, crisp, as in the concept painting. That's the default look. You can switch it on the fly;
    each key flashes the current settings at the bottom of the screen, and they're saved:
-   - **F2** render resolution (1280×720 → 960×540 → 640×360 → 480×270 → 320×180),
+   - **F2** render resolution (1280×720 → 960×540 → 640×360 → 480×270 → 320×180 → native),
    - **F7** texel size (smaller numbers = chunkier texture pixels, no smoothing in the distance),
    - **F6** pixel shading (light and fog break into bands and dither patterns).
 2. **Time.** Press **T** twice (180×) and watch a whole day go by in 15 seconds: long shadows down the
