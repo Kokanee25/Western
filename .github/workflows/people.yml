@@ -17,13 +17,39 @@ on:
         type: boolean
         required: false
         default: false
+      style_test:
+        description: "Instead: have the image model photograph the concept scene (docs/style_test/) to test the filter on"
+        type: boolean
+        required: false
+        default: false
 
 env:
   GODOT_VERSION: "4.7.2"
   BPY_VERSION: "5.0.1"
 
 jobs:
+  style-test:
+    if: ${{ inputs.style_test }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Photograph the concept scene
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FACE_MODEL: ${{ vars.FACE_MODEL }}
+        run: python3 tools/style/photo_reference.py
+      - name: Commit the photos
+        run: |
+          git add docs/style_test
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Style test: photo references (run ${{ github.run_number }})"
+          git push
+
   people:
+    if: ${{ !inputs.style_test }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
