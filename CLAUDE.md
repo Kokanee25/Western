@@ -632,3 +632,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   in mood and detail. What's left: the painting's blocks scale with distance (big on the near man,
   fine on the far bar), so in game they should be texels on surfaces, not a flat screen filter.
   - Next: Sean's PC, then one Character Creator man at the card table through the real pipeline.
+  - Proposed to Sean (no new PC needed): image-to-3D by API on GitHub Actions (Tripo, ~$1–1.50 a
+    rigged textured man, 2,000 free API credits; Meshy similar): image model paints a full-length
+    A-pose man → Tripo model + rig → our Blender fit to skeleton/hitboxes (our own hands) → card
+    table under the filter. Waiting on Sean: repo secret `TRIPO_API_KEY`, and optional reference
+    stills for tuning the filter (keep them out of the repo: public, not ours).
