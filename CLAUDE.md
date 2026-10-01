@@ -261,7 +261,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   input `characters`): `paint_full_length.py` has the image model paint each man in
   `characters.json` full length in an A-pose (the painting's man as reference) →
   `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
-  then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`). Needs the repo
+  then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
+  `.gdignore`d (pipeline inputs, not game assets). Needs the repo
   secret `TRIPO_API_KEY`; the client is untested against the live API. Fitting the result to our
   skeleton and hitboxes in Blender is still to come; MakeHuman stays the fallback.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
