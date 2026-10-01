@@ -1182,7 +1182,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: nothing's tagged `metal` yet (no iron in the town); tin cans are thin rigid bodies and
     are shot through, never glanced off; a man hit by a ricochet takes it as a normal ball,
     flattened (no "ricochet" wording in his wounds).
-
 - 2026-10-01 (art session, later): **Mountains on the skyline** (Sean: "those mountains in the
   distance like the concept art"). `Mountains` (above): spires left and right of the sun down the
   street, a low ridge in the gap under it, mesas and buttes round the rest of the town (they show
