@@ -172,7 +172,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
   saloon), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
   test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in).
-  `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave.
+  `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave. `Crew` (per man:
+  his friends in a fight as he knows them, from what he saw and `Events.callout`s he heard:
+  reloading, hit, spotted, flank, covering, help, drag, down, dead, quit, fall_back, give_up).
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
@@ -1020,3 +1022,35 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   OpenRouter is still blocked from this workspace (proxy 403), so image-model work runs on Actions.
   237 tests pass.
   - Next: the texture factory (image-model textures per material on Actions).
+- 2026-10-01 (gameplay): **M4 step 4: the gang fights together** (branch
+  `claude/gameplay-gang-coordination-0xe2v0`). `Crew` (src/people/crew.gd) is each man's picture of
+  his friends; `Events.callout(speaker, kind, about, at)` is what they shout (heard within
+  `DeedWatch.SHOUT`, halved through a wall; DeedWatch makes it a shout noise; lines
+  `LINES.call_*`). In `OutlawBrain`: "spotted" when he sees the man or the man moves 4 m (friends
+  `senses.note` it); "reloading"/"hit"/"flank"/"drag" set friends `covering` (seconds: up from
+  cover at once, longer peeks, up to 3 shots, and `_can_shoot_at` fires at the last-known spot up
+  to 20 s); flanking: when his flank timer's up with friends in earshot and nobody else going
+  round (`Crew.FLANK_LASTS` 8 s), he searches `FLANK_TRAVEL` 16 m with `FLANK_ANGLE` 9 (new
+  `Cover.search(..., new_angle)`, 3 before) and calls "flank" when he's found it; rescue
+  (`Tactic.RESCUING`): a friend he knows is down (prone or limp, alive), not hidden from the man at
+  lying height, within 18 m, nobody else on it, him with nerve to spare: run to his collar (one
+  waypoint round things), `HumanBody.drag_toward()` (prone: head follows the hands, the rest
+  trails; limp: the chest is hauled) walking backwards at 1.1 m/s in pose `drag` to `Cover.find`
+  from where the friend lies, until he's hidden at LIE_HEAD and LIE_CHEST or it stalls; 12 s before
+  trying the same friend again. A friend down/dead/quit/fled: fear 0.12/0.15/0.1/0.08 (×1.6 for
+  the leader, `OutlawBrain.leads`, Brody), the first to see it shouts it, a friend shot down puts
+  them in the fight with whoever shot him (`Relations.side_with`), temper ≥ 0.7 → `rage` 8 s (out
+  of cover, at you), proud + quit → scorn, half the gang out → fear +0.15 once. "Fall back!" from a
+  runner takes anyone over 0.6 of their nerve (0.3 if the leader), the leader's "give_up" anyone
+  over 0.3 (`_pending_break`, after 0.3–1.6 s). Friends' `shoot_at`/`hit` deeds and near misses
+  never start a fight (`Relations.perceive`, `_provoked`: "Watch where you're shooting!"), and he
+  holds fire with a friend in his line (`_friend_in_the_way`, a BODY_PARTS ray). Tests:
+  `test_gang` (14, a test world: tests remove the player's `human_body` meta so rounds stop on him
+  without wounding) and `test_town_day::test_in_a_fight_they_work_together` (the street). 252 pass.
+  - Known: the rescue's routing is one waypoint (inside the saloon, round the bar, it can fail; he
+    gives up and fights); a dragged ragdoll is hauled by the chest only (the rest flops after it);
+    covering fire doesn't yet pin the player (no player suppression effect); flankers don't
+    coordinate sides (the second flank picks its own); an intermittent "2 ObjectDB instances
+    leaked" warning at exit after the street fight test (doesn't fail anything; not chased yet).
+  - Next: Sean plays it (BUILD_NOTES); then step 5, conversation hooks (talking a man down,
+    bargaining), or gang teamwork tuning from his feel.

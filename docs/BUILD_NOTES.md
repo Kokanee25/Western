@@ -5,6 +5,38 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: the gang fights together
+
+- **They shout to each other**, and you hear it (subtitles): "There he is!" when they spot you
+  or you've moved (the others then know where you are, even if they can't see you), "Reloading!
+  Cover me!", "I'm hit!", "Brody's down!". It works only within shouting distance (less through a
+  wall): a man out of earshot doesn't know his friend's empty. Listen for "Reloading!": it's your
+  moment, but his friends know it too.
+- **Covering fire.** When one of them reloads, is hit, goes round on you or goes to help a friend,
+  the others come up from cover and keep you busy ("Go! I got him!"), firing where you were even
+  if they can't see you. Expect rounds into whatever you're hiding behind.
+- **One keeps you busy while another goes round.** After a while behind cover, one calls "Keep
+  him busy, I'm going round!" and runs for a spot at a new angle on you while the rest shoot. Only
+  one goes round at a time.
+- **They get a friend out.** A man whose legs are gone shouts for help, and the nearest friend
+  runs to him, takes him by the collar and drags him, walking backwards, behind the nearest thing
+  that hides a man lying down. They'll do it for a friend who's out cold, too. While he's dragging
+  he can't shoot.
+- **When one goes down, it goes through the rest.** Seeing a friend shot down, quit or killed
+  frightens them (more if it's Brody, who leads). Lyle, the hothead, goes into a rage ("You'll pay
+  for that!") and comes out from cover straight at you for a few seconds; the Kid's nerve is
+  likely to go. Once half of them are out of it, the rest know it's going badly.
+- **"Fall back!"** A man who runs shouts it, and anyone who's had enough goes with him (it takes
+  less when Brody says it). **Brody giving up** ("That's it, boys. Throw 'em down.") makes the
+  shaky ones give up with him; Lyle may curse a friend who quits.
+- **Friends aren't enemies by accident.** A friend's stray round gets "Watch where you're
+  shooting!", not a gunfight, and they won't fire through a friend standing in the way.
+- Try: press **U** to bring the gang in and let them reach the bar. Then, from the saloon door,
+  shoot one of them in the leg (aim low) and get behind something. Listen to them, watch who
+  comes to drag him away, and count the shots while one reloads. Then try: shoot the Kid first and
+  watch Lyle; hit Brody hard and keep firing until he runs or gives up, and see who goes with him.
+  Tell me if the shouting is too much or too little, and whether the dragging reads.
+
 ### New: tiles on everything (P)
 
 - **The painting's "pixels" are tiles on the surfaces**, not on the screen: each a fixed real size,

@@ -82,6 +82,8 @@ func perceive(actor: Node, kind: StringName, target: Node, dt := 1.0) -> void:
 		return
 	if _is_friend(actor) and target != me:
 		return  # his friends' business with other people is their business
+	if _is_friend(actor) and kind in [&"shoot_at", &"hit"]:
+		return  # in a fight, a friend's rounds going past (or into) him weren't meant for him
 	var e := entry(actor)
 	var w: Array = WEIGHTS[kind]
 	var weight: float = w[0] if target == me else (w[1] if _is_friend(target) else w[2])
@@ -123,6 +125,16 @@ func perceive(actor: Node, kind: StringName, target: Node, dt := 1.0) -> void:
 ## He's been shot at by them (or it's otherwise come to it): straight to a fight.
 func provoke(who: Node) -> void:
 	perceive(who, &"shoot_at", me)
+
+
+## A friend of his is in a fight with that man and has shouted so: it's his fight too.
+func side_with(who: Node) -> void:
+	var e := entry(who)
+	e.pressure = maxf(e.pressure, RUNG[Stance.FIGHT] + 0.5)
+	e.grudge = maxf(e.grudge, 0.5)
+	e.cowed = false
+	e.stance = Stance.FIGHT
+	e.climb = CLIMB_EVERY
 
 
 ## He's backed down to that man: the ladder steps back down (and stays down unless it comes to
