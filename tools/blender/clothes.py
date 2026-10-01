@@ -40,7 +40,7 @@ TIE_OFF = 0.011
 OFFSET = {"shirt": 0.005, "trousers": 0.008, "vest": 0.013, "coat": 0.024, "cravat": 0.0}
 # The coat stands further off where it's cut loose and padded (the painting's man is broad in a
 # heavy sack coat): extra metres by how much of a vertex each bone moves.
-COAT_BULK = {"upper_arm": 0.026, "forearm": 0.014, "chest": 0.012}
+COAT_BULK = {"upper_arm": 0.045, "forearm": 0.024, "chest": 0.03, "abdomen": 0.015}
 
 
 def hex_colour(h):

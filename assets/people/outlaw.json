@@ -32,7 +32,7 @@
   "shirt": 64,
   "trousers": 64,
   "vest": 64,
-  "coat": 64,
+  "coat": 128,
   "cravat": 32
  },
  "triangles": {
@@ -41,7 +41,7 @@
   "shirt": 1500,
   "trousers": 1200,
   "vest": 699,
-  "coat": 2200,
+  "coat": 2199,
   "cravat": 36
  },
  "fit_joints": {

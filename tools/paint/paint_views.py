@@ -59,10 +59,10 @@ HEAD_SHEET = ["head_front", "head_three_quarter", "head_side", "head_side_left",
 TILE = 640
 
 WHO = (
-    "He is the man in the painting (image 2, and his face close up in image 3): a weathered frontier "
-    "man with a thick dark moustache and stubble, dark hair to the collar, a dark brown hat with a "
-    "studded band, a heavy dark-brown wool coat, a patterned vest, a white collar and cuffs, a big dark "
-    "tie. "
+    "He is the man in the painting (image 2, and his face close up in image 3): a broad, heavy-set "
+    "weathered frontier man with a thick dark moustache and short stubble (no beard or goatee), dark "
+    "hair to the collar, a dark brown hat with a studded band, a heavy dark-brown wool coat, a "
+    "patterned vest, a white collar and cuffs, a dark tie hanging down into the vest. "
 )
 FINISH = (
     "Paint him clean and detailed, as a hand-painted illustration in the painting's warm, muted browns: "
