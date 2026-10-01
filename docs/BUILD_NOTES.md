@@ -18,9 +18,8 @@ same body.
   flinch: the view jolts, the gun jerks off line and a shot fired that instant goes wide, for about
   a second. Keep taking fire and you're **rattled**: the gun won't keep still until it's been quiet
   a few seconds. That's what the gang's covering fire is for now.
-- **You hear them go by**, from the side they passed: shotgun pellets (and rifles, later) are faster
-  than sound and **crack** like a whip; the outlaws' revolver balls are slower than sound (black
-  powder, about 240 m/s), so they don't crack, they go by with a vicious **whip** of air and a tick.
+- **You hear them go by**: every ball that comes close **snaps** past, from the side it went by
+  (the whiz is for ricochets, when there are some).
 - **F3** shows your hands: flinch, rattled, winded, and how far the gun is off line.
 - Try: at the range (F5), aim at the target board from 20 m and fire as the sights settle, then
   run up and down the street for ten seconds and try again. Then press **U**, start a fight with

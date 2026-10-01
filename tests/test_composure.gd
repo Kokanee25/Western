@@ -1,8 +1,8 @@
 extends TestCase
 ## Your hands aren't a tripod: the gun wanders (more from the hip, winded, or rattled; less
 ## crouched or once you've held the sights still) and the shot goes where the barrel points. A
-## ball past your ear makes you flinch and rounds coming in rattle you, and you hear them go by:
-## a crack if faster than sound, a whip of air if not.
+## ball past your ear makes you flinch and rounds coming in rattle you, and you hear each one
+## snap past, from the side it went by.
 
 const ACTIONS := [&"move_forward", &"run", &"crouch", &"aim"]
 
@@ -232,24 +232,21 @@ func test_a_round_into_the_wall_by_your_head_counts_your_own_dont() -> void:
 func test_you_hear_it_go_by_from_where_it_went() -> void:
 	var fx := ImpactEffects.new()
 	world.add_child(fx)
-	check_eq(ImpactEffects.sound_for_pass(240.0), &"zip", "a revolver ball's slower than sound: a whip of air")
-	check_eq(ImpactEffects.sound_for_pass(400.0), &"crack", "a pellet or a rifle ball's faster: a crack")
 	var passes: Array[Array] = []
 	var note := func(who: Node, _s: Node, _d: float, at: Vector3, v: float) -> void: if who == player: passes.append([at, v])
 	Events.near_miss.connect(note)
-	await _shot_past(0.7, 400.0)
+	await _shot_past(0.7)  # a revolver ball
 	Events.near_miss.disconnect(note)
 	check_eq(passes.size(), 1, "it went by")
 	if passes.is_empty():
 		return
 	var at: Vector3 = passes[0][0]
-	check(float(passes[0][1]) > 343.0, "still faster than sound when it got here (%.0f m/s)" % float(passes[0][1]))
 	check(at.x > player.global_position.x + 0.3, "on your right, where it went by (%s)" % str(at))
 	var sound: AudioStreamPlayer3D = null
 	for n in fx.get_children():
 		if n is AudioStreamPlayer3D and (n as AudioStreamPlayer3D).stream == SynthSounds.get_sound(&"crack"):
 			sound = n
-	check(sound != null, "a crack plays")
+	check(sound != null, "it snaps past")
 	if sound:
 		check((sound.global_position as Vector3).distance_to(at) < 0.01, "from where it passed")
 	for id in [&"crack", &"zip"]:

@@ -11,19 +11,12 @@ func _ready() -> void:
 	Events.near_miss.connect(_on_near_miss)
 
 
-## A ball going past your ear, heard from where it went by (only the listener's own near misses
-## are worth playing): faster than sound it cracks like a whip (shotgun pellets, rifle balls);
-## slower (a revolver's black-powder ball, ~240 m/s) it's a vicious hissing whip of air.
-const SPEED_OF_SOUND := 343.0
-
-
-func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, speed: float) -> void:
+## A ball going past your ear snaps, heard from where it went by (only the listener's own near
+## misses are worth playing). Sean, who's been near it: a near miss is a snap; the whiz people
+## expect is usually a ricochet (SynthSounds "zip", kept for when balls ricochet).
+func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, _speed: float) -> void:
 	if person.is_in_group(&"player") and person is Node3D:
-		_play_at(sound_for_pass(speed), at, 2.0 - distance * 4.0, 2.0)
-
-
-static func sound_for_pass(speed: float) -> StringName:
-	return &"crack" if speed >= SPEED_OF_SOUND else &"zip"
+		_play_at(&"crack", at, 2.0 - distance * 4.0, 2.0)
 
 
 func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
