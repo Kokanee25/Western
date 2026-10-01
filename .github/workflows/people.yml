@@ -1,5 +1,8 @@
 name: People (Blender)
 
+# Also the texture factory: with `textures` it only has the image model paint the world's materials
+# (tools/textures/paint_textures.py), cuts them to tiles (tools/textures/reduce.py) and commits them.
+
 # Builds the game's people from MakeHuman (CC0) with Blender, run by hand from the Actions tab:
 # writes the body envelope from the anatomy (Godot), fetches the pinned MakeHuman assets, runs
 # tools/blender/make_people.py (Blender as a Python module, bpy), and commits whatever changed in
@@ -37,6 +40,10 @@ on:
         type: boolean
         required: false
         default: false
+      textures:
+        description: "Instead: paint the world's materials (tools/textures/materials.json): all, saloon, street, or ids (floor,road,...)"
+        required: false
+        default: ""
       style_test:
         description: "Instead: have the image model photograph the concept scene (docs/style_test/) to test the filter on"
         type: boolean
@@ -68,8 +75,45 @@ jobs:
           git commit -m "Style test: photo references (run ${{ github.run_number }})"
           git push
 
+  textures:
+    if: ${{ inputs.textures != '' && !inputs.style_test }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint and reduce the materials
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TEXTURE_MODEL: ${{ inputs.paint_model || vars.TEXTURE_MODEL }}
+          PAINT_MODEL: ${{ vars.PAINT_MODEL }}
+          WHICH: ${{ inputs.textures }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow numpy scipy
+          args=""
+          case "$WHICH" in
+            all) ;;
+            saloon|street) args="--for=$WHICH" ;;
+            *) args="--only=$WHICH" ;;
+          esac
+          if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          python3 tools/textures/paint_textures.py $args
+          python3 tools/textures/reduce.py --sheet=docs/screenshots/textures/factory_run${{ github.run_number }}.png
+      - name: Commit the textures
+        run: |
+          git add assets/textures docs/screenshots/textures
+          if git diff --cached --quiet; then
+            echo "No change to the textures."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Textures: paint and reduce materials (run ${{ github.run_number }})"
+          git push
+
   people:
-    if: ${{ !inputs.style_test }}
+    if: ${{ !inputs.style_test && inputs.textures == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

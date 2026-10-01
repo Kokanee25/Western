@@ -1,7 +1,7 @@
 class_name OilLamp
 extends Node3D
 ## A kerosene lamp: warm light with a lazy flicker, lit in the evening and put out in the morning.
-## Placeholder mesh until real props.
+## Its model is PropModels.lamp().
 
 @export var lit_from_hour := 18
 @export var lit_until_hour := 7
@@ -56,42 +56,16 @@ func _on_hour_changed(hour: int) -> void:
 
 
 func _build() -> void:
-	var metal := StandardMaterial3D.new()
-	metal.albedo_color = Color(0.2, 0.18, 0.16)
-	metal.metallic = 0.5
-	metal.roughness = 0.6
-	var base := MeshInstance3D.new()
-	var base_mesh := CylinderMesh.new()
-	base_mesh.top_radius = 0.05
-	base_mesh.bottom_radius = 0.07
-	base_mesh.height = 0.08
-	base_mesh.radial_segments = 10
-	base.mesh = base_mesh
-	base.material_override = metal
-	base.position.y = 0.04
-	base.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(base)
-
-	# The chimney: clear glass, faintly lit from inside; the flame itself is small and bright.
-	var glass_mat := StandardMaterial3D.new()
-	glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glass_mat.albedo_color = Color(0.95, 0.85, 0.7, 0.22)
-	glass_mat.emission_enabled = true
-	glass_mat.emission = Color(1.0, 0.72, 0.4)
-	glass_mat.emission_energy_multiplier = 0.35
-	glass_mat.roughness = 0.1
-	var chimney := MeshInstance3D.new()
-	chimney.name = "Chimney"
-	var glass := CylinderMesh.new()
-	glass.top_radius = 0.028
-	glass.bottom_radius = 0.045
-	glass.height = 0.16
-	glass.radial_segments = 10
-	chimney.mesh = glass
-	chimney.material_override = glass_mat
-	chimney.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	chimney.position.y = 0.16
-	add_child(chimney)
+	# The lamp itself (PropModels.lamp: brass foot and font on the texel grid, a glass chimney);
+	# the flame burns inside the chimney.
+	var metal := PropModels.brass()
+	var model := Node3D.new()
+	model.name = "Model"
+	PropModels.lamp(model)
+	# The brass font shades the table under the flame (the dark ring round a lamp's foot); the
+	# glass doesn't.
+	(model.get_node(^"Chimney") as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(model)
 	_flame_material = StandardMaterial3D.new()
 	_flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_flame_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -106,10 +80,8 @@ func _build() -> void:
 	_flame.mesh = tongue
 	_flame.material_override = _flame_material
 	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_flame.position.y = 0.12
+	_flame.position.y = 0.205
 	add_child(_flame)
-	if not show_mesh:
-		chimney.visible = false
 
 	if hanging:
 		var bail := MeshInstance3D.new()
@@ -117,11 +89,11 @@ func _build() -> void:
 		bail_mesh.size = Vector3(0.01, 0.2, 0.01)
 		bail.mesh = bail_mesh
 		bail.material_override = metal
-		bail.position.y = 0.32
+		bail.position.y = 0.47
 		add_child(bail)
 
 	if not show_mesh:
-		base.visible = false
+		model.visible = false
 		_flame.visible = false
 	_light = OmniLight3D.new()
 	_light.light_color = Color(1.0, 0.74, 0.48)
@@ -131,7 +103,7 @@ func _build() -> void:
 	_light.omni_attenuation = 1.2
 	_light.shadow_enabled = true
 	_light.shadow_bias = 0.05
-	_light.position.y = 0.16
+	_light.position.y = 0.22
 	add_child(_light)
 	# Something for a bullet to hit.
 	var hitbox := StaticBody3D.new()
@@ -141,9 +113,9 @@ func _build() -> void:
 	hitbox.set_meta(&"oil_lamp", self)
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(0.13, 0.24, 0.13)
+	box.size = Vector3(0.14, 0.38, 0.14)
 	shape.shape = box
-	shape.position.y = 0.12
+	shape.position.y = 0.19
 	hitbox.add_child(shape)
 	add_child(hitbox)
 
@@ -157,8 +129,8 @@ func smash(direction := Vector3.DOWN) -> void:
 	var was_lit := lit
 	set_lit(false)
 	for c in get_children():
-		if c is MeshInstance3D:
-			(c as MeshInstance3D).visible = false
+		if c is MeshInstance3D or c.name == &"Model":
+			(c as Node3D).visible = false
 	var hitbox := get_node_or_null(^"Hitbox") as StaticBody3D
 	var snd := AudioStreamPlayer3D.new()
 	snd.stream = SynthSounds.get_sound(&"glass")

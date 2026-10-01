@@ -6,3 +6,5 @@ One line per view per round (tools/judge.py). Score: mean severity of every meas
 |---|---|---|---|---|---|---|---|---|---|
 | 2026-10-01_r1 | saloon | 0.900 | 21 / 16 | 18.6 / 14.6 | 3.88 / 5.72 | 6.3/12.7 vs 6.5/6.1 | 5.3 | top-right tiles down 3.2x the painting's (22.5 vs 7.1 px) | round 0: where we start |
 | 2026-10-01_r1 | street | 1.448 | 44 / 38 | 28.0 / 21.2 | 3.02 / 6.82 | 7.0/8.8 vs 6.0/6.1 | 11.1 | top-right mosaic too plain (0.2 vs 6.0 dE) | round 0: where we start |
+| 2026-10-01_r2 | saloon | 0.846 | 21 / 16 | 17.0 / 14.6 | 3.65 / 5.72 | 8.2/7.4 vs 6.5/6.1 | 5.6 | top-right mosaic too plain (2.5 vs 7.9 dE) | factory textures and road, prop models, saloon dressed and turned, extras |
+| 2026-10-01_r2 | street | 1.332 | 47 / 38 | 26.3 / 21.2 | 3.99 / 6.82 | 6.2/5.7 vs 6.0/6.1 | 10.1 | top-right mosaic too plain (0.2 vs 6.0 dE) | factory textures and road, prop models, saloon dressed and turned, extras |
