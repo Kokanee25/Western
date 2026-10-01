@@ -22,6 +22,9 @@ static func install(events: Node) -> void:
 	events.spoke.connect(func(p: Node, _t: String) -> void:
 		if p is Node3D:
 			events.noise.emit((p as Node3D).global_position + Vector3.UP * 1.6, SPEECH, &"speech", p))
+	events.callout.connect(func(p: Node, _k: StringName, _about: Node, _at: Vector3) -> void:
+		if p is Node3D:
+			events.noise.emit((p as Node3D).global_position + Vector3.UP * 1.6, SHOUT, &"shout", p))
 	events.shouted.connect(func(p: Node, _k: StringName) -> void:
 		if p is Node3D:
 			events.noise.emit((p as Node3D).global_position + Vector3.UP * 1.6, SHOUT, &"shout", p))

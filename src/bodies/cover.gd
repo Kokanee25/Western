@@ -58,19 +58,22 @@ class Search:
 	var _exclude: Array[RID]
 	var _rng: RandomNumberGenerator
 	var _bias: Vector3
+	var _angle := 3.0
 	var _i := 0
 
 	func step(per_tick := 120) -> bool:
 		var chunk := _cands.slice(_i, _i + per_tick)
 		_i += per_tick
-		var best := Cover._best(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias)
+		var best := Cover._best(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias, _angle)
 		if not best.is_empty() and (result.is_empty() or best.score > result.score):
 			result = best
 		return _i >= _cands.size()
 
 
+## `new_angle`: how much a spot at a new angle on the threat from `bias_from` counts (a man going
+## round on him with friends keeping him busy wants it far more).
 static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
-		bias_from := Vector3.INF, max_travel := 11.0) -> Search:
+		bias_from := Vector3.INF, max_travel := 11.0, new_angle := 3.0) -> Search:
 	var s := Search.new()
 	s._space = world.get_world_3d().direct_space_state
 	s._from = from
@@ -79,6 +82,7 @@ static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: A
 	s._exclude = exclude
 	s._rng = rng
 	s._bias = bias_from
+	s._angle = new_angle
 	var start_angle := rng.randf() * TAU
 	for r: float in RADII:
 		if r > max_travel:
@@ -103,7 +107,7 @@ static func _dedupe(points: Array[Vector3]) -> Array[Vector3]:
 
 
 static func _best(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], from: Vector3, threat_eye: Vector3,
-		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3) -> Dictionary:
+		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle := 3.0) -> Dictionary:
 	var best := {}
 	for p in candidates:
 		var r := Vector2(p.x - from.x, p.z - from.z).length()
@@ -134,7 +138,7 @@ static func _best(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], 
 			# Flanking: a new angle on him counts for a lot.
 			var a0 := (bias_from - threat_flat).normalized()
 			var a1 := (spot_at - threat_flat).normalized()
-			score += clampf(1.0 - a0.dot(a1), 0.0, 1.0) * 3.0 - (2.0 if (spot.at as Vector3).distance_to(bias_from) < 1.5 else 0.0)
+			score += clampf(1.0 - a0.dot(a1), 0.0, 1.0) * new_angle - (2.0 if (spot.at as Vector3).distance_to(bias_from) < 1.5 else 0.0)
 		spot.score = score
 		if best.is_empty() or score > best.score:
 			best = spot
