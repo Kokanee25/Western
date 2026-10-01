@@ -163,9 +163,10 @@ func _action_ok(action: StringName) -> bool:
 	return _mouse_ready() or not _pressed_by_mouse_only(action)
 
 
-## Where a shot from `muzzle` starts and which way it goes: towards whatever the sights are on
-## (your line of sight turned by the sway: the sights are true, the hands aren't steady), but never
-## starting beyond a wall between the eye and the muzzle.
+## Where a shot from `muzzle` starts and which way it goes. The gun's sights are regulated for one
+## range (`_load().zero`): the ball leaves raised just enough to fall back onto your line of sight
+## (turned by the sway) there, so it's a little high closer in and drops away below it further
+## out, as a real gun's does. Never starting beyond a wall between the eye and the muzzle.
 ## Returns [origin, direction, exclude].
 func _shot_line(muzzle: Vector3) -> Array:
 	var cam := get_viewport().get_camera_3d() if get_viewport() else null
@@ -183,6 +184,10 @@ func _shot_line(muzzle: Vector3) -> Array:
 			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
 		# Where the barrel's pointing: your line of sight, turned by the sway.
 		aim_dir = cam.global_transform.basis * (Basis.from_euler(Vector3(deg_to_rad(sway.y), deg_to_rad(-sway.x), 0.0)) * Vector3.FORWARD)
+		var cartridge := _load()
+		if not cartridge.is_empty():
+			last_shot_origin = origin
+			return [origin, zeroed(origin, cam.global_position, aim_dir, cartridge), exclude]
 		aim_point = cam.global_position + aim_dir * 80.0
 		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
 		q.exclude = exclude
@@ -191,6 +196,25 @@ func _shot_line(muzzle: Vector3) -> Array:
 			aim_point = hit.position
 	last_shot_origin = origin
 	return [origin, (aim_point - origin).normalized(), exclude]
+
+
+## The way a ball leaves the barrel at `origin` with the sights (at `eye`) along `sight`: towards
+## the point on the line of sight at the zero, raised by the drop it'll have by then.
+func zeroed(origin: Vector3, eye: Vector3, sight: Vector3, cartridge: Dictionary) -> Vector3:
+	var zero_point := eye + sight * float(cartridge.zero)
+	var base := (zero_point - origin).normalized()
+	var raise := _ballistics().holdover(origin.distance_to(zero_point), cartridge.speed, cartridge.mass,
+			cartridge.diameter, cartridge.cd)
+	var axis := base.cross(Vector3.UP)
+	if axis.length() < 1e-4:
+		return base
+	return base.rotated(axis.normalized(), raise)
+
+
+## The load this gun fires and the range its sights are regulated for: {speed, mass, diameter,
+## cd, zero}; {} = no sights (it just goes where you look).
+func _load() -> Dictionary:
+	return {}
 
 
 ## Wander the barrel this frame (call from the gun's _process).

@@ -27,6 +27,8 @@ extends Resource
 @export var pellet_mass := 0.0035  ## kg
 @export var pellet_diameter := 0.0084  ## m
 @export var muzzle_velocity := 400.0  ## m/s
+## The range its bead is regulated for (both barrels shoot to the bead at 40 yards).
+@export var zero_distance := 36.6
 ## The pattern: each pellet leaves this many degrees off the line at one standard deviation,
 ## capped at 2.5 deviations. A worn cylinder bore throws buckshot into well over a metre at
 ## 25 m (only a few pellets find a man), a hand or two across a room, one ragged hole at arm's

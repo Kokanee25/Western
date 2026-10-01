@@ -90,19 +90,21 @@ func test_the_shot_goes_where_the_barrel_points() -> void:
 			await process_frames(1)
 		var sway := gun.sway
 		var look := -cam.global_transform.basis.z
+		# Where the barrel would point with steady hands (the sights' zero raises it a touch).
+		var held := gun.zeroed(gun.model.muzzle.global_position, cam.global_position, look, gun._load())
 		gun.pull_trigger()
 		await physics_frames(30)
 		check_eq(shot_dirs.size(), k + 1, "it fired")
 		if shot_dirs.size() <= k:
 			return
-		var off := rad_to_deg(look.angle_to(shot_dirs[k]))
+		var off := rad_to_deg(held.angle_to(shot_dirs[k]))
 		check(sway.length() > 0.02, "the barrel's off your line of sight (%.2f°)" % sway.length())
 		check_near(off, sway.length(), 0.08, "and the ball goes that far off it")
 		# And the same way: right is right, up is up.
 		var right := cam.global_transform.basis.x
 		if k > 0:
 			check(signf(shot_dirs[k].dot(right)) == signf(sway.x) or absf(sway.x) < 0.1, "the same side (sway %s)" % str(sway))
-			check(signf(shot_dirs[k].dot(cam.global_transform.basis.y) - look.dot(cam.global_transform.basis.y)) == signf(sway.y) \
+			check(signf(shot_dirs[k].dot(cam.global_transform.basis.y) - held.dot(cam.global_transform.basis.y)) == signf(sway.y) \
 					or absf(sway.y) < 0.1, "up is up (sway %s)" % str(sway))
 
 

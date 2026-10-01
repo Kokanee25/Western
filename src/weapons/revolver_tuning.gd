@@ -26,6 +26,12 @@ extends Resource
 @export var muzzle_velocity := 240.0  ## m/s
 @export var bullet_mass := 0.0165  ## kg (255 grain lead)
 @export var bullet_diameter := 0.0114  ## m
+## Drag of its blunt round-nosed conical bullet (a round ball would be 0.47): keeps ~95% of its
+## speed at 50 m, ~90% at 100 m (published .45 Colt lead loads keep about nine tenths at 100 yd).
+@export var drag_coefficient := 0.28
+## The range its fixed sights are regulated for (25 yards): the ball rises a little above your
+## line of sight, crosses it here, and falls away below it beyond (hold high at long range).
+@export var zero_distance := 22.9
 ## Accuracy: random cone half-angle in degrees.
 @export var spread_hip_degrees := 1.6
 @export var spread_aim_degrees := 0.35

@@ -157,6 +157,7 @@ func _on_fired() -> void:
 	dir = _cone(dir, deg_to_rad(spread))
 	var ballistics := _ballistics()
 	var bullet := ballistics.fire(origin, dir, tuning.muzzle_velocity, tuning.bullet_mass, tuning.bullet_diameter, exclude)
+	bullet.drag = tuning.drag_coefficient
 	bullet.shooter = _player
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir)
@@ -168,6 +169,11 @@ func _on_fired() -> void:
 	if _player:
 		_player.add_look(Vector2(_rng.randf_range(-0.4, 0.4), tuning.recoil_degrees * (1.0 - tuning.recoil_recovery)))
 	_view_kick += tuning.recoil_degrees * tuning.recoil_recovery
+
+
+func _load() -> Dictionary:
+	return {"speed": tuning.muzzle_velocity, "mass": tuning.bullet_mass, "diameter": tuning.bullet_diameter,
+			"cd": tuning.drag_coefficient, "zero": tuning.zero_distance}
 
 
 func _on_ejected(_chamber_state: int) -> void:
