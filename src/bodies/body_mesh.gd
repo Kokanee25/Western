@@ -263,9 +263,10 @@ static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Call
 			brim.dip[i + 1] = r[4]
 		brim.loft(brim_rings, 18, Vector3.FORWARD, 0.0, false, false)
 		out["hat_brim"] = brim
+		# The band: a strap 3 cm deep standing just off the crown (the painting's studded leather).
 		var band := Lofter.new(index)
-		band.loft([[b0[0], b0[1] + 0.003, b0[2] + 0.003, b0[3] + 0.003, &"head", &"head", 0.0],
-				[(b0[0] as Vector3) + Vector3(0, 0.022, 0), b0[1] + 0.002, b0[2] + 0.002, b0[3] + 0.002, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
+		band.loft([[b0[0], b0[1] + 0.005, b0[2] + 0.005, b0[3] + 0.005, &"head", &"head", 0.0],
+				[(b0[0] as Vector3) + Vector3(0, 0.03, 0), b0[1] + 0.004, b0[2] + 0.004, b0[3] + 0.004, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
 		out["hat_band"] = band
 	if outfit.get("hair", false):
 		var hair := Lofter.new(index)

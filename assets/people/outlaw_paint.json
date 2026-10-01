@@ -30,7 +30,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.427,
+   "seen": 0.428,
    "colours": 5
   },
   "boots": {
@@ -62,23 +62,23 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.363,
+   "seen": 0.377,
    "colours": 12
   },
   "cravat": {
    "uv_rect": [
-    0.00210551521740854,
-    0.00210559368133545,
-    0.995788991451263,
-    0.995788812637329
+    0.00263674440793693,
+    0.00263673067092896,
+    0.879654347896576,
+    0.994726538658142
    ],
    "size": [
-    18,
-    18
+    11,
+    13
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.245,
+   "seen": 0.508,
    "colours": 5
   },
   "gun_belt": {
@@ -94,7 +94,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.602,
+   "seen": 0.603,
    "colours": 6
   },
   "hair": {
@@ -110,7 +110,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.487,
+   "seen": 0.588,
    "colours": 6
   },
   "hat": {
@@ -126,23 +126,23 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.792,
+   "seen": 0.787,
    "colours": 8
   },
   "hat_band": {
    "uv_rect": [
     0.0,
     0.0,
-    0.64292323589325,
-    0.0219999551773071
+    0.655450344085693,
+    0.0299999713897705
    ],
    "size": [
-    70,
+    72,
     7
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.315,
+   "seen": 0.504,
    "colours": 8
   },
   "hat_brim": {
@@ -158,7 +158,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.33,
+   "seen": 0.768,
    "colours": 8
   },
   "head": {
@@ -174,7 +174,7 @@
    ],
    "squares_per_m": 190.0,
    "texels_per_square": 3,
-   "seen": 0.425,
+   "seen": 0.417,
    "detail_texels": 471,
    "colours": 16
   },
@@ -191,23 +191,23 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.318,
+   "seen": 0.319,
    "colours": 5
   },
   "shirt": {
    "uv_rect": [
-    0.00396894523873925,
-    0.125347137451172,
-    0.992245614528656,
-    0.870850205421448
+    0.00375930476002395,
+    0.015597403049469,
+    0.992309987545013,
+    0.980654239654541
    ],
    "size": [
-    109,
-    96
+    112,
+    111
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.054,
+   "seen": 0.047,
    "colours": 6
   },
   "skin": {
@@ -223,7 +223,7 @@
    ],
    "squares_per_m": 150.0,
    "texels_per_square": 1,
-   "seen": 0.072,
+   "seen": 0.063,
    "colours": 10
   },
   "trousers": {
@@ -244,18 +244,18 @@
   },
   "vest": {
    "uv_rect": [
-    0.00231147790327668,
-    0.00204199552536011,
-    0.991997718811035,
-    0.995374619960785
+    0.00260453741066158,
+    0.00224298238754272,
+    0.96411257982254,
+    0.995615780353546
    ],
    "size": [
-    84,
+    81,
     84
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.097,
+   "seen": 0.113,
    "colours": 10
   }
  }

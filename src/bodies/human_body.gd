@@ -136,11 +136,15 @@ var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
 const DRAW_TIME := 0.5
+## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
+## whose faces point inward).
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
-## light making him more than paint_limit × painted. Tuned in
-## the character lab so he matches the painting under its light. A static so the lab can try others.
+## light making him more than paint_limit × painted (light_steps: how many steps the light takes
+## across him, 0 smooth). Tuned in the character lab so he matches the painting under its light.
+## A static so the lab can try others.
 static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3,
 		&"light_steps": 4.0}
 var _draw_left := 0.0
@@ -368,7 +372,6 @@ func _build_skin() -> void:
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
 		"hair": _cloth("hair", look.get("hair", Color(0.22, 0.15, 0.09)), &"felt", false),
 	}
-	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
 	var baked: Dictionary = data.get("textures", {})
 	var paint: Dictionary = data.get("paint", {})
 	for shape: String in data.shapes:

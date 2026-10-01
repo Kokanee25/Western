@@ -19,6 +19,9 @@ uniform float depth_far = 4.0;
 uniform float slack = 0.012;
 uniform vec4 uv_rect = vec4(0.0, 0.0, 1.0, 1.0);
 uniform int mode = 0;
+// A single sheet the game draws from both sides (HumanBody.DOUBLE_SIDED): seen from either side.
+// The lofted band and hair shell face inward, so facing the camera alone never saw them.
+uniform bool two_sided = false;
 
 varying vec3 wpos;
 varying vec3 wnrm;
@@ -44,6 +47,7 @@ void fragment() {
 			vec4 dm = texture(depth_map, frame);
 			float nearest = (dm.r * 255.0 + dm.g) / 255.0 * depth_far;
 			float facing = dot(normalize(wnrm), normalize(cam_pos - wpos));
+			facing = two_sided ? abs(facing) : facing;
 			vec4 pc = texture(painted, p);
 			// Transparent where the painting doesn't show him (its background, or past his outline).
 			if (distance(wpos, cam_pos) <= nearest + slack && facing > 0.0 && pc.a > 0.5) {

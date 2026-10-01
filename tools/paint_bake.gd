@@ -278,6 +278,7 @@ func _bake(man, vp: SubViewport, frames: Dictionary, depths: Dictionary, painted
 		mat.shader = load("res://tools/paint/paint_bake.gdshader")
 		mat.set_shader_parameter(&"uv_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
 		mat.set_shader_parameter(&"depth_far", DEPTH_FAR)
+		mat.set_shader_parameter(&"two_sided", man.DOUBLE_SIDED.has(shape))
 		var dups := []
 		for mi: MeshInstance3D in pieces:
 			var d := MeshInstance3D.new()

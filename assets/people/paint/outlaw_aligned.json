@@ -3,117 +3,117 @@
  "back": {
   "overlap_before": 0.935,
   "overlap": 0.942,
-  "scale": 0.9947,
+  "scale": 0.9948,
   "shift": [
-   1.5,
-   7.3
+   1.4,
+   7.2
   ]
  },
  "front": {
-  "overlap_before": 0.907,
+  "overlap_before": 0.908,
   "overlap": 0.933,
-  "scale": 0.9865,
+  "scale": 0.9866,
   "shift": [
-   5.7,
-   18.7
+   5.6,
+   18.5
   ],
-  "face_moved_px": 10.4,
-  "face_left_px": 1.3
+  "face_moved_px": 10.7,
+  "face_left_px": 0.9
  },
  "head_back": {
   "overlap_before": 0.917,
-  "overlap": 0.929,
-  "scale": 0.999,
+  "overlap": 0.928,
+  "scale": 1.009,
   "shift": [
-   -0.5,
-   19.2
+   -4.6,
+   15.1
   ]
  },
  "head_front": {
-  "overlap_before": 0.909,
+  "overlap_before": 0.91,
   "overlap": 0.917,
-  "scale": 1.0065,
+  "scale": 1.0068,
   "shift": [
-   11.4,
-   2.5
+   7.2,
+   2.1
   ],
-  "face_moved_px": 57.8,
-  "face_left_px": 4.0
+  "face_moved_px": 54.1,
+  "face_left_px": 4.6
  },
  "head_shot": {
   "overlap_before": 0.925,
   "overlap": 0.928,
-  "scale": 0.9951,
+  "scale": 0.9954,
   "shift": [
-   -0.1,
-   4.7
+   -0.2,
+   4.2
   ],
-  "face_moved_px": 70.9,
-  "face_left_px": 5.0
+  "face_moved_px": 69.8,
+  "face_left_px": 5.4
  },
  "head_side_left": {
-  "overlap_before": 0.745,
-  "overlap": 0.768,
-  "scale": 1.1585,
+  "overlap_before": 0.746,
+  "overlap": 0.769,
+  "scale": 1.1502,
   "shift": [
-   -81.8,
-   -29.9
+   -79.2,
+   -23.2
   ]
  },
  "head_side": {
-  "overlap_before": 0.764,
-  "overlap": 0.792,
-  "scale": 1.0597,
+  "overlap_before": 0.767,
+  "overlap": 0.794,
+  "scale": 1.0512,
   "shift": [
-   -46.6,
-   8.3
+   -38.8,
+   15.9
   ]
  },
  "head_three_quarter": {
   "overlap_before": 0.817,
-  "overlap": 0.831,
+  "overlap": 0.83,
   "scale": 1.0637,
   "shift": [
    -11.9,
-   4.2
+   0.2
   ]
  },
  "shot": {
   "overlap_before": 0.812,
   "overlap": 0.823,
-  "scale": 0.9869,
+  "scale": 0.992,
   "shift": [
-   8.6,
-   7.5
+   5.5,
+   4.2
   ],
   "face_moved_px": 9.3,
-  "face_left_px": 1.5
+  "face_left_px": 1.4
  },
  "side_left": {
   "overlap_before": 0.926,
-  "overlap": 0.942,
-  "scale": 0.9963,
+  "overlap": 0.943,
+  "scale": 0.9965,
   "shift": [
-   -1.4,
-   6.1
+   -1.5,
+   5.9
   ]
  },
  "side": {
   "overlap_before": 0.91,
-  "overlap": 0.944,
-  "scale": 0.9884,
+  "overlap": 0.945,
+  "scale": 0.9888,
   "shift": [
-   8.9,
-   16.1
+   8.7,
+   15.7
   ]
  },
  "three_quarter": {
   "overlap_before": 0.872,
-  "overlap": 0.899,
-  "scale": 0.9754,
+  "overlap": 0.9,
+  "scale": 0.9755,
   "shift": [
-   20.9,
-   24.7
+   20.8,
+   24.6
   ]
  }
 }

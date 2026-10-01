@@ -38,11 +38,11 @@
  "triangles": {
   "skin": 4434,
   "head": 2564,
-  "shirt": 1498,
+  "shirt": 1500,
   "trousers": 1200,
-  "vest": 700,
+  "vest": 699,
   "coat": 2200,
-  "cravat": 40
+  "cravat": 36
  },
  "fit_joints": {
   "r-eye": [
