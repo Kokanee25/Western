@@ -1109,8 +1109,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   1.5 s quiet). **Near misses are now reported at the closest approach** (Ballistics waited for the
   first tick within 2.5 m, ~4 m of flight, so distances read long; outlaws' fear and suppression get
   the true distance) and carry `at` and `speed`: `Events.near_miss(person, shooter, distance, at,
-  speed)`. ImpactEffects plays it from where it passed: `crack` (new: an N-wave, ground slap, hiss)
-  at ≥ 343 m/s, `zip` (reworked: a whip of air and a tick, louder) below (the revolver's 240 m/s).
+  speed)`. ImpactEffects plays it from where it passed: `crack` (new: an N-wave, ground slap, hiss), the
+  snap, for every ball (Sean: a near miss is a snap, a whiz is usually a ricochet; `zip`, reworked
+  as a tumbling whiz, waits for ricochets).
   F3 shows "Hands". Tests `test_composure` (8; spread set to 0 so what's left is the sway;
   `steady_hands` turns it off). 262 pass (with the art merge).
   - Known: there's no crosshair, so from the hip you only see the gun drift; no visual effect for

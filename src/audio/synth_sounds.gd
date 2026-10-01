@@ -199,8 +199,8 @@ static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	return _normalise(out, 0.8)
 
 
-## A slow ball (slower than sound) passing close by the ear: a vicious whip of tearing air,
-## coming fast, a hard tick as it's level with you, and the pitch falling away behind.
+## The whiz of a tumbling ball (a ricochet) going by: tearing air coming fast, a tick as it's
+## level with you, the pitch falling away behind. Not used until balls ricochet (a near miss snaps).
 static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	var n := int(RATE * 0.17)
 	var out := PackedFloat32Array()
@@ -222,9 +222,9 @@ static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	return _normalise(out, 0.9)
 
 
-## A ball faster than sound passing close: its shock wave is a sharp N (an instant jump up, a
-## straight fall through to as far below, an instant jump back), a whip-crack, then its slap back
-## off the ground a few milliseconds later and a short hiss.
+## A ball passing close: the snap. A sharp N (an instant jump up, a straight fall through to as far
+## below, an instant jump back), then its slap back off the ground a few milliseconds later and a
+## short hiss.
 static func _crack(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	var n := int(RATE * 0.09)
 	var out := PackedFloat32Array()
