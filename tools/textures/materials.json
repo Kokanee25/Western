@@ -1,28 +1,33 @@
 {
- "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at 64 a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at 64 a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, chroma: scales on the tiles' L* and a*/b* (the judge's corrections). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
  "texels_per_metre": 64,
  "materials": {
   "floor": {
+   "lightness": 0.85, "chroma": 0.8,
    "boards": true, "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
    "what": "worn saloon floorboards: one continuous surface of old pine planking, the grain running left to right, scuffed by boots, darkened with spilt whiskey and tobacco, small knots and nail heads",
    "ref": ["saloon", 840, 520, 1130, 650]
   },
   "saloon_wall": {
+   "lightness": 0.75, "chroma": 0.45,
    "boards": true, "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
    "what": "the inside wall of an old saloon: rough-sawn pine boards stained dark reddish brown by years of lamp smoke, the grain running left to right, saw marks and the odd knot",
    "ref": ["saloon", 600, 20, 860, 200]
   },
   "dark_trim": {
+   "lightness": 0.9, "chroma": 0.8,
    "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
    "what": "dark stained and oiled hardwood, like a polished bar top worn by elbows and glasses, the grain running left to right",
    "ref": ["saloon", 1350, 380, 1640, 560]
   },
   "shot_table": {
+   "lightness": 0.7, "chroma": 0.75,
    "boards": true, "for": "saloon", "kind": "tile", "metres": [1.0, 1.0], "colours": 14,
    "what": "the top of an old saloon card table seen from above: warm honey-brown wood worn smooth, rings from glasses, scratches, the grain running left to right",
    "ref": ["saloon", 900, 700, 1300, 900]
   },
   "framing": {
+   "lightness": 0.9, "chroma": 0.8,
    "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
    "what": "a rough-hewn pine beam: weathered brown timber with deep checks (cracks) along the grain, the grain running left to right",
    "ref": ["saloon", 600, 20, 860, 200]

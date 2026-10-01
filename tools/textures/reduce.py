@@ -14,7 +14,8 @@ For each material in tools/textures/materials.json with a raw painting:
   3. a median over half a texel (the model's fine noise) and an area average down to 64 texels a
      metre (tools/textures/materials.json `texels_per_metre`): each texel the colour under it;
   4. the mosaic: each texel's difference from its neighbours pushed up a little (`MOSAIC`), as
-     the painting's squares differ shade to shade;
+     the painting's squares differ shade to shade; then the material's `lightness` and `chroma`
+     (scales on L* and on a*/b*, set from what tools/judge.py measures against the paintings);
   5. its own palette (k-means in Lab, `colours`), every texel snapped to it.
 Writes assets/textures/<id>.png (one texel a tile, read nearest by PixelArt.material(); its
 .import is written too: lossless, mipmaps, never VRAM-compressed) and assets/textures/textures.json
@@ -196,6 +197,9 @@ def reduce(mid, spec, tpm):
     size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
     t = to_texels(a, size)
     lab = mosaic(to_lab((t * 255).astype(np.uint8)), MOSAIC, kind != "sign")
+    # The judge's corrections per material: how light, how strongly coloured.
+    lab[..., 0] *= spec.get("lightness", 1.0)
+    lab[..., 1:] *= spec.get("chroma", 1.0)
     lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
     rgb = lab_to_rgb(lab)
     Image.fromarray(rgb).save(os.path.join(OUT, mid + ".png"))

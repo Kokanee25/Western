@@ -62,8 +62,9 @@ func _build() -> void:
 	var model := Node3D.new()
 	model.name = "Model"
 	PropModels.lamp(model)
-	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The brass font shades the table under the flame (the dark ring round a lamp's foot); the
+	# glass doesn't.
+	(model.get_node(^"Chimney") as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(model)
 	_flame_material = StandardMaterial3D.new()
 	_flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

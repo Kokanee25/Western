@@ -235,7 +235,11 @@ static func _props(s: FalseFrontBuilding, props: Node3D, f: float) -> void:
 	for p in [[Vector3(w * 0.5 - 0.95, f + 2.0, sd + 0.02), 0.0], [Vector3(2.0, f + 2.1, sd + 0.02), 0.0],
 			[Vector3(w - sd - 0.02, f + 2.55, 3.3), -90.0], [Vector3(w - sd - 0.02, f + 2.55, 9.0), -90.0],
 			[Vector3(w - 0.8, f + BALCONY_HEIGHT + 1.5, sd + 0.02), 0.0], [Vector3(sd + 0.02, f + 1.9, d - 2.4), 90.0]]:
-		_place(s, props, &"wall_sconce", p[0], p[1])
+		var sconce := _place(s, props, &"wall_sconce", p[0], p[1])
+		var light := sconce.get_node_or_null(^"Light") as OilLamp if sconce else null
+		if light:
+			light.energy = 0.75  # many lamps in one room: each a little dimmer
+
 
 
 static func _place(s: FalseFrontBuilding, props: Node3D, id: StringName, pos: Vector3, yaw: float) -> Node3D:
