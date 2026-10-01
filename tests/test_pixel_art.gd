@@ -83,3 +83,46 @@ func test_pixel_shading_is_a_setting() -> void:
 	Settings.reset_to_defaults()
 	main.queue_free()
 	await process_frames(2)
+
+
+func test_tile_look_is_a_setting() -> void:
+	check_eq(Settings.tile_look, &"square", "every texel a tile lit as one colour by default")
+	check_near(Settings.tile_globals()[&"tile_light"], 1.0, 0.001, "tile light on")
+	Settings.cycle_tile_look()
+	check_eq(Settings.tile_look, &"ragged", "P: ragged tiles")
+	check_near(Settings.tile_globals()[&"tile_ragged"], Settings.TILE_RAGGED, 0.001, "tiles wander")
+	Settings.cycle_tile_look()
+	check_eq(Settings.tile_look, &"off", "P again: off")
+	check_near(Settings.tile_globals()[&"tile_light"], 0.0, 0.001, "smooth light")
+	check(Settings.look_description().contains("tiles off"), "described: %s" % Settings.look_description())
+	Settings.reset_to_defaults()
+	check_near(Settings.tile_globals()[&"tile_ragged"], 0.0, 0.001, "square again")
+
+
+func test_tiled_materials_follow_the_texel_grid() -> void:
+	var m := Tiles.material(PixelArt.wood("test_tiles", Color(0.4, 0.25, 0.12), 3), Color.WHITE, 0.9, 0.0, true)
+	var scale: Vector3 = m.get_shader_parameter(&"uv1_scale")
+	check_near(scale.x * PixelArt.SIZE, PixelArt.texels_per_meter, 0.001, "on the world's grid")
+	PixelArt.set_density(16.0, false)
+	scale = m.get_shader_parameter(&"uv1_scale")
+	check_near(scale.x * PixelArt.SIZE, 16.0, 0.001, "follows F7")
+	PixelArt.set_density(40.0, true)
+
+
+func test_portrait_is_brought_to_face_tiles_without_holes() -> void:
+	# A painted oval 384x256 with a hole where an eye socket was missed, the way projections come out.
+	var p := Image.create(384, 256, false, Image.FORMAT_RGBA8)
+	for y in 256:
+		for x in 384:
+			var d := Vector2((x - 192.0) / 90.0, (y - 128.0) / 110.0)
+			if d.length() < 1.0:
+				p.set_pixel(x, y, Color(0.7, 0.5, 0.4, 1.0))
+	for y in range(100, 116):
+		for x in range(150, 170):
+			p.set_pixel(x, y, Color(0, 0, 0, 0))
+	var t := PeopleArt.portrait_tiles(p)
+	check_eq(Vector2i(t.get_width(), t.get_height()), Vector2i(PeopleArt.FACE_W, PeopleArt.FACE_H), "the face's own tile size")
+	var hole := t.get_pixel(160 / 4, 108 / 4)
+	check(hole.a > 0.99, "the hole is filled")
+	check_near(hole.r, 0.7, 0.02, "with the skin round it")
+	check(t.get_pixel(2, 2).a < 0.01, "outside the face stays clear")

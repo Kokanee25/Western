@@ -47,6 +47,8 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.name = "TableLamp"
 	lamp.lit_from_hour = 0
 	lamp.lit_until_hour = 24
+	# The game's lamp (the painted man's light, paint_look, was tuned under it; mosaic-tiles' 2.6
+	# was tried for the key on his face).
 	lamp.energy = 1.5
 	lamp.light_range = 7.0
 	root.add_child(lamp)
@@ -128,15 +130,10 @@ static func _clear_props(street: Node3D, t: Vector3) -> void:
 			p.free()
 
 
-static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
+## Props on the mosaic tiles, textured on the world's texel grid in their own space.
+static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0) -> ShaderMaterial:
+	var m := Tiles.material(tex, tint, rough, metal, true)
 	m.resource_name = key
-	m.albedo_texture = tex
-	m.albedo_color = tint
-	m.uv1_triplanar = true
-	m.roughness = rough
-	m.metallic = metal
-	PixelArt.track(m)
 	return m
 
 
@@ -212,7 +209,7 @@ static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
 	_mesh(chair, "Rail", rail, Vector3(0, 0.93, 0.19), wood)
 
 
-static func _tin() -> StandardMaterial3D:
+static func _tin() -> ShaderMaterial:
 	# Dull tin, lit mostly as paint (fully metallic it had nothing to reflect and went black).
 	return _mat("tin", PixelArt.metal("shot_tin", Color(0.62, 0.6, 0.55), 71, 0.5), Color.WHITE, 0.5, 0.25)
 

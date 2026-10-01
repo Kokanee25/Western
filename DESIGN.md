@@ -138,6 +138,27 @@ with the revolver; the target for the street, materials and daylight).
       fallback when a generated body isn't there, and for tests).
   - Real-GPU caveat: cloud renders use software Vulkan; ask Sean for a screenshot of the same view from
     his PC at milestones, since lighting can differ.
+  - **What the painting's pixels are (2026-10-01, studied up close):** not screen pixels but
+    **tiles on the surfaces**, each a fixed real size (about 6 mm–1 cm on his face, 2–3 cm on the
+    coat and the table): big up close, almost smooth on the bartender across the room, squashed on
+    surfaces seen at an angle, curving round his cheek and the cup, with slightly ragged edges like
+    dabs of paint, and **each tile lit as one flat colour**. The picture itself is sharp. Under the
+    tiles is a realistic, well-lit portrait with a lot of colour in every material (his coat is
+    dozens of browns). What that means for us, and what's built:
+    - **Light per tile** (`src/render/tiles.gdshaderinc`, `Settings.tile_look`, **P**: off /
+      square / ragged): lights and shadows are worked out once per texel, at its centre. The world
+      (members, blockouts, ground, bullet holes), people and props all use it; default square.
+    - **One tile size** for everything near you: his face is ~20 tiles across, like the painting's
+      (the image-model portrait is brought down to the face's tile size), cloth ~2 cm.
+    - **Tiles need content:** a flat colour with a few shadow blotches can't look like the painting
+      however it's lit. Clothes are baked with real detail (`tools/blender/clothes.py`: shadow in
+      creases and under the arms, worn edges, dust, the cloth's mottle, 16 colours, tile rows
+      running across the body). The same idea goes for everything else: realistic detail (baked,
+      scanned or image-model painted), then reduced to tiles.
+    - **Full resolution shows it best:** the painting is a sharp picture. F2's last stop renders at
+      the window's own size ("native"); 1280×720 is the default (2026-09-30).
+    - Not yet like the painting: the face (lighting, pose, the repaint), hair, moustache volume,
+      hands, the shirt front and tie, then the room (walls on tiles, dressing, moonlit windows).
 - The internal resolution is also the main performance lever: 1280×720 is under half the pixels
   of 1080p, and F2 drops to 960×540 or 640×360 on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.

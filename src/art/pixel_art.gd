@@ -45,6 +45,20 @@ static func _apply_hole(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
 
 
+## Tiled materials (Tiles.material) laid out on the texel grid.
+static var _tiled: Array[ShaderMaterial] = []
+
+
+static func track_tiled(m: ShaderMaterial) -> void:
+	_tiled.append(m)
+	_apply_tiled(m)
+
+
+static func _apply_tiled(m: ShaderMaterial) -> void:
+	var t := texels_per_meter / SIZE
+	m.set_shader_parameter(&"uv1_scale", Vector3(t, t, t))
+
+
 static func track_ground(m: ShaderMaterial) -> void:
 	_ground.append(m)
 	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
@@ -62,6 +76,9 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 	for g in _ground:
 		if is_instance_valid(g):
 			g.set_shader_parameter(&"texels_per_meter", texels)
+	for m in _tiled:
+		if is_instance_valid(m):
+			_apply_tiled(m)
 
 
 static func _apply(m: BaseMaterial3D) -> void:

@@ -2,8 +2,10 @@
 // the body parts) or by its UVs (the generated body: BodyMesh), opened where wounds have torn it
 // (see wounds.gdshaderinc). Included by body_skin.gdshader (one-sided) and
 // body_skin_double.gdshader (open garments seen from inside: vests, brims, bandanas).
+// Lit tile by tile like every surface (src/render/tiles.gdshaderinc; P switches it).
 
 #include "res://src/bodies/shaders/wounds.gdshaderinc"
+#include "res://src/render/tiles.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
@@ -94,42 +96,41 @@ vec3 painted_to_scene(vec3 c) {
 	return aces_inverse(from_srgb(s));
 }
 
-// A painted texture's texels are its squares (tools/paint/finish.py): light each one as one, at its
-// centre, so light and shadow step square by square as in the painting, not across them. Where the
-// surface point and its normal would be at the texel's centre comes from how they change across
-// the screen against the UVs; a quad of pixels over a seam gives nonsense, so big jumps are left.
-void light_whole_square(vec2 uv, vec3 vertex, vec3 normal, inout vec3 light_vertex, inout vec3 normal_out) {
-	vec2 size = vec2(textureSize(albedo_tex, 0)) / max(square_texels, 1.0);
-	vec2 to_centre = ((floor(uv * size) + 0.5) / size) - uv;
-	vec2 ux = dFdx(uv);
-	vec2 uy = dFdy(uv);
-	float det = ux.x * uy.y - ux.y * uy.x;
-	if (abs(det) < 1e-14) {
-		return;
-	}
-	vec3 pu = (uy.y * dFdx(vertex) - ux.y * dFdy(vertex)) / det;
-	vec3 pv = (-uy.x * dFdx(vertex) + ux.x * dFdy(vertex)) / det;
-	vec3 off = pu * to_centre.x + pv * to_centre.y;
-	if (length(off) < 0.05) {
-		light_vertex = vertex + off;
-	}
-	vec3 nu = (uy.y * dFdx(normal) - ux.y * dFdy(normal)) / det;
-	vec3 nv = (-uy.x * dFdx(normal) + ux.x * dFdy(normal)) / det;
-	vec3 n = normal + nu * to_centre.x + nv * to_centre.y;
-	if (length(n - normal) < 0.4) {
-		normal_out = normalize(n);
-	}
-}
-
 void fragment() {
 	bool painted = uv_rect.z > 0.0;
 	vec2 tuv = painted ? (UV - uv_rect.xy) / uv_rect.zw : UV * uv_scale;
-	vec3 base = (use_uv ? texture(albedo_tex, tuv).rgb : triplanar(local_pos, local_normal)) * tint.rgb;
+	// The tile this fragment is in (tiles.gdshaderinc), counted in tiles: by UV (a painted
+	// texture's squares are square_texels a side: the face's eyes are drawn finer than its
+	// squares), or by the plane the triplanar texture mostly comes from. Light is worked out once,
+	// at the tile's centre. All before any discard, since it takes screen derivatives.
+	vec2 tsize = vec2(textureSize(albedo_tex, 0));
+	float per_tile = painted ? max(square_texels, 1.0) : 1.0;
+	vec2 t;
+	if (use_uv) {
+		t = tuv * tsize / per_tile;
+	} else {
+		vec3 an = abs(local_normal);
+		vec3 p = local_pos * uv_scale;
+		t = (an.x > an.y && an.x > an.z ? p.zy : (an.y > an.z ? p.xz : p.xy)) * tsize;
+	}
+	vec2 centre = tile_centre(t);
+	vec2 tuv_dx = dFdx(tuv);
+	vec2 tuv_dy = dFdy(tuv);
+	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL);
+	vec3 base;
+	if (!use_uv) {
+		base = triplanar(local_pos, local_normal);
+	} else if (per_tile > 1.0) {
+		base = texture(albedo_tex, tuv).rgb;
+	} else {
+		// One colour a tile: its own texel's (ragged tiles move only the edges between them).
+		base = textureGrad(albedo_tex, centre / tsize, tuv_dx, tuv_dy).rgb;
+	}
+	base *= tint.rgb;
 	float glow = 0.0;
 	if (painted) {
 		base = painted_to_scene(base);
 		glow = self_lit;
-		light_whole_square(tuv, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL);
 	}
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;

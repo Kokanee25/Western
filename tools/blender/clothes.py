@@ -5,11 +5,13 @@ Each garment starts as a shell over the parts of the body it covers, pushed out 
 thickness: the shirt (with a collar), trousers, a vest open at the neck, a coat open down the front
 with raised lapels and a collar. The coat's skirt is extruded down from its hem to mid-thigh and
 draped with Blender's cloth simulation over his hips and legs (the top of the coat pinned), so it
-hangs and folds. A string tie hangs at the collar. Then for each garment: its UVs unwrapped, the
-ambient occlusion from everything round it baked with Cycles (where cloth tucks under, laps over,
-folds), mixed with a little weave, and quantized to a few shades of the garment's colour, at about
-48 texels per metre, like the rest of the world. The texture is saved next to the .glb as
-<id>_<garment>.png; the game reads it with nearest filtering.
+hangs and folds. A string tie hangs at the collar. Then for each garment: its UVs unwrapped with
+every island turned upright (so rows of texels run across the body, like the painting's tiles), and
+its look baked with Cycles into a texture of about 48 texels per metre (one tile, ~2 cm): shadow in
+creases and laps and under the arms (occlusion near and far), worn pale edges where it sticks out,
+dust low down and on what faces up, and the cloth's own mottle, on a ramp of the garment's colour
+cut to 16 colours. The game lights each texel as one tile (src/render/tiles.gdshaderinc). Saved next
+to the .glb as <id>_<garment>.png.
 """
 import math
 import os
@@ -46,20 +48,6 @@ COAT_BULK = {"upper_arm": 0.045, "forearm": 0.024, "chest": 0.03, "abdomen": 0.0
 def hex_colour(h):
     h = h.lstrip("#")
     return np.array([int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)])
-
-
-def ramp(base, count=5, spread=0.45):
-    """Dark to light shades of a colour, warmer in the lights (as PixelArt.ramp does)."""
-    out = []
-    for i in range(count):
-        t = i / (count - 1) - 0.5
-        c = base * (1.0 + t * spread * 2.0)
-        if t > 0:
-            c = c + np.array([0.04, 0.02, -0.01]) * t
-        else:
-            c = c + np.array([-0.01, -0.005, 0.02]) * t
-        out.append(np.clip(c, 0, 1))
-    return out
 
 
 def vertex_normals(v, faces):
@@ -453,7 +441,11 @@ def unwrap(obj):
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.uv.smart_project(angle_limit=math.radians(72), island_margin=0.01)
-    bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
+    # Each island turned so "up" on the body is up in the texture: rows of texels (tiles) run
+    # across the body and line up from island to island.
+    bpy.ops.uv.select_all(action="SELECT")
+    bpy.ops.uv.align_rotation(method="GEOMETRY", axis="Z")
+    bpy.ops.uv.pack_islands(rotate=False, margin=0.01)
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
@@ -474,55 +466,122 @@ def surface_area(obj):
     return sum(p.area for p in obj.data.polygons)
 
 
-def bake_texture(obj, colour, path, seed=1, style="wool"):
-    """AO from everything round it, a little weave, a few shades of `colour`: a pixel texture."""
-    area = surface_area(obj)
-    size = int(2 ** round(math.log2(max(32, min(256, math.sqrt(area / uv_coverage(obj)) * TEXELS_PER_M)))))
-    img = bpy.data.images.new(obj.name + "_ao", size, size)
+def _bake(obj, size, kind, samples=64, emit=None):
+    """One pass of `obj` baked into a fresh size x size data image, returned as an array (rows
+    bottom-up, like Blender's): "AO", or "EMIT" with `emit(nodes, links)` giving the socket to bake."""
+    img = bpy.data.images.new("%s_%s" % (obj.name, kind), size, size, float_buffer=True)
+    img.colorspace_settings.name = "Non-Color"
     mat = bpy.data.materials.new(obj.name + "_bake")
     mat.use_nodes = True
-    node = mat.node_tree.nodes.new("ShaderNodeTexImage")
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    node = nodes.new("ShaderNodeTexImage")
     node.image = img
-    mat.node_tree.nodes.active = node
+    nodes.active = node
+    if emit is not None:
+        em = nodes.new("ShaderNodeEmission")
+        links.new(emit(nodes, links), em.inputs["Color"])
+        links.new(em.outputs["Emission"], nodes["Material Output"].inputs["Surface"])
     obj.data.materials.clear()
     obj.data.materials.append(mat)
     scene = bpy.context.scene
-    if scene.world is None:
-        scene.world = bpy.data.worlds.new("World")
-    # Only nearby cloth and skin shade it: creases, laps, folds (not the whole man).
-    scene.world.light_settings.distance = 0.1
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
-    scene.cycles.samples = 128
+    scene.cycles.samples = samples
     scene.render.bake.margin = 3
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.bake(type="AO")
-    ao = np.array(img.pixels[:]).reshape(size, size, 4)[:, :, 0]
-    # A light blur takes the sampling grain out (the shading should be broad, painted-looking).
-    pad = np.pad(ao, 1, mode="edge")
-    ao = sum(pad[dy:dy + size, dx:dx + size] for dy in range(3) for dx in range(3)) / 9.0
-    rng = np.random.default_rng(seed)
-    noise = rng.random((size, size))
-    # Coarse mottling (wool), fine weave.
-    coarse = np.kron(rng.random((size // 8 + 1, size // 8 + 1)), np.ones((8, 8)))[:size, :size]
-    if style == "wool":
-        tex = 0.62 * coarse + 0.38 * noise
-    else:
-        weave = ((np.add.outer(np.arange(size), np.arange(size)) % 2) * 1.0)
-        tex = 0.5 * coarse + 0.3 * noise + 0.2 * weave
-    value = np.clip(0.05 + 0.85 * ao ** 1.6 + (tex - 0.5) * 0.12, 0, 1)
-    shades = ramp(colour, 5)
-    band = np.clip((value * len(shades)).astype(int), 0, len(shades) - 1)
-    rgb = np.stack([shades[b] for b in band.ravel()]).reshape(size, size, 3)
-    out = bpy.data.images.new(os.path.basename(path), size, size)
-    px = np.concatenate([rgb, np.ones((size, size, 1))], axis=2)
-    out.pixels.foreach_set(px.ravel().astype(np.float32))
-    out.filepath_raw = path
-    out.file_format = "PNG"
-    out.save()
+    bpy.ops.object.bake(type=kind)
+    out = np.array(img.pixels[:]).reshape(size, size, 4)[:, :, :3].copy()
     obj.data.materials.clear()
+    return out
+
+
+def _smooth_noise(rng, size, cell):
+    """Value noise with blobs about `cell` texels across (bilinear between random points)."""
+    n = rng.random((size // cell + 2, size // cell + 2))
+    f = np.arange(size) / cell
+    i = np.floor(f).astype(int)
+    t = (f - i)[:, None]
+    rows = n[i] * (1 - t) + n[i + 1] * t
+    cols = rows[:, i] * (1 - t.T) + rows[:, i + 1] * t.T
+    return cols
+
+
+def cloth_look(colour, ao_near, ao_far, point, height, up, seed, style):
+    """The garment's colour per texel from its baked passes (each size x size): what a painter
+    would put in each tile of the painting's coat."""
+    size = ao_near.shape[0]
+    rng = np.random.default_rng(seed)
+    wool = style == "wool"
+    per_tile = rng.random((size, size)) - 0.5
+    blobs = _smooth_noise(rng, size, 3) - 0.5
+    broad = _smooth_noise(rng, size, 9) - 0.5
+    # Light and dark (in stops): creases and laps, the hollows under the arms and inside the coat,
+    # edges that catch the light, and the cloth's own unevenness (wool mottles more than cotton).
+    # Deep creases go dark brown, never black: the game's own light and shadow do the rest.
+    shade = (-0.5 * (1.0 - ao_near) ** 0.8 - 0.3 * (1.0 - ao_far)
+             + 4.0 * np.clip(point - 0.52, -0.04, 0.04)
+             + (0.17 if wool else 0.1) * per_tile + 0.12 * blobs + 0.08 * broad)
+    c = colour[None, None, :] * np.exp2(2.0 * shade)[..., None]
+    # Each tile leans a little warm or cool (heathered wool, sun-faded cotton).
+    lean = (rng.random((size, size)) - 0.5) * (0.1 if wool else 0.05)
+    c = c * (1.0 + lean[..., None] * np.array([1.0, 0.3, -0.8]))
+    # Wear: edges that stick out rubbed paler and greyer.
+    wear = np.clip((point - 0.52) * 7.0, 0.0, 1.0) * 0.5
+    grey = c.mean(-1, keepdims=True)
+    c = c * (1.0 - wear[..., None]) + (grey * 1.25 + 0.015) * wear[..., None]
+    # Dust: thickest low down (hems, cuffs, knees) and on what faces up (shoulders), in patches.
+    dust = np.clip((0.8 - height) / 0.6, 0.0, 1.0) * 0.35 + np.clip(up - 0.55, 0.0, 0.45) * 0.45
+    dust = dust * (0.7 + 0.6 * (blobs + 0.5))
+    c = c * (1.0 - dust[..., None]) + np.array([0.5, 0.43, 0.34]) * dust[..., None]
+    return np.clip(c, 0.0, 1.0)
+
+
+def bake_texture(obj, colour, path, seed=1, style="wool", over=()):
+    """The garment's look baked into a small texture, one texel per tile (cloth_look), cut to 16
+    colours without dithering, so each tile is one clean colour. `over`: the garments worn over
+    this one, left out of the bake (where they cover it, it isn't seen; where it shows, they'd
+    only darken it wholesale: their shadow is the game's to cast)."""
+    from PIL import Image
+    for o in over:
+        o.hide_render = True
+    area = surface_area(obj)
+    size = int(2 ** round(math.log2(max(32, min(256, math.sqrt(area / uv_coverage(obj)) * TEXELS_PER_M)))))
+    scene = bpy.context.scene
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("World")
+    # Near: creases, laps, folds. Far: under the arms, inside the coat, between the legs.
+    scene.world.light_settings.distance = 0.04
+    ao_near = _bake(obj, size, "AO")[:, :, 0]
+    scene.world.light_settings.distance = 0.3
+    ao_far = _bake(obj, size, "AO")[:, :, 0]
+
+    def pointiness(nodes, links):
+        return nodes.new("ShaderNodeNewGeometry").outputs["Pointiness"]
+
+    def height_up(nodes, links):
+        geo = nodes.new("ShaderNodeNewGeometry")
+        pos = nodes.new("ShaderNodeSeparateXYZ")
+        nrm = nodes.new("ShaderNodeSeparateXYZ")
+        out = nodes.new("ShaderNodeCombineXYZ")
+        links.new(geo.outputs["Position"], pos.inputs[0])
+        links.new(geo.outputs["Normal"], nrm.inputs[0])
+        links.new(pos.outputs["Z"], out.inputs["X"])
+        links.new(nrm.outputs["Z"], out.inputs["Y"])
+        return out.outputs[0]
+
+    point = _bake(obj, size, "EMIT", 1, pointiness)[:, :, 0]
+    hu = _bake(obj, size, "EMIT", 1, height_up)
+    if os.environ.get("CLOTH_PASSES"):  # for tuning: the raw passes as .npz
+        np.savez(os.path.join(os.environ["CLOTH_PASSES"], os.path.basename(path) + ".npz"),
+                 ao_near=ao_near, ao_far=ao_far, point=point, height=hu[:, :, 0], up=hu[:, :, 1])
+    rgb = cloth_look(colour, ao_near, ao_far, point, hu[:, :, 0], hu[:, :, 1], seed, style)
+    img = Image.fromarray((np.flipud(rgb) * 255.0 + 0.5).astype(np.uint8), "RGB")
+    img = img.quantize(colors=16, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB")
+    img.save(path)
+    for o in over:
+        o.hide_render = False
     return size
 
 

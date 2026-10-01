@@ -8,7 +8,7 @@ Dynamite: Q lights the fuse, hold LMB and let go to throw (longer = harder), RMB
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T     Debug readout: F3 / View
-Pixel size: F2     Pixel shading: F6     Texel size: F7     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
+Pixel size: F2 (last = native)     Pixel shading: F6     Texel size: F7     Tiles off/square/ragged: P     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
 Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L (or F12)     Tear a wound open: J     Reduced gore: F4
 Release mouse: Esc     This help: F1"""
@@ -40,7 +40,7 @@ func _ready() -> void:
 	_corner.modulate = Color(1, 1, 1, 0.55)
 	_readout = _label(Vector2(16, 16))
 	_readout.visible = false
-	# Flash the look settings whenever F2 / F6 / F7 change them.
+	# Flash the look settings whenever F2 / F6 / F7 / P change them.
 	_toast = _label(Vector2(16, 16))
 	_toast.visible = false
 	_toast.add_theme_font_size_override(&"font_size", 22)

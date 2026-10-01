@@ -20,6 +20,12 @@ const PAINT_PATH := "res://assets/people/%s_paint.json"
 const OUTFIT_KEYS := ["shirt", "vest", "coat", "trousers", "boots", "bandana", "hat"]
 
 static var _cache := {}
+## Each generated head's hat fit (BodyMesh.build's `hat_fit`), measured when it's loaded.
+static var _hat_fits := {}
+## Where the hat's band sits: this far above his eyes (the eyes are where the face painter puts
+## them, EYE_HEIGHT), low on the brow so the brim shades them, as in the painting.
+const BAND_ABOVE_EYES := 0.045
+const EYE_HEIGHT := 1.655
 
 
 static func has_model(model: StringName) -> bool:
@@ -27,12 +33,13 @@ static func has_model(model: StringName) -> bool:
 
 
 static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Dictionary:
-	var data := BodyMesh.build(anatomy, outfit)
 	if not has_model(model):
-		return data
+		return BodyMesh.build(anatomy, outfit)
 	var generated := _load(anatomy, model)
 	if generated.is_empty():
-		return data
+		return BodyMesh.build(anatomy, outfit)
+	# Boots, belts and the hat are still BodyMesh's; the hat is fitted to this man's own head.
+	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
@@ -145,9 +152,27 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 					weights[v * 4 + k] = float(pairs[k][1]) / total
 		var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
 		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres)
+		if shape == "head":
+			_hat_fits[model] = hat_fit(verts)
 	root.free()
 	_cache[model] = out
 	return out
+
+
+## Where a hat's band goes round this head: the middle of the head a little above the brow, and how
+## wide and deep the head is there and anywhere above it (the crown has to clear it all).
+static func hat_fit(head: PackedVector3Array) -> Dictionary:
+	var band_y := EYE_HEIGHT + BAND_ABOVE_EYES
+	var lo := Vector3(INF, 0.0, INF)
+	var hi := Vector3(-INF, 0.0, -INF)
+	for p in head:
+		if p.y >= band_y - 0.005:
+			lo = Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
+			hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
+	if lo.x == INF:
+		return {}
+	return {"band": Vector3((lo.x + hi.x) * 0.5, band_y, (lo.z + hi.z) * 0.5),
+			"half_width": (hi.x - lo.x) * 0.5, "half_depth": (hi.z - lo.z) * 0.5}
 
 
 ## A node's transform relative to the scene root, before it's in a tree.

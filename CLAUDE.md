@@ -148,6 +148,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
+- `src/render/` — `tiles.gdshaderinc` (mosaic tiles: light per texel via `LIGHT_VERTEX`, ragged
+  tile edges; shader globals `tile_light`/`tile_ragged` in project.godot, set by
+  `Settings.tile_look`, P), `Tiles.material()` + `tiled_lit.gdshader` (a StandardMaterial3D
+  stand-in on tiles; `PixelArt.track_tiled` keeps it on the texel grid), `pixel_screen.gdshader`.
+  `body_skin.gdshaderinc` (people) is on tiles too. `Settings.NATIVE` = render at the window's size.
 - `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
@@ -192,8 +197,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   portrait projected into the face layout → `<id>_face.png`, RGBA). `tools/faces/paint_face.py`
   asks an image model on OpenRouter (`OPENROUTER_API_KEY`, `FACE_MODEL`) to paint `people.json`'s
   `face` onto the guide in the style of `assets/people/face_style_ref.png`. Runs on GitHub Actions
-  (`.github/workflows/people.yml`, manual; commits `assets/people/`) or here with
-  `pip install bpy==5.0.1` in a venv (PyPI is reachable from the workspace now).
+  (`.github/workflows/people.yml`, manual; commits `assets/people/`) or here:
+  `python3.11 -m venv ~/bpyenv && ~/bpyenv/bin/pip install bpy==5.0.1 numpy pillow`, then
+  `godot --headless -s res://tools/people_envelope.gd`, `python3 tools/blender/fetch_makehuman.py`,
+  `~/bpyenv/bin/python tools/blender/make_people.py --only=outlaw` (~15 s; byte-for-byte repeatable
+  except the face guide render). `CLOTH_PASSES=dir` saves each garment's raw bake passes for tuning.
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
@@ -897,3 +905,27 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     A-pose man → Tripo model + rig → our Blender fit to skeleton/hitboxes (our own hands) → card
     table under the filter. Waiting on Sean: repo secret `TRIPO_API_KEY`, and optional reference
     stills for tuning the filter (keep them out of the repo: public, not ours).
+- 2026-10-01: **The painting's pixels are tiles on the surfaces; the man is on tiles.** Studied the
+  painting up close (DESIGN.md §4 "What the painting's pixels are"): tiles of a fixed real size,
+  each lit as one colour, on a sharp picture, carrying realistic detail. Built: `tiles.gdshaderinc`
+  (light per texel via `LIGHT_VERTEX`, ragged option; globals `tile_light`/`tile_ragged`;
+  `Settings.tile_look`, saved, **P** cycles off/square/ragged, default square) on people and the
+  shot match's props (`Tiles.material`); F2's last stop is **native** (`Settings.NATIVE`); the
+  face portrait brought to 96×64 tiles with its holes filled (`PeopleArt.portrait_tiles`);
+  `clothes.py` bake rewritten (occlusion near 4 cm / far 30 cm with the layers worn over it left out,
+  pointiness wear, dust by height and by facing up, mottle, warm/cool lean, 16 colours, UV islands
+  turned upright so tile rows run across the body); the hat fitted to the generated head
+  (`PeopleBodies.hat_fit` → `BodyMesh.hat_rows`: MakeHuman's head sits ~6 cm further forward and is
+  bigger than the lofted one, so his skull poked out of the crown), band 4.5 cm above the eyes, a
+  lower tapered crown, 7-shade felt; the shot match's table lamp is the key on his face (2.6).
+  Works on the Compatibility (web) renderer too. Renders `docs/screenshots/shot_match/round7_*`.
+  The people pipeline runs in the workspace (commands above). 232 tests pass.
+  - OpenRouter: Sean added it to the environment, but this session still got a proxy 403 for
+    openrouter.ai (environment changes reach new sessions). Next session: `curl -s
+    https://openrouter.ai/api/v1/key` to check; with an API credential the network adds the key
+    (`OPENROUTER_API_KEY` stays unset): `python3 tools/faces/paint_face.py --proxy-key --repaint`.
+  - Next, the man first: his face lit and turned like the painting's (warm key from the lamp,
+    three-quarter to you), repaint it with the image model and fix the projection's holes in
+    `faces.py`; hair under the hat, a moustache with volume, real fingers, the shirt front and tie.
+    Then the room on tiles (members, walls, props through `Tiles`), dressing, the moonlit doorway.
+    Ask Sean: default resolution (640×360 or native) and tile look (square or ragged).
