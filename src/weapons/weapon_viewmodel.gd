@@ -4,6 +4,9 @@ extends Node3D
 ## back from walls (the tuck), where a shot starts and which way it goes, sounds. Each gun sits
 ## under the player's camera; only the `selected` one reads the controls and moves the camera.
 ## Subclasses set `_pose_pos`/`_pose_rot` (where the gun is heading) and `_muzzle_local`.
+## Nobody holds a gun dead still: it wanders (`sway`: a slow drift, breathing, a fine shake),
+## more from the hip, winded or rattled (PlayerComposure), less crouched or once the sights have
+## been held still a moment, and the shot goes where the barrel points, not where you look.
 
 ## Up close to a wall (or a person) the gun comes back to the chest instead of pushing through.
 ## Clearance kept between the muzzle and the wall, and over how much extra closeness the gun goes
@@ -28,6 +31,19 @@ var needs_captured_mouse := true
 var tuck := 0.0
 ## Where the last shot started (tests check it can't start beyond a wall).
 var last_shot_origin := Vector3.ZERO
+## Where the barrel's wandered off your line of sight (degrees: x to the right, y up). The shot
+## goes with it.
+var sway := Vector2.ZERO
+## Seconds the sights have been held still (settles the sway).
+var steady := 0.0
+## How much this gun wanders, against a revolver held out at arm's length.
+var sway_factor := 1.0
+## Tests: hold it dead still (no sway at all).
+var steady_hands := false
+var _sway_time := 0.0
+var _breath_phase := 0.0
+var _jerk := Vector2.ZERO
+var _sway_phase: Array[float] = []
 
 var _player: Player
 var _rng := RandomNumberGenerator.new()
@@ -147,8 +163,9 @@ func _action_ok(action: StringName) -> bool:
 	return _mouse_ready() or not _pressed_by_mouse_only(action)
 
 
-## Where a shot from `muzzle` starts and which way it goes: towards whatever the crosshair is on
-## (so the sights are true), but never starting beyond a wall between the eye and the muzzle.
+## Where a shot from `muzzle` starts and which way it goes: towards whatever the sights are on
+## (your line of sight turned by the sway: the sights are true, the hands aren't steady), but never
+## starting beyond a wall between the eye and the muzzle.
 ## Returns [origin, direction, exclude].
 func _shot_line(muzzle: Vector3) -> Array:
 	var cam := get_viewport().get_camera_3d() if get_viewport() else null
@@ -164,7 +181,8 @@ func _shot_line(muzzle: Vector3) -> Array:
 		var blocked := get_world_3d().direct_space_state.intersect_ray(q0)
 		if not blocked.is_empty():
 			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
-		aim_dir = -cam.global_transform.basis.z
+		# Where the barrel's pointing: your line of sight, turned by the sway.
+		aim_dir = cam.global_transform.basis * (Basis.from_euler(Vector3(deg_to_rad(sway.y), deg_to_rad(-sway.x), 0.0)) * Vector3.FORWARD)
 		aim_point = cam.global_position + aim_dir * 80.0
 		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
 		q.exclude = exclude
@@ -173,6 +191,63 @@ func _shot_line(muzzle: Vector3) -> Array:
 			aim_point = hit.position
 	last_shot_origin = origin
 	return [origin, (aim_point - origin).normalized(), exclude]
+
+
+## Wander the barrel this frame (call from the gun's _process).
+func _update_sway(delta: float) -> void:
+	if _sway_phase.is_empty():
+		var r := RandomNumberGenerator.new()
+		r.seed = 9001
+		for i in 6:
+			_sway_phase.append(r.randf() * TAU)
+	var t: PlayerTuning = _player.tuning if _player and _player.tuning else PlayerTuning.new()
+	var moving := _player.get_horizontal_speed() if _player else 0.0
+	if aiming and moving < 0.5:
+		steady += delta
+	else:
+		steady = 0.0
+	var scale := _player.composure.sway_scale() if _player and _player.composure else 1.0
+	var winded := _player.composure.winded if _player and _player.composure else 0.0
+	var amp := (t.sway_aim if aiming else t.sway_hip) * lerpf(t.unsettled, 1.0, clampf(steady / maxf(t.settle_time, 0.01), 0.0, 1.0))
+	if _player and _player.is_crouching:
+		amp *= t.crouch_sway
+	amp = (amp + moving * t.move_sway) * scale * sway_factor
+	_sway_time += delta
+	var w := _sway_time
+	var p := _sway_phase
+	# A slow drift: two unrelated slow waves on each axis, so it never quite repeats.
+	var drift := Vector2(sin(w * 0.71 + p[0]) * 0.6 + sin(w * 1.37 + p[1]) * 0.4,
+			sin(w * 0.53 + p[2]) * 0.6 + sin(w * 1.13 + p[3]) * 0.4) * amp
+	# Breathing: up and down, deeper and faster when winded.
+	_breath_phase += delta * TAU * t.breath_rate * (1.0 + winded * 1.5)
+	var breath := sin(_breath_phase) * t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
+	# A fine shake: a hurt arm (extra_spread) and being rattled make it worse.
+	var shake := Vector2(sin(w * 23.1 + p[4]), sin(w * 29.7 + p[5])) * (t.tremor + extra_spread * 0.12) * scale
+	_jerk *= exp(-delta * 7.0)
+	sway = Vector2.ZERO if steady_hands else drift + Vector2(0.0, breath) + shake + _jerk
+
+
+## A flinch: the gun jerks off line (degrees), then comes back.
+func jerk(degrees: float, rng: RandomNumberGenerator) -> void:
+	if steady_hands:
+		return
+	_jerk += Vector2(rng.randf_range(-1.0, 1.0), rng.randf_range(-0.5, 1.0)).normalized() * degrees
+	steady = 0.0
+
+
+## The gun's just gone off (or been jolted): the hold has to settle again.
+func _unsettle() -> void:
+	steady = 0.0
+
+
+## The sway as a turn of the gun (degrees, for rotation_degrees: x pitch up, y yaw left).
+func _sway_rotation() -> Vector3:
+	return Vector3(sway.y, -sway.x, 0.0)
+
+
+## Random spread on top of the sway (degrees): wounds (extra_spread) and a fresh flinch.
+func _wobble() -> float:
+	return extra_spread + (_player.composure.extra_spread() if _player and _player.composure else 0.0)
 
 
 func _ballistics() -> Ballistics:

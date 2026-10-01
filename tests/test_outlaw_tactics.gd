@@ -189,7 +189,7 @@ func test_rounds_cracking_past_keep_his_head_down() -> void:
 	await wait_until(func() -> bool: return brain.tactic == OutlawBrain.Tactic.HIDDEN, 60 * 6)
 	shots_by_outlaw = 0
 	for k in 8:
-		Events.near_miss.emit(outlaw, player, 0.6)
+		Events.near_miss.emit(outlaw, player, 0.6, outlaw.global_position + Vector3(0.6, 1.5, 0), 240.0)
 		await physics_frames(20)
 	check(brain.suppressed > 0.0, "pinned down")
 	check_eq(shots_by_outlaw, 0, "no shooting back while they crack past him")

@@ -11,17 +11,19 @@ func _ready() -> void:
 	Events.near_miss.connect(_on_near_miss)
 
 
-## The zip of a ball past your ear (only the listener's own near misses are worth playing).
-func _on_near_miss(person: Node, _shooter: Node, distance: float) -> void:
+## A ball going past your ear snaps, heard from where it went by (only the listener's own near
+## misses are worth playing). Sean, who's been near it: a near miss is a snap; the whiz people
+## expect is usually a ricochet (SynthSounds "zip", kept for when balls ricochet).
+func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, _speed: float) -> void:
 	if person.is_in_group(&"player") and person is Node3D:
-		_play_at(&"zip", (person as Node3D).global_position + Vector3.UP * 1.6, -4.0 - distance * 3.0)
+		_play_at(&"crack", at, 2.0 - distance * 4.0, 2.0)
 
 
-func _play_at(id: StringName, at: Vector3, db := 0.0) -> void:
+func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(id)
 	p.volume_db = db
-	p.unit_size = 6.0
+	p.unit_size = unit_size
 	add_child(p)
 	p.global_position = at
 	p.play()

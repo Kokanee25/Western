@@ -15,6 +15,7 @@ var force_crouch := false
 var is_crouching := false
 var is_running := false
 var wounds: PlayerWounds
+var composure: PlayerComposure
 ## The guns under the camera (the revolver, the shotgun), and the one in your hands.
 var weapons: Array[WeaponViewmodel] = []
 var weapon: WeaponViewmodel
@@ -44,6 +45,9 @@ func _ready() -> void:
 	add_child(wounds)
 	if tuning == null:
 		tuning = PlayerTuning.new()
+	composure = PlayerComposure.new()
+	composure.name = "Composure"
+	add_child(composure)
 	_capsule = CapsuleShape3D.new()
 	_capsule.radius = tuning.radius
 	collision.shape = _capsule

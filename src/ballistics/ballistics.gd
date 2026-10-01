@@ -241,7 +241,9 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	return remaining if b.alive else 0.0
 
 
-## Announce a bullet cracking past someone's head (within `tuning.near_miss_distance`).
+## Announce a bullet cracking past someone's head (within `tuning.near_miss_distance`), at its
+## closest: while it's still coming nearer (the nearest point of this tick's flight is its end)
+## it waits for the next tick.
 func _near_misses(b: Bullet, from: Vector3, to: Vector3) -> void:
 	var people := get_tree().get_nodes_in_group(&"people") + get_tree().get_nodes_in_group(&"player")
 	for p: Node in people:
@@ -250,9 +252,11 @@ func _near_misses(b: Bullet, from: Vector3, to: Vector3) -> void:
 		var head := (p as Node3D).global_position + Vector3.UP * 1.5
 		var closest := Geometry3D.get_closest_point_to_segment(head, from, to)
 		var d := closest.distance_to(head)
+		if b.alive and closest.distance_squared_to(to) < 1e-8 and from.distance_squared_to(to) > 1e-8:
+			continue  # still closing on him
 		if d < tuning.near_miss_distance:
 			b.passed[p] = true
-			Events.near_miss.emit(p, b.shooter, d)
+			Events.near_miss.emit(p, b.shooter, d, closest, b.velocity.length())
 
 
 func _set_energy(b: Bullet, joules: float) -> void:

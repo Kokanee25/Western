@@ -29,7 +29,7 @@ func after_each() -> void:
 	await physics_frames(2)
 
 
-func _on_near_miss(_person: Node, _shooter: Node, _d: float) -> void:
+func _on_near_miss(_person: Node, _shooter: Node, _d: float, _at: Vector3, _speed: float) -> void:
 	near_misses += 1
 
 

@@ -348,7 +348,7 @@ func _start_fight(with_who: Node) -> void:
 		body.draw_gun()
 
 
-func _on_near_miss(person: Node, shooter: Node, distance: float) -> void:
+func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _speed: float) -> void:
 	if person != body:
 		return
 	fear += 0.06 * clampf(2.5 - distance, 0.5, 2.5)
