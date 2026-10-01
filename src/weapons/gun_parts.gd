@@ -21,24 +21,44 @@ static func material(key: String, tex: Texture2D, metallic := 0.0, roughness := 
 	return _mats[key]
 
 
-static func blued() -> StandardMaterial3D:
-	return material("blued", PixelArt.metal("blued", Color(0.2, 0.22, 0.27), 71), 0.75, 0.35)
+## The same on the texel grid like the world (lit tile by tile), mapped by position in the part's
+## own space at the guns' finer density (not tracked: F7 doesn't change the guns). The guns' own
+## metals and wood use it; skin and cloth stay StandardMaterial3Ds (people read their textures).
+static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8) -> ShaderMaterial:
+	key = "grid:" + key
+	if not _mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = PixelArt.GRID_SHADER
+		m.set_shader_parameter(&"albedo_tex", tex)
+		m.set_shader_parameter(&"tint", Color.WHITE)
+		m.set_shader_parameter(&"mapping", PixelArt.Mapping.TRIPLANAR)
+		m.set_shader_parameter(&"texels_per_meter", TEXELS_PER_METER)
+		m.set_shader_parameter(&"use_mipmaps", true)
+		m.set_shader_parameter(&"metallic", metallic)
+		m.set_shader_parameter(&"roughness", roughness)
+		m.set_shader_parameter(&"specular", 0.5)
+		_mats[key] = m
+	return _mats[key]
 
 
-static func case_hardened() -> StandardMaterial3D:
-	return material("case", PixelArt.metal("case", Color(0.36, 0.34, 0.33), 73, 0.8), 0.7, 0.4)
+static func blued() -> ShaderMaterial:
+	return grid("blued", PixelArt.metal("blued", Color(0.2, 0.22, 0.27), 71), 0.75, 0.35)
 
 
-static func brass() -> StandardMaterial3D:
-	return material("brass", PixelArt.metal("brass", Color(0.72, 0.56, 0.27), 75), 0.85, 0.35)
+static func case_hardened() -> ShaderMaterial:
+	return grid("case", PixelArt.metal("case", Color(0.36, 0.34, 0.33), 73, 0.8), 0.7, 0.4)
 
 
-static func walnut() -> StandardMaterial3D:
-	return material("walnut", PixelArt.wood("walnut", Color(0.3, 0.17, 0.09), 77, 1, 0, 1.3), 0.0, 0.55)
+static func brass() -> ShaderMaterial:
+	return grid("brass", PixelArt.metal("brass", Color(0.72, 0.56, 0.27), 75), 0.85, 0.35)
 
 
-static func lead() -> StandardMaterial3D:
-	return material("lead", PixelArt.metal("lead", Color(0.45, 0.45, 0.47), 79), 0.4, 0.6)
+static func walnut() -> ShaderMaterial:
+	return grid("walnut", PixelArt.wood("walnut", Color(0.3, 0.17, 0.09), 77, 1, 0, 1.3), 0.0, 0.55)
+
+
+static func lead() -> ShaderMaterial:
+	return grid("lead", PixelArt.metal("lead", Color(0.45, 0.45, 0.47), 79), 0.4, 0.6)
 
 
 static func skin() -> StandardMaterial3D:
