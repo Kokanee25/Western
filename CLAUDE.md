@@ -1182,6 +1182,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: nothing's tagged `metal` yet (no iron in the town); tin cans are thin rigid bodies and
     are shot through, never glanced off; a man hit by a ricochet takes it as a normal ball,
     flattened (no "ricochet" wording in his wounds).
+- 2026-10-01 (gameplay, later): **Real bullet drop** (Sean: "bullet drop, but it needs to be real").
+  Drop and drag were always simulated; what wasn't real: the shot was aimed at whatever the sights
+  were on at any range (perfect point of aim), the revolver's bullet had a round ball's drag, and
+  outlaws never allowed for drop. Now: `Ballistics.flight(distance, speed, mass, diameter, cd)`
+  flies the same integrator at the physics tick and returns drop/time/speed (cached);
+  `holdover()` is the angle to come down onto a point. `WeaponViewmodel.zeroed()`: the ball leaves
+  the muzzle toward the point on your line of sight at the gun's zero, raised by the drop there
+  (`_load()`: revolver `zero_distance` 22.9 m, shotgun 36.6 m). Revolver vs line of sight: −0.5 cm
+  at 5 m, on at 22.9, −10 at 50, −31 at 75, −65 at 100 (0.44 s, 90% of 240 m/s left). `Bullet.drag`
+  per projectile (revolver `drag_coefficient` 0.28, a round ball/pellet the tuning's 0.47).
+  `OutlawBrain._held_over()`: aims at you held over for the drop at the range he judges
+  (`range_judgement` 0.12, own RNG). Test street: boards at 51 m (`target_board_50`, x 64 z 3) and
+  100 m (`target_board_100`, x 114 z −1) from the range spot, clear of the near board's backstop.
+  Tests `test_drop` (5; `test_composure` now compares against the zeroed line). 273 pass; body hits
+  to stop him still 1.46.
+  - Open with Sean: our .45 leaves at 240 m/s; a black-powder .45 Colt from a 7½" barrel is nearer
+    265–275 m/s (~+25% energy, flatter). Not changed: it would shift the gunfight's balance.
 - 2026-10-01 (art session, later): **Mountains on the skyline** (Sean: "those mountains in the
   distance like the concept art"). `Mountains` (above): spires left and right of the sun down the
   street, a low ridge in the gap under it, mesas and buttes round the rest of the town (they show

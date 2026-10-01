@@ -161,6 +161,16 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30, 0, -8.4)
 script = ExtResource("16_target")
 structure_id = &"target_board"
 
+[node name="TargetBoard50" type="Node3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 64, 0, 3)
+script = ExtResource("16_target")
+structure_id = &"target_board_50"
+
+[node name="TargetBoard100" type="Node3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 114, 0, -1)
+script = ExtResource("16_target")
+structure_id = &"target_board_100"
+
 [node name="CanRail" type="Node3D" parent="."]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 22, 0, -4.5)
 script = ExtResource("17_cans")
