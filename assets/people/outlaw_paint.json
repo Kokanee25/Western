@@ -1,6 +1,7 @@
 {
  "views": [
   "shot",
+  "shot_model",
   "front",
   "three_quarter",
   "side",
@@ -13,8 +14,7 @@
  ],
  "left_out": [
   "head_side",
-  "head_side_left",
-  "shot_model"
+  "head_side_left"
  ],
  "shapes": {
   "belt": {
@@ -30,7 +30,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.233,
+   "seen": 0.236,
    "colours": 5
   },
   "boots": {
@@ -46,7 +46,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.134,
+   "seen": 0.128,
    "colours": 6
   },
   "coat": {
@@ -62,7 +62,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.356,
+   "seen": 0.362,
    "colours": 12
   },
   "cravat": {
@@ -78,7 +78,7 @@
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.513,
+   "seen": 0.512,
    "colours": 5
   },
   "gun_belt": {
@@ -94,7 +94,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.558,
+   "seen": 0.557,
    "colours": 6
   },
   "hair": {
@@ -110,7 +110,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.578,
+   "seen": 0.584,
    "colours": 6
   },
   "hat": {
@@ -126,7 +126,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.791,
+   "seen": 0.795,
    "colours": 8
   },
   "hat_band": {
@@ -142,7 +142,7 @@
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.531,
+   "seen": 0.534,
    "colours": 8
   },
   "hat_brim": {
@@ -158,7 +158,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.908,
+   "seen": 0.912,
    "colours": 8
   },
   "head": {
@@ -191,7 +191,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.321,
+   "seen": 0.32,
    "colours": 5
   },
   "shirt": {
@@ -207,7 +207,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.041,
+   "seen": 0.042,
    "colours": 6
   },
   "skin": {
@@ -223,7 +223,7 @@
    ],
    "squares_per_m": 150.0,
    "texels_per_square": 1,
-   "seen": 0.059,
+   "seen": 0.061,
    "colours": 10
   },
   "trousers": {
@@ -239,7 +239,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.167,
+   "seen": 0.169,
    "colours": 8
   },
   "vest": {
@@ -255,7 +255,7 @@
    ],
    "squares_per_m": 80.0,
    "texels_per_square": 1,
-   "seen": 0.062,
+   "seen": 0.063,
    "colours": 10
   }
  }

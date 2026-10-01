@@ -151,7 +151,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
   Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
-  the camera's fov and pitch back to the game's (75°, level).
+  the camera's fov and pitch back to the game's (75°, level). `tools/fit_shot.gd` fits his SEAT,
+  TURN and pose offsets to the painting's man (outline, eyes, cup, palm in front of the mug).
   `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
   creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
   the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
@@ -861,3 +862,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     one or two cells wrong every run (the checks now catch them).
   - Next: his build and the hand round the cup (the painting's biggest shapes), the coat's lapels,
     then the hat's shape.
+- 2026-10-01 (later): **Round 11: his build, place and grip.** Sean: "Okay" to round 10's next steps.
+  Measured his outline from your seat against the painting's man (traced, `align.SHOT_OUTLINE`):
+  overlap 0.62, ours 78% of its area, shifted right, his right shoulder and arm short of the
+  painting's. `tools/fit_shot.gd` (new) fits his seat, turn and pose offsets to the outline, his eyes
+  and the cup (coordinate descent; poses snapped with `_apply_pose(0, true)`, else they ease in over
+  ~40 frames and the fit scores half-settled poses). Turning him to his left swings his head off the
+  painting's (his eyes cost more than the outline gains), so he stays nearly square (`TURN` 6.75°)
+  and sits 10 cm nearer you (`SEAT`); the coat is cut fuller (`COAT_BULK` upper arm 4.5 cm, chest 3,
+  forearm 2.4, belly 1.5; 7/5 cm looked inflated). The mug sat on his thumb side, so his curled
+  fingers closed on nothing and it floated over them: it's in his palm (`CUP_IN_HAND`), the arm and
+  wrist fitted so the back of his hand is towards you and his fingers cross it. Overlap 0.70, eyes
+  within 3 px, cup on the painting's. People run 8 (FLUX.2 [max] body sheet, ~$0.30) repainted him
+  for the new build: all six views in place (0.85–0.98 overlap), no goatee, the coat consistent
+  (the old sheet left pale patches on the bulkier coat). 228 pass. Renders
+  `docs/screenshots/character_lab/round11_*`.
+  - Known: his hand is smaller and thinner than the painting's (hand and finger sizes come from the
+    shared anatomy; a per-person hand size would be a body-build feature); the mug draws 98 px tall
+    from your seat, the painting's 128 (a bigger mug floated off his grip; bringing the hand nearer
+    you fights the back-of-hand rule); FLUX painted the back of him as a vest (no coat); the hat is
+    still the old shape (band hidden by the brim from your seat).
+  - Next: the hat's shape (crown dented, brim rolled hard on his right, sitting higher), the coat's
+    lapels; then his hands.

@@ -21,6 +21,10 @@ same body.
 - **His shirt front is the painting's**: a narrow V of shirt under the vest, the collar turned down
   either side of the knot, and the tie hanging straight down into the vest (it used to splay like
   a bow). No goatee any more.
+- **The men are built like the painting's man**: broader, in a fuller coat, freshly painted for
+  it. Try: press F5 until you're at the outlaw on the range and walk round him; press U to bring
+  the gang in and look at them at the bar. (The painting's seated man, with his mug, is only in the
+  comparison pictures for now.)
 
 ### New: real people, and the painting's shot
 

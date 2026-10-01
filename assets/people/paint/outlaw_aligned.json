@@ -1,25 +1,25 @@
 {
  "source": "tile",
  "back": {
-  "overlap_before": 0.894,
-  "overlap": 0.916,
-  "scale": 1.0373,
+  "overlap_before": 0.96,
+  "overlap": 0.968,
+  "scale": 0.9921,
   "shift": [
-   -25.9,
-   -23.2
+   6.1,
+   7.4
   ]
  },
  "front": {
-  "overlap_before": 0.901,
-  "overlap": 0.92,
-  "scale": 1.0015,
+  "overlap_before": 0.939,
+  "overlap": 0.975,
+  "scale": 0.9858,
   "shift": [
-   10.4,
-   -1.4
+   10.7,
+   18.8
   ],
-  "face_fit": 0.182,
-  "face_moved_px": 17.9,
-  "face_left_px": 1.9
+  "face_fit": 0.109,
+  "face_moved_px": 10.7,
+  "face_left_px": 1.6
  },
  "head_back": {
   "overlap_before": 0.912,
@@ -85,42 +85,45 @@
   "face_left_px": 8.9
  },
  "shot": {
-  "overlap_before": 0.753,
-  "overlap": 0.795,
-  "scale": 1.0202,
+  "overlap_before": 0.84,
+  "overlap": 0.848,
+  "scale": 0.9928,
   "shift": [
-   -33.7,
-   -11.4
+   5.8,
+   3.5
   ],
-  "face_fit": 0.137,
-  "face_moved_px": 14.4,
-  "face_left_px": 1.5
+  "face_fit": 0.037,
+  "face_moved_px": 3.9,
+  "face_left_px": 1.7
  },
  "side_left": {
-  "overlap_before": 0.902,
-  "overlap": 0.912,
-  "scale": 0.9954,
+  "overlap_before": 0.934,
+  "overlap": 0.944,
+  "scale": 0.9821,
   "shift": [
-   8.8,
-   4.3
+   10.2,
+   11.2
   ]
  },
  "side": {
-  "overlap_before": 0.912,
-  "overlap": 0.926,
-  "scale": 0.9939,
+  "overlap_before": 0.92,
+  "overlap": 0.952,
+  "scale": 0.9821,
   "shift": [
-   8.8,
-   9.9
+   12.9,
+   19.2
   ]
  },
  "three_quarter": {
-  "overlap_before": 0.866,
-  "overlap": 0.879,
-  "scale": 0.9963,
+  "overlap_before": 0.933,
+  "overlap": 0.966,
+  "scale": 0.9979,
   "shift": [
-   5.6,
-   10.3
-  ]
+   3.7,
+   9.7
+  ],
+  "face_fit": 0.198,
+  "face_moved_px": 19.4,
+  "face_left_px": 1.3
  }
 }
