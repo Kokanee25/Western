@@ -31,6 +31,7 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"glass": samples = _glass(rng)
 			&"flesh": samples = _flesh(rng)
 			&"zip": samples = _zip(rng)
+			&"crack": samples = _crack(rng)
 			&"timber_crack": samples = _timber_crack(rng)
 			&"timber_crash": samples = _timber_crash(rng)
 			&"fire": samples = _fire(rng)
@@ -198,21 +199,48 @@ static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	return _normalise(out, 0.8)
 
 
-## A ball passing close by the ear: a short rising-falling zip of hissing air.
+## A slow ball (slower than sound) passing close by the ear: a vicious whip of tearing air,
+## coming fast, a hard tick as it's level with you, and the pitch falling away behind.
 static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
-	var n := int(RATE * 0.22)
+	var n := int(RATE * 0.17)
 	var out := PackedFloat32Array()
 	out.resize(n)
 	var bp := 0.0
 	var prev := 0.0
+	var level_at := 0.045  # level with you
+	var phase := 0.0
 	for i in n:
 		var t := float(i) / RATE
 		var white := rng.randf_range(-1, 1)
-		bp = 0.7 * (bp + white - prev)
+		bp = 0.75 * (bp + white - prev)
 		prev = white
-		var env := sin(PI * t / 0.22) * sin(PI * t / 0.22)
-		out[i] = (bp * 0.6 + sin(TAU * lerpf(1900.0, 1100.0, t / 0.22) * t) * 0.35) * env
-	return _normalise(out, 0.7)
+		# Swelling in fast, dying away slower.
+		var env := pow(t / level_at, 2.0) if t < level_at else exp(-(t - level_at) / 0.035)
+		phase += TAU * (2600.0 if t < level_at else lerpf(2600.0, 900.0, minf((t - level_at) / 0.06, 1.0))) / RATE
+		var tick := exp(-absf(t - level_at) / 0.0015) * (1.0 if t >= level_at else 0.4)
+		out[i] = (bp * 0.7 + sin(phase) * 0.45) * env + tick * rng.randf_range(0.6, 1.0) * 0.9
+	return _normalise(out, 0.9)
+
+
+## A ball faster than sound passing close: its shock wave is a sharp N (an instant jump up, a
+## straight fall through to as far below, an instant jump back), a whip-crack, then its slap back
+## off the ground a few milliseconds later and a short hiss.
+static func _crack(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.09)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var wave := 8  # samples (~0.36 ms)
+	for echo: Array in [[0, 1.0], [int(RATE * 0.004), 0.45], [int(RATE * 0.011), 0.2]]:
+		var start: int = echo[0]
+		for k in wave:
+			if start + k < n:
+				out[start + k] += lerpf(1.0, -1.0, float(k) / float(wave - 1)) * float(echo[1])
+	var lp := 0.0
+	for i in range(wave, n):
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.6
+		out[i] += lp * exp(-t / 0.012) * 0.25
+	return _normalise(out, 0.95)
 
 
 ## Timber giving way: a few sharp splintering cracks and a woody groan under them.

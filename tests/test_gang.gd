@@ -261,7 +261,7 @@ func test_a_friends_stray_round_is_cursed_not_fought() -> void:
 	var lines: Array[String] = []
 	var hear := func(who: Node, text: String) -> void: if who == men[&"a"]: lines.append(text)
 	Events.spoke.connect(hear)
-	Events.near_miss.emit(men[&"a"], men[&"b"], 0.4)
+	Events.near_miss.emit(men[&"a"], men[&"b"], 0.4, (men[&"a"] as HumanBody).global_position + Vector3(0.4, 1.5, 0), 240.0)
 	Events.deed.emit(men[&"b"], &"shoot_at", men[&"a"], (men[&"b"] as HumanBody).global_position)
 	await physics_frames(30)
 	Events.spoke.disconnect(hear)

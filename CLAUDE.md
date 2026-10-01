@@ -142,7 +142,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
-- `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`).
+- `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`),
+  `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
@@ -1054,3 +1055,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     leaked" warning at exit after the street fight test (doesn't fail anything; not chased yet).
   - Next: Sean plays it (BUILD_NOTES); then step 5, conversation hooks (talking a man down,
     bargaining), or gang teamwork tuning from his feel.
+- 2026-10-01 (gameplay, later): **Steady hands and being shot at** (Sean: "player forearm sway so
+  shooting isn't super easy; bullets snap past; a reaction that makes shooting harder for a
+  second"). `WeaponViewmodel.sway` (degrees, x right / y up): a slow drift (two unrelated waves per
+  axis), breathing, a fine shake (+ `extra_spread` from a hurt arm), a flinch `jerk()`; amplitude
+  from `PlayerTuning` "Holding a gun" (hip 1.1°, sights 0.28°, ×2 unsettled for `settle_time` 0.9 s
+  after raising/firing/moving, crouched ×0.6, +0.3°/(m/s) moving, shotgun `sway_factor` 0.75). The
+  gun model turns by it (not while tucked or loading) and `_shot_line` turns the line of sight by
+  it, so the ball goes where the barrel points. `PlayerComposure` (child of Player): `winded` from
+  running (×2.2 sway, deeper faster breaths), `flinch` from a near miss, a round smacking within
+  `rattle_reach` 1.5 m of your head coming your way, or being hit (view jolt 1.2°, gun jerk 1.6°,
+  +2.5° spread fading over 0.9 s), `rattled` 0.2 per round (×2.5 sway, steadying over 8 s once
+  1.5 s quiet). **Near misses are now reported at the closest approach** (Ballistics waited for the
+  first tick within 2.5 m, ~4 m of flight, so distances read long; outlaws' fear and suppression get
+  the true distance) and carry `at` and `speed`: `Events.near_miss(person, shooter, distance, at,
+  speed)`. ImpactEffects plays it from where it passed: `crack` (new: an N-wave, ground slap, hiss)
+  at ≥ 343 m/s, `zip` (reworked: a whip of air and a tick, louder) below (the revolver's 240 m/s).
+  F3 shows "Hands". Tests `test_composure` (8; spread set to 0 so what's left is the sway;
+  `steady_hands` turns it off). 260 pass.
+  - Known: there's no crosshair, so from the hip you only see the gun drift; no visual effect for
+    being rattled beyond the gun (no blur or vignette: that's the art session's if wanted); the
+    outlaws don't sway (they have spread from fear/pain already).
