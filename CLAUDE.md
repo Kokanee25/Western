@@ -12,6 +12,30 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 - Decisions already made are in DESIGN.md. Don't reopen them without asking; open questions are
   listed in DESIGN.md §13.
 
+## How we work
+
+- **Exactly two working sessions at a time:**
+  - **Art:** shaders, textures and how things are lit and drawn; the people's looks; dressing.
+    Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
+    `src/art/`, `src/props/`, `assets/` (`assets/people/`, `assets/props/`), `tools/blender/`,
+    `tools/faces/`, `tools/paint/`, `tools/style/`, the art tools in `tools/` (`paint_bake.gd`,
+    `character_lab.gd`, `lab_stage.gd`, `fit_shot.gd`, `side_by_side.py`, `people_envelope.gd`),
+    `src/bodies/body_mesh.gd`, `src/bodies/people_bodies.gd`, `.github/workflows/people.yml`,
+    `docs/concept/` and `docs/screenshots/`.
+  - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
+    the town, saves, controls, CI).
+  - Shared by both: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
+    `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Edit only
+    your own lines and entries in them; add status entries at the end, in date order.
+- **Each works on its own branch** (`claude/art-…` or `claude/gameplay-…`), never on `main`.
+- **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
+  origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
+  of work per merge, not a day's worth.
+- **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
+  commit) and give Sean the build number. A red main is fixed before anything else.
+- **Never edit the other session's files without saying so**: in the commit message and in your
+  status entry, naming the file and why. If it's more than a line or two, ask Sean first.
+
 ## Tech decisions
 
 - **Engine: Godot 4** (latest stable 4.x). Chosen because every script, scene and resource is plain
@@ -969,3 +993,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     so garment UVs change: re-run the paint bake after it (`tools/paint_bake.gd guides` + `bake`,
     `tools/paint/finish.py`), or the painted textures land on the wrong texels.
   - Known: guns, lamps, `PropLibrary` props and effects are still StandardMaterial3D (smooth light).
+  - Merged to `main` as build 147 (green: tests, exports, Pages). The four old branches are fully
+    in `main`; this session couldn't delete them (git policy 403), so Sean deletes them on GitHub.
+    From here on, two sessions: see **How we work** at the top.
