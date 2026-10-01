@@ -92,28 +92,36 @@ def flatten(a, amount=FLATTEN):
 
 
 def wipe_joints(a):
-    """Rows much darker than the rows round them all the way across are joints between boards;
-    fill them from above and below (a member is one board)."""
+    """Boards' joints the model drew anyway (a member is one board): rows where most of the width
+    is a thin line darker than the rows a little above and below it (the gap between two boards,
+    with its lit bevel beside it) are filled from either side; then a median along the grain takes
+    out the short butt joints across it (the grain itself runs along it and survives)."""
     lum = a.mean(-1)
-    row = lum.mean(1)
-    base = gaussian_filter1d(row, a.shape[0] / 25.0, mode="wrap")
-    across = (lum < (base[:, None] - 0.05)).mean(1)
-    joint = ((row - base) < -0.035) & (across > 0.5)
-    if not joint.any():
-        return a, 0
+    h, w = lum.shape
+    # Look past the gap itself (a few px wide) to the boards either side.
+    k = max(3, h // 100)
+    up = np.roll(lum, k, axis=0)
+    down = np.roll(lum, -k, axis=0)
+    # Darker than both by a share of the wood's own brightness (a gap in dark wood is dark too).
+    drop = 0.12 * np.median(lum) + 0.01
+    line = ((lum < up - drop) & (lum < down - drop)).mean(1)
+    seams = [y for y in range(h) if line[y] > 0.4 and line[y] == line[max(0, y - k):y + k + 1].max()]
+    band = np.zeros(h, bool)
+    for y in seams:
+        # the gap and the lit bevel beside it
+        band[max(0, y - k):min(h, y + k + 1)] = True
     out = a.copy()
-    h = a.shape[0]
-    good = np.flatnonzero(~joint)
-    if len(good) < 2:
-        return a, 0
-    for y in np.flatnonzero(joint):
-        above = good[good < y]
-        below = good[good > y]
-        ya = above[-1] if len(above) else below[0]
-        yb = below[0] if len(below) else above[-1]
-        t = 0.5 if ya == yb else (y - ya) / (yb - ya)
-        out[y] = a[ya] * (1 - t) + a[yb] * t
-    return out, int(joint.sum() * 100 / h)
+    good = np.flatnonzero(~band)
+    if band.any() and len(good) > 2:
+        for y in np.flatnonzero(band):
+            above = good[good < y]
+            below = good[good > y]
+            ya = above[-1] if len(above) else below[0]
+            yb = below[0] if len(below) else above[-1]
+            t = 0.5 if ya == yb else (y - ya) / (yb - ya)
+            out[y] = a[ya] * (1 - t) + a[yb] * t
+    out = median_filter(out, size=(1, max(3, w // 60), 1), mode="wrap")
+    return out, int(band.sum() * 100 / h)
 
 
 def wavy_mask(n, m, rng, axis):
@@ -181,7 +189,7 @@ def reduce(mid, spec, tpm):
     a = np.asarray(raw).astype(np.float64) / 255.0
     a = flatten(a, FLATTEN if kind != "sign" else 0.5)
     joints = 0
-    if kind == "tile" and spec.get("joints", False) is False:
+    if spec.get("boards", False):
         a, joints = wipe_joints(a)
     if kind != "sign":
         a = seamless(a, rng)

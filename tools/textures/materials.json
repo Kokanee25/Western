@@ -1,14 +1,14 @@
 {
- "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at 64 a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at 64 a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
  "texels_per_metre": 64,
  "materials": {
   "floor": {
-   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "boards": true, "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
    "what": "worn saloon floorboards: one continuous surface of old pine planking, the grain running left to right, scuffed by boots, darkened with spilt whiskey and tobacco, small knots and nail heads",
    "ref": ["saloon", 840, 520, 1130, 650]
   },
   "saloon_wall": {
-   "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "boards": true, "for": "saloon", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
    "what": "the inside wall of an old saloon: rough-sawn pine boards stained dark reddish brown by years of lamp smoke, the grain running left to right, saw marks and the odd knot",
    "ref": ["saloon", 600, 20, 860, 200]
   },
@@ -18,7 +18,7 @@
    "ref": ["saloon", 1350, 380, 1640, 560]
   },
   "shot_table": {
-   "for": "saloon", "kind": "tile", "metres": [1.0, 1.0], "colours": 14,
+   "boards": true, "for": "saloon", "kind": "tile", "metres": [1.0, 1.0], "colours": 14,
    "what": "the top of an old saloon card table seen from above: warm honey-brown wood worn smooth, rings from glasses, scratches, the grain running left to right",
    "ref": ["saloon", 900, 700, 1300, 900]
   },
@@ -28,22 +28,22 @@
    "ref": ["saloon", 600, 20, 860, 200]
   },
   "weathered_pine": {
-   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
+   "boards": true, "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 14,
    "what": "sun-bleached weathered siding of a frontier town building: grey and tan pine, silvered by the desert sun, cracks and open grain running left to right, rusty nail heads, warm sunlight",
    "ref": ["street", 1300, 330, 1440, 500]
   },
   "painted_ochre": {
-   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "boards": true, "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
    "what": "old ochre-yellow paint on pine boards, faded, cracked and peeling in places to grey wood underneath, the grain running left to right",
    "ref": ["street", 640, 120, 780, 330]
   },
   "painted_rust": {
-   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
+   "boards": true, "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 12,
    "what": "old barn-red paint on pine boards, sun-faded, cracked and peeling in places to grey wood underneath, the grain running left to right",
    "ref": ["street", 60, 0, 440, 240]
   },
   "sign": {
-   "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 10,
+   "boards": true, "for": "street", "kind": "tile", "metres": [2.0, 1.0], "colours": 10,
    "what": "an old painted sign board with no lettering: cream-white paint, weathered and faded, cracked along the grain, which runs left to right",
    "ref": ["street", 640, 120, 780, 330]
   },

@@ -6,8 +6,13 @@ class_name ShotMatch
 ## painting from here, in lamplight (tools/screenshots.gd view `shot_match_saloon`, and
 ## tools/side_by_side.py puts the two together). F5 in the game can jump here too (debug place).
 
-## The card table at the back of the saloon we take over (world space, test street).
-const TABLE := Vector3(8.8, 0.0, -25.0)
+## The card table at the back of the saloon we take over (world space, test street), and how far
+## the whole set (table, props, him, your seat) is turned about it from the way it was fitted
+## (degrees about Y): the set turns as one, so his fit to the painting holds, and only the room
+## behind him changes. Turned (2026-10-01) so you look up the room toward the street as the
+## painting does: the doors on your left, the stairs and balcony ahead, the bar on your right.
+const TABLE := Vector3(7.76, 0.0, -26.5)
+const ROOM_YAW := -72.8
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
@@ -32,13 +37,13 @@ const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
 ## Build the scene in the test street (clearing that table's own props) and seat the man.
 ## Returns him. `man` may be passed (a HumanBody not yet in the tree) to seat someone else.
 static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
-	var floor_y := _floor_at(street, TABLE)
-	var t := Vector3(TABLE.x, floor_y, TABLE.z)
+	var set := rig(street)
+	var t := set.origin
 	_clear_props(street, t)
 	var root := Node3D.new()
 	root.name = "ShotMatch"
 	street.add_child(root)
-	root.global_position = t
+	root.global_transform = set
 	_table(root)
 	_chair(root, SEAT + Vector3(0.1, 0.0, 0.07), 53.0)
 	# On the table: the lamp beside him, the bottle nearer you on the right, your cup, his ashtray.
@@ -71,9 +76,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		look["hair_long"] = true
 		man.look = look
 	street.add_child(man)
-	man.global_position = t + SEAT
+	man.global_position = set * SEAT
 	# Nearly square to you, as the painting's man sits.
-	man.face(t + Vector3(EYE.x, 1.0, EYE.z))
+	man.face(set * Vector3(EYE.x, 1.0, EYE.z))
 	man.global_rotation.y += deg_to_rad(TURN)
 	man.set_pose(&"sit_lean")
 	# His head as the painting has it: looking you in the eye, chin up a touch, turned a little and
@@ -107,9 +112,15 @@ static func hands_off_camera(player: Player) -> void:
 
 ## Your eye and the point you look at, in the world.
 static func camera_transform(street: Node3D) -> Transform3D:
-	var t := Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z)
-	var eye := t + EYE
-	return Transform3D(Basis.looking_at(t + LOOK - eye, Vector3.UP), eye)
+	var set := rig(street)
+	var eye := set * EYE
+	return Transform3D(Basis.looking_at(set * LOOK - eye, Vector3.UP), eye)
+
+
+## The set's place: the table's centre on the floor, turned by ROOM_YAW. EYE, LOOK, SEAT and the
+## props are in this space.
+static func rig(street: Node3D) -> Transform3D:
+	return Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW)), Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z))
 
 
 static func _floor_at(street: Node3D, at: Vector3) -> float:
@@ -126,7 +137,7 @@ static func _clear_props(street: Node3D, t: Vector3) -> void:
 		return
 	for p in props.get_children():
 		var d := Vector2((p as Node3D).global_position.x - t.x, (p as Node3D).global_position.z - t.z).length()
-		if d < 1.4:
+		if d < 2.4:
 			p.free()
 
 
