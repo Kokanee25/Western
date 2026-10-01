@@ -12,11 +12,11 @@ func _ready() -> void:
 
 
 ## A ball going past your ear snaps, heard from where it went by (only the listener's own near
-## misses are worth playing). Sean, who's been near it: a near miss is a snap; the whiz people
-## expect is usually a ricochet (SynthSounds "zip", kept for when balls ricochet).
-func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, _speed: float) -> void:
+## misses are worth playing); one tumbling off a ricochet whizzes. (Sean, who's been near it: a
+## near miss is a snap; a whiz is usually a ricochet.)
+func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, _speed: float, tumbling: bool) -> void:
 	if person.is_in_group(&"player") and person is Node3D:
-		_play_at(&"crack", at, 2.0 - distance * 4.0, 2.0)
+		_play_at(&"zip" if tumbling else &"crack", at, 2.0 - distance * 4.0, 2.0)
 
 
 func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
@@ -33,6 +33,11 @@ func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
 func _on_hit(info: Dictionary) -> void:
 	var pos: Vector3 = info.position
 	var normal: Vector3 = info.normal
+	if info.get("ricochet", false):
+		# The spang and whine of it glancing off, heard by anyone near; sparks off stone and iron.
+		_play_at(&"ricochet", pos, 0.0, 8.0)
+		if info.get("surface", &"") in [&"stone", &"metal"]:
+			burst(self, pos, normal, Color(1.0, 0.82, 0.45), 6, 3.5, 0.015)
 	if info.has("person"):
 		_play_at(&"flesh", pos, -2.0)
 		# A spray of blood: a little back out of the entry, more out of an exit.

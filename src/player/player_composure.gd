@@ -26,7 +26,7 @@ func _ready() -> void:
 	Events.body_hit.connect(func(info: Dictionary) -> void: if info.get("person") == player: incoming(1.0))
 
 
-func _on_near_miss(person: Node, _shooter: Node, distance: float, _at: Vector3, _speed: float) -> void:
+func _on_near_miss(person: Node, _shooter: Node, distance: float, _at: Vector3, _speed: float, _tumbling: bool) -> void:
 	if person == player:
 		incoming(1.0 - clampf(distance / 2.5, 0.0, 1.0) * 0.6)
 

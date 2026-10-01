@@ -5,6 +5,19 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: ricochets
+
+- **A ball that strikes something at a shallow angle glances off it.** Lead is soft, so it skips
+  off the hard-packed street and off stone at a fair angle, but only glances off wood at a graze
+  (steeper, it digs in and leaves its mark). Near the limit it's a toss-up.
+- It comes off flatter than it went in, a little to one side, slower, flattened and tumbling, and
+  **it can still hurt someone**: a ball skipped off the street can take a man in the legs.
+- **You hear it**: the spang and whine of it glancing off (sparks off stone and iron), and if it
+  comes past you it **whizzes** instead of snapping.
+- Try: at the range, shoot at the ground a few paces in front of the target board and watch where
+  they go (F8 shows the bullet traces). Lie low in the street while the gang shoots at you and
+  listen for the whiz of the ones that skip.
+
 ### New: steady hands, and being shot at
 
 - **Your gun doesn't hold still.** It drifts, rises and falls as you breathe, and has a fine
@@ -19,7 +32,7 @@ same body.
   a second. Keep taking fire and you're **rattled**: the gun won't keep still until it's been quiet
   a few seconds. That's what the gang's covering fire is for now.
 - **You hear them go by**: every ball that comes close **snaps** past, from the side it went by
-  (the whiz is for ricochets, when there are some).
+  (a ricochet whizzes).
 - **F3** shows your hands: flinch, rattled, winded, and how far the gun is off line.
 - Try: at the range (F5), aim at the target board from 20 m and fire as the sights settle, then
   run up and down the street for ten seconds and try again. Then press **U**, start a fight with

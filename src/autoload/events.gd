@@ -27,8 +27,9 @@ signal person_died(person: Node, cause: StringName)
 ## Someone shouted at the people around them ("Drop it!"). kind: &"drop_it" for now.
 signal shouted(speaker: Node, kind: StringName)
 ## A bullet passed close by a person without hitting (the crack of a near miss): how close to
-## his head, where it went by (nearest his head), and how fast (m/s; over 343 it cracks).
-signal near_miss(person: Node, shooter: Node, distance: float, at: Vector3, speed: float)
+## his head, where it went by (nearest his head), how fast (m/s), and whether it's tumbling off a
+## ricochet (it whizzes rather than snaps).
+signal near_miss(person: Node, shooter: Node, distance: float, at: Vector3, speed: float, tumbling: bool)
 ## Someone gave up: dropped their gun and put their hands up.
 signal person_surrendered(person: Node)
 ## Someone said something out loud (shown as a subtitle to a player in earshot).

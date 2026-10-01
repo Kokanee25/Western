@@ -21,3 +21,18 @@ extends Resource
 ## energy at 25 m and ~60% at 50 m; a heavy .45 ball ~92% at 25 m.
 @export var air_density := 1.2
 @export var drag_coefficient := 0.47
+
+@export_group("Ricochets")
+## The steepest a ball can strike each kind of surface and still glance off (degrees between its
+## path and the surface). Lead is soft: it skips off dirt and stone at a shallow angle, and digs
+## into wood unless it barely touches. A surface's kind: its `surface` meta, else stone and wood
+## members by their wood, else level ground or (anything upright) wood.
+@export var ricochet_angle := {&"ground": 14.0, &"stone": 22.0, &"metal": 28.0, &"wood": 6.0}
+## The speed it keeps glancing off: at a grazing touch, and at the steepest angle that glances.
+@export var ricochet_keep_speed := Vector2(0.8, 0.5)
+## It leaves flatter than it came in (this share of the angle), thrown sideways up to this many
+## degrees, flattened (diameter ×) and tumbling. Most a ball glances off before it's spent.
+@export var ricochet_exit_share := 0.5
+@export var ricochet_scatter := 6.0
+@export var ricochet_flatten := 1.4
+@export var max_ricochets := 3
