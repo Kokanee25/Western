@@ -217,6 +217,39 @@ with the revolver; the target for the street, materials and daylight).
 - **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
   rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
 
+### Story flow (**proposed**, 2026-10-01 — Sean to confirm)
+The danger in a systemic game is a sandbox with nothing pulling you along. The flow comes from a
+clock, factions working their plans, and the player always holding a few live leads.
+
+- **Three acts on the 30-day clock** (days are 45 real minutes, so ~22 hours of play):
+  - **Act 1, the sheriff (days 1–3):** the hook. You ride into town at dawn and find him on the road.
+    Saving him teaches first aid under pressure (the hospital-steward past pays off in minute one).
+    Whatever happens, by day 3 the town has no law, the Colters are in town, and everyone wants to
+    know what you saw.
+  - **Act 2, the squeeze (days 4–21):** every faction works its plan whether or not you act. The
+    baron buys or frightens out homesteaders, the agent files forged deeds, the gang runs jobs and
+    leans on the town, the widow holds out. You pick sides, or play them off each other.
+  - **Act 3, the rails (days 22–30):** the survey crew arrives, deeds go to the circuit judge, and
+    the factions make their final moves (a burn-out, a robbery of the land money, a trial, a
+    showdown). Day 30: the first train comes in. Whatever the valley is that morning is your ending.
+- **Faction plans, not quests:** each antagonist has a timeline of steps with conditions (the gang
+  burns out the widow on day 9 *if* she still holds her claim and nobody's guarding it). Steps happen
+  off-screen if you're elsewhere; you hear about them or find the ashes. Stop a step and the plan
+  adapts or escalates.
+- **Leads, not a quest log:** news reaches you the way it would in 1882 — rumour in the saloon (the
+  owner sells it), a letter, the weekly paper, a wanted poster, a kid running up the street, a
+  gunshot two streets over. Your character keeps a **journal** in his own words (what he saw, who
+  said what, what he means to do). That's the only "quest list".
+- **The drama manager keeps the pace:** it watches tension. Quiet too long, and someone gets a reason
+  to act (a stranger arrives, a debt comes due, the gang gets drunk). Too much at once, and it holds
+  a step back a day. It never forces a scene the world has made impossible; it lets survivors react.
+- **Hand-built moments that fit any path:** the sheriff's last hours, the widow's burn-out night, the
+  trial, the robbery of the land money, the train's arrival. Each is staged so it works whoever's
+  alive and whatever's standing.
+- **The ending is the state of the world:** who's alive, who owns the spring and the widow's claim,
+  who wears the badge, what's still standing, what people think of you. Told as the newspaper's
+  front page and the town's reactions on day 30, plus a walk through the town afterwards.
+
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
 vaqueros. They belong in the game as real people with their own lives and perspectives, written with
@@ -586,6 +619,26 @@ knock out one stud and the wall shrugs it off.
   wrong) version of what you did.
 - Funerals when people die; people attend, speak, remember, and some blame you.
 
+### Why you won't burn the town down (**decided in principle**, 2026-10-01)
+You can, and the game remembers it. But it should feel like a terrible decision, and most players
+should care too much to do it.
+1. **No undo:** saves only in a bed. Ash stays ash.
+2. **The town is your life support:** each building is a service. Burn the store and there's no
+   ammunition, oil, rope or food; burn the doctor's and nobody digs the ball out (you wake at the
+   doctor's after going down — no doctor, no waking); burn the livery, no horses; the hotel, fewer beds.
+   Services don't magically restock; whoever survives may set up again elsewhere, slowly.
+3. **Named people early:** the first hour puts you with people who matter (the sheriff, the doctor,
+   the widow, the barkeep who knows your drink), and every townsperson has a routine and remembers you.
+4. **The town fights back, escalating:** witnesses describe you, posters go up, nobody sells to you,
+   armed men come looking, a posse rides to your homestead, bounty hunters arrive on the stage.
+   One bullet can kill you, so a town against you is a real threat.
+5. **Fire doesn't care whose it is:** wind carries it, smoke chokes, it can take your escape route or
+   ride out to your own barn.
+6. **The tools come later:** lamp oil costs money; dynamite lives in the mine's powder magazine.
+7. **If they do it anyway, it's a story:** the gang moves into the ruins, the railroad buys the land
+   cheap, survivors talk about you for the rest of the game, the paper prints it. A burned Salt Creek
+   is its own playthrough, not a dead end.
+
 ## 11. Immersion features
 
 1. **Almost no on-screen display:** a pocket watch (or the sun and the church bell) for time; count the
@@ -624,6 +677,10 @@ It must prove, in this order of priority:
 The test: **can the player cause a story nobody planned?**
 
 ## 13. Open questions
+
+- **Story flow (proposed above, §5):** confirm the three acts; how the player finds the sheriff
+  (you ride in at dawn and find him, vs. the town finds him and you hear); whether failing your
+  claim/dying for good can end the game early or it always runs to day 30.
 
 - **Tone details:** how dark the humour runs; how graphic the default gore setting is.
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included
