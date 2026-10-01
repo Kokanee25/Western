@@ -88,7 +88,7 @@ func _run() -> void:
 			out = arg.substr(6)
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
-		# Look experiments: --texels=20 --nomip --shade --res=480x270 --window --suffix=_b
+		# Look experiments: --texels=20 --nomip --shade --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
 		elif arg == "--nomip":
@@ -98,6 +98,8 @@ func _run() -> void:
 		elif arg.begins_with("--res="):
 			var wh := arg.substr(6).split("x")
 			settings.internal_resolution = Vector2i(int(wh[0]), int(wh[1]))
+		elif arg.begins_with("--tiles="):
+			settings.set_tile_look(StringName(arg.substr(8)))
 		elif arg == "--window":
 			window_shot = true
 		elif arg.begins_with("--suffix="):

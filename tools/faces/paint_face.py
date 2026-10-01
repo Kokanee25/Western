@@ -2,6 +2,7 @@
 """Have an image model paint a person's face onto his head (DESIGN.md §4, step 4).
 
     OPENROUTER_API_KEY=... python3 tools/faces/paint_face.py [--only=outlaw] [--repaint]
+    python3 tools/faces/paint_face.py --proxy-key [--only=outlaw] [--repaint]   # cloud session
 
 For each person in assets/people/people.json with a `face` description: sends the front view of
 his fitted head (assets/people/<id>_face_guide.png, written by tools/blender/make_people.py) and a
@@ -10,8 +11,10 @@ his face painted onto that head, same outline and features in the same places. T
 saved as assets/people/<id>_face_portrait.png; the next make_people.py run projects it onto the
 head. Skips people who already have a portrait unless --repaint.
 
-The key comes from the environment (a GitHub Actions secret, never the repo). The model is
-OpenRouter's FACE_MODEL (default below); any image model OpenRouter serves that takes images in.
+The key comes from the environment (a GitHub Actions secret, never the repo), or with --proxy-key
+from a cloud session's API credential: the network adds it to requests to openrouter.ai, so the
+script sends none of its own. The model is OpenRouter's FACE_MODEL (default below); any image
+model OpenRouter serves that takes images in.
 """
 import base64
 import json
@@ -56,11 +59,10 @@ def paint(pid, description, key):
             ],
         }],
     }
-    req = urllib.request.Request(API, data=json.dumps(body).encode(), headers={
-        "Authorization": "Bearer " + key,
-        "Content-Type": "application/json",
-        "X-Title": "Salt Creek people pipeline",
-    })
+    headers = {"Content-Type": "application/json", "X-Title": "Salt Creek people pipeline"}
+    if key:
+        headers["Authorization"] = "Bearer " + key
+    req = urllib.request.Request(API, data=json.dumps(body).encode(), headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=300) as r:
             answer = json.load(r)
@@ -81,7 +83,7 @@ def paint(pid, description, key):
 
 def main():
     key = os.environ.get("OPENROUTER_API_KEY", "")
-    if not key:
+    if not key and "--proxy-key" not in sys.argv:
         print("No OPENROUTER_API_KEY: faces not painted (the painted fallback face is used).")
         return
     only = None

@@ -88,12 +88,13 @@ const BOOT_FOOT := [
 	[Vector3(0.1, 0.034, -0.198), 0.026, 0.017, 0.034],
 ]
 
-## The hat's crown, band to top: [centre, half width, front, back] on the head bone.
+## The hat's crown, band to top: [centre, half width, front, back] on the head bone. Sized for
+## BodyMesh's own head; a generated head brings its own fit (`hat_fit` in build()).
 const HAT_CROWN := [
 	[Vector3(0, 1.728, 0.004), 0.087, 0.101, 0.099],
-	[Vector3(0, 1.79, 0.004), 0.085, 0.097, 0.095],
-	[Vector3(0, 1.838, 0.006), 0.081, 0.092, 0.09],
-	[Vector3(0, 1.866, 0.008), 0.075, 0.084, 0.082],
+	[Vector3(0, 1.778, 0.004), 0.084, 0.096, 0.094],
+	[Vector3(0, 1.818, 0.006), 0.077, 0.087, 0.086],
+	[Vector3(0, 1.842, 0.008), 0.066, 0.074, 0.074],
 ]
 ## The holster on his right hip, top to toe (flat against the thigh).
 const HOLSTER := [
@@ -113,7 +114,9 @@ static var _cache := {}
 ## neighbours at the joints, the rigid one (after an amputation) follows its own part only. `outfit` lists what he wears:
 ## shirt, vest, trousers, boots, gun_belt, bandana, coat (booleans), plus colours and `look`
 ## (see PeopleArt.face). Meshes are cached per outfit shape; materials are per person.
-static func build(anatomy: Anatomy, outfit: Dictionary) -> Dictionary:
+## `hat_fit` (optional, from a generated head): {band: Vector3 (the middle of his head where the
+## hat's band sits), half_width, half_depth} — the crown is moved and sized to it.
+static func build(anatomy: Anatomy, outfit: Dictionary, hat_fit: Dictionary = {}) -> Dictionary:
 	var bones := anatomy.segment_order()
 	var index := {}
 	for i in bones.size():
@@ -124,16 +127,38 @@ static func build(anatomy: Anatomy, outfit: Dictionary) -> Dictionary:
 	var key := ""
 	for k in ["shirt", "vest", "coat", "trousers", "boots", "gun_belt", "bandana", "hat"]:
 		key += "1" if outfit.get(k, k != "coat") else "0"
+	if not hat_fit.is_empty():
+		key += var_to_str(hat_fit)
 	var shapes: Dictionary
 	if _cache.has(key):
 		shapes = _cache[key]
 	else:
-		shapes = _build_shapes(index, outfit, anatomy.segment_center)
+		shapes = _build_shapes(index, outfit, anatomy.segment_center, hat_rows(hat_fit))
 		_cache[key] = shapes
 	return {"bones": bones, "rests": rests, "shapes": shapes}
 
 
-static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Callable) -> Dictionary:
+## The hat's crown rows for a head: HAT_CROWN as it is, or moved so its band sits round `fit.band`
+## and sized to clear that head by HAT_CLEARANCE all round (never smaller than it was).
+static func hat_rows(fit: Dictionary) -> Array:
+	if fit.is_empty():
+		return HAT_CROWN
+	var b0: Array = HAT_CROWN[0]
+	var sx := maxf(1.0, (float(fit.half_width) + HAT_CLEARANCE) / float(b0[1]))
+	var sz := maxf(1.0, (float(fit.half_depth) + HAT_CLEARANCE) / (0.5 * (float(b0[2]) + float(b0[3]))))
+	var shift: Vector3 = (fit.band as Vector3) - (b0[0] as Vector3)
+	var out := []
+	for r: Array in HAT_CROWN:
+		var c: Vector3 = r[0]
+		out.append([Vector3(c.x + shift.x, c.y + shift.y, c.z + shift.z), r[1] * sx, r[2] * sz, r[3] * sz])
+	return out
+
+
+## How much room the crown leaves round a fitted head (m).
+const HAT_CLEARANCE := 0.008
+
+
+static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Callable, crown_rows: Array = HAT_CROWN) -> Dictionary:
 	var out := {}
 	# The body itself: skin, and the head with its face.
 	var skin := Lofter.new(index)
@@ -223,7 +248,7 @@ static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Call
 	if outfit.get("hat", true):
 		var hat := Lofter.new(index)
 		var crown := []
-		for r: Array in HAT_CROWN:
+		for r: Array in crown_rows:
 			crown.append([r[0], r[1], r[2], r[3], &"head", &"head", 0.0])
 		# The cattleman crease: pinched in at the front of the top.
 		hat.bumps = {2: [[0.6, 0.3, -0.1], [-0.6, 0.3, -0.1]], 3: [[0.55, 0.3, -0.28], [-0.55, 0.3, -0.28], [0.0, 0.25, -0.1], [PI, 0.4, -0.12]]}
@@ -231,10 +256,11 @@ static func _build_shapes(index: Dictionary, outfit: Dictionary, centre_of: Call
 		hat.bumps = {}
 		out["hat"] = hat
 		var brim := Lofter.new(index)
-		var b0: Array = HAT_CROWN[0]
+		var b0: Array = crown_rows[0]
+		var grow := float(b0[1]) / float(HAT_CROWN[0][1])
 		brim.curl = {1: 0.022}
 		brim.loft([[b0[0], b0[1] - 0.004, b0[2] - 0.004, b0[3] - 0.004, &"head", &"head", 0.0],
-				[(b0[0] as Vector3) + Vector3(0, -0.004, 0), 0.19, 0.2, 0.19, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
+				[(b0[0] as Vector3) + Vector3(0, -0.004, 0), 0.19 * grow, 0.2 * grow, 0.19 * grow, &"head", &"head", 0.0]], 14, Vector3.FORWARD, 0.0, false, false)
 		out["hat_brim"] = brim
 		var band := Lofter.new(index)
 		band.loft([[b0[0], b0[1] + 0.003, b0[2] + 0.003, b0[3] + 0.003, &"head", &"head", 0.0],

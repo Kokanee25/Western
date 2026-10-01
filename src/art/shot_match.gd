@@ -37,7 +37,8 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.name = "TableLamp"
 	lamp.lit_from_hour = 0
 	lamp.lit_until_hour = 24
-	lamp.energy = 1.5
+	# Bright enough to be the key on his face across the table, as in the painting.
+	lamp.energy = 2.6
 	lamp.light_range = 7.0
 	root.add_child(lamp)
 	lamp.position = Vector3(-0.32, TABLE_HEIGHT, 0.22)
@@ -88,15 +89,10 @@ static func _clear_props(street: Node3D, t: Vector3) -> void:
 			p.free()
 
 
-static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
+## Props on the mosaic tiles, textured on the world's texel grid in their own space.
+static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0) -> ShaderMaterial:
+	var m := Tiles.material(tex, tint, rough, metal, true)
 	m.resource_name = key
-	m.albedo_texture = tex
-	m.albedo_color = tint
-	m.uv1_triplanar = true
-	m.roughness = rough
-	m.metallic = metal
-	PixelArt.track(m)
 	return m
 
 
@@ -172,7 +168,7 @@ static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
 	_mesh(chair, "Rail", rail, Vector3(0, 0.93, 0.19), wood)
 
 
-static func _tin() -> StandardMaterial3D:
+static func _tin() -> ShaderMaterial:
 	return _mat("tin", PixelArt.metal("shot_tin", Color(0.55, 0.55, 0.52), 71, 0.5), Color.WHITE, 0.45, 0.8)
 
 

@@ -2,8 +2,10 @@
 // the body parts) or by its UVs (the generated body: BodyMesh), opened where wounds have torn it
 // (see wounds.gdshaderinc). Included by body_skin.gdshader (one-sided) and
 // body_skin_double.gdshader (open garments seen from inside: vests, brims, bandanas).
+// Lit tile by tile like every surface (src/render/tiles.gdshaderinc).
 
 #include "res://src/bodies/shaders/wounds.gdshaderinc"
+#include "res://src/render/tiles.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
@@ -31,7 +33,23 @@ vec3 triplanar(vec3 p, vec3 n) {
 }
 
 void fragment() {
-	vec3 base = (use_uv ? texture(albedo_tex, UV * uv_scale).rgb : triplanar(local_pos, local_normal)) * tint.rgb;
+	// The tile this fragment is in: by UV, or by the plane the triplanar texture mostly comes from.
+	// Worked out first, before any discard, since it takes screen derivatives.
+	vec2 tsize = vec2(textureSize(albedo_tex, 0));
+	vec2 t;
+	if (use_uv) {
+		t = UV * uv_scale * tsize;
+	} else {
+		vec3 an = abs(local_normal);
+		vec3 p = local_pos * uv_scale;
+		t = (an.x > an.y && an.x > an.z ? p.zy : (an.y > an.z ? p.xz : p.xy)) * tsize;
+	}
+	vec2 centre = tile_centre(t);
+	vec2 s = tile_screen_offset(t, centre);
+	vec3 light_at = VERTEX + dFdx(VERTEX) * s.x + dFdy(VERTEX) * s.y;
+	vec3 normal_at = normalize(NORMAL + dFdx(NORMAL) * s.x + dFdy(NORMAL) * s.y);
+	vec3 base = (use_uv ? textureGrad(albedo_tex, centre / tsize, dFdx(t) / tsize, dFdy(t) / tsize).rgb
+			: triplanar(local_pos, local_normal)) * tint.rgb;
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;
 	if (reach < 1.0) {
@@ -49,4 +67,6 @@ void fragment() {
 		base = mix(base * vec3(0.45, 0.12, 0.1), base, (reach - 1.4) / 0.8);
 	}
 	ALBEDO = base;
+	LIGHT_VERTEX = light_at;
+	NORMAL = normal_at;
 }

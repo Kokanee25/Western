@@ -319,6 +319,35 @@ func test_he_has_the_generated_makehuman_body() -> void:
 	plain.queue_free()
 
 
+func test_the_hat_sits_on_his_own_head() -> void:
+	# The generated head sits further forward and is bigger than BodyMesh's: the crown is fitted to
+	# it, every bit of head above the band inside the crown, and the band low on his brow.
+	var head := PackedVector3Array()
+	for key: String in man.skin_meshes:
+		if key.begins_with("head/"):
+			head.append_array((man.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])
+	var fit := PeopleBodies.hat_fit(head)
+	if not check(not fit.is_empty(), "a fit for his head"):
+		return
+	var rows := BodyMesh.hat_rows(fit)
+	var band: Array = rows[0]
+	check_near((band[0] as Vector3).y, PeopleBodies.EYE_HEIGHT + PeopleBodies.BAND_ABOVE_EYES, 0.001, "the band just above his brow")
+	var outside := 0
+	var checked := 0
+	for p in head:
+		if p.y < (band[0] as Vector3).y:
+			continue
+		checked += 1
+		var c: Vector3 = band[0]
+		var dz := p.z - c.z
+		var depth: float = band[2] if dz < 0.0 else band[3]
+		var e := Vector2((p.x - c.x) / float(band[1]), dz / depth)
+		if e.length() > 1.0:
+			outside += 1
+	check(checked > 50, "head above the band (%d)" % checked)
+	check_eq(outside, 0, "no part of his head pokes out of the crown")
+
+
 func test_generated_clothes_are_worn_as_the_outfit_says() -> void:
 	var keys: Array = man.skin_meshes.keys()
 	check(keys.any(func(k: String) -> bool: return k.begins_with("cravat/")), "the tie from the generated body")

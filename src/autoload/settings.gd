@@ -4,13 +4,24 @@ extends Node
 signal changed
 
 const PATH := "user://settings.cfg"
+## The 3D render at the window's own size: no screen pixels, only the tiles on surfaces (the
+## painting's look).
+const NATIVE := Vector2i.ZERO
 ## F2 cycles through these. The first is the default look.
 const RESOLUTION_PRESETS: Array[Vector2i] = [
-	Vector2i(640, 360), Vector2i(480, 270), Vector2i(320, 180), Vector2i(960, 540), Vector2i(1280, 720),
+	Vector2i(640, 360), Vector2i(480, 270), Vector2i(320, 180), Vector2i(960, 540), Vector2i(1280, 720), NATIVE,
 ]
+## Mosaic tiles (P cycles): "off" = smooth light; "square" = every texel a tile lit as one colour;
+## "ragged" = the same with uneven tile edges, like dabs of paint (src/render/tiles.gdshaderinc).
+const TILE_LOOKS: Array[StringName] = [&"off", &"square", &"ragged"]
+## How far a ragged tile's centre wanders, in tiles.
+const TILE_RAGGED := 0.3
 
-## Size of the low-resolution 3D render before it is scaled up with hard pixels.
+## Size of the low-resolution 3D render before it is scaled up with hard pixels (NATIVE: the
+## window's size).
 var internal_resolution := RESOLUTION_PRESETS[0]
+## Which of TILE_LOOKS (P).
+var tile_look: StringName = &"square"
 ## Scale by whole numbers only (perfectly even pixels, may letterbox).
 var integer_scaling := false
 ## Degrees of turn per mouse count.
@@ -65,13 +76,16 @@ func reset_to_defaults() -> void:
 	pixel_shading = false
 	texels_per_meter = 40.0
 	reduced_gore = false
+	tile_look = &"square"
 	_apply_texels()
+	_apply_tiles()
 	changed.emit()
 
 
 func load_from_disk() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) != OK:
+		_apply_tiles()
 		return
 	internal_resolution = cfg.get_value("video", "internal_resolution", internal_resolution)
 	integer_scaling = cfg.get_value("video", "integer_scaling", integer_scaling)
@@ -82,7 +96,11 @@ func load_from_disk() -> void:
 	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
 	texels_per_meter = cfg.get_value("video", "texels_per_meter", texels_per_meter)
 	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
+	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
+	if not tile_look in TILE_LOOKS:
+		tile_look = &"square"
 	_apply_texels()
+	_apply_tiles()
 	changed.emit()
 
 
@@ -92,6 +110,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
+	cfg.set_value("video", "tile_look", String(tile_look))
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
@@ -101,8 +120,15 @@ func save_to_disk() -> void:
 
 
 func set_internal_resolution(resolution: Vector2i) -> void:
-	internal_resolution = Vector2i(maxi(resolution.x, 64), maxi(resolution.y, 36))
+	internal_resolution = NATIVE if resolution == NATIVE else Vector2i(maxi(resolution.x, 64), maxi(resolution.y, 36))
 	_changed()
+
+
+## The size the 3D actually renders at in a window this big.
+func render_size(window: Vector2) -> Vector2i:
+	if internal_resolution == NATIVE:
+		return Vector2i(maxi(int(window.x), 64), maxi(int(window.y), 36))
+	return internal_resolution
 
 
 func cycle_internal_resolution() -> void:
@@ -126,10 +152,33 @@ func cycle_texel_density() -> void:
 	_changed()
 
 
-## One line describing the current look, e.g. "640×360 · texels 40/m smoothed · shading off".
+## One line describing the current look, e.g. "640×360 · texels 40/m smoothed · tiles square · shading off".
 func look_description() -> String:
-	return "%d×%d · texels %d/m %s · shading %s" % [internal_resolution.x, internal_resolution.y,
-			int(texels_per_meter), "smoothed" if PixelArt.use_mipmaps else "crisp", "on" if pixel_shading else "off"]
+	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
+	return "%s · texels %d/m %s · tiles %s · shading %s" % [res, int(texels_per_meter),
+			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if pixel_shading else "off"]
+
+
+func set_tile_look(look: StringName) -> void:
+	tile_look = look if look in TILE_LOOKS else &"square"
+	_apply_tiles()
+	_changed()
+
+
+func cycle_tile_look() -> void:
+	set_tile_look(TILE_LOOKS[(TILE_LOOKS.find(tile_look) + 1) % TILE_LOOKS.size()])
+
+
+## The shader globals every tiled material reads (src/render/tiles.gdshaderinc) for this look.
+func tile_globals() -> Dictionary:
+	return {&"tile_light": 0.0 if tile_look == &"off" else 1.0,
+			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" else 0.0}
+
+
+func _apply_tiles() -> void:
+	var g := tile_globals()
+	for k: StringName in g:
+		RenderingServer.global_shader_parameter_set(k, g[k])
 
 
 func _apply_texels() -> void:

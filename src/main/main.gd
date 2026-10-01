@@ -25,14 +25,19 @@ func _ready() -> void:
 
 
 func _apply_settings() -> void:
-	game_viewport.size = Settings.internal_resolution
+	game_viewport.size = Settings.render_size(get_viewport().get_visible_rect().size)
 	var post := screen.material as ShaderMaterial
 	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
-	post.set_shader_parameter(&"source_size", Vector2(Settings.internal_resolution))
+	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
 	_layout()
 
 
 func _layout() -> void:
+	if Settings.internal_resolution == Settings.NATIVE:
+		var want := Settings.render_size(get_viewport().get_visible_rect().size)
+		if game_viewport.size != want:
+			game_viewport.size = want
+			(screen.material as ShaderMaterial).set_shader_parameter(&"source_size", Vector2(want))
 	var rect := fit_rect(get_viewport().get_visible_rect().size, Vector2(game_viewport.size), Settings.integer_scaling)
 	screen.position = rect.position
 	screen.size = rect.size
@@ -69,3 +74,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.cycle_texel_density()
 	elif event.is_action_pressed(&"debug_pixel_shading"):
 		Settings.set_pixel_shading(not Settings.pixel_shading)
+	elif event.is_action_pressed(&"debug_tiles"):
+		Settings.cycle_tile_look()

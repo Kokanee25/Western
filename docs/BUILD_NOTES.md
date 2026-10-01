@@ -5,6 +5,25 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: the painting's look, starting with the people
+
+- **The painting's "pixels" are tiles on the surfaces**, not on the screen: each a fixed real size,
+  big up close and tiny far away, and each lit as one flat colour. The people (and the table and
+  cups in the painting's shot) now work that way: every texel of their clothes and face is a tile
+  with one colour of light. **P** switches tiles off / square / ragged (uneven edges, like dabs
+  of paint).
+- **Full resolution:** press **F2** until the corner says **native**: the game renders at your
+  screen's size, so the tiles are the only pixels, like the painting. 640×360 is still the default.
+- **Richer clothes:** the coat, vest, shirt and trousers have creases, worn edges, dust on the
+  cuffs and mottled wool, 16 colours each, instead of a flat colour.
+- **His hat fits:** it sits low on his brow (before, the top of his head poked out of the front of
+  the crown), with a lower, tapered crown.
+- **His face** is at the painting's tile size, about 20 tiles across, and the holes round his eyes
+  and mouth are filled.
+- Try: **F5** to the range, **F2** to native, and look at the outlaw up close; press **P** to
+  compare off / square / ragged. The buildings and street aren't on tiles yet, so they look as
+  before. Tell me which resolution and which tiles you like.
+
 ### New: real people, and the painting's shot
 
 - **The men have real bodies now.** Their skin and head come from MakeHuman's base human (free to

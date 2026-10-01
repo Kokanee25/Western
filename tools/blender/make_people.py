@@ -582,8 +582,9 @@ def build_blender(person):
     for n, obj in cloth_objs.items():
         clothes.unwrap(obj)
         png = os.path.join(OUT, "%s_%s.png" % (person.id, n))
+        over = [o for m, o in cloth_objs.items() if clothes.OFFSET.get(m, 0.0) > clothes.OFFSET.get(n, 0.0)]
         size = clothes.bake_texture(obj, clothes.hex_colour(outfit[n]), os.path.abspath(png), seed=len(n) * 7 + 3,
-                                    style="wool" if n in ("coat", "vest", "trousers") else "cotton")
+                                    style="wool" if n in ("coat", "vest", "trousers") else "cotton", over=over)
         person.report["textures"][n] = size
     clothes.bake_head_ao(head, os.path.abspath(os.path.join(OUT, "%s_head_ao.png" % person.id)))
     for n, obj in cloth_objs.items():

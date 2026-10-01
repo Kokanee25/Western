@@ -41,6 +41,93 @@ static func face_material(key: String, tex: Texture2D) -> StandardMaterial3D:
 	return _mats[key]
 
 
+## A projected portrait brought to the face's own tile size (FACE_W x FACE_H, ~6 mm tiles: his face
+## about 20 tiles across, like the painting's), each tile the average of what it covers, and the
+## small holes the projection leaves (round the eyes, under the nose, the corners of the mouth)
+## filled from the tiles round them, so the painted face underneath never shows through.
+static func portrait_tiles(p: Image) -> Image:
+	var src := p.duplicate() as Image
+	src.convert(Image.FORMAT_RGBA8)
+	var w := FACE_W
+	var h := FACE_H
+	if src.get_width() < w or src.get_height() < h:
+		src.resize(w, h, Image.INTERPOLATE_NEAREST)
+	var kx := src.get_width() / w
+	var ky := src.get_height() / h
+	var out := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var solid := PackedByteArray()
+	solid.resize(w * h)
+	for y in h:
+		for x in w:
+			var rgb := Vector3.ZERO
+			var a := 0.0
+			for j in ky:
+				for i in kx:
+					var c := src.get_pixel(x * kx + i, y * ky + j)
+					rgb += Vector3(c.r, c.g, c.b) * c.a
+					a += c.a
+			var n := float(kx * ky)
+			if a > 0.0:
+				rgb /= a
+			out.set_pixel(x, y, Color(rgb.x, rgb.y, rgb.z, a / n))
+			solid[y * w + x] = 1 if a / n >= 0.5 else 0
+	# Holes: tiles that a closing (grow 2, shrink 2) of the solid tiles takes in.
+	var grown := _grow(solid, w, h, 2, true)
+	var inside := _grow(grown, w, h, 2, false)
+	var todo := []
+	for i in w * h:
+		if inside[i] == 1 and solid[i] == 0:
+			todo.append(i)
+	while not todo.is_empty():
+		var next := []
+		var filled := []
+		for i: int in todo:
+			var x := i % w
+			var y := i / w
+			var sum := Vector3.ZERO
+			var count := 0
+			for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var nx := x + d.x
+				var ny := y + d.y
+				if nx >= 0 and ny >= 0 and nx < w and ny < h and solid[ny * w + nx] == 1:
+					var c := out.get_pixel(nx, ny)
+					sum += Vector3(c.r, c.g, c.b)
+					count += 1
+			if count > 0:
+				filled.append([i, sum / count])
+			else:
+				next.append(i)
+		if filled.is_empty():
+			break
+		for f in filled:
+			var c: Vector3 = f[1]
+			out.set_pixel(f[0] % w, f[0] / w, Color(c.x, c.y, c.z, 1.0))
+			solid[f[0]] = 1
+		todo = next
+	return out
+
+
+## `mask` grown (or shrunk) by `steps` tiles, 8 neighbours at a time.
+static func _grow(mask: PackedByteArray, w: int, h: int, steps: int, grow: bool) -> PackedByteArray:
+	var m := mask.duplicate()
+	for s in steps:
+		var n := m.duplicate()
+		for y in h:
+			for x in w:
+				var any := false
+				var all := true
+				for j in range(-1, 2):
+					for i in range(-1, 2):
+						var nx := clampi(x + i, 0, w - 1)
+						var ny := clampi(y + j, 0, h - 1)
+						var v := m[ny * w + nx] == 1
+						any = any or v
+						all = all and v
+				n[y * w + x] = 1 if (any if grow else all) else 0
+		m = n
+	return m
+
+
 ## `top` (RGBA, alpha = how much of it) laid over `base`, at `top`'s size (nearest: still pixels).
 static func _over(base: Image, top: Image) -> Image:
 	var out := base.duplicate() as Image
@@ -80,7 +167,8 @@ static func cloth(key: String, base: Color, seed: int, style := &"plain", accent
 	var ck := "cloth:%s" % key
 	if _cache.has(ck):
 		return _cache[ck]
-	var shades := PixelArt.ramp(base, 5, 0.3 if style != &"leather" else 0.4)
+	# Felt (hats) gets more shades and a wider spread: a hat reads by its mottle and its worn crown.
+	var shades := PixelArt.ramp(base, 7 if style == &"felt" else 5, 0.55 if style == &"felt" else 0.3 if style != &"leather" else 0.4)
 	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
 	for y in SIZE:
 		for x in SIZE:
@@ -95,7 +183,7 @@ static func cloth(key: String, base: Color, seed: int, style := &"plain", accent
 					var twill := 1.0 if posmod(x + y, 4) < 2 else 0.0
 					v = big * 0.35 + mid * 0.2 + twill * 0.3 + fine * 0.15
 				&"felt":
-					v = big * 0.6 + mid * 0.3 + fine * 0.1
+					v = big * 0.45 + mid * 0.3 + fine * 0.25
 				&"leather":
 					var crease := PixelArt._noise(x, y * 3, 6, 24, seed + 3)
 					v = big * 0.5 + mid * 0.2 + fine * 0.1 + (0.2 if crease > 0.72 else 0.0) - (0.25 if crease < 0.12 else 0.0)
@@ -314,7 +402,7 @@ static func face(key: String, look: Dictionary) -> ImageTexture:
 	# pipeline): over the front of the head; the painted hair, ears and back of the head round it.
 	var portrait: Image = look.get("portrait", null)
 	if portrait != null:
-		img = _over(img, portrait)
+		img = _over(img, portrait_tiles(portrait))
 	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
 	_cache[ck] = tex
