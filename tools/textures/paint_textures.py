@@ -96,6 +96,8 @@ def ask(prompt, images, config, what, key):
                 del body["image_config"]
                 continue
             raise RuntimeError("%s: OpenRouter said %d: %s" % (what, e.code, said)) from None
+    if not answer.get("choices"):
+        raise RuntimeError("%s: no answer: %s" % (what, json.dumps(answer)[:400]))
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
@@ -137,10 +139,14 @@ def main():
         kind = spec["kind"]
         prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
             what=spec["what"], text=spec.get("text", ""))
-        try:
-            img = ask(prompt, [reference(spec)], {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
-        except (RuntimeError, OSError, KeyError, ValueError) as e:
-            print("failed:", e)
+        img = None
+        for attempt in range(3):
+            try:
+                img = ask(prompt, [reference(spec)], {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
+                break
+            except (RuntimeError, OSError, KeyError, ValueError) as e:
+                print("failed (try %d):" % (attempt + 1), e)
+        if img is None:
             failed.append(mid)
             continue
         # Kept big enough to reduce well, small enough for git.

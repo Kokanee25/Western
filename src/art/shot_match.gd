@@ -90,7 +90,52 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 			&"chest": Vector3(0.0, 4.5, 0.0), &"upper_arm_r": Vector3(1.5, 6.5, 0.0),
 			&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
 	_cup_in_hand(man)
+	_extras(street)
 	return man
+
+
+## The painting's room has people in it: three men at cards by the door, one at the piano, one at
+## the bar and one up on the balcony (the barkeep is the town's own). Staged for the picture only
+## (no brains): who's in the saloon in play is TownLife's business.
+const EXTRAS := [
+	# [name, saloon-space position, saloon-space point he faces, pose, shirt, vest, coat, hat, look]
+	["CardPlayerA", Vector3(2.82, 0.0, 5.02), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.78, 0.74, 0.64), Color(0.2, 0.16, 0.12), Color(0, 0, 0, 0), Color(0.16, 0.12, 0.1),
+			{"hair": Color(0.15, 0.1, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
+	["CardPlayerB", Vector3(3.42, 0.0, 3.98), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.62, 0.5, 0.36), Color(0.3, 0.2, 0.12), Color(0, 0, 0, 0), Color(0.24, 0.18, 0.12),
+			{"hair": Color(0.3, 0.2, 0.1), "moustache": &"handlebar", "beard": &"none", "age": 0.6, "brows": 0.6}],
+	["CardPlayerC", Vector3(1.78, 0.0, 4.42), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.84, 0.82, 0.76), Color(0.12, 0.1, 0.09), Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08),
+			{"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"full", "age": 0.45, "brows": 0.8}],
+	["PianoPlayer", Vector3(2.95, 0.0, 1.25), Vector3(2.95, 1.2, 0.0), &"sit", Color(0.86, 0.84, 0.78), Color(0.22, 0.14, 0.1), Color(0, 0, 0, 0), Color(0, 0, 0, 0),
+			{"hair": Color(0.2, 0.14, 0.09), "moustache": &"trim", "beard": &"none", "age": 0.35, "brows": 0.5}],
+	["ManAtTheBar", Vector3(6.95, 0.0, 6.6), Vector3(8.5, 1.4, 6.9), &"stand", Color(0.55, 0.5, 0.42), Color(0.18, 0.14, 0.1), Color(0.3, 0.25, 0.18, 1.0), Color(0.2, 0.15, 0.1),
+			{"hair": Color(0.18, 0.12, 0.08), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
+	["ManOnTheBalcony", Vector3(8.9, 2.3, 1.25), Vector3(5.0, 3.3, 3.5), &"stand", Color(0.7, 0.64, 0.52), Color(0.16, 0.13, 0.1), Color(0, 0, 0, 0), Color(0.14, 0.11, 0.09),
+			{"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.8}],
+]
+
+
+static func _extras(street: Node3D) -> void:
+	var saloon := street.find_child("Saloon", true, false) as FalseFrontBuilding
+	if saloon == null:
+		return
+	var f := saloon.floor_top
+	for i in EXTRAS.size():
+		var e: Array = EXTRAS[i]
+		var man := HumanBody.new()
+		man.name = e[0]
+		man.person_id = StringName(String(e[0]).to_snake_case())
+		man.rng_seed = 31 + i
+		man.has_gun = false
+		man.shirt_color = e[4]
+		man.vest_color = e[5]
+		man.coat_color = e[6]
+		man.hat_color = e[7]
+		man.bandana_color = Color(0, 0, 0, 0)
+		man.look = e[8]
+		street.add_child(man)
+		man.global_position = saloon.to_global((e[1] as Vector3) + Vector3(0, f, 0))
+		man.face(saloon.to_global((e[2] as Vector3) + Vector3(0, f, 0)))
+		man.set_pose(e[3])
 
 
 ## Put the player's eye at the painting's viewpoint with its lens. Every gun goes out of his hands

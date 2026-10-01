@@ -91,17 +91,14 @@ static func bottle_glass(variant: int) -> ShaderMaterial:
 			c * 2.0, 0.12, 0.0, 0.9)
 
 
-## A see-through glass chimney (off the grid: glass you see the flame through).
+## A see-through glass chimney (off the grid: glass you see the flame through). Unshaded: lit by
+## the flame a few centimetres inside it, it would burn white.
 static func chimney_glass() -> StandardMaterial3D:
 	if not _materials.has("chimney"):
 		var m := StandardMaterial3D.new()
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		m.albedo_color = Color(0.95, 0.9, 0.8, 0.22)
-		m.roughness = 0.1
-		m.metallic_specular = 0.9
-		m.emission_enabled = true
-		m.emission = Color(1.0, 0.75, 0.45)
-		m.emission_energy_multiplier = 0.25
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.albedo_color = Color(1.0, 0.86, 0.62, 0.2)
 		m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		_materials["chimney"] = m
 	return _materials["chimney"]
