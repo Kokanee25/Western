@@ -159,6 +159,24 @@ with the revolver; the target for the street, materials and daylight).
       the window's own size ("native"); 1280×720 is the default (2026-09-30).
     - Not yet like the painting: the face (lighting, pose, the repaint), hair, moustache volume,
       hands, the shirt front and tie, then the room (walls on tiles, dressing, moonlit windows).
+  - **The plan from here (Sean, 2026-10-01), both pictures as targets** (`saloon-night.png`,
+    `street-golden-hour.png`). Tiles are built; what's missing is what goes *in* them, and the room:
+    1. **Characters:** image model paints a full-length man → image-to-3D (Tripo/Meshy on GitHub
+       Actions, key as a repo secret) → our Blender fit to the skeleton and hitboxes → tiles. The
+       MakeHuman pipeline stays the fallback.
+    2. **A texture factory for the world:** image-model paintings of each material (weathered
+       planks, floorboards, tabletop, dirt road, brick, painted sign boards with lettering, hay),
+       made seamless along a member, reduced to broad palette-limited colour clusters at the tile
+       size; replaces `PixelArt`'s noise textures. Same principle as the clothes bake: realistic
+       detail first, then tiles.
+    3. **A reference judge:** fixed views framed like each painting (`shot_match_saloon`, a new
+       `shot_match_street`), rendered side by side with it, plus measured differences (tile size,
+       palette, contrast, brightness by region), so the art session can iterate unattended and keep
+       every round's image.
+    4. **Dressing:** the saloon as painted (bar, back bar and mirror, bottles, card table with
+       players, piano, stairs and balcony, sconces, pictures, stag head, chairs, rug) and the street
+       (signs with lettering, lanterns, barrels, crates, hay, troughs, wagon, water tower, windmill,
+       telegraph poles, a horse at the rail), then golden-hour light and haze down the street.
 - The internal resolution is also the main performance lever: 1280×720 is under half the pixels
   of 1080p, and F2 drops to 960×540 or 640×360 on modest PCs.
 - **Gore setting** (full / reduced), so the game can be shown to anyone.
