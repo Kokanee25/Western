@@ -173,7 +173,7 @@ func test_a_ball_past_your_ear_makes_you_flinch() -> void:
 	var yaw := player.rotation.y
 	var pitch := player.get_pitch_degrees()
 	var misses := [0]
-	var count := func(who: Node, _s: Node, _d: float, _at: Vector3, _v: float) -> void: if who == player: misses[0] += 1
+	var count := func(who: Node, _s: Node, _d: float, _at: Vector3, _v: float, _t: bool) -> void: if who == player: misses[0] += 1
 	Events.near_miss.connect(count)
 	await _shot_past(0.5)
 	Events.near_miss.disconnect(count)
@@ -193,7 +193,7 @@ func test_rounds_coming_in_rattle_you_until_its_quiet() -> void:
 	await physics_frames(60)
 	var calm := await _wander(3.0)
 	var misses := [0]
-	var count := func(who: Node, _s: Node, _d: float, _at: Vector3, _v: float) -> void: if who == player: misses[0] += 1
+	var count := func(who: Node, _s: Node, _d: float, _at: Vector3, _v: float, _t: bool) -> void: if who == player: misses[0] += 1
 	Events.near_miss.connect(count)
 	for k in 5:
 		await _shot_past(0.8 + 0.2 * k)
@@ -233,7 +233,7 @@ func test_you_hear_it_go_by_from_where_it_went() -> void:
 	var fx := ImpactEffects.new()
 	world.add_child(fx)
 	var passes: Array[Array] = []
-	var note := func(who: Node, _s: Node, _d: float, at: Vector3, v: float) -> void: if who == player: passes.append([at, v])
+	var note := func(who: Node, _s: Node, _d: float, at: Vector3, v: float, _t: bool) -> void: if who == player: passes.append([at, v])
 	Events.near_miss.connect(note)
 	await _shot_past(0.7)  # a revolver ball
 	Events.near_miss.disconnect(note)

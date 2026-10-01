@@ -2,7 +2,9 @@ class_name Ballistics
 extends Node
 ## Flies bullets through the world on the physics tick: real travel time and drop, and
 ## penetration by material and thickness. Through thin boards they go on (slower) and leave a hole
-## you can see through; in thick timber they stop. Loose objects get knocked about.
+## you can see through; in thick timber they stop. Loose objects get knocked about. Striking
+## something at a shallow angle a ball can glance off (a ricochet): flatter, slower, flattened and
+## tumbling, whining away, and it can still hurt someone.
 ## Everything that happens is announced on Events.bullet_hit.
 
 class Bullet:
@@ -28,6 +30,9 @@ class Bullet:
 	var pellets := 1
 	## What it is, when it isn't a ball or a pellet (&"splinter" off a blast); the wound says so.
 	var kind := &""
+	## It's glanced off something: flattened and tumbling (it whizzes past rather than snaps).
+	var tumbling := false
+	var ricochets := 0
 
 	## The blast still with it after flying `travelled` metres: all of it right at the muzzle,
 	## then fading out.
@@ -43,12 +48,14 @@ class Bullet:
 @export var tuning: BallisticsTuning
 
 var bullets: Array[Bullet] = []
+var _rng := RandomNumberGenerator.new()
 ## Every path flown, for the F8 debug traces.
 signal bullet_finished(bullet: Bullet)
 
 
 func _ready() -> void:
 	add_to_group(&"ballistics")
+	_rng.seed = 1873
 	if tuning == null:
 		tuning = load("res://config/ballistics.tres")
 
@@ -123,9 +130,14 @@ func step(b: Bullet, delta: float) -> void:
 		remaining -= travelled
 		b.position = hit.position
 		b.path.append(hit.position)
+		var heading := b.velocity.normalized()
 		remaining = _impact(b, hit, remaining)
 		# The blast spends itself on the first thing it meets.
 		b.blast = 0.0
+		if b.alive and b.velocity.normalized().dot(heading) < 0.9999:
+			# It glanced off: its flight bends here, so near misses are judged leg by leg.
+			_near_misses(b, start, hit.position)
+			start = hit.position
 	b.velocity.y -= tuning.gravity * delta
 	# Air drag: speed falls off exponentially with distance, faster for light, fat projectiles.
 	if b.alive and b.mass > 0.0:
@@ -176,6 +188,9 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	elif collider is StructureMember:
 		var member := collider as StructureMember
 		info.member_id = member.member_id
+		if member.kind != &"glass" and _ricochet(b, hit, surface_of(member, hit.normal), info):
+			member.add_hole(hit.position, null, b.diameter * 0.5)  # a gouge where it glanced
+			return remaining * b.velocity.length() / maxf(sqrt(2.0 * e_before / maxf(b.mass, 1e-6)), 1e-3)
 		if member.kind == &"glass":
 			var glass_cost := member.exit_distance(hit.position, dir) * 100.0 * float(tuning.resistance_by_wood.get(&"glass", 8.0))
 			member.shatter(hit.position, dir)
@@ -234,11 +249,68 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			b.alive = info.penetrated
 		else:
 			b.alive = false
+	elif _ricochet(b, hit, surface_of(collider, hit.normal), info):
+		return remaining * b.velocity.length() / maxf(sqrt(2.0 * e_before / maxf(b.mass, 1e-6)), 1e-3)
 	else:
 		b.alive = false
 	b.hits.append(info)
 	Events.bullet_hit.emit(info)
 	return remaining if b.alive else 0.0
+
+
+## What a surface is, for glancing off it: its `surface` meta (&"ground", &"stone", &"metal",
+## &"wood"); a stone member is stone and any other member wood (glass: nothing); anything else
+## level is the ground and upright is wood. &"" = it never glances.
+static func surface_of(collider: Object, normal: Vector3) -> StringName:
+	if collider == null:
+		return &""
+	if collider.has_meta(&"surface"):
+		return collider.get_meta(&"surface")
+	if collider is StructureMember:
+		var m := collider as StructureMember
+		return &"" if m.kind == &"glass" else (&"stone" if m.wood == &"stone" else &"wood")
+	if collider is StaticBody3D:
+		return &"ground" if normal.y > 0.7 else &"wood"
+	return &""
+
+
+## Glancing off: struck shallow enough for this surface, it skips (near the limit it's a toss-up,
+## a graze nearly always). It leaves flatter than it came in and a little to one side, slower,
+## flattened and tumbling. True if it did (the hit is announced, with `ricochet`).
+func _ricochet(b: Bullet, hit: Dictionary, surface: StringName, info: Dictionary) -> bool:
+	var limit: float = tuning.ricochet_angle.get(surface, 0.0)
+	if limit <= 0.0 or b.ricochets >= tuning.max_ricochets:
+		return false
+	var dir := b.velocity.normalized()
+	var n: Vector3 = hit.normal
+	var into := -dir.dot(n)  # sine of the angle it strikes at
+	if into <= 0.0:
+		return false
+	var angle := rad_to_deg(asin(clampf(into, 0.0, 1.0)))
+	if angle >= limit:
+		return false
+	var t := angle / limit
+	if _rng.randf() > 1.0 - t * t:
+		return false
+	var along := (dir + n * into).normalized()
+	var out_angle := deg_to_rad(angle * tuning.ricochet_exit_share + _rng.randf_range(0.5, 2.0))
+	var out := (along * cos(out_angle) + n * sin(out_angle)).normalized()
+	out = out.rotated(n, deg_to_rad(_rng.randf_range(-1.0, 1.0) * tuning.ricochet_scatter))
+	var speed := b.velocity.length() * lerpf(tuning.ricochet_keep_speed.x, tuning.ricochet_keep_speed.y, t)
+	b.velocity = out * speed
+	b.position = (hit.position as Vector3) + n * 0.003
+	b.path.append(b.position)
+	if not b.tumbling:
+		b.diameter *= tuning.ricochet_flatten
+	b.tumbling = true
+	b.ricochets += 1
+	b.blast = 0.0
+	info.ricochet = true
+	info.surface = surface
+	info.energy_after = b.energy()
+	b.hits.append(info)
+	Events.bullet_hit.emit(info)
+	return true
 
 
 ## Announce a bullet cracking past someone's head (within `tuning.near_miss_distance`), at its
@@ -256,7 +328,7 @@ func _near_misses(b: Bullet, from: Vector3, to: Vector3) -> void:
 			continue  # still closing on him
 		if d < tuning.near_miss_distance:
 			b.passed[p] = true
-			Events.near_miss.emit(p, b.shooter, d, closest, b.velocity.length())
+			Events.near_miss.emit(p, b.shooter, d, closest, b.velocity.length(), b.tumbling)
 
 
 func _set_energy(b: Bullet, joules: float) -> void:

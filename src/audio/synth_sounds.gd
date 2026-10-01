@@ -32,6 +32,7 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"flesh": samples = _flesh(rng)
 			&"zip": samples = _zip(rng)
 			&"crack": samples = _crack(rng)
+			&"ricochet": samples = _ricochet(rng)
 			&"timber_crack": samples = _timber_crack(rng)
 			&"timber_crash": samples = _timber_crash(rng)
 			&"fire": samples = _fire(rng)
@@ -200,7 +201,7 @@ static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
 
 
 ## The whiz of a tumbling ball (a ricochet) going by: tearing air coming fast, a tick as it's
-## level with you, the pitch falling away behind. Not used until balls ricochet (a near miss snaps).
+## level with you, the pitch falling away behind. (A ball flying true snaps instead: `crack`.)
 static func _zip(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	var n := int(RATE * 0.17)
 	var out := PackedFloat32Array()
@@ -241,6 +242,24 @@ static func _crack(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		lp += (rng.randf_range(-1, 1) - lp) * 0.6
 		out[i] += lp * exp(-t / 0.012) * 0.25
 	return _normalise(out, 0.95)
+
+
+## A ball glancing off something: a hard spang where it strikes, then the whine of it tumbling
+## away, falling in pitch and warbling as it turns over.
+static func _ricochet(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.5)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var phase := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var spang := rng.randf_range(-1, 1) * exp(-t / 0.004) + sin(TAU * 2900.0 * t) * exp(-t / 0.02) * 0.5
+		var pitch := lerpf(3400.0, 1300.0, pow(minf(t / 0.45, 1.0), 0.7))
+		phase += TAU * pitch / RATE
+		var warble := 0.6 + 0.4 * sin(TAU * 38.0 * t)
+		var whine := sin(phase) * warble * minf(t / 0.015, 1.0) * exp(-t / 0.18) * 0.7
+		out[i] = spang + whine
+	return _normalise(out, 0.85)
 
 
 ## Timber giving way: a few sharp splintering cracks and a woody groan under them.

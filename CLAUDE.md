@@ -1161,3 +1161,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: when the key's there, run People with `characters: stranger`, read `_tripo.json`, fix the
     client to the live API, then the Blender fit. Meanwhile: the street's far side and the
     saloon's bar side (the judge's biggest left).
+- 2026-10-01 (gameplay, later): **Ricochets** (Sean: a near miss is a snap, a whiz is usually a
+  ricochet; "yes" to ricochets). `Ballistics._ricochet()`: a ball striking a surface shallower
+  than its `BallisticsTuning.ricochet_angle` (ground 14°, stone 22°, metal 28°, wood 6°) glances
+  off with chance 1 − (angle/limit)²; it leaves at `ricochet_exit_share` 0.5 of the angle (+0.5–2°),
+  scattered ±6° about the normal, keeping 0.8→0.5 of its speed (graze→limit), diameter ×1.4 once,
+  `tumbling`, no blast; at most 3. `Ballistics.surface_of()`: a `surface` meta, else stone/wood
+  members by wood (glass never), else level statics are ground and upright ones wood. A glanced
+  wood member gets a blind hole (gouge). `bullet_hit` info carries `ricochet` and `surface`; near
+  misses are judged leg by leg when a flight bends, and `Events.near_miss` gained `tumbling`.
+  ImpactEffects: `ricochet` sound (new: a spang + falling, warbling whine) where it glanced, sparks
+  off stone/metal, `zip` for a tumbling ball going past you (`crack` otherwise). Ricochet RNG
+  seeded (1873). Tests `test_ricochet` (6). 268 pass.
+  - Known: nothing's tagged `metal` yet (no iron in the town); tin cans are thin rigid bodies and
+    are shot through, never glanced off; a man hit by a ricochet takes it as a normal ball,
+    flattened (no "ricochet" wording in his wounds).
