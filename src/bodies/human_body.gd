@@ -63,6 +63,14 @@ const POSES := {
 			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
 			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
 			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
+	# Leaning in over the table on his forearms, shoulders hunched, head up to look at you (the
+	# painting's man).
+	&"sit_lean": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(-16, 0, 0), &"chest": Vector3(-20, 0, 0), &"neck": Vector3(10, 0, 0),
+			&"head": Vector3(14, 0, 0),
+			&"upper_arm_r": Vector3(88, 6, 18), &"forearm_r": Vector3(98, 86, 0), &"hand_r": Vector3(-12, 0, 12),
+			&"upper_arm_l": Vector3(40, 0, -8), &"forearm_l": Vector3(60, 0, 0)},
 	# Arms out at someone: a shove, a grab at his collar.
 	&"shove": {&"upper_arm_r": Vector3(80, 0, -6), &"forearm_r": Vector3(10, 0, 0),
 			&"upper_arm_l": Vector3(80, 0, 6), &"forearm_l": Vector3(10, 0, 0), &"chest": Vector3(-8, 0, 0)},
@@ -121,10 +129,24 @@ var garments: Array[Dictionary] = []
 var wounds: Array[Dictionary] = []
 var limp := false
 var pose := &"stand"
+## Staged scenes' touch on top of whatever pose he's in: segment -> extra rotation (degrees, same
+## axes as POSES), e.g. {&"head": Vector3(0, 12, -10)} to turn his head to you and tip it.
+var pose_offsets := {}
 var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
 const DRAW_TIME := 0.5
+## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
+## whose faces point inward).
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
+## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
+## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
+## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
+## light making him more than paint_limit × painted (light_steps: how many steps the light takes
+## across him, 0 smooth). Tuned in the character lab so he matches the painting under its light.
+## A static so the lab can try others.
+static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3,
+		&"light_steps": 4.0}
 var _draw_left := 0.0
 var time_scale := 1.0
 
@@ -308,7 +330,8 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 ## The skin and clothes (the generated body if there is one, else BodyMesh) skinned to a skeleton whose bones follow the parts.
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
-			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0}
+			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0,
+			"hair": look.get("hair_long", false)}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	if data.has("skin_tone"):
 		skin_tone = data.skin_tone
@@ -347,13 +370,16 @@ func _build_skin() -> void:
 		"hat": _cloth("hat", hat_color, &"felt"),
 		"hat_brim": _cloth("hat", hat_color, &"felt", false),
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
+		"hair": _cloth("hair", look.get("hair", Color(0.22, 0.15, 0.09)), &"felt", false),
 	}
-	const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt"]
 	var baked: Dictionary = data.get("textures", {})
+	var paint: Dictionary = data.get("paint", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
 			base = _baked_cloth(shape, baked[shape])
+		if paint.has(shape):
+			base = _baked_cloth("paint_" + shape, baked["paint_" + shape])
 		var pieces: Dictionary = data.shapes[shape]
 		for b: int in pieces:
 			var sid: StringName = data.bones[b]
@@ -362,6 +388,14 @@ func _build_skin() -> void:
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			if paint.has(shape):
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
+						float(data.get("paint_squares", {}).get(shape, 1.0)))
+				for k: StringName in paint_look:
+					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
+			if shape == "head" and sid == &"head":
+				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
 			mi.custom_aabb = AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
 			skeleton.add_child(mi)
@@ -381,6 +415,19 @@ func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMate
 	m.set_shader_parameter(&"use_custom_pos", true)
 	m.set_shader_parameter(&"uv_scale", base.uv1_scale.x)
 	return m
+
+
+## Glossy eyeballs on the head piece (the shader's rest positions are head-centred).
+func _wet_eyes(m: ShaderMaterial) -> void:
+	var centre := anatomy.segment_center(&"head")
+	var r := anatomy.structure(&"eye_r")
+	var l := anatomy.structure(&"eye_l")
+	if r.is_empty() or l.is_empty():
+		return
+	m.set_shader_parameter(&"eye_r_pos", (r.a as Vector3) - centre)
+	m.set_shader_parameter(&"eye_l_pos", (l.a as Vector3) - centre)
+	# The eyeball and a hair of the lids round it.
+	m.set_shader_parameter(&"eye_radius", float(r.radius) + 0.002)
 
 
 ## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on
@@ -714,7 +761,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var overlay := _gait_overlay(delta)
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO)
+		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)

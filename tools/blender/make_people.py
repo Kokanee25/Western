@@ -40,7 +40,11 @@ except ImportError:  # the fitting itself runs without Blender (for checks); exp
 
 MH = "build/makehuman/makehuman/data"
 ENVELOPE = "assets/people/envelope.json"
+ANATOMY = "config/anatomy.json"
 OUT = "assets/people"
+# The neck's lean is carried from its base (none) to the head (all), heights in our body space.
+NECK_BASE_Y = 1.40
+HEAD_BASE_Y = 1.56
 # Triangles for the whole body (skin + head) after decimation.
 TRI_BUDGET = 7000
 # Joint blending (metres): how soft the boundary between two bones' pull is when warping.
@@ -124,6 +128,8 @@ class Person:
     def __init__(self, pid, spec, env):
         self.id = pid
         self.env = env
+        with open(ANATOMY) as f:
+            self.anatomy = json.load(f)
         v, uv, groups = load_obj(os.path.join(MH, "3dobjs/base.obj"))
         for t, w in spec.get("targets", {}).items():
             apply_target(v, os.path.join(MH, "targets", t + ".target"), float(w))
@@ -269,6 +275,19 @@ class Person:
         for k in ["r-eye", "l-eye", "mouth"]:
             self.fit_joints[k][1] = float(np.interp(self.fit_joints[k][1], src, dst))
         self.report["head_map"] = {"from": [float(x) for x in src], "to": dst}
+        # Front to back: MakeHuman's neck leans further forward than our anatomy's, which put his
+        # head ~5 cm in front of its hitboxes (and in front of the hat made for them). Slide the
+        # head back till his eyes are the anatomy's eyes, the neck taking the lean from nothing
+        # at its base to all of it at the head.
+        eye_z = np.mean([s["sphere"][0][2] for s in self.anatomy["structures"] if s.get("organ") == "eye"])
+        dz = float(eye_z - (self.fit_joints["r-eye"][2] + self.fit_joints["l-eye"][2]) / 2)
+        upper = mask & np.isin(reg, ["trunk", "neck", "head"]) | eyes
+        t = np.clip((v[:, 1] - NECK_BASE_Y) / (HEAD_BASE_Y - NECK_BASE_Y), 0.0, 1.0)
+        t = t * t * (3.0 - 2.0 * t)
+        v[upper, 2] += dz * t[upper]
+        for k in ["r-eye", "l-eye", "mouth", "jaw"]:
+            self.fit_joints[k][2] += dz
+        self.report["head_back_m"] = round(-dz, 4)
         # Trunk, neck and head cross-sections, by height.
         # Gently: the envelope is the old mannequin's, and squeezing a real man into it thins his
         # neck and shrinks his head. Only the trunk and limbs are pulled toward it (the clothes

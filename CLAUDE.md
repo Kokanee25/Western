@@ -19,9 +19,9 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   and runs headless for automated tests.
 - **Language: GDScript** by default. Use C# only for a measured performance hotspot, and ask first.
 - **Target: PC / big screen**, keyboard + mouse and controller. First person only.
-- **Look:** render the 3D scene into a low-resolution SubViewport (start at 640×360) and scale it to the
-  window with nearest-neighbour filtering; modern lighting (shadows, fog, volumetric light, glow) happens
-  at the low resolution. Keep the internal resolution a setting.
+- **Look:** render the 3D scene into a SubViewport (1280×720 by default since 2026-09-30; was 640×360)
+  and scale it to the window with nearest-neighbour filtering; the chunky pixels are the textures'
+  squares, each several screen pixels big. Keep the internal resolution a setting (F2).
 - **AI characters:** called through a small relay server that holds the API key (OpenRouter, so the
   model can be switched). **The key never goes in this repo or in the game build.** The AI is only
   called for conversation, asynchronously — never inside the frame loop.
@@ -104,7 +104,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
-  (SubViewport at `Settings.internal_resolution`), drawn to `Screen` with nearest filtering.
+  (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
+  filtering.
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`).
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
@@ -149,6 +150,38 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 - `src/art/shot_match.gd` — the painting's shot staged in the saloon (`ShotMatch.stage()`, view
   `shot_match_saloon`); `tools/side_by_side.py render.png` puts a render next to the painting.
+  Stage a camera with `ShotMatch.frame_camera()` / `hands_off_camera()`: a gun left in hand drives
+  the camera's fov and pitch back to the game's (75°, level). `tools/fit_shot.gd` fits his SEAT,
+  TURN and pose offsets to the painting's man (outline, eyes, cup, palm in front of the mug).
+  `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
+  creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
+  the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
+  rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
+  painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
+  renders him in grey clay from the painting's view and five round him, only him in the side
+  views (`assets/people/paint/<id>_<view>_guide.png` + `_mask.png`); `tools/paint/paint_views.py`
+  (Actions: People workflow, inputs `paint_views: all`, `paint_sheet`, `paint_model`; default
+  FLUX.2 [max] on OpenRouter, the painting's man + his face as references on every call, even
+  light, no pixelating) paints each view (`_painted.png`) and, with `--sheet`, all six in one
+  turnaround picture cut back into `_tile.png` (the sheet follows our outline far better);
+  `tools/paint/align.py [--source=tile]` fits each painting's outline onto the guide's (scale +
+  shift), matches its colours to the painting's man (the whites of his eyes keep theirs), bends
+  his face so its landmarks land on the guide's (`face_warp`: MediaPipe's face landmarker, `pip
+  install mediapipe` + `apt-get install libegl1`, model fetched into build/; reports `face_fit`
+  and `face_mismatch`, a face painted where the guide shows the back of his head) and writes
+  `_aligned.png` (alpha = his outline) plus `<id>_shot_painting.png` (the painting itself, masked
+  to its man by a hand-traced outline, face bent the same way); `paint_bake.gd bake` projects
+  every source into each shape's UV space (depth-tested, needs Forward+; shapes in
+  `HumanBody.DOUBLE_SIDED` are taken from either side; writes where the eyes are in the head's
+  texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
+  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150; the
+  face's squares are 3×3 texels so its eyes can be drawn finer, `DETAIL`/`square_texels`), each
+  the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
+  (one texel per square) + `<id>_paint.json`. `body_skin` shows them as painted
+  (`HumanBody.paint_look`: the game's ACES grade undone, lit by light brightness only, each light
+  eased off at paint_limit, wrapped, a little self-lit) and lights each square as one (the light's
+  position and the normal at the texel's centre, `LIGHT_VERTEX`).
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -624,3 +657,230 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `test_the_coat_skirt_hangs_from_his_hips_not_his_arms`). Skin tone is measured from the painted
   face (`outlaw.json` `skin_tone`). Face projected at 384×256, 40 colours. Face repainted on the
   corrected head (People run 3). New screenshot views `portrait_day`, `coat_hands_up`. 227 pass.
+- 2026-09-29 (later): **Shot match round 7: the painting's face.** Sean asked whether faces can look
+  as good as the painting's: yes (DESIGN.md §4 reworded) — at 640×360 the painting's face is ~70×80 px.
+  (1) **Every shot-match round before this was rendered at 75°**, not 48°: the screenshot setup hid
+  the revolver but left it `selected`, and `WeaponViewmodel._animate_camera` pulls fov to 75 and
+  levels the pitch. `ShotMatch.frame_camera()` takes every gun out of hand (portrait views too); test
+  `test_the_shot_keeps_its_lens_and_aim`. (2) Camera fitted to the painting (probe the staged
+  scene, project, grid-search a seated eye): his eyes land at its eye spot at its size (eye to chin
+  106 of 941 px); lamp, bottle, cup and ashtray are where its pixels fall on the table top. The
+  painting's lamp is ~2× ours for a seated eye; ours kept. (3) `faces.project()`: depth test against
+  the head seen from the front, fade only by angle round the head, hidden texels filled from seen
+  ones: the portrait covers 2.7× more (holes round eyes, nose and moustache let the code-painted
+  face through). (4) `make_people`: MakeHuman's neck leans forward more than our anatomy's, so the
+  generated head sat ~5 cm in front of its hitboxes (and the hat, which let the forehead through):
+  the head slides back till its eyes are the anatomy's eyes (neck sheared, `head_back_m` 0.048 in
+  `outlaw.json`). The pipeline ran here (bpy 5.0.1 in a venv, 15 s; glb byte-identical to Actions
+  before the change). (5) Hat worn lower (brim ~3 cm over the brows), crown roomier for the MakeHuman
+  skull. (6) `HumanBody.pose_offsets` (segment → extra degrees on any pose): the seated man turns
+  his head to look at you and tips it. (7) Wet eyes: `body_skin` gloss within the eyeballs (head
+  piece only) → a 1-px lamp glint like the painting's. Renders `docs/screenshots/shot_match/round7*`
+  (`round7_face_steps.png` is the painting's face box at each step). 228 pass.
+  - Tried and dropped: sconces at the painting's spots and a lamp over the table — our side wall is
+    2.5 m behind him (the painting's is right behind his head), so they can't fill his shadow side.
+  - Next for the face: light on his shadow side (comes with rebuilding the room to the painting's
+    layout: wall close behind him, many sconces), long hair to the collar (geometry), hatband with
+    conchos, a firmer expression (MakeHuman expression targets), skin contrast. Then the room.
+- 2026-09-29 (later): **Round 8: the pixelated finish.** Sean: "his face is still too smooth". Two
+  causes: the face texture had more texels than screen pixels (384×256), and light fell off in
+  smooth ramps. (1) `faces.FACE_W/FACE_H` 96×64 (PeopleArt's painted face size): each texel is 2–3
+  screen px at the painting's distance; projected at `SUPERSAMPLE` 4× and alpha-averaged down,
+  `FACE_COLOURS` 20, `_despeckle()` clears lone texels. (2) `body_skin` has its own `light()`:
+  Lambert stepped in gamma space (`light_steps` 4, 0 = smooth), shadows kept, a hard glint only
+  where rough < 0.3 (wet eyes). It applies to every person (skin and clothes); the world is still
+  smooth-lit. Renders `docs/screenshots/shot_match/round8*` (`round8_pixel_finish.png`: the face
+  box before / 96×64 / + steps). 228 pass.
+  - Open with Sean: steps on the world too (walls, table, props) so everything matches; the lit
+    side of his face is too hot and the shadow side too dark (the lamp is close and low; the
+    room's fill comes with the rebuild).
+- 2026-09-29 (later): **Character lab.** Sean wants the man as close to the painting as possible
+  before he goes in. `tools/character_lab.gd` (above) pastes him into the painting over its own man,
+  so the room stops muddying the comparison. Its light (key 0.3 over the lamp side, rim 0.8 behind
+  on your left, warm-grey fill 1.0, table lamp 0.8) was tuned against the painting's face and coat
+  brightness. Round 1: `docs/screenshots/character_lab/round1_*`. Biggest differences, in order:
+  posture (the painting's man leans in on his forearms, cup down on the table; ours sits upright,
+  cup at his chest), build (much broader, heavier shoulders), the coat (dark desaturated brown wool
+  in mottled blocks; ours bright orange-tan and flat), his front (white collar, big dark tie,
+  patterned vest; ours shows a big white shirt V), long hair behind the ear, then the face (skin
+  darker and more even in the painting; ours lighter with hotter highlights).
+  - Next (proposed to Sean): posture and build, then texture all of him from the painting's man
+    (image model repaints him flat-lit from front/side/back; projected like the face), then hair
+    and hat, judged in the lab each round.
+- 2026-09-30: **Painting him from the painting, first working round.** Sean: "maybe 10% there".
+  (1) His outline: new pose `sit_lean` fitted to the painting by coordinate descent on the joint
+  angles (elbow, wrist and cup onto its pixels): right forearm along the table's edge with the cup
+  in that hand, left arm down by his side; hat reshaped (lower crown wide at the band, brim rolled
+  up hard at the sides and dipping at the front: `HAT_BRIM`, Lofter `dip`); coat cut looser and
+  padded (`clothes.COAT_BULK` by bone weight). (2) The paint bake (layout above). Two bugs found on
+  the way: the bake wrote its textures upside down (Forward+ clip space runs y down: everything
+  landed on the wrong texels), and the game's ACES + contrast brightened and saturated the painted
+  colours a second time (the skin shader now inverts Godot 4.7.2's ACES exactly). Painted from the
+  painting's own pixels (your seat only) he wears its face, collar, tie and coat; where his outline
+  sticks out past the painting's man it picks up the lit floor behind him (pale patches on his
+  left shoulder). Lab light tuned: `paint_look` self_lit 0.35, gain 2.4, wrap 0.9 (the same
+  brightness as fully self-lit, median). `test_shot_match` checks the cup's in his right hand.
+  228 tests pass. Renders `docs/screenshots/character_lab/round2_*`, `round3_*`.
+  - Later the same day, **round 3: the image model paints him round.** People run 4 painted all
+    six guides (Gemini 2.5 Flash Image: recognisably the painting's man every time, but redrawn
+    a little bigger or smaller and off to one side, lighter and cooler). `align.py` fits them back
+    (outline overlap 0.56–0.84 → 0.86–0.89) and matches colours; the shot view takes the painting's
+    own pixels inside its man's outline (the pale shoulder of round 2 was the lamp, not the floor)
+    and the model's view elsewhere; finish.py lets the best view win (weights⁴) at 256 texels/m (no
+    downsampling: the painting's own blocks survive). Lighting for painted parts: each light eased
+    off towards 1.3× painted (the table lamp at his elbow burnt the colours out), gain 4.0 to the
+    median. He now reads as one painted man from every side (`round3_around.png`). 228 pass.
+  - Known: our head is turned and shaped differently from the painting's, so its face lands a
+    little smeared; his outline still narrower than the painting's man on your left; the brim's
+    texture strip is thin (speckles); the Compatibility (web) renderer grades differently, so he's
+    hotter there; the model's views are smooth, not blocky (the palette cut is all that blocks
+    them); every man with the outlaw body wears this paint.
+  - Next: Sean's verdict on round 3; then the head's turn and tilt to the painting's, hair, the
+    build, and faces/paint for the other townsfolk.
+- 2026-09-30 (evening): **Round 4: squares, and FLUX.2 [max].** Sean: "how do we get this pixel style;
+  it's been hard". Diagnosis: the painting's squares are on the surfaces (fixed size in metres, so
+  near things have big squares and far ones small), each square one deliberate colour, light
+  stepping square by square; we'd been copying one painting's pixels onto a body that doesn't
+  match it, which smears. No engine change needed (Godot 4.7.2 has `LIGHT_VERTEX`). Reviewed
+  Gemini's pipeline advice with Sean: right about FLUX.2 [max] references and pixelating clean
+  images ourselves with a strict palette; wrong for us about 2D sprites/Phaser, img2img at 0.15–0.3
+  (returns the painting), Canny from the painting (locks every asset to that one picture) and plain
+  nearest downscaling (speckle). Built: (1) the squares in finish.py (dominant colour per square,
+  one 40-colour palette), (2) per-square lighting in body_skin, (3) the painter on FLUX.2 [max]
+  with a turnaround-sheet mode. People run 5 (FLUX.2 [max], ~$1.50): painted one view at a time
+  it drifts (overlap with our outline 0.47–0.90; the back view came back standing), but the
+  six-view sheet follows our model almost exactly (0.82–0.94 before fitting; Gemini 0.56–0.84)
+  and is the same man all round. With the sheet as master (finish.py `VIEW_WEIGHT` shot_model 6,
+  the painting's own pixels 0.5) his face reads clearly for the first time; the coat is FLUX's
+  brown check in squares. Renders `docs/screenshots/character_lab/round4_*`
+  (`round4_painting_gemini_flux.png`: the painting / Gemini / FLUX side by side). 228 pass.
+  - Known: ~64% of the coat is never seen by any view (under his arms, the skirt under his thighs,
+    inside) and is filled; his back and left side come out patchy (the check in squares); the
+    lab's light from behind is dim for painted parts (no ambient, self_lit only); the walls,
+    table and props don't have the square rule yet (world materials are StandardMaterial3D).
+  - Next: Sean's verdict; the same rule on the world (a shared pixel-surface shader for members
+    and props, squares per material from the painting), then image-model tileable textures per
+    material; a second sheet pass that paints only the unseen parts of the coat; more men.
+- 2026-09-30 (night): **Round 5: what "super clean" is.** Sean: the FLUX version "loses that style";
+  it's the super clean pixel art he wants. Up close the painting's pixels are squares on the
+  surfaces, tilted and stretched with the coat's folds and the face, each crisp and several screen
+  pixels big (a high-resolution render of low-resolution textures), with light varying across them.
+  At our 640×360 each square gets 2–4 screen pixels and smears; rendered at the painting's own
+  1672×941 the same textures give crisp tilted squares like its own (`character_lab.gd --size=WxH`;
+  `docs/screenshots/character_lab/round5_*`). finish.py now smooths fine noise first (median,
+  `SMOOTH`) and gives each shape its own palette (`SHAPE_COLOURS`: coat 12, face 24): a 5-colour
+  coat was clean but flat. Still off: what's drawn in the squares (his collar, tie and eyes are
+  muddier than the painting's), and the world's code-drawn textures are plain and coarse beside the
+  painting's table and walls. 228 pass.
+  - Open with Sean: raise the internal resolution (F2 already has 960×540 and 1280×720) so the
+    textures' squares are the pixels, as the painting's are.
+- 2026-09-30 (late): **Round 6: the painting's pixel style on the whole frame.** Sean: it's not the
+  painting he wants reproduced, it's that exact art style. Agreed the style as rules (DESIGN.md §4):
+  squares on the surfaces at a set size, several screen pixels each, a mosaic of close shades, clean
+  drawing, warm soft lamplight. Done: **default internal resolution 1280×720** (`RESOLUTION_PRESETS`
+  first; F2 steps down) and **64 texels/m** (`PixelArt.DENSITY_PRESETS` first; F7 40/24/16); an old
+  settings file moves from the old defaults once (`Settings.LOOK_VERSION` 2). `PixelArt.mosaic` 0.6:
+  wood, painted boards and dirt get per-square shade clusters (`_mosaic()`), wood six shades with more
+  contrast. The man: `finish.py` `SHAPE_TONE` draws the shirt cream and the tie black (painted light
+  kept, colour set), `FACE_SHARPEN` bolds the face; painted parts are matt (`SPECULAR` 0: the night
+  sky's sheen); ShotMatch's tin is dull (fully metallic it went black). 228 pass. Renders
+  `docs/screenshots/character_lab/round6_*` (the painting / this morning / now).
+  - Known: the room is still one plank wall behind him (the painting's depth, bar, balcony, lamps
+    and people are the room rebuild); props are plain shapes (cups, lamp, bottle); the shirt V is
+    bigger than the painting's (vest cut); frame rate at 1280×720 on Sean's PC unknown.
+  - Next: Sean's verdict and frame rate; then props as proper models in the style, the room.
+- 2026-10-01: **Round 8: the man first (Sean: "not worried about props until our character looks
+  perfect").** (1) **Long hair to the collar:** `BodyMesh.HAIR` (+ `HAIR_GAP`, open round the face),
+  sized ~1.5 cm clear of the generated head (measured per height), worn when `look.hair_long` (the
+  painting's man). (2) **Necktie:** `clothes._string_tie` is now the painting's wide dark tie
+  (`TIE`), and it's at his throat: it used to take the most forward point at collar height, which is
+  on the chest muscle, so the tie (string tie too) sat ~10 cm low and off to one side. (3) **Close
+  head sheet:** six close views of his head (`lab_stage.HEAD_VIEWS`, one from your seat) painted in
+  one picture by FLUX.2 [max] with his painted front as the identity (`paint_views.py --head-sheet`,
+  People run 6, ~$0.30): crisp eyes, brows, moustache, hair, studded band. FLUX kept the front, back
+  and your-seat views in place (0.93–0.94 overlap) but shuffled the three side views (a profile in
+  the ¾ slot, a front face in the left-side slot); finish.py now **leaves out any painting that
+  doesn't follow his outline** (`MIN_OVERLAP` 0.8, `MIN_OVERLAP_HEAD` 0.88) and lets the head views
+  win on head/hair/hat/tie (`HEAD_VIEW_WEIGHT`, your seat ×1.6). Guides/masks/depth draw both sides
+  of every face (the hair shell faces inward and was invisible to them). The lab renders 1280×720.
+  228 pass. Renders `docs/screenshots/character_lab/round8_*` (the painting / round 7 / round 8).
+  - Known: his face is softer and paler than the painting's (no dark outlines round jaw and eyes,
+    no eye whites or glints yet; the lamp flattens it); the shirt V is too big and blotchy (the vest's
+    V is cut wider than the painting's and the vest isn't patterned); FLUX gives him a goatee in
+    some views (the painting's man has none); his sides come from the body sheet only.
+  - Next: the face's drawing (outlines, eyes), the vest V and pattern, the head's tilt (the painting's
+    man looks up at you from under the brim), repaint the head sheet's side views.
+- 2026-09-30 (night): **Round 9: his face where his head is.** Sean: "getting kinda closer but you
+  can see it's not the same". Found why the face was mush: the FLUX head sheet's face (crisp in the
+  painting: eye whites, irises, a glint) was drawn ~2 cm higher and narrower than our head's, so
+  painted eyes sat on the brow ridge and the sockets' shadow on his cheeks; then the square-making
+  took each square's commoner colour (a thin eyelid line lost to the skin round it), the colour match
+  turned the eye whites the colour of his skin, and the face lit up one cheek. Fixes: (1)
+  `align.py` `face_warp` bends each painting's face (and the painting's own, for the shot) so its
+  eyes, brows, nose, mouth and jaw land on the clay guide's (FLUX's head_shot moved 71 px, 5 px
+  off after), pinned along his outline; `keep_eye_whites` keeps the painted whites. (2)
+  `finish.py`: face squares by `dark_kept` (the average, or the dark part when ≥30% of a square is
+  darker: brows, lids, moustache stay bold), a median over ~8 mm first and 16 colours (a calmer
+  mosaic), `FACE_EVEN` takes 60% of the painted light out of his face (the painting lights it
+  evenly), and his eyes are drawn finer than the squares: the head texture has 3×3 texels a square
+  (`DETAIL`), one colour a square except within 2 cm of an eye (`paint_bake.gd` writes where they
+  are), and `body_skin` lights 3×3 as one square (`square_texels`). Head raw bake 512×344. (3)
+  `ShotMatch` head fitted to the painting's eyes: (6, −8.5, 16)°. Tried and left: lighting knobs
+  (self_lit/limit/steps barely change it; `paint_look` has `light_steps` now), outline shader (off,
+  lab `--outlines`). 228 pass. Renders `docs/screenshots/character_lab/round9_*`.
+  - Known: the shirt V is still big and ragged and the tie reads as a bow (vest cut; the painting
+    shows a small collar, a hanging tie and a patterned vest); no studded hat band (the band's strip
+    is too thin for its squares); his hand and cup are smaller than the painting's; FLUX's
+    head_front has a goatee (it still blends in on his chin); his hair is patchy from the side.
+  - Next: the vest's V and pattern, the collar and tie, the hat band; then repaint the head sheet
+    (no goatee, eyes open to the viewer).
+- 2026-10-01: **Round 10: his front, and a cleaner head sheet.** Sean: "Okay" to round 9's plan.
+  (1) `clothes.py`: the vest's V is the painting's (12 cm deep, 9 cm across, `VEST_V`) with its
+  edge laid on the line (`_clean_opening`: faces kept by their centres left a sawtooth of shirt
+  squares); the shirt's top edge is levelled before its collar (`_level_top`: the sawtooth made the
+  cream spikes round his neck); turned-down collar points either side of the knot
+  (`COLLAR_POINT`); the tie hangs straight down together and lies on his chest (`_front_surface`,
+  `TIE_OFF`: it used to run inside his chest and splay like a bow), tucking under the vest.
+  (2) **The bake never saw inward-facing shells**: it takes a texel only where its normal faces the
+  view, and the lofted hat band and hair shell face inward, so both were filled from their
+  neighbours (the dark band, the patchy hair). Shapes in `HumanBody.DOUBLE_SIDED` (now a class
+  constant) are taken from either side. The band is 3 cm deep (was 2.2) and stands 5 mm off the
+  crown. (3) People run 7 (FLUX.2 [max] head sheet, prompt: no beard or goatee, eyes open and on
+  you): the front and right profile came back right (no goatee, eyes open), but the
+  three-quarter cell was a front face, the back cell a front face, and your seat's cell lost the
+  moustache. `align.py` now reports `face_fit` (how far the face had to be bent, × its size) and
+  `face_mismatch` (a face where the guide shows the back of his head, or on a close head view no
+  face where the guide has one); `finish.py` leaves those out (`MAX_FACE_FIT` 0.35, the warp's own
+  limit: a painting made before his head was turned needs 0.33). The head_shot and head_back tiles
+  are run 6's (restored from git): run 7's had no moustache / was a front face. Tried and reverted:
+  a deeper brim dip at the front (to show the band from your seat): it covered his eye.
+  228 pass. Renders `docs/screenshots/character_lab/round10_*`.
+  - Known: the band still barely shows from your seat (our brim is flatter and the hat sits lower
+    than the painting's: the hat's shape needs redoing to the painting's, crown dented, brim rolled
+    hard on his right); his hand and cup are much smaller than the painting's and he's smaller and
+    slimmer in frame; the coat lacks the painting's lapels and fold shading; FLUX's head sheet gets
+    one or two cells wrong every run (the checks now catch them).
+  - Next: his build and the hand round the cup (the painting's biggest shapes), the coat's lapels,
+    then the hat's shape.
+- 2026-10-01 (later): **Round 11: his build, place and grip.** Sean: "Okay" to round 10's next steps.
+  Measured his outline from your seat against the painting's man (traced, `align.SHOT_OUTLINE`):
+  overlap 0.62, ours 78% of its area, shifted right, his right shoulder and arm short of the
+  painting's. `tools/fit_shot.gd` (new) fits his seat, turn and pose offsets to the outline, his eyes
+  and the cup (coordinate descent; poses snapped with `_apply_pose(0, true)`, else they ease in over
+  ~40 frames and the fit scores half-settled poses). Turning him to his left swings his head off the
+  painting's (his eyes cost more than the outline gains), so he stays nearly square (`TURN` 6.75°)
+  and sits 10 cm nearer you (`SEAT`); the coat is cut fuller (`COAT_BULK` upper arm 4.5 cm, chest 3,
+  forearm 2.4, belly 1.5; 7/5 cm looked inflated). The mug sat on his thumb side, so his curled
+  fingers closed on nothing and it floated over them: it's in his palm (`CUP_IN_HAND`), the arm and
+  wrist fitted so the back of his hand is towards you and his fingers cross it. Overlap 0.70, eyes
+  within 3 px, cup on the painting's. People run 8 (FLUX.2 [max] body sheet, ~$0.30) repainted him
+  for the new build: all six views in place (0.85–0.98 overlap), no goatee, the coat consistent
+  (the old sheet left pale patches on the bulkier coat). 228 pass. Renders
+  `docs/screenshots/character_lab/round11_*`.
+  - Known: his hand is smaller and thinner than the painting's (hand and finger sizes come from the
+    shared anatomy; a per-person hand size would be a body-build feature); the mug draws 98 px tall
+    from your seat, the painting's 128 (a bigger mug floated off his grip; bringing the hand nearer
+    you fights the back-of-hand rule); FLUX painted the back of him as a vest (no coat); the hat is
+    still the old shape (band hidden by the brim from your seat).
+  - Next: the hat's shape (crown dented, brim rolled hard on his right, sitting higher), the coat's
+    lapels; then his hands.

@@ -19,50 +19,51 @@
    1.795
   ]
  },
+ "head_back_m": -0.048,
  "faces_before_finger_cut": 13378,
  "faces_after_finger_cut": 11416,
  "skin_tone": [
-  0.705,
-  0.46,
-  0.315
+  0.654,
+  0.412,
+  0.274
  ],
  "face": "projected from outlaw_face_portrait.png",
  "textures": {
   "shirt": 64,
   "trousers": 64,
   "vest": 64,
-  "coat": 64,
+  "coat": 128,
   "cravat": 32
  },
  "triangles": {
-  "skin": 4435,
+  "skin": 4434,
   "head": 2564,
   "shirt": 1500,
   "trousers": 1200,
   "vest": 699,
-  "coat": 2200,
-  "cravat": 32
+  "coat": 2199,
+  "cravat": 36
  },
  "fit_joints": {
   "r-eye": [
    0.0302,
    1.655,
-   -0.131
+   -0.083
   ],
   "l-eye": [
    -0.0302,
    1.655,
-   -0.131
+   -0.083
   ],
   "mouth": [
    -0.0,
    1.6264,
-   -0.062
+   -0.014
   ],
   "jaw": [
    0.0,
    1.5735,
-   -0.1426
+   -0.0946
   ]
  }
 }

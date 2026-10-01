@@ -52,7 +52,7 @@ func test_controller_bindings() -> void:
 
 func test_renders_at_internal_resolution() -> void:
 	var vp: SubViewport = main.get_node(^"GameViewport")
-	check_eq(vp.size, Vector2i(640, 360), "default internal resolution")
+	check_eq(vp.size, Vector2i(1280, 720), "default internal resolution")
 	var screen: TextureRect = main.get_node(^"Screen")
 	check_eq(screen.texture_filter, CanvasItem.TEXTURE_FILTER_NEAREST, "nearest-neighbour upscale")
 	check(screen.texture == vp.get_texture(), "screen shows the game viewport")

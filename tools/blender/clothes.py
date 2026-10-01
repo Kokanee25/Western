@@ -25,8 +25,22 @@ except ImportError:
 TEXELS_PER_M = 48
 # Triangles per garment after decimation.
 BUDGET = {"coat": 2200, "vest": 700, "shirt": 1500, "trousers": 1200, "cravat": 120}
+# The necktie: knot box (m), each end's half-width, segments down, step between them (the
+# painting's is a big loose dark tie, ~4-5 cm wide ends hanging ~16 cm).
+TIE = ([0.032, 0.026, 0.016], 0.011, 7, 0.02)
+# The vest's opening at the neck (the painting's: a narrow V of shirt round the tie, ~12 cm deep and
+# ~9 cm across at the top): depth below the vest's top, half-width at the top.
+VEST_V = (0.12, 0.045)
+# The shirt collar's turned-down points either side of the knot: inner and outer top corners and the
+# tip, as (across, up) from the knot, and how far they stand off his chest (over the vest's top).
+COLLAR_POINT = ((0.012, 0.004), (0.046, 0.012), (0.03, -0.05), 0.019)
+# How far the tie lies off his chest: over the shirt, under the vest (its ends tuck in at the V's foot).
+TIE_OFF = 0.011
 # How far each sits off the skin (m).
 OFFSET = {"shirt": 0.005, "trousers": 0.008, "vest": 0.013, "coat": 0.024, "cravat": 0.0}
+# The coat stands further off where it's cut loose and padded (the painting's man is broad in a
+# heavy sack coat): extra metres by how much of a vertex each bone moves.
+COAT_BULK = {"upper_arm": 0.045, "forearm": 0.024, "chest": 0.03, "abdomen": 0.015}
 
 
 def hex_colour(h):
@@ -83,12 +97,18 @@ class Garment:
         return [e for e, c in count.items() if c == 1]
 
 
-def shell(person, name, keep, offset):
-    """The body faces `keep(face centre, region, vertex positions)` accepts, pushed out by `offset`."""
+def shell(person, name, keep, offset, bulk=None):
+    """The body faces `keep(face centre, region, vertex positions)` accepts, pushed out by `offset`
+    (plus `bulk`: {bone name prefix: extra metres}, weighted by how much each bone moves a vertex)."""
     v = person.v
     n = person.normals
     g = Garment(name)
     remap = {}
+    extra = np.zeros(len(v))
+    for prefix, m in (bulk or {}).items():
+        cols = [k for k, b in enumerate(person.env["bones"]) if b.startswith(prefix)]
+        if cols:
+            extra += m * np.asarray(person.W)[:, cols].sum(axis=1)
     for fv, _t in person.body_faces:
         pts = v[fv]
         if not keep(pts.mean(0), person.region[fv[0]], pts):
@@ -96,7 +116,7 @@ def shell(person, name, keep, offset):
         face = []
         for i in fv:
             if i not in remap:
-                remap[i] = g.add_vertex(v[i] + n[i] * offset, person.W[i])
+                remap[i] = g.add_vertex(v[i] + n[i] * (offset + extra[i]), person.W[i])
             face.append(remap[i])
         g.F.append(face)
     g.src = remap
@@ -153,20 +173,26 @@ def make_all(person, outfit):
                 return c[1] < neck_y + 0.045
             return arms(r) and pts[:, 1].min() > 0.868
         g = shell(person, "shirt", keep_shirt, OFFSET["shirt"])
+        _level_top(g, neck_y + 0.045)
         _collar(g, neck_y + 0.02, 0.03, 0.006)
+        _collar_points(g, person)
         out["shirt"] = g
     if "trousers" in outfit:
         g = shell(person, "trousers", lambda c, r, pts: (r == "trunk" and c[1] < 1.02) or (legs(r) and c[1] > 0.1),
                   OFFSET["trousers"])
         out["trousers"] = g
     if "vest" in outfit:
+        top = neck_y - 0.025
+        vest_gap = lambda y: v_gap(y, top, top - VEST_V[0], VEST_V[1])
+
         def keep_vest(c, r, pts):
-            top = neck_y - 0.025
             if r != "trunk" or not (0.93 < c[1] < top):
                 return False
             front = c[2] < 0.0
-            return not (front and abs(c[0]) < v_gap(c[1], top, top - 0.175, 0.075))
-        out["vest"] = shell(person, "vest", keep_vest, OFFSET["vest"])
+            return not (front and abs(c[0]) < vest_gap(c[1]))
+        g = shell(person, "vest", keep_vest, OFFSET["vest"])
+        _clean_opening(g, vest_gap, top - VEST_V[0], top)
+        out["vest"] = g
     if "coat" in outfit:
         def keep_coat(c, r, pts):
             if r == "trunk":
@@ -177,7 +203,7 @@ def make_all(person, outfit):
             if r == "neck":
                 return c[1] < neck_y + 0.02 and c[2] > -0.02
             return arms(r) and pts[:, 1].min() > 0.895
-        g = shell(person, "coat", keep_coat, OFFSET["coat"])
+        g = shell(person, "coat", keep_coat, OFFSET["coat"], COAT_BULK)
         g.arm_bones = [i for i, n in enumerate(person.env["bones"]) if n.startswith(("upper_arm", "forearm", "hand"))]
         _coat_skirt(g)
         _lapels(g, neck_y)
@@ -186,6 +212,67 @@ def make_all(person, outfit):
     if "cravat" in outfit:
         out["cravat"] = _string_tie(person)
     return out
+
+
+def _clean_opening(g, gap, bottom, top):
+    """The front opening's edge laid on its line: the faces kept by their centres leave a sawtooth
+    edge (squares of shirt stepping down the V); each edge vertex near the line is moved onto it."""
+    edge = {i for e in g.boundary() for i in e}
+    for i in edge:
+        p = g.P[i]
+        if p[2] > -0.02 or not (bottom - 0.015 < p[1] < top - 0.004):
+            continue
+        want = gap(p[1])
+        if abs(abs(p[0]) - want) < 0.03:
+            p[0] = math.copysign(want, p[0]) if want > 0.002 else 0.0
+
+
+def _level_top(g, cut):
+    """The garment's top edge round his neck made level at `cut`: the faces kept by their centres
+    leave it a sawtooth, which the collar built on it turns into spikes."""
+    for i in {i for e in g.boundary() for i in e}:
+        if cut - 0.025 < g.P[i][1] < cut + 0.02:
+            g.P[i][1] = cut
+
+
+def _front_surface(person):
+    """(x, y) -> (z of the front of his neck or chest there, the bone weights there)."""
+    v = person.v
+    front = np.array([i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and v[i][2] < 0])
+
+    def at(x, y):
+        d = np.abs(v[front, 0] - x) + np.abs(v[front, 1] - y)
+        near = front[d < 0.015]
+        if len(near) == 0:
+            near = front[np.argsort(d)[:4]]
+        i = near[np.argmin(v[near, 2])]
+        return float(v[i][2]), person.W[i]
+    return at
+
+
+def _knot(person):
+    """Where the tie's knot sits: the front of his throat on his centre line, 2 cm over neck_y."""
+    v = person.v
+    y = getattr(person, "neck_y", 1.47) + 0.02
+    neck = [i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and abs(v[i][1] - y) < 0.012]
+    # The most forward point at that height is on his chest muscle, off to one side: keep to the middle.
+    middle = [i for i in neck if abs(v[i][0]) < 0.02] or neck
+    front = min(middle, key=lambda i: v[i][2])
+    return v[front] + np.array([0, 0.0, -0.012]), person.W[front]
+
+
+def _collar_points(g, person):
+    """The shirt collar's two points, turned down over the top of the vest either side of the knot
+    (COLLAR_POINT), each a flat triangle lying a little off his chest."""
+    knot, _w = _knot(person)
+    surface = _front_surface(person)
+    for side in (-1, 1):
+        ids = []
+        for dx, dy in COLLAR_POINT[:3]:
+            x, y = side * dx, knot[1] + dy
+            z, w = surface(x, y)
+            ids.append(g.add_vertex(np.array([x, y, min(z - COLLAR_POINT[3], knot[2] - 0.004)]), w))
+        g.F.append(ids if side > 0 else ids[::-1])
 
 
 def _collar(g, above_y, height, lean):
@@ -277,13 +364,10 @@ def _lapels(g, neck_y=1.47):
 
 
 def _string_tie(person):
-    """A black string tie: a knot at the collar and two ends hanging down the shirt front."""
-    v = person.v
-    y = getattr(person, "neck_y", 1.47) - 0.015
-    neck = [i for i in range(len(v)) if person.region[i] in ("neck", "trunk") and abs(v[i][1] - y) < 0.012]
-    front = min(neck, key=lambda i: v[i][2])
-    base = v[front] + np.array([0, 0.0, -0.012])
-    w = person.W[front]
+    """A dark necktie, the painting's man's: a knot at the collar and two ends hanging together
+    down the shirt front into the vest (TIE: knot size, end half-width, segments, step)."""
+    base, w = _knot(person)
+    surface = _front_surface(person)
     g = Garment("cravat")
 
     def box(c, size):
@@ -291,16 +375,21 @@ def _string_tie(person):
                for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]
         for q in ((0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)):
             g.F.append([ids[k] for k in q])
-    box(base, np.array([0.03, 0.022, 0.014]))
-    chest = person.W[min(range(len(v)), key=lambda i: np.linalg.norm(v[i] - (base + [0, -0.1, 0])))]
+    knot, half, segments, step = TIE
+    box(base, np.array(knot))
     for side in (-1, 1):
-        top = base + np.array([0.006 * side, -0.01, -0.004])
+        # Hanging straight down together from the knot, one just over the other, widening a little
+        # and lying on his shirt front (splayed apart at the top they read as a bow).
         prev = None
-        for k in range(6):
-            y = -0.028 * k
-            p = top + np.array([0.012 * side * k / 5, y, 0.003 * k])
-            a = g.add_vertex(p + [-0.004, 0, 0], chest if k > 1 else w)
-            bb = g.add_vertex(p + [0.004, 0, 0], chest if k > 1 else w)
+        for k in range(segments):
+            x = 0.003 * side + 0.005 * side * k / (segments - 1)
+            y = base[1] - 0.01 - step * k
+            z, wk_bones = surface(x, y)
+            z = min(z - TIE_OFF - 0.0015 * (side > 0), base[2] + 0.004)
+            wk = half * (0.7 + 0.3 * k / (segments - 1))
+            p = np.array([x, y, z])
+            a = g.add_vertex(p + [-wk, 0, 0], wk_bones if k > 1 else w)
+            bb = g.add_vertex(p + [wk, 0, 0], wk_bones if k > 1 else w)
             if prev:
                 g.F.append([prev[0], prev[1], bb, a])
             prev = (a, bb)

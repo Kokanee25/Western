@@ -4,6 +4,8 @@ name: People (Blender)
 # writes the body envelope from the anatomy (Godot), fetches the pinned MakeHuman assets, runs
 # tools/blender/make_people.py (Blender as a Python module, bpy), and commits whatever changed in
 # assets/people/ back to the branch it ran on. Everything is a script: nothing is hand-made.
+# With `paint_views` it only has the image model paint his grey views from the concept painting
+# (tools/paint/paint_views.py) and commits those.
 
 on:
   workflow_dispatch:
@@ -13,7 +15,25 @@ on:
         required: false
         default: ""
       repaint:
-        description: "Paint faces again even where there's a portrait already"
+        description: "Paint faces (or views) again even where they're painted already"
+        type: boolean
+        required: false
+        default: false
+      paint_views:
+        description: "Only paint his views from the painting: all, or a list (shot,front,...); empty = make people"
+        required: false
+        default: ""
+      paint_model:
+        description: "OpenRouter image model for paint_views (empty = the PAINT_MODEL variable, else FLUX.2 [max])"
+        required: false
+        default: ""
+      paint_sheet:
+        description: "With paint_views, also paint all six views in one turnaround picture"
+        type: boolean
+        required: false
+        default: false
+      paint_head_sheet:
+        description: "With paint_views, also paint six close views of his head in one picture"
         type: boolean
         required: false
         default: false
@@ -35,6 +55,7 @@ jobs:
           python-version: "3.11"
 
       - name: Cache Godot
+        if: inputs.paint_views == ''
         id: cache-godot
         uses: actions/cache@v4
         with:
@@ -42,7 +63,7 @@ jobs:
           key: godot-${{ env.GODOT_VERSION }}
 
       - name: Download Godot
-        if: steps.cache-godot.outputs.cache-hit != 'true'
+        if: inputs.paint_views == '' && steps.cache-godot.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/godot && cd ~/godot
           curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
@@ -51,23 +72,49 @@ jobs:
           rm ./*.zip
 
       - name: Cache MakeHuman assets
+        if: inputs.paint_views == ''
         uses: actions/cache@v4
         with:
           path: build/makehuman
           key: makehuman-${{ hashFiles('tools/blender/fetch_makehuman.py', 'assets/people/people.json') }}
 
       - name: Install Blender (bpy), numpy and Pillow
+        if: inputs.paint_views == ''
         run: pip install "bpy==${BPY_VERSION}" numpy pillow
 
+      # His body painted from the concept painting: the image model paints each grey view of him
+      # (assets/people/paint/<id>_<view>_guide.png, rendered by tools/paint_bake.gd, which bakes
+      # the paintings onto him afterwards: it needs a GPU, so it runs in a workspace, not here).
+      - name: Paint views
+        if: inputs.paint_views != ''
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PAINT_MODEL: ${{ inputs.paint_model || vars.PAINT_MODEL }}
+          ONLY: ${{ inputs.only }}
+          VIEWS: ${{ inputs.paint_views }}
+          REPAINT: ${{ inputs.repaint }}
+          SHEET: ${{ inputs.paint_sheet }}
+          HEAD_SHEET: ${{ inputs.paint_head_sheet }}
+        run: |
+          pip install pillow
+          args="--only=$ONLY --views=$VIEWS"
+          if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          if [ "$SHEET" = "true" ]; then args="$args --sheet"; fi
+          if [ "$HEAD_SHEET" = "true" ]; then args="$args --head-sheet"; fi
+          python tools/paint/paint_views.py $args
+
       - name: Body envelope from the anatomy
+        if: inputs.paint_views == ''
         run: |
           ~/godot/godot --headless --import || true
           ~/godot/godot --headless -s res://tools/people_envelope.gd
 
       - name: Fetch MakeHuman assets
+        if: inputs.paint_views == ''
         run: python tools/blender/fetch_makehuman.py
 
       - name: Make people
+        if: inputs.paint_views == ''
         run: |
           if [ -n "${{ inputs.only }}" ]; then
             python tools/blender/make_people.py --only="${{ inputs.only }}"
@@ -78,6 +125,7 @@ jobs:
       # Faces: the image model paints each man's face onto the front view of his head that the
       # first run wrote; the second run projects it on. Skipped without the secret.
       - name: Paint faces
+        if: inputs.paint_views == ''
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           FACE_MODEL: ${{ vars.FACE_MODEL }}
@@ -88,6 +136,7 @@ jobs:
           python tools/faces/paint_face.py $args
 
       - name: Make people again (with the faces)
+        if: inputs.paint_views == ''
         run: |
           if ls assets/people/*_face_portrait.png >/dev/null 2>&1; then
             if [ -n "${{ inputs.only }}" ]; then
@@ -98,11 +147,14 @@ jobs:
           fi
 
       - name: Import and test with the new bodies
+        if: inputs.paint_views == ''
         run: |
           ~/godot/godot --headless --import || true
           ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
 
       - name: Commit the generated people
+        env:
+          PAINT_VIEWS: ${{ inputs.paint_views }}
         run: |
           git add assets/people
           if git diff --cached --quiet; then
@@ -111,5 +163,9 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "People: regenerate from MakeHuman (run ${{ github.run_number }})"
+          if [ -n "$PAINT_VIEWS" ]; then
+            git commit -m "People: paint views from the painting (run ${{ github.run_number }})"
+          else
+            git commit -m "People: regenerate from MakeHuman (run ${{ github.run_number }})"
+          fi
           git push
