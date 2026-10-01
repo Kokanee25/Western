@@ -130,9 +130,9 @@ static func _clear_props(street: Node3D, t: Vector3) -> void:
 			p.free()
 
 
-## Props on the mosaic tiles, textured on the world's texel grid in their own space.
+## Props on the texel grid (PixelArt.material: lit tile by tile), textured by position in their own space.
 static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0) -> ShaderMaterial:
-	var m := Tiles.material(tex, tint, rough, metal, true)
+	var m := PixelArt.material(tex, tint, PixelArt.Mapping.TRIPLANAR, Vector3.ZERO, rough, metal, 0.5)
 	m.resource_name = key
 	return m
 

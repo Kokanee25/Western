@@ -1,12 +1,15 @@
-// Mosaic tiles (DESIGN.md §4, "the painting's pixels are tiles on the surfaces"). Every texel of
-// a surface's texture is a tile of a fixed real size: big up close, tiny far away, squashed on a
-// surface seen at an angle, bending round a curve. Each tile is one flat colour of light: lights
-// and shadows are worked out once, at the tile's centre (LIGHT_VERTEX), not per screen pixel.
-// Ragged tiles: each tile's centre wanders a little, so tiles get the uneven edges of paint dabs.
-// Two shader globals switch it for every material at once (project.godot; Settings.tile_look).
+// Mosaic tiles (DESIGN.md §4, "the painting's pixels are tiles on the surfaces"): the one
+// per-texel lighting for the world (texel_grid.gdshaderinc, ground.gdshader), people
+// (body_skin.gdshaderinc) and props. Every texel of a surface's texture is a tile of a fixed real
+// size: big up close, tiny far away, squashed on a surface seen at an angle, bending round a curve.
+// Each tile is one flat colour of light: lights, shadows and fog are worked out once, at the tile's
+// centre (LIGHT_VERTEX; Godot evaluates all three there in Forward+ and Compatibility), not per
+// screen pixel. Ragged tiles: each tile's centre wanders a little, so tiles get the uneven edges of
+// paint dabs. Two shader globals switch it for every material at once (project.godot
+// [shader_globals]; Settings.tile_look, P: off / square / ragged).
 //
 // Use (fragment): t = UV in texels; c = tile_centre(t); sample the texture at c (one colour per
-// tile); then s = tile_screen_offset(t, c) and move LIGHT_VERTEX / NORMAL by dFdx/dFdy * s.
+// tile); then tile_light_at(t, c, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, jump).
 // Call these before any discard: they take screen derivatives.
 
 global uniform float tile_light;
@@ -46,9 +49,9 @@ vec2 tile_centre(vec2 t) {
 }
 
 // Screen pixels from this fragment to the texel-space point `target`, `t` being the fragment's own
-// texel-space position: the inverse of how t changes across the screen. Zero when tile light is
-// off or the surface is edge-on.
-vec2 tile_screen_offset(vec2 t, vec2 target) {
+// texel-space position: the inverse of how t changes across the screen. Zero when the surface is
+// edge-on. Whatever the tile look (bullet holes use it to draw in whole texels).
+vec2 tile_step(vec2 t, vec2 target) {
 	vec2 tx = dFdx(t);
 	vec2 ty = dFdy(t);
 	float det = tx.x * ty.y - ty.x * tx.y;
@@ -57,18 +60,29 @@ vec2 tile_screen_offset(vec2 t, vec2 target) {
 	}
 	vec2 d = target - t;
 	vec2 s = vec2(ty.y * d.x - ty.x * d.y, -tx.y * d.x + tx.x * d.y) / det;
-	return clamp(s, vec2(-64.0), vec2(64.0)) * tile_light;
+	return clamp(s, vec2(-64.0), vec2(64.0));
+}
+
+// The same, zero when tile light is off.
+vec2 tile_screen_offset(vec2 t, vec2 target) {
+	return tile_step(t, target) * tile_light;
+}
+
+// Any interpolated position (view, mesh or world space) moved by a screen step.
+vec3 tile_snap(vec3 p, vec2 step) {
+	return p + dFdx(p) * step.x + dFdy(p) * step.y;
 }
 
 // Moves the point (LIGHT_VERTEX) and normal that light is worked out at from this fragment to the
 // tile's centre: `t` is the fragment's texel-space position, `centre` its tile's (tile_centre()).
-// A quad of pixels across a seam (a UV island's edge, a face's edge) gives nonsense derivatives,
-// so a big jump is left out.
-void tile_light_at(vec2 t, vec2 centre, vec3 vertex, vec3 normal, inout vec3 light_vertex, inout vec3 normal_out) {
+// A quad of pixels across a seam (a UV island's edge) gives nonsense derivatives, so a jump longer
+// than `max_jump` (metres) is left out.
+void tile_light_at(vec2 t, vec2 centre, vec3 vertex, vec3 normal, inout vec3 light_vertex,
+		inout vec3 normal_out, float max_jump) {
 	vec2 s = tile_screen_offset(t, centre);
 	vec3 off = dFdx(vertex) * s.x + dFdy(vertex) * s.y;
 	vec3 n = normal + dFdx(normal) * s.x + dFdy(normal) * s.y;
-	if (length(off) < 0.05) {
+	if (length(off) < max_jump) {
 		light_vertex = vertex + off;
 	}
 	if (length(n - normal) < 0.4) {

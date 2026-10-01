@@ -116,7 +116,7 @@ void fragment() {
 	vec2 centre = tile_centre(t);
 	vec2 tuv_dx = dFdx(tuv);
 	vec2 tuv_dy = dFdy(tuv);
-	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL);
+	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.05);
 	vec3 base;
 	if (!use_uv) {
 		base = triplanar(local_pos, local_normal);

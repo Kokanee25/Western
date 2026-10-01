@@ -69,6 +69,11 @@ const VIEWS := [
 	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
 	["town_bar", 15.0, Vector3(7.4, 0.38, -18.4), 22.0, -6.0, "town_bar"],
 	["town_duel", 18.0, Vector3(-1.0, 0.0, -9.0), -90.0, -1.0, "town_duel"],
+	# Tile lighting comparisons (render with --tiles=off and without): low sun, shadow edges
+	# falling across timber and ground close to the camera.
+	["texel_rail_shadow", 17.0, Vector3(5.2, 0.0, -6.2), 170.0, -38.0],
+	["texel_porch", 17.0, Vector3(2.0, 0.0, -4.8), 180.0, -12.0],
+	["texel_store_golden", 17.6, Vector3(3.0, 0.0, -7.5), 180.0, 6.0],
 ]
 
 

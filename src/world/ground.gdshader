@@ -1,6 +1,8 @@
 shader_type spatial;
 // Dry valley floor with a packed-dirt street and wagon ruts, all from world position so the
-// ground can be one big plane.
+// ground can be one big plane. Lit tile by tile (src/render/tiles.gdshaderinc).
+
+#include "res://src/render/tiles.gdshaderinc"
 
 uniform vec3 dirt_color : source_color = vec3(0.6, 0.47, 0.33);
 uniform vec3 dirt_dark : source_color = vec3(0.4, 0.3, 0.21);
@@ -61,4 +63,6 @@ void fragment() {
 	col = floor(col * 24.0 + 0.5) / 24.0;
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
+	vec2 t = world_pos.xz * texels_per_meter;
+	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, tile_centre(t)));
 }

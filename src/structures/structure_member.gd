@@ -223,16 +223,12 @@ func _draw_holes() -> void:
 	if mi == null:
 		return
 	var mat := mi.material_override as ShaderMaterial
-	if mat == null or mat.shader != HOLE_SHADER:
-		var base := mi.material_override as StandardMaterial3D
-		if base == null or base.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
-			return  # only opaque timber gets drawn holes
-		mat = ShaderMaterial.new()
-		mat.shader = HOLE_SHADER
-		mat.set_shader_parameter(&"albedo_tex", base.albedo_texture)
-		mat.set_shader_parameter(&"tint", base.albedo_color)
-		mat.set_shader_parameter(&"uv_offset", Vector2(base.uv1_offset.x, base.uv1_offset.y))
-		PixelArt.track_hole_material(mat)
+	if mat == null:
+		return  # only timber on the texel grid gets drawn holes (not glass)
+	if mat.shader != HOLE_SHADER:
+		if mat.shader != PixelArt.GRID_SHADER:
+			return
+		mat = PixelArt.hole_material(mat)
 		mi.material_override = mat
 	var a := PackedVector4Array()
 	var b := PackedVector4Array()

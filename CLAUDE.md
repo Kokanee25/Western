@@ -103,6 +103,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
+- `src/render/` — `texel_grid.gdshader(inc)`: the one material for everything on the texel grid
+  (`PixelArt.material()`: pixel texture at `texels_per_meter`, UV or triplanar mapping);
+  `texel_lighting.gdshaderinc`: moves `LIGHT_VERTEX` to the centre of the texel a fragment shows
+  (screen derivatives of texel coords vs position), so light, shadows and fog are flat per texel;
+  global uniform `texel_lighting` ([shader_globals] in project.godot; `Settings.texel_lighting`, P).
+  `MemberMesh` puts each face's size in UV2 so the point stays on thin faces. `pixel_screen`: F6.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
@@ -929,3 +935,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     `faces.py`; hair under the hat, a moustache with volume, real fingers, the shirt front and tie.
     Then the room on tiles (members, walls, props through `Tiles`), dressing, the moonlit doorway.
     Ask Sean: default resolution (640×360 or native) and tile look (square or ragged).
+- 2026-10-01: **Art pipeline, step 1: texel-space lighting** (branch `art/pipeline`; Sean's order:
+  1 texel lighting, 2 texture factory, 3 reference judge, 4 street dressing/lighting at golden hour
+  matched to `docs/concept/street-golden-hour.png`, added). Every grid material (members,
+  blockouts, shot-match props, holes) is now one ShaderMaterial (`PixelArt.material()`,
+  `src/render/texel_grid.gdshaderinc`) instead of StandardMaterial3Ds; the ground shader shares the
+  include. Godot evaluates lights, shadows and both fogs at `LIGHT_VERTEX` in Forward+ and
+  Compatibility (checked in the 4.7.2 sources), so one moved point snaps all three. Off by default
+  (the approved look), **P** toggles, saved. Thin faces (plank edges, narrower than a texel) clamp
+  the point onto the face via UV2 = face size, else they glint out of their neighbour's shadow.
+  New views `texel_rail_shadow`, `texel_porch`, `texel_store_golden`; `screenshots.gd
+  --texel-light`. Renders in `docs/screenshots/texel_lighting/` (lavapipe; Compatibility checked
+  too). 230 tests pass.
+  - At 40 texels/m a texel is ~1 render pixel beyond ~8 m, so the effect shows up close and on
+    shadow edges; at 16/m it's strong. People, guns, untextured props are not texel-lit yet.
+  - Next: Sean's verdict on the side-by-side, then step 2 (texture factory).
