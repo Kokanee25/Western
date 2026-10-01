@@ -44,6 +44,10 @@ on:
         description: "Instead: paint the world's materials (tools/textures/materials.json): all, saloon, street, or ids (floor,road,...)"
         required: false
         default: ""
+      characters:
+        description: "Instead: image-to-3D men (tools/characters/): all, or ids; paints the full-length view, then Tripo (needs TRIPO_API_KEY)"
+        required: false
+        default: ""
       style_test:
         description: "Instead: have the image model photograph the concept scene (docs/style_test/) to test the filter on"
         type: boolean
@@ -76,7 +80,7 @@ jobs:
           git push
 
   textures:
-    if: ${{ inputs.textures != '' && !inputs.style_test }}
+    if: ${{ inputs.textures != '' && inputs.characters == '' && !inputs.style_test }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -112,8 +116,42 @@ jobs:
           git commit -m "Textures: paint and reduce materials (run ${{ github.run_number }})"
           git push
 
+  characters:
+    if: ${{ inputs.characters != '' && !inputs.style_test }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint them full length, then Tripo
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TRIPO_API_KEY: ${{ secrets.TRIPO_API_KEY }}
+          TEXTURE_MODEL: ${{ inputs.paint_model || vars.PAINT_MODEL }}
+          WHICH: ${{ inputs.characters }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow numpy scipy
+          args=""
+          if [ "$WHICH" != "all" ]; then args="--only=$WHICH"; fi
+          rp=""
+          if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
+          python3 tools/characters/paint_full_length.py $args $rp
+          python3 tools/characters/tripo.py $args || echo "Tripo step failed (see above)"
+      - name: Commit them
+        run: |
+          git add assets/people/tripo
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: image-to-3D (run ${{ github.run_number }})"
+          git push
+
   people:
-    if: ${{ !inputs.style_test && inputs.textures == '' }}
+    if: ${{ !inputs.style_test && inputs.textures == '' && inputs.characters == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
