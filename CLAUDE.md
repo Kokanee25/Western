@@ -115,9 +115,13 @@ Work in this order; each milestone ends playable. The first slice is defined in 
       can't pay; "buy him a drink" and "a round on me!" as deeds (the room counts heads, you pay,
       they cheer and toast, opinions warm by context); drunkenness for everyone (sway, speech,
       courage). Keys for now, conversation later.
-   6. Conversation hooks: talking a man down, bargaining, surrender terms.
-   7. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
-   8. AI conversation through the relay (voice + suggested replies), with the speaker's body state
+   6. **Reasons to fight, first two** (DESIGN.md §5 "Reasons to fight"): a shooting match at the
+      range with money on it (drop, sway and the guns' feel against other shooters, prize from the
+      purse); a bounty from a wanted poster on a man camped outside town (alive pays more: arrest
+      and surrender as they are). No animals, ever.
+   7. Conversation hooks: talking a man down, bargaining, surrender terms.
+   8. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
+   9. AI conversation through the relay (voice + suggested replies), with the speaker's body state
       fed in (DESIGN.md §11 "Signature features" 1: the body changes how people talk).
 6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,
    the doctor, the jail, saving in bed and waking at the doctor's. **The sheriff opening** is the

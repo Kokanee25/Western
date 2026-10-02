@@ -256,7 +256,7 @@ clock, factions working their plans, and the player always holding a few live le
   who wears the badge, what's still standing, what people think of you. Told as the newspaper's
   front page and the town's reactions on day 30, plus a walk through the town afterwards.
 
-### Reasons to fight (**proposed**, 2026-10-01)
+### Reasons to fight (**decided**, Sean 2026-10-01)
 The gunfight and the bodies are the deepest systems we have, so the 30 days must bring regular,
 varied reasons to use them, without turning the town into a shooting gallery. Every fight should
 come out of the story or the world, and most standoffs should have a way out that isn't shooting.
@@ -269,8 +269,8 @@ come out of the story or the world, and most standoffs should have a way out tha
   the gang's hideout or the mine.
 - **The street:** call-outs and duels (built), drunks who draw, bar fights that escalate, men you
   wronged coming back, bounty hunters after you if you're wanted.
-- **Animals:** wolves or a cougar at your stock, a rabid dog in the street, hunting for meat and
-  hides. Shooting with no moral weight, real ballistics and drop.
+- **No shooting animals** (Sean: "I hate games where you shoot animals"): no wolves, no hunting, no
+  animal targets. Horses, dogs and stock are in the world as creatures, never as things to fight.
 - **Shooting for sport:** a turkey shoot or a Fourth of July match at range with money on it. Shows
   off drop, sway and the guns' feel with nothing at stake but pride and a purse.
 - **Pacing:** the drama manager aims for something tense most days and a real fight every day or
