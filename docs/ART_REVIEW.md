@@ -248,7 +248,37 @@ over it, not in it:
 Experiments rendered here (Forward+ on lavapipe, from the untracked harness; scored with the
 judge's measures; renders in `docs/screenshots/art_review/exp_*`):
 
-_(Experiment renders in progress; the table and figures 13–15 follow in the next commit.)_
+| render | saloon score | street score | saloon: median L\*, share < L\* 10, share > L\* 80 | street: median L\*, share > L\* 80, chroma–L\* corr. | what the eye says |
+|---|---|---|---|---|---|
+| the painting | | | 12, 41 %, 0.6 % | 37, 1.6 %, 0.56 | |
+| baseline (round 25, re-rendered) | 0.572 | 0.650 | 15, 28 %, 0.8 % | 36, 9.0 %, 0.13 | as round 25 |
+| per-texel light off, min square 0 (`14_exp_flat_*`) | 0.597 | 0.644 | 15, 28 %, 0.8 % | 36, 9 %, 0.13 | saloon all but identical (10 % of pixels change by more than 12/255, mostly the lamp's brass); the street's far field goes finer and *closer* to the painting's soft distance |
+| glow screen 0.7, threshold 1.0, hdr scale 1, room ambient ×0.35, lamps ×1.4, contrast 1.15, saturation 1.12; street exposure 0.75, fog ×2.5, aerial 0.7 (`13_exp_glow_*`, middle) | 1.124 | 1.015 | 25, 5 %, 1.9 % | 49, 11.8 %, −0.07 | the whole frame blooms: brighter, not deeper |
+| glow additive 0.9, threshold 0.85, hdr scale 2, levels 1–5, ambient ×0.2, lamps ×1.7, contrast 1.22, saturation 1.15 (`13_exp_glow_*`, right) | 1.842 | 1.392 | 42, 0.3 %, 7.7 % | 61, 24 %, −0.30 | a wash of orange light |
+| sun tilt 10 instead of 35 (`15_exp_sunsouth_street`) | | 0.692 | | 36, 9 %, 0.13 | the sun sits higher and left; the boardwalk under the saloon's porch is still in shadow; inconclusive on its own |
+| the Python mock grade of §3.1 (`11_grade_mock_*`), for comparison | 0.693 | 0.749 | 10, 48 %, 1.1 % | 33, 3 %, 0.41 | much closer in mood; the sky still wrong |
+
+What the experiments say:
+
+- **The per-texel lighting and the far-square rule are nearly invisible.** Turning both off changes
+  the saloon by a hair and the judge by 0.02, and moves the street's far field toward the painting
+  (`14_exp_flat_street`). Two full sessions (2026-10-01 texel lighting, the merge, and item 3's
+  five trials) went into them. They can stay on, but they are not where the look lives.
+- **Bloom cannot simply be switched on.** Both engine grades flooded the frame, because with the
+  lamps lighting every near surface close to white in scene-linear, a glow threshold at or under
+  1.0 blooms the table, the man and the walls, and the interior probe's ambient cut and the lamps'
+  boost add light rather than depth. The painting's halo belongs only to true emitters. To build it
+  (recommendation 1) the chimneys, flames, the moon and the sun must be *un-clamped* to well above
+  white (3–6 in scene-linear) while the glow threshold sits above lit surfaces (1.5–2.0) and the
+  exposure comes down so the room's midtones sit where the painting's do (median L\* 12, not 15).
+  That is shader work on `chimney_glass`, the flame material and `sky.gdshader`, not an
+  environment toggle: still one session, but a careful one. The Python mock stands as the target
+  for its result: its bloom came only off the brightest 15 % of the frame.
+- **The judge punishes every one of these grades**, the good mock included, because darker shadows
+  and brighter lamps move the 3×3 region means. It would have vetoed the lighting pass. See §5.
+- **The sun's tilt alone does not light the boardwalks**; the painting's sun is slightly left of the
+  street's axis and a hand's width up. This needs the street's heading or the sun's azimuth
+  changed with it, with Sean (gameplay's `day_cycle.tres`), and is small either way.
 
 Notes on the alternatives asked about:
 
@@ -346,7 +376,7 @@ first real man when the key is in, and the fal style LoRA only for consistency o
 |---|---|---|
 | `ShotMatch` / `StreetMatch` staging, lab stage | **keep** | the fixed views are the review's backbone |
 | `tools/judge.py` harness (render, panel, rounds, history) | **keep**, replace the measures | §5 |
-| `tiles.gdshaderinc` per-texel lighting, `tile_ragged` | keep, low priority | right in the near field, barely visible (experiment "flat") |
+| `tiles.gdshaderinc` per-texel lighting, `tile_ragged` | keep, low priority | right in the near field, barely visible (`14_exp_flat_saloon`) |
 | `min_square_px` | **turn off** (0) or 2 | makes far things chunkier where the painting goes soft |
 | `sky_squares`, `sky_mosaic`, the cloud slabs | **stop** | the painting's sky is smooth; replace with a painted cloud layer and bloom |
 | texture factory (`paint_textures.py`) | **keep** | the right idea |
@@ -368,12 +398,16 @@ first real man when the key is in, and the fal style LoRA only for consistency o
 Effort is in art sessions (a session being one merge-sized piece of work as in CLAUDE.md).
 
 1. **The light and grade pass** (1 session; the largest visible change).
-   What: saloon night ambient down (0.2–0.3 of now), lamps brighter with real falloff and bloom
-   (glow threshold ~0.85, additive or screen blend, bloom 0.15–0.3, levels 2–5 on); stop clamping
-   chimneys and the moon under white so they glow; street: aerial perspective 0.6–0.8 and fog
-   density ×2–3 so the far fronts and mountains dim and warm, exposure down a little, contrast
-   1.2, saturation 1.15 so lit things go gold not cream; sun tilt so the boardwalks are lit at
-   golden hour (ask Sean: gameplay's `day_cycle.tres`); sun bloom instead of a painted halo.
+   What: saloon night ambient down (the interior probe's night value and `ambient_energy_night`,
+   to 0.2–0.3 of now) and exposure down so the room's median lands near the painting's L\* 12;
+   **emitters un-clamped**: chimney glass, flames, lantern glass, the moon and the sun drawn at
+   3–6 in scene-linear instead of through `aces_inverse`, with the glow threshold *above* lit
+   surfaces (1.5–2.0, bloom 0.1–0.2, screen blend) so only they bloom (the experiments show a
+   threshold at or under 1.0 floods the frame); street: aerial perspective 0.6–0.8 and fog density
+   ×2–3 so the far fronts and mountains dim and warm, exposure down a little, contrast 1.15–1.2,
+   saturation 1.1–1.15 so lit things go gold not cream, and highlight desaturation tamed (try AgX
+   or Filmic against ACES); the boardwalks lit at golden hour (sun azimuth or the street's
+   heading, with Sean: gameplay's `day_cycle.tres`).
    Why: §3.1. Expected: deep-shadow share toward 40 % in the saloon, highlight share under 3 % on
    the street, chroma–L* correlation above 0.4 on the street, a halo round every lamp.
    Check: those three numbers (judge v2), and Sean's eye on the two shots.
@@ -437,9 +471,12 @@ Effort is in art sessions (a session being one merge-sized piece of work as in C
 ## Appendix A. How the experiments were made
 
 - Godot 4.7.2 Linux, Forward+ on Mesa lavapipe (software Vulkan) under xvfb, 1280×720, the
-  shot-match views staged by `tools/screenshots.gd`'s own code. The untracked harness
-  `tools/_review_shots.gd` is that file plus an `--exp=` switch applied after a view is staged; the
-  baseline it renders is pixel-identical to judge round 25 (mean difference 0.23 of 255).
+  shot-match views staged by `tools/screenshots.gd`'s own code. The harness was an untracked copy
+  of that file plus an `--exp=` switch applied after a view is staged (the exact settings are in
+  the table of §4); it was deleted after the renders. The baseline it rendered is pixel-identical
+  to judge round 25 (mean difference 0.23 of 255). The renders are in
+  `docs/screenshots/art_review/fwd_base`, `exp_grade+lamps`, `exp_grade2`, `exp_flat`,
+  `exp_sunsouth`.
 - Scores use `tools/judge.py`'s `measure`, `differences` and `score` as they are, without writing a
   round or a history line.
 - Mocks and probes are Python (Pillow, numpy, scipy) on round 25's PNGs.
