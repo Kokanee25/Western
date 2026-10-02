@@ -22,8 +22,10 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 sun_color = vec3(1.0);
 uniform float daylight = 1.0;
 uniform vec3 haze_color = vec3(0.8, 0.7, 0.6);
-// How much haze this layer has (the far one most).
+// How much haze this layer has (the far one most), times the scene's fog relative to the day
+// cycle's base density (Backdrop sets haze_scale each frame): thicker air, softer hills.
 uniform float haze = 0.2;
+uniform float haze_scale = 1.0;
 // How the land looks by night, and in its own shadow at sunset (multipliers on the painting).
 uniform vec3 night_tint = vec3(0.1, 0.11, 0.17);
 uniform vec3 shade_tint = vec3(0.88, 0.6, 0.5);
@@ -67,6 +69,6 @@ void fragment() {
 	col = mix(col, gold * 0.9, rim * front * low * 0.25);
 	// Night: dark shapes, a little moonlit.
 	col = mix(a * night_tint, col, daylight);
-	col = mix(col, haze_color, haze * mix(0.7, 1.0, daylight));
+	col = mix(col, haze_color, clamp(haze * haze_scale, 0.0, 0.85) * mix(0.7, 1.0, daylight));
 	ALBEDO = aces_inverse(from_srgb(clamp(col, 0.0, 1.0)));
 }

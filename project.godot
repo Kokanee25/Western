@@ -44,7 +44,7 @@ tile_ragged={
 }
 min_square_px={
 "type": "float",
-"value": 4.0
+"value": 2.0
 }
 
 [rendering]

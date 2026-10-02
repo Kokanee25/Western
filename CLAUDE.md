@@ -156,7 +156,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
   is the same with bullet holes), `src/world/ground.gdshader`, and the people's
   `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
-  faces. **A minimum square on screen** (shader global `min_square_px`, 4 render pixels; 0 = off;
+  faces. **A minimum square on screen** (shader global `min_square_px`, 2 render pixels since §10.4,
+  was 4: the painting's far men are still 2–3 px blocks, but distance softens, never chunks; 0 = off;
   `screenshots.gd --min-square=N`): where a texel would be smaller, `tile_square()` gives squares
   of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
   read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
@@ -312,10 +313,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   road's edges, none under floors or down the wheel tracks). The ground shader draws three wagon
   tracks of ruts with lit ridges, pebbles and a churned middle. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
-  near a low sun and the rest blue, and has painted clouds (`cloud_shape()`: loose bands of small
-  ragged heaps stretched across the street, `cloud_cover`/`_scale`/`_ragged`; three tones each,
-  `cloud_tones`: cream-gold tops, warm bodies, grey-violet undersides; dark at night) in the sky's
-  own squares (`sky_squares`).
+  near a low sun and the rest a pale grey-blue (the painting's upper sky is L* ~61), and has
+  painted clouds (`cloud_shape()`: loose bands of small ragged heaps stretched across the street,
+  `cloud_cover`/`_scale`/`_ragged`; soft-edged, shaded smoothly from cream-gold tops through warm
+  bodies to grey-violet undersides, `cloud_tones` 0 = smooth; dark at night). The sky is smooth
+  (`sky_squares` 0, `sky_mosaic` 0 since §10.4: the painting's sky and far clouds are soft).
   **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
   country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
   m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in
@@ -326,9 +328,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   screen, the street painting's mountains as reference; `tools/textures/backdrop.json` says what
   each panel shows, its bearing and `shift`, the layer's `scale` and `band`) and cut by
   `reduce_backdrop.py` (runs anywhere: green keyed out, the band under the land's foot dropped,
-  squares at 0.3 degrees, panels shown smaller than 90 degrees tapered at their sides, the near
-  layer kept to a low band under a rolling hill line, columns filled solid, a gentle mosaic, a
-  palette a layer → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
+  squares at 0.15 degrees (half the first cut's: the painting's far rock is soft), panels shown
+  smaller than 90 degrees tapered at their sides, the near layer kept to a low band under a
+  rolling hill line, columns filled solid, a faint mosaic, a palette a layer (40/36/32 colours);
+  in the shader each layer's haze is scaled by the scene's fog density (`haze_scale`) → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
   the right as you look out (`Backdrop.direction()`: 270 is west, down the street).
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` has the image model paint each man in
@@ -1556,3 +1559,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   0.344. First v2 round `2026-10-02_r28` (round 27's renders rescored); `history.md` starts a
   v2 table there. Not done from the review's list: a repetition measure (needs a known wall
   region) and block size against the depth buffer (bands stand in).
+- 2026-10-02 (art session, later): **§10.4: sky and far field.** The sky is smooth (`sky_squares`
+  0, `sky_mosaic` 0) with soft-edged clouds shaded smoothly (`cloud_tones` 0), dimmer at low sun
+  with a deeper gold; its late-afternoon top is a paler, lighter grey-blue (`day_cycle.tres`
+  gradient at 0.7/0.755; `low_sun_dim` 0.45: the painting's upper sky between clouds is L* 61,
+  ours was 44, now 55). The backdrop is re-cut at 0.15° a texel (2400×258) with 40/36/32 colours
+  and a faint mosaic (`MOSAIC` 0.6), and its haze follows the fog's density (`haze_scale`).
+  `min_square_px` 4 → **2** (0 was tried, round `_r29`: the road at 15–30 m went finer than the
+  painting's blocks; the review's far men are 2–3 px blocks still). Judge v2 rounds `_r29`–`_r32`:
+  street 0.344 → 0.375 (the paler sky lowers the chroma–L* correlation the judge weighs most; by
+  eye the sky is the painting's for the first time: `docs/screenshots/light_pass/
+  sky_before_after.png`), saloon 0.209 → 0.218. Shared files: `project.godot` (`min_square_px`),
+  gameplay's `config/day_cycle.tres` (the sky gradient, lighting lines).
+  - Not done: a painted cloud layer on a dome (image model on Actions, or Blockade once its key
+    is in: a `backdrop: sky` input is the natural place); the backdrop's panel seams still show.
