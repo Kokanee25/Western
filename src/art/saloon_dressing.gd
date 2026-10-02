@@ -330,7 +330,7 @@ static func _props(s: FalseFrontBuilding, props: Node3D, f: float) -> void:
 		var sconce := _place(s, props, &"wall_sconce", p[0], p[1])
 		var light := sconce.get_node_or_null(^"Light") as OilLamp if sconce else null
 		if light:
-			light.energy = 0.45  # many lamps in one room: each a little dimmer
+			light.energy = 0.6  # many lamps in one room: each a little dimmer
 
 
 
@@ -355,15 +355,15 @@ static func _lamps(s: FalseFrontBuilding, props: Node3D, lamps: Node3D, f: float
 		[Vector3(2.4, f + 2.1, d - sd - 0.02), 180.0], [Vector3(6.8, f + 2.1, d - sd - 0.02), 180.0],
 	]
 	for p in sconces:
-		_lit_prop(s, props, &"wall_sconce", p[0], p[1], 0.3, 3.5)
+		_lit_prop(s, props, &"wall_sconce", p[0], p[1], 0.45, 4.0)
 	# On the back bar's top shelf, among the bottles.
 	for z in [4.45, 5.55, 7.95]:
 		var lamp := OilLamp.new()
 		lamp.name = "BackBarLamp"
 		lamp.lit_from_hour = 17
 		lamp.lit_until_hour = 4
-		lamp.energy = 0.3
-		lamp.light_range = 3.0
+		lamp.energy = 0.45
+		lamp.light_range = 3.5
 		lamp.haze = 1.2
 		lamp.casts_shadows = false
 		lamps.add_child(lamp)
@@ -409,8 +409,8 @@ static func _hanging_lamp(s: FalseFrontBuilding, parent: Node3D, at: Vector3) ->
 	lamp.name = "Light"
 	lamp.lit_from_hour = 17
 	lamp.lit_until_hour = 4
-	lamp.energy = 0.4
-	lamp.light_range = 4.5
+	lamp.energy = 0.6
+	lamp.light_range = 5.0
 	lamp.haze = 1.2
 	lamp.casts_shadows = false
 	root.add_child(lamp)

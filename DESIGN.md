@@ -140,27 +140,38 @@ with the revolver; the target for the street, materials and daylight).
       fallback when a generated body isn't there, and for tests).
   - Real-GPU caveat: cloud renders use software Vulkan; ask Sean for a screenshot of the same view from
     his PC at milestones, since lighting can differ.
-  - **What the painting's pixels are (2026-10-01, studied up close):** not screen pixels but
-    **tiles on the surfaces**, each a fixed real size (about 6 mm–1 cm on his face, 2–3 cm on the
-    coat and the table): big up close, almost smooth on the bartender across the room, squashed on
-    surfaces seen at an angle, curving round his cheek and the cup, with slightly ragged edges like
-    dabs of paint, and **each tile lit as one flat colour**. The picture itself is sharp. Under the
-    tiles is a realistic, well-lit portrait with a lot of colour in every material (his coat is
-    dozens of browns). What that means for us, and what's built:
-    - **Light per tile** (`src/render/tiles.gdshaderinc`, `Settings.tile_look`, **P**: off /
-      square / ragged): lights and shadows are worked out once per texel, at its centre. The world
-      (members, blockouts, ground, bullet holes), people and props all use it; default square.
-    - **One tile size** for everything near you: his face is ~20 tiles across, like the painting's
-      (the image-model portrait is brought down to the face's tile size), cloth ~2 cm.
-    - **Tiles need content:** a flat colour with a few shadow blotches can't look like the painting
-      however it's lit. Clothes are baked with real detail (`tools/blender/clothes.py`: shadow in
-      creases and under the arms, worn edges, dust, the cloth's mottle, 16 colours, tile rows
-      running across the body). The same idea goes for everything else: realistic detail (baked,
-      scanned or image-model painted), then reduced to tiles.
-    - **Full resolution shows it best:** the painting is a sharp picture. F2's last stop renders at
-      the window's own size ("native"); 1280×720 is the default (2026-09-30).
-    - Not yet like the painting: the face (lighting, pose, the repaint), hair, moustache volume,
-      hands, the shirt front and tie, then the room (walls on tiles, dressing, moonlit windows).
+  - **What the painting's pixels are (2026-10-01; reopened 2026-10-02 with Sean after
+    `docs/ART_REVIEW.md`):** blocks of colour laid over a **cinematic, photoreal picture**. Near,
+    the blocks are screen-aligned dabs with slightly ragged, soft edges and a little gradient and
+    texture inside, sized as a fixed real size falls with perspective (the near ground ~11 px at
+    1280 wide, the coat 6–8, a horse 3–4, men down the street 2–3), so textures at a fixed density
+    in metres on the surfaces give the right sizes. **Far off the blocks dissolve**: the bartender
+    across the room, the mountains, the sky and the far street are nearly smooth and soft, dimmed
+    and warmed by haze; distance makes things soft, never chunkier. Under the blocks: deep warm
+    shadows (41 % of the saloon's pixels are under L* 10), a few true emitters that bloom into the
+    air (lamps, the moon, the sun), real detail in every surface (folds, boards each their own
+    colour, ruts and hoof marks), and specific objects (a saddle, a stag, bottles with labels). No
+    outlines: edges come from value contrast. The 2026-10-01 reading ("tiles on the surfaces,
+    each lit as one flat colour") got the near field right and the far field wrong, and the
+    per-tile lighting is the style's smallest part. What that means for us:
+    - **The base stays:** pixel textures at a fixed density on 3D surfaces, nearest filtering,
+      1280×720 or native (native by default once the frame rate allows; the 1.5× nearest upscale
+      to 1080p doubles every other pixel). `tiles.gdshaderinc` (light per texel, **P**) is kept,
+      low priority.
+    - **Under it, a cinematic picture:** light with range (a dark room, lamps that bloom, warm
+      bounce), haze with distance, textures with real structure (each board its own, no 2 m repeat,
+      no random square-to-square noise), real shapes for props and people.
+    - **Over it, a light finish:** bloom off true emitters only (drawn above display white, the
+      glow threshold above every lit surface) and a grade; later, possibly, a soft block edge.
+      Never a screen-space mosaic, never a global palette snap.
+    - **Blocks need content:** realistic detail first (baked, scanned or image-model painted),
+      then reduced to blocks keeping the light and the per-board colour. Random variation on a flat
+      field reads as static, not paint.
+    - **The man:** a lit portrait under blocks, not blocks with a face drawn on. The paint-bake
+      pipeline (the painting's pixels projected, dominant colour per square, posterised light) is
+      at its ceiling; next is a flat-lit turnaround under ordinary lighting, then image-to-3D.
+    - The order of work is `docs/ART_REVIEW.md` §10; the judge's old measures reward noise and
+      composition (§5 there) and are being replaced.
   - **The plan from here (Sean, 2026-10-01), both pictures as targets** (`saloon-night.png`,
     `street-golden-hour.png`). Tiles are built; what's missing is what goes *in* them, and the room:
     1. **Characters:** image model paints a full-length man → image-to-3D (Tripo/Meshy on GitHub

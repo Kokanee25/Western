@@ -163,6 +163,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
   `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
+  **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
+  (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
+  its lamps; only true emitters bloom: the chimney glass is drawn well over display white round
+  the flame (`chimney_glass.gdshader` `bloom`), the moon at 2.5, and the environment's glow
+  (scene file, lighting lines) is screen-blended at threshold 1.7 with `glow_bloom` 0 (any bloom
+  share veils the whole frame), so nothing lit by a lamp blooms. The review's light numbers
+  (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
+  judge's score, until judge v2.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
@@ -1488,3 +1496,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   APIs: every answer is printed and saved, so the first runs show what to change.
   - Tonight: add repo secrets `FAL_KEY` and `TRIPO_API_KEY`; run People with `characters:
     stranger` (Tripo), and with `style: train` once `docs/concept/style/` has pictures.
+- 2026-10-02 (art session, later): **The art review, and §10.1: the saloon's light and grade.**
+  `docs/ART_REVIEW.md` (a fresh session's review, merged as PR #49) found the squares aren't the
+  problem any more: the paintings are cinematic pictures with a mosaic over them, and ours were
+  flat, noisy and chunky far off. Sean approved reopening DESIGN.md §4 (rewritten to the
+  review's reading), the sun change and native resolution; the work now follows the review's
+  §10 order. Step 1, the saloon: night ambient 2.5 → 0.7 and the saloon's own fill 0.1 → 0.035,
+  night exposure 0.72 (`exposure_night`), bloom only off true emitters (chimney glass drawn to
+  4× white round the flame, the moon 2.5; glow screen-blended, threshold 1.7, `glow_bloom` 0: at
+  0.15 it veiled the whole frame, median L* 23), saturation 1.12, the bar side's lamps ×1.5 so the
+  back bar glows. The review's numbers on the saloon shot: median L* 15 → **12** (painting 12),
+  deep-shadow share 28 % → **40 %** (41 %), L95 56 → 48 (43), highlights 0.9 % (0.6 %), chroma 20.3
+  (22.7). Gameplay files touched (lighting lines only, the only session): `scenes/test_street.tscn`
+  (glow, saturation), `config/day_cycle.tres`, `day_cycle_config.gd`, `day_cycle.gd`
+  (`exposure_night`), `saloon_building.gd` (`night_ambient`). Shared: `DESIGN.md` §4. Judge round
+  `2026-10-02_r26` kept for the record (the old score punishes this, as the review predicted).
+  - Known: the painted man is still self-lit (`paint_look`), so he doesn't sink into the dark the
+    way the far room does (§10.7); the halo round the lamp is modest (the flame material is
+    emission 5 but mostly hidden by the glass); the street gets the saturation and glow too,
+    judged in §10.2.
