@@ -266,6 +266,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   and contrast, the mosaic (detail: dE to a 3 px blur), tile size across/down (autocorrelation of
   the high-passed luminance), palette gaps; one score per view (mean severity, lower is closer).
   `--from=DIR` judges renders already made. Every art change is judged with it; keep every round.
+  **Judge v2** (2026-10-02, after `docs/ART_REVIEW.md` §5): the score is whole-frame *style*, not
+  composition: L* percentiles and the deep-shadow / blown-highlight shares, chroma, warmth and
+  the chroma–L* correlation (symmetric); coherence (fine detail on the mid-scale structure),
+  grain in flat areas, near tiles finer or far tiles chunkier than the painting's (one-sided, so
+  noise and chunkiness can never buy a better score); edge hardness; palette gaps relative to
+  the painting's own quantisation. The old mosaic/tile/region numbers are still printed, not
+  scored. `python3 tools/judge.py --probes` is its test: the review's probes (the painting, shifted
+  60 px, block and pixel noise, blur, greyscale, a grade toward the painting's light, and round 27
+  against round 25) must rank as a viewer would; run it after touching the measures. `--pick="…"`
+  records Sean's verdict on a round. Scores before round 28 are v1's and don't compare.
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
@@ -1537,3 +1547,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: sunrise is now 20° north of east too (one azimuth for the whole arc); the far street
     greys a little under the haze where the painting's is golden dust (the fog's colour is one
     gold; a painted sky and backdrop haze come in §10.4).
+- 2026-10-02 (art session, later): **§10.3: judge v2.** `tools/judge.py` scores style, not
+  composition (above): the 3×3 region means and the mosaic/tile measures that rewarded random
+  block noise and punished the light pass are gone from the score. `--probes` is the test the
+  review asked for (§5): the painting 0.000, shifted 60 px 0.003; round 25 + block noise, pixel
+  noise, blur and greyscale all worse than round 25; a grade toward the painting's light better;
+  and the engine's own light pass (round 27 vs 25) better: saloon 0.338 → 0.209, street 0.571 →
+  0.344. First v2 round `2026-10-02_r28` (round 27's renders rescored); `history.md` starts a
+  v2 table there. Not done from the review's list: a repetition measure (needs a known wall
+  region) and block size against the depth buffer (bands stand in).
