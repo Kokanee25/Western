@@ -294,7 +294,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   road's edges, none under floors or down the wheel tracks). The ground shader draws three wagon
   tracks of ruts with lit ridges, pebbles and a churned middle. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
-  near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
+  near a low sun and the rest blue, and has painted clouds (`cloud_shape()`: loose bands of small
+  ragged heaps stretched across the street, `cloud_cover`/`_scale`/`_ragged`; three tones each,
+  `cloud_tones`: cream-gold tops, warm bodies, grey-violet undersides; dark at night) in the sky's
+  own squares (`sky_squares`).
   **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
   country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
   m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in
@@ -1452,3 +1455,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   bright sky (item 5). 279 tests pass.
   - Open with Sean: a sun a little further south at golden hour (DayCycle's tilt, gameplay's)
     would light the boardwalks as the painting's are.
+- 2026-10-02 (art session, later): **The clouds** (Sean's list, item 5). They were big flat orange
+  sheets cut in blocks on their own plane (`cloud_blocks`, gone). Now, like the painting's, loose
+  bands of small ragged heaps with blue between (the noise stretched across the street, warped,
+  its edges eaten by a finer noise; `cloud_scale` 2.6, `cloud_cover` 0.46), each in three painted
+  tones: a cream-gold top (the edge toward the zenith), a warm body, a grey-violet underside (the
+  edge toward the horizon), golder on the sun's side; drawn in the sky's own squares. Judge rounds
+  `2026-10-02_r23` (sheets of small heaps: 0.648), `_r24` (warmer) and `_r25` (both views): street
+  0.667 → **0.645**, saloon 0.570 (moonlit clouds round the moon in the doorway). 279 tests pass.
+  - Known: the sky's top is still bluer than the painting's (b* +5 vs +16; the day cycle's sky
+    gradient, not the clouds); clouds don't drift into new shapes (they slide with TIME).
