@@ -65,6 +65,42 @@ func _setup_common() -> void:
 	if cam:
 		_base_fov = cam.fov
 	_probe_shape.radius = 0.03
+	_add_fill()
+	_mark_held.call_deferred()
+
+
+## A soft warm light on what's in your hands only (the painter's fill: the street painting lights the
+## revolver's side even with the sun behind it, where the scene's light alone left it black). It
+## follows the daylight so a gun in the dark stays dark.
+const FILL_ENERGY := 0.55
+var _fill: OmniLight3D
+
+
+func _add_fill() -> void:
+	_fill = OmniLight3D.new()
+	_fill.name = "HeldFill"
+	_fill.light_color = Color(1.0, 0.84, 0.66)
+	_fill.light_energy = FILL_ENERGY
+	_fill.omni_range = 1.6
+	_fill.omni_attenuation = 1.0
+	_fill.light_cull_mask = Layers.VIS_HELD
+	_fill.shadow_enabled = false
+	_fill.light_specular = 0.6
+	_fill.position = Vector3(-0.3, 0.25, 0.05)
+	add_child(_fill)
+
+
+func _mark_held() -> void:
+	for mi in find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+
+
+func _update_fill() -> void:
+	if _fill == null:
+		return
+	var day := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	var daylight := day.get_daylight() if day else 1.0
+	_fill.light_energy = FILL_ENERGY * (0.15 + 0.85 * daylight)
 
 
 func _find_player() -> Player:
@@ -113,6 +149,7 @@ func is_put_away() -> bool:
 
 func _physics_process(_delta: float) -> void:
 	_tuck_target = _probe_wall()
+	_update_fill()
 
 
 ## How far the gun must pull back so the muzzle, in the pose it's heading for, stops short of

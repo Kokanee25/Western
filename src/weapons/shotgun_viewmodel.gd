@@ -73,8 +73,8 @@ func _ready() -> void:
 
 func _build_hands() -> void:
 	var skin := GunParts.skin()
-	var sleeve := GunParts.cloth("shirt", Color(0.74, 0.67, 0.54))
-	var cuff := GunParts.cloth("cuff", Color(0.68, 0.61, 0.49))
+	var sleeve := GunParts.held_cloth("coat", Color(0.36, 0.25, 0.16))
+	var cuff := GunParts.held_cloth("cuff", Color(0.82, 0.76, 0.62))
 	# Right hand: the back of it on the right of the wrist, fingers curled under, forearm running
 	# back and down to the right, out of the sight line.
 	hand = GunParts.pivot(model, "Hand", Vector3(0.0, 0.0, 0.035))

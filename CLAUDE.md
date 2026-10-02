@@ -1340,3 +1340,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: his head is turned and shaped unlike the painting's (the face lands a little off), his
     mouth reads as a smile; the lamp's foot catches too much of its own light; the ashtray's still a
     plain disc; the saloon's bar side is still plain (the judge's biggest left there).
+- 2026-10-02 (art session, later): **Look 6: the gun and hand in the chunky style.** What's in your
+  hands is on the texel grid at `GunParts.HELD_TEXELS_PER_METER` 160 (was 320: the street
+  painting's revolver and hand are in squares ~10 screen pixels across), in `PixelArt.squares`
+  (a few close shades, each texel its own, so every square is a shade off the next): worn steel,
+  greyer and less metallic (it read black against the low sun), your hand (`GunParts.skin()`, now
+  a grid material) and a brown coat sleeve with a cream cuff (`GunParts.held_cloth`; `cloth()`
+  stays a StandardMaterial3D for people's bodies). `Layers.VIS_HELD` marks everything a
+  `WeaponViewmodel` holds, and its warm `HeldFill` light reaches only that (the painting lights the
+  gun's side with the sun behind it), scaled by daylight so it stays dark at night. Gameplay files
+  touched (only session): `gun_parts.gd`, `weapon_viewmodel.gd`, `hand_model.gd`,
+  `shotgun_viewmodel.gd`, `dynamite_viewmodel.gd`, `layers.gd`. Judge round `_r9`: flat (street
+  0.653, saloon 0.765): the gun's a small part of the frame. 279 tests pass.
+  - Known: the hip pose shows the gun from behind and above where the painting holds it forward
+    and shows its side (a pose change is gameplay feel: not done); the hand is still blocks.

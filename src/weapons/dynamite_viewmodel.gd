@@ -55,7 +55,7 @@ func _ready() -> void:
 
 func _build() -> void:
 	var skin := GunParts.skin()
-	var sleeve := GunParts.cloth("shirt", Color(0.74, 0.67, 0.54))
+	var sleeve := GunParts.held_cloth("coat", Color(0.36, 0.25, 0.16))
 	stick_node = GunParts.pivot(self, "Stick", Vector3.ZERO)
 	# In the hand the sparks are right under your nose: small and close.
 	var parts := DynamiteStick.build_model(stick_node, 0.15)

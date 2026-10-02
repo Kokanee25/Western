@@ -20,3 +20,6 @@ const BULLETS := 0xFFFFFFFF & ~PEOPLE
 const VIS_BODY := 2
 ## Render: what's inside a body, seen through a wound (decals don't paint it).
 const VIS_INSIDE := 4
+## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite), on the world's
+## layer too: its own fill light reaches only this (WeaponViewmodel).
+const VIS_HELD := 8
