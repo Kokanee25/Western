@@ -14,6 +14,10 @@ extends Resource
 @export var sun_tilt_degrees := 35.0
 ## Lifts the arc so days run longer than nights. 0 = sunrise 6:00, sunset 18:00.
 @export var day_bias := 0.1
+## Turns the whole arc round the vertical (degrees; positive swings the setting sun south of
+## west): the street painting's sun sets a little left of the street's axis, so the north side's
+## porches and boardwalks are sunlit at golden hour (docs/ART_REVIEW.md §3.1, with Sean).
+@export var sun_azimuth_degrees := 0.0
 ## Tilt of the moon's arc (a full moon, opposite the sun's hour): it rises in the east, sets in the
 ## west and crosses the sky this far from straight overhead, over the +Z side (the street, seen from
 ## the saloon's door). Low, as the saloon painting's moon is in its doorway.

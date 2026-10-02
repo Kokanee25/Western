@@ -93,7 +93,7 @@ void fragment() {
 	// texel here and there.
 	float churn = smoothstep(0.55, 0.75, fbm(p * 0.9 + 11.0)) * (1.0 - smoothstep(0.0, 2.5, abs(sz))) * road;
 	float pebble = hash(floor(p * texels_per_meter) + 17.0);
-	col = mix(col, dirt_dark * 0.85, groove * 0.75 + churn * 0.3);
+	col = mix(col, dirt_dark * 0.85, groove * 0.5 + churn * 0.2);
 	col *= 1.0 + ridge * 0.22;
 	col = mix(col, col * (pebble > 0.5 ? 1.32 : 0.62), step(0.965, hash(floor(p * texels_per_meter) + 3.0)) * road);
 	col *= use_road_tex ? mix(0.88 + 0.24 * fine, 1.0, road) : 0.88 + 0.24 * fine;
