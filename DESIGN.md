@@ -277,6 +277,44 @@ come out of the story or the world, and most standoffs should have a way out tha
   two, more in act three; quiet days are for people. Standoffs that end without a shot count as
   much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
 
+### A day in Salt Creek (**decided in outline**, 2026-10-01)
+- **The loop:** leads come in → you pick what matters → you act → the world reacts → you sleep
+  (and save) and the clock moves on.
+- **Three pressures every day:** the story clock (factions move whether you do or not); money
+  (ammunition, the doctor, food, a room, drinks, bribes); your body (wounds, sleep, hunger, drink).
+- **Needs are light** (Sean): eat and sleep, small effects if you skip (tired: slower, shakier;
+  hungry: weaker, grumpier with people), never a survival game.
+- **Proposed, not yet decided:** a note on your claim at the bank, due before the rails arrive,
+  as the money pressure (and a lever for the baron and the land agent).
+- **What fills the hours:** work for money (bounties, shooting matches, guarding the stage,
+  odd jobs, a barn raising, a deputy's pay), people (the saloon, cards, rumours, favours),
+  investigation (the sheriff's shooting, evidence, witnesses, tracks), the factions' moves, and
+  recovery (the doctor, rest, supplies, cleaning your gun).
+- **A typical 45-minute day:** dawn (wake, wounds, ride in, the rails a little closer) → morning
+  (errands and leads) → noon (the street empties; questioning, cards, the doctor) → afternoon
+  (the day's main job) → evening (the saloon fills, the day's rumours, trouble) → night (raids,
+  sneaking, or sleep; darker as the moon wanes).
+
+### Romance (**proposed**, 2026-10-01)
+Everyone will try it, usually crudely, in the first five minutes. That's fine: the people are people,
+so it plays out the way it would in 1882, and the crude attempt is a source of humour, not reward.
+- **Women in the town are people, not prizes.** Each has her own life, opinions, situation and
+  wants (the widow fighting for her claim, a married woman, the hotel landlady, a working girl
+  upstairs at the saloon), and most of them aren't looking for anything from you.
+- **The crude approach goes badly, in character:** a cold look, a slap, a drink in your face, her
+  husband or brother looking for you, the barkeep throwing you out, the whole town hearing about
+  it by evening. Reputation drops. Being a pig is allowed; it's just remembered.
+- **Courtship is slow and earned:** days, not minutes, built on what you actually do (keeping her
+  claim safe, honesty, showing up, standing by her when it costs you). She can say no, change her
+  mind, or lose interest if you turn out to be someone else. Some people may court you.
+- **1882 rules apply:** propriety, chaperones, gossip, reputations (hers more than yours, which she
+  knows), marriage as a real, binding thing with property consequences (marrying the widow is a
+  path to holding the valley).
+- **Fade to black.** Nothing explicit, ever. The conversation AI keeps characters in character and
+  steers away from sexual content; intimacy is implied (a door closing, the morning after, the
+  town talking).
+- **Open:** whether courtship is open to men as well (period-accurate discretion if so).
+
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
 vaqueros. They belong in the game as real people with their own lives and perspectives, written with
