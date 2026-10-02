@@ -142,8 +142,12 @@ func world_aabb() -> AABB:
 	var box := AABB()
 	var first := true
 	for p: Array in pieces:
+		# A piece that's burnt away is a freed object: check before casting (casting a freed
+		# object is a script error, and fires asked this of every burning member, every tick).
+		if not is_instance_valid(p[0]):
+			continue
 		var mi := p[0] as MeshInstance3D
-		if mi == null or not is_instance_valid(mi) or not mi.is_inside_tree():
+		if mi == null or not mi.is_inside_tree():
 			continue
 		var b := mi.global_transform * mi.get_aabb()
 		box = b if first else box.merge(b)
