@@ -30,7 +30,14 @@ import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's ther
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import face_draw  # noqa: E402  (the face drawn over the squares: eyes, brows, moustache)
 
-VIEW_WEIGHT = {"shot": 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
+# The hybrid finish (docs/ART_REVIEW.md §6): his textures come from the image model's flat-lit
+# turnaround sheets alone (not the painting's own pixels, which are lit and never matched his
+# shape), each square the plain average under it (not the commoner of two colours: that made
+# noise of the model's shading), with a wider palette a shape, and the game's light does the
+# painting's shading (HumanBody.paint_look: no self-lit share, no steps, ambient on). Off = the
+# old finish (the painting's pixels as master, dominant-colour squares, few colours).
+HYBRID = True
+VIEW_WEIGHT = {"shot": 0.0 if HYBRID else 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
 # The close head views (paint_views.py --head-sheet) see his head at ~3x the detail: on the shapes of
 # his head they outweigh everything; elsewhere (the collar and coat they catch) they barely count.
 HEAD_VIEW_WEIGHT = 10.0
@@ -86,6 +93,10 @@ EYE_COLOURS = 8
 SHAPE_COLOURS = {"head": 16, "coat": 12, "vest": 10, "shirt": 6, "trousers": 8, "hat": 8, "hat_band": 8,
         "hat_brim": 8, "cravat": 5, "skin": 10, "boots": 6, "belt": 5, "gun_belt": 6, "holster": 5}
 SHAPE_COLOURS_DEFAULT = 6
+if HYBRID:
+    SHAPE_COLOURS = {"head": 32, "coat": 28, "vest": 20, "shirt": 12, "trousers": 20, "hat": 16, "hat_band": 12,
+            "hat_brim": 16, "cravat": 8, "skin": 24, "boots": 12, "belt": 8, "gun_belt": 12, "holster": 8, "hair": 16}
+    SHAPE_COLOURS_DEFAULT = 16
 # Garments drawn in their own colour, as the painting draws them (a clean white shirt, a black tie):
 # the painted light and shade are kept, the colour is set, so the collar and tie read at a glance
 # instead of taking the muddy browns round them. Colours as the painting shows them in lamplight.
@@ -151,6 +162,12 @@ def dominant(rgb, size):
         c1 = np.where((n1 > 0)[..., None], m1, c1)
         c2 = np.where((n2 > 0)[..., None], m2, c2)
     return np.where((n1 >= n2)[..., None], c1, c2)
+
+
+def average(rgb, size):
+    """Shrink rgb (h, w, 3) to size (w, h): each output square the plain average under it."""
+    img = Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8))
+    return np.asarray(img.resize(size, Image.BOX), dtype=float) / 255.0
 
 
 def dark_kept(rgb, size):
@@ -234,6 +251,8 @@ def finish(src):
                 vw = HEAD_VIEW_WEIGHT * HEAD_VIEW_BOOST.get(view, 1.0) if shape in HEAD_SHAPES else HEAD_VIEW_ELSEWHERE
             elif shape == "hair":
                 vw *= 0.1  # the body views were painted before he had hair
+            if vw <= 0.0:
+                continue
             k = ((wt[..., 0] * vw) ** SHARPEN) * (col[..., 3] > 0.5)
             acc += col[..., :3] * k[..., None]
             wsum += k
@@ -268,7 +287,7 @@ def finish(src):
         per_m = SQUARES_PER_M.get(shape, SQUARES_PER_M_CLOTH)
         raw_x, raw_y = RAW_PER_M.get(shape, RAW_PER_M_DEFAULT)
         size = (max(2, round(w * per_m / raw_x)), max(2, round(h * per_m / raw_y)))
-        rule = dark_kept if SQUARE_RULE.get(shape) == "dark" else dominant
+        rule = dark_kept if SQUARE_RULE.get(shape) == "dark" else (average if HYBRID else dominant)
         n = DETAIL.get(shape, 1)
         fine = None
         if n > 1:

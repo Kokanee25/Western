@@ -31,7 +31,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.233,
-   "colours": 5
+   "colours": 8
   },
   "boots": {
    "uv_rect": [
@@ -47,7 +47,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.129,
-   "colours": 6
+   "colours": 12
   },
   "coat": {
    "uv_rect": [
@@ -63,7 +63,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.362,
-   "colours": 12
+   "colours": 28
   },
   "cravat": {
    "uv_rect": [
@@ -79,7 +79,7 @@
    "squares_per_m": 110.0,
    "texels_per_square": 1,
    "seen": 0.517,
-   "colours": 5
+   "colours": 8
   },
   "gun_belt": {
    "uv_rect": [
@@ -95,7 +95,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.557,
-   "colours": 6
+   "colours": 12
   },
   "hair": {
    "uv_rect": [
@@ -111,7 +111,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.583,
-   "colours": 6
+   "colours": 16
   },
   "hat": {
    "uv_rect": [
@@ -127,7 +127,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.792,
-   "colours": 8
+   "colours": 16
   },
   "hat_band": {
    "uv_rect": [
@@ -143,7 +143,7 @@
    "squares_per_m": 110.0,
    "texels_per_square": 1,
    "seen": 0.533,
-   "colours": 8
+   "colours": 12
   },
   "hat_brim": {
    "uv_rect": [
@@ -159,7 +159,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.913,
-   "colours": 8
+   "colours": 16
   },
   "head": {
    "uv_rect": [
@@ -186,7 +186,7 @@
      0.5643
     ]
    ],
-   "colours": 16
+   "colours": 32
   },
   "holster": {
    "uv_rect": [
@@ -202,7 +202,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.319,
-   "colours": 5
+   "colours": 8
   },
   "shirt": {
    "uv_rect": [
@@ -218,7 +218,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.042,
-   "colours": 6
+   "colours": 12
   },
   "skin": {
    "uv_rect": [
@@ -234,7 +234,7 @@
    "squares_per_m": 150.0,
    "texels_per_square": 1,
    "seen": 0.061,
-   "colours": 10
+   "colours": 24
   },
   "trousers": {
    "uv_rect": [
@@ -250,7 +250,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.168,
-   "colours": 8
+   "colours": 20
   },
   "vest": {
    "uv_rect": [
@@ -266,7 +266,7 @@
    "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.063,
-   "colours": 10
+   "colours": 20
   }
  }
 }

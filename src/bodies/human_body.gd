@@ -118,6 +118,10 @@ const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 ## Which generated body he has (assets/people/<id>.glb, from tools/blender/make_people.py); empty
 ## or missing = the code-lofted BodyMesh.
 @export var body_model := &"outlaw"
+## Wear the model's painted and baked textures (the painting's man). Off, he wears the code-painted
+## cloth in his own colours and his own painted face on the same body: the townsfolk, who are not
+## all the one man (docs/ART_REVIEW.md §6).
+@export var use_paint := true
 ## Starts with it in the holster (a man minding his own business); the brain draws it.
 @export var start_holstered := true
 @export var total_mass := 80.0
@@ -151,8 +155,13 @@ const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana"
 ## light making him more than paint_limit × painted (light_steps: how many steps the light takes
 ## across him, 0 smooth). Tuned in the character lab so he matches the painting under its light.
 ## A static so the lab can try others.
-static var paint_look := {&"self_lit": 0.35, &"paint_gain": 4.0, &"paint_wrap": 0.9, &"paint_limit": 1.3,
-		&"light_steps": 4.0}
+## The hybrid finish (docs/ART_REVIEW.md §6, tools/paint/finish.py HYBRID): his textures are the
+## model's flat-lit painting of him and the scene's light does the shading: nothing self-lit, no
+## steps, ambient on, the light not eased off till well past painted. (The old look, tuned to the
+## painting's own pixels: self_lit 0.35, paint_gain 4.0, paint_wrap 0.9, paint_limit 1.3,
+## light_steps 4, paint_ambient 0.)
+static var paint_look := {&"self_lit": 0.0, &"paint_gain": 2.2, &"paint_wrap": 0.3, &"paint_limit": 4.0,
+		&"light_steps": 0.0, &"paint_ambient": 1.0}
 var _draw_left := 0.0
 var time_scale := 1.0
 
@@ -360,7 +369,7 @@ func _build_skin() -> void:
 	f["seed"] = rng_seed
 	if data.get("textures", {}).has("head_ao"):
 		f["ao"] = (data.textures.head_ao as Texture2D).get_image()
-	if data.get("textures", {}).has("face"):
+	if data.get("textures", {}).has("face") and use_paint:
 		f["portrait"] = (data.textures.face as Texture2D).get_image()
 	var skin_mat := PeopleArt.material("skin:%s" % person_id, PeopleArt.skin(person_id, skin_tone, 81 + rng_seed), 0.7)
 	var mats := {
@@ -370,6 +379,7 @@ func _build_skin() -> void:
 		"vest": _cloth("vest", vest_color, &"wool", false),
 		"coat": _cloth("coat", coat_color, &"wool", false),
 		"trousers": _cloth("trousers", trousers_color, &"wool", false),
+		"cravat": _cloth("cravat", Color(0.08, 0.06, 0.05), &"plain", false),
 		"boots": _cloth("boots", Color(0.2, 0.13, 0.08), &"leather"),
 		"gun_belt": PeopleArt.material("gunbelt:%s" % person_id, PeopleArt.cartridge_belt(person_id, Color(0.34, 0.21, 0.11), rng_seed), 0.7, false),
 		"belt": _cloth("belt", Color(0.16, 0.1, 0.06), &"leather", false),
@@ -380,8 +390,8 @@ func _build_skin() -> void:
 		"hat_band": _cloth("hatband", hat_color.darkened(0.55), &"leather", false),
 		"hair": _cloth("hair", look.get("hair", Color(0.22, 0.15, 0.09)), &"felt", false),
 	}
-	var baked: Dictionary = data.get("textures", {})
-	var paint: Dictionary = data.get("paint", {})
+	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
+	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):

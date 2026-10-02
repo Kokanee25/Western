@@ -273,6 +273,7 @@ func _folk() -> void:
 		man.person_id = StringName(String(f[0]).to_snake_case())
 		man.rng_seed = 201 + i
 		man.has_gun = false
+		man.use_paint = false
 		man.shirt_color = f[4]
 		man.vest_color = f[5]
 		man.coat_color = f[6]
