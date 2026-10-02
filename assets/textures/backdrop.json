@@ -1,5 +1,5 @@
 {
- "degrees_per_texel": 0.3,
+ "degrees_per_texel": 0.15,
  "layers": {
   "far": {
    "texture": "backdrop_far.png",
@@ -8,8 +8,8 @@
    "bottom": -3.0,
    "top": 35.699999999999996,
    "texels": [
-    1200,
-    129
+    2400,
+    258
    ],
    "panels": 4
   },
@@ -20,8 +20,8 @@
    "bottom": -3.0,
    "top": 35.699999999999996,
    "texels": [
-    1200,
-    129
+    2400,
+    258
    ],
    "panels": 4
   },
@@ -32,8 +32,8 @@
    "bottom": -3.0,
    "top": 35.699999999999996,
    "texels": [
-    1200,
-    129
+    2400,
+    258
    ],
    "panels": 4
   }

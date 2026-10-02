@@ -110,7 +110,10 @@ func _light() -> void:
 		if _day.config and _day.config.sun_color:
 			sun_color = _day.config.sun_color.sample(_day.time_of_day / 24.0)
 	var haze := _env.fog_light_color if _env else Color(0.8, 0.7, 0.6)
+	# The fog's density against the base the layers' haze was set at (0.0035): thicker air, more haze.
+	var haze_scale := clampf((_env.fog_density if _env else 0.0035) / 0.0035, 0.5, 3.0)
 	for m in _materials:
+		m.set_shader_parameter(&"haze_scale", haze_scale)
 		m.set_shader_parameter(&"sun_dir", sun)
 		m.set_shader_parameter(&"sun_color", Vector3(sun_color.r, sun_color.g, sun_color.b))
 		m.set_shader_parameter(&"daylight", daylight)

@@ -35,9 +35,9 @@ OUT_JSON = os.path.join(rd.OUT, "backdrop.json")
 # Keying: how much greener than its red and blue a pixel is before it's background (fully at the
 # second number).
 KEY = (24.0, 70.0)
-# The painting's mosaic, gentler than the world textures' (reduce.MOSAIC): at a third of a degree a
-# texel the full push read as speckle on the rock.
-MOSAIC = 1.25
+# The painting's mosaic, much gentler than the world textures' (reduce.MOSAIC): the painting's far
+# rock is soft, and a push read as speckle (docs/ART_REVIEW.md §3.3).
+MOSAIC = 0.6
 # Land islands smaller than this many texels are dropped (stray specks the model left in the green).
 MIN_ISLAND = 6
 # A raw row is land's foot when this much of it is land (the green band some paintings leave under
