@@ -124,6 +124,7 @@ func infer_supports() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
+		m.analysis_cache = {}
 		var box: AABB = boxes[m]
 		var tier := StructureMember.tier_of(m.kind)
 		m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON

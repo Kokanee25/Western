@@ -53,6 +53,9 @@ var stack_key := 0.0
 ## What's drawn and solid for this member: [MeshInstance3D, CollisionShape3D] pairs. One while it
 ## stands; when it snaps, one per piece (they move into rubble but stay this member's).
 var pieces: Array = []
+## StructuralAnalysis's note of what doesn't change while it stands (axis, where it bears on its
+## supports); not saved.
+var analysis_cache := {}
 
 # Fire (FireSystem runs it): degrees C, alight or not, how deep the char has gone from each face
 # (m), how long it's been alight, and whether it's burnt away to nothing.

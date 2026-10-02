@@ -88,10 +88,19 @@ func analyse(structure: Structure, extra_broken := {}) -> StructuralAnalysis:
 				_check_compression(m, total)
 			var share := total / supports.size()
 			for s in supports:
-				point_loads.get_or_add(s, []).append([m.support_points.get(s, m.transform.origin), share])
+				_add_load(point_loads, s, m.support_points.get(s, m.transform.origin), share)
 		else:
 			_bend(m, loads, supports, structure, gone, point_loads)
 	return self
+
+
+## A load coming down onto support `s` at `at` (structure space).
+static func _add_load(point_loads: Dictionary, s: StringName, at: Vector3, newtons: float) -> void:
+	var list: Variant = point_loads.get(s)
+	if list == null:
+		point_loads[s] = [[at, newtons]]
+	else:
+		(list as Array).append([at, newtons])
 
 
 ## Is anything overloaded? Returns the ids over capacity, worst first.
@@ -122,20 +131,20 @@ func _check_compression(m: StructureMember, force: float) -> void:
 
 
 ## A lying member: loads along it, supports under it, bending over each span.
-func _bend(m: StructureMember, loads: Array, supports: Array[StringName], structure: Structure, gone: Dictionary, point_loads: Dictionary) -> void:
+## What doesn't change while a member stands, worked out once and kept on it (an analysis runs
+## every second on a burning building): its axis and length, where along it it bears on each
+## support, and for a rafter the rafters it meets at the ridge. Redone if it's moved or resized;
+## Structure.infer_supports() clears it.
+func _geometry(m: StructureMember, structure: Structure) -> Dictionary:
+	var c: Dictionary = m.analysis_cache
+	if not c.is_empty() and c.transform == m.transform and c.size == m.size:
+		return c
 	var length := m.length()
 	var half := length * 0.5
 	var axis := m.axis()
 	var origin := m.transform.origin
-	var w_self := (m.weight(tuning)) / maxf(length, 0.01)
-	var points: Array = []  # [t, newtons]
-	for pl: Array in loads:
-		points.append([clampf(((pl[0] as Vector3) - origin).dot(axis), -half, half), float(pl[1])])
-	if m.extra_load > 0.0:
-		points.append([0.0, m.extra_load])
-	# Group supports by where they are along the member.
-	var groups: Array = []  # [t, Array[StringName]]
-	for s in supports:
+	var support_t := {}
+	for s in m.supported_by:
 		# Where along the member it bears on this support: a point, or both ends of a long
 		# contact (lying along a beam, a plank on a sleeper it crosses at an angle...).
 		var ts_here: Array[float] = []
@@ -143,8 +152,8 @@ func _bend(m: StructureMember, loads: Array, supports: Array[StringName], struct
 		if box is AABB:
 			var lo := INF
 			var hi := -INF
-			for c in 8:
-				var t := ((box as AABB).get_endpoint(c) - origin).dot(axis)
+			for k in 8:
+				var t := ((box as AABB).get_endpoint(k) - origin).dot(axis)
 				lo = minf(lo, t)
 				hi = maxf(hi, t)
 			lo = clampf(lo, -half, half)
@@ -154,23 +163,50 @@ func _bend(m: StructureMember, loads: Array, supports: Array[StringName], struct
 				ts_here = [lo, hi]
 		else:
 			ts_here.append(clampf(((m.support_points.get(s, origin) as Vector3) - origin).dot(axis), -half, half))
-		for t in ts_here:
-			var placed := false
-			for g: Array in groups:
-				if absf(float(g[0]) - t) < SAME_SUPPORT:
-					if not (g[1] as Array).has(s):
-						(g[1] as Array).append(s)
-					placed = true
-					break
-			if not placed:
-				groups.append([t, [s]])
-	groups.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+		support_t[s] = ts_here
+	var partners: Array[StringName] = []
+	if m.kind == &"rafter":
+		for id in m.touching:
+			var o := structure.get_member(id)
+			if o != null and o.kind == &"rafter" and not o.axis().is_equal_approx(axis):
+				partners.append(id)
+	c = {"transform": m.transform, "size": m.size, "length": length, "half": half, "axis": axis,
+			"origin": origin, "support_t": support_t, "partners": partners}
+	m.analysis_cache = c
+	return c
+
+
+func _bend(m: StructureMember, loads: Array, supports: Array[StringName], structure: Structure, gone: Dictionary, point_loads: Dictionary) -> void:
+	var geo := _geometry(m, structure)
+	var length: float = geo.length
+	var half: float = geo.half
+	var axis: Vector3 = geo.axis
+	var origin: Vector3 = geo.origin
+	var w_self := (m.weight(tuning)) / maxf(length, 0.01)
+	var points: Array = []  # [t, newtons]
+	for pl: Array in loads:
+		points.append([clampf(((pl[0] as Vector3) - origin).dot(axis), -half, half), float(pl[1])])
+	if m.extra_load > 0.0:
+		points.append([0.0, m.extra_load])
+	# Supports grouped by where they are along the member: the same every time while none has
+	# gone (kept with its geometry), worked out afresh when one has.
+	var groups: Array
+	if supports.size() == m.supported_by.size():
+		if not geo.has("groups"):
+			geo.groups = _group(supports, geo.support_t)
+		groups = geo.groups
+	else:
+		groups = _group(supports, geo.support_t)
 	var ts: Array[float] = []
 	for g: Array in groups:
 		ts.append(g[0])
 	# A rafter meeting its partner at the ridge is held up there too (the pair is a truss); its
 	# load still comes down at the wall.
-	var virtual_top := m.kind == &"rafter" and _has_partner(m, structure, gone)
+	var virtual_top := false
+	for id: StringName in geo.partners:
+		if not gone.has(id):
+			virtual_top = true
+			break
 	var top_t := 0.0
 	if virtual_top:
 		top_t = half if (axis.y >= 0.0) else -half
@@ -178,18 +214,21 @@ func _bend(m: StructureMember, loads: Array, supports: Array[StringName], struct
 		ts.sort()
 	var result := beam(length, w_self, points, ts)
 	var reactions: Array = result.reactions
+	# Both in order along the member, and groups are at least SAME_SUPPORT apart, so at most one
+	# matches each t: walk them together.
+	var j := 0
 	for i in ts.size():
 		var r: float = reactions[i]
-		var gi := -1
-		for j in groups.size():
-			if absf(float(groups[j][0]) - ts[i]) < 0.0001:
-				gi = j
+		while j < groups.size() and float(groups[j][0]) < ts[i] - 0.0001:
+			j += 1
+		var gi := j if j < groups.size() and absf(float(groups[j][0]) - ts[i]) < 0.0001 else -1
 		if gi < 0:
 			# The virtual ridge support: its share comes down through the nearest real support.
 			gi = 0 if absf(float(groups[0][0]) - ts[i]) < absf(float(groups[-1][0]) - ts[i]) else groups.size() - 1
 		var ids: Array = groups[gi][1]
+		var each := r / ids.size()
 		for s: StringName in ids:
-			point_loads.get_or_add(s, []).append([m.support_points.get(s, origin), r / ids.size()])
+			_add_load(point_loads, s, m.support_points.get(s, origin), each)
 	if not m.kind in BENDING_KINDS:
 		return
 	var w := tuning.wood(m.wood)
@@ -207,14 +246,23 @@ func _bend(m: StructureMember, loads: Array, supports: Array[StringName], struct
 	critical_t[m.member_id] = m.weakest_t(result.at)
 
 
-func _has_partner(m: StructureMember, structure: Structure, gone: Dictionary) -> bool:
-	for id in m.touching:
-		if gone.has(id):
-			continue
-		var o := structure.get_member(id)
-		if o != null and o.kind == &"rafter" and not o.axis().is_equal_approx(m.axis()):
-			return true
-	return false
+## Supports (in order) grouped by where they bear along the member, within SAME_SUPPORT of the
+## first in each group; sorted along it. [[t, [ids]], ...]: read-only once made (it's kept).
+static func _group(supports: Array[StringName], support_t: Dictionary) -> Array:
+	var groups: Array = []
+	for s in supports:
+		for t: float in support_t[s]:
+			var placed := false
+			for g: Array in groups:
+				if absf(float(g[0]) - t) < SAME_SUPPORT:
+					if not (g[1] as Array).has(s):
+						(g[1] as Array).append(s)
+					placed = true
+					break
+			if not placed:
+				groups.append([t, [s]])
+	groups.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	return groups
 
 
 ## A beam along t in [-length/2, length/2] with its own weight `w` (N/m), point loads
@@ -278,10 +326,12 @@ static func beam(length: float, w: float, points: Array, supports: Array[float])
 		var a: float = supports[i]
 		var b: float = supports[i + 1]
 		var l := b - a
-		var in_span := func(t: float) -> bool: return t >= a and (t < b or (i == n - 2 and t <= b))
+		# A point load belongs to the span it's in (the last span takes its end support too).
+		var last := i == n - 2
 		if l < 1e-6:
 			for p: Array in points:
-				if in_span.call(float(p[0])):
+				var t: float = p[0]
+				if t >= a and (t < b or (last and t <= b)):
 					reactions[i] += float(p[1])
 			continue
 		var m := w * l * l / 8.0
@@ -289,7 +339,7 @@ static func beam(length: float, w: float, points: Array, supports: Array[float])
 		reactions[i + 1] += w * l * 0.5
 		for p: Array in points:
 			var t: float = p[0]
-			if in_span.call(t):
+			if t >= a and (t < b or (last and t <= b)):
 				var pn: float = p[1]
 				m += pn * (t - a) * (b - t) / l
 				reactions[i] += pn * (b - t) / l
