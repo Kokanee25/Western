@@ -389,10 +389,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `docs/concept/style/` (Sean's; `captions.json` there for words), each captioned with the
   trigger `SLTCRK`, zipped, uploaded to fal's storage and trained as a style LoRA on fal
   (`fal-ai/flux-lora-fast-training`, `is_style`); the result's URLs go in
-  `tools/style/style_lora.json` (the weights stay on fal). Untested against the live API;
-  `--dry-run` cuts and zips only (`build/style_train/sheet.png` shows the crops). The old
-  `style_test` input is now `style: photo`. Fitting the result to our
-  skeleton and hitboxes in Blender is still to come; MakeHuman stays the fallback.
+  `tools/style/style_lora.json` (the weights stay on fal). Trained on the live API 2026-10-02
+  (People run 18); `--dry-run` cuts and zips only (`build/style_train/sheet.png` shows the crops).
+  `tools/style/sample_style.py` (People workflow `style: sample`, `FAL_SAMPLER` default
+  `fal-ai/flux-lora`) paints six set prompts with FLUX + the LoRA (`loras: [{path, scale}]`) into
+  `docs/style_test/lora/` and a contact sheet beside the paintings. The old `style_test` input
+  is now `style: photo`. Fitting the result to our skeleton and hitboxes in Blender is still to
+  come; MakeHuman stays the fallback.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -1712,3 +1715,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     reduce his textures through the factory's reducer, our hands; then the paint bake's squares
     or the hybrid finish on him, and the seat pose. No Blender in this workspace: the fit runs on
     Actions (People workflow) like `make_people.py`.
+- 2026-10-02 (art session, later): **The style LoRA, trained and sampled.** Sean: "should we try
+  using Tripo to train on the concept art?" Tripo can't train (it reconstructs whatever picture
+  it's handed); the style belongs in the image model, and `FAL_KEY` was in: People run 18 trained
+  the LoRA on fal first time (48 crops of the three paintings, 1000 steps, five minutes;
+  `tools/style/style_lora.json`, the weights on fal). Run 19 sampled it (`sample_style.py`,
+  above): `docs/style_test/lora/sheet.png`. It learned the paintings well: the saloon and street
+  samples have their lamplight, golden haze, composition and mosaic, and the full-length gunman
+  and the portrait come out in the same blocks. Two things to know before using it: it paints the
+  blocks too (the review wants Tripo's input clean, with the squares made last by our reducer or
+  finish: for Tripo prompt it for the drawing and light, not the mosaic, or sample at a lower
+  LoRA scale), and on three paintings it will repeat their compositions (more pictures in
+  `docs/concept/style/` would loosen it). fal's `flux-lora` takes no reference image, so the
+  guided turnarounds would go through its image-to-image endpoint from our grey guides.
+  - Next: route `paint_full_length.py` and the turnaround sheets through fal with the LoRA
+    (image-to-image from the guides), give Tripo a multi-view sheet, and the Blender fit.
