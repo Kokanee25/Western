@@ -18,6 +18,9 @@ uniform bool use_mipmaps = true;
 // 0: the mesh's UVs; 1: triplanar in mesh space; 2: triplanar in world space.
 uniform int mapping = 0;
 uniform float roughness : hint_range(0.0, 1.0) = 0.95;
+// Members' board edges: the texels along a face's long edges this much darker (the line between
+// two boards the painting draws on every plank), the ends a little less; 1 = no line.
+uniform float edge_shade : hint_range(0.0, 1.0) = 0.7;
 uniform float metallic : hint_range(0.0, 1.0) = 0.0;
 uniform float specular : hint_range(0.0, 1.0) = 0.2;
 
@@ -90,6 +93,7 @@ void fragment() {
 	}
 	vec2 texel = grid_uv * size;
 	vec2 centre = tile_centre(texel);
+	float edge = 1.0;
 	if (mapping == 0 && UV2.x > 0.0) {
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
 		// to it. Keep the point the light is worked out at on this face: a face thinner than a
@@ -99,13 +103,22 @@ void fragment() {
 		vec2 hi = lo + UV2 * uv_scale * size;
 		vec2 inset = min(vec2(0.25), (hi - lo) * 0.5);
 		centre = clamp(centre, lo + inset, hi - inset);
+		// Which texel of the face this is, from its near corner: the first and last row are the
+		// board's edges.
+		vec2 at = UV * texels_per_meter;
+		vec2 across = UV2 * texels_per_meter;
+		if (at.y < 1.0 || at.y > across.y - 1.0) {
+			edge = edge_shade;
+		} else if (at.x < 1.0 || at.x > across.x - 1.0) {
+			edge = mix(edge_shade, 1.0, 0.4);
+		}
 	}
 	if (tile_ragged > 0.0) {
 		// Ragged tiles: one colour a tile, its own texel's, so the edges between colours wander too.
 		vec2 g = centre / size;
 		col = use_mipmaps ? textureGrad(albedo_tex, g, dFdx(grid_uv), dFdy(grid_uv)) : textureLod(albedo_tex, g, 0.0);
 	}
-	vec3 albedo = col.rgb * tint.rgb;
+	vec3 albedo = col.rgb * tint.rgb * edge;
 	tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15);
 #ifdef HOLES
 	// Bullet holes, tested at the centre of the texel (so they're drawn in whole texels).

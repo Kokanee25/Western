@@ -38,7 +38,7 @@ OUT = os.path.join(ROOT, "assets", "textures")
 # How much of the painting's own light is taken out (1 = all of it; the game lights it again).
 FLATTEN = 0.85
 # How far each texel's difference from its neighbours is pushed (the painting's mosaic).
-MOSAIC = 1.3
+MOSAIC = 2.0
 IMPORT = """[remap]
 
 importer="texture"

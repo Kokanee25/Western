@@ -55,7 +55,7 @@ func test_texel_size_changes_live() -> void:
 	PixelArt.set_density(16.0, false)
 	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0, 0.001, "existing materials follow the new density")
 	check(not m.get_shader_parameter(&"use_mipmaps"), "no mipmaps: crunchy")
-	PixelArt.set_density(64.0, true)
+	PixelArt.set_density(32.0, true)
 	check(m.get_shader_parameter(&"use_mipmaps"), "and back")
 
 
@@ -67,7 +67,7 @@ func test_holed_members_stay_on_the_grid() -> void:
 	check_eq(holed.get_shader_parameter(&"uv_offset"), base.get_shader_parameter(&"uv_offset"), "same offset, so the board doesn't jump")
 	PixelArt.set_density(24.0, false)
 	check_near(holed.get_shader_parameter(&"texels_per_meter"), 24.0, 0.001, "follows the density")
-	PixelArt.set_density(64.0, true)
+	PixelArt.set_density(32.0, true)
 
 
 func test_one_key_switches_tiles_everywhere() -> void:
@@ -96,15 +96,16 @@ func test_every_grid_shader_lights_per_texel() -> void:
 
 
 func test_texel_size_is_a_setting() -> void:
-	check_near(Settings.texels_per_meter, 64.0, 0.001, "starts at 64 per metre")
-	check(Settings.look_description().contains("64/m"), "described: %s" % Settings.look_description())
+	check_near(Settings.texels_per_meter, 32.0, 0.001, "starts at 32 per metre")
+	check(Settings.look_description().contains("32/m"), "described: %s" % Settings.look_description())
 	Settings.cycle_texel_density()
-	check_near(PixelArt.texels_per_meter, 40.0, 0.001, "F7 steps to 40")
+	check_near(PixelArt.texels_per_meter, 24.0, 0.001, "F7 steps to 24")
 	Settings.cycle_texel_density()
-	check_near(PixelArt.texels_per_meter, 24.0, 0.001, "then 24")
+	check_near(PixelArt.texels_per_meter, 16.0, 0.001, "then 16")
 	Settings.cycle_texel_density()
+	check_near(PixelArt.texels_per_meter, 64.0, 0.001, "then the fine 64")
 	Settings.cycle_texel_density()
-	check_near(PixelArt.texels_per_meter, 64.0, 0.001, "four presses come back to 64")
+	check_near(PixelArt.texels_per_meter, 32.0, 0.001, "four presses come back to 32")
 	check(PixelArt.use_mipmaps, "smoothed again")
 	Settings.reset_to_defaults()
 
@@ -143,7 +144,7 @@ func test_tiled_materials_follow_the_texel_grid() -> void:
 	check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter, 0.001, "on the world's grid")
 	PixelArt.set_density(16.0, false)
 	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0, 0.001, "follows F7")
-	PixelArt.set_density(64.0, true)
+	PixelArt.set_density(32.0, true)
 
 
 func test_portrait_is_brought_to_face_tiles_without_holes() -> void:

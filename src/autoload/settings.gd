@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 2
+const LOOK_VERSION := 3
 ## Mosaic tiles (P cycles): "off" = smooth light; "square" = every texel a tile lit as one colour;
 ## "ragged" = the same with uneven tile edges, like dabs of paint (src/render/tiles.gdshaderinc).
 ## The world, people and props all follow it.
@@ -42,7 +42,7 @@ var auto_cock := false
 ## Pixel shading: banded colour levels and ordered dither on the final frame (F6).
 var pixel_shading := false
 ## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.
-var texels_per_meter := 64.0
+var texels_per_meter := 32.0
 ## Reduced gore: bad wounds show as dark soaked patches, the body never opens (F4).
 var reduced_gore := false
 ## Tests turn this off so they never touch the player's settings file.
@@ -80,7 +80,7 @@ func reset_to_defaults() -> void:
 	touch_look_sensitivity = 0.25
 	invert_y = false
 	pixel_shading = false
-	texels_per_meter = 64.0
+	texels_per_meter = 32.0
 	reduced_gore = false
 	tile_look = &"square"
 	_apply_texels()
@@ -94,7 +94,7 @@ func load_from_disk() -> void:
 		_apply_tiles()
 		return
 	internal_resolution = cfg.get_value("video", "internal_resolution", internal_resolution)
-	var old_look := int(cfg.get_value("video", "look_version", 1)) < LOOK_VERSION
+	var look_version := int(cfg.get_value("video", "look_version", 1))
 	integer_scaling = cfg.get_value("video", "integer_scaling", integer_scaling)
 	mouse_sensitivity = cfg.get_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	stick_look_speed = cfg.get_value("controls", "stick_look_speed", stick_look_speed)
@@ -102,9 +102,12 @@ func load_from_disk() -> void:
 	invert_y = cfg.get_value("controls", "invert_y", invert_y)
 	pixel_shading = cfg.get_value("video", "pixel_shading", pixel_shading)
 	texels_per_meter = cfg.get_value("video", "texels_per_meter", texels_per_meter)
-	if old_look and internal_resolution == Vector2i(640, 360):
+	# Each step moves only what was the default then (2: 1280x720 and 64 texels; 3: 32 texels,
+	# the painting's square size, 2026-10-02).
+	if look_version < 2 and internal_resolution == Vector2i(640, 360):
 		internal_resolution = RESOLUTION_PRESETS[0]
-	if old_look and is_equal_approx(texels_per_meter, 40.0):
+	if (look_version < 2 and is_equal_approx(texels_per_meter, 40.0)) \
+			or (look_version < 3 and is_equal_approx(texels_per_meter, 64.0)):
 		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
 	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
 	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
@@ -164,7 +167,7 @@ func cycle_texel_density() -> void:
 	_changed()
 
 
-## One line describing the current look, e.g. "1280×720 · texels 64/m smoothed · tiles square · shading off".
+## One line describing the current look, e.g. "1280×720 · texels 32/m smoothed · tiles square · shading off".
 func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
 	return "%s · texels %d/m %s · tiles %s · shading %s" % [res, int(texels_per_meter),

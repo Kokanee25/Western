@@ -259,8 +259,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   crop of a painting for colour. `paint_textures.py` paints them on OpenRouter (FLUX.2 [max]; run
   it on Actions: People workflow, input `textures` = all / saloon / street / ids; openrouter.ai is
   blocked from the workspace) into `assets/textures/raw/<id>.jpg`; `reduce.py` (runs anywhere)
-  flattens the painting's light, wipes board joints (`boards`), makes it seamless, cuts it to 64
-  texels a metre with a pushed mosaic, applies the judge's `lightness`/`chroma`, snaps to a palette
+  flattens the painting's light, wipes board joints (`boards`), makes it seamless, cuts it to 32
+  texels a metre (`texels_per_metre`) with a pushed mosaic, applies the judge's `lightness`/`chroma`, snaps to a palette
   → `assets/textures/<id>.png` + `textures.json`. `PixelArt.factory(key)` hands them out in place
   of the code-painted texture of that key (`use_factory` off = the old ones); the grid material
   sizes any texture by its own size; the ground shader takes `road`. Change a material's numbers
@@ -276,7 +276,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
   street): the false fronts down the street (`BUILDINGS`: saloon, general store, barber, hotel;
   livery, jail, assay office) and their boardwalks (`WALKS`), carriage lanterns, barrels,
-  crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower. The
+  crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower, dry
+  grass (`src/art/dry_grass.gd`, `DryGrass`: one multimesh of crossed-quad tufts, thick along the
+  road's edges, none under floors or down the wheel tracks). The ground shader draws three wagon
+  tracks of ruts with lit ridges, pebbles and a churned middle. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
   `src/art/mountains.gd` (`Mountains`, added by StreetDressing): red-rock mesas, buttes, spire
@@ -1269,3 +1272,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: the church at the end is still a blockout, and StreetScenery's pale hills show at the
     street's end; the livery's loft is empty (no hay); nobody's inside these buildings (no
     furniture); the DRY GOODS board is hidden from the shot by the saloon's front.
+- 2026-10-02 (art session, later): **Look 2: surface detail.** The world's squares are the
+  painting's size: **32 texels a metre** (was 64; `PixelArt.DENSITY_PRESETS` 32/24/16/64, F7;
+  `Settings.LOOK_VERSION` 3 moves a saved 64 to 32 once; shared `settings.gd`, my lines). The
+  factory's textures are re-cut at 32 (`materials.json` `texels_per_metre`, same planks and grain,
+  chunkier squares) with a harder mosaic (`reduce.py` `MOSAIC` 2.0); signs too. Every member face
+  draws a dark line along its edges (`texel_grid.gdshaderinc` `edge_shade` 0.7, ends 0.82): the
+  line between boards the painting draws on every plank. The road (`ground.gdshader`): three wagon
+  tracks, each groove two that drift apart and back, crisp dark bottoms and lit ridges, pebbles,
+  a churned middle. Dry grass (`DryGrass`, ~5,000 tufts in one multimesh, no shadows, no
+  collision). Judge rounds `2026-10-02_r2` (32 texels alone: street 0.805, saloon 0.890) and
+  `_r3`: street 0.866 → **0.754**, saloon 0.866 → **0.849**. 278 tests pass (+1: the grass).
+  - Known: the saloon's biggest gap is now its bar side (plain: the painting's bottles, lamps and
+    people), and its left wall's yellow; the street's far right and middle are too bright (item 3,
+    the light); the lantern light pools on the fronts are hard-edged discs (item 3).

@@ -54,12 +54,14 @@ with the revolver; the target for the street, materials and daylight).
   concept art is the mood and lighting target; the models aim for this crisper, simpler look.
 - **Default look (Sean approved, 2026-09-28; resolution raised 2026-09-30):** 1280×720 render (was
   640×360: the concept painting's clean pixels are the textures' squares, each several screen
-  pixels big, which 640×360 smears), 64 texels per metre (was 40: the painting's squares on wood)
-  with distance smoothing, a mosaic of close shades square by square, pixel shading off. The look stays switchable in play as graphics options: render
-  resolution, texel size (64 / 40 / 24 / 16 per metre) and pixel shading (banded light + dither). They
+  pixels big, which 640×360 smears), 32 texels per metre on the world (2026-10-02, Sean's "at the
+  painting's density": the judge measures the paintings' squares at twice the size 64/m gave; was
+  64, and 40 before that) with distance smoothing, a mosaic of close shades square by square, a
+  dark line along every board's edge, pixel shading off. The look stays switchable in play as graphics options: render
+  resolution, texel size (32 / 24 / 16 / 64 per metre) and pixel shading (banded light + dither). They
   are debug keys now (F2 / F7 / F6) and move into a settings menu later.
 - **The concept painting's pixel style, as rules (Sean, 2026-09-30: "that exact art style"):**
-  (1) squares painted on the surfaces at a set size in metres (~64/m on wood and cloth, ~120–190/m on
+  (1) squares painted on the surfaces at a set size in metres (~32/m on the world's wood and dirt, ~64–80/m on cloth, ~120–190/m on
   faces and hands), drawn nearest, so near things have big squares and far things small; (2) each
   square several screen pixels big, so it stays crisp and tilts with the surface (hence the
   1280×720 default); (3) a mosaic: neighbouring squares differ a little in shade within a warm,
