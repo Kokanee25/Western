@@ -241,6 +241,24 @@ static func metal(key: String, base: Color, seed: int, mottle := 0.0) -> Texture
 
 
 ## Skin: flat tones with a few darker creases and knuckle marks.
+## Squares: a few close shades of `base`, each texel its own, with a broad wander under them (the
+## street painting's hand and revolver: every square a shade off the next). `spread`: how far the
+## shades reach either side of `base`.
+static func squares(key: String, base: Color, seed: int, spread := 0.3) -> ImageTexture:
+	if _cache.has(key):
+		return _cache[key]
+	var shades := ramp(base, 5, spread)
+	var img := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	for y in SIZE:
+		for x in SIZE:
+			var v := _noise(x, y, 8, 8, seed) * 0.45 + _hash(x, y, seed + 7) * 0.55
+			img.set_pixel(x, y, shades[_band(v, shades.size())])
+	img.generate_mipmaps()
+	var tex := ImageTexture.create_from_image(img)
+	_cache[key] = tex
+	return tex
+
+
 static func skin(key: String, base: Color, seed: int) -> ImageTexture:
 	if _cache.has(key):
 		return _cache[key]

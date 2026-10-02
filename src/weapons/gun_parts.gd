@@ -3,6 +3,9 @@ class_name GunParts
 ## mapped at a fine texel density (hand-held things are seen up close).
 
 const TEXELS_PER_METER := 320.0
+## What's in your hands on the texel grid (guns, your hand and sleeve): the street painting's
+## revolver and hand are in squares ~10 screen pixels across, about 160 a metre at arm's length.
+const HELD_TEXELS_PER_METER := 160.0
 
 static var _mats := {}
 
@@ -22,8 +25,9 @@ static func material(key: String, tex: Texture2D, metallic := 0.0, roughness := 
 
 
 ## The same on the texel grid like the world (lit tile by tile), mapped by position in the part's
-## own space at the guns' finer density (not tracked: F7 doesn't change the guns). The guns' own
-## metals and wood use it; skin and cloth stay StandardMaterial3Ds (people read their textures).
+## own space at what's in your hands' density (HELD_TEXELS_PER_METER; not tracked: F7 doesn't
+## change them). The guns' metals and wood, and your hand and sleeve, use it; people's bodies make
+## their own (`material`).
 static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8) -> ShaderMaterial:
 	key = "grid:" + key
 	if not _mats.has(key):
@@ -32,7 +36,7 @@ static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8)
 		m.set_shader_parameter(&"albedo_tex", tex)
 		m.set_shader_parameter(&"tint", Color.WHITE)
 		m.set_shader_parameter(&"mapping", PixelArt.Mapping.TRIPLANAR)
-		m.set_shader_parameter(&"texels_per_meter", TEXELS_PER_METER)
+		m.set_shader_parameter(&"texels_per_meter", HELD_TEXELS_PER_METER)
 		m.set_shader_parameter(&"use_mipmaps", true)
 		m.set_shader_parameter(&"metallic", metallic)
 		m.set_shader_parameter(&"roughness", roughness)
@@ -41,12 +45,14 @@ static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8)
 	return _mats[key]
 
 
+## Worn blued steel: grey with a blue cast, bright where the light catches an edge (as the street
+## painting's revolver; darker and fully metallic it read black in the evening light).
 static func blued() -> ShaderMaterial:
-	return grid("blued", PixelArt.metal("blued", Color(0.2, 0.22, 0.27), 71), 0.75, 0.35)
+	return grid("blued", PixelArt.squares("held_blued", Color(0.34, 0.36, 0.4), 71, 0.4), 0.55, 0.32)
 
 
 static func case_hardened() -> ShaderMaterial:
-	return grid("case", PixelArt.metal("case", Color(0.36, 0.34, 0.33), 73, 0.8), 0.7, 0.4)
+	return grid("case", PixelArt.squares("held_case", Color(0.46, 0.44, 0.42), 73, 0.45), 0.55, 0.38)
 
 
 static func brass() -> ShaderMaterial:
@@ -61,12 +67,19 @@ static func lead() -> ShaderMaterial:
 	return grid("lead", PixelArt.metal("lead", Color(0.45, 0.45, 0.47), 79), 0.4, 0.6)
 
 
-static func skin() -> StandardMaterial3D:
-	return material("skin", PixelArt.skin("skin", Color(0.74, 0.54, 0.42), 81), 0.0, 0.7)
+## Your hand's skin, sun-browned and warm, on the grid.
+static func skin() -> ShaderMaterial:
+	return grid("skin", PixelArt.squares("held_skin", Color(0.8, 0.56, 0.4), 81, 0.28), 0.0, 0.7)
 
 
+## Cloth for people's bodies (HumanBody reads these: StandardMaterial3D).
 static func cloth(key: String, color: Color) -> StandardMaterial3D:
 	return material("cloth:" + key, PixelArt.skin("cloth:" + key, color, 83), 0.0, 0.95)
+
+
+## Your sleeve and cuff, on the grid like the gun in your hand.
+static func held_cloth(key: String, color: Color) -> ShaderMaterial:
+	return grid("cloth:" + key, PixelArt.squares("held_cloth:" + key, color, 83, 0.35), 0.0, 0.95)
 
 
 static func box(parent: Node3D, n: String, size: Vector3, pos: Vector3, mat: Material, rot_deg := Vector3.ZERO) -> MeshInstance3D:
