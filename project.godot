@@ -46,6 +46,10 @@ min_square_px={
 "type": "float",
 "value": 2.0
 }
+tile_gradient={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 

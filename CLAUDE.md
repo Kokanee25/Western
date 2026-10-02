@@ -162,7 +162,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
   read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
   the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
-  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
+  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6.
+  **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
+  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** is on
+  (`Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
+  softens a render pixel on a hard edge between blocks toward its neighbours (`finish_soften`
+  0.5, a jump across the pixel both ways; fine lines and smooth areas untouched) and the tile
+  light is worked out part way back from the tile's centre toward the fragment (shader global
+  `tile_gradient` 0.3), a faint gradient of the real lighting across each tile.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -1666,3 +1673,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     `variant` for a grey and a chestnut is a few lines); the stag, chairs, barrels and bottles
     were already shaped (hoops, labels, spindles, antlers) and are left; image-to-3D props wait
     on a key (`MESHY_API_KEY` or `TRIPO_API_KEY`).
+- 2026-10-02 (art session, later): **§10.10: native by default, the finish pass.** Sean approved
+  native: `Settings.RESOLUTION_PRESETS` starts at `NATIVE` (`LOOK_VERSION` 4 moves a saved
+  1280×720 there once). The finish (above): block edges softened by about a render pixel in the
+  screen pass, and a faint gradient of the real lighting across each tile (`tile_gradient`:
+  LIGHT_VERTEX pulled 0.3 of the way back from the tile's centre). Judged at the 1280×720 window
+  (`_r51` on, `_r52` off): saloon 0.208 / 0.206, street 0.328 / 0.321, within the review's noise
+  band, so the pick is by eye (`docs/screenshots/light_pass/finish_on_off.png`: softer block
+  edges on the face, the lamp's falloff across the table's squares); kept on. Shared files:
+  `project.godot` (`tile_gradient` global), `settings.gd` (my lines). Gameplay files touched
+  (one line each, said here): `src/main/main.gd` (`finish_soften` to the screen shader),
+  `tests/test_project.gd` (the default is native: the tests check against the window's size,
+  and F2's first stop). 279 tests pass.
+  - §10.9 (the first Tripo man) waits on `TRIPO_API_KEY`: the People workflow's `characters`
+    input dry-runs the client, then calls the live API when the secret is there.
+  - Known: at native the far street's squares follow `min_square_px` 2 as before; the finish's
+    soften looks for jumps in the rendered frame, so a lamp's hard-edged halo softens too; no
+    key for the finish yet (F3 lists it).

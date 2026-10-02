@@ -52,7 +52,7 @@ func test_controller_bindings() -> void:
 
 func test_renders_at_internal_resolution() -> void:
 	var vp: SubViewport = main.get_node(^"GameViewport")
-	check_eq(vp.size, Vector2i(1280, 720), "default internal resolution")
+	check_eq(vp.size, Settings.render_size(main.get_viewport().get_visible_rect().size), "default: native, the window's own size")
 	var screen: TextureRect = main.get_node(^"Screen")
 	check_eq(screen.texture_filter, CanvasItem.TEXTURE_FILTER_NEAREST, "nearest-neighbour upscale")
 	check(screen.texture == vp.get_texture(), "screen shows the game viewport")
@@ -120,7 +120,10 @@ func test_native_resolution_follows_the_window() -> void:
 	var window := main.get_viewport().get_visible_rect().size
 	check_eq(vp.size, Vector2i(window), "renders at the window's own size")
 	check(Settings.look_description().begins_with("native"), "described: %s" % Settings.look_description())
-	check_eq(Settings.RESOLUTION_PRESETS[-1], Settings.NATIVE, "F2's last stop")
+	check_eq(Settings.RESOLUTION_PRESETS[0], Settings.NATIVE, "F2's first stop, the default (2026-10-02)")
+	Settings.set_internal_resolution(Vector2i(640, 360))
+	await process_frames(1)
+	check_eq(vp.size, Vector2i(640, 360), "a set size is that size")
 	Settings.reset_to_defaults()
 	await process_frames(1)
-	check_eq(vp.size, Vector2i(1280, 720), "back to the default")
+	check_eq(vp.size, Vector2i(window), "back to the default: native")

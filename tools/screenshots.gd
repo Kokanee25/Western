@@ -97,13 +97,15 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
-		# Look experiments: --texels=20 --nomip --shade --res=480x270 --tiles=ragged --window --suffix=_b
+		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
 		elif arg == "--nomip":
 			PixelArt.use_mipmaps = false
 		elif arg == "--shade":
 			settings.pixel_shading = true
+		elif arg == "--no-finish":
+			settings.set_finish(false)
 		elif arg.begins_with("--res="):
 			var wh := arg.substr(6).split("x")
 			settings.internal_resolution = Vector2i(int(wh[0]), int(wh[1]))
