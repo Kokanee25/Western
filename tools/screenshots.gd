@@ -87,6 +87,7 @@ func _run() -> void:
 	var out := "user://screenshots"
 	var only := ""
 	var window_shot := false
+	var screen_squares := 0.0
 	var suffix := ""
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -108,6 +109,10 @@ func _run() -> void:
 			settings.internal_resolution = Vector2i(int(wh[0]), int(wh[1]))
 		elif arg.begins_with("--tiles="):
 			settings.set_tile_look(StringName(arg.substr(8)))
+		elif arg.begins_with("--min-square="):
+			RenderingServer.global_shader_parameter_set(&"min_square_px", float(arg.substr(13)))
+		elif arg.begins_with("--screen-squares="):
+			screen_squares = float(arg.substr(17))
 		elif arg == "--window":
 			window_shot = true
 		elif arg.begins_with("--suffix="):
@@ -123,6 +128,8 @@ func _run() -> void:
 	var viewport: SubViewport = main.get_node(^"GameViewport")
 	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 	var player = main.get_node(^"GameViewport/TestStreet/Player")
+	if screen_squares > 0.0:
+		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares)
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	for v in VIEWS:

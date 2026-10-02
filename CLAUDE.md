@@ -156,7 +156,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
   is the same with bullet holes), `src/world/ground.gdshader`, and the people's
   `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
-  faces. `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
+  faces. **A minimum square on screen** (shader global `min_square_px`, 4 render pixels; 0 = off;
+  `screenshots.gd --min-square=N`): where a texel would be smaller, `tile_square()` gives squares
+  of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
+  read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
+  the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
+  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
@@ -1415,3 +1420,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   --source=tile` (mediapipe needs `libegl1` and `libgles2`), `paint_bake.gd bake` (~10 min), then
   `finish.py`. Face shape untouched. Judge round `2026-10-02_r13`: saloon 0.581 → **0.572** (the
   centre's tile-size gap is gone).
+- 2026-10-02 (art session, later): **Chunky squares in the distance** (Sean's list, item 3). Three
+  ways tried and judged on the street shot (rounds `2026-10-02_r14`-`_r19`, scratch, kept; picture
+  `docs/screenshots/far_squares/trials.png`): baseline 0.641; A, a screen-space mosaic by depth
+  (`DepthMosaic`, a full-screen quad: 5 px blocks of the finished frame) 0.745: soft blocks,
+  smeared letters, edges blurred; B, the texture's mip of 2/4/8-texel squares at 4 and 6 px
+  minimum 0.676/0.712: chunky but each square the average, so the mosaic went plain; **C, chosen**:
+  the same squares, each the colour of one texel (`tile_square()` in `tiles.gdshaderinc`, used by
+  `texel_grid` and `ground.gdshader`; board edge lines and the light follow the squares), at 4 px
+  0.629 (6 px 0.644). Signs are left out (`fixed_squares`), so their lettering reads down the
+  street. Round `_r20` (both views, the default on): street 0.641 → **0.619**, saloon 0.582 (0.572:
+  its far wall goes chunkier). Shared files: `project.godot` (the `min_square_px` global, my
+  lines), `tools/screenshots.gd` (`--min-square`, `--screen-squares`). 279 tests pass.
+  - Known: squares jump in size in bands (2→4→8 texels) where the distance crosses a threshold
+    (a visible step on a long wall seen end-on); people, the backdrop and the sky aren't on it
+    (they have their own squares); no key to switch it in game yet (a Settings knob if Sean wants it).
