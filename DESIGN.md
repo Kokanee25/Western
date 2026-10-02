@@ -604,6 +604,31 @@ knock out one stud and the wall shrugs it off.
   body count.)
 - Ownership: locks, keys, lockpicking, deeds, property.
 
+### Social interactions: "a round on me" (**decided**, Sean 2026-10-01)
+Small, everyday social acts that cost something real and that people react to as people. The first
+one is buying drinks.
+- **Money is real coins.** You carry a purse (dollars, bits, a few cents) you can count; prices are
+  1882's (a whiskey 15–25¢, "two bits" for the good stuff, a bottle about a dollar). No abstract
+  gold counter.
+- **Buying one man a drink:** say "let me buy you a drink" or push coins and a glass his way. It's a
+  deed with weight: it softens a wary man a rung, opens a conversation, and is remembered ("you
+  bought me a drink once"). It depends on the man: a proud one may say "I buy my own," a man with a
+  grudge won't take it, and a drunk takes it and forgets you by morning.
+- **"A round on me!"** Said loud in the saloon. The barkeep counts heads and pours (the price is real:
+  ten men at two bits is $2.50), and the room reacts: a cheer, glasses up, "to the stranger!", the
+  piano picks up, men drift to the bar. Everyone who drinks gets a small warm opinion of you, bigger
+  if they're broke or it's a hard day in town. The rumour spreads ("bought the whole house a round").
+- **You have to pay.** Coins leave your purse. Can't cover it? The barkeep's face drops, the room
+  laughs, and you run a tab (a debt in his ledger, remembered, collected) or get thrown out. Skip
+  out on a tab and that's theft.
+- **Context changes it:** after a killing the room is quiet, and a round reads as guilt or bribery;
+  the gang drinks your whiskey and still despises you; a widower doesn't toast. Rounds every night
+  get smaller cheers and mark you as a man with money (someone may try to take it).
+- **Drink is real:** each glass adds to drunkenness (aim sway, slurred speech in conversation,
+  courage, memory gaps), for you and for them. Drunk men talk more and fight sooner.
+- **More of the same kind, later:** tipping your hat, standing someone a meal, paying a man's fine,
+  lending money, a game of cards, a toast at a funeral, settling a debt in public.
+
 ### Recognition and disguise
 - **Witnesses store a description, not an identity flag:** face, build, clothes, hat, horse, gun, voice,
   scars, missing fingers, a limp. Wanted posters are built from those descriptions.
