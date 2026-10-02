@@ -13,10 +13,12 @@ For each material in tools/textures/materials.json with a raw painting:
      offsets across);
   3. a median over half a texel (the model's fine noise) and an area average down to 64 texels a
      metre (tools/textures/materials.json `texels_per_metre`): each texel the colour under it;
-  4. the mosaic: each texel's difference from its neighbours pushed up a little (`MOSAIC`), as
-     the painting's squares differ shade to shade; then the material's `lightness` and `chroma`
+  4. the material's `lightness` and `chroma` (`MOSAIC` is 1: no random push since the review)
      (scales on L* and on a*/b*, set from what tools/judge.py measures against the paintings);
-  5. its own palette (k-means in Lab, `colours`), every texel snapped to it.
+  5. its own palette (k-means in Lab, `colours`), every texel snapped to it;
+  6. board materials (`boards`): each board the painting drew is also cut out as its own strip,
+     assets/textures/<id>_b<k>.png (seamless along the grain, the tile's palette), so a wall's
+     members can each wear a different board (WoodMaterials; docs/ART_REVIEW.md §8.3).
 Writes assets/textures/<id>.png (one texel a tile, read nearest by PixelArt.material(); its
 .import is written too: lossless, mipmaps, never VRAM-compressed) and assets/textures/textures.json
 (size, metres, palette per material; a sign's width follows the board the model painted). Then a
@@ -36,9 +38,12 @@ SPEC = os.path.join(ROOT, "tools", "textures", "materials.json")
 RAW = os.path.join(ROOT, "assets", "textures", "raw")
 OUT = os.path.join(ROOT, "assets", "textures")
 # How much of the painting's own light is taken out (1 = all of it; the game lights it again).
-FLATTEN = 0.85
-# How far each texel's difference from its neighbours is pushed (the painting's mosaic).
-MOSAIC = 2.0
+# Low since docs/ART_REVIEW.md §3.2: the broad light and the per-board colour differences ARE the
+# detail the painting shows; only a vignette or a lit side should go.
+FLATTEN = 0.3
+# How far each texel's difference from its neighbours is pushed (1 = as painted: the review found
+# a push read as random static, and the judge no longer rewards it).
+MOSAIC = 1.0
 IMPORT = """[remap]
 
 importer="texture"
@@ -92,11 +97,10 @@ def flatten(a, amount=FLATTEN):
     return np.clip(a * gain[..., None], 0.0, 1.0)
 
 
-def wipe_joints(a):
-    """Boards' joints the model drew anyway (a member is one board): rows where most of the width
-    is a thin line darker than the rows a little above and below it (the gap between two boards,
-    with its lit bevel beside it) are filled from either side; then a median along the grain takes
-    out the short butt joints across it (the grain itself runs along it and survives)."""
+def find_seams(a):
+    """The rows where the painting drew a joint between two boards: a thin line across most of the
+    width, darker than the rows a little above and below it (the gap, with its lit bevel beside
+    it). Returns (seam rows, the look-past distance k)."""
     lum = a.mean(-1)
     h, w = lum.shape
     # Look past the gap itself (a few px wide) to the boards either side.
@@ -106,7 +110,15 @@ def wipe_joints(a):
     # Darker than both by a share of the wood's own brightness (a gap in dark wood is dark too).
     drop = 0.12 * np.median(lum) + 0.01
     line = ((lum < up - drop) & (lum < down - drop)).mean(1)
-    seams = [y for y in range(h) if line[y] > 0.4 and line[y] == line[max(0, y - k):y + k + 1].max()]
+    return [y for y in range(h) if line[y] > 0.4 and line[y] == line[max(0, y - k):y + k + 1].max()], k
+
+
+def wipe_joints(a):
+    """Boards' joints the model drew anyway (a member is one board): the seam rows (find_seams)
+    are filled from either side; then a median along the grain takes out the short butt joints
+    across it (the grain itself runs along it and survives)."""
+    h, w = a.shape[:2]
+    seams, k = find_seams(a)
     band = np.zeros(h, bool)
     for y in seams:
         # the gap and the lit bevel beside it
@@ -123,6 +135,33 @@ def wipe_joints(a):
             out[y] = a[ya] * (1 - t) + a[yb] * t
     out = median_filter(out, size=(1, max(3, w // 60), 1), mode="wrap")
     return out, int(band.sum() * 100 / h)
+
+
+def board_strips(a, rng):
+    """The painting's boards, one strip each (docs/ART_REVIEW.md §8.3: no two boards alike, no
+    2 m repeat across a wall): the bands between its seams, the joint rows trimmed off, each made
+    seamless along the grain only. Bands under 0.6 of the typical height (a sliver at the edge)
+    are dropped. Returns [(strip rgb, its share of the painting's height)]."""
+    h = a.shape[0]
+    seams, k = find_seams(a)
+    edges = [0] + [y for y in seams if k * 2 < y < h - k * 2] + [h]
+    bands = [(y0, y1) for y0, y1 in zip(edges, edges[1:]) if y1 - y0 > 4 * k]
+    if len(bands) < 2:
+        return []
+    typical = np.median([y1 - y0 for y0, y1 in bands])
+    out = []
+    for y0, y1 in bands:
+        if y1 - y0 < 0.6 * typical:
+            continue
+        trim = k * 2 if (y0 > 0 and y1 < h) else k
+        strip = a[y0 + (trim if y0 > 0 else 0):y1 - (trim if y1 < h else 0)]
+        if strip.shape[0] < 4:
+            continue
+        w = strip.shape[1]
+        rolled = np.roll(strip, w // 2, axis=1)
+        m = wavy_mask(w, strip.shape[0], rng, 1)[..., None]
+        out.append((strip * m + rolled * (1 - m), strip.shape[0] / h))
+    return out
 
 
 def wavy_mask(n, m, rng, axis):
@@ -203,14 +242,40 @@ def reduce(mid, spec, tpm):
     lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
     rgb = lab_to_rgb(lab)
     Image.fromarray(rgb).save(os.path.join(OUT, mid + ".png"))
-    imp = os.path.join(OUT, mid + ".png.import")
-    if not os.path.exists(imp):
-        with open(imp, "w") as f:
-            f.write(IMPORT)
-    print("%-20s %3dx%-3d texels  %d colours%s" % (mid, size[0], size[1], len(pal),
-          ("  (%d%% of rows were board joints)" % joints) if joints else ""))
-    return {"kind": kind, "metres": metres, "texels": list(size),
+    _import_file(os.path.join(OUT, mid + ".png.import"))
+    strips = 0
+    if spec.get("boards", False):
+        # Each board of the painting as its own strip (board_strips), snapped to the tile's palette
+        # so a wall of them and the tile match; WoodMaterials hands a member one by its ID.
+        flat_raw = flatten(np.asarray(crop_to(Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB"),
+                                             metres[0] / metres[1])).astype(np.float64) / 255.0, FLATTEN)
+        for k, (strip, share) in enumerate(board_strips(flat_raw, np.random.default_rng(sum(map(ord, mid)) + 7))):
+            ssize = (size[0], max(2, round(metres[1] * share * tpm)))
+            st = to_lab((to_texels(strip, ssize) * 255).astype(np.uint8))
+            st[..., 0] *= spec.get("lightness", 1.0)
+            st[..., 1:] *= spec.get("chroma", 1.0)
+            d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
+            st = pal[d.argmin(1)].reshape(st.shape)
+            Image.fromarray(lab_to_rgb(st)).save(os.path.join(OUT, "%s_b%d.png" % (mid, k)))
+            _import_file(os.path.join(OUT, "%s_b%d.png.import" % (mid, k)))
+            strips += 1
+        for k in range(strips, 16):
+            stale = os.path.join(OUT, "%s_b%d.png" % (mid, k))
+            if os.path.exists(stale):
+                os.remove(stale)
+                if os.path.exists(stale + ".import"):
+                    os.remove(stale + ".import")
+    print("%-20s %3dx%-3d texels  %d colours%s%s" % (mid, size[0], size[1], len(pal),
+          ("  (%d%% of rows were board joints)" % joints) if joints else "",
+          ("  %d board strips" % strips) if strips else ""))
+    return {"kind": kind, "metres": metres, "texels": list(size), "strips": strips,
             "palette": ["#%02x%02x%02x" % tuple(c) for c in lab_to_rgb(pal)]}, raw, rgb
+
+
+def _import_file(path):
+    if not os.path.exists(path):
+        with open(path, "w") as f:
+            f.write(IMPORT)
 
 
 def sheet(rows, path):

@@ -83,7 +83,9 @@ func test_the_street_buildings_stand_as_built() -> void:
 
 
 func test_untouched_members_are_drawn_together_until_something_happens_to_one() -> void:
-	check(store.batch_count() > 0 and store.batch_count() < 20,
+	# One mesh per material: a wood has up to seven board strips (WoodMaterials), so a store with
+	# four or five woods draws in ~20-25 meshes, not ~500.
+	check(store.batch_count() > 0 and store.batch_count() < 32,
 			"%d members in %d meshes" % [store.member_count(), store.batch_count()])
 	var post := store.get_member(&"store/porch/post0")
 	var own := post.get_child(0) as MeshInstance3D

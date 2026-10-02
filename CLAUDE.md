@@ -283,9 +283,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   crop of a painting for colour. `paint_textures.py` paints them on OpenRouter (FLUX.2 [max]; run
   it on Actions: People workflow, input `textures` = all / saloon / street / ids; openrouter.ai is
   blocked from the workspace) into `assets/textures/raw/<id>.jpg`; `reduce.py` (runs anywhere)
-  flattens the painting's light, wipes board joints (`boards`), makes it seamless, cuts it to 32
-  texels a metre (`texels_per_metre`) with a pushed mosaic, applies the judge's `lightness`/`chroma`, snaps to a palette
-  → `assets/textures/<id>.png` + `textures.json`. `PixelArt.factory(key)` hands them out in place
+  flattens the painting's light part way (`FLATTEN` 0.3: its lit side and each board's own colour
+  are kept, docs/ART_REVIEW.md §8.3), wipes board joints (`boards`), makes it seamless, cuts it to
+  32 texels a metre (`texels_per_metre`) with no pushed mosaic (`MOSAIC` 1.0), applies the judge's
+  `lightness`/`chroma`, snaps to a palette (28 colours a material, the road 32)
+  → `assets/textures/<id>.png` + `textures.json`; and for `boards` materials cuts **each board the
+  painting drew out as its own strip** (`board_strips`: the bands between its seams, seamless along
+  the grain, the tile's palette) → `<id>_b<k>.png`; `WoodMaterials.get_material()` gives every
+  member one strip by its ID (`strip_count`), so no two boards on a wall are alike and nothing
+  repeats every 2 m (`docs/screenshots/textures/board_strips.png`); woods with no strips keep the
+  tinted, shifted tile. `PixelArt.factory(key)` hands them out in place
   of the code-painted texture of that key (`use_factory` off = the old ones); the grid material
   sizes any texture by its own size; the ground shader takes `road`. Change a material's numbers
   and re-run `reduce.py` here: no new painting needed.
@@ -1573,3 +1580,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   gameplay's `config/day_cycle.tres` (the sky gradient, lighting lines).
   - Not done: a painted cloud layer on a dome (image model on Actions, or Blockade once its key
     is in: a `backdrop: sky` input is the natural place); the backdrop's panel seams still show.
+- 2026-10-02 (art session, later): **§10.5: the factory's reducer v2 and per-board strips**
+  (docs/ART_REVIEW.md §8.3). The reducer kept flattening the paintings to one even board and
+  pushing a mosaic into them (the review's root cause 3: grain as noise): now `FLATTEN` 0.3 keeps
+  the painted light and each board's own colour, `MOSAIC` 1.0 pushes nothing, 28 colours a
+  material (the road 32; was 16–20), all 15 materials and the signs re-cut from the same paintings
+  (`docs/screenshots/textures/reducer_v2.png`, judge round `_r33`: saloon 0.220, street 0.361).
+  Then the boards: the paintings already draw six or seven boards each, so `reduce.py` cuts every
+  one out as its own strip (`board_strips`, 40 strips over seven woods) and `WoodMaterials` hands
+  each member one by its ID with its own start along the grain (the old tint-and-shift variants
+  stay for woods without strips: framing, dark trim, stone). A wall is now a stack of different
+  boards, as the paintings' are (`board_strips.png`). Judge round `_r34`: saloon 0.218, street
+  0.346 (from 0.361). No new paintings needed (nothing ran on Actions). Gameplay's
+  `tests/test_loads.gd` touched (one line): a structure batches one mesh per material, and a wood
+  now has up to seven, so the store's limit is 32 meshes (was 20; it draws in 22). 279 tests pass.
+  - Known: a strip is one board high at 32 texels/m (6–7 texels), so a wide member (a door, a
+    tabletop) shows it repeated in rows; the sign boards' lettering still sits on the old-style
+    tile (`SignArt`); the saloon wall's strips are dark on dark (the painting's).

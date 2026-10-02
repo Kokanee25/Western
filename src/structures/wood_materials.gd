@@ -1,7 +1,9 @@
 class_name WoodMaterials
 ## Shared materials for structure members: pixel-art textures (PixelArt) on the texel grid
-## (PixelArt.material(): nearest filtering at PixelArt.texels_per_meter, texel lighting). Each member picks a tint/offset variant from a hash of
-## its ID, so every board reads as its own piece of timber, and the same board always looks the same.
+## (PixelArt.material(): nearest filtering at PixelArt.texels_per_meter, texel lighting). Each member
+## picks a variant from a hash of its ID, so every board reads as its own piece of timber, and the
+## same board always looks the same: one of the texture factory's board strips where it cut them
+## (each board the image model painted, docs/ART_REVIEW.md §8.3), else a tint/offset of the tile.
 
 const PALETTES := {
 	&"weathered_pine": [Color(0.56, 0.48, 0.39), Color(0.5, 0.43, 0.35), Color(0.61, 0.53, 0.43), Color(0.47, 0.41, 0.34), Color(0.53, 0.47, 0.4)],
@@ -19,13 +21,40 @@ static var _glass: StandardMaterial3D
 static var _water: StandardMaterial3D
 
 
+static var _strips := {}
+
+
+## How many strips the texture factory cut for this wood (assets/textures/<wood>_b<k>.png: each
+## board the image model painted, its own texture), 0 when there are none.
+static func strip_count(wood: StringName) -> int:
+	if not _strips.has(wood):
+		var n := 0
+		while PixelArt.factory("%s_b%d" % [wood, n]) != null and n < 16:
+			n += 1
+		_strips[wood] = n
+	return _strips[wood]
+
+
 static func variant_count(wood: StringName) -> int:
-	return PALETTES.get(wood, [Color.WHITE]).size()
+	var strips := strip_count(wood)
+	return strips if strips > 0 else PALETTES.get(wood, [Color.WHITE]).size()
 
 
 static func get_material(wood: StringName, variant: int) -> Material:
 	if wood == &"glass":
 		return glass()
+	var strips := strip_count(wood)
+	if strips > 0:
+		# One of the painting's own boards, as painted (its colour is its own), starting at its
+		# own point along the grain; never shifted across (a strip is one board high).
+		var i := posmod(variant, strips)
+		var key := "%s:strip%d" % [wood, i]
+		if not _cache.has(key):
+			var rng := RandomNumberGenerator.new()
+			rng.seed = hash(key)
+			_cache[key] = PixelArt.material(PixelArt.factory("%s_b%d" % [wood, i]), Color.WHITE, PixelArt.Mapping.UV,
+					Vector3(rng.randf(), 0.0, 0.0))
+		return _cache[key]
 	var palette: Array = PALETTES.get(wood, [Color(0.5, 0.45, 0.4)])
 	var i := posmod(variant, palette.size())
 	var key := "%s:%d" % [wood, i]
