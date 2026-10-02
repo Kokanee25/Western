@@ -49,8 +49,11 @@ void vertex() {
 }
 
 void fragment() {
-	// Snap to the texel grid so the ground reads as pixel art up close.
-	vec2 p = (floor(world_pos.xz * texels_per_meter) + 0.5) / texels_per_meter;
+	// Snap to the texel grid so the ground reads as pixel art up close; far off, to tiles of a few
+	// texels, never smaller than min_square_px on screen (tiles.gdshaderinc).
+	vec2 t = world_pos.xz * texels_per_meter;
+	float b = tile_square(t);
+	vec2 p = (floor(t / b) + 0.5) * b / texels_per_meter;
 	float n = fbm(p * 0.3);
 	float fine = hash(floor(p * texels_per_meter));
 	float dz = abs(p.y - road_center_z);
@@ -59,7 +62,7 @@ void fragment() {
 	vec3 dirt = dirt_color;
 	if (use_road_tex) {
 		// Texel by texel from the factory's road, its repeats broken up by the broad noise below.
-		dirt = texture(road_tex, p * texels_per_meter / vec2(textureSize(road_tex, 0))).rgb;
+		dirt = textureLod(road_tex, p * texels_per_meter / vec2(textureSize(road_tex, 0)), 0.0).rgb;
 	}
 	vec3 col = mix(wild, dirt, road) * (use_road_tex ? mix(0.82 + 0.36 * n, 0.9 + 0.2 * n, road) : 0.82 + 0.36 * n);
 	// Wagon ruts, as the painting has them: three wagon tracks down the street (the middle one
@@ -98,6 +101,5 @@ void fragment() {
 	col = floor(col * 24.0 + 0.5) / 24.0;
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
-	vec2 t = world_pos.xz * texels_per_meter;
-	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, tile_centre(t)));
+	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, b > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t)));
 }

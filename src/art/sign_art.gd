@@ -80,6 +80,8 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 	m.set_shader_parameter(&"roughness", 0.9)
 	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
 	m.set_shader_parameter(&"use_mipmaps", true)
+	# The lettering stays as painted however far off (no bigger far squares).
+	m.set_shader_parameter(&"fixed_squares", true)
 	_textures[key] = m
 	return m
 

@@ -14,6 +14,12 @@
 
 global uniform float tile_light;
 global uniform float tile_ragged;
+// The smallest a tile may get on screen, in render pixels (0: no limit, tiles shrink with distance
+// as they are). Where a texel would be smaller, tiles of 2, 4, 8... texels are drawn instead, each
+// one colour and lit as one: the far half of the street stays chunky, as the painting's does
+// (texel_grid reads the texture's mip of that size at the tile's centre; the ground snaps to it).
+// Settings.min_square sets it.
+global uniform float min_square_px;
 
 float tile_hash(vec2 p) {
 	vec3 q = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
@@ -46,6 +52,19 @@ vec2 tile_centre(vec2 t) {
 		}
 	}
 	return best;
+}
+
+// How many texels a side the tiles here are (1, 2, 4...): enough that one is min_square_px across
+// on screen, from how many texels a screen pixel covers (by area, so a surface seen at an angle
+// isn't taken by its squashed side alone). `t`: the fragment's texel-space position.
+float tile_square(vec2 t) {
+	if (min_square_px <= 0.0) {
+		return 1.0;
+	}
+	vec2 tx = dFdx(t);
+	vec2 ty = dFdy(t);
+	float per_px = sqrt(max(abs(tx.x * ty.y - ty.x * tx.y), 1e-12));
+	return exp2(clamp(ceil(log2(min_square_px * per_px)), 0.0, 6.0));
 }
 
 // Screen pixels from this fragment to the texel-space point `target`, `t` being the fragment's own
