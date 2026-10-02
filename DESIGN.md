@@ -256,6 +256,27 @@ clock, factions working their plans, and the player always holding a few live le
   who wears the badge, what's still standing, what people think of you. Told as the newspaper's
   front page and the town's reactions on day 30, plus a walk through the town afterwards.
 
+### Reasons to fight (**proposed**, 2026-10-01)
+The gunfight and the bodies are the deepest systems we have, so the 30 days must bring regular,
+varied reasons to use them, without turning the town into a shooting gallery. Every fight should
+come out of the story or the world, and most standoffs should have a way out that isn't shooting.
+- **The factions bring fights to you.** Their plans include violence on a schedule: the gang
+  burning out the widow (defend her at night, or arrive to the ashes), night riders at your own
+  spring, the stage robbed on the road, the land money hit in town, a jailbreak, the baron's hands
+  running off homesteaders, claim jumpers, and the act-three showdown.
+- **Work that pays in lead:** bounties from the wanted posters (alive pays more, so arrests are
+  rewarded over killing), guarding the stage or the money shipment, riding with a posse, clearing
+  the gang's hideout or the mine.
+- **The street:** call-outs and duels (built), drunks who draw, bar fights that escalate, men you
+  wronged coming back, bounty hunters after you if you're wanted.
+- **Animals:** wolves or a cougar at your stock, a rabid dog in the street, hunting for meat and
+  hides. Shooting with no moral weight, real ballistics and drop.
+- **Shooting for sport:** a turkey shoot or a Fourth of July match at range with money on it. Shows
+  off drop, sway and the guns' feel with nothing at stake but pride and a purse.
+- **Pacing:** the drama manager aims for something tense most days and a real fight every day or
+  two, more in act three; quiet days are for people. Standoffs that end without a shot count as
+  much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
+
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
 vaqueros. They belong in the game as real people with their own lives and perspectives, written with
