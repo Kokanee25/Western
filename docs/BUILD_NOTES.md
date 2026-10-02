@@ -21,7 +21,11 @@ same body.
   73 ms, max 390 → 100 ms**. What's left of them is a building working out its loads (next).
 - **A burning building works out its loads half again as fast** (same answers, checked member by
   member). Worst frames here: **p99 73 → 53 ms, max 100 → 70 ms**; average 11.6 → 10.8 ms.
-- Still to come: the drawing (people and props, which is most of the calm street's cost).
+- **People take a quarter of the draw calls they did.** Each person's skin and clothes were drawn a
+  body part at a time (about 55 pieces each); now each garment is one piece until he's opened up
+  or loses a limb. He looks exactly the same (checked pixel by pixel). The calm street went from
+  **8,186 draw calls to 6,129**.
+- Still to come: props, lamps and dressing drawn together; the sun's shadow; fingers.
 - Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
   **L** on a wall. Tell me the fps before you light it and while it burns.
 
