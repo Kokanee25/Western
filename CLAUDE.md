@@ -369,12 +369,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   in the shader each layer's haze is scaled by the scene's fog density (`haze_scale`) → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
   the right as you look out (`Backdrop.direction()`: 270 is west, down the street).
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
-  input `characters`): `paint_full_length.py` has the image model paint each man in
-  `characters.json` full length in an A-pose (the painting's man as reference) →
-  `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
-  then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
-  `.gdignore`d (pipeline inputs, not game assets). Needs the repo
-  secret `TRIPO_API_KEY`; the client ran against the live API on 2026-10-02 (People run 17).
+  input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
+  in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal
+  route** (the default with `FAL_KEY` and the style LoRA; `--via=openrouter` is the first route,
+  FLUX.2 [max] with the painting's man as reference): FLUX Kontext with the LoRA (`FAL_EDITOR`,
+  default `fal-ai/flux-kontext-lora`, `SCALE` 0.25: at 0.5 it painted the coat in blocks) redraws
+  him from the full-length painting there (its mosaic smoothed away first, `smoothed()`) or
+  the concept painting's man (`--from=painting`, or a new man), then his left side, back and
+  right side from that front → `assets/people/tripo/<id>_full.png`, `<id>_left/_back/_right.png`
+  and `<id>_turn.png` (the four in a row); `--dry-run` runs it on a stand-in editor. `tripo.py`
+  uploads the four as Tripo's multi-view input (`multiview_to_model`, front/left/back/right; the
+  front alone is `image_to_model`) and asks for a textured model, then a rigged one → `<id>.glb`
+  (+ `_mesh.glb`, every answer in `_tripo.json`, which starts with a hash of each picture: a
+  model is made again when its pictures change, or with `--again`); the folder is `.gdignore`d
+  (pipeline inputs, not game assets). People workflow: `style: characters` paints only (look
+  before Tripo is paid); `characters: <ids>` paints then runs Tripo (`repaint` repaints and
+  models again). Needs the repo secrets `FAL_KEY` and `TRIPO_API_KEY`; the client ran against the
+  live API on 2026-10-02 (People run 17).
   `tools/tripo_lab.gd --out=DIR [--id= --yaw= --fill= --height=]` loads a Tripo glb at run time
   (GLTFDocument: the folder is unimported), stands him where the painting's man sits in the
   character lab's light and writes the shot view, four orbit views and a contact sheet
@@ -1768,6 +1779,28 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   worst frames: `Structure.settle()` (StructuralAnalysis), ~29 ms a call on average, up to 73
   (126 calls in 35 s of fire); `_update_fx` ~11 ms every 0.5 s; grid ~14 ms every 2 s. 279 pass.
   - Next: settle only on change / cheaper analysis.
+- 2026-10-02 (art session, later): **§10.9, round 2: the man painted clean on fal, Tripo from four
+  views.** Sean: "Alright!" to using the LoRA for the full-length man and the turnarounds.
+  `paint_full_length.py`'s fal route (above): FLUX Kontext with the style LoRA redraws him from
+  the first full-length painting with its mosaic smoothed away, then paints his left, back and
+  right from that front (People runs 20 and 21, four edits each, ~$0.15; `fal-ai/flux-kontext-lora`
+  answered first time). At LoRA scale 0.5 (run 20) the coat's front came back in check blocks
+  while the back was plain wool; at 0.25 (run 21, kept) he's smooth all round, the same man in
+  every view, the hat's studs and the vest's pattern softer than the first painting's
+  (`docs/screenshots/tripo/stranger_turn_run20_scale050.png`, `_run21_scale025.png`). Tripo's
+  `multiview_to_model` (run 22, model v2.5) took the four and `animate_rig` rigged it: 348k
+  triangles, 16 MB (half of run 17's), his back and sides as drawn (hair on the collar, a plain
+  coat), no mosaic baked into his clothes, textures lighter and evener; the face a smooth
+  portrait (`stranger_lab.png`; run 17's is `stranger_lab_run17.png`). `tripo.py` keeps a hash of
+  each picture in `<id>_tripo.json` and models again when they change. People workflow: `style:
+  characters` paints only; `characters:` paints then Tripo. 279 tests pass.
+  - Known: still the A-pose through the table (no Blender fit yet); his face is a little
+    doll-like (round cheeks, small eyes: Kontext's redraw softened the first painting's face;
+    a head-sheet pass or `--from=painting` for the face would sharpen it); the LoRA's part at
+    0.25 is modest (period detail, palette); the model's textures still carry baked light.
+  - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
+    segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
+    hands), de-light and reduce his textures through the factory's reducer, the seat pose.
 - 2026-10-02 (gameplay, later): **Performance pass, part 3: the load check.** `StructuralAnalysis`
   costs ~44 µs a member (the street's ~6.1k members: 270 ms a full pass, the saloon 54 ms), and a
   burning building runs one a second. Ablation of its parts: handing each support's reaction back
