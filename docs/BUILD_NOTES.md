@@ -5,6 +5,21 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### Faster: fire (performance pass, part 1)
+
+- **A burning town costs a third less.** Measured with the new bench (`tools/perf_bench.gd`: the
+  street with everyone in, then two sticks of dynamite and three buildings alight) on the cloud
+  workspace's 2.1 GHz core, simulation only: the frame after the fire took hold went from **17.4 ms
+  on average (p99 307 ms) to 11.5 ms (p99 163 ms)**. The fire behaves exactly as before (checked
+  member by member over a minute of burning).
+- The fire was heating boards that were already alight (about 9 in 10 of the work in a burning
+  building) and measuring every burning board against every person, every tick. Also fixed: a script
+  error printed for every board that burnt away near someone.
+- Still to come: the hitch every quarter second while a building burns (next), the building's
+  load check, then the drawing (people and props, which is most of the calm street's cost).
+- Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
+  **L** on a wall. Tell me the fps before you light it and while it burns.
+
 ### New: full sim: the real loads, and air that behaves like air
 
 - **The guns fire what they'd have fired in 1882.** The Colt (a 7½" Cavalry model) shoots the

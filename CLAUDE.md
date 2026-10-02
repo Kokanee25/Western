@@ -1712,3 +1712,29 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     reduce his textures through the factory's reducer, our hands; then the paint bake's squares
     or the hybrid finish on him, and the seat pose. No Blender in this workspace: the fit runs on
     Actions (People workflow) like `make_people.py`.
+- 2026-10-02 (gameplay): **Performance pass, part 1: measured, then fire.** Sean: CPU-bound on one
+  core (cloud PC, 3.25 GHz). `tools/perf_bench.gd` (main scene, gang in, player at (11,0,−9) looking
+  down the street): scene `calm`, and `fire` (two 0.2 kg blasts, 4 members lit in each of three
+  buildings, three shots); wall-clock avg/p99/max, a census, and ablation (each system's process or
+  physics off for 5 s vs a fresh baseline); `--render` under xvfb adds draw calls/objects;
+  `--quick` 8 s, `--no-ablate`, `--out=json`. Godot's TIME_PROCESS/PHYSICS monitors read nonsense
+  headless (unpaced loop), so the bench doesn't use them. **Before** (2.1 GHz Xeon, headless): calm
+  4.8 ms avg, p99 9.5; fire 17.4 ms, p99 307, max 520. Census: 14 people, 6,131 members, 10.2k meshes
+  (3.7k visible), 6.6k static bodies, 58 lights (20 shadowed), ~25k nodes. Draws (opengl3 under
+  xvfb, counts only; this container has no Vulkan): **calm 8,212 draw calls**, 9.9k objects in
+  frame, 1.27M primitives; hiding the people saves 4.2k draws, props/lamps/dressing 4.0k, the sun's
+  shadow 5.6k (its cascades re-draw everything), lamp shadows 0.35k. Ablation, calm: HumanBody
+  physics 1.55 ms, Senses 0.51, Player 0.45, debug overlay 0.35, DayCycle 0.32, rest < 0.1. Fire:
+  FireSystem ~38 ms of every frame on average. **Top five:** 1) draw calls: the sun's shadow
+  cascades over everything; 2) people, ~95 draws each; 3) props/lamps/dressing; 4) FireSystem;
+  5) HumanBody physiology/pose. **Fix 1, fire:** a burning member no longer heats neighbours already
+  burning or burnt away (their temperature isn't read beyond ≥650 °C or saved; pruned from its
+  cached list, since neither goes back): pair visits per tick ~66k → a few thousand; scorching
+  measures each burning member's box once a tick (not once per person) with a native AABB reject;
+  `StructureMember.world_aabb()` and FireFX check a piece is valid before casting (a burnt-away
+  piece spammed "Trying to cast a freed object"). Same result: every live member's state identical
+  after 240 ticks on the street, old vs new. **After:** fire 11.5 ms avg, p99 163 (calm unchanged).
+  279 tests pass.
+  - Next: spread the fire tick over the frames between ticks (the p99 is one 80 ms tick), settle
+    (StructuralAnalysis) only on change, then the draws (sun shadow distance/cascades, people
+    merged into a few skinned meshes, props batched), the F3 split and a CI budget.

@@ -112,10 +112,20 @@ func step(dt: float) -> void:
 			var intensity := clampf(m.burn_time / tuning.growth_seconds, 0.15, 1.0)
 			m.temperature = maxf(m.temperature, 650.0)
 			m.char_depth += tuning.char_rate * dt
-			for pair: Array in _neighbours(m):
+			var near := _neighbours(m)
+			var dropped := false
+			for pair: Array in near:
 				var o: StructureMember = pair[0]
-				if is_instance_valid(o) and not o.consumed:
-					_heat(o, float(pair[1]) * intensity * dt)
+				# Burning or burnt away, heat makes no more difference to it (and neither ever goes
+				# back): left out from here on, as most of a burning building's neighbours are.
+				if not is_instance_valid(o) or o.consumed or o.burning:
+					dropped = true
+					continue
+				_heat(o, float(pair[1]) * intensity * dt)
+			if dropped:
+				_near[m] = near.filter(func(pair: Array) -> bool:
+						var o: StructureMember = pair[0]
+						return is_instance_valid(o) and not o.consumed and not o.burning)
 			if m.thickness() <= tuning.ash_thickness:
 				_consume(m)
 				gone.append(m)
@@ -152,15 +162,22 @@ func _scorch_people(dt: float) -> void:
 	if burning.is_empty() and spills.is_empty():
 		return
 	var people := get_tree().get_nodes_in_group(&"people") + get_tree().get_nodes_in_group(&"player")
+	# Each burning member's box once, not once per person.
+	var boxes: Array[AABB] = []
+	for m in burning:
+		boxes.append(m.world_aabb())
 	for p: Node in people:
 		if not p is Node3D:
 			continue
 		var body := AABB((p as Node3D).global_position + Vector3(-0.25, 0.0, -0.25), Vector3(0.5, 1.8, 0.5))
+		var reach := body.grow(tuning.scorch_reach)
 		var heat := 0.0
-		for m in burning:
-			var gap := _gap(body, m.world_aabb())
+		for i in burning.size():
+			if not reach.intersects(boxes[i]):
+				continue  # further than scorch_reach on some axis
+			var gap := _gap(body, boxes[i])
 			if gap < tuning.scorch_reach:
-				heat += (1.0 - gap / tuning.scorch_reach) * clampf(m.burn_time / tuning.growth_seconds, 0.2, 1.0)
+				heat += (1.0 - gap / tuning.scorch_reach) * clampf(burning[i].burn_time / tuning.growth_seconds, 0.2, 1.0)
 		for sp in spills:
 			var gap := _gap(body, AABB(sp.position - Vector3(sp.radius, 0.0, sp.radius), Vector3(sp.radius * 2.0, 0.5, sp.radius * 2.0)))
 			if gap < tuning.scorch_reach:
