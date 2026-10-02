@@ -13,8 +13,8 @@ const HOUR := 17.6
 ## Fitted by eye to the painting (2026-10-02): the street's vanishing point ~55% across and a
 ## little below the middle, the saloon's porch and big board down the left, the livery's front at
 ## the right edge.
-const FEET := Vector3(3.0, 0.0, -7.4)
-const LOOK := Vector3(-46.1, 5.6, -2.2)
+const FEET := Vector3(3.0, 0.0, -6.0)
+const LOOK := Vector3(-46.1, 5.8, -1.4)
 ## The painting's lens: about 62° top to bottom (the game's own is 75°).
 const FOV := 62.0
 ## Eye height above the feet (the player's camera stands 1.6 m up).
