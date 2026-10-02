@@ -104,6 +104,23 @@ func test_the_townsfolk_mind_their_posts() -> void:
 	check_eq(_keeper().mood, CivilianBrain.Mood.CALM, "calm")
 
 
+func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_a_shot() -> void:
+	# StreetDressing's stand-in townsfolk: at their posts, the bench pair sitting, and like any
+	# civilian they get their heads down when shooting starts near them.
+	await physics_frames(60)
+	var dressing := street.get_node(^"StreetDressing")
+	for f: Array in StreetDressing.FOLK:
+		var man := dressing.get_node(NodePath(f[0])) as HumanBody
+		check(man != null and man.held_gun == null, "%s is there, unarmed" % f[0])
+		check(man.global_position.distance_to(f[1]) < 0.4, "%s at his post" % f[0])
+		check_eq(man.pose, f[3], "%s takes his ease" % f[0])
+	var bench := dressing.get_node(^"BenchManA") as HumanBody
+	# A shot fired in the street in front of the saloon.
+	Events.noise.emit(Vector3(-5.2, 1.4, -6.0), 350.0, &"gunshot", player)
+	await physics_frames(20)
+	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
+
+
 func test_the_gang_rides_in_and_drinks() -> void:
 	town.drink_seconds = 60.0
 	town.bring_gang()
