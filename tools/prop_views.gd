@@ -2,6 +2,7 @@ extends SceneTree
 ## Renders every prop in assets/props/manifest.json (PropLibrary: the .glb, else PropModels' code
 ## model) in a row on a plain floor in warm lamplight, for checking their shapes:
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/prop_views.gd -- out.png [--close]
+## --street shows the street's code models instead (horse, hay bale, crate) in daylight.
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -42,7 +43,22 @@ func _run() -> void:
 	wall.position = Vector3(4.0, 1.5, -0.75)
 	w.add_child(wall)
 	var x := 0.0
-	for id in PropLibrary.ids():
+	var ids: Array = PropLibrary.ids()
+	if args.has("--street"):
+		sun.light_energy = 1.4
+		env.environment.ambient_light_color = Color(0.5, 0.52, 0.6)
+		ids = []
+		env.environment.ambient_light_color = Color(0.7, 0.7, 0.78)
+		for item in [["Horse", PropModels.horse, 2.6, -40.0], ["Horse2", PropModels.horse, 2.6, 10.0], ["Horse3", PropModels.horse, 1.2, -100.0],
+				["Hay", PropModels.hay_bale, 1.0, 25.0], ["Crate", PropModels.crate, 0.7, 20.0]]:
+			var n := Node3D.new()
+			n.name = item[0]
+			w.add_child(n)
+			(item[1] as Callable).call(n)
+			n.position = Vector3(x + item[2] * 0.5, 0.0, 0.0)
+			n.rotation_degrees.y = item[3]
+			x += item[2] + 0.4
+	for id in ids:
 		var prop := PropLibrary.spawn(StringName(id))
 		w.add_child(prop)
 		var size := PropLibrary.size_of(StringName(id))

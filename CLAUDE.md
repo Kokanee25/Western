@@ -304,9 +304,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   of the code-painted texture of that key (`use_factory` off = the old ones); the grid material
   sizes any texture by its own size; the ground shader takes `road`. Change a material's numbers
   and re-run `reduce.py` here: no new painting needed.
-- `src/props/prop_models.gd` (`PropModels`): every manifest prop modelled in code (lathe + boxes,
-  UVs in metres, on `PixelArt.material()`); `PropLibrary` uses them where there's no .glb;
-  `OilLamp` draws `PropModels.lamp()`. `tools/prop_views.gd out.png [--close]` shows them all.
+- `src/props/prop_models.gd` (`PropModels`): every manifest prop modelled in code (lathe, loft +
+  boxes, UVs in metres, on `PixelArt.material()`); `PropLibrary` uses them where there's no .glb;
+  `OilLamp` draws `PropModels.lamp()`. `loft(rings)` skins rings of points (flat-shaded quads,
+  `_ring` ellipses tilted square to a path, `_arc` a part of one, `_limb` a tapered bar between
+  two points): the **horse** (docs/ART_REVIEW.md §3.5: a lofted body, an arched neck and long
+  head on tilted rings, a mane, tail, legs with knees and hocks, a blanket and stock saddle on
+  arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
+  twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
+  `--street` the street's code models (horse from three sides, hay, crate).
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
   stair and balcony (members), tall mirrors (a `ReflectionProbe` the room's size gives them
   something to show), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
@@ -1648,3 +1654,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     brown under one light (the review's "one strong warm key and a dim cool fill" is the shot's
     lighting, not done); the code-painted faces are cruder than his (image-model portraits per
     man would be the People workflow's `only` input, one call each); hats are one shape.
+- 2026-10-02 (art session, later): **§10.8: props with form, in code.** No image-to-3D key and no
+  Blender in this workspace, so the two big placeholders in the street shot are modelled in code
+  on a new `PropModels.loft()` (above): the horse (the painting's horses have form; ours were
+  boxes) and the hay bale. Two traps on the way: a ring's tilt must be square to the path (the
+  neck's rings leaned the wrong way and drew as a blade), and `_arc` spans are radians (the first
+  blanket was a strip). Judge round `_r50`: street 0.323 → 0.319 (the horses are a small share of
+  the frame; by eye they read as horses now). Figure `docs/screenshots/props/horse_hay.png`.
+  279 tests pass.
+  - Known: the mane is a plain dark fin; no reins to the rail; one horse colour (a bay: a
+    `variant` for a grey and a chestnut is a few lines); the stag, chairs, barrels and bottles
+    were already shaped (hoops, labels, spindles, antlers) and are left; image-to-3D props wait
+    on a key (`MESHY_API_KEY` or `TRIPO_API_KEY`).

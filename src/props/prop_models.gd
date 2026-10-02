@@ -195,6 +195,91 @@ static func disc(radius: float, segments: int, y: float, up := true) -> ArrayMes
 	return mesh
 
 
+## A skin lofted through rings of points (each the same count, in order round the same way): a
+## quad between neighbours, flat-shaded (low-poly: the facets are the form). UVs in metres: u
+## along the loft, v round it. `closed_ends` caps the first and last ring with a fan.
+static func loft(rings: Array, closed_ends := true) -> ArrayMesh:
+	var key := "loft:%s:%s" % [rings, closed_ends]
+	if _meshes.has(key):
+		return _meshes[key]
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n: int = (rings[0] as PackedVector3Array).size()
+	var along := 0.0
+	var centres: Array[Vector3] = []
+	for ring: PackedVector3Array in rings:
+		var c := Vector3.ZERO
+		for v in ring:
+			c += v
+		centres.append(c / n)
+	var tris: Array = []
+	for i in rings.size() - 1:
+		var a: PackedVector3Array = rings[i]
+		var b: PackedVector3Array = rings[i + 1]
+		var step := centres[i].distance_to(centres[i + 1])
+		var around_a := 0.0
+		var around_b := 0.0
+		for k in n:
+			var k1 := (k + 1) % n
+			var da := a[k].distance_to(a[k1])
+			var db := b[k].distance_to(b[k1])
+			var quad := [[a[k], Vector2(along, around_a)], [a[k1], Vector2(along, around_a + da)],
+					[b[k1], Vector2(along + step, around_b + db)], [b[k], Vector2(along + step, around_b)]]
+			var outward: Vector3 = (a[k] + a[k1] + b[k] + b[k1]) * 0.25 - (centres[i] + centres[i + 1]) * 0.5
+			tris.append([quad[0], quad[1], quad[2], outward])
+			tris.append([quad[0], quad[2], quad[3], outward])
+			around_a += da
+			around_b += db
+		along += step
+	if closed_ends:
+		for end in [0, rings.size() - 1]:
+			var ring: PackedVector3Array = rings[end]
+			var c := centres[end]
+			var outward := c - centres[1 if end == 0 else end - 1]
+			for k in n:
+				tris.append([[c, Vector2(0, 0)], [ring[k], Vector2(0, 0.1)], [ring[(k + 1) % n], Vector2(0.1, 0.1)], outward])
+	for t in tris:
+		var v0: Vector3 = t[0][0]
+		var v1: Vector3 = t[1][0]
+		var v2: Vector3 = t[2][0]
+		var face := (v1 - v0).cross(v2 - v0)
+		if face.length_squared() < 1e-14:
+			continue
+		var order := [0, 1, 2]
+		# Godot's front faces wind clockwise as seen: the right-hand normal points away.
+		if face.dot(t[3]) > 0.0:
+			order = [0, 2, 1]
+			face = -face
+		var nrm := face.normalized()
+		for k in order:
+			st.set_normal(nrm)
+			st.set_uv(t[k][1])
+			st.add_vertex(t[k][0])
+	var mesh := st.commit()
+	_meshes[key] = mesh
+	return mesh
+
+
+## An ellipse of `segments` points round `centre`, half-widths `rz` (across, z) and `ry` (up),
+## in the plane across x (a body's cross-section), tilted `lean` radians about z.
+static func _ring(centre: Vector3, rz: float, ry: float, segments := 12, lean := 0.0) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	var b := Basis(Vector3.BACK, lean)
+	for k in segments:
+		var t := TAU * k / segments
+		out.append(centre + b * Vector3(0.0, sin(t) * ry, cos(t) * rz))
+	return out
+
+
+## A limb segment: a tapered round bar from `a` (radius r0) to `b` (radius r1).
+static func _limb(parent: Node3D, name: String, a: Vector3, b: Vector3, r0: float, r1: float, mat: Material, segments := 8) -> MeshInstance3D:
+	var d := b - a
+	var basis := Basis.looking_at(d, Vector3.FORWARD if absf(d.normalized().y) > 0.99 else Vector3.UP)
+	# The lathe runs up Y; looking_at points -Z along d: turn Y onto -Z.
+	basis = basis * Basis(Vector3.RIGHT, -PI * 0.5)
+	return _add(parent, name, lathe(_profile([[r0, 0.0], [r1, d.length()]]), segments), mat, Transform3D(basis, a))
+
+
 static func _add(parent: Node3D, name: String, mesh: Mesh, mat: Material, xf := Transform3D.IDENTITY) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	mi.name = name
@@ -508,10 +593,43 @@ static func crate(root: Node3D, s := 0.6) -> void:
 
 ## A hay bale, 0.9 x 0.45 x 0.5 m, tied twice round.
 static func hay_bale(root: Node3D) -> void:
-	_box(root, "Hay", Vector3(0.9, 0.45, 0.5), Vector3(0, 0.225, 0), straw())
+	# A bulging block of straw with rounded ends: rounded-rectangle rings along x.
+	var rings := []
+	var profile := [[-0.45, 0.17, 0.2], [-0.42, 0.21, 0.24], [-0.3, 0.23, 0.26], [-0.1, 0.235, 0.265], [0.1, 0.235, 0.265],
+			[0.3, 0.23, 0.26], [0.42, 0.21, 0.24], [0.45, 0.17, 0.2]]
+	for q in profile:
+		var ring := PackedVector3Array()
+		for k in 12:
+			var t := TAU * k / 12.0
+			var c := cos(t)
+			var sn := sin(t)
+			# Pushed out toward the corners: a rounded square, not a cylinder.
+			var r := lerpf(1.0, 1.0 / maxf(absf(c), absf(sn)), 0.75)
+			ring.append(Vector3(q[0], 0.225 + sn * q[1] * r * 0.92, c * q[2] * r * 0.92))
+		rings.append(ring)
+	_add(root, "Hay", loft(rings), straw())
+	# Two twine ties sunk into it, and loose straws poking out of the ends.
 	var twine := _mat("twine", PixelArt.dirt("prop_twine", Color(0.4, 0.3, 0.18), 249))
 	for x in [-0.22, 0.22]:
-		_box(root, "Twine", Vector3(0.02, 0.46, 0.51), Vector3(x, 0.225, 0), twine)
+		# A band round the bale, a little proud of it.
+		var band := []
+		for dx in [-0.012, 0.012]:
+			var ring := PackedVector3Array()
+			for k in 12:
+				var t := TAU * k / 12.0
+				var c := cos(t)
+				var sn := sin(t)
+				var r := lerpf(1.0, 1.0 / maxf(absf(c), absf(sn)), 0.75) * 0.935
+				ring.append(Vector3(x + dx, 0.225 + sn * 0.235 * r, c * 0.265 * r))
+			band.append(ring)
+		_add(root, "Twine", loft(band, false), twine)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 251
+	for i in 14:
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var at := Vector3(side * rng.randf_range(0.3, 0.46), rng.randf_range(0.05, 0.42), rng.randf_range(-0.22, 0.22))
+		var d := Vector3(side * rng.randf_range(0.08, 0.16), rng.randf_range(-0.04, 0.06), rng.randf_range(-0.05, 0.05))
+		_limb(root, "Straw", at, at + d, 0.006, 0.002, straw(), 4)
 
 
 ## A carriage lantern on a wall bracket (its back on z = 0, facing +Z): a tin box with glass on
@@ -639,37 +757,105 @@ static func telegraph_pole(root: Node3D) -> void:
 		_add(root, "Insulator", lathe(_profile([[0.03, 6.65], [0.045, 6.7], [0.02, 6.78]]), 6), glass, Transform3D(Basis.IDENTITY, Vector3(x, 0, 0)))
 
 
-## A saddled horse standing, facing -X, about 1.6 m at the withers: barrel body, neck and head,
-## legs in two parts with hooves, mane and tail; a saddle on a red blanket.
+## A saddled horse standing at a rail, head at -X (docs/ART_REVIEW.md §3.5: the painting's horses
+## have form; a few hundred faces read at their size). Lofted body (chest, girth, barrel, flank,
+## croup), an arched neck, a long head with a jaw, ears, a mane and a hanging tail, legs with
+## knees and hocks on round hooves; a blanket and a stock saddle (swell, horn, seat, cantle,
+## skirts, fenders, stirrups, cinch) and a headstall. Dark points: a bay.
 static func horse(root: Node3D) -> void:
 	var hide := _mat("horse", PixelArt.dirt("prop_horse", Color(0.42, 0.24, 0.13), 253))
 	var dark := _mat("horse_dark", PixelArt.dirt("prop_horse_dark", Color(0.12, 0.08, 0.06), 255))
-	# The body: a lathe round X.
-	var body := []
-	for k in 9:
-		var t := float(k) / 8.0
-		body.append([0.12 + 0.28 * pow(sin(t * PI), 0.6), t * 1.5])
-	_add(root, "Body", lathe(_profile(body), 10), hide, Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0.75, 1.25, 0)))
-	_box(root, "Rump", Vector3(0.5, 0.5, 0.56), Vector3(0.55, 1.3, 0), hide)
-	_box(root, "Chest", Vector3(0.45, 0.55, 0.5), Vector3(-0.55, 1.25, 0), hide)
-	# Neck up and forward, the head down off it.
-	_box(root, "Neck", Vector3(0.3, 0.8, 0.26), Vector3(-0.92, 1.68, 0), hide, Basis(Vector3.BACK, 0.6))
-	_box(root, "Mane", Vector3(0.08, 0.78, 0.1), Vector3(-0.8, 1.82, 0), dark, Basis(Vector3.BACK, 0.6))
-	_box(root, "Head", Vector3(0.22, 0.6, 0.22), Vector3(-1.32, 1.8, 0), hide, Basis(Vector3.BACK, -0.9))
-	_box(root, "Muzzle", Vector3(0.16, 0.2, 0.18), Vector3(-1.52, 1.62, 0), dark, Basis(Vector3.BACK, -0.9))
+	var leather := _mat("leather", PixelArt.dirt("prop_leather", Color(0.32, 0.18, 0.09), 259))
+	var blanket := _mat("blanket", PixelArt.painted("prop_blanket", Color(0.5, 0.12, 0.08), Color(0.3, 0.2, 0.15), 257, 0.1))
+	# The body, chest to rump: [x, half-width, half-height, centre height].
+	var body := [[-0.78, 0.17, 0.26, 1.2], [-0.62, 0.27, 0.37, 1.18], [-0.42, 0.33, 0.41, 1.2], [-0.1, 0.35, 0.4, 1.19],
+			[0.22, 0.34, 0.38, 1.21], [0.5, 0.31, 0.36, 1.26], [0.74, 0.26, 0.3, 1.3], [0.9, 0.12, 0.16, 1.32]]
+	var rings := []
+	for b in body:
+		rings.append(_ring(Vector3(b[0], b[3], 0), b[1], b[2]))
+	_add(root, "Body", loft(rings), hide)
+	# The withers rise into the neck: an arch of rings up and forward to the poll.
+	var neck := []
+	# (A ring's lean is its top's tilt about z: negative leans it back, square to a neck rising
+	# forward; positive leans it forward, square to a head dropping forward.)
+	var neck_path := [[-0.62, 1.42, 0.19, 0.24, -0.3], [-0.78, 1.6, 0.17, 0.22, -0.5], [-0.95, 1.78, 0.15, 0.19, -0.6],
+			[-1.1, 1.92, 0.13, 0.16, -0.5], [-1.2, 1.98, 0.12, 0.13, -0.2]]
+	for q in neck_path:
+		neck.append(_ring(Vector3(q[0], q[1], 0), q[2], q[3], 10, q[4]))
+	_add(root, "Neck", loft(neck), hide)
+	# The head hangs down and forward off the poll: wide at the jaw, narrowing to the muzzle.
+	var head := []
+	var head_path := [[-1.2, 1.98, 0.12, 0.13, 0.2], [-1.3, 1.9, 0.13, 0.17, 0.6], [-1.4, 1.76, 0.11, 0.19, 0.9],
+			[-1.5, 1.6, 0.09, 0.13, 1.0], [-1.58, 1.48, 0.075, 0.09, 1.0]]
+	for q in head_path:
+		head.append(_ring(Vector3(q[0], q[1], 0), q[2], q[3], 10, q[4]))
+	_add(root, "Head", loft(head), hide)
+	_add(root, "Muzzle", loft([_ring(Vector3(-1.58, 1.48, 0), 0.075, 0.09, 10, 1.0), _ring(Vector3(-1.65, 1.4, 0), 0.055, 0.06, 10, 1.0)]), dark)
 	for z in [-0.07, 0.07]:
-		_box(root, "Ear", Vector3(0.05, 0.14, 0.04), Vector3(-1.13, 2.1, z), hide)
-		_box(root, "Eye", Vector3(0.03, 0.03, 0.02), Vector3(-1.27, 1.93, z * 1.6), dark)
-	# Legs: upper (hide) and lower (dark), a hoof.
-	for x in [-0.55, 0.6]:
-		for z in [-0.17, 0.17]:
-			_box(root, "Upper", Vector3(0.16, 0.5, 0.15), Vector3(x, 0.85, z), hide)
-			_box(root, "Lower", Vector3(0.09, 0.52, 0.09), Vector3(x + 0.02, 0.36, z), dark)
-			_box(root, "Hoof", Vector3(0.13, 0.08, 0.12), Vector3(x + 0.03, 0.04, z), dark)
-	_box(root, "Tail", Vector3(0.1, 0.8, 0.12), Vector3(0.98, 1.05, 0), dark, Basis(Vector3.BACK, -0.35))
-	# Blanket and saddle.
-	_box(root, "Blanket", Vector3(0.62, 0.04, 0.7), Vector3(-0.1, 1.66, 0), _mat("blanket", PixelArt.painted("prop_blanket", Color(0.5, 0.12, 0.08), Color(0.3, 0.2, 0.15), 257, 0.1)))
-	_box(root, "Saddle", Vector3(0.5, 0.12, 0.42), Vector3(-0.1, 1.72, 0), _mat("leather", PixelArt.dirt("prop_leather", Color(0.32, 0.18, 0.09), 259)))
-	_box(root, "Horn", Vector3(0.06, 0.12, 0.06), Vector3(-0.32, 1.82, 0), _mat("leather", null))
-	for z in [-0.26, 0.26]:
-		_box(root, "Fender", Vector3(0.18, 0.42, 0.02), Vector3(-0.1, 1.45, z), _mat("leather", null))
+		_limb(root, "Ear", Vector3(-1.17, 2.04, z), Vector3(-1.2, 2.2, z * 1.4), 0.03, 0.006, hide, 6)
+		_box(root, "Eye", Vector3(0.04, 0.03, 0.02), Vector3(-1.32, 1.9, z * 2.0), dark)
+	# Mane: a ragged crest down the neck; forelock between the ears; tail hanging off the rump.
+	var crest := []
+	for q in neck_path:
+		var c := Vector3(q[0], q[1], 0)
+		var up := Basis(Vector3.BACK, q[4]) * Vector3(0, q[3], 0)
+		crest.append(PackedVector3Array([c + up + Vector3(0.03, -0.01, 0.035), c + up + Vector3(0.0, 0.06, 0.0), c + up + Vector3(0.03, -0.01, -0.035), c + up + Vector3(0.07, -0.05, 0.0)]))
+	_add(root, "Mane", loft(crest), dark)
+	_limb(root, "Forelock", Vector3(-1.2, 2.06, 0), Vector3(-1.32, 1.9, 0.02), 0.03, 0.01, dark, 5)
+	var tail := [_ring(Vector3(0.88, 1.32, 0), 0.06, 0.06, 6), _ring(Vector3(1.0, 1.08, 0), 0.1, 0.08, 6),
+			_ring(Vector3(1.05, 0.78, 0), 0.09, 0.07, 6), _ring(Vector3(1.03, 0.48, 0), 0.05, 0.04, 6)]
+	_add(root, "Tail", loft(tail), dark)
+	# Legs: fore from the shoulder, straight down; hind from the stifle, angled at the hock.
+	for z in [-0.17, 0.17]:
+		var fx := -0.52
+		_limb(root, "Forearm", Vector3(fx - 0.04, 1.0, z), Vector3(fx, 0.62, z), 0.09, 0.055, hide)
+		_limb(root, "Knee", Vector3(fx, 0.64, z), Vector3(fx, 0.52, z), 0.062, 0.05, hide, 6)
+		_limb(root, "Cannon", Vector3(fx, 0.54, z), Vector3(fx + 0.01, 0.14, z), 0.045, 0.04, dark, 6)
+		_limb(root, "Pastern", Vector3(fx + 0.01, 0.15, z), Vector3(fx - 0.03, 0.06, z), 0.045, 0.05, dark, 6)
+		_add(root, "Hoof", lathe(_profile([[0.07, 0.0], [0.065, 0.06], [0.05, 0.075]]), 8), dark, Transform3D(Basis.IDENTITY, Vector3(fx - 0.03, 0.0, z)))
+		var hx := 0.6
+		_limb(root, "Thigh", Vector3(hx - 0.02, 1.05, z), Vector3(hx + 0.08, 0.68, z), 0.12, 0.06, hide)
+		_limb(root, "Gaskin", Vector3(hx + 0.08, 0.7, z), Vector3(hx + 0.2, 0.46, z), 0.06, 0.045, hide, 6)
+		_limb(root, "Hock", Vector3(hx + 0.2, 0.48, z), Vector3(hx + 0.18, 0.38, z), 0.055, 0.045, dark, 6)
+		_limb(root, "HindCannon", Vector3(hx + 0.18, 0.4, z), Vector3(hx + 0.12, 0.14, z), 0.042, 0.038, dark, 6)
+		_limb(root, "HindPastern", Vector3(hx + 0.12, 0.15, z), Vector3(hx + 0.09, 0.06, z), 0.042, 0.048, dark, 6)
+		_add(root, "HindHoof", lathe(_profile([[0.07, 0.0], [0.065, 0.06], [0.05, 0.075]]), 8), dark, Transform3D(Basis.IDENTITY, Vector3(hx + 0.09, 0.0, z)))
+	# Blanket: a square of felt over the back, following the barrel.
+	var blanket_rings := []
+	for x in [-0.45, -0.2, 0.05, 0.25]:
+		blanket_rings.append(_arc(x, 0.03, 1.25, 0.41, 1.19, 8))
+	_add(root, "Blanket", loft(blanket_rings, false), blanket)
+	# The stock saddle: skirts over the blanket, a seat dished between the swell and the cantle.
+	var skirt_rings := []
+	for x in [-0.38, -0.15, 0.1, 0.22]:
+		skirt_rings.append(_arc(x, 0.055, 1.05, 0.41, 1.19, 8))
+	_add(root, "Skirts", loft(skirt_rings, false), leather)
+	var seat_x := [-0.34, -0.26, -0.16, -0.02, 0.1, 0.16]
+	var seat_y := [1.74, 1.68, 1.64, 1.64, 1.69, 1.78]
+	var seat_w := [0.1, 0.14, 0.17, 0.18, 0.17, 0.12]
+	var seat := []
+	for i in seat_x.size():
+		seat.append(_arc(seat_x[i], seat_y[i] - 1.19 - 0.41, seat_w[i] * 5.0, 0.41, 1.19, 6))
+	_add(root, "Seat", loft(seat, false), leather)
+	_add(root, "Horn", lathe(_profile([[0.035, 1.72], [0.025, 1.8], [0.045, 1.84], [0.03, 1.86]]), 8), leather, Transform3D(Basis.IDENTITY, Vector3(-0.34, 0, 0)))
+	for z in [-0.3, 0.3]:
+		_box(root, "Fender", Vector3(0.2, 0.45, 0.02), Vector3(-0.1, 1.42, z), leather)
+		_add(root, "Stirrup", lathe(_profile([[0.05, 0.0], [0.055, 0.015], [0.05, 0.03]]), 8), iron(), Transform3D(Basis(Vector3.RIGHT, PI * 0.5), Vector3(-0.1, 1.17, z)))
+		_box(root, "Cinch", Vector3(0.06, 0.4, 0.02), Vector3(-0.3, 0.98, z * 1.1), leather)
+	_box(root, "CinchUnder", Vector3(0.06, 0.02, 0.66), Vector3(-0.3, 0.79, 0), leather)
+	# Headstall and throatlatch.
+	_box(root, "Browband", Vector3(0.02, 0.02, 0.22), Vector3(-1.24, 1.97, 0), leather)
+	for z in [-0.1, 0.1]:
+		_box(root, "Cheek", Vector3(0.02, 0.3, 0.02), Vector3(-1.4, 1.78, z), leather, Basis(Vector3.BACK, 0.45))
+	_box(root, "Nose", Vector3(0.02, 0.02, 0.2), Vector3(-1.5, 1.58, 0), leather)
+
+
+## A ring over the top of a body section at x: the body's ellipse (rz, ry round height cy) pushed
+## out by `off`, the top `span` radians either side of straight up, as a PackedVector3Array (an
+## open loft row: a blanket, a skirt, a seat).
+static func _arc(x: float, off: float, span: float, ry: float, cy: float, n: int, rz := 0.35) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	for k in n:
+		var t := PI * 0.5 - span + 2.0 * span * k / float(n - 1)
+		out.append(Vector3(x, cy + sin(t) * (ry + off), cos(t) * (rz + off)))
+	return out
