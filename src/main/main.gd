@@ -29,6 +29,7 @@ func _apply_settings() -> void:
 	game_viewport.size = Settings.render_size(get_viewport().get_visible_rect().size)
 	var post := screen.material as ShaderMaterial
 	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
+	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
 	_layout()
 
