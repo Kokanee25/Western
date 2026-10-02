@@ -5,8 +5,8 @@ extends Node3D
 ## STORE with DRY GOODS on its side, a barber and a hotel on the north side; the LIVERY barn, the
 ## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
 ## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
-## the street, telegraph poles and a water tower over the roofs, and the red-rock mesas and spires
-## on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
+## the street, telegraph poles and a water tower over the roofs, dry grass along the road's edges
+## (DryGrass), and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
 ## bump into. Everything keeps off the road's middle (the gang rides in along z -9) and the store's
 ## porch.
 
@@ -42,6 +42,9 @@ func _ready() -> void:
 	var mountains := Mountains.new()
 	mountains.name = "Mountains"
 	add_child(mountains)
+	var grass := DryGrass.new()
+	grass.name = "DryGrass"
+	add_child(grass)
 
 
 ## Where a building stands: its front-left corner (FalseFrontBuilding's origin), turned to face

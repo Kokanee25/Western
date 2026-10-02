@@ -122,3 +122,37 @@ func test_red_rock_on_the_skyline_far_off_and_solid() -> void:
 		tallest = maxf(tallest, r.get_aabb().end.y + r.position.y)
 	check(tallest > 150.0, "tall enough to stand over the false fronts (%.0f m)" % tallest)
 	m.queue_free()
+
+
+func test_dry_grass_keeps_off_the_wheel_tracks_and_out_from_under_floors() -> void:
+	# DryGrass: one multimesh of tufts, thick along the road's edges, none down its middle, none
+	# where a floor (here a slab standing in for the store's) is overhead.
+	var w := Node3D.new()
+	add_child(w)
+	var slab := StaticBody3D.new()
+	slab.collision_layer = Layers.WORLD
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6, 0.3, 9)
+	cs.shape = box
+	slab.add_child(cs)
+	slab.position = Vector3(3, 0.3, 4.5)
+	w.add_child(slab)
+	var g := DryGrass.new()
+	w.add_child(g)
+	await physics_frames(3)
+	var mmi := g.get_node(^"Tufts") as MultiMeshInstance3D
+	check_eq(mmi.multimesh.instance_count, g.tufts.size(), "one multimesh draws them all")
+	check(g.tufts.size() > 1000, "plenty of tufts (%d)" % g.tufts.size())
+	var edge := 0
+	for t in g.tufts:
+		var p := t.origin
+		var dz := absf(p.z - DryGrass.ROAD_Z)
+		if not check(dz >= DryGrass.ROAD_HALF - 1.6, "none down the road's middle (%s)" % p):
+			break
+		if not check(not (p.x > 0.0 and p.x < 6.0 and p.z > 0.0 and p.z < 9.0), "none under the floor (%s)" % p):
+			break
+		if dz < DryGrass.ROAD_HALF + 1.4:
+			edge += 1
+	check(edge > g.tufts.size() / 4, "thickest along the edges (%d of %d)" % [edge, g.tufts.size()])
+	w.queue_free()

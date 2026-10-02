@@ -5,7 +5,7 @@ class_name PixelArt
 
 ## How many texels per metre the world uses. Walls, boards and ground all share it, so pixels are
 ## the same size everywhere. Fewer = chunkier. Read when materials are first made.
-static var texels_per_meter := 64.0
+static var texels_per_meter := 32.0
 ## Mipmaps smooth distant texels (less shimmer, softer look); off = crunchy all the way out.
 static var use_mipmaps := true
 ## The concept painting's mosaic: how much each texel's shade wanders from the pattern under it, in
@@ -15,8 +15,9 @@ static var mosaic := 0.6
 
 
 ## Texel-size presets F7 cycles through: [texels per metre, mipmaps]. The first is the default:
-## 64 a metre, the concept painting's squares on wood (2026-09-30; was 40).
-const DENSITY_PRESETS := [[64.0, true], [40.0, true], [24.0, false], [16.0, false]]
+## 32 a metre, the size the judge measures the paintings' squares at (2026-10-02; was 64, and 40
+## before that). The factory's textures are cut at it (tools/textures/materials.json).
+const DENSITY_PRESETS := [[32.0, true], [24.0, false], [16.0, false], [64.0, true]]
 
 ## The material for everything on the texel grid (src/render/texel_grid.gdshaderinc), and the
 ## same with bullet holes cut in it (StructureMember).
