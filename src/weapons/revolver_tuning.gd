@@ -23,12 +23,14 @@ extends Resource
 @export var misfire_chance := 0.01
 
 @export_group("Ballistics")
-@export var muzzle_velocity := 240.0  ## m/s
+## A Colt Single Action Army, 7½" barrel, the .45 Colt service load of 1874–: 40 grains of black
+## powder behind a 255-grain lead bullet, about 900 ft/s (Frankford Arsenal's figures).
+@export var muzzle_velocity := 274.0  ## m/s
 @export var bullet_mass := 0.0165  ## kg (255 grain lead)
 @export var bullet_diameter := 0.0114  ## m
-## Drag of its blunt round-nosed conical bullet (a round ball would be 0.47): keeps ~95% of its
-## speed at 50 m, ~90% at 100 m (published .45 Colt lead loads keep about nine tenths at 100 yd).
-@export var drag_coefficient := 0.28
+## Its blunt round-nosed bullet against the G1 standard projectile (ballistic coefficient ~0.14:
+## sectional density 0.178 ÷ 0.14): keeps about nine tenths of its speed over 100 m.
+@export var form_factor := 1.27
 ## The range its fixed sights are regulated for (25 yards): the ball rises a little above your
 ## line of sight, crosses it here, and falls away below it beyond (hold high at long range).
 @export var zero_distance := 22.9

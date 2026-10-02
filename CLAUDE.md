@@ -1212,4 +1212,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   changes how people talk, real forensics, a real trial, rumours, letters/telegraph, leading
   people, voice loudness, teaching, legends). 1–3 are the spine; gameplay should keep them in mind
   when building conversation (M4 step 5) and the sheriff opening.
-
+- 2026-10-02 (gameplay): **Full sim: period loads, Mach-dependent drag, air** (Sean: "let's go full
+  sim"). Revolver `muzzle_velocity` 240 → 274 m/s (7½" SAA, 40 gr black powder, 255 gr: ~900 ft/s;
+  620 J); shotgun 400 → 365 m/s (12-bore black powder, nine 00 balls, ~1,200 ft/s; 233 J a pellet).
+  `BallisticsTuning`: `air_density`/`drag_coefficient` replaced by `elevation_m` (0) and
+  `air_temperature_c` (15) → `air_density()` (standard atmosphere) and `speed_of_sound()`;
+  `drag_cd(speed, form)` from `sphere_drag` (round balls, Cd 0.47 → ~0.94 at Mach 1.1) or
+  `g1_drag` × form factor; `Bullet.drag` → `Bullet.form` (0 a round ball; revolver `form_factor`
+  1.27, BC ~0.14). Drag is worked out each tick at the ball's own speed; `flight()`/`holdover()`
+  take `form`. Revolver vs sights now: −0.7 cm at 5 m, on at 22.9, −7.4 at 50, −24 at 75, −50 at
+  100 (0.39 s, 89% kept); a pellet keeps ~63% of its energy at 25 m. Tests that pinned the old
+  speeds now follow the tuning; `test_gunfight::test_he_shoots_back_and_hurts` allows for you
+  going down to one hit; `test_drop` +1 (the air). 275 pass; body hits to stop him 1.54 (was 1.46,
+  same seeds, different flights), charges dropping him at 20 m 3 of 16 (was 5).
+  - Open with Sean: where Salt Creek is (elevation, how hot): mesa country is often 1,200–1,800 m.
