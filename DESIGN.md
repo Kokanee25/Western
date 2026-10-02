@@ -217,7 +217,7 @@ with the revolver; the target for the street, materials and daylight).
 - **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
   rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
 
-### Story flow (**proposed**, 2026-10-01 — Sean to confirm)
+### Story flow (**decided**, 2026-10-01)
 The danger in a systemic game is a sandbox with nothing pulling you along. The flow comes from a
 clock, factions working their plans, and the player always holding a few live leads.
 
@@ -246,6 +246,12 @@ clock, factions working their plans, and the player always holding a few live le
 - **Hand-built moments that fit any path:** the sheriff's last hours, the widow's burn-out night, the
   trial, the robbery of the land money, the train's arrival. Each is staged so it works whoever's
   alive and whatever's standing.
+- **You find the sheriff** (decided): you ride in at dawn and he's on the road. The other big moments
+  work the same way where they can: the player is there, or arrives in the middle, rather than
+  hearing about it afterwards.
+- **The game can end early** (decided): hanged after a trial, dead with no doctor to wake you at,
+  run off your claim, or killed by the gang. A game-over is told the same way as an ending (the
+  paper, the town), so it reads as a story, not a fail screen.
 - **The ending is the state of the world:** who's alive, who owns the spring and the widow's claim,
   who wears the badge, what's still standing, what people think of you. Told as the newspaper's
   front page and the town's reactions on day 30, plus a walk through the town afterwards.
@@ -659,6 +665,41 @@ should care too much to do it.
 8. **Horses as creatures:** they tire, spook at gunfire, get hurt, can be stolen, remember who treats
    them well.
 
+### Signature features (**decided**, Sean 2026-10-01: "Ya!" to all)
+What nobody else does, made from joining systems we already have. **1–3 together are the game's
+spine:** you find the sheriff, how well you treat him decides whether he lives, his last words
+depend on his blood loss, the ball in him is the evidence, and it all comes out at a trial driven by
+what really happened.
+1. **The body changes how people talk.** The conversation AI is given the speaker's body state
+   (blood loss, shock, pain, concussion, drink, a broken jaw or windpipe, fear). The dying sheriff
+   is clear, then confused, then only a name; a broken jaw nods and grunts; a drunk lets things
+   slip; a concussed witness gets the order of events wrong; a man in shock agrees to anything.
+2. **Real forensics from real wounds.** The anatomy trace is evidence: calibre of the ball dug out
+   (only certain men carry a .44), entry and exit (shot from behind, from above, from close: powder
+   burns), the order of wounds, time since death (blood pooled, cold). The doctor and undertaker
+   can examine bodies and tell you; the player can learn to read them (the medicine skill).
+3. **A real trial.** The circuit judge sits in the saloon or church. You testify by speaking;
+   AI witnesses tell what they actually remember (including what they got wrong in the dark); the
+   evidence is shown; you can cross-examine; a jury of townsfolk with their own opinions of you
+   decides. Verdicts can go against the innocent who couldn't prove it. Hanging is a game-over.
+4. **Rumours that change as they spread.** Each retelling passes through a person (exaggerates,
+   takes sides, forgets); by evening the saloon thinks you shot three men. The weekly paper prints
+   its version; you can set the editor straight or pay him.
+5. **Letters and the telegraph.** Write in plain words; letters go by stage over days, wires by
+   the telegraph (if the wire's not cut). People answer or act: the US Marshal might come, the
+   railroad might send a lawyer about the forged deeds. You can forge letters too.
+6. **Leading people by talking.** Swear in deputies or hire guns and give orders in plain words
+   ("you two cover the back door, nobody fires till I do"); their nerve, skill and loyalty decide
+   whether they hold. Builds on the gang's teamwork (`Crew`) for your side.
+7. **Your voice as a weapon (microphone, optional).** Loudness matters: a bellowed "Drop it!"
+   carries further and frightens more than a muttered one; whispering keeps you hidden in the dark.
+   Typed commands still work (shout/whisper as words).
+8. **Teaching people.** The skills you learn from people, turned round: teach the Kid to shoot or
+   the widow to dress a wound; it saves your life later, or he uses it against you.
+9. **Legends between playthroughs.** A new game's old-timers tell a garbled story of your last
+   character ("a stranger burned the saloon down a few years back"), and the graveyard has his
+   marker. Stored outside the save, a few lines per finished game.
+
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
 
 ## 12. First slice (what to build first)
@@ -678,9 +719,6 @@ The test: **can the player cause a story nobody planned?**
 
 ## 13. Open questions
 
-- **Story flow (proposed above, §5):** confirm the three acts; how the player finds the sheriff
-  (you ride in at dawn and find him, vs. the town finds him and you hear); whether failing your
-  claim/dying for good can end the game early or it always runs to day 30.
 
 - **Tone details:** how dark the humour runs; how graphic the default gore setting is.
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included

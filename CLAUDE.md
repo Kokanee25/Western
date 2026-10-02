@@ -1207,6 +1207,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: the spires are seen backlit at golden hour (their shadow sides; the painting's have
     lit orange rims); the formations are simpler than the painting's cathedral rock (fewer towers
     per cluster); the far plane is 800 m, so nothing can go further out.
+- 2026-10-01 (design, Sean): **story flow decided** (DESIGN.md §5: three acts on the 30-day clock, you
+  find the sheriff, the game can end early) and **signature features** (DESIGN.md §11: the body
+  changes how people talk, real forensics, a real trial, rumours, letters/telegraph, leading
+  people, voice loudness, teaching, legends). 1–3 are the spine; gameplay should keep them in mind
+  when building conversation (M4 step 5) and the sheriff opening.
 - 2026-10-02 (gameplay): **Full sim: period loads, Mach-dependent drag, air** (Sean: "let's go full
   sim"). Revolver `muzzle_velocity` 240 → 274 m/s (7½" SAA, 40 gr black powder, 255 gr: ~900 ft/s;
   620 J); shotgun 400 → 365 m/s (12-bore black powder, nine 00 balls, ~1,200 ft/s; 233 J a pellet).
