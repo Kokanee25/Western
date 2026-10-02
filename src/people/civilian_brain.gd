@@ -20,6 +20,8 @@ const LINES := {
 ## Where he stands, and the point he faces there (set by whoever put him there).
 var post := Vector3.INF
 var faces := Vector3.INF
+## How he takes his ease at his post when all's calm (`sit` on a porch bench, or `stand`).
+var rest_pose := &"stand"
 var mood := Mood.CALM
 var fear := 0.0
 var senses: Senses
@@ -174,10 +176,11 @@ func _physics_process(delta: float) -> void:
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM
-	body.set_pose(&"stand")
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
+		body.set_pose(&"stand")
 		body.walk_to(post, 1.2, delta)
 		return
+	body.set_pose(rest_pose)
 	_thank(delta)
 	if faces != Vector3.INF and not (helped_by and not thanked):
 		body.face(faces)

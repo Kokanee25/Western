@@ -1304,3 +1304,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: dusk after sunset is still violet (that one's real); the painting's posts and roof edges
     have bright gold rims that ours only get where the sun truly hits; the sky's top right is
     still a little bright and yellow.
+- 2026-10-02 (art session, later): **Look 4: people on the street and porches.** Eight stand-in
+  townsfolk (`StreetDressing.FOLK`): `HumanBody`s with a `CivilianBrain` at a post, where the
+  painting has them: a man in a coat on the saloon's porch, two sitting on a new porch bench, one
+  at the general store, one on the jail's boardwalk, one walking down the middle of the street
+  (stood, back to you) and two further down, all off the gang's way in along z -9. Like the
+  storekeeper they put their hands up at a gun and get down at shooting. `CivilianBrain.rest_pose`
+  (gameplay's file, one variable and two lines: a calm man at his post takes it, `sit` on the
+  bench). Judge round `_r7`: street 0.654 → 0.646. 279 tests pass (+1 in `test_town_day`, gameplay's
+  test file: they're at their posts, the bench pair sit, a shot near them and they get down); the
+  street tests take ~40 s longer with eight more people.
+  - Known: everyone still wears the painted outlaw's body and paint (step 4 of the art plan,
+    image-to-3D, waits on `TRIPO_API_KEY`); nobody walks about (the "walker" stands); they don't
+    sit on anything but the bench.

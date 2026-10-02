@@ -5,8 +5,8 @@ extends Node3D
 ## STORE with DRY GOODS on its side, a barber and a hotel on the north side; the LIVERY barn, the
 ## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
 ## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
-## the street, telegraph poles and a water tower over the roofs, dry grass along the road's edges
-## (DryGrass), and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
+## the street, telegraph poles and a water tower over the roofs, townsfolk on the porches and in
+## the street (FOLK), dry grass along the road's edges (DryGrass), and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
 ## bump into. Everything keeps off the road's middle (the gang rides in along z -9) and the store's
 ## porch.
 
@@ -30,6 +30,28 @@ const BUILDINGS := [
 	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
 			"front_wood": &"painted_ochre"}],
 ]
+## Townsfolk where the painting has them (stand-ins: CivilianBrain at a post, so they get down
+## when there's shooting): [name, feet, the point he faces, rest pose, shirt, vest, coat, hat,
+## look]. A man on the saloon's porch, two on its bench, one at the store and one at the jail, and
+## a few in the street, all off the gang's way in along z -9.
+const FOLK := [
+	["PorchLoafer", Vector3(-2.7, 0.38, -1.25), Vector3(1.0, 1.5, -7.0), &"stand", Color(0.78, 0.72, 0.6), Color(0.46, 0.13, 0.1),
+			Color(0.3, 0.21, 0.14, 1.0), Color(0.14, 0.11, 0.09), {"hair": Color(0.14, 0.1, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.5}],
+	["BenchManA", Vector3(-5.25, 0.38, -0.62), Vector3(-5.25, 1.0, -6.0), &"sit", Color(0.84, 0.82, 0.74), Color(0.2, 0.16, 0.12),
+			Color(0, 0, 0, 0), Color(0.22, 0.17, 0.12), {"hair": Color(0.3, 0.2, 0.1), "moustache": &"handlebar", "beard": &"none", "age": 0.6}],
+	["BenchManB", Vector3(-6.1, 0.38, -0.62), Vector3(-6.1, 1.0, -6.0), &"sit", Color(0.6, 0.48, 0.34), Color(0.14, 0.12, 0.1),
+			Color(0, 0, 0, 0), Color(0.12, 0.1, 0.08), {"hair": Color(0.1, 0.08, 0.06), "moustache": &"trim", "beard": &"full", "age": 0.45}],
+	["StoreMan", Vector3(-15.6, 0.38, -1.3), Vector3(-14.0, 1.5, -7.0), &"stand", Color(0.86, 0.84, 0.78), Color(0.3, 0.3, 0.32),
+			Color(0, 0, 0, 0), Color(0, 0, 0, 0), {"hair": Color(0.2, 0.14, 0.09), "moustache": &"trim", "beard": &"none", "age": 0.55}],
+	["StreetWalker", Vector3(-19.0, 0.0, -6.5), Vector3(-45.0, 1.5, -7.5), &"stand", Color(0.7, 0.64, 0.52), Color(0.2, 0.15, 0.1),
+			Color(0.36, 0.26, 0.17, 1.0), Color(0.16, 0.12, 0.1), {"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.4}],
+	["FarManA", Vector3(-31.0, 0.0, -6.0), Vector3(-31.0, 1.5, -12.0), &"stand", Color(0.55, 0.5, 0.42), Color(0.18, 0.14, 0.1),
+			Color(0, 0, 0, 0), Color(0.2, 0.15, 0.1), {"hair": Color(0.18, 0.12, 0.08), "moustache": &"walrus", "beard": &"none", "age": 0.5}],
+	["FarManB", Vector3(-36.5, 0.0, -11.4), Vector3(-20.0, 1.5, -10.0), &"stand", Color(0.8, 0.76, 0.66), Color(0.26, 0.18, 0.12),
+			Color(0.24, 0.2, 0.16, 1.0), Color(0.18, 0.14, 0.1), {"hair": Color(0.25, 0.18, 0.1), "moustache": &"handlebar", "beard": &"stubble", "age": 0.65}],
+	["JailMan", Vector3(-21.4, 0.38, -15.55), Vector3(-21.4, 1.5, -8.0), &"stand", Color(0.7, 0.66, 0.58), Color(0.12, 0.1, 0.09),
+			Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08), {"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"stubble", "age": 0.55}],
+]
 ## Boardwalks before them: [name, x0, x1, faces +Z].
 const WALKS := [["WestBoardwalk", -35.6, -8.0, false], ["SouthWestBoardwalk", -32.0, -18.2, true]]
 
@@ -39,6 +61,7 @@ func _ready() -> void:
 	_lanterns()
 	_loose()
 	_far()
+	_folk()
 	var mountains := Mountains.new()
 	mountains.name = "Mountains"
 	add_child(mountains)
@@ -179,6 +202,43 @@ func _far() -> void:
 				PropModels._box(self, "Wire", Vector3(0.012, 0.012, d.length()), (seg[0] + seg[1]) * 0.5, wire,
 						Basis.looking_at(d, Vector3.UP))
 	_model("WaterTower", PropModels.water_tower, Vector3(-34.0, 0.0, -27.5), 20.0, Vector3(3.8, 11.5, 3.8))
+
+
+## The townsfolk (FOLK), and the saloon porch's bench under the two sitting there.
+func _folk() -> void:
+	_model("Bench", _bench, Vector3(-5.68, 0.38, -0.5), 0.0, Vector3(1.9, 0.45, 0.42))
+	for i in FOLK.size():
+		var f: Array = FOLK[i]
+		var man := HumanBody.new()
+		man.name = f[0]
+		man.person_id = StringName(String(f[0]).to_snake_case())
+		man.rng_seed = 201 + i
+		man.has_gun = false
+		man.shirt_color = f[4]
+		man.vest_color = f[5]
+		man.coat_color = f[6]
+		man.hat_color = f[7]
+		man.bandana_color = Color(0, 0, 0, 0)
+		man.look = f[8]
+		var brain := CivilianBrain.new()
+		brain.name = "Brain"
+		brain.post = f[1]
+		brain.faces = f[2]
+		brain.rest_pose = f[3]
+		man.add_child(brain)
+		add_child(man)
+		man.global_position = f[1]
+		man.face(f[2])
+		man.set_pose(f[3])
+
+
+## A plain porch bench: a plank seat on two legs each end, 0.45 m high.
+static func _bench(root: Node3D) -> void:
+	var wood := PropModels.dark_wood()
+	PropModels._box(root, "Seat", Vector3(1.9, 0.05, 0.4), Vector3(0, 0.425, 0), wood)
+	for x in [-0.82, 0.82]:
+		PropModels._box(root, "Leg", Vector3(0.06, 0.4, 0.34), Vector3(x, 0.2, 0), wood)
+	PropModels._box(root, "Rail", Vector3(1.64, 0.06, 0.04), Vector3(0, 0.12, 0), wood)
 
 
 func _prop(id: StringName, at: Vector3, yaw: float) -> void:
