@@ -252,11 +252,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
   **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 160, face 190, hands 150; the
   face's squares are 3×3 texels so its eyes can be drawn finer, `DETAIL`/`square_texels`), each
-  the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
-  (one texel per square) + `<id>_paint.json`. `body_skin` shows them as painted
-  (`HumanBody.paint_look`: the game's ACES grade undone, lit by light brightness only, each light
-  eased off at paint_limit, wrapped, a little self-lit) and lights each square as one (the light's
-  position and the normal at the texel's centre, `LIGHT_VERTEX`).
+  the average colour under it, a palette a shape (`SHAPE_COLOURS`, 8–32) → `assets/people/
+  <id>_paint_<shape>.png` (one texel per square) + `<id>_paint.json`. **The hybrid finish**
+  (`finish.py` `HYBRID`, docs/ART_REVIEW.md §6, since §10.7): the painting's own pixels are left
+  out (`VIEW_WEIGHT` shot 0: they were lit and never matched his shape), the squares are plain
+  averages (the old dominant-colour rule made noise of the model's shading; the face keeps its
+  dark-kept rule and `face_draw.py`), and `body_skin` lights him like everything else
+  (`HumanBody.paint_look`: the game's ACES grade undone, self_lit 0, light_steps 0,
+  `paint_ambient` 1, paint_gain 2.2 as the model paints him in even mid light, limit 4, wrap 0.3;
+  the old look's numbers are in the comment there) and lights each square as one (the light's
+  position and the normal at the texel's centre, `LIGHT_VERTEX`). `HumanBody.use_paint` off (the
+  townsfolk, the shot's extras) = the same body in code-painted cloth of his own colours and his
+  own code-painted face, so the street and the room aren't one man many times.
 - `src/art/street_match.gd` — the street painting's shot (`StreetMatch`, view `shot_match_street`:
   feet, look point, lens and hour fitted to `docs/concept/street-golden-hour.png`, gun out).
   **The reference judge:** `python3 tools/judge.py --note="what changed"` renders
@@ -1624,3 +1631,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     (mirroring hides the seam, not the band); a 2 m-wide sheet of the 2 m tile still shows at the
     road's edges where the wide tile's patches end; the table's grain is blotches at 32 texels/m,
     not the painting's lines (a finer table tile is a prop-texture question, §10.8).
+- 2026-10-02 (art session, later): **§10.7: the seated man by the hybrid route; the townsfolk
+  their own men.** `finish.py` `HYBRID` (above): his textures from the model's flat-lit sheets
+  alone, average squares, 8–32 colours a shape; `body_skin` lights painted parts like everything
+  else (`paint_ambient`, no self-lit share, no steps). Lit by the scene at paint_gain 1 he went
+  near black (round `_r48`: saloon 0.247); at 2.2 (the model paints him in even mid light, the
+  lamp has to bring him to the painting's) `_r49`: saloon 0.211 → **0.205**, the face smoother and
+  a lit portrait rather than a copy of the painting's blocks, brows and moustache bold
+  (`face_draw`). `HumanBody.use_paint` off for `StreetDressing.FOLK` and `ShotMatch.EXTRAS`: the
+  generated body in code-painted cloth of each man's own colours (FOLK/EXTRAS had them all along;
+  the paint overrode them) with his own code-painted face (`look`), so the porch, the card game
+  and the bar are different men (street `_r48` 0.323; a "cravat" cloth added so the tie isn't
+  skin). Figure `docs/screenshots/light_pass/man_hybrid.png`. No bake needed (the raw bake's
+  views are reused). 279 tests pass.
+  - Known: his face is still smoother and more orange than the painting's, and his coat one flat
+    brown under one light (the review's "one strong warm key and a dim cool fill" is the shot's
+    lighting, not done); the code-painted faces are cruder than his (image-model portraits per
+    man would be the People workflow's `only` input, one call each); hats are one shape.

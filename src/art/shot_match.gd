@@ -150,6 +150,7 @@ static func _extras(street: Node3D) -> void:
 		man.person_id = StringName(String(e[0]).to_snake_case())
 		man.rng_seed = 31 + i
 		man.has_gun = false
+		man.use_paint = false
 		man.shirt_color = e[4]
 		man.vest_color = e[5]
 		man.coat_color = e[6]
