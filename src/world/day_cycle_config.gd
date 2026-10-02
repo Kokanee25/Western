@@ -14,6 +14,10 @@ extends Resource
 @export var sun_tilt_degrees := 35.0
 ## Lifts the arc so days run longer than nights. 0 = sunrise 6:00, sunset 18:00.
 @export var day_bias := 0.1
+## Tilt of the moon's arc (a full moon, opposite the sun's hour): it rises in the east, sets in the
+## west and crosses the sky this far from straight overhead, over the +Z side (the street, seen from
+## the saloon's door). Low, as the saloon painting's moon is in its doorway.
+@export var moon_tilt_degrees := 35.0
 
 @export_group("Light")
 @export var sun_max_energy := 1.6

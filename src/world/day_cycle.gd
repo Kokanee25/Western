@@ -89,10 +89,12 @@ func get_sun_direction(hour: float = time_of_day) -> Vector3:
 	return v.rotated(Vector3.RIGHT, -deg_to_rad(config.sun_tilt_degrees))
 
 
-## A full moon opposite the sun, for now.
+## A full moon opposite the sun's hour, on its own arc (`moon_tilt_degrees`; the sun's tilt puts it
+## exactly opposite the sun, as it was).
 func get_moon_direction(hour: float = time_of_day) -> Vector3:
-	var s := get_sun_direction(hour)
-	return Vector3(-s.x, -s.y, s.z).normalized()
+	var h := (hour / 24.0 - 0.5) * TAU
+	var v := Vector3(sin(h), -(cos(h) + config.day_bias), 0.0).normalized()
+	return v.rotated(Vector3.RIGHT, deg_to_rad(config.moon_tilt_degrees))
 
 
 func is_daytime(hour: float = time_of_day) -> bool:

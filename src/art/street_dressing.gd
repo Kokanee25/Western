@@ -30,6 +30,10 @@ const BUILDINGS := [
 			"window_bars": true, "front_wood": &"weathered_pine"}],
 	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
 			"front_wood": &"painted_ochre"}],
+	# Across from the saloon's door, low enough for the moon over its false front, its lamp lit
+	# late: what you see through the door at night, as the painting does.
+	["EatingHouse", 6.8, 13.2, false, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.2, "sign_text": "EATING HOUSE",
+			"furnished": true, "porch_lantern": true, "front_wood": &"painted_rust"}],
 ]
 ## Townsfolk where the painting has them (stand-ins: CivilianBrain at a post, so they get down
 ## when there's shooting): [name, feet, the point he faces, rest pose, shirt, vest, coat, hat,

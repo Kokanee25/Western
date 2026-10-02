@@ -269,8 +269,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   UVs in metres, on `PixelArt.material()`); `PropLibrary` uses them where there's no .glb;
   `OilLamp` draws `PropModels.lamp()`. `tools/prop_views.gd out.png [--close]` shows them all.
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
-  stair and balcony (members), mirrors, piano by the door, stag, pictures, sconces.
-  `ShotMatch` turns its whole set (`ROOM_YAW`, `TABLE`) and stages extras (`EXTRAS`) for the shot.
+  stair and balcony (members), tall mirrors (a `ReflectionProbe` the room's size gives them
+  something to show), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
+  back bar, lamps hung on rods; no shadows, their chimneys glow), a bottle wall (`_bottle_wall`:
+  a few hundred bottles merged into one mesh per material; scenery, not shootable).
+  `ShotMatch` turns and places its whole set (`ROOM_YAW`, `TABLE`: beside the bar, the tall front
+  door on your left) and stages extras (`EXTRAS`, `CARD_TABLE`) for the shot. The moon has its
+  own low arc (`DayCycleConfig.moon_tilt_degrees` 78: it crosses ~12° up over +Z), so from the
+  shot (23:40) it stands in the saloon's doorway over the `EatingHouse` across the street.
 - `src/art/sign_art.gd` (`SignArt`): the factory's painted sign boards, laid on once at their own
   shape; `FalseFrontBuilding` hangs one for its `sign_text` (SALOON, DRY GOODS, …) where there is
   one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
@@ -1380,3 +1386,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: the near ring is 260 m out and you can walk to it (the ground ends at 300 m); its panels
     meet with a visible change of colour in places; the model's foothill panels hold a road in the
     hidden bottom rows; the rims barely show against a bright sky right by the sun.
+- 2026-10-02 (art session; features frozen, the only session): **The saloon room** (Sean's list,
+  item 1). The shot's set moved up the room beside the bar (`ShotMatch.TABLE`; the man's fit
+  holds), so the front door is on your left, the back bar and its mirror on the right and the
+  balcony over the middle. Through the door the moonlit street: the moon on its own low arc
+  (`moon_tilt_degrees` 78, so it's ~12° up over +Z around midnight, the shot's hour now 23:40), a
+  new low false front across the street (`EatingHouse` in `StreetDressing.BUILDINGS`, furnished
+  so its windows glow, porch lantern), the backdrop's 194° panels turned clear of the moon
+  (`backdrop.json` shifts, re-cut). In the room: 12 more sconces, three lamps on the back bar,
+  four hung on rods (no shadows), the bottle wall, mirrors to 2.95 m with a reflection probe, a
+  card game in front of the door, two men at the bar and a barman, one on the balcony and one on
+  the stair. Gameplay files touched (only session, so said here): `saloon_building.gd` (door
+  1.5×3.2, no porch roof: it hid the sky in the doorway; the bar's front and ends dark trim, as
+  the painting's), `day_cycle.gd`/`day_cycle_config.gd`/`config/day_cycle.tres` (the moon's arc;
+  the old default, the sun's tilt, gives exactly the old moon), `tests/test_day_cycle.gd` (the
+  moon at midnight is above 0.15, not 0.5). Judge rounds `2026-10-02_r11` (first pass, too bright)
+  and `_r12`: saloon 0.763 → **0.581**.
+  - Known: every night now has a low moon (long moonlit shadows, moonlight a little dimmer before
+    and after midnight); the saloon has no porch lantern now; the near things' squares (bar front,
+    table top) are about twice the painting's (item 3); the balcony man's head is out of frame.

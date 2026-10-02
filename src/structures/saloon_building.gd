@@ -11,6 +11,10 @@ func _init() -> void:
 	wall_height = 4.2
 	front_height = 7.0
 	sign_text = "SALOON"
+	# A tall doorway and no porch roof over it, as the painting's: from the back of the room you
+	# see the moonlit street and the moon through it (art).
+	door_size = Vector2(1.5, 3.2)
+	porch = false
 	night_ambient = 0.1
 	room_haze = 0.012
 
@@ -23,9 +27,9 @@ func _build_furniture() -> void:
 	var bz0 := 3.0
 	var bz1 := 9.5
 	var bar_h := 1.08
-	add_member("bar/front", &"furniture_frame", &"floor", Vector3(0.04, bar_h, bz1 - bz0), Vector3(bx0 + 0.02, f + bar_h * 0.5, (bz0 + bz1) * 0.5))
-	add_member("bar/end0", &"furniture_frame", &"floor", Vector3(bx1 - bx0, bar_h, 0.04), Vector3((bx0 + bx1) * 0.5, f + bar_h * 0.5, bz0 + 0.02))
-	add_member("bar/end1", &"furniture_frame", &"floor", Vector3(bx1 - bx0, bar_h, 0.04), Vector3((bx0 + bx1) * 0.5, f + bar_h * 0.5, bz1 - 0.02))
+	add_member("bar/front", &"furniture_frame", &"dark_trim", Vector3(0.04, bar_h, bz1 - bz0), Vector3(bx0 + 0.02, f + bar_h * 0.5, (bz0 + bz1) * 0.5))
+	add_member("bar/end0", &"furniture_frame", &"dark_trim", Vector3(bx1 - bx0, bar_h, 0.04), Vector3((bx0 + bx1) * 0.5, f + bar_h * 0.5, bz0 + 0.02))
+	add_member("bar/end1", &"furniture_frame", &"dark_trim", Vector3(bx1 - bx0, bar_h, 0.04), Vector3((bx0 + bx1) * 0.5, f + bar_h * 0.5, bz1 - 0.02))
 	add_member("bar/top", &"furniture_top", &"dark_trim", Vector3(bx1 - bx0 + 0.14, 0.05, bz1 - bz0 + 0.1),
 			Vector3((bx0 + bx1) * 0.5 - 0.05, f + bar_h + 0.025, (bz0 + bz1) * 0.5))
 	add_member("bar/foot_rail", &"trim", &"dark_trim", Vector3(0.05, 0.05, bz1 - bz0 - 0.2), Vector3(bx0 - 0.025, f + 0.18, (bz0 + bz1) * 0.5))
