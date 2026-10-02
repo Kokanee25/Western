@@ -44,8 +44,9 @@ LORA = os.path.join(ROOT, "tools", "style", "style_lora.json")
 EDITOR = os.environ.get("FAL_EDITOR") or "fal-ai/flux-kontext-lora"
 QUEUE = "https://queue.fal.run/"
 # The LoRA's share on the clean pictures: enough for the drawing's character (the period
-# detail, the palette), not enough to paint its mosaic (at 1.0 it draws the blocks too).
-SCALE = 0.5
+# detail, the palette), not enough to paint its mosaic (at 1.0 it draws the blocks too; at 0.5,
+# People run 20, the coat's front still came out in check blocks while the back was plain wool).
+SCALE = 0.25
 # The turnaround's other views, in Tripo's order after the front.
 TURN = ("left", "back", "right")
 
