@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/ (needs FAL_KEY)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it (both need FAL_KEY)"
         required: false
         default: ""
 
@@ -117,6 +117,39 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style: LoRA trained on fal (run ${{ github.run_number }})"
+          git push
+
+  style-sample:
+    if: ${{ inputs.style == 'sample' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint samples with the style LoRA on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_SAMPLER: ${{ vars.FAL_SAMPLER }}
+        run: |
+          pip install pillow
+          python3 tools/style/sample_style.py
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-sample
+          path: build/style_sample/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the samples
+        run: |
+          git add docs/style_test/lora
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Style: samples from the LoRA (run ${{ github.run_number }})"
           git push
 
   textures:
