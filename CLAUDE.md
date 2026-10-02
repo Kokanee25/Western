@@ -1768,3 +1768,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   worst frames: `Structure.settle()` (StructuralAnalysis), ~29 ms a call on average, up to 73
   (126 calls in 35 s of fire); `_update_fx` ~11 ms every 0.5 s; grid ~14 ms every 2 s. 279 pass.
   - Next: settle only on change / cheaper analysis.
+- 2026-10-02 (gameplay, later): **Performance pass, part 3: the load check.** `StructuralAnalysis`
+  costs ~44 µs a member (the street's ~6.1k members: 270 ms a full pass, the saloon 54 ms), and a
+  burning building runs one a second. Ablation of its parts: handing each support's reaction back
+  down 100 ms (a quadratic search for its group: siding on ten studs has ~20 contact points),
+  grouping supports 60, outside `_bend` 60, capacity 35, `beam()` 13. Now: what doesn't change
+  while a member stands (axis, length, where along it each support bears, a rafter's partners,
+  and its support groups while none is gone) is kept on it (`StructureMember.analysis_cache`, not
+  saved; checked against its transform and size, cleared by `infer_supports`); the reaction walks
+  the sorted groups once (they're ≥ SAME_SUPPORT apart, so at most one matches); no lambda in
+  `beam()`'s inner loop. Street pass 270 → 190 ms; identical results (every load, utilisation,
+  mode, critical point and falling list, old vs new, 84 states; test
+  `test_loads::test_what_the_analysis_keeps_gives_the_same_answer`). Bench fire (2.1 GHz): avg
+  11.6 → 10.8 ms, **p99 73 → 53, max 100 → 70**. 280 pass.
+  - Further would need native code (ask first) or spreading the analysis over frames; the draws
+    are bigger for Sean now.
