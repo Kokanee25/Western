@@ -10,7 +10,7 @@
     "spittoon": {"prompt": "dented brass spittoon cuspidor", "size": [0.3, 0.25, 0.3], "anchor": "floor", "color": "#9a7a3a", "polycount": 3000},
     "oil_lamp": {"prompt": "kerosene table lamp with a clear glass chimney and a brass base", "size": [0.14, 0.38, 0.14], "anchor": "floor", "color": "#b08a4a", "polycount": 3000, "light_height": 0.2},
     "whiskey_bottle": {"prompt": "dark glass whiskey bottle with a faded paper label and a cork", "size": [0.09, 0.3, 0.09], "anchor": "floor", "color": "#3a2412", "polycount": 2000},
-    "tin_cup": {"prompt": "dented tin drinking cup", "size": [0.08, 0.1, 0.08], "anchor": "floor", "color": "#8a8a86", "polycount": 1500},
+    "tin_cup": {"prompt": "dented tin drinking cup", "size": [0.11, 0.1, 0.08], "anchor": "floor", "color": "#8a8a86", "polycount": 1500},
     "deer_head": {"prompt": "mounted stag head hunting trophy with large antlers on a wooden plaque", "size": [0.9, 0.9, 0.55], "anchor": "wall", "color": "#6a4a30", "polycount": 8000},
     "framed_painting": {"prompt": "oil painting of a mountain landscape in an ornate gilded wooden frame", "size": [1.0, 0.7, 0.06], "anchor": "wall", "color": "#8a6a30", "polycount": 2000},
     "wall_sconce": {"prompt": "wall-mounted kerosene lamp on an iron bracket with a glass chimney and a tin reflector", "size": [0.2, 0.42, 0.22], "anchor": "wall", "color": "#4a4038", "polycount": 3000, "light_height": 0.24}

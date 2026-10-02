@@ -22,6 +22,7 @@ var broken := false
 
 var _light: OmniLight3D
 var _flame: MeshInstance3D
+var _chimney: MeshInstance3D
 var _flame_material: StandardMaterial3D
 var _time := 0.0
 
@@ -42,6 +43,8 @@ func should_be_lit(hour: int) -> bool:
 func set_lit(on: bool) -> void:
 	lit = on
 	_light.visible = on
+	if _chimney:
+		_chimney.set_instance_shader_parameter(&"glow", 1.0 if on else 0.0)
 	_flame_material.emission_enabled = on
 	_flame_material.albedo_color = Color(1.0, 0.75, 0.4, 0.8) if on else Color(0.5, 0.55, 0.55, 0.4)
 
@@ -65,9 +68,11 @@ func _build() -> void:
 	var model := Node3D.new()
 	model.name = "Model"
 	PropModels.lamp(model)
-	# The brass font shades the table under the flame (the dark ring round a lamp's foot); the
-	# glass doesn't.
-	(model.get_node(^"Chimney") as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Nothing of the lamp shades its own light (the font's shadow from a flame just over it was a
+	# jagged black ring on the table); the chimney glows when it's lit.
+	for mi in model.find_children("*", "MeshInstance3D", false, false):
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_chimney = model.get_node(^"Chimney") as MeshInstance3D
 	add_child(model)
 	_flame_material = StandardMaterial3D.new()
 	_flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -75,15 +80,12 @@ func _build() -> void:
 	_flame_material.emission = Color(1.0, 0.68, 0.3)
 	_flame_material.emission_energy_multiplier = 5.0
 	_flame = MeshInstance3D.new()
-	var tongue := CylinderMesh.new()
-	tongue.top_radius = 0.002
-	tongue.bottom_radius = 0.011
-	tongue.height = 0.045
-	tongue.radial_segments = 6
+	# A teardrop of flame, as the painting draws it filling the chimney's swell.
+	var tongue := PropModels.lathe(PropModels._profile([[0.004, 0.0], [0.014, 0.012], [0.016, 0.026], [0.011, 0.046], [0.002, 0.066]]), 8)
 	_flame.mesh = tongue
 	_flame.material_override = _flame_material
 	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_flame.position.y = 0.205
+	_flame.position.y = 0.17
 	add_child(_flame)
 
 	if hanging:

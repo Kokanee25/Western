@@ -1317,3 +1317,26 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: everyone still wears the painted outlaw's body and paint (step 4 of the art plan,
     image-to-3D, waits on `TRIPO_API_KEY`); nobody walks about (the "walker" stands); they don't
     sit on anything but the bench.
+- 2026-10-02 (art session, later): **Look 5: the man's face, the lamp, bottle and cups.**
+  `tools/paint/face_draw.py` draws his face over the finished head texture as a pixel artist would:
+  open eyes texel by texel (a warm white either side of a dark iris looking at you, a glint, a
+  heavy two-row upper lid, a lower lid), thick dark brows dropping at their outer ends, a heavy
+  walrus moustache drooping past his mouth, firmer contrast (1.2) and the whole head's colour
+  pushed from grey (1.25, the painting's lamplit orange). Eyes at `shapes.head.eyes` in
+  `<id>_paint.json`; `finish.py` runs it last (by hand only on an undrawn texture: it draws over
+  whatever's there). Re-import after (`godot --headless --import`) or the game shows the old PNG.
+  The lamp (`PropModels.lamp`) is the painting's: a low wide foot of dark brass, a squat font, burner
+  prongs, a tall teardrop chimney (`src/props/chimney_glass.gdshader`, per-lamp `glow`): orange glass
+  in squares, near-white over the flame and a teardrop of flame where your line of sight passes
+  near it. Two traps: ACES turns any bright orange cream (its channel mixing: pure green came out
+  (147,245,82)), so the chimney's colours go through the tonemap's inverse (`src/render/aces.
+  gdshaderinc`, moved out of `body_skin.gdshaderinc`, which includes it); and the room's haze lit by
+  a flame centimetres away laid cream over the glass (`fog_disabled`). `OilLamp` (gameplay's file):
+  nothing of the lamp shadows its own light (the font's shadow was a jagged black ring on the table),
+  a teardrop flame, the chimney's glow follows `lit`; the shot's table lamp lights less haze (0.4).
+  Pewter mugs with a banded foot, rolled rim, dark inside and a strap handle (manifest `tin_cup`
+  0.11 m across now); bottle glass browner, labels aged dark and sized to the world's texels. Judge
+  round `_r8`: saloon 0.848 → **0.763** (street 0.649). 279 tests pass.
+  - Known: his head is turned and shaped unlike the painting's (the face lands a little off), his
+    mouth reads as a smile; the lamp's foot catches too much of its own light; the ashtray's still a
+    plain disc; the saloon's bar side is still plain (the judge's biggest left there).

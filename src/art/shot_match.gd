@@ -56,6 +56,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# was tried for the key on his face).
 	lamp.energy = 1.5
 	lamp.light_range = 7.0
+	# Less of the room's smoke lit by it: a light a few centimetres inside the chimney lit the air
+	# round the glass white, where the painting's chimney glows amber.
+	lamp.haze = 0.4
 	root.add_child(lamp)
 	lamp.position = Vector3(0.183, TABLE_HEIGHT, -0.011)
 	_bottle(root, Vector3(-0.152, TABLE_HEIGHT, -0.006))
