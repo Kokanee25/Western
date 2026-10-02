@@ -1,29 +1,41 @@
 class_name StreetDressing
 extends Node3D
 ## The test street dressed as the street painting has it (docs/concept/street-golden-hour.png):
-## painted signs on the false fronts down the street (LIVERY and JAIL across from the store, GENERAL
-## STORE next to it), carriage lanterns by the doors, barrels, crates and hay along the boardwalks,
-## a horse saddled at a rail, a covered wagon down the street, telegraph poles and a water tower
-## over the roofs, and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to bump into.
-## Everything keeps off the road's middle (the gang rides in along z -9) and the store's porch.
-##
-## The blockout lots (their fronts) are StreetScenery's: [x0, x1, front z, faces +Z, wall height,
-## front height]; kept in step by hand.
+## member-built false fronts down the street (the SALOON with its big painted board, the GENERAL
+## STORE with DRY GOODS on its side, a barber and a hotel on the north side; the LIVERY barn, the
+## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
+## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
+## the street, telegraph poles and a water tower over the roofs, and the red-rock mesas and spires
+## on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
+## bump into. Everything keeps off the road's middle (the gang rides in along z -9) and the store's
+## porch.
 
-const LOTS := [
-	[-7.8, -0.6, 0.0, false, 3.4, 5.4],
-	[-15.5, -8.6, 0.0, false, 3.8, 6.6],
-	[-10.5, -3.0, -16.8, true, 3.4, 5.6],
-	[-19.5, -11.5, -16.8, true, 3.0, 4.6],
-	[-28.0, -20.5, -16.8, true, 4.0, 6.2],
+## The buildings: [name, x0, x1, faces +Z (south side), {FalseFrontBuilding settings}]. The north
+## side's fronts stand on z = 0 (the store's line), the south side's on z = -16.8 (the saloon's).
+const NORTH_Z := 0.0
+const SOUTH_Z := -16.8
+const BUILDINGS := [
+	["StreetSaloon", -10.8, -1.2, false, {"depth": 12.0, "wall_height": 4.6, "front_height": 8.4, "sign_text": "SALOON",
+			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"weathered_pine"}],
+	["GeneralStore", -20.4, -11.8, false, {"depth": 11.0, "wall_height": 5.4, "front_height": 7.8,
+			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"weathered_pine"}],
+	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
+			"front_wood": &"painted_rust"}],
+	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL"}],
+	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
+			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
+			"sign_text": "LIVERY", "gable_sign": Rect2(0.45, 1.6, 2.7, 3.6), "porch": false, "front_wood": &"weathered_pine"}],
+	["Jail", -24.6, -18.2, true, {"depth": 8.0, "wall_height": 3.3, "front_height": 4.9, "sign_text": "JAIL",
+			"window_bars": true, "front_wood": &"weathered_pine"}],
+	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
+			"front_wood": &"painted_ochre"}],
 ]
-## Which painted board goes on which lot (LOTS index), and how high on its front the board may go
-## (from, to, metres above the ground).
-const SIGNS := [[0, &"sign_general_store", 3.6, 5.2], [2, &"sign_livery", 2.65, 5.35], [3, &"sign_jail", 3.15, 4.45]]
+## Boardwalks before them: [name, x0, x1, faces +Z].
+const WALKS := [["WestBoardwalk", -35.6, -8.0, false], ["SouthWestBoardwalk", -32.0, -18.2, true]]
 
 
 func _ready() -> void:
-	_signs()
+	_buildings()
 	_lanterns()
 	_loose()
 	_far()
@@ -32,36 +44,75 @@ func _ready() -> void:
 	add_child(mountains)
 
 
-## Where a lot's front face is, and which way it looks (+1: toward +Z).
-static func _front(lot: Array) -> Array:
-	var faces := 1.0 if lot[3] else -1.0
-	return [(lot[2] as float) + faces * 0.125, faces]
+## Where a building stands: its front-left corner (FalseFrontBuilding's origin), turned to face
+## the street.
+static func _placed(x0: float, x1: float, south: bool) -> Transform3D:
+	if south:
+		return Transform3D(Basis(Vector3.UP, PI), Vector3(x1, 0.0, SOUTH_Z))
+	return Transform3D(Basis(), Vector3(x0, 0.0, NORTH_Z))
 
 
-func _signs() -> void:
-	for s in SIGNS:
-		var lot: Array = LOTS[s[0]]
-		var painted := SignArt.board_size(s[1])
-		if painted == Vector2.ZERO:
-			continue
-		var room := Vector2((lot[1] as float) - (lot[0] as float) - 1.0, (s[3] as float) - (s[2] as float))
-		var size := painted * minf(room.x / painted.x, room.y / painted.y)
-		var board := SignArt.board(s[1], size)
-		var f := _front(lot)
-		var x: float = ((lot[0] as float) + (lot[1] as float)) * 0.5
-		if s[1] == &"sign_livery":
-			x += 1.8  # beside the door, not over it
-		add_child(board)
-		board.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if f[1] > 0.0 else PI), Vector3(x, ((s[2] as float) + (s[3] as float)) * 0.5, f[0] + f[1] * 0.02))
+func _buildings() -> void:
+	for i in BUILDINGS.size():
+		var b: Array = BUILDINGS[i]
+		var building := FalseFrontBuilding.new()
+		building.name = b[0]
+		building.structure_id = StringName((b[0] as String).to_snake_case())
+		building.build_seed = 40 + i
+		building.width = (b[2] as float) - (b[1] as float)
+		# Down the street, nobody's inside yet: no counter or lamp, and the store's lantern stays
+		# the only one hung under a porch (carriage lanterns by the doors instead).
+		building.furnished = false
+		building.porch_lantern = false
+		var settings: Dictionary = b[4]
+		for k in settings:
+			building.set(k, settings[k])
+		building.transform = _placed(b[1], b[2], b[3])
+		add_child(building)
+		if b[0] == "GeneralStore":
+			_side_board(building, &"sign_dry_goods")
+	for w in WALKS:
+		var walk := Boardwalk.new()
+		walk.name = w[0]
+		walk.structure_id = StringName((w[0] as String).to_snake_case())
+		walk.length = (w[2] as float) - (w[1] as float)
+		walk.transform = _placed(w[1], w[2], w[3])
+		add_child(walk)
 
 
-## A carriage lantern either side of each lot's door, lit from dusk.
+## The painting's DRY GOODS / TOOLS / HARDWARE / PROVISIONS board, high on the store's side wall
+## toward the street end (seen past the saloon's roof).
+func _side_board(building: FalseFrontBuilding, id: StringName) -> void:
+	var painted := SignArt.board_size(id)
+	if painted == Vector2.ZERO:
+		return
+	var size := painted * minf(2.8 / painted.x, 1.6 / painted.y)
+	var board := SignArt.board(id, size)
+	board.name = "SideBoard"
+	building.add_child(board)
+	# The right-hand wall (local +X: the street's east) faces +X; the board's front faces +Z.
+	board.transform = Transform3D(Basis(Vector3.UP, PI * 0.5),
+			Vector3(building.width + 0.04, building.wall_height - 0.2 - size.y * 0.5, 0.5 + size.x * 0.5))
+
+
+## A carriage lantern either side of each door, lit from dusk.
 func _lanterns() -> void:
-	for lot: Array in LOTS:
-		var f := _front(lot)
-		var cx: float = ((lot[0] as float) + (lot[1] as float)) * 0.5
+	for b: Array in BUILDINGS:
+		var settings: Dictionary = b[4]
+		if settings.get("gable_front", false):
+			continue
+		var south: bool = b[3]
+		var t := _placed(b[1], b[2], south)
+		var w: float = (b[2] as float) - (b[1] as float)
+		var door: Vector2 = settings.get("door_size", Vector2(1.1, 2.2))
 		for side in [-1.0, 1.0]:
-			_lantern(Vector3(cx + side * 0.95, 2.25, f[0]), f[1])
+			# In the building's own space: the front faces -Z.
+			var local := Vector3(w * 0.5 + side * (door.x * 0.5 + 0.4), 2.25, -0.05)
+			_lantern(t * local, 1.0 if south else -1.0)
+	# The livery's, by its big door.
+	var livery: Array = BUILDINGS[4]
+	var lt := _placed(livery[1], livery[2], true)
+	_lantern(lt * Vector3(3.35, 2.6, -0.05), 1.0)
 
 
 func _lantern(at: Vector3, faces: float) -> void:
@@ -88,27 +139,28 @@ func _loose() -> void:
 		_prop(&"barrel", p, 0.0)
 	for c in [[Vector3(-2.7, 0.38, -0.8), 10.0], [Vector3(-2.75, 0.98, -0.8), 35.0], [Vector3(-7.8, 0.38, -0.8), -15.0]]:
 		_model("Crate", PropModels.crate, c[0], c[1], Vector3(0.6, 0.6, 0.6))
-	for p in [Vector3(-3.4, 0.0, -15.9), Vector3(-4.6, 0.0, -16.0), Vector3(-4.0, 0.45, -15.95), Vector3(-12.2, 0.0, -15.9)]:
+	for p in [Vector3(-7.8, 0.0, -15.9), Vector3(-9.0, 0.0, -16.0), Vector3(-8.4, 0.45, -15.95), Vector3(-16.6, 0.0, -15.9)]:
 		_model("Hay", PropModels.hay_bale, p, 0.0, Vector3(0.9, 0.45, 0.5))
-	for p in [Vector3(-11.0, 0.0, -16.1), Vector3(-19.0, 0.0, -16.1)]:
-		_prop(&"barrel", p, 0.0)
-	_model("Crate", PropModels.crate, Vector3(-20.1, 0.0, -16.0), 20.0, Vector3(0.6, 0.6, 0.6))
+	_prop(&"barrel", Vector3(-15.4, 0.0, -16.1), 0.0)
+	# On the jail's boardwalk.
+	_prop(&"barrel", Vector3(-19.4, 0.38, -15.9), 0.0)
+	_model("Crate", PropModels.crate, Vector3(-24.3, 0.38, -15.8), 20.0, Vector3(0.6, 0.6, 0.6))
 	# The rail before the livery, and a bay horse tied to it.
 	var rail := Node3D.new()
 	rail.name = "LiveryRail"
 	add_child(rail)
 	var wood := PropModels.dark_wood()
-	for x in [-10.2, -7.4]:
+	for x in [-14.6, -11.8]:
 		PropModels._box(rail, "Post", Vector3(0.12, 1.1, 0.12), Vector3(x, 0.55, -14.2), wood)
-	PropModels._box(rail, "Bar", Vector3(3.0, 0.1, 0.1), Vector3(-8.8, 1.0, -14.2), wood)
-	_model("Horse", PropModels.horse, Vector3(-8.6, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
+	PropModels._box(rail, "Bar", Vector3(3.0, 0.1, 0.1), Vector3(-13.2, 1.0, -14.2), wood)
+	_model("Horse", PropModels.horse, Vector3(-13.0, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
 
 
 ## Down the street and over the roofs: a covered wagon, telegraph poles with their wire, the water
 ## tower.
 func _far() -> void:
 	_model("Wagon", PropModels.wagon, Vector3(-36.0, 0.0, -12.6), 0.0, Vector3(3.4, 2.2, 1.8))
-	var poles := [Vector3(-2.0, 0.0, -15.3), Vector3(-27.0, 0.0, -15.3), Vector3(-52.0, 0.0, -15.3), Vector3(-77.0, 0.0, -15.3)]
+	var poles := [Vector3(-2.0, 0.0, -13.9), Vector3(-27.0, 0.0, -13.9), Vector3(-52.0, 0.0, -13.9), Vector3(-77.0, 0.0, -13.9)]
 	for p in poles:
 		_model("Pole", PropModels.telegraph_pole, p, 0.0, Vector3(0.25, 7.0, 0.25))
 	var wire := PropModels.iron()

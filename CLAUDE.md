@@ -168,7 +168,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
-  `TimberTuning`), `FalseFrontBuilding`, `Boardwalk`, `HitchingRail`, `WaterTrough`.
+  `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
+  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
+  `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
+  per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people; `config/fire.tres` via `FireTuning`), `FireFX` (flames,
   smoke, `char_overlay.gdshader`).
@@ -271,7 +274,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/art/sign_art.gd` (`SignArt`): the factory's painted sign boards, laid on once at their own
   shape; `FalseFrontBuilding` hangs one for its `sign_text` (SALOON, DRY GOODS, …) where there is
   one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
-  street): signs on the blockout lots (its `LOTS` copy StreetScenery's), carriage lanterns, barrels,
+  street): the false fronts down the street (`BUILDINGS`: saloon, general store, barber, hotel;
+  livery, jail, assay office) and their boardwalks (`WALKS`), carriage lanterns, barrels,
   crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
@@ -1244,3 +1248,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   going down to one hit; `test_drop` +1 (the air). 275 pass; body hits to stop him 1.54 (was 1.46,
   same seeds, different flights), charges dropping him at 20 m 3 of 16 (was 5).
   - Open with Sean: where Salt Creek is (elevation, how hot): mesa country is often 1,200–1,800 m.
+- 2026-10-02 (art session; features frozen, the only session): **Look 1: real false fronts down
+  the street.** The blockouts are gone (StreetScenery keeps the church); `StreetDressing.BUILDINGS`
+  puts member-built `FalseFrontBuilding`s on their lots: the painting's SALOON (two-storey front,
+  the big painted board over the porch, batwings), the GENERAL STORE (DRY GOODS board on its side),
+  a barber and a hotel on the north side; the LIVERY (a barn: gable front, double doors, loft door,
+  the painted board on its boards), the JAIL (barred windows) and an assay office across, the
+  south ones 4.4 m further west than the old lots so the livery sits at the frame's right edge as
+  in the painting; boardwalks before them. The street shot stands in the middle of the road east
+  of the saloon (`StreetMatch.FEET`/`LOOK`). Gameplay files touched (only session, so said here):
+  `false_front_building.gd` (the shape options above), `structure.gd` (**member batching**: seven
+  more buildings put ~2,500 members on the street, a draw call each in every shadow pass; untouched
+  members now draw as one mesh per material per structure and leave it when holed, heated or
+  broken), `fire_system.gd` (unbatches what it heats), `street_scenery.gd` (blockouts out),
+  `test_dynamite.gd` (the store throw from 7 m, not 9: the stick bounced along the boardwalk and
+  where it stopped turned on the contact order of every body in the street, 0–11 timber broken;
+  from 7 m it lands at the door, 21–23), `test_loads.gd` (+2: the street buildings stand, batching).
+  Sign boards have their own mesh (a tall board's picture came out sideways). Judge round
+  `2026-10-02_r1`: street 0.874 → 0.866 (saloon 0.866). 277 tests pass.
+  - Known: the church at the end is still a blockout, and StreetScenery's pale hills show at the
+    street's end; the livery's loft is empty (no hay); nobody's inside these buildings (no
+    furniture); the DRY GOODS board is hidden from the shot by the saloon's front.

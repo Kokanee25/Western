@@ -10,10 +10,11 @@ class_name StreetMatch
 ## The hour: the sun a hand's width over the horizon, as in the painting.
 const HOUR := 17.6
 ## Where your feet are, and the point you look at (world space, test street).
-## Fitted by eye to the painting (2026-10-01): the street's vanishing point ~59% across and a
-## little below the middle, the near false front's porch filling the left third.
-const FEET := Vector3(7.6, 0.0, -4.6)
-const LOOK := Vector3(-41.5, 5.1, 4.86)
+## Fitted by eye to the painting (2026-10-02): the street's vanishing point ~55% across and a
+## little below the middle, the saloon's porch and big board down the left, the livery's front at
+## the right edge.
+const FEET := Vector3(3.0, 0.0, -7.4)
+const LOOK := Vector3(-46.1, 5.6, -2.2)
 ## The painting's lens: about 62° top to bottom (the game's own is 75°).
 const FOV := 62.0
 ## Eye height above the feet (the player's camera stands 1.6 m up).

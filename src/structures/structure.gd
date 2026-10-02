@@ -19,6 +19,11 @@ const CONTACT_EPSILON := 0.012
 @export var build_seed := 1
 ## False for fixtures that hold still whatever happens (test rigs): holes, but no breaking.
 @export var collapses := true
+## Draw untouched members together: one mesh per material for the whole structure (a building is
+## hundreds of boards, and a draw call each, times every shadow pass, was too many for a street
+## of them). A member leaves the batch for good the moment anything happens to it (a hole, heat,
+## breaking): its own mesh shows again and the batch is rebuilt without it.
+@export var batch_meshes := true
 
 ## StringName -> StructureMember
 var members := {}
@@ -33,6 +38,11 @@ var _settle_pending := false
 var _sound_cooldown := 0.0
 var _rng := RandomNumberGenerator.new()
 var _shape_cache := {}
+## Material -> MeshInstance3D drawing the batched members of that material.
+var _batches := {}
+## StructureMember -> the Material of the batch it's drawn in.
+var _batched := {}
+var _batch_dirty := {}
 
 
 func _ready() -> void:
@@ -42,6 +52,7 @@ func _ready() -> void:
 
 
 func rebuild() -> void:
+	_clear_batches()
 	for m in _order:
 		m.free()
 	members.clear()
@@ -49,6 +60,7 @@ func rebuild() -> void:
 	_rng.seed = build_seed
 	build()
 	infer_supports()
+	_batch_all()
 
 
 ## Override: add members with add_member().
@@ -95,6 +107,7 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 
 	add_child(m)
 	m.pieces = [[mi, cs]]
+	m.damaged.connect(unbatch.bind(m))
 	m.damaged.connect(_on_member_damaged)
 	members[id] = m
 	_order.append(m)
@@ -160,6 +173,90 @@ func members_without_load_path(broken := {}) -> Array[StringName]:
 		else:
 			falling.append(m.member_id)
 	return falling
+
+
+# --- Drawing members together ---------------------------------------------------------------------
+
+func _batch_all() -> void:
+	_clear_batches()
+	if not batch_meshes:
+		return
+	var groups := {}
+	for m in _order:
+		var mi := m.get_child(0) as MeshInstance3D
+		# Glass stays its own (see-through, no shadow); so does anything already hidden (a sign
+		# member under its painted board) or drawn its own way.
+		if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
+				or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
+			continue
+		var mat := mi.material_override
+		if not groups.has(mat):
+			groups[mat] = []
+		(groups[mat] as Array).append(m)
+		_batched[m] = mat
+		mi.visible = false
+	for mat in groups:
+		_build_batch(mat)
+
+
+func _build_batch(mat: Material) -> void:
+	var old: MeshInstance3D = _batches.get(mat)
+	var st := SurfaceTool.new()
+	var any := false
+	for m: StructureMember in _batched:
+		if _batched[m] != mat:
+			continue
+		var mi := m.get_child(0) as MeshInstance3D
+		st.append_from(mi.mesh, 0, m.transform * mi.transform)
+		any = true
+	if not any:
+		if old:
+			old.queue_free()
+		_batches.erase(mat)
+		return
+	var mesh := st.commit()
+	if old == null:
+		old = MeshInstance3D.new()
+		old.name = "Batch"
+		old.material_override = mat
+		add_child(old, false, Node.INTERNAL_MODE_BACK)
+		_batches[mat] = old
+	old.mesh = mesh
+
+
+## Draw this member on its own from now on (something's happened to it).
+func unbatch(m: StructureMember) -> void:
+	if not _batched.has(m):
+		return
+	var mat: Material = _batched[m]
+	_batched.erase(m)
+	var mi := m.get_child(0) as MeshInstance3D
+	if mi:
+		mi.visible = true
+	if _batch_dirty.is_empty():
+		_rebuild_dirty_batches.call_deferred()
+	_batch_dirty[mat] = true
+
+
+func _rebuild_dirty_batches() -> void:
+	for mat in _batch_dirty:
+		_build_batch(mat)
+	_batch_dirty.clear()
+
+
+func _clear_batches() -> void:
+	for mat in _batches:
+		var mi: MeshInstance3D = _batches[mat]
+		if is_instance_valid(mi):
+			mi.free()
+	_batches.clear()
+	_batched.clear()
+	_batch_dirty.clear()
+
+
+## How many draw calls its intact members take (tests, F3).
+func batch_count() -> int:
+	return _batches.size()
 
 
 # --- Standing and falling -----------------------------------------------------------------------
@@ -230,6 +327,7 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3]) -> Arra
 ## An overloaded member snaps at `t` along its length into two falling pieces (short ones just
 ## fall whole).
 func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
+	unbatch(m)
 	m.broken = true
 	var length := m.length()
 	var ai := m.axis_index()
@@ -308,6 +406,7 @@ func _drop(ids: Array[StringName]) -> void:
 		var mass := 0.0
 		for id in clump:
 			var m := get_member(id)
+			unbatch(m)
 			m.broken = true
 			mass += m.weight(tuning) / 9.81
 			for c in m.get_children():

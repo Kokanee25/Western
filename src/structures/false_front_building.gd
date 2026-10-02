@@ -27,6 +27,32 @@ extends Structure
 ## Haze in the room (fog density): tobacco smoke in a saloon, so the lamps glow in the air.
 @export var room_haze := 0.0
 
+@export_group("Shape")
+## The front's boards: lap siding in this wood (painted_ochre, or weathered_pine bare boards).
+@export var front_wood: StringName = &"painted_ochre"
+## The front door's width and height. Wider than 1.6 m it's a pair of leaves.
+@export var door_size := Vector2(1.1, 2.2)
+## The two front windows either side of the door.
+@export var front_windows := true
+## Iron bars across the windows (a jail).
+@export var window_bars := false
+## Saloon batwings: a pair of short swinging leaves across the doorway (the door stands open).
+@export var batwings := false
+## A barn: the front is a gable end (no false front), boarded up and down, with a loft door
+## under the ridge (`loft_door`: its rect in front-wall space; empty = none).
+@export var gable_front := false
+@export var loft_door := Rect2()
+## Where the painted sign may go on the front: from this height up to the cornice. Negative:
+## just over the side walls (the usual). Two-storey fronts set it over the porch roof.
+@export var sign_from := -1.0
+## A painted board on a gable front: its rect in front-wall space (empty = none).
+@export var gable_sign := Rect2()
+## A porch awning over the boardwalk, and a lantern hung under it.
+@export var porch := true
+@export var porch_lantern := true
+## Counter, shelves and the counter lamp inside.
+@export var furnished := true
+
 const SILL := 0.2
 const STUD_W := 0.05
 const STUD_D := 0.1
@@ -49,7 +75,7 @@ func build() -> void:
 	var w := width
 	var d := depth
 	var tanp := tan(deg_to_rad(roof_pitch_degrees))
-	door_rect = Rect2(w * 0.5 - 0.55, floor_top, 1.1, 2.2)
+	door_rect = Rect2(w * 0.5 - door_size.x * 0.5, floor_top, door_size.x, door_size.y)
 
 	_build_floor()
 
@@ -58,7 +84,11 @@ func build() -> void:
 	var left := _wall("left", Vector3.ZERO, Vector3.BACK, Vector3.LEFT, d, STUD_D, d - STUD_D)
 	var right := _wall("right", Vector3(w, 0, 0), Vector3.BACK, Vector3.RIGHT, d, STUD_D, d - STUD_D)
 
-	var front_openings: Array[Rect2] = [door_rect, Rect2(0.55, 1.05, 1.1, 1.35), Rect2(w - 1.65, 1.05, 1.1, 1.35)]
+	var front_openings: Array[Rect2] = [door_rect]
+	if front_windows:
+		front_openings.append_array([Rect2(0.55, 1.05, 1.1, 1.35), Rect2(w - 1.65, 1.05, 1.1, 1.35)])
+	if loft_door.has_area():
+		front_openings.append(loft_door)
 	var right_openings: Array[Rect2] = [Rect2(d * 0.55 - 0.5, 1.2, 1.0, 1.0)]
 	var back_openings: Array[Rect2] = [Rect2(w * 0.5 - 0.4, 1.3, 0.8, 0.8)]
 	var no_openings: Array[Rect2] = []
@@ -71,7 +101,7 @@ func build() -> void:
 	var gable_board_top := func(x: float) -> float:
 		return wall_height + maxf(minf(x, w - x), 0.0) * tanp + RAFTER_D
 
-	_frame_wall(front, front_top, front_openings)
+	_frame_wall(front, gable_top if gable_front else front_top, front_openings)
 	_frame_wall(back, gable_top, back_openings)
 	_frame_wall(left, side_top, no_openings)
 	_frame_wall(right, side_top, right_openings)
@@ -79,25 +109,38 @@ func build() -> void:
 		_wall_member("%s/plate" % wall.name, &"plate", &"framing", wall, wall.x_start, wall.x_end,
 				wall_height - PLATE_H, wall_height, -STUD_D, 0.0)
 
-	_lap_siding(front, front_height, front_openings, &"painted_ochre")
+	if gable_front:
+		_vertical_siding(front, gable_board_top, front_openings, -BOARD_T, w + BOARD_T, front_wood)
+	else:
+		_lap_siding(front, front_height, front_openings, front_wood)
 	_vertical_siding(left, func(_x: float) -> float: return wall_height, no_openings, -BOARD_T, d)
 	_vertical_siding(right, func(_x: float) -> float: return wall_height, right_openings, -BOARD_T, d)
 	_vertical_siding(back, gable_board_top, back_openings, -BOARD_T, w + BOARD_T)
 
 	for o in front_openings:
-		_opening_trim(front, o, o != door_rect)
-		if o != door_rect:
+		var window := o != door_rect and o != loft_door
+		_opening_trim(front, o, window)
+		if window:
 			_glass(front, o)
+			if window_bars:
+				_bars(front, o)
 	_opening_trim(right, right_openings[0], true)
 	_glass(right, right_openings[0])
 	_opening_trim(back, back_openings[0], true)
 	_glass(back, back_openings[0])
 
-	_build_false_front(front)
+	if gable_front:
+		_hang_gable_sign()
+	else:
+		_build_false_front(front)
 	_build_door()
+	if batwings:
+		_build_batwings()
 	_build_roof(tanp)
-	_build_porch()
-	_build_furniture()
+	if porch:
+		_build_porch()
+	if furnished:
+		_build_furniture()
 	_add_interior_ambient()
 
 
@@ -255,7 +298,8 @@ func _lap_siding(wall: Dictionary, top: float, openings: Array[Rect2], wood: Str
 
 
 ## Rough vertical boards with narrow gaps (and the occasional wide one), cut around openings.
-func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2], x_from: float, x_to: float) -> void:
+func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2], x_from: float, x_to: float,
+		wood: StringName = &"weathered_pine") -> void:
 	var n: String = wall.name
 	var col := 0
 	var x := x_from
@@ -269,7 +313,7 @@ func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2]
 		var piece := 0
 		for span in _subtract_spans(Vector2(0.05, top), cuts):
 			if span.y - span.x > 0.04:
-				_wall_member("%s/siding/c%02d_%d" % [n, col, piece], &"board", &"weathered_pine", wall, x, x1, span.x, span.y, 0.0, BOARD_T)
+				_wall_member("%s/siding/c%02d_%d" % [n, col, piece], &"board", wood, wall, x, x1, span.x, span.y, 0.0, BOARD_T)
 				piece += 1
 		var gap := 0.035 if chance(0.12) else 0.012
 		x = x1 + gap
@@ -293,6 +337,36 @@ func _glass(wall: Dictionary, o: Rect2) -> void:
 	var n := "%s/glass_%d_%d" % [wall.name, int(o.position.x * 100.0), int(o.position.y * 100.0)]
 	var m := _wall_member(n, &"glass", &"glass", wall, o.position.x, o.end.x, o.position.y, o.end.y, -0.06, -0.054)
 	m.get_child(0).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+## Square iron bars set in the window's frame, a hand apart.
+func _bars(wall: Dictionary, o: Rect2) -> void:
+	var n := "%s/bars_%d_%d" % [wall.name, int(o.position.x * 100.0), int(o.position.y * 100.0)]
+	var count := maxi(int(o.size.x / 0.14), 2)
+	for i in count:
+		var x := o.position.x + o.size.x * (i + 0.5) / count
+		_wall_member("%s/%d" % [n, i], &"trim", &"dark_trim", wall, x - 0.011, x + 0.011, o.position.y, o.end.y, -0.04, -0.018)
+
+
+## Where the painted sign may go on the false front: the bottom of the room for it.
+func sign_room_bottom() -> float:
+	return sign_from if sign_from >= 0.0 else wall_height + 0.15
+
+
+## A gable front's painted board, on its boards (SignArt), for `sign_text`.
+func _hang_gable_sign() -> void:
+	if not gable_sign.has_area():
+		return
+	var id: StringName = SignArt.BOARDS.get(sign_text.to_upper(), &"")
+	var painted := SignArt.board_size(id)
+	if painted == Vector2.ZERO:
+		return
+	var k := minf(gable_sign.size.x / painted.x, gable_sign.size.y / painted.y)
+	var mi := SignArt.board(id, painted * k)
+	mi.name = "GableSign"
+	add_child(mi)
+	var c := gable_sign.get_center()
+	mi.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(c.x, c.y, -BOARD_T - 0.015))
 
 
 func _build_false_front(front: Dictionary) -> void:
@@ -325,13 +399,26 @@ func _build_false_front(front: Dictionary) -> void:
 	sign.add_child(label)
 
 
-## The door stands open, swung into the store.
+## The door stands open, swung into the store (a wide one is a pair of leaves, both open).
 func _build_door() -> void:
-	var leaf := Vector3(door_rect.size.x - 0.05, door_rect.size.y - 0.05, 0.04)
-	var basis := Basis(Vector3.UP, deg_to_rad(-92.0))
-	var hinge := Vector3(door_rect.position.x + 0.03, floor_top + 0.01, STUD_D + 0.03)
-	var center := hinge + basis * Vector3(leaf.x * 0.5, leaf.y * 0.5, 0.0)
-	add_member("front/door", &"door", &"painted_rust", leaf, center, basis)
+	var leaves := 2 if door_rect.size.x > 1.6 else 1
+	var leaf := Vector3(door_rect.size.x / leaves - 0.05, door_rect.size.y - 0.05, 0.04)
+	for i in leaves:
+		var right := i == 1
+		var basis := Basis(Vector3.UP, deg_to_rad(92.0 if right else -92.0))
+		var hinge := Vector3(door_rect.end.x - 0.03 if right else door_rect.position.x + 0.03, floor_top + 0.01, STUD_D + 0.03)
+		var center := hinge + basis * Vector3((-1.0 if right else 1.0) * leaf.x * 0.5, leaf.y * 0.5, 0.0)
+		add_member("front/door" if i == 0 else "front/door%d" % i, &"door", &"painted_rust", leaf, center, basis)
+
+
+## Batwings: two slatted leaves meeting in the middle of the doorway, chest high.
+func _build_batwings() -> void:
+	# Each hangs on its king stud.
+	var half := door_rect.size.x * 0.5 - 0.01
+	for i in 2:
+		var x0 := door_rect.position.x + 0.005 if i == 0 else door_rect.get_center().x + 0.005
+		add_member("front/batwing%d" % i, &"door", &"dark_trim", Vector3(half, 1.15, 0.03),
+				Vector3(x0 + half * 0.5, floor_top + 0.4 + 0.575, 0.02))
 
 
 func _build_roof(tanp: float) -> void:
@@ -423,6 +510,8 @@ func _build_porch() -> void:
 		sl += 0.2
 		i += 1
 
+	if not porch_lantern:
+		return
 	var lantern_x := door_rect.end.x + 0.55
 	add_member("front/lantern_bracket", &"trim", &"dark_trim", Vector3(0.03, 0.03, 0.34), Vector3(lantern_x, 2.85, -BOARD_T - 0.17))
 	var lantern := OilLamp.new()

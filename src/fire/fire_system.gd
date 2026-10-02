@@ -178,6 +178,8 @@ func _heat(m: StructureMember, amount: float) -> void:
 
 ## Burnt away: nothing left of it.
 func _consume(m: StructureMember) -> void:
+	if m.get_parent() is Structure:
+		(m.get_parent() as Structure).unbatch(m)
 	m.consumed = true
 	m.burning = false
 	var was_standing := not m.broken
@@ -280,6 +282,9 @@ func _update_fx() -> void:
 			continue
 		var fx: FireFX = _fx.get(m)
 		if (m.temperature > 120.0 or m.char_depth > 0.0) and fx == null:
+			# Heated or charred, it's drawn on its own (the char overlay), not with its structure's batch.
+			if m.get_parent() is Structure:
+				(m.get_parent() as Structure).unbatch(m)
 			fx = FireFX.new()
 			fx.member = m
 			add_child(fx)

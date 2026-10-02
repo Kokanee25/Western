@@ -64,7 +64,7 @@ const VIEWS := [
 	["outlaw_buckshot_close", 15.0, Vector3(24.45, 0.0, -12.5), -90.0, -18.0, "outlaw_buckshot"],
 	["shot_match_saloon", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match"],
 	# The street painting's shot (src/art/street_match.gd sets the place, turn and lens).
-	["shot_match_street", 17.6, Vector3(7.6, 0.0, -4.6), 100.0, 0.0, "street_match"],
+	["shot_match_street", 17.6, Vector3(3.0, 0.0, -7.4), 100.0, 0.0, "street_match"],
 	["coat_hands_up", 18.0, Vector3(0.0, 0.0, -9.0), -90.0, 0.0, "coat_hands_up"],
 	["portrait_day", 17.5, Vector3(20.0, 0.0, -12.5), -90.0, 0.0, "portrait"],
 	["shot_match_close", 22.0, Vector3(9.12, 0.38, -26.2), 180.0, -8.0, "shot_match_close"],

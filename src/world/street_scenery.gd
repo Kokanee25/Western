@@ -1,7 +1,7 @@
 class_name StreetScenery
 extends Node3D
-## Everything around the test building that isn't built from members yet: placeholder blockouts
-## of the rest of town, sagebrush, rocks, distant hills, props. Deterministic from the seed.
+## Everything around the test buildings that isn't built from members: a placeholder church,
+## sagebrush, rocks, distant hills, props. Deterministic from the seed.
 
 @export var scenery_seed := 1882
 @export var road_center_z := -8.4
@@ -56,41 +56,12 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, collide := 
 	return mi
 
 
-## Placeholder false fronts further into town (one box each; not member-built yet).
+## The church at the far end of the street (a placeholder; the false fronts down the street are
+## member-built now: StreetDressing).
 func _build_blockouts() -> void:
 	var root := Node3D.new()
 	root.name = "TownBlockouts"
 	add_child(root)
-	var fronts := [Color(0.62, 0.3, 0.2), Color(0.7, 0.62, 0.48), Color(0.48, 0.42, 0.36), Color(0.66, 0.5, 0.3), Color(0.42, 0.44, 0.4)]
-	# [x0, x1, front z, faces +Z?, wall height, front height]
-	var lots := [
-		[-7.8, -0.6, 0.0, false, 3.4, 5.4],
-		[-15.5, -8.6, 0.0, false, 3.8, 6.6],
-		[-23.0, -16.2, 0.0, false, 3.2, 4.8],
-		[-31.0, -24.0, 0.0, false, 4.6, 7.2],
-		[-10.5, -3.0, -16.8, true, 3.4, 5.6],
-		[-19.5, -11.5, -16.8, true, 3.0, 4.6],
-		[-28.0, -20.5, -16.8, true, 4.0, 6.2],
-	]
-	for i in lots.size():
-		var lot: Array = lots[i]
-		var x0: float = lot[0]
-		var x1: float = lot[1]
-		var zf: float = lot[2]
-		var faces_south: bool = lot[3]
-		var wall_h: float = lot[4]
-		var front_h: float = lot[5]
-		var depth := _rng.randf_range(7.0, 10.0)
-		var dir := -1.0 if faces_south else 1.0
-		var w := x1 - x0
-		var cx := (x0 + x1) * 0.5
-		var body_color: Color = fronts[i % fronts.size()].darkened(0.15)
-		_box(root, Vector3(w, wall_h, depth), Vector3(cx, wall_h * 0.5, zf + dir * depth * 0.5), body_color)
-		var front := _box(root, Vector3(w, front_h, 0.12), Vector3(cx, front_h * 0.5, zf - dir * 0.06), fronts[i % fronts.size()])
-		# dark door and windows
-		_box(front, Vector3(1.1, 2.2, 0.04), Vector3(0.0, 1.1 + 0.38 - front_h * 0.5, -dir * 0.07), Color(0.1, 0.07, 0.05), false)
-		for wx in [-w * 0.3, w * 0.3]:
-			_box(front, Vector3(1.0, 1.3, 0.04), Vector3(wx, 1.7 - front_h * 0.5, -dir * 0.07), Color(0.12, 0.12, 0.14), false)
 	# A church at the far end of the street.
 	_box(root, Vector3(8.0, 5.0, 14.0), Vector3(-58.0, 2.5, 4.0), Color(0.78, 0.74, 0.66))
 	_box(root, Vector3(3.0, 11.0, 3.0), Vector3(-58.0, 5.5, -4.0), Color(0.8, 0.76, 0.68))
