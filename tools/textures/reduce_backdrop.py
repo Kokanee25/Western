@@ -37,6 +37,13 @@ OUT_JSON = os.path.join(rd.OUT, "backdrop.json")
 KEY = (24.0, 70.0)
 # Land islands smaller than this many texels are dropped (stray specks the model left in the green).
 MIN_ISLAND = 6
+# A raw row is land's foot when this much of it is land (the green band some paintings leave under
+# the land is cut off, so the land stands on the panel's bottom).
+FOOT = 0.3
+# At a panel's sides the land slopes down to nothing over this share of its width (land the model
+# ran off the edge would otherwise end in a sheer cut beside the gap; a layer whose panels meet edge
+# to edge, scale 1, isn't tapered).
+TAPER = 0.1
 IMPORT = rd.IMPORT.replace("mipmaps/generate=true", "mipmaps/generate=false")
 
 
@@ -50,6 +57,24 @@ def key_out(img):
     # at an edge otherwise reads as a yellow line).
     a[..., 1] = np.minimum(g, (r + b) * 0.5 + 6.0)
     return np.concatenate([a / 255.0, alpha[..., None]], -1)
+
+
+def drop_foot_band(rgba):
+    """Cut off the rows under the land's foot (green the model left below it)."""
+    rows = np.where((rgba[..., 3] > 0.5).mean(1) >= FOOT)[0]
+    return rgba[:rows[-1] + 1] if len(rows) else rgba
+
+
+def taper(land):
+    """Land at a panel's sides sloped down to nothing at its edges."""
+    h, w = land.shape
+    n = max(int(round(w * TAPER)), 1)
+    out = land.copy()
+    for k in range(n):
+        keep = int(round(h * (k + 0.5) / n))
+        for x in (k, w - 1 - k):
+            out[:h - keep, x] = False
+    return out
 
 
 def to_squares(rgba, size):
@@ -126,14 +151,20 @@ def main():
                 th = int(round(height_deg / dpt))
                 rgb = np.zeros((th, width, 3))
                 land = np.zeros((th, width), dtype=bool)
-            pw = int(round(span / dpt))
-            prgb, pland = to_squares(key_out(img), (pw, rgb.shape[0]))
-            x0 = int(round(((panel["centre"] + panel.get("shift", 0.0) - span / 2.0) % 360.0) / dpt))
+            scale = layer.get("scale", 1.0)
+            keyed = drop_foot_band(key_out(img))
+            pw = int(round(span * scale / dpt))
+            ph = min(int(round(keyed.shape[0] * pw / keyed.shape[1])), rgb.shape[0])
+            prgb, pland = to_squares(keyed, (pw, ph))
+            if scale < 1.0:
+                pland = taper(pland)
+            x0 = int(round(((panel["centre"] + panel.get("shift", 0.0) - span * scale / 2.0) % 360.0) / dpt))
             cols = (np.arange(pw) + x0) % width
+            top = rgb.shape[0] - ph
             for k, x in enumerate(cols):
                 m = pland[:, k]
-                rgb[m, x] = prgb[m, k]
-                land[m, x] |= True
+                rgb[top:, x][m] = prgb[m, k]
+                land[top:, x] |= m
             painted += 1
             print("%-16s %3d%% land" % ("backdrop_%s_%d" % (lid, i), round(100 * pland.mean())))
         if painted == 0:

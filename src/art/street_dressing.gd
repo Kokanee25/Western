@@ -62,9 +62,9 @@ func _ready() -> void:
 	_loose()
 	_far()
 	_folk()
-	var mountains := Mountains.new()
-	mountains.name = "Mountains"
-	add_child(mountains)
+	var backdrop := Backdrop.new()
+	backdrop.name = "Backdrop"
+	add_child(backdrop)
 	var grass := DryGrass.new()
 	grass.name = "DryGrass"
 	add_child(grass)
