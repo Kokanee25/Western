@@ -54,11 +54,10 @@ on:
         description: "Instead: paint the backdrop round the town (tools/textures/backdrop.json): all, a layer (far, mid, near) or panels (far_0,near_2)"
         required: false
         default: ""
-      style_test:
-        description: "Instead: have the image model photograph the concept scene (docs/style_test/) to test the filter on"
-        type: boolean
+      style:
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/ (needs FAL_KEY)"
         required: false
-        default: false
+        default: ""
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -66,7 +65,7 @@ env:
 
 jobs:
   style-test:
-    if: ${{ inputs.style_test }}
+    if: ${{ inputs.style == 'photo' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -85,8 +84,43 @@ jobs:
           git commit -m "Style test: photo references (run ${{ github.run_number }})"
           git push
 
+  style-train:
+    if: ${{ inputs.style == 'train' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Train the style on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_TRAINER: ${{ vars.FAL_TRAINER }}
+        run: |
+          pip install pillow
+          python3 tools/style/train_style.py
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-train
+          path: |
+            build/style_train/fal_log.json
+            build/style_train/sheet.png
+          if-no-files-found: ignore
+      - name: Commit the LoRA's record
+        run: |
+          git add tools/style/style_lora.json
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Style: LoRA trained on fal (run ${{ github.run_number }})"
+          git push
+
   textures:
-    if: ${{ inputs.textures != '' && inputs.characters == '' && inputs.backdrop == '' && !inputs.style_test }}
+    if: ${{ inputs.textures != '' && inputs.characters == '' && inputs.backdrop == '' && inputs.style == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -123,7 +157,7 @@ jobs:
           git push
 
   backdrop:
-    if: ${{ inputs.backdrop != '' && !inputs.style_test }}
+    if: ${{ inputs.backdrop != '' && inputs.style == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -155,7 +189,7 @@ jobs:
           git push
 
   characters:
-    if: ${{ inputs.characters != '' && inputs.backdrop == '' && !inputs.style_test }}
+    if: ${{ inputs.characters != '' && inputs.backdrop == '' && inputs.style == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -175,6 +209,8 @@ jobs:
           rp=""
           if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
           python3 tools/characters/paint_full_length.py $args $rp
+          python3 tools/characters/tripo.py --dry-run
+          if [ -n "$TRIPO_API_KEY" ]; then python3 tools/characters/tripo.py --balance; fi
           python3 tools/characters/tripo.py $args || echo "Tripo step failed (see above)"
       - name: Commit them
         run: |
@@ -189,7 +225,7 @@ jobs:
           git push
 
   people:
-    if: ${{ !inputs.style_test && inputs.textures == '' && inputs.characters == '' && inputs.backdrop == '' }}
+    if: ${{ inputs.style == '' && inputs.textures == '' && inputs.characters == '' && inputs.backdrop == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
