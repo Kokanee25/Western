@@ -5,6 +5,7 @@ real one would refuse. Not a model maker: its models are an empty glTF.
 
     POST /upload          multipart, a `file` part        -> {"code": 0, "data": {"image_token"}}
     POST /task            {"type": "image_to_model", "file": {"type", "file_token"}, ...}
+                          {"type": "multiview_to_model", "files": [front, left, back, right], ...}
                           {"type": "animate_rig", "original_model_task_id", "out_format"}
                                                           -> {"code": 0, "data": {"task_id"}}
     GET  /task/<id>       queued, then running, then success with output.model (a URL here)
@@ -104,6 +105,16 @@ def start():
                     f = job.get("file", {})
                     if f.get("file_token") not in tokens or f.get("type") not in ("png", "jpg", "jpeg", "webp"):
                         seen["problems"].append("image_to_model without an uploaded file: %s" % json.dumps(f))
+                elif kind == "multiview_to_model":
+                    fs = job.get("files")
+                    if not isinstance(fs, list) or len(fs) != 4:
+                        seen["problems"].append("multiview_to_model wants a list of four files (front, left, back, right): %s" % json.dumps(fs)[:200])
+                    else:
+                        for i, f in enumerate(fs):
+                            if f and (f.get("file_token") not in tokens or f.get("type") not in ("png", "jpg", "jpeg", "webp")):
+                                seen["problems"].append("multiview_to_model view %d without an uploaded file: %s" % (i, json.dumps(f)))
+                        if not fs[0]:
+                            seen["problems"].append("multiview_to_model without a front view")
                 elif kind == "animate_rig":
                     if job.get("original_model_task_id") not in tasks:
                         seen["problems"].append("animate_rig of a model it never made")

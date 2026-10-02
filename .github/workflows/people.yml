@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it (both need FAL_KEY)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo (all three need FAL_KEY)"
         required: false
         default: ""
 
@@ -152,6 +152,48 @@ jobs:
           git commit -m "Style: samples from the LoRA (run ${{ github.run_number }})"
           git push
 
+  # The men painted clean, full length and turned round (front, left, back, right) by FLUX Kontext
+  # with the style LoRA on fal: to look at before Tripo is paid to model them (the `characters`
+  # job below paints the same way, then runs Tripo).
+  style-characters:
+    if: ${{ inputs.style == 'characters' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint them full length and turned round, on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
+          WHICH: ${{ inputs.characters }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow
+          args="--via=fal"
+          if [ -n "$WHICH" ] && [ "$WHICH" != "all" ]; then args="$args --only=$WHICH"; fi
+          if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          python3 tools/characters/paint_full_length.py --dry-run
+          python3 tools/characters/paint_full_length.py $args
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-characters
+          path: build/characters/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the paintings
+        run: |
+          git add assets/people/tripo
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: painted full length and turned round (run ${{ github.run_number }})"
+          git push
+
   textures:
     if: ${{ inputs.textures != '' && inputs.characters == '' && inputs.backdrop == '' && inputs.style == '' }}
     runs-on: ubuntu-latest
@@ -228,9 +270,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      # Painted on fal with the style LoRA when FAL_KEY is there (clean, four views), else by
+      # the image model on OpenRouter (the front alone); then Tripo models whoever's pictures
+      # are new (or everyone asked for, with repaint).
       - name: Paint them full length, then Tripo
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
           TRIPO_API_KEY: ${{ secrets.TRIPO_API_KEY }}
           TEXTURE_MODEL: ${{ inputs.paint_model || vars.PAINT_MODEL }}
           WHICH: ${{ inputs.characters }}
@@ -240,11 +287,20 @@ jobs:
           args=""
           if [ "$WHICH" != "all" ]; then args="--only=$WHICH"; fi
           rp=""
-          if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
+          again=""
+          if [ "$REPAINT" = "true" ]; then rp="--repaint"; again="--again"; fi
+          python3 tools/characters/paint_full_length.py --dry-run
           python3 tools/characters/paint_full_length.py $args $rp
           python3 tools/characters/tripo.py --dry-run
           if [ -n "$TRIPO_API_KEY" ]; then python3 tools/characters/tripo.py --balance; fi
-          python3 tools/characters/tripo.py $args || echo "Tripo step failed (see above)"
+          python3 tools/characters/tripo.py $args $again || echo "Tripo step failed (see above)"
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: characters
+          path: build/characters/fal_log.json
+          if-no-files-found: ignore
       - name: Commit them
         run: |
           git add assets/people/tripo
