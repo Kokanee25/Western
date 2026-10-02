@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The face drawn, as a pixel artist would over the painted squares: the painting's man has open
-eyes (a white either side of a dark iris, a glint, a heavy upper lid), heavy dark brows and a thick
-walrus moustache, all bold enough to read at a glance; the paint bake gives us his face softer, eyes
+eyes (a white either side of a dark iris, a glint, a heavy upper lid), heavy dark brows, a thick
+walrus moustache and a mouth shut hard under it, all bold enough to read at a glance; the paint bake gives us his face softer, eyes
 half shut and features muddy. This draws them in, on the finished head texture.
 
     python3 tools/paint/face_draw.py [--id=outlaw] [--show=out.png]
@@ -40,6 +40,13 @@ BROW_REACH = 8
 MOUSTACHE_ROWS = (22, 38)
 MOUSTACHE_HALF_W = 24
 MOUSTACHE_DROOP = 5
+# The mouth, shut and stern under the moustache (the bake gave him a bright band there between the
+# moustache's dark ends: a grin): a straight dark line this many texels under the eyes, this
+# half-width, its corners turned down a row; under it a muted lower lip and a calmer chin.
+MOUTH_ROW = 37
+MOUTH_HALF_W = 13
+LIP_ROWS = 3
+CHIN_ROWS = 6
 # Local contrast over the face (round the mean): the painting's face is lit firmer than the bake.
 CONTRAST = 1.2
 # The whole head's colour pushed this much further from grey: the painting's skin is lamplit
@@ -107,6 +114,19 @@ def draw(img, eyes):
             if 0 <= x < w and 0 <= y < h:
                 # Keep its own texture, made dark: lighter squares in it go dark brown, dark stay.
                 put(x, y, dark * 0.8 + a[y, x] * 0.25, 0.8)
+    # The mouth: the chin's light toned down to the skin's, a muted lip, then the line on top of
+    # them, flat, its ends dropping (a frown's corners, not a smile's).
+    my = int(round(mid_y + MOUTH_ROW))
+    for x in range(int(mid_x - MOUTH_HALF_W - 2), int(mid_x + MOUTH_HALF_W + 3)):
+        for y in range(my + 1 + LIP_ROWS, my + 1 + LIP_ROWS + CHIN_ROWS):
+            if 0 <= x < w and 0 <= y < h:
+                put(x, y, np.minimum(a[y, x], skin * 0.95), 0.6)
+        for y in range(my + 1, my + 1 + LIP_ROWS):
+            put(x, y, skin * 0.74, 0.85)
+    for x in range(int(mid_x - MOUTH_HALF_W), int(mid_x + MOUTH_HALF_W) + 1):
+        drop = 1 if abs(x - mid_x) > MOUTH_HALF_W * 0.7 else 0
+        put(x, my + drop, dark * 0.85, 1.0)
+        put(x, my + drop - 1, dark * 0.85 + skin * 0.1, 0.7)
     return np.clip(a, 0, 255).astype(np.uint8)
 
 

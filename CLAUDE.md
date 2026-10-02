@@ -236,7 +236,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   every source into each shape's UV space (depth-tested, needs Forward+; shapes in
   `HumanBody.DOUBLE_SIDED` are taken from either side; writes where the eyes are in the head's
   texture); `tools/paint/finish.py` blends them (the best view wins), fills, then makes the
-  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 80, face 190, hands 150; the
+  **squares**: a set size on him per shape (`SQUARES_PER_M`: cloth 160, face 190, hands 150; the
   face's squares are 3×3 texels so its eyes can be drawn finer, `DETAIL`/`square_texels`), each
   the dominant colour under it, one palette for all of him → `assets/people/<id>_paint_<shape>.png`
   (one texel per square) + `<id>_paint.json`. `body_skin` shows them as painted
@@ -1405,3 +1405,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: every night now has a low moon (long moonlit shadows, moonlight a little dimmer before
     and after midnight); the saloon has no porch lantern now; the near things' squares (bar front,
     table top) are about twice the painting's (item 3); the balcony man's head is out of frame.
+- 2026-10-02 (art session, later): **His coat in finer squares, a stern mouth** (Sean's list, item
+  2). The judge measured his coat's squares at ~15 px against the painting's ~8: cloth is now 160
+  squares a metre (`finish.py` `SQUARES_PER_M_CLOTH`, was 80; hat and boots too), the raw bake 512
+  texels a metre (`paint_bake.gd` `RAW_TEXELS_PER_M`, so a square is still ~3 raw texels). His
+  mouth read as a grin (a bright lip band under the moustache between its dark ends):
+  `face_draw.py` draws it shut, a straight dark line with its corners turned down, a muted lip and
+  a calmer chin (`MOUTH_ROW` and friends). The pipeline ran here end to end: `align.py
+  --source=tile` (mediapipe needs `libegl1` and `libgles2`), `paint_bake.gd bake` (~10 min), then
+  `finish.py`. Face shape untouched. Judge round `2026-10-02_r13`: saloon 0.581 → **0.572** (the
+  centre's tile-size gap is gone).

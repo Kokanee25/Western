@@ -25,12 +25,12 @@
     0.0625
    ],
    "size": [
-    56,
-    5
+    111,
+    8
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.236,
+   "seen": 0.233,
    "colours": 5
   },
   "boots": {
@@ -41,12 +41,12 @@
     0.355242908000946
    ],
    "size": [
-    34,
-    30
+    67,
+    60
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.128,
+   "seen": 0.129,
    "colours": 6
   },
   "coat": {
@@ -57,10 +57,10 @@
     0.987830758094788
    ],
    "size": [
-    154,
-    156
+    307,
+    312
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.362,
    "colours": 12
@@ -74,11 +74,11 @@
    ],
    "size": [
     11,
-    13
+    12
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.512,
+   "seen": 0.517,
    "colours": 5
   },
   "gun_belt": {
@@ -89,10 +89,10 @@
     0.0625
    ],
    "size": [
-    83,
-    5
+    166,
+    10
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.557,
    "colours": 6
@@ -105,12 +105,12 @@
     0.21024951338768
    ],
    "size": [
-    31,
-    12
+    61,
+    23
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.584,
+   "seen": 0.583,
    "colours": 6
   },
   "hat": {
@@ -121,12 +121,12 @@
     0.0994987040758133
    ],
    "size": [
-    53,
-    9
+    106,
+    19
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.795,
+   "seen": 0.792,
    "colours": 8
   },
   "hat_band": {
@@ -138,11 +138,11 @@
    ],
    "size": [
     72,
-    7
+    3
    ],
    "squares_per_m": 110.0,
    "texels_per_square": 1,
-   "seen": 0.534,
+   "seen": 0.533,
    "colours": 8
   },
   "hat_brim": {
@@ -156,9 +156,9 @@
     320,
     5
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.912,
+   "seen": 0.913,
    "colours": 8
   },
   "head": {
@@ -176,17 +176,17 @@
    "texels_per_square": 3,
    "seen": 0.425,
    "detail_texels": 471,
-   "colours": 16,
    "eyes": [
     [
-     0.4429,
-     0.566
+     0.5812,
+     0.5716
     ],
     [
-     0.5602,
-     0.559
+     0.4209,
+     0.5643
     ]
-   ]
+   ],
+   "colours": 16
   },
   "holster": {
    "uv_rect": [
@@ -196,12 +196,12 @@
     0.217417970299721
    ],
    "size": [
-    13,
-    19
+    26,
+    37
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.32,
+   "seen": 0.319,
    "colours": 5
   },
   "shirt": {
@@ -212,10 +212,10 @@
     0.980654239654541
    ],
    "size": [
-    112,
-    111
+    225,
+    222
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.042,
    "colours": 6
@@ -228,7 +228,7 @@
     1.73517918586731
    ],
    "size": [
-    293,
+    292,
     287
    ],
    "squares_per_m": 150.0,
@@ -244,12 +244,12 @@
     0.993738353252411
    ],
    "size": [
-    100,
-    100
+    199,
+    200
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
-   "seen": 0.169,
+   "seen": 0.168,
    "colours": 8
   },
   "vest": {
@@ -260,10 +260,10 @@
     0.995615780353546
    ],
    "size": [
-    81,
-    84
+    162,
+    168
    ],
-   "squares_per_m": 80.0,
+   "squares_per_m": 160.0,
    "texels_per_square": 1,
    "seen": 0.063,
    "colours": 10
