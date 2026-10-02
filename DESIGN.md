@@ -746,6 +746,28 @@ what really happened.
    character ("a stranger burned the saloon down a few years back"), and the graveyard has his
    marker. Stored outside the save, a few lines per finished game.
 
+### World-building features (**decided**, Sean 2026-10-01)
+1. **You can see the railroad coming.** Survey stakes, then grade, then rails creep across the
+   valley a little each day; the work gangs' hammering and smoke get closer. The 30-day clock is
+   something you see from your porch. Sabotage the line and it visibly stalls.
+2. **The town builds and rebuilds itself.** Carpenters frame new buildings member by member with
+   the structure system (a new store on an empty lot, tents becoming buildings as the rails near);
+   after a fire, townsfolk clear the rubble and raise a new frame over days. A barn raising is a
+   town event you can join and physically help lift.
+3. **The moon tells time.** 30 days is one lunar cycle: the moon waxes and wanes through the game
+   and darkness is real. The gang raids on dark nights; a full moon lets you see riders coming.
+4. **The ground remembers.** Footprints in mud and dust until wind or rain wipes them; paths worn
+   where people walk daily; blood darkening to brown over days; bullet holes stay; graves get
+   flowers or get forgotten. Tracking (and covering your tracks) is real.
+5. **A tintype photographer.** A travelling photographer sets up in town. Your picture can end up
+   on a wanted poster with your actual face; he photographs the dead (the period custom), and his
+   plates are evidence of who was where.
+6. **The town's rhythm follows heat and light.** The street empties in the noon heat, the saloon
+   fills at dusk, the lamplighter does his round; the church bell, the stage's arrival and the
+   noon whistle tell the time with no display.
+- Parked (Sean likes it, maybe no time): **your homestead built by hand** with the member system
+  (fences, barn, well). Cut: water levels and drought, movable claim stakes.
+
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
 
 ## 12. First slice (what to build first)
