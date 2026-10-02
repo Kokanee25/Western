@@ -15,11 +15,14 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_dir = vec3(0.0, -1.0, 0.0);
 uniform float star_strength = 0.0;
 uniform float sun_size = 0.035;
-// Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane),
-// and how coarse their squares are (cells per repeat; the painting's clouds are blocky).
-uniform float cloud_cover = 0.56;
-uniform float cloud_scale = 1.6;
-uniform float cloud_blocks = 22.0;
+// Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
+// painting's are small broken heaps, not big sheets), how ragged their edges are (high-frequency
+// noise eaten out of them), and how many painted tones each is drawn in. They're drawn in the
+// sky's own squares (sky_squares), so their squares are the sky's size.
+uniform float cloud_cover = 0.46;
+uniform float cloud_scale = 2.6;
+uniform float cloud_ragged = 0.32;
+uniform float cloud_tones = 3.0;
 // How much darker the sky away from the sun gets when the sun is low (the painting's deep blue).
 uniform float low_sun_dim = 0.5;
 // The sky in squares, as the painting's is: directions snapped to a grid this many cells a
@@ -58,6 +61,15 @@ float fbm(vec2 p) {
 	return v;
 }
 
+// The clouds' shape at p on their plane: broad heaps stretched by `band`, warped, their edges
+// eaten into by finer noise (cloud_ragged).
+float cloud_shape(vec2 p, vec2 band) {
+	vec2 b = p * band;
+	vec2 warp = vec2(fbm(b * 0.9 + 4.1), fbm(b * 0.9 + 8.3)) - 0.5;
+	vec2 q = b + warp * 0.9;
+	return fbm(q * 2.3) - cloud_ragged * (fbm(q * 9.0 + 2.0) - 0.5);
+}
+
 void sky() {
 	vec3 d = normalize(EYEDIR);
 	vec3 cell_id = vec3(0.0);
@@ -91,25 +103,32 @@ void sky() {
 	col += sun_color * pow(sun_dot, 12.0) * 0.3 * sun_up;
 	col += sun_color * pow(sun_dot, 5.0) * 0.08 * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0)) * (1.0 - 0.5 * low);
 
-	// Clouds on a flat layer overhead, in squares; lit gold underneath on the sun's side, grey-violet
-	// away from it, their middles darker; none right at the horizon (the haze) or at night.
+	// Clouds on a flat layer overhead, as the painting paints them: loose bands of small heaps
+	// across the sky (the noise stretched along Z, across the street), ragged at the edges (warped
+	// by one noise, eaten into by a finer one), lots of blue between; each heap in three painted
+	// tones: a cream-gold top (its edge toward the zenith), a warm body, a grey-violet underside
+	// (its edge toward the horizon), golder toward the sun. None at the horizon (the haze) or at
+	// night. They're drawn in the sky's own squares (sky_squares).
 	if (h > 0.0) {
 		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(TIME * 0.002, 0.0);
-		vec2 q = floor(p * cloud_blocks) / cloud_blocks;
-		float n = fbm(q * 2.3);
+		vec2 band = vec2(1.5, 0.45);
+		float n = cloud_shape(p, band);
 		float edge = 1.0 - cloud_cover;
-		float c = smoothstep(edge, edge + 0.03, n) * smoothstep(0.02, 0.12, h);
-		// Thicker = darker underneath; the edge nearest the sun catches the light.
-		float thick = smoothstep(edge + 0.05, edge + 0.3, n);
-		float rim = clamp((n - fbm((q + sh * 0.04) * 2.3)) * 6.0, 0.0, 1.0);
-		vec3 lit = sun_color * mix(vec3(1.0), vec3(1.0, 0.74, 0.62), low) * mix(0.7, 1.15, pow(toward, 2.0)) * mix(1.0, 0.42, low);
-		vec3 shade = mix(vec3(0.38, 0.4, 0.43), vec3(0.5, 0.33, 0.24), toward * low) * mix(1.0, 0.7, low);
-		vec3 cloud = mix(lit, shade, thick * 0.75 - rim * 0.4);
+		float c = step(edge, n) * smoothstep(0.03, 0.14, h);
+		float top = clamp((n - cloud_shape(p * 0.93, band)) * 7.0, 0.0, 1.0);
+		float under = clamp((n - cloud_shape(p * 1.07, band)) * 7.0, 0.0, 1.0);
+		float sunward = pow(toward, 3.0);
+		vec3 gold = sun_color * mix(vec3(1.0, 0.96, 0.9), vec3(1.0, 0.82, 0.6), low);
+		vec3 body = mix(vec3(0.78, 0.78, 0.8), mix(vec3(0.82, 0.62, 0.5), vec3(0.98, 0.64, 0.4), sunward), low);
+		vec3 belly = mix(vec3(0.48, 0.5, 0.56), vec3(0.58, 0.45, 0.48), low);
+		float lift = floor(clamp(top * 1.2 + sunward * 0.25 * low, 0.0, 1.0) * cloud_tones + 0.5) / cloud_tones;
+		float sink = floor(clamp(under * 1.1 - top * 0.5, 0.0, 1.0) * cloud_tones + 0.5) / cloud_tones;
+		vec3 cloud = mix(mix(body, gold, lift), belly, sink) * mix(1.0, 0.75, low * (1.0 - sunward));
 		float day = smoothstep(-0.12, 0.05, sd.y);
-		// After dusk they're dark shapes against the stars, faintly moonlit at the edges.
-		vec3 night = vec3(0.035, 0.04, 0.07) * (1.0 + rim * 1.5);
+		// After dusk they're dark shapes against the stars, faintly moonlit at the top.
+		vec3 night = vec3(0.035, 0.04, 0.07) * (1.0 + top * 1.5);
 		cloud = mix(night, cloud, day);
-		col = mix(col, cloud, c * 0.92);
+		col = mix(col, cloud, c * 0.95);
 	}
 
 	// Haze low over the land: the horizon's colour, warmest toward the sun.
