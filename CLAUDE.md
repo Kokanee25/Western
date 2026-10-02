@@ -318,7 +318,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
   then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
   `.gdignore`d (pipeline inputs, not game assets). Needs the repo
-  secret `TRIPO_API_KEY`; the client is untested against the live API. Fitting the result to our
+  secret `TRIPO_API_KEY`; the client is untested against the live API. `tripo.py --dry-run` runs
+  the whole client (upload, both tasks, waiting, downloads, the log) against a stand-in Tripo on
+  this machine (`tripo_standin.py`: answers as the v2 API, objects to anything the real one would
+  refuse) into a scratch folder: no key, no .env, no network; `--balance` checks a real key and
+  spends nothing. The workflow runs both before the real call.
+- **Training the image model on our style** (`tools/style/train_style.py`, People workflow input
+  `style: train`, repo secret `FAL_KEY`, optional variable `FAL_TRAINER`): crops of every concept
+  painting (squares of half its height, three rows across) and every picture in
+  `docs/concept/style/` (Sean's; `captions.json` there for words), each captioned with the
+  trigger `SLTCRK`, zipped, uploaded to fal's storage and trained as a style LoRA on fal
+  (`fal-ai/flux-lora-fast-training`, `is_style`); the result's URLs go in
+  `tools/style/style_lora.json` (the weights stay on fal). Untested against the live API;
+  `--dry-run` cuts and zips only (`build/style_train/sheet.png` shows the crops). The old
+  `style_test` input is now `style: photo`. Fitting the result to our
   skeleton and hitboxes in Blender is still to come; MakeHuman stays the fallback.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
@@ -1465,3 +1478,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   0.667 → **0.645**, saloon 0.570 (moonlit clouds round the moon in the doorway). 279 tests pass.
   - Known: the sky's top is still bluer than the painting's (b* +5 vs +16; the day cycle's sky
     gradient, not the clouds); clouds don't drift into new shapes (they slide with TIME).
+- 2026-10-02 (art session, later): **Ready for tonight's keys: fal style training, Tripo dry run.**
+  `tools/style/train_style.py` (above; 48 crops from the three concept paintings until Sean adds
+  pictures to `docs/concept/style/`); the People workflow's 10 inputs are GitHub's limit, so the
+  boolean `style_test` became `style` (`photo` = the old style test, `train` = the fal training).
+  `tools/characters/tripo.py --dry-run` passes against the stand-in Tripo (upload, image_to_model,
+  three polls, download, animate_rig, three polls, download, the log); the characters job runs it,
+  then `--balance` when the secret's there, then the real thing. Both untested against the live
+  APIs: every answer is printed and saved, so the first runs show what to change.
+  - Tonight: add repo secrets `FAL_KEY` and `TRIPO_API_KEY`; run People with `characters:
+    stranger` (Tripo), and with `style: train` once `docs/concept/style/` has pictures.

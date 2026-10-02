@@ -3,6 +3,8 @@
 painting (tools/characters/paint_full_length.py).
 
     TRIPO_API_KEY=... python3 tools/characters/tripo.py [--only=stranger] [--again]
+    python3 tools/characters/tripo.py --dry-run      (no key, no network: see below)
+    TRIPO_API_KEY=... python3 tools/characters/tripo.py --balance   (checks the key, spends nothing)
 
 For each assets/people/tripo/<id>_full.png: upload it, ask for a model from it (textured, PBR),
 wait, ask for that model rigged (glb), wait, and save assets/people/tripo/<id>.glb (and the
@@ -14,6 +16,12 @@ UNTESTED against the live API (the key isn't set yet, and the API's documentatio
 the workspace): written to Tripo's v2 "openapi" (one /task endpoint, the job in `type`); they've
 since published v3 (an endpoint per job). Every answer is printed and saved, so the first run on
 Actions shows what to change. TRIPO_API_BASE overrides the base URL.
+
+--dry-run runs the whole thing (upload, both tasks, waiting, downloads, the log) against a stand-in
+Tripo on this machine that answers as the v2 API does and checks what it's sent (the key in a
+Bearer header, the picture as a multipart `file`, each task's fields), on every full-length painting
+there is (or a blank stand-in), writing into a scratch folder, never assets/. Nothing is needed
+for it: no key, no .env, no network. If it passes, tonight's first real run needs only the secret.
 """
 import json
 import os
@@ -50,6 +58,10 @@ def call(method, path, key, body=None, files=None):
         raise RuntimeError("%s %s: Tripo said %d: %s" % (method, path, e.code, e.read().decode(errors="replace")[:800])) from None
 
 
+# Seconds between asks while a task runs (the dry run doesn't wait).
+POLL = 5.0
+
+
 def wait(task_id, key, log, what):
     for _ in range(240):
         answer = call("GET", "/task/" + task_id, key)
@@ -59,7 +71,7 @@ def wait(task_id, key, log, what):
             if status != "success":
                 raise RuntimeError("%s: %s" % (what, json.dumps(answer)[:800]))
             return answer["data"]
-        time.sleep(5)
+        time.sleep(POLL)
     raise RuntimeError("%s: still not done after 20 minutes" % what)
 
 
@@ -73,9 +85,11 @@ def model_url(data):
     return out.get("model") or out.get("pbr_model") or out.get("base_model")
 
 
-def make(cid, key):
+def make(cid, key, src=None, out=None):
+    src = src or DIR
+    out = out or DIR
     log = []
-    png = os.path.join(DIR, cid + "_full.png")
+    png = os.path.join(src, cid + "_full.png")
     up = call("POST", "/upload", key, files={"file": (cid + ".png", open(png, "rb").read(), "image/png")})
     log.append({"upload": up})
     token = up.get("data", {}).get("image_token") or up.get("data", {}).get("file_token")
@@ -83,20 +97,67 @@ def make(cid, key):
                                        "texture": True, "pbr": True})
     log.append({"image_to_model": task})
     mesh = wait(task["data"]["task_id"], key, log, "image_to_model")
-    download(model_url(mesh), os.path.join(DIR, cid + "_mesh.glb"))
+    download(model_url(mesh), os.path.join(out, cid + "_mesh.glb"))
     rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
                                       "out_format": "glb"})
     log.append({"animate_rig": rig})
     rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
-    download(model_url(rigged), os.path.join(DIR, cid + ".glb"))
-    json.dump(log, open(os.path.join(DIR, cid + "_tripo.json"), "w"), indent=1)
+    download(model_url(rigged), os.path.join(out, cid + ".glb"))
+    json.dump(log, open(os.path.join(out, cid + "_tripo.json"), "w"), indent=1)
     print("made:", cid)
 
 
+def balance(key):
+    """What the key has left (GET /user/balance): proves the key and the base URL, spends nothing."""
+    answer = call("GET", "/user/balance", key)
+    print("Tripo balance:", json.dumps(answer.get("data", answer)))
+
+
+def dry_run():
+    """The whole client against a stand-in Tripo (tools/characters/tripo_standin.py)."""
+    global BASE, POLL
+    import tempfile
+    import tripo_standin
+    server, base, seen = tripo_standin.start()
+    BASE, POLL = base, 0.0
+    scratch = tempfile.mkdtemp(prefix="tripo_dry_")
+    names = [n[:-len("_full.png")] for n in sorted(os.listdir(DIR)) if n.endswith("_full.png")] if os.path.isdir(DIR) else []
+    src = DIR
+    if not names:
+        # No full-length painting yet: a blank one stands in.
+        from PIL import Image
+        src = scratch
+        Image.new("RGB", (512, 1024), (128, 110, 90)).save(os.path.join(scratch, "standin_full.png"))
+        names = ["standin"]
+    ok = True
+    try:
+        for cid in names:
+            make(cid, "dry-run-key", src, scratch)
+            for f in (cid + ".glb", cid + "_mesh.glb", cid + "_tripo.json"):
+                p = os.path.join(scratch, f)
+                good = os.path.exists(p) and (not f.endswith(".glb") or open(p, "rb").read(4) == b"glTF")
+                print("  %-28s %s" % (f, "ok" if good else "MISSING or not a glb"))
+                ok = ok and good
+    finally:
+        server.shutdown()
+    for problem in seen["problems"]:
+        print("  the stand-in Tripo objected:", problem)
+    ok = ok and not seen["problems"]
+    print("dry run %s: %s (requests: %s)" % ("passed" if ok else "FAILED", scratch, ", ".join(seen["requests"])))
+    if not ok:
+        sys.exit(1)
+
+
 def main():
+    if "--dry-run" in sys.argv:
+        dry_run()
+        return
     key = os.environ.get("TRIPO_API_KEY", "")
     if not key:
-        print("No TRIPO_API_KEY: no models made.")
+        print("No TRIPO_API_KEY: no models made (--dry-run runs it all against a stand-in).")
+        return
+    if "--balance" in sys.argv:
+        balance(key)
         return
     only = None
     for a in sys.argv[1:]:
