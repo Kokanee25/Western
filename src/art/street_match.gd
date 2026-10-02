@@ -21,7 +21,8 @@ const FOV := 62.0
 const EYE_HEIGHT := 1.6
 
 
-## Get the street ready for the picture: the outlaw on the range and the gang out of the way.
+## Get the street ready for the picture: the outlaw on the range and the gang out of the way, the
+## townsfolk calm.
 static func stage(street: Node3D) -> void:
 	var spawner := street.find_child("OutlawSpawn", true, false)
 	if spawner and spawner.get(&"outlaw"):
@@ -29,6 +30,13 @@ static func stage(street: Node3D) -> void:
 	var town := street.find_child("TownLife", true, false)
 	if town:
 		town.set(&"gang_arrives", 1e9)
+	# The townsfolk at their ease: the gun at your hip would otherwise be a gun on a man down the
+	# street (his hands up and "Don't shoot!" in the picture).
+	for f: Array in StreetDressing.FOLK:
+		var man := street.find_child(f[0], true, false)
+		var brain := man.get_node_or_null(^"Brain") if man else null
+		if brain:
+			brain.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 ## Your eye and the point you look at, in the world.

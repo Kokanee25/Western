@@ -6,8 +6,9 @@ extends Node3D
 ## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
 ## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
 ## the street, telegraph poles and a water tower over the roofs, townsfolk on the porches and in
-## the street (FOLK), dry grass along the road's edges (DryGrass), and the red-rock mesas and spires on the skyline (Mountains). Models from PropModels on the texel grid; the big ones have a box to
-## bump into. Everything keeps off the road's middle (the gang rides in along z -9) and the store's
+## the street (FOLK), dry grass along the road's edges (DryGrass), and the red-rock country on the
+## skyline (Backdrop: a painted backdrop on three rings). Models from PropModels on the texel grid;
+## the big ones have a box to bump into. Everything keeps off the road's middle (the gang rides in along z -9) and the store's
 ## porch.
 
 ## The buildings: [name, x0, x1, faces +Z (south side), {FalseFrontBuilding settings}]. The north
@@ -62,9 +63,9 @@ func _ready() -> void:
 	_loose()
 	_far()
 	_folk()
-	var mountains := Mountains.new()
-	mountains.name = "Mountains"
-	add_child(mountains)
+	var backdrop := Backdrop.new()
+	backdrop.name = "Backdrop"
+	add_child(backdrop)
 	var grass := DryGrass.new()
 	grass.name = "DryGrass"
 	add_child(grass)

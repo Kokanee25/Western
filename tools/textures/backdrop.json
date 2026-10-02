@@ -1,0 +1,183 @@
+{
+ "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low).",
+ "degrees_per_texel": 0.3,
+ "bottom": -3.0,
+ "span": 90.0,
+ "layers": {
+  "far": {
+   "radius": 650.0,
+   "rise": 0.6,
+   "colours": 28,
+   "haze": 0.2,
+   "look": "seen from many miles off: a little paler and bluer with distance haze, the shadowed sides violet-grey",
+   "panels": [
+    {
+     "centre": 284.0,
+     "shift": -5.0,
+     "ref": [
+      "street",
+      780,
+      140,
+      1330,
+      340
+     ],
+     "what": "the reference's red-rock skyline: right of the middle, a towering cathedral-like mass of tall fluted sandstone spires and pinnacles standing on a steep talus slope; left of the middle, a lower, hazier cluster of spires and a flat-topped butte; between them a low dip where the sun would set"
+    },
+    {
+     "centre": 14.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      140,
+      1330,
+      340
+     ],
+     "what": "a long flat-topped mesa with sheer banded cliffs and broad talus skirts, and a lone slender spire beside it"
+    },
+    {
+     "centre": 104.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      140,
+      1330,
+      340
+     ],
+     "what": "a broad square butte and, apart from it, a cluster of three or four weathered spires on a common base"
+    },
+    {
+     "centre": 194.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      140,
+      1330,
+      340
+     ],
+     "what": "a low line of mesas with a notch between them and a pair of tall buttes at one end"
+    }
+   ],
+   "scale": 0.6
+  },
+  "mid": {
+   "radius": 430.0,
+   "rise": 0.34,
+   "colours": 24,
+   "haze": 0.12,
+   "look": "a few miles off: clear colour, some haze",
+   "panels": [
+    {
+     "centre": 284.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      230,
+      1330,
+      340
+     ],
+     "what": "low red-rock ridges and rounded sandstone hills, a few hoodoos and broken ledges, a small mesa; a gap in the middle where you see far off"
+    },
+    {
+     "centre": 14.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      230,
+      1330,
+      340
+     ],
+     "what": "rolling red and buff sandstone hills with rounded domes and slickrock benches"
+    },
+    {
+     "centre": 104.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      230,
+      1330,
+      340
+     ],
+     "what": "a broken line of low cliffs and ledges in red sandstone with talus below"
+    },
+    {
+     "centre": 194.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      780,
+      230,
+      1330,
+      340
+     ],
+     "what": "low rounded red hills with a small flat-topped mesa and a few rock fins"
+    }
+   ],
+   "scale": 0.8
+  },
+  "near": {
+   "radius": 260.0,
+   "rise": 0.14,
+   "colours": 22,
+   "haze": 0.06,
+   "look": "close by: strong colour, no haze. Only low, gentle foothills: nothing tall, no mesas, no buttes, no cliffs, no mountains anywhere, not even far behind",
+   "panels": [
+    {
+     "centre": 284.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      1100,
+      260,
+      1330,
+      360
+     ],
+     "what": "dry rolling foothills of tan and ochre earth with scattered dark green junipers and pinyon pines, sagebrush, golden dry grass and a few boulders; lower in the middle, where the street goes out of town"
+    },
+    {
+     "centre": 14.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      1100,
+      260,
+      1330,
+      360
+     ],
+     "what": "dry rolling foothills with clumps of dark junipers, a few cottonwoods along a dry wash, sagebrush and boulders"
+    },
+    {
+     "centre": 104.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      1100,
+      260,
+      1330,
+      360
+     ],
+     "what": "low dry hills dotted with junipers and pinyons, sagebrush flats, a rocky outcrop"
+    },
+    {
+     "centre": 194.0,
+     "shift": 0.0,
+     "ref": [
+      "street",
+      1100,
+      260,
+      1330,
+      360
+     ],
+     "what": "dry foothills with scattered junipers, a few tall pines and boulders, golden grass"
+    }
+   ],
+   "scale": 1.0,
+   "band": 0.15
+  }
+ }
+}

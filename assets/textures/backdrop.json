@@ -1,0 +1,41 @@
+{
+ "degrees_per_texel": 0.3,
+ "layers": {
+  "far": {
+   "texture": "backdrop_far.png",
+   "radius": 650.0,
+   "haze": 0.2,
+   "bottom": -3.0,
+   "top": 35.699999999999996,
+   "texels": [
+    1200,
+    129
+   ],
+   "panels": 4
+  },
+  "mid": {
+   "texture": "backdrop_mid.png",
+   "radius": 430.0,
+   "haze": 0.12,
+   "bottom": -3.0,
+   "top": 35.699999999999996,
+   "texels": [
+    1200,
+    129
+   ],
+   "panels": 4
+  },
+  "near": {
+   "texture": "backdrop_near.png",
+   "radius": 260.0,
+   "haze": 0.06,
+   "bottom": -3.0,
+   "top": 35.699999999999996,
+   "texels": [
+    1200,
+    129
+   ],
+   "panels": 4
+  }
+ }
+}

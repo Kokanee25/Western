@@ -28,15 +28,6 @@ varying vec3 tri_pos;
 varying vec3 tri_weights;
 varying vec3 local_pos;
 
-#ifdef HAZE
-// Far things (src/art/mountains.gd) skip the scene's fog (it would bury them) and take this
-// gentler haze instead: past haze_start metres the colour fades toward haze_color.
-uniform vec3 haze_color : source_color = vec3(0.8, 0.7, 0.6);
-uniform float haze_start = 60.0;
-uniform float haze_density = 0.0018;
-uniform float haze_max = 0.8;
-#endif
-
 #ifdef HOLES
 uniform int hole_count = 0;
 uniform vec4 hole_a[16]; // entry.xyz (member space), radius
@@ -140,11 +131,6 @@ void fragment() {
 			albedo = mix(albedo, vec3(0.78, 0.66, 0.48), 0.8);
 		}
 	}
-#endif
-#ifdef HAZE
-	float haze = min(1.0 - exp(-max(length(VERTEX) - haze_start, 0.0) * haze_density), haze_max);
-	albedo *= 1.0 - haze;
-	EMISSION = haze_color * haze;
 #endif
 	ALBEDO = albedo;
 	ROUGHNESS = roughness;
