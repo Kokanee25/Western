@@ -141,7 +141,7 @@ func apply_visuals() -> void:
 		env.ambient_light_sky_contribution = lerpf(1.0, config.ambient_sky_low_sun, golden)
 		# The painting's golden hour is a dark picture with a bright road and sky: the eye's
 		# exposure comes down with the sun.
-		env.tonemap_exposure = lerpf(1.0, config.exposure_low_sun, golden)
+		env.tonemap_exposure = lerpf(config.exposure_night, lerpf(1.0, config.exposure_low_sun, golden), daylight)
 		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
 			var night: float = probe.get_meta(&"night_ambient", config.interior_ambient_night)
 			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)

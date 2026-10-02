@@ -15,7 +15,7 @@ func _init() -> void:
 	# see the moonlit street and the moon through it (art).
 	door_size = Vector2(1.5, 3.2)
 	porch = false
-	night_ambient = 0.1
+	night_ambient = 0.035
 	room_haze = 0.012
 
 

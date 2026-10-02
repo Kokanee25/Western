@@ -140,7 +140,8 @@ void sky() {
 
 	vec3 md = normalize(moon_dir);
 	float moon_disk = smoothstep(0.99955, 0.9997, dot(d, md));
-	col += vec3(0.85, 0.9, 1.0) * moon_disk * 1.4 * step(0.0, md.y);
+	// Well over white: it blooms into the haze round it, as the painting's does.
+	col += vec3(0.85, 0.9, 1.0) * moon_disk * 2.5 * step(0.0, md.y);
 
 	vec3 cell = floor(d * 260.0);
 	float s = hash(cell);

@@ -38,8 +38,10 @@ extends Resource
 ## How bright the haze's gold is with the sun low (beside the horizon's colour): bright haze turned
 ## the far hills cream.
 @export var fog_low_sun_level := 0.6
-## Exposure with the sun low (1 at noon).
+## Exposure with the sun low (1 at noon), and at night (the painting's saloon is a dark room with
+## bright lamps: median L* 12).
 @export var exposure_low_sun := 0.85
+@export var exposure_night := 0.8
 ## Ambient light inside buildings (their interior probes), which the open sky doesn't reach.
 @export var interior_ambient_day := 0.45
 @export var interior_ambient_night := 0.04

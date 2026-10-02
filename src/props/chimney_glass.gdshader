@@ -3,7 +3,8 @@ shader_type spatial;
 // inside, brightest at the flame and in squares like everything else; unlit, it's faint clear
 // glass. Unshaded (lit by a flame a few centimetres inside it, shaded glass burns white).
 // `glow` is per lamp (OilLamp sets it when it's lit). No fog on it: the room's haze, lit by a flame
-// centimetres away, laid cream over the whole glass (the halo shows on what's behind it).
+// centimetres away, laid cream over the whole glass (the halo shows on what's behind it). Round the
+// flame it's drawn well over white (`bloom`), so the glow pass gives it the painting's halo.
 render_mode unshaded, cull_disabled, depth_draw_never, fog_disabled;
 
 #include "res://src/render/aces.gdshaderinc"
@@ -12,6 +13,9 @@ instance uniform float glow = 0.0;
 // The flame's height in the lamp's own space, and the squares' size (a metre / this).
 uniform float flame_y = 0.205;
 uniform float squares_per_m = 110.0;
+// How far over display white the glass goes round the flame (scene-linear): the one thing in the
+// room that blooms (the environment's glow threshold sits above every lit surface).
+uniform float bloom = 3.0;
 
 varying vec3 local_pos;
 varying vec3 local_eye;
@@ -46,6 +50,7 @@ void fragment() {
 	shown = mix(shown, vec3(1.0, 0.97, 0.86), clamp(flame * 1.4, 0.0, 1.0));
 	shown *= 0.9 + 0.2 * hash(q);
 	vec3 lit = aces_inverse(from_srgb(clamp(shown, 0.0, 1.0)));
+	lit *= 1.0 + bloom * clamp(heat * 0.5 + flame, 0.0, 1.0);
 	vec3 clear = aces_inverse(from_srgb(vec3(0.5, 0.52, 0.5)));
 	ALBEDO = mix(clear, lit, glow);
 	ALPHA = mix(0.16, 0.8 + 0.2 * max(heat, flame), glow);
