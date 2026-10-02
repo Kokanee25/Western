@@ -24,6 +24,18 @@ extends Resource
 @export var sky_horizon: Gradient
 @export var ambient_energy_day := 1.0
 @export var ambient_energy_night := 2.5
+## When the sun is low (golden hour): the ambient light is cut to this share of the day's, so the
+## shadows go deep, and only this share of it comes from the sky (the rest is the horizon's warm
+## colour), so they're warm brown rather than blue-violet.
+@export var ambient_low_sun := 0.3
+@export var ambient_sky_low_sun := 0.5
+## How bright that warm colour is beside the horizon's (the shadows' bounce light).
+@export var ambient_warm_level := 0.45
+## How bright the haze's gold is with the sun low (beside the horizon's colour): bright haze turned
+## the far hills cream.
+@export var fog_low_sun_level := 0.6
+## Exposure with the sun low (1 at noon).
+@export var exposure_low_sun := 0.85
 ## Ambient light inside buildings (their interior probes), which the open sky doesn't reach.
 @export var interior_ambient_day := 0.45
 @export var interior_ambient_night := 0.04

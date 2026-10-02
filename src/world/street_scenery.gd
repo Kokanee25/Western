@@ -63,8 +63,8 @@ func _build_blockouts() -> void:
 	root.name = "TownBlockouts"
 	add_child(root)
 	# A church at the far end of the street.
-	_box(root, Vector3(8.0, 5.0, 14.0), Vector3(-58.0, 2.5, 4.0), Color(0.78, 0.74, 0.66))
-	_box(root, Vector3(3.0, 11.0, 3.0), Vector3(-58.0, 5.5, -4.0), Color(0.8, 0.76, 0.68))
+	_box(root, Vector3(8.0, 5.0, 14.0), Vector3(-58.0, 2.5, 4.0), Color(0.52, 0.44, 0.36))
+	_box(root, Vector3(3.0, 11.0, 3.0), Vector3(-58.0, 5.5, -4.0), Color(0.5, 0.42, 0.35))
 	var spire := MeshInstance3D.new()
 	var cone := CylinderMesh.new()
 	cone.top_radius = 0.0

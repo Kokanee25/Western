@@ -12,6 +12,9 @@ extends Node3D
 @export var show_mesh := true
 ## How much its light shows in the air (smoke, haze): the halo round a lamp in a smoky room.
 @export var haze := 1.2
+## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
+## own cap and frame cut hard wedges out of the light on the wall.
+@export var casts_shadows := true
 
 var lit := true
 ## Shot or knocked to pieces: no light, and if it was lit, burning oil where it landed.
@@ -101,7 +104,7 @@ func _build() -> void:
 	_light.light_energy = energy
 	_light.omni_range = light_range
 	_light.omni_attenuation = 1.2
-	_light.shadow_enabled = true
+	_light.shadow_enabled = casts_shadows
 	_light.shadow_bias = 0.05
 	_light.position.y = 0.22
 	add_child(_light)
