@@ -1286,3 +1286,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: the saloon's biggest gap is now its bar side (plain: the painting's bottles, lamps and
     people), and its left wall's yellow; the street's far right and middle are too bright (item 3,
     the light); the lantern light pools on the fronts are hard-edged discs (item 3).
+- 2026-10-02 (art session, later): **Look 3: golden-hour light.** Gold, not purple. The purple had
+  three causes: the shadows' ambient came from the blue sky, the fog mixed the sky's top into its
+  colour, and the sky shader blended the warm horizon into the blue top (lavender), which ACES
+  pushes further violet. Now `DayCycle` (gameplay's `day_cycle.gd`/`_config.gd`/
+  `config/day_cycle.tres`, lighting lines only) works out `golden` (1 with the sun low, 0 high or at
+  night) and with it: ambient cut to `ambient_low_sun` 0.3, half of it from the sky and half a warm
+  colour (`ambient_warm_level` 0.45 of the horizon/sun gold), the haze's colour the low sun's gold
+  at `fog_low_sun_level` 0.6, exposure down to `exposure_low_sun` 0.85; noon is unchanged. The
+  gradients' late-afternoon top is a muted blue (morning too), the horizon and sun deeper gold.
+  The sky (`sky.gdshader`) is in squares like the painting's (`sky_squares` 100 a radian, a shade
+  per square), its far side a pale blue haze, the clouds orange-lit and dimmer when the sun's low.
+  Wall lanterns cast no shadows (`OilLamp.casts_shadows`, gameplay's file: their own caps cut hard
+  wedges out of the light on the fronts). The placeholder church is weathered wood (it was the
+  palest thing on the street). Judge rounds `_r5` and `_r6`: street 0.754 → **0.654** (saloon
+  0.852, unchanged: it's night). `_r4` is a scratch round from tuning, kept by the rule.
+  - Known: dusk after sunset is still violet (that one's real); the painting's posts and roof edges
+    have bright gold rims that ours only get where the sun truly hits; the sky's top right is
+    still a little bright and yellow.

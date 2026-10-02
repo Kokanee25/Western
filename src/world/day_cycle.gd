@@ -126,10 +126,20 @@ func apply_visuals() -> void:
 
 	if world_environment and world_environment.environment:
 		var env := world_environment.environment
-		env.fog_light_color = horizon.lerp(top, 0.3)
+		# Golden hour: 1 with the sun low over the horizon, 0 with it high (and at night).
+		var golden := (1.0 - smoothstep(0.1, 0.6, sun_dir.y)) * daylight
+		var warm := horizon.lerp(sun_color, 0.4)
+		# The haze down the street takes the low sun's gold, not the blue overhead.
+		env.fog_light_color = horizon.lerp(top, 0.3).lerp(warm * config.fog_low_sun_level, golden)
 		env.fog_density = config.fog_density
 		env.volumetric_fog_density = config.volumetric_fog_density
-		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight)
+		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight) \
+				* lerpf(1.0, config.ambient_low_sun, golden)
+		env.ambient_light_color = warm * config.ambient_warm_level
+		env.ambient_light_sky_contribution = lerpf(1.0, config.ambient_sky_low_sun, golden)
+		# The painting's golden hour is a dark picture with a bright road and sky: the eye's
+		# exposure comes down with the sun.
+		env.tonemap_exposure = lerpf(1.0, config.exposure_low_sun, golden)
 		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
 			var night: float = probe.get_meta(&"night_ambient", config.interior_ambient_night)
 			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)

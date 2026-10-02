@@ -129,6 +129,7 @@ func _lantern(at: Vector3, faces: float) -> void:
 	lamp.energy = 0.9
 	lamp.light_range = 6.0
 	lamp.haze = 1.6
+	lamp.casts_shadows = false
 	lamp.lit_from_hour = 17  # lit before the sun's down, as the painting has them
 	lamp.lit_until_hour = 6
 	root.add_child(lamp)
