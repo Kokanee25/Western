@@ -1,5 +1,5 @@
 {
- "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, chroma: scales on the tiles' L* and a*/b* (the judge's corrections). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, contrast, chroma, hue: the judge's corrections on the tiles in Lab (L*, L*'s spread, a*/b*, a turn of a*/b* in degrees). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
  "texels_per_metre": 32,
  "materials": {
   "floor": {
@@ -62,8 +62,8 @@
    ]
   },
   "shot_table": {
-   "lightness": 0.7,
-   "chroma": 0.75,
+   "lightness": 0.72,
+   "chroma": 1.6,
    "boards": true,
    "for": "saloon",
    "kind": "tile",
@@ -72,14 +72,16 @@
     1.0
    ],
    "colours": 28,
-   "what": "the top of an old saloon card table seen from above: warm honey-brown wood worn smooth, rings from glasses, scratches, the grain running left to right",
+   "what": "the top of an old saloon card table seen from above: deep warm red-brown wood with bold dark grain lines and lighter honey streaks between them, worn smooth, rings from glasses, scratches, the grain running left to right",
    "ref": [
     "saloon",
     900,
     700,
     1300,
     900
-   ]
+   ],
+   "contrast": 2.6,
+   "hue": -12
   },
   "framing": {
    "lightness": 0.9,
@@ -278,6 +280,24 @@
     50,
     1590,
     300
+   ]
+  },
+  "road_wide": {
+   "for": "street",
+   "kind": "ground",
+   "metres": [
+    8.0,
+    8.0
+   ],
+   "colours": 32,
+   "lightness": 1.15,
+   "what": "a long stretch of the dry packed-dirt main street of a frontier desert town seen from directly above, the street running exactly left to right: two pairs of worn wagon-wheel ruts running straight left to right across the whole picture with low ridges of thrown-up dirt along them, hoof prints and boot prints between them, scattered dark stones and pebbles, small clumps of dry yellow grass here and there, warm russet-ochre earth with darker damp patches",
+   "ref": [
+    "street",
+    500,
+    620,
+    1000,
+    900
    ]
   }
  }
