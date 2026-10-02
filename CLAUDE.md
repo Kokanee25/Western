@@ -374,7 +374,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
   then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
   `.gdignore`d (pipeline inputs, not game assets). Needs the repo
-  secret `TRIPO_API_KEY`; the client is untested against the live API. `tripo.py --dry-run` runs
+  secret `TRIPO_API_KEY`; the client ran against the live API on 2026-10-02 (People run 17).
+  `tools/tripo_lab.gd --out=DIR [--id= --yaw= --fill= --height=]` loads a Tripo glb at run time
+  (GLTFDocument: the folder is unimported), stands him where the painting's man sits in the
+  character lab's light and writes the shot view, four orbit views and a contact sheet
+  (`docs/screenshots/tripo/<id>_lab.png`): the judge before the Blender fit. `tripo.py --dry-run` runs
   the whole client (upload, both tasks, waiting, downloads, the log) against a stand-in Tripo on
   this machine (`tripo_standin.py`: answers as the v2 API, objects to anything the real one would
   refuse) into a scratch folder: no key, no .env, no network; `--balance` checks a real key and
@@ -1690,3 +1694,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: at native the far street's squares follow `min_square_px` 2 as before; the finish's
     soften looks for jumps in the rendered frame, so a lamp's hard-edged halo softens too; no
     key for the finish yet (F3 lists it).
+- 2026-10-02 (art session, later): **§10.9, round 1: the first Tripo man, judged in the lab.**
+  `TRIPO_API_KEY` is in: People run 17 (`characters: stranger`) painted him full length (FLUX:
+  the painting's man in an A-pose, already in blocks) and the live Tripo API answered first time:
+  `assets/people/tripo/stranger.glb` (rigged: 41 joints, Hip/Spine/Head/L_R Upperarm/Forearm/
+  Hand/Thigh/Calf/Foot with twist bones), `stranger_mesh.glb`, 390k triangles, 2K colour, normal
+  and ORM maps (31 MB in git, committed by the workflow). `tools/tripo_lab.gd` (above) stands him
+  at the table: `docs/screenshots/tripo/stranger_lab.png`. He reads as the painting's man (hat
+  with its studded band, long hair, the moustache, white collar and dark tie, patterned vest,
+  frock coat, cartridge belt) and his face is a smooth-shaded portrait rather than blocks; the
+  textures carry the model's own baked light (a de-lighting step is needed, as the review said),
+  and up close his face is smeared where the one painted view saw it obliquely (the moustache's
+  underside, the hat band's studs: a head sheet or Tripo's multi-view input would mend it). No
+  bake, no Blender fit yet: he stands in the A-pose through the table.
+  - Next (docs/ART_REVIEW.md §6, 2–3 sessions): the Blender fit (his rig onto our 17 segments and
+    hitboxes, the same warp/envelope/cut as MakeHuman's), decimate 390k → ~7k, de-light and
+    reduce his textures through the factory's reducer, our hands; then the paint bake's squares
+    or the hybrid finish on him, and the seat pose. No Blender in this workspace: the fit runs on
+    Actions (People workflow) like `make_people.py`.
