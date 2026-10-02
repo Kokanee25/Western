@@ -15,8 +15,12 @@ same body.
 - The fire was heating boards that were already alight (about 9 in 10 of the work in a burning
   building) and measuring every burning board against every person, every tick. Also fixed: a script
   error printed for every board that burnt away near someone.
-- Still to come: the hitch every quarter second while a building burns (next), the building's
-  load check, then the drawing (people and props, which is most of the calm street's cost).
+- **The hitch while a building burns is mostly gone.** The fire's work used to land on one frame
+  four times a second (worst frames 300–500 ms here); it's now spread over the frames in between,
+  and each burning building checks its loads on a frame of its own. Worst frames here: **p99 163 →
+  73 ms, max 390 → 100 ms**. What's left of them is a building working out its loads (next).
+- Still to come: the load check, then the drawing (people and props, which is most of the calm
+  street's cost).
 - Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
   **L** on a wall. Tell me the fps before you light it and while it burns.
 

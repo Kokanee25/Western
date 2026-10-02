@@ -1756,3 +1756,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: spread the fire tick over the frames between ticks (the p99 is one 80 ms tick), settle
     (StructuralAnalysis) only on change, then the draws (sun shadow distance/cascades, people
     merged into a few skinned meshes, props batched), the F3 split and a CI budget.
+- 2026-10-02 (gameplay, later): **Performance pass, part 2: the fire's hitch.** `FireSystem.step()`
+  is now `_begin` (grid, spills) / `_visit(keys, from, to)` / `_finish` (drop, scorch, settle);
+  `step()` still runs all three at once (tests, screenshots), but `_physics_process` spreads a
+  tick's members over the frames until the next tick in the same order (a long frame finishes the
+  tick at once), and burning buildings settle one a frame (`_to_settle`). `_consume` asks
+  `Structure.settle_soon()` (new, public: deferred, once a frame however many ask) instead of
+  `settle.call_deferred()` per board (20 boards gone in a tick = 20 full analyses). The grid places
+  standing members once (`_placed`) and only rubble afresh every 2 s. Bench, fire (2.1 GHz,
+  headless): avg 11.5 → 11.6 ms, **p99 163 → 73 ms, max 390 → 100 ms**. What's left of the
+  worst frames: `Structure.settle()` (StructuralAnalysis), ~29 ms a call on average, up to 73
+  (126 calls in 35 s of fire); `_update_fx` ~11 ms every 0.5 s; grid ~14 ms every 2 s. 279 pass.
+  - Next: settle only on change / cheaper analysis.

@@ -262,6 +262,11 @@ func batch_count() -> int:
 # --- Standing and falling -----------------------------------------------------------------------
 
 func _on_member_damaged() -> void:
+	settle_soon()
+
+
+## Settle at the end of this frame, once however many times it's asked.
+func settle_soon() -> void:
 	if not _settle_pending:
 		_settle_pending = true
 		settle.call_deferred()
