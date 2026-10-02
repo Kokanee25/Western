@@ -27,6 +27,8 @@ from PIL import Image, ImageFilter
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "blender"))
 import faces  # noqa: E402  (its _despeckle; faces imports bpy only if it's there)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import face_draw  # noqa: E402  (the face drawn over the squares: eyes, brows, moustache)
 
 VIEW_WEIGHT = {"shot": 0.5, "shot_model": 6.0, "front": 1.0, "three_quarter": 1.0, "side": 0.8, "side_left": 0.8, "back": 1.0}
 # The close head views (paint_views.py --head-sheet) see his head at ~3x the detail: on the shapes of
@@ -289,6 +291,11 @@ def finish(src):
                 out[mask] = epal[eidx[0]]
             report[shape]["size"] = [out.shape[1], out.shape[0]]
             report[shape]["detail_texels"] = int(mask.sum())
+        eyes = info["shapes"][shape].get("eyes", [])
+        if shape == "head" and len(eyes) == 2:
+            # Then his eyes, brows and moustache drawn over, bold as the painting's (face_draw.py).
+            out = face_draw.draw(out, [(u * out.shape[1], v * out.shape[0]) for u, v in eyes])
+            report[shape]["eyes"] = [[round(u, 4), round(v, 4)] for u, v in eyes]
         name = "%s_paint_%s.png" % (person, shape)
         Image.fromarray(out, "RGB").save(os.path.join(out_dir, name))
         report[shape]["colours"] = int(len(pal))

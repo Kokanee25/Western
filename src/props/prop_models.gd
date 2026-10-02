@@ -11,7 +11,7 @@ const BRASS := Color(0.72, 0.55, 0.26)
 const TIN := Color(0.6, 0.58, 0.53)
 const IRON := Color(0.2, 0.19, 0.18)
 const FELT := Color(0.16, 0.3, 0.2)
-const BOTTLE_GLASS := [Color(0.22, 0.11, 0.04), Color(0.12, 0.18, 0.08), Color(0.3, 0.16, 0.05)]
+const BOTTLE_GLASS := [Color(0.2, 0.12, 0.05), Color(0.12, 0.17, 0.08), Color(0.26, 0.15, 0.06)]
 
 static var _materials := {}
 static var _meshes := {}
@@ -91,17 +91,24 @@ static func bottle_glass(variant: int) -> ShaderMaterial:
 			c * 2.0, 0.12, 0.0, 0.9)
 
 
-## A see-through glass chimney (off the grid: glass you see the flame through). Unshaded: lit by
-## the flame a few centimetres inside it, it would burn white.
-static func chimney_glass() -> StandardMaterial3D:
+## A lamp's glass chimney (src/props/chimney_glass.gdshader): glowing amber from the flame when its
+## lamp is lit (the instance parameter `glow`, set by OilLamp), faint clear glass when it isn't.
+static func chimney_glass() -> ShaderMaterial:
 	if not _materials.has("chimney"):
-		var m := StandardMaterial3D.new()
-		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		m.albedo_color = Color(1.0, 0.86, 0.62, 0.2)
-		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://src/props/chimney_glass.gdshader")
 		_materials["chimney"] = m
 	return _materials["chimney"]
+
+
+## The lamp's dark old brass (the painting's lamp foot is near-black bronze with lit edges).
+static func lamp_brass() -> ShaderMaterial:
+	return _mat("lamp_brass", PixelArt.metal("prop_brass", BRASS, 215), Color(0.36, 0.3, 0.24), 0.5, 0.5, 0.6)
+
+
+## Pewter: a dark grey mug, its texels mottled, catching the lamp at its rim.
+static func pewter() -> ShaderMaterial:
+	return _mat("pewter", PixelArt.metal("prop_pewter", Color(0.62, 0.6, 0.56), 239, 0.8), Color.WHITE, 0.4, 0.3, 0.7)
 
 
 # --- meshes ------------------------------------------------------------------------------------
@@ -299,12 +306,17 @@ static func _spittoon(root: Node3D) -> void:
 	_add(root, "Inside", lathe(_profile([[0.06, 0.12], [0.06, 0.19], [0.1, 0.24], [0.115, 0.25]]), 12, false, true), _mat("spit", PixelArt.metal("prop_spit", Color(0.18, 0.13, 0.08), 231), Color.WHITE, 0.3))
 
 
-## A kerosene table lamp: brass foot and font, a burner collar and a glass chimney (the light
-## comes from OilLamp; its flame sits inside the chimney at 0.2 m). Shared by OilLamp.
+## A kerosene table lamp, as the saloon painting has it: a low, wide foot of dark brass, a squat
+## font, a burner collar with its prongs, and a tall glass chimney swelling round the flame and
+## narrowing to the top (the light comes from OilLamp; its flame sits inside at 0.205 m). Shared by
+## OilLamp.
 static func lamp(root: Node3D) -> void:
-	_add(root, "Foot", lathe(_profile([[0.065, 0.0], [0.07, 0.01], [0.05, 0.03], [0.025, 0.05], [0.03, 0.08], [0.06, 0.11], [0.065, 0.14], [0.03, 0.165], [0.022, 0.175]]), 12), brass())
-	_add(root, "Collar", lathe(_profile([[0.028, 0.165], [0.032, 0.18], [0.03, 0.19]]), 10), brass())
-	_add(root, "Chimney", lathe(_profile([[0.026, 0.19], [0.03, 0.21], [0.042, 0.25], [0.04, 0.29], [0.024, 0.33], [0.022, 0.38]]), 12), chimney_glass())
+	_add(root, "Foot", lathe(_profile([[0.072, 0.0], [0.076, 0.012], [0.07, 0.03], [0.05, 0.045], [0.042, 0.06], [0.058, 0.08], [0.062, 0.1], [0.04, 0.122], [0.026, 0.13]]), 12), lamp_brass())
+	_add(root, "Collar", lathe(_profile([[0.03, 0.13], [0.034, 0.145], [0.03, 0.155]]), 10), lamp_brass())
+	for k in 4:
+		var a := TAU * k / 4.0 + PI * 0.25
+		_box(root, "Prong", Vector3(0.006, 0.03, 0.006), Vector3(cos(a) * 0.031, 0.168, sin(a) * 0.031), lamp_brass())
+	_add(root, "Chimney", lathe(_profile([[0.03, 0.155], [0.044, 0.18], [0.05, 0.21], [0.046, 0.245], [0.032, 0.285], [0.023, 0.32], [0.022, 0.38]]), 12), chimney_glass())
 
 
 ## A whiskey bottle in dark glass: shoulders, a neck, a cork and a paper label with a few lines
@@ -316,12 +328,17 @@ static func bottle(root: Node3D, variant := 0) -> void:
 	_add(root, "Label", lathe(_profile([[0.0455, 0.07], [0.0455, 0.15]]), 10), _mat("label%d" % posmod(variant, 3), label_texture(posmod(variant, 3)), Color.WHITE, 0.9))
 
 
-## A tin mug, open at the top (the inside's dark).
+## A pewter mug, as the painting's: straight sides with a band near the foot and a rolled rim
+## that catches the light, a dark inside, and a loop handle.
 static func cup(root: Node3D) -> void:
-	_add(root, "Outside", lathe(_profile([[0.036, 0.0], [0.038, 0.004], [0.04, 0.1]]), 10), tin())
-	_add(root, "Inside", lathe(_profile([[0.033, 0.008], [0.037, 0.1]]), 10, false, true), _mat("tin_in", PixelArt.metal("prop_tin_in", Color(0.3, 0.29, 0.27), 235), Color.WHITE, 0.6, 0.2))
+	_add(root, "Outside", lathe(_profile([[0.036, 0.0], [0.039, 0.004], [0.039, 0.016], [0.037, 0.02], [0.04, 0.1]]), 10), pewter())
+	_add(root, "Inside", lathe(_profile([[0.033, 0.008], [0.037, 0.1]]), 10, false, true), _mat("tin_in", PixelArt.metal("prop_tin_in", Color(0.14, 0.13, 0.12), 235), Color.WHITE, 0.7, 0.1))
 	_add(root, "Bottom", disc(0.034, 10, 0.008), _mat("tin_in", null))
-	_add(root, "Lip", lathe(_profile([[0.037, 0.1], [0.04, 0.1]]), 10), tin())
+	_add(root, "Lip", lathe(_profile([[0.037, 0.1], [0.042, 0.102], [0.041, 0.106], [0.037, 0.104]]), 10), pewter())
+	# The handle: a flat strap out from under the rim, down and back in near the foot.
+	_box(root, "HandleTop", Vector3(0.035, 0.008, 0.016), Vector3(0.055, 0.088, 0.0), pewter())
+	_box(root, "HandleSide", Vector3(0.008, 0.06, 0.016), Vector3(0.071, 0.058, 0.0), pewter())
+	_box(root, "HandleFoot", Vector3(0.03, 0.008, 0.016), Vector3(0.057, 0.028, 0.0), pewter())
 
 
 ## A mounted stag: a shield plaque, neck and head from tapered blocks, ears and branching antlers.
@@ -402,21 +419,24 @@ static func label_texture(variant: int) -> ImageTexture:
 	var key := "label_tex%d" % variant
 	if _materials.has(key):
 		return _materials[key]
-	var paper: Color = [Color(0.82, 0.76, 0.58), Color(0.86, 0.82, 0.68), Color(0.76, 0.66, 0.46)][variant]
-	var ink: Color = [Color(0.18, 0.1, 0.06), Color(0.12, 0.1, 0.1), Color(0.35, 0.08, 0.05)][variant]
-	# 0.29 m round x 0.08 m tall at 64 a metre.
-	var img := Image.create(19, 5, false, Image.FORMAT_RGBA8)
+	# Old paper gone brown in the bottle's shadow, the print dark (the painting's labels barely
+	# stand out from the glass).
+	var paper: Color = [Color(0.4, 0.3, 0.2), Color(0.46, 0.4, 0.3), Color(0.36, 0.27, 0.17)][variant]
+	var ink: Color = [Color(0.16, 0.09, 0.05), Color(0.12, 0.1, 0.1), Color(0.32, 0.08, 0.05)][variant]
+	# 0.29 m round x 0.08 m tall at the world's texels a metre (the grid lays it at that).
+	var w := maxi(int(round(0.29 * PixelArt.texels_per_meter)), 6)
+	var h := maxi(int(round(0.08 * PixelArt.texels_per_meter)), 3)
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 300 + variant
-	for y in 5:
-		for x in 19:
-			var c := paper.darkened(rng.randf() * 0.12)
-			if y == 0 or y == 4:
+	for y in h:
+		for x in w:
+			var c := paper.darkened(rng.randf() * 0.15)
+			if y == 0 or y == h - 1:
 				c = ink
-			elif x >= 6 and x <= 12 and (y == 2 or (y == 1 and rng.randf() < 0.6) or (y == 3 and rng.randf() < 0.4)):
+			elif x >= w / 3 and x <= w * 2 / 3 and rng.randf() < 0.55:
 				c = ink.lerp(paper, rng.randf() * 0.3)
 			img.set_pixel(x, y, c)
-	img.set_pixel(9, 3, Color(0.6, 0.12, 0.08))
 	var tex := ImageTexture.create_from_image(img)
 	_materials[key] = tex
 	return tex

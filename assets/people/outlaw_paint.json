@@ -176,7 +176,17 @@
    "texels_per_square": 3,
    "seen": 0.425,
    "detail_texels": 471,
-   "colours": 16
+   "colours": 16,
+   "eyes": [
+    [
+     0.4429,
+     0.566
+    ],
+    [
+     0.5602,
+     0.559
+    ]
+   ]
   },
   "holster": {
    "uv_rect": [
