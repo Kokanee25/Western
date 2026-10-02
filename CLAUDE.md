@@ -1515,3 +1515,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     way the far room does (§10.7); the halo round the lamp is modest (the flame material is
     emission 5 but mostly hidden by the glass); the street gets the saturation and glow too,
     judged in §10.2.
+- 2026-10-02 (art session, later): **§10.2: the street's light and grade.** The sun now sets a little
+  south of west (`DayCycleConfig.sun_azimuth_degrees` 20, new: the arc turned round the vertical;
+  at 17:36 the sun stands at bearing 257, 7° left of the street shot's look, where the painting
+  has it, so the north side's porches and boardwalks are sunlit; the review's tilt experiment went
+  the wrong way, and tilt alone can't move a 9.5° sun that far). Haze down the street
+  (`fog_density` 0.0035 → 0.008, the scene's `fog_aerial_perspective` 0.25 → 0.7, the haze's gold
+  `fog_low_sun_level` 0.8), contrast 1.15, more warm bounce in the shadows (`ambient_low_sun` 0.6),
+  exposure 0.85 as it was. The sky was the blown part (the horizon band and the cloud tones, not
+  the blue): `sky.gdshader` dims the horizon band 30 % away from a low sun, the near-sun glow a
+  little, the clouds to 0.78 at low sun and their gold deeper; `low_sun_dim` 0.65. The road: the
+  factory's `road` material gets `lightness` 1.3 (re-cut, no new painting) and the ruts' darkening
+  is softened (`ground.gdshader` groove 0.5, churn 0.2: the painting's are lighter). The review's
+  numbers on the street shot, sky band / whole frame: sky median L* 47 → **41** (painting 40), sky
+  L95 84 → **79** (78), blown share 9.8 % → **2.2 %** (1.6 %), chroma–L* correlation 0.12 → 0.3
+  (0.56: the pale lavender sky still drags it; §10.4). The road reads brighter and evener but the
+  frame's lower band is still darker than the painting's (its road is a pale dust; §10.6). Gameplay
+  files touched, lighting lines only: `scenes/test_street.tscn` (aerial perspective, contrast),
+  `config/day_cycle.tres`, `day_cycle_config.gd`, `day_cycle.gd` (`sun_azimuth_degrees`). Judge
+  round `2026-10-02_r27`.
+  - Known: sunrise is now 20° north of east too (one azimuth for the whole arc); the far street
+    greys a little under the haze where the painting's is golden dust (the fog's colour is one
+    gold; a painted sky and backdrop haze come in §10.4).

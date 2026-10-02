@@ -24,7 +24,7 @@ uniform float cloud_scale = 2.6;
 uniform float cloud_ragged = 0.32;
 uniform float cloud_tones = 3.0;
 // How much darker the sky away from the sun gets when the sun is low (the painting's deep blue).
-uniform float low_sun_dim = 0.5;
+uniform float low_sun_dim = 0.65;
 // The sky in squares, as the painting's is: directions snapped to a grid this many cells a
 // radian (~100: a square ~7 screen pixels at 1280x720 and the street shot's lens), each a shade
 // off its neighbours. 0 = smooth.
@@ -92,6 +92,9 @@ void sky() {
 	// is).
 	vec3 far_haze = mix(top_color, vec3(0.6, 0.72, 0.74), 0.5);
 	vec3 horizon = mix(horizon_color, mix(far_haze, horizon_color, pow(toward, 2.5)), low * sun_up);
+	// With the sun low the horizon band is a deep gold, not a bright one (the painting's sky away
+	// from the sun sits around L* 55, ours was blown).
+	horizon *= 1.0 - 0.3 * low * sun_up * (1.0 - pow(toward, 4.0));
 	vec3 col;
 	if (h >= 0.0) {
 		col = mix(horizon, top_color, pow(h, mix(0.55, 0.28, low * sun_up)));
@@ -100,8 +103,8 @@ void sky() {
 		col = mix(horizon, ground_color, clamp(-h * 5.0, 0.0, 1.0));
 	}
 	float sun_dot = max(dot(d, sd), 0.0);
-	col += sun_color * pow(sun_dot, 12.0) * 0.3 * sun_up;
-	col += sun_color * pow(sun_dot, 5.0) * 0.08 * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0)) * (1.0 - 0.5 * low);
+	col += sun_color * pow(sun_dot, 12.0) * 0.22 * sun_up;
+	col += sun_color * pow(sun_dot, 5.0) * 0.06 * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0)) * (1.0 - 0.5 * low);
 
 	// Clouds on a flat layer overhead, as the painting paints them: loose bands of small heaps
 	// across the sky (the noise stretched along Z, across the street), ragged at the edges (warped
@@ -118,12 +121,12 @@ void sky() {
 		float top = clamp((n - cloud_shape(p * 0.93, band)) * 7.0, 0.0, 1.0);
 		float under = clamp((n - cloud_shape(p * 1.07, band)) * 7.0, 0.0, 1.0);
 		float sunward = pow(toward, 3.0);
-		vec3 gold = sun_color * mix(vec3(1.0, 0.96, 0.9), vec3(1.0, 0.82, 0.6), low);
+		vec3 gold = sun_color * mix(vec3(1.0, 0.96, 0.9), vec3(0.92, 0.72, 0.5), low);
 		vec3 body = mix(vec3(0.78, 0.78, 0.8), mix(vec3(0.82, 0.62, 0.5), vec3(0.98, 0.64, 0.4), sunward), low);
 		vec3 belly = mix(vec3(0.48, 0.5, 0.56), vec3(0.58, 0.45, 0.48), low);
 		float lift = floor(clamp(top * 1.2 + sunward * 0.25 * low, 0.0, 1.0) * cloud_tones + 0.5) / cloud_tones;
 		float sink = floor(clamp(under * 1.1 - top * 0.5, 0.0, 1.0) * cloud_tones + 0.5) / cloud_tones;
-		vec3 cloud = mix(mix(body, gold, lift), belly, sink) * mix(1.0, 0.75, low * (1.0 - sunward));
+		vec3 cloud = mix(mix(body, gold, lift), belly, sink) * mix(1.0, 0.75, low * (1.0 - sunward)) * mix(1.0, 0.78, low);
 		float day = smoothstep(-0.12, 0.05, sd.y);
 		// After dusk they're dark shapes against the stars, faintly moonlit at the top.
 		vec3 night = vec3(0.035, 0.04, 0.07) * (1.0 + top * 1.5);
