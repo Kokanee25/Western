@@ -1816,3 +1816,19 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   11.6 → 10.8 ms, **p99 73 → 53, max 100 → 70**. 280 pass.
   - Further would need native code (ask first) or spreading the analysis over frames; the draws
     are bigger for Sean now.
+- 2026-10-02 (gameplay, later): **Performance pass, part 4: people drawn whole.** Census: 14
+  people, ~55 skin/clothes pieces each (a shape per segment, for openings) + 30 finger meshes =
+  1,375 visible meshes; hiding the people saved 4,158 of the street's 8,212 draw calls (opengl3
+  under xvfb: counts only). `HumanBody._merge_pieces()`: each shape but the head (its wet eyes are
+  placed in the head piece's own space) is joined into one skinned mesh (`_joined`: the pieces'
+  surfaces concatenated, same format, skin and material), the pieces hidden; `_unmerge()` brings
+  them back for good at the first opening (`_apply_openings`) or lost limb
+  (`_stop_skinning_across_joints`); X-ray reaches both. `skin_meshes`/`segment_pieces`/
+  `body_meshes()` are unchanged (the art tools read and duplicate the pieces; paint_bake does the
+  same as before). Pixel check: a coated man standing and hands up, four views, old vs new with
+  `--fixed-fps 60`: 2–5 pixels of 640k differ by 1/255, with and without shadows. People meshes
+  1,375 → 747; **calm draw calls 8,186 → 6,129**, objects in frame 9,884 → 7,827; headless calm
+  4.9 → 4.4 ms. Test `test_openings::test_whole_each_shape_draws_once_and_opening_brings_back_the_
+  pieces`. 281 pass.
+  - Next: props/lamps/dressing batched (~4k draws), the sun's cascades (~5.6k with everything
+    drawn in each), fingers (~420 meshes).
