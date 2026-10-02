@@ -307,7 +307,9 @@ func _throw_from(player: Player, windup: float) -> DynamiteStick:
 func test_thrown_at_the_store_it_breaks_things() -> void:
 	var street := await _street()
 	var player: Player = street.get_node(^"Player")
-	player.global_position = Vector3(3.0, 0.0, -9.0)
+	# Close enough that it lands at the door, not skittering along the boardwalk (where it ends up
+	# there turns on the contact order of every body in the street).
+	player.global_position = Vector3(3.0, 0.0, -7.0)
 	player.rotation = Vector3(0, PI, 0)
 	await physics_frames(5)
 	var broken := []

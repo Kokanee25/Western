@@ -36,9 +36,29 @@ static func board(id: StringName, size: Vector2, thick := 0.025) -> MeshInstance
 		return null
 	var mi := MeshInstance3D.new()
 	mi.name = "SignBoard"
-	mi.mesh = MemberMesh.box(Vector3(size.x, size.y, thick))
+	mi.mesh = _box(Vector3(size.x, size.y, thick))
 	mi.material_override = _material(id, size)
 	return mi
+
+
+## A box with the picture laid across x and up y on every face, in metres (MemberMesh runs u
+## along the longest side, which turns a tall board's picture on its side).
+static func _box(size: Vector3) -> ArrayMesh:
+	var src := BoxMesh.new()
+	src.size = size
+	var arrays := src.get_mesh_arrays()
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var uvs := PackedVector2Array()
+	var face := PackedVector2Array()
+	for v in verts:
+		uvs.append(Vector2(v.x + size.x * 0.5, v.y + size.y * 0.5))
+		face.append(Vector2(size.x, size.y))
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_TEX_UV2] = face
+	arrays[Mesh.ARRAY_TANGENT] = null
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 ## The board's material: its picture once across `size` metres, one texel a tile (not tracked by
@@ -73,7 +93,7 @@ static func hang(building: FalseFrontBuilding, sign: Node3D, text: String) -> bo
 	if painted == Vector2.ZERO:
 		return false
 	# The room on the false front: its width less a margin, from the porch roof to the cornice.
-	var room := Vector2(building.width - 0.6, building.front_height - 0.75 - (building.wall_height + 0.15))
+	var room := Vector2(building.width - 0.6, building.front_height - 0.75 - building.sign_room_bottom())
 	var k := minf(room.x / painted.x, room.y / painted.y)
 	var size := painted * k
 	var mi := board(id, size)
@@ -83,7 +103,7 @@ static func hang(building: FalseFrontBuilding, sign: Node3D, text: String) -> bo
 			(c as MeshInstance3D).visible = false
 	sign.add_child(mi)
 	# The sign member is centred on the front at its own height; the board goes centred in the room.
-	var centre_y := building.wall_height + 0.15 + room.y * 0.5
+	var centre_y := building.sign_room_bottom() + room.y * 0.5
 	mi.global_transform = Transform3D(building.global_basis.rotated(building.global_basis.y.normalized(), PI),
 			building.to_global(Vector3(building.width * 0.5, centre_y, -0.075)))
 	return true

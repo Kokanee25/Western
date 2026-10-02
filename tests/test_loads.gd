@@ -66,6 +66,40 @@ func test_as_built_it_all_stands() -> void:
 		check(a.falling.is_empty(), "%s: nothing unsupported" % name)
 
 
+func test_the_street_buildings_stand_as_built() -> void:
+	for b: Array in StreetDressing.BUILDINGS:
+		var s := FalseFrontBuilding.new()
+		s.structure_id = StringName((b[0] as String).to_snake_case())
+		s.width = (b[2] as float) - (b[1] as float)
+		s.furnished = false
+		var settings: Dictionary = b[4]
+		for k in settings:
+			s.set(k, settings[k])
+		world.add_child(s)
+		var a := StructuralAnalysis.new().analyse(s)
+		check(a.overloaded().is_empty(), "%s: nothing overloaded as built: %s" % [b[0], a.overloaded().slice(0, 5)])
+		check(a.falling.is_empty(), "%s: nothing unsupported: %s" % [b[0], a.falling.slice(0, 5)])
+		s.queue_free()
+
+
+func test_untouched_members_are_drawn_together_until_something_happens_to_one() -> void:
+	check(store.batch_count() > 0 and store.batch_count() < 20,
+			"%d members in %d meshes" % [store.member_count(), store.batch_count()])
+	var post := store.get_member(&"store/porch/post0")
+	var own := post.get_child(0) as MeshInstance3D
+	check(not own.visible, "a post in the batch isn't drawn on its own")
+	post.add_hole(post.global_position + Vector3(0, 0, -0.07), null, 0.006)
+	check(own.visible, "holed, it's drawn on its own (with the hole)")
+	await physics_frames(2)
+	var batched := 0
+	for c in store.get_children(true):
+		if c is MeshInstance3D and c.name.begins_with("Batch"):
+			batched += (c as MeshInstance3D).mesh.get_faces().size()
+	check(batched > 0, "the rest still drawn together")
+	var glass := store.members_of_kind(&"glass")[0]
+	check((glass.get_child(0) as MeshInstance3D).visible, "glass is always its own")
+
+
 func test_porch_comes_down_without_its_posts() -> void:
 	var a := StructuralAnalysis.new().analyse(store, {&"store/porch/post0": true, &"store/porch/post1": true})
 	check(&"store/porch/beam" in a.falling, "the beam has nothing under it")
