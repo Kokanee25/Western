@@ -69,6 +69,9 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		var road := factory("road")
 		m.set_shader_parameter(&"road_tex", road)
 		m.set_shader_parameter(&"use_road_tex", road != null)
+		var wide := factory("road_wide")
+		m.set_shader_parameter(&"wide_tex", wide)
+		m.set_shader_parameter(&"use_wide_tex", wide != null)
 	return m
 
 

@@ -89,6 +89,21 @@ def crop_to(img, aspect):
     return img.crop((0, (h - nh) // 2, w, (h - nh) // 2 + nh))
 
 
+def grade(lab, spec):
+    """The judge's corrections on a material, in Lab: `lightness` scales L*, `contrast` scales L*'s
+    spread about its mean (the grain's contrast: the saloon painting's table top is drawn with
+    bold grain, docs/ART_REVIEW.md §8.3), `chroma` scales a*/b*, `hue` turns them (degrees,
+    positive toward yellow)."""
+    lab = lab.copy()
+    L = lab[..., 0]
+    lab[..., 0] = (L - L.mean()) * spec.get("contrast", 1.0) + L.mean() * spec.get("lightness", 1.0)
+    h = np.deg2rad(spec.get("hue", 0.0))
+    a, b = lab[..., 1].copy(), lab[..., 2].copy()
+    lab[..., 1] = (a * np.cos(h) - b * np.sin(h)) * spec.get("chroma", 1.0)
+    lab[..., 2] = (a * np.sin(h) + b * np.cos(h)) * spec.get("chroma", 1.0)
+    return lab
+
+
 def flatten(a, amount=FLATTEN):
     """Divide out the painting's broad light (vignette, a lit side) so the surface is even."""
     lum = a.mean(-1)
@@ -237,8 +252,7 @@ def reduce(mid, spec, tpm):
     t = to_texels(a, size)
     lab = mosaic(to_lab((t * 255).astype(np.uint8)), MOSAIC, kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
-    lab[..., 0] *= spec.get("lightness", 1.0)
-    lab[..., 1:] *= spec.get("chroma", 1.0)
+    lab = grade(lab, spec)
     lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
     rgb = lab_to_rgb(lab)
     Image.fromarray(rgb).save(os.path.join(OUT, mid + ".png"))
@@ -252,8 +266,7 @@ def reduce(mid, spec, tpm):
         for k, (strip, share) in enumerate(board_strips(flat_raw, np.random.default_rng(sum(map(ord, mid)) + 7))):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
             st = to_lab((to_texels(strip, ssize) * 255).astype(np.uint8))
-            st[..., 0] *= spec.get("lightness", 1.0)
-            st[..., 1:] *= spec.get("chroma", 1.0)
+            st = grade(st, spec)
             d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
             st = pal[d.argmin(1)].reshape(st.shape)
             Image.fromarray(lab_to_rgb(st)).save(os.path.join(OUT, "%s_b%d.png" % (mid, k)))
