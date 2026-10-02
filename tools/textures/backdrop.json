@@ -1,5 +1,5 @@
 {
- "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character.",
+ "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low).",
  "degrees_per_texel": 0.3,
  "bottom": -3.0,
  "span": 90.0,
@@ -8,7 +8,7 @@
    "radius": 650.0,
    "rise": 0.6,
    "colours": 28,
-   "haze": 0.32,
+   "haze": 0.2,
    "look": "seen from many miles off: a little paler and bluer with distance haze, the shadowed sides violet-grey",
    "panels": [
     {
@@ -66,7 +66,7 @@
    "radius": 430.0,
    "rise": 0.34,
    "colours": 24,
-   "haze": 0.18,
+   "haze": 0.12,
    "look": "a few miles off: clear colour, some haze",
    "panels": [
     {
@@ -176,7 +176,8 @@
      "what": "dry foothills with scattered junipers, a few tall pines and boulders, golden grass"
     }
    ],
-   "scale": 1.0
+   "scale": 1.0,
+   "band": 0.15
   }
  }
 }

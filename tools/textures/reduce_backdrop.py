@@ -14,7 +14,7 @@ For each panel in tools/textures/backdrop.json with a raw painting
   4. the land made solid: each column filled down from its top (no holes to see the sky through
      under a rock), the nearest layer's foot carried right round so the horizon has no gaps, lone
      specks dropped;
-  5. the painting's mosaic pushed (reduce.py's MOSAIC) and each layer cut to its own palette.
+  5. the painting's mosaic pushed (gently: MOSAIC) and each layer cut to its own palette.
 Writes assets/textures/backdrop_<layer>.png (RGBA, read nearest; alpha = land) and
 assets/textures/backdrop.json (each layer's ring: radius, bearings, the angles its rows span,
 haze), which src/art/backdrop.gd reads; and a contact sheet with --sheet.
@@ -35,6 +35,9 @@ OUT_JSON = os.path.join(rd.OUT, "backdrop.json")
 # Keying: how much greener than its red and blue a pixel is before it's background (fully at the
 # second number).
 KEY = (24.0, 70.0)
+# The painting's mosaic, gentler than the world textures' (reduce.MOSAIC): at a third of a degree a
+# texel the full push read as speckle on the rock.
+MOSAIC = 1.25
 # Land islands smaller than this many texels are dropped (stray specks the model left in the green).
 MIN_ISLAND = 6
 # A raw row is land's foot when this much of it is land (the green band some paintings leave under
@@ -75,6 +78,17 @@ def taper(land):
         for x in (k, w - 1 - k):
             out[:h - keep, x] = False
     return out
+
+
+def hill_line(width, rows, seed):
+    """Rows of land to keep in each column: a rolling line between 55% and 100% of `rows`."""
+    rng = np.random.default_rng(seed)
+    x = np.arange(width, dtype=np.float64)
+    n = np.zeros(width)
+    for period, amp in ((140.0, 0.5), (55.0, 0.3), (23.0, 0.2)):
+        n += amp * np.sin(2.0 * np.pi * x / period + rng.uniform(0, 2.0 * np.pi))
+    n = (n - n.min()) / max(n.max() - n.min(), 1e-6)
+    return np.round(rows * (0.55 + 0.45 * n)).astype(int)
 
 
 def to_squares(rgba, size):
@@ -158,6 +172,10 @@ def main():
             prgb, pland = to_squares(keyed, (pw, ph))
             if scale < 1.0:
                 pland = taper(pland)
+            if "band" in layer:
+                keep = hill_line(pw, int(round(layer["band"] * rgb.shape[0])), 7 + i)
+                for k in range(pw):
+                    pland[:max(ph - keep[k], 0), k] = False
             x0 = int(round(((panel["centre"] + panel.get("shift", 0.0) - span * scale / 2.0) % 360.0) / dpt))
             cols = (np.arange(pw) + x0) % width
             top = rgb.shape[0] - ph
@@ -178,7 +196,7 @@ def main():
         rgb, land = solid(rgb, land, ground)
         # The mosaic: on the whole strip (neighbours), then the palette on the land.
         full = rd.to_lab((rgb * 255).astype(np.uint8))
-        full = rd.mosaic(full, rd.MOSAIC, True)
+        full = rd.mosaic(full, MOSAIC, True)
         snapped, pal = rd.palette_snap(full[land][None], layer["colours"], sum(map(ord, lid)))
         full[land] = snapped[0]
         out = np.zeros((th, width, 4), dtype=np.uint8)

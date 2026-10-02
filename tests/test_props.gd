@@ -104,25 +104,34 @@ func test_saloon_stands_and_is_furnished() -> void:
 	saloon.queue_free()
 
 
-func test_red_rock_on_the_skyline_far_off_and_solid() -> void:
-	# Mountains: the street painting's mesas and spires, built in code a few hundred metres out,
-	# on the texel grid's coarse rock with their own haze, and something you can't walk through.
-	var m := Mountains.new()
-	add_child(m)
+func test_the_painted_backdrop_rings_the_town_with_its_spires_down_the_street() -> void:
+	# Backdrop: the painted country on rings round the town, inside the camera's reach, casting no
+	# shadow on the town, the far layer's tallest land (the cathedral spires) where the street
+	# painting has it: down the street, a little right of where you look in the street shot.
+	var info := Backdrop.load_info()
+	check(info.has("layers") and (info.layers as Dictionary).size() == 3, "three layers cut: %s" % str(info.get("layers", {}).keys()))
+	var b := Backdrop.new()
+	add_child(b)
 	await physics_frames(1)
-	var rocks := m.find_children("*", "MeshInstance3D", false, false)
-	check(rocks.size() >= Mountains.FORMATIONS.size(), "every formation built (%d rocks)" % rocks.size())
-	for r: MeshInstance3D in rocks:
-		var d := Vector2(r.position.x, r.position.z).length()
-		check(d > 350.0 and d < 760.0, "out past the town, inside the camera's reach (%.0f m)" % d)
-		check((r.material_override as ShaderMaterial).shader == Mountains.SHADER, "on the rock's grid material")
-		check(r.get_child_count() > 0 and r.get_child(0) is StaticBody3D, "solid")
-	var tallest := 0.0
-	for r: MeshInstance3D in rocks:
-		tallest = maxf(tallest, r.get_aabb().end.y + r.position.y)
-	check(tallest > 150.0, "tall enough to stand over the false fronts (%.0f m)" % tallest)
-	m.queue_free()
-
+	check_eq(b.layers.size(), 3, "three rings built")
+	for mi: MeshInstance3D in b.layers:
+		var lid := String(mi.name).trim_prefix("Layer_")
+		var r: float = info.layers[lid].radius
+		check(r + 130.0 < 800.0, "%s inside the camera's 800 m from anywhere in town, the range's end included (%.0f m)" % [lid, r])
+		check_eq(mi.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "%s casts no shadow" % lid)
+	var far := load(Backdrop.TEXTURES % info.layers.far.texture) as Texture2D
+	var img := far.get_image()
+	var dpt: float = info.degrees_per_texel
+	var top: float = info.layers.far.top
+	# The highest the far land stands down the street (bearings 266-310), in degrees over the horizon.
+	var tallest := -90.0
+	for x in range(int(266.0 / dpt), int(310.0 / dpt)):
+		for y in img.get_height():
+			if img.get_pixel(x, y).a > 0.5:
+				tallest = maxf(tallest, top - y * dpt)
+				break
+	check(tallest > 12.0 and tallest < 26.0, "spires down the street about the painting's ~20 degrees: %.1f" % tallest)
+	b.queue_free()
 
 func test_dry_grass_keeps_off_the_wheel_tracks_and_out_from_under_floors() -> void:
 	# DryGrass: one multimesh of tufts, thick along the road's edges, none down its middle, none

@@ -282,12 +282,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   tracks of ruts with lit ridges, pebbles and a churned middle. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest blue, and has blocky clouds lit gold from below (dark at night).
-  `src/art/mountains.gd` (`Mountains`, added by StreetDressing): red-rock mesas, buttes, spire
-  clusters and a low ridge 450–750 m out (`FORMATIONS`; the biggest west, either side of the
-  sunset as the painting has them), built from stacked rings with fluted cliffs, banded strata
-  at 0.6 texels a metre, convex collision; `mountain.gdshader` is the grid material without the
-  scene's fog (it buried them) and with its own haze (`#define HAZE` in `texel_grid.gdshaderinc`:
-  `haze_color` follows the fog's colour, darkened violet).
+  **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
+  country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
+  m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in
+  `backdrop.gdshader` (unshaded, its own haze from the fog's colour, colours through the ACES
+  inverse: as painted at noon, gold on the sunward side and warm shade with gold skyline rims with
+  the sun low, dark at night). Painted by `tools/textures/paint_backdrop.py` (People workflow input
+  `backdrop`: all / a layer / panels; FLUX.2 [max], four 90-degree panels a layer on a green
+  screen, the street painting's mountains as reference; `tools/textures/backdrop.json` says what
+  each panel shows, its bearing and `shift`, the layer's `scale` and `band`) and cut by
+  `reduce_backdrop.py` (runs anywhere: green keyed out, the band under the land's foot dropped,
+  squares at 0.3 degrees, panels shown smaller than 90 degrees tapered at their sides, the near
+  layer kept to a low band under a rolling hill line, columns filled solid, a gentle mosaic, a
+  palette a layer → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
+  the right as you look out (`Backdrop.direction()`: 270 is west, down the street).
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` has the image model paint each man in
   `characters.json` full length in an A-pose (the painting's man as reference) →
@@ -1354,3 +1362,21 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   0.653, saloon 0.765): the gun's a small part of the frame. 279 tests pass.
   - Known: the hip pose shows the gun from behind and above where the painting holds it forward
     and shows its side (a pose change is gameplay feel: not done); the hand is still blocks.
+- 2026-10-02 (art session, later): **The painted backdrop** (Sean: replace the 3D mountains with a
+  painted 360-degree backdrop in layers, lit to the time of day, the big spires at the end of the
+  street). `Backdrop` above. People runs 14 and 15 (FLUX.2 [max], 16 panels, ~$1.20): the street-end
+  far panel is the painting's skyline (a cathedral mass of fluted spires right, lower spires and a
+  butte left); the model paints its rocks about twice the painting's size and ignores height limits
+  (foothill panels came back with mesas to 90% of the picture, twice), so the cutter shows the far
+  layer at 0.6 of its span and the mid at 0.8 (gaps the nearer layers fill), and keeps the near
+  layer to a low band under a rolling hill line. The cathedral stands at bearings ~277-302, right
+  of the sun at 17:36 (277) as the painting has it (`test_props`: the far land down the street
+  stands 12-26 degrees). `Mountains` and `mountain.gdshader` are gone, and the texel grid's `HAZE`
+  block with them; gameplay's `street_scenery.gd` lost its sphere hills (they stood in front of
+  the backdrop; said here as it's their file). `StreetMatch.stage()` stills the townsfolk's brains
+  for the picture (the gun at your hip was a gun on a man down the street: hands up, "Don't
+  shoot!" in the shot). Judge round `2026-10-02_r10`: street 0.653 → 0.647 (a small share of the
+  frame). 279 tests pass. Contact sheet `docs/screenshots/backdrop/cut_final.png`.
+  - Known: the near ring is 260 m out and you can walk to it (the ground ends at 300 m); its panels
+    meet with a visible change of colour in places; the model's foothill panels hold a road in the
+    hidden bottom rows; the rims barely show against a bright sky right by the sun.

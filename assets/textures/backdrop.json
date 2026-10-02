@@ -4,7 +4,7 @@
   "far": {
    "texture": "backdrop_far.png",
    "radius": 650.0,
-   "haze": 0.32,
+   "haze": 0.2,
    "bottom": -3.0,
    "top": 35.699999999999996,
    "texels": [
@@ -16,7 +16,7 @@
   "mid": {
    "texture": "backdrop_mid.png",
    "radius": 430.0,
-   "haze": 0.18,
+   "haze": 0.12,
    "bottom": -3.0,
    "top": 35.699999999999996,
    "texels": [

@@ -26,7 +26,7 @@ uniform vec3 haze_color = vec3(0.8, 0.7, 0.6);
 uniform float haze = 0.2;
 // How the land looks by night, and in its own shadow at sunset (multipliers on the painting).
 uniform vec3 night_tint = vec3(0.1, 0.11, 0.17);
-uniform vec3 shade_tint = vec3(0.42, 0.36, 0.46);
+uniform vec3 shade_tint = vec3(0.88, 0.6, 0.5);
 
 varying vec3 world_pos;
 
@@ -45,7 +45,7 @@ void fragment() {
 	float above2 = texture(albedo_tex, UV - vec2(0.0, 2.0 * px.y)).a;
 	float sides = min(texture(albedo_tex, UV - vec2(px.x, 0.0)).a, texture(albedo_tex, UV + vec2(px.x, 0.0)).a);
 	float rim = max(1.0 - step(0.5, above), (1.0 - step(0.5, sides)) * 0.7);
-	float rim2 = (1.0 - step(0.5, above2)) * 0.45;
+	float rim2 = (1.0 - step(0.5, above2)) * (1.0 - rim) * 0.5;
 
 	vec3 a = to_srgb(t.rgb);
 	vec3 out_dir = normalize(vec3(world_pos.x - centre.x, 0.0, world_pos.z - centre.z));
@@ -61,8 +61,10 @@ void fragment() {
 	vec3 lit = mix(vec3(1.0), sun_tint * (0.75 + 0.45 * front), low * (1.0 - back));
 	lit = mix(lit, shade_tint, low * back);
 	vec3 col = a * lit;
-	col += sun_tint * (rim * 0.85 + rim2) * back * low * 0.9;
-	col += sun_tint * rim * front * low * 0.25;
+	// The rim: the skyline's texel goes the low sun's gold (not added: added light burnt it cream).
+	vec3 gold = vec3(1.0, 0.72, 0.36) * mix(vec3(1.0), sun_tint, 0.4);
+	col = mix(col, gold, clamp(rim * 0.8 + rim2 * 0.4, 0.0, 1.0) * back * low);
+	col = mix(col, gold * 0.9, rim * front * low * 0.25);
 	// Night: dark shapes, a little moonlit.
 	col = mix(a * night_tint, col, daylight);
 	col = mix(col, haze_color, haze * mix(0.7, 1.0, daylight));

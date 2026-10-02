@@ -1,7 +1,8 @@
 class_name StreetScenery
 extends Node3D
 ## Everything around the test buildings that isn't built from members: a placeholder church,
-## sagebrush, rocks, distant hills, props. Deterministic from the seed.
+## sagebrush, rocks, props (the country beyond is the painted Backdrop). Deterministic from the
+## seed.
 
 @export var scenery_seed := 1882
 @export var road_center_z := -8.4
@@ -19,7 +20,6 @@ func _ready() -> void:
 	_build_blockouts()
 	_build_props()
 	_build_sagebrush()
-	_build_hills()
 
 
 func _mat(color: Color, rough := 0.9, textured := true) -> Material:
@@ -146,26 +146,3 @@ func _build_sagebrush() -> void:
 	mmi.name = "Sagebrush"
 	mmi.multimesh = mm
 	add_child(mmi)
-
-
-func _build_hills() -> void:
-	var root := Node3D.new()
-	root.name = "Hills"
-	add_child(root)
-	var colors := [Color(0.55, 0.36, 0.25), Color(0.62, 0.45, 0.3), Color(0.45, 0.35, 0.3), Color(0.5, 0.4, 0.33)]
-	for i in 16:
-		var angle := float(i) / 16.0 * TAU + _rng.randf_range(-0.15, 0.15)
-		var dist := _rng.randf_range(170.0, 260.0)
-		var hill := MeshInstance3D.new()
-		var mesh := SphereMesh.new()
-		mesh.radius = 1.0
-		mesh.height = 2.0
-		mesh.radial_segments = 10
-		mesh.rings = 5
-		hill.mesh = mesh
-		hill.material_override = _mat(colors[i % colors.size()], 1.0, false)
-		hill.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		var r := _rng.randf_range(40.0, 80.0)
-		hill.scale = Vector3(r, _rng.randf_range(14.0, 38.0), r * _rng.randf_range(0.6, 1.0))
-		hill.position = Vector3(cos(angle) * dist, -2.0, sin(angle) * dist)
-		root.add_child(hill)
