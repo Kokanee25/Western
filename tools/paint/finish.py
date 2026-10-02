@@ -53,15 +53,18 @@ HEAD_SHAPES = {"head", "hair", "hat", "hat_band", "hat_brim", "cravat"}
 # raised to this power before averaging.
 SHARPEN = 4.0
 # Squares a metre on him, per shape (the rest: SQUARES_PER_M_CLOTH). Measured on the painting at
-# its man's size: the coat's blocks ~12 px of 1672, the face ~27 blocks across, the hands finer.
+# its man's size: the face ~27 blocks across, the hands finer; the coat's blocks were taken as
+# ~12 px of 1672 (80 a metre), but the judge measures the painting's at ~8 px of 1280 against our
+# 15 (2026-10-02): cloth at 160 a metre, squares half the size.
 SQUARES_PER_M = {"head": 190.0, "skin": 150.0, "cravat": 110.0, "hat_band": 110.0}
-SQUARES_PER_M_CLOTH = 80.0
-# The raw bakes' texels a metre: paint_bake.gd bakes at 256/m, except the head, whose face layout
+SQUARES_PER_M_CLOTH = 160.0
+# The raw bakes' texels a metre: paint_bake.gd bakes at 512/m (three raw texels a cloth square),
+# except the head, whose face layout
 # runs round the head (~0.57 m) in u and over BodyMesh's HEAD_BOTTOM..HEAD_TOP (0.25 m) in v.
 RAW_PER_M = {"head": (512 / 0.57, 344 / 0.25)}
-RAW_PER_M_DEFAULT = (256.0, 256.0)
+RAW_PER_M_DEFAULT = (512.0, 512.0)
 # Clean squares: first the fine detail under them is smoothed away (a median over this many raw
-# texels, ~2 cm; ~8 mm on the face, whose brows and moustache are small, and never over his eyes,
+# texels, ~1 cm; ~8 mm on the face, whose brows and moustache are small, and never over his eyes,
 # DETAIL), then each shape gets a palette of its own: enough shades for the light to step across it,
 # few enough that neighbouring squares share them (the painting's face is a calm mosaic of ~16).
 SMOOTH = {"head": 7}

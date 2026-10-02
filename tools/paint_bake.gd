@@ -25,7 +25,7 @@ const SHOT_CROP := Rect2(105.0 / 1672.0, 141.0 / 941.0, 800.0 / 1672.0, 800.0 / 
 const VIEW_SIZE := Vector2i(1024, 1024)
 const DEPTH_FAR := 4.0
 ## Texels per metre of the raw bakes (finish.py averages them down to the finished blocks).
-const RAW_TEXELS_PER_M := 256.0
+const RAW_TEXELS_PER_M := 512.0
 ## Shapes whose UV layout isn't even in metres get a set size: the head's face layout gives the face
 ## the middle third of it, baked finer than the rest (~900 texels a metre round the head): his eyes
 ## are drawn finer than the squares (finish.py DETAIL).
