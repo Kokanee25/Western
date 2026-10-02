@@ -107,11 +107,25 @@ Work in this order; each milestone ends playable. The first slice is defined in 
    **Town build-out (runs alongside M4–M5):** once M3's systems exist, build the town from
    `docs/TOWN.md` one building per session — every building, interior, set piece and piece of dressing,
    in the order listed there.
-5. **M4 — People:** routines, needs, memory records and opinions, witnesses and sound, then AI
-   conversation (voice + suggested replies) through the relay.
+5. **M4 — People** (gameplay session), in this order:
+   1. ✅ Senses for everyone. 2. ✅ Deeds, opinions, the escalation ladder. 3. ✅ A day in town for
+   the gang, backing down, call-outs, duels. 4. ✅ The gang fights together.
+   5. **Money and social acts** (DESIGN.md §10 "Social interactions: a round on me"): a purse of real
+      coins at 1882 prices; the barkeep sells drinks, keeps a ledger, runs tabs, throws out men who
+      can't pay; "buy him a drink" and "a round on me!" as deeds (the room counts heads, you pay,
+      they cheer and toast, opinions warm by context); drunkenness for everyone (sway, speech,
+      courage). Keys for now, conversation later.
+   6. Conversation hooks: talking a man down, bargaining, surrender terms.
+   7. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
+   8. AI conversation through the relay (voice + suggested replies), with the speaker's body state
+      fed in (DESIGN.md §11 "Signature features" 1: the body changes how people talk).
 6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,
-   the doctor, the jail, saving in bed and waking at the doctor's.
-7. **M6+ —** the sheriff opening, the railroad clock, the drama manager, the mine, the full cast.
+   the doctor, the jail, saving in bed and waking at the doctor's. **The sheriff opening** is the
+   first piece of the story spine (DESIGN.md §5 "Story flow", §11 signature features 1–3): you find
+   him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out
+   is evidence. Then forensics (the doctor and undertaker read wounds) and the trial.
+7. **M6+ —** the three acts on the railroad clock with faction plans, the drama manager, rumours,
+   letters and the telegraph, leading deputies, the mine, the full cast, legends between games.
 
 ## Commands and layout
 
