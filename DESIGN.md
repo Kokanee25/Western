@@ -217,6 +217,108 @@ with the revolver; the target for the street, materials and daylight).
 - **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
   rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
 
+### Story flow (**decided**, 2026-10-01)
+The danger in a systemic game is a sandbox with nothing pulling you along. The flow comes from a
+clock, factions working their plans, and the player always holding a few live leads.
+
+- **Three acts on the 30-day clock** (days are 45 real minutes, so ~22 hours of play):
+  - **Act 1, the sheriff (days 1–3):** the hook. You ride into town at dawn and find him on the road.
+    Saving him teaches first aid under pressure (the hospital-steward past pays off in minute one).
+    Whatever happens, by day 3 the town has no law, the Colters are in town, and everyone wants to
+    know what you saw.
+  - **Act 2, the squeeze (days 4–21):** every faction works its plan whether or not you act. The
+    baron buys or frightens out homesteaders, the agent files forged deeds, the gang runs jobs and
+    leans on the town, the widow holds out. You pick sides, or play them off each other.
+  - **Act 3, the rails (days 22–30):** the survey crew arrives, deeds go to the circuit judge, and
+    the factions make their final moves (a burn-out, a robbery of the land money, a trial, a
+    showdown). Day 30: the first train comes in. Whatever the valley is that morning is your ending.
+- **Faction plans, not quests:** each antagonist has a timeline of steps with conditions (the gang
+  burns out the widow on day 9 *if* she still holds her claim and nobody's guarding it). Steps happen
+  off-screen if you're elsewhere; you hear about them or find the ashes. Stop a step and the plan
+  adapts or escalates.
+- **Leads, not a quest log:** news reaches you the way it would in 1882 — rumour in the saloon (the
+  owner sells it), a letter, the weekly paper, a wanted poster, a kid running up the street, a
+  gunshot two streets over. Your character keeps a **journal** in his own words (what he saw, who
+  said what, what he means to do). That's the only "quest list".
+- **The drama manager keeps the pace:** it watches tension. Quiet too long, and someone gets a reason
+  to act (a stranger arrives, a debt comes due, the gang gets drunk). Too much at once, and it holds
+  a step back a day. It never forces a scene the world has made impossible; it lets survivors react.
+- **Hand-built moments that fit any path:** the sheriff's last hours, the widow's burn-out night, the
+  trial, the robbery of the land money, the train's arrival. Each is staged so it works whoever's
+  alive and whatever's standing.
+- **You find the sheriff** (decided): you ride in at dawn and he's on the road. The other big moments
+  work the same way where they can: the player is there, or arrives in the middle, rather than
+  hearing about it afterwards.
+- **The game can end early** (decided): hanged after a trial, dead with no doctor to wake you at,
+  run off your claim, or killed by the gang. A game-over is told the same way as an ending (the
+  paper, the town), so it reads as a story, not a fail screen.
+- **The ending is the state of the world:** who's alive, who owns the spring and the widow's claim,
+  who wears the badge, what's still standing, what people think of you. Told as the newspaper's
+  front page and the town's reactions on day 30, plus a walk through the town afterwards.
+
+### Reasons to fight (**decided**, Sean 2026-10-01)
+The gunfight and the bodies are the deepest systems we have, so the 30 days must bring regular,
+varied reasons to use them, without turning the town into a shooting gallery. Every fight should
+come out of the story or the world, and most standoffs should have a way out that isn't shooting.
+- **The factions bring fights to you.** Their plans include violence on a schedule: the gang
+  burning out the widow (defend her at night, or arrive to the ashes), night riders at your own
+  spring, the stage robbed on the road, the land money hit in town, a jailbreak, the baron's hands
+  running off homesteaders, claim jumpers, and the act-three showdown.
+- **Work that pays in lead:** bounties from the wanted posters (alive pays more, so arrests are
+  rewarded over killing), guarding the stage or the money shipment, riding with a posse, clearing
+  the gang's hideout or the mine.
+- **The street:** call-outs and duels (built), drunks who draw, bar fights that escalate, men you
+  wronged coming back, bounty hunters after you if you're wanted.
+- **No shooting animals** (Sean: "I hate games where you shoot animals"): no wolves, no hunting, no
+  animal targets. Horses, dogs and stock are in the world as creatures, never as things to fight.
+- **Shooting for sport:** a turkey shoot or a Fourth of July match at range with money on it. Shows
+  off drop, sway and the guns' feel with nothing at stake but pride and a purse.
+- **Pacing:** the drama manager aims for something tense most days and a real fight every day or
+  two, more in act three; quiet days are for people. Standoffs that end without a shot count as
+  much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
+
+### A day in Salt Creek (**decided in outline**, 2026-10-01)
+- **The loop:** leads come in → you pick what matters → you act → the world reacts → you sleep
+  (and save) and the clock moves on.
+- **Three pressures every day:** the story clock (factions move whether you do or not); money
+  (ammunition, the doctor, food, a room, drinks, bribes); your body (wounds, sleep, hunger, drink).
+- **Needs are light** (Sean): eat and sleep, small effects if you skip (tired: slower, shakier;
+  hungry: weaker, grumpier with people), never a survival game.
+- **Proposed, not yet decided:** a note on your claim at the bank, due before the rails arrive,
+  as the money pressure (and a lever for the baron and the land agent).
+- **What fills the hours:** work for money (bounties, shooting matches, guarding the stage,
+  odd jobs, a barn raising, a deputy's pay), people (the saloon, cards, rumours, favours),
+  investigation (the sheriff's shooting, evidence, witnesses, tracks), the factions' moves, and
+  recovery (the doctor, rest, supplies, cleaning your gun).
+- **A typical 45-minute day:** dawn (wake, wounds, ride in, the rails a little closer) → morning
+  (errands and leads) → noon (the street empties; questioning, cards, the doctor) → afternoon
+  (the day's main job) → evening (the saloon fills, the day's rumours, trouble) → night (raids,
+  sneaking, or sleep; darker as the moon wanes).
+
+### Romance (**proposed**, 2026-10-01)
+Everyone will try it, usually crudely, in the first five minutes. That's fine: the people are people,
+so it plays out the way it would in 1882, and the crude attempt is a source of humour, not reward.
+- **Women in the town are people, not prizes.** Each has her own life, opinions, situation and
+  wants (the widow fighting for her claim, a married woman, the hotel landlady, a working girl
+  upstairs at the saloon), and most of them aren't looking for anything from you.
+- **The crude approach goes badly, in character:** a cold look, a slap, a drink in your face, her
+  husband or brother looking for you, the barkeep throwing you out, the whole town hearing about
+  it by evening. Reputation drops. Being a pig is allowed; it's just remembered.
+- **Courtship is slow and earned:** days, not minutes, built on what you actually do (keeping her
+  claim safe, honesty, showing up, standing by her when it costs you). She can say no, change her
+  mind, or lose interest if you turn out to be someone else. Some people may court you.
+- **1882 rules apply:** propriety, chaperones, gossip, reputations (hers more than yours, which she
+  knows), marriage as a real, binding thing with property consequences (marrying the widow is a
+  path to holding the valley).
+- **Fade to black.** Nothing explicit, ever. The conversation AI keeps characters in character and
+  steers away from sexual content; intimacy is implied (a door closing, the morning after, the
+  town talking).
+- **Men too** (Sean, 2026-10-01). Same rules as any courtship: slow, earned, the other man's own
+  choice. A few men in the valley are open to it as part of who they are (written as people, not
+  a gimmick); most aren't. 1882 makes it a secret: discretion matters, being found out has real
+  social cost for both of you, and that risk is what gives it weight (the Brokeback Mountain
+  register, not a joke). A crude pass at a man who isn't interested goes as badly as one at a woman.
+
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
 vaqueros. They belong in the game as real people with their own lives and perspectives, written with
@@ -565,6 +667,31 @@ knock out one stud and the wall shrugs it off.
   body count.)
 - Ownership: locks, keys, lockpicking, deeds, property.
 
+### Social interactions: "a round on me" (**decided**, Sean 2026-10-01)
+Small, everyday social acts that cost something real and that people react to as people. The first
+one is buying drinks.
+- **Money is real coins.** You carry a purse (dollars, bits, a few cents) you can count; prices are
+  1882's (a whiskey 15–25¢, "two bits" for the good stuff, a bottle about a dollar). No abstract
+  gold counter.
+- **Buying one man a drink:** say "let me buy you a drink" or push coins and a glass his way. It's a
+  deed with weight: it softens a wary man a rung, opens a conversation, and is remembered ("you
+  bought me a drink once"). It depends on the man: a proud one may say "I buy my own," a man with a
+  grudge won't take it, and a drunk takes it and forgets you by morning.
+- **"A round on me!"** Said loud in the saloon. The barkeep counts heads and pours (the price is real:
+  ten men at two bits is $2.50), and the room reacts: a cheer, glasses up, "to the stranger!", the
+  piano picks up, men drift to the bar. Everyone who drinks gets a small warm opinion of you, bigger
+  if they're broke or it's a hard day in town. The rumour spreads ("bought the whole house a round").
+- **You have to pay.** Coins leave your purse. Can't cover it? The barkeep's face drops, the room
+  laughs, and you run a tab (a debt in his ledger, remembered, collected) or get thrown out. Skip
+  out on a tab and that's theft.
+- **Context changes it:** after a killing the room is quiet, and a round reads as guilt or bribery;
+  the gang drinks your whiskey and still despises you; a widower doesn't toast. Rounds every night
+  get smaller cheers and mark you as a man with money (someone may try to take it).
+- **Drink is real:** each glass adds to drunkenness (aim sway, slurred speech in conversation,
+  courage, memory gaps), for you and for them. Drunk men talk more and fight sooner.
+- **More of the same kind, later:** tipping your hat, standing someone a meal, paying a man's fine,
+  lending money, a game of cards, a toast at a funeral, settling a debt in public.
+
 ### Recognition and disguise
 - **Witnesses store a description, not an identity flag:** face, build, clothes, hat, horse, gun, voice,
   scars, missing fingers, a limp. Wanted posters are built from those descriptions.
@@ -586,6 +713,26 @@ knock out one stud and the wall shrugs it off.
   wrong) version of what you did.
 - Funerals when people die; people attend, speak, remember, and some blame you.
 
+### Why you won't burn the town down (**decided in principle**, 2026-10-01)
+You can, and the game remembers it. But it should feel like a terrible decision, and most players
+should care too much to do it.
+1. **No undo:** saves only in a bed. Ash stays ash.
+2. **The town is your life support:** each building is a service. Burn the store and there's no
+   ammunition, oil, rope or food; burn the doctor's and nobody digs the ball out (you wake at the
+   doctor's after going down — no doctor, no waking); burn the livery, no horses; the hotel, fewer beds.
+   Services don't magically restock; whoever survives may set up again elsewhere, slowly.
+3. **Named people early:** the first hour puts you with people who matter (the sheriff, the doctor,
+   the widow, the barkeep who knows your drink), and every townsperson has a routine and remembers you.
+4. **The town fights back, escalating:** witnesses describe you, posters go up, nobody sells to you,
+   armed men come looking, a posse rides to your homestead, bounty hunters arrive on the stage.
+   One bullet can kill you, so a town against you is a real threat.
+5. **Fire doesn't care whose it is:** wind carries it, smoke chokes, it can take your escape route or
+   ride out to your own barn.
+6. **The tools come later:** lamp oil costs money; dynamite lives in the mine's powder magazine.
+7. **If they do it anyway, it's a story:** the gang moves into the ruins, the railroad buys the land
+   cheap, survivors talk about you for the rest of the game, the paper prints it. A burned Salt Creek
+   is its own playthrough, not a dead end.
+
 ## 11. Immersion features
 
 1. **Almost no on-screen display:** a pocket watch (or the sun and the church bell) for time; count the
@@ -606,6 +753,63 @@ knock out one stud and the wall shrugs it off.
 8. **Horses as creatures:** they tire, spook at gunfire, get hurt, can be stolen, remember who treats
    them well.
 
+### Signature features (**decided**, Sean 2026-10-01: "Ya!" to all)
+What nobody else does, made from joining systems we already have. **1–3 together are the game's
+spine:** you find the sheriff, how well you treat him decides whether he lives, his last words
+depend on his blood loss, the ball in him is the evidence, and it all comes out at a trial driven by
+what really happened.
+1. **The body changes how people talk.** The conversation AI is given the speaker's body state
+   (blood loss, shock, pain, concussion, drink, a broken jaw or windpipe, fear). The dying sheriff
+   is clear, then confused, then only a name; a broken jaw nods and grunts; a drunk lets things
+   slip; a concussed witness gets the order of events wrong; a man in shock agrees to anything.
+2. **Real forensics from real wounds.** The anatomy trace is evidence: calibre of the ball dug out
+   (only certain men carry a .44), entry and exit (shot from behind, from above, from close: powder
+   burns), the order of wounds, time since death (blood pooled, cold). The doctor and undertaker
+   can examine bodies and tell you; the player can learn to read them (the medicine skill).
+3. **A real trial.** The circuit judge sits in the saloon or church. You testify by speaking;
+   AI witnesses tell what they actually remember (including what they got wrong in the dark); the
+   evidence is shown; you can cross-examine; a jury of townsfolk with their own opinions of you
+   decides. Verdicts can go against the innocent who couldn't prove it. Hanging is a game-over.
+4. **Rumours that change as they spread.** Each retelling passes through a person (exaggerates,
+   takes sides, forgets); by evening the saloon thinks you shot three men. The weekly paper prints
+   its version; you can set the editor straight or pay him.
+5. **Letters and the telegraph.** Write in plain words; letters go by stage over days, wires by
+   the telegraph (if the wire's not cut). People answer or act: the US Marshal might come, the
+   railroad might send a lawyer about the forged deeds. You can forge letters too.
+6. **Leading people by talking.** Swear in deputies or hire guns and give orders in plain words
+   ("you two cover the back door, nobody fires till I do"); their nerve, skill and loyalty decide
+   whether they hold. Builds on the gang's teamwork (`Crew`) for your side.
+7. **Your voice as a weapon (microphone, optional).** Loudness matters: a bellowed "Drop it!"
+   carries further and frightens more than a muttered one; whispering keeps you hidden in the dark.
+   Typed commands still work (shout/whisper as words).
+8. **Teaching people.** The skills you learn from people, turned round: teach the Kid to shoot or
+   the widow to dress a wound; it saves your life later, or he uses it against you.
+9. **Legends between playthroughs.** A new game's old-timers tell a garbled story of your last
+   character ("a stranger burned the saloon down a few years back"), and the graveyard has his
+   marker. Stored outside the save, a few lines per finished game.
+
+### World-building features (**decided**, Sean 2026-10-01)
+1. **You can see the railroad coming.** Survey stakes, then grade, then rails creep across the
+   valley a little each day; the work gangs' hammering and smoke get closer. The 30-day clock is
+   something you see from your porch. Sabotage the line and it visibly stalls.
+2. **The town builds and rebuilds itself.** Carpenters frame new buildings member by member with
+   the structure system (a new store on an empty lot, tents becoming buildings as the rails near);
+   after a fire, townsfolk clear the rubble and raise a new frame over days. A barn raising is a
+   town event you can join and physically help lift.
+3. **The moon tells time.** 30 days is one lunar cycle: the moon waxes and wanes through the game
+   and darkness is real. The gang raids on dark nights; a full moon lets you see riders coming.
+4. **The ground remembers.** Footprints in mud and dust until wind or rain wipes them; paths worn
+   where people walk daily; blood darkening to brown over days; bullet holes stay; graves get
+   flowers or get forgotten. Tracking (and covering your tracks) is real.
+5. **A tintype photographer.** A travelling photographer sets up in town. Your picture can end up
+   on a wanted poster with your actual face; he photographs the dead (the period custom), and his
+   plates are evidence of who was where.
+6. **The town's rhythm follows heat and light.** The street empties in the noon heat, the saloon
+   fills at dusk, the lamplighter does his round; the church bell, the stage's arrival and the
+   noon whistle tell the time with no display.
+- Parked (Sean likes it, maybe no time): **your homestead built by hand** with the member system
+  (fences, barn, well). Cut: water levels and drought, movable claim stakes.
+
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
 
 ## 12. First slice (what to build first)
@@ -624,6 +828,7 @@ It must prove, in this order of priority:
 The test: **can the player cause a story nobody planned?**
 
 ## 13. Open questions
+
 
 - **Tone details:** how dark the humour runs; how graphic the default gore setting is.
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included

@@ -5,13 +5,31 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New: full sim: the real loads, and air that behaves like air
+
+- **The guns fire what they'd have fired in 1882.** The Colt (a 7½" Cavalry model) shoots the
+  .45 service load, 40 grains of black powder behind a 255-grain bullet: about 900 ft/s, so the
+  ball now leaves at **274 m/s** (it was 240) and hits a quarter harder. The coach gun's black-powder
+  shell throws nine 00 balls at about **1,200 ft/s** (365 m/s; it was 400).
+- **Drag changes with speed, as it really does.** A round ball's drag nearly doubles as it nears
+  the speed of sound, so buckshot (just over it) sheds speed fast: two thirds of its punch is left
+  at 25 m. The revolver's bullet follows the standard drag curve for its blunt shape and keeps
+  about nine tenths of its speed over 100 m.
+- **The air is a setting**: height and temperature set how thick it is and the speed of sound. It's
+  sea level and 15 °C until we decide where Salt Creek is (a mile up on a hot day the balls carry
+  flatter).
+- What it means: the revolver's flatter now. Against your sights it's on at 25 yards, **7 cm low
+  at 50 m, 24 cm at 75 m, half a metre at 100 m**, and a ball reaches 100 m in 0.39 s. A .45 in the
+  chest is more likely to put a man down at once, and that includes you. Buckshot at 20 m drops a
+  man a little less often than before.
+
 ### New: real bullet drop, and targets at 50 and 100 metres
 
 - **Every ball falls and slows from the moment it leaves the barrel** (it always did; now the gun
   is set up the way a real one is). The revolver's sights are regulated for **25 yards**: the ball
-  rises a hair above your line of sight, crosses it at 25 yards, and falls away beyond. Against
-  your sights: on out to 25 yards, **10 cm low at 50 m, 30 cm at 75 m, 65 cm at 100 m**. At 100 m
-  the ball takes nearly half a second to get there (lead them if they're moving).
+  rises a hair above your line of sight, crosses it at 25 yards, and falls away beyond (figures
+  above, with the real load). At 100 m it takes the best part of half a second to get there (lead
+  them if they're moving).
 - The revolver's bullet now slows like the blunt conical bullet it is (it keeps about nine tenths of
   its speed over 100 m); buckshot pellets, round and light, shed speed much faster. The shotgun's
   bead is regulated for 40 yards.
@@ -20,7 +38,7 @@ same body.
 - **Two new boards down the range**, past the first: one at 50 m (left) and one at 100 m (right),
   so you can see it and learn your holdover.
 - Try: F5 to the range. Shoot the near board, then the 50 m board with the sights on the black
-  square and see where the holes land, then the 100 m board (hold a good half a metre over it).
+  square and see where the holes land, then the 100 m board (hold half a metre over it).
   F8 shows each ball's flight.
 
 ### New: ricochets

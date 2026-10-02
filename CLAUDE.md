@@ -107,11 +107,29 @@ Work in this order; each milestone ends playable. The first slice is defined in 
    **Town build-out (runs alongside M4–M5):** once M3's systems exist, build the town from
    `docs/TOWN.md` one building per session — every building, interior, set piece and piece of dressing,
    in the order listed there.
-5. **M4 — People:** routines, needs, memory records and opinions, witnesses and sound, then AI
-   conversation (voice + suggested replies) through the relay.
+5. **M4 — People** (gameplay session), in this order:
+   1. ✅ Senses for everyone. 2. ✅ Deeds, opinions, the escalation ladder. 3. ✅ A day in town for
+   the gang, backing down, call-outs, duels. 4. ✅ The gang fights together.
+   5. **Money and social acts** (DESIGN.md §10 "Social interactions: a round on me"): a purse of real
+      coins at 1882 prices; the barkeep sells drinks, keeps a ledger, runs tabs, throws out men who
+      can't pay; "buy him a drink" and "a round on me!" as deeds (the room counts heads, you pay,
+      they cheer and toast, opinions warm by context); drunkenness for everyone (sway, speech,
+      courage). Keys for now, conversation later.
+   6. **Reasons to fight, first two** (DESIGN.md §5 "Reasons to fight"): a shooting match at the
+      range with money on it (drop, sway and the guns' feel against other shooters, prize from the
+      purse); a bounty from a wanted poster on a man camped outside town (alive pays more: arrest
+      and surrender as they are). No animals, ever.
+   7. Conversation hooks: talking a man down, bargaining, surrender terms.
+   8. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
+   9. AI conversation through the relay (voice + suggested replies), with the speaker's body state
+      fed in (DESIGN.md §11 "Signature features" 1: the body changes how people talk).
 6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,
-   the doctor, the jail, saving in bed and waking at the doctor's.
-7. **M6+ —** the sheriff opening, the railroad clock, the drama manager, the mine, the full cast.
+   the doctor, the jail, saving in bed and waking at the doctor's. **The sheriff opening** is the
+   first piece of the story spine (DESIGN.md §5 "Story flow", §11 signature features 1–3): you find
+   him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out
+   is evidence. Then forensics (the doctor and undertaker read wounds) and the trial.
+7. **M6+ —** the three acts on the railroad clock with faction plans, the drama manager, rumours,
+   letters and the telegraph, leading deputies, the mine, the full cast, legends between games.
 
 ## Commands and layout
 
@@ -1207,3 +1225,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: the spires are seen backlit at golden hour (their shadow sides; the painting's have
     lit orange rims); the formations are simpler than the painting's cathedral rock (fewer towers
     per cluster); the far plane is 800 m, so nothing can go further out.
+- 2026-10-01 (design, Sean): **story flow decided** (DESIGN.md §5: three acts on the 30-day clock, you
+  find the sheriff, the game can end early) and **signature features** (DESIGN.md §11: the body
+  changes how people talk, real forensics, a real trial, rumours, letters/telegraph, leading
+  people, voice loudness, teaching, legends). 1–3 are the spine; gameplay should keep them in mind
+  when building conversation (M4 step 5) and the sheriff opening.
+- 2026-10-02 (gameplay): **Full sim: period loads, Mach-dependent drag, air** (Sean: "let's go full
+  sim"). Revolver `muzzle_velocity` 240 → 274 m/s (7½" SAA, 40 gr black powder, 255 gr: ~900 ft/s;
+  620 J); shotgun 400 → 365 m/s (12-bore black powder, nine 00 balls, ~1,200 ft/s; 233 J a pellet).
+  `BallisticsTuning`: `air_density`/`drag_coefficient` replaced by `elevation_m` (0) and
+  `air_temperature_c` (15) → `air_density()` (standard atmosphere) and `speed_of_sound()`;
+  `drag_cd(speed, form)` from `sphere_drag` (round balls, Cd 0.47 → ~0.94 at Mach 1.1) or
+  `g1_drag` × form factor; `Bullet.drag` → `Bullet.form` (0 a round ball; revolver `form_factor`
+  1.27, BC ~0.14). Drag is worked out each tick at the ball's own speed; `flight()`/`holdover()`
+  take `form`. Revolver vs sights now: −0.7 cm at 5 m, on at 22.9, −7.4 at 50, −24 at 75, −50 at
+  100 (0.39 s, 89% kept); a pellet keeps ~63% of its energy at 25 m. Tests that pinned the old
+  speeds now follow the tuning; `test_gunfight::test_he_shoots_back_and_hurts` allows for you
+  going down to one hit; `test_drop` +1 (the air). 275 pass; body hits to stop him 1.54 (was 1.46,
+  same seeds, different flights), charges dropping him at 20 m 3 of 16 (was 5).
+  - Open with Sean: where Salt Creek is (elevation, how hot): mesa country is often 1,200–1,800 m.

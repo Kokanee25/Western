@@ -75,13 +75,23 @@ func test_calm_until_shot_at() -> void:
 
 func test_he_shoots_back_and_hurts() -> void:
 	brain.nerve = 99.0  # no quitting in this one
+	var hits := [0]
+	var count := func(info: Dictionary) -> void: if info.get("person") == player: hits[0] += 1
+	Events.body_hit.connect(count)
 	await _shoot(Vector3(0, 1.5, -1), Vector3(0.8, 1.6, -8), player)
-	await physics_frames(60 * 9)
+	var down := func() -> bool: return not player.wounds.physiology.is_conscious()
+	await wait_until(func() -> bool: return shots_by_outlaw >= 4 or down.call(), 60 * 9)
+	Events.body_hit.disconnect(count)
+	check(hits[0] >= 1, "he hits you at 8 m (%d hits)" % hits[0])
+	if down.call():
+		# A .45 in the chest can put a man down at once; then he stands down: you're out of it.
+		await physics_frames(60 * 4)
+		check(brain.target == null, "you're down: he's done with you (%s)" % brain.describe().substr(0, 50))
+		return
 	check(shots_by_outlaw >= 4, "fires again and again (%d shots)" % shots_by_outlaw)
-	check(player.wounds.physiology.wounds >= 1, "and hits the player at 8 m (%d hits)" % player.wounds.physiology.wounds)
 	# (He has to draw first, and pick you out.)
 	var done := func() -> bool: return brain.mood == OutlawBrain.Mood.RELOADING or shots_by_outlaw > 5 \
-			or brain.rounds == brain.rounds_per_load and shots_by_outlaw >= 5
+			or brain.rounds == brain.rounds_per_load and shots_by_outlaw >= 5 or down.call()
 	await wait_until(done, 60 * 12)
 	check(done.call(), "reloads after five (%d shots, %d rounds, %s)" % [shots_by_outlaw, brain.rounds, brain.describe().substr(0, 40)])
 

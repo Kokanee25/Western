@@ -206,7 +206,7 @@ func _on_fired(barrel: int) -> void:
 
 func _load() -> Dictionary:
 	return {"speed": tuning.muzzle_velocity, "mass": tuning.pellet_mass, "diameter": tuning.pellet_diameter,
-			"cd": -1.0, "zero": tuning.zero_distance}
+			"form": 0.0, "zero": tuning.zero_distance}
 
 
 func _on_extracted(barrel: int, _barrel_state: int) -> void:

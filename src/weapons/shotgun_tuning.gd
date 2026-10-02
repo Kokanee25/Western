@@ -26,7 +26,10 @@ extends Resource
 @export var pellets := 9
 @export var pellet_mass := 0.0035  ## kg
 @export var pellet_diameter := 0.0084  ## m
-@export var muzzle_velocity := 400.0  ## m/s
+## A 12-bore paper shell of the day: 3 drams of black powder behind nine 00 balls, about
+## 1,200 ft/s from a coach gun's 20" barrels. Round balls just over the speed of sound: they shed
+## speed fast (their drag peaks there).
+@export var muzzle_velocity := 365.0  ## m/s
 ## The range its bead is regulated for (both barrels shoot to the bead at 40 yards).
 @export var zero_distance := 36.6
 ## The pattern: each pellet leaves this many degrees off the line at one standard deviation,

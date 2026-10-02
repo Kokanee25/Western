@@ -104,24 +104,24 @@ func test_the_ball_crosses_your_sights_at_the_zero_and_falls_away_beyond() -> vo
 			h.keys().map(func(d: float) -> String: return "%d m %+.1f" % [roundi(d), float(h[d]) * 100.0])))
 	check(absf(h[22.9]) < 0.01, "on at 25 yards (%+.1f cm)" % (h[22.9] * 100.0))
 	check(h[10.0] > -0.03 and h[10.0] < 0.04, "a touch off at 10 m: you hit what the sights are on (%+.1f cm)" % (h[10.0] * 100.0))
-	check(h[50.0] < -0.08 and h[50.0] > -0.35, "a hand's breadth low at 50 m (%+.1f cm)" % (h[50.0] * 100.0))
-	check(h[100.0] < -0.5 and h[100.0] > -1.3, "the best part of a metre low at 100 m: hold over a man's head (%+.1f cm)" % (h[100.0] * 100.0))
+	check(h[50.0] < -0.05 and h[50.0] > -0.2, "a few inches low at 50 m (%+.1f cm)" % (h[50.0] * 100.0))
+	check(h[100.0] < -0.35 and h[100.0] > -0.8, "half a metre low at 100 m: hold over his head (%+.1f cm)" % (h[100.0] * 100.0))
 	check(h[50.0] < h[35.0] and h[75.0] < h[50.0] and h[100.0] < h[75.0], "falling faster the further it goes")
 
 
 func test_it_slows_in_the_air_as_a_real_bullet_does() -> void:
 	var t: RevolverTuning = load("res://config/revolver.tres")
-	var f50 := ballistics.flight(50.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.drag_coefficient)
-	var f100 := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.drag_coefficient)
+	var f50 := ballistics.flight(50.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.form_factor)
+	var f100 := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.form_factor)
 	var keep50 := float(f50.speed) / t.muzzle_velocity
 	var keep100 := float(f100.speed) / t.muzzle_velocity
 	print("  .45 ball: %.0f m/s at the muzzle, %.0f at 50 m (%.0f%%), %.0f at 100 m (%.0f%%); %.2f s to 100 m, falls %.0f cm" % [
 			t.muzzle_velocity, f50.speed, keep50 * 100.0, f100.speed, keep100 * 100.0, f100.time, float(f100.drop) * 100.0])
 	check(keep100 > 0.85 and keep100 < 0.94, "keeps about nine tenths of its speed over 100 m (%.0f%%)" % (keep100 * 100.0))
-	check(float(f100.time) > 0.4 and float(f100.time) < 0.5, "takes nearly half a second to get there (%.2f s)" % f100.time)
+	check(float(f100.time) > 0.33 and float(f100.time) < 0.45, "takes the best part of half a second to get there (%.2f s)" % f100.time)
 	# And the prediction is the flight: fire one level and see.
 	var b := ballistics.fire(Vector3(0, 30, 0), Vector3.FORWARD, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
-	b.drag = t.drag_coefficient
+	b.form = t.form_factor
 	await wait_until(func() -> bool: return not b.alive or b.position.z < -100.0, 60 * 2)
 	var fell := 30.0 - _height_on(b, 100.0)
 	check_near(fell, float(f100.drop), 0.01, "the real ball falls what was predicted")
@@ -138,8 +138,8 @@ func _height_on(b: Ballistics.Bullet, distance: float) -> float:
 
 func test_a_round_ball_slows_faster_than_the_revolvers_bullet() -> void:
 	var t: RevolverTuning = load("res://config/revolver.tres")
-	var conical := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.drag_coefficient)
-	var ball := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, 0.47)
+	var conical := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.form_factor)
+	var ball := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, 0.0)
 	check(float(ball.speed) < float(conical.speed), "the round ball's draggier (%.0f vs %.0f m/s)" % [ball.speed, conical.speed])
 	var s: ShotgunTuning = load("res://config/shotgun.tres")
 	var pellet := ballistics.flight(40.0, s.muzzle_velocity, s.pellet_mass, s.pellet_diameter)
@@ -161,7 +161,7 @@ func test_an_outlaw_holds_over_at_long_range() -> void:
 	var aim := Vector3(0, 1.3, -60)
 	var arrive := func(dir: Vector3) -> float:
 		var b := ballistics.fire(origin, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
-		b.drag = t.drag_coefficient
+		b.form = t.form_factor
 		await wait_until(func() -> bool: return not b.alive or b.position.z < -61.0, 60 * 2)
 		return _height_on(b, 60.0)
 	var naive: float = await arrive.call((aim - origin).normalized())
@@ -205,3 +205,21 @@ func test_the_range_has_boards_at_50_and_100_metres_in_the_clear() -> void:
 	street.queue_free()
 	await physics_frames(2)
 
+
+
+func test_the_air_thins_with_height_and_heat() -> void:
+	var tu := ballistics.tuning.duplicate() as BallisticsTuning
+	ballistics.tuning = tu
+	check_near(tu.air_density(), 1.225, 0.005, "sea level, 15 °C: the standard 1.225 kg/m³")
+	check_near(tu.speed_of_sound(), 340.3, 0.5, "sound at 340 m/s")
+	check_near(tu.drag_cd(0.5 * 340.3, 0.0), 0.49, 0.01, "a round ball well under the speed of sound: Cd ~0.49")
+	check(tu.drag_cd(1.07 * 340.3, 0.0) > 0.85, "just over it, nearly double (%.2f)" % tu.drag_cd(1.07 * 340.3, 0.0))
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var low := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.form_factor)
+	tu.elevation_m = 1600.0
+	tu.air_temperature_c = 30.0
+	check(tu.air_density() < 1.05 and tu.air_density() > 0.95, "a mile up on a hot day the air's ~1.0 kg/m³ (%.3f)" % tu.air_density())
+	check(tu.speed_of_sound() > 345.0, "and sound's faster (%.0f m/s)" % tu.speed_of_sound())
+	var high := ballistics.flight(100.0, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, t.form_factor)
+	check(float(high.speed) > float(low.speed), "the ball keeps more of its speed in thin air (%.0f vs %.0f m/s)" % [high.speed, low.speed])
+	check(float(high.drop) < float(low.drop), "and falls a little less over 100 m (%.1f vs %.1f cm)" % [float(high.drop) * 100.0, float(low.drop) * 100.0])

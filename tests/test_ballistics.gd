@@ -42,7 +42,7 @@ func _fire() -> Ballistics.Bullet:
 
 func test_through_a_board_and_into_a_beam() -> void:
 	var b := _fire()
-	check_near(b.energy(), 475.0, 5.0, "a .45 Colt carries about 475 J")
+	check_near(b.energy(), 620.0, 10.0, "a .45 Colt black-powder load carries about 620 J")
 	await wait_until(func() -> bool: return not b.alive, 60)
 	check_eq(hits.size(), 2, "hit the board, then the beam")
 	var board := wall.get_member(&"testwall/board")
@@ -62,8 +62,12 @@ func test_bullets_take_time_and_drop() -> void:
 	wall.get_member(&"testwall/beam").free()
 	wall.get_member(&"testwall/board").free()
 	var b := _fire()
+	var v0 := b.velocity.length()
 	await physics_frames(10)
-	check_near(b.position.z, -b.velocity.length() * 10.0 / 60.0, 1.5, "travels ~240 m/s, not instantly")
+	# Somewhere between where it'd be at the speed it's slowed to and at the muzzle's.
+	var gone := -b.position.z
+	check(gone > b.velocity.length() * 10.0 / 60.0 - 0.5 and gone < v0 * 10.0 / 60.0 + 0.5,
+			"travels at its speed (~270 m/s, slowing), not instantly (%.1f m in 1/6 s)" % gone)
 	check(b.position.y < 1.0, "and drops under gravity")
 
 

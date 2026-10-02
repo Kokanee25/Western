@@ -204,7 +204,7 @@ func zeroed(origin: Vector3, eye: Vector3, sight: Vector3, cartridge: Dictionary
 	var zero_point := eye + sight * float(cartridge.zero)
 	var base := (zero_point - origin).normalized()
 	var raise := _ballistics().holdover(origin.distance_to(zero_point), cartridge.speed, cartridge.mass,
-			cartridge.diameter, cartridge.cd)
+			cartridge.diameter, cartridge.form)
 	var axis := base.cross(Vector3.UP)
 	if axis.length() < 1e-4:
 		return base
@@ -212,7 +212,7 @@ func zeroed(origin: Vector3, eye: Vector3, sight: Vector3, cartridge: Dictionary
 
 
 ## The load this gun fires and the range its sights are regulated for: {speed, mass, diameter,
-## cd, zero}; {} = no sights (it just goes where you look).
+## form, zero}; {} = no sights (it just goes where you look).
 func _load() -> Dictionary:
 	return {}
 
