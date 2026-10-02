@@ -178,14 +178,30 @@ func _loose() -> void:
 	_prop(&"barrel", Vector3(-19.4, 0.38, -15.9), 0.0)
 	_model("Crate", PropModels.crate, Vector3(-24.3, 0.38, -15.8), 20.0, Vector3(0.6, 0.6, 0.6))
 	# The rail before the livery, and a bay horse tied to it.
-	var rail := Node3D.new()
-	rail.name = "LiveryRail"
-	add_child(rail)
-	var wood := PropModels.dark_wood()
-	for x in [-14.6, -11.8]:
-		PropModels._box(rail, "Post", Vector3(0.12, 1.1, 0.12), Vector3(x, 0.55, -14.2), wood)
-	PropModels._box(rail, "Bar", Vector3(3.0, 0.1, 0.1), Vector3(-13.2, 1.0, -14.2), wood)
+	_rail("LiveryRail", -14.6, -11.8, -14.2)
 	_model("Horse", PropModels.horse, Vector3(-13.0, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
+	# The street crowded as the painting's is: rails with horses nosed in before the saloon and the
+	# store, more barrels and crates along both boardwalks, a buckboard by the jail, boards hung
+	# under the porches. All kept off the road's middle and the gang's way in (z -9).
+	_rail("SaloonRail", -8.2, -4.6, -2.9)
+	for h in [[Vector3(-7.4, 0.0, -4.1), 90.0], [Vector3(-5.4, 0.0, -4.0), 84.0]]:
+		_model("Horse", PropModels.horse, h[0], h[1], Vector3(2.4, 1.8, 0.6))
+	_rail("StoreRail", -18.6, -15.8, -2.9)
+	_model("Horse", PropModels.horse, Vector3(-17.2, 0.0, -4.05), 95.0, Vector3(2.4, 1.8, 0.6))
+	_rail("JailRail", -23.8, -21.0, -14.0)
+	_model("Horse", PropModels.horse, Vector3(-22.6, 0.0, -12.85), -88.0, Vector3(2.4, 1.8, 0.6))
+	for p in [Vector3(-9.6, 0.38, -0.7), Vector3(-10.25, 0.38, -0.75), Vector3(-19.9, 0.38, -0.7), Vector3(-26.2, 0.38, -0.75),
+			Vector3(-26.9, 0.38, -0.7), Vector3(-25.6, 0.38, -15.95), Vector3(-30.9, 0.38, -16.0)]:
+		_prop(&"barrel", p, 0.0)
+	for c in [[Vector3(-11.0, 0.38, -0.8), 5.0], [Vector3(-11.1, 0.98, -0.8), -20.0], [Vector3(-20.7, 0.38, -0.85), 12.0],
+			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
+			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
+		_model("Crate", PropModels.crate, c[0], c[1], Vector3(0.6, 0.6, 0.6))
+	_model("Buckboard", PropModels.wagon, Vector3(-27.5, 0.0, -13.0), 0.0, Vector3(3.4, 2.2, 1.8))
+	# Boards hung under the porches, end on to the street so you read them looking down it.
+	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],
+			["GUNSMITH", Vector3(-34.2, 2.45, -1.95)], ["SHERIFF", Vector3(-19.0, 2.45, -14.85)], ["ASSAYS", Vector3(-26.0, 2.45, -14.85)]]:
+		_hung_board(b[0], b[1])
 
 
 ## Down the street and over the roofs: a covered wagon, telegraph poles with their wire, the water
@@ -206,7 +222,45 @@ func _far() -> void:
 				var d: Vector3 = seg[1] - seg[0]
 				PropModels._box(self, "Wire", Vector3(0.012, 0.012, d.length()), (seg[0] + seg[1]) * 0.5, wire,
 						Basis.looking_at(d, Vector3.UP))
-	_model("WaterTower", PropModels.water_tower, Vector3(-34.0, 0.0, -27.5), 20.0, Vector3(3.8, 11.5, 3.8))
+	# Over the roofs on the right, down the street, as the painting has it.
+	_model("WaterTower", PropModels.water_tower, Vector3(-34.0, 0.0, -24.0), 20.0, Vector3(3.8, 11.5, 3.8))
+
+
+## A hitching rail: two posts and a bar from x0 to x1 at z.
+func _rail(n: String, x0: float, x1: float, z: float) -> void:
+	var rail := Node3D.new()
+	rail.name = n
+	add_child(rail)
+	var wood := PropModels.dark_wood()
+	for x in [x0, x1]:
+		PropModels._box(rail, "Post", Vector3(0.12, 1.1, 0.12), Vector3(x, 0.55, z), wood)
+	PropModels._box(rail, "Bar", Vector3(x1 - x0 + 0.2, 0.1, 0.1), Vector3((x0 + x1) * 0.5, 1.0, z), wood)
+
+
+## A small lettered board hung from a porch on two chains, its faces toward either end of the
+## street (painted letters, both sides).
+func _hung_board(text: String, at: Vector3) -> void:
+	var root := Node3D.new()
+	root.name = "HungBoard"
+	add_child(root)
+	root.position = at
+	var w := 0.25 + 0.17 * text.length()
+	PropModels._box(root, "Board", Vector3(0.04, 0.42, w), Vector3.ZERO, PropModels.weathered())
+	for z in [-w * 0.4, w * 0.4]:
+		PropModels._box(root, "Chain", Vector3(0.015, 0.4, 0.015), Vector3(0, 0.41, z), PropModels.iron())
+	for side in [-1.0, 1.0]:
+		var label := Label3D.new()
+		label.text = text
+		label.font_size = 18
+		label.pixel_size = 0.016
+		label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		label.outline_size = 0
+		label.modulate = Color(0.16, 0.1, 0.07)
+		label.shaded = true
+		label.double_sided = false
+		label.position = Vector3(side * 0.022, 0.0, 0.0)
+		label.rotation.y = PI * 0.5 * side
+		root.add_child(label)
 
 
 ## The townsfolk (FOLK), and the saloon porch's bench under the two sitting there.

@@ -1,7 +1,6 @@
 class_name StreetScenery
 extends Node3D
-## Everything around the test buildings that isn't built from members: a placeholder church,
-## sagebrush, rocks, props (the country beyond is the painted Backdrop). Deterministic from the
+## Everything around the test buildings that isn't built from members: sagebrush, rocks, props (the country beyond is the painted Backdrop). Deterministic from the
 ## seed.
 
 @export var scenery_seed := 1882
@@ -17,7 +16,6 @@ func _ready() -> void:
 	if ground and ground.mesh and ground.mesh.surface_get_material(0) is ShaderMaterial:
 		PixelArt.track(ground.mesh.surface_get_material(0) as ShaderMaterial)
 	_rng.seed = scenery_seed
-	_build_blockouts()
 	_build_props()
 	_build_sagebrush()
 
@@ -54,28 +52,6 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, collide := 
 		body.add_child(cs)
 		mi.add_child(body)
 	return mi
-
-
-## The church at the far end of the street (a placeholder; the false fronts down the street are
-## member-built now: StreetDressing).
-func _build_blockouts() -> void:
-	var root := Node3D.new()
-	root.name = "TownBlockouts"
-	add_child(root)
-	# A church at the far end of the street.
-	_box(root, Vector3(8.0, 5.0, 14.0), Vector3(-58.0, 2.5, 4.0), Color(0.52, 0.44, 0.36))
-	_box(root, Vector3(3.0, 11.0, 3.0), Vector3(-58.0, 5.5, -4.0), Color(0.5, 0.42, 0.35))
-	var spire := MeshInstance3D.new()
-	var cone := CylinderMesh.new()
-	cone.top_radius = 0.0
-	cone.bottom_radius = 2.0
-	cone.height = 5.0
-	cone.radial_segments = 4
-	spire.mesh = cone
-	spire.material_override = _mat(Color(0.3, 0.26, 0.24))
-	spire.position = Vector3(-58.0, 13.5, -4.0)
-	spire.rotation.y = PI * 0.25
-	root.add_child(spire)
 
 
 func _build_props() -> void:

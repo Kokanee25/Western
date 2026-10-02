@@ -285,9 +285,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - `src/art/sign_art.gd` (`SignArt`): the factory's painted sign boards, laid on once at their own
   shape; `FalseFrontBuilding` hangs one for its `sign_text` (SALOON, DRY GOODS, …) where there is
   one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
-  street): the false fronts down the street (`BUILDINGS`: saloon, general store, barber, hotel;
+  street): the false fronts down the street (`BUILDINGS`: saloon, general store, barber, hotel, eating house;
   livery, jail, assay office) and their boardwalks (`WALKS`), carriage lanterns, barrels,
-  crates, hay, a horse at a rail, a covered wagon, telegraph poles and wire, the water tower, dry
+  crates, hay, hitching rails with horses (`_rail`), a covered wagon and a buckboard, boards hung
+  under the porches (`_hung_board`: MEALS, BATHS, ROOMS, GUNSMITH, SHERIFF, ASSAYS), telegraph poles
+  and wire, the water tower over the roofs on the right, dry
   grass (`src/art/dry_grass.gd`, `DryGrass`: one multimesh of crossed-quad tufts, thick along the
   road's edges, none under floors or down the wheel tracks). The ground shader draws three wagon
   tracks of ruts with lit ridges, pebbles and a churned middle. The
@@ -1435,3 +1437,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: squares jump in size in bands (2→4→8 texels) where the distance crosses a threshold
     (a visible step on a long wall seen end-on); people, the backdrop and the sky aren't on it
     (they have their own squares); no key to switch it in game yet (a Settings knob if Sean wants it).
+- 2026-10-02 (art session, later): **The street's framing and clutter** (Sean's list, item 4). The
+  street shot stands nearer the saloon's porch (`StreetMatch.FEET` (3, 0, -6), was (3, 0, -7.4))
+  so its front and big board fill the left third; the placeholder church is gone (gameplay's
+  `street_scenery.gd`: `_build_blockouts` removed, said here as it's their file); the street is
+  crowded: rails with three horses nosed in before the saloon and the store and one at the jail,
+  a buckboard by the jail, seven more barrels and eight crates on both boardwalks, six lettered
+  boards hung under the porches end on to the street, the water tower moved to (-34, -24) so it
+  stands over the south roofs on the right of the shot. All off the road's middle and the gang's
+  way in. Judge rounds `2026-10-02_r21` (first framing, nearer and tilted up: 0.686) and `_r22`:
+  street 0.619 → **0.667**: the framing is the painting's but the judge marks the bottom-left
+  too dark (L* 16 vs 37): at 17:36 the sun runs along the porches, so the boardwalk under the
+  saloon's porch roof is in shadow where the painting's is sunlit, and the top right is the
+  bright sky (item 5). 279 tests pass.
+  - Open with Sean: a sun a little further south at golden hour (DayCycle's tilt, gameplay's)
+    would light the boardwalks as the painting's are.
