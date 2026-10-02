@@ -156,7 +156,9 @@ func test_pellets_slow_in_the_air() -> void:
 	var e0 := pellets[0].energy()
 	await wait_until(func() -> bool: return pellets[0].position.z < -25.0, 60)
 	var kept := pellets[0].energy() / e0
-	check(kept > 0.7 and kept < 0.9, "a pellet keeps %.0f%% of its energy at 25 m" % (kept * 100.0))
+	# Round balls just over the speed of sound drag hard: 00 buck keeps about two thirds of its
+	# energy over 25 m.
+	check(kept > 0.55 and kept < 0.75, "a pellet keeps %.0f%% of its energy at 25 m" % (kept * 100.0))
 
 
 func test_at_twenty_metres_a_charge_rarely_drops_him() -> void:
@@ -185,7 +187,7 @@ func test_nine_separate_pellets() -> void:
 	var pellets := _charge(Vector3.ZERO, Vector3(0, 0, -10))
 	check_eq(pellets.size(), 9, "nine 00 buck")
 	check(pellets[0].passed == pellets[8].passed, "they share who they've cracked past")
-	check_near(pellets[0].energy(), 280.0, 30.0, "~280 J each")
+	check_near(pellets[0].energy(), 233.0, 25.0, "~230 J each (3.5 g at 365 m/s)")
 
 
 func test_a_charge_cracks_past_once() -> void:

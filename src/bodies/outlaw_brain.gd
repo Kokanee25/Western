@@ -1272,7 +1272,7 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	for sid: StringName in body.parts:
 		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
-	bullet.drag = t_rev.drag_coefficient
+	bullet.form = t_rev.form_factor
 	bullet.shooter = body
 	rounds -= 1
 	var world := ballistics.get_parent()
@@ -1292,7 +1292,7 @@ func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vect
 	if axis.length() < 1e-4:
 		return base
 	return base.rotated(axis.normalized(), ballistics.holdover(judged, t_rev.muzzle_velocity, t_rev.bullet_mass,
-			t_rev.bullet_diameter, t_rev.drag_coefficient))
+			t_rev.bullet_diameter, t_rev.form_factor))
 
 
 func _cone(dir: Vector3, radians: float) -> Vector3:
