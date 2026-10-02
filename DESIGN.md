@@ -313,7 +313,11 @@ so it plays out the way it would in 1882, and the crude attempt is a source of h
 - **Fade to black.** Nothing explicit, ever. The conversation AI keeps characters in character and
   steers away from sexual content; intimacy is implied (a door closing, the morning after, the
   town talking).
-- **Open:** whether courtship is open to men as well (period-accurate discretion if so).
+- **Men too** (Sean, 2026-10-01). Same rules as any courtship: slow, earned, the other man's own
+  choice. A few men in the valley are open to it as part of who they are (written as people, not
+  a gimmick); most aren't. 1882 makes it a secret: discretion matters, being found out has real
+  social cost for both of you, and that risk is what gives it weight (the Brokeback Mountain
+  register, not a joke). A crude pass at a man who isn't interested goes as badly as one at a woman.
 
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
