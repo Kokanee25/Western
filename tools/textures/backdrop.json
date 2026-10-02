@@ -1,5 +1,5 @@
 {
- "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low).",
+ "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it; the 194 panels are turned clear of bearing ~174, where the moon stands in the saloon's doorway at midnight); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low).",
  "degrees_per_texel": 0.3,
  "bottom": -3.0,
  "span": 90.0,
@@ -49,7 +49,7 @@
     },
     {
      "centre": 194.0,
-     "shift": 0.0,
+     "shift": 14.0,
      "ref": [
       "street",
       780,
@@ -107,7 +107,7 @@
     },
     {
      "centre": 194.0,
-     "shift": 0.0,
+     "shift": 20.0,
      "ref": [
       "street",
       780,

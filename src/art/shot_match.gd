@@ -10,8 +10,10 @@ class_name ShotMatch
 ## the whole set (table, props, him, your seat) is turned about it from the way it was fitted
 ## (degrees about Y): the set turns as one, so his fit to the painting holds, and only the room
 ## behind him changes. Turned (2026-10-01) so you look up the room toward the street as the
-## painting does: the doors on your left, the stairs and balcony ahead, the bar on your right.
-const TABLE := Vector3(7.76, 0.0, -26.5)
+## painting does: the doors on your left, the stairs and balcony ahead, the bar on your right; and
+## moved (2026-10-02) up the room beside the bar, so the tall front door is on your left with the
+## moon in it, the back bar and its mirror fill the right and the balcony stands over the middle.
+const TABLE := Vector3(5.36, 0.0, -23.61)
 const ROOM_YAW := -72.8
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
@@ -97,24 +99,33 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	return man
 
 
-## The painting's room has people in it: three men at cards by the door, one at the piano, one at
-## the bar and one up on the balcony (the barkeep is the town's own). Staged for the picture only
-## (no brains): who's in the saloon in play is TownLife's business.
+## The painting's room has people in it: three men at cards in front of the door, one at the
+## piano, two drinking at the bar with a barman behind it, one up on the balcony and one on the stair (the town's own
+## barkeep stands further down the bar). Staged for the picture only (no brains): who's in the
+## saloon in play is TownLife's business.
 const EXTRAS := [
 	# [name, saloon-space position, saloon-space point he faces, pose, shirt, vest, coat, hat, look]
-	["CardPlayerA", Vector3(2.82, 0.0, 5.02), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.78, 0.74, 0.64), Color(0.2, 0.16, 0.12), Color(0, 0, 0, 0), Color(0.16, 0.12, 0.1),
+	["CardPlayerA", Vector3(4.53, 0.0, 2.93), Vector3(4.75, 1.0, 3.7), &"sit", Color(0.78, 0.74, 0.64), Color(0.2, 0.16, 0.12), Color(0, 0, 0, 0), Color(0.16, 0.12, 0.1),
 			{"hair": Color(0.15, 0.1, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
-	["CardPlayerB", Vector3(3.42, 0.0, 3.98), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.62, 0.5, 0.36), Color(0.3, 0.2, 0.12), Color(0, 0, 0, 0), Color(0.24, 0.18, 0.12),
+	["CardPlayerB", Vector3(5.52, 0.0, 3.49), Vector3(4.75, 1.0, 3.7), &"sit", Color(0.62, 0.5, 0.36), Color(0.3, 0.2, 0.12), Color(0, 0, 0, 0), Color(0.24, 0.18, 0.12),
 			{"hair": Color(0.3, 0.2, 0.1), "moustache": &"handlebar", "beard": &"none", "age": 0.6, "brows": 0.6}],
-	["CardPlayerC", Vector3(1.78, 0.0, 4.42), Vector3(2.6, 1.0, 4.2), &"sit", Color(0.84, 0.82, 0.76), Color(0.12, 0.1, 0.09), Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08),
+	["CardPlayerC", Vector3(3.98, 0.0, 3.91), Vector3(4.75, 1.0, 3.7), &"sit", Color(0.84, 0.82, 0.76), Color(0.12, 0.1, 0.09), Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08),
 			{"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"full", "age": 0.45, "brows": 0.8}],
 	["PianoPlayer", Vector3(2.95, 0.0, 1.25), Vector3(2.95, 1.2, 0.0), &"sit", Color(0.86, 0.84, 0.78), Color(0.22, 0.14, 0.1), Color(0, 0, 0, 0), Color(0, 0, 0, 0),
 			{"hair": Color(0.2, 0.14, 0.09), "moustache": &"trim", "beard": &"none", "age": 0.35, "brows": 0.5}],
-	["ManAtTheBar", Vector3(6.95, 0.0, 6.6), Vector3(8.5, 1.4, 6.9), &"stand", Color(0.55, 0.5, 0.42), Color(0.18, 0.14, 0.1), Color(0.3, 0.25, 0.18, 1.0), Color(0.2, 0.15, 0.1),
+	["ManAtTheBar", Vector3(7.12, 0.0, 4.35), Vector3(8.5, 1.4, 4.0), &"stand", Color(0.55, 0.5, 0.42), Color(0.18, 0.14, 0.1), Color(0.3, 0.25, 0.18, 1.0), Color(0.2, 0.15, 0.1),
 			{"hair": Color(0.18, 0.12, 0.08), "moustache": &"walrus", "beard": &"stubble", "age": 0.5, "brows": 0.7}],
+	["SecondAtTheBar", Vector3(7.1, 0.0, 3.35), Vector3(8.5, 1.4, 3.6), &"stand", Color(0.74, 0.7, 0.6), Color(0.24, 0.16, 0.1), Color(0, 0, 0, 0), Color(0.12, 0.1, 0.08),
+			{"hair": Color(0.12, 0.09, 0.07), "moustache": &"handlebar", "beard": &"none", "age": 0.4, "brows": 0.6}],
+	["Barman", Vector3(8.85, 0.0, 4.1), Vector3(7.0, 1.4, 4.6), &"stand", Color(0.88, 0.86, 0.8), Color(0.14, 0.12, 0.1), Color(0, 0, 0, 0), Color(0, 0, 0, 0),
+			{"hair": Color(0.1, 0.08, 0.06), "moustache": &"handlebar", "beard": &"none", "age": 0.45, "brows": 0.7}],
 	["ManOnTheBalcony", Vector3(8.9, 2.3, 1.25), Vector3(5.0, 3.3, 3.5), &"stand", Color(0.7, 0.64, 0.52), Color(0.16, 0.13, 0.1), Color(0, 0, 0, 0), Color(0.14, 0.11, 0.09),
 			{"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.8}],
+	["ManOnTheStair", Vector3(7.0, 1.16, 0.55), Vector3(9.0, 2.4, 0.55), &"stand", Color(0.6, 0.22, 0.18), Color(0.2, 0.12, 0.1), Color(0, 0, 0, 0), Color(0.18, 0.13, 0.1),
+			{"hair": Color(0.22, 0.12, 0.06), "moustache": &"trim", "beard": &"stubble", "age": 0.3, "brows": 0.6}],
 ]
+## The card game's table in front of the door (saloon space), with its own lamp.
+const CARD_TABLE := Vector3(4.75, 0.0, 3.7)
 
 
 static func _extras(street: Node3D) -> void:
@@ -122,6 +133,16 @@ static func _extras(street: Node3D) -> void:
 	if saloon == null:
 		return
 	var f := saloon.floor_top
+	var props := saloon.get_node_or_null(^"Props")
+	if props and saloon.has_method(&"_place"):
+		var at := CARD_TABLE + Vector3(0, f, 0)
+		saloon.call(&"_place", props, &"card_table", at, 15.0)
+		var lamp := saloon.call(&"_place", props, &"oil_lamp", at + Vector3(0.1, PropLibrary.size_of(&"card_table").y, -0.05), 0.0) as Node3D
+		var light := lamp.get_node_or_null(^"Light") as OilLamp if lamp else null
+		if light:
+			light.energy = 0.6
+			light.light_range = 3.5
+		saloon.call(&"_place", props, &"whiskey_bottle", at + Vector3(-0.2, PropLibrary.size_of(&"card_table").y, 0.15), 0.0)
 	for i in EXTRAS.size():
 		var e: Array = EXTRAS[i]
 		var man := HumanBody.new()
@@ -209,7 +230,7 @@ static func _mesh(parent: Node3D, n: String, mesh: Mesh, pos: Vector3, mat: Mate
 ## A round card table: a thick top of dark boards on a turned pedestal and four splayed feet.
 static func _table(root: Node3D) -> void:
 	# Darkened under the lamp it stands next to (the judge: the painting's table is a deep orange).
-	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), Color(0.62, 0.52, 0.45))
+	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), Color(0.46, 0.38, 0.33))
 	var body := StaticBody3D.new()
 	body.name = "Table"
 	root.add_child(body)

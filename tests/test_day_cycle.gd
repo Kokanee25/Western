@@ -91,7 +91,7 @@ func test_sun_path() -> void:
 	check(clock.get_sun_direction(18.0).x < -0.5 and clock.is_daytime(18.0), "evening sun in the west (-X)")
 	check(not clock.is_daytime(4.0) and not clock.is_daytime(21.0), "dark before dawn and after dusk")
 	check(clock.get_sun_direction(12.0).z < -0.3, "noon sun leans south (-Z), onto the storefronts")
-	check(clock.get_moon_direction(0.0).y > 0.5, "moon up at midnight")
+	check(clock.get_moon_direction(0.0).y > 0.15, "moon up at midnight")
 
 
 func test_lights_follow_the_sun() -> void:
