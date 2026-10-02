@@ -182,7 +182,7 @@
     2.0
    ],
    "colours": 32,
-   "lightness": 1.3,
+   "lightness": 1.0,
    "what": "the dry packed-dirt main street of a frontier desert town seen from straight above: warm ochre dust, scattered dark pebbles and small stones, hoof prints, a few pale specks",
    "ref": [
     "street",
@@ -190,7 +190,9 @@
     620,
     1000,
     900
-   ]
+   ],
+   "chroma": 0.85,
+   "hue": -6
   },
   "sign_saloon": {
    "for": "street",
@@ -290,7 +292,7 @@
     8.0
    ],
    "colours": 32,
-   "lightness": 1.15,
+   "lightness": 1.0,
    "what": "a long stretch of the dry packed-dirt main street of a frontier desert town seen from directly above, the street running exactly left to right: two pairs of worn wagon-wheel ruts running straight left to right across the whole picture with low ridges of thrown-up dirt along them, hoof prints and boot prints between them, scattered dark stones and pebbles, small clumps of dry yellow grass here and there, warm russet-ochre earth with darker damp patches",
    "ref": [
     "street",
@@ -298,7 +300,10 @@
     620,
     1000,
     900
-   ]
+   ],
+   "contrast": 1.3,
+   "chroma": 1.15,
+   "hue": -1
   }
  }
 }

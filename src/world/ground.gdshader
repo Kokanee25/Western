@@ -23,7 +23,17 @@ uniform bool use_road_tex = false;
 // repeat.
 uniform sampler2D wide_tex : source_color, filter_nearest, repeat_enable;
 uniform bool use_wide_tex = false;
-uniform float wide_metres = 8.0;
+// The ground faces the whole sky, and with the sun low the sky round it is bright: the sun's
+// light on the ground is wrapped (a flat surface under a 15-degree sun got a quarter of it and
+// drew at half the painting's brightness, docs/ART_REVIEW.md §3.1). Shadows still fall.
+uniform float sun_wrap = 0.0;
+// The sun's direct light on the ground, scaled: the painting's sunlit ground is barely brighter
+// than its shadowed ground (sky light does most of it).
+uniform float sun_direct = 0.7;
+// And the sky's glow round a low sun lights the open ground in and out of the sun's shadows (the
+// painting's road is lit ochre in the fronts' shadows too; Godot's ambient is one colour for
+// every facing, and the ground faces all of it): a share of the sun's light, unshadowed.
+uniform float sky_fill = 0.15;
 
 varying vec3 world_pos;
 
@@ -75,6 +85,7 @@ void fragment() {
 	if (use_wide_tex) {
 		// The 8 m painting along the street; every other 8 m the picture is mirrored end for end
 		// (seamless, so the join holds), and the 2 m tile shows through in broad patches.
+		float wide_metres = float(textureSize(wide_tex, 0).x) / texels_per_meter;
 		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wide_metres) / wide_metres;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
@@ -121,4 +132,17 @@ void fragment() {
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
 	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, b > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t)));
+}
+
+void light() {
+	float facing = dot(NORMAL, LIGHT);
+	float lit = max(facing, 0.0);
+	if (LIGHT_IS_DIRECTIONAL) {
+		lit = mix(lit, 1.0, sun_wrap) * smoothstep(0.0, 0.05, facing) * sun_direct;
+		// The sky's light is paler than the sun's: half way to grey.
+		vec3 sky = mix(LIGHT_COLOR, vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), 0.5);
+		DIFFUSE_LIGHT += sky * sky_fill * smoothstep(0.0, 0.05, facing);
+	}
+	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after.
+	DIFFUSE_LIGHT += LIGHT_COLOR * ATTENUATION * lit;
 }

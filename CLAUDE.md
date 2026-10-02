@@ -286,7 +286,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   flattens the painting's light part way (`FLATTEN` 0.3: its lit side and each board's own colour
   are kept, docs/ART_REVIEW.md §8.3), wipes board joints (`boards`), makes it seamless, cuts it to
   32 texels a metre (`texels_per_metre`) with no pushed mosaic (`MOSAIC` 1.0), applies the judge's
-  `lightness`/`chroma`, snaps to a palette (28 colours a material, the road 32)
+  corrections in Lab (`grade`: `lightness`, `contrast` on L*'s spread, `chroma`, `hue` in degrees),
+  snaps to a palette (28 colours a material, the road 32)
   → `assets/textures/<id>.png` + `textures.json`; and for `boards` materials cuts **each board the
   painting drew out as its own strip** (`board_strips`: the bands between its seams, seamless along
   the grain, the tile's palette) → `<id>_b<k>.png`; `WoodMaterials.get_material()` gives every
@@ -317,8 +318,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   under the porches (`_hung_board`: MEALS, BATHS, ROOMS, GUNSMITH, SHERIFF, ASSAYS), telegraph poles
   and wire, the water tower over the roofs on the right, dry
   grass (`src/art/dry_grass.gd`, `DryGrass`: one multimesh of crossed-quad tufts, thick along the
-  road's edges, none under floors or down the wheel tracks). The ground shader draws three wagon
-  tracks of ruts with lit ridges, pebbles and a churned middle. The
+  road's edges, none under floors or down the wheel tracks). **The street is one painted 8 m tile**
+  (`road_wide`, kind ground: ruts, hoof marks, stones and grass painted as real things from
+  above, docs/ART_REVIEW.md §8.3); `ground.gdshader` lays it along the street with its middle on
+  the road's centre line, mirrored end for end every other 8 m and the 2 m `road` tile showing
+  through in broad patches (its own drawn ruts and pebbles are left out while it's in use; without
+  it they draw as before). The ground has its own `light()`: the sun's direct light scaled
+  (`sun_direct` 0.7) plus an unshadowed share of it half way to grey (`sky_fill` 0.15: the ground
+  faces the whole sky, and the painting's road is lit ochre in the fronts' shadows too; a flat
+  surface under a 15-degree sun drew at L* 20 to the painting's 50); `sun_wrap` is there, 0. The
   sky (`src/world/sky.gdshader`, `disable_fog`) paints its own horizon haze, keeps the warm glow
   near a low sun and the rest a pale grey-blue (the painting's upper sky is L* ~61), and has
   painted clouds (`cloud_shape()`: loose bands of small ragged heaps stretched across the street,
@@ -1597,3 +1605,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Known: a strip is one board high at 32 texels/m (6–7 texels), so a wide member (a door, a
     tabletop) shows it repeated in rows; the sign boards' lettering still sits on the old-style
     tile (`SignArt`); the saloon wall's strips are dark on dark (the painting's).
+- 2026-10-02 (art session, later): **§10.6: the ground and the table top.** The reducer grades in
+  Lab with four knobs now (`grade`: lightness, contrast, chroma, hue). The shot table takes
+  contrast 2.6, chroma 1.6, hue −12: the painting's table is bold dark grain on deep warm
+  red-brown, ours was dead flat (L* sd 2.4 to its 15); judge round `_r35`: saloon 0.218 → 0.211.
+  The street is one painted 8 m tile (`road_wide`, People run 16, ~$0.10: FLUX painted the ruts
+  straight down it, a crossing track, stones, hoof marks and grass; the grass tufts go to brown
+  blobs at 32 texels/m) laid along the street by `ground.gdshader` (above), and the ground gets
+  its own light: with the tile in and the sun at 15°, the road drew at L* 18–27 to the painting's
+  50 (rounds `_r37`–`_r39`), lighter tiles couldn't reach it (albedo), a wrapped sun blew the
+  sunlit side out (`_r40`–`_r42`), a strong fill too (`_r43`), so it's a share of the sun's light
+  unshadowed and half way to grey (`sky_fill`) with the direct part eased (`sun_direct`): rounds
+  `_r44`–`_r47`, street 0.346 → **0.318** (road band L* 47, hue 55°, to the painting's 50, 57°). The sunlit right side's
+  ground is still twice as bright as the painting's (ours is lit by the sun left of the axis; the
+  painting's right side is in shadow: the §10.2 sun stays). Figure
+  `docs/screenshots/light_pass/ground_table_before_after.png`. 279 tests pass.
+  - Known: the 8 m tile's crossing track repeats as a dark band across the street every 8 m
+    (mirroring hides the seam, not the band); a 2 m-wide sheet of the 2 m tile still shows at the
+    road's edges where the wide tile's patches end; the table's grain is blotches at 32 texels/m,
+    not the painting's lines (a finer table tile is a prop-texture question, §10.8).
