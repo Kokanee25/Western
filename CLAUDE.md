@@ -162,10 +162,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
   read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
   the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
-  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6.
+  **The screen mosaic** (`depth_mosaic.gd(shader)`, `DepthMosaic` on the game camera, since
+  2026-10-03, `Settings.mosaic` on by default, saved; `screenshots.gd --no-mosaic`, `--mosaic=K
+  --steps=N`): the finished lit frame cut into blocks of about `MOSAIC_K` 5 / depth render
+  pixels (3–4 px on a man across a table, 2 px far off, at 1280 wide: the saloon painting's
+  blocks are nearly one size), each block one colour (the sample at its centre; a block takes
+  its colour only from its own distance band, so a near thing keeps its own blocks), the light
+  posterised into `MOSAIC_STEPS` 14 tones. Silhouettes go stair-stepped at the block size as the
+  painting's are and a model's facets hide under the blocks. Not on the Compatibility renderer
+  (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
+  The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
+  averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
-  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** is on
-  (`Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
+  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
+  since the screen mosaic, `Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
   softens a render pixel on a hard edge between blocks toward its neighbours (`finish_soften`
   0.5, a jump across the pixel both ways; fine lines and smooth areas untouched) and the tile
   light is worked out part way back from the tile's centre toward the fragment (shader global
@@ -398,6 +408,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   facing a texel squarest wins, weights³), fills what no view saw, cuts the head to squares of
   `SQUARE_M` 5 mm on him and `COLOURS` 28 → `<id>_color.png`, Tripo's texture with the head
   repainted; `docs/screenshots/tripo/<id>_head_views.png` is guides over paintings.
+  **The fit** (`tools/blender/fit_tripo.py`, bpy; the People workflow's people job runs it after
+  `make_people.py`): a person in `people.json` with `"source": "tripo"` is fitted from
+  `assets/people/tripo/<id>.glb` instead of MakeHuman: his one mesh into our body space, each
+  limb warped joint to joint from Tripo's rig onto ours (`JOINTS`, the same warp as
+  `make_people.Person.warp`; the trunk and neck stretched to our joints, the head at his own
+  proportions scaled by his hips to ours), no envelope fit (he wears a coat; his widths are his),
+  the coat's skirt hung from the hips (`SKIRT_RADIUS`, `BETWEEN_LEGS`: a skirt on the thighs
+  stretched into a flap when he sat), fingers cut at the knuckles, BodyMesh's joint blends
+  (`Person.weights`), the head (above `HEAD_FROM`) and the body as `body_head` / `body_skin`
+  decimated in Blender (`HEAD_TRIS` 2200, `TRI_BUDGET` 5500) → `assets/people/<id>.glb` with
+  Tripo's UVs; his texture (the repainted `_color.png` where there is one) in squares of
+  `SQUARE_TEXELS` 4 (~5.6 mm), one texel a square → `<id>_skin.png` + `<id>_head.png`
+  (`PeopleBodies` lays them on by UV as baked garments); `<id>.json` says `"whole": true`, and
+  `PeopleBodies` then puts nothing of BodyMesh's on him (he comes dressed, hat and boots too).
+  `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
+  `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
+  the game's scripts before the autoloads exist).
   `tools/tripo_lab.gd --out=DIR [--id= --yaw= --fill= --height=]` loads a Tripo glb at run time
   (GLTFDocument: the folder is unimported), lays `<id>_color.png` over his material where it
   exists, stands him where the painting's man sits in the character lab's light and writes the
@@ -1944,3 +1971,55 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Still to look at: a ~90 ms frame when a big building's rubble lands (untimed: the physics
     engine); the fire's per-member tick (~6 ms a frame at town scale); rendering a town's worth of
     FireFX particles and char overlays (Sean's GPU/CPU, unknown until his F3).
+- 2026-10-03 (art session, later): **The Tripo man fitted to our skeleton: he sits at the table.**
+  Sean: "go ahead" with the Blender fit. `fit_tripo.py` (above): bpy 5.0.1 runs in this
+  workspace (`~/bpyenv`), 16 s a man. The stranger (`people.json`, `"source": "tripo"`) comes out
+  as `assets/people/stranger.glb` (5,500 + 2,200 triangles, our 17 bones, 420 KB) with his
+  texture in 5.6 mm squares (512², the head's repaint from this morning on it), and
+  `ShotMatch.model = stranger` seats him in the painting's pose with the cup in his hand: he
+  reads as a man at the table from the front, the side and three-quarters
+  (`docs/screenshots/tripo/stranger_seated.png`, `stranger_fit_side.png`,
+  `stranger_fit_three_quarter.png`). Judge round `2026-10-03_r1` (the street render is round
+  52's): saloon **0.196** (the hybrid MakeHuman man's rounds 0.205–0.208). Two traps: his hips
+  to ours set his scale (the trunk's own stretch made him 2.0 m and fat), and a coat skirt
+  weighted to the thighs stretched into a flap between his knees when he sat (it hangs from the
+  hips now). Gameplay's `tests/test_bodies.gd` gains one test (the Tripo man comes dressed; said
+  here as it's their file). 286 tests pass.
+  - Known: the right sleeve on the table's edge is a few big triangles seen head on (the
+    decimation's budget on the coat; a higher `TRI_BUDGET` or the sleeves kept denser); his lit
+    cheek still runs hot (the painted views carry their own lamplight: no de-lighting yet); the
+    body is Tripo's smooth colour in squares, not the LoRA's drawing (the body's turnaround
+    sheets through `head_paint.py`'s image-to-image pass would give it); the game's finger parts
+    meet his cut sleeves at the knuckles without a seam check; his boots and hat are in his skin,
+    so the hat can't come off and nothing of BodyMesh's dresses him.
+  - Next: the body painted like the head (image-to-image at full LoRA strength from the fitted
+    model's own views, baked back by UV), de-lighting, then the townsfolk as Tripo men of their
+    own (`characters.json` + `people.json` entries each).
+- 2026-10-03 (art session, later): **The screen mosaic: the painting's pixel style on the frame.**
+  Sean: "the pixel style isn't even close to the concept art." Looked at his face against the
+  painting's at the same scale (`docs/screenshots/light_pass/screen_mosaic_faces.png`): the
+  painting's blocks are ~3 mm on his face and nearly one size near and far (3–4 px on the man,
+  2 px at the bar, at 1280 wide), each a crisp flat tone of a sharp drawing; ours were 5.6 mm
+  blobs (a blend of six views that don't register exactly, averaged), lit smoothly, with
+  anti-aliased silhouettes and the decimation's facets showing, and the finish pass softening
+  the block edges on top. Three changes: `head_paint.py`'s bake lets the squarest view win
+  outright (weights^8) at `SQUARE_M` 2.8 mm and 40 colours; `fit_tripo.py` writes his textures
+  at 1024² (`SQUARE_TEXELS` 2); and **the screen mosaic** (above, `DepthMosaic` on the game
+  camera, `Settings.mosaic` on by default, the finish's softening off, `LOOK_VERSION` 5): the
+  lit frame in 3–4 px blocks on him and 2 px far off, one sampled colour each, the light in 14
+  tones. His face is a pixel drawing now, eyes, moustache and hair in crisp blocks, the
+  silhouette stepped. The first screen-space trial (2026-10-02) lost to the old judge, which
+  rewarded noise; this one is judge v2's best: rounds `2026-10-03_r2` (0.186) and `_r3` (the
+  game's defaults, both views): saloon **0.187** (from 0.196), street 0.320 (0.321). The Tripo
+  man is the shot's seated man by default now (`ShotMatch.model`). Gameplay's `src/main/main.gd`
+  gets one line (the mosaic applied to the game camera with the other settings; said here as
+  it's their file). Figures `screen_mosaic_before_after_painting.png`, `screen_mosaic_saloon.png`,
+  `screen_mosaic_street.png`. Shared `settings.gd` (my lines), `tools/screenshots.gd`
+  (`--mosaic= --steps= --no-mosaic`).
+  - Known: the mosaic isn't on the Compatibility (web) renderer (no depth texture there); the
+    far room, the lamp's cream glass and the shadows' depth are still the painting's biggest
+    gaps (the judge: shadows too light, midtones too bright); his coat is still Tripo's smooth
+    colour under the blocks (the body's own paint pass is next); no key cycles the mosaic yet
+    (F3 lists it).
+  - Next: the body painted like the head (best view wins, 2.8 mm squares), the room's grade
+    (deeper shadows, the lamp amber), then the townsfolk as their own Tripo men.

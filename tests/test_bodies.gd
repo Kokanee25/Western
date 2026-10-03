@@ -319,6 +319,33 @@ func test_he_has_the_generated_makehuman_body() -> void:
 	plain.queue_free()
 
 
+func test_the_tripo_man_comes_dressed() -> void:
+	# The stranger (assets/people/stranger.glb, tools/blender/fit_tripo.py) is a Tripo model fitted
+	# to our bones: his own skin and head on our skeleton, his clothes, hat and boots in his skin,
+	# so none of BodyMesh's are put on him.
+	check(PeopleBodies.has_model(&"stranger"), "assets/people/stranger.glb is there")
+	var him := HumanBody.new()
+	him.body_model = &"stranger"
+	him.person_id = &"stranger_test"
+	add_child(him)
+	await physics_frames(2)
+	var shapes := {}
+	var head_tris := 0
+	for key: String in him.skin_meshes:
+		shapes[key.get_slice("/", 0)] = true
+		if key.begins_with("head/"):
+			head_tris += (him.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX].size() / 3
+	check(shapes.has("skin") and shapes.has("head"), "his skin and head (%s)" % [shapes.keys()])
+	check(not shapes.has("hat") and not shapes.has("boots") and not shapes.has("shirt"), "nothing of BodyMesh's over his own clothes (%s)" % [shapes.keys()])
+	check(head_tris > 800, "a real head (%d triangles)" % head_tris)
+	var top := 0.0
+	for key: String in him.skin_meshes:
+		for v: Vector3 in (him.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]:
+			top = maxf(top, v.y)
+	check(top > 1.7 and top < 2.1, "stood at our height, hat and all (%.2f m)" % top)
+	him.queue_free()
+
+
 func test_the_hat_sits_on_his_own_head() -> void:
 	# The generated head sits further forward and is bigger than BodyMesh's: the crown has to clear
 	# it, every bit of head above the band inside the crown. The crown fitted to the painting's man

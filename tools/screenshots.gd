@@ -88,6 +88,7 @@ func _run() -> void:
 	var only := ""
 	var window_shot := false
 	var screen_squares := 0.0
+	var mosaic_steps := 14.0
 	var suffix := ""
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -97,6 +98,11 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
+		elif arg.begins_with("--model="):
+			# The seated man's body (outlaw, stranger). Loaded at run time: naming ShotMatch here
+			# makes the game's scripts compile with this one, before the autoloads exist.
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			shot.model = StringName(arg.substr(8))
 		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
@@ -115,6 +121,14 @@ func _run() -> void:
 			RenderingServer.global_shader_parameter_set(&"min_square_px", float(arg.substr(13)))
 		elif arg.begins_with("--screen-squares="):
 			screen_squares = float(arg.substr(17))
+		# The painting's mosaic in screen space (DepthMosaic, on by default: Settings.mosaic):
+		# --mosaic=5 (block px x metres), --steps=14 (tones of light, 0 smooth), --no-mosaic.
+		elif arg.begins_with("--mosaic="):
+			screen_squares = float(arg.substr(9))
+		elif arg == "--no-mosaic":
+			settings.set_mosaic(false)
+		elif arg.begins_with("--steps="):
+			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
 			window_shot = true
 		elif arg.begins_with("--suffix="):
@@ -131,7 +145,7 @@ func _run() -> void:
 	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 	var player = main.get_node(^"GameViewport/TestStreet/Player")
 	if screen_squares > 0.0:
-		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares)
+		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	for v in VIEWS:

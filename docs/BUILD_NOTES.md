@@ -5,6 +5,16 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+### New look: the painting's mosaic on the whole frame
+
+- **The frame is in blocks now, like the concept painting**: 3–4 pixels on a man across a table,
+  2 far off, each one colour, the light in steps. Silhouettes go stepped, as the painting's are.
+  It's a setting (**mosaic**, on; F3 lists it) and the old "finish" softening is off under it.
+  Not on the web build (that renderer has no depth to size the blocks by).
+- **The man at the card table is the image-to-3D man now** (Tripo, fitted to our skeleton), with
+  his head painted in the style. Walk into the saloon and look at him from the front, the side
+  and three-quarters: tell me if he reads as the painting's style, and where he doesn't.
+
 ### Faster: fire (performance pass, part 1)
 
 - **A burning town costs a third less.** Measured with the new bench (`tools/perf_bench.gd`: the
