@@ -130,6 +130,12 @@ func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 
 
 func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"smoke", t)
+
+
+func _process_step(delta: float) -> void:
 	_age += delta
 	var t := clampf(_age / tuning.lifetime, 0.0, 1.0)
 	# The breeze takes a moment to get hold of the cloud, then carries it off.

@@ -578,7 +578,13 @@ func _update_skeleton() -> void:
 			skeleton.set_bone_pose(i, inv * part.global_transform)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"people_skeleton", t)
+
+
+func _process_step(_delta: float) -> void:
 	_update_skeleton()
 
 
@@ -698,6 +704,12 @@ func _cylinder(parent: Node3D, n: String, radius: float, h: float, pos: Vector3,
 # --- Living ------------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"people_body", t)
+
+
+func _physics_step(delta: float) -> void:
 	if _day_cycle == null and is_inside_tree():
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale

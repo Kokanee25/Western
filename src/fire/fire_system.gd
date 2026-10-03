@@ -85,6 +85,12 @@ func burning_members() -> Array[StructureMember]:
 ## a tick on one core; all at once it was a hitch four times a second), in the same order as
 ## `step()`, so it comes out the same. The buildings check their loads one a frame.
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"fire", t)
+
+
+func _physics_step(delta: float) -> void:
 	_accum += delta
 	var frames := maxi(1, roundi(tuning.tick / maxf(delta, 0.001)))
 	if _tick_at < _tick_keys.size():

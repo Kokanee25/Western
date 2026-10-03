@@ -137,6 +137,12 @@ func _player() -> Player:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"civilian_brain", t)
+
+
+func _physics_step(delta: float) -> void:
 	var p := body.physiology
 	if not p.alive:
 		mood = Mood.DEAD
