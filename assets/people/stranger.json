@@ -1,0 +1,23 @@
+{
+ "id": "stranger",
+ "source": "tripo",
+ "whole": true,
+ "triangles_in": 347590,
+ "scale": 1.8173,
+ "height_m": 1.924,
+ "skirt_vertices": 89232,
+ "faces_before_finger_cut": 347590,
+ "faces_after_finger_cut": 341477,
+ "texture": {
+  "from": "stranger_color.png",
+  "size": [
+   512,
+   512
+  ],
+  "square_texels": 4
+ },
+ "triangles": {
+  "skin": 5500,
+  "head": 2200
+ }
+}
