@@ -76,8 +76,8 @@ func _run() -> void:
 		tris += mesh.get_faces().size() / 3
 		(mi as MeshInstance3D).layers = Layers.VIS_BODY
 		if repaint != null:
-			for s in mesh.get_surface_count():
-				var mat := mesh.surface_get_material(s) as BaseMaterial3D
+			for si in mesh.get_surface_count():
+				var mat := mesh.surface_get_material(si) as BaseMaterial3D
 				if mat != null:
 					mat.albedo_texture = repaint
 					mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS

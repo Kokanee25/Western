@@ -2,7 +2,7 @@
 """The Tripo man's head painted in the style, texel by texel onto his own texture.
 
     python3 tools/characters/head_paint.py guides [--id=stranger]      (numpy only: clay views of his head)
-    FAL_KEY=... python3 tools/characters/head_paint.py paint [--scale=1.0] [--seed=7] [--repaint] [--only=front,left]
+    FAL_KEY=... python3 tools/characters/head_paint.py paint [--scale=1.0] [--strength=0.68] [--seed=7] [--repaint] [--only=front,left]
     python3 tools/characters/head_paint.py bake                         (numpy only: the painted views onto his texture)
     python3 tools/characters/head_paint.py paint --dry-run              (a stand-in painter, no key, no network)
 
@@ -41,7 +41,10 @@ SPEC = os.path.join(ROOT, "tools", "characters", "characters.json")
 LORA = os.path.join(ROOT, "tools", "style", "style_lora.json")
 BUILD = os.path.join(ROOT, "build", "characters")
 SHOTS = os.path.join(ROOT, "docs", "screenshots", "tripo")
-EDITOR = os.environ.get("FAL_EDITOR") or "fal-ai/flux-kontext-lora"
+EDITOR = os.environ.get("FAL_HEAD_EDITOR") or "fal-ai/flux-lora/image-to-image"
+# How far image-to-image departs from the rendered view (0 = the render back, 1 = text alone):
+# enough to repaint it in the style, not enough to move his features or turn his head.
+STRENGTH = 0.68
 QUEUE = "https://queue.fal.run/"
 
 GUIDE_PX = 768
@@ -67,14 +70,20 @@ FORWARD = np.array([1.0, 0.0, 0.0])
 UP = np.array([0.0, 1.0, 0.0])
 
 ASK = (
-    "SLTCRK. This is a grey clay sculpture of a man's head and hat. Paint it as a finished picture "
-    "of {what}: the same head at exactly the same angle, size and framing, every feature exactly "
-    "where the clay has it (eyes, nose, mouth, moustache, hat brim and crown, hair), nothing moved "
-    "or resized. Weathered sun-darkened skin, deep-set dark eyes looking at the viewer, heavy dark "
-    "brows, a thick dark drooping moustache, stubble, long dark hair to his collar under a dark "
-    "brown wide-brimmed hat with a studded band. Warm oil-lamp light from the front, the background "
-    "a plain dark brown. Crisp square pixels, the picture's own pixel-art mosaic."
+    "SLTCRK, a close portrait of a frontier gunman's head {view}, weathered sun-darkened skin, "
+    "deep-set dark eyes, heavy dark brows, a thick dark drooping moustache, no beard, long dark hair "
+    "to his collar, a dark brown wide-brimmed hat with a studded band, warm oil-lamp light on his "
+    "face, a plain dark brown background"
 )
+# Each view's words (the render it starts from already has the head turned that way).
+VIEW_WORDS = {
+    "front": "seen straight on, looking at the viewer from under the hat brim",
+    "three_quarter_left": "turned three-quarters to his left, looking off to the left of the viewer",
+    "left": "in full profile from his left side, his nose pointing to the left edge of the picture",
+    "three_quarter_right": "turned three-quarters to his right, looking off to the right of the viewer",
+    "right": "in full profile from his right side, his nose pointing to the right edge of the picture",
+    "back": "seen from directly behind, the back of his hat and his long hair on his collar, no face",
+}
 
 
 # ---------------------------------------------------------------- the glb
@@ -168,10 +177,14 @@ def raster(xs, ys, w, h):
     return px[inside], py[inside], a[inside], b[inside], c[inside]
 
 
-def render_view(pos, nrm, htris, centre, frame, cam):
-    """A clay render of the head from a view (grey Lambert, a key light up and to the camera's
-    left, a dark ground) and its depth buffer (inf where nothing is)."""
+def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None):
+    """A render of the head from a view (grey clay, or Tripo's own colours when `uv` and `colour`
+    are given; a key light up and to the camera's left, a dark ground) and its depth buffer (inf
+    where nothing is)."""
     r, u, f = cam
+    tex = np.asarray(colour, dtype=np.float64) if colour is not None else None
+    tex_u = np.zeros((GUIDE_PX, GUIDE_PX))
+    tex_v = np.zeros((GUIDE_PX, GUIDE_PX))
     x, y, z = to_view(pos, centre, frame, r, u, f)
     depth = np.full((GUIDE_PX, GUIDE_PX), np.inf)
     shade = np.zeros((GUIDE_PX, GUIDE_PX))
@@ -191,11 +204,20 @@ def render_view(pos, nrm, htris, centre, frame, cam):
         px, py, a, b, c, zz = px[near], py[near], a[near], b[near], c[near], zz[near]
         depth[py, px] = zz
         shade[py, px] = 0.16 + 0.62 * (a * lit[t[0]] + b * lit[t[1]] + c * lit[t[2]]) + 0.14 * (a * fill[t[0]] + b * fill[t[1]] + c * fill[t[2]])
-    img = np.full((GUIDE_PX, GUIDE_PX, 3), 34.0)
+        if tex is not None:
+            tex_u[py, px] = a * uv[t[0], 0] + b * uv[t[1], 0] + c * uv[t[2], 0]
+            tex_v[py, px] = a * uv[t[0], 1] + b * uv[t[1], 1] + c * uv[t[2], 1]
+    img = np.full((GUIDE_PX, GUIDE_PX, 3), (46.0, 34.0, 24.0) if tex is not None else 34.0)
     seen = np.isfinite(depth)
-    g = np.clip(shade[seen], 0, 1) * 255
-    img[seen] = np.stack([g, g, g * 0.97], axis=1)
-    return Image.fromarray(img.astype(np.uint8)), depth
+    if tex is not None:
+        th, tw = tex.shape[:2]
+        ui = np.clip((tex_u[seen] * tw).astype(int), 0, tw - 1)
+        vi = np.clip((tex_v[seen] * th).astype(int), 0, th - 1)
+        img[seen] = tex[vi, ui] * np.clip(0.35 + 0.75 * shade[seen], 0, 1.1)[:, None]
+    else:
+        g = np.clip(shade[seen], 0, 1) * 255
+        img[seen] = np.stack([g, g, g * 0.97], axis=1)
+    return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)), depth
 
 
 def guides(cid):
@@ -204,7 +226,7 @@ def guides(cid):
     centre, frame = head_frame(pos, htris)
     print("%s: %d head triangles of %d, frame %.3f (%.0f mm)" % (cid, len(htris), len(tris), frame, frame * HEIGHT_M * 1000))
     for view, (yaw, pitch, _w) in VIEWS.items():
-        img, depth = render_view(pos, nrm, htris, centre, frame, camera(yaw, pitch))
+        img, depth = render_view(pos, nrm, htris, centre, frame, camera(yaw, pitch), uv, colour)
         img.save(os.path.join(DIR, "%s_head_%s_guide.png" % (cid, view)))
         print("  guide:", view)
 
@@ -232,10 +254,13 @@ def data_url(img):
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-def edit(img, prompt, lora_url, scale, seed, key, log, what):
-    body = {"image_url": data_url(img), "prompt": prompt, "num_inference_steps": 30, "guidance_scale": 2.5,
-            "num_images": 1, "seed": seed, "output_format": "png", "enable_safety_checker": False,
-            "resolution_mode": "match_input", "loras": [{"path": lora_url, "scale": scale}] if scale > 0 else []}
+def edit(img, prompt, lora_url, scale, seed, key, log, what, strength=None):
+    body = {"image_url": data_url(img), "prompt": prompt, "num_images": 1, "seed": seed, "output_format": "png",
+            "enable_safety_checker": False, "loras": [{"path": lora_url, "scale": scale}] if scale > 0 else []}
+    if "kontext" in EDITOR:
+        body.update({"num_inference_steps": 30, "guidance_scale": 2.5, "resolution_mode": "match_input"})
+    else:
+        body.update({"num_inference_steps": 28, "guidance_scale": 3.5, "strength": STRENGTH if strength is None else strength})
     queued = request("POST", QUEUE + EDITOR, key, body)
     log.append({what: {"queued": queued, "prompt": prompt, "scale": scale, "seed": seed}})
     status_url = queued.get("status_url") or "%s%s/requests/%s/status" % (QUEUE, EDITOR, queued["request_id"])
@@ -258,7 +283,7 @@ def edit(img, prompt, lora_url, scale, seed, key, log, what):
     raise RuntimeError("%s: still not done after ten minutes" % what)
 
 
-def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None):
+def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, strength=None):
     out_dir = out_dir or DIR
     what = json.load(open(SPEC))["characters"].get(cid, {}).get("what", "a weathered frontier gunman")
     lora_url = json.load(open(LORA))["lora_url"] if os.path.exists(LORA) else ""
@@ -266,7 +291,7 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None):
         print("No %s: the LoRA isn't trained; painting without it." % LORA)
         scale = 0.0
     os.makedirs(BUILD, exist_ok=True)
-    log = [{"editor": EDITOR, "lora_url": lora_url, "scale": scale, "seed": seed}]
+    log = [{"editor": EDITOR, "lora_url": lora_url, "scale": scale, "seed": seed, "strength": STRENGTH if strength is None else strength}]
     failed = []
     for view in VIEWS:
         if only and view not in only:
@@ -281,7 +306,8 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None):
             failed.append(view)
             continue
         try:
-            img = editor(Image.open(guide), ASK.format(what=what), lora_url, scale, seed, key, log, "%s_head_%s" % (cid, view))
+            ask = ASK.format(view=VIEW_WORDS[view])
+            img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_head_%s" % (cid, view), strength)
             if img.size != (GUIDE_PX, GUIDE_PX):
                 img = img.resize((GUIDE_PX, GUIDE_PX), Image.LANCZOS)
             img.save(out)
@@ -443,8 +469,8 @@ def dry_run(cid):
     import tempfile
     scratch = tempfile.mkdtemp(prefix="head_dry_")
 
-    def standin(img, prompt, lora_url, scale, seed, key, log, what):
-        if "SLTCRK" not in prompt or "pixel" not in prompt:
+    def standin(img, prompt, lora_url, scale, seed, key, log, what, strength=None):
+        if "SLTCRK" not in prompt or "hat" not in prompt:
             raise RuntimeError("the ask lost its trigger word or its pixels: " + what)
         a = np.asarray(img.convert("RGB"), dtype=np.float64)
         a[..., 0] *= 1.2
@@ -461,10 +487,12 @@ def dry_run(cid):
 
 def main():
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
-    cid, scale, seed, only = "stranger", 1.0, 7, None
+    cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
     for a in sys.argv[2:]:
         if a.startswith("--id="):
             cid = a.split("=", 1)[1]
+        elif a.startswith("--strength="):
+            strength = float(a.split("=", 1)[1])
         elif a.startswith("--scale="):
             scale = float(a.split("=", 1)[1])
         elif a.startswith("--seed="):
@@ -481,7 +509,7 @@ def main():
         if not key:
             print("No FAL_KEY: nothing painted.")
             return
-        paint(cid, key, scale, seed, "--repaint" in sys.argv, only)
+        paint(cid, key, scale, seed, "--repaint" in sys.argv, only, strength=strength)
     elif step == "bake":
         bake(cid)
     else:

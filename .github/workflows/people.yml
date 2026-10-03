@@ -203,10 +203,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Clay views, painted on fal, baked onto his texture
+      - name: Views of his head, painted on fal, baked onto his texture
         env:
           FAL_KEY: ${{ secrets.FAL_KEY }}
-          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
+          FAL_HEAD_EDITOR: ${{ vars.FAL_HEAD_EDITOR }}
           WHICH: ${{ inputs.characters }}
           REPAINT: ${{ inputs.repaint }}
         run: |
