@@ -30,6 +30,10 @@ same body.
   pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
   each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
   **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **Standing up is cheap again.** Every person asked "can my legs hold me?" every tick by searching
+  all 115 structures of their anatomy for leg muscles; now each body knows its muscles. Calm
+  street **5.4 → 3.8 ms** a frame here (the people's bodies 2.0 → 1.2 ms, your own 0.7 → 0.2),
+  burning **7.8 → 6.8 ms**. Nothing plays differently.
 - **F3 now shows where each frame goes**, so you can tell me what your PC is doing:
   `frame 16.7 ms: process …, physics …, render cpu …, gpu …` (scripts, physics, the renderer's
   CPU and GPU time), `draws … objects … tris … nodes … bodies awake …`, and `ms a frame:` the
