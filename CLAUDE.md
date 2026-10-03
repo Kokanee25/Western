@@ -1832,3 +1832,24 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   pieces`. 281 pass.
   - Next: props/lamps/dressing batched (~4k draws), the sun's cascades (~5.6k with everything
     drawn in each), fingers (~420 meshes).
+- 2026-10-03 (gameplay): **Performance pass, part 5: the dressing batched.** `StaticBatch`
+  (`src/world/static_batch.gd`, a node at the end of `scenes/test_street.tscn`): two frames after
+  load it takes every MeshInstance3D under the street that can't change (opaque `texel_grid` or
+  opaque StandardMaterial3D, not skinned, no script on the way up but `OWNERS` (StreetDressing,
+  StreetScenery, Saloon/FalseFrontBuilding, SaloonDressing, Structure), no physics body but a
+  static one, not a building's direct child (its batches and boards) nor inside a member), groups
+  them by mesh content (each chair builds its own legs), material, shadow, layers and a 40 m cell,
+  and draws each group as a MultiMesh at their own transforms (mesh-space triplanar stays put),
+  hiding the parts (collision stays). A part leaving the tree stops drawing (the shot match frees
+  the table's props); `release(node)` / `StaticBatch.release_in(tree, node)` gives a subtree back.
+  **Art session: dressing (StreetDressing, SaloonDressing, PropLibrary/PropModels props) is drawn by
+  the batch after load: anything that moves or hides it at run time calls `release_in` first.**
+  Off on the Compatibility renderer (web): it lights each object from a short list of 8, so a batch
+  spanning a room got different lamps (the saloon's card table lit where it was dark). Lavapipe is
+  installable here now (`apt-get install mesa-vulkan-drivers`): Forward+ renders, old vs new at
+  `--fixed-fps 60`: street 0 px differ, saloon night 40 px and the shot match 11k px all under 8/255.
+  1,767 meshes into 180 batches, ~55 ms at load. Forward+ (lavapipe) calm: draw calls 4,047 →
+  3,695 (Forward+ already merges repeated draws; OpenGL counted 6,129 → 3,723), objects in frame
+  7,810 → 5,413, render CPU 5.4 → 4.9 ms. Test `test_static_batch` (2). 283 pass.
+  - Can't reproduce Sean's pinned core here: headless sim ~4.4 ms + render CPU ~5 ms a frame at
+    2.1 GHz. Next: F3's frame split and draw calls so Sean can report his, then by his numbers.
