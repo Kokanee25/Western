@@ -25,7 +25,14 @@ same body.
   body part at a time (about 55 pieces each); now each garment is one piece until he's opened up
   or loses a limb. He looks exactly the same (checked pixel by pixel). The calm street went from
   **8,186 draw calls to 6,129**.
-- Still to come: props, lamps and dressing drawn together; the sun's shadow; fingers.
+- **The street's props and furniture are drawn together** (the saloon's chairs, tables, bottles,
+  the barrels, crates, horses...: 1,767 parts in 180 batches). They look exactly the same (checked
+  pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
+  each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
+  **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **Please tell me your numbers:** the next build puts the frame's time split on F3; until then,
+  F3's fps, stood in the street at (the start spot) with the gang in (U), calm and with the store
+  burning.
 - Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
   **L** on a wall. Tell me the fps before you light it and while it burns.
 
