@@ -2170,3 +2170,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   shots beat as-now, with Sean's eye on the sheet. Tools: `reduce.py --smooth`, `head_paint.py
   bake --smooth`, `fit_tripo.py --smooth`, `tools/quantise_compare.py`; shared
   `tools/screenshots.gd`: `--quantise-once`, `--mosaic-tune=`. 287 tests pass.
+- 2026-10-03 (art session, later): **A1 finished: the dark-weighted average, a block size per
+  scene, and quantise once as a switch in the build (I).** Sean: "go". The mosaic's `dark_weight`
+  (above) brings the saloon's deep-shadow share back under averaged blocks (0.24 → 0.36, the
+  painting's 0.41) and the far bar loses the red speckle the point samples left; by eye it's the
+  best saloon of the trial (`docs/screenshots/quantise_once/compare.png`, rebuilt: the painting,
+  as now, the judge's best saloon, and the switch). The block size is a property of the scene
+  (`block_in` 4 px under a roof, `block_out` 6 in the open, the node's own ray up from the
+  camera), and the look is a saved setting: **I** toggles `Settings.quantise_once` and reloads the
+  scene (the world's materials take their textures when built). Judge v2 rounds `_r20`–`_r23`:
+  dark weight 2 saloon 0.226 / street 0.346, 4 0.228 / 0.366; the switch as shipped (no palette)
+  `_r22` saloon **0.265** / street **0.354**, against as-now 0.228 / 0.330. The judge's saloon
+  gap is the limited palette (`sat_steps` 6, `hue_steps` 24): with it `_r23` saloon 0.224 but
+  the street 0.391, so it stays a knob, not the switch's default; and its saloon gain is largely
+  a threshold effect (the share under L* 10 jumps 0.25 → 0.36 while the share under L* 5 is
+  identical: the saloon's median is L* 12 and the snap nudges a band of darks across the line).
+  **The gate, honestly:** by the judge the switch is a little worse on both shots; by my eye it
+  is better on both (the road as the painting's pale dust, the face a clean drawing, the far bar
+  calm). Default stays off; Sean's eye on a real GPU decides (BUILD_NOTES: press I in the saloon
+  at night and on the street at golden hour). What's left is the light (A4) and the man (A2),
+  either way. Gameplay files touched: `src/main/main.gd` (two lines: the I key),
+  `tests/test_pixel_art.gd` (+1 test); shared `controls.gd` (the binding), `settings.gd` (my
+  lines), `tools/screenshots.gd` (`--saloon-tune=`, `--street-tune=`). 288 tests pass.
