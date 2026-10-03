@@ -113,7 +113,7 @@ func _run() -> void:
 	sheet.blit_rect(shots["back"], Rect2i(0, 0, w, h), Vector2i(w * 2, h))
 	sheet.save_png("%s/%s_lab.png" % [out, id])
 	# His head beside the painting's man's (the painting's face box, scaled to the same height).
-	var face: Image = painting.get_region(Rect2i(w * 790 / 1672, h * 100 / 941, w * 420 / 1672, h * 420 / 941))
+	var face: Image = painting.get_region(Rect2i(w * 470 / 1672, h * 170 / 941, w * 360 / 1672, h * 360 / 941))
 	face.resize(h, h, Image.INTERPOLATE_NEAREST)
 	var close := Image.create(w + h, h, false, Image.FORMAT_RGBA8)
 	close.blit_rect(shots["head"], Rect2i(0, 0, w, h), Vector2i(0, 0))
