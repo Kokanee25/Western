@@ -2098,6 +2098,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   INCREMENTAL, a cubemap direction exactly opposite the sun's gave `sky.gdshader` a `pow()` base
   a hair below zero at 23:40 (the sun near the nadir), the NaN spread through the radiance to
   every lit surface; the shader clamps its bases now (art's file; gameplay's scene unchanged).
-  Sean's black screen in build 340 may have been this as much as the mosaic (it strikes with the
-  sun near the nadir, around midnight): ask him the hour, and check build 344 or later with the
-  mosaic on. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.
+  Build 340, where Sean saw the black screen, was the flicker merge itself (the mosaic had
+  shipped in 335), so this was very likely his black screen, not the mosaic's missing ALPHA: it
+  strikes with the sun near the nadir, around midnight. Sean checks build 349 or later. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.
