@@ -27,6 +27,7 @@ func _ready() -> void:
 	_bind(&"debug_pixel_shading", [KEY_F6], [])
 	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_tiles", [KEY_P], [])
+	_bind(&"debug_mosaic", [KEY_O], [])  # the screen mosaic on/off (Settings.mosaic)
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [])
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])

@@ -8,6 +8,9 @@ shader_type spatial;
 // blocks. A block takes its colour only from its own distance band (a near thing in front keeps
 // its own blocks). A full-screen quad a camera carries (DepthMosaic), drawn after the 3D frame and
 // before the screen pass (run with the finish's softening off: it would blur the block edges).
+// It writes ALPHA so Godot puts it in the transparent pass, after the opaque frame and the sky:
+// the screen texture only exists there. Without that a real GPU drew it in the opaque pass over
+// an empty frame (build 340: a black screen with the sky showing through).
 //
 // The first trial of this (2026-10-02, judged by the old judge that rewarded noise) only chunked
 // far surfaces (2/4/8 px where a texel would be smaller than min_px) and averaged each block.
@@ -77,4 +80,5 @@ void fragment() {
 		}
 	}
 	ALBEDO = posterise(col);
+	ALPHA = 1.0;
 }

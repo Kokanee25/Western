@@ -9,7 +9,9 @@ same body.
 
 - **The frame is in blocks now, like the concept painting**: 3–4 pixels on a man across a table,
   2 far off, each one colour, the light in steps. Silhouettes go stepped, as the painting's are.
-  It's a setting (**mosaic**, on; F3 lists it) and the old "finish" softening is off under it.
+  It's a setting (**mosaic**, on; **O** turns it off and on, F3 lists it) and the old "finish"
+  softening is off under it. Build 340 drew a black screen with it on a real GPU (its pass was
+  drawn before the frame existed); fixed in this build. If anything's ever black, press O.
   Not on the web build (that renderer has no depth to size the blocks by).
 - **The man at the card table is the image-to-3D man now** (Tripo, fitted to our skeleton), with
   his head painted in the style. Walk into the saloon and look at him from the front, the side

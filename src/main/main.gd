@@ -79,3 +79,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_pixel_shading(not Settings.pixel_shading)
 	elif event.is_action_pressed(&"debug_tiles"):
 		Settings.cycle_tile_look()
+	elif event.is_action_pressed(&"debug_mosaic"):
+		Settings.set_mosaic(not Settings.mosaic)
