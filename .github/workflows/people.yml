@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo (all three need FAL_KEY)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the Tripo man's head in the style and bake it onto his texture (all need FAL_KEY)"
         required: false
         default: ""
 
@@ -192,6 +192,50 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: painted full length and turned round (run ${{ github.run_number }})"
+          git push
+
+  # The Tripo man's head painted in the style at full LoRA strength from clay views of it and
+  # baked onto his own texture (tools/characters/head_paint.py).
+  style-head:
+    if: ${{ inputs.style == 'head' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Views of his head, painted on fal, baked onto his texture
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_HEAD_EDITOR: ${{ vars.FAL_HEAD_EDITOR }}
+          WHICH: ${{ inputs.characters }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow numpy scipy
+          id="${WHICH:-stranger}"
+          if [ "$id" = "all" ]; then id="stranger"; fi
+          rp=""
+          if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
+          python3 tools/characters/head_paint.py guides --id=$id
+          python3 tools/characters/head_paint.py paint --dry-run --id=$id
+          python3 tools/characters/head_paint.py paint --id=$id $rp
+          python3 tools/characters/head_paint.py bake --id=$id
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-head
+          path: build/characters/head_log.json
+          if-no-files-found: ignore
+      - name: Commit the head
+        run: |
+          git add assets/people/tripo docs/screenshots/tripo
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: the head painted and baked (run ${{ github.run_number }})"
           git push
 
   textures:
