@@ -2253,14 +2253,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   with 60 % of its section shot away gives way under 600 kg; without voxel damage the old drawn
   hole); the plugin's own 16 Rust tests (CI runs them on Linux). `test_ballistics`' "the board
   draws its hole" now checks the carved hole when the plugin's there (the drawn one otherwise).
-  294 tests pass (289 + 5). **Bench** (`perf_bench.gd --scene=wall`: a charge into the store's
+  295 tests pass (289 + 5 + main's new one). **Bench** (`perf_bench.gd --scene=wall`: a charge into the store's
   front every half second for 20 s, 41 charges; 2.1 GHz, headless): drawn holes avg 5.73 ms,
   p99 22.2; voxels **avg 5.98 ms, p99 23.8** (`ballistics` 0.31 → 0.44 ms a frame, `voxels`
   0.13); the fire scene unchanged (11.6 / 11.0 ms). Calm street 4.1 ms (no change: nothing's
-  voxelised till it's hit). Draw calls (lavapipe, counts only): 4,862 with drawn holes; with voxels in the next entry. Renders `docs/destruction/step2/` (a new folder:
+  voxelised till it's hit). Rendered (lavapipe Forward+, 12 s, 25 charges): draw calls 4,862 → 5,063 (carved
+  members draw on their own, a chip a call), render CPU 9.4 → 9.9 ms. Renders `docs/destruction/step2/` (a new folder:
   `docs/screenshots/` is the art session's): three charges (4 m, 2 m, contact) into the saloon's
   front siding from outside and inside, at 48, 64 and 96 cells a metre, and the old drawn holes.
   `perf_bench.gd` gained `--scene=wall`, `--no-voxels`, `--spikes=MS`.
+  - `test_ricochet`'s graze test fired ten rounds down one line: carved, the first's gouge
+    turned the rest into square hits. Now twenty rounds a little apart, the same thresholds
+    (half glance at 3°, none at 12° into wood, half off stone).
   - Found on the way: a townsman's first wound costs ~70–110 ms on the frame (the shot storekeeper
     behind his counter; pre-existing, not voxels): next performance item. A first carve per wood
     painted a fresh-wood texture in script (~25 ms): now a 16-texel tile.

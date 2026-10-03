@@ -94,7 +94,8 @@ var _section_stale := false
 
 static var voxel_tuning: VoxelDamageTuning
 static var _fresh := {}
-static var _chips: Array[Node] = []
+## Chips lying about, oldest first (untyped: a chip may be freed with its world).
+static var _chips: Array = []
 
 
 static func tier_of(member_kind: StringName) -> int:
@@ -551,7 +552,8 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 		chip.get_tree().create_timer(t.chip_settle, true, true).timeout.connect(_settle_chip.bind(chip))
 		_chips.append(chip)
+	_chips = _chips.filter(func(c: Variant) -> bool: return is_instance_valid(c))
 	while _chips.size() > t.max_chips:
-		var old: Node = _chips.pop_front()
+		var old: Variant = _chips.pop_front()
 		if is_instance_valid(old):
-			old.queue_free()
+			(old as Node).queue_free()

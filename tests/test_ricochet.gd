@@ -109,30 +109,34 @@ func test_wood_only_at_a_graze_stone_at_a_steeper_angle() -> void:
 	wall.add_member("stones", &"block", &"stone", Vector3(0.4, 2.0, 12.0), Vector3(-3, 1.2, -10))
 	await physics_frames(2)
 	var t: RevolverTuning = load("res://config/revolver.tres")
-	# `face_x`: the wall's face; each shot meets it 10 m down range, `deg` steep.
-	var shoot := func(face_x: float, deg: float) -> bool:
+	# `face_x`: the wall's face; each shot meets it 10 m down range, `deg` steep, at `y` (each round
+	# a little higher: a carved wall keeps its gouges, and a round down the last one's gouge meets
+	# the far side of it square on).
+	var shoot := func(face_x: float, deg: float, y: float) -> bool:
 		hits.clear()
 		var side := signf(face_x)
 		var dir := Vector3(side * sin(deg_to_rad(deg)), 0, -cos(deg_to_rad(deg)))
-		var from := Vector3(face_x - side * 10.0 * tan(deg_to_rad(deg)), 1.2, 0.0)
+		var from := Vector3(face_x - side * 10.0 * tan(deg_to_rad(deg)), y, 0.0)
 		var b := ballistics.fire(from, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
 		await wait_until(func() -> bool: return not b.alive or b.position.z < -16.0, 60)
 		return not _ricochets(&"wood" if side > 0.0 else &"stone").is_empty()  # off the wall, not the ground beyond
 	var wood_graze := 0
 	var wood_steep := 0
 	var stone_steep := 0
-	for k in 10:
-		if await shoot.call(2.975, 3.0):
+	# Twenty of each (a glance is a chance: three in four at a 3° graze; with ten, one unlucky run
+	# of the dice could fail it).
+	for k in 20:
+		if await shoot.call(2.975, 3.0, 0.3 + k * 0.045):
 			wood_graze += 1
-		if await shoot.call(2.975, 12.0):
+		if await shoot.call(2.975, 12.0, 1.25 + k * 0.045):
 			wood_steep += 1
-		if await shoot.call(-2.8, 12.0):
+		if await shoot.call(-2.8, 12.0, 1.25 + k * 0.045):
 			stone_steep += 1
-	check(wood_graze >= 5, "a ball grazing the boards glances off them (%d of 10)" % wood_graze)
+	check(wood_graze >= 10, "a ball grazing the boards glances off them (%d of 20)" % wood_graze)
 	check_eq(wood_steep, 0, "at 12° it digs into the wood")
-	check(stone_steep >= 5, "but glances off the stone (%d of 10)" % stone_steep)
+	check(stone_steep >= 10, "but glances off the stone (%d of 20)" % stone_steep)
 	var boards := wall.get_member(&"t/boards")
-	check(boards.holes.size() >= 10, "the wood's marked where every one struck it (%d)" % boards.holes.size())
+	check(boards.holes.size() >= 20, "the wood's marked where every one struck it (%d)" % boards.holes.size())
 
 
 func test_a_ricochet_can_still_hurt_a_man() -> void:
