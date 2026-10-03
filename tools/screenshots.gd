@@ -89,6 +89,7 @@ func _run() -> void:
 	var window_shot := false
 	var screen_squares := 0.0
 	var mosaic_steps := 14.0
+	var view_tune := {}
 	var suffix := ""
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -141,23 +142,18 @@ func _run() -> void:
 		# mosaic refined (--mosaic-tune=depth_power:0.5,soft:0.75,sat_steps:6,hue_steps:24,...
 		# sets its knobs; --quantise-once alone uses the trial's defaults).
 		elif arg == "--quantise-once":
-			settings.set_tile_look(&"off")
-			RenderingServer.global_shader_parameter_set(&"min_square_px", 0.0)
-			PixelArt.smooth = true
-			# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): the grid lays
-			# them at four times the density, and the code-painted textures go finer with it.
-			PixelArt.set_density(PixelArt.texels_per_meter * 4.0, PixelArt.use_mipmaps)
-			load("res://src/bodies/people_bodies.gd").smooth_paint = true
-			var mosaic_gd: Variant = load("res://src/render/depth_mosaic.gd")
-			if mosaic_gd.tuning.is_empty():
-				mosaic_gd.tuning = {"depth_power": 0.5, "soft": 0.5, "average": 1.0, "max_block": 6.0}
+			# The game's own switch (I): Settings.QUANTISE_TUNING, the smooth sets, tiles and
+			# min_square off. --mosaic-tune after it replaces the knobs.
+			settings.set_quantise_once(true)
 			screen_squares = 6.0
 		elif arg.begins_with("--mosaic-tune="):
-			var tune := {}
-			for pair in arg.substr(14).split(","):
-				if ":" in pair:
-					tune[pair.get_slice(":", 0)] = float(pair.get_slice(":", 1))
-			load("res://src/render/depth_mosaic.gd").tuning = tune
+			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
+		# The same knobs for one shot only, laid over the mosaic's tuning when that view is staged
+		# (the paintings' blocks differ: the saloon's ~4 px, the street's ~6 px near).
+		elif arg.begins_with("--saloon-tune="):
+			view_tune[&"shot_match"] = _parse_tune(arg.substr(14))
+		elif arg.begins_with("--street-tune="):
+			view_tune[&"street_match"] = _parse_tune(arg.substr(14))
 		elif arg.begins_with("--steps="):
 			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
@@ -323,6 +319,8 @@ func _run() -> void:
 			sm.frame_camera(player)
 		if setup == "shot_match" or setup == "shot_match_close":
 			await _shot_match_setup(main, player, setup == "shot_match_close")
+		if view_tune.has(StringName(setup)):
+			_retune(player.camera, view_tune[StringName(setup)])
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
@@ -366,6 +364,39 @@ func _run() -> void:
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
 	quit()
+
+
+## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).
+func _parse_tune(spec: String) -> Dictionary:
+	var tune := {}
+	for pair in spec.split(","):
+		if ":" in pair:
+			tune[pair.get_slice(":", 0)] = float(pair.get_slice(":", 1))
+	return tune
+
+
+## Lay one shot's knobs over the mosaic the camera carries (the game's, or --mosaic's), for this
+## view only: the next staged view starts again from the common tuning.
+func _retune(camera: Camera3D, tune: Dictionary) -> void:
+	var mosaic_gd: Variant = load("res://src/render/depth_mosaic.gd")
+	var m := camera.get_node_or_null(^"DepthMosaic")
+	if m == null:
+		return
+	var mat := m.material_override as ShaderMaterial
+	for k: String in _view_tuned:
+		if not tune.has(k) and not mosaic_gd.tuning.has(k) and mosaic_gd.KNOB_DEFAULTS.has(k):
+			mat.set_shader_parameter(StringName(k), mosaic_gd.KNOB_DEFAULTS[k])
+	for k: String in mosaic_gd.tuning:
+		mat.set_shader_parameter(StringName(k), mosaic_gd.tuning[k])
+	for k: String in tune:
+		mat.set_shader_parameter(StringName(k), tune[k])
+	if tune.has("block_k") or tune.has("max_block"):
+		m.scene_blocks = false  # this view's own block size, not the roof check's
+	_view_tuned = tune.keys()
+	print("  mosaic tuned for this view: ", tune)
+
+
+var _view_tuned: Array = []
 
 
 ## Put the shotgun in the hands at once (or the revolver back).

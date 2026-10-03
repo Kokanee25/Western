@@ -40,6 +40,10 @@ uniform float soft = 0.0;
 // rule, where the frame underneath is smooth (a point sample of a fine texture is speckle). 0:
 // the sample at its centre (right for a frame that is already in blocks).
 uniform float average = 0.0;
+// With `average`: darker pixels weigh more in the mean (weight (1 - gamma luminance)^dark_weight),
+// so a block on a shadow's edge keeps the shadow: a plain mean lifted the saloon's darks (deep
+// shadow share 0.24 to the painting's 0.41). 0 = the plain mean.
+uniform float dark_weight = 0.0;
 uniform float sat_steps = 0.0;
 uniform float hue_steps = 0.0;
 
@@ -109,8 +113,14 @@ vec3 block_colour(vec2 origin, float p, float scale, mat4 inv_proj, vec2 size) {
 			for (int i = 0; i < 4; i++) {
 				vec2 q = (origin + p * (vec2(float(i), float(j)) + 0.5) * 0.25) / size;
 				if (block_size(linear_depth(q, inv_proj), scale) == p) {
-					sum += texture(screen_tex, q).rgb;
-					n += 1.0;
+					vec3 s = texture(screen_tex, q).rgb;
+					float w = 1.0;
+					if (dark_weight > 0.0) {
+						float g = pow(clamp(dot(s, vec3(0.299, 0.587, 0.114)), 0.0, 1.0), 1.0 / 2.2);
+						w = pow(1.0 - min(g, 0.98), dark_weight);
+					}
+					sum += s * w;
+					n += w;
 				}
 			}
 		}

@@ -173,16 +173,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
   The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
   averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
-  **The quantise-once trial** (Pixel-factory's plan A1, 2026-10-03; `screenshots.gd
-  --quantise-once`, off everywhere by default): every pre-blocking step off (tile light off,
-  `min_square_px` 0, `PixelArt.smooth`: the factory's textures from `assets/textures/smooth/`,
-  the same paintings cut by `reduce.py --smooth` at four times the texels with no palette, the
-  grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole man's `<id>_skin_smooth.png` /
-  `_head_smooth.png` from `fit_tripo.py --smooth`, no squares, from `head_paint.py bake --smooth`'s
-  unquantised head) and the mosaic refined by `DepthMosaic.tuning` (shader knobs `depth_power`,
-  block size as `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of
-  blend across block edges; `sat_steps`, `hue_steps`, the block's colour snapped to a limited
-  palette as well as `steps` of light; `--mosaic-tune=k:v,...`). Verdict in the status entry;
+  **The quantise-once look** (Pixel-factory's plan A1, 2026-10-03; `Settings.quantise_once`,
+  **I** toggles, saved, off by default until Sean's eye on a real GPU; `screenshots.gd
+  --quantise-once`): every pre-blocking step off (tile light off, `min_square_px` 0: Settings
+  owns that global now, `MIN_SQUARE_PX` 2; `PixelArt.smooth`: the factory's textures from
+  `assets/textures/smooth/`, the same paintings cut by `reduce.py --smooth` at four times the
+  texels with no palette, the grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole
+  man's `<id>_skin_smooth.png` / `_head_smooth.png` from `fit_tripo.py --smooth`, no squares,
+  from `head_paint.py bake --smooth`'s unquantised head) and the mosaic refined by
+  `DepthMosaic.tuning` (`Settings.QUANTISE_TUNING`; shader knobs `depth_power`, block size as
+  `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of blend across
+  block edges; `average`, a block as the mean of its own band's pixels, with `dark_weight` the
+  darker pixels weighing more so shadow edges keep the shadow; `sat_steps`, `hue_steps`, the
+  block's colour snapped to a limited palette as well as `steps` of light; and `block_in` /
+  `block_out`, the block size under a roof and in the open, 4 and 6 px: the mosaic node casts a
+  ray up from the camera every quarter second and eases between them; `--mosaic-tune=k:v,...`,
+  `--saloon-tune=` / `--street-tune=` for one shot). The world's materials take their textures
+  when built, so the switch reloads the scene. Verdict in the status entries;
   `docs/screenshots/quantise_once/compare.png` (`tools/quantise_compare.py`).
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
   size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
@@ -2199,6 +2206,28 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: Sean confirms the F3 line on Shadow (the step 1 gate), then step 2: a wall that takes
     a shotgun blast (brick volumes per member from Pixel-factory's `src/volume.rs`, carve,
     re-mesh on the worker, collision, the remaining section fed to `StructuralAnalysis`).
+- 2026-10-03 (art session, later): **A1 finished: the dark-weighted average, a block size per
+  scene, and quantise once as a switch in the build (I).** Sean: "go". The mosaic's `dark_weight`
+  (above) brings the saloon's deep-shadow share back under averaged blocks (0.24 → 0.36, the
+  painting's 0.41) and the far bar loses the red speckle the point samples left; by eye it's the
+  best saloon of the trial (`docs/screenshots/quantise_once/compare.png`, rebuilt: the painting,
+  as now, the judge's best saloon, and the switch). The block size is a property of the scene
+  (`block_in` 4 px under a roof, `block_out` 6 in the open, the node's own ray up from the
+  camera), and the look is a saved setting: **I** toggles `Settings.quantise_once` and reloads the
+  scene (the world's materials take their textures when built). Judge v2 rounds `_r20`–`_r23`:
+  dark weight 2 saloon 0.226 / street 0.346, 4 0.228 / 0.366; the switch as shipped (no palette)
+  `_r22` saloon **0.265** / street **0.354**, against as-now 0.228 / 0.330. The judge's saloon
+  gap is the limited palette (`sat_steps` 6, `hue_steps` 24): with it `_r23` saloon 0.224 but
+  the street 0.391, so it stays a knob, not the switch's default; and its saloon gain is largely
+  a threshold effect (the share under L* 10 jumps 0.25 → 0.36 while the share under L* 5 is
+  identical: the saloon's median is L* 12 and the snap nudges a band of darks across the line).
+  **The gate, honestly:** by the judge the switch is a little worse on both shots; by my eye it
+  is better on both (the road as the painting's pale dust, the face a clean drawing, the far bar
+  calm). Default stays off; Sean's eye on a real GPU decides (BUILD_NOTES: press I in the saloon
+  at night and on the street at golden hour). What's left is the light (A4) and the man (A2),
+  either way. Gameplay files touched: `src/main/main.gd` (two lines: the I key),
+  `tests/test_pixel_art.gd` (+1 test); shared `controls.gd` (the binding), `settings.gd` (my
+  lines), `tools/screenshots.gd` (`--saloon-tune=`, `--street-tune=`). 288 tests pass.
 - 2026-10-03 (gameplay, destruction step 2): **A wall that takes a shotgun blast.** Members are
   carved as voxels by the native plugin (layout above: `StructureMember.voxels`, `VoxelWorks`,
   `config/voxel_damage.tres`; `addons/saltcreek_native/` `volume.rs`, `carve.rs`, `mesh.rs`,
