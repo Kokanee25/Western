@@ -9,6 +9,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+glam = "0.29"
 # Godot 4.7.2 is pinned in .github/workflows/build.yml: the bindings target that exact API.
 godot = { version = "0.5.5", features = ["api-4-7"] }
 

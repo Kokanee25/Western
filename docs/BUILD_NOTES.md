@@ -16,6 +16,29 @@ same body.
 - Also send the F3 frame split (the `ms a frame` line and the fps) standing in the street with
   the gang in (U), so the next steps are measured against your machine.
 
+### Destruction step 2: a wall that takes a shotgun
+
+- **Walls are carved now, not painted.** Every board, stud and post is cut into small cubes (about
+  1.6 cm) the first time something hits it, and shots really cut it: buckshot punches a cluster of
+  ragged holes with pale torn wood round each, a charge with the muzzle against the boards blows a
+  bite about 7 cm across, split along the grain, and the pellets carry on through to whatever's
+  behind (the storekeeper, if he's behind his counter). You can see daylight through the holes from
+  inside, bullets go through the gaps, chips of fresh wood fly and lie where they land. A stud shot
+  through enough is weaker, and if what's left can't carry the wall it gives way, as before.
+- **Try it on Shadow:** stand in the street outside the general store (DRY GOODS), press **F3**
+  and note the fps and the `frame` line. Press **2** for the shotgun, **H** to draw it, walk to
+  the store's front wall and fire both barrels at the siding from 3–4 m (LMB, LMB, **R** to
+  reload), then again from a step away, then with the muzzle right on the boards. Go inside and
+  look back at the wall. Keep going for a dozen charges, then send me **the F3 photo while
+  firing and after**: the fps, the `frame` line and the `ms a frame` line (look for `ballistics`
+  and `voxels`). That decides whether Godot carries this (docs/DESTRUCTION_BRIEF.md, step 2's
+  gate).
+- **Tell me:** do the holes read? Too small, too big, too clean? (Pictures of the same three
+  charges at three cube sizes, and the old painted holes, are in `docs/destruction/step2/`.) Any
+  hitch when the shot lands?
+- Known: a carved board that snaps in two falls as two plain halves (the holes aren't kept on
+  the pieces); dynamite doesn't carve yet (step 3); the web build keeps the old painted holes.
+
 ### New look: the painting's mosaic on the whole frame
 
 - **The frame is in blocks now, like the concept painting**: 3–4 pixels on a man across a table,
