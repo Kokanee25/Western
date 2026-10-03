@@ -55,6 +55,9 @@ HEIGHT_M = 1.8
 # The painting's face squares are ~5 mm on him (190 a metre, tools/paint/finish.py).
 SQUARE_M = 0.0028
 COLOURS = 40
+# --smooth (the "quantise once" set): no squares and no palette on the head, written as
+# <id>_color_smooth.png (fit_tripo.py --smooth takes it); the screen mosaic quantises once.
+SMOOTH = False
 # The views: camera yaw about him (0 = in front of him, + round to his left) and a pitch, and
 # how much each is trusted where views overlap.
 VIEWS = {
@@ -423,7 +426,7 @@ def bake(cid):
     e1, e2 = uv[htris[:, 1]] - uv[htris[:, 0]], uv[htris[:, 2]] - uv[htris[:, 0]]
     a2 = 0.5 * np.abs(e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]).sum() * size ** 2
     texels_per_m = np.sqrt(a2 / a3)
-    sq = max(1, int(round(SQUARE_M * texels_per_m)))
+    sq = max(1, int(round(SQUARE_M * texels_per_m))) if not SMOOTH else 1
     print("  %.0f texels a metre on the head; squares of %d texels" % (texels_per_m, sq))
     if sq > 1:
         hs = (size // sq) * sq
@@ -435,12 +438,15 @@ def bake(cid):
         sheet[:hs, :hs][inside] = squared[inside]
     # A palette for the head.
     flat = sheet[ty, tx]
-    sheet[ty, tx] = palette(flat, COLOURS)
+    if not SMOOTH:
+        sheet[ty, tx] = palette(flat, COLOURS)
     out = np.asarray(colour, dtype=np.float64).copy()
     out[ty, tx] = sheet[ty, tx]
-    Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, cid + "_color.png"))
-    print("wrote", os.path.join(DIR, cid + "_color.png"), "from", ", ".join(used))
-    contact(cid)
+    name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
+    Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
+    print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
+    if not SMOOTH:
+        contact(cid)
 
 
 def contact(cid, cell=384):
@@ -488,6 +494,8 @@ def dry_run(cid):
 
 
 def main():
+    global SMOOTH
+    SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
     for a in sys.argv[2:]:

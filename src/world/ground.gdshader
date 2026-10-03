@@ -34,6 +34,9 @@ uniform float sun_direct = 0.7;
 // painting's road is lit ochre in the fronts' shadows too; Godot's ambient is one colour for
 // every facing, and the ground faces all of it): a share of the sun's light, unshadowed.
 uniform float sky_fill = 0.15;
+// The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
+// here; the screen mosaic is the only quantisation.
+uniform bool smooth_source = false;
 
 varying vec3 world_pos;
 
@@ -73,7 +76,7 @@ void fragment() {
 	float b = tile_square(t);
 	vec2 p = (floor(t / b) + 0.5) * b / texels_per_meter;
 	float n = fbm(p * 0.3);
-	float fine = hash(floor(p * texels_per_meter));
+	float fine = smooth_source ? 0.5 : hash(floor(p * texels_per_meter));
 	float dz = abs(p.y - road_center_z);
 	float road = 1.0 - smoothstep(road_half_width - 1.0, road_half_width + 1.5, dz + (n - 0.5) * 3.0);
 	vec3 wild = mix(scrub_color, sage_color, smoothstep(0.45, 0.7, fbm(p * 0.08 + 3.0)));
@@ -128,7 +131,9 @@ void fragment() {
 	col = mix(col, col * (pebble > 0.5 ? 1.32 : 0.62), step(0.965, hash(floor(p * texels_per_meter) + 3.0)) * road * drawn);
 	col *= use_road_tex || use_wide_tex ? mix(0.88 + 0.24 * fine, 1.0, road) : 0.88 + 0.24 * fine;
 	// a few shades per colour, like a hand-made palette
-	col = floor(col * 24.0 + 0.5) / 24.0;
+	if (!smooth_source) {
+		col = floor(col * 24.0 + 0.5) / 24.0;
+	}
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
 	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, b > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t)));

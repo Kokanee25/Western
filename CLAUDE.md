@@ -173,6 +173,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
   The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
   averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
+  **The quantise-once trial** (Pixel-factory's plan A1, 2026-10-03; `screenshots.gd
+  --quantise-once`, off everywhere by default): every pre-blocking step off (tile light off,
+  `min_square_px` 0, `PixelArt.smooth`: the factory's textures from `assets/textures/smooth/`,
+  the same paintings cut by `reduce.py --smooth` at four times the texels with no palette, the
+  grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole man's `<id>_skin_smooth.png` /
+  `_head_smooth.png` from `fit_tripo.py --smooth`, no squares, from `head_paint.py bake --smooth`'s
+  unquantised head) and the mosaic refined by `DepthMosaic.tuning` (shader knobs `depth_power`,
+  block size as `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of
+  blend across block edges; `sat_steps`, `hue_steps`, the block's colour snapped to a limited
+  palette as well as `steps` of light; `--mosaic-tune=k:v,...`). Verdict in the status entry;
+  `docs/screenshots/quantise_once/compare.png` (`tools/quantise_compare.py`).
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
   size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
   since the screen mosaic, `Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
@@ -2101,3 +2112,26 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Build 340, where Sean saw the black screen, was the flicker merge itself (the mosaic had
   shipped in 335), so this was very likely his black screen, not the mosaic's missing ALPHA: it
   strikes with the sun near the nadir, around midnight. Sean checks build 349 or later. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.
+- 2026-10-03 (art session, later): **The plan agreed with Sean, from Pixel-factory's NOTES.md**
+  (copied here as that session asked; the voxel engine stops as a look experiment, its renderer
+  kept as the reference for a frame's light; Sean tests on a Shadow cloud PC, so native plugins can
+  be desktop-only).
+  **A. The look, the style pack (art session). Rule: quantise once.** 1) First, measurable: every
+  pre-blocking step off (the factory's squares and mosaic, the character paint's squares), the
+  screen mosaic refined to the painting's blocks (soft edges, flat colour inside each, a palette
+  per region, block size steady with depth), both shots re-judged; gate: the judge and Sean's eye.
+  2) Characters: paint each man smooth, in flat even light, at high resolution; de-light what
+  Tripo bakes in; one quantisation at render; the seated man's face first, then the townsfolk.
+  3) World surfaces and shapes: the factory's textures re-cut smooth and de-lit at higher
+  resolution; the dressing as specific things. 4) Finish the light pass to the painting's numbers.
+  **B. Performance, the one core (gameplay session).** 5) The render thread model multi-threaded;
+  Sean's F3 before and after on Shadow. 6) A Rust GDExtension foundation (CI builds for Windows,
+  Mac, Linux; checked against 4.7.2's extension API). 7) Fire into native threads, then the
+  structural analysis, then physiology.
+  **C. Destruction (gameplay session).** 8) A `VoxelDamage` node: one wall that takes a shotgun
+  blast at any shape (carve, re-mesh on a worker thread, collision rebuilt, the member told how
+  much section is gone); hooks for a ball, a charge, dynamite and fire; gate: the frame budget on
+  Shadow. 9) Only after 8 works: the anatomy volume with wounds carved in rest space.
+  **D. Housekeeping.** 10) Sean: merge Pixel-factory's `claude/new-session-l733p0` or leave it as
+  the record. 12) Sean on Shadow: the latest build's F3 frame split, so B is driven by numbers.
+  13) Sean's call: drop the web export from CI now that nobody plays in the browser.
