@@ -61,19 +61,37 @@ func _run() -> void:
 	scene.scale = Vector3.ONE * s
 	scene.global_position = (man as Node3D).global_position - Vector3(0, aabb.position.y * s, 0)
 	scene.global_basis = ((man as Node3D).global_basis * Basis(Vector3.UP, deg_to_rad(yaw))).scaled(Vector3.ONE * s)
+	# His colour texture repainted (tools/characters/head_paint.py bake: the head in the style,
+	# the rest as Tripo made it), laid over his material where it is.
+	var repaint_path := ProjectSettings.globalize_path("res://assets/people/tripo/%s_color.png" % id)
+	var repaint: ImageTexture = null
+	if FileAccess.file_exists(repaint_path):
+		var im := Image.load_from_file(repaint_path)
+		if im != null:
+			repaint = ImageTexture.create_from_image(im)
+			print("repainted texture: %s_color.png" % id)
 	var tris := 0
 	for mi in scene.find_children("*", "MeshInstance3D", true, false):
-		tris += (mi as MeshInstance3D).mesh.get_faces().size() / 3
+		var mesh: Mesh = (mi as MeshInstance3D).mesh
+		tris += mesh.get_faces().size() / 3
 		(mi as MeshInstance3D).layers = Layers.VIS_BODY
+		if repaint != null:
+			for s in mesh.get_surface_count():
+				var mat := mesh.surface_get_material(s) as BaseMaterial3D
+				if mat != null:
+					mat.albedo_texture = repaint
+					mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 	print("%s: %d triangles, %.2f m tall before scaling (x%.2f), bones %d" % [id, tris, aabb.size.y, s,
 			(scene.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D).get_bone_count()
 			if not scene.find_children("*", "Skeleton3D", true, false).is_empty() else 0])
 	(man as Node3D).visible = false
 	# The orbit views look at the man's chest part; the Tripo man stands, so look at his chest height.
 	var shots := {}
-	for view in ["shot", "front", "three_quarter", "side", "back"]:
+	for view in ["shot", "front", "three_quarter", "side", "back", "head"]:
 		if view == "shot":
 			stage.aim(set, view)
+		elif view == "head":
+			_aim_head(set, scene, height)
 		else:
 			_aim_standing(set, scene, view, height)
 		var img: Image = await stage.grab(self, vp)
@@ -94,6 +112,13 @@ func _run() -> void:
 	sheet.blit_rect(shots["side"], Rect2i(0, 0, w, h), Vector2i(w, h))
 	sheet.blit_rect(shots["back"], Rect2i(0, 0, w, h), Vector2i(w * 2, h))
 	sheet.save_png("%s/%s_lab.png" % [out, id])
+	# His head beside the painting's man's (the painting's face box, scaled to the same height).
+	var face: Image = painting.get_region(Rect2i(w * 790 / 1672, h * 100 / 941, w * 420 / 1672, h * 420 / 941))
+	face.resize(h, h, Image.INTERPOLATE_NEAREST)
+	var close := Image.create(w + h, h, false, Image.FORMAT_RGBA8)
+	close.blit_rect(shots["head"], Rect2i(0, 0, w, h), Vector2i(0, 0))
+	close.blit_rect(face, Rect2i(0, 0, h, h), Vector2i(w, 0))
+	close.save_png("%s/%s_head.png" % [out, id])
 	print("wrote %s/%s_lab.png" % [out, id])
 	quit()
 
@@ -106,6 +131,16 @@ static func _bounds(n: Node3D) -> AABB:
 		out = b if first else out.merge(b)
 		first = false
 	return out
+
+
+## A close view of his head from a little to his right, as the painting sees its man.
+static func _aim_head(set: Dictionary, scene: Node3D, height: float) -> void:
+	var cam: Camera3D = set.camera
+	var head := scene.global_position + Vector3.UP * height * 0.9
+	var forward := -(set.man as Node3D).global_basis.z.normalized() as Vector3
+	var dir := forward.rotated(Vector3.UP, deg_to_rad(-20.0))
+	cam.fov = 30.0
+	cam.global_transform = Transform3D(Basis.looking_at(-dir, Vector3.UP), head + dir * 1.1 + Vector3.UP * 0.02)
 
 
 ## The lab's orbit views, aimed at a standing man's chest.
