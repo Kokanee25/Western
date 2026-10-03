@@ -51,6 +51,7 @@ HEAD_TRIS = 2200
 # One square of the texture: this many of Tripo's 2048 texels a side (~2.8 mm on him: the
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
+SMOOTH = False  # --smooth: see main()
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
 SKIRT_RADIUS = 0.11
@@ -315,7 +316,9 @@ def export(person):
 
 
 def main():
+    global SMOOTH
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+    SMOOTH = "--smooth" in args
     only = None
     for a in args:
         if a.startswith("--only="):
@@ -332,6 +335,17 @@ def main():
         p.run()
         # His texture: the head repainted in the style where it has been.
         repainted = os.path.join(TRIPO, pid + "_color.png")
+        if SMOOTH:
+            # The "quantise once" set: the smooth repaint (head_paint.py --smooth) if there is one,
+            # no squares, written beside the real textures as <id>_skin_smooth.png / _head_smooth.png
+            # (PeopleBodies.smooth_paint takes them); the glb is unchanged, so no export.
+            smooth_paint = os.path.join(TRIPO, pid + "_color_smooth.png")
+            src = smooth_paint if os.path.exists(smooth_paint) else repainted
+            colour = Image.open(src).convert("RGB") if os.path.exists(src) else p.colour
+            squares(colour, os.path.join(OUT, pid + "_skin_smooth.png"), 1)
+            squares(colour, os.path.join(OUT, pid + "_head_smooth.png"), 1)
+            print("wrote", pid, "smooth textures from", os.path.basename(src) if os.path.exists(src) else "tripo")
+            continue
         colour = Image.open(repainted).convert("RGB") if os.path.exists(repainted) else p.colour
         size = squares(colour, os.path.join(OUT, pid + "_skin.png"))
         squares(colour, os.path.join(OUT, pid + "_head.png"))

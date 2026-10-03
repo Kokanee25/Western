@@ -231,6 +231,17 @@ def palette_snap(lab, k, seed):
 
 # --- running ---------------------------------------------------------------------------------
 
+# The "quantise once" set (--smooth, docs/screenshots/quantise_once/): the same paintings cut at
+# SMOOTH_TEXELS times the texels with no palette and no pushed mosaic, into assets/textures/smooth/,
+# so the only quantisation left is the screen mosaic's (PixelArt.smooth picks them).
+SMOOTH_TEXELS = 4
+SMOOTH = False
+
+
+def out_dir():
+    return os.path.join(OUT, "smooth") if SMOOTH else OUT
+
+
 def reduce(mid, spec, tpm):
     raw = Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB")
     kind = spec["kind"]
@@ -253,10 +264,14 @@ def reduce(mid, spec, tpm):
     lab = mosaic(to_lab((t * 255).astype(np.uint8)), MOSAIC, kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
     lab = grade(lab, spec)
-    lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
+    if SMOOTH:
+        pal = np.unique(np.round(lab.reshape(-1, 3), 0), axis=0)[:64]
+    else:
+        lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
     rgb = lab_to_rgb(lab)
-    Image.fromarray(rgb).save(os.path.join(OUT, mid + ".png"))
-    _import_file(os.path.join(OUT, mid + ".png.import"))
+    os.makedirs(out_dir(), exist_ok=True)
+    Image.fromarray(rgb).save(os.path.join(out_dir(), mid + ".png"))
+    _import_file(os.path.join(out_dir(), mid + ".png.import"))
     strips = 0
     if spec.get("boards", False):
         # Each board of the painting as its own strip (board_strips), snapped to the tile's palette
@@ -267,13 +282,14 @@ def reduce(mid, spec, tpm):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
             st = to_lab((to_texels(strip, ssize) * 255).astype(np.uint8))
             st = grade(st, spec)
-            d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
-            st = pal[d.argmin(1)].reshape(st.shape)
-            Image.fromarray(lab_to_rgb(st)).save(os.path.join(OUT, "%s_b%d.png" % (mid, k)))
-            _import_file(os.path.join(OUT, "%s_b%d.png.import" % (mid, k)))
+            if not SMOOTH:
+                d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
+                st = pal[d.argmin(1)].reshape(st.shape)
+            Image.fromarray(lab_to_rgb(st)).save(os.path.join(out_dir(), "%s_b%d.png" % (mid, k)))
+            _import_file(os.path.join(out_dir(), "%s_b%d.png.import" % (mid, k)))
             strips += 1
         for k in range(strips, 16):
-            stale = os.path.join(OUT, "%s_b%d.png" % (mid, k))
+            stale = os.path.join(out_dir(), "%s_b%d.png" % (mid, k))
             if os.path.exists(stale):
                 os.remove(stale)
                 if os.path.exists(stale + ".import"):
@@ -322,6 +338,7 @@ def sheet(rows, path):
 
 
 def main():
+    global SMOOTH, MOSAIC
     only = None
     sheet_path = None
     for a in sys.argv[1:]:
@@ -329,9 +346,13 @@ def main():
             only = a.split("=", 1)[1].split(",")
         elif a.startswith("--sheet="):
             sheet_path = a.split("=", 1)[1]
+        elif a == "--smooth":
+            SMOOTH = True
+            MOSAIC = 1.0
     spec = json.load(open(SPEC))
-    tpm = spec["texels_per_metre"]
-    index_path = os.path.join(OUT, "textures.json")
+    tpm = spec["texels_per_metre"] * (SMOOTH_TEXELS if SMOOTH else 1)
+    os.makedirs(out_dir(), exist_ok=True)
+    index_path = os.path.join(out_dir(), "textures.json")
     index = json.load(open(index_path)) if os.path.exists(index_path) else {}
     rows = []
     for mid, m in spec["materials"].items():

@@ -136,6 +136,28 @@ func _run() -> void:
 			trial.eyes = which == "all" or "eyes" in which
 		elif arg.begins_with("--cubes="):
 			load("res://src/art/voxel_trial.gd").cubes = int(arg.substr(8))
+		# The quantise-once trial (Pixel-factory's plan, A1): every pre-blocking step off (tile
+		# light, far squares, the factory's squares and palette, the man's squares) and the screen
+		# mosaic refined (--mosaic-tune=depth_power:0.5,soft:0.75,sat_steps:6,hue_steps:24,...
+		# sets its knobs; --quantise-once alone uses the trial's defaults).
+		elif arg == "--quantise-once":
+			settings.set_tile_look(&"off")
+			RenderingServer.global_shader_parameter_set(&"min_square_px", 0.0)
+			PixelArt.smooth = true
+			# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): the grid lays
+			# them at four times the density, and the code-painted textures go finer with it.
+			PixelArt.set_density(PixelArt.texels_per_meter * 4.0, PixelArt.use_mipmaps)
+			load("res://src/bodies/people_bodies.gd").smooth_paint = true
+			var mosaic_gd: Variant = load("res://src/render/depth_mosaic.gd")
+			if mosaic_gd.tuning.is_empty():
+				mosaic_gd.tuning = {"depth_power": 0.5, "soft": 0.5, "average": 1.0, "max_block": 6.0}
+			screen_squares = 6.0
+		elif arg.begins_with("--mosaic-tune="):
+			var tune := {}
+			for pair in arg.substr(14).split(","):
+				if ":" in pair:
+					tune[pair.get_slice(":", 0)] = float(pair.get_slice(":", 1))
+			load("res://src/render/depth_mosaic.gd").tuning = tune
 		elif arg.begins_with("--steps="):
 			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
