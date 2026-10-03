@@ -21,6 +21,17 @@ var _corner: Label
 var _toast_timer := 0.0
 
 
+## The native plugin (addons/saltcreek_native): its version and threads, or that it isn't loaded
+## (the web build, or a build made without it).
+static func native_label() -> String:
+	if not ClassDB.class_exists(&"NativeBench"):
+		return "native plugin: not loaded"
+	var bench: Object = ClassDB.instantiate(&"NativeBench")
+	var label := "native plugin: %s, %d threads" % [bench.version(), bench.threads()]
+	bench.free()
+	return label
+
+
 ## "build 23 (ad725f2)" from build_info.json, written by CI at export; "dev build" otherwise.
 static func build_label() -> String:
 	var text := FileAccess.get_file_as_string("res://build_info.json")
@@ -118,6 +129,7 @@ func _readout_text() -> String:
 			for w in (n as HumanBody).describe_wounds():
 				lines.append("  " + w)
 	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
+	lines.append(native_label())
 	lines.append_array(frame_lines())
 	return "\n".join(lines)
 
