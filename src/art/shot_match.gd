@@ -34,9 +34,10 @@ const TURN := 6.75
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
-## Which generated body the seated man wears (assets/people/<model>.glb): the MakeHuman outlaw,
-## or the Tripo man (`stranger`, tools/blender/fit_tripo.py); tools/screenshots.gd --model=.
-static var model: StringName = &"outlaw"
+## Which generated body the seated man wears (assets/people/<model>.glb): the Tripo man
+## (`stranger`, tools/blender/fit_tripo.py; the default since 2026-10-03) or the MakeHuman
+## `outlaw`; tools/screenshots.gd --model=.
+static var model: StringName = &"stranger"
 
 
 ## Build the scene in the test street (clearing that table's own props) and seat the man.

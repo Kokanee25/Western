@@ -48,8 +48,9 @@ HEAD_FROM = 0.815
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
-# One square of the texture: this many of Tripo's 2048 texels a side (~5.6 mm on him).
-SQUARE_TEXELS = 4
+# One square of the texture: this many of Tripo's 2048 texels a side (~2.8 mm on him: the
+# painting's blocks on his face are about 3 mm).
+SQUARE_TEXELS = 2
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
 SKIRT_RADIUS = 0.11

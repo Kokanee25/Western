@@ -15,12 +15,18 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 4
+const LOOK_VERSION := 5
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
-## tile (tiles.gdshaderinc `tile_gradient`).
+## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
+## the softening blurs its block edges.
 const FINISH_SOFTEN := 0.5
 const FINISH_GRADIENT := 0.3
+## The painting's mosaic in screen space (src/render/depth_mosaic.gdshader, DepthMosaic on the
+## game camera): the lit frame in blocks of about MOSAIC_K / depth render pixels (3-4 px on a man
+## across a table, 2 px far off, at 1280 wide), one colour each, the light in MOSAIC_STEPS tones.
+const MOSAIC_K := 5.0
+const MOSAIC_STEPS := 14.0
 ## Mosaic tiles (P cycles): "off" = smooth light; "square" = every texel a tile lit as one colour;
 ## "ragged" = the same with uneven tile edges, like dabs of paint (src/render/tiles.gdshaderinc).
 ## The world, people and props all follow it.
@@ -36,7 +42,9 @@ var tile_look: StringName = &"square"
 ## Scale by whole numbers only (perfectly even pixels, may letterbox).
 var integer_scaling := false
 ## The finish pass (FINISH_SOFTEN, FINISH_GRADIENT) on.
-var finish := true
+var finish := false
+## The screen mosaic (MOSAIC_K, MOSAIC_STEPS) on.
+var mosaic := true
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -82,7 +90,8 @@ func _protect_speakers() -> void:
 func reset_to_defaults() -> void:
 	internal_resolution = RESOLUTION_PRESETS[0]
 	integer_scaling = false
-	finish = true
+	finish = false
+	mosaic = true
 	mouse_sensitivity = 0.1
 	stick_look_speed = 150.0
 	touch_look_sensitivity = 0.25
@@ -117,6 +126,11 @@ func load_from_disk() -> void:
 	if look_version < 4 and internal_resolution == Vector2i(1280, 720):
 		internal_resolution = NATIVE
 	finish = cfg.get_value("video", "finish", finish)
+	mosaic = cfg.get_value("video", "mosaic", mosaic)
+	# 5: the screen mosaic, and the finish's softening (the default till then) off under it.
+	if look_version < 5:
+		finish = false
+		mosaic = true
 	if (look_version < 2 and is_equal_approx(texels_per_meter, 40.0)) \
 			or (look_version < 3 and is_equal_approx(texels_per_meter, 64.0)):
 		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
@@ -135,6 +149,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "look_version", LOOK_VERSION)
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "finish", finish)
+	cfg.set_value("video", "mosaic", mosaic)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
 	cfg.set_value("video", "tile_look", String(tile_look))
@@ -174,6 +189,11 @@ func set_finish(on: bool) -> void:
 	_changed()
 
 
+func set_mosaic(on: bool) -> void:
+	mosaic = on
+	_changed()
+
+
 func cycle_texel_density() -> void:
 	var presets := PixelArt.DENSITY_PRESETS
 	var i := 0
@@ -188,8 +208,9 @@ func cycle_texel_density() -> void:
 ## One line describing the current look, e.g. "1280×720 · texels 32/m smoothed · tiles square · shading off".
 func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
-	return "%s · texels %d/m %s · tiles %s · finish %s · shading %s" % [res, int(texels_per_meter),
-			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if finish else "off", "on" if pixel_shading else "off"]
+	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s" % [res, int(texels_per_meter),
+			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic else "off", "on" if finish else "off",
+			"on" if pixel_shading else "off"]
 
 
 func set_tile_look(look: StringName) -> void:

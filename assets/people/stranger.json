@@ -11,10 +11,10 @@
  "texture": {
   "from": "stranger_color.png",
   "size": [
-   512,
-   512
+   1024,
+   1024
   ],
-  "square_texels": 4
+  "square_texels": 2
  },
  "triangles": {
   "skin": 5500,

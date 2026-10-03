@@ -31,6 +31,7 @@ func _apply_settings() -> void:
 	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
 	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
+	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
 	_layout()
 
 
