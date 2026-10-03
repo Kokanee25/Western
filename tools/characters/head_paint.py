@@ -53,8 +53,8 @@ HEAD_FROM = 0.815
 # He stands 1.0 tall in the glb; in the game he's this tall (tools/tripo_lab.gd --height).
 HEIGHT_M = 1.8
 # The painting's face squares are ~5 mm on him (190 a metre, tools/paint/finish.py).
-SQUARE_M = 0.0053
-COLOURS = 28
+SQUARE_M = 0.0028
+COLOURS = 40
 # The views: camera yaw about him (0 = in front of him, + round to his left) and a pitch, and
 # how much each is trusted where views overlap.
 VIEWS = {
@@ -395,7 +395,9 @@ def bake(cid):
                 d3 = np.maximum(d3, np.roll(np.roll(depth, dy, axis=0), dx, axis=1))
         seen = inside & (z <= d3[yi, xi] + tolerance)
         facing = np.clip(n @ (-f), 0.0, 1.0)
-        w = np.where(seen, facing ** 3, 0.0) * trust
+        # The squarest view wins outright (weights^8): averaging views that don't register
+        # exactly blurred the drawing to blobs; the painting's blocks are crisp.
+        w = np.where(seen, facing ** 8, 0.0) * trust
         total += img[yi, xi] * w[:, None]
         weight += w
         used.append(view)

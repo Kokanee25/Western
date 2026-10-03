@@ -162,10 +162,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
   read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
   the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
-  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6.
+  **The screen mosaic** (`depth_mosaic.gd(shader)`, `DepthMosaic` on the game camera, since
+  2026-10-03, `Settings.mosaic` on by default, saved; `screenshots.gd --no-mosaic`, `--mosaic=K
+  --steps=N`): the finished lit frame cut into blocks of about `MOSAIC_K` 5 / depth render
+  pixels (3–4 px on a man across a table, 2 px far off, at 1280 wide: the saloon painting's
+  blocks are nearly one size), each block one colour (the sample at its centre; a block takes
+  its colour only from its own distance band, so a near thing keeps its own blocks), the light
+  posterised into `MOSAIC_STEPS` 14 tones. Silhouettes go stair-stepped at the block size as the
+  painting's are and a model's facets hide under the blocks. Not on the Compatibility renderer
+  (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
+  The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
+  averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
-  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** is on
-  (`Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
+  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
+  since the screen mosaic, `Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
   softens a render pixel on a hard edge between blocks toward its neighbours (`finish_soften`
   0.5, a jump across the pixel both ways; fine lines and smooth areas untouched) and the tile
   light is worked out part way back from the tile's centre toward the fragment (shader global
@@ -1985,3 +1995,31 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next: the body painted like the head (image-to-image at full LoRA strength from the fitted
     model's own views, baked back by UV), de-lighting, then the townsfolk as Tripo men of their
     own (`characters.json` + `people.json` entries each).
+- 2026-10-03 (art session, later): **The screen mosaic: the painting's pixel style on the frame.**
+  Sean: "the pixel style isn't even close to the concept art." Looked at his face against the
+  painting's at the same scale (`docs/screenshots/light_pass/screen_mosaic_faces.png`): the
+  painting's blocks are ~3 mm on his face and nearly one size near and far (3–4 px on the man,
+  2 px at the bar, at 1280 wide), each a crisp flat tone of a sharp drawing; ours were 5.6 mm
+  blobs (a blend of six views that don't register exactly, averaged), lit smoothly, with
+  anti-aliased silhouettes and the decimation's facets showing, and the finish pass softening
+  the block edges on top. Three changes: `head_paint.py`'s bake lets the squarest view win
+  outright (weights^8) at `SQUARE_M` 2.8 mm and 40 colours; `fit_tripo.py` writes his textures
+  at 1024² (`SQUARE_TEXELS` 2); and **the screen mosaic** (above, `DepthMosaic` on the game
+  camera, `Settings.mosaic` on by default, the finish's softening off, `LOOK_VERSION` 5): the
+  lit frame in 3–4 px blocks on him and 2 px far off, one sampled colour each, the light in 14
+  tones. His face is a pixel drawing now, eyes, moustache and hair in crisp blocks, the
+  silhouette stepped. The first screen-space trial (2026-10-02) lost to the old judge, which
+  rewarded noise; this one is judge v2's best: rounds `2026-10-03_r2` (0.186) and `_r3` (the
+  game's defaults, both views): saloon **0.187** (from 0.196), street 0.320 (0.321). The Tripo
+  man is the shot's seated man by default now (`ShotMatch.model`). Gameplay's `src/main/main.gd`
+  gets one line (the mosaic applied to the game camera with the other settings; said here as
+  it's their file). Figures `screen_mosaic_before_after_painting.png`, `screen_mosaic_saloon.png`,
+  `screen_mosaic_street.png`. Shared `settings.gd` (my lines), `tools/screenshots.gd`
+  (`--mosaic= --steps= --no-mosaic`).
+  - Known: the mosaic isn't on the Compatibility (web) renderer (no depth texture there); the
+    far room, the lamp's cream glass and the shadows' depth are still the painting's biggest
+    gaps (the judge: shadows too light, midtones too bright); his coat is still Tripo's smooth
+    colour under the blocks (the body's own paint pass is next); no key cycles the mosaic yet
+    (F3 lists it).
+  - Next: the body painted like the head (best view wins, 2.8 mm squares), the room's grade
+    (deeper shadows, the lamp amber), then the townsfolk as their own Tripo men.

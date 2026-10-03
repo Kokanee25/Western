@@ -1,18 +1,35 @@
 class_name DepthMosaic
 extends MeshInstance3D
-## A trial of keeping far squares chunky in screen space (depth_mosaic.gdshader): a full-screen
-## quad a camera carries. `DepthMosaic.attach(camera, min_px)` adds one.
+## The painting's mosaic in screen space (depth_mosaic.gdshader): the lit frame in blocks that
+## shrink with distance, one colour each, the light in steps. A full-screen quad a camera carries:
+## `DepthMosaic.attach(camera, block_k, steps)` adds or retunes one (block_k: block pixels × metres,
+## ~5 for the saloon painting at 1280 wide; steps: tones of light, 0 = smooth).
 
 const SHADER := preload("res://src/render/depth_mosaic.gdshader")
 
 
-static func attach(camera: Camera3D, min_px: float) -> DepthMosaic:
+## The game's switch (Settings.mosaic): on, the camera gets one; off, it loses it. Left out on
+## the Compatibility renderer (web): no depth texture there.
+static func apply(camera: Camera3D, on: bool, block_k: float, steps: float) -> void:
+	if camera == null:
+		return
+	if on and RenderingServer.get_current_rendering_method() != "gl_compatibility":
+		attach(camera, block_k, steps)
+	else:
+		var m := camera.get_node_or_null(^"DepthMosaic")
+		if m != null:
+			m.queue_free()
+
+
+static func attach(camera: Camera3D, block_k: float, steps := 14.0) -> DepthMosaic:
 	var m := camera.get_node_or_null(^"DepthMosaic") as DepthMosaic
 	if m == null:
 		m = DepthMosaic.new()
 		m.name = "DepthMosaic"
 		camera.add_child(m)
-	(m.material_override as ShaderMaterial).set_shader_parameter(&"min_px", min_px)
+	var mat := m.material_override as ShaderMaterial
+	mat.set_shader_parameter(&"block_k", block_k)
+	mat.set_shader_parameter(&"steps", steps)
 	return m
 
 
@@ -27,11 +44,3 @@ func _init() -> void:
 	extra_cull_margin = 16384.0
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	sorting_offset = -1000.0
-
-
-func _process(_delta: float) -> void:
-	var cam := get_parent() as Camera3D
-	if cam == null:
-		return
-	var h := float(cam.get_viewport().get_visible_rect().size.y)
-	(material_override as ShaderMaterial).set_shader_parameter(&"focal", h * 0.5 / tan(deg_to_rad(cam.fov * 0.5)))
