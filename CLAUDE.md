@@ -173,6 +173,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
   The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
   averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
+  **The quantise-once trial** (Pixel-factory's plan A1, 2026-10-03; `screenshots.gd
+  --quantise-once`, off everywhere by default): every pre-blocking step off (tile light off,
+  `min_square_px` 0, `PixelArt.smooth`: the factory's textures from `assets/textures/smooth/`,
+  the same paintings cut by `reduce.py --smooth` at four times the texels with no palette, the
+  grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole man's `<id>_skin_smooth.png` /
+  `_head_smooth.png` from `fit_tripo.py --smooth`, no squares, from `head_paint.py bake --smooth`'s
+  unquantised head) and the mosaic refined by `DepthMosaic.tuning` (shader knobs `depth_power`,
+  block size as `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of
+  blend across block edges; `sat_steps`, `hue_steps`, the block's colour snapped to a limited
+  palette as well as `steps` of light; `--mosaic-tune=k:v,...`). Verdict in the status entry;
+  `docs/screenshots/quantise_once/compare.png` (`tools/quantise_compare.py`).
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
   size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
   since the screen mosaic, `Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
@@ -247,7 +258,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   TURN and pose offsets to the painting's man (outline, eyes, cup, palm in front of the mug).
   `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
   creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
-  the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  the lab. **The voxel trial** (`src/art/voxel_trial.gd`, `VoxelTrial`, 2026-10-03; off
+  everywhere, `screenshots.gd --voxel=props,hat,eyes|all --cubes=64`): the shot's mug, lamp
+  (not its glass), bottle, ashtray and the seated man's hat as cube-built copies
+  (`tools/voxel_export.gd` writes the props' parts as OBJ; `tools/blender/voxelise.py` makes a
+  shell of cubes along each surface, 1/128 or 1/64 m, every face carrying the smooth surface's
+  normal, the hat's faces the texel under them in an atlas → `assets/props/voxel/`,
+  `assets/people/voxel/`), on the same grid material mapped triplanar with `cube_faces` (the
+  light stays at the fragment: a texel's centre is off a face far smaller than it); and smooth
+  eyeballs on his painted irises (`EYES`, measured per model). Verdict in the status entry;
+  `docs/screenshots/voxel_trial/compare.png` (`tools/voxel_compare.py`). `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
   (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
   rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
@@ -2053,6 +2073,96 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     studs and below the roof, so walls, gable and the mirror fall back to the sky (size them past
     the walls and to the ridge); HeldFill lights the volumetric fog (cull masks don't apply to
     fog: give it `light_volumetric_fog_energy` 0); lamps all flicker in phase (seed a phase each).
+- 2026-10-03 (art session, later): **Fix: the mosaic was a black screen on Sean's GPU (build 340).**
+  His F3 screenshot: "mosaic on", the frame black with the sky showing through and the lamp
+  flames over it. The mosaic's quad wrote no ALPHA, so a real GPU drew it in the opaque pass
+  over an empty frame; lavapipe here never did. `depth_mosaic.gdshader` writes `ALPHA = 1.0`:
+  the transparent pass, after the opaque frame and the sky, where the screen texture exists.
+  **O** turns the mosaic off and on (`debug_mosaic`, shared `controls.gd`; two lines in gameplay's
+  `src/main/main.gd`, said here). In the transparent pass the judge scores it worse (round
+  `2026-10-03_r4`: saloon 0.228, deep-shadow share 27% to the painting's 41%; round 3's opaque-pass
+  render scored 0.187 with 47%) though by eye the frame is darker and punchier: the pass changes
+  what the screen texture holds (to look at next: the posterise and the glow in that pass).
+  - Rule: anything full-screen that reads the screen texture writes ALPHA, and gets a real-GPU
+    check from Sean before it's the default.
+- 2026-10-03 (art session, later): **The voxel trial: blocky silhouettes and smooth eyes, behind
+  flags** (Sean: an experiment without undoing the current work). `VoxelTrial` (above). Rendered
+  the saloon shot five ways into `docs/screenshots/voxel_trial/` (`compare.png`: each beside the
+  painting with the hat brim, eyes, mug and lamp at 3×), judge v2 rounds `2026-10-03_r5`–`_r11`
+  (the street render is the same in all, 0.330): as now 0.228; A, cube props and hat at 128/m
+  0.217, at 64/m 0.209; B, smooth eyes 0.232; A+B 0.217. **Edge hardness is unchanged by any of
+  it** (0.272–0.276 to the painting's 0.252): the screen mosaic already steps every silhouette
+  at its block size, so cubes of 8 mm (3–4 px on the table) vanish under it and 16 mm cubes only
+  add lumps. A's gain is the dark cube props raising the deep-shadow share (0.27 → 0.29–0.30;
+  painting 0.41), not outlines. By eye: the painting's blocks are a picture cut into squares over
+  smooth things (its lamp foot is round, its brim a clean curve in steps); a cube-built foot or
+  brim is a lumpy object. Two things learned on the way: Blender's Remesh (Blocks) fills volumes
+  and loses anything thinner than a cube (the brim, a mug's wall), so the voxeliser is a surface
+  shell; and cubes with their own normals are each square to the lamp or not (a foot under a lamp
+  went black down its sides), so every face carries the smooth surface's normal and only the
+  outline changes. B: a 12 mm eyeball is 3–4 mosaic blocks; it adds a pale highlight patch and
+  the dark iris is lost, where the painted eye already reads (the stranger's irises are at body
+  y 1.747, 9 cm above the anatomy's eye line: his head is Tripo's at its own proportions).
+  **Recommendation: stop the voxel-engine experiment; keep eyes painted** (finer squares on the
+  face, if anything, through `head_paint.py`'s `SQUARE_M`). Flags stay off. Found on the way:
+  **the saloon shot rendered black with a white doorway** since the flicker merge: with the Sky
+  INCREMENTAL, a cubemap direction exactly opposite the sun's gave `sky.gdshader` a `pow()` base
+  a hair below zero at 23:40 (the sun near the nadir), the NaN spread through the radiance to
+  every lit surface; the shader clamps its bases now (art's file; gameplay's scene unchanged).
+  Build 340, where Sean saw the black screen, was the flicker merge itself (the mosaic had
+  shipped in 335), so this was very likely his black screen, not the mosaic's missing ALPHA: it
+  strikes with the sun near the nadir, around midnight. Sean checks build 349 or later. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.
+- 2026-10-03 (art session, later): **The plan agreed with Sean, from Pixel-factory's NOTES.md**
+  (copied here as that session asked; the voxel engine stops as a look experiment, its renderer
+  kept as the reference for a frame's light; Sean tests on a Shadow cloud PC, so native plugins can
+  be desktop-only).
+  **A. The look, the style pack (art session). Rule: quantise once.** 1) First, measurable: every
+  pre-blocking step off (the factory's squares and mosaic, the character paint's squares), the
+  screen mosaic refined to the painting's blocks (soft edges, flat colour inside each, a palette
+  per region, block size steady with depth), both shots re-judged; gate: the judge and Sean's eye.
+  2) Characters: paint each man smooth, in flat even light, at high resolution; de-light what
+  Tripo bakes in; one quantisation at render; the seated man's face first, then the townsfolk.
+  3) World surfaces and shapes: the factory's textures re-cut smooth and de-lit at higher
+  resolution; the dressing as specific things. 4) Finish the light pass to the painting's numbers.
+  **B. Performance, the one core (gameplay session).** 5) The render thread model multi-threaded;
+  Sean's F3 before and after on Shadow. 6) A Rust GDExtension foundation (CI builds for Windows,
+  Mac, Linux; checked against 4.7.2's extension API). 7) Fire into native threads, then the
+  structural analysis, then physiology.
+  **C. Destruction (gameplay session).** 8) A `VoxelDamage` node: one wall that takes a shotgun
+  blast at any shape (carve, re-mesh on a worker thread, collision rebuilt, the member told how
+  much section is gone); hooks for a ball, a charge, dynamite and fire; gate: the frame budget on
+  Shadow. 9) Only after 8 works: the anatomy volume with wounds carved in rest space.
+  **D. Housekeeping.** 10) Sean: merge Pixel-factory's `claude/new-session-l733p0` or leave it as
+  the record. 12) Sean on Shadow: the latest build's F3 frame split, so B is driven by numbers.
+  13) Sean's call: drop the web export from CI now that nobody plays in the browser.
+- 2026-10-03 (art session, later): **A1, the quantise-once experiment, judged on both shots**
+  (the plan above; everything behind `screenshots.gd --quantise-once`, defaults unchanged, Sean's
+  eye on `docs/screenshots/quantise_once/compare.png`). Every pre-blocking step off (the layout
+  note above: the factory's paintings cut smooth at 128 texels/m with no palette, the man's head
+  and skin without squares, tile light and `min_square` off, and two steps found on the way: the
+  ground shader's own per-texel dirt noise and its snap to 24 levels), and the mosaic refined
+  (block size steady with depth, soft edges, a limited palette, the sky left out of the
+  posterise, and `average`: a block as the mean of its pixels). Judge v2 rounds `_r12`–`_r19`
+  (as now: saloon 0.228, street 0.330): pre-blocking off with the mosaic as it was, saloon
+  **0.270** and the street 0.41 (speckle: a point sample of a fine texture); the refined mosaic
+  with point samples and 4 px blocks, saloon **0.207** (its best of the trial: deep-shadow share
+  0.37 to the painting's 0.41, edge hardness 0.24–0.29 to 0.25), street 0.44; averaged 6 px
+  blocks with the ground's noise off, street **0.344** (level; by eye the road is the painting's
+  pale dust in blocks for the first time) but the saloon 0.307 (the averages lift its darks:
+  deep shadow 0.24). **What it shows.** 1) A point-sampled mosaic needs an already blocky
+  frame; a smooth frame needs averaged blocks, and the average must keep the darks (a
+  dark-weighted mean is the next thing to try). 2) The two paintings' blocks are different
+  sizes against depth (the saloon's 3–4 px nearly one size; the street's 6 px near, 5–6 far),
+  so block size wants to be a property of the scene or the shot, not one depth rule. 3) With the
+  blocks right, what the judge still marks on both shots is light, not blocks: the saloon's deep
+  shadows and bright things (A4), the street's chroma–L* correlation and light shadows (A4), and
+  the man's drawing (A2). The gate: by the judge, quantise once is better on the saloon and level
+  on the street; by eye the street is clearly better and the saloon's man is softer and smoother
+  than round 2's blocky one. Recommendation: carry on with A2–A4 under the quantise-once flag
+  (dark-weighted averaging and a per-scene block size first), make it the default when both
+  shots beat as-now, with Sean's eye on the sheet. Tools: `reduce.py --smooth`, `head_paint.py
+  bake --smooth`, `fit_tripo.py --smooth`, `tools/quantise_compare.py`; shared
+  `tools/screenshots.gd`: `--quantise-once`, `--mosaic-tune=`. 287 tests pass.
 - 2026-10-03 (gameplay, destruction step 1): **The native plugin's foundation.** Sean decided the
   game's identity is real destruction (shotgun bites through walls, dynamite tearing chunks and
   craters, bodies that come apart) and that it's built inside Godot as a native plugin first:

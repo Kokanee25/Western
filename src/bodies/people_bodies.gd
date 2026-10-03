@@ -11,6 +11,9 @@ class_name PeopleBodies
 const PATH := "res://assets/people/%s.glb"
 ## Each generated garment's baked pixel texture.
 const TEXTURE_PATH := "res://assets/people/%s_%s.png"
+## The "quantise once" set: a whole man's <id>_skin_smooth.png / <id>_head_smooth.png
+## (tools/blender/fit_tripo.py --smooth: no squares, no palette) where they exist. Off by default.
+static var smooth_paint := false
 ## What make_people.py did for him (and what it measured, like his skin tone).
 const REPORT_PATH := "res://assets/people/%s.json"
 ## His painted textures (tools/paint_bake.gd + tools/paint/finish.py): per shape, the texture
@@ -55,6 +58,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS:
 			shapes[k] = generated[k]
 			var png := TEXTURE_PATH % [model, k]
+			if smooth_paint and ResourceLoader.exists(TEXTURE_PATH % [model, k + "_smooth"]):
+				png = TEXTURE_PATH % [model, k + "_smooth"]
 			if ResourceLoader.exists(png):
 				textures[k] = load(png)
 	var face := TEXTURE_PATH % [model, "face"]

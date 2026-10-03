@@ -7,6 +7,10 @@ extends MeshInstance3D
 
 const SHADER := preload("res://src/render/depth_mosaic.gdshader")
 
+## Extra shader knobs laid on every mosaic attached (the quantise-once trial: depth_power, soft,
+## sat_steps, hue_steps, min_block, max_block). Empty = the shader's defaults, the game's look.
+static var tuning := {}
+
 
 ## The game's switch (Settings.mosaic): on, the camera gets one; off, it loses it. Left out on
 ## the Compatibility renderer (web): no depth texture there.
@@ -30,6 +34,8 @@ static func attach(camera: Camera3D, block_k: float, steps := 14.0) -> DepthMosa
 	var mat := m.material_override as ShaderMaterial
 	mat.set_shader_parameter(&"block_k", block_k)
 	mat.set_shader_parameter(&"steps", steps)
+	for k: String in tuning:
+		mat.set_shader_parameter(StringName(k), tuning[k])
 	return m
 
 

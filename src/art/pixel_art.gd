@@ -33,7 +33,12 @@ static var _materials: Array[ShaderMaterial] = []
 ## Use the texture factory's textures (assets/textures/<key>.png, tools/textures/) where there is
 ## one for a key; off = every texture painted in code, as before (for comparisons).
 static var use_factory := true
+## The "quantise once" set (tools/textures/reduce.py --smooth: the same paintings at four times
+## the texels, no palette, assets/textures/smooth/), so the only quantisation is the screen
+## mosaic's. Off by default; tools/screenshots.gd --quantise-once.
+static var smooth := false
 const FACTORY_PATH := "res://assets/textures/%s.png"
+const SMOOTH_PATH := "res://assets/textures/smooth/%s.png"
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -89,6 +94,8 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 static func _apply(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
 	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
+	if smooth:
+		m.set_shader_parameter(&"smooth_source", true)
 
 
 ## Filtering for StandardMaterial3Ds that follow the mipmap setting (people's baked garments).
@@ -107,7 +114,9 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
-	var path := FACTORY_PATH % key
+	var path := (SMOOTH_PATH if smooth else FACTORY_PATH) % key
+	if smooth and not ResourceLoader.exists(path):
+		path = FACTORY_PATH % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
 
 
