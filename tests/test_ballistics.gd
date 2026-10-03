@@ -54,8 +54,14 @@ func test_through_a_board_and_into_a_beam() -> void:
 	check(board.holes[0].through, "and it goes right through")
 	check_near((board.holes[0].exit - board.holes[0].entry).length(), 0.025, 0.001, "through the board's thickness")
 	check(beam.holes.size() == 1 and not beam.holes[0].through, "a blind hole in the beam")
-	var mat := (board.get_child(0) as MeshInstance3D).material_override as ShaderMaterial
-	check(mat != null and mat.get_shader_parameter(&"hole_count") == 1, "the board draws its hole")
+	if board.voxels != null:
+		# Carved (the native plugin): the channel's fresh-cut faces show once the worker's meshed it.
+		(wall.get_node(^"VoxelWorks") as VoxelWorks).finish()
+		var carved := board.get_child(0).get_node_or_null(^"Carved") as MeshInstance3D
+		check(carved != null and carved.mesh.get_surface_count() == 1, "the board shows its hole, carved")
+	else:
+		var mat := (board.get_child(0) as MeshInstance3D).material_override as ShaderMaterial
+		check(mat != null and mat.get_shader_parameter(&"hole_count") == 1, "the board draws its hole")
 
 
 func test_bullets_take_time_and_drop() -> void:

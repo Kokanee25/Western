@@ -10,7 +10,9 @@ extends SceneTree
 ##   xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 -s res://tools/perf_bench.gd -- --render
 ## --quick: shorter runs and no ablation (for the CI guard). --no-ablate: full length, no ablation.
 ## --scene=calm|fire: just one; --scene=blaze: the fire left 45 s first, till the whole town
-## burns. "timed" is each system's own frame entries (Prof), the rest is
+## burns; --scene=wall: a shotgun charge into the store's front from 3 m every half second while it
+## measures (voxel damage, docs/DESTRUCTION_BRIEF.md step 2); --no-voxels: drawn holes instead.
+## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
 ## Untyped on purpose: -s scripts compile before autoloads exist.
@@ -24,6 +26,9 @@ var out_path := ""
 var main: Node
 var street: Node
 var report := {}
+var _voxel_tuning: Resource
+## Print frames longer than this (ms) with what each system took in them (0 = off).
+var spikes := 0.0
 
 
 func _initialize() -> void:
@@ -41,6 +46,12 @@ func _initialize() -> void:
 			only = a.substr(8)
 		elif a.begins_with("--out="):
 			out_path = a.substr(6)
+		elif a.begins_with("--spikes="):
+			spikes = float(a.substr(9))
+		elif a == "--no-voxels":
+			# Before voxel damage: holes drawn by the shader (as without the plugin).
+			_voxel_tuning = load("res://config/voxel_damage.tres")  # kept: the members load the same
+			_voxel_tuning.set(&"enabled", false)
 	if quick:
 		seconds = minf(seconds, 8.0)
 	_run.call_deferred()
@@ -64,11 +75,23 @@ func _measure(n: int) -> Dictionary:
 	await process_frame
 	prof.roll()
 	var last := Time.get_ticks_usec()
+	var before := {}
 	for i in n:
 		await process_frame
 		prof.frame(1 << 30)
 		var now := Time.get_ticks_usec()
 		times.append((now - last) / 1000.0)
+		if spikes > 0.0:
+			# What each system took in this frame, for frames over the limit.
+			var sums: Dictionary = prof._sum.duplicate()
+			if (now - last) / 1000.0 > spikes:
+				var parts := []
+				for k in sums:
+					var d: float = (float(sums[k]) - float(before.get(k, 0))) / 1000.0
+					if d > 0.5:
+						parts.append("%s %.1f" % [k, d])
+				print("   spike: frame %d %.1f ms: %s" % [i, (now - last) / 1000.0, ", ".join(parts)])
+			before = sums
 		last = now
 		mon.draw_calls += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / n
 		mon.objects_in_frame += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME) / n
@@ -210,6 +233,8 @@ func _run() -> void:
 		scenes.append("fire")
 	if only == "blaze":
 		scenes.append("blaze")
+	if only == "wall":
+		scenes.append("wall")
 	for s in scenes:
 		if s == "fire":
 			_set_off_dynamite_and_fires()
@@ -219,7 +244,12 @@ func _run() -> void:
 			_set_off_dynamite_and_fires()
 			await _frames(60 * 45)
 		var frames := int(seconds * 60.0)
+		if s == "wall":
+			process_frame.connect(_shoot_the_wall)
 		var m: Dictionary = await _measure(frames)
+		if s == "wall":
+			process_frame.disconnect(_shoot_the_wall)
+			m["charges"] = _charges
 		var entry := {"frames": m, "census": _census()}
 		if ablate:
 			entry["systems"] = await _ablate(s, m)
@@ -229,6 +259,43 @@ func _run() -> void:
 		var f := FileAccess.open(out_path, FileAccess.WRITE)
 		f.store_string(JSON.stringify(report, "  "))
 	quit()
+
+
+var _wall_frame := 0
+var _charges := 0
+var _wall_rng := RandomNumberGenerator.new()
+
+
+## Every 30 frames a shotgun charge from 3 m into one of the store's front boards (in turn, low to
+## high), as the player's gun fires it.
+func _shoot_the_wall() -> void:
+	_wall_frame += 1
+	if _wall_frame % 30 != 1:
+		return
+	var store = null
+	for b in street.get_children():
+		if b.get(&"structure_id") == &"store":
+			store = b
+	var boards: Array = store.get_members().filter(func(m) -> bool:
+			return String(m.member_id).contains("front") and m.kind == &"board" and not m.broken)
+	if boards.is_empty():
+		return
+	var m = boards[(_charges * 7) % boards.size()]
+	var thin := 0
+	for i in 3:
+		if m.size[i] < m.size[thin]:
+			thin = i
+	var n: Vector3 = m.global_basis[thin].normalized()
+	var player = street.get_node(^"Player")
+	if n.dot(player.global_position - m.global_position) < 0.0:
+		n = -n
+	var gun: Resource = load("res://config/shotgun.tres")
+	_wall_rng.seed = 40 + _charges
+	var at: Vector3 = m.global_position + n * 3.0
+	var none: Array[RID] = []
+	root.get_tree().get_first_node_in_group(&"ballistics").fire_charge(at, -n, gun.pellets, deg_to_rad(gun.pattern_degrees),
+			gun.muzzle_velocity, gun.pellet_mass, gun.pellet_diameter, none, _wall_rng, gun.blast_joules, gun.blast_reach)
+	_charges += 1
 
 
 ## Two sticks against the store's front, a third at the saloon's; the store, the saloon and one
@@ -265,6 +332,8 @@ func _set_off_dynamite_and_fires() -> void:
 
 func _print(s: String, e: Dictionary) -> void:
 	var f: Dictionary = e.frames
+	if f.has("charges"):
+		print("\n   %d charges into the store's front" % f.charges)
 	print("\n== %s: avg %.2f ms (%.0f fps), p99 %.2f ms, max %.1f ms; render cpu %.2f ms, draw calls %.0f, objects in frame %.0f" % [
 			s, f.avg_ms, 1000.0 / maxf(f.avg_ms, 0.001), f.p99_ms, f.max_ms, f.render_cpu_ms, f.draw_calls, f.objects_in_frame])
 	print("   census: %s" % JSON.stringify(e.census))

@@ -221,6 +221,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
   `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
+  `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
+  `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
+  `Ballistics` walks the solid runs a projectile meets (`solid_runs`) and each is carved
+  (`carve_hit`: the channel at the projectile's size, plus spall from the energy spent and the
+  muzzle blast, split along the grain, ragged, the wood round it torn: fresh-cut faces), chips
+  thrown (DEBRIS, frozen after 2.5 s), meshed on the plugin's workers and swapped in by
+  `VoxelWorks` (one per structure: the outside keeps its material, carved and torn faces are
+  fresh wood, collision a ConcavePolygonShape3D); `section_left`/`weakest_t`/`weight` read the
+  voxels (holes within the member's depth along the grain count together). No plugin (web) or
+  `enabled` off: holes drawn by `member_holes.gdshader` as before.
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people; `config/fire.tres` via `FireTuning`), `FireFX` (flames,
   smoke, `char_overlay.gdshader`).
@@ -489,6 +500,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `godot --headless -s res://tools/people_envelope.gd`, `python3 tools/blender/fetch_makehuman.py`,
   `~/bpyenv/bin/python tools/blender/make_people.py --only=outlaw` (~15 s; byte-for-byte repeatable
   except the face guide render). `CLOTH_PASSES=dir` saves each garment's raw bake passes for tuning.
+- `addons/saltcreek_native/` — the native plugin (Rust, gdext 0.5.5, `api-4-7`; `cargo build
+  --release` there, copy `target/release/libsaltcreek_native.so` into its `bin/`; `cargo test
+  --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
+  `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
+  `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`).
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
@@ -2212,3 +2228,49 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   either way. Gameplay files touched: `src/main/main.gd` (two lines: the I key),
   `tests/test_pixel_art.gd` (+1 test); shared `controls.gd` (the binding), `settings.gd` (my
   lines), `tools/screenshots.gd` (`--saloon-tune=`, `--street-tune=`). 288 tests pass.
+- 2026-10-03 (gameplay, destruction step 2): **A wall that takes a shotgun blast.** Members are
+  carved as voxels by the native plugin (layout above: `StructureMember.voxels`, `VoxelWorks`,
+  `config/voxel_damage.tres`; `addons/saltcreek_native/` `volume.rs`, `carve.rs`, `mesh.rs`,
+  `pool.rs`, `member.rs`). Pixel-factory's brick volume (8³ bricks, packed voxels, its DDA) with
+  one change: a cell's size can differ per axis, a whole number of cells per side, so an uncarved
+  member meshes to exactly its box and its texture lands where it did. A member is voxelised the
+  first time it's hit (64 cells a metre, at most 250k; ~0.2 ms). Each projectile walks the solid
+  runs it meets (`solid_runs`: so a later pellet down an earlier one's hole meets nothing) and
+  each run is carved on the main thread, in order (deterministic: tested): the channel at its own
+  size, then spall = (energy spent there × 0.5 + muzzle blast) ÷ the wood's J/cm³ (weathered pine
+  12, framing 20, stone 150), nearest the path first, wider at the exit, ragged (clumpy noise),
+  reaching 2.5× as far along the grain; pieces joined to nothing go too; the wood round it marked
+  torn. The greedy mesher (worker threads; the volume shared by `Arc`, copied only if a carve
+  lands mid-job) gives the outside faces the member's own material and UVs, and carved and torn
+  faces fresh wood (`cube_faces`), plus a ConcavePolygonShape3D, so a ball's channel lets a line
+  through. `section_left`/`weakest_t` read the weakest place along the member (holes within its
+  depth along the grain count together, × `hole_weakening` as drawn holes were), worked out once
+  when the structure asks; `weight` the wood left. Chips: the biggest lumps, DEBRIS layer, frozen
+  2.5 s after they're thrown, 80 at most. No plugin (web) or `enabled` off: drawn holes as before.
+  Gameplay files only. `tests/test_voxel_damage.gd` (5: a charge at contact bites the volume its
+  blast and spent energy ask for, its pellets carry on, a ragged hole you see through; the same
+  charge the same hole; a ball's channel lets a line through and 4 cm off it doesn't; a 2x6 stud
+  with 60 % of its section shot away gives way under 600 kg; without voxel damage the old drawn
+  hole); the plugin's own 16 Rust tests (CI runs them on Linux). `test_ballistics`' "the board
+  draws its hole" now checks the carved hole when the plugin's there (the drawn one otherwise).
+  295 tests pass (289 + 5 + main's new one). **Bench** (`perf_bench.gd --scene=wall`: a charge into the store's
+  front every half second for 20 s, 41 charges; 2.1 GHz, headless): drawn holes avg 5.73 ms,
+  p99 22.2; voxels **avg 5.98 ms, p99 23.8** (`ballistics` 0.31 → 0.44 ms a frame, `voxels`
+  0.13); the fire scene unchanged (11.6 / 11.0 ms). Calm street 4.1 ms (no change: nothing's
+  voxelised till it's hit). Rendered (lavapipe Forward+, 12 s, 25 charges): draw calls 4,862 → 5,063 (carved
+  members draw on their own, a chip a call), render CPU 9.4 → 9.9 ms. Renders `docs/destruction/step2/` (a new folder:
+  `docs/screenshots/` is the art session's): three charges (4 m, 2 m, contact) into the saloon's
+  front siding from outside and inside, at 48, 64 and 96 cells a metre, and the old drawn holes.
+  `perf_bench.gd` gained `--scene=wall`, `--no-voxels`, `--spikes=MS`.
+  - `test_ricochet`'s graze test fired ten rounds down one line: carved, the first's gouge
+    turned the rest into square hits. Now twenty rounds a little apart, the same thresholds
+    (half glance at 3°, none at 12° into wood, half off stone).
+  - Found on the way: a townsman's first wound costs ~70–110 ms on the frame (the shot storekeeper
+    behind his counter; pre-existing, not voxels): next performance item. A first carve per wood
+    painted a fresh-wood texture in script (~25 ms): now a 16-texel tile.
+  - Known: a carved member that snaps in two falls as two plain boxes (single-piece rubble keeps
+    its carved mesh, with a box collider); 96 cells a metre reads as specks against the
+    texture's 31 mm squares, so 64 (the brief's lowest); chips draw a call each; no splintered
+    tint on the weathered face round a hole beyond the torn cells.
+  - Next: Sean fires into the store's wall on Shadow and sends F3 while firing and after (the
+    gate); then step 3 (dynamite and the ground) or the hat shot off (Part 5).

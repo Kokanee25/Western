@@ -210,23 +210,43 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			b.hits.append(info)
 			Events.bullet_hit.emit(info)
 			return remaining
-		var thickness := member.exit_distance(hit.position, dir)
+		# The solid it meets going through (the whole box, until it's been carved: then only what's
+		# left, and a line through a hole already shot meets nothing). Each stretch costs its
+		# thickness; what it spends there (and the muzzle blast, at contact) is carved out.
+		var runs := member.solid_runs(hit.position, dir)
 		var resistance: float = tuning.resistance_by_wood.get(member.wood, tuning.default_resistance)
-		var cost := thickness * 100.0 * resistance
 		var radius := b.diameter * 0.5
-		if e_before > cost + 1.0:
-			var exit_point: Vector3 = hit.position + dir * thickness
-			member.add_hole(hit.position, exit_point, radius)
-			_set_energy(b, e_before - cost)
-			b.position = exit_point + dir * 0.002
+		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0
+		var blast := b.blast_at(travelled)
+		var e := e_before
+		var out_at := 0.0
+		if runs.is_empty():
+			out_at = member.exit_distance(hit.position, dir)
+			if blast > 0.0:
+				# Down a hole already blown (a charge at contact: the pellets follow the first),
+				# the blast still tears its edges wider.
+				member.carve_hit(hit.position, hit.position + dir * out_at, true, dir, radius, 0.0, blast)
+		for i in range(0, runs.size(), 2):
+			var cost := (runs[i + 1] - runs[i]) * 100.0 * resistance
+			var entry: Vector3 = hit.position + dir * runs[i]
+			if e > cost + 1.0:
+				member.carve_hit(entry, hit.position + dir * runs[i + 1], true, dir, radius, cost, blast)
+				e -= cost
+				out_at = runs[i + 1]
+			else:
+				member.carve_hit(entry, entry + dir * (e / (100.0 * resistance)), false, dir, radius, e, blast)
+				b.alive = false
+				break
+			blast = 0.0
+		if b.alive:
+			_set_energy(b, e)
+			b.position = hit.position + dir * (out_at + 0.002)
 			b.path.append(b.position)
 			info.penetrated = true
 			info.energy_after = b.energy()
 			b.hits.append(info)
 			Events.bullet_hit.emit(info)
-			return maxf(remaining - thickness, 0.0)
-		member.add_hole(hit.position, null, radius)
-		b.alive = false
+			return maxf(remaining - out_at, 0.0)
 	elif collider is DynamiteStick:
 		var stick := collider as DynamiteStick
 		b.exclude.append(stick.get_rid())

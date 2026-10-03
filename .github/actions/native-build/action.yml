@@ -26,6 +26,10 @@ runs:
             target/aarch64-apple-darwin/release/libsaltcreek_native.dylib \
             target/x86_64-apple-darwin/release/libsaltcreek_native.dylib
         else
+          if [ "${{ inputs.target }}" = "x86_64-unknown-linux-gnu" ]; then
+            # The plugin's own tests (carving, meshing, the volume): pure Rust, no Godot.
+            cargo test --release --target "${{ inputs.target }}"
+          fi
           cargo build --release --target "${{ inputs.target }}"
           cp target/"${{ inputs.target }}"/release/*saltcreek_native.{so,dll,dylib} bin/ 2>/dev/null || true
         fi
