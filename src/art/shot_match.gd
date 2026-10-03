@@ -101,6 +101,13 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 			&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
 	_cup_in_hand(man)
 	_extras(street)
+	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
+	if VoxelTrial.props:
+		VoxelTrial.replace_props(root, lamp.get_node_or_null(^"Model"), man)
+	if VoxelTrial.hat:
+		VoxelTrial.replace_hat(man)
+	if VoxelTrial.eyes:
+		VoxelTrial.add_eyes(man, root.to_global(EYE))
 	return man
 
 

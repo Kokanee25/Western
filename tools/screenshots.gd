@@ -127,6 +127,15 @@ func _run() -> void:
 			screen_squares = float(arg.substr(9))
 		elif arg == "--no-mosaic":
 			settings.set_mosaic(false)
+		# The voxel trial (src/art/voxel_trial.gd): --voxel=props,hat,eyes or all; --cubes=64.
+		elif arg.begins_with("--voxel="):
+			var trial: Variant = load("res://src/art/voxel_trial.gd")
+			var which := arg.substr(8)
+			trial.props = which == "all" or "props" in which
+			trial.hat = which == "all" or "hat" in which
+			trial.eyes = which == "all" or "eyes" in which
+		elif arg.begins_with("--cubes="):
+			load("res://src/art/voxel_trial.gd").cubes = int(arg.substr(8))
 		elif arg.begins_with("--steps="):
 			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
