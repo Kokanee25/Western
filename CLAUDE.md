@@ -2053,3 +2053,15 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     studs and below the roof, so walls, gable and the mirror fall back to the sky (size them past
     the walls and to the ridge); HeldFill lights the volumetric fog (cull masks don't apply to
     fog: give it `light_volumetric_fog_energy` 0); lamps all flicker in phase (seed a phase each).
+- 2026-10-03 (art session, later): **Fix: the mosaic was a black screen on Sean's GPU (build 340).**
+  His F3 screenshot: "mosaic on", the frame black with the sky showing through and the lamp
+  flames over it. The mosaic's quad wrote no ALPHA, so a real GPU drew it in the opaque pass
+  over an empty frame; lavapipe here never did. `depth_mosaic.gdshader` writes `ALPHA = 1.0`:
+  the transparent pass, after the opaque frame and the sky, where the screen texture exists.
+  **O** turns the mosaic off and on (`debug_mosaic`, shared `controls.gd`; two lines in gameplay's
+  `src/main/main.gd`, said here). In the transparent pass the judge scores it worse (round
+  `2026-10-03_r4`: saloon 0.228, deep-shadow share 27% to the painting's 41%; round 3's opaque-pass
+  render scored 0.187 with 47%) though by eye the frame is darker and punchier: the pass changes
+  what the screen texture holds (to look at next: the posterise and the glow in that pass).
+  - Rule: anything full-screen that reads the screen texture writes ALPHA, and gets a real-GPU
+    check from Sean before it's the default.
