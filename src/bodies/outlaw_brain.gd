@@ -442,6 +442,12 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 # --- Living ------------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"outlaw_brain", t)
+
+
+func _physics_step(delta: float) -> void:
 	var p := body.physiology
 	if not p.alive:
 		_set_mood(Mood.DEAD)

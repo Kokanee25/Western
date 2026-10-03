@@ -176,6 +176,12 @@ func get_forward() -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"player", t)
+
+
+func _physics_step(delta: float) -> void:
 	_update_weapon_switch()
 	var move := Vector2.ZERO
 	var wants_jump := false

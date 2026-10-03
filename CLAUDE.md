@@ -1814,6 +1814,77 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
     segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
     hands), de-light and reduce his textures through the factory's reducer, the seat pose.
+- 2026-10-02 (gameplay, later): **Performance pass, part 3: the load check.** `StructuralAnalysis`
+  costs ~44 µs a member (the street's ~6.1k members: 270 ms a full pass, the saloon 54 ms), and a
+  burning building runs one a second. Ablation of its parts: handing each support's reaction back
+  down 100 ms (a quadratic search for its group: siding on ten studs has ~20 contact points),
+  grouping supports 60, outside `_bend` 60, capacity 35, `beam()` 13. Now: what doesn't change
+  while a member stands (axis, length, where along it each support bears, a rafter's partners,
+  and its support groups while none is gone) is kept on it (`StructureMember.analysis_cache`, not
+  saved; checked against its transform and size, cleared by `infer_supports`); the reaction walks
+  the sorted groups once (they're ≥ SAME_SUPPORT apart, so at most one matches); no lambda in
+  `beam()`'s inner loop. Street pass 270 → 190 ms; identical results (every load, utilisation,
+  mode, critical point and falling list, old vs new, 84 states; test
+  `test_loads::test_what_the_analysis_keeps_gives_the_same_answer`). Bench fire (2.1 GHz): avg
+  11.6 → 10.8 ms, **p99 73 → 53, max 100 → 70**. 280 pass.
+  - Further would need native code (ask first) or spreading the analysis over frames; the draws
+    are bigger for Sean now.
+- 2026-10-02 (gameplay, later): **Performance pass, part 4: people drawn whole.** Census: 14
+  people, ~55 skin/clothes pieces each (a shape per segment, for openings) + 30 finger meshes =
+  1,375 visible meshes; hiding the people saved 4,158 of the street's 8,212 draw calls (opengl3
+  under xvfb: counts only). `HumanBody._merge_pieces()`: each shape but the head (its wet eyes are
+  placed in the head piece's own space) is joined into one skinned mesh (`_joined`: the pieces'
+  surfaces concatenated, same format, skin and material), the pieces hidden; `_unmerge()` brings
+  them back for good at the first opening (`_apply_openings`) or lost limb
+  (`_stop_skinning_across_joints`); X-ray reaches both. `skin_meshes`/`segment_pieces`/
+  `body_meshes()` are unchanged (the art tools read and duplicate the pieces; paint_bake does the
+  same as before). Pixel check: a coated man standing and hands up, four views, old vs new with
+  `--fixed-fps 60`: 2–5 pixels of 640k differ by 1/255, with and without shadows. People meshes
+  1,375 → 747; **calm draw calls 8,186 → 6,129**, objects in frame 9,884 → 7,827; headless calm
+  4.9 → 4.4 ms. Test `test_openings::test_whole_each_shape_draws_once_and_opening_brings_back_the_
+  pieces`. 281 pass.
+  - Next: props/lamps/dressing batched (~4k draws), the sun's cascades (~5.6k with everything
+    drawn in each), fingers (~420 meshes).
+- 2026-10-03 (gameplay): **Performance pass, part 5: the dressing batched.** `StaticBatch`
+  (`src/world/static_batch.gd`, a node at the end of `scenes/test_street.tscn`): two frames after
+  load it takes every MeshInstance3D under the street that can't change (opaque `texel_grid` or
+  opaque StandardMaterial3D, not skinned, no script on the way up but `OWNERS` (StreetDressing,
+  StreetScenery, Saloon/FalseFrontBuilding, SaloonDressing, Structure), no physics body but a
+  static one, not a building's direct child (its batches and boards) nor inside a member), groups
+  them by mesh content (each chair builds its own legs), material, shadow, layers and a 40 m cell,
+  and draws each group as a MultiMesh at their own transforms (mesh-space triplanar stays put),
+  hiding the parts (collision stays). A part leaving the tree stops drawing (the shot match frees
+  the table's props); `release(node)` / `StaticBatch.release_in(tree, node)` gives a subtree back.
+  **Art session: dressing (StreetDressing, SaloonDressing, PropLibrary/PropModels props) is drawn by
+  the batch after load: anything that moves or hides it at run time calls `release_in` first.**
+  Off on the Compatibility renderer (web): it lights each object from a short list of 8, so a batch
+  spanning a room got different lamps (the saloon's card table lit where it was dark). Lavapipe is
+  installable here now (`apt-get install mesa-vulkan-drivers`): Forward+ renders, old vs new at
+  `--fixed-fps 60`: street 0 px differ, saloon night 40 px and the shot match 11k px all under 8/255.
+  1,767 meshes into 180 batches, ~55 ms at load. Forward+ (lavapipe) calm: draw calls 4,047 →
+  3,695 (Forward+ already merges repeated draws; OpenGL counted 6,129 → 3,723), objects in frame
+  7,810 → 5,413, render CPU 5.4 → 4.9 ms. Test `test_static_batch` (2). 283 pass.
+  - Can't reproduce Sean's pinned core here: headless sim ~4.4 ms + render CPU ~5 ms a frame at
+    2.1 GHz. Next: F3's frame split and draw calls so Sean can report his, then by his numbers.
+- 2026-10-03 (gameplay, later): **Performance pass, part 6: F3's frame split, timers, a guard.**
+  `Prof` (`src/debug/prof.gd`): each system's frame entry is timed while `Prof.on` (F3 open, or
+  the bench): `_process`/`_physics_process` in HumanBody (people_skeleton / people_body),
+  OutlawBrain, CivilianBrain, Senses, FireSystem, Ballistics, Structure, DayCycle, OilLamp
+  (lamps), Player + PlayerWounds (player), BloodJet, GunSmoke, TownLife, DynamiteStick now call
+  `_process_step`/`_physics_step` between `Prof.start()`/`stop()` (one call returning 0 when off).
+  F3 (`DebugOverlay.frame_lines()`): frame ms with process / physics (`Performance` TIME_*) /
+  render CPU / GPU (every viewport's measured render time, switched on with the readout), draws,
+  objects, tris, nodes, awake bodies, and the top eight systems in ms a frame. `perf_bench.gd`
+  prints the same "timed" line. Bench now (2.1 GHz, headless): calm 4.9 ms (people_body 1.81,
+  player 0.61, senses 0.47, outlaw_brain 0.34, people_skeleton 0.20); fire 8.8 ms, p99 62
+  (fire 2.83, people_body 2.13). `tests/test_perf.gd` (2): the calm street's visible meshes ≤
+  1,800 (1,291; was 3,686), meshes on one person ≤ 95 (89: an armed man's revolver is 45 parts),
+  nodes ≤ 30k, calm ≤ 16 ms a frame; three buildings burning ≤ 30 ms a frame, worst ≤ 250 ms
+  (budgets ~3x this machine for CI runners). 285 pass.
+  - Next: Sean's F3 readouts decide (this machine can't show his pinned core: ~10 ms a frame
+    here with render CPU). Candidates ready: an NPC's holstered revolver as one mesh (45 → 1–3),
+    fingers skinned to the body (30 → 0 extra), the sun's shadow cascades, people ticking less
+    far off.
 - 2026-10-03 (art session): **His head in the style, on the Tripo man.** Sean, on the LoRA's pixel
   portrait against the smooth Tripo face: "what happened between that awesome pixel face and this
   smoothed out shit?" The smoothing was for Tripo (its input has to be clean, and Kontext at a

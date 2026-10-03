@@ -19,8 +19,25 @@ same body.
   four times a second (worst frames 300–500 ms here); it's now spread over the frames in between,
   and each burning building checks its loads on a frame of its own. Worst frames here: **p99 163 →
   73 ms, max 390 → 100 ms**. What's left of them is a building working out its loads (next).
-- Still to come: the load check, then the drawing (people and props, which is most of the calm
-  street's cost).
+- **A burning building works out its loads half again as fast** (same answers, checked member by
+  member). Worst frames here: **p99 73 → 53 ms, max 100 → 70 ms**; average 11.6 → 10.8 ms.
+- **People take a quarter of the draw calls they did.** Each person's skin and clothes were drawn a
+  body part at a time (about 55 pieces each); now each garment is one piece until he's opened up
+  or loses a limb. He looks exactly the same (checked pixel by pixel). The calm street went from
+  **8,186 draw calls to 6,129**.
+- **The street's props and furniture are drawn together** (the saloon's chairs, tables, bottles,
+  the barrels, crates, horses...: 1,767 parts in 180 batches). They look exactly the same (checked
+  pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
+  each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
+  **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **F3 now shows where each frame goes**, so you can tell me what your PC is doing:
+  `frame 16.7 ms: process …, physics …, render cpu …, gpu …` (scripts, physics, the renderer's
+  CPU and GPU time), `draws … objects … tris … nodes … bodies awake …`, and `ms a frame:` the
+  game's systems that cost most (people_body = the people's bodies and pain, senses, outlaw_brain,
+  fire, player...). **Please try:** start the build, press **U** (the gang rides in), stand where
+  you start looking down the street, press **F3**, wait five seconds and send me a photo of the
+  readout. Then throw a stick of dynamite at the store (3, Q, release), press **L** on a wall to
+  set it alight, wait till it's going well, and send the readout again.
 - Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
   **L** on a wall. Tell me the fps before you light it and while it burns.
 

@@ -194,3 +194,33 @@ func test_changes_are_saved() -> void:
 	var d := store.to_dict()
 	check(d.broken.has("store/porch/beam"), "broken members listed")
 	check(not d.rubble.is_empty(), "rubble positions kept")
+
+
+## The analysis keeps what doesn't change about a standing member (where it bears on its supports,
+## its axis); it must come out the same as working it all out afresh, however the building's been
+## knocked about and charred.
+func test_what_the_analysis_keeps_gives_the_same_answer() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var members := store.get_members()
+	var answer := func() -> String:
+		var a := StructuralAnalysis.new(store.tuning).analyse(store)
+		var out := str(a.falling) + var_to_str(a.ground_load)
+		for id: StringName in a.load:
+			out += "%s %s %s %s %s|" % [id, var_to_str(a.load[id]), var_to_str(a.utilisation.get(id, -1.0)),
+					a.mode.get(id, &""), var_to_str(a.critical_t.get(id, 0.0))]
+		return out
+	for round_ in 3:
+		var kept: String = answer.call()  # second time round, from what it kept
+		kept = answer.call()
+		for m in members:
+			m.analysis_cache = {}
+		check_eq(answer.call(), kept, "round %d: the same as afresh" % round_)
+		# Knock it about: a few members gone, some charred, some loaded.
+		for k in 3:
+			var m: StructureMember = members[rng.randi() % members.size()]
+			if not m.broken:
+				store.break_member(m)
+		for k in 20:
+			members[rng.randi() % members.size()].char_depth += rng.randf() * 0.004
+		await physics_frames(1)

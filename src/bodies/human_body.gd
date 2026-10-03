@@ -195,6 +195,9 @@ var skeleton: Skeleton3D
 var skin_meshes := {}  ## "shape/segment" ("skin/chest", "shirt/upper_arm_r", "hat/head"...) -> MeshInstance3D
 var segment_pieces := {}  ## segment -> Array of its generated MeshInstance3Ds (skin and clothes)
 var _rigid_meshes := {}  ## MeshInstance3D -> the piece's rigid mesh (swapped in when a limb comes off)
+## shape -> one MeshInstance3D drawing all its pieces while he's whole (one draw, not one a
+## segment); the pieces stay, hidden, and come back for good at his first opening or lost limb.
+var _merged := {}
 var _bone_parts: Array[StringName] = []
 
 
@@ -421,7 +424,86 @@ func _build_skin() -> void:
 			mi.skeleton = NodePath("..")
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
+	_merge_pieces(skin)
 	_update_skeleton()
+
+
+## Each shape drawn as one mesh while he's whole: the same triangles, skin and material as its
+## pieces, so he looks the same. Not the head (the wet eyes are placed in the head piece's own
+## space, which its other pieces don't share).
+func _merge_pieces(skin: Skin) -> void:
+	var by_shape := {}
+	for key: String in skin_meshes:
+		(by_shape.get_or_add(key.get_slice("/", 0), []) as Array).append(skin_meshes[key])
+	for shape: String in by_shape:
+		var pieces: Array = by_shape[shape]
+		if shape == "head" or pieces.size() < 2:
+			continue
+		var mesh := _joined(pieces)
+		if mesh == null:
+			continue
+		var first := pieces[0] as MeshInstance3D
+		var mi := MeshInstance3D.new()
+		mi.name = "%s_whole" % shape.to_pascal_case()
+		mi.mesh = mesh
+		mi.material_override = first.material_override
+		mi.layers = first.layers
+		mi.custom_aabb = first.custom_aabb
+		skeleton.add_child(mi)
+		mi.skin = skin
+		mi.skeleton = NodePath("..")
+		for p: MeshInstance3D in pieces:
+			p.visible = false
+		_merged[shape] = mi
+
+
+## The pieces' single surfaces as one (they share a format: BodyMesh.split_pieces cut them from
+## one mesh); null if they don't.
+static func _joined(pieces: Array) -> ArrayMesh:
+	var fmt := -1
+	var out: Array = []
+	var count := 0
+	for mi: MeshInstance3D in pieces:
+		var mesh := mi.mesh as ArrayMesh
+		if mesh == null or mesh.get_surface_count() != 1:
+			return null
+		if fmt == -1:
+			fmt = mesh.surface_get_format(0)
+		elif mesh.surface_get_format(0) != fmt:
+			return null
+		var a := mesh.surface_get_arrays(0)
+		var n: int = (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+		if out.is_empty():
+			out = a
+		else:
+			for i in Mesh.ARRAY_MAX:
+				if a[i] == null:
+					continue
+				if i == Mesh.ARRAY_INDEX:
+					var idx: PackedInt32Array = a[i]
+					for k in idx.size():
+						idx[k] += count
+					a[i] = idx
+				out[i].append_array(a[i])
+		count += n
+	var flags := Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+	for shift in [Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT, Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT, Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT, Mesh.ARRAY_FORMAT_CUSTOM3_SHIFT]:
+		flags |= Mesh.ARRAY_FORMAT_CUSTOM_MASK << shift
+	var joined := ArrayMesh.new()
+	joined.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out, [], {}, fmt & flags)
+	return joined
+
+
+## From here on each piece draws for itself (an opening is in one segment's own space; a lost
+## limb's pieces stop skinning across the joint).
+func _unmerge() -> void:
+	if _merged.is_empty():
+		return
+	for mi: MeshInstance3D in _merged.values():
+		mi.queue_free()
+	_merged.clear()
+	for mi: MeshInstance3D in skin_meshes.values():
+		mi.visible = true
 
 
 ## The wound shader for a generated piece: textured by its UVs, opened by rest positions (CUSTOM0).
@@ -463,6 +545,7 @@ func body_meshes(segment: StringName) -> Array[MeshInstance3D]:
 
 ## After an amputation nothing may stretch across a joint: every piece follows its own part only.
 func _stop_skinning_across_joints() -> void:
+	_unmerge()
 	for mi: MeshInstance3D in _rigid_meshes:
 		if is_instance_valid(mi):
 			mi.mesh = _rigid_meshes[mi]
@@ -495,7 +578,13 @@ func _update_skeleton() -> void:
 			skeleton.set_bone_pose(i, inv * part.global_transform)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"people_skeleton", t)
+
+
+func _process_step(_delta: float) -> void:
 	_update_skeleton()
 
 
@@ -615,6 +704,12 @@ func _cylinder(parent: Node3D, n: String, radius: float, h: float, pos: Vector3,
 # --- Living ------------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"people_body", t)
+
+
+func _physics_step(delta: float) -> void:
 	if _day_cycle == null and is_inside_tree():
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
@@ -1642,6 +1737,7 @@ func _apply_openings(segment: StringName) -> void:
 		BodyInterior.build(segment, vis, anatomy)
 	BodyInterior.apply(vis, list, Settings.reduced_gore)
 	# The generated skin and clothes: openings are already in the part's rest space.
+	_unmerge()
 	var arr := PackedVector4Array(list)
 	while arr.size() < BodyInterior.MAX_OPENINGS:
 		arr.append(Vector4.ZERO)
@@ -1671,7 +1767,7 @@ static var _xray_mats := {}
 ## muscles (faint), nerves (yellow). Anything damaged shows orange; each ball's track is a line.
 func set_xray(on: bool) -> void:
 	xray = on
-	for mi: MeshInstance3D in skin_meshes.values():
+	for mi: MeshInstance3D in skin_meshes.values() + _merged.values():
 		mi.transparency = 0.88 if on else 0.0
 	for sid: StringName in visuals:
 		var vis: Node3D = visuals[sid]

@@ -124,6 +124,7 @@ func infer_supports() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
+		m.analysis_cache = {}
 		var box: AABB = boxes[m]
 		var tier := StructureMember.tier_of(m.kind)
 		m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON
@@ -462,6 +463,12 @@ func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"structures", t)
+
+
+func _physics_step(delta: float) -> void:
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:

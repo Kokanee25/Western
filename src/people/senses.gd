@@ -44,6 +44,12 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"senses", t)
+
+
+func _physics_step(delta: float) -> void:
 	_clock += delta
 	_t -= delta
 	if _t > 0.0:

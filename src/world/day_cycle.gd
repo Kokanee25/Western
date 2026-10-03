@@ -26,12 +26,24 @@ func _ready() -> void:
 	apply_visuals()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"day_cycle", t)
+
+
+func _process_step(_delta: float) -> void:
 	if Input.is_action_just_pressed(&"debug_time_scale"):
 		cycle_time_scale()
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"day_cycle", t)
+
+
+func _physics_step(delta: float) -> void:
 	advance(delta)
 	apply_visuals()
 
