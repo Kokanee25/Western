@@ -8,7 +8,8 @@ extends MeshInstance3D
 const SHADER := preload("res://src/render/depth_mosaic.gdshader")
 
 ## Extra shader knobs laid on every mosaic attached (the quantise-once trial: depth_power, soft,
-## sat_steps, hue_steps, min_block, max_block). Empty = the shader's defaults, the game's look.
+## average, dark_weight, sat_steps, hue_steps, min_block, max_block). Empty = the shader's
+## defaults, the game's look.
 static var tuning := {}
 
 
