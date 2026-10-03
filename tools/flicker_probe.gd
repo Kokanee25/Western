@@ -8,6 +8,7 @@ extends SceneTree
 ## --view= a name from tools/screenshots.gd's VIEWS, or x,y,z,yaw,pitch,hour.
 ## --off-script= a script with `func off(street: Node3D, main: Node) -> void` run before capture.
 ## --pan=degrees: turn the view this much over the capture (flicker that only shows moving).
+## --verbose: each frame's share of changed pixels (a pop shows as one big number).
 ## --clock: let the day go on (the sun and moon move a little every tick, as in play).
 ## Prints the share of pixels that changed by more than 8/255 between consecutive frames (mean
 ## and worst), and the share that flipped and flipped back (A, B, A: on a smooth pan an edge
@@ -26,6 +27,7 @@ var out := "/tmp/flicker"
 var label := ""
 var pan := 0.0
 var clock_runs := false
+var verbose := false
 var _off_obj
 
 
@@ -47,6 +49,8 @@ func _initialize() -> void:
 			pan = float(a.substr(6))
 		elif a == "--clock":
 			clock_runs = true
+		elif a == "--verbose":
+			verbose = true
 	if label == "":
 		label = view.replace(",", "_") + ("_off_" + "+".join(offs) if not offs.is_empty() else "")
 	_run.call_deferred()
@@ -142,6 +146,8 @@ func _run() -> void:
 	var fmean := 0.0
 	for s in flip_shares:
 		fmean += s / maxf(flip_shares.size(), 1)
+	if verbose:
+		print("FRAMES %s: %s" % [label, " ".join(Array(shares).map(func(x: float) -> String: return "%.2f" % (x * 100.0)))])
 	print("FLICKER %s: mean %.3f%%, worst %.3f%% of pixels change >8/255 frame to frame; %.3f%% flip and flip back (%d frames)" % [label, mean * 100.0, worst * 100.0, fmean * 100.0, frames])
 	first.save_png("%s/%s_first.png" % [out, label])
 	var hm := first.duplicate()

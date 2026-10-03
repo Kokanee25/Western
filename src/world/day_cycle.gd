@@ -15,6 +15,8 @@ var day := 1
 var time_scale := 1.0
 
 var _scale_index := 0
+var _sky_sent := {}  # sky uniform -> the value last sent (see _send_sky)
+var _drift_seconds := 0.0  # real seconds of cloud drift
 
 
 func _ready() -> void:
@@ -44,6 +46,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
+	_drift_seconds += delta
 	advance(delta)
 	apply_visuals()
 
@@ -159,12 +162,36 @@ func apply_visuals() -> void:
 			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)
 		var sky_mat: ShaderMaterial = env.sky.sky_material as ShaderMaterial if env.sky else null
 		if sky_mat:
-			sky_mat.set_shader_parameter(&"top_color", top)
-			sky_mat.set_shader_parameter(&"horizon_color", horizon)
-			sky_mat.set_shader_parameter(&"sun_color", sun_color)
-			sky_mat.set_shader_parameter(&"sun_dir", sun_dir)
-			sky_mat.set_shader_parameter(&"moon_dir", moon_dir)
-			sky_mat.set_shader_parameter(&"star_strength", config.star_strength * (1.0 - daylight))
+			# Only what's changed visibly (see DayCycleConfig.sky_update_degrees): each send re-lights
+			# the sky's radiance.
+			var col := config.sky_update_colour
+			_send_sky(sky_mat, &"top_color", top, col)
+			_send_sky(sky_mat, &"horizon_color", horizon, col)
+			_send_sky(sky_mat, &"sun_color", sun_color, col)
+			_send_sky(sky_mat, &"sun_dir", sun_dir, deg_to_rad(config.sky_update_degrees))
+			_send_sky(sky_mat, &"moon_dir", moon_dir, deg_to_rad(config.sky_update_degrees))
+			_send_sky(sky_mat, &"star_strength", config.star_strength * (1.0 - daylight), col)
+			_send_sky(sky_mat, &"cloud_drift", _drift_seconds * config.cloud_drift_speed, col)
+
+
+## Set a sky uniform if it's moved on from what was last sent by more than `by` (a colour: in
+## any channel; a direction: the angle in radians; a number: the difference).
+func _send_sky(m: ShaderMaterial, name: StringName, value: Variant, by: float) -> void:
+	var last: Variant = _sky_sent.get(name)
+	if last != null:
+		var moved := 0.0
+		if value is Color:
+			var a: Color = value
+			var b: Color = last
+			moved = maxf(maxf(absf(a.r - b.r), absf(a.g - b.g)), absf(a.b - b.b))
+		elif value is Vector3:
+			moved = (value as Vector3).angle_to(last as Vector3)
+		else:
+			moved = absf(float(value) - float(last))
+		if moved <= by:
+			return
+	_sky_sent[name] = value
+	m.set_shader_parameter(name, value)
 
 
 ## Point a directional light so it shines from `toward_light` down onto the ground.

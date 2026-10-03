@@ -30,6 +30,9 @@ uniform float low_sun_dim = 0.45;
 // off its neighbours. 0 = smooth.
 uniform float sky_squares = 0.0;
 uniform float sky_mosaic = 0.0;
+// How far the clouds have drifted (DayCycle sends it with the sky's other updates). Not TIME: a
+// sky that reads TIME is re-lit every frame (REALTIME), and that flickered every sky-lit surface.
+uniform float cloud_drift = 0.0;
 
 float hash(vec3 p) {
 	p = fract(p * 0.3183099 + 0.1);
@@ -113,7 +116,7 @@ void sky() {
 	// (its edge toward the horizon), golder toward the sun. None at the horizon (the haze) or at
 	// night. They're drawn in the sky's own squares (sky_squares).
 	if (h > 0.0) {
-		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(TIME * 0.002, 0.0);
+		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(cloud_drift, 0.0);
 		vec2 band = vec2(1.5, 0.45);
 		float n = cloud_shape(p, band);
 		float edge = 1.0 - cloud_cover;
