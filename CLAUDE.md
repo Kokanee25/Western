@@ -386,10 +386,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   before Tripo is paid); `characters: <ids>` paints then runs Tripo (`repaint` repaints and
   models again). Needs the repo secrets `FAL_KEY` and `TRIPO_API_KEY`; the client ran against the
   live API on 2026-10-02 (People run 17).
+  **His head in the style** (`tools/characters/head_paint.py`, People workflow `style: head`):
+  Tripo's face comes out smooth (his pictures had to be), so the head is painted after: `guides`
+  cuts the head off the mesh above the collar (`HEAD_FROM`) and renders it from six orthographic
+  views in Tripo's own colours, lit (numpy, no Godot or Blender: `<id>_head_<view>_guide.png`);
+  `paint` has FLUX dev's image-to-image with the style LoRA at full scale repaint each view
+  (`FAL_HEAD_EDITOR` default `fal-ai/flux-lora/image-to-image`, `STRENGTH` 0.68: the head stays
+  where and how it is, the LoRA draws the painting's man in his squares; FLUX Kontext with the
+  LoRA was tried first and painted a front-facing oil portrait for every view); `bake` projects
+  every painted view back through its camera into the mesh's UV space (depth-tested, the view
+  facing a texel squarest wins, weights³), fills what no view saw, cuts the head to squares of
+  `SQUARE_M` 5 mm on him and `COLOURS` 28 → `<id>_color.png`, Tripo's texture with the head
+  repainted; `docs/screenshots/tripo/<id>_head_views.png` is guides over paintings.
   `tools/tripo_lab.gd --out=DIR [--id= --yaw= --fill= --height=]` loads a Tripo glb at run time
-  (GLTFDocument: the folder is unimported), stands him where the painting's man sits in the
-  character lab's light and writes the shot view, four orbit views and a contact sheet
-  (`docs/screenshots/tripo/<id>_lab.png`): the judge before the Blender fit. `tripo.py --dry-run` runs
+  (GLTFDocument: the folder is unimported), lays `<id>_color.png` over his material where it
+  exists, stands him where the painting's man sits in the character lab's light and writes the
+  shot view, four orbit views and a contact sheet (`docs/screenshots/tripo/<id>_lab.png`), and
+  his head close beside the painting's man's (`<id>_head.png`): the judge before the Blender fit. `tripo.py --dry-run` runs
   the whole client (upload, both tasks, waiting, downloads, the log) against a stand-in Tripo on
   this machine (`tripo_standin.py`: answers as the v2 API, objects to anything the real one would
   refuse) into a scratch folder: no key, no .env, no network; `--balance` checks a real key and
@@ -1882,3 +1895,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (people_body 2.0 → 1.2, player 0.68 → 0.18, outlaw_brain 0.38 → 0.21); fire **7.8 → 6.8 ms**,
   p99 54 (fire 2.5, people_body 2.0 → 1.3). Tried and dropped: skipping pivot rotations that
   hadn't changed (no gain: an unchanged set is cheap). 285 pass.
+- 2026-10-03 (art session): **His head in the style, on the Tripo man.** Sean, on the LoRA's pixel
+  portrait against the smooth Tripo face: "what happened between that awesome pixel face and this
+  smoothed out shit?" The smoothing was for Tripo (its input has to be clean, and Kontext at a
+  low LoRA scale threw the drawing away with the blocks); the drawing goes back on afterwards.
+  `head_paint.py` (above). People run 23 (FLUX Kontext + the LoRA at 1.0 from grey clay views):
+  a smooth, bearded, front-facing oil portrait in every cell, the view ignored. Run 24 (FLUX dev
+  image-to-image + the LoRA at 1.0, strength 0.68, from the head rendered in Tripo's own
+  colours): the pixel-art man in all six views, turned as the render is, brows, moustache, hat
+  band and hair in crisp squares (`docs/screenshots/tripo/stranger_head_views.png`; six edits,
+  ~$0.20). Baked onto his texture (715 texels a metre on the head, squares of 4 texels) and
+  rendered in the lab: `stranger_head.png` (his head beside the painting's man's) and
+  `stranger_lab.png`. The lab lays `<id>_color.png` over his material. 279 tests pass.
+  - Known: the paintings carry their own lamplight and the game lights him again, so his lit
+    cheek runs hot (de-lighting is the Blender-fit session's, as for the body); the LoRA gives
+    him a beard in the side views (the painting's man has stubble); the body is still Tripo's
+    smooth colour (the body sheets could go through the same image-to-image pass at full scale
+    once the fit's done); still the A-pose through the table.
+  - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
+    segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
+    hands), de-light and reduce his textures, the seat pose; then the body painted the same way.
