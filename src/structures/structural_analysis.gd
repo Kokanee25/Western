@@ -47,26 +47,56 @@ static func load_tuning() -> TimberTuning:
 
 
 func analyse(structure: Structure, extra_broken := {}) -> StructuralAnalysis:
+	begin(structure, extra_broken)
+	advance(_sorted.size())
+	return self
+
+
+# An analysis can also be done a slice at a time (`begin`, then `advance` until it says it's
+# done: FireSystem checks burning buildings that way, so a big one isn't one long frame).
+var _structure: Structure
+var _gone := {}
+var _sorted: Array[StructureMember] = []
+var _point_loads := {}  # id -> Array of [Vector3 (structure space), newtons]
+var _next := 0
+
+
+## Set up: what's broken and what's fallen, the members top-down, nothing worked out yet.
+func begin(structure: Structure, extra_broken := {}) -> void:
+	_structure = structure
 	var broken := extra_broken.duplicate()
 	for m in structure.get_members():
 		if m.broken:
 			broken[m.member_id] = true
 	falling = structure.members_without_load_path(broken)
-	var gone := broken.duplicate()
+	_gone = broken.duplicate()
 	for id in falling:
-		gone[id] = true
-	var sorted: Array[StructureMember] = []
-	for m in structure.get_members():
-		if not gone.has(m.member_id):
-			sorted.append(m)
-	sorted.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.stack_key > b.stack_key)
-	var point_loads := {}  # id -> Array of [Vector3 (structure space), newtons]
+		_gone[id] = true
+	# Top-down: the structure's stack order (sorted once) the other way round.
+	_sorted.clear()
+	var up := structure.by_stack()
+	for i in range(up.size() - 1, -1, -1):
+		if not _gone.has(up[i].member_id):
+			_sorted.append(up[i])
+	_point_loads = {}
 	load.clear()
 	utilisation.clear()
 	mode.clear()
 	critical_t.clear()
 	ground_load = 0.0
-	for m in sorted:
+	_next = 0
+
+
+## Work out the next `count` members (top-down). True when they're all done.
+func advance(count: int) -> bool:
+	var gone := _gone
+	var point_loads := _point_loads
+	var structure := _structure
+	var to := mini(_next + count, _sorted.size())
+	for i in range(_next, to):
+		var m := _sorted[i]
+		if not is_instance_valid(m):
+			continue
 		var loads: Array = point_loads.get(m.member_id, [])
 		var total := m.weight(tuning) + m.extra_load
 		for pl: Array in loads:
@@ -91,7 +121,13 @@ func analyse(structure: Structure, extra_broken := {}) -> StructuralAnalysis:
 				_add_load(point_loads, s, m.support_points.get(s, m.transform.origin), share)
 		else:
 			_bend(m, loads, supports, structure, gone, point_loads)
-	return self
+	_next = to
+	return _next >= _sorted.size()
+
+
+## How many members are still to do (0 when it's done).
+func left() -> int:
+	return _sorted.size() - _next
 
 
 ## A load coming down onto support `s` at `at` (structure space).

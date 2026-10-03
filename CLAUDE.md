@@ -1932,6 +1932,35 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
     segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
     hands), de-light and reduce his textures, the seat pose; then the body painted the same way.
+- 2026-10-03 (gameplay, later): **Performance pass, part 8: a whole town on fire.** Sean: "very
+  jittery" and flickering light everywhere with "multiple fires and destruction". The bench had
+  only measured the first half-minute of fire; left to spread, it takes every building in a
+  minute (2,600 members burning), and then: deferred `settle()`s ran a building's full analysis
+  every frame a board burnt away, a big collapse ran 46–53 rounds (a full analysis each) in one
+  frame (1.1–1.6 s), `_update_fx` sorted thousands of members with a script lambda and refreshed
+  every FireFX on one frame, each unbatch rebuilt that material's whole batch, scorching measured
+  every burning member's box for each person, the grid re-placed all rubble every 2 s, and
+  `_consume` hit "assign previously freed instance" (typed loop over freed pieces). Now:
+  `StructuralAnalysis.begin()`/`advance(n)`/`left()` (analyse() = begin + advance all; same
+  results); `Structure.apply_round(a)` is one settle round (settle() loops it); `FireSystem`
+  checks burning buildings a slice a frame (`CHECK_MEMBERS` 120; a request from `settle_soon()` or
+  a burnt-away board is urgent, `SETTLE_MEMBERS` 400 a frame) and only if something's overloaded or
+  falling applies a round and analyses again; `Structure.settle_soon()` goes through
+  `FireSystem.queue_settle()` when the world has one (tests without one keep the deferred full
+  settle; `break_member(s)` still settle at once). `Structure.by_stack()` keeps the stack order
+  (sorted once; the analysis walks it backwards: ties at the same height may sum loads in a
+  different order, last-digit float differences). FireFX: flames chosen every 0.5 s with
+  hysteresis (a burning member keeps its flame; free ones go to the burning nearest the camera,
+  `PackedVector2Array` native sort) and refreshed a slice a frame (`_refresh_fx`); the six fire
+  lights keep to their own fires (nearest new spot within 3.5 m). `Structure.unbatch(m, soon)`:
+  the fire's unbatches rebuild a batch at most every 0.5 s (`BATCH_REBUILD_GAP`), the member shown
+  then (no double draw); holes and breaks still rebuild at once. Scorch asks the fire grid for
+  members near each person; standing members' boxes are kept (`_box`); rubble lying still keeps its
+  grid cells (`_lying_still`). `perf_bench.gd --scene=blaze` (45 s of spread, then measured):
+  **avg 29.3 → 17.7 ms, p99 114 → 44, max 1,642 → 68** (2.1 GHz, headless). 285 pass.
+  - Still to look at: a ~90 ms frame when a big building's rubble lands (untimed: the physics
+    engine); the fire's per-member tick (~6 ms a frame at town scale); rendering a town's worth of
+    FireFX particles and char overlays (Sean's GPU/CPU, unknown until his F3).
 - 2026-10-03 (art session, later): **The Tripo man fitted to our skeleton: he sits at the table.**
   Sean: "go ahead" with the Blender fit. `fit_tripo.py` (above): bpy 5.0.1 runs in this
   workspace (`~/bpyenv`), 16 s a man. The stranger (`people.json`, `"source": "tripo"`) comes out
