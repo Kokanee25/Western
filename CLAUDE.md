@@ -1885,6 +1885,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     here with render CPU). Candidates ready: an NPC's holstered revolver as one mesh (45 → 1–3),
     fingers skinned to the body (30 → 0 extra), the sun's shadow cascades, people ticking less
     far off.
+- 2026-10-03 (gameplay, later): **Performance pass, part 7: muscles listed once.** With Prof's
+  timers inside `HumanBody._physics_step`: pose 0.89 ms, physiology's step 0.07, and the stand
+  check (`can_stand()`/`_can_crawl()`) 0.94: `Physiology.muscle_strength()` scanned all 115
+  anatomy structures with string building and `ends_with` on every call, twice per stand check,
+  and walking, gait, aiming, `can_hold()` and the player's wounds all ask it. Now
+  `Physiology._muscles(group, side)` lists each group's muscles once per anatomy (static
+  `_muscle_lists`, same order, so the same sums). Bench (2.1 GHz, headless): calm **5.4 → 3.8 ms**
+  (people_body 2.0 → 1.2, player 0.68 → 0.18, outlaw_brain 0.38 → 0.21); fire **7.8 → 6.8 ms**,
+  p99 54 (fire 2.5, people_body 2.0 → 1.3). Tried and dropped: skipping pivot rotations that
+  hadn't changed (no gain: an unchanged set is cheap). 285 pass.
 - 2026-10-03 (art session): **His head in the style, on the Tripo man.** Sean, on the LoRA's pixel
   portrait against the smooth Tripo face: "what happened between that awesome pixel face and this
   smoothed out shit?" The smoothing was for Tripo (its input has to be clean, and Kontext at a

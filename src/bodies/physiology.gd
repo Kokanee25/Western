@@ -376,13 +376,28 @@ func heart_rate() -> float:
 
 ## How much of one muscle group is still working on a side (1 = whole): "leg", "arm", "grip".
 func muscle_strength(group: String, side: String) -> float:
+	var ids: Array = _muscles(group, side)
 	var total := 0.0
-	var n := 0
-	for st: Dictionary in anatomy.structures:
-		if st.kind == &"muscle" and st.get(&"group", "") == group and String(st.id).ends_with("_" + side):
-			total += 1.0 - float(muscle_damage.get(st.id, 0.0))
-			n += 1
-	return total / n if n > 0 else 1.0
+	for id: StringName in ids:
+		total += 1.0 - float(muscle_damage.get(id, 0.0))
+	return total / ids.size() if ids.size() > 0 else 1.0
+
+
+## The muscles of a group on one side, in the anatomy's order (asked every tick by standing,
+## walking and aiming, so listed once per anatomy rather than searched for each time).
+static var _muscle_lists := {}  # [anatomy id, group, side] -> Array[StringName]
+
+
+func _muscles(group: String, side: String) -> Array:
+	var key := [anatomy.get_instance_id(), group, side]
+	var ids: Variant = _muscle_lists.get(key)
+	if ids == null:
+		ids = []
+		for st: Dictionary in anatomy.structures:
+			if st.kind == &"muscle" and st.get(&"group", "") == group and String(st.id).ends_with("_" + side):
+				(ids as Array).append(st.id)
+		_muscle_lists[key] = ids
+	return ids
 
 
 ## Walking pace left in the legs (1 = sound, lower = limping).
