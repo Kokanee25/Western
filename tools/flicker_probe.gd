@@ -17,7 +17,7 @@ extends SceneTree
 
 const OFFS := ["ssao", "volfog", "glow", "fog", "lamp_flicker", "lamp_shadows", "all_shadows",
 		"sun_shadow", "finish", "tiles", "min_square", "batch", "people", "fog_volumes", "probes",
-		"lights", "omni"]
+		"lights", "omni", "mosaic"]
 
 var frames := 24
 var view := "saloon_night"
@@ -216,6 +216,8 @@ func _off(o: String, street: Node3D, main: Node) -> void:
 			root.get_node(^"Settings").set_finish(false)
 		"tiles":
 			root.get_node(^"Settings").set_tile_look(&"off")
+		"mosaic":
+			root.get_node(^"Settings").set_mosaic(false)
 		"min_square":
 			RenderingServer.global_shader_parameter_set(&"min_square_px", 0.0)
 		"batch":
