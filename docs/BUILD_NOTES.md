@@ -5,6 +5,17 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+
+### The native plugin: step 1 of the destruction plan
+
+- **A native plugin is in the build** (`addons/saltcreek_native`, Rust, built for Windows, Mac and
+  Linux by CI). It does nothing in play yet: it's the foundation for voxel destruction and for
+  moving the heavy simulation off the one core (docs/DESTRUCTION_BRIEF.md). **Press F3** and look
+  for the line `native plugin: saltcreek_native 0.1.0, N threads`. If it says `not loaded`, tell
+  me which build and which platform. N is how many threads the plugin can use on Shadow.
+- Also send the F3 frame split (the `ms a frame` line and the fps) standing in the street with
+  the gang in (U), so the next steps are measured against your machine.
+
 ### New look: the painting's mosaic on the whole frame
 
 - **The frame is in blocks now, like the concept painting**: 3–4 pixels on a man across a table,

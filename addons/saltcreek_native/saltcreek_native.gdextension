@@ -1,0 +1,15 @@
+; Salt Creek's native plugin (Rust, gdext). Built by CI for the three desktop platforms into
+; bin/; `cargo build --release` in this folder makes the one for this machine. Desktop only:
+; the web export runs without it and the game checks `ClassDB.class_exists` before using it.
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.7
+reloadable = false
+
+[libraries]
+linux.debug.x86_64 = "res://addons/saltcreek_native/bin/libsaltcreek_native.so"
+linux.release.x86_64 = "res://addons/saltcreek_native/bin/libsaltcreek_native.so"
+windows.debug.x86_64 = "res://addons/saltcreek_native/bin/saltcreek_native.dll"
+windows.release.x86_64 = "res://addons/saltcreek_native/bin/saltcreek_native.dll"
+macos.debug = "res://addons/saltcreek_native/bin/libsaltcreek_native.dylib"
+macos.release = "res://addons/saltcreek_native/bin/libsaltcreek_native.dylib"

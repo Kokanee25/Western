@@ -1,0 +1,18 @@
+[package]
+name = "saltcreek_native"
+version = "0.1.0"
+edition = "2021"
+description = "Salt Creek's native plugin: voxel damage and the heavy simulation on their own threads (docs/DESTRUCTION_BRIEF.md)."
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Godot 4.7.2 is pinned in .github/workflows/build.yml: the bindings target that exact API.
+godot = { version = "0.5.5", features = ["api-4-7"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4

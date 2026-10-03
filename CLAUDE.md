@@ -2053,3 +2053,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     studs and below the roof, so walls, gable and the mirror fall back to the sky (size them past
     the walls and to the ridge); HeldFill lights the volumetric fog (cull masks don't apply to
     fog: give it `light_volumetric_fog_energy` 0); lamps all flicker in phase (seed a phase each).
+- 2026-10-03 (gameplay, destruction step 1): **The native plugin's foundation.** Sean decided the
+  game's identity is real destruction (shotgun bites through walls, dynamite tearing chunks and
+  craters, bodies that come apart) and that it's built inside Godot as a native plugin first:
+  `docs/DESTRUCTION_BRIEF.md` (rules, four steps with gates; the voxel renderer experiment in
+  Kokanee25/Pixel-factory is read-only reference, its verdict in that repo's NOTES.md).
+  `addons/saltcreek_native/` is a Rust GDExtension on gdext 0.5.5 with the `api-4-7` feature
+  (Godot 4.7.2's own API: it initialises as "API v4.7.stable, runtime v4.7.2.stable"); desktop
+  only, the web build runs without it. `NativeBench` (a Node) proves the round trip every later
+  step lives on: a job on a worker thread with no Godot objects in it (voxelise a sphere, carve a
+  bite, mesh its visible faces), polled with `done()`, its result collected on the main thread as
+  packed arrays Godot builds an ArrayMesh from. CI: `.github/actions/native-build` (a composite
+  action: rust toolchain, cache, `cargo build --release` per target; macOS lipo'd universal), a
+  `native` matrix job on ubuntu/windows/macos runners, the test job builds the Linux library
+  before importing, the export job collects all three into `bin/` (`.gitignore`d; the
+  `.gdextension` file is committed). F3 shows `native plugin: <version>, <threads>` or
+  `not loaded`. `tests/test_native.gd` (2). Branch: `claude/new-session-l733p0` (the harness's
+  name for this session, not the `claude/gameplay-…` pattern).
+  - Next: Sean confirms the F3 line on Shadow (the step 1 gate), then step 2: a wall that takes
+    a shotgun blast (brick volumes per member from Pixel-factory's `src/volume.rs`, carve,
+    re-mesh on the worker, collision, the remaining section fed to `StructuralAnalysis`).

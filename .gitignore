@@ -13,3 +13,8 @@ __pycache__/
 /assets/people/paint/raw/
 /assets/people/paint/*_aligned.png
 /assets/people/paint/*_shot_painting.png
+# The native plugin: Rust build products (CI builds bin/ for every platform)
+/addons/saltcreek_native/target/
+/addons/saltcreek_native/bin/*.so
+/addons/saltcreek_native/bin/*.dll
+/addons/saltcreek_native/bin/*.dylib

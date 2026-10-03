@@ -1,0 +1,32 @@
+name: Build the native plugin
+description: cargo build --release of addons/saltcreek_native for one target, into its bin/ folder.
+inputs:
+  target:
+    description: Rust target triple, or universal-apple-darwin for a lipo'd macOS library.
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ inputs.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || inputs.target }}
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: addons/saltcreek_native
+        key: ${{ inputs.target }}
+    - name: Build
+      shell: bash
+      working-directory: addons/saltcreek_native
+      run: |
+        mkdir -p bin
+        if [ "${{ inputs.target }}" = "universal-apple-darwin" ]; then
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+          lipo -create -output bin/libsaltcreek_native.dylib \
+            target/aarch64-apple-darwin/release/libsaltcreek_native.dylib \
+            target/x86_64-apple-darwin/release/libsaltcreek_native.dylib
+        else
+          cargo build --release --target "${{ inputs.target }}"
+          cp target/"${{ inputs.target }}"/release/*saltcreek_native.{so,dll,dylib} bin/ 2>/dev/null || true
+        fi
+        ls -la bin
