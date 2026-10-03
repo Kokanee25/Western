@@ -461,6 +461,17 @@ jobs:
             fi
           fi
 
+      # The Tripo men (people.json "source": "tripo"): fitted to our skeleton from
+      # assets/people/tripo/<id>.glb (tools/blender/fit_tripo.py), the head's repaint and all.
+      - name: Fit the Tripo men
+        if: inputs.paint_views == ''
+        run: |
+          if [ -n "${{ inputs.only }}" ]; then
+            python tools/blender/fit_tripo.py --only="${{ inputs.only }}"
+          else
+            python tools/blender/fit_tripo.py
+          fi
+
       - name: Import and test with the new bodies
         if: inputs.paint_views == ''
         run: |

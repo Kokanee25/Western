@@ -1,5 +1,5 @@
 {
-  "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. `outfit`: the garments he wears and their colours (tools/blender/clothes.py makes and drapes them, and bakes each a pixel texture). Output: assets/people/<id>.glb, <id>_<garment>.png, and <id>.json (what was done). `face`: how he looks, for the image model (tools/faces/paint_face.py) to paint onto his head.",
+  "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. `outfit`: the garments he wears and their colours (tools/blender/clothes.py makes and drapes them, and bakes each a pixel texture). Output: assets/people/<id>.glb, <id>_<garment>.png, and <id>.json (what was done). `face`: how he looks, for the image model (tools/faces/paint_face.py) to paint onto his head. A person with \"source\": \"tripo\" is a Tripo model (assets/people/tripo/<id>.glb) fitted by tools/blender/fit_tripo.py instead; he comes dressed, so his outfit is empty.",
   "people": {
     "outlaw": {
       "note": "A hard man in his late thirties: lean, wiry, a little weathered.",
@@ -17,6 +17,12 @@
         "cravat": "#16120f"
       },
       "face": "a hard, weathered frontier man in his late thirties, sun-darkened skin with a few lines, heavy dark brows over deep-set watchful eyes, a strong straight nose, a thick dark moustache over the lip, a few days' stubble on the jaw, dark hair at the temples and sideburns"
+    },
+    "stranger": {
+      "note": "The painting's man by image-to-3D (tools/characters/, Tripo), fitted by tools/blender/fit_tripo.py: he comes dressed, hat and all.",
+      "source": "tripo",
+      "outfit": {},
+      "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
     }
   }
 }

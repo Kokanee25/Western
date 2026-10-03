@@ -39,8 +39,12 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if generated.is_empty():
 		return BodyMesh.build(anatomy, outfit)
 	# Boots, belts and the hat are still BodyMesh's; the hat is fitted to this man's own head.
+	# A model that comes dressed ("whole" in his report: a Tripo man, tools/blender/fit_tripo.py)
+	# wears nothing of BodyMesh's.
 	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
+	if _is_whole(model):
+		shapes.clear()
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
@@ -84,6 +88,15 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 			var t: Array = info.skin_tone
 			out["skin_tone"] = Color(t[0], t[1], t[2])
 	return out
+
+
+## Whether the model comes dressed (his report says "whole": clothes, hat and all in his skin).
+static func _is_whole(model: StringName) -> bool:
+	var report := REPORT_PATH % model
+	if not FileAccess.file_exists(report):
+		return false
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(report))
+	return info is Dictionary and bool((info as Dictionary).get("whole", false))
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.

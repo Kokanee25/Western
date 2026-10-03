@@ -97,6 +97,11 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
+		elif arg.begins_with("--model="):
+			# The seated man's body (outlaw, stranger). Loaded at run time: naming ShotMatch here
+			# makes the game's scripts compile with this one, before the autoloads exist.
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			shot.model = StringName(arg.substr(8))
 		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))

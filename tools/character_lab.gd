@@ -39,6 +39,10 @@ func _run() -> void:
 			SIZE = Vector2i(int(a.substr(7).get_slice("x", 0)), int(a.substr(7).get_slice("x", 1)))
 		elif a.begins_with("--view="):
 			view = a.substr(7)
+		elif a.begins_with("--model="):
+			# The seated man's body (outlaw, stranger): ShotMatch.model, set at run time.
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			shot.model = StringName(a.substr(8))
 		for k in energy:
 			if a.begins_with("--%s=" % k):
 				energy[k] = float(a.get_slice("=", 1))
