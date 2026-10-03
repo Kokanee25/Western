@@ -247,7 +247,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   TURN and pose offsets to the painting's man (outline, eyes, cup, palm in front of the mug).
   `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
   creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
-  the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  the lab. **The voxel trial** (`src/art/voxel_trial.gd`, `VoxelTrial`, 2026-10-03; off
+  everywhere, `screenshots.gd --voxel=props,hat,eyes|all --cubes=64`): the shot's mug, lamp
+  (not its glass), bottle, ashtray and the seated man's hat as cube-built copies
+  (`tools/voxel_export.gd` writes the props' parts as OBJ; `tools/blender/voxelise.py` makes a
+  shell of cubes along each surface, 1/128 or 1/64 m, every face carrying the smooth surface's
+  normal, the hat's faces the texel under them in an atlas → `assets/props/voxel/`,
+  `assets/people/voxel/`), on the same grid material mapped triplanar with `cube_faces` (the
+  light stays at the fragment: a texel's centre is off a face far smaller than it); and smooth
+  eyeballs on his painted irises (`EYES`, measured per model). Verdict in the status entry;
+  `docs/screenshots/voxel_trial/compare.png` (`tools/voxel_compare.py`). `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
   (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
   rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
@@ -2065,3 +2074,30 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   what the screen texture holds (to look at next: the posterise and the glow in that pass).
   - Rule: anything full-screen that reads the screen texture writes ALPHA, and gets a real-GPU
     check from Sean before it's the default.
+- 2026-10-03 (art session, later): **The voxel trial: blocky silhouettes and smooth eyes, behind
+  flags** (Sean: an experiment without undoing the current work). `VoxelTrial` (above). Rendered
+  the saloon shot five ways into `docs/screenshots/voxel_trial/` (`compare.png`: each beside the
+  painting with the hat brim, eyes, mug and lamp at 3×), judge v2 rounds `2026-10-03_r5`–`_r11`
+  (the street render is the same in all, 0.330): as now 0.228; A, cube props and hat at 128/m
+  0.217, at 64/m 0.209; B, smooth eyes 0.232; A+B 0.217. **Edge hardness is unchanged by any of
+  it** (0.272–0.276 to the painting's 0.252): the screen mosaic already steps every silhouette
+  at its block size, so cubes of 8 mm (3–4 px on the table) vanish under it and 16 mm cubes only
+  add lumps. A's gain is the dark cube props raising the deep-shadow share (0.27 → 0.29–0.30;
+  painting 0.41), not outlines. By eye: the painting's blocks are a picture cut into squares over
+  smooth things (its lamp foot is round, its brim a clean curve in steps); a cube-built foot or
+  brim is a lumpy object. Two things learned on the way: Blender's Remesh (Blocks) fills volumes
+  and loses anything thinner than a cube (the brim, a mug's wall), so the voxeliser is a surface
+  shell; and cubes with their own normals are each square to the lamp or not (a foot under a lamp
+  went black down its sides), so every face carries the smooth surface's normal and only the
+  outline changes. B: a 12 mm eyeball is 3–4 mosaic blocks; it adds a pale highlight patch and
+  the dark iris is lost, where the painted eye already reads (the stranger's irises are at body
+  y 1.747, 9 cm above the anatomy's eye line: his head is Tripo's at its own proportions).
+  **Recommendation: stop the voxel-engine experiment; keep eyes painted** (finer squares on the
+  face, if anything, through `head_paint.py`'s `SQUARE_M`). Flags stay off. Found on the way:
+  **the saloon shot rendered black with a white doorway** since the flicker merge: with the Sky
+  INCREMENTAL, a cubemap direction exactly opposite the sun's gave `sky.gdshader` a `pow()` base
+  a hair below zero at 23:40 (the sun near the nadir), the NaN spread through the radiance to
+  every lit surface; the shader clamps its bases now (art's file; gameplay's scene unchanged).
+  Sean's black screen in build 340 may have been this as much as the mosaic (it strikes with the
+  sun near the nadir, around midnight): ask him the hour, and check build 344 or later with the
+  mosaic on. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.

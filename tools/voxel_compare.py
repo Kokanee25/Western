@@ -15,10 +15,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAINTING = os.path.join(ROOT, "docs", "concept", "saloon-night.png")
 # Crops of our 1280x720 render: (box, label); the painting's matching boxes in its 1672x941.
 CROPS = {
-    "hat brim": ((360, 70, 660, 230), (470, 60, 870, 270)),
-    "eyes": ((420, 180, 580, 290), (560, 230, 760, 370)),
-    "mug": ((540, 460, 660, 580), (700, 560, 860, 720)),
-    "lamp": ((850, 300, 990, 600), (1090, 350, 1290, 760)),
+    "hat brim": ((360, 70, 660, 230), (444, 170, 836, 379)),
+    "eyes": ((420, 180, 580, 290), (522, 287, 731, 431)),
+    "mug": ((540, 460, 660, 580), (731, 614, 862, 745)),
+    "lamp": ((850, 300, 990, 600), (1097, 431, 1293, 851)),
 }
 SCALE = 3
 

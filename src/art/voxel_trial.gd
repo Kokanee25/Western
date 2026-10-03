@@ -24,14 +24,14 @@ const HAT_FROM := 1.778
 ## The eyeball: radius, how far its centre sits behind the skin, and the iris.
 const EYE_RADIUS := 0.0125
 const EYE_SUNK := 0.0065
-const IRIS_RADIUS := 0.0058
-## Where a model's painted irises are on his face (body space x and y, right then left; the
-## skin's depth there is read off the mesh). Measured on the head texture: the dark of the iris
-## on the front of the mesh (tools/blender/voxelise.py's load_glb and a profile by height). A
-## model not here takes the anatomy's eyes. The stranger's eyes sit 9 cm above the anatomy's eye
-## line (his head is Tripo's, at its own proportions) and his face a little to his left.
+const IRIS_RADIUS := 0.0062
+## Where a model's painted irises are on his skin (body space, right then left). Measured on the
+## head texture: the dark of the iris on the front of the mesh (tools/blender/voxelise.py's
+## load_glb and a profile by height). A model not here takes the anatomy's eyes and the skin in
+## front of them. The stranger's eyes sit 9 cm above the anatomy's eye line (his head is Tripo's,
+## at its own proportions) and his face a little to his left.
 const EYES := {
-	&"stranger": [Vector2(0.059, 1.747), Vector2(-0.021, 1.747)],
+	&"stranger": [Vector3(0.0585, 1.7476, -0.0947), Vector3(-0.0254, 1.748, -0.0952)],
 }
 
 
@@ -193,33 +193,37 @@ static func add_eyes(man: HumanBody, look_at: Vector3) -> void:
 	var arrays := head_piece.mesh.surface_get_arrays(0)
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var off := _vertex_offset(arrays, centre)
+	# Wet, but with a small glint: the table lamp is so close that at roughness 0.15 and specular
+	# 0.6 the whole ball and iris were one highlight (pale blocks under the mosaic).
 	var white := StandardMaterial3D.new()
-	white.albedo_color = Color(0.88, 0.84, 0.78)
-	white.roughness = 0.12
+	white.albedo_color = Color(0.74, 0.66, 0.55)
+	white.roughness = 0.08
 	white.metallic = 0.0
-	white.metallic_specular = 0.6
+	white.metallic_specular = 0.3
 	var dark := StandardMaterial3D.new()
-	dark.albedo_color = Color(0.08, 0.05, 0.03)
-	dark.roughness = 0.15
-	dark.metallic_specular = 0.6
+	dark.albedo_color = Color(0.05, 0.035, 0.025)
+	dark.roughness = 0.08
+	dark.metallic_specular = 0.3
 	var painted: Array = EYES.get(man.body_model, [])
 	for n in 2:
 		var sid: StringName = [&"eye_r", &"eye_l"][n]
 		var eye: Dictionary = man.anatomy.structure(sid)
 		if eye.is_empty():
 			continue
-		# The skin in front of the eye: the foremost vertex near its (x, y), in the piece's
-		# vertex space.
-		var at: Vector3 = (eye.a as Vector3) - off
+		var skin: Vector3
 		if painted.size() == 2:
-			at = Vector3((painted[n] as Vector2).x, (painted[n] as Vector2).y, 0.0) - off
-		var front := INF
-		for v in verts:
-			if absf(v.x - at.x) < 0.012 and absf(v.y - at.y) < 0.012 and v.z < front:
-				front = v.z
-		if front == INF:
-			front = (eye.a as Vector3).z - off.z - (eye.radius as float)
-		var skin := Vector3(at.x, at.y, front) + off
+			skin = painted[n]
+		else:
+			# The skin in front of the anatomy's eye: the foremost vertex near its (x, y), in the
+			# piece's vertex space.
+			var at: Vector3 = (eye.a as Vector3) - off
+			var front := INF
+			for v in verts:
+				if absf(v.x - at.x) < 0.02 and absf(v.y - at.y) < 0.02 and v.z < front:
+					front = v.z
+			if front == INF:
+				front = at.z - (eye.radius as float)
+			skin = Vector3(at.x, at.y, front) + off
 		# The ball's centre in the head part's space (its skinned pieces are drawn from the bone's
 		# rest, so a point on his skin is body space through the rest's inverse).
 		var c := _rest_inverse(man, &"head") * (skin + Vector3(0.0, 0.0, EYE_SUNK))
