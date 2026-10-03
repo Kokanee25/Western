@@ -30,6 +30,15 @@ same body.
   pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
   each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
   **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **A whole town on fire no longer freezes.** Left to spread, the fire takes every building
+  within a minute (2,600 boards alight). Before: **29 ms a frame on average, freezes of up to 1.6
+  seconds** when a big building came down (its loads worked out again for every beam that broke,
+  all in one frame). Now: **17.7 ms average, worst 68 ms** (this machine, simulation only). A big
+  collapse now unfolds over a second or so instead of stopping the game.
+- **Less flicker in a big fire.** Only 40 boards show flames at a time; which 40 used to be
+  reshuffled every half second, so flames popped on and off all over town. Now a board keeps its
+  flames while it burns, and new ones go to the fires nearest you. The fire's lights stay with
+  their own fires instead of jumping across town when one burns out.
 - **Standing up is cheap again.** Every person asked "can my legs hold me?" every tick by searching
   all 115 structures of their anatomy for leg muscles; now each body knows its muscles. Calm
   street **5.4 → 3.8 ms** a frame here (the people's bodies 2.0 → 1.2 ms, your own 0.7 → 0.2),

@@ -9,7 +9,8 @@ extends SceneTree
 ##   godot --headless --fixed-fps 60 -s res://tools/perf_bench.gd -- [--seconds=30] [--out=file.json]
 ##   xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 -s res://tools/perf_bench.gd -- --render
 ## --quick: shorter runs and no ablation (for the CI guard). --no-ablate: full length, no ablation.
-## --scene=calm|fire: just one. "timed" is each system's own frame entries (Prof), the rest is
+## --scene=calm|fire: just one; --scene=blaze: the fire left 45 s first, till the whole town
+## burns. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
 ## Untyped on purpose: -s scripts compile before autoloads exist.
@@ -207,10 +208,16 @@ func _run() -> void:
 		scenes.append("calm")
 	if only == "" or only == "fire":
 		scenes.append("fire")
+	if only == "blaze":
+		scenes.append("blaze")
 	for s in scenes:
 		if s == "fire":
 			_set_off_dynamite_and_fires()
 			await _frames(180)
+		elif s == "blaze":
+			# The fire left to spread till the whole town's alight.
+			_set_off_dynamite_and_fires()
+			await _frames(60 * 45)
 		var frames := int(seconds * 60.0)
 		var m: Dictionary = await _measure(frames)
 		var entry := {"frames": m, "census": _census()}
