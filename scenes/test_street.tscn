@@ -30,7 +30,7 @@ shader = ExtResource("3_sky")
 
 [sub_resource type="Sky" id="Sky_main"]
 sky_material = SubResource("ShaderMaterial_sky")
-process_mode = 3
+process_mode = 2
 radiance_size = 3
 
 [sub_resource type="Environment" id="Environment_main"]

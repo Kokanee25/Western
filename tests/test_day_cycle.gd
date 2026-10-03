@@ -125,3 +125,38 @@ func test_lamps_light_at_dusk() -> void:
 	clock.set_time(22.5)
 	check(lamp.lit, "jumping to night lights it")
 	lamp.queue_free()
+
+
+## The sky is told about the sun, moon and colours only when they've moved on visibly: each time
+## it's told, its lighting (the ambient and reflections of everything under it) is redone, and
+## telling it every tick made every sky-lit surface flicker.
+func test_the_sky_hears_of_changes_not_every_tick() -> void:
+	var env := WorldEnvironment.new()
+	env.environment = Environment.new()
+	env.environment.sky = Sky.new()
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://src/world/sky.gdshader")
+	env.environment.sky.sky_material = mat
+	add_child(env)
+	clock.world_environment = env
+	clock.set_time(16.0)
+	var sent: Vector3 = mat.get_shader_parameter(&"sun_dir")
+	check(sent.is_equal_approx(clock.get_sun_direction()), "set_time tells the sky where the sun is")
+	var changes := 0
+	var last := sent
+	for i in 60:  # a second of ticks at 1x: the sun moves ~0.13 degrees
+		clock._physics_step(1.0 / 60.0)
+		var now: Vector3 = mat.get_shader_parameter(&"sun_dir")
+		if not now.is_equal_approx(last):
+			changes += 1
+			last = now
+	check_eq(changes, 0, "a second of ticks: nothing sent")
+	for i in 60 * 8:  # eight seconds: past the step
+		clock._physics_step(1.0 / 60.0)
+	var later: Vector3 = mat.get_shader_parameter(&"sun_dir")
+	check(rad_to_deg(later.angle_to(clock.get_sun_direction())) <= clock.config.sky_update_degrees + 0.001,
+			"but it keeps up within the step (%.2f°)" % rad_to_deg(later.angle_to(clock.get_sun_direction())))
+	check(not later.is_equal_approx(sent), "and does move on")
+	clock.set_time(21.0)
+	check((mat.get_shader_parameter(&"sun_dir") as Vector3).is_equal_approx(clock.get_sun_direction()), "a jump in time is sent at once")
+	env.queue_free()

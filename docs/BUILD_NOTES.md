@@ -40,6 +40,17 @@ same body.
   pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
   each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
   **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **The flicker is fixed.** Whole sections of the screen (the inside of a building, the saloon's
+  mirror, the street's walls) were flipping between two brightnesses every frame. The sky was
+  being re-lit 60 times a second as the clock ran, and everything lit by the sky (most of the
+  town, and the parts of every interior near its walls and roof) flickered with it. Now the sky
+  is re-lit only when the sun or its colours have visibly moved on. Measured here with the clock
+  running and the camera still: the store's interior **11.5% → 0.003%** of pixels changing a frame,
+  the saloon at night **0.28% → 0.001%**, the golden-hour street **43% → 0.1%**.
+- **Please try:** walk into the store and the saloon (day and night), look at the walls, the
+  ceiling and the mirrors behind the bar, and stand in the street. Tell me if anything still
+  flickers while you stand still, and separately what happens while you turn and walk (some
+  shimmer of thin things while moving is the pixel look; the new screen mosaic adds a little).
 - **A whole town on fire no longer freezes.** Left to spread, the fire takes every building
   within a minute (2,600 boards alight). Before: **29 ms a frame on average, freezes of up to 1.6
   seconds** when a big building came down (its loads worked out again for every beam that broke,
