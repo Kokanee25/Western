@@ -2023,3 +2023,33 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     (F3 lists it).
   - Next: the body painted like the head (best view wins, 2.8 mm squares), the room's grade
     (deeper shadows, the lamp amber), then the townsfolk as their own Tripo men.
+- 2026-10-03 (gameplay, later): **The flicker: the sky re-lit every tick.** Sean: "the whole
+  screen is always flickering, usually in sections, like the inside of a building or the mirror
+  on the wall in the saloon". `tools/flicker_probe.gd` (new): renders N frames from a still (or
+  `--pan`ned) camera under Forward+ and maps the pixels that change and that flip back (A, B, A);
+  `--off=` suspects, `--off-script=` a GDScript `off(street, main)`, `--clock` lets the day run
+  (without it the probe hid the cause), `--verbose`. Lavapipe works here now (`apt-get install
+  mesa-vulkan-drivers`). A five-reader workflow listed 66 hypotheses; measured: the Sky ran
+  REALTIME (`sky.gdshader` read TIME) and `DayCycle.apply_visuals()` sent it sun_dir, moon_dir and
+  its colours every physics tick; each send flipped the realtime radiance between two states
+  frame to frame, so everything taking ambient or reflection from the sky flickered: the street,
+  and inside, walls, ceilings, the gable and the mirror at and past the interior probes' edges.
+  Holding the sky uniforms alone (clock running) took the saloon 0.284% → 0.001%; the moon,
+  environment, probe and same-value writes were each clean. Fix: `DayCycle._send_sky()` sends a
+  uniform only when it has moved on (`DayCycleConfig.sky_update_degrees` 0.5, `sky_update_colour`
+  0.004; set_time sends at once); the Sky is INCREMENTAL (`scenes/test_street.tscn`); the clouds
+  drift by a `cloud_drift` uniform DayCycle sends (`cloud_drift_speed` 0.002/s) instead of TIME.
+  **Art's `src/world/sky.gdshader`: two lines** (the uniform; it replaces `TIME * 0.002`).
+  Measured, clock running, still camera: inside_store_afternoon 11.5% → 0.003% (flips 6.6% →
+  0), saloon_night 0.28% → 0.001%, street_golden_hour 43% → 0.13% (one 2.5% frame: the clouds
+  step every ~2 s now). Test `test_day_cycle::test_the_sky_hears_of_changes_not_every_tick`.
+  287 pass. Ruled out by measurement: re-aiming the sun/moon every tick (a 0.5° step changed
+  nothing; reverted), volumetric fog, probes, SSAO, tiles, min_square, StaticBatch.
+  - For the art session: INCREMENTAL radiance is filtered at quality, not REALTIME's fast filter,
+    so sky ambient/reflections may look a touch different (judge it); the clouds now move in small
+    steps every ~2 s. The new screen mosaic adds shimmer under motion: on a 0.5 px/frame pan of
+    the saloon, flip-backs 0.196% → 0.347% with it on (screen-fixed blocks over a moving image).
+    Also from the readers (not causes of this flicker, worth doing): interior probes stop at the
+    studs and below the roof, so walls, gable and the mirror fall back to the sky (size them past
+    the walls and to the ridge); HeldFill lights the volumetric fog (cull masks don't apply to
+    fog: give it `light_volumetric_fog_energy` 0); lamps all flicker in phase (seed a phase each).
