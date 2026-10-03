@@ -30,9 +30,14 @@ same body.
   pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
   each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
   **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
-- **Please tell me your numbers:** the next build puts the frame's time split on F3; until then,
-  F3's fps, stood in the street at (the start spot) with the gang in (U), calm and with the store
-  burning.
+- **F3 now shows where each frame goes**, so you can tell me what your PC is doing:
+  `frame 16.7 ms: process …, physics …, render cpu …, gpu …` (scripts, physics, the renderer's
+  CPU and GPU time), `draws … objects … tris … nodes … bodies awake …`, and `ms a frame:` the
+  game's systems that cost most (people_body = the people's bodies and pain, senses, outlaw_brain,
+  fire, player...). **Please try:** start the build, press **U** (the gang rides in), stand where
+  you start looking down the street, press **F3**, wait five seconds and send me a photo of the
+  readout. Then throw a stick of dynamite at the store (3, Q, release), press **L** on a wall to
+  set it alight, wait till it's going well, and send the readout again.
 - Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
   **L** on a wall. Tell me the fps before you light it and while it burns.
 

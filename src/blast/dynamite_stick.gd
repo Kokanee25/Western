@@ -137,6 +137,12 @@ func shot(impulse_vec: Vector3) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"dynamite", t)
+
+
+func _physics_step(delta: float) -> void:
 	if _done:
 		return
 	if lit:

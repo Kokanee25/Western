@@ -61,6 +61,12 @@ func rates() -> Dictionary:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"blood", t)
+
+
+func _physics_step(delta: float) -> void:
 	if body == null or not is_instance_valid(body):
 		return
 	var p := body.physiology

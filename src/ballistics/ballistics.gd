@@ -101,6 +101,12 @@ func fire_charge(origin: Vector3, direction: Vector3, count: int, pattern: float
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"ballistics", t)
+
+
+func _physics_step(delta: float) -> void:
 	for b in bullets:
 		step(b, delta)
 	var done := bullets.filter(func(b: Bullet) -> bool: return not b.alive)

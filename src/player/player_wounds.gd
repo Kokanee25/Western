@@ -275,6 +275,12 @@ func _hit_words(segs: Array, hits: Array) -> String:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"player", t)
+
+
+func _physics_step(delta: float) -> void:
 	if _day_cycle == null and is_inside_tree():
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0

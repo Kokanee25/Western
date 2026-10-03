@@ -35,6 +35,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"town_life", t)
+
+
+func _process_step(delta: float) -> void:
 	if not _arrived:
 		_t += delta
 		if _t >= gang_arrives or Input.is_action_just_pressed(&"debug_gang"):

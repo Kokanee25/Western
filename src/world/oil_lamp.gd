@@ -50,6 +50,12 @@ func set_lit(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	var t := Prof.start()
+	_process_step(delta)
+	Prof.stop(&"lamps", t)
+
+
+func _process_step(delta: float) -> void:
 	if not lit:
 		return
 	_time += delta

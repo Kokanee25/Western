@@ -80,6 +80,7 @@ func _process(delta: float) -> void:
 		_help_timer = -1.0
 	if Input.is_action_just_pressed(&"debug_overlay"):
 		_readout.visible = not _readout.visible
+		_measure(_readout.visible)
 	if Input.is_action_just_pressed(&"debug_xray"):
 		HumanBody.xray_all = not HumanBody.xray_all
 		get_tree().call_group(&"people", &"set_xray", HumanBody.xray_all)
@@ -92,6 +93,7 @@ func _process(delta: float) -> void:
 			_help.visible = false
 	_readout.position.y = _help.position.y + (_help.size.y + 8.0 if _help.visible else 0.0)
 	if _readout.visible:
+		Prof.frame()
 		_readout.text = _readout_text()
 
 
@@ -116,4 +118,44 @@ func _readout_text() -> String:
 			for w in (n as HumanBody).describe_wounds():
 				lines.append("  " + w)
 	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
+	lines.append_array(frame_lines())
 	return "\n".join(lines)
+
+
+var _viewports: Array[RID] = []
+
+
+## Timing on while the readout's up: render times per viewport, and Prof's timers.
+func _measure(on: bool) -> void:
+	Prof.on = on
+	_viewports.clear()
+	if not on:
+		return
+	for vp in [get_tree().root] + get_tree().root.find_children("*", "SubViewport", true, false):
+		var rid: RID = (vp as Viewport).get_viewport_rid()
+		RenderingServer.viewport_set_measure_render_time(rid, true)
+		_viewports.append(rid)
+
+
+## Where the frame goes (for Sean to read off): the frame, what scripts and physics take of it,
+## the renderer's CPU and GPU time, what it drew, and the systems that cost most.
+func frame_lines() -> PackedStringArray:
+	var render_cpu := 0.0
+	var render_gpu := 0.0
+	for rid in _viewports:
+		render_cpu += RenderingServer.viewport_get_measured_render_time_cpu(rid)
+		render_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	var fps := maxf(Engine.get_frames_per_second(), 1.0)
+	var out: PackedStringArray = []
+	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f" % [1000.0 / fps,
+			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu])
+	out.append("draws %d  objects %d  tris %dk  nodes %d  bodies awake %d" % [
+			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+			Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
+			Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / 1000,
+			Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
+			Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)])
+	if not Prof.per_frame.is_empty():
+		out.append("ms a frame: " + "  ".join(Prof.top(8)))
+	return out

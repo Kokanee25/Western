@@ -1853,3 +1853,22 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   7,810 → 5,413, render CPU 5.4 → 4.9 ms. Test `test_static_batch` (2). 283 pass.
   - Can't reproduce Sean's pinned core here: headless sim ~4.4 ms + render CPU ~5 ms a frame at
     2.1 GHz. Next: F3's frame split and draw calls so Sean can report his, then by his numbers.
+- 2026-10-03 (gameplay, later): **Performance pass, part 6: F3's frame split, timers, a guard.**
+  `Prof` (`src/debug/prof.gd`): each system's frame entry is timed while `Prof.on` (F3 open, or
+  the bench): `_process`/`_physics_process` in HumanBody (people_skeleton / people_body),
+  OutlawBrain, CivilianBrain, Senses, FireSystem, Ballistics, Structure, DayCycle, OilLamp
+  (lamps), Player + PlayerWounds (player), BloodJet, GunSmoke, TownLife, DynamiteStick now call
+  `_process_step`/`_physics_step` between `Prof.start()`/`stop()` (one call returning 0 when off).
+  F3 (`DebugOverlay.frame_lines()`): frame ms with process / physics (`Performance` TIME_*) /
+  render CPU / GPU (every viewport's measured render time, switched on with the readout), draws,
+  objects, tris, nodes, awake bodies, and the top eight systems in ms a frame. `perf_bench.gd`
+  prints the same "timed" line. Bench now (2.1 GHz, headless): calm 4.9 ms (people_body 1.81,
+  player 0.61, senses 0.47, outlaw_brain 0.34, people_skeleton 0.20); fire 8.8 ms, p99 62
+  (fire 2.83, people_body 2.13). `tests/test_perf.gd` (2): the calm street's visible meshes ≤
+  1,800 (1,291; was 3,686), meshes on one person ≤ 95 (89: an armed man's revolver is 45 parts),
+  nodes ≤ 30k, calm ≤ 16 ms a frame; three buildings burning ≤ 30 ms a frame, worst ≤ 250 ms
+  (budgets ~3x this machine for CI runners). 285 pass.
+  - Next: Sean's F3 readouts decide (this machine can't show his pinned core: ~10 ms a frame
+    here with render CPU). Candidates ready: an NPC's holstered revolver as one mesh (45 → 1–3),
+    fingers skinned to the body (30 → 0 extra), the sun's shadow cascades, people ticking less
+    far off.

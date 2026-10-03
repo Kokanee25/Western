@@ -9,7 +9,8 @@ extends SceneTree
 ##   godot --headless --fixed-fps 60 -s res://tools/perf_bench.gd -- [--seconds=30] [--out=file.json]
 ##   xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 -s res://tools/perf_bench.gd -- --render
 ## --quick: shorter runs and no ablation (for the CI guard). --no-ablate: full length, no ablation.
-## --scene=calm|fire: just one. Godot's process/physics time monitors read nonsense headless (the
+## --scene=calm|fire: just one. "timed" is each system's own frame entries (Prof), the rest is
+## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
 ## Untyped on purpose: -s scripts compile before autoloads exist.
 
@@ -57,10 +58,14 @@ func _measure(n: int) -> Dictionary:
 	var vp_rid: RID = vp.get_viewport_rid() if vp else RID()
 	if vp_rid.is_valid():
 		RenderingServer.viewport_set_measure_render_time(vp_rid, true)
+	var prof = load("res://src/debug/prof.gd")
+	prof.on = true
 	await process_frame
+	prof.roll()
 	var last := Time.get_ticks_usec()
 	for i in n:
 		await process_frame
+		prof.frame(1 << 30)
 		var now := Time.get_ticks_usec()
 		times.append((now - last) / 1000.0)
 		last = now
@@ -73,7 +78,9 @@ func _measure(n: int) -> Dictionary:
 	var avg := 0.0
 	for t in times:
 		avg += t / times.size()
-	var out := {"avg_ms": avg, "p99_ms": sorted[int(sorted.size() * 0.99) - 1] if sorted.size() > 1 else avg,
+	prof.roll()
+	prof.on = false
+	var out := {"systems_ms": prof.per_frame.duplicate(), "avg_ms": avg, "p99_ms": sorted[int(sorted.size() * 0.99) - 1] if sorted.size() > 1 else avg,
 			"max_ms": sorted[sorted.size() - 1]}
 	out.merge(mon)
 	return out
@@ -254,6 +261,10 @@ func _print(s: String, e: Dictionary) -> void:
 	print("\n== %s: avg %.2f ms (%.0f fps), p99 %.2f ms, max %.1f ms; render cpu %.2f ms, draw calls %.0f, objects in frame %.0f" % [
 			s, f.avg_ms, 1000.0 / maxf(f.avg_ms, 0.001), f.p99_ms, f.max_ms, f.render_cpu_ms, f.draw_calls, f.objects_in_frame])
 	print("   census: %s" % JSON.stringify(e.census))
+	var sys: Dictionary = f.systems_ms
+	var keys := sys.keys()
+	keys.sort_custom(func(a, b) -> bool: return sys[a] > sys[b])
+	print("   timed (ms a frame): %s" % "  ".join(keys.map(func(k) -> String: return "%s %.2f" % [k, sys[k]])))
 	if e.has("systems"):
 		for r in e.systems:
 			print("   %-42s %4d nodes  saves %6.2f ms  (render cpu %5.2f, draws %5.0f)" % [
