@@ -87,7 +87,7 @@ void sky() {
 	float low = 1.0 - smoothstep(0.1, 0.5, sd.y);
 	vec2 dh = normalize(d.xz + vec2(1e-5));
 	vec2 sh = normalize(sd.xz + vec2(1e-5));
-	float toward = dot(dh, sh) * 0.5 + 0.5;
+	float toward = clamp(dot(dh, sh) * 0.5 + 0.5, 0.0, 1.0);
 	// Nearness to the sun itself (not just its side of the sky): the glow over it fades upward.
 	float near_sun = pow(max(dot(d, sd), 0.0), 6.0);
 	// The warm horizon belongs to the sun's side of the sky when it's low; elsewhere it's a pale
@@ -100,7 +100,7 @@ void sky() {
 	horizon *= 1.0 - 0.3 * low * sun_up * (1.0 - pow(toward, 4.0));
 	vec3 col;
 	if (h >= 0.0) {
-		col = mix(horizon, top_color, pow(h, mix(0.55, 0.28, low * sun_up)));
+		col = mix(horizon, top_color, pow(max(h, 0.0), mix(0.55, 0.28, low * sun_up)));
 		col *= 1.0 - low_sun_dim * low * sun_up * (1.0 - near_sun);
 	} else {
 		col = mix(horizon, ground_color, clamp(-h * 5.0, 0.0, 1.0));

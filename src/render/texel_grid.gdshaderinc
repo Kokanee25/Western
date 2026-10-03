@@ -26,6 +26,8 @@ uniform float specular : hint_range(0.0, 1.0) = 0.2;
 // Never coarsened into bigger squares far off (min_square_px): a sign's lettering has to stay
 // legible down the street, as the painting's does.
 uniform bool fixed_squares = false;
+// A cube-built mesh: light each face where the fragment is, not at the texel's centre (VoxelTrial).
+uniform bool cube_faces = false;
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
@@ -134,7 +136,12 @@ void fragment() {
 		col = use_mipmaps ? textureGrad(albedo_tex, g, dFdx(grid_uv), dFdy(grid_uv)) : textureLod(albedo_tex, g, 0.0);
 	}
 	vec3 albedo = col.rgb * tint.rgb * edge;
-	tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15 * b);
+	// A cube-built mesh (the voxel trial, VoxelTrial): each cube face is its own tile, far smaller
+	// than a texel, so the light stays where the fragment is (the texel's centre would be off the
+	// face, inside the thing, and in its shadow).
+	if (!cube_faces) {
+		tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15 * b);
+	}
 #ifdef HOLES
 	// Bullet holes, tested at the centre of the texel (so they're drawn in whole texels).
 	// Holes that went right through are cut out, so you see — and the sun shines — through
