@@ -2135,3 +2135,31 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   **D. Housekeeping.** 10) Sean: merge Pixel-factory's `claude/new-session-l733p0` or leave it as
   the record. 12) Sean on Shadow: the latest build's F3 frame split, so B is driven by numbers.
   13) Sean's call: drop the web export from CI now that nobody plays in the browser.
+- 2026-10-03 (art session, later): **A1, the quantise-once experiment, judged on both shots**
+  (the plan above; everything behind `screenshots.gd --quantise-once`, defaults unchanged, Sean's
+  eye on `docs/screenshots/quantise_once/compare.png`). Every pre-blocking step off (the layout
+  note above: the factory's paintings cut smooth at 128 texels/m with no palette, the man's head
+  and skin without squares, tile light and `min_square` off, and two steps found on the way: the
+  ground shader's own per-texel dirt noise and its snap to 24 levels), and the mosaic refined
+  (block size steady with depth, soft edges, a limited palette, the sky left out of the
+  posterise, and `average`: a block as the mean of its pixels). Judge v2 rounds `_r12`–`_r19`
+  (as now: saloon 0.228, street 0.330): pre-blocking off with the mosaic as it was, saloon
+  **0.270** and the street 0.41 (speckle: a point sample of a fine texture); the refined mosaic
+  with point samples and 4 px blocks, saloon **0.207** (its best of the trial: deep-shadow share
+  0.37 to the painting's 0.41, edge hardness 0.24–0.29 to 0.25), street 0.44; averaged 6 px
+  blocks with the ground's noise off, street **0.344** (level; by eye the road is the painting's
+  pale dust in blocks for the first time) but the saloon 0.307 (the averages lift its darks:
+  deep shadow 0.24). **What it shows.** 1) A point-sampled mosaic needs an already blocky
+  frame; a smooth frame needs averaged blocks, and the average must keep the darks (a
+  dark-weighted mean is the next thing to try). 2) The two paintings' blocks are different
+  sizes against depth (the saloon's 3–4 px nearly one size; the street's 6 px near, 5–6 far),
+  so block size wants to be a property of the scene or the shot, not one depth rule. 3) With the
+  blocks right, what the judge still marks on both shots is light, not blocks: the saloon's deep
+  shadows and bright things (A4), the street's chroma–L* correlation and light shadows (A4), and
+  the man's drawing (A2). The gate: by the judge, quantise once is better on the saloon and level
+  on the street; by eye the street is clearly better and the saloon's man is softer and smoother
+  than round 2's blocky one. Recommendation: carry on with A2–A4 under the quantise-once flag
+  (dark-weighted averaging and a per-scene block size first), make it the default when both
+  shots beat as-now, with Sean's eye on the sheet. Tools: `reduce.py --smooth`, `head_paint.py
+  bake --smooth`, `fit_tripo.py --smooth`, `tools/quantise_compare.py`; shared
+  `tools/screenshots.gd`: `--quantise-once`, `--mosaic-tune=`. 287 tests pass.
