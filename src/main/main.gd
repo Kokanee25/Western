@@ -81,3 +81,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.cycle_tile_look()
 	elif event.is_action_pressed(&"debug_mosaic"):
 		Settings.set_mosaic(not Settings.mosaic)
+	elif event.is_action_pressed(&"debug_quantise"):
+		Settings.set_quantise_once(not Settings.quantise_once)

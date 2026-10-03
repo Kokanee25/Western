@@ -33,6 +33,20 @@ const MOSAIC_STEPS := 14.0
 const TILE_LOOKS: Array[StringName] = [&"off", &"square", &"ragged"]
 ## How far a ragged tile's centre wanders, in tiles.
 const TILE_RAGGED := 0.3
+## The smallest square a texel may draw on screen, in render pixels (tiles.gdshaderinc
+## `tile_square`; project.godot's shader global, set from here).
+const MIN_SQUARE_PX := 2.0
+## The quantise-once look (Pixel-factory's plan A1, 2026-10-03; I toggles, saved; the world is
+## rebuilt from the other textures, so the scene reloads): nothing is cut into squares before
+## the screen mosaic: tile light off, no minimum square, the factory's paintings laid on smooth
+## at four times the texels with no palette (assets/textures/smooth/), the Tripo man's paint
+## without squares, and the mosaic averaging each block with the darks kept (dark_weight), soft
+## edged, in blocks of QUANTISE_TUNING.block_in render pixels under a roof and block_out in the
+## open (the saloon painting's blocks are ~4 px, the street's ~6 at 1280 wide).
+const QUANTISE_TUNING := {
+	"depth_power": 0.5, "soft": 0.5, "average": 1.0, "dark_weight": 2.0,
+	"block_in": 4.0, "block_out": 6.0,
+}
 
 ## Size of the low-resolution 3D render before it is scaled up with hard pixels (NATIVE: the
 ## window's size).
@@ -45,6 +59,8 @@ var integer_scaling := false
 var finish := false
 ## The screen mosaic (MOSAIC_K, MOSAIC_STEPS) on.
 var mosaic := true
+## The quantise-once look (QUANTISE_TUNING) on (I).
+var quantise_once := false
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -100,6 +116,8 @@ func reset_to_defaults() -> void:
 	texels_per_meter = 32.0
 	reduced_gore = false
 	tile_look = &"square"
+	quantise_once = false
+	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
 	changed.emit()
@@ -138,6 +156,8 @@ func load_from_disk() -> void:
 	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
 	if not tile_look in TILE_LOOKS:
 		tile_look = &"square"
+	quantise_once = cfg.get_value("video", "quantise_once", quantise_once)
+	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
 	changed.emit()
@@ -153,6 +173,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
 	cfg.set_value("video", "tile_look", String(tile_look))
+	cfg.set_value("video", "quantise_once", quantise_once)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
@@ -208,9 +229,9 @@ func cycle_texel_density() -> void:
 ## One line describing the current look, e.g. "1280×720 · texels 32/m smoothed · tiles square · shading off".
 func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
-	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s" % [res, int(texels_per_meter),
+	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s%s" % [res, int(texels_per_meter),
 			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic else "off", "on" if finish else "off",
-			"on" if pixel_shading else "off"]
+			"on" if pixel_shading else "off", " · quantise once" if quantise_once else ""]
 
 
 func set_tile_look(look: StringName) -> void:
@@ -225,9 +246,10 @@ func cycle_tile_look() -> void:
 
 ## The shader globals every tiled material reads (src/render/tiles.gdshaderinc) for this look.
 func tile_globals() -> Dictionary:
-	return {&"tile_light": 0.0 if tile_look == &"off" else 1.0,
+	return {&"tile_light": 0.0 if tile_look == &"off" or quantise_once else 1.0,
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" else 0.0,
-			&"tile_gradient": FINISH_GRADIENT if finish else 0.0}
+			&"tile_gradient": FINISH_GRADIENT if finish else 0.0,
+			&"min_square_px": 0.0 if quantise_once else MIN_SQUARE_PX}
 
 
 func _apply_tiles() -> void:
@@ -241,7 +263,28 @@ func _apply_texels() -> void:
 	for p in PixelArt.DENSITY_PRESETS:
 		if is_equal_approx(p[0], texels_per_meter):
 			mip = p[1]
-	PixelArt.set_density(texels_per_meter, mip)
+	# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): laid at four times the
+	# density, the paintings cover the same metres.
+	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
+
+
+## I: the quantise-once look on or off. The world's materials take their textures when they are
+## built, so the running scene reloads (a few seconds; you start again at the spawn).
+func set_quantise_once(on: bool) -> void:
+	quantise_once = on
+	_apply_quantise()
+	_apply_texels()
+	_apply_tiles()
+	_changed()
+	if is_inside_tree() and get_tree().current_scene != null:
+		get_tree().reload_current_scene.call_deferred()
+
+
+## What the look sets before any material is built: the smooth texture sets and the mosaic's knobs.
+func _apply_quantise() -> void:
+	PixelArt.smooth = quantise_once
+	PeopleBodies.smooth_paint = quantise_once
+	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}
 
 
 func set_reduced_gore(on: bool) -> void:

@@ -173,16 +173,23 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
   The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
   averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
-  **The quantise-once trial** (Pixel-factory's plan A1, 2026-10-03; `screenshots.gd
-  --quantise-once`, off everywhere by default): every pre-blocking step off (tile light off,
-  `min_square_px` 0, `PixelArt.smooth`: the factory's textures from `assets/textures/smooth/`,
-  the same paintings cut by `reduce.py --smooth` at four times the texels with no palette, the
-  grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole man's `<id>_skin_smooth.png` /
-  `_head_smooth.png` from `fit_tripo.py --smooth`, no squares, from `head_paint.py bake --smooth`'s
-  unquantised head) and the mosaic refined by `DepthMosaic.tuning` (shader knobs `depth_power`,
-  block size as `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of
-  blend across block edges; `sat_steps`, `hue_steps`, the block's colour snapped to a limited
-  palette as well as `steps` of light; `--mosaic-tune=k:v,...`). Verdict in the status entry;
+  **The quantise-once look** (Pixel-factory's plan A1, 2026-10-03; `Settings.quantise_once`,
+  **I** toggles, saved, off by default until Sean's eye on a real GPU; `screenshots.gd
+  --quantise-once`): every pre-blocking step off (tile light off, `min_square_px` 0: Settings
+  owns that global now, `MIN_SQUARE_PX` 2; `PixelArt.smooth`: the factory's textures from
+  `assets/textures/smooth/`, the same paintings cut by `reduce.py --smooth` at four times the
+  texels with no palette, the grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole
+  man's `<id>_skin_smooth.png` / `_head_smooth.png` from `fit_tripo.py --smooth`, no squares,
+  from `head_paint.py bake --smooth`'s unquantised head) and the mosaic refined by
+  `DepthMosaic.tuning` (`Settings.QUANTISE_TUNING`; shader knobs `depth_power`, block size as
+  `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of blend across
+  block edges; `average`, a block as the mean of its own band's pixels, with `dark_weight` the
+  darker pixels weighing more so shadow edges keep the shadow; `sat_steps`, `hue_steps`, the
+  block's colour snapped to a limited palette as well as `steps` of light; and `block_in` /
+  `block_out`, the block size under a roof and in the open, 4 and 6 px: the mosaic node casts a
+  ray up from the camera every quarter second and eases between them; `--mosaic-tune=k:v,...`,
+  `--saloon-tune=` / `--street-tune=` for one shot). The world's materials take their textures
+  when built, so the switch reloads the scene. Verdict in the status entries;
   `docs/screenshots/quantise_once/compare.png` (`tools/quantise_compare.py`).
   **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
   size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default

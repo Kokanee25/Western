@@ -137,6 +137,41 @@ func test_tile_look_is_a_setting() -> void:
 	check_near(Settings.tile_globals()[&"tile_ragged"], 0.0, 0.001, "square again")
 
 
+func test_quantise_once_is_a_setting() -> void:
+	check(not Settings.quantise_once, "off by default: the game's look is unchanged")
+	check(not PixelArt.smooth, "the factory's squares as before")
+	check(DepthMosaic.tuning.is_empty(), "the mosaic at its defaults")
+	check_near(Settings.tile_globals()[&"min_square_px"], Settings.MIN_SQUARE_PX, 0.001, "the far squares as before")
+	Settings.set_quantise_once(true)
+	check(PixelArt.smooth, "I: the smooth texture set")
+	check(PeopleBodies.smooth_paint, "the man's paint without squares")
+	check_near(PixelArt.texels_per_meter, 32.0 * 4.0, 0.001, "four times the texels for the smooth set")
+	check_near(Settings.tile_globals()[&"tile_light"], 0.0, 0.001, "tile light off")
+	check_near(Settings.tile_globals()[&"min_square_px"], 0.0, 0.001, "no minimum square")
+	check(PixelArt.factory("floor").resource_path.contains("/smooth/"), "the smooth floor painting")
+	check(DepthMosaic.tuning.has("dark_weight"), "the mosaic averages with the darks kept")
+	check(Settings.look_description().contains("quantise once"), "described: %s" % Settings.look_description())
+	# The mosaic on a camera takes the knobs, picks its block size by the roof over it, and gives
+	# them back when the look goes off.
+	var camera := Camera3D.new()
+	get_tree().root.add_child(camera)
+	var m := DepthMosaic.attach(camera, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
+	var mat := m.material_override as ShaderMaterial
+	check_near(mat.get_shader_parameter(&"dark_weight"), Settings.QUANTISE_TUNING["dark_weight"], 0.001, "dark-weighted")
+	check(m.scene_blocks, "block size by the roof")
+	await physics_frames(3)
+	check_near(mat.get_shader_parameter(&"block_k"), Settings.QUANTISE_TUNING["block_out"], 0.001, "no roof over an empty world: block_out")
+	Settings.set_quantise_once(false)
+	DepthMosaic.attach(camera, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
+	check_near(mat.get_shader_parameter(&"dark_weight"), 0.0, 0.001, "I again: the plain mosaic")
+	check_near(mat.get_shader_parameter(&"average"), 0.0, 0.001, "point sampled")
+	check(not m.scene_blocks, "one block rule")
+	check(not PixelArt.smooth and not PeopleBodies.smooth_paint, "the squares back")
+	check_near(PixelArt.texels_per_meter, 32.0, 0.001, "32 texels again")
+	camera.queue_free()
+	Settings.reset_to_defaults()
+
+
 func test_tiled_materials_follow_the_texel_grid() -> void:
 	# Props (laid on by position, like the shot match's cups and table) are on the same grid.
 	var m := PixelArt.material(PixelArt.wood("test_tiles", Color(0.4, 0.25, 0.12), 3), Color.WHITE, PixelArt.Mapping.TRIPLANAR)

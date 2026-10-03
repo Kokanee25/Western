@@ -142,16 +142,9 @@ func _run() -> void:
 		# mosaic refined (--mosaic-tune=depth_power:0.5,soft:0.75,sat_steps:6,hue_steps:24,...
 		# sets its knobs; --quantise-once alone uses the trial's defaults).
 		elif arg == "--quantise-once":
-			settings.set_tile_look(&"off")
-			RenderingServer.global_shader_parameter_set(&"min_square_px", 0.0)
-			PixelArt.smooth = true
-			# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): the grid lays
-			# them at four times the density, and the code-painted textures go finer with it.
-			PixelArt.set_density(PixelArt.texels_per_meter * 4.0, PixelArt.use_mipmaps)
-			load("res://src/bodies/people_bodies.gd").smooth_paint = true
-			var mosaic_gd: Variant = load("res://src/render/depth_mosaic.gd")
-			if mosaic_gd.tuning.is_empty():
-				mosaic_gd.tuning = {"depth_power": 0.5, "soft": 0.5, "average": 1.0, "max_block": 6.0}
+			# The game's own switch (I): Settings.QUANTISE_TUNING, the smooth sets, tiles and
+			# min_square off. --mosaic-tune after it replaces the knobs.
+			settings.set_quantise_once(true)
 			screen_squares = 6.0
 		elif arg.begins_with("--mosaic-tune="):
 			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
@@ -391,12 +384,14 @@ func _retune(camera: Camera3D, tune: Dictionary) -> void:
 		return
 	var mat := m.material_override as ShaderMaterial
 	for k: String in _view_tuned:
-		if not tune.has(k) and not mosaic_gd.tuning.has(k):
-			mat.set_shader_parameter(StringName(k), RenderingServer.shader_get_parameter_default(mat.shader.get_rid(), StringName(k)))
+		if not tune.has(k) and not mosaic_gd.tuning.has(k) and mosaic_gd.KNOB_DEFAULTS.has(k):
+			mat.set_shader_parameter(StringName(k), mosaic_gd.KNOB_DEFAULTS[k])
 	for k: String in mosaic_gd.tuning:
 		mat.set_shader_parameter(StringName(k), mosaic_gd.tuning[k])
 	for k: String in tune:
 		mat.set_shader_parameter(StringName(k), tune[k])
+	if tune.has("block_k") or tune.has("max_block"):
+		m.scene_blocks = false  # this view's own block size, not the roof check's
 	_view_tuned = tune.keys()
 	print("  mosaic tuned for this view: ", tune)
 

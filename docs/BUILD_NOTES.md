@@ -13,6 +13,13 @@ same body.
   softening is off under it. Build 340 drew a black screen with it on a real GPU (its pass was
   drawn before the frame existed); fixed in this build. If anything's ever black, press O.
   Not on the web build (that renderer has no depth to size the blocks by).
+- **A second look to try: "quantise once" (I).** Nothing is cut into squares before the mosaic:
+  the paintings go on the walls smooth, the man's paint is smooth, and only the screen mosaic
+  makes the blocks (averaged, soft-edged, 4 px under a roof and 6 px in the open). The scene
+  reloads when you press I (a few seconds; you start at the spawn). Off by default. Compare the
+  saloon at night and the street at golden hour both ways and tell me which is the painting's
+  style; that decides whether it becomes the default. `docs/screenshots/quantise_once/compare.png`
+  is the same comparison rendered here.
 - **The man at the card table is the image-to-3D man now** (Tripo, fitted to our skeleton), with
   his head painted in the style. Walk into the saloon and look at him from the front, the side
   and three-quarters: tell me if he reads as the painting's style, and where he doesn't.
