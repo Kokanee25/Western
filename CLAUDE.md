@@ -460,6 +460,29 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `SQUARE_TEXELS` 4 (~5.6 mm), one texel a square → `<id>_skin.png` + `<id>_head.png`
   (`PeopleBodies` lays them on by UV as baked garments); `<id>.json` says `"whole": true`, and
   `PeopleBodies` then puts nothing of BodyMesh's on him (he comes dressed, hat and boots too).
+  **Layers** (docs/DESTRUCTION_BRIEF.md part 5, since 2026-10-04): a person's `model` is his
+  Tripo body painted bare-headed and coatless (`characters.json`: a `from` entry is redrawn from
+  that character's finished front with `change` saying what to take off, `hatless` fixes the
+  turnaround's words) and his `pieces` {shape: character id} are garments painted alone as
+  ghost-mannequin pictures (`item`: Tripo models them unrigged, `<id>.glb` is the mesh);
+  `fit_tripo.py` scales and places each piece by landmarks in his Tripo space (`Piece.place`: the
+  coat's shoulder line onto his shoulders at `PIECE_MARGIN`, the hat's brim onto his head's band
+  at `HAT_BAND` of the way from jaw to crown), carries it through the body's own warp
+  (`warp_points`), skins it by the same tables (the coat's skirt from the hips, the hat all head)
+  and exports it as `body_<shape>` in his glb (`PIECE_TRIS`) with `<id>_<shape>.png`;
+  `PeopleBodies` wears every piece a whole man came with, so the hat is its own mesh (gameplay's
+  hat-shot-off needs that) and the coat can come off. A bare-headed man's head cut is
+  `HEAD_FROM_NECK` of the way from his neck joint to his jaw. **State (2026-10-04):** the hat
+  works (`stranger_layered`: body + hat); the coat piece does not yet. A Tripo garment is a
+  double shell (its lining 1–3 cm in: `_drop_lining`), at an ordinary man's girth on a broad
+  man, and no landmark registration put it cleanly over him (inside his skin, or torn by the
+  clearance push, `_clear_body`); `Piece.as_shell` (the coat as an offset shell of his own body,
+  its look by nearest-point UV from the Tripo coat, cut where that coat has no cloth) fits by
+  construction but its UVs smear across the atlas's islands and its coverage test fails where
+  the Tripo coat sits inside him. Next for the coat: bake the Tripo coat's colour onto the shell
+  (per-vertex colour from the nearest coat point at full resolution, the shell unwrapped in
+  Blender and baked to its own texture, then decimated), the way `clothes.py` bakes garments.
+  `stranger` stays the whole man meanwhile.
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -2300,3 +2323,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   and lands, he's unhurt; the outlaw's fear and his line; no hat, nothing to shoot). 299 pass.
   - Known: a hat can't be picked up yet; a man knocked down keeps his hat on; the player's own
     hat isn't a thing (no visible player head).
+- 2026-10-04 (art session): **A2 begun: the stranger in layers, the hat first.** Sean: "keep going";
+  the gameplay session's brief (docs/DESTRUCTION_BRIEF.md part 5): every character in layers,
+  the Tripo route must give layered output. The pipeline above: `characters.json` grew
+  `stranger_body` (the same man redrawn from his finished front with the hat and coat taken off:
+  People runs 25–26, fal; run 25's push was rejected because the branch had moved under it and
+  its paintings were lost, so every commit step in `people.yml` now rebases first),
+  `stranger_coat` and `stranger_hat` (each alone as a ghost-mannequin picture, four views; the
+  coat's sleeves hang however the painter is asked to hold them out: `pose` is in the prompt and
+  ignored), Tripo modelled all three (runs 27 and 29, items unrigged), and `fit_tripo.py` hangs
+  pieces on the body. **What works:** `assets/people/stranger_layered.glb`: his bare-headed body
+  in shirt, vest and trousers (a clean seated man in the lab) and his hat as its own mesh on his
+  head (`Piece.place`: brim onto the band, `HAT_BAND`; test
+  `test_bodies::test_the_layered_man_wears_his_own_hat`, gameplay's file, said here). Found on
+  the way: pieces must be placed before the body's warp (placed after, they were scaled twice);
+  a bare-headed man's head cut from his neck joints, within `HEAD_RADIUS` of the neck's axis (his
+  shoulder tops rose above the collar line and went with his head); the skirt rule only on a
+  whole man and the coat (it handed a trousered body's legs to his pelvis); Tripo's toe joint sits
+  4 cm before the ankle (his boots stretched to 0.6 m: the foot bone is measured from the mesh).
+  **What doesn't yet:** the coat (the layout note above has the four tries and the bake route to
+  take next). `stranger` stays the whole man, so the saloon shot and its judge rounds are
+  unchanged; `"whole": true` is the stopgap the brief names. The diagnostic men rendered on the
+  way are scratch, not kept. 291 tests pass.

@@ -46,7 +46,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	# wears nothing of BodyMesh's.
 	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
-	if _is_whole(model):
+	var whole := _is_whole(model)
+	if whole:
 		shapes.clear()
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
@@ -54,8 +55,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	var textures := {}
 	for k: String in generated:
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
-		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie).
-		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS:
+		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie). A whole
+		# man wears every piece his model came with (his own coat and hat, fitted as pieces).
+		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS or whole:
 			shapes[k] = generated[k]
 			var png := TEXTURE_PATH % [model, k]
 			if smooth_paint and ResourceLoader.exists(TEXTURE_PATH % [model, k + "_smooth"]):

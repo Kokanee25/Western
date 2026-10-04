@@ -82,6 +82,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style test: photo references (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   style-train:
@@ -117,6 +118,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style: LoRA trained on fal (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   style-sample:
@@ -150,6 +152,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style: samples from the LoRA (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   # The men painted clean, full length and turned round (front, left, back, right) by FLUX Kontext
@@ -192,6 +195,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: painted full length and turned round (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   # The Tripo man's head painted in the style at full LoRA strength from clay views of it and
@@ -236,6 +240,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: the head painted and baked (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   textures:
@@ -273,6 +278,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Textures: paint and reduce materials (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   backdrop:
@@ -305,6 +311,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Backdrop: paint and cut (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   characters:
@@ -355,6 +362,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: image-to-3D (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   people:
@@ -395,7 +403,7 @@ jobs:
 
       - name: Install Blender (bpy), numpy and Pillow
         if: inputs.paint_views == ''
-        run: pip install "bpy==${BPY_VERSION}" numpy pillow
+        run: pip install "bpy==${BPY_VERSION}" numpy pillow scipy
 
       # His body painted from the concept painting: the image model paints each grey view of him
       # (assets/people/paint/<id>_<view>_guide.png, rendered by tools/paint_bake.gd, which bakes
@@ -494,4 +502,5 @@ jobs:
           else
             git commit -m "People: regenerate from MakeHuman (run ${{ github.run_number }})"
           fi
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
