@@ -2457,3 +2457,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   ~117 MB, past fal's single upload, which refused 122 MB; 77 MB at 90, the squares unchanged by
   eye at 3×). Run 30's record is kept in `tools/style/style_lora_run30.json` and run 34's samples in
   `docs/style_test/lora/run34/`, so the new LoRA can be judged against both and undone.
+  People run 35 trained it (282 crops, 1000 steps, 12 minutes); its record is
+  `tools/style/style_lora.json` (and `style_lora_run35.json`), so the sampler paints with it.
+  Run 36, the samples, failed before painting anything: fal answered 403 "User is locked.
+  Reason: Exhausted balance". The training spent what was left, so the samples wait on a top-up
+  at fal.ai/dashboard/billing (about $0.15 for the six). Until they're judged, the new LoRA is
+  untested; going back to run 30's is one copy (`style_lora_run30.json` over `style_lora.json`).
