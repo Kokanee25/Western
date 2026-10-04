@@ -2345,3 +2345,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   take next). `stranger` stays the whole man, so the saloon shot and its judge rounds are
   unchanged; `"whole": true` is the stopgap the brief names. The diagnostic men rendered on the
   way are scratch, not kept. 291 tests pass.
+- 2026-10-04 (Pixel-factory test session, at Sean's request): **four of Sean's new pictures added
+  to `docs/concept/style/`** (art's folder, said here) with `captions.json`, for the LoRA's next
+  training (`style: train`): the golden-hour standoff, the saloon from its balcony, the street at
+  night with the revolver, the dynamite blast on the street. Judged by eye and by judge v2 against
+  the nearest painting (standoff 0.143, balcony 0.208; the night street and the blast score worse
+  only because the judge weighs light and they're a night scene and a fireball). Left out: the
+  doctor's office (softer, paler, less of the mosaic, weaker drawing).
