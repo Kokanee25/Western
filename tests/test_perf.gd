@@ -61,8 +61,6 @@ func test_the_calm_street_stays_cheap() -> void:
 		for mi: MeshInstance3D in p.find_children("*", "MeshInstance3D", true, false):
 			if mi.is_visible_in_tree():
 				n += 1
-		if n > worst:
-			print("PERSON ", p.name, " ", n, " ", (p as Node).find_children("*", "MeshInstance3D", true, false).filter(func(m): return m.is_visible_in_tree() and m.get_parent() != (p as HumanBody).skeleton).map(func(m): return String(m.get_parent().name) + "/" + String(m.name)).slice(0, 60))
 		worst = maxi(worst, n)
 	check(worst <= MESHES_A_PERSON, "the most meshes on one person %d (budget %d)" % [worst, MESHES_A_PERSON])
 	var nodes := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))

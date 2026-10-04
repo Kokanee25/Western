@@ -2,12 +2,20 @@
 //! loads in Godot 4.7.2, and `NativeBench` proves the round trip the later steps live on: a job
 //! runs on a worker thread with no Godot objects in it, and the main thread collects its result
 //! as packed arrays (here, a voxel sphere's visible cube faces as mesh arrays).
+//! Step 2, members that take damage: `VoxelMember` (member.rs) over the brick volume
+//! (volume.rs, from Pixel-factory), carving (carve.rs), greedy meshing (mesh.rs) on the worker
+//! pool (pool.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
+pub mod carve;
+pub mod member;
+pub mod mesh;
+pub mod pool;
+pub mod volume;
 pub mod voxel;
 
 struct SaltCreekNative;

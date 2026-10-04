@@ -395,6 +395,8 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	if length < 0.4 or absf(t) > length * 0.5 - 0.1:
 		var rb := _new_rubble([m.member_id])
 		rb.global_transform = m.global_transform
+		if not cs.shape is BoxShape3D:
+			cs.shape = _box_shape(m.size)  # carved (concave): a moving body takes its box
 		mi.reparent(rb, true)
 		cs.reparent(rb, true)
 		rb.mass = maxf(m.weight(tuning) / 9.81, 0.3)

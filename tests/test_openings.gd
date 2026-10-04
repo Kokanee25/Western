@@ -121,3 +121,15 @@ func test_whole_each_shape_draws_once_and_opening_brings_back_the_pieces() -> vo
 	await physics_frames(1)
 	check_eq(shown.call().size(), pieces, "opened, every piece draws for itself")
 	check(_count(&"chest") > 0, "and the chest's are open")
+
+
+## The first wound to open a part used to paint the insides' textures on the spot (~90 ms on that
+## frame); they're painted ahead, a few frames after the first person comes in.
+func test_the_insides_are_painted_before_anyone_is_hurt() -> void:
+	await process_frames(BodyInterior.COLOURS.size() + 10)
+	for k: StringName in BodyInterior.COLOURS:
+		check(BodyInterior._mats.has(k), "the %s texture is ready" % k)
+	var t0 := Time.get_ticks_usec()
+	man.open_wound(&"chest", _chest_front(), 1500.0)
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	check(ms < 40.0, "opening his chest takes %.1f ms (was ~90 the first time)" % ms)

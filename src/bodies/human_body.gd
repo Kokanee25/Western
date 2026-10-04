@@ -192,6 +192,14 @@ var _pool_ml := 0.0
 var _day_cycle: Node
 ## The generated body (BodyMesh): one skeleton, a bone per segment, following the hitboxes.
 var skeleton: Skeleton3D
+## The hat he's wearing, as its own thin hitbox on his head (`Layers.HATS`, meta `hat_of`): a ball
+## through it takes it off (`take_hat_shot`), and it lands as a thing of its own (group `hats`).
+## Null with no hat, or once it's off.
+var hat_body: AnimatableBody3D
+var hat_off := false
+## The hat's shapes (BodyMesh's or the generated body's) and what a felt hat stops of a ball (J).
+const HAT_SHAPES := ["hat", "hat_brim", "hat_band"]
+const HAT_RESISTANCE := 6.0
 var skin_meshes := {}  ## "shape/segment" ("skin/chest", "shirt/upper_arm_r", "hat/head"...) -> MeshInstance3D
 var segment_pieces := {}  ## segment -> Array of its generated MeshInstance3Ds (skin and clothes)
 var _rigid_meshes := {}  ## MeshInstance3D -> the piece's rigid mesh (swapped in when a limb comes off)
@@ -211,6 +219,7 @@ func _ready() -> void:
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
+	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))
@@ -308,6 +317,7 @@ func _build() -> void:
 		visuals[sid] = vis
 		_build_visual(sid, vis)
 	_build_skin()
+	_build_hat_box()
 	_blocker = StaticBody3D.new()
 	_blocker.name = "Blocker"
 	_blocker.set_meta(&"human_body", self)
@@ -321,6 +331,125 @@ func _build() -> void:
 	bs.position.y = anatomy.height * 0.5
 	_blocker.add_child(bs)
 	add_child(_blocker)
+
+
+## The worn hat's hitbox, fitted to its meshes: a flat disc for the brim and a cylinder for the
+## crown, on his head part (so it follows every pose and the ragdoll).
+func _build_hat_box() -> void:
+	var box := _hat_box()
+	if box.size == Vector3.ZERO:
+		return
+	hat_body = AnimatableBody3D.new()
+	hat_body.name = "Hat"
+	hat_body.sync_to_physics = false
+	hat_body.collision_layer = Layers.HATS
+	hat_body.collision_mask = 0
+	hat_body.set_meta(&"hat_of", self)
+	(parts[&"head"] as Node3D).add_child(hat_body)
+	hat_body.position = box.get_center()
+	var brim := CollisionShape3D.new()
+	brim.name = "Brim"
+	var bc := CylinderShape3D.new()
+	bc.radius = maxf(box.size.x, box.size.z) * 0.5
+	bc.height = 0.02
+	brim.shape = bc
+	brim.position.y = -box.size.y * 0.5 + 0.02
+	hat_body.add_child(brim)
+	var crown := CollisionShape3D.new()
+	crown.name = "Crown"
+	var cc := CylinderShape3D.new()
+	cc.radius = minf(box.size.x, box.size.z) * 0.36
+	cc.height = maxf(box.size.y - 0.02, 0.04)
+	crown.shape = cc
+	crown.position.y = 0.01
+	hat_body.add_child(crown)
+
+
+## The worn hat's pieces (rest space, as skinned to his head).
+func _hat_pieces() -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for key: String in skin_meshes:
+		if key.get_slice("/", 0) in HAT_SHAPES:
+			out.append(skin_meshes[key])
+	return out
+
+
+## The worn hat's bounds in his head part's space (zero if he has none).
+func _hat_box() -> AABB:
+	var pieces := _hat_pieces()
+	if pieces.is_empty() or skeleton == null or skeleton.find_bone("head") < 0:
+		return AABB()
+	var to_head := skeleton.get_bone_rest(skeleton.find_bone("head")).affine_inverse()
+	var box := AABB()
+	var first := true
+	for mi in pieces:
+		var b := to_head * mi.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	return box
+
+
+## A ball through his hat (world `at`, along `dir`, carrying `energy` J, fired by `shooter`): the
+## hat's off, flying with the ball's push, and he knows it. Returns the energy the ball keeps.
+func take_hat_shot(at: Vector3, dir: Vector3, energy: float, shooter: Node, mass := 0.0165) -> float:
+	if hat_off or hat_body == null:
+		return energy
+	var speed := sqrt(2.0 * energy / maxf(mass, 0.001))
+	# A felt hat weighs ~120 g; the ball gives it a share of its momentum and it flips off.
+	var push := clampf(mass * speed * 0.15 / 0.12, 1.5, 6.0)
+	knock_hat_off(dir.normalized() * push + Vector3.UP * 1.2, at)
+	Events.hat_shot.emit(self, shooter, at)
+	if shooter:
+		Events.deed.emit(shooter, &"shoot_at", self, at)
+	return maxf(energy - HAT_RESISTANCE, 0.0)
+
+
+## Take the hat off his head and let it fall (or fly) as a thing of its own, holed where `at` is.
+func knock_hat_off(velocity := Vector3.ZERO, at := Vector3.INF) -> RigidBody3D:
+	if hat_off or hat_body == null:
+		return null
+	hat_off = true
+	var head := parts[&"head"] as Node3D
+	var box := _hat_box()
+	var rest_to_world := head.global_transform * skeleton.get_bone_rest(skeleton.find_bone("head")).affine_inverse()
+	var hat := RigidBody3D.new()
+	hat.name = "HatOf_%s" % name
+	hat.add_to_group(&"hats")
+	hat.set_meta(&"hat_of", self)
+	hat.collision_layer = Layers.DEBRIS
+	hat.collision_mask = Layers.DEBRIS_MASK
+	hat.mass = 0.12
+	hat.linear_damp = 0.6
+	hat.angular_damp = 1.5
+	var cs := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(box.size.x, maxf(box.size.y * 0.6, 0.04), box.size.z)
+	cs.shape = shape
+	hat.add_child(cs)
+	var host := get_parent() if get_parent() else self
+	host.add_child(hat)
+	hat.global_transform = Transform3D(head.global_basis, head.global_transform * box.get_center())
+	for mi in _hat_pieces():
+		var copy := MeshInstance3D.new()
+		copy.mesh = mi.mesh
+		copy.material_override = mi.material_override
+		hat.add_child(copy)
+		copy.global_transform = rest_to_world
+		mi.visible = false
+	# Hidden for good: nothing shows the worn hat again (the merged shapes are its pieces' too).
+	for key: String in skin_meshes.keys():
+		if key.get_slice("/", 0) in HAT_SHAPES:
+			skin_meshes.erase(key)
+	for shape_name: String in _merged.keys():
+		if shape_name in HAT_SHAPES:
+			(_merged[shape_name] as MeshInstance3D).visible = false
+	if at != Vector3.INF:
+		hat.set_meta(&"hole", hat.to_local(at))
+	hat.linear_velocity = velocity
+	hat.angular_velocity = Vector3(velocity.z, 0.0, -velocity.x) * 2.0 + Vector3.UP * 4.0
+	hat_body.queue_free()
+	hat_body = null
+	return hat
 
 
 ## Where a segment turns about, in the rest pose: the joint with its parent.
