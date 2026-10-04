@@ -2348,7 +2348,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
 - 2026-10-04 (Pixel-factory test session, at Sean's request): **four of Sean's new pictures added
   to `docs/concept/style/`** (art's folder, said here) with `captions.json`, for the LoRA's next
   training (`style: train`): the golden-hour standoff, the saloon from its balcony, the street at
-  night with the revolver, the dynamite blast on the street; later three close portraits (an old man, a bearded man, a woman). Judged by eye and by judge v2 against
+  night with the revolver, the dynamite blast on the street; later three close portraits (an old man, a bearded man, a woman) and four full-length figures in scene light (a ranch hand on the street, the old man on a porch at night, the woman in the store doorway, a duster from behind). Judged by eye and by judge v2 against
   the nearest painting (standoff 0.143, balcony 0.208; the night street and the blast score worse
   only because the judge weighs light and they're a night scene and a fireball). Left out: the
   doctor's office (softer, paler, less of the mosaic, weaker drawing).
