@@ -2391,3 +2391,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   tool reads it: `head_paint.py`, `paint_full_length.py`, `sample_style.py`); run 33's record kept
   in `style_lora_run33.json`. Next training waits on more close portraits in the original
   style, with close-ups weighted up; the scene pictures stay filed.
+  Then nine more (44 in the folder): the saloon's props (a hanging lamp, the batwings from inside,
+  the piano, the back bar and its mirror, a wall sconce, the stag and a painting, the bar's foot
+  rail and spittoon) and boot prints in sand and in red dirt. Left out: boot prints in grass (fine
+  streaky noise) and in mud (lumpy cube clumps, a voxel look rather than the paintings' flat
+  squares). Not trained on yet; the faces sheet (`docs/style_test/faces_bold_squares.png`) shows
+  the bold faces at 14–31 squares across the face, Sean's three portraits at 48–49.
