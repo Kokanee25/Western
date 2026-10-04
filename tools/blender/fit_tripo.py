@@ -318,6 +318,16 @@ class Piece:
             self._drop_lining()
 
     @staticmethod
+    def _torso_at(v, y, x0, half, band=0.015):
+        """Width and centre (x, z) at this height of what lies within `half` of x0: the torso,
+        without the arms or sleeves either side of it."""
+        sel = (np.abs(v[:, 1] - y) < band) & (np.abs(v[:, 0] - x0) < half)
+        if sel.sum() < 3:
+            return 0.0, x0, 0.0
+        xs, zs = v[sel, 0], v[sel, 2]
+        return float(xs.max() - xs.min()), float((xs.max() + xs.min()) * 0.5), float((zs.max() + zs.min()) * 0.5)
+
+    @staticmethod
     def _depth_at(v, y, band=0.015):
         """Front to back at this height."""
         sel = np.abs(v[:, 1] - y) < band
@@ -382,19 +392,22 @@ class Piece:
             knee_y = (body.j["r-knee"][1] + body.j["l-knee"][1]) * 0.5
             top_y = body.j["neck"][1] + COAT_COLLAR
             s = (top_y - knee_y) / max(h, 1e-6)
-            _bw, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
-            self.v = (v - [px, y1, pz]) * s + [bx, top_y, bz]
-            # Its girth from his: front to back at the chest (no sleeves in the way), the coat's
-            # over his by PIECE_MARGIN, scaled about his axis in x and z; sized by length alone it
-            # sat inside his skin and only the sleeves showed.
-            chest_y = body_sh[1] - 0.08
-            coat_depth = self._depth_at(self.v, chest_y, 0.01)
-            body_depth = self._depth_at(body.v, chest_y, 0.01)
-            if coat_depth > 0 and body_depth > 0:
-                g = body_depth * PIECE_MARGIN[self.shape] / coat_depth
-                self.v[:, 0] = bx + (self.v[:, 0] - bx) * g
-                self.v[:, 2] = bz + (self.v[:, 2] - bz) * g
-                body.report.setdefault("piece_girth", {})[self.shape] = round(float(g), 3)
+            # Where it sits and how big round: measured on the torso alone (between the shoulders:
+            # his arms and hair, and the coat's sleeves, put the centre forward and the depth
+            # wrong), at the chest, a little below the shoulder line. The coat's girth is his plus
+            # PIECE_MARGIN (sized by length alone it sat inside his skin and only the sleeves showed).
+            sw = float(np.linalg.norm(body.j["r-shoulder"] - body.j["l-shoulder"]))
+            bx0 = float(body_sh[0])
+            chest_dy = 0.08
+            bw, bx, bz = self._torso_at(body.v, body_sh[1] - chest_dy, bx0, sw * 0.5, 0.012)
+            cw, cx, cz = self._torso_at(v, sh_y - chest_dy / s, px, (sw * 0.5) / s * 1.05, h * 0.015)
+            g = bw * PIECE_MARGIN[self.shape] / max(cw, 1e-6) / s if cw > 0 and bw > 0 else 1.0
+            moved = v - [cx, y1, cz]
+            moved[:, 0] *= s * g
+            moved[:, 2] *= s * g
+            moved[:, 1] *= s
+            self.v = moved + [bx, top_y, bz]
+            body.report.setdefault("piece_girth", {})[self.shape] = round(float(g), 3)
             body.report.setdefault("piece_landmarks", {})[self.shape] = {
                 "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
             self._sleeves_to_arms()
