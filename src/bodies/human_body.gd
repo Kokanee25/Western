@@ -211,6 +211,7 @@ func _ready() -> void:
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
+	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))

@@ -22,6 +22,10 @@ const COLOURS := {
 }
 
 static var _mats := {}
+## What's still to paint ahead (`warm_up`), one a frame.
+static var _warm_queue: Array[Callable] = []
+static var _warming := false
+static var _warm_call: Callable
 
 
 ## The skin/clothing shader in place of a body part's plain material: same pixel texture, same
@@ -48,6 +52,34 @@ static func _tex_material(key: StringName, seed: int) -> StandardMaterial3D:
 		var m := GunParts.material("inside:" + key, PixelArt.skin("inside:" + key, colour, seed), 0.0, 0.35 if key != &"bone" else 0.7)
 		_mats[key] = m
 	return _mats[key]
+
+
+## Paint ahead what a first wound would paint on the spot: the insides' textures and the wound
+## decals are painted in script the first time each is needed (~5 ms each: the first chest to
+## open took ~90 ms on its frame, the first belly ~40). One a frame, once per run, from when the
+## first person comes into the world; the seeds are the ones `build()` and `_paint_wound` use.
+static func warm_up(tree: SceneTree) -> void:
+	if _warming or tree == null:
+		return
+	_warming = true
+	var keys := COLOURS.keys()
+	for k: StringName in keys:
+		var seed := 91 if k == &"flesh" else (93 if k == &"bone" else 95 + keys.find(k))
+		_warm_queue.append(_tex_material.bind(k, seed))
+	_warm_queue.append(PixelArt.blood.bind("furrow", 17, true, 16))
+	_warm_queue.append(PixelArt.blood.bind("wound_entry", 5, true, 16))
+	_warm_queue.append(PixelArt.blood.bind("wound_exit", 9, true, 16))
+	for i in 4:
+		_warm_queue.append(PixelArt.blood.bind("stain%d" % i, i, false, 32))
+	_warm_call = _warm_step.bind(tree)
+	tree.process_frame.connect(_warm_call)
+
+
+static func _warm_step(tree: SceneTree) -> void:
+	if _warm_queue.is_empty():
+		tree.process_frame.disconnect(_warm_call)
+		return
+	_warm_queue.pop_front().call()
 
 
 ## A shell that can be opened: the flesh wall (seen from inside) or a hollow bone (from outside).

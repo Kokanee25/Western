@@ -36,6 +36,9 @@ same body.
 - **Tell me:** do the holes read? Too small, too big, too clean? (Pictures of the same three
   charges at three cube sizes, and the old painted holes, are in `docs/destruction/step2/`.) Any
   hitch when the shot lands?
+- **No more hitch when someone's first hit.** The first time anyone's chest or belly was opened by
+  a wound the game froze for a tenth of a second (painting the insides on the spot); now it's
+  painted while the town loads.
 - Known: a carved board that snaps in two falls as two plain halves (the holes aren't kept on
   the pieces); dynamite doesn't carve yet (step 3); the web build keeps the old painted holes.
 
