@@ -2463,3 +2463,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Reason: Exhausted balance". The training spent what was left, so the samples wait on a top-up
   at fal.ai/dashboard/billing (about $0.15 for the six). Until they're judged, the new LoRA is
   untested; going back to run 30's is one copy (`style_lora_run30.json` over `style_lora.json`).
+  After Sean topped up, run 37 painted five of the six samples. fal refused the gunman (the
+  same lock), so `gunman_full.png` is still run 34's. Side by side:
+  `docs/style_test/lora/compare_run31_run34_run37.png`. The new portrait is a front-facing cowboy
+  with the set's round-studded band, bold blocks on the chin, coat and hat, and the eyes and brow
+  drawn fine. It's ~23 squares across the face by run length (run 31's ~17, run 34's ~22),
+  though by texture scale its blocks are the largest of the three (10 px to 8). The horse is big
+  in frame again (run 34's was small); the saloon and the street are much the same; signs are
+  still misspelt. Its face isn't clearly as bold as run 31's, so by the rule agreed
+  `style_lora.json` is run 30's again. Run 35's record stays in `style_lora_run35.json` for
+  Sean's eye.
