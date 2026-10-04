@@ -2371,3 +2371,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   livery barn, a camp at night, a vaquero, an alley, and a close study of a plank wall. Left
   out: a close study of the road from above (its ruts stand up as ridges and its hoof prints are
   oversized horseshoe stamps). The dawn, rain and noon streets share one layout. Not trained on yet.
+  Then **the LoRA retrained on all 28** (People run 33: 126 crops, 78 from the pictures; run 32
+  failed at fal's upload, 413, the PNG zip was 122 MB, so `tools/style/train_style.py` zips the
+  crops as JPEG at quality 95 with full colour, 63 MB, art's file, two lines) and sampled (run
+  34; run 31's samples kept in `run31/`, all three runs side by side in
+  `compare_run19_run31_run33.png`). Better: the portrait (finer squares, lamplight across the
+  face, a drawn three-quarter face). The same: the saloon, the boards, the street (signs still
+  misspelt). Worse: the horse sample now sits small in the standard street layout (the street
+  pictures share it), and the gunman's grey backdrop picked up vertical streaks like the rain.
