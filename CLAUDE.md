@@ -2445,3 +2445,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   ~17–18 squares across the face, crisp even squares on the hat and shirt. Frame median L* 54,
   chroma 28 (the street painting's 26.5), so filed as it came. Made with the rewritten prompt:
   run 31's portrait attached for the squares, the grid described, "not a 3D render".
+  Then the cowboy at three-quarters (60 in the folder): both eyes showing, the far cheek turning
+  away, ~16 squares across the face (~20 with the ear), crisp squares on the hat, coat and
+  ground. Frame median L* 9, deep-shadow share 0.70, chroma 25, so filed as it came. Not a
+  near-copy of his profile (grey difference 20; near-copies measured 4–12). The cowboy is now in
+  five of the head repaint's six views, and the set has the ten bold close-ups agreed for the
+  next training.
