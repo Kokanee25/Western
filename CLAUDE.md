@@ -2366,3 +2366,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   and hat on a wall, and a lamplit card table (the lamp and table the paintings draw). Three more
   were near-copies of these and left out (the same picture with red modern shotgun shells, four
   dynamite sticks for three, the revolver with a malformed cylinder). Not trained on yet.
+  Then eleven more for the light and places the set lacked (28 in the folder): the street at
+  dawn, in rain and at noon, a desert wagon road, the general store, the jail at night, the
+  livery barn, a camp at night, a vaquero, an alley, and a close study of a plank wall. Left
+  out: a close study of the road from above (its ruts stand up as ridges and its hoof prints are
+  oversized horseshoe stamps). The dawn, rain and noon streets share one layout. Not trained on yet.
