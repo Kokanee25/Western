@@ -30,6 +30,8 @@ signal shouted(speaker: Node, kind: StringName)
 ## his head, where it went by (nearest his head), how fast (m/s), and whether it's tumbling off a
 ## ricochet (it whizzes rather than snaps).
 signal near_miss(person: Node, shooter: Node, distance: float, at: Vector3, speed: float, tumbling: bool)
+## A ball took a man's hat off his head (the nearest near miss there is).
+signal hat_shot(person: Node, shooter: Node, at: Vector3)
 ## Someone gave up: dropped their gun and put their hands up.
 signal person_surrendered(person: Node)
 ## Someone said something out loud (shown as a subtitle to a player in earshot).

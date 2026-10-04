@@ -194,6 +194,19 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			Events.bullet_hit.emit(info)
 			return maxf(remaining - through, 0.0)
 		b.alive = false
+	elif collider != null and collider.has_meta(&"hat_of"):
+		# A worn hat: through the felt, the hat's off his head, and on it goes (into his head, if
+		# it was low enough).
+		var wearer: HumanBody = collider.get_meta(&"hat_of")
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		_set_energy(b, wearer.take_hat_shot(hit.position, dir, e_before, b.shooter, b.mass))
+		info.person = wearer
+		info.hat = true
+		info.penetrated = true
+		info.energy_after = b.energy()
+		b.hits.append(info)
+		Events.bullet_hit.emit(info)
+		return remaining
 	elif collider is StructureMember:
 		var member := collider as StructureMember
 		info.member_id = member.member_id
