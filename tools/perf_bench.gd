@@ -29,6 +29,8 @@ var report := {}
 var _voxel_tuning: Resource
 ## Print frames longer than this (ms) with what each system took in them (0 = off).
 var spikes := 0.0
+## Each scene against config/frame_budget.tres (off with --no-budget, and with --quick).
+var budget_report := true
 
 
 func _initialize() -> void:
@@ -46,6 +48,8 @@ func _initialize() -> void:
 			only = a.substr(8)
 		elif a.begins_with("--out="):
 			out_path = a.substr(6)
+		elif a == "--no-budget":
+			budget_report = false
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a == "--no-voxels":
@@ -54,6 +58,7 @@ func _initialize() -> void:
 			_voxel_tuning.set(&"enabled", false)
 	if quick:
 		seconds = minf(seconds, 8.0)
+		budget_report = false
 	_run.call_deferred()
 
 
@@ -251,6 +256,8 @@ func _run() -> void:
 			process_frame.disconnect(_shoot_the_wall)
 			m["charges"] = _charges
 		var entry := {"frames": m, "census": _census()}
+		if budget_report:
+			entry["budget"] = await _budget(m)
 		if ablate:
 			entry["systems"] = await _ablate(s, m)
 		report[s] = entry
@@ -330,6 +337,52 @@ func _set_off_dynamite_and_fires() -> void:
 			gun.pull_trigger()
 
 
+## The physics engine's share of the frame (not a script timer): the scene measured with the
+## physics server paused and running, 3 s each.
+func _physics_engine_ms() -> float:
+	PhysicsServer3D.set_active(false)
+	await _frames(20)
+	var off: Dictionary = await _measure(180)
+	PhysicsServer3D.set_active(true)
+	await _frames(20)
+	var on: Dictionary = await _measure(180)
+	return maxf(on.avg_ms - off.avg_ms, 0.0)
+
+
+## The scene's frame in the budget's parts, scaled to Sean's core (FrameBudget.clock_scale).
+func _budget(m: Dictionary) -> Dictionary:
+	var fb = load("res://config/frame_budget.tres")
+	var physics: float = await _physics_engine_ms()
+	var parts := {}
+	var timed := 0.0
+	for k in m.systems_ms:
+		var p: StringName = fb.part_of(k)
+		parts[p] = float(parts.get(p, 0.0)) + float(m.systems_ms[k])
+		timed += float(m.systems_ms[k])
+	parts[&"physics"] = physics
+	# What no timer covers (the engine's own process, the scene tree, culling) goes to "else";
+	# headless there's no render, so the frame is the simulation alone.
+	var render_cpu: float = m.get("render_cpu_ms", 0.0)
+	parts[&"render_cpu"] = render_cpu
+	var rest: float = m.avg_ms - timed - physics - (render_cpu if render else 0.0)
+	parts[&"else"] = float(parts.get(&"else", 0.0)) + maxf(rest, 0.0)
+	var out := {}
+	for p in fb.budgets:
+		out[p] = float(parts.get(p, 0.0)) * fb.clock_scale
+	out[&"total"] = m.avg_ms * fb.clock_scale
+	return out
+
+
+func _print_budget(b: Dictionary) -> void:
+	var fb = load("res://config/frame_budget.tres")
+	var bits := []
+	for p in fb.budgets:
+		var over: bool = float(b[p]) > float(fb.budgets[p])
+		bits.append("%s %.2f/%.1f%s" % [p, b[p], fb.budgets[p], " OVER" if over else ""])
+	bits.append("total %.2f/%.1f%s" % [b.total, fb.total, " OVER" if b.total > fb.total else ""])
+	print("   budget (ms at 3.25 GHz%s): %s" % ["" if render else ", no render", "  ".join(bits)])
+
+
 func _print(s: String, e: Dictionary) -> void:
 	var f: Dictionary = e.frames
 	if f.has("charges"):
@@ -337,6 +390,8 @@ func _print(s: String, e: Dictionary) -> void:
 	print("\n== %s: avg %.2f ms (%.0f fps), p99 %.2f ms, max %.1f ms; render cpu %.2f ms, draw calls %.0f, objects in frame %.0f" % [
 			s, f.avg_ms, 1000.0 / maxf(f.avg_ms, 0.001), f.p99_ms, f.max_ms, f.render_cpu_ms, f.draw_calls, f.objects_in_frame])
 	print("   census: %s" % JSON.stringify(e.census))
+	if e.has("budget"):
+		_print_budget(e.budget)
 	var sys: Dictionary = f.systems_ms
 	var keys := sys.keys()
 	keys.sort_custom(func(a, b) -> bool: return sys[a] > sys[b])

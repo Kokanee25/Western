@@ -61,17 +61,28 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
-### Frame budget (ms at 60 fps on one 3.25 GHz core; to be measured and filled in)
+### Frame budget (ms at 60 fps on one 3.25 GHz core)
 
-| System | Budget | Measured |
-|---|---|---|
-| People (bodies, senses, brains) | | |
-| Physics | | |
-| Structures (settle, analysis) | | |
-| Fire and effects | | |
-| Render CPU (draw calls) | | |
-| Everything else | | |
-| **Total** | **≤ 14** | |
+Budgets live in `config/frame_budget.tres` (`FrameBudget`); `tools/perf_bench.gd` prints every
+scene against them (its `budget` line). Measured 2026-10-04 on this workspace's 2.1 GHz core and
+scaled by 0.65 to Sean's (`clock_scale`): **calm** = the street with everyone in; **fire** = two
+sticks and three buildings alight; **wall** = a shotgun charge into the store's front every half
+second. Render CPU from a rendered run under lavapipe (counts the CPU side only; Sean's F3 gives
+his own).
+
+| System (Prof timers summed) | Budget | Calm | Fire | Wall |
+|---|---|---|---|---|
+| People (people_body, people_skeleton, senses, brains, player, town_life, blood) | 4.0 | 1.8 | 2.2 | 2.1 |
+| Physics (the engine: server paused vs running) | 2.0 | 1.1 | 0.3* | 1.5 |
+| Structures (structures, voxels, ballistics) | 1.0 | 0.0 | 0.1 | 0.4 |
+| Fire and effects (fire, incl. burning buildings' settle; smoke; dynamite) | 2.0 | 0.1 | **2.4** | 0.6 |
+| Render CPU (draw calls) | 4.0 | 3.5 | – | 6.1–6.4 |
+| Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
+| **Total** | **≤ 14** | **6.6** | 6.6 + render | 4.7 + 6.4 |
+
+\* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
+(the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
 
 ## Tech decisions
 
@@ -2391,3 +2402,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   gameplay builds a live look panel, a dev bridge, a camera-tour video on Pages, a playtest agent
   and the budget (after the performance pass); art supplies the panel's settings and takes up the
   blind critic and golden images from its next merge.
+- 2026-10-04 (gameplay, review tools 1): **The frame budget filled in.** `config/frame_budget.tres`
+  (`FrameBudget`: a budget per part, the Prof timers each part sums, `clock_scale` 0.65 from this
+  2.1 GHz core to Sean's 3.25) and `perf_bench.gd` reports each scene against it (`budget` line;
+  the physics engine measured by pausing the server 3 s against 3 s running; `--no-budget`).
+  The table (top of this file): calm 6.6 ms of 14 with render; the fire scene's fire 2.4 of 2.0
+  and its untimed share 1.5 of 1.0 are over; the wall scene's render CPU 6.1–6.4 of 4.0 is over
+  (lavapipe). CI's warn-then-fail on the budget comes with the brief's item 5.
