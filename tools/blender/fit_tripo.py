@@ -62,6 +62,8 @@ COAT_COLLAR = 0.032
 # (Tripo units: ~2 cm and ~11 cm on him).
 PIECE_CLEARANCE = 0.012
 PIECE_REACH = 0.06
+# How many times the clearance push is averaged over neighbours before it is applied.
+PIECE_SMOOTH = 8
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
@@ -403,18 +405,23 @@ class Piece:
             sw = float(np.linalg.norm(body.j["r-shoulder"] - body.j["l-shoulder"]))
             bx0 = float(body_sh[0])
             chest_dy = 0.08
-            bw, bx, bz = self._torso_at(body.v, body_sh[1] - chest_dy, bx0, sw * 0.5, 0.012)
-            cw, cx, cz = self._torso_at(v, sh_y - chest_dy / s, px, (sw * 0.5) / s * 1.05, h * 0.015)
-            g = bw * PIECE_MARGIN[self.shape] / max(cw, 1e-6) / s if cw > 0 and bw > 0 else 1.0
-            moved = v - [cx, y1, cz]
-            moved[:, 0] *= s * g
-            moved[:, 2] *= s * g
-            moved[:, 1] *= s
-            self.v = moved + [bx, top_y, bz]
+            _bw, bx, bz = self._torso_at(body.v, body_sh[1] - chest_dy, bx0, sw * 0.5, 0.012)
+            _cw, cx, cz = self._torso_at(v, sh_y - chest_dy / s, px, (sw * 0.5) / s * 1.05, h * 0.015)
+            self.v = (v - [cx, y1, cz]) * s + [bx, top_y, bz]
+            self._sleeves_to_arms()
+            # Its girth from his, measured the same way on both once the sleeves follow his arms:
+            # the full width at the elbows (sleeves and arms in), the coat's over his by
+            # PIECE_MARGIN, scaled about the torso in x and z. The coat was modelled at an ordinary
+            # man's girth and this man is broad: sized by length alone it sat inside him.
+            el_y = (body.j["r-elbow"][1] + body.j["l-elbow"][1]) * 0.5
+            bw_full = self._width_at(body.v, el_y, 0.012)[0]
+            cw_full = self._width_at(self.v, el_y, 0.012)[0]
+            g = bw_full * PIECE_MARGIN[self.shape] / cw_full if cw_full > 0 and bw_full > 0 else 1.0
+            self.v[:, 0] = bx + (self.v[:, 0] - bx) * g
+            self.v[:, 2] = bz + (self.v[:, 2] - bz) * g
             body.report.setdefault("piece_girth", {})[self.shape] = round(float(g), 3)
             body.report.setdefault("piece_landmarks", {})[self.shape] = {
                 "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
-            self._sleeves_to_arms()
             self._clear_body()
         body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
 
@@ -440,7 +447,21 @@ class Piece:
         n = vn[keep][idx[near]]
         d = ((v[near] - b) * n).sum(axis=1)
         push = np.clip(PIECE_CLEARANCE - d, 0.0, None)
-        v[near] += n * push[:, None]
+        move = np.zeros_like(v)
+        move[near] = n * push[:, None]
+        # Smoothed over the cloth (each vertex takes the mean of its neighbours' moves, a few
+        # times), so the shell moves as cloth: pushed one by one along differing normals, the
+        # vertices tore apart.
+        from scipy.sparse import coo_matrix
+        tris = self.tris
+        i = np.concatenate([tris[:, 0], tris[:, 1], tris[:, 2], tris[:, 1], tris[:, 2], tris[:, 0]])
+        j = np.concatenate([tris[:, 1], tris[:, 2], tris[:, 0], tris[:, 0], tris[:, 1], tris[:, 2]])
+        adj = coo_matrix((np.ones(len(i)), (i, j)), shape=(len(v), len(v))).tocsr()
+        degree = np.asarray(adj.sum(axis=1)).ravel()
+        degree[degree == 0] = 1.0
+        for _ in range(PIECE_SMOOTH):
+            move = (adj @ move) / degree[:, None]
+        v += move
         self.v = v
         self.report["pushed_out"] = int((push > 0).sum())
 
