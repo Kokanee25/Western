@@ -10,6 +10,8 @@ keep anything that isn't ours out of the repo's history if it's public, or ask f
    every picture in docs/concept/style/ as its middle square plus, if it's wide, its two ends.
    Each crop is cut to TRAIN_SIZE and gets a caption (the trigger word, then what it shows: its
    painting's `about` below, or docs/concept/style/captions.json {file: words}, else plain words).
+   docs/concept/style/weights.json {file: n} puts a picture's crops in n times (the bold close
+   portraits at 3, so the close faces aren't outweighed by the scenes' smaller squares).
 2. Zipped (pictures + captions as same-name .txt) into build/style_train/train.zip.
 3. Uploaded to fal's storage, then fal's LoRA trainer (FAL_TRAINER, default
    fal-ai/flux-lora-fast-training with is_style) is queued with it and waited on.
@@ -28,6 +30,7 @@ FAL_KEY on Actions), never the repo. Runs on GitHub Actions: People workflow, in
 import io
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -49,6 +52,9 @@ STORAGE = "https://rest.alpha.fal.ai/storage/upload/initiate"
 CROP = 0.5
 ROWS = 3
 TRAIN_SIZE = 1024
+# JPEG quality in the zip: fal's single upload refused 122 MB (a 413) and took 63 MB; at 95, 282
+# crops came to ~117 MB, at 90 ~79.
+JPEG_QUALITY = 90
 PICTURES = (".png", ".jpg", ".jpeg", ".webp")
 # What each concept painting shows (the words after the trigger in its crops' captions).
 ABOUT = {
@@ -101,6 +107,10 @@ def gather(trigger):
     cap_path = os.path.join(STYLE, "captions.json")
     if os.path.exists(cap_path):
         captions = json.load(open(cap_path))
+    weights = {}
+    weights_path = os.path.join(STYLE, "weights.json")
+    if os.path.exists(weights_path):
+        weights = json.load(open(weights_path))
     if os.path.isdir(STYLE):
         for name in sorted(os.listdir(STYLE)):
             if not name.lower().endswith(PICTURES):
@@ -108,7 +118,9 @@ def gather(trigger):
             stem = os.path.splitext(name)[0]
             img = Image.open(os.path.join(STYLE, name)).convert("RGB")
             for i, c in enumerate(style_crops(img)):
-                items.append(("style_%s_%d" % (stem, i), c, "%s, %s" % (trigger, captions.get(name, PLAIN))))
+                for r in range(int(weights.get(name, 1))):
+                    items.append(("style_%s_%d%s" % (stem, i, "_r%d" % r if r else ""), c,
+                                  "%s, %s" % (trigger, captions.get(name, PLAIN))))
     # Every crop the training size; the pixel art kept crisp when it's enlarged (nearest), smoothed
     # when it's shrunk.
     out = []
@@ -124,7 +136,7 @@ def make_zip(items, path):
         for name, img, cap in items:
             buf = io.BytesIO()
             # JPEG at full colour resolution: PNGs of 126 crops came to 122 MB, past fal's upload limit.
-            img.convert("RGB").save(buf, "JPEG", quality=95, subsampling=0)
+            img.convert("RGB").save(buf, "JPEG", quality=JPEG_QUALITY, subsampling=0)
             z.writestr(name + ".jpg", buf.getvalue())
             z.writestr(name + ".txt", cap)
     return path
@@ -202,7 +214,9 @@ def main():
     path = make_zip(items, os.path.join(BUILD, "train.zip"))
     contact_sheet(items, os.path.join(BUILD, "sheet.png"))
     n_style = sum(1 for n, _, _ in items if n.startswith("style_"))
-    print("%d crops (%d from docs/concept/style/), %d KB zipped: %s" % (len(items), n_style, os.path.getsize(path) // 1024, path))
+    n_repeat = sum(1 for n, _, _ in items if re.search(r"_r\d+$", n))
+    print("%d crops (%d from docs/concept/style/, %d of them repeats from weights.json), %d KB zipped: %s"
+          % (len(items), n_style, n_repeat, os.path.getsize(path) // 1024, path))
     if dry:
         print("dry run: would upload it and queue %s (steps %d, trigger %s, is_style)." % (TRAINER, steps, trigger))
         return

@@ -2451,3 +2451,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   near-copy of his profile (grey difference 20; near-copies measured 4–12). The cowboy is now in
   five of the head repaint's six views, and the set has the ten bold close-ups agreed for the
   next training.
+  Then the training (Sean: "go"): `docs/concept/style/weights.json` puts the ten bold close-ups'
+  crops in three times each (`train_style.py` reads it: art's file, a few lines), so they're 90 of
+  the 282 crops; the zip's JPEG is at quality 90 (`JPEG_QUALITY`: at 95 the 282 crops came to
+  ~117 MB, past fal's single upload, which refused 122 MB; 77 MB at 90, the squares unchanged by
+  eye at 3×). Run 30's record is kept in `tools/style/style_lora_run30.json` and run 34's samples in
+  `docs/style_test/lora/run34/`, so the new LoRA can be judged against both and undone.
