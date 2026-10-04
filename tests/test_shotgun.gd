@@ -86,6 +86,17 @@ func test_the_loaded_barrel_goes_first() -> void:
 	check_eq(s.last_barrel, 1, "the left")
 
 
+func test_with_the_right_fired_the_next_hammer_is_the_left() -> void:
+	var s := ShotgunState.new()
+	s.cock()
+	s.tick(1.0)
+	check_eq(s.pull_trigger(), ShotgunState.Shot.FIRED, "right barrel fires")
+	s.tick(1.0)
+	check_eq(s.cock(), 1, "Q now cocks the left, over the loaded barrel")
+	s.tick(1.0)
+	check_eq(s.pull_trigger(), ShotgunState.Shot.FIRED, "and the second shot goes")
+
+
 func test_break_open_and_reload() -> void:
 	var s := ShotgunState.new()
 	s.barrels.assign([ShotgunState.Barrel.SPENT, ShotgunState.Barrel.DUD])
