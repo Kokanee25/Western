@@ -2428,3 +2428,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Then the same cowboy in profile facing right (56 in the folder): a new drawing, not the left
   profile flipped (it differs from that one mirrored as much as two different drawings do), ~25
   squares across the face, the painting's light (median L* 9, deep-shadow share 0.65, chroma 21).
+  Then a man in a bowler hat looking straight at you (57 in the folder): the first front view
+  under a hat, ~27 squares across the face; the frame is darker and greyer than the painting
+  (median L* 3, deep-shadow share 0.83, chroma 12: a near-black background), his face lit as the
+  set's others are. Sean sent three tries; ChatGPT drifted finer and greyer with each redo in one
+  chat (27 → 33 → 39 squares across the face, chroma 12 → 10 → 9), so the second and third are
+  left out. The fix: a fresh chat a picture, with a bold one attached as the reference.
