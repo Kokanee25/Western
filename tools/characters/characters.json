@@ -1,9 +1,28 @@
 {
- "about": "Men made by image-to-3D (tools/characters/): what the image model paints for each (what), and boxes of docs/concept/saloon-night.png shown to it as who he is (refs, [x0, y0, x1, y1]).",
+ "about": "Men made by image-to-3D (tools/characters/): what the image model paints for each (what), and boxes of docs/concept/saloon-night.png shown to it as who he is (refs, [x0, y0, x1, y1]). Characters are built in layers (docs/DESTRUCTION_BRIEF.md part 5): a `from` entry is painted from that character's finished front picture instead of the concept painting, `change` says what to redraw (the body piece: hat and coat off), `hatless` fixes the turnaround's words, and an `item` entry is one garment alone on an invisible ghost mannequin (modelled by Tripo unrigged; tools/blender/fit_tripo.py fits it over the body).",
  "characters": {
   "stranger": {
    "what": "a weathered frontier gunman of about forty in 1882: a dark brown wide-brimmed hat with a dented crown and a studded band, long dark hair to his collar, deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble (no beard), a white shirt with a turned-down collar, a dark necktie, a patterned dark vest, a heavy dark-brown wool frock coat to his knees, dark trousers, a cartridge belt and holster, worn brown boots",
    "refs": [[40, 120, 960, 941], [430, 180, 850, 560]]
+  },
+  "stranger_body": {
+   "from": "stranger",
+   "hatless": true,
+   "what": "the same weathered frontier gunman bare-headed and without his coat: long dark hair to his collar, deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble (no beard), a white shirt with a turned-down collar, a dark necktie, a patterned dark vest, dark trousers, a cartridge belt and holster, worn brown boots",
+   "change": "Take his hat and his frock coat off him: he is bare-headed, his long dark hair falling to his collar, in his white shirt with its turned-down collar, his dark necktie and patterned dark vest, dark trousers, cartridge belt with holster and worn brown boots. Keep his face, hair, moustache and everything else exactly as they are.",
+   "refs": [[40, 120, 960, 941], [430, 180, 850, 560]]
+  },
+  "stranger_coat": {
+   "from": "stranger",
+   "item": "his heavy dark-brown wool frock coat to the knees, open down the front, with its lapels and sleeves",
+   "what": "a heavy dark-brown wool frock coat of 1882 to the knees, open down the front, lapels, long sleeves",
+   "refs": [[40, 120, 960, 941]]
+  },
+  "stranger_hat": {
+   "from": "stranger",
+   "item": "his dark brown wide-brimmed hat with a dented crown and a studded band",
+   "what": "a dark brown wide-brimmed felt hat of 1882 with a dented crown and a studded leather band",
+   "refs": [[430, 120, 850, 400]]
   }
  }
 }

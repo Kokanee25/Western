@@ -149,13 +149,31 @@ def make(cid, key, src=None, out=None):
     log.append({what: task})
     mesh = wait(task["data"]["task_id"], key, log, what)
     download(model_url(mesh), os.path.join(out, cid + "_mesh.glb"))
-    rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
-                                      "out_format": "glb"})
-    log.append({"animate_rig": rig})
-    rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
-    download(model_url(rigged), os.path.join(out, cid + ".glb"))
+    if is_item(cid):
+        # A garment alone (characters.json `item`): no rig; <id>.glb is the mesh itself, and
+        # fit_tripo.py hangs it on the body's bones.
+        import shutil
+        shutil.copyfile(os.path.join(out, cid + "_mesh.glb"), os.path.join(out, cid + ".glb"))
+        log.append({"animate_rig": "skipped: an item"})
+    else:
+        rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
+                                          "out_format": "glb"})
+        log.append({"animate_rig": rig})
+        rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
+        download(model_url(rigged), os.path.join(out, cid + ".glb"))
     json.dump(log, open(os.path.join(out, cid + "_tripo.json"), "w"), indent=1)
     print("made:", cid)
+
+
+def is_item(cid):
+    """Whether this character is a garment alone (tools/characters/characters.json `item`)."""
+    spec = os.path.join(os.path.dirname(os.path.abspath(__file__)), "characters.json")
+    if not os.path.exists(spec):
+        return False
+    try:
+        return bool(json.load(open(spec))["characters"].get(cid, {}).get("item"))
+    except (ValueError, KeyError, TypeError):
+        return False
 
 
 def balance(key):

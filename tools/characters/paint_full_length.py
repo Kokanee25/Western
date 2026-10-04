@@ -64,7 +64,7 @@ ASK = (
 # fal: Kontext edits the picture it's given. The front, from a picture of him.
 ASK_FRONT = (
     "SLTCRK. Redraw this same man as a clean full-length character reference for a 3D model: "
-    "{what}. Keep his face, hat, hair, moustache and clothes exactly as they are. He stands "
+    "{what}. {change} He stands "
     "perfectly straight facing the viewer in an A-pose (arms straight out and down at 45 degrees "
     "from his body, palms down, fingers together; feet a little apart), the whole of him in the "
     "frame from hat to boots with a little space round him, seen straight on at his chest's "
@@ -73,20 +73,57 @@ ASK_FRONT = (
     "pixels and NO blocky texture anywhere: smooth cloth, smooth skin. Nothing in his hands, "
     "nothing else in the picture, no text."
 )
+# What ASK_FRONT's {change} says unless the character's spec has its own (the body piece: hat and
+# coat off).
+KEEP = "Keep his face, hat, hair, moustache and clothes exactly as they are."
 ASK_TURN = {
     "left": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
             "and plain light grey background, but seen from his left side (a true profile, he faces the "
-            "left edge of the picture), the whole of him from hat to boots. Smooth and realistic, NO "
+            "left edge of the picture), the whole of him from {top} to boots. Smooth and realistic, NO "
             "pixel mosaic, NO square pixels. Nothing in his hands, no text.",
     "back": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
             "and plain light grey background, but seen from directly behind (his back to the viewer, "
-            "the back of his hat and coat, his hair on his collar), the whole of him from hat to boots. "
+            "{back_of}, his hair on his collar), the whole of him from {top} to boots. "
             "Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing in his hands, no text.",
     "right": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
              "and plain light grey background, but seen from his right side (a true profile, he faces "
-             "the right edge of the picture), the whole of him from hat to boots. Smooth and realistic, "
+             "the right edge of the picture), the whole of him from {top} to boots. Smooth and realistic, "
              "NO pixel mosaic, NO square pixels. Nothing in his hands, no text.",
 }
+# A garment alone (characters.json `item`: the coat, the hat), the man removed, as a ghost-mannequin
+# product picture: Tripo models it as the hollow garment, and fit_tripo.py hangs it on the body.
+ASK_ITEM_FRONT = (
+    "SLTCRK. From this picture of the man, show ONLY {item}, exactly as he wears it, as a ghost-mannequin "
+    "product photograph: the man himself removed entirely (no head, no face, no hair, no hands, no "
+    "legs, no body, none of his other clothes), the garment alone keeping exactly the shape it has on "
+    "him, seen straight on from the front at its own middle height, the whole of it in the frame with "
+    "a little space round it. Soft, even, flat studio light from the front, no cast shadows, a plain "
+    "light grey background. Smooth, realistic and sharp, every detail clear, with NO pixel mosaic, NO "
+    "square pixels and NO blocky texture anywhere. Nothing else in the picture, no text."
+)
+ASK_ITEM_TURN = {
+    "left": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
+            "light and plain light grey background, but seen from its left side (a true profile), the "
+            "whole of it in the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
+            "else, no text.",
+    "back": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
+            "light and plain light grey background, but seen from directly behind, the whole of it in "
+            "the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing else, no text.",
+    "right": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
+             "light and plain light grey background, but seen from its right side (a true profile), the "
+             "whole of it in the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
+             "else, no text.",
+}
+
+
+def asks(spec):
+    """The front prompt and the three turn prompts for this character (a man, or an item)."""
+    if spec.get("item"):
+        return ASK_ITEM_FRONT.format(item=spec["item"]), {v: ASK_ITEM_TURN[v].format(item=spec["item"]) for v in TURN}
+    words = {"top": "head", "back_of": "the back of his head and vest"} if spec.get("hatless") else \
+        {"top": "hat", "back_of": "the back of his hat and coat"}
+    front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
+    return front, {v: ASK_TURN[v].format(**words) for v in TURN}
 
 
 def request(method, url, key, body=None):
@@ -180,7 +217,13 @@ def turn_sheet(cid, out_dir, cell=512):
 def paint_fal(cid, spec, painting, key, lora_url, scale, seed, from_painting, out_dir, log, editor=edit):
     """The fal route for one man: the clean front, then the three other views from it."""
     full = os.path.join(out_dir, cid + "_full.png")
-    if os.path.exists(full) and not from_painting:
+    parent = os.path.join(out_dir, spec["from"] + "_full.png") if spec.get("from") else ""
+    if parent and os.path.exists(parent) and not from_painting:
+        # A piece of another character (the body without hat and coat, the coat alone): redrawn
+        # from that character's finished clean front, so it is the same man and the same clothes.
+        source = Image.open(parent).convert("RGB")
+        where = "%s's clean front" % spec["from"]
+    elif os.path.exists(full) and not from_painting:
         source = smoothed(Image.open(full))
         where = "the full-length painting, smoothed"
     else:
@@ -188,11 +231,12 @@ def paint_fal(cid, spec, painting, key, lora_url, scale, seed, from_painting, ou
         source = smoothed(painting.crop(tuple(box)), 3)
         where = "the concept painting's man"
     log.append({"source": where})
-    front = editor(source, ASK_FRONT.format(what=spec["what"]), lora_url, scale, seed, key, log, cid + "_front")
+    ask_front, ask_turn = asks(spec)
+    front = editor(source, ask_front, lora_url, scale, seed, key, log, cid + "_front")
     front.save(full)
     print("painted:", cid, "front", front.size, "from", where)
     for i, view in enumerate(TURN):
-        img = editor(front, ASK_TURN[view], lora_url, scale, seed + 1 + i, key, log, "%s_%s" % (cid, view))
+        img = editor(front, ask_turn[view], lora_url, scale, seed + 1 + i, key, log, "%s_%s" % (cid, view))
         img.save(os.path.join(out_dir, "%s_%s.png" % (cid, view)))
         print("painted:", cid, view, img.size)
     turn_sheet(cid, out_dir)
