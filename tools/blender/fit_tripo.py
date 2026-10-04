@@ -56,6 +56,8 @@ PIECE_TRIS = {"coat": 2600, "hat": 700}
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
+# A coat's collar stands this far above the neck joint (Tripo units, of his height: ~6 cm).
+COAT_COLLAR = 0.032
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
@@ -340,16 +342,25 @@ class Piece:
             s = head_w * PIECE_MARGIN["hat"] / max(crown_w, 1e-6)
             self.v = (v - [0.0, brim_y, 0.0]) * s + [cx, band_y, cz]
         else:
-            # The coat: its shoulder line (widest within the top fifth) onto his shoulders, its
-            # width there his at the shoulder joints plus room.
-            ys = np.linspace(y1 - h * 0.2, y1 - h * 0.02, 30)
-            widths = [self._width_at(v, y, h * 0.02)[0] for y in ys]
-            sh_y = ys[int(np.argmax(widths))]
-            coat_w, px, pz = self._width_at(v, sh_y, h * 0.02)
+            # The coat: its shoulder line onto his shoulders, its width there his at the shoulder
+            # joints plus room. The shoulder line is where, coming down from the collar, the coat
+            # first reaches most of its width over the top third (the sleeve heads): the widest
+            # row is lower, out along the sleeves, and put the collar over his face.
+            ys = np.linspace(y1 - h * 0.02, y1 - h * 0.33, 40)
+            widths = np.array([self._width_at(v, y, h * 0.02)[0] for y in ys])
+            sh_y = ys[int(np.argmax(widths >= widths.max() * 0.7))]
+            _w, px, pz = self._width_at(v, sh_y, h * 0.02)
+            # Its size from its length: a coat to the knees runs from the collar's top, COAT_COLLAR
+            # above the neck joint, to the knees (widths led the sleeves astray: the ghost
+            # mannequin's sleeves stand out, and the body's shoulder row carries its arms).
             body_sh = (body.j["r-shoulder"] + body.j["l-shoulder"]) * 0.5
-            body_w, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
-            s = body_w * PIECE_MARGIN[self.shape] / max(coat_w, 1e-6)
-            self.v = (v - [px, sh_y, pz]) * s + [bx, body_sh[1], bz]
+            knee_y = (body.j["r-knee"][1] + body.j["l-knee"][1]) * 0.5
+            top_y = body.j["neck"][1] + COAT_COLLAR
+            s = (top_y - knee_y) / max(h, 1e-6)
+            _bw, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
+            self.v = (v - [px, y1, pz]) * s + [bx, top_y, bz]
+            body.report.setdefault("piece_landmarks", {})[self.shape] = {
+                "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
             self._sleeves_to_arms()
         body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
 

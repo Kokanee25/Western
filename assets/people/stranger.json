@@ -9,15 +9,21 @@
   "hat": "stranger_hat"
  },
  "piece_coat": {
-  "skirt_vertices": 186229
+  "skirt_vertices": 195316
  },
  "piece_hat": {},
+ "piece_landmarks": {
+  "coat": {
+   "shoulder_line_from_top": 0.084,
+   "length_m": 0.992
+  }
+ },
  "sleeve_turn_deg": {
-  "r": 14.5,
-  "l": -11.7
+  "r": 11.6,
+  "l": -11.8
  },
  "piece_scale": {
-  "coat": 0.595,
+  "coat": 0.528,
   "hat": 0.264
  },
  "scale": 1.8775,
@@ -35,7 +41,7 @@
  "triangles": {
   "skin": 5500,
   "head": 2199,
-  "coat": 2599,
+  "coat": 2600,
   "hat": 700
  }
 }
