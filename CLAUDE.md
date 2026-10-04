@@ -2361,3 +2361,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     that sample's prompt asks for one). Worse: the boards, smoother and less of the mosaic. Known:
     it spells signs badly ("SALLOONN"), and the street sample is close to the standoff picture's
     composition (more streets seen other ways round would loosen it).
+  Then six props pictures (17 in the folder): the revolver on a card table, the revolver in hand
+  in a street standoff (first person), the shotgun against the bar, dynamite on a crate, a gun belt
+  and hat on a wall, and a lamplit card table (the lamp and table the paintings draw). Three more
+  were near-copies of these and left out (the same picture with red modern shotgun shells, four
+  dynamite sticks for three, the revolver with a malformed cylinder). Not trained on yet.
