@@ -2473,3 +2473,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   still misspelt. Its face isn't clearly as bold as run 31's, so by the rule agreed
   `style_lora.json` is run 30's again. Run 35's record stays in `style_lora_run35.json` for
   Sean's eye.
+  Sean: "run 31 is the best". So run 30's LoRA stays (`style_lora.json`). A likely reason the
+  retrains go finer: the concept paintings are cut at half their height, so their squares reach
+  training size at ~22 px, while Sean's pictures are cut at full height, so a scene's squares
+  arrive at ~8–10 px. Run 30 was mostly painting crops; every retrain since has added scenes. If
+  we train again, cut the scene pictures at half height too.
