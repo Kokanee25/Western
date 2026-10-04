@@ -2,34 +2,12 @@
  "id": "stranger",
  "source": "tripo",
  "whole": true,
- "model": "stranger_body",
- "triangles_in": 276232,
- "pieces": {
-  "coat": "stranger_coat",
-  "hat": "stranger_hat"
- },
- "piece_coat": {
-  "skirt_vertices": 195316
- },
- "piece_hat": {},
- "piece_landmarks": {
-  "coat": {
-   "shoulder_line_from_top": 0.084,
-   "length_m": 0.992
-  }
- },
- "sleeve_turn_deg": {
-  "r": 11.6,
-  "l": -11.8
- },
- "piece_scale": {
-  "coat": 0.528,
-  "hat": 0.264
- },
- "scale": 1.8775,
- "height_m": 1.921,
- "faces_before_finger_cut": 276232,
- "faces_after_finger_cut": 271453,
+ "triangles_in": 347590,
+ "scale": 1.8173,
+ "height_m": 1.924,
+ "skirt_vertices": 89232,
+ "faces_before_finger_cut": 347590,
+ "faces_after_finger_cut": 341477,
  "texture": {
   "from": "stranger_color.png",
   "size": [
@@ -40,8 +18,6 @@
  },
  "triangles": {
   "skin": 5500,
-  "head": 2199,
-  "coat": 2600,
-  "hat": 700
+  "head": 2200
  }
 }

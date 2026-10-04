@@ -1,0 +1,31 @@
+{
+ "id": "stranger_layered",
+ "source": "tripo",
+ "whole": true,
+ "model": "stranger_body",
+ "triangles_in": 276232,
+ "pieces": {
+  "hat": "stranger_hat"
+ },
+ "piece_hat": {},
+ "piece_scale": {
+  "hat": 0.264
+ },
+ "scale": 1.8775,
+ "height_m": 1.921,
+ "faces_before_finger_cut": 276232,
+ "faces_after_finger_cut": 271453,
+ "texture": {
+  "from": "tripo",
+  "size": [
+   1024,
+   1024
+  ],
+  "square_texels": 2
+ },
+ "triangles": {
+  "skin": 5500,
+  "head": 2199,
+  "hat": 700
+ }
+}

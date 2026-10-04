@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://o7mub20lyqik"
-path="res://.godot/imported/stranger_hat.png-5a63e49160e5c21711627e04ab1dddca.ctex"
+uid="uid://bd2umqeeukn1v"
+path="res://.godot/imported/stranger_layered_hat.png-9d428b5dba792bdf6d3dcf90c699e639.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/stranger_hat.png"
-dest_files=["res://.godot/imported/stranger_hat.png-5a63e49160e5c21711627e04ab1dddca.ctex"]
+source_file="res://assets/people/stranger_layered_hat.png"
+dest_files=["res://.godot/imported/stranger_layered_hat.png-9d428b5dba792bdf6d3dcf90c699e639.ctex"]
 
 [params]
 

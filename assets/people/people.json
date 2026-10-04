@@ -19,15 +19,20 @@
    "face": "a hard, weathered frontier man in his late thirties, sun-darkened skin with a few lines, heavy dark brows over deep-set watchful eyes, a strong straight nose, a thick dark moustache over the lip, a few days' stubble on the jaw, dark hair at the temples and sideburns"
   },
   "stranger": {
-   "note": "The painting's man by image-to-3D (tools/characters/, Tripo), fitted by tools/blender/fit_tripo.py in layers: his body (`model`, bare-headed and coatless) and each `piece` (a garment modelled alone) hung on it, so the hat can come off and the coat is its own mesh.",
+   "note": "The painting's man by image-to-3D (tools/characters/, Tripo), fitted by tools/blender/fit_tripo.py: he comes dressed, hat and all (a stopgap: his layered self is stranger_layered).",
    "source": "tripo",
    "outfit": {},
-   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar",
+   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
+  },
+  "stranger_layered": {
+   "note": "The same man in layers (docs/DESTRUCTION_BRIEF.md part 5): his body painted bare-headed and coatless (`model`), and each `piece` a garment modelled alone and hung on him. The hat is in; the coat piece is still to come (see CLAUDE.md status, 2026-10-04).",
+   "source": "tripo",
    "model": "stranger_body",
    "pieces": {
-    "coat": "stranger_coat",
     "hat": "stranger_hat"
-   }
+   },
+   "outfit": {},
+   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
   }
  }
 }
