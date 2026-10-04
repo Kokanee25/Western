@@ -2397,3 +2397,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   streaky noise) and in mud (lumpy cube clumps, a voxel look rather than the paintings' flat
   squares). Not trained on yet; the faces sheet (`docs/style_test/faces_bold_squares.png`) shows
   the bold faces at 14–31 squares across the face, Sean's three portraits at 48–49.
+  Then six close portraits (50 in the folder): a farm woman in profile, an old prospector, the
+  doctor in spectacles, a gambler, a man in moonlight, a young woman in a red dress. Their light
+  is the painting's (median L* 4–11, deep-shadow share 0.57–0.81, the painting's man 11 and 0.69)
+  but their faces are ~50–60 squares across, as fine as Sean's first three portraits; those three
+  trained run 30's ~30-square face, so fine portraits still teach the bold look when portraits
+  aren't outweighed by scenes. Left out: Sean's first in this batch (bright and too orange, median
+  L* 20, chroma 30) and a man on a blue-grey ground (the flattest light and softest eyes of the set).
