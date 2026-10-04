@@ -2422,3 +2422,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Then a cowboy in full profile under a hat with a studded band (54 in the folder): the first
   side view of a man and the first bold portrait in a cowboy hat, ~25 squares across the face,
   and the painting's light (median L* 11, deep-shadow share 0.63, chroma 22).
+  Then the same cowboy seen from directly behind (55 in the folder): the first back of a head
+  under a hat, the view the head repaint asks for last; big squares (the crown ~10 across, the
+  hair ~20–35), darker than the painting (median L* 5, deep-shadow share 0.83, chroma 15).
