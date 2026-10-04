@@ -449,6 +449,19 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `SQUARE_TEXELS` 4 (~5.6 mm), one texel a square → `<id>_skin.png` + `<id>_head.png`
   (`PeopleBodies` lays them on by UV as baked garments); `<id>.json` says `"whole": true`, and
   `PeopleBodies` then puts nothing of BodyMesh's on him (he comes dressed, hat and boots too).
+  **Layers** (docs/DESTRUCTION_BRIEF.md part 5, since 2026-10-04): a person's `model` is his
+  Tripo body painted bare-headed and coatless (`characters.json`: a `from` entry is redrawn from
+  that character's finished front with `change` saying what to take off, `hatless` fixes the
+  turnaround's words) and his `pieces` {shape: character id} are garments painted alone as
+  ghost-mannequin pictures (`item`: Tripo models them unrigged, `<id>.glb` is the mesh);
+  `fit_tripo.py` scales and places each piece by landmarks in his Tripo space (`Piece.place`: the
+  coat's shoulder line onto his shoulders at `PIECE_MARGIN`, the hat's brim onto his head's band
+  at `HAT_BAND` of the way from jaw to crown), carries it through the body's own warp
+  (`warp_points`), skins it by the same tables (the coat's skirt from the hips, the hat all head)
+  and exports it as `body_<shape>` in his glb (`PIECE_TRIS`) with `<id>_<shape>.png`;
+  `PeopleBodies` wears every piece a whole man came with, so the hat is its own mesh (gameplay's
+  hat-shot-off needs that) and the coat can come off. A bare-headed man's head cut is
+  `HEAD_FROM_NECK` of the way from his neck joint to his jaw.
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
