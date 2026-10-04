@@ -2411,3 +2411,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Then the red-dress woman redrawn with bigger squares (the same woman and pose, so it replaces
   the first in place): ~15–25 squares across the face (the painting's man ~15–19), median L* 8,
   deep-shadow share 0.69, chroma 26. The first portrait at the painting's own square size.
+  Then the doctor again in a new drawing (52 in the folder; a different pose and face from the
+  first, so both kept): ~25–35 squares across the face, big blocks on the cheeks with the eyes,
+  spectacles and moustache drawn finer (as the painting's man's are), median L* 7, deep-shadow
+  share 0.68, chroma 26.
