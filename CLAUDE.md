@@ -2404,3 +2404,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   trained run 30's ~30-square face, so fine portraits still teach the bold look when portraits
   aren't outweighed by scenes. Left out: Sean's first in this batch (bright and too orange, median
   L* 20, chroma 30) and a man on a blue-grey ground (the flattest light and softest eyes of the set).
+  Then a vaquero in a sombrero (51 in the folder), Sean's retry of the first portrait with the
+  darker prompt: median L* 10 and deep-shadow share 0.63 (the painting's man 11 and 0.69),
+  chroma 25 (was 30). Left out: its twin with freckled skin (the dark specks are noise, not
+  squares). Its squares are still fine, ~60 across the face.
