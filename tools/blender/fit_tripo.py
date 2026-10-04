@@ -45,6 +45,15 @@ TRIPO = "assets/people/tripo"
 OUT = "assets/people"
 # The head: everything above this share of his height before the warp (the collar's top).
 HEAD_FROM = 0.815
+# A bare-headed layered man: the collar's top is this share of the way from his neck joint (the
+# collar bone) to his head joint (the jaw).
+HEAD_FROM_NECK = 0.35
+# Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
+# wider than what they go over they are scaled (room for the cloth under them).
+PIECE_TRIS = {"coat": 2600, "hat": 700}
+PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
+# The hat's brim sits this share of the way up his head from the jaw joint to the crown.
+HAT_BAND = 0.72
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
@@ -88,12 +97,14 @@ def load_glb(path):
     nrm = accessor(prim["attributes"]["NORMAL"])
     uv = accessor(prim["attributes"]["TEXCOORD_0"])
     tris = accessor(prim["indices"]).reshape(-1, 3).astype(np.int64)
-    skin = doc["skins"][0]
-    ibm = accessor(skin["inverseBindMatrices"]).reshape(-1, 4, 4)
     joints = {}
-    for j, node in enumerate(skin["joints"]):
-        world = np.linalg.inv(ibm[j].T)  # glTF matrices are column-major
-        joints[doc["nodes"][node].get("name", str(node))] = world[:3, 3]
+    if doc.get("skins"):
+        skin = doc["skins"][0]
+        ibm = accessor(skin["inverseBindMatrices"]).reshape(-1, 4, 4)
+        for j, node in enumerate(skin["joints"]):
+            world = np.linalg.inv(ibm[j].T)  # glTF matrices are column-major
+            joints[doc["nodes"][node].get("name", str(node))] = world[:3, 3]
+    # An item (a garment alone, unrigged) has no skin: joints stay empty.
     mat = doc["materials"][prim.get("material", 0)]
     tex = doc["textures"][mat["pbrMetallicRoughness"]["baseColorTexture"]["index"]]
     img = doc["images"][tex["source"]]
@@ -118,7 +129,10 @@ class TripoPerson(mp.Person):
         self.spec = spec
         with open(mp.ANATOMY) as f:
             self.anatomy = json.load(f)
-        pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, pid + ".glb"))
+        # A layered man (docs/DESTRUCTION_BRIEF.md part 5): his body is the Tripo model `model`
+        # (bare-headed, no coat) and `pieces` {shape: character id} are his garments modelled alone.
+        self.model = spec.get("model", pid)
+        pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
         self.v = to_body_space(pos)
         self.uv = uv
         self.tris = tris
@@ -126,8 +140,14 @@ class TripoPerson(mp.Person):
         self.j = {ours: to_body_space(joints[theirs]) for ours, theirs in JOINTS.items()}
         self.j["hips"] = (self.j["r-upper-leg"] + self.j["l-upper-leg"]) / 2
         y0, y1 = self.v[:, 1].min(), self.v[:, 1].max()
-        self.head_cut = y0 + (y1 - y0) * HEAD_FROM
-        self.report = {"id": pid, "source": "tripo", "whole": True, "triangles_in": int(len(tris))}
+        if "model" in spec:
+            # Bare-headed, his crown is his top: the collar is a share of the neck, from its joints.
+            self.head_cut = self.j["neck"][1] + (self.j["head"][1] - self.j["neck"][1]) * HEAD_FROM_NECK
+        else:
+            self.head_cut = y0 + (y1 - y0) * HEAD_FROM
+        self.report = {"id": pid, "source": "tripo", "whole": True, "model": self.model, "triangles_in": int(len(tris)),
+                       "pieces": dict(spec.get("pieces", {}))}
+        self.pieces = [Piece(shape, cid, self) for shape, cid in spec.get("pieces", {}).items()]
 
     def bones(self):
         """The warp: [name, Tripo a, b, our a, b, radius]. Trunk and neck stretched joint to joint
@@ -154,14 +174,24 @@ class TripoPerson(mp.Person):
         return out
 
     def warp(self):
-        v = self.v
         bones = self.bones()
+        head = self.v[:, 1] > self.head_cut
+        self.v, self.region = self.warp_points(self.v, head, bones)
+        self.head = head
+        self.fit_joints = {}
+        self.report["scale"] = round(float(self.scale), 4)
+        self.report["height_m"] = round(float(self.v[:, 1].max()), 3)
+        for piece in self.pieces:
+            piece.place()
+            piece.v, piece.region = self.warp_points(piece.v, piece.v[:, 1] > self.head_cut, bones)
+
+    def warp_points(self, v, head, bones):
+        """Points in his Tripo space (body orientation) moved onto our skeleton by his bones, and
+        the bone each belongs to. The head is everything above the collar; nothing below it is
+        head, nothing above the neck joint is trunk."""
         radial = self.scale
         names = [b[0] for b in bones]
         d = np.stack([mp.seg_dist(v, b[1], b[2])[0] - b[5] for b in bones], axis=1)
-        # The head is everything above the collar; nothing below it is head, nothing above the
-        # neck joint is trunk.
-        head = v[:, 1] > self.head_cut
         d[~head, names.index("head")] += 1.0
         d[head, names.index("trunk")] += 1.0
         d[head, names.index("neck")] += 0.5
@@ -171,7 +201,7 @@ class TripoPerson(mp.Person):
         w = np.exp(-(d - d.min(1, keepdims=True)) / mp.BLEND)
         w[w < 1e-3] = 0.0
         w /= w.sum(1, keepdims=True)
-        self.region = np.array([bones[i][0] for i in d.argmin(1)])
+        region = np.array([bones[i][0] for i in d.argmin(1)])
         out = np.zeros_like(v)
         for i, (name, ma, mb, oa, ob, _r) in enumerate(bones):
             sel = w[:, i] > 0
@@ -185,11 +215,7 @@ class TripoPerson(mp.Person):
             local = along[:, None] * u * k + perp * radial
             moved = local @ mp.rotation_between(u, ob - oa).T + oa
             out[sel] += w[sel, i][:, None] * moved
-        self.v = out
-        self.head = head
-        self.fit_joints = {}
-        self.report["scale"] = round(float(radial), 4)
-        self.report["height_m"] = round(float(out[:, 1].max()), 3)
+        return out, region
 
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
@@ -230,6 +256,73 @@ class TripoPerson(mp.Person):
         self.skirt()
         self.cut_fingers()
         self.weights()
+        for piece in self.pieces:
+            if piece.shape == "coat":
+                TripoPerson.skirt(piece)
+            if piece.shape == "hat":
+                piece.region[:] = "head"
+            mp.Person.weights(piece)
+
+
+class Piece:
+    """A garment modelled alone by Tripo (characters.json `item`, unrigged), hung on the body: in
+    his Tripo space it is scaled and placed by landmarks (the coat's shoulders onto his, the hat's
+    brim onto his head's band), then carried through the body's own warp and skinned by the same
+    tables, so it follows his bones as the lofted clothes do, and comes out as its own mesh
+    "body_<shape>" with its own texture <id>_<shape>.png: it can be hidden, dropped or shot off."""
+
+    def __init__(self, shape, cid, body):
+        self.shape = shape
+        self.cid = cid
+        self.body = body
+        self.env = body.env
+        pos, nrm, uv, tris, _joints, colour = load_glb(os.path.join(TRIPO, cid + ".glb"))
+        self.v = to_body_space(pos)
+        self.uv = uv
+        self.tris = tris
+        self.colour = colour
+        self.region = None
+        self.our_joints = body.our_joints
+        self.report = body.report.setdefault("piece_" + shape, {})
+
+    @staticmethod
+    def _width_at(v, y, band=0.015):
+        sel = np.abs(v[:, 1] - y) < band
+        if sel.sum() < 3:
+            return 0.0, 0.0, 0.0
+        xs, zs = v[sel, 0], v[sel, 2]
+        return xs.max() - xs.min(), (xs.max() + xs.min()) * 0.5, (zs.max() + zs.min()) * 0.5
+
+    def place(self):
+        """Scale and move the piece in the body's Tripo space (before the warp)."""
+        body, v = self.body, self.v
+        y0, y1 = v[:, 1].min(), v[:, 1].max()
+        h = y1 - y0
+        if self.shape == "hat":
+            # The brim is where the hat is widest; the crown's foot a little above it goes round
+            # the head at the band, its width the head's there plus room.
+            ys = np.linspace(y0, y1, 40)
+            widths = [self._width_at(v, y, h * 0.03)[0] for y in ys]
+            brim_y = ys[int(np.argmax(widths))]
+            crown_w = self._width_at(v, brim_y + h * 0.12, h * 0.03)[0] or max(widths) * 0.6
+            head = body.v[body.v[:, 1] > body.head_cut]
+            jaw, crown = body.j["head"][1], head[:, 1].max()
+            band_y = jaw + (crown - jaw) * HAT_BAND
+            head_w, cx, cz = self._width_at(head, band_y, 0.01)
+            s = head_w * PIECE_MARGIN["hat"] / max(crown_w, 1e-6)
+            self.v = (v - [0.0, brim_y, 0.0]) * s + [cx, band_y, cz]
+        else:
+            # The coat: its shoulder line (widest within the top fifth) onto his shoulders, its
+            # width there his at the shoulder joints plus room.
+            ys = np.linspace(y1 - h * 0.2, y1 - h * 0.02, 30)
+            widths = [self._width_at(v, y, h * 0.02)[0] for y in ys]
+            sh_y = ys[int(np.argmax(widths))]
+            coat_w, px, pz = self._width_at(v, sh_y, h * 0.02)
+            body_sh = (body.j["r-shoulder"] + body.j["l-shoulder"]) * 0.5
+            body_w, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
+            s = body_w * PIECE_MARGIN[self.shape] / max(coat_w, 1e-6)
+            self.v = (v - [px, sh_y, pz]) * s + [bx, body_sh[1], bz]
+        body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
 
 
 # --- Textures -----------------------------------------------------------------------------------
@@ -268,15 +361,15 @@ def build_blender(person):
     bpy.ops.object.mode_set(mode="OBJECT")
     person.arm = arm
 
-    def make(name, tris, budget):
+    def make(name, tris, budget, src=person):
         used = np.unique(tris)
         new_index = {int(old): i for i, old in enumerate(used)}
         mesh = bpy.data.meshes.new("body_" + name)
-        mesh.from_pydata([mp.to_blender(person.v[i]) for i in used], [], [[new_index[int(i)] for i in t] for t in tris])
+        mesh.from_pydata([mp.to_blender(src.v[i]) for i in used], [], [[new_index[int(i)] for i in t] for t in tris])
         uv_layer = mesh.uv_layers.new(name="UVMap")
         for poly in mesh.polygons:
             for li in poly.loop_indices:
-                u, vv = person.uv[used[mesh.loops[li].vertex_index]]
+                u, vv = src.uv[used[mesh.loops[li].vertex_index]]
                 uv_layer.data[li].uv = (u, 1.0 - vv)   # glTF's v runs down; the export flips it back
         for poly in mesh.polygons:
             poly.use_smooth = True
@@ -285,7 +378,7 @@ def build_blender(person):
         for bname in bones:
             obj.vertex_groups.new(name=bname)
         for new_i, old_i in enumerate(used):
-            for b, w in enumerate(person.W[old_i]):
+            for b, w in enumerate(src.W[old_i]):
                 if w > 0.001:
                     obj.vertex_groups[b].add([new_i], float(w), "REPLACE")
         tris_now = len(mesh.polygons)
@@ -302,8 +395,11 @@ def build_blender(person):
     head_tris = person.head[person.tris].all(axis=1)
     head = make("head", person.tris[head_tris], HEAD_TRIS)
     skin = make("skin", person.tris[~head_tris], TRI_BUDGET)
+    made = [skin, head]
+    for piece in person.pieces:
+        made.append(make(piece.shape, piece.tris, PIECE_TRIS.get(piece.shape, 1500), piece))
     person.report["triangles"] = {o.name.split("_", 1)[1]: sum(len(p.vertices) - 2 for p in o.data.polygons)
-                                  for o in (skin, head)}
+                                  for o in made}
 
 
 def export(person):
@@ -328,11 +424,18 @@ def main():
     for pid, spec in people.items():
         if spec.get("source") != "tripo" or (only and pid != only):
             continue
-        if not os.path.exists(os.path.join(TRIPO, pid + ".glb")):
-            print("no Tripo model for", pid)
+        missing = [m for m in [spec.get("model", pid)] + list(spec.get("pieces", {}).values())
+                   if not os.path.exists(os.path.join(TRIPO, m + ".glb"))]
+        if missing:
+            print("no Tripo model for", pid, ":", ", ".join(missing))
             continue
         p = TripoPerson(pid, spec, env)
         p.run()
+        for piece in p.pieces:
+            # Each piece's own texture, in the same squares (Tripo's colour: the pieces aren't
+            # repainted in the style yet).
+            squares(piece.colour, os.path.join(OUT, "%s_%s%s.png" % (pid, piece.shape, "_smooth" if SMOOTH else "")),
+                    1 if SMOOTH else SQUARE_TEXELS)
         # His texture: the head repainted in the style where it has been.
         repainted = os.path.join(TRIPO, pid + "_color.png")
         if SMOOTH:
