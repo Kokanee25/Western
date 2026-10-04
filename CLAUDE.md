@@ -2415,3 +2415,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   first, so both kept): ~25–35 squares across the face, big blocks on the cheeks with the eyes,
   spectacles and moustache drawn finer (as the painting's man's are), median L* 7, deep-shadow
   share 0.68, chroma 26.
+  Then a Chinese railroad worker's portrait (53 in the folder): ~15–25 squares across the face,
+  the painting's size; warm lamplight on his face and cold moonlight from one side, so cooler and
+  less colourful than the rest (median L* 5, deep-shadow share 0.77, chroma 10). Left out: its
+  twin in the same pose with finer squares.
