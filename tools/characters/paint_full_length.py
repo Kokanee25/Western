@@ -97,21 +97,21 @@ ASK_ITEM_FRONT = (
     "product photograph: the man himself removed entirely (no head, no face, no hair, no hands, no "
     "legs, no body, none of his other clothes), the garment alone keeping exactly the shape it has on "
     "him, seen straight on from the front at its own middle height, the whole of it in the frame with "
-    "a little space round it. Soft, even, flat studio light from the front, no cast shadows, a plain "
+    "a little space round it. {pose}Soft, even, flat studio light from the front, no cast shadows, a plain "
     "light grey background. Smooth, realistic and sharp, every detail clear, with NO pixel mosaic, NO "
     "square pixels and NO blocky texture anywhere. Nothing else in the picture, no text."
 )
 ASK_ITEM_TURN = {
     "left": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
             "light and plain light grey background, but seen from its left side (a true profile), the "
-            "whole of it in the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
+            "whole of it in the frame. {pose}Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
             "else, no text.",
     "back": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
             "light and plain light grey background, but seen from directly behind, the whole of it in "
-            "the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing else, no text.",
+            "the frame. {pose}Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing else, no text.",
     "right": "SLTCRK. The same {item} alone as a ghost-mannequin product photograph, the same flat studio "
              "light and plain light grey background, but seen from its right side (a true profile), the "
-             "whole of it in the frame. Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
+             "whole of it in the frame. {pose}Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing "
              "else, no text.",
 }
 
@@ -119,7 +119,10 @@ ASK_ITEM_TURN = {
 def asks(spec):
     """The front prompt and the three turn prompts for this character (a man, or an item)."""
     if spec.get("item"):
-        return ASK_ITEM_FRONT.format(item=spec["item"]), {v: ASK_ITEM_TURN[v].format(item=spec["item"]) for v in TURN}
+        # `pose`: how the garment is held (the coat's sleeves out at the A-pose's angle, so the
+        # body's bones carry them right); nothing for a hat.
+        words = {"item": spec["item"], "pose": (spec["pose"].strip() + " ") if spec.get("pose") else ""}
+        return ASK_ITEM_FRONT.format(**words), {v: ASK_ITEM_TURN[v].format(**words) for v in TURN}
     words = {"top": "head", "back_of": "the back of his head and vest"} if spec.get("hatless") else \
         {"top": "hat", "back_of": "the back of his hat and coat"}
     front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
