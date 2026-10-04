@@ -2352,3 +2352,12 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   the nearest painting (standoff 0.143, balcony 0.208; the night street and the blast score worse
   only because the judge weighs light and they're a night scene and a fireball). Left out: the
   doctor's office (softer, paler, less of the mosaic, weaker drawing).
+  - Then **the LoRA retrained on them** (People run 30: 75 crops, 27 of them from the eleven
+    pictures; `tools/style/style_lora.json`) and sampled (run 31, the same six prompts;
+    `docs/style_test/lora/`, the first LoRA's samples kept in `run19/`, side by side in
+    `compare_run19_run31.png`). Better: the street (lettered false fronts, the paintings' ruts and
+    boardwalks), the portrait (a drawn three-quarter face, deeper lines) and the horse (fuller
+    form, a cleaner saddle). The same: the saloon, the full-length gunman (still a grey backdrop:
+    that sample's prompt asks for one). Worse: the boards, smoother and less of the mosaic. Known:
+    it spells signs badly ("SALLOONN"), and the street sample is close to the standoff picture's
+    composition (more streets seen other ways round would loosen it).
