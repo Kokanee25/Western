@@ -123,8 +123,9 @@ def make_zip(items, path):
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         for name, img, cap in items:
             buf = io.BytesIO()
-            img.save(buf, "PNG")
-            z.writestr(name + ".png", buf.getvalue())
+            # JPEG at full colour resolution: PNGs of 126 crops came to 122 MB, past fal's upload limit.
+            img.convert("RGB").save(buf, "JPEG", quality=95, subsampling=0)
+            z.writestr(name + ".jpg", buf.getvalue())
             z.writestr(name + ".txt", cap)
     return path
 
