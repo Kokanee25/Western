@@ -2274,3 +2274,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     tint on the weathered face round a hole beyond the torn cells.
   - Next: Sean fires into the store's wall on Shadow and sends F3 while firing and after (the
     gate); then step 3 (dynamite and the ground) or the hat shot off (Part 5).
+- 2026-10-04 (gameplay): **No stall at a man's first wound.** Found in step 2's bench: buckshot
+  through the store's wall into the storekeeper put ~70–140 ms on one frame. Timed inside
+  `take_bullet`: the wound itself ~3 ms, but `open_wound`'s first `BodyInterior.build()` for a
+  part type painted the insides' textures in script on the spot (chest ~88 ms, belly ~39; cached
+  after, so the next man's chest was 2–4 ms), and the first wound decals ~7 ms.
+  `BodyInterior.warm_up()` paints them ahead, one a frame, from when the first person comes into
+  the world (the same seeds `build()` and `_paint_wound` use). Worst frame at a first hit 119 →
+  13 ms; `perf_bench.gd --scene=wall` max 138 → 32 ms (avg 4.9, p99 19.7). Test
+  `test_openings::test_the_insides_are_painted_before_anyone_is_hurt`. 296 pass.
+  - Known: the long bones' and the ribs' bone texture were whichever seed came first (93 or 97);
+    now always 93's.
