@@ -178,6 +178,10 @@ godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --only=player   #
 xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- --out=/tmp/shots
 godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         # needs export templates
 python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  # before pushing CI edits
+python3 tools/judge.py --note="what changed"                   # judge both shots into a new round
+python3 tools/critic.py prepare docs/screenshots/judge/<round>  # the blind critic's prompt (an Agent, fresh)
+python3 tools/golden_check.py --render [--only=a,b]            # every fixed view against its golden image
+python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
 ```
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
@@ -375,6 +379,25 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   60 px, block and pixel noise, blur, greyscale, a grade toward the painting's light, and round 27
   against round 25) must rank as a viewer would; run it after touching the measures. `--pick="…"`
   records Sean's verdict on a round. Scores before round 28 are v1's and don't compare.
+  **The blind critic** (`tools/critic.py`, since 2026-10-04, the rule in How we work): after
+  every art merge, `critic.py prepare <round>` lays the two paintings and the round's renders
+  (and `--extra=DIR` renders, the tour's frames once they exist) in `<round>/critic/` and prints
+  the prompt; a fresh Agent (general-purpose, nothing else in its context) gets that prompt as
+  its whole task, looks only at those images, makes a crop per difference with `critic.py crop`
+  (the same box from the render and the painting, side by side at 3×) and writes
+  `<round>/critic/critic.md`: the five biggest differences a viewer would notice, biggest
+  first, with crops; `critic.py top <round>` prints the top three for the status entry. The
+  judge measures style; the critic says what a person sees; both choose what's next.
+  **Golden images** (`tools/golden_check.py`, the rule in How we work): every view in
+  `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
+  `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
+  absolute difference per channel and the share of pixels moved by more than 24/255) against
+  `tolerances.json` (per view: a still's floor is mean 1.5 / share 1%; scenario views with
+  physics, particles or brains have theirs set from two renders of the same build, `--approve
+  --noise=A,B`, three times the measured noise) and writes golden | render | difference ×6 for
+  each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge
+  (`--approve --from=DIR`). Lavapipe renders only: a real GPU differs everywhere. The gameplay
+  session wires the check into CI (needs `mesa-vulkan-drivers` + `xvfb` on the runner).
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
