@@ -403,7 +403,7 @@ jobs:
 
       - name: Install Blender (bpy), numpy and Pillow
         if: inputs.paint_views == ''
-        run: pip install "bpy==${BPY_VERSION}" numpy pillow
+        run: pip install "bpy==${BPY_VERSION}" numpy pillow scipy
 
       # His body painted from the concept painting: the image model paints each grey view of him
       # (assets/people/paint/<id>_<view>_guide.png, rendered by tools/paint_bake.gd, which bakes

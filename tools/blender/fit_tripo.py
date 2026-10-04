@@ -58,6 +58,10 @@ PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 HAT_BAND = 0.72
 # A coat's collar stands this far above the neck joint (Tripo units, of his height: ~6 cm).
 COAT_COLLAR = 0.032
+# A piece is pushed out of his skin to this clearance, where it lies within this reach of him
+# (Tripo units: ~2 cm and ~11 cm on him).
+PIECE_CLEARANCE = 0.012
+PIECE_REACH = 0.06
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
@@ -411,7 +415,34 @@ class Piece:
             body.report.setdefault("piece_landmarks", {})[self.shape] = {
                 "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
             self._sleeves_to_arms()
+            self._clear_body()
         body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
+
+    def _clear_body(self):
+        """Whatever of the piece lies inside him, or nearer his skin than PIECE_CLEARANCE, is pushed
+        out along his skin's normal to that clearance: no registration by landmarks is exact, and
+        cloth under the skin is cloth the game never draws. The far skirt, more than PIECE_REACH
+        from any of him, hangs as it is."""
+        from scipy.spatial import cKDTree
+        body, v = self.body, self.v
+        bv, tris = body.v, body.tris
+        fn = np.cross(bv[tris[:, 1]] - bv[tris[:, 0]], bv[tris[:, 2]] - bv[tris[:, 0]])
+        vn = np.zeros_like(bv)
+        for k in range(3):
+            np.add.at(vn, tris[:, k], fn)
+        vn /= np.linalg.norm(vn, axis=1, keepdims=True) + 1e-12
+        # His skin on a grid (every vertex is more than the fit needs and slow to search).
+        keep = np.unique((bv / 0.004).round().astype(np.int64), axis=0, return_index=True)[1]
+        tree = cKDTree(bv[keep])
+        dist, idx = tree.query(v, distance_upper_bound=PIECE_REACH)
+        near = np.isfinite(dist)
+        b = bv[keep][idx[near]]
+        n = vn[keep][idx[near]]
+        d = ((v[near] - b) * n).sum(axis=1)
+        push = np.clip(PIECE_CLEARANCE - d, 0.0, None)
+        v[near] += n * push[:, None]
+        self.v = v
+        self.report["pushed_out"] = int((push > 0).sum())
 
     def _sleeves_to_arms(self):
         """The painter hangs a coat's sleeves at its sides however it is asked; the body stands in
