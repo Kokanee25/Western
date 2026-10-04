@@ -2,18 +2,18 @@
  "trainer": "fal-ai/flux-lora-fast-training",
  "trigger": "SLTCRK",
  "steps": 1000,
- "crops": 75,
- "lora_url": "https://v3b.fal.media/files/b/0aad0bdd/N4Wil3TqDBpqEJG8VxJ6X_pytorch_lora_weights.safetensors",
- "config_url": "https://v3b.fal.media/files/b/0aad0bdd/dLvu74FKAOXHzssP2YSAH_config.json",
+ "crops": 282,
+ "lora_url": "https://v3b.fal.media/files/b/0aad161b/-auG4boFbcihupyoCKjVj_pytorch_lora_weights.safetensors",
+ "config_url": "https://v3b.fal.media/files/b/0aad161b/x0-j6xWM79KPAMWobCtvW_config.json",
  "answer": {
   "diffusers_lora_file": {
-   "url": "https://v3b.fal.media/files/b/0aad0bdd/N4Wil3TqDBpqEJG8VxJ6X_pytorch_lora_weights.safetensors",
+   "url": "https://v3b.fal.media/files/b/0aad161b/-auG4boFbcihupyoCKjVj_pytorch_lora_weights.safetensors",
    "content_type": "application/octet-stream",
    "file_name": "pytorch_lora_weights.safetensors",
    "file_size": 130958064
   },
   "config_file": {
-   "url": "https://v3b.fal.media/files/b/0aad0bdd/dLvu74FKAOXHzssP2YSAH_config.json",
+   "url": "https://v3b.fal.media/files/b/0aad161b/x0-j6xWM79KPAMWobCtvW_config.json",
    "content_type": "application/octet-stream",
    "file_name": "config.json",
    "file_size": 714
@@ -23,8 +23,8 @@
  "log": [
   {
    "upload_initiate": {
-    "file_url": "https://v3b.fal.media/files/b/0aad0bb6/sld0WnEw08MJ8TXI76G6c_train.zip",
-    "upload_url": "https://v3b.fal.media/files/b/0aad0bb6/sld0WnEw08MJ8TXI76G6c_train.zip?signature=sXUFFUGwEuudt1Qv"
+    "file_url": "https://v3b.fal.media/files/b/0aad15db/lGR-O-fCscaIujq2uwA5J_train.zip",
+    "upload_url": "https://v3b.fal.media/files/b/0aad15db/lGR-O-fCscaIujq2uwA5J_train.zip?signature=AFOFVQYEouN6cirJ"
    }
   },
   {
@@ -33,10 +33,10 @@
   {
    "queued": {
     "status": "IN_QUEUE",
-    "request_id": "01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4",
-    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4",
-    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4/status",
-    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4/cancel",
+    "request_id": "01a10925-d662-7341-bcc5-3c31a7e64155",
+    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155",
+    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155/cancel",
     "logs": null,
     "metrics": {},
     "queue_position": 0,
@@ -47,13 +47,13 @@
   {
    "status": {
     "status": "COMPLETED",
-    "request_id": "01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4",
-    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4",
-    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4/status",
-    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10799-8a4d-7bd3-8a6c-a38d7fd9c4b4/cancel",
+    "request_id": "01a10925-d662-7341-bcc5-3c31a7e64155",
+    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155",
+    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a10925-d662-7341-bcc5-3c31a7e64155/cancel",
     "logs": null,
     "metrics": {
-     "inference_time": 211.22399997711182
+     "inference_time": 449.5020000934601
     }
    }
   }
