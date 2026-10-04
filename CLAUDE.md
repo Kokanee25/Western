@@ -2425,3 +2425,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   Then the same cowboy seen from directly behind (55 in the folder): the first back of a head
   under a hat, the view the head repaint asks for last; big squares (the crown ~10 across, the
   hair ~20–35), darker than the painting (median L* 5, deep-shadow share 0.83, chroma 15).
+  Then the same cowboy in profile facing right (56 in the folder): a new drawing, not the left
+  profile flipped (it differs from that one mirrored as much as two different drawings do), ~25
+  squares across the face, the painting's light (median L* 9, deep-shadow share 0.65, chroma 21).
