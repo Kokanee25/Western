@@ -36,6 +36,42 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your
   status entry, naming the file and why. If it's more than a line or two, ask Sean first.
+- **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
+  references, what done looks like, how it's judged). Open briefs are in `docs/briefs/`; the
+  current one for both sessions is `docs/briefs/review-tools.md`.
+- **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
+  papers, talks and docs are fine; say where they came from in a comment. Anything used under a
+  licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
+  forbids redistribution goes in this repo while it's public.
+- **Frame budget:** every system has a budget in milliseconds (table below, filled in by the
+  gameplay session's performance benchmark); the frame must fit 60 fps on one 3.25 GHz core with
+  headroom. A merge that pushes a system over its budget isn't done until it's back under.
+- **Art merges get a blind critic:** after every art merge, a fresh sub-agent that hasn't seen the
+  work or its reasoning gets only the concept paintings and the new renders, and lists the five
+  biggest differences a viewer would notice, with crops. Saved as
+  `docs/screenshots/judge/<round>/critic.md`; its top three go in the status entry.
+- **Golden images:** every fixed screenshot view has an approved render; a change beyond a small
+  tolerance fails the check. Approving a new look updates the golden image in the same merge.
+- **Playtests before Sean:** once the dev bridge exists, a build with new gameplay is played first
+  by a playtest agent that hasn't read the code (`tools/playtest.md`), and its report
+  (`docs/playtests/<date>.md`) goes with the build.
+- **Refactor and adversarial review:** every few weeks or at each milestone, a Fable session
+  restructures what has grown messy and reviews the codebase for what's fragile, slow, untested or
+  likely to break. It reports before changing anything.
+- **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
+  driven by dials (tunable numbers), not keyframes.
+
+### Frame budget (ms at 60 fps on one 3.25 GHz core; to be measured and filled in)
+
+| System | Budget | Measured |
+|---|---|---|
+| People (bodies, senses, brains) | | |
+| Physics | | |
+| Structures (settle, analysis) | | |
+| Fire and effects | | |
+| Render CPU (draw calls) | | |
+| Everything else | | |
+| **Total** | **≤ 14** | |
 
 ## Tech decisions
 
@@ -2345,3 +2381,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   take next). `stranger` stays the whole man, so the saloon shot and its judge rounds are
   unchanged; `"whole": true` is the stopgap the brief names. The diagnostic men rendered on the
   way are scratch, not kept. 291 tests pass.
+- 2026-10-04 (Sean's planning chat, docs only): **New working rules and a brief for review tools.**
+  After Sean read how another Claude-built engine is run, these rules went into How we work: a
+  brief per big job (`docs/briefs/`), no copied code (credits in `CREDITS.md`), a frame budget per
+  system (table to be filled in by the performance benchmark), a blind critic after every art
+  merge, golden images for the fixed views, playtests by an agent before Sean gets a gameplay
+  build, a regular Fable refactor and adversarial review, and motion by mocap with procedural
+  breathing/idles/flinches/aim. The jobs for both sessions are in `docs/briefs/review-tools.md`:
+  gameplay builds a live look panel, a dev bridge, a camera-tour video on Pages, a playtest agent
+  and the budget (after the performance pass); art supplies the panel's settings and takes up the
+  blind critic and golden images from its next merge.
