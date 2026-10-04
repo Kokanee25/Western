@@ -2440,3 +2440,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   23 and 33), so his colour is eased to 0.8 (Lab a* and b*) before filing: chroma 22.5, face 39.
   Left out: its twin, with smaller squares (~22 across the face) full of dark specks, the
   low-res-texture look Sean called PS1 graphics.
+  Then a young ranch hand in soft daylight (59 in the folder): the first close face in even
+  light (the game lights faces itself, so the head repaint wants faces painted in even light),
+  ~17–18 squares across the face, crisp even squares on the hat and shirt. Frame median L* 54,
+  chroma 28 (the street painting's 26.5), so filed as it came. Made with the rewritten prompt:
+  run 31's portrait attached for the squares, the grid described, "not a 3D render".
