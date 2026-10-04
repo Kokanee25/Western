@@ -43,6 +43,14 @@ var _batches := {}
 ## StructureMember -> the Material of the batch it's drawn in.
 var _batched := {}
 var _batch_dirty := {}
+var _by_stack: Array[StructureMember] = []  # see by_stack()
+var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
+var _rebuild_queued := false
+var _rebuild_timed := false
+var _last_rebuild := -INF
+## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
+## (every member of that material in the building) each time it did was a long frame.
+const BATCH_REBUILD_GAP := 0.5
 
 
 func _ready() -> void:
@@ -116,6 +124,7 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
 func infer_supports() -> void:
+	_by_stack.clear()
 	var boxes := {}
 	for m in _order:
 		boxes[m] = m.structure_aabb()
@@ -124,6 +133,7 @@ func infer_supports() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
+		m.analysis_cache = {}
 		var box: AABB = boxes[m]
 		var tier := StructureMember.tier_of(m.kind)
 		m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON
@@ -155,8 +165,7 @@ func has_load_path(id: StringName, broken := {}) -> bool:
 ## always come earlier in stack order (lower tier, or the same kind lower down), so one pass
 ## settles it.
 func members_without_load_path(broken := {}) -> Array[StringName]:
-	var sorted := _order.duplicate()
-	sorted.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.stack_key < b.stack_key)
+	var sorted := by_stack()
 	var held := {}
 	var falling: Array[StringName] = []
 	for m: StructureMember in sorted:
@@ -173,6 +182,14 @@ func members_without_load_path(broken := {}) -> Array[StringName]:
 		else:
 			falling.append(m.member_id)
 	return falling
+
+
+## The members bottom-up (stack order, which never changes once built): sorted once, kept.
+func by_stack() -> Array[StructureMember]:
+	if _by_stack.size() != _order.size():
+		_by_stack = _order.duplicate()
+		_by_stack.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.stack_key < b.stack_key)
+	return _by_stack
 
 
 # --- Drawing members together ---------------------------------------------------------------------
@@ -224,24 +241,45 @@ func _build_batch(mat: Material) -> void:
 	old.mesh = mesh
 
 
-## Draw this member on its own from now on (something's happened to it).
-func unbatch(m: StructureMember) -> void:
+## Draw this member on its own from now on (something's happened to it). `soon` (the fire's
+## heating, a member at a time all over a burning building): its batch is rebuilt without it at
+## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
+func unbatch(m: StructureMember, soon := false) -> void:
 	if not _batched.has(m):
 		return
 	var mat: Material = _batched[m]
 	_batched.erase(m)
+	_batch_dirty[mat] = true
 	var mi := m.get_child(0) as MeshInstance3D
+	if soon:
+		_show_after[m] = true
+		if not _rebuild_timed and not _rebuild_queued and is_inside_tree():
+			_rebuild_timed = true
+			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - Time.get_ticks_msec() / 1000.0, 0.0)
+			get_tree().create_timer(wait, true, true).timeout.connect(_rebuild_dirty_batches)
+		return
 	if mi:
 		mi.visible = true
-	if _batch_dirty.is_empty():
+	if not _rebuild_queued:
+		_rebuild_queued = true
 		_rebuild_dirty_batches.call_deferred()
-	_batch_dirty[mat] = true
 
 
 func _rebuild_dirty_batches() -> void:
+	_rebuild_queued = false
+	_rebuild_timed = false
+	if not is_inside_tree() and _batch_dirty.is_empty():
+		return
 	for mat in _batch_dirty:
 		_build_batch(mat)
 	_batch_dirty.clear()
+	for m: Variant in _show_after:
+		if is_instance_valid(m) and (m as StructureMember).get_child_count() > 0:
+			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
+			if mi and not (m as StructureMember).consumed:
+				mi.visible = true
+	_show_after.clear()
+	_last_rebuild = Time.get_ticks_msec() / 1000.0
 
 
 func _clear_batches() -> void:
@@ -252,6 +290,7 @@ func _clear_batches() -> void:
 	_batches.clear()
 	_batched.clear()
 	_batch_dirty.clear()
+	_show_after.clear()
 
 
 ## How many draw calls its intact members take (tests, F3).
@@ -262,6 +301,16 @@ func batch_count() -> int:
 # --- Standing and falling -----------------------------------------------------------------------
 
 func _on_member_damaged() -> void:
+	settle_soon()
+
+
+## Settle soon, once however many times it's asked: in a world with a FireSystem it works
+## through it a slice of the building a frame (a big collapse was seconds on one frame); else at
+## the end of this frame.
+func settle_soon() -> void:
+	var fire := FireSystem.find(get_tree()) if is_inside_tree() else null
+	if fire and fire.queue_settle(self):
+		return
 	if not _settle_pending:
 		_settle_pending = true
 		settle.call_deferred()
@@ -276,19 +325,28 @@ func settle() -> Array[StringName]:
 		return changed
 	for round_ in 64:
 		var a := StructuralAnalysis.new(tuning).analyse(self)
-		last_analysis = a
-		var over := a.overloaded()
-		if not over.is_empty():
-			# The worst goes first; the rest may be fine once the loads find new paths.
-			var m := get_member(over[0])
-			_snap(m, float(a.critical_t.get(m.member_id, 0.0)))
-			changed.append(m.member_id)
-			continue
-		if a.falling.is_empty():
+		if not apply_round(a, changed):
 			break
-		_drop(a.falling)
-		changed.append_array(a.falling)
 	return changed
+
+
+## One round of settling from an analysis of it as it stands: the worst overloaded member snaps,
+## else what has no load path falls. True if something did (another round is due). FireSystem
+## runs a burning building's rounds this way, an analysis spread over frames.
+func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool:
+	last_analysis = a
+	var over := a.overloaded()
+	if not over.is_empty():
+		# The worst goes first; the rest may be fine once the loads find new paths.
+		var m := get_member(over[0])
+		_snap(m, float(a.critical_t.get(m.member_id, 0.0)))
+		changed.append(m.member_id)
+		return true
+	if a.falling.is_empty():
+		return false
+	_drop(a.falling)
+	changed.append_array(a.falling)
+	return true
 
 
 ## Break a member outright (an axe, dynamite, the debug key): it falls and the rest settles.
@@ -337,6 +395,8 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	if length < 0.4 or absf(t) > length * 0.5 - 0.1:
 		var rb := _new_rubble([m.member_id])
 		rb.global_transform = m.global_transform
+		if not cs.shape is BoxShape3D:
+			cs.shape = _box_shape(m.size)  # carved (concave): a moving body takes its box
 		mi.reparent(rb, true)
 		cs.reparent(rb, true)
 		rb.mass = maxf(m.weight(tuning) / 9.81, 0.3)
@@ -457,6 +517,12 @@ func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"structures", t)
+
+
+func _physics_step(delta: float) -> void:
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:

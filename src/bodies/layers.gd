@@ -13,6 +13,9 @@ const PEOPLE := 8
 const DEBRIS := 16
 ## What debris collides with.
 const DEBRIS_MASK := WORLD | DEBRIS
+## Physics: the hat a man's wearing (HumanBody.hat_body): bullets hit it and take it off;
+## nothing else looks for it.
+const HATS := 32
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE
 

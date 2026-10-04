@@ -18,6 +18,14 @@ extends Resource
 ## west): the street painting's sun sets a little left of the street's axis, so the north side's
 ## porches and boardwalks are sunlit at golden hour (docs/ART_REVIEW.md §3.1, with Sean).
 @export var sun_azimuth_degrees := 0.0
+## The sky is re-lit (its radiance: the ambient and reflections of everything under it) only when
+## what's sent to it has changed this much: the sun or moon by this many degrees, a colour by this
+## much in any channel. Sending it every tick swapped the radiance between two states frame to
+## frame and flickered every sky-lit surface (interiors at their probes' edges, the saloon mirror).
+@export var sky_update_degrees := 0.5
+@export var sky_update_colour := 0.004
+## The clouds' drift (sky units a real second).
+@export var cloud_drift_speed := 0.002
 ## Tilt of the moon's arc (a full moon, opposite the sun's hour): it rises in the east, sets in the
 ## west and crosses the sky this far from straight overhead, over the +Z side (the street, seen from
 ## the saloon's door). Low, as the saloon painting's moon is in its doorway.

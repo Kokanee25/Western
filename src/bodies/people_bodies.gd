@@ -11,6 +11,9 @@ class_name PeopleBodies
 const PATH := "res://assets/people/%s.glb"
 ## Each generated garment's baked pixel texture.
 const TEXTURE_PATH := "res://assets/people/%s_%s.png"
+## The "quantise once" set: a whole man's <id>_skin_smooth.png / <id>_head_smooth.png
+## (tools/blender/fit_tripo.py --smooth: no squares, no palette) where they exist. Off by default.
+static var smooth_paint := false
 ## What make_people.py did for him (and what it measured, like his skin tone).
 const REPORT_PATH := "res://assets/people/%s.json"
 ## His painted textures (tools/paint_bake.gd + tools/paint/finish.py): per shape, the texture
@@ -39,18 +42,26 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if generated.is_empty():
 		return BodyMesh.build(anatomy, outfit)
 	# Boots, belts and the hat are still BodyMesh's; the hat is fitted to this man's own head.
+	# A model that comes dressed ("whole" in his report: a Tripo man, tools/blender/fit_tripo.py)
+	# wears nothing of BodyMesh's.
 	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
+	var whole := _is_whole(model)
+	if whole:
+		shapes.clear()
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
 	var textures := {}
 	for k: String in generated:
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
-		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie).
-		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS:
+		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie). A whole
+		# man wears every piece his model came with (his own coat and hat, fitted as pieces).
+		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS or whole:
 			shapes[k] = generated[k]
 			var png := TEXTURE_PATH % [model, k]
+			if smooth_paint and ResourceLoader.exists(TEXTURE_PATH % [model, k + "_smooth"]):
+				png = TEXTURE_PATH % [model, k + "_smooth"]
 			if ResourceLoader.exists(png):
 				textures[k] = load(png)
 	var face := TEXTURE_PATH % [model, "face"]
@@ -84,6 +95,15 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 			var t: Array = info.skin_tone
 			out["skin_tone"] = Color(t[0], t[1], t[2])
 	return out
+
+
+## Whether the model comes dressed (his report says "whole": clothes, hat and all in his skin).
+static func _is_whole(model: StringName) -> bool:
+	var report := REPORT_PATH % model
+	if not FileAccess.file_exists(report):
+		return false
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(report))
+	return info is Dictionary and bool((info as Dictionary).get("whole", false))
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.

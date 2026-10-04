@@ -198,7 +198,42 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   of 2, 4, 8... texels, each the colour of the one texel at its centre (not the mip's average: that
   read plain) and lit as one, on the texel grid and the ground, so the far street stays chunky as
   the painting's does; `fixed_squares` keeps a material out of it (SignArt's boards: lettering).
-  `depth_mosaic.gd(shader)` is the screen-space trial that lost (`--screen-squares=N`). `pixel_screen`: F6. `Settings.NATIVE` (F2's last stop) = render at the window's size.
+  **The screen mosaic** (`depth_mosaic.gd(shader)`, `DepthMosaic` on the game camera, since
+  2026-10-03, `Settings.mosaic` on by default, saved; `screenshots.gd --no-mosaic`, `--mosaic=K
+  --steps=N`): the finished lit frame cut into blocks of about `MOSAIC_K` 5 / depth render
+  pixels (3–4 px on a man across a table, 2 px far off, at 1280 wide: the saloon painting's
+  blocks are nearly one size), each block one colour (the sample at its centre; a block takes
+  its colour only from its own distance band, so a near thing keeps its own blocks), the light
+  posterised into `MOSAIC_STEPS` 14 tones. Silhouettes go stair-stepped at the block size as the
+  painting's are and a model's facets hide under the blocks. Not on the Compatibility renderer
+  (no depth texture). The finish's softening is off by default under it (`LOOK_VERSION` 5).
+  The first trial of it (`--screen-squares=N`, 2026-10-02) only chunked far surfaces and
+  averaged each block, and lost to the old judge that rewarded noise. `pixel_screen`: F6.
+  **The quantise-once look** (Pixel-factory's plan A1, 2026-10-03; `Settings.quantise_once`,
+  **I** toggles, saved, off by default until Sean's eye on a real GPU; `screenshots.gd
+  --quantise-once`): every pre-blocking step off (tile light off, `min_square_px` 0: Settings
+  owns that global now, `MIN_SQUARE_PX` 2; `PixelArt.smooth`: the factory's textures from
+  `assets/textures/smooth/`, the same paintings cut by `reduce.py --smooth` at four times the
+  texels with no palette, the grid density ×4 with them; `PeopleBodies.smooth_paint`: a whole
+  man's `<id>_skin_smooth.png` / `_head_smooth.png` from `fit_tripo.py --smooth`, no squares,
+  from `head_paint.py bake --smooth`'s unquantised head) and the mosaic refined by
+  `DepthMosaic.tuning` (`Settings.QUANTISE_TUNING`; shader knobs `depth_power`, block size as
+  `block_k / depth^power`, 0.5 = nearly one size near and far; `soft`, pixels of blend across
+  block edges; `average`, a block as the mean of its own band's pixels, with `dark_weight` the
+  darker pixels weighing more so shadow edges keep the shadow; `sat_steps`, `hue_steps`, the
+  block's colour snapped to a limited palette as well as `steps` of light; and `block_in` /
+  `block_out`, the block size under a roof and in the open, 4 and 6 px: the mosaic node casts a
+  ray up from the camera every quarter second and eases between them; `--mosaic-tune=k:v,...`,
+  `--saloon-tune=` / `--street-tune=` for one shot). The world's materials take their textures
+  when built, so the switch reloads the scene. Verdict in the status entries;
+  `docs/screenshots/quantise_once/compare.png` (`tools/quantise_compare.py`).
+  **Native is the default** (`Settings.NATIVE`, F2's first stop, since §10.10: render at the window's
+  size; `LOOK_VERSION` 4 moves a saved 1280×720 to it) and **the finish pass** (off by default
+  since the screen mosaic, `Settings.finish`, docs/ART_REVIEW.md §8.7; `screenshots.gd --no-finish`): `pixel_screen`
+  softens a render pixel on a hard edge between blocks toward its neighbours (`finish_soften`
+  0.5, a jump across the pixel both ways; fine lines and smooth areas untouched) and the tile
+  light is worked out part way back from the tile's centre toward the fragment (shader global
+  `tile_gradient` 0.3), a faint gradient of the real lighting across each tile.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -222,6 +257,17 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
   `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
+  `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
+  `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
+  `Ballistics` walks the solid runs a projectile meets (`solid_runs`) and each is carved
+  (`carve_hit`: the channel at the projectile's size, plus spall from the energy spent and the
+  muzzle blast, split along the grain, ragged, the wood round it torn: fresh-cut faces), chips
+  thrown (DEBRIS, frozen after 2.5 s), meshed on the plugin's workers and swapped in by
+  `VoxelWorks` (one per structure: the outside keeps its material, carved and torn faces are
+  fresh wood, collision a ConcavePolygonShape3D); `section_left`/`weakest_t`/`weight` read the
+  voxels (holes within the member's depth along the grain count together). No plugin (web) or
+  `enabled` off: holes drawn by `member_holes.gdshader` as before.
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people; `config/fire.tres` via `FireTuning`), `FireFX` (flames,
   smoke, `char_overlay.gdshader`).
@@ -266,7 +312,16 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   TURN and pose offsets to the painting's man (outline, eyes, cup, palm in front of the mug).
   `src/render/outline.gd` (+ `.gdshader`) is a trial of line work (dark lines on silhouettes and
   creases from depth/normals, a full-screen quad on a camera): off everywhere, `--outlines` in
-  the lab. `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
+  the lab. **The voxel trial** (`src/art/voxel_trial.gd`, `VoxelTrial`, 2026-10-03; off
+  everywhere, `screenshots.gd --voxel=props,hat,eyes|all --cubes=64`): the shot's mug, lamp
+  (not its glass), bottle, ashtray and the seated man's hat as cube-built copies
+  (`tools/voxel_export.gd` writes the props' parts as OBJ; `tools/blender/voxelise.py` makes a
+  shell of cubes along each surface, 1/128 or 1/64 m, every face carrying the smooth surface's
+  normal, the hat's faces the texel under them in an atlas → `assets/props/voxel/`,
+  `assets/people/voxel/`), on the same grid material mapped triplanar with `cube_faces` (the
+  light stays at the fragment: a texel's centre is off a face far smaller than it); and smooth
+  eyeballs on his painted irises (`EYES`, measured per model). Verdict in the status entry;
+  `docs/screenshots/voxel_trial/compare.png` (`tools/voxel_compare.py`). `tools/character_lab.gd` judges the man on his own: ShotMatch's table and man in an empty world
   (`tools/lab_stage.gd`), the fitted camera, light tuned to the painting's (not the saloon's),
   rendered with him and with him shadow-only; the pixels that differ are his, pasted over the
   painting (`in_painting.png`). **Painting him from the painting:** `tools/paint_bake.gd guides`
@@ -398,12 +453,80 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   in the shader each layer's haze is scaled by the scene's fog density (`haze_scale`) → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
   the right as you look out (`Backdrop.direction()`: 270 is west, down the street).
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
-  input `characters`): `paint_full_length.py` has the image model paint each man in
-  `characters.json` full length in an A-pose (the painting's man as reference) →
-  `assets/people/tripo/<id>_full.png`; `tripo.py` uploads it and asks Tripo for a textured model,
-  then a rigged one → `<id>.glb` (+ `_mesh.glb`, every answer in `_tripo.json`); the folder is
-  `.gdignore`d (pipeline inputs, not game assets). Needs the repo
-  secret `TRIPO_API_KEY`; the client is untested against the live API. `tripo.py --dry-run` runs
+  input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
+  in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal
+  route** (the default with `FAL_KEY` and the style LoRA; `--via=openrouter` is the first route,
+  FLUX.2 [max] with the painting's man as reference): FLUX Kontext with the LoRA (`FAL_EDITOR`,
+  default `fal-ai/flux-kontext-lora`, `SCALE` 0.25: at 0.5 it painted the coat in blocks) redraws
+  him from the full-length painting there (its mosaic smoothed away first, `smoothed()`) or
+  the concept painting's man (`--from=painting`, or a new man), then his left side, back and
+  right side from that front → `assets/people/tripo/<id>_full.png`, `<id>_left/_back/_right.png`
+  and `<id>_turn.png` (the four in a row); `--dry-run` runs it on a stand-in editor. `tripo.py`
+  uploads the four as Tripo's multi-view input (`multiview_to_model`, front/left/back/right; the
+  front alone is `image_to_model`) and asks for a textured model, then a rigged one → `<id>.glb`
+  (+ `_mesh.glb`, every answer in `_tripo.json`, which starts with a hash of each picture: a
+  model is made again when its pictures change, or with `--again`); the folder is `.gdignore`d
+  (pipeline inputs, not game assets). People workflow: `style: characters` paints only (look
+  before Tripo is paid); `characters: <ids>` paints then runs Tripo (`repaint` repaints and
+  models again). Needs the repo secrets `FAL_KEY` and `TRIPO_API_KEY`; the client ran against the
+  live API on 2026-10-02 (People run 17).
+  **His head in the style** (`tools/characters/head_paint.py`, People workflow `style: head`):
+  Tripo's face comes out smooth (his pictures had to be), so the head is painted after: `guides`
+  cuts the head off the mesh above the collar (`HEAD_FROM`) and renders it from six orthographic
+  views in Tripo's own colours, lit (numpy, no Godot or Blender: `<id>_head_<view>_guide.png`);
+  `paint` has FLUX dev's image-to-image with the style LoRA at full scale repaint each view
+  (`FAL_HEAD_EDITOR` default `fal-ai/flux-lora/image-to-image`, `STRENGTH` 0.68: the head stays
+  where and how it is, the LoRA draws the painting's man in his squares; FLUX Kontext with the
+  LoRA was tried first and painted a front-facing oil portrait for every view); `bake` projects
+  every painted view back through its camera into the mesh's UV space (depth-tested, the view
+  facing a texel squarest wins, weights³), fills what no view saw, cuts the head to squares of
+  `SQUARE_M` 5 mm on him and `COLOURS` 28 → `<id>_color.png`, Tripo's texture with the head
+  repainted; `docs/screenshots/tripo/<id>_head_views.png` is guides over paintings.
+  **The fit** (`tools/blender/fit_tripo.py`, bpy; the People workflow's people job runs it after
+  `make_people.py`): a person in `people.json` with `"source": "tripo"` is fitted from
+  `assets/people/tripo/<id>.glb` instead of MakeHuman: his one mesh into our body space, each
+  limb warped joint to joint from Tripo's rig onto ours (`JOINTS`, the same warp as
+  `make_people.Person.warp`; the trunk and neck stretched to our joints, the head at his own
+  proportions scaled by his hips to ours), no envelope fit (he wears a coat; his widths are his),
+  the coat's skirt hung from the hips (`SKIRT_RADIUS`, `BETWEEN_LEGS`: a skirt on the thighs
+  stretched into a flap when he sat), fingers cut at the knuckles, BodyMesh's joint blends
+  (`Person.weights`), the head (above `HEAD_FROM`) and the body as `body_head` / `body_skin`
+  decimated in Blender (`HEAD_TRIS` 2200, `TRI_BUDGET` 5500) → `assets/people/<id>.glb` with
+  Tripo's UVs; his texture (the repainted `_color.png` where there is one) in squares of
+  `SQUARE_TEXELS` 4 (~5.6 mm), one texel a square → `<id>_skin.png` + `<id>_head.png`
+  (`PeopleBodies` lays them on by UV as baked garments); `<id>.json` says `"whole": true`, and
+  `PeopleBodies` then puts nothing of BodyMesh's on him (he comes dressed, hat and boots too).
+  **Layers** (docs/DESTRUCTION_BRIEF.md part 5, since 2026-10-04): a person's `model` is his
+  Tripo body painted bare-headed and coatless (`characters.json`: a `from` entry is redrawn from
+  that character's finished front with `change` saying what to take off, `hatless` fixes the
+  turnaround's words) and his `pieces` {shape: character id} are garments painted alone as
+  ghost-mannequin pictures (`item`: Tripo models them unrigged, `<id>.glb` is the mesh);
+  `fit_tripo.py` scales and places each piece by landmarks in his Tripo space (`Piece.place`: the
+  coat's shoulder line onto his shoulders at `PIECE_MARGIN`, the hat's brim onto his head's band
+  at `HAT_BAND` of the way from jaw to crown), carries it through the body's own warp
+  (`warp_points`), skins it by the same tables (the coat's skirt from the hips, the hat all head)
+  and exports it as `body_<shape>` in his glb (`PIECE_TRIS`) with `<id>_<shape>.png`;
+  `PeopleBodies` wears every piece a whole man came with, so the hat is its own mesh (gameplay's
+  hat-shot-off needs that) and the coat can come off. A bare-headed man's head cut is
+  `HEAD_FROM_NECK` of the way from his neck joint to his jaw. **State (2026-10-04):** the hat
+  works (`stranger_layered`: body + hat); the coat piece does not yet. A Tripo garment is a
+  double shell (its lining 1–3 cm in: `_drop_lining`), at an ordinary man's girth on a broad
+  man, and no landmark registration put it cleanly over him (inside his skin, or torn by the
+  clearance push, `_clear_body`); `Piece.as_shell` (the coat as an offset shell of his own body,
+  its look by nearest-point UV from the Tripo coat, cut where that coat has no cloth) fits by
+  construction but its UVs smear across the atlas's islands and its coverage test fails where
+  the Tripo coat sits inside him. Next for the coat: bake the Tripo coat's colour onto the shell
+  (per-vertex colour from the nearest coat point at full resolution, the shell unwrapped in
+  Blender and baked to its own texture, then decimated), the way `clothes.py` bakes garments.
+  `stranger` stays the whole man meanwhile.
+  `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
+  `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
+  the game's scripts before the autoloads exist).
+  `tools/tripo_lab.gd --out=DIR [--id= --yaw= --fill= --height=]` loads a Tripo glb at run time
+  (GLTFDocument: the folder is unimported), lays `<id>_color.png` over his material where it
+  exists, stands him where the painting's man sits in the character lab's light and writes the
+  shot view, four orbit views and a contact sheet (`docs/screenshots/tripo/<id>_lab.png`), and
+  his head close beside the painting's man's (`<id>_head.png`): the judge before the Blender fit. `tripo.py --dry-run` runs
   the whole client (upload, both tasks, waiting, downloads, the log) against a stand-in Tripo on
   this machine (`tripo_standin.py`: answers as the v2 API, objects to anything the real one would
   refuse) into a scratch folder: no key, no .env, no network; `--balance` checks a real key and
@@ -414,10 +537,13 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `docs/concept/style/` (Sean's; `captions.json` there for words), each captioned with the
   trigger `SLTCRK`, zipped, uploaded to fal's storage and trained as a style LoRA on fal
   (`fal-ai/flux-lora-fast-training`, `is_style`); the result's URLs go in
-  `tools/style/style_lora.json` (the weights stay on fal). Untested against the live API;
-  `--dry-run` cuts and zips only (`build/style_train/sheet.png` shows the crops). The old
-  `style_test` input is now `style: photo`. Fitting the result to our
-  skeleton and hitboxes in Blender is still to come; MakeHuman stays the fallback.
+  `tools/style/style_lora.json` (the weights stay on fal). Trained on the live API 2026-10-02
+  (People run 18); `--dry-run` cuts and zips only (`build/style_train/sheet.png` shows the crops).
+  `tools/style/sample_style.py` (People workflow `style: sample`, `FAL_SAMPLER` default
+  `fal-ai/flux-lora`) paints six set prompts with FLUX + the LoRA (`loras: [{path, scale}]`) into
+  `docs/style_test/lora/` and a contact sheet beside the paintings. The old `style_test` input
+  is now `style: photo`. Fitting the result to our skeleton and hitboxes in Blender is still to
+  come; MakeHuman stays the fallback.
 - `tools/blender/` — the people pipeline: `fetch_makehuman.py` (CC0 assets, pinned to MakeHuman
   v1.2.0, into build/makehuman/), `make_people.py` (bpy: targets from `assets/people/people.json`,
   warp onto our joints, fit to `assets/people/envelope.json` — written by `tools/people_envelope.gd`
@@ -433,6 +559,11 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `godot --headless -s res://tools/people_envelope.gd`, `python3 tools/blender/fetch_makehuman.py`,
   `~/bpyenv/bin/python tools/blender/make_people.py --only=outlaw` (~15 s; byte-for-byte repeatable
   except the face guide render). `CLOTH_PASSES=dir` saves each garment's raw bake passes for tuning.
+- `addons/saltcreek_native/` — the native plugin (Rust, gdext 0.5.5, `api-4-7`; `cargo build
+  --release` there, copy `target/release/libsaltcreek_native.so` into its `bin/`; `cargo test
+  --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
+  `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
+  `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`).
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
@@ -1702,6 +1833,554 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
     `variant` for a grey and a chestnut is a few lines); the stag, chairs, barrels and bottles
     were already shaped (hoops, labels, spindles, antlers) and are left; image-to-3D props wait
     on a key (`MESHY_API_KEY` or `TRIPO_API_KEY`).
+- 2026-10-02 (art session, later): **§10.10: native by default, the finish pass.** Sean approved
+  native: `Settings.RESOLUTION_PRESETS` starts at `NATIVE` (`LOOK_VERSION` 4 moves a saved
+  1280×720 there once). The finish (above): block edges softened by about a render pixel in the
+  screen pass, and a faint gradient of the real lighting across each tile (`tile_gradient`:
+  LIGHT_VERTEX pulled 0.3 of the way back from the tile's centre). Judged at the 1280×720 window
+  (`_r51` on, `_r52` off): saloon 0.208 / 0.206, street 0.328 / 0.321, within the review's noise
+  band, so the pick is by eye (`docs/screenshots/light_pass/finish_on_off.png`: softer block
+  edges on the face, the lamp's falloff across the table's squares); kept on. Shared files:
+  `project.godot` (`tile_gradient` global), `settings.gd` (my lines). Gameplay files touched
+  (one line each, said here): `src/main/main.gd` (`finish_soften` to the screen shader),
+  `tests/test_project.gd` (the default is native: the tests check against the window's size,
+  and F2's first stop). 279 tests pass.
+  - §10.9 (the first Tripo man) waits on `TRIPO_API_KEY`: the People workflow's `characters`
+    input dry-runs the client, then calls the live API when the secret is there.
+  - Known: at native the far street's squares follow `min_square_px` 2 as before; the finish's
+    soften looks for jumps in the rendered frame, so a lamp's hard-edged halo softens too; no
+    key for the finish yet (F3 lists it).
+- 2026-10-02 (art session, later): **§10.9, round 1: the first Tripo man, judged in the lab.**
+  `TRIPO_API_KEY` is in: People run 17 (`characters: stranger`) painted him full length (FLUX:
+  the painting's man in an A-pose, already in blocks) and the live Tripo API answered first time:
+  `assets/people/tripo/stranger.glb` (rigged: 41 joints, Hip/Spine/Head/L_R Upperarm/Forearm/
+  Hand/Thigh/Calf/Foot with twist bones), `stranger_mesh.glb`, 390k triangles, 2K colour, normal
+  and ORM maps (31 MB in git, committed by the workflow). `tools/tripo_lab.gd` (above) stands him
+  at the table: `docs/screenshots/tripo/stranger_lab.png`. He reads as the painting's man (hat
+  with its studded band, long hair, the moustache, white collar and dark tie, patterned vest,
+  frock coat, cartridge belt) and his face is a smooth-shaded portrait rather than blocks; the
+  textures carry the model's own baked light (a de-lighting step is needed, as the review said),
+  and up close his face is smeared where the one painted view saw it obliquely (the moustache's
+  underside, the hat band's studs: a head sheet or Tripo's multi-view input would mend it). No
+  bake, no Blender fit yet: he stands in the A-pose through the table.
+  - Next (docs/ART_REVIEW.md §6, 2–3 sessions): the Blender fit (his rig onto our 17 segments and
+    hitboxes, the same warp/envelope/cut as MakeHuman's), decimate 390k → ~7k, de-light and
+    reduce his textures through the factory's reducer, our hands; then the paint bake's squares
+    or the hybrid finish on him, and the seat pose. No Blender in this workspace: the fit runs on
+    Actions (People workflow) like `make_people.py`.
+- 2026-10-02 (art session, later): **The style LoRA, trained and sampled.** Sean: "should we try
+  using Tripo to train on the concept art?" Tripo can't train (it reconstructs whatever picture
+  it's handed); the style belongs in the image model, and `FAL_KEY` was in: People run 18 trained
+  the LoRA on fal first time (48 crops of the three paintings, 1000 steps, five minutes;
+  `tools/style/style_lora.json`, the weights on fal). Run 19 sampled it (`sample_style.py`,
+  above): `docs/style_test/lora/sheet.png`. It learned the paintings well: the saloon and street
+  samples have their lamplight, golden haze, composition and mosaic, and the full-length gunman
+  and the portrait come out in the same blocks. Two things to know before using it: it paints the
+  blocks too (the review wants Tripo's input clean, with the squares made last by our reducer or
+  finish: for Tripo prompt it for the drawing and light, not the mosaic, or sample at a lower
+  LoRA scale), and on three paintings it will repeat their compositions (more pictures in
+  `docs/concept/style/` would loosen it). fal's `flux-lora` takes no reference image, so the
+  guided turnarounds would go through its image-to-image endpoint from our grey guides.
+  - Next: route `paint_full_length.py` and the turnaround sheets through fal with the LoRA
+    (image-to-image from the guides), give Tripo a multi-view sheet, and the Blender fit.
+- 2026-10-02 (gameplay): **Performance pass, part 1: measured, then fire.** Sean: CPU-bound on one
+  core (cloud PC, 3.25 GHz). `tools/perf_bench.gd` (main scene, gang in, player at (11,0,−9) looking
+  down the street): scene `calm`, and `fire` (two 0.2 kg blasts, 4 members lit in each of three
+  buildings, three shots); wall-clock avg/p99/max, a census, and ablation (each system's process or
+  physics off for 5 s vs a fresh baseline); `--render` under xvfb adds draw calls/objects;
+  `--quick` 8 s, `--no-ablate`, `--out=json`. Godot's TIME_PROCESS/PHYSICS monitors read nonsense
+  headless (unpaced loop), so the bench doesn't use them. **Before** (2.1 GHz Xeon, headless): calm
+  4.8 ms avg, p99 9.5; fire 17.4 ms, p99 307, max 520. Census: 14 people, 6,131 members, 10.2k meshes
+  (3.7k visible), 6.6k static bodies, 58 lights (20 shadowed), ~25k nodes. Draws (opengl3 under
+  xvfb, counts only; this container has no Vulkan): **calm 8,212 draw calls**, 9.9k objects in
+  frame, 1.27M primitives; hiding the people saves 4.2k draws, props/lamps/dressing 4.0k, the sun's
+  shadow 5.6k (its cascades re-draw everything), lamp shadows 0.35k. Ablation, calm: HumanBody
+  physics 1.55 ms, Senses 0.51, Player 0.45, debug overlay 0.35, DayCycle 0.32, rest < 0.1. Fire:
+  FireSystem ~38 ms of every frame on average. **Top five:** 1) draw calls: the sun's shadow
+  cascades over everything; 2) people, ~95 draws each; 3) props/lamps/dressing; 4) FireSystem;
+  5) HumanBody physiology/pose. **Fix 1, fire:** a burning member no longer heats neighbours already
+  burning or burnt away (their temperature isn't read beyond ≥650 °C or saved; pruned from its
+  cached list, since neither goes back): pair visits per tick ~66k → a few thousand; scorching
+  measures each burning member's box once a tick (not once per person) with a native AABB reject;
+  `StructureMember.world_aabb()` and FireFX check a piece is valid before casting (a burnt-away
+  piece spammed "Trying to cast a freed object"). Same result: every live member's state identical
+  after 240 ticks on the street, old vs new. **After:** fire 11.5 ms avg, p99 163 (calm unchanged).
+  279 tests pass.
+  - Next: spread the fire tick over the frames between ticks (the p99 is one 80 ms tick), settle
+    (StructuralAnalysis) only on change, then the draws (sun shadow distance/cascades, people
+    merged into a few skinned meshes, props batched), the F3 split and a CI budget.
+- 2026-10-02 (gameplay, later): **Performance pass, part 2: the fire's hitch.** `FireSystem.step()`
+  is now `_begin` (grid, spills) / `_visit(keys, from, to)` / `_finish` (drop, scorch, settle);
+  `step()` still runs all three at once (tests, screenshots), but `_physics_process` spreads a
+  tick's members over the frames until the next tick in the same order (a long frame finishes the
+  tick at once), and burning buildings settle one a frame (`_to_settle`). `_consume` asks
+  `Structure.settle_soon()` (new, public: deferred, once a frame however many ask) instead of
+  `settle.call_deferred()` per board (20 boards gone in a tick = 20 full analyses). The grid places
+  standing members once (`_placed`) and only rubble afresh every 2 s. Bench, fire (2.1 GHz,
+  headless): avg 11.5 → 11.6 ms, **p99 163 → 73 ms, max 390 → 100 ms**. What's left of the
+  worst frames: `Structure.settle()` (StructuralAnalysis), ~29 ms a call on average, up to 73
+  (126 calls in 35 s of fire); `_update_fx` ~11 ms every 0.5 s; grid ~14 ms every 2 s. 279 pass.
+  - Next: settle only on change / cheaper analysis.
+- 2026-10-02 (art session, later): **§10.9, round 2: the man painted clean on fal, Tripo from four
+  views.** Sean: "Alright!" to using the LoRA for the full-length man and the turnarounds.
+  `paint_full_length.py`'s fal route (above): FLUX Kontext with the style LoRA redraws him from
+  the first full-length painting with its mosaic smoothed away, then paints his left, back and
+  right from that front (People runs 20 and 21, four edits each, ~$0.15; `fal-ai/flux-kontext-lora`
+  answered first time). At LoRA scale 0.5 (run 20) the coat's front came back in check blocks
+  while the back was plain wool; at 0.25 (run 21, kept) he's smooth all round, the same man in
+  every view, the hat's studs and the vest's pattern softer than the first painting's
+  (`docs/screenshots/tripo/stranger_turn_run20_scale050.png`, `_run21_scale025.png`). Tripo's
+  `multiview_to_model` (run 22, model v2.5) took the four and `animate_rig` rigged it: 348k
+  triangles, 16 MB (half of run 17's), his back and sides as drawn (hair on the collar, a plain
+  coat), no mosaic baked into his clothes, textures lighter and evener; the face a smooth
+  portrait (`stranger_lab.png`; run 17's is `stranger_lab_run17.png`). `tripo.py` keeps a hash of
+  each picture in `<id>_tripo.json` and models again when they change. People workflow: `style:
+  characters` paints only; `characters:` paints then Tripo. 279 tests pass.
+  - Known: still the A-pose through the table (no Blender fit yet); his face is a little
+    doll-like (round cheeks, small eyes: Kontext's redraw softened the first painting's face;
+    a head-sheet pass or `--from=painting` for the face would sharpen it); the LoRA's part at
+    0.25 is modest (period detail, palette); the model's textures still carry baked light.
+  - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
+    segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
+    hands), de-light and reduce his textures through the factory's reducer, the seat pose.
+- 2026-10-02 (gameplay, later): **Performance pass, part 3: the load check.** `StructuralAnalysis`
+  costs ~44 µs a member (the street's ~6.1k members: 270 ms a full pass, the saloon 54 ms), and a
+  burning building runs one a second. Ablation of its parts: handing each support's reaction back
+  down 100 ms (a quadratic search for its group: siding on ten studs has ~20 contact points),
+  grouping supports 60, outside `_bend` 60, capacity 35, `beam()` 13. Now: what doesn't change
+  while a member stands (axis, length, where along it each support bears, a rafter's partners,
+  and its support groups while none is gone) is kept on it (`StructureMember.analysis_cache`, not
+  saved; checked against its transform and size, cleared by `infer_supports`); the reaction walks
+  the sorted groups once (they're ≥ SAME_SUPPORT apart, so at most one matches); no lambda in
+  `beam()`'s inner loop. Street pass 270 → 190 ms; identical results (every load, utilisation,
+  mode, critical point and falling list, old vs new, 84 states; test
+  `test_loads::test_what_the_analysis_keeps_gives_the_same_answer`). Bench fire (2.1 GHz): avg
+  11.6 → 10.8 ms, **p99 73 → 53, max 100 → 70**. 280 pass.
+  - Further would need native code (ask first) or spreading the analysis over frames; the draws
+    are bigger for Sean now.
+- 2026-10-02 (gameplay, later): **Performance pass, part 4: people drawn whole.** Census: 14
+  people, ~55 skin/clothes pieces each (a shape per segment, for openings) + 30 finger meshes =
+  1,375 visible meshes; hiding the people saved 4,158 of the street's 8,212 draw calls (opengl3
+  under xvfb: counts only). `HumanBody._merge_pieces()`: each shape but the head (its wet eyes are
+  placed in the head piece's own space) is joined into one skinned mesh (`_joined`: the pieces'
+  surfaces concatenated, same format, skin and material), the pieces hidden; `_unmerge()` brings
+  them back for good at the first opening (`_apply_openings`) or lost limb
+  (`_stop_skinning_across_joints`); X-ray reaches both. `skin_meshes`/`segment_pieces`/
+  `body_meshes()` are unchanged (the art tools read and duplicate the pieces; paint_bake does the
+  same as before). Pixel check: a coated man standing and hands up, four views, old vs new with
+  `--fixed-fps 60`: 2–5 pixels of 640k differ by 1/255, with and without shadows. People meshes
+  1,375 → 747; **calm draw calls 8,186 → 6,129**, objects in frame 9,884 → 7,827; headless calm
+  4.9 → 4.4 ms. Test `test_openings::test_whole_each_shape_draws_once_and_opening_brings_back_the_
+  pieces`. 281 pass.
+  - Next: props/lamps/dressing batched (~4k draws), the sun's cascades (~5.6k with everything
+    drawn in each), fingers (~420 meshes).
+- 2026-10-03 (gameplay): **Performance pass, part 5: the dressing batched.** `StaticBatch`
+  (`src/world/static_batch.gd`, a node at the end of `scenes/test_street.tscn`): two frames after
+  load it takes every MeshInstance3D under the street that can't change (opaque `texel_grid` or
+  opaque StandardMaterial3D, not skinned, no script on the way up but `OWNERS` (StreetDressing,
+  StreetScenery, Saloon/FalseFrontBuilding, SaloonDressing, Structure), no physics body but a
+  static one, not a building's direct child (its batches and boards) nor inside a member), groups
+  them by mesh content (each chair builds its own legs), material, shadow, layers and a 40 m cell,
+  and draws each group as a MultiMesh at their own transforms (mesh-space triplanar stays put),
+  hiding the parts (collision stays). A part leaving the tree stops drawing (the shot match frees
+  the table's props); `release(node)` / `StaticBatch.release_in(tree, node)` gives a subtree back.
+  **Art session: dressing (StreetDressing, SaloonDressing, PropLibrary/PropModels props) is drawn by
+  the batch after load: anything that moves or hides it at run time calls `release_in` first.**
+  Off on the Compatibility renderer (web): it lights each object from a short list of 8, so a batch
+  spanning a room got different lamps (the saloon's card table lit where it was dark). Lavapipe is
+  installable here now (`apt-get install mesa-vulkan-drivers`): Forward+ renders, old vs new at
+  `--fixed-fps 60`: street 0 px differ, saloon night 40 px and the shot match 11k px all under 8/255.
+  1,767 meshes into 180 batches, ~55 ms at load. Forward+ (lavapipe) calm: draw calls 4,047 →
+  3,695 (Forward+ already merges repeated draws; OpenGL counted 6,129 → 3,723), objects in frame
+  7,810 → 5,413, render CPU 5.4 → 4.9 ms. Test `test_static_batch` (2). 283 pass.
+  - Can't reproduce Sean's pinned core here: headless sim ~4.4 ms + render CPU ~5 ms a frame at
+    2.1 GHz. Next: F3's frame split and draw calls so Sean can report his, then by his numbers.
+- 2026-10-03 (gameplay, later): **Performance pass, part 6: F3's frame split, timers, a guard.**
+  `Prof` (`src/debug/prof.gd`): each system's frame entry is timed while `Prof.on` (F3 open, or
+  the bench): `_process`/`_physics_process` in HumanBody (people_skeleton / people_body),
+  OutlawBrain, CivilianBrain, Senses, FireSystem, Ballistics, Structure, DayCycle, OilLamp
+  (lamps), Player + PlayerWounds (player), BloodJet, GunSmoke, TownLife, DynamiteStick now call
+  `_process_step`/`_physics_step` between `Prof.start()`/`stop()` (one call returning 0 when off).
+  F3 (`DebugOverlay.frame_lines()`): frame ms with process / physics (`Performance` TIME_*) /
+  render CPU / GPU (every viewport's measured render time, switched on with the readout), draws,
+  objects, tris, nodes, awake bodies, and the top eight systems in ms a frame. `perf_bench.gd`
+  prints the same "timed" line. Bench now (2.1 GHz, headless): calm 4.9 ms (people_body 1.81,
+  player 0.61, senses 0.47, outlaw_brain 0.34, people_skeleton 0.20); fire 8.8 ms, p99 62
+  (fire 2.83, people_body 2.13). `tests/test_perf.gd` (2): the calm street's visible meshes ≤
+  1,800 (1,291; was 3,686), meshes on one person ≤ 95 (89: an armed man's revolver is 45 parts),
+  nodes ≤ 30k, calm ≤ 16 ms a frame; three buildings burning ≤ 30 ms a frame, worst ≤ 250 ms
+  (budgets ~3x this machine for CI runners). 285 pass.
+  - Next: Sean's F3 readouts decide (this machine can't show his pinned core: ~10 ms a frame
+    here with render CPU). Candidates ready: an NPC's holstered revolver as one mesh (45 → 1–3),
+    fingers skinned to the body (30 → 0 extra), the sun's shadow cascades, people ticking less
+    far off.
+- 2026-10-03 (gameplay, later): **Performance pass, part 7: muscles listed once.** With Prof's
+  timers inside `HumanBody._physics_step`: pose 0.89 ms, physiology's step 0.07, and the stand
+  check (`can_stand()`/`_can_crawl()`) 0.94: `Physiology.muscle_strength()` scanned all 115
+  anatomy structures with string building and `ends_with` on every call, twice per stand check,
+  and walking, gait, aiming, `can_hold()` and the player's wounds all ask it. Now
+  `Physiology._muscles(group, side)` lists each group's muscles once per anatomy (static
+  `_muscle_lists`, same order, so the same sums). Bench (2.1 GHz, headless): calm **5.4 → 3.8 ms**
+  (people_body 2.0 → 1.2, player 0.68 → 0.18, outlaw_brain 0.38 → 0.21); fire **7.8 → 6.8 ms**,
+  p99 54 (fire 2.5, people_body 2.0 → 1.3). Tried and dropped: skipping pivot rotations that
+  hadn't changed (no gain: an unchanged set is cheap). 285 pass.
+- 2026-10-03 (art session): **His head in the style, on the Tripo man.** Sean, on the LoRA's pixel
+  portrait against the smooth Tripo face: "what happened between that awesome pixel face and this
+  smoothed out shit?" The smoothing was for Tripo (its input has to be clean, and Kontext at a
+  low LoRA scale threw the drawing away with the blocks); the drawing goes back on afterwards.
+  `head_paint.py` (above). People run 23 (FLUX Kontext + the LoRA at 1.0 from grey clay views):
+  a smooth, bearded, front-facing oil portrait in every cell, the view ignored. Run 24 (FLUX dev
+  image-to-image + the LoRA at 1.0, strength 0.68, from the head rendered in Tripo's own
+  colours): the pixel-art man in all six views, turned as the render is, brows, moustache, hat
+  band and hair in crisp squares (`docs/screenshots/tripo/stranger_head_views.png`; six edits,
+  ~$0.20). Baked onto his texture (715 texels a metre on the head, squares of 4 texels) and
+  rendered in the lab: `stranger_head.png` (his head beside the painting's man's) and
+  `stranger_lab.png`. The lab lays `<id>_color.png` over his material. 279 tests pass.
+  - Known: the paintings carry their own lamplight and the game lights him again, so his lit
+    cheek runs hot (de-lighting is the Blender-fit session's, as for the body); the LoRA gives
+    him a beard in the side views (the painting's man has stubble); the body is still Tripo's
+    smooth colour (the body sheets could go through the same image-to-image pass at full scale
+    once the fit's done); still the A-pose through the table.
+  - Next (docs/ART_REVIEW.md §6): the Blender fit on Actions (Tripo's 41-joint rig onto our 17
+    segments and hitboxes, the same warp/envelope/cut as MakeHuman's, decimate to ~7k, our
+    hands), de-light and reduce his textures, the seat pose; then the body painted the same way.
+- 2026-10-03 (gameplay, later): **Performance pass, part 8: a whole town on fire.** Sean: "very
+  jittery" and flickering light everywhere with "multiple fires and destruction". The bench had
+  only measured the first half-minute of fire; left to spread, it takes every building in a
+  minute (2,600 members burning), and then: deferred `settle()`s ran a building's full analysis
+  every frame a board burnt away, a big collapse ran 46–53 rounds (a full analysis each) in one
+  frame (1.1–1.6 s), `_update_fx` sorted thousands of members with a script lambda and refreshed
+  every FireFX on one frame, each unbatch rebuilt that material's whole batch, scorching measured
+  every burning member's box for each person, the grid re-placed all rubble every 2 s, and
+  `_consume` hit "assign previously freed instance" (typed loop over freed pieces). Now:
+  `StructuralAnalysis.begin()`/`advance(n)`/`left()` (analyse() = begin + advance all; same
+  results); `Structure.apply_round(a)` is one settle round (settle() loops it); `FireSystem`
+  checks burning buildings a slice a frame (`CHECK_MEMBERS` 120; a request from `settle_soon()` or
+  a burnt-away board is urgent, `SETTLE_MEMBERS` 400 a frame) and only if something's overloaded or
+  falling applies a round and analyses again; `Structure.settle_soon()` goes through
+  `FireSystem.queue_settle()` when the world has one (tests without one keep the deferred full
+  settle; `break_member(s)` still settle at once). `Structure.by_stack()` keeps the stack order
+  (sorted once; the analysis walks it backwards: ties at the same height may sum loads in a
+  different order, last-digit float differences). FireFX: flames chosen every 0.5 s with
+  hysteresis (a burning member keeps its flame; free ones go to the burning nearest the camera,
+  `PackedVector2Array` native sort) and refreshed a slice a frame (`_refresh_fx`); the six fire
+  lights keep to their own fires (nearest new spot within 3.5 m). `Structure.unbatch(m, soon)`:
+  the fire's unbatches rebuild a batch at most every 0.5 s (`BATCH_REBUILD_GAP`), the member shown
+  then (no double draw); holes and breaks still rebuild at once. Scorch asks the fire grid for
+  members near each person; standing members' boxes are kept (`_box`); rubble lying still keeps its
+  grid cells (`_lying_still`). `perf_bench.gd --scene=blaze` (45 s of spread, then measured):
+  **avg 29.3 → 17.7 ms, p99 114 → 44, max 1,642 → 68** (2.1 GHz, headless). 285 pass.
+  - Still to look at: a ~90 ms frame when a big building's rubble lands (untimed: the physics
+    engine); the fire's per-member tick (~6 ms a frame at town scale); rendering a town's worth of
+    FireFX particles and char overlays (Sean's GPU/CPU, unknown until his F3).
+- 2026-10-03 (art session, later): **The Tripo man fitted to our skeleton: he sits at the table.**
+  Sean: "go ahead" with the Blender fit. `fit_tripo.py` (above): bpy 5.0.1 runs in this
+  workspace (`~/bpyenv`), 16 s a man. The stranger (`people.json`, `"source": "tripo"`) comes out
+  as `assets/people/stranger.glb` (5,500 + 2,200 triangles, our 17 bones, 420 KB) with his
+  texture in 5.6 mm squares (512², the head's repaint from this morning on it), and
+  `ShotMatch.model = stranger` seats him in the painting's pose with the cup in his hand: he
+  reads as a man at the table from the front, the side and three-quarters
+  (`docs/screenshots/tripo/stranger_seated.png`, `stranger_fit_side.png`,
+  `stranger_fit_three_quarter.png`). Judge round `2026-10-03_r1` (the street render is round
+  52's): saloon **0.196** (the hybrid MakeHuman man's rounds 0.205–0.208). Two traps: his hips
+  to ours set his scale (the trunk's own stretch made him 2.0 m and fat), and a coat skirt
+  weighted to the thighs stretched into a flap between his knees when he sat (it hangs from the
+  hips now). Gameplay's `tests/test_bodies.gd` gains one test (the Tripo man comes dressed; said
+  here as it's their file). 286 tests pass.
+  - Known: the right sleeve on the table's edge is a few big triangles seen head on (the
+    decimation's budget on the coat; a higher `TRI_BUDGET` or the sleeves kept denser); his lit
+    cheek still runs hot (the painted views carry their own lamplight: no de-lighting yet); the
+    body is Tripo's smooth colour in squares, not the LoRA's drawing (the body's turnaround
+    sheets through `head_paint.py`'s image-to-image pass would give it); the game's finger parts
+    meet his cut sleeves at the knuckles without a seam check; his boots and hat are in his skin,
+    so the hat can't come off and nothing of BodyMesh's dresses him.
+  - Next: the body painted like the head (image-to-image at full LoRA strength from the fitted
+    model's own views, baked back by UV), de-lighting, then the townsfolk as Tripo men of their
+    own (`characters.json` + `people.json` entries each).
+- 2026-10-03 (art session, later): **The screen mosaic: the painting's pixel style on the frame.**
+  Sean: "the pixel style isn't even close to the concept art." Looked at his face against the
+  painting's at the same scale (`docs/screenshots/light_pass/screen_mosaic_faces.png`): the
+  painting's blocks are ~3 mm on his face and nearly one size near and far (3–4 px on the man,
+  2 px at the bar, at 1280 wide), each a crisp flat tone of a sharp drawing; ours were 5.6 mm
+  blobs (a blend of six views that don't register exactly, averaged), lit smoothly, with
+  anti-aliased silhouettes and the decimation's facets showing, and the finish pass softening
+  the block edges on top. Three changes: `head_paint.py`'s bake lets the squarest view win
+  outright (weights^8) at `SQUARE_M` 2.8 mm and 40 colours; `fit_tripo.py` writes his textures
+  at 1024² (`SQUARE_TEXELS` 2); and **the screen mosaic** (above, `DepthMosaic` on the game
+  camera, `Settings.mosaic` on by default, the finish's softening off, `LOOK_VERSION` 5): the
+  lit frame in 3–4 px blocks on him and 2 px far off, one sampled colour each, the light in 14
+  tones. His face is a pixel drawing now, eyes, moustache and hair in crisp blocks, the
+  silhouette stepped. The first screen-space trial (2026-10-02) lost to the old judge, which
+  rewarded noise; this one is judge v2's best: rounds `2026-10-03_r2` (0.186) and `_r3` (the
+  game's defaults, both views): saloon **0.187** (from 0.196), street 0.320 (0.321). The Tripo
+  man is the shot's seated man by default now (`ShotMatch.model`). Gameplay's `src/main/main.gd`
+  gets one line (the mosaic applied to the game camera with the other settings; said here as
+  it's their file). Figures `screen_mosaic_before_after_painting.png`, `screen_mosaic_saloon.png`,
+  `screen_mosaic_street.png`. Shared `settings.gd` (my lines), `tools/screenshots.gd`
+  (`--mosaic= --steps= --no-mosaic`).
+  - Known: the mosaic isn't on the Compatibility (web) renderer (no depth texture there); the
+    far room, the lamp's cream glass and the shadows' depth are still the painting's biggest
+    gaps (the judge: shadows too light, midtones too bright); his coat is still Tripo's smooth
+    colour under the blocks (the body's own paint pass is next); no key cycles the mosaic yet
+    (F3 lists it).
+  - Next: the body painted like the head (best view wins, 2.8 mm squares), the room's grade
+    (deeper shadows, the lamp amber), then the townsfolk as their own Tripo men.
+- 2026-10-03 (gameplay, later): **The flicker: the sky re-lit every tick.** Sean: "the whole
+  screen is always flickering, usually in sections, like the inside of a building or the mirror
+  on the wall in the saloon". `tools/flicker_probe.gd` (new): renders N frames from a still (or
+  `--pan`ned) camera under Forward+ and maps the pixels that change and that flip back (A, B, A);
+  `--off=` suspects, `--off-script=` a GDScript `off(street, main)`, `--clock` lets the day run
+  (without it the probe hid the cause), `--verbose`. Lavapipe works here now (`apt-get install
+  mesa-vulkan-drivers`). A five-reader workflow listed 66 hypotheses; measured: the Sky ran
+  REALTIME (`sky.gdshader` read TIME) and `DayCycle.apply_visuals()` sent it sun_dir, moon_dir and
+  its colours every physics tick; each send flipped the realtime radiance between two states
+  frame to frame, so everything taking ambient or reflection from the sky flickered: the street,
+  and inside, walls, ceilings, the gable and the mirror at and past the interior probes' edges.
+  Holding the sky uniforms alone (clock running) took the saloon 0.284% → 0.001%; the moon,
+  environment, probe and same-value writes were each clean. Fix: `DayCycle._send_sky()` sends a
+  uniform only when it has moved on (`DayCycleConfig.sky_update_degrees` 0.5, `sky_update_colour`
+  0.004; set_time sends at once); the Sky is INCREMENTAL (`scenes/test_street.tscn`); the clouds
+  drift by a `cloud_drift` uniform DayCycle sends (`cloud_drift_speed` 0.002/s) instead of TIME.
+  **Art's `src/world/sky.gdshader`: two lines** (the uniform; it replaces `TIME * 0.002`).
+  Measured, clock running, still camera: inside_store_afternoon 11.5% → 0.003% (flips 6.6% →
+  0), saloon_night 0.28% → 0.001%, street_golden_hour 43% → 0.13% (one 2.5% frame: the clouds
+  step every ~2 s now). Test `test_day_cycle::test_the_sky_hears_of_changes_not_every_tick`.
+  287 pass. Ruled out by measurement: re-aiming the sun/moon every tick (a 0.5° step changed
+  nothing; reverted), volumetric fog, probes, SSAO, tiles, min_square, StaticBatch.
+  - For the art session: INCREMENTAL radiance is filtered at quality, not REALTIME's fast filter,
+    so sky ambient/reflections may look a touch different (judge it); the clouds now move in small
+    steps every ~2 s. The new screen mosaic adds shimmer under motion: on a 0.5 px/frame pan of
+    the saloon, flip-backs 0.196% → 0.347% with it on (screen-fixed blocks over a moving image).
+    Also from the readers (not causes of this flicker, worth doing): interior probes stop at the
+    studs and below the roof, so walls, gable and the mirror fall back to the sky (size them past
+    the walls and to the ridge); HeldFill lights the volumetric fog (cull masks don't apply to
+    fog: give it `light_volumetric_fog_energy` 0); lamps all flicker in phase (seed a phase each).
+- 2026-10-03 (art session, later): **Fix: the mosaic was a black screen on Sean's GPU (build 340).**
+  His F3 screenshot: "mosaic on", the frame black with the sky showing through and the lamp
+  flames over it. The mosaic's quad wrote no ALPHA, so a real GPU drew it in the opaque pass
+  over an empty frame; lavapipe here never did. `depth_mosaic.gdshader` writes `ALPHA = 1.0`:
+  the transparent pass, after the opaque frame and the sky, where the screen texture exists.
+  **O** turns the mosaic off and on (`debug_mosaic`, shared `controls.gd`; two lines in gameplay's
+  `src/main/main.gd`, said here). In the transparent pass the judge scores it worse (round
+  `2026-10-03_r4`: saloon 0.228, deep-shadow share 27% to the painting's 41%; round 3's opaque-pass
+  render scored 0.187 with 47%) though by eye the frame is darker and punchier: the pass changes
+  what the screen texture holds (to look at next: the posterise and the glow in that pass).
+  - Rule: anything full-screen that reads the screen texture writes ALPHA, and gets a real-GPU
+    check from Sean before it's the default.
+- 2026-10-03 (art session, later): **The voxel trial: blocky silhouettes and smooth eyes, behind
+  flags** (Sean: an experiment without undoing the current work). `VoxelTrial` (above). Rendered
+  the saloon shot five ways into `docs/screenshots/voxel_trial/` (`compare.png`: each beside the
+  painting with the hat brim, eyes, mug and lamp at 3×), judge v2 rounds `2026-10-03_r5`–`_r11`
+  (the street render is the same in all, 0.330): as now 0.228; A, cube props and hat at 128/m
+  0.217, at 64/m 0.209; B, smooth eyes 0.232; A+B 0.217. **Edge hardness is unchanged by any of
+  it** (0.272–0.276 to the painting's 0.252): the screen mosaic already steps every silhouette
+  at its block size, so cubes of 8 mm (3–4 px on the table) vanish under it and 16 mm cubes only
+  add lumps. A's gain is the dark cube props raising the deep-shadow share (0.27 → 0.29–0.30;
+  painting 0.41), not outlines. By eye: the painting's blocks are a picture cut into squares over
+  smooth things (its lamp foot is round, its brim a clean curve in steps); a cube-built foot or
+  brim is a lumpy object. Two things learned on the way: Blender's Remesh (Blocks) fills volumes
+  and loses anything thinner than a cube (the brim, a mug's wall), so the voxeliser is a surface
+  shell; and cubes with their own normals are each square to the lamp or not (a foot under a lamp
+  went black down its sides), so every face carries the smooth surface's normal and only the
+  outline changes. B: a 12 mm eyeball is 3–4 mosaic blocks; it adds a pale highlight patch and
+  the dark iris is lost, where the painted eye already reads (the stranger's irises are at body
+  y 1.747, 9 cm above the anatomy's eye line: his head is Tripo's at its own proportions).
+  **Recommendation: stop the voxel-engine experiment; keep eyes painted** (finer squares on the
+  face, if anything, through `head_paint.py`'s `SQUARE_M`). Flags stay off. Found on the way:
+  **the saloon shot rendered black with a white doorway** since the flicker merge: with the Sky
+  INCREMENTAL, a cubemap direction exactly opposite the sun's gave `sky.gdshader` a `pow()` base
+  a hair below zero at 23:40 (the sun near the nadir), the NaN spread through the radiance to
+  every lit surface; the shader clamps its bases now (art's file; gameplay's scene unchanged).
+  Build 340, where Sean saw the black screen, was the flicker merge itself (the mosaic had
+  shipped in 335), so this was very likely his black screen, not the mosaic's missing ALPHA: it
+  strikes with the sun near the nadir, around midnight. Sean checks build 349 or later. Shared `tools/screenshots.gd`: `--voxel=`, `--cubes=`. 287 tests pass.
+- 2026-10-03 (art session, later): **The plan agreed with Sean, from Pixel-factory's NOTES.md**
+  (copied here as that session asked; the voxel engine stops as a look experiment, its renderer
+  kept as the reference for a frame's light; Sean tests on a Shadow cloud PC, so native plugins can
+  be desktop-only).
+  **A. The look, the style pack (art session). Rule: quantise once.** 1) First, measurable: every
+  pre-blocking step off (the factory's squares and mosaic, the character paint's squares), the
+  screen mosaic refined to the painting's blocks (soft edges, flat colour inside each, a palette
+  per region, block size steady with depth), both shots re-judged; gate: the judge and Sean's eye.
+  2) Characters: paint each man smooth, in flat even light, at high resolution; de-light what
+  Tripo bakes in; one quantisation at render; the seated man's face first, then the townsfolk.
+  3) World surfaces and shapes: the factory's textures re-cut smooth and de-lit at higher
+  resolution; the dressing as specific things. 4) Finish the light pass to the painting's numbers.
+  **B. Performance, the one core (gameplay session).** 5) The render thread model multi-threaded;
+  Sean's F3 before and after on Shadow. 6) A Rust GDExtension foundation (CI builds for Windows,
+  Mac, Linux; checked against 4.7.2's extension API). 7) Fire into native threads, then the
+  structural analysis, then physiology.
+  **C. Destruction (gameplay session).** 8) A `VoxelDamage` node: one wall that takes a shotgun
+  blast at any shape (carve, re-mesh on a worker thread, collision rebuilt, the member told how
+  much section is gone); hooks for a ball, a charge, dynamite and fire; gate: the frame budget on
+  Shadow. 9) Only after 8 works: the anatomy volume with wounds carved in rest space.
+  **D. Housekeeping.** 10) Sean: merge Pixel-factory's `claude/new-session-l733p0` or leave it as
+  the record. 12) Sean on Shadow: the latest build's F3 frame split, so B is driven by numbers.
+  13) Sean's call: drop the web export from CI now that nobody plays in the browser.
+- 2026-10-03 (art session, later): **A1, the quantise-once experiment, judged on both shots**
+  (the plan above; everything behind `screenshots.gd --quantise-once`, defaults unchanged, Sean's
+  eye on `docs/screenshots/quantise_once/compare.png`). Every pre-blocking step off (the layout
+  note above: the factory's paintings cut smooth at 128 texels/m with no palette, the man's head
+  and skin without squares, tile light and `min_square` off, and two steps found on the way: the
+  ground shader's own per-texel dirt noise and its snap to 24 levels), and the mosaic refined
+  (block size steady with depth, soft edges, a limited palette, the sky left out of the
+  posterise, and `average`: a block as the mean of its pixels). Judge v2 rounds `_r12`–`_r19`
+  (as now: saloon 0.228, street 0.330): pre-blocking off with the mosaic as it was, saloon
+  **0.270** and the street 0.41 (speckle: a point sample of a fine texture); the refined mosaic
+  with point samples and 4 px blocks, saloon **0.207** (its best of the trial: deep-shadow share
+  0.37 to the painting's 0.41, edge hardness 0.24–0.29 to 0.25), street 0.44; averaged 6 px
+  blocks with the ground's noise off, street **0.344** (level; by eye the road is the painting's
+  pale dust in blocks for the first time) but the saloon 0.307 (the averages lift its darks:
+  deep shadow 0.24). **What it shows.** 1) A point-sampled mosaic needs an already blocky
+  frame; a smooth frame needs averaged blocks, and the average must keep the darks (a
+  dark-weighted mean is the next thing to try). 2) The two paintings' blocks are different
+  sizes against depth (the saloon's 3–4 px nearly one size; the street's 6 px near, 5–6 far),
+  so block size wants to be a property of the scene or the shot, not one depth rule. 3) With the
+  blocks right, what the judge still marks on both shots is light, not blocks: the saloon's deep
+  shadows and bright things (A4), the street's chroma–L* correlation and light shadows (A4), and
+  the man's drawing (A2). The gate: by the judge, quantise once is better on the saloon and level
+  on the street; by eye the street is clearly better and the saloon's man is softer and smoother
+  than round 2's blocky one. Recommendation: carry on with A2–A4 under the quantise-once flag
+  (dark-weighted averaging and a per-scene block size first), make it the default when both
+  shots beat as-now, with Sean's eye on the sheet. Tools: `reduce.py --smooth`, `head_paint.py
+  bake --smooth`, `fit_tripo.py --smooth`, `tools/quantise_compare.py`; shared
+  `tools/screenshots.gd`: `--quantise-once`, `--mosaic-tune=`. 287 tests pass.
+- 2026-10-03 (gameplay, destruction step 1): **The native plugin's foundation.** Sean decided the
+  game's identity is real destruction (shotgun bites through walls, dynamite tearing chunks and
+  craters, bodies that come apart) and that it's built inside Godot as a native plugin first:
+  `docs/DESTRUCTION_BRIEF.md` (rules, four steps with gates; the voxel renderer experiment in
+  Kokanee25/Pixel-factory is read-only reference, its verdict in that repo's NOTES.md).
+  `addons/saltcreek_native/` is a Rust GDExtension on gdext 0.5.5 with the `api-4-7` feature
+  (Godot 4.7.2's own API: it initialises as "API v4.7.stable, runtime v4.7.2.stable"); desktop
+  only, the web build runs without it. `NativeBench` (a Node) proves the round trip every later
+  step lives on: a job on a worker thread with no Godot objects in it (voxelise a sphere, carve a
+  bite, mesh its visible faces), polled with `done()`, its result collected on the main thread as
+  packed arrays Godot builds an ArrayMesh from. CI: `.github/actions/native-build` (a composite
+  action: rust toolchain, cache, `cargo build --release` per target; macOS lipo'd universal), a
+  `native` matrix job on ubuntu/windows/macos runners, the test job builds the Linux library
+  before importing, the export job collects all three into `bin/` (`.gitignore`d; the
+  `.gdextension` file is committed). F3 shows `native plugin: <version>, <threads>` or
+  `not loaded`. `tests/test_native.gd` (2). Branch: `claude/new-session-l733p0` (the harness's
+  name for this session, not the `claude/gameplay-…` pattern).
+  - Next: Sean confirms the F3 line on Shadow (the step 1 gate), then step 2: a wall that takes
+    a shotgun blast (brick volumes per member from Pixel-factory's `src/volume.rs`, carve,
+    re-mesh on the worker, collision, the remaining section fed to `StructuralAnalysis`).
+- 2026-10-03 (art session, later): **A1 finished: the dark-weighted average, a block size per
+  scene, and quantise once as a switch in the build (I).** Sean: "go". The mosaic's `dark_weight`
+  (above) brings the saloon's deep-shadow share back under averaged blocks (0.24 → 0.36, the
+  painting's 0.41) and the far bar loses the red speckle the point samples left; by eye it's the
+  best saloon of the trial (`docs/screenshots/quantise_once/compare.png`, rebuilt: the painting,
+  as now, the judge's best saloon, and the switch). The block size is a property of the scene
+  (`block_in` 4 px under a roof, `block_out` 6 in the open, the node's own ray up from the
+  camera), and the look is a saved setting: **I** toggles `Settings.quantise_once` and reloads the
+  scene (the world's materials take their textures when built). Judge v2 rounds `_r20`–`_r23`:
+  dark weight 2 saloon 0.226 / street 0.346, 4 0.228 / 0.366; the switch as shipped (no palette)
+  `_r22` saloon **0.265** / street **0.354**, against as-now 0.228 / 0.330. The judge's saloon
+  gap is the limited palette (`sat_steps` 6, `hue_steps` 24): with it `_r23` saloon 0.224 but
+  the street 0.391, so it stays a knob, not the switch's default; and its saloon gain is largely
+  a threshold effect (the share under L* 10 jumps 0.25 → 0.36 while the share under L* 5 is
+  identical: the saloon's median is L* 12 and the snap nudges a band of darks across the line).
+  **The gate, honestly:** by the judge the switch is a little worse on both shots; by my eye it
+  is better on both (the road as the painting's pale dust, the face a clean drawing, the far bar
+  calm). Default stays off; Sean's eye on a real GPU decides (BUILD_NOTES: press I in the saloon
+  at night and on the street at golden hour). What's left is the light (A4) and the man (A2),
+  either way. Gameplay files touched: `src/main/main.gd` (two lines: the I key),
+  `tests/test_pixel_art.gd` (+1 test); shared `controls.gd` (the binding), `settings.gd` (my
+  lines), `tools/screenshots.gd` (`--saloon-tune=`, `--street-tune=`). 288 tests pass.
+- 2026-10-03 (gameplay, destruction step 2): **A wall that takes a shotgun blast.** Members are
+  carved as voxels by the native plugin (layout above: `StructureMember.voxels`, `VoxelWorks`,
+  `config/voxel_damage.tres`; `addons/saltcreek_native/` `volume.rs`, `carve.rs`, `mesh.rs`,
+  `pool.rs`, `member.rs`). Pixel-factory's brick volume (8³ bricks, packed voxels, its DDA) with
+  one change: a cell's size can differ per axis, a whole number of cells per side, so an uncarved
+  member meshes to exactly its box and its texture lands where it did. A member is voxelised the
+  first time it's hit (64 cells a metre, at most 250k; ~0.2 ms). Each projectile walks the solid
+  runs it meets (`solid_runs`: so a later pellet down an earlier one's hole meets nothing) and
+  each run is carved on the main thread, in order (deterministic: tested): the channel at its own
+  size, then spall = (energy spent there × 0.5 + muzzle blast) ÷ the wood's J/cm³ (weathered pine
+  12, framing 20, stone 150), nearest the path first, wider at the exit, ragged (clumpy noise),
+  reaching 2.5× as far along the grain; pieces joined to nothing go too; the wood round it marked
+  torn. The greedy mesher (worker threads; the volume shared by `Arc`, copied only if a carve
+  lands mid-job) gives the outside faces the member's own material and UVs, and carved and torn
+  faces fresh wood (`cube_faces`), plus a ConcavePolygonShape3D, so a ball's channel lets a line
+  through. `section_left`/`weakest_t` read the weakest place along the member (holes within its
+  depth along the grain count together, × `hole_weakening` as drawn holes were), worked out once
+  when the structure asks; `weight` the wood left. Chips: the biggest lumps, DEBRIS layer, frozen
+  2.5 s after they're thrown, 80 at most. No plugin (web) or `enabled` off: drawn holes as before.
+  Gameplay files only. `tests/test_voxel_damage.gd` (5: a charge at contact bites the volume its
+  blast and spent energy ask for, its pellets carry on, a ragged hole you see through; the same
+  charge the same hole; a ball's channel lets a line through and 4 cm off it doesn't; a 2x6 stud
+  with 60 % of its section shot away gives way under 600 kg; without voxel damage the old drawn
+  hole); the plugin's own 16 Rust tests (CI runs them on Linux). `test_ballistics`' "the board
+  draws its hole" now checks the carved hole when the plugin's there (the drawn one otherwise).
+  295 tests pass (289 + 5 + main's new one). **Bench** (`perf_bench.gd --scene=wall`: a charge into the store's
+  front every half second for 20 s, 41 charges; 2.1 GHz, headless): drawn holes avg 5.73 ms,
+  p99 22.2; voxels **avg 5.98 ms, p99 23.8** (`ballistics` 0.31 → 0.44 ms a frame, `voxels`
+  0.13); the fire scene unchanged (11.6 / 11.0 ms). Calm street 4.1 ms (no change: nothing's
+  voxelised till it's hit). Rendered (lavapipe Forward+, 12 s, 25 charges): draw calls 4,862 → 5,063 (carved
+  members draw on their own, a chip a call), render CPU 9.4 → 9.9 ms. Renders `docs/destruction/step2/` (a new folder:
+  `docs/screenshots/` is the art session's): three charges (4 m, 2 m, contact) into the saloon's
+  front siding from outside and inside, at 48, 64 and 96 cells a metre, and the old drawn holes.
+  `perf_bench.gd` gained `--scene=wall`, `--no-voxels`, `--spikes=MS`.
+  - `test_ricochet`'s graze test fired ten rounds down one line: carved, the first's gouge
+    turned the rest into square hits. Now twenty rounds a little apart, the same thresholds
+    (half glance at 3°, none at 12° into wood, half off stone).
+  - Found on the way: a townsman's first wound costs ~70–110 ms on the frame (the shot storekeeper
+    behind his counter; pre-existing, not voxels): next performance item. A first carve per wood
+    painted a fresh-wood texture in script (~25 ms): now a 16-texel tile.
+  - Known: a carved member that snaps in two falls as two plain boxes (single-piece rubble keeps
+    its carved mesh, with a box collider); 96 cells a metre reads as specks against the
+    texture's 31 mm squares, so 64 (the brief's lowest); chips draw a call each; no splintered
+    tint on the weathered face round a hole beyond the torn cells.
+  - Next: Sean fires into the store's wall on Shadow and sends F3 while firing and after (the
+    gate); then step 3 (dynamite and the ground) or the hat shot off (Part 5).
+- 2026-10-04 (gameplay): **No stall at a man's first wound.** Found in step 2's bench: buckshot
+  through the store's wall into the storekeeper put ~70–140 ms on one frame. Timed inside
+  `take_bullet`: the wound itself ~3 ms, but `open_wound`'s first `BodyInterior.build()` for a
+  part type painted the insides' textures in script on the spot (chest ~88 ms, belly ~39; cached
+  after, so the next man's chest was 2–4 ms), and the first wound decals ~7 ms.
+  `BodyInterior.warm_up()` paints them ahead, one a frame, from when the first person comes into
+  the world (the same seeds `build()` and `_paint_wound` use). Worst frame at a first hit 119 →
+  13 ms; `perf_bench.gd --scene=wall` max 138 → 32 ms (avg 4.9, p99 19.7). Test
+  `test_openings::test_the_insides_are_painted_before_anyone_is_hurt`. 296 pass.
+  - Known: the long bones' and the ribs' bone texture were whichever seed came first (93 or 97);
+    now always 93's.
+- 2026-10-04 (gameplay, destruction Part 5): **A hat shot off.** Every man wearing a hat has it as
+  its own thin hitbox on his head part (`HumanBody.hat_body`: a brim disc and a crown cylinder
+  fitted to the hat's pieces, new physics layer `Layers.HATS`, meta `hat_of`). A ball through it
+  (`Ballistics._impact` → `HumanBody.take_hat_shot`) loses the felt's 6 J and goes on (into his
+  head, if it was low enough), and the hat comes off (`knock_hat_off`): a RigidBody3D in group
+  `hats` on the DEBRIS layer carrying copies of the hat's own meshes, thrown with a share of the
+  ball's momentum (1.5–6 m/s) and spun, the worn pieces hidden for good, the hole's place kept
+  (`hole` meta, for picking it up later). It's a `shoot_at` deed and `Events.hat_shot`:
+  `OutlawBrain` takes `fear_hat_shot` 0.3 on top of the near miss, heads down (suppressed 3 s,
+  ducks back from a peek), says so ("My hat!") and is provoked; `CivilianBrain` gets down for 10 s
+  and says so. The Tripo man (`"whole"`) has his hat in his skin, so nothing to shoot off yet
+  (that needs his layered pieces, Part 5). Tests `test_hat` (3: through the crown, the hat's off
+  and lands, he's unhurt; the outlaw's fear and his line; no hat, nothing to shoot). 299 pass.
+  - Known: a hat can't be picked up yet; a man knocked down keeps his hat on; the player's own
+    hat isn't a thing (no visible player head).
+- 2026-10-04 (art session): **A2 begun: the stranger in layers, the hat first.** Sean: "keep going";
+  the gameplay session's brief (docs/DESTRUCTION_BRIEF.md part 5): every character in layers,
+  the Tripo route must give layered output. The pipeline above: `characters.json` grew
+  `stranger_body` (the same man redrawn from his finished front with the hat and coat taken off:
+  People runs 25–26, fal; run 25's push was rejected because the branch had moved under it and
+  its paintings were lost, so every commit step in `people.yml` now rebases first),
+  `stranger_coat` and `stranger_hat` (each alone as a ghost-mannequin picture, four views; the
+  coat's sleeves hang however the painter is asked to hold them out: `pose` is in the prompt and
+  ignored), Tripo modelled all three (runs 27 and 29, items unrigged), and `fit_tripo.py` hangs
+  pieces on the body. **What works:** `assets/people/stranger_layered.glb`: his bare-headed body
+  in shirt, vest and trousers (a clean seated man in the lab) and his hat as its own mesh on his
+  head (`Piece.place`: brim onto the band, `HAT_BAND`; test
+  `test_bodies::test_the_layered_man_wears_his_own_hat`, gameplay's file, said here). Found on
+  the way: pieces must be placed before the body's warp (placed after, they were scaled twice);
+  a bare-headed man's head cut from his neck joints, within `HEAD_RADIUS` of the neck's axis (his
+  shoulder tops rose above the collar line and went with his head); the skirt rule only on a
+  whole man and the coat (it handed a trousered body's legs to his pelvis); Tripo's toe joint sits
+  4 cm before the ankle (his boots stretched to 0.6 m: the foot bone is measured from the mesh).
+  **What doesn't yet:** the coat (the layout note above has the four tries and the bake route to
+  take next). `stranger` stays the whole man, so the saloon shot and its judge rounds are
+  unchanged; `"whole": true` is the stopgap the brief names. The diagnostic men rendered on the
+  way are scratch, not kept. 291 tests pass.
 - 2026-10-04 (Sean's planning chat, docs only): **New working rules and a brief for review tools.**
   After Sean read how another Claude-built engine is run, these rules went into How we work: a
   brief per big job (`docs/briefs/`), no copied code (credits in `CREDITS.md`), a frame budget per

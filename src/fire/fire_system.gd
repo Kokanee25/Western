@@ -24,7 +24,36 @@ var _grid_age := INF
 var _accum := 0.0
 var _settle_accum := 0.0
 var _fx_accum := 0.0
+# A tick spread over the frames until the next one: the members still to visit, and those to drop.
+var _tick_keys: Array = []
+var _tick_at := 0
+var _tick_gone: Array[StructureMember] = []
+var _tick_dt := 0.0
+# Burning buildings waiting to check their loads, one a frame.
+var _to_settle: Array = []
+## The building whose loads are being checked, a slice of members a frame, and its analysis.
+var _checking: Structure
+var _check: StructuralAnalysis
+## Members a frame for that check (~30 µs each): a burning town's buildings each get looked at
+## about once a second without any one frame taking a whole building's analysis.
+const CHECK_MEMBERS := 120
+## And while it's coming down (a round for each thing that snaps or falls).
+const SETTLE_MEMBERS := 400
+var _rounds := 0
+var _urgent := {}  # structure -> true: asked to settle (not just a check): worked out faster
+# Members whose grid cells are fixed (standing in a structure that doesn't move).
+var _placed := {}
+## Standing members' world boxes, from when they were placed (they don't move while standing).
+var _box := {}
+## In play, a burnt-away board's building goes on `_to_settle` (checked a slice a frame) rather
+## than settling at the end of every frame a board goes.
+var _spreading := false
+var _rubble := {}  # broken member -> the cells it was put in last time
 var _fx := {}  # member -> FireFX
+var _flaming := {}  # member -> true: those showing flames (up to tuning.max_flames)
+var _fx_keys: Array = []  # this half second's members to bring up to date, and how far through
+var _fx_at := 0
+const FX_EVERY := 0.5
 var _lights: Array[OmniLight3D] = []
 var _light_time := 0.0
 
@@ -71,20 +100,59 @@ func burning_members() -> Array[StructureMember]:
 	return out
 
 
+## In play a tick's work is spread over the frames until the next one (a burning town is ~80 ms
+## a tick on one core; all at once it was a hitch four times a second), in the same order as
+## `step()`, so it comes out the same. The buildings check their loads one a frame.
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"fire", t)
+
+
+func _physics_step(delta: float) -> void:
+	_spreading = true
 	_accum += delta
-	while _accum >= tuning.tick:
+	var frames := maxi(1, roundi(tuning.tick / maxf(delta, 0.001)))
+	if _tick_at < _tick_keys.size():
+		# Behind (a long frame): finish this tick now; else this frame's share.
+		var share := _tick_keys.size() - _tick_at if _accum >= tuning.tick else ceili(float(_tick_keys.size()) / frames)
+		_visit(_tick_keys, _tick_at, mini(_tick_at + share, _tick_keys.size()), _tick_dt, _tick_gone)
+		_tick_at += share
+		if _tick_at >= _tick_keys.size():
+			_tick_keys = []
+			_finish(_tick_dt, _tick_gone, true)
+	while _accum >= tuning.tick and _tick_keys.is_empty():
 		_accum -= tuning.tick
-		step(tuning.tick)
+		_begin(tuning.tick)
+		_tick_dt = tuning.tick
+		_tick_keys = active.keys()
+		_tick_at = 0
+		_tick_gone = []
+		if _tick_keys.is_empty() or _accum >= tuning.tick:
+			_visit(_tick_keys, 0, _tick_keys.size(), _tick_dt, _tick_gone)
+			_tick_keys = []
+			_finish(_tick_dt, _tick_gone, true)
+	_spreading = false
+	_check_loads()
 	_fx_accum += delta
-	if _fx_accum >= 0.5:
+	if _fx_accum >= FX_EVERY:
 		_fx_accum = 0.0
 		_update_fx()
+	_refresh_fx(maxi(1, roundi(FX_EVERY / maxf(delta, 0.001))))
 	_flicker(delta)
 
 
-## Run the fire forward by `dt` seconds.
+## Run the fire forward by `dt` seconds, all at once.
 func step(dt: float) -> void:
+	_begin(dt)
+	var gone: Array[StructureMember] = []
+	var keys := active.keys()
+	_visit(keys, 0, keys.size(), dt, gone)
+	_finish(dt, gone, false)
+
+
+## A tick's start: the grid kept up to date, spilt oil.
+func _begin(dt: float) -> void:
 	_grid_age += dt
 	if _grid_age > 2.0:
 		_rebuild_grid()
@@ -102,8 +170,12 @@ func step(dt: float) -> void:
 			var gap := _gap(AABB(at - Vector3(r, 0.05, r), Vector3(r * 2.0, 0.6, r * 2.0)), m.world_aabb())
 			if gap <= 0.05:
 				_heat(m, tuning.spill_heating * dt)
-	var gone: Array[StructureMember] = []
-	for m: StructureMember in active.keys():
+
+
+## Members `keys[from..to)` heat, burn, cool; what's done with goes on `gone`.
+func _visit(keys: Array, from: int, to: int, dt: float, gone: Array[StructureMember]) -> void:
+	for i in range(from, to):
+		var m: StructureMember = keys[i]
 		if not is_instance_valid(m) or m.consumed:
 			gone.append(m)
 			continue
@@ -112,10 +184,20 @@ func step(dt: float) -> void:
 			var intensity := clampf(m.burn_time / tuning.growth_seconds, 0.15, 1.0)
 			m.temperature = maxf(m.temperature, 650.0)
 			m.char_depth += tuning.char_rate * dt
-			for pair: Array in _neighbours(m):
+			var near := _neighbours(m)
+			var dropped := false
+			for pair: Array in near:
 				var o: StructureMember = pair[0]
-				if is_instance_valid(o) and not o.consumed:
-					_heat(o, float(pair[1]) * intensity * dt)
+				# Burning or burnt away, heat makes no more difference to it (and neither ever goes
+				# back): left out from here on, as most of a burning building's neighbours are.
+				if not is_instance_valid(o) or o.consumed or o.burning:
+					dropped = true
+					continue
+				_heat(o, float(pair[1]) * intensity * dt)
+			if dropped:
+				_near[m] = near.filter(func(pair: Array) -> bool:
+						var o: StructureMember = pair[0]
+						return is_instance_valid(o) and not o.consumed and not o.burning)
 			if m.thickness() <= tuning.ash_thickness:
 				_consume(m)
 				gone.append(m)
@@ -128,6 +210,11 @@ func step(dt: float) -> void:
 				m.shatter(m.global_position, Vector3.DOWN)
 			elif m.temperature < tuning.ambient_temperature + 5.0:
 				gone.append(m)
+
+
+## A tick's end: drop what's done with, scorch people, and now and then have the burning
+## buildings check their loads (`spread`: one a frame from here, not all now).
+func _finish(dt: float, gone: Array[StructureMember], spread: bool) -> void:
 	for m in gone:
 		active.erase(m)
 		_near.erase(m)
@@ -143,7 +230,51 @@ func step(dt: float) -> void:
 			if is_instance_valid(m) and m.burning and not m.broken and m.get_parent() is Structure:
 				structures[m.get_parent()] = true
 		for s: Structure in structures:
-			s.settle()
+			if not spread:
+				s.settle()
+			elif not s in _to_settle:
+				_to_settle.append(s)
+
+
+## A building that's had something happen to it (a board burnt away, a hole, a timber landing
+## on it): its loads are worked out as soon as what's ahead of it in the queue is done.
+func queue_settle(s: Structure) -> bool:
+	if not is_inside_tree() or not is_physics_processing():
+		return false
+	if s != _checking and not s in _to_settle:
+		_to_settle.push_front(s)
+	_urgent[s] = true
+	return true
+
+
+## Burning buildings' loads, one at a time, an analysis spread over frames: most of the time
+## nothing's wrong and that's that; if something's overloaded or has lost its support, it snaps or
+## falls (`Structure.apply_round`, the rule `settle()` follows) and the building is analysed again,
+## faster, until it stands: a big collapse unfolds over a second or so rather than one long frame.
+func _check_loads() -> void:
+	if _check == null:
+		while not _to_settle.is_empty() and _check == null:
+			var next: Variant = _to_settle.pop_front()
+			if is_instance_valid(next) and (next as Structure).collapses and (next as Structure).is_inside_tree():
+				_checking = next
+				_rounds = 0
+				_check = StructuralAnalysis.new(_checking.tuning)
+				_check.begin(_checking)
+		return
+	if not is_instance_valid(_checking) or not _checking.is_inside_tree():
+		_check = null
+		_checking = null
+		return
+	if not _check.advance(CHECK_MEMBERS if _rounds == 0 and not _urgent.has(_checking) else SETTLE_MEMBERS):
+		return
+	_rounds += 1
+	if _checking.apply_round(_check) and _rounds < 64:
+		_check = StructuralAnalysis.new(_checking.tuning)
+		_check.begin(_checking)
+	else:
+		_urgent.erase(_checking)
+		_check = null
+		_checking = null
 
 
 ## Anyone standing in or right next to the flames gets burnt.
@@ -156,9 +287,17 @@ func _scorch_people(dt: float) -> void:
 		if not p is Node3D:
 			continue
 		var body := AABB((p as Node3D).global_position + Vector3(-0.25, 0.0, -0.25), Vector3(0.5, 1.8, 0.5))
+		var reach := body.grow(tuning.scorch_reach)
 		var heat := 0.0
-		for m in burning:
-			var gap := _gap(body, m.world_aabb())
+		# What's burning near him, from the grid (a burning town is thousands of members; rubble is
+		# placed in the grid where it lay at the last rebuild, at most 2 s ago).
+		for m in _query(reach):
+			if not m.burning:
+				continue
+			var box := _aabb(m)
+			if not reach.intersects(box):
+				continue  # further than scorch_reach on some axis
+			var gap := _gap(body, box)
 			if gap < tuning.scorch_reach:
 				heat += (1.0 - gap / tuning.scorch_reach) * clampf(m.burn_time / tuning.growth_seconds, 0.2, 1.0)
 		for sp in spills:
@@ -179,18 +318,20 @@ func _heat(m: StructureMember, amount: float) -> void:
 ## Burnt away: nothing left of it.
 func _consume(m: StructureMember) -> void:
 	if m.get_parent() is Structure:
-		(m.get_parent() as Structure).unbatch(m)
+		(m.get_parent() as Structure).unbatch(m, true)
 	m.consumed = true
 	m.burning = false
 	var was_standing := not m.broken
 	m.broken = true
-	var fx: FireFX = _fx.get(m)
-	if fx and is_instance_valid(fx):
-		fx.queue_free()
+	var fx: Variant = _fx.get(m)
+	if is_instance_valid(fx):
+		(fx as Node).queue_free()
 	_fx.erase(m)
 	for p: Array in m.pieces:
-		for n: Node in p:
-			if n != null and is_instance_valid(n):
+		for o: Variant in p:
+			# A piece may be gone already (freed with its rubble): check before it's typed.
+			if is_instance_valid(o):
+				var n := o as Node
 				var body := n.get_parent()
 				n.queue_free()
 				if body is RigidBody3D and body.get_child_count() <= 2:
@@ -198,25 +339,69 @@ func _consume(m: StructureMember) -> void:
 	m.pieces.clear()
 	Events.member_broken.emit(m.member_id)
 	if was_standing and m.get_parent() is Structure:
-		(m.get_parent() as Structure).settle.call_deferred()
+		var s := m.get_parent() as Structure
+		if not _spreading:
+			s.settle_soon()
+		elif not s in _to_settle and s != _checking:
+			_to_settle.append(s)
 
 
 # --- Who's near whom ----------------------------------------------------------------------------
 
+## Standing members don't move: they're placed once and stay until they break or burn away.
+## Rubble moves, so it's placed afresh each time.
 func _rebuild_grid() -> void:
-	_grid.clear()
 	_grid_age = 0.0
+	for m: Variant in _placed.keys():
+		if is_instance_valid(m) and not (m as StructureMember).consumed and not (m as StructureMember).broken:
+			continue
+		_box.erase(m)
+		for c: Vector3i in _placed[m]:
+			var list: Array = _grid.get(c, [])
+			list.erase(m)
+			if list.is_empty():
+				_grid.erase(c)
+		_placed.erase(m)
+	# Rubble lying still keeps its place; what's moved (or burnt away) is placed again.
+	for m: Variant in _rubble.keys():
+		if is_instance_valid(m) and not (m as StructureMember).consumed and _lying_still(m):
+			continue
+		for c: Vector3i in _rubble[m]:
+			var list: Array = _grid.get(c, [])
+			list.erase(m)
+			if list.is_empty():
+				_grid.erase(c)
+		_rubble.erase(m)
 	for s in get_tree().get_nodes_in_group(&"structures"):
 		for m: StructureMember in (s as Structure).get_members():
-			if m.consumed:
+			if m.consumed or _placed.has(m) or _rubble.has(m):
 				continue
 			var b := m.world_aabb()
 			var lo := (b.position / CELL).floor()
 			var hi := (b.end / CELL).floor()
+			var cells: Array[Vector3i] = []
 			for x in range(int(lo.x), int(hi.x) + 1):
 				for y in range(int(lo.y), int(hi.y) + 1):
 					for z in range(int(lo.z), int(hi.z) + 1):
-						_grid.get_or_add(Vector3i(x, y, z), []).append(m)
+						var c := Vector3i(x, y, z)
+						_grid.get_or_add(c, []).append(m)
+						cells.append(c)
+			if m.broken:
+				_rubble[m] = cells
+			else:
+				_placed[m] = cells
+				_box[m] = b
+
+
+## Every piece of it at rest (asleep, frozen, or not loose at all).
+static func _lying_still(m: StructureMember) -> bool:
+	for p: Array in m.pieces:
+		if not is_instance_valid(p[0]):
+			continue
+		var body: Variant = (p[0] as Node).get_parent()
+		if body is RigidBody3D and not ((body as RigidBody3D).sleeping or (body as RigidBody3D).freeze):
+			return false
+	return true
 
 
 func _query(box: AABB) -> Array[StructureMember]:
@@ -239,12 +424,12 @@ func _query(box: AABB) -> Array[StructureMember]:
 func _neighbours(m: StructureMember) -> Array:
 	if _near.has(m) and _near_age.get(m, 0.0) < (2.0 if m.broken else 30.0):
 		return _near[m]
-	var a := m.world_aabb()
+	var a := _aabb(m)
 	var out: Array = []
 	for o in _query(a.grow(tuning.reach)):
 		if o == m or o.consumed:
 			continue
-		var b := o.world_aabb()
+		var b := _aabb(o)
 		var gap := _gap(a, b)
 		if gap > tuning.reach:
 			continue
@@ -264,6 +449,11 @@ func _neighbours(m: StructureMember) -> Array:
 	return out
 
 
+## Where a member is: kept for standing ones, worked out for rubble.
+func _aabb(m: StructureMember) -> AABB:
+	return _box[m] if not m.broken and _box.has(m) else m.world_aabb()
+
+
 static func _gap(a: AABB, b: AABB) -> float:
 	var d := Vector3.ZERO
 	for i in 3:
@@ -273,28 +463,72 @@ static func _gap(a: AABB, b: AABB) -> float:
 
 # --- Drawing it -----------------------------------------------------------------------------------
 
+## Every half second: which burning members show flames (those that had them keep them while
+## they burn, so flames don't hop about a burning town; free ones go to the burning members nearest
+## you), and where the fire's lights go. The members' looks are then brought up to date a slice a
+## frame over the half second (`_refresh_fx`), not all on one frame.
 func _update_fx() -> void:
-	var burning := burning_members()
-	burning.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.burn_time > b.burn_time)
-	var flames := 0
-	for m: StructureMember in active:
-		if not is_instance_valid(m):
+	var burning := _longest_burning()
+	var still := {}
+	for m: Variant in _flaming:
+		if is_instance_valid(m) and (m as StructureMember).burning and still.size() < tuning.max_flames:
+			still[m] = true
+	_flaming = still
+	if _flaming.size() < tuning.max_flames:
+		var cam := get_viewport().get_camera_3d() if get_viewport() else null
+		var eye := cam.global_position if cam else Vector3.ZERO
+		var by_distance := PackedVector2Array()  # (distance, index): sorted natively
+		for i in burning.size():
+			if not _flaming.has(burning[i]):
+				var d := burning[i].global_position.distance_to(eye) if cam else float(i)
+				by_distance.append(Vector2(d, i))
+		by_distance.sort()
+		for v in by_distance:
+			if _flaming.size() >= tuning.max_flames:
+				break
+			_flaming[burning[int(v.y)]] = true
+	_fx_keys = active.keys()
+	_fx_at = 0
+	_place_lights(burning)
+
+
+## The burning members, longest-burning first (sorted natively: a burning town is thousands).
+func _longest_burning() -> Array[StructureMember]:
+	var all := burning_members()
+	var keys := PackedVector2Array()
+	keys.resize(all.size())
+	for i in all.size():
+		keys[i] = Vector2(-all[i].burn_time, i)
+	keys.sort()
+	var out: Array[StructureMember] = []
+	out.resize(all.size())
+	for i in keys.size():
+		out[i] = all[int(keys[i].y)]
+	return out
+
+
+## A share of the members' looks (char, glow, flames) each frame.
+func _refresh_fx(frames: int) -> void:
+	var to := mini(_fx_at + ceili(float(_fx_keys.size()) / maxi(frames, 1)), _fx_keys.size())
+	for i in range(_fx_at, to):
+		var o: Variant = _fx_keys[i]
+		if not is_instance_valid(o):
 			continue
-		var fx: FireFX = _fx.get(m)
+		var m := o as StructureMember
+		var fx: Variant = _fx.get(m)
+		if not is_instance_valid(fx):
+			fx = null
 		if (m.temperature > 120.0 or m.char_depth > 0.0) and fx == null:
 			# Heated or charred, it's drawn on its own (the char overlay), not with its structure's batch.
 			if m.get_parent() is Structure:
-				(m.get_parent() as Structure).unbatch(m)
+				(m.get_parent() as Structure).unbatch(m, true)
 			fx = FireFX.new()
 			fx.member = m
 			add_child(fx)
 			_fx[m] = fx
-		if fx:
-			var show := m.burning and flames < tuning.max_flames
-			if show:
-				flames += 1
-			fx.refresh(show, tuning)
-	_place_lights(burning)
+		if fx != null:
+			(fx as FireFX).refresh(_flaming.has(m), tuning)
+	_fx_at = to
 
 
 ## A handful of lights where the fire is biggest, not one per burning board.
@@ -302,7 +536,7 @@ func _place_lights(burning: Array[StructureMember]) -> void:
 	var spots: Array[Vector3] = []
 	var sizes: Array[int] = []
 	for m in burning:
-		var c := m.world_aabb().get_center()
+		var c := _aabb(m).get_center()
 		var joined := false
 		for i in spots.size():
 			if spots[i].distance_to(c) < 3.5:
@@ -316,6 +550,40 @@ func _place_lights(burning: Array[StructureMember]) -> void:
 		if spots.size() < tuning.max_lights:
 			spots.append(sp.position + Vector3.UP * 0.4)
 			sizes.append(3)
+	# Each light keeps to its own fire: a lit light takes the new spot nearest where it was (within
+	# a cluster's reach); only lights whose fire has gone move, so they don't jump about the town.
+	var placed_spots: Array[Vector3] = []
+	var placed_sizes: Array[int] = []
+	placed_spots.resize(spots.size())
+	placed_sizes.resize(spots.size())
+	var taken := {}
+	var slot_of := {}  # spot index -> light index
+	for i in mini(_lights.size(), spots.size()):
+		var l := _lights[i]
+		if not l.visible:
+			continue
+		var best := -1
+		var best_d := 3.5
+		for j in spots.size():
+			if taken.has(j):
+				continue
+			var d := (spots[j] + Vector3.UP * 0.5).distance_to(l.global_position)
+			if d < best_d:
+				best_d = d
+				best = j
+		if best >= 0:
+			taken[best] = true
+			slot_of[i] = best
+	var free_spots: Array[int] = []
+	for j in spots.size():
+		if not taken.has(j):
+			free_spots.append(j)
+	for i in spots.size():
+		var j: int = slot_of[i] if slot_of.has(i) else free_spots.pop_front()
+		placed_spots[i] = spots[j]
+		placed_sizes[i] = sizes[j]
+	spots = placed_spots
+	sizes = placed_sizes
 	while _lights.size() < spots.size():
 		var l := OmniLight3D.new()
 		l.light_color = Color(1.0, 0.55, 0.22)

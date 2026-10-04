@@ -38,14 +38,47 @@ jobs:
           mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
           rm ./*.zip
 
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
       - name: Import project
         run: ~/godot/godot --headless --import || true
 
       - name: Run tests
         run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
 
+  # The native plugin (addons/saltcreek_native, Rust) for the three desktop platforms. Each runner
+  # builds its own; the export job collects them. The web export runs without the plugin.
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            file: libsaltcreek_native.so
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            file: saltcreek_native.dll
+          - os: macos-latest
+            target: universal-apple-darwin
+            file: libsaltcreek_native.dylib
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/native-build
+        with:
+          target: ${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.target }}
+          path: addons/saltcreek_native/bin/${{ matrix.file }}
+          if-no-files-found: error
+
   export:
-    needs: test
+    needs: [test, native]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -78,6 +111,13 @@ jobs:
             'templates/web_nothreads_*' 'templates/version.txt' -d "$dest"
           rm ./*.zip ./*.tpz
 
+      - name: Collect the native plugin for every platform
+        uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: addons/saltcreek_native/bin
+          merge-multiple: true
+
       - name: Import project
         run: ~/godot/godot --headless --import || true
 
@@ -97,6 +137,7 @@ jobs:
           test -s build/macos/SaltCreek.zip
           test -s build/linux/SaltCreek.x86_64
           test -s build/web/index.wasm
+          ls -la addons/saltcreek_native/bin
 
       - name: Give the web build's game data a new name each build
         # Browsers cache index.pck; a new name per build makes them fetch the new game at once.

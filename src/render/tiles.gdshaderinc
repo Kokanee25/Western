@@ -20,6 +20,10 @@ global uniform float tile_ragged;
 // (texel_grid reads the texture's mip of that size at the tile's centre; the ground snaps to it).
 // Settings.min_square sets it.
 global uniform float min_square_px;
+// The finish (docs/ART_REVIEW.md §8.7): light is worked out this share of the way back from the
+// tile's centre toward the fragment, so each tile carries a faint gradient of the real lighting
+// across it (never noise). 0: flat tiles. Settings.finish sets it.
+global uniform float tile_gradient;
 
 float tile_hash(vec2 p) {
 	vec3 q = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
@@ -84,7 +88,7 @@ vec2 tile_step(vec2 t, vec2 target) {
 
 // The same, zero when tile light is off.
 vec2 tile_screen_offset(vec2 t, vec2 target) {
-	return tile_step(t, target) * tile_light;
+	return tile_step(t, target) * tile_light * (1.0 - tile_gradient);
 }
 
 // Any interpolated position (view, mesh or world space) moved by a screen step.

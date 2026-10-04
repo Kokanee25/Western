@@ -88,6 +88,8 @@ func _run() -> void:
 	var only := ""
 	var window_shot := false
 	var screen_squares := 0.0
+	var mosaic_steps := 14.0
+	var view_tune := {}
 	var suffix := ""
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -97,13 +99,20 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
-		# Look experiments: --texels=20 --nomip --shade --res=480x270 --tiles=ragged --window --suffix=_b
+		elif arg.begins_with("--model="):
+			# The seated man's body (outlaw, stranger). Loaded at run time: naming ShotMatch here
+			# makes the game's scripts compile with this one, before the autoloads exist.
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			shot.model = StringName(arg.substr(8))
+		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
 		elif arg == "--nomip":
 			PixelArt.use_mipmaps = false
 		elif arg == "--shade":
 			settings.pixel_shading = true
+		elif arg == "--no-finish":
+			settings.set_finish(false)
 		elif arg.begins_with("--res="):
 			var wh := arg.substr(6).split("x")
 			settings.internal_resolution = Vector2i(int(wh[0]), int(wh[1]))
@@ -113,6 +122,40 @@ func _run() -> void:
 			RenderingServer.global_shader_parameter_set(&"min_square_px", float(arg.substr(13)))
 		elif arg.begins_with("--screen-squares="):
 			screen_squares = float(arg.substr(17))
+		# The painting's mosaic in screen space (DepthMosaic, on by default: Settings.mosaic):
+		# --mosaic=5 (block px x metres), --steps=14 (tones of light, 0 smooth), --no-mosaic.
+		elif arg.begins_with("--mosaic="):
+			screen_squares = float(arg.substr(9))
+		elif arg == "--no-mosaic":
+			settings.set_mosaic(false)
+		# The voxel trial (src/art/voxel_trial.gd): --voxel=props,hat,eyes or all; --cubes=64.
+		elif arg.begins_with("--voxel="):
+			var trial: Variant = load("res://src/art/voxel_trial.gd")
+			var which := arg.substr(8)
+			trial.props = which == "all" or "props" in which
+			trial.hat = which == "all" or "hat" in which
+			trial.eyes = which == "all" or "eyes" in which
+		elif arg.begins_with("--cubes="):
+			load("res://src/art/voxel_trial.gd").cubes = int(arg.substr(8))
+		# The quantise-once trial (Pixel-factory's plan, A1): every pre-blocking step off (tile
+		# light, far squares, the factory's squares and palette, the man's squares) and the screen
+		# mosaic refined (--mosaic-tune=depth_power:0.5,soft:0.75,sat_steps:6,hue_steps:24,...
+		# sets its knobs; --quantise-once alone uses the trial's defaults).
+		elif arg == "--quantise-once":
+			# The game's own switch (I): Settings.QUANTISE_TUNING, the smooth sets, tiles and
+			# min_square off. --mosaic-tune after it replaces the knobs.
+			settings.set_quantise_once(true)
+			screen_squares = 6.0
+		elif arg.begins_with("--mosaic-tune="):
+			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
+		# The same knobs for one shot only, laid over the mosaic's tuning when that view is staged
+		# (the paintings' blocks differ: the saloon's ~4 px, the street's ~6 px near).
+		elif arg.begins_with("--saloon-tune="):
+			view_tune[&"shot_match"] = _parse_tune(arg.substr(14))
+		elif arg.begins_with("--street-tune="):
+			view_tune[&"street_match"] = _parse_tune(arg.substr(14))
+		elif arg.begins_with("--steps="):
+			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
 			window_shot = true
 		elif arg.begins_with("--suffix="):
@@ -129,7 +172,7 @@ func _run() -> void:
 	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 	var player = main.get_node(^"GameViewport/TestStreet/Player")
 	if screen_squares > 0.0:
-		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares)
+		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	for v in VIEWS:
@@ -276,6 +319,8 @@ func _run() -> void:
 			sm.frame_camera(player)
 		if setup == "shot_match" or setup == "shot_match_close":
 			await _shot_match_setup(main, player, setup == "shot_match_close")
+		if view_tune.has(StringName(setup)):
+			_retune(player.camera, view_tune[StringName(setup)])
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
@@ -319,6 +364,39 @@ func _run() -> void:
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
 	quit()
+
+
+## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).
+func _parse_tune(spec: String) -> Dictionary:
+	var tune := {}
+	for pair in spec.split(","):
+		if ":" in pair:
+			tune[pair.get_slice(":", 0)] = float(pair.get_slice(":", 1))
+	return tune
+
+
+## Lay one shot's knobs over the mosaic the camera carries (the game's, or --mosaic's), for this
+## view only: the next staged view starts again from the common tuning.
+func _retune(camera: Camera3D, tune: Dictionary) -> void:
+	var mosaic_gd: Variant = load("res://src/render/depth_mosaic.gd")
+	var m := camera.get_node_or_null(^"DepthMosaic")
+	if m == null:
+		return
+	var mat := m.material_override as ShaderMaterial
+	for k: String in _view_tuned:
+		if not tune.has(k) and not mosaic_gd.tuning.has(k) and mosaic_gd.KNOB_DEFAULTS.has(k):
+			mat.set_shader_parameter(StringName(k), mosaic_gd.KNOB_DEFAULTS[k])
+	for k: String in mosaic_gd.tuning:
+		mat.set_shader_parameter(StringName(k), mosaic_gd.tuning[k])
+	for k: String in tune:
+		mat.set_shader_parameter(StringName(k), tune[k])
+	if tune.has("block_k") or tune.has("max_block"):
+		m.scene_blocks = false  # this view's own block size, not the roof check's
+	_view_tuned = tune.keys()
+	print("  mosaic tuned for this view: ", tune)
+
+
+var _view_tuned: Array = []
 
 
 ## Put the shotgun in the hands at once (or the revolver back).

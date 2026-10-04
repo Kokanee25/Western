@@ -651,6 +651,8 @@ def main():
     for pid, spec in people.items():
         if only and pid != only:
             continue
+        if spec.get("source") == "tripo":   # a Tripo model: tools/blender/fit_tripo.py's
+            continue
         p = Person(pid, spec, env)
         p.run()
         if bpy is None:

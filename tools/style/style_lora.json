@@ -1,0 +1,59 @@
+{
+ "trainer": "fal-ai/flux-lora-fast-training",
+ "trigger": "SLTCRK",
+ "steps": 1000,
+ "crops": 48,
+ "lora_url": "https://v3b.fal.media/files/b/0aacd20d/NKfeBmQc_wv4wEXuNNjJv_pytorch_lora_weights.safetensors",
+ "config_url": "https://v3b.fal.media/files/b/0aacd20d/NK0CsYSgLTPuRNx5_XREs_config.json",
+ "answer": {
+  "diffusers_lora_file": {
+   "url": "https://v3b.fal.media/files/b/0aacd20d/NKfeBmQc_wv4wEXuNNjJv_pytorch_lora_weights.safetensors",
+   "content_type": "application/octet-stream",
+   "file_name": "pytorch_lora_weights.safetensors",
+   "file_size": 130958064
+  },
+  "config_file": {
+   "url": "https://v3b.fal.media/files/b/0aacd20d/NK0CsYSgLTPuRNx5_XREs_config.json",
+   "content_type": "application/octet-stream",
+   "file_name": "config.json",
+   "file_size": 714
+  },
+  "debug_preprocessed_output": null
+ },
+ "log": [
+  {
+   "upload_initiate": {
+    "file_url": "https://v3b.fal.media/files/b/0aacd1ef/DBrX3uRXa7MvqNLr00iNn_train.zip",
+    "upload_url": "https://v3b.fal.media/files/b/0aacd1ef/DBrX3uRXa7MvqNLr00iNn_train.zip?signature=AH70r9XK9xNwJWt5"
+   }
+  },
+  {
+   "upload_put": 200
+  },
+  {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a0fec8-ada1-7931-b3ce-140e6afe283e",
+    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e",
+    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0
+   }
+  },
+  {
+   "status": {
+    "status": "COMPLETED",
+    "request_id": "01a0fec8-ada1-7931-b3ce-140e6afe283e",
+    "response_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e",
+    "status_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-lora-fast-training/requests/01a0fec8-ada1-7931-b3ce-140e6afe283e/cancel",
+    "logs": null,
+    "metrics": {
+     "inference_time": 187.84800004959106
+    }
+   }
+  }
+ ]
+}

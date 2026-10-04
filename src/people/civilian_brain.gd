@@ -13,6 +13,7 @@ const LINES := {
 	&"shoved": ["Hey—! There's no call for that.", "Please, I don't want any trouble.", "Easy! Easy..."],
 	&"beg": ["Take it! Take whatever you want!", "Don't shoot! I got a family!", "Please, mister..."],
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
+	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
 	&"relief": ["...They gone?", "Lord. Lord, lord."],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
 }
@@ -49,6 +50,7 @@ func _ready() -> void:
 	body.add_child.call_deferred(senses)
 	Events.deed.connect(_on_deed)
 	Events.noise.connect(_on_noise)
+	Events.hat_shot.connect(_on_hat_shot)
 
 
 func say(kind: StringName) -> void:
@@ -126,6 +128,15 @@ func _scared_by_shooting() -> void:
 	fear += 0.3
 
 
+## His hat shot off his head: down on the boards, and he says so.
+func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
+	if person != body or not body.physiology.is_conscious():
+		return
+	say(&"hat")
+	_cower = maxf(_cower, 10.0)
+	fear += 0.5
+
+
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
 	if kind in [&"gunshot", &"blast"] and at.distance_to(body.global_position) < (25.0 if kind == &"gunshot" else 60.0):
 		if body.physiology.is_conscious():
@@ -137,6 +148,12 @@ func _player() -> Player:
 
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"civilian_brain", t)
+
+
+func _physics_step(delta: float) -> void:
 	var p := body.physiology
 	if not p.alive:
 		mood = Mood.DEAD

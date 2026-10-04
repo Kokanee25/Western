@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/ (needs FAL_KEY)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the Tripo man's head in the style and bake it onto his texture (all need FAL_KEY)"
         required: false
         default: ""
 
@@ -82,6 +82,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style test: photo references (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   style-train:
@@ -117,6 +118,129 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Style: LoRA trained on fal (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  style-sample:
+    if: ${{ inputs.style == 'sample' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint samples with the style LoRA on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_SAMPLER: ${{ vars.FAL_SAMPLER }}
+        run: |
+          pip install pillow
+          python3 tools/style/sample_style.py
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-sample
+          path: build/style_sample/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the samples
+        run: |
+          git add docs/style_test/lora
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Style: samples from the LoRA (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # The men painted clean, full length and turned round (front, left, back, right) by FLUX Kontext
+  # with the style LoRA on fal: to look at before Tripo is paid to model them (the `characters`
+  # job below paints the same way, then runs Tripo).
+  style-characters:
+    if: ${{ inputs.style == 'characters' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint them full length and turned round, on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
+          WHICH: ${{ inputs.characters }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow
+          args="--via=fal"
+          if [ -n "$WHICH" ] && [ "$WHICH" != "all" ]; then args="$args --only=$WHICH"; fi
+          if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          python3 tools/characters/paint_full_length.py --dry-run
+          python3 tools/characters/paint_full_length.py $args
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-characters
+          path: build/characters/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the paintings
+        run: |
+          git add assets/people/tripo
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: painted full length and turned round (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # The Tripo man's head painted in the style at full LoRA strength from clay views of it and
+  # baked onto his own texture (tools/characters/head_paint.py).
+  style-head:
+    if: ${{ inputs.style == 'head' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Views of his head, painted on fal, baked onto his texture
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_HEAD_EDITOR: ${{ vars.FAL_HEAD_EDITOR }}
+          WHICH: ${{ inputs.characters }}
+          REPAINT: ${{ inputs.repaint }}
+        run: |
+          pip install pillow numpy scipy
+          id="${WHICH:-stranger}"
+          if [ "$id" = "all" ]; then id="stranger"; fi
+          rp=""
+          if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
+          python3 tools/characters/head_paint.py guides --id=$id
+          python3 tools/characters/head_paint.py paint --dry-run --id=$id
+          python3 tools/characters/head_paint.py paint --id=$id $rp
+          python3 tools/characters/head_paint.py bake --id=$id
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-head
+          path: build/characters/head_log.json
+          if-no-files-found: ignore
+      - name: Commit the head
+        run: |
+          git add assets/people/tripo docs/screenshots/tripo
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: the head painted and baked (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   textures:
@@ -154,6 +278,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Textures: paint and reduce materials (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   backdrop:
@@ -186,6 +311,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Backdrop: paint and cut (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   characters:
@@ -195,9 +321,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      # Painted on fal with the style LoRA when FAL_KEY is there (clean, four views), else by
+      # the image model on OpenRouter (the front alone); then Tripo models whoever's pictures
+      # are new (or everyone asked for, with repaint).
       - name: Paint them full length, then Tripo
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
           TRIPO_API_KEY: ${{ secrets.TRIPO_API_KEY }}
           TEXTURE_MODEL: ${{ inputs.paint_model || vars.PAINT_MODEL }}
           WHICH: ${{ inputs.characters }}
@@ -207,11 +338,20 @@ jobs:
           args=""
           if [ "$WHICH" != "all" ]; then args="--only=$WHICH"; fi
           rp=""
-          if [ "$REPAINT" = "true" ]; then rp="--repaint"; fi
+          again=""
+          if [ "$REPAINT" = "true" ]; then rp="--repaint"; again="--again"; fi
+          python3 tools/characters/paint_full_length.py --dry-run
           python3 tools/characters/paint_full_length.py $args $rp
           python3 tools/characters/tripo.py --dry-run
           if [ -n "$TRIPO_API_KEY" ]; then python3 tools/characters/tripo.py --balance; fi
-          python3 tools/characters/tripo.py $args || echo "Tripo step failed (see above)"
+          python3 tools/characters/tripo.py $args $again || echo "Tripo step failed (see above)"
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: characters
+          path: build/characters/fal_log.json
+          if-no-files-found: ignore
       - name: Commit them
         run: |
           git add assets/people/tripo
@@ -222,6 +362,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: image-to-3D (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
   people:
@@ -262,7 +403,7 @@ jobs:
 
       - name: Install Blender (bpy), numpy and Pillow
         if: inputs.paint_views == ''
-        run: pip install "bpy==${BPY_VERSION}" numpy pillow
+        run: pip install "bpy==${BPY_VERSION}" numpy pillow scipy
 
       # His body painted from the concept painting: the image model paints each grey view of him
       # (assets/people/paint/<id>_<view>_guide.png, rendered by tools/paint_bake.gd, which bakes
@@ -328,6 +469,17 @@ jobs:
             fi
           fi
 
+      # The Tripo men (people.json "source": "tripo"): fitted to our skeleton from
+      # assets/people/tripo/<id>.glb (tools/blender/fit_tripo.py), the head's repaint and all.
+      - name: Fit the Tripo men
+        if: inputs.paint_views == ''
+        run: |
+          if [ -n "${{ inputs.only }}" ]; then
+            python tools/blender/fit_tripo.py --only="${{ inputs.only }}"
+          else
+            python tools/blender/fit_tripo.py
+          fi
+
       - name: Import and test with the new bodies
         if: inputs.paint_views == ''
         run: |
@@ -350,4 +502,5 @@ jobs:
           else
             git commit -m "People: regenerate from MakeHuman (run ${{ github.run_number }})"
           fi
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push

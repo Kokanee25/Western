@@ -29,7 +29,9 @@ func _apply_settings() -> void:
 	game_viewport.size = Settings.render_size(get_viewport().get_visible_rect().size)
 	var post := screen.material as ShaderMaterial
 	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
+	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
+	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
 	_layout()
 
 
@@ -77,3 +79,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_pixel_shading(not Settings.pixel_shading)
 	elif event.is_action_pressed(&"debug_tiles"):
 		Settings.cycle_tile_look()
+	elif event.is_action_pressed(&"debug_mosaic"):
+		Settings.set_mosaic(not Settings.mosaic)
+	elif event.is_action_pressed(&"debug_quantise"):
+		Settings.set_quantise_once(not Settings.quantise_once)

@@ -30,6 +30,9 @@ uniform float low_sun_dim = 0.45;
 // off its neighbours. 0 = smooth.
 uniform float sky_squares = 0.0;
 uniform float sky_mosaic = 0.0;
+// How far the clouds have drifted (DayCycle sends it with the sky's other updates). Not TIME: a
+// sky that reads TIME is re-lit every frame (REALTIME), and that flickered every sky-lit surface.
+uniform float cloud_drift = 0.0;
 
 float hash(vec3 p) {
 	p = fract(p * 0.3183099 + 0.1);
@@ -84,7 +87,7 @@ void sky() {
 	float low = 1.0 - smoothstep(0.1, 0.5, sd.y);
 	vec2 dh = normalize(d.xz + vec2(1e-5));
 	vec2 sh = normalize(sd.xz + vec2(1e-5));
-	float toward = dot(dh, sh) * 0.5 + 0.5;
+	float toward = clamp(dot(dh, sh) * 0.5 + 0.5, 0.0, 1.0);
 	// Nearness to the sun itself (not just its side of the sky): the glow over it fades upward.
 	float near_sun = pow(max(dot(d, sd), 0.0), 6.0);
 	// The warm horizon belongs to the sun's side of the sky when it's low; elsewhere it's a pale
@@ -97,7 +100,7 @@ void sky() {
 	horizon *= 1.0 - 0.3 * low * sun_up * (1.0 - pow(toward, 4.0));
 	vec3 col;
 	if (h >= 0.0) {
-		col = mix(horizon, top_color, pow(h, mix(0.55, 0.28, low * sun_up)));
+		col = mix(horizon, top_color, pow(max(h, 0.0), mix(0.55, 0.28, low * sun_up)));
 		col *= 1.0 - low_sun_dim * low * sun_up * (1.0 - near_sun);
 	} else {
 		col = mix(horizon, ground_color, clamp(-h * 5.0, 0.0, 1.0));
@@ -113,7 +116,7 @@ void sky() {
 	// (its edge toward the horizon), golder toward the sun. None at the horizon (the haze) or at
 	// night. They're drawn in the sky's own squares (sky_squares).
 	if (h > 0.0) {
-		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(TIME * 0.002, 0.0);
+		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(cloud_drift, 0.0);
 		vec2 band = vec2(1.5, 0.45);
 		float n = cloud_shape(p, band);
 		float edge = 1.0 - cloud_cover;

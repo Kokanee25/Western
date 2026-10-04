@@ -94,3 +94,42 @@ func test_openings_are_saved() -> void:
 	man.open_wound(&"chest", _chest_front(), 1500.0)
 	var d := man.to_dict()
 	check(d.openings.has("chest") and (d.openings.chest as Array).size() == 1, "the opening's in the save")
+
+
+## Whole, each of his shapes (skin, shirt, coat...) is drawn as one mesh, not one per body part:
+## the same triangles. His first opening brings the pieces back, since an opening is cut in one
+## part's own space.
+func test_whole_each_shape_draws_once_and_opening_brings_back_the_pieces() -> void:
+	var shown := func() -> Array[MeshInstance3D]:
+		var out: Array[MeshInstance3D] = []
+		for n in man.skeleton.get_children():
+			if n is MeshInstance3D and (n as MeshInstance3D).visible and not n.is_queued_for_deletion():
+				out.append(n)
+		return out
+	var pieces := man.skin_meshes.size()
+	var whole: Array[MeshInstance3D] = shown.call()
+	check(whole.size() * 3 < pieces, "%d meshes for %d pieces" % [whole.size(), pieces])
+	var tris := func(list: Array) -> int:
+		var t := 0
+		for mi: MeshInstance3D in list:
+			t += (mi.mesh as ArrayMesh).surface_get_array_index_len(0) / 3
+		return t
+	check_eq(tris.call(whole), tris.call(man.skin_meshes.values()), "the same triangles")
+	for mi in whole:
+		check(mi.skin != null and mi.layers == Layers.VIS_BODY, "%s is skinned to him and drawn like the pieces" % mi.name)
+	man.open_wound(&"chest", _chest_front(), 1500.0)
+	await physics_frames(1)
+	check_eq(shown.call().size(), pieces, "opened, every piece draws for itself")
+	check(_count(&"chest") > 0, "and the chest's are open")
+
+
+## The first wound to open a part used to paint the insides' textures on the spot (~90 ms on that
+## frame); they're painted ahead, a few frames after the first person comes in.
+func test_the_insides_are_painted_before_anyone_is_hurt() -> void:
+	await process_frames(BodyInterior.COLOURS.size() + 10)
+	for k: StringName in BodyInterior.COLOURS:
+		check(BodyInterior._mats.has(k), "the %s texture is ready" % k)
+	var t0 := Time.get_ticks_usec()
+	man.open_wound(&"chest", _chest_front(), 1500.0)
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	check(ms < 40.0, "opening his chest takes %.1f ms (was ~90 the first time)" % ms)

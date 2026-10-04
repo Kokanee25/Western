@@ -5,6 +5,124 @@ fingers three bones each) and a body that bleeds, goes into shock, feels pain la
 adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back, and you have the
 same body.
 
+
+### The native plugin: step 1 of the destruction plan
+
+- **A native plugin is in the build** (`addons/saltcreek_native`, Rust, built for Windows, Mac and
+  Linux by CI). It does nothing in play yet: it's the foundation for voxel destruction and for
+  moving the heavy simulation off the one core (docs/DESTRUCTION_BRIEF.md). **Press F3** and look
+  for the line `native plugin: saltcreek_native 0.1.0, N threads`. If it says `not loaded`, tell
+  me which build and which platform. N is how many threads the plugin can use on Shadow.
+- Also send the F3 frame split (the `ms a frame` line and the fps) standing in the street with
+  the gang in (U), so the next steps are measured against your machine.
+
+### Destruction step 2: a wall that takes a shotgun
+
+- **Walls are carved now, not painted.** Every board, stud and post is cut into small cubes (about
+  1.6 cm) the first time something hits it, and shots really cut it: buckshot punches a cluster of
+  ragged holes with pale torn wood round each, a charge with the muzzle against the boards blows a
+  bite about 7 cm across, split along the grain, and the pellets carry on through to whatever's
+  behind (the storekeeper, if he's behind his counter). You can see daylight through the holes from
+  inside, bullets go through the gaps, chips of fresh wood fly and lie where they land. A stud shot
+  through enough is weaker, and if what's left can't carry the wall it gives way, as before.
+- **Try it on Shadow:** stand in the street outside the general store (DRY GOODS), press **F3**
+  and note the fps and the `frame` line. Press **2** for the shotgun, **H** to draw it, walk to
+  the store's front wall and fire both barrels at the siding from 3–4 m (LMB, LMB, **R** to
+  reload), then again from a step away, then with the muzzle right on the boards. Go inside and
+  look back at the wall. Keep going for a dozen charges, then send me **the F3 photo while
+  firing and after**: the fps, the `frame` line and the `ms a frame` line (look for `ballistics`
+  and `voxels`). That decides whether Godot carries this (docs/DESTRUCTION_BRIEF.md, step 2's
+  gate).
+- **Tell me:** do the holes read? Too small, too big, too clean? (Pictures of the same three
+  charges at three cube sizes, and the old painted holes, are in `docs/destruction/step2/`.) Any
+  hitch when the shot lands?
+- **You can shoot a man's hat off.** Aim just over his head: the hat flies off and lands, he
+  ducks and says something about it, and he's frightened (and angry). A townsman gets down.
+- **No more hitch when someone's first hit.** The first time anyone's chest or belly was opened by
+  a wound the game froze for a tenth of a second (painting the insides on the spot); now it's
+  painted while the town loads.
+- Known: a carved board that snaps in two falls as two plain halves (the holes aren't kept on
+  the pieces); dynamite doesn't carve yet (step 3); the web build keeps the old painted holes.
+
+### New look: the painting's mosaic on the whole frame
+
+- **The frame is in blocks now, like the concept painting**: 3–4 pixels on a man across a table,
+  2 far off, each one colour, the light in steps. Silhouettes go stepped, as the painting's are.
+  It's a setting (**mosaic**, on; **O** turns it off and on, F3 lists it) and the old "finish"
+  softening is off under it. Build 340 drew a black screen with it on a real GPU (its pass was
+  drawn before the frame existed); fixed in this build. If anything's ever black, press O.
+  Not on the web build (that renderer has no depth to size the blocks by).
+- **A second look to try: "quantise once" (I).** Nothing is cut into squares before the mosaic:
+  the paintings go on the walls smooth, the man's paint is smooth, and only the screen mosaic
+  makes the blocks (averaged, soft-edged, 4 px under a roof and 6 px in the open). The scene
+  reloads when you press I (a few seconds; you start at the spawn). Off by default. Compare the
+  saloon at night and the street at golden hour both ways and tell me which is the painting's
+  style; that decides whether it becomes the default. `docs/screenshots/quantise_once/compare.png`
+  is the same comparison rendered here.
+- **The man at the card table is the image-to-3D man now** (Tripo, fitted to our skeleton), with
+  his head painted in the style. Walk into the saloon and look at him from the front, the side
+  and three-quarters: tell me if he reads as the painting's style, and where he doesn't.
+
+### Faster: fire (performance pass, part 1)
+
+- **A burning town costs a third less.** Measured with the new bench (`tools/perf_bench.gd`: the
+  street with everyone in, then two sticks of dynamite and three buildings alight) on the cloud
+  workspace's 2.1 GHz core, simulation only: the frame after the fire took hold went from **17.4 ms
+  on average (p99 307 ms) to 11.5 ms (p99 163 ms)**. The fire behaves exactly as before (checked
+  member by member over a minute of burning).
+- The fire was heating boards that were already alight (about 9 in 10 of the work in a burning
+  building) and measuring every burning board against every person, every tick. Also fixed: a script
+  error printed for every board that burnt away near someone.
+- **The hitch while a building burns is mostly gone.** The fire's work used to land on one frame
+  four times a second (worst frames 300–500 ms here); it's now spread over the frames in between,
+  and each burning building checks its loads on a frame of its own. Worst frames here: **p99 163 →
+  73 ms, max 390 → 100 ms**. What's left of them is a building working out its loads (next).
+- **A burning building works out its loads half again as fast** (same answers, checked member by
+  member). Worst frames here: **p99 73 → 53 ms, max 100 → 70 ms**; average 11.6 → 10.8 ms.
+- **People take a quarter of the draw calls they did.** Each person's skin and clothes were drawn a
+  body part at a time (about 55 pieces each); now each garment is one piece until he's opened up
+  or loses a limb. He looks exactly the same (checked pixel by pixel). The calm street went from
+  **8,186 draw calls to 6,129**.
+- **The street's props and furniture are drawn together** (the saloon's chairs, tables, bottles,
+  the barrels, crates, horses...: 1,767 parts in 180 batches). They look exactly the same (checked
+  pixel by pixel on the Windows renderer); the computer has 2,400 fewer things to sort and shadow
+  each frame. Draw calls in the calm street, Windows renderer: **4,047 → 3,695**, objects in frame
+  **7,810 → 5,413**. (The web build is left as it was: its renderer lights batches differently.)
+- **The flicker is fixed.** Whole sections of the screen (the inside of a building, the saloon's
+  mirror, the street's walls) were flipping between two brightnesses every frame. The sky was
+  being re-lit 60 times a second as the clock ran, and everything lit by the sky (most of the
+  town, and the parts of every interior near its walls and roof) flickered with it. Now the sky
+  is re-lit only when the sun or its colours have visibly moved on. Measured here with the clock
+  running and the camera still: the store's interior **11.5% → 0.003%** of pixels changing a frame,
+  the saloon at night **0.28% → 0.001%**, the golden-hour street **43% → 0.1%**.
+- **Please try:** walk into the store and the saloon (day and night), look at the walls, the
+  ceiling and the mirrors behind the bar, and stand in the street. Tell me if anything still
+  flickers while you stand still, and separately what happens while you turn and walk (some
+  shimmer of thin things while moving is the pixel look; the new screen mosaic adds a little).
+- **A whole town on fire no longer freezes.** Left to spread, the fire takes every building
+  within a minute (2,600 boards alight). Before: **29 ms a frame on average, freezes of up to 1.6
+  seconds** when a big building came down (its loads worked out again for every beam that broke,
+  all in one frame). Now: **17.7 ms average, worst 68 ms** (this machine, simulation only). A big
+  collapse now unfolds over a second or so instead of stopping the game.
+- **Less flicker in a big fire.** Only 40 boards show flames at a time; which 40 used to be
+  reshuffled every half second, so flames popped on and off all over town. Now a board keeps its
+  flames while it burns, and new ones go to the fires nearest you. The fire's lights stay with
+  their own fires instead of jumping across town when one burns out.
+- **Standing up is cheap again.** Every person asked "can my legs hold me?" every tick by searching
+  all 115 structures of their anatomy for leg muscles; now each body knows its muscles. Calm
+  street **5.4 → 3.8 ms** a frame here (the people's bodies 2.0 → 1.2 ms, your own 0.7 → 0.2),
+  burning **7.8 → 6.8 ms**. Nothing plays differently.
+- **F3 now shows where each frame goes**, so you can tell me what your PC is doing:
+  `frame 16.7 ms: process …, physics …, render cpu …, gpu …` (scripts, physics, the renderer's
+  CPU and GPU time), `draws … objects … tris … nodes … bodies awake …`, and `ms a frame:` the
+  game's systems that cost most (people_body = the people's bodies and pain, senses, outlaw_brain,
+  fire, player...). **Please try:** start the build, press **U** (the gang rides in), stand where
+  you start looking down the street, press **F3**, wait five seconds and send me a photo of the
+  readout. Then throw a stick of dynamite at the store (3, Q, release), press **L** on a wall to
+  set it alight, wait till it's going well, and send the readout again.
+- Try: F5 to the street, **F3**, throw a stick at the store (3, Q, release) and set it going with
+  **L** on a wall. Tell me the fps before you light it and while it burns.
+
 ### New: full sim: the real loads, and air that behaves like air
 
 - **The guns fire what they'd have fired in 1882.** The Colt (a 7½" Cavalry model) shoots the

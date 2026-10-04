@@ -31,8 +31,10 @@ func refresh(flames: bool, tuning: FireTuning) -> void:
 	_overlay.set_shader_parameter(&"glow", clampf(member.burn_time / tuning.growth_seconds, 0.2, 1.0) if member.burning else 0.0)
 	var meshes: Array[MeshInstance3D] = []
 	for p: Array in member.pieces:
+		if not is_instance_valid(p[0]):
+			continue
 		var mi := p[0] as MeshInstance3D
-		if mi and is_instance_valid(mi):
+		if mi:
 			meshes.append(mi)
 			if mi.material_overlay != _overlay:
 				mi.material_overlay = _overlay

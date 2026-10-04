@@ -6,16 +6,19 @@ painting (tools/characters/paint_full_length.py).
     python3 tools/characters/tripo.py --dry-run      (no key, no network: see below)
     TRIPO_API_KEY=... python3 tools/characters/tripo.py --balance   (checks the key, spends nothing)
 
-For each assets/people/tripo/<id>_full.png: upload it, ask for a model from it (textured, PBR),
-wait, ask for that model rigged (glb), wait, and save assets/people/tripo/<id>.glb (and the
-unrigged one as <id>_mesh.glb), with every answer the API gave in <id>_tripo.json. Our own
-Blender step then fits it to the game's skeleton and hitboxes (tools/blender/, as MakeHuman's
-body is now; the MakeHuman pipeline stays the fallback).
+For each assets/people/tripo/<id>_full.png: upload it (with <id>_left/_back/_right.png when the
+turnaround's there: Tripo's multi-view input, front/left/back/right, so his sides and back are
+painted as drawn and not guessed from the front), ask for a model (textured, PBR), wait, ask for
+that model rigged (glb), wait, and save assets/people/tripo/<id>.glb (and the unrigged one as
+<id>_mesh.glb), with every answer the API gave in <id>_tripo.json, which starts with a hash of
+each picture: a model is made again when its pictures change (or with --again). Our own Blender
+step then fits it to the game's skeleton and hitboxes (tools/blender/, as MakeHuman's body is
+now; the MakeHuman pipeline stays the fallback).
 
-UNTESTED against the live API (the key isn't set yet, and the API's documentation is blocked from
-the workspace): written to Tripo's v2 "openapi" (one /task endpoint, the job in `type`); they've
-since published v3 (an endpoint per job). Every answer is printed and saved, so the first run on
-Actions shows what to change. TRIPO_API_BASE overrides the base URL.
+image_to_model and animate_rig ran against the live API on 2026-10-02 (People run 17), written
+to Tripo's v2 "openapi" (one /task endpoint, the job in `type`); multiview_to_model is written
+the same way and untested. Every answer is printed and saved, so the first run on Actions shows
+what to change. TRIPO_API_BASE overrides the base URL.
 
 --dry-run runs the whole thing (upload, both tasks, waiting, downloads, the log) against a stand-in
 Tripo on this machine that answers as the v2 API does and checks what it's sent (the key in a
@@ -85,26 +88,92 @@ def model_url(data):
     return out.get("model") or out.get("pbr_model") or out.get("base_model")
 
 
+# The views Tripo's multi-view input takes, in its order; the front is <id>_full.png, the others
+# <id>_<view>.png (tools/characters/paint_full_length.py's turnaround). With only the front it's
+# image_to_model as before.
+VIEWS = ("full", "left", "back", "right")
+
+
+def inputs_of(cid, src):
+    """The pictures Tripo gets for this man and a hash of each, so a model is made again only
+    when they change (git keeps no dates)."""
+    import hashlib
+    found = {}
+    for view in VIEWS:
+        p = os.path.join(src, "%s_%s.png" % (cid, view))
+        if os.path.exists(p):
+            found["%s_%s.png" % (cid, view)] = hashlib.sha256(open(p, "rb").read()).hexdigest()
+    return found
+
+
+def made_from(cid, out):
+    """The input hashes the model there was made from (empty for a model made before they were
+    kept, or none)."""
+    p = os.path.join(out, cid + "_tripo.json")
+    if not os.path.exists(p):
+        return {}
+    try:
+        for entry in json.load(open(p)):
+            if isinstance(entry, dict) and "inputs" in entry:
+                return entry["inputs"]
+    except (ValueError, TypeError):
+        pass
+    return {}
+
+
+def upload(name, path, key, log):
+    up = call("POST", "/upload", key, files={"file": (name, open(path, "rb").read(), "image/png")})
+    log.append({"upload": {"file": name, "answer": up}})
+    return up.get("data", {}).get("image_token") or up.get("data", {}).get("file_token")
+
+
 def make(cid, key, src=None, out=None):
     src = src or DIR
     out = out or DIR
-    log = []
-    png = os.path.join(src, cid + "_full.png")
-    up = call("POST", "/upload", key, files={"file": (cid + ".png", open(png, "rb").read(), "image/png")})
-    log.append({"upload": up})
-    token = up.get("data", {}).get("image_token") or up.get("data", {}).get("file_token")
-    task = call("POST", "/task", key, {"type": "image_to_model", "file": {"type": "png", "file_token": token},
-                                       "texture": True, "pbr": True})
-    log.append({"image_to_model": task})
-    mesh = wait(task["data"]["task_id"], key, log, "image_to_model")
+    inputs = inputs_of(cid, src)
+    log = [{"inputs": inputs}]
+    views = {v: os.path.join(src, "%s_%s.png" % (cid, v)) for v in VIEWS if "%s_%s.png" % (cid, v) in inputs}
+    if all(v in views for v in VIEWS):
+        # Four views: front, left, back, right (a missing one is {} in Tripo's list; we have all).
+        files = []
+        for v in VIEWS:
+            token = upload("%s_%s.png" % (cid, v), views[v], key, log)
+            files.append({"type": "png", "file_token": token})
+        task = call("POST", "/task", key, {"type": "multiview_to_model", "files": files, "texture": True, "pbr": True})
+        what = "multiview_to_model"
+    else:
+        token = upload(cid + ".png", views["full"], key, log)
+        task = call("POST", "/task", key, {"type": "image_to_model", "file": {"type": "png", "file_token": token},
+                                           "texture": True, "pbr": True})
+        what = "image_to_model"
+    log.append({what: task})
+    mesh = wait(task["data"]["task_id"], key, log, what)
     download(model_url(mesh), os.path.join(out, cid + "_mesh.glb"))
-    rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
-                                      "out_format": "glb"})
-    log.append({"animate_rig": rig})
-    rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
-    download(model_url(rigged), os.path.join(out, cid + ".glb"))
+    if is_item(cid):
+        # A garment alone (characters.json `item`): no rig; <id>.glb is the mesh itself, and
+        # fit_tripo.py hangs it on the body's bones.
+        import shutil
+        shutil.copyfile(os.path.join(out, cid + "_mesh.glb"), os.path.join(out, cid + ".glb"))
+        log.append({"animate_rig": "skipped: an item"})
+    else:
+        rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
+                                          "out_format": "glb"})
+        log.append({"animate_rig": rig})
+        rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
+        download(model_url(rigged), os.path.join(out, cid + ".glb"))
     json.dump(log, open(os.path.join(out, cid + "_tripo.json"), "w"), indent=1)
     print("made:", cid)
+
+
+def is_item(cid):
+    """Whether this character is a garment alone (tools/characters/characters.json `item`)."""
+    spec = os.path.join(os.path.dirname(os.path.abspath(__file__)), "characters.json")
+    if not os.path.exists(spec):
+        return False
+    try:
+        return bool(json.load(open(spec))["characters"].get(cid, {}).get("item"))
+    except (ValueError, KeyError, TypeError):
+        return False
 
 
 def balance(key):
@@ -122,17 +191,24 @@ def dry_run():
     BASE, POLL = base, 0.0
     scratch = tempfile.mkdtemp(prefix="tripo_dry_")
     names = [n[:-len("_full.png")] for n in sorted(os.listdir(DIR)) if n.endswith("_full.png")] if os.path.isdir(DIR) else []
-    src = DIR
-    if not names:
-        # No full-length painting yet: a blank one stands in.
-        from PIL import Image
-        src = scratch
-        Image.new("RGB", (512, 1024), (128, 110, 90)).save(os.path.join(scratch, "standin_full.png"))
-        names = ["standin"]
+    # Plus a stand-in man with all four views (multiview_to_model) and one with the front alone
+    # (image_to_model), whatever paintings there are.
+    from PIL import Image
+    standins = os.path.join(scratch, "standins")
+    os.makedirs(standins)
+    for v in VIEWS:
+        Image.new("RGB", (512, 1024), (128, 110, 90)).save(os.path.join(standins, "turned_%s.png" % v))
+    Image.new("RGB", (512, 1024), (128, 110, 90)).save(os.path.join(standins, "front_full.png"))
+    jobs = [(cid, DIR) for cid in names] + [("turned", standins), ("front", standins)]
     ok = True
     try:
-        for cid in names:
+        for cid, src in jobs:
             make(cid, "dry-run-key", src, scratch)
+            kinds = [k for e in json.load(open(os.path.join(scratch, cid + "_tripo.json"))) for k in e if k.endswith("_to_model")]
+            print("  %s: %s" % (cid, ", ".join(dict.fromkeys(kinds))))
+            if cid == "turned" and "multiview_to_model" not in kinds or cid == "front" and "image_to_model" not in kinds:
+                print("  wrong task for", cid)
+                ok = False
             for f in (cid + ".glb", cid + "_mesh.glb", cid + "_tripo.json"):
                 p = os.path.join(scratch, f)
                 good = os.path.exists(p) and (not f.endswith(".glb") or open(p, "rb").read(4) == b"glTF")
@@ -172,8 +248,10 @@ def main():
         if only and cid not in only:
             continue
         if os.path.exists(os.path.join(DIR, cid + ".glb")) and not again:
-            print("already made:", cid)
-            continue
+            if made_from(cid, DIR) == inputs_of(cid, DIR):
+                print("already made:", cid)
+                continue
+            print("the pictures changed since the model was made:", cid)
         try:
             make(cid, key)
         except (RuntimeError, OSError, KeyError, ValueError, TypeError) as e:

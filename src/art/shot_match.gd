@@ -34,6 +34,10 @@ const TURN := 6.75
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
+## Which generated body the seated man wears (assets/people/<model>.glb): the Tripo man
+## (`stranger`, tools/blender/fit_tripo.py; the default since 2026-10-03) or the MakeHuman
+## `outlaw`; tools/screenshots.gd --model=.
+static var model: StringName = &"stranger"
 
 
 ## Build the scene in the test street (clearing that table's own props) and seat the man.
@@ -70,6 +74,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		man = HumanBody.new()
 		man.name = "SeatedMan"
 		man.person_id = &"stranger"  # his own clothes (materials are cached per person)
+		man.body_model = model
 		man.rng_seed = 7
 		man.coat_color = Color(0.36, 0.25, 0.16, 1.0)
 		man.vest_color = Color(0.2, 0.15, 0.11)
@@ -96,6 +101,13 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 			&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
 	_cup_in_hand(man)
 	_extras(street)
+	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
+	if VoxelTrial.props:
+		VoxelTrial.replace_props(root, lamp.get_node_or_null(^"Model"), man)
+	if VoxelTrial.hat:
+		VoxelTrial.replace_hat(man)
+	if VoxelTrial.eyes:
+		VoxelTrial.add_eyes(man, root.to_global(EYE))
 	return man
 
 

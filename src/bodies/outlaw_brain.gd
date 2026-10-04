@@ -27,6 +27,7 @@ enum Tactic { OPEN, MOVING, HIDDEN, PEEKING, SEARCHING, RESCUING }
 
 const LINES := {
 	&"provoked": ["You damn fool!", "Your funeral, friend.", "That's how it is? Fine!"],
+	&"hat": ["My hat!", "That was a good hat, you son of a—", "Close. Real damn close."],
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"gut": ["Oh God, not the belly..."],
 	&"surrender": ["Alright! Alright! I'm done!", "Don't shoot! I quit, I quit!", "Enough! It's yours!"],
@@ -82,6 +83,8 @@ const LINES := {
 @export var fear_per_hit := 0.25
 @export var fear_per_severe_hit := 0.14
 @export var fear_pellet_share := 0.4
+## A ball through his hat: the nearest a near miss gets (on top of the near miss itself).
+@export var fear_hat_shot := 0.3
 ## When his nerve goes and he can run, the chance he runs rather than gives up.
 @export var flee_chance := 0.55
 ## How little it takes to rile him (0 a cool professional .. 1 a hothead): the small things,
@@ -228,6 +231,7 @@ func _ready() -> void:
 	body.hit.connect(_on_hit)
 	body.fell.connect(_on_fell)
 	Events.near_miss.connect(_on_near_miss)
+	Events.hat_shot.connect(_on_hat_shot)
 	Events.shouted.connect(_on_shouted)
 	Events.exploded.connect(_on_exploded)
 	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, who: Node) -> void: if who == _find_target(): _quiet = 0.0)
@@ -354,6 +358,19 @@ func _start_fight(with_who: Node) -> void:
 		body.draw_gun()
 
 
+## His hat shot off his head: a fright like no other near miss, heads down, and he says so.
+func _on_hat_shot(person: Node, shooter: Node, _at: Vector3) -> void:
+	if person != body:
+		return
+	fear += fear_hat_shot
+	suppressed = maxf(suppressed, 3.0)
+	if tactic == Tactic.PEEKING:
+		_duck_back()
+	say(&"hat")
+	if mood != Mood.SURRENDERED:
+		_provoked(shooter)
+
+
 func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _speed: float, _tumbling: bool) -> void:
 	if person != body:
 		return
@@ -442,6 +459,12 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 # --- Living ------------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"outlaw_brain", t)
+
+
+func _physics_step(delta: float) -> void:
 	var p := body.physiology
 	if not p.alive:
 		_set_mood(Mood.DEAD)

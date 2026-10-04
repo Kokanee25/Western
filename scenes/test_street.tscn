@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
@@ -23,13 +23,14 @@
 [ext_resource type="Script" path="res://src/world/range_cover.gd" id="21_cover"]
 [ext_resource type="Script" path="res://src/people/town_life.gd" id="22_town"]
 [ext_resource type="Script" path="res://src/art/street_dressing.gd" id="23_dressing"]
+[ext_resource type="Script" path="res://src/world/static_batch.gd" id="40_batch"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("3_sky")
 
 [sub_resource type="Sky" id="Sky_main"]
 sky_material = SubResource("ShaderMaterial_sky")
-process_mode = 3
+process_mode = 2
 radiance_size = 3
 
 [sub_resource type="Environment" id="Environment_main"]
@@ -225,3 +226,6 @@ script = ExtResource("23_dressing")
 
 [node name="Player" parent="." instance=ExtResource("10_player")]
 transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
+
+[node name="StaticBatch" type="Node3D" parent="."]
+script = ExtResource("40_batch")
