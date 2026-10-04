@@ -2384,3 +2384,10 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   signboard, an adobe wall, the card table from above). Left out: a close study of a plank floor
   (its squares are fine random noise, the grain-as-noise the art review warned against).
   Not trained on yet.
+  Sean preferred run 31's portrait to run 33's (bolder, bigger squares), and the squares agree:
+  the three close portraits' squares are 11–13 px across at 1280 wide, prop close-ups 9–10, full
+  scenes and the concept paintings 5–7; run 33's extra scenes taught it scene-sized squares on a
+  close face. **Back on run 30's LoRA**: `tools/style/style_lora.json` is run 30's again (every
+  tool reads it: `head_paint.py`, `paint_full_length.py`, `sample_style.py`); run 33's record kept
+  in `style_lora_run33.json`. Next training waits on more close portraits in the original
+  style, with close-ups weighted up; the scene pictures stay filed.
