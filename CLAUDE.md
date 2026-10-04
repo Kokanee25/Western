@@ -2419,3 +2419,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   the painting's size; warm lamplight on his face and cold moonlight from one side, so cooler and
   less colourful than the rest (median L* 5, deep-shadow share 0.77, chroma 10). Left out: its
   twin in the same pose with finer squares.
+  Then a cowboy in full profile under a hat with a studded band (54 in the folder): the first
+  side view of a man and the first bold portrait in a cowboy hat, ~25 squares across the face,
+  and the painting's light (median L* 11, deep-shadow share 0.63, chroma 22).
