@@ -321,8 +321,9 @@ func test_he_has_the_generated_makehuman_body() -> void:
 
 func test_the_tripo_man_comes_dressed() -> void:
 	# The stranger (assets/people/stranger.glb, tools/blender/fit_tripo.py) is a Tripo model fitted
-	# to our bones: his own skin and head on our skeleton, his clothes, hat and boots in his skin,
-	# so none of BodyMesh's are put on him.
+	# to our bones in layers: his own skin and head on our skeleton (shirt, vest and boots in his
+	# skin), his coat and hat each their own mesh (pieces modelled alone and hung on him, so the
+	# hat can come off), and none of BodyMesh's put on him.
 	check(PeopleBodies.has_model(&"stranger"), "assets/people/stranger.glb is there")
 	var him := HumanBody.new()
 	him.body_model = &"stranger"
@@ -336,7 +337,8 @@ func test_the_tripo_man_comes_dressed() -> void:
 		if key.begins_with("head/"):
 			head_tris += (him.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX].size() / 3
 	check(shapes.has("skin") and shapes.has("head"), "his skin and head (%s)" % [shapes.keys()])
-	check(not shapes.has("hat") and not shapes.has("boots") and not shapes.has("shirt"), "nothing of BodyMesh's over his own clothes (%s)" % [shapes.keys()])
+	check(shapes.has("coat") and shapes.has("hat"), "his coat and hat as their own pieces (%s)" % [shapes.keys()])
+	check(not shapes.has("boots") and not shapes.has("shirt") and not shapes.has("hat_brim"), "nothing of BodyMesh's over his own clothes (%s)" % [shapes.keys()])
 	check(head_tris > 800, "a real head (%d triangles)" % head_tris)
 	var top := 0.0
 	for key: String in him.skin_meshes:

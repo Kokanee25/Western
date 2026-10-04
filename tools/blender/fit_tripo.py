@@ -48,6 +48,8 @@ HEAD_FROM = 0.815
 # A bare-headed layered man: the collar's top is this share of the way from his neck joint (the
 # collar bone) to his head joint (the jaw).
 HEAD_FROM_NECK = 0.35
+# ... and within this of the neck's axis (Tripo units, of his height), so the shoulders stay trunk.
+HEAD_RADIUS = 0.09
 # Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
 # wider than what they go over they are scaled (room for the cloth under them).
 PIECE_TRIS = {"coat": 2600, "hat": 700}
@@ -175,15 +177,25 @@ class TripoPerson(mp.Person):
 
     def warp(self):
         bones = self.bones()
-        head = self.v[:, 1] > self.head_cut
+        # The pieces are placed against him in his Tripo space, before anything moves.
+        for piece in self.pieces:
+            piece.place()
+        head = self.head_mask(self.v)
         self.v, self.region = self.warp_points(self.v, head, bones)
         self.head = head
         self.fit_joints = {}
         self.report["scale"] = round(float(self.scale), 4)
         self.report["height_m"] = round(float(self.v[:, 1].max()), 3)
         for piece in self.pieces:
-            piece.place()
-            piece.v, piece.region = self.warp_points(piece.v, piece.v[:, 1] > self.head_cut, bones)
+            piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones)
+
+    def head_mask(self, v):
+        """What is head: above the collar, and within HEAD_RADIUS of the neck's axis (the tops of
+        the shoulders rise above a bare-headed man's collar line, and they are trunk)."""
+        above = v[:, 1] > self.head_cut
+        n = self.j["neck"]
+        near = np.hypot(v[:, 0] - n[0], v[:, 2] - n[2]) < HEAD_RADIUS
+        return above & near
 
     def warp_points(self, v, head, bones):
         """Points in his Tripo space (body orientation) moved onto our skeleton by his bones, and
@@ -322,7 +334,43 @@ class Piece:
             body_w, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
             s = body_w * PIECE_MARGIN[self.shape] / max(coat_w, 1e-6)
             self.v = (v - [px, sh_y, pz]) * s + [bx, body_sh[1], bz]
+            self._sleeves_to_arms()
         body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
+
+    def _sleeves_to_arms(self):
+        """The painter hangs a coat's sleeves at its sides however it is asked; the body stands in
+        an A-pose. Each sleeve (what lies outside the shoulders below the shoulder line) is turned
+        about its shoulder joint, in the body's front plane, from the way it hangs to the way his
+        arm goes, so the warp's arm bones carry it."""
+        body, v = self.body, self.v
+        for side in "rl":
+            sh, el = body.j[side + "-shoulder"], body.j[side + "-elbow"]
+            sign = 1.0 if side == "r" else -1.0
+            # The sleeve: beyond the shoulder outward, from the shoulder line down to the hem's
+            # level of the cuff (the coat's lower half is the skirt: left alone).
+            sel = (sign * (v[:, 0] - sh[0]) > 0.02) & (v[:, 1] < sh[1] + 0.03) & (v[:, 1] > sh[1] - 0.45)
+            if sel.sum() < 50:
+                continue
+            # Its direction: a line through its cross-sections' centres, by height.
+            ys = v[sel, 1]
+            lo, hi = np.percentile(ys, [10, 85])
+            a = v[sel][ys > hi - 0.03].mean(axis=0)
+            b = v[sel][ys < lo + 0.03].mean(axis=0)
+            have = b - a
+            want = el - sh
+            have[2] = 0.0
+            want[2] = 0.0
+            ang = np.arctan2(want[1], want[0]) - np.arctan2(have[1], have[0])
+            c, s_ = np.cos(ang), np.sin(ang)
+            rel = v[sel] - sh
+            x, y = rel[:, 0] * c - rel[:, 1] * s_, rel[:, 0] * s_ + rel[:, 1] * c
+            # Ease the turn in over the first 6 cm below the shoulder line, so the sleeve head stays
+            # on the shoulder.
+            t = np.clip((sh[1] + 0.03 - v[sel, 1]) / 0.06, 0.0, 1.0)
+            v[sel, 0] = sh[0] + (1 - t) * rel[:, 0] + t * x
+            v[sel, 1] = sh[1] + (1 - t) * rel[:, 1] + t * y
+            body.report.setdefault("sleeve_turn_deg", {})[side] = round(float(np.degrees(ang)), 1)
+        self.v = v
 
 
 # --- Textures -----------------------------------------------------------------------------------
