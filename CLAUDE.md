@@ -2379,3 +2379,8 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   face, a drawn three-quarter face). The same: the saloon, the boards, the street (signs still
   misspelt). Worse: the horse sample now sits small in the standard street layout (the street
   pictures share it), and the gunman's grey backdrop picked up vertical streaks like the rain.
+  Then seven more (35 in the folder): a Chinese railroad worker at the depot, the undertaker at
+  his workshop, the barkeep polishing a mug, the mine entrance, and three studies (a blank
+  signboard, an adobe wall, the card table from above). Left out: a close study of a plank floor
+  (its squares are fine random noise, the grain-as-noise the art review warned against).
+  Not trained on yet.
