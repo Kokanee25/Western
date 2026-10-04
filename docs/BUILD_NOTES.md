@@ -36,6 +36,8 @@ same body.
 - **Tell me:** do the holes read? Too small, too big, too clean? (Pictures of the same three
   charges at three cube sizes, and the old painted holes, are in `docs/destruction/step2/`.) Any
   hitch when the shot lands?
+- **You can shoot a man's hat off.** Aim just over his head: the hat flies off and lands, he
+  ducks and says something about it, and he's frightened (and angry). A townsman gets down.
 - **No more hitch when someone's first hit.** The first time anyone's chest or belly was opened by
   a wound the game froze for a tenth of a second (painting the insides on the spot); now it's
   painted while the town loads.

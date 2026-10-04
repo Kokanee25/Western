@@ -2285,3 +2285,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   `test_openings::test_the_insides_are_painted_before_anyone_is_hurt`. 296 pass.
   - Known: the long bones' and the ribs' bone texture were whichever seed came first (93 or 97);
     now always 93's.
+- 2026-10-04 (gameplay, destruction Part 5): **A hat shot off.** Every man wearing a hat has it as
+  its own thin hitbox on his head part (`HumanBody.hat_body`: a brim disc and a crown cylinder
+  fitted to the hat's pieces, new physics layer `Layers.HATS`, meta `hat_of`). A ball through it
+  (`Ballistics._impact` → `HumanBody.take_hat_shot`) loses the felt's 6 J and goes on (into his
+  head, if it was low enough), and the hat comes off (`knock_hat_off`): a RigidBody3D in group
+  `hats` on the DEBRIS layer carrying copies of the hat's own meshes, thrown with a share of the
+  ball's momentum (1.5–6 m/s) and spun, the worn pieces hidden for good, the hole's place kept
+  (`hole` meta, for picking it up later). It's a `shoot_at` deed and `Events.hat_shot`:
+  `OutlawBrain` takes `fear_hat_shot` 0.3 on top of the near miss, heads down (suppressed 3 s,
+  ducks back from a peek), says so ("My hat!") and is provoked; `CivilianBrain` gets down for 10 s
+  and says so. The Tripo man (`"whole"`) has his hat in his skin, so nothing to shoot off yet
+  (that needs his layered pieces, Part 5). Tests `test_hat` (3: through the crown, the hat's off
+  and lands, he's unhurt; the outlaw's fear and his line; no hat, nothing to shoot). 299 pass.
+  - Known: a hat can't be picked up yet; a man knocked down keeps his hat on; the player's own
+    hat isn't a thing (no visible player head).

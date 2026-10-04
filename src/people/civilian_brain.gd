@@ -13,6 +13,7 @@ const LINES := {
 	&"shoved": ["Hey—! There's no call for that.", "Please, I don't want any trouble.", "Easy! Easy..."],
 	&"beg": ["Take it! Take whatever you want!", "Don't shoot! I got a family!", "Please, mister..."],
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
+	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
 	&"relief": ["...They gone?", "Lord. Lord, lord."],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
 }
@@ -49,6 +50,7 @@ func _ready() -> void:
 	body.add_child.call_deferred(senses)
 	Events.deed.connect(_on_deed)
 	Events.noise.connect(_on_noise)
+	Events.hat_shot.connect(_on_hat_shot)
 
 
 func say(kind: StringName) -> void:
@@ -124,6 +126,15 @@ func _scared_by_shooting() -> void:
 		say(&"cower")
 	_cower = maxf(_cower, 7.0)
 	fear += 0.3
+
+
+## His hat shot off his head: down on the boards, and he says so.
+func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
+	if person != body or not body.physiology.is_conscious():
+		return
+	say(&"hat")
+	_cower = maxf(_cower, 10.0)
+	fear += 0.5
 
 
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
