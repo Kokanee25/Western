@@ -64,6 +64,12 @@ PIECE_CLEARANCE = 0.012
 PIECE_REACH = 0.06
 # How many times the clearance push is averaged over neighbours before it is applied.
 PIECE_SMOOTH = 8
+# The coat as a shell of his body (Piece.as_shell, metres): how far off his skin over the trunk
+# and arms, how far below the hips (a skirt), and how far from the Tripo coat a shell face may lie
+# before it is cut (the open front, the hem).
+COAT_OFFSET_M = 0.025
+COAT_SKIRT_OFFSET_M = 0.045
+COAT_GAP_M = 0.05
 # Triangles after decimation: the body, and the head on its own (its face needs them).
 TRI_BUDGET = 5500
 HEAD_TRIS = 2200
@@ -292,9 +298,7 @@ class TripoPerson(mp.Person):
         self.weights()
         for piece in self.pieces:
             if piece.shape == "coat":
-                TripoPerson.skirt(piece)
-                # A coat is never head: its collar follows the neck, not a turned head.
-                piece.region[piece.region == "head"] = "neck"
+                piece.as_shell()
             if piece.shape == "hat":
                 piece.region[:] = "head"
             mp.Person.weights(piece)
@@ -422,8 +426,50 @@ class Piece:
             body.report.setdefault("piece_girth", {})[self.shape] = round(float(g), 3)
             body.report.setdefault("piece_landmarks", {})[self.shape] = {
                 "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
-            self._clear_body()
         body.report.setdefault("piece_scale", {})[self.shape] = round(float(s), 3)
+
+    def as_shell(self):
+        """The coat as a shell of his own body (in our space, after the warp): his torso, arms and
+        legs to the knees pushed out along their normals by COAT_OFFSET_M, so it fits him by
+        construction and is skinned as he is; what it looks like comes from the Tripo coat, placed
+        over him as above: each shell vertex takes the UV of the nearest point of that coat, and a
+        face more than COAT_GAP_M from any of it (the open front, the shirt and vest it shows) is
+        cut away, which gives the coat its opening and its hem. The registered Tripo coat itself
+        never fitted him: a double shell at an ordinary man's girth on a broad man, torn by every
+        correction."""
+        from scipy.spatial import cKDTree
+        body = self.body
+        bv, tris, reg = body.v, body.tris, body.region
+        fn = np.cross(bv[tris[:, 1]] - bv[tris[:, 0]], bv[tris[:, 2]] - bv[tris[:, 0]])
+        vn = np.zeros_like(bv)
+        for k in range(3):
+            np.add.at(vn, tris[:, k], fn)
+        vn /= np.linalg.norm(vn, axis=1, keepdims=True) + 1e-12
+        covered = np.isin(reg, ["trunk", "neck", "upper_arm_r", "upper_arm_l", "forearm_r", "forearm_l", "thigh_r", "thigh_l"])
+        # Below the hips the shell hangs looser (a skirt, not trousers); below the knees nothing.
+        o = body.our_joints()
+        hip_y = o["hips"][1]
+        knee_y = (o["r-knee"][1] + o["l-knee"][1]) * 0.5
+        covered &= bv[:, 1] > knee_y + 0.02
+        offset = np.where(bv[:, 1] < hip_y, COAT_SKIRT_OFFSET_M, COAT_OFFSET_M)
+        shell = bv + vn * offset[:, None]
+        # The look from the Tripo coat: nearest point's UV; too far from any of it = no cloth.
+        tree = cKDTree(self.v)
+        dist, idx = tree.query(shell)
+        covered &= dist < COAT_GAP_M
+        keep_tri = covered[tris].all(axis=1)
+        used = np.unique(tris[keep_tri])
+        new_index = -np.ones(len(bv), dtype=np.int64)
+        new_index[used] = np.arange(len(used))
+        self.tris = new_index[tris[keep_tri]]
+        self.v = shell[used]
+        self.uv = self.uv[idx[used]]
+        region = reg[used].copy()
+        # The skirt hangs from the hips, as the lofted coat's does.
+        region[np.isin(region, ["thigh_r", "thigh_l"])] = "trunk"
+        self.region = region
+        self.report["shell_vertices"] = int(len(used))
+        self.report["shell_faces"] = int(len(self.tris))
 
     def _clear_body(self):
         """Whatever of the piece lies inside him, or nearer his skin than PIECE_CLEARANCE, is pushed
