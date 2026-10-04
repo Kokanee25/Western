@@ -191,6 +191,29 @@ godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         #
 python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  # before pushing CI edits
 ```
 
+**The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
+session or a script. Only in a debug build started with `-- --dev-bridge` (never in an export);
+listens on 127.0.0.1:8737; one command a line, one JSON line back, in order (a command that takes
+game time answers when it's done). `python3 tools/bridge.py start` runs the game under xvfb with
+the Vulkan renderer so screenshots work (`--size=960x540`, `--headless` for no drawing, `--fps=N`
+for a fixed step; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
+file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
+(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON|PLACE`,
+`turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round buildings to a place), `press
+ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+`time H`, `clock SCALE|off`, `set`/`get ADDRESS` (a look value: `settings.mosaic`,
+`global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
+FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
+Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
+from north (−Z, the saloon's side of the street), east +X. Example:
+
+```sh
+python3 tools/bridge.py start --size=960x540
+python3 tools/bridge.py "time 17.6" "goto street_east" "look saloon_porch" "screenshot /tmp/a.png" \
+    "gang" "wait 20" "fight" "weapon revolver" "look brody" "shoot 2" "wait 3" "events 20" "read people"
+python3 tools/bridge.py stop
+```
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2409,3 +2432,20 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   The table (top of this file): calm 6.6 ms of 14 with render; the fire scene's fire 2.4 of 2.0
   and its untimed share 1.5 of 1.0 are over; the wall scene's render CPU 6.1–6.4 of 4.0 is over
   (lavapipe). CI's warn-then-fail on the budget comes with the brief's item 5.
+- 2026-10-04 (gameplay, review tools 2): **The dev bridge** (docs/briefs/review-tools.md; the
+  commands under **Commands and layout**). `DevBridge` (`src/debug/dev_bridge.gd`) is added by
+  `main.gd` only with `-- --dev-bridge` in a debug build: a TCP server on 127.0.0.1:8737
+  (`--bridge-port=`), `--bridge-script=FILE` run first; one command a line, one JSON line back,
+  run in order. Keys are pressed as `InputEventAction`s through `Input.parse_input_event` (an
+  `Input.action_press` from a physics callback is never "just pressed" to the guns, which read
+  their keys in `_process`); the guns don't wait for a captured mouse; the key help starts hidden.
+  `read` reports what a player would want to know (where you are and face, what's under your
+  sights, the people round you by distance and bearing with their mood and stance to you, your
+  wounds), `events` a log of shots, words, hits, falls, deaths, call-outs and breakage.
+  `LookPreset` (`src/debug/look_preset.gd`) sets and reads look values by address and applies a
+  JSON preset (the look panel, item 4, builds on it). `tools/bridge.py` starts the game under xvfb
+  (lavapipe here: ~1 fps at 960×540, real time) or headless, sends commands, stops it. Found on
+  the way: **with the shotgun's right barrel fired, Q cocked the spent right hammer again**, so the
+  trigger clicked and the left barrel never fired unless you cocked twice; `ShotgunState.cock()`
+  now takes a hammer over a loaded barrel first (test `test_shotgun::
+  test_with_the_right_fired_the_next_hammer_is_the_left`). Tests `test_dev_bridge` (4). 305 pass.
