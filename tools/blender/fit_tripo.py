@@ -167,6 +167,17 @@ class TripoPerson(mp.Person):
         for side in "rl":
             hand_dir = m[side + "-hand"] - m[side + "-elbow"]
             knuckle = m[side + "-hand"] + hand_dir / np.linalg.norm(hand_dir) * (np.linalg.norm(o[side + "-knuckle"] - o[side + "-hand"]) / k)
+            # Tripo's toe joint sits a few centimetres before the ankle; the foot bone it gave
+            # stretched his boots to 0.6 m. His toe is where his boot ends: the foot's own length
+            # along the toe's direction, from the mesh.
+            ankle = m[side + "-ankle"]
+            u = m[side + "-toe"] - ankle
+            u[1] = 0.0
+            u /= max(np.linalg.norm(u), 1e-6)
+            foot = self.v[(self.v[:, 1] < ankle[1] + 0.02) & (np.sign(self.v[:, 0]) == np.sign(ankle[0]) if ankle[0] != 0 else True)]
+            reach = float(((foot - ankle) @ u).max()) if len(foot) else np.linalg.norm(m[side + "-toe"] - ankle)
+            m = dict(m)
+            m[side + "-toe"] = ankle + u * max(reach - 0.01, 0.03)
             out += [["upper_arm_" + side, m[side + "-shoulder"], m[side + "-elbow"], o[side + "-shoulder"], o[side + "-elbow"], 0.05],
                     ["forearm_" + side, m[side + "-elbow"], m[side + "-hand"], o[side + "-elbow"], o[side + "-hand"], 0.04],
                     ["hand_" + side, m[side + "-hand"], knuckle, o[side + "-hand"], o[side + "-knuckle"], 0.03],
@@ -265,12 +276,17 @@ class TripoPerson(mp.Person):
 
     def run(self):
         self.warp()
-        self.skirt()
+        if "model" not in self.spec:
+            # A whole man's coat skirt is in his skin; a layered man's body wears trousers, and
+            # the rule would hand their legs to his pelvis.
+            self.skirt()
         self.cut_fingers()
         self.weights()
         for piece in self.pieces:
             if piece.shape == "coat":
                 TripoPerson.skirt(piece)
+                # A coat is never head: its collar follows the neck, not a turned head.
+                piece.region[piece.region == "head"] = "neck"
             if piece.shape == "hat":
                 piece.region[:] = "head"
             mp.Person.weights(piece)
