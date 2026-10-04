@@ -314,6 +314,31 @@ class Piece:
         self.region = None
         self.our_joints = body.our_joints
         self.report = body.report.setdefault("piece_" + shape, {})
+        if shape == "coat":
+            self._drop_lining()
+
+    @staticmethod
+    def _depth_at(v, y, band=0.015):
+        """Front to back at this height."""
+        sel = np.abs(v[:, 1] - y) < band
+        return float(v[sel, 2].max() - v[sel, 2].min()) if sel.sum() >= 3 else 0.0
+
+    def _drop_lining(self):
+        """A garment modelled alone is a double shell (its lining 1 to 3 cm inside the cloth);
+        decimated to a game budget the two surfaces merge into chunks. The faces that look in
+        toward the garment's own axis are dropped, leaving the cloth's outside (drawn two-sided,
+        so the open front still shows an inside)."""
+        v, tris = self.v, self.tris
+        c = v[tris].mean(axis=1)
+        fn = np.cross(v[tris[:, 1]] - v[tris[:, 0]], v[tris[:, 2]] - v[tris[:, 0]])
+        fn /= np.linalg.norm(fn, axis=1, keepdims=True) + 1e-12
+        axis = np.array([np.median(v[:, 0]), 0.0, np.median(v[:, 2])])
+        rad = c - axis
+        rad[:, 1] = 0.0
+        rad /= np.linalg.norm(rad, axis=1, keepdims=True) + 1e-12
+        inward = (fn * rad).sum(axis=1) < -0.2
+        self.tris = tris[~inward]
+        self.report["lining_faces_dropped"] = int(inward.sum())
 
     @staticmethod
     def _width_at(v, y, band=0.015):
@@ -359,6 +384,17 @@ class Piece:
             s = (top_y - knee_y) / max(h, 1e-6)
             _bw, bx, bz = self._width_at(body.v, body_sh[1], 0.01)
             self.v = (v - [px, y1, pz]) * s + [bx, top_y, bz]
+            # Its girth from his: front to back at the chest (no sleeves in the way), the coat's
+            # over his by PIECE_MARGIN, scaled about his axis in x and z; sized by length alone it
+            # sat inside his skin and only the sleeves showed.
+            chest_y = body_sh[1] - 0.08
+            coat_depth = self._depth_at(self.v, chest_y, 0.01)
+            body_depth = self._depth_at(body.v, chest_y, 0.01)
+            if coat_depth > 0 and body_depth > 0:
+                g = body_depth * PIECE_MARGIN[self.shape] / coat_depth
+                self.v[:, 0] = bx + (self.v[:, 0] - bx) * g
+                self.v[:, 2] = bz + (self.v[:, 2] - bz) * g
+                body.report.setdefault("piece_girth", {})[self.shape] = round(float(g), 3)
             body.report.setdefault("piece_landmarks", {})[self.shape] = {
                 "shoulder_line_from_top": round(float((y1 - sh_y) / h), 3), "length_m": round(float(h * s * body.scale), 3)}
             self._sleeves_to_arms()
