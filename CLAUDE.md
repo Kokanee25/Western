@@ -2434,3 +2434,9 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   set's others are. Sean sent three tries; ChatGPT drifted finer and greyer with each redo in one
   chat (27 → 33 → 39 squares across the face, chroma 12 → 10 → 9), so the second and third are
   left out. The fix: a fresh chat a picture, with a bold one attached as the reference.
+  Then the cowboy facing you (58 in the folder): ~16 squares across the face (run 31's portrait,
+  the look Sean picked, measures 16; the painting's man ~19), the painting's light (median L* 11,
+  deep-shadow share 0.61). ChatGPT painted him hot orange (chroma 28, his face 49; the painting's
+  23 and 33), so his colour is eased to 0.8 (Lab a* and b*) before filing: chroma 22.5, face 39.
+  Left out: its twin, with smaller squares (~22 across the face) full of dark specks, the
+  low-res-texture look Sean called PS1 graphics.
