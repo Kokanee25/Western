@@ -2408,3 +2408,6 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   darker prompt: median L* 10 and deep-shadow share 0.63 (the painting's man 11 and 0.69),
   chroma 25 (was 30). Left out: its twin with freckled skin (the dark specks are noise, not
   squares). Its squares are still fine, ~60 across the face.
+  Then the red-dress woman redrawn with bigger squares (the same woman and pose, so it replaces
+  the first in place): ~15–25 squares across the face (the painting's man ~15–19), median L* 8,
+  deep-shadow share 0.69, chroma 26. The first portrait at the painting's own square size.
