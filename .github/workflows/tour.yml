@@ -1,0 +1,131 @@
+name: Tour video
+
+# After every green build on main (and by hand), render the 30-second camera tour (tools/tour.gd)
+# under software Vulkan, encode it, keep it on the "tour" release, and redeploy Pages with it at
+# /tour/ (the phone page, tools/tour_page.py). The build's own Pages deploy brings the videos kept
+# on the release along too, so /tour/ is never empty between the two.
+
+on:
+  workflow_run:
+    workflows: ["Test and build"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+  # Rendered at 960x540 and scaled up to 1280x720, without the volumetric haze or SSAO: software
+  # Vulkan on a runner takes about a second a frame at full size.
+  TOUR_RENDER: "960x540"
+  TOUR_NOTE: "Rendered on a CI runner with software Vulkan: the 3D at 960x540 scaled up to 1280x720, without the volumetric haze or SSAO. The game on your PC looks better than this."
+
+concurrency:
+  group: tour
+  cancel-in-progress: false
+
+jobs:
+  tour:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Which build
+        id: which
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "build=${{ github.event.workflow_run.run_number }}" >> "$GITHUB_OUTPUT"
+            echo "run=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
+          else
+            run=$(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main --status success --event push --limit 1 --json databaseId,number -q '.[0].databaseId')
+            num=$(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main --status success --event push --limit 1 --json databaseId,number -q '.[0].number')
+            echo "build=$num" >> "$GITHUB_OUTPUT"
+            echo "run=$run" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Software Vulkan, a screen and ffmpeg
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q mesa-vulkan-drivers xvfb ffmpeg
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Stamp the build number
+        run: |
+          printf '{"number": "%s", "commit": "%s"}\n' "${{ steps.which.outputs.build }}" "$(git rev-parse --short HEAD)" > build_info.json
+
+      - name: Render the tour
+        run: |
+          mkdir -p build/tour
+          start=$(date +%s)
+          xvfb-run -a -s "-screen 0 1280x720x24" ~/godot/godot --path . --rendering-driver vulkan \
+            --resolution 1280x720 --fixed-fps 30 --write-movie build/tour/frame.png \
+            -s res://tools/tour.gd -- --render=${TOUR_RENDER} --light
+          echo "rendered $(ls build/tour/frame*.png | wc -l) frames in $(( $(date +%s) - start )) s"
+
+      - name: Encode
+        run: |
+          ffmpeg -y -loglevel error -framerate 30 -i build/tour/frame%08d.png -c:v libx264 -preset slow \
+            -crf 24 -pix_fmt yuv420p -movflags +faststart "build/tour/build-${{ steps.which.outputs.build }}.mp4"
+          ls -la build/tour/*.mp4
+
+      - name: Keep it on the tour release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tour
+          name: Tour videos
+          body: "The camera tour of each build (tools/tour.gd). Watch on the phone at the site's /tour/."
+          make_latest: false
+          files: build/tour/build-${{ steps.which.outputs.build }}.mp4
+
+      - name: The site, with the tour
+        run: |
+          mkdir -p pages site/tour
+          gh run download "${{ steps.which.outputs.run }}" --repo "${{ github.repository }}" -n github-pages -D pages
+          tar -xf pages/artifact.tar -C site
+          gh release download tour --repo "${{ github.repository }}" -p 'build-*.mp4' -D site/tour --clobber
+          python3 tools/tour_page.py site/tour --settings="${TOUR_NOTE}"
+          ls -la site/tour
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

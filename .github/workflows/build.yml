@@ -169,6 +169,15 @@ jobs:
           make_latest: true
           files: dist/*
 
+      - name: Bring the tour videos along
+        # Kept on the "tour" release by tour.yml, which renders this build's after this deploy.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p build/web/tour
+          gh release download tour --repo "${{ github.repository }}" -p 'build-*.mp4' -D build/web/tour --clobber || true
+          python3 tools/tour_page.py build/web/tour
+
       - name: Upload web build for Pages
         uses: actions/upload-pages-artifact@v3
         with:
