@@ -71,6 +71,11 @@ SCRAP_GAP = 0.008
 # A bare-headed man's hand bone, for which points are his hand: wrist to knuckles, this many times
 # over (the fingers past the knuckles).
 FINGER_REACH = 2.5
+# Where an arm may meet a bare-headed man's trunk: within this share of the way down his upper arm
+# from the shoulder joint. Lower down, a triangle joining them is Tripo's where his arm touched his
+# side (or a hand his hip, or his thigh): dropped, as it would stretch into a sheet when he raised
+# his arms.
+BRIDGE_SHOULDER = 0.35
 # Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
 # wider than what they go over they are scaled (room for the cloth under them).
 PIECE_TRIS = {"coat": 2600, "hat": 700}
@@ -290,6 +295,7 @@ class TripoPerson(mp.Person):
         for piece in self.pieces:
             piece.place()
         head = self.head_mask(self.v)
+        self.v_tripo = self.v.copy()
         self.v, self.region = self.warp_points(self.v, head, bones)
         self.head = head
         self.fit_joints = {}
@@ -360,6 +366,102 @@ class TripoPerson(mp.Person):
             out[sel] += w[sel, i][:, None] * moved
         return out, region
 
+    def cut_bridges(self):
+        """A bare-headed man: drop the triangles that join parts of him that move apart (an arm
+        and his trunk below the shoulder, BRIDGE_SHOULDER; an arm and a leg; one leg and the
+        other), which Tripo made where they touched in his pose."""
+        reg, t = self.region, self.tris
+        def chain(r):
+            if r in ("trunk", "neck", "head"):
+                return "core"
+            return ("arm_" if r.startswith(("upper_arm", "forearm", "hand")) else "leg_") + r[-1]
+        ch = np.array([chain(r) for r in reg])
+        c = ch[t]
+        keep = (c[:, 0] == c[:, 1]) & (c[:, 1] == c[:, 2])
+        # An arm and his trunk: kept at his shoulder (the arm's points on his upper arm, high on
+        # it); a leg and his trunk: kept (his hips). Anything else across parts is dropped.
+        for side in "rl":
+            sh, el = self.j[side + "-shoulder"], self.j[side + "-elbow"]
+            u = el - sh
+            down = ((self.v_tripo - sh) @ u) / float(u @ u)
+            arm, leg, core = c == "arm_" + side, c == "leg_" + side, c == "core"
+            high = np.where(arm, (reg[t] == "upper_arm_" + side) & (down[t] < BRIDGE_SHOULDER), True).all(axis=1)
+            keep |= (arm | core).all(axis=1) & arm.any(axis=1) & core.any(axis=1) & high
+            keep |= (leg | core).all(axis=1) & leg.any(axis=1) & core.any(axis=1)
+        drop = ~keep
+        self.report["bridges_cut"] = int(drop.sum())
+        self.tris = t[~drop]
+
+    def close_cuts(self):
+        """Close the holes cut_bridges left (Tripo's man is watertight, so every hole is a cut).
+        A cut leaves one hole a side, its edge running down his side and back up the inside of
+        his arm: each run of it on one part (his trunk, or his arm) gets its own fan of triangles
+        to the run's middle, so his side is whole under a raised arm and the arm's inside is too,
+        each moving with its own part. A cap is one colour, its run's nearest the middle (its own
+        copies of the run's points carry that UV, so it doesn't smear across the texture's
+        islands)."""
+        _u, weld = np.unique(np.round(self.v_tripo / 1e-6).astype(np.int64), axis=0, return_inverse=True)
+        weld = weld.ravel()
+        first = np.full(weld.max() + 1, -1, np.int64)
+        first[weld[::-1]] = np.arange(len(weld))[::-1]          # a vertex for each welded point
+        t = weld[self.tris]
+        e = np.concatenate([t[:, [0, 1]], t[:, [1, 2]], t[:, [2, 0]]])
+        _k, inv, counts = np.unique(np.sort(e, axis=1), axis=0, return_inverse=True, return_counts=True)
+        open_e = e[counts[inv.ravel()] == 1]
+        # Each open edge reversed, so the caps face the way the faces round them do.
+        nxt = {}
+        for a, b in open_e:
+            nxt.setdefault(int(b), []).append(int(a))
+        loops = []
+        while nxt:
+            start = next(iter(nxt))
+            loop, cur = [start], start
+            while True:
+                outs = nxt.get(cur)
+                if not outs:
+                    break
+                n = outs.pop()
+                if not outs:
+                    del nxt[cur]
+                if n == start:
+                    break
+                loop.append(n)
+                cur = n
+            if len(loop) >= 3:
+                loops.append(first[np.array(loop)])
+        chain = lambda r: "core" if r in ("trunk", "neck", "head") else ("arm_" if r.startswith(("upper_arm", "forearm", "hand")) else "leg_") + r[-1]
+        runs = []
+        for ids in loops:
+            ch = np.array([chain(r) for r in self.region[ids]])
+            change = np.where(ch != np.roll(ch, 1))[0]
+            if len(change) == 0:
+                runs.append(ids)
+                continue
+            ids, ch = np.roll(ids, -change[0]), np.roll(ch, -change[0])
+            cuts = list(np.where(ch[1:] != ch[:-1])[0] + 1) + [len(ids)]
+            lo = 0
+            for hi in cuts:
+                if hi - lo >= 3:
+                    runs.append(ids[lo:hi])
+                lo = hi
+        v, vt, uv, reg, head = list(self.v), list(self.v_tripo), list(self.uv), list(self.region), list(self.head)
+        tris = [self.tris]
+        for ids in runs:
+            mid, mid_t = self.v[ids].mean(axis=0), self.v_tripo[ids].mean(axis=0)
+            names, n = np.unique(self.region[ids], return_counts=True)
+            part = names[np.argmax(n)]
+            colour = self.uv[ids[np.argmin(np.linalg.norm(self.v[ids] - mid, axis=1))]]
+            base = len(v)
+            for i in ids:
+                v.append(self.v[i]); vt.append(self.v_tripo[i]); uv.append(colour); reg.append(self.region[i]); head.append(False)
+            v.append(mid); vt.append(mid_t); uv.append(colour); reg.append(part); head.append(False)
+            k = len(ids)
+            tris.append(np.array([[base + j, base + (j + 1) % k, base + k] for j in range(k)], np.int64))
+        self.v, self.v_tripo, self.uv = np.array(v), np.array(vt), np.array(uv)
+        self.region, self.head = np.array(reg), np.array(head)
+        self.tris = np.concatenate(tris)
+        self.report["cuts_closed"] = len(runs)
+
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
         v = self.v
@@ -400,6 +502,9 @@ class TripoPerson(mp.Person):
             # A whole man's coat skirt is in his skin; a layered man's body wears trousers, and
             # the rule would hand their legs to his pelvis.
             self.skirt()
+        if self.bare:
+            self.cut_bridges()
+            self.close_cuts()
         self.cut_fingers()
         self.weights()
         for piece in self.pieces:

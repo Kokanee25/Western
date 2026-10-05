@@ -1,0 +1,37 @@
+{
+ "id": "kid",
+ "source": "tripo",
+ "whole": true,
+ "model": "kid_body",
+ "triangles_in": 224910,
+ "pieces": {
+  "hat": "kid_hat"
+ },
+ "piece_hat": {
+  "tilt_deg": 15.4,
+  "crown_of_brim": 0.491
+ },
+ "piece_scale": {
+  "hat": 0.257
+ },
+ "scale": 1.7807,
+ "head_scale": 1.6008,
+ "height_m": 1.815,
+ "bridges_cut": 392,
+ "cuts_closed": 4,
+ "faces_before_finger_cut": 224912,
+ "faces_after_finger_cut": 217796,
+ "texture": {
+  "from": "tripo",
+  "size": [
+   1024,
+   1024
+  ],
+  "square_texels": 2
+ },
+ "triangles": {
+  "skin": 5500,
+  "head": 2200,
+  "hat": 700
+ }
+}
