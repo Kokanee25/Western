@@ -3050,7 +3050,23 @@ a few views renders them as the full run does.
   dying slowly of a gut shot with his friends trying to reach him, a stray round dropping a man
   50 m off, a townsman's hat shot off ("He shot my hat clean off!"). Not fixed here: for Sean to
   choose what's first. Many repeat the first playtest's (the blackout, the doorway, fire).
-
+- 2026-10-05 (gameplay): **Going down costs you** (both playtests' top fault; Sean: "Yup"). Out
+  cold (or killed), `PlayerWounds._come_round()` now: hours pass (`OUT_HOURS` 6:
+  `DayCycle.pass_hours()`, announcing each hour and day; `Events.hours_passed(hours, why)` for
+  anything that runs on time), you come round on the store's floor (the doctor's in M5) patched,
+  not healed (`_patch_up()`: every bleed tied off and bound, belts off, lungs sealed, the gut
+  sewn, shock and pain eased, a killing wound survived; broken bones, lost fingers and limbs,
+  eyes, torn muscle and the wound count stay; `WAKE_BLOOD_LOSS` 0.2 of your blood still missing),
+  and you're told the hour, who shot you down (the player's `last_hit_by`, then forgotten),
+  whether you were as good as dead, and what you still carry, in a line no one's talk writes
+  over (`say(..., hold)`). On `hours_passed` an `OutlawBrain` stands down from every fight, and
+  a town man with a day's plan who can still walk and hasn't given up is gone (`left_town`);
+  `CivilianBrain`s calm down. "Poorer" waits for the purse (M4 step 5). Tests `test_come_round`
+  (3); `test_gunfight`'s blackout test now wants you patched, not unhurt.
+  - Known: nothing else catches up over the hours (a wounded man lying in the street hasn't bled
+    for six hours; fires don't burn on; the dead aren't taken away); `blood_regen` is 0.004 ml/s,
+    so a fifth of your blood takes ~70 real hours to come back (Sean: keep healing slow; you heal
+    properly by sleeping, later, DESIGN.md §7 Treatment); a broken leg means crawling until there's a doctor and time to heal.
 - 2026-10-05 (characters session, at Sean's request): **The probe mosaic: texel splatting's idea
   in the game, behind V, measured against the surface blocks.** Sean asked whether texel splatting
   (Ebert 2026: pixel art held still by indexing the scene by direction from a point snapped to a
@@ -3098,4 +3114,4 @@ a few views renders them as the full run does.
   `src/main/main.gd` (three lines: the probe on the camera, the key), `tests/test_probe_mosaic.gd`
   (6), `tools/probe_walk.gd`/`.py`. This workspace's native library was destruction step 1's (no
   VoxelMember), so the four voxel tests failed here till it was rebuilt (`cargo build
-  --release`); CI builds its own. 329 tests pass.
+  --release`); CI builds its own. 332 tests pass (with main's merged in).

@@ -6,6 +6,19 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Changed: going down costs you now
+
+- **Blacking out (or being killed) isn't free any more.** You come round on the store's floor
+  (the doctor's, once there is one) **six hours later**, with your wounds bound but still there:
+  the bleeding's stopped, a broken leg stays broken (splinted: you'll crawl), lost fingers stay
+  lost, and you're short a fifth of your blood, so pale and the next wound puts you down sooner.
+  You're told who shot you down. The men who did it have had their day and ridden off; anyone
+  else in the fight has stopped fighting. (Poorer comes with the purse, later.)
+- **Try:** press **U** for the gang and pick a fight (**H**, put your gun on Lyle). Let them
+  shoot you down. Read the message when you come round and check the clock (**F3**). Tell me if
+  six hours feels right, and whether the store's floor is too close to where you fell.
+
+
 ### Trial: blocks fixed to the world (V)
 
 - **Press V** to try the "texel splatting" idea you sent, built into the game: the frame is cut

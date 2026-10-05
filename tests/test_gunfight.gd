@@ -161,7 +161,7 @@ func test_blackout_and_come_round() -> void:
 	check(player.wounds.out_cold > 0.0, "out cold")
 	await physics_frames(60 * 5)
 	check(player.wounds.physiology.is_conscious(), "comes round")
-	check_eq(player.wounds.physiology.wounds, 0, "patched up")
+	check(player.wounds.physiology.blood_loss() < 0.4, "patched up enough to stand")
 
 
 ## How many body hits it takes to end the fight (down, dead or hands up), over many fresh outlaws

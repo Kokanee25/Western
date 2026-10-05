@@ -51,6 +51,7 @@ func _ready() -> void:
 	Events.deed.connect(_on_deed)
 	Events.noise.connect(_on_noise)
 	Events.hat_shot.connect(_on_hat_shot)
+	Events.hours_passed.connect(_on_hours_passed)
 
 
 func say(kind: StringName) -> void:
@@ -135,6 +136,17 @@ func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
 	say(&"hat")
 	_cower = maxf(_cower, 10.0)
 	fear += 0.5
+
+
+## Hours went by in a moment: whatever scared him is long over.
+func _on_hours_passed(_hours: float, _why: StringName) -> void:
+	fear = 0.0
+	_aimed = 0.0
+	_cower = 0.0
+	_flinch = 0.0
+	troubled_by.clear()
+	if mood in [Mood.HANDS_UP, Mood.COWERING, Mood.SHAKEN]:
+		mood = Mood.CALM
 
 
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
