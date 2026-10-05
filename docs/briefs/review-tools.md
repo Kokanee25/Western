@@ -66,6 +66,7 @@ played by an agent before it reaches him.
    paintings and the new renders (and the tour's frames once they exist) lists the five biggest
    differences a viewer would notice, with crops; saved as `critic.md` in the judge round, its top
    three in the status entry. Use it with judge v2 to choose what's next.
+   **Done 2026-10-05:** `tools/critic.py`; first round `docs/screenshots/judge/2026-10-05_r1/critic/`.
 3. **Golden images** for every fixed view (CLAUDE.md rule), with the gameplay session wiring the
    check into CI.
 4. **A brief per big job** in `docs/briefs/` (CLAUDE.md rule).

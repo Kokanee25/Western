@@ -14,21 +14,34 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 
 ## How we work
 
-- **Exactly two working sessions at a time:**
-  - **Art:** shaders, textures and how things are lit and drawn; the people's looks; dressing.
-    Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
-    `src/art/`, `src/props/`, `assets/` (`assets/people/`, `assets/props/`), `tools/blender/`,
-    `tools/faces/`, `tools/paint/`, `tools/style/`, `tools/textures/`, `assets/textures/`, the art tools in `tools/` (`paint_bake.gd`,
-    `character_lab.gd`, `lab_stage.gd`, `fit_shot.gd`, `side_by_side.py`, `people_envelope.gd`,
-    `judge.py`, `prop_views.gd`),
-    `src/bodies/body_mesh.gd`, `src/bodies/people_bodies.gd`, `.github/workflows/people.yml`,
-    `docs/concept/` and `docs/screenshots/`.
+- **Exactly three working sessions at a time** (since 2026-10-05; Sean: the characters session):
+  - **Art:** shaders, textures and how things are lit and drawn (people included: how skin and
+    cloth take light); the world's look, dressing, props; the judge, the critic and the golden
+    images. Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
+    `src/art/`, `src/props/`, `assets/props/`, `assets/textures/`, `tools/textures/`,
+    `tools/blender/voxelise.py`, the art tools in `tools/` (`judge.py`, `critic.py`,
+    `golden_check.py`, `side_by_side.py`, `prop_views.gd`, `quantise_compare.py`,
+    `voxel_compare.py`, `voxel_export.gd`), `docs/concept/` (but `docs/concept/style/`) and
+    `docs/screenshots/`.
+  - **Characters:** making people, from Sean's picture to a fitted man in the game: the image
+    model and its LoRA, Tripo, head repaints, the Blender fit, layered clothing (hats, coats),
+    MakeHuman bodies and their garments, painted faces. Its files: `tools/characters/`,
+    `tools/style/`, `docs/concept/style/`, `docs/style_test/`, `tools/blender/` (but
+    `voxelise.py`), `tools/faces/`, `tools/paint/`, `tools/paint_bake.gd`,
+    `tools/character_lab.gd`, `tools/lab_stage.gd`, `tools/fit_shot.gd`,
+    `tools/people_envelope.gd`, `tools/tripo_lab.gd`, `assets/people/`, `src/bodies/body_mesh.gd`,
+    `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
+    each man before Tripo is paid. The art session judges each new man in the shots and says
+    what's off; the characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
-  - Shared by both: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
-    `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Edit only
-    your own lines and entries in them; add status entries at the end, in date order.
-- **Each works on its own branch** (`claude/art-…` or `claude/gameplay-…`), never on `main`.
+  - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
+    `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
+    and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
+    the rest). Edit only your own lines and entries in them; add status entries at the end, in
+    date order.
+- **Each works on its own branch** (`claude/art-…`, `claude/characters-…` or `claude/gameplay-…`),
+  never on `main`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
   of work per merge, not a day's worth.
@@ -2472,3 +2485,27 @@ python3 tools/bridge.py stop
   trigger clicked and the left barrel never fired unless you cocked twice; `ShotgunState.cock()`
   now takes a hammer over a loaded barrel first (test `test_shotgun::
   test_with_the_right_fired_the_next_hammer_is_the_left`). Tests `test_dev_bridge` (4). 305 pass.
+- 2026-10-05 (art session): **Three sessions; review tools' art items 1 and 2.** Sean: the
+  Pixel-factory chat becomes the **characters session** (How we work above: it owns making
+  people, from his picture to a fitted man, the LoRA and the layered clothing; art keeps how
+  everything is drawn and lit, and judges each new man). The coat layer (A2, the "Layers" note)
+  goes to it with the notes as they stand. Its Western branch (`claude/new-session-l733p0`: the
+  LoRA runs 30–37, Sean's 60 style pictures) is to be merged by it first. **The look panel's
+  settings** (`docs/briefs/look_settings.md`, art item 1, sent to gameplay): every look setting
+  in nine groups (sun & sky, night & moon, lamps, fog & haze, glow, grade, ground, people's
+  paint, squares) with where it lives, its value, a range and what it does; gameplay's
+  `LookPreset` (the dev bridge) sets them by address. **The blind critic** (`tools/critic.py`,
+  above), first round `2026-10-05_r1` (the build as on main, no look change; judge v2 saloon
+  0.231, street 0.326). Its top three: 1) the room behind the man is brown murk, not a busy,
+  lamplit saloon (the painting's stair, balcony, stag, lamps lighting their own patches of
+  wall, smoke, piano player, men at the bar); 2) the street's sky is lavender-grey with flat
+  orange streaks and a small white sun, where the painting's is gold with heaped clouds, a big
+  sun on the horizon, rays and dust; 3) the saloon's front is in dull shade and its SALOON sign
+  can't be read. Then his face (an orange smear, no readable eyes) and surfaces breaking into
+  streaks rather than clean squares. **Golden images** (`tools/golden_check.py`, above): the
+  check is in; the goldens themselves (all 72 views, rendered twice for each view's noise) come
+  in the next merge. Also checked for Sean ("the graphics look way worse"): today's main renders
+  the saloon and street shots, the street at golden hour and the saloon at night the same as
+  build 367 (under 1% of pixels, a man's idle), at 1080p and 1440p as well; nothing merged since
+  changed the default look, so the likely cause is a saved look key on his PC (I, O, P, F2, F7;
+  F3's look line shows them). 305 tests pass.

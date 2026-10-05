@@ -95,6 +95,7 @@ def load(path):
 
 
 def prepare(round_dir, extra):
+    round_dir = os.path.abspath(round_dir)
     d = ensure_dir(round_dir)
     files = []
     for key, (render_name, painting_path, what) in VIEWS.items():
