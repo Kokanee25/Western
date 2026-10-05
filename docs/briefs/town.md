@@ -47,16 +47,18 @@ stands without the bathhouse and undertaker.
    painting's bold style everywhere; the judge and the blind critic measure the saloon shot
    against `saloon-blocks.png` from now on (rounds before `2026-10-05_r14` were against
    `saloon-night.png` and don't compare).
-2. **The sun.** On the map the saloon is on Main Street's south side, so its front faces north;
-   for it to be sunlit at sunset, as in the picture, the sun has to set north of west (a summer
-   evening). Ours is set to go down south of west today (`sun_azimuth_degrees` 20).
-3. **The three buildings the map leaves out** (newspaper, laundry and eating house, land
-   office): where they go, or whether the map's telegraph is the land office.
-4. **Scale.** The map isn't to scale (its buildings are drawn large for their blocks). Proposed:
-   lots of 7–10 m frontage and 35 m deep as on the Sanborn maps, Main Street ~17 m between
-   fronts (ours now), ~200 m from Freight Street to Market Street; the whole town ~350 × 250 m.
-   That's past today's world: the ground ends at 300 m and the painted backdrop's near ring is
-   260 m out, so both move out.
+2. ~~The sun.~~ **Settled** (Sean, via the gameplay session): "The sun sets right down the Main
+   Street": `sun_azimuth_degrees` 0, due west (on the art branch; lands with the bold look).
+3. ~~The three buildings the map leaves out.~~ **Settled:** "we're using the map": the map is the
+   town; the newspaper, the laundry and eating house and the land office aren't built for now.
+4. ~~Scale.~~ **Settled:** "pushing mountains out is good"; the street is compact as in the
+   painting, about 90 m from Freight Street to Market Street (the gameplay session's
+   `docs/briefs/main-street.md`). And "buildings need to change same as the art, up on steps":
+   raised boardwalks with steps down to the street.
+
+The gameplay session's `docs/briefs/main-street.md` has the street's layout and its steps; the
+art session re-places the reference view and pushes the backdrop and the ground's edge out once
+the new street is in `config/town.json`.
 
 ## Who does what
 
