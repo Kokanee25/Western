@@ -206,6 +206,8 @@ python3 tools/judge.py --note="what changed"                   # judge both shot
 python3 tools/critic.py prepare docs/screenshots/judge/<round>  # the blind critic's prompt (an Agent, fresh)
 python3 tools/golden_check.py --render [--only=a,b]            # every fixed view against its golden image
 python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
+godot --headless --fixed-fps 60 -s res://tools/scene_probe.gd -- --out=PDIR   # scene data for the visual checks
+python3 tools/visual_checks.py --from=DIR [--twin=DIR2] --probe=PDIR # blank, missing, flicker, feet, floating, clothes
 ```
 
 **The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
@@ -510,6 +512,19 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge
   (`--approve --from=DIR`). Lavapipe renders only: a real GPU differs everywhere. The gameplay
   session wires the check into CI (needs `mesa-vulkan-drivers` + `xvfb` on the runner).
+  **The visual checks** (`tools/visual_checks.py`, since 2026-10-05, Sean via gameplay's
+  automated-checks brief): from the renders, `blank` (a frame of one colour, black, or mostly
+  exact black: a NaN in the lighting or a player blacked out in a scenario), `missing` (magenta
+  pixels), `flicker` (`--twin`: two renders of one build differ by more than the view's measured
+  noise, the goldens' `tolerances.json`); from `tools/scene_probe.gd`'s data (headless, ~20 s:
+  the street with its people and the gang, then the saloon shot staged; `scene_probe.json` +
+  each man's posed vertices in `people/<phase>_<name>.bin`), `missing` (grid materials with no
+  texture), `feet` (a standing or seated man's soles in the ground, or a standing man's both
+  off it), `floating` (floor-standing props and the street's dressing over or into what's under
+  them: five rays across the footprint, the highest surface wins) and `clothes` (the share of
+  an inner layer's vertices near a garment that lie outside its surface, worst pair per man,
+  by HumanBody's garments and what they cover). Limits in `tools/visual_checks.json`; its
+  `known` entries are measured faults tolerated at today's value, each with why.
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
@@ -2890,3 +2905,30 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   which took the shotgun's thump down to 28 Hz; the phase is summed from the pitch now. And every
   sound passes a fourth-order high-pass at 45 Hz (`SynthSounds.LOW_CUT_HZ`, its peak kept). The
   deepest is now the shotgun at 2.8%.
+- 2026-10-05 (art session, later): **Golden images and the visual checks** (review tools, art
+  item 3; gameplay's `docs/briefs/automated-checks.md` asked for the visual checks). Every fixed
+  view in `tools/screenshots.gd` has its golden in `docs/screenshots/golden/` (70: the 67 views
+  and main's three Kid views, rendered here twice under lavapipe; `tolerances.json` is three
+  times each view's run-to-run noise, floor 1.5 / 1 %: a still is at the floor, a scenario with
+  the gang or smoke in it is loose, the town fights and `texel_*` views at a mean of 120–465, the
+  saloon shot's extras at 58). **The visual checks** (layout note above: `tools/scene_probe.gd`,
+  `tools/visual_checks.py`, limits and known faults in `tools/visual_checks.json`): on the
+  goldens' pair of renders and a fresh probe, 367 checks, none failed, one warn (a bottle on a
+  shelf with no collision). Found on the way and fixed: two views rendered black
+  (`smoke_drift_street`: the range outlaw shot the player; `texel_porch`: the gang did), so
+  `screenshots.gd` keeps the gang out of the fixed views (`gang_arrives` far off, `_calm()`
+  frees them and heals the player between non-town views); a telegraph pole through the jail's
+  boardwalk (`StreetDressing`, z −13.4). Known, recorded in `visual_checks.json` as tolerated at
+  today's value: the shirt shows through the coat by about a centimetre on every BodyMesh man in
+  a coat (14–16 % of the shirt near it; characters session, `body_mesh.gd`), and the seated
+  stranger's left sole is 11 cm under the saloon floor (below the frame in the shot; the seat
+  is ShotMatch's, his legs the fit's). For the look panel, `lamp_group` metas on the saloon's
+  and street's lamps and the shot's table lamp, `model_name` on the street's folk. Shared
+  `tools/screenshots.gd` (my lines). 318 tests pass. Found by this merge's CI: `test_composure`'s
+  settle test failed in the suite and passed alone, because the player's revolver seeds its
+  misfires from its node path's hash and the test world's node names count up with everything
+  made before it, so the shot was a misfire lottery; gameplay's `tests/test_composure.gd` turns
+  misfires off (two lines, said here).
+  - CI (gameplay's wiring, told to it): `apt-get install mesa-vulkan-drivers xvfb`, render the
+    views twice (`golden_check.py --render --out=A`, then `--out=B`), `scene_probe.gd`, then
+    `golden_check.py --from=A` and `visual_checks.py --from=A --twin=B --probe=PDIR`.

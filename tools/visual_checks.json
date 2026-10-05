@@ -1,0 +1,13 @@
+{
+ "_readme": "Per-item limits for tools/visual_checks.py (its DEFAULTS cover the rest). Sections: views (by tools/screenshots.gd name), people (phase/name from tools/scene_probe.gd), props (the probe's name). A 'known' entry records a measured fault tolerated at today's value so the check still catches it getting worse: fix it, then delete the entry.",
+ "views": {},
+ "people": {
+  "street/porch_loafer": {"clothes_share": 0.18, "known": "shirt outside the coat by ~1 cm (max 3) at 14% of the shirt near it, along the sleeve seams and at the coat's open front at the waist (2026-10-05). Where the coat's surface turns or ends the measure is weakest, so not confirmed by eye; the same on every BodyMesh man in a coat (characters session: body_mesh.gd)."},
+  "street/street_walker": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
+  "street/far_man_b": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
+  "street/brody": {"clothes_share": 0.21, "known": "as street/porch_loafer (16% on Brody)"},
+  "saloon/man_at_the_bar": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
+  "saloon/seated_man": {"feet_in": 0.12, "known": "the stranger's left sole 11 cm under the saloon floor in sit_lean (2026-10-05): below the frame in the saloon shot, but wrong. The seat and pose are ShotMatch's (SEAT, pose offsets: art), his legs the fit's (characters)."}
+ },
+ "props": {}
+}

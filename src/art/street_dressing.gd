@@ -153,6 +153,7 @@ func _lantern(at: Vector3, faces: float) -> void:
 	add_child(root)
 	root.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if faces > 0.0 else PI), at)
 	var lamp := OilLamp.new()
+	lamp.set_meta(&"lamp_group", &"lantern")
 	lamp.show_mesh = false
 	lamp.energy = 0.9
 	lamp.light_range = 6.0
@@ -208,7 +209,9 @@ func _loose() -> void:
 ## tower.
 func _far() -> void:
 	_model("Wagon", PropModels.wagon, Vector3(-36.0, 0.0, -12.6), 0.0, Vector3(3.4, 2.2, 1.8))
-	var poles := [Vector3(-2.0, 0.0, -13.9), Vector3(-27.0, 0.0, -13.9), Vector3(-52.0, 0.0, -13.9), Vector3(-77.0, 0.0, -13.9)]
+	# Half a metre into the street from the south boardwalks' edge (at -13.9 the jail's pole stood
+	# through the boardwalk: tools/visual_checks.py's floating/sunk check).
+	var poles := [Vector3(-2.0, 0.0, -13.4), Vector3(-27.0, 0.0, -13.4), Vector3(-52.0, 0.0, -13.4), Vector3(-77.0, 0.0, -13.4)]
 	for p in poles:
 		_model("Pole", PropModels.telegraph_pole, p, 0.0, Vector3(0.25, 7.0, 0.25))
 	var wire := PropModels.iron()
@@ -312,6 +315,7 @@ func _prop(id: StringName, at: Vector3, yaw: float) -> void:
 func _model(n: String, build: Callable, at: Vector3, yaw: float, size: Vector3) -> Node3D:
 	var body := StaticBody3D.new()
 	body.name = n
+	body.set_meta(&"model_name", n)
 	body.collision_layer = Layers.WORLD
 	body.collision_mask = 0
 	add_child(body)

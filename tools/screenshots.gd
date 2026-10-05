@@ -180,9 +180,17 @@ func _run() -> void:
 		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
 	clock.set_physics_process(false)
 	player.input_enabled = false
+	# The gang rides in by itself 45 s into a run (TownLife.gang_arrives): in a long render they
+	# were in the street for every later view and shot a player with his gun out (the view came
+	# out black: he'd blacked out; tools/visual_checks.py). Only the town views bring them in.
+	var town_life = main.find_child("TownLife", true, false)
+	if town_life:
+		town_life.gang_arrives = 1e9
 	for v in VIEWS:
 		if only != "" and not Array(only.split(",")).any(func(o: String) -> bool: return String(v[0]).contains(o)):
 			continue
+		if not String(v[5] if v.size() > 5 else "").begins_with("town_"):
+			_calm(town_life, player)
 		clock.set_time(v[1])
 		player.global_position = v[2]
 		player.velocity = Vector3.ZERO
@@ -254,6 +262,11 @@ func _run() -> void:
 			for i in 50:
 				await physics_frame
 		if setup == "drift" and gun:
+			# The range's outlaw answers three shots by shooting back now (M4): with him in, the
+			# player was hit and blacked out, and this view rendered black (tools/visual_checks.py).
+			var spawner = main.find_child("OutlawSpawn", true, false)
+			if spawner and spawner.outlaw:
+				spawner.outlaw.queue_free()
 			for k in 3:
 				gun.state.busy = 0.0
 				gun.state.cock()
@@ -656,3 +669,18 @@ func _outlaw_setup(main, setup, player) -> void:
 		for i in 30:
 			await physics_frame
 	player.wounds.physiology = Physiology.new()
+
+
+## Between views: no gang left in the street from a town view, and the player not hurt or out
+## cold from anything an earlier view started.
+func _calm(town_life, player) -> void:
+	if town_life:
+		for g in town_life.gang:
+			if is_instance_valid(g):
+				g.queue_free()
+		town_life.gang.clear()
+	var w = player.get_node_or_null(^"Wounds")
+	if w and (w.out_cold > 0.0 or not w.wounds.is_empty()):
+		w.physiology = load("res://src/bodies/physiology.gd").new(null, w.anatomy)
+		w.wounds.clear()
+		w.out_cold = 0.0
