@@ -43,6 +43,8 @@ uniform float paint_ambient = 0.0;
 // Texels a side in one of the painted texture's squares (lit as one): 1, or 3 on the face, whose
 // eyes are drawn finer than its squares.
 uniform float square_texels = 1.0;
+// The surface-blocks look: what the lower bands of light lean toward (skin's half-light warm).
+uniform vec3 shade_tint : source_color = vec3(1.0);
 
 varying vec3 local_pos;
 varying vec3 local_normal;
@@ -52,12 +54,18 @@ void vertex() {
 	local_normal = NORMAL;
 }
 
+vec3 plane_sample(vec2 uv) {
+	if (block_soft > 0.0) {
+		vec2 size = vec2(textureSize(albedo_tex, 0));
+		return tile_sample_soft(albedo_tex, tile_soft_point(uv * size), size, dFdx(uv), dFdy(uv)).rgb;
+	}
+	return texture(albedo_tex, uv).rgb;
+}
+
 vec3 triplanar(vec3 p, vec3 n) {
 	vec3 w = pow(abs(n), vec3(4.0));
 	w /= (w.x + w.y + w.z);
-	return texture(albedo_tex, p.zy * uv_scale).rgb * w.x
-			+ texture(albedo_tex, p.xz * uv_scale).rgb * w.y
-			+ texture(albedo_tex, p.xy * uv_scale).rgb * w.z;
+	return plane_sample(p.zy * uv_scale) * w.x + plane_sample(p.xz * uv_scale) * w.y + plane_sample(p.xy * uv_scale) * w.z;
 }
 
 #include "res://src/render/aces.gdshaderinc"
@@ -85,13 +93,18 @@ void fragment() {
 		vec3 p = local_pos * uv_scale;
 		t = (an.x > an.y && an.x > an.z ? p.zy : (an.y > an.z ? p.xz : p.xy)) * tsize;
 	}
-	vec2 centre = tile_centre(t);
+	bool soft = block_soft > 0.0;
+	vec2 centre = soft ? tile_soft_point(t) : tile_centre(t);
 	vec2 tuv_dx = dFdx(tuv);
 	vec2 tuv_dy = dFdy(tuv);
 	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.05);
 	vec3 base;
 	if (!use_uv) {
 		base = triplanar(local_pos, local_normal);
+	} else if (soft) {
+		// Soft block edges: the texture's own texels (the face's finer eyes included) blended
+		// only across their edges.
+		base = tile_sample_soft(albedo_tex, tile_soft_point(tuv * tsize), tsize, tuv_dx, tuv_dy).rgb;
 	} else if (per_tile > 1.0) {
 		base = texture(albedo_tex, tuv).rgb;
 	} else {
@@ -138,9 +151,11 @@ void light() {
 	float w = uv_rect.z > 0.0 ? paint_wrap : 0.0;
 	float k = clamp((dot(NORMAL, LIGHT) + w) / (1.0 + w), 0.0, 1.0);
 	k *= ATTENUATION;
-	if (light_steps > 0.0) {
+	// The surface-blocks look's bands win over the material's own steps.
+	float steps = light_bands > 0.0 ? light_bands : light_steps;
+	if (steps > 0.0) {
 		float g = pow(k, 1.0 / 2.2);
-		k = pow(floor(g * light_steps + 0.5) / light_steps, 2.2);
+		k = pow(floor(g * steps + 0.5) / steps, 2.2);
 	}
 	if (uv_rect.z > 0.0) {
 		// How much brighter than painted this light makes him (ALBEDO carries paint_gain), eased
@@ -148,7 +163,7 @@ void light() {
 		float m = k * dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722)) / PI * paint_gain;
 		DIFFUSE_LIGHT += vec3(m / (1.0 + m / paint_limit) / paint_gain);
 	} else {
-		DIFFUSE_LIGHT += k * LIGHT_COLOR / PI;
+		DIFFUSE_LIGHT += k * LIGHT_COLOR * (light_bands > 0.0 ? mix(shade_tint, vec3(1.0), k) : vec3(1.0)) / PI;
 	}
 	// Only wet things shine (the eyes): a small hard glint.
 	if (ROUGHNESS < 0.3) {

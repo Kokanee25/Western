@@ -10,8 +10,8 @@ name: Visual checks
 # says which, and the artifact "visual-report" has golden | render | difference for each view
 # that failed.
 #
-# Always every view, in one run each: screenshots.gd renders them in order in one game, so a
-# view's people carry their history from the views before it, and a subset renders them differently.
+# Every view in one run each, with --fresh: screenshots.gd loads the scene again before every
+# view, so no view carries the one before it (smoke, a half-eased pose, the clouds' drift).
 
 on:
   schedule:
@@ -70,7 +70,7 @@ jobs:
         # As tools/golden_check.py --render does, so the renders are made the way the goldens were.
         run: |
           xvfb-run -a ~/godot/godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd \
-            -- --out="$PWD/build/render_${{ matrix.copy }}" > render.log 2>&1
+            -- --out="$PWD/build/render_${{ matrix.copy }}" --fresh > render.log 2>&1
           ls build/render_${{ matrix.copy }} | wc -l
 
       - name: The render's log

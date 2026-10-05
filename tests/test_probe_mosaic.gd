@@ -2,7 +2,8 @@ extends TestCase
 ## The probe mosaic trial (src/render/probe_mosaic.gd): its blocks are cut from an origin snapped
 ## to a grid, which stays put while the camera is within half a cell of it, waits while a
 ## cross-fade is under way, and crosses as fast as cells go by; switched on, it takes the screen
-## mosaic's place on the camera, and off it leaves.
+## mosaic's place on the camera, and off it leaves; as a setting it brings the smooth textures and
+## puts the surface blocks away.
 
 var cam: Camera3D
 
@@ -109,3 +110,17 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 	ProbeMosaic.apply(cam, false, 384.0, 0.5, 14.0)
 	await process_frames(2)
 	check(cam.get_node_or_null(^"ProbeMosaic") == null, "off, it leaves")
+
+
+func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away() -> void:
+	check(not Settings.probe_mosaic and not Settings.probe_active(), "off by default: the game's look is unchanged")
+	Settings.set_surface_blocks(true)
+	Settings.set_probe_mosaic(true)
+	check(Settings.probe_active(), "V: on")
+	check(not Settings.surface_blocks and not PixelArt.blocks, "the surface blocks off: one mosaic at a time")
+	check(Settings.quantise_once and PixelArt.smooth, "the smooth textures under it")
+	check(Settings.look_description().contains("probe mosaic"), "described: %s" % Settings.look_description())
+	Settings.set_surface_blocks(true)
+	check(not Settings.probe_active(), "M while it's on: the surface blocks win")
+	Settings.reset_to_defaults()
+	check(not Settings.probe_mosaic and not Settings.quantise_once and not Settings.surface_blocks, "reset: the default look")

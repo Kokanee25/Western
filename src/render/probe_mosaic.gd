@@ -1,6 +1,6 @@
 class_name ProbeMosaic
 extends MeshInstance3D
-## The probe mosaic (probe_mosaic.gdshader; a trial, off by default: Settings.probe_mosaic, M):
+## The probe mosaic (probe_mosaic.gdshader; a trial, off by default: Settings.probe_mosaic, V):
 ## the frame in blocks fixed to the world, by direction from an origin snapped to a grid of
 ## `cell` metres, so they stay put when you turn and while you walk within a cell (texel
 ## splatting's idea, Ebert 2026, done as one pass over the frame). A full-screen quad the camera

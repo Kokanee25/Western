@@ -172,6 +172,30 @@ func test_quantise_once_is_a_setting() -> void:
 	Settings.reset_to_defaults()
 
 
+## The surface-blocks look (docs/briefs/renderer.md; art's test in this file, said in its entry).
+func test_surface_blocks_is_a_setting() -> void:
+	check(not Settings.surface_blocks, "off by default: the game's look is unchanged")
+	check(not PixelArt.blocks, "the plain grid shaders")
+	check(PixelArt.material(PixelArt.wood("test_blocks_off", Color(0.5, 0.4, 0.3), 1)).shader == PixelArt.GRID_SHADER, "a grid material on the plain shader")
+	check_near(Settings.tile_globals()[&"block_soft"], 0.0, 0.001, "hard texel edges as before")
+	check_near(Settings.tile_globals()[&"light_bands"], 0.0, 0.001, "smooth light as before")
+	check(Settings.mosaic_active(), "the mosaic on, as the default is")
+	Settings.set_surface_blocks(true)
+	check(PixelArt.blocks, "M: the blocks shaders")
+	var m := PixelArt.material(PixelArt.wood("test_blocks_on", Color(0.5, 0.4, 0.3), 2))
+	check(m.shader == PixelArt.GRID_SHADER_BLOCKS, "a grid material on the blocks shader")
+	check(PixelArt.is_grid_shader(m.shader), "and it counts as a grid shader")
+	check(PixelArt.hole_material(m).shader == PixelArt.HOLE_SHADER_BLOCKS, "holes keep the look")
+	check_near(Settings.tile_globals()[&"block_soft"], Settings.BLOCK_SOFT, 0.001, "soft edges")
+	check_near(Settings.tile_globals()[&"min_square_px"], 0.0, 0.001, "no minimum square: distance softens")
+	check_near(Settings.tile_globals()[&"tile_light"], 1.0, 0.001, "lit per block")
+	check(not Settings.mosaic_active(), "no screen pass")
+	check(Settings.look_description().contains("surface blocks"), "described: %s" % Settings.look_description())
+	Settings.set_surface_blocks(false)
+	check(not PixelArt.blocks and Settings.mosaic_active(), "M again: the look as before")
+	Settings.reset_to_defaults()
+
+
 func test_tiled_materials_follow_the_texel_grid() -> void:
 	# Props (laid on by position, like the shot match's cups and table) are on the same grid.
 	var m := PixelArt.material(PixelArt.wood("test_tiles", Color(0.4, 0.25, 0.12), 3), Color.WHITE, PixelArt.Mapping.TRIPLANAR)

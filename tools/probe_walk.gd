@@ -6,7 +6,8 @@ extends SceneTree
 ## and everyone's idles are the same in every run:
 ##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 30 -s res://tools/probe_walk.gd -- \
 ##       --out=DIR [--paths=turn,walk,strafe,circle,approach] [--probe-mosaic[=texels]] [--probe-cell=m]
-##       [--probe-bands=n] [--no-mosaic] [--quantise-once] [--size=1280x720] [--frames=1.0]
+##       [--probe-bands=n] [--no-mosaic] [--quantise-once] [--blocks] [--size=1280x720] [--frames=1.0]
+## (--blocks is Settings' own: the surface-blocks look.)
 ## --frames scales every path's frame count (0.5 = a quick look). Writes DIR/<path>_<nnn>.png and
 ## DIR/poses.json (each frame's camera, the probe's origin and how far its blocks have crossed).
 ## Untyped where it names the game's classes: -s scripts compile before the autoloads exist.

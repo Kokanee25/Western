@@ -1,5 +1,5 @@
 shader_type spatial;
-// The probe mosaic (a trial, off by default: Settings.probe_mosaic, M): the painting's blocks
+// The probe mosaic (a trial, off by default: Settings.probe_mosaic, V): the painting's blocks
 // fixed to the world instead of to the screen, so they stay put when you turn or walk.
 //
 // The idea is texel splatting's (Ebert 2026, "Texel Splatting: Perspective-Stable 3D Pixel Art",

@@ -50,6 +50,14 @@ tile_gradient={
 "type": "float",
 "value": 0.0
 }
+block_soft={
+"type": "float",
+"value": 0.0
+}
+light_bands={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 
