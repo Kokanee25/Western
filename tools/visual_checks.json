@@ -7,7 +7,8 @@
   "street/far_man_b": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
   "street/brody": {"clothes_share": 0.21, "known": "as street/porch_loafer (16% on Brody)"},
   "saloon/man_at_the_bar": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
-  "saloon/seated_man": {"feet_in": 0.12, "known": "the stranger's left sole 11 cm under the saloon floor in sit_lean (2026-10-05): below the frame in the saloon shot, but wrong. The seat and pose are ShotMatch's (SEAT, pose offsets: art), his legs the fit's (characters)."}
+  "saloon/seated_man": {"feet_in": 0.12, "known": "the stranger's left sole 11 cm under the saloon floor in sit_lean (2026-10-05): below the frame in the saloon shot, but wrong. The seat and pose are ShotMatch's (SEAT, pose offsets: art), his legs the fit's (characters)."},
+  "street/kid": {"clothes_share": 0.42, "known": "the Kid's hair under his hat's brim at the sides, outside its edge, at 39% of the head's vertices near the hat (2026-10-05): by eye the hat perches high and nothing comes through the crown; the hat piece's size and seat are the characters session's (fit_tripo.py CROWN_SHARE, HAT_BAND)."}
  },
  "props": {}
 }
