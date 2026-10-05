@@ -28,6 +28,9 @@ uniform float specular : hint_range(0.0, 1.0) = 0.2;
 uniform bool fixed_squares = false;
 // A cube-built mesh: light each face where the fragment is, not at the texel's centre (VoxelTrial).
 uniform bool cube_faces = false;
+// The surface-blocks look: the colour the lower bands of light lean toward (wood's half-light a
+// warm brown, not grey); white = none. PixelArt.material sets it per material.
+uniform vec3 shade_tint : source_color = vec3(1.0);
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
@@ -80,10 +83,15 @@ void fragment() {
 	vec2 grid_uv;
 	vec2 uv_scale = vec2(texels_per_meter) / size;
 	float b = 1.0;
+	bool soft = block_soft > 0.0;
 	if (mapping == 0) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
-		b = fixed_squares ? 1.0 : tile_square(grid_uv * size);
-		col = b > 1.0 ? square_sample(grid_uv, size, b) : grid_sample(grid_uv);
+		b = fixed_squares || soft ? 1.0 : tile_square(grid_uv * size);
+		if (soft) {
+			col = tile_sample_soft(albedo_tex, tile_soft_point(grid_uv * size), size, dFdx(grid_uv), dFdy(grid_uv));
+		} else {
+			col = b > 1.0 ? square_sample(grid_uv, size, b) : grid_sample(grid_uv);
+		}
 	} else {
 		vec2 uv_z = tri_pos.xy;
 		vec2 uv_y = tri_pos.xz;
@@ -95,15 +103,21 @@ void fragment() {
 		} else {
 			grid_uv = uv_x;
 		}
-		b = fixed_squares ? 1.0 : tile_square(grid_uv * size);
-		if (b > 1.0) {
+		b = fixed_squares || soft ? 1.0 : tile_square(grid_uv * size);
+		if (soft) {
+			col = tile_sample_soft(albedo_tex, tile_soft_point(uv_z * size), size, dFdx(uv_z), dFdy(uv_z)) * tri_weights.z
+					+ tile_sample_soft(albedo_tex, tile_soft_point(uv_y * size), size, dFdx(uv_y), dFdy(uv_y)) * tri_weights.y
+					+ tile_sample_soft(albedo_tex, tile_soft_point(uv_x * size), size, dFdx(uv_x), dFdy(uv_x)) * tri_weights.x;
+		} else if (b > 1.0) {
 			col = square_sample(uv_z, size, b) * tri_weights.z + square_sample(uv_y, size, b) * tri_weights.y + square_sample(uv_x, size, b) * tri_weights.x;
 		} else {
 			col = grid_sample(uv_z) * tri_weights.z + grid_sample(uv_y) * tri_weights.y + grid_sample(uv_x) * tri_weights.x;
 		}
 	}
 	vec2 texel = grid_uv * size;
-	vec2 centre = b > 1.0 ? (floor(texel / b) + 0.5) * b : tile_centre(texel);
+	// Where the light is worked out: the tile's centre, or under soft edges the soft point, so the
+	// light too slides from one block's to the next across the edge.
+	vec2 centre = soft ? tile_soft_point(texel) : (b > 1.0 ? (floor(texel / b) + 0.5) * b : tile_centre(texel));
 	float edge = 1.0;
 	if (mapping == 0 && UV2.x > 0.0) {
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
@@ -130,7 +144,7 @@ void fragment() {
 			edge = mix(shade, 1.0, 0.4);
 		}
 	}
-	if (tile_ragged > 0.0 && b <= 1.0) {
+	if (tile_ragged > 0.0 && b <= 1.0 && !soft) {
 		// Ragged tiles: one colour a tile, its own texel's, so the edges between colours wander too.
 		vec2 g = centre / size;
 		col = use_mipmaps ? textureGrad(albedo_tex, g, dFdx(grid_uv), dFdy(grid_uv)) : textureLod(albedo_tex, g, 0.0);
@@ -168,3 +182,16 @@ void fragment() {
 	METALLIC = metallic;
 	SPECULAR = specular;
 }
+
+#ifdef BLOCKS
+// The surface-blocks look's light (texel_grid_blocks.gdshader, member_holes_blocks.gdshader):
+// Lambert cut into light_bands per light (the bands' sum is banded too, so the whole direct light
+// steps), the lower bands leaning toward the material's shade_tint; a small banded highlight.
+void light() {
+	float k = tile_band(clamp(dot(NORMAL, LIGHT), 0.0, 1.0) * ATTENUATION);
+	DIFFUSE_LIGHT += k * LIGHT_COLOR * mix(shade_tint, vec3(1.0), k) / PI;
+	vec3 h = normalize(VIEW + LIGHT);
+	float s = pow(clamp(dot(NORMAL, h), 0.0, 1.0), mix(64.0, 8.0, ROUGHNESS)) * specular * 0.5;
+	SPECULAR_LIGHT += tile_band(s * ATTENUATION) * LIGHT_COLOR / PI;
+}
+#endif

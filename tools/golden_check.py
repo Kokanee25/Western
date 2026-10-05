@@ -91,8 +91,10 @@ def diff_image(golden, render, path, name, mean, share, tol):
 
 def render(out_dir, only):
     godot = os.environ.get("GODOT", "godot")
+    # --fresh: the scene loaded again for every view, so a view never inherits the one before
+    # (smoke in the air, a pose half eased, the clouds' drift) and a subset renders as the full run.
     cmd = [godot, "--path", ROOT, "--rendering-driver", "vulkan", "-s", "res://tools/screenshots.gd",
-           "--", "--out=" + out_dir]
+           "--", "--out=" + out_dir, "--fresh"]
     if only:
         cmd.append("--only=" + only)
     if not os.environ.get("DISPLAY"):

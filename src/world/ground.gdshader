@@ -73,8 +73,11 @@ void fragment() {
 	// Snap to the texel grid so the ground reads as pixel art up close; far off, to tiles of a few
 	// texels, never smaller than min_square_px on screen (tiles.gdshaderinc).
 	vec2 t = world_pos.xz * texels_per_meter;
-	float b = tile_square(t);
-	vec2 p = (floor(t / b) + 0.5) * b / texels_per_meter;
+	bool soft = block_soft > 0.0;
+	float b = soft ? 1.0 : tile_square(t);
+	// Under soft edges the sample point slides across a texel's edge (tiles.gdshaderinc), so the
+	// road's painted tiles blend there; the dirt's own per-texel noise stays hard.
+	vec2 p = (soft ? tile_soft_point(t) : (floor(t / b) + 0.5) * b) / texels_per_meter;
 	float n = fbm(p * 0.3);
 	float fine = smooth_source ? 0.5 : hash(floor(p * texels_per_meter));
 	float dz = abs(p.y - road_center_z);
@@ -83,7 +86,9 @@ void fragment() {
 	vec3 dirt = dirt_color;
 	if (use_road_tex) {
 		// Texel by texel from the factory's road, its repeats broken up by the broad noise below.
-		dirt = textureLod(road_tex, p * texels_per_meter / vec2(textureSize(road_tex, 0)), 0.0).rgb;
+		vec2 rs = vec2(textureSize(road_tex, 0));
+		dirt = soft ? tile_sample_soft(road_tex, p * texels_per_meter, rs, vec2(0.0), vec2(0.0)).rgb
+				: textureLod(road_tex, p * texels_per_meter / rs, 0.0).rgb;
 	}
 	if (use_wide_tex) {
 		// The 8 m painting along the street; every other 8 m the picture is mirrored end for end
@@ -92,7 +97,8 @@ void fragment() {
 		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wide_metres) / wide_metres;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
-		vec3 wide = textureLod(wide_tex, w, 0.0).rgb;
+		vec2 ws = vec2(textureSize(wide_tex, 0));
+		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, 0.0).rgb;
 		float patch = smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
 		dirt = mix(wide, use_road_tex ? dirt : wide, patch * 0.6);
 	}
@@ -136,7 +142,7 @@ void fragment() {
 	}
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
-	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, b > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t)));
+	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (b > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
 }
 
 void light() {
@@ -148,6 +154,7 @@ void light() {
 		vec3 sky = mix(LIGHT_COLOR, vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), 0.5);
 		DIFFUSE_LIGHT += sky * sky_fill * smoothstep(0.0, 0.05, facing);
 	}
-	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after.
-	DIFFUSE_LIGHT += LIGHT_COLOR * ATTENUATION * lit;
+	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after. Under
+	// the surface-blocks look the light steps (tile_band).
+	DIFFUSE_LIGHT += LIGHT_COLOR * tile_band(ATTENUATION * lit);
 }

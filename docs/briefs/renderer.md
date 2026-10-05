@@ -81,6 +81,51 @@ Dinn (a dither pinned to the world round the camera for stability); Texel Splatt
 - **Sean's eye** decides. It becomes the default only on his yes, in one merge with its golden
   images.
 
+## Findings (2026-10-05, the build behind the M key)
+
+Built as designed, with two changes found by judging: the light bands (step 4) are off by
+default (`light_bands` 0: with 8–16 bands the saloon's face and coat went poster-flat and the
+judge preferred the smooth light on both shots, 0.197 against 0.219 at 12 bands), and the soft
+edge is half a render pixel (`block_soft` 0.5: at 1 px the far street's blocks blurred into each
+other). The shade tint stays (warm shadows on wood, skin and cloth). All three looks rendered on
+the Part A restore, so they're judged against the same base:
+
+| Judge v2 (lower is closer) | saloon | street |
+|---|---|---|
+| current default (screen mosaic) | 0.256 | 0.565 |
+| quantise once (I) | 0.293 | 0.587 |
+| **surface blocks (M)** | **0.202** | **0.527** |
+
+The pan (40 frames, half a degree apart, `tools/pan_frames.gd`): the share of pixels that flip
+back between frames (crawl and flicker; an edge passing changes a pixel once):
+
+| Flip-backs a frame | saloon | street |
+|---|---|---|
+| current default | 6.4 % | 6.3 % |
+| quantise once | 6.8 % | 6.8 % |
+| **surface blocks** | **1.8 %** | **3.7 %** |
+
+The blind critics (rounds `2026-10-05_r6`, `_r7`, `_r8`) put the same things first on all
+three: the street's sky (the restore's r10 sky: pale lavender between confetti clouds, no big
+sun), the man's face (dark and muddy under the mosaic and quantise once; a smooth orange mask
+with a hard shadow under the blocks), the room behind him (brown murk), the saloon's front and
+the road. Only the blocks critic marked the blocks themselves: "squares on the wrong things",
+the sky's and the doorway's squares giant beside surfaces that read smooth, which is the r10
+sky's `sky_squares` against the blocks' 32 texels a metre.
+
+Cost (`tools/look_cost.gd`, a still of each shot at 1280×720, 60 frames, lavapipe): the
+render CPU is the same under all three looks (saloon 9.3–9.9 ms, street 4.9–5.1 ms, the
+spread is run-to-run noise), so nothing moves against the 4 ms budget (that figure is the
+calm street bench's, not these shots'). The draw time (lavapipe's software raster, a CPU
+proxy for a GPU) is 2 % lower on the saloon and 5 % lower on the street than the default's:
+the screen pass goes, the four-tap soft sampling comes. On a real card both are small
+against the frame and should be a wash.
+
+What's left for the blocks look: the sky's squares should go when it's on (one uniform), the
+whole men's 1.4 mm texels read smooth under the soft edge (the stranger: his `square_texels`
+is the characters session's), and silhouettes are the mesh's edges at native (the design's
+step 6: judge it at 960×540 too).
+
 ## Stop and report if
 
 The design can't beat the current look on both shots; it costs more than the budget allows;
