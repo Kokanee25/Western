@@ -237,6 +237,17 @@ open the code or the design) and writes `docs/playtests/<date>.md` with its scre
 `docs/playtests/<date>/`: what broke, what was flat or confusing, what was fun, the top three.
 Start it with the Agent tool: "read tools/playtest.md and follow it; don't read the code".
 
+**The tour video** (`tools/tour.gd`, `.github/workflows/tour.yml`, `tools/tour_page.py`): a fixed
+30-second camera path (the street at golden hour from the east end, past the store's side of the
+street, into the saloon, the card table, the bar while night falls, out of the door at night),
+`PATH` in the script. `tour.yml` runs after every green build on main (and by hand): Movie Maker
+under xvfb and lavapipe (`--render=854x480 --light`: 3D at 854x480 scaled to 1280x720, no
+volumetric haze or SSAO; ~15 minutes of rendering on a 4-core runner), ffmpeg (from frame 3, CRF
+30, ~10 MB), the video kept on the `tour` release as `build-<N>.mp4`, and Pages redeployed with
+`/tour/` (the phone page: the latest and the seven before it). The build's own Pages deploy
+brings the kept videos along, so `/tour/` is never empty. Preview a moment of it here:
+`... -s res://tools/tour.gd -- --render=854x480 --light --start=20 --frames=3`.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2569,3 +2580,10 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   stranger in full, then Brody, Lyle and the Kid, then the storekeeper and barkeep), spending,
   how it's judged and three open questions for Sean (long johns or bare skin under the clothes, a
   shared wardrobe, who after the gang). Docs only.
+- 2026-10-05 (gameplay, review tools 5): **The tour video on Pages** (layout note under Commands).
+  Pages is deployed as one whole site by the build, so the tour can't simply add a folder: the
+  videos live on a `tour` release and both workflows put them in `/tour/`. Measured here: 902
+  frames at 960x540 in 1,000 s on 4 cores at 2.1 GHz; CI renders at 854x480 to stay near the
+  brief's 20 minutes (it runs after the build, so it holds nothing up either way). First frames
+  are written before the tour's camera takes over, so the encode starts at frame 3. The first
+  tour appears after this merge's build: Actions → "Tour video".
