@@ -2748,7 +2748,6 @@ summary and an artifact.
   real player's) the process-frame timers can drift a little: the replay says where. Shared
   `controls.gd`: `bug_report` on F12, `debug_ignite` lost F12 (L stays). `tools/tour.gd` now puts a
   `.gdignore` in `build/tour` (the editor imported 900 frames).
-\n
 - 2026-10-05 (gameplay, checks 2): **The nightly soak** (layout note under Commands). Tried here:
   12 game minutes caught a real error on its first run (the bug recorder named a class that isn't
   declared, so `main.gd` failed to compile; fixed before it merged); then 15 minutes in real time
@@ -2822,3 +2821,11 @@ summary and an artifact.
   38–42, 44, 46) and 140 Tripo credits (two bodies and a hat). Sean: "push to main and consider
   this a test that's getting closer" (the Kid is a first test of making our own men, body and
   hat only; the brief's other layers, and the stranger first, come next).
+- 2026-10-05 (gameplay, checks 3): **Chaos tests** (`tests/test_chaos.gd`, 2). The street with
+  the gang and the townsfolk in it, and every 1.5 s for 14 s, from a seed, a 0.2 kg stick by a
+  random member, a random member set alight, or three rounds from a random point at a random spot
+  or person. Every half second: no body under the ground (y < -1.5) or off the map, no position
+  that isn't a number, nobody back from the dead, no blood below zero, no broken member mended,
+  and no script error (the runner fails on any). Seed 1873: 10 events, 64 members broken, 6
+  burning, 9 people hurt, nothing broken. The same seed twice gives the same events, the same
+  broken members and the same people alive and hurt.
