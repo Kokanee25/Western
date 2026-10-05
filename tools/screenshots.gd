@@ -1,8 +1,9 @@
 extends SceneTree
 ## Renders the test street from fixed views at several times of day and saves PNGs, for
 ## comparing against docs/concept/. Needs a real (or software) GPU, not --headless:
-##   godot --path . -s res://tools/screenshots.gd -- --out=/some/dir [--scale=2]
-## Untyped on purpose: -s scripts compile before autoloads exist, so no DayCycle/Player types.
+##   godot --path . -s res://tools/screenshots.gd -- --out=/some/dir [--only=a,b] [--fresh]
+## --fresh loads the scene again for every view (nothing carried over from the view before: the
+## golden images are taken so). Untyped on purpose: -s scripts compile before autoloads exist, so no DayCycle/Player types.
 ## The views: [name, hour, position, yaw degrees, pitch degrees].
 
 const VIEWS := [
@@ -96,6 +97,8 @@ func _run() -> void:
 	var mosaic_steps := 14.0
 	var view_tune := {}
 	var suffix := ""
+	var globals_after := {}
+	var fresh := false
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -163,32 +166,41 @@ func _run() -> void:
 			mosaic_steps = float(arg.substr(8))
 		elif arg == "--window":
 			window_shot = true
+		elif arg == "--fresh":
+			fresh = true
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
+		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
+		elif arg.begins_with("--global="):
+			for kv in arg.substr(9).split(","):
+				var parts := kv.split(":")
+				if parts.size() == 2:
+					globals_after[StringName(parts[0])] = float(parts[1])
 	if window_shot:
 		DisplayServer.window_set_size(Vector2i(1920, 1080))
 	DirAccess.make_dir_recursive_absolute(out)
-	var main: Node = load("res://scenes/main.tscn").instantiate()
-	root.add_child(main)
-	await process_frame
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	(main.get_node(^"DebugOverlay") as CanvasLayer).visible = false
-	var viewport: SubViewport = main.get_node(^"GameViewport")
-	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
-	var player = main.get_node(^"GameViewport/TestStreet/Player")
-	if screen_squares > 0.0:
-		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
-	clock.set_physics_process(false)
-	player.input_enabled = false
-	# The gang rides in by itself 45 s into a run (TownLife.gang_arrives): in a long render they
-	# were in the street for every later view and shot a player with his gun out (the view came
-	# out black: he'd blacked out; tools/visual_checks.py). Only the town views bring them in.
-	var town_life = main.find_child("TownLife", true, false)
-	if town_life:
-		town_life.gang_arrives = 1e9
+	var main: Node = null
+	var viewport: SubViewport
+	var clock
+	var player
+	var town_life
 	for v in VIEWS:
 		if only != "" and not Array(only.split(",")).any(func(o: String) -> bool: return String(v[0]).contains(o)):
 			continue
+		# --fresh: the scene loaded again for every view, so none inherits the one before (gun
+		# smoke still in the air, a pose half eased, the clouds' drift, the sky's lagging
+		# radiance: the golden images are taken this way, tools/golden_check.py).
+		if main == null or fresh:
+			if main != null:
+				main.queue_free()
+				await process_frame
+				await process_frame
+			main = await _load_main(globals_after, screen_squares, mosaic_steps)
+			viewport = main.get_node(^"GameViewport")
+			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
+			player = main.get_node(^"GameViewport/TestStreet/Player")
+			town_life = main.find_child("TownLife", true, false)
 		if not String(v[5] if v.size() > 5 else "").begins_with("town_"):
 			_calm(town_life, player)
 		clock.set_time(v[1])
@@ -673,6 +685,30 @@ func _outlaw_setup(main, setup, player) -> void:
 
 ## Between views: no gang left in the street from a town view, and the player not hurt or out
 ## cold from anything an earlier view started.
+## The main scene, loaded and made still for the views: the overlay hidden, the clock stopped,
+## the player's input off, the mosaic attached (--mosaic), this run's shader globals set.
+func _load_main(globals_after: Dictionary, screen_squares: float, mosaic_steps: float) -> Node:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await process_frame
+	for k: StringName in globals_after:
+		RenderingServer.global_shader_parameter_set(k, globals_after[k])
+	(main.get_node(^"DebugOverlay") as CanvasLayer).visible = false
+	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
+	var player = main.get_node(^"GameViewport/TestStreet/Player")
+	if screen_squares > 0.0:
+		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
+	clock.set_physics_process(false)
+	player.input_enabled = false
+	# The gang rides in by itself 45 s into a run (TownLife.gang_arrives): in a long render they
+	# were in the street for every later view and shot a player with his gun out (the view came
+	# out black: he'd blacked out; tools/visual_checks.py). Only the town views bring them in.
+	var town_life = main.find_child("TownLife", true, false)
+	if town_life:
+		town_life.gang_arrives = 1e9
+	return main
+
+
 func _calm(town_life, player) -> void:
 	if town_life:
 		for g in town_life.gang:

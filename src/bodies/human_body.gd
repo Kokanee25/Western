@@ -643,6 +643,7 @@ func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMate
 	m.set_shader_parameter(&"use_uv", true)
 	m.set_shader_parameter(&"use_custom_pos", true)
 	m.set_shader_parameter(&"uv_scale", base.uv1_scale.x)
+	m.set_shader_parameter(&"shade_tint", PixelArt.SHADE_TINT)  # the surface-blocks look (art)
 	return m
 
 

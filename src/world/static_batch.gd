@@ -18,7 +18,7 @@ extends Node3D
 const OWNERS := [&"StreetDressing", &"StreetScenery", &"SaloonBuilding", &"FalseFrontBuilding",
 		&"SaloonDressing", &"Structure"]
 ## Shaders known to be opaque and to read nothing per node but the model matrix.
-const SHADERS := ["res://src/render/texel_grid.gdshader"]
+const SHADERS := ["res://src/render/texel_grid.gdshader", "res://src/render/texel_grid_blocks.gdshader"]
 ## Patches of town (m): each batch covers one, so what's off screen is still culled.
 const CELL := 40.0
 

@@ -74,7 +74,7 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 	img.flip_y()
 	img.generate_mipmaps()
 	var m := ShaderMaterial.new()
-	m.shader = PixelArt.GRID_SHADER
+	m.shader = PixelArt.grid_shader()
 	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
 	m.set_shader_parameter(&"tint", Color.WHITE)
 	m.set_shader_parameter(&"roughness", 0.9)
