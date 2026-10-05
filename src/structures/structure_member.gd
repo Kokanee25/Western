@@ -64,6 +64,9 @@ var burning := false
 var char_depth := 0.0
 var burn_time := 0.0
 var consumed := false
+## Litres of water soaked into it (a bucket thrown on it): while it's wet, heat goes into drying it
+## and it gets no hotter than boiling (FireSystem._heat). Dries in the air and the heat.
+var wet := 0.0
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []

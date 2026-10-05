@@ -6,6 +6,29 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the townsfolk carry water
+
+- **Once they've got clear of a fire, townsfolk fight it.** If there's a trough near it, up to
+  four men run buckets: fill at the trough, throw from a couple of paces, back for more, till it's
+  out ("That's got it!"). Past saving (a building well alight) they call it lost and let it burn.
+- Men also walk round troughs and rail ends now instead of getting stuck on their corners.
+- **Try:** press **L** on the general store's wall and stand back: the storekeeper should call
+  for water and put it out. Light a few boards and wait before you watch; tell me when it should
+  be past saving.
+
+### New: a bucket to put fires out
+
+- **Press 4 for a water bucket.** Stand at the trough in front of the general store and press
+  **R** to fill it (or left click with it empty), then walk up to the fire and **left click** to
+  throw. The water flies as a spray of drops; the burning boards it drenches go out in a puff of
+  steam and stay wet a while, so the fire next to them can't take them straight back. One bucket
+  puts out a small fire; a wall that's well alight takes several trips. Water won't put out burning
+  lamp oil (it floats and keeps burning), as in life.
+- Nobody takes the bucket for a gun.
+- **Try:** press **L** on the store's front wall, wait half a minute, then fetch water. Tell me
+  whether it feels like a fight you can win if you're quick, and how many trips a bigger fire
+  should take. The townsfolk forming a bucket line comes next.
+
 ### Changed: fire burns four times slower
 
 - **You've got time now.** A fire spreads, grows and eats through timber at a quarter of the old

@@ -10,6 +10,7 @@ const T := 0.04
 
 
 func build() -> void:
+	add_to_group(&"water_source")  # a bucket can be filled here (BucketViewmodel)
 	var skid_h := 0.1
 	for i in 2:
 		var x := 0.2 if i == 0 else length - 0.2

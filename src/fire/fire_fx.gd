@@ -155,6 +155,55 @@ static func _smoke_material() -> StandardMaterial3D:
 	return _smoke_mat
 
 
+## Water on fire: a burst of white steam rising off it, and a hiss. `members` how many it put out.
+static func steam(parent: Node, at: Vector3, members: int) -> void:
+	var p := _particles(clampi(10 + members * 6, 10, 60), 1.6, _steam_material(), 0.35)
+	p.one_shot = true
+	p.explosiveness = 0.85
+	var pm := p.process_material as ParticleProcessMaterial
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	pm.emission_sphere_radius = 0.35
+	pm.direction = Vector3.UP
+	pm.spread = 35.0
+	pm.initial_velocity_min = 0.6
+	pm.initial_velocity_max = 1.6
+	pm.gravity = Vector3(0, 0.8, 0)
+	pm.damping_min = 0.6
+	pm.damping_max = 1.2
+	pm.scale_min = 0.8
+	pm.scale_max = 2.2
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.92, 0.92, 0.9, 0.75))
+	ramp.set_color(ramp.get_point_count() - 1, Color(0.8, 0.8, 0.8, 0.0))
+	var tex := GradientTexture1D.new()
+	tex.gradient = ramp
+	pm.color_ramp = tex
+	parent.add_child(p)
+	p.global_position = at
+	p.emitting = true
+	p.finished.connect(p.queue_free)
+	var hiss := AudioStreamPlayer3D.new()
+	hiss.stream = SynthSounds.get_sound(&"steam")
+	hiss.unit_size = 4.0
+	hiss.volume_db = linear_to_db(clampf(0.4 + members * 0.1, 0.4, 1.2))
+	p.add_child(hiss)
+	hiss.play()
+
+
+static var _steam_mat: StandardMaterial3D
+
+
+static func _steam_material() -> StandardMaterial3D:
+	if _steam_mat == null:
+		_steam_mat = StandardMaterial3D.new()
+		_steam_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_steam_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+		_steam_mat.vertex_color_use_as_albedo = true
+		_steam_mat.albedo_texture = PixelArt.puff("steam", 71)
+		_steam_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	return _steam_mat
+
+
 ## Burning oil on the floor where a lamp smashed.
 static func spill_flames(parent: Node, at: Vector3, radius: float) -> GPUParticles3D:
 	var p := _particles(40, 0.7, _flame_material(), 0.12)

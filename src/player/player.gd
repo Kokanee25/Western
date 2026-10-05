@@ -73,8 +73,8 @@ func _footsteps(delta: float) -> void:
 	Events.noise.emit(global_position, loud, &"footsteps", self)
 
 
-## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun and the dynamite are added
-## beside it, put away.
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite and a water
+## bucket are added beside it, put away.
 func _arm() -> void:
 	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
 	if revolver:
@@ -93,6 +93,13 @@ func _arm() -> void:
 	dynamite._draw = 0.0
 	camera.add_child(dynamite)
 	weapons.append(dynamite)
+	var bucket := BucketViewmodel.new()
+	bucket.name = "Bucket"
+	bucket.selected = false
+	bucket.drawn = false
+	bucket._draw = 0.0
+	camera.add_child(bucket)
+	weapons.append(bucket)
 	weapon = weapons[0]
 	# You walk about with the gun in its holster; drawing it is something people notice (H).
 	if revolver:
@@ -118,6 +125,10 @@ func dynamite() -> DynamiteViewmodel:
 	return camera.get_node_or_null(^"Dynamite") as DynamiteViewmodel
 
 
+func bucket() -> BucketViewmodel:
+	return camera.get_node_or_null(^"Bucket") as BucketViewmodel
+
+
 ## Put the gun in your hands away and bring out another once it is.
 func select_weapon(w: WeaponViewmodel) -> void:
 	if w == null:
@@ -139,6 +150,8 @@ func _update_weapon_switch() -> void:
 			select_weapon(shotgun())
 		elif Input.is_action_just_pressed(&"weapon_dynamite"):
 			select_weapon(dynamite())
+		elif Input.is_action_just_pressed(&"weapon_bucket"):
+			select_weapon(bucket())
 		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
 			var current := _switch_to if _switch_to else weapon
 			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])
