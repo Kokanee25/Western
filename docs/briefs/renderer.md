@@ -121,10 +121,17 @@ proxy for a GPU) is 2 % lower on the saloon and 5 % lower on the street than the
 the screen pass goes, the four-tap soft sampling comes. On a real card both are small
 against the frame and should be a wash.
 
-What's left for the blocks look: the sky's squares should go when it's on (one uniform), the
-whole men's 1.4 mm texels read smooth under the soft edge (the stranger: his `square_texels`
-is the characters session's), and silhouettes are the mesh's edges at native (the design's
-step 6: judge it at 960×540 too).
+What's left for the blocks look: the whole men's 1.4 mm texels read smooth under the soft edge
+(the stranger: his `square_texels` is the characters session's).
+
+Done since (2026-10-05, later): **the sky has no squares under it** (`sky.gdshader` reads the
+`block_soft` global, over 0 only under M, and draws smooth whatever `sky_squares` says: the
+restore's squared sky and the doorway's square moon are gone; round `2026-10-05_r9`: saloon
+0.200, street 0.531). **Step 6, judged at 960×540** (round `_r10`, the render shown at ×2 as a
+1080p screen would): saloon 0.197, street 0.532, level with native. Edge hardness comes nearer
+the painting's (saloon 0.27 to its 0.25; native 0.30), the far squares chunkier than its (8.1
+px to 6.2). Native stays the M look's resolution; F2's 960×540 is there for whoever likes the
+harder edge.
 
 ## Stop and report if
 

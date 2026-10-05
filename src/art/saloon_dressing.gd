@@ -20,7 +20,7 @@ class_name SaloonDressing
 ## falloff (2, the inverse square) at more energy than a lamp that lights a room
 ## (the blind critic's first point, 2026-10-05: "a dozen lamps each lighting its own patch of
 ## wall"; ours were wide and dim, a brown wash with flames floating in it).
-const SCONCE_ENERGY := 1.0
+const SCONCE_ENERGY := 0.5
 const SCONCE_FALLOFF := 2.0
 const SCONCE_REACH := 4.0
 const BALCONY_HEIGHT := 2.3
@@ -363,6 +363,9 @@ static func _lamps(s: FalseFrontBuilding, props: Node3D, lamps: Node3D, f: float
 		# The left-hand wall and the back.
 		[Vector3(sd + 0.02, f + 2.1, 2.2), 90.0], [Vector3(sd + 0.02, f + 2.1, 5.6), 90.0], [Vector3(sd + 0.02, f + 2.1, 7.9), 90.0],
 		[Vector3(2.4, f + 2.1, d - sd - 0.02), 180.0], [Vector3(6.8, f + 2.1, d - sd - 0.02), 180.0],
+		# Under the balcony, low on the front wall and on the right-hand wall: the painting's two lamps
+		# glowing under the gallery, past the man's shoulder (the shot sees them at its x ~710 and ~835).
+		[Vector3(9.2, f + 1.5, sd + 0.02), 0.0], [Vector3(rx, f + 1.45, 1.6), -90.0],
 	]
 	for p in sconces:
 		var sconce := _lit_prop(s, props, &"wall_sconce", p[0], p[1], SCONCE_ENERGY, SCONCE_REACH)
