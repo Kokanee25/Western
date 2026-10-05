@@ -197,6 +197,7 @@
    "chroma": 0.85,
    "hue": -6,
    "bold": {
+    "contrast": 0.8,
     "colours": 12
    }
   },
@@ -311,7 +312,7 @@
    "chroma": 1.15,
    "hue": -1,
    "bold": {
-    "contrast": 1.6,
+    "contrast": 0.8,
     "colours": 12
    }
   }
