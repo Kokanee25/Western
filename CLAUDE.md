@@ -3232,3 +3232,34 @@ a few views renders them as the full run does.
   same, checked old against new). Tests `test_town_layout` (2). Next: step 2, Main Street moved to
   the map (one saloon, the store beside it, the livery and jail across, raised boardwalks with
   steps), with the art session on the dressing and the goldens.
+- 2026-10-05 (gameplay): **Main Street to Sean's map, step 2: the street moved** (Sean: "we're
+  using the map", "up on steps" as in the street picture, "it's gotta match this art";
+  `docs/briefs/main-street.md`; the art session agreed the dressing is carried mechanically and
+  judged after). `config/town.json` (layout note above): the saloon (the real one) and the store
+  side by side on the south side (fronts z 0, the street's sunset end to the west), the barber and
+  past Market Street the hotel; the livery, the jail, the water tower behind it and the assay
+  office across; Freight Street at the east end; the range 30 m further east; the façade saloon,
+  the façade store and the eating house are gone (one saloon; the eating house isn't on the
+  map). The store is 9 m wide with the façade's GENERAL STORE look (`set`). Floors stay 0.38.
+  **Steps:** `Boardwalk.steps` (flights of blocks a riser each, members, an invisible ramp over
+  their noses for the player; with steps no ramp along the rest of the edge), each building's
+  walk with a flight; `Waypoints` go by the steps (`*_front`, `*_steps`, `*_landing`) and the
+  store's and saloon's porches join along the walk; `Waypoints._walkable` also refuses a sudden
+  rise in the ground (`STEP_UP` 0.25), so the player is routed by the steps (townsfolk could
+  step the edge; they're routed the same). The gang rides in from x −50. A harassing man has
+  something to say soon after he arrives (the drink's quiet doesn't carry over: the store is next
+  door now). **Art's files, agreed with it** (said here): `src/art/street_dressing.gd` (façades and
+  their walks from the layout; its old-coordinate tables carried with each building,
+  `TownLayout.carry`; whatever would stand on steps or in a doorway left out, folk moved aside
+  against the wall, `on_steps`, `out_of_doorway`, `post_of`), `src/art/shot_match.gd` (the set in
+  the saloon's space: `TABLE_IN_SALOON`, `ROOM_YAW_IN_SALOON`); gameplay's `street_scenery.gd`
+  lost its M0 props and fence (the fence stood in the saloon). Shared `tools/screenshots.gd` (my
+  lines: `_view_move`, the store's, saloon's and range's views move with them). Tests placed
+  relative to what they test (town day, gun range, outlaw tactics, dynamite: thrown from the walk
+  beside the store's door, it sailed in at the door from in front of it), `test_steps` (4). All
+  goldens re-approved. 350 tests pass. For the art session (told): the saloon's door faces north
+  now (the moon's arc is on the other side: `moon_tilt_degrees` −78), the dressing to lay out
+  again in each building's space, StreetMatch's framing, the backdrop and ground pushed out.
+  - Next: step 3, the telegraph, doctor and bank, the well behind the jail (a water source), the
+    corral.
+
