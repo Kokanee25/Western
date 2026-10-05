@@ -4,7 +4,7 @@ runs side by side as a video.
 
     python3 tools/probe_walk.py measure DIR [DIR ...]
     python3 tools/probe_walk.py stability DEPTH_DIR DIR [DIR ...]
-    python3 tools/probe_walk.py video OUT.mp4 LABEL=DIR [LABEL=DIR ...] [--paths=turn,walk]
+    python3 tools/probe_walk.py video OUT.mp4 LABEL=DIR [LABEL=DIR ...] [--paths=turn,walk] [--crop=X,Y,W,H]
 
 `measure` prints, for each path and run, the share of pixels that change by more than 8/255 from
 one frame to the next (motion shows as change too), and the share that flip and flip back: a
@@ -18,7 +18,8 @@ and counts the pixels that can't find their colour again there (within 24/255, a
 3x3 pixels round that spot). What the camera's movement explains is subtracted; what's left is
 pixels changing under you: blocks crawling or re-cut, flicker. Points hidden in the frame before
 are left out. `video` stacks the runs (two side by side, more in a grid), each labelled, at
-30 fps (ffmpeg on the PATH, or imageio-ffmpeg's).
+30 fps (ffmpeg on the PATH, or imageio-ffmpeg's); --crop keeps one box of every frame at full
+size (a phone can't show four 1280x720 frames' pixels).
 """
 import json
 import math
@@ -149,7 +150,7 @@ def ffmpeg():
         sys.exit("no ffmpeg: install it, or pip install imageio-ffmpeg")
 
 
-def video(out, runs, paths):
+def video(out, runs, paths, crop=None):
     labels = [r.split("=", 1)[0] for r in runs]
     dirs = [r.split("=", 1)[1] for r in runs]
     cols = 2 if len(dirs) <= 4 else 3
@@ -161,6 +162,8 @@ def video(out, runs, paths):
         n = min(len(x) for x in lists)
         for i in range(n):
             ims = [Image.open(x[i]).convert("RGB") for x in lists]
+            if crop:
+                ims = [im.crop((crop[0], crop[1], crop[0] + crop[2], crop[1] + crop[3])) for im in ims]
             w, h = ims[0].size
             sheet = Image.new("RGB", (cols * w, rows * h), (12, 10, 9))
             d = ImageDraw.Draw(sheet)
@@ -188,10 +191,13 @@ def main():
         opts = [a for a in sys.argv[3:] if a.startswith("--")]
         runs = [a for a in sys.argv[3:] if not a.startswith("--")]
         paths = PATHS
+        crop = None
         for o in opts:
             if o.startswith("--paths="):
                 paths = o[8:].split(",")
-        video(sys.argv[2], runs, paths)
+            elif o.startswith("--crop="):
+                crop = [int(v) for v in o[7:].split(",")]
+        video(sys.argv[2], runs, paths, crop)
     else:
         sys.exit(__doc__)
 
