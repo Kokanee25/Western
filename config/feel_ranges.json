@@ -78,13 +78,14 @@
       "proposed": true
     },
     "fire_store_roof_seconds": {
-      "min": 60,
-      "max": 300,
+      "min": 360,
+      "max": 900,
       "unit": "seconds from the general store's back wall being lit to half its rafters down",
       "measured_by": "test_fire::test_a_store_burns_down",
-      "last": 129,
+      "last": 511,
       "history": [
-        "2026-09-28 built so the store's roof comes in about 2 minutes after the back wall's lit"
+        "2026-09-28 built so the store's roof comes in about 2 minutes after the back wall's lit",
+        "2026-10-05 Sean: 'the fire probably burns too fast, it would be cool if you could actually have time to put it out' (every fire rate a quarter: 129 s became 511)"
       ]
     }
   }

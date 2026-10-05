@@ -31,6 +31,7 @@ const GANG := [
 
 
 func _ready() -> void:
+	add_to_group(&"town_life")
 	_spawn_townsfolk.call_deferred()
 
 

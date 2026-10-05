@@ -36,6 +36,9 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"timber_crack": samples = _timber_crack(rng)
 			&"timber_crash": samples = _timber_crash(rng)
 			&"fire": samples = _fire(rng)
+			&"splash": samples = _splash(rng)
+			&"fill": samples = _fill(rng)
+			&"steam": samples = _steam(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		var wav := _to_wav(_no_sub_bass(samples))
 		if id == &"fire" or id == &"fuse" or id == &"ringing":
@@ -171,6 +174,57 @@ static func _tink(rng: RandomNumberGenerator) -> PackedFloat32Array:
 
 
 ## Breaking glass: a sharp crash, then pieces tinkling down.
+## A bucket of water thrown and landing: a rushing slosh, then a slap and the patter of drops.
+static func _splash(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.1)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		lp += (white - lp) * 0.35
+		lp2 += (lp - lp2) * 0.5
+		var rush := (lp - lp2) * smoothstep(0.0, 0.08, t) * exp(-maxf(t - 0.08, 0.0) / 0.12)
+		var slap := white * exp(-maxf(t - 0.28, 0.0) / 0.03) * (1.0 if t >= 0.28 else 0.0) * 0.8
+		var patter := (white if rng.randf() < 0.02 else 0.0) * exp(-maxf(t - 0.3, 0.0) / 0.35) * (1.0 if t >= 0.3 else 0.0)
+		out[i] = rush * 1.4 + slap + patter
+	return _normalise(out, 0.7)
+
+
+## Dipping a bucket in a trough: a gurgle of water running in.
+static func _fill(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.0)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var phase := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * 0.2
+		# Bubbles: short rising chirps every so often.
+		phase += TAU * (300.0 + 900.0 * fmod(t * 7.0, 1.0)) / RATE
+		var bubble := sin(phase) * exp(-fmod(t * 7.0, 1.0) * 6.0) * 0.35
+		out[i] = (lp * 0.9 + bubble) * smoothstep(0.0, 0.1, t) * smoothstep(1.0, 0.7, t)
+	return _normalise(out, 0.45)
+
+
+## Water on hot timber: a hiss that dies away.
+static func _steam(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 1.4)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var prev := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		var hp := white - prev
+		prev = white
+		out[i] = hp * exp(-t / 0.45) * (0.7 + 0.3 * sin(t * 37.0))
+	return _normalise(out, 0.5)
+
+
 static func _glass(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	var n := int(RATE * 1.3)
 	var out := PackedFloat32Array()

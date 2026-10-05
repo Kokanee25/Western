@@ -78,6 +78,20 @@ var mosaic := true
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
 var surface_blocks := false
+## The probe mosaic (src/render/probe_mosaic.gdshader, ProbeMosaic; a trial, V toggles, not saved):
+## the frame in blocks fixed to the world by direction from an origin snapped to a grid (texel
+## splatting's idea as one pass over the frame), so they stay put when you turn and walk. It
+## replaces the screen mosaic while it's on, and wants the quantise-once textures under it (V
+## turns those on with it, and the surface blocks off). probe_texels: texels a cube face (384:
+## 3.3 px blocks at the saloon shot's lens, 1280x720); probe_cell: metres between origins;
+## probe_bands: OKLab light bands (0: smooth light; 14 bands made a block near a band's edge flip
+## as you moved: four times the flicker, tools/probe_walk.py stability).
+var probe_mosaic := false
+var probe_texels := 384.0
+var probe_cell := 0.5
+var probe_bands := 0.0
+## The quantise-once and surface-blocks switches as they were when V turned the probe on.
+var _look_before_probe := {}
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -104,6 +118,16 @@ func _ready() -> void:
 		surface_blocks = "--blocks" in args
 		quantise_once = "--quantise-once" in args
 		autosave = false
+	# The probe mosaic trial for one run (--probe-mosaic [--probe-bands=N]), with the smooth
+	# textures it wants.
+	if "--probe-mosaic" in args:
+		probe_mosaic = true
+		quantise_once = true
+		surface_blocks = false
+		autosave = false
+		for a in args:
+			if a.begins_with("--probe-bands="):
+				probe_bands = float(a.substr(14))
 	load_from_disk()
 	_protect_speakers()
 
@@ -141,6 +165,11 @@ func reset_to_defaults() -> void:
 	tile_look = &"square"
 	quantise_once = false
 	surface_blocks = false
+	probe_mosaic = false
+	probe_texels = 384.0
+	probe_cell = 0.5
+	probe_bands = 0.0
+	_look_before_probe = {}
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
@@ -150,6 +179,10 @@ func reset_to_defaults() -> void:
 func load_from_disk() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) != OK:
+		# No file (a first run, CI, the tools): the look the command line asked for still takes
+		# its shaders and textures (--blocks, --quantise-once and --probe-mosaic only set switches).
+		_apply_quantise()
+		_apply_texels()
 		_apply_tiles()
 		return
 	internal_resolution = cfg.get_value("video", "internal_resolution", internal_resolution)
@@ -243,10 +276,39 @@ func set_mosaic(on: bool) -> void:
 	_changed()
 
 
+## V: the probe mosaic trial on or off. It looks as meant over the quantise-once textures and
+## not over the surface blocks, so turning it on turns those on and these off (the scene reloads);
+## off puts back the look you had before it (so V, M and neither can be compared in turn).
+func set_probe_mosaic(on: bool) -> void:
+	if on == probe_mosaic:
+		_changed()
+		return
+	probe_mosaic = on
+	if on:
+		_look_before_probe = {"quantise_once": quantise_once, "surface_blocks": surface_blocks}
+		if surface_blocks or not quantise_once:
+			surface_blocks = false
+			set_quantise_once(true)
+			return
+	elif not _look_before_probe.is_empty():
+		var was := _look_before_probe
+		_look_before_probe = {}
+		if was["quantise_once"] != quantise_once or was["surface_blocks"] != surface_blocks:
+			surface_blocks = was["surface_blocks"]
+			set_quantise_once(was["quantise_once"])
+			return
+	_changed()
+
+
+## Whether the probe mosaic is drawn: the trial's setting, unless the surface-blocks look is on.
+func probe_active() -> bool:
+	return probe_mosaic and not surface_blocks
+
+
 ## Whether the screen mosaic is drawn: the setting, unless the surface-blocks look is on (it has
-## no screen pass).
+## no screen pass) or the probe mosaic trial is (it takes the screen mosaic's place).
 func mosaic_active() -> bool:
-	return mosaic and not surface_blocks
+	return mosaic and not surface_blocks and not probe_active()
 
 
 func cycle_texel_density() -> void:
@@ -265,7 +327,8 @@ func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
 	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s%s" % [res, int(texels_per_meter),
 			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic_active() else "off", "on" if finish else "off",
-			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")]
+			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")] \
+			+ (" · probe mosaic %d texels, %.2f m" % [int(probe_texels), probe_cell] if probe_active() else "")
 
 
 func set_tile_look(look: StringName) -> void:

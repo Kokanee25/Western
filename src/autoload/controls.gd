@@ -28,8 +28,9 @@ func _ready() -> void:
 	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_tiles", [KEY_P], [])
 	_bind(&"debug_mosaic", [KEY_O], [])  # the screen mosaic on/off (Settings.mosaic)
-	_bind(&"debug_quantise", [KEY_I], [])
-	_bind(&"debug_blocks", [KEY_M], [])  # the quantise-once look on/off (Settings.quantise_once)
+	_bind(&"debug_quantise", [KEY_I], [])  # the quantise-once look on/off (Settings.quantise_once)
+	_bind(&"debug_blocks", [KEY_M], [])  # the surface-blocks look on/off (Settings.surface_blocks)
+	_bind(&"debug_probe_mosaic", [KEY_V], [])  # the probe mosaic trial on/off (Settings.probe_mosaic)
 	_bind(&"look_panel", [KEY_N], [])  # the live look panel (LookPanel; controller: Back + Start)
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [])
@@ -52,6 +53,7 @@ func _ready() -> void:
 	_bind(&"weapon_revolver", [KEY_1], [])
 	_bind(&"weapon_shotgun", [KEY_2], [])
 	_bind(&"weapon_dynamite", [KEY_3], [])
+	_bind(&"weapon_bucket", [KEY_4], [])  # a water bucket (BucketViewmodel): R fills it at a trough
 	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])

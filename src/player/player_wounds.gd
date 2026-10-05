@@ -4,8 +4,9 @@ extends Node
 ## traced through a standing (or crouched) body, and the wounds act on you: red flash and a kick
 ## when hit, the edges greying with blood loss, no running with a holed lung, down on the ground
 ## with a broken leg, the gun gone from a broken arm, blackout. Hold B (D-pad down) to press on your
-## wounds; keep holding and you cinch a belt round a bleeding limb. Knocked out, you come round
-## later (at the doctor's once there is one; for now back in the store).
+## wounds; keep holding and you cinch a belt round a bleeding limb. Knocked out (or killed), you
+## come round hours later, patched up but still hurt (at the doctor's once there is one; for now
+## on the store's floor).
 ## Sits under the Player; registers itself as the thing bullets hit (meta "human_body").
 
 signal knocked_out
@@ -13,6 +14,11 @@ signal knocked_out
 const OVERLAY_SHADER := preload("res://src/player/wound_overlay.gdshader")
 const CLOTHES_RESISTANCE := 3.0
 const TEND_TOURNIQUET_SECONDS := 4.0
+## Out cold, you come round this many game hours later, with this share of your blood still
+## missing and your wounds' pain eased to this share of disabling.
+const OUT_HOURS := 6
+const WAKE_BLOOD_LOSS := 0.2
+const WAKE_PAIN := 0.6
 
 var physiology: Physiology
 var anatomy: Anatomy
@@ -28,6 +34,7 @@ var _drip_ml := 0.0
 var _overlay: ColorRect
 var _message: Label
 var _message_time := 0.0
+var _held := 0.0
 var _day_cycle: Node
 ## Seconds of ringing ears left, and how hard the view is shaking (from a blast).
 var ringing := 0.0
@@ -77,14 +84,18 @@ func _on_scorched(who: Node, amount: float) -> void:
 
 ## Subtitles for anyone talking within earshot.
 func _on_spoke(speaker: Node, text: String) -> void:
+	if _held > 0.0:
+		return  # what you're being told matters more than what's said round you
 	if speaker is Node3D and (speaker as Node3D).global_position.distance_to(player.global_position) < 45.0:
 		var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody else "Someone"
 		say("%s: \"%s\"" % [who, text], 3.0)
 
 
-func say(text: String, seconds := 3.0) -> void:
+## Show a line; `hold` keeps people's talk from writing over it while it shows.
+func say(text: String, seconds := 3.0, hold := false) -> void:
 	_message.text = text
 	_message_time = seconds
+	_held = seconds if hold else 0.0
 
 
 ## Ballistics reached the player's capsule. Traces the rest of the path through the body inside.
@@ -286,7 +297,7 @@ func _physics_step(delta: float) -> void:
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
-		if w != null and w.selected and w.drawn:
+		if w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
 		else:
@@ -324,6 +335,7 @@ func _physics_step(delta: float) -> void:
 	mat.set_shader_parameter(&"shock", p.shock())
 	mat.set_shader_parameter(&"pain", clampf(p.felt_pain(), 0.0, 1.0))
 	mat.set_shader_parameter(&"black", clampf(out_cold / 1.5, 0.0, 1.0) if out_cold > 0.0 else clampf((p.shock() - 0.8) * 2.0, 0.0, 0.6))
+	_held = maxf(_held - delta, 0.0)
 	if _message_time > 0.0:
 		_message_time -= delta
 		if _message_time <= 0.0:
@@ -389,19 +401,122 @@ func _limb_top(seg: StringName) -> StringName:
 	return StringName("thigh_" + side)
 
 
-## Out cold: for now you come round in the store, patched up. (The doctor arrives in M5.)
+## Out cold (or killed): somebody carries you off and patches you up, and you come round hours
+## later, hurt as you were but bound up, and told what happened (DESIGN.md §3: you wake up at the
+## doctor's, hurt, poorer, and the town knows). Until there's a doctor (M5) it's the store's floor
+## and the storekeeper's bandages; until there's a purse it costs you nothing but the hours.
 func _come_round() -> void:
 	knocked_out.emit()
-	physiology = Physiology.new(null, anatomy)
-	wounds.clear()
+	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
+	var hit_by: Variant = player.get_meta(&"last_hit_by") if player.has_meta(&"last_hit_by") else null
+	var by: Node = hit_by if is_instance_valid(hit_by) else null
+	var by_name := _name_of(by)
+	var was_dead := not physiology.alive
+	_patch_up()
 	out_cold = 0.0
+	if player.has_meta(&"last_hit_by"):
+		player.remove_meta(&"last_hit_by")
 	var marker := get_tree().current_scene.find_child("StoreInside", true, false) if get_tree().current_scene else null
 	if marker == null:
 		marker = get_tree().root.find_child("StoreInside", true, false)
 	if marker is Node3D:
 		player.global_position = (marker as Node3D).global_position
 		player.velocity = Vector3.ZERO
-	say("You come round on the store floor, bandaged. (The doctor comes later.)", 5.0)
+	var clock := ""
+	var day := get_tree().get_first_node_in_group(&"day_cycle")
+	if day != null:
+		day.pass_hours(OUT_HOURS)
+		clock = " It's %s." % day.get_clock_text()
+	Events.hours_passed.emit(OUT_HOURS, &"out_cold")
+	var lines: PackedStringArray = ["You come round on the store floor, bandaged, %d hours on.%s" % [OUT_HOURS, clock]]
+	if by_name != "":
+		var gone := not is_instance_valid(by) or (by as Node).is_queued_for_deletion()
+		lines.append("%s shot you down%s." % [by_name, ", and he's long gone" if gone else ""])
+	if was_dead:
+		lines.append("They say you were as good as dead.")
+	var left := _what_still_hurts()
+	if left != "":
+		lines.append(left)
+	say("\n".join(lines), 10.0, true)
+
+
+## What the patching did: every bleed tied off and bound, the belts off, a holed lung sealed, the
+## gut sewn, and (as if days of care had gone by) the worst of the shock and pain behind you; a
+## killing wound is one you lived through. What stays: broken bones (splinted, not mended), lost
+## fingers and limbs, an eye, torn muscle, burnt ears, the scars, and a good deal of blood still
+## missing (`WAKE_BLOOD_LOSS`: pale, and the next wound puts you down sooner).
+func _patch_up() -> void:
+	var p := physiology
+	var t := p.tuning
+	p.alive = true
+	p.cause_of_death = &""
+	p.brain_dead = false
+	p.neck_seconds = -1.0
+	p.gut_seconds = -1.0
+	p.lung_damage.clear()
+	p.airway_blood = false
+	p.concussion = 0.0
+	p.oxygen = 1.0
+	p.adrenaline = 0.0
+	for b in p.bleeds:
+		b.clot = 0.0
+		b.tourniquet = false
+		b.pressure = true
+		b.bandaged = true
+	p.blood_ml = maxf(p.blood_ml, t.blood_ml * (1.0 - WAKE_BLOOD_LOSS))
+	p.burns = minf(p.burns, t.burns_fatal * 0.5)
+	p.wound_pain = minf(p.wound_pain, t.pain_disabling * WAKE_PAIN)
+	p.pain = p.wound_pain
+	for w in wounds:
+		w.dressed = true
+	tending = 0.0
+
+
+## What you still carry, in a line ("" if nothing much).
+func _what_still_hurts() -> String:
+	var p := physiology
+	var parts: PackedStringArray = []
+	var legs := 0
+	var arms := 0
+	for bone: StringName in p.broken:
+		var b := String(bone)
+		if b.begins_with("femur") or b.begins_with("tibia") or b.begins_with("patella") or b == "pelvis_bone":
+			legs += 1
+		elif b.begins_with("humerus") or b.begins_with("radius") or b.begins_with("ulna"):
+			arms += 1
+	if legs > 0:
+		parts.append("your leg's splinted")
+	if arms > 0:
+		parts.append("your arm's in a sling")
+	if not p.lost_fingers.is_empty():
+		parts.append("%d finger%s gone" % [p.lost_fingers.size(), "" if p.lost_fingers.size() == 1 else "s"])
+	if not p.severed_segments.is_empty():
+		parts.append("the stump's dressed")
+	if not p.blind.is_empty():
+		parts.append("one eye's gone")
+	if p.blood_loss() > 0.1:
+		parts.append("you're weak from the blood you lost")
+	elif p.wounds > 0:
+		parts.append("everything aches")
+	if parts.is_empty():
+		return ""
+	var text := ", ".join(parts)
+	return text.substr(0, 1).to_upper() + text.substr(1) + "."
+
+
+## A name to tell you by: a man's own name ("Brody"), what he is ("The storekeeper"), else
+## "Somebody"; "" for nobody, or yourself.
+const CALLED := {&"outlaw": "The outlaw", &"kid": "The Kid", &"storekeeper": "The storekeeper",
+		&"barkeep": "The barkeep"}
+
+
+func _name_of(who: Node) -> String:
+	if who == null or not is_instance_valid(who) or who == player:
+		return ""
+	if who is HumanBody and (who as HumanBody).person_id != &"":
+		var id := (who as HumanBody).person_id
+		return CALLED.get(id, String(id).capitalize())
+	return "Somebody"
 
 
 func describe() -> String:

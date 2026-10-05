@@ -29,7 +29,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_t = EVERY
 	var w := player.weapon
-	var drawn := w != null and w.selected and w.drawn and w.is_ready_in_hand()
+	var drawn := w != null and w.armed and w.selected and w.drawn and w.is_ready_in_hand()
 	if drawn != _was_drawn:
 		_was_drawn = drawn
 		Events.deed.emit(player, &"draw" if drawn else &"holster", null, player.global_position)

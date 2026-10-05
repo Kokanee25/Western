@@ -21,6 +21,7 @@ var _near := {}  # member -> [[other, weight], ...]
 var _near_age := {}
 var _grid := {}  # Vector3i -> Array[StructureMember]
 var _grid_age := INF
+var _grid_frame := -1  # the physics frame it was last brought up to date
 var _accum := 0.0
 var _settle_accum := 0.0
 var _fx_accum := 0.0
@@ -98,6 +99,66 @@ func burning_members() -> Array[StructureMember]:
 		if is_instance_valid(m) and m.burning:
 			out.append(m)
 	return out
+
+
+## What's burning within `radius` of `at`, for people deciding to get clear: {count, at (the
+## nearest burning point, Vector3.INF if none), distance}. From the grid, so it's cheap enough
+## for every townsman a couple of times a second.
+func fire_near(at: Vector3, radius: float) -> Dictionary:
+	var out := {"count": 0, "at": Vector3.INF, "distance": INF}
+	if active.is_empty() and spills.is_empty():
+		return out
+	var reach := AABB(at - Vector3.ONE * radius, Vector3.ONE * radius * 2.0)
+	for m in _query(reach):
+		if not m.burning or m.consumed:
+			continue
+		var box := _aabb(m)
+		var p := at.clamp(box.position, box.end)
+		var d := p.distance_to(at)
+		if d > radius:
+			continue
+		out.count += 1
+		if d < out.distance:
+			out.distance = d
+			out.at = p
+	for sp in spills:
+		var d: float = maxf((sp.position as Vector3).distance_to(at) - sp.radius, 0.0)
+		if d <= radius:
+			out.count += 1
+			if d < out.distance:
+				out.distance = d
+				out.at = sp.position
+	return out
+
+
+## Where it's burning, seen from above: the `MAP_CELL` m squares (Vector2i) any burning member or
+## spill covers, at any height. Made at most every `MAP_EVERY` s and shared, for everyone working
+## out a way clear of it at once (FireFlight).
+const MAP_CELL := 2.0
+const MAP_EVERY := 0.5
+var _map := {}
+var _map_at := -INF
+
+
+func burning_map() -> Dictionary:
+	var now := float(Engine.get_physics_frames()) / Engine.physics_ticks_per_second  # game time
+	if now - _map_at < MAP_EVERY and now >= _map_at:
+		return _map
+	_map_at = now
+	_map = {}
+	for m: StructureMember in active:
+		if not is_instance_valid(m) or not m.burning or m.consumed:
+			continue
+		var box := _aabb(m)
+		var lo := Vector2i(floori(box.position.x / MAP_CELL), floori(box.position.z / MAP_CELL))
+		var hi := Vector2i(floori(box.end.x / MAP_CELL), floori(box.end.z / MAP_CELL))
+		for x in range(lo.x, hi.x + 1):
+			for z in range(lo.y, hi.y + 1):
+				_map[Vector2i(x, z)] = true
+	for sp in spills:
+		var c: Vector3 = sp.position
+		_map[Vector2i(floori(c.x / MAP_CELL), floori(c.z / MAP_CELL))] = true
+	return _map
 
 
 ## In play a tick's work is spread over the frames until the next one (a burning town is ~80 ms
@@ -203,12 +264,14 @@ func _visit(keys: Array, from: int, to: int, dt: float, gone: Array[StructureMem
 				gone.append(m)
 		else:
 			m.temperature += (tuning.ambient_temperature - m.temperature) * tuning.cooling * dt
+			if m.wet > 0.0:
+				m.wet = maxf(m.wet - tuning.evaporation * dt, 0.0)
 			if flammable(m) and m.temperature >= tuning.ignition_temperature:
 				m.burning = true
 				m.burn_time = 0.0
 			elif m.wood == &"glass" and m.temperature >= tuning.glass_cracks_at and not m.broken:
 				m.shatter(m.global_position, Vector3.DOWN)
-			elif m.temperature < tuning.ambient_temperature + 5.0:
+			elif m.temperature < tuning.ambient_temperature + 5.0 and m.wet <= 0.0:
 				gone.append(m)
 
 
@@ -311,8 +374,73 @@ func _scorch_people(dt: float) -> void:
 ## Heat soaks into a member in proportion to how thin it is: `amount` is °C for a 1 cm member.
 func _heat(m: StructureMember, amount: float) -> void:
 	var cm := maxf(m.thickness() * 100.0, 0.5)
-	m.temperature += amount / cm
+	var rise := amount / cm
 	active[m] = true
+	if m.wet > 0.0:
+		# Wet: the heat goes into drying it, and it gets no hotter than boiling till it's dry.
+		var dries := amount * tuning.water_per_degree
+		if dries < m.wet:
+			m.wet -= dries
+			m.temperature = minf(m.temperature + rise, 100.0)
+			return
+		rise *= 1.0 - m.wet / dries
+		m.wet = 0.0
+		m.temperature = minf(m.temperature, 100.0)
+	m.temperature += rise
+
+
+## Water thrown at `at` (a bucket's worth comes down as a few splashes): shared among the members
+## within `radius` by how near each is. A burning one with enough (`quench_litres` a square metre of
+## its broadest face) goes out, steaming, and keeps what's left over as wet; with less, its fire is
+## knocked back (it burns as if just lit). Others are cooled to boiling at most and soak it up. Burning
+## lamp oil isn't put out by water (it floats, and goes on burning). Returns how many it put out.
+func douse(at: Vector3, radius: float, litres: float) -> int:
+	# Up to date for water thrown now (once a frame: a bucket comes down as many splashes).
+	if _grid_frame != Engine.get_physics_frames():
+		_rebuild_grid()
+	var hit: Array[StructureMember] = []
+	var weights: Array[float] = []
+	var total := 0.0
+	var point := AABB(at, Vector3.ZERO)
+	for m in _query(AABB(at - Vector3.ONE * radius, Vector3.ONE * radius * 2.0)):
+		if m.consumed:
+			continue
+		var gap := _gap(point, _aabb(m))
+		if gap > radius:
+			continue
+		var w := maxf(1.0 - gap / radius, 0.2)
+		hit.append(m)
+		weights.append(w)
+		total += w
+	var put_out := 0
+	for i in hit.size():
+		var m := hit[i]
+		var water := litres * weights[i] / total
+		active[m] = true
+		if m.burning:
+			var need := tuning.quench_litres * _broadest_face(m)
+			if water >= need:
+				m.burning = false
+				m.burn_time = 0.0
+				m.temperature = minf(m.temperature, 100.0)
+				m.wet += water - need
+				put_out += 1
+			else:
+				m.burn_time *= 1.0 - water / need
+		else:
+			m.temperature = minf(m.temperature, 100.0)
+			m.wet += water
+	if put_out > 0:
+		FireFX.steam(self, at, put_out)
+		_fx_accum = FX_EVERY  # the flames go at once, not at the next half second
+	Events.doused.emit(at, litres, put_out)
+	return put_out
+
+
+static func _broadest_face(m: StructureMember) -> float:
+	var s := [m.size.x, m.size.y, m.size.z]
+	s.sort()
+	return s[1] * s[2]
 
 
 ## Burnt away: nothing left of it.
@@ -352,6 +480,7 @@ func _consume(m: StructureMember) -> void:
 ## Rubble moves, so it's placed afresh each time.
 func _rebuild_grid() -> void:
 	_grid_age = 0.0
+	_grid_frame = Engine.get_physics_frames()
 	for m: Variant in _placed.keys():
 		if is_instance_valid(m) and not (m as StructureMember).consumed and not (m as StructureMember).broken:
 			continue

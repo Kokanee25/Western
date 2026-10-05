@@ -43,6 +43,7 @@ const LINES := {
 	&"lost": ["...Gone.", "Damn it. Lost him."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
 	&"drink": ["Whiskey. Leave the bottle.", "Another.", "This the best you got?"],
+	&"fire": ["Place is going up!", "Fire! Let's git!", "Hell, she's burning!", "Out! Get out!"],
 	&"taunt": ["Hurry it up, old man.", "What's the matter, Pop? Hands shaking?",
 			"Nice store. Shame if something happened to it.", "You got a problem with my money?",
 			"Put it on my tab. What tab? That's a good one."],
@@ -173,6 +174,13 @@ var _tend_time := 0.0
 var _tend_bleed: Dictionary = {}
 var _after_tend := Mood.FIGHTING
 var _route: Array[Vector3] = []
+## Getting clear of a fire while he's going about his day: the way out, and when he next looks.
+var _fire_way: Array[Vector3] = []
+var _fire_look := 0.0
+var _fire_fled := -INF
+const FIRE_REACH := 8.0
+const FIRE_CLEAR := 15.0
+const FIRE_RUN := 3.6
 var _step_time := 0.0
 var _step_started := false
 var _pose_until := 0.0
@@ -236,6 +244,7 @@ func _ready() -> void:
 	Events.exploded.connect(_on_exploded)
 	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, who: Node) -> void: if who == _find_target(): _quiet = 0.0)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: fear += amount * 0.6)
+	Events.hours_passed.connect(_on_hours_passed)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
 	_gun_sound.unit_size = 25.0
@@ -289,7 +298,7 @@ const NEAR := 12.0
 static func _armed(who: Node) -> bool:
 	if who is Player:
 		var w := (who as Player).weapon
-		return w != null and w.selected and w.drawn
+		return w != null and w.armed and w.selected and w.drawn
 	if who is HumanBody:
 		var h := who as HumanBody
 		return h.held_gun != null and not h.gun_holstered
@@ -516,6 +525,8 @@ func _physics_step(delta: float) -> void:
 	_pick_fight(delta)
 	match mood:
 		Mood.CALM:
+			if _mind_fire(delta):
+				return
 			if _can_go_about():
 				_go_about(delta)
 			else:
@@ -931,6 +942,58 @@ func _answer_call_out(caller: Node) -> void:
 		_step_started = false
 	else:
 		say(&"refuse")
+
+
+## Fire near him while he's going about his day: a word, out of there by a way clear of it, and
+## the day's spoiled: what's left of it is riding out. (In a fight he's got other things on his
+## mind.) True while he's on his way out of it.
+func _mind_fire(delta: float) -> bool:
+	_fire_look -= delta
+	if _fire_look <= 0.0:
+		_fire_look = 0.5
+		var fire := get_tree().get_first_node_in_group(&"fire_system") as FireSystem
+		if fire != null and _now - _fire_fled > 4.0:
+			var near := fire.fire_near(body.global_position, FIRE_REACH)
+			if near.count > 0:
+				if _fire_way.is_empty() and _now - _fire_fled > 20.0:
+					say(&"fire")
+				_fire_fled = _now
+				_fire_way = FireFlight.way_out(fire, places, body, FIRE_CLEAR)
+				if places:
+					agenda = [{"do": &"leave"}]
+					_step_started = false
+	if _fire_way.is_empty() or not body.physiology.can_stand():
+		_fire_way.clear()
+		return false
+	body.set_pose(&"stand")
+	var arrived := body.walk_to(_fire_way[0], FIRE_RUN, delta)
+	_watch_stuck(delta)
+	if arrived or _stuck > 2.0:
+		_fire_way.pop_front()
+		_stuck = 0.0
+	return true
+
+
+## Hours went by while you were out cold: whatever fight there was is over. A town man (one with
+## a day's plan) who can still walk and hasn't given himself up has had his day and gone; the
+## rest stand down where they are.
+func _on_hours_passed(_hours: float, _why: StringName) -> void:
+	if not body.physiology.alive:
+		return
+	for who in relations.entries.keys():
+		if is_instance_valid(who) and relations.stance(who) == Relations.Stance.FIGHT:
+			relations.stand_down(who)
+	if mood in [Mood.SURRENDERED, Mood.DOWN, Mood.DEAD]:
+		return
+	target = null
+	tactic = Tactic.OPEN
+	fear = 0.0
+	_set_mood(Mood.CALM)
+	_after_fight()
+	if places and body.physiology.can_stand() and not body.limp and not body.prone:
+		agenda.clear()
+		left_town.emit()
+		body.queue_free()
 
 
 ## A fight's over and he's still standing: he's done with this town for today.

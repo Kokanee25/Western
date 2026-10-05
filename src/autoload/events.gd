@@ -49,6 +49,11 @@ signal deed(actor: Node, kind: StringName, target: Node, at: Vector3)
 ## &"spotted", &"flank", &"covering", &"help", &"drag", &"down", &"dead", &"quit", &"fall_back",
 ## &"give_up"), who it's about (the man they're fighting, or a friend), and where (or Vector3.INF).
 signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
+## Hours went by in a moment (the clock jumped: you were out cold, `why` &"out_cold"). Whatever
+## runs on time catches up roughly: a fight is over, the gang's day is done, frights fade.
+signal hours_passed(hours: float, why: StringName)
+## Water thrown on a fire: where, how much (litres), and how many burning members it put out.
+signal doused(at: Vector3, litres: float, put_out: int)
 
 
 func _ready() -> void:

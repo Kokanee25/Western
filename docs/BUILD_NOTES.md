@@ -6,6 +6,86 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the townsfolk carry water
+
+- **Once they've got clear of a fire, townsfolk fight it.** If there's a trough near it, up to
+  four men run buckets: fill at the trough, throw from a couple of paces, back for more, till it's
+  out ("That's got it!"). Past saving (a building well alight) they call it lost and let it burn.
+- Men also walk round troughs and rail ends now instead of getting stuck on their corners.
+- **Try:** press **L** on the general store's wall and stand back: the storekeeper should call
+  for water and put it out. Light a few boards and wait before you watch; tell me when it should
+  be past saving.
+
+### New: a bucket to put fires out
+
+- **Press 4 for a water bucket.** Stand at the trough in front of the general store and press
+  **R** to fill it (or left click with it empty), then walk up to the fire and **left click** to
+  throw. The water flies as a spray of drops; the burning boards it drenches go out in a puff of
+  steam and stay wet a while, so the fire next to them can't take them straight back. One bucket
+  puts out a small fire; a wall that's well alight takes several trips. Water won't put out burning
+  lamp oil (it floats and keeps burning), as in life.
+- Nobody takes the bucket for a gun.
+- **Try:** press **L** on the store's front wall, wait half a minute, then fetch water. Tell me
+  whether it feels like a fight you can win if you're quick, and how many trips a bigger fire
+  should take. The townsfolk forming a bucket line comes next.
+
+### Changed: fire burns four times slower
+
+- **You've got time now.** A fire spreads, grows and eats through timber at a quarter of the old
+  pace: two boards lit on the general store's back wall are five boards at about 35 seconds and
+  twenty at about a minute and a quarter, the frame catches at about 50 seconds, and the roof
+  comes in at about eight and a half minutes (it was two). It burns the same way, just slower.
+- **Putting it out comes next:** a bucket from the trough, and the townsfolk forming a line.
+- **Try:** press **L** on the store's back wall and watch it for a few minutes. Tell me if the
+  first minute feels like a fire you could still beat, and whether a building going up in eight or
+  nine minutes is right.
+
+### Fixed: people get away from fire
+
+- **Townsfolk run from a fire now** instead of burning at their posts. Fire within about 8 m and
+  a man shouts it ("Fire! FIRE!"), runs out to the street by a way that keeps clear of the
+  flames, and stands and watches it burn; once it's out near his post he walks back. The gang,
+  going about their day, get out too ("Place is going up!") and ride out early.
+- **Try:** press **L** looking at the general store's back wall from inside. The storekeeper
+  should shout and get out from behind his counter; let it spread to the porch and watch the men
+  on the bench go. Tell me if anyone still burns, or runs the wrong way.
+
+### Changed: going down costs you now
+
+- **Blacking out (or being killed) isn't free any more.** You come round on the store's floor
+  (the doctor's, once there is one) **six hours later**, with your wounds bound but still there:
+  the bleeding's stopped, a broken leg stays broken (splinted: you'll crawl), lost fingers stay
+  lost, and you're short a fifth of your blood, so pale and the next wound puts you down sooner.
+  You're told who shot you down. The men who did it have had their day and ridden off; anyone
+  else in the fight has stopped fighting. (Poorer comes with the purse, later.)
+- **Try:** press **U** for the gang and pick a fight (**H**, put your gun on Lyle). Let them
+  shoot you down. Read the message when you come round and check the clock (**F3**). Tell me if
+  six hours feels right, and whether the store's floor is too close to where you fell.
+
+
+### Trial: blocks fixed to the world (V)
+
+- **Press V** to try the "texel splatting" idea you sent, built into the game: the frame is cut
+  into the painting's blocks, but each block is fixed to the world by its direction from a point
+  that only moves every half metre, so the blocks stay put when you turn and while you step. It
+  brings the quantise-once textures with it and puts M away; the scene reloads the first time
+  (a few seconds). V again turns it off and puts back the look you had.
+- **Try:** in the saloon at night, stand by the card table and turn slowly left and right, then
+  walk round the table and up to the man. Do the same with **M** (the art session's surface
+  blocks: the blocks are the textures' own squares) and with both off (today's look). Watch
+  whether the blocks crawl or shimmer, and look at the man's face up close and from across the
+  room.
+- **What I found here** (rendered in software, not on your card): V is three to five times
+  steadier than today's look and M much steadier still (steadier than no mosaic at all). Against
+  the paintings V scores best in the saloon and the two tie on the street. M in this build blows
+  out the lamp's pool of light on the table (its own lighting: the art session's to fix); lit the
+  game's ordinary way it ties V there too. V puts blocks on everything, the man's face included,
+  and steps every outline the way the painting does, but its outlines and glints flicker a
+  little as you move. Tell me which one reads as the painting in motion.
+- **Send me the F3 photo** with V on, standing in the saloon: V is one extra pass over the whole
+  screen, and what that costs on your card is the open question.
+
+
 ### Fixed: walls now really break in your build
 
 - **The Windows build had been missing the part that carves walls** since the destruction work

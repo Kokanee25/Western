@@ -419,6 +419,9 @@ Most fights end when nerve breaks, not bodies. Wounded people panic, run, beg, s
 ### Treatment
 Bandages, tourniquets, packing wounds, the doctor, bullet probes, whiskey, amputation, infection a week
 later. Wounds last for the player too (a broken leg means weeks on a crutch).
+**Healing is slow** (Sean, 2026-10-05): shot in the day, a bandage stops the bleeding but doesn't
+put you back to normal; you heal properly by sleeping (later, with beds and saving). Where you
+come round after going down will change later too.
 
 ### Field first aid (player and every NPC)
 - **Direct pressure** slows bleeding but occupies your hands (no shooting, reloading or riding).

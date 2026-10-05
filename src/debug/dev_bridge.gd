@@ -22,7 +22,7 @@ const HELP := {
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
-	"weapon": "weapon revolver|shotgun|dynamite|none -> take that out (none: put it away)",
+	"weapon": "weapon revolver|shotgun|dynamite|bucket|none -> take that out (none: put it away)",
 	"wait": "wait SECONDS -> let game time pass",
 	"time": "time HOUR -> set the clock",
 	"clock": "clock SCALE|on|off -> time runs at SCALE (1 = 45 min a day), or stops",
@@ -423,9 +423,9 @@ func _cmd_weapon(a: Array) -> Dictionary:
 			player.weapon.put_away()
 		await _seconds(0.8)
 		return {"weapon": _weapon_line()}
-	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite()}.get(want)
+	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket()}.get(want)
 	if w == null:
-		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|none"}
+		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|none"}
 	player.select_weapon(w)
 	var until := _game_seconds() + 4.0
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
@@ -741,7 +741,7 @@ func _weapon_line() -> String:
 	var w := player.weapon
 	if w == null:
 		return "none"
-	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "?"
+	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "?"
 	var drawn := w.drawn
 	var loads := ""
 	if "state" in w and w.state and w.state.has_method("to_dict"):
@@ -752,6 +752,8 @@ func _weapon_line() -> String:
 			loads = ", %d loaded, %d cocked%s" % [(st.barrels as Array).count(1), (st.cocked as Array).count(true), ", open" if st.open else ""]
 		if st.has("hammer"):
 			loads += ", hammer %s" % ["down", "half cock", "cocked"][int(st.hammer)]
+	if w is BucketViewmodel:
+		loads = ", %.0f l of water%s" % [(w as BucketViewmodel).litres, ", filling" if (w as BucketViewmodel).filling > 0.0 else ""]
 	return "%s %s%s" % [kind, "in hand" if drawn else "put away", loads]
 
 

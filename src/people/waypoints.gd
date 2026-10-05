@@ -86,6 +86,51 @@ func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: StringName, excl
 	return path
 
 
+## The ways from `from` to every place he can get to: {name: points to walk through, ending there},
+## worked out together (one search, a sweep per place to find where he can start), for choosing
+## among many places at once.
+func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = []) -> Dictionary:
+	var dist := {}
+	var prev := {}
+	var open: Array[StringName] = []
+	for n: StringName in points:
+		if _walkable(space, from, points[n], exclude) and absf(from.y - (points[n] as Vector3).y) < 0.6:
+			dist[n] = from.distance_to(points[n])
+			open.append(n)
+	if open.is_empty() and not points.is_empty():
+		# Nothing in a straight line: head for the nearest anyway (as `route` does).
+		var near: StringName = points.keys()[0]
+		for n: StringName in points:
+			if from.distance_to(points[n]) < from.distance_to(points[near]):
+				near = n
+		dist[near] = from.distance_to(points[near])
+		open.append(near)
+	while not open.is_empty():
+		var cur: StringName = open[0]
+		for n in open:
+			if dist[n] < dist[cur]:
+				cur = n
+		open.erase(cur)
+		for nb: StringName in links.get(cur, []):
+			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
+			if d < dist.get(nb, INF):
+				dist[nb] = d
+				prev[nb] = cur
+				if not open.has(nb):
+					open.append(nb)
+	var out := {}
+	for to: StringName in dist:
+		var path: Array[Vector3] = []
+		var n := to
+		while true:
+			path.push_front(points[n])
+			if not prev.has(n):
+				break
+			n = prev[n]
+		out[to] = path
+	return out
+
+
 ## The way to any point: straight there if he can, else to the place nearest it that he can walk
 ## on from, and on.
 func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vector3, exclude: Array[RID] = []) -> Array[Vector3]:
@@ -106,9 +151,12 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 	return path
 
 
-## A man (a little wider than he is, to clear door jambs) can walk it in a straight line.
+## A man (a little wider than he is, to clear door jambs) can walk it in a straight line. Swept at
+## the lower end's height: from a porch down into the street, a sweep at porch height passes over a
+## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
-	return Cover.path_clear(space, a, b, exclude, WIDTH)
+	var low := minf(a.y, b.y)
+	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH)
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.
@@ -124,24 +172,28 @@ static func test_street() -> Waypoints:
 	w.add(&"street_west", Vector3(-14, 0, -9), [&"west_edge"])
 	w.add(&"street_mid", Vector3(3, 0, -9), [&"street_west"])
 	w.add(&"street_east", Vector3(15, 0, -9), [&"street_mid"])
-	# The store (at the origin, front to -Z, the door at x 3).
-	w.add(&"store_porch", Vector3(3, 0.38, -1.2), [&"street_mid"])
-	w.add(&"store_door", Vector3(3, 0.38, 0.9), [&"store_porch"])
-	w.add(&"store_counter", Vector3(4.15, 0.38, 3.7), [&"store_door"])
-	w.add(&"store_aisle", Vector3(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
-	w.add(&"store_behind_counter", Vector3(5.65, 0.38, 6.0), [&"store_aisle"])
-	w.add(&"store_keeper", Vector3(5.65, 0.38, 3.7), [&"store_behind_counter"])
-	# The saloon (turned to face the street, the door at x 7).
-	w.add(&"saloon_porch", Vector3(7, 0.38, -15.3), [&"street_mid", &"street_east"])
-	w.add(&"saloon_door", Vector3(7, 0.38, -17.7), [&"saloon_porch"])
-	w.add(&"saloon_floor", Vector3(6.0, 0.38, -20.3), [&"saloon_door"])
+	# The store (its door at x 3 in its own space, the front to -Z), where the town layout stands it.
+	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
+	w.add(&"store_porch", store.call(3, 0.38, -1.2), [&"street_mid"])
+	w.add(&"store_door", store.call(3, 0.38, 0.9), [&"store_porch"])
+	w.add(&"store_counter", store.call(4.15, 0.38, 3.7), [&"store_door"])
+	w.add(&"store_aisle", store.call(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
+	# A man walking behind the counter needs his shoulder clear of the wall's studs (x 5.9) and his
+	# hip clear of the counter (to x 5.27) the whole way from the keeper's place: in from 5.65.
+	w.add(&"store_behind_counter", store.call(5.5, 0.38, 6.0), [&"store_aisle"])
+	w.add(&"store_keeper", store.call(5.65, 0.38, 3.7), [&"store_behind_counter"])
+	# The saloon (its door at x 5 in its own space, the front to -Z), turned to face the street.
+	var saloon := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Saloon", Vector3(x, y, z))
+	w.add(&"saloon_porch", saloon.call(5, 0.38, -1.5), [&"street_mid", &"street_east"])
+	w.add(&"saloon_door", saloon.call(5, 0.38, 0.9), [&"saloon_porch"])
+	w.add(&"saloon_floor", saloon.call(6.0, 0.38, 3.5), [&"saloon_door"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
-		var z := -21.25 - i * 1.3
-		w.add(StringName("bar_front_%d" % i), Vector3(5.8, 0.38, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
-		w.add(StringName("bar_%d" % i), Vector3(4.95, 0.38, z), [StringName("bar_front_%d" % i)])
+		var z := 4.45 + i * 1.3
+		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, 0.38, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
+		w.add(StringName("bar_%d" % i), saloon.call(7.05, 0.38, z), [StringName("bar_front_%d" % i)])
 	# Round the near end of the bar to the barkeep's side.
-	w.add(&"bar_end", Vector3(5.3, 0.38, -19.1), [&"saloon_floor"])
-	w.add(&"bar_end_inside", Vector3(3.2, 0.38, -19.1), [&"bar_end"])
-	w.add(&"behind_bar", Vector3(3.2, 0.38, -22.6), [&"bar_end_inside"])
+	w.add(&"bar_end", saloon.call(6.7, 0.38, 2.3), [&"saloon_floor"])
+	w.add(&"bar_end_inside", saloon.call(8.8, 0.38, 2.3), [&"bar_end"])
+	w.add(&"behind_bar", saloon.call(8.8, 0.38, 5.8), [&"bar_end_inside"])
 	return w

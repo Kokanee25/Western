@@ -984,6 +984,19 @@ func _slide(motion: Vector3) -> Vector3:
 		q.collision_mask = Layers.WORLD | Layers.PEOPLE
 		q.exclude = exclude
 		var frac := space.cast_motion(q)
+		if frac[0] <= 0.0 and frac[1] <= 0.0:
+			# Started a hair inside something (a corner he was slid into): no motion can be cast
+			# from there at all, so he'd stand stuck for good. Step out along its normal first.
+			q.motion = Vector3.ZERO
+			var inside := space.get_rest_info(q)
+			if inside.is_empty():
+				break
+			var out: Vector3 = inside.normal
+			out.y = 0.0
+			if out.length() < 0.01:
+				break
+			total += out.normalized() * 0.03
+			continue
 		var safe := left * frac[0]
 		total += safe
 		if frac[0] >= 1.0:
@@ -1001,6 +1014,22 @@ func _slide(motion: Vector3) -> Vector3:
 		n = n.normalized()
 		left = (left - safe)
 		left -= n * left.dot(n)
+	if total.length() < 0.0005 and motion.length() > 0.0005:
+		# Caught on a corner (a trough's, a rail's end) where sliding along one face runs into the
+		# other: try heading off a little to either side, the way that gets furthest.
+		var best := Vector3.ZERO
+		for deg in [45.0, -45.0, 90.0, -90.0]:
+			var turned := motion.rotated(Vector3.UP, deg_to_rad(deg)) * cos(deg_to_rad(deg) * 0.5)
+			var q := PhysicsShapeQueryParameters3D.new()
+			q.shape = shape
+			q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3.UP * (0.35 if prone else 0.75))
+			q.motion = turned
+			q.collision_mask = Layers.WORLD | Layers.PEOPLE
+			q.exclude = exclude
+			var got: Vector3 = turned * space.cast_motion(q)[0]
+			if got.length() > best.length():
+				best = got
+		total = best
 	global_position += total
 	return total
 
