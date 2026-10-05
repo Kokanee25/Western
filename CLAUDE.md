@@ -379,9 +379,14 @@ a few views renders them as the full run does.
   block takes the frame's colour at its centre, so blocks stay put as you turn and, within a cell,
   as you walk, and outlines step at the block size; crossing a cell re-cuts them with a
   block-by-block cross-fade; within `near_screen` (0.7 m, the gun) blocks are cut on the screen,
-  past `far` (200 m, sky and backdrop) the frame is left. Light bands (`probe_bands`), a mean of
-  3x3 samples (`samples`), a dark-weighted mean (`dark_weight`) and a blurred read (`prefilter`)
-  are there, off. It brings the quantise-once textures and gives way to the surface blocks
+  past `far` (200 m, sky and backdrop) the frame is left. Under it the game viewport is
+  multisampled (`ProbeMosaic.MSAA`, 4x, put back when it goes; `--probe-msaa=N` for a trial) and
+  the textures' texel edges are soft (`Settings.PROBE_SOFT`, 1 px of blend; `--probe-soft=`): it
+  re-reads the frame at each block's middle, so a texel edge or an outline's stair-step jumping a
+  pixel there flips the whole block. Light bands (`probe_bands`), a mean of 3x3 samples
+  (`samples`), a dark-weighted mean (`dark_weight`), a blurred read (`prefilter`) and a
+  cross-fade that blends the old cube's colours into the new (`fade_blend`) are there, off. It
+  brings the quantise-once textures and gives way to the surface blocks
   (`Settings.probe_active()`). **Motion measures:** `tools/probe_walk.gd` renders six camera paths
   through the saloon shot's set at a fixed step (or, `--depth-pass`, every pixel's distance and
   each frame's camera), and `tools/probe_walk.py stability DEPTH RUN...` moves each pixel back to
@@ -3121,7 +3126,9 @@ a few views renders them as the full run does.
   frame, saloon / street): default 6.42 / 6.28 % (theirs 6.43 / 6.28), surface blocks 1.77 / 3.59,
   probe 3.05 / 4.19. Judge v2, all `--fresh`, saloon / street: default `_r10` 0.225 / 0.329;
   surface blocks `_r13` 0.362 / 0.284; probe with a 3x3 mean `_r9` 0.220 / 0.319; **probe as
-  shipped `_r12` 0.195 / 0.281**; variants scored with the judge's measures, not kept as rounds:
+  shipped `_r12` 0.195 / 0.281** (corrected below, in "The probe mosaic steadier": these probe
+  stills were rendered before the command-line fix, over the game's squared textures; V's own
+  look scores 0.181 / 0.341); variants scored with the judge's measures, not kept as rounds:
   14 bands 0.309 / 0.304, a blurred read 0.227 / 0.317, a dark-weighted mean 0.236 / 0.312, 512
   texels 0.203 / 0.320, one sample before equal angle 0.199 / 0.283. The art session's r6–r8 were
   rendered before `--fresh`: their street shots inherited a brighter state (18 % of the sky blown
