@@ -331,6 +331,7 @@ static func _props(s: FalseFrontBuilding, props: Node3D, f: float) -> void:
 		var light := sconce.get_node_or_null(^"Light") as OilLamp if sconce else null
 		if light:
 			light.energy = 0.6  # many lamps in one room: each a little dimmer
+			light.set_meta(&"lamp_group", &"sconce")
 
 
 
@@ -360,6 +361,7 @@ static func _lamps(s: FalseFrontBuilding, props: Node3D, lamps: Node3D, f: float
 	for z in [4.45, 5.55, 7.95]:
 		var lamp := OilLamp.new()
 		lamp.name = "BackBarLamp"
+		lamp.set_meta(&"lamp_group", &"back_bar")
 		lamp.lit_from_hour = 17
 		lamp.lit_until_hour = 4
 		lamp.energy = 0.45
@@ -380,6 +382,7 @@ static func _lit_prop(s: FalseFrontBuilding, props: Node3D, id: StringName, pos:
 	var def := PropLibrary.definition(id)
 	var lamp := OilLamp.new()
 	lamp.name = "Light"
+	lamp.set_meta(&"lamp_group", &"sconce")
 	lamp.show_mesh = false
 	lamp.lit_from_hour = 17
 	lamp.lit_until_hour = 4
@@ -407,6 +410,7 @@ static func _hanging_lamp(s: FalseFrontBuilding, parent: Node3D, at: Vector3) ->
 	root.position = at
 	var lamp := OilLamp.new()
 	lamp.name = "Light"
+	lamp.set_meta(&"lamp_group", &"hung")
 	lamp.lit_from_hour = 17
 	lamp.lit_until_hour = 4
 	lamp.energy = 0.6

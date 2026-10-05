@@ -56,6 +56,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# (The painting's lamp is about twice ours for a seated eye; ours stays the game's lamp.)
 	var lamp := OilLamp.new()
 	lamp.name = "TableLamp"
+	lamp.set_meta(&"lamp_group", &"table")
 	lamp.lit_from_hour = 0
 	lamp.lit_until_hour = 24
 	# The game's lamp (the painted man's light, paint_look, was tuned under it; mosaic-tiles' 2.6

@@ -206,6 +206,8 @@ python3 tools/judge.py --note="what changed"                   # judge both shot
 python3 tools/critic.py prepare docs/screenshots/judge/<round>  # the blind critic's prompt (an Agent, fresh)
 python3 tools/golden_check.py --render [--only=a,b]            # every fixed view against its golden image
 python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
+godot --headless --fixed-fps 60 -s res://tools/scene_probe.gd -- --out=PDIR   # scene data for the visual checks
+python3 tools/visual_checks.py --from=DIR [--twin=DIR2] --probe=PDIR # blank, missing, flicker, feet, floating, clothes
 ```
 
 **The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
@@ -462,6 +464,19 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge
   (`--approve --from=DIR`). Lavapipe renders only: a real GPU differs everywhere. The gameplay
   session wires the check into CI (needs `mesa-vulkan-drivers` + `xvfb` on the runner).
+  **The visual checks** (`tools/visual_checks.py`, since 2026-10-05, Sean via gameplay's
+  automated-checks brief): from the renders, `blank` (a frame of one colour, black, or mostly
+  exact black: a NaN in the lighting or a player blacked out in a scenario), `missing` (magenta
+  pixels), `flicker` (`--twin`: two renders of one build differ by more than the view's measured
+  noise, the goldens' `tolerances.json`); from `tools/scene_probe.gd`'s data (headless, ~20 s:
+  the street with its people and the gang, then the saloon shot staged; `scene_probe.json` +
+  each man's posed vertices in `people/<phase>_<name>.bin`), `missing` (grid materials with no
+  texture), `feet` (a standing or seated man's soles in the ground, or a standing man's both
+  off it), `floating` (floor-standing props and the street's dressing over or into what's under
+  them: five rays across the footprint, the highest surface wins) and `clothes` (the share of
+  an inner layer's vertices near a garment that lie outside its surface, worst pair per man,
+  by HumanBody's garments and what they cover). Limits in `tools/visual_checks.json`; its
+  `known` entries are measured faults tolerated at today's value, each with why.
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
