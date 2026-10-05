@@ -110,12 +110,16 @@ func _ready() -> void:
 		surface_blocks = "--blocks" in args
 		quantise_once = "--quantise-once" in args
 		autosave = false
-	# The probe mosaic trial for one run (--probe-mosaic), with the smooth textures it wants.
+	# The probe mosaic trial for one run (--probe-mosaic [--probe-bands=N]), with the smooth
+	# textures it wants.
 	if "--probe-mosaic" in args:
 		probe_mosaic = true
 		quantise_once = true
 		surface_blocks = false
 		autosave = false
+		for a in args:
+			if a.begins_with("--probe-bands="):
+				probe_bands = float(a.substr(14))
 	load_from_disk()
 	_protect_speakers()
 
