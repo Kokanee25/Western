@@ -32,6 +32,15 @@ extends Resource
 ## A fire takes this long to get going on a member before it's at full heat.
 @export var growth_seconds := 32.0
 
+## Water (a bucket thrown, `FireSystem.douse`): a burning member goes out with this many litres
+## for each square metre of its broadest face (less knocks it back a while); water left over soaks
+## in, and a wet member takes `water_per_degree` litres of drying per degree its heat would have
+## warmed a 1 cm board before it can warm at all, and dries in the air at `evaporation` litres a
+## second. So a doused wall beside a fire stays out of it for a minute or two.
+@export var quench_litres := 0.25
+@export var water_per_degree := 0.0007
+@export var evaporation := 0.002
+
 ## How fast burning timber turns to char, metres per second, from each face.
 @export var char_rate := 0.0000625
 ## Burnt down to less than this (m) and a board is gone to ash.

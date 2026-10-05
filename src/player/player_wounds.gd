@@ -297,7 +297,7 @@ func _physics_step(delta: float) -> void:
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
-		if w != null and w.selected and w.drawn:
+		if w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
 		else:

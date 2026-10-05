@@ -53,6 +53,7 @@ func _ready() -> void:
 	_bind(&"weapon_revolver", [KEY_1], [])
 	_bind(&"weapon_shotgun", [KEY_2], [])
 	_bind(&"weapon_dynamite", [KEY_3], [])
+	_bind(&"weapon_bucket", [KEY_4], [])  # a water bucket (BucketViewmodel): R fills it at a trough
 	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])

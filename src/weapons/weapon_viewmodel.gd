@@ -18,6 +18,9 @@ const TUCK_MASK := Layers.WORLD | Layers.PEOPLE
 
 ## The gun in your hands (the others are put away). The player switches them.
 var selected := true
+## A weapon: out in your hand, people take it as a threat (a drawn gun, a stick of dynamite); a
+## water bucket isn't one.
+var armed := true
 var drawn := true
 var aiming := false
 ## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).

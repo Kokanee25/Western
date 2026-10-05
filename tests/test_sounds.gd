@@ -7,7 +7,7 @@ extends TestCase
 ## Every sound SynthSounds makes.
 const SOUNDS := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing", &"break_open", &"close",
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
-	&"ricochet", &"timber_crack", &"timber_crash", &"fire"]
+	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam"]
 ## Share of a sound's energy allowed below 40 Hz.
 const SUB_BASS_SHARE := 0.03
 ## Samples at full scale (or within a hair of it) allowed: none.
