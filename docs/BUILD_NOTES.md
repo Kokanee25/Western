@@ -6,6 +6,24 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: Main Street laid out to your map
+
+- **The street is your map's now.** Looking west down Main Street into the sunset: on the left
+  the saloon (the real one, with its room) nearest the east end, then the general store beside it,
+  the barber, and past Market Street the hotel; on the right the livery, the jail with the water
+  tower in the yard behind it, and the assay office. One saloon now (the second one's gone).
+  Freight Street crosses at the east end, where you start; the range is out past it.
+- **Up on steps.** Every boardwalk stands up off the street with a flight of steps down to it;
+  you and the townsfolk go up and down by the steps (the edge elsewhere is too high to walk up).
+  The store's and the saloon's walks join, so you can walk from one door to the other.
+- Not there yet: the telegraph office, the doctor and the bank (next), the cross streets, the
+  dressing laid out for the new street (the art session is on it: some barrels and horses are
+  where they were round each building), the street picture's view, the moon in the saloon's door.
+- **Try:** start, walk west up Main Street, go up the store's steps and into the store, along the
+  walk to the saloon, and in for a drink. Press **U** to bring the gang in: they ride in from the
+  west, drink at the saloon and lean on the storekeeper next door. Tell me how the street's size
+  feels against the map.
+
 ### New: the townsfolk carry water
 
 - **Once they've got clear of a fire, townsfolk fight it.** If there's a trough near it, up to

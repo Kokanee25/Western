@@ -156,7 +156,31 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 ## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var low := minf(a.y, b.y)
-	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH)
+	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH) and _no_step_up(space, a, b, exclude)
+
+
+## The tallest rise a way may have from one footfall to the next: the steps' rise and the slope over
+## them pass; a boardwalk's edge (up on steps since Sean's map) or a crate doesn't.
+const STEP_UP := 0.25
+
+
+## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m).
+static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
+	var n := maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.3))
+	var top := maxf(a.y, b.y) + 0.6
+	var bottom := minf(a.y, b.y) - 0.5
+	var prev := a.y
+	for i in range(n + 1):
+		var p := a.lerp(b, float(i) / n)
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.WORLD, exclude)
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			continue
+		var h := (hit.position as Vector3).y
+		if absf(h - prev) > STEP_UP:
+			return false
+		prev = h
+	return true
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.

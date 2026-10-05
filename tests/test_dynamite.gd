@@ -307,12 +307,11 @@ func _throw_from(player: Player, windup: float) -> DynamiteStick:
 func test_thrown_at_the_store_it_breaks_things() -> void:
 	var street := await _street()
 	var player: Player = street.get_node(^"Player")
-	# Close enough that it lands on the walk by the door, not skittering along it (where it ends up
-	# there turns on the contact order of every body in the street). With the walk up on steps (no
-	# ramp along its edge) a stick that falls short stops against it in the street: from 7 m it
-	# did, from 5 m it flew over onto the porch roof; from 6 m it lands at the door.
+	# From the walk, a couple of paces from the front beside the door: it lands at the wall. (Thrown
+	# from the street it ended up against the walk's edge, on the porch roof or at the door,
+	# by the contact order of every body in the street: the walk is up on steps since Sean's map.)
 	var store := street.get_node(^"Store") as FalseFrontBuilding
-	player.global_position = store.to_global(Vector3(store.door_rect.get_center().x, 0.0, -6.0))
+	player.global_position = store.to_global(Vector3(store.door_rect.get_center().x - 1.6, store.floor_top, -1.8))
 	player.rotation = Vector3(0, PI, 0)
 	await physics_frames(5)
 	var broken := []
