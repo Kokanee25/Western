@@ -3068,3 +3068,18 @@ a few views renders them as the full run does.
   burnt; before, two of the bench men died every time.
   - Known: a man in a fight ignores fire; nobody fetches water or fights it; a man whose post
     burnt down walks back to the ashes; the gang's horses (props) don't react.
+- 2026-10-05 (gameplay): **Fire four times slower** (Sean: "the fire probably burns too fast, it
+  would be cool if you could actually have time to put it out"). `FireTuning`'s
+  `contact_heating` 120 → 30, `radiant_heating` 18 → 4.5, `cooling` 0.022 → 0.0055 (scaled with
+  the heating, so a member settles at the same temperature beside a fire: slowed alone, boards
+  beside one never caught), `growth_seconds` 8 → 32, `char_rate` 0.00025 → 0.0000625: the same
+  fire, four times slower. `tools/fire_timeline.gd` (new: two boards lit on a store's back wall,
+  a second store 4 m off, `--set=name:value` to try numbers) measures it: 5 burning at 10 → 36 s,
+  20 at 20 → 75 s, framing alight at 12 → 50 s, the roof in at 129 → 511 s. The feel range
+  `fire_store_roof_seconds` moved to 360–900 with Sean's words. `test_fire`'s limits ×4;
+  `test_perf`'s burning street lights 20 members a building (it waited 8 s for 4 to spread);
+  `tools/screenshots.gd` (shared, my lines) runs its fire views four times as long, so they show
+  the same stage of the fire; the golden `store_fire_night` re-approved (art's file: a townsman
+  now runs from the fire across the foreground, the fire as before).
+  - Next: putting it out (DESIGN.md §8 fire: water puts it out, bucket lines from the trough).
+

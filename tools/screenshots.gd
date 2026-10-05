@@ -294,7 +294,9 @@ func _run() -> void:
 			fire.ignite(store.get_member(&"store/front/siding/r02_0"))
 			fire.ignite(store.get_member(&"store/front/siding/r02_1"))
 			fire.ignite(store.get_member(&"store/porch/post0"))
-			var sim := 40 if setup == "store_fire" else 130
+			# Half-second steps: 80 s and 260 s of fire (four times what they were when the fire
+			# burnt four times as fast, so the views show the same stage of it).
+			var sim := 160 if setup == "store_fire" else 520
 			for i in sim:
 				fire.step(0.5)
 			for i in 90:
