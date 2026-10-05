@@ -3013,3 +3013,32 @@ a few views renders them as the full run does.
   for the characters session (by eye the hat perches high, nothing through the crown). Gameplay's
   `.github/workflows/visual.yml`: two lines (the flag, the header's note), and its layout note "The
   visual checks in CI" above, three lines, at the gameplay session's request. 323 tests pass.
+- 2026-10-05 (art session, later): **The bold style everywhere (Sean), its first cut behind M; the
+  saloon's lamps; the town map.** Sean picked the street painting's bold squares for the whole
+  game (DESIGN.md §4, shared: a paragraph). The street's target stays `street-golden-hour.png`;
+  the saloon's is now `docs/concept/saloon-blocks.png` (the saloon painting redrawn in that
+  style; `saloon-night.png` kept for the room's mood), in `tools/judge.py` and `tools/critic.py`
+  (judge `--probes` keeps its two darkening probes for the street only). **M is now the bold
+  look** (layout note above, still off by default, Sean's eye decides): the factory's textures
+  cut again by `reduce.py --bold` (16 texels a metre, the grain's contrast doubled, 10–12
+  colours a material, neighbours pushed apart; a material's `bold` dict in `materials.json`)
+  into `assets/textures/bold/` (`PixelArt.bold`, `BOLD_TEXELS`), hard block edges
+  (`BLOCK_SOFT` 0), far blocks kept at 4 px (`BOLD_MIN_SQUARE_PX`), the night's exposure 1.0
+  (`src/art/bold_look.json`, applied under M by `LookPreset.apply_from_args`), and the sky
+  drawn smooth under M. Judge v2 round `2026-10-05_r22` against the new targets: street 0.326
+  → **0.304**, saloon 0.331 → **0.241** (today's default first; `_r14`–`_r21` are the trials:
+  a sun at the street's end and warmer fills read pale, brighter nights blew the lamps).
+  Blind critic `_r22` top three: the seated man's coat and arm smooth faceted slabs (his
+  texture's squares are far finer than the bold style's: characters session, told), the
+  street's lavender sky and small high sun (the Part A restore's gold sky is the answer, still
+  Sean's call), the room behind him brown murk. Review sheet
+  `docs/screenshots/review/2026-10-05_bold.png`. Also today, on the branch: the saloon's wall
+  sconces throw pools (`SCONCE_*`, two under the balcony; judge level, `_sconces.png`), the
+  M look judged at 960×540 (level), Sean's town map `docs/concept/town-map.png` and
+  `docs/briefs/town.md` (one town on this map; four questions for Sean). Found: a look switch
+  (M, I) kept the old look's wood materials and textures in caches, so the reloaded scene
+  mixed looks; `PixelArt.reset_for_look()` empties them. Gameplay's files touched (said here):
+  `src/world/oil_lamp.gd` (an `attenuation` export with a setter, default as before),
+  `src/structures/wood_materials.gd` (`reset()`, five lines), `src/debug/look_preset.gd` (the
+  bold preset under M, a dozen lines), `tests/test_pixel_art.gd` (the M test's expectations);
+  shared `settings.gd` (my lines). 323 tests pass.

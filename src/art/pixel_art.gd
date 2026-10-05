@@ -45,8 +45,15 @@ static var use_factory := true
 ## the texels, no palette, assets/textures/smooth/), so the only quantisation is the screen
 ## mosaic's. Off by default; tools/screenshots.gd --quantise-once.
 static var smooth := false
+## The bold set (tools/textures/reduce.py --bold: the same paintings at BOLD_TEXELS a metre, each
+## texel a clearly different colour from its neighbours, assets/textures/bold/): the street
+## painting's style (Sean, 2026-10-05, DESIGN.md §4). Picked under the surface-blocks look (M).
+static var bold := false
 const FACTORY_PATH := "res://assets/textures/%s.png"
 const SMOOTH_PATH := "res://assets/textures/smooth/%s.png"
+const BOLD_PATH := "res://assets/textures/bold/%s.png"
+## The bold set's texels a metre (reduce.py BOLD_TEXELS): the world is laid at it under M.
+const BOLD_TEXELS := 16.0
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -141,10 +148,18 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
-	var path := (SMOOTH_PATH if smooth else FACTORY_PATH) % key
-	if smooth and not ResourceLoader.exists(path):
+	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
+	if (smooth or bold) and not ResourceLoader.exists(path):
 		path = FACTORY_PATH % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
+
+
+## A look switch (M, I) reloads the scene: what was made for the old look must be made again
+## (textures from another set, materials with another shader), so the caches are emptied.
+static func reset_for_look() -> void:
+	_cache.clear()
+	_materials.clear()
+	WoodMaterials.reset()
 
 
 static func _from_factory(key: String) -> Texture2D:

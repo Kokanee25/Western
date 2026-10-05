@@ -216,8 +216,20 @@ static func reset(tree: SceneTree) -> void:
 			set_value(tree, a, defaults[a])
 
 
-## A `--look=FILE` on the command line (after `--`): applied once the street is up.
+## The bold look's own light (the art session's src/art/bold_look.json), set while M is on.
+const BOLD_LOOK := "res://src/art/bold_look.json"
+static var _bold_applied := false
+
+
+## A `--look=FILE` on the command line (after `--`): applied once the street is up. The bold look's
+## preset first while Settings.surface_blocks is on (and taken back when it's turned off).
 static func apply_from_args(tree: SceneTree) -> void:
+	if Settings.surface_blocks:
+		apply(tree, load_file(BOLD_LOOK))
+		_bold_applied = true
+	elif _bold_applied:
+		reset(tree)
+		_bold_applied = false
 	for a in OS.get_cmdline_user_args() + OS.get_cmdline_args():
 		if a.begins_with("--look="):
 			var path := a.substr(7)

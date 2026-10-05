@@ -50,7 +50,12 @@ const MIN_SQUARE_PX := 2.0
 ## and the finish off. The world's materials take their shader when built, so the scene reloads.
 ## `--blocks` on the command line turns it on for a run without saving it (the screenshot and
 ## flicker tools).
-const BLOCK_SOFT := 0.5
+## Hard block edges since the bold style (Sean, 2026-10-05): the street painting's squares are
+## crisp (0.5 render pixels of blend read as fuzz beside it).
+const BLOCK_SOFT := 0.0
+## The smallest square a far texel draws under the bold look, in render pixels: far surfaces stay
+## blocks, as the painting's do, rather than softening into the mip.
+const BOLD_MIN_SQUARE_PX := 4.0
 ## 0: smooth light on the blocks (each block flat, lit at its centre, so the light still steps
 ## square by square); the judge preferred it to 8 or 12 bands (rings on the table).
 const LIGHT_BANDS := 0.0
@@ -278,7 +283,7 @@ func tile_globals() -> Dictionary:
 	return {&"tile_light": 1.0 if surface_blocks else (0.0 if tile_look == &"off" or quantise_once else 1.0),
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
-			&"min_square_px": 0.0 if quantise_once or surface_blocks else MIN_SQUARE_PX,
+			&"min_square_px": BOLD_MIN_SQUARE_PX if surface_blocks else 0.0 if quantise_once else MIN_SQUARE_PX,
 			&"block_soft": BLOCK_SOFT if surface_blocks else 0.0,
 			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0}
 
@@ -296,6 +301,10 @@ func _apply_texels() -> void:
 			mip = p[1]
 	# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): laid at four times the
 	# density, the paintings cover the same metres.
+	# The bold set (M) is cut at PixelArt.BOLD_TEXELS a metre and laid at it, crisp.
+	if surface_blocks:
+		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
+		return
 	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
 
 
@@ -316,6 +325,7 @@ func set_quantise_once(on: bool) -> void:
 func set_surface_blocks(on: bool) -> void:
 	surface_blocks = on
 	_apply_quantise()
+	_apply_texels()
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
@@ -324,7 +334,9 @@ func set_surface_blocks(on: bool) -> void:
 
 ## What the look sets before any material is built: the smooth texture sets and the mosaic's knobs.
 func _apply_quantise() -> void:
+	PixelArt.reset_for_look()
 	PixelArt.blocks = surface_blocks
+	PixelArt.bold = surface_blocks
 	PixelArt.smooth = quantise_once
 	PeopleBodies.smooth_paint = quantise_once
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}

@@ -1,0 +1,7 @@
+{
+ "name": "bold",
+ "about": "The bold look's light (Settings.surface_blocks, M; DESIGN.md §4, Sean 2026-10-05): the saloon target saloon-blocks.png is a brighter room than the old night painting (median L* 23 to 12), so the night's exposure is up. Judge round 2026-10-05_r19: saloon 0.458 -> 0.237. Applied by LookPreset.apply_from_args before any --look.",
+ "values": {
+  "day.exposure_night": 1.0
+ }
+}

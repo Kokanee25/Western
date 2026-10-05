@@ -1,5 +1,5 @@
 {
- "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, contrast, chroma, hue: the judge's corrections on the tiles in Lab (L*, L*'s spread, a*/b*, a turn of a*/b* in degrees). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated).",
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, contrast, chroma, hue: the judge's corrections on the tiles in Lab (L*, L*'s spread, a*/b*, a turn of a*/b* in degrees). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated). bold: settings for the bold set only (reduce.py --bold, assets/textures/bold/), over reduce.py's BOLD_GRADE.",
  "texels_per_metre": 32,
  "materials": {
   "floor": {
@@ -81,7 +81,10 @@
     900
    ],
    "contrast": 2.6,
-   "hue": -12
+   "hue": -12,
+   "bold": {
+    "contrast": 2.6
+   }
   },
   "framing": {
    "lightness": 0.9,
@@ -192,7 +195,10 @@
     900
    ],
    "chroma": 0.85,
-   "hue": -6
+   "hue": -6,
+   "bold": {
+    "colours": 12
+   }
   },
   "sign_saloon": {
    "for": "street",
@@ -303,7 +309,11 @@
    ],
    "contrast": 1.3,
    "chroma": 1.15,
-   "hue": -1
+   "hue": -1,
+   "bold": {
+    "contrast": 1.6,
+    "colours": 12
+   }
   }
  }
 }
