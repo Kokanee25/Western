@@ -39,6 +39,28 @@ same body.
   shoot you down. Read the message when you come round and check the clock (**F3**). Tell me if
   six hours feels right, and whether the store's floor is too close to where you fell.
 
+
+### Trial: blocks fixed to the world (V)
+
+- **Press V** to try the "texel splatting" idea you sent, built into the game: the frame is cut
+  into the painting's blocks, but each block is fixed to the world by its direction from a point
+  that only moves every half metre, so the blocks stay put when you turn and while you step. It
+  brings the quantise-once textures with it and puts M away; the scene reloads the first time
+  (a few seconds). V again turns it off.
+- **Try:** in the saloon at night, stand by the card table and turn slowly left and right, then
+  walk round the table and up to the man. Do the same with **M** (the art session's surface
+  blocks: the blocks are the textures' own squares) and with both off (today's look). Watch
+  whether the blocks crawl or shimmer, and look at the man's face up close and from across the
+  room.
+- **What I found here** (rendered in software, not on your card): V is three to five times
+  steadier than today's look and M steadier still (as steady as no mosaic at all), and the two
+  score the same against the paintings. V puts blocks on everything, the man's face included,
+  and steps every outline the way the painting does, but its outlines and glints flicker a
+  little as you move. Tell me which one reads as the painting in motion.
+- **Send me the F3 photo** with V on, standing in the saloon: V is one extra pass over the whole
+  screen, and what that costs on your card is the open question.
+
+
 ### Fixed: walls now really break in your build
 
 - **The Windows build had been missing the part that carves walls** since the destruction work

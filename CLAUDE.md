@@ -369,6 +369,25 @@ a few views renders them as the full run does.
   never chunks), the mosaic and the finish are off (`Settings.mosaic_active()`).
   `tools/pan_frames.gd` pans a view frame by frame and measures how much changes and flips back
   (the flicker probe's measures), for judging a look in motion.
+  **The probe mosaic** (a trial, 2026-10-05, the characters session at Sean's request;
+  `src/render/probe_mosaic.gd(shader)`, `ProbeMosaic` on the game camera; `Settings.probe_mosaic`,
+  **V** toggles, not saved, off by default; `--probe-mosaic[=texels] [--probe-bands=N]` on any
+  run's command line, `--probe-param=name:value,...` in `screenshots.gd` and `probe_walk.gd`):
+  texel splatting's idea (Ebert 2026, from the paper's description) as one pass over the finished
+  frame. Each pixel's point in the world falls in a texel of a cube of `probe_texels` (384, spaced
+  by equal angle) a face round an origin snapped to a `probe_cell` (0.5 m) grid, and the whole
+  block takes the frame's colour at its centre, so blocks stay put as you turn and, within a cell,
+  as you walk, and outlines step at the block size; crossing a cell re-cuts them with a
+  block-by-block cross-fade; within `near_screen` (0.7 m, the gun) blocks are cut on the screen,
+  past `far` (200 m, sky and backdrop) the frame is left. Light bands (`probe_bands`), a mean of
+  3x3 samples (`samples`), a dark-weighted mean (`dark_weight`) and a blurred read (`prefilter`)
+  are there, off. It brings the quantise-once textures and gives way to the surface blocks
+  (`Settings.probe_active()`). **Motion measures:** `tools/probe_walk.gd` renders six camera paths
+  through the saloon shot's set at a fixed step (or, `--depth-pass`, every pixel's distance and
+  each frame's camera), and `tools/probe_walk.py stability DEPTH RUN...` moves each pixel back to
+  where its point of the world was a frame before and counts those whose colour isn't there (the
+  camera's own movement taken out; no mosaic scores 0.1-0.2 %); `measure` gives the plain changed
+  and flipped-back shares, `video` a side-by-side (`--crop=` for a phone).
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -3068,6 +3087,54 @@ a few views renders them as the full run does.
   burnt; before, two of the bench men died every time.
   - Known: a man in a fight ignores fire; nobody fetches water or fights it; a man whose post
     burnt down walks back to the ashes; the gang's horses (props) don't react.
+- 2026-10-05 (characters session, at Sean's request): **The probe mosaic: texel splatting's idea
+  in the game, behind V, measured against the surface blocks.** Sean asked whether texel splatting
+  (Ebert 2026: pixel art held still by indexing the scene by direction from a point snapped to a
+  grid) could make the painting's look workable, then "keep working at it". Built as one pass over
+  the finished frame, no extra renders (layout note above, "The probe mosaic"; the art session's
+  `src/render/` folder, new files, said here), and measured on six camera paths through the saloon
+  shot's set at a fixed step with a new measure (`tools/probe_walk.py stability`: each pixel moved
+  back to where its point of the world was a frame before, counting the colours that aren't there,
+  so the camera's own movement is taken out). Unstable pixels a frame, still / turn / walk / strafe
+  / circle / approach: no mosaic 0.03 / 0.22 / 0.22 / 0.22 / 0.18 / 0.10 %; today's default (screen
+  mosaic) 0.96 / 3.52 / 2.61 / 2.77 / 2.61 / 2.70; the first probe, with 14 OKLab light bands, 0.48
+  / 2.18 / 2.65 / 2.03 / 2.18 / 1.89 (the bands were most of it: a block near a band's edge flips
+  as you move, and they crush the darks); with smooth light 0.05 / 0.54 / 0.70 / 0.75 / 0.56 /
+  0.33; **as shipped** (texels by equal angle, one sample a block) 0.12 / 0.75 / 0.96 / 0.75 / 0.84
+  / 0.60; **the surface blocks (M) 0.04 / 0.23 / 0.22 / 0.23 / 0.19 / 0.12**, as steady as no mosaic.
+  What flickers in the probe is outlines and glints: it re-reads the frame, whose own edges are
+  jagged; the re-cut as you cross a cell adds little. Judge v2, every look rendered `--fresh`
+  (saloon / street): default `2026-10-05_r10` 0.225 / 0.329, surface blocks `_r11` 0.198 / 0.279,
+  probe with a 3x3 mean `_r9` 0.220 / 0.319, **probe as shipped `_r12` 0.195 / 0.281**; variants
+  scored with the judge's measures, not kept as rounds: 14 bands 0.309 / 0.304, a blurred read
+  0.227 / 0.317, a dark-weighted mean 0.236 / 0.312, 512 texels 0.203 / 0.320, one sample before
+  equal angle 0.199 / 0.283. For the art session: rounds r6–r8 were rendered before `--fresh`, and
+  their street shots inherited a brighter state (18 % of the sky blown to the fresh renders'
+  1.4 %), so their street scores (0.53–0.59) don't compare; r10 and r11 are the fair baselines.
+  The art session's pans (`tools/pan_frames.gd`, flip-backs a frame, saloon / street): default
+  6.42 / 6.28 % (theirs 6.43 / 6.28), surface blocks 1.82 / 3.68 (theirs), probe as shipped 2.09 /
+  3.76. Cost (`tools/look_cost.gd`, lavapipe's raster ms a frame, saloon / street; the render CPU
+  8.4–9.3 / 4.4–4.5 ms under all three): default 1124 / 533, surface blocks 1042 / 509, probe 1053
+  / 540. Blind critic on r12 (`critic/critic.md`), top three: the street's sky isn't golden hour
+  and its sun is a small white glare; the room behind him is dark murk, not a busy lamplit saloon;
+  his face is a speckled orange smear with sleepy eyes and his hat has lost its shape. Review sheet
+  `docs/screenshots/review/2026-10-05_probe_mosaic.png` (painting | default | surface blocks |
+  probe, his face and the far street at 2x, the table). **Verdict:** texel splatting's idea works
+  in the game, and the surface blocks already do its job better: the two tie on the judge and
+  both beat today's default on it and in motion, but the surface blocks are three to five times
+  steadier than the probe and cost a little less. The probe's one gift is blocks on everything,
+  the man's face included, and outlines stepped at the block size; whether its flicker on
+  outlines shows on a real card is Sean's call (BUILD_NOTES: V, M and neither in motion). Every
+  mosaic over his face loses his eyes: the painting's face is drawn for its blocks (eyes two or
+  three squares with whites), ours isn't, so the characters session's next step for the look is
+  his face drawn at the block size. Files: shared `settings.gd` (the probe's lines; and one line
+  in the art session's `mosaic_active()`, so it counts the probe and F3's look line is right),
+  `controls.gd` (V; the comments on I and M put right: main's M line carried I's),
+  `tools/screenshots.gd` (`--probe-*`), `config/look_panel.json` (four rows), gameplay's
+  `src/main/main.gd` (three lines: the probe on the camera, the key), `tests/test_probe_mosaic.gd`
+  (6), `tools/probe_walk.gd`/`.py`. This workspace's native library was destruction step 1's (no
+  VoxelMember), so the four voxel tests failed here till it was rebuilt (`cargo build
+  --release`); CI builds its own. 336 tests pass (with main's merged in).
 - 2026-10-05 (gameplay): **Fire four times slower** (Sean: "the fire probably burns too fast, it
   would be cool if you could actually have time to put it out"). `FireTuning`'s
   `contact_heating` 120 → 30, `radiant_heating` 18 → 4.5, `cooling` 0.022 → 0.0055 (scaled with
