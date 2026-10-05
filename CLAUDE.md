@@ -3025,10 +3025,10 @@ a few views renders them as the full run does.
   into `assets/textures/bold/` (`PixelArt.bold`, `BOLD_TEXELS`), hard block edges
   (`BLOCK_SOFT` 0), far blocks kept at 4 px (`BOLD_MIN_SQUARE_PX`), the night's exposure 1.0
   (`src/art/bold_look.json`, applied under M by `LookPreset.apply_from_args`), and the sky
-  drawn smooth under M. Judge v2 round `2026-10-05_r22` against the new targets: street 0.326
-  → **0.304**, saloon 0.331 → **0.241** (today's default first; `_r14`–`_r21` are the trials:
+  drawn smooth under M. Judge v2 round `2026-10-05_r27` against the new targets: street 0.326
+  → **0.304**, saloon 0.331 → **0.241** (today's default first; `_r19`–`_r26` are the trials:
   a sun at the street's end and warmer fills read pale, brighter nights blew the lamps).
-  Blind critic `_r22` top three: the seated man's coat and arm smooth faceted slabs (his
+  Blind critic `_r27` top three: the seated man's coat and arm smooth faceted slabs (his
   texture's squares are far finer than the bold style's: characters session, told), the
   street's lavender sky and small high sun (the Part A restore's gold sky is the answer, still
   Sean's call), the room behind him brown murk. Review sheet

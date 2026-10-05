@@ -45,7 +45,7 @@ stands without the bathhouse and undertaker.
 
 1. ~~Which picture is the target for the look.~~ **Settled** (Sean, 2026-10-05): the street
    painting's bold style everywhere; the judge and the blind critic measure the saloon shot
-   against `saloon-blocks.png` from now on (rounds before `2026-10-05_r14` were against
+   against `saloon-blocks.png` from now on (rounds before `2026-10-05_r19` were against
    `saloon-night.png` and don't compare).
 2. ~~The sun.~~ **Settled** (Sean, via the gameplay session): "The sun sets right down the Main
    Street": `sun_azimuth_degrees` 0, due west (on the art branch; lands with the bold look).

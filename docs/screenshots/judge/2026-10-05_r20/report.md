@@ -1,17 +1,17 @@
-# 2026-10-05_r20: bold look, saloon brighter: salB
+# 2026-10-05_r20: bold look (M): bold textures 16/m, hard edges, far blocks 4 px; sun as today (az 20)
 
-## shot_match_saloon (score 0.340, lower is closer)
+## shot_match_saloon (score 0.458, lower is closer)
 
 ![saloon](saloon_judge.png)
 
-- 1.0 the brightest too bright (91 vs 80)
-- 1.0 bright things too bright (68 vs 58)
-- 0.8 bright things too pale (chroma-L* correlation) (0.67 vs 0.83)
-- 0.4 block edges too hard (0.32 vs 0.27)
-- 0.4 too yellow (21 vs 18)
-- 0.3 too much blown highlight (share over L* 80) (0.021 vs 0.010)
-- 0.3 too little deep shadow (share under L* 10) (0.15 vs 0.18)
-- 0.2 colour too strong (28 vs 26)
+- 3.0 too much deep shadow (0.48 vs 0.18)
+- 1.2 midtones too dark (10 vs 23)
+- 0.7 bright things too dim (52 vs 58)
+- 0.6 colour too weak (chroma) (22 vs 26)
+- 0.3 too blue/grey (b*) (15 vs 18)
+- 0.3 palette: colours the painting lacks (1.8 dE)
+- 0.3 palette: painting colours we lack (1.8 dE)
+- 0.3 the brightest too dim (78 vs 80)
 
 ## shot_match_street (score 0.287, lower is closer)
 

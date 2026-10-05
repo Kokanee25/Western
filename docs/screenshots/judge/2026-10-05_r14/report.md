@@ -1,27 +1,27 @@
-# 2026-10-05_r14: new targets (saloon-blocks, street-blocks): today's default, the baseline
+# 2026-10-05_r14: M look + sky smooth under M, on the restore, native 1280x720
 
-## shot_match_saloon (score 0.331, lower is closer)
+## shot_match_saloon (score 0.200, lower is closer)
 
 ![saloon](saloon_judge.png)
 
-- 1.1 midtones too dark (11 vs 23)
-- 0.8 too much deep shadow (0.26 vs 0.18)
-- 0.8 bright things too dim (51 vs 58)
-- 0.6 colour too weak (chroma) (21 vs 26)
-- 0.5 the brightest too dim (76 vs 80)
-- 0.4 palette: colours the painting lacks (2.4 dE)
-- 0.3 too blue/grey (b*) (15 vs 18)
-- 0.3 palette: painting colours we lack (1.8 dE)
+- 0.6 too much deep shadow (0.47 vs 0.41)
+- 0.5 far tiles chunkier than the painting's (7.5 vs 6.2 px)
+- 0.5 block edges too hard (0.30 vs 0.25)
+- 0.3 bright things too bright (47 vs 44)
+- 0.3 colour too weak (chroma) (20 vs 23)
+- 0.3 bright things too pale (chroma-L* correlation) (0.79 vs 0.85)
+- 0.3 too blue/grey (b*) (14 vs 17)
+- 0.2 midtones too dark (11 vs 12)
 
-## shot_match_street (score 0.326, lower is closer)
+## shot_match_street (score 0.531, lower is closer)
 
 ![street](street_judge.png)
 
-- 1.3 bright things too pale (chroma-L* correlation) (0.31 vs 0.57)
-- 0.8 shadows too light (14 vs 6)
+- 2.3 too much blown highlight (share over L* 80) (0.087 vs 0.017)
+- 1.4 bright things too pale (chroma-L* correlation) (0.29 vs 0.57)
+- 1.3 bright things too bright (84 vs 71)
 - 0.5 too little deep shadow (share under L* 10) (0.04 vs 0.09)
-- 0.4 bright things too bright (76 vs 71)
-- 0.4 palette: colours the painting lacks (2.6 dE)
-- 0.4 near tiles finer than the painting's (5.5 vs 6.4 px)
-- 0.3 block edges too hard (0.36 vs 0.33)
-- 0.3 palette: painting colours we lack (1.6 dE)
+- 0.5 shadows too light (11 vs 6)
+- 0.5 midtones too bright (42 vs 37)
+- 0.5 palette: colours the painting lacks (2.8 dE)
+- 0.4 the brightest too bright (88 vs 84)
