@@ -33,6 +33,16 @@
    },
    "outfit": {},
    "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
+  },
+  "kid": {
+   "note": "The gang's Kid by image-to-3D from Sean's own front picture (tools/characters/: kid is given, kid_body and kid_hat painted from it), in layers: his body bare-headed (`model`) and his hat its own piece, so it can be shot off.",
+   "source": "tripo",
+   "model": "kid_body",
+   "pieces": {
+    "hat": "kid_hat"
+   },
+   "outfit": {},
+   "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair"
   }
  }
 }

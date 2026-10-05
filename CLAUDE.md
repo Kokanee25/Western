@@ -2548,6 +2548,139 @@ summary and an artifact.
   barely marked the barber's; the townsfolk say the same lines in the same second; stars at golden
   hour; light through the store's wall corners. The look, the gang's talk and their teamwork were
   the high points.
+- 2026-10-04 (Pixel-factory test session, at Sean's request): **four of Sean's new pictures added
+  to `docs/concept/style/`** (art's folder, said here) with `captions.json`, for the LoRA's next
+  training (`style: train`): the golden-hour standoff, the saloon from its balcony, the street at
+  night with the revolver, the dynamite blast on the street; later three close portraits (an old man, a bearded man, a woman) and four full-length figures in scene light (a ranch hand on the street, the old man on a porch at night, the woman in the store doorway, a duster from behind). Judged by eye and by judge v2 against
+  the nearest painting (standoff 0.143, balcony 0.208; the night street and the blast score worse
+  only because the judge weighs light and they're a night scene and a fireball). Left out: the
+  doctor's office (softer, paler, less of the mosaic, weaker drawing).
+  - Then **the LoRA retrained on them** (People run 30: 75 crops, 27 of them from the eleven
+    pictures; `tools/style/style_lora.json`) and sampled (run 31, the same six prompts;
+    `docs/style_test/lora/`, the first LoRA's samples kept in `run19/`, side by side in
+    `compare_run19_run31.png`). Better: the street (lettered false fronts, the paintings' ruts and
+    boardwalks), the portrait (a drawn three-quarter face, deeper lines) and the horse (fuller
+    form, a cleaner saddle). The same: the saloon, the full-length gunman (still a grey backdrop:
+    that sample's prompt asks for one). Worse: the boards, smoother and less of the mosaic. Known:
+    it spells signs badly ("SALLOONN"), and the street sample is close to the standoff picture's
+    composition (more streets seen other ways round would loosen it).
+  Then six props pictures (17 in the folder): the revolver on a card table, the revolver in hand
+  in a street standoff (first person), the shotgun against the bar, dynamite on a crate, a gun belt
+  and hat on a wall, and a lamplit card table (the lamp and table the paintings draw). Three more
+  were near-copies of these and left out (the same picture with red modern shotgun shells, four
+  dynamite sticks for three, the revolver with a malformed cylinder). Not trained on yet.
+  Then eleven more for the light and places the set lacked (28 in the folder): the street at
+  dawn, in rain and at noon, a desert wagon road, the general store, the jail at night, the
+  livery barn, a camp at night, a vaquero, an alley, and a close study of a plank wall. Left
+  out: a close study of the road from above (its ruts stand up as ridges and its hoof prints are
+  oversized horseshoe stamps). The dawn, rain and noon streets share one layout. Not trained on yet.
+  Then **the LoRA retrained on all 28** (People run 33: 126 crops, 78 from the pictures; run 32
+  failed at fal's upload, 413, the PNG zip was 122 MB, so `tools/style/train_style.py` zips the
+  crops as JPEG at quality 95 with full colour, 63 MB, art's file, two lines) and sampled (run
+  34; run 31's samples kept in `run31/`, all three runs side by side in
+  `compare_run19_run31_run33.png`). Better: the portrait (finer squares, lamplight across the
+  face, a drawn three-quarter face). The same: the saloon, the boards, the street (signs still
+  misspelt). Worse: the horse sample now sits small in the standard street layout (the street
+  pictures share it), and the gunman's grey backdrop picked up vertical streaks like the rain.
+  Then seven more (35 in the folder): a Chinese railroad worker at the depot, the undertaker at
+  his workshop, the barkeep polishing a mug, the mine entrance, and three studies (a blank
+  signboard, an adobe wall, the card table from above). Left out: a close study of a plank floor
+  (its squares are fine random noise, the grain-as-noise the art review warned against).
+  Not trained on yet.
+  Sean preferred run 31's portrait to run 33's (bolder, bigger squares), and the squares agree:
+  the three close portraits' squares are 11–13 px across at 1280 wide, prop close-ups 9–10, full
+  scenes and the concept paintings 5–7; run 33's extra scenes taught it scene-sized squares on a
+  close face. **Back on run 30's LoRA**: `tools/style/style_lora.json` is run 30's again (every
+  tool reads it: `head_paint.py`, `paint_full_length.py`, `sample_style.py`); run 33's record kept
+  in `style_lora_run33.json`. Next training waits on more close portraits in the original
+  style, with close-ups weighted up; the scene pictures stay filed.
+  Then nine more (44 in the folder): the saloon's props (a hanging lamp, the batwings from inside,
+  the piano, the back bar and its mirror, a wall sconce, the stag and a painting, the bar's foot
+  rail and spittoon) and boot prints in sand and in red dirt. Left out: boot prints in grass (fine
+  streaky noise) and in mud (lumpy cube clumps, a voxel look rather than the paintings' flat
+  squares). Not trained on yet; the faces sheet (`docs/style_test/faces_bold_squares.png`) shows
+  the bold faces at 14–31 squares across the face, Sean's three portraits at 48–49.
+  Then six close portraits (50 in the folder): a farm woman in profile, an old prospector, the
+  doctor in spectacles, a gambler, a man in moonlight, a young woman in a red dress. Their light
+  is the painting's (median L* 4–11, deep-shadow share 0.57–0.81, the painting's man 11 and 0.69)
+  but their faces are ~50–60 squares across, as fine as Sean's first three portraits; those three
+  trained run 30's ~30-square face, so fine portraits still teach the bold look when portraits
+  aren't outweighed by scenes. Left out: Sean's first in this batch (bright and too orange, median
+  L* 20, chroma 30) and a man on a blue-grey ground (the flattest light and softest eyes of the set).
+  Then a vaquero in a sombrero (51 in the folder), Sean's retry of the first portrait with the
+  darker prompt: median L* 10 and deep-shadow share 0.63 (the painting's man 11 and 0.69),
+  chroma 25 (was 30). Left out: its twin with freckled skin (the dark specks are noise, not
+  squares). Its squares are still fine, ~60 across the face.
+  Then the red-dress woman redrawn with bigger squares (the same woman and pose, so it replaces
+  the first in place): ~15–25 squares across the face (the painting's man ~15–19), median L* 8,
+  deep-shadow share 0.69, chroma 26. The first portrait at the painting's own square size.
+  Then the doctor again in a new drawing (52 in the folder; a different pose and face from the
+  first, so both kept): ~25–35 squares across the face, big blocks on the cheeks with the eyes,
+  spectacles and moustache drawn finer (as the painting's man's are), median L* 7, deep-shadow
+  share 0.68, chroma 26.
+  Then a Chinese railroad worker's portrait (53 in the folder): ~15–25 squares across the face,
+  the painting's size; warm lamplight on his face and cold moonlight from one side, so cooler and
+  less colourful than the rest (median L* 5, deep-shadow share 0.77, chroma 10). Left out: its
+  twin in the same pose with finer squares.
+  Then a cowboy in full profile under a hat with a studded band (54 in the folder): the first
+  side view of a man and the first bold portrait in a cowboy hat, ~25 squares across the face,
+  and the painting's light (median L* 11, deep-shadow share 0.63, chroma 22).
+  Then the same cowboy seen from directly behind (55 in the folder): the first back of a head
+  under a hat, the view the head repaint asks for last; big squares (the crown ~10 across, the
+  hair ~20–35), darker than the painting (median L* 5, deep-shadow share 0.83, chroma 15).
+  Then the same cowboy in profile facing right (56 in the folder): a new drawing, not the left
+  profile flipped (it differs from that one mirrored as much as two different drawings do), ~25
+  squares across the face, the painting's light (median L* 9, deep-shadow share 0.65, chroma 21).
+  Then a man in a bowler hat looking straight at you (57 in the folder): the first front view
+  under a hat, ~27 squares across the face; the frame is darker and greyer than the painting
+  (median L* 3, deep-shadow share 0.83, chroma 12: a near-black background), his face lit as the
+  set's others are. Sean sent three tries; ChatGPT drifted finer and greyer with each redo in one
+  chat (27 → 33 → 39 squares across the face, chroma 12 → 10 → 9), so the second and third are
+  left out. The fix: a fresh chat a picture, with a bold one attached as the reference.
+  Then the cowboy facing you (58 in the folder): ~16 squares across the face (run 31's portrait,
+  the look Sean picked, measures 16; the painting's man ~19), the painting's light (median L* 11,
+  deep-shadow share 0.61). ChatGPT painted him hot orange (chroma 28, his face 49; the painting's
+  23 and 33), so his colour is eased to 0.8 (Lab a* and b*) before filing: chroma 22.5, face 39.
+  Left out: its twin, with smaller squares (~22 across the face) full of dark specks, the
+  low-res-texture look Sean called PS1 graphics.
+  Then a young ranch hand in soft daylight (59 in the folder): the first close face in even
+  light (the game lights faces itself, so the head repaint wants faces painted in even light),
+  ~17–18 squares across the face, crisp even squares on the hat and shirt. Frame median L* 54,
+  chroma 28 (the street painting's 26.5), so filed as it came. Made with the rewritten prompt:
+  run 31's portrait attached for the squares, the grid described, "not a 3D render".
+  Then the cowboy at three-quarters (60 in the folder): both eyes showing, the far cheek turning
+  away, ~16 squares across the face (~20 with the ear), crisp squares on the hat, coat and
+  ground. Frame median L* 9, deep-shadow share 0.70, chroma 25, so filed as it came. Not a
+  near-copy of his profile (grey difference 20; near-copies measured 4–12). The cowboy is now in
+  five of the head repaint's six views, and the set has the ten bold close-ups agreed for the
+  next training.
+  Then the training (Sean: "go"): `docs/concept/style/weights.json` puts the ten bold close-ups'
+  crops in three times each (`train_style.py` reads it: art's file, a few lines), so they're 90 of
+  the 282 crops; the zip's JPEG is at quality 90 (`JPEG_QUALITY`: at 95 the 282 crops came to
+  ~117 MB, past fal's single upload, which refused 122 MB; 77 MB at 90, the squares unchanged by
+  eye at 3×). Run 30's record is kept in `tools/style/style_lora_run30.json` and run 34's samples in
+  `docs/style_test/lora/run34/`, so the new LoRA can be judged against both and undone.
+  People run 35 trained it (282 crops, 1000 steps, 12 minutes); its record is
+  `tools/style/style_lora.json` (and `style_lora_run35.json`), so the sampler paints with it.
+  Run 36, the samples, failed before painting anything: fal answered 403 "User is locked.
+  Reason: Exhausted balance". The training spent what was left, so the samples wait on a top-up
+  at fal.ai/dashboard/billing (about $0.15 for the six). Until they're judged, the new LoRA is
+  untested; going back to run 30's is one copy (`style_lora_run30.json` over `style_lora.json`).
+  After Sean topped up, run 37 painted five of the six samples. fal refused the gunman (the
+  same lock), so `gunman_full.png` is still run 34's. Side by side:
+  `docs/style_test/lora/compare_run31_run34_run37.png`. The new portrait is a front-facing cowboy
+  with the set's round-studded band, bold blocks on the chin, coat and hat, and the eyes and brow
+  drawn fine. It's ~23 squares across the face by run length (run 31's ~17, run 34's ~22),
+  though by texture scale its blocks are the largest of the three (10 px to 8). The horse is big
+  in frame again (run 34's was small); the saloon and the street are much the same; signs are
+  still misspelt. Its face isn't clearly as bold as run 31's, so by the rule agreed
+  `style_lora.json` is run 30's again. Run 35's record stays in `style_lora_run35.json` for
+  Sean's eye.
+  Sean: "run 31 is the best". So run 30's LoRA stays (`style_lora.json`). A likely reason the
+  retrains go finer: the concept paintings are cut at half their height, so their squares reach
+  training size at ~22 px, while Sean's pictures are cut at full height, so a scene's squares
+  arrive at ~8–10 px. Run 30 was mostly painting crops; every retrain since has added scenes. If
+  we train again, cut the scene pictures at half height too.
 - 2026-10-05 (art session): **Three sessions; review tools' art items 1 and 2.** Sean: the
   Pixel-factory chat becomes the **characters session** (How we work above: it owns making
   people, from his picture to a fitted man, the LoRA and the layered clothing; art keeps how
@@ -2615,12 +2748,79 @@ summary and an artifact.
   real player's) the process-frame timers can drift a little: the replay says where. Shared
   `controls.gd`: `bug_report` on F12, `debug_ignite` lost F12 (L stays). `tools/tour.gd` now puts a
   `.gdignore` in `build/tour` (the editor imported 900 frames).
-\n
 - 2026-10-05 (gameplay, checks 2): **The nightly soak** (layout note under Commands). Tried here:
   12 game minutes caught a real error on its first run (the bug recorder named a class that isn't
   declared, so `main.gd` failed to compile; fixed before it merged); then 15 minutes in real time
   and 10 at a fixed step passed: memory 272 to 279 MB, nodes ~25k, no orphans, 3.4–3.8 ms a frame
   at a fixed step. Nightly: 240 game minutes, ~70 minutes on a runner.
+- 2026-10-05 (Pixel-factory test session, at Sean's request): **custom men, starting with the
+  Kid.** Sean asked how we get custom models now: the stranger's pipeline (paint four views on
+  fal, Tripo, the head repaint, `fit_tripo.py`), with Sean making each man's front picture in
+  ChatGPT (full length, A-pose, flat light, plain grey ground, clean, not pixel art). The Kid's
+  is `assets/people/tripo/kid_full.png`. `characters.json` has `kid` (`given`: that front is kept
+  as it is, only the other three views painted), `kid_body` (from it, hatless) and `kid_hat`
+  (the hat alone), so his hat is its own piece and can be shot off. `paint_full_length.py`
+  (tools/characters/, the art session's pipeline: said here) gained `given` and `back_of` (what
+  his back shows when it isn't a coat and long hair: braces, short hair); the stranger's prompts
+  are word for word as before. Next: People `style: characters` with `characters:
+  kid_body,kid_hat` to look at before Tripo, then Tripo, the head repaint, the fit.
+  Then the turnarounds (People runs 38–42, fal, ~$0.80; kept: run 40's hat and run 42's body,
+  `docs/screenshots/tripo/kid_front_hatless_hat.png` beside Sean's picture). Run 38's hat came
+  back a clean grey fashion fedora and his hatless hair a combed quiff; the fixes were all in
+  `characters.json`'s words. The hat as Sean drew it (tan felt grimy in broad patches, a dark
+  band, the brim curled up at both sides) came right at run 40 ("blotchy stains" had drawn
+  round dots). The hair took four tries: "flattened where the hat sat" (39) and "lying flat
+  where the crown pressed it" (41) each put a red cloth on his head, "shaggy, messy, untidy"
+  (40) a huge mop, "grown long to his collar" (41) hair past his shoulders; run 38's words with
+  "short, a little tousled" (42) gave Sean's lad bare-headed. For Kontext, a hatless man's
+  words never mention where the hat was, and his hair is said plainly. `head_paint.py` takes a
+  character's own `head` words (whose head, how he looks, the light, any view's words, and
+  `cut` for a bare head; the stranger's asks are word for word as before) and `kid_body` has
+  his (young, freckled, no hat, soft even light); `fit_tripo.py` takes a layered man's repaint
+  from his model's `<model>_color.png`. Both art files, a few lines each. Waiting on Sean's
+  look before Tripo (`characters: kid_body,kid_hat`, ~85 credits as the stranger's took).
+  Sean: "keep this one" (the legs and torso looked short to him). Tripo built both (People run
+  43); fitting him showed why, and what else was wrong, all fixed in `tools/blender/fit_tripo.py`
+  (the art session's pipeline, said here), for bare-headed (layered) men only unless noted, so
+  the stranger at the card table is unchanged: **(1) above his shoulders**: Tripo's auto-rig puts
+  the neck joint at the shoulder line and the head joint half way up the neck (the Kid's at 0.76
+  and 0.81 of his height, his chin 0.86), ours 4 and 13 cm over our shoulders, so joint to joint
+  lifted his shoulders to his jaw; now his shoulders go onto ours and all of him above them is
+  scaled as one, his crown on our skull's top plus `HAIR_M` 2 cm, which also sizes a big drawn
+  head to our skull (on the old rule the stranger's head is half as big again as the hitboxes in
+  it); nothing past a bone's ends is stretched as the bone; **(2) hair** above his head joint is
+  head however far it sticks out (a strand had stood 11 cm off his head); **(3) Tripo's scraps**
+  (every man): small pieces joined to nothing, away from him (two flat patches beside his hands)
+  are dropped, a boot's own sole kept; **(4) fingers** touching a thigh go with the hand
+  (`FINGER_REACH`); **(5) the hat** is levelled (Tripo built it tipped 15°) and sized by its crown
+  (`CROWN_SHARE`; the curled brim had made it a toy hat); **(6) arms fused to his sides**: the
+  hatless redraw had pulled his arms in (11° where Sean's front has 40°) and Tripo fused them on,
+  so hands up and aiming tore sheets and strings off him (the layered stranger too); a `from`
+  piece with `keep_pose` is now a short edit keeping the front's pose (`paint_full_length.py`
+  `ASK_EDIT`; run 44: arms out 25°, Tripo again, run 45), and the fit cuts what still joins parts
+  that move apart (`cut_bridges`, `BRIDGE_SHOULDER`) and caps each side of the cut on its own part
+  (`close_cuts`: his side and the inside of his arm stay whole under raised arms); **(7) cracks**
+  (every man): the Blender build split his points along every texture seam and decimated each side
+  apart (the Kid's skin ~3,900 open edges, the stranger's ~4,800: the white slits on both); welded
+  first now, 192. His head painted in the style and baked (People run 46: the style model ages his
+  face in the paintings, but on him he reads young). `assets/people/kid.glb` (1.815 m, 5,500 +
+  2,200 + a 700-triangle hat piece); `people.json` `kid`; the gang's Kid wears him in the game
+  (`src/people/town_life.gd`, gameplay's file, two lines: a `model` in his GANG entry). New tool
+  `tools/people_lineup.gd` (men side by side, orthographic, in poses; `--head` close): the check
+  before a fitted man goes in, `docs/screenshots/tripo/kid_lineup.png`, `kid_head.png`. Tests:
+  bodies 21, hat 3, town day 11, perf 2 pass. Known: hands up, the caps on his sides are flat and a
+  shade off his shirt; the hat's texture is Tripo's (not repainted in the style); the stranger and
+  `stranger_layered` aren't re-fitted (the weld would close the stranger's cracks: one command,
+  `fit_tripo.py --only=stranger`, the art session's call as his shot is judged).
+  Then, as the characters session (the art session's entry above: this chat is it, and this branch
+  is to be merged first): the brief's pose check (`people_lineup.gd`, now with a back view): the Kid
+  sits, crouches and cowers cleanly. `main` merged in twice (CLAUDE.md's status in date order);
+  CI green on the branch (run 37251503618, commit 763cc47; build notes say what to try with the
+  Kid). Pushing the merge to `main` was refused by this workspace's permission check, so the
+  branch waits on Sean to merge it (GitHub) or allow it. Spent on the Kid: fal paintings (runs
+  38–42, 44, 46) and 140 Tripo credits (two bodies and a hat). Sean: "push to main and consider
+  this a test that's getting closer" (the Kid is a first test of making our own men, body and
+  hat only; the brief's other layers, and the stranger first, come next).
 - 2026-10-05 (gameplay, checks 3): **Chaos tests** (`tests/test_chaos.gd`, 2). The street with
   the gang and the townsfolk in it, and every 1.5 s for 14 s, from a seed, a 0.2 kg stick by a
   random member, a random member set alight, or three rounds from a random point at a random spot

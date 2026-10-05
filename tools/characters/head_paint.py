@@ -72,12 +72,18 @@ VIEWS = {
 FORWARD = np.array([1.0, 0.0, 0.0])
 UP = np.array([0.0, 1.0, 0.0])
 
-ASK = (
-    "SLTCRK, a close portrait of a frontier gunman's head {view}, weathered sun-darkened skin, "
-    "deep-set dark eyes, heavy dark brows, a thick dark drooping moustache, no beard, long dark hair "
-    "to his collar, a dark brown wide-brimmed hat with a studded band, warm oil-lamp light on his "
-    "face, a plain dark brown background"
-)
+ASK = "SLTCRK, a close portrait of {of} {view}, {looks}, {light}, a plain dark brown background"
+# Whose head: the stranger's words, unless the character (characters.json, by the glb's id) has a
+# `head` of its own: `of`, `looks`, `light`, any view's words (`front`, `back`, ...), and `cut`,
+# the head's share of his height in place of HEAD_FROM (a bare-headed man is shorter, so his collar
+# is a larger share of it).
+HEAD = {
+    "of": "a frontier gunman's head",
+    "looks": "weathered sun-darkened skin, deep-set dark eyes, heavy dark brows, a thick dark drooping "
+             "moustache, no beard, long dark hair to his collar, a dark brown wide-brimmed hat with a "
+             "studded band",
+    "light": "warm oil-lamp light on his face",
+}
 # Each view's words (the render it starts from already has the head turned that way).
 VIEW_WORDS = {
     "front": "seen straight on, looking at the viewer from under the hat brim",
@@ -125,10 +131,16 @@ def load_glb(path):
     return pos, nrm, uv, tris, colour
 
 
-def head_triangles(pos, tris):
-    """The triangles of his head: all three corners above HEAD_FROM of his height."""
+def head_spec(cid):
+    """The character's head words (HEAD, with characters.json's `head` over it) and view words."""
+    own = json.load(open(SPEC))["characters"].get(cid, {}).get("head", {})
+    return dict(HEAD, **own), dict(VIEW_WORDS, **{k: v for k, v in own.items() if k in VIEW_WORDS})
+
+
+def head_triangles(pos, tris, share=None):
+    """The triangles of his head: all three corners above HEAD_FROM (or `share`) of his height."""
     y0, y1 = pos[:, 1].min(), pos[:, 1].max()
-    cut = y0 + (y1 - y0) * HEAD_FROM
+    cut = y0 + (y1 - y0) * (HEAD_FROM if share is None else share)
     return tris[(pos[tris, 1] > cut).all(axis=1)]
 
 
@@ -225,7 +237,7 @@ def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None):
 
 def guides(cid):
     pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, cid + ".glb"))
-    htris = head_triangles(pos, tris)
+    htris = head_triangles(pos, tris, head_spec(cid)[0].get("cut"))
     centre, frame = head_frame(pos, htris)
     print("%s: %d head triangles of %d, frame %.3f (%.0f mm)" % (cid, len(htris), len(tris), frame, frame * HEIGHT_M * 1000))
     for view, (yaw, pitch, _w) in VIEWS.items():
@@ -288,7 +300,7 @@ def edit(img, prompt, lora_url, scale, seed, key, log, what, strength=None):
 
 def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, strength=None):
     out_dir = out_dir or DIR
-    what = json.load(open(SPEC))["characters"].get(cid, {}).get("what", "a weathered frontier gunman")
+    head, view_words = head_spec(cid)
     lora_url = json.load(open(LORA))["lora_url"] if os.path.exists(LORA) else ""
     if not lora_url:
         print("No %s: the LoRA isn't trained; painting without it." % LORA)
@@ -309,7 +321,7 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, stren
             failed.append(view)
             continue
         try:
-            ask = ASK.format(view=VIEW_WORDS[view])
+            ask = ASK.format(of=head["of"], view=view_words[view], looks=head["looks"], light=head["light"])
             img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_head_%s" % (cid, view), strength)
             if img.size != (GUIDE_PX, GUIDE_PX):
                 img = img.resize((GUIDE_PX, GUIDE_PX), Image.LANCZOS)
@@ -361,7 +373,7 @@ def palette(rgb, n, seed=3):
 
 def bake(cid):
     pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, cid + ".glb"))
-    htris = head_triangles(pos, tris)
+    htris = head_triangles(pos, tris, head_spec(cid)[0].get("cut"))
     centre, frame = head_frame(pos, htris)
     size = colour.width
     tri_id, bary = uv_raster(uv, htris, size)
