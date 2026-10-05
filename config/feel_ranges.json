@@ -1,0 +1,91 @@
+{
+  "_about": "How the game should feel, as numbers the tests measure (tests/test_feel.gd and the tests named in each 'measured_by'). A number outside its range fails CI. A range moves only with Sean's OK: change min/max, and add a line to 'history' with the date and his words. 'last' is what the tests measured when the range was agreed. A range marked 'proposed' was set from the game as it measured, not yet agreed: it still fails CI when the game drifts out of it.",
+  "ranges": {
+    "body_hits_to_stop": {
+      "min": 1.2,
+      "max": 2.3,
+      "unit": "ball hits to the chest or belly before a man is out of the fight (average of 24)",
+      "measured_by": "test_gunfight::test_body_hits_to_stop_him",
+      "last": 1.54,
+      "history": [
+        "2026-09-28 Sean: 'he can take too many gunshots' (was 2.12, tuned to 1.46)"
+      ]
+    },
+    "shotgun_down_at_20m": {
+      "min": 0.0,
+      "max": 0.5,
+      "unit": "share of men dropped by one charge from 20 m",
+      "measured_by": "test_shotgun::test_at_twenty_metres_a_charge_rarely_drops_him",
+      "last": 0.19,
+      "history": [
+        "2026-09-29 Sean: the shotgun drops men in one shot at long range (was 14 of 16, tuned to ~5)"
+      ]
+    },
+    "outlaw_hit_rate_5m": {
+      "min": 0.6,
+      "max": 1.0,
+      "unit": "share of an outlaw's shots at a standing man 5 m off that hit him",
+      "measured_by": "test_feel::test_outlaw_hit_rates",
+      "last": 1.0,
+      "history": [
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: 9 of 9 shots hit a standing man at 5 m"
+      ],
+      "proposed": true
+    },
+    "outlaw_hit_rate_15m": {
+      "min": 0.15,
+      "max": 0.6,
+      "unit": "share of shots at 15 m that hit",
+      "measured_by": "test_feel::test_outlaw_hit_rates",
+      "last": 0.31,
+      "history": [
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
+      ],
+      "proposed": true
+    },
+    "outlaw_hit_rate_30m": {
+      "min": 0.03,
+      "max": 0.3,
+      "unit": "share of shots at 30 m that hit",
+      "measured_by": "test_feel::test_outlaw_hit_rates",
+      "last": 0.125,
+      "history": [
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
+      ],
+      "proposed": true
+    },
+    "duel_draw_seconds": {
+      "min": 2.0,
+      "max": 6.0,
+      "unit": "seconds a man stands facing you in a duel before he draws, if you don't",
+      "measured_by": "test_feel::test_duel_standoff",
+      "last": 4.93,
+      "history": [
+        "2026-09-29 designed as 2.5-5 s (status entry, M4 step 3)",
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
+      ],
+      "proposed": true
+    },
+    "back_down_share": {
+      "min": 0.0,
+      "max": 0.34,
+      "unit": "share of the gang (Brody, Lyle, the Kid, one at a time) who back down with a gun held on them 6 m off for 25 s",
+      "measured_by": "test_feel::test_back_down_rate",
+      "last": 0.0,
+      "history": [
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: none of the three backed down in the street at 6 m (all drew), though the Kid backs down when caught leaning on the storekeeper: is that right?"
+      ],
+      "proposed": true
+    },
+    "fire_store_roof_seconds": {
+      "min": 60,
+      "max": 300,
+      "unit": "seconds from the general store's back wall being lit to half its rafters down",
+      "measured_by": "test_fire::test_a_store_burns_down",
+      "last": 129,
+      "history": [
+        "2026-09-28 built so the store's roof comes in about 2 minutes after the back wall's lit"
+      ]
+    }
+  }
+}

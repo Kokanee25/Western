@@ -267,6 +267,15 @@ anyone stuck a minute on his way somewhere, anything under the ground or off the
 time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
 summary and an artifact.
 
+**Feel ranges** (`config/feel_ranges.json`, `tests/feel.gd`): the numbers that make the game feel
+right, each measured by a test and held to a range agreed with Sean. `Feel.within(test, key,
+value)` fails the test when the number's out of its range, saying the range only moves with
+Sean's OK (change min/max and add a line to `history` with the date and his words; a range marked
+`proposed` was set from the game as it measured and still waits for his OK). Measured: body hits to
+stop a man (`test_gunfight`), the shotgun at 20 m (`test_shotgun`), the store's roof falling in
+(`test_fire`), the outlaw's hit rate at 5/15/30 m, the duel's stand-off and the gang's back-down
+share (`test_feel`). CI prints every number against its range in the test run's summary.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2829,3 +2838,11 @@ summary and an artifact.
   and no script error (the runner fails on any). Seed 1873: 10 events, 64 members broken, 6
   burning, 9 people hurt, nothing broken. The same seed twice gives the same events, the same
   broken members and the same people alive and hurt.
+- 2026-10-05 (gameplay, checks 4): **Feel ranges** (layout note under Commands). Measured today:
+  body hits to stop a man 1.54 (agreed 1.2–2.3), the shotgun drops a man at 20 m 0.19 of the time
+  (0–0.5), the store's roof in at 129 s (60–300), the outlaw's hits at 5 m 9 of 9 = 1.0, at 15 m
+  4 of 13 = 0.31, at 30 m 3 of 24 = 0.13, the duel's stand-off 4.9 s (designed 2.5–5), and **none
+  of the gang backed down** with a gun held on them 6 m off in the street for 25 s: Brody, Lyle and
+  the Kid all drew (the Kid backs down when he's caught leaning on the storekeeper). The new ranges
+  are set round today's numbers and marked proposed: Sean to OK or change them, and to say whether
+  the gang should back down more in the street.

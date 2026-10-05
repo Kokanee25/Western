@@ -49,6 +49,15 @@ jobs:
       - name: Run tests
         run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
 
+      - name: The feel numbers
+        # What tests/test_feel.gd and friends measured, against the ranges in config/feel_ranges.json.
+        if: always()
+        run: |
+          f="$HOME/.local/share/godot/app_userdata/Salt Creek/feel_measured.json"
+          if [ -f "$f" ]; then
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('| Feel | Measured | Agreed |\n|---|---|---|'); [print(f'| {k} | {v[\"value\"]} | {v[\"min\"]} to {v[\"max\"]} |') for k,v in sorted(d.items())]" "$f" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   # The native plugin (addons/saltcreek_native, Rust) for the three desktop platforms. Each runner
   # builds its own; the export job collects them. The web export runs without the plugin.
   native:

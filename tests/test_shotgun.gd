@@ -191,7 +191,7 @@ func test_at_twenty_metres_a_charge_rarely_drops_him() -> void:
 		man.queue_free()
 		await physics_frames(1)
 	print("  pellets on him from 20 m: %s; down %d of %d" % [hits, down, n])
-	check(down <= n / 2, "down from one charge at 20 m: %d of %d" % [down, n])
+	preload("res://tests/feel.gd").within(self, "shotgun_down_at_20m", float(down) / n)
 
 
 func test_nine_separate_pellets() -> void:
