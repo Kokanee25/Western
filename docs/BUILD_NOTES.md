@@ -35,15 +35,17 @@ same body.
   into the painting's blocks, but each block is fixed to the world by its direction from a point
   that only moves every half metre, so the blocks stay put when you turn and while you step. It
   brings the quantise-once textures with it and puts M away; the scene reloads the first time
-  (a few seconds). V again turns it off.
+  (a few seconds). V again turns it off and puts back the look you had.
 - **Try:** in the saloon at night, stand by the card table and turn slowly left and right, then
   walk round the table and up to the man. Do the same with **M** (the art session's surface
   blocks: the blocks are the textures' own squares) and with both off (today's look). Watch
   whether the blocks crawl or shimmer, and look at the man's face up close and from across the
   room.
 - **What I found here** (rendered in software, not on your card): V is three to five times
-  steadier than today's look and M steadier still (as steady as no mosaic at all), and the two
-  score the same against the paintings. V puts blocks on everything, the man's face included,
+  steadier than today's look and M much steadier still (steadier than no mosaic at all). Against
+  the paintings V scores best in the saloon and the two tie on the street. M in this build blows
+  out the lamp's pool of light on the table (its own lighting: the art session's to fix); lit the
+  game's ordinary way it ties V there too. V puts blocks on everything, the man's face included,
   and steps every outline the way the painting does, but its outlines and glints flicker a
   little as you move. Tell me which one reads as the painting in motion.
 - **Send me the F3 photo** with V on, standing in the saloon: V is one extra pass over the whole

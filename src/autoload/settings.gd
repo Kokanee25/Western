@@ -85,6 +85,8 @@ var probe_mosaic := false
 var probe_texels := 384.0
 var probe_cell := 0.5
 var probe_bands := 0.0
+## The quantise-once and surface-blocks switches as they were when V turned the probe on.
+var _look_before_probe := {}
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -162,6 +164,7 @@ func reset_to_defaults() -> void:
 	probe_texels = 384.0
 	probe_cell = 0.5
 	probe_bands = 0.0
+	_look_before_probe = {}
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
@@ -171,6 +174,10 @@ func reset_to_defaults() -> void:
 func load_from_disk() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) != OK:
+		# No file (a first run, CI, the tools): the look the command line asked for still takes
+		# its shaders and textures (--blocks, --quantise-once and --probe-mosaic only set switches).
+		_apply_quantise()
+		_apply_texels()
 		_apply_tiles()
 		return
 	internal_resolution = cfg.get_value("video", "internal_resolution", internal_resolution)
@@ -266,14 +273,26 @@ func set_mosaic(on: bool) -> void:
 
 ## V: the probe mosaic trial on or off. It looks as meant over the quantise-once textures and
 ## not over the surface blocks, so turning it on turns those on and these off (the scene reloads);
-## off leaves them as they are.
+## off puts back the look you had before it (so V, M and neither can be compared in turn).
 func set_probe_mosaic(on: bool) -> void:
-	probe_mosaic = on
-	if on and (surface_blocks or not quantise_once):
-		surface_blocks = false
-		set_quantise_once(true)
-	else:
+	if on == probe_mosaic:
 		_changed()
+		return
+	probe_mosaic = on
+	if on:
+		_look_before_probe = {"quantise_once": quantise_once, "surface_blocks": surface_blocks}
+		if surface_blocks or not quantise_once:
+			surface_blocks = false
+			set_quantise_once(true)
+			return
+	elif not _look_before_probe.is_empty():
+		var was := _look_before_probe
+		_look_before_probe = {}
+		if was["quantise_once"] != quantise_once or was["surface_blocks"] != surface_blocks:
+			surface_blocks = was["surface_blocks"]
+			set_quantise_once(was["quantise_once"])
+			return
+	_changed()
 
 
 ## Whether the probe mosaic is drawn: the trial's setting, unless the surface-blocks look is on.
