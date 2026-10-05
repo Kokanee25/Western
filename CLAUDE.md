@@ -287,6 +287,15 @@ plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
 Windows, macOS, all headless), and only then `release` (the GitHub Release) and `pages`.
 
+**The visual checks in CI** (`.github/workflows/visual.yml`, every night at 06:43 UTC and by
+hand): every fixed view rendered twice under xvfb and lavapipe on two runners at once (~1–2 h
+each), then `tools/scene_probe.gd`, `tools/golden_check.py --from=A` and `tools/visual_checks.py
+--from=A --twin=B --probe=P` (the art session's tools, layout notes above). Red on any failure;
+the run's summary lists what failed and the artifact `visual-report` holds golden | render |
+difference for each. Rendered with `--fresh` (`screenshots.gd` loads the scene again before every
+view, as `golden_check.py --render` does), so no view carries the one before it and `--only=` of
+a few views renders them as the full run does.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2951,6 +2960,16 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   - CI (gameplay's wiring, told to it): `apt-get install mesa-vulkan-drivers xvfb`, render the
     views twice (`golden_check.py --render --out=A`, then `--out=B`), `scene_probe.gd`, then
     `golden_check.py --from=A` and `visual_checks.py --from=A --twin=B --probe=PDIR`.
+- 2026-10-05 (gameplay): **The art session's visual checks wired into CI** (layout note under
+  Commands; the automated-checks brief's last item). Tried here on the first five views: all match
+  their goldens rendered in order, and the visual checks pass but one: **the Kid's head comes
+  through his hat** (`clothes`, 39% of the head's vertices near the hat lie outside it, limit 3%),
+  on main now, so the first nightly run will be red until the characters session refits his hat
+  or the art session records it as known (`tools/visual_checks.json`). `test_chaos`'s same-seed
+  test (the art session saw it flake in the full suite: one stool more broken on the second run)
+  now asks for the same events exactly, the same people alive and wound counts within one, and
+  the broken members within two (or 5%): the seed decides what happens, falling rubble a little
+  of what it breaks, and the physics engine isn't bit-repeatable between runs in one process.
 - 2026-10-05 (art session, later): **Part B: our own renderer, the mosaic on the surfaces, behind
   the M key** (Sean's brief, `docs/briefs/renderer.md`; its findings section has the numbers).
   The look (layout note above, "The surface-blocks look"): the block is the texel, anchored to
