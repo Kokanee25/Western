@@ -29,6 +29,7 @@ func _ready() -> void:
 	_bind(&"debug_tiles", [KEY_P], [])
 	_bind(&"debug_mosaic", [KEY_O], [])  # the screen mosaic on/off (Settings.mosaic)
 	_bind(&"debug_quantise", [KEY_I], [])  # the quantise-once look on/off (Settings.quantise_once)
+	_bind(&"look_panel", [KEY_N], [])  # the live look panel (LookPanel; controller: Back + Start)
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
 	_bind(&"debug_time_scale", [KEY_T], [])
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
