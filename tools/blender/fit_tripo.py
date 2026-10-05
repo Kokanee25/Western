@@ -50,6 +50,27 @@ HEAD_FROM = 0.815
 HEAD_FROM_NECK = 0.35
 # ... and within this of the neck's axis (Tripo units, of his height), so the shoulders stay trunk.
 HEAD_RADIUS = 0.09
+# A bare-headed (layered) man above his shoulders: Tripo's auto-rig puts his neck joint at his
+# shoulder line and his head joint half way up his neck (the Kid's at 0.76 and 0.81 of his
+# height, his chin at 0.86), where ours are 4 and 13 cm over our shoulders. Mapped joint to joint
+# that lifted his shoulders to his jaw and set his head on a stretched neck. So his shoulders go
+# onto ours and all of him above them is scaled as one, so his crown lands this far over our
+# skull's top (his hair), which also sizes his head to our skull rather than to his hips (the
+# image model draws men with big heads: on the old rule the stranger's came out half as big
+# again as the hitboxes inside it). A whole man's top is his hat, so he keeps the old rule.
+HAIR_M = 0.02
+# A hat's crown: where it is narrower than this share of the brim (above a flat brim, and above
+# a brim curled up at the sides, whose sides reach a third of the way up the Kid's hat).
+CROWN_SHARE = 0.7
+# Tripo's scraps: a piece of its mesh joined to nothing else (welded by position), under this
+# share of the triangles and further than SCRAP_GAP (his height = 1) from the biggest piece, is
+# dropped (flat patches it left in the air beside the Kid's hands). A piece touching the rest (a
+# boot's own sole) stays.
+SCRAP_SHARE = 0.05
+SCRAP_GAP = 0.008
+# A bare-headed man's hand bone, for which points are his hand: wrist to knuckles, this many times
+# over (the fingers past the knuckles).
+FINGER_REACH = 2.5
 # Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
 # wider than what they go over they are scaled (room for the cloth under them).
 PIECE_TRIS = {"coat": 2600, "hat": 700}
@@ -136,6 +157,50 @@ def to_body_space(p):
     return np.stack([p[..., 2], p[..., 1], -p[..., 0]], axis=-1)
 
 
+def drop_scraps(v, uv, tris, report):
+    """v, uv, tris without Tripo's scraps (SCRAP_SHARE, SCRAP_GAP); how many were dropped goes in
+    `report`."""
+    _u, weld = np.unique(np.round(v / 1e-6).astype(np.int64), axis=0, return_inverse=True)
+    t = weld.ravel()[tris]
+    lab = np.arange(t.max() + 1)
+    edges = np.concatenate([t[:, [0, 1]], t[:, [1, 2]], t[:, [2, 0]]])
+    while True:
+        low = np.minimum(lab[edges[:, 0]], lab[edges[:, 1]])
+        new = lab.copy()
+        np.minimum.at(new, edges[:, 0], low)
+        np.minimum.at(new, edges[:, 1], low)
+        new = new[new]
+        if (new == lab).all():
+            break
+        lab = new
+    piece = lab[t[:, 0]]
+    ids, counts = np.unique(piece, return_counts=True)
+    main = ids[np.argmax(counts)]
+    # The biggest piece's points in cells of SCRAP_GAP, to ask what lies near a small piece.
+    cell = lambda pts: np.floor(pts / SCRAP_GAP).astype(np.int64)
+    near_main = {tuple(c) for c in np.unique(cell(v[np.unique(tris[piece == main])]), axis=0)}
+    keep = np.ones(len(tris), bool)
+    dropped = 0
+    for pid, n in zip(ids, counts):
+        if pid == main or n > SCRAP_SHARE * len(tris):
+            continue
+        pts = v[np.unique(tris[piece == pid])]
+        cells = np.unique(cell(pts), axis=0)
+        touching = any((c[0] + dx, c[1] + dy, c[2] + dz) in near_main
+                       for c in cells for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1))
+        if not touching:
+            keep[piece == pid] = False
+            dropped += int(n)
+    if dropped:
+        report["scraps_dropped"] = dropped
+    if keep.all():
+        return v, uv, tris
+    used = np.unique(tris[keep])
+    remap = np.full(len(v), -1, np.int64)
+    remap[used] = np.arange(len(used))
+    return v[used], uv[used], remap[tris[keep]]
+
+
 # --- The man ----------------------------------------------------------------------------------
 
 class TripoPerson(mp.Person):
@@ -148,10 +213,13 @@ class TripoPerson(mp.Person):
         # A layered man (docs/DESTRUCTION_BRIEF.md part 5): his body is the Tripo model `model`
         # (bare-headed, no coat) and `pieces` {shape: character id} are his garments modelled alone.
         self.model = spec.get("model", pid)
+        self.bare = "model" in spec       # bare-headed: his top is his crown, not a hat
         pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
         self.v = to_body_space(pos)
         self.uv = uv
         self.tris = tris
+        scraps = {}
+        self.v, self.uv, self.tris = drop_scraps(self.v, self.uv, self.tris, scraps)
         self.colour = colour
         self.j = {ours: to_body_space(joints[theirs]) for ours, theirs in JOINTS.items()}
         self.j["hips"] = (self.j["r-upper-leg"] + self.j["l-upper-leg"]) / 2
@@ -163,6 +231,7 @@ class TripoPerson(mp.Person):
             self.head_cut = y0 + (y1 - y0) * HEAD_FROM
         self.report = {"id": pid, "source": "tripo", "whole": True, "model": self.model, "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
+        self.report.update(scraps)
         self.pieces = [Piece(shape, cid, self) for shape, cid in spec.get("pieces", {}).items()]
 
     def bones(self):
@@ -174,10 +243,25 @@ class TripoPerson(mp.Person):
         # stretch (Tripo's trunk is shorter than ours for his height).
         k = o["hips"][1] / max(m["hips"][1], 1e-6)
         self.scale = k
-        head_top = m["head"] + np.array([0.0, 0.16 / k, 0.0])      # his jaw hinge to his crown, about
-        out = [["trunk", m["hips"], m["neck"], o["hips"], o["neck"], 0.15],
-               ["neck", m["neck"], m["head"], o["neck"], o["head"], 0.055],
-               ["head", m["head"], head_top, o["head"], o["head"] + (head_top - m["head"]) * k, 0.085]]
+        self.head_scale = k
+        if self.bare:
+            # HAIR_M: his shoulders onto ours, all of him above them scaled as one by ku (each
+            # bone may carry its girth's scale as a 7th entry), his crown on ours plus his hair.
+            m_sh = (m["r-shoulder"] + m["l-shoulder"]) / 2
+            o_sh = (o["r-shoulder"] + o["l-shoulder"]) / 2
+            ku = (o["crown"][1] + HAIR_M - o_sh[1]) / max(float(self.v[:, 1].max()) - m_sh[1], 1e-6)
+            self.head_scale = ku
+            o_neck = o_sh + (m["neck"] - m_sh) * ku
+            o_head = o_sh + (m["head"] - m_sh) * ku
+            head_top = m["head"] + np.array([0.0, 0.16 / ku, 0.0])
+            out = [["trunk", m["hips"], m["neck"], o["hips"], o_neck, 0.15],
+                   ["neck", m["neck"], m["head"], o_neck, o_head, 0.055, ku],
+                   ["head", m["head"], head_top, o_head, o_head + (head_top - m["head"]) * ku, 0.085, ku]]
+        else:
+            head_top = m["head"] + np.array([0.0, 0.16 / k, 0.0])      # his jaw hinge to his crown, about
+            out = [["trunk", m["hips"], m["neck"], o["hips"], o["neck"], 0.15],
+                   ["neck", m["neck"], m["head"], o["neck"], o["head"], 0.055],
+                   ["head", m["head"], head_top, o["head"], o["head"] + (head_top - m["head"]) * k, 0.085]]
         for side in "rl":
             hand_dir = m[side + "-hand"] - m[side + "-elbow"]
             knuckle = m[side + "-hand"] + hand_dir / np.linalg.norm(hand_dir) * (np.linalg.norm(o[side + "-knuckle"] - o[side + "-hand"]) / k)
@@ -210,9 +294,13 @@ class TripoPerson(mp.Person):
         self.head = head
         self.fit_joints = {}
         self.report["scale"] = round(float(self.scale), 4)
+        self.report["head_scale"] = round(float(self.head_scale), 4)
         self.report["height_m"] = round(float(self.v[:, 1].max()), 3)
         for piece in self.pieces:
-            piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones)
+            # A hat moves with his head alone: its brim reaches past the head's radius, and the
+            # neck's warp (another girth scale since HAIR_M) would bend it.
+            piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
+                                                     only="head" if piece.shape == "hat" else None)
 
     def head_mask(self, v):
         """What is head: above the collar, and within HEAD_RADIUS of the neck's axis (the tops of
@@ -220,15 +308,25 @@ class TripoPerson(mp.Person):
         above = v[:, 1] > self.head_cut
         n = self.j["neck"]
         near = np.hypot(v[:, 0] - n[0], v[:, 2] - n[2]) < HEAD_RADIUS
+        if self.bare:
+            # ... and a bare-headed man's hair, however far it sticks out above his head joint
+            # (the Kid's tousled hair past HEAD_RADIUS went with his trunk and stood up off him).
+            near |= v[:, 1] > self.j["head"][1]
         return above & near
 
-    def warp_points(self, v, head, bones):
+    def warp_points(self, v, head, bones, only=None):
         """Points in his Tripo space (body orientation) moved onto our skeleton by his bones, and
         the bone each belongs to. The head is everything above the collar; nothing below it is
-        head, nothing above the neck joint is trunk."""
-        radial = self.scale
+        head, nothing above the neck joint is trunk. `only`: one bone moves them all."""
         names = [b[0] for b in bones]
-        d = np.stack([mp.seg_dist(v, b[1], b[2])[0] - b[5] for b in bones], axis=1)
+        # A bare-headed man's hands are measured out to his fingertips (FINGER_REACH), so fingers
+        # that touch his thigh in Tripo's pose go with the hand and are cut at the knuckles (the
+        # Kid's left fingertips went with his thigh and stretched a flap of skin to his hand).
+        ends = [b[1] + (b[2] - b[1]) * FINGER_REACH if self.bare and b[0].startswith("hand") else b[2] for b in bones]
+        d = np.stack([mp.seg_dist(v, b[1], e)[0] - b[5] for b, e in zip(bones, ends)], axis=1)
+        if only:
+            d[:, :] = 1e3
+            d[:, names.index(only)] = 0.0
         d[~head, names.index("head")] += 1.0
         d[head, names.index("trunk")] += 1.0
         d[head, names.index("neck")] += 0.5
@@ -240,7 +338,9 @@ class TripoPerson(mp.Person):
         w /= w.sum(1, keepdims=True)
         region = np.array([bones[i][0] for i in d.argmin(1)])
         out = np.zeros_like(v)
-        for i, (name, ma, mb, oa, ob, _r) in enumerate(bones):
+        for i, bone in enumerate(bones):
+            name, ma, mb, oa, ob = bone[:5]
+            radial = bone[6] if len(bone) > 6 else self.scale
             sel = w[:, i] > 0
             if not sel.any():
                 continue
@@ -249,7 +349,13 @@ class TripoPerson(mp.Person):
             rel = v[sel] - ma
             along = rel @ u
             perp = rel - along[:, None] * u
-            local = along[:, None] * u * k + perp * radial
+            if self.bare:
+                # Past the bone's ends (a shoulder's top over his neck joint, his seat under his
+                # hips) at his own scale, not stretched as the bone is.
+                inside = np.clip(along, 0.0, float(np.linalg.norm(mb - ma)))
+                local = (inside * k + (along - inside) * radial)[:, None] * u + perp * radial
+            else:
+                local = along[:, None] * u * k + perp * radial
             moved = local @ mp.rotation_between(u, ob - oa).T + oa
             out[sel] += w[sel, i][:, None] * moved
         return out, region
@@ -324,6 +430,7 @@ class Piece:
         self.region = None
         self.our_joints = body.our_joints
         self.report = body.report.setdefault("piece_" + shape, {})
+        self.v, self.uv, self.tris = drop_scraps(self.v, self.uv, self.tris, self.report)
         if shape == "coat":
             self._drop_lining()
 
@@ -360,6 +467,20 @@ class Piece:
         self.tris = tris[~inward]
         self.report["lining_faces_dropped"] = int(inward.sum())
 
+    def _levelled(self, v):
+        """The hat turned so its least spread (a brimmed hat is wider than it is tall) is
+        straight up, crown up, about its middle; how far it was tipped goes in self.tilt."""
+        c = v.mean(0)
+        _u, _s, vt = np.linalg.svd(v - c, full_matrices=False)
+        up = vt[2] if vt[2][1] >= 0 else -vt[2]
+        self.tilt = float(np.degrees(np.arccos(min(1.0, abs(float(up[1]))))))
+        lv = (v - c) @ mp.rotation_between(up, np.array([0.0, 1.0, 0.0])).T + c
+        y0, y1 = lv[:, 1].min(), lv[:, 1].max()
+        low, high = lv[lv[:, 1] < y0 + (y1 - y0) * 0.2], lv[lv[:, 1] > y1 - (y1 - y0) * 0.2]
+        if np.ptp(high[:, 0]) > np.ptp(low[:, 0]):
+            lv = (lv - c) * [1.0, -1.0, -1.0] + c      # it was upside down: the brim is the wide end
+        return lv
+
     @staticmethod
     def _width_at(v, y, band=0.015):
         sel = np.abs(v[:, 1] - y) < band
@@ -374,18 +495,28 @@ class Piece:
         y0, y1 = v[:, 1].min(), v[:, 1].max()
         h = y1 - y0
         if self.shape == "hat":
-            # The brim is where the hat is widest; the crown's foot a little above it goes round
-            # the head at the band, its width the head's there plus room.
-            ys = np.linspace(y0, y1, 40)
-            widths = [self._width_at(v, y, h * 0.03)[0] for y in ys]
-            brim_y = ys[int(np.argmax(widths))]
-            crown_w = self._width_at(v, brim_y + h * 0.12, h * 0.03)[0] or max(widths) * 0.6
+            # Tripo models a hat as its pictures see it, from a little above: tipped (the Kid's
+            # 15 degrees). Levelled, its crown (CROWN_SHARE) is found about its own axis, and the
+            # crown's foot, the lowest point of its wall, goes round his head at the band, the
+            # crown as wide as his head there plus room.
+            v = self._levelled(v)
+            y0, y1 = v[:, 1].min(), v[:, 1].max()
+            h = y1 - y0
+            top = v[v[:, 1] > y1 - h * 0.4]
+            ax, az = (top[:, 0].min() + top[:, 0].max()) / 2, (top[:, 2].min() + top[:, 2].max()) / 2
+            r = np.hypot(v[:, 0] - ax, v[:, 2] - az)
+            bands = [r[np.abs(v[:, 1] - y) < h * 0.04].max(initial=0.0) for y in np.linspace(y0, y1, 26)]
+            brim_r = max(bands)
+            crown_r = max([b for b in bands if 0.0 < b < brim_r * CROWN_SHARE], default=brim_r * 0.55)
+            wall = (r > crown_r * 0.9) & (r < crown_r * 1.05)
+            foot_y = v[wall, 1].min() if wall.any() else y0
             head = body.v[body.v[:, 1] > body.head_cut]
             jaw, crown = body.j["head"][1], head[:, 1].max()
             band_y = jaw + (crown - jaw) * HAT_BAND
             head_w, cx, cz = self._width_at(head, band_y, 0.01)
-            s = head_w * PIECE_MARGIN["hat"] / max(crown_w, 1e-6)
-            self.v = (v - [0.0, brim_y, 0.0]) * s + [cx, band_y, cz]
+            s = head_w * PIECE_MARGIN["hat"] / max(2.0 * crown_r, 1e-6)
+            self.v = (v - [ax, foot_y, az]) * s + [cx, band_y, cz]
+            self.report.update({"tilt_deg": round(self.tilt, 1), "crown_of_brim": round(float(crown_r / brim_r), 3)})
         else:
             # The coat: its shoulder line onto his shoulders, its width there his at the shoulder
             # joints plus room. The shoulder line is where, coming down from the collar, the coat

@@ -76,6 +76,16 @@ ASK_FRONT = (
 # What ASK_FRONT's {change} says unless the character's spec has its own (the body piece: hat and
 # coat off).
 KEEP = "Keep his face, hat, hair, moustache and clothes exactly as they are."
+# A piece made from a character's finished front (characters.json `from` with `keep_pose`): the
+# edit and nothing else. Asked to redraw him as a reference in an A-pose (ASK_FRONT), Kontext drew
+# the Kid's arms in close to his sides (11 degrees where Sean's front has 40), Tripo fused his arms
+# to his body where they touched, and they tore sheets of shirt off his sides when he raised them.
+ASK_EDIT = (
+    "SLTCRK. {change} Keep his pose exactly as it is, his arms held out from his body as they are, "
+    "the whole of him in the frame as he is, the flat studio light and the plain light grey "
+    "background. Smooth, realistic and sharp, with NO pixel mosaic, NO square pixels and NO blocky "
+    "texture anywhere. Nothing in his hands, no text."
+)
 ASK_TURN = {
     "left": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
             "and plain light grey background, but seen from his left side (a true profile, he faces the "
@@ -127,7 +137,10 @@ def asks(spec):
         if spec.get("hatless") else {"top": "hat", "back_of": "the back of his hat and coat, his hair on his collar"}
     if spec.get("back_of"):
         words["back_of"] = spec["back_of"]  # what his back shows, when it isn't a coat and long hair
-    front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
+    if spec.get("keep_pose") and spec.get("change"):
+        front = ASK_EDIT.format(change=spec["change"])
+    else:
+        front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
     return front, {v: ASK_TURN[v].format(**words) for v in TURN}
 
 

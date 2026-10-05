@@ -73,6 +73,7 @@
   "kid_body": {
    "from": "kid",
    "hatless": true,
+   "keep_pose": true,
    "what": "the same nervous young outlaw bare-headed: short brown hair, a little tousled, freckled and clean-shaven, a faded red bandana, a faded blue work shirt with the sleeves rolled to the forearm, brown leather braces, a cartridge belt with a holster on his right hip, brown canvas trousers and worn brown boots",
    "change": "Take his hat off him: he is bare-headed, his short brown hair showing, cut short and a little tousled, a few strands over his forehead. Keep his young face (a lad of nineteen, freckled and grimy), bandana, shirt, braces, belt, holster, trousers, boots and everything else exactly as they are.",
    "back_of": "the back of his bare head with its short brown hair, his blue shirt and his braces crossing his back",
