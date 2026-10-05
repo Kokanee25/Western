@@ -29,6 +29,8 @@ const CONTACT_EPSILON := 0.012
 var members := {}
 
 var _order: Array[StructureMember] = []
+## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
+const LOST_BELOW := -5.0
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
 var tuning: TimberTuning
@@ -389,10 +391,21 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	m.broken = true
 	var length := m.length()
 	var ai := m.axis_index()
-	var mi := m.get_child(0) as MeshInstance3D
-	var cs := m.get_child(1) as CollisionShape3D
+	var mi: MeshInstance3D = null
+	var cs: CollisionShape3D = null
+	for c in m.get_children():
+		if c is MeshInstance3D and mi == null:
+			mi = c
+		elif c is CollisionShape3D and cs == null:
+			cs = c
+	if mi == null or cs == null or m.consumed:
+		return  # burnt away already: nothing left to fall (the soak found one snapped after)
 	var new_pieces: Array = []
 	if length < 0.4 or absf(t) > length * 0.5 - 0.1:
+		if cs.disabled:
+			# A shattered pane: nothing solid to fall (a body with no shape falls through the ground).
+			mi.queue_free()
+			return
 		var rb := _new_rubble([m.member_id])
 		rb.global_transform = m.global_transform
 		if not cs.shape is BoxShape3D:
@@ -473,6 +486,11 @@ func _drop(ids: Array[StringName]) -> void:
 				if c is MeshInstance3D or c is CollisionShape3D:
 					c.reparent(rb, true)
 			Events.member_broken.emit(id)
+		if not rb.get_children().any(func(c: Node) -> bool: return c is CollisionShape3D and not (c as CollisionShape3D).disabled):
+			# Only shattered glass or burnt-away members: no shape to land with (it'd fall for ever).
+			rubble.erase(rb)
+			rb.queue_free()
+			continue
 		rb.mass = maxf(mass, 0.3)
 		_wake_near(rb.global_position, 6.0)
 
@@ -524,9 +542,17 @@ func _physics_process(delta: float) -> void:
 
 func _physics_step(delta: float) -> void:
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
+	var lost: Array[RigidBody3D] = []
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:
 			rb.set_meta(&"v", rb.linear_velocity)
+			if rb.global_position.y < LOST_BELOW:
+				lost.append(rb)
+	for rb in lost:
+		# Gone through the ground somehow: a piece falling for ever costs the physics every frame.
+		push_warning("rubble %s fell through the ground at %s; removed" % [rb.get_meta(&"members", []), rb.global_position])
+		rubble.erase(rb)
+		rb.queue_free()
 
 
 ## Falling timber lands on something: hard enough and it breaks what it hits; a piece of several
