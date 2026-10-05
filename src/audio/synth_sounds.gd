@@ -37,7 +37,7 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"timber_crash": samples = _timber_crash(rng)
 			&"fire": samples = _fire(rng)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
-		var wav := _to_wav(samples)
+		var wav := _to_wav(_no_sub_bass(samples))
 		if id == &"fire" or id == &"fuse" or id == &"ringing":
 			wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 			wav.loop_end = samples.size()
@@ -53,6 +53,7 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 	out.resize(n)
 	var lp := 0.0
 	var lp2 := 0.0
+	var boom_phase := 0.0
 	for i in n:
 		var t := float(i) / RATE
 		var white := rng.randf_range(-1.0, 1.0)
@@ -61,7 +62,10 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 		var crack := white * exp(-t / 0.006) * 1.0
 		var body := lp * exp(-t / body_decay) * 0.9
 		# The thump falls in pitch, but never below ~40 Hz (speakers can't play it; it only loads them).
-		var boom := sin(TAU * maxf(lerpf(boom_hz, boom_hz * 0.54, minf(t / 0.3, 1.0)), 40.0) * t) * exp(-t / boom_decay) * 0.7
+		# The phase is summed from the pitch: sin(2π f(t) t) with a falling f sweeps below f itself
+		# (its pitch is f + t f'), which took the shotgun's thump down to 28 Hz.
+		boom_phase += TAU * maxf(lerpf(boom_hz, boom_hz * 0.54, minf(t / 0.3, 1.0)), 40.0) / RATE
+		var boom := sin(boom_phase) * exp(-t / boom_decay) * 0.7
 		var roll := lp2 * exp(-t / 0.7) * 0.5
 		out[i] = crack + body + boom + roll
 	# Echoes off the valley walls.
@@ -81,6 +85,7 @@ static func _blast(rng: RandomNumberGenerator) -> PackedFloat32Array:
 	out.resize(n)
 	var lp := 0.0
 	var lp2 := 0.0
+	var boom_phase := 0.0
 	for i in n:
 		var t := float(i) / RATE
 		var white := rng.randf_range(-1.0, 1.0)
@@ -88,7 +93,8 @@ static func _blast(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		lp2 += (white - lp2) * 0.03
 		var crack := white * exp(-t / 0.012)
 		var body := lp * exp(-t / 0.25) * 1.1
-		var boom := sin(TAU * maxf(lerpf(60.0, 40.0, minf(t / 0.4, 1.0)), 40.0) * t) * exp(-t / 0.35) * 0.9
+		boom_phase += TAU * lerpf(60.0, 45.0, minf(t / 0.4, 1.0)) / RATE  # summed: see _gunshot
+		var boom := sin(boom_phase) * exp(-t / 0.35) * 0.9
 		var roll := lp2 * exp(-t / 1.2) * 0.9
 		out[i] = crack + body + boom + roll
 	for echo in [[0.5, 0.3], [1.1, 0.18], [1.8, 0.1]]:
@@ -318,6 +324,47 @@ static func _fire(rng: RandomNumberGenerator) -> PackedFloat32Array:
 			var t := float(i - start) / RATE
 			out[i] += rng.randf_range(-1, 1) * exp(-t / 0.0015) * level
 	return _normalise(out, 0.6)
+
+
+## Below this nothing is kept: a monitor's own speaker drops out on deep bass and blanks the
+## screen with it (2026-09-29), and nothing small plays it anyway. tests/test_sounds.gd checks.
+const LOW_CUT_HZ := 45.0
+
+
+## A fourth-order Butterworth high-pass at LOW_CUT_HZ (two biquads, Q 0.5412 and 1.3066; RBJ's
+## cookbook), run forward, the peak put back where the sound had it.
+static func _no_sub_bass(s: PackedFloat32Array) -> PackedFloat32Array:
+	var peak := 0.0
+	for v in s:
+		peak = maxf(peak, absf(v))
+	for q: float in [0.5412, 1.3066]:
+		var w := TAU * LOW_CUT_HZ / RATE
+		var alpha := sin(w) / (2.0 * q)
+		var c := cos(w)
+		var a0 := 1.0 + alpha
+		var b0 := (1.0 + c) * 0.5 / a0
+		var b1 := -(1.0 + c) / a0
+		var b2 := b0
+		var a1 := -2.0 * c / a0
+		var a2 := (1.0 - alpha) / a0
+		var x1 := 0.0
+		var x2 := 0.0
+		var y1 := 0.0
+		var y2 := 0.0
+		for i in s.size():
+			var x := s[i]
+			var y := b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+			x2 = x1
+			x1 = x
+			y2 = y1
+			y1 = y
+			s[i] = y
+	var now := 0.0001
+	for v in s:
+		now = maxf(now, absf(v))
+	for i in s.size():
+		s[i] *= peak / now
+	return s
 
 
 static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array:

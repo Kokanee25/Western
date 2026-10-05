@@ -26,6 +26,13 @@ same body.
   From the side, with his hands up, his shirt has a flat patch under each arm where it was joined
   to his arm in the model: tell me if it catches your eye.
 
+### Fixed: the deep bass in the guns and dynamite
+
+- A new check on every sound found the shotgun's boom going down to about 28 Hz (the gunshot and
+  dynamite too), below what speakers play: the bass that made your HDMI monitor drop out. It now
+  stays above 45 Hz. The shotgun and dynamite may sound a touch less boomy; tell me if they've lost
+  their weight.
+
 ### New: F12 saves a bug report
 
 - **When something goes wrong, press F12** (controller: hold Back, press Y). It saves one file

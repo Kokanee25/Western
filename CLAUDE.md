@@ -2880,3 +2880,13 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   starts at the first drawn frame, each event waits three drawn frames after the last, the end
   waits three after the last event, and the runner's limit is 900 s. Here, cold shader cache: 33
   frames in 30 s, first frame after 8 s.
+- 2026-10-05 (gameplay, checks 6): **Sound checks** (`tests/test_sounds.gd`, 4): every sound
+  `SynthSounds` makes is heard (its loudest 50 ms at least 2% of full scale), never reaches full
+  scale, and has under 3% of its energy below 40 Hz (measured by a DFT of the sound averaged down to
+  ~1.4 kHz; the measure itself is tested on 30 Hz and 200 Hz tones), and the master bus still has its
+  40 Hz cut and limiter. **It failed first time, on a real fault:** the gunshot had 14% of its
+  energy under 40 Hz, the shotgun 42%, dynamite 22%, though the code said the thump never went
+  below 40 Hz. `sin(2π f(t) t)` with a falling f sweeps below f itself (its pitch is f + t·f′),
+  which took the shotgun's thump down to 28 Hz; the phase is summed from the pitch now. And every
+  sound passes a fourth-order high-pass at 45 Hz (`SynthSounds.LOW_CUT_HZ`, its peak kept). The
+  deepest is now the shotgun at 2.8%.
