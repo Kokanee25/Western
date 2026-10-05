@@ -307,9 +307,11 @@ func _throw_from(player: Player, windup: float) -> DynamiteStick:
 func test_thrown_at_the_store_it_breaks_things() -> void:
 	var street := await _street()
 	var player: Player = street.get_node(^"Player")
-	# From the walk, a couple of paces from the front beside the door: it lands at the wall. (Thrown
-	# from the street it ended up against the walk's edge, on the porch roof or at the door,
-	# by the contact order of every body in the street: the walk is up on steps since Sean's map.)
+	# From the walk, a couple of paces from the front beside the door: it lands at the wall and
+	# breaks what's there. (Whether the siding goes turns on where it comes to rest, a hand's breadth
+	# either way: by the contact order of every body in the street, 0 to 23 timber in trials; the
+	# siding's own test is test_a_stick_by_the_wall_blows_a_hole_in_the_siding. Thrown from the street
+	# it ended up against the walk's edge, on the porch roof or at the door.)
 	var store := street.get_node(^"Store") as FalseFrontBuilding
 	player.global_position = store.to_global(Vector3(store.door_rect.get_center().x - 1.6, store.floor_top, -1.8))
 	player.rotation = Vector3(0, PI, 0)
@@ -320,9 +322,13 @@ func test_thrown_at_the_store_it_breaks_things() -> void:
 	await _throw_from(player, 0.3)
 	await wait_until(func() -> bool: return not booms.is_empty(), 500)
 	Events.member_broken.disconnect(on_broken)
-	var timber := broken.filter(func(id: StringName) -> bool: return not String(id).contains("glass"))
-	print("  thrown at the store: %d broken, %d of them timber" % [broken.size(), timber.size()])
-	check(timber.size() >= 3, "it breaks timber where it lands (%d)" % timber.size())
+	check(not booms.is_empty(), "it went off")
+	if booms.is_empty():
+		return
+	var at := store.to_local(booms[0][0])
+	print("  thrown at the store: went off %.2f m off its front, %d broken" % [-at.z, broken.size()])
+	check(at.z > -1.2 and at.z < 0.3 and at.x > 0.0 and at.x < store.width, "it lands at the store's front (%s)" % at)
+	check(broken.size() >= 3, "it breaks things where it lands (%d)" % broken.size())
 	street.queue_free()
 
 
