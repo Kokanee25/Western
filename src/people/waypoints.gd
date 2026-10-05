@@ -86,6 +86,51 @@ func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: StringName, excl
 	return path
 
 
+## The ways from `from` to every place he can get to: {name: points to walk through, ending there},
+## worked out together (one search, a sweep per place to find where he can start), for choosing
+## among many places at once.
+func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = []) -> Dictionary:
+	var dist := {}
+	var prev := {}
+	var open: Array[StringName] = []
+	for n: StringName in points:
+		if _walkable(space, from, points[n], exclude) and absf(from.y - (points[n] as Vector3).y) < 0.6:
+			dist[n] = from.distance_to(points[n])
+			open.append(n)
+	if open.is_empty() and not points.is_empty():
+		# Nothing in a straight line: head for the nearest anyway (as `route` does).
+		var near: StringName = points.keys()[0]
+		for n: StringName in points:
+			if from.distance_to(points[n]) < from.distance_to(points[near]):
+				near = n
+		dist[near] = from.distance_to(points[near])
+		open.append(near)
+	while not open.is_empty():
+		var cur: StringName = open[0]
+		for n in open:
+			if dist[n] < dist[cur]:
+				cur = n
+		open.erase(cur)
+		for nb: StringName in links.get(cur, []):
+			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
+			if d < dist.get(nb, INF):
+				dist[nb] = d
+				prev[nb] = cur
+				if not open.has(nb):
+					open.append(nb)
+	var out := {}
+	for to: StringName in dist:
+		var path: Array[Vector3] = []
+		var n := to
+		while true:
+			path.push_front(points[n])
+			if not prev.has(n):
+				break
+			n = prev[n]
+		out[to] = path
+	return out
+
+
 ## The way to any point: straight there if he can, else to the place nearest it that he can walk
 ## on from, and on.
 func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vector3, exclude: Array[RID] = []) -> Array[Vector3]:
@@ -106,9 +151,12 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 	return path
 
 
-## A man (a little wider than he is, to clear door jambs) can walk it in a straight line.
+## A man (a little wider than he is, to clear door jambs) can walk it in a straight line. Swept at
+## the lower end's height: from a porch down into the street, a sweep at porch height passes over a
+## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
-	return Cover.path_clear(space, a, b, exclude, WIDTH)
+	var low := minf(a.y, b.y)
+	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH)
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.
@@ -129,7 +177,9 @@ static func test_street() -> Waypoints:
 	w.add(&"store_door", Vector3(3, 0.38, 0.9), [&"store_porch"])
 	w.add(&"store_counter", Vector3(4.15, 0.38, 3.7), [&"store_door"])
 	w.add(&"store_aisle", Vector3(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
-	w.add(&"store_behind_counter", Vector3(5.65, 0.38, 6.0), [&"store_aisle"])
+	# A man walking behind the counter needs his shoulder clear of the wall's studs (x 5.9) and his
+	# hip clear of the counter (to x 5.27) the whole way from the keeper's place: in from 5.65.
+	w.add(&"store_behind_counter", Vector3(5.5, 0.38, 6.0), [&"store_aisle"])
 	w.add(&"store_keeper", Vector3(5.65, 0.38, 3.7), [&"store_behind_counter"])
 	# The saloon (turned to face the street, the door at x 7).
 	w.add(&"saloon_porch", Vector3(7, 0.38, -15.3), [&"street_mid", &"street_east"])

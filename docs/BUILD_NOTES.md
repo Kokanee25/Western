@@ -6,6 +6,16 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Fixed: people get away from fire
+
+- **Townsfolk run from a fire now** instead of burning at their posts. Fire within about 8 m and
+  a man shouts it ("Fire! FIRE!"), runs out to the street by a way that keeps clear of the
+  flames, and stands and watches it burn; once it's out near his post he walks back. The gang,
+  going about their day, get out too ("Place is going up!") and ride out early.
+- **Try:** press **L** looking at the general store's back wall from inside. The storekeeper
+  should shout and get out from behind his counter; let it spread to the porch and watch the men
+  on the bench go. Tell me if anyone still burns, or runs the wrong way.
+
 ### Changed: going down costs you now
 
 - **Blacking out (or being killed) isn't free any more.** You come round on the store's floor
