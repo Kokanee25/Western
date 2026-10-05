@@ -172,26 +172,28 @@ static func test_street() -> Waypoints:
 	w.add(&"street_west", Vector3(-14, 0, -9), [&"west_edge"])
 	w.add(&"street_mid", Vector3(3, 0, -9), [&"street_west"])
 	w.add(&"street_east", Vector3(15, 0, -9), [&"street_mid"])
-	# The store (at the origin, front to -Z, the door at x 3).
-	w.add(&"store_porch", Vector3(3, 0.38, -1.2), [&"street_mid"])
-	w.add(&"store_door", Vector3(3, 0.38, 0.9), [&"store_porch"])
-	w.add(&"store_counter", Vector3(4.15, 0.38, 3.7), [&"store_door"])
-	w.add(&"store_aisle", Vector3(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
+	# The store (its door at x 3 in its own space, the front to -Z), where the town layout stands it.
+	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
+	w.add(&"store_porch", store.call(3, 0.38, -1.2), [&"street_mid"])
+	w.add(&"store_door", store.call(3, 0.38, 0.9), [&"store_porch"])
+	w.add(&"store_counter", store.call(4.15, 0.38, 3.7), [&"store_door"])
+	w.add(&"store_aisle", store.call(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
 	# A man walking behind the counter needs his shoulder clear of the wall's studs (x 5.9) and his
 	# hip clear of the counter (to x 5.27) the whole way from the keeper's place: in from 5.65.
-	w.add(&"store_behind_counter", Vector3(5.5, 0.38, 6.0), [&"store_aisle"])
-	w.add(&"store_keeper", Vector3(5.65, 0.38, 3.7), [&"store_behind_counter"])
-	# The saloon (turned to face the street, the door at x 7).
-	w.add(&"saloon_porch", Vector3(7, 0.38, -15.3), [&"street_mid", &"street_east"])
-	w.add(&"saloon_door", Vector3(7, 0.38, -17.7), [&"saloon_porch"])
-	w.add(&"saloon_floor", Vector3(6.0, 0.38, -20.3), [&"saloon_door"])
+	w.add(&"store_behind_counter", store.call(5.5, 0.38, 6.0), [&"store_aisle"])
+	w.add(&"store_keeper", store.call(5.65, 0.38, 3.7), [&"store_behind_counter"])
+	# The saloon (its door at x 5 in its own space, the front to -Z), turned to face the street.
+	var saloon := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Saloon", Vector3(x, y, z))
+	w.add(&"saloon_porch", saloon.call(5, 0.38, -1.5), [&"street_mid", &"street_east"])
+	w.add(&"saloon_door", saloon.call(5, 0.38, 0.9), [&"saloon_porch"])
+	w.add(&"saloon_floor", saloon.call(6.0, 0.38, 3.5), [&"saloon_door"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
-		var z := -21.25 - i * 1.3
-		w.add(StringName("bar_front_%d" % i), Vector3(5.8, 0.38, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
-		w.add(StringName("bar_%d" % i), Vector3(4.95, 0.38, z), [StringName("bar_front_%d" % i)])
+		var z := 4.45 + i * 1.3
+		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, 0.38, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
+		w.add(StringName("bar_%d" % i), saloon.call(7.05, 0.38, z), [StringName("bar_front_%d" % i)])
 	# Round the near end of the bar to the barkeep's side.
-	w.add(&"bar_end", Vector3(5.3, 0.38, -19.1), [&"saloon_floor"])
-	w.add(&"bar_end_inside", Vector3(3.2, 0.38, -19.1), [&"bar_end"])
-	w.add(&"behind_bar", Vector3(3.2, 0.38, -22.6), [&"bar_end_inside"])
+	w.add(&"bar_end", saloon.call(6.7, 0.38, 2.3), [&"saloon_floor"])
+	w.add(&"bar_end_inside", saloon.call(8.8, 0.38, 2.3), [&"bar_end"])
+	w.add(&"behind_bar", saloon.call(8.8, 0.38, 5.8), [&"bar_end_inside"])
 	return w
