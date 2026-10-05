@@ -6,6 +6,17 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the Kid has his own body
+
+- **A first test, getting closer: the gang's Kid is the man from your picture**, built by
+  Tripo from it, fitted to our skeleton, his head painted in the pixel style. His hat is its own
+  piece, so it can be shot off. Brody and Lyle are still the old bodies; they come next, one
+  picture each.
+- **Try:** press **U** to bring the gang in and look at the Kid at the bar, then **H** to draw
+  and put your gun on him until he puts his hands up (his nerve is low), and shoot his hat off.
+  From the side, with his hands up, his shirt has a flat patch under each arm where it was joined
+  to his arm in the model: tell me if it catches your eye.
+
 ### New: F12 saves a bug report
 
 - **When something goes wrong, press F12** (controller: hold Back, press Y). It saves one file

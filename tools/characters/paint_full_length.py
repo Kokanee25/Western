@@ -76,6 +76,16 @@ ASK_FRONT = (
 # What ASK_FRONT's {change} says unless the character's spec has its own (the body piece: hat and
 # coat off).
 KEEP = "Keep his face, hat, hair, moustache and clothes exactly as they are."
+# A piece made from a character's finished front (characters.json `from` with `keep_pose`): the
+# edit and nothing else. Asked to redraw him as a reference in an A-pose (ASK_FRONT), Kontext drew
+# the Kid's arms in close to his sides (11 degrees where Sean's front has 40), Tripo fused his arms
+# to his body where they touched, and they tore sheets of shirt off his sides when he raised them.
+ASK_EDIT = (
+    "SLTCRK. {change} Keep his pose exactly as it is, his arms held out from his body as they are, "
+    "the whole of him in the frame as he is, the flat studio light and the plain light grey "
+    "background. Smooth, realistic and sharp, with NO pixel mosaic, NO square pixels and NO blocky "
+    "texture anywhere. Nothing in his hands, no text."
+)
 ASK_TURN = {
     "left": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
             "and plain light grey background, but seen from his left side (a true profile, he faces the "
@@ -83,7 +93,7 @@ ASK_TURN = {
             "pixel mosaic, NO square pixels. Nothing in his hands, no text.",
     "back": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
             "and plain light grey background, but seen from directly behind (his back to the viewer, "
-            "{back_of}, his hair on his collar), the whole of him from {top} to boots. "
+            "{back_of}), the whole of him from {top} to boots. "
             "Smooth and realistic, NO pixel mosaic, NO square pixels. Nothing in his hands, no text.",
     "right": "SLTCRK. The same man, the same clothes, the same A-pose and the same flat studio light "
              "and plain light grey background, but seen from his right side (a true profile, he faces "
@@ -123,9 +133,14 @@ def asks(spec):
         # body's bones carry them right); nothing for a hat.
         words = {"item": spec["item"], "pose": (spec["pose"].strip() + " ") if spec.get("pose") else ""}
         return ASK_ITEM_FRONT.format(**words), {v: ASK_ITEM_TURN[v].format(**words) for v in TURN}
-    words = {"top": "head", "back_of": "the back of his head and vest"} if spec.get("hatless") else \
-        {"top": "hat", "back_of": "the back of his hat and coat"}
-    front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
+    words = {"top": "head", "back_of": "the back of his head and vest, his hair on his collar"} \
+        if spec.get("hatless") else {"top": "hat", "back_of": "the back of his hat and coat, his hair on his collar"}
+    if spec.get("back_of"):
+        words["back_of"] = spec["back_of"]  # what his back shows, when it isn't a coat and long hair
+    if spec.get("keep_pose") and spec.get("change"):
+        front = ASK_EDIT.format(change=spec["change"])
+    else:
+        front = ASK_FRONT.format(what=spec["what"], change=spec.get("change", KEEP))
     return front, {v: ASK_TURN[v].format(**words) for v in TURN}
 
 
@@ -233,11 +248,18 @@ def paint_fal(cid, spec, painting, key, lora_url, scale, seed, from_painting, ou
         box = spec.get("refs", [[0, 0, painting.width, painting.height]])[0]
         source = smoothed(painting.crop(tuple(box)), 3)
         where = "the concept painting's man"
-    log.append({"source": where})
     ask_front, ask_turn = asks(spec)
-    front = editor(source, ask_front, lora_url, scale, seed, key, log, cid + "_front")
-    front.save(full)
-    print("painted:", cid, "front", front.size, "from", where)
+    if spec.get("given") and os.path.exists(full) and not from_painting:
+        # Sean's own front picture (clean, full length, in the A-pose): kept as it is, only the
+        # other three views painted from it.
+        front = Image.open(full).convert("RGB")
+        log.append({"source": "the given front, kept"})
+        print("kept:", cid, "front", front.size, "(given)")
+    else:
+        log.append({"source": where})
+        front = editor(source, ask_front, lora_url, scale, seed, key, log, cid + "_front")
+        front.save(full)
+        print("painted:", cid, "front", front.size, "from", where)
     for i, view in enumerate(TURN):
         img = editor(front, ask_turn[view], lora_url, scale, seed + 1 + i, key, log, "%s_%s" % (cid, view))
         img.save(os.path.join(out_dir, "%s_%s.png" % (cid, view)))
