@@ -2997,3 +2997,19 @@ a few views renders them as the full run does.
   `src/bodies/human_body.gd` (one: the shade tint on a man's pieces), `tests/test_pixel_art.gd`
   (+1 test). Shared `settings.gd`, `controls.gd` (M), `project.godot` (two globals),
   `tools/screenshots.gd` (`--blocks`, `--global=`), my lines.
+- 2026-10-05 (art session, later): **Goldens that don't depend on the view before.** The goldens
+  merged this morning were order-dependent: `tools/screenshots.gd` rendered every view in one game,
+  so a view inherited the one before it (the gun smoke still in the air, a pose half eased, the
+  clouds' drift, the exposure's lag), and even a full run drifted (`shot_match_street` rendered 25 %
+  brighter in one run than another: the smoke from the view before). `--fresh` (now what
+  `golden_check.py --render` and gameplay's `visual.yml` pass): the main scene is freed and loaded
+  again before every view, so a view renders the same alone as in the full run; two full runs now
+  differ by a mean of 0.15 or less on 54 of the 70 views, blasts and smoke included (the rest by
+  their physics and fire). All 70 goldens re-approved from the pair (`tolerances.json` from their
+  noise: 54 at the floor, the loosest the store fire close up at a mean of 26; this morning's had
+  the town fights and `texel_*` views at means of 120–465). The visual checks on them and a fresh
+  probe: 376 checks, none failed; the Kid's hat (gameplay's note: his hair under the brim at the
+  sides counts as the head outside the hat, 39 %) is recorded as known in `tools/visual_checks.json`
+  for the characters session (by eye the hat perches high, nothing through the crown). Gameplay's
+  `.github/workflows/visual.yml`: two lines (the flag, the header's note), and its layout note "The
+  visual checks in CI" above, three lines, at the gameplay session's request. 323 tests pass.
