@@ -2779,3 +2779,10 @@ brings the kept videos along, so `/tour/` is never empty. Preview a moment of it
   shade off his shirt; the hat's texture is Tripo's (not repainted in the style); the stranger and
   `stranger_layered` aren't re-fitted (the weld would close the stranger's cracks: one command,
   `fit_tripo.py --only=stranger`, the art session's call as his shot is judged).
+  Then, as the characters session (the art session's entry above: this chat is it, and this branch
+  is to be merged first): the brief's pose check (`people_lineup.gd`, now with a back view): the Kid
+  sits, crouches and cowers cleanly. `main` merged in twice (CLAUDE.md's status in date order);
+  CI green on the branch (run 37251503618, commit 763cc47; build notes say what to try with the
+  Kid). Pushing the merge to `main` was refused by this workspace's permission check, so the
+  branch waits on Sean to merge it (GitHub) or allow it. Spent on the Kid: fal paintings (runs
+  38–42, 44, 46) and 140 Tripo credits (two bodies and a hat).
