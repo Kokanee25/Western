@@ -19,7 +19,8 @@ const HELP := {
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (routes round buildings to a place)",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
-	"hold": "hold ACTION | release ACTION -> press without letting go / let go",
+	"hold": "hold ACTION -> press without letting go (release lets go)",
+	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
 	"weapon": "weapon revolver|shotgun|dynamite|none -> take that out (none: put it away)",
 	"wait": "wait SECONDS -> let game time pass",
@@ -52,6 +53,7 @@ var _busy := false
 var _events: Array[Dictionary] = []
 var _free_camera: Camera3D
 var _held := {}  # action -> true
+var _was_awake := true
 
 
 ## Add a bridge to the game if this run asked for one (and it's a debug build).
@@ -78,6 +80,9 @@ func _ready() -> void:
 	street = main.find_child("TestStreet", true, false)
 	player = main.find_child("Player", true, false) as Player
 	Settings.autosave = false  # a bridge run never writes the player's settings file
+	# Drawn slowly (lavapipe: about a frame a second), the game would only get 8 physics steps a
+	# frame and its clock would crawl; let it catch up so game time keeps near real time.
+	Engine.max_physics_steps_per_frame = 40
 	_arm_player.call_deferred()
 	_listen_to_events()
 	_server = TCPServer.new()
@@ -130,6 +135,12 @@ func _process(_delta: float) -> void:
 			_buffers[p] = text
 	if not _busy and not _queue.is_empty():
 		_run_next()
+	# Your own blackouts aren't an event the game sends: watched here so the log says so.
+	if player and player.wounds and player.wounds.physiology:
+		var awake: bool = player.wounds.physiology.is_conscious()
+		if awake != _was_awake:
+			_log("you", "you came round (at %s)" % [_arr(player.global_position)] if awake else "you blacked out")
+			_was_awake = awake
 
 
 func _run_next() -> void:
@@ -165,6 +176,15 @@ func _game_seconds() -> float:
 func _physics_frames(n: int) -> void:
 	for i in maxi(n, 1):
 		await get_tree().physics_frame
+
+
+## After a key goes down or up: two drawn frames, so what reads keys in _process (the guns, the
+## dynamite's throw) has seen it before the next command turns you round. Drawn slowly, many physics
+## ticks pass in one frame, so waiting on ticks alone isn't enough.
+func _settle() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await _physics_frames(2)
 
 
 func _seconds(s: float) -> void:
@@ -298,7 +318,7 @@ func _cmd_walk(a: Array) -> Dictionary:
 			var flat := Vector2(target.x - player.global_position.x, target.z - player.global_position.z)
 			if flat.length() < 0.5:
 				break
-			if _game_seconds() > limit or _game_seconds() - stuck_since > 3.0:
+			if _game_seconds() > limit or _game_seconds() - stuck_since > 3.0 or _knocked_out():
 				arrived = false
 				break
 			_set_view(atan2(-flat.x, -flat.y), player.get_pitch_degrees())
@@ -312,6 +332,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	_act(false, &"move_forward")
 	_act(false, &"run")
 	await _physics_frames(10)
+	if _knocked_out():
+		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
 			"facing": _facing()}
 
@@ -321,9 +343,10 @@ func _cmd_press(a: Array) -> Dictionary:
 		return {"ok": false, "error": "no action %s" % (a[0] if a.size() > 0 else "")}
 	var action := StringName(a[0])
 	_act(true, action)
+	await _settle()
 	await _seconds(float(a[1]) if a.size() > 1 else 0.1)
 	_act(false, action)
-	await _physics_frames(2)
+	await _settle()
 	return {"action": String(action), "weapon": _weapon_line()}
 
 
@@ -332,7 +355,7 @@ func _cmd_hold(a: Array) -> Dictionary:
 		return {"ok": false, "error": "no action"}
 	_act(true, StringName(a[0]))
 	_held[StringName(a[0])] = true
-	await _physics_frames(2)
+	await _settle()
 	return {"holding": _held.keys().map(func(k): return String(k))}
 
 
@@ -341,7 +364,7 @@ func _cmd_release(a: Array) -> Dictionary:
 	for k in which:
 		_act(false, k)
 		_held.erase(k)
-	await _physics_frames(2)
+	await _settle()
 	return {"holding": _held.keys().map(func(k): return String(k))}
 
 
@@ -351,6 +374,7 @@ func _cmd_shoot(a: Array) -> Dictionary:
 	if w == null:
 		return {"ok": false, "error": "nothing in hand (weapon revolver)"}
 	var fired := 0
+	var clicked := 0  # the hammer fell and nothing went off: an empty or spent chamber, or a misfire
 	for i in n:
 		var before := _shots
 		if w is RevolverViewmodel or w is ShotgunViewmodel:
@@ -359,17 +383,28 @@ func _cmd_shoot(a: Array) -> Dictionary:
 			var tries := 0
 			while not _cocked(w) and tries < 6:
 				_act(true, &"cock")
-				await _seconds(0.12)
+				await _settle()
 				_act(false, &"cock")
-				await _seconds(0.35)
+				await _settle()
+				await _seconds(0.3)
 				tries += 1
 		_act(true, &"fire")
-		await _seconds(0.1)
+		await _settle()
 		_act(false, &"fire")
-		await _seconds(0.6)
+		# The shot is told a moment after the trigger (the gun's own frame): wait for it.
+		var until := _game_seconds() + 2.0
+		while _shots == before and _game_seconds() < until:
+			await get_tree().physics_frame
 		if _shots > before:
 			fired += 1
-	return {"fired": fired, "weapon": _weapon_line()}
+		else:
+			clicked += 1
+		await _seconds(0.4)
+	return {"fired": fired, "clicked": clicked, "weapon": _weapon_line()}
+
+
+func _knocked_out() -> bool:
+	return player.wounds != null and player.wounds.physiology != null and not player.wounds.physiology.is_conscious()
 
 
 func _cocked(w: WeaponViewmodel) -> bool:
