@@ -2478,3 +2478,14 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   training size at ~22 px, while Sean's pictures are cut at full height, so a scene's squares
   arrive at ~8–10 px. Run 30 was mostly painting crops; every retrain since has added scenes. If
   we train again, cut the scene pictures at half height too.
+- 2026-10-05 (Pixel-factory test session, at Sean's request): **custom men, starting with the
+  Kid.** Sean asked how we get custom models now: the stranger's pipeline (paint four views on
+  fal, Tripo, the head repaint, `fit_tripo.py`), with Sean making each man's front picture in
+  ChatGPT (full length, A-pose, flat light, plain grey ground, clean, not pixel art). The Kid's
+  is `assets/people/tripo/kid_full.png`. `characters.json` has `kid` (`given`: that front is kept
+  as it is, only the other three views painted), `kid_body` (from it, hatless) and `kid_hat`
+  (the hat alone), so his hat is its own piece and can be shot off. `paint_full_length.py`
+  (tools/characters/, the art session's pipeline: said here) gained `given` and `back_of` (what
+  his back shows when it isn't a coat and long hair: braces, short hair); the stranger's prompts
+  are word for word as before. Next: People `style: characters` with `characters:
+  kid_body,kid_hat` to look at before Tripo, then Tripo, the head repaint, the fit.
