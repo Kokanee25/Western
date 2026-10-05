@@ -128,6 +128,25 @@ static func on_steps(at: Vector3, radius := 0.6) -> bool:
 	return _on_flight(at, radius) or in_doorway(at, radius)
 
 
+## True where `at` (up at walk height or above) has a boardwalk under it: the old street's walk ran
+## the whole row, each building's own walk now ends with its front.
+static func on_a_walk(at: Vector3) -> bool:
+	for path: String in TownLayout.nodes():
+		var e: Dictionary = TownLayout.nodes()[path]
+		var sets: Dictionary = e.get("set", {})
+		var length := 0.0
+		if sets.has("steps"):
+			length = float(sets.get("length", 0.0))
+		elif e.has("steps"):
+			length = float(e.get("width", 0.0))
+		if length <= 0.0:
+			continue
+		var local := TownLayout.transform_of(StringName(path)).affine_inverse() * at
+		if local.x > 0.0 and local.x < length and local.z > -2.4 and local.z < 0.0:
+			return true
+	return false
+
+
 ## True where a thing `radius` round would stand in a doorway or just before it on the walk: the
 ## store's, the saloon's and the street's buildings' (their doors in the middle of their fronts).
 static func in_doorway(at: Vector3, radius := 0.4) -> bool:
@@ -378,7 +397,7 @@ static func _bench(root: Node3D) -> void:
 
 func _prop(id: StringName, at: Vector3, yaw: float) -> void:
 	var t := carried(at, yaw)
-	if on_steps(t.origin, 0.35):
+	if on_steps(t.origin, 0.35) or (at.y > 0.3 and not on_a_walk(t.origin)):
 		return
 	var p := PropLibrary.spawn(id)
 	add_child(p)
@@ -390,7 +409,7 @@ func _prop(id: StringName, at: Vector3, yaw: float) -> void:
 ## (and left out if it would stand on a flight of steps).
 func _model(n: String, build: Callable, at: Vector3, yaw: float, size: Vector3, carry := true) -> Node3D:
 	var t := carried(at, yaw) if carry else Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
-	if carry and on_steps(t.origin, maxf(size.x, size.z) * 0.5):
+	if carry and (on_steps(t.origin, maxf(size.x, size.z) * 0.5) or (at.y > 0.3 and not on_a_walk(t.origin))):
 		return null
 	var body := StaticBody3D.new()
 	body.name = n
