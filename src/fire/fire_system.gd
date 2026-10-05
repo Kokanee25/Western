@@ -100,6 +100,66 @@ func burning_members() -> Array[StructureMember]:
 	return out
 
 
+## What's burning within `radius` of `at`, for people deciding to get clear: {count, at (the
+## nearest burning point, Vector3.INF if none), distance}. From the grid, so it's cheap enough
+## for every townsman a couple of times a second.
+func fire_near(at: Vector3, radius: float) -> Dictionary:
+	var out := {"count": 0, "at": Vector3.INF, "distance": INF}
+	if active.is_empty() and spills.is_empty():
+		return out
+	var reach := AABB(at - Vector3.ONE * radius, Vector3.ONE * radius * 2.0)
+	for m in _query(reach):
+		if not m.burning or m.consumed:
+			continue
+		var box := _aabb(m)
+		var p := at.clamp(box.position, box.end)
+		var d := p.distance_to(at)
+		if d > radius:
+			continue
+		out.count += 1
+		if d < out.distance:
+			out.distance = d
+			out.at = p
+	for sp in spills:
+		var d: float = maxf((sp.position as Vector3).distance_to(at) - sp.radius, 0.0)
+		if d <= radius:
+			out.count += 1
+			if d < out.distance:
+				out.distance = d
+				out.at = sp.position
+	return out
+
+
+## Where it's burning, seen from above: the `MAP_CELL` m squares (Vector2i) any burning member or
+## spill covers, at any height. Made at most every `MAP_EVERY` s and shared, for everyone working
+## out a way clear of it at once (FireFlight).
+const MAP_CELL := 2.0
+const MAP_EVERY := 0.5
+var _map := {}
+var _map_at := -INF
+
+
+func burning_map() -> Dictionary:
+	var now := float(Engine.get_physics_frames()) / Engine.physics_ticks_per_second  # game time
+	if now - _map_at < MAP_EVERY and now >= _map_at:
+		return _map
+	_map_at = now
+	_map = {}
+	for m: StructureMember in active:
+		if not is_instance_valid(m) or not m.burning or m.consumed:
+			continue
+		var box := _aabb(m)
+		var lo := Vector2i(floori(box.position.x / MAP_CELL), floori(box.position.z / MAP_CELL))
+		var hi := Vector2i(floori(box.end.x / MAP_CELL), floori(box.end.z / MAP_CELL))
+		for x in range(lo.x, hi.x + 1):
+			for z in range(lo.y, hi.y + 1):
+				_map[Vector2i(x, z)] = true
+	for sp in spills:
+		var c: Vector3 = sp.position
+		_map[Vector2i(floori(c.x / MAP_CELL), floori(c.z / MAP_CELL))] = true
+	return _map
+
+
 ## In play a tick's work is spread over the frames until the next one (a burning town is ~80 ms
 ## a tick on one core; all at once it was a hitch four times a second), in the same order as
 ## `step()`, so it comes out the same. The buildings check their loads one a frame.

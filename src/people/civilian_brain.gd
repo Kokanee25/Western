@@ -5,9 +5,11 @@ extends Node
 ## and he protests, a gun on him and his hands go up and he begs, shooting near him and he gets
 ## down and covers his head. When it's over he goes back to his post, and if you're the one who
 ## ran them off, he says so. He knows only what he's seen and heard (Senses), like anyone.
+## Fire near him and he shouts it and gets clear, out to the street, and watches it burn; once his
+## post has been clear of it a while he goes back.
 ## Child of a HumanBody (with no gun).
 
-enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD }
+enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
 
 const LINES := {
 	&"shoved": ["Hey—! There's no call for that.", "Please, I don't want any trouble.", "Easy! Easy..."],
@@ -15,6 +17,8 @@ const LINES := {
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
 	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
 	&"relief": ["...They gone?", "Lord. Lord, lord."],
+	&"fire": ["Fire! FIRE!", "Fire! Get out, get out!", "Lord, it's burning!", "Fire! Somebody get water!",
+			"It's going up! Clear out!"],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
 }
 
@@ -41,6 +45,26 @@ var _say_again := 0.0
 var _calm_for := 0.0
 var _rng := RandomNumberGenerator.new()
 
+## Fire within `FIRE_REACH` m of him sends him off to somewhere `FIRE_CLEAR` m from any; he goes
+## back once his post has had none within `FIRE_CLEAR` for `FIRE_OVER` s. Looked for every
+## `FIRE_LOOK` s.
+const FIRE_REACH := 8.0
+const FIRE_CLEAR := 15.0
+const FIRE_OVER := 20.0
+const FIRE_LOOK := 0.5
+const FIRE_RUN := 3.4
+## The town's named places, to find his way out of a building and back (TownLife's if not given).
+var places: Waypoints
+var _fire: FireSystem
+var _fire_look := 0.0
+var _fire_at := Vector3.INF
+var _fire_out := 0.0
+var _shout_in := -1.0
+var _route: Array[Vector3] = []
+var _stuck := 0.0
+var _last_pos := Vector3.INF
+var _scorched := 0.0
+
 
 func _ready() -> void:
 	body = get_parent() as HumanBody
@@ -52,6 +76,11 @@ func _ready() -> void:
 	Events.noise.connect(_on_noise)
 	Events.hat_shot.connect(_on_hat_shot)
 	Events.hours_passed.connect(_on_hours_passed)
+	Events.scorched.connect(func(who: Node, amount: float) -> void:
+		if who == body:
+			_scorched += amount
+			_fire_look = minf(_fire_look, 0.05))
+	_fire_look = _rng.randf_range(0.0, FIRE_LOOK)  # not everyone looking on the same tick
 
 
 func say(kind: StringName) -> void:
@@ -149,6 +178,98 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 		mood = Mood.CALM
 
 
+# --- Fire ------------------------------------------------------------------------------------
+
+## Fire: shout it, get clear, watch it burn, and go back when it's out. True while that's what
+## he's doing (nothing else this tick).
+func _mind_fire(delta: float) -> bool:
+	_fire_look -= delta
+	if _fire_look <= 0.0:
+		_fire_look = FIRE_LOOK
+		_look_for_fire()
+	if mood != Mood.FLEEING and _route.is_empty():
+		return false
+	if _shout_in > 0.0:
+		_shout_in -= delta
+		if _shout_in <= 0.0:
+			say(&"fire")
+	if not body.physiology.can_stand():
+		_route.clear()
+		return false
+	if not _route.is_empty():
+		body.set_pose(&"stand")
+		var arrived := body.walk_to(_route[0], FIRE_RUN if mood == Mood.FLEEING else 1.2, delta)
+		if body.global_position.distance_to(_last_pos) < 0.01 * 60.0 * delta:
+			_stuck += delta
+		else:
+			_stuck = maxf(_stuck - delta, 0.0)
+		_last_pos = body.global_position
+		if arrived or _stuck > 2.0:
+			_route.pop_front()
+			_stuck = 0.0
+		return true
+	if mood == Mood.FLEEING:
+		# Clear of it: he stands and watches it burn.
+		body.set_pose(&"stand")
+		if _fire_at != Vector3.INF:
+			body.face(_fire_at + Vector3.UP * 1.0)
+		return true
+	return false
+
+
+func _look_for_fire() -> void:
+	if _fire == null or not is_instance_valid(_fire):
+		_fire = get_tree().get_first_node_in_group(&"fire_system") as FireSystem
+	if _fire == null or not body.physiology.is_conscious():
+		return
+	var here := _fire.fire_near(body.global_position, FIRE_REACH)
+	if mood != Mood.FLEEING:
+		if here.count > 0:
+			_flee(here.at)
+		return
+	if _scorched > 0.0:
+		_scorched = 0.0
+		if here.count > 0:
+			_flee(here.at)  # it's on him: off again, whatever the way he was taking
+			return
+	if here.count > 0 and _route.is_empty():
+		_flee(here.at)  # it's come to him where he stopped: further
+		return
+	var home := post if post != Vector3.INF else body.global_position
+	var there := _fire.fire_near(home, FIRE_CLEAR)
+	if there.count > 0:
+		_fire_out = 0.0
+		_fire_at = there.at
+		return
+	_fire_out += FIRE_LOOK
+	if _fire_out >= FIRE_OVER:
+		mood = Mood.SHAKEN
+		_calm_for = 0.0
+		if post != Vector3.INF:
+			_route = FireFlight.route(_places(), body, post)
+
+
+## Off, away from the fire at `from`, to the nearest place clear of any.
+func _flee(from: Vector3) -> void:
+	if mood != Mood.FLEEING:
+		_shout_in = _rng.randf_range(0.15, 1.6)  # a few men don't all shout in the same breath
+	mood = Mood.FLEEING
+	_fire_at = from
+	_fire_out = 0.0
+	_cower = 0.0
+	_aimed = 0.0
+	_flinch = 0.0
+	_route = FireFlight.way_out(_fire, _places(), body, FIRE_CLEAR)
+
+
+func _places() -> Waypoints:
+	if places == null:
+		var town := get_tree().get_first_node_in_group(&"town_life")
+		if town:
+			places = town.get(&"places")
+	return places
+
+
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
 	if kind in [&"gunshot", &"blast"] and at.distance_to(body.global_position) < (25.0 if kind == &"gunshot" else 60.0):
 		if body.physiology.is_conscious():
@@ -172,6 +293,8 @@ func _physics_step(delta: float) -> void:
 		return
 	if body.limp:
 		mood = Mood.DOWN
+		return
+	if _mind_fire(delta):
 		return
 	_aimed -= delta
 	_cower -= delta

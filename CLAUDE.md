@@ -3067,6 +3067,26 @@ a few views renders them as the full run does.
     for six hours; fires don't burn on; the dead aren't taken away); `blood_regen` is 0.004 ml/s,
     so a fifth of your blood takes ~70 real hours to come back (Sean: keep healing slow; you heal
     properly by sleeping, later, DESIGN.md §7 Treatment); a broken leg means crawling until there's a doctor and time to heal.
+- 2026-10-05 (gameplay): **People get away from fire** (both playtests: townsfolk burnt at their
+  posts without a word). `FireSystem.fire_near(at, radius)` (what's burning near a point, from the
+  fire's grid) and `burning_map()` (2 m squares where it's burning seen from above, made at most
+  every half second of game time and shared). `FireFlight` (`src/people/fire_flight.gd`): the
+  way clear of a fire, from the town's street places (`Waypoints.routes_from()`: one search to
+  every place) and straight-out points in eight directions, the nearest one 15 m clear of any fire
+  reached by a way never within 3 m of it (~10 ms in a burning town; the first version routed to
+  each place on its own and took 250 ms). `CivilianBrain`: mood `FLEEING`; fire within 8 m (looked
+  for twice a second, scorching looks at once) and he shouts it (a line of `LINES.fire`, after
+  0.15–1.6 s so a crowd doesn't shout as one), runs the way out, watches it burn, re-flees if it
+  reaches him, and walks back once his post has had no fire within 15 m for 20 s (`places`: the
+  TownLife's, which now joins group `town_life`). `OutlawBrain`, calm and going about his day:
+  out of it by the same, a line (`LINES.fire`), and what's left of his day is riding out.
+  Two fixes on the way: `Waypoints.store_behind_counter` x 5.65 → 5.5 (a man walking there
+  caught his shoulder on the wall's studs; nobody had walked it before), and `Waypoints._walkable`
+  sweeps at the lower end's height (from a porch a sweep passed over the hitching rail below).
+  Tests `test_flee_fire` (4). In the street (bridge, store lit inside, 150 s): everyone out, no one
+  burnt; before, two of the bench men died every time.
+  - Known: a man in a fight ignores fire; nobody fetches water or fights it; a man whose post
+    burnt down walks back to the ashes; the gang's horses (props) don't react.
 - 2026-10-05 (characters session, at Sean's request): **The probe mosaic: texel splatting's idea
   in the game, behind V, measured against the surface blocks.** Sean asked whether texel splatting
   (Ebert 2026: pixel art held still by indexing the scene by direction from a point snapped to a
@@ -3114,4 +3134,4 @@ a few views renders them as the full run does.
   `src/main/main.gd` (three lines: the probe on the camera, the key), `tests/test_probe_mosaic.gd`
   (6), `tools/probe_walk.gd`/`.py`. This workspace's native library was destruction step 1's (no
   VoxelMember), so the four voxel tests failed here till it was rebuilt (`cargo build
-  --release`); CI builds its own. 332 tests pass (with main's merged in).
+  --release`); CI builds its own. 336 tests pass (with main's merged in).
