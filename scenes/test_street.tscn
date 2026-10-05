@@ -1,6 +1,7 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
+[ext_resource type="Script" path="res://src/world/town_layout.gd" id="30_town"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
@@ -79,6 +80,9 @@ subdivide_depth = 8
 
 [node name="TestStreet" type="Node3D"]
 
+[node name="TownLayout" type="Node" parent="."]
+script = ExtResource("30_town")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
 
@@ -123,29 +127,24 @@ structure_id = &"store"
 build_seed = 7
 
 [node name="Boardwalk" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
 script = ExtResource("6_boardwalk")
 structure_id = &"boardwalk"
 build_seed = 3
 
 [node name="HitchingRail" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -3.8)
 script = ExtResource("7_rail")
 structure_id = &"hitching_rail"
 
 [node name="WaterTrough" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0, -3.9)
 script = ExtResource("8_trough")
 structure_id = &"water_trough"
 
 [node name="Saloon" type="Node3D" parent="."]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 12, 0, -16.8)
 script = ExtResource("11_saloon")
 structure_id = &"saloon"
 build_seed = 11
 
 [node name="SouthBoardwalk" type="Node3D" parent="."]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 13, 0, -16.8)
 script = ExtResource("6_boardwalk")
 structure_id = &"south_boardwalk"
 build_seed = 5
@@ -204,13 +203,10 @@ script = ExtResource("12_spawns")
 transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
 
 [node name="StoreInside" type="Marker3D" parent="DebugSpawns"]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1.5, 0.4, 7.5)
 
 [node name="SaloonDoor" type="Marker3D" parent="DebugSpawns"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.4, -15.8)
 
 [node name="SaloonInside" type="Marker3D" parent="DebugSpawns"]
-transform = Transform3D(0.766, 0, 0.643, 0, 1, 0, -0.643, 0, 0.766, 8.5, 0.4, -26.5)
 
 [node name="Range" type="Marker3D" parent="DebugSpawns"]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 14, 0, -7.5)

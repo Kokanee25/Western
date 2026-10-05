@@ -415,6 +415,12 @@ a few views renders them as the full run does.
   `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
+- `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
+  `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
+  saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
+  in its space and moves with it. `TownLayout.transform_of(path)` / `point(building, local)` give
+  the same places to code with no scene (`Waypoints.test_street()` puts the store's and saloon's
+  insides through it). Move a building: change its entry.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
@@ -3205,4 +3211,12 @@ a few views renders them as the full run does.
   ~15 s and went back to his counter.
   - Known: no bucket drawn in their hands; each man runs his own bucket (not a passing line); only
     troughs are water; the gang doesn't help (they ride out).
-
+- 2026-10-05 (gameplay): **Main Street to Sean's map, step 1: the layout as data** (Sean, with the
+  map and the street picture: "we're using the map, so we need to change the layout", buildings
+  "up on steps" as in the picture, the sun "right down the Main Street", mountains pushed out, "it's
+  gotta match this art"; `docs/briefs/main-street.md`, gameplay's plan beside the art session's
+  `docs/briefs/town.md`; Sean's answers passed to the art session). `config/town.json` +
+  `TownLayout` (layout note above): nothing moved (every node's transform and every waypoint the
+  same, checked old against new). Tests `test_town_layout` (2). Next: step 2, Main Street moved to
+  the map (one saloon, the store beside it, the livery and jail across, raised boardwalks with
+  steps), with the art session on the dressing and the goldens.

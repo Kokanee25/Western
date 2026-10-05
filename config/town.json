@@ -1,0 +1,14 @@
+{
+	"note": "Where the town stands (docs/briefs/main-street.md). Each entry is a node under the street (its path), placed by TownLayout before anything is built: at = position in metres, facing = degrees turned about the vertical (0 as built: a building's front toward -Z; 180 turned round, its front toward +Z). An entry with 'in' is given in that building's own space and moves with it. Main Street runs along X, west (-X) toward the sunset; north is -Z.",
+	"nodes": {
+		"Store": {"at": [0, 0, 0], "facing": 0},
+		"Boardwalk": {"at": [-8, 0, 0], "facing": 0},
+		"HitchingRail": {"at": [4, 0, -3.8], "facing": 0},
+		"WaterTrough": {"at": [-3.4, 0, -3.9], "facing": 0},
+		"Saloon": {"at": [12, 0, -16.8], "facing": 180},
+		"SouthBoardwalk": {"at": [13, 0, -16.8], "facing": 180},
+		"DebugSpawns/StoreInside": {"in": "Store", "at": [1.5, 0.4, 7.5], "facing": 180},
+		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.4, -1.0], "facing": 180},
+		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.4, 9.7], "facing": -140}
+	}
+}
