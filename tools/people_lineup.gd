@@ -1,10 +1,11 @@
 extends SceneTree
 ## Men standing side by side to judge a new body's proportions and how it moves: each a
 ## HumanBody with his body_model, in one pose, lit plainly, seen orthographically (sizes compare
-## straight) from the front, the side and three-quarters. Writes <out>/<pose>_<view>.png.
+## straight) from the front, the side, three-quarters and the back. Writes <out>/<pose>_<view>.png.
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd -- --out=DIR
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
-##   [--poses=stand,hands_up,aim] (HumanBody.POSES) [--head] (their heads close: the paint)
+##   [--poses=stand,hands_up,aim] (HumanBody.POSES; docs/briefs/characters.md's pose check is
+##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint)
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -70,12 +71,14 @@ func _run() -> void:
 	cam.current = true
 	cam.position = Vector3(0, 1.62 if close else 1.0, 8)
 	for pose in poses:
-		for view in ["front", "side", "three_quarter"]:
+		for view in ["front", "side", "three_quarter", "back"]:
 			var to := Vector3(0, 0, 5)
 			if view == "side":
 				to = Vector3(5, 0, 0)
 			elif view == "three_quarter":
 				to = Vector3(3.5, 0, 3.5)
+			elif view == "back":
+				to = Vector3(0, 0, -5)
 			for m in men:
 				m.face(m.global_position + to)
 				m.set_pose(StringName(pose))
