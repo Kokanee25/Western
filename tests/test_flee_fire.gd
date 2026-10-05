@@ -108,3 +108,39 @@ func test_a_calm_outlaw_gets_clear_too() -> void:
 	var clear := await wait_until(func() -> bool: return gun.global_position.length() > OutlawBrain.FIRE_CLEAR - 2.0, 60 * 14)
 	check(clear, "he gets clear (%.1f m from it)" % gun.global_position.length())
 	check_eq(b.mood, OutlawBrain.Mood.CALM, "no fight in it")
+
+
+## A trough near the fire: once he's clear, he carries water to it till it's out, and says so.
+func test_he_carries_water_to_it_till_its_out() -> void:
+	var trough := WaterTrough.new()
+	trough.structure_id = &"trough"
+	world.add_child(trough)
+	trough.position = Vector3(-6.0, 0, 4.0)
+	var boards := _wall_alight()
+	var out := await wait_until(func() -> bool: return boards.all(func(m: StructureMember) -> bool: return not m.burning), 60 * 120)
+	check(out, "he put it out (%d boards still burning)" % boards.filter(func(m: StructureMember) -> bool: return m.burning).size())
+	check(said.any(func(t: String) -> bool: return CivilianBrain.LINES[&"buckets"].has(t)), "he called for buckets: %s" % [said])
+	check(man.physiology.burns < 0.5, "not badly burnt (%.2f)" % man.physiology.burns)
+	await physics_frames(60 * 3)
+	check(not brain.is_in_group(&"bucket_runners"), "and stopped carrying")
+
+
+## Past saving, nobody goes near it.
+func test_past_saving_they_let_it_burn() -> void:
+	var trough := WaterTrough.new()
+	trough.structure_id = &"trough"
+	world.add_child(trough)
+	trough.position = Vector3(-6.0, 0, 4.0)
+	var s := Structure.new()
+	s.structure_id = &"big"
+	s.collapses = false
+	world.add_child(s)
+	for i in 50:
+		var m := s.add_member("b%d" % i, &"board", &"weathered_pine", Vector3(0.24, 2.4, 0.025), Vector3(-6.0 + i * 0.25, 1.2, 0))
+		fire.ignite(m)
+	s.infer_supports()
+	fire.step(0.25)
+	fire.set_physics_process(false)
+	await wait_until(func() -> bool: return said.any(func(t: String) -> bool: return CivilianBrain.LINES[&"lost"].has(t)), 60 * 20)
+	check(said.any(func(t: String) -> bool: return CivilianBrain.LINES[&"lost"].has(t)), "he says it's lost: %s" % [said])
+	check(not brain.is_in_group(&"bucket_runners"), "and carries no water")

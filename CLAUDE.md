@@ -3189,4 +3189,20 @@ a few views renders them as the full run does.
   2.6 m put it out.
   - Known: the player carries a bucket always (no picking one up yet); water barrels and the
     water tower aren't sources; no bucket line yet (next); a burning person isn't put out by it.
+- 2026-10-05 (gameplay): **The townsfolk carry water** (DESIGN.md §8 fire: bucket lines from the
+  trough). `CivilianBrain`, fled and standing clear with a trough within `WATER_REACH` 40 m of the
+  fire: joins group `bucket_runners` (at most `MAX_RUNNERS` 4; the first says `LINES.buckets`),
+  walks to the trough's water on the fire's side (`_water_side`), fills only within 1 m of it
+  (`_at_water`, crouched, `FILL_SECONDS` 1.5), takes it to `THROW_STAND` 2.2 m off the nearest
+  burning and `douse`s it there (10 l), and back, till nothing's burning within 40 m (`LINES.out`);
+  scorched, he drops it and flees; more than `PAST_SAVING` 40 members burning near the fire and he
+  says it's lost (`LINES.lost`) and stays clear. Walking: a man stuck more than a second sidesteps
+  1.2 m, one way then the other, up to three times (`_detours`), and `HumanBody._slide` (gameplay's,
+  everyone's walking) no longer stops dead on a corner: if no slide moves him, it tries headings 45°
+  and 90° either side and takes the furthest; and it steps out of anything it starts a hair inside.
+  Tests `test_flee_fire` (+2: he carries water to it till it's out and stops; past saving he says
+  so and carries none). In the street (bridge): the store lit inside, the storekeeper put it out in
+  ~15 s and went back to his counter.
+  - Known: no bucket drawn in their hands; each man runs his own bucket (not a passing line); only
+    troughs are water; the gang doesn't help (they ride out).
 

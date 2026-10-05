@@ -6,7 +6,9 @@ extends Node
 ## down and covers his head. When it's over he goes back to his post, and if you're the one who
 ## ran them off, he says so. He knows only what he's seen and heard (Senses), like anyone.
 ## Fire near him and he shouts it and gets clear, out to the street, and watches it burn; once his
-## post has been clear of it a while he goes back.
+## post has been clear of it a while he goes back. Clear of it, with a trough near the fire, he
+## carries water to it (up to `MAX_RUNNERS` men at once): fills a bucket, takes it to the nearest
+## burning, throws it, and goes back for more till it's out, unless it's grown past saving.
 ## Child of a HumanBody (with no gun).
 
 enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
@@ -17,6 +19,9 @@ const LINES := {
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
 	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
 	&"relief": ["...They gone?", "Lord. Lord, lord."],
+	&"buckets": ["Buckets! Get the buckets!", "Water! From the trough, quick!", "Bring water, damn it!"],
+	&"lost": ["Let it go, she's gone!", "Too late. Let it burn.", "Nothing to be done now."],
+	&"out": ["That's got it!", "It's out. Lord.", "Keep an eye on it, it'll catch again."],
 	&"fire": ["Fire! FIRE!", "Fire! Get out, get out!", "Lord, it's burning!", "Fire! Somebody get water!",
 			"It's going up! Clear out!"],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
@@ -53,6 +58,17 @@ const FIRE_CLEAR := 15.0
 const FIRE_OVER := 20.0
 const FIRE_LOOK := 0.5
 const FIRE_RUN := 3.4
+## Carrying water: so many men at once, a trough this near the fire (m), standing this far off the
+## burning to throw (m), a bucket of this much (litres) taking this long to fill (s); a fire with more
+## than this many members burning near where they'd throw is past saving.
+const MAX_RUNNERS := 4
+const WATER_REACH := 40.0
+const THROW_STAND := 2.2
+const BUCKET_LITRES := 10.0
+const FILL_SECONDS := 1.5
+const PAST_SAVING := 40
+## Will carry water (false for anyone who should just get clear).
+var fights_fire := true
 ## The town's named places, to find his way out of a building and back (TownLife's if not given).
 var places: Waypoints
 var _fire: FireSystem
@@ -63,7 +79,16 @@ var _shout_in := -1.0
 var _route: Array[Vector3] = []
 var _stuck := 0.0
 var _last_pos := Vector3.INF
+var _detours := 0
+var _water_tries := 0
 var _scorched := 0.0
+## Carrying water: the step he's on (&"" when not: to_water, fill, to_fire), the trough, the time
+## left filling, and how long before he tries again after giving up.
+var _bucket := &""
+var _trough: Node3D
+var _bucket_t := 0.0
+var _bucket_rest := 0.0
+var _said_lost := false
 
 
 func _ready() -> void:
@@ -169,6 +194,7 @@ func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
 
 ## Hours went by in a moment: whatever scared him is long over.
 func _on_hours_passed(_hours: float, _why: StringName) -> void:
+	_stop_bucket()
 	fear = 0.0
 	_aimed = 0.0
 	_cower = 0.0
@@ -204,9 +230,22 @@ func _mind_fire(delta: float) -> bool:
 		else:
 			_stuck = maxf(_stuck - delta, 0.0)
 		_last_pos = body.global_position
-		if arrived or _stuck > 2.0:
+		if not arrived and _stuck > 1.0 and _detours < 3:
+			# Caught on something low (a trough, a rail): a sidestep round it, one way then the other.
+			var to := _route[0] - body.global_position
+			to.y = 0.0
+			var side := Vector3(-to.z, 0.0, to.x).normalized() * (1.0 if _detours % 2 == 0 else -1.0)
+			_route.push_front(body.global_position + side * 1.2 + to.normalized() * 0.3)
+			_detours += 1
+			_stuck = 0.0
+		elif arrived or _stuck > 2.0:
 			_route.pop_front()
 			_stuck = 0.0
+			if arrived:
+				_detours = 0
+		return true
+	if _bucket != &"":
+		_bucket_step(delta)
 		return true
 	if mood == Mood.FLEEING:
 		# Clear of it: he stands and watches it burn.
@@ -230,11 +269,17 @@ func _look_for_fire() -> void:
 	if _scorched > 0.0:
 		_scorched = 0.0
 		if here.count > 0:
+			_stop_bucket()
 			_flee(here.at)  # it's on him: off again, whatever the way he was taking
 			return
+	if _bucket != &"":
+		return  # carrying water: going near it is the point
 	if here.count > 0 and _route.is_empty():
 		_flee(here.at)  # it's come to him where he stopped: further
 		return
+	_bucket_rest -= FIRE_LOOK
+	if _route.is_empty() and _bucket_rest <= 0.0:
+		_start_bucket()
 	var home := post if post != Vector3.INF else body.global_position
 	var there := _fire.fire_near(home, FIRE_CLEAR)
 	if there.count > 0:
@@ -247,6 +292,138 @@ func _look_for_fire() -> void:
 		_calm_for = 0.0
 		if post != Vector3.INF:
 			_route = FireFlight.route(_places(), body, post)
+
+
+# --- Carrying water --------------------------------------------------------------------------
+
+## Clear of it and standing: if there's a trough near the fire and not too many at it already, and
+## it's not past saving, he goes for water.
+func _start_bucket() -> void:
+	if not fights_fire or not body.physiology.can_run():
+		return
+	var runners := get_tree().get_nodes_in_group(&"bucket_runners").size()
+	if runners >= MAX_RUNNERS:
+		return
+	var fire_at := _fire_at
+	if fire_at == Vector3.INF or _fire.fire_near(fire_at, FIRE_CLEAR).count == 0:
+		return  # it's out
+	var trough := _nearest_trough(fire_at)
+	if trough == null:
+		return
+	if _fire.fire_near(fire_at, 8.0).count > PAST_SAVING:
+		if not _said_lost:
+			_said_lost = true
+			say(&"lost")
+		_bucket_rest = 20.0
+		return
+	_trough = trough
+	add_to_group(&"bucket_runners")
+	if runners == 0:
+		say(&"buckets")
+	_go_for_water()
+
+
+func _stop_bucket() -> void:
+	_bucket = &""
+	_trough = null
+	if is_in_group(&"bucket_runners"):
+		remove_from_group(&"bucket_runners")
+
+
+func _go_for_water() -> void:
+	if _trough == null or not is_instance_valid(_trough):
+		_stop_bucket()
+		return
+	_bucket = &"to_water"
+	_route = FireFlight.route(_places(), body, _water_side(_trough, _fire_at))
+
+
+## Where he's got to on a run: at the trough he fills it; full, he takes it to the nearest burning
+## and throws it from a couple of paces; then back for more. Nothing burning near: it's out.
+func _bucket_step(delta: float) -> void:
+	match _bucket:
+		&"to_water":
+			if not _at_water():
+				_water_tries += 1
+				if _water_tries > 3:
+					_stop_bucket()
+					_bucket_rest = 15.0
+				else:
+					_go_for_water()
+				return
+			_water_tries = 0
+			_bucket = &"fill"
+			_bucket_t = FILL_SECONDS
+		&"fill":
+			body.set_pose(&"crouch")
+			if _trough:
+				body.face(_trough.global_position)
+			_bucket_t -= delta
+			if _bucket_t > 0.0:
+				return
+			body.set_pose(&"stand")
+			var near := _fire.fire_near(body.global_position, WATER_REACH)
+			if near.count == 0:
+				_stop_bucket()
+				say(&"out")
+				return
+			var at: Vector3 = near.at
+			_fire_at = at
+			var away := body.global_position - at
+			away.y = 0.0
+			away = away.normalized() if away.length() > 0.01 else Vector3.BACK
+			var stand := Vector3(at.x, body.global_position.y, at.z) + away * THROW_STAND
+			_bucket = &"to_fire"
+			_route = FireFlight.route(_places(), body, stand)
+		&"to_fire":
+			var near := _fire.fire_near(body.global_position, THROW_STAND + 1.5)
+			if near.count > 0:
+				var at: Vector3 = near.at
+				body.face(at + Vector3.UP * 0.3)
+				_fire.douse(at, 0.6, BUCKET_LITRES)
+				Events.noise.emit(body.global_position, 10.0, &"splash", body)
+			if _fire.fire_near(body.global_position, WATER_REACH).count == 0:
+				_stop_bucket()
+				say(&"out")
+				return
+			_go_for_water()
+
+
+## Near enough the trough's water to dip a bucket in it.
+func _at_water() -> bool:
+	if _trough == null or not is_instance_valid(_trough):
+		return false
+	var w := _trough.get_node_or_null(^"Water") as Node3D
+	var centre := w.global_position if w else _trough.global_position
+	var length := float(_trough.get(&"length")) if _trough.get(&"length") != null else 2.0
+	var local := _trough.global_transform.affine_inverse() * body.global_position
+	var wl := _trough.global_transform.affine_inverse() * centre
+	var dx := maxf(absf(local.x - wl.x) - length * 0.5, 0.0)
+	var dz := maxf(absf(local.z - wl.z) - float(_trough.get(&"trough_width")) * 0.5, 0.0)
+	return Vector2(dx, dz).length() <= 1.0
+
+
+func _nearest_trough(near: Vector3) -> Node3D:
+	var best: Node3D = null
+	var best_d := WATER_REACH
+	for t: Node in get_tree().get_nodes_in_group(&"water_source"):
+		var d := (t as Node3D).global_position.distance_to(near)
+		if d < best_d:
+			best_d = d
+			best = t as Node3D
+	return best
+
+
+## Beside the trough's water, on the side toward the fire.
+static func _water_side(trough: Node3D, fire_at: Vector3) -> Vector3:
+	var w := trough.get_node_or_null(^"Water") as Node3D
+	var centre := w.global_position if w else trough.global_position
+	var across := trough.global_basis.z.normalized()
+	var side := 1.0 if (fire_at - centre).dot(across) >= 0.0 else -1.0
+	var half := float(trough.get(&"trough_width")) * 0.5 if trough.get(&"trough_width") != null else 0.35
+	var spot := centre + across * side * (half + 0.45)
+	spot.y = trough.global_position.y
+	return spot
 
 
 ## Off, away from the fire at `from`, to the nearest place clear of any.

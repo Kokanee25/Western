@@ -6,6 +6,16 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the townsfolk carry water
+
+- **Once they've got clear of a fire, townsfolk fight it.** If there's a trough near it, up to
+  four men run buckets: fill at the trough, throw from a couple of paces, back for more, till it's
+  out ("That's got it!"). Past saving (a building well alight) they call it lost and let it burn.
+- Men also walk round troughs and rail ends now instead of getting stuck on their corners.
+- **Try:** press **L** on the general store's wall and stand back: the storekeeper should call
+  for water and put it out. Light a few boards and wait before you watch; tell me when it should
+  be past saving.
+
 ### New: a bucket to put fires out
 
 - **Press 4 for a water bucket.** Stand at the trough in front of the general store and press
