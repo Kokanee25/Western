@@ -128,7 +128,7 @@ func test_a_store_burns_down() -> void:
 			gone += 1
 	print("  roof in after %.0f s; %d of %d members gone after %.0f s" % [t, gone, store.member_count(), t_down])
 	check(roof_in.call(), "the roof comes in")
-	check(t > 60.0 and t < 900.0, "in minutes, not seconds or hours (%.0f s)" % t)
+	preload("res://tests/feel.gd").within(self, "fire_store_roof_seconds", t)  # in minutes, not seconds or hours
 	check(gone > store.member_count() * 0.6, "and most of it burns down (%d%%)" % (gone * 100 / store.member_count()))
 
 
