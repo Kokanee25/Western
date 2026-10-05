@@ -462,14 +462,14 @@ func _cmd_set(a: Array) -> Dictionary:
 	var value: Variant = raw if parsed == null else parsed
 	var ok := LookPreset.set_value(get_tree(), a[0], value)
 	await _physics_frames(2)
-	return {"ok": ok, "value": LookPreset._plain(LookPreset.get_value(get_tree(), a[0]))}
+	return {"ok": ok, "value": LookPreset.plain(LookPreset.get_value(get_tree(), a[0]))}
 
 
 func _cmd_get(a: Array) -> Dictionary:
 	if a.is_empty():
 		return {"ok": false, "error": "get ADDRESS"}
 	var v: Variant = LookPreset.get_value(get_tree(), a[0])
-	return {"ok": v != null, "value": LookPreset._plain(v)}
+	return {"ok": v != null, "value": LookPreset.plain(v)}
 
 
 func _cmd_preset(a: Array) -> Dictionary:

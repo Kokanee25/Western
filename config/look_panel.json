@@ -1,0 +1,111 @@
+{
+  "_about": "The live look panel's sliders (LookPanel, N in game). From the art session's list, docs/briefs/look_settings.md: address (LookPreset), label, range, and what it does. kind: float (default), color, bool, or choice with options. Lamps are multipliers over each lamp's own value.",
+  "groups": [
+    {"name": "Sun & sky", "items": [
+      {"key": "day.sun_max_energy", "label": "Sun strength", "min": 0.5, "max": 3, "what": "The sun's light at full height; scaled down near the horizon."},
+      {"key": "day.sun_tilt_degrees", "label": "Sun arc tilt", "min": 10, "max": 70, "what": "How far the sun's arc leans from overhead (lower = a lower sun all day)."},
+      {"key": "day.sun_azimuth_degrees", "label": "Sun arc turn", "min": -45, "max": 45, "what": "The arc turned round the vertical: at 20 the sun sets south of west."},
+      {"key": "day.day_bias", "label": "Day length bias", "min": 0, "max": 0.3, "what": "Days a little longer than nights."},
+      {"key": "sun.light_volumetric_fog_energy", "label": "Sun in the haze", "min": 0, "max": 1.5, "what": "How much the sun lights the volumetric haze (rays down the street)."},
+      {"key": "env.fog_sun_scatter", "label": "Sun scatter", "min": 0, "max": 0.5, "what": "How much the sun's colour scatters into the haze looking toward it."},
+      {"key": "sky.sun_size", "label": "Sun disc size", "min": 0.01, "max": 0.08, "what": "The sun disc's size, as a fraction of the sky."},
+      {"key": "sky.low_sun_dim", "label": "Low sun: sky dims", "min": 0, "max": 0.8, "what": "How much the sky away from a low sun darkens."},
+      {"key": "sky.cloud_cover", "label": "Cloud cover", "min": 0, "max": 0.9, "what": "Share of sky under cloud."},
+      {"key": "sky.cloud_scale", "label": "Cloud size", "min": 1, "max": 6, "what": "Size of the cloud heaps (bigger = fewer, larger)."},
+      {"key": "sky.cloud_ragged", "label": "Cloud edges ragged", "min": 0, "max": 0.6, "what": "How much a finer noise eats the clouds' edges."},
+      {"key": "sky.cloud_tones", "label": "Cloud painted tones", "min": 0, "max": 1, "what": "0 = shaded smoothly; 1 = three hard painted bands."},
+      {"key": "day.cloud_drift_speed", "label": "Cloud drift", "min": 0, "max": 0.02, "what": "How fast the clouds slide across the street."},
+      {"key": "sky.sky_squares", "label": "Sky squares", "min": 0, "max": 200, "what": "The sky cut into squares (cells a radian); 0 = smooth."},
+      {"key": "sky.sky_mosaic", "label": "Sky mosaic", "min": 0, "max": 1, "what": "A shade's worth of mosaic across those squares."}
+    ]},
+    {"name": "Night & moon", "items": [
+      {"key": "day.moon_max_energy", "label": "Moon strength", "min": 0, "max": 1.2, "what": "The moon's light when it's up."},
+      {"key": "day.moon_color", "label": "Moonlight colour", "kind": "color", "what": "The moonlight's colour."},
+      {"key": "day.moon_tilt_degrees", "label": "Moon arc tilt", "min": 35, "max": 85, "what": "At 78 the moon crosses low and stands in the saloon's doorway near midnight."},
+      {"key": "day.star_strength", "label": "Stars", "min": 0, "max": 3, "what": "Brightness of the stars."},
+      {"key": "day.ambient_energy_night", "label": "Night ambient (open)", "min": 0, "max": 3, "what": "Ambient light at night in the open."},
+      {"key": "day.interior_ambient_night", "label": "Night ambient (inside)", "min": 0, "max": 0.5, "what": "Ambient inside buildings at night."},
+      {"key": "building.saloon.night_ambient", "label": "Saloon's night fill", "min": 0, "max": 0.3, "what": "The saloon's own fill at night: the painting's room is dark and lit by its lamps."},
+      {"key": "day.exposure_night", "label": "Night exposure", "min": 0.4, "max": 1.2, "what": "The eye's exposure at night."},
+      {"key": "backdrop.night_tint", "label": "Backdrop at night", "kind": "color", "what": "What the painted backdrop's land turns at night."}
+    ]},
+    {"name": "Lamps", "items": [
+      {"key": "lamps.all.energy", "label": "All lamps: light", "min": 0, "max": 3, "what": "× every lamp's own light."},
+      {"key": "lamps.street.energy", "label": "Street lanterns: light", "min": 0, "max": 3, "what": "× the lamps outside and in the other buildings."},
+      {"key": "lamps.saloon.energy", "label": "Saloon lamps: light", "min": 0, "max": 3, "what": "× the saloon's sconces, back-bar, hung and table lamps."},
+      {"key": "lamps.all.light_range", "label": "All lamps: reach", "min": 0.3, "max": 2, "what": "× how far each lamp's light reaches."},
+      {"key": "lamps.all.haze", "label": "All lamps: glow in the air", "min": 0, "max": 3, "what": "× how much each lamp lights the haze round it."}
+    ]},
+    {"name": "Fog & haze", "items": [
+      {"key": "day.fog_density", "label": "Distance haze", "min": 0, "max": 0.03, "what": "Haze down the street."},
+      {"key": "env.fog_aerial_perspective", "label": "Aerial perspective", "min": 0, "max": 1, "what": "How much far things take the sky's colour rather than the fog's."},
+      {"key": "day.fog_low_sun_level", "label": "Low sun haze gold", "min": 0, "max": 1.5, "what": "How bright the haze's gold is with the sun low."},
+      {"key": "day.volumetric_fog_density", "label": "Volumetric haze", "min": 0, "max": 0.05, "what": "The haze lamps and the sun light (Forward+ only)."},
+      {"key": "env.volumetric_fog_albedo", "label": "Haze colour", "kind": "color", "what": "The volumetric haze's own colour."},
+      {"key": "env.volumetric_fog_length", "label": "Haze distance", "min": 16, "max": 128, "what": "How far the volumetric haze is computed (m)."},
+      {"key": "env.volumetric_fog_ambient_inject", "label": "Haze takes ambient", "min": 0, "max": 1, "what": "How much ambient light the haze picks up."},
+      {"key": "building.saloon.room_haze", "label": "Saloon smoke", "min": 0, "max": 0.05, "what": "Tobacco smoke in the saloon."},
+      {"key": "backdrop.haze", "label": "Backdrop haze", "min": 0, "max": 1, "what": "How much of the fog's colour lies over the painted backdrop."},
+      {"key": "backdrop.haze_scale", "label": "Backdrop haze × fog", "min": 0, "max": 3, "what": "The backdrop's haze following the scene's fog density."}
+    ]},
+    {"name": "Glow", "items": [
+      {"key": "env.glow_intensity", "label": "Glow", "min": 0, "max": 2, "what": "Strength of the glow off true emitters (chimney glass, the moon)."},
+      {"key": "env.glow_hdr_threshold", "label": "Glow threshold", "min": 1, "max": 3, "what": "Only pixels brighter than this bloom; at 1 lamp-lit things bloom too."},
+      {"key": "env.glow_bloom", "label": "Bloom everything", "min": 0, "max": 0.3, "what": "A share of everything blooming; any of it veils the frame."},
+      {"key": "env.glow_levels/3", "label": "Glow: tight halo", "min": 0, "max": 1, "what": "The tight blur size's share of the glow."},
+      {"key": "env.glow_levels/5", "label": "Glow: wide halo", "min": 0, "max": 1, "what": "The wide blur size's share of the glow."},
+      {"key": "env.glow_blend_mode", "label": "Glow blend", "kind": "choice", "options": ["additive", "screen", "softlight", "replace", "mix"], "what": "How the glow is laid over the frame."}
+    ]},
+    {"name": "Grade", "items": [
+      {"key": "day.exposure_low_sun", "label": "Golden hour exposure", "min": 0.4, "max": 1.2, "what": "Exposure with the sun low (noon is 1)."},
+      {"key": "env.adjustment_contrast", "label": "Contrast", "min": 0.8, "max": 1.5, "what": "Contrast after the tonemap."},
+      {"key": "env.adjustment_saturation", "label": "Saturation", "min": 0.6, "max": 1.5, "what": "Saturation after the tonemap."},
+      {"key": "day.ambient_energy_day", "label": "Day ambient", "min": 0, "max": 2, "what": "Ambient light at noon."},
+      {"key": "day.ambient_low_sun", "label": "Golden hour ambient", "min": 0, "max": 1, "what": "Ambient cut to this share of the day's with the sun low."},
+      {"key": "day.ambient_sky_low_sun", "label": "Golden hour: sky share", "min": 0, "max": 1, "what": "Share of that ambient from the sky (the rest warm bounce)."},
+      {"key": "day.ambient_warm_level", "label": "Warm bounce", "min": 0, "max": 1, "what": "How bright the warm bounce colour is."},
+      {"key": "day.interior_ambient_day", "label": "Inside ambient (day)", "min": 0, "max": 1, "what": "Ambient inside buildings by day."},
+      {"key": "env.ssao_radius", "label": "Corner shade reach", "min": 0.2, "max": 2, "what": "Screen-space ambient occlusion radius."},
+      {"key": "env.ssao_intensity", "label": "Corner shade", "min": 0, "max": 4, "what": "Screen-space ambient occlusion strength."},
+      {"key": "backdrop.shade_tint", "label": "Backdrop shade colour", "kind": "color", "what": "The backdrop's shadow side with the sun low."}
+    ]},
+    {"name": "Ground", "items": [
+      {"key": "ground.sun_direct", "label": "Sun on the ground", "min": 0, "max": 1.5, "what": "The sun's direct light on the ground, scaled."},
+      {"key": "ground.sky_fill", "label": "Sky fill on the ground", "min": 0, "max": 0.5, "what": "Unshadowed light on all the open ground."},
+      {"key": "ground.sun_wrap", "label": "Sun wrap", "min": 0, "max": 1, "what": "Wraps the sun's light round the ground's facing."},
+      {"key": "ground.dirt_color", "label": "Dirt", "kind": "color", "what": "The code-painted dirt; the tint the road tiles sit on."},
+      {"key": "ground.dirt_dark", "label": "Dark dirt", "kind": "color", "what": "The darker dirt."},
+      {"key": "ground.scrub_color", "label": "Scrub", "kind": "color", "what": "Scrub on the ground."},
+      {"key": "ground.sage_color", "label": "Sage", "kind": "color", "what": "Sage on the ground."}
+    ]},
+    {"name": "People's paint", "items": [
+      {"key": "paint.paint_gain", "label": "Light on painted men", "min": 0.5, "max": 5, "what": "Scene light × this on painted parts."},
+      {"key": "paint.paint_ambient", "label": "Ambient on painted men", "min": 0, "max": 1, "what": "How much of the scene's ambient reaches painted parts."},
+      {"key": "paint.paint_wrap", "label": "Light wrap", "min": 0, "max": 1, "what": "Light wrapped round him."},
+      {"key": "paint.paint_limit", "label": "Brightness cap", "min": 1, "max": 6, "what": "No light makes him brighter than this × painted."},
+      {"key": "paint.self_lit", "label": "Self-lit", "min": 0, "max": 1, "what": "Share of him that glows as painted."},
+      {"key": "paint.light_steps", "label": "Light steps", "min": 0, "max": 8, "step": 1, "what": "Lambert stepped into this many tones (0 = smooth)."}
+    ]},
+    {"name": "Squares", "items": [
+      {"key": "settings.mosaic", "label": "Screen mosaic (O)", "kind": "bool", "what": "The screen mosaic."},
+      {"key": "settings.quantise_once", "label": "Quantise once (I)", "kind": "bool", "what": "Every pre-blocking step off, the mosaic refined (reloads the scene)."},
+      {"key": "settings.tile_look", "label": "Tiles (P)", "kind": "choice", "options": ["off", "square", "ragged"], "what": "Light per texel, ragged tile edges, or smooth light."},
+      {"key": "settings.finish", "label": "Finish pass", "kind": "bool", "what": "Softens a render pixel on hard block edges."},
+      {"key": "global.min_square_px", "label": "Smallest square (px)", "min": 0, "max": 8, "what": "The smallest square a texel may draw on screen; 0 = off."},
+      {"key": "global.tile_ragged", "label": "Tile raggedness", "min": 0, "max": 0.6, "what": "How far a ragged tile's centre wanders."},
+      {"key": "global.tile_gradient", "label": "Light across a tile", "min": 0, "max": 1, "what": "A faint gradient of the real light across each tile."},
+      {"key": "mosaic.block_k", "label": "Mosaic block size", "min": 2, "max": 10, "what": "Block size in render px × metres of depth."},
+      {"key": "mosaic.steps", "label": "Mosaic light tones", "min": 0, "max": 32, "step": 1, "what": "Tones the light is posterised into (0 = none)."},
+      {"key": "mosaic.min_block", "label": "Mosaic smallest block", "min": 1, "max": 12, "what": "The block size's floor (px)."},
+      {"key": "mosaic.max_block", "label": "Mosaic largest block", "min": 1, "max": 12, "what": "The block size's ceiling (px)."},
+      {"key": "mosaic.depth_power", "label": "Mosaic depth power", "min": 0.25, "max": 1.5, "what": "0.5 = nearly one size near and far."},
+      {"key": "mosaic.soft", "label": "Mosaic soft edges", "min": 0, "max": 1, "what": "Pixels of blend across block edges."},
+      {"key": "mosaic.average", "label": "Mosaic: average a block", "min": 0, "max": 1, "what": "A block as the mean of its pixels rather than its centre."},
+      {"key": "mosaic.dark_weight", "label": "Mosaic: keep the darks", "min": 0, "max": 6, "what": "Darker pixels weigh more in that mean."},
+      {"key": "mosaic.sat_steps", "label": "Mosaic saturation steps", "min": 0, "max": 12, "step": 1, "what": "The block's colour snapped to a limited palette (0 = off)."},
+      {"key": "mosaic.hue_steps", "label": "Mosaic hue steps", "min": 0, "max": 48, "step": 1, "what": "Hue snapped to this many steps (0 = off)."},
+      {"key": "mosaic.block_in", "label": "Mosaic block indoors", "min": 2, "max": 10, "what": "Block size under a roof (quantise once)."},
+      {"key": "mosaic.block_out", "label": "Mosaic block outdoors", "min": 2, "max": 10, "what": "Block size in the open (quantise once)."}
+    ]}
+  ]
+}

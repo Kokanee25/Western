@@ -300,6 +300,17 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   share veils the whole frame), so nothing lit by a lamp blooms. The review's light numbers
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
+- **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
+  Back + Start): sliders for every look setting, laid out by `config/look_panel.json` (from the art
+  session's list, `docs/briefs/look_settings.md`; add a row there: address, label, range, `what`),
+  a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
+  Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
+  (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
+  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
+  game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
+  vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
@@ -2531,3 +2542,19 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   build 367 (under 1% of pixels, a man's idle), at 1080p and 1440p as well; nothing merged since
   changed the default look, so the likely cause is a saved look key on his PC (I, O, P, F2, F7;
   F3's look line shows them). 305 tests pass.
+- 2026-10-05 (gameplay, review tools 4): **The live look panel** (docs/briefs/review-tools.md;
+  layout note above). **N** (controller: Back + Start) opens it in every build; 88 settings in the
+  art session's nine groups (`config/look_panel.json` from `docs/briefs/look_settings.md`, the
+  art session's list: its numbers, ranges and words), a time-of-day slider, Save / Export (clipboard) /
+  Load / Reset; `--look=FILE` applies a preset to any run of the main scene, `tools/screenshots.gd`
+  included (no `tools/apply_look.gd` needed). `LookPreset` grew addresses for the sky, ground and
+  backdrop shaders (a uniform's default read from the shader's code: the headless renderer keeps
+  none), the sun and moon lights, lamp groups as multipliers, a building's night fill and smoke,
+  the mosaic's knobs and the people's paint. Not on the panel: the sky/sun colour gradients (a
+  stop each would be a colour picker: next if Sean wants them), the chimney glass's bloom and the
+  held-gun fill (constants in code), the road tile's grade (`reduce.py`, not live), `edge_shade`
+  (a per-material uniform), the texel density (F7). `mosaic.block_k`/`steps` are overwritten by
+  Settings' K and steps when the mosaic is re-attached (a settings change); the rest stay. Shared
+  `controls.gd`: one line (`look_panel`, N). Tests `test_look_panel` (3: every setting on the list
+  is reachable in the street; a slider sets the game and Reset puts it back; a preset saved and
+  loaded comes back).
