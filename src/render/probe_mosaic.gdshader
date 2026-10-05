@@ -8,14 +8,16 @@ shader_type spatial;
 // the origin stays put. The paper renders cubemaps from that origin and draws every texel as a
 // quad; this does it as one pass over the frame the camera has already rendered, with no extra
 // renders: each pixel's point in the world (from depth) falls in one texel of the cube, and the
-// whole block takes one colour, the frame's over the block's own patch of surface (points across
-// the texel at the pixel's distance from the origin, the paper's p = o + d / |r|inf r, projected
-// back into this frame). Whatever surface the block's centre point shows owns the block, so at a
-// silhouette the nearer thing's blocks step out over the farther one's and are cut back where
-// they miss the centre: silhouettes go stepped at the block size, as the paintings' are. Only the
-// samples on that same surface are averaged: the frame under a world point shifts a little as the
-// camera moves (its pixels fall on different texture texels), and one sample made blocks flicker
-// on textured surfaces when you turned (tools/probe_walk.gd; `samples` 1 is that, for comparison).
+// whole block takes one colour, the frame's at the block's centre (the texel's middle at the
+// pixel's distance from the origin, the paper's p = o + d / |r|inf r, projected back into this
+// frame). Whatever surface that centre point shows owns the block, so at a silhouette the nearer
+// thing's blocks step out over the farther one's and are cut back where they miss the centre:
+// silhouettes go stepped at the block size, as the paintings' are. `samples` 3 takes the mean of
+// 3x3 points across the block on that same surface instead: a third steadier in motion, softer,
+// and further from the paintings by the judge (tools/probe_walk.py stability; judge v2). The
+// cube's texels are spaced by equal angle across a face (the idea of Google's equi-angular
+// cubemap): spaced evenly across a face's plane, a texel at its edge spans half the angle of one
+// at its middle, so the blocks on a man went from 4 px to 6 as you walked up to him.
 //
 // When the origin moves to the next grid point the blocks are re-cut; `fade` crosses from the old
 // cube to the new a block at a time (the paper cross-fades its probes with a dither, per pixel).
@@ -41,8 +43,8 @@ uniform float texels = 384.0;
 uniform vec3 prev_origin = vec3(0.0);
 uniform float fade = 1.0;
 // Samples a side across each block, averaged where they land on the block's own surface (1: the
-// centre alone).
-uniform int samples = 3;
+// centre alone, crisp).
+uniform int samples = 1;
 // Darker samples weigh more in a block's mean, (1 - gamma luminance)^dark_weight as DepthMosaic's
 // average does, so a block an eye, a brow or a moustache's edge falls in keeps it as a dark block
 // (the plain mean washes them into the skin). 0 = the plain mean.
@@ -80,7 +82,8 @@ vec3 world_at(vec2 uv, mat4 inv_proj, mat4 inv_view) {
 }
 
 // The texel of the cube round `o` that point `w` falls in: face (0-5) in .x, column and row in .yz,
-// and w's Chebyshev distance from o in .w (the largest of its offsets along the axes).
+// and w's Chebyshev distance from o in .w (the largest of its offsets along the axes). Columns
+// and rows are spaced by equal angle.
 vec4 texel_of(vec3 w, vec3 o) {
 	vec3 d = w - o;
 	vec3 a = abs(d);
@@ -100,13 +103,14 @@ vec4 texel_of(vec3 w, vec3 o) {
 		face = d.z > 0.0 ? 4.0 : 5.0;
 		st = d.xy / m;
 	}
+	st = atan(st) * (4.0 / PI);  // equal angle across the face
 	vec2 ij = clamp(floor((st * 0.5 + 0.5) * texels), vec2(0.0), vec2(texels - 1.0));
 	return vec4(face, ij, max(m, 1e-4));
 }
 
 // The point at fraction f (0-1 each way) across texel t, at its Chebyshev distance (t.w) from o.
 vec3 point_in(vec4 t, vec3 o, vec2 f) {
-	vec2 st = (t.yz + f) / texels * 2.0 - 1.0;
+	vec2 st = tan(((t.yz + f) / texels * 2.0 - 1.0) * (PI / 4.0));
 	vec3 r;
 	if (t.x < 0.5) {
 		r = vec3(1.0, st);
@@ -232,8 +236,8 @@ void fragment() {
 		vec3 bytes = vec3(floor(mm / 65536.0), floor(mod(mm, 65536.0) / 256.0), mod(mm, 256.0)) / 255.0;
 		col = mix(bytes / 12.92, pow((bytes + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), bytes));
 	} else if (dist < near_screen) {
-		// Screen blocks the size a texel is at the middle of a cube face, each its centre's colour.
-		float p = max(1.0, floor(VIEWPORT_SIZE.y * PROJECTION_MATRIX[1][1] / texels + 0.5));
+		// Screen blocks the size a texel is (they are all one angle), each its centre's colour.
+		float p = max(1.0, floor(VIEWPORT_SIZE.y * PROJECTION_MATRIX[1][1] * PI / (4.0 * texels) + 0.5));
 		vec2 c = (floor(FRAGCOORD.xy / p) * p + p * 0.5) / VIEWPORT_SIZE;
 		col = band(textureLod(screen_tex, c, 0.0).rgb);
 	} else if (dist <= far) {

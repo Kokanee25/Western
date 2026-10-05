@@ -78,7 +78,7 @@ var surface_blocks := false
 ## splatting's idea as one pass over the frame), so they stay put when you turn and walk. It
 ## replaces the screen mosaic while it's on, and wants the quantise-once textures under it (V
 ## turns those on with it, and the surface blocks off). probe_texels: texels a cube face (384:
-## 3.5 px blocks at the saloon shot's lens, 1280x720); probe_cell: metres between origins;
+## 3.3 px blocks at the saloon shot's lens, 1280x720); probe_cell: metres between origins;
 ## probe_bands: OKLab light bands (0: smooth light; 14 bands made a block near a band's edge flip
 ## as you moved: four times the flicker, tools/probe_walk.py stability).
 var probe_mosaic := false
