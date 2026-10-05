@@ -6,6 +6,31 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the look panel (N)
+
+- **Press N** (controller: hold **Back** and press **Start**) and a panel of sliders opens on the
+  left: every setting that changes how the game looks, in groups (Sun & sky, Night & moon, Lamps,
+  Fog & haze, Glow, Grade, Ground, People's paint, Squares), with **Time of day** at the top. The
+  mouse is free while it's open; changes show at once as you drag. Hover over a slider for a line
+  on what it does. Greyed rows aren't in this scene.
+- **When you like it, press Export**: the look is copied to the clipboard as text. Paste it into
+  the chat and the art session renders the two painting shots with exactly those numbers and bakes
+  them into the defaults. **Save** keeps it on your PC under the name in the box (Load brings a
+  saved one back); **Reset** puts everything back as the game started. N or Esc closes it.
+- **Try:** the saloon at night (F5 to jump there, the slider to 23:40) and the street at golden
+  hour (17:36). Start with Grade and Lamps.
+- **Fixed: the shotgun's second barrel.** After the right barrel fired, Q cocked the spent right
+  hammer again, so the trigger only clicked and you had to cock twice to fire the left barrel. Q now
+  cocks the hammer over the loaded barrel.
+
+### A playtester played it first
+
+- Before this build reached you, an agent that hadn't seen the code played it for about 70
+  minutes and wrote up what it found: `docs/playtests/2026-10-04.md` (with screenshots). The short
+  of it: the look and the gang's talk and teamwork are the best of it; fights are over in a second
+  or two and blacking out heals you completely; Brody and Lyle can get stuck in the saloon's door
+  frame; townsfolk don't run from fire. **Tell me which of its top three to fix first.**
+
 ### The native plugin: step 1 of the destruction plan
 
 - **A native plugin is in the build** (`addons/saltcreek_native`, Rust, built for Windows, Mac and
