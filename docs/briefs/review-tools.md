@@ -60,10 +60,13 @@ played by an agent before it reaches him.
 1. **The panel's settings:** give the gameplay session the list of every setting that matters for
    the look (current value, sensible range, one line on what it does). When Sean sends a preset,
    render with it, judge it, and bake his values into the defaults.
+   **Done 2026-10-04:** `docs/briefs/look_settings.md` (nine groups, where each lives, how to set
+   it). The art session keeps it current when a default moves.
 2. **Blind critic** after every art merge (CLAUDE.md rule): a fresh sub-agent with only the two
    paintings and the new renders (and the tour's frames once they exist) lists the five biggest
    differences a viewer would notice, with crops; saved as `critic.md` in the judge round, its top
    three in the status entry. Use it with judge v2 to choose what's next.
+   **Done 2026-10-05:** `tools/critic.py`; first round `docs/screenshots/judge/2026-10-05_r1/critic/`.
 3. **Golden images** for every fixed view (CLAUDE.md rule), with the gameplay session wiring the
    check into CI.
 4. **A brief per big job** in `docs/briefs/` (CLAUDE.md rule).

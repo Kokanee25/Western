@@ -14,21 +14,34 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 
 ## How we work
 
-- **Exactly two working sessions at a time:**
-  - **Art:** shaders, textures and how things are lit and drawn; the people's looks; dressing.
-    Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
-    `src/art/`, `src/props/`, `assets/` (`assets/people/`, `assets/props/`), `tools/blender/`,
-    `tools/faces/`, `tools/paint/`, `tools/style/`, `tools/textures/`, `assets/textures/`, the art tools in `tools/` (`paint_bake.gd`,
-    `character_lab.gd`, `lab_stage.gd`, `fit_shot.gd`, `side_by_side.py`, `people_envelope.gd`,
-    `judge.py`, `prop_views.gd`),
-    `src/bodies/body_mesh.gd`, `src/bodies/people_bodies.gd`, `.github/workflows/people.yml`,
-    `docs/concept/` and `docs/screenshots/`.
+- **Exactly three working sessions at a time** (since 2026-10-05; Sean: the characters session):
+  - **Art:** shaders, textures and how things are lit and drawn (people included: how skin and
+    cloth take light); the world's look, dressing, props; the judge, the critic and the golden
+    images. Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
+    `src/art/`, `src/props/`, `assets/props/`, `assets/textures/`, `tools/textures/`,
+    `tools/blender/voxelise.py`, the art tools in `tools/` (`judge.py`, `critic.py`,
+    `golden_check.py`, `side_by_side.py`, `prop_views.gd`, `quantise_compare.py`,
+    `voxel_compare.py`, `voxel_export.gd`), `docs/concept/` (but `docs/concept/style/`) and
+    `docs/screenshots/`.
+  - **Characters:** making people, from Sean's picture to a fitted man in the game: the image
+    model and its LoRA, Tripo, head repaints, the Blender fit, layered clothing (hats, coats),
+    MakeHuman bodies and their garments, painted faces. Its files: `tools/characters/`,
+    `tools/style/`, `docs/concept/style/`, `docs/style_test/`, `tools/blender/` (but
+    `voxelise.py`), `tools/faces/`, `tools/paint/`, `tools/paint_bake.gd`,
+    `tools/character_lab.gd`, `tools/lab_stage.gd`, `tools/fit_shot.gd`,
+    `tools/people_envelope.gd`, `tools/tripo_lab.gd`, `assets/people/`, `src/bodies/body_mesh.gd`,
+    `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
+    each man before Tripo is paid. The art session judges each new man in the shots and says
+    what's off; the characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
-  - Shared by both: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
-    `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Edit only
-    your own lines and entries in them; add status entries at the end, in date order.
-- **Each works on its own branch** (`claude/art-…` or `claude/gameplay-…`), never on `main`.
+  - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
+    `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
+    and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
+    the rest). Edit only your own lines and entries in them; add status entries at the end, in
+    date order.
+- **Each works on its own branch** (`claude/art-…`, `claude/characters-…` or `claude/gameplay-…`),
+  never on `main`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
   of work per merge, not a day's worth.
@@ -189,6 +202,10 @@ godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --only=player   #
 xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- --out=/tmp/shots
 godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64         # needs export templates
 python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  # before pushing CI edits
+python3 tools/judge.py --note="what changed"                   # judge both shots into a new round
+python3 tools/critic.py prepare docs/screenshots/judge/<round>  # the blind critic's prompt (an Agent, fresh)
+python3 tools/golden_check.py --render [--only=a,b]            # every fixed view against its golden image
+python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
 ```
 
 **The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
@@ -415,6 +432,25 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   60 px, block and pixel noise, blur, greyscale, a grade toward the painting's light, and round 27
   against round 25) must rank as a viewer would; run it after touching the measures. `--pick="…"`
   records Sean's verdict on a round. Scores before round 28 are v1's and don't compare.
+  **The blind critic** (`tools/critic.py`, since 2026-10-04, the rule in How we work): after
+  every art merge, `critic.py prepare <round>` lays the two paintings and the round's renders
+  (and `--extra=DIR` renders, the tour's frames once they exist) in `<round>/critic/` and prints
+  the prompt; a fresh Agent (general-purpose, nothing else in its context) gets that prompt as
+  its whole task, looks only at those images, makes a crop per difference with `critic.py crop`
+  (the same box from the render and the painting, side by side at 3×) and writes
+  `<round>/critic/critic.md`: the five biggest differences a viewer would notice, biggest
+  first, with crops; `critic.py top <round>` prints the top three for the status entry. The
+  judge measures style; the critic says what a person sees; both choose what's next.
+  **Golden images** (`tools/golden_check.py`, the rule in How we work): every view in
+  `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
+  `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
+  absolute difference per channel and the share of pixels moved by more than 24/255) against
+  `tolerances.json` (per view: a still's floor is mean 1.5 / share 1%; scenario views with
+  physics, particles or brains have theirs set from two renders of the same build, `--approve
+  --noise=A,B`, three times the measured noise) and writes golden | render | difference ×6 for
+  each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge
+  (`--approve --from=DIR`). Lavapipe renders only: a real GPU differs everywhere. The gameplay
+  session wires the check into CI (needs `mesa-vulkan-drivers` + `xvfb` on the runner).
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
@@ -2471,3 +2507,27 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   barely marked the barber's; the townsfolk say the same lines in the same second; stars at golden
   hour; light through the store's wall corners. The look, the gang's talk and their teamwork were
   the high points.
+- 2026-10-05 (art session): **Three sessions; review tools' art items 1 and 2.** Sean: the
+  Pixel-factory chat becomes the **characters session** (How we work above: it owns making
+  people, from his picture to a fitted man, the LoRA and the layered clothing; art keeps how
+  everything is drawn and lit, and judges each new man). The coat layer (A2, the "Layers" note)
+  goes to it with the notes as they stand. Its Western branch (`claude/new-session-l733p0`: the
+  LoRA runs 30–37, Sean's 60 style pictures) is to be merged by it first. **The look panel's
+  settings** (`docs/briefs/look_settings.md`, art item 1, sent to gameplay): every look setting
+  in nine groups (sun & sky, night & moon, lamps, fog & haze, glow, grade, ground, people's
+  paint, squares) with where it lives, its value, a range and what it does; gameplay's
+  `LookPreset` (the dev bridge) sets them by address. **The blind critic** (`tools/critic.py`,
+  above), first round `2026-10-05_r1` (the build as on main, no look change; judge v2 saloon
+  0.231, street 0.326). Its top three: 1) the room behind the man is brown murk, not a busy,
+  lamplit saloon (the painting's stair, balcony, stag, lamps lighting their own patches of
+  wall, smoke, piano player, men at the bar); 2) the street's sky is lavender-grey with flat
+  orange streaks and a small white sun, where the painting's is gold with heaped clouds, a big
+  sun on the horizon, rays and dust; 3) the saloon's front is in dull shade and its SALOON sign
+  can't be read. Then his face (an orange smear, no readable eyes) and surfaces breaking into
+  streaks rather than clean squares. **Golden images** (`tools/golden_check.py`, above): the
+  check is in; the goldens themselves (all 72 views, rendered twice for each view's noise) come
+  in the next merge. Also checked for Sean ("the graphics look way worse"): today's main renders
+  the saloon and street shots, the street at golden hour and the saloon at night the same as
+  build 367 (under 1% of pixels, a man's idle), at 1080p and 1440p as well; nothing merged since
+  changed the default look, so the likely cause is a saved look key on his PC (I, O, P, F2, F7;
+  F3's look line shows them). 305 tests pass.
