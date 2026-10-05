@@ -1,6 +1,6 @@
 class_name StreetScenery
 extends Node3D
-## Everything around the test buildings that isn't built from members: sagebrush, rocks, props (the country beyond is the painted Backdrop). Deterministic from the
+## Everything around the town that isn't built from members: sagebrush (the country beyond is the painted Backdrop; the street's props are StreetDressing's). Deterministic from the
 ## seed.
 
 @export var scenery_seed := 1882
@@ -16,7 +16,6 @@ func _ready() -> void:
 	if ground and ground.mesh and ground.mesh.surface_get_material(0) is ShaderMaterial:
 		PixelArt.track(ground.mesh.surface_get_material(0) as ShaderMaterial)
 	_rng.seed = scenery_seed
-	_build_props()
 	_build_sagebrush()
 
 
@@ -52,38 +51,6 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, collide := 
 		body.add_child(cs)
 		mi.add_child(body)
 	return mi
-
-
-func _build_props() -> void:
-	var root := Node3D.new()
-	root.name = "Props"
-	add_child(root)
-	# Barrels on the boardwalk and a couple of crates.
-	for p in [Vector3(-1.2, 0.38, -0.6), Vector3(-1.85, 0.38, -0.5), Vector3(7.7, 0.0, -0.6)]:
-		var barrel := MeshInstance3D.new()
-		var mesh := CylinderMesh.new()
-		mesh.top_radius = 0.26
-		mesh.bottom_radius = 0.26
-		mesh.height = 0.85
-		mesh.radial_segments = 12
-		barrel.mesh = mesh
-		barrel.material_override = _mat(Color(0.4, 0.27, 0.16))
-		barrel.position = p + Vector3(0.0, 0.425, 0.0)
-		root.add_child(barrel)
-		var body := StaticBody3D.new()
-		var cs := CollisionShape3D.new()
-		var shape := CylinderShape3D.new()
-		shape.radius = 0.26
-		shape.height = 0.85
-		cs.shape = shape
-		body.add_child(cs)
-		barrel.add_child(body)
-	_box(root, Vector3(0.6, 0.45, 0.5), Vector3(4.6, 0.38 + 0.225, -0.5), Color(0.55, 0.45, 0.3))
-	_box(root, Vector3(0.5, 0.4, 0.45), Vector3(4.65, 0.83 + 0.2, -0.5), Color(0.5, 0.41, 0.28))
-	# Fence posts marking the edge of town to the east.
-	for i in 12:
-		var z := 2.0 + i * 2.5
-		_box(root, Vector3(0.12, 1.2, 0.12), Vector3(9.5 + _rng.randf_range(-0.1, 0.1), 0.6, z), Color(0.35, 0.28, 0.22))
 
 
 func _build_sagebrush() -> void:
