@@ -25,6 +25,7 @@ func _ready() -> void:
 	recorder.name = "BugRecorder"
 	add_child(recorder)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var panel := LookPanel.new()  # N: the live look panel
 	panel.name = "LookPanel"
 	add_child(panel)
