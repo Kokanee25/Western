@@ -281,7 +281,9 @@ share (`test_feel`). CI prints every number against its range in the test run's 
 **The smoke test** (`src/debug/smoke_test.gd`, `SmokeTest`; `-- --smoke-test [--smoke-out=FILE]`
 on any build, a release export included): 30 s of the street (the gang in, a stick on the range, a
 member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` and exit 0, or
-`[smoke] FAILED` with the errors and exit 1. In `build.yml` the export job no longer releases:
+`[smoke] FAILED` with the errors and exit 1. Drawn, its clock starts at the first frame on
+screen, and each event waits for a few frames after the last; on the desktop it fails if the native
+plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
 Windows, macOS, all headless), and only then `release` (the GitHub Release) and `pages`.
 
@@ -2879,6 +2881,30 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
     `Structure._snap` finds its mesh and shape by type and does nothing for a member burnt away; a
     shattered pane falls as nothing; a clump with no working shape isn't kept; rubble more than 5 m
     under the ground is removed with a warning (`LOST_BELOW`). `tests/test_rubble.gd` (3).
+- 2026-10-05 (gameplay): **Fix: the desktop builds shipped without the native plugin.** Main went
+  red on build 496: the drawn Linux smoke test failed. Its log showed what nothing had checked:
+  **every Windows and Linux release since destruction step 1 (2026-10-03) ran without the native
+  plugin**, so no voxel damage, only drawn holes. The export put `saltcreek_native.dll` /
+  `libsaltcreek_native.so` beside the game, but the Package step zipped the executable alone (macOS
+  was fine: the library is inside the app). Now the whole export folder is packed, the export step
+  checks each platform's library is there, and the smoke test fails on the desktop without the
+  plugin (`ClassDB.class_exists(&"VoxelMember")`; tried here with the library moved away). The
+  drawn run: on the runner the first frame took ~50 s of shader compiling, so all four events fired
+  on frame 2 at once and the game didn't quit within the 300 s limit (it draws a last frame before
+  quitting, and that frame had every new effect's shaders to compile in software). Its clock now
+  starts at the first drawn frame, each event waits three drawn frames after the last, the end
+  waits three after the last event, and the runner's limit is 900 s. Here, cold shader cache: 33
+  frames in 30 s, first frame after 8 s.
+- 2026-10-05 (gameplay, checks 6): **Sound checks** (`tests/test_sounds.gd`, 4): every sound
+  `SynthSounds` makes is heard (its loudest 50 ms at least 2% of full scale), never reaches full
+  scale, and has under 3% of its energy below 40 Hz (measured by a DFT of the sound averaged down to
+  ~1.4 kHz; the measure itself is tested on 30 Hz and 200 Hz tones), and the master bus still has its
+  40 Hz cut and limiter. **It failed first time, on a real fault:** the gunshot had 14% of its
+  energy under 40 Hz, the shotgun 42%, dynamite 22%, though the code said the thump never went
+  below 40 Hz. `sin(2π f(t) t)` with a falling f sweeps below f itself (its pitch is f + t·f′),
+  which took the shotgun's thump down to 28 Hz; the phase is summed from the pitch now. And every
+  sound passes a fourth-order high-pass at 45 Hz (`SynthSounds.LOW_CUT_HZ`, its peak kept). The
+  deepest is now the shotgun at 2.8%.
 - 2026-10-05 (art session, later): **Golden images and the visual checks** (review tools, art
   item 3; gameplay's `docs/briefs/automated-checks.md` asked for the visual checks). Every fixed
   view in `tools/screenshots.gd` has its golden in `docs/screenshots/golden/` (70: the 67 views

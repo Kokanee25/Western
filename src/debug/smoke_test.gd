@@ -6,9 +6,15 @@ extends Node
 ## error counted, then one line and quit: "[smoke] ok ..." with exit 0, or "[smoke] FAILED ..."
 ## with exit 1; `--smoke-out=FILE` writes the same lines there too (a Windows export's console
 ## output may not reach the shell that started it). CI runs it on each export on its own runner
-## (.github/workflows/build.yml, smoke).
+## (.github/workflows/build.yml, smoke). Drawn, the clock starts at the first frame on screen (in
+## software Vulkan on a CI runner the first takes ~50 s of shader compiling), and each event waits
+## for a few frames after the last, so no effect's first draw is left for the frame it quits on.
+## On the desktop it fails without the native plugin (an export once shipped without it).
 
 const SECONDS := 30.0
+const EVENTS := ["gang", "blast", "fire", "shot"]
+const AT := [2.0, 8.0, 12.0, 16.0]  # seconds from the start
+const FRAMES_BETWEEN := 3  # frames drawn after an event before the next, and before the end
 
 class Catcher:
 	extends Logger
@@ -26,9 +32,12 @@ class Catcher:
 
 var main: Node
 var _catcher := Catcher.new()
-var _start := 0
+var _start := -1
 var _frames := 0
-var _done := {}
+var _next := 0  # the next event in EVENTS
+var _last_event_frame := 0
+var _first_frame_s := 0.0
+var _launched := 0
 
 
 static func maybe_start(main_node: Node) -> SmokeTest:
@@ -44,39 +53,56 @@ static func maybe_start(main_node: Node) -> SmokeTest:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	OS.add_logger(_catcher)
-	_start = Time.get_ticks_msec()
+	_launched = Time.get_ticks_msec()
+	if DisplayServer.get_name() == "headless":
+		_start = _launched
+	else:
+		RenderingServer.frame_post_draw.connect(_first_frame, CONNECT_ONE_SHOT)
 	Settings.autosave = false
 	print("[smoke] %s on %s, %s" % [load("res://src/debug/debug_overlay.gd").build_label(),
 			OS.get_name(), RenderingServer.get_current_rendering_method()])
 
 
+func _first_frame() -> void:
+	_start = Time.get_ticks_msec()
+	_first_frame_s = (_start - _launched) / 1000.0
+
+
 func _process(_delta: float) -> void:
+	if _start < 0:
+		return
 	_frames += 1
 	var t := (Time.get_ticks_msec() - _start) / 1000.0
 	var street := main.find_child("TestStreet", true, false)
 	if street == null:
 		return
-	if t > 2.0 and not _done.has("gang"):
-		_done["gang"] = true
-		var town := street.get_node_or_null(^"TownLife")
-		if town:
-			town.bring_gang()
-	if t > 8.0 and not _done.has("blast"):
-		_done["blast"] = true
-		Blast.detonate(street, Vector3(40.0, 0.2, 25.0), 0.2)  # out on the range, away from everyone
-	if t > 12.0 and not _done.has("fire"):
-		_done["fire"] = true
-		var members := street.find_children("*", "StructureMember", true, false)
-		var fire := FireSystem.find(get_tree())
-		if fire and not members.is_empty():
-			fire.ignite(members[members.size() / 2])
-	if t > 16.0 and not _done.has("shot"):
-		_done["shot"] = true
-		var ballistics := street.find_child("Ballistics", true, false) as Ballistics
-		if ballistics:
-			ballistics.fire(Vector3(30.0, 1.5, 20.0), Vector3(1, 0, 0), 274.0, 0.0165, 0.0115)
-	if t >= SECONDS:
+	var settled := _frames - _last_event_frame >= FRAMES_BETWEEN
+	if _next < EVENTS.size():
+		if t > AT[_next] and settled:
+			_event(street, EVENTS[_next])
+			_next += 1
+			_last_event_frame = _frames
+	elif t >= SECONDS and settled:
 		_finish(street, t)
+
+
+func _event(street: Node, what: String) -> void:
+	match what:
+		"gang":
+			var town := street.get_node_or_null(^"TownLife")
+			if town:
+				town.bring_gang()
+		"blast":
+			Blast.detonate(street, Vector3(40.0, 0.2, 25.0), 0.2)  # out on the range, away from everyone
+		"fire":
+			var members := street.find_children("*", "StructureMember", true, false)
+			var fire := FireSystem.find(get_tree())
+			if fire and not members.is_empty():
+				fire.ignite(members[members.size() / 2])
+		"shot":
+			var ballistics := street.find_child("Ballistics", true, false) as Ballistics
+			if ballistics:
+				ballistics.fire(Vector3(30.0, 1.5, 20.0), Vector3(1, 0, 0), 274.0, 0.0165, 0.0115)
 
 
 func _finish(street: Node, t: float) -> void:
@@ -88,11 +114,15 @@ func _finish(street: Node, t: float) -> void:
 		problems.append("only %d people in the street" % people)
 	if street.get_node_or_null(^"Player") == null:
 		problems.append("no player")
-	if _frames < 10:  # drawn in software it manages ~20 in 30 s; this asks only that it runs
+	if DisplayServer.get_name() == "headless" and _frames < 10:  # it asks only that it runs
 		problems.append("only %d frames in %.0f s" % [_frames, t])
+	if OS.has_feature("pc") and not ClassDB.class_exists(&"VoxelMember"):
+		problems.append("the native plugin isn't loaded (addons/saltcreek_native: is its library beside the game?)")
 	var lines := PackedStringArray()
 	if problems.is_empty():
-		lines.append("[smoke] ok: %.0f s, %d frames, %d people, %d nodes" % [t, _frames, people, Performance.get_monitor(Performance.OBJECT_NODE_COUNT)])
+		lines.append("[smoke] ok: %.0f s, %d frames, %d people, %d nodes, native plugin %s%s" % [t, _frames, people,
+				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), "loaded" if ClassDB.class_exists(&"VoxelMember") else "none (web)",
+				", first frame after %.0f s" % _first_frame_s if _first_frame_s > 0.0 else ""])
 	else:
 		lines.append("[smoke] FAILED:")
 		for p in problems:

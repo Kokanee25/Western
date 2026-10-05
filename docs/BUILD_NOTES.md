@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Fixed: walls now really break in your build
+
+- **The Windows build had been missing the part that carves walls** since the destruction work
+  (it shipped beside the game but was left out of the zip), so a shotgun into a wall only drew
+  holes. It's in now, and the build checks it's there before it's released.
+- **Try:** press **2** for the shotgun and fire into the general store's front from close up: the
+  boards should tear open in ragged holes you can see through, with chips flying. Press **F3**:
+  the line "native plugin" should show a version, not "not loaded".
+
 ### New: the Kid has his own body
 
 - **A first test, getting closer: the gang's Kid is the man from your picture**, built by
@@ -16,6 +25,13 @@ same body.
   and put your gun on him until he puts his hands up (his nerve is low), and shoot his hat off.
   From the side, with his hands up, his shirt has a flat patch under each arm where it was joined
   to his arm in the model: tell me if it catches your eye.
+
+### Fixed: the deep bass in the guns and dynamite
+
+- A new check on every sound found the shotgun's boom going down to about 28 Hz (the gunshot and
+  dynamite too), below what speakers play: the bass that made your HDMI monitor drop out. It now
+  stays above 45 Hz. The shotgun and dynamite may sound a touch less boomy; tell me if they've lost
+  their weight.
 
 ### New: F12 saves a bug report
 
