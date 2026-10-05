@@ -658,13 +658,15 @@ def main():
             # repainted in the style yet).
             squares(piece.colour, os.path.join(OUT, "%s_%s%s.png" % (pid, piece.shape, "_smooth" if SMOOTH else "")),
                     1 if SMOOTH else SQUARE_TEXELS)
-        # His texture: the head repainted in the style where it has been.
-        repainted = os.path.join(TRIPO, pid + "_color.png")
+        # His texture: the head repainted in the style where it has been (head_paint.py works on a
+        # glb, so a layered man's repaint is his model's, <model>_color.png).
+        named = pid if os.path.exists(os.path.join(TRIPO, pid + "_color.png")) else spec.get("model", pid)
+        repainted = os.path.join(TRIPO, named + "_color.png")
         if SMOOTH:
             # The "quantise once" set: the smooth repaint (head_paint.py --smooth) if there is one,
             # no squares, written beside the real textures as <id>_skin_smooth.png / _head_smooth.png
             # (PeopleBodies.smooth_paint takes them); the glb is unchanged, so no export.
-            smooth_paint = os.path.join(TRIPO, pid + "_color_smooth.png")
+            smooth_paint = os.path.join(TRIPO, named + "_color_smooth.png")
             src = smooth_paint if os.path.exists(smooth_paint) else repainted
             colour = Image.open(src).convert("RGB") if os.path.exists(src) else p.colour
             squares(colour, os.path.join(OUT, pid + "_skin_smooth.png"), 1)

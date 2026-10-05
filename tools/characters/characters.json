@@ -75,7 +75,14 @@
    "hatless": true,
    "what": "the same nervous young outlaw bare-headed: shaggy brown hair flattened on top by his hat and hanging over his ears, freckled and clean-shaven, a faded red bandana, a faded blue work shirt with the sleeves rolled to the forearm, brown leather braces, a cartridge belt with a holster on his right hip, brown canvas trousers and worn brown boots",
    "change": "Take his hat off him: he is bare-headed, his shaggy brown hair flattened on top where the hat sat and hanging untidily over his ears and forehead, not combed back, not styled, no quiff. Keep his young face (a lad of nineteen, freckled and grimy), bandana, shirt, braces, belt, holster, trousers, boots and everything else exactly as they are.",
-   "back_of": "the back of his bare head with its shaggy brown hair to his collar, his blue shirt and his braces crossing his back"
+   "back_of": "the back of his bare head with its shaggy brown hair to his collar, his blue shirt and his braces crossing his back",
+   "head": {
+    "of": "a nervous young outlaw's head",
+    "looks": "a thin young face of about nineteen, freckled and sun-browned, worried brown eyes under a frown, dark brows, clean-shaven, no moustache, no beard, shaggy brown hair flattened on top and hanging over his ears, bare-headed, no hat, a faded red bandana at his throat",
+    "light": "soft even daylight on his face",
+    "front": "seen straight on, looking at the viewer",
+    "back": "seen from directly behind, the back of his bare head and his shaggy brown hair to his collar, no face"
+   }
   },
   "kid_hat": {
    "from": "kid",
