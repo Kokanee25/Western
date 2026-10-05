@@ -61,17 +61,28 @@ Read **DESIGN.md** first: it's the source of truth for what the game is. Concept
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
-### Frame budget (ms at 60 fps on one 3.25 GHz core; to be measured and filled in)
+### Frame budget (ms at 60 fps on one 3.25 GHz core)
 
-| System | Budget | Measured |
-|---|---|---|
-| People (bodies, senses, brains) | | |
-| Physics | | |
-| Structures (settle, analysis) | | |
-| Fire and effects | | |
-| Render CPU (draw calls) | | |
-| Everything else | | |
-| **Total** | **≤ 14** | |
+Budgets live in `config/frame_budget.tres` (`FrameBudget`); `tools/perf_bench.gd` prints every
+scene against them (its `budget` line). Measured 2026-10-04 on this workspace's 2.1 GHz core and
+scaled by 0.65 to Sean's (`clock_scale`): **calm** = the street with everyone in; **fire** = two
+sticks and three buildings alight; **wall** = a shotgun charge into the store's front every half
+second. Render CPU from a rendered run under lavapipe (counts the CPU side only; Sean's F3 gives
+his own).
+
+| System (Prof timers summed) | Budget | Calm | Fire | Wall |
+|---|---|---|---|---|
+| People (people_body, people_skeleton, senses, brains, player, town_life, blood) | 4.0 | 1.8 | 2.2 | 2.1 |
+| Physics (the engine: server paused vs running) | 2.0 | 1.1 | 0.3* | 1.5 |
+| Structures (structures, voxels, ballistics) | 1.0 | 0.0 | 0.1 | 0.4 |
+| Fire and effects (fire, incl. burning buildings' settle; smoke; dynamite) | 2.0 | 0.1 | **2.4** | 0.6 |
+| Render CPU (draw calls) | 4.0 | 3.5 | – | 6.1–6.4 |
+| Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
+| **Total** | **≤ 14** | **6.6** | 6.6 + render | 4.7 + 6.4 |
+
+\* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
+(the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
 
 ## Tech decisions
 
@@ -182,6 +193,29 @@ python3 tools/judge.py --note="what changed"                   # judge both shot
 python3 tools/critic.py prepare docs/screenshots/judge/<round>  # the blind critic's prompt (an Agent, fresh)
 python3 tools/golden_check.py --render [--only=a,b]            # every fixed view against its golden image
 python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
+```
+
+**The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
+session or a script. Only in a debug build started with `-- --dev-bridge` (never in an export);
+listens on 127.0.0.1:8737; one command a line, one JSON line back, in order (a command that takes
+game time answers when it's done). `python3 tools/bridge.py start` runs the game under xvfb with
+the Vulkan renderer so screenshots work (`--size=960x540`, `--headless` for no drawing, `--fps=N`
+for a fixed step; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
+file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
+(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON|PLACE`,
+`turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round buildings to a place), `press
+ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+`time H`, `clock SCALE|off`, `set`/`get ADDRESS` (a look value: `settings.mosaic`,
+`global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
+FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
+Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
+from north (−Z, the saloon's side of the street), east +X. Example:
+
+```sh
+python3 tools/bridge.py start --size=960x540
+python3 tools/bridge.py "time 17.6" "goto street_east" "look saloon_porch" "screenshot /tmp/a.png" \
+    "gang" "wait 20" "fight" "weapon revolver" "look brody" "shoot 2" "wait 3" "events 20" "read people"
+python3 tools/bridge.py stop
 ```
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
@@ -2414,3 +2448,27 @@ python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new g
   gameplay builds a live look panel, a dev bridge, a camera-tour video on Pages, a playtest agent
   and the budget (after the performance pass); art supplies the panel's settings and takes up the
   blind critic and golden images from its next merge.
+- 2026-10-04 (gameplay, review tools 1): **The frame budget filled in.** `config/frame_budget.tres`
+  (`FrameBudget`: a budget per part, the Prof timers each part sums, `clock_scale` 0.65 from this
+  2.1 GHz core to Sean's 3.25) and `perf_bench.gd` reports each scene against it (`budget` line;
+  the physics engine measured by pausing the server 3 s against 3 s running; `--no-budget`).
+  The table (top of this file): calm 6.6 ms of 14 with render; the fire scene's fire 2.4 of 2.0
+  and its untimed share 1.5 of 1.0 are over; the wall scene's render CPU 6.1–6.4 of 4.0 is over
+  (lavapipe). CI's warn-then-fail on the budget comes with the brief's item 5.
+- 2026-10-04 (gameplay, review tools 2): **The dev bridge** (docs/briefs/review-tools.md; the
+  commands under **Commands and layout**). `DevBridge` (`src/debug/dev_bridge.gd`) is added by
+  `main.gd` only with `-- --dev-bridge` in a debug build: a TCP server on 127.0.0.1:8737
+  (`--bridge-port=`), `--bridge-script=FILE` run first; one command a line, one JSON line back,
+  run in order. Keys are pressed as `InputEventAction`s through `Input.parse_input_event` (an
+  `Input.action_press` from a physics callback is never "just pressed" to the guns, which read
+  their keys in `_process`); the guns don't wait for a captured mouse; the key help starts hidden.
+  `read` reports what a player would want to know (where you are and face, what's under your
+  sights, the people round you by distance and bearing with their mood and stance to you, your
+  wounds), `events` a log of shots, words, hits, falls, deaths, call-outs and breakage.
+  `LookPreset` (`src/debug/look_preset.gd`) sets and reads look values by address and applies a
+  JSON preset (the look panel, item 4, builds on it). `tools/bridge.py` starts the game under xvfb
+  (lavapipe here: ~1 fps at 960×540, real time) or headless, sends commands, stops it. Found on
+  the way: **with the shotgun's right barrel fired, Q cocked the spent right hammer again**, so the
+  trigger clicked and the left barrel never fired unless you cocked twice; `ShotgunState.cock()`
+  now takes a hammer over a loaded barrel first (test `test_shotgun::
+  test_with_the_right_fired_the_next_hammer_is_the_left`). Tests `test_dev_bridge` (4). 305 pass.

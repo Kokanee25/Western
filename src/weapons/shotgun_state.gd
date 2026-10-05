@@ -49,17 +49,21 @@ func shells_loaded() -> int:
 	return barrels.count(Barrel.LOADED)
 
 
-## Thumb back the next hammer: the right, then the left.
+## Thumb back the next hammer: the right, then the left; but a hammer over a loaded barrel before
+## one over a spent one (with the right fired, Q cocks the left: you'd thumb back the one that'll fire).
 func cock() -> int:
 	if not ready() or open:
 		return -1
+	var pick := -1
 	for i in 2:
-		if not cocked_hammers[i]:
-			cocked_hammers[i] = true
-			busy = tuning.cock_time
-			cocked.emit(i)
-			return i
-	return -1
+		if not cocked_hammers[i] and (pick < 0 or (barrels[i] == Barrel.LOADED and barrels[pick] != Barrel.LOADED)):
+			pick = i
+	if pick < 0:
+		return -1
+	cocked_hammers[pick] = true
+	busy = tuning.cock_time
+	cocked.emit(pick)
+	return pick
 
 
 ## Pull the trigger for the next cocked barrel (the right one's first, a loaded one before an empty). Returns what happened;
