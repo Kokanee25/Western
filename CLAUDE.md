@@ -276,6 +276,13 @@ stop a man (`test_gunfight`), the shotgun at 20 m (`test_shotgun`), the store's 
 (`test_fire`), the outlaw's hit rate at 5/15/30 m, the duel's stand-off and the gang's back-down
 share (`test_feel`). CI prints every number against its range in the test run's summary.
 
+**The smoke test** (`src/debug/smoke_test.gd`, `SmokeTest`; `-- --smoke-test [--smoke-out=FILE]`
+on any build, a release export included): 30 s of the street (the gang in, a stick on the range, a
+member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` and exit 0, or
+`[smoke] FAILED` with the errors and exit 1. In `build.yml` the export job no longer releases:
+`smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
+Windows, macOS, all headless), and only then `release` (the GitHub Release) and `pages`.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2846,3 +2853,8 @@ share (`test_feel`). CI prints every number against its range in the test run's 
   the Kid all drew (the Kid backs down when he's caught leaning on the storekeeper). The new ranges
   are set round today's numbers and marked proposed: Sean to OK or change them, and to say whether
   the gang should back down more in the street.
+- 2026-10-05 (gameplay, checks 5): **The exported builds are smoke-tested before they're
+  released** (layout note under Commands). Tried here with the editor's binary: headless 3,815
+  frames in 30 s, 14 people, no errors; drawn under lavapipe 24 frames (at 1280x720 it was 20, so
+  the bar is 10 frames: it asks only that the build runs and draws). The first run on Windows and
+  macOS runners is this merge's build.
