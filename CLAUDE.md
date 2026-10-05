@@ -3046,5 +3046,5 @@ a few views renders them as the full run does.
   (3); `test_gunfight`'s blackout test now wants you patched, not unhurt.
   - Known: nothing else catches up over the hours (a wounded man lying in the street hasn't bled
     for six hours; fires don't burn on; the dead aren't taken away); `blood_regen` is 0.004 ml/s,
-    so a fifth of your blood takes ~70 real hours to come back (open with Sean: real plasma comes
-    back in a day or two); a broken leg means crawling until there's a doctor and time to heal.
+    so a fifth of your blood takes ~70 real hours to come back (Sean: keep healing slow; you heal
+    properly by sleeping, later, DESIGN.md §7 Treatment); a broken leg means crawling until there's a doctor and time to heal.
