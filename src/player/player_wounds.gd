@@ -407,7 +407,9 @@ func _limb_top(seg: StringName) -> StringName:
 ## and the storekeeper's bandages; until there's a purse it costs you nothing but the hours.
 func _come_round() -> void:
 	knocked_out.emit()
-	var by: Node = player.get_meta(&"last_hit_by") if player.has_meta(&"last_hit_by") else null
+	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
+	var hit_by: Variant = player.get_meta(&"last_hit_by") if player.has_meta(&"last_hit_by") else null
+	var by: Node = hit_by if is_instance_valid(hit_by) else null
 	var by_name := _name_of(by)
 	var was_dead := not physiology.alive
 	_patch_up()
