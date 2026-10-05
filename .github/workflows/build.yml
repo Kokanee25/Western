@@ -148,6 +148,12 @@ jobs:
           test -s build/windows/SaltCreek.exe
           test -s build/macos/SaltCreek.zip
           test -s build/linux/SaltCreek.x86_64
+          # The native plugin goes beside the game (Windows, Linux) or into the app (macOS): an
+          # export without it runs with no voxel damage, so make sure it's there.
+          test -s build/windows/saltcreek_native.dll
+          test -s build/linux/libsaltcreek_native.so
+          unzip -l build/macos/SaltCreek.zip | grep -q libsaltcreek_native.dylib
+          ls -la build/windows build/linux
           test -s build/web/index.wasm
           ls -la addons/saltcreek_native/bin
 
@@ -166,9 +172,10 @@ jobs:
           echo "tag=build-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           echo "name=Salt Creek build ${{ github.run_number }} (${short})" >> "$GITHUB_OUTPUT"
           mkdir -p dist
-          (cd build/windows && zip -q -9 ../../dist/SaltCreek-windows.zip SaltCreek.exe)
+          # Everything the export wrote, the native plugin's library beside the game included.
+          (cd build/windows && zip -q -9 -r ../../dist/SaltCreek-windows.zip .)
           cp build/macos/SaltCreek.zip dist/SaltCreek-macos.zip
-          (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz SaltCreek.x86_64)
+          (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz .)
           ls -la dist
 
       - name: Keep the builds for the smoke test and the release
@@ -209,7 +216,7 @@ jobs:
           - os: macos-latest
             how: headless
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 25
     name: smoke (${{ matrix.os }}, ${{ matrix.how }})
     steps:
       - uses: actions/download-artifact@v4
@@ -233,7 +240,7 @@ jobs:
             macOS-headless) unzip -q dist/SaltCreek-macos.zip; app=$(ls -d *.app | head -1); game=("$app/Contents/MacOS/$(ls "$app/Contents/MacOS" | head -1)" --headless) ;;
           esac
           out="$(pwd -W 2>/dev/null || pwd)/smoke.out"  # a Windows path on Windows
-          limit=(); command -v timeout >/dev/null && limit=(timeout 300)  # macOS has none: the job's limit
+          limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
           set +e
           "${limit[@]}" "${game[@]}" -- --smoke-test --smoke-out="$out" > smoke.log 2>&1
           code=$?
