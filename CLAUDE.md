@@ -2558,3 +2558,14 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
   `controls.gd`: one line (`look_panel`, N). Tests `test_look_panel` (3: every setting on the list
   is reachable in the street; a slider sets the game and Reset puts it back; a preset saved and
   loaded comes back).
+- 2026-10-05 (art session, later): **The characters brief** (`docs/briefs/characters.md`, for
+  the characters session; Sean: "they need more details since their clothing will all be
+  separate layers"): what a layered man is, layer by layer, with the shape names and garment ids
+  the game already keys on (`skin`/`head`, `hair`, `shirt`, `trousers`, `vest`, `coat`,
+  `cravat`/`bandana`, `boots`, `gun_belt`/`belt`/`holster`, `hat`; HumanBody's garments with
+  their resistances), what every piece must do (fit in every pose, clear the layer under it, cut
+  per body part for wounds, its own flat-lit texture, a triangle budget), the two routes (Tripo
+  for the principal men, MakeHuman for townsfolk) and a shared wardrobe, the order (the
+  stranger in full, then Brody, Lyle and the Kid, then the storekeeper and barkeep), spending,
+  how it's judged and three open questions for Sean (long johns or bare skin under the clothes, a
+  shared wardrobe, who after the gang). Docs only.
