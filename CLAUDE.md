@@ -248,6 +248,16 @@ volumetric haze or SSAO; ~15 minutes of rendering on a 4-core runner), ffmpeg (f
 brings the kept videos along, so `/tour/` is never empty. Preview a moment of it here:
 `... -s res://tools/tour.gd -- --render=854x480 --light --start=20 --frames=3`.
 
+**Bug reports** (`src/debug/bug_recorder.gd`, `BugRecorder`, in every build; **F12**, controller
+Back + Y; debug ignite is L only now): the recorder notes every action's changes and the mouse's
+turns by physics tick, everyone's place each second and a snapshot every 30 s; F12 writes
+`user://bug_reports/<date-time>.saltbug` (a zip: `report.json` with the build, clock, you, everyone,
+settings and the last things that happened; `recording.json`; `godot.log`; `screenshot.png`).
+`godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug [--out=DIR]` plays it back
+(from the start for a session under 20 minutes, else from the snapshot 30 s before) and says where
+anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
+its last frame beside the report's screenshot.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2587,3 +2597,12 @@ brings the kept videos along, so `/tour/` is never empty. Preview a moment of it
   brief's 20 minutes (it runs after the build, so it holds nothing up either way). First frames
   are written before the tour's camera takes over, so the encode starts at frame 3. The first
   tour appears after this merge's build: Actions → "Tour video".
+- 2026-10-05 (gameplay, checks 1): **The bug-report key and its replay** (Sean: "add automated
+  checks so Sean reviews less, one merge each"; `docs/briefs/automated-checks.md`, which also asks
+  the art session for the visual checks: sent to it 2026-10-05). F12 and `tools/replay.gd` (layout
+  note under Commands). A short session replays from the start; recorded and replayed at the same
+  fixed step the replay matched to the centimetre (test `test_bug_report`, 2: the file has
+  everything; a replay in a Godot of its own matches the play). Recorded at a varying frame rate (a
+  real player's) the process-frame timers can drift a little: the replay says where. Shared
+  `controls.gd`: `bug_report` on F12, `debug_ignite` lost F12 (L stays). `tools/tour.gd` now puts a
+  `.gdignore` in `build/tour` (the editor imported 900 frames).
