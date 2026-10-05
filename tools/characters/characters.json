@@ -73,8 +73,8 @@
   "kid_body": {
    "from": "kid",
    "hatless": true,
-   "what": "the same nervous young outlaw bare-headed: shaggy brown hair flattened on top by his hat and hanging over his ears, freckled and clean-shaven, a faded red bandana, a faded blue work shirt with the sleeves rolled to the forearm, brown leather braces, a cartridge belt with a holster on his right hip, brown canvas trousers and worn brown boots",
-   "change": "Take his hat off him: he is bare-headed, his shaggy brown hair flattened on top where the hat sat and hanging untidily over his ears and forehead, not combed back, not styled, no quiff. Keep his young face (a lad of nineteen, freckled and grimy), bandana, shirt, braces, belt, holster, trousers, boots and everything else exactly as they are.",
+   "what": "the same nervous young outlaw bare-headed: shaggy brown hair hanging over his ears, freckled and clean-shaven, a faded red bandana, a faded blue work shirt with the sleeves rolled to the forearm, brown leather braces, a cartridge belt with a holster on his right hip, brown canvas trousers and worn brown boots",
+   "change": "Take his hat off him: he is bare-headed, his shaggy brown hair showing, messy and untidy, hanging over his ears and forehead, not combed back. Keep his young face (a lad of nineteen, freckled and grimy), bandana, shirt, braces, belt, holster, trousers, boots and everything else exactly as they are.",
    "back_of": "the back of his bare head with its shaggy brown hair to his collar, his blue shirt and his braces crossing his back",
    "head": {
     "of": "a nervous young outlaw's head",
@@ -86,7 +86,7 @@
   },
   "kid_hat": {
    "from": "kid",
-   "item": "his battered, work-worn old cowboy hat (pale tan felt grimy with dark blotchy stains, a tall crown with a shallow dent along its top, a dark brown leather band blotched with rust and pale spots, a wide brim curled up at both sides with dark stained edges)",
+   "item": "his battered, work-worn old cowboy hat (pale tan felt, dusty and dirty, smudged with broad faded patches of grey-brown grime and darker round the band, a tall crown with a shallow dent along its top, a dark brown leather band blotched with rust and pale spots, a wide brim curled up at both sides with dark stained edges)",
    "what": "a battered pale tan felt cowboy hat of 1882, grimy with dark stains, a blotched leather band, the brim curled up at both sides"
   }
  }
