@@ -6,6 +6,17 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Changed: fire burns four times slower
+
+- **You've got time now.** A fire spreads, grows and eats through timber at a quarter of the old
+  pace: two boards lit on the general store's back wall are five boards at about 35 seconds and
+  twenty at about a minute and a quarter, the frame catches at about 50 seconds, and the roof
+  comes in at about eight and a half minutes (it was two). It burns the same way, just slower.
+- **Putting it out comes next:** a bucket from the trough, and the townsfolk forming a line.
+- **Try:** press **L** on the store's back wall and watch it for a few minutes. Tell me if the
+  first minute feels like a fire you could still beat, and whether a building going up in eight or
+  nine minutes is right.
+
 ### Fixed: people get away from fire
 
 - **Townsfolk run from a fire now** instead of burning at their posts. Fire within about 8 m and

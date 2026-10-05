@@ -76,8 +76,8 @@ func test_a_burning_street_stays_playable() -> void:
 		var members := b.find_children("*", "StructureMember", true, false)
 		if members.is_empty():
 			continue
-		for k in 4:
-			fire.ignite(members[(members.size() * (k + 1)) / 7])
+		for k in 20:  # the fire spreads slowly now (fire_tuning.gd): enough lit to burn hard at once
+			fire.ignite(members[(members.size() * (k + 1)) / 23])
 		lit += 1
 		if lit >= 3:
 			break

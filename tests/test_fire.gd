@@ -52,10 +52,10 @@ func test_boards_catch_but_stone_doesnt() -> void:
 	var stone := s.add_member("stone", &"board", &"stone", Vector3(0.4, 2.0, 0.4), Vector3(-0.33, 1.0, 0))
 	s.infer_supports()
 	fire.ignite(a)
-	var t := _burn(120, func() -> bool: return b.burning)
+	var t := _burn(480, func() -> bool: return b.burning)
 	check(b.burning, "the next board catches")
-	check(t < 60.0, "within a minute (%.0f s)" % t)
-	_burn(60)
+	check(t < 240.0, "within four minutes (%.0f s)" % t)
+	_burn(240)
 	check(not stone.burning, "stone doesn't burn")
 	check(stone.temperature > 30.0, "though it gets hot (%.0f °C)" % stone.temperature)
 
@@ -67,7 +67,7 @@ func test_flames_climb() -> void:
 	var below := s.add_member("below", &"board", &"weathered_pine", Vector3(1.0, 0.2, 0.025), Vector3(0, 0.6, 0))
 	s.infer_supports()
 	fire.ignite(low)
-	var t_up := _burn(200, func() -> bool: return above.burning)
+	var t_up := _burn(800, func() -> bool: return above.burning)
 	check(above.burning, "the board above catches")
 	check(not below.burning, "before the one below (%.0f s)" % t_up)
 
@@ -78,7 +78,7 @@ func test_a_heavy_timber_shrugs_off_a_little_flame() -> void:
 	var beam := s.add_member("beam", &"beam", &"framing", Vector3(0.25, 0.25, 2.0), Vector3(0, 0.735, 0))
 	s.infer_supports()
 	fire.ignite(board)
-	_burn(120)
+	_burn(480)
 	check(board.consumed, "the board burns away")
 	check(not beam.burning, "the beam over it scorches but doesn't catch (%.0f °C)" % beam.temperature)
 
@@ -94,7 +94,7 @@ func test_char_weakens_until_it_gives() -> void:
 	s.infer_supports()
 	check(StructuralAnalysis.new().analyse(s).utilisation[beam.member_id] < 1.0, "it carries 300 kg sound")
 	fire.ignite(beam)
-	_burn(600, func() -> bool: return beam.broken)
+	_burn(2400, func() -> bool: return beam.broken)
 	check(beam.broken, "burning, it gives way")
 	check(not beam.consumed, "long before it's burnt away (char %.0f mm)" % (beam.char_depth * 1000.0))
 
@@ -115,8 +115,8 @@ func test_a_store_burns_down() -> void:
 		return down >= rafters.size() / 2
 	fire.ignite(store.get_member(&"store/back/siding/c10_0"))
 	fire.ignite(store.get_member(&"store/back/siding/c11_0"))
-	var t := _burn(1800, roof_in)
-	var t_down := t + _burn(1800 - t, func() -> bool:
+	var t := _burn(3600, roof_in)
+	var t_down := t + _burn(3600 - t, func() -> bool:
 		var n := 0
 		for m in store.get_members():
 			if m.broken or m.consumed:
