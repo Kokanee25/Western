@@ -26,17 +26,36 @@ SHEET = ROOT / "docs/screenshots/textures/letter_sign.png"
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 
 # id: text, squares across x down, letter height in squares, letters' width stretch, the plank
-# height in squares.
+# height in squares, the boards' colours (`ground`), the letters' (`ink`), and whether a line runs
+# round the board. The saloon's is a cream board in red; the rest are lettered straight onto a
+# front's grey boards in near-black, as the painting's GENERAL STORE is.
 SIGNS = {
-    "sign_saloon_drawn": {"text": "SALOON", "size": [100, 34], "cap": 23, "stretch": 1.0, "plank": 5, "track": 0.1},
+    "sign_saloon_drawn": {"text": "SALOON", "size": [100, 34], "cap": 23, "stretch": 1.0, "plank": 5, "track": 0.1,
+                          "ground": "cream", "ink": "red", "line": True},
+    "sign_general_store_drawn": {"text": "GENERAL STORE", "size": [150, 26], "cap": 15, "stretch": 0.8, "plank": 6,
+                                 "track": 0.08, "ground": "grey", "ink": "black", "line": False},
+    "sign_barber_drawn": {"text": "BARBER", "size": [84, 22], "cap": 13, "stretch": 0.9, "plank": 6, "track": 0.1,
+                          "ground": "grey", "ink": "black", "line": True},
+    "sign_hotel_drawn": {"text": "HOTEL", "size": [80, 24], "cap": 15, "stretch": 0.95, "plank": 6, "track": 0.14,
+                         "ground": "grey", "ink": "black", "line": True},
+    "sign_jail_drawn": {"text": "JAIL", "size": [56, 22], "cap": 14, "stretch": 1.0, "plank": 6, "track": 0.14,
+                        "ground": "grey", "ink": "black", "line": True},
+    "sign_assay_office_drawn": {"text": "ASSAY OFFICE", "size": [120, 22], "cap": 12, "stretch": 0.8, "plank": 6,
+                                "track": 0.08, "ground": "grey", "ink": "black", "line": False},
 }
 
-CREAM = [(214, 196, 158), (205, 186, 148), (222, 206, 170), (196, 178, 140), (186, 168, 132), (228, 212, 178)]
-CREAM_W = [0.26, 0.22, 0.16, 0.16, 0.1, 0.1]
-SEAM = (150, 132, 100)
-RED = [(132, 34, 28), (118, 28, 24), (146, 42, 32), (104, 24, 22)]
-RED_W = [0.4, 0.25, 0.2, 0.15]
-LINE = (150, 52, 40)
+GROUNDS = {
+    "cream": [(214, 196, 158), (205, 186, 148), (222, 206, 170), (196, 178, 140), (186, 168, 132), (228, 212, 178)],
+    "grey": [(178, 168, 150), (166, 156, 138), (190, 180, 160), (152, 142, 126), (138, 128, 114), (202, 192, 172)],
+}
+GROUND_W = [0.26, 0.22, 0.16, 0.16, 0.1, 0.1]
+SEAMS = {"cream": (150, 132, 100), "grey": (112, 104, 92)}
+INKS = {
+    "red": [(132, 34, 28), (118, 28, 24), (146, 42, 32), (104, 24, 22)],
+    "black": [(52, 40, 32), (44, 34, 28), (62, 48, 38), (36, 28, 22)],
+}
+INK_W = [0.4, 0.25, 0.2, 0.15]
+LINES = {"red": (150, 52, 40), "black": (70, 56, 44)}
 
 
 def letters(spec: dict) -> np.ndarray:
@@ -55,7 +74,7 @@ def letters(spec: dict) -> np.ndarray:
     img = img.crop(img.getbbox())
     cap = spec["cap"]
     tw = int(round(img.width * cap / img.height * spec["stretch"]))
-    tw = min(tw, w - 16)
+    tw = min(tw, w - (16 if spec["line"] else 8))
     # Down to the squares in two steps (a box filter, then a threshold): each square is in the
     # letter when most of it is.
     small = img.resize((tw * big, cap * big), Image.LANCZOS).resize((tw, cap), Image.BOX)
@@ -69,19 +88,20 @@ def letters(spec: dict) -> np.ndarray:
 
 def board(spec: dict, rng: np.random.Generator) -> np.ndarray:
     w, h = spec["size"]
-    pick = rng.choice(len(CREAM), size=(h, w), p=CREAM_W)
+    ground = GROUNDS[spec["ground"]]
+    pick = rng.choice(len(ground), size=(h, w), p=GROUND_W)
     # Runs along the grain: a square often takes the colour of the one before it.
     for y in range(h):
         for x in range(1, w):
             if rng.random() < 0.35:
                 pick[y, x] = pick[y, x - 1]
-    img = np.array(CREAM, float)[pick]
+    img = np.array(ground, float)[pick]
     # Each plank its own shade; a dark seam row between planks.
     plank = spec["plank"]
     for y0 in range(0, h, plank):
         img[y0:y0 + plank] *= 0.94 + 0.1 * rng.random()
         if y0 > 0:
-            img[y0] = img[y0] * 0.55 + np.array(SEAM) * 0.45
+            img[y0] = img[y0] * 0.55 + np.array(SEAMS[spec["ground"]]) * 0.45
     return img
 
 
@@ -89,21 +109,23 @@ def draw(spec: dict, seed: int) -> np.ndarray:
     rng = np.random.default_rng(seed)
     img = board(spec, rng)
     w, h = spec["size"]
-    # The red line round the board, two squares in.
-    for x in range(2, w - 2):
-        for y in (2, h - 3):
-            img[y, x] = LINE
-    for y in range(2, h - 2):
-        for x in (2, w - 3):
-            img[y, x] = LINE
-    # A flourish in each corner: a small stepped hook of red squares.
-    hook = [(0, 0), (1, 0), (0, 1), (2, 1), (1, 2), (2, 2)]
-    for cx, cy, sx, sy in ((4, 4, 1, 1), (w - 5, 4, -1, 1), (4, h - 5, 1, -1), (w - 5, h - 5, -1, -1)):
-        for dx, dy in hook:
-            img[cy + dy * sy, cx + dx * sx] = LINE
+    line = LINES[spec["ink"]]
+    if spec["line"]:
+        # A line round the board, two squares in, and a small stepped hook in each corner.
+        for x in range(2, w - 2):
+            for y in (2, h - 3):
+                img[y, x] = line
+        for y in range(2, h - 2):
+            for x in (2, w - 3):
+                img[y, x] = line
+        hook = [(0, 0), (1, 0), (0, 1), (2, 1), (1, 2), (2, 2)]
+        for cx, cy, sx, sy in ((4, 4, 1, 1), (w - 5, 4, -1, 1), (4, h - 5, 1, -1), (w - 5, h - 5, -1, -1)):
+            for dx, dy in hook:
+                img[cy + dy * sy, cx + dx * sx] = line
     mask = letters(spec)
-    reds = np.array(RED, float)[rng.choice(len(RED), size=(h, w), p=RED_W)]
-    img[mask] = reds[mask]
+    ink = INKS[spec["ink"]]
+    inks = np.array(ink, float)[rng.choice(len(ink), size=(h, w), p=INK_W)]
+    img[mask] = inks[mask]
     return np.clip(img, 0, 255).astype(np.uint8)
 
 

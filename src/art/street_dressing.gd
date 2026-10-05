@@ -20,17 +20,18 @@ const BUILDINGS := [
 			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"saloon_red",
 			"facade": "saloon"}],
 	["GeneralStore", -20.4, -11.8, false, {"depth": 11.0, "wall_height": 5.4, "front_height": 7.8,
-			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"weathered_pine"}],
+			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"store_boards",
+			"facade": "store"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
-			"front_wood": &"painted_rust"}],
-	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL"}],
+			"front_wood": &"painted_rust", "facade": "store"}],
+	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL", "facade": "store"}],
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
 			"sign_text": "LIVERY", "gable_sign": Rect2(0.45, 1.6, 2.7, 3.6), "porch": false, "front_wood": &"weathered_pine"}],
 	["Jail", -24.6, -18.2, true, {"depth": 8.0, "wall_height": 3.3, "front_height": 4.9, "sign_text": "JAIL",
-			"window_bars": true, "front_wood": &"weathered_pine"}],
+			"window_bars": true, "front_wood": &"store_boards", "facade": "store"}],
 	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
-			"front_wood": &"painted_ochre"}],
+			"front_wood": &"painted_ochre", "facade": "store"}],
 	# Across from the saloon's door, low enough for the moon over its false front, its lamp lit
 	# late: what you see through the door at night, as the painting does.
 	["EatingHouse", 6.8, 13.2, false, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.2, "sign_text": "EATING HOUSE",
@@ -59,6 +60,8 @@ const FOLK := [
 			Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08), {"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"stubble", "age": 0.55}],
 ]
 ## Boardwalks before them: [name, x0, x1, faces +Z].
+## How much bigger than the code model the painting's carriage lanterns are.
+const LANTERN_SCALE := 1.6
 const WALKS := [["WestBoardwalk", -35.6, -8.0, false], ["SouthWestBoardwalk", -32.0, -18.2, true]]
 
 
@@ -154,6 +157,8 @@ func _lantern(at: Vector3, faces: float) -> void:
 	var root := Node3D.new()
 	root.name = "Lantern"
 	PropModels.lantern(root)
+	# The painting's lanterns are big: half a metre of glass and tin by every door.
+	root.scale = Vector3.ONE * LANTERN_SCALE
 	add_child(root)
 	root.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if faces > 0.0 else PI), at)
 	var lamp := OilLamp.new()

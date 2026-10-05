@@ -42,6 +42,10 @@ MATERIALS = {
     "sign_board": {"boxes": [[60, 20, 420, 150]], "keep": "pale",
                    "size": [64, 16], "run": 3, "colours": 8, "clump": 0.45,
                    "albedo": [0.8, 0.72, 0.58], "contrast": 3.0},
+    # The general store's front: pale grey weathered boards (its letters left out).
+    "store_boards": {"boxes": [[640, 110, 800, 400]], "keep": "pale",
+                     "size": [64, 16], "run": 3, "colours": 8, "clump": 0.5,
+                     "albedo": [0.66, 0.61, 0.53], "contrast": 1.6},
     # The front's boards behind the porch and over it: a deep weathered red.
     "saloon_red": {"boxes": [[0, 150, 470, 560]], "keep": "red",
                    "size": [64, 16], "run": 3, "colours": 8, "clump": 0.5,
@@ -149,6 +153,15 @@ def main() -> None:
         SHEET.parent.mkdir(parents=True, exist_ok=True)
         sheet.save(SHEET)
         print(SHEET)
+    # The batwings' louvres: slats across the leaf (the grain, u, runs up a leaf taller than it's
+    # wide), two squares of wood and a dark gap, in the timber's colours a shade darker.
+    timber = np.asarray(Image.open(OUT / "timber.png").convert("RGB")).astype(float)
+    slats = np.zeros((8, 12, 3))
+    for x in range(12):
+        k = x % 3
+        slats[:, x] = timber[:8, x] * (0.78 if k == 0 else 0.62 if k == 1 else 0.22)
+    Image.fromarray(np.clip(slats, 0, 255).astype(np.uint8)).save(OUT / "batwing_slats.png")
+    print("batwing_slats -> assets/textures/batwing_slats.png")
     (OUT / "from_painting.json").write_text(json.dumps(report, indent=1) + "\n")
 
 

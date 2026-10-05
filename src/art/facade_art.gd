@@ -8,7 +8,9 @@ class_name FacadeArt
 ## `timber`, the pale weathered grey-tan of its posts and frames; `sign_board`; `saloon_red`).
 ##
 ## A FalseFrontBuilding calls dress() at the end of build(); it does nothing unless the building has
-## a `facade` meta naming a style (StreetDressing sets it before the building is added).
+## a `facade` meta naming a style (StreetDressing sets it before the building is added): `saloon`
+## (the sign its own framed board with a crest) or `store` (the lettering painted on the front's
+## boards, as the painting's GENERAL STORE).
 ## Members are laid over the plain ones where they replace them (a casing round a porch post, a
 ## surround over the door's trim), so the building's frame and its load paths stay as they were.
 
@@ -16,7 +18,12 @@ class_name FacadeArt
 const TIMBER := &"timber"
 const SIGN := &"sign_board"
 ## Its lettered boards: sign text -> texture (assets/textures/<id>.png, one texel a square).
-const DRAWN_SIGNS := {"SALOON": &"sign_saloon_drawn"}
+const DRAWN_SIGNS := {
+	"SALOON": &"sign_saloon_drawn", "GENERAL STORE": &"sign_general_store_drawn", "BARBER": &"sign_barber_drawn",
+	"HOTEL": &"sign_hotel_drawn", "JAIL": &"sign_jail_drawn", "ASSAY OFFICE": &"sign_assay_office_drawn",
+}
+## The boards a plain front's lettering is painted on.
+const BOARDS := &"store_boards"
 
 const POST := 0.26  # porch posts and the corner posts, square
 const BRACE := 0.09
@@ -34,7 +41,7 @@ static func dress(b: FalseFrontBuilding) -> void:
 	if not b.gable_front:
 		_corners(b, bt)
 		_cornice(b, bt)
-		_sign(b, bt)
+		_sign(b, bt, style == "saloon")
 	_door(b, bt)
 	if b.front_windows:
 		_windows(b, bt)
@@ -68,7 +75,7 @@ static func _cornice(b: FalseFrontBuilding, bt: float) -> void:
 
 ## The sign as its own board: lettered planks in a heavy frame with a stepped crest, filling the
 ## front between the porch roof and the cornice's brackets.
-static func _sign(b: FalseFrontBuilding, bt: float) -> void:
+static func _sign(b: FalseFrontBuilding, bt: float, framed: bool) -> void:
 	# The plain sign member and the factory's painted board on it make way.
 	var old := b.get_member(StringName("%s/front/sign" % b.structure_id))
 	if old:
@@ -79,18 +86,22 @@ static func _sign(b: FalseFrontBuilding, bt: float) -> void:
 				c.free()
 	var id: StringName = DRAWN_SIGNS.get(b.sign_text.to_upper(), &"")
 	var tex := _drawn(id)
-	var crest := CREST_STEP * CREST_WIDTHS.size()
-	var bottom := b.sign_room_bottom() + 0.15
-	var top := b.front_height - 0.86 - crest
-	var room := Vector2(b.width - 0.9 - FRAME * 2.0, top - bottom - FRAME * 2.0)
+	var crest := CREST_STEP * CREST_WIDTHS.size() if framed else 0.0
+	var frame := FRAME if framed else 0.0
+	var bottom := b.sign_room_bottom() + (0.15 if framed else 0.05)
+	var top := b.front_height - (0.86 if framed else 0.8) - crest
+	var room := Vector2(b.width - (0.9 if framed else 0.5) - frame * 2.0, top - bottom - frame * 2.0)
 	var aspect := float(tex.get_width()) / tex.get_height() if tex else 3.0
 	var size := Vector2(minf(room.x, room.y * aspect), minf(room.y, room.x / aspect))
 	var cx := b.width * 0.5
-	var y0 := bottom + FRAME + (room.y - size.y) * 0.5
+	var y0 := bottom + frame + (room.y - size.y) * 0.5
 	var x0 := cx - size.x * 0.5
-	var panel := _front(b, "facade/sign", &"board", SIGN, x0, x0 + size.x, y0, y0 + size.y, bt, bt + 0.04)
+	var panel := _front(b, "facade/sign", &"board", SIGN if framed else BOARDS, x0, x0 + size.x, y0, y0 + size.y, bt,
+			bt + (0.04 if framed else 0.012))
 	if tex:
 		_letter(panel, tex, size)
+	if not framed:
+		return
 	# The frame, proud of the boards.
 	var fx0 := x0 - FRAME
 	var fx1 := x0 + size.x + FRAME
@@ -148,6 +159,13 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 	_front(b, "facade/door/jamb0", &"trim", TIMBER, o.position.x - jamb, o.position.x, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/jamb1", &"trim", TIMBER, o.end.x, o.end.x + jamb, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/head", &"trim", TIMBER, o.position.x - jamb - 0.1, o.end.x + jamb + 0.1, o.end.y, o.end.y + 0.3, bt, d1 + 0.04)
+	# The batwings louvred: slats across each leaf, dark between (the leaves are as they were).
+	if b.batwings:
+		var slats := WoodMaterials.get_material(&"batwing_slats", 0)
+		for i in 2:
+			var leaf := b.get_member(StringName("%s/front/batwing%d" % [b.structure_id, i]))
+			if leaf:
+				(leaf.get_child(0) as MeshInstance3D).material_override = slats
 
 
 ## The two front windows in thick frames, with a cross of glazing bars: two panes across, three up.
@@ -197,3 +215,8 @@ static func _porch(b: FalseFrontBuilding) -> void:
 					Vector3(length, BRACE, BRACE), c, basis)
 	b.add_member("facade/porch/beam", &"beam", TIMBER, Vector3(w + 0.36, 0.28, 0.26),
 			Vector3(w * 0.5, beam_y + 0.12, zb))
+	# A deep fascia along the porch roof's front edge, against the rafters' ends (the roof's
+	# boards start 0.3 m out past the beam).
+	var edge := zb - 0.3
+	b.add_member("facade/porch/fascia", &"board", TIMBER, Vector3(w + 0.4, 0.3, 0.05),
+			Vector3(w * 0.5, beam_y + 0.2, edge - 0.025))
