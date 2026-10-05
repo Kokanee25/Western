@@ -97,7 +97,7 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 	if RenderingServer.get_current_rendering_method() == "gl_compatibility":
 		return
 	DepthMosaic.attach(cam, 5.0)
-	ProbeMosaic.apply(cam, true, 384.0, 0.5, 14.0)
+	ProbeMosaic.apply(cam, true, 384.0, 0.5, 6.0)
 	await process_frames(2)
 	check(cam.get_node_or_null(^"DepthMosaic") == null, "the screen mosaic is gone")
 	var m := cam.get_node_or_null(^"ProbeMosaic") as ProbeMosaic
@@ -105,7 +105,7 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 	if m:
 		var mat := m.material_override as ShaderMaterial
 		check_near(float(mat.get_shader_parameter(&"texels")), 384.0, 0.01, "its texels")
-		check_near(float(mat.get_shader_parameter(&"bands")), 14.0, 0.01, "its bands")
+		check_near(float(mat.get_shader_parameter(&"bands")), 6.0, 0.01, "its bands")
 		check(mat.get_shader_parameter(&"probe_origin") != null, "it follows the camera")
 	ProbeMosaic.apply(cam, false, 384.0, 0.5, 14.0)
 	await process_frames(2)

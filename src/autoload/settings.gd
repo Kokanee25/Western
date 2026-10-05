@@ -79,11 +79,12 @@ var surface_blocks := false
 ## replaces the screen mosaic while it's on, and wants the quantise-once textures under it (V
 ## turns those on with it, and the surface blocks off). probe_texels: texels a cube face (384:
 ## 3.5 px blocks at the saloon shot's lens, 1280x720); probe_cell: metres between origins;
-## probe_bands: OKLab light bands.
+## probe_bands: OKLab light bands (0: smooth light; 14 bands made a block near a band's edge flip
+## as you moved: four times the flicker, tools/probe_walk.py stability).
 var probe_mosaic := false
 var probe_texels := 384.0
 var probe_cell := 0.5
-var probe_bands := 14.0
+var probe_bands := 0.0
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -160,7 +161,7 @@ func reset_to_defaults() -> void:
 	probe_mosaic = false
 	probe_texels = 384.0
 	probe_cell = 0.5
-	probe_bands = 14.0
+	probe_bands = 0.0
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()

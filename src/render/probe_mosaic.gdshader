@@ -19,10 +19,10 @@ shader_type spatial;
 //
 // When the origin moves to the next grid point the blocks are re-cut; `fade` crosses from the old
 // cube to the new a block at a time (the paper cross-fades its probes with a dither, per pixel).
-// Light is banded in OKLab lightness (Ottosson 2020, "A perceptual color space for image
-// processing"; the paper bands its texels the same way). Past `far` (the sky, the painted
-// backdrop) the frame is left alone. Written for this project from the paper's description; no
-// code from its repository.
+// Light can be banded in OKLab lightness (Ottosson 2020, "A perceptual color space for image
+// processing"; the paper bands its texels the same way), off by default (`bands`). Past `far`
+// (the sky, the painted backdrop) the frame is left alone. Written for this project from the
+// paper's description; no code from its repository.
 //
 // It writes ALPHA so Godot draws it in the transparent pass, after the opaque frame and the sky,
 // where the screen texture exists (as DepthMosaic must: see depth_mosaic.gdshader). Transparent
@@ -41,8 +41,10 @@ uniform float fade = 1.0;
 // Samples a side across each block, averaged where they land on the block's own surface (1: the
 // centre alone).
 uniform int samples = 3;
-// Lightness bands in OKLab (0: smooth light).
-uniform float bands = 14.0;
+// Lightness bands in OKLab (0: smooth light, the default: banded, a block whose light sits near a
+// band's edge flips between two bands as you move, and the darks go coarse; the bands are cut
+// before the tone curve).
+uniform float bands = 0.0;
 // Metres past which the frame is left as it is.
 uniform float far = 200.0;
 // Metres within which blocks are cut by the screen instead: the gun in your hand goes everywhere
