@@ -22,6 +22,10 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	_apply_settings()
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	var panel := LookPanel.new()  # N: the live look panel
+	panel.name = "LookPanel"
+	add_child(panel)
+	LookPreset.apply_from_args.call_deferred(get_tree())  # --look=FILE
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

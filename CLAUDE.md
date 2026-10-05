@@ -231,6 +231,12 @@ python3 tools/bridge.py "time 17.6" "goto street_east" "look saloon_porch" "scre
 python3 tools/bridge.py stop
 ```
 
+**The playtest** (`tools/playtest.md`, its instructions; `tools/playtest.py start|shot NAME|stop`):
+a fresh sub-agent that hasn't read the code plays the game through the bridge (it's told not to
+open the code or the design) and writes `docs/playtests/<date>.md` with its screenshots in
+`docs/playtests/<date>/`: what broke, what was flat or confusing, what was fun, the top three.
+Start it with the Agent tool: "read tools/playtest.md and follow it; don't read the code".
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -294,6 +300,17 @@ python3 tools/bridge.py stop
   share veils the whole frame), so nothing lit by a lamp blooms. The review's light numbers
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
+- **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
+  Back + Start): sliders for every look setting, laid out by `config/look_panel.json` (from the art
+  session's list, `docs/briefs/look_settings.md`; add a row there: address, label, range, `what`),
+  a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
+  Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
+  (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
+  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
+  game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
+  vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
@@ -2485,6 +2502,22 @@ python3 tools/bridge.py stop
   trigger clicked and the left barrel never fired unless you cocked twice; `ShotgunState.cock()`
   now takes a hammer over a loaded barrel first (test `test_shotgun::
   test_with_the_right_fired_the_next_hammer_is_the_left`). Tests `test_dev_bridge` (4). 305 pass.
+- 2026-10-04 (gameplay, review tools 3): **The playtest agent, and its first report**
+  (`docs/playtests/2026-10-04.md`: ~70 minutes over two runs, 20 screenshots). It played blind
+  through the bridge (`tools/playtest.md`, `tools/playtest.py`); the bridge now lets the game run
+  up to 40 physics ticks a drawn frame so game time keeps up with real time at lavapipe's ~1 fps,
+  waits for drawn frames after a key (a throw happened after the next command's turn), says
+  `clicked` when the hammer fell on nothing and `knocked_out` when a walk ends in a blackout, has
+  `release`, and logs your own blackouts. **What it found** (for Sean, not fixed here): fights are
+  decided in a second or two (the gang hits first, two or three times, and you're out; three of
+  four fights ended with the player out cold, two before he fired), blacking out heals everything
+  in seconds with nothing said; Brody and Lyle stood inside the saloon's door frame at one spot for
+  the rest of a run, never firing back; a surrendered man floated off the porch; one ignite burnt
+  the south side in ~90 s and five townsfolk burnt at their posts (nobody flees fire); shooting a
+  surrendered man got no reaction; surrendered men keep their guns and stand forever; two sticks
+  barely marked the barber's; the townsfolk say the same lines in the same second; stars at golden
+  hour; light through the store's wall corners. The look, the gang's talk and their teamwork were
+  the high points.
 - 2026-10-05 (art session): **Three sessions; review tools' art items 1 and 2.** Sean: the
   Pixel-factory chat becomes the **characters session** (How we work above: it owns making
   people, from his picture to a fitted man, the LoRA and the layered clothing; art keeps how
@@ -2509,6 +2542,22 @@ python3 tools/bridge.py stop
   build 367 (under 1% of pixels, a man's idle), at 1080p and 1440p as well; nothing merged since
   changed the default look, so the likely cause is a saved look key on his PC (I, O, P, F2, F7;
   F3's look line shows them). 305 tests pass.
+- 2026-10-05 (gameplay, review tools 4): **The live look panel** (docs/briefs/review-tools.md;
+  layout note above). **N** (controller: Back + Start) opens it in every build; 88 settings in the
+  art session's nine groups (`config/look_panel.json` from `docs/briefs/look_settings.md`, the
+  art session's list: its numbers, ranges and words), a time-of-day slider, Save / Export (clipboard) /
+  Load / Reset; `--look=FILE` applies a preset to any run of the main scene, `tools/screenshots.gd`
+  included (no `tools/apply_look.gd` needed). `LookPreset` grew addresses for the sky, ground and
+  backdrop shaders (a uniform's default read from the shader's code: the headless renderer keeps
+  none), the sun and moon lights, lamp groups as multipliers, a building's night fill and smoke,
+  the mosaic's knobs and the people's paint. Not on the panel: the sky/sun colour gradients (a
+  stop each would be a colour picker: next if Sean wants them), the chimney glass's bloom and the
+  held-gun fill (constants in code), the road tile's grade (`reduce.py`, not live), `edge_shade`
+  (a per-material uniform), the texel density (F7). `mosaic.block_k`/`steps` are overwritten by
+  Settings' K and steps when the mosaic is re-attached (a settings change); the rest stay. Shared
+  `controls.gd`: one line (`look_panel`, N). Tests `test_look_panel` (3: every setting on the list
+  is reachable in the street; a slider sets the game and Reset puts it back; a preset saved and
+  loaded comes back).
 - 2026-10-05 (art session, later): **The characters brief** (`docs/briefs/characters.md`, for
   the characters session; Sean: "they need more details since their clothing will all be
   separate layers"): what a layered man is, layer by layer, with the shape names and garment ids
