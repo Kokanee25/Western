@@ -43,7 +43,7 @@ func _ready() -> void:
 	_actions.sort()
 	_strength.resize(_actions.size())
 	_start_tick = Engine.get_physics_frames()
-	Events.look_input.connect(func(d: Vector2) -> void: _look_acc += d)
+	_hook(Events.look_input, func(d: Vector2) -> void: _look_acc += d)
 	_listen()
 	var layer := CanvasLayer.new()
 	layer.layer = 30
@@ -53,6 +53,10 @@ func _ready() -> void:
 	_toast.modulate = Color(1.0, 0.85, 0.5)
 	_toast.visible = false
 	layer.add_child(_toast)
+
+
+func _exit_tree() -> void:
+	_unhook()
 
 
 func _physics_process(_delta: float) -> void:
@@ -227,8 +231,24 @@ func _listen() -> void:
 		if (n as Node).is_in_group(&"player"):
 			return "you"
 		return String(n.person_id) if n is HumanBody else String((n as Node).name)
-	Events.spoke.connect(func(w: Node, text: String) -> void: note.call("said", "%s: %s" % [who.call(w), text]))
-	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, s: Node) -> void: note.call("shot", "%s fired" % who.call(s)))
-	Events.body_hit.connect(func(info: Dictionary) -> void: note.call("hit", "%s hit (%s)" % [who.call(info.get("person")), info.get("segment", "?")]))
-	Events.person_died.connect(func(p: Node, cause: StringName) -> void: note.call("died", "%s died (%s)" % [who.call(p), cause]))
-	Events.exploded.connect(func(at: Vector3, kg: float) -> void: note.call("blast", "%.2f kg at %s" % [kg, _arr(at)]))
+	_hook(Events.spoke, func(w: Node, text: String) -> void: note.call("said", "%s: %s" % [who.call(w), text]))
+	_hook(Events.shot_fired, func(_o: Vector3, _d: Vector3, s: Node) -> void: note.call("shot", "%s fired" % who.call(s)))
+	_hook(Events.body_hit, func(info: Dictionary) -> void: note.call("hit", "%s hit (%s)" % [who.call(info.get("person")), info.get("segment", "?")]))
+	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: note.call("died", "%s died (%s)" % [who.call(p), cause]))
+	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: note.call("blast", "%.2f kg at %s" % [kg, _arr(at)]))
+
+## Events this connects to, let go of when it leaves the tree: they're lambdas, and a lambda isn't
+## disconnected when its node is freed (the next event would call into a freed node).
+var _hooks: Array = []
+
+
+func _hook(sig: Signal, f: Callable) -> void:
+	sig.connect(f)
+	_hooks.append([sig, f])
+
+
+func _unhook() -> void:
+	for h: Array in _hooks:
+		if (h[0] as Signal).is_connected(h[1]):
+			(h[0] as Signal).disconnect(h[1])
+	_hooks.clear()
