@@ -23,6 +23,14 @@ const DENSITY_PRESETS := [[32.0, true], [24.0, false], [16.0, false], [64.0, tru
 ## same with bullet holes cut in it (StructureMember).
 const GRID_SHADER := preload("res://src/render/texel_grid.gdshader")
 const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
+## The same two under the surface-blocks look (docs/briefs/renderer.md): their banded, tinted
+## light(). Picked when `blocks` is on (Settings.surface_blocks, before the world is built).
+const GRID_SHADER_BLOCKS := preload("res://src/render/texel_grid_blocks.gdshader")
+const HOLE_SHADER_BLOCKS := preload("res://src/structures/member_holes_blocks.gdshader")
+static var blocks := false
+## What the lower bands of light lean toward under the surface-blocks look: the world's wood and
+## dirt a warm brown (the paintings' half-light is never grey).
+const SHADE_TINT := Color(1.0, 0.86, 0.72)
 
 ## How a grid material lays its texture on: the mesh's UVs (in metres; members), or by position
 ## along whichever axis a face looks down most (blockouts, props), in mesh or world space.
@@ -45,10 +53,11 @@ const SMOOTH_PATH := "res://assets/textures/smooth/%s.png"
 ## nearest filtering, each texel a tile lit as one colour (src/render/tiles.gdshaderinc;
 ## Settings.tile_look, P). The world's members, blockouts and props all use it.
 static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV, offset := Vector3.ZERO,
-		roughness := 0.95, metallic := 0.0, specular := 0.2) -> ShaderMaterial:
+		roughness := 0.95, metallic := 0.0, specular := 0.2, shade_tint := SHADE_TINT) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
-	m.shader = GRID_SHADER
+	m.shader = grid_shader()
 	m.set_shader_parameter(&"albedo_tex", tex)
+	m.set_shader_parameter(&"shade_tint", shade_tint)
 	m.set_shader_parameter(&"tint", tint)
 	m.set_shader_parameter(&"mapping", mapping)
 	m.set_shader_parameter(&"uv_offset", offset)
@@ -61,8 +70,26 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 ## The same material with bullet holes (the hole uniforms are set by the member).
 static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
 	var m := base.duplicate() as ShaderMaterial
-	m.shader = HOLE_SHADER
+	m.shader = hole_shader()
 	return track(m)
+
+
+## The grid shader for the look in force, and the holed one (either may be in use: compare with
+## is_grid_shader / is_hole_shader, not with GRID_SHADER).
+static func grid_shader() -> Shader:
+	return GRID_SHADER_BLOCKS if blocks else GRID_SHADER
+
+
+static func hole_shader() -> Shader:
+	return HOLE_SHADER_BLOCKS if blocks else HOLE_SHADER
+
+
+static func is_grid_shader(s: Shader) -> bool:
+	return s == GRID_SHADER or s == GRID_SHADER_BLOCKS
+
+
+static func is_hole_shader(s: Shader) -> bool:
+	return s == HOLE_SHADER or s == HOLE_SHADER_BLOCKS
 
 
 ## Keep a material laid out on the texel grid (the ground's shader too: it reads texels_per_meter,

@@ -341,6 +341,25 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   0.5, a jump across the pixel both ways; fine lines and smooth areas untouched) and the tile
   light is worked out part way back from the tile's centre toward the fragment (shader global
   `tile_gradient` 0.3), a faint gradient of the real lighting across each tile.
+  **The surface-blocks look** (docs/briefs/renderer.md, 2026-10-05; `Settings.surface_blocks`,
+  **M** toggles and reloads the scene, saved, off by default until Sean's eye; `--blocks` on any
+  run's command line for that run; `screenshots.gd --global=name:value,...` sets any shader
+  global for a render): the blocks are the surfaces' own texels, as the tile look's are, with
+  no screen pass. `tiles.gdshaderinc`: `block_soft` (global, render pixels of blend across a
+  texel's edge: `tile_soft_point()` is the pixel-art anti-aliasing trick, the texel sampled at
+  its centre everywhere but within that of its edge, where the sample slides to the neighbour,
+  and `tile_sample_soft()` the bilinear fetch that blends there; the light is worked out at the
+  same point, so it slides across the edge too), `light_bands` (each light's share in steps,
+  `tile_band()`; 0 = smooth: the judge preferred flat blocks lit smoothly, bands drew rings on
+  the table) and each material's `shade_tint` (what the lower light leans toward:
+  `PixelArt.SHADE_TINT`, a warm brown, on the world and on skin). `texel_grid_blocks.gdshader`
+  / `member_holes_blocks.gdshader` are the grid shaders with that `light()`
+  (`PixelArt.blocks`, `grid_shader()`, `hole_shader()`; compare shaders with `is_grid_shader`
+  / `is_hole_shader`, since either may be in use); `body_skin` and `ground.gdshader` take the
+  globals in place. Under it `min_square_px` is 0 (distance softens into the mip and the haze,
+  never chunks), the mosaic and the finish are off (`Settings.mosaic_active()`).
+  `tools/pan_frames.gd` pans a view frame by frame and measures how much changes and flips back
+  (the flicker probe's measures), for judging a look in motion.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -2932,3 +2951,30 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   - CI (gameplay's wiring, told to it): `apt-get install mesa-vulkan-drivers xvfb`, render the
     views twice (`golden_check.py --render --out=A`, then `--out=B`), `scene_probe.gd`, then
     `golden_check.py --from=A` and `visual_checks.py --from=A --twin=B --probe=PDIR`.
+- 2026-10-05 (art session, later): **Part B: our own renderer, the mosaic on the surfaces, behind
+  the M key** (Sean's brief, `docs/briefs/renderer.md`; its findings section has the numbers).
+  The look (layout note above, "The surface-blocks look"): the block is the texel, anchored to
+  the surface, lit as one with the tile gradient, its edge blended over half a render pixel from
+  screen derivatives (`tile_soft_point`, `tile_sample_soft`: four fetches, the pixel-art
+  anti-aliasing trick), distance softened by the mip (`min_square_px` 0), no screen pass, each
+  material's shadows in its own warm tint (`shade_tint`); the light bands (`light_bands`) are
+  built and off: with them the face and coat went poster-flat and the judge preferred smooth
+  light. Rendered on the Part A restore with the current default and the I key beside it
+  (judge v2 rounds `2026-10-05_r6`–`_r8`): saloon 0.256 / 0.293 / **0.202**, street 0.565 /
+  0.587 / **0.527**; a 40-frame pan half a degree a frame (`tools/pan_frames.gd`), the share of
+  pixels that flip back: saloon 6.4 % / 6.8 % / **1.8 %**, street 6.3 % / 6.8 % / **3.7 %**; cost
+  (`tools/look_cost.gd`) the same render CPU, 2–5 % less raster. The blind critics on all three
+  put the same things first (the restore's pale confetti sky, the man's face, the room's brown
+  murk, the saloon's front, the road); only the blocks critic marked the blocks: the sky's
+  and the doorway's squares giant beside surfaces that read smooth. Earlier rounds today:
+  `_r2`–`_r5` (the blocks' variants: 1 px / 8 bands, 0.5 px / 12 bands, 0.5 px smooth) and the
+  I key on the pre-restore build. Review sheet `docs/screenshots/review/2026-10-05_renderer.png`
+  (painting | current | quantise once | surface blocks, 3× crops of his face, the back bar and the
+  far street, the pan strips). The default path is unchanged (the Part B tree's default render
+  against the restore's: within the goldens' run-to-run noise). Off by default; Sean's eye
+  decides. Gameplay files touched (said here): `src/main/main.gd` (three lines: the M key, the
+  mosaic only when it's active), `src/structures/structure_member.gd` (two: the blocks shaders
+  count as grid and hole shaders), `src/world/static_batch.gd` (one: the blocks shader batches),
+  `src/bodies/human_body.gd` (one: the shade tint on a man's pieces), `tests/test_pixel_art.gd`
+  (+1 test). Shared `settings.gd`, `controls.gd` (M), `project.godot` (two globals),
+  `tools/screenshots.gd` (`--blocks`, `--global=`), my lines.

@@ -96,6 +96,7 @@ func _run() -> void:
 	var mosaic_steps := 14.0
 	var view_tune := {}
 	var suffix := ""
+	var globals_after := {}
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -165,12 +166,20 @@ func _run() -> void:
 			window_shot = true
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
+		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
+		elif arg.begins_with("--global="):
+			for kv in arg.substr(9).split(","):
+				var parts := kv.split(":")
+				if parts.size() == 2:
+					globals_after[StringName(parts[0])] = float(parts[1])
 	if window_shot:
 		DisplayServer.window_set_size(Vector2i(1920, 1080))
 	DirAccess.make_dir_recursive_absolute(out)
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
+	for k: StringName in globals_after:
+		RenderingServer.global_shader_parameter_set(k, globals_after[k])
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	(main.get_node(^"DebugOverlay") as CanvasLayer).visible = false
 	var viewport: SubViewport = main.get_node(^"GameViewport")

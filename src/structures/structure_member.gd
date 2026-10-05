@@ -269,8 +269,8 @@ func _draw_holes() -> void:
 	var mat := mi.material_override as ShaderMaterial
 	if mat == null:
 		return  # only timber on the texel grid gets drawn holes (not glass)
-	if mat.shader != HOLE_SHADER:
-		if mat.shader != PixelArt.GRID_SHADER:
+	if not PixelArt.is_hole_shader(mat.shader):
+		if not PixelArt.is_grid_shader(mat.shader):
 			return
 		mat = PixelArt.hole_material(mat)
 		mi.material_override = mat

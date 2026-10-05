@@ -24,6 +24,48 @@ global uniform float min_square_px;
 // tile's centre toward the fragment, so each tile carries a faint gradient of the real lighting
 // across it (never noise). 0: flat tiles. Settings.finish sets it.
 global uniform float tile_gradient;
+// The surface-blocks look (docs/briefs/renderer.md; Settings.surface_blocks, M): soft block
+// edges, this many render pixels of blend across a texel's edge (0: hard edges, as the looks
+// above). The blend is the pixel-art anti-aliasing trick (a texel is sampled at its centre
+// everywhere but within a pixel of its edge, where the sample slides to the neighbour), so a
+// block edge neither pops nor shimmers as it crosses the screen's pixels, and far off, where a
+// texel is smaller than a pixel, the texture's mip takes over by itself: nothing chunks.
+global uniform float block_soft;
+// The same look's light: each light's share cut into this many bands (gamma space; 0: smooth),
+// so the light on a surface steps square by square as the paintings' does.
+global uniform float light_bands;
+
+// The texel-space point to sample at under soft edges (block_soft > 0; see above).
+vec2 tile_soft_point(vec2 t) {
+	vec2 w = max(fwidth(t) * block_soft, vec2(1e-5));
+	vec2 f = fract(t) - 0.5;
+	return floor(t) + 0.5 + clamp(f / w, vec2(-0.5), vec2(0.5));
+}
+
+// A bilinear sample of a nearest-filtered texture at texel-space point `p`: four fetches at
+// the mip the fragment's own derivatives (of the texture's UV) pick, mixed by where `p` lies
+// between their centres. Flat inside a texel when `p` is a tile_soft_point, blended on its edge.
+vec4 tile_sample_soft(sampler2D tex, vec2 p, vec2 size, vec2 ddx, vec2 ddy) {
+	vec2 q = p - 0.5;
+	vec2 i = floor(q);
+	vec2 f = q - i;
+	vec2 o = 1.0 / size;
+	vec2 base = (i + 0.5) * o;
+	vec4 a = textureGrad(tex, base, ddx, ddy);
+	vec4 b = textureGrad(tex, base + vec2(o.x, 0.0), ddx, ddy);
+	vec4 c = textureGrad(tex, base + vec2(0.0, o.y), ddx, ddy);
+	vec4 d = textureGrad(tex, base + o, ddx, ddy);
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+// A light's share cut into light_bands steps (even steps in gamma space); as it is when off.
+float tile_band(float k) {
+	if (light_bands <= 0.0) {
+		return k;
+	}
+	float g = pow(clamp(k, 0.0, 1.0), 1.0 / 2.2);
+	return pow(floor(g * light_bands + 0.5) / light_bands, 2.2);
+}
 
 float tile_hash(vec2 p) {
 	vec3 q = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
