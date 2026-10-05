@@ -797,6 +797,10 @@ func _harass(delta: float, step: Dictionary) -> bool:
 	var chest := (who.parts[&"chest"] as Node3D).global_position if who.parts.has(&"chest") else who.global_position + Vector3.UP * 1.2
 	body.face(chest)
 	var now := _step_time
+	if not step.get("begun", false):
+		# Something to say soon after he's there (a drink's long quiet doesn't carry over).
+		step.begun = true
+		_say_again = minf(_say_again, _think.randf_range(0.5, 2.5))
 	if _say_again <= 0.0:
 		say(&"taunt")
 		_say_again = _think.randf_range(6.0, 9.0)

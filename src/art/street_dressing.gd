@@ -122,8 +122,39 @@ static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
 	return TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 
 
-## True where a thing `radius` round would stand on a flight of steps or in the way up them.
+## True where a thing `radius` round would stand on a flight of steps or in the way up them, or
+## in front of a door (people come and go by the steps and the doors).
 static func on_steps(at: Vector3, radius := 0.6) -> bool:
+	return _on_flight(at, radius) or in_doorway(at, radius)
+
+
+## True where a thing `radius` round would stand in a doorway or just before it on the walk: the
+## store's, the saloon's and the street's buildings' (their doors in the middle of their fronts).
+static func in_doorway(at: Vector3, radius := 0.4) -> bool:
+	return out_of_doorway(at, radius) != at
+
+
+## `at` moved along the walk to the nearer side of a doorway it stands in (unchanged if none).
+static func out_of_doorway(at: Vector3, radius := 0.4) -> Vector3:
+	for path: String in TownLayout.nodes():
+		var e: Dictionary = TownLayout.nodes()[path]
+		var w := float(e.get("width", (e.get("set", {}) as Dictionary).get("width", 0.0)))
+		if path == "Saloon":
+			w = 10.0
+		if w <= 0.0 or not (path in ["Store", "Saloon"] or path.begins_with("StreetDressing/")) or path.ends_with("WaterTower"):
+			continue
+		var t := TownLayout.transform_of(StringName(path))
+		var local := t.affine_inverse() * at
+		var half := 0.75 + 0.6 + radius
+		var off := local.x - w * 0.5
+		if absf(off) < half and local.z < 0.3 + radius and local.z > -2.0 - radius:
+			local.x = w * 0.5 + (half + 0.05) * (1.0 if off >= 0.0 else -1.0)
+			local.z = maxf(local.z, -0.75)  # against the wall, out of the way along the walk
+			return t * local
+	return at
+
+
+static func _on_flight(at: Vector3, radius := 0.6) -> bool:
 	for path: String in TownLayout.nodes():
 		var e: Dictionary = TownLayout.nodes()[path]
 		var steps: Array = e.get("steps", (e.get("set", {}) as Dictionary).get("steps", []))
@@ -322,17 +353,18 @@ func _folk() -> void:
 		brain.name = "Brain"
 		brain.post = post_of(f)
 		brain.faces = TownLayout.carry(f[1]) * (f[2] as Vector3)
-		brain.rest_pose = f[3]
+		# Moved out of a doorway, a man who sat on the bench there stands (the bench is left out).
+		brain.rest_pose = f[3] if brain.post.is_equal_approx(TownLayout.carry(f[1]) * (f[1] as Vector3)) else &"stand"
 		man.add_child(brain)
 		add_child(man)
 		man.global_position = brain.post
 		man.face(brain.faces)
-		man.set_pose(f[3])
+		man.set_pose(brain.rest_pose)
 
 
 ## Where a townsman of FOLK stands on the street as it is now (his post, carried with his building).
 static func post_of(f: Array) -> Vector3:
-	return TownLayout.carry(f[1]) * (f[1] as Vector3)
+	return out_of_doorway(TownLayout.carry(f[1]) * (f[1] as Vector3), 0.3)
 
 
 ## A plain porch bench: a plank seat on two legs each end, 0.45 m high.

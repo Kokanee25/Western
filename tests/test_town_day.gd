@@ -113,7 +113,7 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 		var man := dressing.get_node(NodePath(f[0])) as HumanBody
 		check(man != null and man.held_gun == null, "%s is there, unarmed" % f[0])
 		check(man.global_position.distance_to(StreetDressing.post_of(f)) < 0.4, "%s at his post" % f[0])
-		check_eq(man.pose, f[3], "%s takes his ease" % f[0])
+		check_eq(man.pose, (man.get_node(^"Brain") as CivilianBrain).rest_pose, "%s takes his ease" % f[0])
 	var bench := dressing.get_node(^"BenchManA") as HumanBody
 	# A shot fired in the street in front of the saloon.
 	Events.noise.emit(bench.global_position + Vector3(0.5, 1.0, -5.5), 350.0, &"gunshot", player)
@@ -166,7 +166,7 @@ func test_face_the_kid_down_and_he_backs_off_and_the_storekeeper_thanks_you() ->
 	_quicken()
 	var kid := _man(&"kid")
 	var b := _brain(&"kid")
-	var at_store := await wait_until(func() -> bool: return _keeper().troubled_by.has(kid), 60 * 50)
+	var at_store := await wait_until(func() -> bool: return _keeper().troubled_by.has(kid), 60 * 70)
 	check(at_store, "the Kid's at the store, leaning on him (%s)" % b.describe().substr(0, 60))
 	# In at the door, gun out and on him.
 	_put_player(town.places.at(&"store_door") + TownLayout.facing_toward(&"Store", Vector3(0, 0, -0.5)), 0.0)

@@ -169,7 +169,7 @@ static func test_street() -> Waypoints:
 	var w := Waypoints.new()
 	# Main Street, east to west down the middle (config/town.json: Freight Street at the east end,
 	# Market Street at the west, the road out west beyond it).
-	w.add(&"west_edge", Vector3(-60, 0, -9))
+	w.add(&"west_edge", Vector3(-50, 0, -9))
 	w.add(&"street_west", Vector3(-20, 0, -9), [&"west_edge"])
 	w.add(&"street_mid", Vector3(0, 0, -9), [&"street_west"])
 	w.add(&"street_east", Vector3(20, 0, -9), [&"street_mid"])
@@ -183,7 +183,7 @@ static func test_street() -> Waypoints:
 	w.add(&"store_front", store.call(sx, 0, -7.0), [&"street_mid", &"street_west"])
 	w.add(&"store_steps", store.call(sx, 0, -3.4), [&"store_front"])
 	w.add(&"store_landing", store.call(sx, floor_top, -1.2), [&"store_steps"])
-	w.add(&"store_porch", store.call(sw * 0.5, floor_top, -1.2), [&"store_landing"])
+	w.add(&"store_porch", store.call(sw * 0.5, floor_top, -1.5), [&"store_landing"])
 	w.add(&"store_door", store.call(sw * 0.5, floor_top, 0.9), [&"store_porch"])
 	w.add(&"store_counter", store.call(sw - 1.85, floor_top, 3.7), [&"store_door"])
 	w.add(&"store_aisle", store.call(sw * 0.5, floor_top, 6.3), [&"store_door", &"store_counter"])
@@ -198,7 +198,8 @@ static func test_street() -> Waypoints:
 	w.add(&"saloon_front", saloon.call(lx, 0, -7.0), [&"street_mid", &"street_east"])
 	w.add(&"saloon_steps", saloon.call(lx, 0, -3.4), [&"saloon_front"])
 	w.add(&"saloon_landing", saloon.call(lx, floor_top, -1.2), [&"saloon_steps"])
-	w.add(&"saloon_porch", saloon.call(5, floor_top, -1.5), [&"saloon_landing"])
+	# Along the walk from the store's door to the saloon's (they stand side by side).
+	w.add(&"saloon_porch", saloon.call(5, floor_top, -1.5), [&"saloon_landing", &"store_porch"])
 	w.add(&"saloon_door", saloon.call(5, floor_top, 0.9), [&"saloon_porch"])
 	w.add(&"saloon_floor", saloon.call(6.0, floor_top, 3.5), [&"saloon_door"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.

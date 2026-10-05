@@ -28,7 +28,7 @@ func before_each() -> void:
 	player.velocity = Vector3.ZERO
 	await physics_frames(5)
 	var eye := player.camera.global_position
-	player.add_look(Vector2(0, rad_to_deg(atan2(1.22 - eye.y, 30.0 - eye.x)) - player.get_pitch_degrees()))
+	player.add_look(Vector2(0, rad_to_deg(atan2(1.22 - eye.y, street.get_node(^"TargetBoard").global_position.x - eye.x)) - player.get_pitch_degrees()))
 
 
 func after_each() -> void:

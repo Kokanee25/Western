@@ -224,7 +224,7 @@ ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
-from north (−Z, the saloon's side of the street), east +X. Example:
+from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
 python3 tools/bridge.py start --size=960x540
@@ -420,7 +420,19 @@ a few views renders them as the full run does.
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
   in its space and moves with it. `TownLayout.transform_of(path)` / `point(building, local)` give
   the same places to code with no scene (`Waypoints.test_street()` puts the store's and saloon's
-  insides through it). Move a building: change its entry.
+  insides through it). Move a building: change its entry. Since Main Street step 2 the file is
+  Sean's map (`docs/concept/town-map.png`): Main Street along X, west −X toward the sunset; the
+  south side (fronts on z 0) from the east the saloon, the store, the barber, Market Street, the
+  hotel; the north side (fronts on z −16.8) the livery, the jail, the water tower's yard, the
+  assay office; Freight Street crossing at the east end, the range 30 m beyond. A building's
+  boardwalk is up on steps (`Boardwalk.steps`: people and the player come and go by them, the
+  edge elsewhere a step too high). `StreetDressing/<name>` entries are the dressing's façades
+  (it builds them where the layout says, each with its walk). A building's `was` is where it
+  stood on the old street: `TownLayout.carry()` moves what was laid out round it there (the
+  dressing's tables are still in old coordinates) to where it stands now, and the dressing leaves
+  out whatever would stand on steps and moves people out of doorways
+  (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
+  and range views the same way (`_view_move`).
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
