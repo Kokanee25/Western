@@ -2951,3 +2951,22 @@ them differently (the store at night failed alone and passed with the four views
   now asks for the same events exactly, the same people alive and wound counts within one, and
   the broken members within two (or 5%): the seed decides what happens, falling rubble a little
   of what it breaks, and the physics engine isn't bit-repeatable between runs in one process.
+- 2026-10-05 (gameplay): **The second playtest** (`docs/playtests/2026-10-05.md`, build 511: ~50
+  minutes over two games, 26 screenshots; Sean: "have the ai test play"). **Broke:** blacking out
+  costs nothing (six times shot down, each time up four seconds later in the store's corner,
+  "Unhurt.", full blood, once a few metres from the men who shot him); fire with no one fleeing it
+  (one stick and one ignite burnt both sides of the street in ~8 minutes, five townsfolk burnt at
+  their posts without a word, the LIVERY sign and its lantern left hanging over the ashes, a horse
+  calm through it all). **Flat or confusing:** the gang wins every fight before you can act (the
+  Kid three hits from three at 18 m), calling Lyle out with the gun holstered got him shot rather
+  than a duel, rescuers stuck (Brody in the saloon's doorway a minute, Lyle behind the door two
+  minutes calling "Hold on, I got you!"), the range man talks in every fight from out of sight,
+  townsfolk all shout one line in the same tenth of a second; smaller: a blast's wounds not
+  counted on you, the surrendered man's "I'm unarmed!" five times at once, the revolver
+  holstered cocked, stars at golden hour, a hard edge on the backdrop's mountains, two saloons,
+  full night three or four minutes in. **Fun:** the look (the golden-hour street, the saloon
+  bar), the gang robbing the store ("Open the drawer. Slow."), their talk under fire, the Kid
+  dying slowly of a gut shot with his friends trying to reach him, a stray round dropping a man
+  50 m off, a townsman's hat shot off ("He shot my hat clean off!"). Not fixed here: for Sean to
+  choose what's first. Many repeat the first playtest's (the blackout, the doorway, fire).
+
