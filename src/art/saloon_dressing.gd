@@ -15,6 +15,14 @@ class_name SaloonDressing
 
 ## The balcony: its floor's top above the room's floor, and its corner (x from BALCONY_X to the
 ## right-hand wall, z from the front wall to BALCONY_Z).
+## The wall sconces' light: each throws a bright pool on the wall round itself and little further
+## (the painting's room: a dozen lamps, each lighting its own patch of planks), so a steep
+## falloff (2, the inverse square) at more energy than a lamp that lights a room
+## (the blind critic's first point, 2026-10-05: "a dozen lamps each lighting its own patch of
+## wall"; ours were wide and dim, a brown wash with flames floating in it).
+const SCONCE_ENERGY := 1.0
+const SCONCE_FALLOFF := 2.0
+const SCONCE_REACH := 4.0
 const BALCONY_HEIGHT := 2.3
 const BALCONY_X := 8.4
 const BALCONY_Z := 1.9
@@ -330,7 +338,8 @@ static func _props(s: FalseFrontBuilding, props: Node3D, f: float) -> void:
 		var sconce := _place(s, props, &"wall_sconce", p[0], p[1])
 		var light := sconce.get_node_or_null(^"Light") as OilLamp if sconce else null
 		if light:
-			light.energy = 0.6  # many lamps in one room: each a little dimmer
+			light.energy = SCONCE_ENERGY
+			light.attenuation = SCONCE_FALLOFF
 			light.set_meta(&"lamp_group", &"sconce")
 
 
@@ -356,7 +365,8 @@ static func _lamps(s: FalseFrontBuilding, props: Node3D, lamps: Node3D, f: float
 		[Vector3(2.4, f + 2.1, d - sd - 0.02), 180.0], [Vector3(6.8, f + 2.1, d - sd - 0.02), 180.0],
 	]
 	for p in sconces:
-		_lit_prop(s, props, &"wall_sconce", p[0], p[1], 0.45, 4.0)
+		var sconce := _lit_prop(s, props, &"wall_sconce", p[0], p[1], SCONCE_ENERGY, SCONCE_REACH)
+		(sconce.get_node(^"Light") as OilLamp).attenuation = SCONCE_FALLOFF
 	# On the back bar's top shelf, among the bottles.
 	for z in [4.45, 5.55, 7.95]:
 		var lamp := OilLamp.new()

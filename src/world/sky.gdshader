@@ -30,6 +30,10 @@ uniform float low_sun_dim = 0.45;
 // off its neighbours. 0 = smooth.
 uniform float sky_squares = 0.0;
 uniform float sky_mosaic = 0.0;
+// Over 0 only under the surface-blocks look (Settings.surface_blocks, M): there the blocks are the
+// surfaces' own texels and the sky has none, so it's drawn smooth whatever sky_squares says (the
+// blind critic, 2026-10-05_r8: "the sky's squares giant beside surfaces that read smooth").
+global uniform float block_soft;
 // How far the clouds have drifted (DayCycle sends it with the sky's other updates). Not TIME: a
 // sky that reads TIME is re-lit every frame (REALTIME), and that flickered every sky-lit surface.
 uniform float cloud_drift = 0.0;
@@ -76,9 +80,10 @@ float cloud_shape(vec2 p, vec2 band) {
 void sky() {
 	vec3 d = normalize(EYEDIR);
 	vec3 cell_id = vec3(0.0);
-	if (sky_squares > 0.0) {
-		cell_id = floor(d * sky_squares);
-		d = normalize((cell_id + 0.5) / sky_squares);
+	float squares = block_soft > 0.0 ? 0.0 : sky_squares;
+	if (squares > 0.0) {
+		cell_id = floor(d * squares);
+		d = normalize((cell_id + 0.5) / squares);
 	}
 	float h = d.y;
 	vec3 sd = normalize(sun_dir);
@@ -159,6 +164,6 @@ void sky() {
 	float star = step(0.9978, s) * (0.4 + 0.6 * hash(cell + 7.3));
 	col += vec3(star) * star_strength * smoothstep(0.02, 0.25, h);
 
-	col *= 1.0 + (hash(cell_id + 3.1) - 0.5) * 2.0 * sky_mosaic * step(0.5, sky_squares);
+	col *= 1.0 + (hash(cell_id + 3.1) - 0.5) * 2.0 * sky_mosaic * step(0.5, squares);
 	COLOR = col;
 }
