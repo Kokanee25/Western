@@ -258,6 +258,15 @@ settings and the last things that happened; `recording.json`; `godot.log`; `scre
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
 its last frame beside the report's screenshot.
 
+**The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC and by
+hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
+runs the street for hours of game time flat out (~3.4x real time here) with the clock at 30x: the
+gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a fire and a stick
+twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
+anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
+time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
+summary and an artifact.
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2739,6 +2748,12 @@ its last frame beside the report's screenshot.
   real player's) the process-frame timers can drift a little: the replay says where. Shared
   `controls.gd`: `bug_report` on F12, `debug_ignite` lost F12 (L stays). `tools/tour.gd` now puts a
   `.gdignore` in `build/tour` (the editor imported 900 frames).
+\n
+- 2026-10-05 (gameplay, checks 2): **The nightly soak** (layout note under Commands). Tried here:
+  12 game minutes caught a real error on its first run (the bug recorder named a class that isn't
+  declared, so `main.gd` failed to compile; fixed before it merged); then 15 minutes in real time
+  and 10 at a fixed step passed: memory 272 to 279 MB, nodes ~25k, no orphans, 3.4–3.8 ms a frame
+  at a fixed step. Nightly: 240 game minutes, ~70 minutes on a runner.
 - 2026-10-05 (Pixel-factory test session, at Sean's request): **custom men, starting with the
   Kid.** Sean asked how we get custom models now: the stranger's pipeline (paint four views on
   fal, Tripo, the head repaint, `fit_tripo.py`), with Sean making each man's front picture in
