@@ -9,7 +9,10 @@ extends SceneTree
 ## - anyone or any loose piece under the ground or off the map,
 ## - the frame time creeping (the last window's median several times the first's).
 ##
-##   godot --headless -s res://tools/soak.gd -- --minutes=120 --out=build/soak
+##   godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak
+##
+## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
+## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
 ##
 ## Writes <out>/soak.md (the report) and soak.json; exit 1 on any failure. The nightly workflow
 ## (.github/workflows/nightly.yml) runs it.
@@ -82,7 +85,13 @@ func _run() -> void:
 	var next_fight := 150.0
 	var next_check := 1.0
 	var window_end := WINDOW
-	var events := [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]
+	# Every 100 minutes: a fire at 20 and 70, a stick at 30 and 80.
+	var events := []
+	var cycle := 0.0
+	while cycle < _minutes * 60.0:
+		for e in [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]:
+			events.append([cycle + float(e[0]), e[1]])
+		cycle += 6000.0
 	var last := Time.get_ticks_usec()
 	while _t < _minutes * 60.0:
 		await physics_frame

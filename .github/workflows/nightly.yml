@@ -12,7 +12,7 @@ on:
     inputs:
       minutes:
         description: Minutes of game time
-        default: "120"
+        default: "240"
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -53,7 +53,7 @@ jobs:
       - name: Soak
         run: |
           minutes="${{ github.event.inputs.minutes }}"
-          ~/godot/godot --headless -s res://tools/soak.gd -- --minutes="${minutes:-120}" --out=build/soak
+          ~/godot/godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes="${minutes:-240}" --out=build/soak
 
       - name: Report
         if: always()
