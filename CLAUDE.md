@@ -440,6 +440,14 @@ a few views renders them as the full run does.
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
   `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
+  it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
+  is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and
+  the fittings it rests on; a quarter second at a time it looks, and when every member is gone
+  (broken, consumed, moved) and everything it rests on has fallen, it becomes a RigidBody3D in
+  group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
+  more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
+  loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);

@@ -6,6 +6,17 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: what hangs on a wall comes down with it
+
+- **Lamps, signs and everything else fall when what holds them goes.** A sconce on a wall, a
+  picture, the stag, the bottles on the back bar, a lantern on a post, a lamp on a table, a chair
+  on a floor, a barrel on a boardwalk: when the boards they're on burn away or are blown out, they
+  drop (no more lamps hanging in the air over the ashes). Whatever stood on a fallen thing follows
+  it. A lit lamp that lands hard breaks and spills its burning oil, so a burning building's lamps
+  spread its fire.
+- **Try:** at night, light the saloon's back wall (L where you look) and watch its sconces as the
+  boards go; or blow a hole in the store's wall by its lamp.
+
 ### New: Main Street laid out to your map
 
 - **The street is your map's now.** Looking west down Main Street into the sunset: on the left
