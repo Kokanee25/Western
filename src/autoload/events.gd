@@ -52,6 +52,8 @@ signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
 ## Hours went by in a moment (the clock jumped: you were out cold, `why` &"out_cold"). Whatever
 ## runs on time catches up roughly: a fight is over, the gang's day is done, frights fade.
 signal hours_passed(hours: float, why: StringName)
+## Water thrown on a fire: where, how much (litres), and how many burning members it put out.
+signal doused(at: Vector3, litres: float, put_out: int)
 
 
 func _ready() -> void:

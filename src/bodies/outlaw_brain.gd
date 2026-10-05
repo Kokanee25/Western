@@ -298,7 +298,7 @@ const NEAR := 12.0
 static func _armed(who: Node) -> bool:
 	if who is Player:
 		var w := (who as Player).weapon
-		return w != null and w.selected and w.drawn
+		return w != null and w.armed and w.selected and w.drawn
 	if who is HumanBody:
 		var h := who as HumanBody
 		return h.held_gun != null and not h.gun_holstered
