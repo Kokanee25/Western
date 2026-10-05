@@ -54,6 +54,10 @@ func _initialize() -> void:
 			_stop_at = int(a.substr(9))
 		elif a.begins_with("--start="):
 			_frame = int(float(a.substr(8)) * FPS)
+	# Its frames go in build/tour: a .gdignore there keeps the editor from importing 900 PNGs.
+	DirAccess.make_dir_recursive_absolute("res://build/tour")
+	if not FileAccess.file_exists("res://build/tour/.gdignore"):
+		FileAccess.open("res://build/tour/.gdignore", FileAccess.WRITE).store_string("")
 	var settings := root.get_node(^"Settings")
 	settings.autosave = false
 	if render != Vector2i.ZERO:

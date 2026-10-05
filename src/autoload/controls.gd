@@ -37,7 +37,8 @@ func _ready() -> void:
 	_bind(&"debug_xray", [KEY_F10], [])
 	# Letters too: in a browser F11 is full screen and F12 opens the developer tools.
 	_bind(&"debug_break", [KEY_F11, KEY_K], [])
-	_bind(&"debug_ignite", [KEY_F12, KEY_L], [])
+	_bind(&"debug_ignite", [KEY_L], [])
+	_bind(&"bug_report", [KEY_F12], [])  # save a bug report (BugRecorder; controller: Back + Y)
 	_bind(&"debug_wound", [KEY_J], [])
 	_bind(&"toggle_gore", [KEY_F4], [])
 	# The guns.

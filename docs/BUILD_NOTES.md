@@ -6,6 +6,14 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: F12 saves a bug report
+
+- **When something goes wrong, press F12** (controller: hold Back, press Y). It saves one file
+  with a screenshot, the last stretch of play as a recording I can replay exactly, the log, the
+  build and where you were. The message on screen says where it went (on Windows,
+  `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`). Send me the file. Setting fire to
+  what you look at is **L** only now.
+
 ### New: a tour of every build on your phone
 
 - **https://kokanee25.github.io/Western/tour/** plays a 30-second camera tour of the latest
