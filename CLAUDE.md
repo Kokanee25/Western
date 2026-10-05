@@ -3271,3 +3271,18 @@ a few views renders them as the full run does.
   - Next: step 3, the telegraph, doctor and bank, the well behind the jail (a water source), the
     corral.
 
+- 2026-10-05 (gameplay): **What hangs on a wall comes down with it** (Sean: "have we fixed lamps
+  and stuff floating in air after the wall they were attached to burn down?"). `Fittings` (layout
+  note above, a node at the end of `scenes/test_street.tscn`): 146 fittings in the street (22
+  sconces, the bottles and lamps of the back bar, pictures, the stag, chairs and tables on floors,
+  barrels and lanterns on the walks, the porch lanterns), none falling at load; with every member
+  of the saloon burnt away, 68 come down, none under the ground. A lit lamp landing hard smashes
+  and spills its oil, so a burning building's lamps spread its fire. Tests `test_fittings` (3: a
+  lit lamp on a wall falls when the board goes, breaks and spills; a barrel on the ground is left
+  alone; the street's lamps and sconces are found). `test_dynamite`'s throw at the store now asks
+  that it lands at the front and breaks things there: on the raised walk the siding breaks or not
+  by where the stick comes to rest (0 to 23 timber in trials, with or without fittings; the
+  siding's own test covers the boards). The goldens of the views where things break or burn
+  re-approved (the porch's collapse lands differently with what was on it falling too).
+  - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
+    when it does; a fallen lamp's light stays lit unless it breaks.
