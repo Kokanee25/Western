@@ -69,6 +69,9 @@ played by an agent before it reaches him.
    **Done 2026-10-05:** `tools/critic.py`; first round `docs/screenshots/judge/2026-10-05_r1/critic/`.
 3. **Golden images** for every fixed view (CLAUDE.md rule), with the gameplay session wiring the
    check into CI.
+   **Done 2026-10-05:** `docs/screenshots/golden/` (70 views, each view's tolerance from its
+   run-to-run noise) and the visual checks (`tools/visual_checks.py`, `tools/scene_probe.gd`, from
+   `docs/briefs/automated-checks.md`); the CI wiring is gameplay's.
 4. **A brief per big job** in `docs/briefs/` (CLAUDE.md rule).
 
 ## Done when

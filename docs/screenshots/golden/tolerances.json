@@ -103,6 +103,30 @@
   },
   "share": 0.01
  },
+ "kid_close": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.004,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
+ "kid_hands_up": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.009,
+   "share": 0.0003
+  },
+  "share": 0.01
+ },
+ "kid_street": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.003,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
  "look_down_body": {
   "mean": 1.5,
   "noise": {

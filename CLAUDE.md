@@ -2879,3 +2879,27 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
     `Structure._snap` finds its mesh and shape by type and does nothing for a member burnt away; a
     shattered pane falls as nothing; a clump with no working shape isn't kept; rubble more than 5 m
     under the ground is removed with a warning (`LOST_BELOW`). `tests/test_rubble.gd` (3).
+- 2026-10-05 (art session, later): **Golden images and the visual checks** (review tools, art
+  item 3; gameplay's `docs/briefs/automated-checks.md` asked for the visual checks). Every fixed
+  view in `tools/screenshots.gd` has its golden in `docs/screenshots/golden/` (70: the 67 views
+  and main's three Kid views, rendered here twice under lavapipe; `tolerances.json` is three
+  times each view's run-to-run noise, floor 1.5 / 1 %: a still is at the floor, a scenario with
+  the gang or smoke in it is loose, the town fights and `texel_*` views at a mean of 120–465, the
+  saloon shot's extras at 58). **The visual checks** (layout note above: `tools/scene_probe.gd`,
+  `tools/visual_checks.py`, limits and known faults in `tools/visual_checks.json`): on the
+  goldens' pair of renders and a fresh probe, 367 checks, none failed, one warn (a bottle on a
+  shelf with no collision). Found on the way and fixed: two views rendered black
+  (`smoke_drift_street`: the range outlaw shot the player; `texel_porch`: the gang did), so
+  `screenshots.gd` keeps the gang out of the fixed views (`gang_arrives` far off, `_calm()`
+  frees them and heals the player between non-town views); a telegraph pole through the jail's
+  boardwalk (`StreetDressing`, z −13.4). Known, recorded in `visual_checks.json` as tolerated at
+  today's value: the shirt shows through the coat by about a centimetre on every BodyMesh man in
+  a coat (14–16 % of the shirt near it; characters session, `body_mesh.gd`), and the seated
+  stranger's left sole is 11 cm under the saloon floor (below the frame in the shot; the seat
+  is ShotMatch's, his legs the fit's). For the look panel, `lamp_group` metas on the saloon's
+  and street's lamps and the shot's table lamp, `model_name` on the street's folk. Shared
+  `tools/screenshots.gd` (my lines). 318 tests pass (`test_composure`'s settle test fails only
+  under a loaded machine: three renders ran beside the suite; alone it passes).
+  - CI (gameplay's wiring, told to it): `apt-get install mesa-vulkan-drivers xvfb`, render the
+    views twice (`golden_check.py --render --out=A`, then `--out=B`), `scene_probe.gd`, then
+    `golden_check.py --from=A` and `visual_checks.py --from=A --twin=B --probe=PDIR`.
