@@ -40,7 +40,8 @@ func _apply_settings() -> void:
 	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
 	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
-	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
+	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic and not Settings.probe_mosaic, Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
+	ProbeMosaic.apply(game_viewport.get_camera_3d(), Settings.probe_mosaic, Settings.probe_texels, Settings.probe_cell, Settings.probe_bands)
 	_layout()
 
 
@@ -92,3 +93,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_mosaic(not Settings.mosaic)
 	elif event.is_action_pressed(&"debug_quantise"):
 		Settings.set_quantise_once(not Settings.quantise_once)
+	elif event.is_action_pressed(&"debug_probe_mosaic"):
+		Settings.set_probe_mosaic(not Settings.probe_mosaic)

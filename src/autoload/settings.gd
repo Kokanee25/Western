@@ -61,6 +61,16 @@ var finish := false
 var mosaic := true
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
+## The probe mosaic (src/render/probe_mosaic.gdshader, ProbeMosaic; a trial, M toggles, not saved):
+## the frame in blocks fixed to the world by direction from an origin snapped to a grid (texel
+## splatting's idea as one pass over the frame), so they stay put when you turn and walk. It
+## replaces the screen mosaic while it's on, and wants the quantise-once textures under it (M
+## turns those on with it). probe_texels: texels a cube face (384: 3.5 px blocks at the saloon
+## shot's lens, 1280x720); probe_cell: metres between origins; probe_bands: OKLab light bands.
+var probe_mosaic := false
+var probe_texels := 384.0
+var probe_cell := 0.5
+var probe_bands := 14.0
 ## Degrees of turn per mouse count.
 var mouse_sensitivity := 0.1
 ## Degrees per second at full stick deflection.
@@ -215,6 +225,16 @@ func set_mosaic(on: bool) -> void:
 	_changed()
 
 
+## M: the probe mosaic trial on or off. It looks as meant over the quantise-once textures, so
+## turning it on turns those on too (the scene reloads the first time); off leaves them as they are.
+func set_probe_mosaic(on: bool) -> void:
+	probe_mosaic = on
+	if on and not quantise_once:
+		set_quantise_once(true)
+	else:
+		_changed()
+
+
 func cycle_texel_density() -> void:
 	var presets := PixelArt.DENSITY_PRESETS
 	var i := 0
@@ -231,7 +251,8 @@ func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
 	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s%s" % [res, int(texels_per_meter),
 			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic else "off", "on" if finish else "off",
-			"on" if pixel_shading else "off", " · quantise once" if quantise_once else ""]
+			"on" if pixel_shading else "off", " · quantise once" if quantise_once else ""] \
+			+ (" · probe mosaic %d texels, %.2f m" % [int(probe_texels), probe_cell] if probe_mosaic else "")
 
 
 func set_tile_look(look: StringName) -> void:

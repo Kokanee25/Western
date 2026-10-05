@@ -94,6 +94,7 @@ func _run() -> void:
 	var window_shot := false
 	var screen_squares := 0.0
 	var mosaic_steps := 14.0
+	var probe_debug := 0
 	var view_tune := {}
 	var suffix := ""
 	var settings = root.get_node(^"Settings")
@@ -151,6 +152,19 @@ func _run() -> void:
 			# min_square off. --mosaic-tune after it replaces the knobs.
 			settings.set_quantise_once(true)
 			screen_squares = 6.0
+		# The probe mosaic trial (src/render/probe_mosaic.gd): --probe-mosaic[=texels a cube face],
+		# --probe-cell=metres, --probe-bands=n, --probe-debug=1|2 (the block grid; the reprojection
+		# check). It brings the quantise-once textures with it (Settings.set_probe_mosaic).
+		elif arg.begins_with("--probe-mosaic"):
+			if arg.begins_with("--probe-mosaic="):
+				settings.probe_texels = float(arg.substr(15))
+			settings.set_probe_mosaic(true)
+		elif arg.begins_with("--probe-cell="):
+			settings.probe_cell = float(arg.substr(13))
+		elif arg.begins_with("--probe-bands="):
+			settings.probe_bands = float(arg.substr(14))
+		elif arg.begins_with("--probe-debug="):
+			probe_debug = int(arg.substr(14))
 		elif arg.begins_with("--mosaic-tune="):
 			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
 		# The same knobs for one shot only, laid over the mosaic's tuning when that view is staged
@@ -176,8 +190,11 @@ func _run() -> void:
 	var viewport: SubViewport = main.get_node(^"GameViewport")
 	var clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 	var player = main.get_node(^"GameViewport/TestStreet/Player")
-	if screen_squares > 0.0:
+	if screen_squares > 0.0 and not settings.probe_mosaic:
 		load("res://src/render/depth_mosaic.gd").attach(player.camera, screen_squares, mosaic_steps)
+	var probe = player.camera.get_node_or_null(^"ProbeMosaic")
+	if probe and probe_debug > 0:
+		(probe.material_override as ShaderMaterial).set_shader_parameter(&"debug", probe_debug)
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	# The gang rides in by itself 45 s into a run (TownLife.gang_arrives): in a long render they

@@ -89,6 +89,10 @@
     {"name": "Squares", "items": [
       {"key": "settings.mosaic", "label": "Screen mosaic (O)", "kind": "bool", "what": "The screen mosaic."},
       {"key": "settings.quantise_once", "label": "Quantise once (I)", "kind": "bool", "what": "Every pre-blocking step off, the mosaic refined (reloads the scene)."},
+      {"key": "settings.probe_mosaic", "label": "Probe mosaic (M, trial)", "kind": "bool", "what": "Blocks fixed to the world by direction from a grid-snapped point (texel splatting's idea); brings quantise once with it."},
+      {"key": "settings.probe_texels", "label": "Probe texels a face", "min": 128, "max": 768, "step": 32, "what": "Cube texels a face: 384 gives 3.5 px blocks at the saloon shot's lens at 720p; fewer = bigger blocks."},
+      {"key": "settings.probe_cell", "label": "Probe spacing (m)", "min": 0.25, "max": 2.0, "step": 0.05, "what": "Metres between the points the blocks are cut from: bigger = fewer re-cuts as you walk, more stretch up close."},
+      {"key": "settings.probe_bands", "label": "Probe light bands", "min": 0, "max": 32, "step": 1, "what": "Lightness bands in OKLab (0 = smooth)."},
       {"key": "settings.tile_look", "label": "Tiles (P)", "kind": "choice", "options": ["off", "square", "ragged"], "what": "Light per texel, ragged tile edges, or smooth light."},
       {"key": "settings.finish", "label": "Finish pass", "kind": "bool", "what": "Softens a render pixel on hard block edges."},
       {"key": "global.min_square_px", "label": "Smallest square (px)", "min": 0, "max": 8, "what": "The smallest square a texel may draw on screen; 0 = off."},
