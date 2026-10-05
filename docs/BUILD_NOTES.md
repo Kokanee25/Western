@@ -6,6 +6,14 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### A playtester played it first
+
+- Before this build reached you, an agent that hadn't seen the code played it for about 70
+  minutes and wrote up what it found: `docs/playtests/2026-10-04.md` (with screenshots). The short
+  of it: the look and the gang's talk and teamwork are the best of it; fights are over in a second
+  or two and blacking out heals you completely; Brody and Lyle can get stuck in the saloon's door
+  frame; townsfolk don't run from fire. **Tell me which of its top three to fix first.**
+
 ### The native plugin: step 1 of the destruction plan
 
 - **A native plugin is in the build** (`addons/saltcreek_native`, Rust, built for Windows, Mac and

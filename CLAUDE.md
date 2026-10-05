@@ -214,6 +214,12 @@ python3 tools/bridge.py "time 17.6" "goto street_east" "look saloon_porch" "scre
 python3 tools/bridge.py stop
 ```
 
+**The playtest** (`tools/playtest.md`, its instructions; `tools/playtest.py start|shot NAME|stop`):
+a fresh sub-agent that hasn't read the code plays the game through the bridge (it's told not to
+open the code or the design) and writes `docs/playtests/<date>.md` with its screenshots in
+`docs/playtests/<date>/`: what broke, what was flat or confusing, what was fun, the top three.
+Start it with the Agent tool: "read tools/playtest.md and follow it; don't read the code".
+
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
 - `src/render/` — **one per-texel lighting system for the world, people and props:**
@@ -2449,3 +2455,19 @@ python3 tools/bridge.py stop
   trigger clicked and the left barrel never fired unless you cocked twice; `ShotgunState.cock()`
   now takes a hammer over a loaded barrel first (test `test_shotgun::
   test_with_the_right_fired_the_next_hammer_is_the_left`). Tests `test_dev_bridge` (4). 305 pass.
+- 2026-10-04 (gameplay, review tools 3): **The playtest agent, and its first report**
+  (`docs/playtests/2026-10-04.md`: ~70 minutes over two runs, 20 screenshots). It played blind
+  through the bridge (`tools/playtest.md`, `tools/playtest.py`); the bridge now lets the game run
+  up to 40 physics ticks a drawn frame so game time keeps up with real time at lavapipe's ~1 fps,
+  waits for drawn frames after a key (a throw happened after the next command's turn), says
+  `clicked` when the hammer fell on nothing and `knocked_out` when a walk ends in a blackout, has
+  `release`, and logs your own blackouts. **What it found** (for Sean, not fixed here): fights are
+  decided in a second or two (the gang hits first, two or three times, and you're out; three of
+  four fights ended with the player out cold, two before he fired), blacking out heals everything
+  in seconds with nothing said; Brody and Lyle stood inside the saloon's door frame at one spot for
+  the rest of a run, never firing back; a surrendered man floated off the porch; one ignite burnt
+  the south side in ~90 s and five townsfolk burnt at their posts (nobody flees fire); shooting a
+  surrendered man got no reaction; surrendered men keep their guns and stand forever; two sticks
+  barely marked the barber's; the townsfolk say the same lines in the same second; stars at golden
+  hour; light through the store's wall corners. The look, the gang's talk and their teamwork were
+  the high points.
