@@ -839,6 +839,16 @@ def build_blender(person):
             for b, w in enumerate(src.W[old_i]):
                 if w > 0.001:
                     obj.vertex_groups[b].add([new_i], float(w), "REPLACE")
+        # Welded first: Tripo's atlas cuts him into hundreds of UV islands, and the points along
+        # every seam came in twice; decimated apart, the two sides stopped meeting and every seam
+        # opened into a crack (the Kid's skin had ~3,900 open edges, the stranger's ~4,800). One
+        # point a place, the UVs stay on the face corners.
+        import bmesh
+        bm = bmesh.new()
+        bm.from_mesh(mesh)
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+        bm.to_mesh(mesh)
+        bm.free()
         tris_now = len(mesh.polygons)
         mod = obj.modifiers.new("decimate", "DECIMATE")
         mod.ratio = min(1.0, budget / max(tris_now, 1))

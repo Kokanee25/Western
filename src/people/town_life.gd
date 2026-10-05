@@ -25,7 +25,7 @@ const GANG := [
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
 	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
-	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2",
+	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"kid",
 			"shirt": Color(0.62, 0.62, 0.56), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.45, 0.38, 0.28)},
 ]
 
@@ -95,6 +95,7 @@ func bring_gang(only: Array = []) -> void:
 		man.shirt_color = g.shirt
 		man.coat_color = g.coat
 		man.hat_color = g.hat
+		man.body_model = g.get("model", man.body_model)
 		var brain := OutlawBrain.new()
 		brain.name = "Brain"
 		brain.temper = g.temper

@@ -2504,3 +2504,36 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   his (young, freckled, no hat, soft even light); `fit_tripo.py` takes a layered man's repaint
   from his model's `<model>_color.png`. Both art files, a few lines each. Waiting on Sean's
   look before Tripo (`characters: kid_body,kid_hat`, ~85 credits as the stranger's took).
+  Sean: "keep this one" (the legs and torso looked short to him). Tripo built both (People run
+  43); fitting him showed why, and what else was wrong, all fixed in `tools/blender/fit_tripo.py`
+  (the art session's pipeline, said here), for bare-headed (layered) men only unless noted, so
+  the stranger at the card table is unchanged: **(1) above his shoulders**: Tripo's auto-rig puts
+  the neck joint at the shoulder line and the head joint half way up the neck (the Kid's at 0.76
+  and 0.81 of his height, his chin 0.86), ours 4 and 13 cm over our shoulders, so joint to joint
+  lifted his shoulders to his jaw; now his shoulders go onto ours and all of him above them is
+  scaled as one, his crown on our skull's top plus `HAIR_M` 2 cm, which also sizes a big drawn
+  head to our skull (on the old rule the stranger's head is half as big again as the hitboxes in
+  it); nothing past a bone's ends is stretched as the bone; **(2) hair** above his head joint is
+  head however far it sticks out (a strand had stood 11 cm off his head); **(3) Tripo's scraps**
+  (every man): small pieces joined to nothing, away from him (two flat patches beside his hands)
+  are dropped, a boot's own sole kept; **(4) fingers** touching a thigh go with the hand
+  (`FINGER_REACH`); **(5) the hat** is levelled (Tripo built it tipped 15°) and sized by its crown
+  (`CROWN_SHARE`; the curled brim had made it a toy hat); **(6) arms fused to his sides**: the
+  hatless redraw had pulled his arms in (11° where Sean's front has 40°) and Tripo fused them on,
+  so hands up and aiming tore sheets and strings off him (the layered stranger too); a `from`
+  piece with `keep_pose` is now a short edit keeping the front's pose (`paint_full_length.py`
+  `ASK_EDIT`; run 44: arms out 25°, Tripo again, run 45), and the fit cuts what still joins parts
+  that move apart (`cut_bridges`, `BRIDGE_SHOULDER`) and caps each side of the cut on its own part
+  (`close_cuts`: his side and the inside of his arm stay whole under raised arms); **(7) cracks**
+  (every man): the Blender build split his points along every texture seam and decimated each side
+  apart (the Kid's skin ~3,900 open edges, the stranger's ~4,800: the white slits on both); welded
+  first now, 192. His head painted in the style and baked (People run 46: the style model ages his
+  face in the paintings, but on him he reads young). `assets/people/kid.glb` (1.815 m, 5,500 +
+  2,200 + a 700-triangle hat piece); `people.json` `kid`; the gang's Kid wears him in the game
+  (`src/people/town_life.gd`, gameplay's file, two lines: a `model` in his GANG entry). New tool
+  `tools/people_lineup.gd` (men side by side, orthographic, in poses; `--head` close): the check
+  before a fitted man goes in, `docs/screenshots/tripo/kid_lineup.png`, `kid_head.png`. Tests:
+  bodies 21, hat 3, town day 11, perf 2 pass. Known: hands up, the caps on his sides are flat and a
+  shade off his shirt; the hat's texture is Tripo's (not repainted in the style); the stranger and
+  `stranger_layered` aren't re-fitted (the weld would close the stranger's cracks: one command,
+  `fit_tripo.py --only=stranger`, the art session's call as his shot is judged).

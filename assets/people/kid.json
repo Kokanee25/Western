@@ -22,7 +22,7 @@
  "faces_before_finger_cut": 224912,
  "faces_after_finger_cut": 217796,
  "texture": {
-  "from": "tripo",
+  "from": "kid_body_color.png",
   "size": [
    1024,
    1024
@@ -31,7 +31,7 @@
  },
  "triangles": {
   "skin": 5500,
-  "head": 2200,
+  "head": 2199,
   "hat": 700
  }
 }

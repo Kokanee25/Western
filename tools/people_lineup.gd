@@ -4,7 +4,7 @@ extends SceneTree
 ## straight) from the front, the side and three-quarters. Writes <out>/<pose>_<view>.png.
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd -- --out=DIR
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
-##   [--poses=stand,hands_up,aim] (HumanBody.POSES)
+##   [--poses=stand,hands_up,aim] (HumanBody.POSES) [--head] (their heads close: the paint)
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -16,6 +16,7 @@ func _run() -> void:
 	var out := "/tmp/people_lineup"
 	var ids := ["outlaw", "kid"]
 	var poses := ["stand", "hands_up", "aim"]
+	var close := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
@@ -23,9 +24,13 @@ func _run() -> void:
 			ids = Array(a.substr(6).split(","))
 		elif a.begins_with("--poses="):
 			poses = Array(a.substr(8).split(","))
+		elif a == "--head":
+			close = true
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
-	vp.size = Vector2i(400 * ids.size(), 900)
+	# Close (--head): a square of 0.42 m a man, the men that far apart.
+	var spacing := 0.42 if close else 0.85
+	vp.size = Vector2i(500 * ids.size(), 500) if close else Vector2i(400 * ids.size(), 900)
 	vp.own_world_3d = true
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(vp)
@@ -54,16 +59,16 @@ func _run() -> void:
 		m.person_id = StringName(String(ids[i]) + "_lineup")
 		m.rng_seed = 7 + i
 		w.add_child(m)
-		m.global_position = Vector3((i - (ids.size() - 1) * 0.5) * 0.85, 0.0, 0.0)
+		m.global_position = Vector3((i - (ids.size() - 1) * 0.5) * spacing, 0.0, 0.0)
 		men.append(m)
 	for f in 12:
 		await physics_frame
 	var cam := Camera3D.new()
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
-	cam.size = 2.3
+	cam.size = 0.42 if close else 2.3
 	w.add_child(cam)
 	cam.current = true
-	cam.position = Vector3(0, 1.0, 8)
+	cam.position = Vector3(0, 1.62 if close else 1.0, 8)
 	for pose in poses:
 		for view in ["front", "side", "three_quarter"]:
 			var to := Vector3(0, 0, 5)
@@ -78,7 +83,7 @@ func _run() -> void:
 			for f in 8:
 				await physics_frame
 			await RenderingServer.frame_post_draw
-			var path := "%s/%s_%s.png" % [out, pose, view]
+			var path := "%s/%s%s_%s.png" % [out, "head_" if close else "", pose, view]
 			vp.get_texture().get_image().save_png(path)
 			print("wrote ", path)
 	quit()
