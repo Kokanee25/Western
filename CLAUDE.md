@@ -2898,8 +2898,11 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   stranger's left sole is 11 cm under the saloon floor (below the frame in the shot; the seat
   is ShotMatch's, his legs the fit's). For the look panel, `lamp_group` metas on the saloon's
   and street's lamps and the shot's table lamp, `model_name` on the street's folk. Shared
-  `tools/screenshots.gd` (my lines). 318 tests pass (`test_composure`'s settle test fails only
-  under a loaded machine: three renders ran beside the suite; alone it passes).
+  `tools/screenshots.gd` (my lines). 318 tests pass. Found by this merge's CI: `test_composure`'s
+  settle test failed in the suite and passed alone, because the player's revolver seeds its
+  misfires from its node path's hash and the test world's node names count up with everything
+  made before it, so the shot was a misfire lottery; gameplay's `tests/test_composure.gd` turns
+  misfires off (two lines, said here).
   - CI (gameplay's wiring, told to it): `apt-get install mesa-vulkan-drivers xvfb`, render the
     views twice (`golden_check.py --render --out=A`, then `--out=B`), `scene_probe.gd`, then
     `golden_check.py --from=A` and `visual_checks.py --from=A --twin=B --probe=PDIR`.

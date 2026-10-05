@@ -30,6 +30,11 @@ func before_each() -> void:
 	gun.tuning = gun.tuning.duplicate()
 	gun.tuning.spread_aim_degrees = 0.0
 	gun.tuning.spread_hip_degrees = 0.0
+	# No misfires: the state's RNG is seeded by the node path's hash, and the test world's node
+	# names count up with everything created before it, so a shot could misfire in the suite and
+	# fire alone (2026-10-05: it did).
+	gun.tuning.misfire_chance = 0.0
+	gun.state.tuning = gun.tuning
 	shot_dirs.clear()
 	Events.shot_fired.connect(_on_shot)
 	await physics_frames(5)
