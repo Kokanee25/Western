@@ -2858,3 +2858,9 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
   frames in 30 s, 14 people, no errors; drawn under lavapipe 24 frames (at 1280x720 it was 20, so
   the bar is 10 frames: it asks only that the build runs and draws). The first run on Windows and
   macOS runners is this merge's build.
+  - With it, a fix the first nightly soak found on CI (30 game minutes, run by hand): after the
+    livery burnt, a piece of rubble fell through the ground for good (y −6 to −388 in ten seconds),
+    and a member already burnt away was snapped (`get_child` out of range, `queue_free` on null).
+    `Structure._snap` finds its mesh and shape by type and does nothing for a member burnt away; a
+    shattered pane falls as nothing; a clump with no working shape isn't kept; rubble more than 5 m
+    under the ground is removed with a warning (`LOST_BELOW`). `tests/test_rubble.gd` (3).
