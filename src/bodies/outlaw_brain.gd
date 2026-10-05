@@ -236,6 +236,7 @@ func _ready() -> void:
 	Events.exploded.connect(_on_exploded)
 	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, who: Node) -> void: if who == _find_target(): _quiet = 0.0)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: fear += amount * 0.6)
+	Events.hours_passed.connect(_on_hours_passed)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
 	_gun_sound.unit_size = 25.0
@@ -931,6 +932,28 @@ func _answer_call_out(caller: Node) -> void:
 		_step_started = false
 	else:
 		say(&"refuse")
+
+
+## Hours went by while you were out cold: whatever fight there was is over. A town man (one with
+## a day's plan) who can still walk and hasn't given himself up has had his day and gone; the
+## rest stand down where they are.
+func _on_hours_passed(_hours: float, _why: StringName) -> void:
+	if not body.physiology.alive:
+		return
+	for who in relations.entries.keys():
+		if is_instance_valid(who) and relations.stance(who) == Relations.Stance.FIGHT:
+			relations.stand_down(who)
+	if mood in [Mood.SURRENDERED, Mood.DOWN, Mood.DEAD]:
+		return
+	target = null
+	tactic = Tactic.OPEN
+	fear = 0.0
+	_set_mood(Mood.CALM)
+	_after_fight()
+	if places and body.physiology.can_stand() and not body.limp and not body.prone:
+		agenda.clear()
+		left_town.emit()
+		body.queue_free()
 
 
 ## A fight's over and he's still standing: he's done with this town for today.

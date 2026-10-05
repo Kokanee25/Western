@@ -53,7 +53,11 @@ func _physics_step(delta: float) -> void:
 
 ## Move the clock on by some real seconds (scaled by the debug multiplier).
 func advance(real_seconds: float) -> void:
-	var hours := real_seconds * time_scale * 24.0 / config.day_length_seconds
+	pass_hours(real_seconds * time_scale * 24.0 / config.day_length_seconds)
+
+
+## Move the clock on by game hours, announcing each hour and day it crosses.
+func pass_hours(hours: float) -> void:
 	var before := int(floor(time_of_day))
 	var t := time_of_day + hours
 	var crossed := int(floor(t)) - before
