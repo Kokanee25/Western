@@ -14,10 +14,10 @@ on:
 
 env:
   GODOT_VERSION: "4.7.2"
-  # Rendered at 960x540 and scaled up to 1280x720, without the volumetric haze or SSAO: software
-  # Vulkan on a runner takes about a second a frame at full size.
-  TOUR_RENDER: "960x540"
-  TOUR_NOTE: "Rendered on a CI runner with software Vulkan: the 3D at 960x540 scaled up to 1280x720, without the volumetric haze or SSAO. The game on your PC looks better than this."
+  # Rendered at 854x480 and scaled up to 1280x720, without the volumetric haze or SSAO: software
+  # Vulkan takes about a second a frame at 960x540 (17 minutes for the tour on a 4-core machine).
+  TOUR_RENDER: "854x480"
+  TOUR_NOTE: "Rendered on a CI runner with software Vulkan: the 3D at 854x480 scaled up to 1280x720, without the volumetric haze or SSAO. The game on your PC looks better than this."
 
 concurrency:
   group: tour
@@ -100,8 +100,9 @@ jobs:
 
       - name: Encode
         run: |
-          ffmpeg -y -loglevel error -framerate 30 -i build/tour/frame%08d.png -c:v libx264 -preset slow \
-            -crf 24 -pix_fmt yuv420p -movflags +faststart "build/tour/build-${{ steps.which.outputs.build }}.mp4"
+          # From frame 3: the first are written before the tour's camera takes over.
+          ffmpeg -y -loglevel error -framerate 30 -start_number 3 -i build/tour/frame%08d.png -c:v libx264 -preset slow \
+            -crf 30 -pix_fmt yuv420p -movflags +faststart "build/tour/build-${{ steps.which.outputs.build }}.mp4"
           ls -la build/tour/*.mp4
 
       - name: Keep it on the tour release

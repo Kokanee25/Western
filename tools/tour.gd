@@ -7,7 +7,10 @@ extends SceneTree
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver vulkan \
 ##       --resolution 1280x720 --fixed-fps 30 --write-movie build/tour/frame.png \
 ##       -s res://tools/tour.gd -- [--render=960x540] [--light]
-##   ffmpeg -framerate 30 -i build/tour/frame%08d.png -c:v libx264 -pix_fmt yuv420p -crf 23 tour.mp4
+##   ffmpeg -framerate 30 -start_number 3 -i build/tour/frame%08d.png -c:v libx264 -pix_fmt yuv420p -crf 30 tour.mp4
+##
+## (-start_number 3: the first frames are written before the street is up and the tour's camera
+## takes over, with the key help on screen.)
 ##
 ## --render=WxH renders the 3D at that size (scaled up to the window, as F2 does; default the
 ## window's own size). --light turns off the volumetric haze and SSAO to render faster (CI).
