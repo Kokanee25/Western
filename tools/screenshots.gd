@@ -71,6 +71,11 @@ const VIEWS := [
 	["town_holdup", 15.0, Vector3(2.0, 0.38, 1.3), -128.0, -6.0, "town_holdup"],
 	["town_bar", 15.0, Vector3(7.4, 0.38, -18.4), 22.0, -6.0, "town_bar"],
 	["town_duel", 18.0, Vector3(-1.0, 0.0, -9.0), -90.0, -1.0, "town_duel"],
+	# The Kid (assets/people/kid.glb, the characters session's first Tripo man) in the street at
+	# golden hour, the low sun behind you: standing, hands up, and closer.
+	["kid_street", 17.6, Vector3(0.0, 0.0, -9.0), -90.0, -2.0, "kid_stand"],
+	["kid_hands_up", 17.6, Vector3(0.0, 0.0, -9.0), -90.0, -2.0, "kid_hands_up"],
+	["kid_close", 17.6, Vector3(1.6, 0.0, -9.0), -90.0, 3.0, "kid_stand"],
 	# Tile lighting comparisons (render with --tiles=off and without): low sun, shadow edges
 	# falling across timber and ground close to the camera.
 	["texel_rail_shadow", 17.0, Vector3(5.2, 0.0, -6.2), 170.0, -38.0],
@@ -308,6 +313,18 @@ func _run() -> void:
 			await _town_setup(main, setup, player)
 		if setup == "portrait":
 			await _portrait_setup(main, player)
+		if setup.begins_with("kid_"):
+			# One Kid for all three views (the street isn't reloaded between them).
+			var town = main.find_child("TownLife", true, false)
+			if town.gang.is_empty():
+				town.bring_gang([&"kid"])
+			var man = town.gang[0]
+			man.get_node("Brain").set_physics_process(false)
+			man.global_position = Vector3(3.0, 0.0, -9.0)
+			man.face(Vector3(0.0, 0.0, -9.0))
+			man.set_pose(&"hands_up" if setup == "kid_hands_up" else &"stand")
+			for i in 60:
+				await physics_frame
 		if setup == "coat_hands_up":
 			var town = main.find_child("TownLife", true, false)
 			town.bring_gang([&"brody"])

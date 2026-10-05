@@ -94,6 +94,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unhook()
 	if _server:
 		_server.stop()
 	for p in _peers:
@@ -608,28 +609,28 @@ var _spawned := 0
 
 
 func _listen_to_events() -> void:
-	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, shooter: Node) -> void:
+	_hook(Events.shot_fired, func(_o: Vector3, _d: Vector3, shooter: Node) -> void:
 		if shooter == player:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
-	Events.spoke.connect(func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
-	Events.body_hit.connect(func(info: Dictionary) -> void:
+	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	_hook(Events.body_hit, func(info: Dictionary) -> void:
 		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), " (graze)" if info.get("graze", false) else ""]))
-	Events.person_fell.connect(func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
-	Events.person_died.connect(func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
-	Events.person_surrendered.connect(func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))
-	Events.hat_shot.connect(func(p: Node, s: Node, _at: Vector3) -> void: _log("hat", "%s shot %s's hat off" % [_who(s), _who(p)]))
-	Events.exploded.connect(func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
-	Events.callout.connect(func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
+	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
+	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
+	_hook(Events.person_surrendered, func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))
+	_hook(Events.hat_shot, func(p: Node, s: Node, _at: Vector3) -> void: _log("hat", "%s shot %s's hat off" % [_who(s), _who(p)]))
+	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
+	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
 		_log("callout", "%s called %s%s" % [_who(s), kind, " (%s)" % _who(about) if about else ""]))
-	Events.member_broken.connect(func(id: StringName) -> void:
+	_hook(Events.member_broken, func(id: StringName) -> void:
 		if not _events.is_empty() and _events[-1].kind == "broke" and float(_events[-1].t) > _game_seconds() - 1.0:
 			_events[-1].count += 1
 			_events[-1].text = "%d pieces of timber broke" % _events[-1].count
 		else:
 			_log("broke", "timber broke (%s)" % id)
 			_events[-1]["count"] = 1)
-	Events.near_miss.connect(func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
+	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
 
@@ -842,3 +843,19 @@ func _places() -> Waypoints:
 
 func _clock() -> DayCycle:
 	return street.find_child("DayCycle", true, false) as DayCycle
+
+## Events this connects to, let go of when it leaves the tree: they're lambdas, and a lambda isn't
+## disconnected when its node is freed (the next event would call into a freed node).
+var _hooks: Array = []
+
+
+func _hook(sig: Signal, f: Callable) -> void:
+	sig.connect(f)
+	_hooks.append([sig, f])
+
+
+func _unhook() -> void:
+	for h: Array in _hooks:
+		if (h[0] as Signal).is_connected(h[1]):
+			(h[0] as Signal).disconnect(h[1])
+	_hooks.clear()

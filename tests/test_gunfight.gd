@@ -200,5 +200,5 @@ func test_body_hits_to_stop_him() -> void:
 		total += c
 	var average := float(total) / counts.size()
 	print("  body hits to stop him: %s (average %.2f)" % [counts, average])
-	check(average >= 1.2 and average <= 2.3, "one to two good hits end it (average %.2f)" % average)
+	preload("res://tests/feel.gd").within(self, "body_hits_to_stop", average)  # one to two good hits end it
 	check(counts.count(1) > 0 and counts.max() >= 2, "sometimes one, sometimes more (%s)" % [counts])

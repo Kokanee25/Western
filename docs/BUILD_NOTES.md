@@ -6,6 +6,34 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the Kid has his own body
+
+- **A first test, getting closer: the gang's Kid is the man from your picture**, built by
+  Tripo from it, fitted to our skeleton, his head painted in the pixel style. His hat is its own
+  piece, so it can be shot off. Brody and Lyle are still the old bodies; they come next, one
+  picture each.
+- **Try:** press **U** to bring the gang in and look at the Kid at the bar, then **H** to draw
+  and put your gun on him until he puts his hands up (his nerve is low), and shoot his hat off.
+  From the side, with his hands up, his shirt has a flat patch under each arm where it was joined
+  to his arm in the model: tell me if it catches your eye.
+
+### New: F12 saves a bug report
+
+- **When something goes wrong, press F12** (controller: hold Back, press Y). It saves one file
+  with a screenshot, the last stretch of play as a recording I can replay exactly, the log, the
+  build and where you were. The message on screen says where it went (on Windows,
+  `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`). Send me the file. Setting fire to
+  what you look at is **L** only now.
+
+### New: a tour of every build on your phone
+
+- **https://kokanee25.github.io/Western/tour/** plays a 30-second camera tour of the latest
+  build: down the street at golden hour, into the saloon, the card table and the bar as night
+  falls, and out into the street under the moon. The builds before it are listed under it. It's
+  rendered on GitHub's machines without a graphics card, so it's a little softer than the game on
+  your PC (rendered at 854x480, no haze in the air or soft corner shading). Each tour turns up
+  about 20 minutes after the build.
+
 ### New: the look panel (N)
 
 - **Press N** (controller: hold **Back** and press **Start**) and a panel of sliders opens on the

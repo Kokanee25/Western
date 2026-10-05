@@ -49,6 +49,15 @@ jobs:
       - name: Run tests
         run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
 
+      - name: The feel numbers
+        # What tests/test_feel.gd and friends measured, against the ranges in config/feel_ranges.json.
+        if: always()
+        run: |
+          f="$HOME/.local/share/godot/app_userdata/Salt Creek/feel_measured.json"
+          if [ -f "$f" ]; then
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('| Feel | Measured | Agreed |\n|---|---|---|'); [print(f'| {k} | {v[\"value\"]} | {v[\"min\"]} to {v[\"max\"]} |') for k,v in sorted(d.items())]" "$f" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   # The native plugin (addons/saltcreek_native, Rust) for the three desktop platforms. Each runner
   # builds its own; the export job collects them. The web export runs without the plugin.
   native:
@@ -83,6 +92,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.package.outputs.tag }}
+      name: ${{ steps.package.outputs.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -159,23 +171,106 @@ jobs:
           (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz SaltCreek.x86_64)
           ls -la dist
 
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+      - name: Keep the builds for the smoke test and the release
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ steps.package.outputs.tag }}
-          name: ${{ steps.package.outputs.name }}
-          target_commitish: ${{ github.sha }}
-          body_path: docs/BUILD_NOTES.md
-          make_latest: true
-          files: dist/*
+          name: dist
+          path: dist
+
+      - name: Bring the tour videos along
+        # Kept on the "tour" release by tour.yml, which renders this build's after this deploy.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p build/web/tour
+          gh release download tour --repo "${{ github.repository }}" -p 'build-*.mp4' -D build/web/tour --clobber || true
+          python3 tools/tour_page.py build/web/tour
 
       - name: Upload web build for Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
 
-  pages:
+  # Each export launched on its own platform for 30 s (src/debug/smoke_test.gd: the street, the gang,
+  # a stick, a fire, a shot; any error fails it). Linux twice: headless, and drawn under software
+  # Vulkan so the shaders compile. Only builds that pass are released.
+  smoke:
     needs: export
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            how: headless
+          - os: ubuntu-latest
+            how: drawn
+          - os: windows-latest
+            how: headless
+          - os: macos-latest
+            how: headless
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    name: smoke (${{ matrix.os }}, ${{ matrix.how }})
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Software Vulkan and a screen
+        if: matrix.how == 'drawn'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q mesa-vulkan-drivers xvfb
+
+      - name: Run it for 30 s
+        shell: bash
+        run: |
+          case "${{ runner.os }}-${{ matrix.how }}" in
+            Linux-headless) tar -xzf dist/SaltCreek-linux.tar.gz; game=(./SaltCreek.x86_64 --headless) ;;
+            Linux-drawn) tar -xzf dist/SaltCreek-linux.tar.gz; game=(xvfb-run -a -s "-screen 0 640x360x24" ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360) ;;
+            Windows-headless) unzip -q dist/SaltCreek-windows.zip; game=(./SaltCreek.exe --headless) ;;
+            macOS-headless) unzip -q dist/SaltCreek-macos.zip; app=$(ls -d *.app | head -1); game=("$app/Contents/MacOS/$(ls "$app/Contents/MacOS" | head -1)" --headless) ;;
+          esac
+          out="$(pwd -W 2>/dev/null || pwd)/smoke.out"  # a Windows path on Windows
+          limit=(); command -v timeout >/dev/null && limit=(timeout 300)  # macOS has none: the job's limit
+          set +e
+          "${limit[@]}" "${game[@]}" -- --smoke-test --smoke-out="$out" > smoke.log 2>&1
+          code=$?
+          set -e
+          cat smoke.log
+          echo "--- verdict:"
+          cat smoke.out || echo "(no verdict written)"
+          if [ $code -ne 0 ] || ! grep -q "^\[smoke\] ok" smoke.out; then
+            echo "::error::the ${{ matrix.os }} ${{ matrix.how }} build failed its smoke test (exit $code)"
+            exit 1
+          fi
+
+  release:
+    needs: [export, smoke]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.export.outputs.tag }}
+          name: ${{ needs.export.outputs.name }}
+          target_commitish: ${{ github.sha }}
+          body_path: docs/BUILD_NOTES.md
+          make_latest: true
+          files: dist/*
+
+  pages:
+    needs: [export, smoke]
     runs-on: ubuntu-latest
     permissions:
       pages: write

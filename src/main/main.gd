@@ -21,7 +21,11 @@ func _ready() -> void:
 	Settings.changed.connect(_apply_settings)
 	get_viewport().size_changed.connect(_layout)
 	_apply_settings()
+	var recorder := BugRecorder.new()  # F12: a bug report with a replayable recording
+	recorder.name = "BugRecorder"
+	add_child(recorder)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var panel := LookPanel.new()  # N: the live look panel
 	panel.name = "LookPanel"
 	add_child(panel)
