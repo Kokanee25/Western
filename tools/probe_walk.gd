@@ -7,7 +7,8 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 30 -s res://tools/probe_walk.gd -- \
 ##       --out=DIR [--paths=turn,walk,strafe,circle,approach] [--probe-mosaic[=texels]] [--probe-cell=m]
 ##       [--probe-bands=n] [--no-mosaic] [--quantise-once] [--blocks] [--size=1280x720] [--frames=1.0]
-## (--blocks is Settings' own: the surface-blocks look.)
+## (--blocks is Settings' own: the surface-blocks look.) --probe-param=name:value,... sets the probe
+## shader's uniforms for the run (dark_weight, samples, near_screen...).
 ## --frames scales every path's frame count (0.5 = a quick look). Writes DIR/<path>_<nnn>.png and
 ## DIR/poses.json (each frame's camera, the probe's origin and how far its blocks have crossed).
 ## Untyped where it names the game's classes: -s scripts compile before the autoloads exist.
@@ -28,6 +29,7 @@ var face_key := 0.0
 ## picture, for tools/probe_walk.py's reprojection (`stability`): the same paths, so one depth run
 ## serves every look's run.
 var depth_pass := false
+var probe_params := {}
 
 
 func _initialize() -> void:
@@ -48,6 +50,11 @@ func _initialize() -> void:
 			face_key = float(a.substr(11))
 		elif a == "--depth-pass":
 			depth_pass = true
+		elif a.begins_with("--probe-param="):
+			for kv in a.substr(14).split(","):
+				var parts := kv.split(":")
+				if parts.size() == 2:
+					probe_params[StringName(parts[0])] = float(parts[1])
 		elif a.begins_with("--probe-mosaic"):
 			if a.begins_with("--probe-mosaic="):
 				settings.probe_texels = float(a.substr(15))
@@ -114,6 +121,10 @@ func _run() -> void:
 		var old := cam.get_node_or_null(^"DepthMosaic")
 		if old:
 			old.queue_free()
+	var pm = cam.get_node_or_null(^"ProbeMosaic")
+	if pm:
+		for k in probe_params:
+			(pm.material_override as ShaderMaterial).set_shader_parameter(k, probe_params[k])
 	# Settle the probe at the shot's eye before the first path.
 	cam.global_transform = _looking(eye, look)
 	for i in 20:

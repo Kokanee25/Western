@@ -41,6 +41,10 @@ uniform float fade = 1.0;
 // Samples a side across each block, averaged where they land on the block's own surface (1: the
 // centre alone).
 uniform int samples = 3;
+// Darker samples weigh more in a block's mean, (1 - gamma luminance)^dark_weight as DepthMosaic's
+// average does, so a block an eye, a brow or a moustache's edge falls in keeps it as a dark block
+// (the plain mean washes them into the skin). 0 = the plain mean.
+uniform float dark_weight = 0.0;
 // Lightness bands in OKLab (0: smooth light, the default: banded, a block whose light sits near a
 // band's edge flips between two bands as you move, and the darks go coarse; the bands are cut
 // before the tone curve).
@@ -150,8 +154,14 @@ vec3 block_colour(vec3 w, vec3 o, vec3 own, vec3 cam, mat4 view, mat4 proj, mat4
 			vec2 f = (vec2(float(i), float(j)) + 0.5) / float(samples);
 			vec2 q = screen_of(point_in(t, o, f), view, proj);
 			if (q.x >= 0.0 && abs(distance(world_at(q, inv_proj, inv_view), cam) - dc) <= tol) {
-				sum += texture(screen_tex, q).rgb;
-				n += 1.0;
+				vec3 s = texture(screen_tex, q).rgb;
+				float wt = 1.0;
+				if (dark_weight > 0.0) {
+					float g = pow(clamp(dot(s, vec3(0.299, 0.587, 0.114)), 0.0, 1.0), 1.0 / 2.2);
+					wt = pow(1.0 - min(g, 0.98), dark_weight);
+				}
+				sum += s * wt;
+				n += wt;
 			}
 		}
 	}

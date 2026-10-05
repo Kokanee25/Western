@@ -87,6 +87,8 @@ const VIEWS := [
 
 ## --probe-debug=N: the probe mosaic's debug view (1 the block grid, 2 the reprojection check).
 var probe_debug := 0
+## --probe-param=name:value,...: the probe mosaic shader's uniforms for this run (a trial's knobs).
+var probe_params := {}
 
 
 func _initialize() -> void:
@@ -171,6 +173,11 @@ func _run() -> void:
 			settings.probe_bands = float(arg.substr(14))
 		elif arg.begins_with("--probe-debug="):
 			probe_debug = int(arg.substr(14))
+		elif arg.begins_with("--probe-param="):
+			for kv in arg.substr(14).split(","):
+				var parts := kv.split(":")
+				if parts.size() == 2:
+					probe_params[StringName(parts[0])] = float(parts[1])
 		elif arg.begins_with("--mosaic-tune="):
 			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
 		# The same knobs for one shot only, laid over the mosaic's tuning when that view is staged
@@ -718,6 +725,9 @@ func _load_main(globals_after: Dictionary, screen_squares: float, mosaic_steps: 
 	var probe = player.camera.get_node_or_null(^"ProbeMosaic")
 	if probe and probe_debug > 0:
 		(probe.material_override as ShaderMaterial).set_shader_parameter(&"debug", probe_debug)
+	if probe:
+		for k in probe_params:
+			(probe.material_override as ShaderMaterial).set_shader_parameter(k, probe_params[k])
 	clock.set_physics_process(false)
 	player.input_enabled = false
 	# The gang rides in by itself 45 s into a run (TownLife.gang_arrives): in a long render they
