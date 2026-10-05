@@ -1,0 +1,66 @@
+name: Nightly soak
+
+# Every night (and by hand): the game left running for hours of game time, headless, with the gang
+# riding in again and again, fights, fires and blasts (tools/soak.gd). Red when anything breaks:
+# an error, memory still climbing, someone stuck or under the ground, the frame time creeping.
+# The report (soak.md) is the run's summary and an artifact.
+
+on:
+  schedule:
+    - cron: "17 9 * * *"  # 09:17 UTC, after the night's work
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: Minutes of game time
+        default: "120"
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Soak
+        run: |
+          minutes="${{ github.event.inputs.minutes }}"
+          ~/godot/godot --headless -s res://tools/soak.gd -- --minutes="${minutes:-120}" --out=build/soak
+
+      - name: Report
+        if: always()
+        run: cat build/soak/soak.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soak-report
+          path: build/soak
