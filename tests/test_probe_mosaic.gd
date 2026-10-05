@@ -121,7 +121,26 @@ func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away()
 	check(Settings.quantise_once and PixelArt.smooth, "the smooth textures under it")
 	check(Settings.look_description().contains("probe mosaic"), "described: %s" % Settings.look_description())
 	check(not Settings.mosaic_active(), "the screen mosaic off under it")
+	Settings.set_probe_mosaic(false)
+	check(Settings.surface_blocks and PixelArt.blocks and not Settings.quantise_once, "V again: the look it found (M)")
+	Settings.set_probe_mosaic(true)
 	Settings.set_surface_blocks(true)
 	check(not Settings.probe_active(), "M while it's on: the surface blocks win")
 	Settings.reset_to_defaults()
 	check(not Settings.probe_mosaic and not Settings.quantise_once and not Settings.surface_blocks, "reset: the default look")
+
+
+## With no settings file (CI, the tools), a look asked for on the command line sets its switch and
+## must reach the materials too: --blocks once set the switch and left the default shaders on.
+func test_with_no_settings_file_the_look_reaches_the_materials() -> void:
+	if FileAccess.file_exists(Settings.PATH):
+		return
+	Settings.surface_blocks = true
+	Settings.load_from_disk()
+	check(PixelArt.blocks, "the surface blocks' shaders")
+	Settings.surface_blocks = false
+	Settings.quantise_once = true
+	Settings.load_from_disk()
+	check(PixelArt.smooth and not PixelArt.blocks, "the smooth textures, the plain shaders")
+	Settings.reset_to_defaults()
+	check(not PixelArt.smooth and not PixelArt.blocks, "reset: the default look")
