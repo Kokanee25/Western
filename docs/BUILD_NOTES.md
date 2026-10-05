@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: a tour of every build on your phone
+
+- **https://kokanee25.github.io/Western/tour/** plays a 30-second camera tour of the latest
+  build: down the street at golden hour, into the saloon, the card table and the bar as night
+  falls, and out into the street under the moon. The builds before it are listed under it. It's
+  rendered on GitHub's machines without a graphics card, so it's a little softer than the game on
+  your PC (rendered at 854x480, no haze in the air or soft corner shading). Each tour turns up
+  about 20 minutes after the build.
+
 ### New: the look panel (N)
 
 - **Press N** (controller: hold **Back** and press **Start**) and a panel of sliders opens on the
