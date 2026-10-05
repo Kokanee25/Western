@@ -282,9 +282,9 @@ func probe_active() -> bool:
 
 
 ## Whether the screen mosaic is drawn: the setting, unless the surface-blocks look is on (it has
-## no screen pass).
+## no screen pass) or the probe mosaic trial is (it takes the screen mosaic's place).
 func mosaic_active() -> bool:
-	return mosaic and not surface_blocks
+	return mosaic and not surface_blocks and not probe_active()
 
 
 func cycle_texel_density() -> void:
