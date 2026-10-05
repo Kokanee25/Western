@@ -54,7 +54,7 @@ func _initialize() -> void:
 			for kv in a.substr(14).split(","):
 				var parts := kv.split(":")
 				if parts.size() == 2:
-					probe_params[StringName(parts[0])] = float(parts[1])
+					probe_params[StringName(parts[0])] = int(parts[1]) if parts[1].is_valid_int() else float(parts[1])
 		elif a.begins_with("--probe-mosaic"):
 			if a.begins_with("--probe-mosaic="):
 				settings.probe_texels = float(a.substr(15))

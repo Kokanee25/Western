@@ -30,7 +30,9 @@ shader_type spatial;
 render_mode unshaded, depth_draw_never, depth_test_disabled, cull_disabled, fog_disabled;
 
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest, repeat_disable;
-uniform sampler2D screen_tex : hint_screen_texture, filter_linear, repeat_disable;
+// With mipmaps (Godot blurs them down from the frame) for `prefilter`; every read at a computed
+// point gives its level, since a block-constant point has no smooth derivatives to pick one by.
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap, repeat_disable;
 // The cube: its origin (snapped to a grid by ProbeMosaic), texels a face side.
 uniform vec3 probe_origin = vec3(0.0);
 uniform float texels = 384.0;
@@ -45,6 +47,10 @@ uniform int samples = 3;
 // average does, so a block an eye, a brow or a moustache's edge falls in keeps it as a dark block
 // (the plain mean washes them into the skin). 0 = the plain mean.
 uniform float dark_weight = 0.0;
+// Each sample read from the frame blurred to its share of the block (the mip whose pixels are the
+// samples' spacing on screen) instead of the one pixel under it: 9 point samples on a block 4 px
+// across alias, and what they pick up changes as you move. 0 = point samples.
+uniform float prefilter = 0.0;
 // Lightness bands in OKLab (0: smooth light, the default: banded, a block whose light sits near a
 // band's edge flips between two bands as you move, and the darks go coarse; the bands are cut
 // before the tone curve).
@@ -134,13 +140,22 @@ vec2 screen_of(vec3 p, mat4 view, mat4 proj) {
 
 // The one colour of the block that point w falls in, in the cube round o (`own`: w's pixel, for a
 // block whose centre is off screen). `t` gets the block's texel.
-vec3 block_colour(vec3 w, vec3 o, vec3 own, vec3 cam, mat4 view, mat4 proj, mat4 inv_proj, mat4 inv_view, out vec4 t) {
+vec3 block_colour(vec3 w, vec3 o, vec3 own, vec3 cam, mat4 view, mat4 proj, mat4 inv_proj, mat4 inv_view, vec2 vsize, out vec4 t) {
 	t = texel_of(w, o);
 	vec2 uv = screen_of(point_in(t, o, vec2(0.5)), view, proj);
 	if (uv.x < 0.0) {
 		return own;
 	}
-	vec3 centre = texture(screen_tex, uv).rgb;
+	float lod = 0.0;
+	if (prefilter > 0.0) {
+		// The block's width on screen, across its middle, over the samples a side.
+		vec2 a = screen_of(point_in(t, o, vec2(0.0, 0.5)), view, proj);
+		vec2 b = screen_of(point_in(t, o, vec2(1.0, 0.5)), view, proj);
+		if (a.x >= 0.0 && b.x >= 0.0) {
+			lod = prefilter * max(0.0, log2(length((b - a) * vsize) / float(max(samples, 1))));
+		}
+	}
+	vec3 centre = textureLod(screen_tex, uv, lod).rgb;
 	if (samples <= 1) {
 		return centre;
 	}
@@ -154,7 +169,7 @@ vec3 block_colour(vec3 w, vec3 o, vec3 own, vec3 cam, mat4 view, mat4 proj, mat4
 			vec2 f = (vec2(float(i), float(j)) + 0.5) / float(samples);
 			vec2 q = screen_of(point_in(t, o, f), view, proj);
 			if (q.x >= 0.0 && abs(distance(world_at(q, inv_proj, inv_view), cam) - dc) <= tol) {
-				vec3 s = texture(screen_tex, q).rgb;
+				vec3 s = textureLod(screen_tex, q, lod).rgb;
 				float wt = 1.0;
 				if (dark_weight > 0.0) {
 					float g = pow(clamp(dot(s, vec3(0.299, 0.587, 0.114)), 0.0, 1.0), 1.0 / 2.2);
@@ -203,7 +218,7 @@ vec3 band(vec3 c) {
 }
 
 void fragment() {
-	vec3 own = texture(screen_tex, SCREEN_UV).rgb;
+	vec3 own = textureLod(screen_tex, SCREEN_UV, 0.0).rgb;
 	vec3 w = world_at(SCREEN_UV, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
 	vec3 cam = INV_VIEW_MATRIX[3].xyz;
 	vec3 col = own;
@@ -220,14 +235,14 @@ void fragment() {
 		// Screen blocks the size a texel is at the middle of a cube face, each its centre's colour.
 		float p = max(1.0, floor(VIEWPORT_SIZE.y * PROJECTION_MATRIX[1][1] / texels + 0.5));
 		vec2 c = (floor(FRAGCOORD.xy / p) * p + p * 0.5) / VIEWPORT_SIZE;
-		col = band(texture(screen_tex, c).rgb);
+		col = band(textureLod(screen_tex, c, 0.0).rgb);
 	} else if (dist <= far) {
 		vec4 t;
-		col = block_colour(w, probe_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, t);
+		col = block_colour(w, probe_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, VIEWPORT_SIZE, t);
 		if (fade < 1.0 && texel_hash(t) >= fade) {
 			// This block hasn't crossed to the new cube yet: the old cube's block here.
 			vec4 tp;
-			col = block_colour(w, prev_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, tp);
+			col = block_colour(w, prev_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, VIEWPORT_SIZE, tp);
 		}
 		col = band(col);
 		if (debug == 1) {

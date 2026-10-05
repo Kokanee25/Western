@@ -177,7 +177,7 @@ func _run() -> void:
 			for kv in arg.substr(14).split(","):
 				var parts := kv.split(":")
 				if parts.size() == 2:
-					probe_params[StringName(parts[0])] = float(parts[1])
+					probe_params[StringName(parts[0])] = int(parts[1]) if parts[1].is_valid_int() else float(parts[1])
 		elif arg.begins_with("--mosaic-tune="):
 			load("res://src/render/depth_mosaic.gd").tuning = _parse_tune(arg.substr(14))
 		# The same knobs for one shot only, laid over the mosaic's tuning when that view is staged
