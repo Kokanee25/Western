@@ -2621,3 +2621,11 @@ summary and an artifact.
   declared, so `main.gd` failed to compile; fixed before it merged); then 15 minutes in real time
   and 10 at a fixed step passed: memory 272 to 279 MB, nodes ~25k, no orphans, 3.4–3.8 ms a frame
   at a fixed step. Nightly: 240 game minutes, ~70 minutes on a runner.
+- 2026-10-05 (gameplay, checks 3): **Chaos tests** (`tests/test_chaos.gd`, 2). The street with
+  the gang and the townsfolk in it, and every 1.5 s for 14 s, from a seed, a 0.2 kg stick by a
+  random member, a random member set alight, or three rounds from a random point at a random spot
+  or person. Every half second: no body under the ground (y < -1.5) or off the map, no position
+  that isn't a number, nobody back from the dead, no blood below zero, no broken member mended,
+  and no script error (the runner fails on any). Seed 1873: 10 events, 64 members broken, 6
+  burning, 9 people hurt, nothing broken. The same seed twice gives the same events, the same
+  broken members and the same people alive and hurt.
