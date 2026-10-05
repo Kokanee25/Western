@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Fixed: walls now really break in your build
+
+- **The Windows build had been missing the part that carves walls** since the destruction work
+  (it shipped beside the game but was left out of the zip), so a shotgun into a wall only drew
+  holes. It's in now, and the build checks it's there before it's released.
+- **Try:** press **2** for the shotgun and fire into the general store's front from close up: the
+  boards should tear open in ragged holes you can see through, with chips flying. Press **F3**:
+  the line "native plugin" should show a version, not "not loaded".
+
 ### New: the Kid has his own body
 
 - **A first test, getting closer: the gang's Kid is the man from your picture**, built by
