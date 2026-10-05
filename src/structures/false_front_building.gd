@@ -142,6 +142,7 @@ func build() -> void:
 	if furnished:
 		_build_furniture()
 	_add_interior_ambient()
+	FacadeArt.dress(self)  # the painting's parts on a front that asks for them (art)
 
 
 ## The sky's ambient light shouldn't fill the inside of a closed building. This probe replaces it

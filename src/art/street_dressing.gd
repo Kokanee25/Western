@@ -17,7 +17,8 @@ const NORTH_Z := 0.0
 const SOUTH_Z := -16.8
 const BUILDINGS := [
 	["StreetSaloon", -10.8, -1.2, false, {"depth": 12.0, "wall_height": 4.6, "front_height": 8.4, "sign_text": "SALOON",
-			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"weathered_pine"}],
+			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"saloon_red",
+			"facade": "saloon"}],
 	["GeneralStore", -20.4, -11.8, false, {"depth": 11.0, "wall_height": 5.4, "front_height": 7.8,
 			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"weathered_pine"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
@@ -97,7 +98,10 @@ func _buildings() -> void:
 		building.porch_lantern = false
 		var settings: Dictionary = b[4]
 		for k in settings:
-			building.set(k, settings[k])
+			if k == "facade":
+				building.set_meta(&"facade", settings[k])  # FacadeArt: the painting's parts
+			else:
+				building.set(k, settings[k])
 		building.transform = _placed(b[1], b[2], b[3])
 		add_child(building)
 		if b[0] == "GeneralStore":
