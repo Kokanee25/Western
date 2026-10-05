@@ -1,4 +1,4 @@
-# Brief: Salt Creek's town, to Sean's map and his street picture
+# Brief: Salt Creek's town, to Sean's map and the bold street painting
 
 Sean, 2026-10-05: "I want the game town to look like this, same layout", with the map. Two
 pictures are the target:
@@ -7,7 +7,10 @@ pictures are the target:
   sunset; the "reference view" marker is where the street picture is taken from). Made from the
   1886 Tombstone and 1887 Dodge City Sanborn fire-insurance maps (connected blocks, narrow shop
   fronts, deep lots, working yards behind); the town itself is fictional.
-- **The look:** `docs/concept/street-blocks.png`: crisp, bold squares on every surface (larger
+- **The look:** `docs/concept/street-golden-hour.png` (the street concept painting, the street
+  target all along) and, inside, `docs/concept/saloon-blocks.png` (the saloon painting redrawn
+  in the street painting's style; Sean, 2026-10-05: the bold style everywhere, the old
+  `saloon-night.png` kept for its lamplit mood only): crisp, bold squares on every surface (larger
   than ours, each a clearly different colour from the next), pale weathered boards with a dark
   line at every seam, signs lettered square by square, the sun low at the end of the street.
 
@@ -40,9 +43,10 @@ stands without the bathhouse and undertaker.
 
 ## Things to settle (Sean)
 
-1. **Which picture is the target for the look.** The street picture's bold squares are a
-   different style from the saloon painting's finer, painterly ones; the whole game should
-   match one. If the street picture, the judge and the blind critic measure against it.
+1. ~~Which picture is the target for the look.~~ **Settled** (Sean, 2026-10-05): the street
+   painting's bold style everywhere; the judge and the blind critic measure the saloon shot
+   against `saloon-blocks.png` from now on (rounds before `2026-10-05_r14` were against
+   `saloon-night.png` and don't compare).
 2. **The sun.** On the map the saloon is on Main Street's south side, so its front faces north;
    for it to be sunlit at sunset, as in the picture, the sun has to set north of west (a summer
    evening). Ours is set to go down south of west today (`sun_azimuth_degrees` 20).
@@ -80,6 +84,6 @@ stands without the bathhouse and undertaker.
 
 ## How it's judged
 
-- The reference view against `street-blocks.png`: judge v2, the blind critic, Sean's eye.
+- The reference view against `street-golden-hour.png`: judge v2, the blind critic, Sean's eye.
 - The layout against the map: a top-down render of the town over `town-map.png`.
 - The frame budget (`config/frame_budget.tres`) at the reference view and walking the town.
