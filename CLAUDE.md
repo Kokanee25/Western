@@ -2489,3 +2489,18 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"  #
   his back shows when it isn't a coat and long hair: braces, short hair); the stranger's prompts
   are word for word as before. Next: People `style: characters` with `characters:
   kid_body,kid_hat` to look at before Tripo, then Tripo, the head repaint, the fit.
+  Then the turnarounds (People runs 38–42, fal, ~$0.80; kept: run 40's hat and run 42's body,
+  `docs/screenshots/tripo/kid_front_hatless_hat.png` beside Sean's picture). Run 38's hat came
+  back a clean grey fashion fedora and his hatless hair a combed quiff; the fixes were all in
+  `characters.json`'s words. The hat as Sean drew it (tan felt grimy in broad patches, a dark
+  band, the brim curled up at both sides) came right at run 40 ("blotchy stains" had drawn
+  round dots). The hair took four tries: "flattened where the hat sat" (39) and "lying flat
+  where the crown pressed it" (41) each put a red cloth on his head, "shaggy, messy, untidy"
+  (40) a huge mop, "grown long to his collar" (41) hair past his shoulders; run 38's words with
+  "short, a little tousled" (42) gave Sean's lad bare-headed. For Kontext, a hatless man's
+  words never mention where the hat was, and his hair is said plainly. `head_paint.py` takes a
+  character's own `head` words (whose head, how he looks, the light, any view's words, and
+  `cut` for a bare head; the stranger's asks are word for word as before) and `kid_body` has
+  his (young, freckled, no hat, soft even light); `fit_tripo.py` takes a layered man's repaint
+  from his model's `<model>_color.png`. Both art files, a few lines each. Waiting on Sean's
+  look before Tripo (`characters: kid_body,kid_hat`, ~85 credits as the stranger's took).
