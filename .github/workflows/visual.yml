@@ -1,0 +1,162 @@
+name: Visual checks
+
+# Every night (and by hand): the art session's checks on what the game draws (docs/briefs/
+# automated-checks.md; CLAUDE.md "Golden images"). Every fixed view in tools/screenshots.gd is
+# rendered twice under xvfb and lavapipe, on two runners at once (~1-2 h each); then
+# tools/golden_check.py compares the first render with the approved goldens, and
+# tools/visual_checks.py looks for blank or black frames, Godot's missing-texture magenta, views
+# that differ between the two renders (flicker), and, from tools/scene_probe.gd's scene data, feet
+# in the floor, floating props and skin through clothes. Red on any failure; the run's summary
+# says which, and the artifact "visual-report" has golden | render | difference for each view
+# that failed.
+#
+# Every view in one run each, with --fresh: screenshots.gd loads the scene again before every
+# view, so no view carries the one before it (smoke, a half-eased pose, the clouds' drift).
+
+on:
+  schedule:
+    - cron: "43 6 * * *"  # 06:43 UTC, before the soak
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+concurrency:
+  group: visual
+  cancel-in-progress: true
+
+jobs:
+  render:
+    strategy:
+      fail-fast: false
+      matrix:
+        copy: [a, b]
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    name: render (${{ matrix.copy }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Software Vulkan and a screen
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q mesa-vulkan-drivers xvfb
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Render every view
+        # As tools/golden_check.py --render does, so the renders are made the way the goldens were.
+        run: |
+          xvfb-run -a ~/godot/godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd \
+            -- --out="$PWD/build/render_${{ matrix.copy }}" --fresh > render.log 2>&1
+          ls build/render_${{ matrix.copy }} | wc -l
+
+      - name: The render's log
+        if: failure()
+        run: tail -100 render.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: render-${{ matrix.copy }}
+          path: build/render_${{ matrix.copy }}
+          retention-days: 7
+
+  check:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Python's picture tools
+        run: pip install -q numpy pillow scipy
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: render-a
+          path: build/render_a
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: render-b
+          path: build/render_b
+
+      - name: The scene's data
+        run: ~/godot/godot --headless --fixed-fps 60 -s res://tools/scene_probe.gd -- --out="$PWD/build/probe"
+
+      - name: Golden images and visual checks
+        run: |
+          mkdir -p build/visual
+          set +e
+          python3 tools/golden_check.py --from=build/render_a --diffs=build/visual/diffs > build/visual/golden.txt 2>&1
+          golden=$?
+          python3 tools/visual_checks.py --from=build/render_a --twin=build/render_b --probe=build/probe > build/visual/checks.txt 2>&1
+          checks=$?
+          set -e
+          cat build/visual/golden.txt build/visual/checks.txt
+          {
+            echo "### Golden images (exit $golden)"
+            echo '```'
+            grep -v " ok " build/visual/golden.txt
+            echo '```'
+            echo "### Visual checks (exit $checks)"
+            echo '```'
+            grep -v " ok " build/visual/checks.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ $golden -ne 0 ] || [ $checks -ne 0 ]; then
+            echo "::error::golden images exit $golden, visual checks exit $checks: see the summary"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-report
+          path: build/visual
