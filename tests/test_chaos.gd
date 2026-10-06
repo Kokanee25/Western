@@ -185,8 +185,10 @@ func test_the_same_seed_gives_the_same_chaos() -> void:
 		if not (id in first.broken and id in second.broken) and not id in odd:
 			odd.append(id)
 	# Started fresh each time, the engine gives the same answer; a member or two of slack for
-	# the last digit of a float in a long cascade of rubble.
-	check(odd.size() <= 2, "the same timber broke (%d, %d differ: %s)" % [first.broken.size(), odd.size(), ", ".join(odd)])
+	# the last digit of a float in a long cascade of rubble (two, or 5% of what broke, whichever
+	# is more: the dressed fronts give a blast more small trim to bring down).
+	var slack := maxi(2, ceili(first.broken.size() * 0.05))
+	check(odd.size() <= slack, "the same timber broke (%d, %d differ: %s)" % [first.broken.size(), odd.size(), ", ".join(odd)])
 	check_eq(first.people.keys(), second.people.keys(), "the same people")
 	for who: String in first.people:
 		var a: Array = first.people[who]
