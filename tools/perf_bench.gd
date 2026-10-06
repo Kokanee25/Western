@@ -52,6 +52,9 @@ func _initialize() -> void:
 			budget_report = false
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
+		elif a == "--no-smoke":
+			# Fire's smoke as the old particles, no SmokeField (the cost of the smoke).
+			(load("res://config/fire.tres") as FireTuning).smoke_fields = 0
 		elif a == "--no-voxels":
 			# Before voxel damage: holes drawn by the shader (as without the plugin).
 			_voxel_tuning = load("res://config/voxel_damage.tres")  # kept: the members load the same
