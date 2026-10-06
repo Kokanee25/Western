@@ -3744,3 +3744,4 @@ a few views renders them as the full run does.
   - Nothing in the game uses him yet: `--model=stranger2s` in `screenshots.gd`,
     `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
     per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
+  - All 360 tests pass on the squashed commit.
