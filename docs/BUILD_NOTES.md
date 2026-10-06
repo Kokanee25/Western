@@ -6,6 +6,16 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: a bucket brigade
+
+- **The townsfolk fight a fire in a line now.** Anyone who sees a fire within 30 m comes to fight
+  it: they stand in a line from the nearest trough (or the well) to the fire, the man at the water
+  fills a bucket, it's handed up the line man to man, the man at the fire throws it, and the empty
+  comes back down. You can see the buckets passing hand to hand.
+- **Try:** at golden hour light the telegraph's front (L where you look, a few times along it) and
+  watch the street come to it with buckets from the store's trough. Then light something far from
+  any water and see that nobody can.
+
 ### New: the telegraph, the doctor's, the bank, a well, a windpump and a corral
 
 - **Three more buildings on Main Street**, each furnished inside: the **telegraph office** next to
