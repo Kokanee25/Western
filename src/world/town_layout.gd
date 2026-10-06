@@ -51,7 +51,7 @@ static func entry(path: StringName) -> Dictionary:
 
 ## A value from the file as the property wants it: `steps` a list of Vector2, `*_size` a Vector2.
 static func value(key: String, v: Variant) -> Variant:
-	if key == "steps" and v is Array:
+	if (key == "steps" or key == "end_steps") and v is Array:
 		var out: Array = []
 		for s: Array in v:
 			out.append(Vector2(s[0], s[1]))

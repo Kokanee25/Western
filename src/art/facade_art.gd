@@ -376,7 +376,9 @@ static func _open_batwings(b: FalseFrontBuilding) -> void:
 static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 	var w := b.width
 	for k in 2:
-		var o := Rect2(0.55, 1.05, 1.1, 1.35) if k == 0 else Rect2(w - 1.65, 1.05, 1.1, 1.35)
+		# The building's own front windows (FalseFrontBuilding: their sills 0.67 m above its floor).
+		var sy := b.floor_top + 0.67
+		var o := Rect2(0.55, sy, 1.1, 1.35) if k == 0 else Rect2(w - 1.65, sy, 1.1, 1.35)
 		var p := "facade/window%d" % k
 		var side := 0.15
 		var d1 := bt + 0.08

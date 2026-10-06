@@ -216,23 +216,29 @@ static func test_street() -> Waypoints:
 	w.add(&"store_behind_counter", store.call(sw - 0.5, floor_top, 6.0), [&"store_aisle"])
 	w.add(&"store_keeper", store.call(sw - 0.35, floor_top, 3.7), [&"store_behind_counter"])
 	# The saloon (its door at x 5 in its own space, the front to -Z), up the steps at its east end.
+	# Its floor and walk stand higher than the store's (config/town.json's Saloon), the two walks
+	# joined by steps at the saloon walk's west end.
 	var saloon := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Saloon", Vector3(x, y, z))
+	var saloon_top := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", floor_top))
 	var saloon_steps: Array = (TownLayout.entry(&"SouthBoardwalk").get("set", {}) as Dictionary).get("steps", [[5.0, 2.0]])
 	var lx := float(saloon_steps[0][0])
 	w.add(&"saloon_front", saloon.call(lx, 0, -7.0), [&"street_mid", &"street_east"])
 	w.add(&"saloon_steps", saloon.call(lx, 0, -3.4), [&"saloon_front"])
-	w.add(&"saloon_landing", saloon.call(lx, floor_top, -1.2), [&"saloon_steps"])
-	# Along the walk from the store's door to the saloon's (they stand side by side).
-	w.add(&"saloon_porch", saloon.call(5, floor_top, -1.5), [&"saloon_landing", &"store_porch"])
-	w.add(&"saloon_door", saloon.call(5, floor_top, 0.9), [&"saloon_porch"])
-	w.add(&"saloon_floor", saloon.call(6.0, floor_top, 3.5), [&"saloon_door"])
+	w.add(&"saloon_landing", saloon.call(lx, saloon_top, -1.2), [&"saloon_steps"])
+	# Along the walk from the store's door to the saloon's (they stand side by side), up the steps
+	# between the two walks.
+	w.add(&"store_walk_east", store.call(sw - 0.5, floor_top, -1.3), [&"store_porch"])
+	w.add(&"saloon_walk_west", saloon.call(1.3, saloon_top, -1.3), [&"store_walk_east"])
+	w.add(&"saloon_porch", saloon.call(5, saloon_top, -1.5), [&"saloon_landing", &"saloon_walk_west"])
+	w.add(&"saloon_door", saloon.call(5, saloon_top, 0.9), [&"saloon_porch"])
+	w.add(&"saloon_floor", saloon.call(6.0, saloon_top, 3.5), [&"saloon_door"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
 		var z := 4.45 + i * 1.3
-		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, floor_top, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
-		w.add(StringName("bar_%d" % i), saloon.call(7.05, floor_top, z), [StringName("bar_front_%d" % i)])
+		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, saloon_top, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
+		w.add(StringName("bar_%d" % i), saloon.call(7.05, saloon_top, z), [StringName("bar_front_%d" % i)])
 	# Round the near end of the bar to the barkeep's side.
-	w.add(&"bar_end", saloon.call(6.7, floor_top, 2.3), [&"saloon_floor"])
-	w.add(&"bar_end_inside", saloon.call(8.8, floor_top, 2.3), [&"bar_end"])
-	w.add(&"behind_bar", saloon.call(8.8, floor_top, 5.8), [&"bar_end_inside"])
+	w.add(&"bar_end", saloon.call(6.7, saloon_top, 2.3), [&"saloon_floor"])
+	w.add(&"bar_end_inside", saloon.call(8.8, saloon_top, 2.3), [&"bar_end"])
+	w.add(&"behind_bar", saloon.call(8.8, saloon_top, 5.8), [&"bar_end_inside"])
 	return w

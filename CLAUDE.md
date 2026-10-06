@@ -3425,3 +3425,26 @@ a few views renders them as the full run does.
     session now runs each seed in a Godot of its own (main 6cfff79, merged in). Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
     the backdrop's near ring is 260 m out and nothing in the new town comes near it; pushing it
     out would shrink the mountains below the painting's, so it stays.
+  - Later (Sean: "Raise up the saloon, have stairs down on the board walk to connect down to the
+    other store"): **the saloon up its steps.** Its floor and walk are 0.78 m (four steps up from
+    the street, as the street painting's; `config/town.json`: the Saloon's `floor_top`, the
+    SouthBoardwalk's `top`), the store's stay 0.38, and the saloon's walk steps down two treads to
+    the store's at its west end (`Boardwalk.end_steps`: blocks from the ground, the first level
+    with the walk below, an invisible ramp, a board closing the walk's end under its planks, no
+    old end ramp there). `SaloonBuilding.build()` lifts its walls, porch, sign and front by the
+    floor's rise (`BASE_HEIGHTS`), so the room and front keep their proportions. Found on the way:
+    a walking man's feet were kept down by one ray, which now and then fell through the gap
+    between two planks or floorboards; on the old 0.38 m walk he hopped back up, on a raised one
+    he was stuck under it (the gang never reached the bar). `HumanBody._snap_to_ground` casts five
+    rays a few centimetres apart and takes the highest. Gameplay's files touched, with Sean's
+    ask and told to it: `boardwalk.gd` (`end_steps`, `_ramp`'s `base`), `saloon_building.gd`
+    (`build()`), `false_front_building.gd` (window sills above the floor, not the ground: the same
+    at 0.38), `town_layout.gd` (one line: `end_steps` read as Vector2s), `waypoints.gd` (the
+    saloon's places at its own floor, `store_walk_east`/`saloon_walk_west` over the steps),
+    `human_body.gd` (the snap), `config/town.json`, tests `test_steps` (+1: up and down the end
+    steps), `test_town_day` and `test_town_layout` (the saloon's floor). Mine: the porch folk,
+    bench, lanterns and carried dressing go up with the walk (`StreetDressing.walk_lift`), nothing
+    stands on the end steps or a metre of the store's walk before them, FacadeArt's windows above
+    the floor, ShotMatch's floor ray, `tools/screenshots.gd`'s saloon views lifted. Picture
+    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 357 tests pass. Not merged (with the
+    saloon front, on Sean's yes).

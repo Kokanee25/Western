@@ -136,7 +136,25 @@ func _buildings() -> void:
 ## Where whatever stood at `at` on the old street stands now, turned `yaw` degrees: carried with
 ## the building it stood by (TownLayout.carry), or left where it was out in the street.
 static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
-	return TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	var t := TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	if at.y > 0.3:
+		t.origin.y += walk_lift(t.origin)
+	return t
+
+
+## How much higher than the street's usual walk (0.38 m) the walk or floor under `at` stands: the
+## saloon's is raised (config/town.json), so whatever was laid out at walk height goes up with it.
+static func walk_lift(at: Vector3) -> float:
+	var saloon := TownLayout.entry(&"Saloon")
+	var top := float((saloon.get("set", {}) as Dictionary).get("floor_top", WALK_TOP))
+	var local := TownLayout.transform_of(&"Saloon").affine_inverse() * at
+	if local.x > 0.0 and local.x < 10.0 and local.z > -2.4 and local.z < 12.0:
+		return top - WALK_TOP
+	return 0.0
+
+
+## The top of the street's walks and floors but the saloon's.
+const WALK_TOP := 0.38
 
 
 ## True where a thing `radius` round would stand on a flight of steps or in the way up them, or
@@ -197,6 +215,14 @@ static func _on_flight(at: Vector3, radius := 0.6) -> bool:
 		if steps.is_empty():
 			continue
 		var local := TownLayout.transform_of(StringName(path)).affine_inverse() * at
+		# A flight at the walk's end, down to the walk beside it (the saloon's, to the store's).
+		var sets: Dictionary = e.get("set", {})
+		for es: Array in sets.get("end_steps", []):
+			var run := maxi(1, roundi((float(sets.get("top", WALK_TOP)) - float(es[1])) / 0.2)) * 0.3 + radius
+			var x := local.x if int(es[0]) == 0 else float(sets.get("length", 0.0)) - local.x
+			# The flight and a metre of the walk below it: the way between the walks kept clear.
+			if x > -1.0 - radius and x < run and local.z < radius and local.z > -2.4 - radius:
+				return true
 		for st: Array in steps:
 			var half := float(st[1]) * 0.5 + 0.4 + radius
 			if absf(local.x - float(st[0])) < half and local.z < -1.6 + radius and local.z > -4.6 - radius:
@@ -246,7 +272,7 @@ func _lanterns() -> void:
 		if b == null or b.facade.is_empty():
 			continue
 		for side in [-1.0, 1.0]:
-			var local := Vector3(b.door_rect.get_center().x + side * (b.door_rect.size.x * 0.5 + 0.55), 2.25, -0.05)
+			var local := Vector3(b.door_rect.get_center().x + side * (b.door_rect.size.x * 0.5 + 0.55), b.floor_top + 1.87, -0.05)
 			_lantern(b.transform * local, -1.0 if absf(b.rotation.y) < 0.1 else 1.0)
 
 
@@ -444,7 +470,7 @@ func _hung_board(text: String, at: Vector3) -> void:
 ## The townsfolk (FOLK), and the saloon porch's bench under the two sitting there.
 func _folk() -> void:
 	var saloon := TownLayout.transform_of(&"Saloon")
-	_model("Bench", _bench, saloon * SALOON_BENCH, rad_to_deg(saloon.basis.get_euler().y), Vector3(1.9, 0.45, 0.42), false)
+	_model("Bench", _bench, saloon * _on_porch(SALOON_BENCH), rad_to_deg(saloon.basis.get_euler().y), Vector3(1.9, 0.45, 0.42), false)
 	for i in FOLK.size():
 		var f: Array = FOLK[i]
 		var man := HumanBody.new()
@@ -467,7 +493,7 @@ func _folk() -> void:
 		brain.rest_pose = f[3] if brain.post.is_equal_approx(TownLayout.carry(f[1]) * (f[1] as Vector3)) else &"stand"
 		if SALOON_PORCH.has(f[0]):
 			# Laid out again on the saloon's porch, looking out into the street.
-			brain.faces = saloon * ((SALOON_PORCH[f[0]][0] as Vector3) + Vector3(0.0, 0.62, -6.0))
+			brain.faces = saloon * (_on_porch(SALOON_PORCH[f[0]][0]) + Vector3(0.0, 0.62, -6.0))
 			brain.rest_pose = SALOON_PORCH[f[0]][1]
 		man.add_child(brain)
 		add_child(man)
@@ -476,11 +502,20 @@ func _folk() -> void:
 		man.set_pose(brain.rest_pose)
 
 
+## A place on the saloon's porch laid out at the usual walk height, at the porch's own.
+static func _on_porch(local: Vector3) -> Vector3:
+	var top := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", WALK_TOP))
+	return local + Vector3(0.0, top - WALK_TOP, 0.0)
+
+
 ## Where a townsman of FOLK stands on the street as it is now (his post, carried with his building).
 static func post_of(f: Array) -> Vector3:
 	if SALOON_PORCH.has(f[0]):
-		return TownLayout.transform_of(&"Saloon") * (SALOON_PORCH[f[0]][0] as Vector3)
-	return out_of_doorway(TownLayout.carry(f[1]) * (f[1] as Vector3), 0.3)
+		return TownLayout.transform_of(&"Saloon") * _on_porch(SALOON_PORCH[f[0]][0])
+	var at := TownLayout.carry(f[1]) * (f[1] as Vector3)
+	if (f[1] as Vector3).y > 0.3:
+		at.y += walk_lift(at)
+	return out_of_doorway(at, 0.3)
 
 
 ## A plain porch bench: a plank seat on two legs each end, 0.45 m high.

@@ -106,7 +106,12 @@ static func _view_move(view: String) -> Transform3D:
 	var town = load("res://src/world/town_layout.gd")
 	if view in SALOON_VIEWS:
 		var was: Dictionary = town.entry(&"Saloon")["was"][0]
-		return town.transform_of(&"Saloon") * town._xform(was).affine_inverse()
+		var move: Transform3D = town.transform_of(&"Saloon") * town._xform(was).affine_inverse()
+		# Up with the saloon's raised floor (but the view from the street).
+		var lift := float((town.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38)) - 0.38
+		if view != "saloon_front_dusk":
+			move = Transform3D(Basis(), Vector3.UP * lift) * move
+		return move
 	if view in STORE_VIEWS:
 		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
 		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))

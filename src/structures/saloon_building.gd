@@ -25,6 +25,19 @@ func _init() -> void:
 	room_haze = 0.012
 
 
+## The heights above are for a floor at the street's usual 0.38 m; config/town.json raises the
+## saloon (its floor up four steps from the street, as the street painting's is), and the walls,
+## porch, sign and front go up with it so the room and the front keep their proportions.
+const BASE_FLOOR := 0.38
+const BASE_HEIGHTS := {"wall_height": 4.2, "porch_height": 3.75, "sign_from": 4.3, "front_height": 8.4}
+
+
+func build() -> void:
+	for k: String in BASE_HEIGHTS:
+		set(k, BASE_HEIGHTS[k] + floor_top - BASE_FLOOR)
+	super.build()
+
+
 func _build_furniture() -> void:
 	var f := floor_top
 	# The bar along the right-hand wall.

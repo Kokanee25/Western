@@ -90,11 +90,12 @@ func build() -> void:
 
 	var front_openings: Array[Rect2] = [door_rect]
 	if front_windows:
-		front_openings.append_array([Rect2(0.55, 1.05, 1.1, 1.35), Rect2(w - 1.65, 1.05, 1.1, 1.35)])
+		# Sills at a height above the floor (the saloon's floor stands higher than the rest).
+		front_openings.append_array([Rect2(0.55, floor_top + 0.67, 1.1, 1.35), Rect2(w - 1.65, floor_top + 0.67, 1.1, 1.35)])
 	if loft_door.has_area():
 		front_openings.append(loft_door)
-	var right_openings: Array[Rect2] = [Rect2(d * 0.55 - 0.5, 1.2, 1.0, 1.0)]
-	var back_openings: Array[Rect2] = [Rect2(w * 0.5 - 0.4, 1.3, 0.8, 0.8)]
+	var right_openings: Array[Rect2] = [Rect2(d * 0.55 - 0.5, floor_top + 0.82, 1.0, 1.0)]
+	var back_openings: Array[Rect2] = [Rect2(w * 0.5 - 0.4, floor_top + 0.92, 0.8, 0.8)]
 	var no_openings: Array[Rect2] = []
 
 	var side_top := func(_x: float) -> float: return wall_height - PLATE_H

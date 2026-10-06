@@ -221,7 +221,10 @@ static func _floor_at(street: Node3D, at: Vector3) -> float:
 	var space := street.get_world_3d().direct_space_state
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 1.0, Layers.WORLD)
 	var hit := space.intersect_ray(q)
-	return (hit.position as Vector3).y if not hit.is_empty() and (hit.position as Vector3).y < 0.8 else 0.38
+	# The saloon's floor (up its steps), not the top of a table or chair over it.
+	var saloon := street.find_child("Saloon", true, false) as FalseFrontBuilding
+	var f := saloon.floor_top if saloon else 0.38
+	return (hit.position as Vector3).y if not hit.is_empty() and (hit.position as Vector3).y < f + 0.4 else f
 
 
 static func _clear_props(street: Node3D, t: Vector3) -> void:
