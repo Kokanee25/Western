@@ -329,7 +329,11 @@ systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out
    first; one of the bandits wasn't there that night; the man in the hat may be the one who
    surrenders. **The bandits are scalp hunters** (Sean 2026-10-06): their camp has scalps drying
    on a line, Mexican as well as Native, to be sold south for the bounty as "Apache" (the
-   Glanton gang did exactly this). What you find there tells you what they came to the camp for,
+   Glanton gang did exactly this). They scalped the women they killed at the camp: that's what
+   they came for. When you reach the camp the women's own people have already covered them for
+   burial; you learn what was done from them, you aren't shown it. Among the scalps on the
+   bandits' line are the women's; the husband or a relative knows them, and bringing them home
+   for burial matters to the camp as much as what happens to the men. What you find there tells you what they came to the camp for,
    is evidence any court or marshal can't wave away, and ties in the Mexican rancher's people
    (mission 4): whoever learns of the Mexican scalps wants a say in what happens to the bandits.
    It also shows, in the world, that scalping wasn't one people's act. The violation itself is never shown, only
