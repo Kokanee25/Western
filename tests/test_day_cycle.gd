@@ -160,3 +160,12 @@ func test_the_sky_hears_of_changes_not_every_tick() -> void:
 	clock.set_time(21.0)
 	check((mat.get_shader_parameter(&"sun_dir") as Vector3).is_equal_approx(clock.get_sun_direction()), "a jump in time is sent at once")
 	env.queue_free()
+
+
+## Both playtests and the art session saw stars over the golden-hour street (17:54, the sun 6
+## degrees up): none while the sun's up, all of them at midnight.
+func test_no_stars_while_the_sun_is_up() -> void:
+	for h in [12.0, 17.6, 17.9]:
+		check(clock.get_sun_direction(h).y > 0.0, "the sun's up at %.1f" % h)
+		check_eq(clock.get_starlight(h), 0.0, "no stars at %.1f" % h)
+	check_near(clock.get_starlight(0.0), 1.0, 0.001, "all of them at midnight")

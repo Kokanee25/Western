@@ -33,9 +33,15 @@ const GIVE_UP := 30.0
 const IN_PLACE := 0.9
 ## Where the man at the fire stands, off the nearest burning (m).
 const THROW_STAND := 2.2
+## A man stands no higher than this (m: a walk or a floor, not a porch roof the fire's climbed to),
+## and a spot up on a walk counts this much further from the water (m) than one in the street (the
+## way up is by its steps, often round).
+const STAND_HIGHEST := 1.0
+const RAISED_COST := 3.0
 ## The fire's nearest burning is looked for this far from the water (m); none: it's out.
 const WATER_REACH := 40.0
-## How often the line is laid out again toward the nearest burning (s).
+## How often the line looks again at where the fire is (s): it's laid out again only when the man at
+## the fire can't reach any of it from where he stands.
 const RELAY_EVERY := 3.0
 const WALK_SPEED := 1.6
 const RUN_SPEED := 3.2
@@ -202,8 +208,9 @@ func _lay_out(fire_at: Vector3) -> void:
 
 
 ## Where a man can stand a couple of paces off a burning point to throw at it: of eight spots round
-## it, those he can stand on (the street, a walk, a floor: found by a ray down) and not inside
-## anything, the one nearest the water.
+## it, those he can stand on (the street, a walk, a floor: found by a ray down from head height, so
+## never a roof the fire has climbed to) and not inside anything, the one nearest the water, the
+## street before a walk.
 func _stand_by(fire_at: Vector3) -> Vector3:
 	var away := water_spot - fire_at
 	away.y = 0.0
@@ -219,17 +226,19 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	for k in 8:
 		var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
 		var p := Vector3(fire_at.x, 0.0, fire_at.z) + dir * THROW_STAND
-		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, fire_at.y + 1.5, p.z), Vector3(p.x, -1.0, p.z), Layers.WORLD))
+		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, STAND_HIGHEST + 0.8, p.z), Vector3(p.x, -1.0, p.z), Layers.WORLD))
 		if down.is_empty() or (down.normal as Vector3).y < 0.7:
 			continue
 		var stand: Vector3 = down.position
+		if stand.y > STAND_HIGHEST:
+			continue
 		var q := PhysicsShapeQueryParameters3D.new()
 		q.shape = probe
 		q.collision_mask = Layers.WORLD
 		q.transform = Transform3D(Basis(), stand + Vector3.UP * 0.9)
 		if not space.intersect_shape(q, 1).is_empty():
 			continue  # inside a wall
-		var d := stand.distance_to(water_spot)
+		var d := stand.distance_to(water_spot) + (RAISED_COST if stand.y > 0.15 else 0.0)
 		if d < best_d:
 			best_d = d
 			best = stand
@@ -297,7 +306,8 @@ func _physics_process(delta: float) -> void:
 				links[links.size() - 1].say(&"out")
 			disband()
 			return
-		_lay_out(near.at)
+		if throw_spot == Vector3.INF or fire.fire_near(throw_spot, THROW_REACH).count == 0:
+			_lay_out(near.at)
 	_move_buckets(delta)
 	var i := 0
 	while i < links.size():

@@ -136,3 +136,27 @@ func test_handing_a_bucket_on_a_full_going_up_and_an_empty_coming_down_swap() ->
 	check_eq(line.holding[1], full, "the full in man 1's")
 	check_eq(line.passed, 2, "two hand-overs")
 	line.disband()
+
+
+## Seen in the street: the fire climbed to a porch roof and the man at the fire was sent to stand on
+## the roof (the ray that finds standing room started above it), so nobody threw. He stands below.
+func test_the_man_at_the_fire_stands_on_the_ground_not_a_roof() -> void:
+	var roof := StaticBody3D.new()
+	roof.collision_layer = Layers.WORLD
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(8, 0.1, 8)
+	shape.shape = box
+	roof.add_child(shape)
+	world.add_child(roof)
+	roof.position = Vector3(0, 3.0, 0)
+	var line := BucketLine.new()
+	line.water = trough
+	line.fire = fire
+	world.add_child(line)
+	line.set_physics_process(false)
+	await physics_frames(2)
+	line.water_spot = Vector3(-1, 0, 10)
+	var spot := line._stand_by(Vector3(0, 3.1, 0))
+	check(spot.y < 0.5, "he stands in the street (%.2f m up)" % spot.y)
+	line.disband()
