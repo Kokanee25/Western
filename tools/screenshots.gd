@@ -171,7 +171,7 @@ func _run() -> void:
 			RenderingServer.global_shader_parameter_set(&"min_square_px", float(arg.substr(13)))
 		elif arg.begins_with("--screen-squares="):
 			screen_squares = float(arg.substr(17))
-		# The painting's mosaic in screen space (DepthMosaic, on by default: Settings.mosaic):
+		# The painting's mosaic in screen space (DepthMosaic, off by default since 2026-10-06: Settings.mosaic):
 		# --mosaic=5 (block px x metres), --steps=14 (tones of light, 0 smooth), --no-mosaic.
 		elif arg.begins_with("--mosaic="):
 			screen_squares = float(arg.substr(9))

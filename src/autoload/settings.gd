@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 5
+const LOOK_VERSION := 6
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
 ## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
@@ -78,8 +78,10 @@ var tile_look: StringName = &"square"
 var integer_scaling := false
 ## The finish pass (FINISH_SOFTEN, FINISH_GRADIENT) on.
 var finish := false
-## The screen mosaic (MOSAIC_K, MOSAIC_STEPS) on.
-var mosaic := true
+## The screen mosaic (MOSAIC_K, MOSAIC_STEPS): off by default since 2026-10-06 (Sean: "no
+## filters, the look has to be the art": it cut the drawn textures and his face into blotches);
+## O still turns it on to compare.
+var mosaic := false
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
 var surface_blocks := false
@@ -170,7 +172,7 @@ func reset_to_defaults() -> void:
 	internal_resolution = RESOLUTION_PRESETS[0]
 	integer_scaling = false
 	finish = false
-	mosaic = true
+	mosaic = false
 	mouse_sensitivity = 0.1
 	stick_look_speed = 150.0
 	touch_look_sensitivity = 0.25
@@ -223,6 +225,9 @@ func load_from_disk() -> void:
 	if look_version < 5:
 		finish = false
 		mosaic = true
+	# 6: no screen filter (the mosaic off), whatever was saved.
+	if look_version < 6:
+		mosaic = false
 	if (look_version < 2 and is_equal_approx(texels_per_meter, 40.0)) \
 			or (look_version < 3 and is_equal_approx(texels_per_meter, 64.0)):
 		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
