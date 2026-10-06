@@ -61,7 +61,7 @@ const FOLK := [
 ]
 ## Boardwalks before them: [name, x0, x1, faces +Z].
 ## How much bigger than the code model the painting's carriage lanterns are.
-const LANTERN_SCALE := 1.6
+const LANTERN_SCALE := 1.8
 const WALKS := [["WestBoardwalk", -35.6, -8.0, false], ["SouthWestBoardwalk", -32.0, -18.2, true]]
 
 
@@ -172,6 +172,29 @@ func _lantern(at: Vector3, faces: float) -> void:
 	lamp.lit_until_hour = 6
 	root.add_child(lamp)
 	lamp.position = Vector3(0, -0.08, 0.2)
+	# Its glass glows amber when it's lit, as the painting's lanterns do (the brightest things on
+	# the fronts): the lamp's chimney glass, its flame at the glass's middle.
+	var glass := root.get_node_or_null(^"Glass") as MeshInstance3D
+	if glass:
+		glass.material_override = lantern_glass()
+		lamp._chimney = glass
+		lamp.set_lit(lamp.lit)
+
+
+static var _lantern_glass: ShaderMaterial
+
+
+## The carriage lantern's glass: the chimney glass with its flame at the glass's centre and
+## squares a size for a pane this big.
+static func lantern_glass() -> ShaderMaterial:
+	if _lantern_glass == null:
+		_lantern_glass = PropModels.chimney_glass().duplicate() as ShaderMaterial
+		_lantern_glass.set_shader_parameter(&"flame_y", -0.01)
+		_lantern_glass.set_shader_parameter(&"squares_per_m", 60.0)
+		# Brighter than a table lamp's chimney: the painting's lanterns are the brightest things on
+		# the fronts, near white at the flame with a halo.
+		_lantern_glass.set_shader_parameter(&"bloom", 7.0)
+	return _lantern_glass
 
 
 ## Barrels, crates and hay along the fronts; a horse at a rail before the livery.

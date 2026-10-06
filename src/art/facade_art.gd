@@ -47,6 +47,8 @@ static func dress(b: FalseFrontBuilding) -> void:
 		_windows(b, bt)
 	if b.porch:
 		_porch(b)
+	if style == "saloon":
+		_saloon_dressing(b, bt)
 
 
 ## A box on the front: x along it, y up, d out from the studs' face toward the street.
@@ -144,6 +146,68 @@ static func _letter(panel: StructureMember, tex: Texture2D, size: Vector2) -> vo
 			(c as MeshInstance3D).material_override = m
 
 
+## Two wanted posters pinned beside the door and a spittoon on the boards by it (scenery: the
+## posters are paper, the spittoon a prop).
+static func _saloon_dressing(b: FalseFrontBuilding, bt: float) -> void:
+	var root := Node3D.new()
+	root.name = "PorchDressing"
+	b.add_child(root)
+	var o := b.door_rect
+	var places := [[Vector3(o.position.x - 1.15, 1.78, 0.0), 0.0], [Vector3(o.position.x - 0.62, 1.62, 0.0), -3.5]]
+	for k in places.size():
+		var tex := _drawn(StringName("drawn/poster_%d" % k))
+		if tex == null:
+			continue
+		var size := Vector2(0.42, 0.42 * tex.get_height() / tex.get_width())
+		var mi := MeshInstance3D.new()
+		mi.name = "Poster%d" % k
+		mi.mesh = SignArt._box(Vector3(size.x, size.y, 0.004))
+		mi.material_override = _paper(tex, size)
+		var at: Vector3 = places[k][0]
+		at.z = -(bt + 0.004)
+		mi.transform = Transform3D(Basis(Vector3.UP, PI) * Basis(Vector3.BACK, deg_to_rad(places[k][1])), at)
+		root.add_child(mi)
+	var spittoon := PropLibrary.spawn(&"spittoon")
+	spittoon.position = Vector3(o.position.x - 0.32, b.floor_top, -0.32)
+	root.add_child(spittoon)
+
+
+## Paper laid once across a board of `size` (its picture's texels as big as the board needs).
+static func _paper(tex: Texture2D, size: Vector2) -> ShaderMaterial:
+	var img := tex.get_image()
+	if img.is_compressed():
+		img.decompress()
+	img.flip_y()
+	var m := ShaderMaterial.new()
+	m.shader = PixelArt.grid_shader()
+	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
+	m.set_shader_parameter(&"tint", Color.WHITE)
+	m.set_shader_parameter(&"shade_tint", PixelArt.SHADE_TINT)
+	m.set_shader_parameter(&"roughness", 0.95)
+	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
+	m.set_shader_parameter(&"use_mipmaps", false)
+	m.set_shader_parameter(&"fixed_squares", true)
+	return m
+
+
+static var _window_glass: StandardMaterial3D
+
+
+## A front window's glass: dark, a little warm and glossy, faintly lit from the room behind.
+static func window_glass() -> StandardMaterial3D:
+	if _window_glass == null:
+		var m := StandardMaterial3D.new()
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.albedo_color = Color(0.06, 0.045, 0.035, 0.95)
+		m.roughness = 0.12
+		m.metallic_specular = 0.7
+		m.emission_enabled = true
+		m.emission = Color(0.55, 0.3, 0.12)
+		m.emission_energy_multiplier = 0.12
+		_window_glass = m
+	return _window_glass
+
+
 static func _drawn(id: StringName) -> Texture2D:
 	if id.is_empty():
 		return null
@@ -159,6 +223,39 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 	_front(b, "facade/door/jamb0", &"trim", TIMBER, o.position.x - jamb, o.position.x, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/jamb1", &"trim", TIMBER, o.end.x, o.end.x + jamb, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/head", &"trim", TIMBER, o.position.x - jamb - 0.1, o.end.x + jamb + 0.1, o.end.y, o.end.y + 0.3, bt, d1 + 0.04)
+	# Through the door, a lamp hung in the room, as the painting shows one past the batwings; the
+	# open door leaf in dark wood so the doorway reads dark behind the batwings.
+	if b.batwings:
+		for i in 2:
+			var door := b.get_member(StringName("%s/front/door%s" % [b.structure_id, "" if i == 0 else str(i)]))
+			if door:
+				(door.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(&"dark_trim", 0)
+		var lamp := OilLamp.new()
+		lamp.name = "DoorwayLamp"
+		lamp.hanging = true
+		lamp.energy = 0.8
+		lamp.light_range = 4.0
+		lamp.lit_from_hour = 17
+		lamp.lit_until_hour = 6
+		lamp.set_meta(&"lamp_group", &"saloon")
+		lamp.position = Vector3(o.get_center().x + 0.3, o.end.y + 0.1, 1.6)
+		b.add_child(lamp)
+		# The room past the doorway dark, as the painting's is (a street front's room isn't built
+		# inside: its sunlit back wall showed through the door as a pale panel). Scenery, not a member.
+		if not b.furnished:
+			var dark := MeshInstance3D.new()
+			dark.name = "DoorwayDark"
+			var q := QuadMesh.new()
+			q.size = Vector2(o.size.x + 1.2, o.size.y + 0.8)
+			dark.mesh = q
+			var m := StandardMaterial3D.new()
+			m.albedo_color = Color(0.035, 0.024, 0.018)
+			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED  # the lamp before it mustn't light it up
+			dark.material_override = m
+			dark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			dark.position = Vector3(o.get_center().x, o.position.y + q.size.y * 0.5 - 0.1, 2.4)
+			dark.rotation.y = PI  # faces the street (-Z)
+			b.add_child(dark)
 	# The batwings louvred: slats across each leaf, dark between (the leaves are as they were).
 	if b.batwings:
 		var slats := WoodMaterials.get_material(&"batwing_slats", 0)
@@ -180,6 +277,11 @@ static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 		_front(b, p + "/jamb1", &"trim", TIMBER, o.end.x, o.end.x + side, o.position.y - 0.1, o.end.y, bt, d1)
 		_front(b, p + "/head", &"trim", TIMBER, o.position.x - side - 0.06, o.end.x + side + 0.06, o.end.y, o.end.y + 0.18, bt, d1 + 0.03)
 		_front(b, p + "/stool", &"trim", TIMBER, o.position.x - side - 0.08, o.end.x + side + 0.08, o.position.y - 0.16, o.position.y - 0.04, bt, d1 + 0.05)
+		# The glass dark and warm, the room's lamplight behind it (the painting's windows), not the
+		# sky's grey sheen.
+		var glass := b.get_member(StringName("%s/front/glass_%d_%d" % [b.structure_id, int(o.position.x * 100.0), int(o.position.y * 100.0)]))
+		if glass:
+			(glass.get_child(0) as MeshInstance3D).material_override = window_glass()
 		# Glazing bars just outside the glass, from the head to the sill and across between the king studs.
 		var bar := 0.04
 		var cx := o.get_center().x
