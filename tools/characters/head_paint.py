@@ -622,17 +622,35 @@ def face_points(cid):
     return None
 
 
-# His eyes drawn as the painting draws them (characters.json `bake.eyes`): the painter leaves them
-# small and dark in their sockets, and under the brim in the saloon shot they read as dark smudges,
-# where the painting's man has a dark upper lid, a warm white either side of a dark iris and a
-# glint. Each eye's opening (MediaPipe's outline of it, opened by `open` up and down) is the white,
-# the iris (its own landmarks' ring, times `iris`) dark with a darker pupil and a glint high on its
-# side towards his left, and a line of lid (`lid` metres) along the top. Colours 0..255.
-EYE_WHITE = (226, 212, 192)
-EYE_IRIS = (74, 48, 32)
-EYE_PUPIL = (22, 15, 12)
-EYE_GLINT = (252, 246, 236)
-EYE_LID = (38, 24, 18)
+# His eyes drawn over his texture, clearer and brighter than the painting draws them (Sean,
+# 2026-10-06: "make the eyes super clear and bright - the eyes won't match the art style";
+# characters.json `bake.eyes`). The painter leaves them small and dark in their sockets, and its
+# own whites and lashes sit a millimetre or two off his landmarks, cut into squares. So each
+# eye's socket (`clean` times the opening's size round it) is cleaned of what's much darker,
+# lighter or greyer than the skin round it, and the eye is drawn texel by texel from his face's
+# landmarks: the opening (MediaPipe's outline of it, `size` times as big and `open` times as
+# tall) in a bright warm white, shaded under the lid and at the corners; the iris (its own
+# landmarks' ring, times `iris`) with a dark rim and a darker pupil; a glint high on its side
+# towards his left (your right, where the saloon shot's lamp is); a dark upper lid `lid` metres
+# thick, a little past the outer corner; a lower lid in his skin's shade. Colours 0..255.
+EYE_WHITE = (242, 236, 224)
+EYE_WHITE_SHADE = (198, 184, 166)
+EYE_IRIS = (78, 48, 28)
+EYE_IRIS_RIM = (32, 19, 12)
+EYE_PUPIL = (10, 7, 6)
+EYE_GLINT = (255, 253, 247)
+EYE_LID = (30, 18, 12)
+# His skin as the game should light it (characters.json `bake.skin`): the painter lights his face
+# from one side (in the pose check's even light his left cheek is L* 60, his right 48), and the
+# game lights it again, so in the saloon the lit side burns (L* 69 at the top tenth, the painting's
+# 45). `even`: that share of the painted light taken out of his skin (each skin texel scaled in
+# linear light by its neighbourhood's lightness, SKIN_REACH round it, towards his face's own
+# median times `lift`, so the squares' own mosaic stays); `hue`: degrees his skin turns towards
+# yellow (ours is ~5 redder than the painting's man's); `stubble`: the grey the painter left on
+# his chin and jaw warmed to that share of his skin's colour.
+SKIN_REACH = 0.035
+SKIN = {}   # --skin=even,hue,stubble,lift over characters.json's
+EYES = {}   # --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024,iris:1.1 over characters.json's
 # MediaPipe's outline of each eye (his right, his left).
 EYE_OUTLINES = ([33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
                 [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398])
@@ -746,6 +764,110 @@ def _inside(poly, pts):
     return inside
 
 
+def _lab(rgb):
+    """sRGB 0..255 rows -> CIE Lab (D65)."""
+    a = np.clip(rgb / 255.0, 0.0, 1.0)
+    lin = np.where(a <= 0.04045, a / 12.92, ((a + 0.055) / 1.055) ** 2.4)
+    xyz = lin @ np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]).T
+    xyz /= np.array([0.95047, 1.0, 1.08883])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16.0 / 116.0)
+    return np.stack([116.0 * f[:, 1] - 16.0, 500.0 * (f[:, 0] - f[:, 1]), 200.0 * (f[:, 1] - f[:, 2])], axis=1)
+
+
+def _rgb(lab):
+    """CIE Lab rows -> sRGB 0..255."""
+    fy = (lab[:, 0] + 16.0) / 116.0
+    f = np.stack([fy + lab[:, 1] / 500.0, fy, fy - lab[:, 2] / 200.0], axis=1)
+    xyz = np.where(f > 0.206893, f ** 3, (f - 16.0 / 116.0) / 7.787) * np.array([0.95047, 1.0, 1.08883])
+    lin = xyz @ np.array([[3.2406, -1.5372, -0.4986], [-0.9689, 1.8758, 0.0415], [0.0557, -0.2040, 1.0570]]).T
+    lin = np.clip(lin, 0.0, 1.0)
+    return 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+
+
+def even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin):
+    """His head's skin in `out` (in place) as the game should light it: SKIN_REACH, `bake.skin`."""
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    head = p[:, 1] > cut
+    ty, tx, p = ty[head], tx[head], p[head]
+    rgb = out[ty, tx]
+    lab = _lab(rgb)
+    chroma = np.hypot(lab[:, 1], lab[:, 2])
+    hue = np.degrees(np.arctan2(lab[:, 2], lab[:, 1]))
+    is_skin = (chroma >= 12) & (hue > 20) & (hue < 80) & (lab[:, 0] >= 22)
+    face = face_points(cid)
+    if face is not None:
+        # His face, ears and neck: under the top of his forehead and near his head's middle (his
+        # brown hat is skin-coloured by the rest, and darkened his face towards its own).
+        middle = (face[234] + face[454]) / 2
+        is_skin &= (p[:, 1] < face[10][1]) & (np.hypot(p[:, 0] - middle[0], p[:, 2] - middle[2]) < 0.075)
+    if is_skin.sum() < 100:
+        print("  no skin found on his head")
+        return
+    lin = np.where(rgb / 255.0 <= 0.04045, rgb / 255.0 / 12.92, ((rgb / 255.0 + 0.055) / 1.055) ** 2.4)
+    y = lin @ np.array([0.2126, 0.7152, 0.0722])
+    share = float(skin.get("even", 0.0))
+    if share:
+        # The neighbourhood's lightness: skin texels averaged in cubes of SKIN_REACH, each texel
+        # reading the 27 cubes round its own (dark hair, brows and the moustache left out).
+        c = SKIN_REACH / HEIGHT_M
+        q = np.floor(p / c).astype(np.int64)
+        q -= q.min(axis=0) - 1
+        span = q.max(axis=0) + 2
+        code = lambda qq: (qq[:, 0] * span[1] + qq[:, 1]) * span[2] + qq[:, 2]
+        own = code(q)
+        keys, lab_id = np.unique(own[is_skin], return_inverse=True)
+        tot = np.bincount(lab_id, y[is_skin])
+        cnt = np.bincount(lab_id).astype(np.float64)
+        near_tot = np.zeros(len(p))
+        near_cnt = np.zeros(len(p))
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for dz in (-1, 0, 1):
+                    cc = code(q + np.array([dx, dy, dz]))
+                    i = np.clip(np.searchsorted(keys, cc), 0, len(keys) - 1)
+                    hit = keys[i] == cc
+                    near_tot[hit] += tot[i[hit]]
+                    near_cnt[hit] += cnt[i[hit]]
+        smooth = np.where(near_cnt > 0, near_tot / np.maximum(near_cnt, 1.0), y)
+        # Towards his face's own lightness (between his brows and his mouth, forward of his ears),
+        # so the painted light goes and his face keeps its brightness: the median of all his skin
+        # (his neck and ears, under the chin and jaw, darker) dimmed his face by L* 9.
+        target = float(np.median(y[is_skin]))
+        if face is not None:
+            cheeks = is_skin & (p[:, 1] < face[105][1]) & (p[:, 1] > face[14][1]) & (p[:, 0] > face[1][0] - 0.05)
+            if cheeks.sum() > 100:
+                target = float(np.median(y[cheeks]))
+        target *= float(skin.get("lift", 1.0))
+        factor = np.clip((target / np.maximum(smooth, 1e-4)) ** share, 0.6, 1.6)
+        lin[is_skin] *= factor[is_skin, None]
+        rgb = 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.clip(lin, 0, 1) ** (1 / 2.4) - 0.055)
+        lab = _lab(rgb)
+    turn = np.radians(float(skin.get("hue", 0.0)))
+    if turn:
+        a, bb = lab[is_skin, 1], lab[is_skin, 2]
+        lab[is_skin, 1] = a * np.cos(turn) - bb * np.sin(turn)
+        lab[is_skin, 2] = a * np.sin(turn) + bb * np.cos(turn)
+    warm = float(skin.get("stubble", 0.0))
+    stubble = np.zeros(len(p), dtype=bool)
+    if warm and face is not None:
+        # His chin and jaw: below his lower lip, forward of his ears, grey (little colour).
+        mouth, chin = face[14], face[152]
+        jaw = abs(face[234][2] - face[454][2]) / 2
+        stubble = (p[:, 1] < mouth[1]) & (p[:, 1] > chin[1] - 0.012) & (np.abs(p[:, 2] - chin[2]) < jaw) & (p[:, 0] > chin[0] - 0.06)
+        stubble &= (np.hypot(lab[:, 1], lab[:, 2]) < 14) & (lab[:, 0] > 15)
+        skin_ab = np.median(lab[is_skin, 1:], axis=0)
+        lab[stubble, 1:] = lab[stubble, 1:] * (1 - warm) + skin_ab * warm
+        lab[stubble, 0] *= 0.94
+    changed = is_skin | stubble
+    out[ty[changed], tx[changed]] = _rgb(lab[changed])
+    print("  his skin: %d texels, painted light %.0f%% taken out, turned %+.0f deg, %d texels of stubble warmed" % (
+        is_skin.sum(), share * 100, np.degrees(turn), stubble.sum()))
+
+
 def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
     """His eyes drawn over `out` (in place): EYE_WHITE and friends, from his face's landmarks."""
     face = face_points(cid)
@@ -760,10 +882,12 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
     n = nrm[t[:, 0]] * b[:, :1] + nrm[t[:, 1]] * b[:, 1:2] + nrm[t[:, 2]] * b[:, 2:3]
     fwd = np.array([1.0, 0.0, 0.0])          # Tripo's frame: he faces +X, his right +Z, up +Y
     opening = float(eyes.get("open", 1.0))
-    drawn = 0
+    grow = float(eyes.get("size", 1.0))
+    clean = float(eyes.get("clean", 0.0))
+    lid_w = float(eyes.get("lid", 0.0012)) / HEIGHT_M
+    drawn = cleaned = 0
     for outline, ring, (outer, inner) in zip(EYE_OUTLINES, IRIS_RINGS, EYE_CORNERS):
         c = face[ring[0]]
-        r_iris = np.linalg.norm(face[ring[1:]] - c, axis=1).mean() * float(eyes.get("iris", 1.0))
         u = face[outer] - face[inner]
         u -= fwd * (u @ fwd)
         u /= np.linalg.norm(u)
@@ -776,23 +900,52 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
         flat = lambda q: np.stack([(q - c) @ u, (q - c) @ v], axis=-1)
         poly = flat(face[outline])
         mid = poly.mean(axis=0)
-        poly = mid + (poly - mid) * np.array([1.0, opening])
-        reach = np.abs(poly).max() * 1.6
+        poly = mid + (poly - mid) * np.array([grow, grow * opening])
+        half = np.abs(poly - mid).max(axis=0)          # half the opening's width and height
+        centre = mid * (1.0 - grow)                    # the iris, moved with the eye as it grows
+        r_iris = np.linalg.norm(flat(face[ring[1:]]), axis=1).mean() * float(eyes.get("iris", 1.0)) * grow
+        reach = half.max() * max(2.0, clean * 1.6)
         near = (np.linalg.norm(p - c, axis=1) < reach) & (np.abs((p - c) @ fwd) < reach) & (n @ fwd > 0.15)
+        idx = np.nonzero(near)[0]
         q = flat(p[near])
         white = _inside(poly, q)
-        lid_w = float(eyes.get("lid", 0.0012)) / HEIGHT_M
-        lid = _inside(poly + np.array([0.0, lid_w]), q) & ~white & (q[:, 1] > mid[1])
-        d = np.linalg.norm(q, axis=1)
+        lower_colour = np.array(EYE_LID) * 2.0
+        if clean:
+            # The socket: an ellipse round the opening, `clean` times its half-width across and
+            # twice that up and down. What in it is much lighter or greyer than its skin (the
+            # painter's whites off ours) goes, and near the opening (half as far up and down) what
+            # is much darker too (its lashes, cut into squares); further up the dark of his
+            # brow's shadow stays. They take the colour of the socket's own skin.
+            e = (q - mid) / (half * np.array([clean, clean * 2.0]))
+            rr = np.hypot(e[:, 0], e[:, 1])
+            socket = (rr < 1.0) & ~white
+            close = np.hypot(e[:, 0], e[:, 1] * 2.0) < 1.0
+            lab = _lab(out[ty[idx], tx[idx]])
+            chroma = np.hypot(lab[:, 1], lab[:, 2])
+            skin = socket & (chroma >= 12) & (lab[:, 0] > 20)
+            if skin.sum() > 10:
+                ref = np.median(lab[skin], axis=0)
+                odd = socket & ((lab[:, 0] > ref[0] + 12) | (chroma < 10) | (close & (lab[:, 0] < ref[0] - 16)))
+                out[ty[idx[odd]], tx[idx[odd]]] = _rgb(ref[None, :])[0]
+                cleaned += int(odd.sum())
+                lower_colour = _rgb((ref * np.array([0.72, 1.0, 1.0]))[None, :])[0]
+        d = np.linalg.norm(q - centre, axis=1)
+        shade = white & (~_inside(poly - np.array([0.0, lid_w * 0.8]), q) | (np.abs(q[:, 0] - mid[0]) > half[0] * 0.78))
         iris = white & (d < r_iris)
+        rim = iris & (d > r_iris * 0.78)
         pupil = white & (d < r_iris * 0.42)
-        # The glint up and towards his left (your right, where the saloon shot's lamp is).
-        glint = white & (np.linalg.norm(q - np.array([-0.38, 0.38]) * r_iris, axis=1) < r_iris * 0.24)
-        idx = np.nonzero(near)[0]
-        for mask, colour in ((white, EYE_WHITE), (iris, EYE_IRIS), (pupil, EYE_PUPIL), (glint, EYE_GLINT), (lid, EYE_LID)):
+        glint = white & (np.linalg.norm(q - centre - np.array([-0.36, 0.4]) * r_iris, axis=1) < r_iris * 0.34)
+        wide = mid + (poly - mid) * np.array([1.08, 1.0])
+        upper = _inside(wide + np.array([0.0, lid_w]), q) & ~white & (q[:, 1] > mid[1] - half[1] * 0.3)
+        lower = _inside(poly - np.array([0.0, lid_w * 0.6]), q) & ~white & ~upper & (q[:, 1] < mid[1])
+        for mask, colour in ((lower, lower_colour), (white, EYE_WHITE), (shade, EYE_WHITE_SHADE), (iris, EYE_IRIS),
+                             (rim, EYE_IRIS_RIM), (pupil, EYE_PUPIL), (glint, EYE_GLINT), (upper, EYE_LID)):
             out[ty[idx[mask]], tx[idx[mask]]] = colour
         drawn += int(white.sum())
-    print("  eyes drawn: %d texels of white, opened x%.2f" % (drawn, opening))
+        print("  eye: opening %.1f x %.1f mm, iris %.1f mm across, %d texels of white" % (
+            half[0] * 2 * HEIGHT_M * 1000, half[1] * 2 * HEIGHT_M * 1000, r_iris * 2 * HEIGHT_M * 1000, white.sum()))
+    print("  eyes drawn: %d texels of white, opened x%.2f, x%.2f as big, %d texels of the painter's eyes cleaned" % (
+        drawn, opening, grow, cleaned))
 
 
 def bake(cid):
@@ -850,13 +1003,17 @@ def bake(cid):
             out[bmask] = sheet[bmask]
             used += ["body " + v for v in bused]
             print("  %.0f%% of the body's texels painted" % (100.0 * bgot.mean()))
+    y0, y1 = pos[:, 1].min(), pos[:, 1].max()
+    cut = y0 + (y1 - y0) * (HEAD_FROM if head.get("cut") is None else head["cut"])
+    skin = dict(bk.get("skin") or {}, **SKIN)
+    if skin and not SMOOTH:
+        even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin)
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
-        y0, y1 = pos[:, 1].min(), pos[:, 1].max()
-        cut = y0 + (y1 - y0) * (HEAD_FROM if head.get("cut") is None else head["cut"])
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
-    if bk.get("eyes") and not SMOOTH:
-        draw_eyes(out, cid, pos, nrm, uv, tris, size, bk["eyes"])
+    eyes = dict(bk.get("eyes") or {}, **EYES)
+    if eyes and not SMOOTH:
+        draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes)
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -911,7 +1068,7 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -937,6 +1094,14 @@ def main():
             mm = [float(x) for x in a.split("=", 1)[1].split(",")]
             CELLS = {} if not mm[0] else dict(CELLS or {}, m=mm[0] / 1000.0, body_m=(mm[1] if len(mm) > 1 else mm[0]) / 1000.0,
                                               eye_m=(mm[2] if len(mm) > 2 else 0.0) / 1000.0)
+        elif a.startswith("--skin="):
+            # His skin as the game should light it (SKIN_REACH): --skin=0.6,4,0.7,1 (even, hue,
+            # stubble, lift)
+            v = [float(x) for x in a.split("=", 1)[1].split(",")]
+            SKIN = dict(zip(("even", "hue", "stubble", "lift"), v))
+        elif a.startswith("--eyes="):
+            # How his eyes are drawn (draw_eyes): --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024
+            EYES = {k: float(x) for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a.startswith("--cells-depth="):
             # The squares' depth along the way the surface faces, a share of their size: 0.5
             CELLS = dict(CELLS or {}, depth=float(a.split("=", 1)[1]))
