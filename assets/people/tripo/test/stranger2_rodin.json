@@ -1,0 +1,103 @@
+[
+ {
+  "asked": {
+   "tier": "Gen-2.5-Extreme-High",
+   "quality_mesh_option": "18K Quad",
+   "material": "PBR",
+   "geometry_file_format": "glb",
+   "TAPose": true,
+   "addons": "HighPack"
+  }
+ },
+ {
+  "upload_initiate": {
+   "file": "stranger2_full.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aad3d3f/kmQ-gxKiOUd7CqgUxAIvb_stranger2_full.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aad3d3f/kmQ-gxKiOUd7CqgUxAIvb_stranger2_full.png?signature=1hZKkvj0dQ4tRqso"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "stranger2_left.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aad3d3f/7A8YxSHM6KapMMZDqfegP_stranger2_left.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aad3d3f/7A8YxSHM6KapMMZDqfegP_stranger2_left.png?signature=QOhJADR4HkbCpnzq"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "stranger2_back.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aad3d3f/MILzL-9swjNuXgXVHBQAj_stranger2_back.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aad3d3f/MILzL-9swjNuXgXVHBQAj_stranger2_back.png?signature=miR1B44e9XeQUqSJ"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "stranger2_right.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aad3d3f/6eKLQmHW-3gNoGaAYyvj8_stranger2_right.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aad3d3f/6eKLQmHW-3gNoGaAYyvj8_stranger2_right.png?signature=zkTqayeWEqUfj5_Z"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "queued": {
+   "status": "IN_QUEUE",
+   "request_id": "01a10f28-902e-7c51-ada3-8e38d59aa433",
+   "response_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a10f28-902e-7c51-ada3-8e38d59aa433",
+   "status_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a10f28-902e-7c51-ada3-8e38d59aa433/status",
+   "cancel_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a10f28-902e-7c51-ada3-8e38d59aa433/cancel",
+   "logs": null,
+   "metrics": {},
+   "queue_position": 0,
+   "user_queue_position": 0,
+   "user_queued_count": 1
+  }
+ },
+ {
+  "answer": {
+   "model_mesh": {
+    "url": "https://v3b.fal.media/files/b/0aad3d50/sU6aSXGjVQEs2vx5k3W7i_base_high_pbr.glb",
+    "content_type": "application/octet-stream",
+    "file_name": "base_high_pbr.glb",
+    "file_size": 27753376
+   },
+   "model_meshes": [
+    {
+     "url": "https://v3b.fal.media/files/b/0aad3d50/-KureHKH61CNgi4nPrW5R_model_export_raw.glb",
+     "content_type": "application/octet-stream",
+     "file_name": "model_export_raw.glb",
+     "file_size": 7739784
+    }
+   ],
+   "seed": 16285,
+   "textures": [
+    {
+     "url": "https://v3b.fal.media/files/b/0aad3d50/LH19MywNX2rgaJurSrR7u_preview.webp",
+     "content_type": "application/octet-stream",
+     "file_name": "preview.webp",
+     "file_size": 3760,
+     "width": null,
+     "height": null
+    }
+   ]
+  }
+ }
+]
