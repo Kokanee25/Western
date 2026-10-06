@@ -34,6 +34,19 @@ same body.
   walk to the saloon, and in for a drink. Press **U** to bring the gang in: they ride in from the
   west, drink at the saloon and lean on the storekeeper next door. Tell me how the street's size
   feels against the map.
+### Changed: the V look flickers less
+
+- **V (the blocks fixed to the world) now steadies the picture it cuts up**: the game smooths
+  the jagged outlines (multisample anti-aliasing) and softens the textures' square edges by a
+  pixel before V cuts the frame into blocks. In my measurements here it flickers about a third
+  to two fifths less as you turn, walk and circle, and five to eight times less than today's look.
+- **Try:** press **V** in the saloon at night, stand by the card table and turn slowly, then walk
+  round the table and up to the man. Watch the floor boards, the bottles behind the bar and the
+  men's outlines: they were where it shimmered. Then press **F3** and send me the photo: the
+  smoothing is your graphics card's work, and I can't measure that here.
+- **A correction:** I said V and M tie against the street painting. V's street numbers came
+  from renders made before a fix, over the wrong textures. Against the street painting V
+  actually comes last of the three looks; against the saloon painting it's still the closest.
 
 ### New: the townsfolk carry water
 
@@ -106,7 +119,7 @@ same body.
   room.
 - **What I found here** (rendered in software, not on your card): V is three to five times
   steadier than today's look and M much steadier still (steadier than no mosaic at all). Against
-  the paintings V scores best in the saloon and the two tie on the street. M in this build blows
+  the paintings V scores best in the saloon and M best on the street (corrected since). M in this build blows
   out the lamp's pool of light on the table (its own lighting: the art session's to fix); lit the
   game's ordinary way it ties V there too. V puts blocks on everything, the man's face included,
   and steps every outline the way the painting does, but its outlines and glints flicker a

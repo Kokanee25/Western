@@ -42,6 +42,10 @@ uniform float texels = 384.0;
 // (1: all new).
 uniform vec3 prev_origin = vec3(0.0);
 uniform float fade = 1.0;
+// 1: the crossing mixes each block's old colour into its new one (no block jumps; for a moment
+// the two cubes' blocks show through each other); 0: each block switches whole at its own moment
+// (a dither by the block, as the paper does).
+uniform int fade_blend = 0;
 // Samples a side across each block, averaged where they land on the block's own surface (1: the
 // centre alone, crisp).
 uniform int samples = 1;
@@ -243,10 +247,12 @@ void fragment() {
 	} else if (dist <= far) {
 		vec4 t;
 		col = block_colour(w, probe_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, VIEWPORT_SIZE, t);
-		if (fade < 1.0 && texel_hash(t) >= fade) {
-			// This block hasn't crossed to the new cube yet: the old cube's block here.
+		if (fade < 1.0 && (fade_blend > 0 || texel_hash(t) >= fade)) {
+			// This block hasn't crossed to the new cube yet (or, blending, is on its way): the old
+			// cube's block here.
 			vec4 tp;
-			col = block_colour(w, prev_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, VIEWPORT_SIZE, tp);
+			vec3 old = block_colour(w, prev_origin, own, cam, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX, VIEWPORT_SIZE, tp);
+			col = fade_blend > 0 ? mix(old, col, smoothstep(0.0, 1.0, fade)) : old;
 		}
 		col = band(col);
 		if (debug == 1) {
