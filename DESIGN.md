@@ -980,6 +980,27 @@ each time.
 - Fifty people needs "far people think slower" (full detail near, cheap across town, almost
   nothing indoors out of sight) inside the frame budget; build that before the cast grows.
 
+**Period details (ideas only, Sean 2026-10-06: not all will be built)**
+- Law and guns: guns checked at the edge of town (a token back, as Dodge City and Tombstone
+  ordered); "buffaloing" a drunk with a pistol barrel instead of shooting him; wanted posters
+  that describe a man (scar, horse, hat) with no photograph; the undertaker's photographs of
+  dead outlaws propped in their coffins, shown in his window; vigilance committees and hangings
+  from the livery's hay-hoist beam when the law won't act.
+- Fire: the church bell or a hung iron triangle as the alarm that brings the bucket line; water
+  barrels kept on the boardwalks for fires; wet blankets on the neighbours' roofs against
+  sparks; pulling down or blowing up a building as a firebreak.
+- Time and sound: no standard time yet (railroad time came in November 1883), so the town's sun
+  time and the railroad's clock disagree; the mine's or mill's whistle at the change of shift,
+  the dinner triangle, Sunday bells; spurs that others hear coming; the telegraph clicking, its
+  operator knowing everyone's business.
+- Saloon and money: faro as the main game, dealt from a box and easy to rig; the free lunch,
+  salted to keep men drinking; hard money (gold and silver coin, "two bits") and gold dust
+  weighed on scales, a thumb on the scale the easy cheat; sawdust on the floor, spittoons.
+- Daily life: the water wagon sprinkling the street (a water source too); the barber who pulls
+  teeth and runs the bathhouse; a Chinese laundry; the medicine show and patent medicine
+  (mostly alcohol and opium); lamps lit at dusk by hand and the town going dark house by house;
+  brands registered in a book and rustlers' running irons; dances and box socials.
+
 **Props (proposed approach)**
 Hundreds of props in three tiers: a few hero props seen up close, made one by one; about a hundred
 common props made in themed batches (saloon, store, livery, jail, doctor's), each batch checked as
