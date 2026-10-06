@@ -120,7 +120,7 @@
     "light": "soft even light on his face",
     "guide_light": 0.25,
     "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face",
-    "frame": 1.4,
+    "frame": 1.8,
     "bust": true
    },
    "body": {
