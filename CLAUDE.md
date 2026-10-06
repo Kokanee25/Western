@@ -3401,3 +3401,54 @@ a few views renders them as the full run does.
   brim. His hat is one piece with his head, and the turn kinked the brim at the sides and back
   while barely moving it from the front. His eyes in the shot are the shot's light and head pose
   (the art session's).
+- 2026-10-06 (characters session, later): **The painting's square count on the stylised
+  stranger, his squares made flat, his pose fitted to the painting; his face is off his head
+  hitbox.** Sean: "Yea" to framing his head wider still and to passing the shot's light and pose
+  to the art session (which has since turned the screen mosaic off by default, at Sean's word).
+  - People run 54 (head views framed 1.8x wider, ~$0.12): 20 squares across his face in the front
+    painting (the judge's tile size inside MediaPipe's face outline), the painting's man's ~20.
+    Judge v2 on the saloon shot (no round written), run 53 / run 54: game's look 0.236 / 0.222,
+    M 0.386 / 0.380; with no mosaic (the coming default) run 54 scores 0.212.
+  - In the game his squares still barely read. Side by side at three times size, the painting's
+    face is flat squares ~8 px across at 1280, each one tone, lit as one, with high contrast
+    between neighbours. His is a finely drawn painted face. Three causes, measured:
+    - the painter draws its squares soft-edged and low in contrast;
+    - the bake averaged overlapping views (facing^8), laying one view's squares over another's;
+    - his texture is so fine (2048², ~0.5 mm a texel on his face) that the game's per-texel
+      light is smooth across each painted square.
+  - `head_paint.py`:
+    - `--flatten=N` / `bake.flatten` runs each painting through a Kuwahara filter before the
+      bake, so every painted square is flat with a hard edge wherever the painter put it. Its
+      squares drift (no one grid fits more than a fraction of their edges), so a grid snap would
+      cut across the drawing.
+    - `--view-power=N` / `bake.view_power`: 0 takes each texel from its squarest view, with no
+      average.
+    - The default bake is unchanged (checked to the texel against run 54's).
+    - `stranger2s` takes flatten 2, view power 0. In the lineup's plain light his face reads as
+      the painting's drawing in blocks: iris blocks with white blocks either side, flat cheek and
+      nose patches. Run 54's averaged bake was softer and grainier. In the saloon's side-lit shot
+      the change is small, and the judge is level (no mosaic 0.212 → 0.211, M 0.380 → 0.381).
+  - `fit_tripo.py` writes where a man's painted eyes land (`eyes` in his report): `stylise.py`'s
+    landmarks' iris centres carried through his warp with his head. `tools/fit_shot.gd` takes
+    `--model=` and aims those eyes at the painting's (the anatomy's otherwise).
+  - **His pose fitted to the painting** (`fit_shot.gd --model=stranger2s`, from ShotMatch's
+    offsets; sent to the art session for its per-model ShotMatch offsets). SEAT and TURN are
+    unchanged. pose_offsets: head (-1.5, -8.5, 9.75), neck (-8, -9.5, 0), chest (-6, -1.5, 0),
+    upper_arm_r (9.5, 10.5, 0), forearm_r (4, -10.5, 0), hand_r (22.5, 8.125, -16.25). In the
+    painting's 1672 px frame:
+    - his eyes land 3.4 px from its eyes (135 px off before: 128 px too high);
+    - the outline overlap is 0.67 (0.60 before);
+    - the cup is on its cup (105 px tall to its 128, as before).
+    He gets there by leaning in (chest 6° and neck 8° forward), as the painting's man does.
+  - **Found: his face is off his head hitbox.** His painted eyes are at (±0.03, 1.775, -0.163);
+    the anatomy's are at (±0.033, 1.655, -0.083), 12 cm lower and 8 cm back. At his eye height
+    the head capsule (1.61–1.70, r 0.095) reaches 6 cm forward of its axis, while his face is
+    16 cm forward, so a shot through his face misses his head. Cause: the joint the fit finds as
+    his head (Tripo's convention, half way up the neck) is 8.6 cm under his chin, where ours is
+    at chin level. The joint-to-joint warp therefore lifts his whole head ~9 cm and pushes it
+    4 cm forward (the old stranger's eyes were 9 cm high the same way). For Sean: pull his head
+    onto the hitbox (his neck shortens ~13 cm into his collar), or let a man's head hitbox follow
+    his fit (gameplay's code). Either way the shot fit is re-run after.
+  Files: `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, `tools/fit_shot.gd`,
+  `tools/characters/characters.json`, `assets/people/stranger2s*`,
+  `assets/people/tripo/stranger2s_*`. Body tests pass (21).
