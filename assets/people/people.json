@@ -1,5 +1,5 @@
 {
- "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. `outfit`: the garments he wears and their colours (tools/blender/clothes.py makes and drapes them, and bakes each a pixel texture). Output: assets/people/<id>.glb, <id>_<garment>.png, and <id>.json (what was done). `face`: how he looks, for the image model (tools/faces/paint_face.py) to paint onto his head. A person with \"source\": \"tripo\" is a Tripo model (assets/people/tripo/<id>.glb) fitted by tools/blender/fit_tripo.py instead; he comes dressed, so his outfit is empty.",
+ "_readme": "The people tools/blender/make_people.py builds from MakeHuman (CC0). Each: MakeHuman targets (path under makehuman/data/targets, no extension) and their weights, mixed onto the base mesh; then fitted to our skeleton and body envelope. `outfit`: the garments he wears and their colours (tools/blender/clothes.py makes and drapes them, and bakes each a pixel texture). Output: assets/people/<id>.glb, <id>_<garment>.png, and <id>.json (what was done). `face`: how he looks, for the image model (tools/faces/paint_face.py) to paint onto his head. A person with \"source\": \"tripo\" is a Tripo model (assets/people/tripo/<id>.glb) fitted by tools/blender/fit_tripo.py instead; he comes dressed, so his outfit is empty. `eyes` (a fitted Tripo man): where his eyes are seen from straight in front, [x, y] in metres in our body space, his right eye first (measured once from a front view of his head: tools/characters/bold_paint.py --eye-grid); the bold paint lines his face's squares up on them.",
  "people": {
   "outlaw": {
    "note": "A hard man in his late thirties: lean, wiry, a little weathered.",
@@ -22,7 +22,8 @@
    "note": "The painting's man by image-to-3D (tools/characters/, Tripo), fitted by tools/blender/fit_tripo.py: he comes dressed, hat and all (a stopgap: his layered self is stranger_layered).",
    "source": "tripo",
    "outfit": {},
-   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
+   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar",
+   "eyes": [[0.0585, 1.7476], [-0.0254, 1.748]]
   },
   "stranger_layered": {
    "note": "The same man in layers (docs/DESTRUCTION_BRIEF.md part 5): his body painted bare-headed and coatless (`model`), and each `piece` a garment modelled alone and hung on him. The hat is in; the coat piece is still to come (see CLAUDE.md status, 2026-10-04).",
@@ -32,7 +33,8 @@
     "hat": "stranger_hat"
    },
    "outfit": {},
-   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar"
+   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, long dark hair to his collar",
+   "eyes": [[0.05, 1.772], [-0.046, 1.772]]
   },
   "kid": {
    "note": "The gang's Kid by image-to-3D from Sean's own front picture (tools/characters/: kid is given, kid_body and kid_hat painted from it), in layers: his body bare-headed (`model`) and his hat its own piece, so it can be shot off.",
@@ -42,7 +44,8 @@
     "hat": "kid_hat"
    },
    "outfit": {},
-   "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair"
+   "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair",
+   "eyes": [[0.028, 1.66], [-0.034, 1.658]]
   }
  }
 }

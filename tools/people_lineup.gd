@@ -5,7 +5,8 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd -- --out=DIR
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
 ##   [--poses=stand,hands_up,aim] (HumanBody.POSES; docs/briefs/characters.md's pose check is
-##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint)
+##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint) [--bold-paint] (their
+##   bold sets, PeopleBodies.bold_paint)
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -27,6 +28,9 @@ func _run() -> void:
 			poses = Array(a.substr(8).split(","))
 		elif a == "--head":
 			close = true
+		elif a == "--bold-paint":
+			# Their bold sets (tools/characters/bold_paint.py), by path: see character_lab.gd.
+			load("res://src/bodies/people_bodies.gd").bold_paint = true
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
 	# Close (--head): a square of 0.42 m a man, the men that far apart.

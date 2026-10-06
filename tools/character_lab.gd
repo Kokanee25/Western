@@ -7,13 +7,15 @@ extends SceneTree
 ##   [--size=WxH] (the frame; 1280x720 by default, the game's) [--outlines] (the line work, src/render/outline.gd)
 ##   [--view=shot|front|three_quarter|side|side_left|back|head_*] (shot, the painting's view, is the
 ##   default; the others orbit him at 1.8 m, looking at his chest, and write only lab.png)
+##   [--bold-paint] (his bold set: PeopleBodies.bold_paint, tools/characters/bold_paint.py)
+##   [--painting=PATH] (the painting he's pasted into; saloon-night.png by default)
 ## Writes lab.png (the frame, 640x360: him, his table and cup on black), in_painting.png (his pixels
 ## over the painting at the same size) and _x3 versions of both. The set is tools/lab_stage.gd.
 ## His pixels are found by rendering twice: once as he is, once with him casting shadows but not
 ## drawn. What differs is him, where he can be seen: the table in front of him, and his own shadow,
 ## are the same in both, so they stay the painting's.
 
-const PAINTING := "res://docs/concept/saloon-night.png"
+var PAINTING := "res://docs/concept/saloon-night.png"
 ## The frame's size: the game's default (--size=WxH to try others, e.g. the painting's 1672x941).
 var SIZE := Vector2i(1280, 720)
 ## A pixel is his if it differs by more than this (0..1, any channel) between the two renders.
@@ -39,6 +41,12 @@ func _run() -> void:
 			SIZE = Vector2i(int(a.substr(7).get_slice("x", 0)), int(a.substr(7).get_slice("x", 1)))
 		elif a.begins_with("--view="):
 			view = a.substr(7)
+		elif a == "--bold-paint":
+			# Named by path, not class: a -s script naming PeopleBodies compiles the game's scripts
+			# before the autoloads exist.
+			load("res://src/bodies/people_bodies.gd").bold_paint = true
+		elif a.begins_with("--painting="):
+			PAINTING = a.substr(11)
 		elif a.begins_with("--model="):
 			# The seated man's body (outlaw, stranger): ShotMatch.model, set at run time.
 			var shot: Variant = load("res://src/art/shot_match.gd")
