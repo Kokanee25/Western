@@ -46,6 +46,17 @@
    "outfit": {},
    "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair",
    "eyes": [[0.028, 1.66], [-0.034, 1.658]]
+  },
+  "stranger2": {
+   "note": "The stranger by Rodin Gen-2.5 (tools/characters/rodin.py) from Sean's own front picture and the three views painted from it (the model test, 2026-10-06), fitted by tools/blender/fit_tripo.py with his joints found from his shape: he comes dressed, hat and all.",
+   "source": "rodin",
+   "rodin": "test/stranger2_rodin",
+   "tris": {
+    "skin": 30000,
+    "head": 10000
+   },
+   "outfit": {},
+   "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, short dark hair"
   }
  }
 }

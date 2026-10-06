@@ -162,6 +162,152 @@ def to_body_space(p):
     return np.stack([p[..., 2], p[..., 1], -p[..., 0]], axis=-1)
 
 
+# --- A Rodin man ------------------------------------------------------------------------------
+# Rodin (Hyper3D Gen-2.5, tools/characters/rodin.py) builds a man facing +Z (glTF's way), his right
+# at -X, at its own size, and with no rig. load_rodin turns him into Tripo's frame (facing +X, his
+# right at +Z, feet on 0, 1.0 tall) and finds his joints from his shape (find_joints), so the rest
+# of the fit is a Tripo man's. Tried on the three Tripo men against their own rigs: within 2-3% of
+# his height on average, 5.5% at worst (an elbow).
+# Where Tripo's rigs put the joints, as shares of his height, hat and all (the stranger, the Kid
+# and the bare-headed stranger agree within 0.02); the neck's is its base, the head's his jaw hinge.
+RIG_Y = {"neck": 0.746, "head": 0.80, "shoulder": 0.759, "hip": 0.49, "knee": 0.265, "ankle": 0.035}
+SH_MARGIN = 0.035            # a shoulder joint, in from his outline at its height
+ARM_OUT = 0.10               # an arm's middle is at least this far out from his (a leg's isn't)
+F_ELBOW, F_WRIST = 0.40, 0.74  # the elbow and wrist along his shoulder to his finger tips
+HIP_WIDTH = (0.045, 0.09)    # a hip joint from his middle (a long coat hides his thighs)
+
+
+def surface_points(v, tris, n=400000, seed=1):
+    """Points spread evenly over his surface (by area): his cross-sections need them dense."""
+    a, b, c = v[tris[:, 0]], v[tris[:, 1]], v[tris[:, 2]]
+    area = 0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
+    rng = np.random.default_rng(seed)
+    pick = rng.choice(len(tris), size=n, p=area / area.sum())
+    r1, r2 = rng.random(n), rng.random(n)
+    s = np.sqrt(r1)
+    return a[pick] * (1 - s)[:, None] + b[pick] * (s * (1 - r2))[:, None] + c[pick] * (s * r2)[:, None]
+
+
+def _pieces(grid):
+    """Each cell of a boolean grid labelled by the piece it's in (4-neighbours; 0 = empty): the
+    smallest index in the piece, spread till nothing changes (numpy only: Blender's Python has
+    no scipy)."""
+    big = grid.size + 1
+    lab = np.where(grid, np.arange(1, grid.size + 1).reshape(grid.shape), big)
+    while True:
+        new = lab.copy()
+        new[1:, :] = np.minimum(new[1:, :], lab[:-1, :])
+        new[:-1, :] = np.minimum(new[:-1, :], lab[1:, :])
+        new[:, 1:] = np.minimum(new[:, 1:], lab[:, :-1])
+        new[:, :-1] = np.minimum(new[:, :-1], lab[:, 1:])
+        new[~grid] = big
+        if (new == lab).all():
+            return np.where(grid, lab, 0)
+        lab = new
+
+
+def slice_parts(pts, y, band=0.004, cell=0.004):
+    """The separate pieces of his cross-section at height y (each an array of points)."""
+    sl = pts[np.abs(pts[:, 1] - y) < band]
+    if len(sl) == 0:
+        return []
+    lo = sl[:, [0, 2]].min(axis=0) - 2 * cell
+    ij = np.floor((sl[:, [0, 2]] - lo) / cell).astype(int)
+    grid = np.zeros(ij.max(axis=0) + 3, bool)
+    grid[ij[:, 0], ij[:, 1]] = True
+    # One cell grown round each, so a thin gap in his surface's points doesn't split a piece.
+    grown = grid.copy()
+    grown[1:, :] |= grid[:-1, :]
+    grown[:-1, :] |= grid[1:, :]
+    grown[:, 1:] |= grid[:, :-1]
+    grown[:, :-1] |= grid[:, 1:]
+    which = _pieces(grown)[ij[:, 0], ij[:, 1]]
+    return [p for p in (sl[which == k] for k in np.unique(which)) if len(p) > 20]
+
+
+def find_joints(v, tris):
+    """His joints by Tripo's names, in Tripo's frame (v: 1.0 tall, feet on 0, facing +X, his
+    right at +Z), from his shape: the trunk's at RIG_Y in the middle of his cross-section there;
+    each arm traced down his side in slices (the pieces well out from his trunk), the elbow and
+    wrist along his shoulder to his finger tips on that line; each leg a line through the middles
+    of its cross-sections below his coat, the knee and ankle on it, the hip joint where it reaches
+    up to RIG_Y (within HIP_WIDTH of his middle)."""
+    pts = surface_points(v, tris)
+    mid = float(np.median(pts[:, 2]))
+    j = {}
+    ysh = RIG_Y["shoulder"]
+    at_sh = pts[np.abs(pts[:, 1] - ysh) < 0.006]
+    arms = {"R": [], "L": []}
+    for y in np.arange(ysh - 0.04, 0.30, -0.01):
+        parts = slice_parts(pts, y)
+        if len(parts) < 2:
+            continue
+        trunk = max(parts, key=len)
+        t_lo, t_hi = trunk[:, 2].min(), trunk[:, 2].max()
+        for p in parts:
+            c = p.mean(axis=0)
+            if p is trunk or len(p) < 30 or abs(c[2] - mid) < ARM_OUT:
+                continue
+            if c[2] > t_hi - 0.01:
+                arms["R"].append((c, p[np.argmin(p[:, 1])]))
+            elif c[2] < t_lo + 0.01:
+                arms["L"].append((c, p[np.argmin(p[:, 1])]))
+    for side, sgn in (("R", 1.0), ("L", -1.0)):
+        out = (at_sh[:, 2] - mid) * sgn
+        z = mid + sgn * (np.percentile(out[out > 0], 99.5) - SH_MARGIN)
+        near = at_sh[np.abs(at_sh[:, 2] - z) < 0.02]
+        sh = np.array([float(np.median((near if len(near) else at_sh)[:, 0])), ysh, z])
+        j[side + "_Upperarm"] = sh
+        track = arms[side]
+        tip = min((t[1] for t in track), key=lambda q: q[1]) if len(track) >= 4 \
+            else pts[np.argmax((pts[:, 2] - mid) * sgn)]
+        for name, f in (("_Forearm", F_ELBOW), ("_Hand", F_WRIST)):
+            q = sh + (tip - sh) * f
+            if len(track) >= 4:
+                # The arm's own middle at that height.
+                line = np.array([t[0] for t in track])
+                k = int(np.argmin(np.abs(line[:, 1] - q[1])))
+                if abs(line[k, 1] - q[1]) < 0.02:
+                    q = np.array([line[k, 0], q[1], line[k, 2]])
+            j[side + name] = q
+    rows = {"R": [], "L": []}
+    for y in np.arange(0.06, 0.42, 0.02):
+        legs = sorted((p for p in slice_parts(pts, y) if len(p) > 200), key=len)[-2:]
+        if len(legs) == 2:
+            for p in legs:
+                c = p.mean(axis=0)
+                rows["R" if c[2] > mid else "L"].append([y, c[0], c[2]])
+    for side, sgn in (("R", 1.0), ("L", -1.0)):
+        r = np.array(rows[side])
+        fx, fz = np.polyfit(r[:, 0], r[:, 1], 1), np.polyfit(r[:, 0], r[:, 2], 1)
+        at = lambda y: np.array([np.polyval(fx, y), y, np.polyval(fz, y)])
+        j[side + "_Calf"] = at(RIG_Y["knee"])
+        j[side + "_Foot"] = at(RIG_Y["ankle"])
+        th = at(RIG_Y["hip"])
+        th[2] = mid + sgn * float(np.clip((th[2] - mid) * sgn, *HIP_WIDTH))
+        j[side + "_Thigh"] = th
+        # Only its direction counts: TripoPerson.bones finds where his boot ends.
+        j[side + "_ToeBase"] = j[side + "_Foot"] + np.array([0.03, -0.01, 0.0])
+    j["Hip"] = (j["R_Thigh"] + j["L_Thigh"]) / 2
+    for name, key in (("NeckTwist01", "neck"), ("Head", "head")):
+        parts = slice_parts(pts, RIG_Y[key])
+        c = min(parts, key=lambda p: abs(p[:, 2].mean() - mid)).mean(axis=0)
+        j[name] = np.array([c[0], RIG_Y[key], c[2]])
+    return j
+
+
+def load_rodin(path):
+    """A Rodin man as load_glb gives a Tripo one: turned into Tripo's frame (his front +X, his
+    right +Z), feet on 0, 1.0 tall, centred, and his joints found from his shape."""
+    pos, nrm, uv, tris, _joints, colour = load_glb(path)
+    turn = lambda p: np.stack([p[:, 2], p[:, 1], -p[:, 0]], axis=1)
+    v, n = turn(pos), turn(nrm)
+    y0, y1 = v[:, 1].min(), v[:, 1].max()
+    v = (v - np.array([0.0, y0, 0.0])) / (y1 - y0)
+    v -= np.array([(v[:, 0].min() + v[:, 0].max()) / 2, 0.0, (v[:, 2].min() + v[:, 2].max()) / 2])
+    return v, n, uv, tris, find_joints(v, tris), colour
+
+
 def drop_scraps(v, uv, tris, report):
     """v, uv, tris without Tripo's scraps (SCRAP_SHARE, SCRAP_GAP); how many were dropped goes in
     `report`."""
@@ -219,7 +365,12 @@ class TripoPerson(mp.Person):
         # (bare-headed, no coat) and `pieces` {shape: character id} are his garments modelled alone.
         self.model = spec.get("model", pid)
         self.bare = "model" in spec       # bare-headed: his top is his crown, not a hat
-        pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
+        if spec.get("source") == "rodin":
+            # A Rodin man (tools/characters/rodin.py): `rodin` is his glb under assets/people/tripo.
+            self.model = spec["rodin"]
+            pos, nrm, uv, tris, joints, colour = load_rodin(os.path.join(TRIPO, self.model + ".glb"))
+        else:
+            pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
         self.v = to_body_space(pos)
         self.uv = uv
         self.tris = tris
@@ -234,7 +385,8 @@ class TripoPerson(mp.Person):
             self.head_cut = self.j["neck"][1] + (self.j["head"][1] - self.j["neck"][1]) * HEAD_FROM_NECK
         else:
             self.head_cut = y0 + (y1 - y0) * HEAD_FROM
-        self.report = {"id": pid, "source": "tripo", "whole": True, "model": self.model, "triangles_in": int(len(tris)),
+        self.report = {"id": pid, "source": spec.get("source", "tripo"), "whole": True, "model": self.model,
+                       "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
         self.report.update(scraps)
         self.pieces = [Piece(shape, cid, self) for shape, cid in spec.get("pieces", {}).items()]
@@ -310,14 +462,16 @@ class TripoPerson(mp.Person):
 
     def head_mask(self, v):
         """What is head: above the collar, and within HEAD_RADIUS of the neck's axis (the tops of
-        the shoulders rise above a bare-headed man's collar line, and they are trunk)."""
+        the shoulders rise above a bare-headed man's collar line, and they are trunk) or above
+        his head joint."""
         above = v[:, 1] > self.head_cut
         n = self.j["neck"]
         near = np.hypot(v[:, 0] - n[0], v[:, 2] - n[2]) < HEAD_RADIUS
-        if self.bare:
-            # ... and a bare-headed man's hair, however far it sticks out above his head joint
-            # (the Kid's tousled hair past HEAD_RADIUS went with his trunk and stood up off him).
-            near |= v[:, 1] > self.j["head"][1]
+        # ... and anything above his head joint (his jaw hinge), however far it sticks out: a
+        # bare-headed man's hair (the Kid's tousled hair past HEAD_RADIUS went with his trunk and
+        # stood up off him), a hat's wide brim, and a face set further forward of the neck than
+        # Tripo's men's (the Rodin stranger's moustache and mouth went with his trunk and tore).
+        near |= v[:, 1] > self.j["head"][1]
         return above & near
 
     def warp_points(self, v, head, bones, only=None):
@@ -480,6 +634,27 @@ class TripoPerson(mp.Person):
         self.tris = self.tris[keep]
         self.report["faces_after_finger_cut"] = int(len(self.tris))
 
+    def skin_tone(self):
+        """His hands' colour: the median of the texels under the backs of his hands (a third of
+        the way from wrist to knuckles and on, clear of his cuffs). It goes in his report, and
+        HumanBody paints the game's finger parts in it (they came out the default pale peach on
+        the Rodin stranger's tanned hands)."""
+        o = self.our_joints()
+        img = np.asarray(self.colour, dtype=np.float64) / 255.0
+        h, w = img.shape[:2]
+        found = []
+        for side in "rl":
+            hand = np.where(self.region == "hand_" + side)[0]
+            u = o[side + "-knuckle"] - o[side + "-hand"]
+            reach = np.linalg.norm(u)
+            along = (self.v[hand] - o[side + "-hand"]) @ (u / reach)
+            uv = self.uv[hand[(along > reach * 0.3) & (along < reach * 0.92)]]
+            found.append(img[np.clip((uv[:, 1] % 1.0 * h).astype(int), 0, h - 1),
+                             np.clip((uv[:, 0] % 1.0 * w).astype(int), 0, w - 1)])
+        found = np.concatenate(found)
+        if len(found):
+            self.report["skin_tone"] = [round(float(x), 3) for x in np.median(found, axis=0)]
+
     def skirt(self):
         """The coat's skirt hangs from his hips, not his thighs: what's near a thigh bone but
         outside the leg (SKIRT_RADIUS from its axis, or between the legs) above the knee is trunk,
@@ -506,6 +681,7 @@ class TripoPerson(mp.Person):
             self.cut_bridges()
             self.close_cuts()
         self.cut_fingers()
+        self.skin_tone()
         self.weights()
         for piece in self.pieces:
             if piece.shape == "coat":
@@ -861,8 +1037,11 @@ def build_blender(person):
         return obj
 
     head_tris = person.head[person.tris].all(axis=1)
-    head = make("head", person.tris[head_tris], HEAD_TRIS)
-    skin = make("skin", person.tris[~head_tris], TRI_BUDGET)
+    # people.json `tris` can give a man more (a Rodin man comes clean at ~33k: cut down to the
+    # old budget he went lumpy, as the Tripo men did).
+    budget = person.spec.get("tris", {})
+    head = make("head", person.tris[head_tris], budget.get("head", HEAD_TRIS))
+    skin = make("skin", person.tris[~head_tris], budget.get("skin", TRI_BUDGET))
     made = [skin, head]
     for piece in person.pieces:
         made.append(make(piece.shape, piece.tris, PIECE_TRIS.get(piece.shape, 1500), piece))
@@ -890,9 +1069,10 @@ def main():
     env = json.load(open(mp.ENVELOPE))
     people = json.load(open(os.path.join(OUT, "people.json")))["people"]
     for pid, spec in people.items():
-        if spec.get("source") != "tripo" or (only and pid != only):
+        if spec.get("source") not in ("tripo", "rodin") or (only and pid != only):
             continue
-        missing = [m for m in [spec.get("model", pid)] + list(spec.get("pieces", {}).values())
+        body = spec["rodin"] if spec.get("source") == "rodin" else spec.get("model", pid)
+        missing = [m for m in [body] + list(spec.get("pieces", {}).values())
                    if not os.path.exists(os.path.join(TRIPO, m + ".glb"))]
         if missing:
             print("no Tripo model for", pid, ":", ", ".join(missing))

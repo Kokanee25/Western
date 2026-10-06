@@ -3274,3 +3274,48 @@ a few views renders them as the full run does.
   `src/render/` (`probe_mosaic.gd(shader)`, mine, said here), shared `settings.gd` (the probe's
   lines, and the command-line rule), `tools/probe_walk.gd`, `tests/test_probe_mosaic.gd`,
   `docs/screenshots/judge/history.md` (my two lines' notes). 346 tests pass.
+- 2026-10-06 (characters session): **The model test, and Rodin's man fitted and seated at the
+  card table.** Sean, on the bold paint for the fitted men (`tools/characters/bold_paint.py`:
+  squares in body space, de-lit by a fit to the normals, a few flat tones a garment): "those
+  models are dog shit", the mesh and the paint both. It stays on this branch as a rejected trial
+  (`PeopleBodies.bold_paint`, `--bold-paint` in `character_lab.gd` and `people_lineup.gd`), not
+  for main. So the model makers were tested on one man (People `style: test3d`, job `test-3d`):
+  Tripo's newest (H3.1, `v3.1-20260211`, detailed texture and geometry, quads; `tripo.py
+  --test=<id> --runs=h31,h31_parts`; it answers in FBX, `ext_of`) and Rodin Gen-2.5 on fal
+  (`tools/characters/rodin.py`, `fal-ai/hyper3d/rodin/v2.5`: Extreme-High, an 18K quad mesh, PBR,
+  an A-pose, HighPack, $1.60 a man; `--dry-run` against `rodin_standin.py`). Round 1 (run 47, the
+  stranger's turnaround): both far tidier than today's men before our fit cuts them down; H3.1
+  rigged, 94k triangles, crisp but a little cartoony; Rodin 35k, more real, no rig; Sean liked
+  Rodin's face most ("really good", though nothing like the paintings) and H3.1's clothes;
+  H3.1's parts run gave the layers we want (hat, hair, head, coat, vest, trousers, boots, hands:
+  12 pieces) but uncoloured, 1.48 million triangles, from a run of its own. Round 2: Sean's own
+  front picture (`assets/people/tripo/stranger2_full.png`, made in ChatGPT), three views painted
+  from it on fal (run 48), Rodin and H3.1 again (run 49): Rodin's is Sean's picture in 3D from
+  every side; H3.1's came out two-faced (a face on the back of his head; most likely because the
+  front is 1024×1536 and the painted views 768×1024). Spent: $3.30 at fal, 220 Tripo credits
+  (915 left). The test's models are in `assets/people/tripo/test/` (157 MB, this branch only:
+  they stay off main). **The fit** (`fit_tripo.py`; `people.json` `stranger2`, `"source":
+  "rodin"`, his glb `tripo/test/stranger2_rodin.glb`): Rodin gives no rig, so his joints are
+  found from his shape (`find_joints`: cross-sections of him, each arm traced down his side, each
+  leg a line through its middles below the coat, the heights where Tripo's rigs put them,
+  `RIG_Y`; tried on the three Tripo men against their own rigs, 2–3 % of his height out on
+  average, 5.5 % at worst, an elbow), then he's fitted as a Tripo man. `people.json` `tris` gives
+  a man his own triangle budget: 25.5k skin + 5.9k head of his 33k (cut to the old 7.7k he'd go
+  lumpy, as the Tripo men did). For every man now, anything above his jaw hinge is head (the
+  Rodin man's face, set further forward of his neck than Tripo's men's, tore away with his trunk,
+  and a wide brim would too; the stranger and the Kid change at their next fit, not now). His
+  hands' colour goes in his report (`skin_tone`), so the game's finger parts match his hands (they
+  were the default pale peach). He passes the pose check (`people_lineup.gd`: standing, sitting,
+  hands up, crouching, no tears) and sits at the card table (`screenshots.gd --model=stranger2`,
+  `character_lab.gd --model=stranger2`). In the saloon shot he's a whole, readable man under
+  the mosaic (eyes, brows, moustache, collar and tie) where today's stranger is a blotchy orange
+  face. Judge v2 on the shot (scored here, no round written), Rodin man / today's stranger: the
+  game's look 0.258 / 0.228; M 0.392 / 0.362 (`_r13`); V 0.231 / 0.185 (`_r28`). Its reasons:
+  his white shirt and lit face are brighter and greyer than the painting's cream and orange
+  (bright things L* 49 to its 44, colours the painting lacks 1.9 dE to today's 1.1), though his
+  shadows are deeper (deep-shadow share 0.30, today's 0.27, the painting's 0.41). Known: he's one
+  shell, hat and coat and all (none of the brief's layers yet: his hat can't be shot off); his
+  texture is Rodin's own colour, not matched to the paintings; the game's finger parts at his
+  knuckles are plain prisms beside his modelled hand; the joint finder expects an A-pose. Files:
+  `tools/blender/fit_tripo.py`, `assets/people/people.json`, `assets/people/stranger2*`. Body
+  tests pass (21).
