@@ -41,6 +41,9 @@ const VIEWS := [
 	["store_fire_night", 21.0, Vector3(3.0, 0.0, -11.0), 180.0, 10.0, "store_fire"],
 	["store_fire_close", 21.0, Vector3(1.4, 0.0, -4.2), 175.0, 12.0, "store_fire"],
 	["store_fire_later", 21.0, Vector3(3.0, 0.0, -13.0), 180.0, 12.0, "store_fire_later"],
+	# The fire painting's view (docs/concept/livery-fire.png, docs/briefs/fire-look.md): the livery
+	# burning at dusk from the street, 150 s after its front caught low down.
+	["livery_fire_dusk", 19.6, Vector3(26.0, 0.0, -5.0), 330.0, 9.0, "livery_fire"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["outlaw_face", 15.0, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
 	["outlaw_face_evening", 18.2, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
@@ -367,6 +370,18 @@ func _run() -> void:
 			# burnt four times as fast, so the views show the same stage of it).
 			var sim := 160 if setup == "store_fire" else 520
 			for i in sim:
+				fire.step(0.5)
+			for i in 90:
+				await physics_frame
+		if setup == "livery_fire":
+			var livery = main.find_child("Livery", true, false)
+			var fire = main.find_child("FireSystem", true, false)
+			var lit := 0
+			for m: StructureMember in livery.get_members():
+				if lit < 8 and String(m.member_id).contains("front") and m.global_position.y < 1.6 and m.wood != &"glass":
+					fire.ignite(m)
+					lit += 1
+			for i in 300:
 				fire.step(0.5)
 			for i in 90:
 				await physics_frame
