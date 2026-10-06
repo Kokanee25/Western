@@ -140,25 +140,58 @@ func test_the_world_survives_chaos() -> void:
 	print("    %d events, %d members broken, %d burning, %d people hurt, %d dead" % [d.log.size(), d.broken.size(), d.burning, hurt, _dead.size()])
 
 
+## Run in a Godot of its own (test_the_same_seed_gives_the_same_chaos starts two): with
+## `--chaos-digest=PATH` it throws seed 77 at the street and writes what happened there; without
+## it, it does nothing.
+func test_write_a_digest_when_asked() -> void:
+	var path := ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--chaos-digest="):
+			path = arg.substr(15)
+	if path == "":
+		return
+	var d := await _chaos(77)
+	d["problems"] = _problems.duplicate()
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(d))
+	f.close()
+
+
+## The same seed, two fresh starts: each run in its own Godot, since a second run in the same
+## process starts from what the first left in the physics engine (rubble resting differently, a
+## blast at a wall junction going one of two ways: ~20 of ~89 members, seen on the art branch).
 func test_the_same_seed_gives_the_same_chaos() -> void:
-	var first := await _chaos(77)
-	await after_each()
-	await before_each()
-	var second := await _chaos(77)
-	# What happens is the seed's, exactly. What it breaks and whom it hurts runs through falling
-	# rubble, and the physics engine isn't bit for bit the same between two runs in one process
-	# (seen in the full suite: one stool more on the second run), so a member or two may differ.
+	var runs: Array[Dictionary] = []
+	for i in 2:
+		var path := ProjectSettings.globalize_path("user://chaos_digest_%d.json" % i)
+		DirAccess.remove_absolute(path)
+		var out := []
+		var code := OS.execute(OS.get_executable_path(), ["--headless", "--fixed-fps", "60", "--path",
+				ProjectSettings.globalize_path("res://"), "-s", "res://tests/run_tests.gd", "--",
+				"--only=test_write_a_digest_when_asked", "--chaos-digest=" + path], out, true)
+		check_eq(code, 0, "run %d finished cleanly" % i)
+		var text := FileAccess.get_file_as_string(path)
+		var d: Variant = JSON.parse_string(text) if text != "" else null
+		check(d is Dictionary, "run %d wrote what happened" % i)
+		if not d is Dictionary:
+			return
+		runs.append(d)
+		DirAccess.remove_absolute(path)
+	var first: Dictionary = runs[0]
+	var second: Dictionary = runs[1]
 	check_eq(first.log, second.log, "the same things happened")
 	var odd: Array[String] = []
-	for id in first.broken + second.broken:
+	for id: String in first.broken + second.broken:
 		if not (id in first.broken and id in second.broken) and not id in odd:
 			odd.append(id)
-	check(odd.size() <= maxi(2, int(first.broken.size() * 0.05)),
-			"the same timber broke (%d, %d differ: %s)" % [first.broken.size(), odd.size(), ", ".join(odd)])
+	# Started fresh each time, the engine gives the same answer; a member or two of slack for
+	# the last digit of a float in a long cascade of rubble.
+	check(odd.size() <= 2, "the same timber broke (%d, %d differ: %s)" % [first.broken.size(), odd.size(), ", ".join(odd)])
 	check_eq(first.people.keys(), second.people.keys(), "the same people")
-	for who in first.people:
+	for who: String in first.people:
 		var a: Array = first.people[who]
 		var b: Array = second.people.get(who, [false, 0])
 		check_eq(a[0], b[0], "%s alive the same" % who)
 		check(absi(int(a[1]) - int(b[1])) <= 1, "%s hurt the same, near enough (%d, %d wounds)" % [who, a[1], b[1]])
-	check(_problems.is_empty(), "and no invariant broke: %s" % "; ".join(_problems))
+	check((first.problems as Array).is_empty() and (second.problems as Array).is_empty(),
+			"and no invariant broke: %s" % "; ".join(PackedStringArray(first.problems + second.problems)))
