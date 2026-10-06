@@ -253,8 +253,11 @@ func _run() -> void:
 		if main == null or fresh:
 			if main != null:
 				main.queue_free()
-				await process_frame
-				await process_frame
+				# The renderer lets go of a freed scene some frames later. Waited out first when
+				# town_bar went grey (blamed on lights; it was the room's reflection probe not yet
+				# drawn: the wait for the probes below). Nothing's drawn meanwhile, so it's cheap.
+				for _i in 150:
+					await process_frame
 			main = await _load_main(globals_after, screen_squares, mosaic_steps)
 			viewport = main.get_node(^"GameViewport")
 			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
@@ -270,6 +273,12 @@ func _run() -> void:
 		player.input_enabled = true
 		player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 		player.input_enabled = false
+		# Every building's room light is a reflection probe drawn once, over about six frames, one
+		# probe at a time and in no fixed order; until a room's is drawn the room takes the sky's
+		# ambient (town_bar went cold grey now and then once step 3's buildings made 11 probes and a
+		# view waited 40 frames). Wait for them all, at this view's hour, before anything happens.
+		for _i in 7 * root.find_children("*", "ReflectionProbe", true, false).size():
+			await process_frame
 		var gun = player.get_node_or_null(^"Head/Camera3D/Gun")
 		var setup: String = v[5] if v.size() > 5 else ""
 		if gun:

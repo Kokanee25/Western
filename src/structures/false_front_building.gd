@@ -56,6 +56,11 @@ extends Structure
 @export var porch_lantern := true
 ## Counter, shelves and the counter lamp inside.
 @export var furnished := true
+## What's inside when furnished: &"store" (counter, shelves), &"telegraph" (a counter, the
+## operator's desk with his key and sounder, battery jars), &"doctor" (a desk, an operating
+## table, a cot, a cabinet of bottles), &"bank" (a teller's counter with its cage of bars, a
+## safe, a desk). Everything's members (it burns, breaks and falls like the walls) with a lamp.
+@export var interior: StringName = &"store"
 
 const SILL := 0.2
 const STUD_W := 0.05
@@ -530,6 +535,18 @@ func _build_porch() -> void:
 
 
 func _build_furniture() -> void:
+	match interior:
+		&"telegraph":
+			_furnish_telegraph()
+		&"doctor":
+			_furnish_doctor()
+		&"bank":
+			_furnish_bank()
+		_:
+			_furnish_store()
+
+
+func _furnish_store() -> void:
 	var w := width
 	var f := floor_top
 	# Counter along the right-hand wall.
@@ -556,6 +573,142 @@ func _build_furniture() -> void:
 	for i in 4:
 		var y := f + 0.35 + i * 0.55
 		add_member("shelves/shelf%d" % i, &"furniture_top", &"floor", Vector3(sx1 - sx0, 0.025, 4.06), Vector3((sx0 + sx1) * 0.5, y, 5.0))
+
+
+## A table of members: its top `h` over the floor across x0..x1, z0..z1, a leg at each corner.
+func _table(id: String, x0: float, x1: float, z0: float, z1: float, h: float, top_wood: StringName = &"dark_trim") -> void:
+	var f := floor_top
+	const LEG := 0.05
+	add_member("%s/top" % id, &"furniture_top", top_wood, Vector3(x1 - x0, 0.035, z1 - z0), Vector3((x0 + x1) * 0.5, f + h - 0.0175, (z0 + z1) * 0.5))
+	for i in 4:
+		var x := x0 + LEG * 0.5 + 0.03 if i % 2 == 0 else x1 - LEG * 0.5 - 0.03
+		var z := z0 + LEG * 0.5 + 0.03 if i < 2 else z1 - LEG * 0.5 - 0.03
+		add_member("%s/leg%d" % [id, i], &"furniture_frame", &"framing", Vector3(LEG, h - 0.035, LEG), Vector3(x, f + (h - 0.035) * 0.5, z))
+
+
+## A counter across the room from the left wall to `x1` at depth z0..z1: a front, its ends and a top.
+func _counter(id: String, x0: float, x1: float, z0: float, z1: float, top_wood: StringName = &"dark_trim") -> void:
+	var f := floor_top
+	add_member("%s/front" % id, &"furniture_frame", &"floor", Vector3(x1 - x0, 0.95, 0.03), Vector3((x0 + x1) * 0.5, f + 0.475, z0 + 0.015))
+	add_member("%s/end" % id, &"furniture_frame", &"floor", Vector3(0.03, 0.95, z1 - z0 - 0.03), Vector3(x1 - 0.015, f + 0.475, (z0 + z1) * 0.5 + 0.015))
+	add_member("%s/top" % id, &"furniture_top", top_wood, Vector3(x1 - x0, 0.04, z1 - z0 + 0.06), Vector3((x0 + x1) * 0.5, f + 0.97, (z0 + z1) * 0.5 - 0.03))
+
+
+## Shelves on an upright pair against a wall at x0..x1 (deep across x), z0..z1, `n` boards.
+func _shelves(id: String, x0: float, x1: float, z0: float, z1: float, n: int, height := 1.9) -> void:
+	var f := floor_top
+	for i in 2:
+		var z := z0 + 0.015 if i == 0 else z1 - 0.015
+		add_member("%s/upright%d" % [id, i], &"furniture_frame", &"framing", Vector3(x1 - x0, height, 0.03), Vector3((x0 + x1) * 0.5, f + height * 0.5, z))
+	for i in n:
+		var y := f + 0.3 + i * (height - 0.4) / maxf(n - 1, 1)
+		add_member("%s/shelf%d" % [id, i], &"furniture_top", &"floor", Vector3(x1 - x0, 0.025, z1 - z0), Vector3((x0 + x1) * 0.5, y, (z0 + z1) * 0.5))
+
+
+func _lamp_on(lamp_name: String, at: Vector3) -> OilLamp:
+	var lamp := OilLamp.new()
+	lamp.name = lamp_name
+	lamp.position = at
+	# No shadows: every lamp in town is in view through the walls (lights aren't hidden behind
+	# them), and shadowed ones down the street took the saloon's lamps' shadow slots.
+	lamp.casts_shadows = false
+	add_child(lamp)
+	return lamp
+
+
+func _prop(id: StringName, at: Vector3, yaw_degrees := 0.0) -> Node3D:
+	var props := get_node_or_null(^"Props") as Node3D
+	if props == null:
+		props = Node3D.new()
+		props.name = "Props"
+		add_child(props)
+	var prop := PropLibrary.spawn(id)
+	prop.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw_degrees)), at)
+	props.add_child(prop)
+	return prop
+
+
+## The telegraph office: a counter across the front room (a gap by the right wall to go behind
+## it), the operator's desk against the left wall with his key, sounder and lamp, a stool, and the
+## battery jars that drive the line on a shelf by the back wall.
+func _furnish_telegraph() -> void:
+	var w := width
+	var f := floor_top
+	_counter("counter", STUD_D, w - 1.1, 2.6, 3.2)
+	_lamp_on("CounterLamp", Vector3(1.2, f + 0.99, 2.9))
+	var dz0 := 4.2
+	var dz1 := 5.8
+	_table("desk", STUD_D, STUD_D + 0.7, dz0, dz1, 0.76)
+	add_member("desk/key", &"furniture_top", &"iron", Vector3(0.1, 0.03, 0.16), Vector3(STUD_D + 0.45, f + 0.775, dz0 + 0.55))
+	add_member("desk/sounder", &"furniture_top", &"dark_trim", Vector3(0.16, 0.1, 0.14), Vector3(STUD_D + 0.35, f + 0.81, dz0 + 1.05))
+	_lamp_on("DeskLamp", Vector3(STUD_D + 0.3, f + 0.78, dz1 - 0.2))
+	_prop(&"bar_stool", Vector3(STUD_D + 1.05, f, dz0 + 0.6))
+	var back := depth - STUD_D
+	_table("batteries", 1.6, 3.4, back - 0.45, back - 0.05, 0.8, &"floor")
+	for i in 7:
+		add_member("batteries/jar%d" % i, &"glass", &"glass", Vector3(0.12, 0.18, 0.12), Vector3(1.8 + i * 0.24, f + 0.8 + 0.09, back - 0.25))
+
+
+## The doctor's: his desk and chair in the front room, and behind, the operating table under its
+## lamp, a cot against the left wall and a cabinet of bottles against the right.
+func _furnish_doctor() -> void:
+	var w := width
+	var f := floor_top
+	_table("desk", STUD_D + 0.2, STUD_D + 1.6, 1.8, 2.6, 0.76)
+	_lamp_on("DeskLamp", Vector3(STUD_D + 0.5, f + 0.78, 2.3))
+	_prop(&"chair", Vector3(STUD_D + 0.9, f, 3.1), 180.0)
+	var tz0 := depth * 0.55
+	var tz1 := tz0 + 1.9
+	_table("table", w * 0.5 - 0.35, w * 0.5 + 0.35, tz0, tz1, 0.82, &"floor")
+	_lamp_on("SurgeryLamp", Vector3(w * 0.5 + 0.22, f + 0.84, tz1 - 0.2))
+	_table("cot", STUD_D + 0.05, STUD_D + 0.85, tz0 - 0.2, tz0 + 1.75, 0.45, &"weathered_pine")
+	var cx0 := w - STUD_D - 0.42
+	_shelves("cabinet", cx0, w - STUD_D - 0.02, tz0 - 0.1, tz0 + 1.1, 4, 1.8)
+	add_member("cabinet/back", &"furniture_frame", &"dark_trim", Vector3(0.02, 1.8, 1.2), Vector3(w - STUD_D - 0.03, f + 0.9, tz0 + 0.5))
+	for i in 5:
+		_prop(&"whiskey_bottle", Vector3(cx0 + 0.2, f + 0.3 + 0.0125 + (1.4 / 3.0), tz0 + 0.1 + i * 0.2))
+
+
+## The bank: the teller's counter across the room with its cage of bars to the ceiling's height
+## and a window in it, a gap by the right wall; behind, the safe against the back wall (iron
+## plate: a ball flattens on it) and the manager's desk.
+func _furnish_bank() -> void:
+	var w := width
+	var f := floor_top
+	var cz0 := 3.4
+	var cz1 := 4.0
+	var cx1 := w - 1.2
+	_counter("counter", STUD_D, cx1, cz0, cz1, &"floor")
+	_lamp_on("CounterLamp", Vector3(cx1 - 0.6, f + 0.99, cz0 + 0.35))
+	# The cage: bars up from the counter's top, a rail across them, a gap in them the teller's window.
+	var top := f + 0.99
+	var cage_h := 1.25
+	var rail_y := top + cage_h
+	var window := Vector2(w * 0.5 - 0.45, w * 0.5 + 0.15)
+	var n := int((cx1 - STUD_D) / 0.14)
+	for i in n:
+		var x := STUD_D + 0.07 + i * 0.14
+		if x > window.x and x < window.y:
+			continue
+		add_member("cage/bar%d" % i, &"trim", &"iron", Vector3(0.016, cage_h, 0.016), Vector3(x, top + cage_h * 0.5, cz0 + 0.1))
+	add_member("cage/rail", &"trim", &"dark_trim", Vector3(cx1 - STUD_D, 0.05, 0.06), Vector3((STUD_D + cx1) * 0.5, rail_y + 0.025, cz0 + 0.1))
+	# The safe: iron plate round an empty box, on the floor by the back wall.
+	var sx := w * 0.5
+	var sz := depth - STUD_D - 0.5
+	var size := Vector3(0.85, 1.25, 0.75)
+	const PLATE := 0.012
+	var base := f
+	add_member("safe/bottom", &"floor_board", &"iron", Vector3(size.x, PLATE, size.z), Vector3(sx, base + PLATE * 0.5, sz))
+	add_member("safe/top", &"furniture_top", &"iron", Vector3(size.x, PLATE, size.z), Vector3(sx, base + size.y - PLATE * 0.5, sz))
+	for side in 2:
+		var x := sx + (size.x - PLATE) * 0.5 * (1.0 if side == 0 else -1.0)
+		add_member("safe/side%d" % side, &"furniture_frame", &"iron", Vector3(PLATE, size.y - PLATE * 2.0, size.z), Vector3(x, base + size.y * 0.5, sz))
+	add_member("safe/back", &"furniture_frame", &"iron", Vector3(size.x - PLATE * 2.0, size.y - PLATE * 2.0, PLATE), Vector3(sx, base + size.y * 0.5, sz + (size.z - PLATE) * 0.5))
+	add_member("safe/door", &"furniture_frame", &"iron", Vector3(size.x - PLATE * 2.0, size.y - PLATE * 2.0, PLATE * 2.0), Vector3(sx, base + size.y * 0.5, sz - (size.z - PLATE * 2.0) * 0.5))
+	add_member("safe/dial", &"trim", &"iron", Vector3(0.09, 0.09, 0.03), Vector3(sx + 0.15, base + size.y * 0.62, sz - size.z * 0.5 - 0.02))
+	_table("desk", STUD_D + 0.3, STUD_D + 1.7, depth - 3.2, depth - 2.4, 0.76)
+	_lamp_on("DeskLamp", Vector3(STUD_D + 0.6, f + 0.78, depth - 2.8))
+	_prop(&"chair", Vector3(STUD_D + 1.0, f, depth - 2.0), 180.0)
 
 
 ## Remove `cuts` (each Vector2(from, to)) from `span`, returning what is left.

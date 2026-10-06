@@ -65,6 +65,8 @@ seam_px={
 
 [rendering]
 
+limits/cluster_builder/max_clustered_elements=1024
+
 textures/canvas_textures/default_texture_filter=0
 textures/decals/filter=0
 textures/vram_compression/import_etc2_astc=true

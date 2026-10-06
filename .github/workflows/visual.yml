@@ -10,8 +10,9 @@ name: Visual checks
 # says which, and the artifact "visual-report" has golden | render | difference for each view
 # that failed.
 #
-# Every view in one run each, with --fresh: screenshots.gd loads the scene again before every
-# view, so no view carries the one before it (smoke, a half-eased pose, the clouds' drift).
+# Every view with --fresh: screenshots.gd loads the scene again before every view, so no view
+# carries the one before it (smoke, a half-eased pose, the clouds' drift), in batches of ten, a
+# fresh Godot each (tools/golden_check.py --render).
 
 on:
   schedule:
@@ -68,10 +69,13 @@ jobs:
 
       - name: Render every view
         # As tools/golden_check.py --render does, so the renders are made the way the goldens were.
+        # (golden_check.py renders them in batches of ten, a fresh Godot each: one process for all
+        # of them kept counting something of the scenes before, and late views lost their lamps.)
         run: |
-          xvfb-run -a ~/godot/godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd \
-            -- --out="$PWD/build/render_${{ matrix.copy }}" --fresh > render.log 2>&1
-          ls build/render_${{ matrix.copy }} | wc -l
+          pip install -q numpy pillow
+          GODOT="$HOME/godot/godot" python3 tools/golden_check.py --render --out="$PWD/build/render_${{ matrix.copy }}" \
+            --diffs="$PWD/build/render_diffs_${{ matrix.copy }}" > render.log 2>&1 || true
+          ls build/render_${{ matrix.copy }} | grep -c png
 
       - name: The render's log
         if: failure()

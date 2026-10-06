@@ -6,6 +6,20 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the telegraph, the doctor's, the bank, a well, a windpump and a corral
+
+- **Three more buildings on Main Street**, each furnished inside: the **telegraph office** next to
+  the store (a counter, the operator's desk with his key and sounder, the battery jars), the
+  **doctor's** past the barber (a desk, an operating table, a cot, a cabinet of bottles), and the
+  **bank** across Market Street from the hotel (the teller's counter behind a cage of bars, a
+  desk, and an iron safe: shoot it and the ball flattens on it or whines off it).
+- **Behind the jail, a well and a windpump** with a stock tank under its spout. Both fill a
+  bucket (4, then R beside the water), and the townsfolk run buckets from them too.
+- **Behind the livery, a corral.**
+- **Knocked out, you come round at the doctor's**, beside his cot (there's no doctor in it yet).
+- **Try:** walk west past the store to the telegraph and the doctor's and go in; cross to the
+  bank and put a round into the safe; go round behind the jail to the well and fill a bucket.
+
 ### New: what hangs on a wall comes down with it
 
 - **Lamps, signs and everything else fall when what holds them goes.** A sconce on a wall, a
