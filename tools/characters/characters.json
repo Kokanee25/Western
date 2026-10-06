@@ -133,7 +133,8 @@
     "squares": false,
     "flatten": 2,
     "view_power": 0,
-    "cells": {"m": 0.008, "body_m": 0.009, "eye_m": 0.0027}
+    "cells": {"m": 0.008, "body_m": 0.009, "eye_m": 0.0027},
+    "eyes": {"open": 1.15}
    }
   }
  }

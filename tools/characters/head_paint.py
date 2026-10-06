@@ -622,6 +622,17 @@ def face_points(cid):
     return None
 
 
+# His eyes drawn as the painting draws them (characters.json `bake.eyes`): the painter leaves them
+# small and dark in their sockets, and under the brim in the saloon shot they read as dark smudges,
+# where the painting's man has a dark upper lid, a warm white either side of a dark iris and a
+# glint. Each eye's opening (MediaPipe's outline of it, opened by `open` up and down) is the white,
+# the iris (its own landmarks' ring, times `iris`) dark with a darker pupil and a glint high on its
+# side towards his left, and a line of lid (`lid` metres) along the top. Colours 0..255.
+EYE_WHITE = (226, 212, 192)
+EYE_IRIS = (74, 48, 32)
+EYE_PUPIL = (22, 15, 12)
+EYE_GLINT = (252, 246, 236)
+EYE_LID = (38, 24, 18)
 # MediaPipe's outline of each eye (his right, his left).
 EYE_OUTLINES = ([33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
                 [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398])
@@ -712,6 +723,74 @@ def _mosaic(colour, count, keys, gain):
     return np.clip(around + (colour - around) * gain[:, None], 0.0, 255.0)
 
 
+# MediaPipe's iris rings (centre first) and outer, inner corners of each eye (his right, his left).
+IRIS_RINGS = ([468, 469, 470, 471, 472], [473, 474, 475, 476, 477])
+EYE_CORNERS = ((33, 133), (263, 362))
+
+
+def _inside(poly, pts):
+    """Which 2D points lie inside the polygon (ray casting)."""
+    x, y = pts[:, 0], pts[:, 1]
+    inside = np.zeros(len(pts), dtype=bool)
+    j = len(poly) - 1
+    for i in range(len(poly)):
+        xi, yi = poly[i]
+        xj, yj = poly[j]
+        cross = ((yi > y) != (yj > y)) & (x < (xj - xi) * (y - yi) / np.where(yj - yi == 0, 1e-12, yj - yi) + xi)
+        inside ^= cross
+        j = i
+    return inside
+
+
+def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
+    """His eyes drawn over `out` (in place): EYE_WHITE and friends, from his face's landmarks."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: eyes left as painted")
+        return
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    n = nrm[t[:, 0]] * b[:, :1] + nrm[t[:, 1]] * b[:, 1:2] + nrm[t[:, 2]] * b[:, 2:3]
+    fwd = np.array([1.0, 0.0, 0.0])          # Tripo's frame: he faces +X, his right +Z, up +Y
+    opening = float(eyes.get("open", 1.0))
+    drawn = 0
+    for outline, ring, (outer, inner) in zip(EYE_OUTLINES, IRIS_RINGS, EYE_CORNERS):
+        c = face[ring[0]]
+        r_iris = np.linalg.norm(face[ring[1:]] - c, axis=1).mean() * float(eyes.get("iris", 1.0))
+        u = face[outer] - face[inner]
+        u -= fwd * (u @ fwd)
+        u /= np.linalg.norm(u)
+        if u[2] < 0:
+            u = -u                            # towards his right on both eyes, so the glints agree
+        v = np.cross(u, fwd)
+        v /= np.linalg.norm(v)
+        if v[1] < 0:
+            v = -v
+        flat = lambda q: np.stack([(q - c) @ u, (q - c) @ v], axis=-1)
+        poly = flat(face[outline])
+        mid = poly.mean(axis=0)
+        poly = mid + (poly - mid) * np.array([1.0, opening])
+        reach = np.abs(poly).max() * 1.6
+        near = (np.linalg.norm(p - c, axis=1) < reach) & (np.abs((p - c) @ fwd) < reach) & (n @ fwd > 0.15)
+        q = flat(p[near])
+        white = _inside(poly, q)
+        lid_w = float(eyes.get("lid", 0.0012)) / HEIGHT_M
+        lid = _inside(poly + np.array([0.0, lid_w]), q) & ~white & (q[:, 1] > mid[1])
+        d = np.linalg.norm(q, axis=1)
+        iris = white & (d < r_iris)
+        pupil = white & (d < r_iris * 0.42)
+        # The glint up and towards his left (your right, where the saloon shot's lamp is).
+        glint = white & (np.linalg.norm(q - np.array([-0.38, 0.38]) * r_iris, axis=1) < r_iris * 0.24)
+        idx = np.nonzero(near)[0]
+        for mask, colour in ((white, EYE_WHITE), (iris, EYE_IRIS), (pupil, EYE_PUPIL), (glint, EYE_GLINT), (lid, EYE_LID)):
+            out[ty[idx[mask]], tx[idx[mask]]] = colour
+        drawn += int(white.sum())
+    print("  eyes drawn: %d texels of white, opened x%.2f" % (drawn, opening))
+
+
 def bake(cid):
     from scipy import ndimage
     pos, nrm, uv, tris, colour = load_man(cid)
@@ -772,6 +851,8 @@ def bake(cid):
         y0, y1 = pos[:, 1].min(), pos[:, 1].max()
         cut = y0 + (y1 - y0) * (HEAD_FROM if head.get("cut") is None else head["cut"])
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
+    if bk.get("eyes") and not SMOOTH:
+        draw_eyes(out, cid, pos, nrm, uv, tris, size, bk["eyes"])
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
