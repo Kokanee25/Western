@@ -248,8 +248,12 @@ func _run() -> void:
 		if main == null or fresh:
 			if main != null:
 				main.queue_free()
-				await process_frame
-				await process_frame
+				# The renderer lets go of a freed scene's lights a few frames later: two frames on,
+				# its lights still counted against the next scene's (Forward+ clusters 512 lights,
+				# probes and decals in view), and the saloon's lamps were the ones left out (town_bar
+				# went grey after town_holdup, not alone). Nothing's drawn meanwhile, so it's cheap.
+				for _i in 30:
+					await process_frame
 			main = await _load_main(globals_after, screen_squares, mosaic_steps)
 			viewport = main.get_node(^"GameViewport")
 			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
