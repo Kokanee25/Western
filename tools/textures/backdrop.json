@@ -66,12 +66,12 @@
    "radius": 560.0,
    "rise": 0.5,
    "colours": 40,
-   "haze": 0.16,
+   "haze": 0.22,
    "look": "a few miles off at the end of the street: big and clear in the frame, a little haze, the shadowed sides violet-grey",
    "panels": [
     {
      "centre": 274.0,
-     "shift": 0.0,
+     "shift": -5.6,
      "ref": [
       "street",
       470,
@@ -82,7 +82,7 @@
      "what": "two great red-rock masses with a deep notch between them exactly in the middle of the picture, where the sun sets: right of the middle, a towering cathedral of tall fluted sandstone spires and pinnacles standing close together on a steep talus slope, its tallest spires the highest land in the picture; left of the middle, a broader, slightly lower massif of sheer cliffs and buttresses with a flat-topped shoulder; between them the land drops to a low saddle about a quarter of the picture's height; towards the far left and right the land falls away to low ridges"
     }
    ],
-   "scale": 0.85
+   "scale": 0.62
   },
   "mid": {
    "radius": 430.0,

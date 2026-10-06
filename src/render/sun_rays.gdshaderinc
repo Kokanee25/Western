@@ -10,7 +10,7 @@
 // by how low it is. The caller adds x in the sun's colour and darkens by y.
 
 // How far the shafts reach from the sun (radians), and how many round it.
-const float RAY_REACH = 0.62;
+const float RAY_REACH = 0.48;
 const float RAY_COUNT = 34.0;
 
 float ray_hash(float n) {

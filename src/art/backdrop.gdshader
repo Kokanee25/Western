@@ -92,6 +92,6 @@ void fragment() {
 	vec2 rays = sun_rays(view, sdn, ray_strength);
 	float air = clamp(0.45 + haze * haze_scale * 1.5, 0.0, 1.0);
 	vec3 ray_light = sun_color * vec3(1.0, 0.8, 0.5);
-	col = col * (1.0 - 0.45 * rays.y * air) + ray_light * 1.1 * rays.x * air;
+	col = col * (1.0 - 0.45 * rays.y * air) + ray_light * 0.75 * rays.x * air;
 	ALBEDO = aces_inverse(from_srgb(clamp(col, 0.0, 1.0)));
 }
