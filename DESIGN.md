@@ -888,9 +888,14 @@ each time.
   principals in their own houses or rooms behind or above their business (the storekeeper over
   the store, the doctor behind his office, the barkeep upstairs at the saloon); families in small
   frame houses and cabins; single men in a boarding house, hotel rooms or a bunkhouse; the poorest
-  in shacks and tents at the edge of town; ranch hands out at the ranches. So ~50 people need
-  about 20–25 dwellings, not 50. Built from member-built templates in code (a one-room cabin, a
-  two-room frame house, a shack, a tent, a boarding house) with variants, and furnished by who
+  in shacks and tents at the edge of town; ranch hands out at the ranches. **The homes are the
+  houses already on Sean's town map** (`docs/concept/town-map.png`: the small houses and
+  outbuildings round the blocks off Main, Market, Church and Freight Streets and Stable Road);
+  each is given its household when the townsfolk get routines (M4 step 8, M5), and the map's
+  other buildings (church, school, cemetery, feed store, blacksmith, wagon repair, freight
+  storehouse, stage stop) are workplaces and gathering places. Not every house needs a family
+  at first: empty ones are for sale, to let, or abandoned. Built from member-built templates in
+  code (a one-room cabin, a two-room frame house, a shack, a tent, a boarding house) with variants, and furnished by who
   lives there (bed, stove, table, trunk, and things of their job and pastime: a doctor's books, a
   gambler's cards, a widow's photographs). A home matters in play: people sleep, eat and wash
   there on their routines; it's private (walking in uninvited is a deed, breaking in a crime they
