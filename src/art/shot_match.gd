@@ -15,6 +15,9 @@ class_name ShotMatch
 ## moon in it, the back bar and its mirror fill the right and the balcony stands over the middle.
 const TABLE := Vector3(5.36, 0.0, -23.61)
 const ROOM_YAW := -72.8
+## The same in the saloon's own space (gameplay, 2026-10-05: the saloon moved to Sean's map).
+const TABLE_IN_SALOON := Vector3(6.64, 0.0, 6.81)
+const ROOM_YAW_IN_SALOON := 107.2
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
@@ -202,8 +205,16 @@ static func camera_transform(street: Node3D) -> Transform3D:
 
 ## The set's place: the table's centre on the floor, turned by ROOM_YAW. EYE, LOOK, SEAT and the
 ## props are in this space.
+## In the street it's in the saloon's own space (TABLE_IN_SALOON, ROOM_YAW_IN_SALOON: where TABLE
+## and ROOM_YAW put it when the saloon stood on the old street), so it goes where the saloon does
+## (config/town.json); TABLE and ROOM_YAW stay for the character lab's empty world.
 static func rig(street: Node3D) -> Transform3D:
-	return Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW)), Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z))
+	var saloon := street.find_child("Saloon", true, false) as Node3D if street else null
+	if saloon == null:
+		return Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW)), Vector3(TABLE.x, _floor_at(street, TABLE), TABLE.z))
+	var t := saloon.global_transform * Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW_IN_SALOON)), TABLE_IN_SALOON)
+	t.origin.y = _floor_at(street, t.origin)
+	return t
 
 
 static func _floor_at(street: Node3D, at: Vector3) -> float:

@@ -298,7 +298,8 @@ func test_on_the_range_he_uses_the_cover_there() -> void:
 	add_child(street)
 	await physics_frames(5)
 	var p: Player = street.get_node(^"Player")
-	p.global_position = Vector3(14.0, 0.0, -8.4)
+	# At the range line (where the range stands now: config/town.json).
+	p.global_position = (street.get_node(^"RangeCover") as Node3D).global_transform * Vector3(14.0, 0.0, -8.4)
 	p.rotation = Vector3(0, deg_to_rad(-90), 0)
 	var man: HumanBody = street.find_child("OutlawSpawn", true, false).spawn()
 	await physics_frames(5)

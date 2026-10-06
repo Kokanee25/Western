@@ -6,6 +6,34 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: what hangs on a wall comes down with it
+
+- **Lamps, signs and everything else fall when what holds them goes.** A sconce on a wall, a
+  picture, the stag, the bottles on the back bar, a lantern on a post, a lamp on a table, a chair
+  on a floor, a barrel on a boardwalk: when the boards they're on burn away or are blown out, they
+  drop (no more lamps hanging in the air over the ashes). Whatever stood on a fallen thing follows
+  it. A lit lamp that lands hard breaks and spills its burning oil, so a burning building's lamps
+  spread its fire.
+- **Try:** at night, light the saloon's back wall (L where you look) and watch its sconces as the
+  boards go; or blow a hole in the store's wall by its lamp.
+
+### New: Main Street laid out to your map
+
+- **The street is your map's now.** Looking west down Main Street into the sunset: on the left
+  the saloon (the real one, with its room) nearest the east end, then the general store beside it,
+  the barber, and past Market Street the hotel; on the right the livery, the jail with the water
+  tower in the yard behind it, and the assay office. One saloon now (the second one's gone).
+  Freight Street crosses at the east end, where you start; the range is out past it.
+- **Up on steps.** Every boardwalk stands up off the street with a flight of steps down to it;
+  you and the townsfolk go up and down by the steps (the edge elsewhere is too high to walk up).
+  The store's and the saloon's walks join, so you can walk from one door to the other.
+- Not there yet: the telegraph office, the doctor and the bank (next), the cross streets, the
+  dressing laid out for the new street (the art session is on it: some barrels and horses are
+  where they were round each building), the street picture's view, the moon in the saloon's door.
+- **Try:** start, walk west up Main Street, go up the store's steps and into the store, along the
+  walk to the saloon, and in for a drink. Press **U** to bring the gang in: they ride in from the
+  west, drink at the saloon and lean on the storekeeper next door. Tell me how the street's size
+  feels against the map.
 ### Changed: the V look flickers less
 
 - **V (the blocks fixed to the world) now steadies the picture it cuts up**: the game smooths

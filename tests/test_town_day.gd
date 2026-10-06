@@ -26,7 +26,7 @@ func before_each() -> void:
 		range_man.queue_free()
 	player = street.get_node(^"Player")
 	# Out of the way at the east end, looking east.
-	_put_player(Vector3(14.0, 0.0, -8.0), -90.0)
+	_put_player(Vector3(26.0, 0.0, -8.4), -90.0)
 	lines.clear()
 	shots.clear()
 	Events.spoke.connect(_on_spoke)
@@ -112,11 +112,11 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 	for f: Array in StreetDressing.FOLK:
 		var man := dressing.get_node(NodePath(f[0])) as HumanBody
 		check(man != null and man.held_gun == null, "%s is there, unarmed" % f[0])
-		check(man.global_position.distance_to(f[1]) < 0.4, "%s at his post" % f[0])
-		check_eq(man.pose, f[3], "%s takes his ease" % f[0])
+		check(man.global_position.distance_to(StreetDressing.post_of(f)) < 0.4, "%s at his post" % f[0])
+		check_eq(man.pose, (man.get_node(^"Brain") as CivilianBrain).rest_pose, "%s takes his ease" % f[0])
 	var bench := dressing.get_node(^"BenchManA") as HumanBody
 	# A shot fired in the street in front of the saloon.
-	Events.noise.emit(Vector3(-5.2, 1.4, -6.0), 350.0, &"gunshot", player)
+	Events.noise.emit(bench.global_position + Vector3(0.5, 1.0, -5.5), 350.0, &"gunshot", player)
 	await physics_frames(20)
 	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
 
@@ -166,10 +166,10 @@ func test_face_the_kid_down_and_he_backs_off_and_the_storekeeper_thanks_you() ->
 	_quicken()
 	var kid := _man(&"kid")
 	var b := _brain(&"kid")
-	var at_store := await wait_until(func() -> bool: return _keeper().troubled_by.has(kid), 60 * 50)
+	var at_store := await wait_until(func() -> bool: return _keeper().troubled_by.has(kid), 60 * 70)
 	check(at_store, "the Kid's at the store, leaning on him (%s)" % b.describe().substr(0, 60))
 	# In at the door, gun out and on him.
-	_put_player(Vector3(3.0, 0.38, 0.4), 0.0)
+	_put_player(town.places.at(&"store_door") + TownLayout.facing_toward(&"Store", Vector3(0, 0, -0.5)), 0.0)
 	await physics_frames(2)
 	_look_at((kid.parts[&"chest"] as Node3D).global_position)
 	await _draw()
@@ -265,9 +265,9 @@ func test_shoot_one_and_his_friends_turn_on_you() -> void:
 		var gb := g.get_node(^"Brain") as OutlawBrain
 		gb.nerve = 99.0
 		g.global_position = town.places.at(gb.bar_spot)
-		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + Vector3(-2, 1.2, 0)}]
+		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2, 0, 0)) + Vector3.UP * 1.2}]
 		gb._step_started = false
-	_put_player(Vector3(7.0, 0.38, -18.6), 0.0)
+	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, 0.38, 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
 	await physics_frames(30)
 	var brody := _man(&"brody")
 	var at := (brody.parts[&"thigh_r"] as Node3D).global_position
@@ -311,10 +311,10 @@ func test_in_a_fight_they_work_together() -> void:
 		var gb := g.get_node(^"Brain") as OutlawBrain
 		gb.nerve = 99.0
 		g.global_position = town.places.at(gb.bar_spot)
-		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + Vector3(-2, 1.2, 0)}]
+		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2, 0, 0)) + Vector3.UP * 1.2}]
 		gb._step_started = false
 	player.remove_meta(&"human_body")  # their rounds stop on you: this is about them
-	_put_player(Vector3(7.0, 0.38, -18.6), 0.0)
+	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, 0.38, 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
 	var calls: Array[String] = []
 	var hear := func(who: Node, kind: StringName, _about: Node, _at: Vector3) -> void:
 		calls.append("%s %s" % [(who as HumanBody).person_id, kind])

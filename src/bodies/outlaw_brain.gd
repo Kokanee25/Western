@@ -797,6 +797,10 @@ func _harass(delta: float, step: Dictionary) -> bool:
 	var chest := (who.parts[&"chest"] as Node3D).global_position if who.parts.has(&"chest") else who.global_position + Vector3.UP * 1.2
 	body.face(chest)
 	var now := _step_time
+	if not step.get("begun", false):
+		# Something to say soon after he's there (a drink's long quiet doesn't carry over).
+		step.begun = true
+		_say_again = minf(_say_again, _think.randf_range(0.5, 2.5))
 	if _say_again <= 0.0:
 		say(&"taunt")
 		_say_again = _think.randf_range(6.0, 9.0)
@@ -874,9 +878,10 @@ func _street_spot(p: Vector3) -> Vector3:
 	if side == 0.0:
 		side = 1.0
 	var x := p.x + side * 12.0
-	if x > 14.0 or x < -30.0:
+	# Main Street between Market Street and Freight Street (config/town.json).
+	if x > 16.0 or x < -34.0:
 		x = p.x - side * 12.0
-	return Vector3(clampf(x, -30.0, 14.0), 0.0, street_z + _think.randf_range(-1.0, 1.0))
+	return Vector3(clampf(x, -34.0, 16.0), 0.0, street_z + _think.randf_range(-1.0, 1.0))
 
 
 ## Face to face in the open, hand by the holster. He goes for his gun when you go for yours, or
@@ -917,7 +922,7 @@ func _back_down(by: Node) -> void:
 	var plan: Array[Dictionary] = []
 	if places and bar_spot != &"":
 		plan.append({"do": &"go", "to": bar_spot})
-		plan.append({"do": &"drink", "seconds": sulk_seconds, "face": places.at(bar_spot) + Vector3(-2.0, 1.2, 0.0)})
+		plan.append({"do": &"drink", "seconds": sulk_seconds, "face": places.at(bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2.0, 0.0, 0.0)) + Vector3.UP * 1.2})
 	elif proud:
 		plan.append({"do": &"wait", "seconds": sulk_seconds})
 	if proud:

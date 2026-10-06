@@ -825,6 +825,10 @@ what really happened.
    noon whistle tell the time with no display.
 - Parked (Sean likes it, maybe no time): **your homestead built by hand** with the member system
   (fences, barn, well). Cut: water levels and drought, movable claim stakes.
+- Parked (Sean, 2026-10-05: "eventually"): **a shovel that digs real dirt, and treasure to find.**
+  The ground dug out as it's carved (the voxel damage's way of carving, on the ground), the dirt
+  thrown in a pile; things buried to be found (a cache of stolen money, a strongbox, bones), and
+  graves you can dig up, with the town's opinion of that.
 
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
 

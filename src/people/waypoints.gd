@@ -156,7 +156,31 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 ## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var low := minf(a.y, b.y)
-	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH)
+	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH) and _no_step_up(space, a, b, exclude)
+
+
+## The tallest rise a way may have from one footfall to the next: the steps' rise and the slope over
+## them pass; a boardwalk's edge (up on steps since Sean's map) or a crate doesn't.
+const STEP_UP := 0.25
+
+
+## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m).
+static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
+	var n := maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.3))
+	var top := maxf(a.y, b.y) + 0.6
+	var bottom := minf(a.y, b.y) - 0.5
+	var prev := a.y
+	for i in range(n + 1):
+		var p := a.lerp(b, float(i) / n)
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.WORLD, exclude)
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			continue
+		var h := (hit.position as Vector3).y
+		if absf(h - prev) > STEP_UP:
+			return false
+		prev = h
+	return true
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.
@@ -167,33 +191,48 @@ const WIDTH := 0.3
 ## counter, and behind it), their doors and porches, the street itself and the road out west.
 static func test_street() -> Waypoints:
 	var w := Waypoints.new()
-	# The street, east to west down the middle.
-	w.add(&"west_edge", Vector3(-38, 0, -9))
-	w.add(&"street_west", Vector3(-14, 0, -9), [&"west_edge"])
-	w.add(&"street_mid", Vector3(3, 0, -9), [&"street_west"])
-	w.add(&"street_east", Vector3(15, 0, -9), [&"street_mid"])
-	# The store (its door at x 3 in its own space, the front to -Z), where the town layout stands it.
+	# Main Street, east to west down the middle (config/town.json: Freight Street at the east end,
+	# Market Street at the west, the road out west beyond it).
+	w.add(&"west_edge", Vector3(-50, 0, -9))
+	w.add(&"street_west", Vector3(-20, 0, -9), [&"west_edge"])
+	w.add(&"street_mid", Vector3(0, 0, -9), [&"street_west"])
+	w.add(&"street_east", Vector3(20, 0, -9), [&"street_mid"])
+	var floor_top := float(TownLayout.data().get("floor", 0.38))
+	# The store (its door in the middle of its front, the front to -Z), up the steps at its west end.
 	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
-	w.add(&"store_porch", store.call(3, 0.38, -1.2), [&"street_mid"])
-	w.add(&"store_door", store.call(3, 0.38, 0.9), [&"store_porch"])
-	w.add(&"store_counter", store.call(4.15, 0.38, 3.7), [&"store_door"])
-	w.add(&"store_aisle", store.call(3.0, 0.38, 6.3), [&"store_door", &"store_counter"])
-	# A man walking behind the counter needs his shoulder clear of the wall's studs (x 5.9) and his
-	# hip clear of the counter (to x 5.27) the whole way from the keeper's place: in from 5.65.
-	w.add(&"store_behind_counter", store.call(5.5, 0.38, 6.0), [&"store_aisle"])
-	w.add(&"store_keeper", store.call(5.65, 0.38, 3.7), [&"store_behind_counter"])
-	# The saloon (its door at x 5 in its own space, the front to -Z), turned to face the street.
+	var store_set: Dictionary = TownLayout.entry(&"Store").get("set", {})
+	var sw := float(store_set.get("width", 6.0))
+	var store_steps: Array = (TownLayout.entry(&"Boardwalk").get("set", {}) as Dictionary).get("steps", [[sw * 0.5, 2.0]])
+	var sx := float(store_steps[0][0])
+	w.add(&"store_front", store.call(sx, 0, -7.0), [&"street_mid", &"street_west"])
+	w.add(&"store_steps", store.call(sx, 0, -3.4), [&"store_front"])
+	w.add(&"store_landing", store.call(sx, floor_top, -1.2), [&"store_steps"])
+	w.add(&"store_porch", store.call(sw * 0.5, floor_top, -1.5), [&"store_landing"])
+	w.add(&"store_door", store.call(sw * 0.5, floor_top, 0.9), [&"store_porch"])
+	w.add(&"store_counter", store.call(sw - 1.85, floor_top, 3.7), [&"store_door"])
+	w.add(&"store_aisle", store.call(sw * 0.5, floor_top, 6.3), [&"store_door", &"store_counter"])
+	# A man walking behind the counter needs his shoulder clear of the wall's studs and his hip clear
+	# of the counter (to w - 0.73) the whole way from the keeper's place.
+	w.add(&"store_behind_counter", store.call(sw - 0.5, floor_top, 6.0), [&"store_aisle"])
+	w.add(&"store_keeper", store.call(sw - 0.35, floor_top, 3.7), [&"store_behind_counter"])
+	# The saloon (its door at x 5 in its own space, the front to -Z), up the steps at its east end.
 	var saloon := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Saloon", Vector3(x, y, z))
-	w.add(&"saloon_porch", saloon.call(5, 0.38, -1.5), [&"street_mid", &"street_east"])
-	w.add(&"saloon_door", saloon.call(5, 0.38, 0.9), [&"saloon_porch"])
-	w.add(&"saloon_floor", saloon.call(6.0, 0.38, 3.5), [&"saloon_door"])
+	var saloon_steps: Array = (TownLayout.entry(&"SouthBoardwalk").get("set", {}) as Dictionary).get("steps", [[5.0, 2.0]])
+	var lx := float(saloon_steps[0][0])
+	w.add(&"saloon_front", saloon.call(lx, 0, -7.0), [&"street_mid", &"street_east"])
+	w.add(&"saloon_steps", saloon.call(lx, 0, -3.4), [&"saloon_front"])
+	w.add(&"saloon_landing", saloon.call(lx, floor_top, -1.2), [&"saloon_steps"])
+	# Along the walk from the store's door to the saloon's (they stand side by side).
+	w.add(&"saloon_porch", saloon.call(5, floor_top, -1.5), [&"saloon_landing", &"store_porch"])
+	w.add(&"saloon_door", saloon.call(5, floor_top, 0.9), [&"saloon_porch"])
+	w.add(&"saloon_floor", saloon.call(6.0, floor_top, 3.5), [&"saloon_door"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
 		var z := 4.45 + i * 1.3
-		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, 0.38, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
-		w.add(StringName("bar_%d" % i), saloon.call(7.05, 0.38, z), [StringName("bar_front_%d" % i)])
+		w.add(StringName("bar_front_%d" % i), saloon.call(6.2, floor_top, z), [&"saloon_floor"] if i == 0 else [StringName("bar_front_%d" % (i - 1))])
+		w.add(StringName("bar_%d" % i), saloon.call(7.05, floor_top, z), [StringName("bar_front_%d" % i)])
 	# Round the near end of the bar to the barkeep's side.
-	w.add(&"bar_end", saloon.call(6.7, 0.38, 2.3), [&"saloon_floor"])
-	w.add(&"bar_end_inside", saloon.call(8.8, 0.38, 2.3), [&"bar_end"])
-	w.add(&"behind_bar", saloon.call(8.8, 0.38, 5.8), [&"bar_end_inside"])
+	w.add(&"bar_end", saloon.call(6.7, floor_top, 2.3), [&"saloon_floor"])
+	w.add(&"bar_end_inside", saloon.call(8.8, floor_top, 2.3), [&"bar_end"])
+	w.add(&"behind_bar", saloon.call(8.8, floor_top, 5.8), [&"bar_end_inside"])
 	return w

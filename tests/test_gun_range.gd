@@ -23,12 +23,12 @@ func before_each() -> void:
 	hits.clear()
 	Events.bullet_hit.connect(_on_hit)
 	# Stand at the range line facing the target board, 16 m east, and line up on the black square.
-	player.global_position = Vector3(14, 0, -8.4)
+	player.global_position = street.get_node(^"TargetBoard").global_position + Vector3(-16.0, 0.0, 0.0)
 	player.rotation = Vector3(0, deg_to_rad(-90), 0)
 	player.velocity = Vector3.ZERO
 	await physics_frames(5)
 	var eye := player.camera.global_position
-	player.add_look(Vector2(0, rad_to_deg(atan2(1.22 - eye.y, 30.0 - eye.x)) - player.get_pitch_degrees()))
+	player.add_look(Vector2(0, rad_to_deg(atan2(1.22 - eye.y, street.get_node(^"TargetBoard").global_position.x - eye.x)) - player.get_pitch_degrees()))
 
 
 func after_each() -> void:
