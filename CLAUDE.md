@@ -3946,3 +3946,11 @@ a few views renders them as the full run does.
   0.104 now). The look is the art session's to restyle (told: colour, sunlit side, the sky).
   `tests/test_smoke.gd` was overwritten by the new tests for one commit and put back (the gun
   smoke's); the fire smoke's are `test_fire_smoke.gd`. Bridge: `smoke [X Y Z]`.
+- 2026-10-06 (gameplay): **Bigger flames** (the art session's ask). `FireFX` draws a burning
+  member's flames as a few big tongues off its upper half that grow with it: `FireTuning`
+  `flame_size_catching` (0.35 × 0.6 m) to `flame_size_alight` (1.0 × 1.7 m) over `growth_seconds`,
+  at most `flames_a_member` 8 (by its area, so the count doesn't climb as they grow; `refresh`
+  resizes the quads), and a burning door or window head (`.../head`, `.../header`) sends tongues
+  out of the opening under it. Tests `test_fire_fx` (2). Goldens: the three `store_fire_*` views
+  re-approved from two `--fresh` runs (art's files, said here); every other view passes. The look
+  of each tongue is still the art session's (`flame.gdshader`).
