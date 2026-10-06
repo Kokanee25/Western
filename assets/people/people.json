@@ -50,7 +50,7 @@
   "stranger2": {
    "note": "The stranger by Rodin Gen-2.5 (tools/characters/rodin.py) from Sean's own front picture and the three views painted from it (the model test, 2026-10-06), fitted by tools/blender/fit_tripo.py with his joints found from his shape: he comes dressed, hat and all.",
    "source": "rodin",
-   "rodin": "test/stranger2_rodin",
+   "rodin": "stranger2_rodin",
    "tris": {
     "skin": 30000,
     "head": 10000
@@ -61,8 +61,8 @@
   "stranger2s": {
    "note": "The Rodin stranger pushed toward the paintings' stylised realism (tools/characters/stylise.py, Sean's experiment, 2026-10-06): his brow and jaw heavier, his moustache thicker, his eyes and hands a little bigger, his skin's fine detail smoothed away; painted in the style and fitted as stranger2 is.",
    "source": "rodin",
-   "rodin": "test/stranger2s_rodin",
-   "stylise": {"from": "test/stranger2_rodin"},
+   "rodin": "stranger2s_rodin",
+   "stylise": {"from": "stranger2_rodin"},
    "tris": {"skin": 30000, "head": 10000},
    "eye_gain": 1.8,
    "outfit": {},

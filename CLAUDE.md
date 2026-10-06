@@ -758,6 +758,23 @@ a few views renders them as the full run does.
   (per-vertex colour from the nearest coat point at full resolution, the shell unwrapped in
   Blender and baked to its own texture, then decimated), the way `clothes.py` bakes garments.
   `stranger` stays the whole man meanwhile.
+  **The Rodin route** (since 2026-10-06: `stranger2`, `stranger2s`): `tools/characters/rodin.py`
+  (Rodin Gen-2.5 on fal, `fal-ai/hyper3d/rodin/v2.5`, $1.60 a man; `--dry-run` against
+  `rodin_standin.py`) builds a man from his four pictures, no rig, into
+  `tripo/test/<id>_rodin.glb` (the model test's folder; one who goes in the game moves to
+  `tripo/`). `people.json` `"source": "rodin"`, `"rodin": <glb>`: `fit_tripo.py` finds his
+  joints from his shape (`find_joints`) and fits him as a Tripo man; with his face found
+  (`<rodin>_face.json`) his shoulders go onto ours and all of him above them is scaled so his
+  drawn eyes land on the anatomy's (`EYES_RULE`, the report's `eyes`; `people.json` `tris` gives
+  him his own triangle budget). `tools/characters/stylise.py` makes a stylised copy (`"stylise":
+  {"from": ...}`: brow, jaw, moustache, eyes and hands pushed, his skin's fine detail smoothed).
+  `head_paint.py` paints a man with `body` words in `characters.json` whole (six head views, six
+  body views; `head.frame` and `bust` set his face's square count), and its bake can keep the
+  painter's squares (`bake.squares` false, `flatten`, `view_power`), cut them into cells in his
+  body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
+  light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
+  landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
+  `body_skin` gives his drawn whites that much more light).
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -3384,9 +3401,9 @@ a few views renders them as the full run does.
 - 2026-10-06 (characters session): **The model test, and Rodin's man fitted and seated at the
   card table.** Sean, on the bold paint for the fitted men (`tools/characters/bold_paint.py`:
   squares in body space, de-lit by a fit to the normals, a few flat tones a garment): "those
-  models are dog shit", the mesh and the paint both. It stays on this branch as a rejected trial
-  (`PeopleBodies.bold_paint`, `--bold-paint` in `character_lab.gd` and `people_lineup.gd`), not
-  for main. So the model makers were tested on one man (People `style: test3d`, job `test-3d`):
+  models are dog shit", the mesh and the paint both. It stays on the characters branch
+  (`claude/new-session-l733p0`) as a rejected trial (`PeopleBodies.bold_paint`, `--bold-paint` in
+  `character_lab.gd` and `people_lineup.gd`), not on main. So the model makers were tested on one man (People `style: test3d`, job `test-3d`):
   Tripo's newest (H3.1, `v3.1-20260211`, detailed texture and geometry, quads; `tripo.py
   --test=<id> --runs=h31,h31_parts`; it answers in FBX, `ext_of`) and Rodin Gen-2.5 on fal
   (`tools/characters/rodin.py`, `fal-ai/hyper3d/rodin/v2.5`: Extreme-High, an 18K quad mesh, PBR,
@@ -3400,9 +3417,10 @@ a few views renders them as the full run does.
   from it on fal (run 48), Rodin and H3.1 again (run 49): Rodin's is Sean's picture in 3D from
   every side; H3.1's came out two-faced (a face on the back of his head; most likely because the
   front is 1024×1536 and the painted views 768×1024). Spent: $3.30 at fal, 220 Tripo credits
-  (915 left). The test's models are in `assets/people/tripo/test/` (157 MB, this branch only:
-  they stay off main). **The fit** (`fit_tripo.py`; `people.json` `stranger2`, `"source":
-  "rodin"`, his glb `tripo/test/stranger2_rodin.glb`): Rodin gives no rig, so his joints are
+  (915 left). The test's models are in `assets/people/tripo/test/` on the characters branch only
+  (157 MB); the two the stranger is made from went to main with him, in `assets/people/tripo/`.
+  **The fit** (`fit_tripo.py`; `people.json` `stranger2`, `"source": "rodin"`, his glb
+  `tripo/stranger2_rodin.glb`): Rodin gives no rig, so his joints are
   found from his shape (`find_joints`: cross-sections of him, each arm traced down his side, each
   leg a line through its middles below the coat, the heights where Tripo's rigs put them,
   `RIG_Y`; tried on the three Tripo men against their own rigs, 2–3 % of his height out on
@@ -3707,5 +3725,22 @@ a few views renders them as the full run does.
   - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
     `assets/people/stranger2s_skin.png`, `stranger2s_head.png`,
     `assets/people/tripo/stranger2s_color.png`, `docs/screenshots/tripo/stranger2s_face_eyes.png`
-    (the characters pipeline's folder in the art session's `docs/screenshots/`). His glb and
-    report are unchanged.
+    (the characters pipeline's folder in the art session's `docs/screenshots/`). His glb is
+    unchanged; his report gains `eye_gain`.
+- 2026-10-06 (characters session, later): **The stylised stranger on main.** Sean: "Okay do
+  that" (his going on main). Squashed onto main from the characters branch, as one commit:
+  - The Rodin stranger (`stranger2`) and his stylised copy (`stranger2s`): fitted, painted in the
+    style, his eyes drawn, their gain in his report.
+  - The tools: `rodin.py` (+ its stand-in), `stylise.py`, the `head_paint.py` and `fit_tripo.py`
+    work, `fit_shot.gd --model=`, the People workflow's `test-3d` job, and the body test for drawn
+    eyes. A layout note for the Rodin route (under "Characters by image-to-3D").
+  - Left on the characters branch: the model test's other models (`tripo/test/`, 129 MB: Tripo
+    H3.1 and the first Rodin run) and the rejected bold paint (`bold_paint.py`,
+    `PeopleBodies.bold_paint`, the tools' `--bold-paint`).
+  - His two Rodin models moved out of `tripo/test/` into `tripo/`: they're his sources now. Both
+    were re-made from main's scripts, so every step of him repeats from main. The joint finder
+    changed after he was stylised, so his hands moved by up to 1 cm and his squares were re-cut a
+    hair off (342 texels of eye white to 337); by eye he's the same man.
+  - Nothing in the game uses him yet: `--model=stranger2s` in `screenshots.gd`,
+    `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
+    per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
