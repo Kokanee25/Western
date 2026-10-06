@@ -94,7 +94,19 @@
    "given": true,
    "what": "a weathered frontier gunman of about forty in 1882: a brown felt hat with a flat crown and a checkered band, short dark hair, deep-set dark eyes under heavy brows, a thick dark drooping moustache and stubble, a cream shirt buttoned to the collar, a dark neckerchief knotted at his throat, a patterned brown vest with a row of buttons, a weathered brown wool sack coat to his hips with wide lapels, brown trousers and worn brown boots",
    "back_of": "the back of his hat and coat, his short dark hair at his collar",
-   "note": "Sean's own front picture (ChatGPT, 2026-10-06, from the concept painting's man), for the model test: tools/characters/tripo.py --test, rodin.py."
+   "note": "Sean's own front picture (ChatGPT, 2026-10-06, from the concept painting's man), for the model test: tools/characters/tripo.py --test, rodin.py.",
+   "head": {
+    "of": "a weathered frontier gunman's head",
+    "looks": "a lean weathered face of about forty, deep-set dark eyes under heavy dark brows, a thick dark drooping moustache, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
+    "light": "soft even light on his face",
+    "guide_light": 0.25,
+    "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face"
+   },
+   "body": {
+    "of": "a frontier gunman",
+    "looks": "a brown felt hat with a checkered band, a cream shirt buttoned to the collar, a dark neckerchief, a patterned brown vest with a row of buttons, a weathered brown wool sack coat to his hips with wide lapels, brown trousers and worn brown boots",
+    "light": "soft even light"
+   }
   }
  }
 }

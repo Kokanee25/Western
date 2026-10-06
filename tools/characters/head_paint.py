@@ -21,6 +21,15 @@ painting's face squares), and writes <id>_color.png: Tripo's colour texture with
 repainted (the body as Tripo made it; tools/tripo_lab.gd lays it over his material). A contact
 sheet goes to docs/screenshots/tripo/<id>_head_views.png. Runs on Actions (People workflow,
 `style: head`) or here; every fal answer is kept in build/characters/head_log.json.
+
+The whole man (2026-10-06, the Rodin stranger: a clean mesh whose skin is a photo): a character
+with `body` words in characters.json gets six full-length views as well (<id>_body_<view>_guide.png,
+painted as <id>_body_<view>_painted.png), and `bake` lays them on everything below the head the same
+way (texels no view saw keep the model's own colour). A Rodin man (people.json `"source": "rodin"`,
+his glb at <rodin>.glb under assets/people/tripo) is turned into Tripo's frame and set 1.0 tall
+first (load_man). His guides can be lit evenly (`head.guide_light`, 0 = his colours flat, 1 = the
+key light the stranger's were painted from): the game lights him, so the paint shouldn't carry
+light of its own.
 """
 import base64
 import io
@@ -68,6 +77,28 @@ VIEWS = {
     "right": (-90.0, 0.0, 1.0),
     "back": (180.0, 0.0, 0.8),
 }
+# The whole man's views (characters with `body` words): the same turns, full length, and how much
+# each is trusted on the body. Their guides show all of him (a headless figure would puzzle the
+# painter); only what's below the head is baked from them.
+BODY_VIEWS = dict(VIEWS)
+BODY_PX = 1024
+ASK_BODY = "SLTCRK, a full-length figure of {of} standing {view}, {looks}, {light}, a plain dark brown background"
+BODY_VIEW_WORDS = {
+    "front": "seen straight on, his arms held a little out from his sides",
+    "three_quarter_left": "turned three-quarters to his left",
+    "left": "in full profile from his left side, facing the left edge of the picture",
+    "three_quarter_right": "turned three-quarters to his right",
+    "right": "in full profile from his right side, facing the right edge of the picture",
+    "back": "seen from directly behind, his back to the viewer",
+}
+# The body's squares on him (the painting's coat squares, tools/paint/finish.py's cloth: 160 a
+# metre) and its palette.
+SQUARE_M_BODY = 0.00625
+COLOURS_BODY = 48
+# The bake's texture: the model's own size up to this (a Rodin man's 4096 texels a side are more
+# than the fit keeps: tools/blender/fit_tripo.py squares a texture this size to his skin's).
+BAKE_MAX = 2048
+PEOPLE = os.path.join(ROOT, "assets", "people", "people.json")
 # Tripo's man faces +X with Y up.
 FORWARD = np.array([1.0, 0.0, 0.0])
 UP = np.array([0.0, 1.0, 0.0])
@@ -131,10 +162,42 @@ def load_glb(path):
     return pos, nrm, uv, tris, colour
 
 
+def load_man(cid):
+    """His mesh and colour as the rest works on them: Tripo's frame (facing +X, his right at +Z),
+    feet on 0, 1.0 tall. A Tripo man's glb comes so; a Rodin man (people.json `source` rodin) is
+    built facing +Z with his right at -X at a size of its own, and is turned and set so."""
+    spec = json.load(open(PEOPLE))["people"].get(cid, {}) if os.path.exists(PEOPLE) else {}
+    if spec.get("source") != "rodin":
+        return load_glb(os.path.join(DIR, cid + ".glb"))
+    pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, spec["rodin"] + ".glb"))
+    turn = lambda p: np.stack([p[:, 2], p[:, 1], -p[:, 0]], axis=1)
+    pos, nrm = turn(pos), turn(nrm)
+    y0, y1 = pos[:, 1].min(), pos[:, 1].max()
+    pos = (pos - np.array([0.0, y0, 0.0])) / (y1 - y0)
+    pos -= np.array([(pos[:, 0].min() + pos[:, 0].max()) / 2, 0.0, (pos[:, 2].min() + pos[:, 2].max()) / 2])
+    return pos, nrm, uv, tris, colour
+
+
 def head_spec(cid):
     """The character's head words (HEAD, with characters.json's `head` over it) and view words."""
     own = json.load(open(SPEC))["characters"].get(cid, {}).get("head", {})
     return dict(HEAD, **own), dict(VIEW_WORDS, **{k: v for k, v in own.items() if k in VIEW_WORDS})
+
+
+def body_spec(cid):
+    """The character's body words (characters.json `body`: of, looks, light, any view's words),
+    and the view words; None when he has none (his head alone is painted)."""
+    own = json.load(open(SPEC))["characters"].get(cid, {}).get("body")
+    if not own:
+        return None, None
+    return own, dict(BODY_VIEW_WORDS, **{k: v for k, v in own.items() if k in BODY_VIEW_WORDS})
+
+
+def body_triangles(pos, tris, share=None):
+    """Everything not in his head: the triangles with a corner at or below the head's cut."""
+    y0, y1 = pos[:, 1].min(), pos[:, 1].max()
+    cut = y0 + (y1 - y0) * (HEAD_FROM if share is None else share)
+    return tris[~(pos[tris, 1] > cut).all(axis=1)]
 
 
 def head_triangles(pos, tris, share=None):
@@ -168,11 +231,11 @@ def head_frame(pos, htris):
     return centre, float((hi - lo).max() * 1.18)
 
 
-def to_view(p, centre, frame, r, u, f):
-    """Points -> (x px, y px, depth) in a view; depth grows away from the camera."""
+def to_view(p, centre, frame, r, u, f, size=GUIDE_PX):
+    """Points -> (x px, y px, depth) in a view `size` pixels a side; depth grows away from the camera."""
     d = p - centre
-    x = (d @ r / frame + 0.5) * GUIDE_PX
-    y = (0.5 - d @ u / frame) * GUIDE_PX
+    x = (d @ r / frame + 0.5) * size
+    y = (0.5 - d @ u / frame) * size
     return x, y, d @ f
 
 
@@ -192,17 +255,20 @@ def raster(xs, ys, w, h):
     return px[inside], py[inside], a[inside], b[inside], c[inside]
 
 
-def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None):
-    """A render of the head from a view (grey clay, or Tripo's own colours when `uv` and `colour`
-    are given; a key light up and to the camera's left, a dark ground) and its depth buffer (inf
-    where nothing is)."""
+def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None, size=GUIDE_PX, key=1.0):
+    """A render of the head (or whatever `htris` holds) from a view `size` pixels a side (grey clay,
+    or the model's own colours when `uv` and `colour` are given; a key light up and to the
+    camera's left, `key` of it: 0 is his colours evenly lit, shaded only a little by how squarely
+    each part faces you; a dark ground) and its depth buffer (inf where nothing is)."""
+    GUIDE_PX = size
     r, u, f = cam
     tex = np.asarray(colour, dtype=np.float64) if colour is not None else None
     tex_u = np.zeros((GUIDE_PX, GUIDE_PX))
     tex_v = np.zeros((GUIDE_PX, GUIDE_PX))
-    x, y, z = to_view(pos, centre, frame, r, u, f)
+    x, y, z = to_view(pos, centre, frame, r, u, f, size)
     depth = np.full((GUIDE_PX, GUIDE_PX), np.inf)
     shade = np.zeros((GUIDE_PX, GUIDE_PX))
+    even = np.zeros((GUIDE_PX, GUIDE_PX))
     light = -f * 0.8 + u * 0.45 - r * 0.35
     light /= np.linalg.norm(light)
     lit = np.clip(nrm @ light, 0.0, 1.0)
@@ -218,7 +284,9 @@ def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None):
             continue
         px, py, a, b, c, zz = px[near], py[near], a[near], b[near], c[near], zz[near]
         depth[py, px] = zz
-        shade[py, px] = 0.16 + 0.62 * (a * lit[t[0]] + b * lit[t[1]] + c * lit[t[2]]) + 0.14 * (a * fill[t[0]] + b * fill[t[1]] + c * fill[t[2]])
+        facing = a * fill[t[0]] + b * fill[t[1]] + c * fill[t[2]]
+        shade[py, px] = 0.16 + 0.62 * (a * lit[t[0]] + b * lit[t[1]] + c * lit[t[2]]) + 0.14 * facing
+        even[py, px] = 0.8 + 0.2 * facing
         if tex is not None:
             tex_u[py, px] = a * uv[t[0], 0] + b * uv[t[1], 0] + c * uv[t[2], 0]
             tex_v[py, px] = a * uv[t[0], 1] + b * uv[t[1], 1] + c * uv[t[2], 1]
@@ -228,22 +296,38 @@ def render_view(pos, nrm, htris, centre, frame, cam, uv=None, colour=None):
         th, tw = tex.shape[:2]
         ui = np.clip((tex_u[seen] * tw).astype(int), 0, tw - 1)
         vi = np.clip((tex_v[seen] * th).astype(int), 0, th - 1)
-        img[seen] = tex[vi, ui] * np.clip(0.35 + 0.75 * shade[seen], 0, 1.1)[:, None]
+        lit_by = np.clip(0.35 + 0.75 * shade[seen], 0, 1.1) * key + even[seen] * (1.0 - key)
+        img[seen] = tex[vi, ui] * lit_by[:, None]
     else:
         g = np.clip(shade[seen], 0, 1) * 255
         img[seen] = np.stack([g, g, g * 0.97], axis=1)
     return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)), depth
 
 
+def body_frame(pos):
+    """All of him: his middle and the frame's size (square, a little room round him)."""
+    lo, hi = pos.min(axis=0), pos.max(axis=0)
+    return (lo + hi) / 2, float((hi - lo).max() * 1.06)
+
+
 def guides(cid):
-    pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, cid + ".glb"))
-    htris = head_triangles(pos, tris, head_spec(cid)[0].get("cut"))
+    pos, nrm, uv, tris, colour = load_man(cid)
+    head = head_spec(cid)[0]
+    key = float(head.get("guide_light", 1.0))
+    htris = head_triangles(pos, tris, head.get("cut"))
     centre, frame = head_frame(pos, htris)
     print("%s: %d head triangles of %d, frame %.3f (%.0f mm)" % (cid, len(htris), len(tris), frame, frame * HEIGHT_M * 1000))
     for view, (yaw, pitch, _w) in VIEWS.items():
-        img, depth = render_view(pos, nrm, htris, centre, frame, camera(yaw, pitch), uv, colour)
+        img, depth = render_view(pos, nrm, htris, centre, frame, camera(yaw, pitch), uv, colour, key=key)
         img.save(os.path.join(DIR, "%s_head_%s_guide.png" % (cid, view)))
         print("  guide:", view)
+    if body_spec(cid)[0] is None:
+        return
+    centre, frame = body_frame(pos)
+    for view, (yaw, pitch, _w) in BODY_VIEWS.items():
+        img, depth = render_view(pos, nrm, tris, centre, frame, camera(yaw, pitch), uv, colour, size=BODY_PX, key=key)
+        img.save(os.path.join(DIR, "%s_body_%s_guide.png" % (cid, view)))
+        print("  guide: body", view)
 
 
 # ---------------------------------------------------------------- fal
@@ -298,9 +382,22 @@ def edit(img, prompt, lora_url, scale, seed, key, log, what, strength=None):
     raise RuntimeError("%s: still not done after ten minutes" % what)
 
 
+def jobs(cid):
+    """What there is to paint: (kind, view, the ask, the guide's size). His head's six views, then,
+    if he has body words, his whole body's six; `--only` names a head view as `front` and a body
+    view as `body_front`."""
+    head, view_words = head_spec(cid)
+    out = [("head", view, ASK.format(of=head["of"], view=view_words[view], looks=head["looks"], light=head["light"]),
+            GUIDE_PX) for view in VIEWS]
+    body, body_words = body_spec(cid)
+    if body is not None:
+        out += [("body", view, ASK_BODY.format(of=body["of"], view=body_words[view], looks=body["looks"],
+                                               light=body["light"]), BODY_PX) for view in BODY_VIEWS]
+    return out
+
+
 def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, strength=None):
     out_dir = out_dir or DIR
-    head, view_words = head_spec(cid)
     lora_url = json.load(open(LORA))["lora_url"] if os.path.exists(LORA) else ""
     if not lora_url:
         print("No %s: the LoRA isn't trained; painting without it." % LORA)
@@ -308,28 +405,28 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, stren
     os.makedirs(BUILD, exist_ok=True)
     log = [{"editor": EDITOR, "lora_url": lora_url, "scale": scale, "seed": seed, "strength": STRENGTH if strength is None else strength}]
     failed = []
-    for view in VIEWS:
-        if only and view not in only:
+    for kind, view, ask, size in jobs(cid):
+        name = view if kind == "head" else "body_" + view
+        if only and name not in only:
             continue
-        out = os.path.join(out_dir, "%s_head_%s_painted.png" % (cid, view))
+        out = os.path.join(out_dir, "%s_%s_%s_painted.png" % (cid, kind, view))
         if os.path.exists(out) and not repaint:
-            print("already painted:", view)
+            print("already painted:", name)
             continue
-        guide = os.path.join(DIR, "%s_head_%s_guide.png" % (cid, view))
+        guide = os.path.join(DIR, "%s_%s_%s_guide.png" % (cid, kind, view))
         if not os.path.exists(guide):
-            print("no guide for", view, "(run `guides` first)")
-            failed.append(view)
+            print("no guide for", name, "(run `guides` first)")
+            failed.append(name)
             continue
         try:
-            ask = ASK.format(of=head["of"], view=view_words[view], looks=head["looks"], light=head["light"])
-            img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_head_%s" % (cid, view), strength)
-            if img.size != (GUIDE_PX, GUIDE_PX):
-                img = img.resize((GUIDE_PX, GUIDE_PX), Image.LANCZOS)
+            img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_%s_%s" % (cid, kind, view), strength)
+            if img.size != (size, size):
+                img = img.resize((size, size), Image.LANCZOS)
             img.save(out)
-            print("painted:", view, img.size)
+            print("painted:", name, img.size)
         except (RuntimeError, OSError, KeyError, ValueError) as e:
-            print("failed:", view, e)
-            failed.append(view)
+            print("failed:", name, e)
+            failed.append(name)
         with open(os.path.join(BUILD, "head_log.json"), "w") as f:
             json.dump(log, f, indent=1)
     if failed:
@@ -371,37 +468,37 @@ def palette(rgb, n, seed=3):
     return centres[d.argmin(axis=1)]
 
 
-def bake(cid):
-    pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, cid + ".glb"))
-    htris = head_triangles(pos, tris, head_spec(cid)[0].get("cut"))
-    centre, frame = head_frame(pos, htris)
-    size = colour.width
-    tri_id, bary = uv_raster(uv, htris, size)
+def project(cid, kind, views, pos, nrm, uv, tris, render_tris, centre, frame, size, px):
+    """The texels of `tris`'s UV islands (a texture `size` a side) and their colours from his
+    painted views of this kind, each seen through its guide's camera (`px` a side, the depth of
+    `render_tris` as the guide drew them) and depth-tested; returns their rows and columns, their
+    colours, which were seen, and the views used."""
+    tri_id, bary = uv_raster(uv, tris, size)
     texels = np.argwhere(tri_id >= 0)
     ty, tx = texels[:, 0], texels[:, 1]
-    t = htris[tri_id[ty, tx]]
+    t = tris[tri_id[ty, tx]]
     b = bary[ty, tx]
     p = (pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3])
     n = (nrm[t[:, 0]] * b[:, :1] + nrm[t[:, 1]] * b[:, 1:2] + nrm[t[:, 2]] * b[:, 2:3])
     n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-9)
-    print("%s: %d head texels of %d^2" % (cid, len(texels), size))
+    print("%s: %d %s texels of %d^2" % (cid, len(texels), kind, size))
     total = np.zeros((len(texels), 3))
     weight = np.zeros(len(texels))
     tolerance = frame * 0.012
     used = []
-    for view, (yaw, pitch, trust) in VIEWS.items():
-        painted = os.path.join(DIR, "%s_head_%s_painted.png" % (cid, view))
+    for view, (yaw, pitch, trust) in views.items():
+        painted = os.path.join(DIR, "%s_%s_%s_painted.png" % (cid, kind, view))
         if not os.path.exists(painted):
-            print("  no painting for", view)
+            print("  no painting for", kind, view)
             continue
-        img = np.asarray(Image.open(painted).convert("RGB").resize((GUIDE_PX, GUIDE_PX), Image.LANCZOS), dtype=np.float64)
+        img = np.asarray(Image.open(painted).convert("RGB").resize((px, px), Image.LANCZOS), dtype=np.float64)
         cam = camera(yaw, pitch)
-        _guide, depth = render_view(pos, nrm, htris, centre, frame, cam)   # the view's depth, as the guide saw it
+        _guide, depth = render_view(pos, nrm, render_tris, centre, frame, cam, size=px)   # the view's depth, as the guide saw it
         r, u, f = cam
-        x, y, z = to_view(p, centre, frame, r, u, f)
-        xi = np.clip(np.floor(x).astype(int), 0, GUIDE_PX - 1)
-        yi = np.clip(np.floor(y).astype(int), 0, GUIDE_PX - 1)
-        inside = (x >= 0) & (x < GUIDE_PX) & (y >= 0) & (y < GUIDE_PX)
+        x, y, z = to_view(p, centre, frame, r, u, f, px)
+        xi = np.clip(np.floor(x).astype(int), 0, px - 1)
+        yi = np.clip(np.floor(y).astype(int), 0, px - 1)
+        inside = (x >= 0) & (x < px) & (y >= 0) & (y < px)
         # Seen: at the front of what the view's depth buffer holds there (loosened to the farthest
         # of the 3x3 round it, so a texel a pixel off an edge still counts).
         d3 = depth.copy()
@@ -416,44 +513,75 @@ def bake(cid):
         total += img[yi, xi] * w[:, None]
         weight += w
         used.append(view)
-        print("  %s: %.0f%% of the head's texels seen" % (view, 100.0 * seen.mean()))
-    if not used:
-        print("nothing painted yet (run `paint`)")
-        sys.exit(1)
+        print("  %s %s: %.0f%% of the texels seen" % (kind, view, 100.0 * seen.mean()))
     got = weight > 1e-6
     rgb = np.zeros((len(texels), 3))
     rgb[got] = total[got] / weight[got, None]
-    # Fill what no view saw from the nearest texel that was (in UV space).
+    return ty, tx, rgb, got, used
+
+
+def in_squares(sheet, mask, pos, uv, tris, size, square_m, colours, what):
+    """The masked texels of `sheet` (in place) in squares of `square_m` on him (texels a metre from
+    the islands' UV area against their true area) and cut to `colours` colours."""
+    a3 = 0.5 * np.linalg.norm(np.cross(pos[tris[:, 1]] - pos[tris[:, 0]], pos[tris[:, 2]] - pos[tris[:, 0]]), axis=1).sum() * HEIGHT_M ** 2
+    e1, e2 = uv[tris[:, 1]] - uv[tris[:, 0]], uv[tris[:, 2]] - uv[tris[:, 0]]
+    a2 = 0.5 * np.abs(e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]).sum() * size ** 2
+    texels_per_m = np.sqrt(a2 / a3)
+    sq = max(1, int(round(square_m * texels_per_m)))
+    print("  %.0f texels a metre on the %s; squares of %d texels" % (texels_per_m, what, sq))
+    if sq > 1:
+        hs = (size // sq) * sq
+        block = sheet[:hs, :hs].reshape(hs // sq, sq, hs // sq, sq, 3)
+        count = mask[:hs, :hs].reshape(hs // sq, sq, hs // sq, sq).astype(np.float64)
+        mean = (block * count[..., None]).sum(axis=(1, 3)) / np.maximum(count.sum(axis=(1, 3)), 1)[..., None]
+        squared = np.repeat(np.repeat(mean, sq, axis=0), sq, axis=1)
+        inside = np.repeat(np.repeat(count.sum(axis=(1, 3)) > 0, sq, axis=0), sq, axis=1)
+        sheet[:hs, :hs][inside] = squared[inside]
+    ty, tx = np.nonzero(mask)
+    sheet[ty, tx] = palette(sheet[ty, tx], colours)
+
+
+def bake(cid):
     from scipy import ndimage
-    head = np.zeros((size, size), dtype=bool)
-    head[ty, tx] = True
+    pos, nrm, uv, tris, colour = load_man(cid)
+    head = head_spec(cid)[0]
+    htris = head_triangles(pos, tris, head.get("cut"))
+    size = min(colour.width, BAKE_MAX)
+    base = colour if colour.width == size else colour.resize((size, size), Image.LANCZOS)
+    out = np.asarray(base, dtype=np.float64).copy()
+    centre, frame = head_frame(pos, htris)
+    ty, tx, rgb, got, used = project(cid, "head", VIEWS, pos, nrm, uv, htris, htris, centre, frame, size, GUIDE_PX)
+    if not used:
+        print("nothing painted yet (run `paint`)")
+        sys.exit(1)
+    # The head: what no view saw filled from the nearest texel that was (in UV space).
+    mask = np.zeros((size, size), dtype=bool)
+    mask[ty, tx] = True
     known = np.zeros((size, size), dtype=bool)
     known[ty[got], tx[got]] = True
     sheet = np.zeros((size, size, 3))
     sheet[ty, tx] = rgb
     _d, (iy, ix) = ndimage.distance_transform_edt(~known, return_indices=True)
     sheet = sheet[iy, ix]
-    # Squares of a set size on him: texels a metre from the head's UV area against its true area.
-    a3 = 0.5 * np.linalg.norm(np.cross(pos[htris[:, 1]] - pos[htris[:, 0]], pos[htris[:, 2]] - pos[htris[:, 0]]), axis=1).sum() * HEIGHT_M ** 2
-    e1, e2 = uv[htris[:, 1]] - uv[htris[:, 0]], uv[htris[:, 2]] - uv[htris[:, 0]]
-    a2 = 0.5 * np.abs(e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]).sum() * size ** 2
-    texels_per_m = np.sqrt(a2 / a3)
-    sq = max(1, int(round(SQUARE_M * texels_per_m))) if not SMOOTH else 1
-    print("  %.0f texels a metre on the head; squares of %d texels" % (texels_per_m, sq))
-    if sq > 1:
-        hs = (size // sq) * sq
-        block = sheet[:hs, :hs].reshape(hs // sq, sq, hs // sq, sq, 3)
-        count = head[:hs, :hs].reshape(hs // sq, sq, hs // sq, sq).astype(np.float64)
-        mean = (block * count[..., None]).sum(axis=(1, 3)) / np.maximum(count.sum(axis=(1, 3)), 1)[..., None]
-        squared = np.repeat(np.repeat(mean, sq, axis=0), sq, axis=1)
-        inside = np.repeat(np.repeat(count.sum(axis=(1, 3)) > 0, sq, axis=0), sq, axis=1)
-        sheet[:hs, :hs][inside] = squared[inside]
-    # A palette for the head.
-    flat = sheet[ty, tx]
     if not SMOOTH:
-        sheet[ty, tx] = palette(flat, COLOURS)
-    out = np.asarray(colour, dtype=np.float64).copy()
+        in_squares(sheet, mask, pos, uv, htris, size, SQUARE_M, COLOURS, "head")
     out[ty, tx] = sheet[ty, tx]
+    if body_spec(cid)[0] is not None:
+        # The body: from the full-length views; what none saw keeps the model's own colour.
+        btris = body_triangles(pos, tris, head.get("cut"))
+        centre, frame = body_frame(pos)
+        by, bx, brgb, bgot, bused = project(cid, "body", BODY_VIEWS, pos, nrm, uv, btris, tris, centre, frame, size, BODY_PX)
+        if bused:
+            sheet = np.asarray(base, dtype=np.float64).copy()
+            sheet[by[bgot], bx[bgot]] = brgb[bgot]
+            bmask = np.zeros((size, size), dtype=bool)
+            bmask[by, bx] = True
+            bmask[ty, tx] = False      # a texel in both (a seam's edge) stays the head's
+            if not SMOOTH:
+                in_squares(sheet, bmask, pos, uv, btris, size, SQUARE_M_BODY, COLOURS_BODY, "body")
+            out[bmask] = sheet[bmask]
+            used += ["body " + v for v in bused]
+            print("  %.0f%% of the body's texels painted" % (100.0 * bgot.mean()))
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -462,26 +590,28 @@ def bake(cid):
 
 
 def contact(cid, cell=384):
-    """Guides over paintings, a view a column: docs/screenshots/tripo/<id>_head_views.png."""
+    """Guides over paintings, a view a column: docs/screenshots/tripo/<id>_head_views.png, and
+    <id>_body_views.png for a man painted whole."""
     os.makedirs(SHOTS, exist_ok=True)
-    cols = []
-    for view in VIEWS:
-        g = os.path.join(DIR, "%s_head_%s_guide.png" % (cid, view))
-        p = os.path.join(DIR, "%s_head_%s_painted.png" % (cid, view))
-        if not os.path.exists(g):
+    for kind, views in (("head", VIEWS), ("body", BODY_VIEWS)):
+        cols = []
+        for view in views:
+            g = os.path.join(DIR, "%s_%s_%s_guide.png" % (cid, kind, view))
+            p = os.path.join(DIR, "%s_%s_%s_painted.png" % (cid, kind, view))
+            if not os.path.exists(g):
+                continue
+            col = Image.new("RGB", (cell, cell * 2 + 18), (28, 28, 28))
+            col.paste(Image.open(g).convert("RGB").resize((cell, cell), Image.LANCZOS), (0, 18))
+            if os.path.exists(p):
+                col.paste(Image.open(p).convert("RGB").resize((cell, cell), Image.NEAREST), (0, cell + 18))
+            ImageDraw.Draw(col).text((4, 3), view, fill=(255, 255, 255))
+            cols.append(col)
+        if not cols:
             continue
-        col = Image.new("RGB", (cell, cell * 2 + 18), (28, 28, 28))
-        col.paste(Image.open(g).convert("RGB").resize((cell, cell), Image.LANCZOS), (0, 18))
-        if os.path.exists(p):
-            col.paste(Image.open(p).convert("RGB").resize((cell, cell), Image.NEAREST), (0, cell + 18))
-        ImageDraw.Draw(col).text((4, 3), view, fill=(255, 255, 255))
-        cols.append(col)
-    if not cols:
-        return
-    sheet = Image.new("RGB", (len(cols) * (cell + 4), cell * 2 + 18), (28, 28, 28))
-    for i, c in enumerate(cols):
-        sheet.paste(c, (i * (cell + 4), 0))
-    sheet.save(os.path.join(SHOTS, cid + "_head_views.png"))
+        sheet = Image.new("RGB", (len(cols) * (cell + 4), cell * 2 + 18), (28, 28, 28))
+        for i, c in enumerate(cols):
+            sheet.paste(c, (i * (cell + 4), 0))
+        sheet.save(os.path.join(SHOTS, "%s_%s_views.png" % (cid, kind)))
 
 
 def dry_run(cid):
@@ -498,9 +628,9 @@ def dry_run(cid):
         return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
 
     paint(cid, "dry-run-key", 1.0, 7, True, None, standin, scratch)
-    for view in VIEWS:
-        if not os.path.exists(os.path.join(scratch, "%s_head_%s_painted.png" % (cid, view))):
-            print("dry run FAILED: no", view)
+    for kind, view, _ask, _size in jobs(cid):
+        if not os.path.exists(os.path.join(scratch, "%s_%s_%s_painted.png" % (cid, kind, view))):
+            print("dry run FAILED: no", kind, view)
             sys.exit(1)
     print("dry run passed:", scratch)
 
