@@ -119,7 +119,9 @@
     "looks": "a weathered face of about forty with a heavy brow and a strong square jaw, deep-set dark eyes under heavy dark brows, a thick dark drooping moustache, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
     "light": "soft even light on his face",
     "guide_light": 0.25,
-    "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face"
+    "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face",
+    "frame": 1.4,
+    "bust": true
    },
    "body": {
     "of": "a frontier gunman",

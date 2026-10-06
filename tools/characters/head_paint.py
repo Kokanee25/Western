@@ -228,12 +228,15 @@ def camera(yaw, pitch):
     return r, u, f
 
 
-def head_frame(pos, htris):
-    """The head's centre and the frame's size (square, a little room round it)."""
+def head_frame(pos, htris, scale=1.0):
+    """The head's centre and the frame's size (square, a little room round it), times `scale`:
+    the head's `frame` in characters.json. The style model draws its squares about 8 px across
+    whatever the picture shows, so the smaller his face is in the frame, the fewer squares across
+    it (the Rodin stranger's at 1.0: 27; the painting's man: about 20)."""
     v = pos[np.unique(htris)]
     lo, hi = v.min(axis=0), v.max(axis=0)
     centre = (lo + hi) / 2
-    return centre, float((hi - lo).max() * 1.18)
+    return centre, float((hi - lo).max() * 1.18 * scale)
 
 
 def to_view(p, centre, frame, r, u, f, size=GUIDE_PX):
@@ -320,10 +323,13 @@ def guides(cid):
     head = head_spec(cid)[0]
     key = float(head.get("guide_light", 1.0))
     htris = head_triangles(pos, tris, head.get("cut"))
-    centre, frame = head_frame(pos, htris)
+    centre, frame = head_frame(pos, htris, float(head.get("frame", 1.0)))
     print("%s: %d head triangles of %d, frame %.3f (%.0f mm)" % (cid, len(htris), len(tris), frame, frame * HEIGHT_M * 1000))
+    # `bust`: his shoulders drawn below his head too (a head framed wider floats in an empty
+    # frame otherwise; the style model learned portraits with shoulders). Only the head is baked.
+    shown = tris if head.get("bust") else htris
     for view, (yaw, pitch, _w) in VIEWS.items():
-        img, depth = render_view(pos, nrm, htris, centre, frame, camera(yaw, pitch), uv, colour, key=key)
+        img, depth = render_view(pos, nrm, shown, centre, frame, camera(yaw, pitch), uv, colour, key=key)
         img.save(os.path.join(DIR, "%s_head_%s_guide.png" % (cid, view)))
         print("  guide:", view)
     if body_spec(cid)[0] is None:
@@ -562,8 +568,9 @@ def bake(cid):
     size = min(colour.width, BAKE_MAX)
     base = colour if colour.width == size else colour.resize((size, size), Image.LANCZOS)
     out = np.asarray(base, dtype=np.float64).copy()
-    centre, frame = head_frame(pos, htris)
-    ty, tx, rgb, got, used = project(cid, "head", VIEWS, pos, nrm, uv, htris, htris, centre, frame, size, GUIDE_PX)
+    centre, frame = head_frame(pos, htris, float(head.get("frame", 1.0)))
+    ty, tx, rgb, got, used = project(cid, "head", VIEWS, pos, nrm, uv, htris, tris if head.get("bust") else htris,
+                                     centre, frame, size, GUIDE_PX)
     if not used:
         print("nothing painted yet (run `paint`)")
         sys.exit(1)
