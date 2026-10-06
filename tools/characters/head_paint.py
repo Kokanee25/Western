@@ -664,7 +664,11 @@ def in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells):
             reach = np.linalg.norm(ring - centre, axis=1).max() * EYE_REACH
             fine |= np.linalg.norm(p - centre, axis=1) < reach
         size_m[fine] = float(cells["eye_m"])
-    q = np.floor(p * HEIGHT_M / size_m[:, None]).astype(np.int64)
+    # Thinner along the way the surface faces (`depth`, a share of the square): a tie lies a few
+    # millimetres over his collar, and a cube took some of each.
+    step = np.repeat(size_m[:, None], 3, axis=1)
+    step[np.arange(len(p)), axis] *= float(cells.get("depth", 1.0))
+    q = np.floor(p * HEIGHT_M / step).astype(np.int64)
     key = np.concatenate([q, faces[:, None], fine[:, None].astype(np.int64)], axis=1)
     _keys, lab = np.unique(key, axis=0, return_inverse=True)
     lab = lab.ravel()
@@ -933,6 +937,9 @@ def main():
             mm = [float(x) for x in a.split("=", 1)[1].split(",")]
             CELLS = {} if not mm[0] else dict(CELLS or {}, m=mm[0] / 1000.0, body_m=(mm[1] if len(mm) > 1 else mm[0]) / 1000.0,
                                               eye_m=(mm[2] if len(mm) > 2 else 0.0) / 1000.0)
+        elif a.startswith("--cells-depth="):
+            # The squares' depth along the way the surface faces, a share of their size: 0.5
+            CELLS = dict(CELLS or {}, depth=float(a.split("=", 1)[1]))
         elif a.startswith("--cells-contrast="):
             # The squares' contrast with those round them, head and body: --cells-contrast=1.2,1.6
             g = [float(x) for x in a.split("=", 1)[1].split(",")]

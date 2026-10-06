@@ -3496,3 +3496,57 @@ a few views renders them as the full run does.
     wrists moved with the shoulders), and the game's fingers follow it.
 
   Files: `tools/blender/fit_tripo.py`, `tests/test_bodies.gd`, `assets/people/stranger2*`.
+- 2026-10-06 (characters session, later): **The stylised stranger in the painting's squares, his
+  eyes drawn as the painting draws them.** Sean: "I'm not too worried about the pose fitting
+  exactly the same - what I want is the art to be perfect - it's looking so much closer".
+  Compared region by region in the saloon shot, the painting's man is bold flat squares about
+  8 mm across his face and coat, one shade each, with his eyes drawn finer. Ours was a finely
+  painted face with wrinkle lines, and a smooth coat: the painter's own squares are about 2 mm
+  there, too small to show from your seat.
+  - **Squares on his body** (`head_paint.py` `in_cells`, characters.json `bake.cells`,
+    `--cells-mm=head,body,eyes`):
+    - Every texel of his atlas takes the colour of its cell: a cube in his body's axes, one for
+      each way a surface faces (so a brim's top and underside don't mix).
+    - Sizes: 8 mm on his head, 9 mm below it, 2.7 mm round his eyes.
+    - Seams: a square crossing a seam in his atlas is one colour on both sides.
+    - A cell's colour is its middle texel by lightness. An average greyed the edges and evened
+      his coat into one brown.
+    - On his head, a cell takes its dark part when 30 % of it is dark (brows, a moustache's edge
+      stay bold). On his shirt that rule turned whole squares of the collar dark, so it's head
+      only.
+    - Options left at 1: `contrast`/`body_contrast` push each square away from those round it;
+      `depth` makes the squares thinner along the way the surface faces.
+  - **His head repainted** (People run 55, about $0.12). New words ask for open eyes with the
+    whites showing, dark brows rather than heavy ones, and a moustache to the corners of his
+    mouth; the old "deep-set dark eyes under heavy dark brows" painted slits. In the paintings
+    the eyes come out a little more open.
+  - **His eyes drawn** (`draw_eyes`, `bake.eyes`, open 1.15). From his face's landmarks (each
+    eye's outline, iris ring and corners): the opening in warm white, the iris dark with a
+    darker pupil, a glint towards your right (where the shot's lamp is), and a line of lid
+    along the top. Only texels facing forward near each eye are drawn. From three-quarters and
+    the side they sit right.
+  - **Result.** In plain light his face, moustache, hat and coat read in the painting's squares
+    and his eyes as its eyes do. In the saloon shot his eyes show white and a glint under the
+    brim. Judge v2 with no mosaic (scored only) barely moves: 0.209 before, 0.206 now; it weighs
+    the whole frame's light.
+  - **For the art session (sent):** the biggest gap left on him is the shot's light. Median L*
+    on him, painting / ours:
+
+    | Where | Painting | Ours |
+    |---|---|---|
+    | His lit cheek | 42 | 66 |
+    | His shadow cheek | 26 | 25 |
+    | Coat, your right | 9 | 28 |
+    | Coat, your left | 11 | 2 |
+
+    The painting's light on him is soft, from your right and the front; ours is a hard key on
+    his left with no fill.
+  - **Known:**
+    - Head on, close up, his collar shows dark squares among the white: the paintings' own dark
+      outline strokes. Thinner squares didn't help; in the shot it reads fine.
+    - His hair is short (Sean's picture); the painting's man's is long, to his collar.
+    - His moustache is bigger than the painting's man's (the stylise push Sean asked for).
+  - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
+    `assets/people/stranger2s_skin.png`, `stranger2s_head.png`, `assets/people/tripo/
+    stranger2s_*` (run 55's paintings, `stranger2s_color.png`). His glb and report are
+    unchanged. 22 body tests pass.
