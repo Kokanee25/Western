@@ -1,0 +1,53 @@
+{
+ "id": "stranger2s",
+ "source": "rodin",
+ "whole": true,
+ "model": "stranger2s_rodin",
+ "triangles_in": 33228,
+ "pieces": {},
+ "eye_gain": 1.8,
+ "head_shift_m": [
+  -0.0002,
+  0.0,
+  0.0281
+ ],
+ "eyes": {
+  "right": [
+   0.0323,
+   1.6549,
+   -0.0825
+  ],
+  "left": [
+   -0.0323,
+   1.6551,
+   -0.0835
+  ]
+ },
+ "eyes_off_anatomy_m": [
+  0.0008,
+  0.0008
+ ],
+ "scale": 1.8367,
+ "head_scale": 1.8649,
+ "height_m": 1.81,
+ "skirt_vertices": 7611,
+ "faces_before_finger_cut": 33228,
+ "faces_after_finger_cut": 31329,
+ "skin_tone": [
+  0.557,
+  0.376,
+  0.298
+ ],
+ "texture": {
+  "from": "stranger2s_color.png",
+  "size": [
+   2048,
+   2048
+  ],
+  "square_texels": 1
+ },
+ "triangles": {
+  "skin": 25579,
+  "head": 5750
+ }
+}

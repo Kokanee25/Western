@@ -95,7 +95,7 @@ func _run() -> void:
 		else:
 			_aim_standing(set, scene, view, height)
 		var img: Image = await stage.grab(self, vp)
-		img.save_png("%s/%s_%s.png" % [out, id, view])
+		img.save_png("%s/%s_%s.png" % [out, id.get_file(), view])
 		shots[view] = img
 	# A contact sheet: the painting's man beside him, then the orbit views.
 	var painting := Image.load_from_file("res://docs/concept/saloon-night.png")
@@ -111,15 +111,15 @@ func _run() -> void:
 	sheet.blit_rect(shots["three_quarter"], Rect2i(0, 0, w, h), Vector2i(0, h))
 	sheet.blit_rect(shots["side"], Rect2i(0, 0, w, h), Vector2i(w, h))
 	sheet.blit_rect(shots["back"], Rect2i(0, 0, w, h), Vector2i(w * 2, h))
-	sheet.save_png("%s/%s_lab.png" % [out, id])
+	sheet.save_png("%s/%s_lab.png" % [out, id.get_file()])
 	# His head beside the painting's man's (the painting's face box, scaled to the same height).
 	var face: Image = painting.get_region(Rect2i(w * 470 / 1672, h * 170 / 941, w * 360 / 1672, h * 360 / 941))
 	face.resize(h, h, Image.INTERPOLATE_NEAREST)
 	var close := Image.create(w + h, h, false, Image.FORMAT_RGBA8)
 	close.blit_rect(shots["head"], Rect2i(0, 0, w, h), Vector2i(0, 0))
 	close.blit_rect(face, Rect2i(0, 0, h, h), Vector2i(w, 0))
-	close.save_png("%s/%s_head.png" % [out, id])
-	print("wrote %s/%s_lab.png" % [out, id])
+	close.save_png("%s/%s_head.png" % [out, id.get_file()])
+	print("wrote %s/%s_lab.png" % [out, id.get_file()])
 	quit()
 
 
@@ -136,7 +136,8 @@ static func _bounds(n: Node3D) -> AABB:
 ## A close view of his head from a little to his right, as the painting sees its man.
 static func _aim_head(set: Dictionary, scene: Node3D, height: float) -> void:
 	var cam: Camera3D = set.camera
-	var head := scene.global_position + Vector3.UP * height * 0.9
+	# His feet are where the man's are (a model's own origin may be at its middle).
+	var head := (set.man as Node3D).global_position + Vector3.UP * height * 0.9
 	var forward := -(set.man as Node3D).global_basis.z.normalized() as Vector3
 	var dir := forward.rotated(Vector3.UP, deg_to_rad(-20.0))
 	cam.fov = 30.0
@@ -147,7 +148,7 @@ static func _aim_head(set: Dictionary, scene: Node3D, height: float) -> void:
 static func _aim_standing(set: Dictionary, scene: Node3D, view: String, height: float) -> void:
 	var stage = load("res://tools/lab_stage.gd")
 	var cam: Camera3D = set.camera
-	var chest := scene.global_position + Vector3.UP * height * 0.72
+	var chest := (set.man as Node3D).global_position + Vector3.UP * height * 0.72
 	var v: Array = stage.VIEWS[view]
 	var dir := (-(set.man as Node3D).global_basis.z.normalized() as Vector3).rotated(Vector3.UP, deg_to_rad(v[0]))
 	cam.fov = stage.VIEW_FOV
