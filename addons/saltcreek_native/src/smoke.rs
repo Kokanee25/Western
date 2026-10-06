@@ -71,6 +71,9 @@ pub struct Tuning {
     pub fade_open: f32,
     /// Share of the heat lost a second.
     pub cool: f32,
+    /// The bytes drawn: each cell's share of a full one raised to 1 / this (thin smoke shows,
+    /// thick doesn't wall everything off; 1 = as it is).
+    pub draw_gamma: f32,
 }
 
 impl Default for Tuning {
@@ -86,6 +89,7 @@ impl Default for Tuning {
             fade: 0.01,
             fade_open: 0.12,
             cool: 0.25,
+            draw_gamma: 1.0,
         }
     }
 }
@@ -432,7 +436,8 @@ impl SmokeGrid {
         self.g.lock().unwrap().set_solid(solid.as_slice());
     }
 
-    /// Tuning by name: cap, rise, rise_hot, mix, ceiling_spread, jet, mix_up, fade, fade_open, cool.
+    /// Tuning by name: cap, rise, rise_hot, mix, ceiling_spread, jet, mix_up, fade, fade_open, cool,
+    /// draw_gamma.
     #[func]
     fn tune(&mut self, name: GString, value: f32) -> bool {
         let mut g = self.g.lock().unwrap();
@@ -448,6 +453,7 @@ impl SmokeGrid {
             "fade" => t.fade = value,
             "fade_open" => t.fade_open = value,
             "cool" => t.cool = value,
+            "draw_gamma" => t.draw_gamma = value,
             _ => return false,
         }
         true
@@ -468,7 +474,8 @@ impl SmokeGrid {
         let mut g = self.g.lock().unwrap();
         g.sources.append(&mut self.pending);
         g.step(dt, wind_x, wind_z);
-        *self.latest.lock().unwrap() = g.bytes(1.0);
+        let gamma = g.t.draw_gamma;
+        *self.latest.lock().unwrap() = g.bytes(gamma);
         self.steps.fetch_add(1, Ordering::SeqCst);
     }
 
@@ -486,7 +493,8 @@ impl SmokeGrid {
                 let mut g = g.lock().unwrap();
                 g.sources = sources;
                 g.step(dt, wind_x, wind_z);
-                let b = g.bytes(1.0);
+                let gamma = g.t.draw_gamma;
+                let b = g.bytes(gamma);
                 *latest.lock().unwrap() = b;
             }
             steps.fetch_add(1, Ordering::SeqCst);
