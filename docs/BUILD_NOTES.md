@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: bigger flames
+
+- **A burning board's flames are now a few big tongues off its top** that grow as it burns: small
+  when it catches, a metre wide and 1.7 m tall once it's fully alight, so a burning wall's tongues
+  run together into a sheet of fire. A burning door or window head sends flames out of the top
+  of the opening.
+- **Try:** at night, light the store's front (L) and watch from the street for a minute as the
+  flames grow. Tell me if they look too big, too few, or too even.
+
 ### New: smoke that knows the buildings
 
 - **A fire's smoke now behaves round buildings.** It rises, gathers in a layer under a porch roof,
