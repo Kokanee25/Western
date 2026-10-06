@@ -9,8 +9,9 @@ For each person in assets/people/people.json with "source": "tripo":
      (metres, facing -Z, feet at the origin, his right +X): Tripo's man faces +X at 1.0 tall.
   2. Warped onto our skeleton (assets/people/envelope.json): each limb bone is moved, turned and
      stretched from Tripo's joints (its rig's bind pose) to ours, blended at the joints, as
-     make_people.Person.warp does; the head keeps his own proportions. No envelope fit: he wears
-     a coat, and his widths are his own (the hitboxes sit inside him).
+     make_people.Person.warp does; the head keeps his own proportions, placed by his drawn eyes
+     onto the anatomy's when his face has been found (EYES_RULE). No envelope fit: he wears a
+     coat, and his widths are his own (the hitboxes sit inside him).
   3. Fingers cut off at the knuckles (the game's fingers are separate parts).
   4. Skinned to our 17 bones with BodyMesh's joint blends (make_people.Person.weights); the head
      (everything above the collar, HEAD_FROM) and the rest as two meshes, "body_head" and
@@ -59,6 +60,13 @@ HEAD_RADIUS = 0.09
 # image model draws men with big heads: on the old rule the stranger's came out half as big
 # again as the hitboxes inside it). A whole man's top is his hat, so he keeps the old rule.
 HAIR_M = 0.02
+# EYES_RULE: a whole man whose face has been found (MediaPipe's landmarks on his mesh,
+# `<model>_face.json`): his shoulders onto ours and all of him above them scaled as one, so his
+# drawn eyes come to the anatomy's eyes' height, then his head set back or forward (a shear up his
+# neck) till they are the anatomy's eyes. Joint to joint, Tripo's head joint (half way up his neck)
+# went onto ours (at the chin) and the stylised stranger's face sat 12 cm over his head's hitbox,
+# 8 cm before it: a shot through his face missed his head. IRISES: the landmarks' two iris centres.
+IRISES = [468, 473]
 # A hat's crown: where it is narrower than this share of the brim (above a flat brim, and above
 # a brim curled up at the sides, whose sides reach a third of the way up the Kid's hat).
 CROWN_SHARE = 0.7
@@ -171,6 +179,14 @@ def to_body_space(p):
 # Where Tripo's rigs put the joints, as shares of his height, hat and all (the stranger, the Kid
 # and the bare-headed stranger agree within 0.02); the neck's is its base, the head's his jaw hinge.
 RIG_Y = {"neck": 0.746, "head": 0.80, "shoulder": 0.759, "hip": 0.49, "knee": 0.265, "ankle": 0.035}
+# A Rodin man's shoulders are found from the top of his shoulder (shoulder_top): the joint is
+# SH_TOP under it (Tripo's rigs put theirs 0.030-0.043 under, the stranger, the Kid and the
+# bare-headed stranger), within SH_RANGE of RIG_Y's. RIG_Y's share put the stylised stranger's 7 cm
+# under his own (his hat is lower than Tripo's men's, his shoulders higher): the trunk's warp then
+# lifted his shoulders and head 12 cm over the hitboxes. His neck and head joints keep Tripo's
+# spacing from the shoulder.
+SH_TOP = 0.036
+SH_RANGE = (-0.02, 0.05)
 SH_MARGIN = 0.035            # a shoulder joint, in from his outline at its height
 ARM_OUT = 0.10               # an arm's middle is at least this far out from his (a leg's isn't)
 F_ELBOW, F_WRIST = 0.40, 0.74  # the elbow and wrist along his shoulder to his finger tips
@@ -227,8 +243,8 @@ def slice_parts(pts, y, band=0.004, cell=0.004):
 
 def find_joints(v, tris):
     """His joints by Tripo's names, in Tripo's frame (v: 1.0 tall, feet on 0, facing +X, his
-    right at +Z), from his shape: the trunk's at RIG_Y in the middle of his cross-section there;
-    each arm traced down his side in slices (the pieces well out from his trunk), the elbow and
+    right at +Z), from his shape: the shoulders SH_TOP under the tops of his shoulders, the neck
+    and head over them at Tripo's spacing; each arm traced down his side in slices (the pieces well out from his trunk), the elbow and
     wrist along his shoulder to his finger tips on that line; each leg a line through the middles
     of its cross-sections below his coat, the knee and ankle on it, the hip joint where it reaches
     up to RIG_Y (within HIP_WIDTH of his middle)."""
@@ -236,6 +252,18 @@ def find_joints(v, tris):
     mid = float(np.median(pts[:, 2]))
     j = {}
     ysh = RIG_Y["shoulder"]
+    for _ in range(4):
+        # The shoulder joints' height: SH_TOP under the tops of his shoulders, measured over where
+        # the joints are at this height (they move out as it drops: the arms hang out).
+        at_sh = pts[np.abs(pts[:, 1] - ysh) < 0.006]
+        tops = []
+        for sgn in (1.0, -1.0):
+            out = (at_sh[:, 2] - mid) * sgn
+            tops.append(shoulder_top(pts, mid + sgn * (np.percentile(out[out > 0], 99.5) - SH_MARGIN), ysh))
+        y = float(np.clip(np.mean(tops) - SH_TOP, RIG_Y["shoulder"] + SH_RANGE[0], RIG_Y["shoulder"] + SH_RANGE[1]))
+        if abs(y - ysh) < 0.001:
+            break
+        ysh = y
     at_sh = pts[np.abs(pts[:, 1] - ysh) < 0.006]
     arms = {"R": [], "L": []}
     for y in np.arange(ysh - 0.04, 0.30, -0.01):
@@ -289,11 +317,23 @@ def find_joints(v, tris):
         # Only its direction counts: TripoPerson.bones finds where his boot ends.
         j[side + "_ToeBase"] = j[side + "_Foot"] + np.array([0.03, -0.01, 0.0])
     j["Hip"] = (j["R_Thigh"] + j["L_Thigh"]) / 2
+    # The neck and head joints over the middle of his shoulders, as Tripo's rigs have them (the
+    # middle of his cross-section there is pulled back by a coat's collar and his hair: the
+    # stylised stranger's sat 6 cm behind his shoulders and leant his trunk back).
+    sh = (j["R_Upperarm"] + j["L_Upperarm"]) / 2
     for name, key in (("NeckTwist01", "neck"), ("Head", "head")):
-        parts = slice_parts(pts, RIG_Y[key])
-        c = min(parts, key=lambda p: abs(p[:, 2].mean() - mid)).mean(axis=0)
-        j[name] = np.array([c[0], RIG_Y[key], c[2]])
+        j[name] = np.array([sh[0], ysh + RIG_Y[key] - RIG_Y["shoulder"], sh[2]])
     return j
+
+
+def shoulder_top(pts, z, y0, reach=0.12, step=0.003, width=0.01):
+    """The top of his shoulder over sideways place z: from y0 up, the last height his surface
+    reaches without a gap (a hat's brim further up, over his shoulder, is past the gap)."""
+    col = pts[(np.abs(pts[:, 2] - z) < width) & (pts[:, 1] >= y0)]
+    filled = np.zeros(int(reach / step) + 1, bool)
+    b = np.floor((col[:, 1] - y0) / step).astype(int)
+    filled[b[b < len(filled)]] = True
+    return y0 + step * (int(np.argmin(filled)) if not filled.all() else len(filled))
 
 
 def load_rodin(path):
@@ -389,12 +429,17 @@ class TripoPerson(mp.Person):
                        "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
         self.report.update(scraps)
+        # His drawn eyes, in his Tripo space (body orientation), when his face has been found
+        # (EYES_RULE): a whole man's head is then placed by them.
+        self.face = self.face_points()
+        self.by_eyes = self.face is not None and not self.bare
         self.pieces = [Piece(shape, cid, self) for shape, cid in spec.get("pieces", {}).items()]
 
     def bones(self):
         """The warp: [name, Tripo a, b, our a, b, radius]. Trunk and neck stretched joint to joint
         onto ours (the hitboxes have to sit inside him); the head at his own proportions, scaled
-        as the rest of him."""
+        as the rest of him. A bare-headed man (HAIR_M) and a man whose face has been found
+        (EYES_RULE) have his shoulders onto ours and all of him above them scaled as one."""
         m, o = self.j, self.our_joints()
         # His overall scale (widths, the head): his hips to ours. Each bone's length is its own
         # stretch (Tripo's trunk is shorter than ours for his height).
@@ -414,6 +459,25 @@ class TripoPerson(mp.Person):
             out = [["trunk", m["hips"], m["neck"], o["hips"], o_neck, 0.15],
                    ["neck", m["neck"], m["head"], o_neck, o_head, 0.055, ku],
                    ["head", m["head"], head_top, o_head, o_head + (head_top - m["head"]) * ku, 0.085, ku]]
+        elif self.by_eyes:
+            # EYES_RULE: his shoulders onto ours and all of him above them scaled as one by ku, so
+            # his drawn eyes come to our eyes' height; then his head set forward or back (a shear
+            # up his neck, the 8th entry) till they are our eyes.
+            m_sh = (m["r-shoulder"] + m["l-shoulder"]) / 2
+            o_sh = (o["r-shoulder"] + o["l-shoulder"]) / 2
+            m_eye = self.face[IRISES].mean(axis=0)
+            o_eye = self.anatomy_eyes().mean(axis=0)
+            ku = (o_eye[1] - o_sh[1]) / max(m_eye[1] - m_sh[1], 1e-6)
+            self.head_scale = ku
+            o_neck = o_sh + (m["neck"] - m_sh) * ku
+            o_head = o_sh + (m["head"] - m_sh) * ku
+            shift = o_eye - (o_sh + (m_eye - m_sh) * ku)
+            shift[1] = 0.0
+            self.report["head_shift_m"] = [round(float(x), 4) for x in shift]
+            head_top = m["head"] + np.array([0.0, 0.16 / ku, 0.0])
+            out = [["trunk", m["hips"], m["neck"], o["hips"], o_neck, 0.15],
+                   ["neck", m["neck"], m["head"], o_neck, o_head, 0.055, ku, shift],
+                   ["head", m["head"], head_top, o_head + shift, o_head + shift + (head_top - m["head"]) * ku, 0.085, ku]]
         else:
             head_top = m["head"] + np.array([0.0, 0.16 / k, 0.0])      # his jaw hinge to his crown, about
             out = [["trunk", m["hips"], m["neck"], o["hips"], o["neck"], 0.15],
@@ -461,25 +525,39 @@ class TripoPerson(mp.Person):
             piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
                                                      only="head" if piece.shape == "hat" else None)
 
-    def find_eyes(self, bones):
-        """Where his painted eyes land, in our body space (metres): MediaPipe's two iris centres on
-        his mesh (`<model>_face.json`, written by tools/characters/stylise.py in the frame
-        load_rodin gives him; a stylised man's are his source's, the irises left where they were)
-        carried through the warp with his head. tools/fit_shot.gd aims them at the painting's
-        eyes: his head is his own, so the anatomy's eye points aren't where his are drawn."""
+    def face_points(self):
+        """MediaPipe's face landmarks on his mesh (`<model>_face.json`, written by
+        tools/characters/stylise.py in the frame load_rodin gives him; a stylised man's are his
+        source's, the irises left where they were), in his Tripo space (body orientation), or None."""
         names = [self.model] + ([self.spec["stylise"]["from"]] if "stylise" in self.spec else [])
-        paths = [os.path.join(TRIPO, n + "_face.json") for n in names]
-        found = [p for p in paths if os.path.exists(p)]
+        found = [p for p in (os.path.join(TRIPO, n + "_face.json") for n in names) if os.path.exists(p)]
         if not found:
+            return None
+        pts = to_body_space(np.array(json.load(open(found[0]))["points"]))
+        # How far his irises are from his mesh (they should be on it; mm on a 1.8 m man): a check
+        # that the frames agree.
+        off = [float(np.linalg.norm(self.v - q, axis=1).min()) for q in pts[IRISES]]
+        print("  his face from %s, irises %.1f and %.1f mm off his mesh" % (
+            os.path.basename(found[0]), off[0] * 1800, off[1] * 1800))
+        return pts
+
+    def anatomy_eyes(self):
+        """The anatomy's two eyes (their centres, metres in our body space), his right first."""
+        at = {s["id"]: np.array(s["sphere"][0], float) for s in self.anatomy["structures"] if s["id"] in ("eye_r", "eye_l")}
+        return np.array([at["eye_r"], at["eye_l"]])
+
+    def find_eyes(self, bones):
+        """Where his drawn eyes land, in our body space (metres), carried through the warp with his
+        head: on the anatomy's eyes under EYES_RULE (the report says how far off), and
+        tools/fit_shot.gd aims them at the painting's eyes."""
+        if self.face is None:
             return
-        irises = to_body_space(np.array(json.load(open(found[0]))["points"])[[468, 473]])
-        # How far each is from his mesh (it should be on it): a check that the frames agree.
-        off = [float(np.linalg.norm(self.v - p, axis=1).min()) for p in irises]
-        print("  his eyes from %s, %.1f and %.1f mm off his mesh" % (os.path.basename(found[0]),
-              off[0] * self.scale * 1000, off[1] * self.scale * 1000))
-        moved, _region = self.warp_points(irises, np.ones(2, dtype=bool), bones, only="head")
+        moved, _region = self.warp_points(self.face[IRISES], np.ones(2, dtype=bool), bones, only="head")
         right, left = sorted(moved.tolist(), key=lambda p: -p[0])    # his right at +X
         self.report["eyes"] = {"right": [round(x, 4) for x in right], "left": [round(x, 4) for x in left]}
+        off = np.linalg.norm(np.array([right, left]) - self.anatomy_eyes(), axis=1)
+        self.report["eyes_off_anatomy_m"] = [round(float(x), 4) for x in off]
+        print("  his eyes %.1f and %.1f cm from the anatomy's" % (off[0] * 100, off[1] * 100))
 
     def head_mask(self, v):
         """What is head: above the collar, and within HEAD_RADIUS of the neck's axis (the tops of
@@ -530,7 +608,7 @@ class TripoPerson(mp.Person):
             rel = v[sel] - ma
             along = rel @ u
             perp = rel - along[:, None] * u
-            if self.bare:
+            if self.bare or self.by_eyes:
                 # Past the bone's ends (a shoulder's top over his neck joint, his seat under his
                 # hips) at his own scale, not stretched as the bone is.
                 inside = np.clip(along, 0.0, float(np.linalg.norm(mb - ma)))
@@ -538,6 +616,9 @@ class TripoPerson(mp.Person):
             else:
                 local = along[:, None] * u * k + perp * radial
             moved = local @ mp.rotation_between(u, ob - oa).T + oa
+            if len(bone) > 7:
+                # A shear up the bone (EYES_RULE's neck): none at its start, all of it at its end.
+                moved += np.clip(along / np.linalg.norm(mb - ma), 0.0, 1.0)[:, None] * bone[7]
             out[sel] += w[sel, i][:, None] * moved
         return out, region
 
