@@ -5,6 +5,7 @@ painting (tools/characters/paint_full_length.py).
     TRIPO_API_KEY=... python3 tools/characters/tripo.py [--only=stranger] [--again]
     python3 tools/characters/tripo.py --dry-run      (no key, no network: see below)
     TRIPO_API_KEY=... python3 tools/characters/tripo.py --balance   (checks the key, spends nothing)
+    TRIPO_API_KEY=... python3 tools/characters/tripo.py --test=stranger  (the model test: see below)
 
 For each assets/people/tripo/<id>_full.png: upload it (with <id>_left/_back/_right.png when the
 turnaround's there: Tripo's multi-view input, front/left/back/right, so his sides and back are
@@ -19,6 +20,13 @@ image_to_model and animate_rig ran against the live API on 2026-10-02 (People ru
 to Tripo's v2 "openapi" (one /task endpoint, the job in `type`); multiview_to_model is written
 the same way and untested. Every answer is printed and saved, so the first run on Actions shows
 what to change. TRIPO_API_BASE overrides the base URL.
+
+--test=<id> (People workflow `style: test3d`) is the model test Sean asked for on 2026-10-06, after
+the fitted men came out lumpy: the same man's four pictures through Tripo's newest model (H3.1) at
+its best, rigged (TEST_RUNS `h31`), and again with "generate in parts" to see whether his hat,
+coat and boots come out as pieces of their own (`h31_parts`: untextured, Tripo can't do both),
+into assets/people/tripo/test/<id>_<run>.glb, beside tools/characters/rodin.py's. Nothing in the
+game reads that folder.
 
 --dry-run runs the whole thing (upload, both tasks, waiting, downloads, the log) against a stand-in
 Tripo on this machine that answers as the v2 API does and checks what it's sent (the key in a
@@ -93,6 +101,19 @@ def model_url(data):
 # image_to_model as before.
 VIEWS = ("full", "left", "back", "right")
 
+# Tripo's newest model for multiview_to_model (H3.1; H3.0 is v3.0-20250812), and the test's runs:
+# what each task asks for on top of the four views, and whether its model is rigged. Credits
+# (Tripo's pricing, 2026-10): the multi-view model 30 with a texture (20 without), a detailed
+# texture +10, detailed geometry +20, a quad mesh +5, parts +20 (not with a texture); the rig
+# about 25. h31 is about 90 credits, h31_parts 40.
+NEWEST = "v3.1-20260211"
+TEST_RUNS = {
+    "h31": ({"model_version": NEWEST, "texture": True, "pbr": True, "texture_quality": "detailed",
+             "geometry_quality": "detailed", "quad": True}, True),
+    "h31_parts": ({"model_version": NEWEST, "texture": False, "pbr": False, "generate_parts": True}, False),
+}
+TEST_DIR = os.path.join(DIR, "test")
+
 
 def inputs_of(cid, src):
     """The pictures Tripo gets for this man and a hash of each, so a model is made again only
@@ -127,11 +148,17 @@ def upload(name, path, key, log):
     return up.get("data", {}).get("image_token") or up.get("data", {}).get("file_token")
 
 
-def make(cid, key, src=None, out=None):
+def make(cid, key, src=None, out=None, name=None, extra=None, rig=None):
+    """Upload his pictures, have Tripo model him (with `extra` asked of the model task), rig him
+    unless he's a garment alone (or `rig` says otherwise), and save <name>.glb, <name>_mesh.glb and
+    <name>_tripo.json in `out` (name: his id)."""
     src = src or DIR
     out = out or DIR
+    name = name or cid
     inputs = inputs_of(cid, src)
     log = [{"inputs": inputs}]
+    if extra:
+        log.append({"asked": extra})
     views = {v: os.path.join(src, "%s_%s.png" % (cid, v)) for v in VIEWS if "%s_%s.png" % (cid, v) in inputs}
     if all(v in views for v in VIEWS):
         # Four views: front, left, back, right (a missing one is {} in Tripo's list; we have all).
@@ -139,30 +166,47 @@ def make(cid, key, src=None, out=None):
         for v in VIEWS:
             token = upload("%s_%s.png" % (cid, v), views[v], key, log)
             files.append({"type": "png", "file_token": token})
-        task = call("POST", "/task", key, {"type": "multiview_to_model", "files": files, "texture": True, "pbr": True})
+        job = {"type": "multiview_to_model", "files": files, "texture": True, "pbr": True}
         what = "multiview_to_model"
     else:
         token = upload(cid + ".png", views["full"], key, log)
-        task = call("POST", "/task", key, {"type": "image_to_model", "file": {"type": "png", "file_token": token},
-                                           "texture": True, "pbr": True})
+        job = {"type": "image_to_model", "file": {"type": "png", "file_token": token}, "texture": True, "pbr": True}
         what = "image_to_model"
+    job.update(extra or {})
+    task = call("POST", "/task", key, job)
     log.append({what: task})
     mesh = wait(task["data"]["task_id"], key, log, what)
-    download(model_url(mesh), os.path.join(out, cid + "_mesh.glb"))
-    if is_item(cid):
-        # A garment alone (characters.json `item`): no rig; <id>.glb is the mesh itself, and
-        # fit_tripo.py hangs it on the body's bones.
+    download(model_url(mesh), os.path.join(out, name + "_mesh.glb"))
+    if rig is None:
+        rig = not is_item(cid)
+    if not rig:
+        # A garment alone (characters.json `item`), or a test that isn't rigged: <name>.glb is the
+        # mesh itself (fit_tripo.py hangs a garment on the body's bones).
         import shutil
-        shutil.copyfile(os.path.join(out, cid + "_mesh.glb"), os.path.join(out, cid + ".glb"))
-        log.append({"animate_rig": "skipped: an item"})
+        shutil.copyfile(os.path.join(out, name + "_mesh.glb"), os.path.join(out, name + ".glb"))
+        log.append({"animate_rig": "skipped"})
     else:
-        rig = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
-                                          "out_format": "glb"})
-        log.append({"animate_rig": rig})
-        rigged = wait(rig["data"]["task_id"], key, log, "animate_rig")
-        download(model_url(rigged), os.path.join(out, cid + ".glb"))
-    json.dump(log, open(os.path.join(out, cid + "_tripo.json"), "w"), indent=1)
-    print("made:", cid)
+        rigging = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
+                                              "out_format": "glb"})
+        log.append({"animate_rig": rigging})
+        rigged = wait(rigging["data"]["task_id"], key, log, "animate_rig")
+        download(model_url(rigged), os.path.join(out, name + ".glb"))
+    json.dump(log, open(os.path.join(out, name + "_tripo.json"), "w"), indent=1)
+    print("made:", name)
+
+
+def test(cid, key, src=None, out=None):
+    """The model test: each of TEST_RUNS for this man, into assets/people/tripo/test/."""
+    out = out or TEST_DIR
+    os.makedirs(out, exist_ok=True)
+    failed = []
+    for run, (extra, rig) in TEST_RUNS.items():
+        try:
+            make(cid, key, src, out, "%s_%s" % (cid, run), extra, rig)
+        except (RuntimeError, OSError, KeyError, ValueError, TypeError) as e:
+            print("failed:", cid, run, e)
+            failed.append(run)
+    return failed
 
 
 def is_item(cid):
@@ -214,6 +258,16 @@ def dry_run():
                 good = os.path.exists(p) and (not f.endswith(".glb") or open(p, "rb").read(4) == b"glTF")
                 print("  %-28s %s" % (f, "ok" if good else "MISSING or not a glb"))
                 ok = ok and good
+        # The model test (--test) on the stand-in man with four views.
+        tests = os.path.join(scratch, "test")
+        failed = test("turned", "dry-run-key", standins, tests)
+        for run in TEST_RUNS:
+            for f in ("turned_%s.glb" % run, "turned_%s_mesh.glb" % run, "turned_%s_tripo.json" % run):
+                p = os.path.join(tests, f)
+                good = os.path.exists(p) and (not f.endswith(".glb") or open(p, "rb").read(4) == b"glTF")
+                print("  test %-28s %s" % (f, "ok" if good else "MISSING or not a glb"))
+                ok = ok and good
+        ok = ok and not failed
     finally:
         server.shutdown()
     for problem in seen["problems"]:
@@ -235,6 +289,11 @@ def main():
     if "--balance" in sys.argv:
         balance(key)
         return
+    for a in sys.argv[1:]:
+        if a.startswith("--test="):
+            if test(a.split("=", 1)[1], key):
+                sys.exit(1)
+            return
     only = None
     for a in sys.argv[1:]:
         if a.startswith("--only=") and a.split("=", 1)[1]:
