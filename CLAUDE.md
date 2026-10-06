@@ -3383,3 +3383,21 @@ a few views renders them as the full run does.
 
   In the plain lineup light (`people_lineup.gd --head`) the repainted man reads as the paintings'
   drawing.
+- 2026-10-06 (characters session, later): **Bigger painted squares on the stylised stranger.**
+  Sean: "let's try bigger squares". The style model draws its squares about 8 px across whatever
+  the picture shows. Measured with the judge's tile size inside MediaPipe's face outline, its head
+  views gave him 27 squares across his face; the painting's man has about 20.
+  - `head_paint.py` `head.frame` frames a character's head views wider, so his face is smaller in
+    the picture and gets fewer, bigger squares.
+  - `head.bust` draws his shoulders in those views so the wider frame is a natural portrait (only
+    the head is baked from them).
+  - `stranger2s`: frame 1.4, bust (People run 53, head views only, ~$0.12). The front view now has
+    23 squares across his face.
+  - In the saloon shot's M look his face is a chunkier painted portrait, nearer the painting's
+    man; in the game's default look the mosaic still smears it. Judge v2 (no round written),
+    run 52's head / run 53's: M 0.392 / 0.386, game's look 0.227 / 0.236.
+
+  Tried and dropped: tipping his hat back (`stylise.py`) so his eyes come out from under the
+  brim. His hat is one piece with his head, and the turn kinked the brim at the sides and back
+  while barely moving it from the front. His eyes in the shot are the shot's light and head pose
+  (the art session's).
