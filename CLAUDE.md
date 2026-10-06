@@ -3754,23 +3754,26 @@ a few views renders them as the full run does.
     our body space. Rays out from his head's axis find his surface at each height and bearing.
     The hair falls from the widest of his head above it, a little inward toward his neck, and
     rests on whatever comes out to meet it (his collar).
-  - It starts just inside his hat's brim and ends at 1.49 m at the latest, reaching 108° round
-    from the back on each side (over his ears). Its locks are of uneven width and length with
-    pointed ends, a little rounded, waving down their length and thinner toward his face.
+  - It starts just inside his hat's brim and reaches 104° round from the back on each side (over
+    his ears). It's longest at the back, ending at his collar (1.49–1.50 m), and 5.5 cm shorter
+    beside his face. It lies lank and close, 2–6 mm off him, in locks of uneven width and length.
   - It's skinned from his own nearest points (his head at the top, his collar at the ends). Its
-    squares are cut in his body's space at 8 mm like his paint, in five tones of his painted
-    hair's colour.
+    squares are cut in his body's space at 8 mm like his paint: long dark strands, five squares
+    long, in five greyed tones of his painted hair's colour.
+  - Sean on the first try: "he has a poodle head". It stood up to 2 cm off him in rounded locks,
+    speckled with light squares, and hung as long beside his face as behind. Hence lank, dark,
+    straight and longest at the back.
   - The game wears it as shape `hair` (`body_hair` in his glb, `stranger2s_hair.png`), which
     HumanBody already draws double-sided. A whole man wears every piece his glb has, so no game
     code changed.
-  - In the saloon shot it hangs past his jaw on his right and beside his lamplit left cheek, as
-    the painting's man's does. In the pose check (sit, crouch, hands up, aim) it follows his head
-    and rests on his coat, with no tears.
+  - In the saloon shot it falls dark past his jaw on his right and beside his lamplit left cheek,
+    as the painting's man's does. In the pose check (sit, crouch, hands up, aim) it follows his
+    head and rests on his coat, with no tears.
   - `tests/test_bodies.gd` (gameplay's file, said here): one more test, his hair a piece of its
-    own, from under his brim to his collar, none of it over his face. The body, hat and shot
-    tests pass.
-  - Picture: `docs/screenshots/tripo/stranger2s_hair.png` (the shot: painting, this morning, now;
-    his head in plain light, this morning and now).
+    own, from under his brim to his collar, none of it over his face. All 23 body tests pass,
+    and the hat and shot tests.
+  - Picture: `docs/screenshots/tripo/stranger2s_hair.png` (the shot: painting, this morning, the
+    first try, now; his head in plain light for each).
   - Known:
     - From straight in front, in plain light, the hair beside his face still reads a little like
       a frame.

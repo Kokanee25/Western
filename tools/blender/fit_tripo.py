@@ -97,14 +97,18 @@ PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # edges (metres; and up to how much fuller one lock is than the next, at its end), how it waves
 # down its length (metres out, waves along it), over how many degrees it thins to its front edge
 # beside his face and how that edge waves in and out down its length (degrees, waves along it),
-# the shell's grid (rows down, degrees round), the squares (metres, cut in his
-# body's space as head_paint.py's are), its texture's size, and its five tones (shares of his
-# painted hair's middle colour) and how much of it each is.
-HAIR = {"front_deg": 108.0, "to": 1.49, "thick": [0.003, 0.011], "taper": 0.08, "lock_deg": [8.0, 16.0],
-        "ragged": 0.022, "tip": 0.012, "bulge": [0.0015, 0.004], "wave": [0.003, 1.5], "thin": 14.0,
-        "edge": [5.0, 1.7],
-        "rows": 40, "step_deg": 2.0, "cell_m": 0.008, "texels": [512, 256],
-        "tones": [0.25, 0.6, 1.0, 1.45, 2.0], "share": [0.15, 0.3, 0.3, 0.17, 0.08], "seed": 1882}
+# the shell's grid (rows down, degrees round), the squares (metres, cut in his body's space as
+# head_paint.py's are), its texture's size, its five tones (shares of his painted hair's middle
+# colour), how much of it each is and how far they're greyed, and how many squares long a strand
+# of one tone runs down it, and how much shorter it is beside his face than at the back (metres at
+# its front edge, from how many degrees round). Lank and close to his head, in long dark strands,
+# longest at the back: fuller, rounder locks speckled with light squares read as a poodle's curls,
+# and as long beside his face as behind, a curtain (Sean, 2026-10-06).
+HAIR = {"front_deg": 104.0, "to": 1.49, "thick": [0.002, 0.006], "taper": 0.12, "lock_deg": [10.0, 20.0],
+        "ragged": 0.01, "tip": 0.005, "bulge": [0.0005, 0.0015], "wave": [0.0015, 1.0], "thin": 14.0,
+        "edge": [5.0, 1.7], "rows": 40, "step_deg": 2.0, "cell_m": 0.008, "texels": [512, 256],
+        "tones": [0.35, 0.6, 0.85, 1.1, 1.4], "share": [0.28, 0.34, 0.22, 0.11, 0.05], "grey": 0.35,
+        "strand_cells": 5, "short": [0.055, 55.0], "seed": 1882}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
 # A coat's collar stands this far above the neck joint (Tripo units, of his height: ~6 cm).
@@ -1150,6 +1154,9 @@ class Hair:
                     end = max(o["to"], ys[kk] - 0.01)
                     break
             bottom[i] = end
+        # Shorter beside his face than at the back (as long all round, it hung like a curtain).
+        facing = np.clip((np.abs(np.degrees(th)) - o["short"][1]) / (o["front_deg"] - o["short"][1]), 0, 1)
+        bottom = bottom + o["short"][0] * facing ** 1.5
         # Locks of uneven length with pointed ends (the painting's hair ends in ragged locks).
         rng = np.random.default_rng(o["seed"])
         deg = np.degrees(th)
@@ -1280,7 +1287,8 @@ class Hair:
         # Five tones of his hair's own colour, spread in lightness round its middle (his painted
         # hair's own quantiles bunch together: a slab of one dark).
         mid = np.median(hair, axis=0)
-        tones = np.clip(mid[None, :] * np.array(o["tones"])[:, None], 0, 255)
+        tones = mid[None, :] * np.array(o["tones"])[:, None]
+        tones = np.clip(tones + (tones.mean(1, keepdims=True) - tones) * o["grey"], 0, 255)
         self.report["tones"] = tones.round().astype(int).tolist()
         # Each texel's place on him (the grid's points, bilinear), and its square.
         G = self.v.reshape(n, rows + 1, 3)
@@ -1302,10 +1310,10 @@ class Hair:
         deg = np.degrees(np.arctan2(p[..., 0], p[..., 2] - self.z0))
         lk = np.clip(np.searchsorted(self.edges, deg) - 1, 0, len(self.edges) - 2)
         lrnd = (((lk + 7) * 40503 + o["seed"]) % 997) / 997.0
-        strand = (cell[..., 0] * 73856093) ^ (cell[..., 2] * 83492791) ^ ((cell[..., 1] // 3) * 19349663)
+        strand = (cell[..., 0] * 73856093) ^ (cell[..., 2] * 83492791) ^ ((cell[..., 1] // o["strand_cells"]) * 19349663)
         srnd = ((strand * 2654435761 + o["seed"] * 7) % 1000003) / 1000003.0
         down = (np.arange(th_)[:, None] + 0.5) / th_
-        score = 0.28 * lrnd + 0.42 * srnd + 0.3 * rnd - 0.12 * (down > 0.88)
+        score = 0.25 * lrnd + 0.6 * srnd + 0.15 * rnd - 0.08 * (down > 0.9)
         level = np.clip(np.digitize(score, np.quantile(score, np.cumsum(o["share"])[:-1])), 0, 4)
         img = tones[level]
         return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
