@@ -89,6 +89,12 @@
    "from": "kid",
    "item": "his battered, work-worn old cowboy hat (pale tan felt, dusty and dirty, smudged with broad faded patches of grey-brown grime and darker round the band, a tall crown with a shallow dent along its top, a dark brown leather band blotched with rust and pale spots, a wide brim curled up at both sides with dark stained edges)",
    "what": "a battered pale tan felt cowboy hat of 1882, grimy with dark stains, a blotched leather band, the brim curled up at both sides"
+  },
+  "stranger2": {
+   "given": true,
+   "what": "a weathered frontier gunman of about forty in 1882: a brown felt hat with a flat crown and a checkered band, short dark hair, deep-set dark eyes under heavy brows, a thick dark drooping moustache and stubble, a cream shirt buttoned to the collar, a dark neckerchief knotted at his throat, a patterned brown vest with a row of buttons, a weathered brown wool sack coat to his hips with wide lapels, brown trousers and worn brown boots",
+   "back_of": "the back of his hat and coat, his short dark hair at his collar",
+   "note": "Sean's own front picture (ChatGPT, 2026-10-06, from the concept painting's man), for the model test: tools/characters/tripo.py --test, rodin.py."
   }
  }
 }

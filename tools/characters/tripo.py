@@ -23,10 +23,11 @@ what to change. TRIPO_API_BASE overrides the base URL.
 
 --test=<id> (People workflow `style: test3d`) is the model test Sean asked for on 2026-10-06, after
 the fitted men came out lumpy: the same man's four pictures through Tripo's newest model (H3.1) at
-its best, rigged (TEST_RUNS `h31`), and again with "generate in parts" to see whether his hat,
-coat and boots come out as pieces of their own (`h31_parts`: untextured, Tripo can't do both),
-into assets/people/tripo/test/<id>_<run>.glb, beside tools/characters/rodin.py's. Nothing in the
-game reads that folder.
+its best, rigged (TEST_RUNS `h31`), and with --runs=h31,h31_parts again with "generate in parts"
+(`h31_parts`: untextured, Tripo can't do both; on the first test his hat, hair, head, coat, vest,
+trousers, each boot and each hand came out as pieces of their own), into
+assets/people/tripo/test/<id>_<run>.fbx or .glb (the H-series' quad meshes and rigs come as FBX),
+beside tools/characters/rodin.py's. Nothing in the game reads that folder.
 
 --dry-run runs the whole thing (upload, both tasks, waiting, downloads, the log) against a stand-in
 Tripo on this machine that answers as the v2 API does and checks what it's sent (the key in a
@@ -148,10 +149,11 @@ def upload(name, path, key, log):
     return up.get("data", {}).get("image_token") or up.get("data", {}).get("file_token")
 
 
-def make(cid, key, src=None, out=None, name=None, extra=None, rig=None):
+def make(cid, key, src=None, out=None, name=None, extra=None, rig=None, copy=True):
     """Upload his pictures, have Tripo model him (with `extra` asked of the model task), rig him
     unless he's a garment alone (or `rig` says otherwise), and save <name>.glb, <name>_mesh.glb and
-    <name>_tripo.json in `out` (name: his id)."""
+    <name>_tripo.json in `out` (name: his id). Unrigged, <name>.glb is the mesh again unless `copy`
+    is off (the test's: a 40 MB model once is enough)."""
     src = src or DIR
     out = out or DIR
     name = name or cid
@@ -176,33 +178,46 @@ def make(cid, key, src=None, out=None, name=None, extra=None, rig=None):
     task = call("POST", "/task", key, job)
     log.append({what: task})
     mesh = wait(task["data"]["task_id"], key, log, what)
-    download(model_url(mesh), os.path.join(out, name + "_mesh.glb"))
     if rig is None:
         rig = not is_item(cid)
+    url = model_url(mesh)
     if not rig:
         # A garment alone (characters.json `item`), or a test that isn't rigged: <name>.glb is the
         # mesh itself (fit_tripo.py hangs a garment on the body's bones).
-        import shutil
-        shutil.copyfile(os.path.join(out, name + "_mesh.glb"), os.path.join(out, name + ".glb"))
+        download(url, os.path.join(out, name + ext_of(url)))
+        if copy:
+            import shutil
+            shutil.copyfile(os.path.join(out, name + ext_of(url)), os.path.join(out, name + "_mesh" + ext_of(url)))
         log.append({"animate_rig": "skipped"})
     else:
+        download(url, os.path.join(out, name + "_mesh" + ext_of(url)))
         rigging = call("POST", "/task", key, {"type": "animate_rig", "original_model_task_id": task["data"]["task_id"],
                                               "out_format": "glb"})
         log.append({"animate_rig": rigging})
         rigged = wait(rigging["data"]["task_id"], key, log, "animate_rig")
-        download(model_url(rigged), os.path.join(out, name + ".glb"))
+        url = model_url(rigged)
+        download(url, os.path.join(out, name + ext_of(url)))
     json.dump(log, open(os.path.join(out, name + "_tripo.json"), "w"), indent=1)
     print("made:", name)
 
 
-def test(cid, key, src=None, out=None):
-    """The model test: each of TEST_RUNS for this man, into assets/people/tripo/test/."""
+def ext_of(url):
+    """The file's own kind from its URL: the H-series' quad meshes and their rigs come as FBX
+    (glb can't hold quads), whatever out_format asks."""
+    return ".fbx" if url.split("?", 1)[0].lower().endswith(".fbx") else ".glb"
+
+
+def test(cid, key, src=None, out=None, runs=("h31",)):
+    """The model test: each of `runs` (TEST_RUNS) for this man, into assets/people/tripo/test/.
+    The parts run is asked for by name (--runs=h31,h31_parts): it showed what it does on the
+    first test (twelve pieces, no colour) and its model is 40 MB."""
     out = out or TEST_DIR
     os.makedirs(out, exist_ok=True)
     failed = []
-    for run, (extra, rig) in TEST_RUNS.items():
+    for run in runs:
+        extra, rig = TEST_RUNS[run]
         try:
-            make(cid, key, src, out, "%s_%s" % (cid, run), extra, rig)
+            make(cid, key, src, out, "%s_%s" % (cid, run), extra, rig, copy=False)
         except (RuntimeError, OSError, KeyError, ValueError, TypeError) as e:
             print("failed:", cid, run, e)
             failed.append(run)
@@ -260,9 +275,9 @@ def dry_run():
                 ok = ok and good
         # The model test (--test) on the stand-in man with four views.
         tests = os.path.join(scratch, "test")
-        failed = test("turned", "dry-run-key", standins, tests)
-        for run in TEST_RUNS:
-            for f in ("turned_%s.glb" % run, "turned_%s_mesh.glb" % run, "turned_%s_tripo.json" % run):
+        failed = test("turned", "dry-run-key", standins, tests, tuple(TEST_RUNS))
+        for run, (_extra, rigged) in TEST_RUNS.items():
+            for f in ("turned_%s.glb" % run,) + (("turned_%s_mesh.glb" % run,) if rigged else ()) + ("turned_%s_tripo.json" % run,):
                 p = os.path.join(tests, f)
                 good = os.path.exists(p) and (not f.endswith(".glb") or open(p, "rb").read(4) == b"glTF")
                 print("  test %-28s %s" % (f, "ok" if good else "MISSING or not a glb"))
@@ -289,9 +304,13 @@ def main():
     if "--balance" in sys.argv:
         balance(key)
         return
+    runs = ("h31",)
+    for a in sys.argv[1:]:
+        if a.startswith("--runs="):
+            runs = tuple(r for r in a.split("=", 1)[1].split(",") if r in TEST_RUNS)
     for a in sys.argv[1:]:
         if a.startswith("--test="):
-            if test(a.split("=", 1)[1], key):
+            if test(a.split("=", 1)[1], key, runs=runs):
                 sys.exit(1)
             return
     only = None
