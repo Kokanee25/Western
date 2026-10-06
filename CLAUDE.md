@@ -496,7 +496,15 @@ a few views renders them as the full run does.
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
   saloon), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
   test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in).
-  `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave. `Crew` (per man:
+  `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave. `BucketLine`
+  (a bucket brigade, one a water source, `bucket_lines`): the townsfolk fighting a fire stand along
+  the way from the water to a spot a couple of paces off the nearest burning (`_stand_by`: of eight
+  round it, one a man can stand on, nearest the water), re-laid every 3 s; buckets are drawn things
+  (a pile by the water, one for every two men), filled by the man at the water, handed up full and
+  back empty (`PASS_REACH` 1.4 m arm to arm, walked across wider gaps; a full and an empty meeting
+  swap), thrown by the man at the end (`FireSystem.douse`, 10 l); a man only takes one at his
+  place, and one who can't reach it in `GIVE_UP` 30 s drops out. Townsfolk who see a fire within
+  `CivilianBrain.FIRE_SEEN` 30 m come to fight it. `Crew` (per man:
   his friends in a fight as he knows them, from what he saw and `Events.callout`s he heard:
   reloading, hit, spotted, flank, covering, help, drag, down, dead, quit, fall_back, give_up).
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
@@ -3351,3 +3359,18 @@ a few views renders them as the full run does.
   failed. 353 tests pass.
   - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
     when it does; a fallen lamp's light stays lit unless it breaks.
+- 2026-10-06 (gameplay): **A bucket brigade** (Sean: "a chain of people for the water bucket
+  throwing on the fire while actually passing a bucket"). `BucketLine` (layout note above) takes
+  over from each man running his own bucket (that code is gone; `CivilianBrain` joins the line for
+  the nearest water, `left_line()` when it's out or he drops out). In the street (bridge): three
+  boards of the telegraph's front lit, nine townsfolk came (from the porches, the jail, down the
+  street: anyone within 30 m now), stood in a line along the store's walk from its trough to the
+  telegraph's corner, and passed buckets up and back; two caught at the walk's corner dropped out
+  and it closed up; first bucket thrown ~35 s after the fire was lit. Tests `test_bucket_line` (2:
+  five men form one line with a bucket for every two, the first at the water and the last at the
+  fire, each bucket in its holder's hand, more hand-overs than throws, it goes out and the line
+  breaks up, nobody badly burnt; a full going up and an empty coming down swap). `test_flee_fire`
+  unchanged and passing (a man alone is his own line: carries, throws, walks back).
+  - Known: men find their way off the raised walks slowly (the town's places, one flight of steps a
+    walk); the line runs along the routes, so it climbs a walk where the route does; the buckets
+    hang at the hand (no grip pose); a bucket's water doesn't spill on the way; the gang don't help.
