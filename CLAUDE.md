@@ -3774,7 +3774,7 @@ a few views renders them as the full run does.
     `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
     per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
   - All 360 tests pass on the squashed commit.
-- 2026-10-06 (art session): **The saloon's front to the street painting, on the branch, not merged**
+- 2026-10-06 (art session): **The saloon's front to the street painting** (merged with the raise and the filter off, below)
   (Sean: "it's not just the pixels, it's the buildings' textures and detail"; then "keep working
   the wood", "get the saloon perfect", "ruts and windows"). `FacadeArt` (`src/art/facade_art.gd`,
   called at the end of gameplay's `FalseFrontBuilding.build()`, one line, said here) dresses a
@@ -3847,5 +3847,23 @@ a few views renders them as the full run does.
     bench, lanterns and carried dressing go up with the walk (`StreetDressing.walk_lift`), nothing
     stands on the end steps or a metre of the store's walk before them, FacadeArt's windows above
     the floor, ShotMatch's floor ray, `tools/screenshots.gd`'s saloon views lifted. Picture
-    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 355 tests pass. Not merged (with the
-    saloon front, on Sean's yes).
+    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 355 tests pass.
+  - Later (Sean: "let's turn it off ... no filters, the look has to be the art"): **the screen
+    mosaic off by default** (`Settings.mosaic` false; `LOOK_VERSION` 6 turns a saved one off once;
+    O still turns it on to compare; shared `settings.gd`, my lines; gameplay's
+    `tests/test_pixel_art.gd`, the art test's two lines). It cut the drawn textures and his face
+    into blotches and posterised the light (`docs/screenshots/review/2026-10-06_filter_on_off.png`).
+    ShotMatch's seated man is fitted per model (`ShotMatch.FITS`, `fit()`): the old stranger's
+    SEAT/TURN/POSE_OFFSETS as they were, and the characters session's `stranger2s` (his head on
+    its hitbox) with his own seat and pose from `tools/fit_shot.gd`. **Merged with the saloon front
+    and the raise:** all 70 goldens re-approved from two `--fresh` batched runs (both pass; the
+    store fire close up the only loose one, mean 35, its fire differs run to run), visual checks
+    374, none failed. Judge v2 round `2026-10-06_r1`: saloon 0.530, street 0.556 (the default
+    look's 0.225 / 0.329 the round before, with the mosaic): the saloon too dark against
+    `saloon-blocks.png` (deep-shadow share 0.49 vs 0.18; the mosaic's averaging had lifted it), the
+    street too light and pale (shadows L* 16 vs 6, chroma-L* correlation 0.19 vs 0.57). That's the
+    light without a filter over it: the next light passes (the street's sun and sky, the saloon
+    man's key and fill) are judged from here. Blind critic, top three: the room behind him is
+    dark, empty murk (the doorway, sconces, stair and balcony unread); the street's sky isn't
+    golden hour (lavender-grey, a small high white sun; the painting's gold heaps, big sun on
+    the horizon, rays, dust); his coat and arm are smooth faceted slabs, his face blotchy.
