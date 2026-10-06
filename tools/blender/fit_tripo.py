@@ -1100,10 +1100,13 @@ def main():
             print("wrote", pid, "smooth textures from", os.path.basename(src) if os.path.exists(src) else "tripo")
             continue
         colour = Image.open(repainted).convert("RGB") if os.path.exists(repainted) else p.colour
-        size = squares(colour, os.path.join(OUT, pid + "_skin.png"))
-        squares(colour, os.path.join(OUT, pid + "_head.png"))
+        # A repaint smaller than his model's texture (head_paint.py bakes at most 2048 a side; a
+        # Rodin man's is 4096) is already in squares that size: it keeps its texels.
+        sq = max(1, SQUARE_TEXELS * colour.width // p.colour.width)
+        size = squares(colour, os.path.join(OUT, pid + "_skin.png"), sq)
+        squares(colour, os.path.join(OUT, pid + "_head.png"), sq)
         p.report["texture"] = {"from": os.path.basename(repainted) if os.path.exists(repainted) else "tripo", "size": size,
-                               "square_texels": SQUARE_TEXELS}
+                               "square_texels": sq}
         if bpy is None:
             print("no bpy: fitted", pid, "but not exported")
             json.dump(p.report, open(os.path.join(OUT, pid + ".json"), "w"), indent=1)
