@@ -1,5 +1,5 @@
 {
- "round": "2026-10-05_r14",
+ "round": "2026-10-05_r28",
  "note": "probe mosaic (V) steadier: the frame multisampled (4x) and the textures' texel edges soft (1 px) under it, one sample a block, rendered with --fresh",
  "pick": "",
  "judge": 2,
