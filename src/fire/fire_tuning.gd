@@ -69,7 +69,7 @@ extends Resource
 @export var smoke_cell := 0.5
 @export var smoke_margin := 3.0
 @export var smoke_above := 9.0
-@export var smoke_per_m2 := 25.0
+@export var smoke_per_m2 := 8.0
 @export var smoke_heat := 1.0
 ## The grid's own rules (SmokeGrid.tune): rising (cold, and per unit of heat), the ceiling jet
 ## toward the nearest way up, spreading under a ceiling and everywhere, thinning indoors and in the
@@ -83,7 +83,7 @@ extends Resource
 @export var smoke_fade_open := 0.02
 ## How it's drawn (the art session's to judge): fog of this density where a cell is full, and its
 ## colour.
-@export var smoke_draw_density := 10.0
+@export var smoke_draw_density := 2.0
 @export var smoke_colour := Color(0.42, 0.39, 0.36)
 ## At most this many buildings' smoke at once (each is its own box); past it, the old particle smoke.
 @export var smoke_fields := 6

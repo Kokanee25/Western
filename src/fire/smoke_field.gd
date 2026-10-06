@@ -257,7 +257,7 @@ func _make_fog() -> void:
 	var mat := FogMaterial.new()
 	mat.density = tuning.smoke_draw_density
 	mat.albedo = tuning.smoke_colour
-	mat.edge_fade = 0.05
+	mat.edge_fade = 0.5
 	_tex = ImageTexture3D.new()
 	_tex.create(Image.FORMAT_R8, dims.x, dims.y, dims.z, false, _slices())
 	mat.density_texture = _tex
