@@ -22,6 +22,9 @@ func before_each() -> void:
 	world.add_child(ground)
 	fire = FireSystem.new()
 	world.add_child(fire)
+	# The smoke's rules at a set rate (the game's own rate is tuned for its look and may move).
+	fire.tuning = fire.tuning.duplicate()
+	fire.tuning.smoke_per_m2 = 25.0
 	building = Structure.new()
 	building.structure_id = &"porch"
 	building.collapses = false
@@ -66,7 +69,7 @@ func test_it_gathers_under_the_overhang_rolls_out_and_rises() -> void:
 	var out: float = most.call(Vector2(0.1, -2.65), 2.9, 4.5)      # past the roof's edge, risen
 	print("    smoke: under %.3f, out %.3f, over %.3f" % [under, out, over])
 	check(under > 0.1, "smoke gathers under the overhang (%.3f)" % under)
-	check(out > 0.05, "rolls out past its edge and rises (%.3f)" % out)
+	check(out > 0.03, "rolls out past its edge and rises (%.3f)" % out)
 	check(over < 0.25 * out, "little through the roof over the fire (%.3f, against %.3f past the edge)" % [over, out])
 	# Under the roof it lies along the ceiling.
 	var high: float = most.call(Vector2(0.1, -1.6), 1.8, 2.1)

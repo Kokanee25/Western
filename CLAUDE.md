@@ -109,7 +109,9 @@ scene's render CPU (lavapipe; carved members and chips draw on their own, smoke)
   squares, each several screen pixels big. Keep the internal resolution a setting (F2).
 - **AI characters:** called through a small relay server that holds the API key (OpenRouter, so the
   model can be switched). **The key never goes in this repo or in the game build.** The AI is only
-  called for conversation, asynchronously — never inside the frame loop.
+  called for conversation, asynchronously — never inside the frame loop. Since 2026-10-06 (DESIGN.md
+  §9 "Conversation") it only *reads* what the player types or says into a deed; people answer with
+  written, recorded lines (ElevenLabs, voiced by a script), and the game works fully without it.
 - **Asset pipeline: Blender, run headless by script** (`blender -b --python …`) in the cloud workspace.
   Most props and buildings are built in code (see DESIGN.md §4 and `src/structures/`); Blender is for
   what code does poorly. Scripts live in the repo (`tools/blender/`) so every step is repeatable: bodies
@@ -181,7 +183,8 @@ Work in this order; each milestone ends playable. The first slice is defined in 
       and surrender as they are). No animals, ever.
    7. Conversation hooks: talking a man down, bargaining, surrender terms.
    8. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
-   9. AI conversation through the relay (voice + suggested replies), with the speaker's body state
+   9. Conversation (DESIGN.md §9: written, voiced lines keyed to the moment; the AI reads what you
+      type into a deed), with the speaker's body state
       fed in (DESIGN.md §11 "Signature features" 1: the body changes how people talk).
 6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,
    the doctor, the jail, saving in bed and waking at the doctor's. **The sheriff opening** is the
@@ -3894,6 +3897,15 @@ a few views renders them as the full run does.
     dark, empty murk (the doorway, sconces, stair and balcony unread); the street's sky isn't
     golden hour (lavender-grey, a small high white sun; the painting's gold heaps, big sun on
     the horizon, rays, dust); his coat and arm are smooth faceted slabs, his face blotchy.
+- 2026-10-06 (Sean's planning chat, docs only): **Conversation changed, and more backlog.**
+  DESIGN.md §9 "Conversation": people speak written, recorded lines (a few hundred per principal,
+  voiced with ElevenLabs by a script) keyed to the moment and to their body state; the player types
+  or speaks freely and the AI only reads it into a deed (who it's to, what kind of act, tone, topic,
+  any claim), which the listener answers by his nerve and opinion; live AI words only rarely, as
+  text. CLAUDE.md's tech line and M4 step 9 follow it. DESIGN.md §5 "Story missions (proposed)":
+  eight missions, the camp first (its bandits scalp hunters, the women's scalps brought home, the
+  scalping of one man by the husband shown only if you stay); §11 "Period details (ideas only)";
+  §13: forensics may be lighter.
 - 2026-10-06 (gameplay): **A bucket brigade** (Sean: "a chain of people for the water bucket
   throwing on the fire while actually passing a bucket"). `BucketLine` (layout note above) takes
   over from each man running his own bucket (that code is gone; `CivilianBrain` joins the line for
