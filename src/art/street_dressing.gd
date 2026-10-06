@@ -73,7 +73,7 @@ const FOLK := [
 const SALOON_PORCH := {
 	"PorchLoafer": [Vector3(8.7, 0.38, -0.95), &"stand"],
 	"BenchManA": [Vector3(2.2, 0.38, -0.62), &"sit"],
-	"BenchManB": [Vector3(3.35, 0.38, -0.85), &"stand"],
+	"BenchManB": [Vector3(3.95, 0.38, -0.95), &"stand"],  # past the bench's end (it spans x 1.6-3.5)
 }
 const SALOON_BENCH := Vector3(2.55, 0.38, -0.5)
 ## How much bigger than the code model the painting's carriage lanterns are.
