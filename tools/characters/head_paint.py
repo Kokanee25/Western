@@ -91,6 +91,11 @@ BODY_VIEW_WORDS = {
     "right": "in full profile from his right side, facing the right edge of the picture",
     "back": "seen from directly behind, his back to the viewer",
 }
+# How far the body's views may depart from their guides: less than the head's. At the head's
+# 0.68 the painter redrew his clothes (run 50: a sack coat to the hips came back to the knees,
+# with a belt and tall boots, and his back as a vest with pale sleeves), and the bake lays a
+# painting on the body where the guide drew it, so a coat painted on his thighs is his trousers'.
+STRENGTH_BODY = 0.5
 # The body's squares on him (the painting's coat squares, tools/paint/finish.py's cloth: 160 a
 # metre) and its palette.
 SQUARE_M_BODY = 0.00625
@@ -403,7 +408,8 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, stren
         print("No %s: the LoRA isn't trained; painting without it." % LORA)
         scale = 0.0
     os.makedirs(BUILD, exist_ok=True)
-    log = [{"editor": EDITOR, "lora_url": lora_url, "scale": scale, "seed": seed, "strength": STRENGTH if strength is None else strength}]
+    log = [{"editor": EDITOR, "lora_url": lora_url, "scale": scale, "seed": seed,
+            "strength": STRENGTH if strength is None else strength, "strength_body": STRENGTH_BODY if strength is None else strength}]
     failed = []
     for kind, view, ask, size in jobs(cid):
         name = view if kind == "head" else "body_" + view
@@ -419,7 +425,8 @@ def paint(cid, key, scale, seed, repaint, only, editor=edit, out_dir=None, stren
             failed.append(name)
             continue
         try:
-            img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_%s_%s" % (cid, kind, view), strength)
+            st = strength if strength is not None else (STRENGTH if kind == "head" else STRENGTH_BODY)
+            img = editor(Image.open(guide), ask, lora_url, scale, seed, key, log, "%s_%s_%s" % (cid, kind, view), st)
             if img.size != (size, size):
                 img = img.resize((size, size), Image.LANCZOS)
             img.save(out)
