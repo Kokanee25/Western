@@ -327,8 +327,12 @@ systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out
      ending in the game.
    Mixed moments make it personal: a bandit surrenders with his hands up and a young warrior moves
    first; one of the bandits wasn't there that night; the man in the hat may be the one who
-   surrenders. Elsewhere in the game, white scalp hunters (the Mexican and territorial scalp
-   bounties were real) show that scalping wasn't one people's act. The violation itself is never shown, only
+   surrenders. **The bandits are scalp hunters** (Sean 2026-10-06): their camp has scalps drying
+   on a line, Mexican as well as Native, to be sold south for the bounty as "Apache" (the
+   Glanton gang did exactly this). What you find there tells you what they came to the camp for,
+   is evidence any court or marshal can't wave away, and ties in the Mexican rancher's people
+   (mission 4): whoever learns of the Mexican scalps wants a say in what happens to the bandits.
+   It also shows, in the world, that scalping wasn't one people's act. The violation itself is never shown, only
    what it leaves behind.
 2. **Hold him till the Marshal comes** (the jail night). You have one of the Colters in a cell and
    the Marshal's wire says two days. The gang wants him out; the town wants him hanged now (a mob
