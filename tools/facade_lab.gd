@@ -27,9 +27,15 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var out := "user://facade_lab"
+	var outline := false
+	var shade := 1.0
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
+		elif arg == "--outline":
+			outline = true
+		elif arg.begins_with("--shade="):
+			shade = float(arg.substr(8))
 	DirAccess.make_dir_recursive_absolute(out)
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -58,6 +64,19 @@ func _run() -> void:
 	cam.current = true
 	var mosaic: Script = load("res://src/render/depth_mosaic.gd")
 	mosaic.apply(cam, settings.mosaic_active(), settings.MOSAIC_K, settings.MOSAIC_STEPS)
+	# Trials of crispness: the outline pass's dark lines on edges and creases (`--outline`), and the
+	# sky's fill in the shadows scaled (`--shade=0.5`: deeper darks, SSAO stronger to match).
+	if outline:
+		var o = load("res://src/render/outline.gd").attach(cam)
+		await process_frame
+		var m := o.material_override as ShaderMaterial
+		m.set_shader_parameter(&"thickness", 1.0)
+		m.set_shader_parameter(&"fade_from", 25.0)
+		m.set_shader_parameter(&"fade_to", 60.0)
+	if shade != 1.0:
+		var env := (street.find_child("WorldEnvironment", true, false) as WorldEnvironment).environment
+		env.ambient_light_energy *= shade
+		env.ssao_intensity *= 1.0 / shade
 	var k: float = saloon.width / 9.6
 	var shots: Array[Image] = []
 	for v in VIEWS:
