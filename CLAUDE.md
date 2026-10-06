@@ -3452,3 +3452,47 @@ a few views renders them as the full run does.
   Files: `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, `tools/fit_shot.gd`,
   `tools/characters/characters.json`, `assets/people/stranger2s*`,
   `assets/people/tripo/stranger2s_*`. Body tests pass (21).
+- 2026-10-06 (characters session, later): **His head on his head hitbox.** On how to fix the
+  stylised stranger's face, 12 cm over his head hitbox and 8 cm in front of it, Sean said "Do what
+  you think will work best". I fixed the fit (tools/blender/fit_tripo.py) rather than giving each
+  man his own hitboxes. That keeps one anatomy for every man (cover heights, aim, wounds and the
+  hat stay as they are). Looked at closer, his long neck and high head came from the fit's joint
+  guesses, not his own proportions.
+  - **Shoulders.** A Rodin man's joints were set at fixed shares of his height (RIG_Y, from
+    Tripo's rigs, hat and all), which put his shoulder joints 7 cm under his own. The trunk's
+    warp then lifted his shoulders and head 12 cm. His shoulders are now found `SH_TOP` under the
+    tops of his shoulders (`shoulder_top`), which agrees with Tripo's three rigged men within
+    0.005 of their height. His neck and head joints sit over the middle of his shoulders, as
+    Tripo's rigs have them. Measured from his cross-section, they had been pulled 6 cm back by
+    his coat collar and hair, which leant his trunk back.
+  - **EYES_RULE.** Joint to joint, Tripo's head joint (half way up his neck) went onto ours (at
+    the chin). Now, for a whole man whose face has been found, his shoulders go onto ours. All of
+    him above them is scaled as one so his eyes come to the anatomy's eye height; his head comes
+    out at 1.015 of his own scale. Then his head is set back 2.8 cm, a shear up his neck that
+    doesn't tilt his collar.
+  - **Results.** His drawn eyes are 0.08 cm from the anatomy's (they were 14.4 cm off). Surface
+    more than 6 cm outside the hitboxes: face and head 8 % → 0 %. Collar more than 10 cm out:
+    23 % → 0 %. The back of his coat still stands 3–6 cm off the chest hitboxes, as it did higher
+    up before; the brim is outside them by design.
+  - **The pose check** (`people_lineup.gd`: standing, sitting, hands up, crouching) has no tears,
+    and his eyes are level with the MakeHuman man's.
+  - **The shot.** Re-fitted with `fit_shot.gd`:
+    - outline overlap 0.674 (it was 0.672);
+    - eyes 2.8 px from the painting's (3.4 before);
+    - the cup on its cup, 105 px tall.
+    He sits more upright: chest and neck square, where the old fit leant them 6° and 8° forward
+    to pull his high head down. His seat moves 3.75 cm. His face comes out from under the brim
+    and looks at you. Judge v2 with no mosaic (no round written): 0.215 → 0.209. The new FITS
+    entry (seat (0.742, 0, -0.478) in the set's space, and the pose offsets) went to the art
+    session, replacing the one on its branch.
+  - **New test.** `tests/test_bodies.gd` (gameplay's file, a test of about twenty lines):
+    `test_a_fitted_mans_drawn_eyes_are_his_heads_eyes` needs every fit report that records drawn
+    eyes within 1.5 cm of the anatomy's. It fails on the old fit and passes now; 22 body tests
+    pass.
+  - **Unchanged:** the Kid and the Tripo stranger, checked vertex for vertex. Neither has a found
+    face, so the Tripo stranger's eyes are still 9 cm high. Refitting him needs his face found
+    from a render of his head; it's the art session's call, since his shot is judged.
+  - **Refitted:** `stranger2` as well. His hands' measured skin tone is a little lighter (the
+    wrists moved with the shoulders), and the game's fingers follow it.
+
+  Files: `tools/blender/fit_tripo.py`, `tests/test_bodies.gd`, `assets/people/stranger2*`.
