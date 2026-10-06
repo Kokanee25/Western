@@ -2,15 +2,15 @@
  "coat_hands_up": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.025,
-   "share": 0.0008
+   "mean": 0.012,
+   "share": 0.0003
   },
   "share": 0.01
  },
  "dynamite_lit": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.013,
+   "mean": 0.012,
    "share": 0.0004
   },
   "share": 0.01
@@ -18,23 +18,23 @@
  "dynamite_store_after": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.096,
-   "share": 0.0011
+   "mean": 0.077,
+   "share": 0.0005
   },
   "share": 0.01
  },
  "dynamite_store_blast": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.114,
-   "share": 0.0015
+   "mean": 0.092,
+   "share": 0.0006
   },
   "share": 0.01
  },
  "gun_aim_range": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.002,
+   "mean": 0.0,
    "share": 0.0
   },
   "share": 0.01
@@ -50,16 +50,16 @@
  "gun_at_wall_aim": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.019,
-   "share": 0.0004
+   "mean": 0.0,
+   "share": 0.0
   },
   "share": 0.01
  },
  "gun_hip_range": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.005,
-   "share": 0.0002
+   "mean": 0.004,
+   "share": 0.0001
   },
   "share": 0.01
  },
@@ -72,25 +72,25 @@
   "share": 0.01
  },
  "gun_smoke_saloon": {
-  "mean": 2.771,
+  "mean": 14.71,
   "noise": {
-   "mean": 0.924,
-   "share": 0.0057
+   "mean": 4.903,
+   "share": 0.1106
   },
-  "share": 0.017
+  "share": 0.3319
  },
  "holes_from_inside": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.005,
-   "share": 0.0001
+   "mean": 0.001,
+   "share": 0.0
   },
   "share": 0.01
  },
  "inside_store_afternoon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.002,
+   "mean": 0.007,
    "share": 0.0001
   },
   "share": 0.01
@@ -98,87 +98,87 @@
  "inside_store_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.011,
-   "share": 0.0003
+   "mean": 0.028,
+   "share": 0.0009
   },
   "share": 0.01
  },
  "kid_close": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.002,
-   "share": 0.0
+   "mean": 0.027,
+   "share": 0.0005
   },
   "share": 0.01
  },
  "kid_hands_up": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.006,
-   "share": 0.0001
+   "mean": 0.008,
+   "share": 0.0002
   },
   "share": 0.01
  },
  "kid_street": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.026,
-   "share": 0.0011
+   "mean": 0.001,
+   "share": 0.0
   },
   "share": 0.01
  },
  "look_down_body": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.013,
-   "share": 0.0002
+   "mean": 0.003,
+   "share": 0.0001
   },
   "share": 0.01
  },
  "outlaw_back": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.087,
-   "share": 0.0017
+   "mean": 0.007,
+   "share": 0.0001
   },
   "share": 0.01
  },
  "outlaw_blast": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.118,
-   "share": 0.0017
+   "mean": 0.122,
+   "share": 0.0018
   },
   "share": 0.01
  },
  "outlaw_buckshot": {
-  "mean": 5.357,
+  "mean": 5.82,
   "noise": {
-   "mean": 1.786,
-   "share": 0.0193
+   "mean": 1.94,
+   "share": 0.019
   },
-  "share": 0.0579
+  "share": 0.0569
  },
  "outlaw_buckshot_close": {
-  "mean": 3.82,
+  "mean": 4.168,
   "noise": {
-   "mean": 1.273,
-   "share": 0.0173
+   "mean": 1.389,
+   "share": 0.0174
   },
-  "share": 0.052
+  "share": 0.0522
  },
  "outlaw_buckshot_room": {
-  "mean": 3.076,
+  "mean": 3.214,
   "noise": {
-   "mean": 1.025,
-   "share": 0.0182
+   "mean": 1.071,
+   "share": 0.0178
   },
-  "share": 0.0547
+  "share": 0.0534
  },
  "outlaw_close": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.003,
+   "mean": 0.005,
    "share": 0.0
   },
   "share": 0.01
@@ -186,15 +186,15 @@
  "outlaw_covering_you": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.006,
-   "share": 0.0001
+   "mean": 0.01,
+   "share": 0.0002
   },
   "share": 0.01
  },
  "outlaw_down": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.013,
+   "mean": 0.009,
    "share": 0.0002
   },
   "share": 0.01
@@ -202,108 +202,12 @@
  "outlaw_face": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.017,
-   "share": 0.0003
+   "mean": 0.001,
+   "share": 0.0
   },
   "share": 0.01
  },
  "outlaw_face_evening": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.003,
-   "share": 0.0001
-  },
-  "share": 0.01
- },
- "outlaw_fight": {
-  "mean": 2.407,
-  "noise": {
-   "mean": 0.802,
-   "share": 0.0014
-  },
-  "share": 0.01
- },
- "outlaw_graze": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.049,
-   "share": 0.001
-  },
-  "share": 0.01
- },
- "outlaw_in_cover": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.0,
-   "share": 0.0
-  },
-  "share": 0.01
- },
- "outlaw_neck": {
-  "mean": 2.904,
-  "noise": {
-   "mean": 0.968,
-   "share": 0.0117
-  },
-  "share": 0.0352
- },
- "outlaw_open": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.006,
-   "share": 0.0001
-  },
-  "share": 0.01
- },
- "outlaw_open_close": {
-  "mean": 4.096,
-  "noise": {
-   "mean": 1.365,
-   "share": 0.0201
-  },
-  "share": 0.0602
- },
- "outlaw_open_reduced": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.002,
-   "share": 0.0
-  },
-  "share": 0.01
- },
- "outlaw_peeking": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.005,
-   "share": 0.0001
-  },
-  "share": 0.01
- },
- "outlaw_range": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.006,
-   "share": 0.0001
-  },
-  "share": 0.01
- },
- "outlaw_side": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.005,
-   "share": 0.0001
-  },
-  "share": 0.01
- },
- "outlaw_surrender": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.109,
-   "share": 0.0013
-  },
-  "share": 0.01
- },
- "outlaw_wary": {
   "mean": 1.5,
   "noise": {
    "mean": 0.004,
@@ -311,29 +215,125 @@
   },
   "share": 0.01
  },
- "outlaw_xray": {
-  "mean": 3.629,
+ "outlaw_fight": {
+  "mean": 8.572,
   "noise": {
-   "mean": 1.21,
-   "share": 0.0126
+   "mean": 2.857,
+   "share": 0.002
   },
-  "share": 0.0377
+  "share": 0.01
+ },
+ "outlaw_graze": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.062,
+   "share": 0.0012
+  },
+  "share": 0.01
+ },
+ "outlaw_in_cover": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.01,
+   "share": 0.0002
+  },
+  "share": 0.01
+ },
+ "outlaw_neck": {
+  "mean": 2.993,
+  "noise": {
+   "mean": 0.998,
+   "share": 0.0114
+  },
+  "share": 0.0341
+ },
+ "outlaw_open": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.004,
+   "share": 0.0
+  },
+  "share": 0.01
+ },
+ "outlaw_open_close": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.045,
+   "share": 0.001
+  },
+  "share": 0.01
+ },
+ "outlaw_open_reduced": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.006,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
+ "outlaw_peeking": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.001,
+   "share": 0.0
+  },
+  "share": 0.01
+ },
+ "outlaw_range": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.005,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
+ "outlaw_side": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.004,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
+ "outlaw_surrender": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.079,
+   "share": 0.0011
+  },
+  "share": 0.01
+ },
+ "outlaw_wary": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.01,
+   "share": 0.0002
+  },
+  "share": 0.01
+ },
+ "outlaw_xray": {
+  "mean": 4.158,
+  "noise": {
+   "mean": 1.386,
+   "share": 0.0136
+  },
+  "share": 0.0408
  },
  "porch_collapse": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.013,
-   "share": 0.0
+   "mean": 0.004,
+   "share": 0.0001
   },
   "share": 0.01
  },
  "porch_dusk": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.257,
-   "share": 0.0096
+   "mean": 0.012,
+   "share": 0.0004
   },
-  "share": 0.0289
+  "share": 0.01
  },
  "portrait_day": {
   "mean": 1.5,
@@ -346,34 +346,34 @@
  "saloon_back_wall_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.035,
-   "share": 0.0012
+   "mean": 0.099,
+   "share": 0.0038
   },
-  "share": 0.01
+  "share": 0.0113
  },
  "saloon_front_dusk": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.0,
-   "share": 0.0
+   "mean": 0.011,
+   "share": 0.0003
   },
   "share": 0.01
  },
  "saloon_night": {
-  "mean": 1.5,
+  "mean": 1.622,
   "noise": {
-   "mean": 0.023,
-   "share": 0.0008
+   "mean": 0.541,
+   "share": 0.0078
   },
-  "share": 0.01
+  "share": 0.0234
  },
  "saloon_toward_door_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.116,
-   "share": 0.0047
+   "mean": 0.11,
+   "share": 0.0044
   },
-  "share": 0.0142
+  "share": 0.0133
  },
  "shot_match_close": {
   "mean": 1.5,
@@ -386,32 +386,32 @@
  "shot_match_saloon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.052,
-   "share": 0.002
+   "mean": 0.038,
+   "share": 0.0017
   },
   "share": 0.01
  },
  "shot_match_street": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.072,
-   "share": 0.0025
+   "mean": 0.011,
+   "share": 0.0003
   },
   "share": 0.01
  },
  "shotgun_aim_range": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.01,
-   "share": 0.0002
+   "mean": 0.014,
+   "share": 0.0003
   },
   "share": 0.01
  },
  "shotgun_hip_range": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.032,
-   "share": 0.0007
+   "mean": 0.01,
+   "share": 0.0002
   },
   "share": 0.01
  },
@@ -424,102 +424,94 @@
   "share": 0.01
  },
  "shotgun_shot_saloon": {
-  "mean": 2.83,
+  "mean": 8.434,
   "noise": {
-   "mean": 0.943,
-   "share": 0.0064
+   "mean": 2.811,
+   "share": 0.032
   },
-  "share": 0.0193
+  "share": 0.0959
  },
  "smoke_drift_street": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.15,
-   "share": 0.0008
+   "mean": 0.181,
+   "share": 0.0017
   },
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 26.083,
+  "mean": 34.922,
   "noise": {
-   "mean": 8.694,
-   "share": 0.1388
+   "mean": 11.641,
+   "share": 0.1716
   },
-  "share": 0.4163
+  "share": 0.5148
  },
  "store_fire_later": {
-  "mean": 5.645,
+  "mean": 5.314,
   "noise": {
-   "mean": 1.882,
-   "share": 0.0266
+   "mean": 1.771,
+   "share": 0.0241
   },
-  "share": 0.0798
+  "share": 0.0724
  },
  "store_fire_night": {
-  "mean": 5.172,
+  "mean": 7.273,
   "noise": {
-   "mean": 1.724,
-   "share": 0.0299
+   "mean": 2.424,
+   "share": 0.0378
   },
-  "share": 0.0897
+  "share": 0.1133
  },
  "store_front_noon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.006,
-   "share": 0.0001
+   "mean": 0.002,
+   "share": 0.0
   },
   "share": 0.01
  },
  "street_golden_hour": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.018,
-   "share": 0.0004
+   "mean": 0.003,
+   "share": 0.0
   },
   "share": 0.01
  },
  "street_morning": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.006,
-   "share": 0.0002
+   "mean": 0.002,
+   "share": 0.0
   },
   "share": 0.01
  },
  "street_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.067,
-   "share": 0.0021
+   "mean": 0.009,
+   "share": 0.0001
   },
   "share": 0.01
  },
  "texel_porch": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.072,
-   "share": 0.003
+   "mean": 0.007,
+   "share": 0.0001
   },
   "share": 0.01
  },
  "texel_rail_shadow": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.202,
-   "share": 0.006
-  },
-  "share": 0.0181
- },
- "texel_store_golden": {
-  "mean": 1.5,
-  "noise": {
-   "mean": 0.007,
-   "share": 0.0002
+   "mean": 0.126,
+   "share": 0.0031
   },
   "share": 0.01
  },
- "town_bar": {
+ "texel_store_golden": {
   "mean": 1.5,
   "noise": {
    "mean": 0.001,
@@ -527,36 +519,44 @@
   },
   "share": 0.01
  },
+ "town_bar": {
+  "mean": 1.5,
+  "noise": {
+   "mean": 0.004,
+   "share": 0.0001
+  },
+  "share": 0.01
+ },
  "town_duel": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.011,
-   "share": 0.0003
+   "mean": 0.008,
+   "share": 0.0002
   },
   "share": 0.01
  },
  "town_holdup": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.003,
-   "share": 0.0001
+   "mean": 0.002,
+   "share": 0.0
   },
   "share": 0.01
  },
  "wall_closeup_noon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.0,
+   "mean": 0.001,
    "share": 0.0
   },
   "share": 0.01
  },
  "window_shot": {
-  "mean": 5.469,
+  "mean": 5.217,
   "noise": {
-   "mean": 1.823,
-   "share": 0.0298
+   "mean": 1.739,
+   "share": 0.0264
   },
-  "share": 0.0895
+  "share": 0.0791
  }
 }

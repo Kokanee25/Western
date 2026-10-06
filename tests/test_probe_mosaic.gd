@@ -2,8 +2,9 @@ extends TestCase
 ## The probe mosaic trial (src/render/probe_mosaic.gd): its blocks are cut from an origin snapped
 ## to a grid, which stays put while the camera is within half a cell of it, waits while a
 ## cross-fade is under way, and crosses as fast as cells go by; switched on, it takes the screen
-## mosaic's place on the camera, and off it leaves; as a setting it brings the smooth textures and
-## puts the surface blocks away.
+## mosaic's place on the camera and multisamples the frame, and off it leaves and puts the
+## multisampling back; as a setting it brings the smooth textures with soft texel edges and puts
+## the surface blocks away.
 
 var cam: Camera3D
 
@@ -97,9 +98,12 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 	if RenderingServer.get_current_rendering_method() == "gl_compatibility":
 		return
 	DepthMosaic.attach(cam, 5.0)
+	var vp := cam.get_viewport()
+	var msaa_was := vp.msaa_3d
 	ProbeMosaic.apply(cam, true, 384.0, 0.5, 6.0)
 	await process_frames(2)
 	check(cam.get_node_or_null(^"DepthMosaic") == null, "the screen mosaic is gone")
+	check_eq(vp.msaa_3d, ProbeMosaic.MSAA, "the frame under it multisampled (outlines don't flip whole blocks)")
 	var m := cam.get_node_or_null(^"ProbeMosaic") as ProbeMosaic
 	check(m != null, "the probe mosaic is on the camera")
 	if m:
@@ -110,6 +114,7 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 	ProbeMosaic.apply(cam, false, 384.0, 0.5, 14.0)
 	await process_frames(2)
 	check(cam.get_node_or_null(^"ProbeMosaic") == null, "off, it leaves")
+	check_eq(vp.msaa_3d, msaa_was, "and the viewport's multisampling is as it was")
 
 
 func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away() -> void:
@@ -121,6 +126,7 @@ func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away()
 	check(Settings.quantise_once and PixelArt.smooth, "the smooth textures under it")
 	check(Settings.look_description().contains("probe mosaic"), "described: %s" % Settings.look_description())
 	check(not Settings.mosaic_active(), "the screen mosaic off under it")
+	check_near(float(Settings.tile_globals()[&"block_soft"]), Settings.PROBE_SOFT, 0.0001, "soft texel edges under it")
 	Settings.set_probe_mosaic(false)
 	check(Settings.surface_blocks and PixelArt.blocks and not Settings.quantise_once, "V again: the look it found (M)")
 	Settings.set_probe_mosaic(true)
@@ -128,6 +134,7 @@ func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away()
 	check(not Settings.probe_active(), "M while it's on: the surface blocks win")
 	Settings.reset_to_defaults()
 	check(not Settings.probe_mosaic and not Settings.quantise_once and not Settings.surface_blocks, "reset: the default look")
+	check_near(float(Settings.tile_globals()[&"block_soft"]), 0.0, 0.0001, "hard texel edges again")
 
 
 ## With no settings file (CI, the tools), a look asked for on the command line sets its switch and

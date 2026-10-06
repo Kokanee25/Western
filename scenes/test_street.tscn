@@ -1,7 +1,8 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Script" path="res://src/world/town_layout.gd" id="30_town"]
+[ext_resource type="Script" path="res://src/structures/fittings.gd" id="31_fittings"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
@@ -225,3 +226,6 @@ transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
 
 [node name="StaticBatch" type="Node3D" parent="."]
 script = ExtResource("40_batch")
+
+[node name="Fittings" type="Node" parent="."]
+script = ExtResource("31_fittings")

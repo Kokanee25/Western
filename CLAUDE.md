@@ -224,7 +224,7 @@ ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
-from north (−Z, the saloon's side of the street), east +X. Example:
+from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
 python3 tools/bridge.py start --size=960x540
@@ -379,9 +379,14 @@ a few views renders them as the full run does.
   block takes the frame's colour at its centre, so blocks stay put as you turn and, within a cell,
   as you walk, and outlines step at the block size; crossing a cell re-cuts them with a
   block-by-block cross-fade; within `near_screen` (0.7 m, the gun) blocks are cut on the screen,
-  past `far` (200 m, sky and backdrop) the frame is left. Light bands (`probe_bands`), a mean of
-  3x3 samples (`samples`), a dark-weighted mean (`dark_weight`) and a blurred read (`prefilter`)
-  are there, off. It brings the quantise-once textures and gives way to the surface blocks
+  past `far` (200 m, sky and backdrop) the frame is left. Under it the game viewport is
+  multisampled (`ProbeMosaic.MSAA`, 4x, put back when it goes; `--probe-msaa=N` for a trial) and
+  the textures' texel edges are soft (`Settings.PROBE_SOFT`, 1 px of blend; `--probe-soft=`): it
+  re-reads the frame at each block's middle, so a texel edge or an outline's stair-step jumping a
+  pixel there flips the whole block. Light bands (`probe_bands`), a mean of 3x3 samples
+  (`samples`), a dark-weighted mean (`dark_weight`), a blurred read (`prefilter`) and a
+  cross-fade that blends the old cube's colours into the new (`fade_blend`) are there, off. It
+  brings the quantise-once textures and gives way to the surface blocks
   (`Settings.probe_active()`). **Motion measures:** `tools/probe_walk.gd` renders six camera paths
   through the saloon shot's set at a fixed step (or, `--depth-pass`, every pixel's distance and
   each frame's camera), and `tools/probe_walk.py stability DEPTH RUN...` moves each pixel back to
@@ -420,7 +425,19 @@ a few views renders them as the full run does.
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
   in its space and moves with it. `TownLayout.transform_of(path)` / `point(building, local)` give
   the same places to code with no scene (`Waypoints.test_street()` puts the store's and saloon's
-  insides through it). Move a building: change its entry.
+  insides through it). Move a building: change its entry. Since Main Street step 2 the file is
+  Sean's map (`docs/concept/town-map.png`): Main Street along X, west −X toward the sunset; the
+  south side (fronts on z 0) from the east the saloon, the store, the barber, Market Street, the
+  hotel; the north side (fronts on z −16.8) the livery, the jail, the water tower's yard, the
+  assay office; Freight Street crossing at the east end, the range 30 m beyond. A building's
+  boardwalk is up on steps (`Boardwalk.steps`: people and the player come and go by them, the
+  edge elsewhere a step too high). `StreetDressing/<name>` entries are the dressing's façades
+  (it builds them where the layout says, each with its walk). A building's `was` is where it
+  stood on the old street: `TownLayout.carry()` moves what was laid out round it there (the
+  dressing's tables are still in old coordinates) to where it stands now, and the dressing leaves
+  out whatever would stand on steps and moves people out of doorways
+  (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
+  and range views the same way (`_view_move`).
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
@@ -428,6 +445,14 @@ a few views renders them as the full run does.
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
   `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
+  it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
+  is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and
+  the fittings it rests on; a quarter second at a time it looks, and when every member is gone
+  (broken, consumed, moved) and everything it rests on has fallen, it becomes a RigidBody3D in
+  group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
+  more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
+  loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -3131,7 +3156,9 @@ a few views renders them as the full run does.
   frame, saloon / street): default 6.42 / 6.28 % (theirs 6.43 / 6.28), surface blocks 1.77 / 3.59,
   probe 3.05 / 4.19. Judge v2, all `--fresh`, saloon / street: default `_r10` 0.225 / 0.329;
   surface blocks `_r13` 0.362 / 0.284; probe with a 3x3 mean `_r9` 0.220 / 0.319; **probe as
-  shipped `_r12` 0.195 / 0.281**; variants scored with the judge's measures, not kept as rounds:
+  shipped `_r12` 0.195 / 0.281** (corrected below, in "The probe mosaic steadier": these probe
+  stills were rendered before the command-line fix, over the game's squared textures; V's own
+  look scores 0.181 / 0.341); variants scored with the judge's measures, not kept as rounds:
   14 bands 0.309 / 0.304, a blurred read 0.227 / 0.317, a dark-weighted mean 0.236 / 0.312, 512
   texels 0.203 / 0.320, one sample before equal angle 0.199 / 0.283. The art session's r6–r8 were
   rendered before `--fresh`: their street shots inherited a brighter state (18 % of the sky blown
@@ -3249,6 +3276,103 @@ a few views renders them as the full run does.
   `src/structures/wood_materials.gd` (`reset()`, five lines), `src/debug/look_preset.gd` (the
   bold preset under M, a dozen lines), `tests/test_pixel_art.gd` (the M test's expectations);
   shared `settings.gd` (my lines). 323 tests pass.
+- 2026-10-05 (characters session, later): **The probe mosaic steadier: the frame multisampled
+  and texel edges soft under V; its judge numbers corrected.** Sean: "keep working at it". Where
+  its flicker was (`tools/probe_walk.py stability`, split by kind): about half on surfaces (the
+  floor and ceiling boards seen at a slant, the bar front, the bottle wall), 45 % on outlines, a
+  twentieth on glints, all from re-reading an aliased frame: a block takes the frame's colour at
+  its middle, so a texel edge or an outline's stair-step jumping a pixel there flips the whole
+  block. Under V the game viewport is now multisampled (`ProbeMosaic.MSAA`, 4x, put back when V
+  goes off) and the textures' texel edges are soft (`Settings.PROBE_SOFT`, 1 px, the surface
+  blocks' own trick). Unstable pixels a frame, still / turn / walk / strafe / circle / approach:
+  V in build 535 0.12 / 0.75 / 0.96 / 0.75 / 0.84 / 0.60 %, **now 0.08 / 0.43 / 0.61 / 0.61 /
+  0.51 / 0.33** (today's default 0.96 / 3.52 / 2.61 / 2.77 / 2.61 / 2.70; the surface blocks
+  0.04 / 0.12 / 0.11 / 0.09 / 0.10 / 0.12; no mosaic 0.03 / 0.22 / 0.22 / 0.22 / 0.18 / 0.10).
+  Turn / walk / strafe with one of the two: soft edges 0.64 / 0.85 / 0.78, multisampling 0.54 /
+  0.72 / 0.74. Tried and dropped (with both on unless said): the block's middle on the surface's
+  own plane, its normal from the depth round the pixel (the same flicker, but whole blocks flip
+  together: 0.88 / 1.09 / 0.99 alone, 0.50 / 0.68 / 0.79 with both); a 2x2 mean 0.47 / 0.60 /
+  0.73; a gentle blur (`prefilter` 0.5) 0.49 / 0.61 / 0.75; soft edges of 2 px 0.44 / 0.63 /
+  0.70. A cross-fade that blends the old cube's colours into the new (`fade_blend`) took walking
+  to 0.47, but walking you cross cells most of the time and every block goes soft while it
+  blends: there, off. Pans (`pan_frames.gd`, flip-backs a frame, saloon / street): 3.05 / 4.19 →
+  2.69 / 4.17. Cost: render CPU the same (7.96 / 4.25 ms); lavapipe's raster 1077 / 525 → 1363 /
+  825 ms (the multisampling done in software; on a card it's the card's work, Sean's F3 tells).
+  **Correction to the probe entry above:** its probe stills (judge rounds `_r9` and `_r12`, the
+  variants scored with the judge, the review sheet's V panel) were rendered before the
+  command-line fix, when `screenshots.gd --probe-mosaic` still drew the game's squared textures
+  under the probe (Settings set the switch before the tool's setter ran, so the setter did
+  nothing); renders here repeat to the pixel, and today's render of the same look differs from
+  `_r12` on 4-5 % of pixels. The walk and pan numbers were after the fix and stand (re-rendered:
+  identical). Judge v2, saloon / street: **V in build 535 0.181 / 0.341, now 0.185 / 0.341**
+  (`2026-10-05_r28`); V over the squared textures (`--probe-squares`) 0.198 / 0.281, with the two
+  fixes 0.204 / 0.309 and as steady as V now (0.47 / 0.60 / 0.63; without them 0.84 / 0.97 /
+  0.84); today's default 0.225 / 0.329; the surface blocks 0.362 / 0.284 (0.198 / 0.279 lit the
+  ordinary way). So V is the closest to the saloon painting and the furthest from the street
+  one; over the squared textures it nears M on the street, but his face loses its eyes there
+  (his squared paint under the probe's blocks; the smooth paint keeps one eye's white and iris),
+  so V stays on the smooth set. History lines `_r9`/`_r12` say so; the review sheet
+  (`docs/screenshots/review/2026-10-05_probe_mosaic.png`) is redone with V now and the corrected
+  table. Blind critic on `_r28` (`critic/critic.md`), top three: the street isn't lit by a
+  setting sun (a lavender-grey sky, its sun a small white glare by the roofs); the room behind
+  him is dim, half-empty murk; the saloon's front is in dull shade and its sign can't be read
+  (then his face, a blotchy orange smear with sleepy eyes, and the glossy, streaked table).
+  Also: `--probe-mosaic` on the command line now wins over a saved look, as `--blocks` and
+  `--quantise-once` do. Trial flags `--probe-msaa=0|2|4|8`, `--probe-soft=px`,
+  `--probe-squares`; `probe_walk.gd` `--global=`, `--msaa=`. Files: the art session's
+  `src/render/` (`probe_mosaic.gd(shader)`, mine, said here), shared `settings.gd` (the probe's
+  lines, and the command-line rule), `tools/probe_walk.gd`, `tests/test_probe_mosaic.gd`,
+  `docs/screenshots/judge/history.md` (my two lines' notes). 346 tests pass.
+- 2026-10-05 (gameplay): **Main Street to Sean's map, step 2: the street moved** (Sean: "we're
+  using the map", "up on steps" as in the street picture, "it's gotta match this art";
+  `docs/briefs/main-street.md`; the art session agreed the dressing is carried mechanically and
+  judged after). `config/town.json` (layout note above): the saloon (the real one) and the store
+  side by side on the south side (fronts z 0, the street's sunset end to the west), the barber and
+  past Market Street the hotel; the livery, the jail, the water tower behind it and the assay
+  office across; Freight Street at the east end; the range 30 m further east; the façade saloon,
+  the façade store and the eating house are gone (one saloon; the eating house isn't on the
+  map). The store is 9 m wide with the façade's GENERAL STORE look (`set`). Floors stay 0.38.
+  **Steps:** `Boardwalk.steps` (flights of blocks a riser each, members, an invisible ramp over
+  their noses for the player; with steps no ramp along the rest of the edge), each building's
+  walk with a flight; `Waypoints` go by the steps (`*_front`, `*_steps`, `*_landing`) and the
+  store's and saloon's porches join along the walk; `Waypoints._walkable` also refuses a sudden
+  rise in the ground (`STEP_UP` 0.25), so the player is routed by the steps (townsfolk could
+  step the edge; they're routed the same). The gang rides in from x −50. A harassing man has
+  something to say soon after he arrives (the drink's quiet doesn't carry over: the store is next
+  door now). **Art's files, agreed with it** (said here): `src/art/street_dressing.gd` (façades and
+  their walks from the layout; its old-coordinate tables carried with each building,
+  `TownLayout.carry`; whatever would stand on steps or in a doorway left out, folk moved aside
+  against the wall, `on_steps`, `out_of_doorway`, `post_of`), `src/art/shot_match.gd` (the set in
+  the saloon's space: `TABLE_IN_SALOON`, `ROOM_YAW_IN_SALOON`); gameplay's `street_scenery.gd`
+  lost its M0 props and fence (the fence stood in the saloon). Shared `tools/screenshots.gd` (my
+  lines: `_view_move`, the store's, saloon's and range's views move with them). Tests placed
+  relative to what they test (town day, gun range, outlaw tactics, dynamite: thrown from the walk
+  beside the store's door, it sailed in at the door from in front of it), `test_steps` (4). All
+  goldens re-approved. 350 tests pass. For the art session (told): the saloon's door faces north
+  now (the moon's arc is on the other side: `moon_tilt_degrees` −78), the dressing to lay out
+  again in each building's space, StreetMatch's framing, the backdrop and ground pushed out.
+  - Next: step 3, the telegraph, doctor and bank, the well behind the jail (a water source), the
+    corral.
+
+- 2026-10-05 (gameplay): **What hangs on a wall comes down with it** (Sean: "have we fixed lamps
+  and stuff floating in air after the wall they were attached to burn down?"). `Fittings` (layout
+  note above, a node at the end of `scenes/test_street.tscn`): 146 fittings in the street (22
+  sconces, the bottles and lamps of the back bar, pictures, the stag, chairs and tables on floors,
+  barrels and lanterns on the walks, the porch lanterns), none falling at load; with every member
+  of the saloon burnt away, 68 come down, none under the ground. A lit lamp landing hard smashes
+  and spills its oil, so a burning building's lamps spread its fire. Tests `test_fittings` (3: a
+  lit lamp on a wall falls when the board goes, breaks and spills; a barrel on the ground is left
+  alone; the street's lamps and sconces are found). `test_dynamite`'s throw at the store now asks
+  that it lands at the front and breaks things there: on the raised walk the siding breaks or not
+  by where the stick comes to rest (0 to 23 timber in trials, with or without fittings; the
+  siding's own test covers the boards). Merged with step 2 (both moved the same goldens): from
+  two full `--fresh` runs, `porch_collapse` re-approved (it lands differently with what was on it
+  falling too), `store_fire_later`, `texel_porch` and `outlaw_open_close` (a hair past their
+  tolerance on the new street) and `gun_smoke_saloon` (its smoke flapped between the two runs:
+  tolerance from that, mean 14.7); every view passes against both runs; visual checks 367, none
+  failed. 353 tests pass.
+  - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
+    when it does; a fallen lamp's light stays lit unless it breaks.
 - 2026-10-06 (art session): **The saloon's front to the street painting, on the branch, not merged**
   (Sean: "it's not just the pixels, it's the buildings' textures and detail"; then "keep working
   the wood", "get the saloon perfect", "ruts and windows"). `FacadeArt` (`src/art/facade_art.gd`,

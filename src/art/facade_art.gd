@@ -39,7 +39,7 @@ const CREST_WIDTHS := [3.2, 2.3, 1.4]
 
 
 static func dress(b: FalseFrontBuilding) -> void:
-	var style: String = b.get_meta(&"facade", "")
+	var style: String = b.facade if not b.facade.is_empty() else b.get_meta(&"facade", "")
 	if style.is_empty():
 		return
 	var bt := FalseFrontBuilding.BOARD_T
@@ -47,7 +47,7 @@ static func dress(b: FalseFrontBuilding) -> void:
 		_corners(b, bt)
 		_cornice(b, bt)
 		_sign(b, bt, style == "saloon")
-	_door(b, bt)
+	_door(b, bt, style)
 	if b.front_windows:
 		_windows(b, bt)
 	if b.porch:
@@ -63,17 +63,54 @@ static func _front(b: FalseFrontBuilding, path: String, kind: StringName, wood: 
 			Vector3((x0 + x1) * 0.5, (y0 + y1) * 0.5, -(d0 + d1) * 0.5))
 
 
-## Square timber posts up both front corners to the cornice, standing on the ground.
+## Square timber posts up both front corners to the cornice, standing on the ground. Nothing of the
+## front reaches past its ends: on the street the buildings stand wall to wall, and a part inside
+## the neighbour's timbers threw its rubble about.
 static func _corners(b: FalseFrontBuilding, bt: float) -> void:
 	var top := b.front_height - 0.3
-	_front(b, "facade/corner0", &"post", TIMBER, -0.1, POST - 0.1, 0.0, top, 0.0, POST - 0.06)
-	_front(b, "facade/corner1", &"post", TIMBER, b.width - POST + 0.1, b.width + 0.1, 0.0, top, 0.0, POST - 0.06)
+	_front(b, "facade/corner0", &"post", TIMBER, 0.0, POST, 0.0, top, 0.0, POST - 0.06)
+	_front(b, "facade/corner1", &"post", TIMBER, b.width - POST, b.width, 0.0, top, 0.0, POST - 0.06)
+
+
+## True when a flight of steps up to this building's walk (config/town.json: a walk laid out in
+## its space, or its own entry's `steps`) comes up between x0 and x1 along its front.
+static func _steps_between(b: FalseFrontBuilding, x0: float, x1: float) -> bool:
+	var nodes := TownLayout.nodes()
+	var flights: Array = []
+	for path: String in nodes:
+		var e: Dictionary = nodes[path]
+		if path == String(b.name) or path == "StreetDressing/%s" % b.name:
+			flights.append_array(e.get("steps", []))
+		elif e.get("in", "") == String(b.name):
+			var sets: Dictionary = e.get("set", {})
+			var at: Array = e.get("at", [0, 0, 0])
+			for st: Array in sets.get("steps", []):
+				flights.append([float(st[0]) + float(at[0]), st[1]])
+	for st: Array in flights:
+		var half := float(st[1]) * 0.5 + 0.1
+		if float(st[0]) + half > x0 and float(st[0]) - half < x1:
+			return true
+	return false
+
+
+## A member of the building made over before its supports are worked out: a new size and place, in
+## another wood.
+static func _resize(b: FalseFrontBuilding, m: StructureMember, size: Vector3, at: Vector3, wood: StringName) -> void:
+	m.size = size
+	m.position = at
+	m.wood = wood
+	for c in m.get_children():
+		if c is MeshInstance3D:
+			(c as MeshInstance3D).mesh = b._box_mesh(size)
+			(c as MeshInstance3D).material_override = WoodMaterials.get_material(wood, hash(m.member_id))
+		elif c is CollisionShape3D:
+			(c as CollisionShape3D).shape = b._box_shape(size)
 
 
 ## A deep cornice over the old one, on brackets every 0.8 m.
 static func _cornice(b: FalseFrontBuilding, bt: float) -> void:
 	var h := b.front_height
-	_front(b, "facade/cornice", &"trim", TIMBER, -0.28, b.width + 0.28, h - 0.46, h - 0.06, bt, bt + 0.34)
+	_front(b, "facade/cornice", &"trim", TIMBER, 0.0, b.width, h - 0.46, h - 0.06, bt, bt + 0.34)
 	var n := maxi(int(b.width / 0.8), 2)
 	for i in n + 1:
 		var x := lerpf(0.25, b.width - 0.25, float(i) / n)
@@ -103,7 +140,7 @@ static func _sign(b: FalseFrontBuilding, bt: float, framed: bool) -> void:
 	var cx := b.width * 0.5
 	var y0 := bottom + frame + (room.y - size.y) * 0.5
 	var x0 := cx - size.x * 0.5
-	var panel := _front(b, "facade/sign", &"board", SIGN if framed else BOARDS, x0, x0 + size.x, y0, y0 + size.y, bt,
+	var panel := _front(b, "facade/sign", &"trim", SIGN if framed else BOARDS, x0, x0 + size.x, y0, y0 + size.y, bt,
 			bt + (0.04 if framed else 0.012))
 	if tex:
 		_letter(panel, tex, size)
@@ -254,20 +291,27 @@ static func _drawn(id: StringName) -> Texture2D:
 
 
 ## A heavy surround on the door: wide jambs and a deep head over the old trim.
-static func _door(b: FalseFrontBuilding, bt: float) -> void:
+static func _door(b: FalseFrontBuilding, bt: float, style: String) -> void:
 	var o := b.door_rect
 	var jamb := 0.24
 	var d1 := bt + 0.11
 	_front(b, "facade/door/jamb0", &"trim", TIMBER, o.position.x - jamb, o.position.x, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/jamb1", &"trim", TIMBER, o.end.x, o.end.x + jamb, o.position.y, o.end.y, bt, d1)
 	_front(b, "facade/door/head", &"trim", TIMBER, o.position.x - jamb - 0.1, o.end.x + jamb + 0.1, o.end.y, o.end.y + 0.3, bt, d1 + 0.04)
+	# A saloon's front has batwings: the building's own (members) on a street front nobody goes into,
+	# or drawn ones a man walks through on a saloon people come and go by (the gang couldn't get
+	# past solid leaves).
+	if not b.batwings and style == "saloon":
+		_open_batwings(b)
 	# Through the door, a lamp hung in the room, as the painting shows one past the batwings; the
 	# open door leaf in dark wood so the doorway reads dark behind the batwings.
-	if b.batwings:
+	if b.batwings or style == "saloon":
 		for i in 2:
 			var door := b.get_member(StringName("%s/front/door%s" % [b.structure_id, "" if i == 0 else str(i)]))
 			if door:
 				(door.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(&"dark_trim", 0)
+		if b.furnished:
+			return  # its own room's lamps are inside
 		var lamp := OilLamp.new()
 		lamp.name = "DoorwayLamp"
 		lamp.hanging = true
@@ -311,6 +355,22 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 				(leaf.get_child(0) as MeshInstance3D).material_override = slats
 
 
+## Batwings drawn in the doorway with nothing to bump into: two slatted leaves meeting in the middle,
+## chest high, where FalseFrontBuilding._build_batwings hangs its own.
+static func _open_batwings(b: FalseFrontBuilding) -> void:
+	var o := b.door_rect
+	var half := o.size.x * 0.5 - 0.01
+	var slats := WoodMaterials.get_material(&"batwing_slats", 0)
+	for i in 2:
+		var x0 := o.position.x + 0.005 if i == 0 else o.get_center().x + 0.005
+		var leaf := MeshInstance3D.new()
+		leaf.name = "Batwing%d" % i
+		leaf.mesh = MemberMesh.box(Vector3(half, 1.15, 0.03))
+		leaf.material_override = slats
+		leaf.position = Vector3(x0 + half * 0.5, b.floor_top + 0.4 + 0.575, 0.02)
+		b.add_child(leaf)
+
+
 ## The two front windows in thick frames of warm brown wood (the painting's are brown, not the posts'
 ## pale timber), with glazing bars: two panes across, four up.
 static func _windows(b: FalseFrontBuilding, bt: float) -> void:
@@ -346,15 +406,24 @@ static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 static func _porch(b: FalseFrontBuilding) -> void:
 	var w := b.width
 	var zb := -b.porch_depth
-	var beam_y := 3.0  # the old beam's underside (FalseFrontBuilding._build_porch)
-	var xs: Array[float] = [0.12, w - 0.12]
+	var beam_y := b.porch_height  # the old beam's underside (FalseFrontBuilding._build_porch)
+	var xs: Array[float] = [POST * 0.5, w - POST * 0.5]  # inside the front's ends: the next building stands flush
 	var between := maxi(int(round(w / 3.2)) - 1, 0)
 	for i in between:
-		xs.insert(xs.size() - 1, lerpf(0.12, w - 0.12, float(i + 1) / (between + 1)))
+		xs.insert(xs.size() - 1, lerpf(POST * 0.5, w - POST * 0.5, float(i + 1) / (between + 1)))
 	for i in xs.size():
 		var x: float = xs[i]
-		b.add_member("facade/porch/post%d" % i, &"post", TIMBER, Vector3(POST, beam_y - 0.02, POST),
-				Vector3(x, (beam_y - 0.02) * 0.5, zb))
+		var size := Vector3(POST, beam_y - 0.02, POST)
+		var at := Vector3(x, (beam_y - 0.02) * 0.5, zb)
+		# The building's own posts at the ends are made thick in place (one post, the one a bullet or
+		# F11 finds); the ones between are the façade's.
+		var own := b.get_member(StringName("%s/porch/post%d" % [b.structure_id, 0 if i == 0 else 1])) \
+				if i == 0 or i == xs.size() - 1 else null
+		if own:
+			# Up to the beam's underside, as the post it was: the porch's beam stands on it.
+			_resize(b, own, Vector3(POST, beam_y, POST), Vector3(x, beam_y * 0.5, zb), TIMBER)
+		else:
+			b.add_member("facade/porch/post%d" % i, &"post", TIMBER, size, at)
 		for s: float in [-1.0, 1.0]:
 			if (i == 0 and s < 0.0) or (i == xs.size() - 1 and s > 0.0):
 				continue
@@ -364,7 +433,7 @@ static func _porch(b: FalseFrontBuilding) -> void:
 			var basis := Basis(Vector3.BACK, s * PI * 0.25)
 			b.add_member("facade/porch/brace%d_%d" % [i, 0 if s < 0.0 else 1], &"trim", TIMBER,
 					Vector3(length, BRACE, BRACE), c, basis)
-	b.add_member("facade/porch/beam", &"beam", TIMBER, Vector3(w + 0.36, 0.28, 0.26),
+	b.add_member("facade/porch/beam", &"beam", TIMBER, Vector3(w, 0.28, 0.26),
 			Vector3(w * 0.5, beam_y + 0.12, zb))
 	# Under the roof, as the painting's porch shows it lit by the lanterns: a heavy beam along the
 	# wall and joists from it out to the porch beam over every post and half way between.
@@ -378,7 +447,7 @@ static func _porch(b: FalseFrontBuilding) -> void:
 			joists.append((xs[i] + xs[i + 1]) * 0.5)
 	var reach := -zb - bt - 0.14 - 0.13  # from the wall beam's face to the porch beam's back
 	for i in joists.size():
-		b.add_member("facade/porch/joist%02d" % i, &"beam", TIMBER, Vector3(0.11, 0.16, reach),
+		b.add_member("facade/porch/joist%02d" % i, &"trim", TIMBER, Vector3(0.11, 0.16, reach),
 				Vector3(joists[i], beam_y + 0.12, -bt - 0.14 - reach * 0.5))
 	# A railing between the posts at hip height, top rail and bottom rail on short balusters,
 	# left open before the door (the painting's porch has one along its front).
@@ -388,6 +457,8 @@ static func _porch(b: FalseFrontBuilding) -> void:
 		var x1: float = xs[i + 1] - POST * 0.5
 		if x1 > door.position.x - 0.3 and x0 < door.end.x + 0.3:
 			continue
+		if _steps_between(b, x0, x1):
+			continue  # the way up from the street
 		var z := zb + 0.02
 		b.add_member("facade/porch/rail%d_top" % i, &"trim", TIMBER, Vector3(x1 - x0, 0.08, 0.1),
 				Vector3((x0 + x1) * 0.5, b.floor_top + RAIL_Y, z))
@@ -416,5 +487,5 @@ static func _porch(b: FalseFrontBuilding) -> void:
 	# A deep fascia along the porch roof's front edge, against the rafters' ends (the roof's
 	# boards start 0.3 m out past the beam).
 	var edge := zb - 0.3
-	b.add_member("facade/porch/fascia", &"board", TIMBER, Vector3(w + 0.4, 0.3, 0.05),
+	b.add_member("facade/porch/fascia", &"board", TIMBER, Vector3(w, 0.3, 0.05),
 			Vector3(w * 0.5, beam_y + 0.2, edge - 0.025))

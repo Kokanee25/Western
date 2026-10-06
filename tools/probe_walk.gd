@@ -9,6 +9,8 @@ extends SceneTree
 ##       [--probe-bands=n] [--no-mosaic] [--quantise-once] [--blocks] [--size=1280x720] [--frames=1.0]
 ## (--blocks is Settings' own: the surface-blocks look.) --probe-param=name:value,... sets the probe
 ## shader's uniforms for the run (dark_weight, samples, near_screen...).
+## --global=name:value,... sets shader globals (block_soft...) and --msaa=N the game viewport's
+## multisampling, for trials.
 ## --frames scales every path's frame count (0.5 = a quick look). Writes DIR/<path>_<nnn>.png and
 ## DIR/poses.json (each frame's camera, the probe's origin and how far its blocks have crossed).
 ## Untyped where it names the game's classes: -s scripts compile before the autoloads exist.
@@ -30,6 +32,10 @@ var face_key := 0.0
 ## serves every look's run.
 var depth_pass := false
 var probe_params := {}
+## --global=name:value,...: shader globals set for the run (block_soft, ...), after the look's own.
+var globals := {}
+## --msaa=2|4|8: the game viewport's multisampling for the run (0: as the game sets it).
+var msaa := 0
 
 
 func _initialize() -> void:
@@ -50,6 +56,13 @@ func _initialize() -> void:
 			face_key = float(a.substr(11))
 		elif a == "--depth-pass":
 			depth_pass = true
+		elif a.begins_with("--global="):
+			for kv in a.substr(9).split(","):
+				var gp := kv.split(":")
+				if gp.size() == 2:
+					globals[StringName(gp[0])] = float(gp[1])
+		elif a.begins_with("--msaa="):
+			msaa = int(a.substr(7))
 		elif a.begins_with("--probe-param="):
 			for kv in a.substr(14).split(","):
 				var parts := kv.split(":")
@@ -125,6 +138,10 @@ func _run() -> void:
 	if pm:
 		for k in probe_params:
 			(pm.material_override as ShaderMaterial).set_shader_parameter(k, probe_params[k])
+	for k in globals:
+		RenderingServer.global_shader_parameter_set(k, globals[k])
+	if msaa > 0:
+		viewport.msaa_3d = {2: Viewport.MSAA_2X, 4: Viewport.MSAA_4X, 8: Viewport.MSAA_8X}.get(msaa, Viewport.MSAA_4X)
 	# Settle the probe at the shot's eye before the first path.
 	cam.global_transform = _looking(eye, look)
 	for i in 20:

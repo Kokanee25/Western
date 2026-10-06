@@ -62,6 +62,8 @@ const BOLD_SEAM_PX := 1.3
 ## 0: smooth light on the blocks (each block flat, lit at its centre, so the light still steps
 ## square by square); the judge preferred it to 8 or 12 bands (rings on the table).
 const LIGHT_BANDS := 0.0
+## Soft texel edges under the probe mosaic (see probe_mosaic below): 2 did no better.
+const PROBE_SOFT := 1.0
 const QUANTISE_TUNING := {
 	"depth_power": 0.5, "soft": 0.5, "average": 1.0, "dark_weight": 2.0,
 	"block_in": 4.0, "block_out": 6.0,
@@ -88,11 +90,17 @@ var surface_blocks := false
 ## turns those on with it, and the surface blocks off). probe_texels: texels a cube face (384:
 ## 3.3 px blocks at the saloon shot's lens, 1280x720); probe_cell: metres between origins;
 ## probe_bands: OKLab light bands (0: smooth light; 14 bands made a block near a band's edge flip
-## as you moved: four times the flicker, tools/probe_walk.py stability).
+## as you moved: four times the flicker, tools/probe_walk.py stability). Under it the textures'
+## texel edges are soft (PROBE_SOFT render pixels of blend) and the frame is multisampled
+## (ProbeMosaic.MSAA): it re-reads the frame at each block's middle, and a texel edge or an
+## outline that jumps a pixel there makes the whole block jump; the two together took its
+## flicker down by a third to two fifths.
 var probe_mosaic := false
 var probe_texels := 384.0
 var probe_cell := 0.5
 var probe_bands := 0.0
+## Its soft texel edges (PROBE_SOFT; --probe-soft=px on the command line for a trial).
+var probe_soft := PROBE_SOFT
 ## The quantise-once and surface-blocks switches as they were when V turned the probe on.
 var _look_before_probe := {}
 ## Degrees of turn per mouse count.
@@ -131,6 +139,11 @@ func _ready() -> void:
 		for a in args:
 			if a.begins_with("--probe-bands="):
 				probe_bands = float(a.substr(14))
+			elif a.begins_with("--probe-soft="):
+				probe_soft = float(a.substr(13))
+		# A trial: the probe over the game's own squared textures, not the smooth set.
+		if "--probe-squares" in args:
+			quantise_once = false
 	load_from_disk()
 	_protect_speakers()
 
@@ -172,6 +185,7 @@ func reset_to_defaults() -> void:
 	probe_texels = 384.0
 	probe_cell = 0.5
 	probe_bands = 0.0
+	probe_soft = PROBE_SOFT
 	_look_before_probe = {}
 	_apply_quantise()
 	_apply_texels()
@@ -216,9 +230,10 @@ func load_from_disk() -> void:
 	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
 	if not tile_look in TILE_LOOKS:
 		tile_look = &"square"
-	if not ("--blocks" in OS.get_cmdline_user_args() or "--quantise-once" in OS.get_cmdline_user_args()):
+	# A look asked for on the command line wins over the file's.
+	var asked := OS.get_cmdline_user_args()
+	if not ("--blocks" in asked or "--quantise-once" in asked or "--probe-mosaic" in asked):
 		quantise_once = cfg.get_value("video", "quantise_once", quantise_once)
-	if not ("--blocks" in OS.get_cmdline_user_args() or "--quantise-once" in OS.get_cmdline_user_args()):
 		surface_blocks = cfg.get_value("video", "surface_blocks", surface_blocks)
 	_apply_quantise()
 	_apply_texels()
@@ -300,6 +315,7 @@ func set_probe_mosaic(on: bool) -> void:
 			surface_blocks = was["surface_blocks"]
 			set_quantise_once(was["quantise_once"])
 			return
+	_apply_tiles()
 	_changed()
 
 
@@ -350,7 +366,7 @@ func tile_globals() -> Dictionary:
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
 			&"min_square_px": BOLD_MIN_SQUARE_PX if surface_blocks else 0.0 if quantise_once else MIN_SQUARE_PX,
-			&"block_soft": BLOCK_SOFT if surface_blocks else 0.0,
+			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else 0.0),
 			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
 			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
 

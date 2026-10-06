@@ -12,6 +12,12 @@ const SHADER := preload("res://src/render/probe_mosaic.gdshader")
 const FADE_SECONDS := 0.33
 ## How quickly the measured speed follows the camera (seconds).
 const SPEED_SMOOTHING := 0.05
+## The game viewport's multisampling while it's on: the blocks take their colour from the frame at
+## their middles, and an outline's stair-step there makes a whole block flip as you move; with the
+## outlines anti-aliased the colour slides instead (a quarter less flicker turning and walking,
+## tools/probe_walk.py stability). What the viewport had before is put back when it goes.
+## --probe-msaa=0|2|4|8 on the command line asks for another (a trial flag, for the tools).
+const MSAA := Viewport.MSAA_4X
 
 ## Metres between the grid points the origin snaps to.
 var cell := 0.5
@@ -27,15 +33,23 @@ var _last := Vector3.INF
 static func apply(camera: Camera3D, on: bool, texels: float, cell_m: float, bands: float) -> void:
 	if camera == null:
 		return
+	var vp := camera.get_viewport()
 	if on and RenderingServer.get_current_rendering_method() != "gl_compatibility":
 		var old := camera.get_node_or_null(^"DepthMosaic")
 		if old != null:
 			old.queue_free()
 		attach(camera, texels, cell_m, bands)
+		var want := msaa_wanted()
+		if vp != null and vp.msaa_3d != want and not vp.has_meta(&"msaa_before_probe"):
+			vp.set_meta(&"msaa_before_probe", vp.msaa_3d)
+			vp.msaa_3d = want
 	else:
 		var m := camera.get_node_or_null(^"ProbeMosaic")
 		if m != null:
 			m.queue_free()
+		if vp != null and vp.has_meta(&"msaa_before_probe"):
+			vp.msaa_3d = vp.get_meta(&"msaa_before_probe")
+			vp.remove_meta(&"msaa_before_probe")
 
 
 static func attach(camera: Camera3D, texels: float, cell_m: float, bands: float) -> ProbeMosaic:
@@ -51,6 +65,20 @@ static func attach(camera: Camera3D, texels: float, cell_m: float, bands: float)
 	mat.set_shader_parameter(&"texels", texels)
 	mat.set_shader_parameter(&"bands", bands)
 	return m
+
+
+## The multisampling it puts on the viewport: MSAA, unless the command line asks otherwise.
+static func msaa_wanted() -> Viewport.MSAA:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--probe-msaa="):
+			match int(a.substr(13)):
+				0:
+					return Viewport.MSAA_DISABLED
+				2:
+					return Viewport.MSAA_2X
+				8:
+					return Viewport.MSAA_8X
+	return MSAA
 
 
 ## The grid point nearest `at` (the cube's origin while the camera is within half a cell of it).

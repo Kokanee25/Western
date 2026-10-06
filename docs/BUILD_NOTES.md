@@ -6,6 +6,48 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: what hangs on a wall comes down with it
+
+- **Lamps, signs and everything else fall when what holds them goes.** A sconce on a wall, a
+  picture, the stag, the bottles on the back bar, a lantern on a post, a lamp on a table, a chair
+  on a floor, a barrel on a boardwalk: when the boards they're on burn away or are blown out, they
+  drop (no more lamps hanging in the air over the ashes). Whatever stood on a fallen thing follows
+  it. A lit lamp that lands hard breaks and spills its burning oil, so a burning building's lamps
+  spread its fire.
+- **Try:** at night, light the saloon's back wall (L where you look) and watch its sconces as the
+  boards go; or blow a hole in the store's wall by its lamp.
+
+### New: Main Street laid out to your map
+
+- **The street is your map's now.** Looking west down Main Street into the sunset: on the left
+  the saloon (the real one, with its room) nearest the east end, then the general store beside it,
+  the barber, and past Market Street the hotel; on the right the livery, the jail with the water
+  tower in the yard behind it, and the assay office. One saloon now (the second one's gone).
+  Freight Street crosses at the east end, where you start; the range is out past it.
+- **Up on steps.** Every boardwalk stands up off the street with a flight of steps down to it;
+  you and the townsfolk go up and down by the steps (the edge elsewhere is too high to walk up).
+  The store's and the saloon's walks join, so you can walk from one door to the other.
+- Not there yet: the telegraph office, the doctor and the bank (next), the cross streets, the
+  dressing laid out for the new street (the art session is on it: some barrels and horses are
+  where they were round each building), the street picture's view, the moon in the saloon's door.
+- **Try:** start, walk west up Main Street, go up the store's steps and into the store, along the
+  walk to the saloon, and in for a drink. Press **U** to bring the gang in: they ride in from the
+  west, drink at the saloon and lean on the storekeeper next door. Tell me how the street's size
+  feels against the map.
+### Changed: the V look flickers less
+
+- **V (the blocks fixed to the world) now steadies the picture it cuts up**: the game smooths
+  the jagged outlines (multisample anti-aliasing) and softens the textures' square edges by a
+  pixel before V cuts the frame into blocks. In my measurements here it flickers about a third
+  to two fifths less as you turn, walk and circle, and five to eight times less than today's look.
+- **Try:** press **V** in the saloon at night, stand by the card table and turn slowly, then walk
+  round the table and up to the man. Watch the floor boards, the bottles behind the bar and the
+  men's outlines: they were where it shimmered. Then press **F3** and send me the photo: the
+  smoothing is your graphics card's work, and I can't measure that here.
+- **A correction:** I said V and M tie against the street painting. V's street numbers came
+  from renders made before a fix, over the wrong textures. Against the street painting V
+  actually comes last of the three looks; against the saloon painting it's still the closest.
+
 ### New: the townsfolk carry water
 
 - **Once they've got clear of a fire, townsfolk fight it.** If there's a trough near it, up to
@@ -77,7 +119,7 @@ same body.
   room.
 - **What I found here** (rendered in software, not on your card): V is three to five times
   steadier than today's look and M much steadier still (steadier than no mosaic at all). Against
-  the paintings V scores best in the saloon and the two tie on the street. M in this build blows
+  the paintings V scores best in the saloon and M best on the street (corrected since). M in this build blows
   out the lamp's pool of light on the table (its own lighting: the art session's to fix); lit the
   game's ordinary way it ties V there too. V puts blocks on everything, the man's face included,
   and steps every outline the way the painting does, but its outlines and glints flicker a
