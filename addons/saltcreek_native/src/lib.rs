@@ -15,6 +15,7 @@ pub mod carve;
 pub mod member;
 pub mod mesh;
 pub mod pool;
+pub mod smoke;
 pub mod volume;
 pub mod voxel;
 

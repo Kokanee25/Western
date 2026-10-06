@@ -72,12 +72,12 @@
   "share": 0.01
  },
  "gun_smoke_saloon": {
-  "mean": 4.71,
+  "mean": 8.352,
   "noise": {
-   "mean": 1.57,
-   "share": 0.0089
+   "mean": 2.784,
+   "share": 0.0348
   },
-  "share": 0.0268
+  "share": 0.1044
  },
  "holes_from_inside": {
   "mean": 1.5,
@@ -440,28 +440,28 @@
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 34.839,
+  "mean": 15.653,
   "noise": {
-   "mean": 11.613,
-   "share": 0.1765
+   "mean": 5.218,
+   "share": 0.1216
   },
-  "share": 0.5294
+  "share": 0.3648
  },
  "store_fire_later": {
-  "mean": 7.224,
+  "mean": 1.649,
   "noise": {
-   "mean": 2.408,
-   "share": 0.0369
+   "mean": 0.55,
+   "share": 0.0127
   },
-  "share": 0.1107
+  "share": 0.0381
  },
  "store_fire_night": {
-  "mean": 6.37,
+  "mean": 1.885,
   "noise": {
-   "mean": 2.123,
-   "share": 0.0328
+   "mean": 0.628,
+   "share": 0.015
   },
-  "share": 0.0983
+  "share": 0.045
  },
  "store_front_noon": {
   "mean": 1.5,
