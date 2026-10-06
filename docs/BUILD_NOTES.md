@@ -6,6 +6,20 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: smoke that knows the buildings
+
+- **A fire's smoke now behaves round buildings.** It rises, gathers in a layer under a porch roof,
+  runs along under it to the edge, rolls out and climbs, and the wind leans it over. Inside, a
+  room fills from the ceiling down, and the smoke comes out of the top of the doorway and the
+  broken windows.
+- **Try:** at 16:00 stand in the street a few metres off the telegraph and light two boards of
+  its front low down (L where you look). Hold still: after half a minute the smoke is thick under
+  its porch, spreading along under the barber's, and rising past the edge in front of the sign.
+- **Its look is a first pass.** The art session will give it the painting's warm, sunlit look;
+  for now it's a dull grey-brown. Tell me how it moves, and what it looks like on your PC (F3: does
+  the frame time move when a building's alight?).
+- Not on the web build (no volumetric fog there): the old particle smoke.
+
 ### New: a bucket brigade
 
 - **The townsfolk fight a fire in a line now.** Anyone who sees a fire within 30 m comes to fight
