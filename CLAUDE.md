@@ -3319,3 +3319,45 @@ a few views renders them as the full run does.
   knuckles are plain prisms beside his modelled hand; the joint finder expects an A-pose. Files:
   `tools/blender/fit_tripo.py`, `assets/people/people.json`, `assets/people/stranger2*`. Body
   tests pass (21).
+- 2026-10-06 (characters session, later): **The Rodin man repainted in our style.** Sean, on
+  him: "he looks fantastic - but he's not our art style". His shape is right, but his skin is a
+  photo, and the mosaic only cuts the photo into squares. `head_paint.py` now paints the whole
+  man, not just his head:
+  - A Rodin man (`load_man`) is turned into Tripo's frame. A character with `body` words in
+    `characters.json` gets six full-length views as well as the head's six.
+  - The guides can be lit evenly (`head.guide_light`).
+  - The body's views keep closer to their guides (`STRENGTH_BODY` 0.5). At the head's 0.68 the
+    painter lengthened his coat to the knee, added a belt and tall boots, and drew his back as a
+    vest (run 50).
+  - The bake lays the body views on everything below the head; texels no view saw keep the
+    model's colour.
+  - `bake: {"squares": false}` keeps the painter's own squares: no squares of ours over them and
+    no palette. Ours misaligned his, and the 40-colour palette cut his face into flat bands.
+    Averaging into the painting's 7 mm squares lost his eyes: the painting draws its eyes finer
+    than its squares, as the painter does.
+  - The fit keeps a repaint's size when it's smaller than the model's texture.
+  - `--square-mm=`, `--square-body-mm=`, `--colours=` for trying others.
+  - Checked: baking the guides themselves gives his own atlas back, and the stranger's head
+    guides are unchanged.
+
+  People runs 50 (head and body, ~$0.35) and 51 (the body again, ~$0.22). Every head view came
+  back in the painting's style: about 26 squares across his face (the painting's man has ~19),
+  eyes drawn finer with their whites, the checkered band, bold brows and moustache.
+
+  On him in the saloon shot, the repaint shows best in the M look (surface blocks): a drawn face,
+  brows, eye whites and moustache, collar and tie. Under the game's default mosaic the mosaic
+  smears the drawing and he goes darker. Judge v2 (scored here, no round written), game's look /
+  M: as made 0.258 / 0.392; repainted with our squares 0.228 / 0.384; repainted plain 0.239 /
+  0.395 (M's numbers carry its blown lamp pool on the table).
+
+  Known:
+  - his eyes sit in the brim's shadow in the game's look (the shot's head pose was fitted to
+    today's stranger, in `ShotMatch`, the art session's);
+  - the coat still runs a little long in the front painting;
+  - one painting has taller boots;
+  - he's still one shell.
+
+  Files: `tools/characters/head_paint.py`, `characters.json`, `tools/blender/fit_tripo.py`,
+  `.github/workflows/people.yml` (the head job's words), `assets/people/stranger2*`,
+  `assets/people/tripo/stranger2_*`, `docs/screenshots/tripo/stranger2_*_views.png`. Body tests
+  pass (21).

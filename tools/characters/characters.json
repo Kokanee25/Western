@@ -107,6 +107,9 @@
     "looks": "a brown felt hat with a checkered band, a cream shirt buttoned to the collar, a dark neckerchief, a patterned brown vest with a row of buttons, a short weathered brown wool sack coat that ends at his hips with wide lapels, no belt showing, plain brown trousers below the coat worn loose over short brown boots",
     "light": "soft even light",
     "back": "seen from directly behind, his back to the viewer, the back of his short brown coat with its sleeves down to his wrists"
+   },
+   "bake": {
+    "squares": false
    }
   }
  }

@@ -544,14 +544,20 @@ def in_squares(sheet, mask, pos, uv, tris, size, square_m, colours, what):
         squared = np.repeat(np.repeat(mean, sq, axis=0), sq, axis=1)
         inside = np.repeat(np.repeat(count.sum(axis=(1, 3)) > 0, sq, axis=0), sq, axis=1)
         sheet[:hs, :hs][inside] = squared[inside]
-    ty, tx = np.nonzero(mask)
-    sheet[ty, tx] = palette(sheet[ty, tx], colours)
+    if colours:
+        ty, tx = np.nonzero(mask)
+        sheet[ty, tx] = palette(sheet[ty, tx], colours)
 
 
 def bake(cid):
     from scipy import ndimage
     pos, nrm, uv, tris, colour = load_man(cid)
     head = head_spec(cid)[0]
+    # A character whose bake keeps the painter's own squares (characters.json `bake`: {"squares":
+    # false}): no squares of ours over them and no palette, as --smooth, written as his texture.
+    # The Rodin stranger's: our squares over the painter's misaligned them, and the palette cut
+    # his face into flat bands (2026-10-06).
+    plain = SMOOTH or not json.load(open(SPEC))["characters"].get(cid, {}).get("bake", {}).get("squares", True)
     htris = head_triangles(pos, tris, head.get("cut"))
     size = min(colour.width, BAKE_MAX)
     base = colour if colour.width == size else colour.resize((size, size), Image.LANCZOS)
@@ -570,7 +576,7 @@ def bake(cid):
     sheet[ty, tx] = rgb
     _d, (iy, ix) = ndimage.distance_transform_edt(~known, return_indices=True)
     sheet = sheet[iy, ix]
-    if not SMOOTH:
+    if not plain:
         in_squares(sheet, mask, pos, uv, htris, size, SQUARE_M, COLOURS, "head")
     out[ty, tx] = sheet[ty, tx]
     if body_spec(cid)[0] is not None:
@@ -584,7 +590,7 @@ def bake(cid):
             bmask = np.zeros((size, size), dtype=bool)
             bmask[by, bx] = True
             bmask[ty, tx] = False      # a texel in both (a seam's edge) stays the head's
-            if not SMOOTH:
+            if not plain:
                 in_squares(sheet, bmask, pos, uv, btris, size, SQUARE_M_BODY, COLOURS_BODY, "body")
             out[bmask] = sheet[bmask]
             used += ["body " + v for v in bused]
@@ -643,12 +649,22 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
     for a in sys.argv[2:]:
-        if a.startswith("--id="):
+        # The bake's squares and palettes, to try others: --square-mm=7 --square-body-mm=10
+        # --colours=0 (no palette: each square its own shade) --colours-body=0
+        if a.startswith("--square-mm="):
+            SQUARE_M = float(a.split("=", 1)[1]) / 1000.0
+        elif a.startswith("--square-body-mm="):
+            SQUARE_M_BODY = float(a.split("=", 1)[1]) / 1000.0
+        elif a.startswith("--colours="):
+            COLOURS = int(a.split("=", 1)[1])
+        elif a.startswith("--colours-body="):
+            COLOURS_BODY = int(a.split("=", 1)[1])
+        elif a.startswith("--id="):
             cid = a.split("=", 1)[1]
         elif a.startswith("--strength="):
             strength = float(a.split("=", 1)[1])

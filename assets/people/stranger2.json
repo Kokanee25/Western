@@ -17,12 +17,12 @@
   0.263
  ],
  "texture": {
-  "from": "tripo",
+  "from": "stranger2_color.png",
   "size": [
    2048,
    2048
   ],
-  "square_texels": 2
+  "square_texels": 1
  },
  "triangles": {
   "skin": 25539,
