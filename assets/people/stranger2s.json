@@ -38,47 +38,6 @@
   0.376,
   0.298
  ],
- "piece_hair": {
-  "tones": [
-   [
-    10,
-    8,
-    6
-   ],
-   [
-    18,
-    14,
-    11
-   ],
-   [
-    25,
-    20,
-    15
-   ],
-   [
-    33,
-    26,
-    20
-   ],
-   [
-    42,
-    34,
-    25
-   ]
-  ],
-  "vertices": 4305,
-  "triangles_made": 8320,
-  "axis_z": 0.0223,
-  "top_m": [
-   1.66,
-   1.684
-  ],
-  "ends_m": [
-   1.503,
-   1.552
-  ],
-  "front_deg": 104.0
- },
  "texture": {
   "from": "stranger2s_color.png",
   "size": [
@@ -92,13 +51,6 @@
    "hair": 0.008
   },
   "shapes": {
-   "hair": {
-    "size": [
-     390,
-     381
-    ],
-    "islands": 145
-   },
    "head": {
     "size": [
      876,
@@ -115,18 +67,10 @@
    }
   },
   "texels_per_square": {
-   "hair": 3,
    "head": 6,
    "skin": 3
   },
   "inside": {
-   "hair": {
-    "detail": 0.0,
-    "clip": 40.0,
-    "soft": 0.25,
-    "calm": 0.25,
-    "sigma": 25.0
-   },
    "head": {
     "detail": 0.0,
     "clip": 40.0,
@@ -145,7 +89,6 @@
  },
  "triangles": {
   "skin": 25579,
-  "head": 5750,
-  "hair": 2400
+  "head": 5750
  }
 }

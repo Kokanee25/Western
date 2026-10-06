@@ -775,9 +775,10 @@ a few views renders them as the full run does.
   body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
   light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
   landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
-  `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives him long
+  `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives a man long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
-  brim to his collar, `body_hair` in his glb, `<id>_hair.png`). `people.json` `cells` lays his
+  brim to his collar, `body_hair` in his glb, `<id>_hair.png`); no man wears it now (on the
+  stylised stranger it looked silly, Sean). `people.json` `cells` lays his
   texture out **in whole squares** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
   plane square to the way it faces, one of six along his body's axes, in squares of 9 mm below
   the collar and 8 mm on his head and hair; islands split where a sheet folds over itself, packed
@@ -3941,3 +3942,17 @@ a few views renders them as the full run does.
   - His glb is unchanged (the layout in squares is the same, three times the texels); his
     report and three textures are new. Still on the characters branch, not on main.
   - All 362 tests pass.
+- 2026-10-06 (characters session, later): **The stylised stranger's long hair taken off.** Sean:
+  "we don't want his long hair it looked silly".
+  - `people.json`: `hair` is gone from `stranger2s`. Refitted, his glb and report have no hair
+    piece (`body_hair`, `stranger2s_hair.png` gone) and his skin and head textures are byte for
+    byte the same. He wears his own short hair from his picture again, under the brim.
+  - The `Hair` piece stays in `fit_tripo.py` as a `people.json` option for another man; no one
+    wears it now.
+  - **Other sessions' files:** `tests/test_bodies.gd` (gameplay's), the hair test I added this
+    afternoon is gone.
+  - Judge round `2026-10-06_r4` (renders in `renders/nohair/`): 0.414, with the hair 0.410. Light
+    0.757 (more of his lamplit face shows), colour 0.259 (was 0.279), squares 0.132 (was 0.142).
+  - Picture: `docs/screenshots/tripo/stranger2s_no_long_hair.png` (the shot and his head in plain
+    light, with the hair and without).
+  - Main never had the hair, so nothing changes there. All 361 tests pass.

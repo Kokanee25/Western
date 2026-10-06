@@ -65,7 +65,6 @@
    "stylise": {"from": "stranger2_rodin"},
    "tris": {"skin": 30000, "head": 10000},
    "eye_gain": 1.8,
-   "hair": true,
    "cells": true,
    "outfit": {},
    "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, short dark hair"
