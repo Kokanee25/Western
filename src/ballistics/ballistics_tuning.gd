@@ -7,6 +7,7 @@ extends Resource
 @export var resistance_by_wood := {
 	&"weathered_pine": 42.0, &"painted_ochre": 42.0, &"painted_rust": 42.0, &"sign": 42.0,
 	&"floor": 48.0, &"framing": 55.0, &"dark_trim": 70.0, &"glass": 8.0,
+	&"iron": 4000.0,  # a safe's plate: a ball flattens on it
 }
 @export var default_resistance := 120.0
 ## Bullets slower than this are spent and drop.
