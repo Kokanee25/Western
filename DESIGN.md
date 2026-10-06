@@ -290,6 +290,61 @@ come out of the story or the world, and most standoffs should have a way out tha
   two, more in act three; quiet days are for people. Standoffs that end without a shot count as
   much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
 
+### Story missions (**proposed**, Sean 2026-10-06; features are frozen until the look is right)
+Each one is a situation that comes to you as a lead (a rumour, a rider, a gunshot), not a quest
+marker. Each ends in a choice with a real cost and no clean answer, and its aftermath runs through
+systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out through people
+(who saw what, who talks, who lies), not a clue-hunting minigame.
+
+1. **The camp** (Sean's). Word reaches town that bandits killed and violated women at a camp of a
+   real nation outside town (which one fits our valley is research, done with care: see "History,
+   handled with care"). You ride out; the men were away hunting when it happened. Their people
+   are not of one mind: a war leader wants every bandit dead, an elder fears the army will come down
+   on the camp if white men die (it usually did), a husband wants only the man who did it. They send
+   trackers. The town's leaders want an arrest and quietly let you know nothing will come of it.
+   You ride with the trackers and find the bandits camped. Three ways out:
+   - **Kill them all.** The tribe's men take scalps after you turn away (never shown; the town
+     hears it as rumour). The camp trusts you; the town splits on it ("a white man rode with
+     Indians against white men"); the bandits' kin or friends come for you; maybe the army or the
+     agent comes asking.
+   - **Arrest them.** You bring them in alive, often against the warriors' will (a standoff on the
+     way). The leaders fine them and run them out of town: no justice. The camp stops trusting you;
+     the bandits may come back.
+   - **Take them past the town:** to the circuit judge or a US Marshal by letter or wire. It's
+     slow, the bandits' friends try to break them out on the way, and in 1882 the camp's own
+     witnesses may not be heard in court. Usually it fails; when it doesn't, it's the hardest-won
+     ending in the game.
+   Mixed moments make it personal: a bandit surrenders with his hands up and a young warrior moves
+   first; one of the bandits wasn't there that night. The violation itself is never shown, only
+   what it leaves behind.
+2. **Hold him till the Marshal comes** (the jail night). You have one of the Colters in a cell and
+   the Marshal's wire says two days. The gang wants him out; the town wants him hanged now (a mob
+   with a rope); his brother offers you money. Hold the jail with whoever you can swear in, give him
+   to the mob, take the money, or let him go to buy peace. Uses the jail, leading men (signature 6),
+   fire (they'll try burning you out) and dynamite (the back wall).
+3. **The lynching at the railhead.** The survey crew's Chinese workers are camped by the creek. The
+   baron's foreman is found dead and a worker is blamed; the foreman's men come with a rope. Stand
+   in front of them and talk them down, find who saw what happened (it was one of the foreman's
+   own), or step aside. Whatever you do, the workers, the baron and the town remember.
+4. **The vaquero's horses.** A Mexican rancher's horses turn up in the baron's corral with fresh
+   brands over old ones. The rancher wants them back and will take them by force if he has to; the
+   baron says he bought them fair. Help the rancher take them at night, buy them back, bring the
+   baron's foreman to account, or stay out of it and watch it turn into a range war.
+5. **The Kid wants out.** The Kid comes to you quietly: he's done with the Colters. The gang
+   doesn't let men leave. Hide him, get him on the stage, teach him to stand up for himself
+   (signature 8), or sell him back to Brody. If he gets away, he may come back in act three, on
+   either side.
+6. **The cave-in.** Men are trapped in the mine after a blast. Gas, timbers settling, the wrong
+   charge brings the rest down. Dig, shore, or blast a way in with what the miners teach you, while
+   the mine's owner counts what it'll cost to stop work. Uses structures, dynamite and first aid.
+7. **The fever house.** A family is sick (the doctor fears diphtheria) and the town wants them
+   gone. The doctor needs medicine from the next town by morning: a night ride on the stage road
+   the gang watches. Or help the town drive them out, or stand guard on their door. (No children
+   for now: the sick are adults.)
+8. **The dust storm.** A storm closes the town for a night and everyone ends up in the saloon: the
+   gang, the baron's men, the townsfolk, you. Nobody can leave. Tempers, cards, drink and an old
+   grudge; nobody is told to start anything, but someone will.
+
 ### A day in Salt Creek (**decided in outline**, 2026-10-01)
 - **The loop:** leads come in → you pick what matters → you act → the world reacts → you sleep
   (and save) and the clock moves on.
@@ -932,6 +987,9 @@ The test: **can the player cause a story nobody planned?**
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included
   (needs research and care).
 - **Name:** "Salt Creek" is a working title.
+- **Forensics, lighter?** (Sean, 2026-10-06: "may become too tedious"). Signature feature 2 may
+  shrink to the doctor or undertaker simply telling you what a wound says, in a line, with no
+  examining or clue-hunting by the player; the trial then rests on witnesses and what people saw.
 - **Mine:** what it's for (silver? a collapse? the gang's hideout?).
 - **Economy:** prices, wages, what farming earns; how crafting (if any) works.
 - **Voices:** which speech services; how much is pre-recorded vs live.
