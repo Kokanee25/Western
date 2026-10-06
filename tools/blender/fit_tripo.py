@@ -429,6 +429,11 @@ class TripoPerson(mp.Person):
                        "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
         self.report.update(scraps)
+        # How much more light his drawn whites take (people.json `eye_gain`; the art session's
+        # body_skin reads it from this report through PeopleBodies: Sean wants the eyes clear and
+        # bright, past the painting's style).
+        if "eye_gain" in spec:
+            self.report["eye_gain"] = float(spec["eye_gain"])
         # His drawn eyes, in his Tripo space (body orientation), when his face has been found
         # (EYES_RULE): a whole man's head is then placed by them.
         self.face = self.face_points()

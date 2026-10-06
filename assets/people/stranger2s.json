@@ -5,6 +5,7 @@
  "model": "test/stranger2s_rodin",
  "triangles_in": 33228,
  "pieces": {},
+ "eye_gain": 1.8,
  "head_shift_m": [
   -0.0008,
   0.0,

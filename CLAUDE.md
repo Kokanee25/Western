@@ -3699,6 +3699,9 @@ a few views renders them as the full run does.
     and now with the trial in the shot; his head in plain light, this morning and now).
   - Merged `main` in (CLAUDE.md's status: main's entries before this branch's 2026-10-06 ones).
     All 360 tests pass.
+  - The art session took the trial with its default at 1.0, in its merge 2 (sun rays and
+    mountains): each man's gain comes from his fit report. `people.json` `eye_gain` (1.8 for
+    `stranger2s`) goes into his report through `fit_tripo.py`; nothing else on him changed.
   - Still open with Sean: the painting's long hair to his collar, or the short hair from his
     picture.
   - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
