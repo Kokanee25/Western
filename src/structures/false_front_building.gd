@@ -654,7 +654,7 @@ func _furnish_doctor() -> void:
 	var tz0 := depth * 0.55
 	var tz1 := tz0 + 1.9
 	_table("table", w * 0.5 - 0.35, w * 0.5 + 0.35, tz0, tz1, 0.82, &"floor")
-	_lamp_on("TableLamp", Vector3(w * 0.5 + 0.22, f + 0.84, tz1 - 0.2))
+	_lamp_on("SurgeryLamp", Vector3(w * 0.5 + 0.22, f + 0.84, tz1 - 0.2))
 	_table("cot", STUD_D + 0.05, STUD_D + 0.85, tz0 - 0.2, tz0 + 1.75, 0.45, &"weathered_pine")
 	var cx0 := w - STUD_D - 0.42
 	_shelves("cabinet", cx0, w - STUD_D - 0.02, tz0 - 0.1, tz0 + 1.1, 4, 1.8)
