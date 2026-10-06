@@ -17,7 +17,8 @@ static var _flame_mat: ShaderMaterial
 static var _smoke_mat: StandardMaterial3D
 
 
-func refresh(flames: bool, tuning: FireTuning) -> void:
+## `smoke` false: a SmokeField draws this member's smoke (FireSystem.smoked), so no particles.
+func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 	if member == null or not is_instance_valid(member):
 		queue_free()
 		return
@@ -41,7 +42,8 @@ func refresh(flames: bool, tuning: FireTuning) -> void:
 	if flames and _emitters.is_empty():
 		for mi in meshes:
 			_emitters.append(_flames_on(mi))
-			_emitters.append(_smoke_on(mi))
+			if smoke:
+				_emitters.append(_smoke_on(mi))
 	elif not flames and not _emitters.is_empty():
 		_clear()
 
