@@ -603,6 +603,9 @@ func _lamp_on(lamp_name: String, at: Vector3) -> OilLamp:
 	var lamp := OilLamp.new()
 	lamp.name = lamp_name
 	lamp.position = at
+	# No shadows: every lamp in town is in view through the walls (lights aren't hidden behind
+	# them), and shadowed ones down the street took the saloon's lamps' shadow slots.
+	lamp.casts_shadows = false
 	add_child(lamp)
 	return lamp
 
