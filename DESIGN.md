@@ -716,18 +716,36 @@ knock out one stud and the wall shrugs it off.
    conversation, asynchronously. The fixed part of each character sheet is prompt-cached.
 7. **Saved per person**, loaded when they matter.
 
-### Conversation
-- **Voice first:** hold a button and speak (speech-to-text → the character's AI → text-to-speech with
-  lip sync). **Suggested replies** generated for the moment, for controller play. **Typing** as fallback.
-- **No dead air:** the character fills the gap naturally (a grunt, a sip, a glance) while the reply
-  streams in.
+### Conversation (**changed**, Sean 2026-10-06: written and voiced lines; the AI only understands you)
+- **People speak written, recorded lines**, never live AI text. Each principal has a few hundred
+  lines (about 15 principals × 200–400; townsfolk share pools by type, 100–200 lines a pool across
+  8–10 voices), written by Claude from the character's background and the story's facts, skimmed
+  by Sean, and voiced with ElevenLabs by a script (commercial-use plan; Steam's AI disclosure on
+  the store page).
+- **Lines are keyed to the moment:** who's speaking and to whom, what just happened, how he feels
+  about you, the facts in the town's memory; the most specific line that fits wins (the idea of
+  Valve's response rules, not their code). Facts are separate recordings ("It was Brody", "It was
+  Lyle"), never spliced names; nobody says the player's name.
+- **The body changes how they talk** (signature feature 1) as recorded variants of a line: calm,
+  wounded, drunk, frightened, dying; the dying sheriff's set runs from clear to a whisper; a broken
+  jaw grunts.
+- **You type or speak freely.** The AI's only job is to *read* what you said into a small structured
+  reading: who it's to, what you're doing (threaten, insult, ask, bargain, flatter, apologise,
+  confess, lie, order, comfort, buy a drink, call out), the tone, what you asked about, and any claim
+  you made. That reading is a **deed** like drawing a gun: the listener's nerve, temper and opinion
+  of you decide his answer (a recorded line, and what he does), everyone in earshot hears it, and a
+  claim ("I saw Brody do it") goes into the town's memory to be believed, spread or caught as a lie.
+  Capitals or a raised voice are a shout. Each reading can be tested ("drop it or I'll drop you" is a
+  threat), it costs one tiny request (later perhaps a small model on the player's own machine), and
+  anything it can't place gets a recorded brush-off ("Can't say I follow you, mister").
+- **Suggested replies** (a short menu) for controller play and with the AI off: the game works fully
+  without it.
+- **Live AI words, rarely and optionally:** for something nobody wrote a line for, a short reply shown
+  as text only, never voiced, labelled. The exception, not the rule.
 - **Context counts:** drawn or holstered gun, distance, blood on your shirt, clothing, time and place.
 - **Act mid-conversation:** hand over money, show a wanted poster, pour a drink, cock the hammer.
-- **Characters can walk away**, and remember why.
-- **Guardrails:** they stay in 1882 ("Don't know what a 'phone' is, mister"); the AI decides what they
-  *say*, the game decides what they *can do* (a shopkeeper only hands over what's in his store);
-  secrets stay secret until earned by trust or pressure.
-- Critical information is never AI-only; must-work lines are authored.
+- **Characters can walk away**, and remember why. Secrets stay secret until earned by trust or
+  pressure; what they can do is the game's, never the AI's.
 
 ### Action commands (say or type what you do)
 - Two inputs: **talk** (speech to a person) and **act** (commands to your own hands). "Tell him to hold
