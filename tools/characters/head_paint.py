@@ -112,6 +112,18 @@ VIEW_POWER = 8
 # radius before the bake: each square goes flat and its edge hard, wherever the painter put it (its
 # squares drift, so no one grid fits them). characters.json `bake.flatten`, or --flatten=N.
 FLATTEN = 0
+# Squares on him, as the painting draws them (characters.json `bake.cells`, metres: `m` on his head,
+# `body_m` below it, `eye_m` round his drawn eyes): every texel of his atlas takes the one colour
+# of its cell, a cube of that size in his body's axes (one for each way a surface faces, so the
+# brim's top and its underside don't mix), whichever island of the atlas it lies on (a cell
+# across a seam is one square on both sides). The painter's own squares are ~2 mm on his coat
+# and too soft on his face to read from your seat; the painting's are ~8 mm on its man, each one
+# shade, its eyes drawn finer (within EYE_REACH of each eye's outline). --cells-mm=8,9,2.7 to
+# try others, --cells-mm=0 for none.
+CELLS = None
+EYE_REACH = 1.35
+DARK_SHARE = 0.3
+DARK_GAP = 30.0
 PEOPLE = os.path.join(ROOT, "assets", "people", "people.json")
 # Tripo's man faces +X with Y up.
 FORWARD = np.array([1.0, 0.0, 0.0])
@@ -594,6 +606,68 @@ def in_squares(sheet, mask, pos, uv, tris, size, square_m, colours, what):
         sheet[ty, tx] = palette(sheet[ty, tx], colours)
 
 
+def face_points(cid):
+    """MediaPipe's face landmarks on him (`<rodin>_face.json`, tools/characters/stylise.py, in
+    load_man's frame; a stylised man's are his source's), or None."""
+    spec = json.load(open(PEOPLE))["people"].get(cid, {}) if os.path.exists(PEOPLE) else {}
+    names = [spec.get("rodin", cid)] + ([spec["stylise"]["from"]] if "stylise" in spec else [])
+    for n in names:
+        path = os.path.join(DIR, n + "_face.json")
+        if os.path.exists(path):
+            return np.array(json.load(open(path))["points"], dtype=np.float64)
+    return None
+
+
+# MediaPipe's outline of each eye (his right, his left).
+EYE_OUTLINES = ([33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+                [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398])
+
+
+def in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells):
+    """`out` (in place) in squares on him: CELLS. Each texel of his islands is placed on him (its
+    triangle's barycentric point), its cell found (the cube it lies in, of `cells["m"]` above the
+    head's cut `cut`, `body_m` below it, `eye_m` within EYE_REACH of an eye's outline, and which
+    way the surface faces), and every cell given one colour: its texels' average, or the average
+    of its dark ones when DARK_SHARE of it is darker than that by DARK_GAP (a brow, a moustache's
+    edge, a dark square of the hat band keep their dark, as the painting's squares do)."""
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    n = nrm[t[:, 0]] * b[:, :1] + nrm[t[:, 1]] * b[:, 1:2] + nrm[t[:, 2]] * b[:, 2:3]
+    axis = np.abs(n).argmax(axis=1)
+    faces = axis * 2 + (n[np.arange(len(n)), axis] > 0)
+    size_m = np.where(p[:, 1] > cut, float(cells["m"]), float(cells.get("body_m", cells["m"])))
+    fine = np.zeros(len(p), dtype=bool)
+    face = face_points(cid)
+    if face is not None and cells.get("eye_m"):
+        for outline in EYE_OUTLINES:
+            ring = face[outline]
+            centre = ring.mean(axis=0)
+            reach = np.linalg.norm(ring - centre, axis=1).max() * EYE_REACH
+            fine |= np.linalg.norm(p - centre, axis=1) < reach
+        size_m[fine] = float(cells["eye_m"])
+    q = np.floor(p * HEIGHT_M / size_m[:, None]).astype(np.int64)
+    key = np.concatenate([q, faces[:, None], fine[:, None].astype(np.int64)], axis=1)
+    _keys, lab = np.unique(key, axis=0, return_inverse=True)
+    lab = lab.ravel()
+    k = int(lab.max()) + 1
+    rgb = out[ty, tx]
+    lum = rgb @ np.array([0.299, 0.587, 0.114])
+    count = np.bincount(lab, minlength=k).astype(np.float64)
+    mean = np.stack([np.bincount(lab, rgb[:, c], minlength=k) for c in range(3)], axis=1) / count[:, None]
+    mean_l = np.bincount(lab, lum, minlength=k) / count
+    dark = lum < mean_l[lab] - DARK_GAP
+    dcount = np.bincount(lab, dark.astype(np.float64), minlength=k)
+    dmean = np.stack([np.bincount(lab, np.where(dark, rgb[:, c], 0.0), minlength=k) for c in range(3)], axis=1)
+    dmean /= np.maximum(dcount, 1.0)[:, None]
+    colour = np.where((dcount / count >= DARK_SHARE)[:, None], dmean, mean)
+    out[ty, tx] = colour[lab]
+    print("  %d texels in %d squares on him (%.0f mm on his head, %.0f below, %.1f round his eyes: %d texels)" % (
+        len(lab), k, cells["m"] * 1000, cells.get("body_m", cells["m"]) * 1000, cells.get("eye_m", 0) * 1000, fine.sum()))
+
+
 def bake(cid):
     from scipy import ndimage
     pos, nrm, uv, tris, colour = load_man(cid)
@@ -649,6 +723,11 @@ def bake(cid):
             out[bmask] = sheet[bmask]
             used += ["body " + v for v in bused]
             print("  %.0f%% of the body's texels painted" % (100.0 * bgot.mean()))
+    cells = CELLS if CELLS is not None else bk.get("cells")
+    if cells and cells.get("m") and not SMOOTH:
+        y0, y1 = pos[:, 1].min(), pos[:, 1].max()
+        cut = y0 + (y1 - y0) * (HEAD_FROM if head.get("cut") is None else head["cut"])
+        in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -703,7 +782,7 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -724,6 +803,11 @@ def main():
             VIEW_POWER = int(a.split("=", 1)[1])
         elif a.startswith("--flatten="):
             FLATTEN = int(a.split("=", 1)[1])
+        elif a.startswith("--cells-mm="):
+            # Head, body, eyes in millimetres (CELLS): --cells-mm=8,9,2.7; 0 for none.
+            mm = [float(x) for x in a.split("=", 1)[1].split(",")]
+            CELLS = {} if not mm[0] else {"m": mm[0] / 1000.0, "body_m": (mm[1] if len(mm) > 1 else mm[0]) / 1000.0,
+                                          "eye_m": (mm[2] if len(mm) > 2 else 0.0) / 1000.0}
         elif a.startswith("--id="):
             cid = a.split("=", 1)[1]
         elif a.startswith("--strength="):

@@ -116,7 +116,7 @@
    "note": "The stylised Rodin stranger (people.json stranger2s): stranger2's words, his heavier features said too.",
    "head": {
     "of": "a weathered frontier gunman's head",
-    "looks": "a weathered face of about forty with a heavy brow and a strong square jaw, deep-set dark eyes under heavy dark brows, a thick dark drooping moustache, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
+    "looks": "a weathered face of about forty with a strong square jaw, dark eyes wide open and looking straight ahead with the whites showing either side of the iris, dark brows, a thick dark moustache to the corners of his mouth, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
     "light": "soft even light on his face",
     "guide_light": 0.25,
     "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face",
@@ -132,7 +132,8 @@
    "bake": {
     "squares": false,
     "flatten": 2,
-    "view_power": 0
+    "view_power": 0,
+    "cells": {"m": 0.008, "body_m": 0.009, "eye_m": 0.0027}
    }
   }
  }
