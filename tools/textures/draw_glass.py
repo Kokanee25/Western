@@ -5,7 +5,7 @@ are dark panes between their bars: each pane a dark brown low down going to the 
 reflected along its top, a pale streak of sheen across it on the slant, and in two of them the
 room's lamps behind the glass, a few warm orange squares; here and there a single bright square
 where a corner catches the light. This draws one window, the whole opening (1.1 by 1.35 m, two
-panes across and three up, FacadeArt._windows' bars), at 32 squares a metre:
+panes across and four up, FacadeArt._windows' bars), at 32 squares a metre:
 
     assets/textures/drawn/window_glass.png       its colours (rows top to bottom)
     assets/textures/drawn/window_glass_glow.png  what shines of its own: the lamps and the glints
@@ -25,14 +25,17 @@ OUT = ROOT / "assets/textures/drawn"
 SHEET = ROOT / "docs/screenshots/textures/drawn_glass.png"
 
 W, H = 36, 44  # 1.1 x 1.35 m at 32 a metre
-COLS, ROWS = 2, 3
-DARK = np.array([22, 16, 13], float)       # the room's dark seen through the glass
-SKY = np.array([78, 86, 96], float)       # the sky's grey-blue along a pane's top
+COLS, ROWS = 2, 4
+DARK = np.array([40, 40, 46], float)       # the glass's own slate grey, low in a pane
+SKY = np.array([70, 76, 88], float)       # the sky's grey-blue along a pane's top
 SHEEN = np.array([150, 146, 136], float)
 LAMP = [np.array([236, 150, 60], float), np.array([196, 104, 40], float), np.array([255, 206, 120], float)]
 GLINT = np.array([255, 236, 190], float)
-# Panes with the room's lamps behind them: (column, row from the top), where in the pane.
-LAMPS = [((1, 1), (0.3, 0.55)), ((0, 2), (0.65, 0.35))]
+# The room's lamplight through the glass: (column, row from the top), where in the pane its left
+# edge and top are (fractions), and how many squares across and down. The painting's are tall
+# amber strips, mostly toward a pane's side.
+LAMPS = [((1, 0), (0.6, 0.35), 3, 5), ((0, 1), (0.45, 0.45), 3, 3), ((1, 1), (0.55, 0.15), 3, 8),
+         ((0, 2), (0.45, 0.1), 3, 6), ((1, 2), (0.05, 0.3), 3, 4)]
 
 
 def pane_box(c: int, r: int) -> tuple[int, int, int, int]:
@@ -66,22 +69,21 @@ def window(rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
                 gx = x0 + 1 if c == 0 else x1 - 2
                 img[y0 + 1, gx] = GLINT
                 glow[y0 + 1, gx] = GLINT * 0.6
-    for (c, r), (fx, fy) in LAMPS:
+    for (c, r), (fx, fy), lw, lh in LAMPS:
         x0, y0, x1, y1 = pane_box(c, r)
-        cx, cy = int(x0 + fx * (x1 - x0)), int(y0 + fy * (y1 - y0))
-        # A lamp's glow: a small warm block, its middle bright, its edges ragged.
-        for dy in range(-2, 3):
-            for dx in range(-1, 3):
-                edge = dy in (-2, 2) or dx in (-1, 2)
-                if edge and rng.random() < 0.35:
-                    continue
-                y, x = cy + dy, cx + dx
+        lx, ly = int(x0 + fx * (x1 - x0)), int(y0 + fy * (y1 - y0))
+        # A strip of lamplight: amber, its middle column brighter, its top and bottom a shade down.
+        for dy in range(lh):
+            for dx in range(lw):
+                y, x = ly + dy, lx + dx
                 if not (x0 <= x < x1 and y0 <= y < y1):
                     continue
-                core = dx in (0, 1) and dy in (-1, 0)
-                col = LAMP[2] if core and dy == 0 else LAMP[0] if not edge else LAMP[1]
+                end = dy in (0, lh - 1)
+                core = dx == lw // 2 and not end
+                col = LAMP[2] if core else LAMP[1] if end else LAMP[0]
+                col = col * (0.9 + 0.15 * rng.random())
                 img[y, x] = col
-                glow[y, x] = col * (1.0 if core else 0.5)
+                glow[y, x] = col * (0.9 if core else 0.55)
     return np.clip(img, 0, 255).astype(np.uint8), np.clip(glow, 0, 255).astype(np.uint8)
 
 

@@ -24,9 +24,14 @@ const DRAWN_SIGNS := {
 }
 ## The boards a plain front's lettering is painted on.
 const BOARDS := &"store_boards"
+## The windows' casings and bars: warm brown boards.
+const SASH := &"floor"
+## Panes up a window (draw_glass.py draws the same).
+const PANE_ROWS := 4
 
 const POST := 0.26  # porch posts and the corner posts, square
 const BRACE := 0.09
+const RAIL_Y := 1.0  # the porch railing's top rail, its middle, above the porch floor's top
 const BRACE_REACH := 0.62  # along the beam and down the post
 const FRAME := 0.2  # the sign's frame, across
 const CREST_STEP := 0.17  # the crest's steps, up
@@ -273,8 +278,9 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 		lamp.set_meta(&"lamp_group", &"saloon")
 		lamp.position = Vector3(o.get_center().x + 0.3, o.end.y + 0.1, 1.6)
 		b.add_child(lamp)
-		# The room past the doorway dark, as the painting's is (a street front's room isn't built
-		# inside: its sunlit back wall showed through the door as a pale panel). Scenery, not a member.
+		# The room past the doorway in lamplit gloom, as the painting's is (a street front's room isn't
+		# built inside: its sunlit back wall showed through the door as a pale panel). Scenery, not a
+		# member.
 		if not b.furnished:
 			var dark := MeshInstance3D.new()
 			dark.name = "DoorwayDark"
@@ -284,6 +290,13 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 			var m := StandardMaterial3D.new()
 			m.albedo_color = Color(0.035, 0.024, 0.018)
 			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED  # the lamp before it mustn't light it up
+			# The room drawn as the painting shows it: boards, lit beams, a lamp, a man by the bar
+			# (tools/textures/draw_doorway.py).
+			var room := _drawn(&"drawn/doorway_room")
+			if room:
+				m.albedo_color = Color.WHITE
+				m.albedo_texture = room
+				m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 			dark.material_override = m
 			dark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			dark.position = Vector3(o.get_center().x, o.position.y + q.size.y * 0.5 - 0.1, 2.4)
@@ -298,7 +311,8 @@ static func _door(b: FalseFrontBuilding, bt: float) -> void:
 				(leaf.get_child(0) as MeshInstance3D).material_override = slats
 
 
-## The two front windows in thick frames, with a cross of glazing bars: two panes across, three up.
+## The two front windows in thick frames of warm brown wood (the painting's are brown, not the posts'
+## pale timber), with glazing bars: two panes across, four up.
 static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 	var w := b.width
 	for k in 2:
@@ -306,10 +320,10 @@ static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 		var p := "facade/window%d" % k
 		var side := 0.15
 		var d1 := bt + 0.08
-		_front(b, p + "/jamb0", &"trim", TIMBER, o.position.x - side, o.position.x, o.position.y - 0.1, o.end.y, bt, d1)
-		_front(b, p + "/jamb1", &"trim", TIMBER, o.end.x, o.end.x + side, o.position.y - 0.1, o.end.y, bt, d1)
-		_front(b, p + "/head", &"trim", TIMBER, o.position.x - side - 0.06, o.end.x + side + 0.06, o.end.y, o.end.y + 0.18, bt, d1 + 0.03)
-		_front(b, p + "/stool", &"trim", TIMBER, o.position.x - side - 0.08, o.end.x + side + 0.08, o.position.y - 0.16, o.position.y - 0.04, bt, d1 + 0.05)
+		_front(b, p + "/jamb0", &"trim", SASH, o.position.x - side, o.position.x, o.position.y - 0.1, o.end.y, bt, d1)
+		_front(b, p + "/jamb1", &"trim", SASH, o.end.x, o.end.x + side, o.position.y - 0.1, o.end.y, bt, d1)
+		_front(b, p + "/head", &"trim", SASH, o.position.x - side - 0.06, o.end.x + side + 0.06, o.end.y, o.end.y + 0.18, bt, d1 + 0.03)
+		_front(b, p + "/stool", &"trim", SASH, o.position.x - side - 0.08, o.end.x + side + 0.08, o.position.y - 0.16, o.position.y - 0.04, bt, d1 + 0.05)
 		# The glass dark and warm, the room's lamplight behind it (the painting's windows), not the
 		# sky's grey sheen.
 		var glass := b.get_member(StringName("%s/front/glass_%d_%d" % [b.structure_id, int(o.position.x * 100.0), int(o.position.y * 100.0)]))
@@ -320,10 +334,10 @@ static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 		# Glazing bars just outside the glass (and the pane drawn on it), from the head to the sill and across between the king studs.
 		var bar := 0.05
 		var cx := o.get_center().x
-		_front(b, p + "/bar_v", &"trim", TIMBER, cx - bar * 0.5, cx + bar * 0.5, o.position.y, o.end.y, 0.01, 0.045)
-		for r in 2:
-			var yy := o.position.y + o.size.y * (r + 1) / 3.0
-			_front(b, p + "/bar_h%d" % r, &"trim", TIMBER, o.position.x, o.end.x, yy - bar * 0.5, yy + bar * 0.5, 0.01, 0.045)
+		_front(b, p + "/bar_v", &"trim", SASH, cx - bar * 0.5, cx + bar * 0.5, o.position.y, o.end.y, 0.01, 0.045)
+		for r in PANE_ROWS - 1:
+			var yy := o.position.y + o.size.y * (r + 1) / float(PANE_ROWS)
+			_front(b, p + "/bar_h%d" % r, &"trim", SASH, o.position.x, o.end.x, yy - bar * 0.5, yy + bar * 0.5, 0.01, 0.045)
 
 
 ## The porch on thick posts with knee braces: a casing round each of the old posts, posts between
@@ -352,6 +366,53 @@ static func _porch(b: FalseFrontBuilding) -> void:
 					Vector3(length, BRACE, BRACE), c, basis)
 	b.add_member("facade/porch/beam", &"beam", TIMBER, Vector3(w + 0.36, 0.28, 0.26),
 			Vector3(w * 0.5, beam_y + 0.12, zb))
+	# Under the roof, as the painting's porch shows it lit by the lanterns: a heavy beam along the
+	# wall and joists from it out to the porch beam over every post and half way between.
+	var bt := FalseFrontBuilding.BOARD_T
+	b.add_member("facade/porch/wall_beam", &"beam", TIMBER, Vector3(w, 0.2, 0.14),
+			Vector3(w * 0.5, beam_y + 0.1, -bt - 0.07))
+	var joists: Array[float] = []
+	for i in xs.size():
+		joists.append(xs[i])
+		if i + 1 < xs.size():
+			joists.append((xs[i] + xs[i + 1]) * 0.5)
+	var reach := -zb - bt - 0.14 - 0.13  # from the wall beam's face to the porch beam's back
+	for i in joists.size():
+		b.add_member("facade/porch/joist%02d" % i, &"beam", TIMBER, Vector3(0.11, 0.16, reach),
+				Vector3(joists[i], beam_y + 0.12, -bt - 0.14 - reach * 0.5))
+	# A railing between the posts at hip height, top rail and bottom rail on short balusters,
+	# left open before the door (the painting's porch has one along its front).
+	var door := b.door_rect
+	for i in xs.size() - 1:
+		var x0: float = xs[i] + POST * 0.5
+		var x1: float = xs[i + 1] - POST * 0.5
+		if x1 > door.position.x - 0.3 and x0 < door.end.x + 0.3:
+			continue
+		var z := zb + 0.02
+		b.add_member("facade/porch/rail%d_top" % i, &"trim", TIMBER, Vector3(x1 - x0, 0.08, 0.1),
+				Vector3((x0 + x1) * 0.5, b.floor_top + RAIL_Y, z))
+		b.add_member("facade/porch/rail%d_low" % i, &"trim", TIMBER, Vector3(x1 - x0, 0.07, 0.07),
+				Vector3((x0 + x1) * 0.5, b.floor_top + 0.2, z))
+		var n := maxi(int((x1 - x0) / 0.55), 1)
+		for k in n:
+			var x := lerpf(x0, x1, (k + 0.5) / n)
+			var y0 := b.floor_top + 0.235
+			var y1 := b.floor_top + RAIL_Y - 0.04
+			b.add_member("facade/porch/rail%d_bal%d" % [i, k], &"trim", TIMBER, Vector3(0.07, y1 - y0, 0.07),
+					Vector3(x, (y0 + y1) * 0.5, z))
+	# The porch's ends closed to the sun only: a panel at each end that casts shadow and is never
+	# drawn. The painting's porches are deep warm shade lit by their lanterns; ours let the low sun
+	# run in along the porch from its open ends and lit the whole wall (an art direction choice,
+	# as a game sets where its light falls).
+	for side in 2:
+		var shade := MeshInstance3D.new()
+		shade.name = "PorchShade%d" % side
+		var box := BoxMesh.new()
+		box.size = Vector3(0.05, beam_y + 0.4, -zb + 0.3)
+		shade.mesh = box
+		shade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		shade.position = Vector3(-0.3 if side == 0 else w + 0.3, (beam_y + 0.4) * 0.5, zb * 0.5)
+		b.add_child(shade)
 	# A deep fascia along the porch roof's front edge, against the rafters' ends (the roof's
 	# boards start 0.3 m out past the beam).
 	var edge := zb - 0.3

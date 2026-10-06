@@ -13,7 +13,7 @@ extends SceneTree
 const HOUR := 17.6
 ## [name, eye, look at, vertical fov] in the saloon's space; x is scaled by its width over 9.6.
 const VIEWS := [
-	["painting", Vector3(11.4, 1.6, -4.9), Vector3(2.4, 4.0, -0.9), 62.0],
+	["painting", Vector3(12.0, 1.75, -11.0), Vector3(3.6, 3.6, -0.6), 50.0],
 	["square", Vector3(8.6, 1.7, -9.0), Vector3(4.2, 3.9, 0.0), 58.0],
 	["door", Vector3(3.9, 1.65, -3.2), Vector3(3.6, 1.7, 0.0), 58.0],
 ]

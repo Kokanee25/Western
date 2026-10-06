@@ -33,16 +33,20 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_boards.png"
 # a board's tone wanders from the next (`board_spread`, a fraction of L), and how much greyer than
 # the painting's lit colours (`grey`, toward each colour's own luminance).
 WOODS = {
-    # The saloon's posts, frames and the sign's frame (FacadeArt): pale weathered grey-tan.
-    "timber": {"boxes": [[12, 200, 62, 560], [255, 290, 290, 560]], "keep": "wood", "albedo": [0.74, 0.7, 0.62],
-               "contrast": 1.0, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.6, "lean": 0.8,
+    # The saloon's posts, frames and the sign's frame (FacadeArt): weathered grey-brown (the
+    # painting's posts average a warm mid brown, lit gold where the sun catches them).
+    "timber": {"boxes": [[12, 200, 62, 560], [255, 290, 290, 560]], "keep": "wood", "albedo": [0.56, 0.47, 0.37],
+               "contrast": 1.0, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.45, "lean": 0.4,
                "patch": 2, "patch_jitter": 1.6},
     # The general store's front and the plain fronts' boards: pale grey.
     "store_boards": {"boxes": [[640, 110, 800, 400]], "keep": "pale", "albedo": [0.68, 0.64, 0.56],
                      "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
     # The saloon's red boards.
-    "saloon_red": {"boxes": [[0, 150, 470, 560]], "keep": "red", "albedo": [0.46, 0.18, 0.14],
-                   "contrast": 0.8, "rows": 6, "count": 10, "board_spread": 0.18, "grey": 0.15},
+    # `worn`: that share of the board's squares, in clumps, is the paint worn through to grey wood
+    # (the painting's red boards are faded brick red with pale patches, not an even red).
+    "saloon_red": {"boxes": [[0, 150, 470, 560]], "keep": "red", "albedo": [0.4, 0.16, 0.11],
+                   "contrast": 0.8, "rows": 6, "count": 10, "board_spread": 0.12, "grey": 0.3,
+                   "worn": 0.16, "worn_from": "store_boards", "patch": 2, "patch_jitter": 1.2},
     # Bare weathered boards (side walls, the livery, sheds): the livery's front.
     "weathered_pine": {"boxes": [[1440, 150, 1600, 420]], "keep": "pale", "albedo": [0.6, 0.55, 0.47],
                        "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
@@ -103,7 +107,7 @@ def smooth_noise(n: int, cell: int, rng: np.random.Generator) -> np.ndarray:
     return pts[i % len(pts)] * (1 - t) + pts[(i + 1) % len(pts)] * t
 
 
-def board(spec: dict, pal: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+def board(spec: dict, pal: np.ndarray, rng: np.random.Generator, worn: np.ndarray | None = None) -> np.ndarray:
     rows = spec["rows"]
     n = len(pal)
     # The board's own tone: a place in the palette (its middle colour, a little either way) and a
@@ -145,6 +149,21 @@ def board(spec: dict, pal: np.ndarray, rng: np.random.Generator) -> np.ndarray:
         idx[y, (x0 + 2) % LENGTH] += 0.8
     i = np.clip(np.round(idx), 0, n - 1).astype(int)
     img = pal[i] * bright
+    if worn is not None:
+        # Worn through: clumps of squares (two rows, three to six long) showing the bare wood.
+        share = spec["worn"]
+        wn = len(worn)
+        bare = np.zeros((rows, LENGTH), bool)
+        while bare.mean() < share:
+            y0 = int(rng.integers(0, rows - 1))
+            x0 = int(rng.integers(0, LENGTH))
+            run = int(rng.integers(3, 7))
+            for y in range(y0, min(y0 + int(rng.integers(1, 3)), rows)):
+                for k in range(run + int(rng.integers(-1, 2))):
+                    bare[y, (x0 + k) % LENGTH] = True
+        tone = np.clip(np.round(wn / 2 + rng.normal(0, 1.0, (rows, LENGTH))), 0, wn - 1).astype(int)
+        # faded: the bare wood still carries some of the paint's red
+        img[bare] = worn[tone[bare]] * 0.5 + img[bare] * 0.45
     return np.clip(img * 255.0, 0, 255).astype(np.uint8)
 
 
@@ -162,10 +181,14 @@ def main() -> None:
         if only and wood not in only:
             continue
         pal = palette(pixels(img, spec), spec)
+        worn = None
+        if "worn_from" in spec:
+            other = WOODS[spec["worn_from"]]
+            worn = palette(pixels(img, other), other)
         rng = np.random.default_rng(2207 + wi)
         boards = []
         for k in range(spec["count"]):
-            data = board(spec, pal, rng)
+            data = board(spec, pal, rng, worn)
             Image.fromarray(data).save(OUT / f"{wood}_b{k}.png")
             boards.append(data)
         # The tile (no strip number) for anything that asks for the wood without one: the boards

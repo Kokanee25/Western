@@ -62,6 +62,9 @@ const FOLK := [
 ## Boardwalks before them: [name, x0, x1, faces +Z].
 ## How much bigger than the code model the painting's carriage lanterns are.
 const LANTERN_SCALE := 1.8
+## The halo a lit lantern paints on its wall: across, in metres, and how strong at its heart.
+const HALO_SIZE := 1.8
+const HALO_STRENGTH := 0.55
 const WALKS := [["WestBoardwalk", -35.6, -8.0, false], ["SouthWestBoardwalk", -32.0, -18.2, true]]
 
 
@@ -179,9 +182,48 @@ func _lantern(at: Vector3, faces: float) -> void:
 		glass.material_override = lantern_glass()
 		lamp._chimney = glass
 		lamp.set_lit(lamp.lit)
+	# The painting's lanterns throw a warm halo on the wall round them even with the sun up (a lamp
+	# of this energy barely shows on a sunlit wall): painted on, a glow in squares on the wall
+	# behind, a child of the lamp's light so it goes out with it.
+	var halo := MeshInstance3D.new()
+	halo.name = "Halo"
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE * HALO_SIZE / LANTERN_SCALE
+	halo.mesh = q
+	halo.material_override = lantern_halo()
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	lamp._light.add_child(halo)
+	# Out in front of the lapped boards (the lantern hangs 5 cm off the studs; a lap board's foot
+	# stands out further), at the lantern's middle, in the lamp light's own space.
+	halo.position = Vector3(0.0, 0.02, 0.03) - lamp.position - lamp._light.position
 
 
 static var _lantern_glass: ShaderMaterial
+static var _lantern_halo: StandardMaterial3D
+
+
+## The halo a lit lantern throws on its wall: a disc of warm light in a few steps, a square a texel
+## of the world's (16 a metre over HALO_SIZE), added over the wall.
+static func lantern_halo() -> StandardMaterial3D:
+	if _lantern_halo == null:
+		var n := int(HALO_SIZE * 16.0)
+		var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+		var c := (n - 1) * 0.5
+		for y in n:
+			for x in n:
+				var d := Vector2(x - c, (y - c) * 1.15).length() / (n * 0.5)
+				var a := clampf(1.0 - d, 0.0, 1.0)
+				a = floorf(a * a * 5.0) / 5.0  # stepped, as the painting's glow is
+				img.set_pixel(x, y, Color(1.0, 0.55, 0.2, a * HALO_STRENGTH))
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		m.albedo_texture = ImageTexture.create_from_image(img)
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		m.disable_fog = true
+		_lantern_halo = m
+	return _lantern_halo
 
 
 ## The carriage lantern's glass: the chimney glass with its flame at the glass's centre and
