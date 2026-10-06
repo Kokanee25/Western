@@ -3657,3 +3657,52 @@ a few views renders them as the full run does.
     `assets/people/stranger2s_skin.png`, `stranger2s_head.png`, `assets/people/tripo/
     stranger2s_*` (run 55's paintings, `stranger2s_color.png`). His glb and report are
     unchanged. 22 body tests pass.
+- 2026-10-06 (characters session, later): **The stylised stranger's eyes clear and bright, his
+  skin evened.** Sean: "Can keep working on the face to get it closer - but at the end we need to
+  make the eyes super clear and bright - the eyes won't match the art style".
+  - **His skin** (`head_paint.py` `even_skin`, characters.json `bake.skin`: even 0.6, hue 4,
+    stubble 0.7; `--skin=even,hue,stubble,lift`). The painter lights his face from one side and
+    the game lights it again, so 60 % of the painted light comes out, his skin turns 4° towards
+    yellow and the grey on his chin and jaw is warmed. It's evened towards his face's own
+    lightness, between his brows and his mouth; the first try used all his skin's median (neck
+    and ears, darker) and dimmed his face by L* 9. In the character lab his face's median L* is
+    the painting's (31), but his lit cheek still burns: L* 70 at the top tenth, the painting's
+    45. That's the shot's light (the art session's, already sent), not his paint: evening the
+    texture barely moved it.
+  - **His eyes** (`draw_eyes`, `bake.eyes`: open 1.2, size 1.1, clean 1.3, lid 2.4 mm;
+    `--eyes=open:1.2,size:1.1,...`). The painter's own whites and lashes sat a millimetre or two
+    off his landmarks and were cut into squares, so each eye read as a smudge.
+    - Each socket is cleaned first: what in it is much lighter or greyer than its skin, and near
+      the opening much darker, takes the socket's own skin colour.
+    - Then the eye is drawn texel by texel (about 1.2 mm a texel on his face): a bright warm
+      white, shaded under the lid and at the corners; a dark iris 13 mm across with a darker
+      rim and pupil; a bigger glint towards your right; a dark upper lid two texels thick, a
+      little past the outer corner; a lower lid in his skin's shade.
+    - In plain light and in the saloon shot both eyes now read as eyes, whites either side of a
+      dark iris, from the front and three-quarters.
+  - **Brighter whites need the shader** (sent to the art session). Under the brim his whites
+    come out darker than the painting's:
+
+    | His eye in shadow (your left), in the saloon shot | L* of its whites |
+    |---|---|
+    | The painting | 62 |
+    | This morning | 49 |
+    | Now | 55 |
+    | Now + eye gain 1.8 (local trial) | 73 |
+    | Now + eye gain 2.6 (local trial) | 82 |
+
+    The trial was a few lines in `body_skin.gdshaderinc` (art's file), not committed: within
+    the wet-eye region, pale texels (the drawn whites and glint, not the skin round them) take
+    `eye_gain` times the light. At 1.8 they come up clearly in the shot; at 2.6 they glow. In
+    plain daylight they go pure white at either.
+  - Picture: `docs/screenshots/tripo/stranger2s_face_eyes.png` (the painting, this morning, now
+    and now with the trial in the shot; his head in plain light, this morning and now).
+  - Merged `main` in (CLAUDE.md's status: main's entries before this branch's 2026-10-06 ones).
+    All 360 tests pass.
+  - Still open with Sean: the painting's long hair to his collar, or the short hair from his
+    picture.
+  - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
+    `assets/people/stranger2s_skin.png`, `stranger2s_head.png`,
+    `assets/people/tripo/stranger2s_color.png`, `docs/screenshots/tripo/stranger2s_face_eyes.png`
+    (the characters pipeline's folder in the art session's `docs/screenshots/`). His glb and
+    report are unchanged.
