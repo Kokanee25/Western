@@ -3406,3 +3406,23 @@ a few views renders them as the full run does.
     weathered mid brown and the red boards darker and worn to grey in patches (measured against
     the painting's posts and walls). `tools/facade_lab.gd`'s painting view now stands in the
     street as the painting does. Picture `docs/screenshots/review/2026-10-06_saloon_vs_painting.png`.
+  - Later (Sean: "Yes do that", on the gameplay session's Main Street step 2): **the saloon front
+    moved onto the real saloon** (main merged in). The street painting's front is now the
+    `Saloon` itself (the separate `StreetSaloon` is gone with main's move): `facade` and
+    `porch_height` are properties of `FalseFrontBuilding` (gameplay's file, said here: the
+    porch's beam, ledger and lantern at `porch_height` + the old offsets, default 3.0 as before);
+    `saloon_building.gd` `_init` (gameplay's) takes the painting's red front, 8.4 m front, the
+    sign from 4.3 m and a porch at 3.75 m over the tall door (the moonlit doorway still shows from
+    inside); `config/town.json` (gameplay's) gives the store `facade` "store" and its drawn
+    boards. On a saloon people walk into, FacadeArt draws the batwings with no collision (solid
+    leaves kept the gang from the store); the end porch posts are the building's own, resized in
+    place before supports are inferred (the F11 test still breaks `store/porch/post0`); nothing
+    of a front reaches past its ends (the buildings stand wall to wall now). The street shot's
+    feet and look are the saloon's (`StreetMatch.feet()`/`look()`), the porch folk and bench on
+    its porch, the lanterns either side of the real door, the grass in clumps. 352 of 353 tests
+    pass: `test_chaos::test_the_same_seed_gives_the_same_chaos` splits two ways when run after
+    another chaos run (a stick at the store/saloon junction takes either the saloon's west wall
+    or its window trim; identical when run alone, passes on main): told the gameplay session, not
+    changed here. Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
+    the backdrop's near ring is 260 m out and nothing in the new town comes near it; pushing it
+    out would shrink the mountains below the painting's, so it stays.
