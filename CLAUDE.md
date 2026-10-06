@@ -3446,5 +3446,5 @@ a few views renders them as the full run does.
     bench, lanterns and carried dressing go up with the walk (`StreetDressing.walk_lift`), nothing
     stands on the end steps or a metre of the store's walk before them, FacadeArt's windows above
     the floor, ShotMatch's floor ray, `tools/screenshots.gd`'s saloon views lifted. Picture
-    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 357 tests pass. Not merged (with the
+    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 355 tests pass. Not merged (with the
     saloon front, on Sean's yes).
