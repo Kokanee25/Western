@@ -51,6 +51,12 @@ extends Resource
 @export var settle_every := 1.0
 ## Limits on what gets drawn: members with flames, and fire lights.
 @export var max_flames := 40
+## A member's flames (FireFX): each tongue's size (m, wide × tall) when the member catches and
+## once it's fully alight (`growth_seconds` in), so a burning wall's tongues overlap into a sheet;
+## and at most this many tongues a member, so the count doesn't climb as they grow.
+@export var flame_size_catching := Vector2(0.35, 0.6)
+@export var flame_size_alight := Vector2(1.0, 1.7)
+@export var flames_a_member := 8
 @export var max_lights := 6
 ## People within this of flames get burnt, at this rate (burn severity per second, per flame).
 @export var scorch_reach := 0.5
