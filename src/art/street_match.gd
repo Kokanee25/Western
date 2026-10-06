@@ -8,7 +8,7 @@ class_name StreetMatch
 ## tools/judge.py compares it with the painting (next to `shot_match_saloon`).
 
 ## The hour: the sun a hand's width over the horizon, as in the painting.
-const HOUR := 17.6
+const HOUR := 17.9
 ## Where your feet are, and the point you look at, in the saloon's own space (its front-left
 ## corner the origin, its front facing -Z), so the shot follows the saloon wherever the town's
 ## layout puts it (config/town.json). Fitted by eye to the painting (2026-10-02, on the old street):

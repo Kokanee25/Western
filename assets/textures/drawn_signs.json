@@ -2,43 +2,72 @@
  "sign_saloon_drawn": {
   "text": "SALOON",
   "squares": [
-   100,
+   135,
    34
   ]
  },
  "sign_general_store_drawn": {
   "text": "GENERAL STORE",
   "squares": [
-   150,
+   185,
    26
-  ]
+  ],
+  "ink": "sign_general_store_drawn_ink"
  },
  "sign_barber_drawn": {
   "text": "BARBER",
   "squares": [
-   84,
-   22
-  ]
+   94,
+   23
+  ],
+  "ink": "sign_barber_drawn_ink"
  },
  "sign_hotel_drawn": {
   "text": "HOTEL",
   "squares": [
-   80,
-   24
-  ]
+   85,
+   25
+  ],
+  "ink": "sign_hotel_drawn_ink"
  },
  "sign_jail_drawn": {
   "text": "JAIL",
   "squares": [
-   56,
+   65,
    22
-  ]
+  ],
+  "ink": "sign_jail_drawn_ink"
+ },
+ "sign_telegraph_drawn": {
+  "text": "TELEGRAPH",
+  "squares": [
+   123,
+   22
+  ],
+  "ink": "sign_telegraph_drawn_ink"
+ },
+ "sign_doctor_drawn": {
+  "text": "DOCTOR",
+  "squares": [
+   96,
+   24
+  ],
+  "ink": "sign_doctor_drawn_ink"
+ },
+ "sign_bank_drawn": {
+  "text": "BANK",
+  "squares": [
+   78,
+   24
+  ],
+  "ink": "sign_bank_drawn_ink"
  },
  "sign_assay_office_drawn": {
   "text": "ASSAY OFFICE",
   "squares": [
-   120,
+   139,
    22
-  ]
+  ],
+  "ink": "sign_assay_office_drawn_ink"
  }
 }

@@ -10,6 +10,7 @@ shader_type spatial;
 render_mode unshaded, cull_disabled, fog_disabled;
 
 #include "res://src/render/aces.gdshaderinc"
+#include "res://src/render/sun_rays.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_nearest, repeat_enable;
 // The strip's size in texels (the rim looks one texel up and either side).
@@ -28,7 +29,12 @@ uniform float haze = 0.2;
 uniform float haze_scale = 1.0;
 // How the land looks by night, and in its own shadow at sunset (multipliers on the painting).
 uniform vec3 night_tint = vec3(0.1, 0.11, 0.17);
-uniform vec3 shade_tint = vec3(0.88, 0.6, 0.5);
+uniform vec3 shade_tint = vec3(0.95, 0.66, 0.56);
+// Sun rays at golden hour through the air in front of this land (as in the sky: the shafts are in
+// the dust between you and the hills, more of it before the far ones). 0 = none.
+uniform float ray_strength = 0.55;
+// The valley's dust at the land's foot with the sun low (0 = none).
+uniform float dust = 1.0;
 
 varying vec3 world_pos;
 
@@ -70,5 +76,22 @@ void fragment() {
 	// Night: dark shapes, a little moonlit.
 	col = mix(a * night_tint, col, daylight);
 	col = mix(col, haze_color, clamp(haze * haze_scale, 0.0, 0.85) * mix(0.7, 1.0, daylight));
+	// Toward a low sun the air between you and the land glows: the rock beside the sun reads
+	// rose-gold through it, as the painting's spires do with the sun behind them, and dust lies in
+	// the valley at the land's foot (strongest toward the sun).
+	vec3 view = normalize(world_pos - CAMERA_POSITION_WORLD);
+	vec3 sdn = normalize(sun_dir);
+	vec3 glow_col = mix(haze_color, vec3(1.0, 0.74, 0.42) * mix(vec3(1.0), sun_tint, 0.5), 0.6);
+	float near_sun = pow(max(dot(view, sdn), 0.0), 16.0);
+	col = mix(col, glow_col, clamp(near_sun * 0.4 * low, 0.0, 0.6));
+	vec2 vh = normalize(view.xz + vec2(1e-5));
+	float sunward = pow(max(dot(vh, normalize(sdn.xz + vec2(1e-5))), 0.0), 3.0);
+	float foot = 1.0 - smoothstep(0.0, 0.06, view.y);
+	col = mix(col, glow_col * 1.05, clamp(foot * mix(0.25, 0.6, sunward) * low * dust, 0.0, 0.75));
+	// The low sun's shafts through the dusty air in front of it, the darker air between.
+	vec2 rays = sun_rays(view, sdn, ray_strength);
+	float air = clamp(0.45 + haze * haze_scale * 1.5, 0.0, 1.0);
+	vec3 ray_light = sun_color * vec3(1.0, 0.8, 0.5);
+	col = col * (1.0 - 0.45 * rays.y * air) + ray_light * 1.1 * rays.x * air;
 	ALBEDO = aces_inverse(from_srgb(clamp(col, 0.0, 1.0)));
 }
