@@ -7,12 +7,12 @@
 		"market": {"from": [-31, 40], "to": [-31, -60], "width": 12}
 	},
 	"nodes": {
-		"Saloon": {"at": [5, 0, 0], "facing": 0,
+		"Saloon": {"at": [5, 0, 0], "facing": 0, "set": {"floor_top": 0.78},
 			"was": [{"at": [12, 0, -16.8], "facing": 180, "width": 10}, {"at": [-10.8, 0, 0], "facing": 0, "width": 9.6}]},
-		"SouthBoardwalk": {"in": "Saloon", "at": [0, 0, 0], "facing": 0, "set": {"length": 10, "steps": [[7.4, 1.4]]}},
+		"SouthBoardwalk": {"in": "Saloon", "at": [0, 0, 0], "facing": 0, "set": {"length": 10, "top": 0.78, "steps": [[7.4, 1.4]], "end_steps": [[0, 0.38]]}},
 		"Store": {"at": [-4, 0, 0], "facing": 0,
 			"set": {"width": 9, "depth": 11, "wall_height": 5.4, "front_height": 7.8, "sign_text": "GENERAL STORE", "sign_from": 3.75,
-				"door_size": [1.3, 2.3], "front_wood": "weathered_pine"},
+				"door_size": [1.3, 2.3], "front_wood": "store_boards", "facade": "store"},
 			"was": [{"at": [0, 0, 0], "facing": 0, "width": 6}, {"at": [-20.4, 0, 0], "facing": 0, "width": 8.6}]},
 		"Boardwalk": {"in": "Store", "at": [0, 0, 0], "facing": 0, "set": {"length": 9, "steps": [[0.9, 1.6]]}},
 		"WaterTrough": {"in": "Store", "at": [6.6, 0, -4.2], "facing": 0},
@@ -53,7 +53,7 @@
 		"Player": {"at": [24, 0, -9], "facing": 121},
 		"DebugSpawns/DoctorInside": {"in": "Doctor", "at": [1.6, 0.4, 6.2], "facing": 90},
 		"DebugSpawns/StoreInside": {"in": "Store", "at": [1.5, 0.4, 7.5], "facing": 180},
-		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.4, -1.0], "facing": 180},
-		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.4, 9.7], "facing": -140}
+		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.8, -1.0], "facing": 180},
+		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.8, 9.7], "facing": -140}
 	}
 }

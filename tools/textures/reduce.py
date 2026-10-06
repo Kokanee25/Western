@@ -2,7 +2,7 @@
 """The texture factory, step 2: turn each image-model painting (assets/textures/raw/<id>.jpg,
 tools/textures/paint_textures.py) into the game's tiles.
 
-    python3 tools/textures/reduce.py [--only=floor,road] [--sheet=docs/screenshots/textures/x.png]
+    python3 tools/textures/reduce.py [--only=floor,road] [--sheet=docs/screenshots/textures/x.png] [--smooth | --bold]
 
 For each material in tools/textures/materials.json with a raw painting:
   1. crop to the material's shape (metres along x across), take out the painting's own lighting
@@ -236,13 +236,34 @@ def palette_snap(lab, k, seed):
 # so the only quantisation left is the screen mosaic's (PixelArt.smooth picks them).
 SMOOTH_TEXELS = 4
 SMOOTH = False
+# The bold set (--bold, Sean 2026-10-05: the street painting's style everywhere, DESIGN.md §4):
+# the same paintings cut at BOLD_TEXELS a metre into assets/textures/bold/, each texel a clearly
+# different colour from its neighbours (the mosaic pushed by BOLD_MOSAIC, the grain's contrast up,
+# a small palette a material), so a surface reads as distinct squares, not a smooth smear.
+# A material's own `bold` dict overrides these and its usual grade (lightness, contrast, chroma,
+# hue, colours, mosaic): the street painting's weathered boards are pale grey, not brown.
+BOLD = False
+BOLD_TEXELS = 16
+BOLD_MOSAIC = 1.8
+BOLD_GRADE = {"contrast": 2.0, "colours": 10}
 
 
 def out_dir():
-    return os.path.join(OUT, "smooth") if SMOOTH else OUT
+    return os.path.join(OUT, "smooth") if SMOOTH else os.path.join(OUT, "bold") if BOLD else OUT
+
+
+def bold_spec(spec):
+    """The material's settings for the bold set: the usual grade, BOLD_GRADE over it, then the
+    material's own `bold` dict over that."""
+    s = dict(spec)
+    s.update(BOLD_GRADE)
+    s.update(spec.get("bold", {}))
+    return s
 
 
 def reduce(mid, spec, tpm):
+    if BOLD:
+        spec = bold_spec(spec)
     raw = Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB")
     kind = spec["kind"]
     metres = list(spec["metres"])
@@ -261,7 +282,8 @@ def reduce(mid, spec, tpm):
         a = seamless(a, rng)
     size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
     t = to_texels(a, size)
-    lab = mosaic(to_lab((t * 255).astype(np.uint8)), MOSAIC, kind != "sign")
+    lab = mosaic(to_lab((t * 255).astype(np.uint8)), spec.get("mosaic", BOLD_MOSAIC) if BOLD and kind != "sign" else MOSAIC,
+                 kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
     lab = grade(lab, spec)
     if SMOOTH:
@@ -338,7 +360,7 @@ def sheet(rows, path):
 
 
 def main():
-    global SMOOTH, MOSAIC
+    global SMOOTH, MOSAIC, BOLD
     only = None
     sheet_path = None
     for a in sys.argv[1:]:
@@ -349,8 +371,10 @@ def main():
         elif a == "--smooth":
             SMOOTH = True
             MOSAIC = 1.0
+        elif a == "--bold":
+            BOLD = True
     spec = json.load(open(SPEC))
-    tpm = spec["texels_per_metre"] * (SMOOTH_TEXELS if SMOOTH else 1)
+    tpm = BOLD_TEXELS if BOLD else spec["texels_per_metre"] * (SMOOTH_TEXELS if SMOOTH else 1)
     os.makedirs(out_dir(), exist_ok=True)
     index_path = os.path.join(out_dir(), "textures.json")
     index = json.load(open(index_path)) if os.path.exists(index_path) else {}

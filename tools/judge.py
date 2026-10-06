@@ -59,7 +59,7 @@ from scipy.ndimage import gaussian_filter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JUDGE_DIR = os.path.join(ROOT, "docs", "screenshots", "judge")
 VIEWS = {
-    "saloon": ("shot_match_saloon", "docs/concept/saloon-night.png"),
+    "saloon": ("shot_match_saloon", "docs/concept/saloon-blocks.png"),
     "street": ("shot_match_street", "docs/concept/street-golden-hour.png"),
 }
 W, H = 1280, 720
@@ -455,9 +455,13 @@ def probes() -> bool:
             ("pixel noise scores worse", got["round 25 + per-pixel noise"] > base),
             ("blur scores worse", got["round 25 blurred 3 px"] > base),
             ("greyscale scores worse", got["the painting in greyscale"] > base),
-            ("the mock grade scores better", got["round 25 + the mock grade"] < base),
-            ("the engine's light pass scores better", got["round 27, the engine's light pass"] < base),
         ]
+        # The two grades darken round 25 toward the old night painting (saloon-night.png). Since
+        # 2026-10-05 the saloon's target is the bold, brighter saloon-blocks.png, so on the saloon
+        # they're no longer steps toward it; they still hold on the street.
+        if view != "saloon":
+            rules += [("the mock grade scores better", got["round 25 + the mock grade"] < base),
+                      ("the engine's light pass scores better", got["round 27, the engine's light pass"] < base)]
         for words, held in rules:
             print("  %s %s" % ("ok  " if held else "FAIL", words))
             ok = ok and held

@@ -30,9 +30,18 @@ uniform float low_sun_dim = 0.45;
 // off its neighbours. 0 = smooth.
 uniform float sky_squares = 0.0;
 uniform float sky_mosaic = 0.0;
+// Over 0 only under the surface-blocks look (Settings.surface_blocks, M): there the blocks are the
+// surfaces' own texels and the sky has none, so it's drawn smooth whatever sky_squares says (the
+// blind critic, 2026-10-05_r8: "the sky's squares giant beside surfaces that read smooth").
+global uniform float block_soft;
 // How far the clouds have drifted (DayCycle sends it with the sky's other updates). Not TIME: a
 // sky that reads TIME is re-lit every frame (REALTIME), and that flickered every sky-lit surface.
 uniform float cloud_drift = 0.0;
+// The gold sky of the street painting at golden hour (Part A's restore of round 10, under the bold
+// look: src/art/bold_look.json sets it 1): a deeper blue overhead, the horizon band left bright
+// gold, a stronger glow round the sun, and the clouds lit cream-gold and orange rather than dimmed.
+// 0 = the sky as it was.
+uniform float gold = 0.0;
 
 float hash(vec3 p) {
 	p = fract(p * 0.3183099 + 0.1);
@@ -76,9 +85,10 @@ float cloud_shape(vec2 p, vec2 band) {
 void sky() {
 	vec3 d = normalize(EYEDIR);
 	vec3 cell_id = vec3(0.0);
-	if (sky_squares > 0.0) {
-		cell_id = floor(d * sky_squares);
-		d = normalize((cell_id + 0.5) / sky_squares);
+	float squares = block_soft > 0.0 ? 0.0 : sky_squares;
+	if (squares > 0.0) {
+		cell_id = floor(d * squares);
+		d = normalize((cell_id + 0.5) / squares);
 	}
 	float h = d.y;
 	vec3 sd = normalize(sun_dir);
@@ -93,21 +103,22 @@ void sky() {
 	// The warm horizon belongs to the sun's side of the sky when it's low; elsewhere it's a pale
 	// blue haze (mixing the warm horizon into the blue top went lavender, which the painting never
 	// is).
-	vec3 far_haze = mix(top_color, vec3(0.6, 0.72, 0.74), 0.5);
-	vec3 horizon = mix(horizon_color, mix(far_haze, horizon_color, pow(toward, 2.5)), low * sun_up);
+	vec3 top = mix(top_color, top_color * vec3(0.61, 0.87, 1.12), gold * low * sun_up);
+	vec3 far_haze = mix(top, vec3(0.6, 0.72, 0.74), 0.5);
+	vec3 horizon = mix(horizon_color, mix(far_haze, horizon_color, pow(toward, mix(2.5, 1.2, gold))), low * sun_up);
 	// With the sun low the horizon band is a deep gold, not a bright one (the painting's sky away
 	// from the sun sits around L* 55, ours was blown).
-	horizon *= 1.0 - 0.3 * low * sun_up * (1.0 - pow(toward, 4.0));
+	horizon *= 1.0 - 0.3 * (1.0 - gold) * low * sun_up * (1.0 - pow(toward, 4.0));
 	vec3 col;
 	if (h >= 0.0) {
-		col = mix(horizon, top_color, pow(max(h, 0.0), mix(0.55, 0.28, low * sun_up)));
-		col *= 1.0 - low_sun_dim * low * sun_up * (1.0 - near_sun);
+		col = mix(horizon, top, pow(max(h, 0.0), mix(0.55, 0.28, low * sun_up)));
+		col *= 1.0 - mix(low_sun_dim, 0.5, gold) * low * sun_up * (1.0 - near_sun);
 	} else {
 		col = mix(horizon, ground_color, clamp(-h * 5.0, 0.0, 1.0));
 	}
 	float sun_dot = max(dot(d, sd), 0.0);
-	col += sun_color * pow(sun_dot, 12.0) * 0.22 * sun_up;
-	col += sun_color * pow(sun_dot, 5.0) * 0.06 * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0)) * (1.0 - 0.5 * low);
+	col += sun_color * pow(sun_dot, 12.0) * mix(0.22, 0.3, gold) * sun_up;
+	col += sun_color * pow(sun_dot, 5.0) * mix(0.06, 0.08, gold) * sun_up * (1.0 - clamp(h * 3.0, 0.0, 1.0)) * (1.0 - 0.5 * low);
 
 	// Clouds on a flat layer overhead, as the painting paints them: loose bands of small heaps
 	// across the sky (the noise stretched along Z, across the street), ragged at the edges (warped
@@ -119,27 +130,31 @@ void sky() {
 		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(cloud_drift, 0.0);
 		vec2 band = vec2(1.5, 0.45);
 		float n = cloud_shape(p, band);
-		float edge = 1.0 - cloud_cover;
+		float edge = 1.0 - cloud_cover - 0.12 * gold;
 		// Soft edges, as the painting's heaps have (the blocks on them are the texture's, later).
 		float c = smoothstep(edge - 0.05, edge + 0.05, n) * smoothstep(0.03, 0.14, h);
 		float top = clamp((n - cloud_shape(p * 0.93, band)) * 7.0, 0.0, 1.0);
 		float under = clamp((n - cloud_shape(p * 1.07, band)) * 7.0, 0.0, 1.0);
 		float sunward = pow(toward, 3.0);
-		vec3 gold = sun_color * mix(vec3(1.0, 0.96, 0.9), vec3(0.84, 0.64, 0.42), low);
-		vec3 body = mix(vec3(0.78, 0.78, 0.8), mix(vec3(0.82, 0.62, 0.5), vec3(0.98, 0.64, 0.4), sunward), low);
-		vec3 belly = mix(vec3(0.48, 0.5, 0.56), vec3(0.58, 0.45, 0.48), low);
+		vec3 lit = sun_color * mix(vec3(1.0, 0.96, 0.9), mix(vec3(0.84, 0.64, 0.42), vec3(1.0, 0.82, 0.6), gold), low);
+		vec3 body = mix(vec3(0.78, 0.78, 0.8), mix(mix(vec3(0.82, 0.62, 0.5), vec3(0.86, 0.52, 0.34), gold), vec3(0.98, 0.64, 0.4), sunward), low);
+		vec3 belly = mix(vec3(0.48, 0.5, 0.56), mix(vec3(0.58, 0.45, 0.48), vec3(0.4, 0.42, 0.54), gold), low);
 		float lift = clamp(top * 1.2 + sunward * 0.25 * low, 0.0, 1.0);
 		float sink = clamp(under * 1.1 - top * 0.5, 0.0, 1.0);
-		if (cloud_tones > 0.0) {
-			lift = floor(lift * cloud_tones + 0.5) / cloud_tones;
-			sink = floor(sink * cloud_tones + 0.5) / cloud_tones;
+		float tones = mix(cloud_tones, 3.0, gold);
+		if (tones > 0.5) {
+			lift = floor(lift * tones + 0.5) / tones;
+			sink = floor(sink * tones + 0.5) / tones;
 		}
-		vec3 cloud = mix(mix(body, gold, lift), belly, sink) * mix(1.0, 0.75, low * (1.0 - sunward)) * mix(1.0, 0.7, low);
+		vec3 cloud = mix(mix(body, lit, lift), belly, sink) * mix(1.0, 0.75, low * (1.0 - sunward)) * mix(1.0, 0.7, low * (1.0 - gold));
 		float day = smoothstep(-0.12, 0.05, sd.y);
 		// After dusk they're dark shapes against the stars, faintly moonlit at the top.
 		vec3 night = vec3(0.035, 0.04, 0.07) * (1.0 + top * 1.5);
 		cloud = mix(night, cloud, day);
 		col = mix(col, cloud, c * 0.95);
+		// The painting's golden-hour sky is a deeper picture than a bright clear one (its band over
+		// the street at L* ~60, ours was 80 with the clouds in).
+		col *= 1.0 - 0.15 * gold * low * sun_up * (1.0 - near_sun);
 	}
 
 	// Haze low over the land: the horizon's colour, warmest toward the sun.
@@ -159,6 +174,6 @@ void sky() {
 	float star = step(0.9978, s) * (0.4 + 0.6 * hash(cell + 7.3));
 	col += vec3(star) * star_strength * smoothstep(0.02, 0.25, h);
 
-	col *= 1.0 + (hash(cell_id + 3.1) - 0.5) * 2.0 * sky_mosaic * step(0.5, sky_squares);
+	col *= 1.0 + (hash(cell_id + 3.1) - 0.5) * 2.0 * sky_mosaic * step(0.5, squares);
 	COLOR = col;
 }

@@ -267,7 +267,7 @@ func test_shoot_one_and_his_friends_turn_on_you() -> void:
 		g.global_position = town.places.at(gb.bar_spot)
 		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2, 0, 0)) + Vector3.UP * 1.2}]
 		gb._step_started = false
-	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, 0.38, 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
+	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, _saloon_floor(), 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
 	await physics_frames(30)
 	var brody := _man(&"brody")
 	var at := (brody.parts[&"thigh_r"] as Node3D).global_position
@@ -314,7 +314,7 @@ func test_in_a_fight_they_work_together() -> void:
 		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2, 0, 0)) + Vector3.UP * 1.2}]
 		gb._step_started = false
 	player.remove_meta(&"human_body")  # their rounds stop on you: this is about them
-	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, 0.38, 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
+	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, _saloon_floor(), 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
 	var calls: Array[String] = []
 	var hear := func(who: Node, kind: StringName, _about: Node, _at: Vector3) -> void:
 		calls.append("%s %s" % [(who as HumanBody).person_id, kind])
@@ -345,3 +345,8 @@ func test_in_a_fight_they_work_together() -> void:
 				check(gb.relations.stance(other) < Relations.Stance.FIGHT, "%s isn't fighting %s" % [g.person_id, other.person_id])
 	check(shots.size() >= 2, "more than one of them shooting at you (%s)" % str(shots.values()))
 	print("  the gang in a fight on the street: %s" % ", ".join(calls))
+
+
+## The saloon's floor (config/town.json raises it above the street's other walks).
+func _saloon_floor() -> float:
+	return float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38))

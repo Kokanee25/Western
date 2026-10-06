@@ -21,6 +21,11 @@ uniform float roughness : hint_range(0.0, 1.0) = 0.95;
 // Members' board edges: the texels along a face's long edges this much darker (the line between
 // two boards the painting draws on every plank), the ends a little less; 1 = no line.
 uniform float edge_shade : hint_range(0.0, 1.0) = 0.7;
+// The painting's seam: within this many screen pixels of a member face's long edges, this dark
+// (global: set by the look; 0 = off, only the texel-wide line above).
+global uniform float seam_px;
+uniform float seam_shade : hint_range(0.0, 1.0) = 0.45;
+uniform float seam_lip : hint_range(1.0, 2.0) = 1.3;
 uniform float metallic : hint_range(0.0, 1.0) = 0.0;
 uniform float specular : hint_range(0.0, 1.0) = 0.2;
 // Never coarsened into bigger squares far off (min_square_px): a sign's lettering has to stay
@@ -142,6 +147,23 @@ void fragment() {
 			edge = shade;
 		} else if (at.x < line || at.x > across.x - line) {
 			edge = mix(shade, 1.0, 0.4);
+		}
+		// The line between boards is a line, not a row of squares: the painting draws it a pixel
+		// or so wide and dark however far off the wall is, while its squares grow with distance
+		// (and ours coarsen into bigger squares, min_square_px, where a texel-wide line went faint
+		// and dotted). So within a screen pixel and a half of a long edge, the dark line, always.
+		// One long edge (the top of a lap board: v runs up a member's face) takes the dark line, the
+		// other a lit lip a pixel wide, as the painting draws a board's edge catching the sun, so
+		// boards stand off the wall rather than being lines drawn on it.
+		if (seam_px > 0.0) {
+			float px = max(fwidth(UV.y), 1e-6);
+			if ((UV2.y - UV.y) / px < seam_px) {
+				edge = seam_shade;
+			} else if (UV.y / px < seam_px) {
+				edge = seam_lip;
+			} else if (at.y < line || at.y > across.y - line) {
+				edge = 1.0;  // the seam's line and lip do the edge's work here
+			}
 		}
 	}
 	if (tile_ragged > 0.0 && b <= 1.0 && !soft) {

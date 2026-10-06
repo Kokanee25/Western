@@ -83,3 +83,34 @@ func test_a_townsman_walks_up_by_the_steps() -> void:
 		return path.is_empty(), 60 * 10)
 	check(arrived, "he got there (at %s)" % man.global_position)
 	check_near(man.global_position.y, 0.6, 0.08, "up on the walk")
+
+
+func test_steps_at_the_end_join_a_lower_walk() -> void:
+	# A walk 0.4 m higher beside this one (the saloon's beside the store's), steps down at its
+	# west end: you walk along the low walk, up them and on along the high one, and back down.
+	var high := Boardwalk.new()
+	high.structure_id = &"high"
+	high.length = 8.0
+	high.top = 1.0
+	high.end_steps = [Vector2(0, 0.6)]
+	world.add_child(high)
+	high.position = walk.position + Vector3(walk.length, 0, 0)
+	await physics_frames(3)
+	var treads := high.members.values().filter(func(m: StructureMember) -> bool: return String(m.member_id).begins_with("high/end_step/"))
+	check_eq(treads.size(), 2, "two treads, the first level with the low walk")
+	var player: Player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	player.global_position = walk.position + Vector3(walk.length - 2.0, 0.6, -1.2)
+	player.rotation = Vector3(0, -PI * 0.5, 0)  # face +X, along the walks
+	await physics_frames(10)
+	Input.action_press(&"move_forward")
+	var up := await wait_until(func() -> bool: return player.global_position.x > high.position.x + 2.0, 60 * 6)
+	Input.action_release(&"move_forward")
+	check(up, "walked up the steps onto the high walk (at %s)" % player.global_position)
+	check_near(player.global_position.y, 1.0, 0.08, "standing on it")
+	player.rotation = Vector3(0, PI * 0.5, 0)  # back the other way
+	Input.action_press(&"move_forward")
+	var down := await wait_until(func() -> bool: return player.global_position.x < high.position.x - 1.5, 60 * 6)
+	Input.action_release(&"move_forward")
+	check(down, "walked back down onto the low walk (at %s)" % player.global_position)
+	check_near(player.global_position.y, 0.6, 0.08, "standing on it")

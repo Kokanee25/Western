@@ -9,12 +9,13 @@ class_name StreetMatch
 
 ## The hour: the sun a hand's width over the horizon, as in the painting.
 const HOUR := 17.6
-## Where your feet are, and the point you look at (world space, test street).
-## Fitted by eye to the painting (2026-10-02): the street's vanishing point ~55% across and a
-## little below the middle, the saloon's porch and big board down the left, the livery's front at
-## the right edge.
-const FEET := Vector3(3.0, 0.0, -6.0)
-const LOOK := Vector3(-46.1, 5.8, -1.4)
+## Where your feet are, and the point you look at, in the saloon's own space (its front-left
+## corner the origin, its front facing -Z), so the shot follows the saloon wherever the town's
+## layout puts it (config/town.json). Fitted by eye to the painting (2026-10-02, on the old street):
+## the street's vanishing point ~55% across and a little below the middle, the saloon's porch and
+## big board down the left; you stand in the street off its far end, 6 m out from its front.
+const FEET_IN_SALOON := Vector3(15.5, 0.0, -9.6)
+const LOOK_IN_SALOON := Vector3(-35.3, 4.6, -1.2)
 ## The painting's lens: about 62° top to bottom (the game's own is 75°).
 const FOV := 62.0
 ## Eye height above the feet (the player's camera stands 1.6 m up).
@@ -41,15 +42,24 @@ static func stage(street: Node3D) -> void:
 
 ## Your eye and the point you look at, in the world.
 static func camera_transform() -> Transform3D:
-	var eye := FEET + Vector3.UP * EYE_HEIGHT
-	return Transform3D(Basis.looking_at(LOOK - eye, Vector3.UP), eye)
+	var eye := feet() + Vector3.UP * EYE_HEIGHT
+	return Transform3D(Basis.looking_at(look() - eye, Vector3.UP), eye)
+
+
+## Where your feet are in the street, and the point you look at.
+static func feet() -> Vector3:
+	return TownLayout.transform_of(&"Saloon") * FEET_IN_SALOON
+
+
+static func look() -> Vector3:
+	return TownLayout.transform_of(&"Saloon") * LOOK_IN_SALOON
 
 
 ## Stand the player at the painting's viewpoint with the revolver out at the hip. The gun stays in
 ## hand (the painting shows it); the gun in hand keeps the camera level on the head and eases the
 ## lens to its resting fov, so the turn and pitch go on the player and head, and the lens on the gun.
 static func frame_camera(player: Player) -> void:
-	player.global_position = FEET
+	player.global_position = feet()
 	player.velocity = Vector3.ZERO
 	var t := camera_transform()
 	var fwd := -t.basis.z

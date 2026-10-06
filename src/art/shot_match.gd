@@ -34,6 +34,25 @@ const FOV := 48.0
 const SEAT := Vector3(0.778, 0.0, -0.467)
 ## Turned this far to his left from square to you (degrees), fitted with SEAT.
 const TURN := 6.75
+## His head as the painting has it: looking you in the eye, chin up a touch, turned a little and
+## tipped toward his left shoulder; his chest turned a touch to his left; his right arm and wrist
+## set so the mug in his palm sits where the painting's does with the back of his hand towards
+## you (fitted with SEAT and TURN: his outline on the painting's man's, both his eyes on its eyes,
+## the cup on its cup, his palm in front of the mug).
+const POSE_OFFSETS := {&"head": Vector3(8.5, -8.5, 13.75), &"neck": Vector3(0.0, -5.5, 0.0),
+		&"chest": Vector3(0.0, 4.5, 0.0), &"upper_arm_r": Vector3(1.5, 6.5, 0.0),
+		&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
+## A man whose head, hat or build differs is fitted on his own (tools/fit_shot.gd): his model's
+## name -> any of "seat", "turn", "pose_offsets"; what's left out is SEAT, TURN, POSE_OFFSETS.
+## stranger2s (the characters session's Rodin man, his head on its hitbox, refitted 2026-10-06 on
+## his drawn eyes): his eyes 2.8 px from the painting's in its 1672 px frame, outline overlap 0.674,
+## sitting upright with his face out from under the brim.
+const FITS := {
+	&"stranger2s": {"seat": Vector3(0.742, 0.0, -0.478), "pose_offsets": {
+			&"head": Vector3(6.0, -13.25, 5.25), &"neck": Vector3(0.0, -0.5, 7.5),
+			&"chest": Vector3(0.0, -2.25, 0.0), &"upper_arm_r": Vector3(1.5, 10.5, 0.0),
+			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
+}
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
@@ -41,6 +60,20 @@ const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
 ## (`stranger`, tools/blender/fit_tripo.py; the default since 2026-10-03) or the MakeHuman
 ## `outlaw`; tools/screenshots.gd --model=.
 static var model: StringName = &"stranger"
+
+
+## The seated man's fit for the model he wears: "seat", "turn" or "pose_offsets" (FITS, else the
+## old stranger's).
+static func fit(key: StringName) -> Variant:
+	var own: Dictionary = FITS.get(model, {})
+	if own.has(key):
+		return own[key]
+	match key:
+		&"seat":
+			return SEAT
+		&"turn":
+			return TURN
+	return POSE_OFFSETS
 
 
 ## Build the scene in the test street (clearing that table's own props) and seat the man.
@@ -54,7 +87,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	street.add_child(root)
 	root.global_transform = set
 	_table(root)
-	_chair(root, SEAT + Vector3(0.1, 0.0, 0.07), 53.0)
+	_chair(root, fit(&"seat") + Vector3(0.1, 0.0, 0.07), 53.0)
 	# On the table: the lamp beside him, the bottle nearer you on the right, your cup, his ashtray.
 	# (The painting's lamp is about twice ours for a seated eye; ours stays the game's lamp.)
 	var lamp := OilLamp.new()
@@ -90,19 +123,12 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 		look["hair_long"] = true
 		man.look = look
 	street.add_child(man)
-	man.global_position = set * SEAT
+	man.global_position = set * fit(&"seat")
 	# Nearly square to you, as the painting's man sits.
 	man.face(set * Vector3(EYE.x, 1.0, EYE.z))
-	man.global_rotation.y += deg_to_rad(TURN)
+	man.global_rotation.y += deg_to_rad(fit(&"turn"))
 	man.set_pose(&"sit_lean")
-	# His head as the painting has it: looking you in the eye, chin up a touch, turned a little and
-	# tipped toward his left shoulder; his chest turned a touch to his left; his right arm and wrist
-	# set so the mug in his palm sits where the painting's does with the back of his hand towards
-	# you (fitted with SEAT and TURN: his outline on the painting's man's, both his eyes on its eyes,
-	# the cup on its cup, his palm in front of the mug).
-	man.pose_offsets = {&"head": Vector3(8.5, -8.5, 13.75), &"neck": Vector3(0.0, -5.5, 0.0),
-			&"chest": Vector3(0.0, 4.5, 0.0), &"upper_arm_r": Vector3(1.5, 6.5, 0.0),
-			&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
+	man.pose_offsets = (fit(&"pose_offsets") as Dictionary).duplicate()
 	_cup_in_hand(man)
 	_extras(street)
 	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
@@ -221,7 +247,10 @@ static func _floor_at(street: Node3D, at: Vector3) -> float:
 	var space := street.get_world_3d().direct_space_state
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 1.0, Layers.WORLD)
 	var hit := space.intersect_ray(q)
-	return (hit.position as Vector3).y if not hit.is_empty() and (hit.position as Vector3).y < 0.8 else 0.38
+	# The saloon's floor (up its steps), not the top of a table or chair over it.
+	var saloon := street.find_child("Saloon", true, false) as FalseFrontBuilding
+	var f := saloon.floor_top if saloon else 0.38
+	return (hit.position as Vector3).y if not hit.is_empty() and (hit.position as Vector3).y < f + 0.4 else f
 
 
 static func _clear_props(street: Node3D, t: Vector3) -> void:

@@ -48,6 +48,14 @@ Reference: `docs/concept/saloon-night.png`, `docs/concept/livery-fire.png` and
 `docs/concept/street-golden-hour.png` (Sean, 2026-10-01: the main street at golden hour, first person
 with the revolver; the target for the street, materials and daylight).
 
+**The bold style everywhere (Sean, 2026-10-05).** The street painting's style is the game's:
+crisp, bold squares fixed to every surface, each a clearly different colour from its neighbour,
+pale weathered wood with a dark line at every seam, signs lettered square by square, readable at
+a glance. The saloon's target is `docs/concept/saloon-blocks.png` (the saloon painting redrawn in
+that style); `saloon-night.png` stays the reference for the room's lamplit mood, not its finer,
+painterly squares. Where this section says otherwise below, this wins. The town's layout:
+`docs/concept/town-map.png`, `docs/briefs/town.md`.
+
 - **"High-resolution Duke Nukem 3D", in real 3D** (Sean, 2026-09-28): solid, readable low-poly models
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
   texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The

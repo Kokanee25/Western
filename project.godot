@@ -58,6 +58,10 @@ light_bands={
 "type": "float",
 "value": 0.0
 }
+seam_px={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 

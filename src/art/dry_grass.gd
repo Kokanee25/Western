@@ -12,7 +12,7 @@ const ROAD_Z := -8.4
 const ROAD_HALF := 6.0
 ## How many tufts to try placing, and the area they're scattered over (x0, z0, x1, z1).
 const TRIES := 32000
-const AREA := Rect2(-75.0, -45.0, 100.0, 80.0)
+const AREA := Rect2(-80.0, -45.0, 110.0, 80.0)
 ## Tuft size in metres (width, height) and texels in its picture (one texel a blade's width).
 const SIZE := Vector2(0.85, 0.55)
 const TEXELS := Vector2i(26, 18)
@@ -84,8 +84,9 @@ func _density(p: Vector3, noise: FastNoiseLite) -> float:
 	if dz < ROAD_HALF - 1.6:
 		return 0.0
 	if dz < ROAD_HALF + 1.4:
-		# The edge of the road: thickest where the wheels never go.
-		return lerpf(0.25, 1.0, smoothstep(ROAD_HALF - 1.6, ROAD_HALF - 0.2, dz)) * lerpf(0.35, 1.0, clump)
+		# The edge of the road: thickest where the wheels never go, in clumps with bare dirt between
+		# (the painting's grass by the walks is a tuft here and a clump there, not a hedge).
+		return lerpf(0.25, 1.0, smoothstep(ROAD_HALF - 1.6, ROAD_HALF - 0.2, dz)) * smoothstep(0.28, 0.58, clump)
 	return 0.28 * clump
 
 

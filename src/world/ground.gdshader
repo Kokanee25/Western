@@ -23,6 +23,10 @@ uniform bool use_road_tex = false;
 // repeat.
 uniform sampler2D wide_tex : source_color, filter_nearest, repeat_enable;
 uniform bool use_wide_tex = false;
+// A drawn wide tile (the bold look's: tools/textures/draw_road.py): its ruts and stones are kept
+// where the 2 m tile shows through (they're darker than the dust round them), so the tracks run
+// unbroken down the street as the painting's do.
+uniform bool keep_tracks = false;
 // The ground faces the whole sky, and with the sun low the sky round it is bright: the sun's
 // light on the ground is wrapped (a flat surface under a 15-degree sun got a quarter of it and
 // drew at half the painting's brightness, docs/ART_REVIEW.md §3.1). Shadows still fall.
@@ -100,6 +104,11 @@ void fragment() {
 		vec2 ws = vec2(textureSize(wide_tex, 0));
 		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, 0.0).rgb;
 		float patch = smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
+		if (keep_tracks) {
+			float lw = dot(wide, vec3(0.3, 0.59, 0.11));
+			float ld = dot(dirt, vec3(0.3, 0.59, 0.11));
+			patch *= smoothstep(0.78, 0.92, lw / max(ld, 1e-3));
+		}
 		dirt = mix(wide, use_road_tex ? dirt : wide, patch * 0.6);
 	}
 	vec3 col = mix(wild, dirt, road) * (use_road_tex || use_wide_tex ? mix(0.82 + 0.36 * n, 0.9 + 0.2 * n, road) : 0.82 + 0.36 * n);

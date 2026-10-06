@@ -3271,6 +3271,35 @@ a few views renders them as the full run does.
   same, checked old against new). Tests `test_town_layout` (2). Next: step 2, Main Street moved to
   the map (one saloon, the store beside it, the livery and jail across, raised boardwalks with
   steps), with the art session on the dressing and the goldens.
+- 2026-10-05 (art session, later): **The bold style everywhere (Sean), its first cut behind M; the
+  saloon's lamps; the town map.** Sean picked the street painting's bold squares for the whole
+  game (DESIGN.md §4, shared: a paragraph). The street's target stays `street-golden-hour.png`;
+  the saloon's is now `docs/concept/saloon-blocks.png` (the saloon painting redrawn in that
+  style; `saloon-night.png` kept for the room's mood), in `tools/judge.py` and `tools/critic.py`
+  (judge `--probes` keeps its two darkening probes for the street only). **M is now the bold
+  look** (layout note above, still off by default, Sean's eye decides): the factory's textures
+  cut again by `reduce.py --bold` (16 texels a metre, the grain's contrast doubled, 10–12
+  colours a material, neighbours pushed apart; a material's `bold` dict in `materials.json`)
+  into `assets/textures/bold/` (`PixelArt.bold`, `BOLD_TEXELS`), hard block edges
+  (`BLOCK_SOFT` 0), far blocks kept at 4 px (`BOLD_MIN_SQUARE_PX`), the night's exposure 1.0
+  (`src/art/bold_look.json`, applied under M by `LookPreset.apply_from_args`), and the sky
+  drawn smooth under M. Judge v2 round `2026-10-05_r27` against the new targets: street 0.326
+  → **0.304**, saloon 0.331 → **0.241** (today's default first; `_r19`–`_r26` are the trials:
+  a sun at the street's end and warmer fills read pale, brighter nights blew the lamps).
+  Blind critic `_r27` top three: the seated man's coat and arm smooth faceted slabs (his
+  texture's squares are far finer than the bold style's: characters session, told), the
+  street's lavender sky and small high sun (the Part A restore's gold sky is the answer, still
+  Sean's call), the room behind him brown murk. Review sheet
+  `docs/screenshots/review/2026-10-05_bold.png`. Also today, on the branch: the saloon's wall
+  sconces throw pools (`SCONCE_*`, two under the balcony; judge level, `_sconces.png`), the
+  M look judged at 960×540 (level), Sean's town map `docs/concept/town-map.png` and
+  `docs/briefs/town.md` (one town on this map; four questions for Sean). Found: a look switch
+  (M, I) kept the old look's wood materials and textures in caches, so the reloaded scene
+  mixed looks; `PixelArt.reset_for_look()` empties them. Gameplay's files touched (said here):
+  `src/world/oil_lamp.gd` (an `attenuation` export with a setter, default as before),
+  `src/structures/wood_materials.gd` (`reset()`, five lines), `src/debug/look_preset.gd` (the
+  bold preset under M, a dozen lines), `tests/test_pixel_art.gd` (the M test's expectations);
+  shared `settings.gd` (my lines). 323 tests pass.
 - 2026-10-05 (characters session, later): **The probe mosaic steadier: the frame multisampled
   and texel edges soft under V; its judge numbers corrected.** Sean: "keep working at it". Where
   its flicker was (`tools/probe_walk.py stability`, split by kind): about half on surfaces (the
@@ -3745,3 +3774,96 @@ a few views renders them as the full run does.
     `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
     per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
   - All 360 tests pass on the squashed commit.
+- 2026-10-06 (art session): **The saloon's front to the street painting** (merged with the raise and the filter off, below)
+  (Sean: "it's not just the pixels, it's the buildings' textures and detail"; then "keep working
+  the wood", "get the saloon perfect", "ruts and windows"). `FacadeArt` (`src/art/facade_art.gd`,
+  called at the end of gameplay's `FalseFrontBuilding.build()`, one line, said here) dresses a
+  front that asks for it (`"facade": "saloon"|"store"` in `StreetDressing.BUILDINGS`): corner
+  posts, a deep cornice on brackets, the framed sign lettered square by square
+  (`tools/textures/letter_sign.py`), a heavy door surround, louvred batwings, two hung lanterns
+  that glow, the dark room through the door, windows (casings, sill, pale bars, the panes drawn
+  by `tools/textures/draw_glass.py`: dark glass, the sky along the top, lamps in two panes, on a
+  quad under the glass member's mesh, so it goes when the glass is shot out), thick porch posts
+  with knee braces, a fascia, two wanted posters (`draw_posters.py`) and a spittoon. **Wood
+  drawn square by square** (`tools/textures/draw_boards.py`: each board a strip in the
+  painting's colours, its squares two to six long along the grain, `assets/textures/drawn/`),
+  laid at 32 a metre (`PixelArt.DRAWN_TEXELS`; `timber`, `store_boards`, `saloon_red` in every
+  look, the rest under M), and the seam between boards a screen-space line with a lit lip
+  (`texel_grid.gdshaderinc` `seam_px`, a global set under M). **The road under M** drawn the
+  same way (`draw_road.py`): pale dust, stones, the most used wheel track under the street
+  shot's feet; `ground.gdshader` `keep_tracks` keeps a drawn tile's ruts where the 2 m tile
+  shows through. **The sky under M** (`sky.gdshader` `gold`, `bold_look.json`): a deeper top,
+  more cloud, warm bodies with blue-grey bellies. Pictures `docs/screenshots/review/
+  2026-10-06_*.png`. Tests pixel_art, loads, props, ballistics, town_day pass.
+  - Not merged: the facade parts and the three drawn woods show in the default look too, so the
+    merge waits on Sean's yes, with goldens re-taken. Still off against the painting: its
+    windows have more, smaller panes with brighter reflections; its road has more dark squares;
+    the other fronts (store, livery, jail) have the parts but not yet the painting's look.
+  - Later (Sean: "get the saloon perfect so we have a model for the rest"): a porch railing, a
+    beam along the wall and joists under the porch roof, shadow-only panels at the porch's ends
+    (the low sun ran in along the porch), the room through the door drawn
+    (`draw_doorway.py`), brown window frames with 2×4 slate panes and amber lamplight, a halo
+    painted on the wall behind each lit lantern (`StreetDressing.lantern_halo`), timber a
+    weathered mid brown and the red boards darker and worn to grey in patches (measured against
+    the painting's posts and walls). `tools/facade_lab.gd`'s painting view now stands in the
+    street as the painting does. Picture `docs/screenshots/review/2026-10-06_saloon_vs_painting.png`.
+  - Later (Sean: "Yes do that", on the gameplay session's Main Street step 2): **the saloon front
+    moved onto the real saloon** (main merged in). The street painting's front is now the
+    `Saloon` itself (the separate `StreetSaloon` is gone with main's move): `facade` and
+    `porch_height` are properties of `FalseFrontBuilding` (gameplay's file, said here: the
+    porch's beam, ledger and lantern at `porch_height` + the old offsets, default 3.0 as before);
+    `saloon_building.gd` `_init` (gameplay's) takes the painting's red front, 8.4 m front, the
+    sign from 4.3 m and a porch at 3.75 m over the tall door (the moonlit doorway still shows from
+    inside); `config/town.json` (gameplay's) gives the store `facade` "store" and its drawn
+    boards. On a saloon people walk into, FacadeArt draws the batwings with no collision (solid
+    leaves kept the gang from the store); the end porch posts are the building's own, resized in
+    place before supports are inferred (the F11 test still breaks `store/porch/post0`); nothing
+    of a front reaches past its ends (the buildings stand wall to wall now). The street shot's
+    feet and look are the saloon's (`StreetMatch.feet()`/`look()`), the porch folk and bench on
+    its porch, the lanterns either side of the real door, the grass in clumps. All tests pass:
+    `test_chaos`'s same-seed test split two ways here when run after another chaos run (a stick
+    at the store/saloon junction took the saloon's west wall or its window trim); the gameplay
+    session now runs each seed in a Godot of its own (main 6cfff79, merged in). Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
+    the backdrop's near ring is 260 m out and nothing in the new town comes near it; pushing it
+    out would shrink the mountains below the painting's, so it stays.
+  - Later (Sean: "Raise up the saloon, have stairs down on the board walk to connect down to the
+    other store"): **the saloon up its steps.** Its floor and walk are 0.78 m (four steps up from
+    the street, as the street painting's; `config/town.json`: the Saloon's `floor_top`, the
+    SouthBoardwalk's `top`), the store's stay 0.38, and the saloon's walk steps down two treads to
+    the store's at its west end (`Boardwalk.end_steps`: blocks from the ground, the first level
+    with the walk below, an invisible ramp, a board closing the walk's end under its planks, no
+    old end ramp there). `SaloonBuilding.build()` lifts its walls, porch, sign and front by the
+    floor's rise (`BASE_HEIGHTS`), so the room and front keep their proportions. Found on the way:
+    a walking man's feet were kept down by one ray, which now and then fell through the gap
+    between two planks or floorboards; on the old 0.38 m walk he hopped back up, on a raised one
+    he was stuck under it (the gang never reached the bar). `HumanBody._snap_to_ground` casts five
+    rays a few centimetres apart and takes the highest. Gameplay's files touched, with Sean's
+    ask and told to it: `boardwalk.gd` (`end_steps`, `_ramp`'s `base`), `saloon_building.gd`
+    (`build()`), `false_front_building.gd` (window sills above the floor, not the ground: the same
+    at 0.38), `town_layout.gd` (one line: `end_steps` read as Vector2s), `waypoints.gd` (the
+    saloon's places at its own floor, `store_walk_east`/`saloon_walk_west` over the steps),
+    `human_body.gd` (the snap), `config/town.json`, tests `test_steps` (+1: up and down the end
+    steps), `test_town_day` and `test_town_layout` (the saloon's floor). Mine: the porch folk,
+    bench, lanterns and carried dressing go up with the walk (`StreetDressing.walk_lift`), nothing
+    stands on the end steps or a metre of the store's walk before them, FacadeArt's windows above
+    the floor, ShotMatch's floor ray, `tools/screenshots.gd`'s saloon views lifted. Picture
+    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 355 tests pass.
+  - Later (Sean: "let's turn it off ... no filters, the look has to be the art"): **the screen
+    mosaic off by default** (`Settings.mosaic` false; `LOOK_VERSION` 6 turns a saved one off once;
+    O still turns it on to compare; shared `settings.gd`, my lines; gameplay's
+    `tests/test_pixel_art.gd`, the art test's two lines). It cut the drawn textures and his face
+    into blotches and posterised the light (`docs/screenshots/review/2026-10-06_filter_on_off.png`).
+    ShotMatch's seated man is fitted per model (`ShotMatch.FITS`, `fit()`): the old stranger's
+    SEAT/TURN/POSE_OFFSETS as they were, and the characters session's `stranger2s` (his head on
+    its hitbox) with his own seat and pose from `tools/fit_shot.gd`. **Merged with the saloon front
+    and the raise:** all 70 goldens re-approved from two `--fresh` batched runs (both pass; the
+    store fire close up the only loose one, mean 35, its fire differs run to run), visual checks
+    374, none failed. Judge v2 round `2026-10-06_r1`: saloon 0.530, street 0.556 (the default
+    look's 0.225 / 0.329 the round before, with the mosaic): the saloon too dark against
+    `saloon-blocks.png` (deep-shadow share 0.49 vs 0.18; the mosaic's averaging had lifted it), the
+    street too light and pale (shadows L* 16 vs 6, chroma-L* correlation 0.19 vs 0.57). That's the
+    light without a filter over it: the next light passes (the street's sun and sky, the saloon
+    man's key and fill) are judged from here. Blind critic, top three: the room behind him is
+    dark, empty murk (the doorway, sconces, stair and balcony unread); the street's sky isn't
+    golden hour (lavender-grey, a small high white sun; the painting's gold heaps, big sun on
+    the horizon, rays, dust); his coat and arm are smooth faceted slabs, his face blotchy.
