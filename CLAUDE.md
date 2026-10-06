@@ -3419,10 +3419,9 @@ a few views renders them as the full run does.
     place before supports are inferred (the F11 test still breaks `store/porch/post0`); nothing
     of a front reaches past its ends (the buildings stand wall to wall now). The street shot's
     feet and look are the saloon's (`StreetMatch.feet()`/`look()`), the porch folk and bench on
-    its porch, the lanterns either side of the real door, the grass in clumps. 352 of 353 tests
-    pass: `test_chaos::test_the_same_seed_gives_the_same_chaos` splits two ways when run after
-    another chaos run (a stick at the store/saloon junction takes either the saloon's west wall
-    or its window trim; identical when run alone, passes on main): told the gameplay session, not
-    changed here. Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
+    its porch, the lanterns either side of the real door, the grass in clumps. All tests pass:
+    `test_chaos`'s same-seed test split two ways here when run after another chaos run (a stick
+    at the store/saloon junction took the saloon's west wall or its window trim); the gameplay
+    session now runs each seed in a Godot of its own (main 6cfff79, merged in). Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
     the backdrop's near ring is 260 m out and nothing in the new town comes near it; pushing it
     out would shrink the mountains below the painting's, so it stays.
