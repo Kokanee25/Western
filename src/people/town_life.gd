@@ -53,7 +53,7 @@ func _process_step(delta: float) -> void:
 func _spawn_townsfolk() -> void:
 	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
 			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32))
-	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + Vector3(1.0, 1.4, 0.0), 102,
+	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13))
 
 
@@ -121,7 +121,7 @@ func bring_gang(only: Array = []) -> void:
 ## the storekeeper (Lyle draws on him) while Brody stays at the bar; a last drink; out west.
 func _plan(g: Dictionary, i: int) -> Array[Dictionary]:
 	var bar: StringName = g.bar
-	var face := places.at(bar) + Vector3(-2.0, 1.2, 0.0)
+	var face := places.at(bar) + TownLayout.facing_toward(&"Saloon", Vector3(2.0, 0.0, 0.0)) + Vector3.UP * 1.2
 	var plan: Array[Dictionary] = [
 		{"do": &"go", "to": bar},
 		{"do": &"drink", "seconds": drink_seconds + i * 2.0, "face": face},

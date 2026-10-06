@@ -1,7 +1,11 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Script" path="res://src/world/town_layout.gd" id="30_town"]
+[ext_resource type="Script" path="res://src/structures/fittings.gd" id="31_fittings"]
+[ext_resource type="Script" path="res://src/structures/well.gd" id="32_well"]
+[ext_resource type="Script" path="res://src/structures/windpump.gd" id="33_windpump"]
+[ext_resource type="Script" path="res://src/structures/corral.gd" id="34_corral"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
@@ -150,6 +154,56 @@ structure_id = &"south_boardwalk"
 build_seed = 5
 length = 11.5
 
+[node name="Telegraph" type="Node3D" parent="."]
+script = ExtResource("5_store")
+structure_id = &"telegraph"
+build_seed = 21
+
+[node name="TelegraphWalk" type="Node3D" parent="."]
+script = ExtResource("6_boardwalk")
+structure_id = &"telegraph_walk"
+build_seed = 22
+
+[node name="Doctor" type="Node3D" parent="."]
+script = ExtResource("5_store")
+structure_id = &"doctor"
+build_seed = 23
+
+[node name="DoctorWalk" type="Node3D" parent="."]
+script = ExtResource("6_boardwalk")
+structure_id = &"doctor_walk"
+build_seed = 24
+
+[node name="Bank" type="Node3D" parent="."]
+script = ExtResource("5_store")
+structure_id = &"bank"
+build_seed = 25
+
+[node name="BankWalk" type="Node3D" parent="."]
+script = ExtResource("6_boardwalk")
+structure_id = &"bank_walk"
+build_seed = 26
+
+[node name="Well" type="Node3D" parent="."]
+script = ExtResource("32_well")
+structure_id = &"well"
+build_seed = 27
+
+[node name="Windpump" type="Node3D" parent="."]
+script = ExtResource("33_windpump")
+structure_id = &"windpump"
+build_seed = 28
+
+[node name="WindpumpTank" type="Node3D" parent="."]
+script = ExtResource("8_trough")
+structure_id = &"windpump_tank"
+build_seed = 29
+
+[node name="Corral" type="Node3D" parent="."]
+script = ExtResource("34_corral")
+structure_id = &"corral"
+build_seed = 30
+
 [node name="Ballistics" type="Node" parent="."]
 script = ExtResource("13_ballistics")
 
@@ -202,6 +256,8 @@ script = ExtResource("12_spawns")
 [node name="Street" type="Marker3D" parent="DebugSpawns"]
 transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
 
+[node name="DoctorInside" type="Marker3D" parent="DebugSpawns"]
+
 [node name="StoreInside" type="Marker3D" parent="DebugSpawns"]
 
 [node name="SaloonDoor" type="Marker3D" parent="DebugSpawns"]
@@ -225,3 +281,6 @@ transform = Transform3D(-0.515, 0, 0.857, 0, 1, 0, -0.857, 0, -0.515, 11, 0, -9)
 
 [node name="StaticBatch" type="Node3D" parent="."]
 script = ExtResource("40_batch")
+
+[node name="Fittings" type="Node" parent="."]
+script = ExtResource("31_fittings")

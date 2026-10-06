@@ -84,6 +84,36 @@ const VIEWS := [
 	["texel_store_golden", 17.6, Vector3(3.0, 0.0, -7.5), 180.0, 6.0],
 ]
 
+## The views were laid out on the old test street; the town now stands on Sean's map
+## (config/town.json). A view of the store, the saloon or the range moves with it: by the same
+## move as its building (the store's door to its door, the saloon turned and moved, the range 30 m
+## east). The street views stay where they were.
+const STORE_VIEWS := ["store_front_noon", "porch_dusk", "inside_store_afternoon", "inside_store_night", "look_down_body",
+	"holes_from_inside", "window_shot", "wall_closeup_noon", "porch_collapse", "store_fire_night", "store_fire_close",
+	"store_fire_later", "gun_at_wall", "gun_at_wall_aim", "dynamite_store_blast", "dynamite_store_after",
+	"texel_porch", "texel_store_golden", "town_holdup"]
+const SALOON_VIEWS := ["gun_smoke_saloon", "saloon_front_dusk", "saloon_night", "saloon_back_wall_night",
+	"saloon_toward_door_night", "shotgun_shot_saloon", "town_bar"]
+const RANGE_VIEWS := ["gun_hip_range", "gun_aim_range", "gun_loading", "smoke_drift_street", "outlaw_range", "outlaw_close",
+	"outlaw_fight", "outlaw_surrender", "outlaw_down", "outlaw_graze", "outlaw_open", "outlaw_open_close", "outlaw_open_reduced",
+	"outlaw_neck", "outlaw_xray", "outlaw_face", "outlaw_face_evening", "outlaw_side", "outlaw_back", "shotgun_hip_range",
+	"shotgun_aim_range", "shotgun_open", "dynamite_lit", "outlaw_blast", "outlaw_wary", "outlaw_covering_you",
+	"outlaw_in_cover", "outlaw_peeking", "outlaw_buckshot_room", "outlaw_buckshot", "outlaw_buckshot_close", "portrait_day"]
+
+
+## The move from the old street to the town as it stands now for a view (identity for the street's).
+static func _view_move(view: String) -> Transform3D:
+	var town = load("res://src/world/town_layout.gd")
+	if view in SALOON_VIEWS:
+		var was: Dictionary = town.entry(&"Saloon")["was"][0]
+		return town.transform_of(&"Saloon") * town._xform(was).affine_inverse()
+	if view in STORE_VIEWS:
+		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
+		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))
+	if view in RANGE_VIEWS:
+		return town.transform_of(&"RangeCover")
+	return Transform3D()
+
 
 ## --probe-debug=N: the probe mosaic's debug view (1 the block grid, 2 the reprojection check).
 var probe_debug := 0
@@ -218,8 +248,11 @@ func _run() -> void:
 		if main == null or fresh:
 			if main != null:
 				main.queue_free()
-				await process_frame
-				await process_frame
+				# The renderer lets go of a freed scene some frames later. Waited out first when
+				# town_bar went grey (blamed on lights; it was the room's reflection probe not yet
+				# drawn: the wait for the probes below). Nothing's drawn meanwhile, so it's cheap.
+				for _i in 150:
+					await process_frame
 			main = await _load_main(globals_after, screen_squares, mosaic_steps)
 			viewport = main.get_node(^"GameViewport")
 			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
@@ -228,12 +261,19 @@ func _run() -> void:
 		if not String(v[5] if v.size() > 5 else "").begins_with("town_"):
 			_calm(town_life, player)
 		clock.set_time(v[1])
-		player.global_position = v[2]
+		var move := _view_move(v[0])
+		player.global_position = move * (v[2] as Vector3)
 		player.velocity = Vector3.ZERO
-		player.rotation = Vector3(0.0, deg_to_rad(v[3]), 0.0)
+		player.rotation = Vector3(0.0, deg_to_rad(v[3]) + move.basis.get_euler().y, 0.0)
 		player.input_enabled = true
 		player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 		player.input_enabled = false
+		# Every building's room light is a reflection probe drawn once, over about six frames, one
+		# probe at a time and in no fixed order; until a room's is drawn the room takes the sky's
+		# ambient (town_bar went cold grey now and then once step 3's buildings made 11 probes and a
+		# view waited 40 frames). Wait for them all, at this view's hour, before anything happens.
+		for _i in 7 * root.find_children("*", "ReflectionProbe", true, false).size():
+			await process_frame
 		var gun = player.get_node_or_null(^"Head/Camera3D/Gun")
 		var setup: String = v[5] if v.size() > 5 else ""
 		if gun:
@@ -392,7 +432,7 @@ func _run() -> void:
 		if setup == "holes" and gun:
 			# Shoot the front wall from the boardwalk, then look at it from inside.
 			var inside: Vector3 = player.global_position
-			player.global_position = Vector3(3.0, 0.38, -2.0)
+			player.global_position = _view_move(v[0]) * Vector3(3.0, 0.38, -2.0)
 			player.rotation = Vector3(0.0, PI, 0.0)
 			for k in 7:
 				player.input_enabled = true
@@ -414,7 +454,7 @@ func _run() -> void:
 			for c in root.find_children("*", "GunSmoke", true, false):
 				c.queue_free()
 			player.global_position = inside
-			player.rotation = Vector3(0.0, deg_to_rad(v[3]), 0.0)
+			player.rotation = Vector3(0.0, deg_to_rad(v[3]) + _view_move(v[0]).basis.get_euler().y, 0.0)
 			player.input_enabled = true
 			player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 			player.input_enabled = false
@@ -551,7 +591,7 @@ func _town_setup(main, setup, player) -> void:
 		for g in town.gang:
 			var b = g.get_node("Brain")
 			g.global_position = places.at(b.bar_spot)
-			b.agenda.assign([{"do": &"drink", "seconds": 999.0, "face": places.at(b.bar_spot) + Vector3(-2.0, 1.2, 0.0)}])
+			b.agenda.assign([{"do": &"drink", "seconds": 999.0, "face": places.at(b.bar_spot) + load("res://src/world/town_layout.gd").facing_toward(&"Saloon", Vector3(2.0, 0.0, 0.0)) + Vector3.UP * 1.2}])
 		for i in 60:
 			await physics_frame
 	elif setup == "town_duel":

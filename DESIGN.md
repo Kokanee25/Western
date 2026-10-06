@@ -825,8 +825,90 @@ what really happened.
    noon whistle tell the time with no display.
 - Parked (Sean likes it, maybe no time): **your homestead built by hand** with the member system
   (fences, barn, well). Cut: water levels and drought, movable claim stakes.
+- Parked (Sean, 2026-10-05: "eventually"): **a shovel that digs real dirt, and treasure to find.**
+  The ground dug out as it's carved (the voxel damage's way of carving, on the ground), the dirt
+  thrown in a pile; things buried to be found (a cache of stolen money, a strongbox, bones), and
+  graves you can dig up, with the town's opinion of that.
 
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
+
+### Backlog (**proposed**, Sean 2026-10-06; features are frozen until the look is right)
+Not to be built until Sean lifts the freeze; then in his order. Every set piece is built from
+systems (a plan, an alarm, a crowd, consequences), never a fixed script, so it plays differently
+each time.
+
+**Set pieces**
+1. **The fire night** (first, closest to working): the gang (a drama-manager plan, a grudge) or a
+   careless lamp sets a building alight at night (riders, a coal-oil can, a broken window). Someone
+   sees it and shouts, the fire bell or church bell rings, and the town comes out in its
+   nightclothes. **A bucket brigade** forms a line from the trough and well, passing buckets hand
+   to hand; water cools and soaks timber in the fire system (a new rule). Whether it's saved turns
+   on how fast the line forms, how many come and the wind. You can join the line, drag someone out
+   of an upstairs room, save the goods, pull a burning wall down with rope, or ride after the men
+   who did it. After: the building lost or saved stays so (it's rebuilt over days), people remember
+   who helped and who watched, evidence (the can, tracks, witnesses), burns at the doctor's, maybe
+   a trial.
+2. **The bank robbery:** the gang's plan, the alarm, a posse forming; you choose your side.
+3. **A cattle drive hits town:** a dozen cowboys just paid off, drunk and loud, a brawl, maybe a
+   stampede down the street.
+4. **The hanging:** the whole town turns out; tension in the crowd, a rescue attempt or a lynch mob.
+5. **The jailbreak:** the gang comes for their man at night.
+6. **The stage held up** on the road, and the town's reaction when it limps in.
+7. **The railroad arrives:** celebration, speeches, a shooting match, and outsiders' trouble.
+8. **A dust storm or flash flood:** everyone shelters; sight and hearing drop.
+
+**Town life and the period**
+- **Cards: poker and faro** at the saloon: drink dulls judgement, cheats can be caught (a card up a
+  sleeve, a marked deck), an accusation climbs the escalation ladder, a game can end in a shooting.
+- **Riding horses:** your horse as transport, getaway and part of who you are; cared for at the
+  livery. Still never shooting animals.
+- **Town events with crowds:** stage and mail day (strangers, letters, news); Sunday (church, a
+  quieter saloon); community days (a Fourth of July with a horse race and shooting match, a barn
+  dance, funerals).
+- **Daily comforts:** a shave and bath at the barber's, meals at the eating house, coffee, tobacco,
+  a hotel room; somewhere for the townsfolk to be.
+- **Honest work for the player:** deputy shifts, riding shotgun on the stage, freighting, breaking
+  horses at the livery, the bucket brigade.
+- **Weather and seasons:** dust storms, summer thunderstorms, cold nights; they change who's out,
+  how far people see and hear, and how fire spreads.
+- **A weekly newspaper** that prints what happened, your doings included, slanted by the editor's
+  opinion of you.
+
+**The cast (proposed numbers)**
+- **12–15 principal characters,** each made fully (unique face and clothes, deep conversation, a
+  story role): sheriff, doctor, undertaker, barkeep, storekeeper, preacher, banker, editor, hotel
+  owner, the gang's leader and core men, the railroad's man.
+- **About 35 townsfolk** built from a few base bodies (thin, broad, heavy, old, and women's) and a
+  shared wardrobe of layered pieces; each with a name, job, home, routine and memories. The town
+  needs women: wives, a widow, saloon girls, a schoolteacher, a laundress.
+- **10–15 base outlaws** for camps and bounties outside town, dressed from the same wardrobe; the
+  same brains as the gang (nerve, fear, surrender, teamwork), simpler socially.
+- No children for now (what players could do to them, ratings, store rules).
+- **Everyone has a home** (Sean, 2026-10-06), as people really lived in an 1880s town: the
+  principals in their own houses or rooms behind or above their business (the storekeeper over
+  the store, the doctor behind his office, the barkeep upstairs at the saloon); families in small
+  frame houses and cabins; single men in a boarding house, hotel rooms or a bunkhouse; the poorest
+  in shacks and tents at the edge of town; ranch hands out at the ranches. **The homes are the
+  houses already on Sean's town map** (`docs/concept/town-map.png`: the small houses and
+  outbuildings round the blocks off Main, Market, Church and Freight Streets and Stable Road);
+  each is given its household when the townsfolk get routines (M4 step 8, M5), and the map's
+  other buildings (church, school, cemetery, feed store, blacksmith, wagon repair, freight
+  storehouse, stage stop) are workplaces and gathering places. Not every house needs a family
+  at first: empty ones are for sale, to let, or abandoned. Built from member-built templates in
+  code (a one-room cabin, a two-room frame house, a shack, a tent, a boarding house) with variants, and furnished by who
+  lives there (bed, stove, table, trunk, and things of their job and pastime: a doctor's books, a
+  gambler's cards, a widow's photographs). A home matters in play: people sleep, eat and wash
+  there on their routines; it's private (walking in uninvited is a deed, breaking in a crime they
+  remember); things in it are evidence (stolen goods, a letter, a bloody shirt); losing it to fire
+  changes them. Interiors sleep (no simulation, no drawing) until someone's near.
+- Fifty people needs "far people think slower" (full detail near, cheap across town, almost
+  nothing indoors out of sight) inside the frame budget; build that before the cast grows.
+
+**Props (proposed approach)**
+Hundreds of props in three tiers: a few hero props seen up close, made one by one; about a hundred
+common props made in themed batches (saloon, store, livery, jail, doctor's), each batch checked as
+one contact sheet beside a painting crop; filler (bottles, cans, sacks, tools) as code variants.
+One style recipe per kind of material, so everything matches.
 
 ## 12. First slice (what to build first)
 

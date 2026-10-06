@@ -384,12 +384,12 @@ static func voxels_available() -> bool:
 	return voxel_damage_tuning().enabled and ClassDB.class_exists(&"VoxelMember")
 
 
-## Carved rather than drawn: anything but glass, still standing where it was built (a broken
+## Carved rather than drawn: anything but glass and iron (a ball flattens on it), still standing where it was built (a broken
 ## member's pieces have gone their own way).
 func _use_voxels() -> bool:
 	if voxels != null:
 		return not broken
-	return kind != &"glass" and not broken and voxels_available()
+	return kind != &"glass" and wood != &"iron" and not broken and voxels_available()
 
 
 func _make_voxels() -> bool:

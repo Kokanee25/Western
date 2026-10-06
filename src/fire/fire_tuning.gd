@@ -12,7 +12,7 @@ extends Resource
 @export var ignition_temperature := 290.0
 @export var ambient_temperature := 20.0
 ## Materials that never burn (they still get hot, and glass cracks).
-@export var fireproof := [&"stone", &"glass"]
+@export var fireproof := [&"stone", &"glass", &"iron"]
 ## Glass cracks and falls out of its frame this hot.
 @export var glass_cracks_at := 240.0
 

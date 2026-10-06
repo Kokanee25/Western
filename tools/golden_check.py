@@ -89,18 +89,26 @@ def diff_image(golden, render, path, name, mean, share, tol):
     out.save(path)
 
 
+## Views a Godot renders before the next is started (the gameplay session, 2026-10-06): across a
+## whole run in one process the renderer kept counting something of the scenes before (Forward+'s
+## clustered elements, lights + decals + probes in view), and late in the run town_bar's lamps were
+## dropped, one run in two; a fresh Godot every few views keeps that from building up.
+BATCH = 10
+
+
 def render(out_dir, only):
     godot = os.environ.get("GODOT", "godot")
     # --fresh: the scene loaded again for every view, so a view never inherits the one before
     # (smoke in the air, a pose half eased, the clouds' drift) and a subset renders as the full run.
-    cmd = [godot, "--path", ROOT, "--rendering-driver", "vulkan", "-s", "res://tools/screenshots.gd",
-           "--", "--out=" + out_dir, "--fresh"]
-    if only:
-        cmd.append("--only=" + only)
-    if not os.environ.get("DISPLAY"):
-        cmd = ["xvfb-run", "-a"] + cmd
-    print("rendering:", " ".join(cmd), flush=True)
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    names = selected(only)
+    for k in range(0, len(names), BATCH):
+        batch = names[k:k + BATCH]
+        cmd = [godot, "--path", ROOT, "--rendering-driver", "vulkan", "-s", "res://tools/screenshots.gd",
+               "--", "--out=" + out_dir, "--fresh", "--only=" + ",".join(batch)]
+        if not os.environ.get("DISPLAY"):
+            cmd = ["xvfb-run", "-a"] + cmd
+        print("rendering:", " ".join(cmd), flush=True)
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def tolerances():

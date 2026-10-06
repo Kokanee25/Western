@@ -20,14 +20,25 @@ func after_each() -> void:
 
 
 func test_walk_from_road_into_store() -> void:
+	# Up the store's steps (Sean: the boardwalks up on steps), along the walk and in at the door.
 	var store: FalseFrontBuilding = street.get_node(^"Store")
+	var walk: Boardwalk = street.get_node(^"Boardwalk")
 	var door := store.door_rect
-	player.global_position = store.to_global(Vector3(door.get_center().x, 0.0, -8.0))
+	var steps: Vector2 = walk.steps[0]
+	player.global_position = store.to_global(Vector3(steps.x, 0.0, -8.0))
 	player.rotation = Vector3.ZERO
 	player.rotate_y(PI)  # face +Z, toward the store
 	player.velocity = Vector3.ZERO
 	await physics_frames(10)
 	Input.action_press(&"move_forward")
+	var up := await wait_until(func() -> bool: return store.to_local(player.global_position).z > -1.2, 60 * 8)
+	check(up, "up the steps (at %s)" % store.to_local(player.global_position))
+	check_near(store.to_local(player.global_position).y, walk.top, 0.06, "on the walk")
+	player.rotation = Vector3.ZERO
+	player.rotate_y(-PI * 0.5)  # face +X, along the walk to the door
+	await wait_until(func() -> bool: return store.to_local(player.global_position).x > door.get_center().x, 60 * 8)
+	player.rotation = Vector3.ZERO
+	player.rotate_y(PI)
 	var inside := await wait_until(func() -> bool: return store.to_local(player.global_position).z > 2.0, 60 * 8)
 	Input.action_release(&"move_forward")
 	var local := store.to_local(player.global_position)

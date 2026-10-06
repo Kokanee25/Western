@@ -224,7 +224,7 @@ ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
-from north (−Z, the saloon's side of the street), east +X. Example:
+from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
 python3 tools/bridge.py start --size=960x540
@@ -425,14 +425,41 @@ a few views renders them as the full run does.
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
   in its space and moves with it. `TownLayout.transform_of(path)` / `point(building, local)` give
   the same places to code with no scene (`Waypoints.test_street()` puts the store's and saloon's
-  insides through it). Move a building: change its entry.
+  insides through it). Move a building: change its entry. Since Main Street step 2 the file is
+  Sean's map (`docs/concept/town-map.png`): Main Street along X, west −X toward the sunset; the
+  south side (fronts on z 0) from the east the saloon, the store, the barber, Market Street, the
+  hotel; the north side (fronts on z −16.8) the livery, the jail, the water tower's yard, the
+  assay office; Freight Street crossing at the east end, the range 30 m beyond. Since step 3 also
+  the telegraph (between the store and the barber), the doctor's (past the barber), the bank
+  (across Market Street from the hotel), the well and windpump with its stock tank behind the jail
+  and the corral behind the livery. A building's
+  boardwalk is up on steps (`Boardwalk.steps`: people and the player come and go by them, the
+  edge elsewhere a step too high). `StreetDressing/<name>` entries are the dressing's façades
+  (it builds them where the layout says, each with its walk). A building's `was` is where it
+  stood on the old street: `TownLayout.carry()` moves what was laid out round it there (the
+  dressing's tables are still in old coordinates) to where it stands now, and the dressing leaves
+  out whatever would stand on steps and moves people out of doorways
+  (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
+  and range views the same way (`_view_move`).
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
-  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
-  `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
+  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
+  `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
+  `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
+  `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
+  members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
+  it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
+  it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
+  is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and
+  the fittings it rests on; a quarter second at a time it looks, and when every member is gone
+  (broken, consumed, moved) and everything it rests on has fallen, it becomes a RigidBody3D in
+  group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
+  more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
+  loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -3274,6 +3301,86 @@ a few views renders them as the full run does.
   `src/render/` (`probe_mosaic.gd(shader)`, mine, said here), shared `settings.gd` (the probe's
   lines, and the command-line rule), `tools/probe_walk.gd`, `tests/test_probe_mosaic.gd`,
   `docs/screenshots/judge/history.md` (my two lines' notes). 346 tests pass.
+- 2026-10-05 (gameplay): **Main Street to Sean's map, step 2: the street moved** (Sean: "we're
+  using the map", "up on steps" as in the street picture, "it's gotta match this art";
+  `docs/briefs/main-street.md`; the art session agreed the dressing is carried mechanically and
+  judged after). `config/town.json` (layout note above): the saloon (the real one) and the store
+  side by side on the south side (fronts z 0, the street's sunset end to the west), the barber and
+  past Market Street the hotel; the livery, the jail, the water tower behind it and the assay
+  office across; Freight Street at the east end; the range 30 m further east; the façade saloon,
+  the façade store and the eating house are gone (one saloon; the eating house isn't on the
+  map). The store is 9 m wide with the façade's GENERAL STORE look (`set`). Floors stay 0.38.
+  **Steps:** `Boardwalk.steps` (flights of blocks a riser each, members, an invisible ramp over
+  their noses for the player; with steps no ramp along the rest of the edge), each building's
+  walk with a flight; `Waypoints` go by the steps (`*_front`, `*_steps`, `*_landing`) and the
+  store's and saloon's porches join along the walk; `Waypoints._walkable` also refuses a sudden
+  rise in the ground (`STEP_UP` 0.25), so the player is routed by the steps (townsfolk could
+  step the edge; they're routed the same). The gang rides in from x −50. A harassing man has
+  something to say soon after he arrives (the drink's quiet doesn't carry over: the store is next
+  door now). **Art's files, agreed with it** (said here): `src/art/street_dressing.gd` (façades and
+  their walks from the layout; its old-coordinate tables carried with each building,
+  `TownLayout.carry`; whatever would stand on steps or in a doorway left out, folk moved aside
+  against the wall, `on_steps`, `out_of_doorway`, `post_of`), `src/art/shot_match.gd` (the set in
+  the saloon's space: `TABLE_IN_SALOON`, `ROOM_YAW_IN_SALOON`); gameplay's `street_scenery.gd`
+  lost its M0 props and fence (the fence stood in the saloon). Shared `tools/screenshots.gd` (my
+  lines: `_view_move`, the store's, saloon's and range's views move with them). Tests placed
+  relative to what they test (town day, gun range, outlaw tactics, dynamite: thrown from the walk
+  beside the store's door, it sailed in at the door from in front of it), `test_steps` (4). All
+  goldens re-approved. 350 tests pass. For the art session (told): the saloon's door faces north
+  now (the moon's arc is on the other side: `moon_tilt_degrees` −78), the dressing to lay out
+  again in each building's space, StreetMatch's framing, the backdrop and ground pushed out.
+  - Next: step 3, the telegraph, doctor and bank, the well behind the jail (a water source), the
+    corral.
+
+- 2026-10-05 (gameplay): **What hangs on a wall comes down with it** (Sean: "have we fixed lamps
+  and stuff floating in air after the wall they were attached to burn down?"). `Fittings` (layout
+  note above, a node at the end of `scenes/test_street.tscn`): 146 fittings in the street (22
+  sconces, the bottles and lamps of the back bar, pictures, the stag, chairs and tables on floors,
+  barrels and lanterns on the walks, the porch lanterns), none falling at load; with every member
+  of the saloon burnt away, 68 come down, none under the ground. A lit lamp landing hard smashes
+  and spills its oil, so a burning building's lamps spread its fire. Tests `test_fittings` (3: a
+  lit lamp on a wall falls when the board goes, breaks and spills; a barrel on the ground is left
+  alone; the street's lamps and sconces are found). `test_dynamite`'s throw at the store now asks
+  that it lands at the front and breaks things there: on the raised walk the siding breaks or not
+  by where the stick comes to rest (0 to 23 timber in trials, with or without fittings; the
+  siding's own test covers the boards). Merged with step 2 (both moved the same goldens): from
+  two full `--fresh` runs, `porch_collapse` re-approved (it lands differently with what was on it
+  falling too), `store_fire_later`, `texel_porch` and `outlaw_open_close` (a hair past their
+  tolerance on the new street) and `gun_smoke_saloon` (its smoke flapped between the two runs:
+  tolerance from that, mean 14.7); every view passes against both runs; visual checks 367, none
+  failed. 353 tests pass.
+  - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
+    when it does; a fallen lamp's light stays lit unless it breaks.
+- 2026-10-06 (gameplay): **Main Street to Sean's map, step 3: the buildings the map has**
+  (`docs/briefs/main-street.md`). In `config/town.json` and the street scene: the **telegraph**
+  (between the store and the barber), the **doctor's** (past the barber) and the **bank** (across
+  Market Street from the hotel, barred windows), each furnished by `FalseFrontBuilding.interior`
+  (members, so they burn and break: the operator's desk with key, sounder and battery jars; the
+  operating table, cot and a cabinet of bottles; the teller's counter under a cage of iron bars
+  and an iron safe) with its own lamps, unshadowed (lights aren't culled by walls, and the six new
+  ones took the saloon's lamps' shadow slots: town_bar went grey); the **well** and a **windpump**
+  with its stock tank behind the jail (both water sources for the buckets; the windpump's wheel
+  turns); the **corral** behind the livery. New wood `iron` (`TimberTuning`, `WoodMaterials`,
+  fireproof, ballistics' resistance 4000 J/cm, surface `metal`, never carved). Knocked out, you
+  come round beside the doctor's cot (`DebugSpawns/DoctorInside`; the store's floor where there's
+  no doctor's). Tests `test_town_buildings` (5). **Found on the way, the screenshot tool:**
+  town_bar rendered cold grey now and then. Each building's room light is a reflection probe drawn
+  once, over about six frames, one probe at a time in no fixed order, and a room takes the sky's
+  ambient until its probe is drawn; with step 3 there are 11 and a view waited 40 frames. So
+  `tools/screenshots.gd` (shared) waits seven frames a probe once a view is placed. Tried first,
+  kept as cheap: 150 empty frames after freeing a view's scene (was 2) and Forward+'s clustered
+  elements 512 → 1024 (`project.godot`, shared). `tools/golden_check.py` (art's) renders the views
+  in batches of ten, a fresh Godot each. For the art session (told): the new buildings' dressing,
+  the corral's ground (dry grass grows in it), their signs.
+- 2026-10-06 (Sean's planning chat, docs only): **A backlog in DESIGN.md §11** ("Backlog
+  (proposed)"): set pieces built from systems (the fire night with a bucket brigade first, then the
+  bank robbery, a cattle drive, a hanging, a jailbreak, the stage held up, the railroad's arrival, a
+  dust storm), period town life (cards, riding horses, stage and mail day, Sundays, comforts,
+  honest work, weather, a newspaper), the cast (12–15 principals, ~35 townsfolk from bodies and a
+  shared wardrobe, 10–15 base outlaws, no children for now, far people think slower) and the props
+  approach, and (added later that day) homes for everyone: about 20–25 dwellings for ~50 people, as an
+  1880s town really housed them. Features stay frozen until the look is right; nothing here is to be
+  built yet.
 - 2026-10-06 (characters session): **The model test, and Rodin's man fitted and seated at the
   card table.** Sean, on the bold paint for the fitted men (`tools/characters/bold_paint.py`:
   squares in body space, de-lit by a fit to the normals, a few flat tones a garment): "those
