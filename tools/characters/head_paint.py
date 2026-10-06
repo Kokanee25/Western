@@ -124,6 +124,10 @@ CELLS = None
 EYE_REACH = 1.35
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
+# Squares averaged from the painter's fine strokes come out close in shade, where the painting's
+# neighbouring squares differ (its coat is a mosaic of browns): each square's difference from the
+# squares round it (the 26 cells about it facing the same way) times `cells["contrast"]` on his
+# head, `body_contrast` below (1 = as averaged).
 PEOPLE = os.path.join(ROOT, "assets", "people", "people.json")
 # Tripo's man faces +X with Y up.
 FORWARD = np.array([1.0, 0.0, 0.0])
@@ -627,9 +631,10 @@ def in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells):
     """`out` (in place) in squares on him: CELLS. Each texel of his islands is placed on him (its
     triangle's barycentric point), its cell found (the cube it lies in, of `cells["m"]` above the
     head's cut `cut`, `body_m` below it, `eye_m` within EYE_REACH of an eye's outline, and which
-    way the surface faces), and every cell given one colour: its texels' average, or the average
-    of its dark ones when DARK_SHARE of it is darker than that by DARK_GAP (a brow, a moustache's
-    edge, a dark square of the hat band keep their dark, as the painting's squares do)."""
+    way the surface faces), and every cell given one colour: its middle texel's by lightness, or
+    on his head the average of its dark ones when DARK_SHARE of it is darker than the cell by
+    DARK_GAP (a brow, a moustache's edge, a dark square of the hat band keep their dark, as the
+    painting's squares do)."""
     tri_id, bary = uv_raster(uv, tris, size)
     ty, tx = np.nonzero(tri_id >= 0)
     t = tris[tri_id[ty, tx]]
@@ -656,16 +661,55 @@ def in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells):
     rgb = out[ty, tx]
     lum = rgb @ np.array([0.299, 0.587, 0.114])
     count = np.bincount(lab, minlength=k).astype(np.float64)
-    mean = np.stack([np.bincount(lab, rgb[:, c], minlength=k) for c in range(3)], axis=1) / count[:, None]
+    # A cell's colour is its middle texel by lightness, a colour the painter laid there: an average
+    # greyed the edges between shades (a collar's white against the tie) and evened the coat's
+    # browns into one.
+    order = np.lexsort((lum, lab))
+    start = np.concatenate([[0], np.cumsum(count.astype(np.int64))[:-1]])
+    colour = rgb[order[start + count.astype(np.int64) // 2]]
     mean_l = np.bincount(lab, lum, minlength=k) / count
     dark = lum < mean_l[lab] - DARK_GAP
     dcount = np.bincount(lab, dark.astype(np.float64), minlength=k)
     dmean = np.stack([np.bincount(lab, np.where(dark, rgb[:, c], 0.0), minlength=k) for c in range(3)], axis=1)
     dmean /= np.maximum(dcount, 1.0)[:, None]
-    colour = np.where((dcount / count >= DARK_SHARE)[:, None], dmean, mean)
+    on_head = np.bincount(lab, (p[:, 1] > cut).astype(np.float64), minlength=k) > count / 2
+    # On his head only: a brow or a moustache's edge keeps its dark (on his shirt the painter's thin
+    # outline strokes turned whole squares of the white collar dark).
+    colour = np.where(((dcount / count >= DARK_SHARE) & on_head)[:, None], dmean, colour)
+    gain = np.where(on_head, float(cells.get("contrast", 1.0)), float(cells.get("body_contrast", cells.get("contrast", 1.0))))
+    if (gain != 1.0).any():
+        colour = _mosaic(colour, count, _keys, gain)
     out[ty, tx] = colour[lab]
     print("  %d texels in %d squares on him (%.0f mm on his head, %.0f below, %.1f round his eyes: %d texels)" % (
         len(lab), k, cells["m"] * 1000, cells.get("body_m", cells["m"]) * 1000, cells.get("eye_m", 0) * 1000, fine.sum()))
+
+
+def _mosaic(colour, count, keys, gain):
+    """Each cell's colour pushed away from the mean of the cells about it (the 26 round it with the
+    same facing and fineness, weighted by their texels) by `gain`, clipped to 0..255."""
+    span = keys[:, :3].max(axis=0) - keys[:, :3].min(axis=0) + 3
+    base = keys[:, :3] - keys[:, :3].min(axis=0) + 1
+    code = lambda q, rest: ((q[:, 0] * span[1] + q[:, 1]) * span[2] + q[:, 2]) * 16 + rest
+    rest = keys[:, 3] * 2 + keys[:, 4]
+    own = code(base, rest)
+    order = np.argsort(own)
+    sorted_codes = own[order]
+    total = np.zeros_like(colour)
+    weight = np.zeros(len(colour))
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                if dx == dy == dz == 0:
+                    continue
+                c = code(base + np.array([dx, dy, dz]), rest)
+                i = np.clip(np.searchsorted(sorted_codes, c), 0, len(c) - 1)
+                hit = sorted_codes[i] == c
+                j = order[i[hit]]
+                total[hit] += colour[j] * count[j, None]
+                weight[hit] += count[j]
+    has = weight > 0
+    around = np.where(has[:, None], total / np.maximum(weight, 1.0)[:, None], colour)
+    return np.clip(around + (colour - around) * gain[:, None], 0.0, 255.0)
 
 
 def bake(cid):
@@ -723,7 +767,7 @@ def bake(cid):
             out[bmask] = sheet[bmask]
             used += ["body " + v for v in bused]
             print("  %.0f%% of the body's texels painted" % (100.0 * bgot.mean()))
-    cells = CELLS if CELLS is not None else bk.get("cells")
+    cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         y0, y1 = pos[:, 1].min(), pos[:, 1].max()
         cut = y0 + (y1 - y0) * (HEAD_FROM if head.get("cut") is None else head["cut"])
@@ -806,8 +850,12 @@ def main():
         elif a.startswith("--cells-mm="):
             # Head, body, eyes in millimetres (CELLS): --cells-mm=8,9,2.7; 0 for none.
             mm = [float(x) for x in a.split("=", 1)[1].split(",")]
-            CELLS = {} if not mm[0] else {"m": mm[0] / 1000.0, "body_m": (mm[1] if len(mm) > 1 else mm[0]) / 1000.0,
-                                          "eye_m": (mm[2] if len(mm) > 2 else 0.0) / 1000.0}
+            CELLS = {} if not mm[0] else dict(CELLS or {}, m=mm[0] / 1000.0, body_m=(mm[1] if len(mm) > 1 else mm[0]) / 1000.0,
+                                              eye_m=(mm[2] if len(mm) > 2 else 0.0) / 1000.0)
+        elif a.startswith("--cells-contrast="):
+            # The squares' contrast with those round them, head and body: --cells-contrast=1.2,1.6
+            g = [float(x) for x in a.split("=", 1)[1].split(",")]
+            CELLS = dict(CELLS or {}, contrast=g[0], body_contrast=g[1] if len(g) > 1 else g[0])
         elif a.startswith("--id="):
             cid = a.split("=", 1)[1]
         elif a.startswith("--strength="):
