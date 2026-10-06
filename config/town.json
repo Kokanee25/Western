@@ -39,7 +39,7 @@
 		"DebugSpawns/Street": {"at": [24, 0, -9], "facing": 121},
 		"Player": {"at": [24, 0, -9], "facing": 121},
 		"DebugSpawns/StoreInside": {"in": "Store", "at": [1.5, 0.4, 7.5], "facing": 180},
-		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.4, -1.0], "facing": 180},
-		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.4, 9.7], "facing": -140}
+		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.8, -1.0], "facing": 180},
+		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.8, 9.7], "facing": -140}
 	}
 }
