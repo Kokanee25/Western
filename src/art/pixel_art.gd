@@ -123,6 +123,7 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		var wide := factory("road_wide")
 		m.set_shader_parameter(&"wide_tex", wide)
 		m.set_shader_parameter(&"use_wide_tex", wide != null)
+		m.set_shader_parameter(&"keep_tracks", wide != null and wide.resource_path.contains("/drawn/"))
 	return m
 
 

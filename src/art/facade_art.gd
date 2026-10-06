@@ -208,6 +208,39 @@ static func window_glass() -> StandardMaterial3D:
 	return _window_glass
 
 
+## The painting's panes drawn on the glass (tools/textures/draw_glass.py): a quad over the opening
+## just behind the bars, a child of the glass member's mesh so it goes when the glass is shot out.
+static func _pane(glass_mesh: MeshInstance3D, b: FalseFrontBuilding, o: Rect2) -> void:
+	var tex := _drawn(&"drawn/window_glass")
+	if tex == null:
+		return
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.roughness = 0.45
+	m.metallic_specular = 0.3
+	var glow := _drawn(&"drawn/window_glass_glow")
+	if glow:
+		m.emission_enabled = true
+		m.emission_texture = glow
+		m.emission_energy_multiplier = 1.6
+	var q := QuadMesh.new()
+	q.size = o.size
+	var pane := MeshInstance3D.new()
+	pane.name = "Pane"
+	pane.mesh = q
+	pane.material_override = m
+	pane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Facing the street (-Z), placed in the building's space through the member and its mesh.
+	var to_mesh := Transform3D.IDENTITY
+	var n: Node = glass_mesh
+	while n != b and n is Node3D:
+		to_mesh = (n as Node3D).transform * to_mesh
+		n = n.get_parent()
+	pane.transform = to_mesh.affine_inverse() * Transform3D(Basis(Vector3.UP, PI), Vector3(o.get_center().x, o.get_center().y, -0.004))
+	glass_mesh.add_child(pane)
+
+
 static func _drawn(id: StringName) -> Texture2D:
 	if id.is_empty():
 		return null
@@ -281,14 +314,16 @@ static func _windows(b: FalseFrontBuilding, bt: float) -> void:
 		# sky's grey sheen.
 		var glass := b.get_member(StringName("%s/front/glass_%d_%d" % [b.structure_id, int(o.position.x * 100.0), int(o.position.y * 100.0)]))
 		if glass:
-			(glass.get_child(0) as MeshInstance3D).material_override = window_glass()
-		# Glazing bars just outside the glass, from the head to the sill and across between the king studs.
-		var bar := 0.04
+			var mi := glass.get_child(0) as MeshInstance3D
+			mi.material_override = window_glass()
+			_pane(mi, b, o)
+		# Glazing bars just outside the glass (and the pane drawn on it), from the head to the sill and across between the king studs.
+		var bar := 0.05
 		var cx := o.get_center().x
-		_front(b, p + "/bar_v", &"trim", &"dark_trim", cx - bar * 0.5, cx + bar * 0.5, o.position.y, o.end.y, -0.054, -0.02)
+		_front(b, p + "/bar_v", &"trim", TIMBER, cx - bar * 0.5, cx + bar * 0.5, o.position.y, o.end.y, 0.01, 0.045)
 		for r in 2:
 			var yy := o.position.y + o.size.y * (r + 1) / 3.0
-			_front(b, p + "/bar_h%d" % r, &"trim", &"dark_trim", o.position.x, o.end.x, yy - bar * 0.5, yy + bar * 0.5, -0.054, -0.02)
+			_front(b, p + "/bar_h%d" % r, &"trim", TIMBER, o.position.x, o.end.x, yy - bar * 0.5, yy + bar * 0.5, 0.01, 0.045)
 
 
 ## The porch on thick posts with knee braces: a casing round each of the old posts, posts between

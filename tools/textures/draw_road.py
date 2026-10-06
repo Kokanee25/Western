@@ -30,9 +30,12 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_road.png"
 
 SPEC = {"boxes": [[380, 700, 1000, 930]], "keep": "wood", "albedo": [0.68, 0.53, 0.39], "contrast": 1.1, "grey": 0.15}
 TEXELS = 16  # a metre
-# The wheel tracks, in texels from the road's centre line (+ toward the far side of the street):
-# a wagon's two grooves 1.5 m apart, and a second, fainter pair where other wagons ran.
-GROOVES = [(-12, 1.0), (12, 1.0), (-19, 0.55), (5, 0.55)]
+# The wheel tracks, in texels from the road's centre line (+ toward the saloon's side, z up): (where,
+# how worn). The most used pair runs 2.2 m toward the saloon's side, under the street shot's feet
+# (StreetMatch.FEET is 2.4 m off the centre line), so its grooves run out of the bottom of the frame
+# toward the far end as the painting's do; a second pair on the centre line, a faint third beyond.
+# A wagon's wheels are 1.5 m apart (24 texels).
+GROOVES = [(23, 1.0), (47, 1.0), (-12, 0.7), (12, 0.7), (-50, 0.4), (-26, 0.4)]
 
 
 def dust(w: int, h: int, pal: np.ndarray, rng: np.random.Generator) -> np.ndarray:
@@ -50,7 +53,7 @@ def dust(w: int, h: int, pal: np.ndarray, rng: np.random.Generator) -> np.ndarra
         c = g[(y0 + 1) % (h // cell), x0 % (w // cell)]
         d = g[(y0 + 1) % (h // cell), (x0 + 1) % (w // cell)]
         clump += ((a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty - 0.5) * amp
-    idx = n / 2 - 0.5 + 0.6 + clump * 2.0 + rng.normal(0, 0.8, (h, w))
+    idx = n / 2 - 0.5 + 0.6 + clump * 2.0 + rng.normal(0, 0.95, (h, w))
     return idx
 
 
@@ -66,22 +69,29 @@ def stones(idx: np.ndarray, count: int, rng: np.random.Generator) -> None:
 
 
 def grooves(idx: np.ndarray, rng: np.random.Generator) -> None:
+    """Each groove two texels of dark bottom with a lit ridge either side, and beside it a fainter
+    second groove a few texels off where other wagons ran, drifting nearer and further."""
     h, w = idx.shape
     centre = h // 2
     for off, depth in GROOVES:
-        wobble = (smooth_noise(w, 32, rng) - 0.5) * 3.0
+        wobble = (smooth_noise(w, 64, rng) - 0.5) * 2.0
+        twin = 2.5 + smooth_noise(w, 32, rng) * 2.5
+        side = 1 if rng.random() < 0.5 else -1
         for x in range(w):
             y = centre + off + int(round(wobble[x]))
-            idx[y % h, x] -= 4.2 * depth
-            idx[(y + 1) % h, x] -= 2.6 * depth
-            idx[(y - 1) % h, x] += 1.4 * depth  # the ridge thrown up beside the groove
-            idx[(y + 2) % h, x] += 0.9 * depth
-    # Hoof-churn down the middle between the tracks: darker squares in a loose band.
-    for _ in range(w // 2):
-        x = int(rng.integers(0, w))
-        y = centre + int(rng.normal(0, 4))
-        idx[y % h, x] -= 1.4
-
+            idx[y % h, x] -= 5.0 * depth
+            idx[(y + 1) % h, x] -= 3.6 * depth
+            idx[(y - 1) % h, x] += 1.6 * depth  # the ridge thrown up beside the groove
+            idx[(y + 2) % h, x] += 1.1 * depth
+            t = y + side * int(round(twin[x]))
+            if (x // 5) % 4 != 3:  # broken where the second wheel bit less
+                idx[t % h, x] -= 2.4 * depth
+    # Hoof churn between the tracks: darker squares in loose bands.
+    for mid in (35, 0):
+        for _ in range(w // 2):
+            x = int(rng.integers(0, w))
+            y = centre + mid + int(rng.normal(0, 5))
+            idx[y % h, x] -= 1.6
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -93,10 +103,10 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(3301)
     wide = dust(128, 128, pal, rng)
-    stones(wide, 70, rng)
+    stones(wide, 170, rng)
     grooves(wide, rng)
     small = dust(32, 32, pal, rng)
-    stones(small, 2, rng)
+    stones(small, 5, rng)
     made = {}
     for name, idx in (("road_wide", wide), ("road", small)):
         i = np.clip(np.round(idx), 0, n - 1).astype(int)
