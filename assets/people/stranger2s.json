@@ -1,0 +1,31 @@
+{
+ "id": "stranger2s",
+ "source": "rodin",
+ "whole": true,
+ "model": "test/stranger2s_rodin",
+ "triangles_in": 33228,
+ "pieces": {},
+ "scale": 1.8367,
+ "head_scale": 1.8367,
+ "height_m": 1.927,
+ "skirt_vertices": 7418,
+ "faces_before_finger_cut": 33228,
+ "faces_after_finger_cut": 31532,
+ "skin_tone": [
+  0.529,
+  0.329,
+  0.255
+ ],
+ "texture": {
+  "from": "stranger2s_color.png",
+  "size": [
+   2048,
+   2048
+  ],
+  "square_texels": 1
+ },
+ "triangles": {
+  "skin": 25629,
+  "head": 5903
+ }
+}

@@ -3361,3 +3361,25 @@ a few views renders them as the full run does.
   `.github/workflows/people.yml` (the head job's words), `assets/people/stranger2*`,
   `assets/people/tripo/stranger2_*`, `docs/screenshots/tripo/stranger2_*_views.png`. Body tests
   pass (21).
+- 2026-10-06 (characters session, later): **The stylised Rodin stranger (`stranger2s`), Sean's
+  experiment.** The painting is stylised realism and the Rodin man is too real, so
+  `tools/characters/stylise.py` makes a stylised copy of him (above, in its commit):
+  - brow 15 % heavier, jaw 15 % wider, chin stronger;
+  - moustache 20 % thicker: its own hair grown into the skin, not the lips or nostrils (a first
+    try took whatever was darkest nearby and left a slab with a red patch under the nose);
+  - eyes 12 % and hands 15 % bigger;
+  - fine skin detail smoothed with the guided filter.
+
+  He was painted in the style (People run 52, ~$0.35) and fitted as `stranger2` is. Seen side by
+  side, the moustache is thicker and the jaw broader, but the push is small at these shares.
+  Judge v2 on the saloon shot (no round written), now / stylised: game's look 0.239 / 0.227, M
+  0.395 / 0.392.
+
+  What still separates him from the painting's man:
+  - the squares: the painter's are about 26 across his face, the painting's about 19;
+  - the light on his face in the shot: side-lit, eyes in the brim's shadow, where the painting
+    lights him warm from the front;
+  - his pose: he sits upright where the painting's man leans in on his forearms.
+
+  In the plain lineup light (`people_lineup.gd --head`) the repainted man reads as the paintings'
+  drawing.
