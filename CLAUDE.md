@@ -3909,3 +3909,28 @@ a few views renders them as the full run does.
   - Known: men find their way off the raised walks slowly (the town's places, one flight of steps a
     walk); the line runs along the routes, so it climbs a walk where the route does; the buckets
     hang at the hand (no grip pose); a bucket's water doesn't spill on the way; the gang don't help.
+- 2026-10-06 (gameplay): **Smoke that knows the buildings** (Sean: "realistic smoke that will
+  sit under the overhang of the building then roll out and start going up in the air";
+  docs/briefs/smoke.md; layout note above, `SmokeField`, the native `SmokeGrid`). In the street,
+  two boards of the telegraph's front alight at 16:00: a layer under its porch roof (40-99 % of a
+  full cell at 2.5-3 m, little low down), out to the roof's edge and up past it (44 % just over
+  the edge, thinning with height); inside, the room and the roof space fill. The grid steps on the
+  plugin's worker threads: the fire bench's main thread shows no cost (fire 3.75 ms with, 3.90
+  without, `perf_bench.gd --no-smoke`, headless; a 29k-cell grid steps in ~0.9 ms off the main
+  thread). Drawn as a FogVolume per building with the smoke as a 3D density texture at fog density
+  2.5 a full cell, each share raised to 1/2 (`smoke_draw_gamma`: thin smoke shows by day, a whole
+  building's doesn't wall the street off at night). Tests: the plugin's smoke.rs (5: straight up
+  in the open, under an overhang it spreads, rolls out and rises, a room fills from the ceiling
+  and pours out of the door's top, the wind leans it, nothing made from nothing),
+  `test_fire_smoke` (2). Found on the way: (1) a wall on a round coordinate was drawn two cells
+  thick and a burning board's smoke went out of the back of the building: the grid sits 0.13 m off
+  round numbers; (2) Godot's volumetric fog blends over frames, so a still taken right after a
+  camera jump shows little fog (hold the camera a second); (3) **smoke can't show against the
+  sky**: `sky.gdshader`'s `disable_fog` (the art session's) keeps every fog, volumetric too, off
+  the sky, so a column above a roofline is drawn and hidden: the art session's call (painted
+  puffs riding the grid's flow, its own idea, would do it). Goldens: the three `store_fire_*`
+  views re-approved (smoke and the bucket line in them), and `gun_smoke_saloon` from this pair's
+  noise (it flaps between runs; the art session's pair had agreed more closely: mean 8.35 / share
+  0.104 now). The look is the art session's to restyle (told: colour, sunlit side, the sky).
+  `tests/test_smoke.gd` was overwritten by the new tests for one commit and put back (the gun
+  smoke's); the fire smoke's are `test_fire_smoke.gd`. Bridge: `smoke [X Y Z]`.
