@@ -7,7 +7,9 @@ extends SceneTree
 ## ShotMatch (SEAT, TURN, pose_offsets).
 ##   python3 - (write the painting's outline mask: tools/paint/align.py SHOT_OUTLINE, 418x235) > mask
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/fit_shot.gd -- mask.png
-##       [--start=[...]] [--grid] [--dump=[...]|out.png]
+##       [--model=ID] [--start=[...]] [--grid] [--dump=[...]|out.png]
+## --model= seats that man (ShotMatch.model) and aims his own eyes, from his fit's report, when it
+## has them. --start= with ShotMatch's own offsets fits from where he sits now.
 const Q := Vector2i(418, 235)
 const WANT_R := Vector2(614, 360)  # the painting's eyes (1672x941): his right, his left
 const WANT_L := Vector2(685, 386)
@@ -27,6 +29,13 @@ func _initialize() -> void:
 func _run() -> void:
 	stage = load("res://tools/lab_stage.gd")
 	root.get_node(^"Settings").autosave = false
+	var model := &""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--model="):
+			# The seated man's body (stranger, stranger2s): ShotMatch.model, set at run time.
+			model = StringName(a.substr(8))
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			shot.model = model
 	vp = SubViewport.new()
 	vp.size = Q
 	root.add_child(vp)
@@ -50,8 +59,19 @@ func _run() -> void:
 	want = img.get_data()
 	base_pos = man.global_position
 	base_yaw = man.global_rotation.y
-	for id in [&"eye_r", &"eye_l"]:
-		eyes.append((man.anatomy.structure(id).a as Vector3) - man.anatomy.segment_center(&"head"))
+	# His eyes: where they're drawn on his mesh when his fit says (a Tripo or Rodin man's head is
+	# his own, so the anatomy's eye points can be centimetres off his painted ones), else the
+	# anatomy's.
+	var report := "res://assets/people/%s.json" % model
+	var drawn: Dictionary = {}
+	if model != &"" and FileAccess.file_exists(report):
+		drawn = JSON.parse_string(FileAccess.get_file_as_string(report)).get("eyes", {})
+	for side in ["right", "left"]:
+		var at: Vector3 = man.anatomy.structure(StringName("eye_" + side[0])).a
+		if drawn.has(side):
+			at = Vector3(drawn[side][0], drawn[side][1], drawn[side][2])
+		eyes.append(at - man.anatomy.segment_center(&"head"))
+	print("eyes ", "drawn on him" if not drawn.is_empty() else "the anatomy's", " ", eyes)
 	# params: yaw (deg), dx, dz (m, world), head x, y, z (deg), chest y (deg)
 	var p := [0.0, 0.0, 0.0, 6.0, -8.5, 16.0, 0.0, 0.0, 0.0]
 	for a in OS.get_cmdline_user_args():

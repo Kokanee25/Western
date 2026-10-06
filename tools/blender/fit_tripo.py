@@ -448,6 +448,7 @@ class TripoPerson(mp.Person):
             piece.place()
         head = self.head_mask(self.v)
         self.v_tripo = self.v.copy()
+        self.find_eyes(bones)
         self.v, self.region = self.warp_points(self.v, head, bones)
         self.head = head
         self.fit_joints = {}
@@ -459,6 +460,26 @@ class TripoPerson(mp.Person):
             # neck's warp (another girth scale since HAIR_M) would bend it.
             piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
                                                      only="head" if piece.shape == "hat" else None)
+
+    def find_eyes(self, bones):
+        """Where his painted eyes land, in our body space (metres): MediaPipe's two iris centres on
+        his mesh (`<model>_face.json`, written by tools/characters/stylise.py in the frame
+        load_rodin gives him; a stylised man's are his source's, the irises left where they were)
+        carried through the warp with his head. tools/fit_shot.gd aims them at the painting's
+        eyes: his head is his own, so the anatomy's eye points aren't where his are drawn."""
+        names = [self.model] + ([self.spec["stylise"]["from"]] if "stylise" in self.spec else [])
+        paths = [os.path.join(TRIPO, n + "_face.json") for n in names]
+        found = [p for p in paths if os.path.exists(p)]
+        if not found:
+            return
+        irises = to_body_space(np.array(json.load(open(found[0]))["points"])[[468, 473]])
+        # How far each is from his mesh (it should be on it): a check that the frames agree.
+        off = [float(np.linalg.norm(self.v - p, axis=1).min()) for p in irises]
+        print("  his eyes from %s, %.1f and %.1f mm off his mesh" % (os.path.basename(found[0]),
+              off[0] * self.scale * 1000, off[1] * self.scale * 1000))
+        moved, _region = self.warp_points(irises, np.ones(2, dtype=bool), bones, only="head")
+        right, left = sorted(moved.tolist(), key=lambda p: -p[0])    # his right at +X
+        self.report["eyes"] = {"right": [round(x, 4) for x in right], "left": [round(x, 4) for x in left]}
 
     def head_mask(self, v):
         """What is head: above the collar, and within HEAD_RADIUS of the neck's axis (the tops of

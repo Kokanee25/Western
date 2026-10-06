@@ -103,6 +103,15 @@ COLOURS_BODY = 48
 # The bake's texture: the model's own size up to this (a Rodin man's 4096 texels a side are more
 # than the fit keeps: tools/blender/fit_tripo.py squares a texture this size to his skin's).
 BAKE_MAX = 2048
+# Where views overlap, each texel's colour is their average weighted by (facing ** VIEW_POWER) ×
+# trust; 0 = no average, the one view with the most weight at facing ** 8 gives it. Painted squares
+# from two views never line up, so an average lays one grid over the other (--view-power=N).
+VIEW_POWER = 8
+# The painter draws its squares with soft edges and little contrast, so at the game's scale they
+# read as a smooth painting. FLATTEN > 0 runs each painting through a Kuwahara filter of that
+# radius before the bake: each square goes flat and its edge hard, wherever the painter put it (its
+# squares drift, so no one grid fits them). characters.json `bake.flatten`, or --flatten=N.
+FLATTEN = 0
 PEOPLE = os.path.join(ROOT, "assets", "people", "people.json")
 # Tripo's man faces +X with Y up.
 FORWARD = np.array([1.0, 0.0, 0.0])
@@ -481,6 +490,28 @@ def palette(rgb, n, seed=3):
     return centres[d.argmin(axis=1)]
 
 
+def kuwahara(img, r):
+    """Each pixel the mean colour of the most even (by lightness) of the four (r+1)-square windows
+    it's a corner of: flat patches with hard edges between them. The filter is Kuwahara et al.'s
+    (1976, "Processing of RI-angiocardiographic images"); the windows' means by summed tables."""
+    h, w = img.shape[:2]
+    k = r + 1
+    lum = img @ np.array([0.299, 0.587, 0.114])
+    p = np.pad(img, ((r, r), (r, r), (0, 0)), mode="edge")
+    l = np.pad(lum, r, mode="edge")
+
+    def box(a):
+        c = np.cumsum(np.cumsum(np.pad(a, ((1, 0), (1, 0)) + ((0, 0),) * (a.ndim - 2)), axis=0), axis=1)
+        return (c[k:, k:] - c[:-k, k:] - c[k:, :-k] + c[:-k, :-k]) / (k * k)
+
+    m, ml, m2 = box(p), box(l), box(l * l)
+    var = m2 - ml * ml
+    starts = ((0, 0), (0, r), (r, 0), (r, r))
+    vs = np.stack([var[dy:dy + h, dx:dx + w] for dy, dx in starts])
+    ms = np.stack([m[dy:dy + h, dx:dx + w] for dy, dx in starts])
+    return np.take_along_axis(ms, np.argmin(vs, axis=0)[None, :, :, None], axis=0)[0]
+
+
 def project(cid, kind, views, pos, nrm, uv, tris, render_tris, centre, frame, size, px):
     """The texels of `tris`'s UV islands (a texture `size` a side) and their colours from his
     painted views of this kind, each seen through its guide's camera (`px` a side, the depth of
@@ -505,6 +536,8 @@ def project(cid, kind, views, pos, nrm, uv, tris, render_tris, centre, frame, si
             print("  no painting for", kind, view)
             continue
         img = np.asarray(Image.open(painted).convert("RGB").resize((px, px), Image.LANCZOS), dtype=np.float64)
+        if FLATTEN:
+            img = kuwahara(img, FLATTEN)
         cam = camera(yaw, pitch)
         _guide, depth = render_view(pos, nrm, render_tris, centre, frame, cam, size=px)   # the view's depth, as the guide saw it
         r, u, f = cam
@@ -520,16 +553,22 @@ def project(cid, kind, views, pos, nrm, uv, tris, render_tris, centre, frame, si
                 d3 = np.maximum(d3, np.roll(np.roll(depth, dy, axis=0), dx, axis=1))
         seen = inside & (z <= d3[yi, xi] + tolerance)
         facing = np.clip(n @ (-f), 0.0, 1.0)
-        # The squarest view wins outright (weights^8): averaging views that don't register
-        # exactly blurred the drawing to blobs; the painting's blocks are crisp.
-        w = np.where(seen, facing ** 8, 0.0) * trust
-        total += img[yi, xi] * w[:, None]
-        weight += w
+        # The squarest view wins (weights^8): averaging views that don't register exactly
+        # blurred the drawing to blobs; the painting's blocks are crisp. VIEW_POWER 0: outright.
+        if VIEW_POWER:
+            w = np.where(seen, facing ** VIEW_POWER, 0.0) * trust
+            total += img[yi, xi] * w[:, None]
+            weight += w
+        else:
+            w = np.where(seen, facing ** 8, 0.0) * trust
+            better = w > weight
+            total[better] = img[yi, xi][better]
+            weight[better] = w[better]
         used.append(view)
         print("  %s %s: %.0f%% of the texels seen" % (kind, view, 100.0 * seen.mean()))
     got = weight > 1e-6
     rgb = np.zeros((len(texels), 3))
-    rgb[got] = total[got] / weight[got, None]
+    rgb[got] = total[got] / weight[got, None] if VIEW_POWER else total[got]
     return ty, tx, rgb, got, used
 
 
@@ -563,7 +602,15 @@ def bake(cid):
     # false}): no squares of ours over them and no palette, as --smooth, written as his texture.
     # The Rodin stranger's: our squares over the painter's misaligned them, and the palette cut
     # his face into flat bands (2026-10-06).
-    plain = SMOOTH or not json.load(open(SPEC))["characters"].get(cid, {}).get("bake", {}).get("squares", True)
+    bk = json.load(open(SPEC))["characters"].get(cid, {}).get("bake", {})
+    plain = SMOOTH or not bk.get("squares", True)
+    # characters.json's `bake.flatten` and `bake.view_power`, unless the command line says.
+    global FLATTEN, VIEW_POWER
+    if not any(a.startswith("--flatten=") for a in sys.argv):
+        FLATTEN = int(bk.get("flatten", FLATTEN))
+    if not any(a.startswith("--view-power=") for a in sys.argv):
+        VIEW_POWER = int(bk.get("view_power", VIEW_POWER))
+    print("bake: flatten %d, view power %d%s" % (FLATTEN, VIEW_POWER, ", plain" if plain else ""))
     htris = head_triangles(pos, tris, head.get("cut"))
     size = min(colour.width, BAKE_MAX)
     base = colour if colour.width == size else colour.resize((size, size), Image.LANCZOS)
@@ -656,13 +703,15 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
     for a in sys.argv[2:]:
         # The bake's squares and palettes, to try others: --square-mm=7 --square-body-mm=10
-        # --colours=0 (no palette: each square its own shade) --colours-body=0
+        # --colours=0 (no palette: each square its own shade) --colours-body=0, how views mix
+        # where they overlap: --view-power=8, 0 (the squarest view outright), and --flatten=2 (the
+        # paintings' squares made flat and hard-edged first); these two override characters.json
         if a.startswith("--square-mm="):
             SQUARE_M = float(a.split("=", 1)[1]) / 1000.0
         elif a.startswith("--square-body-mm="):
@@ -671,6 +720,10 @@ def main():
             COLOURS = int(a.split("=", 1)[1])
         elif a.startswith("--colours-body="):
             COLOURS_BODY = int(a.split("=", 1)[1])
+        elif a.startswith("--view-power="):
+            VIEW_POWER = int(a.split("=", 1)[1])
+        elif a.startswith("--flatten="):
+            FLATTEN = int(a.split("=", 1)[1])
         elif a.startswith("--id="):
             cid = a.split("=", 1)[1]
         elif a.startswith("--strength="):
