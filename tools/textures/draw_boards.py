@@ -34,19 +34,20 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_boards.png"
 # the painting's lit colours (`grey`, toward each colour's own luminance).
 WOODS = {
     # The saloon's posts, frames and the sign's frame (FacadeArt): pale weathered grey-tan.
-    "timber": {"boxes": [[12, 200, 62, 560], [255, 290, 290, 560]], "keep": "wood", "albedo": [0.74, 0.68, 0.58],
-               "contrast": 0.6, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.45, "lean": 0.8},
+    "timber": {"boxes": [[12, 200, 62, 560], [255, 290, 290, 560]], "keep": "wood", "albedo": [0.74, 0.7, 0.62],
+               "contrast": 1.0, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.6, "lean": 0.8,
+               "patch": 2, "patch_jitter": 1.6},
     # The general store's front and the plain fronts' boards: pale grey.
     "store_boards": {"boxes": [[640, 110, 800, 400]], "keep": "pale", "albedo": [0.68, 0.64, 0.56],
                      "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
     # The saloon's red boards.
-    "saloon_red": {"boxes": [[0, 150, 470, 560]], "keep": "red", "albedo": [0.48, 0.15, 0.11],
-                   "contrast": 0.8, "rows": 6, "count": 10, "board_spread": 0.18, "grey": 0.0},
+    "saloon_red": {"boxes": [[0, 150, 470, 560]], "keep": "red", "albedo": [0.46, 0.18, 0.14],
+                   "contrast": 0.8, "rows": 6, "count": 10, "board_spread": 0.18, "grey": 0.15},
     # Bare weathered boards (side walls, the livery, sheds): the livery's front.
     "weathered_pine": {"boxes": [[1440, 150, 1600, 420]], "keep": "pale", "albedo": [0.6, 0.55, 0.47],
                        "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
     # The boardwalks' planks (and the floors under the bold look): the saloon's boardwalk, warmer.
-    "floor": {"boxes": [[130, 540, 420, 640]], "keep": "wood", "albedo": [0.56, 0.45, 0.34],
+    "floor": {"boxes": [[130, 540, 420, 640]], "keep": "wood", "albedo": [0.64, 0.53, 0.41],
               "contrast": 0.9, "rows": 5, "count": 12, "board_spread": 0.12, "grey": 0.2},
 }
 LENGTH = 64  # texels along the grain: 2 m at 32 a metre
@@ -112,16 +113,21 @@ def board(spec: dict, pal: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     base = n / 2 - 0.5 + spec.get("lean", 0.0) * n / 4 + rng.normal(0, 0.6 + spec["board_spread"] * 3.0)
     bright = 1.0 + rng.normal(0, spec["board_spread"])
     idx = np.zeros((rows, LENGTH))
-    for y in range(rows):
+    # `patch`: squares this many rows tall and runs this much longer (the painting's posts are
+    # bold patches, two squares across and three to six long, not fine speckle).
+    patch = spec.get("patch", 1)
+    runs = [2, 2, 3, 3, 4] if patch == 1 else [3, 4, 4, 5, 6]
+    for y0 in range(0, rows, patch):
         # Each row of squares follows a slow wander along the grain (the grain's own light and
         # dark), so rows drift together and the board reads as one piece of wood.
         wander = (smooth_noise(LENGTH, 16, rng) - 0.5) * 2.2 + (smooth_noise(LENGTH, 6, rng) - 0.5) * 1.2
-        x = 0
-        while x < LENGTH:
-            run = int(rng.choice([2, 2, 3, 3, 4]))  # squares two to four long along the grain
-            jitter = rng.normal(0, 0.55)
+        x = int(rng.integers(0, 3))
+        while x < LENGTH + 3:
+            run = int(rng.choice(runs))  # squares two to four long along the grain
+            jitter = rng.normal(0, 0.55 * spec.get("patch_jitter", 1.0))
             for k in range(run):
-                idx[y, (x + k) % LENGTH] = base + wander[(x + k) % LENGTH] + jitter
+                for y in range(y0, min(y0 + patch, rows)):
+                    idx[y, (x + k) % LENGTH] = base + wander[(x + k) % LENGTH] + jitter
             x += run
     # A streak or two: a long darker run down the grain (a crack, the weather in a seam).
     for _ in range(int(rng.integers(1, 3))):
