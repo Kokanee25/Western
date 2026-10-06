@@ -48,6 +48,14 @@ Reference: `docs/concept/saloon-night.png`, `docs/concept/livery-fire.png` and
 `docs/concept/street-golden-hour.png` (Sean, 2026-10-01: the main street at golden hour, first person
 with the revolver; the target for the street, materials and daylight).
 
+**The bold style everywhere (Sean, 2026-10-05).** The street painting's style is the game's:
+crisp, bold squares fixed to every surface, each a clearly different colour from its neighbour,
+pale weathered wood with a dark line at every seam, signs lettered square by square, readable at
+a glance. The saloon's target is `docs/concept/saloon-blocks.png` (the saloon painting redrawn in
+that style); `saloon-night.png` stays the reference for the room's lamplit mood, not its finer,
+painterly squares. Where this section says otherwise below, this wins. The town's layout:
+`docs/concept/town-map.png`, `docs/briefs/town.md`.
+
 - **"High-resolution Duke Nukem 3D", in real 3D** (Sean, 2026-09-28): solid, readable low-poly models
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
   texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The
@@ -289,6 +297,74 @@ come out of the story or the world, and most standoffs should have a way out tha
 - **Pacing:** the drama manager aims for something tense most days and a real fight every day or
   two, more in act three; quiet days are for people. Standoffs that end without a shot count as
   much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
+
+### Story missions (**proposed**, Sean 2026-10-06; features are frozen until the look is right)
+Each one is a situation that comes to you as a lead (a rumour, a rider, a gunshot), not a quest
+marker. Each ends in a choice with a real cost and no clean answer, and its aftermath runs through
+systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out through people
+(who saw what, who talks, who lies), not a clue-hunting minigame.
+
+1. **The camp** (Sean's). Word reaches town that bandits killed and violated women at a camp of a
+   real nation outside town (which one fits our valley is research, done with care: see "History,
+   handled with care"). You ride out; the men were away hunting when it happened. Their people
+   are not of one mind: a war leader wants every bandit dead, an elder fears the army will come down
+   on the camp if white men die (it usually did), a husband wants only the man who did it. They send
+   trackers. The town's leaders want an arrest and quietly let you know nothing will come of it.
+   You ride with the trackers and find the bandits camped. Three ways out:
+   - **Kill them all.** The women described one man by a hat nobody else wears; when he's
+     down, the husband scalps him, and only him (Sean 2026-10-06). It happens in the world on the
+     wound system, not as a cutscene: you can stay and watch or walk away, and the camera never
+     moves in. The body stays where it fell, and whoever finds it carries the story to town. The
+     tribe's men say why, and not all of them agree with it. The camp trusts you; the town splits on it ("a white man rode with
+     Indians against white men"); the bandits' kin or friends come for you; maybe the army or the
+     agent comes asking.
+   - **Arrest them.** You bring them in alive, often against the warriors' will (a standoff on the
+     way). The leaders fine them and run them out of town: no justice. The camp stops trusting you;
+     the bandits may come back.
+   - **Take them past the town:** to the circuit judge or a US Marshal by letter or wire. It's
+     slow, the bandits' friends try to break them out on the way, and in 1882 the camp's own
+     witnesses may not be heard in court. Usually it fails; when it doesn't, it's the hardest-won
+     ending in the game.
+   Mixed moments make it personal: a bandit surrenders with his hands up and a young warrior moves
+   first; one of the bandits wasn't there that night; the man in the hat may be the one who
+   surrenders. **The bandits are scalp hunters** (Sean 2026-10-06): their camp has scalps drying
+   on a line, Mexican as well as Native, to be sold south for the bounty as "Apache" (the
+   Glanton gang did exactly this). They scalped the women they killed at the camp: that's what
+   they came for. When you reach the camp the women's own people have already covered them for
+   burial; you learn what was done from them, you aren't shown it. Among the scalps on the
+   bandits' line are the women's; the husband or a relative knows them, and bringing them home
+   for burial matters to the camp as much as what happens to the men. What you find there tells you what they came to the camp for,
+   is evidence any court or marshal can't wave away, and ties in the Mexican rancher's people
+   (mission 4): whoever learns of the Mexican scalps wants a say in what happens to the bandits.
+   It also shows, in the world, that scalping wasn't one people's act. The violation itself is never shown, only
+   what it leaves behind.
+2. **Hold him till the Marshal comes** (the jail night). You have one of the Colters in a cell and
+   the Marshal's wire says two days. The gang wants him out; the town wants him hanged now (a mob
+   with a rope); his brother offers you money. Hold the jail with whoever you can swear in, give him
+   to the mob, take the money, or let him go to buy peace. Uses the jail, leading men (signature 6),
+   fire (they'll try burning you out) and dynamite (the back wall).
+3. **The lynching at the railhead.** The survey crew's Chinese workers are camped by the creek. The
+   baron's foreman is found dead and a worker is blamed; the foreman's men come with a rope. Stand
+   in front of them and talk them down, find who saw what happened (it was one of the foreman's
+   own), or step aside. Whatever you do, the workers, the baron and the town remember.
+4. **The vaquero's horses.** A Mexican rancher's horses turn up in the baron's corral with fresh
+   brands over old ones. The rancher wants them back and will take them by force if he has to; the
+   baron says he bought them fair. Help the rancher take them at night, buy them back, bring the
+   baron's foreman to account, or stay out of it and watch it turn into a range war.
+5. **The Kid wants out.** The Kid comes to you quietly: he's done with the Colters. The gang
+   doesn't let men leave. Hide him, get him on the stage, teach him to stand up for himself
+   (signature 8), or sell him back to Brody. If he gets away, he may come back in act three, on
+   either side.
+6. **The cave-in.** Men are trapped in the mine after a blast. Gas, timbers settling, the wrong
+   charge brings the rest down. Dig, shore, or blast a way in with what the miners teach you, while
+   the mine's owner counts what it'll cost to stop work. Uses structures, dynamite and first aid.
+7. **The fever house.** A family is sick (the doctor fears diphtheria) and the town wants them
+   gone. The doctor needs medicine from the next town by morning: a night ride on the stage road
+   the gang watches. Or help the town drive them out, or stand guard on their door. (No children
+   for now: the sick are adults.)
+8. **The dust storm.** A storm closes the town for a night and everyone ends up in the saloon: the
+   gang, the baron's men, the townsfolk, you. Nobody can leave. Tempers, cards, drink and an old
+   grudge; nobody is told to start anything, but someone will.
 
 ### A day in Salt Creek (**decided in outline**, 2026-10-01)
 - **The loop:** leads come in → you pick what matters → you act → the world reacts → you sleep
@@ -640,18 +716,36 @@ knock out one stud and the wall shrugs it off.
    conversation, asynchronously. The fixed part of each character sheet is prompt-cached.
 7. **Saved per person**, loaded when they matter.
 
-### Conversation
-- **Voice first:** hold a button and speak (speech-to-text → the character's AI → text-to-speech with
-  lip sync). **Suggested replies** generated for the moment, for controller play. **Typing** as fallback.
-- **No dead air:** the character fills the gap naturally (a grunt, a sip, a glance) while the reply
-  streams in.
+### Conversation (**changed**, Sean 2026-10-06: written and voiced lines; the AI only understands you)
+- **People speak written, recorded lines**, never live AI text. Each principal has a few hundred
+  lines (about 15 principals × 200–400; townsfolk share pools by type, 100–200 lines a pool across
+  8–10 voices), written by Claude from the character's background and the story's facts, skimmed
+  by Sean, and voiced with ElevenLabs by a script (commercial-use plan; Steam's AI disclosure on
+  the store page).
+- **Lines are keyed to the moment:** who's speaking and to whom, what just happened, how he feels
+  about you, the facts in the town's memory; the most specific line that fits wins (the idea of
+  Valve's response rules, not their code). Facts are separate recordings ("It was Brody", "It was
+  Lyle"), never spliced names; nobody says the player's name.
+- **The body changes how they talk** (signature feature 1) as recorded variants of a line: calm,
+  wounded, drunk, frightened, dying; the dying sheriff's set runs from clear to a whisper; a broken
+  jaw grunts.
+- **You type or speak freely.** The AI's only job is to *read* what you said into a small structured
+  reading: who it's to, what you're doing (threaten, insult, ask, bargain, flatter, apologise,
+  confess, lie, order, comfort, buy a drink, call out), the tone, what you asked about, and any claim
+  you made. That reading is a **deed** like drawing a gun: the listener's nerve, temper and opinion
+  of you decide his answer (a recorded line, and what he does), everyone in earshot hears it, and a
+  claim ("I saw Brody do it") goes into the town's memory to be believed, spread or caught as a lie.
+  Capitals or a raised voice are a shout. Each reading can be tested ("drop it or I'll drop you" is a
+  threat), it costs one tiny request (later perhaps a small model on the player's own machine), and
+  anything it can't place gets a recorded brush-off ("Can't say I follow you, mister").
+- **Suggested replies** (a short menu) for controller play and with the AI off: the game works fully
+  without it.
+- **Live AI words, rarely and optionally:** for something nobody wrote a line for, a short reply shown
+  as text only, never voiced, labelled. The exception, not the rule.
 - **Context counts:** drawn or holstered gun, distance, blood on your shirt, clothing, time and place.
 - **Act mid-conversation:** hand over money, show a wanted poster, pour a drink, cock the hammer.
-- **Characters can walk away**, and remember why.
-- **Guardrails:** they stay in 1882 ("Don't know what a 'phone' is, mister"); the AI decides what they
-  *say*, the game decides what they *can do* (a shopkeeper only hands over what's in his store);
-  secrets stay secret until earned by trust or pressure.
-- Critical information is never AI-only; must-work lines are authored.
+- **Characters can walk away**, and remember why. Secrets stay secret until earned by trust or
+  pressure; what they can do is the game's, never the AI's.
 
 ### Action commands (say or type what you do)
 - Two inputs: **talk** (speech to a person) and **act** (commands to your own hands). "Tell him to hold
@@ -904,6 +998,27 @@ each time.
 - Fifty people needs "far people think slower" (full detail near, cheap across town, almost
   nothing indoors out of sight) inside the frame budget; build that before the cast grows.
 
+**Period details (ideas only, Sean 2026-10-06: not all will be built)**
+- Law and guns: guns checked at the edge of town (a token back, as Dodge City and Tombstone
+  ordered); "buffaloing" a drunk with a pistol barrel instead of shooting him; wanted posters
+  that describe a man (scar, horse, hat) with no photograph; the undertaker's photographs of
+  dead outlaws propped in their coffins, shown in his window; vigilance committees and hangings
+  from the livery's hay-hoist beam when the law won't act.
+- Fire: the church bell or a hung iron triangle as the alarm that brings the bucket line; water
+  barrels kept on the boardwalks for fires; wet blankets on the neighbours' roofs against
+  sparks; pulling down or blowing up a building as a firebreak.
+- Time and sound: no standard time yet (railroad time came in November 1883), so the town's sun
+  time and the railroad's clock disagree; the mine's or mill's whistle at the change of shift,
+  the dinner triangle, Sunday bells; spurs that others hear coming; the telegraph clicking, its
+  operator knowing everyone's business.
+- Saloon and money: faro as the main game, dealt from a box and easy to rig; the free lunch,
+  salted to keep men drinking; hard money (gold and silver coin, "two bits") and gold dust
+  weighed on scales, a thumb on the scale the easy cheat; sawdust on the floor, spittoons.
+- Daily life: the water wagon sprinkling the street (a water source too); the barber who pulls
+  teeth and runs the bathhouse; a Chinese laundry; the medicine show and patent medicine
+  (mostly alcohol and opium); lamps lit at dusk by hand and the town going dark house by house;
+  brands registered in a book and rustlers' running irons; dances and box socials.
+
 **Props (proposed approach)**
 Hundreds of props in three tiers: a few hero props seen up close, made one by one; about a hundred
 common props made in themed batches (saloon, store, livery, jail, doctor's), each batch checked as
@@ -932,6 +1047,9 @@ The test: **can the player cause a story nobody planned?**
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included
   (needs research and care).
 - **Name:** "Salt Creek" is a working title.
+- **Forensics, lighter?** (Sean, 2026-10-06: "may become too tedious"). Signature feature 2 may
+  shrink to the doctor or undertaker simply telling you what a wound says, in a line, with no
+  examining or clue-hunting by the player; the trial then rests on witnesses and what people saw.
 - **Mine:** what it's for (silver? a collapse? the gang's hideout?).
 - **Economy:** prices, wages, what farming earns; how crafting (if any) works.
 - **Voices:** which speech services; how much is pre-recorded vs live.

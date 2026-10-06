@@ -56,6 +56,9 @@ var _fx_keys: Array = []  # this half second's members to bring up to date, and 
 var _fx_at := 0
 const FX_EVERY := 0.5
 var _lights: Array[OmniLight3D] = []
+## The smoke round each burning building (SmokeField), and each building's box.
+var _smoke: Array[SmokeField] = []
+var _building_box := {}
 var _light_time := 0.0
 
 const CELL := 2.0
@@ -619,6 +622,7 @@ func _update_fx() -> void:
 	_fx_keys = active.keys()
 	_fx_at = 0
 	_place_lights(burning)
+	_place_smoke(burning)
 
 
 ## The burning members, longest-burning first (sorted natively: a burning town is thousands).
@@ -656,8 +660,56 @@ func _refresh_fx(frames: int) -> void:
 			add_child(fx)
 			_fx[m] = fx
 		if fx != null:
-			(fx as FireFX).refresh(_flaming.has(m), tuning)
+			(fx as FireFX).refresh(_flaming.has(m), tuning, not smoked(m))
 	_fx_at = to
+
+
+## Smoke that knows the buildings (SmokeField, docs/briefs/smoke.md): a field round each building
+## that's burning, up to `smoke_fields`; members outside one (rubble in the street, a building
+## past the limit, no native plugin) keep their particle smoke.
+func _place_smoke(burning: Array[StructureMember]) -> void:
+	_smoke = _smoke.filter(func(f: SmokeField) -> bool: return is_instance_valid(f) and not f.is_queued_for_deletion())
+	if not SmokeField.available():
+		return
+	for m in burning:
+		if _smoke.size() >= tuning.smoke_fields:
+			return
+		var s := m.get_parent() as Structure
+		if s == null or m.broken or smoked(m):
+			continue
+		_smoke.append(SmokeField.around(self, _box_of(s), s))
+
+
+## Is this member's smoke drawn by a field?
+func smoked(m: StructureMember) -> bool:
+	for f in _smoke:
+		if is_instance_valid(f) and f.covers(m.global_position):
+			return true
+	return false
+
+
+## The smoke at a point (0 clear, 1 thick), from whichever field holds it.
+func smoke_at(at: Vector3) -> float:
+	var most := 0.0
+	for f in _smoke:
+		if is_instance_valid(f) and f.covers(at):
+			most = maxf(most, f.density_at(at))
+	return most
+
+
+func _box_of(s: Structure) -> AABB:
+	if _building_box.has(s):
+		return _building_box[s]
+	var b := AABB()
+	var first := true
+	for m: StructureMember in s.get_members():
+		if m.broken or m.consumed:
+			continue
+		var a := m.world_aabb()
+		b = a if first else b.merge(a)
+		first = false
+	_building_box[s] = b
+	return b
 
 
 ## A handful of lights where the fire is biggest, not one per burning board.

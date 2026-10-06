@@ -31,7 +31,7 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 W, H = 1280, 720
 VIEWS = {
-    "saloon": ("shot_match_saloon.png", "docs/concept/saloon-night.png", "the saloon at night, the man at the card table"),
+    "saloon": ("shot_match_saloon.png", "docs/concept/saloon-blocks.png", "the saloon at night, the man at the card table"),
     "street": ("shot_match_street.png", "docs/concept/street-golden-hour.png", "the street at golden hour, revolver at the hip"),
 }
 SCALE = 3

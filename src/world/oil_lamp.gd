@@ -15,6 +15,13 @@ extends Node3D
 ## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
+## How fast its light falls off (OmniLight3D's attenuation; 2 is the inverse square): a sconce on
+## a wall throws a bright pool round itself and little further.
+@export var attenuation := 1.2:
+	set(value):
+		attenuation = value
+		if _light:
+			_light.omni_attenuation = value
 
 var lit := true
 ## Shot or knocked to pieces: no light, and if it was lit, burning oil where it landed.
@@ -111,7 +118,7 @@ func _build() -> void:
 	_light.light_volumetric_fog_energy = haze
 	_light.light_energy = energy
 	_light.omni_range = light_range
-	_light.omni_attenuation = 1.2
+	_light.omni_attenuation = attenuation
 	_light.shadow_enabled = casts_shadows
 	_light.shadow_bias = 0.05
 	_light.position.y = 0.22

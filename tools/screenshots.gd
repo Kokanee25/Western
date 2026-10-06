@@ -106,7 +106,12 @@ static func _view_move(view: String) -> Transform3D:
 	var town = load("res://src/world/town_layout.gd")
 	if view in SALOON_VIEWS:
 		var was: Dictionary = town.entry(&"Saloon")["was"][0]
-		return town.transform_of(&"Saloon") * town._xform(was).affine_inverse()
+		var move: Transform3D = town.transform_of(&"Saloon") * town._xform(was).affine_inverse()
+		# Up with the saloon's raised floor (but the view from the street).
+		var lift := float((town.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38)) - 0.38
+		if view != "saloon_front_dusk":
+			move = Transform3D(Basis(), Vector3.UP * lift) * move
+		return move
 	if view in STORE_VIEWS:
 		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
 		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))
@@ -167,7 +172,7 @@ func _run() -> void:
 			RenderingServer.global_shader_parameter_set(&"min_square_px", float(arg.substr(13)))
 		elif arg.begins_with("--screen-squares="):
 			screen_squares = float(arg.substr(17))
-		# The painting's mosaic in screen space (DepthMosaic, on by default: Settings.mosaic):
+		# The painting's mosaic in screen space (DepthMosaic, off by default since 2026-10-06: Settings.mosaic):
 		# --mosaic=5 (block px x metres), --steps=14 (tones of light, 0 smooth), --no-mosaic.
 		elif arg.begins_with("--mosaic="):
 			screen_squares = float(arg.substr(9))

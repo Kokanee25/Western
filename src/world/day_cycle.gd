@@ -125,6 +125,12 @@ func get_daylight(hour: float = time_of_day) -> float:
 	return smoothstep(-0.05, 0.2, get_sun_direction(hour).y)
 
 
+## The stars' share: none while the sun is up, all of them once it's ~6 degrees down (they had
+## followed daylight, and showed over the golden-hour street with the sun 6 degrees up).
+func get_starlight(hour: float = time_of_day) -> float:
+	return 1.0 - smoothstep(-0.1, 0.0, get_sun_direction(hour).y)
+
+
 func apply_visuals() -> void:
 	var t := time_of_day / 24.0
 	var sun_dir := get_sun_direction()
@@ -174,7 +180,7 @@ func apply_visuals() -> void:
 			_send_sky(sky_mat, &"sun_color", sun_color, col)
 			_send_sky(sky_mat, &"sun_dir", sun_dir, deg_to_rad(config.sky_update_degrees))
 			_send_sky(sky_mat, &"moon_dir", moon_dir, deg_to_rad(config.sky_update_degrees))
-			_send_sky(sky_mat, &"star_strength", config.star_strength * (1.0 - daylight), col)
+			_send_sky(sky_mat, &"star_strength", config.star_strength * get_starlight(), col)
 			_send_sky(sky_mat, &"cloud_drift", _drift_seconds * config.cloud_drift_speed, col)
 
 

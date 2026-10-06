@@ -34,6 +34,7 @@ const HELP := {
 	"fight": "fight [NAME] -> the gang (or one man) turn on you, as if you'd shot at them",
 	"dynamite": "dynamite X Y Z [FUSE] -> a lit stick there",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
+	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"quit": "quit -> close the game",
@@ -547,6 +548,24 @@ func _cmd_dynamite(a: Array) -> Dictionary:
 	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0)
 	s.light()
 	return {"fuse": snappedf(s.fuse_left, 0.1)}
+
+
+func _cmd_smoke(a: Array) -> Dictionary:
+	var fire := FireSystem.find(get_tree())
+	if fire == null:
+		return {"ok": false, "error": "no FireSystem"}
+	if a.size() >= 3:
+		return {"at": _vec(a, 0), "smoke": snappedf(fire.smoke_at(_vec(a, 0)), 0.001)}
+	var out: Array = []
+	for f: SmokeField in fire.find_children("*", "SmokeField", false, false):
+		var bytes: PackedByteArray = f.grid.call(&"bytes", 1.0)
+		var most := 0
+		for b in bytes:
+			most = maxi(most, b)
+		out.append({"structure": String(f.structure.structure_id) if f.structure else "", "box": [f.origin, f.box().end],
+			"cells": [f.dims.x, f.dims.y, f.dims.z], "total": snappedf(f.total(), 0.01), "thickest": snappedf(most / 255.0, 0.01),
+			"burning_vents": f._vents.size(), "drawn": f._fog != null})
+	return {"available": SmokeField.available(), "fields": out}
 
 
 func _cmd_ignite(a: Array) -> Dictionary:

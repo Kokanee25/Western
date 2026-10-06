@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 5
+const LOOK_VERSION := 6
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
 ## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
@@ -50,7 +50,15 @@ const MIN_SQUARE_PX := 2.0
 ## and the finish off. The world's materials take their shader when built, so the scene reloads.
 ## `--blocks` on the command line turns it on for a run without saving it (the screenshot and
 ## flicker tools).
-const BLOCK_SOFT := 0.5
+## Hard block edges since the bold style (Sean, 2026-10-05): the street painting's squares are
+## crisp (0.5 render pixels of blend read as fuzz beside it).
+const BLOCK_SOFT := 0.0
+## The smallest square a far texel draws under the bold look, in render pixels: far surfaces stay
+## blocks, as the painting's do, rather than softening into the mip.
+const BOLD_MIN_SQUARE_PX := 4.0
+## The bold look's line between boards, in screen pixels (texel_grid.gdshaderinc `seam_px`): the
+## street painting draws it a pixel or so wide and dark at any distance.
+const BOLD_SEAM_PX := 1.3
 ## 0: smooth light on the blocks (each block flat, lit at its centre, so the light still steps
 ## square by square); the judge preferred it to 8 or 12 bands (rings on the table).
 const LIGHT_BANDS := 0.0
@@ -70,8 +78,10 @@ var tile_look: StringName = &"square"
 var integer_scaling := false
 ## The finish pass (FINISH_SOFTEN, FINISH_GRADIENT) on.
 var finish := false
-## The screen mosaic (MOSAIC_K, MOSAIC_STEPS) on.
-var mosaic := true
+## The screen mosaic (MOSAIC_K, MOSAIC_STEPS): off by default since 2026-10-06 (Sean: "no
+## filters, the look has to be the art": it cut the drawn textures and his face into blotches);
+## O still turns it on to compare.
+var mosaic := false
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
 var surface_blocks := false
@@ -162,7 +172,7 @@ func reset_to_defaults() -> void:
 	internal_resolution = RESOLUTION_PRESETS[0]
 	integer_scaling = false
 	finish = false
-	mosaic = true
+	mosaic = false
 	mouse_sensitivity = 0.1
 	stick_look_speed = 150.0
 	touch_look_sensitivity = 0.25
@@ -215,6 +225,9 @@ func load_from_disk() -> void:
 	if look_version < 5:
 		finish = false
 		mosaic = true
+	# 6: no screen filter (the mosaic off), whatever was saved.
+	if look_version < 6:
+		mosaic = false
 	if (look_version < 2 and is_equal_approx(texels_per_meter, 40.0)) \
 			or (look_version < 3 and is_equal_approx(texels_per_meter, 64.0)):
 		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
@@ -357,9 +370,10 @@ func tile_globals() -> Dictionary:
 	return {&"tile_light": 1.0 if surface_blocks else (0.0 if tile_look == &"off" or quantise_once else 1.0),
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
-			&"min_square_px": 0.0 if quantise_once or surface_blocks else MIN_SQUARE_PX,
+			&"min_square_px": BOLD_MIN_SQUARE_PX if surface_blocks else 0.0 if quantise_once else MIN_SQUARE_PX,
 			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else 0.0),
-			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0}
+			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
+			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
 
 
 func _apply_tiles() -> void:
@@ -375,6 +389,10 @@ func _apply_texels() -> void:
 			mip = p[1]
 	# The smooth set has four times the texels (reduce.py SMOOTH_TEXELS): laid at four times the
 	# density, the paintings cover the same metres.
+	# The bold set (M) is cut at PixelArt.BOLD_TEXELS a metre and laid at it, crisp.
+	if surface_blocks:
+		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
+		return
 	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
 
 
@@ -395,6 +413,7 @@ func set_quantise_once(on: bool) -> void:
 func set_surface_blocks(on: bool) -> void:
 	surface_blocks = on
 	_apply_quantise()
+	_apply_texels()
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
@@ -403,7 +422,9 @@ func set_surface_blocks(on: bool) -> void:
 
 ## What the look sets before any material is built: the smooth texture sets and the mosaic's knobs.
 func _apply_quantise() -> void:
+	PixelArt.reset_for_look()
 	PixelArt.blocks = surface_blocks
+	PixelArt.bold = surface_blocks
 	PixelArt.smooth = quantise_once
 	PeopleBodies.smooth_paint = quantise_once
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}

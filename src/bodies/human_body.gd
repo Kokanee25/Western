@@ -1034,15 +1034,23 @@ func _slide(motion: Vector3) -> Vector3:
 	return total
 
 
-## Keep his feet on whatever's under him (a boardwalk step up, a slope).
+## Keep his feet on whatever's under him (a boardwalk step up, a slope). A foot is wider than the
+## gap between a walk's planks or a floor's boards: a ray down the middle and one a few centimetres
+## off it each way, the highest wins (one ray fell through a crack, and off a raised walk he couldn't
+## step back up).
 func _snap_to_ground() -> void:
 	var space := get_world_3d().direct_space_state
-	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.5, global_position + Vector3.DOWN * 1.0, Layers.WORLD)
-	if _blocker and is_instance_valid(_blocker):
-		q.exclude = [_blocker.get_rid()]
-	var hit := space.intersect_ray(q)
-	if not hit.is_empty():
-		global_position.y = hit.position.y
+	var best := -INF
+	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
+		var at := global_position + off
+		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.WORLD)
+		if _blocker and is_instance_valid(_blocker):
+			q.exclude = [_blocker.get_rid()]
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			best = maxf(best, (hit.position as Vector3).y)
+	if best > -INF:
+		global_position.y = best
 
 
 ## Turn to face a point and, in the aim pose, raise the gun arm to it.

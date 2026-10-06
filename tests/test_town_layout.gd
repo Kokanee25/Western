@@ -18,8 +18,10 @@ func test_the_street_stands_where_the_layout_says() -> void:
 
 
 func test_a_place_inside_moves_with_its_building() -> void:
-	var door := TownLayout.point(&"Saloon", Vector3(5, 0.38, 0.9))
+	# At the saloon's own floor (config/town.json raises it above the street's other walks).
+	var f := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38))
+	var door := TownLayout.point(&"Saloon", Vector3(5, f, 0.9))
 	var saloon := TownLayout.transform_of(&"Saloon")
-	check((saloon.affine_inverse() * door).distance_to(Vector3(5, 0.38, 0.9)) < 0.001, "the door's in the saloon's space")
+	check((saloon.affine_inverse() * door).distance_to(Vector3(5, f, 0.9)) < 0.001, "the door's in the saloon's space")
 	var w := Waypoints.test_street()
 	check(w.points[&"saloon_door"].distance_to(door) < 0.001, "the waypoints use it")
