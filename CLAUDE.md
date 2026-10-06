@@ -3351,3 +3351,22 @@ a few views renders them as the full run does.
   failed. 353 tests pass.
   - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
     when it does; a fallen lamp's light stays lit unless it breaks.
+- 2026-10-06 (gameplay): **Main Street to Sean's map, step 3: the buildings the map has**
+  (`docs/briefs/main-street.md`). In `config/town.json` and the street scene: the **telegraph**
+  (between the store and the barber), the **doctor's** (past the barber) and the **bank** (across
+  Market Street from the hotel, barred windows), each furnished by `FalseFrontBuilding.interior`
+  (members, so they burn and break: the operator's desk with key, sounder and battery jars; the
+  operating table, cot and a cabinet of bottles; the teller's counter under a cage of iron bars
+  and an iron safe) with its own lamps, unshadowed (lights aren't culled by walls, and the six new
+  ones took the saloon's lamps' shadow slots: town_bar went grey); the **well** and a **windpump**
+  with its stock tank behind the jail (both water sources for the buckets; the windpump's wheel
+  turns); the **corral** behind the livery. New wood `iron` (`TimberTuning`, `WoodMaterials`,
+  fireproof, ballistics' resistance 4000 J/cm, surface `metal`, never carved). Knocked out, you
+  come round beside the doctor's cot (`DebugSpawns/DoctorInside`; the store's floor where there's
+  no doctor's). Tests `test_town_buildings` (5). **Found on the way, the screenshot tool:**
+  `tools/screenshots.gd` (shared) now waits 150 empty frames after freeing a view's scene (was 2:
+  the renderer let go of a freed scene's lights some frames later, and they counted against the
+  next scene's), and `project.godot` (shared) raises Forward+'s clustered elements 512 → 1024 (in
+  the full run of 70 views town_bar's lamps were still dropped; every shorter run was right with
+  the wait; what builds up between loads is still to find). For the art session (told): the new
+  buildings' dressing, the corral's ground (dry grass grows in it), their signs.
