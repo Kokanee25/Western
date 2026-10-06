@@ -81,7 +81,7 @@ static func around(fire_system: FireSystem, box: AABB, building: Structure = nul
 func _ready() -> void:
 	grid = ClassDB.instantiate(&"SmokeGrid")
 	grid.call(&"setup", dims.x, dims.y, dims.z, cell)
-	for k: String in ["rise", "rise_hot", "jet", "ceiling_spread", "mix", "fade", "fade_open"]:
+	for k: String in ["rise", "rise_hot", "jet", "ceiling_spread", "mix", "fade", "fade_open", "draw_gamma"]:
 		grid.call(&"tune", k, float(tuning.get("smoke_" + k)))
 	var gun_smoke: Resource = load("res://config/smoke.tres")
 	_wind = gun_smoke.get(&"wind") if gun_smoke else Vector3.ZERO

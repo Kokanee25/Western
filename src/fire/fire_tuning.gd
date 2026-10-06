@@ -83,7 +83,10 @@ extends Resource
 @export var smoke_fade_open := 0.02
 ## How it's drawn (the art session's to judge): fog of this density where a cell is full, and its
 ## colour.
-@export var smoke_draw_density := 2.0
+@export var smoke_draw_density := 2.5
+## Each cell's share of a full one is drawn raised to 1 / this, so thin smoke (a couple of boards
+## alight under a porch) shows and a whole building's doesn't wall the street off.
+@export var smoke_draw_gamma := 2.0
 @export var smoke_colour := Color(0.42, 0.39, 0.36)
 ## At most this many buildings' smoke at once (each is its own box); past it, the old particle smoke.
 @export var smoke_fields := 6
