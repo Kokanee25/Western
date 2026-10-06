@@ -429,7 +429,10 @@ a few views renders them as the full run does.
   Sean's map (`docs/concept/town-map.png`): Main Street along X, west −X toward the sunset; the
   south side (fronts on z 0) from the east the saloon, the store, the barber, Market Street, the
   hotel; the north side (fronts on z −16.8) the livery, the jail, the water tower's yard, the
-  assay office; Freight Street crossing at the east end, the range 30 m beyond. A building's
+  assay office; Freight Street crossing at the east end, the range 30 m beyond. Since step 3 also
+  the telegraph (between the store and the barber), the doctor's (past the barber), the bank
+  (across Market Street from the hotel), the well and windpump with its stock tank behind the jail
+  and the corral behind the livery. A building's
   boardwalk is up on steps (`Boardwalk.steps`: people and the player come and go by them, the
   edge elsewhere a step too high). `StreetDressing/<name>` entries are the dressing's façades
   (it builds them where the layout says, each with its walk). A building's `was` is where it
@@ -442,8 +445,12 @@ a few views renders them as the full run does.
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
-  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
-  `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
+  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
+  `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
+  `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
+  `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
+  members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
+  it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
   **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
   it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
