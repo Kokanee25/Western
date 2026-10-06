@@ -19,6 +19,10 @@ extends Resource
 	&"glass": {"density": 2500.0, "bending": 40e6, "compression": 100e6, "stiffness": 70e9},
 	# Rubble-stone laid in lime mortar: heavy and strong in compression, weak in bending.
 	&"stone": {"density": 2300.0, "bending": 1.5e6, "compression": 12e6, "stiffness": 15e9},
+	# Wrought and cast iron (a safe, a stove, a windpump's wheel): far past anything a ball, a
+	# charge or a fall here could break (USDA Wood Handbook's figures for the woods; iron's from
+	# period engineering tables, rounded).
+	&"iron": {"density": 7600.0, "bending": 250e6, "compression": 250e6, "stiffness": 190e9},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 

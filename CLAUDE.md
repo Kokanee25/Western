@@ -429,7 +429,10 @@ a few views renders them as the full run does.
   Sean's map (`docs/concept/town-map.png`): Main Street along X, west −X toward the sunset; the
   south side (fronts on z 0) from the east the saloon, the store, the barber, Market Street, the
   hotel; the north side (fronts on z −16.8) the livery, the jail, the water tower's yard, the
-  assay office; Freight Street crossing at the east end, the range 30 m beyond. A building's
+  assay office; Freight Street crossing at the east end, the range 30 m beyond. Since step 3 also
+  the telegraph (between the store and the barber), the doctor's (past the barber), the bank
+  (across Market Street from the hotel), the well and windpump with its stock tank behind the jail
+  and the corral behind the livery. A building's
   boardwalk is up on steps (`Boardwalk.steps`: people and the player come and go by them, the
   edge elsewhere a step too high). `StreetDressing/<name>` entries are the dressing's façades
   (it builds them where the layout says, each with its walk). A building's `was` is where it
@@ -442,8 +445,12 @@ a few views renders them as the full run does.
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
-  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`),
-  `Boardwalk`, `HitchingRail`, `WaterTrough`. A structure draws its untouched members as one mesh
+  `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
+  `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
+  `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
+  `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
+  members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
+  it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
   **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
   it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
@@ -3344,3 +3351,24 @@ a few views renders them as the full run does.
   failed. 353 tests pass.
   - Known: fallen fittings aren't saved; painted signs are their sign member's own and go only
     when it does; a fallen lamp's light stays lit unless it breaks.
+- 2026-10-06 (gameplay): **Main Street to Sean's map, step 3: the buildings the map has**
+  (`docs/briefs/main-street.md`). In `config/town.json` and the street scene: the **telegraph**
+  (between the store and the barber), the **doctor's** (past the barber) and the **bank** (across
+  Market Street from the hotel, barred windows), each furnished by `FalseFrontBuilding.interior`
+  (members, so they burn and break: the operator's desk with key, sounder and battery jars; the
+  operating table, cot and a cabinet of bottles; the teller's counter under a cage of iron bars
+  and an iron safe) with its own lamps, unshadowed (lights aren't culled by walls, and the six new
+  ones took the saloon's lamps' shadow slots: town_bar went grey); the **well** and a **windpump**
+  with its stock tank behind the jail (both water sources for the buckets; the windpump's wheel
+  turns); the **corral** behind the livery. New wood `iron` (`TimberTuning`, `WoodMaterials`,
+  fireproof, ballistics' resistance 4000 J/cm, surface `metal`, never carved). Knocked out, you
+  come round beside the doctor's cot (`DebugSpawns/DoctorInside`; the store's floor where there's
+  no doctor's). Tests `test_town_buildings` (5). **Found on the way, the screenshot tool:**
+  town_bar rendered cold grey now and then. Each building's room light is a reflection probe drawn
+  once, over about six frames, one probe at a time in no fixed order, and a room takes the sky's
+  ambient until its probe is drawn; with step 3 there are 11 and a view waited 40 frames. So
+  `tools/screenshots.gd` (shared) waits seven frames a probe once a view is placed. Tried first,
+  kept as cheap: 150 empty frames after freeing a view's scene (was 2) and Forward+'s clustered
+  elements 512 → 1024 (`project.godot`, shared). `tools/golden_check.py` (art's) renders the views
+  in batches of ten, a fresh Godot each. For the art session (told): the new buildings' dressing,
+  the corral's ground (dry grass grows in it), their signs.

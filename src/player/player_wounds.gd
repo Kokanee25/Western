@@ -5,8 +5,8 @@ extends Node
 ## when hit, the edges greying with blood loss, no running with a holed lung, down on the ground
 ## with a broken leg, the gun gone from a broken arm, blackout. Hold B (D-pad down) to press on your
 ## wounds; keep holding and you cinch a belt round a bleeding limb. Knocked out (or killed), you
-## come round hours later, patched up but still hurt (at the doctor's once there is one; for now
-## on the store's floor).
+## come round hours later, patched up but still hurt, beside the doctor's cot (the store's floor
+## where there's no doctor's).
 ## Sits under the Player; registers itself as the thing bullets hit (meta "human_body").
 
 signal knocked_out
@@ -403,8 +403,9 @@ func _limb_top(seg: StringName) -> StringName:
 
 ## Out cold (or killed): somebody carries you off and patches you up, and you come round hours
 ## later, hurt as you were but bound up, and told what happened (DESIGN.md §3: you wake up at the
-## doctor's, hurt, poorer, and the town knows). Until there's a doctor (M5) it's the store's floor
-## and the storekeeper's bandages; until there's a purse it costs you nothing but the hours.
+## doctor's, hurt, poorer, and the town knows): beside the doctor's cot (no doctor himself yet:
+## M5), or the store's floor where there's no doctor's; until there's a purse it costs you nothing
+## but the hours.
 func _come_round() -> void:
 	knocked_out.emit()
 	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
@@ -416,9 +417,16 @@ func _come_round() -> void:
 	out_cold = 0.0
 	if player.has_meta(&"last_hit_by"):
 		player.remove_meta(&"last_hit_by")
-	var marker := get_tree().current_scene.find_child("StoreInside", true, false) if get_tree().current_scene else null
-	if marker == null:
-		marker = get_tree().root.find_child("StoreInside", true, false)
+	var marker: Node = null
+	var where := "on the store floor"
+	for spot: Array in [["DoctorInside", "at the doctor's"], ["StoreInside", "on the store floor"]]:
+		var root: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
+		marker = root.find_child(spot[0], true, false)
+		if marker == null:
+			marker = get_tree().root.find_child(spot[0], true, false)
+		if marker != null:
+			where = spot[1]
+			break
 	if marker is Node3D:
 		player.global_position = (marker as Node3D).global_position
 		player.velocity = Vector3.ZERO
@@ -428,7 +436,7 @@ func _come_round() -> void:
 		day.pass_hours(OUT_HOURS)
 		clock = " It's %s." % day.get_clock_text()
 	Events.hours_passed.emit(OUT_HOURS, &"out_cold")
-	var lines: PackedStringArray = ["You come round on the store floor, bandaged, %d hours on.%s" % [OUT_HOURS, clock]]
+	var lines: PackedStringArray = ["You come round %s, bandaged, %d hours on.%s" % [where, OUT_HOURS, clock]]
 	if by_name != "":
 		var gone := not is_instance_valid(by) or (by as Node).is_queued_for_deletion()
 		lines.append("%s shot you down%s." % [by_name, ", and he's long gone" if gone else ""])
