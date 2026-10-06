@@ -3372,3 +3372,10 @@ a few views renders them as the full run does.
   elements 512 → 1024 (`project.godot`, shared). `tools/golden_check.py` (art's) renders the views
   in batches of ten, a fresh Godot each. For the art session (told): the new buildings' dressing,
   the corral's ground (dry grass grows in it), their signs.
+- 2026-10-06 (Sean's planning chat, docs only): **A backlog in DESIGN.md §11** ("Backlog
+  (proposed)"): set pieces built from systems (the fire night with a bucket brigade first, then the
+  bank robbery, a cattle drive, a hanging, a jailbreak, the stage held up, the railroad's arrival, a
+  dust storm), period town life (cards, riding horses, stage and mail day, Sundays, comforts,
+  honest work, weather, a newspaper), the cast (12–15 principals, ~35 townsfolk from bodies and a
+  shared wardrobe, 10–15 base outlaws, no children for now, far people think slower) and the props
+  approach. Features stay frozen until the look is right; nothing here is to be built yet.
