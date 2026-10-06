@@ -21,6 +21,8 @@ extends Structure
 @export var eave_overhang := 0.3
 ## How far the porch awning reaches out over the boardwalk.
 @export var porch_depth := 2.2
+## The porch beam's underside above the ground (the saloon raises it over its tall door).
+@export var porch_height := 3.0
 @export var sign_text := "DRY GOODS"
 ## Ambient light indoors at night: a dim bounce from the lamps. Busier, better-lit places set more.
 @export var night_ambient := 0.04
@@ -38,6 +40,8 @@ extends Structure
 @export var window_bars := false
 ## Saloon batwings: a pair of short swinging leaves across the doorway (the door stands open).
 @export var batwings := false
+## The street painting's parts on the front (FacadeArt, art): "saloon", "store" or none.
+@export var facade := ""
 ## A barn: the front is a gable end (no false front), boarded up and down, with a loft door
 ## under the ridge (`loft_door`: its rect in front-wall space; empty = none).
 @export var gable_front := false
@@ -91,11 +95,12 @@ func build() -> void:
 
 	var front_openings: Array[Rect2] = [door_rect]
 	if front_windows:
-		front_openings.append_array([Rect2(0.55, 1.05, 1.1, 1.35), Rect2(w - 1.65, 1.05, 1.1, 1.35)])
+		# Sills at a height above the floor (the saloon's floor stands higher than the rest).
+		front_openings.append_array([Rect2(0.55, floor_top + 0.67, 1.1, 1.35), Rect2(w - 1.65, floor_top + 0.67, 1.1, 1.35)])
 	if loft_door.has_area():
 		front_openings.append(loft_door)
-	var right_openings: Array[Rect2] = [Rect2(d * 0.55 - 0.5, 1.2, 1.0, 1.0)]
-	var back_openings: Array[Rect2] = [Rect2(w * 0.5 - 0.4, 1.3, 0.8, 0.8)]
+	var right_openings: Array[Rect2] = [Rect2(d * 0.55 - 0.5, floor_top + 0.82, 1.0, 1.0)]
+	var back_openings: Array[Rect2] = [Rect2(w * 0.5 - 0.4, floor_top + 0.92, 0.8, 0.8)]
 	var no_openings: Array[Rect2] = []
 
 	var side_top := func(_x: float) -> float: return wall_height - PLATE_H
@@ -147,6 +152,7 @@ func build() -> void:
 	if furnished:
 		_build_furniture()
 	_add_interior_ambient()
+	FacadeArt.dress(self)  # the painting's parts on a front that asks for them (art)
 
 
 ## The sky's ambient light shouldn't fill the inside of a closed building. This probe replaces it
@@ -481,9 +487,9 @@ func _build_roof(tanp: float) -> void:
 func _build_porch() -> void:
 	var w := width
 	var post := 0.14
-	var beam_y0 := 3.0
-	var beam_y1 := 3.18
-	var ledger_y1 := 3.37
+	var beam_y0 := porch_height
+	var beam_y1 := porch_height + 0.18
+	var ledger_y1 := porch_height + 0.37
 	var zb := -porch_depth
 	for i in 2:
 		var px := post * 0.5 + 0.05 if i == 0 else w - post * 0.5 - 0.05
@@ -518,13 +524,13 @@ func _build_porch() -> void:
 	if not porch_lantern:
 		return
 	var lantern_x := door_rect.end.x + 0.55
-	add_member("front/lantern_bracket", &"trim", &"dark_trim", Vector3(0.03, 0.03, 0.34), Vector3(lantern_x, 2.85, -BOARD_T - 0.17))
+	add_member("front/lantern_bracket", &"trim", &"dark_trim", Vector3(0.03, 0.03, 0.34), Vector3(lantern_x, porch_height - 0.15, -BOARD_T - 0.17))
 	var lantern := OilLamp.new()
 	lantern.name = "PorchLantern"
 	lantern.hanging = true
 	lantern.energy = 1.2
 	lantern.light_range = 6.5
-	lantern.position = Vector3(lantern_x, 2.42, -BOARD_T - 0.3)
+	lantern.position = Vector3(lantern_x, porch_height - 0.58, -BOARD_T - 0.3)
 	add_child(lantern)
 
 

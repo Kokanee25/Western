@@ -1,0 +1,44 @@
+{
+ "sign_saloon_drawn": {
+  "text": "SALOON",
+  "squares": [
+   100,
+   34
+  ]
+ },
+ "sign_general_store_drawn": {
+  "text": "GENERAL STORE",
+  "squares": [
+   150,
+   26
+  ]
+ },
+ "sign_barber_drawn": {
+  "text": "BARBER",
+  "squares": [
+   84,
+   22
+  ]
+ },
+ "sign_hotel_drawn": {
+  "text": "HOTEL",
+  "squares": [
+   80,
+   24
+  ]
+ },
+ "sign_jail_drawn": {
+  "text": "JAIL",
+  "squares": [
+   56,
+   22
+  ]
+ },
+ "sign_assay_office_drawn": {
+  "text": "ASSAY OFFICE",
+  "squares": [
+   120,
+   22
+  ]
+ }
+}

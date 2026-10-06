@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the Tripo man's head in the style and bake it onto his texture (all need FAL_KEY)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man)"
         required: false
         default: ""
 
@@ -199,7 +199,8 @@ jobs:
           git push
 
   # The Tripo man's head painted in the style at full LoRA strength from clay views of it and
-  # baked onto his own texture (tools/characters/head_paint.py).
+  # baked onto his own texture (tools/characters/head_paint.py); a man with body words in
+  # characters.json (the Rodin stranger) gets his whole body painted the same way.
   style-head:
     if: ${{ inputs.style == 'head' }}
     runs-on: ubuntu-latest
@@ -362,6 +363,43 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: image-to-3D (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # The model test (Sean, 2026-10-06): one man's four pictures through Tripo's newest model (rigged,
+  # and again in parts) and Rodin Gen-2.5 on fal, side by side before either is fitted
+  # (tools/characters/tripo.py --test, tools/characters/rodin.py). Nothing in the game reads them.
+  test-3d:
+    if: ${{ inputs.style == 'test3d' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tripo's newest and Rodin
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          TRIPO_API_KEY: ${{ secrets.TRIPO_API_KEY }}
+          WHICH: ${{ inputs.characters }}
+        run: |
+          pip install pillow
+          id="${WHICH:-stranger}"
+          python3 tools/characters/tripo.py --dry-run
+          python3 tools/characters/rodin.py --dry-run
+          if [ -n "$TRIPO_API_KEY" ]; then python3 tools/characters/tripo.py --balance; fi
+          python3 tools/characters/tripo.py --test=$id || echo "Tripo test failed (see above)"
+          if [ -n "$TRIPO_API_KEY" ]; then python3 tools/characters/tripo.py --balance; fi
+          python3 tools/characters/rodin.py --only=$id || echo "Rodin failed (see above)"
+      - name: Commit them
+        run: |
+          git add assets/people/tripo/test
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: the model test, Tripo H3.1 and Rodin (run ${{ github.run_number }})"
           git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 

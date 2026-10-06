@@ -48,6 +48,14 @@ Reference: `docs/concept/saloon-night.png`, `docs/concept/livery-fire.png` and
 `docs/concept/street-golden-hour.png` (Sean, 2026-10-01: the main street at golden hour, first person
 with the revolver; the target for the street, materials and daylight).
 
+**The bold style everywhere (Sean, 2026-10-05).** The street painting's style is the game's:
+crisp, bold squares fixed to every surface, each a clearly different colour from its neighbour,
+pale weathered wood with a dark line at every seam, signs lettered square by square, readable at
+a glance. The saloon's target is `docs/concept/saloon-blocks.png` (the saloon painting redrawn in
+that style); `saloon-night.png` stays the reference for the room's lamplit mood, not its finer,
+painterly squares. Where this section says otherwise below, this wins. The town's layout:
+`docs/concept/town-map.png`, `docs/briefs/town.md`.
+
 - **"High-resolution Duke Nukem 3D", in real 3D** (Sean, 2026-09-28): solid, readable low-poly models
   with **pixel-art textures** (chunky, countable texels, nearest-neighbour filtering, roughly 32–64
   texels per metre), rendered into a pixelated frame whose internal resolution is a setting. The
@@ -289,6 +297,61 @@ come out of the story or the world, and most standoffs should have a way out tha
 - **Pacing:** the drama manager aims for something tense most days and a real fight every day or
   two, more in act three; quiet days are for people. Standoffs that end without a shot count as
   much as fights (clean arrests and talking men down are rewarded: DESIGN §10).
+
+### Story missions (**proposed**, Sean 2026-10-06; features are frozen until the look is right)
+Each one is a situation that comes to you as a lead (a rumour, a rider, a gunshot), not a quest
+marker. Each ends in a choice with a real cost and no clean answer, and its aftermath runs through
+systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out through people
+(who saw what, who talks, who lies), not a clue-hunting minigame.
+
+1. **The camp** (Sean's). Word reaches town that bandits killed and violated women at a camp of a
+   real nation outside town (which one fits our valley is research, done with care: see "History,
+   handled with care"). You ride out; the men were away hunting when it happened. Their people
+   are not of one mind: a war leader wants every bandit dead, an elder fears the army will come down
+   on the camp if white men die (it usually did), a husband wants only the man who did it. They send
+   trackers. The town's leaders want an arrest and quietly let you know nothing will come of it.
+   You ride with the trackers and find the bandits camped. Three ways out:
+   - **Kill them all.** The tribe's men take scalps after you turn away (never shown; the town
+     hears it as rumour). The camp trusts you; the town splits on it ("a white man rode with
+     Indians against white men"); the bandits' kin or friends come for you; maybe the army or the
+     agent comes asking.
+   - **Arrest them.** You bring them in alive, often against the warriors' will (a standoff on the
+     way). The leaders fine them and run them out of town: no justice. The camp stops trusting you;
+     the bandits may come back.
+   - **Take them past the town:** to the circuit judge or a US Marshal by letter or wire. It's
+     slow, the bandits' friends try to break them out on the way, and in 1882 the camp's own
+     witnesses may not be heard in court. Usually it fails; when it doesn't, it's the hardest-won
+     ending in the game.
+   Mixed moments make it personal: a bandit surrenders with his hands up and a young warrior moves
+   first; one of the bandits wasn't there that night. The violation itself is never shown, only
+   what it leaves behind.
+2. **Hold him till the Marshal comes** (the jail night). You have one of the Colters in a cell and
+   the Marshal's wire says two days. The gang wants him out; the town wants him hanged now (a mob
+   with a rope); his brother offers you money. Hold the jail with whoever you can swear in, give him
+   to the mob, take the money, or let him go to buy peace. Uses the jail, leading men (signature 6),
+   fire (they'll try burning you out) and dynamite (the back wall).
+3. **The lynching at the railhead.** The survey crew's Chinese workers are camped by the creek. The
+   baron's foreman is found dead and a worker is blamed; the foreman's men come with a rope. Stand
+   in front of them and talk them down, find who saw what happened (it was one of the foreman's
+   own), or step aside. Whatever you do, the workers, the baron and the town remember.
+4. **The vaquero's horses.** A Mexican rancher's horses turn up in the baron's corral with fresh
+   brands over old ones. The rancher wants them back and will take them by force if he has to; the
+   baron says he bought them fair. Help the rancher take them at night, buy them back, bring the
+   baron's foreman to account, or stay out of it and watch it turn into a range war.
+5. **The Kid wants out.** The Kid comes to you quietly: he's done with the Colters. The gang
+   doesn't let men leave. Hide him, get him on the stage, teach him to stand up for himself
+   (signature 8), or sell him back to Brody. If he gets away, he may come back in act three, on
+   either side.
+6. **The cave-in.** Men are trapped in the mine after a blast. Gas, timbers settling, the wrong
+   charge brings the rest down. Dig, shore, or blast a way in with what the miners teach you, while
+   the mine's owner counts what it'll cost to stop work. Uses structures, dynamite and first aid.
+7. **The fever house.** A family is sick (the doctor fears diphtheria) and the town wants them
+   gone. The doctor needs medicine from the next town by morning: a night ride on the stage road
+   the gang watches. Or help the town drive them out, or stand guard on their door. (No children
+   for now: the sick are adults.)
+8. **The dust storm.** A storm closes the town for a night and everyone ends up in the saloon: the
+   gang, the baron's men, the townsfolk, you. Nobody can leave. Tempers, cards, drink and an old
+   grudge; nobody is told to start anything, but someone will.
 
 ### A day in Salt Creek (**decided in outline**, 2026-10-01)
 - **The loop:** leads come in → you pick what matters → you act → the world reacts → you sleep
@@ -832,6 +895,84 @@ what really happened.
 
 Full list of buildings, interiors, set pieces and dressing: **`docs/TOWN.md`**.
 
+### Backlog (**proposed**, Sean 2026-10-06; features are frozen until the look is right)
+Not to be built until Sean lifts the freeze; then in his order. Every set piece is built from
+systems (a plan, an alarm, a crowd, consequences), never a fixed script, so it plays differently
+each time.
+
+**Set pieces**
+1. **The fire night** (first, closest to working): the gang (a drama-manager plan, a grudge) or a
+   careless lamp sets a building alight at night (riders, a coal-oil can, a broken window). Someone
+   sees it and shouts, the fire bell or church bell rings, and the town comes out in its
+   nightclothes. **A bucket brigade** forms a line from the trough and well, passing buckets hand
+   to hand; water cools and soaks timber in the fire system (a new rule). Whether it's saved turns
+   on how fast the line forms, how many come and the wind. You can join the line, drag someone out
+   of an upstairs room, save the goods, pull a burning wall down with rope, or ride after the men
+   who did it. After: the building lost or saved stays so (it's rebuilt over days), people remember
+   who helped and who watched, evidence (the can, tracks, witnesses), burns at the doctor's, maybe
+   a trial.
+2. **The bank robbery:** the gang's plan, the alarm, a posse forming; you choose your side.
+3. **A cattle drive hits town:** a dozen cowboys just paid off, drunk and loud, a brawl, maybe a
+   stampede down the street.
+4. **The hanging:** the whole town turns out; tension in the crowd, a rescue attempt or a lynch mob.
+5. **The jailbreak:** the gang comes for their man at night.
+6. **The stage held up** on the road, and the town's reaction when it limps in.
+7. **The railroad arrives:** celebration, speeches, a shooting match, and outsiders' trouble.
+8. **A dust storm or flash flood:** everyone shelters; sight and hearing drop.
+
+**Town life and the period**
+- **Cards: poker and faro** at the saloon: drink dulls judgement, cheats can be caught (a card up a
+  sleeve, a marked deck), an accusation climbs the escalation ladder, a game can end in a shooting.
+- **Riding horses:** your horse as transport, getaway and part of who you are; cared for at the
+  livery. Still never shooting animals.
+- **Town events with crowds:** stage and mail day (strangers, letters, news); Sunday (church, a
+  quieter saloon); community days (a Fourth of July with a horse race and shooting match, a barn
+  dance, funerals).
+- **Daily comforts:** a shave and bath at the barber's, meals at the eating house, coffee, tobacco,
+  a hotel room; somewhere for the townsfolk to be.
+- **Honest work for the player:** deputy shifts, riding shotgun on the stage, freighting, breaking
+  horses at the livery, the bucket brigade.
+- **Weather and seasons:** dust storms, summer thunderstorms, cold nights; they change who's out,
+  how far people see and hear, and how fire spreads.
+- **A weekly newspaper** that prints what happened, your doings included, slanted by the editor's
+  opinion of you.
+
+**The cast (proposed numbers)**
+- **12–15 principal characters,** each made fully (unique face and clothes, deep conversation, a
+  story role): sheriff, doctor, undertaker, barkeep, storekeeper, preacher, banker, editor, hotel
+  owner, the gang's leader and core men, the railroad's man.
+- **About 35 townsfolk** built from a few base bodies (thin, broad, heavy, old, and women's) and a
+  shared wardrobe of layered pieces; each with a name, job, home, routine and memories. The town
+  needs women: wives, a widow, saloon girls, a schoolteacher, a laundress.
+- **10–15 base outlaws** for camps and bounties outside town, dressed from the same wardrobe; the
+  same brains as the gang (nerve, fear, surrender, teamwork), simpler socially.
+- No children for now (what players could do to them, ratings, store rules).
+- **Everyone has a home** (Sean, 2026-10-06), as people really lived in an 1880s town: the
+  principals in their own houses or rooms behind or above their business (the storekeeper over
+  the store, the doctor behind his office, the barkeep upstairs at the saloon); families in small
+  frame houses and cabins; single men in a boarding house, hotel rooms or a bunkhouse; the poorest
+  in shacks and tents at the edge of town; ranch hands out at the ranches. **The homes are the
+  houses already on Sean's town map** (`docs/concept/town-map.png`: the small houses and
+  outbuildings round the blocks off Main, Market, Church and Freight Streets and Stable Road);
+  each is given its household when the townsfolk get routines (M4 step 8, M5), and the map's
+  other buildings (church, school, cemetery, feed store, blacksmith, wagon repair, freight
+  storehouse, stage stop) are workplaces and gathering places. Not every house needs a family
+  at first: empty ones are for sale, to let, or abandoned. Built from member-built templates in
+  code (a one-room cabin, a two-room frame house, a shack, a tent, a boarding house) with variants, and furnished by who
+  lives there (bed, stove, table, trunk, and things of their job and pastime: a doctor's books, a
+  gambler's cards, a widow's photographs). A home matters in play: people sleep, eat and wash
+  there on their routines; it's private (walking in uninvited is a deed, breaking in a crime they
+  remember); things in it are evidence (stolen goods, a letter, a bloody shirt); losing it to fire
+  changes them. Interiors sleep (no simulation, no drawing) until someone's near.
+- Fifty people needs "far people think slower" (full detail near, cheap across town, almost
+  nothing indoors out of sight) inside the frame budget; build that before the cast grows.
+
+**Props (proposed approach)**
+Hundreds of props in three tiers: a few hero props seen up close, made one by one; about a hundred
+common props made in themed batches (saloon, store, livery, jail, doctor's), each batch checked as
+one contact sheet beside a painting crop; filler (bottles, cans, sacks, tools) as code variants.
+One style recipe per kind of material, so everything matches.
+
 ## 12. First slice (what to build first)
 
 **One small town** (saloon, jail, store, doctor, church, livery, a few homesteads), **about a dozen
@@ -854,6 +995,9 @@ The test: **can the player cause a story nobody planned?**
 - **Historical groups:** how Indigenous, Chinese and Mexican characters and communities are included
   (needs research and care).
 - **Name:** "Salt Creek" is a working title.
+- **Forensics, lighter?** (Sean, 2026-10-06: "may become too tedious"). Signature feature 2 may
+  shrink to the doctor or undertaker simply telling you what a wound says, in a line, with no
+  examining or clue-hunting by the player; the trial then rests on witnesses and what people saw.
 - **Mine:** what it's for (silver? a collapse? the gang's hideout?).
 - **Economy:** prices, wages, what farming earns; how crafting (if any) works.
 - **Voices:** which speech services; how much is pre-recorded vs live.

@@ -5,6 +5,8 @@ real one would refuse. Not a model maker: its models are an empty glTF.
 
     POST /upload          multipart, a `file` part        -> {"code": 0, "data": {"image_token"}}
     POST /task            {"type": "image_to_model", "file": {"type", "file_token"}, ...}
+                          (and the H-series' model_version, texture_quality, geometry_quality,
+                          quad, generate_parts: checked as the docs say)
                           {"type": "multiview_to_model", "files": [front, left, back, right], ...}
                           {"type": "animate_rig", "original_model_task_id", "out_format"}
                                                           -> {"code": 0, "data": {"task_id"}}
@@ -101,6 +103,18 @@ def start():
                     seen["problems"].append("task body isn't JSON")
                     return self._answer(400, {"code": 1, "message": "bad json"})
                 kind = job.get("type")
+                # What the H-series models take (Tripo's docs, 2026-10): the version, the texture's
+                # and geometry's quality, a quad mesh, parts (not with a texture or PBR).
+                if "model_version" in job and job["model_version"] not in ("v2.5-20250123", "v3.0-20250812", "v3.1-20260211"):
+                    seen["problems"].append("%s with an unknown model_version %s" % (kind, job["model_version"]))
+                for k in ("texture_quality", "geometry_quality"):
+                    if k in job and job[k] not in ("standard", "detailed"):
+                        seen["problems"].append("%s with %s %s" % (kind, k, job[k]))
+                for k in ("texture", "pbr", "quad", "generate_parts", "smart_low_poly"):
+                    if k in job and not isinstance(job[k], bool):
+                        seen["problems"].append("%s with %s not a bool: %s" % (kind, k, job[k]))
+                if job.get("generate_parts") and (job.get("texture") or job.get("pbr")):
+                    seen["problems"].append("%s: generate_parts with a texture or PBR (Tripo refuses both)" % kind)
                 if kind == "image_to_model":
                     f = job.get("file", {})
                     if f.get("file_token") not in tokens or f.get("type") not in ("png", "jpg", "jpeg", "webp"):

@@ -785,6 +785,23 @@ a few views renders them as the full run does.
   (per-vertex colour from the nearest coat point at full resolution, the shell unwrapped in
   Blender and baked to its own texture, then decimated), the way `clothes.py` bakes garments.
   `stranger` stays the whole man meanwhile.
+  **The Rodin route** (since 2026-10-06: `stranger2`, `stranger2s`): `tools/characters/rodin.py`
+  (Rodin Gen-2.5 on fal, `fal-ai/hyper3d/rodin/v2.5`, $1.60 a man; `--dry-run` against
+  `rodin_standin.py`) builds a man from his four pictures, no rig, into
+  `tripo/test/<id>_rodin.glb` (the model test's folder; one who goes in the game moves to
+  `tripo/`). `people.json` `"source": "rodin"`, `"rodin": <glb>`: `fit_tripo.py` finds his
+  joints from his shape (`find_joints`) and fits him as a Tripo man; with his face found
+  (`<rodin>_face.json`) his shoulders go onto ours and all of him above them is scaled so his
+  drawn eyes land on the anatomy's (`EYES_RULE`, the report's `eyes`; `people.json` `tris` gives
+  him his own triangle budget). `tools/characters/stylise.py` makes a stylised copy (`"stylise":
+  {"from": ...}`: brow, jaw, moustache, eyes and hands pushed, his skin's fine detail smoothed).
+  `head_paint.py` paints a man with `body` words in `characters.json` whole (six head views, six
+  body views; `head.frame` and `bust` set his face's square count), and its bake can keep the
+  painter's squares (`bake.squares` false, `flatten`, `view_power`), cut them into cells in his
+  body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
+  light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
+  landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
+  `body_skin` gives his drawn whites that much more light).
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -3281,6 +3298,35 @@ a few views renders them as the full run does.
   same, checked old against new). Tests `test_town_layout` (2). Next: step 2, Main Street moved to
   the map (one saloon, the store beside it, the livery and jail across, raised boardwalks with
   steps), with the art session on the dressing and the goldens.
+- 2026-10-05 (art session, later): **The bold style everywhere (Sean), its first cut behind M; the
+  saloon's lamps; the town map.** Sean picked the street painting's bold squares for the whole
+  game (DESIGN.md §4, shared: a paragraph). The street's target stays `street-golden-hour.png`;
+  the saloon's is now `docs/concept/saloon-blocks.png` (the saloon painting redrawn in that
+  style; `saloon-night.png` kept for the room's mood), in `tools/judge.py` and `tools/critic.py`
+  (judge `--probes` keeps its two darkening probes for the street only). **M is now the bold
+  look** (layout note above, still off by default, Sean's eye decides): the factory's textures
+  cut again by `reduce.py --bold` (16 texels a metre, the grain's contrast doubled, 10–12
+  colours a material, neighbours pushed apart; a material's `bold` dict in `materials.json`)
+  into `assets/textures/bold/` (`PixelArt.bold`, `BOLD_TEXELS`), hard block edges
+  (`BLOCK_SOFT` 0), far blocks kept at 4 px (`BOLD_MIN_SQUARE_PX`), the night's exposure 1.0
+  (`src/art/bold_look.json`, applied under M by `LookPreset.apply_from_args`), and the sky
+  drawn smooth under M. Judge v2 round `2026-10-05_r27` against the new targets: street 0.326
+  → **0.304**, saloon 0.331 → **0.241** (today's default first; `_r19`–`_r26` are the trials:
+  a sun at the street's end and warmer fills read pale, brighter nights blew the lamps).
+  Blind critic `_r27` top three: the seated man's coat and arm smooth faceted slabs (his
+  texture's squares are far finer than the bold style's: characters session, told), the
+  street's lavender sky and small high sun (the Part A restore's gold sky is the answer, still
+  Sean's call), the room behind him brown murk. Review sheet
+  `docs/screenshots/review/2026-10-05_bold.png`. Also today, on the branch: the saloon's wall
+  sconces throw pools (`SCONCE_*`, two under the balcony; judge level, `_sconces.png`), the
+  M look judged at 960×540 (level), Sean's town map `docs/concept/town-map.png` and
+  `docs/briefs/town.md` (one town on this map; four questions for Sean). Found: a look switch
+  (M, I) kept the old look's wood materials and textures in caches, so the reloaded scene
+  mixed looks; `PixelArt.reset_for_look()` empties them. Gameplay's files touched (said here):
+  `src/world/oil_lamp.gd` (an `attenuation` export with a setter, default as before),
+  `src/structures/wood_materials.gd` (`reset()`, five lines), `src/debug/look_preset.gd` (the
+  bold preset under M, a dozen lines), `tests/test_pixel_art.gd` (the M test's expectations);
+  shared `settings.gd` (my lines). 323 tests pass.
 - 2026-10-05 (characters session, later): **The probe mosaic steadier: the frame multisampled
   and texel edges soft under V; its judge numbers corrected.** Sean: "keep working at it". Where
   its flicker was (`tools/probe_walk.py stability`, split by kind): about half on surfaces (the
@@ -3399,6 +3445,455 @@ a few views renders them as the full run does.
   elements 512 → 1024 (`project.godot`, shared). `tools/golden_check.py` (art's) renders the views
   in batches of ten, a fresh Godot each. For the art session (told): the new buildings' dressing,
   the corral's ground (dry grass grows in it), their signs.
+- 2026-10-06 (Sean's planning chat, docs only): **A backlog in DESIGN.md §11** ("Backlog
+  (proposed)"): set pieces built from systems (the fire night with a bucket brigade first, then the
+  bank robbery, a cattle drive, a hanging, a jailbreak, the stage held up, the railroad's arrival, a
+  dust storm), period town life (cards, riding horses, stage and mail day, Sundays, comforts,
+  honest work, weather, a newspaper), the cast (12–15 principals, ~35 townsfolk from bodies and a
+  shared wardrobe, 10–15 base outlaws, no children for now, far people think slower) and the props
+  approach, and (added later that day) homes for everyone: about 20–25 dwellings for ~50 people, as an
+  1880s town really housed them. Features stay frozen until the look is right; nothing here is to be
+  built yet.
+- 2026-10-06 (characters session): **The model test, and Rodin's man fitted and seated at the
+  card table.** Sean, on the bold paint for the fitted men (`tools/characters/bold_paint.py`:
+  squares in body space, de-lit by a fit to the normals, a few flat tones a garment): "those
+  models are dog shit", the mesh and the paint both. It stays on the characters branch
+  (`claude/new-session-l733p0`) as a rejected trial (`PeopleBodies.bold_paint`, `--bold-paint` in
+  `character_lab.gd` and `people_lineup.gd`), not on main. So the model makers were tested on one man (People `style: test3d`, job `test-3d`):
+  Tripo's newest (H3.1, `v3.1-20260211`, detailed texture and geometry, quads; `tripo.py
+  --test=<id> --runs=h31,h31_parts`; it answers in FBX, `ext_of`) and Rodin Gen-2.5 on fal
+  (`tools/characters/rodin.py`, `fal-ai/hyper3d/rodin/v2.5`: Extreme-High, an 18K quad mesh, PBR,
+  an A-pose, HighPack, $1.60 a man; `--dry-run` against `rodin_standin.py`). Round 1 (run 47, the
+  stranger's turnaround): both far tidier than today's men before our fit cuts them down; H3.1
+  rigged, 94k triangles, crisp but a little cartoony; Rodin 35k, more real, no rig; Sean liked
+  Rodin's face most ("really good", though nothing like the paintings) and H3.1's clothes;
+  H3.1's parts run gave the layers we want (hat, hair, head, coat, vest, trousers, boots, hands:
+  12 pieces) but uncoloured, 1.48 million triangles, from a run of its own. Round 2: Sean's own
+  front picture (`assets/people/tripo/stranger2_full.png`, made in ChatGPT), three views painted
+  from it on fal (run 48), Rodin and H3.1 again (run 49): Rodin's is Sean's picture in 3D from
+  every side; H3.1's came out two-faced (a face on the back of his head; most likely because the
+  front is 1024×1536 and the painted views 768×1024). Spent: $3.30 at fal, 220 Tripo credits
+  (915 left). The test's models are in `assets/people/tripo/test/` on the characters branch only
+  (157 MB); the two the stranger is made from went to main with him, in `assets/people/tripo/`.
+  **The fit** (`fit_tripo.py`; `people.json` `stranger2`, `"source": "rodin"`, his glb
+  `tripo/stranger2_rodin.glb`): Rodin gives no rig, so his joints are
+  found from his shape (`find_joints`: cross-sections of him, each arm traced down his side, each
+  leg a line through its middles below the coat, the heights where Tripo's rigs put them,
+  `RIG_Y`; tried on the three Tripo men against their own rigs, 2–3 % of his height out on
+  average, 5.5 % at worst, an elbow), then he's fitted as a Tripo man. `people.json` `tris` gives
+  a man his own triangle budget: 25.5k skin + 5.9k head of his 33k (cut to the old 7.7k he'd go
+  lumpy, as the Tripo men did). For every man now, anything above his jaw hinge is head (the
+  Rodin man's face, set further forward of his neck than Tripo's men's, tore away with his trunk,
+  and a wide brim would too; the stranger and the Kid change at their next fit, not now). His
+  hands' colour goes in his report (`skin_tone`), so the game's finger parts match his hands (they
+  were the default pale peach). He passes the pose check (`people_lineup.gd`: standing, sitting,
+  hands up, crouching, no tears) and sits at the card table (`screenshots.gd --model=stranger2`,
+  `character_lab.gd --model=stranger2`). In the saloon shot he's a whole, readable man under
+  the mosaic (eyes, brows, moustache, collar and tie) where today's stranger is a blotchy orange
+  face. Judge v2 on the shot (scored here, no round written), Rodin man / today's stranger: the
+  game's look 0.258 / 0.228; M 0.392 / 0.362 (`_r13`); V 0.231 / 0.185 (`_r28`). Its reasons:
+  his white shirt and lit face are brighter and greyer than the painting's cream and orange
+  (bright things L* 49 to its 44, colours the painting lacks 1.9 dE to today's 1.1), though his
+  shadows are deeper (deep-shadow share 0.30, today's 0.27, the painting's 0.41). Known: he's one
+  shell, hat and coat and all (none of the brief's layers yet: his hat can't be shot off); his
+  texture is Rodin's own colour, not matched to the paintings; the game's finger parts at his
+  knuckles are plain prisms beside his modelled hand; the joint finder expects an A-pose. Files:
+  `tools/blender/fit_tripo.py`, `assets/people/people.json`, `assets/people/stranger2*`. Body
+  tests pass (21).
+- 2026-10-06 (characters session, later): **The Rodin man repainted in our style.** Sean, on
+  him: "he looks fantastic - but he's not our art style". His shape is right, but his skin is a
+  photo, and the mosaic only cuts the photo into squares. `head_paint.py` now paints the whole
+  man, not just his head:
+  - A Rodin man (`load_man`) is turned into Tripo's frame. A character with `body` words in
+    `characters.json` gets six full-length views as well as the head's six.
+  - The guides can be lit evenly (`head.guide_light`).
+  - The body's views keep closer to their guides (`STRENGTH_BODY` 0.5). At the head's 0.68 the
+    painter lengthened his coat to the knee, added a belt and tall boots, and drew his back as a
+    vest (run 50).
+  - The bake lays the body views on everything below the head; texels no view saw keep the
+    model's colour.
+  - `bake: {"squares": false}` keeps the painter's own squares: no squares of ours over them and
+    no palette. Ours misaligned his, and the 40-colour palette cut his face into flat bands.
+    Averaging into the painting's 7 mm squares lost his eyes: the painting draws its eyes finer
+    than its squares, as the painter does.
+  - The fit keeps a repaint's size when it's smaller than the model's texture.
+  - `--square-mm=`, `--square-body-mm=`, `--colours=` for trying others.
+  - Checked: baking the guides themselves gives his own atlas back, and the stranger's head
+    guides are unchanged.
+
+  People runs 50 (head and body, ~$0.35) and 51 (the body again, ~$0.22). Every head view came
+  back in the painting's style: about 26 squares across his face (the painting's man has ~19),
+  eyes drawn finer with their whites, the checkered band, bold brows and moustache.
+
+  On him in the saloon shot, the repaint shows best in the M look (surface blocks): a drawn face,
+  brows, eye whites and moustache, collar and tie. Under the game's default mosaic the mosaic
+  smears the drawing and he goes darker. Judge v2 (scored here, no round written), game's look /
+  M: as made 0.258 / 0.392; repainted with our squares 0.228 / 0.384; repainted plain 0.239 /
+  0.395 (M's numbers carry its blown lamp pool on the table).
+
+  Known:
+  - his eyes sit in the brim's shadow in the game's look (the shot's head pose was fitted to
+    today's stranger, in `ShotMatch`, the art session's);
+  - the coat still runs a little long in the front painting;
+  - one painting has taller boots;
+  - he's still one shell.
+
+  Files: `tools/characters/head_paint.py`, `characters.json`, `tools/blender/fit_tripo.py`,
+  `.github/workflows/people.yml` (the head job's words), `assets/people/stranger2*`,
+  `assets/people/tripo/stranger2_*`, `docs/screenshots/tripo/stranger2_*_views.png`. Body tests
+  pass (21).
+- 2026-10-06 (characters session, later): **The stylised Rodin stranger (`stranger2s`), Sean's
+  experiment.** The painting is stylised realism and the Rodin man is too real, so
+  `tools/characters/stylise.py` makes a stylised copy of him (above, in its commit):
+  - brow 15 % heavier, jaw 15 % wider, chin stronger;
+  - moustache 20 % thicker: its own hair grown into the skin, not the lips or nostrils (a first
+    try took whatever was darkest nearby and left a slab with a red patch under the nose);
+  - eyes 12 % and hands 15 % bigger;
+  - fine skin detail smoothed with the guided filter.
+
+  He was painted in the style (People run 52, ~$0.35) and fitted as `stranger2` is. Seen side by
+  side, the moustache is thicker and the jaw broader, but the push is small at these shares.
+  Judge v2 on the saloon shot (no round written), now / stylised: game's look 0.239 / 0.227, M
+  0.395 / 0.392.
+
+  What still separates him from the painting's man:
+  - the squares: the painter's are about 26 across his face, the painting's about 19;
+  - the light on his face in the shot: side-lit, eyes in the brim's shadow, where the painting
+    lights him warm from the front;
+  - his pose: he sits upright where the painting's man leans in on his forearms.
+
+  In the plain lineup light (`people_lineup.gd --head`) the repainted man reads as the paintings'
+  drawing.
+- 2026-10-06 (characters session, later): **Bigger painted squares on the stylised stranger.**
+  Sean: "let's try bigger squares". The style model draws its squares about 8 px across whatever
+  the picture shows. Measured with the judge's tile size inside MediaPipe's face outline, its head
+  views gave him 27 squares across his face; the painting's man has about 20.
+  - `head_paint.py` `head.frame` frames a character's head views wider, so his face is smaller in
+    the picture and gets fewer, bigger squares.
+  - `head.bust` draws his shoulders in those views so the wider frame is a natural portrait (only
+    the head is baked from them).
+  - `stranger2s`: frame 1.4, bust (People run 53, head views only, ~$0.12). The front view now has
+    23 squares across his face.
+  - In the saloon shot's M look his face is a chunkier painted portrait, nearer the painting's
+    man; in the game's default look the mosaic still smears it. Judge v2 (no round written),
+    run 52's head / run 53's: M 0.392 / 0.386, game's look 0.227 / 0.236.
+
+  Tried and dropped: tipping his hat back (`stylise.py`) so his eyes come out from under the
+  brim. His hat is one piece with his head, and the turn kinked the brim at the sides and back
+  while barely moving it from the front. His eyes in the shot are the shot's light and head pose
+  (the art session's).
+- 2026-10-06 (characters session, later): **The painting's square count on the stylised
+  stranger, his squares made flat, his pose fitted to the painting; his face is off his head
+  hitbox.** Sean: "Yea" to framing his head wider still and to passing the shot's light and pose
+  to the art session (which has since turned the screen mosaic off by default, at Sean's word).
+  - People run 54 (head views framed 1.8x wider, ~$0.12): 20 squares across his face in the front
+    painting (the judge's tile size inside MediaPipe's face outline), the painting's man's ~20.
+    Judge v2 on the saloon shot (no round written), run 53 / run 54: game's look 0.236 / 0.222,
+    M 0.386 / 0.380; with no mosaic (the coming default) run 54 scores 0.212.
+  - In the game his squares still barely read. Side by side at three times size, the painting's
+    face is flat squares ~8 px across at 1280, each one tone, lit as one, with high contrast
+    between neighbours. His is a finely drawn painted face. Three causes, measured:
+    - the painter draws its squares soft-edged and low in contrast;
+    - the bake averaged overlapping views (facing^8), laying one view's squares over another's;
+    - his texture is so fine (2048², ~0.5 mm a texel on his face) that the game's per-texel
+      light is smooth across each painted square.
+  - `head_paint.py`:
+    - `--flatten=N` / `bake.flatten` runs each painting through a Kuwahara filter before the
+      bake, so every painted square is flat with a hard edge wherever the painter put it. Its
+      squares drift (no one grid fits more than a fraction of their edges), so a grid snap would
+      cut across the drawing.
+    - `--view-power=N` / `bake.view_power`: 0 takes each texel from its squarest view, with no
+      average.
+    - The default bake is unchanged (checked to the texel against run 54's).
+    - `stranger2s` takes flatten 2, view power 0. In the lineup's plain light his face reads as
+      the painting's drawing in blocks: iris blocks with white blocks either side, flat cheek and
+      nose patches. Run 54's averaged bake was softer and grainier. In the saloon's side-lit shot
+      the change is small, and the judge is level (no mosaic 0.212 → 0.211, M 0.380 → 0.381).
+  - `fit_tripo.py` writes where a man's painted eyes land (`eyes` in his report): `stylise.py`'s
+    landmarks' iris centres carried through his warp with his head. `tools/fit_shot.gd` takes
+    `--model=` and aims those eyes at the painting's (the anatomy's otherwise).
+  - **His pose fitted to the painting** (`fit_shot.gd --model=stranger2s`, from ShotMatch's
+    offsets; sent to the art session for its per-model ShotMatch offsets). SEAT and TURN are
+    unchanged. pose_offsets: head (-1.5, -8.5, 9.75), neck (-8, -9.5, 0), chest (-6, -1.5, 0),
+    upper_arm_r (9.5, 10.5, 0), forearm_r (4, -10.5, 0), hand_r (22.5, 8.125, -16.25). In the
+    painting's 1672 px frame:
+    - his eyes land 3.4 px from its eyes (135 px off before: 128 px too high);
+    - the outline overlap is 0.67 (0.60 before);
+    - the cup is on its cup (105 px tall to its 128, as before).
+    He gets there by leaning in (chest 6° and neck 8° forward), as the painting's man does.
+  - **Found: his face is off his head hitbox.** His painted eyes are at (±0.03, 1.775, -0.163);
+    the anatomy's are at (±0.033, 1.655, -0.083), 12 cm lower and 8 cm back. At his eye height
+    the head capsule (1.61–1.70, r 0.095) reaches 6 cm forward of its axis, while his face is
+    16 cm forward, so a shot through his face misses his head. Cause: the joint the fit finds as
+    his head (Tripo's convention, half way up the neck) is 8.6 cm under his chin, where ours is
+    at chin level. The joint-to-joint warp therefore lifts his whole head ~9 cm and pushes it
+    4 cm forward (the old stranger's eyes were 9 cm high the same way). For Sean: pull his head
+    onto the hitbox (his neck shortens ~13 cm into his collar), or let a man's head hitbox follow
+    his fit (gameplay's code). Either way the shot fit is re-run after.
+  Files: `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, `tools/fit_shot.gd`,
+  `tools/characters/characters.json`, `assets/people/stranger2s*`,
+  `assets/people/tripo/stranger2s_*`. Body tests pass (21).
+- 2026-10-06 (characters session, later): **His head on his head hitbox.** On how to fix the
+  stylised stranger's face, 12 cm over his head hitbox and 8 cm in front of it, Sean said "Do what
+  you think will work best". I fixed the fit (tools/blender/fit_tripo.py) rather than giving each
+  man his own hitboxes. That keeps one anatomy for every man (cover heights, aim, wounds and the
+  hat stay as they are). Looked at closer, his long neck and high head came from the fit's joint
+  guesses, not his own proportions.
+  - **Shoulders.** A Rodin man's joints were set at fixed shares of his height (RIG_Y, from
+    Tripo's rigs, hat and all), which put his shoulder joints 7 cm under his own. The trunk's
+    warp then lifted his shoulders and head 12 cm. His shoulders are now found `SH_TOP` under the
+    tops of his shoulders (`shoulder_top`), which agrees with Tripo's three rigged men within
+    0.005 of their height. His neck and head joints sit over the middle of his shoulders, as
+    Tripo's rigs have them. Measured from his cross-section, they had been pulled 6 cm back by
+    his coat collar and hair, which leant his trunk back.
+  - **EYES_RULE.** Joint to joint, Tripo's head joint (half way up his neck) went onto ours (at
+    the chin). Now, for a whole man whose face has been found, his shoulders go onto ours. All of
+    him above them is scaled as one so his eyes come to the anatomy's eye height; his head comes
+    out at 1.015 of his own scale. Then his head is set back 2.8 cm, a shear up his neck that
+    doesn't tilt his collar.
+  - **Results.** His drawn eyes are 0.08 cm from the anatomy's (they were 14.4 cm off). Surface
+    more than 6 cm outside the hitboxes: face and head 8 % → 0 %. Collar more than 10 cm out:
+    23 % → 0 %. The back of his coat still stands 3–6 cm off the chest hitboxes, as it did higher
+    up before; the brim is outside them by design.
+  - **The pose check** (`people_lineup.gd`: standing, sitting, hands up, crouching) has no tears,
+    and his eyes are level with the MakeHuman man's.
+  - **The shot.** Re-fitted with `fit_shot.gd`:
+    - outline overlap 0.674 (it was 0.672);
+    - eyes 2.8 px from the painting's (3.4 before);
+    - the cup on its cup, 105 px tall.
+    He sits more upright: chest and neck square, where the old fit leant them 6° and 8° forward
+    to pull his high head down. His seat moves 3.75 cm. His face comes out from under the brim
+    and looks at you. Judge v2 with no mosaic (no round written): 0.215 → 0.209. The new FITS
+    entry (seat (0.742, 0, -0.478) in the set's space, and the pose offsets) went to the art
+    session, replacing the one on its branch.
+  - **New test.** `tests/test_bodies.gd` (gameplay's file, a test of about twenty lines):
+    `test_a_fitted_mans_drawn_eyes_are_his_heads_eyes` needs every fit report that records drawn
+    eyes within 1.5 cm of the anatomy's. It fails on the old fit and passes now; 22 body tests
+    pass.
+  - **Unchanged:** the Kid and the Tripo stranger, checked vertex for vertex. Neither has a found
+    face, so the Tripo stranger's eyes are still 9 cm high. Refitting him needs his face found
+    from a render of his head; it's the art session's call, since his shot is judged.
+  - **Refitted:** `stranger2` as well. His hands' measured skin tone is a little lighter (the
+    wrists moved with the shoulders), and the game's fingers follow it.
+
+  Files: `tools/blender/fit_tripo.py`, `tests/test_bodies.gd`, `assets/people/stranger2*`.
+- 2026-10-06 (characters session, later): **The stylised stranger in the painting's squares, his
+  eyes drawn as the painting draws them.** Sean: "I'm not too worried about the pose fitting
+  exactly the same - what I want is the art to be perfect - it's looking so much closer".
+  Compared region by region in the saloon shot, the painting's man is bold flat squares about
+  8 mm across his face and coat, one shade each, with his eyes drawn finer. Ours was a finely
+  painted face with wrinkle lines, and a smooth coat: the painter's own squares are about 2 mm
+  there, too small to show from your seat.
+  - **Squares on his body** (`head_paint.py` `in_cells`, characters.json `bake.cells`,
+    `--cells-mm=head,body,eyes`):
+    - Every texel of his atlas takes the colour of its cell: a cube in his body's axes, one for
+      each way a surface faces (so a brim's top and underside don't mix).
+    - Sizes: 8 mm on his head, 9 mm below it, 2.7 mm round his eyes.
+    - Seams: a square crossing a seam in his atlas is one colour on both sides.
+    - A cell's colour is its middle texel by lightness. An average greyed the edges and evened
+      his coat into one brown.
+    - On his head, a cell takes its dark part when 30 % of it is dark (brows, a moustache's edge
+      stay bold). On his shirt that rule turned whole squares of the collar dark, so it's head
+      only.
+    - Options left at 1: `contrast`/`body_contrast` push each square away from those round it;
+      `depth` makes the squares thinner along the way the surface faces.
+  - **His head repainted** (People run 55, about $0.12). New words ask for open eyes with the
+    whites showing, dark brows rather than heavy ones, and a moustache to the corners of his
+    mouth; the old "deep-set dark eyes under heavy dark brows" painted slits. In the paintings
+    the eyes come out a little more open.
+  - **His eyes drawn** (`draw_eyes`, `bake.eyes`, open 1.15). From his face's landmarks (each
+    eye's outline, iris ring and corners): the opening in warm white, the iris dark with a
+    darker pupil, a glint towards your right (where the shot's lamp is), and a line of lid
+    along the top. Only texels facing forward near each eye are drawn. From three-quarters and
+    the side they sit right.
+  - **Result.** In plain light his face, moustache, hat and coat read in the painting's squares
+    and his eyes as its eyes do. In the saloon shot his eyes show white and a glint under the
+    brim. Judge v2 with no mosaic (scored only) barely moves: 0.209 before, 0.206 now; it weighs
+    the whole frame's light.
+  - **For the art session (sent):** the biggest gap left on him is the shot's light. Median L*
+    on him, painting / ours:
+
+    | Where | Painting | Ours |
+    |---|---|---|
+    | His lit cheek | 42 | 66 |
+    | His shadow cheek | 26 | 25 |
+    | Coat, your right | 9 | 28 |
+    | Coat, your left | 11 | 2 |
+
+    The painting's light on him is soft, from your right and the front; ours is a hard key on
+    his left with no fill.
+  - **Known:**
+    - Head on, close up, his collar shows dark squares among the white: the paintings' own dark
+      outline strokes. Thinner squares didn't help; in the shot it reads fine.
+    - His hair is short (Sean's picture); the painting's man's is long, to his collar.
+    - His moustache is bigger than the painting's man's (the stylise push Sean asked for).
+  - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
+    `assets/people/stranger2s_skin.png`, `stranger2s_head.png`, `assets/people/tripo/
+    stranger2s_*` (run 55's paintings, `stranger2s_color.png`). His glb and report are
+    unchanged. 22 body tests pass.
+- 2026-10-06 (characters session, later): **The stylised stranger's eyes clear and bright, his
+  skin evened.** Sean: "Can keep working on the face to get it closer - but at the end we need to
+  make the eyes super clear and bright - the eyes won't match the art style".
+  - **His skin** (`head_paint.py` `even_skin`, characters.json `bake.skin`: even 0.6, hue 4,
+    stubble 0.7; `--skin=even,hue,stubble,lift`). The painter lights his face from one side and
+    the game lights it again, so 60 % of the painted light comes out, his skin turns 4° towards
+    yellow and the grey on his chin and jaw is warmed. It's evened towards his face's own
+    lightness, between his brows and his mouth; the first try used all his skin's median (neck
+    and ears, darker) and dimmed his face by L* 9. In the character lab his face's median L* is
+    the painting's (31), but his lit cheek still burns: L* 70 at the top tenth, the painting's
+    45. That's the shot's light (the art session's, already sent), not his paint: evening the
+    texture barely moved it.
+  - **His eyes** (`draw_eyes`, `bake.eyes`: open 1.2, size 1.1, clean 1.3, lid 2.4 mm;
+    `--eyes=open:1.2,size:1.1,...`). The painter's own whites and lashes sat a millimetre or two
+    off his landmarks and were cut into squares, so each eye read as a smudge.
+    - Each socket is cleaned first: what in it is much lighter or greyer than its skin, and near
+      the opening much darker, takes the socket's own skin colour.
+    - Then the eye is drawn texel by texel (about 1.2 mm a texel on his face): a bright warm
+      white, shaded under the lid and at the corners; a dark iris 13 mm across with a darker
+      rim and pupil; a bigger glint towards your right; a dark upper lid two texels thick, a
+      little past the outer corner; a lower lid in his skin's shade.
+    - In plain light and in the saloon shot both eyes now read as eyes, whites either side of a
+      dark iris, from the front and three-quarters.
+  - **Brighter whites need the shader** (sent to the art session). Under the brim his whites
+    come out darker than the painting's:
+
+    | His eye in shadow (your left), in the saloon shot | L* of its whites |
+    |---|---|
+    | The painting | 62 |
+    | This morning | 49 |
+    | Now | 55 |
+    | Now + eye gain 1.8 (local trial) | 73 |
+    | Now + eye gain 2.6 (local trial) | 82 |
+
+    The trial was a few lines in `body_skin.gdshaderinc` (art's file), not committed: within
+    the wet-eye region, pale texels (the drawn whites and glint, not the skin round them) take
+    `eye_gain` times the light. At 1.8 they come up clearly in the shot; at 2.6 they glow. In
+    plain daylight they go pure white at either.
+  - Picture: `docs/screenshots/tripo/stranger2s_face_eyes.png` (the painting, this morning, now
+    and now with the trial in the shot; his head in plain light, this morning and now).
+  - Merged `main` in (CLAUDE.md's status: main's entries before this branch's 2026-10-06 ones).
+    All 360 tests pass.
+  - The art session took the trial with its default at 1.0, in its merge 2 (sun rays and
+    mountains): each man's gain comes from his fit report. `people.json` `eye_gain` (1.8 for
+    `stranger2s`) goes into his report through `fit_tripo.py`; nothing else on him changed.
+  - Still open with Sean: the painting's long hair to his collar, or the short hair from his
+    picture.
+  - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
+    `assets/people/stranger2s_skin.png`, `stranger2s_head.png`,
+    `assets/people/tripo/stranger2s_color.png`, `docs/screenshots/tripo/stranger2s_face_eyes.png`
+    (the characters pipeline's folder in the art session's `docs/screenshots/`). His glb is
+    unchanged; his report gains `eye_gain`.
+- 2026-10-06 (characters session, later): **The stylised stranger on main.** Sean: "Okay do
+  that" (his going on main). Squashed onto main from the characters branch, as one commit:
+  - The Rodin stranger (`stranger2`) and his stylised copy (`stranger2s`): fitted, painted in the
+    style, his eyes drawn, their gain in his report.
+  - The tools: `rodin.py` (+ its stand-in), `stylise.py`, the `head_paint.py` and `fit_tripo.py`
+    work, `fit_shot.gd --model=`, the People workflow's `test-3d` job, and the body test for drawn
+    eyes. A layout note for the Rodin route (under "Characters by image-to-3D").
+  - Left on the characters branch: the model test's other models (`tripo/test/`, 129 MB: Tripo
+    H3.1 and the first Rodin run) and the rejected bold paint (`bold_paint.py`,
+    `PeopleBodies.bold_paint`, the tools' `--bold-paint`).
+  - His two Rodin models moved out of `tripo/test/` into `tripo/`: they're his sources now. Both
+    were re-made from main's scripts, so every step of him repeats from main. The joint finder
+    changed after he was stylised, so his hands moved by up to 1 cm and his squares were re-cut a
+    hair off (342 texels of eye white to 337); by eye he's the same man.
+  - Nothing in the game uses him yet: `--model=stranger2s` in `screenshots.gd`,
+    `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
+    per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
+  - All 360 tests pass on the squashed commit.
+- 2026-10-06 (art session): **The saloon's front to the street painting** (merged with the raise and the filter off, below)
+  (Sean: "it's not just the pixels, it's the buildings' textures and detail"; then "keep working
+  the wood", "get the saloon perfect", "ruts and windows"). `FacadeArt` (`src/art/facade_art.gd`,
+  called at the end of gameplay's `FalseFrontBuilding.build()`, one line, said here) dresses a
+  front that asks for it (`"facade": "saloon"|"store"` in `StreetDressing.BUILDINGS`): corner
+  posts, a deep cornice on brackets, the framed sign lettered square by square
+  (`tools/textures/letter_sign.py`), a heavy door surround, louvred batwings, two hung lanterns
+  that glow, the dark room through the door, windows (casings, sill, pale bars, the panes drawn
+  by `tools/textures/draw_glass.py`: dark glass, the sky along the top, lamps in two panes, on a
+  quad under the glass member's mesh, so it goes when the glass is shot out), thick porch posts
+  with knee braces, a fascia, two wanted posters (`draw_posters.py`) and a spittoon. **Wood
+  drawn square by square** (`tools/textures/draw_boards.py`: each board a strip in the
+  painting's colours, its squares two to six long along the grain, `assets/textures/drawn/`),
+  laid at 32 a metre (`PixelArt.DRAWN_TEXELS`; `timber`, `store_boards`, `saloon_red` in every
+  look, the rest under M), and the seam between boards a screen-space line with a lit lip
+  (`texel_grid.gdshaderinc` `seam_px`, a global set under M). **The road under M** drawn the
+  same way (`draw_road.py`): pale dust, stones, the most used wheel track under the street
+  shot's feet; `ground.gdshader` `keep_tracks` keeps a drawn tile's ruts where the 2 m tile
+  shows through. **The sky under M** (`sky.gdshader` `gold`, `bold_look.json`): a deeper top,
+  more cloud, warm bodies with blue-grey bellies. Pictures `docs/screenshots/review/
+  2026-10-06_*.png`. Tests pixel_art, loads, props, ballistics, town_day pass.
+  - Not merged: the facade parts and the three drawn woods show in the default look too, so the
+    merge waits on Sean's yes, with goldens re-taken. Still off against the painting: its
+    windows have more, smaller panes with brighter reflections; its road has more dark squares;
+    the other fronts (store, livery, jail) have the parts but not yet the painting's look.
+  - Later (Sean: "get the saloon perfect so we have a model for the rest"): a porch railing, a
+    beam along the wall and joists under the porch roof, shadow-only panels at the porch's ends
+    (the low sun ran in along the porch), the room through the door drawn
+    (`draw_doorway.py`), brown window frames with 2×4 slate panes and amber lamplight, a halo
+    painted on the wall behind each lit lantern (`StreetDressing.lantern_halo`), timber a
+    weathered mid brown and the red boards darker and worn to grey in patches (measured against
+    the painting's posts and walls). `tools/facade_lab.gd`'s painting view now stands in the
+    street as the painting does. Picture `docs/screenshots/review/2026-10-06_saloon_vs_painting.png`.
+  - Later (Sean: "Yes do that", on the gameplay session's Main Street step 2): **the saloon front
+    moved onto the real saloon** (main merged in). The street painting's front is now the
+    `Saloon` itself (the separate `StreetSaloon` is gone with main's move): `facade` and
+    `porch_height` are properties of `FalseFrontBuilding` (gameplay's file, said here: the
+    porch's beam, ledger and lantern at `porch_height` + the old offsets, default 3.0 as before);
+    `saloon_building.gd` `_init` (gameplay's) takes the painting's red front, 8.4 m front, the
+    sign from 4.3 m and a porch at 3.75 m over the tall door (the moonlit doorway still shows from
+    inside); `config/town.json` (gameplay's) gives the store `facade` "store" and its drawn
+    boards. On a saloon people walk into, FacadeArt draws the batwings with no collision (solid
+    leaves kept the gang from the store); the end porch posts are the building's own, resized in
+    place before supports are inferred (the F11 test still breaks `store/porch/post0`); nothing
+    of a front reaches past its ends (the buildings stand wall to wall now). The street shot's
+    feet and look are the saloon's (`StreetMatch.feet()`/`look()`), the porch folk and bench on
+    its porch, the lanterns either side of the real door, the grass in clumps. All tests pass:
+    `test_chaos`'s same-seed test split two ways here when run after another chaos run (a stick
+    at the store/saloon junction took the saloon's west wall or its window trim); the gameplay
+    session now runs each seed in a Godot of its own (main 6cfff79, merged in). Still not merged: waits on Sean's yes, with goldens re-taken. Open with Sean:
+    the backdrop's near ring is 260 m out and nothing in the new town comes near it; pushing it
+    out would shrink the mountains below the painting's, so it stays.
+  - Later (Sean: "Raise up the saloon, have stairs down on the board walk to connect down to the
+    other store"): **the saloon up its steps.** Its floor and walk are 0.78 m (four steps up from
+    the street, as the street painting's; `config/town.json`: the Saloon's `floor_top`, the
+    SouthBoardwalk's `top`), the store's stay 0.38, and the saloon's walk steps down two treads to
+    the store's at its west end (`Boardwalk.end_steps`: blocks from the ground, the first level
+    with the walk below, an invisible ramp, a board closing the walk's end under its planks, no
+    old end ramp there). `SaloonBuilding.build()` lifts its walls, porch, sign and front by the
+    floor's rise (`BASE_HEIGHTS`), so the room and front keep their proportions. Found on the way:
+    a walking man's feet were kept down by one ray, which now and then fell through the gap
+    between two planks or floorboards; on the old 0.38 m walk he hopped back up, on a raised one
+    he was stuck under it (the gang never reached the bar). `HumanBody._snap_to_ground` casts five
+    rays a few centimetres apart and takes the highest. Gameplay's files touched, with Sean's
+    ask and told to it: `boardwalk.gd` (`end_steps`, `_ramp`'s `base`), `saloon_building.gd`
+    (`build()`), `false_front_building.gd` (window sills above the floor, not the ground: the same
+    at 0.38), `town_layout.gd` (one line: `end_steps` read as Vector2s), `waypoints.gd` (the
+    saloon's places at its own floor, `store_walk_east`/`saloon_walk_west` over the steps),
+    `human_body.gd` (the snap), `config/town.json`, tests `test_steps` (+1: up and down the end
+    steps), `test_town_day` and `test_town_layout` (the saloon's floor). Mine: the porch folk,
+    bench, lanterns and carried dressing go up with the walk (`StreetDressing.walk_lift`), nothing
+    stands on the end steps or a metre of the store's walk before them, FacadeArt's windows above
+    the floor, ShotMatch's floor ray, `tools/screenshots.gd`'s saloon views lifted. Picture
+    `docs/screenshots/review/2026-10-06_saloon_raised.png`. 355 tests pass.
+  - Later (Sean: "let's turn it off ... no filters, the look has to be the art"): **the screen
+    mosaic off by default** (`Settings.mosaic` false; `LOOK_VERSION` 6 turns a saved one off once;
+    O still turns it on to compare; shared `settings.gd`, my lines; gameplay's
+    `tests/test_pixel_art.gd`, the art test's two lines). It cut the drawn textures and his face
+    into blotches and posterised the light (`docs/screenshots/review/2026-10-06_filter_on_off.png`).
+    ShotMatch's seated man is fitted per model (`ShotMatch.FITS`, `fit()`): the old stranger's
+    SEAT/TURN/POSE_OFFSETS as they were, and the characters session's `stranger2s` (his head on
+    its hitbox) with his own seat and pose from `tools/fit_shot.gd`. **Merged with the saloon front
+    and the raise:** all 70 goldens re-approved from two `--fresh` batched runs (both pass; the
+    store fire close up the only loose one, mean 35, its fire differs run to run), visual checks
+    374, none failed. Judge v2 round `2026-10-06_r1`: saloon 0.530, street 0.556 (the default
+    look's 0.225 / 0.329 the round before, with the mosaic): the saloon too dark against
+    `saloon-blocks.png` (deep-shadow share 0.49 vs 0.18; the mosaic's averaging had lifted it), the
+    street too light and pale (shadows L* 16 vs 6, chroma-L* correlation 0.19 vs 0.57). That's the
+    light without a filter over it: the next light passes (the street's sun and sky, the saloon
+    man's key and fill) are judged from here. Blind critic, top three: the room behind him is
+    dark, empty murk (the doorway, sconces, stair and balcony unread); the street's sky isn't
+    golden hour (lavender-grey, a small high white sun; the painting's gold heaps, big sun on
+    the horizon, rays, dust); his coat and arm are smooth faceted slabs, his face blotchy.
 - 2026-10-06 (gameplay): **A bucket brigade** (Sean: "a chain of people for the water bucket
   throwing on the fire while actually passing a bucket"). `BucketLine` (layout note above) takes
   over from each man running his own bucket (that code is gone; `CivilianBrain` joins the line for

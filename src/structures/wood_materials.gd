@@ -25,6 +25,12 @@ static var _water: StandardMaterial3D
 static var _strips := {}
 
 
+## Forget every material made so far (a look switch: PixelArt.reset_for_look).
+static func reset() -> void:
+	_cache.clear()
+	_strips.clear()
+
+
 ## How many strips the texture factory cut for this wood (assets/textures/<wood>_b<k>.png: each
 ## board the image model painted, its own texture), 0 when there are none.
 static func strip_count(wood: StringName) -> int:

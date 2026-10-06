@@ -9,14 +9,33 @@ func _init() -> void:
 	width = 10.0
 	depth = 12.0
 	wall_height = 4.2
-	front_height = 7.0
 	sign_text = "SALOON"
-	# A tall doorway and no porch roof over it, as the painting's: from the back of the room you
-	# see the moonlit street and the moon through it (art).
+	# The street painting's saloon (art: FacadeArt, docs/concept/street-golden-hour.png): red boards,
+	# a tall false front with the big framed sign, batwings (FacadeArt draws them: people walk
+	# through), a porch on thick posts. A tall doorway and the porch raised over it, as the saloon
+	# painting's: from the back of the room you see the moonlit street and the moon through it.
+	facade = "saloon"
+	front_wood = &"saloon_red"
+	front_height = 8.4
+	sign_from = 4.3
 	door_size = Vector2(1.5, 3.2)
-	porch = false
+	porch = true
+	porch_height = 3.75
 	night_ambient = 0.035
 	room_haze = 0.012
+
+
+## The heights above are for a floor at the street's usual 0.38 m; config/town.json raises the
+## saloon (its floor up four steps from the street, as the street painting's is), and the walls,
+## porch, sign and front go up with it so the room and the front keep their proportions.
+const BASE_FLOOR := 0.38
+const BASE_HEIGHTS := {"wall_height": 4.2, "porch_height": 3.75, "sign_from": 4.3, "front_height": 8.4}
+
+
+func build() -> void:
+	for k: String in BASE_HEIGHTS:
+		set(k, BASE_HEIGHTS[k] + floor_top - BASE_FLOOR)
+	super.build()
 
 
 func _build_furniture() -> void:

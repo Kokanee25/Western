@@ -24,19 +24,21 @@ const NORTH_Z := 0.0
 const SOUTH_Z := -16.8
 const BUILDINGS := [
 	["StreetSaloon", -10.8, -1.2, false, {"depth": 12.0, "wall_height": 4.6, "front_height": 8.4, "sign_text": "SALOON",
-			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"weathered_pine"}],
+			"sign_from": 3.75, "door_size": Vector2(1.4, 2.3), "batwings": true, "front_wood": &"saloon_red",
+			"facade": "saloon"}],
 	["GeneralStore", -20.4, -11.8, false, {"depth": 11.0, "wall_height": 5.4, "front_height": 7.8,
-			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"weathered_pine"}],
+			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"store_boards",
+			"facade": "store"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
-			"front_wood": &"painted_rust"}],
-	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL"}],
+			"front_wood": &"painted_rust", "facade": "store"}],
+	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL", "facade": "store"}],
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
 			"sign_text": "LIVERY", "gable_sign": Rect2(0.45, 1.6, 2.7, 3.6), "porch": false, "front_wood": &"weathered_pine"}],
 	["Jail", -24.6, -18.2, true, {"depth": 8.0, "wall_height": 3.3, "front_height": 4.9, "sign_text": "JAIL",
-			"window_bars": true, "front_wood": &"weathered_pine"}],
+			"window_bars": true, "front_wood": &"store_boards", "facade": "store"}],
 	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
-			"front_wood": &"painted_ochre"}],
+			"front_wood": &"painted_ochre", "facade": "store"}],
 	# Across from the saloon's door, low enough for the moon over its false front, its lamp lit
 	# late: what you see through the door at night, as the painting does.
 	["EatingHouse", 6.8, 13.2, false, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.2, "sign_text": "EATING HOUSE",
@@ -64,6 +66,21 @@ const FOLK := [
 	["JailMan", Vector3(-21.4, 0.38, -15.55), Vector3(-21.4, 1.5, -8.0), &"stand", Color(0.7, 0.66, 0.58), Color(0.12, 0.1, 0.09),
 			Color(0, 0, 0, 0), Color(0.1, 0.09, 0.08), {"hair": Color(0.1, 0.08, 0.06), "moustache": &"walrus", "beard": &"stubble", "age": 0.55}],
 ]
+## The saloon's porch laid out in the saloon's own space (its front-left corner the origin, its
+## front facing -Z; config/town.json's `Saloon`), as the street painting has it seen from the
+## street's east end: a man in a coat standing at the near end, the batwings, then the bench under
+## the far window with one man sitting and one standing by him. [where, pose]
+const SALOON_PORCH := {
+	"PorchLoafer": [Vector3(8.7, 0.38, -0.95), &"stand"],
+	"BenchManA": [Vector3(2.2, 0.38, -0.62), &"sit"],
+	"BenchManB": [Vector3(3.95, 0.38, -0.95), &"stand"],  # past the bench's end (it spans x 1.6-3.5)
+}
+const SALOON_BENCH := Vector3(2.55, 0.38, -0.5)
+## How much bigger than the code model the painting's carriage lanterns are.
+const LANTERN_SCALE := 1.8
+## The halo a lit lantern paints on its wall: across, in metres, and how strong at its heart.
+const HALO_SIZE := 1.8
+const HALO_STRENGTH := 0.55
 
 
 func _ready() -> void:
@@ -119,7 +136,25 @@ func _buildings() -> void:
 ## Where whatever stood at `at` on the old street stands now, turned `yaw` degrees: carried with
 ## the building it stood by (TownLayout.carry), or left where it was out in the street.
 static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
-	return TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	var t := TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	if at.y > 0.3:
+		t.origin.y += walk_lift(t.origin)
+	return t
+
+
+## How much higher than the street's usual walk (0.38 m) the walk or floor under `at` stands: the
+## saloon's is raised (config/town.json), so whatever was laid out at walk height goes up with it.
+static func walk_lift(at: Vector3) -> float:
+	var saloon := TownLayout.entry(&"Saloon")
+	var top := float((saloon.get("set", {}) as Dictionary).get("floor_top", WALK_TOP))
+	var local := TownLayout.transform_of(&"Saloon").affine_inverse() * at
+	if local.x > 0.0 and local.x < 10.0 and local.z > -2.4 and local.z < 12.0:
+		return top - WALK_TOP
+	return 0.0
+
+
+## The top of the street's walks and floors but the saloon's.
+const WALK_TOP := 0.38
 
 
 ## True where a thing `radius` round would stand on a flight of steps or in the way up them, or
@@ -180,6 +215,14 @@ static func _on_flight(at: Vector3, radius := 0.6) -> bool:
 		if steps.is_empty():
 			continue
 		var local := TownLayout.transform_of(StringName(path)).affine_inverse() * at
+		# A flight at the walk's end, down to the walk beside it (the saloon's, to the store's).
+		var sets: Dictionary = e.get("set", {})
+		for es: Array in sets.get("end_steps", []):
+			var run := maxi(1, roundi((float(sets.get("top", WALK_TOP)) - float(es[1])) / 0.2)) * 0.3 + radius
+			var x := local.x if int(es[0]) == 0 else float(sets.get("length", 0.0)) - local.x
+			# The flight and a metre of the walk below it: the way between the walks kept clear.
+			if x > -1.0 - radius and x < run and local.z < radius and local.z > -2.4 - radius:
+				return true
 		for st: Array in steps:
 			var half := float(st[1]) * 0.5 + 0.4 + radius
 			if absf(local.x - float(st[0])) < half and local.z < -1.6 + radius and local.z > -4.6 - radius:
@@ -222,12 +265,23 @@ func _lanterns() -> void:
 			# In the building's own space: the front faces -Z.
 			var local := Vector3(w * 0.5 + side * (door.x * 0.5 + 0.4), 2.25, -0.05)
 			_lantern(t * local, faces)
+	# The street's own saloon and store, when they wear the painting's front: a lantern either side
+	# of the door, as the painting's saloon has.
+	for name: String in ["Saloon", "Store"]:
+		var b := get_parent().get_node_or_null(NodePath(name)) as FalseFrontBuilding
+		if b == null or b.facade.is_empty():
+			continue
+		for side in [-1.0, 1.0]:
+			var local := Vector3(b.door_rect.get_center().x + side * (b.door_rect.size.x * 0.5 + 0.55), b.floor_top + 1.87, -0.05)
+			_lantern(b.transform * local, -1.0 if absf(b.rotation.y) < 0.1 else 1.0)
 
 
 func _lantern(at: Vector3, faces: float) -> void:
 	var root := Node3D.new()
 	root.name = "Lantern"
 	PropModels.lantern(root)
+	# The painting's lanterns are big: half a metre of glass and tin by every door.
+	root.scale = Vector3.ONE * LANTERN_SCALE
 	add_child(root)
 	root.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if faces > 0.0 else PI), at)
 	var lamp := OilLamp.new()
@@ -241,6 +295,68 @@ func _lantern(at: Vector3, faces: float) -> void:
 	lamp.lit_until_hour = 6
 	root.add_child(lamp)
 	lamp.position = Vector3(0, -0.08, 0.2)
+	# Its glass glows amber when it's lit, as the painting's lanterns do (the brightest things on
+	# the fronts): the lamp's chimney glass, its flame at the glass's middle.
+	var glass := root.get_node_or_null(^"Glass") as MeshInstance3D
+	if glass:
+		glass.material_override = lantern_glass()
+		lamp._chimney = glass
+		lamp.set_lit(lamp.lit)
+	# The painting's lanterns throw a warm halo on the wall round them even with the sun up (a lamp
+	# of this energy barely shows on a sunlit wall): painted on, a glow in squares on the wall
+	# behind, a child of the lamp's light so it goes out with it.
+	var halo := MeshInstance3D.new()
+	halo.name = "Halo"
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE * HALO_SIZE / LANTERN_SCALE
+	halo.mesh = q
+	halo.material_override = lantern_halo()
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	lamp._light.add_child(halo)
+	# Out in front of the lapped boards (the lantern hangs 5 cm off the studs; a lap board's foot
+	# stands out further), at the lantern's middle, in the lamp light's own space.
+	halo.position = Vector3(0.0, 0.02, 0.03) - lamp.position - lamp._light.position
+
+
+static var _lantern_glass: ShaderMaterial
+static var _lantern_halo: StandardMaterial3D
+
+
+## The halo a lit lantern throws on its wall: a disc of warm light in a few steps, a square a texel
+## of the world's (16 a metre over HALO_SIZE), added over the wall.
+static func lantern_halo() -> StandardMaterial3D:
+	if _lantern_halo == null:
+		var n := int(HALO_SIZE * 16.0)
+		var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+		var c := (n - 1) * 0.5
+		for y in n:
+			for x in n:
+				var d := Vector2(x - c, (y - c) * 1.15).length() / (n * 0.5)
+				var a := clampf(1.0 - d, 0.0, 1.0)
+				a = floorf(a * a * 5.0) / 5.0  # stepped, as the painting's glow is
+				img.set_pixel(x, y, Color(1.0, 0.55, 0.2, a * HALO_STRENGTH))
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		m.albedo_texture = ImageTexture.create_from_image(img)
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		m.disable_fog = true
+		_lantern_halo = m
+	return _lantern_halo
+
+
+## The carriage lantern's glass: the chimney glass with its flame at the glass's centre and
+## squares a size for a pane this big.
+static func lantern_glass() -> ShaderMaterial:
+	if _lantern_glass == null:
+		_lantern_glass = PropModels.chimney_glass().duplicate() as ShaderMaterial
+		_lantern_glass.set_shader_parameter(&"flame_y", -0.01)
+		_lantern_glass.set_shader_parameter(&"squares_per_m", 60.0)
+		# Brighter than a table lamp's chimney: the painting's lanterns are the brightest things on
+		# the fronts, near white at the flame with a halo.
+		_lantern_glass.set_shader_parameter(&"bloom", 7.0)
+	return _lantern_glass
 
 
 ## Barrels, crates and hay along the fronts; a horse at a rail before the livery.
@@ -353,7 +469,8 @@ func _hung_board(text: String, at: Vector3) -> void:
 
 ## The townsfolk (FOLK), and the saloon porch's bench under the two sitting there.
 func _folk() -> void:
-	_model("Bench", _bench, Vector3(-5.68, 0.38, -0.5), 0.0, Vector3(1.9, 0.45, 0.42))
+	var saloon := TownLayout.transform_of(&"Saloon")
+	_model("Bench", _bench, saloon * _on_porch(SALOON_BENCH), rad_to_deg(saloon.basis.get_euler().y), Vector3(1.9, 0.45, 0.42), false)
 	for i in FOLK.size():
 		var f: Array = FOLK[i]
 		var man := HumanBody.new()
@@ -374,6 +491,10 @@ func _folk() -> void:
 		brain.faces = TownLayout.carry(f[1]) * (f[2] as Vector3)
 		# Moved out of a doorway, a man who sat on the bench there stands (the bench is left out).
 		brain.rest_pose = f[3] if brain.post.is_equal_approx(TownLayout.carry(f[1]) * (f[1] as Vector3)) else &"stand"
+		if SALOON_PORCH.has(f[0]):
+			# Laid out again on the saloon's porch, looking out into the street.
+			brain.faces = saloon * (_on_porch(SALOON_PORCH[f[0]][0]) + Vector3(0.0, 0.62, -6.0))
+			brain.rest_pose = SALOON_PORCH[f[0]][1]
 		man.add_child(brain)
 		add_child(man)
 		man.global_position = brain.post
@@ -381,9 +502,20 @@ func _folk() -> void:
 		man.set_pose(brain.rest_pose)
 
 
+## A place on the saloon's porch laid out at the usual walk height, at the porch's own.
+static func _on_porch(local: Vector3) -> Vector3:
+	var top := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", WALK_TOP))
+	return local + Vector3(0.0, top - WALK_TOP, 0.0)
+
+
 ## Where a townsman of FOLK stands on the street as it is now (his post, carried with his building).
 static func post_of(f: Array) -> Vector3:
-	return out_of_doorway(TownLayout.carry(f[1]) * (f[1] as Vector3), 0.3)
+	if SALOON_PORCH.has(f[0]):
+		return TownLayout.transform_of(&"Saloon") * _on_porch(SALOON_PORCH[f[0]][0])
+	var at := TownLayout.carry(f[1]) * (f[1] as Vector3)
+	if (f[1] as Vector3).y > 0.3:
+		at.y += walk_lift(at)
+	return out_of_doorway(at, 0.3)
 
 
 ## A plain porch bench: a plank seat on two legs each end, 0.45 m high.
