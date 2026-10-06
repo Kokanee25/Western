@@ -3274,3 +3274,11 @@ a few views renders them as the full run does.
     merge waits on Sean's yes, with goldens re-taken. Still off against the painting: its
     windows have more, smaller panes with brighter reflections; its road has more dark squares;
     the other fronts (store, livery, jail) have the parts but not yet the painting's look.
+  - Later (Sean: "get the saloon perfect so we have a model for the rest"): a porch railing, a
+    beam along the wall and joists under the porch roof, shadow-only panels at the porch's ends
+    (the low sun ran in along the porch), the room through the door drawn
+    (`draw_doorway.py`), brown window frames with 2×4 slate panes and amber lamplight, a halo
+    painted on the wall behind each lit lantern (`StreetDressing.lantern_halo`), timber a
+    weathered mid brown and the red boards darker and worn to grey in patches (measured against
+    the painting's posts and walls). `tools/facade_lab.gd`'s painting view now stands in the
+    street as the painting does. Picture `docs/screenshots/review/2026-10-06_saloon_vs_painting.png`.
