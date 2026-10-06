@@ -89,6 +89,54 @@
    "from": "kid",
    "item": "his battered, work-worn old cowboy hat (pale tan felt, dusty and dirty, smudged with broad faded patches of grey-brown grime and darker round the band, a tall crown with a shallow dent along its top, a dark brown leather band blotched with rust and pale spots, a wide brim curled up at both sides with dark stained edges)",
    "what": "a battered pale tan felt cowboy hat of 1882, grimy with dark stains, a blotched leather band, the brim curled up at both sides"
+  },
+  "stranger2": {
+   "given": true,
+   "what": "a weathered frontier gunman of about forty in 1882: a brown felt hat with a flat crown and a checkered band, short dark hair, deep-set dark eyes under heavy brows, a thick dark drooping moustache and stubble, a cream shirt buttoned to the collar, a dark neckerchief knotted at his throat, a patterned brown vest with a row of buttons, a weathered brown wool sack coat to his hips with wide lapels, brown trousers and worn brown boots",
+   "back_of": "the back of his hat and coat, his short dark hair at his collar",
+   "note": "Sean's own front picture (ChatGPT, 2026-10-06, from the concept painting's man), for the model test: tools/characters/tripo.py --test, rodin.py.",
+   "head": {
+    "of": "a weathered frontier gunman's head",
+    "looks": "a lean weathered face of about forty, deep-set dark eyes under heavy dark brows, a thick dark drooping moustache, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
+    "light": "soft even light on his face",
+    "guide_light": 0.25,
+    "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face"
+   },
+   "body": {
+    "of": "a frontier gunman",
+    "looks": "a brown felt hat with a checkered band, a cream shirt buttoned to the collar, a dark neckerchief, a patterned brown vest with a row of buttons, a short weathered brown wool sack coat that ends at his hips with wide lapels, no belt showing, plain brown trousers below the coat worn loose over short brown boots",
+    "light": "soft even light",
+    "back": "seen from directly behind, his back to the viewer, the back of his short brown coat with its sleeves down to his wrists"
+   },
+   "bake": {
+    "squares": false
+   }
+  },
+  "stranger2s": {
+   "note": "The stylised Rodin stranger (people.json stranger2s): stranger2's words, his heavier features said too.",
+   "head": {
+    "of": "a weathered frontier gunman's head",
+    "looks": "a weathered face of about forty with a strong square jaw, dark eyes wide open and looking straight ahead with the whites showing either side of the iris, dark brows, a thick dark moustache to the corners of his mouth, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
+    "light": "soft even light on his face",
+    "guide_light": 0.25,
+    "back": "seen from directly behind, the back of his hat and his short dark hair at his collar, no face",
+    "frame": 1.8,
+    "bust": true
+   },
+   "body": {
+    "of": "a frontier gunman",
+    "looks": "a brown felt hat with a checkered band, a cream shirt buttoned to the collar, a dark neckerchief, a patterned brown vest with a row of buttons, a short weathered brown wool sack coat that ends at his hips with wide lapels, no belt showing, plain brown trousers below the coat worn loose over short brown boots",
+    "light": "soft even light",
+    "back": "seen from directly behind, his back to the viewer, the back of his short brown coat with its sleeves down to his wrists"
+   },
+   "bake": {
+    "squares": false,
+    "flatten": 2,
+    "view_power": 0,
+    "cells": {"m": 0.008, "body_m": 0.009, "eye_m": 0.0027},
+    "skin": {"even": 0.6, "hue": 4, "stubble": 0.7},
+    "eyes": {"open": 1.2, "size": 1.1, "clean": 1.3, "lid": 0.0024}
+   }
   }
  }
 }

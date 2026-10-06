@@ -346,6 +346,27 @@ func test_the_tripo_man_comes_dressed() -> void:
 	him.queue_free()
 
 
+func test_a_fitted_mans_drawn_eyes_are_his_heads_eyes() -> void:
+	# A fitted man whose face has been found (tools/blender/fit_tripo.py EYES_RULE) has his head
+	# placed so the eyes drawn on him are the anatomy's eyes: a shot through his face goes through
+	# his head's hitbox, his eyes, his brain. (The stylised Rodin stranger's sat 12 cm over it.)
+	var a := Anatomy.shared()
+	var checked := 0
+	for file in DirAccess.get_files_at("res://assets/people"):
+		if not file.ends_with(".json"):
+			continue
+		var report: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/people/" + file))
+		if not report is Dictionary or not (report as Dictionary).has("eyes"):
+			continue
+		for side in ["right", "left"]:
+			var e: Array = report["eyes"][side]
+			var drawn := Vector3(e[0], e[1], e[2])
+			var eye: Vector3 = a.structure(StringName("eye_" + side[0])).a
+			check(drawn.distance_to(eye) < 0.015, "%s: his %s eye on the anatomy's (%.1f cm off)" % [file, side, drawn.distance_to(eye) * 100.0])
+		checked += 1
+	check(checked > 0, "a fitted man with his eyes found (%d)" % checked)
+
+
 func test_the_layered_man_wears_his_own_hat() -> void:
 	# The same man built in layers (assets/people/stranger_layered.glb): his body painted
 	# bare-headed and coatless, and his hat a piece modelled alone and hung on his head as its
