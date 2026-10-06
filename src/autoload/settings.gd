@@ -56,6 +56,9 @@ const BLOCK_SOFT := 0.0
 ## The smallest square a far texel draws under the bold look, in render pixels: far surfaces stay
 ## blocks, as the painting's do, rather than softening into the mip.
 const BOLD_MIN_SQUARE_PX := 4.0
+## The bold look's line between boards, in screen pixels (texel_grid.gdshaderinc `seam_px`): the
+## street painting draws it a pixel or so wide and dark at any distance.
+const BOLD_SEAM_PX := 1.3
 ## 0: smooth light on the blocks (each block flat, lit at its centre, so the light still steps
 ## square by square); the judge preferred it to 8 or 12 bands (rings on the table).
 const LIGHT_BANDS := 0.0
@@ -348,7 +351,8 @@ func tile_globals() -> Dictionary:
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
 			&"min_square_px": BOLD_MIN_SQUARE_PX if surface_blocks else 0.0 if quantise_once else MIN_SQUARE_PX,
 			&"block_soft": BLOCK_SOFT if surface_blocks else 0.0,
-			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0}
+			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
+			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
 
 
 func _apply_tiles() -> void:

@@ -54,6 +54,14 @@ const SMOOTH_PATH := "res://assets/textures/smooth/%s.png"
 const BOLD_PATH := "res://assets/textures/bold/%s.png"
 ## The bold set's texels a metre (reduce.py BOLD_TEXELS): the world is laid at it under M.
 const BOLD_TEXELS := 16.0
+## Wood drawn board by board from the street painting's rules (tools/textures/draw_boards.py:
+## a strip a board, its squares stretched along the grain, each board its own tone), laid at
+## DRAWN_TEXELS a metre whatever the look's density (a board a hand wide needs six squares across
+## for its line and grain to show). The facade's own woods always; the rest under the bold look.
+const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
+const DRAWN_TEXELS := 32.0
+const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red"]
+static var use_drawn := true
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -71,6 +79,8 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"roughness", roughness)
 	m.set_shader_parameter(&"metallic", metallic)
 	m.set_shader_parameter(&"specular", specular)
+	if tex and tex.resource_path.contains("/drawn/"):
+		m.set_meta(&"texels", DRAWN_TEXELS)
 	return track(m)
 
 
@@ -78,6 +88,8 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
 	var m := base.duplicate() as ShaderMaterial
 	m.shader = hole_shader()
+	if base.has_meta(&"texels"):
+		m.set_meta(&"texels", base.get_meta(&"texels"))
 	return track(m)
 
 
@@ -126,7 +138,7 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 
 
 static func _apply(m: ShaderMaterial) -> void:
-	m.set_shader_parameter(&"texels_per_meter", texels_per_meter)
+	m.set_shader_parameter(&"texels_per_meter", m.get_meta(&"texels", texels_per_meter))
 	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
 	if smooth:
 		m.set_shader_parameter(&"smooth_source", true)
@@ -148,10 +160,18 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
+	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
+		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
 	if (smooth or bold) and not ResourceLoader.exists(path):
 		path = FACTORY_PATH % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
+
+
+## The wood a texture key names: "floor_b3" -> "floor" (a board strip's number dropped).
+static func _wood_of(key: String) -> String:
+	var i := key.rfind("_b")
+	return key.substr(0, i) if i > 0 and key.substr(i + 2).is_valid_int() else key
 
 
 ## A look switch (M, I) reloads the scene: what was made for the old look must be made again
