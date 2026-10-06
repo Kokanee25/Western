@@ -94,8 +94,8 @@
   "shapes": {
    "hair": {
     "size": [
-     130,
-     127
+     390,
+     381
     ],
     "islands": 145
    },
@@ -108,14 +108,39 @@
    },
    "skin": {
     "size": [
-     298,
-     312
+     894,
+     936
     ],
     "islands": 536
    }
   },
   "texels_per_square": {
-   "head": 6
+   "hair": 3,
+   "head": 6,
+   "skin": 3
+  },
+  "inside": {
+   "hair": {
+    "detail": 0.0,
+    "clip": 40.0,
+    "soft": 0.25,
+    "calm": 0.25,
+    "sigma": 25.0
+   },
+   "head": {
+    "detail": 0.0,
+    "clip": 40.0,
+    "soft": 0.17,
+    "calm": 0.4,
+    "sigma": 25.0
+   },
+   "skin": {
+    "detail": 0.0,
+    "clip": 40.0,
+    "soft": 0.25,
+    "calm": 0.25,
+    "sigma": 25.0
+   }
   }
  },
  "triangles": {

@@ -778,13 +778,18 @@ a few views renders them as the full run does.
   `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives him long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
   brim to his collar, `body_hair` in his glb, `<id>_hair.png`). `people.json` `cells` lays his
-  texture out **a texel a square** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
-  plane square to the way it faces, one of six along his body's axes, at 9 mm a texel below the
-  collar and 8 mm on his head and hair; islands split where a sheet folds over itself, packed at
-  whole squares; each square's colour from the plain repaint by `in_cells`' rules), so the game's
-  per-texel light lights each square as one flat tone; his head is six texels a square (his
-  report's `texture.texels_per_square`, which `PeopleBodies` hands `body_skin` as `square_texels`)
-  and keeps them round his drawn eyes, so they stay as drawn. His bake then has no `cells`.
+  texture out **in whole squares** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
+  plane square to the way it faces, one of six along his body's axes, in squares of 9 mm below
+  the collar and 8 mm on his head and hair; islands split where a sheet folds over itself, packed
+  at whole squares; each square's colour from the plain repaint by `in_cells`' rules), so the
+  game's per-texel light lights each square as one flat tone; a square is six texels a side on his
+  head, three on his body and hair (his report's `texture.texels_per_square`, which
+  `PeopleBodies` hands `body_skin` as `square_texels`). Inside a square (`_inside_squares`): each
+  square calmed toward the squares round it of near colour (`calm`), and its edge texels leaning
+  toward the square across it (`soft`), so his squares meet softly as the painting's do; the
+  squares round his drawn eyes keep their texels, so they stay as drawn; `detail` (a faint share
+  of the painter's own texels inside each square) is there, off. `fit_tripo.py --cells=key:value,...`
+  tries other numbers (`soft.head:0.17` for one shape). His bake then has no `cells`.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
   reference judge scores the whole frame, where the man is a small part): the seated man alone
   against the painting's man, by style not likeness, inside his outline (`tools/screenshots.gd
@@ -3886,3 +3891,53 @@ a few views renders them as the full run does.
     - His hat's squares grew to the painting's size (5.7 → 6.2 px; 7.5).
   - So next on my side: the painter's fine texture kept faintly inside each square, with softer
     edges. The light goes to the art session again, with these numbers.
+- 2026-10-06 (characters session, later): **The stylised stranger's squares meet softly.** Sean:
+  "Ok" to a faint painted texture inside each square and softer edges, re-judged.
+  - **What changed** (`fit_tripo.py` `_inside_squares`, CELLS `soft`, `calm`, `detail`; layout
+    note above):
+    - His body and hair are three texels a square now (his head six, as before), so a square has
+      edge texels to soften. Each square is still lit as one.
+    - Each square first moves toward the squares round it of near colour (`calm`: head 0.4, body
+      0.25, weighed by a Gaussian of 25 levels). Blotches of near tones calm; a brow against skin
+      keeps its edge.
+    - Its edge texels then lean toward the square across the edge (`soft`): on his head the
+      outer texel a quarter of the way, on his body a sixth.
+    - The squares round his drawn eyes are untouched.
+    - `fit_tripo.py --cells=key:value,...` tries other numbers (`soft.head:0.17` for one shape).
+  - **Tried**, all in the saloon shot with no mosaic and judged by `judge_man.py`. Flat is the
+    share of lit neighbouring pixels within 1 L*; hard is the share of variation at the 1 px
+    scale. The painting's man: flat 0.65, hard 0.22.
+
+    | Try | Score | Squares | Flat | Hard |
+    |---|---|---|---|---|
+    | This afternoon (round r2) | 0.471 | 0.309 | 0.76 | 0.276 |
+    | Faint painted grain 0.3 + soft edges | 0.441 | 0.254 | 0.57 | 0.263 |
+    | Calm + less soft + grain 0.15 | 0.426 | 0.196 | 0.61 | 0.260 |
+    | Calm + grain, no soft | 0.435 | 0.198 | 0.70 | 0.275 |
+    | Soft alone | 0.415 | 0.170 | 0.63 | 0.260 |
+    | **Calm + soft, kept (round r3)** | **0.410** | **0.142** | **0.65** | **0.260** |
+    | The shader's `block_soft` 0.5 / 1.0 on r2's textures | 0.435 / 0.440 | 0.187 / 0.200 | 0.64 / 0.63 | 0.265 / 0.267 |
+    | The shader's `tile_gradient` 0.3 (with `block_soft` 0.5) | 0.464 (0.433) | 0.284 (0.190) | 0.75 (0.64) | 0.276 (0.261) |
+
+  - **The faint painted grain is off** (`detail` 0, the setting kept). The painter's own small
+    squares don't line up with ours, so every try with them made his squares noisier and his
+    face smeared, by eye and by the judge.
+  - **The shader's soft edges were no better** than the texture's, and made his lit cheek hotter
+    (62 → 65), so nothing in the art session's files changed. The globals were only tried on the
+    command line (`screenshots.gd --global=`).
+  - **What's left on edges is not his squares.** His hardness stops at 0.26 because half his
+    fine-scale contrast sits on his strongest 5 % of edges (the painting's man: 36 %): where his
+    hat, hair and arm overlap him, drawn with no anti-aliasing, and his drawn eyes.
+  - **His face's square-to-square contrast is the lamp.** It's 9.3 L* in the shot (the painting's
+    man 6.6), but only 4.3 in his texture; per-square light on his curved face under the hot
+    close lamp makes the rest.
+  - **Sent to the art session** (data, from round r2): deep shadow 0.76 vs 0.53, his face's lit
+    top tenth L* 62 vs 41, coat median 3 vs 9, and how to re-run the judge after a light change.
+  - Picture: `docs/screenshots/tripo/stranger2s_soft_squares.png` (his face and sleeve in the
+    shot beside the painting's man's, and his head in plain light, before and now). Round
+    `docs/screenshots/tripo/judge/2026-10-06_r3`, renders in `renders/soft/`.
+  - **Other sessions' files:** `tests/test_bodies.gd` (gameplay's), the squares test I added this
+    afternoon now wants his body lit three texels a side as one, in whole squares (≤ 1024 a side).
+  - His glb is unchanged (the layout in squares is the same, three times the texels); his
+    report and three textures are new. Still on the characters branch, not on main.
+  - All 362 tests pass.

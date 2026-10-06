@@ -21,7 +21,8 @@ For each person in assets/people/people.json with "source": "tripo":
      repainted his head, else Tripo's own) in squares of SQUARE_TEXELS Tripo texels (~5 mm on him,
      the painting's), one texel a square → assets/people/<id>_skin.png and <id>_head.png
      (PeopleBodies lays them on by his UVs); or (people.json `cells`, CELLS) his UVs laid out again
-     a texel a square of him, so the game lights each square as one.
+     in whole squares of him, a few texels a side, so the game lights each square as one, the
+     squares meeting softly.
   6. assets/people/<id>.json: what was done ("whole": true tells PeopleBodies he comes dressed, so
      BodyMesh's boots, belts and hat stay off him).
 Everything is repeatable: nothing is hand-edited.
@@ -133,11 +134,12 @@ HEAD_TRIS = 2200
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
 SMOOTH = False  # --smooth: see main()
-# A texel a square (people.json `cells`: true, or any of these to change; cell_layout): his texture
-# laid out again so each square of him is one texel (on his head `head_texels` a side, lit as one,
-# so his eyes can be drawn finer than his squares), and the game lights each square as one flat
-# tone, as the painting's are; in his model's own atlas a square was ~16 texels a side and the light
-# ran smooth across it, so his squares melted into a smooth face. A square is the cell of `head`,
+# A texel a square (people.json `cells`: true, or any of these to change; --cells=key:value,... to
+# try some; cell_layout): his texture laid out again in whole squares of him, each a few texels a
+# side lit as one (`head_texels` on his head, so his eyes can be drawn finer than his squares;
+# `body_texels`, `hair_texels`), so the game lights each square as one flat tone, as the
+# painting's are; in his model's own atlas a square was ~16 texels a side and the light ran smooth
+# across it, so his squares melted into a smooth face. A square is the cell of `head`,
 # `body` or `hair` metres a surface meets on the plane square to the way it faces (one of six, along
 # his body's axes, as head_paint.py's cells are): the mesh's UVs are that plane, cut into islands
 # where a sheet folds over itself and packed `gutter` squares apart. Each square's colour comes from
@@ -147,8 +149,20 @@ SMOOTH = False  # --smooth: see main()
 # `eye_zone` of a drawn eye (metres across, up, deep) keeps its texels, each the colour most of it
 # is: at three texels a square (2.7 mm) his eyes came out squinting and smudged, at six (1.3 mm)
 # as drawn.
-CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "gutter": 1, "samples": [2, 6],
-         "eye_zone": [0.019, 0.008, 0.03]}
+# Inside a square (a whole square is still lit as one): the painting's squares meet with soft
+# edges and aren't one flat tone edge to edge (the character judge: ours were flatter, 0.76 of
+# neighbouring lit pixels within 1 L* to its 0.65, and harder edged). So a texel within `soft` of a
+# square's edge (a share of the square: {shape: share}, `skin` for any not named) leans toward the
+# square across it, half way at the edge; first each square moves `calm` toward the squares round
+# it of near colour (within about `calm_sigma` levels), so blotches calm and a brow keeps its edge.
+# The body and hair are `body_texels` / `hair_texels` texels a square, so there are texels to carry
+# it; the squares round a drawn eye are left as they are. `detail` keeps that share of each texel's
+# own painted colour inside its square (at most `detail_clip` levels): tried at 0.12-0.3 it made his
+# squares noisier and his face smeared, and the judge agreed, so it's off.
+CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_texels": 3, "hair_texels": 3,
+         "gutter": 1, "samples": [2, 2], "eye_zone": [0.019, 0.008, 0.03],
+         "detail": 0.0, "detail_clip": 40.0, "soft": {"head": 0.17, "skin": 0.25},
+         "calm": {"head": 0.4, "skin": 0.25}, "calm_sigma": 25.0}
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
@@ -1357,15 +1371,94 @@ _PLANES = {0: ((0, 0, -1), (0, -1, 0)), 1: ((0, 0, 1), (0, -1, 0)),   # -X, +X
            4: ((-1, 0, 0), (0, -1, 0)), 5: ((1, 0, 0), (0, -1, 0))}   # -Z, +Z
 
 
-def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False):
+def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft, calm=0.0, sigma=25.0):
+    """The inside of each k×k square of `img` (filled, rows down): `detail` of each texel's own
+    painted colour (the middle of its samples by lightness: `rgb`, `lum` at texels `tx`, `ty`) less
+    its square's, at most `clip` levels; and within `soft` of a square's edge (a share of the
+    square) a lean toward the square across it, half way at the edge, so neighbouring squares meet
+    softly. First, `calm`: each square moves that share toward the squares round it, each weighed
+    by how near its colour is (a Gaussian of `sigma` levels), so blotches of near tones calm while
+    a brow or a moustache against skin keeps its edge. The squares in `eye_blocks` (block keys, rows
+    of W // k + 1) keep their texels, and their neighbours don't lean toward them (for that they
+    stand as the mean of the squares round them)."""
+    H = img.shape[0]
+    nby, nbx = H // k, W // k
+    blocks = img.reshape(nby, k, nbx, k, 3).mean(axis=(1, 3))
+    eye = np.zeros((nby, nbx), dtype=bool)
+    if eye_blocks is not None:
+        by_, bx_ = np.divmod(np.unique(eye_blocks), W // k + 1)
+        eye[by_, bx_] = True
+    BY, BX = np.arange(H) // k, np.arange(W) // k
+    out = img.copy()
+    if calm > 0:
+        acc = np.zeros_like(blocks)
+        num = np.zeros((nby, nbx))
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dy or dx:
+                    nb = np.roll(blocks, (dy, dx), axis=(0, 1))
+                    w = np.exp(-((nb - blocks) ** 2).sum(-1) / (2.0 * sigma * sigma)) * np.roll(~eye, (dy, dx), axis=(0, 1))
+                    acc += w[..., None] * nb
+                    num += w
+        moved = np.where((num > 1e-6)[..., None], calm * (acc / np.maximum(num, 1e-6)[..., None] - blocks), 0.0)
+        moved[eye] = 0.0
+        out += moved[BY][:, BX]
+        blocks = blocks + moved
+    if soft > 0:
+        lean = blocks.copy()
+        if eye.any():
+            acc = np.zeros_like(lean)
+            num = np.zeros((nby, nbx))
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if dy or dx:
+                        acc += np.roll(lean * (~eye)[..., None], (dy, dx), axis=(0, 1))
+                        num += np.roll((~eye).astype(np.float64), (dy, dx), axis=(0, 1))
+            lean[eye & (num > 0)] = (acc / np.maximum(num, 1.0)[..., None])[eye & (num > 0)]
+        off = (np.arange(k) + 0.5) / k - 0.5                     # a texel's offset from its square's middle
+        wgt = 0.5 * np.clip(1.0 - (0.5 - np.abs(off)) / soft, 0.0, 1.0)
+        step = np.sign(off).astype(np.int64)
+        wx, wy = wgt[np.arange(W) % k], wgt[np.arange(H) % k]
+        NX = np.clip(BX + step[np.arange(W) % k], 0, nbx - 1)
+        NY = np.clip(BY + step[np.arange(H) % k], 0, nby - 1)
+        c = lean[BY][:, BX]
+        cx, cy, cxy = lean[BY][:, NX], lean[NY][:, BX], lean[NY][:, NX]
+        wx3, wy3 = wx[None, :, None], wy[:, None, None]
+        out += wx3 * (cx - c) + wy3 * (cy - c) + wx3 * wy3 * (cxy - cx - cy + c)
+    if detail > 0:
+        # Each texel's own colour: the middle of its samples by lightness.
+        tkey = ty * W + tx
+        tks, tinv = np.unique(tkey, return_inverse=True)
+        tinv = tinv.ravel()
+        cnt = np.bincount(tinv)
+        srt = np.lexsort((lum, tinv))
+        start = np.concatenate([[0], np.cumsum(cnt)[:-1]])
+        fine = np.zeros_like(img)
+        got = np.zeros(img.shape[:2], dtype=bool)
+        fine[tks // W, tks % W] = rgb[srt[start + cnt // 2]]
+        got[tks // W, tks % W] = True
+        d = fine - blocks[BY][:, BX]
+        big = np.abs(d).max(axis=-1, keepdims=True)
+        d *= np.minimum(1.0, clip / np.maximum(big, 1e-6))
+        out += detail * d * got[..., None]
+    keep = eye[BY][:, BX]
+    out[keep] = img[keep]
+    return out
+
+
+def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
+                calm=0.0, sigma=25.0):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
     island, unless a triangle would cover a point of the plane the island already covers (a sheet
     folded over itself: a lapel on the coat). Islands are packed at whole squares, so the squares
     stay on the texel grid. `zone`: a function of points (our body space) true where texels keep
-    their own colours (his eyes); elsewhere a square of k×k texels is one colour. Returns the
-    texture (rows down) and the islands' count."""
+    their own colours (his eyes); elsewhere a square of k×k texels is one colour, give or take
+    `detail` of each texel's own (at most `clip` levels), `soft`, the share of a square from its
+    edge over which it leans toward the square across it, and `calm` (with `sigma`), how far it
+    moves toward the squares round it of near colour (CELLS, _inside_squares). Returns the texture
+    (rows down) and the islands' count."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1569,6 +1662,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False):
             grow[take] = sh_img[take]
             got |= take
         img, have = grow, got
+    if k > 1 and (detail > 0 or soft > 0 or calm > 0):
+        img = _inside_squares(img, k, W, rgb, lum, tx, ty, bk[own] if own.any() else None, detail, clip, soft,
+                              calm, sigma)
     layer.data.foreach_set("uv", new.ravel())
     mesh.update()
     return np.clip(img, 0, 255).astype(np.uint8), islands
@@ -1588,25 +1684,43 @@ def cell_textures(person, colour, cells):
         return inz
 
     src = np.asarray(colour.convert("RGB"))
-    k = int(o["head_texels"])
+
+    def inside(shape):
+        # The inside of his squares (CELLS): a number for every shape, or {shape: number} with
+        # `skin` standing for any shape not named.
+        out = {}
+        for key, name in (("detail", "detail"), ("detail_clip", "clip"), ("soft", "soft"), ("calm", "calm"),
+                          ("calm_sigma", "sigma")):
+            v = o[key]
+            out[name] = float(v.get(shape, v.get("skin", 0.0)) if isinstance(v, dict) else v)
+        return out
+
     done = {}
+    per = {}
+    how = {}
     for obj in [ob for ob in bpy.data.objects if ob.name.startswith("body_")]:
         shape = obj.name.split("_", 1)[1]
         piece = next((pc for pc in person.pieces if pc.shape == shape), None)
         if shape == "head":
-            img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None, True)
+            k = int(o["head_texels"])
+            img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None, True,
+                                   **inside(shape))
         elif shape == "skin":
-            img, isl = cell_layout(obj, src, o["body"], 1, o["samples"][1], o["gutter"])
+            k = int(o["body_texels"])
+            img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], **inside(shape))
         elif piece is not None and getattr(piece, "colour", None) is not None:
-            img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), 1,
-                                   o["samples"][1], o["gutter"])
+            k = int(o.get(shape + "_texels", o["body_texels"]))
+            img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), k,
+                                   o["samples"][1], o["gutter"], **inside(shape))
         else:
             continue
         Image.fromarray(img).save(os.path.join(OUT, "%s_%s.png" % (person.id, shape)))
         done[shape] = {"size": [img.shape[1], img.shape[0]], "islands": isl}
-        print("  %s: a texel a square, %d×%d, %d islands" % (shape, img.shape[1], img.shape[0], isl))
+        per[shape] = k
+        how[shape] = inside(shape)
+        print("  %s: a texel a square, %d texels a side, %d×%d, %d islands" % (shape, k, img.shape[1], img.shape[0], isl))
     person.report["texture"] = dict(person.report.get("texture", {}), cells={kk: o[kk] for kk in ("head", "body", "hair")},
-                                    shapes=done, texels_per_square={"head": k})
+                                    shapes=done, texels_per_square=per, inside=how)
 
 
 # --- Blender --------------------------------------------------------------------------------------
@@ -1700,9 +1814,23 @@ def main():
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     SMOOTH = "--smooth" in args
     only = None
+    cells_args = {}
     for a in args:
         if a.startswith("--only="):
             only = a.split("=", 1)[1]
+        if a.startswith("--cells="):
+            # A trial of CELLS's numbers for a man laid out a texel a square, e.g.
+            # --cells=detail:0.3,soft:0.25,body_texels:3 (over people.json's `cells`).
+            # A key with a dot is one shape's (detail.head:0.15).
+            for kv in a.split("=", 1)[1].split(","):
+                key, val = kv.split(":")
+                val = float(val) if "." in val else int(val)
+                if "." in key:
+                    key, shape = key.split(".")
+                    base = cells_args.get(key, CELLS.get(key))
+                    cells_args[key] = dict(base if isinstance(base, dict) else {"skin": base}, **{shape: val})
+                else:
+                    cells_args[key] = val
     env = json.load(open(mp.ENVELOPE))
     people = json.load(open(os.path.join(OUT, "people.json")))["people"]
     for pid, spec in people.items():
@@ -1750,7 +1878,8 @@ def main():
             continue
         build_blender(p)
         if spec.get("cells"):
-            cell_textures(p, colour, spec["cells"])
+            cells = dict(spec["cells"] if isinstance(spec["cells"], dict) else {}, **cells_args)
+            cell_textures(p, colour, cells)
         export(p)
 
 
