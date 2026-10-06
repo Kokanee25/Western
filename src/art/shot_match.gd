@@ -44,13 +44,14 @@ const POSE_OFFSETS := {&"head": Vector3(8.5, -8.5, 13.75), &"neck": Vector3(0.0,
 		&"forearm_r": Vector3(8.0, -6.5, 0.0), &"hand_r": Vector3(10.0, -12.5, -12.5)}
 ## A man whose head, hat or build differs is fitted on his own (tools/fit_shot.gd): his model's
 ## name -> any of "seat", "turn", "pose_offsets"; what's left out is SEAT, TURN, POSE_OFFSETS.
-## stranger2s (the characters session's Rodin man, fitted 2026-10-06 on his drawn eyes): leant in
-## on his forearms, chest 6° and neck 8° forward, as the painting's man sits; his eyes 3.4 px from
-## the painting's in its 1672 px frame, outline overlap 0.67.
+## stranger2s (the characters session's Rodin man, his head on its hitbox, refitted 2026-10-06 on
+## his drawn eyes): his eyes 2.8 px from the painting's in its 1672 px frame, outline overlap 0.674,
+## sitting upright with his face out from under the brim.
 const FITS := {
-	&"stranger2s": {"pose_offsets": {&"head": Vector3(-1.5, -8.5, 9.75), &"neck": Vector3(-8.0, -9.5, 0.0),
-			&"chest": Vector3(-6.0, -1.5, 0.0), &"upper_arm_r": Vector3(9.5, 10.5, 0.0),
-			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -16.25)}},
+	&"stranger2s": {"seat": Vector3(0.742, 0.0, -0.478), "pose_offsets": {
+			&"head": Vector3(6.0, -13.25, 5.25), &"neck": Vector3(0.0, -0.5, 7.5),
+			&"chest": Vector3(0.0, -2.25, 0.0), &"upper_arm_r": Vector3(1.5, 10.5, 0.0),
+			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
 }
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
