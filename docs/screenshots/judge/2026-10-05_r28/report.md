@@ -1,4 +1,4 @@
-# 2026-10-05_r14: probe mosaic (V) steadier: the frame multisampled (4x) and the textures' texel edges soft (1 px) under it, one sample a block, rendered with --fresh
+# 2026-10-05_r28: probe mosaic (V) steadier: the frame multisampled (4x) and the textures' texel edges soft (1 px) under it, one sample a block, rendered with --fresh
 
 ## shot_match_saloon (score 0.185, lower is closer)
 

@@ -3256,7 +3256,7 @@ a few views renders them as the full run does.
   nothing); renders here repeat to the pixel, and today's render of the same look differs from
   `_r12` on 4-5 % of pixels. The walk and pan numbers were after the fix and stand (re-rendered:
   identical). Judge v2, saloon / street: **V in build 535 0.181 / 0.341, now 0.185 / 0.341**
-  (`2026-10-05_r14`); V over the squared textures (`--probe-squares`) 0.198 / 0.281, with the two
+  (`2026-10-05_r28`); V over the squared textures (`--probe-squares`) 0.198 / 0.281, with the two
   fixes 0.204 / 0.309 and as steady as V now (0.47 / 0.60 / 0.63; without them 0.84 / 0.97 /
   0.84); today's default 0.225 / 0.329; the surface blocks 0.362 / 0.284 (0.198 / 0.279 lit the
   ordinary way). So V is the closest to the saloon painting and the furthest from the street
@@ -3264,7 +3264,7 @@ a few views renders them as the full run does.
   (his squared paint under the probe's blocks; the smooth paint keeps one eye's white and iris),
   so V stays on the smooth set. History lines `_r9`/`_r12` say so; the review sheet
   (`docs/screenshots/review/2026-10-05_probe_mosaic.png`) is redone with V now and the corrected
-  table. Blind critic on `_r14` (`critic/critic.md`), top three: the street isn't lit by a
+  table. Blind critic on `_r28` (`critic/critic.md`), top three: the street isn't lit by a
   setting sun (a lavender-grey sky, its sun a small white glare by the roofs); the room behind
   him is dim, half-empty murk; the saloon's front is in dull shade and its sign can't be read
   (then his face, a blotchy orange smear with sleepy eyes, and the glossy, streaked table).
