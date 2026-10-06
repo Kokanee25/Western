@@ -3364,9 +3364,11 @@ a few views renders them as the full run does.
   fireproof, ballistics' resistance 4000 J/cm, surface `metal`, never carved). Knocked out, you
   come round beside the doctor's cot (`DebugSpawns/DoctorInside`; the store's floor where there's
   no doctor's). Tests `test_town_buildings` (5). **Found on the way, the screenshot tool:**
-  `tools/screenshots.gd` (shared) now waits 150 empty frames after freeing a view's scene (was 2:
-  the renderer let go of a freed scene's lights some frames later, and they counted against the
-  next scene's), and `project.godot` (shared) raises Forward+'s clustered elements 512 → 1024 (in
-  the full run of 70 views town_bar's lamps were still dropped; every shorter run was right with
-  the wait; what builds up between loads is still to find). For the art session (told): the new
-  buildings' dressing, the corral's ground (dry grass grows in it), their signs.
+  town_bar rendered cold grey now and then. Each building's room light is a reflection probe drawn
+  once, over about six frames, one probe at a time in no fixed order, and a room takes the sky's
+  ambient until its probe is drawn; with step 3 there are 11 and a view waited 40 frames. So
+  `tools/screenshots.gd` (shared) waits seven frames a probe once a view is placed. Tried first,
+  kept as cheap: 150 empty frames after freeing a view's scene (was 2) and Forward+'s clustered
+  elements 512 → 1024 (`project.godot`, shared). `tools/golden_check.py` (art's) renders the views
+  in batches of ten, a fresh Godot each. For the art session (told): the new buildings' dressing,
+  the corral's ground (dry grass grows in it), their signs.
