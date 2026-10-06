@@ -182,7 +182,7 @@ static func _flame_material() -> ShaderMaterial:
 	if _flame_mat == null:
 		_flame_mat = ShaderMaterial.new()
 		_flame_mat.shader = FLAME
-		_flame_mat.set_shader_parameter(&"sprite", PixelArt.puff("flame", 61))
+		_flame_mat.set_shader_parameter(&"sprite", load("res://assets/textures/drawn/flames.png"))
 	return _flame_mat
 
 
