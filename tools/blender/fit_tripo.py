@@ -86,8 +86,25 @@ FINGER_REACH = 2.5
 BRIDGE_SHOULDER = 0.35
 # Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
 # wider than what they go over they are scaled (room for the cloth under them).
-PIECE_TRIS = {"coat": 2600, "hat": 700}
+PIECE_TRIS = {"coat": 2600, "hat": 700, "hair": 2400}
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
+# Long hair (people.json `hair`: true, or any of these to change; class Hair): how far round from
+# the back of his head it reaches each side (degrees; 180 is his nose), where it ends at the latest
+# (metres up: his collar), how thick it lies at its top and its ends, how far in it falls below the
+# widest of his head above it (metres a metre down: closer to his neck than a curtain from his ears
+# would hang), how wide a lock is (degrees, from-to), how much shorter a lock can be than the
+# longest and how far its pointed end reaches, how much fuller a lock is at its middle than its
+# edges (metres; and up to how much fuller one lock is than the next, at its end), how it waves
+# down its length (metres out, waves along it), over how many degrees it thins to its front edge
+# beside his face and how that edge waves in and out down its length (degrees, waves along it),
+# the shell's grid (rows down, degrees round), the squares (metres, cut in his
+# body's space as head_paint.py's are), its texture's size, and its five tones (shares of his
+# painted hair's middle colour) and how much of it each is.
+HAIR = {"front_deg": 108.0, "to": 1.49, "thick": [0.003, 0.011], "taper": 0.08, "lock_deg": [8.0, 16.0],
+        "ragged": 0.022, "tip": 0.012, "bulge": [0.0015, 0.004], "wave": [0.003, 1.5], "thin": 14.0,
+        "edge": [5.0, 1.7],
+        "rows": 40, "step_deg": 2.0, "cell_m": 0.008, "texels": [512, 256],
+        "tones": [0.25, 0.6, 1.0, 1.45, 2.0], "share": [0.15, 0.3, 0.3, 0.17, 0.08], "seed": 1882}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
 # A coat's collar stands this far above the neck joint (Tripo units, of his height: ~6 cm).
@@ -796,6 +813,8 @@ class TripoPerson(mp.Person):
             if piece.shape == "hat":
                 piece.region[:] = "head"
             mp.Person.weights(piece)
+        if self.spec.get("hair"):
+            self.pieces.append(Hair(self, self.spec["hair"]))
 
 
 class Piece:
@@ -1068,6 +1087,230 @@ class Piece:
 
 # --- Textures -----------------------------------------------------------------------------------
 
+class Hair:
+    """Long hair as its own piece ("body_hair", <id>_hair.png): Sean, 2026-10-06, wants the painting's
+    man, whose hair hangs to his collar; the Rodin stranger was built from a picture with it short.
+    Made after the warp, in our body space: a shell round the back and sides of his head, from under
+    his hat's brim to his collar. A ray out from his head's axis at each height and bearing finds his
+    surface; the hair falls from the widest of him above it, a little inward toward his neck (over his
+    ears, clear of his jaw), and rests on whatever comes out to meet it (his collar), ending at
+    HAIR's `to` at the latest, in locks of uneven width and length with pointed ends, a little rounded
+    and waving, thinner toward his face. Skinned from the nearest
+    of his own points (his head at the top, his collar at the ends), its squares cut in his body's
+    space as head_paint.py cuts his, each a tone of his own painted hair (the texels the shell hides),
+    and lit by the game like the rest of him. It can be hidden or come off with nothing else."""
+
+    shape = "hair"
+    square = 1           # its texture is already in squares (main(): no squares() over it)
+
+    def __init__(self, body, spec):
+        o = dict(HAIR, **(spec if isinstance(spec, dict) else {}))
+        # His colours: the repaint in the style where there is one (main() lays the same on him).
+        named = body.id if os.path.exists(os.path.join(TRIPO, body.id + "_color.png")) else body.spec.get("model", body.id)
+        painted = os.path.join(TRIPO, named + "_color.png")
+        colour = Image.open(painted) if os.path.exists(painted) else body.colour
+        self.body = body
+        self.report = body.report.setdefault("piece_hair", {})
+        v = body.v
+        eye_y = float(body.anatomy_eyes()[:, 1].mean())
+        # His head's axis, and how far out his head reaches (the brim beyond it is not head): from
+        # a band under the hat's brim, half way between his face and the back of his head.
+        band = body.head & (np.abs(v[:, 1] - (eye_y - 0.03)) < 0.01)
+        z0 = float((v[band, 2].min() + v[band, 2].max()) / 2)
+        self.z0 = z0
+        reach = (float(np.abs(v[band, 0]).max()) + 0.05, float(v[band, 2].max() - z0) + 0.04)
+        th = np.radians(np.arange(-o["front_deg"], o["front_deg"] + 1e-6, o["step_deg"]))
+        ys = np.arange(o["to"] - 0.04, eye_y + 0.14, 0.002)
+        R = self._radii(v, body.tris, th, ys, z0, reach)
+        rows, n = o["rows"], len(th)
+        # Under the brim: up from the band, the first height his head isn't there any more (only the
+        # brim, past his head's reach) or jumps outward (the brim curled down, the crown).
+        k0 = int(np.searchsorted(ys, eye_y - 0.03))
+        top, bottom = np.zeros(n), np.zeros(n)
+        curtain = np.zeros((n, len(ys)))
+        for i in range(n):
+            k = k0
+            while k + 1 < len(ys) and not np.isnan(R[i, k + 1]) and R[i, k + 1] - R[i, k] < 0.02:
+                k += 1
+            top[i] = ys[k] + 0.004             # just into the brim, so its edge is hidden
+            # The curtain: the widest of him above each height, down from the top.
+            r = np.nan_to_num(R[i], nan=0.0)
+            c = np.zeros(len(ys))
+            run, at = 0.0, ys[k]
+            for kk in range(k, -1, -1):
+                if r[kk] >= run:
+                    run, at = r[kk], ys[kk]
+                c[kk] = run - o["taper"] * (at - ys[kk])
+            curtain[i] = c
+            # It ends where he comes out to meet it (his collar, his shoulders), lying on it a
+            # centimetre, and at `to` at the latest.
+            end = o["to"]
+            for kk in range(k, -1, -1):
+                if ys[kk] < eye_y - 0.06 and r[kk] > c[kk] + o["thick"][1] * 0.5:
+                    end = max(o["to"], ys[kk] - 0.01)
+                    break
+            bottom[i] = end
+        # Locks of uneven length with pointed ends (the painting's hair ends in ragged locks).
+        rng = np.random.default_rng(o["seed"])
+        deg = np.degrees(th)
+        edges = [-o["front_deg"] - rng.uniform(0, o["lock_deg"][1])]
+        while edges[-1] < o["front_deg"]:
+            edges.append(edges[-1] + rng.uniform(*o["lock_deg"]))
+        self.edges = np.array(edges)
+        lock = np.searchsorted(self.edges, deg) - 1
+        cut = rng.uniform(0, o["ragged"], len(edges))[lock]
+        frac = (deg - self.edges[lock]) / (self.edges[lock + 1] - self.edges[lock])
+        bottom = bottom + cut + o["tip"] * np.abs(frac * 2 - 1) ** 1.3
+        bottom = np.minimum(bottom, top - 0.03)
+        # Each lock rounded (fuller at its middle than its edges), one fuller than the next toward
+        # its end, and waving a little down its length: his outline is locks, not a slab.
+        full = rng.uniform(0, o["bulge"][1], len(edges))[lock]
+        phase = rng.uniform(0, 2 * np.pi, len(edges))[lock]
+        mid = 1.0 - (frac * 2 - 1) ** 2
+        # Thin toward its front edge, beside his face (a slab there read as a frame round it).
+        thin = np.clip((o["front_deg"] - np.abs(deg)) / o["thin"], 0.35, 1.0)
+        # The grid: rows from his brim to the ends of his hair, a column a bearing.
+        t = np.linspace(0, 1, rows + 1)
+        Y = top[:, None] + (bottom - top)[:, None] * t[None, :]
+        thick = o["thick"][0] + (o["thick"][1] - o["thick"][0]) * t
+        rad = np.zeros_like(Y)
+        for i in range(n):
+            ri = np.interp(Y[i], ys, np.nan_to_num(R[i], nan=0.0))
+            ci = np.interp(Y[i], ys, curtain[i])
+            rad[i] = (np.maximum(ri, ci) + thin[i] * (thick + mid[i] * (o["bulge"][0] + full[i] * t))
+                      + o["wave"][0] * t * np.sin(2 * np.pi * o["wave"][1] * t + phase[i]))
+        # The edge beside his face waves in and out down its length (a straight edge read as a strap),
+        # the columns behind it following less and less.
+        near = np.clip(1.0 - (o["front_deg"] - np.abs(deg)) / o["thin"], 0.0, 1.0)[:, None]
+        side = np.sign(deg)[:, None]
+        jag = np.sin(2 * np.pi * o["edge"][1] * t + rng.uniform(0, 2 * np.pi))[None, :]
+        ang = th[:, None] - np.radians(o["edge"][0]) * side * near * (0.5 + 0.5 * jag)
+        X = rad * np.sin(ang)
+        Z = z0 + rad * np.cos(ang)
+        self.v = np.stack([X, Y, Z], -1).reshape(-1, 3)
+        self.uv = np.stack(np.meshgrid(np.linspace(0, 1, n), t, indexing="ij"), -1).reshape(-1, 2)
+        idx = np.arange(n * (rows + 1)).reshape(n, rows + 1)
+        a, b, c_, d = idx[:-1, :-1], idx[1:, :-1], idx[1:, 1:], idx[:-1, 1:]
+        tris = np.concatenate([np.stack([a, b, c_], -1).reshape(-1, 3), np.stack([a, c_, d], -1).reshape(-1, 3)])
+        # Facing out from his head.
+        f = self.v[tris]
+        nrm = np.cross(f[:, 1] - f[:, 0], f[:, 2] - f[:, 0])
+        out = f.mean(1) - np.array([0.0, 0.0, z0])
+        out[:, 1] = 0
+        if (np.einsum("ij,ij->i", nrm, out) < 0).mean() > 0.5:
+            tris = tris[:, [0, 2, 1]]
+        self.tris = tris
+        self.W = self._weights(body)
+        self.colour = self._texture(body, colour, o, n, rows)
+        self.report.update({"vertices": int(len(self.v)), "triangles_made": int(len(tris)),
+                            "axis_z": round(z0, 4), "top_m": [round(float(top.min()), 3), round(float(top.max()), 3)],
+                            "ends_m": [round(float(bottom.min()), 3), round(float(bottom.max()), 3)],
+                            "front_deg": o["front_deg"]})
+        print("  hair: %d points, from %.3f-%.3f m down to %.3f-%.3f m, %d deg each side" % (
+            len(self.v), top.min(), top.max(), bottom.min(), bottom.max(), o["front_deg"]))
+
+    @staticmethod
+    def _radii(v, tris, th, ys, z0, reach):
+        """How far out from his head's axis (x 0, z z0) he is, along each bearing at each height: the
+        furthest of his surface within his head's reach there (an ellipse, `reach` to his side and
+        behind), NaN where there's none (the brim alone)."""
+        P = v[tris]
+        lim = 1.0 / np.sqrt((np.sin(th) / reach[0]) ** 2 + (np.cos(th) / reach[1]) ** 2)
+        dirs = np.stack([np.sin(th), np.cos(th)], 1)
+        R = np.full((len(th), len(ys)), np.nan)
+        for k, y in enumerate(ys):
+            s = P[:, :, 1] - y
+            over = s > 0
+            cross = over.any(1) & (~over).any(1)
+            if not cross.any():
+                continue
+            Q, S = P[cross], s[cross]
+            ends = []
+            for a, b in ((0, 1), (1, 2), (2, 0)):
+                m = (S[:, a] > 0) != (S[:, b] > 0)
+                f = S[:, a] / np.where(m, S[:, a] - S[:, b], 1.0)
+                pt = Q[:, a] + f[:, None] * (Q[:, b] - Q[:, a])
+                ends.append(np.where(m[:, None], pt[:, [0, 2]], np.nan))
+            ends = np.stack(ends, 1)                       # (m, 3 edges, 2): two are the segment's ends
+            ok = ~np.isnan(ends[:, :, 0])
+            order = np.argsort(~ok, axis=1, kind="stable")[:, :2]
+            seg = np.take_along_axis(ends, order[:, :, None], 1)
+            seg = seg[ok.sum(1) == 2]
+            A = seg[:, 0] - np.array([0.0, z0])
+            E = seg[:, 1] - seg[:, 0]
+            dx, dz = dirs[:, 0:1], dirs[:, 1:2]
+            den = dx * E[None, :, 1] - dz * E[None, :, 0]
+            with np.errstate(divide="ignore", invalid="ignore"):
+                tt = (A[None, :, 0] * E[None, :, 1] - A[None, :, 1] * E[None, :, 0]) / den
+                uu = (A[None, :, 0] * dz - A[None, :, 1] * dx) / den
+            hit = (np.abs(den) > 1e-12) & (tt > 0) & (uu >= 0) & (uu <= 1) & (tt <= lim[:, None])
+            best = np.where(hit, tt, -1.0).max(1)
+            R[:, k] = np.where(best > 0, best, np.nan)
+        return R
+
+    def _weights(self, body, k=8):
+        """Each point's bone weights from the nearest of his own (his head's at the top of the hair,
+        his collar's at its ends), by inverse distance."""
+        W = np.zeros((len(self.v), body.W.shape[1]))
+        for s0 in range(0, len(self.v), 512):
+            p = self.v[s0:s0 + 512]
+            d = np.linalg.norm(body.v[None, :, :] - p[:, None, :], axis=2)
+            near = np.argpartition(d, k, axis=1)[:, :k]
+            dn = np.take_along_axis(d, near, 1)
+            w = 1.0 / (dn + 0.005)
+            W[s0:s0 + 512] = np.einsum("ij,ijk->ik", w, body.W[near]) / w.sum(1, keepdims=True)
+        return W / np.maximum(W.sum(1, keepdims=True), 1e-9)
+
+    def _texture(self, body, colour, o, n, rows):
+        """Its texture: squares of `cell_m` in his body's space, each one tone of his painted hair
+        (the lightness quantiles of the texels the shell hides), darker between locks and at their
+        ends, so it reads as hair in the paintings' blocks; flat, as his paint is, for the game to
+        light."""
+        tw, th_ = o["texels"]
+        # His hair's own colours: what the shell's top half hides on his head.
+        col = np.asarray(colour.convert("RGB"), dtype=np.float64)
+        ch, cw = col.shape[:2]
+        top_half = self.v.reshape(n, rows + 1, 3)[:, : rows // 2].reshape(-1, 3)
+        d = np.linalg.norm(body.v[None, ::3, :] - top_half[::7, None, :], axis=2)
+        near = np.unique(np.argmin(d, axis=1)) * 3
+        px = np.clip((body.uv[near] * [cw, ch]).astype(int), 0, [cw - 1, ch - 1])
+        hair = col[px[:, 1], px[:, 0]]
+        light = hair.mean(1)
+        hair = hair[light < np.percentile(light, 85)]        # not the odd lit or skin texel
+        # Five tones of his hair's own colour, spread in lightness round its middle (his painted
+        # hair's own quantiles bunch together: a slab of one dark).
+        mid = np.median(hair, axis=0)
+        tones = np.clip(mid[None, :] * np.array(o["tones"])[:, None], 0, 255)
+        self.report["tones"] = tones.round().astype(int).tolist()
+        # Each texel's place on him (the grid's points, bilinear), and its square.
+        G = self.v.reshape(n, rows + 1, 3)
+        u = (np.arange(tw) + 0.5) / tw * (n - 1)
+        w = (np.arange(th_) + 0.5) / th_ * rows
+        i0 = np.clip(np.floor(u).astype(int), 0, n - 2)
+        j0 = np.clip(np.floor(w).astype(int), 0, rows - 1)
+        fu, fw = (u - i0)[None, :, None], (w - j0)[:, None, None]
+        g00 = G[i0[None, :], j0[:, None]]
+        g10 = G[i0[None, :] + 1, j0[:, None]]
+        g01 = G[i0[None, :], j0[:, None] + 1]
+        g11 = G[i0[None, :] + 1, j0[:, None] + 1]
+        p = (g00 * (1 - fu) + g10 * fu) * (1 - fw) + (g01 * (1 - fu) + g11 * fu) * fw   # (th_, tw, 3)
+        cell = np.floor(p / o["cell_m"]).astype(np.int64)
+        key = (cell[..., 0] * 73856093) ^ (cell[..., 1] * 19349663) ^ (cell[..., 2] * 83492791)
+        rnd = ((key * 2654435761 + o["seed"]) % 1000003) / 1000003.0
+        # Its locks (the same bearings the ends were cut by), each a tone of its own, and strands down
+        # them: a cell takes its strand's tone (a column of cells a few long) more than its own.
+        deg = np.degrees(np.arctan2(p[..., 0], p[..., 2] - self.z0))
+        lk = np.clip(np.searchsorted(self.edges, deg) - 1, 0, len(self.edges) - 2)
+        lrnd = (((lk + 7) * 40503 + o["seed"]) % 997) / 997.0
+        strand = (cell[..., 0] * 73856093) ^ (cell[..., 2] * 83492791) ^ ((cell[..., 1] // 3) * 19349663)
+        srnd = ((strand * 2654435761 + o["seed"] * 7) % 1000003) / 1000003.0
+        down = (np.arange(th_)[:, None] + 0.5) / th_
+        score = 0.28 * lrnd + 0.42 * srnd + 0.3 * rnd - 0.12 * (down > 0.88)
+        level = np.clip(np.digitize(score, np.quantile(score, np.cumsum(o["share"])[:-1])), 0, 4)
+        img = tones[level]
+        return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
+
+
 def squares(colour, out_path, square=SQUARE_TEXELS):
     """The texture in squares: each `square`×`square` block one colour (its average), one texel
     a square in the written image."""
@@ -1190,7 +1433,7 @@ def main():
             # Each piece's own texture, in the same squares (Tripo's colour: the pieces aren't
             # repainted in the style yet).
             squares(piece.colour, os.path.join(OUT, "%s_%s%s.png" % (pid, piece.shape, "_smooth" if SMOOTH else "")),
-                    1 if SMOOTH else SQUARE_TEXELS)
+                    1 if SMOOTH else getattr(piece, "square", SQUARE_TEXELS))
         # His texture: the head repainted in the style where it has been (head_paint.py works on a
         # glb, so a layered man's repaint is his model's, <model>_color.png).
         named = pid if os.path.exists(os.path.join(TRIPO, pid + "_color.png")) else spec.get("model", pid)

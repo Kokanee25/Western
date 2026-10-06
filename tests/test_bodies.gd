@@ -367,6 +367,35 @@ func test_a_fitted_mans_drawn_eyes_are_his_heads_eyes() -> void:
 	check(checked > 0, "a fitted man with his eyes found (%d)" % checked)
 
 
+func test_the_stylised_stranger_wears_his_hair_to_his_collar() -> void:
+	# The Rodin stranger was built from a picture with his hair short; the painting's man wears it
+	# to his collar. tools/blender/fit_tripo.py (people.json `hair`) hangs it on him as a piece of
+	# its own, with its own texture: from under his hat's brim to his collar, round the back and
+	# sides of his head, none of it over his face.
+	check(PeopleBodies.has_model(&"stranger2s"), "assets/people/stranger2s.glb is there")
+	var him := HumanBody.new()
+	him.body_model = &"stranger2s"
+	him.person_id = &"stranger2s_hair_test"
+	add_child(him)
+	await physics_frames(2)
+	var shapes := {}
+	var low := 9.0
+	var high := -9.0
+	var front := 9.0
+	for key: String in him.skin_meshes:
+		shapes[key.get_slice("/", 0)] = true
+		if not key.begins_with("hair/"):
+			continue
+		for v: Vector3 in (him.skin_meshes[key] as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]:
+			low = minf(low, v.y)
+			high = maxf(high, v.y)
+			front = minf(front, v.z)
+	check(shapes.has("hair"), "his hair is a piece of its own (%s)" % [shapes.keys()])
+	check(high > 1.64 and low < 1.54, "from under his brim (%.2f m) to his collar (%.2f m)" % [high, low])
+	check(front > -0.05, "none of it over his face (its front at z %.3f; his eyes at -0.083)" % front)
+	him.queue_free()
+
+
 func test_the_layered_man_wears_his_own_hat() -> void:
 	# The same man built in layers (assets/people/stranger_layered.glb): his body painted
 	# bare-headed and coatless, and his hat a piece modelled alone and hung on his head as its

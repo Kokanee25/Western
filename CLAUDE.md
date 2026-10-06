@@ -774,7 +774,9 @@ a few views renders them as the full run does.
   body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
   light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
   landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
-  `body_skin` gives his drawn whites that much more light).
+  `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives him long
+  hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
+  brim to his collar, `body_hair` in his glb, `<id>_hair.png`).
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -3745,3 +3747,32 @@ a few views renders them as the full run does.
     `character_lab.gd` and `people_lineup.gd`. The art session puts him in the shot (its
     per-model ShotMatch fit), and its merge 2 reads his `eye_gain`.
   - All 360 tests pass on the squashed commit.
+- 2026-10-06 (characters session, later): **The stylised stranger's hair to his collar, a piece of
+  its own.** Sean: "we need to keep working on the model". The open question was the painting's
+  long hair or the short hair from his picture; I took the painting's.
+  - `fit_tripo.py` `Hair` (`people.json` `hair`, settings in `HAIR`) is made after the warp, in
+    our body space. Rays out from his head's axis find his surface at each height and bearing.
+    The hair falls from the widest of his head above it, a little inward toward his neck, and
+    rests on whatever comes out to meet it (his collar).
+  - It starts just inside his hat's brim and ends at 1.49 m at the latest, reaching 108° round
+    from the back on each side (over his ears). Its locks are of uneven width and length with
+    pointed ends, a little rounded, waving down their length and thinner toward his face.
+  - It's skinned from his own nearest points (his head at the top, his collar at the ends). Its
+    squares are cut in his body's space at 8 mm like his paint, in five tones of his painted
+    hair's colour.
+  - The game wears it as shape `hair` (`body_hair` in his glb, `stranger2s_hair.png`), which
+    HumanBody already draws double-sided. A whole man wears every piece his glb has, so no game
+    code changed.
+  - In the saloon shot it hangs past his jaw on his right and beside his lamplit left cheek, as
+    the painting's man's does. In the pose check (sit, crouch, hands up, aim) it follows his head
+    and rests on his coat, with no tears.
+  - `tests/test_bodies.gd` (gameplay's file, said here): one more test, his hair a piece of its
+    own, from under his brim to his collar, none of it over his face. The body, hat and shot
+    tests pass.
+  - Picture: `docs/screenshots/tripo/stranger2s_hair.png` (the shot: painting, this morning, now;
+    his head in plain light, this morning and now).
+  - Known:
+    - From straight in front, in plain light, the hair beside his face still reads a little like
+      a frame.
+    - Its texture is ours, not the painter's (head_paint.py bakes his atlas, not his pieces).
+    - The hat can't come off a whole man, so the hair's top edge is never seen.
