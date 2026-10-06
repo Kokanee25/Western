@@ -135,6 +135,7 @@ func _run() -> void:
 	var suffix := ""
 	var globals_after := {}
 	var fresh := false
+	var man_mask := false
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -222,6 +223,10 @@ func _run() -> void:
 			window_shot = true
 		elif arg == "--fresh":
 			fresh = true
+		# --man-mask: after a shot-match view, the seated man white on black from the same camera
+		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
+		elif arg == "--man-mask":
+			man_mask = true
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
 		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
@@ -471,7 +476,51 @@ func _run() -> void:
 		big.resize(img.get_width() * 3, img.get_height() * 3, Image.INTERPOLATE_NEAREST)
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
+		if man_mask:
+			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
 	quit()
+
+
+## --man-mask: the seated man (ShotMatch's SeatedMan, not the cup in his hand) drawn white and
+## everything else black, unshaded, from the view's own camera, saved as one channel; then every
+## material, the camera's environment and what hangs on the camera (the gun, a screen pass) are
+## put back as they were.
+func _save_man_mask(viewport: SubViewport, player, path: String) -> void:
+	var man := viewport.find_child("SeatedMan", true, false) as Node3D
+	if man == null:
+		return
+	var white := StandardMaterial3D.new()
+	white.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	white.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var black := white.duplicate() as StandardMaterial3D
+	black.albedo_color = Color.BLACK
+	var cam: Camera3D = player.camera
+	var was := {}
+	for gi: GeometryInstance3D in viewport.find_children("*", "GeometryInstance3D", true, false):
+		was[gi] = [gi.material_override, gi.material_overlay, gi.visible]
+		var his := man.is_ancestor_of(gi) and not String(gi.get_path()).contains("HeldCup")
+		gi.material_override = white if his else black
+		gi.material_overlay = null
+		if cam.is_ancestor_of(gi):
+			gi.visible = false
+	var env_was := cam.environment
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color.BLACK
+	cam.environment = env
+	for i in 4:
+		await process_frame
+	await RenderingServer.frame_post_draw
+	var img := viewport.get_texture().get_image()
+	img.convert(Image.FORMAT_L8)
+	img.save_png(path)
+	print("saved ", path.get_file())
+	cam.environment = env_was
+	for gi: GeometryInstance3D in was:
+		if is_instance_valid(gi):
+			gi.material_override = was[gi][0]
+			gi.material_overlay = was[gi][1]
+			gi.visible = was[gi][2]
 
 
 ## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).

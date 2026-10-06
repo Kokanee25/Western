@@ -208,6 +208,7 @@ python3 tools/golden_check.py --render [--only=a,b]            # every fixed vie
 python3 tools/golden_check.py --approve --from=DIR [--noise=A,B] # approve new goldens (same merge as the look)
 godot --headless --fixed-fps 60 -s res://tools/scene_probe.gd -- --out=PDIR   # scene data for the visual checks
 python3 tools/visual_checks.py --from=DIR [--twin=DIR2] --probe=PDIR # blank, missing, flicker, feet, floating, clothes
+python3 tools/characters/judge_man.py --from=DIR [--note=...]   # the seated man alone vs the painting's man (screenshots.gd --man-mask)
 ```
 
 **The dev bridge** (`src/debug/dev_bridge.gd`, `tools/bridge.py`): drive the running game from a
@@ -784,6 +785,16 @@ a few views renders them as the full run does.
   per-texel light lights each square as one flat tone; his head is six texels a square (his
   report's `texture.texels_per_square`, which `PeopleBodies` hands `body_skin` as `square_texels`)
   and keeps them round his drawn eyes, so they stay as drawn. His bake then has no `cells`.
+  **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
+  reference judge scores the whole frame, where the man is a small part): the seated man alone
+  against the painting's man, by style not likeness, inside his outline (`tools/screenshots.gd
+  --man-mask` writes `<view>_man.png`, him white on black from the same camera) and the
+  painting's man's traced one (`align.SHOT_OUTLINE`), the cup left out of both: light, colour,
+  squares (size by masked autocorrelation, contrast with the eight round each, flatness: the
+  share of lit neighbouring pixels within 1 L*), edges, grain, palette, and his face, hat and
+  coat by boxes; one score and three by group (light: the scene's lamps, the art session's;
+  colour; squares: how he's drawn); rounds in `docs/screenshots/tripo/judge/` with a history;
+  `--probes` its self-test.
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -3840,3 +3851,38 @@ a few views renders them as the full run does.
       ragged edges are a global the art session owns (P).
     - This and the hair are on the characters branch, not on main yet.
   - All 362 tests pass.
+- 2026-10-06 (characters session, later): **A judge for the man alone.** Sean: "Can we get the
+  judge to just focus on the character". The reference judge (`tools/judge.py`, the art
+  session's) scores the whole frame, so the man's changes barely move it: the room is most of
+  the picture.
+  - **The character judge** (`tools/characters/judge_man.py`, mine; it imports `judge.py`'s
+    colour space and measures, nothing in that file changed; layout note above). It measures him
+    inside his own outline against the painting's man inside its traced one: light, colour,
+    squares, edges, grain, palette, and his face, hat and coat. It gives one score and one for
+    each group:
+    - light: how the scene's lamps light him (the art session's);
+    - colour: his paint's colours as lit;
+    - squares: how he's drawn (mine).
+  - **His outline:** `tools/screenshots.gd --man-mask` (shared, my lines) renders the seated man
+    white on black from the view's own camera after the shot, then puts everything back.
+  - **Its self-test** (`--probes`, passes): the painting's man scores 0 against himself and 0.01
+    shifted 3 px. Blurred he scores 0.27, squares melted 0.28, block noise 0.27, darkened 0.62,
+    greyscale 0.71.
+  - **First rounds** (`docs/screenshots/tripo/judge/`, renders kept beside them):
+
+    | Round | Score | Light | Colour | Squares |
+    |---|---|---|---|---|
+    | This morning (squares in his old atlas, lit smoothly) | 0.478 | 0.804 | 0.273 | 0.263 |
+    | Now (a texel a square) | 0.471 | 0.746 | 0.275 | 0.309 |
+
+  - **What it says:**
+    - The light is most of the gap. 76 % of him is in deep shadow (the painting's man 53 %); his
+      coat's median L* is 3 (9); his lit cheek's top tenth is 62 (41).
+    - A texel a square made his squares flatter than the painting's. The share of lit
+      neighbouring pixels within 1 L* of each other is 0.76 (0.65); on his face 0.74 (0.48), on
+      his hat 0.81 (0.46). Their edges are harder too (0.28 to 0.22). The painting's squares have
+      a fine texture inside them and soft edges, and its quiet parts have more fine variation
+      than his (grain 3.0 to 1.8).
+    - His hat's squares grew to the painting's size (5.7 → 6.2 px; 7.5).
+  - So next on my side: the painter's fine texture kept faintly inside each square, with softer
+    edges. The light goes to the art session again, with these numbers.
