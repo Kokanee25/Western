@@ -130,7 +130,9 @@
     "back": "seen from directly behind, his back to the viewer, the back of his short brown coat with its sleeves down to his wrists"
    },
    "bake": {
-    "squares": false
+    "squares": false,
+    "flatten": 2,
+    "view_power": 0
    }
   }
  }
