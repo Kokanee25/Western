@@ -884,6 +884,18 @@ each time.
 - **10–15 base outlaws** for camps and bounties outside town, dressed from the same wardrobe; the
   same brains as the gang (nerve, fear, surrender, teamwork), simpler socially.
 - No children for now (what players could do to them, ratings, store rules).
+- **Everyone has a home** (Sean, 2026-10-06), as people really lived in an 1880s town: the
+  principals in their own houses or rooms behind or above their business (the storekeeper over
+  the store, the doctor behind his office, the barkeep upstairs at the saloon); families in small
+  frame houses and cabins; single men in a boarding house, hotel rooms or a bunkhouse; the poorest
+  in shacks and tents at the edge of town; ranch hands out at the ranches. So ~50 people need
+  about 20–25 dwellings, not 50. Built from member-built templates in code (a one-room cabin, a
+  two-room frame house, a shack, a tent, a boarding house) with variants, and furnished by who
+  lives there (bed, stove, table, trunk, and things of their job and pastime: a doctor's books, a
+  gambler's cards, a widow's photographs). A home matters in play: people sleep, eat and wash
+  there on their routines; it's private (walking in uninvited is a deed, breaking in a crime they
+  remember); things in it are evidence (stolen goods, a letter, a bloody shirt); losing it to fire
+  changes them. Interiors sleep (no simulation, no drawing) until someone's near.
 - Fifty people needs "far people think slower" (full detail near, cheap across town, almost
   nothing indoors out of sight) inside the frame budget; build that before the cast grows.
 

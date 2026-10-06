@@ -3378,4 +3378,6 @@ a few views renders them as the full run does.
   dust storm), period town life (cards, riding horses, stage and mail day, Sundays, comforts,
   honest work, weather, a newspaper), the cast (12–15 principals, ~35 townsfolk from bodies and a
   shared wardrobe, 10–15 base outlaws, no children for now, far people think slower) and the props
-  approach. Features stay frozen until the look is right; nothing here is to be built yet.
+  approach, and (added later that day) homes for everyone: about 20–25 dwellings for ~50 people, as an
+  1880s town really housed them. Features stay frozen until the look is right; nothing here is to be
+  built yet.
