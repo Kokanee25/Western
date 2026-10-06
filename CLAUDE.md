@@ -3249,3 +3249,28 @@ a few views renders them as the full run does.
   `src/structures/wood_materials.gd` (`reset()`, five lines), `src/debug/look_preset.gd` (the
   bold preset under M, a dozen lines), `tests/test_pixel_art.gd` (the M test's expectations);
   shared `settings.gd` (my lines). 323 tests pass.
+- 2026-10-06 (art session): **The saloon's front to the street painting, on the branch, not merged**
+  (Sean: "it's not just the pixels, it's the buildings' textures and detail"; then "keep working
+  the wood", "get the saloon perfect", "ruts and windows"). `FacadeArt` (`src/art/facade_art.gd`,
+  called at the end of gameplay's `FalseFrontBuilding.build()`, one line, said here) dresses a
+  front that asks for it (`"facade": "saloon"|"store"` in `StreetDressing.BUILDINGS`): corner
+  posts, a deep cornice on brackets, the framed sign lettered square by square
+  (`tools/textures/letter_sign.py`), a heavy door surround, louvred batwings, two hung lanterns
+  that glow, the dark room through the door, windows (casings, sill, pale bars, the panes drawn
+  by `tools/textures/draw_glass.py`: dark glass, the sky along the top, lamps in two panes, on a
+  quad under the glass member's mesh, so it goes when the glass is shot out), thick porch posts
+  with knee braces, a fascia, two wanted posters (`draw_posters.py`) and a spittoon. **Wood
+  drawn square by square** (`tools/textures/draw_boards.py`: each board a strip in the
+  painting's colours, its squares two to six long along the grain, `assets/textures/drawn/`),
+  laid at 32 a metre (`PixelArt.DRAWN_TEXELS`; `timber`, `store_boards`, `saloon_red` in every
+  look, the rest under M), and the seam between boards a screen-space line with a lit lip
+  (`texel_grid.gdshaderinc` `seam_px`, a global set under M). **The road under M** drawn the
+  same way (`draw_road.py`): pale dust, stones, the most used wheel track under the street
+  shot's feet; `ground.gdshader` `keep_tracks` keeps a drawn tile's ruts where the 2 m tile
+  shows through. **The sky under M** (`sky.gdshader` `gold`, `bold_look.json`): a deeper top,
+  more cloud, warm bodies with blue-grey bellies. Pictures `docs/screenshots/review/
+  2026-10-06_*.png`. Tests pixel_art, loads, props, ballistics, town_day pass.
+  - Not merged: the facade parts and the three drawn woods show in the default look too, so the
+    merge waits on Sean's yes, with goldens re-taken. Still off against the painting: its
+    windows have more, smaller panes with brighter reflections; its road has more dark squares;
+    the other fronts (store, livery, jail) have the parts but not yet the painting's look.
