@@ -396,6 +396,35 @@ func test_the_stylised_stranger_wears_his_hair_to_his_collar() -> void:
 	him.queue_free()
 
 
+func test_the_stylised_strangers_squares_are_lit_as_squares() -> void:
+	# tools/blender/fit_tripo.py (people.json `cells`) lays his texture out a texel a square, so the
+	# game lights each square of him as one flat tone, as the painting's are (in his model's own
+	# atlas a square was ~16 texels a side and the light ran smooth across it). His head's squares
+	# are six texels a side, lit as one, so his eyes are drawn finer than his squares.
+	var him := HumanBody.new()
+	him.body_model = &"stranger2s"
+	him.person_id = &"stranger2s_cells_test"
+	add_child(him)
+	await physics_frames(2)
+	var head := him.skin_meshes.get("head/head") as MeshInstance3D
+	var skin: MeshInstance3D = null
+	for key: String in him.skin_meshes:
+		if key.begins_with("skin/"):
+			skin = him.skin_meshes[key]
+			break
+	check(head != null and skin != null, "his head and his body's pieces (%s)" % [him.skin_meshes.keys()])
+	var hm := head.material_override as ShaderMaterial
+	var sm := skin.material_override as ShaderMaterial
+	check(float(hm.get_shader_parameter(&"square_texels")) == 6.0,
+			"his head lit six texels a side as one (%s)" % hm.get_shader_parameter(&"square_texels"))
+	check(float(sm.get_shader_parameter(&"square_texels")) == 1.0,
+			"his body a texel a square (%s)" % sm.get_shader_parameter(&"square_texels"))
+	var tex := sm.get_shader_parameter(&"albedo_tex") as Texture2D
+	check(tex.get_width() <= 512 and tex.get_height() <= 512,
+			"his body's texture a texel a 9 mm square (%d×%d; his model's atlas was 2048)" % [tex.get_width(), tex.get_height()])
+	him.queue_free()
+
+
 func test_the_layered_man_wears_his_own_hat() -> void:
 	# The same man built in layers (assets/people/stranger_layered.glb): his body painted
 	# bare-headed and coatless, and his hat a piece modelled alone and hung on his head as its

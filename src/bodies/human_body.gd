@@ -538,10 +538,10 @@ func _build_skin() -> void:
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
+					float(data.get("paint_squares", {}).get(shape, 1.0)))
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
-				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
-						float(data.get("paint_squares", {}).get(shape, 1.0)))
 				for k: StringName in paint_look:
 					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
 			if shape == "head" and sid == &"head":

@@ -20,7 +20,8 @@ For each person in assets/people/people.json with "source": "tripo":
   5. His texture (assets/people/tripo/<id>_color.png when tools/characters/head_paint.py has
      repainted his head, else Tripo's own) in squares of SQUARE_TEXELS Tripo texels (~5 mm on him,
      the painting's), one texel a square → assets/people/<id>_skin.png and <id>_head.png
-     (PeopleBodies lays them on by his UVs).
+     (PeopleBodies lays them on by his UVs); or (people.json `cells`, CELLS) his UVs laid out again
+     a texel a square of him, so the game lights each square as one.
   6. assets/people/<id>.json: what was done ("whole": true tells PeopleBodies he comes dressed, so
      BodyMesh's boots, belts and hat stay off him).
 Everything is repeatable: nothing is hand-edited.
@@ -132,6 +133,24 @@ HEAD_TRIS = 2200
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
 SMOOTH = False  # --smooth: see main()
+# A texel a square (people.json `cells`: true, or any of these to change; cell_layout): his texture
+# laid out again so each square of him is one texel (on his head `head_texels` a side, lit as one,
+# so his eyes can be drawn finer than his squares), and the game lights each square as one flat
+# tone, as the painting's are; in his model's own atlas a square was ~16 texels a side and the light
+# ran smooth across it, so his squares melted into a smooth face. A square is the cell of `head`,
+# `body` or `hair` metres a surface meets on the plane square to the way it faces (one of six, along
+# his body's axes, as head_paint.py's cells are): the mesh's UVs are that plane, cut into islands
+# where a sheet folds over itself and packed `gutter` squares apart. Each square's colour comes from
+# the plain repaint (head_paint.py with no cells of its own) by in_cells' rules: its middle sample by
+# lightness, or on his head the darker part where DARK_SHARE of it is darker by DARK_GAP (a brow, a
+# moustache's edge), from `samples` a texel a side (head, below). A square of his head within
+# `eye_zone` of a drawn eye (metres across, up, deep) keeps its texels, each the colour most of it
+# is: at three texels a square (2.7 mm) his eyes came out squinting and smudged, at six (1.3 mm)
+# as drawn.
+CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "gutter": 1, "samples": [2, 6],
+         "eye_zone": [0.019, 0.008, 0.03]}
+DARK_SHARE = 0.3
+DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
 SKIRT_RADIUS = 0.11
@@ -1330,6 +1349,266 @@ def squares(colour, out_path, square=SQUARE_TEXELS):
     return blocks.shape[1], blocks.shape[0]
 
 
+# --- A texel a square (CELLS) ---------------------------------------------------------------------
+
+# The plane each facing is laid on (u and v along his body's axes; v runs down the picture).
+_PLANES = {0: ((0, 0, -1), (0, -1, 0)), 1: ((0, 0, 1), (0, -1, 0)),   # -X, +X
+           2: ((1, 0, 0), (0, 0, 1)), 3: ((1, 0, 0), (0, 0, -1)),     # -Y, +Y
+           4: ((-1, 0, 0), (0, -1, 0)), 5: ((1, 0, 0), (0, -1, 0))}   # -Z, +Z
+
+
+def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False):
+    """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
+    (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
+    faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
+    island, unless a triangle would cover a point of the plane the island already covers (a sheet
+    folded over itself: a lapel on the coat). Islands are packed at whole squares, so the squares
+    stay on the texel grid. `zone`: a function of points (our body space) true where texels keep
+    their own colours (his eyes); elsewhere a square of k×k texels is one colour. Returns the
+    texture (rows down) and the islands' count."""
+    import bmesh
+    mesh = obj.data
+    if any(len(poly.vertices) != 3 for poly in mesh.polygons):
+        bm = bmesh.new()
+        bm.from_mesh(mesh)
+        bmesh.ops.triangulate(bm, faces=bm.faces)
+        bm.to_mesh(mesh)
+        bm.free()
+    co = np.zeros(len(mesh.vertices) * 3)
+    mesh.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3)
+    pts = np.stack([co[:, 0], co[:, 2], -co[:, 1]], axis=1)       # Blender's axes → our body space
+    lv = np.zeros(len(mesh.loops), dtype=np.int64)
+    mesh.loops.foreach_get("vertex_index", lv)
+    luv = np.zeros(len(mesh.loops) * 2)
+    layer = mesh.uv_layers["UVMap"]
+    layer.data.foreach_get("uv", luv)
+    luv = luv.reshape(-1, 2)
+    starts = np.zeros(len(mesh.polygons), dtype=np.int64)
+    mesh.polygons.foreach_get("loop_start", starts)
+    tl = starts[:, None] + np.arange(3)[None, :]                   # each triangle's three loops
+    tv = lv[tl]
+    P = pts[tv]
+    n = np.cross(P[:, 1] - P[:, 0], P[:, 2] - P[:, 0])
+    axis = np.abs(n).argmax(axis=1)
+    facing = axis * 2 + (n[np.arange(len(n)), axis] > 0)
+    U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
+    V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
+    A = np.einsum("tcj,tj->tc", P, U) / cell_m * k                 # texels, on each facing's plane
+    B = np.einsum("tcj,tj->tc", P, V) / cell_m * k
+    T = len(tl)
+    # Sample points: a lattice `sub` a texel a side on each plane, the points inside each triangle.
+    i0 = np.ceil(A.min(axis=1) * sub - 0.5).astype(np.int64)
+    i1 = np.floor(A.max(axis=1) * sub - 0.5).astype(np.int64)
+    j0 = np.ceil(B.min(axis=1) * sub - 0.5).astype(np.int64)
+    j1 = np.floor(B.max(axis=1) * sub - 0.5).astype(np.int64)
+    nx = np.maximum(i1 - i0 + 1, 0)
+    ny = np.maximum(j1 - j0 + 1, 0)
+    cand = nx * ny
+    st = np.repeat(np.arange(T), cand)
+    local = np.arange(cand.sum()) - np.repeat(np.cumsum(cand) - cand, cand)
+    si = i0[st] + local % np.maximum(nx[st], 1)
+    sj = j0[st] + local // np.maximum(nx[st], 1)
+    x, y = (si + 0.5) / sub, (sj + 0.5) / sub
+    ax, ay = A[st, 0], B[st, 0]
+    e1x, e1y = A[st, 1] - ax, B[st, 1] - ay
+    e2x, e2y = A[st, 2] - ax, B[st, 2] - ay
+    det = e1x * e2y - e2x * e1y
+    ok = np.abs(det) > 1e-12
+    det = np.where(ok, det, 1.0)
+    w1 = ((x - ax) * e2y - e2x * (y - ay)) / det
+    w2 = (e1x * (y - ay) - (x - ax) * e1y) / det
+    w0 = 1.0 - w1 - w2
+    inside = ok & (w0 >= 0) & (w1 >= 0) & (w2 >= 0)
+    st, si, sj, x, y = st[inside], si[inside], sj[inside], x[inside], y[inside]
+    bary = np.stack([w0[inside], w1[inside], w2[inside]], axis=1)
+    count = np.bincount(st, minlength=T)
+    first = np.concatenate([[0], np.cumsum(count)[:-1]])
+    key = (si + (1 << 30)) * (1 << 31) + (sj + (1 << 30))
+    # Islands: grown triangle by triangle over shared edges within a facing.
+    edges = {}
+    for t in range(T):
+        for c in range(3):
+            a, b = int(tv[t, c]), int(tv[t, (c + 1) % 3])
+            edges.setdefault((min(a, b), max(a, b)), []).append(t)
+    near = [[] for _ in range(T)]
+    for ts in edges.values():
+        for a in ts:
+            for b in ts:
+                if a != b and facing[a] == facing[b]:
+                    near[a].append(b)
+    island = np.full(T, -1, dtype=np.int64)
+    islands = 0
+    for seed in range(T):
+        if island[seed] >= 0:
+            continue
+        covered = set(key[first[seed]:first[seed] + count[seed]].tolist())
+        island[seed] = islands
+        todo = [seed]
+        while todo:
+            t = todo.pop()
+            for nb in near[t]:
+                if island[nb] >= 0:
+                    continue
+                ks = key[first[nb]:first[nb] + count[nb]].tolist()
+                if covered.isdisjoint(ks):
+                    covered.update(ks)
+                    island[nb] = islands
+                    todo.append(nb)
+        islands += 1
+    # Each island's box in whole squares (and a gutter round it), packed in shelves.
+    g = gutter * k
+    lo_a = np.full(islands, np.inf)
+    hi_a = np.full(islands, -np.inf)
+    lo_b = np.full(islands, np.inf)
+    hi_b = np.full(islands, -np.inf)
+    np.minimum.at(lo_a, island, A.min(axis=1))
+    np.maximum.at(hi_a, island, A.max(axis=1))
+    np.minimum.at(lo_b, island, B.min(axis=1))
+    np.maximum.at(hi_b, island, B.max(axis=1))
+    a0 = (np.floor(lo_a / k) * k - g).astype(np.int64)
+    b0 = (np.floor(lo_b / k) * k - g).astype(np.int64)
+    w = (np.ceil(hi_a / k) * k + g).astype(np.int64) - a0
+    h = (np.ceil(hi_b / k) * k + g).astype(np.int64) - b0
+    order = np.lexsort((-w, -h))
+    width = int(np.ceil(np.sqrt((w * h).sum()) * 1.1 / k)) * k
+    while True:
+        ox = np.zeros(islands, dtype=np.int64)
+        oy = np.zeros(islands, dtype=np.int64)
+        cx = cy = shelf = 0
+        for i in order:
+            if cx + w[i] > width and cx > 0:
+                cx, cy, shelf = 0, cy + shelf, 0
+            ox[i], oy[i] = cx, cy
+            cx += w[i]
+            shelf = max(shelf, h[i])
+        height = cy + shelf
+        if height <= width * 1.1:
+            break
+        width = int(np.ceil(width * 1.08 / k)) * k
+    W, H = int(max(width, w.max())), int(height)
+    # The new UVs (Blender's: v up), a corner at a time.
+    X = A - a0[island][:, None] + ox[island][:, None]
+    Y = B - b0[island][:, None] + oy[island][:, None]
+    new = np.zeros_like(luv)
+    new[tl.ravel(), 0] = (X / W).ravel()
+    new[tl.ravel(), 1] = (1.0 - Y / H).ravel()
+    # Each sample's colour, from the old UVs.
+    old = (luv[tl[st]] * bary[:, :, None]).sum(axis=1)
+    sh, sw = src.shape[:2]
+    rgb = src[np.clip(((1.0 - old[:, 1]) * sh).astype(np.int64), 0, sh - 1),
+              np.clip((old[:, 0] * sw).astype(np.int64), 0, sw - 1)].astype(np.float64)
+    tx = np.floor(x - a0[island[st]] + ox[island[st]]).astype(np.int64)
+    ty = np.floor(y - b0[island[st]] + oy[island[st]]).astype(np.int64)
+    if k > 1:
+        bk = (ty // k) * (W // k + 1) + tx // k
+        own = np.zeros(len(st), dtype=bool)
+        if zone is not None:
+            body = (P[st] * bary[:, :, None]).sum(axis=1)
+            inz = zone(body)
+            # Any square the zone touches keeps its texels (an eye's corner cut by a square's edge).
+            nb_ = int(bk.max()) + 1
+            own = (np.bincount(bk, inz.astype(np.float64), minlength=nb_) > 0)[bk]
+        lab_key = np.where(own, (ty * W + tx) * 2 + 1, bk * 2)
+    else:
+        own = np.ones(len(st), dtype=bool)
+        lab_key = (ty * W + tx) * 2 + 1
+    keys, lab = np.unique(lab_key, return_inverse=True)
+    lab = lab.ravel()
+    nk = len(keys)
+    lum = rgb @ np.array([0.299, 0.587, 0.114])
+    cnt = np.bincount(lab, minlength=nk).astype(np.int64)
+    srt = np.lexsort((lum, lab))
+    start = np.concatenate([[0], np.cumsum(cnt)[:-1]])
+    colour = rgb[srt[start + cnt // 2]]
+    if dark_kept:
+        mean_l = np.bincount(lab, lum, minlength=nk) / cnt
+        dark = lum < mean_l[lab] - DARK_GAP
+        dcount = np.bincount(lab, dark.astype(np.float64), minlength=nk)
+        dmean = np.stack([np.bincount(lab, np.where(dark, rgb[:, c], 0.0), minlength=nk) for c in range(3)], axis=1)
+        colour = np.where((dcount / cnt >= DARK_SHARE)[:, None], dmean / np.maximum(dcount, 1.0)[:, None], colour)
+    if k > 1 and zone is not None:
+        # A texel of an eye: the colour most of it is (the eyes are drawn in flat colours, and the
+        # middle by lightness of white, iris and lid was the iris, the dark part a lid: they squinted).
+        code = (rgb // 16).astype(np.int64) @ np.array([256, 16, 1])
+        pair, inv = np.unique(lab * 4096 + code, return_inverse=True)
+        inv = inv.ravel()
+        votes = np.bincount(inv)
+        best = np.zeros(nk, dtype=np.int64)
+        top = np.full(nk, -1)
+        pl = pair // 4096
+        for i in np.argsort(votes, kind="stable"):
+            if votes[i] >= top[pl[i]]:
+                top[pl[i]], best[pl[i]] = votes[i], i
+        pick = inv == best[lab]
+        mode = np.stack([np.bincount(lab, np.where(pick, rgb[:, c], 0.0), minlength=nk) for c in range(3)], axis=1)
+        mode /= np.maximum(np.bincount(lab, pick.astype(np.float64), minlength=nk), 1.0)[:, None]
+        colour = np.where((keys % 2 == 1)[:, None], mode, colour)
+    img = np.zeros((H, W, 3))
+    have = np.zeros((H, W), dtype=bool)
+    is_texel = keys % 2 == 1
+    tk = keys[is_texel] // 2
+    img[tk // W, tk % W] = colour[is_texel]
+    have[tk // W, tk % W] = True
+    for c, kk in zip(colour[~is_texel], keys[~is_texel] // 2):
+        by, bx = divmod(int(kk), W // k + 1)
+        blk = (slice(by * k, by * k + k), slice(bx * k, bx * k + k))
+        keep = have[blk].copy()
+        img[blk] = np.where(keep[..., None], img[blk], c)
+        have[blk] = True
+    # What no sample reached (an island's edge, its gutter) takes the nearest that one did.
+    for _ in range(4 * k + 8):
+        if have.all():
+            break
+        grow = img.copy()
+        got = have.copy()
+        for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            sh_img = np.roll(img, (dy, dx), axis=(0, 1))
+            sh_have = np.roll(have, (dy, dx), axis=(0, 1))
+            take = ~got & sh_have
+            grow[take] = sh_img[take]
+            got |= take
+        img, have = grow, got
+    layer.data.foreach_set("uv", new.ravel())
+    mesh.update()
+    return np.clip(img, 0, 255).astype(np.uint8), islands
+
+
+def cell_textures(person, colour, cells):
+    """His meshes laid out a texel a square and their textures written (CELLS): skin and head from
+    `colour` (the plain repaint), each piece from its own; the report says how."""
+    o = dict(CELLS, **(cells if isinstance(cells, dict) else {}))
+    eyes = [np.array(e) for e in person.report.get("eyes", {}).values()]
+    ez = np.array(o["eye_zone"])
+
+    def zone(pts):
+        inz = np.zeros(len(pts), dtype=bool)
+        for e in eyes:
+            inz |= (((pts - e) / ez) ** 2).sum(axis=1) < 1.0
+        return inz
+
+    src = np.asarray(colour.convert("RGB"))
+    k = int(o["head_texels"])
+    done = {}
+    for obj in [ob for ob in bpy.data.objects if ob.name.startswith("body_")]:
+        shape = obj.name.split("_", 1)[1]
+        piece = next((pc for pc in person.pieces if pc.shape == shape), None)
+        if shape == "head":
+            img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None, True)
+        elif shape == "skin":
+            img, isl = cell_layout(obj, src, o["body"], 1, o["samples"][1], o["gutter"])
+        elif piece is not None and getattr(piece, "colour", None) is not None:
+            img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), 1,
+                                   o["samples"][1], o["gutter"])
+        else:
+            continue
+        Image.fromarray(img).save(os.path.join(OUT, "%s_%s.png" % (person.id, shape)))
+        done[shape] = {"size": [img.shape[1], img.shape[0]], "islands": isl}
+        print("  %s: a texel a square, %d×%d, %d islands" % (shape, img.shape[1], img.shape[0], isl))
+    person.report["texture"] = dict(person.report.get("texture", {}), cells={kk: o[kk] for kk in ("head", "body", "hair")},
+                                    shapes=done, texels_per_square={"head": k})
+
+
 # --- Blender --------------------------------------------------------------------------------------
 
 def build_blender(person):
@@ -1470,6 +1749,8 @@ def main():
             json.dump(p.report, open(os.path.join(OUT, pid + ".json"), "w"), indent=1)
             continue
         build_blender(p)
+        if spec.get("cells"):
+            cell_textures(p, colour, spec["cells"])
         export(p)
 
 

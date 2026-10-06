@@ -84,7 +84,7 @@ void fragment() {
 	// squares), or by the plane the triplanar texture mostly comes from. Light is worked out once,
 	// at the tile's centre. All before any discard, since it takes screen derivatives.
 	vec2 tsize = vec2(textureSize(albedo_tex, 0));
-	float per_tile = painted ? max(square_texels, 1.0) : 1.0;
+	float per_tile = use_uv ? max(square_texels, 1.0) : 1.0;
 	vec2 t;
 	if (use_uv) {
 		t = tuv * tsize / per_tile;

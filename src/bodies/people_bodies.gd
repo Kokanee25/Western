@@ -100,6 +100,13 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		if info is Dictionary and (info as Dictionary).has("skin_tone"):
 			var t: Array = info.skin_tone
 			out["skin_tone"] = Color(t[0], t[1], t[2])
+		# A man laid out a texel a square (tools/blender/fit_tripo.py CELLS): how many texels a side
+		# make one of his squares, lit as one (his head's six, so his eyes are drawn finer).
+		if info is Dictionary and ((info as Dictionary).get("texture", {}) as Dictionary).has("texels_per_square"):
+			var per: Dictionary = info.texture.texels_per_square
+			for shape: String in per:
+				if shapes.has(shape):
+					paint_squares[shape] = float(per[shape])
 	return out
 
 

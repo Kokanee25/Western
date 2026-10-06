@@ -776,7 +776,14 @@ a few views renders them as the full run does.
   landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
   `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives him long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
-  brim to his collar, `body_hair` in his glb, `<id>_hair.png`).
+  brim to his collar, `body_hair` in his glb, `<id>_hair.png`). `people.json` `cells` lays his
+  texture out **a texel a square** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
+  plane square to the way it faces, one of six along his body's axes, at 9 mm a texel below the
+  collar and 8 mm on his head and hair; islands split where a sheet folds over itself, packed at
+  whole squares; each square's colour from the plain repaint by `in_cells`' rules), so the game's
+  per-texel light lights each square as one flat tone; his head is six texels a square (his
+  report's `texture.texels_per_square`, which `PeopleBodies` hands `body_skin` as `square_texels`)
+  and keeps them round his drawn eyes, so they stay as drawn. His bake then has no `cells`.
   `ShotMatch.model` picks the seated man's body (`tools/screenshots.gd --model=stranger`,
   `character_lab.gd --model=`; set at run time: naming ShotMatch in a `-s` tool script compiles
   the game's scripts before the autoloads exist).
@@ -3779,3 +3786,57 @@ a few views renders them as the full run does.
       a frame.
     - Its texture is ours, not the painter's (head_paint.py bakes his atlas, not his pieces).
     - The hat can't come off a whole man, so the hair's top edge is never seen.
+- 2026-10-06 (characters session, later): **The stylised stranger lit square by square: his
+  texture a texel a square.** Sean: "now it still isn't right per our art style", then "He doesn't
+  have to look exactly like the guy in the art - just the art style needs to match". So the
+  likeness work planned next (the hat's shape, a smaller moustache) is dropped, and the work is
+  on the style.
+  - **What was wrong.** His paint had the painting's 8 mm squares in it, but his texture was his
+    model's 2048 atlas, ~16 texels a square, and the game lights each texel as one. The lamplight
+    ran smooth across every square, so they melted into an ordinary 3D face. The painting's
+    squares are each one flat tone.
+  - **The change** (`fit_tripo.py` `CELLS`, `cell_layout`; `people.json` `cells`; layout note
+    above): his UVs laid out again so each square of him is one texel.
+    - Each triangle goes on the plane square to the way it faces (one of six, along his body's
+      axes): 9 mm a texel below his collar, 8 mm on his head and hair.
+    - Islands are split where a sheet folds over itself (a lapel on the coat) and packed at whole
+      squares.
+    - Each square's colour comes from the plain repaint by `in_cells`' rules. `head_paint.py`
+      bakes him without cells of its own now (characters.json).
+    - His head is six texels a square, lit as one. The squares round his drawn eyes keep their
+      texels, each the colour most of it is. At three texels a square (2.7 mm) his eyes squinted
+      and smudged; at six (1.3 mm) they stay as drawn.
+    - Textures: skin 298×312, head 876×900, hair 130×127 (536, 172 and 145 islands).
+  - **Other sessions' files, said here:**
+    - `src/bodies/shaders/body_skin.gdshaderinc` (art's), one line: `square_texels` counts for
+      any piece textured by UV, not only the old painted ones. It defaults to 1, so nobody else
+      changes.
+    - `src/bodies/human_body.gd` (gameplay's), two lines moved: every piece gets its
+      `square_texels` from `PeopleBodies`, which reads a whole man's report
+      (`texture.texels_per_square`).
+    - `tests/test_bodies.gd` (gameplay's), one more test: his head lit six texels a side as one,
+      his body a texel a square, his body's texture a few hundred texels a side.
+  - **Result.** In the saloon shot his face and hat are in flat squares, each one tone, the
+    painting's mosaic. His eyes are as clear as they were. Judge v2, no mosaic (scored only):
+    0.251 → 0.246. The whole frame's light dominates that score (the room's deep shadow, 0.54 to
+    the painting's 0.41).
+  - **Measured:** how much each square on his face differs from the squares round it (RMS L*, on
+    a grid of the painting's square size):
+
+    | | Squares' contrast | Face p90 L* |
+    |---|---|---|
+    | The painting | 6.2 | 41 |
+    | Ours | 8.6 | 61 |
+
+    So his squares don't need more contrast. What's left on his face is the lamp burning his lit
+    cheek (the shot's light, the art session's, sent before).
+  - **Repeatable:** the plain bake repeats from characters.json to the texel; the fit repeats
+    byte for byte.
+  - Picture: `docs/screenshots/tripo/stranger2s_squares.png` (the painting, this morning and now
+    in the shot; his head in plain light).
+  - **Known:**
+    - His brows break into separate squares in places (8 mm squares, the dark-kept rule).
+    - His squares' edges are a perfect grid. The painting's are a little ragged: the tile look's
+      ragged edges are a global the art session owns (P).
+    - This and the hair are on the characters branch, not on main yet.
+  - All 362 tests pass.
