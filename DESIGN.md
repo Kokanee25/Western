@@ -311,8 +311,11 @@ systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out
    on the camp if white men die (it usually did), a husband wants only the man who did it. They send
    trackers. The town's leaders want an arrest and quietly let you know nothing will come of it.
    You ride with the trackers and find the bandits camped. Three ways out:
-   - **Kill them all.** The tribe's men take scalps after you turn away (never shown; the town
-     hears it as rumour). The camp trusts you; the town splits on it ("a white man rode with
+   - **Kill them all.** The women described one man by a hat nobody else wears; when he's
+     down, the husband scalps him, and only him (Sean 2026-10-06). It happens in the world on the
+     wound system, not as a cutscene: you can stay and watch or walk away, and the camera never
+     moves in. The body stays where it fell, and whoever finds it carries the story to town. The
+     tribe's men say why, and not all of them agree with it. The camp trusts you; the town splits on it ("a white man rode with
      Indians against white men"); the bandits' kin or friends come for you; maybe the army or the
      agent comes asking.
    - **Arrest them.** You bring them in alive, often against the warriors' will (a standoff on the
@@ -323,7 +326,17 @@ systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out
      witnesses may not be heard in court. Usually it fails; when it doesn't, it's the hardest-won
      ending in the game.
    Mixed moments make it personal: a bandit surrenders with his hands up and a young warrior moves
-   first; one of the bandits wasn't there that night. The violation itself is never shown, only
+   first; one of the bandits wasn't there that night; the man in the hat may be the one who
+   surrenders. **The bandits are scalp hunters** (Sean 2026-10-06): their camp has scalps drying
+   on a line, Mexican as well as Native, to be sold south for the bounty as "Apache" (the
+   Glanton gang did exactly this). They scalped the women they killed at the camp: that's what
+   they came for. When you reach the camp the women's own people have already covered them for
+   burial; you learn what was done from them, you aren't shown it. Among the scalps on the
+   bandits' line are the women's; the husband or a relative knows them, and bringing them home
+   for burial matters to the camp as much as what happens to the men. What you find there tells you what they came to the camp for,
+   is evidence any court or marshal can't wave away, and ties in the Mexican rancher's people
+   (mission 4): whoever learns of the Mexican scalps wants a say in what happens to the bandits.
+   It also shows, in the world, that scalping wasn't one people's act. The violation itself is never shown, only
    what it leaves behind.
 2. **Hold him till the Marshal comes** (the jail night). You have one of the Colters in a cell and
    the Marshal's wire says two days. The gang wants him out; the town wants him hanged now (a mob
