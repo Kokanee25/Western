@@ -4317,3 +4317,22 @@ a few views renders them as the full run does.
   - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
     `assets/people/stranger2s_head.png`, `assets/people/tripo/stranger2s_color.png` (his glb,
     report and body's texture unchanged). No other session's files.
+- 2026-10-07 (characters session, later): **What the character judge's numbers mean.** Sean: "what
+  are the chances of getting the model down to like .1". Measured against `saloon-blocks.png`'s
+  man (scored only, nothing written; renders in the scratchpad):
+
+  | What | Score |
+  |---|---|
+  | Our man now (round `2026-10-07_r6`) | 0.562 |
+  | The original saloon painting's man (`saloon-night.png`: the same man and pose) | 0.561 |
+  | The bold painting's own man, lightly blurred (its `--probes`) | 0.279 |
+  | Ours with a simple exposure, contrast and colour change (L* × 0.76, chroma × 0.75) | 0.233 |
+  | Ours with his light and colour remapped exactly to the painting man's | 0.166 |
+  | The original painting's man with the same exact remap | 0.079 |
+
+  So most of today's score is light and colour. What's left after an exact remap is how he's
+  drawn: his squares flatter than the painting's (0.67 to 0.59) and their edges harder (0.31 to
+  0.25), and the light's balance between his face, hat and coat. A realistic aim is about 0.2
+  after the art session's light change and 0.15 with the squares work. 0.1 would take light
+  matching nearly pixel for pixel; even the painting he was drawn from only gets there after an
+  exact remap.
