@@ -813,7 +813,14 @@ a few views renders them as the full run does.
   painter's skin (`bake.face`, `model_face`: `from` a glb with his UVs, `lips` his lips toned to
   his skin, `paint` the painter's share mixed back in; `--face=off` leaves the painter's: the
   painter draws faces as a game portrait, flat black brows and a solid moustache, where the
-  painting's man is a realistic face in squares). `people.json` `eye_gain` goes into his report
+  painting's man is a realistic face in squares), and filter his clothes below the head's cut with
+  his model's own L* as the guide (`bake.cloth`, `model_cloth`, after He et al.'s guided filter:
+  each garment's colours stay the painter's, its folds, seams and wear are the model's, and the
+  painter's faint streaky tweed goes; `radius`, `eps`), then give back the painter's strong drawing
+  (`keep`: [lo, hi] L*, the root mean square of what the filter took off over a Gaussian of
+  `keep_radius` metres: his vest's check and buttons, boot laces, hands; `--cloth=off` leaves the
+  painter's).
+  `people.json` `eye_gain` goes into his report
   (the art session's `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives a man long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
   brim to his collar, `body_hair` in his glb, `<id>_hair.png`); no man wears it now (on the
@@ -4478,3 +4485,47 @@ a few views renders them as the full run does.
   - **Files:** `tools/blender/fit_tripo.py`, `assets/people/people.json`, `assets/people/stranger2s.glb`,
     `.json`, `_head.png`, `_skin.png`, the round and its renders in `docs/screenshots/tripo/judge/`.
     No other session's files. Tests: bodies (23), hat (3), shot match (3) pass.
+- 2026-10-07 (characters session, later): **The painter's streaks on the stylised stranger's coat:
+  a filter tried twice, kept as an option, not used on him.** Sean: "Alright keep going it's looking
+  awesome".
+  - **What was left.** The painter drew his coat as a streaky tweed, short vertical strokes, and
+    the last round's "known" list had a herringbone along his coat's front edge.
+  - **The filter** (`head_paint.py` `bake.cloth`, `model_cloth`; layout note above). Below his
+    head's cut, the painter's colours are filtered with his model's own colours as the guide (after
+    He, Sun and Tang's guided filter). Each garment keeps the painter's colours, the folds and seams
+    are the model's, and the streaks, which the model hasn't got, go.
+  - **First try** (round `2026-10-07_r8`): the guide in plain brightness. The streaks went, and so
+    did all of the painter's drawing that his model doesn't share:
+    - his vest's check and its brass buttons, and the buttons on his cuffs;
+    - his boots' laces and his trousers' folds, blurred to a smear (dark detail is too faint for
+      the filter in plain brightness);
+    - the drawing of his hands.
+  - **Second try** (round `2026-10-07_r9`): the guide in L* (eps 0.0008), and the painter's strong
+    drawing given back (`keep`: where what the filter took off is over 3.2–4.5 L*, root mean square
+    over 1.2 cm). The vest, buttons, laces and hands came back; the coat's broad panels kept no
+    streaks.
+  - **Judged** (the saloon shot under main's light; "corrected" is the light corrected the simple
+    way, standing in for the art session's light fix):
+
+    | | Before (r7's man) | Brightness guide (r8) | L* guide, strong drawing kept (r9) |
+    |---|---|---|---|
+    | Score as rendered | 0.555 | 0.514 | 0.544 |
+    | Score, light corrected | 0.223 | 0.239 | 0.231 |
+    | Squares group, light corrected | 0.194 | 0.211 | 0.200 |
+
+    The gains as rendered are the coat's lit parts going a little darker under today's too-bright
+    light. With the light corrected, both tries score worse: his squares come out more alike (5.6
+    against the painting's 6.5).
+  - **By eye** he looks as he did, in the shot and close up in plain light. How oriented the
+    coat's pattern is in the shot (the coherence of its squares' gradients) is the same before and
+    after the filter: median 0.06 at a 14 px scale, against the painting's 0.10. The fit's weave
+    and grain (round r7) had already taken the rows out; the herringbone strokes along his coat's
+    front edge are strong enough to count as drawing, so the second try keeps them.
+  - **So he stays r7's:** no `cloth` in his bake, and his textures are byte for byte the committed
+    ones. `bake.cloth` stays as an option for a man whose painter's streaks do show.
+  - Picture: `docs/screenshots/tripo/stranger2s_cloth.png` (a boot and his vest in his texture: the
+    painter's, the first try, the second; his coat in plain light and his sleeve in the shot,
+    before and with the second try).
+  - **Files:** `tools/characters/head_paint.py`, the layout note above, judge rounds r8 and r9 and
+    their renders (`docs/screenshots/tripo/judge/renders/cloth/`, `cloth_lstar/`), the picture. No
+    other session's files. Body tests pass (23).

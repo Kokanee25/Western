@@ -942,6 +942,90 @@ def model_face(out, cid, pos, uv, tris, size, cfg):
         cfg["from"], keep.sum(), share * 100))
 
 
+# His clothes (`bake.cloth`, 2026-10-07): the painter drew his coat as a streaky tweed running down
+# it, and seen leaning in the shot the streaks ran diagonal and met as chevrons where the coat turns
+# (the bold painting's coat is a mottle of squares, no rows; the fit's weave draws that). So below
+# his head's cut the painter's colours are filtered with his model's own colours as the guide (an
+# edge-aware smoothing, after He, Sun and Tang's guided filter, 2010): the colours of each garment
+# and its light stay the painter's, the folds, seams and wear are his model's, and what the model
+# hasn't got (the painter's streaks) goes. `radius` metres on him (the window's half-width), `eps`
+# how faint a fold in the guide (its variance, the guide's L* over 100) still carries the painter's
+# colour across, `amount` of it over the painter's, eased in over `feather` metres under the cut.
+# The guide is in L*: in plain brightness his dark boots' and trousers' folds were too faint for
+# `eps` and came out a blur. Then the painter's strong drawing comes back (`keep`: his vest's
+# check, its brass buttons, a cuff's buttons, his hands): where what the filter took off is more
+# than keep[0] L* (root mean square, over a Gaussian of `keep_radius` metres) the painter's own,
+# all of it from keep[1]; the coat's streaks, fainter than that, stay off. Not used on the stylised
+# stranger (character judge rounds 2026-10-07_r8 and _r9): by then the fit's weave and grain had
+# taken the streaks' rows out of his squares, he looked the same with it, and with the light
+# corrected the judge scored him a little worse (his squares more alike).
+CLOTH = {}   # --cloth=radius:0.025,eps:0.0008 over characters.json's `bake.cloth`; --cloth=off, the painter's
+CLOTH_REGION = {"radius": 0.025, "eps": 0.0008, "amount": 1.0, "feather": 0.03, "keep": None,
+                "keep_radius": 0.012}
+
+
+def model_cloth(out, cid, pos, uv, tris, size, cut, cfg):
+    """His clothes below his head's cut in `out` (in place): the painter's colours filtered with his
+    model's own as the guide (`bake.cloth`, CLOTH_REGION)."""
+    from scipy.ndimage import gaussian_filter, uniform_filter
+    src = load_glb(os.path.join(DIR, cfg["from"] + ".glb"))
+    if len(src[2]) != len(uv) or not np.allclose(src[2], uv):
+        raise SystemExit("bake.cloth: %s hasn't his UVs" % cfg["from"])
+    o = dict(CLOTH_REGION, **cfg)
+    model = np.asarray(src[4].resize((size, size), Image.LANCZOS), dtype=np.float64) / 255.0
+    tri_id, bary = uv_raster(uv, tris, size)
+    inside = tri_id >= 0
+    ty, tx = np.nonzero(inside)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    y = pos[t[:, 0], 1] * b[:, 0] + pos[t[:, 1], 1] * b[:, 1] + pos[t[:, 2], 1] * b[:, 2]
+    # Texels a metre on him (the atlas's own scale over his body) for the window's size.
+    P = pos[tris] * HEIGHT_M
+    U = uv[tris] * size
+    a3 = 0.5 * np.linalg.norm(np.cross(P[:, 1] - P[:, 0], P[:, 2] - P[:, 0]), axis=1)
+    d1, d2 = U[:, 1] - U[:, 0], U[:, 2] - U[:, 0]
+    a2 = 0.5 * np.abs(d1[:, 0] * d2[:, 1] - d1[:, 1] * d2[:, 0])
+    per_m = float(np.median(np.sqrt(a2[a3 > 1e-8] / a3[a3 > 1e-8])))
+    r = max(1, int(round(float(o["radius"]) * per_m)))
+    m = inside.astype(np.float64)
+    norm = np.maximum(uniform_filter(m, 2 * r + 1, mode="constant"), 1e-6)
+
+    def mean(x):
+        # The window's mean over his own texels only (the atlas's gaps between islands weigh nothing).
+        return uniform_filter(x * m, 2 * r + 1, mode="constant") / norm
+
+    guide = np.zeros(inside.shape)
+    guide[ty, tx] = _lab(model[ty, tx] * 255.0)[:, 0] / 100.0
+    p = out / 255.0
+    mi, ii = mean(guide), mean(guide * guide)
+    var = ii - mi * mi
+    q = np.zeros_like(p)
+    for c in range(3):
+        mp = mean(p[..., c])
+        cov = mean(guide * p[..., c]) - mi * mp
+        a = cov / (var + float(o["eps"]))
+        bb = mp - a * mi
+        q[..., c] = mean(a) * guide + mean(bb)
+    q = np.clip(q, 0.0, 1.0)
+    w = np.clip(((cut - y) * HEIGHT_M) / max(float(o["feather"]), 1e-6), 0.0, 1.0) * float(o["amount"])
+    kept = 0.0
+    if o.get("keep"):
+        # The painter's strong drawing back: what the filter took off, its root mean square in L*
+        # over a Gaussian of `keep_radius` (his own texels only), from keep[0] to keep[1].
+        lo, hi = (float(v) for v in o["keep"])
+        res = np.zeros(inside.shape)
+        res[ty, tx] = _lab(p[ty, tx] * 255.0)[:, 0] - _lab(q[ty, tx] * 255.0)[:, 0]
+        s = max(float(o["keep_radius"]) * per_m, 1.0)
+        rms = np.sqrt(gaussian_filter(res * res * m, s) / np.maximum(gaussian_filter(m, s), 1e-6))
+        back = np.clip((rms[ty, tx] - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
+        q[ty, tx] = q[ty, tx] * (1 - back[:, None]) + p[ty, tx] * back[:, None]
+        kept = float(back[w > 0].mean())
+    out[ty, tx] = out[ty, tx] * (1 - w[:, None]) + q[ty, tx] * 255.0 * w[:, None]
+    print("  his clothes filtered with %s as the guide: %d texels, a window %d texels across (%.1f cm), eps %.4f, "
+          "%.0f%% of the painter's drawing kept" % (cfg["from"], int((w > 0).sum()), 2 * r + 1,
+                                                    (2 * r + 1) / per_m * 100, float(o["eps"]), kept * 100))
+
+
 def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
     """His eyes drawn over `out` (in place): EYE_WHITE and friends, from his face's landmarks."""
     face = face_points(cid)
@@ -1093,6 +1177,9 @@ def bake(cid):
     face = dict(bk.get("face") or {}, **FACE) if FACE is not None else {}
     if face.get("from") and not SMOOTH:
         model_face(out, cid, pos, uv, tris, size, face)
+    cloth = dict(bk.get("cloth") or {}, **CLOTH) if CLOTH is not None else {}
+    if cloth.get("from") and not SMOOTH:
+        model_cloth(out, cid, pos, uv, tris, size, cut, cloth)
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
@@ -1153,7 +1240,7 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1194,6 +1281,14 @@ def main():
             # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6
             FACE = {k: (x if k == "from" else float(x))
                     for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+        elif a == "--cloth=off":
+            # The painter's clothes as painted (`bake.cloth` left out).
+            CLOTH = None
+        elif a.startswith("--cloth="):
+            # His clothes filtered with his model's colours as the guide (model_cloth):
+            # --cloth=radius:0.025,eps:0.0008,amount:1,keep:3/4.5 (keep's two as lo/hi)
+            CLOTH = {k: (x if k == "from" else [float(v) for v in x.split("/")] if "/" in x else float(x))
+                     for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a.startswith("--eyes="):
             # How his eyes are drawn (draw_eyes): --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024
             # (a colour as r/g/b: white:222/206/186)
