@@ -3954,3 +3954,10 @@ a few views renders them as the full run does.
   out of the opening under it. Tests `test_fire_fx` (2). Goldens: the three `store_fire_*` views
   re-approved from two `--fresh` runs (art's files, said here); every other view passes. The look
   of each tongue is still the art session's (`flame.gdshader`).
+- 2026-10-07 (gameplay): **Performance part B, step 1: measured, nothing turned on**
+  (docs/briefs/performance-b.md has the table). The separate render thread fails the drawn smoke
+  test here (engine races at load: empty texture updates, a freed particles system; "experimental"
+  in 4.7.2), and this workspace can't show its gain (lavapipe is ~2 s a frame either way). Jolt on
+  its own thread fails 10 tests (space queries outside the physics step: firing, a stick in hand).
+  Both left off; Sean's call on what next. `perf_bench.gd --no-render-time` (new) and its drawn
+  runs print the main thread's process/physics time. 369 tests pass as they are.

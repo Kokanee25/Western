@@ -25,7 +25,36 @@ benches with nothing else rendering on the machine.
 New since the last bench: `civilian_brain` 2.4 ms in the fire scene (the bucket line's routing and
 `_stand_by` rays). Worth a look after step 1.
 
-## Step 1 notes (only the baseline is done)
+## Step 1 results (2026-10-07): neither goes in yet
+
+Drawn, lavapipe, 10 s a scene (`--no-render-time`, new: reading the viewport's render time makes
+a separate render thread wait every frame), avg ms a frame / main thread's physics ms:
+
+| Scene | safe (today) | separate |
+|---|---|---|
+| calm, full window | 2228 / 19.6 | 2167 / 8.0 |
+| calm, 320x180 | 1914 / 21.1 | 1904 / 8.8 |
+| fire, full window | 2320 / 45.9 | killed at the 2 h limit, not measured |
+
+- Lavapipe here is bound by vertex work on ~15k draw calls (a 320x180 window is no faster), so
+  the frame can't show the thread's gain; the timed systems' share is the same either way (calm
+  people_body 3.5 / 2.6 ms; `player` reads 10.6 ms in safe mode drawn, 0.5 separate, untraced).
+- **Separate render thread fails the smoke test** (`--smoke-test`, drawn, separate): two
+  `_texture_2d_update` with an empty image at load and one `particles_set_view_axis` on freed
+  particles, plus `finalize ... only from the render thread` at exit. They're races: they vanish
+  when every node add is followed by `RenderingServer.force_sync()`. The empty images arrive while
+  the street's people are built (between the barkeep and the dry grass); no script of ours calls
+  `ImageTexture.update`, so it's likely the engine's own (font cache?); 4.7.2 calls the mode
+  experimental. Also sync points that cost it a frame each: `Structure._build_batch` reads mesh
+  surfaces (`mesh_get_surface`, 154 in the fire scene), `particles_is_inactive`.
+- **Jolt on its own thread** (`physics/3d/run_on_separate_thread`): 359 passed, 10 failed, all
+  "Space state is inaccessible": the gun's `_shot_line` (fired from input in `_process`),
+  `Blast.detonate` (a stick going off in hand), `test_gun_range`'s own wall ray. Chaos tests pass.
+  Making it work means moving firing and blasts onto the physics tick (a frame later at most) and
+  every `_process` query (gun smoke's roof check, `depth_mosaic`, …) the same way.
+- Not run, as nothing changed on the way in: the bug-report replay and the golden check.
+
+## Step 1 notes
 
 - Render thread: `rendering/driver/threads/thread_model` in project.godot (shared file); try it
   first from the command line, `--render-thread safe|separate`. Measure drawn under xvfb + lavapipe:
