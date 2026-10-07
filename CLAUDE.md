@@ -808,12 +808,18 @@ a few views renders them as the full run does.
   body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
   light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
   landmarks (`bake.eyes`: how open and how big, and their colours: `white`, `shade`,
-  `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`; `--eyes=off` leaves the
+  `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`; how much of the white is shaded,
+  `shade_top` and `shade_side`, and how dark the lower lid, `lower`; `--eyes=off` leaves the
   painter's), and take all of his head under the hat from his model's own colours, graded to the
   painter's skin (`bake.face`, `model_face`: `from` a glb with his UVs, `lips` his lips toned to
-  his skin, `paint` the painter's share mixed back in; `--face=off` leaves the painter's: the
+  his skin, `paint` the painter's share mixed back in, `even` that share of the light baked into
+  it taken out, `ao_near`/`ao_far` his own shape's shadows put in from `<from>_ao.png`, made by
+  `tools/blender/bake_ao.py <glb>`; `--face=off` leaves the painter's: the
   painter draws faces as a game portrait, flat black brows and a solid moustache, where the
-  painting's man is a realistic face in squares), and filter his clothes below the head's cut with
+  painting's man is a realistic face in squares), draw his brows bold from his landmarks
+  (`bake.brows`, `draw_brows`: `thick`, `long`, `drop` lower, `dark`, `keep` of his own hairs;
+  on the shape he wears, `worn_points`) and a mottled stubble on his jaw (`bake.beard`,
+  `draw_beard`: `dark`, `grey`, `mottle`, `grain`; `--brows=off`, `--beard=off`), and filter his clothes below the head's cut with
   his model's own L* as the guide (`bake.cloth`, `model_cloth`, after He et al.'s guided filter:
   each garment's colours stay the painter's, its folds, seams and wear are the model's, and the
   painter's faint streaky tweed goes; `radius`, `eps`), then give back the painter's strong drawing
@@ -852,7 +858,10 @@ a few views renders them as the full run does.
   painting's neighbouring pixels are almost never one tone. `face_front` (degrees) puts his face's
   triangles that near straight ahead on the front plane (from in front, a cheek's side-plane
   squares drew as strips); `settle` lets a triangle near the line between two planes take its
-  neighbours' (the line ran ragged). `fit_tripo.py --cells=key:value,...` tries other numbers
+  neighbours' (the line ran ragged). `mottle` ({shape: share}): each warm square of his skin
+  under his hat (his face, his stubble) that share lighter or darker by its own shade (the
+  weave's hash): the painting's skin is a mosaic of near tones, where ours ran smooth from square
+  to square (`stranger2s`: 0.1 on his head). `fit_tripo.py --cells=key:value,...` tries other numbers
   (`soft.head:0.17` for one shape; a dotted key starts from CELLS's other shapes, not
   people.json's). His bake then has no `cells`.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
@@ -4529,3 +4538,61 @@ a few views renders them as the full run does.
   - **Files:** `tools/characters/head_paint.py`, the layout note above, judge rounds r8 and r9 and
     their renders (`docs/screenshots/tripo/judge/renders/cloth/`, `cloth_lstar/`), the picture. No
     other session's files. Body tests pass (23).
+- 2026-10-07 (characters session, later): **The stylised stranger's face modelled: his own
+  shape's shadows, bold brows, a mottled stubble, calmer eyes.** Sean: "Okay let's just keep
+  working the face". Beside the painting's man in the shot, his face was a flat peach with faint
+  brows, no stubble and eyes like white specks; the painting's is a mosaic of warm tones, its brows
+  thick near-black bars, its jaw darker squares of stubble.
+  - **His own shape's shadows** (`tools/blender/bake_ao.py`, new): ambient occlusion of the Rodin
+    man as made, baked in Blender into his atlas at 1.5 cm and 6 cm (`stranger2_rodin_ao.png`; it
+    lines up with his UVs to 99.997 %). `head_paint.py` `bake.face` `ao_near` 0.5 and `ao_far` 0.8
+    darken his eye sockets, the sides of his nose and under his jaw.
+  - **The light baked into his face taken out** (`bake.face` `even` 0.6): his hat's brim had
+    left its shadow on his forehead in his model's colours (L* 26-36 to his cheek's 57), and his
+    brows were lost in it.
+  - **Bold brows** (`bake.brows`, `draw_brows`): from his face's landmarks, 1.8 times as deep
+    (15 mm), 1.15 times as long, 3 mm lower, near black with a quarter of his own hairs'
+    variation. Drawn as deep as his landmarks say, they came out one square tall in the shot; set
+    lower, lit forehead shows above one of them, as in the painting.
+  - **A stubble** (`bake.beard`, `draw_beard`): his jaw, chin and round his mouth darkened to 0.78
+    in linear light, mottled from place to place. Greyed as well, his face's colour went weaker
+    than the painting's man's, so it stays warm.
+  - **His face's squares a mosaic** (`fit_tripo.py` CELLS `mottle`, people.json 0.1 on his head):
+    each warm square under his hat a shade lighter or darker than the next.
+  - **Calmer eyes** (`bake.eyes`): a bigger iris, a smaller glint, less of the white shaded, a
+    lighter lower lid. With the iris bigger still and the whites dimmer they went too dark, so the
+    whites stay clear and bright, as Sean asked.
+  - The landmarks are on the shape he wears, not the stylised copy his paint is baked on (0.07 mm
+    from its surface to 0.93), so the brows and stubble are placed on it (`worn_points`).
+  - **Judged** (character judge, main's light as rounds r8 and r9; "corrected" is the light
+    corrected the simple way, standing in for the art session's fix):
+
+    | Try | As rendered | Corrected |
+    |---|---|---|
+    | This morning (r7's man) | 0.555 | 0.223 |
+    | His shape's shadows | 0.548 | 0.220 |
+    | + brows, a grey stubble | 0.515 | 0.221 |
+    | + deeper brows, warm mottled stubble | 0.512 | 0.221 |
+    | + the baked light out | 0.501 | 0.222 |
+    | + the squares' mottle | 0.499 | 0.221 |
+    | + calmer eyes | 0.494 | 0.218 |
+    | + brows lower (kept, round `2026-10-07_r10`) | 0.499 | 0.214 |
+
+    His face's flatness (lit neighbouring pixels within 1 L*) is 0.46, the painting's man's 0.45
+    (this morning 0.48).
+  - **Known:**
+    - His hat sits low on his brow, so little forehead shows between his brows and its brim (the
+      painting's shows three or four squares); the brow nearer the lamp still meets the brim's
+      shadow.
+    - His moustache is his model's own, a short block; the painting's droops past the corners of
+      his mouth (likeness, left).
+    - In plain light the changes are slight; the judge still marks the light most (his lit face's
+      top tenth L* 73 to the painting's 55: the art session's).
+  - Picture: `docs/screenshots/tripo/stranger2s_face_modelled.png` (the painting's man, this
+    morning and now in the shot; this morning and now in plain light, front and three-quarters).
+  - **Files:** `tools/blender/bake_ao.py`, `tools/characters/head_paint.py`,
+    `tools/characters/characters.json`, `tools/blender/fit_tripo.py`, `assets/people/people.json`,
+    `assets/people/tripo/stranger2_rodin_ao.png`, `stranger2s_color.png`,
+    `assets/people/stranger2s_head.png`, judge round r10 and its renders
+    (`docs/screenshots/tripo/judge/renders/face_modelled/`), the picture. No other session's files.
+    Body (23), hat (3) and shot (3) tests pass.

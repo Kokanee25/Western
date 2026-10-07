@@ -200,12 +200,33 @@ def load_man(cid):
     if spec.get("source") != "rodin":
         return load_glb(os.path.join(DIR, cid + ".glb"))
     pos, nrm, uv, tris, colour = load_glb(os.path.join(DIR, spec["rodin"] + ".glb"))
+    pos, nrm = rodin_frame(pos, nrm)
+    return pos, nrm, uv, tris, colour
+
+
+def rodin_frame(pos, nrm):
+    """A Rodin man's points and normals as load_man has them: built facing +Z with his right at -X
+    at a size of its own, turned to face +X with his right at +Z, feet on 0, 1.0 tall, centred."""
     turn = lambda p: np.stack([p[:, 2], p[:, 1], -p[:, 0]], axis=1)
     pos, nrm = turn(pos), turn(nrm)
     y0, y1 = pos[:, 1].min(), pos[:, 1].max()
     pos = (pos - np.array([0.0, y0, 0.0])) / (y1 - y0)
     pos -= np.array([(pos[:, 0].min() + pos[:, 0].max()) / 2, 0.0, (pos[:, 2].min() + pos[:, 2].max()) / 2])
-    return pos, nrm, uv, tris, colour
+    return pos, nrm
+
+
+def worn_points(cid, pos, nrm):
+    """His points and normals as he wears his paint (people.json `shape`: a glb of the same mesh,
+    moved; the stylised stranger's paint is baked on his stylised copy and worn on the Rodin man as
+    made), in load_man's frame, where his face's landmarks were found. `pos` and `nrm` when he
+    wears it on the mesh it was baked on."""
+    spec = json.load(open(PEOPLE))["people"].get(cid, {}) if os.path.exists(PEOPLE) else {}
+    if not spec.get("shape"):
+        return pos, nrm
+    spos, snrm, _uv, _tris, _colour = load_glb(os.path.join(DIR, spec["shape"] + ".glb"))
+    if len(spos) != len(pos):
+        raise SystemExit("people.json shape: %s isn't his mesh" % spec["shape"])
+    return rodin_frame(spos, snrm)
 
 
 def head_spec(cid):
@@ -634,7 +655,9 @@ def face_points(cid):
 # towards his left (your right, where the saloon shot's lamp is); a dark upper lid `lid` metres
 # thick, a little past the outer corner; a lower lid in his skin's shade. Colours 0..255; `bake.eyes`
 # can set any of them (`white`, `shade`, `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`:
-# [r, g, b]) and the glint's size (`glint`, a share of the iris). Drawn at 1.2 x 1.1 as big in pure
+# [r, g, b]) and the glint's size (`glint`, a share of the iris); `shade_top` and `shade_side` how
+# much of the white is shaded under the lid and at the corners, `lower` the lower lid's lightness (a
+# share of the socket's skin's L*). Drawn at 1.2 x 1.1 as big in pure
 # white they stared (Sean, 2026-10-07: "He's gone too cartoony"): the painting's eyes are clear but
 # a natural almond, the iris under both lids and a sliver of warm white either side of it.
 EYE_WHITE = (242, 236, 224)
@@ -789,6 +812,31 @@ def _rgb(lab):
     return 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
 
 
+def _cube_mean(p, y, mask, reach):
+    """Each point's neighbourhood mean of `y` over the `mask` points: averaged in cubes of `reach`
+    metres on him, each point reading the 27 cubes round its own (its own `y` where none is in)."""
+    c = reach / HEIGHT_M
+    q = np.floor(p / c).astype(np.int64)
+    q -= q.min(axis=0) - 1
+    span = q.max(axis=0) + 2
+    code = lambda qq: (qq[:, 0] * span[1] + qq[:, 1]) * span[2] + qq[:, 2]
+    own = code(q)
+    keys, lab_id = np.unique(own[mask], return_inverse=True)
+    tot = np.bincount(lab_id, y[mask])
+    cnt = np.bincount(lab_id).astype(np.float64)
+    near_tot = np.zeros(len(p))
+    near_cnt = np.zeros(len(p))
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                cc = code(q + np.array([dx, dy, dz]))
+                i = np.clip(np.searchsorted(keys, cc), 0, len(keys) - 1)
+                hit = keys[i] == cc
+                near_tot[hit] += tot[i[hit]]
+                near_cnt[hit] += cnt[i[hit]]
+    return np.where(near_cnt > 0, near_tot / np.maximum(near_cnt, 1.0), y)
+
+
 def even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin):
     """His head's skin in `out` (in place) as the game should light it: SKIN_REACH, `bake.skin`."""
     tri_id, bary = uv_raster(uv, tris, size)
@@ -816,28 +864,8 @@ def even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin):
     y = lin @ np.array([0.2126, 0.7152, 0.0722])
     share = float(skin.get("even", 0.0))
     if share:
-        # The neighbourhood's lightness: skin texels averaged in cubes of SKIN_REACH, each texel
-        # reading the 27 cubes round its own (dark hair, brows and the moustache left out).
-        c = SKIN_REACH / HEIGHT_M
-        q = np.floor(p / c).astype(np.int64)
-        q -= q.min(axis=0) - 1
-        span = q.max(axis=0) + 2
-        code = lambda qq: (qq[:, 0] * span[1] + qq[:, 1]) * span[2] + qq[:, 2]
-        own = code(q)
-        keys, lab_id = np.unique(own[is_skin], return_inverse=True)
-        tot = np.bincount(lab_id, y[is_skin])
-        cnt = np.bincount(lab_id).astype(np.float64)
-        near_tot = np.zeros(len(p))
-        near_cnt = np.zeros(len(p))
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                for dz in (-1, 0, 1):
-                    cc = code(q + np.array([dx, dy, dz]))
-                    i = np.clip(np.searchsorted(keys, cc), 0, len(keys) - 1)
-                    hit = keys[i] == cc
-                    near_tot[hit] += tot[i[hit]]
-                    near_cnt[hit] += cnt[i[hit]]
-        smooth = np.where(near_cnt > 0, near_tot / np.maximum(near_cnt, 1.0), y)
+        # The neighbourhood's lightness (dark hair, brows and the moustache left out).
+        smooth = _cube_mean(p, y, is_skin, SKIN_REACH)
         # Towards his face's own lightness (between his brows and his mouth, forward of his ears),
         # so the painted light goes and his face keeps its brightness: the median of all his skin
         # (his neck and ears, under the chin and jaw, darker) dimmed his face by L* 9.
@@ -884,7 +912,11 @@ def even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin):
 # the painter's colours mixed back in; his hat, collar and body keep the painter's. Under his hat:
 # below `above` metres over his eyes, down to `below` under them, within `radius` of his head's
 # upright axis (`back` behind his eyes; the brim stands further out), the edges eased over a
-# centimetre or two.
+# centimetre or two. His model's colours and the painter's are both lit flat, so his eye sockets,
+# the sides of his nose and the line under his jaw came out no darker than his cheek, where the
+# painting's man's face is modelled: `ao_near` and `ao_far` darken it in linear light by those
+# shares of his own shape's shadows (tools/blender/bake_ao.py, `<from>_ao.png`: near, a crease's;
+# far, his sockets', under his nose and jaw and his hat's brim).
 FACE_REGION = {"above": 0.045, "below": 0.13, "radius": 0.105, "back": 0.085}
 
 
@@ -937,9 +969,52 @@ def model_face(out, cid, pos, uv, tris, size, cfg):
     own[:, 1:] *= float(o.get("chroma", 1.0))
     share = float(o.get("paint", 0.0))
     lab = own * (1 - share) + painted * share
+    even = float(o.get("even", 0.0))
+    if even:
+        # The light his model and the painter baked in taken out (`even` of it), towards his
+        # cheeks' lightness, as even_skin does: his hat's brim left its shadow on his forehead
+        # (L* 26-36 to his cheek's 57) and his brows were lost in it; the game lights him again.
+        # His skin by its colour (his shadowed forehead is skin; his brows, moustache and eyes,
+        # darker and greyer, aren't).
+        rgb = _rgb(lab) / 255.0
+        lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+        y = lin @ np.array([0.2126, 0.7152, 0.0722])
+        chroma = np.hypot(lab[:, 1], lab[:, 2])
+        hue = np.degrees(np.arctan2(lab[:, 2], lab[:, 1]))
+        sk = (w > 0.5) & (chroma >= 10) & (hue > 20) & (hue < 80) & (lab[:, 0] >= 15)
+        smooth = _cube_mean(p, y, sk, float(o.get("even_reach", SKIN_REACH)))
+        cheeks = sk & (p[:, 1] < face[105][1]) & (p[:, 1] > face[14][1])
+        target = float(np.median(y[cheeks] if cheeks.sum() > 100 else y[sk]))
+        factor = np.clip((target / np.maximum(smooth, 1e-4)) ** even, 0.6, 1.8)
+        lin[sk] *= factor[sk, None]
+        lab = _lab(255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.clip(lin, 0, 1) ** (1 / 2.4) - 0.055))
+        print("  the light baked into his face: %.0f%% of it taken out, his skin x%.2f to x%.2f" % (
+            even * 100, float(np.percentile(factor[sk], 5)), float(np.percentile(factor[sk], 95))))
     out[ty, tx] = out[ty, tx] * (1 - w[:, None]) + _rgb(lab) * w[:, None]
     print("  his head under the hat from %s: %d texels, graded to the painter's skin, %.0f%% of the painter's kept" % (
         cfg["from"], keep.sum(), share * 100))
+    near, far = float(o.get("ao_near", 0.0)), float(o.get("ao_far", 0.0))
+    if near or far:
+        # His own shape's shadows (FACE_AO): in linear light, under the hat as the rest.
+        from scipy.ndimage import gaussian_filter
+        path = os.path.join(DIR, cfg["from"] + "_ao.png")
+        if not os.path.exists(path):
+            raise SystemExit("bake.face: no %s (~/bpyenv/bin/python tools/blender/bake_ao.py %s)" % (
+                path, os.path.join(DIR, cfg["from"] + ".glb")))
+        ao = Image.open(path).convert("RGB")
+        if ao.width != size:
+            ao = ao.resize((size, size), Image.BILINEAR)
+        ao = np.asarray(ao, dtype=np.float64)[..., :2] / 255.0
+        baked = (ao[..., 1] > 0).astype(np.float64)
+        weight = np.maximum(gaussian_filter(baked, 1.0), 1e-6)
+        ao = np.stack([gaussian_filter(ao[..., k] * baked, 1.0) / weight for k in range(2)], axis=-1)
+        f = (1.0 - near * (1.0 - ao[ty, tx, 0])) * (1.0 - far * (1.0 - ao[ty, tx, 1]))
+        f = 1.0 - (1.0 - f) * w
+        a = np.clip(out[ty, tx] / 255.0, 0.0, 1.0)
+        lin = np.where(a <= 0.04045, a / 12.92, ((a + 0.055) / 1.055) ** 2.4) * f[:, None]
+        out[ty, tx] = 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+        print("  his own shape's shadows: near %.2f, far %.2f, the darkest tenth of his face x%.2f" % (
+            near, far, float(np.percentile(f[w > 0.5], 10))))
 
 
 # His clothes (`bake.cloth`, 2026-10-07): the painter drew his coat as a streaky tweed running down
@@ -1092,9 +1167,13 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
                 odd = socket & ((lab[:, 0] > ref[0] + 12) | (chroma < 10) | (close & (lab[:, 0] < ref[0] - 16)))
                 out[ty[idx[odd]], tx[idx[odd]]] = _rgb(ref[None, :])[0]
                 cleaned += int(odd.sum())
-                lower_colour = _rgb((ref * np.array([0.72, 1.0, 1.0]))[None, :])[0]
+                lower_colour = _rgb((ref * np.array([float(eyes.get("lower", 0.72)), 1.0, 1.0]))[None, :])[0]
         d = np.linalg.norm(q - centre, axis=1)
-        shade = white & (~_inside(poly - np.array([0.0, lid_w * 0.8]), q) | (np.abs(q[:, 0] - mid[0]) > half[0] * 0.78))
+        # The white shaded under the upper lid (`shade_top` of the lid's thickness) and at the
+        # corners (past `shade_side` of the half-width): at 0.8 and 0.78 the shade took most of a
+        # white 10 mm tall, and the eye read as specks of white among shade, iris and glint.
+        shade_top, shade_side = float(eyes.get("shade_top", 0.8)), float(eyes.get("shade_side", 0.78))
+        shade = white & (~_inside(poly - np.array([0.0, lid_w * shade_top]), q) | (np.abs(q[:, 0] - mid[0]) > half[0] * shade_side))
         iris = white & (d < r_iris)
         rim = iris & (d > r_iris * 0.78)
         pupil = white & (d < r_iris * 0.42)
@@ -1112,6 +1191,181 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
             half[0] * 2 * HEIGHT_M * 1000, half[1] * 2 * HEIGHT_M * 1000, r_iris * 2 * HEIGHT_M * 1000, white.sum()))
     print("  eyes drawn: %d texels of white, opened x%.2f, x%.2f as big, %d texels of the painter's eyes cleaned" % (
         drawn, opening, grow, cleaned))
+
+
+# His brows drawn bold (characters.json `bake.brows`): the painting's man's brows are thick, near-black
+# bars, and his model's are thin and brown, so in the shot they broke into a few faint squares. From
+# his face's landmarks (MediaPipe's upper and lower edge of each brow; found on the shape he wears,
+# worn_points), the brow `thick` times as deep about its middle line and `long` times as long out
+# from its inner end, `drop` metres lower (the painting's man's heavy brows sit right over his eyes,
+# with lit forehead between them and his hat; ours ran up under his brim's shadow), in `dark`
+# ([r, g, b]) with `keep` of his own lightness's variation round it (the hairs), the edge eased over
+# `soft` metres, `amount` of it over his own.
+BROW_UPPER = ([70, 63, 105, 66, 107], [300, 293, 334, 296, 336])   # his right, his left; outer end first
+BROW_LOWER = ([46, 53, 52, 65, 55], [276, 283, 282, 295, 285])
+BROWS = {}  # --brows=thick:1.4,dark:38/25/18 over characters.json's `bake.brows`; --brows=off
+
+
+def _edge_distance(poly, pts):
+    """Each 2D point's distance to the nearest edge of the polygon."""
+    a, b = poly, np.roll(poly, -1, axis=0)
+    ab = b - a
+    ap = pts[:, None, :] - a[None]
+    t = np.clip((ap * ab[None]).sum(-1) / np.maximum((ab * ab).sum(-1), 1e-18)[None], 0.0, 1.0)
+    return np.linalg.norm(ap - t[..., None] * ab[None], axis=-1).min(axis=1)
+
+
+def _face_texels(uv, tris, pos, nrm, size):
+    """Every texel of his atlas: its row, column, point and normal on him."""
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    n = nrm[t[:, 0]] * b[:, :1] + nrm[t[:, 1]] * b[:, 1:2] + nrm[t[:, 2]] * b[:, 2:3]
+    return ty, tx, p, n
+
+
+def _ease(s):
+    s = np.clip(s, 0.0, 1.0)
+    return s * s * (3 - 2 * s)
+
+
+def _value_noise(p, cell, seed=1873):
+    """Smooth noise in -1..1 at 3D points (metres), about `cell` across: a hashed value at each
+    corner of a grid of `cell`, eased between them. The same points always give the same values."""
+    g = p / cell
+    i = np.floor(g).astype(np.int64)
+    f = g - i
+    f = f * f * (3.0 - 2.0 * f)
+
+    def corner(dx, dy, dz):
+        h = ((i[:, 0] + dx) * 73856093) ^ ((i[:, 1] + dy) * 19349663) ^ ((i[:, 2] + dz) * 83492791) ^ seed
+        h = h.astype(np.uint64)
+        h = (h ^ (h >> np.uint64(13))) * np.uint64(1274126177)
+        h ^= h >> np.uint64(16)
+        return (h & np.uint64(0xFFFF)).astype(np.float64) / 65535.0 * 2.0 - 1.0
+
+    out = np.zeros(len(p))
+    for dx in (0, 1):
+        for dy in (0, 1):
+            for dz in (0, 1):
+                w = ((f[:, 0] if dx else 1 - f[:, 0]) * (f[:, 1] if dy else 1 - f[:, 1])
+                     * (f[:, 2] if dz else 1 - f[:, 2]))
+                out += w * corner(dx, dy, dz)
+    return out
+
+
+def draw_brows(out, cid, pos, nrm, uv, tris, size, cfg):
+    """His brows drawn over `out` (in place): `bake.brows`, from his face's landmarks."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: brows left as painted")
+        return
+    ty, tx, p, n = _face_texels(uv, tris, pos, nrm, size)
+    fwd = np.array([1.0, 0.0, 0.0])
+    thick, long_ = float(cfg.get("thick", 1.0)), float(cfg.get("long", 1.0))
+    soft = float(cfg.get("soft", 0.0015)) / HEIGHT_M
+    keep, amount = float(cfg.get("keep", 0.3)), float(cfg.get("amount", 1.0))
+    dark = _lab(np.array([cfg.get("dark", (38, 25, 18))], dtype=np.float64))[0]
+    drawn = 0
+    for upper, lower in zip(BROW_UPPER, BROW_LOWER):
+        U, D = face[upper], face[lower]
+        c = np.vstack([U, D]).mean(axis=0)
+        u = U[-1] - U[0]                       # from the outer end to the inner
+        u -= fwd * (u @ fwd)
+        u /= np.linalg.norm(u)
+        v = np.cross(fwd, u)
+        v /= np.linalg.norm(v)
+        if v[1] < 0:
+            v = -v
+        flat = lambda q: np.stack([(q - c) @ u, (q - c) @ v], axis=-1)
+        up2, lo2 = flat(U), flat(D)
+        mid = (up2 + lo2) / 2.0
+        up2, lo2 = mid + (up2 - mid) * thick, mid + (lo2 - mid) * thick
+        inner = (up2[-1, 0] + lo2[-1, 0]) / 2.0
+        up2[:, 0] = inner + (up2[:, 0] - inner) * long_
+        lo2[:, 0] = inner + (lo2[:, 0] - inner) * long_
+        drop = float(cfg.get("drop", 0.0)) / HEIGHT_M
+        up2[:, 1] -= drop
+        lo2[:, 1] -= drop
+        poly = np.vstack([up2, lo2[::-1]])
+        reach = np.abs(poly).max() + soft * 2
+        near = (np.linalg.norm(p - c, axis=1) < reach * 1.5) & (n @ fwd > 0.05)
+        idx = np.nonzero(near)[0]
+        q = flat(p[near])
+        inside = _inside(poly, q)
+        d = _edge_distance(poly, q)
+        alpha = _ease(0.5 + np.where(inside, d, -d) / max(soft, 1e-9)) * amount
+        hit = alpha > 0
+        lab = _lab(out[ty[idx[hit]], tx[idx[hit]]])
+        new = np.repeat(dark[None], hit.sum(), axis=0)
+        new[:, 0] += (lab[:, 0] - np.median(lab[:, 0])) * keep
+        a = alpha[hit][:, None]
+        out[ty[idx[hit]], tx[idx[hit]]] = out[ty[idx[hit]], tx[idx[hit]]] * (1 - a) + _rgb(new) * a
+        drawn += int(inside.sum())
+        print("  brow: %.0f x %.1f mm (at its deepest)" % (
+            (poly[:, 0].max() - poly[:, 0].min()) * HEIGHT_M * 1000, (up2[:, 1] - lo2[:, 1]).max() * HEIGHT_M * 1000))
+    print("  brows drawn: %d texels, x%.2f as deep, x%.2f as long" % (drawn, thick, long_))
+
+
+# A day's stubble on his jaw (characters.json `bake.beard`): the painting's man's chin, jaw and the
+# skin round his mouth are darker and greyer than his cheeks, where his face graded from his model
+# came out as light as his cheek. Below a line from his jaw's side under each ear (`side` metres under
+# MediaPipe's ear-side point) down to the corners of his mouth (`mouth` metres under them, along
+# the line), in front of his ears and down to `under` metres beneath his chin, his skin (not his
+# lips, and not what's already dark: his moustache) darkened in linear light to `dark` of itself and
+# its colour times `grey`, the line eased over `soft` metres, `mottle` of it varying from place to
+# place over `grain` metres. Greyed (`grey` 0.85) his face's colour went weaker than the painting's
+# man's, whose stubble is a darker warm brown.
+BEARD = {}  # --beard=dark:0.8,mottle:0.6 over characters.json's `bake.beard`; --beard=off
+MOUTH_OUTLINE = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146]
+
+
+def draw_beard(out, cid, pos, nrm, uv, tris, size, cfg):
+    """A stubble shadow on his jaw in `out` (in place): `bake.beard`."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: no stubble drawn")
+        return
+    ty, tx, p, n = _face_texels(uv, tris, pos, nrm, size)
+    dark, grey = float(cfg.get("dark", 0.8)), float(cfg.get("grey", 0.85))
+    soft = float(cfg.get("soft", 0.012)) / HEIGHT_M
+    side, mouth, under = (float(cfg.get(k, d)) / HEIGHT_M for k, d in (("side", 0.012), ("mouth", 0.004), ("under", 0.03)))
+    mid_z = (face[61, 2] + face[291, 2]) / 2.0
+    corner = max(abs(face[61, 2] - mid_z), abs(face[291, 2] - mid_z))
+    ear = max(abs(face[234, 2] - mid_z), abs(face[454, 2] - mid_z))
+    y_mouth = (face[61, 1] + face[291, 1]) / 2.0 - mouth
+    y_side = (face[234, 1] + face[454, 1]) / 2.0 - side
+    # The line: flat over his mouth, rising from its corners to his ears.
+    dz = np.abs(p[:, 2] - mid_z)
+    top = np.interp(dz, [0.0, corner, ear], [y_mouth, y_mouth, y_side])
+    x_ear = (face[234, 0] + face[454, 0]) / 2.0
+    region = ((p[:, 0] > x_ear - 0.004 / HEIGHT_M) & (p[:, 1] > face[152, 1] - under)
+              & (dz < ear + 0.01 / HEIGHT_M) & (np.linalg.norm(p - face[1], axis=1) < 0.14 / HEIGHT_M))
+    alpha = _ease((top - p[:, 1]) / max(soft, 1e-9)) * region
+    # Not on his lips: MediaPipe's outline of his mouth seen from the front, a little larger.
+    mouth2 = face[MOUTH_OUTLINE][:, 1:]
+    mc = mouth2.mean(axis=0)
+    lips = _inside(mc + (mouth2 - mc) * 1.1, p[:, 1:]) & (p[:, 0] > face[14, 0] - 0.02 / HEIGHT_M)
+    alpha *= ~lips
+    hit = alpha > 0
+    lab = _lab(out[ty[hit], tx[hit]])
+    # Only his skin: what is already dark (his moustache, his brows) is left. A painted stubble is
+    # mottled: `mottle` of the darkening varies from place to place (smooth noise `grain` metres
+    # across on him, the same every bake), so the squares cut from it differ.
+    a = alpha[hit] * np.clip((lab[:, 0] - 22.0) / 10.0, 0.0, 1.0)
+    mottle = float(cfg.get("mottle", 0.0))
+    if mottle:
+        a *= np.clip(1.0 + mottle * _value_noise(p[hit] * HEIGHT_M, float(cfg.get("grain", 0.008))), 0.0, 2.0)
+    rgb = np.clip(out[ty[hit], tx[hit]] / 255.0, 0.0, 1.0)
+    lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+    lin *= (1.0 - (1.0 - dark) * a)[:, None]
+    shade = 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+    lab2 = _lab(shade)
+    lab2[:, 1:] *= (1.0 - (1.0 - grey) * a)[:, None]
+    out[ty[hit], tx[hit]] = _rgb(lab2)
+    print("  stubble: %d texels, darkened to x%.2f in linear light, colour x%.2f" % (int((a > 0.5).sum()), dark, grey))
 
 
 def bake(cid):
@@ -1186,6 +1440,16 @@ def bake(cid):
     eyes = dict(bk.get("eyes") or {}, **EYES) if EYES is not None else {}
     if eyes and not SMOOTH:
         draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes)
+    # His brows and stubble after his eyes (cleaning a socket takes what's grey in it), on the
+    # shape he wears, where his landmarks were found.
+    brows = dict(bk.get("brows") or {}, **BROWS) if BROWS is not None else {}
+    beard = dict(bk.get("beard") or {}, **BEARD) if BEARD is not None else {}
+    if (brows or beard) and not SMOOTH:
+        wpos, wnrm = worn_points(cid, pos, nrm)
+        if beard:
+            draw_beard(out, cid, wpos, wnrm, uv, tris, size, beard)
+        if brows:
+            draw_brows(out, cid, wpos, wnrm, uv, tris, size, brows)
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -1241,6 +1505,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
+    global BROWS, BEARD
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1281,6 +1546,20 @@ def main():
             # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6
             FACE = {k: (x if k == "from" else float(x))
                     for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+        elif a in ("--brows=off", "--beard=off"):
+            # His brows or stubble as painted (`bake.brows` / `bake.beard` left out).
+            if a == "--brows=off":
+                BROWS = None
+            else:
+                BEARD = None
+        elif a.startswith("--brows=") or a.startswith("--beard="):
+            # His brows (draw_brows) or stubble (draw_beard): --brows=thick:1.4,dark:38/25/18
+            kv = {k: (tuple(float(c) for c in x.split("/")) if "/" in x else float(x))
+                  for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+            if a.startswith("--brows="):
+                BROWS = kv
+            else:
+                BEARD = kv
         elif a == "--cloth=off":
             # The painter's clothes as painted (`bake.cloth` left out).
             CLOTH = None

@@ -134,9 +134,13 @@
     "flatten": 0,
     "view_power": 0,
     "skin": {"even": 0, "hue": 0, "stubble": 1.0},
-    "face": {"from": "stranger2_rodin", "lips": 0.6, "paint": 0.25, "chroma": 0.85},
-    "eyes": {"open": 0.95, "size": 1.12, "clean": 1.3, "lid": 0.003, "iris": 1.2, "glint": 0.26,
-             "white": [222, 208, 190], "shade": [178, 160, 140], "iris_rgb": [50, 31, 20], "rim_rgb": [22, 13, 9]}
+    "face": {"from": "stranger2_rodin", "lips": 0.6, "paint": 0.25, "chroma": 0.85, "even": 0.6,
+             "ao_near": 0.5, "ao_far": 0.8},
+    "eyes": {"open": 0.92, "size": 1.12, "clean": 1.3, "lid": 0.0036, "iris": 1.3, "glint": 0.2,
+             "white": [220, 205, 185], "shade": [190, 172, 150], "shade_top": 0.4, "shade_side": 0.88, "lower": 0.85,
+             "iris_rgb": [50, 31, 20], "rim_rgb": [22, 13, 9]},
+    "brows": {"thick": 1.8, "long": 1.15, "drop": 0.003, "dark": [26, 17, 12], "keep": 0.25},
+    "beard": {"dark": 0.78, "grey": 1.0, "mottle": 0.6, "grain": 0.008}
    }
   }
  }

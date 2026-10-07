@@ -68,7 +68,7 @@
    "eye_gain": 1.8,
    "cells": {"head": 0.009, "head_texels": 7, "face": 0.007, "face_front": 60, "calm": {"head": 0, "skin": 0.25},
              "dark_kept": 0, "weave": {"skin": 0.3, "head": 0.15}, "weave_noise": 1.0, "weave_cluster": 0.5,
-             "grain": {"head": 1.0, "skin": 1.2}, "grain_size": 1.6, "settle": 3},
+             "grain": {"head": 1.0, "skin": 1.2}, "grain_size": 1.6, "settle": 3, "mottle": {"head": 0.1}},
    "outfit": {},
    "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, short dark hair"
   }

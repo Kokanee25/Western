@@ -191,7 +191,10 @@ SMOOTH = False  # --smooth: see main()
 # fold from two planes, drew chevrons. `settle` (passes) and `settle_margin`: where a surface turns
 # near 45 degrees between two planes, a triangle that near the line takes whichever of its two
 # planes more of its neighbours are on, so the line runs clean, not ragged triangle by triangle
-# (his body's islands 512 → 251).
+# (his body's islands 512 → 251). `mottle` ({shape: share}): the painting's skin is a mosaic of
+# near tones, each square a shade off the next, where ours ran smooth from square to square; each
+# square of his skin (warm-coloured, under his hat, not round his drawn eyes) is that share lighter
+# or darker by its own shade (the weave's hash, with `weave_cluster`).
 CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_texels": 3, "hair_texels": 3,
          "gutter": 1, "samples": [2, 2], "eye_zone": [0.019, 0.008, 0.03],
          "detail": 0.0, "detail_clip": 40.0, "soft": {"head": 0.17, "skin": 0.25},
@@ -199,7 +202,8 @@ CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_te
          "weave": {"head": 0.0, "skin": 0.0}, "weave_period": 4, "weave_noise": 0.5, "weave_max_l": 46.0,
          "weave_hand": 0.075, "weave_head_noise": 1.0, "weave_head_above": 0.035, "dark_kept": 1,
          "face": 0.0, "face_box": [0.08, 0.03, 0.16, 0.07], "grain": {"head": 0.0, "skin": 0.0}, "grain_size": 0.8,
-         "face_front": 0.0, "weave_cluster": 0.0, "settle": 0, "settle_margin": 0.2}
+         "face_front": 0.0, "weave_cluster": 0.0, "settle": 0, "settle_margin": 0.2,
+         "mottle": {"head": 0.0, "skin": 0.0}}
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
@@ -1439,12 +1443,14 @@ def _square_hash(bi, bj, bf):
     return ((hsh >> np.uint64(16)) & np.uint64(1023)).astype(np.float64) / 1023.0 * 2.0 - 1.0
 
 
-def _weave(blocks, eye, plane, weave, period, noise, max_l, hands, hand_r, above=None, cluster=0.0):
+def _weave(blocks, eye, plane, weave, period, noise, max_l, hands, hand_r, above=None, cluster=0.0, mottle=0.0):
     """The squares of `blocks` (rows of squares × columns × RGB) with the weave drawn over the
     cloth among them (CELLS `weave`): `plane` is each square's (column, row, facing) on its facing's
     plane and its middle in our body space (facing -1: no square there); `above`, a height in our
     body space the cloth must be over (his hat); `cluster`, how much of the shades of the squares
-    beside it (and half that above and below) each square's own shade takes."""
+    beside it (and half that above and below) each square's own shade takes. `mottle`: his skin's
+    squares (under `above` on his head) each that share lighter or darker by its own shade, as the
+    painting's skin is a mosaic of near tones (CELLS `mottle`)."""
     bi, bj, bf, bpos = plane
     lab = _lab(blocks)
     chroma = np.hypot(lab[..., 1], lab[..., 2])
@@ -1466,7 +1472,16 @@ def _weave(blocks, eye, plane, weave, period, noise, max_l, hands, hand_r, above
                + 0.5 * cluster * (_square_hash(bi, bj - 1, bf) + _square_hash(bi, bj + 1, bf)))
         own /= np.sqrt(1.0 + 2.5 * cluster * cluster)
     shade = 1.0 + weave * ((1.0 - noise) * twill + noise * own)
-    return np.where(cloth[..., None], blocks * shade[..., None], blocks), int(cloth.sum())
+    out = np.where(cloth[..., None], blocks * shade[..., None], blocks)
+    if mottle > 0:
+        # His skin's squares, his stubble's too (warm, not grey: his brows and moustache aren't),
+        # away from his drawn eyes and under his hat.
+        warm = (bf >= 0) & ~eye & (chroma > 12) & (hue > 30) & (hue < 85) & (lab[..., 0] > 22)
+        if above is not None:
+            warm &= bpos[..., 1] <= above
+        out = np.where(warm[..., None], out * (1.0 + mottle * own)[..., None], out)
+        print("    his skin mottled on %d squares" % int(warm.sum()))
+    return out, int(cloth.sum())
 
 
 def _grain(shape, size, seed=1882):
@@ -1522,7 +1537,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
         moved[eye] = 0.0
         out += moved[BY][:, BX]
         blocks = blocks + moved
-    if weave > 0 and plane is not None:
+    if (weave > 0 or (weave_opts or {}).get("mottle", 0.0) > 0) and plane is not None:
         woven, n = _weave(blocks, eye, plane, weave, **(weave_opts or {}))
         out += (woven - blocks)[BY][:, BX]
         blocks = woven
@@ -1844,7 +1859,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
             got |= take
         img, have = grow, got
     plane = None
-    if k > 1 and weave > 0:
+    if k > 1 and (weave > 0 or (weave_opts or {}).get("mottle", 0.0) > 0):
         # Each square's place on its facing's plane (the islands sit at whole squares, so a square of
         # the texture is one square of the plane) and its middle in our body space, for the weave.
         nby_, nbx_ = H // k, W // k
@@ -1860,7 +1875,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         bf[sby[fits], sbx[fits]] = facing[st][fits]
         bpos[sby[fits], sbx[fits]] = at[fits]
         plane = (bi, bj, bf, bpos)
-    if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0 or grain > 0):
+    if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0 or grain > 0 or plane is not None):
         img = _inside_squares(img, k, W, rgb, lum, tx, ty, bk[own] if own.any() else None, detail, clip, soft,
                               calm, sigma, weave, plane, weave_opts, grain, grain_size)
     layer.data.foreach_set("uv", new.ravel())
@@ -1906,12 +1921,13 @@ def cell_textures(person, colour, cells):
     # The weave's rows, its share of each square's own shade, the lightest square it's drawn on and
     # how far it keeps from his hands (the anatomy's, in our body space: his rest pose).
     segs = person.env["segments"]
+    mottle = o["mottle"] if isinstance(o["mottle"], dict) else {"head": o["mottle"], "skin": o["mottle"]}
     weave_opts = {"period": int(o["weave_period"]), "noise": float(o["weave_noise"]),
                   "max_l": float(o["weave_max_l"]), "hand_r": float(o["weave_hand"]),
                   "hands": [segs[h]["center"] for h in ("hand_l", "hand_r") if h in segs],
-                  "cluster": float(o["weave_cluster"])}
-    # On his head, only over his brows (no drawn eyes found: nowhere).
-    head_weave = dict(weave_opts, noise=float(o["weave_head_noise"]),
+                  "cluster": float(o["weave_cluster"]), "mottle": float(mottle.get("skin", 0.0))}
+    # On his head, only over his brows (no drawn eyes found: nowhere); his skin's mottle under them.
+    head_weave = dict(weave_opts, noise=float(o["weave_head_noise"]), mottle=float(mottle.get("head", 0.0)),
                       above=float(np.mean([e[1] for e in eyes])) + float(o["weave_head_above"]) if eyes else np.inf)
 
     # How the planes are chosen where a surface turns between two (`settle`, `settle_margin`).
