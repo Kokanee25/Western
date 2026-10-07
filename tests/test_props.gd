@@ -109,11 +109,12 @@ func test_the_painted_backdrop_rings_the_town_with_its_spires_down_the_street() 
 	# shadow on the town, the far layer's tallest land (the cathedral spires) where the street
 	# painting has it: down the street, a little right of where you look in the street shot.
 	var info := Backdrop.load_info()
-	check(info.has("layers") and (info.layers as Dictionary).size() == 3, "three layers cut: %s" % str(info.get("layers", {}).keys()))
+	# Four: far, mid and near, and the hero masses at the street's end (since merge 2).
+	check(info.has("layers") and (info.layers as Dictionary).size() == 4, "four layers cut: %s" % str(info.get("layers", {}).keys()))
 	var b := Backdrop.new()
 	add_child(b)
 	await physics_frames(1)
-	check_eq(b.layers.size(), 3, "three rings built")
+	check_eq(b.layers.size(), 4, "four rings built")
 	for mi: MeshInstance3D in b.layers:
 		var lid := String(mi.name).trim_prefix("Layer_")
 		var r: float = info.layers[lid].radius
