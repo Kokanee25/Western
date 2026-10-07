@@ -167,7 +167,7 @@ today or a new material to paint.
 
 ### Jail
 - **Who and why:** the town (the sheriff); wants to look like it can hold a man.
-- **Age and money:** brick (Sean, 2026-10-06: "maybe the jail should be too"; proposed), put
+- **Age and money:** brick (Sean, 2026-10-06: "maybe the jail should be too", then "Yes"; Sean: OK on brick), put
   up by the county after a man dug out of the old log lock-up. Common brick laid by a local
   mason: uneven courses, thick mortar, no ornament. Strap-iron cells inside.
 - **Colours:** dull dark red-brown brick, sooty over the stovepipe, black iron straps and bars,
@@ -201,7 +201,7 @@ today or a new material to paint.
 
 ### Brick (for the gameplay session)
 
-The bank's front, and the jail if Sean confirms, need brick as a building material: members laid
+The bank's front and the jail need brick as a building material: members laid
 in courses that a ball chips rather than passes through, that don't burn (a brick building's
 roof and floors still do), and that dynamite cracks into chunks (TOWN.md 5, the blasted brick
 wall in `docs/concept/livery-fire.png`). The jail's back wall is the jailbreak target (TOWN.md 3).
