@@ -42,6 +42,10 @@ uniform float cloud_drift = 0.0;
 // gold, a stronger glow round the sun, and the clouds lit cream-gold and orange rather than dimmed.
 // 0 = the sky as it was.
 uniform float gold = 0.0;
+// Sun rays at golden hour (src/render/sun_rays.gdshaderinc): how strong the shafts are. 0 = none.
+uniform float ray_strength = 0.55;
+
+#include "res://src/render/sun_rays.gdshaderinc"
 
 float hash(vec3 p) {
 	p = fract(p * 0.3183099 + 0.1);
@@ -161,8 +165,17 @@ void sky() {
 	float haze = (1.0 - smoothstep(0.0, 0.16, abs(h))) * 0.55;
 	col = mix(col, horizon * (1.0 + near_sun * 0.6), haze);
 
-	float disk = smoothstep(cos(sun_size), cos(sun_size * 0.7), sun_dot);
-	col = mix(col, sun_color * 8.0, disk * step(-0.02, h));
+	// Shafts of the low sun's light through the dust, and the darker air between them.
+	vec2 rays = sun_rays(normalize(EYEDIR), sd, ray_strength);
+	vec3 ray_light = sun_color * vec3(1.0, 0.8, 0.5);
+	col = col * (1.0 - 0.35 * rays.y) + ray_light * 0.8 * rays.x;
+
+	// The painting's setting sun is big and soft-edged: well over twice as big near the horizon.
+	float disk_size = sun_size * mix(1.0, 2.4, low * sun_up);
+	float disk = smoothstep(cos(disk_size), cos(disk_size * 0.75), sun_dot);
+	// Low, it's a gold disk (the painting's), not a white burn.
+	vec3 disk_col = mix(sun_color * 8.0, vec3(1.0, 0.8, 0.42) * 2.4, low * sun_up);
+	col = mix(col, disk_col, disk * step(-0.02, h));
 
 	vec3 md = normalize(moon_dir);
 	float moon_disk = smoothstep(0.99955, 0.9997, dot(d, md));

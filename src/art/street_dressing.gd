@@ -35,8 +35,9 @@ const BUILDINGS := [
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
 			"sign_text": "LIVERY", "gable_sign": Rect2(0.45, 1.6, 2.7, 3.6), "porch": false, "front_wood": &"weathered_pine"}],
-	["Jail", -24.6, -18.2, true, {"depth": 8.0, "wall_height": 3.3, "front_height": 4.9, "sign_text": "JAIL",
-			"window_bars": true, "front_wood": &"store_boards", "facade": "store"}],
+	# The painting's JAIL: whitewashed, its false front tall enough for the big letters (FacadeArt).
+	["Jail", -24.6, -18.2, true, {"depth": 8.0, "wall_height": 3.3, "front_height": 6.2, "sign_from": 3.9, "sign_text": "JAIL",
+			"window_bars": true, "front_wood": &"jail_boards", "facade": "jail"}],
 	["Assay", -32.0, -25.4, true, {"depth": 9.0, "wall_height": 3.6, "front_height": 5.8, "sign_text": "ASSAY OFFICE",
 			"front_wood": &"painted_ochre", "facade": "store"}],
 	# Across from the saloon's door, low enough for the moon over its false front, its lamp lit

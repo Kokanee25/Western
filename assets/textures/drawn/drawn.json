@@ -73,5 +73,20 @@
    "#ffe29d",
    "#ffffca"
   ]
+ },
+ "jail_boards": {
+  "boards": 12,
+  "rows": 6,
+  "length": 64,
+  "palette": [
+   "#a4a1af",
+   "#bfbab0",
+   "#d4ccb9",
+   "#e0d7b4",
+   "#e8dfc3",
+   "#f1f1d8",
+   "#fff4ca",
+   "#fffffb"
+  ]
  }
 }
