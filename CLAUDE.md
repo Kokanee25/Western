@@ -4020,7 +4020,11 @@ a few views renders them as the full run does.
     its branch and not on main): 0.562 as rendered; his L* × 0.76 and chroma × 0.75 gives 0.233.
     After that, his face is still too bright (median L* 33 vs 29) while his hat's and coat's lit
     parts are too dim (26 vs 34, 34 vs 40). So the key on his face comes down more than the fill
-    on his hat and coat. Send it the light patch to re-judge its man under it. Fire
+    on his hat and coat. Send it the light patch to re-judge its man under it.
+    It also measured anti-aliasing: `msaa_3d` 4x on `GameViewport` (`scenes/main.tscn`,
+    gameplay's file) took his edge hardness 0.31 to 0.29 (the painting's 0.25) and his score 0.556
+    to 0.541. Its cost wasn't measured; whether the game is anti-aliased is the art session's call.
+    His squares changed again on its branch (a7770fb). Fire
     step 3, the smoke (it can't show against the sky: `sky.gdshader`'s `disable_fog` keeps every
     fog off sky pixels; painted puffs or a fog-aware sky); the saloon room (task: sconces
     lighting their walls); the other fronts (livery, barber, hotel, assay) to the saloon's
