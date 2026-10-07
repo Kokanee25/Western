@@ -440,28 +440,28 @@
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 35.984,
+  "mean": 17.837,
   "noise": {
-   "mean": 11.995,
-   "share": 0.199
+   "mean": 5.946,
+   "share": 0.1513
   },
-  "share": 0.597
+  "share": 0.4539
  },
  "store_fire_later": {
-  "mean": 8.955,
+  "mean": 2.721,
   "noise": {
-   "mean": 2.985,
-   "share": 0.0461
+   "mean": 0.907,
+   "share": 0.0204
   },
-  "share": 0.1382
+  "share": 0.0612
  },
  "store_fire_night": {
-  "mean": 8.439,
+  "mean": 3.916,
   "noise": {
-   "mean": 2.813,
-   "share": 0.0432
+   "mean": 1.305,
+   "share": 0.0242
   },
-  "share": 0.1295
+  "share": 0.0726
  },
  "store_front_noon": {
   "mean": 1.5,

@@ -3990,7 +3990,9 @@ a few views renders them as the full run does.
     golden hour: gameplay had already fixed them on main, `DayCycle.get_starlight()`); the room
     behind him dark murk (sconces, doorway, balcony unread).
   - Goldens: all 70 re-approved from two `--fresh` runs on the merged tree (the 19 views main's
-    smoke, flames and stars touch rendered again on it); visual checks 374, none failed.
+    smoke, flames and stars touch rendered again on it); visual checks 374, none failed. The
+    three `store_fire_*` goldens re-approved again from two more runs: this workspace's native
+    library was from before the smoke grid, so they'd been taken with particle smoke.
   - **Next (merge 3), ready on the branch after this merge:** fire steps 1-2
     (`docs/briefs/fire-look.md`: flames drawn as a flipbook by `tools/textures/draw_flames.py`,
     `flame.gdshader` solid colour with alpha scissor, not additive; char in the drawn wood's
@@ -3998,7 +4000,12 @@ a few views renders them as the full run does.
     pixel alphabet's `&` and `$`. Judge them with gameplay's bigger flames (on main, 6081685).
     Then: the seated man's light from the characters session's numbers (their
     `tools/characters/judge_man.py`, on their branch): the fill more neutral (him chroma 30 vs
-    22, b* 24 vs 17) and the table lamp's key off his near cheek (face top tenth 80 vs 55); fire
+    22, b* 24 vs 17) and the table lamp's key off his near cheek (face top tenth 80 vs 55). The
+    characters session's later numbers (2026-10-07, its round `_r6`, his new face, which is on
+    its branch and not on main): 0.562 as rendered; his L* × 0.76 and chroma × 0.75 gives 0.233.
+    After that, his face is still too bright (median L* 33 vs 29) while his hat's and coat's lit
+    parts are too dim (26 vs 34, 34 vs 40). So the key on his face comes down more than the fill
+    on his hat and coat. Send it the light patch to re-judge its man under it. Fire
     step 3, the smoke (it can't show against the sky: `sky.gdshader`'s `disable_fog` keeps every
     fog off sky pixels; painted puffs or a fog-aware sky); the saloon room (task: sconces
     lighting their walls); the other fronts (livery, barber, hotel, assay) to the saloon's
