@@ -177,10 +177,13 @@ func test_holes_weaken_until_it_snaps() -> void:
 	var sound: float = a.utilisation[plank.member_id]
 	check(sound < 1.0, "a sound plank takes it (%.0f%%)" % (sound * 100.0))
 	var shots := 0
+	# Seeded, so the holes land in the same places every run (unseeded, the odd run missed).
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1873
 	while not plank.broken and shots < 30:
 		# Straight down through the middle.
-		var x := randf_range(-0.2, 0.2)
-		plank.add_hole(plank.to_global(Vector3(x, 0.025, randf_range(-0.1, 0.1))), plank.to_global(Vector3(x, -0.025, 0.0)), 0.0057)
+		var x := rng.randf_range(-0.2, 0.2)
+		plank.add_hole(plank.to_global(Vector3(x, 0.025, rng.randf_range(-0.1, 0.1))), plank.to_global(Vector3(x, -0.025, 0.0)), 0.0057)
 		shots += 1
 		await physics_frames(1)
 	check(plank.broken, "shot through enough times it snaps (%d holes)" % shots)
