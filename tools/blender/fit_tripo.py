@@ -203,7 +203,7 @@ CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_te
          "weave_hand": 0.075, "weave_head_noise": 1.0, "weave_head_above": 0.035, "dark_kept": 1,
          "face": 0.0, "face_box": [0.08, 0.03, 0.16, 0.07], "grain": {"head": 0.0, "skin": 0.0}, "grain_size": 0.8,
          "face_front": 0.0, "weave_cluster": 0.0, "settle": 0, "settle_margin": 0.2,
-         "mottle": {"head": 0.0, "skin": 0.0}}
+         "mottle": {"head": 0.0, "skin": 0.0}, "collar": 0.0, "collar_box": [0.11, 0.10, 0.36, 0.09]}
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
@@ -1905,6 +1905,14 @@ def cell_textures(person, colour, cells):
         return ((np.abs(pts[:, 0] - mid[0]) < fb[0]) & (pts[:, 1] < mid[1] + fb[1]) & (pts[:, 1] > mid[1] - fb[2])
                 & (pts[:, 2] < mid[2] + fb[3]))
 
+    # His collar and shirt front on his body (`collar_box`: across either side of his eyes' middle,
+    # from that far below them down to that far, and behind them), squared at `collar` metres.
+    cb = o["collar_box"]
+
+    def collar(pts):
+        return ((np.abs(pts[:, 0] - mid[0]) < cb[0]) & (pts[:, 1] < mid[1] - cb[1]) & (pts[:, 1] > mid[1] - cb[2])
+                & (pts[:, 2] < mid[2] + cb[3]))
+
     src = np.asarray(colour.convert("RGB"))
 
     def inside(shape):
@@ -1947,6 +1955,7 @@ def cell_textures(person, colour, cells):
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
+                                   face=collar if eyes and o["collar"] else None, face_m=float(o["collar"]) or None,
                                    **planes, **inside(shape))
         elif piece is not None and getattr(piece, "colour", None) is not None:
             k = int(o.get(shape + "_texels", o["body_texels"]))
@@ -1959,7 +1968,7 @@ def cell_textures(person, colour, cells):
         per[shape] = k
         how[shape] = inside(shape)
         print("  %s: a texel a square, %d texels a side, %d×%d, %d islands" % (shape, k, img.shape[1], img.shape[0], isl))
-    sizes = {kk: o[kk] for kk in ("head", "body", "hair", "face") if o[kk]}
+    sizes = {kk: o[kk] for kk in ("head", "body", "hair", "face", "collar") if o[kk]}
     person.report["texture"] = dict(person.report.get("texture", {}), cells=sizes,
                                     shapes=done, texels_per_square=per, inside=how)
 

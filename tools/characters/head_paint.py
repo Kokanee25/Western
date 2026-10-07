@@ -1017,6 +1017,68 @@ def model_face(out, cid, pos, uv, tris, size, cfg):
             near, far, float(np.percentile(f[w > 0.5], 10))))
 
 
+# His collar from his model's own colours (characters.json `bake.collar`; Sean, 2026-10-07: "we're still
+# missing the crispness of the original look at his face and collar"). The painter's six views don't
+# line up on anything as small and folded as a collar: its neckerchief's dark landed on the shirt in
+# streaks and blotches, his neck's skin bled in, and cut into squares it read as a mess where the
+# painting's man has clean white collar points over a dark tie. His model as made (`from`, a glb with
+# his UVs) has a clean white shirt and a crisp black neckerchief, so below `top` metres under his eyes
+# down to `bottom`, within `across` of their middle and in front of his neck (`behind`), what is shirt
+# or neckerchief in his model (light and grey, or dark and grey: his coat and skin are left as they
+# are) takes the model's colour, the shirt's toned to the painter's cream (the medians of their light
+# texels: lightness scaled, a* and b* shifted), eased in over `feather` metres at the top and bottom.
+COLLAR_REGION = {"top": 0.10, "bottom": 0.32, "across": 0.11, "behind": 0.09, "feather": 0.015}
+COLLAR = {}  # --collar=from:stranger2_rodin,bottom:0.3 over characters.json's `bake.collar`; --collar=off
+
+
+def model_collar(out, cid, pos, uv, tris, size, cfg):
+    """His shirt and neckerchief round his collar in `out` (in place) from his model's own colours."""
+    from scipy.ndimage import binary_dilation
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: the collar left as painted")
+        return
+    src = load_glb(os.path.join(DIR, cfg["from"] + ".glb"))
+    if len(src[2]) != len(uv) or not np.allclose(src[2], uv):
+        raise SystemExit("bake.collar: %s hasn't his UVs" % cfg["from"])
+    o = dict(COLLAR_REGION, **cfg)
+    model = np.asarray(src[4].resize((size, size), Image.LANCZOS), dtype=np.float64)
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    eye = np.mean([face[r[0]] for r in IRIS_RINGS], axis=0)
+    below = (eye[1] - p[:, 1]) * HEIGHT_M
+    feather = max(float(o["feather"]), 1e-6)
+    w = (_ease((below - float(o["top"])) / feather) * _ease((float(o["bottom"]) - below) / feather)
+         * (np.abs(p[:, 2] - eye[2]) * HEIGHT_M < float(o["across"]))
+         * ((p[:, 0] - eye[0]) * HEIGHT_M > -float(o["behind"])))
+    own = _lab(model[ty, tx])
+    chroma = np.hypot(own[:, 1], own[:, 2])
+    shirt = (own[:, 0] > 55) & (chroma < 14)
+    tie = (own[:, 0] < 35) & (chroma < 12)
+    # The shapes a texel or two wider, so their edges come too (the painter's edges were the smear).
+    grid = np.zeros((size, size), dtype=bool)
+    grid[ty[shirt | tie], tx[shirt | tie]] = True
+    grid = binary_dilation(grid, iterations=2)
+    take = grid[ty, tx] & (w > 0)
+    painted = _lab(out[ty, tx])
+    light_p = (w > 0.5) & (painted[:, 0] > 62) & (np.hypot(painted[:, 1], painted[:, 2]) < 25)
+    light_m = (w > 0.5) & shirt
+    lab = own.copy()
+    if light_p.sum() > 50 and light_m.sum() > 50:
+        pm, mm = np.median(painted[light_p], axis=0), np.median(own[light_m], axis=0)
+        # Toned by how light each texel is: the shirt's whites all the way, the neckerchief's darks not.
+        k = np.clip((own[:, 0] - 35.0) / 30.0, 0.0, 1.0)
+        lab[:, 0] = own[:, 0] * (1 + k * (pm[0] / max(mm[0], 1e-6) - 1))
+        lab[:, 1:] = own[:, 1:] + k[:, None] * (pm[1:] - mm[1:])
+        print("  his collar from %s: %d texels, the shirt toned L* %.0f to %.0f, b* %.0f to %.0f" % (
+            cfg["from"], int(take.sum()), mm[0], pm[0], mm[2], pm[2]))
+    a = w[take][:, None]
+    out[ty[take], tx[take]] = out[ty[take], tx[take]] * (1 - a) + _rgb(lab[take]) * a
+
+
 # His clothes (`bake.cloth`, 2026-10-07): the painter drew his coat as a streaky tweed running down
 # it, and seen leaning in the shot the streaks ran diagonal and met as chevrons where the coat turns
 # (the bold painting's coat is a mottle of squares, no rows; the fit's weave draws that). So below
@@ -1434,6 +1496,9 @@ def bake(cid):
     cloth = dict(bk.get("cloth") or {}, **CLOTH) if CLOTH is not None else {}
     if cloth.get("from") and not SMOOTH:
         model_cloth(out, cid, pos, uv, tris, size, cut, cloth)
+    collar = dict(bk.get("collar") or {}, **COLLAR) if COLLAR is not None else {}
+    if collar.get("from") and not SMOOTH:
+        model_collar(out, cid, pos, uv, tris, size, collar)
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
@@ -1505,7 +1570,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
-    global BROWS, BEARD
+    global BROWS, BEARD, COLLAR
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1560,6 +1625,13 @@ def main():
                 BROWS = kv
             else:
                 BEARD = kv
+        elif a == "--collar=off":
+            # The painter's collar as painted (`bake.collar` left out).
+            COLLAR = None
+        elif a.startswith("--collar="):
+            # His collar from his model's own colours (model_collar): --collar=from:stranger2_rodin,bottom:0.3
+            COLLAR = {k: (x if k == "from" else float(x))
+                      for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a == "--cloth=off":
             # The painter's clothes as painted (`bake.cloth` left out).
             CLOTH = None

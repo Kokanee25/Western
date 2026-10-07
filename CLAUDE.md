@@ -819,7 +819,10 @@ a few views renders them as the full run does.
   painting's man is a realistic face in squares), draw his brows bold from his landmarks
   (`bake.brows`, `draw_brows`: `thick`, `long`, `drop` lower, `dark`, `keep` of his own hairs;
   on the shape he wears, `worn_points`) and a mottled stubble on his jaw (`bake.beard`,
-  `draw_beard`: `dark`, `grey`, `mottle`, `grain`; `--brows=off`, `--beard=off`), and filter his clothes below the head's cut with
+  `draw_beard`: `dark`, `grey`, `mottle`, `grain`; `--brows=off`, `--beard=off`), take the shirt and
+  neckerchief round his collar from his model's own colours, the shirt toned to the painter's cream
+  (`bake.collar`, `model_collar`: `from`, `top`, `bottom`, `across`, `behind`; written 2026-10-07,
+  not used yet: the painter's views smear his neckerchief across his collar), and filter his clothes below the head's cut with
   his model's own L* as the guide (`bake.cloth`, `model_cloth`, after He et al.'s guided filter:
   each garment's colours stay the painter's, its folds, seams and wear are the model's, and the
   painter's faint streaky tweed goes; `radius`, `eps`), then give back the painter's strong drawing
@@ -861,7 +864,9 @@ a few views renders them as the full run does.
   neighbours' (the line ran ragged). `mottle` ({shape: share}): each warm square of his skin
   under his hat (his face, his stubble) that share lighter or darker by its own shade (the
   weave's hash): the painting's skin is a mosaic of near tones, where ours ran smooth from square
-  to square (`stranger2s`: 0.1 on his head). `fit_tripo.py --cells=key:value,...` tries other numbers
+  to square (`stranger2s`: 0.1 on his head). `collar` (metres, 0 = off) squares his collar and
+  shirt front on his body finer (`collar_box`: across, from and to below his eyes, behind them), as
+  `face` does his face. `fit_tripo.py --cells=key:value,...` tries other numbers
   (`soft.head:0.17` for one shape; a dotted key starts from CELLS's other shapes, not
   people.json's). His bake then has no `cells`.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
@@ -4596,3 +4601,52 @@ a few views renders them as the full run does.
     `assets/people/stranger2s_head.png`, judge round r10 and its renders
     (`docs/screenshots/tripo/judge/renders/face_modelled/`), the picture. No other session's files.
     Body (23), hat (3) and shot (3) tests pass.
+- 2026-10-07 (characters session, later): **Why the stylised stranger isn't crisp yet: trials, not
+  kept.** Sean: "we're still missing the crispness of the original look at his face and collar".
+  Nothing of his look changed in this commit; it records what was found, the two options written
+  for the next step, and pictures. Sean then asked for the whole process written up to hand to
+  another AI.
+  - **What crisp is.** At 12× (`docs/screenshots/tripo/stranger2s_crisp_cheek.png`) the painting's
+    squares are all one size on the screen's grid, in tidy rows, and every edge (collar, lapels,
+    moustache) steps in them. His squares lie on his surfaces: they turn with him and break into
+    odd pieces where his face's planes and texture islands change. The step sizes between
+    neighbouring pixels are nearly the same in both; the difference is the squares' regularity.
+  - **A screen-grid mock-up** (his pixels in the render averaged into 7 px blocks on the screen's
+    grid, not the game) was muddy and lost his drawing: crisp isn't a filter.
+  - **His head upright.** The shot pose rolls his head about 13° (`ShotMatch.FITS` `stranger2s`:
+    head z 5.25, neck z 7.5, fitted to the painting's tilted head), tilting every square on his
+    face. At 0 they fall on the screen's rows (`stranger2s_crisp_upright.png`). Tried by a
+    temporary edit of the art session's `src/art/shot_match.gd`, put back: its call (one line).
+  - **Smaller, hard-edged face squares** (trial d2, `stranger2s_crisp_d2.png`; `fit_tripo.py
+    --cells=face:0.0055,soft.head:0,face_front:80`, his head upright): 5.5 mm face squares (7
+    before), no soft edges on his head, his face on the front plane out to 80° (fewer seams down
+    his cheeks). The judge's own square size now matches the painting's in every region (face
+    7.5 px to its 7.4, hat 8.2 to 8.0, coat 8.2 to 8.3); with his head upright it scores 0.520,
+    light corrected 0.237, against today's man upright 0.526 and 0.275. By eye the crispest yet.
+    The judge's flatness and edge measures mark hard squares down, so for crispness the eye (or a
+    blind critic) decides, not the score.
+  - **The collar.** The painter's six views don't line up on anything so small and folded: his
+    neckerchief's black smeared over the white collar and his neck's skin bled in, while his
+    Rodin model's own texture has a clean white shirt and a crisp black neckerchief
+    (`stranger2s_collar_atlas.png`: the model's, then our repaint). Finer collar squares alone
+    (trial e1, `cells.collar` 0.0055 with no soft edges anywhere, `stranger2s_collar_squares.png`)
+    made it crisper but kept the blotches, and on his coat the judge marked the hard squares down
+    (0.586, corrected 0.278). Written for the next try, both off unless set: `head_paint.py`
+    `bake.collar` (`model_collar`: his shirt and neckerchief from his model's colours, the shirt
+    toned to the painter's cream; `--collar=from:stranger2_rodin,top:0.13`), and `fit_tripo.py`
+    CELLS `collar`/`collar_box` (finer squares round his collar and shirt front). A first bake
+    with it was stopped before its render: not judged.
+  - **Still off:** his coat's squares on folds and angled surfaces read as uneven slanted pieces
+    where the painting's are a regular grid (laying more of his body on the front plane, as
+    `face_front` does for his face, is the next thing to try); his brows and moustache are softer
+    and lighter than the painting's near-black shapes; his hat sits low on his brow; and the lamp
+    washes his lit face out (top tenth L* 75 to the painting's 55: the art session's light).
+  - **On splitting the work between agents** (Sean asked): his eyes, brows, skin and collar share
+    one texture, one bake and one fit, and each look takes a 6–8 minute render on 4 cores, so
+    agents on parts of his face would overwrite each other. What would help: a lead agent with two
+    or three helpers each in its own worktree on a question that stands alone (the collar, the
+    coat's squares, the brows and moustache), and a blind critic that sees only the painting and
+    the renders.
+  - **Files:** `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, the layout notes
+    above, the five pictures in `docs/screenshots/tripo/`. His assets are round r10's, unchanged.
+    No other session's files.
