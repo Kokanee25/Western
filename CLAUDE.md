@@ -809,8 +809,12 @@ a few views renders them as the full run does.
   light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
   landmarks (`bake.eyes`: how open and how big, and their colours: `white`, `shade`,
   `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`; `--eyes=off` leaves the
-  painter's). `people.json` `eye_gain` goes into his report (the art session's
-  `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives a man long
+  painter's), and take all of his head under the hat from his model's own colours, graded to the
+  painter's skin (`bake.face`, `model_face`: `from` a glb with his UVs, `lips` his lips toned to
+  his skin, `paint` the painter's share mixed back in; `--face=off` leaves the painter's: the
+  painter draws faces as a game portrait, flat black brows and a solid moustache, where the
+  painting's man is a realistic face in squares). `people.json` `eye_gain` goes into his report
+  (the art session's `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives a man long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
   brim to his collar, `body_hair` in his glb, `<id>_hair.png`); no man wears it now (on the
   stylised stranger it looked silly, Sean). `people.json` `cells` lays his
@@ -4273,3 +4277,43 @@ a few views renders them as the full run does.
     squares), `tools/characters/characters.json`, `assets/people/people.json`,
     `assets/people/stranger2s*`, `assets/people/tripo/stranger2s_color.png`. No other session's
     files.
+- 2026-10-07 (characters session, later): **The stylised stranger's face from his own model: a
+  realistic face in the painter's colours.** Sean, on the round before, again: "He's gone too
+  cartoony / It's the face the most - it's just not the right style".
+  - **Where the cartoon comes from: the painter.** The style model's head views (run 55, image to
+    image at strength 0.68 from his guides, `stranger2s_head_<view>_painted.png`) redraw him as a
+    game portrait: flat black brows set in a scowl, a solid black moustache, a grey muzzle, dark
+    outlines. Everything on our side only toned that drawing down. The painting's man is a
+    realistic face cut into squares, and the Rodin man as made has a realistic face.
+  - **What changed** (`head_paint.py` `bake.face`, `model_face`; no paid run): all of his head
+    under the hat takes the Rodin man's own colours (`stranger2_rodin.glb`, the same UVs). That's
+    below 4.5 cm over his eyes, within 10.5 cm of his head's upright axis (so the brim stays the
+    painter's) and down to 13 cm under his eyes. Those colours are:
+    - graded to the painter's skin (the mean and spread of L*, a* and b* over the skin of both);
+    - his red lips toned toward his skin (`lips` 0.6);
+    - his colour eased (`chroma` 0.85);
+    - with a quarter of the painter's colours mixed back in (`paint` 0.25: a painted variety and
+      fuller brows).
+
+    His eyes are drawn over it as before; his hat, collar and coat keep the painter's. The hair at
+    his sides is his own dark brown now, not black slabs.
+  - **Tried on the way** (the shot under the same light, judge_man --dry): Rodin's face as it is
+    (in plain light: pale pink skin, blue-grey eyes); graded, his face only, 0.570 (the painter's
+    black side hair left); graded, all under the hat, 0.578; his lips toned, 0.577; a quarter of
+    the painter's back, 0.568; his colour eased, 0.562 (kept).
+  - **Judged:** round `2026-10-07_r6` 0.562 (r4 0.570; this morning's r2 0.596; r5 is this face
+    before its colour was eased, 0.573).
+
+    | His face | Square size | Square contrast | Flatness | Chroma | Lit top tenth L* |
+    |---|---|---|---|---|---|
+    | The painting's man | 7.4 px | 8.5 | 0.45 | 34 | 55 |
+    | Last round (r4) | 7.4 px | 12.7 | 0.52 | 40 | 78 |
+    | Now (r6) | 7.6 px | 11.5 | 0.54 | 41 | 75 |
+
+    What's left on his face is the light (the art session's).
+  - Picture: `docs/screenshots/tripo/stranger2s_own_face.png` (the painting's man, the painter's
+    face and the Rodin man as made; this morning, last round and now in the shot, in plain light
+    and at three-quarters).
+  - **Files:** `tools/characters/head_paint.py`, `tools/characters/characters.json`,
+    `assets/people/stranger2s_head.png`, `assets/people/tripo/stranger2s_color.png` (his glb,
+    report and body's texture unchanged). No other session's files.

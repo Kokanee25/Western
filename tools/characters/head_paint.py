@@ -655,6 +655,7 @@ EYE_LID = (30, 18, 12)
 SKIN_REACH = 0.035
 SKIN = {}   # --skin=even,hue,stubble,lift over characters.json's
 EYES = {}   # --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024,iris:1.1 over characters.json's
+FACE = {}   # --face=paint:0.25,lips:0.6 over characters.json's `bake.face`; --face=off, the painter's
 # MediaPipe's outline of each eye (his right, his left).
 EYE_OUTLINES = ([33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
                 [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398])
@@ -872,6 +873,75 @@ def even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin):
         is_skin.sum(), share * 100, np.degrees(turn), stubble.sum()))
 
 
+# His face from his model's own colours (characters.json `bake.face`; Sean, 2026-10-07: "He's gone
+# too cartoony ... It's the face the most - it's just not the right style"). The painter (the style
+# model, image to image) redraws a face in a manner of its own, flat black brows, a solid black
+# moustache and a grey muzzle: a game portrait, where the painting's man is a realistic face cut
+# into squares. So all of his head under his hat takes the colours of his model as made (`from`: a
+# glb in assets/people/tripo with the same UVs; Rodin's realistic face), graded to the painter's
+# skin (the mean and spread of L*, a* and b* over the skin in both), its lips (redder than his skin,
+# round his mouth) pulled `lips` of the way to his skin, its colour times `chroma`, and `paint` of
+# the painter's colours mixed back in; his hat, collar and body keep the painter's. Under his hat:
+# below `above` metres over his eyes, down to `below` under them, within `radius` of his head's
+# upright axis (`back` behind his eyes; the brim stands further out), the edges eased over a
+# centimetre or two.
+FACE_REGION = {"above": 0.045, "below": 0.13, "radius": 0.105, "back": 0.085}
+
+
+def model_face(out, cid, pos, uv, tris, size, cfg):
+    """His head under his hat in `out` (in place) from his model's own colours: `bake.face`."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: the painter's face kept")
+        return
+    src = load_glb(os.path.join(DIR, cfg["from"] + ".glb"))
+    if len(src[2]) != len(uv) or not np.allclose(src[2], uv):
+        raise SystemExit("bake.face: %s hasn't his UVs" % cfg["from"])
+    model = np.asarray(src[4].resize((size, size), Image.LANCZOS), dtype=np.float64)
+    o = dict(FACE_REGION, **cfg)
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    eye = np.mean([face[r[0]] for r in IRIS_RINGS], axis=0)
+
+    def ease(x, edge, feather):
+        s = np.clip((edge - x) / feather, 0.0, 1.0)
+        return s * s * (3 - 2 * s)
+
+    r = np.hypot(p[:, 0] - (eye[0] - o["back"] / HEIGHT_M), p[:, 2] - eye[2]) * HEIGHT_M
+    w = (ease(r, o["radius"], 0.01) * ease((p[:, 1] - eye[1]) * HEIGHT_M, o["above"], 0.01)
+         * ease((eye[1] - p[:, 1]) * HEIGHT_M, o["below"], 0.02))
+    keep = w > 0
+    ty, tx, p, w = ty[keep], tx[keep], p[keep], w[keep]
+    painted, own = _lab(out[ty, tx]), _lab(model[ty, tx])
+
+    def skin(lab):
+        return (w > 0.5) & (lab[:, 0] > 35) & (np.hypot(lab[:, 1], lab[:, 2]) > 10)
+
+    sp, so = skin(painted), skin(own)
+    for k in range(3):
+        spread = painted[sp, k].std() / max(own[so, k].std(), 1e-6)
+        own[:, k] = painted[sp, k].mean() + (own[:, k] - own[so, k].mean()) * spread
+    lips = float(o.get("lips", 0.0))
+    if lips:
+        mouth = ((np.abs(p[:, 2] - eye[2]) * HEIGHT_M < 0.035) & ((eye[1] - p[:, 1]) * HEIGHT_M > 0.05)
+                 & ((eye[1] - p[:, 1]) * HEIGHT_M < 0.10) & ((p[:, 0] - eye[0]) * HEIGHT_M > -0.01))
+        sk = skin(own)
+        a0, b0 = own[sk, 1].mean(), own[sk, 2].mean()
+        red = mouth & (own[:, 1] > a0 + 2.0)
+        own[red, 1] += (a0 - own[red, 1]) * lips
+        own[red, 2] += (b0 - own[red, 2]) * lips * 0.5
+        own[red, 0] *= 1.0 - 0.15 * lips
+    own[:, 1:] *= float(o.get("chroma", 1.0))
+    share = float(o.get("paint", 0.0))
+    lab = own * (1 - share) + painted * share
+    out[ty, tx] = out[ty, tx] * (1 - w[:, None]) + _rgb(lab) * w[:, None]
+    print("  his head under the hat from %s: %d texels, graded to the painter's skin, %.0f%% of the painter's kept" % (
+        cfg["from"], keep.sum(), share * 100))
+
+
 def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
     """His eyes drawn over `out` (in place): EYE_WHITE and friends, from his face's landmarks."""
     face = face_points(cid)
@@ -1020,6 +1090,9 @@ def bake(cid):
     skin = dict(bk.get("skin") or {}, **SKIN)
     if skin and not SMOOTH:
         even_skin(out, cid, pos, nrm, uv, tris, size, cut, skin)
+    face = dict(bk.get("face") or {}, **FACE) if FACE is not None else {}
+    if face.get("from") and not SMOOTH:
+        model_face(out, cid, pos, uv, tris, size, face)
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
@@ -1080,7 +1153,7 @@ def dry_run(cid):
 
 
 def main():
-    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES
+    global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1114,6 +1187,13 @@ def main():
         elif a == "--eyes=off":
             # The painter's eyes as painted (nothing drawn over them).
             EYES = None
+        elif a == "--face=off":
+            # The painter's face as painted (`bake.face` left out).
+            FACE = None
+        elif a.startswith("--face="):
+            # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6
+            FACE = {k: (x if k == "from" else float(x))
+                    for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a.startswith("--eyes="):
             # How his eyes are drawn (draw_eyes): --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024
             # (a colour as r/g/b: white:222/206/186)

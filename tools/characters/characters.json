@@ -134,6 +134,7 @@
     "flatten": 0,
     "view_power": 0,
     "skin": {"even": 0, "hue": 0, "stubble": 1.0},
+    "face": {"from": "stranger2_rodin", "lips": 0.6, "paint": 0.25, "chroma": 0.85},
     "eyes": {"open": 0.95, "size": 1.12, "clean": 1.3, "lid": 0.003, "iris": 1.2, "glint": 0.26,
              "white": [222, 208, 190], "shade": [178, 160, 140], "iris_rgb": [50, 31, 20], "rim_rgb": [22, 13, 9]}
    }
