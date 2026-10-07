@@ -3954,6 +3954,20 @@ a few views renders them as the full run does.
   out of the opening under it. Tests `test_fire_fx` (2). Goldens: the three `store_fire_*` views
   re-approved from two `--fresh` runs (art's files, said here); every other view passes. The look
   of each tongue is still the art session's (`flame.gdshader`).
+- 2026-10-06 (Sean's planning chat, docs only): **A set-direction brief**
+  (`docs/briefs/set-direction.md`; Sean: a set director "so they all look unique"). A card for
+  each building: owner, age and money, its own colours, sign hand, front, wear, what's seen
+  inside, and how it differs from its neighbours. First-pass cards for the Main Street
+  buildings wait on Sean's OK. A blind "set director" check after each building is dressed:
+  can a fresh agent tell what it is and who owns it, and what looks repeated? The art session
+  writes the cards and dresses to them; gameplay builds from them. Open: the bank's brick front.
+- 2026-10-06 (Sean's planning chat, docs only): **Brick for the bank, maybe the jail.** Sean: the
+  bank "should be brick - maybe the jail should be too". `docs/briefs/set-direction.md`: the
+  bank's card is brick (Sean's OK), pressed and even with stone trim; the jail's card is brick
+  (proposed), common brick laid rough, so the two don't read as a pair; a note for the gameplay
+  session that brick as a material (chips, doesn't burn, cracks into chunks under dynamite, the
+  jail's back wall the jailbreak target) wants a brief before it's built. `docs/TOWN.md`'s table
+  follows. Later: Sean confirmed the jail ("Yes"), so both cards say brick.
 - 2026-10-06 (art session, merge 2): **Sun rays, the hero mountains, the jail, the town's
   lettering, the stranger at the card table.** Sean: "sun rays like the concept", "mountains
   closer to the concept", the jail "the same work over" as the saloon, "the letters are not crisp
