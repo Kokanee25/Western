@@ -46,15 +46,15 @@
   ],
   "square_texels": 1,
   "cells": {
-   "head": 0.008,
+   "head": 0.009,
    "body": 0.009,
    "hair": 0.008
   },
   "shapes": {
    "head": {
     "size": [
-     876,
-     900
+     938,
+     980
     ],
     "islands": 172
    },
@@ -67,7 +67,7 @@
    }
   },
   "texels_per_square": {
-   "head": 6,
+   "head": 7,
    "skin": 3
   },
   "inside": {
@@ -76,14 +76,16 @@
     "clip": 40.0,
     "soft": 0.17,
     "calm": 0.4,
-    "sigma": 25.0
+    "sigma": 25.0,
+    "weave": 0.15
    },
    "skin": {
     "detail": 0.0,
     "clip": 40.0,
     "soft": 0.25,
     "calm": 0.25,
-    "sigma": 25.0
+    "sigma": 25.0,
+    "weave": 0.2
    }
   }
  },

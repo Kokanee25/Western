@@ -371,8 +371,10 @@ func test_the_stylised_strangers_squares_are_lit_as_squares() -> void:
 	# tools/blender/fit_tripo.py (people.json `cells`) lays his texture out in whole squares, so the
 	# game lights each square of him as one flat tone, as the painting's are (in his model's own
 	# atlas a square was ~16 texels a side and the light ran smooth across it). His head's squares
-	# are six texels a side, lit as one, so his eyes are drawn finer than his squares; his body's
-	# three, so a square's edge can meet the next softly.
+	# are lit as one at as many texels a side as his report says, more than his body's, so his eyes
+	# are drawn finer than his squares; his body's three, so a square's edge can meet the next softly.
+	var report: Variant = JSON.parse_string(FileAccess.get_file_as_string(PeopleBodies.REPORT_PATH % "stranger2s"))
+	var per: Dictionary = (report as Dictionary).get("texture", {}).get("texels_per_square", {})
 	var him := HumanBody.new()
 	him.body_model = &"stranger2s"
 	him.person_id = &"stranger2s_cells_test"
@@ -387,9 +389,9 @@ func test_the_stylised_strangers_squares_are_lit_as_squares() -> void:
 	check(head != null and skin != null, "his head and his body's pieces (%s)" % [him.skin_meshes.keys()])
 	var hm := head.material_override as ShaderMaterial
 	var sm := skin.material_override as ShaderMaterial
-	check(float(hm.get_shader_parameter(&"square_texels")) == 6.0,
-			"his head lit six texels a side as one (%s)" % hm.get_shader_parameter(&"square_texels"))
-	check(float(sm.get_shader_parameter(&"square_texels")) == 3.0,
+	check(float(hm.get_shader_parameter(&"square_texels")) == float(per.get("head", 0)) and float(per.get("head", 0)) > 3.0,
+			"his head lit %s texels a side as one, as his report says (%s)" % [per.get("head"), hm.get_shader_parameter(&"square_texels")])
+	check(float(sm.get_shader_parameter(&"square_texels")) == 3.0 and float(per.get("skin", 0)) == 3.0,
 			"his body lit three texels a side as one (%s)" % sm.get_shader_parameter(&"square_texels"))
 	var tex := sm.get_shader_parameter(&"albedo_tex") as Texture2D
 	check(tex.get_width() <= 1024 and tex.get_height() <= 1024 and tex.get_width() % 3 == 0 and tex.get_height() % 3 == 0,

@@ -158,11 +158,25 @@ SMOOTH = False  # --smooth: see main()
 # The body and hair are `body_texels` / `hair_texels` texels a square, so there are texels to carry
 # it; the squares round a drawn eye are left as they are. `detail` keeps that share of each texel's
 # own painted colour inside its square (at most `detail_clip` levels): tried at 0.12-0.3 it made his
-# squares noisier and his face smeared, and the judge agreed, so it's off.
+# squares noisier and his face smeared, and the judge agreed, so it's off. A negative `calm` draws
+# the painter's mottle bolder instead (_inside_squares).
+# The weave: the bold painting's coat is a tweed drawn square by square, each square a shade off the
+# next in diagonal rows (its lit squares differ from their neighbours by ~5-6 L* where the painter's
+# coat, cut into our squares, differs by ~3: its mottle runs in patches of a few squares, so
+# drawing it bolder made blotches, not tweed). `weave` ({shape: share}) draws a twill over the
+# painter's colours: on each facing's plane the squares run in diagonal rows `weave_period` squares
+# apart, half a period lighter and half darker by that share, mixed with `weave_noise` of a shade
+# of each square's own (a hash of where it is, so it repeats), on cloth only: squares no lighter
+# than `weave_max_l` L*, not skin-coloured, and further than `weave_hand` metres from his hands. On
+# his head it's his hat's felt: only squares `weave_head_above` metres over his eyes (his brows
+# and moustache keep their drawing), `weave_head_noise` of it each square's own shade (felt has
+# no rows).
 CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_texels": 3, "hair_texels": 3,
          "gutter": 1, "samples": [2, 2], "eye_zone": [0.019, 0.008, 0.03],
          "detail": 0.0, "detail_clip": 40.0, "soft": {"head": 0.17, "skin": 0.25},
-         "calm": {"head": 0.4, "skin": 0.25}, "calm_sigma": 25.0}
+         "calm": {"head": 0.4, "skin": 0.25}, "calm_sigma": 25.0,
+         "weave": {"head": 0.0, "skin": 0.0}, "weave_period": 4, "weave_noise": 0.5, "weave_max_l": 46.0,
+         "weave_hand": 0.075, "weave_head_noise": 1.0, "weave_head_above": 0.035}
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
@@ -1371,14 +1385,54 @@ _PLANES = {0: ((0, 0, -1), (0, -1, 0)), 1: ((0, 0, 1), (0, -1, 0)),   # -X, +X
            4: ((-1, 0, 0), (0, -1, 0)), 5: ((1, 0, 0), (0, -1, 0))}   # -Z, +Z
 
 
-def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft, calm=0.0, sigma=25.0):
+def _lab(rgb):
+    """CIE L*a*b* (D65) of sRGB colours (0-255, any shape ending in 3)."""
+    c = np.asarray(rgb, dtype=np.float64) / 255.0
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    xyz = lin @ np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]).T
+    xyz /= np.array([0.95047, 1.0, 1.08883])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16.0 / 116.0)
+    return np.stack([116.0 * f[..., 1] - 16.0, 500.0 * (f[..., 0] - f[..., 1]), 200.0 * (f[..., 1] - f[..., 2])], -1)
+
+
+def _weave(blocks, eye, plane, weave, period, noise, max_l, hands, hand_r, above=None):
+    """The squares of `blocks` (rows of squares × columns × RGB) with the weave drawn over the
+    cloth among them (CELLS `weave`): `plane` is each square's (column, row, facing) on its facing's
+    plane and its middle in our body space (facing -1: no square there); `above`, a height in our
+    body space the cloth must be over (his hat)."""
+    bi, bj, bf, bpos = plane
+    lab = _lab(blocks)
+    chroma = np.hypot(lab[..., 1], lab[..., 2])
+    hue = np.degrees(np.arctan2(lab[..., 2], lab[..., 1]))
+    skin = (chroma > 20) & (hue > 35) & (hue < 80) & (lab[..., 0] > 35)
+    cloth = (bf >= 0) & ~eye & (lab[..., 0] <= max_l) & ~skin
+    for h in hands:
+        cloth &= np.linalg.norm(bpos - np.asarray(h), axis=-1) > hand_r
+    if above is not None:
+        cloth &= bpos[..., 1] > above
+    # Diagonal rows (a twill): half a period of squares lighter, half darker.
+    twill = np.where((bi + bj) % period < period / 2.0, 1.0, -1.0)
+    # Each square's own shade: a hash of where it is, the same every fit.
+    hsh = (bi.astype(np.uint64) * np.uint64(73856093)) ^ (bj.astype(np.uint64) * np.uint64(19349663)) ^ \
+        ((bf + 7).astype(np.uint64) * np.uint64(83492791))
+    hsh = (hsh ^ (hsh >> np.uint64(13))) * np.uint64(1274126177)
+    own = ((hsh >> np.uint64(16)) & np.uint64(1023)).astype(np.float64) / 1023.0 * 2.0 - 1.0
+    shade = 1.0 + weave * ((1.0 - noise) * twill + noise * own)
+    return np.where(cloth[..., None], blocks * shade[..., None], blocks), int(cloth.sum())
+
+
+def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft, calm=0.0, sigma=25.0,
+                    weave=0.0, plane=None, weave_opts=None):
     """The inside of each k×k square of `img` (filled, rows down): `detail` of each texel's own
     painted colour (the middle of its samples by lightness: `rgb`, `lum` at texels `tx`, `ty`) less
     its square's, at most `clip` levels; and within `soft` of a square's edge (a share of the
     square) a lean toward the square across it, half way at the edge, so neighbouring squares meet
     softly. First, `calm`: each square moves that share toward the squares round it, each weighed
     by how near its colour is (a Gaussian of `sigma` levels), so blotches of near tones calm while
-    a brow or a moustache against skin keeps its edge. The squares in `eye_blocks` (block keys, rows
+    a brow or a moustache against skin keeps its edge. A negative `calm` moves it away from them
+    instead: its difference from the near-coloured squares round it grows by that share, so the
+    painter's own mottle (a coat's tweed) is drawn bolder, and an edge between two colours, whose
+    squares weigh nothing to each other, stays where it was. The squares in `eye_blocks` (block keys, rows
     of W // k + 1) keep their texels, and their neighbours don't lean toward them (for that they
     stand as the mean of the squares round them)."""
     H = img.shape[0]
@@ -1390,7 +1444,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
         eye[by_, bx_] = True
     BY, BX = np.arange(H) // k, np.arange(W) // k
     out = img.copy()
-    if calm > 0:
+    if calm != 0:
         acc = np.zeros_like(blocks)
         num = np.zeros((nby, nbx))
         for dy in (-1, 0, 1):
@@ -1404,6 +1458,11 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
         moved[eye] = 0.0
         out += moved[BY][:, BX]
         blocks = blocks + moved
+    if weave > 0 and plane is not None:
+        woven, n = _weave(blocks, eye, plane, weave, **(weave_opts or {}))
+        out += (woven - blocks)[BY][:, BX]
+        blocks = woven
+        print("    the weave on %d squares" % n)
     if soft > 0:
         lean = blocks.copy()
         if eye.any():
@@ -1447,7 +1506,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 
 
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
-                calm=0.0, sigma=25.0):
+                calm=0.0, sigma=25.0, weave=0.0, weave_opts=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1457,8 +1516,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     their own colours (his eyes); elsewhere a square of k×k texels is one colour, give or take
     `detail` of each texel's own (at most `clip` levels), `soft`, the share of a square from its
     edge over which it leans toward the square across it, and `calm` (with `sigma`), how far it
-    moves toward the squares round it of near colour (CELLS, _inside_squares). Returns the texture
-    (rows down) and the islands' count."""
+    moves toward the squares round it of near colour, then `weave` drawn over its cloth
+    (`weave_opts`: period, noise, max_l, hands, hand_r; CELLS, _inside_squares, _weave). Returns
+    the texture (rows down) and the islands' count."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1662,9 +1722,26 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
             grow[take] = sh_img[take]
             got |= take
         img, have = grow, got
-    if k > 1 and (detail > 0 or soft > 0 or calm > 0):
+    plane = None
+    if k > 1 and weave > 0:
+        # Each square's place on its facing's plane (the islands sit at whole squares, so a square of
+        # the texture is one square of the plane) and its middle in our body space, for the weave.
+        nby_, nbx_ = H // k, W // k
+        sby, sbx = ty // k, tx // k
+        fits = (sby < nby_) & (sbx < nbx_)
+        bi = np.zeros((nby_, nbx_), dtype=np.int64)
+        bj = np.zeros((nby_, nbx_), dtype=np.int64)
+        bf = np.full((nby_, nbx_), -1, dtype=np.int64)
+        bpos = np.zeros((nby_, nbx_, 3))
+        at = (P[st] * bary[:, :, None]).sum(axis=1)
+        bi[sby[fits], sbx[fits]] = np.floor(x[fits] / k).astype(np.int64)
+        bj[sby[fits], sbx[fits]] = np.floor(y[fits] / k).astype(np.int64)
+        bf[sby[fits], sbx[fits]] = facing[st][fits]
+        bpos[sby[fits], sbx[fits]] = at[fits]
+        plane = (bi, bj, bf, bpos)
+    if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0):
         img = _inside_squares(img, k, W, rgb, lum, tx, ty, bk[own] if own.any() else None, detail, clip, soft,
-                              calm, sigma)
+                              calm, sigma, weave, plane, weave_opts)
     layer.data.foreach_set("uv", new.ravel())
     mesh.update()
     return np.clip(img, 0, 255).astype(np.uint8), islands
@@ -1690,10 +1767,20 @@ def cell_textures(person, colour, cells):
         # `skin` standing for any shape not named.
         out = {}
         for key, name in (("detail", "detail"), ("detail_clip", "clip"), ("soft", "soft"), ("calm", "calm"),
-                          ("calm_sigma", "sigma")):
+                          ("calm_sigma", "sigma"), ("weave", "weave")):
             v = o[key]
             out[name] = float(v.get(shape, v.get("skin", 0.0)) if isinstance(v, dict) else v)
         return out
+
+    # The weave's rows, its share of each square's own shade, the lightest square it's drawn on and
+    # how far it keeps from his hands (the anatomy's, in our body space: his rest pose).
+    segs = person.env["segments"]
+    weave_opts = {"period": int(o["weave_period"]), "noise": float(o["weave_noise"]),
+                  "max_l": float(o["weave_max_l"]), "hand_r": float(o["weave_hand"]),
+                  "hands": [segs[h]["center"] for h in ("hand_l", "hand_r") if h in segs]}
+    # On his head, only over his brows (no drawn eyes found: nowhere).
+    head_weave = dict(weave_opts, noise=float(o["weave_head_noise"]),
+                      above=float(np.mean([e[1] for e in eyes])) + float(o["weave_head_above"]) if eyes else np.inf)
 
     done = {}
     per = {}
@@ -1704,14 +1791,15 @@ def cell_textures(person, colour, cells):
         if shape == "head":
             k = int(o["head_texels"])
             img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None, True,
-                                   **inside(shape))
+                                   weave_opts=head_weave, **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
-            img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], **inside(shape))
+            img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
+                                   **inside(shape))
         elif piece is not None and getattr(piece, "colour", None) is not None:
             k = int(o.get(shape + "_texels", o["body_texels"]))
             img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), k,
-                                   o["samples"][1], o["gutter"], **inside(shape))
+                                   o["samples"][1], o["gutter"], weave_opts=weave_opts, **inside(shape))
         else:
             continue
         Image.fromarray(img).save(os.path.join(OUT, "%s_%s.png" % (person.id, shape)))

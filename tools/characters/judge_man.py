@@ -2,6 +2,7 @@
 """The character judge: the seated man alone against the painting's man, by style, not likeness.
 
     python3 tools/characters/judge_man.py --from=DIR [--note="what changed"] [--name=TAG] [--dry]
+        [--painting=blocks|night]
     python3 tools/characters/judge_man.py --probes     (the self-test; exits 1 if it ranks wrongly)
 
 The reference judge (tools/judge.py, the art session's) scores the whole frame, so a change to
@@ -12,8 +13,13 @@ saloon shot and his outline from the same camera:
     xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- \\
         --out=DIR --only=shot_match_saloon --model=stranger2s --fresh --no-mosaic --man-mask
 
-(shot_match_saloon.png and shot_match_saloon_man.png). The painting's man is its hand-traced
-outline (tools/paint/align.py SHOT_OUTLINE). The cup in his hand is left out of both (CUP).
+(shot_match_saloon.png and shot_match_saloon_man.png). The painting is DESIGN.md §4's saloon
+target, docs/concept/saloon-blocks.png (the saloon painting redrawn in the bold style: the same
+man, pose and framing, lit brighter and more evenly, in bolder squares); --painting=night judges
+against the old saloon-night.png, the room's mood. Rounds up to 2026-10-06_r4 were judged against
+saloon-night.png, so their scores don't compare. The painting's man is its hand-traced outline
+(tools/paint/align.py SHOT_OUTLINE: the man is the same in both). The cup in his hand is left out
+of both (CUP).
 
 He needn't look like the painting's man, only be drawn in its style (Sean, the same day), so
 what's scored is how he's drawn and lit, never where his features are. Inside each outline, at
@@ -52,7 +58,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import judge  # noqa: E402  (the reference judge's colour space and measures, shared not copied)
 
-PAINTING = os.path.join(ROOT, "docs", "concept", "saloon-night.png")
+# The painting he's judged against (--painting=): DESIGN.md §4's saloon target since 2026-10-05,
+# and the old night painting.
+PAINTINGS = {"blocks": "saloon-blocks.png", "night": "saloon-night.png"}
+PAINTING = os.path.join(ROOT, "docs", "concept", PAINTINGS["blocks"])
 OUT_DIR = os.path.join(ROOT, "docs", "screenshots", "tripo", "judge")
 RENDER = "shot_match_saloon.png"
 MASK = "shot_match_saloon_man.png"
@@ -354,13 +363,14 @@ def run(src: str, note: str, name: str, dry: bool) -> float:
     out = next_round()
     os.makedirs(out)
     picture(p_img, p_mask, o_img, o_mask, score, diffs).save(os.path.join(out, "man.png"))
+    target = os.path.basename(PAINTING)
     report = {"round": os.path.basename(out), "from": os.path.relpath(src, ROOT) if src.startswith(ROOT) else src,
-              "note": note, "score": score, "groups": groups, "differences": diffs, "ours": plain(ours),
-              "painting": plain(theirs)}
+              "note": note, "against": target, "score": score, "groups": groups, "differences": diffs,
+              "ours": plain(ours), "painting": plain(theirs)}
     json.dump(report, open(os.path.join(out, "report.json"), "w"), indent=1)
     lines = ["# Character judge, %s" % os.path.basename(out), "", note or "", "",
-             "Score **%.3f** (the mean severity; lower is closer): %s. From `%s`." % (
-                 score, ", ".join("%s %.3f" % g for g in groups.items()), report["from"]), "",
+             "Score **%.3f** (the mean severity; lower is closer): %s. From `%s`, against the man in `%s`." % (
+                 score, ", ".join("%s %.3f" % g for g in groups.items()), report["from"], target), "",
              "| Severity | Group | Difference |", "|---|---|---|"]
     lines += ["| %.2f | %s | %s |" % (sev, group, words) for sev, words, group in diffs]
     lines += ["", "![the two men](man.png)", ""]
@@ -370,8 +380,11 @@ def run(src: str, note: str, name: str, dry: bool) -> float:
         open(hist, "w").write("# The character judge's rounds (tools/characters/judge_man.py)\n\n"
                               "| Round | Note | Score | Light | Colour | Squares | Biggest differences |\n"
                               "|---|---|---|---|---|---|---|\n")
+    words = note or name or ""
+    if target != PAINTINGS["blocks"]:
+        words = "(against %s) %s" % (target, words)
     open(hist, "a").write("| %s | %s | %.3f | %s | %s | %s | %s |\n" % (
-        os.path.basename(out), note or name or "", score,
+        os.path.basename(out), words, score,
         *["%.3f" % groups[g] if g in groups else "" for g in ("light", "colour", "squares")],
         "; ".join(w for _s, w, _g in diffs[:3])))
     print("wrote", os.path.relpath(out, ROOT))
@@ -420,7 +433,14 @@ def probes() -> bool:
 
 
 def main() -> None:
+    global PAINTING
     args = sys.argv[1:]
+    for a in args:
+        if a.startswith("--painting="):
+            if a[11:] not in PAINTINGS:
+                print("--painting= takes", ", ".join(PAINTINGS))
+                sys.exit(2)
+            PAINTING = os.path.join(ROOT, "docs", "concept", PAINTINGS[a[11:]])
     if "--probes" in args:
         sys.exit(0 if probes() else 1)
     src, note, name = None, "", ""

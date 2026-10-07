@@ -811,19 +811,28 @@ a few views renders them as the full run does.
   stylised stranger it looked silly, Sean). `people.json` `cells` lays his
   texture out **in whole squares** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
   plane square to the way it faces, one of six along his body's axes, in squares of 9 mm below
-  the collar and 8 mm on his head and hair; islands split where a sheet folds over itself, packed
-  at whole squares; each square's colour from the plain repaint by `in_cells`' rules), so the
-  game's per-texel light lights each square as one flat tone; a square is six texels a side on his
-  head, three on his body and hair (his report's `texture.texels_per_square`, which
-  `PeopleBodies` hands `body_skin` as `square_texels`). Inside a square (`_inside_squares`): each
-  square calmed toward the squares round it of near colour (`calm`), and its edge texels leaning
-  toward the square across it (`soft`), so his squares meet softly as the painting's do; the
-  squares round his drawn eyes keep their texels, so they stay as drawn; `detail` (a faint share
-  of the painter's own texels inside each square) is there, off. `fit_tripo.py --cells=key:value,...`
-  tries other numbers (`soft.head:0.17` for one shape). His bake then has no `cells`.
+  the collar and 8 mm on his head and hair (`stranger2s`: 9 on his head too); islands split where
+  a sheet folds over itself, packed at whole squares; each square's colour from the plain repaint
+  by `in_cells`' rules), so the game's per-texel light lights each square as one flat tone; a
+  square is six texels a side on his head (`stranger2s` seven), three on his body and hair (his
+  report's `texture.texels_per_square`, which `PeopleBodies` hands `body_skin` as
+  `square_texels`). Inside a square (`_inside_squares`): each square calmed toward the squares
+  round it of near colour (`calm`; negative, the painter's own mottle drawn bolder: it ran in
+  blotches), and its edge texels leaning toward the square across it (`soft`), so his squares meet
+  softly as the painting's do; the squares round his drawn eyes keep their texels, so they stay as
+  drawn; `detail` (a faint share of the painter's own texels inside each square) is there, off.
+  **The weave** (`weave`, `_weave`): a tweed drawn over his cloth square by square, as the bold
+  painting's coat is: on each facing's plane diagonal rows of squares (`weave_period`) half
+  lighter and half darker, mixed with `weave_noise` of each square's own shade (a hash of where
+  it is), on squares that aren't skin, no lighter than `weave_max_l`, away from his hands; on his
+  head only over his brows (`weave_head_above`: his hat's felt, no rows). `fit_tripo.py
+  --cells=key:value,...` tries other numbers (`soft.head:0.17` for one shape). His bake then has no
+  `cells`.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
   reference judge scores the whole frame, where the man is a small part): the seated man alone
-  against the painting's man, by style not likeness, inside his outline (`tools/screenshots.gd
+  against the man in `saloon-blocks.png` (DESIGN.md §4's saloon target; `--painting=night` the old
+  painting; rounds up to `2026-10-06_r4` were against it and don't compare), by style not
+  likeness, inside his outline (`tools/screenshots.gd
   --man-mask` writes `<view>_man.png`, him white on black from the same camera) and the
   painting's man's traced one (`align.SHOT_OUTLINE`), the cup left out of both: light, colour,
   squares (size by masked autocorrelation, contrast with the eight round each, flatness: the
@@ -4157,3 +4166,49 @@ a few views renders them as the full run does.
   - Picture: `docs/screenshots/tripo/stranger2s_no_long_hair.png` (the shot and his head in plain
     light, with the hair and without).
   - Main never had the hair, so nothing changes there. All 361 tests pass.
+- 2026-10-07 (characters session): **The character judge on the right painting; the stylised
+  stranger's coat drawn as tweed.** Sean: "Yeah I don't think our guy is quite there yet", to
+  judging him under the art session's new light first, then his coat.
+  - **The judge's painting.** `judge_man.py` had been judging him against `saloon-night.png`'s man
+    since I wrote it. DESIGN.md §4's saloon target is `saloon-blocks.png`: the same man and
+    outline, lit brighter and more evenly, in bolder squares (median L* 17 to 9, deep-shadow share
+    0.31 to 0.53, square contrast 6.5 to 4.4). It judges against that now (`--painting=night` for
+    the old one); rounds up to `2026-10-06_r4` don't compare, and the light numbers I sent the art
+    session before were against the wrong painting (corrected to it).
+  - **Under the art session's light** (its merge 2's ShotMatch fill and per-man eye gain, applied
+    for the render only), round r4's man scores 0.631 (0.666 without it). The fill lights his coat
+    and his shadow side as the painting does, but:
+    - his lamp-side face burns: top tenth L* 79 to the painting's 55;
+    - all of him is too saturated and yellow: chroma 30 to 22, b* 24 to 17.
+    The art session's own render with main's texture shows the same, so it's the light; sent to
+    the art session as data.
+  - **What was mine:** under even light his squares were flatter than the bold painting's (0.74
+    to 0.59 of neighbouring lit pixels within 1 L*; coat 0.79 to 0.63, hat 0.69 to 0.53). The
+    painting's coat is a tweed drawn square by square: each lit square 5-6 L* off its neighbours,
+    in diagonal rows. The painter's coat, cut into our squares, differs by about 3, and its
+    variation runs in patches a few squares across.
+  - **Tried:** a negative `calm`, the painter's own mottle drawn bolder: -0.75 scored 0.614, -1.5
+    0.624. Bolder patches read as blotches, and the grain passed the painting's.
+  - **Kept: the weave** (`fit_tripo.py` `_weave`, CELLS `weave` and its settings; layout note
+    above), set in `people.json` `cells` for `stranger2s`:
+    - a twill over his coat, vest and trousers at 0.2: 0.601;
+    - his head's squares 9 mm at 7 texels a side (was 8 mm at 6; his eyes keep their texels):
+      0.599;
+    - felt on his hat at 0.15, over his brows only: 0.596.
+  - **Judge rounds** (`docs/screenshots/tripo/judge/`, renders in `renders/`):
+
+    | Round | His texture | Light | Score | Squares |
+    |---|---|---|---|---|
+    | `2026-10-07_r1` | round r4's | the art session's | 0.631 | 0.358 |
+    | `2026-10-07_r2` | the weave | the art session's | 0.596 | 0.280 |
+    | `2026-10-07_r3` | the weave | the branch's (no fill) | 0.644 | 0.117 |
+
+    His coat under the art light: flatness 0.68 (the painting's 0.63), square contrast 6.3 (6.2).
+  - **Known:** on the broad back of his coat, in plain light, the twill's rows read as regular
+    diagonal stripes, more pattern than the painting's tweed (more of each square's own shade
+    there is the next thing to try).
+  - Picture: `docs/screenshots/tripo/stranger2s_weave.png` (the bold painting's man, round r1's
+    and now under the art light; their forearms at 3×; now in plain light, front and back).
+  - **Other sessions' files:** `tests/test_bodies.gd` (gameplay's): the squares test reads his
+    head's texels a square from his report (it was pinned at six).
+  - Main merged in (8618c37: 368 tests pass); the body, hat and shot tests pass on this.
