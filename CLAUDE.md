@@ -4009,6 +4009,76 @@ a few views renders them as the full run does.
   out of the opening under it. Tests `test_fire_fx` (2). Goldens: the three `store_fire_*` views
   re-approved from two `--fresh` runs (art's files, said here); every other view passes. The look
   of each tongue is still the art session's (`flame.gdshader`).
+- 2026-10-06 (Sean's planning chat, docs only): **A set-direction brief**
+  (`docs/briefs/set-direction.md`; Sean: a set director "so they all look unique"). A card for
+  each building: owner, age and money, its own colours, sign hand, front, wear, what's seen
+  inside, and how it differs from its neighbours. First-pass cards for the Main Street
+  buildings wait on Sean's OK. A blind "set director" check after each building is dressed:
+  can a fresh agent tell what it is and who owns it, and what looks repeated? The art session
+  writes the cards and dresses to them; gameplay builds from them. Open: the bank's brick front.
+- 2026-10-06 (Sean's planning chat, docs only): **Brick for the bank, maybe the jail.** Sean: the
+  bank "should be brick - maybe the jail should be too". `docs/briefs/set-direction.md`: the
+  bank's card is brick (Sean's OK), pressed and even with stone trim; the jail's card is brick
+  (proposed), common brick laid rough, so the two don't read as a pair; a note for the gameplay
+  session that brick as a material (chips, doesn't burn, cracks into chunks under dynamite, the
+  jail's back wall the jailbreak target) wants a brief before it's built. `docs/TOWN.md`'s table
+  follows. Later: Sean confirmed the jail ("Yes"), so both cards say brick.
+- 2026-10-06 (art session, merge 2): **Sun rays, the hero mountains, the jail, the town's
+  lettering, the stranger at the card table.** Sean: "sun rays like the concept", "mountains
+  closer to the concept", the jail "the same work over" as the saloon, "the letters are not crisp
+  enough".
+  - **Sun and sky:** rays round the low sun (`src/render/sun_rays.gdshaderinc`, by direction in
+    the sky and over the backdrop, nothing reads TIME); the low sun a gold disk 2.4 times its
+    noon size (was a white burn); warmer backdrop light, valley dust at the land's foot. The
+    street shot is at 17.82 (`StreetMatch.HOUR`, its row in `tools/screenshots.gd`), so the sun
+    stands in the mountains' notch.
+  - **The hero layer** (`backdrop.json` layer `hero`, People run 56, ~$0.30): two great masses
+    with a notch where the sun sets, a cathedral of spires right and a hazed massif left, cut at
+    0.62 of its span, shifted 5.6 degrees so the notch is on the sun's bearing (274), haze 0.22.
+    At 0.85 it towered over the jail and hid the sun; at 0.55 the cathedral hid behind the jail.
+  - **The jail** to the street painting: whitewashed boards drawn square by square
+    (`draw_boards.py` `jail_boards`, added last so the other woods' seeds don't change),
+    battens, a plain cap, JAIL painted on the boards, cell windows with iron grids, posters, a
+    side cell window, and `GoldenFill` (`src/art/golden_fill.gd`: a warm spot on a front the low
+    sun only rakes, golden hour only).
+  - **The town's lettering:** `tools/textures/pixel_font.py`, a Western slab alphabet drawn on
+    the square grid (every stem 3 squares, every diagonal even, the A's left leg a full stem);
+    `letter_sign.py` sets every sign in it (`font: "pixel"`); painted-on-the-boards signs are an
+    ink decal (`<id>_ink.png`), so no patch board shows. Telegraph, doctor and bank dressed
+    as the store is (`config/town.json`: `facade: "store"`, gameplay's file).
+  - **The saloon shot's man** is the characters session's `stranger2s` (`ShotMatch.model`, his
+    FITS entry), lit by a warm fill from just right of your seat (`ShotMatch._fill`): coat L* 4
+    -> 20, his far cheek 14 -> 48 (the painting's 17 and 49). Per-man eye gain:
+    `body_skin.gdshaderinc` `eye_gain` from his fit report (`PeopleBodies.report()`, characters'
+    file; `human_body.gd` `_wet_eyes`, gameplay's, one line each).
+  - Other sessions' files touched (said in the commits): `config/town.json`,
+    `src/bodies/human_body.gd`, `src/bodies/people_bodies.gd`, `tests/test_chaos.gd`.
+  - Judge v2 round `2026-10-06_r2`: saloon 0.530 -> **0.348**, street 0.556 -> **0.508**.
+    Blind critic, top three: his face too bright and wide-eyed (the lamp's key burns his near
+    cheek; the painting's man is stern under his brim); the sky lavender, not gold (stars at
+    golden hour: gameplay had already fixed them on main, `DayCycle.get_starlight()`); the room
+    behind him dark murk (sconces, doorway, balcony unread).
+  - Goldens: all 70 re-approved from two `--fresh` runs on the merged tree (the 19 views main's
+    smoke, flames and stars touch rendered again on it); visual checks 374, none failed. The
+    three `store_fire_*` goldens re-approved again from two more runs: this workspace's native
+    library was from before the smoke grid, so they'd been taken with particle smoke.
+  - **Next (merge 3), ready on the branch after this merge:** fire steps 1-2
+    (`docs/briefs/fire-look.md`: flames drawn as a flipbook by `tools/textures/draw_flames.py`,
+    `flame.gdshader` solid colour with alpha scissor, not additive; char in the drawn wood's
+    squares with a glowing rim, `char_overlay.gdshader`), the view `livery_fire_dusk`, and the
+    pixel alphabet's `&` and `$`. Judge them with gameplay's bigger flames (on main, 6081685).
+    Then: the seated man's light from the characters session's numbers (their
+    `tools/characters/judge_man.py`, on their branch): the fill more neutral (him chroma 30 vs
+    22, b* 24 vs 17) and the table lamp's key off his near cheek (face top tenth 80 vs 55). The
+    characters session's later numbers (2026-10-07, its round `_r6`, his new face, which is on
+    its branch and not on main): 0.562 as rendered; his L* × 0.76 and chroma × 0.75 gives 0.233.
+    After that, his face is still too bright (median L* 33 vs 29) while his hat's and coat's lit
+    parts are too dim (26 vs 34, 34 vs 40). So the key on his face comes down more than the fill
+    on his hat and coat. Send it the light patch to re-judge its man under it. Fire
+    step 3, the smoke (it can't show against the sky: `sky.gdshader`'s `disable_fog` keeps every
+    fog off sky pixels; painted puffs or a fog-aware sky); the saloon room (task: sconces
+    lighting their walls); the other fronts (livery, barber, hotel, assay) to the saloon's
+    standard.
 - 2026-10-06 (characters session, later): **The stylised stranger's hair to his collar, a piece of
   its own.** Sean: "we need to keep working on the model". The open question was the painting's
   long hair or the short hair from his picture; I took the painting's.

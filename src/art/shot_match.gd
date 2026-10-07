@@ -56,10 +56,11 @@ const FITS := {
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
-## Which generated body the seated man wears (assets/people/<model>.glb): the Tripo man
-## (`stranger`, tools/blender/fit_tripo.py; the default since 2026-10-03) or the MakeHuman
-## `outlaw`; tools/screenshots.gd --model=.
-static var model: StringName = &"stranger"
+## Which generated body the seated man wears (assets/people/<model>.glb): the stylised Rodin man
+## (`stranger2s`, the characters session's, the default since 2026-10-06), the Tripo man
+## (`stranger`), or the MakeHuman `outlaw`; tools/screenshots.gd --model=. Each has his own seat
+## and pose in FITS (else SEAT, TURN, POSE_OFFSETS, fitted to `stranger`).
+static var model: StringName = &"stranger2s"
 
 
 ## The seated man's fit for the model he wears: "seat", "turn" or "pose_offsets" (FITS, else the
@@ -130,6 +131,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	man.set_pose(&"sit_lean")
 	man.pose_offsets = (fit(&"pose_offsets") as Dictionary).duplicate()
 	_cup_in_hand(man)
+	_fill(root)
 	_extras(street)
 	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
 	if VoxelTrial.props:
@@ -139,6 +141,31 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	if VoxelTrial.eyes:
 		VoxelTrial.add_eyes(man, root.to_global(EYE))
 	return man
+
+
+## The painting lights its man softly from your side as well as from the lamp: both cheeks warm
+## (L* ~50) and his coat a readable mid brown (~20), where the lamp alone left his far cheek and
+## the coat on your left near black. A warm spot from just right of your seat, aimed at him and
+## no wider; no shadows, glints or haze (a fill, not a second key). Tuned against
+## docs/concept/saloon-blocks.png.
+const FILL_FROM := Vector3(-0.15, 1.35, -1.25)
+const FILL_AT := Vector3(0.6, 0.92, -0.55)
+static var fill_energy := 1.5
+
+static func _fill(root: Node3D) -> void:
+	var fill := SpotLight3D.new()
+	fill.name = "ViewerFill"
+	root.add_child(fill)
+	fill.position = FILL_FROM
+	fill.look_at(root.to_global(FILL_AT))
+	fill.light_color = Color(1.0, 0.87, 0.72)
+	fill.light_energy = fill_energy
+	fill.spot_range = 3.0
+	fill.spot_angle = 34.0
+	fill.spot_angle_attenuation = 1.2
+	fill.shadow_enabled = false
+	fill.light_specular = 0.0
+	fill.light_volumetric_fog_energy = 0.0
 
 
 ## The painting's room has people in it: three men at cards in front of the door, one at the

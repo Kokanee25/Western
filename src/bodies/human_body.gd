@@ -658,6 +658,8 @@ func _wet_eyes(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"eye_l_pos", (l.a as Vector3) - centre)
 	# The eyeball and a hair of the lids round it.
 	m.set_shader_parameter(&"eye_radius", float(r.radius) + 0.002)
+	# His painted whites brightened as his model's report asks (the characters session's men).
+	m.set_shader_parameter(&"eye_gain", float(PeopleBodies.report(body_model).get("eye_gain", 1.0)))
 
 
 ## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on

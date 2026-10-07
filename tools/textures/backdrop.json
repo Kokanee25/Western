@@ -1,5 +1,5 @@
 {
- "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it; the 194 panels are turned clear of bearing ~174, where the moon stands in the saloon's doorway at midnight); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low).",
+ "about": "The painted backdrop round Salt Creek (tools/textures/paint_backdrop.py paints it, reduce_backdrop.py cuts it, src/art/backdrop.gd shows it). Bearings are degrees round from the town's middle, increasing to the right as you look out (atan2(x, -z): 270 is west, down the street; the street shot looks at 264 and the sun at 17:36 is at 277). Each layer is a ring at `radius` metres, painted as panels of `span` degrees (21:9 pictures) whose bottom edge is `bottom` degrees (below the horizon) and whose rocks rise to `rise` of the picture's height; `shift` turns a panel round after it's painted (to put what the model drew where we want it; the 194 panels are turned clear of bearing ~174, where the moon stands in the saloon's doorway at midnight); a layer's `scale` shows its panels smaller than `span` round their centres (the model paints its rocks big: the painting's cathedral rock is ~16 degrees wide and ~20 high from the street), leaving gaps the nearer layers fill. `what` is what each panel shows; `ref` a box of a concept painting shown to the model for colour and character. A layer's `band` keeps only that share of the strip's height above each panel's foot, under a rolling hill line (the model paints foothills with mesas behind them and up to most of the picture whatever it's told; the near layer must stay low). The `hero` layer is the street end's own mountains (2026-10-06, Sean: the painting's mountains): two big masses either side of the notch the sun sets in at the street shot's hour (17:54, bearing 274, 5.9 degrees up), nearer and bigger than the far ring's.",
  "degrees_per_texel": 0.15,
  "bottom": -3.0,
  "span": 90.0,
@@ -61,6 +61,28 @@
     }
    ],
    "scale": 0.6
+  },
+  "hero": {
+   "radius": 560.0,
+   "rise": 0.5,
+   "colours": 40,
+   "haze": 0.22,
+   "look": "a few miles off at the end of the street: big and clear in the frame, a little haze, the shadowed sides violet-grey",
+   "panels": [
+    {
+     "centre": 274.0,
+     "shift": -5.6,
+     "ref": [
+      "street",
+      470,
+      120,
+      1470,
+      480
+     ],
+     "what": "two great red-rock masses with a deep notch between them exactly in the middle of the picture, where the sun sets: right of the middle, a towering cathedral of tall fluted sandstone spires and pinnacles standing close together on a steep talus slope, its tallest spires the highest land in the picture; left of the middle, a broader, slightly lower massif of sheer cliffs and buttresses with a flat-topped shoulder; between them the land drops to a low saddle about a quarter of the picture's height; towards the far left and right the land falls away to low ridges"
+    }
+   ],
+   "scale": 0.62
   },
   "mid": {
    "radius": 430.0,

@@ -20,6 +20,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/textures"
 SHEET = ROOT / "docs/screenshots/textures/letter_sign.png"
@@ -30,37 +33,63 @@ FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 # round the board. The saloon's is a cream board in red; the rest are lettered straight onto a
 # front's grey boards in near-black, as the painting's GENERAL STORE is.
 SIGNS = {
-    "sign_saloon_drawn": {"text": "SALOON", "size": [100, 34], "cap": 23, "stretch": 1.0, "plank": 5, "track": 0.1,
-                          "ground": "cream", "ink": "red", "line": True},
+    "sign_saloon_drawn": {"text": "SALOON", "size": [100, 34], "cap": 22, "stretch": 1.0, "plank": 5, "track": 0.1,
+                          "ground": "cream", "ink": "red", "line": True, "font": "pixel", "track_squares": 1},
     "sign_general_store_drawn": {"text": "GENERAL STORE", "size": [150, 26], "cap": 15, "stretch": 0.8, "plank": 6,
-                                 "track": 0.08, "ground": "grey", "ink": "black", "line": False},
+                                 "track": 0.08, "ground": "grey", "ink": "black", "line": False, "font": "pixel", "decal": (38, 32, 30), "track_squares": 2},
     "sign_barber_drawn": {"text": "BARBER", "size": [84, 22], "cap": 13, "stretch": 0.9, "plank": 6, "track": 0.1,
-                          "ground": "grey", "ink": "black", "line": True},
+                          "ground": "grey", "ink": "black", "line": True, "font": "pixel", "decal": (38, 32, 30), "track_squares": 2},
     "sign_hotel_drawn": {"text": "HOTEL", "size": [80, 24], "cap": 15, "stretch": 0.95, "plank": 6, "track": 0.14,
-                         "ground": "grey", "ink": "black", "line": True},
-    "sign_jail_drawn": {"text": "JAIL", "size": [56, 22], "cap": 14, "stretch": 1.0, "plank": 6, "track": 0.14,
-                        "ground": "grey", "ink": "black", "line": True},
+                         "ground": "grey", "ink": "black", "line": True, "font": "pixel", "decal": (38, 32, 30), "track_squares": 2},
+    # The jail's: big dark letters straight on its whitewashed boards, no line round them (the painting's).
+    # `decal`: also written as the ink alone (<id>_ink.png, alpha where there's no letter), one flat
+    # dark tone, so FacadeArt paints it straight onto the front's own boards: no board of its own
+    # standing out as a patch, the letters' edges a clean step against the wall.
+    "sign_jail_drawn": {"text": "JAIL", "size": [60, 22], "cap": 16, "stretch": 1.0, "plank": 6, "track": 0.16,
+                        "ground": "whitewash", "ink": "black", "line": False, "decal": (38, 32, 30),
+                        "font": "pixel", "track_squares": 4},
+    "sign_telegraph_drawn": {"text": "TELEGRAPH", "size": [100, 22], "cap": 13, "stretch": 1.0, "plank": 6, "track": 0.1,
+                             "ground": "grey", "ink": "black", "line": False, "font": "pixel", "decal": (38, 32, 30),
+                             "track_squares": 2},
+    "sign_doctor_drawn": {"text": "DOCTOR", "size": [80, 22], "cap": 14, "stretch": 1.0, "plank": 6, "track": 0.1,
+                          "ground": "grey", "ink": "black", "line": True, "font": "pixel", "decal": (38, 32, 30),
+                          "track_squares": 2},
+    "sign_bank_drawn": {"text": "BANK", "size": [60, 24], "cap": 17, "stretch": 1.0, "plank": 6, "track": 0.1,
+                        "ground": "grey", "ink": "black", "line": False, "font": "pixel", "decal": (236, 224, 196),
+                        "track_squares": 3},
     "sign_assay_office_drawn": {"text": "ASSAY OFFICE", "size": [120, 22], "cap": 12, "stretch": 0.8, "plank": 6,
-                                "track": 0.08, "ground": "grey", "ink": "black", "line": False},
+                                "track": 0.08, "ground": "grey", "ink": "black", "line": False, "font": "pixel", "decal": (38, 32, 30), "track_squares": 2},
 }
 
 GROUNDS = {
     "cream": [(214, 196, 158), (205, 186, 148), (222, 206, 170), (196, 178, 140), (186, 168, 132), (228, 212, 178)],
     "grey": [(178, 168, 150), (166, 156, 138), (190, 180, 160), (152, 142, 126), (138, 128, 114), (202, 192, 172)],
+    # The jail's whitewash (draw_boards.py's jail_boards palette).
+    "whitewash": [(212, 204, 185), (224, 215, 180), (191, 186, 176), (232, 223, 195), (164, 161, 175), (241, 241, 216)],
 }
 GROUND_W = [0.26, 0.22, 0.16, 0.16, 0.1, 0.1]
-SEAMS = {"cream": (150, 132, 100), "grey": (112, 104, 92)}
+SEAMS = {"cream": (150, 132, 100), "grey": (112, 104, 92), "whitewash": (150, 146, 140)}
 INKS = {
     "red": [(132, 34, 28), (118, 28, 24), (146, 42, 32), (104, 24, 22)],
     "black": [(52, 40, 32), (44, 34, 28), (62, 48, 38), (36, 28, 22)],
 }
-INK_W = [0.4, 0.25, 0.2, 0.15]
+INK_W = [0.82, 0.1, 0.08, 0.0]  # nearly one flat ink: speckled letters read soft
 LINES = {"red": (150, 52, 40), "black": (70, 56, 44)}
 
 
 def letters(spec: dict) -> np.ndarray:
-    """A mask of the text, `cap` squares tall, centred on the board."""
+    """A mask of the text, `cap` squares tall, centred on the board. `"font": "pixel"`: set in the
+    town's hand-drawn alphabet (tools/textures/pixel_font.py, its own height), not a computer font
+    shrunk to the squares."""
     w, h = spec["size"]
+    if spec.get("font") == "pixel":
+        import pixel_font
+        m = pixel_font.text_mask(spec["text"], spec.get("track_squares", 3), spec["cap"])
+        out = np.zeros((h, w), bool)
+        x0 = (w - m.shape[1]) // 2
+        y0 = (h - m.shape[0]) // 2
+        out[y0:y0 + m.shape[0], x0:x0 + m.shape[1]] = m
+        return out
     big = 8
     font = ImageFont.truetype(FONT, 400)
     # Set letter by letter with room between them (sign painters spaced their letters wide).
@@ -84,6 +113,17 @@ def letters(spec: dict) -> np.ndarray:
     y0 = (h - cap) // 2
     out[y0:y0 + cap, x0:x0 + tw] = m
     return out
+
+
+def fit(spec: dict) -> dict:
+    """The board widened, if need be, to hold the text set in the town's alphabet at its height."""
+    if spec.get("font") != "pixel":
+        return spec
+    import pixel_font
+    m = pixel_font.text_mask(spec["text"], spec.get("track_squares", 3), spec["cap"])
+    w, h = spec["size"]
+    need = m.shape[1] + (16 if spec["line"] else 8)
+    return dict(spec, size=[max(w, need), max(h, m.shape[0] + (10 if spec["line"] else 6))])
 
 
 def board(spec: dict, rng: np.random.Generator) -> np.ndarray:
@@ -137,9 +177,20 @@ def main() -> None:
     index_path = OUT / "drawn_signs.json"
     index = {}
     for i, (key, spec) in enumerate(SIGNS.items()):
+        spec = fit(spec)
         data = draw(spec, 4171 + i)
         Image.fromarray(data).save(OUT / f"{key}.png")
         index[key] = {"text": spec["text"], "squares": spec["size"]}
+        if "decal" in spec:
+            mask = letters(spec)
+            if spec["line"]:
+                w, h = spec["size"]
+                mask[2, 2:w - 2] = mask[h - 3, 2:w - 2] = True
+                mask[2:h - 2, 2] = mask[2:h - 2, w - 3] = True
+            ink = np.zeros(mask.shape + (4,), np.uint8)
+            ink[mask] = list(spec["decal"]) + [255]
+            Image.fromarray(ink, "RGBA").save(OUT / f"{key}_ink.png")
+            index[key]["ink"] = f"{key}_ink"
         made.append(data)
         print(f"{key}: {spec['size'][0]}x{spec['size'][1]} squares -> assets/textures/{key}.png")
     index_path.write_text(json.dumps(index, indent=1) + "\n")

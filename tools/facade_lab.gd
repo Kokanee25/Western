@@ -3,7 +3,7 @@ extends SceneTree
 ## at the painting's hour, a camera placed in the saloon's own space (so it follows the building
 ## wherever the town's layout puts it), the render beside the painting's crop of its saloon.
 ##
-##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/facade_lab.gd -- --out=DIR [--blocks]
+##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/facade_lab.gd -- --out=DIR [--blocks] [--building=Jail]
 ##
 ## Writes DIR/facade_<view>.png for each view and DIR/facade_sheet.png (the painting's saloon over
 ## the renders). Views, in the saloon's space (front-left corner the origin, the front facing -Z):
@@ -19,6 +19,16 @@ const VIEWS := [
 ]
 ## The painting's saloon (pixels of the 1672-wide painting).
 const CROP := Rect2i(0, 0, 900, 640)
+## Other buildings (`--building=Jail`): their views in their own space (front-left corner the
+## origin, x along the front, -Z out to the street), not scaled, and the painting's crop of them.
+## The painting stands in the street east of the jail, its front raking away to the west and its
+## east side wall (the building's left, x 0) toward you.
+const OTHER := {
+	"Jail": {"views": [["painting", Vector3(-6.5, 1.75, -9.0), Vector3(3.6, 3.0, 0.0), 50.0],
+			["square", Vector3(3.2, 1.7, -8.5), Vector3(3.2, 3.2, 0.0), 58.0],
+			["door", Vector3(1.4, 1.65, -3.6), Vector3(1.6, 1.8, 0.0), 58.0]],
+		"crop": Rect2i(1150, 300, 400, 300)},
+}
 
 
 func _initialize() -> void:
@@ -29,6 +39,7 @@ func _run() -> void:
 	var out := "user://facade_lab"
 	var outline := false
 	var shade := 1.0
+	var building := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
@@ -36,6 +47,8 @@ func _run() -> void:
 			outline = true
 		elif arg.begins_with("--shade="):
 			shade = float(arg.substr(8))
+		elif arg.begins_with("--building="):
+			building = arg.substr(11)
 	DirAccess.make_dir_recursive_absolute(out)
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -53,7 +66,7 @@ func _run() -> void:
 	player.input_enabled = false
 	for w in player.weapons:
 		w.visible = false
-	var saloon := _saloon(street)
+	var saloon := _saloon(street) if building.is_empty() else street.find_child(building, true, false) as Node3D
 	if saloon == null:
 		push_error("facade_lab: no saloon on the street")
 		quit(1)
@@ -77,9 +90,11 @@ func _run() -> void:
 		var env := (street.find_child("WorldEnvironment", true, false) as WorldEnvironment).environment
 		env.ambient_light_energy *= shade
 		env.ssao_intensity *= 1.0 / shade
-	var k: float = saloon.width / 9.6
+	var k: float = saloon.width / 9.6 if building.is_empty() else 1.0
+	var views: Array = VIEWS if building.is_empty() else OTHER[building].views if OTHER.has(building) \
+			else [["square", Vector3(saloon.width * 0.5, 1.7, -9.5), Vector3(saloon.width * 0.5, 3.2, 0.0), 58.0]]
 	var shots: Array[Image] = []
-	for v in VIEWS:
+	for v in views:
 		var eye: Vector3 = v[1]
 		var at: Vector3 = v[2]
 		eye.x *= k
@@ -93,7 +108,7 @@ func _run() -> void:
 		var img := viewport.get_texture().get_image()
 		img.save_png("%s/facade_%s.png" % [out, v[0]])
 		shots.append(img)
-	_sheet(out, shots)
+	_sheet(out, shots, CROP if building.is_empty() else OTHER[building].crop if OTHER.has(building) else Rect2i(560, 100, 400, 300))
 	quit()
 
 
@@ -107,9 +122,9 @@ func _saloon(street: Node) -> Node3D:
 	return null
 
 
-func _sheet(out: String, shots: Array[Image]) -> void:
+func _sheet(out: String, shots: Array[Image], region: Rect2i) -> void:
 	var painting := Image.load_from_file(ProjectSettings.globalize_path("res://docs/concept/street-golden-hour.png"))
-	var crop := painting.get_region(CROP)
+	var crop := painting.get_region(region)
 	var w := 1280
 	crop.resize(w, int(crop.get_height() * float(w) / crop.get_width()), Image.INTERPOLATE_LANCZOS)
 	var h := crop.get_height()

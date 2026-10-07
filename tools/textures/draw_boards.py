@@ -53,6 +53,11 @@ WOODS = {
     # The boardwalks' planks (and the floors under the bold look): the saloon's boardwalk, warmer.
     "floor": {"boxes": [[130, 540, 420, 640]], "keep": "wood", "albedo": [0.64, 0.53, 0.41],
               "contrast": 0.9, "rows": 5, "count": 12, "board_spread": 0.12, "grey": 0.2},
+    # The jail's whitewash: pale grey-white boards gone grey and tan where it's worn (the painting's
+    # JAIL front and its side wall, lit low and gold).
+    "jail_boards": {"boxes": [[1300, 340, 1395, 420], [1200, 430, 1255, 500]], "keep": "pale",
+                    "albedo": [0.82, 0.8, 0.75], "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.12,
+                    "grey": 0.55, "patch": 2, "patch_jitter": 1.4},
 }
 LENGTH = 64  # texels along the grain: 2 m at 32 a metre
 
