@@ -55,17 +55,17 @@
   "shapes": {
    "head": {
     "size": [
-     987,
-     1008
+     924,
+     924
     ],
-    "islands": 178
+    "islands": 102
    },
    "skin": {
     "size": [
-     888,
-     936
+     846,
+     873
     ],
-    "islands": 512
+    "islands": 251
    }
   },
   "texels_per_square": {
@@ -79,7 +79,9 @@
     "soft": 0.17,
     "calm": 0.0,
     "sigma": 25.0,
-    "weave": 0.15
+    "weave": 0.15,
+    "grain": 1.0,
+    "grain_size": 1.6
    },
    "skin": {
     "detail": 0.0,
@@ -87,7 +89,9 @@
     "soft": 0.25,
     "calm": 0.25,
     "sigma": 25.0,
-    "weave": 0.2
+    "weave": 0.3,
+    "grain": 1.2,
+    "grain_size": 1.6
    }
   }
  },

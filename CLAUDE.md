@@ -838,9 +838,16 @@ a few views renders them as the full run does.
   painting's coat is: on each facing's plane diagonal rows of squares (`weave_period`) half
   lighter and half darker, mixed with `weave_noise` of each square's own shade (a hash of where
   it is), on squares that aren't skin, no lighter than `weave_max_l`, away from his hands; on his
-  head only over his brows (`weave_head_above`: his hat's felt, no rows). `fit_tripo.py
-  --cells=key:value,...` tries other numbers (`soft.head:0.17` for one shape). His bake then has no
-  `cells`.
+  head only over his brows (`weave_head_above`: his hat's felt, no rows); `weave_cluster` runs
+  each square's own shade a little into its neighbours' (`stranger2s`: no rows, `weave_noise` 1).
+  **The grain** (`grain`, `grain_size`, `_grain`): a faint grain over the texels inside his
+  squares (L* a shape, a Gaussian's sigma in texels), the same every fit, not round his eyes: the
+  painting's neighbouring pixels are almost never one tone. `face_front` (degrees) puts his face's
+  triangles that near straight ahead on the front plane (from in front, a cheek's side-plane
+  squares drew as strips); `settle` lets a triangle near the line between two planes take its
+  neighbours' (the line ran ragged). `fit_tripo.py --cells=key:value,...` tries other numbers
+  (`soft.head:0.17` for one shape; a dotted key starts from CELLS's other shapes, not
+  people.json's). His bake then has no `cells`.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
   reference judge scores the whole frame, where the man is a small part): the seated man alone
   against the man in `saloon-blocks.png` (DESIGN.md §4's saloon target; `--painting=night` the old
@@ -4336,3 +4343,68 @@ a few views renders them as the full run does.
   after the art session's light change and 0.15 with the squares work. 0.1 would take light
   matching nearly pixel for pixel; even the painting he was drawn from only gets there after an
   exact remap.
+- 2026-10-07 (characters session, later): **The stylised stranger's squares: a paint grain inside
+  them, his face in squares from in front, the coat's tweed without rows.** Sean: "Alright keep
+  going it's looking awesome" (to working on his squares while the art session works on the light).
+  - **What was left on his squares** (the character judge, under the art session's light, and
+    with the light corrected the simple way, L* × 0.76 and chroma × 0.75, standing in for its fix):
+    his squares flatter than the painting's and their edges harder. In the painting two
+    neighbouring pixels on its man are almost never one tone: a faint paint texture inside every
+    square. Ours, a texel a square, were exactly one tone over large parts of him.
+  - **What changed** (`fit_tripo.py` CELLS, people.json `cells`; layout note above):
+    - `grain`: a faint grain over the texels inside his squares, 1.0 L* on his head and 1.2 on his
+      body, 1.6 texels across, the same every fit, not round his eyes.
+    - `face_front` 60: his face's triangles within 60 degrees of straight ahead go on the front
+      plane. A cheek turned past 45 degrees went on a side plane, whose squares drew as thin
+      upright strips from in front; now his cheeks are in squares and his moustache's lower edge
+      steps in squares, as the painting's does.
+    - The coat's tweed: the twill's diagonal rows replaced by each square's own shade run a little
+      into its neighbours' (`weave_cluster` 0.5, `weave_noise` 1, weave 0.3 on his clothes). The
+      bold painting's coat has no rows (measured: its squares a little alike one square across,
+      0.28, less one down, 0.12, nothing on the diagonals).
+    - `settle` 3: where a surface turns near 45 degrees between two planes, the line between them
+      ran ragged triangle by triangle; now a triangle near the line takes its neighbours' plane.
+      His body's islands 512 → 251, his head's 178 → 102, so his textures are smaller (head 924²,
+      body 846×873).
+  - **Judged** (round `2026-10-07_r7`, the same light as r1-r6):
+
+    | | Score | Squares group | Score, light corrected | Squares group, light corrected |
+    |---|---|---|---|---|
+    | Before (round r6) | 0.562 | 0.200 | 0.229 | 0.234 |
+    | Now (round r7) | 0.556 | 0.189 | 0.224 | 0.196 |
+
+    | Flatness (as rendered) | Face | Hat | Coat |
+    |---|---|---|---|
+    | The painting's man | 0.45 | 0.53 | 0.63 |
+    | Before | 0.54 | 0.62 | 0.68 |
+    | Now | 0.48 | 0.58 | 0.65 |
+
+    Neighbouring lit pixels exactly one tone (within 0.25 L*), face / hat / coat: the painting's
+    man 14 / 17 / 23 %, before 41 / 51 / 54 %, now 19 / 26 / 52 %.
+  - **Tried and dropped:**
+    - grain 1.5 and 3 L*: at 3 his skin read as dirty;
+    - a grain a texel across: it made his edges harder (1.6 texels scored 0.204 light-corrected,
+      1.0 texel 0.211);
+    - softer square edges (`soft` 0.3 / 0.35): his edge hardness only went 0.31 → 0.30, and his
+      squares blurred;
+    - 4 and 6 texels a square on his body: the coat's flatness reaches the painting's (0.62,
+      0.56), but the coat goes soft and its texture grows 1.8 and 4 times; it stays at 3;
+    - a strong calm on his clothes (0.85, over 60 levels) to take out the coat's herringbone: it
+      stayed.
+  - **His edges** are still harder than the painting's (0.31 to 0.25). Most of what's left is his
+    outlines drawn without anti-aliasing (where his hat, arm and coat overlap him). With 4x MSAA
+    on the game viewport (a local trial, put back) it's 0.29, his squares group 0.196 → 0.174 and
+    his score 0.556 → 0.541. Sent to the art session as data: it owns how things are drawn.
+  - **Known:**
+    - The front edge of his coat keeps a herringbone: the painter painted the coat as a
+      herringbone tweed, where the painting's coat is a mottle of squares.
+    - From the side, his cheeks' squares are wider than from in front (the cost of squares from
+      in front).
+    - The painting's squares lie on the screen's grid; his lie on his surfaces (the design), so
+      they tilt with his head and body.
+    - All of this is on the characters branch, not on main yet.
+  - Picture: `docs/screenshots/tripo/stranger2s_grain.png` (his face and coat in the shot beside
+    the painting's man, before and now; his head and coat in plain light, before and now).
+  - **Files:** `tools/blender/fit_tripo.py`, `assets/people/people.json`, `assets/people/stranger2s.glb`,
+    `.json`, `_head.png`, `_skin.png`, the round and its renders in `docs/screenshots/tripo/judge/`.
+    No other session's files. Tests: bodies (23), hat (3), shot match (3) pass.
