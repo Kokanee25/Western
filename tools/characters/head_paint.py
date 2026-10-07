@@ -632,7 +632,11 @@ def face_points(cid):
 # tall) in a bright warm white, shaded under the lid and at the corners; the iris (its own
 # landmarks' ring, times `iris`) with a dark rim and a darker pupil; a glint high on its side
 # towards his left (your right, where the saloon shot's lamp is); a dark upper lid `lid` metres
-# thick, a little past the outer corner; a lower lid in his skin's shade. Colours 0..255.
+# thick, a little past the outer corner; a lower lid in his skin's shade. Colours 0..255; `bake.eyes`
+# can set any of them (`white`, `shade`, `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`:
+# [r, g, b]) and the glint's size (`glint`, a share of the iris). Drawn at 1.2 x 1.1 as big in pure
+# white they stared (Sean, 2026-10-07: "He's gone too cartoony"): the painting's eyes are clear but
+# a natural almond, the iris under both lids and a sliver of warm white either side of it.
 EYE_WHITE = (242, 236, 224)
 EYE_WHITE_SHADE = (198, 184, 166)
 EYE_IRIS = (78, 48, 28)
@@ -886,6 +890,12 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
     clean = float(eyes.get("clean", 0.0))
     lid_w = float(eyes.get("lid", 0.0012)) / HEIGHT_M
     drawn = cleaned = 0
+
+    def col(key, default):
+        # A colour from `eyes` (characters.json `bake.eyes`: "white": [r, g, b], ...), else the default.
+        return tuple(eyes[key]) if key in eyes else default
+
+    glint_r = float(eyes.get("glint", 0.34))
     for outline, ring, (outer, inner) in zip(EYE_OUTLINES, IRIS_RINGS, EYE_CORNERS):
         c = face[ring[0]]
         u = face[outer] - face[inner]
@@ -934,12 +944,14 @@ def draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes):
         iris = white & (d < r_iris)
         rim = iris & (d > r_iris * 0.78)
         pupil = white & (d < r_iris * 0.42)
-        glint = white & (np.linalg.norm(q - centre - np.array([-0.36, 0.4]) * r_iris, axis=1) < r_iris * 0.34)
+        glint = white & (np.linalg.norm(q - centre - np.array([-0.36, 0.4]) * r_iris, axis=1) < r_iris * glint_r)
         wide = mid + (poly - mid) * np.array([1.08, 1.0])
         upper = _inside(wide + np.array([0.0, lid_w]), q) & ~white & (q[:, 1] > mid[1] - half[1] * 0.3)
         lower = _inside(poly - np.array([0.0, lid_w * 0.6]), q) & ~white & ~upper & (q[:, 1] < mid[1])
-        for mask, colour in ((lower, lower_colour), (white, EYE_WHITE), (shade, EYE_WHITE_SHADE), (iris, EYE_IRIS),
-                             (rim, EYE_IRIS_RIM), (pupil, EYE_PUPIL), (glint, EYE_GLINT), (upper, EYE_LID)):
+        for mask, colour in ((lower, lower_colour), (white, col("white", EYE_WHITE)), (shade, col("shade", EYE_WHITE_SHADE)),
+                             (iris, col("iris_rgb", EYE_IRIS)), (rim, col("rim_rgb", EYE_IRIS_RIM)),
+                             (pupil, col("pupil_rgb", EYE_PUPIL)), (glint, col("glint_rgb", EYE_GLINT)),
+                             (upper, col("lid_rgb", EYE_LID))):
             out[ty[idx[mask]], tx[idx[mask]]] = colour
         drawn += int(white.sum())
         print("  eye: opening %.1f x %.1f mm, iris %.1f mm across, %d texels of white" % (
@@ -1011,7 +1023,7 @@ def bake(cid):
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
-    eyes = dict(bk.get("eyes") or {}, **EYES)
+    eyes = dict(bk.get("eyes") or {}, **EYES) if EYES is not None else {}
     if eyes and not SMOOTH:
         draw_eyes(out, cid, pos, nrm, uv, tris, size, eyes)
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
@@ -1099,9 +1111,14 @@ def main():
             # stubble, lift)
             v = [float(x) for x in a.split("=", 1)[1].split(",")]
             SKIN = dict(zip(("even", "hue", "stubble", "lift"), v))
+        elif a == "--eyes=off":
+            # The painter's eyes as painted (nothing drawn over them).
+            EYES = None
         elif a.startswith("--eyes="):
             # How his eyes are drawn (draw_eyes): --eyes=open:1.3,size:1.1,clean:1.3,lid:0.0024
-            EYES = {k: float(x) for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+            # (a colour as r/g/b: white:222/206/186)
+            EYES = {k: (tuple(float(c) for c in x.split("/")) if "/" in x else float(x))
+                    for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a.startswith("--cells-depth="):
             # The squares' depth along the way the surface faces, a share of their size: 0.5
             CELLS = dict(CELLS or {}, depth=float(a.split("=", 1)[1]))

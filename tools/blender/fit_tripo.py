@@ -171,12 +171,19 @@ SMOOTH = False  # --smooth: see main()
 # his head it's his hat's felt: only squares `weave_head_above` metres over his eyes (his brows
 # and moustache keep their drawing), `weave_head_noise` of it each square's own shade (felt has
 # no rows).
+# His face (Sean, 2026-10-07: "He's gone too cartoony ... It's the face the most"): the bold
+# painting draws a face in finer squares than the hat over it (about 20 across his face where 9 mm
+# gave 15), so `face` (metres, 0 = the head's own) squares the part of his head within `face_box` of
+# his drawn eyes (across either side of their middle, above them, below them, behind them) on
+# islands of its own. `dark_kept` (0 or 1) keeps the darker-part rule on his head: with it his
+# brows, moustache and the hair by his ears went to flat near-black slabs.
 CELLS = {"head": 0.008, "body": 0.009, "hair": 0.008, "head_texels": 6, "body_texels": 3, "hair_texels": 3,
          "gutter": 1, "samples": [2, 2], "eye_zone": [0.019, 0.008, 0.03],
          "detail": 0.0, "detail_clip": 40.0, "soft": {"head": 0.17, "skin": 0.25},
          "calm": {"head": 0.4, "skin": 0.25}, "calm_sigma": 25.0,
          "weave": {"head": 0.0, "skin": 0.0}, "weave_period": 4, "weave_noise": 0.5, "weave_max_l": 46.0,
-         "weave_hand": 0.075, "weave_head_noise": 1.0, "weave_head_above": 0.035}
+         "weave_hand": 0.075, "weave_head_noise": 1.0, "weave_head_above": 0.035, "dark_kept": 1,
+         "face": 0.0, "face_box": [0.08, 0.03, 0.16, 0.07]}
 DARK_SHARE = 0.3
 DARK_GAP = 30.0
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
@@ -477,6 +484,16 @@ class TripoPerson(mp.Person):
             # A Rodin man (tools/characters/rodin.py): `rodin` is his glb under assets/people/tripo.
             self.model = spec["rodin"]
             pos, nrm, uv, tris, joints, colour = load_rodin(os.path.join(TRIPO, self.model + ".glb"))
+            if "shape" in spec:
+                # He wears his paint on another glb of the same mesh (people.json `shape`: the same
+                # points, triangles and UVs, moved): his views were painted on `rodin` and are baked
+                # onto it, and the paint stays on its points when they move. The stylised stranger's
+                # paint on the Rodin man as made: the caricature's heavier brow, wider jaw and
+                # bigger moustache read as a cartoon (Sean, 2026-10-07).
+                spos, snrm, suv, stris, sjoints, _c = load_rodin(os.path.join(TRIPO, spec["shape"] + ".glb"))
+                if len(spos) != len(pos) or not np.array_equal(stris, tris) or not np.allclose(suv, uv):
+                    raise SystemExit("%s: `shape` %s isn't the same mesh as %s" % (pid, spec["shape"], self.model))
+                pos, nrm, joints = spos, snrm, sjoints
         else:
             pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
         self.v = to_body_space(pos)
@@ -497,6 +514,8 @@ class TripoPerson(mp.Person):
                        "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
         self.report.update(scraps)
+        if "shape" in spec:
+            self.report["shape"] = spec["shape"]
         # How much more light his drawn whites take (people.json `eye_gain`; the art session's
         # body_skin reads it from this report through PeopleBodies: Sean wants the eyes clear and
         # bright, past the painting's style).
@@ -1506,7 +1525,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 
 
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
-                calm=0.0, sigma=25.0, weave=0.0, weave_opts=None):
+                calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1547,8 +1566,12 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     facing = axis * 2 + (n[np.arange(len(n)), axis] > 0)
     U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
     V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
-    A = np.einsum("tcj,tj->tc", P, U) / cell_m * k                 # texels, on each facing's plane
-    B = np.einsum("tcj,tj->tc", P, V) / cell_m * k
+    # His face's triangles (`face`, a function of points in our body space) at their own square,
+    # `face_m`: their own islands, so a square never spans the two sizes.
+    in_face = face(P.mean(axis=1)) if face is not None and face_m else np.zeros(len(P), dtype=bool)
+    tri_m = np.where(in_face, face_m or cell_m, cell_m)[:, None]
+    A = np.einsum("tcj,tj->tc", P, U) / tri_m * k                  # texels, on each facing's plane
+    B = np.einsum("tcj,tj->tc", P, V) / tri_m * k
     T = len(tl)
     # Sample points: a lattice `sub` a texel a side on each plane, the points inside each triangle.
     i0 = np.ceil(A.min(axis=1) * sub - 0.5).astype(np.int64)
@@ -1588,7 +1611,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     for ts in edges.values():
         for a in ts:
             for b in ts:
-                if a != b and facing[a] == facing[b]:
+                if a != b and facing[a] == facing[b] and in_face[a] == in_face[b]:
                     near[a].append(b)
     island = np.full(T, -1, dtype=np.int64)
     islands = 0
@@ -1760,6 +1783,15 @@ def cell_textures(person, colour, cells):
             inz |= (((pts - e) / ez) ** 2).sum(axis=1) < 1.0
         return inz
 
+    # His face (`face_box` round his drawn eyes: across either side of their middle, above and
+    # below them, and behind them; he faces -z), squared at `face` metres where that's set.
+    fb = o["face_box"]
+    mid = np.mean(eyes, axis=0) if eyes else None
+
+    def face(pts):
+        return ((np.abs(pts[:, 0] - mid[0]) < fb[0]) & (pts[:, 1] < mid[1] + fb[1]) & (pts[:, 1] > mid[1] - fb[2])
+                & (pts[:, 2] < mid[2] + fb[3]))
+
     src = np.asarray(colour.convert("RGB"))
 
     def inside(shape):
@@ -1790,8 +1822,9 @@ def cell_textures(person, colour, cells):
         piece = next((pc for pc in person.pieces if pc.shape == shape), None)
         if shape == "head":
             k = int(o["head_texels"])
-            img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None, True,
-                                   weave_opts=head_weave, **inside(shape))
+            img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None,
+                                   bool(o["dark_kept"]), weave_opts=head_weave, face=face if eyes else None,
+                                   face_m=float(o["face"]) or None, **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
@@ -1807,7 +1840,8 @@ def cell_textures(person, colour, cells):
         per[shape] = k
         how[shape] = inside(shape)
         print("  %s: a texel a square, %d texels a side, %d×%d, %d islands" % (shape, k, img.shape[1], img.shape[0], isl))
-    person.report["texture"] = dict(person.report.get("texture", {}), cells={kk: o[kk] for kk in ("head", "body", "hair")},
+    sizes = {kk: o[kk] for kk in ("head", "body", "hair", "face") if o[kk]}
+    person.report["texture"] = dict(person.report.get("texture", {}), cells=sizes,
                                     shapes=done, texels_per_square=per, inside=how)
 
 

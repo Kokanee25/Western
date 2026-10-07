@@ -113,7 +113,7 @@
    }
   },
   "stranger2s": {
-   "note": "The stylised Rodin stranger (people.json stranger2s): stranger2's words, his heavier features said too. His squares are cut by the fit, a texel a square (people.json `cells`), so his bake has no `cells` of its own.",
+   "note": "The stylised Rodin stranger (people.json stranger2s): stranger2's words, his heavier features said too. His squares are cut by the fit, a texel a square (people.json `cells`), so his bake has no `cells` of its own. His eyes are drawn `size` 1.12: the bake's points are the stylised head's, whose eyes stylise.py made 12 % bigger, and he wears the paint on the Rodin man as made (people.json `shape`), so 1.12 is his own eyes' size.",
    "head": {
     "of": "a weathered frontier gunman's head",
     "looks": "a weathered face of about forty with a strong square jaw, dark eyes wide open and looking straight ahead with the whites showing either side of the iris, dark brows, a thick dark moustache to the corners of his mouth, dark stubble, short dark hair, a brown felt hat with a flat crown and a checkered band",
@@ -131,10 +131,11 @@
    },
    "bake": {
     "squares": false,
-    "flatten": 2,
+    "flatten": 0,
     "view_power": 0,
-    "skin": {"even": 0.6, "hue": 4, "stubble": 0.7},
-    "eyes": {"open": 1.2, "size": 1.1, "clean": 1.3, "lid": 0.0024}
+    "skin": {"even": 0, "hue": 0, "stubble": 1.0},
+    "eyes": {"open": 0.95, "size": 1.12, "clean": 1.3, "lid": 0.003, "iris": 1.2, "glint": 0.26,
+             "white": [222, 208, 190], "shade": [178, 160, 140], "iris_rgb": [50, 31, 20], "rim_rgb": [22, 13, 9]}
    }
   }
  }

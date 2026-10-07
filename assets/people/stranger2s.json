@@ -5,11 +5,12 @@
  "model": "stranger2s_rodin",
  "triangles_in": 33228,
  "pieces": {},
+ "shape": "stranger2_rodin",
  "eye_gain": 1.8,
  "head_shift_m": [
-  -0.0002,
+  0.0001,
   0.0,
-  0.0281
+  0.0272
  ],
  "eyes": {
   "right": [
@@ -30,13 +31,13 @@
  "scale": 1.8367,
  "head_scale": 1.8649,
  "height_m": 1.81,
- "skirt_vertices": 7611,
+ "skirt_vertices": 7612,
  "faces_before_finger_cut": 33228,
- "faces_after_finger_cut": 31329,
+ "faces_after_finger_cut": 31304,
  "skin_tone": [
-  0.557,
-  0.376,
-  0.298
+  0.567,
+  0.392,
+  0.31
  ],
  "texture": {
   "from": "stranger2s_color.png",
@@ -48,22 +49,23 @@
   "cells": {
    "head": 0.009,
    "body": 0.009,
-   "hair": 0.008
+   "hair": 0.008,
+   "face": 0.007
   },
   "shapes": {
    "head": {
     "size": [
-     938,
-     980
+     987,
+     1008
     ],
-    "islands": 172
+    "islands": 178
    },
    "skin": {
     "size": [
-     894,
+     888,
      936
     ],
-    "islands": 536
+    "islands": 512
    }
   },
   "texels_per_square": {
@@ -75,7 +77,7 @@
     "detail": 0.0,
     "clip": 40.0,
     "soft": 0.17,
-    "calm": 0.4,
+    "calm": 0.0,
     "sigma": 25.0,
     "weave": 0.15
    },
@@ -90,7 +92,7 @@
   }
  },
  "triangles": {
-  "skin": 25579,
+  "skin": 25554,
   "head": 5750
  }
 }

@@ -799,21 +799,30 @@ a few views renders them as the full run does.
   drawn eyes land on the anatomy's (`EYES_RULE`, the report's `eyes`; `people.json` `tris` gives
   him his own triangle budget). `tools/characters/stylise.py` makes a stylised copy (`"stylise":
   {"from": ...}`: brow, jaw, moustache, eyes and hands pushed, his skin's fine detail smoothed).
+  `people.json` `shape` has a man wear his paint on another glb of the same mesh (the same
+  points, triangles and UVs, moved): `stranger2s` is painted and baked on the stylised copy and
+  worn on the Rodin man as made (since 2026-10-07: the push read as a cartoon, Sean).
   `head_paint.py` paints a man with `body` words in `characters.json` whole (six head views, six
   body views; `head.frame` and `bust` set his face's square count), and its bake can keep the
   painter's squares (`bake.squares` false, `flatten`, `view_power`), cut them into cells in his
   body's space (`bake.cells`: 8 mm on his head, 9 below, 2.7 round his eyes), take the painted
   light out of his skin (`bake.skin`) and draw his eyes over the painter's from MediaPipe's
-  landmarks (`bake.eyes`). `people.json` `eye_gain` goes into his report (the art session's
+  landmarks (`bake.eyes`: how open and how big, and their colours: `white`, `shade`,
+  `iris_rgb`, `rim_rgb`, `pupil_rgb`, `glint_rgb`, `lid_rgb`; `--eyes=off` leaves the
+  painter's). `people.json` `eye_gain` goes into his report (the art session's
   `body_skin` gives his drawn whites that much more light). `people.json` `hair` gives a man long
   hair as a piece of its own (`fit_tripo.py` `Hair`, settings `HAIR`: a shell from under his
   brim to his collar, `body_hair` in his glb, `<id>_hair.png`); no man wears it now (on the
   stylised stranger it looked silly, Sean). `people.json` `cells` lays his
   texture out **in whole squares** (`fit_tripo.py` `CELLS`, `cell_layout`: each triangle on the
   plane square to the way it faces, one of six along his body's axes, in squares of 9 mm below
-  the collar and 8 mm on his head and hair (`stranger2s`: 9 on his head too); islands split where
-  a sheet folds over itself, packed at whole squares; each square's colour from the plain repaint
-  by `in_cells`' rules), so the game's per-texel light lights each square as one flat tone; a
+  the collar and 8 mm on his head and hair (`stranger2s`: 9 on his head too); `face` squares the
+  part of his head round his drawn eyes (`face_box`) finer, on islands of its own (`stranger2s`
+  7 mm: the bold painting has ~20 squares across his face); islands split where a sheet folds
+  over itself, packed at whole squares; each square's colour from the plain repaint by
+  `in_cells`' rules, and `dark_kept` 0 turns off the head's darker-part rule (on `stranger2s`
+  it made his brows, moustache and the hair by his ears flat near-black slabs)), so the game's
+  per-texel light lights each square as one flat tone; a
   square is six texels a side on his head (`stranger2s` seven), three on his body and hair (his
   report's `texture.texels_per_square`, which `PeopleBodies` hands `body_skin` as
   `square_texels`). Inside a square (`_inside_squares`): each square calmed toward the squares
@@ -4212,3 +4221,47 @@ a few views renders them as the full run does.
   - **Other sessions' files:** `tests/test_bodies.gd` (gameplay's): the squares test reads his
     head's texels a square from his report (it was pinned at six).
   - Main merged in (8618c37: 368 tests pass); the body, hat and shot tests pass on this.
+- 2026-10-07 (characters session, later): **The stylised stranger's face back in the painting's
+  style.** Sean: "He's gone too cartoony / It's the face the most - it's just not the right style".
+  - **What made it a cartoon**, found one change at a time (his head in plain light beside the
+    painter's front view, and in the saloon shot):
+    - his drawn eyes: 1.2 × 1.1 as big as his landmarks say, on a head whose eyes stylise.py had
+      already made 12 % bigger, in pure white (L* 100 in the shot);
+    - flat near-black slabs: the head's darker-part rule and the calm made his brows, his
+      moustache and the hair by his ears one dark tone each;
+    - 60 % of the painter's light taken out of his skin, so his face lost its modelling;
+    - the caricature itself: the same paint on the Rodin man as made reads as a man.
+  - **What changed** (no repaint, no paid run):
+    - He wears his paint on the Rodin man as made (`people.json` `shape`). It's still painted
+      and baked on the stylised copy, whose guides the painter worked from.
+    - His eyes drawn at their own size (`size` 1.12, since the bake's points are the stylised
+      head's) and 0.95 open: a sliver of warm white either side of a dark brown iris, a smaller
+      glint (`bake.eyes` takes colours now). The brightest of each eye in the shot is L* 95
+      (this morning 100, pure white); `eye_gain` stays 1.8.
+    - No darker-part rule or calm on his head (`dark_kept` 0, `calm.head` 0); the painter's
+      light kept in his skin (`skin.even` 0, no hue turn), his stubble warmed (`stubble` 1); the
+      paintings not flattened (`flatten` 0).
+    - His face in 7 mm squares (`cells.face`, on islands of their own round his eyes), the hat
+      over it in 9 mm.
+  - **Judged** (`judge_man.py`, under the same art-session light as rounds r1 and r2, applied
+    for the render only): round `2026-10-07_r4` 0.570 (r2, this morning: 0.596); squares
+    0.280 → 0.206. His face:
+
+    | His face | Square size | Flatness | Square contrast | Median L* | Lit top tenth L* |
+    |---|---|---|---|---|---|
+    | The painting's man | 7.4 px | 0.45 | 8.5 | 29 | 55 |
+    | This morning (r2) | 6.9 px | 0.59 | 13.5 | 43 | 79 |
+    | Now (r4) | 7.4 px | 0.52 | 12.7 | 41 | 78 |
+
+    What's left on his face is the light (the art session's, sent before).
+  - **Tried and dropped:** flattening the paintings (`flatten` 2: 0.625, 0.609 without); each
+    dark square on his head taking its lighter part (it lifted his hat and his darks: 0.658);
+    6 mm face squares (level with 7 mm: 0.625 to 0.624).
+  - Picture: `docs/screenshots/tripo/stranger2s_face_style.png` (the bold painting's man, this
+    morning and now in the shot; the painter's front view, this morning and now in plain light;
+    both at three-quarters).
+  - **Files:** `tools/characters/head_paint.py` (eye colours, `--eyes=off`),
+    `tools/blender/fit_tripo.py` (`shape`, `face`, `dark_kept`; the report records the face's
+    squares), `tools/characters/characters.json`, `assets/people/people.json`,
+    `assets/people/stranger2s*`, `assets/people/tripo/stranger2s_color.png`. No other session's
+    files.
