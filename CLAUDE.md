@@ -4007,6 +4007,7 @@ a few views renders them as the full run does.
     smoke, flames and stars touch rendered again on it); visual checks 374, none failed. The
     three `store_fire_*` goldens re-approved again from two more runs: this workspace's native
     library was from before the smoke grid, so they'd been taken with particle smoke.
+  - Merged as PR #88, build 720 (green: tests, exports, smoke on all four, release, Pages).
   - **Next (merge 3), ready on the branch after this merge:** fire steps 1-2
     (`docs/briefs/fire-look.md`: flames drawn as a flipbook by `tools/textures/draw_flames.py`,
     `flame.gdshader` solid colour with alpha scissor, not additive; char in the drawn wood's
