@@ -88,22 +88,25 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	out["paint"] = paint
 	out["paint_squares"] = paint_squares
 	# His skin tone, measured from his painted face, so body and painted sides match it.
-	var report := REPORT_PATH % model
-	if FileAccess.file_exists(report):
-		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(report))
-		if info is Dictionary and (info as Dictionary).has("skin_tone"):
-			var t: Array = info.skin_tone
-			out["skin_tone"] = Color(t[0], t[1], t[2])
+	var info := report(model)
+	if info.has("skin_tone"):
+		var t: Array = info.skin_tone
+		out["skin_tone"] = Color(t[0], t[1], t[2])
 	return out
 
 
 ## Whether the model comes dressed (his report says "whole": clothes, hat and all in his skin).
 static func _is_whole(model: StringName) -> bool:
-	var report := REPORT_PATH % model
-	if not FileAccess.file_exists(report):
-		return false
-	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(report))
-	return info is Dictionary and bool((info as Dictionary).get("whole", false))
+	return bool(report(model).get("whole", false))
+
+
+## The model's report (assets/people/<model>.json: "whole", "eyes", "eye_gain", ...), or {}.
+static func report(model: StringName) -> Dictionary:
+	var path := REPORT_PATH % model
+	if not FileAccess.file_exists(path):
+		return {}
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return info if info is Dictionary else {}
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.

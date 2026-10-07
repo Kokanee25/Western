@@ -60,7 +60,7 @@ const BOLD_TEXELS := 16.0
 ## for its line and grain to show). The facade's own woods always; the rest under the bold look.
 const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
-const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red"]
+const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards"]
 static var use_drawn := true
 
 

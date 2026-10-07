@@ -13,6 +13,18 @@
    ],
    "panels": 4
   },
+  "hero": {
+   "texture": "backdrop_hero.png",
+   "radius": 560.0,
+   "haze": 0.22,
+   "bottom": -3.0,
+   "top": 35.699999999999996,
+   "texels": [
+    2400,
+    258
+   ],
+   "panels": 1
+  },
   "mid": {
    "texture": "backdrop_mid.png",
    "radius": 430.0,

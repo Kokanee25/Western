@@ -20,6 +20,11 @@ uniform bool use_custom_pos = false;
 uniform vec3 eye_r_pos = vec3(0.0);
 uniform vec3 eye_l_pos = vec3(0.0);
 uniform float eye_radius = 0.0;
+// How much brighter the whites and glint drawn in a painted eye are (the pale texels inside the
+// wet-eye sphere: light, with little colour; the lids and iris round them don't count), so a man's
+// eyes read clear and bright under a brim as the painting's do. 1 = as painted; set per man from
+// his model's report ("eye_gain", PeopleBodies.report()).
+uniform float eye_gain = 1.0;
 // Light in flat steps, not a smooth ramp: the painting's faces and cloth are blocks of colour with
 // hard edges between light and shade. Steps per unit of (gamma-space) light; 0 = smooth.
 uniform float light_steps = 4.0;
@@ -119,9 +124,13 @@ void fragment() {
 	}
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;
+	float eye_boost = 1.0;
 	if (eye_radius > 0.0 && min(distance(local_pos, eye_r_pos), distance(local_pos, eye_l_pos)) < eye_radius) {
 		ROUGHNESS = 0.12;
 		SPECULAR = 0.9;
+		float top = max(max(base.r, base.g), base.b);
+		float pale = smoothstep(0.55, 0.8, min(min(base.r, base.g), base.b) / max(top, 1e-4)) * step(0.2, top);
+		eye_boost = mix(1.0, eye_gain, pale);
 	}
 	if (reach < 1.0) {
 		if (!reduced_gore) {
@@ -137,7 +146,7 @@ void fragment() {
 	} else if (reach < 2.2) {
 		base = mix(base * vec3(0.45, 0.12, 0.1), base, (reach - 1.4) / 0.8);
 	}
-	ALBEDO = base * (1.0 - glow) * (painted ? paint_gain : 1.0);
+	ALBEDO = base * (1.0 - glow) * (painted ? paint_gain : 1.0) * eye_boost;
 	EMISSION = base * glow;
 	if (painted) {
 		AO = paint_ambient;
