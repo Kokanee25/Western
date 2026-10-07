@@ -1593,7 +1593,8 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
-                grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2):
+                grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
+                normal_map=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1606,7 +1607,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     moves toward the squares round it of near colour, then `weave` drawn over its cloth
     (`weave_opts`: period, noise, max_l, hands, hand_r; CELLS, _inside_squares, _weave), and `grain`
     (L*, `grain_size` texels across) inside the squares. Returns the texture (rows down) and the
-    islands' count."""
+    islands' count. `normals_to` (a path stem, CELLS `normals`): beside it, <stem>_ntx.png (each
+    texel's own normal in his rest pose, our body space) and <stem>_nsq.png (its square's: the
+    mean of the square's texels), as RGB = n / 2 + 0.5, for one normal a square (an experiment,
+    tools/characters/man_diag.gd)."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1875,12 +1879,121 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         bf[sby[fits], sbx[fits]] = facing[st][fits]
         bpos[sby[fits], sbx[fits]] = at[fits]
         plane = (bi, bj, bf, bpos)
+    if normals_to:
+        _square_normals(mesh, tl, st, bary, tx, ty, k, W, H, bk[own] if k > 1 and own.any() else None,
+                        normals_to, luv, P, normal_map)
     if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0 or grain > 0 or plane is not None):
         img = _inside_squares(img, k, W, rgb, lum, tx, ty, bk[own] if own.any() else None, detail, clip, soft,
                               calm, sigma, weave, plane, weave_opts, grain, grain_size)
     layer.data.foreach_set("uv", new.ravel())
     mesh.update()
     return np.clip(img, 0, 255).astype(np.uint8), islands
+
+
+def _square_normals(mesh, tl, st, bary, tx, ty, k, W, H, eye_blocks, stem, luv=None, P=None, nmap=None):
+    """cell_layout's `normals_to`: each texel's rest normal and its square's (the squares round a
+    drawn eye, whose texels are their own squares, keep the texel's). With `nmap` (his model's
+    tangent-space normal map, rows down, read at his old UVs `luv` with the triangles' tangents
+    from `P`), the same again with the map's detail: <stem>_nmtx.png (each texel's) and
+    <stem>_nmsq.png (its square's mean: the map's form at the square's size, no finer)."""
+    cn = np.zeros(len(mesh.loops) * 3)
+    mesh.corner_normals.foreach_get("vector", cn)
+    cn = cn.reshape(-1, 3)
+    cn = np.stack([cn[:, 0], cn[:, 2], -cn[:, 1]], axis=1)          # Blender's axes → our body space
+    n = (cn[tl[st]] * bary[:, :, None]).sum(axis=1)
+    n /= np.maximum(np.linalg.norm(n, axis=1), 1e-12)[:, None]
+    ok = (tx >= 0) & (tx < W) & (ty >= 0) & (ty < H)
+    sets = [("ntx", "nsq", n)]
+    # Where each texel is from its square's middle (his rest pose, metres, our body space), so the
+    # light's point can be the square's for every pixel of it: <stem>_dsq.png as d / DSQ_RANGE / 2
+    # + 0.5 (zero round a drawn eye, whose texels are their own squares).
+    at = (P[st] * bary[:, :, None]).sum(axis=1)
+    _write_square_offsets(at, ok, tx, ty, k, W, H, eye_blocks, stem)
+    if nmap is not None:
+        # Each triangle's tangent (along u) and bitangent (along v) from its corners and old UVs
+        # (Blender's: v up, as the map's green), made square to the sample's normal.
+        uv = luv[tl]                                               # T, 3, 2
+        e1, e2 = P[:, 1] - P[:, 0], P[:, 2] - P[:, 0]
+        d1, d2 = uv[:, 1] - uv[:, 0], uv[:, 2] - uv[:, 0]
+        det = d1[:, 0] * d2[:, 1] - d2[:, 0] * d1[:, 1]
+        det = np.where(np.abs(det) < 1e-12, 1e-12, det)
+        tan = (e1 * d2[:, 1:2] - e2 * d1[:, 1:2]) / det[:, None]
+        bit = (e2 * d1[:, 0:1] - e1 * d2[:, 0:1]) / det[:, None]
+        old = (luv[tl[st]] * bary[:, :, None]).sum(axis=1)
+        mh, mw = nmap.shape[:2]
+        m = nmap[np.clip(((1.0 - old[:, 1]) * mh).astype(np.int64), 0, mh - 1),
+                 np.clip((old[:, 0] * mw).astype(np.int64), 0, mw - 1)].astype(np.float64) / 127.5 - 1.0
+        t = tan[st] - n * (tan[st] * n).sum(axis=1)[:, None]
+        t /= np.maximum(np.linalg.norm(t, axis=1), 1e-12)[:, None]
+        b = bit[st] - n * (bit[st] * n).sum(axis=1)[:, None] - t * (bit[st] * t).sum(axis=1)[:, None]
+        b /= np.maximum(np.linalg.norm(b, axis=1), 1e-12)[:, None]
+        nm = t * m[:, 0:1] + b * m[:, 1:2] + n * m[:, 2:3]
+        nm /= np.maximum(np.linalg.norm(nm, axis=1), 1e-12)[:, None]
+        sets.append(("nmtx", "nmsq", nm))
+    for tex_name, sq_name, n in sets:
+        _write_square_normals(n, ok, tx, ty, k, W, H, eye_blocks, stem, tex_name, sq_name)
+
+
+DSQ_RANGE = 0.02
+
+
+def _write_square_offsets(at, ok, tx, ty, k, W, H, eye_blocks, stem):
+    nby, nbx = H // k + 1, W // k + 1
+    pt = np.zeros((H, W, 3))
+    ct = np.zeros((H, W))
+    np.add.at(pt, (ty[ok], tx[ok]), at[ok])
+    np.add.at(ct, (ty[ok], tx[ok]), 1.0)
+    ps = np.zeros((nby, nbx, 3))
+    cs = np.zeros((nby, nbx))
+    np.add.at(ps, (ty[ok] // k, tx[ok] // k), at[ok])
+    np.add.at(cs, (ty[ok] // k, tx[ok] // k), 1.0)
+    pt /= np.maximum(ct, 1)[..., None]
+    ps /= np.maximum(cs, 1)[..., None]
+    d = np.repeat(np.repeat(ps, k, axis=0), k, axis=1)[:H, :W] - pt
+    d[ct == 0] = 0.0
+    if eye_blocks is not None:
+        keep = np.zeros(nby * nbx, dtype=bool)
+        keep[np.unique(eye_blocks)] = True
+        d[np.repeat(np.repeat(keep.reshape(nby, nbx), k, axis=0), k, axis=1)[:H, :W]] = 0.0
+    Image.fromarray(np.clip(np.round((np.clip(d / DSQ_RANGE, -1, 1) * 0.5 + 0.5) * 255), 0, 255).astype(np.uint8)).save(
+        "%s_dsq.png" % stem)
+
+
+def _write_square_normals(n, ok, tx, ty, k, W, H, eye_blocks, stem, tex_name, sq_name):
+    tex = np.zeros((H, W, 3))
+    np.add.at(tex, (ty[ok], tx[ok]), n[ok])
+    nby, nbx = H // k + 1, W // k + 1
+    sq = np.zeros((nby, nbx, 3))
+    np.add.at(sq, (ty[ok] // k, tx[ok] // k), n[ok])
+    have = np.linalg.norm(tex, axis=2) > 1e-9
+
+    def unit(a):
+        return a / np.maximum(np.linalg.norm(a, axis=-1), 1e-12)[..., None]
+    tex = unit(tex)
+    per_sq = np.repeat(np.repeat(unit(sq), k, axis=0), k, axis=1)[:H, :W]
+    if eye_blocks is not None:
+        # cell_layout's square index: (ty // k) * (W // k + 1) + tx // k.
+        keep = np.zeros(nby * nbx, dtype=bool)
+        keep[np.unique(eye_blocks)] = True
+        bmask = np.repeat(np.repeat(keep.reshape(nby, nbx), k, axis=0), k, axis=1)[:H, :W]
+        per_sq = np.where(bmask[..., None], tex, per_sq)
+    out = []
+    for img in (tex, per_sq):
+        got = have.copy()
+        for _ in range(4 * k + 8):
+            if got.all():
+                break
+            grow, nxt = img.copy(), got.copy()
+            for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                sh, shh = np.roll(img, (dy, dx), axis=(0, 1)), np.roll(got, (dy, dx), axis=(0, 1))
+                take = ~nxt & shh
+                grow[take] = sh[take]
+                nxt |= take
+            img, got = grow, nxt
+        out.append(img)
+    for name, img in zip((tex_name, sq_name), out):
+        Image.fromarray(np.clip(np.round((img * 0.5 + 0.5) * 255), 0, 255).astype(np.uint8)).save(
+            "%s_%s.png" % (stem, name))
 
 
 def cell_textures(person, colour, cells):
@@ -1940,6 +2053,12 @@ def cell_textures(person, colour, cells):
 
     # How the planes are chosen where a surface turns between two (`settle`, `settle_margin`).
     planes = {"settle": int(o["settle"]), "settle_margin": float(o["settle_margin"])}
+    # CELLS `normals` (a folder, "" = off): each texture's rest normals beside it (cell_layout).
+    ndir = o.get("normals") or ""
+    if ndir:
+        os.makedirs(ndir, exist_ok=True)
+    # CELLS `normal_map` (a PNG, "" = none): his model's normal map, carried into the squares too.
+    nmap = np.asarray(Image.open(o["normal_map"]).convert("RGB")) if o.get("normal_map") else None
     done = {}
     per = {}
     how = {}
@@ -1951,12 +2070,14 @@ def cell_textures(person, colour, cells):
             img, isl = cell_layout(obj, src, o["head"], k, o["samples"][0], o["gutter"], zone if eyes else None,
                                    bool(o["dark_kept"]), weave_opts=head_weave, face=face if eyes else None,
                                    face_m=float(o["face"]) or None, face_front=float(o["face_front"]), **planes,
-                                   **inside(shape))
+                                   normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
+                                   normal_map=nmap, **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
                                    face=collar if eyes and o["collar"] else None, face_m=float(o["collar"]) or None,
-                                   **planes, **inside(shape))
+                                   normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
+                                   normal_map=nmap, **planes, **inside(shape))
         elif piece is not None and getattr(piece, "colour", None) is not None:
             k = int(o.get(shape + "_texels", o["body_texels"]))
             img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), k,
@@ -2073,8 +2194,11 @@ def main():
             # --cells=detail:0.3,soft:0.25,body_texels:3 (over people.json's `cells`).
             # A key with a dot is one shape's (detail.head:0.15).
             for kv in a.split("=", 1)[1].split(","):
-                key, val = kv.split(":")
-                val = float(val) if "." in val else int(val)
+                key, val = kv.split(":", 1)
+                try:
+                    val = float(val) if "." in val else int(val)
+                except ValueError:
+                    val = val   # a path (normals:DIR)
                 if "." in key:
                     key, shape = key.split(".")
                     base = cells_args.get(key, CELLS.get(key))

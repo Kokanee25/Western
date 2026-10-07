@@ -124,6 +124,9 @@ static func _view_move(view: String) -> Transform3D:
 var probe_debug := 0
 ## --probe-param=name:value,...: the probe mosaic shader's uniforms for this run (a trial's knobs).
 var probe_params := {}
+## --man-pose=head:6,-13.25,0;neck:0,-0.5,0: the seated man's pose offsets changed for this run only
+## (a diagnostic of the characters session's: ShotMatch's own fit is left as it is).
+var man_pose := {}
 
 
 func _initialize() -> void:
@@ -141,6 +144,8 @@ func _run() -> void:
 	var globals_after := {}
 	var fresh := false
 	var man_mask := false
+	var man_diag := PackedStringArray()
+	var man_normals := ""
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -232,6 +237,18 @@ func _run() -> void:
 		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
 		elif arg == "--man-mask":
 			man_mask = true
+		# --man-diag=lit,id,wire,fix,litfix [--man-normals=DIR]: the seated man's diagnostic passes
+		# after a shot-match view (tools/characters/man_diag.gd; the characters session's).
+		elif arg.begins_with("--man-diag="):
+			man_diag = arg.substr(11).split(",")
+			if "wire" in man_diag:
+				RenderingServer.set_debug_generate_wireframes(true)
+		elif arg.begins_with("--man-normals="):
+			man_normals = arg.substr(14)
+		elif arg.begins_with("--man-pose="):
+			for part in arg.substr(11).split(";"):
+				var xyz := part.get_slice(":", 1).split(",")
+				man_pose[StringName(part.get_slice(":", 0))] = Vector3(float(xyz[0]), float(xyz[1]), float(xyz[2]))
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
 		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
@@ -483,6 +500,8 @@ func _run() -> void:
 		print("saved ", v[0])
 		if man_mask:
 			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
+		if not man_diag.is_empty() and v[0].begins_with("shot_match"):
+			await load("res://tools/characters/man_diag.gd").render(self, viewport, player.camera, man_diag, man_normals, "%s/%s" % [out, v[0]])
 	quit()
 
 
@@ -607,6 +626,11 @@ func _shot_match_setup(main, player, close := false) -> void:
 	town.gang_arrives = 1e9
 	var sm = load("res://src/art/shot_match.gd")
 	sm.stage(street)
+	if not man_pose.is_empty():
+		var seated = street.find_child("SeatedMan", true, false)
+		for sid: StringName in man_pose:
+			seated.pose_offsets[sid] = man_pose[sid]
+		print("  the seated man's pose offsets for this run: ", man_pose)
 	var gun = player.get_node(^"Head/Camera3D/Gun")
 	gun._draw = 0.0
 	player.set_physics_process(false)
