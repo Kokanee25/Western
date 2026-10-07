@@ -3967,4 +3967,4 @@ a few views renders them as the full run does.
   (proposed), common brick laid rough, so the two don't read as a pair; a note for the gameplay
   session that brick as a material (chips, doesn't burn, cracks into chunks under dynamite, the
   jail's back wall the jailbreak target) wants a brief before it's built. `docs/TOWN.md`'s table
-  follows.
+  follows. Later: Sean confirmed the jail ("Yes"), so both cards say brick.
