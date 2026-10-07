@@ -41,11 +41,19 @@ func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 				mi.material_overlay = _overlay
 	if flames and _emitters.is_empty():
 		for mi in meshes:
-			_emitters.append(_flames_on(mi))
+			_emitters.append(_flames_on(mi, tuning))
+			if _over_opening():
+				_emitters.append(_opening_flames(mi, tuning))
 			if smoke:
 				_emitters.append(_smoke_on(mi))
 	elif not flames and not _emitters.is_empty():
 		_clear()
+	# The tongues grow as it burns.
+	if flames:
+		var size := _flame_size(tuning)
+		for e in _emitters:
+			if is_instance_valid(e) and e.has_meta(&"flame"):
+				((e as GPUParticles3D).draw_pass_1 as QuadMesh).size = size * float(e.get_meta(&"flame"))
 
 
 func _exit_tree() -> void:
@@ -60,22 +68,40 @@ func _clear() -> void:
 	_emitters.clear()
 
 
-func _flames_on(mi: MeshInstance3D) -> GPUParticles3D:
+## The tongues' size now: from catching to fully alight over `growth_seconds` of burning.
+func _flame_size(tuning: FireTuning) -> Vector2:
+	var grown := clampf(member.burn_time / maxf(tuning.growth_seconds, 0.01), 0.0, 1.0) if member.burning else 0.0
+	return tuning.flame_size_catching.lerp(tuning.flame_size_alight, grown)
+
+
+## Is this the head or header over a door or window? The fire inside pours out of the opening's top.
+func _over_opening() -> bool:
+	var id := String(member.member_id)
+	return id.ends_with("/head") or id.ends_with("/header")
+
+
+## Tongues off the member's upper half (its top face, if it lies flat), licking up and off it: a
+## few big ones, not a sprinkle over its whole shell (the art session, docs/briefs/fire-look.md:
+## the painting's fire is masses of tall tongues pouring off the tops).
+func _flames_on(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
 	var box := mi.get_aabb()
 	var area := box.size.x * box.size.y + box.size.y * box.size.z + box.size.x * box.size.z
-	var p := _particles(clampi(int(area * 10.0), 4, 24), 0.9, _flame_material(), 0.42)
-	(p.draw_pass_1 as QuadMesh).size = Vector2(0.36, 0.6)
+	var p := _particles(clampi(int(area * 3.3), 2, tuning.flames_a_member), 0.9, _flame_material(), 0.42)
+	p.set_meta(&"flame", 1.0)
+	(p.draw_pass_1 as QuadMesh).size = _flame_size(tuning)
 	var pm := p.process_material as ParticleProcessMaterial
-	# Off the surface, not inside the wood: a shell a hand's breadth round it, weighted to its top.
+	# Off the surface, not inside the wood: a hand's breadth round its upper half.
+	var upright := box.size.y > maxf(box.size.x, box.size.z)
+	var band := box.size.y * 0.25 if upright else 0.02
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	pm.emission_box_extents = box.size * 0.5 + Vector3(0.07, 0.05, 0.07)
+	pm.emission_box_extents = Vector3(box.size.x * 0.5 + 0.07, band + 0.05, box.size.z * 0.5 + 0.07)
 	pm.direction = Vector3.UP
 	pm.spread = 12.0
 	pm.initial_velocity_min = 0.3
 	pm.initial_velocity_max = 0.8
 	pm.gravity = Vector3(0, 1.4, 0)
-	pm.scale_min = 0.7
-	pm.scale_max = 1.5
+	pm.scale_min = 0.8
+	pm.scale_max = 1.2
 	var shrink := Curve.new()
 	shrink.add_point(Vector2(0.0, 0.6))
 	shrink.add_point(Vector2(0.25, 1.0))
@@ -92,7 +118,22 @@ func _flames_on(mi: MeshInstance3D) -> GPUParticles3D:
 	tex.gradient = ramp
 	pm.color_ramp = tex
 	mi.add_child(p)
-	p.position = box.get_center() + Vector3.UP * box.size.y * 0.15
+	# Centred on the upper half (an upright member) or just over its top (one lying flat).
+	p.position = box.get_center() + Vector3.UP * (box.size.y * 0.25 if upright else box.size.y * 0.5 + 0.05)
+	return p
+
+
+## A few tongues pouring up out of the top of the opening under this head or header.
+func _opening_flames(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
+	var box := mi.get_aabb()
+	var p := _flames_on(mi, tuning)
+	p.amount = clampi(int(maxf(box.size.x, box.size.z) * 2.0), 2, 4)
+	p.set_meta(&"flame", 1.15)
+	var pm := p.process_material as ParticleProcessMaterial
+	pm.emission_box_extents = Vector3(box.size.x * 0.5, 0.05, box.size.z * 0.5)
+	pm.initial_velocity_min = 0.6
+	pm.initial_velocity_max = 1.2
+	p.position = box.get_center() - Vector3.UP * (box.size.y * 0.5 + 0.1)
 	return p
 
 
