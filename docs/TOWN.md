@@ -24,9 +24,9 @@ siding, shingles, bricks) with pixel-art textures made in code, unless noted.
 |---|---|---|---|
 | 1 | Saloon | the saloon owner | two-storey false front, timber frame, plank walls |
 | 2 | General store (mercantile) | the storekeeper | false front, big front windows, cellar |
-| 3 | Sheriff's office and jail | the town | squared-log or heavy plank; strap-iron cells |
+| 3 | Sheriff's office and jail | the town | brick (proposed, Sean 2026-10-06), plain and rough; strap-iron cells |
 | 4 | Doctor's office | the doctor | small two-storey house with a surgery downstairs |
-| 5 | Bank | the railroad-backed banker | **the only brick building** — pride of the town |
+| 5 | Bank | the railroad-backed banker | **brick** — pride of the town (the jail may be brick too, plainer) |
 | 6 | Livery stable and blacksmith | the blacksmith | big barn, hay loft, open forge shed |
 | 7 | Church | the preacher / town | white-painted, bell tower, graveyard behind |
 | 8 | Barber, bathhouse and undertaker | the barber | one building, three trades (common then) |

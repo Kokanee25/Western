@@ -3961,3 +3961,10 @@ a few views renders them as the full run does.
   buildings wait on Sean's OK. A blind "set director" check after each building is dressed:
   can a fresh agent tell what it is and who owns it, and what looks repeated? The art session
   writes the cards and dresses to them; gameplay builds from them. Open: the bank's brick front.
+- 2026-10-06 (Sean's planning chat, docs only): **Brick for the bank, maybe the jail.** Sean: the
+  bank "should be brick - maybe the jail should be too". `docs/briefs/set-direction.md`: the
+  bank's card is brick (Sean's OK), pressed and even with stone trim; the jail's card is brick
+  (proposed), common brick laid rough, so the two don't read as a pair; a note for the gameplay
+  session that brick as a material (chips, doesn't burn, cracks into chunks under dynamite, the
+  jail's back wall the jailbreak target) wants a brief before it's built. `docs/TOWN.md`'s table
+  follows.

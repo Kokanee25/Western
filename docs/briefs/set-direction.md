@@ -151,8 +151,9 @@ today or a new material to paint.
 - **Front:** heavy door, barred windows, no porch roof, a stone step.
 - **Wear and life:** clean, swept, nothing left outside; a hitching ring set in the stone.
 - **Inside:** the teller's cage and the safe's door.
-- **Against neighbours:** brick among wood. (Open with Sean: the game's bank is wood painted
-  rust today; a brick front is gameplay's structure work, since brick breaks and burns differently.)
+- **Against neighbours:** brick among wood, and smarter brick than the jail's: pressed, even,
+  with stone trim. (Sean, 2026-10-06: brick. The game's bank is wood painted rust today; brick is
+  gameplay's structure work, below.) Sean: OK on brick.
 
 ### Livery
 - **Who and why:** the blacksmith who runs it; practical, no show.
@@ -166,12 +167,16 @@ today or a new material to paint.
 
 ### Jail
 - **Who and why:** the town (the sheriff); wants to look like it can hold a man.
-- **Age and money:** heavy plank or squared log (TOWN.md 3), built strong and cheap.
-- **Colours:** dark creosoted timber, iron straps and bars.
+- **Age and money:** brick (Sean, 2026-10-06: "maybe the jail should be too"; proposed), put
+  up by the county after a man dug out of the old log lock-up. Common brick laid by a local
+  mason: uneven courses, thick mortar, no ornament. Strap-iron cells inside.
+- **Colours:** dull dark red-brown brick, sooty over the stovepipe, black iron straps and bars,
+  a plank door sheathed in iron.
 - **Sign:** SHERIFF on a board hung under the porch, plain; the wanted board beside the door.
 - **Front:** small, barred windows, a heavy door, a bench outside.
 - **Wear and life:** posters layered and torn, a chair tipped back against the wall, a spittoon.
-- **Against neighbours:** the darkest front in town.
+- **Against neighbours:** the darkest front in town; brick like the bank's but cheap, rough and
+  plain, so the two read as the town's money and the town's law, not a pair.
 
 ### Assay office
 - **Who and why:** the mining company; wants nobody to come in.
@@ -193,6 +198,15 @@ today or a new material to paint.
 - **Who and why:** the livery's.
 - **Look:** grey split rails mended with newer poles and wire, a gate on leather hinges, a
   water trough, hoof-churned ground with no grass.
+
+### Brick (for the gameplay session)
+
+The bank's front, and the jail if Sean confirms, need brick as a building material: members laid
+in courses that a ball chips rather than passes through, that don't burn (a brick building's
+roof and floors still do), and that dynamite cracks into chunks (TOWN.md 5, the blasted brick
+wall in `docs/concept/livery-fire.png`). The jail's back wall is the jailbreak target (TOWN.md 3).
+How brick is built (members or voxels, mortar strength, numbers from published references) is
+gameplay's to propose in a brief before it's built; the art session paints the two bricks.
 
 The map's other buildings (feed store, blacksmith's forge, wagon repair, freight storehouse,
 stage stop, church, school, cemetery and the houses) get their cards as they're built.
