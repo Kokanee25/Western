@@ -3990,8 +3990,7 @@ a few views renders them as the full run does.
     golden hour: gameplay had already fixed them on main, `DayCycle.get_starlight()`); the room
     behind him dark murk (sconces, doorway, balcony unread).
   - Goldens: all 70 re-approved from two `--fresh` runs on the merged tree (the 19 views main's
-    smoke, flames and stars touch rendered again on it); visual checks VISUAL_CHECKS.
-    Build BUILD_NUMBER.
+    smoke, flames and stars touch rendered again on it); visual checks 374, none failed.
   - **Next (merge 3), ready on the branch after this merge:** fire steps 1-2
     (`docs/briefs/fire-look.md`: flames drawn as a flipbook by `tools/textures/draw_flames.py`,
     `flame.gdshader` solid colour with alpha scissor, not additive; char in the drawn wood's
