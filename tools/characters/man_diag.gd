@@ -30,6 +30,8 @@ uniform sampler2D diag_nsq : filter_nearest, repeat_disable;
 uniform sampler2D diag_ntx : filter_nearest, repeat_disable;
 uniform float diag_grey = 0.35;
 uniform bool diag_pos = false;
+uniform bool diag_rest = false;
+varying vec3 diag_rest_n;
 uniform vec3 diag_shift = vec3(0.0);
 uniform sampler2D diag_dsq : filter_nearest, repeat_disable;
 """
@@ -39,7 +41,9 @@ const FIX := """
 	if (diag_fix && use_uv) {
 		vec3 nsq = textureLod(diag_nsq, tuv, 0.0).rgb * 2.0 - 1.0;
 		vec3 ntx = textureLod(diag_ntx, tuv, 0.0).rgb * 2.0 - 1.0;
-		vec3 a = normalize(ntx);
+		// His rest normal here: the mesh's own (CUSTOM1, put in by man_diag.swap), so the turn into
+		// his pose is the bones' turn, the same all over a square; else the texel's from the bake.
+		vec3 a = diag_rest ? normalize(diag_rest_n) : normalize(ntx);
 		vec3 b = normalize(local_normal);
 		vec3 v = cross(a, b);
 		float c = dot(a, b);
@@ -88,6 +92,7 @@ static func patched(orig: Shader) -> Shader:
 		["uniform vec3 shade_tint : source_color = vec3(1.0);\n", UNIFORMS],
 		["tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.05);\n", FIX],
 		["\tbase *= tint.rgb;\n", GREY],
+		["\tlocal_normal = NORMAL;\n", "\tdiag_rest_n = CUSTOM1.xyz;\n"],
 	]
 	for e: Array in edits:
 		assert(inc.contains(e[0]), "man_diag: body_skin.gdshaderinc has changed: " + e[0])
@@ -126,7 +131,10 @@ static func swap(man: Node3D, normals_dir: String) -> Dictionary:
 				d.set_meta(&"normals", kinds)
 				if FileAccess.file_exists(stem + "_dsq.png"):
 					d.set_shader_parameter(&"diag_dsq", ImageTexture.create_from_image(Image.load_from_file(stem + "_dsq.png")))
-		was[mi] = m
+		was[mi] = [m, mi.mesh]
+		if mi.mesh is ArrayMesh:
+			mi.mesh = with_rest_normals(mi.mesh)
+			d.set_shader_parameter(&"diag_rest", true)
 		mi.material_override = d
 	return was
 
@@ -148,17 +156,67 @@ static func set_pass(was: Dictionary, mode: int, kind: String, pos := false) -> 
 static func restore(was: Dictionary) -> void:
 	for mi: MeshInstance3D in was:
 		if is_instance_valid(mi):
-			mi.material_override = was[mi]
+			mi.material_override = was[mi][0]
+			mi.mesh = was[mi][1]
+
+
+## A copy of `mesh` with each vertex's own (rest, unskinned) normal in CUSTOM1, so the fix can
+## turn a square's rest normal by exactly the bones' turn (skinning turns NORMAL, not CUSTOM1).
+static func with_rest_normals(mesh: Mesh) -> ArrayMesh:
+	var out := ArrayMesh.new()
+	for i in mesh.get_surface_count():
+		var arrays := mesh.surface_get_arrays(i)
+		var n: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+		var c := PackedFloat32Array()
+		c.resize(n.size() * 4)
+		for j in n.size():
+			c[j * 4] = n[j].x
+			c[j * 4 + 1] = n[j].y
+			c[j * 4 + 2] = n[j].z
+			c[j * 4 + 3] = 0.0
+		arrays[Mesh.ARRAY_CUSTOM1] = c
+		var fmt: int = mesh.surface_get_format(i)
+		var flags: int = Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT
+		flags |= fmt & (Mesh.ARRAY_FORMAT_CUSTOM_MASK << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+		flags |= fmt & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
+		out.surface_set_material(i, mesh.surface_get_material(i))
+	return out
 
 
 ## The passes asked for, each saved as <stem>_diag_<pass>.png.
 static func render(tree: SceneTree, viewport: SubViewport, cam: Camera3D, passes: PackedStringArray,
-		normals_dir: String, stem: String) -> void:
+		normals_dir: String, stem: String, zoom := 1.0, target := &"head") -> void:
 	var man := viewport.find_child("SeatedMan", true, false) as Node3D
 	if man == null:
 		push_warning("man_diag: no SeatedMan")
 		return
 	var was := swap(man, normals_dir)
+	# Every lamp held at its own steady energy while the passes are drawn: their flicker (±7 %,
+	# oil_lamp.gd) changed the light between passes and made the passes disagree with themselves.
+	var lamps := []
+	for n: Node in viewport.find_children("*", "Node3D", true, false):
+		var sc := n.get_script() as Script
+		if sc != null and sc.resource_path.ends_with("oil_lamp.gd") and n.get(&"_light") != null:
+			n.set_process(false)
+			(n.get(&"_light") as Light3D).light_energy = n.get(&"energy")
+			lamps.append(n)
+	# He's held still too: his idle (breathing, the pose easing) moved him between passes, so the
+	# square-id pass no longer lined up with the light passes and square edges read as splits.
+	var man_mode := man.process_mode
+	man.process_mode = Node.PROCESS_MODE_DISABLED
+	# --man-zoom=N[:part]: the passes from the view's camera turned onto one of his parts and its
+	# lens narrowed N times, so his triangles and squares are big enough to tell apart.
+	var cam_was := [cam.global_transform, cam.fov]
+	if zoom > 1.0:
+		var parts: Dictionary = man.get(&"parts")
+		var part := parts.get(target) as Node3D
+		if part != null:
+			cam.look_at(part.global_position, Vector3.UP)
+			cam.fov = cam_was[1] / zoom
+			stem += "_zoom_%s" % target
+	for i in 4:
+		await tree.process_frame
 	for name in passes:
 		var p := name
 		var black := p == "id" or p == "wire"
@@ -215,3 +273,9 @@ static func render(tree: SceneTree, viewport: SubViewport, cam: Camera3D, passes
 			if is_instance_valid(gi):
 				gi.visible = hidden[gi]
 	restore(was)
+	cam.global_transform = cam_was[0]
+	cam.fov = cam_was[1]
+	man.process_mode = man_mode
+	for n: Node in lamps:
+		if is_instance_valid(n):
+			n.set_process(true)

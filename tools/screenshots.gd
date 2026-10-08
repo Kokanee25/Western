@@ -146,6 +146,7 @@ func _run() -> void:
 	var man_mask := false
 	var man_diag := PackedStringArray()
 	var man_normals := ""
+	var man_zoom := []
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -245,6 +246,8 @@ func _run() -> void:
 				RenderingServer.set_debug_generate_wireframes(true)
 		elif arg.begins_with("--man-normals="):
 			man_normals = arg.substr(14)
+		elif arg.begins_with("--man-zoom="):
+			man_zoom = Array(arg.substr(11).split(","))
 		elif arg.begins_with("--man-pose="):
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
@@ -501,7 +504,12 @@ func _run() -> void:
 		if man_mask:
 			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
 		if not man_diag.is_empty() and v[0].begins_with("shot_match"):
-			await load("res://tools/characters/man_diag.gd").render(self, viewport, player.camera, man_diag, man_normals, "%s/%s" % [out, v[0]])
+			var diag = load("res://tools/characters/man_diag.gd")
+			await diag.render(self, viewport, player.camera, man_diag, man_normals, "%s/%s" % [out, v[0]])
+			# --man-zoom=4:head,4:chest: the passes again, the camera on that part, its lens N times narrower.
+			for z: String in man_zoom:
+				await diag.render(self, viewport, player.camera, man_diag, man_normals, "%s/%s" % [out, v[0]],
+						float(z.get_slice(":", 0)), StringName(z.get_slice(":", 1)))
 	quit()
 
 

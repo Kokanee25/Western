@@ -1,0 +1,11 @@
+{
+ "seed": 7,
+ "labels": {
+  "A": "r10",
+  "B": "d2r"
+ },
+ "renders": {
+  "r10": "/tmp/claude-0/-home-user-Western/429a14da-a960-53b6-ba70-7e4725a94f63/scratchpad/exp/e0_r10/shot_match_saloon.png",
+  "d2r": "/tmp/claude-0/-home-user-Western/429a14da-a960-53b6-ba70-7e4725a94f63/scratchpad/exp/e0_d2/shot_match_saloon.png"
+ }
+}
