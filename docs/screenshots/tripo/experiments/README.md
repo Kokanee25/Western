@@ -251,3 +251,21 @@ reads as a hole two to three squares wide down to the lip, not the master's smal
 Next for the moustache: lighter (L* ~29 in the shot) with bolder tones; its top a little lower so
 skin shows between it and the nostrils; the notch needs squares finer than 7 mm there (a regular
 sub-grid), since a 7 mm square can only show a gap as a whole column.
+
+## E4: the collar
+
+A: `head_paint.py bake --id=stranger2s --collar=from:stranger2_rodin` (`model_collar`, written
+2026-10-07 and never used: his shirt and neckerchief round his collar from his Rodin model's own
+colours, the shirt toned to the painter's cream: 30,602 texels, L* 76 → 71, b* 9 → 13), fitted as
+r10. B: A + `fit_tripo.py --cells=collar:0.0055` (his collar and shirt front in 5.5 mm squares).
+`e4/collar_plain_light.png` (r10 / A / B, plain light: the painter's black smears in the white collar
+gone in A, a clean cream collar either side of a black neckerchief), `e4/collar_in_shot.png` (master /
+r10 / A / B). Judge (dry): A 0.500, B 0.505 (r10 0.501).
+
+**Blind critic** (`critic/e4/critic.md`; `critic/e4_key.json`: A = r10, B = collar from his model, C
+= + 5.5 mm collar squares): **B first**, C a close second (the same picture but for a few more stray
+specks at the collar's lower left), A (r10) last: its collar "a blown-out scatter of white and pink
+shards with black chips", its neckerchief "shattered into black islands". B's collar is "a ragged
+cream ribbon with saw-tooth edges", its neckerchief "soft blurred blobs, not a shaped knot", the neck
+under the chin "the most regular grid of blocks in any render here"; no collar points, no shadow
+under them. Finer collar squares don't help at the shot's size.
