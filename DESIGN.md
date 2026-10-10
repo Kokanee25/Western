@@ -44,6 +44,11 @@ when you push on it.
 
 ## 4. The look (**decided**)
 
+**Under review (Sean, 2026-10-10):** "we're going to test the art style a bit more and decide how
+to finally handle it." What's below stays the working look until Sean decides; the comparison is
+`docs/prompts/07_Art_Style_Feasibility.md` (the bold squares against two alternatives, judged in
+the engine on the same character, props, saloon corner and façade).
+
 Reference: `docs/concept/saloon-night.png`, `docs/concept/livery-fire.png` and
 `docs/concept/street-golden-hour.png` (Sean, 2026-10-01: the main street at golden hour, first person
 with the revolver; the target for the street, materials and daylight).
