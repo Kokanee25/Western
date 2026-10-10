@@ -78,3 +78,12 @@ One head; no roster, no wardrobe. No paid calls (no Tripo, Rodin or fal) without
 with the cost. MakeHuman's assets are CC0 and may go in the repo; MPFB2's addon code (GPL) and
 MakeHuman's program code (AGPL) stay out. The numbers above are the research's starting points,
 tuned by eye.
+
+## Result (2026-10-10)
+
+Built and judged: CLAUDE.md's status entry for the day has the numbers and the view, and the
+layout note "The house head" says how it's made. In short: the stamps and the moustache shell
+make the small features read (the lip line, the moustache's underside and the ear canal pass in
+all three lights), but the drawn head as a whole reads less like the painting's man than
+stranger2s; the parts worth carrying to the Rodin men are the moustache shell, the lip-line row,
+the ear stamps and the nose-tip square.

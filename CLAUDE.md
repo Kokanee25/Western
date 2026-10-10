@@ -869,6 +869,28 @@ a few views renders them as the full run does.
   `face` does his face. `fit_tripo.py --cells=key:value,...` tries other numbers
   (`soft.head:0.17` for one shape; a dotted key starts from CELLS's other shapes, not
   people.json's). His bake then has no `cells`.
+  **The house head** (`tools/blender/house_head.py`, docs/briefs/faces.md, a test, 2026-10-10):
+  one head with a drawn face on a shared base, `faces_test`. MakeHuman's base mesh with its own
+  targets for the stylised edit (`assets/people/house_head.json`: ears flared and deeper, nose
+  bigger, brow forward, fuller lips, eyes opened a little; `fetch_makehuman.py` fetches them),
+  fitted so his eyes are stranger2s's under stranger2s's hat (`Hat`: the donor's hat is the part
+  of his head mesh above his brim's plane; `fit_crown` eases the cranium out to its band), a
+  moustache shell of its own (`moustache`: a loft along the upper lip, proud of it, its tails
+  drooping past the corners); the house UV layout (`layout`: each triangle on one of six planes,
+  8 mm squares, 4 texels a square, the front grid set by the lip parting and the face's middle,
+  ears, eyes and moustache on islands of their own, `raster`); painted by script (`stage_paint`,
+  `PAINT`: a skin ramp, AO from Blender and cavity stepped into it, a one-step jitter, region
+  tints, the stamps placed by MediaPipe landmarks on a clay render, eyes and lids on the 2 mm
+  texels); normals from an exaggerated copy of the head (the shader lights a square once). He
+  wears stranger2s's body, hat and collar (`body_hat`, `body_collar`: cut from stranger2s's head
+  mesh, on its texture), so only the face differs; `ShotMatch.FIT_AS` seats him as stranger2s.
+  Three stages (mesh in Python, AO and the glb in Blender, paint in Python), ~10 s.
+  `tools/characters/faces_lights.gd` renders men's heads under a warm lamp, a low sun and shade
+  from three views with each stamp's place, and `faces_judge.py` gives each stamp's OKLab
+  contrast against the squares round it (a depth test keeps hidden squares out) and whether
+  MediaPipe finds the face. `tools/normal_check.gd` (+ `tools/blender/normal_check.py`) is the
+  normal-map convention check; `tools/characters/normal_convention.py` reads a map's green
+  channel from its curl.
   **The character judge** (`tools/characters/judge_man.py`, the characters session's: the
   reference judge scores the whole frame, where the man is a small part): the seated man alone
   against the man in `saloon-blocks.png` (DESIGN.md §4's saloon target; `--painting=night` the old
@@ -4668,3 +4690,51 @@ a few views renders them as the full run does.
   to test the art style a bit more and decide how to finally handle it." DESIGN.md §4 gains a note
   (the bold squares stay the working look until he decides); `docs/prompts/STATUS.md` says Prompt
   07 (the style comparison) is the way it's tested, when Sean starts it.
+- 2026-10-10 (characters session): **The faces test: a drawn face on a shared base head.** Sean's
+  brief (`docs/briefs/faces.md`): one head whose small features are decided (modelled big, a normal
+  a square, stamped as glyphs) against stranger2s's, whose are averaged out of a scan.
+  - **Step 1, the normal-map convention** (`tools/normal_check.gd`, layout note above): Blender's
+    default bake, glTF and Godot agree (OpenGL +Y, MikkTSpace): a baked bump on a flat quad lights
+    on the same side as the modelled one from +X and from -Z. Khronos's NormalTangentMirrorTest
+    lights right with its own tangents; NormalTangentTest (no tangents) lights wrong under Godot's
+    run-time glTF loader, so a glb with a normal map must carry tangents. Rodin's map is OpenGL
+    (its curl share 0.37 read as OpenGL, 2.67 flipped); Tripo's read near even both ways (mostly
+    fine noise). The finding that matters: **the game's men carry no normal map at all** (the fit
+    exports positions, normals, UVs and weights), so a scanned man's ears, nostrils and lid creases
+    live only in his averaged colour and decimated shape.
+  - **Steps 2-5, the house head** (`faces_test`, layout note above). One change from the brief:
+    the per-square normal as a texture, decoded in the shader in a frame built from the UVs'
+    screen derivatives (tried, ~15 lines in `body_skin`), lit his cheeks in triangle facets (the
+    frame changes from triangle to triangle within a square), so it's out; the exaggerated normals
+    are the mesh's own and the shader's per-square light makes them a normal a square. No change
+    to the art session's shader is left. Every face texel is in one square (none shared by two
+    islands); the eyes' 2 mm texels nest four a side.
+  - **Judged** (pictures `docs/screenshots/tripo/faces_test_compare.png` (test head | stranger2s |
+    the painting's man, 3x), `faces_test_lights.png`, `faces_test_quarter.png`,
+    `faces_test_normal_check.png`). Stamp contrast in OKLab L against the squares round it, the
+    goal 0.08 in two of three lights (lamp / sun / shade): lip line 0.22 / 0.22 / 0.14, the
+    moustache's underside 0.09 / 0.18 / 0.11, ear canal 0.19 / 0.16 / 0.09 (3 of 3 each); nose
+    tip 0.10 / 0.18 / 0.02 (2); ear hollow 0.09 / 0.04 / 0.06, moustache top 0.04 / 0.12 / 0.07,
+    nostril 0.02 / 0.12 / 0.03 (1 each, the nostril only in sight from the side); the mouth's
+    corners are under the moustache's tails from every view. MediaPipe finds his face in 3 of 6
+    lights and views (nose tip within 4-8 mm, corners 2-8 mm), stranger2s's in 6 of 6. At a quarter
+    size his ears stand clear of his head (stranger2s's barely show) and the moustache sits in
+    front of the lip on both. Character judge (`2026-10-07`-style round `2026-10-10_r1`): 0.456
+    (light 0.44, colour 0.64, squares 0.32) against stranger2s's r10 0.499 (0.66, 0.63, 0.18): his
+    lit face isn't burnt (no bright Rodin skin), but his squares are harder and noisier. Judge v2 on
+    the saloon shot (scored only): 0.406 against 0.387. The art session's blind critic is asked
+    for: the renders are in `docs/screenshots/tripo/judge/renders/faces_test/` (stranger2s's in
+    `face_modelled/`).
+  - **My view:** the drawn face reads its small features better (ears, nostrils, lip line, the
+    moustache's dark underside), and holds them at a quarter size, but as a whole it reads less
+    like the painting's man than stranger2s does: a thin, bald-looking head under the brim, staring
+    eyes with all their whites, brows broken into a checker by the jitter and a mottled skin. The
+    painting's man is a realistic face cut into squares; this is a drawn mask. What carries to the
+    Rodin men without the shared base: the moustache as a shell of its own with its near-black
+    underside row (it stands off his lip in every light), the lip line as a row (the strongest
+    stamp), the ear's hollow and canal stamped on the ear's own squares, and a lighter nose-tip
+    square; probably not a base head (a scanned man's proportions and hair are what make him read
+    as the painting's), nor whites drawn as wide as this.
+  - Not done: hair at his temples under the brim (he reads bald there), the brows as a solid mass,
+    a calmer skin jitter, and the moustache's tails shortened so the mouth's corners show. Other
+    session's file: `src/art/shot_match.gd` (art), three lines (`FIT_AS`). No paid calls.
