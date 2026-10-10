@@ -1430,6 +1430,122 @@ def draw_beard(out, cid, pos, nrm, uv, tris, size, cfg):
     print("  stubble: %d texels, darkened to x%.2f in linear light, colour x%.2f" % (int((a > 0.5).sum()), dark, grey))
 
 
+# His moustache drawn as the painting's (the characters session's protected features, experiment
+# E3, docs/screenshots/tripo/experiments/): one dark shape with clean edges and a gap of skin `gap`
+# metres wide at the middle under his nose (the philtrum), `notch` metres deep (as deep as the
+# moustache: two masses apart; less: joined below). His model's own moustache is a soft dark band
+# with no gap. Its outline is his model's own: seen from in front (a grid of `grid` metres in the
+# plane of his face), what's darker than L* `dark_l` between `top` above and `bottom` below the
+# bottom of his nose and within `across` of its middle, closed over `close` metres (the gaps
+# between hairs), opened over `open` (stray dark texels), grown by `grow`, the pieces joined to the
+# middle kept and their holes filled. Inside it, dark `dark` with `keep` of his own hairs'
+# lightness; the gap his cheek's skin (beside his nose) times `gap_shade` in linear light (in the
+# nose's shadow); outside it, whatever is as dark (`clean`, his model's moustache past the drawn
+# one) his cheek's skin with `keep` of its own lightness. Also writes <id>_labels.png beside his
+# texture (the same UVs): 1 his moustache, 2 the gap, 3 a ring `ring` metres round them, 0
+# elsewhere; fit_tripo.py's CELLS `labels` gives each square there wholly to the moustache or to his
+# skin, by which has more of it.
+MOUSTACHE = {}  # --moustache=gap:8,notch:6 (mm) over characters.json's `bake.moustache`; --moustache=off
+MOUSTACHE_MM = {"gap": 8.0, "notch": 30.0, "top": 4.0, "bottom": 40.0, "across": 48.0, "grid": 0.5,
+                "close": 1.5, "open": 1.5, "grow": 0.0, "ring": 4.0}
+
+
+def draw_moustache(out, cid, pos, nrm, uv, tris, size, cfg):
+    """His moustache drawn over `out` (in place) and his label map returned: `bake.moustache`."""
+    from scipy import ndimage
+    face = face_points(cid)
+    labels = np.zeros(out.shape[:2], dtype=np.uint8)
+    if face is None:
+        print("  no face found: moustache left as painted")
+        return labels
+    ty, tx, p, n = _face_texels(uv, tris, pos, nrm, size)
+    m = {k: float(cfg.get(k, d)) for k, d in MOUSTACHE_MM.items()}
+    sn = face[2]
+    mid = float(np.mean([face[61, 2], face[291, 2]]))
+    # Seen from in front, in millimetres: across from his face's middle, up from under his nose.
+    H = HEIGHT_M * 1000.0
+    near = ((n @ FORWARD > 0.05) & (p[:, 0] > sn[0] - 0.035 / HEIGHT_M)
+            & (np.abs(p[:, 2] - mid) * H < m["across"] + m["ring"] + 2) & ((p[:, 1] - sn[1]) * H < m["top"] + m["ring"] + 2)
+            & ((p[:, 1] - sn[1]) * H > -m["bottom"] - m["ring"] - 2))
+    idx = np.nonzero(near)[0]
+    qa, qu = (p[idx, 2] - mid) * H, (p[idx, 1] - sn[1]) * H
+    lab = _lab(out[ty[idx], tx[idx]])
+    # The grid: each cell the nearest texel's lightness.
+    g = m["grid"]
+    nx, ny = int(2 * (m["across"] + m["ring"] + 2) / g), int((m["top"] + m["bottom"] + 2 * m["ring"] + 4) / g)
+    ga = -(m["across"] + m["ring"] + 2) + (np.arange(nx) + 0.5) * g
+    gu = m["top"] + m["ring"] + 2 - (np.arange(ny) + 0.5) * g
+    from scipy.spatial import cKDTree
+    tree = cKDTree(np.stack([qa, qu], axis=1))
+    GA, GU = np.meshgrid(ga, gu)
+    d, i = tree.query(np.stack([GA.ravel(), GU.ravel()], axis=1))
+    L = np.where(d < 1.5, lab[i, 0], 100.0).reshape(ny, nx)
+    region = (np.abs(GA) < m["across"]) & (GU < m["top"]) & (GU > -m["bottom"])
+    dark = (L < float(cfg.get("dark_l", 28.0))) & region
+    disk = lambda r: (lambda k: (np.add.outer(k * k, k * k) <= (r / g) ** 2))(np.arange(-int(r / g), int(r / g) + 1))
+    if m["close"] > 0:
+        dark = ndimage.binary_closing(dark, disk(m["close"]))
+    if m["open"] > 0:
+        dark = ndimage.binary_opening(dark, disk(m["open"]))
+    # The pieces that reach the middle under his nose (his moustache, not his brows' or nostrils'
+    # shadows), their holes filled.
+    lab_c, nc = ndimage.label(dark)
+    centre = (np.abs(GA) < 6) & (GU < 0) & (GU > -20)
+    keep_ids = np.unique(lab_c[centre & dark])
+    shape = np.isin(lab_c, keep_ids[keep_ids > 0])
+    shape = ndimage.binary_fill_holes(shape)
+    if m["grow"] > 0:
+        shape = ndimage.binary_dilation(shape, disk(m["grow"]))
+    # Not past the line of his mouth between its corners (his lip's crease is as dark): `lip` metres
+    # under it at most; past the corners his moustache's ends hang free.
+    corner = max(abs(face[61, 2] - mid), abs(face[291, 2] - mid)) * H
+    line = np.interp(np.abs(GA), [0.0, corner], [(face[13, 1] - sn[1]) * H, (face[61, 1] - sn[1]) * H])
+    shape &= ~((np.abs(GA) < corner) & (GU < line - float(cfg.get("lip", 1.0))))
+    shape = ndimage.binary_opening(shape, disk(max(m["open"], g)))
+    # The gap at the middle under his nose.
+    # As deep as `notch`, or to the top of his upper lip (the philtrum's end) if that's nearer.
+    notch = min(m["notch"], -(face[0, 1] - sn[1]) * H + 1.0)
+    gap = (np.abs(GA) < m["gap"] / 2) & (GU < m["top"]) & (GU > -notch) & shape
+    gap_top = GU[gap].max() if gap.any() else 0.0
+    gap |= (np.abs(GA) < m["gap"] / 2) & (GU >= -notch) & (GU <= gap_top) & ~shape & (GU < 1.0)
+    shape &= ~gap
+    ring = (ndimage.distance_transform_edt(~(shape | gap)) * g < m["ring"]) & ~shape & ~gap
+    # Each texel's place on the grid.
+    ci = np.clip(((qa - ga[0]) / g + 0.5).astype(int), 0, nx - 1)
+    ri = np.clip(((gu[0] - qu) / g + 0.5).astype(int), 0, ny - 1)
+    t_in, t_gap, t_ring = shape[ri, ci], gap[ri, ci], ring[ri, ci]
+    keep = float(cfg.get("keep", 0.3))
+    dk = _lab(np.array([cfg.get("dark", (30, 20, 14))], dtype=np.float64))[0]
+    new = np.repeat(dk[None], t_in.sum(), axis=0)
+    new[:, 0] += (lab[t_in, 0] - np.median(lab[t_in, 0])) * keep
+    out[ty[idx[t_in]], tx[idx[t_in]]] = _rgb(new)
+    # His cheek's skin beside his nose.
+    cheek = (np.abs(np.abs(qa) - 34.0) < 6.0) & (qu > 2.0) & (qu < 12.0) & (lab[:, 0] > 30)
+    skin = np.median(lab[cheek], axis=0)
+    sk = _rgb(skin[None])[0] / 255.0
+    lin = np.where(sk <= 0.04045, sk / 12.92, ((sk + 0.055) / 1.055) ** 2.4) * float(cfg.get("gap_shade", 0.75))
+    shade = _lab((255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055))[None])[0]
+    gl = np.repeat(shade[None], t_gap.sum(), axis=0)
+    gl[:, 0] += np.clip(lab[t_gap, 0] - np.median(lab[t_gap, 0]), -6, 6) * keep
+    out[ty[idx[t_gap]], tx[idx[t_gap]]] = _rgb(gl)
+    # His model's own moustache outside the drawn one: skin.
+    t_line = np.interp(np.abs(qa), [0.0, corner], [(face[13, 1] - sn[1]) * H, (face[61, 1] - sn[1]) * H])
+    stray = ~t_in & ~t_gap & (np.abs(qa) < m["across"]) & (qu < m["top"]) & (qu > -m["bottom"]) & \
+        ~((np.abs(qa) < corner + 2.0) & (qu < t_line + 1.0)) & \
+        (lab[:, 0] < float(cfg.get("dark_l", 28.0))) & bool(cfg.get("clean", 1.0))
+    sl = np.repeat(skin[None], stray.sum(), axis=0)
+    sl[:, 0] += np.clip(lab[stray, 0] - np.median(lab[cheek, 0]), -12, 0) * keep
+    out[ty[idx[stray]], tx[idx[stray]]] = _rgb(sl)
+    labels[ty[idx], tx[idx]] = np.where(t_in, 1, np.where(t_gap, 2, np.where(t_ring, 3, 0))).astype(np.uint8)
+    cols = np.nonzero(shape.any(axis=0))[0]
+    rows = np.nonzero(shape.any(axis=1))[0]
+    print("  moustache: %d texels, %.0f x %.0f mm, a gap %.0f mm wide and %.0f deep (%d texels of skin), "
+          "%d stray dark texels to skin, skin L* %.0f"
+          % (int(t_in.sum()), (np.ptp(cols) + 1) * g if len(cols) else 0, (np.ptp(rows) + 1) * g if len(rows) else 0,
+             m["gap"], gap_top - GU[gap].min() if gap.any() else 0, int(t_gap.sum()), int(stray.sum()), skin[0]))
+    return labels
+
+
 def bake(cid):
     from scipy import ndimage
     pos, nrm, uv, tris, colour = load_man(cid)
@@ -1515,6 +1631,11 @@ def bake(cid):
             draw_beard(out, cid, wpos, wnrm, uv, tris, size, beard)
         if brows:
             draw_brows(out, cid, wpos, wnrm, uv, tris, size, brows)
+    moustache = dict(bk.get("moustache") or {}, **MOUSTACHE) if MOUSTACHE is not None else {}
+    if moustache and not SMOOTH:
+        wpos, wnrm = worn_points(cid, pos, nrm)
+        labels = draw_moustache(out, cid, wpos, wnrm, uv, tris, size, moustache)
+        Image.fromarray(labels).save(os.path.join(DIR, cid + "_labels.png"))
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -1570,7 +1691,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
-    global BROWS, BEARD, COLLAR
+    global BROWS, BEARD, COLLAR, MOUSTACHE
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1625,6 +1746,12 @@ def main():
                 BROWS = kv
             else:
                 BEARD = kv
+        elif a == "--moustache=off":
+            MOUSTACHE = None
+        elif a.startswith("--moustache="):
+            # His moustache (draw_moustache): --moustache=gap:8,notch:6 (mm), dark:30/20/14, dark_l:28
+            MOUSTACHE = {k: (tuple(float(c) for c in x.split("/")) if "/" in x else float(x))
+                         for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a == "--collar=off":
             # The painter's collar as painted (`bake.collar` left out).
             COLLAR = None

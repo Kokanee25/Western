@@ -1594,7 +1594,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None):
+                normal_map=None, labels=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1610,7 +1610,11 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     islands' count. `normals_to` (a path stem, CELLS `normals`): beside it, <stem>_ntx.png (each
     texel's own normal in his rest pose, our body space) and <stem>_nsq.png (its square's: the
     mean of the square's texels), as RGB = n / 2 + 0.5, for one normal a square (an experiment,
-    tools/characters/man_diag.gd)."""
+    tools/characters/man_diag.gd). `labels` (CELLS `labels`: tools/characters/head_paint.py's
+    <id>_labels.png, rows down, in the old UVs as `src`): a square any labelled texel reaches is
+    wholly his moustache (label 1) when most of it is, else wholly his skin, and takes the colour of
+    its own kind's part (the middle by lightness), so the moustache's edge and the gap under his nose
+    step in whole squares (the characters session's experiment E3)."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1820,6 +1824,25 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         dcount = np.bincount(lab, dark.astype(np.float64), minlength=nk)
         dmean = np.stack([np.bincount(lab, np.where(dark, rgb[:, c], 0.0), minlength=nk) for c in range(3)], axis=1)
         colour = np.where((dcount / cnt >= DARK_SHARE)[:, None], dmean / np.maximum(dcount, 1.0)[:, None], colour)
+    if labels is not None and k > 1:
+        lh, lw = labels.shape[:2]
+        ls = labels[np.clip(((1.0 - old[:, 1]) * lh).astype(np.int64), 0, lh - 1),
+                    np.clip((old[:, 0] * lw).astype(np.int64), 0, lw - 1)]
+        is_m = ls == 1
+        n_m = np.bincount(lab, is_m.astype(np.float64), minlength=nk)
+        touched = (np.bincount(lab, (ls > 0).astype(np.float64), minlength=nk) > 0) & (keys % 2 == 0)
+        own_m = touched & (n_m * 2 > cnt)
+        mixed = touched & (n_m > 0) & (n_m < cnt)
+        match = np.where(own_m[lab], is_m, ~is_m) & mixed[lab]
+        sel = np.nonzero(match)[0]
+        if len(sel):
+            o2 = sel[np.lexsort((lum[sel], lab[sel]))]
+            c2 = np.bincount(lab[sel], minlength=nk)
+            s2 = np.concatenate([[0], np.cumsum(c2)[:-1]])
+            got = c2 > 0
+            colour[got] = rgb[o2[s2[got] + c2[got] // 2]]
+        print("    labels: %d squares touched, %d his moustache, %d mixed given wholly to one"
+              % (int(touched.sum()), int(own_m.sum()), int(mixed.sum())))
     if k > 1 and zone is not None:
         # A texel of an eye: the colour most of it is (the eyes are drawn in flat colours, and the
         # middle by lightness of white, iris and lid was the iris, the dark part a lid: they squinted).
@@ -2059,6 +2082,12 @@ def cell_textures(person, colour, cells):
         os.makedirs(ndir, exist_ok=True)
     # CELLS `normal_map` (a PNG, "" = none): his model's normal map, carried into the squares too.
     nmap = np.asarray(Image.open(o["normal_map"]).convert("RGB")) if o.get("normal_map") else None
+    # CELLS `labels` (true: head_paint.py's <id>_labels.png beside his repaint; or a PNG): his
+    # moustache and the gap under his nose owned square by square (cell_layout).
+    labels = None
+    if o.get("labels"):
+        lpath = o["labels"] if isinstance(o["labels"], str) else os.path.join(TRIPO, person.id + "_labels.png")
+        labels = np.asarray(Image.open(lpath).convert("L"))
     done = {}
     per = {}
     how = {}
@@ -2071,7 +2100,7 @@ def cell_textures(person, colour, cells):
                                    bool(o["dark_kept"]), weave_opts=head_weave, face=face if eyes else None,
                                    face_m=float(o["face"]) or None, face_front=float(o["face_front"]), **planes,
                                    normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
-                                   normal_map=nmap, **inside(shape))
+                                   normal_map=nmap, labels=labels, **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
