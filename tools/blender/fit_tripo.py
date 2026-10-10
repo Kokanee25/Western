@@ -1594,7 +1594,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None):
+                normal_map=None, labels=None, face_origin=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1614,7 +1614,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     <id>_labels.png, rows down, in the old UVs as `src`): a square any labelled texel reaches is
     wholly his moustache (label 1) when most of it is, else wholly his skin, and takes the colour of
     its own kind's part (the middle by lightness), so the moustache's edge and the gap under his nose
-    step in whole squares (the characters session's experiment E3)."""
+    step in whole squares (the characters session's experiment E3). `face_origin` (CELLS
+    `face_centre`, a point in our body space: his drawn eyes' middle): his face's squares across are
+    laid so a column's middle is on his face's middle line (the gap under his nose one whole square,
+    not split across two), as one regular grid in his own space."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1692,6 +1695,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
     tri_m = np.where(in_face, face_m or cell_m, cell_m)[:, None]
     A = np.einsum("tcj,tj->tc", P, U) / tri_m * k                  # texels, on each facing's plane
+    if face_origin is not None:
+        across = np.abs(U[:, 0]) > 0.5
+        shift = (np.asarray(face_origin) @ U.T) / tri_m[:, 0] * k
+        A = np.where((in_face & across)[:, None], A - shift[:, None] + k / 2.0, A)
     B = np.einsum("tcj,tj->tc", P, V) / tri_m * k
     T = len(tl)
     # Sample points: a lattice `sub` a texel a side on each plane, the points inside each triangle.
@@ -2106,7 +2113,8 @@ def cell_textures(person, colour, cells):
                                    bool(o["dark_kept"]), weave_opts=head_weave, face=face if eyes else None,
                                    face_m=float(o["face"]) or None, face_front=float(o["face_front"]), **planes,
                                    normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
-                                   normal_map=nmap, labels=labels, **inside(shape))
+                                   normal_map=nmap, labels=labels,
+                                   face_origin=mid if eyes and o.get("face_centre") else None, **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
