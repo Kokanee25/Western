@@ -150,3 +150,13 @@ Local only: the fix lives in `man_diag.gd`'s patched copy of the art session's s
 theirs changed. For the game it would be the art session's change to `tiles.gdshaderinc` /
 `body_skin.gdshaderinc` (a square's normal from a texture, turned by the bones), with
 `fit_tripo.py` writing the normals (already written, off by default).
+
+**Blind critic, E1** (`critic/e1/critic.md`; the packet's renders all drawn in one run with the
+lamps and him held still; labels in `critic/e1_key.json`: A = r10 as the game draws it, B = one
+normal a square, C = one normal a square + the Rodin normal map's square mean). Ranked C, B, A,
+half a point apart at most: C's cheek, nose bridge, throat and chin squares lit as single tiles
+(no sliver down the nose), but a crumbly ring round the near eye; B close to A. All three far from
+the master on every feature, and for reasons the light can't fix: squares slanted and stretched,
+the eyes dark blobs with star glints, the moustache one band with no philtrum, the ear a wedge
+with no rim, the collar a ragged cloud, the hatband soft patches. So the one-normal fix is a real
+but small step (worth handing the art session for the shaders); the big gaps are E3-E6.
