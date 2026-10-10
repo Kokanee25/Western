@@ -4719,7 +4719,7 @@ a few views renders them as the full run does.
     corners are under the moustache's tails from every view. MediaPipe finds his face in 3 of 6
     lights and views (nose tip within 4-8 mm, corners 2-8 mm), stranger2s's in 6 of 6. At a quarter
     size his ears stand clear of his head (stranger2s's barely show) and the moustache sits in
-    front of the lip on both. Character judge (`2026-10-07`-style round `2026-10-10_r1`): 0.456
+    front of the lip on both. Character judge (round `2026-10-10_r1`): 0.456
     (light 0.44, colour 0.64, squares 0.32) against stranger2s's r10 0.499 (0.66, 0.63, 0.18): his
     lit face isn't burnt (no bright Rodin skin), but his squares are harder and noisier. Judge v2 on
     the saloon shot (scored only): 0.406 against 0.387. The art session's blind critic is asked
