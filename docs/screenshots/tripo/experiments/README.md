@@ -38,16 +38,20 @@ Tools (all characters-owned, committed on the branch):
 - The r10 shot reproduces the committed r10 render (`judge/renders/face_modelled/`) to within
   1/255 on every pixel; his outline mask is identical. `judge_man.py --dry`: committed render
   0.499, this render 0.501 (its palette clustering moves a hair on 1/255 differences).
-- **D2r** (D2 reproduced from its recorded command): judge 0.526, against 0.520 recorded for D2.
-  Beside Sean's crop `09_CURRENT_D2_face_close.png` it is close but not the same: the earlier D2
-  has a bolder, more mottled face (mean difference 12/255, 23 % of pixels more than 24 off;
-  `e0/d2r_vs_reference_09.png`, 09 on the left). The recorded command can't have been the whole
-  of it (most likely an intermediate working tree). D2r is the reproducible one.
-- Blind critic, r10 against D2r (`critic/e0/critic.md`; labels in `critic/e0_key.json`: A = r10,
-  B = D2r): A slightly ahead overall (eyes, brows, 3D form), B's squares closer to a steady grid and
-  its hat band the most like the master; both far off: the moustache one soft band with no
-  philtrum, the eye whites sparkle specks, no ear rim or hollow, a blown collar with black holes,
-  slanted stretched squares on the cheek and temple.
+- **Correction (found during E3):** a plain `godot --path . -s ...` run uses the editor's import
+  cache (`.godot/imported/`), so after a fit changes his glb or textures the renders show the old
+  ones until `godot --headless --import` is run. The first D2 render here ("D2r", judge 0.526,
+  `e0/d2r_*`) was taken without it: it is r10's textures with his head upright, not D2. Re-run with
+  the import (`e0/d2_reimported_*`) D2 **reproduces from its recorded command**: judge 0.521
+  against 0.520 recorded, and by eye the same face as Sean's crop 09 (the same small hard squares,
+  the same mottle: `e0/d2_reimported_vs_reference_09.png`, 09 / the stale render / the
+  re-imported one). The E0 blind critic below judged r10 against the stale render, so it compared
+  r10 with r10 upright; a second critic on r10 against the real D2 is `critic/e0b/`.
+- Blind critic, r10 against the stale render (`critic/e0/critic.md`; `critic/e0_key.json`: A =
+  r10, B = the stale render): A slightly ahead overall, B's squares closer to a steady grid (his
+  head upright); both far off: the moustache one soft band with no philtrum, the eye whites
+  sparkle specks, no ear rim or hollow, a blown collar with black holes, slanted stretched squares
+  on the cheek and temple.
 
 ## E2: where his 3D form comes from
 
