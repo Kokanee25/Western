@@ -1518,7 +1518,28 @@ def draw_moustache(out, cid, pos, nrm, uv, tris, size, cfg):
     dk = _lab(np.array([cfg.get("dark", (30, 20, 14))], dtype=np.float64))[0]
     new = np.repeat(dk[None], t_in.sum(), axis=0)
     new[:, 0] += (lab[t_in, 0] - np.median(lab[t_in, 0])) * keep
+    # Tones: the master's moustache is squares of several dark browns, where the middle colour of
+    # each square took out his own hairs' variation; `tones` L* of smooth noise `tone_grain` metres
+    # across on him (the same every bake), about a square's size, so neighbouring squares differ.
+    tones = float(cfg.get("tones", 0.0))
+    if tones:
+        new[:, 0] += tones * _value_noise(p[idx[t_in]] * HEIGHT_M, float(cfg.get("tone_grain", 0.007)), seed=1874)
     out[ty[idx[t_in]], tx[idx[t_in]]] = _rgb(new)
+    # His nostrils: `nostrils` (a share: 0 off) dark, an ellipse each side under his nose between the
+    # wings and the middle (MediaPipe's 20, 60, 75 and 250, 290, 305), `nostril` mm across by half
+    # as tall, on what faces down or forward there (the nose's underside). The master marks them
+    # with two dark squares.
+    t_nose = np.zeros(len(idx), dtype=bool)
+    if float(cfg.get("nostrils", 0.0)) > 0:
+        w = float(cfg.get("nostril", 7.0))
+        for ring in ((20, 60, 75), (250, 290, 305)):
+            c = face[list(ring)].mean(axis=0)
+            ca, cu = (c[2] - mid) * H, (c[1] - sn[1]) * H
+            e = (((qa - ca) / (w / 2)) ** 2 + ((qu - cu) / (w / 4)) ** 2) < 1.0
+            t_nose |= e & (n[idx] @ UP < 0.5) & ~t_in
+        nl = np.repeat(_lab(np.array([cfg.get("nostril_rgb", (22, 13, 9))], dtype=np.float64)), t_nose.sum(), axis=0)
+        a_ = float(cfg["nostrils"])
+        out[ty[idx[t_nose]], tx[idx[t_nose]]] = out[ty[idx[t_nose]], tx[idx[t_nose]]] * (1 - a_) + _rgb(nl) * a_
     # His cheek's skin beside his nose.
     cheek = (np.abs(np.abs(qa) - 34.0) < 6.0) & (qu > 2.0) & (qu < 12.0) & (lab[:, 0] > 30)
     skin = np.median(lab[cheek], axis=0)
@@ -1536,7 +1557,7 @@ def draw_moustache(out, cid, pos, nrm, uv, tris, size, cfg):
     sl = np.repeat(skin[None], stray.sum(), axis=0)
     sl[:, 0] += np.clip(lab[stray, 0] - np.median(lab[cheek, 0]), -12, 0) * keep
     out[ty[idx[stray]], tx[idx[stray]]] = _rgb(sl)
-    labels[ty[idx], tx[idx]] = np.where(t_in, 1, np.where(t_gap, 2, np.where(t_ring, 3, 0))).astype(np.uint8)
+    labels[ty[idx], tx[idx]] = np.where(t_in | t_nose, 1, np.where(t_gap, 2, np.where(t_ring, 3, 0))).astype(np.uint8)
     cols = np.nonzero(shape.any(axis=0))[0]
     rows = np.nonzero(shape.any(axis=1))[0]
     print("  moustache: %d texels, %.0f x %.0f mm, a gap %.0f mm wide and %.0f deep (%d texels of skin), "
