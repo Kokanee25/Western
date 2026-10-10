@@ -1077,6 +1077,28 @@ def model_collar(out, cid, pos, uv, tris, size, cfg):
             cfg["from"], int(take.sum()), mm[0], pm[0], mm[2], pm[2]))
     a = w[take][:, None]
     out[ty[take], tx[take]] = out[ty[take], tx[take]] * (1 - a) + _rgb(lab[take]) * a
+    # A restrained contact shadow (`accent`, a share of the light taken off: 0 off; the characters
+    # session's experiment E4): what isn't his shirt within `accent_mm` of it on him (the neck at its
+    # top edge, the neckerchief and coat under its points) darkened in linear light, eased out with
+    # the distance; `accent_under` only what lies under the shirt's nearest point (its shadow side,
+    # the lamp is above him). The master draws a dark wedge under each collar point.
+    acc = float(cfg.get("accent", 0.0))
+    if acc > 0:
+        from scipy.spatial import cKDTree
+        reach = float(cfg.get("accent_mm", 4.0)) / 1000.0 / HEIGHT_M
+        sh = shirt & (w > 0.5)
+        tree = cKDTree(p[sh])
+        cand = (w > 0) & ~sh & ~grid[ty, tx]
+        d, i = tree.query(p[cand], distance_upper_bound=reach)
+        hit = np.isfinite(d)
+        if cfg.get("accent_under", 0):
+            hit &= p[cand][:, 1] < p[sh][np.minimum(i, sh.sum() - 1)][:, 1]
+        k_ = acc * _ease(1.0 - d[hit] / reach)
+        cy, cx = ty[cand][hit], tx[cand][hit]
+        rgb = np.clip(out[cy, cx] / 255.0, 0.0, 1.0)
+        lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4) * (1.0 - k_)[:, None]
+        out[cy, cx] = 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+        print("  contact shadow round his collar: %d texels, up to %.0f%% of their light" % (int(hit.sum()), 100 * acc))
 
 
 # His clothes (`bake.cloth`, 2026-10-07): the painter drew his coat as a streaky tweed running down
