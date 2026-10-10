@@ -1841,8 +1841,14 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
             s2 = np.concatenate([[0], np.cumsum(c2)[:-1]])
             got = c2 > 0
             colour[got] = rgb[o2[s2[got] + c2[got] // 2]]
-        print("    labels: %d squares touched, %d his moustache, %d mixed given wholly to one"
-              % (int(touched.sum()), int(own_m.sum()), int(mixed.sum())))
+        n_g = np.bincount(lab, (ls == 2).astype(np.float64), minlength=nk)
+        if os.environ.get("LABELS_DEBUG"):
+            colour[touched & (n_g * 2 > cnt)] = (0, 255, 0)
+            colour[own_m] = (255, 0, 255)
+        print("    labels: %d squares touched, %d his moustache, %d mixed given wholly to one, %d with the gap "
+              "under his nose in them (%d mostly gap)"
+              % (int(touched.sum()), int(own_m.sum()), int(mixed.sum()), int((touched & (n_g > 0)).sum()),
+                 int((touched & (n_g * 2 > cnt)).sum())))
     if k > 1 and zone is not None:
         # A texel of an eye: the colour most of it is (the eyes are drawn in flat colours, and the
         # middle by lightness of white, iris and lid was the iris, the dark part a lid: they squinted).
