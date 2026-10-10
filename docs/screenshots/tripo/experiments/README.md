@@ -237,3 +237,17 @@ lightness is lost when each square takes its middle colour.
 - Centring the grid isn't a win: the grid's phase changes his whole face as much as the gap.
 - Still missing against the master: inner tones in the moustache (squares of several dark browns),
   and the nostrils (two dark squares).
+
+**Tones and nostrils** (`--moustache=gap:8,tones:8,nostrils:1,dark:34/23/16`: 8 L* of smooth noise
+7 mm across on him, about a square, so neighbouring squares differ; two dark ellipses 7 mm across
+under his nose between its wings and its middle, on what faces down or forward;
+`e3/tones_in_shot.png`: master / r10 / apart / apart + tones + nostrils). **Blind critic**
+(`critic/e3c/critic.md`; A = apart, B = + tones and nostrils): **B, narrowly**: a near-black block
+under his nose's wing reads as a nostril, but it is fused into the top of the moustache (no skin
+between). Measured by the critic, the moustache's dark pixels average L* 18 (A) and 20 (B), the
+master's 29, with visible square-to-square tones: ours is too dark and too flat still. The gap
+reads as a hole two to three squares wide down to the lip, not the master's small notch.
+
+Next for the moustache: lighter (L* ~29 in the shot) with bolder tones; its top a little lower so
+skin shows between it and the nostrils; the notch needs squares finer than 7 mm there (a regular
+sub-grid), since a 7 mm square can only show a gap as a whole column.
