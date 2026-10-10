@@ -22,7 +22,9 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/textures/drawn/flames.png"
 SHEET = ROOT / "docs/screenshots/textures/flames.png"
 
-CELL_W, CELL_H = 12, 20
+# 16 x 28 squares: on a fully grown tongue (1.0 x 1.7 m, FireTuning) a square is ~6 cm, the bold
+# look's world squares (16 a metre); at 12 x 20 they were 8 cm, chunkier than the walls they lick.
+CELL_W, CELL_H = 16, 28
 FRAMES, SHAPES = 6, 3
 
 # The painting's fire, edge to core (sRGB): deep red, red, red-orange, orange, orange-yellow,
@@ -47,6 +49,8 @@ def tongue(shape: dict, frame: int, phase: float, rng: np.random.Generator) -> n
     t = frame / FRAMES
     # The ragged edge: a few squares in or out per row, changing a little each frame.
     jag = rng.integers(-1, 2, size=CELL_H)
+    # Rows are thinner now (28): the jags change every other row, so the edge steps, not frays.
+    jag = np.repeat(jag[::2], 2)[:CELL_H]
     for row in range(CELL_H):
         y = 1.0 - (row + 0.5) / CELL_H  # 0 at the bottom, 1 at the top
         top = shape["height"] - 0.06 * np.sin(2 * np.pi * t + phase)
@@ -66,10 +70,11 @@ def tongue(shape: dict, frame: int, phase: float, rng: np.random.Generator) -> n
             inner = d / max(half, 0.5)
             heat = (1.0 - u) * 0.95 - inner * 0.9 + 0.32
             band = int(np.clip(np.floor(heat * 6.0), 0, 6))
-            # Edges are always a red; a square's tone wanders one step either way now and then.
+            # Edges are always a red; a square's tone wanders one step either way once in a while (the
+            # painting's bands are clean: more wander read as speckle).
             if inner > 0.82 or half - d < 1.0:
                 band = min(band, 1)
-            band = int(np.clip(band + rng.choice([-1, 0, 0, 0, 0, 1]), 0, 6))
+            band = int(np.clip(band + rng.choice([-1] + [0] * 10 + [1]), 0, 6))
             cell[row, col] = band
     # A lick lifting off the tip: a few squares of red-orange over the tongue, climbing with t.
     if shape["lick"]:

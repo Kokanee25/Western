@@ -98,7 +98,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.lit_until_hour = 24
 	# The game's lamp (the painted man's light, paint_look, was tuned under it; mosaic-tiles' 2.6
 	# was tried for the key on his face).
-	lamp.energy = 1.5
+	lamp.energy = lamp_energy
 	lamp.light_range = 7.0
 	# Less of the room's smoke lit by it: a light a few centimetres inside the chimney lit the air
 	# round the glass white, where the painting's chimney glows amber.
@@ -151,6 +151,8 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 const FILL_FROM := Vector3(-0.15, 1.35, -1.25)
 const FILL_AT := Vector3(0.6, 0.92, -0.55)
 static var fill_energy := 1.5
+## The table lamp's energy (the key on his face).
+static var lamp_energy := 1.5
 
 static func _fill(root: Node3D) -> void:
 	var fill := SpotLight3D.new()

@@ -33,17 +33,20 @@ W, H = 1280, 720
 VIEWS = {
     "saloon": ("shot_match_saloon.png", "docs/concept/saloon-blocks.png", "the saloon at night, the man at the card table"),
     "street": ("shot_match_street.png", "docs/concept/street-golden-hour.png", "the street at golden hour, revolver at the hip"),
+    # Only when the round has it (judge.py --only=...,fire).
+    "fire": ("livery_fire_dusk.png", "docs/concept/livery-fire.png", "the livery burning at dusk, seen from the street"),
 }
+OPTIONAL = {"fire"}
 SCALE = 3
 
 PROMPT = """You are a blind critic for a video game's look. You have NOT seen the game's code, its
 history or anyone's reasoning, and you must not read any of it: do not open any file but the
 images named here, and do not search the repository. Judge only with your eyes.
 
-The target look is two concept paintings. The game renders the same two shots. For each pair,
+The target look is the concept paintings below. The game renders the same shots. For each pair,
 look hard at the painting and the render at the same size, then list the FIVE biggest
 differences a viewer would notice between the renders and the paintings, biggest first, across
-both shots together (say which shot each is in). Think like a viewer, not a tester: light and
+all the shots together (say which shot each is in). Think like a viewer, not a tester: light and
 shadow, colour, what things look like, how much is going on, the pixel style (the paintings are
 cut into small squares of flat colour), the people, the mood. A difference should be something
 one could act on ("the lamp's glass is a flat orange disc; the painting's is near-white over the
@@ -58,14 +61,14 @@ same box from the render and the painting side by side:
 
   cd {root} && python3 tools/critic.py crop {round} VIEW X Y W H slug
 
-(VIEW is saloon or street{extra_note}.) It prints the picture's path. Look at the crop to check it shows
+(VIEW is {view_names}{extra_note}.) It prints the picture's path. Look at the crop to check it shows
 what you mean; make another if not.
 
 Then write {md} in this form, nothing else before it:
 
 # Blind critic, {round_name}
 
-1. **<the difference in a few words>** (<saloon|street>). <Two or three sentences: what the
+1. **<the difference in a few words>** (<{view_bar}>). <Two or three sentences: what the
    painting has, what the render has, what a viewer feels about it.> Crop: `critic/<file>.png`
 2. ...
 5. ...
@@ -98,11 +101,15 @@ def prepare(round_dir, extra):
     round_dir = os.path.abspath(round_dir)
     d = ensure_dir(round_dir)
     files = []
+    keys = []
     for key, (render_name, painting_path, what) in VIEWS.items():
         src = os.path.join(round_dir, render_name)
+        if not os.path.exists(src) and key in OPTIONAL:
+            continue
         if not os.path.exists(src):
             print("no render %s in %s" % (render_name, round_dir), file=sys.stderr)
             sys.exit(1)
+        keys.append(key)
         load(os.path.join(ROOT, painting_path)).save(os.path.join(d, "painting_%s.png" % key))
         load(src).save(os.path.join(d, "render_%s.png" % key))
         files.append("- %s: painting %s, render %s" % (what,
@@ -119,7 +126,8 @@ def prepare(round_dir, extra):
             extra_note = ", or an extra render's name without extra_ and .png"
     print(PROMPT.format(files="\n".join(files), root=ROOT, round=os.path.relpath(round_dir, ROOT),
                         round_name=os.path.basename(os.path.normpath(round_dir)),
-                        md=os.path.join(round_dir, "critic", "critic.md"), extra_note=extra_note))
+                        md=os.path.join(round_dir, "critic", "critic.md"), extra_note=extra_note,
+                        view_names=" or ".join(keys), view_bar="|".join(keys)))
 
 
 def crop(round_dir, view, x, y, w, h, slug):

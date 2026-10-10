@@ -61,7 +61,11 @@ JUDGE_DIR = os.path.join(ROOT, "docs", "screenshots", "judge")
 VIEWS = {
     "saloon": ("shot_match_saloon", "docs/concept/saloon-blocks.png"),
     "street": ("shot_match_street", "docs/concept/street-golden-hour.png"),
+    # The fire painting (docs/briefs/fire-look.md): judged with --only=fire, not by default, so the
+    # two shots' rounds stay comparable.
+    "fire": ("livery_fire_dusk", "docs/concept/livery-fire.png"),
 }
+DEFAULT_VIEWS = ["saloon", "street"]
 W, H = 1280, 720
 GRID = 3
 REGION_NAMES = [["top-left", "top", "top-right"], ["left", "centre", "right"],
@@ -431,7 +435,7 @@ def probes() -> bool:
     Prints the table; True if every rule holds."""
     from PIL import ImageFilter
     ok = True
-    for view in VIEWS:
+    for view in DEFAULT_VIEWS:
         painting = load(os.path.join(ROOT, VIEWS[view][1]))
         theirs = measure(painting)
         ours = load(os.path.join(PROBE_ROUND, VIEWS[view][0] + ".png"))
@@ -472,7 +476,7 @@ def main() -> None:
     args = {a.split("=", 1)[0]: (a.split("=", 1)[1] if "=" in a else True) for a in sys.argv[1:]}
     if "--probes" in args:
         sys.exit(0 if probes() else 1)
-    views = [args["--only"]] if "--only" in args else list(VIEWS)
+    views = args["--only"].split(",") if "--only" in args else list(DEFAULT_VIEWS)
     godot = args.get("--godot", "godot")
     note = args.get("--note", "")
     pick = args.get("--pick", "")

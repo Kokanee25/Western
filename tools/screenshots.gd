@@ -156,6 +156,11 @@ func _run() -> void:
 			# makes the game's scripts compile with this one, before the autoloads exist.
 			var shot: Variant = load("res://src/art/shot_match.gd")
 			shot.model = StringName(arg.substr(8))
+		# --shot-light=fill_energy:2,lamp_energy:1.1: ShotMatch's light for one render (trials).
+		elif arg.begins_with("--shot-light="):
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			for kv in arg.substr(13).split(","):
+				shot.set(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
@@ -377,7 +382,7 @@ func _run() -> void:
 			var livery = main.find_child("Livery", true, false)
 			var fire = main.find_child("FireSystem", true, false)
 			var lit := 0
-			for m: StructureMember in livery.get_members():
+			for m in livery.get_members():
 				if lit < 8 and String(m.member_id).contains("front") and m.global_position.y < 1.6 and m.wood != &"glass":
 					fire.ignite(m)
 					lit += 1

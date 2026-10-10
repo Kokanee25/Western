@@ -6,7 +6,9 @@ shader_type spatial;
 // and additive sprites went cream. Each square is in or out (alpha scissor, so no sorting), and a
 // flame fades by losing squares (the particle's alpha against a threshold per square), as a
 // pixel-art flame would. The particle's colour is not used (the sheet's are the painting's).
-render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_opaque;
+// No fog: the haze and the burning building's own smoke laid a dull brown over the flames; the
+// painting's flames are the brightest, cleanest colour in the picture.
+render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_opaque, fog_disabled;
 
 #include "res://src/render/aces.gdshaderinc"
 
@@ -44,9 +46,14 @@ void fragment() {
 	vec2 cell = vec2(1.0 / float(frames), 1.0 / float(shapes));
 	vec2 uv = (vec2(frame, shape) + clamp(UV, vec2(0.001), vec2(0.999))) * cell;
 	vec4 t = texture(sprite, uv);
-	// The fade, square by square: each square of the sprite drops out at its own alpha.
-	vec2 square = floor(UV * vec2(textureSize(sprite, 0)) * cell);
-	float keep = step(hash(square + seed * 13.0) * 0.98 + 0.01, COLOR.a);
+	// The fade, square by square, from the tip down: the tongue keeps its whole shape while the
+	// particle's alpha is over 0.6, then loses its upper squares first, each row a little ragged
+	// (a random square-by-square dissolve read as speckle all over the fire).
+	vec2 squares = vec2(textureSize(sprite, 0)) * cell;
+	vec2 square = floor(UV * squares);
+	float height = 1.0 - (square.y + 0.5) / squares.y;
+	float left = clamp(COLOR.a / 0.6, 0.0, 1.0);
+	float keep = step(height * 0.85 + hash(square + seed * 13.0) * 0.15, left);
 	// Through the tonemap's inverse, so the sheet's colours land on screen as drawn (ACES turns a
 	// bright orange cream).
 	ALBEDO = aces_inverse(t.rgb);
