@@ -14,6 +14,8 @@ render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_opaque, fog_di
 
 uniform sampler2D sprite : source_color, filter_nearest;
 uniform float toward_camera = 0.22;
+// Scales the tongue's quad about its base (trials: tools/screenshots.gd --flame=grow:1.6).
+uniform float grow = 1.0;
 // The sheet: frames across, shapes down (draw_flames.py FRAMES, SHAPES).
 uniform int frames = 6;
 uniform int shapes = 3;
@@ -33,7 +35,11 @@ void vertex() {
 			vec4(0.0, length(MODEL_MATRIX[1].xyz), 0.0, 0.0),
 			vec4(0.0, 0.0, length(MODEL_MATRIX[2].xyz), 0.0),
 			vec4(0.0, 0.0, 0.0, 1.0));
-	vec4 view_pos = MODELVIEW_MATRIX * vec4(VERTEX, 1.0);
+	// Grown about the quad's bottom edge, so a bigger tongue still stands on what's burning.
+	vec3 v = VERTEX;
+	float bottom = -abs(VERTEX.y); // a quad's corners are at plus and minus half its height
+	v.xy = vec2(v.x * grow, bottom + (v.y - bottom) * grow);
+	vec4 view_pos = MODELVIEW_MATRIX * vec4(v, 1.0);
 	view_pos.xyz += normalize(-view_pos.xyz) * toward_camera;
 	POSITION = PROJECTION_MATRIX * view_pos;
 	// One number per flame for its whole life: its slot in its emitter, and the emitter's place.

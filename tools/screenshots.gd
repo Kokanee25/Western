@@ -44,7 +44,7 @@ const VIEWS := [
 	# The fire painting's view (docs/concept/livery-fire.png, docs/briefs/fire-look.md): the livery
 	# burning at dusk from the street (it stands on the north side since Main Street step 2, its
 	# front on z -16.8), the sun just down, its front alight a few minutes.
-	["livery_fire_dusk", 18.35, Vector3(24.0, 0.0, 0.5), 32.0, 9.0, "livery_fire"],
+	["livery_fire_dusk", 18.6, Vector3(21.0, 0.0, -4.0), 27.0, 12.0, "livery_fire"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["outlaw_face", 15.0, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
 	["outlaw_face_evening", 18.2, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
@@ -158,6 +158,12 @@ func _run() -> void:
 			# makes the game's scripts compile with this one, before the autoloads exist.
 			var shot: Variant = load("res://src/art/shot_match.gd")
 			shot.model = StringName(arg.substr(8))
+		# --flame=grow:1.6: the flames' shader uniforms for one render (trials).
+		elif arg.begins_with("--flame="):
+			var ffx: Variant = load("res://src/fire/fire_fx.gd")
+			var mat: ShaderMaterial = ffx._flame_material()
+			for kv in arg.substr(8).split(","):
+				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 		# --shot-light=fill_energy:2,lamp_energy:1.1: ShotMatch's light for one render (trials).
 		elif arg.begins_with("--shot-light="):
 			var shot: Variant = load("res://src/art/shot_match.gd")
