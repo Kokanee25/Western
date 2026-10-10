@@ -1594,7 +1594,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None, face_origin=None):
+                normal_map=None, labels=None, face_origin=None, sub_grid=False):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1617,7 +1617,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     step in whole squares (the characters session's experiment E3). `face_origin` (CELLS
     `face_centre`, a point in our body space: his drawn eyes' middle): his face's squares across are
     laid so a column's middle is on his face's middle line (the gap under his nose one whole square,
-    not split across two), as one regular grid in his own space."""
+    not split across two), as one regular grid in his own space. `sub_grid` (CELLS `labels_sub`;
+    k even): a square the labels' moustache or gap reach without being wholly moustache is cut in
+    four regular half-size squares, each owned whole the same way (a notch narrower than a square)."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1814,6 +1816,22 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
             nb_ = int(bk.max()) + 1
             own = (np.bincount(bk, inz.astype(np.float64), minlength=nb_) > 0)[bk]
         lab_key = np.where(own, (ty * W + tx) * 2 + 1, bk * 2)
+        sub_off, sub_w, sub_h = 0, 0, k
+        if labels is not None and sub_grid and k % 2 == 0:
+            lh, lw = labels.shape[:2]
+            ls0 = labels[np.clip(((1.0 - old[:, 1]) * lh).astype(np.int64), 0, lh - 1),
+                         np.clip((old[:, 0] * lw).astype(np.int64), 0, lw - 1)]
+            nb_ = int(bk.max()) + 1
+            n_all = np.bincount(bk, minlength=nb_)
+            n_m = np.bincount(bk, (ls0 == 1).astype(np.float64), minlength=nb_)
+            n_mg = np.bincount(bk, ((ls0 == 1) | (ls0 == 2)).astype(np.float64), minlength=nb_)
+            split = (n_mg > 0) & (n_m < n_all)
+            sel = split[bk] & ~own
+            sub_h = k // 2
+            sub_w = W // sub_h + 1
+            sub_off = nb_ + 1
+            lab_key = np.where(sel, (sub_off + (ty // sub_h) * sub_w + tx // sub_h) * 2, lab_key)
+            print("    labels: %d squares cut in four" % int(split.sum()))
     else:
         own = np.ones(len(st), dtype=bool)
         lab_key = (ty * W + tx) * 2 + 1
@@ -1880,8 +1898,12 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     img[tk // W, tk % W] = colour[is_texel]
     have[tk // W, tk % W] = True
     for c, kk in zip(colour[~is_texel], keys[~is_texel] // 2):
-        by, bx = divmod(int(kk), W // k + 1)
-        blk = (slice(by * k, by * k + k), slice(bx * k, bx * k + k))
+        if k > 1 and sub_off and kk >= sub_off:
+            by, bx = divmod(int(kk) - sub_off, sub_w)
+            blk = (slice(by * sub_h, by * sub_h + sub_h), slice(bx * sub_h, bx * sub_h + sub_h))
+        else:
+            by, bx = divmod(int(kk), W // k + 1)
+            blk = (slice(by * k, by * k + k), slice(bx * k, bx * k + k))
         keep = have[blk].copy()
         img[blk] = np.where(keep[..., None], img[blk], c)
         have[blk] = True
@@ -2114,7 +2136,8 @@ def cell_textures(person, colour, cells):
                                    face_m=float(o["face"]) or None, face_front=float(o["face_front"]), **planes,
                                    normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
                                    normal_map=nmap, labels=labels,
-                                   face_origin=mid if eyes and o.get("face_centre") else None, **inside(shape))
+                                   face_origin=mid if eyes and o.get("face_centre") else None,
+                                   sub_grid=bool(o.get("labels_sub")), **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
