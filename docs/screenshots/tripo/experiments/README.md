@@ -213,3 +213,27 @@ a mid-dark brown in several tones), and its gap is a hard slot **left of centre*
 edges fall on his middle line, so the 8 mm gap went whole into the column left of it. Everything
 else the critic marks (slanted squares, 1 px stair silhouettes, the ear, the collar, the hat band,
 the eye whites, hot colour) is shared by all three and is E4-E7's.
+
+**Centring his face's grid** (`fit_tripo.py --cells=labels:1,face_centre:1`: his face's columns laid
+so one is centred on his face's middle line, a regular grid in his own space, not the shot's) put the
+gap under the middle of his nose as one column (`e3/centred_in_shot.png`: master / apart / apart
+centred / apart centred with inner tones, `keep:1,dark:40/27/19`). **Blind critic**
+(`critic/e3b/critic.md`; `critic/e3b_key.json`: A = centred + tones, B = centred, C = apart, not
+centred): **C first**, B and A behind and alike. Shifting his face's grid half a square changes every
+face square, not just the gap (38 % of the moustache crop's pixels), and the critic found the
+original phase's cheek, chin and collar squares bolder and more even; the centred gap read as "a pale
+bar cut through the moustache, too tall and too evenly bright", the original's as a narrower sliver.
+The inner tones didn't read at all (still "a flat near-black silhouette"): `keep` of his own hairs'
+lightness is lost when each square takes its middle colour.
+
+**E3 so far:**
+- Drawing his moustache from his own outline, with a gap under his nose to his lip, is a clear win
+  over r10 by both critics: two crisp masses with drooping ends, the lower lip readable under them.
+- Owning whole squares by label adds little over drawing alone at the shot's size (the squares'
+  middle colour already takes the majority).
+- A gap joined below (a notch) vanished in 7 mm squares; a full-depth gap reads, but too tall and
+  too even: the master's is a small notch where the halves meet. A notch that survives needs finer
+  squares there: the regular sub-grid the plan allows next.
+- Centring the grid isn't a win: the grid's phase changes his whole face as much as the gap.
+- Still missing against the master: inner tones in the moustache (squares of several dark browns),
+  and the nostrils (two dark squares).
