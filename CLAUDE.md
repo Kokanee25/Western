@@ -4650,3 +4650,21 @@ a few views renders them as the full run does.
   - **Files:** `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, the layout notes
     above, the five pictures in `docs/screenshots/tripo/`. His assets are round r10's, unchanged.
     No other session's files.
+- 2026-10-07 (gameplay): **Performance part B, step 1: measured, nothing turned on**
+  (docs/briefs/performance-b.md has the table). The separate render thread fails the drawn smoke
+  test here (engine races at load: empty texture updates, a freed particles system; "experimental"
+  in 4.7.2), and this workspace can't show its gain (lavapipe is ~2 s a frame either way). Jolt on
+  its own thread fails 10 tests (space queries outside the physics step: firing, a stick in hand).
+  Both left off; Sean's call on what next. `perf_bench.gd --no-render-time` (new) and its drawn
+  runs print the main thread's process/physics time. 369 tests pass as they are.
+- 2026-10-10 (Sean's planning chat, docs only): **A prompt library for later**
+  (`docs/prompts/`, 18 briefs from Sean: ragdoll test bench, active ragdoll, furniture physics,
+  AI-built props, faces, breakable furniture, an art-style comparison, mocap, hit reactions,
+  combat AI, memory, the store robbery, conversation, playtesting, rebuilding, the law, town art,
+  missions). Sean: "just ideas to implement once we're ready": no session starts one unless he
+  names it. `docs/prompts/STATUS.md` lists where they differ from DESIGN.md and CLAUDE.md (the
+  art style isn't being reopened; the feature freeze holds; CLAUDE.md's branch names).
+- 2026-10-10 (Sean's planning chat, docs only): **The art style under review.** Sean: "we're going
+  to test the art style a bit more and decide how to finally handle it." DESIGN.md §4 gains a note
+  (the bold squares stay the working look until he decides); `docs/prompts/STATUS.md` says Prompt
+  07 (the style comparison) is the way it's tested, when Sean starts it.

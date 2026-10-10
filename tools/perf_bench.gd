@@ -31,6 +31,9 @@ var _voxel_tuning: Resource
 var spikes := 0.0
 ## Each scene against config/frame_budget.tres (off with --no-budget, and with --quick).
 var budget_report := true
+## Leave out the render time read (viewport_get_measured_render_time_cpu makes a separate render
+## thread wait for the main one every frame, so it hides what the thread gains): --no-render-time.
+var render_time := true
 
 
 func _initialize() -> void:
@@ -50,6 +53,8 @@ func _initialize() -> void:
 			out_path = a.substr(6)
 		elif a == "--no-budget":
 			budget_report = false
+		elif a == "--no-render-time":
+			render_time = false
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a == "--no-smoke":
@@ -73,9 +78,9 @@ func _frames(n: int) -> void:
 ## Frame times (ms) over `n` frames, wall clock, plus the monitors averaged.
 func _measure(n: int) -> Dictionary:
 	var times := PackedFloat32Array()
-	var mon := {"render_cpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0}
+	var mon := {"render_cpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0, "process_ms": 0.0, "physics_ms": 0.0}
 	var vp: Viewport = main.get_node_or_null(^"GameViewport") if main else null
-	var vp_rid: RID = vp.get_viewport_rid() if vp else RID()
+	var vp_rid: RID = vp.get_viewport_rid() if vp and render_time else RID()
 	if vp_rid.is_valid():
 		RenderingServer.viewport_set_measure_render_time(vp_rid, true)
 	var prof = load("res://src/debug/prof.gd")
@@ -103,6 +108,9 @@ func _measure(n: int) -> Dictionary:
 		last = now
 		mon.draw_calls += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / n
 		mon.objects_in_frame += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME) / n
+		# The main thread's own work (meaningless headless: the loop isn't paced).
+		mon.process_ms += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 / n
+		mon.physics_ms += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0 / n
 		if vp_rid.is_valid():
 			mon.render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(vp_rid) / n
 	var sorted := times.duplicate()
@@ -392,6 +400,8 @@ func _print(s: String, e: Dictionary) -> void:
 		print("\n   %d charges into the store's front" % f.charges)
 	print("\n== %s: avg %.2f ms (%.0f fps), p99 %.2f ms, max %.1f ms; render cpu %.2f ms, draw calls %.0f, objects in frame %.0f" % [
 			s, f.avg_ms, 1000.0 / maxf(f.avg_ms, 0.001), f.p99_ms, f.max_ms, f.render_cpu_ms, f.draw_calls, f.objects_in_frame])
+	if render:
+		print("   main thread: process %.2f ms, physics %.2f ms a frame" % [f.get("process_ms", 0.0), f.get("physics_ms", 0.0)])
 	print("   census: %s" % JSON.stringify(e.census))
 	if e.has("budget"):
 		_print_budget(e.budget)
