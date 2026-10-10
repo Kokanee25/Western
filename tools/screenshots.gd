@@ -145,6 +145,7 @@ func _run() -> void:
 	var globals_after := {}
 	var fresh := false
 	var man_mask := false
+	var msaa := -1
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -164,6 +165,9 @@ func _run() -> void:
 			var mat: ShaderMaterial = ffx._flame_material()
 			for kv in arg.substr(8).split(","):
 				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
+		# --msaa=0|2|4|8: the game viewport's multisampling for this run (the anti-aliasing trial).
+		elif arg.begins_with("--msaa="):
+			msaa = {0: 0, 2: 1, 4: 2, 8: 3}.get(int(arg.substr(7)), 0)
 		# --shot-light=fill_energy:2,lamp_energy:1.1: ShotMatch's light for one render (trials).
 		elif arg.begins_with("--shot-light="):
 			var shot: Variant = load("res://src/art/shot_match.gd")
@@ -280,6 +284,8 @@ func _run() -> void:
 					await process_frame
 			main = await _load_main(globals_after, screen_squares, mosaic_steps)
 			viewport = main.get_node(^"GameViewport")
+			if msaa >= 0:
+				viewport.msaa_3d = msaa
 			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 			player = main.get_node(^"GameViewport/TestStreet/Player")
 			town_life = main.find_child("TownLife", true, false)
