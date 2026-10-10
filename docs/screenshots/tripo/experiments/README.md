@@ -287,3 +287,19 @@ squares; a gap one whole square wide is what reads.
 **E3 verdict:** the moustache drawn from his own outline, dark, with tones at the squares' size, two
 nostrils and a gap one square wide under his nose down to his lip (`--moustache=gap:8,tones:8,
 nostrils:1,dark:34/23/16`), owned square by square (`--cells=labels:1`), on his ordinary 7 mm grid.
+
+C: a restrained contact shadow (`--collar=from:stranger2_rodin,accent:0.45[,accent_mm:10]`: what
+isn't his shirt within that of it on him darkened in linear light by up to 45 %, eased out with the
+distance; 4 mm: 981 texels, 10 mm: 4,366). `e4/contact_shadow_plain_light.png` (none / 4 mm / 10
+mm). At 4 mm it is narrower than one of his 9 mm squares and the square's middle colour takes it
+out. Judge (dry): 0.500 / 0.500 / 0.495. **Blind critic** (`critic/e4c/critic.md`; A = 10 mm, B =
+none, C = 4 mm): **A first**, narrowly: "its slightly deeper shadow between neck and collar separates
+the two a little better, though there is still no crisp edge"; the three are otherwise the same
+picture.
+
+**E4 verdict:** his collar from his model's own colours (a clear win over r10), with a contact shadow
+a square wide (a small one); finer collar squares, no. What's still wrong is the collar's shape, not
+its squares or shading: the master's collar is two crisp cream points with a dark wedge under each
+and one black neckerchief knot; ours is a ragged cream ribbon with no points and a neckerchief of
+dark islands (the Rodin model's own collar is turned down flat). That is geometry or drawn shape,
+not the bake's colour.
