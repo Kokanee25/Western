@@ -14,8 +14,10 @@ render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_opaque, fog_di
 
 uniform sampler2D sprite : source_color, filter_nearest;
 uniform float toward_camera = 0.22;
-// Scales the tongue's quad about its base (trials: tools/screenshots.gd --flame=grow:1.6).
-uniform float grow = 1.0;
+// Scales the tongue's quad about its base, on top of FireFX's size by heat: at 1.8 the tongues off
+// a burning front run together into the painting's mass of fire (judge, the fire view: 0.689 as
+// drawn, 0.583 at 1.8, rounds 2026-10-10_r1/_r2). Trials: tools/screenshots.gd --flame=grow:N.
+uniform float grow = 1.8;
 // The sheet: frames across, shapes down (draw_flames.py FRAMES, SHAPES).
 uniform int frames = 6;
 uniform int shapes = 3;

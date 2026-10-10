@@ -3,7 +3,7 @@ extends SceneTree
 ## render time, CPU and GPU, and the frame's wall clock, averaged over a still of the saloon
 ## shot and the street shot at 1280x720. Run it once per look and compare:
 ##
-##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://tools/look_cost.gd -- [--blocks | --quantise-once] [--frames=120] [--views=saloon_night,street_golden_hour] [--out=file.json]
+##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://tools/look_cost.gd -- [--blocks | --quantise-once] [--msaa=4] [--frames=120] [--views=saloon_night,street_golden_hour] [--out=file.json]
 ##
 ## The look flags are Settings' own (read from the command line, nothing saved). Under lavapipe
 ## the "GPU" time is the software rasteriser's CPU time, so only the ratio between looks means
@@ -14,6 +14,8 @@ extends SceneTree
 var frames := 120
 var views := ["saloon_night", "street_golden_hour"]
 var out := ""
+# --msaa=2|4|8: the game viewport multisampled (the anti-aliasing question, merge 3).
+var msaa := -1
 
 
 func _initialize() -> void:
@@ -24,6 +26,8 @@ func _initialize() -> void:
 			views = Array(a.substr(8).split(","))
 		elif a.begins_with("--out="):
 			out = a.substr(6)
+		elif a.begins_with("--msaa="):
+			msaa = {0: 0, 2: 1, 4: 2, 8: 3}.get(int(a.substr(7)), 0)
 	_run.call_deferred()
 
 
@@ -36,6 +40,8 @@ func _run() -> void:
 	await process_frame
 	(main.get_node(^"DebugOverlay") as CanvasLayer).visible = false
 	var viewport: SubViewport = main.get_node(^"GameViewport")
+	if msaa >= 0:
+		viewport.msaa_3d = msaa
 	RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
 	var street: Node3D = main.get_node(^"GameViewport/TestStreet")
 	var clock = street.get_node(^"DayCycle")
