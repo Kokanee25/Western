@@ -126,6 +126,21 @@ normal: the normal is what splits a square.
 alone is smooth (`e1/shot_regions_sheet.png`, second column); its slanted pieces are the texture's
 squares lying slant on a sleeve seen at an angle (the projection, E6/E7), not its light.
 
+Zoomed 4x on his chest and forearm (`--man-zoom=4:chest --man-zoom-only`, 638 s for six passes):
+
+| 4x on his chest | Squares split | Mean spread (L*) | Tone edges on triangle edges | By chance |
+|---|---|---|---|---|
+| The game's light | 28.6 % | 4.19 | 76 % | 53 % |
+| One normal a square | 27.9 % | 4.57 | 68 % | 53 % |
+| One normal and one light point | 29.6 % | 4.93 | 65 % | 53 % |
+
+`e1/zoom_chest_compare.png`, `e1/zoom_sleeve_id_lit_fix.png` (id, game light, fix, fix with the
+point). On the coat the splits aren't the face's kind: the sleeve's squares (id) are regular,
+and the splits gather at the cuff and the coat's front edge, where the cloth folds over and where
+the forearm's and hand's skin weights blend (the shot pose turns his hand 22°). There the turn
+from rest to posed normal really does change across a square, so the fix's one normal a square
+leaves streaks of its own. Not chased further here: the coat is E7, after the grid work.
+
 **The normal map in the squares** (`e1/zoom_head_nmsq.png`): a square's mean of the Rodin map
 changes little at 7-9 mm squares; where the squares are texels (round his drawn eyes) it brings
 the lids' creases. Nostrils, lips and the ear's rim are averaged away: those want drawn accents
