@@ -39,7 +39,7 @@ AO_NEAR = 0.012         # metres: an ear's hollow, a nostril, the lip's line, un
 AO_FAR = 0.04           # the eye sockets, under the nose and the jaw
 PER = 4                 # texels a square: the eyes are drawn on the 2 mm texels, the skin in squares
 NECK_FROM = 1.47        # his neck goes down into the donor's collar to here
-COLLAR_BELOW = 1.535    # the donor's head mesh under here that isn't skin is his collar
+COLLAR_BELOW = 1.51     # the donor's head mesh under here that isn't skin is his collar
 NECK_R = 0.075          # and no wider than this round it (his shoulders are the donor's)
 
 
@@ -256,7 +256,7 @@ def moustache(depth, L, spec):
     and casts a shadow on it. Returns points and triangles (our body space), and each point's
     (across, round) on the loft for its UVs."""
     proud = float(spec.get("proud", 0.010))
-    over = float(spec.get("overhang", 0.005))
+    over = float(spec.get("overhang", -0.004))     # its lower edge over the lip line, not on it
     droop = float(spec.get("droop", 0.014))
     reach = float(spec.get("reach", 0.006))
     sub = L[LM["subnasale"]]
@@ -281,7 +281,7 @@ def moustache(depth, L, spec):
         ring = []
         for phi in np.linspace(0.0, math.pi, k):
             y = top_y + (bot_y - top_y) * (1 - math.cos(phi)) / 2
-            y -= over * math.sin(phi) ** 2 * (phi / math.pi) * (1.0 - a)
+            y -= 0.002 * math.sin(phi) ** 2 * (phi / math.pi) * (1.0 - a)   # its front hangs a little lower
             sk = surface_one(depth, x, y)
             ring.append(sk + np.array([0.0, 0.0, -1.0]) * (0.0006 + t * math.sin(phi) ** 0.8))
         rings.append(ring)
@@ -323,7 +323,7 @@ def assemble(h, hat, spec):
     c = h.v[t].mean(1)
     neck_r = np.hypot(c[:, 0], c[:, 2] - 0.01)
     keep = (h.v[t, 1] > NECK_FROM).all(axis=1) & (hat.above(h.v[t]) < 0.01).all(axis=1) \
-        & ((c[:, 1] > NECK_FROM + 0.07) | (neck_r < NECK_R))
+        & ((c[:, 1] > NECK_FROM + 0.045) | (neck_r < NECK_R))
     t = t[keep]
     eyes = {s: triangles(h.groups["helper-%s-eye" % s]) for s in "rl"}
     # Only the front of each eyeball (the rest is inside his head and would share its texels).
@@ -756,7 +756,7 @@ PAINT = {
     "jitter": 0.3,                         # share of squares a step off
     "tints": {"nose": [0, 5, 2], "cheek": [0, 4, 1], "ear": [-1, 5, 2], "jaw": [-2, -2, -3], "lip": [-5, 9, 2]},
     "hair": [15, 4, 7], "brow": [11, 3, 5],
-    "moustache": [15, 4, 8], "moustache_top": [21, 5, 9], "moustache_under": [6, 2, 3],
+    "moustache": [15, 4, 8], "moustache_top": [28, 6, 10], "moustache_under": [6, 2, 3],
     "lip_line": [19, 9, 7], "corner": [21, 8, 8],
     "lid": [12, 5, 6],
     "eye_gain": 1.2,                       # the shader's lift on his drawn whites (the donor's 1.8)
@@ -899,12 +899,12 @@ def stage_paint(spec):
         cand = np.nonzero(where)[0]
         return int(cand[np.argmin(np.linalg.norm(sp[cand] - p, axis=1))])
     front_skin = skin & (sn[:, 2] < -0.3)
-    # Nostrils: the most shut-in square under each side of his nose.
+    # Nostrils: the square under his nose half way from its middle to each wing, facing down.
     for sd, wing in (("r", LM["wing_r"]), ("l", LM["wing_l"])):
-        cand = np.nonzero(skin & near(L[LM["subnasale"]], 0.016) & (np.sign(sp[:, 0]) == np.sign(L[wing][0]))
-                          & (sp[:, 1] < L[LM["nose_tip"]][1]))[0]
-        if len(cand):
-            k = cand[np.argmin(sao[cand, 0] + sao[cand, 1])]
+        aim = (L[LM["subnasale"]] + L[wing]) / 2 - np.array([0.0, 0.002, 0.0])
+        under = skin & (sn[:, 1] < -0.25) & (np.sign(sp[:, 0]) == np.sign(L[wing][0]))
+        if under.any():
+            k = sq_at(aim, under)
             lab[k] = [ramp[0] - 4, P["hue"][0] + 4, P["hue"][1]]
             stamps["nostril_" + sd] = int(k)
     # The lip line: the row through his parting, corner to corner, darker than both lips.
@@ -914,16 +914,16 @@ def stage_paint(spec):
     put(line, P["lip_line"])
     stamps["lip_line"] = np.nonzero(line)[0].tolist()
     for sd in "rl":
-        k = sq_at(corners[sd], skin)
+        k = sq_at(corners[sd], skin & (sn[:, 2] < -0.4))
         put(np.arange(nsq) == k, P["corner"])
         stamps["corner_" + sd] = k
     # The nose's tip a step lighter.
     k = sq_at(L[LM["nose_tip"]], skin)
-    lab[k, 0] += 5.0
+    lab[k, 0] += 8.0
     stamps["nose_tip"] = k
     # Each ear: its hollow two steps down, the canal the darkest.
     for sd, sign in (("r", 1), ("l", -1)):
-        cand = np.nonzero((spart == "ear") & (np.sign(sp[:, 0]) == sign) & (sn[:, 0] * sign > 0.2))[0]
+        cand = np.nonzero((spart == "ear") & (np.sign(sp[:, 0]) == sign) & (sn[:, 0] * sign > 0.55))[0]
         if len(cand) >= 4:
             order = cand[np.argsort(sao[cand, 0] + sao[cand, 1])]
             lab[order[0], 0] = ramp[0] - 8

@@ -19,6 +19,37 @@ from PIL import Image
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "paint"))
 
 GOAL = 0.08
+VIEWS = {"front": (0, 0, 5), "three_quarter": (3.5, 0, 3.5), "side": (5, 0, 0)}   # faces_lights.gd's
+
+
+def visible_mask(view, pts):
+    """Which of the house head's points (body space) face the camera unhidden in a view of
+    faces_lights.gd: a depth test against his own head (build/house_head/mesh.npz)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "blender"))
+    import house_head as hh
+    d = np.load(os.path.join(hh.WORK, "mesh.npz"))
+    to = np.array(VIEWS[view], float)
+    to /= np.linalg.norm(to)
+    yaw = np.arctan2(to[0], to[2]) + np.pi          # his front (-Z) turned onto `to`
+    c, s_ = np.cos(yaw), np.sin(yaw)
+    R = np.array([[c, 0, s_], [0, 1, 0], [-s_, 0, c]])
+    f = R.T @ np.array([0.0, 0.0, -1.0])            # the camera's look, in his body space
+    r = np.cross(f, [0.0, 1.0, 0.0])
+    r /= np.linalg.norm(r)
+    u = np.cross(r, f)
+    centre = np.array([0.0, 1.62, 0.0])
+    size, half = 600, 0.15
+    _img, depth = hh.render(d["V"], d["F"], (r, u, f), size=size, centre=centre, half=half)
+    rel = np.asarray(pts, float) - centre
+    x = ((rel @ r) / (2 * half) + 0.5) * size
+    y = (0.5 - (rel @ u) / (2 * half)) * size
+    z = rel @ f
+    out = []
+    for xi, yi, zi in zip(x, y, z):
+        xs, ys = int(np.clip(xi, 0, size - 1)), int(np.clip(yi, 0, size - 1))
+        win = depth[max(ys - 1, 0):ys + 2, max(xs - 1, 0):xs + 2]
+        out.append(bool(zi <= np.nanmin(np.where(np.isfinite(win), win, np.inf)) + 0.0025))
+    return np.array(out)
 
 
 def oklab_l(rgb):
@@ -58,10 +89,27 @@ def main():
         stamps.setdefault((p["man"], p["stamp"], p["light"]), []).append(p)
     result = {"stamps": {}, "landmarks": {}}
     lights = ["lamp", "sun", "shade"]
+    reports = {}
     for (man, stamp, light), ps in sorted(stamps.items()):
-        best = max(ps, key=lambda p: p["toward_you"])
-        L = imgs[(light, best["view"])]
-        a, b = sample(L, best["at"]), sample(L, best["round"])
+        if man not in reports:
+            reports[man] = json.load(open(os.path.join("assets/people", man + ".json"))).get("stamps", {})
+        body = reports[man].get(stamp, {})
+        best, a, b, seen = None, float("nan"), float("nan"), 0.0
+        # The view where most of it, and of the squares round it, is in sight.
+        for p in ps:
+            va = visible_mask(p["view"], body["at"]) if man == "faces_test" else np.ones(len(p["at"]), bool)
+            vr = visible_mask(p["view"], body["round"]) if man == "faces_test" else np.ones(len(p["round"]), bool)
+            if not va.any() or not vr.any():
+                continue
+            score = va.mean() + 0.5 * vr.mean() + 0.25 * p["toward_you"]
+            if best is None or score > seen:
+                L = imgs[(light, p["view"])]
+                best, seen = p, score
+                a = sample(L, [q for q, v in zip(p["at"], va) if v])
+                b = sample(L, [q for q, v in zip(p["round"], vr) if v])
+        if best is None:
+            result["stamps"].setdefault(man, {}).setdefault(stamp, {})[light] = {"view": None, "contrast": 0.0, "hidden": True}
+            continue
         result["stamps"].setdefault(man, {}).setdefault(stamp, {})[light] = {
             "view": best["view"], "stamp": round(a, 3), "round": round(b, 3), "contrast": round(abs(a - b), 3)}
     for man, st in result["stamps"].items():
@@ -93,8 +141,9 @@ def main():
     for man, st in result["stamps"].items():
         print(man)
         for stamp, by in st.items():
-            print("  %-16s %s  over %.2f in %d of 3" % (stamp, "  ".join(
-                "%s %.3f" % (l, by[l]["contrast"]) for l in lights if l in by), GOAL, by["lights_over_goal"]))
+            print("  %-16s %s  over %.2f in %d of 3  (%s)" % (stamp, "  ".join(
+                "%s %.3f" % (l, by[l]["contrast"]) for l in lights if l in by), GOAL, by["lights_over_goal"],
+                by.get("lamp", {}).get("view")))
     for man, found in result["landmarks"].items():
         print("%s: MediaPipe finds his face in %d of %d; %s" % (man, sum(f["found"] for f in found.values()), len(found),
               {k: {kk: vv for kk, vv in v.items() if kk != "found"} for k, v in found.items() if len(v) > 1}))
