@@ -164,3 +164,52 @@ the master on every feature, and for reasons the light can't fix: squares slante
 the eyes dark blobs with star glints, the moustache one band with no philtrum, the ear a wedge
 with no rim, the collar a ragged cloud, the hatband soft patches. So the one-normal fix is a real
 but small step (worth handing the art session for the shaders); the big gaps are E3-E6.
+
+**Blind critic, r10 against the real D2** (`critic/e0b/critic.md`; `critic/e0b_key.json`: A = r10,
+B = D2 re-imported): B (D2) ranked first for the visual language (skin, chin and hat band in fairly
+regular hard square tiles near the master's size), let down by streaked brim and brow, unreadable
+slit eyes and a moustache with no gap; A (r10) has the stronger readable features and 3D form but
+reads "a smooth render under a light pixel filter".
+
+## E3: the moustache and the gap under his nose
+
+`head_paint.py bake --id=stranger2s --moustache=gap:8[,notch:8]` (`draw_moustache`, `bake.moustache`;
+off unless set) draws his moustache over his texture from **his model's own outline** (seen from in
+front on a 0.5 mm grid: what's darker than L* 28 under his nose, closed over 1.5 mm, opened over 1.5
+mm, the pieces reaching the middle kept, holes filled, kept above his mouth's line between its
+corners), solid dark with 0.3 of his own hairs' lightness; cuts a gap of skin 8 mm wide at the middle
+under his nose (his cheek's skin in the nose's shadow) down to his upper lip (`notch` less: the two
+masses joined below); turns what's left of his model's moustache outside it to skin; and writes
+`<id>_labels.png` (1 moustache, 2 gap, 3 a 4 mm ring round them). `fit_tripo.py
+--cells=labels:1` gives each square the labels reach **wholly** to the moustache (when most of it is)
+or to his skin, coloured from its own kind's part (no square split along the moustache's edge).
+A first try drawing a polygon from the landmarks was too small for his own moustache and left it
+showing round the drawn one (`e3/moustache_drawn_flat.png`: his own, then the outline-based one,
+seen flat from in front).
+
+**Trap:** the first E3 render showed no change: Godot was still drawing the imported copies of his
+old textures (see E0's correction). Every variant below is fit → `godot --headless --import` →
+render (`run_variant.sh` in the session's notes: the head bake 70 s, fit 22 s, import ~60 s,
+plain-light head 5 s, the shot with a held-still pass and a 4x head ~7 min).
+
+| Variant | Squares owned | Judge (dry) |
+|---|---|---|
+| r10 | | 0.501 |
+| Drawn, no ownership | | 0.498 |
+| Drawn + owned, gap to the lip (apart) | 45 moustache, 57 mixed squares given whole, 4 mostly gap | 0.499 |
+| Drawn + owned, gap 8 mm deep (joined) | 47 moustache, 2 mostly gap | 0.495 |
+
+`e3/moustache_in_shot.png`: master / r10 / apart / joined (the saloon shot, held still);
+`e3/owned_squares_debug.png` (`LABELS_DEBUG=1`: the moustache's squares magenta, the gap's green);
+`e3/*_head_front.png` plain light. The judge doesn't see it (it weighs light and colour); drawing
+alone and drawing + ownership look nearly alike at the shot's size, ownership a little cleaner on the
+edge.
+
+**Blind critic** (`critic/e3/critic.md`; `critic/e3_key.json`: A = joined, B = apart, C = r10):
+B > A > C. A and B are identical but for the gap: in the joined one the notch is lost in the
+squares (a solid dark slab), in the apart one it reads as a lit notch of skin, the reason B wins.
+Against the master: B's moustache is a flat near-black cut-out with no inner squares (the master's is
+a mid-dark brown in several tones), and its gap is a hard slot **left of centre**: his face's square
+edges fall on his middle line, so the 8 mm gap went whole into the column left of it. Everything
+else the critic marks (slanted squares, 1 px stair silhouettes, the ear, the collar, the hat band,
+the eye whites, hot colour) is shared by all three and is E4-E7's.
