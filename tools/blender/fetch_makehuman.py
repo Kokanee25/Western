@@ -6,7 +6,7 @@
 MakeHuman's assets (the base mesh, targets) are CC0 (see LICENSE.ASSETS.md, fetched with them), so
 anything made from them can live in this public repo. The program code is AGPL; we don't use any
 of it. Files land in build/makehuman/ (git-ignored); the generated people go to assets/people/.
-Which targets are needed is read from assets/people/people.json.
+Which targets are needed is read from assets/people/people.json and house_head.json.
 """
 import json
 import os
@@ -41,6 +41,12 @@ def main() -> None:
     for p in people["people"].values():
         for t in p.get("targets", {}):
             paths.append("makehuman/data/targets/%s.target" % t)
+    # The house head's (tools/blender/house_head.py): its man and its stylised edit.
+    if os.path.exists("assets/people/house_head.json"):
+        house = json.load(open("assets/people/house_head.json"))
+        for key in ("targets", "style", "trial"):
+            for t in house.get(key, {}):
+                paths.append("makehuman/data/targets/%s.target" % t)
     for path in sorted(set(paths)):
         fetch(path, dest)
 

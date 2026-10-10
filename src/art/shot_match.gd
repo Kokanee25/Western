@@ -53,6 +53,8 @@ const FITS := {
 			&"chest": Vector3(0.0, -2.25, 0.0), &"upper_arm_r": Vector3(1.5, 10.5, 0.0),
 			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
 }
+## A man fitted as another (the same body): the faces test's house head on stranger2s's body.
+const FIT_AS := {&"faces_test": &"stranger2s"}
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
@@ -66,7 +68,7 @@ static var model: StringName = &"stranger2s"
 ## The seated man's fit for the model he wears: "seat", "turn" or "pose_offsets" (FITS, else the
 ## old stranger's).
 static func fit(key: StringName) -> Variant:
-	var own: Dictionary = FITS.get(model, {})
+	var own: Dictionary = FITS.get(FIT_AS.get(model, model), {})
 	if own.has(key):
 		return own[key]
 	match key:
