@@ -4038,3 +4038,7 @@ a few views renders them as the full run does.
   missions). Sean: "just ideas to implement once we're ready": no session starts one unless he
   names it. `docs/prompts/STATUS.md` lists where they differ from DESIGN.md and CLAUDE.md (the
   art style isn't being reopened; the feature freeze holds; CLAUDE.md's branch names).
+- 2026-10-10 (Sean's planning chat, docs only): **The art style under review.** Sean: "we're going
+  to test the art style a bit more and decide how to finally handle it." DESIGN.md §4 gains a note
+  (the bold squares stay the working look until he decides); `docs/prompts/STATUS.md` says Prompt
+  07 (the style comparison) is the way it's tested, when Sean starts it.
