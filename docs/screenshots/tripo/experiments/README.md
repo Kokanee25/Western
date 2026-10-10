@@ -269,3 +269,21 @@ shards with black chips", its neckerchief "shattered into black islands". B's co
 cream ribbon with saw-tooth edges", its neckerchief "soft blurred blobs, not a shaped knot", the neck
 under the chin "the most regular grid of blocks in any render here"; no collar points, no shadow
 under them. Finer collar squares don't help at the shot's size.
+
+**Lighter, a short notch, a regular sub-grid** (`--moustache=gap:7,notch:7,top:0,tones:10,
+nostrils:1,dark:65/45/33`, his head at 8 texels a square so it can be halved; fitted
+`labels:1,head_texels:8` and `labels:1,labels_sub:1,head_texels:8`: `labels_sub` cuts each square the
+moustache or gap only partly covers into four regular half squares, each owned whole; 57 squares
+cut). `e3/refined_in_shot.png` (master / tones + nostrils / lighter + notch / + sub-grid),
+`e3/refined_plain_light.png`. **Blind critic** (`critic/e3d/critic.md`; A = + sub-grid, B = the dark
+moustache with tones and nostrils and the full-depth gap, C = lighter + notch): **B first** ("the only
+moustache with readable masses, philtrum gap and nostrils", still flat black and its gap too tall),
+C second (the right brown and squared, but the notch and edges too soft to read: the 7 mm notch
+was lost, no square mostly gap), **A last**: half squares made the moustache "a blurred smear with
+stray skin squares in it". So the regular sub-grid doesn't buy a notch: at the shot's size 3.5 mm
+squares read as softness, not drawing. The master's small notch can't be drawn finer than its own
+squares; a gap one whole square wide is what reads.
+
+**E3 verdict:** the moustache drawn from his own outline, dark, with tones at the squares' size, two
+nostrils and a gap one square wide under his nose down to his lip (`--moustache=gap:8,tones:8,
+nostrils:1,dark:34/23/16`), owned square by square (`--cells=labels:1`), on his ordinary 7 mm grid.

@@ -1,0 +1,13 @@
+{
+ "seed": 1889,
+ "labels": {
+  "A": "lighter_notch_subgrid",
+  "B": "tones_nostrils",
+  "C": "lighter_notch"
+ },
+ "renders": {
+  "tones_nostrils": "/tmp/claude-0/-home-user-Western/429a14da-a960-53b6-ba70-7e4725a94f63/scratchpad/e3/v_tones/shot_match_saloon_diag_base.png",
+  "lighter_notch": "/tmp/claude-0/-home-user-Western/429a14da-a960-53b6-ba70-7e4725a94f63/scratchpad/e3/v_nosub/shot_match_saloon_diag_base.png",
+  "lighter_notch_subgrid": "/tmp/claude-0/-home-user-Western/429a14da-a960-53b6-ba70-7e4725a94f63/scratchpad/e3/v_sub/shot_match_saloon_diag_base.png"
+ }
+}
