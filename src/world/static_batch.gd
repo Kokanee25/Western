@@ -110,15 +110,19 @@ func _build_shadows() -> void:
 		var sh: Array = _shadows[cell]
 		var st := SurfaceTool.new()
 		var any := false
-		for mi: MeshInstance3D in sh[1]:
-			if not _of.has(mi) or not is_instance_valid(mi):
-				continue
+		var kept: Array = []
+		for v: Variant in sh[1]:
+			if not is_instance_valid(v) or not _of.has(v):
+				continue  # freed (the shot match clears the table) or released
+			var mi := v as MeshInstance3D
+			kept.append(mi)
 			var xf := inv * mi.global_transform
 			for s in mi.mesh.get_surface_count():
 				if mi.mesh.surface_get_primitive_type(s) == Mesh.PRIMITIVE_TRIANGLES:
 					st.append_from(mi.mesh, s, xf)
 					any = true
-		var shadow: MeshInstance3D = sh[0]
+		sh[1] = kept
+		var shadow: MeshInstance3D = sh[0] if is_instance_valid(sh[0]) else null
 		if not any:
 			if shadow:
 				shadow.queue_free()
@@ -167,7 +171,7 @@ func _hide_instance(mi: MeshInstance3D) -> void:
 	mmi.multimesh.set_instance_transform(where[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
 	# Its shadow goes with it (the patch's shadow is built again, once, at the end of the frame).
 	for cell: Vector3i in _shadows:
-		if (_shadows[cell][1] as Array).has(mi):
+		if (_shadows[cell][1] as Array).has(mi) and not _dirty.has(cell):
 			if _dirty.is_empty():
 				_build_shadows.call_deferred()
 			_dirty[cell] = true
