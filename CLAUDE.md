@@ -4367,3 +4367,4 @@ a few views renders them as the full run does.
   - Next: the road re-graded to the painting's pale dust (`materials.json` road and road_wide:
     lighter, less chroma, yellower, lower contrast; measured: the painting's road median L* 51,
     chroma 41, hue 58°, ours 45, 53, 52°), its own merge.
+  - Merged as PR #99, **build 863** (green).
