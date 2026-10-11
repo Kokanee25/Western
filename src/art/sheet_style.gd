@@ -14,6 +14,11 @@ class_name SheetStyle
 
 static var on := false
 static var texels := 32.0
+## Which look (`--sheet-style=MODE`): "squares" (the trial's rounds 1-2: his Rodin colour cut into
+## squares, build/sheet_style/), or the style lab's candidates (docs/briefs/style-lab.md) "painted"
+## (B: the game's own painted textures under Godot's light, the world at 16 a metre) and "real"
+## (C: the models' own colour, the world the smooth set at 128 a metre), from build/sheet_style/<mode>/.
+static var mode := "squares"
 const DIR := "res://build/sheet_style/"
 const SHADER := preload("res://src/art/sheet_man.gdshader")
 static var _textures := {}
@@ -51,25 +56,60 @@ static func _on_node_added(n: Node) -> void:
 		n.ready.connect(dress.bind(n), CONNECT_ONE_SHOT)
 
 
-## His body's meshes in sheet_man.gdshader: true if he has a sheet texture (his body_model's).
+## The folder this mode's textures are in, under DIR.
+static func _sub() -> String:
+	return "" if mode == "squares" else mode + "/"
+
+
+## A shape's material: its own <model>_<shape>_albedo.png, else his skin's, else the mode's one
+## <model>_albedo.png; null if there's none.
+static var _materials := {}
+
+
+static func _material(model: String, shape: String) -> ShaderMaterial:
+	var key := model + "/" + shape
+	if _materials.has(key):
+		return _materials[key]
+	var names := [shape, "skin"] if shape != "skin" else ["skin"]
+	var albedo: Texture2D = null
+	var normal: Texture2D = null
+	for n in names:
+		albedo = texture("%s%s_%s_albedo.png" % [_sub(), model, n])
+		if albedo:
+			normal = texture("%s%s_%s_normal.png" % [_sub(), model, n])
+			break
+	if albedo == null:
+		albedo = texture("%s%s_albedo.png" % [_sub(), model])
+		normal = texture("%s%s_normal.png" % [_sub(), model])
+	var mat: ShaderMaterial = null
+	if albedo:
+		mat = ShaderMaterial.new()
+		mat.shader = SHADER
+		mat.set_shader_parameter(&"albedo_tex", albedo)
+		mat.set_shader_parameter(&"normal_tex", normal)
+		mat.set_shader_parameter(&"use_normal", normal != null)
+	_materials[key] = mat
+	return mat
+
+
+## His body's meshes in sheet_man.gdshader, each shape (HumanBody names a piece Shape_part, a
+## joined shape Shape_whole) with its own texture: true if he had any.
 static func dress(body: Node) -> bool:
 	var model := String(body.get(&"body_model"))
-	var albedo := texture(model + "_albedo.png") if model != "" else null
-	if albedo == null:
+	if model == "":
 		return false
-	var mat := ShaderMaterial.new()
-	mat.shader = SHADER
-	mat.set_shader_parameter(&"albedo_tex", albedo)
-	var normal := texture(model + "_normal.png")
-	mat.set_shader_parameter(&"normal_tex", normal)
-	mat.set_shader_parameter(&"use_normal", normal != null)
+	var any := false
 	for mi in body.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D
 		if m.skin == null or m.mesh == null:
 			continue
+		var mat := _material(model, String(m.name).get_slice("_", 0).to_lower())
+		if mat == null:
+			continue
 		m.mesh = with_tangents(m.mesh as ArrayMesh)
 		m.material_override = mat
-	return true
+		any = true
+	return any
 
 
 ## The mesh with tangents (for the normal map) worked out from its UVs: Lengyel's method

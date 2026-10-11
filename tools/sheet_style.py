@@ -7,6 +7,7 @@ nothing here changes the game's defaults.
 
     python3 tools/sheet_style.py man [--face-mm=3 --hat-mm=6 --body-mm=7 --push=1 --even=0 --jitter=0 --source=rodin|repaint --id=stranger2]
     python3 tools/sheet_style.py world [--world-push=1]
+    python3 tools/sheet_style.py painted|real [--ids=stranger2s,kid]   (the style lab's B and C)
 
 Writes into build/sheet_style/ (gitignored, remade from what's committed; a .gdignore keeps the
 editor from importing it, the game reads it with Image.load_from_file):
@@ -41,6 +42,54 @@ SIZE = 2048
 # Round his face's landmarks: this far past their box counts as face (ears, jaw, brow under the brim).
 FACE_MARGIN_M = 0.02
 SMOOTH_TEXELS = 128
+
+
+def _glb_textures(path):
+    """The first material's base colour and normal map as PIL images (either may be None)."""
+    f = open(path, "rb").read()
+    clen = struct.unpack("<I", f[12:16])[0]
+    doc = json.loads(f[20:20 + clen])
+    binary = f[28 + clen:]
+
+    def image(tex_ref):
+        if not tex_ref:
+            return None
+        img = doc["images"][doc["textures"][tex_ref["index"]]["source"]]
+        bv = doc["bufferViews"][img["bufferView"]]
+        o = bv.get("byteOffset", 0)
+        return Image.open(io.BytesIO(binary[o:o + bv["byteLength"]])).convert("RGB")
+
+    mat = doc["materials"][0]
+    return image(mat.get("pbrMetallicRoughness", {}).get("baseColorTexture")), image(mat.get("normalTexture"))
+
+
+# The style lab's candidates (docs/briefs/style-lab.md): B "painted", the game's own painted
+# textures as they are; C "real", the models' own realistic colour. Both with the models' normal
+# maps (a stylised Rodin man's from the model he was stylised from: the same UVs).
+def candidate(cand, cid):
+    spec = json.load(open(hp.PEOPLE))["people"][cid]
+    src = spec.get("rodin") or spec.get("model") or cid
+    colour, normal = _glb_textures(os.path.join(hp.DIR, src + ".glb"))
+    if normal is None and "stylise" in spec:
+        normal = _glb_textures(os.path.join(hp.DIR, spec["stylise"]["from"] + ".glb"))[1]
+    out = os.path.join(OUT, cand)
+    os.makedirs(out, exist_ok=True)
+    shapes = {"skin": (colour, normal), "head": (colour, normal)}
+    for shape, piece in (spec.get("pieces") or {}).items():
+        shapes[shape] = _glb_textures(os.path.join(hp.DIR, piece + ".glb"))
+    for shape, (col, nrm) in shapes.items():
+        # His head is in the same atlas as his skin (the game's _head and _skin are one picture):
+        # SheetStyle falls back to the skin's, so it's written and loaded once.
+        if shape == "head":
+            continue
+        if cand == "painted":
+            col = Image.open(os.path.join(ROOT, "assets", "people", "%s_%s.png" % (cid, shape))).convert("RGB")
+        if col is not None:
+            col.save(os.path.join(out, "%s_%s_albedo.png" % (cid, shape)))
+        if nrm is not None:
+            size = col.size if col is not None else nrm.size
+            nrm.resize(size, Image.LANCZOS).save(os.path.join(out, "%s_%s_normal.png" % (cid, shape)))
+        print("%s %s %s: albedo %s, normal %s" % (cand, cid, shape, col.size if col else None, "yes" if nrm else "no"))
 
 
 def _glb_images(path):
@@ -167,9 +216,13 @@ def main():
         man(opt.get("--id", "stranger2"), float(opt.get("--face-mm", FACE_MM)), float(opt.get("--hat-mm", HAT_MM)),
             float(opt.get("--body-mm", BODY_MM)), float(opt.get("--jitter", 0.0)), float(opt.get("--push", 1.0)),
             float(opt.get("--even", 0.0)), opt.get("--source", "rodin"))
+    for cand in ("painted", "real"):
+        if cand in args:
+            for cid in opt.get("--ids", "stranger2s,kid").split(","):
+                candidate(cand, cid)
     if "world" in args:
         world(float(opt.get("--world-push", 1.0)))
-    if not ({"man", "world"} & set(args)):
+    if not ({"man", "world", "painted", "real"} & set(args)):
         print(__doc__)
 
 

@@ -150,8 +150,15 @@ func _ready() -> void:
 		# A trial: the probe over the game's own squared textures, not the smooth set.
 		if "--probe-squares" in args:
 			quantise_once = false
-	# The character-sheet style trial for one run (--sheet-style [--sheet-texels=16]).
-	if "--sheet-style" in args:
+	# The character-sheet style trial for one run (--sheet-style[=painted|real] [--sheet-texels=16]):
+	# the style lab's candidates B and C (docs/briefs/style-lab.md); bare, the trial's squares.
+	var sheet_mode := false
+	for a in args:
+		if a.begins_with("--sheet-style="):
+			SheetStyle.mode = a.substr(14)
+			SheetStyle.texels = 16.0
+			sheet_mode = true
+	if "--sheet-style" in args or sheet_mode:
 		sheet_style = true
 		quantise_once = false
 		surface_blocks = false
@@ -412,7 +419,8 @@ func _apply_texels() -> void:
 		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
 		return
 	if sheet_style:
-		PixelArt.set_density(SheetStyle.texels, true)
+		# C ("real") lays the smooth set at its own 128 a metre.
+		PixelArt.set_density(SheetStyle.texels * (8.0 if SheetStyle.mode == "real" else 1.0), true)
 		return
 	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
 
@@ -446,7 +454,7 @@ func _apply_quantise() -> void:
 	PixelArt.reset_for_look()
 	PixelArt.blocks = surface_blocks
 	PixelArt.bold = surface_blocks
-	PixelArt.smooth = quantise_once
+	PixelArt.smooth = quantise_once or (sheet_style and SheetStyle.mode == "real")
 	PeopleBodies.smooth_paint = quantise_once
 	SheetStyle.on = sheet_style
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}

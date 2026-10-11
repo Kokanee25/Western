@@ -12,6 +12,16 @@ extends SceneTree
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
+## The style lab's lights (docs/briefs/style-lab.md), --light=day|lamp|golden: neutral daylight;
+## warm lamplight (a lamp's warm point light before them in a dark room); golden hour (a low warm
+## sun from the side, a warm fill).
+const PRESETS := {
+	"day": {"sun": 1.3, "ambient": 0.5, "fill": 0.0, "pitch": -50.0, "yaw": -30.0},
+	"lamp": {"sun": 0.0, "ambient": 0.08, "fill": 0.0, "pitch": -30.0, "yaw": -30.0, "lamp": 2.6},
+	"golden": {"sun": 1.5, "ambient": 0.3, "fill": 0.0, "pitch": -12.0, "yaw": -65.0},
+}
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -24,6 +34,7 @@ func _run() -> void:
 	var sheet := "--sheet-style" in OS.get_cmdline_user_args()
 	# --light=sun:1.6,ambient:0.55,fill:0 (the sheet light's knobs, for matching the sheet's).
 	var lit := sheet
+	var preset := ""
 	# Defaults matched to the sheet's turnaround (tools/sheet_judge.py, 2026-10-11).
 	var light := {"sun": 1.0, "ambient": 0.15, "fill": 0.0, "pitch": -40.0, "yaw": -40.0}
 	var bg := Color(0.17, 0.17, 0.18) if sheet else Color(0.5, 0.5, 0.52)
@@ -38,8 +49,13 @@ func _run() -> void:
 			close = true
 		elif a.begins_with("--light="):
 			lit = true
-			for kv in a.substr(8).split(","):
-				light[kv.get_slice(":", 0)] = float(kv.get_slice(":", 1))
+			var v := a.substr(8)
+			if PRESETS.has(v):
+				preset = v
+				light = (PRESETS[v] as Dictionary).duplicate()
+			else:
+				for kv in v.split(","):
+					light[kv.get_slice(":", 0)] = float(kv.get_slice(":", 1))
 		elif a.begins_with("--bg="):
 			var c := a.substr(5).split(",")
 			bg = Color(float(c[0]), float(c[1]), float(c[2]))
@@ -76,7 +92,23 @@ func _run() -> void:
 		sun.light_color = Color(1.0, 0.86, 0.68)
 		sun.light_energy = light.sun
 		sun.rotation_degrees = Vector3(light.pitch, light.yaw, 0)
-		if light.fill > 0.0:
+		if preset == "day":
+			sun.light_color = Color(1.0, 0.97, 0.92)
+			e.ambient_light_color = Color(0.55, 0.6, 0.7)
+		elif preset == "golden":
+			sun.light_color = Color(1.0, 0.72, 0.42)
+			e.ambient_light_color = Color(0.62, 0.46, 0.36)
+		elif preset == "lamp":
+			sun.visible = false
+			e.ambient_light_color = Color(0.5, 0.4, 0.32)
+			var lamp := OmniLight3D.new()
+			w.add_child(lamp)
+			lamp.light_color = Color(1.0, 0.74, 0.48)
+			lamp.light_energy = light.lamp
+			lamp.omni_range = 6.0
+			lamp.shadow_enabled = true
+			lamp.position = Vector3(-0.5, 1.4 if not close else 1.6, 1.4)
+		if light.get("fill", 0.0) > 0.0:
 			var fill := DirectionalLight3D.new()
 			w.add_child(fill)
 			fill.light_color = Color(0.7, 0.78, 0.95)
@@ -103,7 +135,7 @@ func _run() -> void:
 	cam.position = Vector3(0, 1.62 if close else 1.0, 8)
 	for pose in poses:
 		var views := ["front", "side", "three_quarter", "back"]
-		if sheet:
+		if lit:
 			views = ["front", "three_quarter", "side", "back", "three_quarter_back"]
 		for view in views:
 			var to := Vector3(0, 0, 5)

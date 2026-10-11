@@ -81,6 +81,9 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
 		m.set_meta(&"texels", DRAWN_TEXELS)
+	elif tex and smooth and tex.resource_path.begins_with("res://assets/textures/") and not tex.resource_path.contains("/smooth/"):
+		# A factory tile (32 a metre) standing in for a key the smooth set doesn't have.
+		m.set_meta(&"texels", DRAWN_TEXELS)
 	return track(m)
 
 
@@ -162,7 +165,7 @@ static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
 	# The character-sheet trial (SheetStyle, --sheet-style): the smooth set at its own density.
-	if SheetStyle.on:
+	if SheetStyle.on and not smooth:
 		var sheet := SheetStyle.world_texture(key)
 		if sheet:
 			return sheet
@@ -171,6 +174,10 @@ static func factory(key: String) -> Texture2D:
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
 	if (smooth or bold) and not ResourceLoader.exists(path):
 		path = FACTORY_PATH % key
+		# The smooth set lacks the drawn woods: those keep their drawn boards (laid at their own
+		# DRAWN_TEXELS, material()'s meta), not a 32-a-metre tile laid at the smooth set's 128.
+		if smooth and use_drawn and ResourceLoader.exists(DRAWN_PATH % key):
+			path = DRAWN_PATH % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
 
 
