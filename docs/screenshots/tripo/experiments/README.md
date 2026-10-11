@@ -364,3 +364,7 @@ squares carry more fine variation inside them than any of ours. square_shape: fa
 slant is the shot's head roll, the slivers are surfaces seen edge-on), but hard square edges with his
 face on the front plane to 80° make it crisper and less stretched: `people.json` `stranger2s.cells`
 `"face_front": 80`, `"soft": {"head": 0, "skin": 0.25}` (his default now, E6).
+Character judge round `2026-10-11_r2`: 0.545 (E5's `_r1` 0.495): its squares group marks hard,
+flat squares down (0.357 against 0.203: the share of lit neighbouring pixels within 1 L*, and the
+edges' hardness), as it did D2 (0.520 to r10's 0.499); here the blind critics decide, as the
+2026-10-07 notes on D2 said they should.
