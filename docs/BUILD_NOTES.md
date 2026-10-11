@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: a smoke column over a burning building
+
+- **Smoke now rises into the sky over a burning building**, where before it stopped at the
+  roofline: dark billows leaning with the wind, lit red from the fire underneath, with sparks
+  climbing through it near the fire. It grows as more of the building catches and fades when the
+  fire's out.
+- **Try:** light the livery's front (L) at dusk and watch from across the street. Tell me if the
+  column reads as smoke, and whether it should be darker.
+
 ### New: tongues of flame, the frame dark against them
 
 - **The fire is tall pointed tongues now**, white and yellow inside and red only at their edges,
