@@ -488,3 +488,52 @@ light) and the shot with `--man-diag=id,base`.
 critics: its top edge notched in square teeth, the gap under his nose a wedge two or three squares
 wide (E3's 8 mm, kept), its squares tilted with his head (the shot's roll), and it's still darker
 than the master's (mean luminance of its dark pixels 24 to the master's 30).
+
+## E10: the collar and neckerchief owned square by square
+
+Every critic since E4 marked his collar "no points" and his neckerchief "scattered grey-brown
+blocks, not one solid mass". Two causes were suspected: squares mixing white shirt and black
+neckerchief (their median by lightness lands on either, or on an edge texel), and the coat's
+weave, which the body's texture lays over any square darker than L* 46, the neckerchief included.
+New options, both off unless set (the default bake and fit rebuild E9's assets byte for byte):
+
+- `head_paint.py` `bake.collar.own` (`--collar=own:1`): where his collar is taken from his model's
+  own colours, each texel labelled shirt (4: lighter than `own_l` 55 L*) or neckerchief (5: darker
+  than `own_dark` 35 within `own_across` 5.5 cm of his middle), both greyer than `own_chroma` 14,
+  nothing within `own_top` 13 cm of his eyes; written into `<id>_labels.png` beside the moustache's.
+- `fit_tripo.py` CELLS `collar_own` (`--cells=collar_own:1`): on his body's texture, a square
+  either class reaches goes wholly to whichever of shirt, neckerchief or neither has most of its
+  samples, coloured from that one's samples only; those squares are left out of the weave.
+
+| Variant | Bake | Fit | Squares owned (shirt / neckerchief / neither) |
+|---|---|---|---|
+| E9 default | — | — | — |
+| a | `own:1` with a first rule (L* 45 between them, chroma 18, no spatial limit) | `collar_own:1` | 101 / 314 / 72 |
+| b | `own:1` (the rule above) | `collar_own:1` | 86 / 207 / 45 |
+
+a labelled the vest's dark lapels as neckerchief and his stubble's grey flecks as shirt
+(`e10/front_colour_and_classes_a.png`: his atlas seen from in front, then the classes); b's rule
+labels only the shirt, its points and the knot and ends (`e10/front_classes_b.png`). Seen from in
+front his texture already has the master's arrangement: neck skin down to small collar points,
+the knot under them, two ends hanging over a V of shirt.
+
+**Blind critic** (collar and face; `critic/e10/critic.md`, A = b, B = E9): the two are the same
+picture. In the collar panel they differ on 0.14 % of pixels, all in the bottom rows (the
+neckerchief at the crop's edge); every score ties. Its notes on both: the collar has no shape (no
+points, cream polygons of different sizes, no edge between collar and shirt), the neckerchief is
+broken into blocks, the coat beside it is in slanted streaks.
+
+`e10/collar_master_e9_a_b_shot.png` (the master; E9, a and b in the shot at 3x),
+`e10/collar_plain_e9_a_b.png` (plain light: b's white band has fewer stray dark squares),
+`e10/neck_master_e9_shot.png` (the master's man and ours, chin to chest).
+
+**E10 verdict: not adopted.** In plain light b is a little cleaner; in the shot it changes
+nothing a viewer sees. What the master shows and ours doesn't is pose, not paint: his chin is up
+and his head turned three-quarters, so his neck shows skin down to a V with the collar points
+flaring beside the knot; ours looks down past the camera, so his chin covers the throat and the
+collar reads as a white band under his jaw. The same pose put his near ear out of sight in E8.
+
+**For the art session** (its `src/art/shot_match.gd`, `ShotMatch.FITS["stranger2s"]`; not
+changed here): turn his head 10-20 degrees toward the master's three-quarter view, lift his chin
+a little and roll it less. The turned diagnostic renders in `e8/` (`--man-pose=head:6,10,5.25;
+neck:0,-0.5,7.5`) show his near ear coming round; the collar and the eyes (E7) would gain too.

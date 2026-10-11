@@ -4698,3 +4698,10 @@ a few views renders them as the full run does.
     a warmer brown with lighter squares through it (`characters.json` `stranger2s.bake.moustache`),
     where it was a near-black bar cut level at his lip. Each critic preferred it to what it
     replaced. Character judge round `2026-10-11_r3` 0.546 (level). Body, hat and shot tests pass.
+  - E10, his collar and neckerchief owned square by square (`head_paint.py` `bake.collar.own`,
+    `fit_tripo.py` CELLS `collar_own`, both off by default; the defaults rebuild E9's assets byte
+    for byte): not adopted. In plain light the white band is a little cleaner; in the shot the
+    blind critic saw the same picture (0.14 % of the collar panel's pixels differ). The collar's
+    shape there is the pose: his chin covers his throat, where the master's man's is up and
+    turned. Asked of the art session in the README (`ShotMatch.FITS`, not changed here): turn his
+    head 10-20° toward three-quarters, chin up a little, less roll.

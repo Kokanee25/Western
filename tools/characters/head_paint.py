@@ -1080,18 +1080,22 @@ def model_collar(out, cid, pos, uv, tris, size, cfg):
     # `own` (the characters session's experiment E10): which texels are his shirt (4) and which his
     # neckerchief (5), by his model's own colours where his collar is taken whole (`w` over a half),
     # for the fit (CELLS `collar_own`) to give each square there wholly to one, as his moustache is
-    # (squares mixing the two came out grey blocks and white shards in a dark neckerchief). `own_l`
-    # is the L* between them, `own_chroma` the most colour either has (his neck's skin and the
-    # coat's brown are neither).
+    # (squares mixing the two came out grey blocks and white shards in a dark neckerchief). The
+    # shirt is what's lighter than `own_l` L*, the neckerchief what's darker than `own_dark` within
+    # `own_across` metres of his middle (the vest's and lapels' dark brown beside it isn't), both
+    # greyer than `own_chroma`; what's between is neither, as is anything less than `own_top` metres
+    # under his eyes (his stubble's grey flecks round his chin).
     labels = None
     if cfg.get("own"):
         labels = np.zeros((size, size), dtype=np.uint8)
-        whole = take & (w > 0.5) & (chroma < float(cfg.get("own_chroma", 18.0)))
-        light = own[:, 0] >= float(cfg.get("own_l", 45.0))
-        labels[ty[whole & light], tx[whole & light]] = 4
-        labels[ty[whole & ~light], tx[whole & ~light]] = 5
-        print("  his collar owned: %d texels shirt, %d neckerchief" % (int((whole & light).sum()),
-                                                                       int((whole & ~light).sum())))
+        whole = take & (w > 0.5) & (chroma < float(cfg.get("own_chroma", 14.0)))
+        whole &= below > float(cfg.get("own_top", 0.13))
+        light = whole & (own[:, 0] >= float(cfg.get("own_l", 55.0)))
+        dark = (whole & (own[:, 0] < float(cfg.get("own_dark", 35.0)))
+                & (np.abs(p[:, 2] - eye[2]) * HEIGHT_M < float(cfg.get("own_across", 0.055))))
+        labels[ty[light], tx[light]] = 4
+        labels[ty[dark], tx[dark]] = 5
+        print("  his collar owned: %d texels shirt, %d neckerchief" % (int(light.sum()), int(dark.sum())))
     # A restrained contact shadow (`accent`, a share of the light taken off: 0 off; the characters
     # session's experiment E4): what isn't his shirt within `accent_mm` of it on him (the neck at its
     # top edge, the neckerchief and coat under its points) darkened in linear light, eased out with
