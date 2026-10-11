@@ -1617,6 +1617,33 @@ def draw_moustache(out, cid, pos, nrm, uv, tris, size, cfg):
     line = np.interp(np.abs(GA), [0.0, corner], [(face[13, 1] - sn[1]) * H, (face[61, 1] - sn[1]) * H])
     shape &= ~((np.abs(GA) < corner) & (GU < line - float(cfg.get("lip", 1.0))))
     shape = ndimage.binary_opening(shape, disk(max(m["open"], g)))
+    # Its ends hanging down (`droop` mm below its lower edge at each end, 0 = off; the characters
+    # session's E9): the master's moustache is a walrus mass whose ends droop down beside the
+    # mouth and taper, where his model's own stops square. Each end a tapered tongue from the
+    # moustache's lower edge `droop_w` mm in from its outer end, that wide there, narrowing to a
+    # third of that at its tip.
+    droop = float(cfg.get("droop", 0.0))
+    if droop > 0 and shape.any():
+        dw = float(cfg.get("droop_w", 9.0))
+        for side in (1.0, -1.0):
+            cols = shape.any(axis=0) & (np.sign(ga) == side)
+            if not cols.any():
+                continue
+            end = np.abs(ga[cols]).max()
+            ca = side * (end - dw / 2)
+            col = int(np.argmin(np.abs(ga - ca)))
+            cu = GU[shape[:, col], col].min() if shape[:, col].any() else 0.0
+            top = cu + 3.0
+            t = np.clip((top - GU) / (droop + 3.0), 0.0, 1.0)
+            # The tongue's middle leans out a little as it hangs (`droop_out` mm at the tip).
+            centre = ca + side * (float(cfg.get("droop_out", 2.0)) * t - dw * 0.15)
+            half = dw / 2 * (1.0 - t * 0.66)
+            shape |= (GU <= top) & (GU >= cu - droop) & (np.abs(GA - centre) <= half)
+    # Its outline rounded (`round` mm, 0 = off): the master's moustache is a soft mass in steps,
+    # where his model's outline ran in notches; a Gaussian of the shape, cut at a half.
+    rnd = float(cfg.get("round", 0.0))
+    if rnd > 0:
+        shape = ndimage.gaussian_filter(shape.astype(np.float64), rnd / g) > 0.5
     # The gap at the middle under his nose.
     # As deep as `notch`, or to the top of his upper lip (the philtrum's end) if that's nearer.
     notch = min(m["notch"], -(face[0, 1] - sn[1]) * H + 1.0)

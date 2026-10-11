@@ -4693,3 +4693,8 @@ a few views renders them as the full run does.
     master's man is turned three-quarters so his near ear faces us. Drawn bolder on finer squares
     it lost to today's in the shot (slivers) and only edged it with his head turned (diagnostic):
     still a lit wedge, no rim round a hollow. Next is the head's turn, the art session's call.
+  - E9, the moustache (`draw_moustache` `droop`, `round`; three blind critics): his default now
+    hangs its ends past the corners of his mouth in tapered tongues, with a rounder outline and
+    a warmer brown with lighter squares through it (`characters.json` `stranger2s.bake.moustache`),
+    where it was a near-black bar cut level at his lip. Each critic preferred it to what it
+    replaced. Character judge round `2026-10-11_r3` 0.546 (level). Body, hat and shot tests pass.

@@ -445,3 +445,46 @@ in the texture to read as an ear. What would: his head turned toward the master'
 (the art session's `ShotMatch.FITS`, a diagnostic here only), and then an ear drawn at the
 squares' size, a lit C-shaped rim round a dark hollow. Drawing up the model's own ear (a) helps a
 little at that angle, but its folds are too fine and too soft for 5-9 mm squares.
+
+## E9: the moustache's shape and tone
+
+Every critic since E3 marked his moustache "a flat black slab" or "stencil" with "battlement"
+notches along its top, against the master's heavy walrus mass: a rounded outline, ends drooping
+past the corners of the mouth, warm lighter squares through the dark. New options in
+`head_paint.py` `draw_moustache` (off unless set): `droop` (mm: each end a tapered tongue hanging
+from the moustache's lower edge `droop_w` mm in from its outer end, leaning out `droop_out` mm at
+its tip) and `round` (mm: the outline a Gaussian of the shape cut at a half). Driven by
+`$S/e9/try.sh NAME "MOUSTACHE"` (bake with `--moustache=`, the default fit, re-import, plain
+light) and the shot with `--man-diag=id,base`.
+
+| Variant | `--moustache=` (with `gap:8,nostrils:1`) |
+|---|---|
+| E6 default | `tones:8,dark:34/23/16` |
+| a | `tones:12,dark:34/23/16,droop:14,round:2` (the tongues hung from the mouth's corners: hidden inside the moustache, which runs well past them) |
+| b | `tones:12,dark:34/23/16,droop:16,droop_w:10,round:2` (from its outer ends) |
+| c | `tones:12,dark:34/23/16,droop:26,droop_w:12,droop_out:3,round:2.5` |
+| d | `tones:16,dark:48/32/22,droop:26,droop_w:12,droop_out:3,round:3.5` |
+| e | `tones:16,dark:48/32/22,droop:26,droop_w:12,droop_out:3,round:2.5` |
+
+**Blind critics** (nose and moustache, and the face; `critic/e9*/critic.md`, keys beside them):
+
+- `e9` (A = c, B = E6): **c** (master's style 3 to 2), "the only moustache that droops past the
+  mouth at both ends, as the master's does"; still near black (73 % of its dark pixels to the
+  master's 33 %) with a notched top.
+- `e9b` (A = d, B = E6, C = c): **c**, E6 second, **d last**: d's tone was the best of the three
+  ("a warmer, more varied brown nearer the master's"), but its rounder outline (3.5 mm) broke its
+  ends into loose chips with a stray one.
+- `e9c` (A = e, B = c): **e** (3 to 2), "its moustache keeps brown tones inside its squares,
+  closer to the master's"; c's "a near-black stencil". It saw no droop in either (in this packet
+  the moustache's right end falls at the crop's edge: `e9/moustache_master_e6_c_d_e.png` shows it).
+
+`e9/moustache_master_e6_c_d_e.png` (the master; E6, c, d and e in the shot at 3x),
+`e9/moustache_plain_e6_e.png` (plain light, E6 above, e below). Character judge round
+`2026-10-11_r3`: 0.546 (E6's `_r2` 0.545; it weighs the whole man, the moustache barely moves it).
+
+**E9 verdict: e is his default** (`characters.json` `stranger2s.bake.moustache`: `{"gap": 8,
+"tones": 16, "nostrils": 1, "dark": [48, 32, 22], "droop": 26, "droop_w": 12, "droop_out": 3,
+"round": 2.5}`); the default bake and fit rebuild e's assets byte for byte. Still off, from the
+critics: its top edge notched in square teeth, the gap under his nose a wedge two or three squares
+wide (E3's 8 mm, kept), its squares tilted with his head (the shot's roll), and it's still darker
+than the master's (mean luminance of its dark pixels 24 to the master's 30).
