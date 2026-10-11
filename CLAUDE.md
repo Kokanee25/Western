@@ -4331,3 +4331,39 @@ a few views renders them as the full run does.
     Visual checks 227, none failed. 373 tests pass.
   - Next: the saloon's doorway (the moonlit street through it); the fire view's right side (the
     backdrop's black cliff) and its staging; the other fronts to the saloon's standard.
+  - Merged as PR #98, **build 845** (green).
+- 2026-10-11 (art session, later): **Merge 3h: the golden-hour street clear and deep in its
+  shadows.**
+  - **With the sun low** (DayCycle, gameplay's `day_cycle.gd`, `day_cycle_config.gd`,
+    `config/day_cycle.tres`, lighting lines):
+    - `ambient_low_sun` 0.6 -> 0.15: the warm bounce that lit the porch shadows (the painting's
+      darkest is L* 6, ours was 16);
+    - the haze down the street half as thick (`fog_low_sun` 0.5, new);
+    - no volumetric haze (`volumetric_low_sun` 0, new).
+
+    The two haze cuts ease in by a low-sun factor of their own (`golden` is scaled by daylight,
+    only ~0.6 at the street shot's hour), full from just over the horizon to ~6°, none at noon or
+    night. And the ground's sky fill falls 0.15 -> 0.05 with the sun's height
+    (`ground.gdshader` `sky_fill_low_sun`).
+  - Judge v2 on the street shot: 0.506 -> **0.322** (round `2026-10-11_r9`; the saloon as r8,
+    0.226). Look-preset trials: the haze alone 0.406, no volumetric haze alone 0.422, all four
+    0.320. Mornings change too (a low sun); noon and night are unchanged.
+  - **Tried and left, the backdrop blue-violet after sunset** (`backdrop.gdshader` `dusk_tint`,
+    for the fire view's black cliff): by eye the cliff read as violet rock, but the judge went
+    0.258 -> 0.277–0.285 and the r9 critic still called it "a flat painted board". Reverted; the
+    r9 round's fire score (0.285) is that render's. The fire view as merged scores 0.252.
+  - Blind critic r9, top three:
+    1. the fire burns alone in an empty field;
+    2. the fire's smoke is a flat brown cut-out under a starry violet sky, the right-hand cliff a
+       painted board;
+    3. the saloon's doorway shows nothing and the room behind him is one even brown murk, with no
+       cool blue from the door.
+
+    Then his face (hot, blotchy, staring) and the street's sky (lavender-grey, not gold).
+  - Goldens: the 14 low-sun views that changed re-approved from two `--fresh` runs (the street,
+    golden hour and morning, the Kid's three, the texel views, the duel, the porch at dusk); the
+    other 40 views with a sun under ~37° match theirs. Visual checks 287, none failed. 373 tests
+    pass.
+  - Next: the road re-graded to the painting's pale dust (`materials.json` road and road_wide:
+    lighter, less chroma, yellower, lower contrast; measured: the painting's road median L* 51,
+    chroma 41, hue 58°, ours 45, 53, 52°), its own merge.

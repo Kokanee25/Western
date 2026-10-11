@@ -38,6 +38,10 @@ uniform float sun_direct = 0.7;
 // painting's road is lit ochre in the fronts' shadows too; Godot's ambient is one colour for
 // every facing, and the ground faces all of it): a share of the sun's light, unshadowed.
 uniform float sky_fill = 0.15;
+// With the sun low the fill falls to this (the street painting's golden hour is deep in its
+// shadows); eased by the sun's height as DayCycle's `golden` is (the road is flat, so `facing`
+// is that height's sine).
+uniform float sky_fill_low_sun = 0.05;
 // The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
 // here; the screen mosaic is the only quantisation.
 uniform bool smooth_source = false;
@@ -161,7 +165,8 @@ void light() {
 		lit = mix(lit, 1.0, sun_wrap) * smoothstep(0.0, 0.05, facing) * sun_direct;
 		// The sky's light is paler than the sun's: half way to grey.
 		vec3 sky = mix(LIGHT_COLOR, vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), 0.5);
-		DIFFUSE_LIGHT += sky * sky_fill * smoothstep(0.0, 0.05, facing);
+		float fill = mix(sky_fill_low_sun, sky_fill, smoothstep(0.1, 0.6, facing));
+		DIFFUSE_LIGHT += sky * fill * smoothstep(0.0, 0.05, facing);
 	}
 	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after. Under
 	// the surface-blocks look the light steps (tile_band).
