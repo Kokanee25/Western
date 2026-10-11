@@ -37,6 +37,8 @@ global uniform float block_soft;
 // How far the clouds have drifted (DayCycle sends it with the sky's other updates). Not TIME: a
 // sky that reads TIME is re-lit every frame (REALTIME), and that flickered every sky-lit surface.
 uniform float cloud_drift = 0.0;
+// How far the clouds take the afterglow just after sunset (0 = lit as before sunset).
+uniform float dusk_clouds = 1.0;
 // The gold sky of the street painting at golden hour (Part A's restore of round 10, under the bold
 // look: src/art/bold_look.json sets it 1): a deeper blue overhead, the horizon band left bright
 // gold, a stronger glow round the sun, and the clouds lit cream-gold and orange rather than dimmed.
@@ -155,6 +157,13 @@ void sky() {
 		// After dusk they're dark shapes against the stars, faintly moonlit at the top.
 		vec3 night = vec3(0.035, 0.04, 0.07) * (1.0 + top * 1.5);
 		cloud = mix(night, cloud, day);
+		// Just after sunset (the fire painting's sky): the sun lights the clouds from under the
+		// horizon, so each heap is dark purple-grey with a red-orange underside, reddest toward
+		// where it set; no cream tops.
+		float after = smoothstep(0.02, -0.03, sd.y) * (1.0 - smoothstep(-0.1, -0.18, sd.y));
+		vec3 afterglow = mix(vec3(0.62, 0.16, 0.1), vec3(0.9, 0.3, 0.12), sunward) * (0.35 + 0.65 * (1.0 - h));
+		vec3 dusk_cloud = mix(vec3(0.11, 0.06, 0.12), afterglow, clamp(under * 1.3 + sunward * 0.35 - top * 0.4, 0.0, 1.0));
+		cloud = mix(cloud, dusk_cloud, after * dusk_clouds);
 		col = mix(col, cloud, c * 0.95);
 		// The painting's golden-hour sky is a deeper picture than a bright clear one (its band over
 		// the street at L* ~60, ours was 80 with the clouds in).

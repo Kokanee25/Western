@@ -4225,3 +4225,109 @@ a few views renders them as the full run does.
     change in the fire's look. Visual checks 176, none failed. 372 tests pass.
   - Next: the smoke column against the sky; sparks; the firelight; the fire view staged with the
     bucket line in it.
+  - Merged as PR #94, **build 813** (green).
+- 2026-10-11 (art session, later): **Merge 3e: the smoke column against the sky, with embers.**
+  - **Why it was missing.** The simulated smoke (SmokeField's FogVolume) can't be drawn over the
+    sky. `sky.gdshader`'s `disable_fog` keeps every fog off sky pixels, or the street's global
+    haze (0.006 over 48 m) would wash a quarter of the way over the whole sky. So above the
+    roofline the column is drawn.
+  - **`src/fire/smoke_sheet.gdshader`** (new): an upright camera-facing quad from the roofline up.
+    - Billows climb and lean with the wind in world squares (8 a metre).
+    - The fire painting's smoke tones: dark maroon-brown in its thick, purple where it thins into
+      the sky, red-orange lit from the fire underneath.
+    - Embers climb through it, thick near the fire and thinning higher up.
+    - It's drawn 1.5 m behind the fire, rising out of the tongues over its first 3 m.
+  - **`src/art/smoke_column.gd` (`SmokeColumn`)**: one per SmokeField that draws. Twice a second it
+    stands over its building's burning members: as wide as they spread, as tall and thick as
+    there are of them (30 for a full column), easing. It fades when the fire's out.
+  - Gameplay's `src/fire/smoke_field.gd` (said in the commit): one line, a SmokeColumn where it
+    makes its fog. New `tests/test_smoke_column.gd` (1: over the fire at the roofline, grows
+    with it, moves with it, gone when it's out). 373 tests pass.
+  - Judge v2 on `livery_fire_dusk`: 0.472 → 0.418 (round `2026-10-11_r5`, the first pass), then
+    **0.436** (`_r6`, as merged: edges shading into the sky, embers near the fire, bigger billows;
+    two runs differ by ~0.01, and by eye it's the better of the two).
+  - Blind critic `_r5` called the first pass "two flat maroon blobs" with embers spread like
+    stars; hence `_r6`'s pass. `_r6`'s top three:
+    1. the fire burns alone in an empty field (no brigade, people, rubble or town);
+    2. the smoke still a flat maroon cut-out, and the dusk sky starry violet where the painting's
+       is a red-orange sunset;
+    3. the saloon behind the man dark, empty murk, its doorway showing no moonlit street.
+  - Goldens: the four fire views re-approved from two `--fresh` runs. This time the old goldens
+    caught the change (`store_fire_later`, `livery_fire_dusk` failed against them). Visual checks
+    176, none failed.
+  - Next: the smoke darker and less red (the painting's reads near-black brown against the sunset),
+    the fire view earlier in the dusk (a sunset band, no stars), the firelight on the street, then
+    the fire view staged with the bucket line in it.
+  - Merged as PR #95, **build 824** (green).
+- 2026-10-11 (art session, later): **Merge 3f: the sky just after sunset, smoke in heaps.**
+  - **The clouds' afterglow** (`sky.gdshader`, `dusk_clouds` 1): from the sun's setting until
+    it's ~6° down, each cloud is dark purple-grey with a red-orange underside, reddest toward
+    where the sun set. Before, they kept their cream-gold tops into the dusk, the bright streaks
+    the critics kept marking. Only the fire view is at that hour among the fixed views.
+  - **Smoke in heaps** (`smoke_sheet.gdshader`):
+    - a finer layer of billows on the big ones;
+    - each heap lit on top and dark underneath (cut into tones by density, it drew contour lines);
+    - thin at its edges in three steps so the sky shows through (transparent, no depth written);
+    - the painting's measured smoke tones (dark red-brown, (48,20,20) to (75,31,36): its colour
+      was right, its form wasn't);
+    - more sparks, round the column too, the odd one yellow-white.
+
+    `SmokeColumn` a little taller.
+  - **A hotter fire:** `fire_sheet.gdshader` `core` 0.35 -> 0.5.
+  - **The fire view down the street:** `livery_fire_dusk` from (27, 0, -7), the saloon's lit front
+    on the left as the painting has a building there. Shared `tools/screenshots.gd`, my lines;
+    `--view-at=hour,x,y,z,yaw,pitch` tries a view from elsewhere.
+  - Judge v2 on the fire view, step by step: 0.436 (r6) -> smoke 0.409 -> afterglow 0.283 -> the
+    new camera 0.285 -> core 0.5 **0.252**; round `2026-10-11_r7` (the shots' renders are r6's)
+    **0.258**. Tried and left:
+    - 18.45, nearer sunset: 0.374 (more of the lit cloud);
+    - burning longer: 0.299 (the front burns away);
+    - halving the bloom: 0.280;
+    - stronger, further firelight (gameplay's `fire_system.gd`, reverted): the deep shadows
+      washed out.
+  - Blind critic, top three:
+    1. the fire burns alone in an empty field (no bucket brigade, horse, rubble or wet mud);
+    2. the room behind the seated man is dark, empty murk, its doorway showing no moonlit street;
+    3. the barn is a dark solid box with flames on its front where the painting's is an open
+       frame falling apart, and the sky has stars.
+  - Goldens: the four fire views re-approved from two `--fresh` runs (the three store fire views
+    passed the old ones: their tolerances are wider than the hotter core). Visual checks 176, none
+    failed. 373 tests pass.
+  - Next: the fire view staged (the bucket line at the trough, the livery's frame coming apart);
+    the saloon room (sconces lighting their walls, the doorway); the other fronts to the saloon's
+    standard.
+  - Merged as PR #97, **build 834** (green).
+- 2026-10-11 (art session, later): **Merge 3g: the saloon's room lit warm in pools.**
+  - **What changed:** every lamp in the saloon gives 1.4× the light and reaches 1.2× as far
+    (`SaloonDressing._brighten_lamps`, at the end of the room's build: the dressing's and the
+    building's own; the front's lanterns, dressed after, unchanged), and the room's night fill
+    goes from 0.035 to 0.06 (gameplay's `saloon_building.gd`, one lighting line). Against the bold
+    saloon painting the room was dark murk: median L* 12 to its 23, deep-shadow share 0.39 to 0.18.
+  - Tried with look presets on the saloon shot (judge v2, 0.330 at r7): the fill alone at 0.09,
+    0.309; the lamps alone (×1.7, ×1.2), 0.306; both as merged, **0.226** (round `2026-10-11_r8`;
+    street 0.506 from this pass's render, fire 0.258 as r7).
+  - **Tried and left, the fire view staged with its bucket line** (an env-var trial in
+    `tools/screenshots.gd`, reverted):
+    - The townsfolk form a line from the store's trough at (3.6, -5.2) to the livery's west
+      end, but only round a young fire. Four minutes in, more than `PAST_SAVING` members are
+      burning, so they judge it past saving and stay clear.
+    - Letting the town run long enough to come (45 s of game time, nothing drawn, sped up)
+      brings the livery down to a low line of burning rubble.
+    - Cameras close enough to show the line made the fire a white wall in half the frame
+      (0.49–0.72 against 0.258).
+
+    Staging needs its own design: the line formed early and kept while the fire grows, and the
+    building held up while it burns. For the gameplay session, maybe: should a bucket line give
+    up on a big fire it's already fighting?
+  - Blind critic, top three:
+    1. the fire burns alone in an empty field (no brigade, horse, rubble, town or wet street);
+    2. the room behind the seated man is still dark, empty murk; its doorway shows a navy wedge
+       and a grey slab where the painting's shows a moonlit house, and the far men are smooth
+       pale mannequins;
+    3. a flat black cliff fills the fire view's right third under a starry violet sky (the
+       backdrop's near layer), and the smoke is maroon blobs.
+  - Goldens: the nine views that changed (the saloon's room, and the night street through its
+    windows) re-approved from two `--fresh` runs; the other 18 lamp-lit views match theirs.
+    Visual checks 227, none failed. 373 tests pass.
+  - Next: the saloon's doorway (the moonlit street through it); the fire view's right side (the
+    backdrop's black cliff) and its staging; the other fronts to the saloon's standard.

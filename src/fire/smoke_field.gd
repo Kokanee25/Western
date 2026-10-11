@@ -88,6 +88,7 @@ func _ready() -> void:
 	_start_raster()
 	if _can_draw():
 		_make_fog()
+		SmokeColumn.over(self)  # the art session's: the column over the roofline, against the sky
 
 
 ## The box in world space.

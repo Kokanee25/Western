@@ -6,6 +6,32 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the saloon lit warm at night
+
+- **The saloon's room is brighter at night**: every lamp in it gives more light and reaches
+  further, and the room's own fill is up a little, so the floor, walls and bar read in warm pools
+  where it was dark murk round your table.
+- **Try:** the saloon after dark (F5 to jump there, T to speed time). Tell me if it's now too
+  bright, or the lamps' pools too even.
+
+### New: the sky just after sunset, smoke in heaps
+
+- **Just after sunset the clouds go dark purple-grey with red-orange undersides**, reddest where
+  the sun went down, where before they kept their bright cream-gold tops into the dusk.
+- **The smoke over a fire is heaps now**, each lit on top and dark underneath, thin at its edges
+  so the sky shows through, with more sparks round it. The fire's yellow-white heart is bigger.
+- **Try:** T to speed time up and watch the sky from sunset (about 18:30) into the night. Then
+  light a building (L) at dusk and look at it from down the street.
+
+### New: a smoke column over a burning building
+
+- **Smoke now rises into the sky over a burning building**, where before it stopped at the
+  roofline: dark billows leaning with the wind, lit red from the fire underneath, with sparks
+  climbing through it near the fire. It grows as more of the building catches and fades when the
+  fire's out.
+- **Try:** light the livery's front (L) at dusk and watch from across the street. Tell me if the
+  column reads as smoke, and whether it should be darker.
+
 ### New: tongues of flame, the frame dark against them
 
 - **The fire is tall pointed tongues now**, white and yellow inside and red only at their edges,
