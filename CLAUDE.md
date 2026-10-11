@@ -4120,3 +4120,18 @@ a few views renders them as the full run does.
     (one continuous fire per burning member, a heat field rising and cooling, cut into the bands
     in world-sized squares, every sheet sampling the same field so neighbours merge; its core over
     white for the glow), then the smoke against the sky, embers, the firelight.
+- 2026-10-11 (art session, later): **Merge 3b: the seated man's light.** `ShotMatch`: the table
+  lamp 2.2 (was 1.5, `lamp_energy`), the viewer-side fill 0.45 (was 1.5, `fill_energy`) and nearer
+  white (`fill_warm` 0.4); `fill_at_y`, `fill_from_y`, `fill_angle` are there for trials
+  (`tools/screenshots.gd --shot-light=k:v,...`). Measured with the characters session's
+  `tools/characters/judge_man.py` (its branch) on main's `stranger2s`: the fill, not the lamp, was
+  the key on his face (with the lamp at a third his face's lit top tenth went 80 -> 76; the fill
+  halved, 74), and his colour ran hot (chroma 30, the painting's 22); but the whole frame needs the
+  lamp (at 0.5 the reference judge went 0.348 -> 0.612). The man 0.722 -> 0.501 (face median L* 43
+  -> 30, the painting's 29; hat and coat lit parts 36 and 45, the painting's 34 and 40). His
+  face's top tenth stays at L* 73-80 under every light tried: the paint's pale cream squares and
+  the eye whites (the characters session told, 2026-10-11). Judge round `2026-10-11_r2`: saloon
+  0.343 -> 0.341. Blind critic, top three: the room behind him is dark, empty murk (the doorway, the
+  moon, balcony, sconces); the street's sky is lavender-grey, not gold; his face is a hot, wide-eyed,
+  blotchy mask. Goldens `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh`
+  runs; visual checks 170, none failed.

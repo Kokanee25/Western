@@ -386,15 +386,15 @@
  "shot_match_close": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.149,
-   "share": 0.0018
+   "mean": 0.012,
+   "share": 0.0
   },
   "share": 0.01
  },
  "shot_match_saloon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.013,
+   "mean": 0.037,
    "share": 0.0
   },
   "share": 0.01
