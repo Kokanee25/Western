@@ -172,6 +172,15 @@ var _flinch := {}  ## segment -> [offset degrees, velocity]
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
 var _was_alive := true
+## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
+## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
+## pitches on along his run instead of stopping dead (experiments/physics_lab, fault 2).
+var _carry_v := {}
+var _carry_w := {}
+var _carry_last := {}  ## segment -> [position, rotation] at the end of the last tick
+## Faster than this in one tick is a teleport (placed, spawned, snapped), not movement.
+const CARRY_MAX_SPEED := 12.0
+const CARRY_MAX_SPIN := 25.0
 var _was_conscious := true
 var _cough_in := 3.0
 ## Wound openings per segment: [{at (segment-centred), energy (J), radius (m)}].
@@ -861,6 +870,8 @@ func _physics_step(delta: float) -> void:
 		if move_speed < 0.05:
 			gait = &""
 	_moved_this_tick = false
+	if not limp:
+		_track_carry(delta)
 	_draw_left = maxf(_draw_left - delta, 0.0)
 	if held_gun != null and not gun_holstered and not physiology.can_hold("r"):
 		drop_gun()
@@ -873,6 +884,41 @@ func _physics_step(delta: float) -> void:
 		died.emit(physiology.cause_of_death)
 		Events.person_died.emit(self, physiology.cause_of_death)
 	_was_conscious = conscious
+
+
+## Each part's velocity this tick from where it was the last (the standing parts are moved by
+## script, so the engine knows no velocity for them).
+func _track_carry(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	var teleport := false
+	var v := {}
+	var w := {}
+	for sid: StringName in parts:
+		var n := parts[sid] as Node3D
+		if n == null or not is_instance_valid(n):
+			continue
+		var pos := n.global_position
+		var q := n.global_basis.orthonormalized().get_rotation_quaternion()
+		var last: Array = _carry_last.get(sid, [])
+		_carry_last[sid] = [pos, q]
+		if last.is_empty():
+			continue
+		var lv: Vector3 = (pos - (last[0] as Vector3)) / delta
+		if lv.length() > CARRY_MAX_SPEED:
+			teleport = true
+		var dq := q * (last[1] as Quaternion).inverse()
+		if dq.w < 0.0:
+			dq = -dq
+		var angle := dq.get_angle()
+		v[sid] = lv
+		w[sid] = (dq.get_axis() * angle / delta).limit_length(CARRY_MAX_SPIN) if angle > 1e-6 else Vector3.ZERO
+	if teleport:
+		_carry_v.clear()
+		_carry_w.clear()
+		return
+	_carry_v = v
+	_carry_w = w
 
 
 func set_pose(p: StringName) -> void:
@@ -1255,11 +1301,18 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
 			severe = true
 	var speed := sqrt(2.0 * deposited / maxf(mass, 0.001))
+	# The momentum the ball leaves in him: what it came in with less what it went on with
+	# (a .45 ball stopped in him is 4.5 N*s: a man's speed changes by 6 cm/s, it doesn't throw him).
+	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
-		go_limp(dir * 1.2)
+		# He drops: he goes on as he was moving, with the ball's push on the part it hit.
+		go_limp()
+		var rb := parts.get(seg) as RigidBody3D
+		if rb:
+			rb.apply_impulse(dir * given, pos - rb.global_position)
 	elif limp and collider is RigidBody3D:
-		(collider as RigidBody3D).apply_impulse(dir * mass * speed * 2.0, pos - collider.global_position)
+		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
 	else:
 		_flinch_from(seg, pos, dir, mass * speed)
 	var exit_world: Variant = xf * (tr.exit - center) if tr.exit != null else null
@@ -1323,7 +1376,7 @@ func take_cut(collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedd
 
 ## Hit by something heavy (falling timber, a fall): bruises, broken bones, a burst spleen or a
 ## cracked skull by the energy of it. A standing man hit hard enough goes down.
-func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN) -> PackedStringArray:
+func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN, momentum := -1.0) -> PackedStringArray:
 	var seg: StringName = collider.get_meta(&"segment", &"") if collider else &""
 	if seg == &"":
 		seg = segment_at(point)
@@ -1339,7 +1392,13 @@ func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.D
 		var bruise := _decal(visuals[seg], seg, skin - c, clampf(joules / 1500.0, 0.05, 0.18), PixelArt.blood("bruise", 29, false, 16))
 		bruise.modulate = Color(0.35, 0.22, 0.4)
 	if not limp and joules > 160.0:
-		go_limp(dir * clampf(joules / 300.0, 0.5, 3.0))
+		# Knocked down by what hit him: its momentum on the part it struck (no more than it had;
+		# unknown, as from a 20 kg piece with that energy).
+		go_limp()
+		var p := momentum if momentum >= 0.0 else sqrt(2.0 * 20.0 * joules)
+		var rb := parts.get(seg) as RigidBody3D
+		if rb:
+			rb.apply_impulse(dir * p, point - rb.global_position)
 	elif not limp:
 		_flinch_from(seg, point, dir, joules * 0.002)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
@@ -1551,7 +1610,9 @@ func drop_gun() -> void:
 
 # --- Falling -----------------------------------------------------------------------------------
 
-## Let go: every segment becomes a rigid body joined to its parent, and physics takes over.
+## Let go: every segment becomes a rigid body joined to its parent, and physics takes over. Each
+## part keeps the velocity it had (a running man falls on along his run); `push` is added to all
+## of them (a blast's wind). A hit's own push goes on the part it hit, after (take_bullet).
 func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
@@ -1603,10 +1664,13 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var lim: Array = JOINT_LIMITS.get(key, [30, 10])
 		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(lim[0]))
 		j.set_param(ConeTwistJoint3D.PARAM_TWIST_SPAN, deg_to_rad(lim[1]))
+	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
+	# wind, the same on all of him. Nothing scripted on top (there was a shove of the chest and a
+	# random kick: experiments/physics_lab/README.md, baseline).
 	for sid: StringName in bodies:
 		var rb: RigidBody3D = bodies[sid]
-		rb.linear_velocity = push
-	(bodies[&"chest"] as RigidBody3D).apply_central_impulse(push * 4.0 + Vector3(_rng.randf_range(-3, 3), 0, _rng.randf_range(-3, 3)))
+		rb.linear_velocity = (_carry_v.get(sid, Vector3.ZERO) as Vector3) + push
+		rb.angular_velocity = _carry_w.get(sid, Vector3.ZERO)
 	_rig.queue_free()
 	pivots.clear()
 	_blocker.queue_free()
