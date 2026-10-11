@@ -303,3 +303,16 @@ its squares or shading: the master's collar is two crisp cream points with a dar
 and one black neckerchief knot; ours is a ragged cream ribbon with no points and a neckerchief of
 dark islands (the Rodin model's own collar is turned down flat). That is geometry or drawn shape,
 not the bake's colour.
+
+## E5: the winners as his defaults
+
+`tools/characters/characters.json` `stranger2s.bake`: `"moustache": {"gap": 8, "tones": 8,
+"nostrils": 1, "dark": [34, 23, 16]}`, `"collar": {"from": "stranger2_rodin", "accent": 0.45,
+"accent_mm": 10}`; `assets/people/people.json` `stranger2s.cells`: `"labels": 1`. Rebuilt with
+`python3 tools/characters/head_paint.py bake --id=stranger2s`,
+`~/bpyenv/bin/python tools/blender/fit_tripo.py --only=stranger2s`, `godot --headless --import`
+(his glb and report unchanged: only his head, skin and colour textures and the new
+`stranger2s_labels.png`). Everything new is off for any other man. Character judge round
+`2026-10-11_r1`: 0.495 (r10 0.499). `e5/face_master_r10_e5.png` (master / r10 / E5, the shot held
+still), `e5/head_*.png` (plain light), `e5/pose_check.png` (stand, sit, hands up, crouch: no tears;
+the coat's sheets under his raised arms are his mesh, as before).
