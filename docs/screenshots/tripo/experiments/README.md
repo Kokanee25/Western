@@ -537,3 +537,30 @@ collar reads as a white band under his jaw. The same pose put his near ear out o
 changed here): turn his head 10-20 degrees toward the master's three-quarter view, lift his chin
 a little and roll it less. The turned diagnostic renders in `e8/` (`--man-pose=head:6,10,5.25;
 neck:0,-0.5,7.5`) show his near ear coming round; the collar and the eyes (E7) would gain too.
+
+## E11: the coat's tweed, unclustered and hard-edged
+
+Critics since E3 marked his coat "long slanted streaks" and blotchy beside the master's even tweed.
+His coat's squares are already the master's size (8.2 px to 8.3). Measured on the coat's front in
+the shot (`$S/e11/patchy.py`: L* less its broad light, the spread at a square's scale and at three
+squares'), the master's patch-to-square ratio is 0.80, E9's 0.91. Two fit-only variants of
+existing CELLS (no new code, no bake: `fit_tripo.py --only=stranger2s --cells=...`):
+
+| Variant | `--cells=` | Square-scale | Patch-scale | Ratio | Fine |
+|---|---|---|---|---|---|
+| master | | 4.85 | 3.86 | 0.80 | 4.36 |
+| E9 default | | 4.91 | 4.48 | 0.91 | 4.26 |
+| a | `weave_cluster:0` (each square its own shade) | 4.91 | 4.22 | 0.86 | 4.72 |
+| b | `weave_cluster:0,soft.skin:0,soft.head:0` (and hard square edges) | 5.21 | 4.22 | 0.81 | 6.06 |
+
+**Blind critic** (coat only; `critic/e11/critic.md`, A = a, B = b, C = E9): **E9 first** (master's
+style 3 to 2.5), b second, a last, all within half a point: "the three panels are nearly
+identical". E9's orange cloth reads "calmer, more even"; a's and b's lapel edge breaks into
+flecks. Shared by all three: squares tilted and of mixed sizes (his coat seen at a slant, and the
+shot's light), the collar and shirt front large irregular slabs.
+
+`e11/coat_master_e9_a_b_shot.png` (the master; E9, a and b in the shot at 2x).
+
+**E11 verdict: not adopted;** his coat stays E9's. The coat's measures were already near the
+master's; what separates it is the light (lit orange against the master's dark brown, the art
+session's) and the squares' slant where his coat turns away from the camera.

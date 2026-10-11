@@ -4705,3 +4705,9 @@ a few views renders them as the full run does.
     shape there is the pose: his chin covers his throat, where the master's man's is up and
     turned. Asked of the art session in the README (`ShotMatch.FITS`, not changed here): turn his
     head 10-20° toward three-quarters, chin up a little, less roll.
+  - The head-turn ask was sent to the art session (its session, 2026-10-11); it will take it up
+    after its road re-grade merge and send back the new `ShotMatch.FITS` entry to re-judge him under.
+  - E11, his coat's tweed (fit-only: `weave_cluster:0`, then hard square edges too): not adopted.
+    The coat's measures were already near the master's (patch-to-square 0.91 to 0.80; b reached
+    0.81) and the blind critic kept E9's coat, all three "nearly identical". What separates it is
+    the light and the slant of squares where his coat turns away.
