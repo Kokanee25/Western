@@ -17,7 +17,9 @@ static var texels := 32.0
 ## Which look (`--sheet-style=MODE`): "squares" (the trial's rounds 1-2: his Rodin colour cut into
 ## squares, build/sheet_style/), or the style lab's candidates (docs/briefs/style-lab.md) "painted"
 ## (B: the game's own painted textures under Godot's light, the world at 16 a metre) and "real"
-## (C: the models' own colour, the world the smooth set at 128 a metre), from build/sheet_style/<mode>/.
+## (C: the models' own colour, the world the smooth set at 128 a metre) and "sheet" (D: the models'
+## own colour in irregular flat patches as the character sheet's, the world in patches and the road
+## in blocks, all at 128 a metre), from build/sheet_style/<mode>/.
 static var mode := "squares"
 const DIR := "res://build/sheet_style/"
 const SHADER := preload("res://src/art/sheet_man.gdshader")
@@ -42,6 +44,8 @@ static func texture(rel: String) -> Texture2D:
 
 ## The world's texture for a factory key under the trial, or null (the factory's own then).
 static func world_texture(key: String) -> Texture2D:
+	if mode == "sheet":
+		return texture("sheet/textures/%s.png" % key)
 	return texture("%s/%s.png" % ["textures16" if texels <= 16.0 else "textures", key])
 
 

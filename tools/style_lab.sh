@@ -1,18 +1,19 @@
 #!/bin/bash
 # The style lab (docs/briefs/style-lab.md): the same scope rendered for each candidate, the only
 # difference the look's flag. Needs the candidates' textures first:
-#   python3 tools/sheet_style.py world painted real
-#   tools/style_lab.sh [a b c]          (default all three; renders into build/style_lab/<cand>/)
+#   python3 tools/sheet_style.py world painted real sheet
+#   tools/style_lab.sh [a b c d]        (default all four; renders into build/style_lab/<cand>/)
 # then python3 tools/style_lab.py boards. Lavapipe here: ~40 minutes a candidate.
 cd "$(dirname "$0")/.." || exit 1
 OUT=build/style_lab
-CANDS="${*:-a b c}"
+CANDS="${*:-a b c d}"
 G="xvfb-run -a godot --path . --rendering-driver vulkan"
 for c in $CANDS; do
 	case $c in
 		a) F="" ;;
 		b) F="--sheet-style=painted" ;;
 		c) F="--sheet-style=real" ;;
+		d) F="--sheet-style=sheet" ;;
 		*) echo "unknown candidate $c"; exit 2 ;;
 	esac
 	D=$OUT/$c
@@ -34,5 +35,8 @@ for c in $CANDS; do
 		--only=shot_match_saloon,shot_match_street,saloon_front_dusk,wall_closeup_noon,kid_street,kid_close $F >> "$LOG" 2>&1
 	# The camera path: the saloon walk, half its frames.
 	timeout 3600 $G --fixed-fps 30 -s res://tools/probe_walk.gd -- --out="$D/walk" --paths=walk --frames=0.5 $F >> "$LOG" 2>&1
+	# The seated man's outline (tools/characters/judge_man.py) and the draw cost.
+	timeout 1800 $G -s res://tools/screenshots.gd -- --out="$D/man" --fresh --only=shot_match_saloon --man-mask $F >> "$LOG" 2>&1
+	timeout 1800 $G --fixed-fps 60 -s res://tools/look_cost.gd -- --frames=60 --out="$D/cost.json" $F >> "$LOG" 2>&1
 	echo "candidate $c done in $(( $(date +%s) - start )) s: $(find "$D" -name '*.png' | wc -l) images" | tee -a "$LOG"
 done

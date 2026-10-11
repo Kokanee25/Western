@@ -150,8 +150,8 @@ func _ready() -> void:
 		# A trial: the probe over the game's own squared textures, not the smooth set.
 		if "--probe-squares" in args:
 			quantise_once = false
-	# The character-sheet style trial for one run (--sheet-style[=painted|real] [--sheet-texels=16]):
-	# the style lab's candidates B and C (docs/briefs/style-lab.md); bare, the trial's squares.
+	# The character-sheet style trial for one run (--sheet-style[=painted|real|sheet] [--sheet-texels=16]):
+	# the style lab's candidates B, C and D (docs/briefs/style-lab.md); bare, the trial's squares.
 	var sheet_mode := false
 	for a in args:
 		if a.begins_with("--sheet-style="):
@@ -419,8 +419,8 @@ func _apply_texels() -> void:
 		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
 		return
 	if sheet_style:
-		# C ("real") lays the smooth set at its own 128 a metre.
-		PixelArt.set_density(SheetStyle.texels * (8.0 if SheetStyle.mode == "real" else 1.0), true)
+		# C ("real") and D ("sheet") lay their world at 128 a metre.
+		PixelArt.set_density(SheetStyle.texels * (8.0 if SheetStyle.mode in ["real", "sheet"] else 1.0), true)
 		return
 	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
 

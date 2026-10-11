@@ -4,10 +4,10 @@
     python3 tools/style_lab.py boards [--from=build/style_lab] [--out=docs/screenshots/style_lab]
 
 One board a scene, a row a candidate (A today, B painted squares under smooth light, C restrained
-realism), the same crops in each row: characters (the two men, whole, in daylight, lamplight and
+realism, D the character sheet's patches), the same crops in each row: characters (the two men, whole, in daylight, lamplight and
 golden hour), heads, props, the saloon corner, the façade, the Kid in the street, the camera path.
 Each is written twice: named (<scene>.jpg) and blind (blind/<scene>.jpg: the rows in a seeded
-shuffle, named X, Y, Z, the same order on every board; the key in build/style_lab/blind_key.json,
+shuffle, named W, X, Y, Z, the same order on every board; the key in build/style_lab/blind_key.json,
 not beside the boards, so a critic given only blind/ can't read it).
 """
 import json
@@ -21,7 +21,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import judge  # noqa: E402  (its font)
 
-NAMES = {"a": "A: today", "b": "B: painted squares, smooth light", "c": "C: restrained realism"}
+NAMES = {"a": "A: today", "b": "B: painted squares, smooth light", "c": "C: restrained realism",
+         "d": "D: the sheet (realistic colour in flat patches)"}
 BG = (22, 22, 22)
 ROW_H = 300
 
@@ -114,21 +115,35 @@ def scene_rows(d):
     return s
 
 
+SHEET = os.path.join(ROOT, "docs", "concept", "style_candidates", "character_sheet.png")
+
+
+def sheet_rows():
+    """The character sheet's own views, cut to sit above the men's rows."""
+    s = Image.open(SHEET).convert("RGB")
+    return {"characters": [fit_h(trim(s.crop(b)), ROW_H) for b in (
+                (470, 0, 680, 420), (1310, 0, 1536, 420), (690, 0, 890, 420), (890, 0, 1095, 420))],
+            "heads": [fit_h(s.crop(b), ROW_H) for b in (
+                (455, 452, 800, 732), (803, 452, 1166, 732), (1169, 452, 1536, 732))]}
+
+
 def main():
     opt = {a.split("=")[0]: a.split("=", 1)[1] for a in sys.argv[1:] if "=" in a}
     src = os.path.join(ROOT, opt.get("--from", "build/style_lab"))
     out = os.path.join(ROOT, opt.get("--out", "docs/screenshots/style_lab"))
     os.makedirs(os.path.join(out, "blind"), exist_ok=True)
-    cands = [c for c in ("a", "b", "c") if os.path.isdir(os.path.join(src, c))]
+    cands = [c for c in ("a", "b", "c", "d") if os.path.isdir(os.path.join(src, c))]
     rows = {c: scene_rows(os.path.join(src, c)) for c in cands}
     order = cands[:]
     random.Random(1882).shuffle(order)
-    key = {"XYZ"[i]: c for i, c in enumerate(order)}
+    key = {"WXYZ"[i]: c for i, c in enumerate(order)}
     json.dump(key, open(os.path.join(src, "blind_key.json"), "w"), indent=1)
+    target = sheet_rows()
     for scene in rows[cands[0]]:
-        named = column([label(row(rows[c][scene]), NAMES[c]) for c in cands])
+        top = [label(row(target[scene]), "the character sheet (target)")] if scene in target else []
+        named = column(top + [label(row(rows[c][scene]), NAMES[c]) for c in cands])
         named.save(os.path.join(out, scene + ".jpg"), quality=88)
-        blind = column([label(row(rows[c][scene]), "candidate " + x) for x, c in key.items()])
+        blind = column(top + [label(row(rows[c][scene]), "candidate " + x) for x, c in key.items()])
         blind.save(os.path.join(out, "blind", scene + ".jpg"), quality=88)
         print("wrote", scene, named.size)
     print("blind key in", os.path.relpath(os.path.join(src, "blind_key.json"), ROOT))
