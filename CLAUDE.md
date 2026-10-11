@@ -4258,3 +4258,4 @@ a few views renders them as the full run does.
   - Next: the smoke darker and less red (the painting's reads near-black brown against the sunset),
     the fire view earlier in the dusk (a sunset band, no stars), the firelight on the street, then
     the fire view staged with the bucket line in it.
+  - Merged as PR #95, **build 824** (green).
