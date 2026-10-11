@@ -128,12 +128,12 @@
   "share": 0.01
  },
  "livery_fire_dusk": {
-  "mean": 7.422,
+  "mean": 5.809,
   "noise": {
-   "mean": 2.474,
-   "share": 0.044
+   "mean": 1.936,
+   "share": 0.0504
   },
-  "share": 0.1321
+  "share": 0.1512
  },
  "look_down_body": {
   "mean": 1.5,
@@ -448,28 +448,28 @@
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 92.017,
+  "mean": 52.425,
   "noise": {
-   "mean": 30.672,
-   "share": 0.4698
+   "mean": 17.475,
+   "share": 0.3642
   },
-  "share": 1.4093
+  "share": 1.0927
  },
  "store_fire_later": {
-  "mean": 11.276,
+  "mean": 9.933,
   "noise": {
-   "mean": 3.759,
-   "share": 0.076
+   "mean": 3.311,
+   "share": 0.0784
   },
-  "share": 0.2279
+  "share": 0.2352
  },
  "store_fire_night": {
-  "mean": 13.329,
+  "mean": 12.821,
   "noise": {
-   "mean": 4.443,
-   "share": 0.0825
+   "mean": 4.274,
+   "share": 0.0958
   },
-  "share": 0.2474
+  "share": 0.2873
  },
  "store_front_noon": {
   "mean": 1.5,
