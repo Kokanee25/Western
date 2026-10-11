@@ -72,3 +72,22 @@ func test_a_lamp_in_a_building_shades_only_for_a_camera_in_it() -> void:
 	cam.global_position = b.to_global(Vector3(b.width * 0.5, 1.6, -9.0))
 	await process_frames(30)
 	check(_shadow(porch), "a lantern hung on its porch, 9 m off in the street: full shadow (it's the street's)")
+
+
+func test_from_inside_one_building_a_lamp_next_door_shades_fully() -> void:
+	var a := FalseFrontBuilding.new()
+	world.add_child(a)
+	var b := FalseFrontBuilding.new()
+	world.add_child(b)
+	b.position = Vector3(a.width + 0.1, 0, 0)
+	await physics_frames(2)
+	var lamp := OilLamp.new()
+	b.add_child(lamp)
+	lamp.position = Vector3(b.width * 0.5, 1.6, b.depth * 0.5)
+	lamp.set_lit(true)
+	cam.global_position = a.to_global(Vector3(a.width * 0.3, 1.6, a.depth * 0.5))
+	await process_frames(30)
+	check(_shadow(lamp), "inside the building next door, its light shows through the boards: full shadow")
+	cam.global_position = a.to_global(Vector3(a.width * 0.3, 1.6, -8.0))
+	await process_frames(30)
+	check(not _shadow(lamp), "out in the street: walls only")

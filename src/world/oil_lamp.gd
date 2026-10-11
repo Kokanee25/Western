@@ -27,6 +27,10 @@ extends Node3D
 const SHADOW_CHECK := 0.25
 const SHADOW_SLACK := 1.0
 ## How far outside its building's walls a camera still gets an indoor lamp's full shadow.
+## Indoors, how near a lamp in another building must be to shade fully (_indoors).
+const NEIGHBOUR_REACH := 12.0
+static var _indoors_frame := -1
+static var _indoors_now := false
 const ROOM_MARGIN := 2.5
 ## What casts a far lamp's shadow.
 const FAR_CASTERS := Layers.VIS_WALLS
@@ -98,7 +102,8 @@ func _shadow_for_distance() -> void:
 	var at := cam.global_position
 	var near_now := _light.shadow_caster_mask != FAR_CASTERS
 	var slack := SHADOW_SLACK if near_now else 0.0
-	var near := at.distance_to(_light.global_position) < shadow_reach + slack and _sees_in(at, slack)
+	var d := at.distance_to(_light.global_position)
+	var near := d < shadow_reach + slack and (_sees_in(at, slack) or (d < NEIGHBOUR_REACH + slack and _indoors(at)))
 	if near != near_now:
 		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
 		# Far, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
@@ -125,6 +130,26 @@ func _sees_in(at: Vector3, slack: float) -> bool:
 	var local := b.global_transform.affine_inverse() * at
 	var m := ROOM_MARGIN + slack
 	return local.x > -m and local.x < b.width + m and local.z > -m and local.z < b.depth + m
+
+
+## Is the camera inside any building's walls? Indoors, a lamp next door shows through the gaps
+## between the boards, so it shades fully within NEIGHBOUR_REACH. Worked out once a frame.
+static func _indoors(at: Vector3) -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var frame := Engine.get_physics_frames()
+	if frame == _indoors_frame:
+		return _indoors_now
+	_indoors_frame = frame
+	_indoors_now = false
+	for s in tree.get_nodes_in_group(&"structures"):
+		if not s is FalseFrontBuilding:
+			continue
+		var b := s as FalseFrontBuilding
+		var local := b.global_transform.affine_inverse() * at
+		if local.x > 0.0 and local.x < b.width and local.z > 0.0 and local.z < b.depth:
+			_indoors_now = true
+			break
+	return _indoors_now
 
 
 func _on_hour_changed(hour: int) -> void:
