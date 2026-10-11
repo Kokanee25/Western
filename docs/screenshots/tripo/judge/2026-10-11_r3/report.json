@@ -1,0 +1,248 @@
+{
+ "round": "2026-10-11_r3",
+ "from": "docs/screenshots/tripo/judge/renders/hat_collar",
+ "note": "his lightest skin eased above L* 42 (was 38, so his mid-tones stay), his hat's colour x0.8 (bake.hat), his shirt and neckerchief round his collar from his model's own colours (bake.collar); the art session's shot light",
+ "against": "saloon-blocks.png",
+ "score": 0.315,
+ "groups": {
+  "light": 0.615,
+  "colour": 0.136,
+  "squares": 0.109
+ },
+ "differences": [
+  [
+   2.0,
+   "too much deep shadow (0.51 vs 0.31)",
+   "light"
+  ],
+  [
+   1.23,
+   "face: lit parts too bright (67 vs 55)",
+   "light"
+  ],
+  [
+   0.85,
+   "bright parts too bright (61 vs 53)",
+   "light"
+  ],
+  [
+   0.77,
+   "coat: too dark (9 vs 17)",
+   "light"
+  ],
+  [
+   0.73,
+   "midtones too dark (10 vs 17)",
+   "light"
+  ],
+  [
+   0.35,
+   "hat: too dark (9 vs 13)",
+   "light"
+  ],
+  [
+   0.34,
+   "edges too hard (0.29 vs 0.25)",
+   "squares"
+  ],
+  [
+   0.28,
+   "too much blown highlight (share over L* 80) (0.009 vs 0.001)",
+   "light"
+  ],
+  [
+   0.28,
+   "face: too dark (26 vs 29)",
+   "light"
+  ],
+  [
+   0.27,
+   "coat: colour too weak (19 vs 21)",
+   "colour"
+  ],
+  [
+   0.24,
+   "palette: colours the painting lacks (1.4 dE)",
+   "colour"
+  ],
+  [
+   0.21,
+   "hat: lit parts too bright (36 vs 34)",
+   "light"
+  ],
+  [
+   0.2,
+   "hat: colour too strong (20 vs 18)",
+   "colour"
+  ],
+  [
+   0.19,
+   "squares flatter than the painting's (one tone, edge to edge) (0.61 vs 0.59)",
+   "squares"
+  ],
+  [
+   0.18,
+   "coat: squares bigger (8.9 vs 8.3 px)",
+   "squares"
+  ],
+  [
+   0.17,
+   "palette: the painting's colours we lack (1.0 dE)",
+   "colour"
+  ],
+  [
+   0.11,
+   "squares bigger than the painting's (8.6 vs 8.2 px)",
+   "squares"
+  ],
+  [
+   0.09,
+   "colour too weak (chroma) (22 vs 22)",
+   "colour"
+  ],
+  [
+   0.08,
+   "hat: squares smaller (7.8 vs 8.0 px)",
+   "squares"
+  ],
+  [
+   0.07,
+   "bright parts too pale (chroma-L* correlation) (0.88 vs 0.89)",
+   "colour"
+  ],
+  [
+   0.06,
+   "face: squares bigger (7.5 vs 7.4 px)",
+   "squares"
+  ],
+  [
+   0.04,
+   "coat: lit parts too bright (41 vs 40)",
+   "light"
+  ],
+  [
+   0.03,
+   "face: colour too strong (34 vs 34)",
+   "colour"
+  ],
+  [
+   0.02,
+   "shadows too light (1 vs 1)",
+   "light"
+  ],
+  [
+   0.02,
+   "too blue/grey (b*) (17 vs 17)",
+   "colour"
+  ],
+  [
+   0.02,
+   "squares too alike (a smooth surface) (6.4 vs 6.5)",
+   "squares"
+  ],
+  [
+   0.0,
+   "noisier than paint (coherence 0.31 vs 0.21)",
+   "squares"
+  ],
+  [
+   0.0,
+   "grain in his flat parts (3.5 vs 4.4 dE)",
+   "squares"
+  ]
+ ],
+ "ours": {
+  "L5": 1.1711595056152504,
+  "L50": 9.863446059182174,
+  "L95": 61.18667171497242,
+  "shadow": 0.5061949933731441,
+  "highlight": 0.009143571949784813,
+  "chroma": 21.65071643389339,
+  "b": 16.706122436477553,
+  "corr": 0.8784979741545612,
+  "coherence": 0.3069786768843049,
+  "grain": 3.5146199443188344,
+  "hardness": 0.288972776136936,
+  "tile": 8.5882824735144,
+  "squares": 6.401942525859165,
+  "flat": 0.6081023329901514,
+  "pixels": 134302,
+  "regions": {
+   "face": {
+    "L50": 26.181403214820207,
+    "L90": 67.3097923647425,
+    "chroma": 34.34551557755468,
+    "b": 26.80504570722405,
+    "tile": 7.533923875535274,
+    "squares": 9.117943051798088,
+    "flat": 0.4859415824981476
+   },
+   "hat": {
+    "L50": 9.461901498355282,
+    "L90": 35.772001594638795,
+    "chroma": 20.0168182602544,
+    "b": 15.24787989021757,
+    "tile": 7.78279157353309,
+    "squares": 5.014305928387188,
+    "flat": 0.5875535136263966
+   },
+   "coat": {
+    "L50": 9.037464888822253,
+    "L90": 40.917530141296155,
+    "chroma": 19.257817143265388,
+    "b": 14.871737532096923,
+    "tile": 8.88788455343077,
+    "squares": 5.8842211284620936,
+    "flat": 0.666472180353641
+   }
+  },
+  "missing": 1.0403733284756234,
+  "extra": 1.4273216082332238
+ },
+ "painting": {
+  "L5": 0.9588943849936271,
+  "L50": 17.129347066453168,
+  "L95": 52.717068651228075,
+  "shadow": 0.30606439992971357,
+  "highlight": 0.000697373045159023,
+  "chroma": 22.40232600265498,
+  "b": 16.86160819618717,
+  "corr": 0.8916415962080863,
+  "coherence": 0.2122676391303336,
+  "grain": 4.400003751583156,
+  "hardness": 0.2549981582462218,
+  "tile": 8.20852292815188,
+  "squares": 6.458141184553749,
+  "flat": 0.5887437021259165,
+  "pixels": 182112,
+  "regions": {
+   "face": {
+    "L50": 28.950105888642817,
+    "L90": 55.0381112348542,
+    "chroma": 34.110949764768314,
+    "b": 26.25842847502568,
+    "tile": 7.358073396937202,
+    "squares": 8.450370293655988,
+    "flat": 0.4505719651698822
+   },
+   "hat": {
+    "L50": 12.936696127622113,
+    "L90": 33.68236144117538,
+    "chroma": 18.42653474506242,
+    "b": 12.59533634366104,
+    "tile": 8.028407594388533,
+    "squares": 6.392039935739962,
+    "flat": 0.5278636959370905
+   },
+   "coat": {
+    "L50": 16.72719004011914,
+    "L90": 40.49638588546275,
+    "chroma": 21.381320715351826,
+    "b": 16.23744563181739,
+    "tile": 8.25599506966395,
+    "squares": 6.230402366743321,
+    "flat": 0.6321769767599431
+   }
+  }
+ }
+}

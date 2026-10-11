@@ -821,8 +821,9 @@ a few views renders them as the full run does.
   on the shape he wears, `worn_points`) and a mottled stubble on his jaw (`bake.beard`,
   `draw_beard`: `dark`, `grey`, `mottle`, `grain`; `--brows=off`, `--beard=off`), take the shirt and
   neckerchief round his collar from his model's own colours, the shirt toned to the painter's cream
-  (`bake.collar`, `model_collar`: `from`, `top`, `bottom`, `across`, `behind`; written 2026-10-07,
-  not used yet: the painter's views smear his neckerchief across his collar), and filter his clothes below the head's cut with
+  (`bake.collar`, `model_collar`: `from`, `top`, `bottom`, `across`, `behind`; the stylised stranger's
+  since 2026-10-11: the painter's views smeared his neckerchief across his collar), ease his hat's
+  colour (`bake.hat`, `ease_hat`: `chroma`, `light`), and filter his clothes below the head's cut with
   his model's own L* as the guide (`bake.cloth`, `model_cloth`, after He et al.'s guided filter:
   each garment's colours stay the painter's, its folds, seams and wear are the model's, and the
   painter's faint streaky tweed goes; `radius`, `eps`), then give back the painter's strong drawing
@@ -4782,3 +4783,28 @@ a few views renders them as the full run does.
     `assets/people/people.json`, `assets/people/stranger2s*` (+ `_moustache.png`),
     `assets/people/tripo/stranger2s_color.png`, judge rounds r1, r2 and their renders. No other
     session's files. Bodies (23), hat (3) and shot (3) tests pass.
+- 2026-10-11 (characters session, later): **The stylised stranger's collar from his own model, his
+  hat's colour eased, his face's mid-tones back.** Sean: "Keep going". Three things from the last
+  round's judge that are his paint's, under the same art-session light (borrowed for the renders
+  only, put back):
+  - **His collar** (`bake.collar`, from `stranger2_rodin`): his shirt and neckerchief round his
+    collar take his model's own colours, the shirt toned to the painter's cream. The salmon skin
+    patches the painter's views smeared into his white collar are gone, and the neckerchief is
+    one dark shape. Finer squares round it (`cells.collar` 6 mm) made it mottled again (0.314:
+    no change by the judge), so his squares stay as they were.
+  - **His hat's colour** x0.8 (`bake.hat`, `ease_hat`, new): the judge's "hat: colour too
+    strong (22 vs 18)" is gone; his hat now reads too dark (9 vs 13), the shot's light.
+  - **His face's knee** at L* 42, keeping 0.45 above it (was 38 / 0.5): his mid-tones stay, and
+    "face: too dark" is gone; his lit top tenth stays L* 67 (the painting's 55).
+  - **Judged:** round `2026-10-11_r3` 0.315 (r2 0.315): colour 0.161 to 0.136, squares 0.096 to
+    0.109 (his collar's white and black are broad even areas now, so the coat box's squares read
+    bigger: 0.10 to 0.18), light 0.607 to 0.615. Judge v2 on the frame 0.369. What's left is the
+    light (deep shadow 0.51 to 0.31, his coat 9 to 17, his hat 9 to 13) and his hard outlines
+    (0.29 to 0.25): the art session's.
+  - Picture: `docs/screenshots/tripo/stranger2s_hat_collar.png` (the painting, last round and now
+    in the shot; his head in plain light, last round and now).
+  - **Files:** `tools/characters/head_paint.py` (`bake.hat`), `tools/characters/characters.json`,
+    `assets/people/stranger2s_head.png`, `_skin.png`, `assets/people/tripo/stranger2s_color.png`
+    (his glb and report unchanged), judge round r3 and its renders. No other session's files.
+    The bake and the fit repeat byte for byte from the files. Bodies (23), hat (3) and shot (3)
+    tests pass.
