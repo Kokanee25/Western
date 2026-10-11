@@ -4095,3 +4095,6 @@ a few views renders them as the full run does.
   - 369 tests pass; body hits to stop a man still average 1.54.
   - The fold straight down from standing (fault 1), limbs through his body and joint overruns
     remain (Prompt 09).
+  - Art's files touched: five goldens of a fallen man re-approved (`outlaw_down`, `outlaw_open`,
+    `outlaw_open_close`, `outlaw_open_reduced`, `outlaw_blast`; tolerances from two renders). The
+    other 65 views pass unchanged.
