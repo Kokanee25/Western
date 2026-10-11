@@ -1453,8 +1453,8 @@ def draw_beard(out, cid, pos, nrm, uv, tris, size, cfg):
 #   corners a little past the parting's ends in `corner_lab`, `corner` metres round;
 # - `nose`: his nose's tip `nose` L* lighter, `nose_r` metres round its landmark;
 # - `ear`: each ear's hollow `ear` L* darker and its canal down to `canal_l`: on his ear behind
-#   MediaPipe's point at the side of his face, the texels his own shape's near shadow (FACE_AO,
-#   `<from>_ao.png`) darkens most, the hollow the darkest `ear_share` of them, the canal the darkest
+#   MediaPipe's point at the side of his face, the texels his own shape's shadows (FACE_AO,
+#   `<from>_ao.png`, near and far) darken most, the hollow the darkest `ear_share` of them, the canal the darkest
 #   `canal_share`.
 STAMPS = {}  # --stamps=lip:0.0025,nose:8 over characters.json's `bake.stamps`; --stamps=off
 STAMP_DEFAULTS = {"lip": 0.0025, "lip_lab": [19, 9, 7], "corner": 0.003, "corner_lab": [21, 8, 8],
@@ -1524,7 +1524,9 @@ def draw_stamps(out, cid, pos, nrm, uv, tris, size, cfg):
         ao = Image.open(path).convert("RGB")
         if ao.width != size:
             ao = ao.resize((size, size), Image.BILINEAR)
-        near_ao = np.asarray(ao, dtype=np.float64)[..., 0] / 255.0
+        # Both of his shape's shadows (near and far), as the faces test ranked its ear's squares.
+        aoa = np.asarray(ao, dtype=np.float64) / 255.0
+        near_ao = (aoa[..., 0] + aoa[..., 1]) / 2.0
         for k in (234, 454):
             t = face[k]
             side = np.sign(t[2])
@@ -1545,7 +1547,7 @@ def draw_stamps(out, cid, pos, nrm, uv, tris, size, cfg):
             lab[:, 0] = np.minimum(lab[:, 0], float(o["canal_l"]))
             out[ty[canal], tx[canal]] = _rgb(lab)
             done["ear_%d" % k] = [int(len(hollow)), int(len(canal))]
-            print("  ear by point %d: %d texels, hollow %d (near AO <= %.2f), canal %d" % (
+            print("  ear by point %d: %d texels, hollow %d (AO <= %.2f), canal %d" % (
                 k, len(idx), len(hollow), float(np.quantile(a, float(o["ear_share"]))), len(canal)))
     print("  stamps:", done)
     return done

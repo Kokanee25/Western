@@ -1420,7 +1420,7 @@ class Hair:
 # upper rows, his own painted moustache's on its front, `under` on the rows that turn under to his
 # lip, each square `strand` L* off the next along it.
 MOUSTACHE = {"proud": 0.006, "overhang": -0.004, "droop": 0.012, "reach": 0.006,
-             "top": [28, 6, 10], "under": [6, 2, 3], "rows": [0.25, 0.7], "strand": 3.0, "texels": [96, 32]}
+             "top": [28, 6, 10], "front": None, "under": [6, 2, 3], "rows": [0.25, 0.7], "strand": 3.0, "texels": [96, 32]}
 
 
 class Moustache:
@@ -1517,13 +1517,14 @@ class Moustache:
         tw, th_ = o["texels"]
         v = (np.arange(th_) + 0.5) / th_
         lab = np.zeros((th_, tw, 3))
-        lab[:] = own
+        front = own if o.get("front") is None else np.asarray(o["front"], dtype=np.float64)
+        lab[:] = front
         lab[v < o["rows"][0]] = o["top"]
         lab[v > o["rows"][1]] = o["under"]
         # Strands: each column a little lighter or darker, the same every fit.
         s = ((np.arange(tw) * 2654435761 + 1873) % 1000003) / 1000003.0 * 2 - 1
         lab[..., 0] = np.maximum(lab[..., 0] + s[None, :] * o["strand"], 2.0)
-        self.report["tones"] = {"top": o["top"], "front": [round(float(x), 1) for x in own], "under": o["under"]}
+        self.report["tones"] = {"top": o["top"], "front": [round(float(x), 1) for x in front], "his_own": [round(float(x), 1) for x in own], "under": o["under"]}
         rgb = _lab_to_rgb(lab)
         return Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
 
