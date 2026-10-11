@@ -38,6 +38,8 @@ func test_a_lamp_shades_near_the_camera_and_not_far_off() -> void:
 	cam.global_position = Vector3(0, 1.6, 30)
 	await process_frames(30)
 	check(not _shadow(lamp), "30 m off: walls only")
+	var light := lamp.find_children("*", "OmniLight3D", false, false)[0] as OmniLight3D
+	check(light.omni_shadow_mode == OmniLight3D.SHADOW_DUAL_PARABOLOID, "and two shadow passes, not six")
 	cam.global_position = Vector3(0, 1.6, 4)
 	await process_frames(30)
 	check(_shadow(lamp), "back near: full again")

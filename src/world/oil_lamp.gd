@@ -100,6 +100,9 @@ func _shadow_for_distance() -> void:
 	var near := at.distance_to(_light.global_position) < shadow_reach + slack and _sees_in(at, slack)
 	if near != near_now:
 		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
+		# Far, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
+		# thread ~50 us however little is in it, and walls far off don't show the difference.
+		_light.omni_shadow_mode = OmniLight3D.SHADOW_CUBE if near else OmniLight3D.SHADOW_DUAL_PARABOLOID
 
 
 ## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
