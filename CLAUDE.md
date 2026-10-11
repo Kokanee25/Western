@@ -4650,3 +4650,35 @@ a few views renders them as the full run does.
   - **Files:** `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`, the layout notes
     above, the five pictures in `docs/screenshots/tripo/`. His assets are round r10's, unchanged.
     No other session's files.
+- 2026-10-11 (characters session, branch `claude/characters-protected-features` from `d31f6a1`, not
+  merged): **The stylised stranger's protected features and crisper squares, by experiment.** Sean
+  as lead's brief: make `stranger2s` look painted by the hand that drew `saloon-blocks.png`, squares
+  in his own textures (no screen filter, no voxels), the features that carry a face drawn finer.
+  Every experiment, command, number and picture is in `docs/screenshots/tripo/experiments/README.md`
+  with a blind critic for each (a fresh agent given only the master's crops and anonymous crops of
+  the renders; the labels kept apart). No paid calls; no art-session file changed (its shader
+  patched only in a diagnostic copy, `tools/characters/man_diag.gd`).
+  - **Trap, for everyone:** a plain `godot --path . -s ...` run draws the editor's imported copies
+    of textures and glbs; after a fit, `godot --headless --import` first, or the render shows the
+    old man (the first D2 "doesn't reproduce" finding was this).
+  - E1: where a square takes two tones of light on his face, the line between them is a triangle
+    edge 77 % of the time (chance 48 %): `tile_light_at` works the square's light out per triangle.
+    One normal a square (each vertex's rest normal carried through the bones) takes it out
+    (squares split 20 % → 14 %); for the art session's `tiles`/`body_skin` if wanted
+    (`fit_tripo.py --cells=normals:DIR` writes the normals). E2: the Rodin mesh carries skull, jaw
+    and nose; the ear's rim, nostrils, lip line and lids are only in its normal map.
+  - **His defaults now** (`characters.json` `stranger2s.bake`, `people.json` `stranger2s.cells`):
+    the moustache drawn from his model's own outline, dark, toned square by square, two nostrils
+    and a gap of skin one square wide under his nose (`bake.moustache`, `draw_moustache`), owned
+    whole square by square by a label map (`cells.labels`, `<id>_labels.png`); his collar from his
+    model's own colours with a contact shadow a square wide (`bake.collar` `accent`); hard square
+    edges on his head with his face on the front plane to 80° (`soft.head` 0, `face_front` 80).
+    Each beat what it replaced with its critic; a short notch, a half-size sub-grid
+    (`labels_sub`), a centred grid (`face_centre`), finer collar squares and 18 or 26 planes
+    (`planes`, `_plane_set`) didn't (all kept as options, off). `tools/characters/square_shape.py`
+    measures squares on screen; half the slant of his face's squares is the shot's head roll
+    (`ShotMatch.FITS`, the art session's), the slivers are surfaces seen edge-on.
+  - Left, the critics' biggest: his eyes (dark slots with white specks, not almonds), the ear (a
+    lit wedge, no rim), the collar's shape (no points: his model's collar lies flat), the brim's
+    streaks, the light on his face. All 370 tests pass on the E5 defaults (with the native plugin
+    built here).
