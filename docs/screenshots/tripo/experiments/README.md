@@ -368,3 +368,37 @@ Character judge round `2026-10-11_r2`: 0.545 (E5's `_r1` 0.495): its squares gro
 flat squares down (0.357 against 0.203: the share of lit neighbouring pixels within 1 L*, and the
 edges' hardness), as it did D2 (0.520 to r10's 0.499); here the blind critics decide, as the
 2026-10-07 notes on D2 said they should.
+
+## E7: the eyes drawn at the squares' size
+
+The critics' biggest fault since E3: his eyes read as dark slots with white specks, the master's as
+an almond of warm white either side of a brown iris under a dark lid. His eyes are drawn texel by
+texel (~1.2 mm, under a pixel in the shot), so the whites break into specks. The trial: the eye
+area on squares of its own, each one colour (`fit_tripo.py --cells=eye:0.0035`, `eye_m`: islands of
+their own round his drawn eyes, the colour the one most of the square is; off unless set, the
+default fit unchanged byte for byte), with the eye drawn for that size
+(`head_paint.py bake --eyes=...`). Driven by `$S/e7/try.sh NAME "EYES" "CELLS"` (bake, fit,
+re-import, plain-light head) and the shot with `--man-diag=id,base`.
+
+| Variant | Eyes (`--eyes=`) | Cells | Plain light | The shot |
+|---|---|---|---|---|
+| a | today's | `eye:0.0035` | the eye one dark band with one white square | - |
+| b | `open:1.3,iris_rgb:92/58/36,rim_rgb:60/38/24,shade_top:0.2,shade_side:0.5,glint:0.3` | `eye:0.0035` | a lid row, white, iris, white in blocks | - |
+| c | b, brows `thick:1.35,long:1.15,drop:-0.001,dark:26/17/12,keep:0.25` | `eye:0.0035` | as b, brows a little thinner | white squares either side of the iris |
+| d | `open:1.2,...,shade_top:0.3,shade_side:0.6,glint:0,white:200/182/158` | `eye:0.0025` | - | the whites lost in the slot |
+
+`e7/eyes_plain_b_c_d.png` (his eyes in plain light), `e7/eyes_shot_master_e6_c_d.png` (master / E6
+default / c / d in the shot at 4x). **Blind critic** (`critic/e7/critic.md`; A = c, B = the E6
+default): **B on the eyes** (master's style 3 to 2): c's white squares "read as confetti or googly
+glints, not the white of the eye", B "a dark almond slot under the lid with a 1-2 px glint";
+every other feature level. d was worse than c by eye (no critic).
+
+**E7 verdict:** not adopted; his eyes stay E6's. The eye in the shot is too small for its drawing
+to read at any square size: the master's eye opening is ~4-5 px tall in the 1280 shot, his ~2-3 px
+under the brim, so a white "band" is one square and reads as a glint. The master's eyes are drawn
+larger in his face than a real man's (the painting's own stylisation); getting there is the eye's
+size and opening (`stylise.py`'s eye push, `bake.eyes` `open`/`size`), which Sean turned back from
+on 2026-10-07 as too cartoony: his call. The critic's other faults, each bigger than A against B:
+the ear (a lit wedge, no rim), the collar (no points, the neckerchief grey blocks), the brim's
+edge (streaks), the moustache's lower edge stair-stepped, the nose (little form), the face's
+squares slanted by the head roll.

@@ -4682,3 +4682,8 @@ a few views renders them as the full run does.
     lit wedge, no rim), the collar's shape (no points: his model's collar lies flat), the brim's
     streaks, the light on his face. All 370 tests pass on the E5 and E6 defaults (with the native
     plugin built here).
+  - E7, the eyes on squares of their own drawn for that size (`fit_tripo.py --cells=eye:`, off by
+    default; the default fit unchanged byte for byte): the blind critic preferred today's eyes
+    (master's style 3 to 2: the white squares read as glints). In the shot his eye is ~2-3 px tall
+    to the master's ~4-5, so a band of white is one square. What's left is the eye's size and
+    opening, which Sean turned back from on 2026-10-07 as too cartoony: his call.

@@ -1628,7 +1628,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6):
+                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6, eye_m=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1656,7 +1656,11 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     four regular half-size squares, each owned whole the same way (a notch narrower than a square).
     `planes` (CELLS `planes`: 6, 18 or 26, _plane_set): how many planes a triangle may go on, the one
     it faces most squarely; with more, a surface turned between two of his body's axes is laid on a
-    plane nearer its own, so its squares are stretched less (the characters session's E6)."""
+    plane nearer its own, so its squares are stretched less (the characters session's E6). `eye_m`
+    (CELLS `eye`, metres; the characters session's E7): the triangles round his drawn eyes (`zone`)
+    on islands of their own in squares of that size, each the colour most of it is drawn in, in place
+    of each texel its own (a texel there is under a screen pixel in the shot: the whites and glints
+    broke into specks); the master draws its eyes in blocks about half its face's square."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1685,6 +1689,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     # His face's triangles (`face`, a function of points in our body space) at their own square,
     # `face_m`: their own islands, so a square never spans the two sizes.
     in_face = face(P.mean(axis=1)) if face is not None and face_m else np.zeros(len(P), dtype=bool)
+    in_eye = zone(P.mean(axis=1)) if zone is not None and eye_m else np.zeros(len(P), dtype=bool)
     fronted = np.zeros(len(n), dtype=bool)
     if face_front > 0:
         # Seen from in front, a cheek turned more than 45 degrees went on a side plane, whose squares
@@ -1743,7 +1748,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     else:
         U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
         V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
-    tri_m = np.where(in_face, face_m or cell_m, cell_m)[:, None]
+    tri_m = np.where(in_eye, eye_m or cell_m, np.where(in_face, face_m or cell_m, cell_m))[:, None]
     A = np.einsum("tcj,tj->tc", P, U) / tri_m * k                  # texels, on each facing's plane
     if face_origin is not None:
         across = np.abs(U[:, 0]) > 0.5
@@ -1789,7 +1794,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     for ts in edges.values():
         for a in ts:
             for b in ts:
-                if a != b and facing[a] == facing[b] and in_face[a] == in_face[b]:
+                if a != b and facing[a] == facing[b] and in_face[a] == in_face[b] and in_eye[a] == in_eye[b]:
                     near[a].append(b)
     island = np.full(T, -1, dtype=np.int64)
     islands = 0
@@ -1857,7 +1862,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     if k > 1:
         bk = (ty // k) * (W // k + 1) + tx // k
         own = np.zeros(len(st), dtype=bool)
-        if zone is not None:
+        if zone is not None and not eye_m:
             body = (P[st] * bary[:, :, None]).sum(axis=1)
             inz = zone(body)
             # Any square the zone touches keeps its texels (an eye's corner cut by a square's edge).
@@ -1922,6 +1927,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
               "under his nose in them (%d mostly gap)"
               % (int(touched.sum()), int(own_m.sum()), int(mixed.sum()), int((touched & (n_g > 0)).sum()),
                  int((touched & (n_g * 2 > cnt)).sum())))
+    eye_sq = np.zeros(nk, dtype=bool)
+    if k > 1 and eye_m:
+        eye_sq = (np.bincount(lab, in_eye[st].astype(np.float64), minlength=nk) > 0) & (keys % 2 == 0)
     if k > 1 and zone is not None:
         # A texel of an eye: the colour most of it is (the eyes are drawn in flat colours, and the
         # middle by lightness of white, iris and lid was the iris, the dark part a lid: they squinted).
@@ -1938,7 +1946,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         pick = inv == best[lab]
         mode = np.stack([np.bincount(lab, np.where(pick, rgb[:, c], 0.0), minlength=nk) for c in range(3)], axis=1)
         mode /= np.maximum(np.bincount(lab, pick.astype(np.float64), minlength=nk), 1.0)[:, None]
-        colour = np.where((keys % 2 == 1)[:, None], mode, colour)
+        colour = np.where(((keys % 2 == 1) | eye_sq)[:, None], mode, colour)
     img = np.zeros((H, W, 3))
     have = np.zeros((H, W), dtype=bool)
     is_texel = keys % 2 == 1
@@ -1989,7 +1997,8 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         _square_normals(mesh, tl, st, bary, tx, ty, k, W, H, bk[own] if k > 1 and own.any() else None,
                         normals_to, luv, P, normal_map)
     if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0 or grain > 0 or plane is not None):
-        img = _inside_squares(img, k, W, rgb, lum, tx, ty, bk[own] if own.any() else None, detail, clip, soft,
+        keep_blocks = bk[own | in_eye[st]] if (own | in_eye[st]).any() else None
+        img = _inside_squares(img, k, W, rgb, lum, tx, ty, keep_blocks, detail, clip, soft,
                               calm, sigma, weave, plane, weave_opts, grain, grain_size)
     layer.data.foreach_set("uv", new.ravel())
     mesh.update()
@@ -2186,7 +2195,8 @@ def cell_textures(person, colour, cells):
                                    normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
                                    normal_map=nmap, labels=labels,
                                    face_origin=mid if eyes and o.get("face_centre") else None,
-                                   sub_grid=bool(o.get("labels_sub")), **inside(shape))
+                                   sub_grid=bool(o.get("labels_sub")), eye_m=float(o.get("eye", 0.0)) or None,
+                                   **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
