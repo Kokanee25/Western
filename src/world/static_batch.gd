@@ -88,7 +88,11 @@ func build(root: Node3D) -> int:
 		mmi.layers = g[3]
 		if g[2] == GeometryInstance3D.SHADOW_CASTING_SETTING_ON and g[3] == 1:
 			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			var cell := Vector3i(((list[0] as MeshInstance3D).global_position / CELL).floor())
+			var c := Vector3i(((list[0] as MeshInstance3D).global_position / CELL).floor())
+			# Its shadow is drawn with its material's culling (a flat board or a blanket is two
+			# sided: culled as the default, half its shadow went).
+			var cull := _cull_of(g[1])
+			var cell := Vector4i(c.x, c.y, c.z, cull)
 			var sh: Array = _shadows.get_or_add(cell, [null, []])
 			(sh[1] as Array).append_array(list)
 			_dirty[cell] = true
@@ -106,7 +110,7 @@ func build(root: Node3D) -> int:
 
 func _build_shadows() -> void:
 	var inv := global_transform.affine_inverse()
-	for cell: Vector3i in _dirty:
+	for cell: Vector4i in _dirty:
 		var sh: Array = _shadows[cell]
 		var st := SurfaceTool.new()
 		var any := false
@@ -132,6 +136,9 @@ func _build_shadows() -> void:
 			shadow = MeshInstance3D.new()
 			shadow.name = "Shadow"
 			shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+			var m := StandardMaterial3D.new()
+			m.cull_mode = cell.w as BaseMaterial3D.CullMode
+			shadow.material_override = m
 			add_child(shadow)
 			sh[0] = shadow
 		shadow.mesh = st.commit()
@@ -170,11 +177,18 @@ func _hide_instance(mi: MeshInstance3D) -> void:
 	var mmi: MultiMeshInstance3D = where[0]
 	mmi.multimesh.set_instance_transform(where[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
 	# Its shadow goes with it (the patch's shadow is built again, once, at the end of the frame).
-	for cell: Vector3i in _shadows:
+	for cell: Vector4i in _shadows:
 		if (_shadows[cell][1] as Array).has(mi) and not _dirty.has(cell):
 			if _dirty.is_empty():
 				_build_shadows.call_deferred()
 			_dirty[cell] = true
+
+
+## A material's face culling, as BaseMaterial3D's CullMode (the grid shaders cull back faces).
+static func _cull_of(mat: Material) -> int:
+	if mat is BaseMaterial3D:
+		return (mat as BaseMaterial3D).cull_mode
+	return BaseMaterial3D.CULL_BACK
 
 
 func _takes(mi: MeshInstance3D, root: Node3D) -> bool:
