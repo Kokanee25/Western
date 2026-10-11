@@ -6,6 +6,16 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: fire as one sheet of flame
+
+- **A burning wall's fire is one mass now**, not a row of separate flames: bands from a pale
+  yellow core at the foot through orange to red tips torn off the top, climbing as it burns, in
+  squares the size of the walls' own. It grows from a low lick when a board catches to a sheet
+  taller than the building.
+- **Try:** at dusk light the livery's front low down (L) and watch for a few minutes from the
+  street, then walk up close to a burning wall. Tell me if it reads as a burning building, and
+  whether the squares look right close up.
+
 ### New: flames drawn like the fire painting
 
 - **Flames are drawn now, not glowing blobs**: tongues in the fire painting's bands, square by

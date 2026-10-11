@@ -4134,7 +4134,8 @@ a few views renders them as the full run does.
   0.343 -> 0.341. Blind critic, top three: the room behind him is dark, empty murk (the doorway, the
   moon, balcony, sconces); the street's sky is lavender-grey, not gold; his face is a hot, wide-eyed,
   blotchy mask. Goldens `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh`
-  runs; visual checks 170, none failed.
+  runs; visual checks 170, none failed. Merged as PR #92, **build 802** (green); merge 3a (PR #91)
+  is **build 797** (green).
 - 2026-10-11 (gameplay): **A man going down keeps his momentum; a shot pushes with the ball's**
   (Sean: "as real as possible so just drops if dead esp running"; he'd called the old fall
   "cheesy action movie").
@@ -4155,3 +4156,32 @@ a few views renders them as the full run does.
   - Art's files touched: five goldens of a fallen man re-approved (`outlaw_down`, `outlaw_open`,
     `outlaw_open_close`, `outlaw_open_reduced`, `outlaw_blast`; tolerances from two renders). The
     other 65 views pass unchanged.
+- 2026-10-11 (art session, later): **Merge 3c: the fire sheet** (Sean: "how do we get better
+  looking flames!", then "merge first then build the fire sheet"). `src/fire/fire_sheet.gdshader`:
+  one continuous fire a burning member, an upright quad turned to the camera about the vertical,
+  on which a field of heat rises and cools (two noises climbing with the fire: the old Doom fire
+  effect's idea, from its published write-up, as a field rather than a simulation) and is cut into
+  the fire painting's seven bands, the pale core over white for the glow (`bloom` 0.8). Every
+  sheet draws the same field in world squares (`squares_per_m` 16, across along the camera's
+  right, up by height over its foot on one `fire_height` 5.5 m scale), so a burning wall's sheets
+  draw one fire; a sheet's own heat only trims how far up it reaches, and its sides make it
+  shorter, not a gap. Found on the way: its sRGB tones were used as linear (a pale cream), and
+  written without ALPHA the dusk haze greyed it. Gameplay's `src/fire/fire_fx.gd` (said in the
+  commit, with Sean's go-ahead): a sheet a mesh in place of the particle tongues (`_sheet_on`: at
+  a standing member's foot to a grown tongue's height over its top, on top of one lying flat, in
+  the opening under a burning head); `FireFX.sheets` false keeps the flipbook tongues
+  (`tools/screenshots.gd --flame-sprites`); gameplay's `tests/test_fire_fx.gd`: two sheet tests,
+  the tongue tests kept with sheets off. Cost (`perf_bench.gd --scene=fire --quick`, headless):
+  sheets avg 15.6 ms, fire 5.0; tongues 16.4, fire 5.2. Judge v2 on `livery_fire_dusk`: tongues
+  0.581, sheets **0.454** (round `2026-10-11_r3`; saloon 0.330, street 0.505). Blind critic, top
+  three: the fire is a solid wall of orange with no frame showing through it, no smoke column, no
+  sparks; it burns alone in an empty field (the painting's bucket brigade, rubble, town, wet mud);
+  the saloon's doorway and back room are dark and empty. Goldens: the three `store_fire_*` views
+  and `livery_fire_dusk` re-approved from two `--fresh` runs, though both runs passed against the
+  old goldens: **the fire views' tolerances, set from the fire's own run-to-run noise, are loose
+  enough to let a new fire look through** (the livery's mean 5.8 / share 0.15 now; the close
+  store fire's share 1.09 passes anything). Visual checks 377, none failed. 371 tests pass.
+  - Next: the frame through the fire (the sheet stands 0.25 m in front of what's burning so the
+    boards don't cut it, which hides the posts and rafters the painting shows dark against it);
+    the smoke column against the sky; sparks; the firelight; the fire view staged with the bucket
+    line in it.

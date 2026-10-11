@@ -1,17 +1,29 @@
 class_name FireFX
 extends Node
 ## How one member looks in a fire: scorch and char creeping over it (char_overlay.gdshader, which
-## stays after the fire's out), and while it burns, flames licking up off it and smoke rising.
-## The flames ride on the member's own meshes, so they go with it when it falls.
+## stays after the fire's out), and while it burns, its fire and smoke rising. The fire is a sheet
+## (fire_sheet.gdshader, the art session's: one continuous fire a member, every sheet drawing the
+## same field so a burning front is one mass); `sheets` false draws the older flipbook tongues
+## (flame.gdshader) instead, for comparing. Both ride on the member's own meshes, so they go with
+## it when it falls.
 
 const OVERLAY := preload("res://src/fire/char_overlay.gdshader")
 
 var member: StructureMember
 
 var _overlay: ShaderMaterial
-var _emitters: Array[GPUParticles3D] = []
+var _emitters: Array[Node3D] = []
 
 const FLAME := preload("res://src/fire/flame.gdshader")
+const SHEET := preload("res://src/fire/fire_sheet.gdshader")
+## How much taller than FireTuning's tongue a sheet's fire stands: the fire painting's flames are a
+## storey tall (the art session, judged on the view livery_fire_dusk).
+const SHEET_GROW := 1.8
+
+## Fire as sheets (true) or as the flipbook tongues (false, for comparing; --flame-sprites).
+static var sheets := true
+static var _sheet_mat: ShaderMaterial
+static var _sheet_quad: QuadMesh
 
 static var _flame_mat: ShaderMaterial
 static var _smoke_mat: StandardMaterial3D
@@ -41,19 +53,29 @@ func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 				mi.material_overlay = _overlay
 	if flames and _emitters.is_empty():
 		for mi in meshes:
-			_emitters.append(_flames_on(mi, tuning))
-			if _over_opening():
-				_emitters.append(_opening_flames(mi, tuning))
+			if sheets:
+				_emitters.append(_sheet_on(mi, tuning, false))
+				if _over_opening():
+					_emitters.append(_sheet_on(mi, tuning, true))
+			else:
+				_emitters.append(_flames_on(mi, tuning))
+				if _over_opening():
+					_emitters.append(_opening_flames(mi, tuning))
 			if smoke:
 				_emitters.append(_smoke_on(mi))
 	elif not flames and not _emitters.is_empty():
 		_clear()
-	# The tongues grow as it burns.
+	# The fire grows as it burns.
 	if flames:
 		var size := _flame_size(tuning)
+		var heat := sheet_heat(member, tuning)
 		for e in _emitters:
-			if is_instance_valid(e) and e.has_meta(&"flame"):
+			if not is_instance_valid(e) or not e.has_meta(&"flame"):
+				continue
+			if e is GPUParticles3D:
 				((e as GPUParticles3D).draw_pass_1 as QuadMesh).size = size * float(e.get_meta(&"flame"))
+			else:
+				(e as GeometryInstance3D).set_instance_shader_parameter(&"heat", heat)
 
 
 func _exit_tree() -> void:
@@ -62,9 +84,14 @@ func _exit_tree() -> void:
 
 func _clear() -> void:
 	for e in _emitters:
-		if is_instance_valid(e):
-			e.emitting = false
-			e.get_tree().create_timer(e.lifetime + 0.5).timeout.connect(e.queue_free) if e.is_inside_tree() else e.queue_free()
+		if not is_instance_valid(e):
+			continue
+		var p := e as GPUParticles3D
+		if p:
+			p.emitting = false
+			p.get_tree().create_timer(p.lifetime + 0.5).timeout.connect(p.queue_free) if p.is_inside_tree() else p.queue_free()
+		else:
+			e.queue_free()
 	_emitters.clear()
 
 
@@ -72,6 +99,62 @@ func _clear() -> void:
 func _flame_size(tuning: FireTuning) -> Vector2:
 	var grown := clampf(member.burn_time / maxf(tuning.growth_seconds, 0.01), 0.0, 1.0) if member.burning else 0.0
 	return tuning.flame_size_catching.lerp(tuning.flame_size_alight, grown)
+
+
+## How much of its sheet a burning member's fire fills: from a tongue's catching height to all of
+## it over `growth_seconds`, as the flipbook tongues grow.
+static func sheet_heat(m: StructureMember, tuning: FireTuning) -> float:
+	var grown := clampf(m.burn_time / maxf(tuning.growth_seconds, 0.01), 0.0, 1.0) if m.burning else 0.0
+	return lerpf(tuning.flame_size_catching.y / tuning.flame_size_alight.y, 1.0, grown)
+
+
+## The member's fire as one sheet: stood at the foot of a standing member (the boards of a
+## wall burn up their whole face) and reaching a grown tongue's height over its top, or on top of
+## one lying flat (its thinnest side up); over a door or window head (`opening`), standing in the opening under it, so the
+## fire inside pours out of its top. As wide as the member plus half a tongue, so the sheets of a
+## wall's boards overlap and draw one fire.
+func _sheet_on(mi: MeshInstance3D, tuning: FireTuning, opening: bool) -> MeshInstance3D:
+	var box := mi.global_transform * mi.get_aabb()
+	var flame := tuning.flame_size_alight.y * SHEET_GROW
+	var width := maxf(box.size.x, box.size.z) + tuning.flame_size_alight.x * 0.6
+	var foot := box.get_center()
+	var height := flame
+	if opening:
+		foot.y = box.position.y - 0.9
+		width = maxf(box.size.x, box.size.z)
+	elif box.size.y > minf(box.size.x, box.size.z):
+		# Standing (a post, a wall's board: its thin side faces sideways), not lying flat.
+		foot.y = box.position.y
+		height = box.size.y + flame
+	else:
+		foot.y = box.end.y - 0.05
+	var sheet := MeshInstance3D.new()
+	sheet.mesh = _sheet_mesh()
+	sheet.material_override = _sheet_material()
+	sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	sheet.set_meta(&"flame", 1.0)
+	# The shader turns and sizes the quad round its foot; this box only has to hold it.
+	var r := maxf(width, height) + 0.5
+	sheet.custom_aabb = AABB(Vector3(-r, -r, -r), Vector3(2.0 * r, 2.0 * r, 2.0 * r))
+	mi.add_child(sheet)
+	sheet.global_position = foot
+	sheet.set_instance_shader_parameter(&"size", Vector2(width, height))
+	sheet.set_instance_shader_parameter(&"heat", sheet_heat(member, tuning))
+	return sheet
+
+
+static func _sheet_mesh() -> QuadMesh:
+	if _sheet_quad == null:
+		_sheet_quad = QuadMesh.new()
+		_sheet_quad.size = Vector2.ONE
+	return _sheet_quad
+
+
+static func _sheet_material() -> ShaderMaterial:
+	if _sheet_mat == null:
+		_sheet_mat = ShaderMaterial.new()
+		_sheet_mat.shader = SHEET
+	return _sheet_mat
 
 
 ## Is this the head or header over a door or window? The fire inside pours out of the opening's top.
