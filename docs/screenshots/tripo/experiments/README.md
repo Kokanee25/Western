@@ -316,3 +316,30 @@ not the bake's colour.
 `2026-10-11_r1`: 0.495 (r10 0.499). `e5/face_master_r10_e5.png` (master / r10 / E5, the shot held
 still), `e5/head_*.png` (plain light), `e5/pose_check.png` (stand, sit, hands up, crouch: no tears;
 the coat's sheets under his raised arms are his mesh, as before).
+
+## E6: the squares' grid and projection
+
+`tools/characters/square_shape.py DIR` measures each square seen whole on screen in the id pass
+(`--man-diag=id`): its aspect (long side over short, 1 a square), its tilt off the screen's rows
+(0-45 degrees) and its size. `fit_tripo.py --cells=planes:18|26` (`_plane_set`): a triangle may go on
+the twelve planes half way between his body's axes (18) and the eight corners (26) as well as the
+six, so a surface turned between two axes is laid on a plane nearer its own. All on the E5 defaults;
+`e6/*_shape.json`.
+
+| Medians (p90) | Face aspect | Face tilt | Cheek tilt | Hat aspect | Hat tilt | Islands, head / body |
+|---|---|---|---|---|---|---|
+| 6 planes (E5) | 1.56 (3.78) | 18.6° (34.8°) | 17.9° | 2.25 | 19.2° | 102 / 251 |
+| 6 planes, his head held upright (diagnostic only, `--man-pose`) | 1.64 (3.96) | 12.6° (36.2°) | 9.8° | 2.37 | 9.8° | 102 / 251 |
+| 18 planes | 1.60 (3.77) | 18.1° (34.6°) | 18.0° | 2.12 | 17.9° | 266 / 809 |
+| 26 planes | 1.59 (3.72) | 18.4° (33.6°) | 18.0° | 1.95 | 18.3° | 363 / 1,183 |
+
+`e6/square_ids_face.png` (6 planes / head upright / 26 planes) shows why: **the squares on his face
+are already in regular rows**; in the shot they slant with his head (the pose rolls it ~13°: held
+upright, the tilt on his cheek halves, 17.9° → 9.8°, and on the hat 19° → 10°), and the long thin
+pieces that make up the irregularity the critics see are squares **seen nearly edge-on**: the
+brim, the sides of his face by the ear, his neck, the coat's shoulder and lapel. That is
+foreshortening, inherent to squares fixed to his surfaces, and more planes can't change it (they
+only triple the islands and seams). In character space the grid is as regular as it gets; what's
+left is the shot's head roll (`ShotMatch.FITS`, the art session's: an upright head would halve the
+slant on his face) and the edge-on surfaces (only screen-space squares avoid those, and the
+paintings' look is not a screen filter: DESIGN.md §4, Sean 2026-10-06).
