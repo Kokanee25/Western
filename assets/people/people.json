@@ -65,10 +65,12 @@
    "shape": "stranger2_rodin",
    "stylise": {"from": "stranger2_rodin"},
    "tris": {"skin": 30000, "head": 10000},
-   "eye_gain": 1.8,
-   "cells": {"head": 0.009, "head_texels": 7, "face": 0.007, "face_front": 60, "calm": {"head": 0, "skin": 0.25},
-             "dark_kept": 0, "weave": {"skin": 0.3, "head": 0.15}, "weave_noise": 1.0, "weave_cluster": 0.5,
-             "grain": {"head": 1.0, "skin": 1.2}, "grain_size": 1.6, "settle": 3, "mottle": {"head": 0.1}},
+   "eye_gain": 1.4,
+   "cells": {"head": 0.009, "head_texels": 7, "face": 0.007, "face_front": 60, "calm": {"head": 0, "skin": 0.25, "moustache": 0},
+             "dark_kept": 0, "weave": {"skin": 0.3, "head": 0.15, "moustache": 0}, "weave_noise": 1.0, "weave_cluster": 0.5,
+             "grain": {"head": 1.0, "skin": 1.2}, "grain_size": 1.6, "settle": 3, "mottle": {"head": 0.1},
+             "moustache": 0.007, "moustache_texels": 7},
+   "moustache": {"proud": 0.004, "droop": 0.018, "reach": 0.009, "top": [16, 5, 7], "front": [8, 3, 5]},
    "outfit": {},
    "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, short dark hair"
   }

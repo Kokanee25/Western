@@ -87,3 +87,7 @@ make the small features read (the lip line, the moustache's underside and the ea
 all three lights), but the drawn head as a whole reads less like the painting's man than
 stranger2s; the parts worth carrying to the Rodin men are the moustache shell, the lip-line row,
 the ear stamps and the nose-tip square.
+
+Carried to the stylised stranger on 2026-10-11 (status entry of that day): the moustache shell
+(`people.json` `moustache`) reads in the shot; the lip line and nose tip are drawn (`bake.stamps`);
+the ear stamps are written but off for him (his scanned ear is shaded already).

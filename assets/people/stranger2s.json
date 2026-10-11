@@ -6,7 +6,7 @@
  "triangles_in": 33228,
  "pieces": {},
  "shape": "stranger2_rodin",
- "eye_gain": 1.8,
+ "eye_gain": 1.4,
  "head_shift_m": [
   0.0001,
   0.0,
@@ -39,6 +39,35 @@
   0.392,
   0.31
  ],
+ "piece_moustache": {
+  "tones": {
+   "top": [
+    16,
+    5,
+    7
+   ],
+   "front": [
+    8.0,
+    3.0,
+    5.0
+   ],
+   "his_own": [
+    13.2,
+    4.2,
+    8.7
+   ],
+   "under": [
+    6,
+    2,
+    3
+   ]
+  },
+  "vertices": 279,
+  "triangles_made": 494,
+  "proud_m": 0.004,
+  "overhang_m": -0.004,
+  "droop_m": 0.018
+ },
  "texture": {
   "from": "stranger2s_color.png",
   "size": [
@@ -60,6 +89,13 @@
     ],
     "islands": 102
    },
+   "moustache": {
+    "size": [
+     168,
+     168
+    ],
+    "islands": 15
+   },
    "skin": {
     "size": [
      846,
@@ -70,6 +106,7 @@
   },
   "texels_per_square": {
    "head": 7,
+   "moustache": 7,
    "skin": 3
   },
   "inside": {
@@ -81,6 +118,16 @@
     "sigma": 25.0,
     "weave": 0.15,
     "grain": 1.0,
+    "grain_size": 1.6
+   },
+   "moustache": {
+    "detail": 0.0,
+    "clip": 40.0,
+    "soft": 0.25,
+    "calm": 0.0,
+    "sigma": 25.0,
+    "weave": 0.0,
+    "grain": 1.2,
     "grain_size": 1.6
    },
    "skin": {
@@ -97,6 +144,7 @@
  },
  "triangles": {
   "skin": 25554,
-  "head": 5750
+  "head": 5750,
+  "moustache": 494
  }
 }

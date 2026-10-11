@@ -885,6 +885,12 @@ a few views renders them as the full run does.
   wears stranger2s's body, hat and collar (`body_hat`, `body_collar`: cut from stranger2s's head
   mesh, on its texture), so only the face differs; `ShotMatch.FIT_AS` seats him as stranger2s.
   Three stages (mesh in Python, AO and the glb in Blender, paint in Python), ~10 s.
+  What carried to the Rodin men (2026-10-11): `people.json` `moustache` (`fit_tripo.py`
+  `Moustache`, `MOUSTACHE`: house_head's loft on his own face from his landmarks in our body space,
+  `body_moustache` in his glb, its texture in rows of tone, `front` its front's L*a*b*, None his
+  own painted moustache's), `head_paint.py` `bake.stamps` (`draw_stamps`: the lip line, the
+  mouth's corners, the nose tip a step lighter, each ear's hollow and canal by his own shape's
+  shadows) and `bake.face` `top` (his lightest skin eased above a knee L*).
   `tools/characters/faces_lights.gd` renders men's heads under a warm lamp, a low sun and shade
   from three views with each stamp's place, and `faces_judge.py` gives each stamp's OKLab
   contrast against the squares round it (a depth test keeps hidden squares out) and whether
@@ -4738,3 +4744,41 @@ a few views renders them as the full run does.
   - Not done: hair at his temples under the brim (he reads bald there), the brows as a solid mass,
     a calmer skin jitter, and the moustache's tails shortened so the mouth's corners show. Other
     session's file: `src/art/shot_match.gd` (art), three lines (`FIT_AS`). No paid calls.
+- 2026-10-11 (characters session): **The stylised stranger with the faces test's carry-overs, judged
+  under the art session's new light.** Sean: "Yes" to toning down his brightest skin and eye gain,
+  adding what carried from the faces test, and re-judging him under the art session's light.
+  - **The light:** the art session's shot light from its branch (`--shot-light=lamp_energy:2.2,
+    fill_energy:0.45,fill_warm:0.4`, two of its trial lines copied here for the renders only and
+    put back; nothing of its files committed). Under it this morning's man (round r10's) scores
+    0.336 (character judge round `2026-10-11_r1`).
+  - **His lightest skin eased** (`head_paint.py` `bake.face` `top`: [38, 0.5], his skin above L* 38
+    half as far above it; the texture's face top tenth L* 58.6 to 48.3) and **eye gain 1.8 to 1.4**
+    (people.json): his lit face's top tenth in the shot L* 73 to 66 (the painting's 55), the man
+    0.336 to 0.316. His face's median went a little dark (25 to the painting's 29). His whites
+    stay clear.
+  - **The carry-overs:**
+    - a moustache shell (`people.json` `moustache`, `fit_tripo.py` `Moustache`: house_head's loft
+      on his own face, 4 mm proud, its tails drooping 18 mm past his mouth's corners, near black
+      with a near-black underside row, `body_moustache` in his glb, 494 triangles). First made in
+      his own painted moustache's colour and 6 mm proud, it came out a lighter, bulkier cushion
+      than his own moustache (lit square on); darker and flatter it reads in the shot as the
+      painting's walrus moustache, standing off his lip;
+    - the lip line and the mouth's corners (`bake.stamps`), under the shell's overhang from your
+      seat, as on the test head;
+    - the nose tip 8 L* lighter: a faint lift;
+    - the ear stamps are written (each ear's hollow and canal by his own shape's shadows) but off
+      for him (`ear` 0). His scanned ear is already shaded, the stamps barely changed it, and from
+      the shot it's under his hair and brim.
+  - **Judged:** round `2026-10-11_r2` 0.315 (light 0.665 to 0.607, colour 0.168 to 0.161, squares
+    0.083 to 0.096: the shell's hard dark edge). Judge v2 on the frame 0.355 to 0.367; the frame
+    scores moved between two renders of the same man here too (0.355 / 0.371), so read the man's.
+    What's left is the light: too much deep shadow (0.50 to 0.31), his coat too dark (9 to 17).
+  - Picture: `docs/screenshots/tripo/stranger2s_carry_overs.png` (the painting, this morning, eased
+    and now in the shot; his head in plain light this morning and now).
+  - **Found:** a fit's new textures reach the game only after `godot --headless --import` (PeopleBodies
+    loads them as imported resources): a render straight after a fit shows the old paint.
+  - **Files:** `tools/characters/head_paint.py`, `tools/blender/fit_tripo.py`,
+    `tools/blender/house_head.py` (its loft takes a surface function), `tools/characters/characters.json`,
+    `assets/people/people.json`, `assets/people/stranger2s*` (+ `_moustache.png`),
+    `assets/people/tripo/stranger2s_color.png`, judge rounds r1, r2 and their renders. No other
+    session's files. Bodies (23), hat (3) and shot (3) tests pass.
