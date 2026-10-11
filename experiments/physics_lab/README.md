@@ -14,7 +14,8 @@ videos). The baseline's numbers and contact sheets are in `baseline/`.
 ```sh
 # all 25 scenarios, headless, one Godot process each (~1 min on 4 cores)
 python3 experiments/physics_lab/run.py --out=build/physics_lab/base
-python3 experiments/physics_lab/run.py --scenario=group:F --out=...          # or A_x,B_y
+python3 experiments/physics_lab/run.py --scenario=group:F,G,A_stand_blackout --out=...  # groups and names
+python3 experiments/physics_lab/run.py --scenario=list                      # the names
 # footage: three views (front, side, three-quarter; add top), a frame every 2 ticks (30 fps)
 python3 experiments/physics_lab/run.py --render --seconds=4 --views=front,side,three --out=build/physics_lab/render
 # 1, 5 and 10 men going limp on one tick (run it with nothing else using the CPU)
@@ -22,10 +23,10 @@ python3 experiments/physics_lab/run.py --perf --out=build/physics_lab/perf
 # the flags again after moving a threshold (no Godot)
 python3 experiments/physics_lab/analyse.py build/physics_lab/base
 # pictures
-python3 experiments/physics_lab/compare.py sheet RUN/SCENARIO [--times=0,0.25,0.5,1,2,3]
+python3 experiments/physics_lab/compare.py sheet RUN/SCENARIO [--times=0,0.25,0.5,1,2,3]   # writes RUN/SCENARIO/sheet.png (or --out=)
 python3 experiments/physics_lab/compare.py side BASE/SCENARIO CANDIDATE/SCENARIO   # matched times
 python3 experiments/physics_lab/compare.py video RUN/SCENARIO [--slow=4]            # game speed, then slowed
-python3 experiments/physics_lab/compare.py diff BASE_ROOT CANDIDATE_ROOT            # every number, side by side
+python3 experiments/physics_lab/compare.py diff BASE_ROOT CANDIDATE_ROOT            # headline numbers, side by side
 # one scenario straight from Godot (what run.py calls)
 godot --headless --fixed-fps 60 -s res://experiments/physics_lab/lab.gd -- --scenario=A_stand_shot_front --out=DIR
 godot --headless -s res://experiments/physics_lab/lab.gd -- --scenario=list
@@ -55,6 +56,12 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
 - `analyse.py` + `thresholds.json` turn the logs into flags.
 - `run.py` runs the scenarios and gathers them.
 - `compare.py` makes the pictures and comparisons.
+- `baseline/`: the committed baseline. `baseline.json` / `baseline.md` (the numbers and flags of all
+  25), `manifest.json`, `perf_run1.json` / `perf_run2.json`, and `sheets/` (contact sheets from the
+  footage). `compare.py diff experiments/physics_lab/baseline NEW_ROOT` compares a new run with it.
+- A rendered run's flags come from `analyse.py RUN_ROOT` (run.py does it). Rendered runs are cut
+  to 4 s (`--seconds=4`), so their settle times and flags are not the baseline's: use the headless
+  run for numbers and the rendered one for eyes.
 
 ### Outputs per scenario
 
@@ -134,7 +141,7 @@ footage, and kept apart from them.
 ## Determinism
 
 - **Across processes**, the same build on the same machine is bit-identical: `A_stand_shot_front`
-  run three times in three processes, every part at every tick, 0.0 m apart.
+  run three times in three processes: every part at every tick, 0.0 m apart.
 - **In one process** it is not. The same scenario run again in the same Godot (`--repeat=2`) was
   19 cm apart by tick 166. Something carried over from the first run (Jolt's body ordering or
   cached state) changes the second, so `run.py` starts one process per scenario. **This matters
@@ -148,7 +155,91 @@ footage, and kept apart from them.
 
 See `baseline/baseline.md` for the full table and `baseline/*.png` for the contact sheets.
 
-<!-- FINDINGS -->
+### What go_limp() applies (scripted, not physics)
+
+From `events` in every scenario (`baseline/baseline.json`):
+
+- **Every part's velocity is set to `push`.** A bullet knockdown passes 1.2 m/s, so 80 kg gets
+  **96 N·s**. A .45 ball carries 4.5 N·s (16.5 g at 274 m/s), so that's about 21 times the ball.
+  A heavy blow (3 m/s) is 240 N·s.
+- **The chest also takes `push × 4`** (4.8 N·s for a shot) **plus a random level kick.** With seed 1
+  the kick is (−1.02, 0, −1.34) N·s, 1.7 N·s across. It's drawn in **world** axes, so the same seed
+  pushes him a different way depending on which way he faces. In G (one fall at five headings) his
+  resting place, in his own frame, wanders 14 cm sideways (x −0.10 to +0.03) and 5 cm along.
+- **Whatever he was doing is thrown away.**
+  - Walking at 1.4 m/s he carried 112 N·s; after go_limp, 1.7 N·s.
+  - Running at 3.5 m/s he carried 279 N·s; after, 1.7 N·s.
+  - Shot while running, the push replaces his run with +99 N·s backwards: he reverses on the spot.
+- The parts don't collide with each other (`collision_mask = WORLD`), and the ragdoll doesn't
+  collide with other ragdolls or with debris.
+
+### The five most obvious faults (my eye on the footage, numbers from the logs)
+
+1. **He folds straight down like a puppet with its strings cut, every time he goes down from his
+   feet.**
+   - A blackout from standing (`sheets/A_stand_blackout.png`, t+0.2 to 0.8 s): his centre of mass
+     falls from 1.05 m to hip height (0.55 m) in **0.45 s**, nearly free fall (0.32 s), while it
+     moves only **5 cm** sideways. The knees fold to **159°**, his heels under his seat; then he
+     tips over backwards.
+   - The same fold in B, C, D, on the stairs (`F_stairs_down`: he lands kneeling upright on a step
+     for ~0.5 s, then tumbles) and at the table (`F_table_ahead`: he folds down and ends lying
+     under it, never across it).
+   - Nothing in him resists the fold: the joints are limits only, with no stiffness or motor.
+2. **A walking or running man stops dead** (fault 1's numbers, above).
+   - `sheets/C_run_blackout.png`: at 3.5 m/s he moves **4 cm** before his centre of mass is at
+     hip height, and 0.46 m in all.
+   - `B_walk_blackout`: he drops to his knees on the spot and folds over them.
+   - A real man running at that speed pitches forward 1.5–3 m.
+3. **His arms go into his own body.**
+   - The parts don't collide with each other, so capsules pass through one another. The peak
+     self-overlap beyond the pose he went limp in is 7–21 cm, and every scenario has it (the
+     `limb_through_body` column).
+   - At rest after a shot from the front, his left forearm lies 8.6 cm inside his pelvis
+     (`sheets/A_stand_shot_front_rest_top.png`: one arm shows, the other is inside his hip).
+   - Folding over his knees, his chest sinks 17 cm into his thighs (`B_walk_blackout`).
+4. **Joints overrun their limits and come apart on impact.**
+   - On landing, the head swings 40–61° on a 35° cone. Hands and feet swing up to 43° past their
+     limits and twist up to 38° past them, for a tenth of a second or more (`swing_past_limit`,
+     `twist_past_limit`; peaks in `baseline.json`).
+   - Feet and shins pull **3–4.6 cm off their joints** for several ticks (`joint_pulled_apart`).
+   - A hard shove at the shoulder (`E_shoulder_from_left`, t+0.12–0.18 s) whips the hand at
+     **~45 rad/s** (47° in one tick) as the arm flails out, and the body doesn't topple the way
+     it was pushed: he folds down again.
+5. **Some falls never come to rest.**
+   - From the crouch (`D_crouch_blackout`), his left foot keeps spinning at ~1.7 rad/s with the
+     rest of him still, to the end of the run. All 17 parts stay awake (Jolt sleeps an island
+     only when all of it is still).
+   - Elsewhere he settles in 1.8–5.0 s. Everything was asleep by the end of the 30 s run (H).
+
+What looks right: the slump against a wall behind him (`F_wall_behind`), sitting back into a loose
+chair and going over with it (`F_chair_behind`), the arm catching a table's edge as he goes down
+beside it (`I_arm_on_table`), the knees and elbows never bending the wrong way (`wrong_bend` peaks
+under 9° in every scenario, the flag's 10° never reached), and nothing launched or exploding (peak part speed 3.3–7.6 m/s, no
+discontinuity except the whipped hand).
+
+Measured artefacts, not faults: resting parts sit 2 cm into the ground (Jolt's slop), and
+`sunk_into_world` flags 3–7 cm for a few ticks at impact. The three `bounce` flags (E) are his
+trunk rocking back as he folds; I couldn't see a bounce in the footage.
+
+### Performance (`--perf`, two runs, headless, this workspace's 4-thread Xeon; ×0.65 for Sean's)
+
+Frame time is the whole frame (his body's script, physiology and pools included), mean (p99):
+
+| men | standing | first 3 s after going limp | from 5 s on (all asleep) | the go_limp tick | bodies / shapes / joints |
+|---|---|---|---|---|---|
+| 1 | 1.6 (20, warm-up) | 0.5–0.6 (2–3) | 0.04 | 4–5 ms | 17 / 21 / 16 |
+| 5 | 1.4–1.6 (2.6) | 1.2–1.3 (2.3–10) | 0.14–0.25 | 11–15 ms | 85 / 105 / 80 |
+| 10 | 2.3–3.0 (4–5) | 1.6–1.9 (3.5–4.7) | 0.26–0.27 | 17–26 ms | 170 / 210 / 160 |
+
+- Ten men collapsing at once take ~1.0–1.2 ms a frame on Sean's core. That's against the **whole
+  game's** 2 ms physics budget, and it's less than ten men standing: the standing pose script
+  costs more than the ragdoll.
+- The spike is the tick go_limp builds 17 rigid bodies and 16 joints per man: 26 ms (17 on Sean's)
+  for ten in one tick.
+- Everyone was asleep within 3–4 s.
+- Not split out: the physics engine on its own. Pausing the server freezes the fall it would
+  measure.
+
 
 ## Limitations
 
@@ -160,6 +251,6 @@ See `baseline/baseline.md` for the full table and `baseline/*.png` for the conta
   "momentum before" is computed from his centre of mass.
 - Joint limits are checked against the pose he went limp in, as the joints are. A limb that was
   already far bent (the crouch) is measured from there, not from anatomy.
-- Frame times are this workspace's 2.1 GHz core, ×0.65 for Sean's (CLAUDE.md, Frame budget). They
+- Frame times are this workspace's core (measured 2.1 GHz, CLAUDE.md), ×0.65 for Sean's (CLAUDE.md, Frame budget). They
   include his body's own script (physiology, pools).
 - No mocap, no active controller: there is nothing to compare against yet. That's Prompt 09.

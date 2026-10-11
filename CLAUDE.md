@@ -4042,3 +4042,39 @@ a few views renders them as the full run does.
   to test the art style a bit more and decide how to finally handle it." DESIGN.md §4 gains a note
   (the bold squares stay the working look until he decides); `docs/prompts/STATUS.md` says Prompt
   07 (the style comparison) is the way it's tested, when Sean starts it.
+- 2026-10-11 (gameplay): **The ragdoll lab** (Prompt 01; Sean: "let's work the ragdoll").
+  `experiments/physics_lab/` (its README has the commands, measures, limits and findings) runs the
+  production passive ragdoll (`HumanBody.go_limp()`, untouched) through 25 scenarios:
+  - standing, walking, running and crouched;
+  - named-point impulses;
+  - a wall, a doorway, a slope, stairs, a table and a loose chair;
+  - five headings;
+  - 30 s settling;
+  - an arm across a table.
+
+  It logs every tick to CSV (per part: pose, velocity, contacts, penetration, self-overlap, swing
+  and twist against the limits, joint gap). It separates what go_limp applies from collisions,
+  flags faults that persist (`thresholds.json`, provisional) and renders three matched views
+  (`compare.py` for sheets, side-by-side, video and diffs). A fresh agent repeated it from the
+  README alone and got identical numbers. **Nothing in the game changed.**
+
+  Baseline, five faults:
+  1. **He folds straight down**, knees to 159° and heels under him, in near free fall, before
+     tipping over: every fall from his feet.
+  2. **A walking or running man stops dead.** go_limp sets every part's velocity to its push, so
+     a 3.5 m/s run (279 N·s) becomes 1.7 N·s.
+  3. **His arms go into his own body.** The parts don't collide with each other: 7–21 cm deep.
+  4. **Joints overrun their limits at impact.** The head swings 40–61° on a 35° cone, and feet
+     come 3–4.6 cm off their joints.
+  5. **From a crouch he never comes to rest:** a foot spins on, and all 17 parts stay awake.
+
+  Also measured:
+  - A bullet knockdown's scripted push is 96 N·s, ~21× the ball's momentum.
+  - The chest's random kick is in world axes, so the fall depends on his heading (14 cm).
+  - Ten men collapsing together: ~1.0–1.2 ms a frame on Sean's core, with a 17 ms spike on the
+    tick they go limp (bodies and joints built); less than ten men standing.
+  - **The same scenario run twice in one Godot process falls up to 19 cm differently** (separate
+    processes are bit-identical). The test runner runs every test in one process, so a test's
+    fall depends on what ran before it: worth knowing for the chaos test's same-seed drift.
+
+  Next: Prompt 09 (fix the falls) against this baseline, when Sean says.

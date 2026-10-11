@@ -1,0 +1,587 @@
+{
+  "command": "-s res://experiments/physics_lab/lab.gd",
+  "fixed_fps_arg": false,
+  "godot": {
+    "build": "official",
+    "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "hex": 263938,
+    "major": 4,
+    "minor": 7,
+    "patch": 2,
+    "status": "stable",
+    "string": "4.7.2-stable (official)",
+    "timestamp": 0
+  },
+  "hardware": {
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "os": "Linux",
+    "threads": 4,
+    "video": "headless"
+  },
+  "note_determinism": "Same machine and build: repeat runs are compared tick by tick (--repeat). Across machines, OSes or builds rigid-body results are not expected to match bit for bit.",
+  "physics_engine": "Jolt Physics",
+  "physics_settings": {
+    "jolt": {
+      "collisions/active_edge_threshold": 0.872664630413055,
+      "collisions/collision_margin_fraction": 0.0799999982118607,
+      "joints/world_node": 0,
+      "limits/max_angular_velocity": 47.1238899230957,
+      "limits/max_bodies": 10240,
+      "limits/max_body_pairs": 65536,
+      "limits/max_contact_constraints": 20480,
+      "limits/max_linear_velocity": 500.0,
+      "limits/temporary_memory_buffer_size": 32,
+      "limits/world_boundary_shape_size": 2000.0,
+      "motion_queries/recovery_amount": 0.400000005960464,
+      "motion_queries/recovery_iterations": 4,
+      "motion_queries/use_enhanced_internal_edge_removal": true,
+      "queries/enable_ray_cast_face_index": false,
+      "queries/use_enhanced_internal_edge_removal": false,
+      "simulation/allow_sleep": true,
+      "simulation/baumgarte_stabilization_factor": 0.200000002980232,
+      "simulation/body_pair_contact_cache_angle_threshold": 0.0349065847694874,
+      "simulation/body_pair_contact_cache_distance_threshold": 0.00100000004749745,
+      "simulation/body_pair_contact_cache_enabled": true,
+      "simulation/bounce_velocity_threshold": 1.0,
+      "simulation/continuous_cd_max_penetration": 0.25,
+      "simulation/continuous_cd_movement_threshold": 0.75,
+      "simulation/generate_all_kinematic_contacts": false,
+      "simulation/penetration_slop": 0.0199999995529652,
+      "simulation/position_steps": 2,
+      "simulation/sleep_time_threshold": 0.5,
+      "simulation/sleep_velocity_threshold": 0.0299999993294477,
+      "simulation/soft_body_point_radius": 0.00999999977648258,
+      "simulation/speculative_contact_distance": 0.0199999995529652,
+      "simulation/use_enhanced_internal_edge_removal": true,
+      "simulation/velocity_steps": 10
+    },
+    "run_on_separate_thread": false
+  },
+  "physics_ticks_per_second": 60,
+  "scenarios": [
+    {
+      "definition": {
+        "fixture": "ground",
+        "group": "A",
+        "light": true,
+        "men": 1,
+        "name": "perf_01_men",
+        "pre": {
+          "do": "stand",
+          "seconds": 2.0
+        },
+        "push": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "seconds": 10.0
+      },
+      "dir": "/home/user/Western/build/physics_lab/perf1/perf_01_men",
+      "name": "perf_01_men",
+      "seed": 1,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "definition": {
+        "fixture": "ground",
+        "group": "A",
+        "light": true,
+        "men": 5,
+        "name": "perf_05_men",
+        "pre": {
+          "do": "stand",
+          "seconds": 2.0
+        },
+        "push": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "seconds": 10.0
+      },
+      "dir": "/home/user/Western/build/physics_lab/perf1/perf_05_men",
+      "name": "perf_05_men",
+      "seed": 1,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "definition": {
+        "fixture": "ground",
+        "group": "A",
+        "light": true,
+        "men": 10,
+        "name": "perf_10_men",
+        "pre": {
+          "do": "stand",
+          "seconds": 2.0
+        },
+        "push": [
+          0.0,
+          0.0,
+          1.2
+        ],
+        "seconds": 10.0
+      },
+      "dir": "/home/user/Western/build/physics_lab/perf1/perf_10_men",
+      "name": "perf_10_men",
+      "seed": 1,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "source_sha": "7be0d75b8ca72bc699c42f21cb60f6979c2cc47f",
+  "summaries": [
+    {
+      "all_asleep_at_end": true,
+      "asleep_at_end": 17,
+      "asleep_by_second": [
+        0,
+        0,
+        0,
+        17,
+        17,
+        17,
+        17,
+        17,
+        17,
+        17,
+        17
+      ],
+      "bodies": 17,
+      "events": [
+        {
+          "chest_extra_impulse_Ns": [
+            -1.0226,
+            0.0,
+            3.4596
+          ],
+          "chest_push_x4_Ns": [
+            0.0,
+            0.0,
+            4.8
+          ],
+          "chest_random_impulse_Ns": [
+            -1.0226,
+            0.0,
+            -1.3404
+          ],
+          "kind": "go_limp",
+          "mass_kg": 79.9999995827675,
+          "momentum_after_Ns": [
+            -1.0226,
+            0.0,
+            99.4596
+          ],
+          "momentum_before_Ns": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+          "push_arg": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "push_given_every_part_mps": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "source": "production HumanBody.go_limp()",
+          "speed_before_mps": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "tick": 120
+        }
+      ],
+      "final_com": [
+        -0.0863,
+        0.1256,
+        1.041
+      ],
+      "final_com_local": [
+        -0.0863,
+        0.1256,
+        1.041
+      ],
+      "fixture": "ground",
+      "frame_ms": {
+        "max": 39.231,
+        "mean": 0.740227777777778,
+        "n": 720,
+        "p50": 0.041,
+        "p99": 19.733
+      },
+      "frame_ms_after_5s": {
+        "max": 0.404,
+        "mean": 0.0436611295681062,
+        "n": 301,
+        "p50": 0.037,
+        "p99": 0.141
+      },
+      "frame_ms_collapse_3s": {
+        "max": 4.97,
+        "mean": 0.522594444444444,
+        "n": 180,
+        "p50": 0.561,
+        "p99": 2.088
+      },
+      "frame_ms_standing": {
+        "max": 20.238,
+        "mean": 1.64311009174312,
+        "n": 109,
+        "p50": 0.55,
+        "p99": 19.733
+      },
+      "group": "A",
+      "joints": 16,
+      "limp_t": 2.0,
+      "men": 1,
+      "peak": {
+        "joint_gap": 0.0,
+        "penetration": 0.0,
+        "self_overlap": 0.0,
+        "speed": 0.0,
+        "up": 0.0
+      },
+      "raw_flags": {},
+      "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+      "raw_thresholds": {
+        "bounce_up": 0.4,
+        "hyperextend": 10.0,
+        "jitter_speed": 0.08,
+        "joint_gap": 0.03,
+        "jump_deg": 45.0,
+        "jump_m": 0.25,
+        "launch_speed": 8.0,
+        "launch_up": 1.5,
+        "penetration": 0.03,
+        "self_overlap": 0.04,
+        "settle_speed": 0.05,
+        "settle_spin": 0.3,
+        "settle_ticks": 30,
+        "swing_over": 10.0,
+        "twist_over": 10.0
+      },
+      "scenario": "perf_01_men",
+      "settle_s": null,
+      "shapes": 21,
+      "sleep_flips": 0,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "all_asleep_at_end": true,
+      "asleep_at_end": 85,
+      "asleep_by_second": [
+        0,
+        0,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+      ],
+      "bodies": 85,
+      "events": [
+        {
+          "chest_extra_impulse_Ns": [
+            -1.0226,
+            0.0,
+            3.4596
+          ],
+          "chest_push_x4_Ns": [
+            0.0,
+            0.0,
+            4.8
+          ],
+          "chest_random_impulse_Ns": [
+            -1.0226,
+            0.0,
+            -1.3404
+          ],
+          "kind": "go_limp",
+          "mass_kg": 79.9999995827675,
+          "momentum_after_Ns": [
+            -1.0226,
+            0.0,
+            99.4596
+          ],
+          "momentum_before_Ns": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+          "push_arg": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "push_given_every_part_mps": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "source": "production HumanBody.go_limp()",
+          "speed_before_mps": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "tick": 120
+        }
+      ],
+      "final_com": [
+        -0.0551,
+        0.1265,
+        1.0815
+      ],
+      "final_com_local": [
+        -0.0551,
+        0.1265,
+        1.0815
+      ],
+      "fixture": "ground",
+      "frame_ms": {
+        "max": 11.005,
+        "mean": 0.720268055555556,
+        "n": 720,
+        "p50": 0.351,
+        "p99": 2.397
+      },
+      "frame_ms_after_5s": {
+        "max": 0.541,
+        "mean": 0.252269102990033,
+        "n": 301,
+        "p50": 0.255,
+        "p99": 0.46
+      },
+      "frame_ms_collapse_3s": {
+        "max": 11.005,
+        "mean": 1.19987222222222,
+        "n": 180,
+        "p50": 1.107,
+        "p99": 2.274
+      },
+      "frame_ms_standing": {
+        "max": 2.661,
+        "mean": 1.57111926605505,
+        "n": 109,
+        "p50": 1.449,
+        "p99": 2.565
+      },
+      "group": "A",
+      "joints": 80,
+      "limp_t": 2.0,
+      "men": 5,
+      "peak": {
+        "joint_gap": 0.0,
+        "penetration": 0.0,
+        "self_overlap": 0.0,
+        "speed": 0.0,
+        "up": 0.0
+      },
+      "raw_flags": {},
+      "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+      "raw_thresholds": {
+        "bounce_up": 0.4,
+        "hyperextend": 10.0,
+        "jitter_speed": 0.08,
+        "joint_gap": 0.03,
+        "jump_deg": 45.0,
+        "jump_m": 0.25,
+        "launch_speed": 8.0,
+        "launch_up": 1.5,
+        "penetration": 0.03,
+        "self_overlap": 0.04,
+        "settle_speed": 0.05,
+        "settle_spin": 0.3,
+        "settle_ticks": 30,
+        "swing_over": 10.0,
+        "twist_over": 10.0
+      },
+      "scenario": "perf_05_men",
+      "settle_s": null,
+      "shapes": 105,
+      "sleep_flips": 0,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "all_asleep_at_end": true,
+      "asleep_at_end": 170,
+      "asleep_by_second": [
+        0,
+        0,
+        0,
+        153,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170
+      ],
+      "bodies": 170,
+      "events": [
+        {
+          "chest_extra_impulse_Ns": [
+            -1.0226,
+            0.0,
+            3.4596
+          ],
+          "chest_push_x4_Ns": [
+            0.0,
+            0.0,
+            4.8
+          ],
+          "chest_random_impulse_Ns": [
+            -1.0226,
+            0.0,
+            -1.3404
+          ],
+          "kind": "go_limp",
+          "mass_kg": 79.9999995827675,
+          "momentum_after_Ns": [
+            -1.0226,
+            0.0,
+            99.4596
+          ],
+          "momentum_before_Ns": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+          "push_arg": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "push_given_every_part_mps": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "source": "production HumanBody.go_limp()",
+          "speed_before_mps": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "tick": 120
+        }
+      ],
+      "final_com": [
+        -0.0558,
+        0.1219,
+        1.0847
+      ],
+      "final_com_local": [
+        -0.0558,
+        0.1219,
+        1.0847
+      ],
+      "fixture": "ground",
+      "frame_ms": {
+        "max": 16.542,
+        "mean": 0.992368055555556,
+        "n": 720,
+        "p50": 0.556,
+        "p99": 3.696
+      },
+      "frame_ms_after_5s": {
+        "max": 0.511,
+        "mean": 0.259900332225914,
+        "n": 301,
+        "p50": 0.247,
+        "p99": 0.407
+      },
+      "frame_ms_collapse_3s": {
+        "max": 16.542,
+        "mean": 1.55982222222222,
+        "n": 180,
+        "p50": 1.451,
+        "p99": 3.464
+      },
+      "frame_ms_standing": {
+        "max": 4.174,
+        "mean": 2.29618348623853,
+        "n": 109,
+        "p50": 2.049,
+        "p99": 4.013
+      },
+      "group": "A",
+      "joints": 160,
+      "limp_t": 2.0,
+      "men": 10,
+      "peak": {
+        "joint_gap": 0.0,
+        "penetration": 0.0,
+        "self_overlap": 0.0,
+        "speed": 0.0,
+        "up": 0.0
+      },
+      "raw_flags": {},
+      "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+      "raw_thresholds": {
+        "bounce_up": 0.4,
+        "hyperextend": 10.0,
+        "jitter_speed": 0.08,
+        "joint_gap": 0.03,
+        "jump_deg": 45.0,
+        "jump_m": 0.25,
+        "launch_speed": 8.0,
+        "launch_up": 1.5,
+        "penetration": 0.03,
+        "self_overlap": 0.04,
+        "settle_speed": 0.05,
+        "settle_spin": 0.3,
+        "settle_ticks": 30,
+        "swing_over": 10.0,
+        "twist_over": 10.0
+      },
+      "scenario": "perf_10_men",
+      "settle_s": null,
+      "shapes": 210,
+      "sleep_flips": 0,
+      "start": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "user_args": [
+    "--perf",
+    "--in-process",
+    "--out=/home/user/Western/build/physics_lab/perf1"
+  ]
+}

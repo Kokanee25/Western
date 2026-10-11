@@ -65,7 +65,14 @@ func _run() -> void:
 	if not out_root.is_absolute_path():
 		out_root = ProjectSettings.globalize_path("res://").path_join(out_root)
 	DirAccess.make_dir_recursive_absolute(out_root)
+	# Thousands of frames: keep Godot from importing them (as tools/tour.gd does).
+	if not FileAccess.file_exists(out_root.path_join(".gdignore")):
+		FileAccess.open(out_root.path_join(".gdignore"), FileAccess.WRITE).close()
 	var picked := _pick(all)
+	if picked.is_empty() and not args.has("perf"):
+		push_error("lab: no scenario %s (--scenario=list)" % args.get("scenario", ""))
+		quit(1)
+		return
 	if args.has("in-process") == false and picked.size() > 1:
 		push_warning("lab: %d scenarios in one process; each after the first may fall differently from a run on its own (README, Determinism). run.py runs one a process." % picked.size())
 	if args.has("perf"):

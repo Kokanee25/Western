@@ -1,0 +1,7090 @@
+[
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.0562,
+   0.1282,
+   0.402
+  ],
+  "final_com_local": [
+   0.0562,
+   0.1282,
+   0.402
+  ],
+  "fixture": "ground",
+  "flags": {
+   "joint_pulled_apart": {
+    "count": 3,
+    "first": "shin_l joint_gap 0.041 (over 0.03 for 4 ticks)",
+    "first_t": 0.533,
+    "parts": [
+     "shin_l",
+     "foot_l",
+     "shin_r"
+    ]
+   },
+   "limb_through_body": {
+    "count": 12,
+    "first": "pelvis self_overlap 0.083 (over 0.05 for 20 ticks)",
+    "first_t": 0.783,
+    "parts": [
+     "pelvis",
+     "hand_r",
+     "forearm_l",
+     "abdomen",
+     "chest",
+     "forearm_r",
+     "hand_l",
+     "upper_arm_l",
+     "upper_arm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_r penetration 0.045 (over 0.03 for 4 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "foot_r swing_excess 21.590 (over 10 for 6 ticks)",
+    "first_t": 0.583,
+    "parts": [
+     "foot_r",
+     "hand_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 38.655,
+   "mean": 3.88980769230769,
+   "n": 390,
+   "p50": 2.886,
+   "p99": 26.13
+  },
+  "frame_ms_after_5s": {
+   "max": 2.942,
+   "mean": 2.39836065573771,
+   "n": 61,
+   "p50": 2.315,
+   "p99": 2.942
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.107,
+   "mean": 3.30537777777778,
+   "n": 180,
+   "p50": 3.085,
+   "p99": 6.209
+  },
+  "frame_ms_standing": {
+   "max": 23.477,
+   "mean": 7.25384210526316,
+   "n": 19,
+   "p50": 2.705,
+   "p99": 23.477
+  },
+  "group": "A",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0439980141818523,
+   "penetration": 0.0494649633765221,
+   "self_overlap": 0.133626788854599,
+   "speed": 3.82157850265503,
+   "up": 0.238806009292603
+  },
+  "peaks": {
+   "joint_gap": [
+    0.044,
+    "foot_l",
+    0.517
+   ],
+   "penetration": [
+    0.0495,
+    "foot_r",
+    0.6
+   ],
+   "self_overlap": [
+    0.1336,
+    "pelvis",
+    0.633
+   ],
+   "speed": [
+    3.8216,
+    "head",
+    0.883
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    21.98,
+    "foot_r",
+    0.567
+   ],
+   "twist_excess": [
+    26.4,
+    "foot_r",
+    0.517
+   ],
+   "wrong_bend": [
+    2.94,
+    "forearm_l",
+    0.533
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 31,
+    "first": "foot_r 0.031 m into the world",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true
+    },
+    "worst": "foot_r 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 17,
+    "first": "shin_l 0.030 m off its joint",
+    "first_t": 0.983333333333333,
+    "segments": {
+     "foot_l": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "shin_l 0.030 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2867,
+    "first": "pelvis 0.042 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.916666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.042 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 27,
+    "first": "foot_r swung 43 deg (limit 30)",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_r swung 43 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 10,
+    "first": "foot_r twisted 31 deg (limit 5)",
+    "first_t": 1.01666666666667,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_r twisted 31 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "A_stand_blackout",
+  "settle_s": 2.91666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "final_com_local": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 5,
+    "first": "pelvis self_overlap 0.082 (over 0.05 for 20 ticks)",
+    "first_t": 1.25,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "hand_l",
+     "abdomen",
+     "upper_arm_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "head swing_excess 12.960 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "head"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 38.4,
+   "mean": 4.05240769230769,
+   "n": 390,
+   "p50": 2.817,
+   "p99": 25.263
+  },
+  "frame_ms_after_5s": {
+   "max": 3.023,
+   "mean": 2.36809836065574,
+   "n": 61,
+   "p50": 2.341,
+   "p99": 3.023
+  },
+  "frame_ms_collapse_3s": {
+   "max": 9.863,
+   "mean": 3.89896111111111,
+   "n": 180,
+   "p50": 3.258,
+   "p99": 8.844
+  },
+  "frame_ms_standing": {
+   "max": 25.263,
+   "mean": 7.78089473684211,
+   "n": 19,
+   "p50": 2.44,
+   "p99": 25.263
+  },
+  "group": "A",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0411678962409496,
+   "penetration": 0.0276322700083256,
+   "self_overlap": 0.120037849992514,
+   "speed": 7.02753448486328,
+   "up": 0.343710780143738
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0412,
+    "head",
+    0.733
+   ],
+   "penetration": [
+    0.0276,
+    "foot_r",
+    0.883
+   ],
+   "self_overlap": [
+    0.12,
+    "pelvis",
+    0.667
+   ],
+   "speed": [
+    7.0275,
+    "head",
+    0.667
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    23.46,
+    "hand_r",
+    0.583
+   ],
+   "twist_excess": [
+    21.56,
+    "hand_l",
+    0.567
+   ],
+   "wrong_bend": [
+    5.32,
+    "forearm_r",
+    0.6
+   ]
+  },
+  "raw_flags": {
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.032 m off its joint",
+    "first_t": 1.21666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.032 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1644,
+    "first": "pelvis 0.046 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.046 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 24,
+    "first": "head swung 51 deg (limit 35)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "foot_l": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 51 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 23,
+    "first": "hand_l twisted -42 deg (limit 20)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "thigh_r": true
+    },
+    "worst": "hand_l twisted -42 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "A_stand_shot_front",
+  "settle_s": 2.71666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   17,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     10.6596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     12.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     250.6596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.0258,
+   0.1165,
+   1.9139
+  ],
+  "final_com_local": [
+   0.0258,
+   0.1165,
+   1.9139
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 8,
+    "first": "pelvis self_overlap 0.105 (over 0.05 for 20 ticks)",
+    "first_t": 0.833,
+    "parts": [
+     "pelvis",
+     "forearm_r",
+     "forearm_l",
+     "abdomen",
+     "hand_r",
+     "hand_l",
+     "upper_arm_r",
+     "chest"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "neck swing_excess 22.130 (over 10 for 6 ticks)",
+    "first_t": 0.583,
+    "parts": [
+     "neck"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 21.683,
+   "mean": 3.67085641025641,
+   "n": 390,
+   "p50": 2.581,
+   "p99": 20.27
+  },
+  "frame_ms_after_5s": {
+   "max": 3.769,
+   "mean": 2.50683606557377,
+   "n": 61,
+   "p50": 2.417,
+   "p99": 3.769
+  },
+  "frame_ms_collapse_3s": {
+   "max": 6.848,
+   "mean": 3.42162777777778,
+   "n": 180,
+   "p50": 3.06,
+   "p99": 5.885
+  },
+  "frame_ms_standing": {
+   "max": 21.683,
+   "mean": 7.11505263157895,
+   "n": 19,
+   "p50": 2.418,
+   "p99": 21.683
+  },
+  "group": "A",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0343328230082989,
+   "penetration": 0.0446282476186752,
+   "self_overlap": 0.11151860980317,
+   "speed": 7.27410268783569,
+   "up": 0.119877755641937
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0343,
+    "head",
+    0.7
+   ],
+   "penetration": [
+    0.0446,
+    "head",
+    0.7
+   ],
+   "self_overlap": [
+    0.1115,
+    "hand_r",
+    0.617
+   ],
+   "speed": [
+    7.2741,
+    "head",
+    0.667
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    22.13,
+    "neck",
+    0.583
+   ],
+   "twist_excess": [
+    12.96,
+    "hand_l",
+    0.467
+   ],
+   "wrong_bend": [
+    2.58,
+    "shin_r",
+    0.5
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 3,
+    "first": "head 0.045 m into the world",
+    "first_t": 1.2,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.045 m into the world"
+   },
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.034 m off its joint",
+    "first_t": 1.01666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.034 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2664,
+    "first": "pelvis 0.059 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.01666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.059 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 18,
+    "first": "hand_r swung 69 deg (limit 55)",
+    "first_t": 0.95,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "hand_r swung 69 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 7,
+    "first": "hand_r twisted -31 deg (limit 20)",
+    "first_t": 0.966666666666667,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "head": true
+    },
+    "worst": "hand_r twisted -31 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "A_stand_blow_front",
+  "settle_s": 1.75,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     3.1454,
+     -112.1075
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0393,
+     -1.4013
+    ],
+    "tick": 90
+   }
+  ],
+  "final_com": [
+   -0.1438,
+   0.1381,
+   -1.9503
+  ],
+  "final_com_local": [
+   -0.1438,
+   0.1381,
+   -1.9503
+  ],
+  "fixture": "ground",
+  "flags": {
+   "joint_pulled_apart": {
+    "count": 3,
+    "first": "foot_l joint_gap 0.038 (over 0.03 for 4 ticks)",
+    "first_t": 0.483,
+    "parts": [
+     "foot_l",
+     "shin_l",
+     "head"
+    ]
+   },
+   "limb_through_body": {
+    "count": 11,
+    "first": "pelvis self_overlap 0.062 (over 0.05 for 20 ticks)",
+    "first_t": 1.417,
+    "parts": [
+     "pelvis",
+     "foot_l",
+     "chest",
+     "forearm_l",
+     "abdomen",
+     "forearm_r",
+     "hand_r",
+     "hand_l",
+     "foot_r",
+     "thigh_l",
+     "shin_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 5,
+    "first": "foot_l penetration 0.034 (over 0.03 for 4 ticks)",
+    "first_t": 0.233,
+    "parts": [
+     "foot_l",
+     "foot_r",
+     "hand_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 4,
+    "first": "foot_l swing_excess 36.190 (over 10 for 6 ticks)",
+    "first_t": 0.467,
+    "parts": [
+     "foot_l",
+     "foot_r",
+     "neck",
+     "hand_r"
+    ]
+   },
+   "twist_past_limit": {
+    "count": 2,
+    "first": "head twist_excess 31.760 (over 15 for 6 ticks)",
+    "first_t": 0.7,
+    "parts": [
+     "head",
+     "neck"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 36.304,
+   "mean": 3.74331555555555,
+   "n": 450,
+   "p50": 2.898,
+   "p99": 32.061
+  },
+  "frame_ms_after_5s": {
+   "max": 4.683,
+   "mean": 2.71283606557377,
+   "n": 61,
+   "p50": 2.484,
+   "p99": 4.683
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.067,
+   "mean": 3.50040555555556,
+   "n": 180,
+   "p50": 3.106,
+   "p99": 7.925
+  },
+  "frame_ms_standing": {
+   "max": 21.195,
+   "mean": 3.03530379746835,
+   "n": 79,
+   "p50": 1.577,
+   "p99": 21.195
+  },
+  "group": "B",
+  "joints": 16,
+  "limp_t": 1.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.042403943836689,
+   "penetration": 0.0702867954969406,
+   "self_overlap": 0.168300888501108,
+   "speed": 4.31075859069824,
+   "up": 0.340093374252319
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0424,
+    "head",
+    0.8
+   ],
+   "penetration": [
+    0.0703,
+    "foot_r",
+    0.483
+   ],
+   "self_overlap": [
+    0.1683,
+    "pelvis",
+    0.483
+   ],
+   "speed": [
+    4.3107,
+    "head",
+    0.7
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    36.19,
+    "foot_l",
+    0.467
+   ],
+   "twist_excess": [
+    32.56,
+    "foot_r",
+    0.483
+   ],
+   "wrong_bend": [
+    5.58,
+    "forearm_l",
+    0.433
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 111,
+    "first": "foot_l 0.032 m into the world",
+    "first_t": 1.68333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_r": true
+    },
+    "worst": "foot_l 0.032 m into the world"
+   },
+   "joint_separation": {
+    "count": 21,
+    "first": "foot_l 0.031 m off its joint",
+    "first_t": 1.93333333333333,
+    "segments": {
+     "foot_l": true,
+     "head": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "foot_l 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 3189,
+    "first": "pelvis 0.064 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.88333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.064 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 168,
+    "first": "foot_l swung 42 deg (limit 30)",
+    "first_t": 1.68333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "foot_l swung 42 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 47,
+    "first": "foot_l twisted -25 deg (limit 5)",
+    "first_t": 1.9,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "head": true,
+     "neck": true,
+     "upper_arm_l": true
+    },
+    "worst": "foot_l twisted -25 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "B_walk_blackout",
+  "settle_s": 3.68333333333333,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     -0.4538,
+     -279.467
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     -0.0057,
+     -3.4933
+    ],
+    "tick": 90
+   }
+  ],
+  "final_com": [
+   0.4576,
+   0.1266,
+   -5.3111
+  ],
+  "final_com_local": [
+   0.4576,
+   0.1266,
+   -5.3111
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 4,
+    "first": "chest self_overlap 0.069 (over 0.05 for 20 ticks)",
+    "first_t": 1.35,
+    "parts": [
+     "chest",
+     "forearm_r",
+     "abdomen",
+     "upper_arm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 3,
+    "first": "foot_l penetration 0.040 (over 0.03 for 4 ticks)",
+    "first_t": 0.267,
+    "parts": [
+     "foot_l",
+     "hand_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 4,
+    "first": "foot_l swing_excess 16.740 (over 10 for 6 ticks)",
+    "first_t": 0.267,
+    "parts": [
+     "foot_l",
+     "neck",
+     "hand_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 22.291,
+   "mean": 3.18262,
+   "n": 450,
+   "p50": 2.536,
+   "p99": 21.364
+  },
+  "frame_ms_after_5s": {
+   "max": 3.716,
+   "mean": 2.44406557377049,
+   "n": 61,
+   "p50": 2.392,
+   "p99": 3.716
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.294,
+   "mean": 3.16623333333333,
+   "n": 180,
+   "p50": 3.0,
+   "p99": 5.628
+  },
+  "frame_ms_standing": {
+   "max": 21.139,
+   "mean": 2.62525316455696,
+   "n": 79,
+   "p50": 0.948,
+   "p99": 21.139
+  },
+  "group": "C",
+  "joints": 16,
+  "limp_t": 1.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0304680317640305,
+   "penetration": 0.0412463843822479,
+   "self_overlap": 0.129799582064152,
+   "speed": 3.29448795318604,
+   "up": 0.0833523273468018
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0305,
+    "hand_r",
+    0.55
+   ],
+   "penetration": [
+    0.0412,
+    "hand_r",
+    0.517
+   ],
+   "self_overlap": [
+    0.1298,
+    "chest",
+    1.133
+   ],
+   "speed": [
+    3.2945,
+    "hand_r",
+    0.433
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    33.94,
+    "hand_r",
+    0.5
+   ],
+   "twist_excess": [
+    33.26,
+    "hand_r",
+    0.517
+   ],
+   "wrong_bend": [
+    7.14,
+    "forearm_l",
+    0.383
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 24,
+    "first": "foot_l 0.033 m into the world",
+    "first_t": 1.71666666666667,
+    "segments": {
+     "foot_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_l 0.033 m into the world"
+   },
+   "joint_separation": {
+    "count": 2,
+    "first": "hand_r 0.030 m off its joint",
+    "first_t": 2.05,
+    "segments": {
+     "hand_r": true
+    },
+    "worst": "hand_r 0.030 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1898,
+    "first": "pelvis 0.049 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.86666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "pelvis": true,
+     "shin_l": true,
+     "thigh_l": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.049 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 60,
+    "first": "foot_l swung 41 deg (limit 30)",
+    "first_t": 1.68333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "foot_l swung 41 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 48,
+    "first": "foot_l twisted 15 deg (limit 5)",
+    "first_t": 1.71666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_r": true,
+     "head": true,
+     "thigh_l": true,
+     "upper_arm_l": true
+    },
+    "worst": "foot_l twisted 15 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "C_run_blackout",
+  "settle_s": 1.85,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     -0.4538,
+     -279.467
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     -0.0057,
+     -3.4933
+    ],
+    "tick": 90
+   }
+  ],
+  "final_com": [
+   -0.0895,
+   0.1511,
+   -4.4999
+  ],
+  "final_com_local": [
+   -0.0895,
+   0.1511,
+   -4.4999
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 7,
+    "first": "forearm_l self_overlap 0.073 (over 0.05 for 20 ticks)",
+    "first_t": 0.95,
+    "parts": [
+     "forearm_l",
+     "chest",
+     "hand_l",
+     "pelvis",
+     "abdomen",
+     "foot_l",
+     "forearm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_l penetration 0.031 (over 0.03 for 4 ticks)",
+    "first_t": 0.25,
+    "parts": [
+     "foot_l",
+     "hand_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "foot_l swing_excess 12.050 (over 10 for 6 ticks)",
+    "first_t": 0.483,
+    "parts": [
+     "foot_l",
+     "hand_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 26.094,
+   "mean": 3.59469777777778,
+   "n": 450,
+   "p50": 2.743,
+   "p99": 23.23
+  },
+  "frame_ms_after_5s": {
+   "max": 4.384,
+   "mean": 2.54206557377049,
+   "n": 61,
+   "p50": 2.488,
+   "p99": 4.384
+  },
+  "frame_ms_collapse_3s": {
+   "max": 15.211,
+   "mean": 3.93933333333334,
+   "n": 180,
+   "p50": 3.218,
+   "p99": 8.86
+  },
+  "frame_ms_standing": {
+   "max": 26.094,
+   "mean": 2.61226582278481,
+   "n": 79,
+   "p50": 0.895,
+   "p99": 26.094
+  },
+  "group": "C",
+  "joints": 16,
+  "limp_t": 1.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0301938839256763,
+   "penetration": 0.0383325330913067,
+   "self_overlap": 0.106076080352068,
+   "speed": 6.05897569656372,
+   "up": 0.0342205166816711
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0302,
+    "foot_l",
+    0.45
+   ],
+   "penetration": [
+    0.0383,
+    "hand_r",
+    0.533
+   ],
+   "self_overlap": [
+    0.1061,
+    "pelvis",
+    0.467
+   ],
+   "speed": [
+    6.059,
+    "head",
+    0.633
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    31.9,
+    "hand_r",
+    0.517
+   ],
+   "twist_excess": [
+    18.83,
+    "foot_l",
+    0.517
+   ],
+   "wrong_bend": [
+    8.5,
+    "forearm_r",
+    0.467
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 12,
+    "first": "foot_l 0.031 m into the world",
+    "first_t": 1.7,
+    "segments": {
+     "foot_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_l 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 1,
+    "first": "foot_l 0.030 m off its joint",
+    "first_t": 1.95,
+    "segments": {
+     "foot_l": true
+    },
+    "worst": "foot_l 0.030 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2876,
+    "first": "pelvis 0.045 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.88333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.045 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 29,
+    "first": "foot_l swung 42 deg (limit 30)",
+    "first_t": 1.68333333333333,
+    "segments": {
+     "foot_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "foot_l swung 42 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 6,
+    "first": "foot_l twisted 17 deg (limit 5)",
+    "first_t": 1.73333333333333,
+    "segments": {
+     "foot_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_l twisted 17 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "C_run_shot_front",
+  "settle_s": 3.26666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": false,
+  "asleep_at_end": 0,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.001,
+     -2.3163,
+     -0.0289
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     -0.029,
+     -0.0004
+    ],
+    "tick": 60
+   }
+  ],
+  "final_com": [
+   -0.0362,
+   0.178,
+   -0.508
+  ],
+  "final_com_local": [
+   -0.0362,
+   0.178,
+   -0.508
+  ],
+  "fixture": "ground",
+  "flags": {
+   "awake_at_end": {
+    "count": 1,
+    "first": "0 of 17 parts asleep at the end",
+    "first_t": 0,
+    "parts": []
+   },
+   "limb_through_body": {
+    "count": 14,
+    "first": "forearm_l self_overlap 0.077 (over 0.05 for 20 ticks)",
+    "first_t": 0.483,
+    "parts": [
+     "forearm_l",
+     "chest",
+     "upper_arm_r",
+     "thigh_r",
+     "hand_l",
+     "foot_l",
+     "thigh_l",
+     "shin_r",
+     "shin_l",
+     "forearm_r",
+     "abdomen",
+     "foot_r",
+     "hand_r"
+    ]
+   },
+   "never_settled": {
+    "count": 1,
+    "first": "still moving at the end",
+    "first_t": 0,
+    "parts": []
+   },
+   "sunk_into_world": {
+    "count": 6,
+    "first": "foot_r penetration 0.032 (over 0.03 for 4 ticks)",
+    "first_t": 1.65,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 5,
+    "first": "head swing_excess 12.430 (over 10 for 6 ticks)",
+    "first_t": 1.367,
+    "parts": [
+     "head",
+     "foot_l",
+     "foot_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 33.439,
+   "mean": 3.94466190476191,
+   "n": 420,
+   "p50": 3.228,
+   "p99": 23.78
+  },
+  "frame_ms_after_5s": {
+   "max": 4.908,
+   "mean": 3.40754098360656,
+   "n": 61,
+   "p50": 3.233,
+   "p99": 4.908
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.704,
+   "mean": 3.49763888888889,
+   "n": 180,
+   "p50": 3.337,
+   "p99": 5.743
+  },
+  "frame_ms_standing": {
+   "max": 20.333,
+   "mean": 3.36091836734694,
+   "n": 49,
+   "p50": 0.853,
+   "p99": 20.333
+  },
+  "group": "D",
+  "joints": 16,
+  "limp_t": 1.0,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0141864288598299,
+   "penetration": 0.0323681533336639,
+   "self_overlap": 0.20746324659558,
+   "speed": 3.3589231967926,
+   "up": 0.177969038486481
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0142,
+    "foot_l",
+    1.467
+   ],
+   "penetration": [
+    0.0324,
+    "foot_l",
+    3.783
+   ],
+   "self_overlap": [
+    0.2075,
+    "chest",
+    0.917
+   ],
+   "speed": [
+    3.359,
+    "hand_l",
+    0.333
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    20.77,
+    "foot_l",
+    3.683
+   ],
+   "twist_excess": [
+    11.6,
+    "head",
+    1.2
+   ],
+   "wrong_bend": [
+    -24.59,
+    "forearm_l",
+    0.417
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 313,
+    "first": "foot_r 0.030 m into the world",
+    "first_t": 2.58333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true
+    },
+    "worst": "foot_r 0.030 m into the world"
+   },
+   "self_overlap": {
+    "count": 3440,
+    "first": "forearm_l 0.056 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.16666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "forearm_l 0.056 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 498,
+    "first": "head swung 48 deg (limit 35)",
+    "first_t": 2.01666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "head": true
+    },
+    "worst": "head swung 48 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 4,
+    "first": "head twisted 41 deg (limit 30)",
+    "first_t": 2.18333333333333,
+    "segments": {
+     "head": true,
+     "upper_arm_l": true
+    },
+    "worst": "head twisted 41 deg (limit 30)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "D_crouch_blackout",
+  "settle_s": null,
+  "shapes": 21,
+  "sleep_flips": 0,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   },
+   {
+    "at_world": [
+     0.0,
+     1.3318,
+     -0.1179
+    ],
+    "impulse_Ns": [
+     0.0,
+     0.0,
+     40.0
+    ],
+    "kind": "lab_impulse",
+    "segment": "chest",
+    "source": "the lab (scenarios.json)",
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.0325,
+   0.1373,
+   0.2672
+  ],
+  "final_com_local": [
+   -0.0325,
+   0.1373,
+   0.2672
+  ],
+  "fixture": "ground",
+  "flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rising 0.47 m/s at 0.16 m",
+    "first_t": 0.617,
+    "parts": []
+   },
+   "limb_through_body": {
+    "count": 6,
+    "first": "pelvis self_overlap 0.084 (over 0.05 for 20 ticks)",
+    "first_t": 1.1,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "hand_l",
+     "abdomen",
+     "chest",
+     "upper_arm_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 4,
+    "first": "upper_arm_r penetration 0.032 (over 0.03 for 4 ticks)",
+    "first_t": 0.6,
+    "parts": [
+     "upper_arm_r",
+     "forearm_r",
+     "foot_r",
+     "hand_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 21.832,
+   "mean": 3.63838717948718,
+   "n": 390,
+   "p50": 2.673,
+   "p99": 20.782
+  },
+  "frame_ms_after_5s": {
+   "max": 3.217,
+   "mean": 2.36877049180328,
+   "n": 61,
+   "p50": 2.333,
+   "p99": 3.217
+  },
+  "frame_ms_collapse_3s": {
+   "max": 10.258,
+   "mean": 3.59192777777778,
+   "n": 180,
+   "p50": 3.179,
+   "p99": 7.335
+  },
+  "frame_ms_standing": {
+   "max": 21.027,
+   "mean": 7.25510526315789,
+   "n": 19,
+   "p50": 2.107,
+   "p99": 21.027
+  },
+  "group": "E",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0229555945843458,
+   "penetration": 0.0635777562856674,
+   "self_overlap": 0.0858330316841602,
+   "speed": 5.71051454544067,
+   "up": 0.574236810207367
+  },
+  "peaks": {
+   "joint_gap": [
+    0.023,
+    "foot_l",
+    0.55
+   ],
+   "penetration": [
+    0.0636,
+    "forearm_r",
+    0.567
+   ],
+   "self_overlap": [
+    0.0858,
+    "pelvis",
+    0.833
+   ],
+   "speed": [
+    5.7105,
+    "head",
+    0.567
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    10.71,
+    "foot_r",
+    0.567
+   ],
+   "twist_excess": [
+    18.91,
+    "foot_r",
+    0.567
+   ],
+   "wrong_bend": [
+    5.38,
+    "forearm_r",
+    0.033
+   ]
+  },
+  "raw_flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rose at 0.47 m/s after coming down",
+    "first_t": 1.11666666666667,
+    "segments": {},
+    "worst": "centre of mass rose at 0.47 m/s after coming down"
+   },
+   "ground_penetration": {
+    "count": 33,
+    "first": "abdomen 0.032 m into the world",
+    "first_t": 1.05,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_r": true,
+     "hand_r": true,
+     "head": true,
+     "upper_arm_r": true
+    },
+    "worst": "abdomen 0.032 m into the world"
+   },
+   "self_overlap": {
+    "count": 2033,
+    "first": "pelvis 0.041 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.85,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.041 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "foot_r swung 40 deg (limit 30)",
+    "first_t": 1.05,
+    "segments": {
+     "foot_r": true
+    },
+    "worst": "foot_r swung 40 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 3,
+    "first": "foot_r twisted -24 deg (limit 5)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true
+    },
+    "worst": "foot_r twisted -24 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "E_chest_from_front",
+  "settle_s": 2.81666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   },
+   {
+    "at_world": [
+     0.0,
+     1.3282,
+     0.1221
+    ],
+    "impulse_Ns": [
+     0.0,
+     0.0,
+     -40.0
+    ],
+    "kind": "lab_impulse",
+    "segment": "chest",
+    "source": "the lab (scenarios.json)",
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.9234,
+   0.1226,
+   -0.3208
+  ],
+  "final_com_local": [
+   -0.9234,
+   0.1226,
+   -0.3208
+  ],
+  "fixture": "ground",
+  "flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rising 0.81 m/s at 0.40 m",
+    "first_t": 0.6,
+    "parts": []
+   },
+   "joint_pulled_apart": {
+    "count": 2,
+    "first": "foot_l joint_gap 0.032 (over 0.03 for 4 ticks)",
+    "first_t": 0.533,
+    "parts": [
+     "foot_l",
+     "shin_r"
+    ]
+   },
+   "limb_through_body": {
+    "count": 8,
+    "first": "shin_l self_overlap 0.059 (over 0.05 for 20 ticks)",
+    "first_t": 1.183,
+    "parts": [
+     "shin_l",
+     "thigh_r",
+     "shin_r",
+     "thigh_l",
+     "chest",
+     "hand_l",
+     "forearm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 1,
+    "first": "foot_l penetration 0.033 (over 0.03 for 4 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "foot_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "foot_l swing_excess 13.370 (over 10 for 6 ticks)",
+    "first_t": 0.6,
+    "parts": [
+     "foot_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 20.706,
+   "mean": 3.68734102564103,
+   "n": 390,
+   "p50": 2.862,
+   "p99": 20.201
+  },
+  "frame_ms_after_5s": {
+   "max": 4.798,
+   "mean": 2.56891803278689,
+   "n": 61,
+   "p50": 2.42,
+   "p99": 4.798
+  },
+  "frame_ms_collapse_3s": {
+   "max": 5.424,
+   "mean": 3.21972222222222,
+   "n": 180,
+   "p50": 2.988,
+   "p99": 5.367
+  },
+  "frame_ms_standing": {
+   "max": 20.063,
+   "mean": 6.93921052631579,
+   "n": 19,
+   "p50": 2.079,
+   "p99": 20.063
+  },
+  "group": "E",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0321665965020657,
+   "penetration": 0.0334522798657417,
+   "self_overlap": 0.150347083806992,
+   "speed": 4.48468255996704,
+   "up": 0.881654620170593
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0322,
+    "shin_r",
+    0.55
+   ],
+   "penetration": [
+    0.0335,
+    "foot_l",
+    0.533
+   ],
+   "self_overlap": [
+    0.1503,
+    "chest",
+    2.167
+   ],
+   "speed": [
+    4.4847,
+    "hand_r",
+    1.267
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    20.63,
+    "foot_l",
+    0.533
+   ],
+   "twist_excess": [
+    24.17,
+    "hand_l",
+    1.35
+   ],
+   "wrong_bend": [
+    4.66,
+    "forearm_l",
+    1.167
+   ]
+  },
+  "raw_flags": {
+   "bounce": {
+    "count": 8,
+    "first": "centre of mass rose at 0.81 m/s after coming down",
+    "first_t": 1.1,
+    "segments": {},
+    "worst": "centre of mass rose at 0.81 m/s after coming down"
+   },
+   "ground_penetration": {
+    "count": 10,
+    "first": "foot_l 0.031 m into the world",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true
+    },
+    "worst": "foot_l 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 9,
+    "first": "foot_l 0.031 m off its joint",
+    "first_t": 0.983333333333333,
+    "segments": {
+     "foot_l": true,
+     "shin_r": true
+    },
+    "worst": "foot_l 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2670,
+    "first": "pelvis 0.040 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.916666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.040 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 22,
+    "first": "neck swung 40 deg (limit 30)",
+    "first_t": 0.55,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "neck swung 40 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 23,
+    "first": "head twisted -42 deg (limit 30)",
+    "first_t": 1.58333333333333,
+    "segments": {
+     "hand_l": true,
+     "head": true
+    },
+    "worst": "head twisted -42 deg (limit 30)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "E_chest_from_back",
+  "settle_s": 3.58333333333333,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   },
+   {
+    "at_world": [
+     -0.2185,
+     1.3819,
+     0.0029
+    ],
+    "impulse_Ns": [
+     30.0,
+     0.0,
+     0.0
+    ],
+    "kind": "lab_impulse",
+    "segment": "upper_arm_l",
+    "source": "the lab (scenarios.json)",
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.3249,
+   0.139,
+   0.2409
+  ],
+  "final_com_local": [
+   0.3249,
+   0.139,
+   0.2409
+  ],
+  "fixture": "ground",
+  "flags": {
+   "discontinuity": {
+    "count": 1,
+    "first": "hand_l step 2.000 (over 1 for 1 ticks)",
+    "first_t": 0.167,
+    "parts": [
+     "hand_l"
+    ]
+   },
+   "joint_pulled_apart": {
+    "count": 1,
+    "first": "foot_r joint_gap 0.036 (over 0.03 for 4 ticks)",
+    "first_t": 0.633,
+    "parts": [
+     "foot_r"
+    ]
+   },
+   "limb_through_body": {
+    "count": 8,
+    "first": "chest self_overlap 0.065 (over 0.05 for 20 ticks)",
+    "first_t": 0.35,
+    "parts": [
+     "chest",
+     "forearm_l",
+     "forearm_r",
+     "abdomen",
+     "upper_arm_r",
+     "upper_arm_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_r penetration 0.069 (over 0.03 for 4 ticks)",
+    "first_t": 0.533,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "foot_r swing_excess 41.380 (over 10 for 6 ticks)",
+    "first_t": 0.567,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   },
+   "twist_past_limit": {
+    "count": 1,
+    "first": "upper_arm_l twist_excess 17.880 (over 15 for 6 ticks)",
+    "first_t": 0.433,
+    "parts": [
+     "upper_arm_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 28.597,
+   "mean": 3.93750769230769,
+   "n": 390,
+   "p50": 3.085,
+   "p99": 22.778
+  },
+  "frame_ms_after_5s": {
+   "max": 4.024,
+   "mean": 2.46660655737705,
+   "n": 61,
+   "p50": 2.37,
+   "p99": 4.024
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.009,
+   "mean": 3.56197777777778,
+   "n": 180,
+   "p50": 3.302,
+   "p99": 5.974
+  },
+  "frame_ms_standing": {
+   "max": 28.597,
+   "mean": 8.38973684210526,
+   "n": 19,
+   "p50": 2.411,
+   "p99": 28.597
+  },
+  "group": "E",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.037903007119894,
+   "penetration": 0.0685303211212158,
+   "self_overlap": 0.154046099632978,
+   "speed": 5.56831026077271,
+   "up": 0.083962082862854
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0379,
+    "foot_r",
+    0.617
+   ],
+   "penetration": [
+    0.0685,
+    "foot_r",
+    0.533
+   ],
+   "self_overlap": [
+    0.154,
+    "chest",
+    0.083
+   ],
+   "speed": [
+    5.5684,
+    "hand_l",
+    0.133
+   ],
+   "step": [
+    2.0,
+    "hand_l",
+    0.167
+   ],
+   "swing_excess": [
+    42.06,
+    "foot_r",
+    0.617
+   ],
+   "twist_excess": [
+    28.4,
+    "foot_r",
+    0.533
+   ],
+   "wrong_bend": [
+    6.62,
+    "forearm_l",
+    0.167
+   ]
+  },
+  "raw_flags": {
+   "discontinuity": {
+    "count": 1,
+    "first": "hand_l moved 0.07 m / 47 deg in one tick",
+    "first_t": 0.666666666666667,
+    "segments": {
+     "hand_l": true
+    },
+    "worst": "hand_l moved 0.07 m / 47 deg in one tick"
+   },
+   "ground_penetration": {
+    "count": 41,
+    "first": "foot_r 0.031 m into the world",
+    "first_t": 0.983333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "hand_l": true
+    },
+    "worst": "foot_r 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 15,
+    "first": "hand_l 0.031 m off its joint",
+    "first_t": 0.7,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "shin_r": true
+    },
+    "worst": "hand_l 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2124,
+    "first": "abdomen 0.046 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.516666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "abdomen 0.046 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 40,
+    "first": "hand_l swung 71 deg (limit 55)",
+    "first_t": 0.533333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true
+    },
+    "worst": "hand_l swung 71 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 23,
+    "first": "hand_l twisted 35 deg (limit 20)",
+    "first_t": 0.516666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "upper_arm_l": true
+    },
+    "worst": "hand_l twisted 35 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "E_shoulder_from_left",
+  "settle_s": 4.33333333333333,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   },
+   {
+    "at_world": [
+     0.12,
+     0.9,
+     0.0
+    ],
+    "impulse_Ns": [
+     -40.0,
+     0.0,
+     0.0
+    ],
+    "kind": "lab_impulse",
+    "segment": "pelvis",
+    "source": "the lab (scenarios.json)",
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.1517,
+   0.1595,
+   0.2546
+  ],
+  "final_com_local": [
+   -0.1517,
+   0.1595,
+   0.2546
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 12,
+    "first": "pelvis self_overlap 0.108 (over 0.05 for 20 ticks)",
+    "first_t": 0.383,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "abdomen",
+     "hand_l",
+     "upper_arm_l",
+     "chest",
+     "thigh_r",
+     "shin_l",
+     "foot_l",
+     "shin_r",
+     "foot_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "head swing_excess 13.610 (over 10 for 6 ticks)",
+    "first_t": 0.633,
+    "parts": [
+     "head"
+    ]
+   },
+   "twist_past_limit": {
+    "count": 1,
+    "first": "upper_arm_r twist_excess 20.770 (over 15 for 6 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "upper_arm_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 21.571,
+   "mean": 3.87136153846154,
+   "n": 390,
+   "p50": 3.003,
+   "p99": 20.647
+  },
+  "frame_ms_after_5s": {
+   "max": 3.1,
+   "mean": 2.47175409836066,
+   "n": 61,
+   "p50": 2.413,
+   "p99": 3.1
+  },
+  "frame_ms_collapse_3s": {
+   "max": 9.507,
+   "mean": 3.37489444444444,
+   "n": 180,
+   "p50": 3.069,
+   "p99": 6.924
+  },
+  "frame_ms_standing": {
+   "max": 21.571,
+   "mean": 7.11226315789474,
+   "n": 19,
+   "p50": 2.163,
+   "p99": 21.571
+  },
+  "group": "E",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.024146793410182,
+   "penetration": 0.0269206166267395,
+   "self_overlap": 0.171764033846557,
+   "speed": 4.12525463104248,
+   "up": 0.0379577279090881
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0241,
+    "forearm_r",
+    0.75
+   ],
+   "penetration": [
+    0.0269,
+    "shin_l",
+    0.617
+   ],
+   "self_overlap": [
+    0.1718,
+    "chest",
+    0.667
+   ],
+   "speed": [
+    4.1253,
+    "head",
+    0.467
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    24.02,
+    "head",
+    0.567
+   ],
+   "twist_excess": [
+    32.19,
+    "upper_arm_r",
+    0.733
+   ],
+   "wrong_bend": [
+    4.28,
+    "forearm_l",
+    0.517
+   ]
+  },
+  "raw_flags": {
+   "self_overlap": {
+    "count": 2234,
+    "first": "pelvis 0.052 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.566666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "hand_l": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.052 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 11,
+    "first": "head swung 57 deg (limit 35)",
+    "first_t": 1.05,
+    "segments": {
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 57 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 81,
+    "first": "thigh_l twisted -31 deg (limit 20)",
+    "first_t": 0.9,
+    "segments": {
+     "hand_l": true,
+     "thigh_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "thigh_l twisted -31 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "E_hip_from_right",
+  "settle_s": 3.75,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   },
+   {
+    "at_world": [
+     0.0,
+     1.6563,
+     -0.0855
+    ],
+    "impulse_Ns": [
+     0.0,
+     0.0,
+     12.0
+    ],
+    "kind": "lab_impulse",
+    "segment": "head",
+    "source": "the lab (scenarios.json)",
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.0618,
+   0.1298,
+   0.1551
+  ],
+  "final_com_local": [
+   -0.0618,
+   0.1298,
+   0.1551
+  ],
+  "fixture": "ground",
+  "flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rising 0.52 m/s at 0.18 m",
+    "first_t": 0.7,
+    "parts": []
+   },
+   "joint_pulled_apart": {
+    "count": 2,
+    "first": "foot_l joint_gap 0.039 (over 0.03 for 4 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "foot_l",
+     "shin_l"
+    ]
+   },
+   "limb_through_body": {
+    "count": 3,
+    "first": "pelvis self_overlap 0.065 (over 0.05 for 20 ticks)",
+    "first_t": 1.25,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "abdomen"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_l penetration 0.048 (over 0.03 for 4 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "foot_l",
+     "foot_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "foot_r swing_excess 10.960 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 46.392,
+   "mean": 4.44882820512821,
+   "n": 390,
+   "p50": 3.253,
+   "p99": 37.201
+  },
+  "frame_ms_after_5s": {
+   "max": 5.839,
+   "mean": 3.4897868852459,
+   "n": 61,
+   "p50": 3.164,
+   "p99": 5.839
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.146,
+   "mean": 3.61878888888889,
+   "n": 180,
+   "p50": 3.26,
+   "p99": 6.447
+  },
+  "frame_ms_standing": {
+   "max": 37.882,
+   "mean": 9.95642105263158,
+   "n": 19,
+   "p50": 3.778,
+   "p99": 37.882
+  },
+  "group": "E",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0399241335690022,
+   "penetration": 0.0525553561747074,
+   "self_overlap": 0.0809305123984814,
+   "speed": 4.16626167297363,
+   "up": 0.58944046497345
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0399,
+    "foot_l",
+    0.533
+   ],
+   "penetration": [
+    0.0526,
+    "foot_l",
+    0.6
+   ],
+   "self_overlap": [
+    0.0809,
+    "pelvis",
+    0.533
+   ],
+   "speed": [
+    4.1663,
+    "head",
+    0.65
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    20.73,
+    "foot_l",
+    0.6
+   ],
+   "twist_excess": [
+    21.36,
+    "foot_l",
+    0.55
+   ],
+   "wrong_bend": [
+    2.98,
+    "forearm_r",
+    0.1
+   ]
+  },
+  "raw_flags": {
+   "bounce": {
+    "count": 2,
+    "first": "centre of mass rose at 0.52 m/s after coming down",
+    "first_t": 1.2,
+    "segments": {},
+    "worst": "centre of mass rose at 0.52 m/s after coming down"
+   },
+   "ground_penetration": {
+    "count": 24,
+    "first": "hand_r 0.036 m into the world",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_r": true
+    },
+    "worst": "hand_r 0.036 m into the world"
+   },
+   "joint_separation": {
+    "count": 17,
+    "first": "foot_l 0.031 m off its joint",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "foot_l 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2250,
+    "first": "pelvis 0.050 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.983333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "pelvis 0.050 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 19,
+    "first": "hand_l swung 71 deg (limit 55)",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_l swung 71 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 2,
+    "first": "foot_l twisted 26 deg (limit 5)",
+    "first_t": 1.05,
+    "segments": {
+     "foot_l": true
+    },
+    "worst": "foot_l twisted 26 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "E_head_from_front",
+  "settle_s": 2.71666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.0886,
+   0.3024,
+   0.1834
+  ],
+  "final_com_local": [
+   -0.0886,
+   0.3024,
+   0.1834
+  ],
+  "fixture": "wall",
+  "flags": {
+   "limb_through_body": {
+    "count": 6,
+    "first": "shin_r self_overlap 0.068 (over 0.05 for 20 ticks)",
+    "first_t": 2.183,
+    "parts": [
+     "shin_r",
+     "foot_l",
+     "thigh_r",
+     "shin_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 4,
+    "first": "foot_r penetration 0.034 (over 0.03 for 4 ticks)",
+    "first_t": 0.733,
+    "parts": [
+     "foot_r",
+     "hand_l",
+     "foot_l",
+     "hand_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 3,
+    "first": "hand_r swing_excess 18.910 (over 10 for 6 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "hand_r",
+     "hand_l",
+     "foot_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 35.768,
+   "mean": 3.91408717948718,
+   "n": 390,
+   "p50": 2.908,
+   "p99": 34.973
+  },
+  "frame_ms_after_5s": {
+   "max": 2.826,
+   "mean": 2.39039344262295,
+   "n": 61,
+   "p50": 2.356,
+   "p99": 2.826
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.674,
+   "mean": 3.21389444444445,
+   "n": 180,
+   "p50": 2.936,
+   "p99": 8.299
+  },
+  "frame_ms_standing": {
+   "max": 22.053,
+   "mean": 7.68578947368421,
+   "n": 19,
+   "p50": 2.234,
+   "p99": 22.053
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0334966033697128,
+   "penetration": 0.046745702624321,
+   "self_overlap": 0.0720244199037552,
+   "speed": 3.28389573097229,
+   "up": 0.0653386116027832
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0335,
+    "shin_r",
+    0.7
+   ],
+   "penetration": [
+    0.0467,
+    "foot_r",
+    1.6
+   ],
+   "self_overlap": [
+    0.072,
+    "pelvis",
+    0.7
+   ],
+   "speed": [
+    3.2839,
+    "forearm_l",
+    0.65
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    25.56,
+    "hand_l",
+    0.733
+   ],
+   "twist_excess": [
+    33.19,
+    "hand_r",
+    0.717
+   ],
+   "wrong_bend": [
+    2.9,
+    "forearm_r",
+    0.717
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 103,
+    "first": "foot_r 0.030 m into the world",
+    "first_t": 1.18333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_r 0.030 m into the world"
+   },
+   "joint_separation": {
+    "count": 2,
+    "first": "shin_r 0.033 m off its joint",
+    "first_t": 1.2,
+    "segments": {
+     "shin_r": true
+    },
+    "worst": "shin_r 0.033 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1119,
+    "first": "pelvis 0.052 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.16666666666667,
+    "segments": {
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_r": true
+    },
+    "worst": "pelvis 0.052 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 194,
+    "first": "head swung 45 deg (limit 35)",
+    "first_t": 1.18333333333333,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 45 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 19,
+    "first": "hand_r twisted -35 deg (limit 20)",
+    "first_t": 1.2,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_r twisted -35 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_wall_behind",
+  "settle_s": 4.98333333333333,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     1.3774,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     2.4,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     49.3774,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.6,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.6,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.1247,
+   0.1312,
+   0.994
+  ],
+  "final_com_local": [
+   0.1247,
+   0.1312,
+   0.994
+  ],
+  "fixture": "doorway",
+  "flags": {
+   "limb_through_body": {
+    "count": 9,
+    "first": "forearm_r self_overlap 0.148 (over 0.05 for 20 ticks)",
+    "first_t": 0.717,
+    "parts": [
+     "forearm_r",
+     "hand_r",
+     "thigh_r",
+     "pelvis",
+     "forearm_l",
+     "abdomen",
+     "hand_l",
+     "chest"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "neck swing_excess 21.620 (over 10 for 6 ticks)",
+    "first_t": 0.633,
+    "parts": [
+     "neck"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 37.631,
+   "mean": 3.82784358974359,
+   "n": 390,
+   "p50": 2.962,
+   "p99": 31.504
+  },
+  "frame_ms_after_5s": {
+   "max": 2.714,
+   "mean": 2.41134426229508,
+   "n": 61,
+   "p50": 2.4,
+   "p99": 2.714
+  },
+  "frame_ms_collapse_3s": {
+   "max": 5.989,
+   "mean": 3.16518888888889,
+   "n": 180,
+   "p50": 3.028,
+   "p99": 4.775
+  },
+  "frame_ms_standing": {
+   "max": 35.966,
+   "mean": 8.33552631578947,
+   "n": 19,
+   "p50": 2.137,
+   "p99": 35.966
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.037561409175396,
+   "penetration": 0.0324702858924866,
+   "self_overlap": 0.173780795303173,
+   "speed": 6.70369529724121,
+   "up": 0.260579288005829
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0376,
+    "head",
+    0.617
+   ],
+   "penetration": [
+    0.0325,
+    "head",
+    0.767
+   ],
+   "self_overlap": [
+    0.1738,
+    "pelvis",
+    0.683
+   ],
+   "speed": [
+    6.7037,
+    "head",
+    0.717
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    22.06,
+    "neck",
+    0.617
+   ],
+   "twist_excess": [
+    12.22,
+    "thigh_l",
+    0.767
+   ],
+   "wrong_bend": [
+    2.23,
+    "forearm_r",
+    0.35
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 2,
+    "first": "head 0.032 m into the world",
+    "first_t": 1.26666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.032 m into the world"
+   },
+   "joint_separation": {
+    "count": 2,
+    "first": "head 0.038 m off its joint",
+    "first_t": 1.11666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.038 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2289,
+    "first": "forearm_r 0.049 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.883333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "forearm_r 0.049 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 13,
+    "first": "neck swung 41 deg (limit 30)",
+    "first_t": 0.916666666666667,
+    "segments": {
+     "hand_l": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "neck swung 41 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 28,
+    "first": "foot_r twisted 16 deg (limit 5)",
+    "first_t": 0.916666666666667,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "thigh_l": true
+    },
+    "worst": "foot_r twisted 16 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_doorway",
+  "settle_s": 4.86666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.0887,
+   0.1531,
+   0.0334
+  ],
+  "final_com_local": [
+   0.0887,
+   0.1531,
+   0.0334
+  ],
+  "fixture": "slope",
+  "flags": {
+   "limb_through_body": {
+    "count": 12,
+    "first": "forearm_r self_overlap 0.154 (over 0.05 for 20 ticks)",
+    "first_t": 0.8,
+    "parts": [
+     "forearm_r",
+     "forearm_l",
+     "hand_l",
+     "abdomen",
+     "upper_arm_r",
+     "chest",
+     "foot_l",
+     "shin_l",
+     "upper_arm_l",
+     "foot_r",
+     "shin_r",
+     "thigh_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_r penetration 0.036 (over 0.03 for 4 ticks)",
+    "first_t": 0.567,
+    "parts": [
+     "foot_r",
+     "foot_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 23.699,
+   "mean": 3.46698717948718,
+   "n": 390,
+   "p50": 2.548,
+   "p99": 20.467
+  },
+  "frame_ms_after_5s": {
+   "max": 2.552,
+   "mean": 2.32819672131148,
+   "n": 61,
+   "p50": 2.318,
+   "p99": 2.552
+  },
+  "frame_ms_collapse_3s": {
+   "max": 9.099,
+   "mean": 3.2306,
+   "n": 180,
+   "p50": 2.918,
+   "p99": 5.413
+  },
+  "frame_ms_standing": {
+   "max": 20.467,
+   "mean": 7.12247368421053,
+   "n": 19,
+   "p50": 3.171,
+   "p99": 20.467
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0341812521219254,
+   "penetration": 0.0369873940944672,
+   "self_overlap": 0.181294145877473,
+   "speed": 3.57584118843079,
+   "up": 0.0619661808013916
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0342,
+    "shin_r",
+    0.517
+   ],
+   "penetration": [
+    0.037,
+    "foot_r",
+    0.583
+   ],
+   "self_overlap": [
+    0.1813,
+    "pelvis",
+    0.583
+   ],
+   "speed": [
+    3.5758,
+    "forearm_l",
+    0.483
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    19.86,
+    "hand_l",
+    0.483
+   ],
+   "twist_excess": [
+    31.53,
+    "hand_l",
+    0.5
+   ],
+   "wrong_bend": [
+    3.6,
+    "forearm_r",
+    0.533
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 33,
+    "first": "foot_l 0.030 m into the world",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true
+    },
+    "worst": "foot_l 0.030 m into the world"
+   },
+   "joint_separation": {
+    "count": 4,
+    "first": "shin_r 0.033 m off its joint",
+    "first_t": 1.0,
+    "segments": {
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "shin_r 0.033 m off its joint"
+   },
+   "self_overlap": {
+    "count": 3852,
+    "first": "pelvis 0.047 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.966666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.047 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 13,
+    "first": "hand_r swung 74 deg (limit 55)",
+    "first_t": 0.983333333333333,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "hand_r swung 74 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 10,
+    "first": "hand_r twisted -48 deg (limit 20)",
+    "first_t": 1.0,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_r twisted -48 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_slope_downhill",
+  "settle_s": 2.76666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -6.1404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     -4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -102.1404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0034,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.6411,
+   0.1244,
+   -1.3458
+  ],
+  "final_com_local": [
+   0.6411,
+   -0.5956,
+   -1.3458
+  ],
+  "fixture": "stairs",
+  "flags": {
+   "joint_pulled_apart": {
+    "count": 1,
+    "first": "shin_l joint_gap 0.032 (over 0.03 for 4 ticks)",
+    "first_t": 0.65,
+    "parts": [
+     "shin_l"
+    ]
+   },
+   "limb_through_body": {
+    "count": 10,
+    "first": "pelvis self_overlap 0.095 (over 0.05 for 20 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "pelvis",
+     "foot_r",
+     "shin_r",
+     "thigh_l",
+     "chest",
+     "forearm_r",
+     "abdomen",
+     "upper_arm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 5,
+    "first": "foot_r penetration 0.041 (over 0.03 for 4 ticks)",
+    "first_t": 0.583,
+    "parts": [
+     "foot_r",
+     "shin_l",
+     "foot_l",
+     "shin_r",
+     "hand_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 4,
+    "first": "foot_l swing_excess 23.020 (over 10 for 6 ticks)",
+    "first_t": 0.583,
+    "parts": [
+     "foot_l",
+     "foot_r",
+     "hand_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 20.894,
+   "mean": 3.70892820512821,
+   "n": 390,
+   "p50": 2.741,
+   "p99": 20.286
+  },
+  "frame_ms_after_5s": {
+   "max": 3.344,
+   "mean": 2.42780327868852,
+   "n": 61,
+   "p50": 2.404,
+   "p99": 3.344
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.629,
+   "mean": 3.08891111111111,
+   "n": 180,
+   "p50": 2.719,
+   "p99": 7.815
+  },
+  "frame_ms_standing": {
+   "max": 20.286,
+   "mean": 7.05331578947368,
+   "n": 19,
+   "p50": 2.161,
+   "p99": 20.286
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0351031422615051,
+   "penetration": 0.0558185800909996,
+   "self_overlap": 0.168271030765027,
+   "speed": 5.272132396698,
+   "up": 0.258597135543823
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0351,
+    "shin_l",
+    0.633
+   ],
+   "penetration": [
+    0.0558,
+    "shin_r",
+    0.583
+   ],
+   "self_overlap": [
+    0.1683,
+    "chest",
+    2.167
+   ],
+   "speed": [
+    5.2722,
+    "thigh_r",
+    0.583
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    25.93,
+    "foot_l",
+    0.6
+   ],
+   "twist_excess": [
+    36.36,
+    "foot_l",
+    0.633
+   ],
+   "wrong_bend": [
+    6.87,
+    "forearm_l",
+    0.617
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 39,
+    "first": "foot_r 0.031 m into the world",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true
+    },
+    "worst": "foot_r 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 10,
+    "first": "foot_l 0.030 m off its joint",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "foot_l": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "foot_l 0.030 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1406,
+    "first": "pelvis 0.067 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.95,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.067 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 50,
+    "first": "foot_l swung 41 deg (limit 30)",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true
+    },
+    "worst": "foot_l swung 41 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 10,
+    "first": "foot_r twisted 21 deg (limit 5)",
+    "first_t": 1.1,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_r twisted 21 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_stairs_down",
+  "settle_s": 4.85,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.72,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -6.1404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     -4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     -102.1404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.0866,
+   0.1264,
+   -0.08
+  ],
+  "final_com_local": [
+   0.0866,
+   0.1264,
+   -0.08
+  ],
+  "fixture": "table",
+  "flags": {
+   "joint_pulled_apart": {
+    "count": 2,
+    "first": "foot_l joint_gap 0.032 (over 0.03 for 4 ticks)",
+    "first_t": 0.7,
+    "parts": [
+     "foot_l"
+    ]
+   },
+   "limb_through_body": {
+    "count": 10,
+    "first": "foot_l self_overlap 0.079 (over 0.05 for 20 ticks)",
+    "first_t": 0.917,
+    "parts": [
+     "foot_l",
+     "pelvis",
+     "foot_r",
+     "abdomen",
+     "shin_r",
+     "thigh_l",
+     "thigh_r",
+     "shin_l",
+     "forearm_r"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 4,
+    "first": "foot_l penetration 0.038 (over 0.03 for 4 ticks)",
+    "first_t": 0.7,
+    "parts": [
+     "foot_l",
+     "foot_r",
+     "hand_r",
+     "hand_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 9,
+    "first": "head swing_excess 12.790 (over 10 for 6 ticks)",
+    "first_t": 0.55,
+    "parts": [
+     "head",
+     "foot_l",
+     "foot_r",
+     "hand_l",
+     "hand_r"
+    ]
+   },
+   "twist_past_limit": {
+    "count": 1,
+    "first": "hand_l twist_excess 26.130 (over 15 for 6 ticks)",
+    "first_t": 0.867,
+    "parts": [
+     "hand_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 47.213,
+   "mean": 4.20326153846154,
+   "n": 390,
+   "p50": 2.911,
+   "p99": 42.525
+  },
+  "frame_ms_after_5s": {
+   "max": 2.906,
+   "mean": 2.37018032786885,
+   "n": 61,
+   "p50": 2.341,
+   "p99": 2.906
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.589,
+   "mean": 3.33697777777778,
+   "n": 180,
+   "p50": 2.939,
+   "p99": 7.29
+  },
+  "frame_ms_standing": {
+   "max": 47.213,
+   "mean": 10.9255263157895,
+   "n": 19,
+   "p50": 2.235,
+   "p99": 47.213
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0319869369268417,
+   "penetration": 0.0450952649116516,
+   "self_overlap": 0.139974821358919,
+   "speed": 4.7066707611084,
+   "up": 0.0558561086654663
+  },
+  "peaks": {
+   "joint_gap": [
+    0.032,
+    "foot_l",
+    0.683
+   ],
+   "penetration": [
+    0.0451,
+    "hand_r",
+    0.833
+   ],
+   "self_overlap": [
+    0.14,
+    "pelvis",
+    1.983
+   ],
+   "speed": [
+    4.7067,
+    "head",
+    0.95
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    42.84,
+    "hand_l",
+    0.833
+   ],
+   "twist_excess": [
+    38.31,
+    "hand_l",
+    0.817
+   ],
+   "wrong_bend": [
+    7.11,
+    "forearm_l",
+    0.783
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 166,
+    "first": "foot_l 0.032 m into the world",
+    "first_t": 1.15,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_l 0.032 m into the world"
+   },
+   "joint_separation": {
+    "count": 19,
+    "first": "shin_r 0.031 m off its joint",
+    "first_t": 1.15,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "shin_r": true
+    },
+    "worst": "shin_r 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2102,
+    "first": "pelvis 0.052 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true
+    },
+    "worst": "pelvis 0.052 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 281,
+    "first": "head swung 47 deg (limit 35)",
+    "first_t": 0.833333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 47 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 55,
+    "first": "foot_l twisted 26 deg (limit 5)",
+    "first_t": 1.1,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "foot_l twisted 26 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_table_ahead",
+  "settle_s": 3.95,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.1237,
+   0.1887,
+   1.6209
+  ],
+  "final_com_local": [
+   -0.1237,
+   0.1887,
+   1.6209
+  ],
+  "fixture": "chair",
+  "flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rising 0.50 m/s at 0.20 m",
+    "first_t": 1.633,
+    "parts": []
+   },
+   "limb_through_body": {
+    "count": 10,
+    "first": "chest self_overlap 0.065 (over 0.05 for 20 ticks)",
+    "first_t": 1.167,
+    "parts": [
+     "chest",
+     "forearm_r",
+     "abdomen",
+     "upper_arm_r",
+     "pelvis",
+     "hand_r"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 28.065,
+   "mean": 3.7115358974359,
+   "n": 390,
+   "p50": 2.83,
+   "p99": 21.081
+  },
+  "frame_ms_after_5s": {
+   "max": 2.626,
+   "mean": 2.27114754098361,
+   "n": 61,
+   "p50": 2.253,
+   "p99": 2.626
+  },
+  "frame_ms_collapse_3s": {
+   "max": 28.065,
+   "mean": 3.5512,
+   "n": 180,
+   "p50": 3.108,
+   "p99": 6.653
+  },
+  "frame_ms_standing": {
+   "max": 21.081,
+   "mean": 7.417,
+   "n": 19,
+   "p50": 2.186,
+   "p99": 21.081
+  },
+  "group": "F",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0200081802904606,
+   "penetration": 0.0251628030091524,
+   "self_overlap": 0.169848275138065,
+   "speed": 4.58755302429199,
+   "up": 0.496822893619537
+  },
+  "peaks": {
+   "joint_gap": [
+    0.02,
+    "head",
+    1.75
+   ],
+   "penetration": [
+    0.0252,
+    "foot_r",
+    0.15
+   ],
+   "self_overlap": [
+    0.1698,
+    "abdomen",
+    1.517
+   ],
+   "speed": [
+    4.5876,
+    "head",
+    1.583
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    6.19,
+    "head",
+    1.783
+   ],
+   "twist_excess": [
+    9.25,
+    "foot_l",
+    1.583
+   ],
+   "wrong_bend": [
+    2.58,
+    "forearm_r",
+    1.633
+   ]
+  },
+  "raw_flags": {
+   "bounce": {
+    "count": 1,
+    "first": "centre of mass rose at 0.43 m/s after coming down",
+    "first_t": 2.15,
+    "segments": {},
+    "worst": "centre of mass rose at 0.43 m/s after coming down"
+   },
+   "self_overlap": {
+    "count": 1833,
+    "first": "chest 0.040 m into another part of him (beyond its rest overlap)",
+    "first_t": 1.25,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_r": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_r": true
+    },
+    "worst": "chest 0.040 m into another part of him (beyond its rest overlap)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "F_chair_behind",
+  "settle_s": 3.35,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "final_com_local": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 5,
+    "first": "pelvis self_overlap 0.082 (over 0.05 for 20 ticks)",
+    "first_t": 1.25,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "hand_l",
+     "abdomen",
+     "upper_arm_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "head swing_excess 12.960 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "head"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 25.615,
+   "mean": 3.81713636363636,
+   "n": 330,
+   "p50": 2.718,
+   "p99": 20.817
+  },
+  "frame_ms_after_5s": {
+   "max": 2.328,
+   "mean": 2.328,
+   "n": 1,
+   "p50": 2.328,
+   "p99": 2.328
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.202,
+   "mean": 3.19170555555556,
+   "n": 180,
+   "p50": 2.811,
+   "p99": 5.93
+  },
+  "frame_ms_standing": {
+   "max": 25.615,
+   "mean": 8.7728947368421,
+   "n": 19,
+   "p50": 3.922,
+   "p99": 25.615
+  },
+  "group": "G",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0411678962409496,
+   "penetration": 0.0276322700083256,
+   "self_overlap": 0.120037849992514,
+   "speed": 7.02753448486328,
+   "up": 0.343710780143738
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0412,
+    "head",
+    0.733
+   ],
+   "penetration": [
+    0.0276,
+    "foot_r",
+    0.883
+   ],
+   "self_overlap": [
+    0.12,
+    "pelvis",
+    0.667
+   ],
+   "speed": [
+    7.0275,
+    "head",
+    0.667
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    23.46,
+    "hand_r",
+    0.583
+   ],
+   "twist_excess": [
+    21.56,
+    "hand_l",
+    0.567
+   ],
+   "wrong_bend": [
+    5.32,
+    "forearm_r",
+    0.6
+   ]
+  },
+  "raw_flags": {
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.032 m off its joint",
+    "first_t": 1.21666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.032 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1344,
+    "first": "pelvis 0.046 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.046 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 24,
+    "first": "head swung 51 deg (limit 35)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "foot_l": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 51 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 23,
+    "first": "hand_l twisted -42 deg (limit 20)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "thigh_r": true
+    },
+    "worst": "hand_l twisted -42 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "G_yaw_0",
+  "settle_s": 2.71666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     2.3715,
+     0.0,
+     2.0537
+    ],
+    "chest_push_x4_Ns": [
+     3.3941,
+     0.0,
+     3.3941
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     70.2537,
+     0.0,
+     69.9359
+    ],
+    "momentum_before_Ns": [
+     0.0596,
+     0.0017,
+     0.0596
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.8485,
+     0.0,
+     0.8485
+    ],
+    "push_given_every_part_mps": [
+     0.8485,
+     0.0,
+     0.8485
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0007,
+     0.0,
+     0.0007
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.7266,
+   0.121,
+   0.7331
+  ],
+  "final_com_local": [
+   -0.0046,
+   0.121,
+   1.0322
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 8,
+    "first": "pelvis self_overlap 0.087 (over 0.05 for 20 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "pelvis",
+     "hand_r",
+     "hand_l",
+     "forearm_l",
+     "chest",
+     "abdomen",
+     "upper_arm_l",
+     "forearm_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "hand_l swing_excess 10.420 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "hand_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 37.612,
+   "mean": 3.53708484848485,
+   "n": 330,
+   "p50": 2.402,
+   "p99": 22.657
+  },
+  "frame_ms_after_5s": {
+   "max": 2.17,
+   "mean": 2.17,
+   "n": 1,
+   "p50": 2.17,
+   "p99": 2.17
+  },
+  "frame_ms_collapse_3s": {
+   "max": 6.824,
+   "mean": 2.90996111111111,
+   "n": 180,
+   "p50": 2.658,
+   "p99": 6.444
+  },
+  "frame_ms_standing": {
+   "max": 19.802,
+   "mean": 6.74936842105263,
+   "n": 19,
+   "p50": 1.991,
+   "p99": 19.802
+  },
+  "group": "G",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0392138138413429,
+   "penetration": 0.0287544876337051,
+   "self_overlap": 0.106683526188135,
+   "speed": 7.31730365753174,
+   "up": 0.270178914070129
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0392,
+    "head",
+    0.717
+   ],
+   "penetration": [
+    0.0288,
+    "foot_r",
+    1.067
+   ],
+   "self_overlap": [
+    0.1067,
+    "pelvis",
+    0.65
+   ],
+   "speed": [
+    7.3173,
+    "head",
+    0.667
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    27.01,
+    "hand_r",
+    0.567
+   ],
+   "twist_excess": [
+    31.3,
+    "hand_l",
+    0.567
+   ],
+   "wrong_bend": [
+    6.24,
+    "forearm_r",
+    0.583
+   ]
+  },
+  "raw_flags": {
+   "joint_separation": {
+    "count": 2,
+    "first": "head 0.033 m off its joint",
+    "first_t": 1.2,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.033 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1884,
+    "first": "pelvis 0.045 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.045 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 16,
+    "first": "head swung 45 deg (limit 35)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 45 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 40,
+    "first": "hand_l twisted 51 deg (limit 20)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "thigh_r": true
+    },
+    "worst": "hand_l twisted 51 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "G_yaw_45",
+  "settle_s": 1.95,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     3.7774,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     4.8,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     99.7774,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0843,
+     0.0017,
+     0.0
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     1.2,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     1.2,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0011,
+     0.0,
+     0.0
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   1.0108,
+   0.1338,
+   -0.0347
+  ],
+  "final_com_local": [
+   0.0347,
+   0.1338,
+   1.0108
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 4,
+    "first": "pelvis self_overlap 0.092 (over 0.05 for 20 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "pelvis",
+     "hand_l",
+     "forearm_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "neck swing_excess 16.650 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "neck",
+     "head"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 38.98,
+   "mean": 4.35797272727273,
+   "n": 330,
+   "p50": 2.948,
+   "p99": 36.056
+  },
+  "frame_ms_after_5s": {
+   "max": 2.393,
+   "mean": 2.393,
+   "n": 1,
+   "p50": 2.393,
+   "p99": 2.393
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.511,
+   "mean": 3.22107777777778,
+   "n": 180,
+   "p50": 3.015,
+   "p99": 5.923
+  },
+  "frame_ms_standing": {
+   "max": 38.98,
+   "mean": 10.7051578947368,
+   "n": 19,
+   "p50": 2.136,
+   "p99": 38.98
+  },
+  "group": "G",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0343740656971931,
+   "penetration": 0.0251865852624178,
+   "self_overlap": 0.112123424594756,
+   "speed": 7.31407165527344,
+   "up": 0.362547039985657
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0344,
+    "head",
+    0.717
+   ],
+   "penetration": [
+    0.0252,
+    "foot_r",
+    0.15
+   ],
+   "self_overlap": [
+    0.1121,
+    "hand_l",
+    0.75
+   ],
+   "speed": [
+    7.3141,
+    "head",
+    0.65
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    25.39,
+    "hand_r",
+    0.583
+   ],
+   "twist_excess": [
+    25.04,
+    "hand_r",
+    0.567
+   ],
+   "wrong_bend": [
+    4.5,
+    "forearm_l",
+    0.6
+   ]
+  },
+  "raw_flags": {
+   "joint_separation": {
+    "count": 1,
+    "first": "head 0.034 m off its joint",
+    "first_t": 1.21666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.034 m off its joint"
+   },
+   "self_overlap": {
+    "count": 631,
+    "first": "pelvis 0.048 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.048 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 27,
+    "first": "neck swung 40 deg (limit 30)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "neck swung 40 deg (limit 30)"
+   },
+   "twist_past_limit": {
+    "count": 12,
+    "first": "hand_r twisted 45 deg (limit 20)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_r twisted 45 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "G_yaw_90",
+  "settle_s": 2.9,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -6.1404
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     -4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0227,
+     0.0,
+     -102.1404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     -0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     -0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.0237,
+   0.1283,
+   -1.0632
+  ],
+  "final_com_local": [
+   0.0237,
+   0.1283,
+   1.0632
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 6,
+    "first": "pelvis self_overlap 0.135 (over 0.05 for 20 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "pelvis",
+     "forearm_r",
+     "forearm_l",
+     "hand_r",
+     "hand_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 26.869,
+   "mean": 3.83334545454546,
+   "n": 330,
+   "p50": 2.804,
+   "p99": 21.511
+  },
+  "frame_ms_after_5s": {
+   "max": 2.213,
+   "mean": 2.213,
+   "n": 1,
+   "p50": 2.213,
+   "p99": 2.213
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.398,
+   "mean": 3.34392222222222,
+   "n": 180,
+   "p50": 3.008,
+   "p99": 8.381
+  },
+  "frame_ms_standing": {
+   "max": 26.869,
+   "mean": 7.67773684210526,
+   "n": 19,
+   "p50": 2.37,
+   "p99": 26.869
+  },
+  "group": "G",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0427023880183697,
+   "penetration": 0.0334649011492729,
+   "self_overlap": 0.13722674921155,
+   "speed": 7.60643291473389,
+   "up": 0.248296558856964
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0427,
+    "head",
+    0.717
+   ],
+   "penetration": [
+    0.0335,
+    "hand_r",
+    0.583
+   ],
+   "self_overlap": [
+    0.1372,
+    "pelvis",
+    0.75
+   ],
+   "speed": [
+    7.6064,
+    "head",
+    0.65
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    28.79,
+    "hand_r",
+    0.583
+   ],
+   "twist_excess": [
+    19.07,
+    "hand_l",
+    0.617
+   ],
+   "wrong_bend": [
+    5.94,
+    "forearm_l",
+    0.583
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 5,
+    "first": "hand_r 0.031 m into the world",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_r 0.031 m into the world"
+   },
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.034 m off its joint",
+    "first_t": 1.2,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.034 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1668,
+    "first": "pelvis 0.045 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.045 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 15,
+    "first": "hand_r swung 71 deg (limit 55)",
+    "first_t": 1.05,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "neck": true
+    },
+    "worst": "hand_r swung 71 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 10,
+    "first": "hand_l twisted 39 deg (limit 20)",
+    "first_t": 1.11666666666667,
+    "segments": {
+     "foot_l": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_l twisted 39 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "G_yaw_180",
+  "settle_s": 2.45,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -5.8226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     -4.8,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -101.8226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     -0.0843,
+     0.0017,
+     0.0
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     -1.2,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     -1.2,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     -0.0011,
+     0.0,
+     0.0
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -1.018,
+   0.135,
+   -0.0462
+  ],
+  "final_com_local": [
+   -0.0462,
+   0.135,
+   1.018
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 7,
+    "first": "pelvis self_overlap 0.075 (over 0.05 for 20 ticks)",
+    "first_t": 0.767,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "forearm_r",
+     "hand_r",
+     "hand_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 2,
+    "first": "hand_r swing_excess 10.770 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "hand_r",
+     "hand_l"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 32.582,
+   "mean": 4.23225151515152,
+   "n": 330,
+   "p50": 2.873,
+   "p99": 24.964
+  },
+  "frame_ms_after_5s": {
+   "max": 2.593,
+   "mean": 2.593,
+   "n": 1,
+   "p50": 2.593,
+   "p99": 2.593
+  },
+  "frame_ms_collapse_3s": {
+   "max": 8.876,
+   "mean": 3.89265555555556,
+   "n": 180,
+   "p50": 3.208,
+   "p99": 7.606
+  },
+  "frame_ms_standing": {
+   "max": 27.805,
+   "mean": 8.42194736842105,
+   "n": 19,
+   "p50": 3.921,
+   "p99": 27.805
+  },
+  "group": "G",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0388575792312622,
+   "penetration": 0.0472940318286419,
+   "self_overlap": 0.164419015869498,
+   "speed": 7.5993447303772,
+   "up": 0.357756614685059
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0389,
+    "head",
+    0.7
+   ],
+   "penetration": [
+    0.0473,
+    "head",
+    0.7
+   ],
+   "self_overlap": [
+    0.1644,
+    "pelvis",
+    0.667
+   ],
+   "speed": [
+    7.5993,
+    "head",
+    0.633
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    28.4,
+    "hand_l",
+    0.567
+   ],
+   "twist_excess": [
+    30.91,
+    "hand_l",
+    0.6
+   ],
+   "wrong_bend": [
+    8.72,
+    "forearm_l",
+    0.6
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 3,
+    "first": "head 0.047 m into the world",
+    "first_t": 1.2,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.047 m into the world"
+   },
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.039 m off its joint",
+    "first_t": 1.2,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.039 m off its joint"
+   },
+   "self_overlap": {
+    "count": 1887,
+    "first": "pelvis 0.049 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.049 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 16,
+    "first": "hand_r swung 71 deg (limit 55)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "neck": true
+    },
+    "worst": "hand_r swung 71 deg (limit 55)"
+   },
+   "twist_past_limit": {
+    "count": 10,
+    "first": "hand_r twisted -46 deg (limit 20)",
+    "first_t": 1.05,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "hand_r": true
+    },
+    "worst": "hand_r twisted -46 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "G_yaw_270",
+  "settle_s": 2.21666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -1.0226,
+     0.0,
+     3.4596
+    ],
+    "chest_push_x4_Ns": [
+     0.0,
+     0.0,
+     4.8
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -1.0226,
+     0.0,
+     99.4596
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "push_given_every_part_mps": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "final_com_local": [
+   -0.1039,
+   0.1267,
+   1.0327
+  ],
+  "fixture": "ground",
+  "flags": {
+   "limb_through_body": {
+    "count": 5,
+    "first": "pelvis self_overlap 0.082 (over 0.05 for 20 ticks)",
+    "first_t": 1.25,
+    "parts": [
+     "pelvis",
+     "forearm_l",
+     "hand_l",
+     "abdomen",
+     "upper_arm_l"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 1,
+    "first": "head swing_excess 12.960 (over 10 for 6 ticks)",
+    "first_t": 0.617,
+    "parts": [
+     "head"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 28.123,
+   "mean": 2.78136338797814,
+   "n": 1830,
+   "p50": 2.358,
+   "p99": 7.199
+  },
+  "frame_ms_after_5s": {
+   "max": 7.431,
+   "mean": 2.55213657561626,
+   "n": 1501,
+   "p50": 2.322,
+   "p99": 5.003
+  },
+  "frame_ms_collapse_3s": {
+   "max": 7.514,
+   "mean": 3.23865,
+   "n": 180,
+   "p50": 3.026,
+   "p99": 7.199
+  },
+  "frame_ms_standing": {
+   "max": 28.123,
+   "mean": 8.13215789473684,
+   "n": 19,
+   "p50": 2.985,
+   "p99": 28.123
+  },
+  "group": "H",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0411678962409496,
+   "penetration": 0.0276322700083256,
+   "self_overlap": 0.120037849992514,
+   "speed": 7.02753448486328,
+   "up": 0.343710780143738
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0412,
+    "head",
+    0.733
+   ],
+   "penetration": [
+    0.0276,
+    "foot_r",
+    0.883
+   ],
+   "self_overlap": [
+    0.12,
+    "pelvis",
+    0.667
+   ],
+   "speed": [
+    7.0275,
+    "head",
+    0.667
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    23.46,
+    "hand_r",
+    0.583
+   ],
+   "twist_excess": [
+    21.56,
+    "hand_l",
+    0.567
+   ],
+   "wrong_bend": [
+    5.32,
+    "forearm_r",
+    0.6
+   ]
+  },
+  "raw_flags": {
+   "joint_separation": {
+    "count": 3,
+    "first": "head 0.032 m off its joint",
+    "first_t": 1.21666666666667,
+    "segments": {
+     "head": true
+    },
+    "worst": "head 0.032 m off its joint"
+   },
+   "self_overlap": {
+    "count": 8844,
+    "first": "pelvis 0.046 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.933333333333333,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "pelvis": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true
+    },
+    "worst": "pelvis 0.046 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 24,
+    "first": "head swung 51 deg (limit 35)",
+    "first_t": 1.03333333333333,
+    "segments": {
+     "foot_l": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 51 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 23,
+    "first": "hand_l twisted -42 deg (limit 20)",
+    "first_t": 1.06666666666667,
+    "segments": {
+     "hand_l": true,
+     "hand_r": true,
+     "thigh_r": true
+    },
+    "worst": "hand_l twisted -42 deg (limit 20)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "H_settle_30s",
+  "settle_s": 2.71666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ {
+  "all_asleep_at_end": true,
+  "asleep_at_end": 17,
+  "asleep_by_second": [
+   0,
+   0,
+   0,
+   0,
+   17,
+   17,
+   17
+  ],
+  "bodies": 17,
+  "events": [
+   {
+    "chest_extra_impulse_Ns": [
+     -5.8226,
+     0.0,
+     -1.3404
+    ],
+    "chest_push_x4_Ns": [
+     -4.8,
+     0.0,
+     0.0
+    ],
+    "chest_random_impulse_Ns": [
+     -1.0226,
+     0.0,
+     -1.3404
+    ],
+    "kind": "go_limp",
+    "mass_kg": 79.9999995827675,
+    "momentum_after_Ns": [
+     -101.8226,
+     0.0,
+     -1.3404
+    ],
+    "momentum_before_Ns": [
+     0.0,
+     0.0017,
+     0.0843
+    ],
+    "note": "speed_before is the man's own movement (walk_to moves him by script); go_limp sets every part's velocity to push, so that momentum is replaced, not kept",
+    "push_arg": [
+     -1.2,
+     0.0,
+     0.0
+    ],
+    "push_given_every_part_mps": [
+     -1.2,
+     0.0,
+     0.0
+    ],
+    "source": "production HumanBody.go_limp()",
+    "speed_before_mps": [
+     0.0,
+     0.0,
+     0.0011
+    ],
+    "tick": 30
+   }
+  ],
+  "final_com": [
+   0.3269,
+   0.152,
+   0.089
+  ],
+  "final_com_local": [
+   0.3269,
+   0.152,
+   0.089
+  ],
+  "fixture": "table_side",
+  "flags": {
+   "joint_pulled_apart": {
+    "count": 2,
+    "first": "foot_r joint_gap 0.038 (over 0.03 for 4 ticks)",
+    "first_t": 1.083,
+    "parts": [
+     "foot_r",
+     "head"
+    ]
+   },
+   "limb_through_body": {
+    "count": 12,
+    "first": "forearm_r self_overlap 0.142 (over 0.05 for 20 ticks)",
+    "first_t": 0.467,
+    "parts": [
+     "forearm_r",
+     "chest",
+     "shin_r",
+     "shin_l",
+     "foot_r",
+     "foot_l",
+     "forearm_l",
+     "abdomen",
+     "upper_arm_l",
+     "hand_r",
+     "hand_l"
+    ]
+   },
+   "sunk_into_world": {
+    "count": 2,
+    "first": "foot_l penetration 0.036 (over 0.03 for 4 ticks)",
+    "first_t": 0.95,
+    "parts": [
+     "foot_l",
+     "foot_r"
+    ]
+   },
+   "swing_past_limit": {
+    "count": 4,
+    "first": "head swing_excess 10.760 (over 10 for 6 ticks)",
+    "first_t": 0.583,
+    "parts": [
+     "head",
+     "foot_r",
+     "neck"
+    ]
+   },
+   "twist_past_limit": {
+    "count": 2,
+    "first": "head twist_excess 37.770 (over 15 for 6 ticks)",
+    "first_t": 1.05,
+    "parts": [
+     "head",
+     "neck"
+    ]
+   }
+  },
+  "frame_ms": {
+   "max": 36.374,
+   "mean": 4.29907948717949,
+   "n": 390,
+   "p50": 3.159,
+   "p99": 25.397
+  },
+  "frame_ms_after_5s": {
+   "max": 7.953,
+   "mean": 4.15668852459017,
+   "n": 61,
+   "p50": 2.606,
+   "p99": 7.953
+  },
+  "frame_ms_collapse_3s": {
+   "max": 9.62,
+   "mean": 3.6611,
+   "n": 180,
+   "p50": 3.33,
+   "p99": 8.571
+  },
+  "frame_ms_standing": {
+   "max": 36.374,
+   "mean": 10.5127894736842,
+   "n": 19,
+   "p50": 4.009,
+   "p99": 36.374
+  },
+  "group": "I",
+  "joints": 16,
+  "limp_t": 0.5,
+  "men": 1,
+  "peak": {
+   "joint_gap": 0.0455112792551517,
+   "penetration": 0.0573440305888653,
+   "self_overlap": 0.172956822338165,
+   "speed": 5.70981168746948,
+   "up": 0.203497409820557
+  },
+  "peaks": {
+   "joint_gap": [
+    0.0455,
+    "head",
+    1.283
+   ],
+   "penetration": [
+    0.0573,
+    "foot_r",
+    0.983
+   ],
+   "self_overlap": [
+    0.173,
+    "abdomen",
+    0.3
+   ],
+   "speed": [
+    5.7098,
+    "hand_l",
+    1.4
+   ],
+   "step": [
+    0.0,
+    "pelvis",
+    0.033
+   ],
+   "swing_excess": [
+    41.18,
+    "foot_r",
+    0.967
+   ],
+   "twist_excess": [
+    49.03,
+    "head",
+    1.2
+   ],
+   "wrong_bend": [
+    4.89,
+    "forearm_l",
+    1.017
+   ]
+  },
+  "raw_flags": {
+   "ground_penetration": {
+    "count": 39,
+    "first": "hand_l 0.043 m into the world",
+    "first_t": 0.516666666666667,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_l": true
+    },
+    "worst": "hand_l 0.043 m into the world"
+   },
+   "joint_separation": {
+    "count": 29,
+    "first": "shin_r 0.031 m off its joint",
+    "first_t": 1.43333333333333,
+    "segments": {
+     "foot_r": true,
+     "hand_l": true,
+     "head": true,
+     "shin_l": true,
+     "shin_r": true
+    },
+    "worst": "shin_r 0.031 m off its joint"
+   },
+   "self_overlap": {
+    "count": 2127,
+    "first": "pelvis 0.053 m into another part of him (beyond its rest overlap)",
+    "first_t": 0.65,
+    "segments": {
+     "abdomen": true,
+     "chest": true,
+     "foot_l": true,
+     "foot_r": true,
+     "forearm_l": true,
+     "forearm_r": true,
+     "hand_l": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true,
+     "pelvis": true,
+     "shin_l": true,
+     "shin_r": true,
+     "thigh_l": true,
+     "thigh_r": true,
+     "upper_arm_l": true,
+     "upper_arm_r": true
+    },
+    "worst": "pelvis 0.053 m into another part of him (beyond its rest overlap)"
+   },
+   "swing_past_limit": {
+    "count": 64,
+    "first": "head swung 47 deg (limit 35)",
+    "first_t": 1.0,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "hand_r": true,
+     "head": true,
+     "neck": true
+    },
+    "worst": "head swung 47 deg (limit 35)"
+   },
+   "twist_past_limit": {
+    "count": 63,
+    "first": "foot_l twisted 18 deg (limit 5)",
+    "first_t": 0.633333333333333,
+    "segments": {
+     "foot_l": true,
+     "foot_r": true,
+     "head": true,
+     "neck": true,
+     "upper_arm_l": true
+    },
+    "worst": "foot_l twisted 18 deg (limit 5)"
+   }
+  },
+  "raw_note": "raw_flags count every tick over a threshold, transients included; analyse.py gives the flags (persistence rules, thresholds.json)",
+  "raw_thresholds": {
+   "bounce_up": 0.4,
+   "hyperextend": 10.0,
+   "jitter_speed": 0.08,
+   "joint_gap": 0.03,
+   "jump_deg": 45.0,
+   "jump_m": 0.25,
+   "launch_speed": 8.0,
+   "launch_up": 1.5,
+   "penetration": 0.03,
+   "self_overlap": 0.04,
+   "settle_speed": 0.05,
+   "settle_spin": 0.3,
+   "settle_ticks": 30,
+   "swing_over": 10.0,
+   "twist_over": 10.0
+  },
+  "scenario": "I_arm_on_table",
+  "settle_s": 3.86666666666667,
+  "shapes": 21,
+  "sleep_flips": 17,
+  "start": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ }
+]

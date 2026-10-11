@@ -1,0 +1,771 @@
+{
+ "fixed_fps_arg": false,
+ "godot": {
+  "build": "official",
+  "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+  "hex": 263938,
+  "major": 4,
+  "minor": 7,
+  "patch": 2,
+  "status": "stable",
+  "string": "4.7.2-stable (official)",
+  "timestamp": 0
+ },
+ "hardware": {
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "os": "Linux",
+  "threads": 4,
+  "video": "headless"
+ },
+ "note_determinism": "Same machine and build: repeat runs are compared tick by tick (--repeat). Across machines, OSes or builds rigid-body results are not expected to match bit for bit.",
+ "physics_engine": "Jolt Physics",
+ "physics_settings": {
+  "jolt": {
+   "collisions/active_edge_threshold": 0.872664630413055,
+   "collisions/collision_margin_fraction": 0.0799999982118607,
+   "joints/world_node": 0,
+   "limits/max_angular_velocity": 47.1238899230957,
+   "limits/max_bodies": 10240,
+   "limits/max_body_pairs": 65536,
+   "limits/max_contact_constraints": 20480,
+   "limits/max_linear_velocity": 500.0,
+   "limits/temporary_memory_buffer_size": 32,
+   "limits/world_boundary_shape_size": 2000.0,
+   "motion_queries/recovery_amount": 0.400000005960464,
+   "motion_queries/recovery_iterations": 4,
+   "motion_queries/use_enhanced_internal_edge_removal": true,
+   "queries/enable_ray_cast_face_index": false,
+   "queries/use_enhanced_internal_edge_removal": false,
+   "simulation/allow_sleep": true,
+   "simulation/baumgarte_stabilization_factor": 0.200000002980232,
+   "simulation/body_pair_contact_cache_angle_threshold": 0.0349065847694874,
+   "simulation/body_pair_contact_cache_distance_threshold": 0.00100000004749745,
+   "simulation/body_pair_contact_cache_enabled": true,
+   "simulation/bounce_velocity_threshold": 1.0,
+   "simulation/continuous_cd_max_penetration": 0.25,
+   "simulation/continuous_cd_movement_threshold": 0.75,
+   "simulation/generate_all_kinematic_contacts": false,
+   "simulation/penetration_slop": 0.0199999995529652,
+   "simulation/position_steps": 2,
+   "simulation/sleep_time_threshold": 0.5,
+   "simulation/sleep_velocity_threshold": 0.0299999993294477,
+   "simulation/soft_body_point_radius": 0.00999999977648258,
+   "simulation/speculative_contact_distance": 0.0199999995529652,
+   "simulation/use_enhanced_internal_edge_removal": true,
+   "simulation/velocity_steps": 10
+  },
+  "run_on_separate_thread": false
+ },
+ "physics_ticks_per_second": 60,
+ "source_sha": "7be0d75b8ca72bc699c42f21cb60f6979c2cc47f",
+ "scenarios": [
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "A",
+    "name": "A_stand_blackout",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/A_stand_blackout",
+   "name": "A_stand_blackout",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "A",
+    "name": "A_stand_blow_front",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/A_stand_blow_front",
+   "name": "A_stand_blow_front",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "A",
+    "name": "A_stand_shot_front",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/A_stand_shot_front",
+   "name": "A_stand_shot_front",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "B",
+    "name": "B_walk_blackout",
+    "pre": {
+     "do": "walk",
+     "seconds": 1.5,
+     "speed": 1.4
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/B_walk_blackout",
+   "name": "B_walk_blackout",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "C",
+    "name": "C_run_blackout",
+    "pre": {
+     "do": "run",
+     "seconds": 1.5,
+     "speed": 3.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/C_run_blackout",
+   "name": "C_run_blackout",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "C",
+    "name": "C_run_shot_front",
+    "pre": {
+     "do": "run",
+     "seconds": 1.5,
+     "speed": 3.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/C_run_shot_front",
+   "name": "C_run_shot_front",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "D",
+    "name": "D_crouch_blackout",
+    "pre": {
+     "do": "crouch",
+     "seconds": 1.0
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/D_crouch_blackout",
+   "name": "D_crouch_blackout",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "E",
+    "impulses": [
+     {
+      "impulse": [
+       0.0,
+       0.0,
+       -40.0
+      ],
+      "point": [
+       0.0,
+       0.05,
+       0.12
+      ],
+      "segment": "chest"
+     }
+    ],
+    "name": "E_chest_from_back",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/E_chest_from_back",
+   "name": "E_chest_from_back",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "E",
+    "impulses": [
+     {
+      "impulse": [
+       0.0,
+       0.0,
+       40.0
+      ],
+      "point": [
+       0.0,
+       0.05,
+       -0.12
+      ],
+      "segment": "chest"
+     }
+    ],
+    "name": "E_chest_from_front",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/E_chest_from_front",
+   "name": "E_chest_from_front",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "E",
+    "impulses": [
+     {
+      "impulse": [
+       0.0,
+       0.0,
+       12.0
+      ],
+      "point": [
+       0.0,
+       0.0,
+       -0.09
+      ],
+      "segment": "head"
+     }
+    ],
+    "name": "E_head_from_front",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/E_head_from_front",
+   "name": "E_head_from_front",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "E",
+    "impulses": [
+     {
+      "impulse": [
+       -40.0,
+       0.0,
+       0.0
+      ],
+      "point": [
+       0.12,
+       0.0,
+       0.0
+      ],
+      "segment": "pelvis"
+     }
+    ],
+    "name": "E_hip_from_right",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/E_hip_from_right",
+   "name": "E_hip_from_right",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "E",
+    "impulses": [
+     {
+      "impulse": [
+       30.0,
+       0.0,
+       0.0
+      ],
+      "point": [
+       0.0,
+       0.1,
+       0.0
+      ],
+      "segment": "upper_arm_l"
+     }
+    ],
+    "name": "E_shoulder_from_left",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/E_shoulder_from_left",
+   "name": "E_shoulder_from_left",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "chair",
+    "group": "F",
+    "name": "F_chair_behind",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_chair_behind",
+   "name": "F_chair_behind",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "doorway",
+    "group": "F",
+    "name": "F_doorway",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.6,
+     0.0,
+     1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_doorway",
+   "name": "F_doorway",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "slope",
+    "group": "F",
+    "name": "F_slope_downhill",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_slope_downhill",
+   "name": "F_slope_downhill",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "stairs",
+    "group": "F",
+    "name": "F_stairs_down",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_stairs_down",
+   "name": "F_stairs_down",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.72,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "table",
+    "group": "F",
+    "name": "F_table_ahead",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     -1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_table_ahead",
+   "name": "F_table_ahead",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "wall",
+    "group": "F",
+    "name": "F_wall_behind",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/F_wall_behind",
+   "name": "F_wall_behind",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "G",
+    "name": "G_yaw_0",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 5.0,
+    "yaw": 0.0
+   },
+   "dir": "build/physics_lab/base/G_yaw_0",
+   "name": "G_yaw_0",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "G",
+    "name": "G_yaw_180",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 5.0,
+    "yaw": 180.0
+   },
+   "dir": "build/physics_lab/base/G_yaw_180",
+   "name": "G_yaw_180",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "G",
+    "name": "G_yaw_270",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 5.0,
+    "yaw": 270.0
+   },
+   "dir": "build/physics_lab/base/G_yaw_270",
+   "name": "G_yaw_270",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "G",
+    "name": "G_yaw_45",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 5.0,
+    "yaw": 45.0
+   },
+   "dir": "build/physics_lab/base/G_yaw_45",
+   "name": "G_yaw_45",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "G",
+    "name": "G_yaw_90",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 5.0,
+    "yaw": 90.0
+   },
+   "dir": "build/physics_lab/base/G_yaw_90",
+   "name": "G_yaw_90",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "ground",
+    "group": "H",
+    "name": "H_settle_30s",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     0.0,
+     0.0,
+     1.2
+    ],
+    "seconds": 30.0
+   },
+   "dir": "build/physics_lab/base/H_settle_30s",
+   "name": "H_settle_30s",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "definition": {
+    "fixture": "table_side",
+    "group": "I",
+    "name": "I_arm_on_table",
+    "pre": {
+     "do": "stand",
+     "seconds": 0.5
+    },
+    "push": [
+     -1.2,
+     0.0,
+     0.0
+    ],
+    "seconds": 6.0
+   },
+   "dir": "build/physics_lab/base/I_arm_on_table",
+   "name": "I_arm_on_table",
+   "seed": 1,
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ ]
+}

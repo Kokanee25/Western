@@ -9,7 +9,8 @@
   video RUN_DIR [--slow=4] [--out=MP4]
       the views side by side at game speed, then again slowed down (into build/, never git)
   diff BASE_ROOT CANDIDATE_ROOT
-      every scenario's summary numbers, base against candidate, as a table
+      each scenario's headline numbers (settle, peak speed, penetration, self-overlap, joint gap,
+      how many flags), base -> candidate, and which scenarios only one of them has
 """
 import csv, json, os, subprocess, sys
 from PIL import Image, ImageDraw
@@ -27,7 +28,10 @@ def pos_args():
 
 
 def summary(run):
-    return json.load(open(os.path.join(run, "summary.json")))
+    sm = json.load(open(os.path.join(run, "summary.json")))
+    fl = os.path.join(run, "flags.json")
+    sm["flags"] = json.load(open(fl))["flags"] if os.path.exists(fl) else None
+    return sm
 
 
 def ticks(run):
@@ -84,7 +88,9 @@ def main():
         run = p[0]
         sm = summary(run)
         out = opt("out", os.path.join(run, "sheet.png"))
-        strip(run, times, "%s  (settle %s, flags: %s)" % (sm["scenario"], sm["settle_s"], ", ".join(sm.get("flags", {})))).save(out)
+        flags = "not analysed (analyse.py)" if sm["flags"] is None else (", ".join(sm["flags"]) or "none")
+        settle = "never" if sm["settle_s"] is None else "%.2f s" % sm["settle_s"]
+        strip(run, times, "%s  (settle %s, flags: %s)" % (sm["scenario"], settle, flags)).save(out)
         print(out)
     elif cmd == "side":
         a, b = p[0], p[1]
@@ -124,6 +130,10 @@ def main():
 
 def print_diff(ra, rb):
     by = {r["scenario"]: r for r in rb}
+    only_a = [r["scenario"] for r in ra if r["scenario"] not in by]
+    only_b = [r["scenario"] for r in rb if r["scenario"] not in {x["scenario"] for x in ra}]
+    if only_a or only_b:
+        print("not in both: base only %s; candidate only %s" % (only_a or "-", only_b or "-"))
     print("| scenario | settle s | peak speed | penetration | self overlap | joint gap | flags |")
     print("|---|---|---|---|---|---|---|")
     for r in ra:
@@ -134,7 +144,7 @@ def print_diff(ra, rb):
         print("| %s | %s -> %s | %.1f -> %.1f | %.3f -> %.3f | %.3f -> %.3f | %.3f -> %.3f | %s -> %s |" % (
             r["scenario"], f(r["settle_s"]), f(s["settle_s"]), r["peak"]["speed"], s["peak"]["speed"],
             r["peak"]["penetration"], s["peak"]["penetration"], r["peak"]["self_overlap"], s["peak"]["self_overlap"],
-            r["peak"]["joint_gap"], s["peak"]["joint_gap"], len(r.get("flags", {})), len(s.get("flags", {}))))
+            r["peak"]["joint_gap"], s["peak"]["joint_gap"], len(r.get("flags") or {}), len(s.get("flags") or {})))
 
 
 if __name__ == "__main__":

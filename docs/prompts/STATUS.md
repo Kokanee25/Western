@@ -51,3 +51,9 @@ Sean: these are ideas to discuss as development goes on, not plans. What the cod
   `docs/briefs/performance-b.md`), so physics experiments should stay on the main physics step.
 - A possible gameplay order when the freeze lifts: 01, then 09, then 14's gaps, then 03+06 as one
   job; 11, 12, 15, 16 and 18 each want a save/memory brief first.
+
+## Done
+
+- **Prompt 01, the ragdoll lab** (2026-10-11, gameplay session; Sean: "let's work the ragdoll"):
+  `experiments/physics_lab/` (README there). It measures only; the game is unchanged. Its
+  baseline's five faults are what Prompt 09 starts from.

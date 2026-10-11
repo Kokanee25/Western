@@ -30,14 +30,20 @@ def scenarios():
 
 
 def pick(all_):
+    """all, or a comma list of names and groups: A_stand_blackout,group:F,G (a bare letter is a group)."""
     want = arg("scenario", "all")
     if want == "all":
         return all_
-    if want.startswith("group:"):
-        g = want[6:].split(",")
-        return [s for s in all_ if s["group"] in g]
-    names = want.split(",")
-    return [s for s in all_ if s["name"] in names]
+    out, unknown = [], []
+    for w in want.split(","):
+        g = w[6:] if w.startswith("group:") else (w if len(w) == 1 else None)
+        hit = [s for s in all_ if (s["group"] == g if g else s["name"] == w)]
+        if not hit:
+            unknown.append(w)
+        out += [s for s in hit if s not in out]
+    if unknown:
+        sys.exit("run.py: no scenario or group %s (names: --scenario=list)" % ", ".join(unknown))
+    return out
 
 
 def run_one(name, out, extra, render):
@@ -48,7 +54,7 @@ def run_one(name, out, extra, render):
         cmd += ["--headless"]
     cmd += ["-s", "res://experiments/physics_lab/lab.gd", "--", "--scenario=" + name, "--out=" + out] + extra
     p = subprocess.run(cmd, capture_output=True, text=True, timeout=7200)
-    line = [l for l in p.stdout.splitlines() if l.startswith(name) or l.startswith("   ")]
+    line = [l for l in p.stdout.splitlines() if l.startswith(name) or (l.startswith("   ") and " at: " not in l)]
     return name, p.returncode, "\n".join(line), p.stderr[-2000:] if p.returncode else ""
 
 
@@ -59,6 +65,10 @@ def main():
     render = arg("render") is not None
     extra = [a for a in sys.argv[1:] if a.split("=")[0] in
              ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds")]
+    if arg("scenario") == "list":
+        for s in scenarios():
+            print("%-24s %s  %s" % (s["name"], s["group"], s["fixture"]))
+        return 0
     if arg("perf"):
         names = ["--perf"]
         jobs = 1  # nothing else running while it measures
