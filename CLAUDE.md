@@ -4296,3 +4296,4 @@ a few views renders them as the full run does.
   - Next: the fire view staged (the bucket line at the trough, the livery's frame coming apart);
     the saloon room (sconces lighting their walls, the doorway); the other fronts to the saloon's
     standard.
+  - Merged as PR #97, **build 834** (green).
