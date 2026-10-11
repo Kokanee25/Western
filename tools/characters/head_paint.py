@@ -990,6 +990,20 @@ def model_face(out, cid, pos, uv, tris, size, cfg):
         lab = _lab(255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.clip(lin, 0, 1) ** (1 / 2.4) - 0.055))
         print("  the light baked into his face: %.0f%% of it taken out, his skin x%.2f to x%.2f" % (
             even * 100, float(np.percentile(factor[sk], 5)), float(np.percentile(factor[sk], 95))))
+    top = o.get("top")
+    if top:
+        # His lightest skin squares eased down (`top`: [knee L*, share kept above it]): the lamp in
+        # the saloon shot burnt his lit cheek, nose and chin to L* 73-80 at the top tenth under every
+        # light the art session tried, the painting's man's 55 (2026-10-11). Skin by colour, as
+        # `even`'s; his eyes are drawn after, so their whites aren't touched.
+        knee, kept = float(top[0]), float(top[1])
+        chroma = np.hypot(lab[:, 1], lab[:, 2])
+        hue = np.degrees(np.arctan2(lab[:, 2], lab[:, 1]))
+        sk = (chroma >= 8) & (hue > 15) & (hue < 85) & (lab[:, 0] > knee)
+        before = float(np.percentile(lab[w > 0.5, 0], 90))
+        lab[sk, 0] = knee + (lab[sk, 0] - knee) * kept
+        print("  his lightest skin eased above L* %.0f (x%.2f): the top tenth L* %.1f to %.1f" % (
+            knee, kept, before, float(np.percentile(lab[w > 0.5, 0], 90))))
     out[ty, tx] = out[ty, tx] * (1 - w[:, None]) + _rgb(lab) * w[:, None]
     print("  his head under the hat from %s: %d texels, graded to the painter's skin, %.0f%% of the painter's kept" % (
         cfg["from"], keep.sum(), share * 100))
@@ -1430,6 +1444,113 @@ def draw_beard(out, cid, pos, nrm, uv, tris, size, cfg):
     print("  stubble: %d texels, darkened to x%.2f in linear light, colour x%.2f" % (int((a > 0.5).sum()), dark, grey))
 
 
+# Glyph stamps on his face (characters.json `bake.stamps`), from the faces test (docs/briefs/faces.md,
+# 2026-10-10: on the drawn house head these made his small features read in every light, where on
+# the stranger they were averaged away into his skin). Each drawn over the texture before the fit cuts
+# it into squares, a little wider than a square so it survives the cut:
+# - `lip`: the lip line, his mouth's parting from corner to corner (MediaPipe's inner lip, the corners'
+#   own points at its ends), `lip` metres either side of it, in `lip_lab` (L*, a*, b*); his mouth's
+#   corners a little past the parting's ends in `corner_lab`, `corner` metres round;
+# - `nose`: his nose's tip `nose` L* lighter, `nose_r` metres round its landmark;
+# - `ear`: each ear's hollow `ear` L* darker and its canal down to `canal_l`: on his ear behind
+#   MediaPipe's point at the side of his face, the texels his own shape's near shadow (FACE_AO,
+#   `<from>_ao.png`) darkens most, the hollow the darkest `ear_share` of them, the canal the darkest
+#   `canal_share`.
+STAMPS = {}  # --stamps=lip:0.0025,nose:8 over characters.json's `bake.stamps`; --stamps=off
+STAMP_DEFAULTS = {"lip": 0.0025, "lip_lab": [19, 9, 7], "corner": 0.003, "corner_lab": [21, 8, 8],
+                  "nose": 8.0, "nose_r": 0.004, "ear": 10.0, "canal_l": 12.0, "ear_share": 0.25,
+                  "canal_share": 0.05, "from": "stranger2_rodin"}
+INNER_UPPER = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308]
+INNER_LOWER = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308]
+
+
+def _polyline_distance(line, pts):
+    """Each point's distance to a polyline (both 2D)."""
+    best = np.full(len(pts), np.inf)
+    for a, b in zip(line[:-1], line[1:]):
+        e = b - a
+        t = np.clip(((pts - a) @ e) / max(e @ e, 1e-12), 0.0, 1.0)
+        best = np.minimum(best, np.linalg.norm(pts - (a + t[:, None] * e), axis=1))
+    return best
+
+
+def draw_stamps(out, cid, pos, nrm, uv, tris, size, cfg):
+    """The faces test's glyph stamps on his face in `out` (in place): `bake.stamps`, STAMP_DEFAULTS."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: no stamps")
+        return {}
+    o = dict(STAMP_DEFAULTS, **cfg)
+    ty, tx, p, n = _face_texels(uv, tris, pos, nrm, size)
+    fwd = np.array([1.0, 0.0, 0.0])
+    near = np.linalg.norm(p - face[1], axis=1) < 0.16 / HEIGHT_M
+    front = near & (n @ fwd > 0.2)
+    done = {}
+
+    def put(mask, lab, alpha=None):
+        a = np.ones(int(mask.sum())) if alpha is None else alpha[mask]
+        new = np.repeat(np.asarray(lab, dtype=np.float64)[None], int(mask.sum()), axis=0)
+        cur = out[ty[mask], tx[mask]]
+        out[ty[mask], tx[mask]] = cur * (1 - a[:, None]) + _rgb(new) * a[:, None]
+
+    if o.get("lip"):
+        # The parting: half way between his inner lips, his mouth's outer corners at its ends; seen
+        # from the front (y, z), only on the lips' front (not inside his mouth).
+        part = (face[INNER_UPPER] + face[INNER_LOWER]) / 2.0
+        line = np.vstack([face[61], part, face[291]])
+        half = float(o["lip"]) / HEIGHT_M
+        d = _polyline_distance(line[:, 1:], p[:, 1:])
+        lips = front & (d < half * 1.5) & (p[:, 0] > line[:, 0].min() - 0.008 / HEIGHT_M)
+        alpha = _ease(1.5 - d / half)
+        put(lips, o["lip_lab"], alpha)
+        done["lip_line"] = int((lips & (alpha > 0.5)).sum())
+        for k in (61, 291):
+            c = face[k]
+            dc = np.linalg.norm(p[:, 1:] - c[1:], axis=1)
+            r = float(o["corner"]) / HEIGHT_M
+            m = front & (dc < r) & (np.abs(p[:, 0] - c[0]) < 0.01 / HEIGHT_M)
+            put(m, o["corner_lab"], _ease(1.6 - 1.2 * dc / r))
+            done["corner_%d" % k] = int(m.sum())
+    if o.get("nose"):
+        r = float(o["nose_r"]) / HEIGHT_M
+        dn = np.linalg.norm(p - face[1], axis=1)
+        m = (dn < r * 1.4) & (n @ fwd > 0.3)
+        lab = _lab(out[ty[m], tx[m]])
+        lab[:, 0] += float(o["nose"]) * _ease(1.4 - dn[m] / r)
+        out[ty[m], tx[m]] = _rgb(lab)
+        done["nose_tip"] = int(m.sum())
+    if o.get("ear"):
+        path = os.path.join(DIR, o["from"] + "_ao.png")
+        ao = Image.open(path).convert("RGB")
+        if ao.width != size:
+            ao = ao.resize((size, size), Image.BILINEAR)
+        near_ao = np.asarray(ao, dtype=np.float64)[..., 0] / 255.0
+        for k in (234, 454):
+            t = face[k]
+            side = np.sign(t[2])
+            region = ((p[:, 0] < t[0] + 0.005 / HEIGHT_M) & (p[:, 0] > t[0] - 0.05 / HEIGHT_M)
+                      & (np.abs(p[:, 1] - t[1]) < 0.035 / HEIGHT_M) & (p[:, 2] * side > abs(t[2]) - 0.012 / HEIGHT_M)
+                      & (n[:, 2] * side > 0.2) & (near_ao[ty, tx] > 0))
+            idx = np.nonzero(region)[0]
+            if len(idx) < 50:
+                print("  ear by point %d: only %d texels found, no stamp" % (k, len(idx)))
+                continue
+            a = near_ao[ty[idx], tx[idx]]
+            hollow = idx[a <= np.quantile(a, float(o["ear_share"]))]
+            canal = idx[a <= np.quantile(a, float(o["canal_share"]))]
+            lab = _lab(out[ty[hollow], tx[hollow]])
+            lab[:, 0] -= float(o["ear"])
+            out[ty[hollow], tx[hollow]] = _rgb(lab)
+            lab = _lab(out[ty[canal], tx[canal]])
+            lab[:, 0] = np.minimum(lab[:, 0], float(o["canal_l"]))
+            out[ty[canal], tx[canal]] = _rgb(lab)
+            done["ear_%d" % k] = [int(len(hollow)), int(len(canal))]
+            print("  ear by point %d: %d texels, hollow %d (near AO <= %.2f), canal %d" % (
+                k, len(idx), len(hollow), float(np.quantile(a, float(o["ear_share"]))), len(canal)))
+    print("  stamps:", done)
+    return done
+
+
 def bake(cid):
     from scipy import ndimage
     pos, nrm, uv, tris, colour = load_man(cid)
@@ -1515,6 +1636,10 @@ def bake(cid):
             draw_beard(out, cid, wpos, wnrm, uv, tris, size, beard)
         if brows:
             draw_brows(out, cid, wpos, wnrm, uv, tris, size, brows)
+    stamps = dict(bk.get("stamps") or {}, **STAMPS) if STAMPS is not None else {}
+    if stamps and not SMOOTH:
+        wpos, wnrm = worn_points(cid, pos, nrm)
+        draw_stamps(out, cid, wpos, wnrm, uv, tris, size, stamps)
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
@@ -1570,7 +1695,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
-    global BROWS, BEARD, COLLAR
+    global BROWS, BEARD, COLLAR, STAMPS
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1608,9 +1733,15 @@ def main():
             # The painter's face as painted (`bake.face` left out).
             FACE = None
         elif a.startswith("--face="):
-            # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6
-            FACE = {k: (x if k == "from" else float(x))
+            # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6,top:38/0.5
+            FACE = {k: (x if k == "from" else [float(c) for c in x.split("/")] if "/" in x else float(x))
                     for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+        elif a == "--stamps=off":
+            STAMPS = None
+        elif a.startswith("--stamps="):
+            # The faces test's stamps (draw_stamps): --stamps=lip:0.0025,nose:8,ear:10
+            STAMPS = {k: (x if k == "from" else [float(c) for c in x.split("/")] if "/" in x else float(x))
+                      for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a in ("--brows=off", "--beard=off"):
             # His brows or stubble as painted (`bake.brows` / `bake.beard` left out).
             if a == "--brows=off":

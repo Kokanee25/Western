@@ -625,6 +625,9 @@ class TripoPerson(mp.Person):
         head = self.head_mask(self.v)
         self.v_tripo = self.v.copy()
         self.find_eyes(bones)
+        # All his face's landmarks in our body space, carried as his drawn eyes are (Moustache).
+        self.face_body = None if self.face is None else \
+            self.warp_points(self.face, np.ones(len(self.face), dtype=bool), bones, only="head")[0]
         self.v, self.region = self.warp_points(self.v, head, bones)
         self.head = head
         self.fit_joints = {}
@@ -905,6 +908,8 @@ class TripoPerson(mp.Person):
             mp.Person.weights(piece)
         if self.spec.get("hair"):
             self.pieces.append(Hair(self, self.spec["hair"]))
+        if self.spec.get("moustache"):
+            self.pieces.append(Moustache(self, self.spec["moustache"]))
 
 
 class Piece:
@@ -1403,6 +1408,136 @@ class Hair:
         level = np.clip(np.digitize(score, np.quantile(score, np.cumsum(o["share"])[:-1])), 0, 4)
         img = tones[level]
         return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
+
+
+# A moustache as a shell of its own (people.json `moustache`: true, or any of these to change; class
+# Moustache), from the faces test (docs/briefs/faces.md, 2026-10-10): on the drawn house head a loft
+# proud of the lip with an overhang stood in front of it in every light and cast a shadow on it, its
+# near-black underside the strongest of the stamps, where his own moustache is a short block in his
+# skin that the light flattens into his face. The loft is house_head.py's (`proud` metres off his
+# lip at its middle, its lower edge `overhang` from his mouth's parting, its tails drooping `droop`
+# past the corners, `reach` past them), on his own face; its colours: `top` (L*, a*, b*) on its
+# upper rows, his own painted moustache's on its front, `under` on the rows that turn under to his
+# lip, each square `strand` L* off the next along it.
+MOUSTACHE = {"proud": 0.006, "overhang": -0.004, "droop": 0.012, "reach": 0.006,
+             "top": [28, 6, 10], "under": [6, 2, 3], "rows": [0.25, 0.7], "strand": 3.0, "texels": [96, 32]}
+
+
+class Moustache:
+    """A moustache shell ("body_moustache", <id>_moustache.png) over his own, from his face's
+    landmarks in our body space (house_head.moustache's loft), skinned from his nearest points (his
+    head's), its texture in rows of tone: lighter on top, his own colour on its front, near black
+    underneath."""
+
+    shape = "moustache"
+    square = 1
+
+    def __init__(self, body, spec):
+        import house_head as hh
+        o = dict(MOUSTACHE, **(spec if isinstance(spec, dict) else {}))
+        if body.face_body is None:
+            raise SystemExit("people.json moustache: %s's face hasn't been found" % body.id)
+        self.body = body
+        self.report = body.report.setdefault("piece_moustache", {})
+        L = body.face_body
+        head = body.head[body.tris].all(axis=1)
+        at = self._front_surface(body.v, body.tris[head], L)
+        P, tris = hh.moustache(None, L, o, surface_at=at)
+        cols, k = 31, 9
+        self.v = P
+        i, j = np.divmod(np.arange(len(P)), k)
+        self.uv = np.stack([i / (cols - 1), j / (k - 1)], 1)
+        # Facing out: its front (the most proud ring's middle) toward -Z, where he faces.
+        f = P[tris]
+        nrm = np.cross(f[:, 1] - f[:, 0], f[:, 2] - f[:, 0])
+        mid = (np.arange(len(tris)) < (cols - 1) * (k - 1) * 2)
+        if (nrm[mid, 2] > 0).mean() > 0.5:
+            tris = tris[:, [0, 2, 1]]
+        self.tris = tris
+        self.W = Hair._weights(self, body)
+        self.colour = self._texture(body, o, L)
+        self.report.update({"vertices": int(len(P)), "triangles_made": int(len(tris)),
+                            "proud_m": o["proud"], "overhang_m": o["overhang"], "droop_m": o["droop"]})
+        print("  moustache: %d points, %.1f cm across, %.0f mm proud" % (
+            len(P), (P[:, 0].max() - P[:, 0].min()) * 100, o["proud"] * 1000))
+
+    @staticmethod
+    def _front_surface(V, F, L, res=0.0005):
+        """The point on his face in front of any (x, y) near his mouth (the front-most of his head's
+        triangles there: he faces -Z), as a function for house_head.moustache."""
+        c = (L[2] + L[13]) / 2
+        x0, x1, y0, y1 = c[0] - 0.07, c[0] + 0.07, c[1] - 0.06, c[1] + 0.05
+        W, H = int((x1 - x0) / res) + 1, int((y1 - y0) / res) + 1
+        Z = np.full((H, W), np.inf)
+        T = V[F]
+        lo, hi = T[:, :, :2].min(1), T[:, :, :2].max(1)
+        near = (hi[:, 0] >= x0) & (lo[:, 0] <= x1) & (hi[:, 1] >= y0) & (lo[:, 1] <= y1)
+        for a, b, cc in T[near]:
+            i0, i1 = int(max((min(a[0], b[0], cc[0]) - x0) / res, 0)), int(min((max(a[0], b[0], cc[0]) - x0) / res + 1, W - 1))
+            j0, j1 = int(max((min(a[1], b[1], cc[1]) - y0) / res, 0)), int(min((max(a[1], b[1], cc[1]) - y0) / res + 1, H - 1))
+            if i1 < i0 or j1 < j0:
+                continue
+            gx, gy = np.meshgrid(x0 + np.arange(i0, i1 + 1) * res, y0 + np.arange(j0, j1 + 1) * res)
+            den = (b[1] - cc[1]) * (a[0] - cc[0]) + (cc[0] - b[0]) * (a[1] - cc[1])
+            if abs(den) < 1e-14:
+                continue
+            wa = ((b[1] - cc[1]) * (gx - cc[0]) + (cc[0] - b[0]) * (gy - cc[1])) / den
+            wb = ((cc[1] - a[1]) * (gx - cc[0]) + (a[0] - cc[0]) * (gy - cc[1])) / den
+            wc = 1 - wa - wb
+            ins = (wa >= -1e-6) & (wb >= -1e-6) & (wc >= -1e-6)
+            z = wa * a[2] + wb * b[2] + wc * cc[2]
+            sub = Z[j0:j1 + 1, i0:i1 + 1]
+            np.minimum(sub, np.where(ins, z, np.inf), out=sub)
+        seen = np.isfinite(Z)
+        sy, sx = np.nonzero(seen)
+
+        def at(x, y):
+            i = int(np.clip(round((float(x) - x0) / res), 0, W - 1))
+            j = int(np.clip(round((float(y) - y0) / res), 0, H - 1))
+            if not seen[j, i]:
+                m = int(np.argmin((sx - i) ** 2 + (sy - j) ** 2))
+                j, i = sy[m], sx[m]
+            return np.array([float(x), float(y), float(Z[j, i])])
+        return at
+
+    def _texture(self, body, o, L):
+        """Rows of tone round the loft (`rows`: where its top ends and its underside begins), its
+        front his own painted moustache's colour (the repaint's texels under his nose)."""
+        named = body.id if os.path.exists(os.path.join(TRIPO, body.id + "_color.png")) else body.spec.get("model", body.id)
+        painted = os.path.join(TRIPO, named + "_color.png")
+        col = np.asarray((Image.open(painted) if os.path.exists(painted) else body.colour).convert("RGB"), dtype=np.float64)
+        ch, cw = col.shape[:2]
+        # His moustache under his nose: half way from under his nose to his upper lip's top, across
+        # his philtrum and either side of it.
+        mid = (L[2] + L[0]) / 2
+        aims = [mid + np.array([dx, 0.0, 0.0]) for dx in (-0.018, -0.012, -0.006, 0.006, 0.012, 0.018)]
+        idx = [int(np.argmin(np.linalg.norm(body.v - a, axis=1))) for a in aims]
+        px = np.clip((body.uv[idx] * [cw, ch]).astype(int), 0, [cw - 1, ch - 1])
+        own = _lab(np.median(col[px[:, 1], px[:, 0]], axis=0)[None])[0]
+        tw, th_ = o["texels"]
+        v = (np.arange(th_) + 0.5) / th_
+        lab = np.zeros((th_, tw, 3))
+        lab[:] = own
+        lab[v < o["rows"][0]] = o["top"]
+        lab[v > o["rows"][1]] = o["under"]
+        # Strands: each column a little lighter or darker, the same every fit.
+        s = ((np.arange(tw) * 2654435761 + 1873) % 1000003) / 1000003.0 * 2 - 1
+        lab[..., 0] = np.maximum(lab[..., 0] + s[None, :] * o["strand"], 2.0)
+        self.report["tones"] = {"top": o["top"], "front": [round(float(x), 1) for x in own], "under": o["under"]}
+        rgb = _lab_to_rgb(lab)
+        return Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
+
+
+def _lab_to_rgb(lab):
+    """sRGB (0-255) of CIE L*a*b* (D65) colours."""
+    lab = np.asarray(lab, dtype=np.float64)
+    fy = (lab[..., 0] + 16.0) / 116.0
+    fx, fz = fy + lab[..., 1] / 500.0, fy - lab[..., 2] / 200.0
+    f = np.stack([fx, fy, fz], -1)
+    xyz = np.where(f ** 3 > 0.008856, f ** 3, (f - 16.0 / 116.0) / 7.787) * np.array([0.95047, 1.0, 1.08883])
+    lin = xyz @ np.array([[3.2406, -1.5372, -0.4986], [-0.9689, 1.8758, 0.0415], [0.0557, -0.2040, 1.0570]]).T
+    lin = np.clip(lin, 0.0, 1.0)
+    return 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
 
 
 def squares(colour, out_path, square=SQUARE_TEXELS):

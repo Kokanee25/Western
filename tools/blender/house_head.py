@@ -249,12 +249,13 @@ def surface(depth, x, y):
 
 # ---------------------------------------------------------------- the moustache
 
-def moustache(depth, L, spec):
+def moustache(depth, L, spec, surface_at=None):
     """A moustache as a shell of its own: a loft along his upper lip from past one corner of his
     mouth to past the other, `proud` metres off the lip at its middle, its lower edge hanging
     `overhang` below the parting and drooping `droop` at its ends, so it stands in front of his lip
     and casts a shadow on it. Returns points and triangles (our body space), and each point's
-    (across, round) on the loft for its UVs."""
+    (across, round) on the loft for its UVs. `surface_at(x, y)`: the point on his face in front of
+    (x, y), where it isn't this head's front render (tools/blender/fit_tripo.py's Moustache)."""
     proud = float(spec.get("proud", 0.010))
     over = float(spec.get("overhang", -0.004))     # its lower edge over the lip line, not on it
     droop = float(spec.get("droop", 0.014))
@@ -282,7 +283,7 @@ def moustache(depth, L, spec):
         for phi in np.linspace(0.0, math.pi, k):
             y = top_y + (bot_y - top_y) * (1 - math.cos(phi)) / 2
             y -= 0.002 * math.sin(phi) ** 2 * (phi / math.pi) * (1.0 - a)   # its front hangs a little lower
-            sk = surface_one(depth, x, y)
+            sk = surface_at(x, y) if surface_at else surface_one(depth, x, y)
             ring.append(sk + np.array([0.0, 0.0, -1.0]) * (0.0006 + t * math.sin(phi) ** 0.8))
         rings.append(ring)
     P = np.array(rings).reshape(-1, 3)
