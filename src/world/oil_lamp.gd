@@ -22,7 +22,7 @@ extends Node3D
 ## saloon's 14 seen from the street were 11,600 of the frame's 15,400 draw calls. The shadow
 ## stays on, so the walls still keep its light in (switched off it shone through them). 0 =
 ## always the full shadow.
-@export var shadow_reach := 12.0
+@export var shadow_reach := 20.0
 ## Checked this often (seconds), with a metre's slack so a lamp at the edge doesn't flick.
 const SHADOW_CHECK := 0.25
 const SHADOW_SLACK := 1.0
@@ -107,13 +107,18 @@ func _shadow_for_distance() -> void:
 
 
 ## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
-## the street its shadows are behind the walls.
+## the street its shadows are behind the walls. A lamp hung outside them is the street's.
 func _sees_in(at: Vector3, slack: float) -> bool:
 	if _building == null:
 		var p := get_parent()
 		while p and not p is FalseFrontBuilding:
 			p = p.get_parent()
 		_building = p if p else self
+		# Hung outside its walls (a porch lantern): it lights the street, not a room.
+		if p:
+			var own := (p as FalseFrontBuilding).global_transform.affine_inverse() * global_position
+			if own.x < 0.0 or own.x > p.width or own.z < 0.0 or own.z > p.depth:
+				_building = self
 	if not _building is FalseFrontBuilding:
 		return true
 	var b := _building as FalseFrontBuilding
