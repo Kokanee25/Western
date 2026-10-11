@@ -45,10 +45,6 @@ var _batches := {}
 ## StructureMember -> the Material of the batch it's drawn in.
 var _batched := {}
 var _batch_dirty := {}
-## One shadow-only mesh of every batched member: the batches are a material each (each wood's
-## board strips, ~45 on the saloon), and a shadow doesn't care about materials, so the batches
-## cast none and this casts them all, one draw per structure in every shadow face and cascade.
-var _shadow: MeshInstance3D
 var _by_stack: Array[StructureMember] = []  # see by_stack()
 var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
 var _rebuild_queued := false
@@ -218,13 +214,13 @@ func _batch_all() -> void:
 		(groups[mat] as Array).append(m)
 		_batched[m] = mat
 		mi.visible = false
+	# The walls, for a far lamp's shadow (OilLamp: far off, only these cast it).
 	for m in _order:
 		var own := m.get_child(0) as MeshInstance3D
 		if own:
 			own.layers |= Layers.VIS_WALLS
 	for mat in groups:
 		_build_batch(mat)
-	_build_shadow()
 
 
 func _build_batch(mat: Material) -> void:
@@ -247,7 +243,7 @@ func _build_batch(mat: Material) -> void:
 		old = MeshInstance3D.new()
 		old.name = "Batch"
 		old.material_override = mat
-		old.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		old.layers = 1 | Layers.VIS_WALLS
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
 		_batches[mat] = old
 	old.mesh = mesh
@@ -285,7 +281,6 @@ func _rebuild_dirty_batches() -> void:
 	for mat in _batch_dirty:
 		_build_batch(mat)
 	_batch_dirty.clear()
-	_build_shadow()
 	for m: Variant in _show_after:
 		if is_instance_valid(m) and (m as StructureMember).get_child_count() > 0:
 			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
@@ -295,32 +290,7 @@ func _rebuild_dirty_batches() -> void:
 	_last_rebuild = Time.get_ticks_msec() / 1000.0
 
 
-func _build_shadow() -> void:
-	var st := SurfaceTool.new()
-	var any := false
-	for mat in _batches:
-		var mi: MeshInstance3D = _batches[mat]
-		if is_instance_valid(mi) and mi.mesh and not mi.is_queued_for_deletion():
-			st.append_from(mi.mesh, 0, mi.transform)
-			any = true
-	if not any:
-		if _shadow:
-			_shadow.queue_free()
-			_shadow = null
-		return
-	if _shadow == null:
-		_shadow = MeshInstance3D.new()
-		_shadow.name = "Shadow"
-		_shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-		_shadow.layers = 1 | Layers.VIS_WALLS
-		add_child(_shadow, false, Node.INTERNAL_MODE_BACK)
-	_shadow.mesh = st.commit()
-
-
 func _clear_batches() -> void:
-	if _shadow and is_instance_valid(_shadow):
-		_shadow.free()
-	_shadow = null
 	for mat in _batches:
 		var mi: MeshInstance3D = _batches[mat]
 		if is_instance_valid(mi):

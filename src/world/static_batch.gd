@@ -27,11 +27,6 @@ const CELL := 40.0
 ## MultiMeshInstance3D -> [the MeshInstance3Ds it draws, in instance order]
 var batches := {}
 var _of := {}  # MeshInstance3D -> [MultiMeshInstance3D, index]
-## Each patch's shadow, one shadow-only mesh of everything batched there that casts one: a lamp's
-## shadow is six faces redrawn every frame, and the saloon's ~200 batches were 3,500 of its draw
-## calls at night. The batches themselves cast none. Cell -> [MeshInstance3D, [MeshInstance3Ds]]
-var _shadows := {}
-var _dirty := {}
 
 
 func _ready() -> void:
@@ -86,16 +81,6 @@ func build(root: Node3D) -> int:
 		mmi.material_override = g[1]
 		mmi.cast_shadow = g[2]
 		mmi.layers = g[3]
-		if g[2] == GeometryInstance3D.SHADOW_CASTING_SETTING_ON and g[3] == 1:
-			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			var c := Vector3i(((list[0] as MeshInstance3D).global_position / CELL).floor())
-			# Its shadow is drawn with its material's culling (a flat board or a blanket is two
-			# sided: culled as the default, half its shadow went).
-			var cull := _cull_of(g[1])
-			var cell := Vector4i(c.x, c.y, c.z, cull)
-			var sh: Array = _shadows.get_or_add(cell, [null, []])
-			(sh[1] as Array).append_array(list)
-			_dirty[cell] = true
 		add_child(mmi)
 		batches[mmi] = list
 		for i in list.size():
@@ -104,45 +89,7 @@ func build(root: Node3D) -> int:
 			_of[mi] = [mmi, i]
 			mi.tree_exiting.connect(_gone.bind(mi), CONNECT_ONE_SHOT)
 		taken += list.size()
-	_build_shadows()
 	return taken
-
-
-func _build_shadows() -> void:
-	var inv := global_transform.affine_inverse()
-	for cell: Vector4i in _dirty:
-		var sh: Array = _shadows[cell]
-		var st := SurfaceTool.new()
-		var any := false
-		var kept: Array = []
-		for v: Variant in sh[1]:
-			if not is_instance_valid(v) or not _of.has(v):
-				continue  # freed (the shot match clears the table) or released
-			var mi := v as MeshInstance3D
-			kept.append(mi)
-			var xf := inv * mi.global_transform
-			for s in mi.mesh.get_surface_count():
-				if mi.mesh.surface_get_primitive_type(s) == Mesh.PRIMITIVE_TRIANGLES:
-					st.append_from(mi.mesh, s, xf)
-					any = true
-		sh[1] = kept
-		var shadow: MeshInstance3D = sh[0] if is_instance_valid(sh[0]) else null
-		if not any:
-			if shadow:
-				shadow.queue_free()
-			sh[0] = null
-			continue
-		if shadow == null:
-			shadow = MeshInstance3D.new()
-			shadow.name = "Shadow"
-			shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-			var m := StandardMaterial3D.new()
-			m.cull_mode = cell.w as BaseMaterial3D.CullMode
-			shadow.material_override = m
-			add_child(shadow)
-			sh[0] = shadow
-		shadow.mesh = st.commit()
-	_dirty.clear()
 
 
 ## Everything under `node` drawn by itself again (before moving or hiding it).
@@ -176,19 +123,6 @@ func _hide_instance(mi: MeshInstance3D) -> void:
 		return
 	var mmi: MultiMeshInstance3D = where[0]
 	mmi.multimesh.set_instance_transform(where[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
-	# Its shadow goes with it (the patch's shadow is built again, once, at the end of the frame).
-	for cell: Vector4i in _shadows:
-		if (_shadows[cell][1] as Array).has(mi) and not _dirty.has(cell):
-			if _dirty.is_empty():
-				_build_shadows.call_deferred()
-			_dirty[cell] = true
-
-
-## A material's face culling, as BaseMaterial3D's CullMode (the grid shaders cull back faces).
-static func _cull_of(mat: Material) -> int:
-	if mat is BaseMaterial3D:
-		return (mat as BaseMaterial3D).cull_mode
-	return BaseMaterial3D.CULL_BACK
 
 
 func _takes(mi: MeshInstance3D, root: Node3D) -> bool:

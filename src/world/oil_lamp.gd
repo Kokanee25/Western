@@ -16,11 +16,12 @@ extends Node3D
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
 ## Past this far from the camera (or with the camera outside the building it's in) its shadow
-## is cast only by the walls (Layers.VIS_WALLS), not by people, props and the bottles on the
-## shelves: a shadowed lamp draws everything in its reach six times a frame (a cube of shadow
-## faces), and Godot 4.7 redraws it every frame, so the saloon's 14 seen from the street were
-## 11,600 of the frame's 15,400 draw calls. The shadow stays on, so the walls still keep its
-## light in (switched off it shone through them). 0 = always the full shadow.
+## is cast only by the buildings' members (Layers.VIS_WALLS), not by people, props and the
+## bottles on the shelves, and in two passes, not six: a shadowed lamp draws everything in its
+## reach six times a frame (a cube of shadow faces), and Godot 4.7 redraws it every frame, so the
+## saloon's 14 seen from the street were 11,600 of the frame's 15,400 draw calls. The shadow
+## stays on, so the walls still keep its light in (switched off it shone through them). 0 =
+## always the full shadow.
 @export var shadow_reach := 12.0
 ## Checked this often (seconds), with a metre's slack so a lamp at the edge doesn't flick.
 const SHADOW_CHECK := 0.25
