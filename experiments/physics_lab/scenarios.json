@@ -1,0 +1,30 @@
+{
+  "_doc": "Ragdoll lab scenarios (Prompt 01). Directions are in the man's own frame: -z is the way he faces, +x his right, +y up. 'push' is the argument handed to HumanBody.go_limp() (production: a bullet knockdown passes dir*1.2, a blow dir*clamp(J/300,0.5,3), a blackout nothing). 'impulses' are the lab's own, applied after go_limp at a named segment and a point in that segment's rest-centred space, in N*s. 'pre' is what he does before he goes limp. Edit this file to add scenarios; no code change needed.",
+  "scenarios": [
+    {"name": "A_stand_blackout", "group": "A", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "seconds": 6},
+    {"name": "A_stand_shot_front", "group": "A", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 6},
+    {"name": "A_stand_blow_front", "group": "A", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 3.0], "seconds": 6},
+    {"name": "B_walk_blackout", "group": "B", "fixture": "ground", "pre": {"do": "walk", "speed": 1.4, "seconds": 1.5}, "push": [0, 0, 0], "seconds": 6},
+    {"name": "C_run_blackout", "group": "C", "fixture": "ground", "pre": {"do": "run", "speed": 3.5, "seconds": 1.5}, "push": [0, 0, 0], "seconds": 6},
+    {"name": "C_run_shot_front", "group": "C", "fixture": "ground", "pre": {"do": "run", "speed": 3.5, "seconds": 1.5}, "push": [0, 0, 1.2], "seconds": 6},
+    {"name": "D_crouch_blackout", "group": "D", "fixture": "ground", "pre": {"do": "crouch", "seconds": 1.0}, "push": [0, 0, 0], "seconds": 6},
+    {"name": "E_chest_from_front", "group": "E", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "impulses": [{"segment": "chest", "point": [0, 0.05, -0.12], "impulse": [0, 0, 40]}], "seconds": 6},
+    {"name": "E_chest_from_back", "group": "E", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "impulses": [{"segment": "chest", "point": [0, 0.05, 0.12], "impulse": [0, 0, -40]}], "seconds": 6},
+    {"name": "E_shoulder_from_left", "group": "E", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "impulses": [{"segment": "upper_arm_l", "point": [0, 0.1, 0], "impulse": [30, 0, 0]}], "seconds": 6},
+    {"name": "E_hip_from_right", "group": "E", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "impulses": [{"segment": "pelvis", "point": [0.12, 0, 0], "impulse": [-40, 0, 0]}], "seconds": 6},
+    {"name": "E_head_from_front", "group": "E", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "impulses": [{"segment": "head", "point": [0, 0, -0.09], "impulse": [0, 0, 12]}], "seconds": 6},
+    {"name": "F_wall_behind", "group": "F", "fixture": "wall", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 6},
+    {"name": "F_doorway", "group": "F", "fixture": "doorway", "pre": {"do": "stand", "seconds": 0.5}, "push": [0.6, 0, 1.2], "seconds": 6},
+    {"name": "F_slope_downhill", "group": "F", "fixture": "slope", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 0], "seconds": 6},
+    {"name": "F_stairs_down", "group": "F", "fixture": "stairs", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, -1.2], "seconds": 6},
+    {"name": "F_table_ahead", "group": "F", "fixture": "table", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, -1.2], "seconds": 6},
+    {"name": "F_chair_behind", "group": "F", "fixture": "chair", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 6},
+    {"name": "G_yaw_0", "group": "G", "fixture": "ground", "yaw": 0, "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 5},
+    {"name": "G_yaw_45", "group": "G", "fixture": "ground", "yaw": 45, "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 5},
+    {"name": "G_yaw_90", "group": "G", "fixture": "ground", "yaw": 90, "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 5},
+    {"name": "G_yaw_180", "group": "G", "fixture": "ground", "yaw": 180, "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 5},
+    {"name": "G_yaw_270", "group": "G", "fixture": "ground", "yaw": 270, "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 5},
+    {"name": "H_settle_30s", "group": "H", "fixture": "ground", "pre": {"do": "stand", "seconds": 0.5}, "push": [0, 0, 1.2], "seconds": 30},
+    {"name": "I_arm_on_table", "group": "I", "fixture": "table_side", "pre": {"do": "stand", "seconds": 0.5}, "push": [-1.2, 0, 0], "seconds": 6}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "_doc": "The lab's automated flags (analyse.py). Each rule needs its measure past 'over' for 'ticks' ticks in a row on one part after he goes limp, so a one-tick spike at an impact doesn't count (its peak is still reported). Provisional: set 2026-10-11 from the first baseline (README.md, Thresholds); they flag, they don't judge. Move them with a line in 'history'.",
+  "sunk_into_world":    {"measure": "penetration",  "over": 0.03, "ticks": 4,  "what": "a part more than 3 cm into the ground, a wall or furniture for 4+ ticks"},
+  "limb_through_body":  {"measure": "self_overlap", "over": 0.05, "ticks": 20, "what": "two of his own non-adjacent parts' capsules 5 cm deeper into each other than at the start, for a third of a second (the parts don't collide with each other)"},
+  "joint_pulled_apart": {"measure": "joint_gap",    "over": 0.03, "ticks": 4,  "what": "a part 3 cm off its joint's anchor for 4+ ticks"},
+  "swing_past_limit":   {"measure": "swing_excess", "over": 10,   "ticks": 6,  "what": "a cone joint swung 10 deg past its limit for a tenth of a second"},
+  "twist_past_limit":   {"measure": "twist_excess", "over": 15,   "ticks": 6,  "what": "a cone joint twisted 15 deg past its limit for a tenth of a second"},
+  "limb_inversion":     {"measure": "wrong_bend",   "over": 10,   "ticks": 6,  "what": "a knee or elbow bent 10 deg the wrong way for a tenth of a second"},
+  "discontinuity":      {"measure": "step",         "over": 1,    "ticks": 1,  "what": "a part moved over 0.25 m or turned over 45 deg in one tick"},
+  "launch":             {"measure": "speed",        "over": 8.0,  "ticks": 1,  "what": "a part faster than 8 m/s (a fall from standing tops out near 5-6)"},
+  "bounce":             {"measure": "com_up",       "over": 0.4,  "ticks": 2,  "what": "his centre of mass going up faster than 0.4 m/s after it had come down 0.3 m"},
+  "lingering_motion":   {"measure": "after_settle", "over": 0.08, "ticks": 1,  "what": "a part moving faster than 8 cm/s after he had settled"},
+  "never_settled":      {"what": "not every part under 5 cm/s and 0.3 rad/s for half a second by the end"},
+  "awake_at_end":       {"what": "a part not asleep at the end"},
+  "history": ["2026-10-11: first set, from the first baseline (gameplay session)."]
+}
