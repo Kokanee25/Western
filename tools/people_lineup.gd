@@ -51,7 +51,7 @@ func _run() -> void:
 	sun.rotation_degrees = Vector3(-35, 25, 0)
 	sun.light_energy = 1.1
 	sun.shadow_enabled = true
-	# Loaded by path: a -s script compiles before the autoloads exist (CLAUDE.md, ShotMatch.model).
+	# Loaded by path: a -s script compiles before the autoloads exist (docs/LAYOUT.md, ShotMatch.model).
 	var body_script = load("res://src/bodies/human_body.gd")
 	var men := []
 	for i in ids.size():

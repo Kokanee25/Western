@@ -11,6 +11,9 @@ Where they differ today:
   bold squares) stays the working look and nothing is migrated.
 - **The feature freeze:** DESIGN.md says features wait until the look is right. Prompts 10–18 are
   features and wait for that.
+- **"Read CLAUDE.md" (every prompt):** since 2026-10-11 that means CLAUDE.md as it is (lean),
+  DESIGN.md's index, and the `docs/LAYOUT.md` sections the prompt's files belong to; the history
+  the prompts refer to ("active branch/status", "recent work") is in `docs/status/`, newest file last.
 - **Branches and merging:** use CLAUDE.md's branch names (`claude/<session>-…`), not
   `experiment/…`. "Don't merge to main" applies to experiments only.
 - **Prompt 05:** its baselines "r10" and "D2r" aren't on `main`; ask the characters session where

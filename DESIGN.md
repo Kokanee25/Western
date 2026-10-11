@@ -4,6 +4,50 @@ Working title. A first-person immersive-sim Western for PC, set in one small fro
 Everything here came out of the first design session (Sept 27, 2026). Decisions are marked **decided**;
 anything still open is listed at the end.
 
+## Index (read this, then only the sections a task touches)
+
+Section numbers are cited across the code and docs ("DESIGN.md §7", "§10.4"): never renumber or
+move them. Each line: what the section decides. Decisions marked **decided** aren't reopened
+without asking Sean.
+
+- **§1 The game in one paragraph** — the premise: a homesteader with the valley's spring claim,
+  the railroad thirty days out, an outlaw gang, and a town that remembers.
+- **§2 Pillars** — systems not scripts; consequences that stay; people you can talk to; grounded
+  and gritty with humour; a small world, deep.
+- **§3 Platform, view, time, saving** (decided) — PC first, Godot 4, first person only, a
+  45-minute day on a 30-day railroad clock, save only in a bed, death wakes you at the doctor's.
+- **§4 The look** (decided; under review since 2026-10-10) — the bold squares style everywhere
+  (`docs/concept/saloon-blocks.png`, the street painting), the per-texel light, materials, the
+  concept art references, what's built in code vs Blender; the style test is Prompt 07.
+- **§5 Setting and story** — Salt Creek 1882, the cast, how the story works, the story flow
+  (decided: the sheriff opening, three acts on the railroad clock), reasons to fight (decided),
+  story missions (proposed, frozen), a day in Salt Creek, romance (proposed), history handled with
+  care.
+- **§6 The player character and paths** — a homesteader, former hospital steward (proposed);
+  no class menu: sheriff, gang, hired gun, rancher and undercover paths open and close by what
+  you do; skills by doing, no XP.
+- **§7 Bodies: anatomy, wounds and visible damage** — hidden anatomy under everyone, ballistics
+  through tissue, physiology, fear and morale, treatment and field first aid, layered characters,
+  visible damage and permanent marks, grazes/glass/open wounds, active ragdoll, procedural recoil,
+  enemy combat behaviour.
+- **§8 Buildings, fire, dynamite, rubble** — structures from real members with a support graph,
+  fire spread and water putting it out, dynamite, persistent rubble (must have), rope (must have).
+- **§9 People: AI minds, memory, conversation** — nobody is an enemy by default (decided: deeds,
+  opinions, the escalation ladder), the memory architecture, conversation (changed 2026-10-06:
+  written, voiced lines; the AI only reads what you type into a deed), action commands.
+- **§10 Law, evidence and society** — sound and witnesses, evidence, the law as a real process
+  (arrest, trial, hanging), ownership; social interactions "a round on me" (decided), recognition
+  and disguise, why you won't burn the town down.
+- **§11 Immersion features** — almost no HUD, guns as machines, a body you can feel, sound,
+  townsfolk with lives, a readable world, weather, horses; the signature features (decided: the
+  body changes how people talk, forensics, the trial); world-building features (decided); the
+  backlog (proposed, frozen until the look is right: set pieces, town life, the cast, homes);
+  period details (ideas only).
+- **§12 First slice** — one small town, a dozen people, a few days, one outlaw; proves the
+  gunfight, five endings, systems feeding each other, talking, the immersion core.
+- **§13 Open questions** — tone, historical groups, the name, forensics lighter?, the mine, the
+  economy, voices.
+
 ---
 
 ## 1. The game in one paragraph
