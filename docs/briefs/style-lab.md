@@ -65,6 +65,111 @@ time per candidate including failures, the top visual failures, a recommendation
 one subject to Sean's yes, or keep researching) and a draft style bible (face density and form,
 materials, palette, highlights and shadows, texel rules, geometry budgets, what's not allowed).
 
-## Findings
+## Findings (2026-10-11)
 
-(filled in as the lab runs)
+Rendered under lavapipe by `tools/style_lab.sh` (each look ~20 minutes); boards by
+`tools/style_lab.py boards` in `docs/screenshots/style_lab/` (named) and `.../blind/` (shuffled; the
+key in `build/style_lab/blind_key.json`: X = C, Y = A, Z = B). Nothing paid for; no default, golden
+or shader of the game's changed.
+
+### Style (subjective), the blind critic (`blind/critic.md`)
+
+Ranked **A first, B second, C last**. A: "the only one with the targets' mosaic everywhere"; its
+worst failure the seated man's face (blocks on jaw, collar and moustache too big and uneven, a hot
+orange mask). B: the men nearly A's, but the world coarser and noisier (the noon siding "blue-white
+confetti", the JAIL sign's lettering lost at 16 texels a metre). C: plain realistic game rendering,
+floors smeared into streaks; its faces the cleanest close up. Where they're the same: the street
+shot, the saloon front and the Kid down the street barely differ (the façades' drawn woods are
+shared: the smooth set has none, so C falls back to them), and all three share one light and one
+colour; the differences are the faces and the close surfaces.
+
+### The judges (lower is closer)
+
+| | A today | B painted, smooth light | C realism |
+|---|---|---|---|
+| Saloon shot (`judge.py` v2 against saloon-blocks.png) | 0.342 | 0.338 | 0.320 |
+| Street shot (against street-golden-hour.png) | 0.502 | **0.461** | 0.633 |
+| The seated man alone (`judge_man.py`) | 0.501 | **0.407** | 0.513 |
+| The stranger standing, daylight, against the character sheet (`sheet_judge.py`) | **0.640** | 0.692 | 0.808 |
+
+The man's judge splits it: light 0.77 / 0.78 / 0.93, squares 0.46 / **0.14** / 0.30. B's squares
+are the painting's (A's are flatter than the painting's, one tone edge to edge: the per-square
+light; C's have light running across them and no squares). Every candidate's top fault is the same
+and isn't the style: his face's lit parts L* 79-82 against the painting's 55, and too much deep
+shadow (0.47 against 0.31). C's street is worst by far: the smooth road and sky at 128 a metre
+read as grain where the painting has blocks. The sheet judge is light-dominated (each one's face
+L* 34-41 to the sheet's 17 in the lineup's daylight).
+
+### Production (measured)
+
+| | A | B | C |
+|---|---|---|---|
+| Paid, a new man (Rodin $1.60, three views ~$0.15, head + body repaint ~$0.35-1.00 with retries) | ~$2.1-2.8 | ~$2.1-2.8 (A's textures) | ~$1.75 (no repaint) |
+| Paid, a new prop | $0 (code) | $0 | $0 |
+| Steps, a new man | 11: picture, views, model, stylise, fit, head repaint, body repaint, bake (cells, skin, eyes), shot fit, eye gain, lineup | A's 11 + a normal map | 6: picture, views, model, fit, eye gain, lineup |
+| Ambiguous steps | the repaint's words (four tries for the Kid's hair), the bake's knobs | as A | the front picture only |
+| Texture memory, the two men (PNG) | 5.7 MB | 7.9 MB (+ normal maps) | 29 MB (Rodin's 4K, Tripo's 2K + normals) |
+| World textures | 2.6 Mpx factory + drawn woods | 0.03 Mpx at 16/m (box-averaged from the smooth set) | 1.9 Mpx smooth set + drawn woods |
+| Editing a material | paint, reduce, palette | the same paintings, one box-average | the same paintings, no cut |
+| Wounds, eye gain, shade tint | yes (`body_skin`) | **no** (trial shader) | **no** |
+| Hat shot off, ragdoll, layers | yes | yes (the copy keeps its material) | yes |
+| The second man (the Kid) | a session (runs 38-46) | seconds once A's paint exists | seconds |
+| Goldens and checks | in place | none yet | none yet |
+| Draw calls, saloon / street (`look_cost.gd`) | 3,442 / 14,707 | 3,116 / 12,574 | 3,943 / 17,215 |
+| Render CPU ms, saloon / street (lavapipe here) | 4.4 / 13.7 | 4.5 / 12.1 | 5.1 / 15.2 |
+| Raster (lavapipe's GPU stand-in) ms | 481 / 981 | 496 / 965 | 487 / 979 |
+
+B and C as built are a **trial shader** (`sheet_man.gdshader`): Godot's light and a normal map, no
+wound openings (`_apply_openings` would set uniforms it doesn't have, silently), no `eye_gain`, one
+material shared by every piece of a shape. Adopting B means giving `body_skin` a normal map and an
+option to light smoothly (the tile globals at 0 already turn its per-square light off), not shipping
+the trial shader. B's 16-a-metre world cuts the sign boards' lettering (SignArt's boards would keep
+their own density), and the factory's paintings box-averaged to 16 are the "confetti" on the noon
+wall; the drawn woods (32 a metre) read better. The draw counts follow how many materials the
+world ends up with (StaticBatch groups by material: B's fewer textures batch more, C's more batch
+less); the raster is a wash. The street's ~14,700 draw calls in today's look (against ~3,700 when
+the frame budget was measured) are Main Street's new buildings, already reported to gameplay.
+
+### Recommendation (Sean's to approve)
+
+**Keep A as the base, and take two things from B into it** (one merge each, judged as usual):
+1. **People lit smoothly over their painted squares, with their normal maps** (`body_skin`: a
+   normal map uniform and per-square light off for painted men): the only change all four judges
+   and the critic don't contradict (the man's judge 0.501 → 0.407, squares 0.46 → 0.14; the men
+   otherwise look the same to the critic).
+2. **The world stays at 32 a metre in drawn or factory squares**, not B's 16 (the critic's worst
+   B failure; the street's gain from 16 is the road alone, which can be drawn coarser on its own).
+
+Not C: it loses the mosaic the critic and the paintings rank first, and its realism isn't cheaper
+where it counts (it skips the repaint but needs 4x the texture memory and a new shader too). Keep
+researching, separately: the light on his face (every candidate's top fault, the shot's light: the
+art session's), and the seated man's face drawn for the block size (the critic's top A failure).
+
+### The hundredth asset (A with smooth light on people), in steps
+
+A man: 1) Sean's front picture (ChatGPT, A-pose, flat light, grey ground); 2) three views painted
+from it on fal (`paint_full_length.py`, `given`); 3) Rodin (`rodin.py`, $1.60) or Tripo; 4)
+`fit_tripo.py` (his joints found, eyes onto the anatomy's); 5) `head_paint.py` head and body in the
+style, `bake` with cells (8 / 9 / 2.7 mm), skin evened, eyes drawn; 6) `people_lineup.gd` in the
+three lights (no tears, eyes level); 7) `judge_man.py` and the art session's look. A prop: modelled
+in code in `PropModels` on the texel grid, its materials from the factory (paint once, `reduce.py`).
+
+### Style bible (draft)
+
+- **Faces:** ~20 squares across the face (the painting's man), eyes drawn finer than the squares
+  (whites either side of a dark iris, a glint), brows and moustache bold dark masses; skin evened
+  of painted light; lit parts no brighter than L* ~55 in the saloon.
+- **Cloth and hats:** squares 7-9 mm, each one shade off its neighbours (the painting's ~5 L*),
+  folds and seams drawn in the squares, light running smoothly across them over the model's own
+  normals.
+- **World:** 32 squares a metre; boards drawn square by square, each board its own strip, squares
+  two to six long along the grain; signs lettered on the square grid at their own density; no
+  noise that isn't a drawn thing (no confetti).
+- **Palette:** warm earths, a few close shades a material (10-28), chroma rising with lightness
+  (the painting's chroma-L* correlation ~0.6); no grey highlights.
+- **Light:** smooth light across every square; deep shadow ~0.3 of a lit room; only true emitters
+  bloom; golden hour gold, not orange.
+- **Geometry:** a principal man ~25-33k triangles (Rodin), a townsman ~7.7k; props in code, a few
+  hundred to a thousand faces.
+- **Not allowed:** screen filters over the frame; squares that change size with distance; textures
+  finer than the squares under them (C's grain); squares lit flat one at a time on people.

@@ -4289,3 +4289,15 @@ a few views renders them as the full run does.
   0.47-0.49). The street at 16/m 0.463 (today 0.497), pushed 0.459. So the candidate for Prompt
   07 is painterly squares on the surfaces, ordinary light, normal maps, the world at 16/m.
   Sheet `docs/screenshots/review/2026-10-11_sheet_style_round2.png`.
+- 2026-10-11 (art, experiment, Prompt 07; same branch, not merged): **The style lab: three looks on
+  the same assets** (`docs/briefs/style-lab.md`, its findings and a draft style bible; boards in
+  `docs/screenshots/style_lab/`, blind ones and the critic in `blind/`). A today, B painted squares
+  under smooth light with normal maps and the world at 16/m (`--sheet-style=painted`), C no squares
+  (`--sheet-style=real`). The blind critic ranks A, B, C (B's world at 16/m is confetti and loses
+  sign lettering; C reads as plain realistic rendering); the judges, A / B / C: saloon 0.342 /
+  0.338 / 0.320, street 0.502 / 0.461 / 0.633, the seated man 0.501 / **0.407** / 0.513 (B's
+  squares 0.14 to A's 0.46), against the sheet 0.640 / 0.692 / 0.808. Every candidate's top fault is
+  his face's light (L* 79 to the painting's 55). Recommendation, Sean's to approve: keep A and take
+  B's smooth light and normal maps onto painted people (`body_skin`, its own merge), the world
+  staying at 32/m. B and C's shader is a trial (no wound openings or eye gain). Nothing paid; no
+  defaults, goldens or game shaders changed. Tools `tools/style_lab.sh`, `tools/style_lab.py`.
