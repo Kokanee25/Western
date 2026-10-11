@@ -72,7 +72,7 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	global_position = Vector3(_have.x, _top, _have.y)
-	var tall := 6.0 + 14.0 * _have.w
+	var tall := 8.0 + 18.0 * _have.w
 	set_instance_shader_parameter(&"size", Vector2(_have.z, tall))
 	set_instance_shader_parameter(&"strength", _have.w)
 	var r := _have.z * 2.0 + tall * 1.5 + 2.0

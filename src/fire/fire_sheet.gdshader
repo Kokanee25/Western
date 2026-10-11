@@ -41,7 +41,7 @@ uniform float bloom = 0.8;
 // overlap.
 uniform float fire_height = 5.5;
 // Heat added everywhere: more of the fire in its yellow and white bands, less in its reds.
-uniform float core = 0.35;
+uniform float core = 0.5;
 // The tongues' size: how many to a metre across, and how stretched up (a lower number, taller).
 uniform float tongues_x = 3.0;
 uniform float tongues_y = 0.8;

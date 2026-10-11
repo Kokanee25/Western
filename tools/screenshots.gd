@@ -43,8 +43,9 @@ const VIEWS := [
 	["store_fire_later", 21.0, Vector3(3.0, 0.0, -13.0), 180.0, 12.0, "store_fire_later"],
 	# The fire painting's view (docs/concept/livery-fire.png, docs/briefs/fire-look.md): the livery
 	# burning at dusk from the street (it stands on the north side since Main Street step 2, its
-	# front on z -16.8), the sun just down, its front alight a few minutes.
-	["livery_fire_dusk", 18.6, Vector3(21.0, 0.0, -4.0), 27.0, 12.0, "livery_fire"],
+	# front on z -16.8), the sun just down, its front alight a few minutes; from the street's east
+	# end, the saloon's front on the left, as the painting has a building on its left.
+	["livery_fire_dusk", 18.6, Vector3(27.0, 0.0, -7.0), 58.0, 8.0, "livery_fire"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["outlaw_face", 15.0, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
 	["outlaw_face_evening", 18.2, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
@@ -146,6 +147,7 @@ func _run() -> void:
 	var fresh := false
 	var man_mask := false
 	var msaa := -1
+	var view_at: Array = []
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -174,6 +176,9 @@ func _run() -> void:
 			var mat: ShaderMaterial = ffx._sheet_material()
 			for kv in arg.substr(8).split(","):
 				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
+		# --view-at=hour,x,y,z,yaw,pitch: every view rendered from there instead (trials of a view).
+		elif arg.begins_with("--view-at="):
+			view_at = Array(arg.substr(10).split(",")).map(func(s: String) -> float: return float(s))
 		# --msaa=0|2|4|8: the game viewport's multisampling for this run (the anti-aliasing trial).
 		elif arg.begins_with("--msaa="):
 			msaa = {0: 0, 2: 1, 4: 2, 8: 3}.get(int(arg.substr(7)), 0)
@@ -280,6 +285,8 @@ func _run() -> void:
 	for v in VIEWS:
 		if only != "" and not Array(only.split(",")).any(func(o: String) -> bool: return String(v[0]).contains(o)):
 			continue
+		if view_at.size() == 6:
+			v = [v[0], view_at[0], Vector3(view_at[1], view_at[2], view_at[3]), view_at[4], view_at[5]] + v.slice(5)
 		# --fresh: the scene loaded again for every view, so none inherits the one before (gun
 		# smoke still in the air, a pose half eased, the clouds' drift, the sky's lagging
 		# radiance: the golden images are taken this way, tools/golden_check.py).

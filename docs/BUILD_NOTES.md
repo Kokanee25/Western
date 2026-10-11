@@ -6,6 +6,15 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the sky just after sunset, smoke in heaps
+
+- **Just after sunset the clouds go dark purple-grey with red-orange undersides**, reddest where
+  the sun went down, where before they kept their bright cream-gold tops into the dusk.
+- **The smoke over a fire is heaps now**, each lit on top and dark underneath, thin at its edges
+  so the sky shows through, with more sparks round it. The fire's yellow-white heart is bigger.
+- **Try:** T to speed time up and watch the sky from sunset (about 18:30) into the night. Then
+  light a building (L) at dusk and look at it from down the street.
+
 ### New: a smoke column over a burning building
 
 - **Smoke now rises into the sky over a burning building**, where before it stopped at the
