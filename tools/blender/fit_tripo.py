@@ -1424,6 +1424,40 @@ _PLANES = {0: ((0, 0, -1), (0, -1, 0)), 1: ((0, 0, 1), (0, -1, 0)),   # -X, +X
            4: ((-1, 0, 0), (0, -1, 0)), 5: ((1, 0, 0), (0, -1, 0))}   # -Z, +Z
 
 
+def _plane_set(count):
+    """The planes squares are laid on (CELLS `planes`, the characters session's experiment E6): the
+    six facings along his body's axes (_PLANES, facings 0-5), then with 18 the twelve half way
+    between two of them, with 26 the eight corners too. Each plane's rows run across it with its
+    columns down him as far as it can (v the downward direction on the plane). Returns the directions
+    (K x 3) and each plane's u and v."""
+    dirs = [np.array(d, dtype=np.float64) for d in ((-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1))]
+    U = [np.array(_PLANES[f][0], dtype=np.float64) for f in range(6)]
+    V = [np.array(_PLANES[f][1], dtype=np.float64) for f in range(6)]
+    extra = []
+    if count >= 18:
+        for i, j in ((0, 1), (0, 2), (1, 2)):
+            for a in (-1, 1):
+                for b in (-1, 1):
+                    d = np.zeros(3)
+                    d[i], d[j] = a, b
+                    extra.append(d / np.linalg.norm(d))
+    if count >= 26:
+        for a in (-1, 1):
+            for b in (-1, 1):
+                for c in (-1, 1):
+                    extra.append(np.array([a, b, c], dtype=np.float64) / np.sqrt(3.0))
+    down = np.array([0.0, -1.0, 0.0])
+    for d in extra:
+        v = down - d * (down @ d)
+        if np.linalg.norm(v) < 1e-6:
+            v = np.array([0.0, 0.0, 1.0]) - d * d[2]
+        v /= np.linalg.norm(v)
+        dirs.append(d)
+        U.append(np.cross(d, v))
+        V.append(v)
+    return np.array(dirs), np.array(U), np.array(V)
+
+
 def _lab(rgb):
     """CIE L*a*b* (D65) of sRGB colours (0-255, any shape ending in 3)."""
     c = np.asarray(rgb, dtype=np.float64) / 255.0
@@ -1594,7 +1628,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None, face_origin=None, sub_grid=False):
+                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1619,7 +1653,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     laid so a column's middle is on his face's middle line (the gap under his nose one whole square,
     not split across two), as one regular grid in his own space. `sub_grid` (CELLS `labels_sub`;
     k even): a square the labels' moustache or gap reach without being wholly moustache is cut in
-    four regular half-size squares, each owned whole the same way (a notch narrower than a square)."""
+    four regular half-size squares, each owned whole the same way (a notch narrower than a square).
+    `planes` (CELLS `planes`: 6, 18 or 26, _plane_set): how many planes a triangle may go on, the one
+    it faces most squarely; with more, a surface turned between two of his body's axes is laid on a
+    plane nearer its own, so its squares are stretched less (the characters session's E6)."""
     import bmesh
     mesh = obj.data
     if any(len(poly.vertices) != 3 for poly in mesh.polygons):
@@ -1657,6 +1694,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         fronted = in_face & (ahead > np.cos(np.radians(face_front)))
         axis = np.where(fronted, 2, axis)
     facing = axis * 2 + (n[np.arange(len(n)), axis] > 0)
+    if planes > 6:
+        dirs, PU, PV = _plane_set(planes)
+        dots = (n / np.maximum(np.linalg.norm(n, axis=1), 1e-12)[:, None]) @ dirs.T
+        facing = np.where(fronted, 4, dots.argmax(axis=1))
     if settle > 0:
         # Where a surface turns near 45 degrees between two planes its triangles chose one plane or
         # the other one by one, and the line between them ran ragged (a sawtooth of squares that
@@ -1667,6 +1708,10 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         rows = np.arange(len(n))
         cand = np.stack([top[:, j] * 2 + (n[rows, top[:, j]] > 0) for j in (0, 1)], axis=1)
         near_line = (an[rows, top[:, 0]] - an[rows, top[:, 1]] < settle_margin) & ~fronted
+        if planes > 6:
+            top = np.argsort(-dots, axis=1)
+            cand = top[:, :2]
+            near_line = (dots[rows, top[:, 0]] - dots[rows, top[:, 1]] < settle_margin) & ~fronted
         by_edge = {}
         for t in np.nonzero(near_line)[0]:
             for c in range(3):
@@ -1693,8 +1738,11 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
                 if v0 != v1:
                     new[t] = cand[t, 0] if v0 > v1 else cand[t, 1]
             facing = new
-    U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
-    V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
+    if planes > 6:
+        U, V = PU[facing], PV[facing]
+    else:
+        U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
+        V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
     tri_m = np.where(in_face, face_m or cell_m, cell_m)[:, None]
     A = np.einsum("tcj,tj->tc", P, U) / tri_m * k                  # texels, on each facing's plane
     if face_origin is not None:
@@ -2110,7 +2158,8 @@ def cell_textures(person, colour, cells):
                       above=float(np.mean([e[1] for e in eyes])) + float(o["weave_head_above"]) if eyes else np.inf)
 
     # How the planes are chosen where a surface turns between two (`settle`, `settle_margin`).
-    planes = {"settle": int(o["settle"]), "settle_margin": float(o["settle_margin"])}
+    planes = {"settle": int(o["settle"]), "settle_margin": float(o["settle_margin"]),
+              "planes": int(o.get("planes", 6))}
     # CELLS `normals` (a folder, "" = off): each texture's rest normals beside it (cell_layout).
     ndir = o.get("normals") or ""
     if ndir:

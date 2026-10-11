@@ -140,7 +140,9 @@
              "white": [220, 205, 185], "shade": [190, 172, 150], "shade_top": 0.4, "shade_side": 0.88, "lower": 0.85,
              "iris_rgb": [50, 31, 20], "rim_rgb": [22, 13, 9]},
     "brows": {"thick": 1.8, "long": 1.15, "drop": 0.003, "dark": [26, 17, 12], "keep": 0.25},
-    "beard": {"dark": 0.78, "grey": 1.0, "mottle": 0.6, "grain": 0.008}
+    "beard": {"dark": 0.78, "grey": 1.0, "mottle": 0.6, "grain": 0.008},
+    "moustache": {"gap": 8, "tones": 8, "nostrils": 1, "dark": [34, 23, 16]},
+    "collar": {"from": "stranger2_rodin", "accent": 0.45, "accent_mm": 10}
    }
   }
  }
