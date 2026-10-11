@@ -19,6 +19,9 @@ const SHEET := preload("res://src/fire/fire_sheet.gdshader")
 ## How much taller than FireTuning's tongue a sheet's fire stands: the fire painting's flames are a
 ## storey tall (the art session, judged on the view livery_fire_dusk).
 const SHEET_GROW := 1.8
+## Timber of a building's frame: its fire is drawn behind it, so it stands dark against its flames.
+const FRAME_KINDS := [&"sill", &"post", &"joist", &"stud", &"plate", &"beam", &"header", &"ledger",
+		&"rafter", &"cripple", &"ridge"]
 
 ## Fire as sheets (true) or as the flipbook tongues (false, for comparing; --flame-sprites).
 static var sheets := true
@@ -140,6 +143,11 @@ func _sheet_on(mi: MeshInstance3D, tuning: FireTuning, opening: bool) -> MeshIns
 	sheet.global_position = foot
 	sheet.set_instance_shader_parameter(&"size", Vector2(width, height))
 	sheet.set_instance_shader_parameter(&"heat", sheet_heat(member, tuning))
+	if not opening and member.kind in FRAME_KINDS:
+		sheet.set_instance_shader_parameter(&"behind", 1.0)
+		# Its cross section, not a beam's length: behind the timber, not behind the building.
+		var half := box.size * 0.5
+		sheet.set_instance_shader_parameter(&"half_box", Vector3(minf(half.x, 0.3), half.y, minf(half.z, 0.3)))
 	return sheet
 
 

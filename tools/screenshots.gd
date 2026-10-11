@@ -168,6 +168,12 @@ func _run() -> void:
 			var mat: ShaderMaterial = ffx._flame_material()
 			for kv in arg.substr(8).split(","):
 				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
+		# --sheet=core:0.3,bloom:1: the fire sheets' shader uniforms for one render (trials).
+		elif arg.begins_with("--sheet="):
+			var ffx: Variant = load("res://src/fire/fire_fx.gd")
+			var mat: ShaderMaterial = ffx._sheet_material()
+			for kv in arg.substr(8).split(","):
+				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 		# --msaa=0|2|4|8: the game viewport's multisampling for this run (the anti-aliasing trial).
 		elif arg.begins_with("--msaa="):
 			msaa = {0: 0, 2: 1, 4: 2, 8: 3}.get(int(arg.substr(7)), 0)
