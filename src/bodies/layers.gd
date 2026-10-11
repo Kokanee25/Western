@@ -26,3 +26,6 @@ const VIS_INSIDE := 4
 ## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite), on the world's
 ## layer too: its own fill light reaches only this (WeaponViewmodel).
 const VIS_HELD := 8
+## Render: what makes up the buildings' walls for shadows (each structure's shadow mesh and its
+## members' own meshes): a lamp far from the camera takes its shadow from this only (OilLamp).
+const VIS_WALLS := 16

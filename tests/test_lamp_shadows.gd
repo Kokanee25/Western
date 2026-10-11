@@ -1,8 +1,9 @@
 extends TestCase
-## A shadowed lamp draws everything in its reach six times a frame, so its shadow is only drawn
-## for a camera near it, and a lamp in a building only for a camera in it or at its door
-## (OilLamp.shadow_reach; the saloon's lamps seen from the street were three quarters of the
-## frame's draw calls).
+## A shadowed lamp draws everything in its reach six times a frame, so its full shadow (people,
+## props) is drawn only for a camera near it, and a lamp in a building only for a camera in it or
+## at its door; farther off only the world's layer casts it (OilLamp.shadow_reach; the saloon's
+## lamps seen from the street were three quarters of the frame's draw calls). The shadow itself
+## stays on, so walls still keep the light in.
 
 var world: Node3D
 var cam: Camera3D
@@ -22,7 +23,9 @@ func after_each() -> void:
 
 
 func _shadow(lamp: OilLamp) -> bool:
-	return (lamp.find_children("*", "OmniLight3D", false, false)[0] as OmniLight3D).shadow_enabled
+	var light := lamp.find_children("*", "OmniLight3D", false, false)[0] as OmniLight3D
+	check(light.shadow_enabled, "its shadow is always on (walls keep its light in)")
+	return light.shadow_caster_mask != OilLamp.FAR_CASTERS
 
 
 func test_a_lamp_shades_near_the_camera_and_not_far_off() -> void:
@@ -31,13 +34,13 @@ func test_a_lamp_shades_near_the_camera_and_not_far_off() -> void:
 	lamp.set_lit(true)
 	cam.global_position = Vector3(0, 1.6, 5)
 	await process_frames(30)
-	check(_shadow(lamp), "5 m off: its shadow is drawn")
+	check(_shadow(lamp), "5 m off: its full shadow")
 	cam.global_position = Vector3(0, 1.6, 30)
 	await process_frames(30)
-	check(not _shadow(lamp), "30 m off: not")
+	check(not _shadow(lamp), "30 m off: walls only")
 	cam.global_position = Vector3(0, 1.6, 4)
 	await process_frames(30)
-	check(_shadow(lamp), "back near: drawn again")
+	check(_shadow(lamp), "back near: full again")
 
 
 func test_a_lamp_in_a_building_shades_only_for_a_camera_in_it() -> void:
@@ -50,13 +53,13 @@ func test_a_lamp_in_a_building_shades_only_for_a_camera_in_it() -> void:
 	lamp.set_lit(true)
 	cam.global_position = b.to_global(Vector3(b.width * 0.5, 1.6, b.depth * 0.5 + 2.0))
 	await process_frames(30)
-	check(_shadow(lamp), "inside, 2 m from it: shadows")
+	check(_shadow(lamp), "inside, 2 m from it: full shadow")
 	cam.global_position = b.to_global(Vector3(b.width * 0.5, 1.6, -6.0))
 	await process_frames(30)
-	check(not _shadow(lamp), "out in the street ~10 m off: none (they're behind the walls)")
+	check(not _shadow(lamp), "out in the street ~10 m off: walls only (the rest is behind them)")
 	var plain := OilLamp.new()
 	world.add_child(plain)
 	plain.global_position = cam.global_position + Vector3(0, 0, 8)
 	plain.set_lit(true)
 	await process_frames(30)
-	check(_shadow(plain), "a lamp in no building, 8 m off: shadows")
+	check(_shadow(plain), "a lamp in no building, 8 m off: full shadow")

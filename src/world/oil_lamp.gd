@@ -15,19 +15,21 @@ extends Node3D
 ## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
-## Past this far from the camera its shadow isn't drawn (the light still is). A shadowed lamp
-## draws everything in its reach six times a frame (a cube of shadow faces): the saloon's 14
-## seen from the street were 11,600 of the frame's 15,400 draw calls, for shadows a few pixels
-## across. Switched here: Godot 4.7's `distance_fade_shadow` fades the shadow but still renders it.
-## 0 = always.
+## Past this far from the camera (or with the camera outside the building it's in) its shadow
+## is cast only by the walls (Layers.VIS_WALLS), not by people, props and the bottles on the
+## shelves: a shadowed lamp draws everything in its reach six times a frame (a cube of shadow
+## faces), and Godot 4.7 redraws it every frame, so the saloon's 14 seen from the street were
+## 11,600 of the frame's 15,400 draw calls. The shadow stays on, so the walls still keep its
+## light in (switched off it shone through them). 0 = always the full shadow.
 @export var shadow_reach := 12.0
 ## Checked this often (seconds), with a metre's slack so a lamp at the edge doesn't flick.
 const SHADOW_CHECK := 0.25
 const SHADOW_SLACK := 1.0
-## How far outside its building's walls a camera still gets an indoor lamp's shadows.
+## How far outside its building's walls a camera still gets an indoor lamp's full shadow.
 const ROOM_MARGIN := 2.5
-## How fast its light falls off (OmniLight3D's attenuation; 2 is the inverse square): a sconce on
-## a wall throws a bright pool round itself and little further.
+## What casts a far lamp's shadow.
+const FAR_CASTERS := Layers.VIS_WALLS
+const ALL_CASTERS := 0xFFFFFFFF
 @export var attenuation := 1.2:
 	set(value):
 		attenuation = value
@@ -93,15 +95,15 @@ func _shadow_for_distance() -> void:
 	if cam == null:
 		return
 	var at := cam.global_position
-	var d := at.distance_to(_light.global_position)
-	var slack := SHADOW_SLACK if _light.shadow_enabled else 0.0
-	var want := d < shadow_reach + slack and _sees_in(at, slack)
-	if want != _light.shadow_enabled:
-		_light.shadow_enabled = want
+	var near_now := _light.shadow_caster_mask != FAR_CASTERS
+	var slack := SHADOW_SLACK if near_now else 0.0
+	var near := at.distance_to(_light.global_position) < shadow_reach + slack and _sees_in(at, slack)
+	if near != near_now:
+		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
 
 
-## A lamp in a building only shades for a camera in it, on its porch or at its door: from the
-## street its shadows are behind the walls.
+## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
+## the street its shadows are behind the walls.
 func _sees_in(at: Vector3, slack: float) -> bool:
 	if _building == null:
 		var p := get_parent()

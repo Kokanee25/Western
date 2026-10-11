@@ -27,6 +27,11 @@ const CELL := 40.0
 ## MultiMeshInstance3D -> [the MeshInstance3Ds it draws, in instance order]
 var batches := {}
 var _of := {}  # MeshInstance3D -> [MultiMeshInstance3D, index]
+## Each patch's shadow, one shadow-only mesh of everything batched there that casts one: a lamp's
+## shadow is six faces redrawn every frame, and the saloon's ~200 batches were 3,500 of its draw
+## calls at night. The batches themselves cast none. Cell -> [MeshInstance3D, [MeshInstance3Ds]]
+var _shadows := {}
+var _dirty := {}
 
 
 func _ready() -> void:
@@ -81,6 +86,12 @@ func build(root: Node3D) -> int:
 		mmi.material_override = g[1]
 		mmi.cast_shadow = g[2]
 		mmi.layers = g[3]
+		if g[2] == GeometryInstance3D.SHADOW_CASTING_SETTING_ON and g[3] == 1:
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			var cell := Vector3i(((list[0] as MeshInstance3D).global_position / CELL).floor())
+			var sh: Array = _shadows.get_or_add(cell, [null, []])
+			(sh[1] as Array).append_array(list)
+			_dirty[cell] = true
 		add_child(mmi)
 		batches[mmi] = list
 		for i in list.size():
@@ -89,7 +100,38 @@ func build(root: Node3D) -> int:
 			_of[mi] = [mmi, i]
 			mi.tree_exiting.connect(_gone.bind(mi), CONNECT_ONE_SHOT)
 		taken += list.size()
+	_build_shadows()
 	return taken
+
+
+func _build_shadows() -> void:
+	var inv := global_transform.affine_inverse()
+	for cell: Vector3i in _dirty:
+		var sh: Array = _shadows[cell]
+		var st := SurfaceTool.new()
+		var any := false
+		for mi: MeshInstance3D in sh[1]:
+			if not _of.has(mi) or not is_instance_valid(mi):
+				continue
+			var xf := inv * mi.global_transform
+			for s in mi.mesh.get_surface_count():
+				if mi.mesh.surface_get_primitive_type(s) == Mesh.PRIMITIVE_TRIANGLES:
+					st.append_from(mi.mesh, s, xf)
+					any = true
+		var shadow: MeshInstance3D = sh[0]
+		if not any:
+			if shadow:
+				shadow.queue_free()
+			sh[0] = null
+			continue
+		if shadow == null:
+			shadow = MeshInstance3D.new()
+			shadow.name = "Shadow"
+			shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+			add_child(shadow)
+			sh[0] = shadow
+		shadow.mesh = st.commit()
+	_dirty.clear()
 
 
 ## Everything under `node` drawn by itself again (before moving or hiding it).
@@ -123,6 +165,12 @@ func _hide_instance(mi: MeshInstance3D) -> void:
 		return
 	var mmi: MultiMeshInstance3D = where[0]
 	mmi.multimesh.set_instance_transform(where[1], Transform3D(Basis.from_scale(Vector3.ZERO), Vector3.ZERO))
+	# Its shadow goes with it (the patch's shadow is built again, once, at the end of the frame).
+	for cell: Vector3i in _shadows:
+		if (_shadows[cell][1] as Array).has(mi):
+			if _dirty.is_empty():
+				_build_shadows.call_deferred()
+			_dirty[cell] = true
 
 
 func _takes(mi: MeshInstance3D, root: Node3D) -> bool:
