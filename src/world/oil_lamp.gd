@@ -15,6 +15,17 @@ extends Node3D
 ## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
+## Past this far from the camera its shadow isn't drawn (the light still is). A shadowed lamp
+## draws everything in its reach six times a frame (a cube of shadow faces): the saloon's 14
+## seen from the street were 11,600 of the frame's 15,400 draw calls, for shadows a few pixels
+## across. Switched here: Godot 4.7's `distance_fade_shadow` fades the shadow but still renders it.
+## 0 = always.
+@export var shadow_reach := 12.0
+## Checked this often (seconds), with a metre's slack so a lamp at the edge doesn't flick.
+const SHADOW_CHECK := 0.25
+const SHADOW_SLACK := 1.0
+## How far outside its building's walls a camera still gets an indoor lamp's shadows.
+const ROOM_MARGIN := 2.5
 ## How fast its light falls off (OmniLight3D's attenuation; 2 is the inverse square): a sconce on
 ## a wall throws a bright pool round itself and little further.
 @export var attenuation := 1.2:
@@ -28,6 +39,8 @@ var lit := true
 var broken := false
 
 var _light: OmniLight3D
+var _shadow_check := 0.0
+var _building: Node
 var _flame: MeshInstance3D
 var _chimney: MeshInstance3D
 var _flame_material: StandardMaterial3D
@@ -65,9 +78,42 @@ func _process(delta: float) -> void:
 func _process_step(delta: float) -> void:
 	if not lit:
 		return
+	if casts_shadows and shadow_reach > 0.0:
+		_shadow_check -= delta
+		if _shadow_check <= 0.0:
+			_shadow_check = SHADOW_CHECK
+			_shadow_for_distance()
 	_time += delta
 	var flicker := 1.0 + sin(_time * 7.3) * 0.04 + sin(_time * 13.1 + 1.7) * 0.03
 	_light.light_energy = energy * flicker
+
+
+func _shadow_for_distance() -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam == null:
+		return
+	var at := cam.global_position
+	var d := at.distance_to(_light.global_position)
+	var slack := SHADOW_SLACK if _light.shadow_enabled else 0.0
+	var want := d < shadow_reach + slack and _sees_in(at, slack)
+	if want != _light.shadow_enabled:
+		_light.shadow_enabled = want
+
+
+## A lamp in a building only shades for a camera in it, on its porch or at its door: from the
+## street its shadows are behind the walls.
+func _sees_in(at: Vector3, slack: float) -> bool:
+	if _building == null:
+		var p := get_parent()
+		while p and not p is FalseFrontBuilding:
+			p = p.get_parent()
+		_building = p if p else self
+	if not _building is FalseFrontBuilding:
+		return true
+	var b := _building as FalseFrontBuilding
+	var local := b.global_transform.affine_inverse() * at
+	var m := ROOM_MARGIN + slack
+	return local.x > -m and local.x < b.width + m and local.z > -m and local.z < b.depth + m
 
 
 func _on_hour_changed(hour: int) -> void:
