@@ -4680,5 +4680,5 @@ a few views renders them as the full run does.
     (`ShotMatch.FITS`, the art session's), the slivers are surfaces seen edge-on.
   - Left, the critics' biggest: his eyes (dark slots with white specks, not almonds), the ear (a
     lit wedge, no rim), the collar's shape (no points: his model's collar lies flat), the brim's
-    streaks, the light on his face. All 370 tests pass on the E5 defaults (with the native plugin
-    built here).
+    streaks, the light on his face. All 370 tests pass on the E5 and E6 defaults (with the native
+    plugin built here).
