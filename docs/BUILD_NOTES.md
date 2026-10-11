@@ -6,6 +6,14 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the golden-hour street clear and deep in its shadows
+
+- **With the sun low, the shadows go deep and the street's far end is clear**: less of the warm
+  bounce in the shadows under the porches, half the haze down the street, none of the glowing
+  haze in the air. Noon and night are as they were. Mornings get it too, with a low sun.
+- **Try:** the street at golden hour (T to speed time to about 17:30) looking west into the sun,
+  and again early morning. Tell me if the shadows are too dark to see into.
+
 ### New: the saloon lit warm at night
 
 - **The saloon's room is brighter at night**: every lamp in it gives more light and reaches

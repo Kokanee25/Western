@@ -30,7 +30,6 @@ uniform float haze_scale = 1.0;
 // How the land looks by night, and in its own shadow at sunset (multipliers on the painting).
 uniform vec3 night_tint = vec3(0.1, 0.11, 0.17);
 uniform vec3 shade_tint = vec3(0.95, 0.66, 0.56);
-uniform vec3 dusk_tint = vec3(0.28, 0.22, 0.4);
 // Sun rays at golden hour through the air in front of this land (as in the sky: the shafts are in
 // the dust between you and the hills, more of it before the far ones). 0 = none.
 uniform float ray_strength = 0.55;
@@ -74,10 +73,8 @@ void fragment() {
 	vec3 gold = vec3(1.0, 0.72, 0.36) * mix(vec3(1.0), sun_tint, 0.4);
 	col = mix(col, gold, clamp(rim * 0.8 + rim2 * 0.4, 0.0, 1.0) * back * low);
 	col = mix(col, gold * 0.9, rim * front * low * 0.25);
-	// Night: dark shapes, a little moonlit; for a while after sunset (twilight) the land is blue-violet
-	// against the afterglow, as the fire painting's mountains are, not black.
-	float twilight = smoothstep(-0.16, -0.01, sun_dir.y);
-	col = mix(a * mix(night_tint, dusk_tint, twilight), col, daylight);
+	// Night: dark shapes, a little moonlit.
+	col = mix(a * night_tint, col, daylight);
 	col = mix(col, haze_color, clamp(haze * haze_scale, 0.0, 0.85) * mix(0.7, 1.0, daylight));
 	// Toward a low sun the air between you and the land glows: the rock beside the sun reads
 	// rose-gold through it, as the painting's spires do with the sun behind them, and dust lies in
