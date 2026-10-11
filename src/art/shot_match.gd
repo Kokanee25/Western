@@ -98,7 +98,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	lamp.lit_until_hour = 24
 	# The game's lamp (the painted man's light, paint_look, was tuned under it; mosaic-tiles' 2.6
 	# was tried for the key on his face).
-	lamp.energy = 1.5
+	lamp.energy = lamp_energy
 	lamp.light_range = 7.0
 	# Less of the room's smoke lit by it: a light a few centimetres inside the chimney lit the air
 	# round the glass white, where the painting's chimney glows amber.
@@ -151,17 +151,24 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 const FILL_FROM := Vector3(-0.15, 1.35, -1.25)
 const FILL_AT := Vector3(0.6, 0.92, -0.55)
 static var fill_energy := 1.5
+## Trials (tools/screenshots.gd --shot-light=): the fill's aim height, cone and colour's warmth.
+static var fill_at_y := FILL_AT.y
+static var fill_from_y := FILL_FROM.y
+static var fill_angle := 34.0
+static var fill_warm := 1.0
+## The table lamp's energy (the key on his face).
+static var lamp_energy := 1.5
 
 static func _fill(root: Node3D) -> void:
 	var fill := SpotLight3D.new()
 	fill.name = "ViewerFill"
 	root.add_child(fill)
-	fill.position = FILL_FROM
-	fill.look_at(root.to_global(FILL_AT))
-	fill.light_color = Color(1.0, 0.87, 0.72)
+	fill.position = Vector3(FILL_FROM.x, fill_from_y, FILL_FROM.z)
+	fill.look_at(root.to_global(Vector3(FILL_AT.x, fill_at_y, FILL_AT.z)))
+	fill.light_color = Color(1.0, 1.0, 1.0).lerp(Color(1.0, 0.87, 0.72), fill_warm)
 	fill.light_energy = fill_energy
 	fill.spot_range = 3.0
-	fill.spot_angle = 34.0
+	fill.spot_angle = fill_angle
 	fill.spot_angle_attenuation = 1.2
 	fill.shadow_enabled = false
 	fill.light_specular = 0.0
