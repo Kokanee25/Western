@@ -4331,3 +4331,4 @@ a few views renders them as the full run does.
     Visual checks 227, none failed. 373 tests pass.
   - Next: the saloon's doorway (the moonlit street through it); the fire view's right side (the
     backdrop's black cliff) and its staging; the other fronts to the saloon's standard.
+  - Merged as PR #98, **build 845** (green).
