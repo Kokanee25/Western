@@ -572,7 +572,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		if not hurt.has(person):
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)
-			person.call_deferred(&"take_blow", other, energy, rb.global_position, v.normalized())
+			person.call_deferred(&"take_blow", other, energy, rb.global_position, v.normalized(), rb.mass * speed)
 	if other is StructureMember and not (other as StructureMember).broken:
 		var hit := other as StructureMember
 		if energy > tuning.impact_toughness * hit.volume():

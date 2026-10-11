@@ -4136,6 +4136,26 @@ a few views renders them as the full run does.
   blotchy mask. Goldens `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh`
   runs; visual checks 170, none failed. Merged as PR #92, **build 802** (green); merge 3a (PR #91)
   is **build 797** (green).
+- 2026-10-11 (gameplay): **A man going down keeps his momentum; a shot pushes with the ball's**
+  (Sean: "as real as possible so just drops if dead esp running"; he'd called the old fall
+  "cheesy action movie").
+  - **The change.** `HumanBody` tracks each part's velocity while he stands, and `go_limp()` hands
+    it on: a running man pitches on along his run. A bullet knockdown gives the part it hit only
+    the ball's momentum (4.5 N·s for a stopped .45; before, 1.2 m/s on all of him, 96 N·s). The
+    chest's shove and the random kick are gone. Rubble knocks a man down with its own momentum
+    (`structure.gd` passes it). Blasts keep their wind.
+  - **Measured in the ragdoll lab** (`experiments/physics_lab/results/2026-10-11_carry/`):
+    - running at 3.5 m/s he goes 1.68 m on (before: stopped dead, 0.46);
+    - walking, 0.84 m (0.21);
+    - shot while running he falls forward, where before he was thrown onto his back;
+    - his heading no longer moves where he lands (3 cm, was 14);
+    - a fall from the crouch now settles.
+  - 369 tests pass; body hits to stop a man still average 1.54.
+  - The fold straight down from standing (fault 1), limbs through his body and joint overruns
+    remain (Prompt 09).
+  - Art's files touched: five goldens of a fallen man re-approved (`outlaw_down`, `outlaw_open`,
+    `outlaw_open_close`, `outlaw_open_reduced`, `outlaw_blast`; tolerances from two renders). The
+    other 65 views pass unchanged.
 - 2026-10-11 (art session, later): **Merge 3c: the fire sheet** (Sean: "how do we get better
   looking flames!", then "merge first then build the fire sheet"). `src/fire/fire_sheet.gdshader`:
   one continuous fire a burning member, an upright quad turned to the camera about the vertical,

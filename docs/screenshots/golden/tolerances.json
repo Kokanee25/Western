@@ -154,8 +154,8 @@
  "outlaw_blast": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.119,
-   "share": 0.0017
+   "mean": 0.147,
+   "share": 0.002
   },
   "share": 0.01
  },
@@ -202,8 +202,8 @@
  "outlaw_down": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.018,
-   "share": 0.0003
+   "mean": 0.017,
+   "share": 0.0002
   },
   "share": 0.01
  },
@@ -258,24 +258,24 @@
  "outlaw_open": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.01,
-   "share": 0.0001
+   "mean": 0.004,
+   "share": 0.0
   },
   "share": 0.01
  },
  "outlaw_open_close": {
-  "mean": 2.589,
+  "mean": 2.962,
   "noise": {
-   "mean": 0.863,
-   "share": 0.0138
+   "mean": 0.987,
+   "share": 0.0156
   },
-  "share": 0.0414
+  "share": 0.0468
  },
  "outlaw_open_reduced": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.005,
-   "share": 0.0001
+   "mean": 0.018,
+   "share": 0.0002
   },
   "share": 0.01
  },
