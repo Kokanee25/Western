@@ -1031,6 +1031,42 @@ def model_face(out, cid, pos, uv, tris, size, cfg):
             near, far, float(np.percentile(f[w > 0.5], 10))))
 
 
+# His hat's colour eased (characters.json `bake.hat`: `chroma`, a share of its a* and b* kept; `light`,
+# its L* times that): the character judge marked the stylised stranger's hat's colour too strong,
+# 22 to the painting's man's 18 (2026-10-11), the painter's felt a warm orange-brown. His hat is his
+# head's texels above `above` metres over his eyes, or past `radius` from his head's upright axis
+# and no lower than `below` under them (the brim), eased in over `feather` metres.
+HAT = {}  # --hat=chroma:0.8 over characters.json's `bake.hat`; --hat=off
+HAT_REGION = {"above": 0.045, "radius": 0.105, "back": 0.085, "below": 0.03, "feather": 0.01}
+
+
+def ease_hat(out, cid, pos, uv, tris, size, cfg):
+    """His hat's colour in `out` (in place): `bake.hat`, HAT_REGION."""
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: the hat left as painted")
+        return
+    o = dict(HAT_REGION, **cfg)
+    tri_id, bary = uv_raster(uv, tris, size)
+    ty, tx = np.nonzero(tri_id >= 0)
+    t = tris[tri_id[ty, tx]]
+    b = bary[ty, tx]
+    p = pos[t[:, 0]] * b[:, :1] + pos[t[:, 1]] * b[:, 1:2] + pos[t[:, 2]] * b[:, 2:3]
+    eye = np.mean([face[r[0]] for r in IRIS_RINGS], axis=0)
+    up = (p[:, 1] - eye[1]) * HEIGHT_M
+    r = np.hypot(p[:, 0] - (eye[0] - o["back"] / HEIGHT_M), p[:, 2] - eye[2]) * HEIGHT_M
+    f = max(float(o["feather"]), 1e-6)
+    w = np.maximum(_ease((up - o["above"]) / f), _ease((r - o["radius"]) / f) * _ease((up + o["below"]) / f))
+    keep = w > 0
+    lab = _lab(out[ty[keep], tx[keep]])
+    ww = w[keep]
+    lab[:, 1:] *= (1 - ww * (1 - float(o.get("chroma", 1.0))))[:, None]
+    lab[:, 0] *= 1 - ww * (1 - float(o.get("light", 1.0)))
+    out[ty[keep], tx[keep]] = _rgb(lab)
+    print("  his hat: %d texels, colour x%.2f, lightness x%.2f" % (
+        int((ww > 0.5).sum()), float(o.get("chroma", 1.0)), float(o.get("light", 1.0))))
+
+
 # His collar from his model's own colours (characters.json `bake.collar`; Sean, 2026-10-07: "we're still
 # missing the crispness of the original look at his face and collar"). The painter's six views don't
 # line up on anything as small and folded as a collar: its neckerchief's dark landed on the shirt in
@@ -1619,6 +1655,9 @@ def bake(cid):
     cloth = dict(bk.get("cloth") or {}, **CLOTH) if CLOTH is not None else {}
     if cloth.get("from") and not SMOOTH:
         model_cloth(out, cid, pos, uv, tris, size, cut, cloth)
+    hat = dict(bk.get("hat") or {}, **HAT) if HAT is not None else {}
+    if hat and not SMOOTH:
+        ease_hat(out, cid, pos, uv, tris, size, hat)
     collar = dict(bk.get("collar") or {}, **COLLAR) if COLLAR is not None else {}
     if collar.get("from") and not SMOOTH:
         model_collar(out, cid, pos, uv, tris, size, collar)
@@ -1697,7 +1736,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
-    global BROWS, BEARD, COLLAR, STAMPS
+    global BROWS, BEARD, COLLAR, STAMPS, HAT
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1738,6 +1777,11 @@ def main():
             # His face from his model's own colours (model_face): --face=paint:0.25,lips:0.6,top:38/0.5
             FACE = {k: (x if k == "from" else [float(c) for c in x.split("/")] if "/" in x else float(x))
                     for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
+        elif a == "--hat=off":
+            HAT = None
+        elif a.startswith("--hat="):
+            # His hat's colour (ease_hat): --hat=chroma:0.8,light:1
+            HAT = {k: float(x) for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a == "--stamps=off":
             STAMPS = None
         elif a.startswith("--stamps="):
