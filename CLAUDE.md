@@ -4225,3 +4225,4 @@ a few views renders them as the full run does.
     change in the fire's look. Visual checks 176, none failed. 372 tests pass.
   - Next: the smoke column against the sky; sparks; the firelight; the fire view staged with the
     bucket line in it.
+  - Merged as PR #94, **build 813** (green).
