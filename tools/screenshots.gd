@@ -159,6 +159,9 @@ func _run() -> void:
 			# makes the game's scripts compile with this one, before the autoloads exist.
 			var shot: Variant = load("res://src/art/shot_match.gd")
 			shot.model = StringName(arg.substr(8))
+		# --flame-sprites: the flipbook tongues in place of the fire sheets (FireFX.sheets), to compare.
+		elif arg == "--flame-sprites":
+			load("res://src/fire/fire_fx.gd").sheets = false
 		# --flame=grow:1.6: the flames' shader uniforms for one render (trials).
 		elif arg.begins_with("--flame="):
 			var ffx: Variant = load("res://src/fire/fire_fx.gd")
