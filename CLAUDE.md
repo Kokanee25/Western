@@ -4259,3 +4259,40 @@ a few views renders them as the full run does.
     the fire view earlier in the dusk (a sunset band, no stars), the firelight on the street, then
     the fire view staged with the bucket line in it.
   - Merged as PR #95, **build 824** (green).
+- 2026-10-11 (art session, later): **Merge 3f: the sky just after sunset, smoke in heaps.**
+  - **The clouds' afterglow** (`sky.gdshader`, `dusk_clouds` 1): from the sun's setting until
+    it's ~6° down, each cloud is dark purple-grey with a red-orange underside, reddest toward
+    where the sun set. Before, they kept their cream-gold tops into the dusk, the bright streaks
+    the critics kept marking. Only the fire view is at that hour among the fixed views.
+  - **Smoke in heaps** (`smoke_sheet.gdshader`):
+    - a finer layer of billows on the big ones;
+    - each heap lit on top and dark underneath (cut into tones by density, it drew contour lines);
+    - thin at its edges in three steps so the sky shows through (transparent, no depth written);
+    - the painting's measured smoke tones (dark red-brown, (48,20,20) to (75,31,36): its colour
+      was right, its form wasn't);
+    - more sparks, round the column too, the odd one yellow-white.
+
+    `SmokeColumn` a little taller.
+  - **A hotter fire:** `fire_sheet.gdshader` `core` 0.35 -> 0.5.
+  - **The fire view down the street:** `livery_fire_dusk` from (27, 0, -7), the saloon's lit front
+    on the left as the painting has a building there. Shared `tools/screenshots.gd`, my lines;
+    `--view-at=hour,x,y,z,yaw,pitch` tries a view from elsewhere.
+  - Judge v2 on the fire view, step by step: 0.436 (r6) -> smoke 0.409 -> afterglow 0.283 -> the
+    new camera 0.285 -> core 0.5 **0.252**; round `2026-10-11_r7` (the shots' renders are r6's)
+    **0.258**. Tried and left:
+    - 18.45, nearer sunset: 0.374 (more of the lit cloud);
+    - burning longer: 0.299 (the front burns away);
+    - halving the bloom: 0.280;
+    - stronger, further firelight (gameplay's `fire_system.gd`, reverted): the deep shadows
+      washed out.
+  - Blind critic, top three:
+    1. the fire burns alone in an empty field (no bucket brigade, horse, rubble or wet mud);
+    2. the room behind the seated man is dark, empty murk, its doorway showing no moonlit street;
+    3. the barn is a dark solid box with flames on its front where the painting's is an open
+       frame falling apart, and the sky has stars.
+  - Goldens: the four fire views re-approved from two `--fresh` runs (the three store fire views
+    passed the old ones: their tolerances are wider than the hotter core). Visual checks 176, none
+    failed. 373 tests pass.
+  - Next: the fire view staged (the bucket line at the trough, the livery's frame coming apart);
+    the saloon room (sconces lighting their walls, the doorway); the other fronts to the saloon's
+    standard.
