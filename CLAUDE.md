@@ -4134,4 +4134,5 @@ a few views renders them as the full run does.
   0.343 -> 0.341. Blind critic, top three: the room behind him is dark, empty murk (the doorway, the
   moon, balcony, sconces); the street's sky is lavender-grey, not gold; his face is a hot, wide-eyed,
   blotchy mask. Goldens `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh`
-  runs; visual checks 170, none failed.
+  runs; visual checks 170, none failed. Merged as PR #92, **build 802** (green); merge 3a (PR #91)
+  is **build 797** (green).
