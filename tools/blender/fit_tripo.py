@@ -1555,7 +1555,7 @@ def _grain(shape, size, seed=1882):
 
 
 def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft, calm=0.0, sigma=25.0,
-                    weave=0.0, plane=None, weave_opts=None, grain=0.0, grain_size=0.8):
+                    weave=0.0, plane=None, weave_opts=None, grain=0.0, grain_size=0.8, plain_blocks=None):
     """The inside of each k×k square of `img` (filled, rows down): `detail` of each texel's own
     painted colour (the middle of its samples by lightness: `rgb`, `lum` at texels `tx`, `ty`) less
     its square's, at most `clip` levels; and within `soft` of a square's edge (a share of the
@@ -1593,7 +1593,13 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
         out += moved[BY][:, BX]
         blocks = blocks + moved
     if (weave > 0 or (weave_opts or {}).get("mottle", 0.0) > 0) and plane is not None:
-        woven, n = _weave(blocks, eye, plane, weave, **(weave_opts or {}))
+        plain = eye.copy()
+        if plain_blocks is not None:
+            # Squares owned whole by his collar (cell_layout's `own_classes`): no weave on them.
+            py_, px_ = np.divmod(np.unique(plain_blocks), W // k + 1)
+            fit_ = (py_ < nby) & (px_ < nbx)
+            plain[py_[fit_], px_[fit_]] = True
+        woven, n = _weave(blocks, plain, plane, weave, **(weave_opts or {}))
         out += (woven - blocks)[BY][:, BX]
         blocks = woven
         print("    the weave on %d squares" % n)
@@ -1649,7 +1655,7 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6, eye_m=None,
+                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6, eye_m=None, own_classes=None,
                 ear=None, ear_m=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
@@ -1929,7 +1935,7 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
         dcount = np.bincount(lab, dark.astype(np.float64), minlength=nk)
         dmean = np.stack([np.bincount(lab, np.where(dark, rgb[:, c], 0.0), minlength=nk) for c in range(3)], axis=1)
         colour = np.where((dcount / cnt >= DARK_SHARE)[:, None], dmean / np.maximum(dcount, 1.0)[:, None], colour)
-    if labels is not None and k > 1:
+    if labels is not None and k > 1 and not own_classes:
         lh, lw = labels.shape[:2]
         ls = labels[np.clip(((1.0 - old[:, 1]) * lh).astype(np.int64), 0, lh - 1),
                     np.clip((old[:, 0] * lw).astype(np.int64), 0, lw - 1)]
@@ -1954,6 +1960,31 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
               "under his nose in them (%d mostly gap)"
               % (int(touched.sum()), int(own_m.sum()), int(mixed.sum()), int((touched & (n_g > 0)).sum()),
                  int((touched & (n_g * 2 > cnt)).sum())))
+    plain_sq = None
+    if labels is not None and k > 1 and own_classes:
+        # His collar (CELLS `collar_own`, the characters session's experiment E10; head_paint.py's
+        # `bake.collar.own` labels his shirt 4 and his neckerchief 5): a square either reaches goes
+        # wholly to whichever of shirt, neckerchief or neither has most of its samples, and takes
+        # the middle by lightness of that one's samples only, so the shirt and the neckerchief meet
+        # along the squares' edges; those squares are left out of the cloth's weave.
+        lh, lw = labels.shape[:2]
+        ls = labels[np.clip(((1.0 - old[:, 1]) * lh).astype(np.int64), 0, lh - 1),
+                    np.clip((old[:, 0] * lw).astype(np.int64), 0, lw - 1)]
+        cl = np.where(np.isin(ls, own_classes), ls, 0)
+        touched = (np.bincount(lab, (cl > 0).astype(np.float64), minlength=nk) > 0) & (keys % 2 == 0)
+        choices = [0] + list(own_classes)
+        votes = np.stack([np.bincount(lab, (cl == c).astype(np.float64), minlength=nk) for c in choices])
+        win = np.asarray(choices)[np.argmax(votes, axis=0)]
+        sel = np.nonzero(touched[lab] & (cl == win[lab]))[0]
+        if len(sel):
+            o2 = sel[np.lexsort((lum[sel], lab[sel]))]
+            c2 = np.bincount(lab[sel], minlength=nk)
+            s2 = np.concatenate([[0], np.cumsum(c2)[:-1]])
+            got = c2 > 0
+            colour[got] = rgb[o2[s2[got] + c2[got] // 2]]
+        plain_sq = touched & (win > 0)
+        print("    collar: %d squares touched, %s" % (int(touched.sum()), ", ".join(
+            "%d class %d" % (int((touched & (win == c)).sum()), c) for c in choices)))
     eye_sq = np.zeros(nk, dtype=bool)
     if k > 1 and eye_m:
         eye_sq = (np.bincount(lab, in_eye[st].astype(np.float64), minlength=nk) > 0) & (keys % 2 == 0)
@@ -2025,8 +2056,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
                         normals_to, luv, P, normal_map)
     if k > 1 and (detail > 0 or soft > 0 or calm != 0 or weave > 0 or grain > 0 or plane is not None):
         keep_blocks = bk[own | in_eye[st]] if (own | in_eye[st]).any() else None
+        plain_blocks = (keys[plain_sq] // 2) if plain_sq is not None and plain_sq.any() else None
         img = _inside_squares(img, k, W, rgb, lum, tx, ty, keep_blocks, detail, clip, soft,
-                              calm, sigma, weave, plane, weave_opts, grain, grain_size)
+                              calm, sigma, weave, plane, weave_opts, grain, grain_size, plain_blocks)
     layer.data.foreach_set("uv", new.ravel())
     mesh.update()
     return np.clip(img, 0, 255).astype(np.uint8), islands
@@ -2244,7 +2276,8 @@ def cell_textures(person, colour, cells):
             img, isl = cell_layout(obj, src, o["body"], k, o["samples"][1], o["gutter"], weave_opts=weave_opts,
                                    face=collar if eyes and o["collar"] else None, face_m=float(o["collar"]) or None,
                                    normals_to=os.path.join(ndir, "%s_%s" % (person.id, shape)) if ndir else None,
-                                   normal_map=nmap, **planes, **inside(shape))
+                                   normal_map=nmap, labels=labels if o.get("collar_own") else None,
+                                   own_classes=(4, 5) if o.get("collar_own") else None, **planes, **inside(shape))
         elif piece is not None and getattr(piece, "colour", None) is not None:
             k = int(o.get(shape + "_texels", o["body_texels"]))
             img, isl = cell_layout(obj, np.asarray(piece.colour.convert("RGB")), o.get(shape, o["body"]), k,

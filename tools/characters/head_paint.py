@@ -1037,7 +1037,7 @@ def model_collar(out, cid, pos, uv, tris, size, cfg):
     face = face_points(cid)
     if face is None:
         print("  no face found: the collar left as painted")
-        return
+        return None
     src = load_glb(os.path.join(DIR, cfg["from"] + ".glb"))
     if len(src[2]) != len(uv) or not np.allclose(src[2], uv):
         raise SystemExit("bake.collar: %s hasn't his UVs" % cfg["from"])
@@ -1077,6 +1077,21 @@ def model_collar(out, cid, pos, uv, tris, size, cfg):
             cfg["from"], int(take.sum()), mm[0], pm[0], mm[2], pm[2]))
     a = w[take][:, None]
     out[ty[take], tx[take]] = out[ty[take], tx[take]] * (1 - a) + _rgb(lab[take]) * a
+    # `own` (the characters session's experiment E10): which texels are his shirt (4) and which his
+    # neckerchief (5), by his model's own colours where his collar is taken whole (`w` over a half),
+    # for the fit (CELLS `collar_own`) to give each square there wholly to one, as his moustache is
+    # (squares mixing the two came out grey blocks and white shards in a dark neckerchief). `own_l`
+    # is the L* between them, `own_chroma` the most colour either has (his neck's skin and the
+    # coat's brown are neither).
+    labels = None
+    if cfg.get("own"):
+        labels = np.zeros((size, size), dtype=np.uint8)
+        whole = take & (w > 0.5) & (chroma < float(cfg.get("own_chroma", 18.0)))
+        light = own[:, 0] >= float(cfg.get("own_l", 45.0))
+        labels[ty[whole & light], tx[whole & light]] = 4
+        labels[ty[whole & ~light], tx[whole & ~light]] = 5
+        print("  his collar owned: %d texels shirt, %d neckerchief" % (int((whole & light).sum()),
+                                                                       int((whole & ~light).sum())))
     # A restrained contact shadow (`accent`, a share of the light taken off: 0 off; the characters
     # session's experiment E4): what isn't his shirt within `accent_mm` of it on him (the neck at its
     # top edge, the neckerchief and coat under its points) darkened in linear light, eased out with
@@ -1099,6 +1114,7 @@ def model_collar(out, cid, pos, uv, tris, size, cfg):
         lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4) * (1.0 - k_)[:, None]
         out[cy, cx] = 255.0 * np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
         print("  contact shadow round his collar: %d texels, up to %.0f%% of their light" % (int(hit.sum()), 100 * acc))
+    return labels
 
 
 # His clothes (`bake.cloth`, 2026-10-07): the painter drew his coat as a streaky tweed running down
@@ -1776,8 +1792,9 @@ def bake(cid):
     if cloth.get("from") and not SMOOTH:
         model_cloth(out, cid, pos, uv, tris, size, cut, cloth)
     collar = dict(bk.get("collar") or {}, **COLLAR) if COLLAR is not None else {}
+    collar_labels = None
     if collar.get("from") and not SMOOTH:
-        model_collar(out, cid, pos, uv, tris, size, collar)
+        collar_labels = model_collar(out, cid, pos, uv, tris, size, collar)
     cells = dict(bk.get("cells") or {}, **(CELLS or {})) if CELLS != {} else None
     if cells and cells.get("m") and not SMOOTH:
         in_cells(out, cid, pos, nrm, uv, tris, size, cut, cells)
@@ -1802,7 +1819,11 @@ def bake(cid):
     if moustache and not SMOOTH:
         wpos, wnrm = worn_points(cid, pos, nrm)
         labels = draw_moustache(out, cid, wpos, wnrm, uv, tris, size, moustache)
+        if collar_labels is not None:
+            labels = np.where(labels > 0, labels, collar_labels).astype(np.uint8)
         Image.fromarray(labels).save(os.path.join(DIR, cid + "_labels.png"))
+    elif collar_labels is not None and not SMOOTH:
+        Image.fromarray(collar_labels).save(os.path.join(DIR, cid + "_labels.png"))
     name = cid + ("_color_smooth.png" if SMOOTH else "_color.png")
     Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(DIR, name))
     print("wrote", os.path.join(DIR, name), "from", ", ".join(used))
