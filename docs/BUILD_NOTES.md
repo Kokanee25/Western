@@ -6,6 +6,14 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the saloon lit warm at night
+
+- **The saloon's room is brighter at night**: every lamp in it gives more light and reaches
+  further, and the room's own fill is up a little, so the floor, walls and bar read in warm pools
+  where it was dark murk round your table.
+- **Try:** the saloon after dark (F5 to jump there, T to speed time). Tell me if it's now too
+  bright, or the lamps' pools too even.
+
 ### New: the sky just after sunset, smoke in heaps
 
 - **Just after sunset the clouds go dark purple-grey with red-orange undersides**, reddest where

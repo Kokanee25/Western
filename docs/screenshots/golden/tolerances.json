@@ -72,12 +72,12 @@
   "share": 0.01
  },
  "gun_smoke_saloon": {
-  "mean": 10.277,
+  "mean": 16.778,
   "noise": {
-   "mean": 3.426,
-   "share": 0.0549
+   "mean": 5.593,
+   "share": 0.1437
   },
-  "share": 0.1647
+  "share": 0.4312
  },
  "holes_from_inside": {
   "mean": 1.5,
@@ -354,48 +354,48 @@
  "saloon_back_wall_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.157,
-   "share": 0.0001
+   "mean": 0.259,
+   "share": 0.0027
   },
   "share": 0.01
  },
  "saloon_front_dusk": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.087,
-   "share": 0.0004
+   "mean": 0.018,
+   "share": 0.0
   },
   "share": 0.01
  },
  "saloon_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.071,
-   "share": 0.0001
+   "mean": 0.062,
+   "share": 0.0
   },
   "share": 0.01
  },
  "saloon_toward_door_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.024,
-   "share": 0.0
+   "mean": 0.302,
+   "share": 0.0014
   },
   "share": 0.01
  },
  "shot_match_close": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.012,
-   "share": 0.0
+   "mean": 0.182,
+   "share": 0.0026
   },
   "share": 0.01
  },
  "shot_match_saloon": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.037,
-   "share": 0.0
+   "mean": 0.055,
+   "share": 0.0002
   },
   "share": 0.01
  },
@@ -432,12 +432,12 @@
   "share": 0.01
  },
  "shotgun_shot_saloon": {
-  "mean": 7.743,
+  "mean": 8.939,
   "noise": {
-   "mean": 2.581,
-   "share": 0.0267
+   "mean": 2.98,
+   "share": 0.0411
   },
-  "share": 0.0801
+  "share": 0.1233
  },
  "smoke_drift_street": {
   "mean": 1.5,
@@ -498,8 +498,8 @@
  "street_night": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.006,
-   "share": 0.0
+   "mean": 0.107,
+   "share": 0.0003
   },
   "share": 0.01
  },
