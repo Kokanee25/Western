@@ -24,7 +24,7 @@ uniform float squares_per_m = 8.0;
 uniform float rise = 0.9;
 uniform float fps = 8.0;
 // The billows' size (how many to a metre).
-uniform float billows = 0.35;
+uniform float billows = 0.25;
 // How much wider the column grows a metre up, as a share of its width at the roof.
 uniform float widen = 0.05;
 // Drawn this far back from the camera, so the fire's tongues over the roof stand in front of it.
@@ -100,7 +100,7 @@ void fragment() {
 	// Billow tops catch the light: brighter where the field climbs.
 	float lit_top = clamp((n - billow(p - vec2(0.0, 0.6), t)) * 3.0 + 0.5, 0.0, 1.0);
 	// Darkest in the thick of it, lighter and purple toward the edge where it thins.
-	float thin = clamp(1.0 - body * 1.6, 0.0, 1.0);
+	float thin = clamp(1.0 - body * 0.9, 0.0, 1.0);
 	int k = clamp(int(floor(thin * 4.0 + lit_top * 2.0)), 0, 5);
 	vec3 c = SMOKE[k];
 	// Lit from underneath by the fire, near the roofline, and more the more it burns.
@@ -112,8 +112,10 @@ void fragment() {
 	vec3 lin = pow(c / 255.0, vec3(2.2));
 	// Embers: a few squares carrying a spark, climbing faster than the smoke.
 	vec2 ember_at = floor(vec2(p.x * squares_per_m, (p.y - t * rise * 2.4) * squares_per_m));
-	float ember = step(1.0 - embers / 1000.0 * strength, hash(ember_at + vec2(17.0, 3.0)));
-	ember *= step(0.3, body) * step(h, size.y * 0.8);
+	// Thick near the fire, few higher up (they burn out as they climb).
+	float ember_share = embers / 1000.0 * strength * clamp(1.0 - h / (size.y * 0.6), 0.0, 1.0) * 2.0;
+	float ember = step(1.0 - ember_share, hash(ember_at + vec2(17.0, 3.0)));
+	ember *= step(0.2, body);
 	if (ember > 0.5) {
 		lin = pow(vec3(255.0, 150.0, 60.0) / 255.0, vec3(2.2));
 	}
