@@ -1472,6 +1472,99 @@ MOUSTACHE_MM = {"gap": 8.0, "notch": 30.0, "top": 4.0, "bottom": 40.0, "across":
                 "close": 1.5, "open": 1.5, "grow": 0.0, "ring": 4.0}
 
 
+EAR = {}  # --ear=detail:2.5,red:0.7 over characters.json's `bake.ear`; --ear=off
+EAR_MM = {"up": 38.0, "down": 30.0, "back": 45.0, "ahead": 3.0, "out": 12.0, "sigma": 5.0, "feather": 6.0}
+
+
+def ear_centres(pos, face):
+    """His ears (load_man's frame): the middle of what of him stands out at the side behind each of
+    MediaPipe's face-edge points (234 his right, 454 his left), between a little under and well
+    over it. Each is (centre, side): side +1 his right (+Z), -1 his left."""
+    cm = 0.01 / HEIGHT_M
+    out = []
+    for lm in (234, 454):
+        c = face[lm]
+        side = 1.0 if c[2] > 0 else -1.0
+        near = ((pos[:, 0] < c[0] + 0.3 * cm) & (pos[:, 0] > c[0] - 4.5 * cm) & (pos[:, 1] > c[1] - 3.0 * cm)
+                & (pos[:, 1] < c[1] + 4.0 * cm))
+        lateral = pos[:, 2] * side
+        if near.sum() < 20:
+            continue
+        # The ear is what stands out furthest at the side there: the outer third of those points.
+        edge = near & (lateral > np.percentile(lateral[near], 66))
+        out.append((pos[edge].mean(axis=0), side))
+    return out
+
+
+def draw_ear(out, cid, pos, nrm, uv, tris, size, cfg):
+    """His ears drawn for his squares (`bake.ear`; the characters session's E8): his model's own
+    ear (the Rodin colour map carries its rim, fold and hollow with their light baked in, as the
+    mesh doesn't: E2) is a soft low-contrast picture at ~1 mm that his 9 mm squares average into
+    a lit blob with a red square in it. Here its own detail at about a square's size is drawn
+    bolder (`detail`: the lightness above a Gaussian of `sigma` mm, times that), so the rim stays
+    lit and the fold and hollow go dark square by square, and its red is toned to his face's skin
+    (`red`: that share of the redness over his skin's taken out). In `out` (in place); the region
+    an ellipsoid round each ear (EAR_MM: `up`, `down`, `back`, `ahead`, `out` mm), feathered."""
+    from scipy.ndimage import gaussian_filter
+    face = face_points(cid)
+    if face is None:
+        print("  no face found: his ears as they are")
+        return
+    o = dict(EAR_MM, **cfg)
+    mm = 0.001 / HEIGHT_M
+    ty, tx, p, n = _face_texels(uv, tris, pos, nrm, size)
+    lab_all = None
+    for centre, side in ear_centres(pos, face):
+        d = p - centre
+        up = np.where(d[:, 1] > 0, d[:, 1] / (o["up"] * mm), -d[:, 1] / (o["down"] * mm))
+        fore = np.where(d[:, 0] > 0, d[:, 0] / (o["ahead"] * mm + 1e-9), -d[:, 0] / (o["back"] * mm))
+        lat = np.abs(d[:, 2]) / (o["out"] * mm)
+        r = np.sqrt(up ** 2 + fore ** 2 + lat ** 2)
+        feather = o["feather"] / max(o["up"], o["back"])
+        w = _ease((1.0 - r) / feather)
+        keep = w > 0
+        if keep.sum() < 50:
+            continue
+        yy, xx, pp, ww = ty[keep], tx[keep], p[keep], w[keep]
+        # Metres a texel here (his atlas isn't one scale): the step to the texel beside each.
+        at = {(a, b): i for i, (a, b) in enumerate(zip(yy.tolist(), xx.tolist()))}
+        steps = [np.linalg.norm(pp[i] - pp[at[(a, b + 1)]]) for i, (a, b) in enumerate(zip(yy.tolist(), xx.tolist()))
+                 if (a, b + 1) in at][:4000]
+        per_texel = float(np.median(steps)) * HEIGHT_M if steps else 0.0005
+        sigma = max(o["sigma"] * 0.001 / per_texel, 1.0)
+        lab = _lab(out[yy, xx])
+        # The ear's own detail at a square's size: its lightness above the mean round it (a mean of
+        # the ear's texels only, so the hair and cheek round it don't darken its edge).
+        y0, y1, x0, x1 = yy.min(), yy.max() + 1, xx.min(), xx.max() + 1
+        L = np.zeros((y1 - y0, x1 - x0)); M = np.zeros_like(L)
+        L[yy - y0, xx - x0] = lab[:, 0]; M[yy - y0, xx - x0] = 1.0
+        mean = gaussian_filter(L * M, sigma) / np.maximum(gaussian_filter(M, sigma), 1e-6)
+        detail = lab[:, 0] - mean[yy - y0, xx - x0]
+        gain = float(o.get("detail", 1.0)) - 1.0
+        # What the detail lifts kept within `lift` L* (Rodin's own mesh has a stray fin at the top of
+        # his ear, lit white: drawn bolder it shone as a spike); what it darkens, as drawn.
+        add = detail * gain
+        add = np.minimum(add, float(o.get("lift", 1e9)))
+        lab[:, 0] = np.clip(lab[:, 0] + add, 2.0, 98.0)
+        red = float(o.get("red", 0.0))
+        if red:
+            # His face's skin colour (the cheeks), where it's warm.
+            if lab_all is None:
+                fy, fx, fp, _fn = ty, tx, p, n
+                cheek = ((np.abs(fp[:, 1] - face[1][1]) < 0.02 / HEIGHT_M) & (fp[:, 0] > face[1][0] - 0.03 / HEIGHT_M)
+                         & (np.abs(fp[:, 2]) > 0.025 / HEIGHT_M) & (np.abs(fp[:, 2]) < 0.05 / HEIGHT_M))
+                lab_all = _lab(out[fy[cheek], fx[cheek]])
+                lab_all = lab_all[np.hypot(lab_all[:, 1], lab_all[:, 2]) > 10]
+            a0, b0 = np.median(lab_all[:, 1]), np.median(lab_all[:, 2])
+            over = np.clip(lab[:, 1] - a0, 0.0, None)
+            lab[:, 1] -= over * red
+            lab[:, 2] += (b0 - lab[:, 2]) * np.clip(over / 10.0, 0.0, 1.0) * red * 0.5
+        out[yy, xx] = out[yy, xx] * (1 - ww[:, None]) + _rgb(lab) * ww[:, None]
+        print("  his %s ear: %d texels (%.2f mm a texel), detail x%.1f over %.0f mm, %.0f%% of its red toned" % (
+            "right" if side > 0 else "left", keep.sum(), per_texel * 1000, float(o.get("detail", 1.0)),
+            o["sigma"], red * 100))
+
+
 def draw_moustache(out, cid, pos, nrm, uv, tris, size, cfg):
     """His moustache drawn over `out` (in place) and his label map returned: `bake.moustache`."""
     from scipy import ndimage
@@ -1674,6 +1767,10 @@ def bake(cid):
             draw_beard(out, cid, wpos, wnrm, uv, tris, size, beard)
         if brows:
             draw_brows(out, cid, wpos, wnrm, uv, tris, size, brows)
+    ear = dict(bk.get("ear") or {}, **EAR) if EAR is not None else {}
+    if ear and not SMOOTH:
+        wpos, wnrm = worn_points(cid, pos, nrm)
+        draw_ear(out, cid, wpos, wnrm, uv, tris, size, ear)
     moustache = dict(bk.get("moustache") or {}, **MOUSTACHE) if MOUSTACHE is not None else {}
     if moustache and not SMOOTH:
         wpos, wnrm = worn_points(cid, pos, nrm)
@@ -1734,7 +1831,7 @@ def dry_run(cid):
 
 def main():
     global SMOOTH, SQUARE_M, SQUARE_M_BODY, COLOURS, COLOURS_BODY, VIEW_POWER, FLATTEN, CELLS, SKIN, EYES, FACE, CLOTH
-    global BROWS, BEARD, COLLAR, MOUSTACHE
+    global BROWS, BEARD, COLLAR, MOUSTACHE, EAR
     SMOOTH = "--smooth" in sys.argv
     step = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else ""
     cid, scale, seed, only, strength = "stranger", 1.0, 7, None, None
@@ -1789,6 +1886,11 @@ def main():
                 BROWS = kv
             else:
                 BEARD = kv
+        elif a == "--ear=off":
+            EAR = None
+        elif a.startswith("--ear="):
+            # His ears (draw_ear): --ear=detail:2.5,red:0.7,sigma:5 (mm)
+            EAR = {k: float(x) for k, x in (kv.split(":") for kv in a.split("=", 1)[1].split(","))}
         elif a == "--moustache=off":
             MOUSTACHE = None
         elif a.startswith("--moustache="):

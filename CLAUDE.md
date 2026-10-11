@@ -4687,3 +4687,9 @@ a few views renders them as the full run does.
     (master's style 3 to 2: the white squares read as glints). In the shot his eye is ~2-3 px tall
     to the master's ~4-5, so a band of white is one square. What's left is the eye's size and
     opening, which Sean turned back from on 2026-10-07 as too cartoony: his call.
+  - E8, the ear (`head_paint.py bake --ear=`, `fit_tripo.py --cells=ear:`, both off by default;
+    the defaults rebuild his assets byte for byte): not adopted. In the shot his only ear is the
+    far one, nearly edge-on (the shot's head yaw, `ShotMatch.FITS`, the art session's), where the
+    master's man is turned three-quarters so his near ear faces us. Drawn bolder on finer squares
+    it lost to today's in the shot (slivers) and only edged it with his head turned (diagnostic):
+    still a lit wedge, no rim round a hollow. Next is the head's turn, the art session's call.

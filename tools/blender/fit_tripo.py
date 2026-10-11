@@ -667,6 +667,27 @@ class TripoPerson(mp.Person):
         moved, _region = self.warp_points(self.face[IRISES], np.ones(2, dtype=bool), bones, only="head")
         right, left = sorted(moved.tolist(), key=lambda p: -p[0])    # his right at +X
         self.report["eyes"] = {"right": [round(x, 4) for x in right], "left": [round(x, 4) for x in left]}
+        # His ears (CELLS `ear`, the characters session's E8): the middle of what of him stands out
+        # furthest at the side behind each of MediaPipe's face-edge points (234, 454), from a little
+        # under to well over it; carried with his head. Kept on him for cell_textures, and in his
+        # report only when his ears are squared on their own.
+        cm = 1.0 / 180.0
+        ears = []
+        for lm in (234, 454):
+            c = self.face[lm]
+            side = 1.0 if c[0] > 0 else -1.0
+            fwd, cf = -self.v[:, 2], -c[2]
+            near = ((fwd < cf + 0.3 * cm) & (fwd > cf - 4.5 * cm) & (self.v[:, 1] > c[1] - 3.0 * cm)
+                    & (self.v[:, 1] < c[1] + 4.0 * cm))
+            if near.sum() < 20:
+                continue
+            lat = self.v[:, 0] * side
+            edge = near & (lat > np.percentile(lat[near], 66))
+            ears.append(self.v[edge].mean(axis=0))
+        self.ears = []
+        if ears:
+            moved, _region = self.warp_points(np.array(ears), np.ones(len(ears), dtype=bool), bones, only="head")
+            self.ears = [np.array(e) for e in moved]
         off = np.linalg.norm(np.array([right, left]) - self.anatomy_eyes(), axis=1)
         self.report["eyes_off_anatomy_m"] = [round(float(x), 4) for x in off]
         print("  his eyes %.1f and %.1f cm from the anatomy's" % (off[0] * 100, off[1] * 100))
@@ -1628,7 +1649,8 @@ def _inside_squares(img, k, W, rgb, lum, tx, ty, eye_blocks, detail, clip, soft,
 def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, detail=0.0, clip=40.0, soft=0.0,
                 calm=0.0, sigma=25.0, weave=0.0, weave_opts=None, face=None, face_m=None, grain=0.0,
                 grain_size=0.8, face_front=0.0, settle=0, settle_margin=0.2, normals_to=None,
-                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6, eye_m=None):
+                normal_map=None, labels=None, face_origin=None, sub_grid=False, planes=6, eye_m=None,
+                ear=None, ear_m=None):
     """`obj`'s UVs laid out again a texel a square (CELLS), and its texture coloured from `src`
     (rows down, the texture of its old UVs). Each triangle goes on the plane square to the way it
     faces, at k texels a square of cell_m; triangles of one facing joined by an edge make an
@@ -1690,6 +1712,9 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     # `face_m`: their own islands, so a square never spans the two sizes.
     in_face = face(P.mean(axis=1)) if face is not None and face_m else np.zeros(len(P), dtype=bool)
     in_eye = zone(P.mean(axis=1)) if zone is not None and eye_m else np.zeros(len(P), dtype=bool)
+    # His ears (`ear`, CELLS `ear` metres; E8): their own islands at their own square, out of his face's.
+    in_ear = ear(P.mean(axis=1)) if ear is not None and ear_m else np.zeros(len(P), dtype=bool)
+    in_face &= ~in_ear
     fronted = np.zeros(len(n), dtype=bool)
     if face_front > 0:
         # Seen from in front, a cheek turned more than 45 degrees went on a side plane, whose squares
@@ -1748,7 +1773,8 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     else:
         U = np.array([_PLANES[f][0] for f in range(6)], dtype=np.float64)[facing]
         V = np.array([_PLANES[f][1] for f in range(6)], dtype=np.float64)[facing]
-    tri_m = np.where(in_eye, eye_m or cell_m, np.where(in_face, face_m or cell_m, cell_m))[:, None]
+    tri_m = np.where(in_eye, eye_m or cell_m, np.where(in_ear, ear_m or cell_m,
+                                                         np.where(in_face, face_m or cell_m, cell_m)))[:, None]
     A = np.einsum("tcj,tj->tc", P, U) / tri_m * k                  # texels, on each facing's plane
     if face_origin is not None:
         across = np.abs(U[:, 0]) > 0.5
@@ -1794,7 +1820,8 @@ def cell_layout(obj, src, cell_m, k, sub, gutter, zone=None, dark_kept=False, de
     for ts in edges.values():
         for a in ts:
             for b in ts:
-                if a != b and facing[a] == facing[b] and in_face[a] == in_face[b] and in_eye[a] == in_eye[b]:
+                if (a != b and facing[a] == facing[b] and in_face[a] == in_face[b] and in_eye[a] == in_eye[b]
+                        and in_ear[a] == in_ear[b]):
                     near[a].append(b)
     island = np.full(T, -1, dtype=np.int64)
     islands = 0
@@ -2141,6 +2168,20 @@ def cell_textures(person, colour, cells):
         return ((np.abs(pts[:, 0] - mid[0]) < cb[0]) & (pts[:, 1] < mid[1] - cb[1]) & (pts[:, 1] > mid[1] - cb[2])
                 & (pts[:, 2] < mid[2] + cb[3]))
 
+    # His ears (`ear` metres, 0 = off; `ear_zone` metres out at the side, up and down, back and
+    # forward of each ear's middle), squared on their own (E8).
+    ears = [np.array(e) for e in getattr(person, "ears", [])] if float(o.get("ear", 0.0)) else []
+    ezr = np.array(o.get("ear_zone", [0.02, 0.04, 0.035]))
+
+    def ear(pts):
+        inz = np.zeros(len(pts), dtype=bool)
+        for e in ears:
+            inz |= (((pts - e) / ezr) ** 2).sum(axis=1) < 1.0
+        return inz
+
+    if ears:
+        person.report["ears"] = [[round(float(x), 4) for x in e] for e in ears]
+
     src = np.asarray(colour.convert("RGB"))
 
     def inside(shape):
@@ -2196,6 +2237,7 @@ def cell_textures(person, colour, cells):
                                    normal_map=nmap, labels=labels,
                                    face_origin=mid if eyes and o.get("face_centre") else None,
                                    sub_grid=bool(o.get("labels_sub")), eye_m=float(o.get("eye", 0.0)) or None,
+                                   ear=ear if ears else None, ear_m=float(o.get("ear", 0.0)) or None,
                                    **inside(shape))
         elif shape == "skin":
             k = int(o["body_texels"])

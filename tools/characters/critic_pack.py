@@ -4,6 +4,7 @@ each render, the labels shuffled, the key kept apart.
 
     python3 tools/characters/critic_pack.py --out=DIR --master=DIR_OF_MASTER_CROPS \\
         --render=NAME:PATH [--render=NAME:PATH ...] [--seed=N] [--boxes=name:x0,y0,x1,y1;...]
+        [--only=box,...]
 
 Each render is a 1280x720 shot_match_saloon.png (or any render of the same shot). For each box
 (BOXES: the face, eyes, nose and moustache, ear, collar and coat of the seated man in the saloon
@@ -70,6 +71,7 @@ notes, then a final ranking of the panels over all features with one line of rea
 
 def main():
     out, master, renders, seed = None, None, [], 1882
+    only, rects = None, {}
     for a in sys.argv[1:]:
         if a.startswith("--out="):
             out = a.split("=", 1)[1]
@@ -80,11 +82,22 @@ def main():
             renders.append((name, path))
         elif a.startswith("--seed="):
             seed = int(a.split("=", 1)[1])
+        elif a.startswith("--only="):
+            only = a.split("=", 1)[1].split(",")
+        elif a.startswith("--boxes="):
+            # Other places for named boxes in the renders (a diagnostic pose's ear): the master's
+            # crop for each stays its own.
+            for part in a.split("=", 1)[1].split(";"):
+                name, nums = part.split(":")
+                rects[name] = tuple(int(v) for v in nums.split(","))
     os.makedirs(out, exist_ok=True)
     order = list(range(len(renders)))
     random.Random(seed).shuffle(order)
     labels = {chr(ord("A") + i): renders[j][0] for i, j in enumerate(order)}
     for box, (rect, mfile) in BOXES.items():
+        if only and box not in only:
+            continue
+        rect = rects.get(box, rect)
         panels = [("MASTER", Image.open(os.path.join(master, mfile)).convert("RGB"))]
         for i, j in enumerate(order):
             panels.append((chr(ord("A") + i), Image.open(renders[j][1]).convert("RGB").crop(rect)))

@@ -402,3 +402,46 @@ on 2026-10-07 as too cartoony: his call. The critic's other faults, each bigger 
 the ear (a lit wedge, no rim), the collar (no points, the neckerchief grey blocks), the brim's
 edge (streaks), the moustache's lower edge stair-stepped, the nose (little form), the face's
 squares slanted by the head roll.
+
+## E8: the ear
+
+The critics' standing fault: his ear "a lit wedge with a red patch, with no rim, fold or hollow".
+Two causes, found before any change:
+
+1. **The pose.** The master's man is turned three-quarters to screen right, so his near (right) ear
+   faces the camera side-on, ~43 x 70 px at 1280. Ours sits nearly square (`ShotMatch.FITS`
+   `stranger2s` head yaw -13.25, the art session's), so the only ear in the shot is his far (left)
+   ear, seen nearly edge-on beside his face: a sliver ~15 px wide. `e8/heads_master_now.png`;
+   `e8/head_turn_now_m35_p10.png` (diagnostic only, `--man-pose=head:6,-35,5.25` and `head:6,10,5.25`):
+   at +10 his near ear comes into view where the master's is.
+2. **The paint.** His model's colour map draws the ear well (rim, fold, hollow, its light baked in;
+   E2: the mesh has none of it), and his repaint carries it (`bake.face`), but at ~1 mm. His 9 mm
+   squares average it to a blob, and the concha's red becomes one red square.
+
+Tried (both off by default; the default bake and fit rebuild his assets byte for byte):
+`head_paint.py bake --ear=detail:D,sigma:MM,lift:L,red:R` (`draw_ear`, `bake.ear`: each ear found
+from MediaPipe's face-edge points 234/454, `ear_centres`; its own lightness above a Gaussian of
+`sigma` mm drawn D times bolder, lifts capped at `lift` L*, its red over his cheeks' skin toned by
+R) and `fit_tripo.py --cells=ear:M` (CELLS `ear`, `ear_zone`: the ears on their own islands at M
+metres; his report says where, `ears`).
+
+| Variant | Bake | Squares |
+|---|---|---|
+| E6 default | none | 9 mm |
+| a | `detail:2.5,red:0.7` (sigma 5 mm) | ear 5 mm |
+| b | `detail:4,sigma:6,lift:4,red:0.7` | ear 5 mm |
+
+`e8/atlas_ears_before_b.png` (both ears in his atlas, before and b), `e8/ears_master_turned_e6_a_b_shot_e6_a_b.png`
+(the master's ear; the turned diagnostic E6 / a / b; the shot E6 / a / b). **Blind critics** (ear
+only, and the face for context): in the shot (`critic/e8/critic.md`; A = b, B = a, C = E6)
+**the E6 default first** (3 against 2 on every count): on an ear seen edge-on the finer squares
+break into "thin slanted slivers and single-pixel steps", and b's bolder rim is "a hot, too-thin
+cream line" and a near-white square on the far ear; turned to the master's angle
+(`critic/e8t/critic.md`; A = b, B = E6, C = a) **a first, b second, E6 last**, but all three "a
+narrow lit wedge pointing up", none "a rim curling round a hollow".
+
+**E8 verdict:** not adopted; his ear stays E6's. In the shot the ear is too edge-on for anything
+in the texture to read as an ear. What would: his head turned toward the master's three-quarters
+(the art session's `ShotMatch.FITS`, a diagnostic here only), and then an ear drawn at the
+squares' size, a lit C-shaped rim round a dark hollow. Drawing up the model's own ear (a) helps a
+little at that angle, but its folds are too fine and too soft for 5-9 mm squares.
