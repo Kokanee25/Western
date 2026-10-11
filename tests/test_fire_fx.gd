@@ -1,6 +1,7 @@
 extends TestCase
 ## How a burning member's flames are drawn (the art session's ask, docs/briefs/fire-look.md): one
-## sheet of fire to each of its meshes that fills more of itself as it burns, reaching over its top,
+## sheet of fire to each of its meshes that fills more of itself as it burns, reaching over its top
+## (behind a frame member, in front of a board),
 ## and a sheet in an opening under a burning head. The flipbook tongues (FireFX.sheets off, kept for
 ## comparing): a few big tongues off its top that grow, and tongues out of the top of an opening.
 
@@ -83,6 +84,31 @@ func test_a_sheet_pours_out_of_the_top_of_an_opening() -> void:
 	fx.refresh(true, fire.tuning, true)
 	var below := _sheets(fx).filter(func(m: MeshInstance3D) -> bool: return m.global_position.y < 2.0)
 	check(not below.is_empty(), "a sheet standing in the opening under the head")
+
+
+func test_a_frame_members_fire_is_drawn_behind_it_and_a_boards_in_front() -> void:
+	var post := building.add_member("post", &"post", &"framing", Vector3(0.15, 2.4, 0.15), Vector3(0, 1.2, 0))
+	var beam := building.add_member("beam", &"beam", &"framing", Vector3(6.0, 0.2, 0.15), Vector3(2.0, 2.5, 0))
+	var board := building.add_member("board", &"board", &"weathered_pine", Vector3(1.0, 2.4, 0.025), Vector3(3, 1.2, 0))
+	building.infer_supports()
+	for m in [post, beam, board]:
+		fire.ignite(m)
+		var fx := FireFX.new()
+		fx.member = m
+		fire.add_child(fx)
+		fx.refresh(true, fire.tuning, true)
+		var sheets := _sheets(fx)
+		check(not sheets.is_empty(), "%s has a sheet" % m.member_id)
+		if sheets.is_empty():
+			continue
+		var behind: Variant = sheets[0].get_instance_shader_parameter(&"behind")
+		var back := 0.0 if behind == null else float(behind)
+		if m == board:
+			check(back == 0.0, "a board's fire in front of it, so the board doesn't cut it")
+		else:
+			check(back == 1.0, "%s's fire behind it: the timber stands dark against its flames" % m.member_id)
+			var half: Vector3 = sheets[0].get_instance_shader_parameter(&"half_box")
+			check(half.x <= 0.301 and half.z <= 0.301, "pushed back by its cross section, not its length (%s)" % half)
 
 
 func test_the_tongues_grow_as_it_burns_and_stay_few() -> void:

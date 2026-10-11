@@ -4185,3 +4185,43 @@ a few views renders them as the full run does.
     boards don't cut it, which hides the posts and rafters the painting shows dark against it);
     the smoke column against the sky; sparks; the firelight; the fire view staged with the bucket
     line in it.
+  - Merged as PR #93, **build 810** (green).
+- 2026-10-11 (art session, later): **Merge 3d: the fire in tongues, the frame dark against it.**
+  `fire_sheet.gdshader`:
+  - **Tongues.** The heat is noise stretched up and climbing (`tongues_x` 3, `tongues_y` 0.8,
+    `wear` 0.9, swaying a little), so its bands follow each tongue's outline: red only at the
+    edge, yellow to white inside (`core` 0.35). Each sheet dies away towards its own top (`fade`
+    0.45), so it ends in points, not the flat dark-red lid the old field drew at every sheet's top.
+    A sheet's sides are cut raggedly rather than cooled (cooled, every stud's sheet drew a red
+    stripe down the wall), and it reaches `foot_fade` 0.5 m under its foot.
+  - **The hotter sheet wins.** Each square writes its depth `hottest_wins` (0.15 m) × its heat
+    nearer the camera, so where a wall's sheets cross the fire is the hottest of them.
+    Found on the way: with `vertex()` setting POSITION, the fragment's VERTEX isn't the
+    billboard's, and a depth from it buried everything in front of the fire. The view position
+    goes through a varying (`view_at`).
+  - **The frame in front.** A frame member's sheet (`FireFX.FRAME_KINDS`: sill, post, joist,
+    stud, plate, beam, header, ledger, rafter, cripple, ridge) is drawn behind it, by its cross
+    section as the camera sees it (`behind`, `half_box`, each capped at 0.3 m so a beam's length
+    doesn't count). The timber stands dark against its flames, as the painting's frame does.
+    Boards stay in front (`toward_camera` 0.15).
+  - `lifted` (a raised sheet starts part way up the fire's scale) is there at 0: at 0.6 the fire
+    went thin and red (0.577).
+  - Gameplay's `src/fire/fire_fx.gd` (said in the commit): `FRAME_KINDS`, three lines setting
+    `behind`/`half_box`. Gameplay's `tests/test_fire_fx.gd`: +1 test (a post's and a beam's fire
+    behind them by their cross section, a board's in front).
+  - Shared `tools/screenshots.gd`: `--sheet=k:v` sets the sheets' uniforms for a trial.
+  - Judge v2 on `livery_fire_dusk` (two runs of one build differ by ~0.01): the merged sheet
+    0.454; the frame alone 0.55 (less white core showed and the brightest share fell under the
+    painting's); tongues + frame **0.472** (round `2026-10-11_r4`; the shots' renders are r3's,
+    with no fire in them: saloon 0.330, street 0.505). By eye it's much the closest yet.
+  - Blind critic, top three:
+    1. the fire burns alone in an empty field (the painting's bucket brigade, horse, rubble, lit
+       town, wet mud);
+    2. the flames a flat wall with no smoke column or sparks (its crop shows the frame dark
+       in front of the tongues; what it misses is fairly the smoke and sparks);
+    3. the saloon's room dark and empty, its doorway showing nothing.
+  - Goldens: the three `store_fire_*` views and `livery_fire_dusk` re-approved from two `--fresh`
+    runs. The new look passed the old goldens too: the fire views' tolerances are wider than any
+    change in the fire's look. Visual checks 176, none failed. 372 tests pass.
+  - Next: the smoke column against the sky; sparks; the firelight; the fire view staged with the
+    bucket line in it.

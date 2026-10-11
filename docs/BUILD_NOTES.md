@@ -6,6 +6,16 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: tongues of flame, the frame dark against them
+
+- **The fire is tall pointed tongues now**, white and yellow inside and red only at their edges,
+  where it was a slab with a flat dark-red top. Where two burning boards' fires cross, the hotter
+  one shows, so a wall has no stripes.
+- **The posts, studs and rafters stand dark in front of their own flames**, as in the fire
+  painting, and a sign or post in front of a burning wall isn't buried in it.
+- **Try:** light the livery's front (L) at dusk and watch from across the street, then the
+  store's front at night. Tell me if it reads as a building burning, and if the tongues move well.
+
 ### New: fire as one sheet of flame
 
 - **A burning wall's fire is one mass now**, not a row of separate flames: bands from a pale
