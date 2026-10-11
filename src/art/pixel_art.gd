@@ -141,7 +141,7 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 static func _apply(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"texels_per_meter", m.get_meta(&"texels", texels_per_meter))
 	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
-	if smooth:
+	if smooth or SheetStyle.on:
 		m.set_shader_parameter(&"smooth_source", true)
 
 
@@ -161,7 +161,12 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
-	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
+	# The character-sheet trial (SheetStyle, --sheet-style): the smooth set at its own density.
+	if SheetStyle.on:
+		var sheet := SheetStyle.world_texture(key)
+		if sheet:
+			return sheet
+	if use_drawn and not smooth and not SheetStyle.on and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
 	if (smooth or bold) and not ResourceLoader.exists(path):

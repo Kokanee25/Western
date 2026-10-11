@@ -4258,3 +4258,21 @@ a few views renders them as the full run does.
   - Next: the smoke darker and less red (the painting's reads near-black brown against the sunset),
     the fire view earlier in the dusk (a sunset band, no stars), the firelight on the street, then
     the fire view staged with the bucket line in it.
+- 2026-10-11 (art, experiment; branch `claude/art-style-sheet-test`, not merged): **The character
+  sheet's style, behind `--sheet-style`** (Sean's sheet, `docs/concept/style_candidates/
+  character_sheet.png`: a realistic model whose textures are cut into fixed squares, nearest,
+  under ordinary light). `tools/sheet_style.py man world` writes into `build/sheet_style/`
+  (gitignored): stranger2's own Rodin colour (not the repaint) as body-space squares (face 3 mm,
+  hat 6, clothes 7, each the mean) with his normal map smooth, and the smooth factory set
+  box-averaged to 32 (and 16) texels a metre. `SheetStyle` (`src/art/sheet_style.gd`,
+  `sheet_man.gdshader`, Godot's own light) dresses any man with a sheet texture as he's made;
+  Settings turns off tile light, min square and every mosaic; `--sheet-texels=16`. Defaults
+  unchanged. Judged with the characters session's `judge_man.py` (brought from its branch) via
+  `tools/sheet_judge.py`, against the sheet's front view in a light matched to its turnaround:
+  today's repainted man 0.393, unsquared Rodin 0.410, squares 3/6/7 mm 0.445, 5/8/10 0.474, 5/8/9
+  with a 12 % shade jitter 0.436; the light and the clothes (his coat against the sheet's vest)
+  outweigh the squares. Reference judge (no round written), saloon / street: today 0.334 / 0.497,
+  sheet 32/m 0.313 / 0.510, 16/m 0.324 / 0.463. Cost a wash (`look_cost.gd`). What it shows: a
+  plain downsample of a realistic texture gives squares that vanish on smooth skin and cloth;
+  the sheet's squares are 5-10 mm and each a distinct shade (a mosaic), and its light is darker
+  and harder. Sheets `docs/screenshots/review/2026-10-11_sheet_style_{man,world,judge}.png`.

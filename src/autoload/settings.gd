@@ -98,6 +98,10 @@ var surface_blocks := false
 ## outline that jumps a pixel there makes the whole block jump; the two together took its
 ## flicker down by a third to two fifths.
 var probe_mosaic := false
+## The character-sheet style trial (SheetStyle, src/art/sheet_style.gd; 2026-10-11): `--sheet-style`
+## on the command line only, never saved. Squared textures under ordinary light: no tile light, no
+## min square, no mosaic of any kind.
+var sheet_style := false
 var probe_texels := 384.0
 var probe_cell := 0.5
 var probe_bands := 0.0
@@ -146,6 +150,17 @@ func _ready() -> void:
 		# A trial: the probe over the game's own squared textures, not the smooth set.
 		if "--probe-squares" in args:
 			quantise_once = false
+	# The character-sheet style trial for one run (--sheet-style [--sheet-texels=16]).
+	if "--sheet-style" in args:
+		sheet_style = true
+		quantise_once = false
+		surface_blocks = false
+		probe_mosaic = false
+		autosave = false
+		for a in args:
+			if a.begins_with("--sheet-texels="):
+				SheetStyle.texels = float(a.substr(15))
+		SheetStyle.watch(get_tree())
 	load_from_disk()
 	_protect_speakers()
 
@@ -332,7 +347,7 @@ func probe_active() -> bool:
 ## Whether the screen mosaic is drawn: the setting, unless the surface-blocks look is on (it has
 ## no screen pass) or the probe mosaic trial is (it takes the screen mosaic's place).
 func mosaic_active() -> bool:
-	return mosaic and not surface_blocks and not probe_active()
+	return mosaic and not surface_blocks and not probe_active() and not sheet_style
 
 
 func cycle_texel_density() -> void:
@@ -367,6 +382,9 @@ func cycle_tile_look() -> void:
 
 ## The shader globals every tiled material reads (src/render/tiles.gdshaderinc) for this look.
 func tile_globals() -> Dictionary:
+	if sheet_style:
+		return {&"tile_light": 0.0, &"tile_ragged": 0.0, &"tile_gradient": 0.0, &"min_square_px": 0.0,
+				&"block_soft": 0.0, &"light_bands": 0.0, &"seam_px": 0.0}
 	return {&"tile_light": 1.0 if surface_blocks else (0.0 if tile_look == &"off" or quantise_once else 1.0),
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
@@ -392,6 +410,9 @@ func _apply_texels() -> void:
 	# The bold set (M) is cut at PixelArt.BOLD_TEXELS a metre and laid at it, crisp.
 	if surface_blocks:
 		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
+		return
+	if sheet_style:
+		PixelArt.set_density(SheetStyle.texels, true)
 		return
 	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
 
@@ -427,6 +448,7 @@ func _apply_quantise() -> void:
 	PixelArt.bold = surface_blocks
 	PixelArt.smooth = quantise_once
 	PeopleBodies.smooth_paint = quantise_once
+	SheetStyle.on = sheet_style
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}
 
 
