@@ -299,21 +299,19 @@ python3 tools/bridge.py stop
 ## Current state (2026-10-11; each session replaces its own lines)
 
 Latest status entries: `docs/status/2026-10-06_onward.md` (the end of the file). Builds: main is
-green at **build 810** (art merge 3c) plus merge 3d (PR #94). 372 tests pass. DESIGN.md's backlog
+green at **build 813** (art merge 3d, PR #94); merge 3e (PR #95) is on main after it. 372 tests
+pass. DESIGN.md's backlog
 (§11) and the prompt library (`docs/prompts/`) are frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; brief `docs/briefs/fire-look.md`, `docs/briefs/set-direction.md`):
-- Done: merges 3a–3d (the fire in the painting's bands: tongues, the fire sheet, the frame dark
-  against it, char; the seated man's light). Judge v2: saloon 0.330, street 0.505, fire 0.472.
-  Critic's top three stand: the fire burns alone in an empty field; no smoke column or sparks;
-  the saloon room behind the man is dark and empty.
-- In progress on `claude/art-salt-creek-9u73vk` (not merged at 2026-10-11 15:14): merge 3e, the
-  smoke column against the sky with embers (`SmokeColumn`; fire view 0.472 → 0.436). Its own
-  next: the smoke darker and less red, the fire view earlier in the dusk, the firelight on the
-  street, then the fire view staged with the bucket line in it. If that branch is gone, start
-  from main at the smoke column.
-- Then: the saloon room (sconces lighting walls), the other fronts to the saloon's standard,
-  the set-direction cards.
+- Done: merges 3a–3e (the fire in the painting's bands: tongues, the fire sheet, the frame dark
+  against it, char; the seated man's light; the smoke column against the sky with embers,
+  `SmokeColumn`). Judge v2: saloon 0.330, street 0.505, fire 0.436. Critic's top three: the fire
+  burns alone in an empty field; the smoke is flat blobs; the saloon room behind the man is dark.
+- Next: the smoke darker and less red (the painting's near-black brown against the sunset); the
+  fire view earlier in the dusk (a sunset band, no stars); the firelight on the street; then the
+  fire view staged with the bucket line in it. After: the saloon room (sconces lighting walls),
+  the other fronts to the saloon's standard, the set-direction cards.
 - Known: the fire views' golden tolerances pass any new fire look (`store_fire_close` checks
   nothing); the street view is at 14,707 draw calls / 15.4 ms render CPU (was 3,700 / 3.5).
 - Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
