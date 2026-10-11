@@ -155,7 +155,14 @@ footage, and kept apart from them.
 
 See `baseline/baseline.md` for the full table and `baseline/*.png` for the contact sheets.
 
-### What go_limp() applies (scripted, not physics)
+**Since 2026-10-11** (`results/2026-10-11_carry/`): he keeps his momentum into the fall, and a shot
+pushes with the ball's own momentum on the part it hit. The scripted shove and random kick below
+are gone, and fault 2 is fixed. The baseline is kept as it was, for comparison.
+
+Results of changes measured against the baseline go in `results/<date>_<name>/` (a README with
+the numbers and the before/after sheets).
+
+### What go_limp() applied at the baseline (scripted, not physics)
 
 From `events` in every scenario (`baseline/baseline.json`):
 
