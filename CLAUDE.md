@@ -4047,3 +4047,40 @@ a few views renders them as the full run does.
   to test the art style a bit more and decide how to finally handle it." DESIGN.md §4 gains a note
   (the bold squares stay the working look until he decides); `docs/prompts/STATUS.md` says Prompt
   07 (the style comparison) is the way it's tested, when Sean starts it.
+- 2026-10-11 (art session): **Merge 3a: the fire drawn like the fire painting** (docs/briefs/fire-look.md
+  steps 1-2). Flames: `tools/textures/draw_flames.py` draws three tongue shapes in six frames
+  (16 x 28 squares each, the painting's seven tones, clean bands); `src/fire/flame.gdshader` draws
+  one per particle, solid colour (alpha scissor, through the tonemap's inverse), no fog (the haze
+  and smoke dulled them), keeps a tongue whole while it's young and loses it from the tip down (a
+  random square-by-square dissolve read as speckle), and grows each tongue 1.8x about its base on
+  top of FireFX's sizes by heat (`grow`), so a burning front's tongues run together into a mass.
+  Char (`char_overlay.gdshader`): whole squares of the drawn wood going brown, then black with
+  glowing seams along the grain, an orange rim where the char is spreading. The view
+  `livery_fire_dusk` (18.6, the livery burning four minutes, from the street south-east of it; it
+  was laid out before Main Street step 2 and looked at empty prairie) is judged against
+  `docs/concept/livery-fire.png`: `tools/judge.py --only=fire`, `tools/critic.py` takes it when the
+  round has it (not in the default rounds, so they stay comparable). The pixel alphabet's `&` and `$`.
+  All 369 tests pass (`test_fire_smoke` failed once with a render running beside it: its smoke steps
+  on worker threads). Judge v2 on the fire view: as drawn 0.689 (`2026-10-10_r1`), grown 1.8 0.583 (`_r2`). Merge round
+  `2026-10-11_r1`: saloon 0.343 (main 0.348, `_r3`), street 0.506, fire 0.581. Blind critic, top
+  three: the fire is a lone barn in an empty field (the painting's bucket brigade, rubble, town and
+  wet street); its flames are flat orange cut-outs with no smoke column or burning frame, the sky a
+  starry violet; the room behind the seated man is dark murk with an empty doorway. Goldens
+  re-approved from two `--fresh` runs: the three `store_fire_*` and `livery_fire_dusk` (new), and
+  `outlaw_face` (1.1 % of pixels past its 1 % in both runs: something on main since its golden,
+  not the fire). `store_fire_close` flaps so much between two runs of one build (the flames land
+  differently) that its tolerance now passes anything (mean 92, share 1.4): it checks nothing. Visual
+  checks 377, none failed. Gameplay's files touched: `src/fire/fire_fx.gd` (one line: the drawn
+  sheet in place of the puff texture). Shared `tools/screenshots.gd`: the livery view (and a
+  `StructureMember` type that stopped the script compiling in `-s`), `--flame=`, `--shot-light=`,
+  `--msaa=`, `--man-mask` (the characters session's lines, brought from its branch as they are).
+  - Found, for the gameplay session: the street view draws 14,707 draw calls and 15.4 ms of render
+    CPU (`tools/look_cost.gd`, lavapipe here), against ~3,700 and 3.5 ms when the frame budget
+    was measured (2026-10-04): Main Street's new buildings, most likely.
+  - Next, agreed with Sean: the seated man's light (its own merge: `ShotMatch` lamp 2.2, fill 0.45
+    nearer white; `tools/characters/judge_man.py` on the man 0.722 -> 0.501, the whole frame 0.348
+    -> 0.331; the characters session told), 4x MSAA (its own merge: render CPU unchanged, lavapipe's
+    raster +40-55 %, the man 0.423 -> 0.411 and the frame a little closer), then **the fire sheet**
+    (one continuous fire per burning member, a heat field rising and cooling, cut into the bands
+    in world-sized squares, every sheet sampling the same field so neighbours merge; its core over
+    white for the glow), then the smoke against the sky, embers, the firelight.
