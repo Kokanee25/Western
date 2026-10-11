@@ -41,6 +41,10 @@ const VIEWS := [
 	["store_fire_night", 21.0, Vector3(3.0, 0.0, -11.0), 180.0, 10.0, "store_fire"],
 	["store_fire_close", 21.0, Vector3(1.4, 0.0, -4.2), 175.0, 12.0, "store_fire"],
 	["store_fire_later", 21.0, Vector3(3.0, 0.0, -13.0), 180.0, 12.0, "store_fire_later"],
+	# The fire painting's view (docs/concept/livery-fire.png, docs/briefs/fire-look.md): the livery
+	# burning at dusk from the street (it stands on the north side since Main Street step 2, its
+	# front on z -16.8), the sun just down, its front alight a few minutes.
+	["livery_fire_dusk", 18.6, Vector3(21.0, 0.0, -4.0), 27.0, 12.0, "livery_fire"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["outlaw_face", 15.0, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
 	["outlaw_face_evening", 18.2, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
@@ -140,6 +144,8 @@ func _run() -> void:
 	var suffix := ""
 	var globals_after := {}
 	var fresh := false
+	var man_mask := false
+	var msaa := -1
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	for arg in OS.get_cmdline_user_args():
@@ -153,6 +159,20 @@ func _run() -> void:
 			# makes the game's scripts compile with this one, before the autoloads exist.
 			var shot: Variant = load("res://src/art/shot_match.gd")
 			shot.model = StringName(arg.substr(8))
+		# --flame=grow:1.6: the flames' shader uniforms for one render (trials).
+		elif arg.begins_with("--flame="):
+			var ffx: Variant = load("res://src/fire/fire_fx.gd")
+			var mat: ShaderMaterial = ffx._flame_material()
+			for kv in arg.substr(8).split(","):
+				mat.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
+		# --msaa=0|2|4|8: the game viewport's multisampling for this run (the anti-aliasing trial).
+		elif arg.begins_with("--msaa="):
+			msaa = {0: 0, 2: 1, 4: 2, 8: 3}.get(int(arg.substr(7)), 0)
+		# --shot-light=fill_energy:2,lamp_energy:1.1: ShotMatch's light for one render (trials).
+		elif arg.begins_with("--shot-light="):
+			var shot: Variant = load("res://src/art/shot_match.gd")
+			for kv in arg.substr(13).split(","):
+				shot.set(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 		# Look experiments: --texels=20 --nomip --shade --no-finish --res=480x270 --tiles=ragged --window --suffix=_b
 		elif arg.begins_with("--texels="):
 			PixelArt.texels_per_meter = float(arg.substr(9))
@@ -227,6 +247,10 @@ func _run() -> void:
 			window_shot = true
 		elif arg == "--fresh":
 			fresh = true
+		# --man-mask: after a shot-match view, the seated man white on black from the same camera
+		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
+		elif arg == "--man-mask":
+			man_mask = true
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
 		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
@@ -260,6 +284,8 @@ func _run() -> void:
 					await process_frame
 			main = await _load_main(globals_after, screen_squares, mosaic_steps)
 			viewport = main.get_node(^"GameViewport")
+			if msaa >= 0:
+				viewport.msaa_3d = msaa
 			clock = main.get_node(^"GameViewport/TestStreet/DayCycle")
 			player = main.get_node(^"GameViewport/TestStreet/Player")
 			town_life = main.find_child("TownLife", true, false)
@@ -370,6 +396,19 @@ func _run() -> void:
 				fire.step(0.5)
 			for i in 90:
 				await physics_frame
+		if setup == "livery_fire":
+			var livery = main.find_child("Livery", true, false)
+			var fire = main.find_child("FireSystem", true, false)
+			var lit := 0
+			for m in livery.get_members():
+				if lit < 30 and String(m.member_id).contains("front") and m.global_position.y < 2.4 and m.wood != &"glass":
+					fire.ignite(m)
+					lit += 1
+			# The fire's four times slower since 2026-10-05: four minutes in, the front is ablaze.
+			for i in 480:
+				fire.step(0.5)
+			for i in 90:
+				await physics_frame
 		if setup == "porch_collapse":
 			var store = main.find_child("Store", true, false)
 			store.break_member(store.get_member(&"store/porch/post0"), Vector3(0, 0, -1.0))
@@ -476,7 +515,51 @@ func _run() -> void:
 		big.resize(img.get_width() * 3, img.get_height() * 3, Image.INTERPOLATE_NEAREST)
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
+		if man_mask:
+			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
 	quit()
+
+
+## --man-mask: the seated man (ShotMatch's SeatedMan, not the cup in his hand) drawn white and
+## everything else black, unshaded, from the view's own camera, saved as one channel; then every
+## material, the camera's environment and what hangs on the camera (the gun, a screen pass) are
+## put back as they were.
+func _save_man_mask(viewport: SubViewport, player, path: String) -> void:
+	var man := viewport.find_child("SeatedMan", true, false) as Node3D
+	if man == null:
+		return
+	var white := StandardMaterial3D.new()
+	white.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	white.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var black := white.duplicate() as StandardMaterial3D
+	black.albedo_color = Color.BLACK
+	var cam: Camera3D = player.camera
+	var was := {}
+	for gi: GeometryInstance3D in viewport.find_children("*", "GeometryInstance3D", true, false):
+		was[gi] = [gi.material_override, gi.material_overlay, gi.visible]
+		var his := man.is_ancestor_of(gi) and not String(gi.get_path()).contains("HeldCup")
+		gi.material_override = white if his else black
+		gi.material_overlay = null
+		if cam.is_ancestor_of(gi):
+			gi.visible = false
+	var env_was := cam.environment
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color.BLACK
+	cam.environment = env
+	for i in 4:
+		await process_frame
+	await RenderingServer.frame_post_draw
+	var img := viewport.get_texture().get_image()
+	img.convert(Image.FORMAT_L8)
+	img.save_png(path)
+	print("saved ", path.get_file())
+	cam.environment = env_was
+	for gi: GeometryInstance3D in was:
+		if is_instance_valid(gi):
+			gi.material_override = was[gi][0]
+			gi.material_overlay = was[gi][1]
+			gi.visible = was[gi][2]
 
 
 ## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).

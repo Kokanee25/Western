@@ -6,6 +6,19 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: flames drawn like the fire painting
+
+- **Flames are drawn now, not glowing blobs**: tongues in the fire painting's bands, square by
+  square (a pale yellow core low down, orange, deep red at the tips), solid colour where they
+  overlap, not washed out by the haze. A tongue keeps its shape and loses its top as it dies down.
+  They're drawn bigger, so a burning front reads as one mass of fire.
+- **Burning boards char in the wood's own squares**: brown, then black with glowing seams along
+  the grain, and an orange edge where the char is spreading.
+- **Try:** at dusk (about 18:30) stand in the street south of the livery and light its front low
+  down (L). Wait three or four minutes. Then light the store's front at night and walk up to it:
+  close up the flame squares are big (the next job draws fire as one sheet with squares the walls'
+  size). Tell me what looks wrong.
+
 ### New: bigger flames
 
 - **A burning board's flames are now a few big tongues off its top** that grow as it burns: small

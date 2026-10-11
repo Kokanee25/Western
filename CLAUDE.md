@@ -4007,6 +4007,7 @@ a few views renders them as the full run does.
     smoke, flames and stars touch rendered again on it); visual checks 374, none failed. The
     three `store_fire_*` goldens re-approved again from two more runs: this workspace's native
     library was from before the smoke grid, so they'd been taken with particle smoke.
+  - Merged as PR #88, build 720 (green: tests, exports, smoke on all four, release, Pages).
   - **Next (merge 3), ready on the branch after this merge:** fire steps 1-2
     (`docs/briefs/fire-look.md`: flames drawn as a flipbook by `tools/textures/draw_flames.py`,
     `flame.gdshader` solid colour with alpha scissor, not additive; char in the drawn wood's
@@ -4019,7 +4020,11 @@ a few views renders them as the full run does.
     its branch and not on main): 0.562 as rendered; his L* × 0.76 and chroma × 0.75 gives 0.233.
     After that, his face is still too bright (median L* 33 vs 29) while his hat's and coat's lit
     parts are too dim (26 vs 34, 34 vs 40). So the key on his face comes down more than the fill
-    on his hat and coat. Send it the light patch to re-judge its man under it. Fire
+    on his hat and coat. Send it the light patch to re-judge its man under it.
+    It also measured anti-aliasing: `msaa_3d` 4x on `GameViewport` (`scenes/main.tscn`,
+    gameplay's file) took his edge hardness 0.31 to 0.29 (the painting's 0.25) and his score 0.556
+    to 0.541. Its cost wasn't measured; whether the game is anti-aliased is the art session's call.
+    His squares changed again on its branch (a7770fb). Fire
     step 3, the smoke (it can't show against the sky: `sky.gdshader`'s `disable_fog` keeps every
     fog off sky pixels; painted puffs or a fog-aware sky); the saloon room (task: sconces
     lighting their walls); the other fronts (livery, barber, hotel, assay) to the saloon's
@@ -4078,6 +4083,58 @@ a few views renders them as the full run does.
     fall depends on what ran before it: worth knowing for the chaos test's same-seed drift.
 
   Next: Prompt 09 (fix the falls) against this baseline, when Sean says.
+- 2026-10-11 (art session): **Merge 3a: the fire drawn like the fire painting** (docs/briefs/fire-look.md
+  steps 1-2). Flames: `tools/textures/draw_flames.py` draws three tongue shapes in six frames
+  (16 x 28 squares each, the painting's seven tones, clean bands); `src/fire/flame.gdshader` draws
+  one per particle, solid colour (alpha scissor, through the tonemap's inverse), no fog (the haze
+  and smoke dulled them), keeps a tongue whole while it's young and loses it from the tip down (a
+  random square-by-square dissolve read as speckle), and grows each tongue 1.8x about its base on
+  top of FireFX's sizes by heat (`grow`), so a burning front's tongues run together into a mass.
+  Char (`char_overlay.gdshader`): whole squares of the drawn wood going brown, then black with
+  glowing seams along the grain, an orange rim where the char is spreading. The view
+  `livery_fire_dusk` (18.6, the livery burning four minutes, from the street south-east of it; it
+  was laid out before Main Street step 2 and looked at empty prairie) is judged against
+  `docs/concept/livery-fire.png`: `tools/judge.py --only=fire`, `tools/critic.py` takes it when the
+  round has it (not in the default rounds, so they stay comparable). The pixel alphabet's `&` and `$`.
+  All 369 tests pass (`test_fire_smoke` failed once with a render running beside it: its smoke steps
+  on worker threads). Judge v2 on the fire view: as drawn 0.689 (`2026-10-10_r1`), grown 1.8 0.583 (`_r2`). Merge round
+  `2026-10-11_r1`: saloon 0.343 (main 0.348, `_r3`), street 0.506, fire 0.581. Blind critic, top
+  three: the fire is a lone barn in an empty field (the painting's bucket brigade, rubble, town and
+  wet street); its flames are flat orange cut-outs with no smoke column or burning frame, the sky a
+  starry violet; the room behind the seated man is dark murk with an empty doorway. Goldens
+  re-approved from two `--fresh` runs: the three `store_fire_*` and `livery_fire_dusk` (new), and
+  `outlaw_face` (1.1 % of pixels past its 1 % in both runs: something on main since its golden,
+  not the fire). `store_fire_close` flaps so much between two runs of one build (the flames land
+  differently) that its tolerance now passes anything (mean 92, share 1.4): it checks nothing. Visual
+  checks 377, none failed. Gameplay's files touched: `src/fire/fire_fx.gd` (one line: the drawn
+  sheet in place of the puff texture). Shared `tools/screenshots.gd`: the livery view (and a
+  `StructureMember` type that stopped the script compiling in `-s`), `--flame=`, `--shot-light=`,
+  `--msaa=`, `--man-mask` (the characters session's lines, brought from its branch as they are).
+  - Found, for the gameplay session: the street view draws 14,707 draw calls and 15.4 ms of render
+    CPU (`tools/look_cost.gd`, lavapipe here), against ~3,700 and 3.5 ms when the frame budget
+    was measured (2026-10-04): Main Street's new buildings, most likely.
+  - Next, agreed with Sean: the seated man's light (its own merge: `ShotMatch` lamp 2.2, fill 0.45
+    nearer white; `tools/characters/judge_man.py` on the man 0.722 -> 0.501, the whole frame 0.348
+    -> 0.331; the characters session told), 4x MSAA (its own merge: render CPU unchanged, lavapipe's
+    raster +40-55 %, the man 0.423 -> 0.411 and the frame a little closer), then **the fire sheet**
+    (one continuous fire per burning member, a heat field rising and cooling, cut into the bands
+    in world-sized squares, every sheet sampling the same field so neighbours merge; its core over
+    white for the glow), then the smoke against the sky, embers, the firelight.
+- 2026-10-11 (art session, later): **Merge 3b: the seated man's light.** `ShotMatch`: the table
+  lamp 2.2 (was 1.5, `lamp_energy`), the viewer-side fill 0.45 (was 1.5, `fill_energy`) and nearer
+  white (`fill_warm` 0.4); `fill_at_y`, `fill_from_y`, `fill_angle` are there for trials
+  (`tools/screenshots.gd --shot-light=k:v,...`). Measured with the characters session's
+  `tools/characters/judge_man.py` (its branch) on main's `stranger2s`: the fill, not the lamp, was
+  the key on his face (with the lamp at a third his face's lit top tenth went 80 -> 76; the fill
+  halved, 74), and his colour ran hot (chroma 30, the painting's 22); but the whole frame needs the
+  lamp (at 0.5 the reference judge went 0.348 -> 0.612). The man 0.722 -> 0.501 (face median L* 43
+  -> 30, the painting's 29; hat and coat lit parts 36 and 45, the painting's 34 and 40). His
+  face's top tenth stays at L* 73-80 under every light tried: the paint's pale cream squares and
+  the eye whites (the characters session told, 2026-10-11). Judge round `2026-10-11_r2`: saloon
+  0.343 -> 0.341. Blind critic, top three: the room behind him is dark, empty murk (the doorway, the
+  moon, balcony, sconces); the street's sky is lavender-grey, not gold; his face is a hot, wide-eyed,
+  blotchy mask. Goldens `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh`
+  runs; visual checks 170, none failed.
 - 2026-10-11 (gameplay): **A man going down keeps his momentum; a shot pushes with the ball's**
   (Sean: "as real as possible so just drops if dead esp running"; he'd called the old fall
   "cheesy action movie").

@@ -396,13 +396,23 @@ def _punct(ch: str) -> Glyph:
     if ch == ",":
         return Glyph(4).rect(0, H - 3, 2, H - 1).rect(1, H - 1, 1, H - 1)
     if ch == "&":
-        g = Glyph(14)
-        g.ring(1, 0, 9, 7, power=2.6)
-        g.ring(0, 5, 12, H - 1, power=2.6, arc=lambda dx, dy: not (dx > 0.3 and dy < -0.1))
-        g.diag(4.5, 7, 12.5, H - 1, STEM)
+        # A small loop up top, a bowl below, the long stroke from the loop down to the bottom
+        # right, and the arm reaching out to the right with a serif.
+        g = Glyph(15)
+        g.ring(2, 0, 9, 6, thick_x=STEM - 1, thick_y=BAR - 1, power=2.6)
+        g.ring(0, 5, 10, H - 1, power=2.6, arc=lambda dx, dy: dx < 0.35 or dy > 0.5)
+        g.diag(3.5, 5, 11.5, H - 1, STEM)
+        g.rect(9, 8, 12, 8 + MID - 1)
+        g.rect(11, 7, 14, 8)
+        g.rect(11, H - SERIF, 14, H - 1)
         return g
     if ch == "$":
-        g = _s()
+        # The S a little short, its bar through it standing out above and below.
+        g = Glyph(12)
+        g.ring(0, 2, 11, 9, power=2.6, arc=lambda dx, dy: not (dx > 0.2 and dy > -0.2))
+        g.ring(0, 8, 11, H - 3, power=2.6, arc=lambda dx, dy: not (dx < -0.2 and dy < 0.2))
+        g.rect(9, 3, 11, 5)
+        g.rect(0, H - 6, 2, H - 4)
         g.rect(5, 0, 6, H - 1)
         return g
     if ch == "'":
