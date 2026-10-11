@@ -4225,3 +4225,36 @@ a few views renders them as the full run does.
     change in the fire's look. Visual checks 176, none failed. 372 tests pass.
   - Next: the smoke column against the sky; sparks; the firelight; the fire view staged with the
     bucket line in it.
+  - Merged as PR #94, **build 813** (green).
+- 2026-10-11 (art session, later): **Merge 3e: the smoke column against the sky, with embers.**
+  - **Why it was missing.** The simulated smoke (SmokeField's FogVolume) can't be drawn over the
+    sky. `sky.gdshader`'s `disable_fog` keeps every fog off sky pixels, or the street's global
+    haze (0.006 over 48 m) would wash a quarter of the way over the whole sky. So above the
+    roofline the column is drawn.
+  - **`src/fire/smoke_sheet.gdshader`** (new): an upright camera-facing quad from the roofline up.
+    - Billows climb and lean with the wind in world squares (8 a metre).
+    - The fire painting's smoke tones: dark maroon-brown in its thick, purple where it thins into
+      the sky, red-orange lit from the fire underneath.
+    - Embers climb through it, thick near the fire and thinning higher up.
+    - It's drawn 1.5 m behind the fire, rising out of the tongues over its first 3 m.
+  - **`src/art/smoke_column.gd` (`SmokeColumn`)**: one per SmokeField that draws. Twice a second it
+    stands over its building's burning members: as wide as they spread, as tall and thick as
+    there are of them (30 for a full column), easing. It fades when the fire's out.
+  - Gameplay's `src/fire/smoke_field.gd` (said in the commit): one line, a SmokeColumn where it
+    makes its fog. New `tests/test_smoke_column.gd` (1: over the fire at the roofline, grows
+    with it, moves with it, gone when it's out). 373 tests pass.
+  - Judge v2 on `livery_fire_dusk`: 0.472 → 0.418 (round `2026-10-11_r5`, the first pass), then
+    **0.436** (`_r6`, as merged: edges shading into the sky, embers near the fire, bigger billows;
+    two runs differ by ~0.01, and by eye it's the better of the two).
+  - Blind critic `_r5` called the first pass "two flat maroon blobs" with embers spread like
+    stars; hence `_r6`'s pass. `_r6`'s top three:
+    1. the fire burns alone in an empty field (no brigade, people, rubble or town);
+    2. the smoke still a flat maroon cut-out, and the dusk sky starry violet where the painting's
+       is a red-orange sunset;
+    3. the saloon behind the man dark, empty murk, its doorway showing no moonlit street.
+  - Goldens: the four fire views re-approved from two `--fresh` runs. This time the old goldens
+    caught the change (`store_fire_later`, `livery_fire_dusk` failed against them). Visual checks
+    176, none failed.
+  - Next: the smoke darker and less red (the painting's reads near-black brown against the sunset),
+    the fire view earlier in the dusk (a sunset band, no stars), the firelight on the street, then
+    the fire view staged with the bucket line in it.
