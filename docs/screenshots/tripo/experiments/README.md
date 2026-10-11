@@ -343,3 +343,24 @@ only triple the islands and seams). In character space the grid is as regular as
 left is the shot's head roll (`ShotMatch.FITS`, the art session's: an upright head would halve the
 slant on his face) and the edge-on surfaces (only screen-space squares avoid those, and the
 paintings' look is not a screen filter: DESIGN.md §4, Sean 2026-10-06).
+
+**Crisper squares** (the critics' other complaint, "soft, averaged"): D2's square settings on the E5
+defaults (`--cells=face:0.0055,soft.head:0,face_front:80`: 5.5 mm face squares, no soft lean at a
+square's edge on his head, his face on the front plane out to 80°). **Blind critic**
+(`critic/e6/critic.md`; A = D2's squares, B = E5): **A on every feature**, "crisper and harder-edged;
+B looks like the same drawing softened and averaged", but its squares too small (5-6 px; the master's
+8-10 in the crop). Then the same hard edges at 7 mm (`soft.head:0,face_front:80`) and 9 mm
+(`face:0.009,...`); `e6/hard_squares_face.png` (master / E5 / 5.5 / 7 / 9 mm). **Blind critic**
+(`critic/e6b/critic.md`; A = 5.5 mm, B = 7 mm, C = 9 mm): **B (7 mm) first** (108 of 175: the most
+even, crisp squares on the face and chin, a moustache with its notch), A second (102: the
+best-drawn moustache, its squares the nearest the master's size but slanted and soft), C last (98:
+the biggest, flattest squares, the moustache "a rectangular slab with one isolated skin square in
+its middle, the most cartoon-like"). The critic's own measure: horizontal runs of near-equal pixels
+on the cheeks and nose, the master 3.2 px (62 % flat), 5.5 mm 5.1, 7 mm 6.1, 9 mm 6.6: the master's
+squares carry more fine variation inside them than any of ours. square_shape: face aspect 1.56 (E5)
+→ 1.39 (7 mm, hard), squares the same size, tilt unchanged (the head roll).
+
+**E6 verdict:** the grid can't be made more regular in his own space (more planes no help; half the
+slant is the shot's head roll, the slivers are surfaces seen edge-on), but hard square edges with his
+face on the front plane to 80° make it crisper and less stretched: `people.json` `stranger2s.cells`
+`"face_front": 80`, `"soft": {"head": 0, "skin": 0.25}` (his default now, E6).

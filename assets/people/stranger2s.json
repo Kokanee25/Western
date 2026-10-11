@@ -55,8 +55,8 @@
   "shapes": {
    "head": {
     "size": [
-     924,
-     924
+     903,
+     903
     ],
     "islands": 102
    },
@@ -76,7 +76,7 @@
    "head": {
     "detail": 0.0,
     "clip": 40.0,
-    "soft": 0.17,
+    "soft": 0.0,
     "calm": 0.0,
     "sigma": 25.0,
     "weave": 0.15,
