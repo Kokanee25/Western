@@ -40,6 +40,8 @@ def label(img: Image.Image, words: str, size: int = 18) -> Image.Image:
 
 
 def row(images: list, gap: int = 8) -> Image.Image:
+    if not images:
+        return Image.new("RGB", (1, 1), BG)
     w = sum(i.width for i in images) + gap * (len(images) - 1)
     out = Image.new("RGB", (w, max(i.height for i in images)), BG)
     x = 0
@@ -120,7 +122,51 @@ def world(d: str) -> Image.Image:
     return column(parts)
 
 
+# Round 2 (--round2): the variants' names, as tools/sheet_style.py cut them (face/hat/clothes mm,
+# push), under DIR/r2/<name>/; the baselines are the shot's own men without the trial.
+ROUND2 = [("a", "5/8/9 mm"), ("b", "5/8/9, push 1.8"), ("c", "5/8/9, push 2.6"),
+          ("d", "7/9/11, push 1.8"), ("e", "3/6/7 (round 1)"), ("f", "5/8/9, light evened"),
+          ("h", "stranger2s repaint, sheet's way"), ("h_l2", "the same, fill 0.25, lamp 1.6")]
+
+
+def round2(d: str) -> Image.Image:
+    r2 = os.path.join(d, "r2")
+    sheet = Image.open(SHEET).convert("RGB")
+    face = [label(sheet.crop((565, 525, 765, 725)).resize((300, 300), Image.NEAREST), "the sheet", 15)]
+    for name, words in ROUND2:
+        p = os.path.join(r2, name, "head_stand_front.png")
+        if os.path.exists(p):
+            face.append(label(Image.open(p).convert("RGB").crop((165, 175, 365, 375)).resize((300, 300), Image.NEAREST),
+                              words, 15))
+    seated = []
+    for name, words in [("base_s2s", "today: stranger2s"), ("base_s2", "stranger2's repaint")] + ROUND2:
+        p = os.path.join(r2, name, "shot_match_saloon.png")
+        if os.path.exists(p):
+            i = Image.open(p).convert("RGB").resize((1280, 720), Image.LANCZOS).crop((470, 200, 750, 520))
+            seated.append(label(i.resize((i.width * 2, i.height * 2), Image.NEAREST), words, 15))
+    painting = Image.open(os.path.join(ROOT, "docs", "concept", "saloon-blocks.png")).convert("RGB").resize((1280, 720), Image.LANCZOS)
+    seated.insert(0, label(painting.crop((470, 200, 750, 520)).resize((560, 640), Image.NEAREST), "saloon-blocks.png", 15))
+    street = []
+    for sub, words in (("shots_today/shot_match_street.png", "today"), ("shots_sheet16/shot_match_street.png", "16/m"),
+                       ("r2/world16p/shot_match_street.png", "16/m, push 1.8")):
+        p = os.path.join(d, sub)
+        if os.path.exists(p):
+            i = Image.open(p).convert("RGB").resize((1280, 720), Image.LANCZOS)
+            street.append(label(i.resize((640, 360), Image.LANCZOS), words, 15))
+            street.append(label(i.crop((60, 200, 380, 560)).resize((320, 360), Image.NEAREST), words + ", 2x crop", 15))
+    parts = [label(row(face[:5]), "his face, ~0.8 mm a pixel, at 1.5x"), row(face[5:]),
+             label(row(seated[:4]), "seated in the saloon shot, 2x"), row(seated[4:8]), row(seated[8:]),
+             label(row(street[:4]), "the street"), row(street[4:])]
+    return column([p for p in parts if p.width > 1])
+
+
 def main() -> None:
+    if "--round2" in sys.argv:
+        d = os.path.join(ROOT, "build", "sheet_style")
+        img = round2(d)
+        img.save(OUT + "_round2.png")
+        print("wrote", OUT + "_round2.png", img.size)
+        return
     opt = {a.split("=")[0]: a.split("=", 1)[1] for a in sys.argv[1:] if "=" in a}
     d = opt.get("--from", os.path.join(ROOT, "build", "sheet_style"))
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

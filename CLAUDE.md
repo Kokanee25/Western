@@ -4276,3 +4276,16 @@ a few views renders them as the full run does.
   plain downsample of a realistic texture gives squares that vanish on smooth skin and cloth;
   the sheet's squares are 5-10 mm and each a distinct shade (a mosaic), and its light is darker
   and harder. Sheets `docs/screenshots/review/2026-10-11_sheet_style_{man,world,judge}.png`.
+- 2026-10-11 (art, experiment, round 2; same branch, not merged): **The sheet style: painted
+  squares under ordinary light, not squares cut from a photo.** `tools/sheet_style.py` gained
+  `--push` (each square pushed from its neighbours, head_paint's `_mosaic`), `--even` (Rodin's
+  baked light taken out first), `--source=repaint` (his style repaint, drawn the sheet's way:
+  nearest, Rodin's smooth normal map, Godot's light) and `world --world-push`. The seated man
+  alone (`judge_man.py`, against `saloon-blocks.png`): today's `stranger2s` 0.501; Rodin's
+  texture in squares 0.52-0.60 at 5/8/9 to 7/9/11 mm, pushed or evened, every one worse;
+  **`stranger2s`'s repaint drawn the sheet's way 0.424** (squares 0.17, today's 0.46; his face
+  nearer the sheet's on square size, flatness and edge hardness). His hot near cheek (L* 79,
+  the painting's 55) isn't the shot's light: dimming the lamp darkens the whole frame (0.34 →
+  0.47-0.49). The street at 16/m 0.463 (today 0.497), pushed 0.459. So the candidate for Prompt
+  07 is painterly squares on the surfaces, ordinary light, normal maps, the world at 16/m.
+  Sheet `docs/screenshots/review/2026-10-11_sheet_style_round2.png`.
