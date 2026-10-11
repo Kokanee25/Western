@@ -147,17 +147,22 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 ## (L* ~50) and his coat a readable mid brown (~20), where the lamp alone left his far cheek and
 ## the coat on your left near black. A warm spot from just right of your seat, aimed at him and
 ## no wider; no shadows, glints or haze (a fill, not a second key). Tuned against
-## docs/concept/saloon-blocks.png.
+## docs/concept/saloon-blocks.png. 2026-10-10 (merge 3b, with the characters session's judge of the
+## man, tools/characters/judge_man.py): the fill was the key on his face (lit top tenth L* 80 to the
+## painting's 55, median 43 to 29; the table lamp at a third of its light barely moved it) and his
+## colour ran hot (chroma 30 to 22), so the fill is under a third as strong and nearer white; the
+## whole frame needs the table lamp (at 0.5 the reference judge went 0.348 -> 0.612), so it's up.
+## The man 0.722 -> 0.501, the whole frame 0.348 -> 0.331.
 const FILL_FROM := Vector3(-0.15, 1.35, -1.25)
 const FILL_AT := Vector3(0.6, 0.92, -0.55)
-static var fill_energy := 1.5
+static var fill_energy := 0.45
 ## Trials (tools/screenshots.gd --shot-light=): the fill's aim height, cone and colour's warmth.
 static var fill_at_y := FILL_AT.y
 static var fill_from_y := FILL_FROM.y
 static var fill_angle := 34.0
-static var fill_warm := 1.0
+static var fill_warm := 0.4
 ## The table lamp's energy (the key on his face).
-static var lamp_energy := 1.5
+static var lamp_energy := 2.2
 
 static func _fill(root: Node3D) -> void:
 	var fill := SpotLight3D.new()
