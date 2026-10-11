@@ -4297,3 +4297,37 @@ a few views renders them as the full run does.
     the saloon room (sconces lighting their walls, the doorway); the other fronts to the saloon's
     standard.
   - Merged as PR #97, **build 834** (green).
+- 2026-10-11 (art session, later): **Merge 3g: the saloon's room lit warm in pools.**
+  - **What changed:** every lamp in the saloon gives 1.4× the light and reaches 1.2× as far
+    (`SaloonDressing._brighten_lamps`, at the end of the room's build: the dressing's and the
+    building's own; the front's lanterns, dressed after, unchanged), and the room's night fill
+    goes from 0.035 to 0.06 (gameplay's `saloon_building.gd`, one lighting line). Against the bold
+    saloon painting the room was dark murk: median L* 12 to its 23, deep-shadow share 0.39 to 0.18.
+  - Tried with look presets on the saloon shot (judge v2, 0.330 at r7): the fill alone at 0.09,
+    0.309; the lamps alone (×1.7, ×1.2), 0.306; both as merged, **0.226** (round `2026-10-11_r8`;
+    street 0.506 from this pass's render, fire 0.258 as r7).
+  - **Tried and left, the fire view staged with its bucket line** (an env-var trial in
+    `tools/screenshots.gd`, reverted):
+    - The townsfolk form a line from the store's trough at (3.6, -5.2) to the livery's west
+      end, but only round a young fire. Four minutes in, more than `PAST_SAVING` members are
+      burning, so they judge it past saving and stay clear.
+    - Letting the town run long enough to come (45 s of game time, nothing drawn, sped up)
+      brings the livery down to a low line of burning rubble.
+    - Cameras close enough to show the line made the fire a white wall in half the frame
+      (0.49–0.72 against 0.258).
+
+    Staging needs its own design: the line formed early and kept while the fire grows, and the
+    building held up while it burns. For the gameplay session, maybe: should a bucket line give
+    up on a big fire it's already fighting?
+  - Blind critic, top three:
+    1. the fire burns alone in an empty field (no brigade, horse, rubble, town or wet street);
+    2. the room behind the seated man is still dark, empty murk; its doorway shows a navy wedge
+       and a grey slab where the painting's shows a moonlit house, and the far men are smooth
+       pale mannequins;
+    3. a flat black cliff fills the fire view's right third under a starry violet sky (the
+       backdrop's near layer), and the smoke is maroon blobs.
+  - Goldens: the nine views that changed (the saloon's room, and the night street through its
+    windows) re-approved from two `--fresh` runs; the other 18 lamp-lit views match theirs.
+    Visual checks 227, none failed. 373 tests pass.
+  - Next: the saloon's doorway (the moonlit street through it); the fire view's right side (the
+    backdrop's black cliff) and its staging; the other fronts to the saloon's standard.
