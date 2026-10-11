@@ -21,6 +21,10 @@ var _drift_seconds := 0.0  # real seconds of cloud drift
 
 func _ready() -> void:
 	add_to_group(&"day_cycle")
+	# The buildings' far-lamp shadow meshes aren't the sun's or the moon's (Layers.VIS_WALLS).
+	for l: DirectionalLight3D in [sun, moon]:
+		if l:
+			l.shadow_caster_mask = Layers.ALL_BUT_WALLS
 	if config == null:
 		config = DayCycleConfig.new()
 	time_of_day = fposmod(config.start_hour, 24.0)
