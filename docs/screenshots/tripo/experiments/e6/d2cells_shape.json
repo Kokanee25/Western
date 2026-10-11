@@ -1,0 +1,56 @@
+{
+ "all": {
+  "squares": 4680,
+  "aspect_median": 1.659,
+  "aspect_p90": 3.683,
+  "tilt_median": 21.94,
+  "tilt_p90": 39.19,
+  "size_median": 4.9,
+  "size_spread": 2.037
+ },
+ "face": {
+  "squares": 1231,
+  "aspect_median": 1.28,
+  "aspect_p90": 3.453,
+  "tilt_median": 19.53,
+  "tilt_p90": 33.84,
+  "size_median": 4.47,
+  "size_spread": 1.592
+ },
+ "cheek": {
+  "squares": 184,
+  "aspect_median": 1.161,
+  "aspect_p90": 1.456,
+  "tilt_median": 20.14,
+  "tilt_p90": 28.61,
+  "size_median": 4.47,
+  "size_spread": 1.211
+ },
+ "collar": {
+  "squares": 351,
+  "aspect_median": 1.344,
+  "aspect_p90": 2.666,
+  "tilt_median": 19.81,
+  "tilt_p90": 35.54,
+  "size_median": 4.36,
+  "size_spread": 1.612
+ },
+ "coat": {
+  "squares": 319,
+  "aspect_median": 1.265,
+  "aspect_p90": 2.565,
+  "tilt_median": 20.7,
+  "tilt_p90": 36.98,
+  "size_median": 4.36,
+  "size_spread": 1.604
+ },
+ "hat": {
+  "squares": 232,
+  "aspect_median": 1.959,
+  "aspect_p90": 4.175,
+  "tilt_median": 19.25,
+  "tilt_p90": 33.49,
+  "size_median": 4.9,
+  "size_spread": 2.018
+ }
+}
