@@ -6,6 +6,11 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the man at the card table faces you
+
+- **The stranger at the saloon's card table sits upright with his head turned toward you**,
+  as in the painting, where before it was tipped and turned away. Only the art shot stages him.
+
 ### New: the road the painting's pale dust
 
 - **The street's dirt is paler and yellower**, with less contrast between its ruts and its

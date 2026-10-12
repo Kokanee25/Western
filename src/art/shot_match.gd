@@ -46,10 +46,12 @@ const POSE_OFFSETS := {&"head": Vector3(8.5, -8.5, 13.75), &"neck": Vector3(0.0,
 ## name -> any of "seat", "turn", "pose_offsets"; what's left out is SEAT, TURN, POSE_OFFSETS.
 ## stranger2s (the characters session's Rodin man, his head on its hitbox, refitted 2026-10-06 on
 ## his drawn eyes): his eyes 2.8 px from the painting's in its 1672 px frame, outline overlap 0.674,
-## sitting upright with his face out from under the brim.
+## sitting upright with his face out from under the brim. His head turned 13° toward the bold
+## painting's three-quarter view and rolled less (2026-10-12, the characters session's ask):
+## outline overlap 0.683, his eyes 10 px off the night painting's, the cup as it was.
 const FITS := {
 	&"stranger2s": {"seat": Vector3(0.742, 0.0, -0.478), "pose_offsets": {
-			&"head": Vector3(6.0, -13.25, 5.25), &"neck": Vector3(0.0, -0.5, 7.5),
+			&"head": Vector3(6.0, 0.0, 3.0), &"neck": Vector3(0.0, -0.5, 3.0),
 			&"chest": Vector3(0.0, -2.25, 0.0), &"upper_arm_r": Vector3(1.5, 10.5, 0.0),
 			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
 }
