@@ -48,11 +48,11 @@ static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8)
 ## Worn blued steel: grey with a blue cast, bright where the light catches an edge (as the street
 ## painting's revolver; darker and fully metallic it read black in the evening light).
 static func blued() -> ShaderMaterial:
-	return grid("blued", PixelArt.squares("held_blued", Color(0.34, 0.36, 0.4), 71, 0.4), 0.55, 0.32)
+	return grid("blued", PixelArt.squares("held_blued", Color(0.22, 0.235, 0.27), 71, 0.32), 0.6, 0.3)
 
 
 static func case_hardened() -> ShaderMaterial:
-	return grid("case", PixelArt.squares("held_case", Color(0.46, 0.44, 0.42), 73, 0.45), 0.55, 0.38)
+	return grid("case", PixelArt.squares("held_case", Color(0.3, 0.29, 0.29), 73, 0.26), 0.6, 0.34)
 
 
 static func brass() -> ShaderMaterial:
@@ -69,7 +69,7 @@ static func lead() -> ShaderMaterial:
 
 ## Your hand's skin, sun-browned and warm, on the grid.
 static func skin() -> ShaderMaterial:
-	return grid("skin", PixelArt.squares("held_skin", Color(0.8, 0.56, 0.4), 81, 0.28), 0.0, 0.7)
+	return grid("skin", PixelArt.squares("held_skin", Color(0.7, 0.45, 0.31), 81, 0.24), 0.0, 0.7)
 
 
 ## Cloth for people's bodies (HumanBody reads these: StandardMaterial3D).

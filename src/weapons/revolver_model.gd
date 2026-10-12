@@ -29,6 +29,13 @@ var _rims: Array[MeshInstance3D] = []
 var _primers: Array[MeshInstance3D] = []
 
 
+## The grip's front strap and backstrap, (forward, up) knots: the hand wraps round them.
+const GRIP_FRONT := [[-0.004, 0.002], [-0.008, -0.020], [-0.014, -0.045], [-0.020, -0.068], [-0.024, -0.085],
+		[-0.0255, -0.093]]
+const GRIP_BACK := [[-0.009, 0.026], [-0.020, 0.016], [-0.034, -0.002], [-0.046, -0.026], [-0.055, -0.052],
+		[-0.061, -0.075], [-0.0635, -0.088], [-0.062, -0.096]]
+
+
 func _ready() -> void:
 	_build()
 
@@ -88,8 +95,8 @@ func _build() -> void:
 
 	# Barrel: a little swelled at the frame, crowned at the muzzle, the front sight a blade.
 	var barrel_rings := []
-	for st in [[BARREL_FROM - 0.004, 0.0098], [BARREL_FROM + 0.01, 0.0098], [BARREL_FROM + 0.014, 0.0088],
-			[BARREL_FROM + BARREL_LENGTH - 0.002, 0.0083], [BARREL_FROM + BARREL_LENGTH, 0.0075]]:
+	for st in [[BARREL_FROM - 0.004, 0.0112], [BARREL_FROM + 0.01, 0.0112], [BARREL_FROM + 0.014, 0.0102],
+			[BARREL_FROM + BARREL_LENGTH - 0.002, 0.0098], [BARREL_FROM + BARREL_LENGTH, 0.0089]]:
 		barrel_rings.append(_ring_z(st[0], BORE_Y, st[1], st[1], 16))
 	GunParts.lofted(self, "Barrel", barrel_rings, steel)
 	GunParts.tube(self, "BarrelBore", 0.0058, 0.002, _v3(Vector2(BARREL_FROM + BARREL_LENGTH + 0.0004, BORE_Y)), dark, 10)
@@ -100,11 +107,11 @@ func _build() -> void:
 	# crescent head at the front (the part that moves when you punch out a case).
 	var housing_len := 0.14
 	var hz := []
-	for st in [[0.068, 0.0058], [0.072, 0.0058], [0.068 + housing_len - 0.004, 0.0056], [0.068 + housing_len, 0.0046]]:
-		hz.append(_ring_z(st[0], 0.0285, st[1], st[1] * 0.92, 10, 0.0082))
+	for st in [[0.068, 0.0062], [0.072, 0.0062], [0.068 + housing_len - 0.004, 0.006], [0.068 + housing_len, 0.005]]:
+		hz.append(_ring_z(st[0], 0.027, st[1], st[1] * 0.92, 10, 0.0094))
 	GunParts.lofted(self, "EjectorHousing", hz, steel)
-	GunParts.tube(self, "HousingScrew", 0.0018, 0.002, Vector3(0.0145, 0.03, -0.17), steel, 8, Vector3(0, 0, 90))
-	ejector = GunParts.pivot(self, "Ejector", Vector3(0.0082, 0.0285, -0.07 - housing_len))
+	GunParts.tube(self, "HousingScrew", 0.0018, 0.002, Vector3(0.0158, 0.0285, -0.17), steel, 8, Vector3(0, 0, 90))
+	ejector = GunParts.pivot(self, "Ejector", Vector3(0.0094, 0.027, -0.07 - housing_len))
 	GunParts.slab(ejector, "EjectorHead", _pts([[-0.002, -0.004], [0.006, -0.0045], [0.0085, 0.0],
 			[0.006, 0.0045], [-0.002, 0.004]]), 0.0034, steel, 0.0008, 0.0012)
 	GunParts.tube(ejector, "EjectorRod", 0.0016, 0.012, Vector3(0, 0, 0.004), steel, 6)
@@ -145,9 +152,9 @@ func _build() -> void:
 	# curling back over the grip where your thumb pulls it.
 	hammer = GunParts.pivot(self, "Hammer", Vector3(0, 0.03, 0.004))
 	GunParts.slab(hammer, "Body", _pts([[0.003, -0.007], [0.0075, 0.004], [0.0075, 0.019], [0.006, 0.0265],
-			[0.002, 0.029], [-0.006, 0.030], [-0.015, 0.032], [-0.024, 0.034], [-0.031, 0.0335],
-			[-0.0325, 0.030], [-0.026, 0.0285], [-0.016, 0.025], [-0.009, 0.018], [-0.006, 0.006],
-			[-0.004, -0.006]]), 0.0043, frame_mat, 0.0012)
+			[0.002, 0.030], [-0.005, 0.033], [-0.011, 0.0365], [-0.016, 0.040], [-0.0205, 0.0415],
+			[-0.0225, 0.0385], [-0.019, 0.034], [-0.013, 0.028], [-0.009, 0.019], [-0.006, 0.006],
+			[-0.004, -0.006]]), 0.0036, frame_mat, 0.001)
 
 	# Trigger: a curved blade.
 	trigger = GunParts.pivot(self, "Trigger", Vector3(0, -0.004, -0.018))
@@ -165,10 +172,8 @@ func _build() -> void:
 
 	# The grip: walnut, plum-shaped, swelling at the bottom, between the front strap and the
 	# backstrap (brass, up to the hammer).
-	var front := _curve([[-0.004, 0.002], [-0.008, -0.020], [-0.014, -0.045], [-0.020, -0.068], [-0.024, -0.085],
-			[-0.0255, -0.093]], 5)
-	var back := _curve([[-0.009, 0.026], [-0.020, 0.016], [-0.034, -0.002], [-0.046, -0.026], [-0.055, -0.052],
-			[-0.061, -0.075], [-0.0635, -0.088], [-0.062, -0.096]], 4)
+	var front := _curve(GRIP_FRONT, 5)
+	var back := _curve(GRIP_BACK, 4)
 	var rings := []
 	var stations := 14
 	for i in stations:

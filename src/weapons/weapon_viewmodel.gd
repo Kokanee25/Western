@@ -75,7 +75,7 @@ func _setup_common() -> void:
 ## A soft warm light on what's in your hands only (the painter's fill: the street painting lights the
 ## revolver's side even with the sun behind it, where the scene's light alone left it black). It
 ## follows the daylight so a gun in the dark stays dark.
-const FILL_ENERGY := 0.55
+const FILL_ENERGY := 1.1
 var _fill: OmniLight3D
 
 

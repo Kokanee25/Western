@@ -6,6 +6,7 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/gun_lab.gd -- \
 ##       --out=FILE [--gun=revolver|shotgun] [--pose=hip|aim|loading|side] [--size=1280x720]
 ##       [--bg=street|grey] [--cocked] [--open] [--pos=x,y,z --rot=x,y,z]
+##       [--pose=view --cam=x,y,z --camrot=x,y,z]
 ## --pos/--rot put the viewmodel somewhere other than its pose (trying a new pose).
 
 func _initialize() -> void:
@@ -66,15 +67,21 @@ func _run() -> void:
 	vm.set_process(false)
 	vm.set_physics_process(false)
 	var pose := _arg("pose", "hip")
-	if pose == "side":
-		# The model alone from its right side, as a gunsmith's photograph.
-		vm.hand.visible = false if gun == "revolver" else vm.hand.visible
+	if pose == "side" or pose == "view":
+		# The model alone from its right side, as a gunsmith's photograph; or (view) the gun and
+		# hand from anywhere: --cam=x,y,z --camrot=x,y,z (degrees), fov 18.
+		vm.hand.visible = pose == "view"
+		if gun == "shotgun":
+			vm.left_hand.visible = pose == "view"
 		vm.reparent(w, false)
 		vm.position = Vector3.ZERO
 		vm.rotation = Vector3.ZERO
-		cam.position = Vector3(0.9 if gun == "revolver" else 2.2, 0.02, -0.12 if gun == "revolver" else -0.35)
+		cam.position = Vector3(0.9 if gun == "revolver" else 2.6, 0.02 if gun == "revolver" else -0.03, -0.12 if gun == "revolver" else -0.1)
 		cam.rotation_degrees = Vector3(0, 90, 0)
 		cam.fov = 18
+		if pose == "view":
+			cam.position = _vec(_arg("cam", "0.9,0.02,-0.02"))
+			cam.rotation_degrees = _vec(_arg("camrot", "0,90,0"))
 		sun.rotation_degrees = Vector3(-40, 60, 0)
 		sun.light_color = Color(1, 0.95, 0.9)
 		env.environment.ambient_light_color = Color(0.75, 0.75, 0.78)
@@ -88,12 +95,13 @@ func _run() -> void:
 		vm._apply_pose(1.0)
 	if OS.get_cmdline_user_args().has("--cocked") and gun == "revolver":
 		vm.model.hammer.rotation_degrees.x = -44.0
+		vm.hand.set_thumb(1.0)
 	for i in 12:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	var img := vp.get_texture().get_image()
 	img.convert(Image.FORMAT_RGBA8)
-	var bg := _arg("bg", "street" if pose != "side" else "grey")
+	var bg := _arg("bg", "grey" if pose == "side" or pose == "view" else "street")
 	var out := Image.create(img.get_width(), img.get_height(), false, Image.FORMAT_RGBA8)
 	if bg == "street":
 		var paint := Image.load_from_file(ProjectSettings.globalize_path("res://docs/concept/street-golden-hour.png"))

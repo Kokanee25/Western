@@ -11,7 +11,7 @@ extends WeaponViewmodel
 enum Pose { HIP, AIM, LOADING }
 
 const POSES := {
-	Pose.HIP: [Vector3(0.14, -0.16, -0.34), Vector3(1.5, 4.0, 0.0)],
+	Pose.HIP: [Vector3(0.28, -0.16, -0.38), Vector3(10.0, 20.0, -9.0)],
 	Pose.AIM: [Vector3(0.0, -0.073, -0.3), Vector3(4.0, 0.0, 0.0)],
 	Pose.LOADING: [Vector3(0.03, -0.12, -0.29), Vector3(20.0, 24.0, 58.0)],
 }

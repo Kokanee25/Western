@@ -18,8 +18,9 @@ Side by side with `docs/concept/street-golden-hour.png` and the style pictures
    block and a slab of forearm show. The pictures: four fingers wrapped round the grip, a thumb,
    a brown coat sleeve with a cream cuff.
 3. **The pose hides the gun.** At the hip the revolver is seen from behind and above, small, low
-   on the right; aimed, it's a dark slab end-on. The pictures hold it out forward and turn its
-   right side to you, a third of the frame's height.
+   on the right; aimed, it's a dark slab end-on. The pictures hold it out forward, barrel up and
+   to the left, its left side to you (the fingers round the front strap, the thumb along the
+   frame), a third of the frame's height.
 
 ## What done looks like
 
@@ -29,7 +30,7 @@ Side by side with `docs/concept/street-golden-hour.png` and the style pictures
   `cylinder`, `gate`, `ejector`, `muzzle`, `gate_point`, `show_chambers`, `chamber_rear`), so the
   viewmodels, reloads and tests work unchanged.
 - A hand with shaped fingers, knuckles and a thumb, wrapped round the grip, a sleeve and cuff.
-- The hip pose held out and turned so the gun's side shows, as in the pictures. Where a shot
+- The hip pose held out and turned so the gun's left side shows, as in the pictures. Where a shot
   goes doesn't change (the line of sight decides it, `_shot_line`), only what you see.
 - Still on the held texel grid (`GunParts.grid`, 160 texels a metre): squares like the
   painting's, lit tile by tile.

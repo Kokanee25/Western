@@ -75,34 +75,86 @@ func _build_hands() -> void:
 	var skin := GunParts.skin()
 	var sleeve := GunParts.held_cloth("coat", Color(0.36, 0.25, 0.16))
 	var cuff := GunParts.held_cloth("cuff", Color(0.82, 0.76, 0.62))
-	# Right hand: the back of it on the right of the wrist, fingers curled under, forearm running
-	# back and down to the right, out of the sight line.
-	hand = GunParts.pivot(model, "Hand", Vector3(0.0, 0.0, 0.035))
-	GunParts.box(hand, "Back", Vector3(0.022, 0.045, 0.075), Vector3(0.024, -0.012, 0.0), skin)
+	var r := HandModel.FINGER_R
+	# Right hand round the wrist of the stock: the palm on its right side, the fingers wrapped
+	# under it to the left, the index forward through the guard onto the front trigger, the thumb
+	# along the tang towards the hammers. Built in the gun's own space.
+	hand = GunParts.pivot(model, "Hand", Vector3.ZERO)
+	var wrist := func(z: float) -> Vector3: return Vector3(0.0, -0.006 - 0.15 * maxf(z + 0.01, 0.0), z)
+	var names := ["middle", "ring", "little"]
+	var zs := [0.018, 0.0375, 0.0555]
+	var reach := [0.098, 0.093, 0.08]
 	for i in 3:
-		GunParts.box(hand, "Finger%d" % i, Vector3(0.05, 0.016, 0.017), Vector3(0.0, -0.028, -0.004 + i * 0.019), skin)
-	_index = GunParts.pivot(hand, "Index", Vector3(0.014, -0.02, -0.04))
-	GunParts.box(_index, "Bone", Vector3(0.016, 0.016, 0.03), Vector3(-0.008, 0.0, -0.013), skin, Vector3(0, 25, 0))
-	_thumb_pivot = GunParts.pivot(hand, "Thumb", Vector3(0.014, 0.02, -0.02))
-	GunParts.box(_thumb_pivot, "Bone", Vector3(0.016, 0.016, 0.04), Vector3(-0.006, 0.004, -0.018), skin, Vector3(0, 20, 0))
-	var arm := GunParts.pivot(hand, "Forearm", Vector3(0.03, -0.02, 0.035))
-	arm.rotation_degrees = Vector3(38.0, 24.0, 0.0)
-	GunParts.box(arm, "Wrist", Vector3(0.05, 0.05, 0.05), Vector3(0, 0, 0.02), skin)
-	GunParts.box(arm, "Cuff", Vector3(0.066, 0.064, 0.04), Vector3(0, 0, 0.065), cuff)
-	GunParts.box(arm, "Sleeve", Vector3(0.072, 0.07, 0.24), Vector3(0, 0, 0.2), sleeve)
-	# Left hand: the forend lies across the palm, fingers up the right side, thumb up the left;
-	# the forearm goes back and down to the left. It rides the barrels when the gun breaks open.
-	var y := ShotgunModel.BARREL_Y - 0.026
-	left_hand = GunParts.pivot(model.barrels, "LeftHand", Vector3(0.0, y, -0.07))
-	GunParts.box(left_hand, "Palm", Vector3(0.05, 0.02, 0.075), Vector3(-0.004, -0.021, 0.0), skin)
+		var c: Vector3 = wrist.call(zs[i])
+		var path := PackedVector3Array()
+		for k in 25:
+			var phi := lerpf(112.0, -128.0, k / 24.0)
+			var lift := 0.01 * smoothstep(60.0, 112.0, phi)
+			path.append(HandModel.oval_point(c, 0.0148, 0.0182, phi, r + 0.0012 + lift))
+		HandModel.chain(hand, names[i], HandModel.cut(path, reach[i]), [0.46, 0.3, 0.24], r * (1.0 - 0.05 * i), skin)
+	var index := HandModel.chain(hand, "index", HandModel.cut(HandModel.smooth([Vector3(0.022, -0.006, 0.0),
+			Vector3(0.017, -0.016, -0.022), Vector3(0.008, -0.03, -0.04), Vector3(-0.001, -0.043, -0.05),
+			Vector3(-0.01, -0.047, -0.044)], 4), 0.094), [0.46, 0.3, 0.24], r * 0.97, skin)
+	_index = index[1]
+	var thumb := HandModel.chain(hand, "thumb", HandModel.cut(HandModel.smooth([Vector3(-0.004, 0.006, 0.062),
+			Vector3(0.006, 0.016, 0.04), Vector3(0.011, 0.022, 0.018), Vector3(0.014, 0.026, 0.0)], 4), 0.064),
+			[0.55, 0.45], 0.0116, skin)
+	_thumb_pivot = thumb[0]
+	var rings := []
+	for z in [-0.006, 0.004, 0.02, 0.038, 0.056, 0.068, 0.076]:
+		var c: Vector3 = wrist.call(z)
+		var end := smoothstep(0.06, 0.078, z) + (1.0 - smoothstep(-0.008, 0.008, z))
+		var inner := HandModel.round_oval(c, 0.0148, 0.0182, 92.0, 206.0, 0.0012, 10)
+		var outer := PackedVector3Array()
+		for k in 11:
+			var phi := lerpf(92.0, 206.0, k / 10.0)
+			var t := 0.008 + 0.014 * clampf(1.0 - absf(phi - 118.0) / 70.0, 0.0, 1.0) - 0.004 * end
+			outer.append(HandModel.oval_point(c, 0.0148, 0.0182, phi, 0.0012 + t))
+		rings.append(HandModel.shell_ring(inner, outer))
+	GunParts.lofted(hand, "Palm", rings, skin)
+	var start := Vector3(0.014, -0.03, 0.068)
+	var dir := Basis.from_euler(Vector3(deg_to_rad(38.0), deg_to_rad(24.0), 0.0), EULER_ORDER_YXZ) * Vector3.BACK
+	GunParts.lofted(hand, "Wrist", HandModel.tube(start, dir, [[-0.01, 0.017, 0.026], [0.03, 0.02, 0.028],
+			[0.075, 0.0225, 0.031]]), skin)
+	GunParts.lofted(hand, "Cuff", HandModel.tube(start, dir, [[0.068, 0.028, 0.035], [0.072, 0.031, 0.037],
+			[0.098, 0.032, 0.038], [0.104, 0.030, 0.036]]), cuff)
+	GunParts.lofted(hand, "Sleeve", HandModel.tube(start, dir, [[0.094, 0.034, 0.040], [0.1, 0.039, 0.044],
+			[0.2, 0.042, 0.047], [0.34, 0.045, 0.05]]), sleeve)
+
+	# Left hand: the forend lies in the palm, the fingers curl up its right side, the thumb lies
+	# along its left; the forearm goes back and down to the left. It rides the barrels when the
+	# gun breaks open. Built in the barrels' space.
+	left_hand = GunParts.pivot(model.barrels, "LeftHand", Vector3.ZERO)
+	var fc := Vector3(0.0, ShotgunModel.BARREL_Y - 0.021, 0.0)
+	var lnames := ["l_index", "l_middle", "l_ring", "l_little"]
+	var lz := [-0.036, -0.0555, -0.075, -0.093]
 	for i in 4:
-		GunParts.box(left_hand, "Finger%d" % i, Vector3(0.016, 0.032, 0.016), Vector3(0.026, -0.004, -0.028 + i * 0.018), skin, Vector3(0, 0, -8))
-	GunParts.box(left_hand, "Thumb", Vector3(0.015, 0.028, 0.04), Vector3(-0.026, -0.002, -0.01), skin, Vector3(0, 0, 10))
-	var larm := GunParts.pivot(left_hand, "Forearm", Vector3(-0.01, -0.03, 0.03))
-	larm.rotation_degrees = Vector3(40.0, -18.0, 0.0)
-	GunParts.box(larm, "Wrist", Vector3(0.05, 0.05, 0.05), Vector3(0, 0, 0.02), skin)
-	GunParts.box(larm, "Cuff", Vector3(0.066, 0.064, 0.04), Vector3(0, 0, 0.065), cuff)
-	GunParts.box(larm, "Sleeve", Vector3(0.072, 0.07, 0.3), Vector3(0, 0, 0.23), sleeve)
+		var c := fc + Vector3(0.0, 0.0, lz[i])
+		var path := HandModel.round_oval(c, 0.019, 0.014, -40.0, 128.0, r + 0.0012, 20)
+		HandModel.chain(left_hand, lnames[i], HandModel.cut(path, [0.088, 0.094, 0.09, 0.076][i]), [0.46, 0.3, 0.24],
+				r * [0.97, 1.0, 0.97, 0.88][i], skin)
+	HandModel.chain(left_hand, "l_thumb", HandModel.cut(HandModel.smooth([Vector3(-0.02, -0.016, -0.02),
+			Vector3(-0.03, -0.006, -0.045), Vector3(-0.03, 0.004, -0.07), Vector3(-0.027, 0.01, -0.09)], 4), 0.064),
+			[0.55, 0.45], 0.0116, skin)
+	var lrings := []
+	for z in [-0.016, -0.026, -0.045, -0.065, -0.085, -0.1, -0.106]:
+		var c := fc + Vector3(0.0, 0.0, z)
+		var inner := HandModel.round_oval(c, 0.019, 0.014, -112.0, -30.0, 0.0012, 8)
+		var outer := PackedVector3Array()
+		for k in 9:
+			var phi := lerpf(-112.0, -30.0, k / 8.0)
+			var t := 0.012 + 0.01 * clampf(1.0 - absf(phi + 50.0) / 60.0, 0.0, 1.0)
+			outer.append(HandModel.oval_point(c, 0.019, 0.014, phi, 0.0012 + t))
+		lrings.append(HandModel.shell_ring(inner, outer))
+	GunParts.lofted(left_hand, "Palm", lrings, skin)
+	var lstart := fc + Vector3(-0.022, -0.026, -0.03)
+	var ldir := Basis.from_euler(Vector3(deg_to_rad(40.0), deg_to_rad(-18.0), 0.0), EULER_ORDER_YXZ) * Vector3.BACK
+	GunParts.lofted(left_hand, "Wrist", HandModel.tube(lstart, ldir, [[-0.01, 0.026, 0.018], [0.03, 0.028, 0.02],
+			[0.075, 0.031, 0.0225]]), skin)
+	GunParts.lofted(left_hand, "Cuff", HandModel.tube(lstart, ldir, [[0.068, 0.035, 0.028], [0.072, 0.037, 0.031],
+			[0.098, 0.038, 0.032], [0.104, 0.036, 0.030]]), cuff)
+	GunParts.lofted(left_hand, "Sleeve", HandModel.tube(lstart, ldir, [[0.094, 0.040, 0.034], [0.1, 0.044, 0.039],
+			[0.2, 0.047, 0.042], [0.4, 0.05, 0.045]]), sleeve)
 
 
 func _process(delta: float) -> void:
@@ -242,9 +294,9 @@ func _animate(delta: float) -> void:
 		model.hammers[i].rotation_degrees.x = _hammers[i]
 		_triggers[i] = move_toward(_triggers[i], 0.0, delta * 5.0)
 		model.triggers[i].rotation_degrees.x = -18.0 * _triggers[i]
-	_index.rotation_degrees.x = -30.0 - 25.0 * maxf(_triggers[0], _triggers[1])
+	_index.rotation_degrees.x = -14.0 * maxf(_triggers[0], _triggers[1])
 	_thumb = move_toward(_thumb, 0.0, delta * 3.0)
-	_thumb_pivot.rotation_degrees = Vector3(-10.0 + 35.0 * _thumb, 0.0, 0.0)
+	_thumb_pivot.rotation_degrees = Vector3(30.0 * _thumb, 0.0, 0.0)
 	model.show_barrels(state.barrels)
 	model.butt.visible = not (selected and _pose_pos.distance_to(POSES[Pose.AIM][0]) < 0.06 and tuck < 0.3)
 	_animate_camera(delta, tuning.aim_fov)
