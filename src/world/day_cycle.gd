@@ -21,6 +21,10 @@ var _drift_seconds := 0.0  # real seconds of cloud drift
 
 func _ready() -> void:
 	add_to_group(&"day_cycle")
+	# The buildings' far-lamp shadow meshes aren't the sun's or the moon's (Layers.VIS_WALLS).
+	for l: DirectionalLight3D in [sun, moon]:
+		if l:
+			l.shadow_caster_mask = Layers.ALL_BUT_WALLS
 	if config == null:
 		config = DayCycleConfig.new()
 	time_of_day = fposmod(config.start_hour, 24.0)
@@ -158,8 +162,11 @@ func apply_visuals() -> void:
 		var warm := horizon.lerp(sun_color, 0.4)
 		# The haze down the street takes the low sun's gold, not the blue overhead.
 		env.fog_light_color = horizon.lerp(top, 0.3).lerp(warm * config.fog_low_sun_level, golden)
-		env.fog_density = config.fog_density
-		env.volumetric_fog_density = config.volumetric_fog_density
+		# The haze's own low sun: all of it from just over the horizon to ~6 degrees (golden, scaled
+		# by daylight, is only ~0.6 there), none at night.
+		var low_sun := (1.0 - smoothstep(0.1, 0.6, sun_dir.y)) * smoothstep(-0.05, 0.05, sun_dir.y)
+		env.fog_density = config.fog_density * lerpf(1.0, config.fog_low_sun, low_sun)
+		env.volumetric_fog_density = config.volumetric_fog_density * lerpf(1.0, config.volumetric_low_sun, low_sun)
 		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight) \
 				* lerpf(1.0, config.ambient_low_sun, golden)
 		env.ambient_light_color = warm * config.ambient_warm_level

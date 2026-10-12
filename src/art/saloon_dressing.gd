@@ -46,6 +46,24 @@ static func build(s: FalseFrontBuilding) -> void:
 		_props(s, props, f)
 		_lamps(s, props, _fresh(s, "Lamps"), f)
 	_reflections(s, f)
+	_brighten_lamps(s)
+
+
+## Every lamp in the room (the dressing's and the building's own) brighter and reaching further
+## than a lamp's own: the bold saloon painting's room is lit warm in pools, floor and walls, where
+## ours was dark murk round the table (judge v2 on the saloon shot 0.330 -> 0.226 with the room's
+## fill, SaloonBuilding.night_ambient, at 0.06; 2026-10-11).
+const LAMP_GAIN := 1.4
+const LAMP_REACH := 1.2
+
+
+static func _brighten_lamps(s: FalseFrontBuilding) -> void:
+	for n in s.find_children("*", "OilLamp", true, false):
+		var lamp := n as OilLamp
+		lamp.energy *= LAMP_GAIN
+		lamp.light_range *= LAMP_REACH
+		if lamp._light:
+			lamp._light.omni_range = lamp.light_range
 
 
 ## A new empty node under the saloon by this name (an old one from an earlier build gone).

@@ -6,6 +6,44 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the man at the card table faces you
+
+- **The stranger at the saloon's card table sits upright with his head turned toward you**,
+  as in the painting, where before it was tipped and turned away. Only the art shot stages him.
+
+### New: the road the painting's pale dust
+
+- **The street's dirt is paler and yellower**, with less contrast between its ruts and its
+  ridges: the painting's sunlit dust rather than the old deep orange-brown. The same painted
+  ruts, stones and hoof marks, re-coloured.
+- **Try:** the street at golden hour and at noon (T to speed time). Tell me if the ruts now read
+  too faint.
+
+### New: the golden-hour street clear and deep in its shadows
+
+- **With the sun low, the shadows go deep and the street's far end is clear**: less of the warm
+  bounce in the shadows under the porches, half the haze down the street, none of the glowing
+  haze in the air. Noon and night are as they were. Mornings get it too, with a low sun.
+- **Try:** the street at golden hour (T to speed time to about 17:30) looking west into the sun,
+  and again early morning. Tell me if the shadows are too dark to see into.
+
+### New: the saloon lit warm at night
+
+- **The saloon's room is brighter at night**: every lamp in it gives more light and reaches
+  further, and the room's own fill is up a little, so the floor, walls and bar read in warm pools
+  where it was dark murk round your table.
+- **Try:** the saloon after dark (F5 to jump there, T to speed time). Tell me if it's now too
+  bright, or the lamps' pools too even.
+
+### New: the sky just after sunset, smoke in heaps
+
+- **Just after sunset the clouds go dark purple-grey with red-orange undersides**, reddest where
+  the sun went down, where before they kept their bright cream-gold tops into the dusk.
+- **The smoke over a fire is heaps now**, each lit on top and dark underneath, thin at its edges
+  so the sky shows through, with more sparks round it. The fire's yellow-white heart is bigger.
+- **Try:** T to speed time up and watch the sky from sunset (about 18:30) into the night. Then
+  light a building (L) at dusk and look at it from down the street.
+
 ### New: a smoke column over a burning building
 
 - **Smoke now rises into the sky over a burning building**, where before it stopped at the

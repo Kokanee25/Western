@@ -98,6 +98,10 @@ his own).
 
 \* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
+Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
+(lavapipe 19.2 ms, 15,400 draws), 6.6 since the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
+draws); the rest is the larger town's own draws and the sun's cascades.
 scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
 
 ## Tech decisions
@@ -296,24 +300,24 @@ python3 tools/bridge.py stop
 - **tests** — the runner, how a test is written.
 - **CI** — build.yml, releases, Pages, notes from `docs/BUILD_NOTES.md`.
 
-## Current state (2026-10-11; each session replaces its own lines)
+## Current state (2026-10-12; each session replaces its own lines)
 
-Latest status entries: `docs/status/2026-10-06_onward.md` (the end of the file). Builds: main is
-green at **build 813** (art merge 3d, PR #94); merge 3e (PR #95) is on main after it. 372 tests
-pass. DESIGN.md's backlog
-(§11) and the prompt library (`docs/prompts/`) are frozen until Sean names one.
+Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
+green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
+pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
+frozen until Sean names one.
 
-**Art** (branch `claude/art-…`; brief `docs/briefs/fire-look.md`, `docs/briefs/set-direction.md`):
-- Done: merges 3a–3e (the fire in the painting's bands: tongues, the fire sheet, the frame dark
-  against it, char; the seated man's light; the smoke column against the sky with embers,
-  `SmokeColumn`). Judge v2: saloon 0.330, street 0.505, fire 0.436. Critic's top three: the fire
-  burns alone in an empty field; the smoke is flat blobs; the saloon room behind the man is dark.
-- Next: the smoke darker and less red (the painting's near-black brown against the sunset); the
-  fire view earlier in the dusk (a sunset band, no stars); the firelight on the street; then the
-  fire view staged with the bucket line in it. After: the saloon room (sconces lighting walls),
-  the other fronts to the saloon's standard, the set-direction cards.
+**Art** (branch `claude/art-…`; briefs `docs/briefs/fire-look.md`, `docs/briefs/set-direction.md`):
+- Done: merges 3a–3j (the fire in the painting's bands, its smoke column and embers, the dusk
+  afterglow; the seated man's light and his head turned to the bold painting; the street's
+  golden hour; the road re-graded to the painting's pale dust). Judge v2: saloon 0.216, street
+  0.279. Critic's top three: the room behind the man is dark murk (the doorway a navy wedge);
+  the sky lavender-grey with a small white sun; his face hot, pale and wide-eyed.
+- Next: the saloon's doorway (the moonlit street through it); the fire view staged (the bucket
+  line, the livery's frame coming apart). After: the saloon room, the other fronts, the
+  set-direction cards.
 - Known: the fire views' golden tolerances pass any new fire look (`store_fire_close` checks
-  nothing); the street view is at 14,707 draw calls / 15.4 ms render CPU (was 3,700 / 3.5).
+  nothing).
 - Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
   it); the first-pass set-direction cards.
 
@@ -328,10 +332,10 @@ pass. DESIGN.md's backlog
 - Waiting on Sean: the merge; the eye's size and opening (bigger read as cartoony, 2026-10-07).
 
 **Gameplay** (branch `claude/gameplay-…`):
-- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, 25 scenarios, five faults
-  baselined); a falling man keeps his momentum, a shot pushes only with the ball's. Performance
-  part B step 1 measured (render thread and Jolt threading both left off).
-- Next: Prompt 09 (fix the falls: the fold straight down, limbs through his body, joint
-  overruns) when Sean says; the street's draw calls since Main Street step 3; brick as a
-  material wants a brief first; M4 step 5 (money) stays frozen with the features.
+- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
+  man keeps his momentum; lamps draw their full shadows only near you (street render CPU 19.2 →
+  10.2 ms on lavapipe, draws 15,412 → 3,290).
+- Next: Prompt 09 (fix the falls) when Sean says; the rest of the street's render budget (the
+  larger town's draws, the sun's cascades); brick as a material wants a brief first; M4 step 5
+  (money) stays frozen with the features.
 - Waiting on Sean: Prompt 09's go; performance part B's next step; the `proposed` feel ranges.
