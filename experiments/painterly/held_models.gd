@@ -116,12 +116,17 @@ static func material(slot: String) -> Material:
 			m.set_shader_parameter(&"mottle_tex", load(DIR + "skin.png"))
 		"cuff":
 			_params(m, "linen", 220.0, 0.0, 0.85, Color(0.8, 0.76, 0.66))
-			m.set_shader_parameter(&"tint", Color(0.84, 0.79, 0.68))
+			m.set_shader_parameter(&"tint", Color(0.72, 0.66, 0.55))
 			m.set_shader_parameter(&"wear_from", 2.0)
 			m.set_shader_parameter(&"wear_to", 3.0)
 		"coat":
 			_params(m, "wool", 180.0, 0.0, 0.95, Color(0.3, 0.22, 0.15))
-			m.set_shader_parameter(&"tint", Color(0.36, 0.25, 0.16))
+			m.set_shader_parameter(&"tint", Color(0.3, 0.22, 0.15))
+			m.set_shader_parameter(&"wear_from", 2.0)
+			m.set_shader_parameter(&"wear_to", 3.0)
+		"button":
+			_params(m, "case", 40.0, 0.0, 0.5, Color(0.75, 0.7, 0.6))
+			m.set_shader_parameter(&"tint", Color(0.85, 0.82, 0.74))
 			m.set_shader_parameter(&"wear_from", 2.0)
 			m.set_shader_parameter(&"wear_to", 3.0)
 		"primer":

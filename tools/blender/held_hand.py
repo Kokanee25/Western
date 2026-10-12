@@ -42,18 +42,24 @@ PLACE = {
     "r-hand": (0.016, -0.060, 0.098),           # the wrist, behind the grip
     "scale": 1.06,                              # MakeHuman's hand is small for a grown man's
 }
-# Where the index finger's pad and the thumb's tip go (the gun's space): each finger's angles are
-# searched for the pose that brings it there without going into the gun.
+# Where the index finger's pad goes (the gun's space): its angles are searched for the pose that
+# brings it there without going into the gun. The thumb (None) takes the pose nearest its relaxed
+# one that's clear of the gun, which lays it along the frame's left side.
 REACH = {
     "index": (0.0, -0.0165, -0.0225),       # the trigger's face
-    "thumb": (-0.0155, 0.012, -0.004),      # the frame's left side, under the cylinder's back
+    "thumb": (-0.023, 0.002, -0.008),       # its tip a thumb's thickness off the frame's left side
 }
 SQUEEZED = (0.0, -0.0175, -0.0175)          # the trigger's face pulled back (the `trigger` shape)
 COCKING = (0.0, 0.066, 0.027)               # the hammer's spur (the `thumb` shape)
 CLOSE = ["middle", "ring", "little"]        # these close till they touch
+PALM_GIVE = 0.0035                          # how far the palm's flesh gives against the grip
+FLESH_GIVE = 0.0015                         # and a finger's
+KNUCKLE_GIVE = 0.009                        # flesh this near a finger's own knuckle isn't counted
 COUPLING = [1.0, 1.25, 0.8]                 # how the joints bend together as a finger closes
 LIMIT = [95.0, 110.0, 80.0]                 # how far each can
 ARM_FROM = 0.62                                  # how much of the forearm (0 elbow, 1 wrist) is kept
+CUFF_FROM = 0.022                                # the shirt's cuff begins this far behind the wrist (m)
+FOLDS = 0.003                                    # how deep the coat sleeve's creases go (m)
 SUBDIV = 1
 
 FINGERS = {"thumb": 1, "index": 2, "middle": 3, "ring": 4, "little": 5}
@@ -265,37 +271,43 @@ def tip(hand, pose, place, name):
 def reach(hand, place, pose, tree, name, target, pad=0.007):
     """The finger's angles (flex at each joint, spread at the first) that bring its tip within `pad`
     of the target, nearest first, the first that doesn't go into the gun. A coarse grid, then finer."""
-    target = np.asarray(target, float)
+    target = None if target is None else np.asarray(target, float)
     j = [n for n in hand.order if n.startswith(name)]
     mask = hand.W[:, [hand.order.index(n) for n in j]].sum(1) > 0.5
     best = None
-    flex0 = range(-30, 91, 10) if name == "thumb" else range(-10, 81, 10)
-    spread0 = range(-60, 61, 10) if name == "thumb" else range(-20, 21, 10)
+    flex0 = range(-60, 91, 6) if name == "thumb" else range(-10, 81, 10)
+    spread0 = range(-60, 61, 6) if name == "thumb" else range(-20, 21, 10)
+    flex1 = range(-30, 91, 8) if name == "thumb" else range(0, 91, 10)
+    flex2 = range(-20, 71, 8) if name == "thumb" else range(0, 71, 10)
     cands = []
     for f0 in flex0:
         for s0 in spread0:
-            for f1 in range(0, 91, 10):
-                for f2 in range(0, 71, 10):
+            for f1 in flex1:
+                for f2 in flex2:
                     trial = dict(pose)
                     trial[j[0]] = finger_rot(hand, name, 0, f0, s0)
                     trial[j[1]] = finger_rot(hand, name, 1, f1)
                     trial[j[2]] = finger_rot(hand, name, 2, f2)
-                    d = abs(np.linalg.norm(tip(hand, trial, place, name) - target) - pad)
+                    if target is None:   # as near its relaxed pose as it can be, clear of the gun
+                        d = (abs(f0) + abs(s0) + abs(f1) + abs(f2)) / 1000.0
+                    else:
+                        d = abs(np.linalg.norm(tip(hand, trial, place, name) - target) - pad)
                     cands.append((d, (f0, s0, f1, f2)))
     cands.sort()
-    for d, a in cands[:200]:
+    for d, a in cands[:400]:
         trial = dict(pose)
         trial[j[0]] = finger_rot(hand, name, 0, a[0], a[1])
         trial[j[1]] = finger_rot(hand, name, 1, a[2])
         trial[j[2]] = finger_rot(hand, name, 2, a[3])
-        if inside(tree, hand.skin(trial, place)[mask]) <= 2:
+        if inside(tree, hand.skin(trial, place)[mask], -FLESH_GIVE) <= 2:
             best = (d, a)
             break
     if best is None:
         best = cands[0]
         print("  %s: nothing clear of the gun; nearest" % name)
     d, a = best
-    print("  %s reaches within %.1f mm: flex %d, spread %d, %d, %d" % (name, d * 1000, a[0], a[1], a[2], a[3]))
+    print("  %s %s: flex %d, spread %d, %d, %d" % (name, "rests" if target is None else
+                                                   "reaches within %.1f mm" % (d * 1000), a[0], a[1], a[2], a[3]))
     pose = dict(pose)
     pose[j[0]] = finger_rot(hand, name, 0, a[0], a[1])
     pose[j[1]] = finger_rot(hand, name, 1, a[2])
@@ -309,7 +321,10 @@ def close_fingers(hand, place, pose, tree):
     starts in the gun is first opened back until it's clear."""
     for name in CLOSE:
         bones = ["%s%d" % (name, k) for k in range(3)]
-        masks = [hand.W[:, hand.order.index(b)] > 0.5 for b in bones]
+        # A segment touches when its flesh is pressed in past FLESH_GIVE; the flesh at its own
+        # knuckle doesn't count (it bulges into the grip as any closed hand's does).
+        masks = [(hand.W[:, hand.order.index(b)] > 0.5)
+                 & (np.linalg.norm(hand.v - hand.bones[b]["head"], axis=1) > KNUCKLE_GIVE) for b in bones]
         angles = [0.0, 0.0, 0.0]
         locked = [False, False, False]
 
@@ -320,7 +335,7 @@ def close_fingers(hand, place, pose, tree):
             return hand.skin(t, place)
 
         def touching(P, k):
-            return inside(tree, P[masks[k]]) > 0
+            return inside(tree, P[masks[k]], -FLESH_GIVE) > 2
 
         for s0 in np.arange(0.0, -45.0, -3.0):
             a = [s0 * c for c in COUPLING]
@@ -350,6 +365,62 @@ def close_fingers(hand, place, pose, tree):
 
 
 # --- Clothes ---------------------------------------------------------------------------------------
+
+def cloth_tube(start, d, rings, rng, folds=0.003, sides=48):
+    """Cloth round an axis from `start` along `d`: rings [(m along, radius, how creased 0..1)];
+    the creases are a few waves round it at random phases, stronger where a ring says, so the
+    sleeve bunches behind its cuff and lies smoother up the arm."""
+    d = unit(d)
+    u = unit(np.cross(d, (0, 1, 0)))
+    w = np.cross(u, d)
+    waves = [(rng.integers(2, 7), rng.uniform(0, 2 * math.pi), rng.uniform(25, 90), rng.uniform(0, 2 * math.pi))
+             for _ in range(5)]
+    # Finer rings between the given ones, so the creases have somewhere to show.
+    dense = []
+    for (t0, r0, c0), (t1, r1, c1) in zip(rings, rings[1:]):
+        n = max(1, int(abs(t1 - t0) / 0.006))
+        for i in range(n):
+            f = i / n
+            dense.append((t0 + (t1 - t0) * f, r0 + (r1 - r0) * f, c0 + (c1 - c0) * f))
+    dense.append(rings[-1])
+    V, F = [], []
+    for t, r, crease in dense:
+        c = np.asarray(start, float) + d * t
+        for k in range(sides):
+            th = 2 * math.pi * k / sides
+            bump = sum(math.sin(m * th + ph) * math.sin(t * fr + ph2) for m, ph, fr, ph2 in waves) / len(waves)
+            rr = r + folds * crease * bump * 2.0
+            V.append(c + u * math.cos(th) * rr + w * math.sin(th) * rr * 0.9)
+    V = np.array(V)
+    for i in range(len(dense) - 1):
+        # Wound so each face looks away from the axis (the opening's turned-in lip looks in).
+        a, b2, c2 = V[i * sides], V[i * sides + 1], V[(i + 1) * sides + 1]
+        n = np.cross(b2 - a, c2 - a)
+        radial = a - (np.asarray(start, float) + d * dense[i][0])
+        for k in range(sides):
+            k2 = (k + 1) % sides
+            f = [i * sides + k, i * sides + k2, (i + 1) * sides + k2, (i + 1) * sides + k]
+            F.append(f if n @ radial > 0 else f[::-1])
+    return V, F
+
+
+def disc(at, normal, radius, thick, sides=16):
+    """A button: a short rounded cylinder facing `normal`."""
+    n = unit(normal)
+    u = unit(np.cross(n, (0, 1, 0)) if abs(n[1]) < 0.9 else np.cross(n, (1, 0, 0)))
+    w = np.cross(n, u)
+    V, F = [], []
+    for h, rr in ((0.0, radius * 0.95), (thick * 0.6, radius), (thick, radius * 0.8)):
+        for k in range(sides):
+            th = 2 * math.pi * k / sides
+            V.append(np.asarray(at) + n * h + (u * math.cos(th) + w * math.sin(th)) * rr)
+    for i in range(2):
+        for k in range(sides):
+            k2 = (k + 1) % sides
+            F.append([i * sides + k, i * sides + k2, (i + 1) * sides + k2, (i + 1) * sides + k])
+    F.append([2 * sides + k for k in range(sides)])
+    return np.array(V), F
+
 
 def tube(axis_from, axis_to, radii, sides=24):
     """Rings round an axis: radii [(t 0..1 along it, r, out-of-round)] → (verts, faces)."""
@@ -383,6 +454,17 @@ def mesh_object(name, V, F, mat):
     return ob
 
 
+def rest_normals(V, F):
+    """Each vertex's normal: the area-weighted sum of its faces' (fanned) normals."""
+    N = np.zeros_like(V)
+    for f in F:
+        for i in range(1, len(f) - 1):
+            n = np.cross(V[f[i]] - V[f[0]], V[f[i + 1]] - V[f[0]])
+            for j in (f[0], f[i], f[i + 1]):
+                N[j] += n
+    return N / np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-12)
+
+
 def subdivide(ob, levels):
     if levels <= 0:
         return
@@ -397,8 +479,9 @@ def subdivide(ob, levels):
     bpy.data.meshes.remove(old)
 
 
-def colours(ob, hand_tree, gun, nails, flush):
-    """red nails, green openness (the gun and the hand both shade), blue flush."""
+def colours(ob, hand_tree, gun, nails, flush, dorsal):
+    """red nails, green openness (the gun and the hand both shade), blue flush, alpha the back of
+    the hand (1) or the palm (0)."""
     me = ob.data
     m = ob.matrix_world
     rng = np.random.default_rng(1873)
@@ -420,7 +503,7 @@ def colours(ob, hand_tree, gun, nails, flush):
                 if loc is not None:
                     hit += 1 - dist / 0.03
                     break
-        attr.data[i].color = (float(nails[i]), 1.0 - hit / len(dirs), float(flush[i]), 1.0)
+        attr.data[i].color = (float(nails[i]), 1.0 - hit / len(dirs), float(flush[i]), float(dorsal[i]))
     me.color_attributes.active_color = attr
 
 
@@ -437,13 +520,13 @@ def main():
     G, g = place
     out = -unit(G @ hand.palm_n)       # away from the palm's face
     for dx in np.arange(-0.01, 0.03, 0.0005):
-        if inside(gun, hand.skin({}, (G, g + out * dx))[palm], 0.0005) == 0:
+        if inside(gun, hand.skin({}, (G, g + out * dx))[palm], -PALM_GIVE) == 0:
             break
     place = (G, g + out * dx)
     print("palm out %.1f mm along %s" % (dx * 1000, np.round(out, 2)))
     pose = close_fingers(hand, place, {}, gun)
     pose = reach(hand, place, pose, gun, "index", REACH["index"])
-    pose = reach(hand, place, pose, gun, "thumb", REACH["thumb"])
+    pose = reach(hand, place, pose, gun, "thumb", REACH["thumb"], 0.0)
     base = hand.skin(pose, place)
     squeeze = hand.skin(reach(hand, place, pose, gun, "index", SQUEEZED), place)
     cocked = hand.skin(reach(hand, place, pose, gun, "thumb", COCKING, 0.009), place)
@@ -465,6 +548,33 @@ def main():
             h = hand.bones["%s%d" % (name, k + 1)]["head"]
             flush = np.maximum(flush, np.clip(1 - np.linalg.norm(hand.v - h, axis=1) / 0.012, 0, 1) * 0.5)
 
+    # For the skin's drawing (held_skin.gdshader): how far along its finger each vertex is from the
+    # nearest knuckle (the creases and wrinkles sit there), how far from the fingertip, and which
+    # side of the hand it's on (the back tanned, the palm paler).
+    dorsal = 0.5 + 0.5 * np.clip((rest_normals(hand.v, hand.faces) @ (-hand.palm_n)) * 1.6, -1, 1)
+    crease = np.full(len(hand.v), 0.02)
+    tipdist = np.full(len(hand.v), 0.03)
+    for name in FINGERS:
+        idx = [hand.order.index("%s%d" % (name, k)) for k in range(3)]
+        mine = hand.W[:, idx].sum(1) > 0.3
+        best = np.full(len(hand.v), np.inf)
+        for k in (range(1, 3) if name == "thumb" else range(3)):
+            b = hand.bones["%s%d" % (name, k)]
+            axis = unit(b["tail"] - b["head"])
+            if k > 0:
+                prev = hand.bones["%s%d" % (name, k - 1)]
+                axis = unit(axis + unit(prev["tail"] - prev["head"]))
+            t = (hand.v - b["head"]) @ axis
+            take = mine & (np.abs(t) < np.abs(best))
+            best[take] = t[take]
+        # Unsigned and capped: a vertex past a finger's knuckles and one off the finger blend
+        # without passing through zero (a sign change there drew a stray crease).
+        crease[np.isfinite(best)] = np.minimum(np.abs(best[np.isfinite(best)]), 0.02)
+        b = hand.bones["%s2" % name]
+        axis = unit(b["tail"] - b["head"])
+        last = hand.W[:, idx[2]] > 0.5
+        tipdist[last] = np.clip((b["tail"] - hand.v[last]) @ axis + 0.002, 0, 0.03)
+
     ob = mesh_object("Hand", base, hand.faces, "skin")
     sq = mesh_object("_squeeze", squeeze, hand.faces, "skin")
     ck = mesh_object("_cock", cocked, hand.faces, "skin")
@@ -475,6 +585,13 @@ def main():
             for li in poly.loop_indices:
                 vi = o.data.loops[li].vertex_index
                 uvl.data[li].uv = (nails[vi], flush[vi])
+        uv2 = o.data.uv_layers.new(name="data2")
+        uv0 = o.data.uv_layers.new(name="UVMap")
+        for poly in o.data.polygons:
+            for li in poly.loop_indices:
+                vi = o.data.loops[li].vertex_index
+                uv2.data[li].uv = (dorsal[vi], 0.0)
+                uv0.data[li].uv = (crease[vi], tipdist[vi])
     for o in (ob, sq, ck):
         subdivide(o, SUBDIV)
         o.data.shade_smooth()
@@ -489,11 +606,15 @@ def main():
     me = ob.data
     nails_s = np.zeros(len(me.vertices))
     flush_s = np.zeros(len(me.vertices))
+    dorsal_s = np.zeros(len(me.vertices))
     for li, loop in enumerate(me.loops):
         u = me.uv_layers["data"].data[li].uv
         nails_s[loop.vertex_index] = u[0]
         flush_s[loop.vertex_index] = u[1]
+        dorsal_s[loop.vertex_index] = me.uv_layers["data2"].data[li].uv[0]
     me.uv_layers.remove(me.uv_layers["data"])
+    me.uv_layers.remove(me.uv_layers["data2"])
+    me.uv_layers.active = me.uv_layers["UVMap"]
     bm = bmesh.new()
     bm.from_mesh(me)
     hv = [Vector((v.co.x, v.co.z, -v.co.y)) for v in bm.verts]
@@ -501,24 +622,45 @@ def main():
     bm.faces.ensure_lookup_table()
     hand_tree = BVHTree.FromPolygons(hv, [[v.index for v in f.verts] for f in bm.faces])
     bm.free()
-    colours(ob, hand_tree, gun, nails_s, flush_s)
+    colours(ob, hand_tree, gun, nails_s, flush_s, dorsal_s)
 
-    # The shirt's cuff and the coat's sleeve round the forearm, from where the hand's mesh ends back.
+    # The shirt's cuff and the coat's sleeve round the forearm, from just behind the wrist back. Each
+    # is sized to the arm under it (its furthest point from the forearm's axis there), its opening
+    # turned in so it shows its thickness, and its cloth creased and bunched (FOLDS).
     e = hand.joint_at(pose, place, "arm")
     w = hand.joint_at(pose, place, "hand")
     arm_len = np.linalg.norm(w - e)
-    cut = e + (w - e) * 0.8
-    back = e + (w - e) * (ARM_FROM - 0.9)
-    r = 0.031 * PLACE["scale"]
-    V, F = tube(cut, back, [(0.0, r * 1.02, 0.12), (0.02, r * 1.12, 0.12), (0.18, r * 1.14, 0.12),
-                            (0.2, r * 1.05, 0.12), (0.22, r * 0.9, 0.1)])
+    d = unit(e - w)
+
+    def reach_at(s):
+        """The arm's furthest from its axis between s and s + 3 cm back from the wrist."""
+        rel = base - w
+        along = rel @ d
+        near = (along > s) & (along < s + 0.03)
+        radial = rel[near] - np.outer(along[near], d)
+        return float(np.linalg.norm(radial, axis=1).max())
+
+    rng = np.random.default_rng(1882)
+    r = reach_at(CUFF_FROM) + 0.002
+    rings = [(0.004, r - 0.0012, 0.0), (0.0, r, 0.0), (0.003, r + 0.0035, 0.3), (0.05, r + 0.004, 0.4),
+             (0.058, r + 0.002, 0.2), (0.07, r - 0.004, 0.0)]
+    V, F = cloth_tube(w + d * CUFF_FROM, d, rings, rng, folds=0.0012)
     cuff = mesh_object("Cuff", V, F, "cuff")
     cuff.data.shade_smooth()
-    sv = cut + (back - cut) * 0.17
-    V, F = tube(sv, back, [(0.0, r * 1.18, 0.1), (0.015, r * 1.42, 0.1), (0.05, r * 1.5, 0.08),
-                           (0.4, r * 1.62, 0.06), (1.0, r * 1.75, 0.05)])
+    rs = r + 0.009
+    rings = [(0.006, rs - 0.003, 0.0), (0.0, rs, 0.0), (0.005, rs + 0.006, 0.5), (0.03, rs + 0.008, 1.0),
+             (0.08, rs + 0.01, 1.0), (0.16, rs + 0.016, 0.7), (0.26, rs + 0.022, 0.5)]
+    V, F = cloth_tube(w + d * (CUFF_FROM + 0.018), d, rings, rng, folds=FOLDS)
     sleeve = mesh_object("Sleeve", V, F, "coat")
     sleeve.data.shade_smooth()
+    # A button on the cuff's outer side.
+    side = unit(np.cross(d, (0, 1, 0)))
+    side = side if side @ np.array([1.0, 0, 0]) > 0 else -side
+    up = unit(np.cross(side, d))
+    at = w + d * (CUFF_FROM + 0.02) + unit(side * 0.6 + up * 0.8) * (r + 0.0045)
+    V, F = disc(at, unit(side * 0.6 + up * 0.8), 0.0045, 0.0018)
+    button = mesh_object("Button", V, F, "button")
+    button.data.shade_smooth()
     print("forearm %.3f m; wrist at %s" % (arm_len, np.round(w, 3)))
 
     os.makedirs(OUT, exist_ok=True)
@@ -526,7 +668,7 @@ def main():
     for o in bpy.data.objects:
         o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_yup=True, export_normals=True,
-                              export_texcoords=False, export_materials="EXPORT", export_vertex_color="ACTIVE",
+                              export_texcoords=True, export_materials="EXPORT", export_vertex_color="ACTIVE",
                               export_morph=True, export_morph_normal=True, export_animations=False,
                               export_skins=False)
     print("wrote", path, len(ob.data.vertices), "verts")

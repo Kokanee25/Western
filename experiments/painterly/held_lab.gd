@@ -12,6 +12,13 @@ const VIEWS := {
 	"close": [Vector3(0.22, 0.08, 0.1), Vector3(0, 0.0, -0.03), 30.0],
 	"below": [Vector3(0.35, -0.4, 0.05), Vector3(0, -0.02, -0.06), 30.0],
 	"top": [Vector3(0.0, 0.8, -0.08), Vector3(0, 0, -0.08001), 22.0],
+	# The hand close up: from behind and above it (where your eye is), from its back, its thumb side.
+	"fp": [Vector3(0.09, 0.17, 0.3), Vector3(0.015, -0.035, -0.02), 26.0],
+	"hand": [Vector3(0.3, 0.02, 0.06), Vector3(0.02, -0.045, 0.03), 24.0],
+	"thumb": [Vector3(-0.28, 0.08, 0.05), Vector3(0.0, -0.03, 0.01), 26.0],
+	"lefttop": [Vector3(-0.2, 0.14, 0.12), Vector3(0.0, 0.01, 0.0), 26.0],
+	"sleeve": [Vector3(0.28, 0.1, 0.32), Vector3(0.03, -0.05, 0.1), 30.0],
+	"under": [Vector3(0.05, -0.32, 0.0), Vector3(0.0, -0.05, 0.0), 26.0],
 }
 
 
@@ -23,12 +30,14 @@ func _run() -> void:
 	var out := "/tmp/held"
 	var size := Vector2i(1280, 720)
 	var views := ["side", "three", "close", "eye", "aim"]
-	var pose := ""
+	var shape := ""   # --shape=trigger|thumb: the hand squeezing, or thumbing the hammer back
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
 		elif a.begins_with("--views="):
 			views = a.substr(8).split(",")
+		elif a.begins_with("--shape="):
+			shape = a.substr(8)
 		elif a.begins_with("--size="):
 			var p := a.substr(7).split("x")
 			size = Vector2i(int(p[0]), int(p[1]))
@@ -72,6 +81,12 @@ func _run() -> void:
 	gun.rotation = Vector3.ZERO
 	gun.visible = true
 	gun.model.show_chambers([1, 1, 1, 1, 1, 0] as Array[int])
+	if shape == "trigger":
+		gun.hand.set_trigger(1.0)
+		gun.model.trigger.rotation_degrees.x = -18.0
+	elif shape == "thumb":
+		gun.hand.set_thumb(1.0)
+		gun.model.hammer.rotation_degrees.x = 44.0
 	var cam := Camera3D.new()
 	cam.near = 0.01
 	w.add_child(cam)
