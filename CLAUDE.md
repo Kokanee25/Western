@@ -4494,4 +4494,8 @@ a few views renders them as the full run does.
     Options: light the saloon's lamps later than 17:00 (the hero shot is 17:49, in sunlight), or
     while you're outside, keep only the lamps near the front casting and light the rest without
     shadows (light then leaks through the walls into the store next door).
-
+  - Seen once in the full suite here: `test_chaos::test_the_same_seed_gives_the_same_chaos` with
+    20 of 139 broken members differing (the saloon's balcony and stair balusters; slack is 7). Both
+    runs are processes of their own, and it passed the next 8 times alone, so the likely cause is
+    timing on the native plugin's worker threads (a carved member's new collision shape arriving a
+    frame sooner or later), not this change. Not chased yet.
