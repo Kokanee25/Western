@@ -97,8 +97,11 @@ his own).
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
 scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
 Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
-(lavapipe 19.2 ms, 15,400 draws), 6.6 since the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
-draws); the rest is the larger town's own draws and the sun's cascades.
+(lavapipe 19.2 ms, 15,400 draws), 6.6 after the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
+draws), ~5.8 since a room's lamps stopped lighting its people from the street (8.9 ms). What's
+left, by turning one thing off at a time: the saloon's 14 lamps' shadows ~3.7 ms (per lamp, not per
+pass: two passes cost the same as six under lavapipe), the sun's shadow ~1.7, the rest the town's
+own draws.
 
 ## Tech decisions
 
@@ -4476,4 +4479,19 @@ a few views renders them as the full run does.
   came while a conscious man's tone held his joints). Goldens (art's files): `outlaw_down` (on
   his side, knees drawn up) and `outlaw_blast` (lands nearer, on his back) re-approved from two
   renders; the other 19 views with a man falling limp pass against main's goldens.
+- 2026-10-12 (gameplay, later): **A room's lamps light its people only while you're in it** (the
+  street still over its render budget). Turning one thing off at a time on the calm street
+  (lavapipe): the saloon's 14 lamps, lit from 17:00 and drawing walls-only shadows from the
+  street, were ~6 ms of its ~11 ms, and turning off their shadows took out only 280 draws: the cost
+  is per lit, shadowed lamp, and the five men inside moving every frame were half of it (Godot
+  redraws a positional shadow every frame anyway; two passes cost the same as six here; the flicker
+  changes nothing). Now an indoor lamp, while you're outside its building and not next door,
+  doesn't light people (`OilLamp.light_cull_mask` without `Layers.VIS_BODY`); seen through the
+  door they're lit by the room's fill. Measured in one run, new against old: **8.9 ms against
+  11.7** (~5.8 ms at Sean's, still over 4.0). Tests `test_lamp_shadows` (+1). Goldens: the 12
+  views with people behind a building's walls from outside pass unchanged, none re-approved.
+  - Left for Sean (a look question): the lamps' shadows themselves (~3.7 ms from the street).
+    Options: light the saloon's lamps later than 17:00 (the hero shot is 17:49, in sunlight), or
+    while you're outside, keep only the lamps near the front casting and light the rest without
+    shadows (light then leaks through the walls into the store next door).
 
