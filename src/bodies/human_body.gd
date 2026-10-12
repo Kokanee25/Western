@@ -890,6 +890,7 @@ func _physics_step(delta: float) -> void:
 	if held_gun != null and not gun_holstered and not physiology.can_hold("r"):
 		drop_gun()
 	if limp:
+		_step_tone(delta)
 		_update_pool()
 	_cough(delta)
 	var conscious := physiology.is_conscious()
@@ -1641,8 +1642,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
 		rb.name = "Rag_%s" % sid
-		rb.collision_layer = Layers.BODY_PARTS
-		rb.collision_mask = Layers.WORLD
+		rb.collision_layer = Layers.BODY_PARTS | Layers.RAGDOLL
+		rb.collision_mask = Layers.WORLD | Layers.RAGDOLL
 		rb.mass = part.get_meta(&"mass", 5.0)
 		rb.linear_damp = 0.2
 		rb.angular_damp = 2.0
@@ -1679,6 +1680,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var lim: Array = JOINT_LIMITS.get(key, [30, 10])
 		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(lim[0]))
 		j.set_param(ConeTwistJoint3D.PARAM_TWIST_SPAN, deg_to_rad(lim[1]))
+	_keep_apart(bodies)
+	_start_tone(bodies, conscious)
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
 	# wind, the same on all of him. Nothing scripted on top (there was a shove of the chest and a
 	# random kick: experiments/physics_lab/README.md, baseline).
@@ -1691,6 +1694,133 @@ func go_limp(push := Vector3.ZERO) -> void:
 	_blocker.queue_free()
 	fell.emit(conscious)
 	Events.person_fell.emit(self, conscious)
+
+
+## His own parts collide (Layers.RAGDOLL), but not a part and its parent, two parts on one
+## joint, or any pair already touching as he goes limp (a crouch's chest on his thighs): Jolt
+## would throw those apart.
+func _keep_apart(bodies: Dictionary) -> void:
+	var ids: Array = bodies.keys()
+	for i in ids.size():
+		for k in range(i + 1, ids.size()):
+			var a: StringName = ids[i]
+			var b: StringName = ids[k]
+			var pa: StringName = anatomy.segments[a].parent
+			var pb: StringName = anatomy.segments[b].parent
+			if pa == b or pb == a or (pa != &"" and pa == pb) or _touching(bodies[a], bodies[b]):
+				(bodies[a] as RigidBody3D).add_collision_exception_with(bodies[b])
+
+
+func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
+	for ca in a.get_children():
+		if not (ca is CollisionShape3D and (ca as CollisionShape3D).shape is CapsuleShape3D):
+			continue
+		for cb in b.get_children():
+			if not (cb is CollisionShape3D and (cb as CollisionShape3D).shape is CapsuleShape3D):
+				continue
+			var sa := (ca as CollisionShape3D).shape as CapsuleShape3D
+			var sb := (cb as CollisionShape3D).shape as CapsuleShape3D
+			var xa := a.global_transform * (ca as CollisionShape3D).transform
+			var xb := b.global_transform * (cb as CollisionShape3D).transform
+			var ha := sa.height * 0.5 - sa.radius
+			var hb := sb.height * 0.5 - sb.radius
+			var pts := Geometry3D.get_closest_points_between_segments(xa * Vector3(0, -ha, 0), xa * Vector3(0, ha, 0),
+					xb * Vector3(0, -hb, 0), xb * Vector3(0, hb, 0))
+			if pts[0].distance_to(pts[1]) < sa.radius + sb.radius + TOUCH_SLACK:
+				return true
+	return false
+
+
+## Muscle tone as he goes: each joint is held toward the pose he went limp in, the hold fading
+## away over TONE_FADE seconds, so he crumples and topples rather than folding flat at the knees
+## like a puppet with its strings cut (experiments/physics_lab, fault 1). Stiffness per joint in
+## N*m/rad at full tone, about what holds that joint's share of him up; a man still conscious
+## keeps more of it a little longer. Tunable in TONE.
+const TONE := {
+	&"abdomen": 260.0, &"chest": 220.0, &"neck": 60.0, &"head": 30.0,
+	&"upper_arm": 30.0, &"forearm": 15.0, &"hand": 3.0,
+	&"thigh": 320.0, &"shin": 300.0, &"foot": 60.0,
+}
+const TONE_START := 0.55
+const TONE_START_CONSCIOUS := 0.7
+const TONE_FADE := 0.35
+const TONE_FADE_CONSCIOUS := 0.6
+const TONE_UNTIL := 1.5
+## Damping: seconds' worth of the stiffness, on the joint's relative spin.
+const TONE_DAMP := 0.06
+const TOUCH_SLACK := 0.01
+## The most of a part's inertia a step's tone may act on (explicit springs go unstable past ~1).
+const TONE_STEP_SHARE := 0.25
+
+
+## How hard the pair is to turn against each other about `axis` (kg*m^2): the two parts'
+## inertias about it in series. 0 until the physics knows them (or with no axis).
+func _tone_inertia(a: RigidBody3D, b: RigidBody3D, axis: Vector3) -> float:
+	if axis.length_squared() < 0.5:
+		return 0.0
+	var inv := 0.0
+	for rb in [a, b]:
+		var st := PhysicsServer3D.body_get_direct_state((rb as RigidBody3D).get_rid())
+		if st == null:
+			return 0.0
+		inv += axis.dot(st.inverse_inertia_tensor * axis)
+	return 1.0 / inv if inv > 0.0 else 0.0
+
+var _tone: Array = []  ## [child, parent, rest rotation (child in parent), stiffness]
+var _tone_t := 0.0
+var _tone_start := 0.0
+var _tone_fade := 1.0
+
+
+func _start_tone(bodies: Dictionary, conscious: bool) -> void:
+	_tone.clear()
+	_tone_t = 0.0
+	var dead := not physiology.alive
+	_tone_start = 0.0 if dead else (TONE_START_CONSCIOUS if conscious else TONE_START)
+	_tone_fade = TONE_FADE_CONSCIOUS if conscious else TONE_FADE
+	if _tone_start <= 0.0:
+		return
+	for sid: StringName in bodies:
+		var parent: StringName = anatomy.segments[sid].parent
+		if parent == &"":
+			continue
+		var child := bodies[sid] as RigidBody3D
+		var up := bodies[parent] as RigidBody3D
+		var rest := (up.global_basis.orthonormalized().inverse() * child.global_basis.orthonormalized()).get_rotation_quaternion()
+		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
+		_tone.append([child, up, rest, float(TONE.get(key, 30.0))])
+
+
+func _step_tone(delta: float) -> void:
+	if _tone.is_empty():
+		return
+	_tone_t += delta
+	if _tone_t > TONE_UNTIL:
+		_tone.clear()
+		return
+	var share := _tone_start * exp(-_tone_t / _tone_fade)
+	for j: Array in _tone:
+		var child := j[0] as RigidBody3D
+		var up := j[1] as RigidBody3D
+		if not is_instance_valid(child) or not is_instance_valid(up) 				or physiology.severed_segments.has(child.get_meta(&"segment", &"")):
+			continue
+		var pb := up.global_basis.orthonormalized()
+		var now := (pb.inverse() * child.global_basis.orthonormalized()).get_rotation_quaternion()
+		var err := (j[2] as Quaternion) * now.inverse()
+		if err.w < 0.0:
+			err = -err
+		var angle := err.get_angle()
+		var axis := pb * err.get_axis() if angle > 1e-5 else Vector3.ZERO
+		# Stiffness and damping held under what one physics step can take for the lighter of the two
+		# parts (a hand's or the neck's inertia is tiny: uncapped, they spun 45 degrees a tick).
+		var rel_w := child.angular_velocity - up.angular_velocity
+		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis) / (delta * delta))
+		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized()) / delta)
+		if is_nan(k) or is_nan(c):
+			continue
+		var torque := axis * angle * k - rel_w * c
+		child.apply_torque(torque)
+		up.apply_torque(-torque)
 
 
 # --- Blasts ------------------------------------------------------------------------------------
