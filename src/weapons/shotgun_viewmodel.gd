@@ -96,8 +96,8 @@ func _build_hands() -> void:
 			Vector3(0.017, -0.016, -0.022), Vector3(0.008, -0.03, -0.04), Vector3(-0.001, -0.043, -0.05),
 			Vector3(-0.01, -0.047, -0.044)], 4), 0.094), [0.46, 0.3, 0.24], r * 0.97, skin)
 	_index = index[1]
-	var thumb := HandModel.chain(hand, "thumb", HandModel.cut(HandModel.smooth([Vector3(-0.004, 0.006, 0.062),
-			Vector3(0.006, 0.016, 0.04), Vector3(0.011, 0.022, 0.018), Vector3(0.014, 0.026, 0.0)], 4), 0.064),
+	var thumb := HandModel.chain(hand, "thumb", HandModel.cut(HandModel.smooth([Vector3(0.006, 0.002, 0.062),
+			Vector3(0.017, 0.009, 0.04), Vector3(0.023, 0.013, 0.018), Vector3(0.026, 0.015, 0.0)], 4), 0.064),
 			[0.55, 0.45], 0.0116, skin)
 	_thumb_pivot = thumb[0]
 	var rings := []
@@ -130,8 +130,8 @@ func _build_hands() -> void:
 	var lz := [-0.036, -0.0555, -0.075, -0.093]
 	for i in 4:
 		var c := fc + Vector3(0.0, 0.0, lz[i])
-		var path := HandModel.round_oval(c, 0.019, 0.014, -40.0, 128.0, r + 0.0012, 20)
-		HandModel.chain(left_hand, lnames[i], HandModel.cut(path, [0.088, 0.094, 0.09, 0.076][i]), [0.46, 0.3, 0.24],
+		var path := HandModel.round_oval(c, 0.019, 0.014, -40.0, 100.0, r + 0.0012, 20)
+		HandModel.chain(left_hand, lnames[i], HandModel.cut(path, [0.076, 0.081, 0.078, 0.066][i]), [0.46, 0.3, 0.24],
 				r * [0.97, 1.0, 0.97, 0.88][i], skin)
 	HandModel.chain(left_hand, "l_thumb", HandModel.cut(HandModel.smooth([Vector3(-0.02, -0.016, -0.02),
 			Vector3(-0.03, -0.006, -0.045), Vector3(-0.03, 0.004, -0.07), Vector3(-0.027, 0.01, -0.09)], 4), 0.064),
