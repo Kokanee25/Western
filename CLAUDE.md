@@ -4477,3 +4477,11 @@ a few views renders them as the full run does.
   his side, knees drawn up) and `outlaw_blast` (lands nearer, on his back) re-approved from two
   renders; the other 19 views with a man falling limp pass against main's goldens.
 
+- 2026-10-12 (characters session): **`make_people.py` builds MakeHuman men only.** It skipped
+  `"source": "tripo"` men but not `"rodin"` ones, so a plain run (no `--only`) built `stranger2`
+  and `stranger2s` again as bare MakeHuman bodies over their fitted glbs. It now skips any man
+  whose source isn't `makehuman` (checked: a plain run touches only the outlaw). From the character
+  factory trial (branch `claude/characters-factory`, kept unmerged as the record: Sean judged the
+  trial a failure, and the AI route, `stranger2s`, stays how men are made). Found on the way: the
+  outlaw's committed garment textures and glb on main differ from what `make_people.py` builds
+  from main today (they predate a `clothes.py` change); left as they are.
