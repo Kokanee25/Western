@@ -154,8 +154,8 @@
  "outlaw_blast": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.142,
-   "share": 0.0016
+   "mean": 0.104,
+   "share": 0.0015
   },
   "share": 0.01
  },
@@ -202,8 +202,8 @@
  "outlaw_down": {
   "mean": 1.5,
   "noise": {
-   "mean": 0.022,
-   "share": 0.0003
+   "mean": 0.034,
+   "share": 0.0004
   },
   "share": 0.01
  },
