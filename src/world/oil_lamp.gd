@@ -15,8 +15,29 @@ extends Node3D
 ## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
-## How fast its light falls off (OmniLight3D's attenuation; 2 is the inverse square): a sconce on
-## a wall throws a bright pool round itself and little further.
+## Past this far from the camera (or with the camera outside the building it's in) its shadow
+## is cast only by the buildings' shadow meshes (Layers.VIS_WALLS: one a building, where its
+## batches are ~45), not by people, props and the bottles on the shelves, and in two passes, not six: a shadowed lamp draws everything in its
+## reach six times a frame (a cube of shadow faces), and Godot 4.7 redraws it every frame, so the
+## saloon's 14 seen from the street were 11,600 of the frame's 15,400 draw calls. The shadow
+## stays on, so the walls still keep its light in (switched off it shone through them). 0 =
+## always the full shadow.
+@export var shadow_reach := 20.0
+## Checked this often (seconds), with a metre's slack so a lamp at the edge doesn't flick.
+const SHADOW_CHECK := 0.25
+const SHADOW_SLACK := 1.0
+## How far outside its building's walls a camera still gets an indoor lamp's full shadow.
+## Indoors, how near a lamp in another building must be to shade fully (_indoors).
+const NEIGHBOUR_REACH := 12.0
+## Walls-only lamps nearer than this keep six shadow passes: in two, a lamp's light leaks out
+## through the seams between a wall's boards (the saloon's front from the street).
+const CUBE_REACH := 40.0
+static var _indoors_frame := -1
+static var _indoors_now := false
+const ROOM_MARGIN := 2.5
+## What casts a far lamp's shadow.
+const FAR_CASTERS := Layers.VIS_WALLS
+const ALL_CASTERS := Layers.ALL_BUT_WALLS
 @export var attenuation := 1.2:
 	set(value):
 		attenuation = value
@@ -28,6 +49,8 @@ var lit := true
 var broken := false
 
 var _light: OmniLight3D
+var _shadow_check := 0.0
+var _building: Node
 var _flame: MeshInstance3D
 var _chimney: MeshInstance3D
 var _flame_material: StandardMaterial3D
@@ -65,9 +88,74 @@ func _process(delta: float) -> void:
 func _process_step(delta: float) -> void:
 	if not lit:
 		return
+	if casts_shadows and shadow_reach > 0.0:
+		_shadow_check -= delta
+		if _shadow_check <= 0.0:
+			_shadow_check = SHADOW_CHECK
+			_shadow_for_distance()
 	_time += delta
 	var flicker := 1.0 + sin(_time * 7.3) * 0.04 + sin(_time * 13.1 + 1.7) * 0.03
 	_light.light_energy = energy * flicker
+
+
+func _shadow_for_distance() -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam == null:
+		return
+	var at := cam.global_position
+	var near_now := _light.shadow_caster_mask != FAR_CASTERS
+	var slack := SHADOW_SLACK if near_now else 0.0
+	var d := at.distance_to(_light.global_position)
+	var near := d < shadow_reach + slack and (_sees_in(at, slack) or (d < NEIGHBOUR_REACH + slack and _indoors(at)))
+	if near != near_now:
+		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
+	# Far off, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
+	# thread ~50 us however little is in it, and from that far the seams' leaks don't show.
+	var cube_now := _light.omni_shadow_mode == OmniLight3D.SHADOW_CUBE
+	var cube := d < CUBE_REACH + (SHADOW_SLACK if cube_now else 0.0)
+	if cube != cube_now:
+		_light.omni_shadow_mode = OmniLight3D.SHADOW_CUBE if cube else OmniLight3D.SHADOW_DUAL_PARABOLOID
+
+
+## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
+## the street its shadows are behind the walls. A lamp hung outside them is the street's.
+func _sees_in(at: Vector3, slack: float) -> bool:
+	if _building == null:
+		var p := get_parent()
+		while p and not p is FalseFrontBuilding:
+			p = p.get_parent()
+		_building = p if p else self
+		# Hung outside its walls (a porch lantern): it lights the street, not a room.
+		if p:
+			var own := (p as FalseFrontBuilding).global_transform.affine_inverse() * global_position
+			if own.x < 0.0 or own.x > p.width or own.z < 0.0 or own.z > p.depth:
+				_building = self
+	if not _building is FalseFrontBuilding:
+		return true
+	var b := _building as FalseFrontBuilding
+	var local := b.global_transform.affine_inverse() * at
+	var m := ROOM_MARGIN + slack
+	return local.x > -m and local.x < b.width + m and local.z > -m and local.z < b.depth + m
+
+
+## Is the camera inside any building's walls? Indoors, a lamp next door shows through the gaps
+## between the boards, so it shades fully within NEIGHBOUR_REACH. Worked out once a frame.
+static func _indoors(at: Vector3) -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var frame := Engine.get_physics_frames()
+	if frame == _indoors_frame:
+		return _indoors_now
+	_indoors_frame = frame
+	_indoors_now = false
+	for s in tree.get_nodes_in_group(&"structures"):
+		if not s is FalseFrontBuilding:
+			continue
+		var b := s as FalseFrontBuilding
+		var local := b.global_transform.affine_inverse() * at
+		if local.x > 0.0 and local.x < b.width and local.z > 0.0 and local.z < b.depth:
+			_indoors_now = true
+			break
+	return _indoors_now
 
 
 func _on_hour_changed(hour: int) -> void:
@@ -121,6 +209,7 @@ func _build() -> void:
 	_light.omni_attenuation = attenuation
 	_light.shadow_enabled = casts_shadows
 	_light.shadow_bias = 0.05
+	_light.shadow_caster_mask = ALL_CASTERS
 	_light.position.y = 0.22
 	add_child(_light)
 	# Something for a bullet to hit.

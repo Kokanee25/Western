@@ -765,6 +765,9 @@ func _build_hand(sid: StringName, vis: Node3D, center: Vector3) -> void:
 			mi.mesh = bm
 			mi.material_override = skin
 			mi.layers = Layers.VIS_BODY
+			# A finger's shadow is a pixel or two; thirty of them a man were the most of his
+			# shadow draw calls, in every lamp's six faces and the sun's cascades.
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			mi.position = Vector3(0, -l * 0.5, 0)
 			bone.add_child(mi)
 			bones.append(bone)
@@ -809,7 +812,17 @@ func holster_gun(now := false) -> void:
 	held_gun.reparent(vis, false)
 	held_gun.position = Vector3(0.2, 0.9, 0.02) - anatomy.segment_center(&"pelvis")
 	held_gun.rotation_degrees = Vector3(-96, 0, 0)
+	_gun_shadow(false)
 	curl_hand("r", 0.25)
+
+
+## A holstered revolver (45 parts) casts no shadow of its own: it's inside his.
+func _gun_shadow(on: bool) -> void:
+	if held_gun == null:
+		return
+	var mode := GeometryInstance3D.SHADOW_CASTING_SETTING_ON if on else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for g in held_gun.find_children("*", "GeometryInstance3D", true, false):
+		(g as GeometryInstance3D).cast_shadow = mode
 
 
 ## Draw it: in his hand, ready to fire in half a second.
@@ -822,6 +835,7 @@ func draw_gun() -> void:
 	held_gun.reparent(vis, false)
 	held_gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
 	held_gun.rotation_degrees = Vector3(-90, 0, 0)
+	_gun_shadow(true)
 	curl_hand("r", 0.85)
 
 
@@ -1588,6 +1602,7 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 func drop_gun() -> void:
 	if held_gun == null:
 		return
+	_gun_shadow(true)
 	var gun := held_gun
 	held_gun = null
 	var rb := RigidBody3D.new()
