@@ -38,9 +38,14 @@ def main() -> None:
             dest = a.split("=", 1)[1]
     people = json.load(open("assets/people/people.json"))
     paths = list(ALWAYS)
-    for p in people["people"].values():
-        for t in p.get("targets", {}):
-            paths.append("makehuman/data/targets/%s.target" % t)
+    wanted = [t for p in people["people"].values() for t in p.get("targets", {})]
+    # The character factory's base head and archetypes (assets/people/factory.json; "{s}" = r, l).
+    factory = json.load(open("assets/people/factory.json"))
+    for block in [factory["base"]] + list(factory["archetypes"].values()):
+        wanted += list(block.get("targets", {}))
+    for t in wanted:
+        for name in ([t.replace("{s}", s) for s in "rl"] if "{s}" in t else [t]):
+            paths.append("makehuman/data/targets/%s.target" % name)
     for path in sorted(set(paths)):
         fetch(path, dest)
 

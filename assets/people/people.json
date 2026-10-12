@@ -64,6 +64,24 @@
    "eye_gain": 1.8,
    "outfit": {},
    "face": "a weathered frontier gunman of about forty: deep-set dark eyes, heavy brows, a thick dark drooping moustache and stubble, short dark hair"
+  },
+  "stranger_factory": {
+   "note": "The stranger as a factory man (docs/briefs/character-factory.md): the base head and the lean hard archetype, by parameters; nothing modelled or painted for him alone.",
+   "source": "factory",
+   "archetype": "lean_hard",
+   "targets": {"chin/chin-width-incr": 0.2, "nose/nose-hump-incr": 0.15},
+   "skin": "#b88866", "hair_colour": "#2e231c", "brows": 1.0, "wear": 0.6,
+   "hair": "collar", "moustache": "walrus", "beard": "stubble",
+   "outfit": {"shirt": "#cdbf9f", "trousers": "#3a3129", "vest": "#3b2a1d", "coat": "#5c4029", "cravat": "#16120f"}
+  },
+  "heavy_factory": {
+   "note": "A second factory man of another type, from the same base head by parameters only: a heavy man in his late fifties.",
+   "source": "factory",
+   "archetype": "heavy_older",
+   "targets": {},
+   "skin": "#c4927a", "hair_colour": "#8a8178", "brows": 0.8, "wear": 0.8,
+   "hair": "fringe", "moustache": "trimmed", "beard": "full",
+   "outfit": {"shirt": "#d8d0bc", "trousers": "#4a4038", "vest": "#5a2e24"}
   }
  }
 }
