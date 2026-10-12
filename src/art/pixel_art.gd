@@ -234,7 +234,7 @@ static func wood(key: String, base: Color, seed: int, knots := 2, cracks := 3, g
 		for j in rng.randi_range(6, 18):
 			img.set_pixel((cx + j) % SIZE, cy, shades[0])
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -261,7 +261,7 @@ static func painted(key: String, paint: Color, timber: Color, seed: int, wear :=
 				s = 0
 			img.set_pixel(x, y, shades[s])
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -286,7 +286,7 @@ static func dirt(key: String, base: Color, seed: int) -> Texture2D:
 		img.set_pixel(px, py, shades[4])
 		img.set_pixel((px + 1) % SIZE, (py + 1) % SIZE, shades[0])
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -313,9 +313,37 @@ static func metal(key: String, base: Color, seed: int, mottle := 0.0) -> Texture
 				c = c.lerp(pc, clampf((m - 0.35) * 2.0, 0.0, 1.0) * mottle)
 			img.set_pixel(x, y, c)
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
+
+
+
+## The painterly trial (the characters session, 2026-10-12; only when smooth_dir is "painterly"):
+## a code-painted texture softened in place (two passes of a 3x3 blur, wrapping), so a mosaic of
+## shades a texel apart becomes a soft wander of paint under smooth sampling. Its size is kept, so
+## it covers the same metres. Anything else: the image as it is.
+static func soften(img: Image) -> Image:
+	if smooth_dir != "painterly":
+		return img
+	var had_mips := img.has_mipmaps()
+	var out := img.duplicate() as Image
+	if had_mips:
+		out.clear_mipmaps()
+	var w := out.get_width()
+	var h := out.get_height()
+	for _pass in 2:
+		var src := out.duplicate() as Image
+		for y in h:
+			for x in w:
+				var sum := Color(0, 0, 0, 0)
+				for dy in [-1, 0, 1]:
+					for dx in [-1, 0, 1]:
+						sum += src.get_pixel(posmod(x + dx, w), posmod(y + dy, h))
+				out.set_pixel(x, y, sum / 9.0)
+	if had_mips:
+		out.generate_mipmaps()
+	return out
 
 
 ## Skin: flat tones with a few darker creases and knuckle marks.
@@ -332,7 +360,7 @@ static func squares(key: String, base: Color, seed: int, spread := 0.3) -> Image
 			var v := _noise(x, y, 8, 8, seed) * 0.45 + _hash(x, y, seed + 7) * 0.55
 			img.set_pixel(x, y, shades[_band(v, shades.size())])
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -347,7 +375,7 @@ static func skin(key: String, base: Color, seed: int) -> ImageTexture:
 			var v := _noise(x, y, 8, 8, seed) * 0.7 + _noise(x, y, 32, 32, seed + 1) * 0.3
 			img.set_pixel(x, y, shades[_band(v * 0.8 + 0.2, shades.size())])
 	img.generate_mipmaps()
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -372,7 +400,7 @@ static func blood(key: String, seed: int, hole := false, n := 32) -> ImageTextur
 			if hole and d < 0.2:
 				c = Color(0.05, 0.01, 0.01) if d < 0.13 else Color(0.14, 0.02, 0.02)
 			img.set_pixel(x, y, c)
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 
@@ -391,7 +419,7 @@ static func puff(key: String, seed: int) -> ImageTexture:
 			a = floor(a * 4.0) / 4.0
 			var shade: float = 0.82 + 0.18 * floor(_noise(x * 4, y * 4, 8, 8, seed + 5) * 3.0) / 2.0
 			img.set_pixel(x, y, Color(shade, shade, shade, a))
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(soften(img))
 	_cache[key] = tex
 	return tex
 

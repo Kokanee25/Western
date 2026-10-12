@@ -522,7 +522,7 @@ static func label_texture(variant: int) -> ImageTexture:
 			elif x >= w / 3 and x <= w * 2 / 3 and rng.randf() < 0.55:
 				c = ink.lerp(paper, rng.randf() * 0.3)
 			img.set_pixel(x, y, c)
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(PixelArt.soften(img))
 	_materials[key] = tex
 	return tex
 
@@ -558,7 +558,7 @@ static func landscape_texture(variant: int) -> ImageTexture:
 			c = c.darkened(rng.randf() * 0.1)
 			# The canvas's v runs up, the picture's rows down.
 			img.set_pixel(x, h - 1 - y, c)
-	var tex := ImageTexture.create_from_image(img)
+	var tex := ImageTexture.create_from_image(PixelArt.soften(img))
 	_materials[key] = tex
 	return tex
 
