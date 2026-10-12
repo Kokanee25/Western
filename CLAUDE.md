@@ -4393,7 +4393,7 @@ a few views renders them as the full run does.
   porch posts), shadow proxies for the dressing (StaticBatch: the same). Tests
   `test_lamp_shadows` (3). Goldens: all 71 views pass on the merged tree (the six outdoor ones rendered again after the 40 m rule), none re-approved
   (art's files untouched); `porch_dusk` sits at its limit on main too (mean 1.50). Still over
-  budget: the larger town's own draws and the sun's cascades (frame budget note above).
+  budget: the larger town's own draws and the sun's cascades (frame budget note above). Merged as **build 875** (green).
 - 2026-10-12 (art session): **Merge 3i: the road re-graded to the street painting's pale dust.**
   - **What changed:** `tools/textures/materials.json`. `road_wide`: lightness 1.18, contrast
     1.0, chroma 0.75, hue +7. `road`: lightness 1.18, chroma 0.6, hue +2. Both re-cut by
@@ -4458,3 +4458,22 @@ a few views renders them as the full run does.
   - **Goldens:** `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh` runs.
     The close view frames on his head, so it moves with the turn. Visual checks 170, none
     failed. Shot-match and body tests pass.
+- 2026-10-12 (gameplay): **A man going down crumples, and his limbs stay out of his body**
+  (Sean: "as real as possible"; the ragdoll lab's faults 1 and 3). `HumanBody.go_limp()`:
+  - **Muscle tone:** each joint held toward the pose he went limp in, fading over a third of a
+    second (more and longer while he's conscious, none when he's dead), each joint's stiffness
+    capped by what one physics step can take for its parts' inertia about the axis it turns;
+  - **his parts collide with each other** and with other limp men (`Layers.RAGDOLL`, new), but
+    not a part and its parent, two on one joint, any pair already touching as he goes, or his
+    hands (one resting on him jittered and he never came to rest);
+  - his head and hands swept (they sank into the ground landing).
+  Measured in the lab (`experiments/physics_lab/results/2026-10-12_tone/`): flags over 28
+  scenarios 85 -> 54; limbs into his body 9-20 cm -> 0-3 cm in most falls; standing, he blacks
+  out and his knees buckle forward and he pitches onto his face, where he dropped into a squat.
+  Known: a standing blackout ends in a hunched heap with his knees under him; a hand can rest a
+  few centimetres into him; joint overruns at impact are fewer but not gone. Gameplay's
+  `tests/test_bodies.gd`: the hinge test kicks a dead man about the hinge's own axis (its kicks
+  came while a conscious man's tone held his joints). Goldens (art's files): `outlaw_down` (on
+  his side, knees drawn up) and `outlaw_blast` (lands nearer, on his back) re-approved from two
+  renders; the other 19 views with a man falling limp pass against main's goldens.
+
