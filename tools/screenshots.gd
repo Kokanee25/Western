@@ -135,6 +135,9 @@ var man_pose := {}
 ## --shader-paint[=name:value,...]: the seated man drawn by the characters session's shader-paint
 ## trial (tools/characters/shader_paint.gd), its uniforms set for this run. Off by default.
 var shader_paint = null
+## --comic[=name:value,...]: the frame drawn by the characters session's comic-book trial
+## (experiments/comic_style/comic.gd), its uniforms set for this run. Off by default.
+var comic = null
 
 
 func _initialize() -> void:
@@ -271,6 +274,8 @@ func _run() -> void:
 		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
 		elif arg == "--man-mask":
 			man_mask = true
+		elif arg.begins_with("--comic"):
+			comic = load("res://tools/characters/shader_paint.gd").parse(arg.get_slice("=", 1) if "=" in arg else "")
 		elif arg.begins_with("--shader-paint"):
 			shader_paint = load("res://tools/characters/shader_paint.gd").parse(arg.get_slice("=", 1) if "=" in arg else "")
 		elif arg.begins_with("--man-pose="):
@@ -531,6 +536,8 @@ func _run() -> void:
 			player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 			player.input_enabled = false
 			gun.toggle_holster()
+		if comic != null:
+			load("res://experiments/comic_style/comic.gd").attach(viewport.get_camera_3d(), comic)
 		for i in 40:
 			await process_frame
 		if window_shot:
