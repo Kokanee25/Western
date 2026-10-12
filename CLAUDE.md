@@ -4436,3 +4436,25 @@ a few views renders them as the full run does.
     - the cup is unchanged;
     - his eyes are 10 px off the old night painting's eyes, against 3 px before (the turn aims
       at the newer master painting).
+- 2026-10-12 (art session, later): **Merge 3j: the seated stranger's head turned toward the bold
+  painting.** The characters session asked for it (with Sean's OK). In `ShotMatch.FITS`, for
+  `stranger2s`:
+  - head (6, -13.25, 5.25) → (6, 0, 3): turned 13° toward `saloon-blocks.png`'s three-quarter
+    view and rolled less;
+  - neck z 7.5 → 3.
+
+  He sits upright and faces you.
+  - **`tools/fit_shot.gd`:** outline overlap 0.676 → 0.683; the cup is unchanged. His eyes are
+    10 px off the night painting's, against 2.8 px before: the turn aims at the bold painting.
+  - **Tried:** yaw +6 past square (0.231) and the chin lifted 4° (0.227). Both scored worse.
+  - **Brought over:** `tools/screenshots.gd --man-pose=` from the characters session's branch
+    (`claude/characters-protected-features`), its lines as they wrote them.
+  - **Judge v2**, round `2026-10-12_r2` (the street render is r1's): saloon 0.218 → **0.216**
+    (0.226 → 0.214 on single renders before the road).
+  - **Blind critic, top three:**
+    1. the room behind him is dark, empty murk (the doorway a navy wedge, no moon or lit house);
+    2. the street's sky is lavender-grey with a small white sun;
+    3. his face is hot, pale and wide-eyed, where the painting's man is stern and warm.
+  - **Goldens:** `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh` runs.
+    The close view frames on his head, so it moves with the turn. Visual checks 170, none
+    failed. Shot-match and body tests pass.
