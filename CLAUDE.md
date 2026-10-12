@@ -4522,3 +4522,20 @@ a few views renders them as the full run does.
   (said in the commit). Sheet `docs/screenshots/painterly/revolver_hand_vs_today.jpg`. gun_range
   tests pass. Known: the thumb isn't on the frame's left side yet; the sleeve is a plain tube; the
   skin is smooth (no pores or creases drawn); the shotgun is next if Sean wants it.
+- 2026-10-12 (characters session, branch `claude/characters-painterly`, not merged): **The modelled
+  hand polished** (Sean: "keep polishing the hand"). `tools/blender/held_hand.py`: the palm's flesh
+  may sink `PALM_GIVE` 3.5 mm and a finger's `FLESH_GIVE` 1.5 mm into the grip (its knuckle's own
+  flesh not counted), as a real hand's does; pushed fully clear, the rigid MakeHuman palm stood
+  10 mm off, so the fingers couldn't wrap and the thumb was dragged into the frame. Now the middle,
+  ring and little fingers close to 51/64/41°, 48/60/38°, 42/52/34° with their tips on the left
+  panel, and the thumb lies along the frame's left side, its tip toward the trigger. The skin
+  (`held_skin.gdshader`) is drawn from data the script writes per vertex: how far from the nearest
+  knuckle along the finger (creases on the palm side, fine wrinkles over the knuckles), how far
+  from the fingertip (a short nail with a pale edge and grime under it), and back of hand or palm
+  (tanned or paler). The cuff and coat sleeve are sized to the arm under them, creased
+  (`cloth_tube`, `FOLDS`), turned in at the opening, with a button. `held_lab.gd` gains close
+  views of the hand (`fp`, `hand`, `thumb`, `lefttop`, `sleeve`) and `--shape=trigger|thumb`.
+  Sheet `docs/screenshots/painterly/hand_polished.jpg` (today, the first pass and now, in game and
+  close). Known: the skin is still smooth up close (no pores or veins); the hand is MakeHuman's
+  average man's, a little soft at the knuckles; the thumb's cocking shape reaches the spur but
+  wasn't seen moving in the game yet.
