@@ -4464,8 +4464,9 @@ a few views renders them as the full run does.
   with its small forms built in (ears +18–20° out with a rim and a deeper bowl, nose 10 % wider and
   14 % deeper with the nostrils cut in, a lid ledge, a lip crease, a heavier brow), one head UV
   layout laid out once from it and shared by every man, hair/moustache/beard as shells (the `hair`
-  shape), the head painted by script on the layout. Two men from settings only, no paid calls,
-  ~25 s each: `stranger_factory` (lean hard) and `heavy_factory` (heavy older, beard, bald top).
+  shape), the head painted by script on the layout. Four men from settings only, one per
+  archetype, no paid calls, 15–25 s each: `stranger_factory` (lean hard), `heavy_factory` (heavy
+  older, beard, bald top), `young_factory`, `oldtimer_factory` (handlebar, short white beard).
   Character judge on the saloon shot (no mosaic): `stranger2s` 0.556, `stranger_factory` 0.632,
   `heavy_factory` 1.005 (a different man). Sheet: `docs/screenshots/tripo/factory/factory_sheet.jpg`.
   Off still: smooth skin under a hot lamp (the look's squares aren't applied), the body held to the
@@ -4473,6 +4474,6 @@ a few views renders them as the full run does.
   skips non-MakeHuman men (it would have rebuilt the Rodin men), `clothes.py` keeps a collar point
   off a heavy man's jowl (the outlaw unchanged), `judge_man.py` brought over from my earlier branch.
   - Current state → Characters, for the context diet's section once it's on main: *Done:* the
-    factory trial (two men from one base head by settings; sheet above). *Next:* Sean's eye on the
-    sheet: factory or AI route; if factory, the look's squares on its layout and the other two
-    archetypes. *Waiting on Sean:* that call; `claude/characters-protected-features`'s merge.
+    factory trial (four men, one per archetype, from one base head by settings; sheet above).
+    *Next:* Sean's eye on the sheet: factory or AI route; if factory, the look's squares on its
+    layout, then the townsfolk as factory men. *Waiting on Sean:* that call; `claude/characters-protected-features`'s merge.
