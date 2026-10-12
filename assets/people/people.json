@@ -82,6 +82,24 @@
    "skin": "#c4927a", "hair_colour": "#8a8178", "brows": 0.8, "wear": 0.8,
    "hair": "fringe", "moustache": "trimmed", "beard": "full",
    "outfit": {"shirt": "#d8d0bc", "trousers": "#4a4038", "vest": "#5a2e24"}
+  },
+  "young_factory": {
+   "note": "A third factory man, the young archetype, from the same base head by settings only.",
+   "source": "factory",
+   "archetype": "young",
+   "targets": {},
+   "skin": "#c99a78", "hair_colour": "#6b4a2c", "brows": 0.6, "wear": 0.15, "iris": "#3c4a52",
+   "hair": "short", "moustache": "none", "beard": "none",
+   "outfit": {"shirt": "#b9a682", "trousers": "#4b4236"}
+  },
+  "oldtimer_factory": {
+   "note": "A fourth factory man, the weathered old-timer, from the same base head by settings only.",
+   "source": "factory",
+   "archetype": "old_timer",
+   "targets": {},
+   "skin": "#a8765a", "hair_colour": "#b8b2a8", "brows": 0.9, "wear": 1.0,
+   "hair": "fringe", "moustache": "handlebar", "beard": "short",
+   "outfit": {"shirt": "#c2b49a", "trousers": "#3f362c", "vest": "#2e2a24"}
   }
  }
 }
