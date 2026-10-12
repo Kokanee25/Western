@@ -1642,9 +1642,15 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
 		rb.name = "Rag_%s" % sid
-		rb.collision_layer = Layers.BODY_PARTS | Layers.RAGDOLL
-		rb.collision_mask = Layers.WORLD | Layers.RAGDOLL
+		# His parts collide with each other (Layers.RAGDOLL), but not his hands: small and loose at
+		# the wrist, one resting on him jittered there and never let him come to rest.
+		var loose := sid == &"hand_l" or sid == &"hand_r"
+		rb.collision_layer = Layers.BODY_PARTS | (0 if loose else Layers.RAGDOLL)
+		rb.collision_mask = Layers.WORLD | (0 if loose else Layers.RAGDOLL)
 		rb.mass = part.get_meta(&"mass", 5.0)
+		# The head and hands are small and land fast (he topples whole now): swept, so they stop
+		# on the ground rather than in it.
+		rb.continuous_cd = sid == &"head" or sid == &"hand_l" or sid == &"hand_r"
 		rb.linear_damp = 0.2
 		rb.angular_damp = 2.0
 		rb.set_meta(&"human_body", self)
