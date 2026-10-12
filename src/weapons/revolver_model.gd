@@ -26,6 +26,9 @@ func _ready() -> void:
 
 
 func _build() -> void:
+	# The painterly test (--painterly) draws the modelled gun (experiments/painterly/held_models.gd).
+	if Settings.painterly and load("res://experiments/painterly/held_models.gd").revolver(self):
+		return
 	var steel := GunParts.blued()
 	var frame_mat := GunParts.case_hardened()
 	# Frame: the body the cylinder sits in, with top strap and recoil shield.

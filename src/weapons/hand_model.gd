@@ -11,6 +11,7 @@ var fingers := {}  # name -> Array[Node3D] segments
 
 var _trigger := 0.0
 var _thumb_reach := 0.0
+var _modelled := false  # the painterly test's modelled hand (experiments/painterly/held_models.gd)
 
 
 func _ready() -> void:
@@ -18,6 +19,9 @@ func _ready() -> void:
 
 
 func _build() -> void:
+	if Settings.painterly and load("res://experiments/painterly/held_models.gd").hand(self):
+		_modelled = true
+		return
 	var skin := GunParts.skin()
 	var sleeve := GunParts.held_cloth("coat", Color(0.36, 0.25, 0.16))
 	var cuff := GunParts.held_cloth("cuff", Color(0.82, 0.76, 0.62))
@@ -69,7 +73,9 @@ func _finger(n: String, base: Vector3, seg_len: float, curl: Array, mat: Materia
 ## 0 = finger resting on the trigger, 1 = squeezed.
 func set_trigger(amount: float) -> void:
 	_trigger = amount
-	if index.size() == 3:
+	if _modelled:
+		load("res://experiments/painterly/held_models.gd").set_shapes(self, _trigger, _thumb_reach)
+	elif index.size() == 3:
 		index[1].rotation_degrees.y = 55.0 + amount * 12.0
 		index[2].rotation_degrees.y = 60.0 + amount * 18.0
 
@@ -77,6 +83,8 @@ func set_trigger(amount: float) -> void:
 ## 0 = thumb resting on the grip, 1 = thumb on the hammer spur, pulling.
 func set_thumb(amount: float) -> void:
 	_thumb_reach = amount
-	if thumb.size() == 2:
+	if _modelled:
+		load("res://experiments/painterly/held_models.gd").set_shapes(self, _trigger, _thumb_reach)
+	elif thumb.size() == 2:
 		thumb[0].rotation_degrees = Vector3(-55.0 + amount * 30.0, 25.0 - amount * 18.0, 0.0)
 		thumb[1].rotation_degrees.y = 25.0 + amount * 20.0
