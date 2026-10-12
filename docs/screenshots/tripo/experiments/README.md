@@ -564,3 +564,21 @@ shot's light), the collar and shirt front large irregular slabs.
 **E11 verdict: not adopted;** his coat stays E9's. The coat's measures were already near the
 master's; what separates it is the light (lit orange against the master's dark brown, the art
 session's) and the squares' slant where his coat turns away from the camera.
+
+## The art session's head turn, re-judged
+
+The art session took the E8/E10 ask (its PR #101, branch `claude/art-head-turn`): `ShotMatch.FITS
+["stranger2s"]` head (6, 0, 3), neck (0, -0.5, 3), so his head turns 13° (yaw -13.25 → 0) and
+rolls 6° in all (was 12.75°). Rendered here on E9's assets with that pose (`--man-pose=head:6,0,3;
+neck:0,-0.5,3`), under this branch's light:
+
+| | Character judge | Light | Colour | Squares |
+|---|---|---|---|---|
+| E9, the old pose | 0.546 | 0.650 | 0.615 | 0.359 |
+| E9, the new pose | **0.489** | 0.602 | 0.546 | **0.301** |
+
+`e12/face_master_e9_turned_shot.png` (the master; the old pose; the new pose, at 2x). His face's
+squares now fall in level rows and his face reads square to you; the moustache and eyes are cleaner.
+His near ear still doesn't show (the master's man is turned further, three-quarters; the art
+session found 6° more turn scored worse on the whole frame). What the judge marks first is the
+same as before, the light on his face: its lit parts' top tenth L* 74 to the master's 55.

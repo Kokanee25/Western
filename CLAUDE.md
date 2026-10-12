@@ -4711,3 +4711,6 @@ a few views renders them as the full run does.
     The coat's measures were already near the master's (patch-to-square 0.91 to 0.80; b reached
     0.81) and the blind critic kept E9's coat, all three "nearly identical". What separates it is
     the light and the slant of squares where his coat turns away.
+  - The art session's head turn (its PR #101: yaw -13.25 → 0, roll 12.75° → 6°), re-judged on
+    E9's assets: character judge 0.546 → 0.489, squares group 0.359 → 0.301; his face's squares in
+    level rows. The light on his face is still what the judge marks first (lit top tenth L* 74 to 55).
