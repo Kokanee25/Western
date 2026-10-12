@@ -6,6 +6,8 @@ extends SceneTree
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
 ##   [--poses=stand,hands_up,aim] (HumanBody.POSES; docs/briefs/characters.md's pose check is
 ##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint)
+##   [--shader-paint[=name:value,...]] (the shader-paint trial on every man who has its files:
+##   tools/characters/shader_paint.gd)
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -18,6 +20,7 @@ func _run() -> void:
 	var ids := ["outlaw", "kid"]
 	var poses := ["stand", "hands_up", "aim"]
 	var close := false
+	var shader_paint = null
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
@@ -27,6 +30,8 @@ func _run() -> void:
 			poses = Array(a.substr(8).split(","))
 		elif a == "--head":
 			close = true
+		elif a.begins_with("--shader-paint"):
+			shader_paint = load("res://tools/characters/shader_paint.gd").parse(a.get_slice("=", 1) if "=" in a else "")
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
 	# Close (--head): a square of 0.42 m a man, the men that far apart.
@@ -64,6 +69,9 @@ func _run() -> void:
 		men.append(m)
 	for f in 12:
 		await physics_frame
+	if shader_paint != null:
+		for i in men.size():
+			print("shader paint on %s: %d pieces" % [ids[i], load("res://tools/characters/shader_paint.gd").apply(men[i], ids[i], shader_paint)])
 	var cam := Camera3D.new()
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
 	cam.size = 0.42 if close else 2.3

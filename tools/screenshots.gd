@@ -132,6 +132,9 @@ var probe_params := {}
 ## --man-pose=head:6,-13.25,0;neck:0,-0.5,0: the seated man's pose offsets changed for this run only
 ## (the characters session's diagnostic, from its branch: ShotMatch's own fit is left as it is).
 var man_pose := {}
+## --shader-paint[=name:value,...]: the seated man drawn by the characters session's shader-paint
+## trial (tools/characters/shader_paint.gd), its uniforms set for this run. Off by default.
+var shader_paint = null
 
 
 func _initialize() -> void:
@@ -268,6 +271,8 @@ func _run() -> void:
 		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
 		elif arg == "--man-mask":
 			man_mask = true
+		elif arg.begins_with("--shader-paint"):
+			shader_paint = load("res://tools/characters/shader_paint.gd").parse(arg.get_slice("=", 1) if "=" in arg else "")
 		elif arg.begins_with("--man-pose="):
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
@@ -669,6 +674,10 @@ func _shot_match_setup(main, player, close := false) -> void:
 		for sid: StringName in man_pose:
 			seated.pose_offsets[sid] = man_pose[sid]
 		print("  the seated man's pose offsets for this run: ", man_pose)
+	if shader_paint != null:
+		var seated = street.find_child("SeatedMan", true, false)
+		print("  shader paint on the seated man: %d pieces" % load("res://tools/characters/shader_paint.gd").apply(
+				seated, String(seated.body_model), shader_paint))
 	var gun = player.get_node(^"Head/Camera3D/Gun")
 	gun._draw = 0.0
 	player.set_physics_process(false)
