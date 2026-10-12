@@ -4371,8 +4371,6 @@ a few views renders them as the full run does.
     lighter, less chroma, yellower, lower contrast; measured: the painting's road median L* 51,
     chroma 41, hue 58°, ours 45, 53, 52°), its own merge.
   - Merged as PR #99, **build 863** (green).
-<<<<<<< HEAD
-=======
 - 2026-10-12 (gameplay): **Lamps draw their full shadows only near you** (the street had gone over
   its render budget: the art session found 14,707 draw calls and 15.4 ms of render CPU on the
   street view, 2026-10-11). Measured here (lavapipe, 40 frames): every shadowed lamp drew
@@ -4438,6 +4436,7 @@ a few views renders them as the full run does.
     - the cup is unchanged;
     - his eyes are 10 px off the old night painting's eyes, against 3 px before (the turn aims
       at the newer master painting).
+  - Merged as PR #100, **build 882** (green).
 - 2026-10-12 (art session, later): **Merge 3j: the seated stranger's head turned toward the bold
   painting.** The characters session asked for it (with Sean's OK). In `ShotMatch.FITS`, for
   `stranger2s`:
@@ -4460,4 +4459,4 @@ a few views renders them as the full run does.
   - **Goldens:** `shot_match_saloon` and `shot_match_close` re-approved from two `--fresh` runs.
     The close view frames on his head, so it moves with the turn. Visual checks 170, none
     failed. Shot-match and body tests pass.
->>>>>>> origin/main
+  - Merged as PR #101, **build 886** (green).
