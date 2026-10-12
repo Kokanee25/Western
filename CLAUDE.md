@@ -4477,3 +4477,31 @@ a few views renders them as the full run does.
   his side, knees drawn up) and `outlaw_blast` (lands nearer, on his back) re-approved from two
   renders; the other 19 views with a man falling limp pass against main's goldens.
 
+- 2026-10-12 (characters session, branch `claude/characters-painterly`, not merged): **A
+  painterly-realism test** (Sean: the bold squares "just can not be reproduced", "it needs to look
+  good in game", not the comic look; "Let's try painterly"). One switch for a run,
+  `--painterly` (Settings, shared, my lines; not saved, no key): the texture factory's own
+  paintings, which are already photoreal, cut smooth at 16x the texels (`reduce.py --painterly`,
+  512 a metre, `assets/textures/painterly/`, 26 MB; `PixelArt.smooth_dir`), sampled smoothly
+  (`smooth_filter`, a new shader global: the soft-edge sample is plain bilinear,
+  `tiles.gdshaderinc`), no tile light, no mosaic; code-painted textures softened
+  (`PixelArt.soften`, not the grass: its tufts smeared); the Rodin men in their models' own colour
+  (`stranger2s|stranger2_{skin,head}_smooth.png`). For stills, `tools/screenshots.gd --grade` adds
+  a warm split-tone grade, vignette and still grain (`experiments/painterly/grade.gd`, optional
+  small Kuwahara `brush_px`), and `--msaa=4`. Sheet `docs/screenshots/painterly/painterly_vs_today.jpg`
+  (both shots and his face, today | painterly), pans `pan_saloon_night.mp4`,
+  `pan_street_golden_hour.mp4` (today | painterly). The man reads as a real lamplit gunfighter
+  and the table, bar and road as real wood and dust; still drawn in squares or boxes: the gun and
+  hand (box-built models: a modelled hand and revolver would be needed), the grass, the extras'
+  code-painted clothes, the low-poly horse; a seam shows on his cheek. Pans (pixels that flip
+  back a frame, 20 degrees over 40 frames, no MSAA): saloon 0.90 % today, 1.39 % painterly;
+  street 4.09 %, 4.55 % (finer texture detail moving). Not judged against the paintings (they're
+  the pixel style). Art's files touched (said in the commits): `src/render/tiles.gdshaderinc` (a
+  few lines), `src/art/pixel_art.gd`, `src/props/prop_models.gd`, `tools/textures/reduce.py`;
+  shared `project.godot` (the global), `settings.gd`, `tools/screenshots.gd`. Earlier today, both
+  kept unmerged as records: the shader-paint trial (`claude/characters-shader-paint`: squares made
+  by a shader from the model's colour; tied today's man on the character judge, 0.556 / 0.555) and
+  the comic look (`claude/characters-comic-style`, one still: Sean didn't like it).
+  - Waiting on Sean: his eye on the sheet and the pans; if it's the way, a brief for the art
+    session (DESIGN.md §4 changes; the textures, the hand and gun, the extras and the props become
+    the job).
