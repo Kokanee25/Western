@@ -62,6 +62,10 @@ seam_px={
 "type": "float",
 "value": 0.0
 }
+smooth_filter={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 

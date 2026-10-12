@@ -34,9 +34,15 @@ global uniform float block_soft;
 // The same look's light: each light's share cut into this many bands (gamma space; 0: smooth),
 // so the light on a surface steps square by square as the paintings' does.
 global uniform float light_bands;
+// The painterly trial (the characters session, 2026-10-12; off): under soft edges (block_soft > 0)
+// every texture is sampled smoothly, plain bilinear between texels, no blocks at all.
+global uniform float smooth_filter;
 
 // The texel-space point to sample at under soft edges (block_soft > 0; see above).
 vec2 tile_soft_point(vec2 t) {
+	if (smooth_filter > 0.0) {
+		return t;
+	}
 	vec2 w = max(fwidth(t) * block_soft, vec2(1e-5));
 	vec2 f = fract(t) - 0.5;
 	return floor(t) + 0.5 + clamp(f / w, vec2(-0.5), vec2(0.5));

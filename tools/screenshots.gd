@@ -132,6 +132,9 @@ var probe_params := {}
 ## --man-pose=head:6,-13.25,0;neck:0,-0.5,0: the seated man's pose offsets changed for this run only
 ## (the characters session's diagnostic, from its branch: ShotMatch's own fit is left as it is).
 var man_pose := {}
+## --grade[=name:value,...]: the painterly trial's grade over the frame (the characters session's
+## experiments/painterly/grade.gd), its uniforms set for this run. Off by default.
+var grade = null
 
 
 func _initialize() -> void:
@@ -268,6 +271,10 @@ func _run() -> void:
 		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
 		elif arg == "--man-mask":
 			man_mask = true
+		elif arg.begins_with("--grade"):
+			grade = {}
+			for pair in (arg.get_slice("=", 1) if "=" in arg else "").split(",", false):
+				grade[pair.get_slice(":", 0)] = float(pair.get_slice(":", 1))
 		elif arg.begins_with("--man-pose="):
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
@@ -526,6 +533,8 @@ func _run() -> void:
 			player.add_look(Vector2(0.0, v[4] - player.get_pitch_degrees()))
 			player.input_enabled = false
 			gun.toggle_holster()
+		if grade != null:
+			load("res://experiments/painterly/grade.gd").attach(viewport.get_camera_3d(), grade)
 		for i in 40:
 			await process_frame
 		if window_shot:
