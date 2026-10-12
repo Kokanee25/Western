@@ -61,4 +61,9 @@ extends Resource
 @export_group("Air")
 @export var fog_density := 0.0035
 @export var volumetric_fog_density := 0.012
+## With the sun low, the haze down the street and the volumetric haze are these shares of the day's
+## (the street painting's golden hour is clear and deep in its shadows, its far end crisp under a
+## glow round the sun that the sky and backdrop draw; 1 = as by day).
+@export var fog_low_sun := 1.0
+@export var volumetric_low_sun := 1.0
 @export var star_strength := 1.2
