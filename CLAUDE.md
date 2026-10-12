@@ -95,7 +95,10 @@ his own).
 
 \* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
-scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
+Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
+(lavapipe 19.2 ms, 15,400 draws), 6.6 since the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
+draws); the rest is the larger town's own draws and the sun's cascades.
 
 ## Tech decisions
 
@@ -4368,3 +4371,26 @@ a few views renders them as the full run does.
     lighter, less chroma, yellower, lower contrast; measured: the painting's road median L* 51,
     chroma 41, hue 58°, ours 45, 53, 52°), its own merge.
   - Merged as PR #99, **build 863** (green).
+- 2026-10-12 (gameplay): **Lamps draw their full shadows only near you** (the street had gone over
+  its render budget: the art session found 14,707 draw calls and 15.4 ms of render CPU on the
+  street view, 2026-10-11). Measured here (lavapipe, 40 frames): every shadowed lamp drew
+  everything in its reach six times a frame, the saloon's lamps seen from the street most of all.
+  `OilLamp` now looks every quarter second:
+  - **near** (within `shadow_reach` 20 m, and for a lamp in a building only with you in it, on
+    its porch or at its door, 2.5 m round it; a lantern hung outside its walls is the street's):
+    its full shadow, people and props and all;
+  - **far**: only the buildings cast it (`Layers.VIS_WALLS`, new: a shadow-only mesh of each
+    structure's batches, `Structure._shadow`, and members drawn on their own carry the layer), so
+    walls still keep its light in; six shadow passes within 40 m (`CUBE_REACH`: in two, its light
+    leaked out through the seams of the saloon's front), two beyond;
+  - from inside any building, a lamp next door within 12 m shades fully (its light shows through
+    the boards).
+  The sun and moon don't draw the walls' mesh (`shadow_caster_mask`; from one merged mesh the
+  sun's shadow came out a little different on thin edges near the camera), and fingers and a
+  holstered revolver cast no shadow. **Street 19.2 → 10.2 ms render CPU, draws 15,412 → 3,290**;
+  the saloon at night 16.5 → 15.8 ms (its own lamps are near). Tried and dropped: turning far
+  shadows off (light through walls), one merged shadow mesh for the sun (gold rims lost on the
+  porch posts), shadow proxies for the dressing (StaticBatch: the same). Tests
+  `test_lamp_shadows` (3). Goldens: all 71 views pass on the merged tree (the six outdoor ones rendered again after the 40 m rule), none re-approved
+  (art's files untouched); `porch_dusk` sits at its limit on main too (mean 1.50). Still over
+  budget: the larger town's own draws and the sun's cascades (frame budget note above).

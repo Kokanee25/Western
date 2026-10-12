@@ -26,3 +26,8 @@ const VIS_INSIDE := 4
 ## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite), on the world's
 ## layer too: its own fill light reaches only this (WeaponViewmodel).
 const VIS_HELD := 8
+## Render: what a far lamp's shadow is cast by (OilLamp): each structure's shadow mesh (on this
+## alone) and its members' own meshes (on this and 1). The sun, the moon and near lamps leave the
+## shadow meshes out (`ALL_BUT_WALLS`): theirs is cast by the batches, as before.
+const VIS_WALLS := 16
+const ALL_BUT_WALLS := 0xFFFFFFFF & ~VIS_WALLS
