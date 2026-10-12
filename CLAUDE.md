@@ -4473,7 +4473,11 @@ a few views renders them as the full run does.
   shared envelope (heavy only in the head), clothes.py's blotchy garments. Also: `make_people.py`
   skips non-MakeHuman men (it would have rebuilt the Rodin men), `clothes.py` keeps a collar point
   off a heavy man's jowl (the outlaw unchanged), `judge_man.py` brought over from my earlier branch.
+  - **Verdict (Sean): the experiment didn't work.** The branch stays as the record and isn't
+    merged; the AI route (`stranger2s`) stays the way men are made. Worth carrying to main on
+    its own: `make_people.py` skipping non-MakeHuman men (a plain run rebuilds the Rodin men as
+    bare MakeHuman bodies over their glbs).
   - Current state → Characters, for the context diet's section once it's on main: *Done:* the
-    factory trial (four men, one per archetype, from one base head by settings; sheet above).
-    *Next:* Sean's eye on the sheet: factory or AI route; if factory, the look's squares on its
-    layout, then the townsfolk as factory men. *Waiting on Sean:* that call; `claude/characters-protected-features`'s merge.
+    factory trial, judged a failure by Sean (branch `claude/characters-factory`, the record).
+    *Next:* the AI route's man (`stranger2s`); the `make_people.py` fix to main on its own.
+    *Waiting on Sean:* `claude/characters-protected-features`'s merge.
