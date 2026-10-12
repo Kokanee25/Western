@@ -4505,3 +4505,20 @@ a few views renders them as the full run does.
   - Waiting on Sean: his eye on the sheet and the pans; if it's the way, a brief for the art
     session (DESIGN.md §4 changes; the textures, the hand and gun, the extras and the props become
     the job).
+- 2026-10-12 (characters session, branch `claude/characters-painterly`, not merged): **The revolver
+  and hand modelled, for the painterly test** (Sean: "model the gun and hand so it doesn't look like
+  it does now", no paid calls). `tools/blender/held_revolver.py` builds the Colt by script (profiles,
+  lathes, cuts, bevels: fluted cylinder, crowned barrel and sight, chequered hammer spur, brass guard
+  and straps, walnut grips, screws; ~15k triangles) in the code-built gun's own space with its moving
+  parts at the same pivots, each vertex coloured by edge wear and openness → `assets/held/revolver.glb`.
+  `tools/blender/held_hand.py` takes MakeHuman's right hand (CC0), skins it to finger bones, fits
+  three of its joints to the grip, pushes the palm clear, closes the middle, ring and little fingers
+  as a hand closes (joints bending together, each stopping on contact) and searches the index's and
+  thumb's angles to the trigger and frame; the trigger squeeze and thumb on the spur are shapes →
+  `assets/held/hand.glb` (with cuff and sleeve). Textures by `experiments/painterly/held_textures.py`
+  (case colours, bluing, brass, walnut, skin, wool, linen), drawn by `held_metal.gdshader` /
+  `held_skin.gdshader`; `held_models.gd` loads them; `held_lab.gd` renders the gun alone. Only under
+  `--painterly`: gameplay's `src/weapons/revolver_model.gd` and `hand_model.gd` gain a few lines each
+  (said in the commit). Sheet `docs/screenshots/painterly/revolver_hand_vs_today.jpg`. gun_range
+  tests pass. Known: the thumb isn't on the frame's left side yet; the sleeve is a plain tube; the
+  skin is smooth (no pores or creases drawn); the shotgun is next if Sean wants it.
