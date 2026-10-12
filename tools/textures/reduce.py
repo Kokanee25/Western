@@ -248,7 +248,15 @@ BOLD_MOSAIC = 1.8
 BOLD_GRADE = {"contrast": 2.0, "colours": 10}
 
 
+# The painterly trial (the characters session, 2026-10-12): --painterly cuts the paintings smooth
+# at PAINTERLY_TEXELS times the texels into assets/textures/painterly/ (PixelArt.smooth_dir).
+PAINTERLY = False
+PAINTERLY_TEXELS = 16
+
+
 def out_dir():
+    if PAINTERLY:
+        return os.path.join(OUT, "painterly")
     return os.path.join(OUT, "smooth") if SMOOTH else os.path.join(OUT, "bold") if BOLD else OUT
 
 
@@ -360,7 +368,7 @@ def sheet(rows, path):
 
 
 def main():
-    global SMOOTH, MOSAIC, BOLD
+    global SMOOTH, MOSAIC, BOLD, PAINTERLY, SMOOTH_TEXELS
     only = None
     sheet_path = None
     for a in sys.argv[1:]:
@@ -373,6 +381,10 @@ def main():
             MOSAIC = 1.0
         elif a == "--bold":
             BOLD = True
+        elif a == "--painterly":
+            SMOOTH = PAINTERLY = True
+            SMOOTH_TEXELS = PAINTERLY_TEXELS
+            MOSAIC = 1.0
     spec = json.load(open(SPEC))
     tpm = BOLD_TEXELS if BOLD else spec["texels_per_metre"] * (SMOOTH_TEXELS if SMOOTH else 1)
     os.makedirs(out_dir(), exist_ok=True)

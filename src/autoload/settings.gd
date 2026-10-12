@@ -118,6 +118,8 @@ var auto_cock := false
 var pixel_shading := false
 ## Texture pixels per metre (F7); the chunky presets also turn off distance smoothing.
 var texels_per_meter := 32.0
+## The painterly trial (--painterly on the command line; not saved, no key).
+var painterly := false
 ## Reduced gore: bad wounds show as dark soaked patches, the body never opens (F4).
 var reduced_gore := false
 ## Tests turn this off so they never touch the player's settings file.
@@ -146,6 +148,15 @@ func _ready() -> void:
 		# A trial: the probe over the game's own squared textures, not the smooth set.
 		if "--probe-squares" in args:
 			quantise_once = false
+	# The painterly trial for one run (the characters session, 2026-10-12): the factory's paintings
+	# laid smooth at 16x the texels, sampled smoothly, no mosaic, no tile light.
+	if "--painterly" in args:
+		painterly = true
+		quantise_once = true
+		surface_blocks = false
+		mosaic = false
+		autosave = false
+		PixelArt.smooth_dir = "painterly"
 	load_from_disk()
 	_protect_speakers()
 
@@ -371,7 +382,8 @@ func tile_globals() -> Dictionary:
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
 			&"min_square_px": BOLD_MIN_SQUARE_PX if surface_blocks else 0.0 if quantise_once else MIN_SQUARE_PX,
-			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else 0.0),
+			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else (1.0 if painterly else 0.0)),
+			&"smooth_filter": 1.0 if painterly else 0.0,
 			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
 			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
 
@@ -393,7 +405,7 @@ func _apply_texels() -> void:
 	if surface_blocks:
 		PixelArt.set_density(PixelArt.BOLD_TEXELS, false)
 		return
-	PixelArt.set_density(texels_per_meter * (4.0 if quantise_once else 1.0), mip)
+	PixelArt.set_density(texels_per_meter * (16.0 if painterly else 4.0 if quantise_once else 1.0), mip)
 
 
 ## I: the quantise-once look on or off. The world's materials take their textures when they are

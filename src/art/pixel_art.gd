@@ -51,6 +51,9 @@ static var smooth := false
 static var bold := false
 const FACTORY_PATH := "res://assets/textures/%s.png"
 const SMOOTH_PATH := "res://assets/textures/smooth/%s.png"
+## The painterly trial (the characters session, 2026-10-12; Settings --painterly): the smooth
+## look's textures from assets/textures/painterly/ (reduce.py --painterly, 16x the texels).
+static var smooth_dir := "smooth"
 const BOLD_PATH := "res://assets/textures/bold/%s.png"
 ## The bold set's texels a metre (reduce.py BOLD_TEXELS): the world is laid at it under M.
 const BOLD_TEXELS := 16.0
@@ -163,7 +166,7 @@ static func factory(key: String) -> Texture2D:
 		return null
 	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
-	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
+	var path := (SMOOTH_PATH.replace("/smooth/", "/%s/" % smooth_dir) if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
 	if (smooth or bold) and not ResourceLoader.exists(path):
 		path = FACTORY_PATH % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
