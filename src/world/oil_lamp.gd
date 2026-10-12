@@ -29,7 +29,9 @@ const SHADOW_SLACK := 1.0
 ## How far outside its building's walls a camera still gets an indoor lamp's full shadow.
 ## Indoors, how near a lamp in another building must be to shade fully (_indoors).
 const NEIGHBOUR_REACH := 12.0
-const FAR_CUBE := true
+## Walls-only lamps nearer than this keep six shadow passes: in two, a lamp's light leaks out
+## through the seams between a wall's boards (the saloon's front from the street).
+const CUBE_REACH := 40.0
 static var _indoors_frame := -1
 static var _indoors_now := false
 const ROOM_MARGIN := 2.5
@@ -107,9 +109,12 @@ func _shadow_for_distance() -> void:
 	var near := d < shadow_reach + slack and (_sees_in(at, slack) or (d < NEIGHBOUR_REACH + slack and _indoors(at)))
 	if near != near_now:
 		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
-		# Far, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
-		# thread ~50 us however little is in it, and walls far off don't show the difference.
-		_light.omni_shadow_mode = OmniLight3D.SHADOW_CUBE if (near or FAR_CUBE) else OmniLight3D.SHADOW_DUAL_PARABOLOID
+	# Far off, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
+	# thread ~50 us however little is in it, and from that far the seams' leaks don't show.
+	var cube_now := _light.omni_shadow_mode == OmniLight3D.SHADOW_CUBE
+	var cube := d < CUBE_REACH + (SHADOW_SLACK if cube_now else 0.0)
+	if cube != cube_now:
+		_light.omni_shadow_mode = OmniLight3D.SHADOW_CUBE if cube else OmniLight3D.SHADOW_DUAL_PARABOLOID
 
 
 ## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
