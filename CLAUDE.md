@@ -4301,3 +4301,11 @@ a few views renders them as the full run does.
   B's smooth light and normal maps onto painted people (`body_skin`, its own merge), the world
   staying at 32/m. B and C's shader is a trial (no wound openings or eye gain). Nothing paid; no
   defaults, goldens or game shaders changed. Tools `tools/style_lab.sh`, `tools/style_lab.py`.
+- 2026-10-12 (art, experiment, Prompt 07; same branch, not merged): **The style lab's D, the
+  character sheet's own look** (Sean: "let's see if we can get it closer to the sheet";
+  `--sheet-style=sheet`, `tools/sheet_style.py sheet`): the models' realistic colour in irregular
+  flat patches (6/9/14 mm, pushed and mottled, the eyes kept), the world in 3 cm patches and the road
+  in blocks. A fresh blind critic over four (`docs/screenshots/style_lab/blind/critic_4.md`): against
+  the sheet D, C, A, B; against the paintings A, B, D, C. What's left between D and the sheet is
+  crisper patch edges, the sheet's hard warm light and the men's darker, grimier clothes. Findings
+  in `docs/briefs/style-lab.md`; Sean chooses the target (paintings → A, sheet → D). No defaults changed.

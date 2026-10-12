@@ -145,6 +145,40 @@ where it counts (it skips the repaint but needs 4x the texture memory and a new 
 researching, separately: the light on his face (every candidate's top fault, the shot's light: the
 art session's), and the seated man's face drawn for the block size (the critic's top A failure).
 
+### Candidate D: the sheet's own look (added 2026-10-12)
+
+Sean, on the character sheet: "let's see if we can get it closer to the sheet". Close up, the sheet's
+man isn't cut into squares: his realistic texture is broken into irregular flat patches, each a
+shade off its neighbours, with his eyes left fine; only the ground is in square blocks. **D**
+(`--sheet-style=sheet`, `tools/sheet_style.py sheet`): the models' own colour in Voronoi patches in
+body space (6 mm face, 9 head, 14 body, each pushed 1.8x from its surround and its lightness
+jittered, the eyes kept), the world in wrapped patches of 3 cm and the road in 6 cm blocks, all at
+128 a metre, Godot's light and the normal maps.
+
+A fresh blind critic over all four (`blind/critic_4.md`; key W = B, X = A, Y = C, Z = D):
+- **against the character sheet:** D, C, A, B. D "keeps a realistically modelled man under a
+  broken, patchy surface"; A and B's face blocks are four or five times the sheet's.
+- **against the two paintings:** A, B, D, C (A "square blocks on every surface, keeps the plank
+  seams and the lettering crisp"; D "reads as a watercolour filter").
+- **what still separates D from the sheet:** its patches are soft and ragged where the sheet's
+  read as small crisp marks of a steady size; the light (the sheet's hard warm key and near-black
+  shadows against our flat, bright lighting, in every candidate); the colour (the sheet's muted
+  charcoal, rust and oxblood with grime, against the stranger's even orange-brown coat).
+
+The judges, D: saloon 0.318, street 0.486, the seated man 0.537, against the sheet 0.822 in the
+lineup's daylight. In the sheet's own darker turnaround light (the first round's), A / D: 0.633 /
+0.725, squares 0.320 / **0.271**, light 1.06 / 1.14, colour 0.40 / 0.67: D's surface is the nearer,
+its colour (Rodin's paler, greyer realism) the further. Draw cost: 3,943 / 17,215 draw calls,
+5.3 / 14.9 ms render CPU (saloon / street), as C. Production: as C (no repaint, ~$1.75 a man,
+4x A's texture memory) plus a minute of patch-cutting a man.
+
+**Reading:** the sheet's look is reachable as a surface rule (D is the critic's closest to it),
+but it isn't the paintings' look (the critic ranks it third of four against them), and what's left
+between D and the sheet is mostly light and the men's own colour and wardrobe, not the patches.
+So the choice is Sean's between two targets: the paintings (keep A, the recommendation above) or
+the sheet (D, with crisper patches, the sheet's light and darker, grimier clothes painted into the
+men).
+
 ### The hundredth asset (A with smooth light on people), in steps
 
 A man: 1) Sean's front picture (ChatGPT, A-pose, flat light, grey ground); 2) three views painted
