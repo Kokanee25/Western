@@ -6,6 +6,14 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### New: the road the painting's pale dust
+
+- **The street's dirt is paler and yellower**, with less contrast between its ruts and its
+  ridges: the painting's sunlit dust rather than the old deep orange-brown. The same painted
+  ruts, stones and hoof marks, re-coloured.
+- **Try:** the street at golden hour and at noon (T to speed time). Tell me if the ruts now read
+  too faint.
+
 ### New: the golden-hour street clear and deep in its shadows
 
 - **With the sun low, the shadows go deep and the street's far end is clear**: less of the warm

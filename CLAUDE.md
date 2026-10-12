@@ -4394,3 +4394,45 @@ a few views renders them as the full run does.
   `test_lamp_shadows` (3). Goldens: all 71 views pass on the merged tree (the six outdoor ones rendered again after the 40 m rule), none re-approved
   (art's files untouched); `porch_dusk` sits at its limit on main too (mean 1.50). Still over
   budget: the larger town's own draws and the sun's cascades (frame budget note above).
+- 2026-10-12 (art session): **Merge 3i: the road re-graded to the street painting's pale dust.**
+  - **What changed:** `tools/textures/materials.json`. `road_wide`: lightness 1.18, contrast
+    1.0, chroma 0.75, hue +7. `road`: lightness 1.18, chroma 0.6, hue +2. Both re-cut by
+    `reduce.py` from the same paintings, so no new painting was needed.
+  - **Measured** on the street shot's road (L* 10th/50th/90th percentile, median chroma, hue):
+
+    | | L* 10/50/90 | Chroma | Hue |
+    |---|---|---|---|
+    | The painting | 34/51/63 | 41 | 58° |
+    | Before | 18/45/56 | 53 | 52° |
+    | Now | 24/53/62 | 45 | 58° |
+  - **Judge v2**, round `2026-10-12_r1`: street 0.322 → **0.279** (a first, milder cut scored
+    0.297). Saloon 0.218 and fire 0.265 are level with r8/r9, within the run-to-run noise.
+  - **Blind critic, top three:**
+    1. the fire burns alone in an empty field (no bucket brigade, horse, rubble or wet mud);
+    2. the seated man's face is a hot, wide-eyed mask (pale cream and orange blotches, staring
+       whites), where the painting's man is stern with his eyes under the brim;
+    3. the room behind him is dark, empty murk: the doorway is a navy wedge, the far men are pale
+       mannequins, and there are no separate pools of lamplight.
+
+    Then the street's lavender sky with its small white sun, and the barn a solid box with a flat
+    wall of flame.
+  - **Goldens:** the 51 views with road in them re-approved from two `--fresh` runs, which agree
+    to within the noise. With main's lamp shadows merged in, six lamp-lit road views were rendered
+    again and match. Visual checks: 357, none failed. 373 tests pass.
+  - **Tried for the saloon's doorway** (Sean said yes to turning the shot toward the moonlit
+    street), and it didn't work:
+    - The door is seen at an angle. A porch post and its brace stand in the line of sight, and
+      beyond them there's only dark sky, never the moon.
+    - Judge v2 marks it 0.326, against 0.226 for today's shot.
+
+    The options are back with Sean: (a) a lower, lit building across from the saloon's door,
+    which needs the gameplay session's town layout; (b) the turned shot with the porch post moved
+    and the card players re-placed; (c) leave the shot as it is.
+  - **Next:** the seated man's head turned toward the master's three-quarter view, which the
+    characters session asked for. Measured trials: the head yaw -13.25 → 0 and the roll halved
+    (head z 5.25 → 3, neck z 7.5 → 3). Results:
+    - judge v2 0.226 → 0.214;
+    - outline overlap 0.676 → 0.683;
+    - the cup is unchanged;
+    - his eyes are 10 px off the old night painting's eyes, against 3 px before (the turn aims
+      at the newer master painting).
