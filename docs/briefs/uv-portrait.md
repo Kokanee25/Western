@@ -43,3 +43,5 @@ Sean.
 |---|---|---|---|
 | 2026-10-13 | Rodin Gen-2.5 bust, bold cowboy (People workflow, `style: rodin`) | the shape (Sean: fresh, not run 61's) | $1.60 |
 | 2026-10-13 | Paint round 1: 3 takes x 4 views on fal flux-general (LoRA, depth ControlNet; take c with his style portrait as IP-Adapter reference), People workflow `style: uvpaint` | step 3, the painted face; which settings read best | $0: refused, fal's balance exhausted (run 65); to run again on a top-up (~$0.90) |
+| 2026-10-13 | Paint round 1, first try (run 66): 8 pictures made (takes a, b), lost: take c's IP-Adapter failed inside fal and stopped the job before its commit | | ~$0.60, lost |
+| 2026-10-13 | Paint round 1 again (each failure skipped, the commit always runs, the IP-Adapter given its weight file) | the same | ~$0.90 |

@@ -76,7 +76,8 @@ CONTROL = [
                                      "control_image_url": url, "conditioning_scale": s}]},
     lambda url, s: {},
 ]
-IP_ADAPTER = {"path": "XLabs-AI/flux-ip-adapter", "image_encoder_path": "openai/clip-vit-large-patch14"}
+IP_ADAPTER = {"path": "XLabs-AI/flux-ip-adapter", "weight_name": "ip_adapter.safetensors",
+              "image_encoder_path": "openai/clip-vit-large-patch14"}
 DELIGHT = 0.7
 SQUARE = 0.008
 LIKE = 0.10           # cells nearer than this (RGB distance) are smoothed together
@@ -321,8 +322,14 @@ def paint(man, rnd, dry):
     log = json.load(open(logp)) if os.path.exists(logp) else []
     made, spent = 0, 0.0
     control_way = 0
+    ip_broken = False
     for name, lora, strength, cn, ip, seed in ROUNDS[rnd]:
         for view in PAINTED:
+            if ip > 0 and ip_broken:
+                print("skipped", name, view, "(the reference failed)")
+                continue
+            if os.path.exists(os.path.join(out, "paint", "r%d_%s_%s.png" % (rnd, name, view))):
+                continue   # painted already
             W, H = meta["views"][view]["size"]
             body = {"prompt": ask(view), "image_url": data_url(os.path.join(out, view + "_start.png")),
                     "strength": strength, "num_inference_steps": 30, "guidance_scale": 3.5, "seed": seed,
@@ -346,8 +353,8 @@ def paint(man, rnd, dry):
                 except RuntimeError as e:
                     log.append({what: {"refused": str(e)[:1500], "control_way": control_way}})
                     if "422" in str(e) and "ip_adapter" in str(e) and "ip_adapters" in body:
-                        body.pop("ip_adapters")   # turned down over the reference: free; without it
-                        continue
+                        ip_broken = True   # turned down over the reference: free; the take is skipped
+                        break
                     if "422" in str(e):
                         control_way += 1   # turned down for the asking: free; try the next way
                         continue
@@ -356,20 +363,28 @@ def paint(man, rnd, dry):
                                    "controlnet": cn, "ip_adapter": ip, "seed": seed, "prompt": body["prompt"]}})
                 status_url = queued.get("status_url") or "%s%s/requests/%s/status" % (QUEUE, APP, queued["request_id"])
                 response_url = queued.get("response_url") or "%s%s/requests/%s" % (QUEUE, APP, queued["request_id"])
-                for _ in range(180):
-                    st = request("GET", status_url, key)
-                    if st.get("status") == "COMPLETED":
-                        answer = request("GET", response_url, key)
-                        log.append({what + "_answer": {k: x for k, x in answer.items() if k != "images"},
-                                    "image": (answer.get("images") or [{}])[0].get("url")})
-                        images = answer.get("images") or []
-                        if images:
-                            img = Image.open(io.BytesIO(pf.fetch(images[0]["url"]))).convert("RGB")
-                        break
-                    if st.get("status") not in ("IN_QUEUE", "IN_PROGRESS"):
-                        log.append({what + "_status": st})
-                        break
-                    time.sleep(5)
+                print("queued", what, queued.get("request_id"), flush=True)
+                try:
+                    for _ in range(180):
+                        st = request("GET", status_url, key)
+                        if st.get("status") == "COMPLETED":
+                            answer = request("GET", response_url, key)
+                            log.append({what + "_answer": {k: x for k, x in answer.items() if k != "images"},
+                                        "image": (answer.get("images") or [{}])[0].get("url")})
+                            images = answer.get("images") or []
+                            if images:
+                                img = Image.open(io.BytesIO(pf.fetch(images[0]["url"]))).convert("RGB")
+                            break
+                        if st.get("status") not in ("IN_QUEUE", "IN_PROGRESS"):
+                            log.append({what + "_status": st})
+                            break
+                        time.sleep(5)
+                except RuntimeError as e:
+                    # A picture fal couldn't make (e.g. the reference's weights): logged, the rest go on.
+                    log.append({what + "_failed": str(e)[:1500]})
+                    print("failed", what, str(e)[:300], flush=True)
+                    if "ip-adapter" in str(e).lower() and "ip_adapters" in body:
+                        ip_broken = True   # without it the take would only repeat another: skipped
                 break
             json.dump(log, open(logp, "w"), indent=1)
             if img is not None:

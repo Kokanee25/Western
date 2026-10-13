@@ -256,6 +256,7 @@ jobs:
           python3 tools/characters/uv_paint.py paint --man="${WHICH:-bold_cowboy}" --round=next --dry-run > /dev/null
           python3 tools/characters/uv_paint.py paint --man="${WHICH:-bold_cowboy}" --round=next
       - name: Commit the paintings
+        if: always()   # whatever was painted is kept, even if a later picture failed
         run: |
           git add docs/style_test/uv
           if git diff --cached --quiet; then
