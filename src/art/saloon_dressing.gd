@@ -20,7 +20,7 @@ class_name SaloonDressing
 ## falloff (2, the inverse square) at more energy than a lamp that lights a room
 ## (the blind critic's first point, 2026-10-05: "a dozen lamps each lighting its own patch of
 ## wall"; ours were wide and dim, a brown wash with flames floating in it).
-const SCONCE_ENERGY := 0.5
+const SCONCE_ENERGY := 0.8
 const SCONCE_FALLOFF := 2.0
 const SCONCE_REACH := 4.0
 const BALCONY_HEIGHT := 2.3
@@ -53,7 +53,7 @@ static func build(s: FalseFrontBuilding) -> void:
 ## than a lamp's own: the bold saloon painting's room is lit warm in pools, floor and walls, where
 ## ours was dark murk round the table (judge v2 on the saloon shot 0.330 -> 0.226 with the room's
 ## fill, SaloonBuilding.night_ambient, at 0.06; 2026-10-11).
-const LAMP_GAIN := 1.4
+const LAMP_GAIN := 2.0
 const LAMP_REACH := 1.2
 
 

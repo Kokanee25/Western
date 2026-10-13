@@ -14,7 +14,7 @@ uniform vec3 sun_color : source_color = vec3(1.0, 0.95, 0.9);
 uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_dir = vec3(0.0, -1.0, 0.0);
 uniform float star_strength = 0.0;
-uniform float sun_size = 0.035;
+uniform float sun_size = 0.055;
 // Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
 // painting's are small broken heaps, not big sheets), how ragged their edges are (high-frequency
 // noise eaten out of them), and how many painted tones each is drawn in (0: smooth, the
@@ -43,9 +43,9 @@ uniform float dusk_clouds = 1.0;
 // look: src/art/bold_look.json sets it 1): a deeper blue overhead, the horizon band left bright
 // gold, a stronger glow round the sun, and the clouds lit cream-gold and orange rather than dimmed.
 // 0 = the sky as it was.
-uniform float gold = 0.0;
+uniform float gold = 1.0;
 // Sun rays at golden hour (src/render/sun_rays.gdshaderinc): how strong the shafts are. 0 = none.
-uniform float ray_strength = 0.55;
+uniform float ray_strength = 0.9;
 
 #include "res://src/render/sun_rays.gdshaderinc"
 
