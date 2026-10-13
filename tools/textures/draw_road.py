@@ -32,7 +32,7 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_road.png"
 # much greyer than its lit colours (draw_boards.palette). The spread is pushed past the painting's:
 # the game's low sun and haze take some back (at 1.0 the rendered road's squares were half as
 # contrasted as the painting's).
-SPEC = {"albedo": [0.68, 0.53, 0.39], "contrast": 1.1, "grey": 0.1}
+SPEC = {"albedo": [0.68, 0.53, 0.39], "contrast": 1.0, "grey": 0.1}
 # Where the painting's road squares are read (x0, y0, x1, y1 in the 1672-wide picture, the square's
 # size there): the near road either side of the gun, and the road a few metres on.
 SQUARES = [(420, 780, 800, 940, 14), (880, 780, 1180, 940, 14), (560, 650, 1000, 780, 9)]
@@ -41,10 +41,10 @@ SQUARES = [(420, 780, 800, 940, 14), (880, 780, 1180, 940, 14), (560, 650, 1000,
 PAL_STEPS = range(10)
 # The dark share: the palette's tones below this share of the painting's squares are scattered as
 # dark squares; the rest is the dust. JITTER: the dust's square-to-square spread against its clumps'.
-DARK = 0.24
-JITTER = 0.3
+DARK = 0.16
+JITTER = 0.2
 # The share of a groove's squares filled with dust.
-GAPS = 0.2
+GAPS = 0.35
 TEXELS = 16  # a metre
 # The wheel tracks, in texels from the road's centre line (+ toward the saloon's side, z up): (where,
 # how worn). The most used pair runs 2.2 m toward the saloon's side, under the street shot's feet
@@ -123,11 +123,10 @@ def dust(w: int, h: int, share: np.ndarray, rng: np.random.Generator, ruts=None)
         for k in range(run):
             idx[(y + k) % h, x] = min(dark_n - 1, tone[y, x] + int(rng.integers(0, 2)) * (k > 0))
     if ruts is not None:
-        # The ruts in the dark tones (deeper, darker), their ridges a tone lighter than the dust.
+        # The ruts in the dark tones (deeper, darker). No lit ridge beside them: a ridge every
+        # groove drew ruled light lines down the street, a grid (the blind critic, 2026-10-13).
         deep = ruts < -0.9
         idx[deep] = np.clip(dark_n - np.round(-ruts[deep] * 0.9), 0, dark_n - 1)
-        ridge = (ruts > 0.4) & (rng.random((h, w)) < 0.5)
-        idx[ridge] = np.minimum(idx[ridge] + 1, n - 1)
     return idx
 
 
@@ -157,7 +156,7 @@ def grooves(h: int, w: int, rng: np.random.Generator) -> np.ndarray:
     v = np.zeros((h, w))
     centre = h // 2
     for off, depth in GROOVES:
-        wobble = (smooth_noise(w, 64, rng) - 0.5) * 2.0
+        wobble = (smooth_noise(w, 64, rng) - 0.5) * 2.0 + (smooth_noise(w, 16, rng) - 0.5) * 2.0
         twin = 2.5 + smooth_noise(w, 32, rng) * 2.5
         side = 1 if rng.random() < 0.5 else -1
         for x in range(w):

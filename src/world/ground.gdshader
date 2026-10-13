@@ -30,6 +30,10 @@ uniform bool keep_tracks = false;
 // The ground's own squares a metre when set (PixelArt.DRAWN_ROAD_TEXELS, with the drawn road: the
 // street painting's near road squares are twice the world's), else texels_per_meter.
 uniform float road_texels = 0.0;
+// Far off the drawn road's squares dissolve, as the painting's far street does (nearly smooth,
+// dimmed by haze): between these distances (metres from the eye) it eases toward its own mip.
+uniform float dissolve_from = 16.0;
+uniform float dissolve_to = 55.0;
 // The ground faces the whole sky, and with the sun low the sky round it is bright: the sun's
 // light on the ground is wrapped (a flat surface under a 15-degree sun got a quarter of it and
 // drew at half the painting's brightness, docs/ART_REVIEW.md §3.1). Shadows still fall.
@@ -111,6 +115,11 @@ void fragment() {
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
 		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, 0.0).rgb;
+		if (keep_tracks) {
+			float far = smoothstep(dissolve_from, dissolve_to, length(VERTEX));
+			wide = mix(wide, textureLod(wide_tex, w, 3.0).rgb, far);
+			dirt = mix(dirt, textureLod(road_tex, p * tpm / vec2(textureSize(road_tex, 0)), 2.0).rgb, far);
+		}
 		float patch = smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
 		if (keep_tracks) {
 			float lw = dot(wide, vec3(0.3, 0.59, 0.11));
