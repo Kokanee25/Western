@@ -5,7 +5,7 @@ only. Nothing in the game was changed; the experiments below were rendered from 
 of `tools/screenshots.gd` and their renders were scored with the judge's own measures without
 writing a round. Pictures are in `docs/screenshots/art_review/`.
 
-Read first: DESIGN.md §4, the art status entries in CLAUDE.md from 2026-09-28 on, the judge's
+Read first: DESIGN.md §4, the art status entries in `docs/status/` from 2026-09-28 on, the judge's
 history (`docs/screenshots/judge/history.md`), judge round 25, the character lab rounds, the
 backdrop sheet, and the code that makes the look (`src/render/`, `body_skin.gdshaderinc`,
 `ground.gdshader`, `sky.gdshader`, `pixel_art.gd`, `backdrop.gd`, `main.gd`, `judge.py`,

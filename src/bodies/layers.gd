@@ -16,6 +16,10 @@ const DEBRIS_MASK := WORLD | DEBRIS
 ## Physics: the hat a man's wearing (HumanBody.hat_body): bullets hit it and take it off;
 ## nothing else looks for it.
 const HATS := 32
+## Physics: a limp man's parts, on BODY_PARTS too (bullets hit them): they collide with each
+## other and with other limp men, so a fallen man's arm lands on his chest, not in it. A standing
+## man's hitboxes aren't on it, so a body can be dragged and walked past as before.
+const RAGDOLL := 64
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE
 

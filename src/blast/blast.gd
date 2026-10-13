@@ -38,6 +38,16 @@ static func impulse(kg: float, r: float) -> float:
 	return scaled * w3 * 100.0  # bar·ms -> Pa·s
 
 
+## How much harder a shock hits a face square to it than it passes by (the reflection
+## coefficient): 2 for a weak shock, rising toward 8 for a strong one, as the gas piles up against
+## the face (normal reflection of an ideal-gas shock, Rankine-Hugoniot with gamma 1.4:
+## Pr/Ps = 2 + 6 Ps / (Ps + 7 P0); Glasstone & Dolan, "The Effects of Nuclear Weapons", 1977, §3.78).
+## A stick by a wall hits it three or four times as hard as a flat x2 had it.
+static func reflection(kpa: float) -> float:
+	var strong := t().reflection_strong
+	return 2.0 + (strong - 2.0) * kpa / (kpa + 7.0 * P_ATM)
+
+
 static func reach(kg: float) -> float:
 	return t().reach_per_cbrt_kg * pow(kg, 1.0 / 3.0)
 
@@ -87,8 +97,8 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				continue
 			var s := m.get_parent() as Structure
 			var hitres := _member_response(m, at, kg, s)
-			if hitres.break:
-				by_structure.get_or_add(s, []).append([m, hitres.push])
+			if hitres.break and not _bedded(m):
+				by_structure.get_or_add(s, []).append([m, hitres.push, hitres.distance])
 			elif fire and fire.flammable(m) and hitres.distance < fireball and _rng.randf() < tn.ignite_chance:
 				fire.ignite(m)
 		elif c is DynamiteStick:
@@ -106,9 +116,11 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	for s: Structure in by_structure:
 		var list: Array[StructureMember] = []
 		var ps: Array[Vector3] = []
+		var near: Array[float] = []
 		for pair: Array in by_structure[s]:
 			list.append(pair[0])
 			ps.append(pair[1])
+			near.append(pair[2])
 		# Splinters fly off the boards it breaks (before they're rubble).
 		for i in list.size():
 			var m := list[i]
@@ -128,9 +140,11 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				splinters += 1
 		report.broken.append_array(s.break_members(list, ps))
 		if fire:
-			for m in list:
-				if fire.flammable(m) and m.global_position.distance_to(at) < fireball and _rng.randf() < tn.ignite_chance:
-					fire.ignite(m)
+			# By how near the fireball came to it, as for what it didn't break (a tall board's middle
+			# can be well outside it while its foot is in it).
+			for i in list.size():
+				if fire.flammable(list[i]) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
+					fire.ignite(list[i])
 	# Gravel and grit off the ground, if it went off on (or near) it.
 	if ballistics:
 		var down := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD)
@@ -181,11 +195,12 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	var dist := maxf(near.distance_to(at), 0.03)
 	var dir := (m.global_position - at).normalized()
 	if m.kind == &"glass":
-		var kpa := overpressure_kpa(kg, dist) * tn.reflection
+		var side := overpressure_kpa(kg, dist)
+		var kpa := side * reflection(side)
 		return {"break": kpa > tn.glass_kpa, "push": dir * minf(kpa * 0.2, 15.0), "distance": dist}
 	var length := m.length()
 	var cs := m.cross_section()
-	var total := face_impulse(m, at, kg) * tn.reflection
+	var total := face_impulse(m, at, kg)
 	var timber: TimberTuning = s.tuning if s and s.tuning else load("res://config/timber.tres")
 	var mass := maxf(m.weight(timber) / 9.81, 0.05)
 	var kick := total * total / (2.0 * mass)
@@ -197,7 +212,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	# Close in, it breaks where it's hit before the whole length feels it: the same test over the
 	# hand-span of it nearest the charge.
 	var span := minf(tn.local_span, length)
-	var near_j := face_impulse(m, at, kg, span) * tn.reflection
+	var near_j := face_impulse(m, at, kg, span)
 	var share := span / maxf(length, 1e-4)
 	var near_kick := near_j * near_j / (2.0 * mass * share)
 	var broke := kick > capacity or near_kick > capacity * share
@@ -207,7 +222,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	return {"break": broke, "push": (dir + Vector3.UP * 0.25).normalized() * speed, "distance": dist}
 
 
-## The blast's push on a member (N·s): impulse per area summed over the face turned to it. The
+## The blast's push on a member (N·s): reflected impulse per area summed over the face turned to it. The
 ## samples bunch up round the point nearest the charge, where nearly all of it lands (a stick lying
 ## on a floorboard hits the bit under it far harder than the rest of the board).
 static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := INF) -> float:
@@ -217,8 +232,11 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 	var axis := m.axis()
 	var half := length * 0.5
 	var t0 := clampf((at - m.global_position).dot(axis), -half, half)
-	# How far the charge is off the face at its nearest.
+	# How far the charge is off the face at its nearest, and how far out from the face it sees (the
+	# side of the cross-section it's furthest beyond): a shock striking a face square on is
+	# reflected in full, one running along it hardly at all.
 	var perp := _nearest_on(m, at).distance_to(at)
+	var out := _out_from_face(m, at)
 	var offsets := [0.0]
 	for d in [0.03, 0.08, 0.15, 0.3, 0.6, 1.2, 2.4, 4.8]:
 		offsets.append(d)
@@ -245,9 +263,31 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 		var mean := 0.0
 		for k in 3:
 			var off := width * (k - 1) / 3.0
-			mean += impulse(kg, sqrt(r * r + off * off))
+			var rk := sqrt(r * r + off * off)
+			var square_on := clampf(out / rk, 0.0, 1.0)
+			mean += impulse(kg, rk) * (1.0 + (reflection(overpressure_kpa(kg, rk)) - 1.0) * square_on)
 		total += mean / 3.0 * seg * width
 	return total
+
+
+## A timber lying on the ground (a sill on its footing): a charge on it cuts it, but both halves
+## still lie where they were and carry what stood on them, so it stays in the wall. (Snapped, the
+## whole length would fall as rubble and take the wall and roof with it.)
+static func _bedded(m: StructureMember) -> bool:
+	return m.grounded and absf(m.axis().y) < 0.5
+
+
+## How far `at` stands out from the long face of a member it's beyond (m; at least 2 cm, nothing
+## if it's off the member's end, in line with it).
+static func _out_from_face(m: StructureMember, at: Vector3) -> float:
+	var local := m.global_transform.affine_inverse() * at
+	var half := m.size * 0.5
+	var long := m.axis_index()
+	var out := -INF
+	for i in 3:
+		if i != long:
+			out = maxf(out, absf(local[i]) - half[i])
+	return maxf(out, 0.02) if out > -0.005 else 0.0
 
 
 ## The point of a member nearest `at`.

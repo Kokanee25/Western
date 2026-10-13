@@ -29,6 +29,7 @@ const SHADOW_SLACK := 1.0
 ## How far outside its building's walls a camera still gets an indoor lamp's full shadow.
 ## Indoors, how near a lamp in another building must be to shade fully (_indoors).
 const NEIGHBOUR_REACH := 12.0
+const LIGHTS_ALL := 0xFFFFF
 ## Walls-only lamps nearer than this keep six shadow passes: in two, a lamp's light leaks out
 ## through the seams between a wall's boards (the saloon's front from the street).
 const CUBE_REACH := 40.0
@@ -109,6 +110,12 @@ func _shadow_for_distance() -> void:
 	var near := d < shadow_reach + slack and (_sees_in(at, slack) or (d < NEIGHBOUR_REACH + slack and _indoors(at)))
 	if near != near_now:
 		_light.shadow_caster_mask = ALL_CASTERS if near else FAR_CASTERS
+		# A room's lamps light the people in it only while you're in it or at its door: everyone a
+		# light reaches is in its shadow work every frame they move, and from the street the men
+		# inside are a glimpse through the door, lit by the room's fill (2-3 ms of the street's
+		# render with the saloon's barkeep and drinkers in it).
+		var indoor := _room() is FalseFrontBuilding
+		_light.light_cull_mask = LIGHTS_ALL if near or not indoor else LIGHTS_ALL & ~Layers.VIS_BODY
 	# Far off, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
 	# thread ~50 us however little is in it, and from that far the seams' leaks don't show.
 	var cube_now := _light.omni_shadow_mode == OmniLight3D.SHADOW_CUBE
@@ -120,22 +127,27 @@ func _shadow_for_distance() -> void:
 ## A lamp in a building only shades fully for a camera in it, on its porch or at its door: from
 ## the street its shadows are behind the walls. A lamp hung outside them is the street's.
 func _sees_in(at: Vector3, slack: float) -> bool:
-	if _building == null:
-		var p := get_parent()
-		while p and not p is FalseFrontBuilding:
-			p = p.get_parent()
-		_building = p if p else self
-		# Hung outside its walls (a porch lantern): it lights the street, not a room.
-		if p:
-			var own := (p as FalseFrontBuilding).global_transform.affine_inverse() * global_position
-			if own.x < 0.0 or own.x > p.width or own.z < 0.0 or own.z > p.depth:
-				_building = self
-	if not _building is FalseFrontBuilding:
+	if not _room() is FalseFrontBuilding:
 		return true
 	var b := _building as FalseFrontBuilding
 	var local := b.global_transform.affine_inverse() * at
 	var m := ROOM_MARGIN + slack
 	return local.x > -m and local.x < b.width + m and local.z > -m and local.z < b.depth + m
+
+
+## The building whose room this lamp lights, or itself: none, or hung outside its walls (a porch
+## lantern lights the street, not a room). Found once.
+func _room() -> Node:
+	if _building == null:
+		var p := get_parent()
+		while p and not p is FalseFrontBuilding:
+			p = p.get_parent()
+		_building = p if p else self
+		if p:
+			var own := (p as FalseFrontBuilding).global_transform.affine_inverse() * global_position
+			if own.x < 0.0 or own.x > p.width or own.z < 0.0 or own.z > p.depth:
+				_building = self
+	return _building
 
 
 ## Is the camera inside any building's walls? Indoors, a lamp next door shows through the gaps

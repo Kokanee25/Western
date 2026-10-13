@@ -146,8 +146,7 @@ footage, and kept apart from them.
   19 cm apart by tick 166. Something carried over from the first run (Jolt's body ordering or
   cached state) changes the second, so `run.py` starts one process per scenario. **This matters
   beyond the lab:** `tests/run_tests.gd` runs every test in one process, so a test's fall can depend
-  on which tests ran before it. That may be behind the chaos test's same-seed drift (CLAUDE.md,
-  2026-10-05).
+  on which tests ran before it. That may be behind the chaos test's same-seed drift (docs/status/2026-10-05.md).
 - Across machines, OSes or Godot builds, results aren't expected to match. Compare numbers within a
   tolerance; compare footage by eye.
 
