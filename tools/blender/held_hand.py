@@ -1,7 +1,8 @@
 """Your right hand round the modelled revolver, from MakeHuman's hand (CC0).
 
 Run after held_revolver.py:  ~/bpyenv/bin/python tools/blender/held_hand.py
-Writes assets/held/hand.glb: the hand and wrist (`Hand`, with shapes `trigger` and `thumb`), the
+Writes assets/held/hand_makehuman.glb (the first try; the game takes hand.glb, the scanned hand
+from held_scan_hand.py, which uses this script's gun and cloth): the hand and wrist (`Hand`, with shapes `trigger` and `thumb`), the
 shirt's cuff and the coat's sleeve, in the gun's space (as src/weapons/hand_model.gd's code-built
 hand is).
 
@@ -664,7 +665,7 @@ def main():
     print("forearm %.3f m; wrist at %s" % (arm_len, np.round(w, 3)))
 
     os.makedirs(OUT, exist_ok=True)
-    path = os.path.join(OUT, "hand.glb")
+    path = os.path.join(OUT, "hand_makehuman.glb")
     for o in bpy.data.objects:
         o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_yup=True, export_normals=True,

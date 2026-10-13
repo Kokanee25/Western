@@ -4539,3 +4539,29 @@ a few views renders them as the full run does.
   close). Known: the skin is still smooth up close (no pores or veins); the hand is MakeHuman's
   average man's, a little soft at the knuckles; the thumb's cocking shape reaches the spur but
   wasn't seen moving in the game yet.
+- 2026-10-13 (characters session, branch `claude/characters-painterly`, not merged): **Your hand
+  from a scan of a real hand** (Sean: "that hand is not great"; then "let's go with the scan and
+  fetch one"). The Smithsonian's 3D scan of Leonard Volk's 1860 cast of Lincoln's right hand,
+  closed round a sawn-off broom handle (National Portrait Gallery S/NPG.71.6, CC0; `CREDITS.md`,
+  new), fetched on Actions (People workflow `style: scan`, `tools/held/fetch_scan.py`: the
+  Smithsonian's servers are blocked from the workspace) into `assets/held/scan/` (the right hand
+  at 150k triangles and the API's answers; `.gdignore`d). `tools/blender/held_scan_hand.py` makes
+  `assets/held/hand.glb` from it as `held_hand.py` made the MakeHuman one (`hand_makehuman.glb`
+  now, kept): works in the handle's own coordinates (a Hough search found it: 12.5 mm radius);
+  cuts the handle's stubs off; grows the index finger, thumb and middle finger over the scan
+  from seeds, the borders falling in the creases; cuts the index free and closes each side of the
+  cut with a strip bridged along its rim (the creases' U-shaped rims; a fan from the middle drew
+  membranes across the fist); thins it to 63k triangles; sets the fist on the grip (the handle's
+  axis on the grip's centre line) and swells each ring of it out to the grip's oval (bigger than
+  a broom handle); opens the index onto the trigger by turning its three joints about axes along
+  the handle and swinging it at the knuckle (searched with the fist's height and turn on the grip:
+  the pad 1 mm off the trigger's face, 6 of 1,500 sampled points of the hand in the gun); the
+  `trigger` shape closes it on the trigger pulled back, `thumb` turns the thumb up to the spur;
+  the cuff over the cast's wrist cut. The cast's own normal map and its occlusion and crease
+  shading (`hand_normal.png`, `hand_cavity.png`, 2048) give the skin its veins, tendons, knuckles
+  and creases; `experiments/painterly/held_scan_skin.gdshader` colours it (back of the hand and
+  palm, mottle, flush, nails). Only under `--painterly` (`held_models.gd`: the `scan_skin`
+  material). Sheet `docs/screenshots/painterly/hand_scan.jpg`. People workflow: one new job
+  (`held-scan`, said in its commit). Known: the strips that close the cut have no scan detail
+  (plain skin, mostly in the gap between the index and the middle finger); Lincoln's hand is a big one; the thumb's cocking shape is a
+  plain turn (no joint bends); the skin's colour is set by hand, not measured.

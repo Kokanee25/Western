@@ -7,6 +7,7 @@ extends RefCounted
 const DIR := "res://assets/held/"
 const SHADER := preload("res://experiments/painterly/held_metal.gdshader")
 const SKIN := preload("res://experiments/painterly/held_skin.gdshader")
+const SCAN_SKIN := preload("res://experiments/painterly/held_scan_skin.gdshader")
 
 static var _mats := {}
 
@@ -114,6 +115,11 @@ static func material(slot: String) -> Material:
 		"skin":
 			m.shader = SKIN
 			m.set_shader_parameter(&"mottle_tex", load(DIR + "skin.png"))
+		"scan_skin":  # the scanned hand (held_scan_hand.py)
+			m.shader = SCAN_SKIN
+			m.set_shader_parameter(&"mottle_tex", load(DIR + "skin.png"))
+			m.set_shader_parameter(&"normal_tex", load(DIR + "hand_normal.png"))
+			m.set_shader_parameter(&"cavity_tex", load(DIR + "hand_cavity.png"))
 		"cuff":
 			_params(m, "linen", 220.0, 0.0, 0.85, Color(0.8, 0.76, 0.66))
 			m.set_shader_parameter(&"tint", Color(0.72, 0.66, 0.55))
