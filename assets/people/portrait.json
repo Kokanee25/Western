@@ -39,6 +39,40 @@
     "coat": "#5c4029",
     "cravat": "#16120f"
    }
+  },
+  "bold_cowboy_styled_30": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_styled_30",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "note": "The bold cowboy from his plain views repainted in the style (portrait_style.py, LoRA 0.3)"
+  },
+  "bold_cowboy_styled_60": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_styled_60",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "note": "The bold cowboy from his plain views repainted in the style (portrait_style.py, LoRA 0.6)"
   }
  }
 }
