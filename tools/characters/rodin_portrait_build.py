@@ -72,18 +72,27 @@ def build(man, spec):
         c_goal = (eyes["right"] + eyes["left"]) / 2
         Vp = (V - c_mine) * k + c_goal
         Tk = head_part(Vp, T, UV, (pts - c_mine) * k + c_goal)
+        # One vertex per position (Rodin's corners come split at every UV seam: left so, the mesh
+        # is a triangle soup that decimation tears and nothing shades smooth across), each
+        # corner keeping its own UV.
+        key = np.round(Vp[np.unique(Tk)] / 1e-6).astype(np.int64)
         used = np.unique(Tk)
-        remap = -np.ones(len(Vp), int)
-        remap[used] = np.arange(len(used))
-        Vh, Th, UVh = Vp[used], remap[Tk], UV[used]
+        _u, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True)
+        weld_of = -np.ones(len(Vp), int)
+        weld_of[used] = inv.ravel()
+        Vh = Vp[used][first]
+        Th = weld_of[Tk]
+        corner_uv = UV[Tk]
+        keep = (Th[:, 0] != Th[:, 1]) & (Th[:, 1] != Th[:, 2]) & (Th[:, 0] != Th[:, 2])
+        Th, corner_uv = Th[keep], corner_uv[keep]
         chin_y = ((pts[152] - c_mine) * k + c_goal)[1]
         me = bpy.data.meshes.new("body_head")
         me.from_pydata([mp.to_blender(p) for p in Vh], [], Th.tolist())
         uvl = me.uv_layers.new(name="UVMap")
-        for poly in me.polygons:
+        for pi, poly in enumerate(me.polygons):
             poly.use_smooth = True
-            for li in poly.loop_indices:
-                u, v = UVh[me.loops[li].vertex_index]
+            for c, li in enumerate(poly.loop_indices):
+                u, v = corner_uv[pi][c]
                 uvl.data[li].uv = (u, 1.0 - v)
         obj = bpy.data.objects.new("body_head", me)
         bpy.context.scene.collection.objects.link(obj)

@@ -140,8 +140,9 @@ def render_own(V, T, UV, tex, cam, size):
 def face_points(V, T, UV, tex, size=1024):
     """MediaPipe's landmarks as points on the bust (478, 3), from a front render in his own colours."""
     cam = P.head_camera(V, "front", size, fill=0.9)
-    # Frame the face, not the whole bust: the top two fifths of him, a little wider than tall.
-    y0, y1 = V[:, 1].max() - 0.42 * np.ptp(V[:, 1]), V[:, 1].max()
+    # Frame his head, not the whole bust: the top 60% of him (his chin well inside the picture:
+    # cut at it, MediaPipe's chin lands on the edge and the neck cut follows it up to his mouth).
+    y0 = V[:, 1].max() - 0.6 * np.ptp(V[:, 1])
     sel = V[:, 1] > y0
     cam = P.head_camera(V[sel], "front", size, fill=0.95)
     img, (tid, bary) = render_own(V, T, UV, tex, cam, size)

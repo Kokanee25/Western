@@ -53,12 +53,18 @@ def style_head(name, height):
     return c.resize((int(c.width * height / c.height), height), Image.LANCZOS)
 
 
+# Where his head is in each saloon frame (1280x720) when MediaPipe can't find it in the lamplight:
+# ShotMatch seats him in the same place every time.
+FRAME_HEAD = {"shot_match_saloon": (395, 140, 575, 345), "shot_match_close": (470, 100, 870, 540)}
+
+
 def frame_head(path):
-    """His head in a saloon frame: MediaPipe's face, grown to take his hat and chin."""
+    """His head in a saloon frame: MediaPipe's face, grown to take his hat and chin, or FRAME_HEAD."""
     im = Image.open(path).convert("RGB")
     lm = P.landmarks(im)
     if lm is None:
-        return None
+        box = FRAME_HEAD.get(os.path.basename(path)[:-4])
+        return im.crop(box) if box else None
     top, chin = lm[:, 1].min(), lm[152, 1]
     face = chin - top
     y0, y1 = top - 0.55 * face, chin + 0.05 * face
