@@ -287,6 +287,7 @@ jobs:
           FAL_KEY: ${{ secrets.FAL_KEY }}
           WHICH: ${{ inputs.characters }}
         run: |
+          pip install pillow
           id="${WHICH:-bold_cowboy}"
           python3 tools/characters/rodin.py --dry-run
           python3 tools/characters/rodin.py --only=$id --pictures=docs/concept/style/factory/$id --bust
