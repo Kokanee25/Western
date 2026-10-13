@@ -314,9 +314,10 @@ frozen until Sean names one.
   light (#109: the gold sky warm, a gold sun in the notch, the room's lamps up); job 4, the shots'
   own extras. Judge v2: saloon 0.423, street 0.713 (notes; Sean's eye is the gate). Sheets in
   `docs/screenshots/review/`.
-- Next: the critic's top three: the saloon drowned in one orange haze (job 3's `room_haze` 0.022
-  and lamp gain 1.7: pull back, keep the darks); the road loud static (calmer far off and at noon);
-  his face still flat and staring. Then the saloon's square size (~20 px to the painting's ~5).
+- Next: the critic's top three (round r7): the saloon's standing men block the room and read as
+  mannequins; his face smeared and hot; the road loud static (calmer far off and at noon). Then the
+  saloon's square size (~20 px to the painting's ~5). Done since: the saloon's darks back (haze,
+  lamp glow, fill, exposure; judge saloon 0.306).
 - Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
   goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
   folk cost ~43 meshes each (~50 to spare).

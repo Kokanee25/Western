@@ -53,8 +53,12 @@ static func build(s: FalseFrontBuilding) -> void:
 ## than a lamp's own: the bold saloon painting's room is lit warm in pools, floor and walls, where
 ## ours was dark murk round the table (judge v2 on the saloon shot 0.330 -> 0.226 with the room's
 ## fill, SaloonBuilding.night_ambient, at 0.06; 2026-10-11).
-const LAMP_GAIN := 1.7
+const LAMP_GAIN := 1.5
 const LAMP_REACH := 1.2
+## How much of each room lamp's light the room's haze takes (2026-10-13, the blind critic: "the
+## saloon drowned in one orange haze"; the lamps lit the haze into an even wash from floor to
+## rafters where the painting keeps its darks between the pools).
+const LAMP_HAZE := 0.65
 
 
 static func _brighten_lamps(s: FalseFrontBuilding) -> void:
@@ -62,8 +66,10 @@ static func _brighten_lamps(s: FalseFrontBuilding) -> void:
 		var lamp := n as OilLamp
 		lamp.energy *= LAMP_GAIN
 		lamp.light_range *= LAMP_REACH
+		lamp.haze *= LAMP_HAZE
 		if lamp._light:
 			lamp._light.omni_range = lamp.light_range
+			lamp._light.light_volumetric_fog_energy = lamp.haze
 
 
 ## A new empty node under the saloon by this name (an old one from an earlier build gone).
