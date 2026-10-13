@@ -309,11 +309,12 @@ pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`d
 frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; brief: Sean's four jobs of 2026-10-12, in `docs/status/`):
-- Done: merges 3a–3j; job 1, the mosaic (the road drawn from the painting's squares at 16/m,
-  bolder drawn wood, the table in fine squares at 128/m, saloon woods pushed). Judge v2: saloon
-  0.215, street 0.279. Sheets for Sean in `docs/screenshots/review/`.
-- Next: job 2 (his face: side key, weathered skin, frown, shaded eyes), job 3 (the gold sky, a
-  big sun, brighter lamps), job 4 (more people in both shots), one merge each.
+- Done: merges 3a–3j; job 1, the mosaic (build 956: the road drawn from the painting's squares
+  at 16/m, bolder drawn wood, the table in fine squares at 128/m, saloon woods pushed); job 2, his
+  face (side key, `weathered_face` in `body_skin`). Judge v2: saloon 0.205, street 0.279. Sheets
+  for Sean in `docs/screenshots/review/`.
+- Next: job 3 (the gold sky, a big sun, brighter lamps), job 4 (more people in both shots, staged
+  in the shots), one merge each; both ready on local branches.
 - Known: the saloon's squares are ~20 px to the painting's ~5 (a room-wide density change);
   extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire views'
   golden tolerances pass any fire look.

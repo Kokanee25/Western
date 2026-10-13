@@ -147,7 +147,7 @@ vec3 weathered_face(vec3 base, vec3 p) {
 		// The whites: dimmed, and toward the corners turned to the lids' colour.
 		float pale = smoothstep(0.55, 0.8, low / max(top, 1e-4)) * step(0.2, top) * in_eye;
 		float corner = smoothstep(0.18, 0.42, abs(e.x));
-		base = mix(base, base * mix(0.62, 0.3, corner), pale * face_whites);
+		base = mix(base, base * mix(0.45, 0.25, corner), pale * face_whites);
 	}
 	// The frown's two creases between the brows.
 	float crease = (face_box(vec2(x - 0.16, y - 0.42), vec2(0.045, 0.22)) + face_box(vec2(x + 0.16, y - 0.42), vec2(0.045, 0.22)));

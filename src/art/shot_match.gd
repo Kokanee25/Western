@@ -178,7 +178,7 @@ static var fill_warm := 0.4
 ## above is down to a third so that side stays dark.
 const KEY_FROM := Vector3(1.15, 1.28, -1.38)
 const KEY_AT := Vector3(0.74, 1.08, -0.47)
-static var key_energy := 6.5
+static var key_energy := 4.0
 ## The render layer his head is on, which the table lamp leaves alone (OilLamp.cull_out).
 const FACE_LAYER := 1 << 10
 static var key_angle := 13.0
