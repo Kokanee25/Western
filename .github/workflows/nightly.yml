@@ -53,6 +53,12 @@ jobs:
       - name: Soak
         run: |
           minutes="${{ github.event.inputs.minutes }}"
+          # Once a minute, the machine's memory, the game's and the disk: the runner was shut down
+          # mid-soak six nights running (2026-10-07..12) and left no clue which ran out.
+          (while sleep 60; do
+            echo "machine: $(free -m | awk '/Mem:/{print $3 " of " $2 " MB used"}'), godot $(ps -o rss= -C godot | awk '{s+=$1} END {printf "%.0f MB", s/1024}'), disk $(df -h --output=avail . | tail -1) free"
+          done) &
+          trap "kill $! 2>/dev/null" EXIT
           ~/godot/godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes="${minutes:-240}" --out=build/soak
 
       - name: Report

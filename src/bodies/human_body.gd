@@ -1116,6 +1116,24 @@ func _snap_to_ground() -> void:
 		global_position.y = best
 
 
+## Into the scene where he's to stand (`at`, world space), facing `yaw`: placed before he's
+## added, because his limbs are kinematic bodies, and moved there after they'd sweep from the
+## parent's origin in one step and fling what lay in the way (a stud in the street went off at
+## 500 m/s when the gang rode in: the nightly soak, 2026-10-13).
+func enter(parent: Node, at: Vector3, yaw := 0.0) -> void:
+	var where := Transform3D(Basis(Vector3.UP, yaw), at)
+	if parent is Node3D and parent.is_inside_tree():
+		where = (parent as Node3D).global_transform.affine_inverse() * where
+	transform = where
+	parent.add_child(self)
+
+
+## The yaw that faces from `from` towards `point` (as face() turns him).
+static func yaw_toward(from: Vector3, point: Vector3) -> float:
+	var to := point - from
+	return atan2(-to.x, -to.z) if Vector2(to.x, to.z).length() > 0.01 else 0.0
+
+
 ## Turn to face a point and, in the aim pose, raise the gun arm to it.
 func face(point: Vector3) -> void:
 	if limp:

@@ -92,19 +92,18 @@ his own).
 | Physics (the engine: server paused vs running) | 2.0 | 1.1 | 0.3* | 1.5 |
 | Structures (structures, voxels, ballistics) | 1.0 | 0.0 | 0.1 | 0.4 |
 | Fire and effects (fire, incl. burning buildings' settle; smoke; dynamite) | 2.0 | 0.1 | **2.4** | 0.6 |
-| Render CPU (draw calls) | 4.0 | 3.5 | – | 6.1–6.4 |
+| Render CPU (draw calls) | 4.0 | 2.9 | – | 6.1–6.4 |
 | Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
-| **Total** | **≤ 14** | **6.6** | 6.6 + render | 4.7 + 6.4 |
+| **Total** | **≤ 14** | **6.0** | 6.6 + render | 4.7 + 6.4 |
 
 \* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
-scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
-Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
-(lavapipe 19.2 ms, 15,400 draws), 6.6 after the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
-draws), ~5.8 since a room's lamps stopped lighting its people from the street (8.9 ms). What's
-left, by turning one thing off at a time: the saloon's 14 lamps' shadows ~3.7 ms (per lamp, not per
-pass: two passes cost the same as six under lavapipe), the sun's shadow ~1.7, the rest the town's
-own draws.
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). The calm
+street's render CPU went over with Main Street's new buildings (2026-10-06: 12.5 at Sean's,
+lavapipe 19.2 ms, 15,400 draws) and is back under since 2026-10-13: **~2.9 at Sean's** (lavapipe
+4.5 ms, 2,700 draws). The saloon's 14 lamps were taking each other's shadow-atlas slots and so
+redrawing every frame (~4 ms); with every atlas quadrant one cell size (`GameViewport`) a lamp's
+shadow is drawn only when something in it moves. The sun's shadow is ~0.7 of what's left.
 
 ## Tech decisions
 
@@ -331,11 +330,16 @@ frozen until Sean names one.
 - Waiting on Sean: the merge; the eye's size and opening (bigger read as cartoony, 2026-10-07).
 
 **Gameplay** (branch `claude/gameplay-…`):
-- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
-  man keeps his momentum, crumples with muscle tone and keeps his limbs out of his body; lamps draw their full shadows only near you (street render CPU 19.2 →
-  10.2 ms on lavapipe, draws 15,412 → 3,290); a room's lamps don't light its people from the
-  street (8.9 ms); dynamite breaks the studs by it, so you can blow your way out of a building.
-- Next: Prompt 09 (fix the falls) when Sean says; the rest of the street's render budget (the
-  larger town's draws, the sun's cascades); brick as a material wants a brief first; M4 step 5
-  (money) stays frozen with the features.
-- Waiting on Sean: Prompt 09's go; performance part B's next step; the `proposed` feel ranges.
+- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
+  momentum and crumples with muscle tone; dynamite breaks the studs by it; lamp shadows drawn
+  once, not every frame (shadow atlas one cell size: street render CPU 8.6 → 4.5 ms lavapipe,
+  ~2.9 at Sean's, under budget); the nightly soak's faults (a freed mate, rubble on you, the gang
+  flinging rubble as it rode in, shapeless rubble through the ground) and it now logs what it
+  finds and its memory as it goes.
+- Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (the runner was
+  shutting it down; its log now says memory and disk each minute); `test_chaos` is flaky on main
+  (thread scheduling: exact on one worker thread; see the status entry); brick wants a brief
+  first; M4 step 5 (money) stays frozen with the features.
+- Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
+  four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
+  after a fight; the `proposed` feel ranges.

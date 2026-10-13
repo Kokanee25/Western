@@ -465,7 +465,9 @@ func _consume(m: StructureMember) -> void:
 				var n := o as Node
 				var body := n.get_parent()
 				n.queue_free()
-				if body is RigidBody3D and body.get_child_count() <= 2:
+				# Rubble with nothing solid left goes too (it'd fall through the ground), whatever
+				# else hangs on it.
+				if body is RigidBody3D and not Structure.has_solid_shape(body):
 					body.queue_free.call_deferred()
 	m.pieces.clear()
 	Events.member_broken.emit(m.member_id)
@@ -668,7 +670,7 @@ func _refresh_fx(frames: int) -> void:
 ## that's burning, up to `smoke_fields`; members outside one (rubble in the street, a building
 ## past the limit, no native plugin) keep their particle smoke.
 func _place_smoke(burning: Array[StructureMember]) -> void:
-	_smoke = _smoke.filter(func(f: SmokeField) -> bool: return is_instance_valid(f) and not f.is_queued_for_deletion())
+	_smoke = _smoke.filter(func(f: Variant) -> bool: return is_instance_valid(f) and not f.is_queued_for_deletion())
 	if not SmokeField.available():
 		return
 	for m in burning:
