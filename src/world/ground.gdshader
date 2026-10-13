@@ -27,6 +27,13 @@ uniform bool use_wide_tex = false;
 // where the 2 m tile shows through (they're darker than the dust round them), so the tracks run
 // unbroken down the street as the painting's do.
 uniform bool keep_tracks = false;
+// The ground's own squares a metre when set (PixelArt.DRAWN_ROAD_TEXELS, with the drawn road: the
+// street painting's near road squares are twice the world's), else texels_per_meter.
+uniform float road_texels = 0.0;
+// Far off the drawn road's squares dissolve, as the painting's far street does (nearly smooth,
+// dimmed by haze): between these distances (metres from the eye) it eases toward its own mip.
+uniform float dissolve_from = 16.0;
+uniform float dissolve_to = 55.0;
 // The ground faces the whole sky, and with the sun low the sky round it is bright: the sun's
 // light on the ground is wrapped (a flat surface under a 15-degree sun got a quarter of it and
 // drew at half the painting's brightness, docs/ART_REVIEW.md §3.1). Shadows still fall.
@@ -80,14 +87,15 @@ void vertex() {
 void fragment() {
 	// Snap to the texel grid so the ground reads as pixel art up close; far off, to tiles of a few
 	// texels, never smaller than min_square_px on screen (tiles.gdshaderinc).
-	vec2 t = world_pos.xz * texels_per_meter;
+	float tpm = road_texels > 0.0 ? road_texels : texels_per_meter;
+	vec2 t = world_pos.xz * tpm;
 	bool soft = block_soft > 0.0;
 	float b = soft ? 1.0 : tile_square(t);
 	// Under soft edges the sample point slides across a texel's edge (tiles.gdshaderinc), so the
 	// road's painted tiles blend there; the dirt's own per-texel noise stays hard.
-	vec2 p = (soft ? tile_soft_point(t) : (floor(t / b) + 0.5) * b) / texels_per_meter;
+	vec2 p = (soft ? tile_soft_point(t) : (floor(t / b) + 0.5) * b) / tpm;
 	float n = fbm(p * 0.3);
-	float fine = smooth_source ? 0.5 : hash(floor(p * texels_per_meter));
+	float fine = smooth_source ? 0.5 : hash(floor(p * tpm));
 	float dz = abs(p.y - road_center_z);
 	float road = 1.0 - smoothstep(road_half_width - 1.0, road_half_width + 1.5, dz + (n - 0.5) * 3.0);
 	vec3 wild = mix(scrub_color, sage_color, smoothstep(0.45, 0.7, fbm(p * 0.08 + 3.0)));
@@ -95,18 +103,23 @@ void fragment() {
 	if (use_road_tex) {
 		// Texel by texel from the factory's road, its repeats broken up by the broad noise below.
 		vec2 rs = vec2(textureSize(road_tex, 0));
-		dirt = soft ? tile_sample_soft(road_tex, p * texels_per_meter, rs, vec2(0.0), vec2(0.0)).rgb
-				: textureLod(road_tex, p * texels_per_meter / rs, 0.0).rgb;
+		dirt = soft ? tile_sample_soft(road_tex, p * tpm, rs, vec2(0.0), vec2(0.0)).rgb
+				: textureLod(road_tex, p * tpm / rs, 0.0).rgb;
 	}
 	if (use_wide_tex) {
 		// The 8 m painting along the street; every other 8 m the picture is mirrored end for end
 		// (seamless, so the join holds), and the 2 m tile shows through in broad patches.
-		float wide_metres = float(textureSize(wide_tex, 0).x) / texels_per_meter;
+		float wide_metres = float(textureSize(wide_tex, 0).x) / tpm;
 		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wide_metres) / wide_metres;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
 		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, 0.0).rgb;
+		if (keep_tracks) {
+			float far = smoothstep(dissolve_from, dissolve_to, length(VERTEX));
+			wide = mix(wide, textureLod(wide_tex, w, 3.0).rgb, far);
+			dirt = mix(dirt, textureLod(road_tex, p * tpm / vec2(textureSize(road_tex, 0)), 2.0).rgb, far);
+		}
 		float patch = smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
 		if (keep_tracks) {
 			float lw = dot(wide, vec3(0.3, 0.59, 0.11));
@@ -144,13 +157,14 @@ void fragment() {
 	// Hooves and boots churn the middle into darker patches; pebbles lie about, a light or a dark
 	// texel here and there.
 	float churn = smoothstep(0.55, 0.75, fbm(p * 0.9 + 11.0)) * (1.0 - smoothstep(0.0, 2.5, abs(sz))) * road;
-	float pebble = hash(floor(p * texels_per_meter) + 17.0);
+	float pebble = hash(floor(p * tpm) + 17.0);
 	col = mix(col, dirt_dark * 0.85, (groove * 0.5 + churn * 0.2) * drawn);
 	col *= 1.0 + ridge * 0.22;
-	col = mix(col, col * (pebble > 0.5 ? 1.32 : 0.62), step(0.965, hash(floor(p * texels_per_meter) + 3.0)) * road * drawn);
+	col = mix(col, col * (pebble > 0.5 ? 1.32 : 0.62), step(0.965, hash(floor(p * tpm) + 3.0)) * road * drawn);
 	col *= use_road_tex || use_wide_tex ? mix(0.88 + 0.24 * fine, 1.0, road) : 0.88 + 0.24 * fine;
-	// a few shades per colour, like a hand-made palette
-	if (!smooth_source) {
+	// a few shades per colour, like a hand-made palette (the drawn road has its own: snapping it
+	// again merged its neighbouring tones)
+	if (!smooth_source && !keep_tracks) {
 		col = floor(col * 24.0 + 0.5) / 24.0;
 	}
 	ALBEDO = col;

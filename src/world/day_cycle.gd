@@ -117,7 +117,7 @@ func get_sun_direction(hour: float = time_of_day) -> Vector3:
 func get_moon_direction(hour: float = time_of_day) -> Vector3:
 	var h := (hour / 24.0 - 0.5) * TAU
 	var v := Vector3(sin(h), -(cos(h) + config.day_bias), 0.0).normalized()
-	return v.rotated(Vector3.RIGHT, deg_to_rad(config.moon_tilt_degrees))
+	return v.rotated(Vector3.RIGHT, deg_to_rad(config.moon_tilt_degrees)).rotated(Vector3.UP, deg_to_rad(config.moon_azimuth_degrees))
 
 
 func is_daytime(hour: float = time_of_day) -> bool:

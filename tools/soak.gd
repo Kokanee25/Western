@@ -11,6 +11,9 @@ extends SceneTree
 ##
 ##   godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak
 ##
+## Each problem is printed as it's found and each window prints the process's resident memory, so
+## a run the CI runner kills still leaves its log; past RUNAWAY_MB it stops early and reports.
+##
 ## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
 ## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
 ##
@@ -23,6 +26,7 @@ const MAP_RADIUS := 400.0
 const STUCK_SECONDS := 60.0
 const CREEP := 3.0  # the last window's median frame over the first's
 const MEMORY_GROWTH := 1.5  # the last window's memory over the first's, while still climbing
+const RUNAWAY_MB := 6000.0  # resident memory: stop and report (the CI runner has 16 GB)
 
 var OB: Script  # OutlawBrain, loaded once the game is up (a -s script can't name game classes)
 
@@ -52,8 +56,9 @@ var _t := 0.0
 var _windows: Array = []  # {t, frame_ms_median, memory_mb, nodes, orphans, people}
 var _frame_ms := PackedFloat32Array()
 var _problems := {}
-var _track := {}  # person path -> {at, since}
+var _track := {}  # person (instance id) -> {at, since}
 var _happened: Array[String] = []
+var _runaway := false
 
 
 func _initialize() -> void:
@@ -93,7 +98,7 @@ func _run() -> void:
 			events.append([cycle + float(e[0]), e[1]])
 		cycle += 6000.0
 	var last := Time.get_ticks_usec()
-	while _t < _minutes * 60.0:
+	while _t < _minutes * 60.0 and not _runaway:
 		await physics_frame
 		var now := Time.get_ticks_usec()
 		_frame_ms.append((now - last) / 1000.0)
@@ -145,20 +150,59 @@ func _problem(kind: String, text: String) -> void:
 	var list: Array = _problems.get(kind, [])
 	if list.size() < 10:
 		list.append("%s %s" % [_clock(), text])
+		print("soak problem, %s: %s %s" % [kind, _clock(), text])
 	_problems[kind] = list
 
 
+## The process's resident memory (MB), everything in it (the engine, Jolt, the native plugin):
+## Linux only, 0 elsewhere.
+static func _rss_mb() -> float:
+	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
+	if f == null:
+		return 0.0
+	while not f.eof_reached():  # line by line: /proc files report no length, so get_as_text() is empty
+		var line := f.get_line()
+		if line.begins_with("VmRSS:"):
+			return float(line.split(":")[1].strip_edges().split(" ")[0]) / 1024.0
+	return 0.0
+
+
+## What a lost body is, for the report: where it hangs, what made it, how fast it's going.
+func _describe(n: Node) -> String:
+	var what := "%s (%s" % [_street.get_path_to(n) if _street.is_ancestor_of(n) else n.get_path(), n.get_class()]
+	var sc: Script = n.get_script()
+	if sc:
+		what += " " + sc.resource_path.get_file()
+	if n.has_meta(&"members"):
+		var ids: Array = n.get_meta(&"members")
+		what += ", %d members: %s" % [ids.size(), ", ".join(ids.slice(0, 3).map(func(i): return String(i)))]
+	if n is RigidBody3D:
+		var shapes := n.get_children().filter(func(c): return c is CollisionShape3D)
+		what += ", %.0f m/s, %d shapes (%d solid)" % [(n as RigidBody3D).linear_velocity.length(), shapes.size(),
+				shapes.filter(func(c): return not c.disabled and not c.is_queued_for_deletion()).size()]
+	return what + ")"
+
+
 func _check() -> void:
+	var rss := _rss_mb()
+	if rss > RUNAWAY_MB and not _runaway:
+		_problem("memory", "runaway: %.0f MB resident, stopped early" % rss)
+		_runaway = true
 	for n in _street.find_children("*", "", true, false):
 		if not (n is PhysicsBody3D) or n is StaticBody3D:
 			continue
 		var p := (n as Node3D).global_position
 		if not (is_finite(p.x) and is_finite(p.y) and is_finite(p.z)):
-			_problem("lost", "%s isn't anywhere" % n.name)
+			_problem("lost", "%s isn't anywhere" % _describe(n))
 		elif p.y < FLOOR_Y:
-			_problem("under the ground", "%s at y %.1f" % [_street.get_path_to(n), p.y])
+			_problem("under the ground", "%s at y %.1f" % [_describe(n), p.y])
 		elif Vector2(p.x, p.z).length() > MAP_RADIUS:
-			_problem("off the map", "%s at %s" % [n.name, p])
+			_problem("off the map", "%s at %s" % [_describe(n), p])
+	# Men gone (left town, freed): a new one of the same name takes his path and, riding in where
+	# the last one rode out, would inherit his "not a metre in minutes" (the soak, 2026-10-13).
+	for id in _track.keys():
+		if not is_instance_id_valid(id):
+			_track.erase(id)
 	for n in root.get_tree().get_nodes_in_group(&"people"):
 		var man = n
 		if man.get(&"physiology") == null or not man.is_inside_tree() or not man.physiology.alive:
@@ -168,7 +212,7 @@ func _check() -> void:
 		if b and b.get(&"agenda") != null:
 			var step: String = String(b.agenda[0].get("do", "")) if not b.agenda.is_empty() else ""
 			going = (b.mood == OB.Mood.CALM and step in ["go", "leave", "call_out"]) or b.tactic == OB.Tactic.MOVING
-		var key := String(man.get_path())
+		var key: int = man.get_instance_id()
 		if not going or man.limp:
 			_track.erase(key)
 			continue
@@ -176,10 +220,17 @@ func _check() -> void:
 		if man.global_position.distance_to(tr.at) > 1.0:
 			tr = {"at": man.global_position, "since": _t}
 		elif _t - float(tr.since) > STUCK_SECONDS:
-			_problem("stuck", "%s hasn't moved a metre in %.0f s (%s, %s)" % [man.person_id, _t - float(tr.since),
-					OB.Mood.keys()[b.mood], b.agenda[0].get("do", "") if not b.agenda.is_empty() else OB.Tactic.keys()[b.tactic]])
+			var step: Dictionary = b.agenda[0] if not b.agenda.is_empty() else {}
+			_problem("stuck", "%s hasn't moved a metre in %.0f s (%s, %s) at %s, going to %s; %s; route %s, brain %s" % [
+					man.person_id, _t - float(tr.since), OB.Mood.keys()[b.mood], step.get("do", OB.Tactic.keys()[b.tactic]),
+					_v(man.global_position), step.get("to", "?"), b.describe(), b._route.map(_v),
+					"on" if b.is_physics_processing() else "off"])
 			tr = {"at": man.global_position, "since": _t}
 		_track[key] = tr
+
+
+static func _v(p: Vector3) -> String:
+	return "(%.1f, %.1f, %.1f)" % [p.x, p.y, p.z]
 
 
 func _close_window() -> void:
@@ -190,10 +241,10 @@ func _close_window() -> void:
 		"memory_mb": snappedf(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0, 0.1),
 		"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
 		"orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)),
-		"people": root.get_tree().get_nodes_in_group(&"people").size()}
+		"people": root.get_tree().get_nodes_in_group(&"people").size(), "rss_mb": snappedf(_rss_mb(), 1.0)}
 	_windows.append(w)
 	_frame_ms = PackedFloat32Array()
-	print("soak %s: frame %.2f ms (p99 %.1f), %.0f MB, %d nodes, %d orphans, %d people" % [_clock(), w.frame_ms, w.p99_ms, w.memory_mb, w.nodes, w.orphans, w.people])
+	print("soak %s: frame %.2f ms (p99 %.1f), %.0f MB (resident %.0f), %d nodes, %d orphans, %d people" % [_clock(), w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb, w.nodes, w.orphans, w.people])
 
 
 ## Climbing: each of the last four windows above the one before.
@@ -230,9 +281,9 @@ func _finish() -> void:
 		for line: String in _problems[kind]:
 			md += "- %s\n" % line
 		md += "\n"
-	md += "## Windows\n\n| t (s) | frame ms | p99 ms | memory MB | nodes | orphans | people |\n|---|---|---|---|---|---|---|\n"
+	md += "## Windows\n\n| t (s) | frame ms | p99 ms | memory MB | resident MB | nodes | orphans | people |\n|---|---|---|---|---|---|---|---|\n"
 	for w: Dictionary in _windows:
-		md += "| %d | %.2f | %.1f | %.0f | %d | %d | %d |\n" % [w.t, w.frame_ms, w.p99_ms, w.memory_mb, w.nodes, w.orphans, w.people]
+		md += "| %d | %.2f | %.1f | %.0f | %.0f | %d | %d | %d |\n" % [w.t, w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb, w.nodes, w.orphans, w.people]
 	md += "\n## What happened\n\n" + "\n".join(_happened.map(func(h: String) -> String: return "- " + h)) + "\n"
 	var f := FileAccess.open(_out.path_join("soak.md"), FileAccess.WRITE)
 	f.store_string(md)

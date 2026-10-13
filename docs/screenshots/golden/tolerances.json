@@ -224,10 +224,10 @@
   "share": 0.01
  },
  "outlaw_fight": {
-  "mean": 1.556,
+  "mean": 2.95,
   "noise": {
-   "mean": 0.519,
-   "share": 0.0017
+   "mean": 0.982,
+   "share": 0.0027
   },
   "share": 0.01
  },

@@ -8,7 +8,7 @@ class_name StreetMatch
 ## tools/judge.py compares it with the painting (next to `shot_match_saloon`).
 
 ## The hour: the sun a hand's width over the horizon, as in the painting.
-const HOUR := 17.82
+const HOUR := 17.72
 ## Where your feet are, and the point you look at, in the saloon's own space (its front-left
 ## corner the origin, its front facing -Z), so the shot follows the saloon wherever the town's
 ## layout puts it (config/town.json). Fitted by eye to the painting (2026-10-02, on the old street):
@@ -38,6 +38,77 @@ static func stage(street: Node3D) -> void:
 		var brain := man.get_node_or_null(^"Brain") if man else null
 		if brain:
 			brain.process_mode = Node.PROCESS_MODE_DISABLED
+	_extras(street)
+
+
+## The painting's street is busy: people under every porch and a crowd down the far end. Staged
+## for the picture only, like the saloon shot's extras (no brains; the street in play keeps its
+## own townsfolk, StreetDressing.FOLK, within the people budget). StreetDressing.FOLK's layout:
+## [name, where on the old street, a point he faces, pose, shirt, vest, coat, hat, look]; all
+## clear of the road's middle and the gang's way in (z -9). (2026-10-13, Sean: "the scenes are
+## empty".)
+const EXTRAS := [
+	["StoreManB", Vector3(-16.9, 0.38, -1.05), Vector3(-12.0, 1.5, -6.0), &"stand", Color(0.66, 0.58, 0.46), Color(0.32, 0.12, 0.09),
+			Color(0, 0, 0, 0), Color(0.2, 0.15, 0.1), {"hair": Color(0.24, 0.16, 0.09), "moustache": &"handlebar", "beard": &"none", "age": 0.45}],
+	["RoadMan", Vector3(-25.5, 0.0, -6.2), Vector3(0.0, 1.5, -6.5), &"stand", Color(0.8, 0.74, 0.62), Color(0.16, 0.12, 0.1),
+			Color(0.42, 0.3, 0.18, 1.0), Color(0.3, 0.22, 0.14), {"hair": Color(0.16, 0.11, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.5}],
+	["FarManC", Vector3(-41.0, 0.0, -6.4), Vector3(-41.0, 1.5, -12.0), &"stand", Color(0.86, 0.84, 0.78), Color(0.22, 0.16, 0.11),
+			Color(0, 0, 0, 0), Color(0.16, 0.12, 0.09), {"hair": Color(0.2, 0.14, 0.09), "moustache": &"trim", "beard": &"none", "age": 0.4}],
+	["FarManD", Vector3(-44.5, 0.0, -11.6), Vector3(-30.0, 1.5, -11.0), &"stand", Color(0.58, 0.48, 0.36), Color(0.14, 0.12, 0.1),
+			Color(0.3, 0.24, 0.17, 1.0), Color(0.12, 0.1, 0.08), {"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"full", "age": 0.6}],
+	["FarManE", Vector3(-48.0, 0.0, -6.0), Vector3(-60.0, 1.5, -6.5), &"stand", Color(0.72, 0.66, 0.54), Color(0.26, 0.2, 0.13),
+			Color(0, 0, 0, 0), Color(0.22, 0.16, 0.1), {"hair": Color(0.28, 0.18, 0.1), "moustache": &"handlebar", "beard": &"stubble", "age": 0.35}],
+]
+
+
+## Nearer, placed in the world (your feet are at x 20.5 looking down the street to -x; the saloon's
+## side is +z): two men talking at the road's edge on the saloon's side, one on the jail's side
+## watching you come. [name, where, a point he faces, pose, shirt, vest, coat, hat, look]
+const NEAR_EXTRAS := [
+	["TalkerA", Vector3(9.0, 0.0, -5.6), Vector3(8.1, 1.5, -6.2), &"stand", Color(0.84, 0.8, 0.7), Color(0.28, 0.2, 0.13),
+			Color(0, 0, 0, 0), Color(0.24, 0.18, 0.12), {"hair": Color(0.2, 0.13, 0.08), "moustache": &"walrus", "beard": &"stubble", "age": 0.5}],
+	["TalkerB", Vector3(8.1, 0.0, -6.2), Vector3(9.0, 1.5, -5.6), &"stand", Color(0.6, 0.52, 0.4), Color(0.16, 0.12, 0.1),
+			Color(0.34, 0.25, 0.16, 1.0), Color(0.14, 0.11, 0.09), {"hair": Color(0.12, 0.09, 0.07), "moustache": &"handlebar", "beard": &"none", "age": 0.45}],
+	["JailSideMan", Vector3(3.0, 0.0, -12.4), Vector3(20.0, 1.5, -10.0), &"stand", Color(0.76, 0.7, 0.58), Color(0.2, 0.15, 0.1),
+			Color(0.4, 0.3, 0.2, 1.0), Color(0.28, 0.2, 0.13), {"hair": Color(0.18, 0.12, 0.08), "moustache": &"walrus", "beard": &"full", "age": 0.6}],
+]
+
+
+static func _extras(street: Node3D) -> void:
+	for i in NEAR_EXTRAS.size():
+		var e: Array = NEAR_EXTRAS[i]
+		var near := _extra(street, e, 351 + i)
+		if near:
+			near.global_position = e[1]
+			near.face(e[2])
+			near.set_pose(e[3])
+	for i in EXTRAS.size():
+		var e: Array = EXTRAS[i]
+		var man := _extra(street, e, 301 + i)
+		if man:
+			man.global_position = StreetDressing.post_of(e)
+			man.face(TownLayout.carry(e[1]) * (e[2] as Vector3))
+			man.set_pose(e[3])
+
+
+## A staged man of EXTRAS' layout in the street, dressed, no brain; null if he's there already.
+static func _extra(street: Node3D, e: Array, seed: int) -> HumanBody:
+	if street.find_child(e[0], true, false):
+		return null
+	var man := HumanBody.new()
+	man.name = e[0]
+	man.person_id = StringName(String(e[0]).to_snake_case())
+	man.rng_seed = seed
+	man.has_gun = false
+	man.use_paint = false
+	man.shirt_color = e[4]
+	man.vest_color = e[5]
+	man.coat_color = e[6]
+	man.hat_color = e[7]
+	man.bandana_color = Color(0, 0, 0, 0)
+	man.look = e[8]
+	street.add_child(man)
+	return man
 
 
 ## Your eye and the point you look at, in the world.

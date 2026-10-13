@@ -669,6 +669,15 @@ func _wet_eyes(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"eye_radius", float(r.radius) + 0.002)
 	# His painted whites brightened as his model's report asks (the characters session's men).
 	m.set_shader_parameter(&"eye_gain", float(PeopleBodies.report(body_model).get("eye_gain", 1.0)))
+	# His face weathered and stern as his model's report asks (body_skin.gdshaderinc face_*; the
+	# art session's, 2026-10-13).
+	var face: Variant = PeopleBodies.report(body_model).get("weathered", {})
+	if not face is Dictionary:
+		face = {}
+	var skin: Array = face.get("skin", [1.0, 1.0, 1.0])
+	m.set_shader_parameter(&"face_skin", Vector3(skin[0], skin[1], skin[2]))
+	for k in ["brows", "frown", "sockets", "whites"]:
+		m.set_shader_parameter(StringName("face_" + k), float(face.get(k, 0.0)))
 
 
 ## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on
@@ -1114,6 +1123,24 @@ func _snap_to_ground() -> void:
 			best = maxf(best, (hit.position as Vector3).y)
 	if best > -INF:
 		global_position.y = best
+
+
+## Into the scene where he's to stand (`at`, world space), facing `yaw`: placed before he's
+## added, because his limbs are kinematic bodies, and moved there after they'd sweep from the
+## parent's origin in one step and fling what lay in the way (a stud in the street went off at
+## 500 m/s when the gang rode in: the nightly soak, 2026-10-13).
+func enter(parent: Node, at: Vector3, yaw := 0.0) -> void:
+	var where := Transform3D(Basis(Vector3.UP, yaw), at)
+	if parent is Node3D and parent.is_inside_tree():
+		where = (parent as Node3D).global_transform.affine_inverse() * where
+	transform = where
+	parent.add_child(self)
+
+
+## The yaw that faces from `from` towards `point` (as face() turns him).
+static func yaw_toward(from: Vector3, point: Vector3) -> float:
+	var to := point - from
+	return atan2(-to.x, -to.z) if Vector2(to.x, to.z).length() > 0.01 else 0.0
 
 
 ## Turn to face a point and, in the aim pose, raise the gun arm to it.

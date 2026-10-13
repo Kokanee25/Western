@@ -60,7 +60,16 @@ const BOLD_TEXELS := 16.0
 ## for its line and grain to show). The facade's own woods always; the rest under the bold look.
 const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
-const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards"]
+const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide",
+		"shot_table"]
+## Drawn textures laid at their own density (squares a metre), not DRAWN_TEXELS: the saloon
+## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
+## (tools/textures/draw_table.py).
+const DRAWN_DENSITY := {"shot_table": 128.0}
+## The drawn road's squares a metre (tools/textures/draw_road.py TEXELS): the street painting's near
+## road squares are about 11 render pixels across at 1280 wide, twice what 32 a metre gives (Sean,
+## 2026-10-12: "the squares don't read"), so the ground lays it at this whatever the look's density.
+const DRAWN_ROAD_TEXELS := 16.0
 static var use_drawn := true
 
 
@@ -80,7 +89,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"metallic", metallic)
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
-		m.set_meta(&"texels", DRAWN_TEXELS)
+		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
 	return track(m)
 
 
@@ -123,7 +132,9 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		var wide := factory("road_wide")
 		m.set_shader_parameter(&"wide_tex", wide)
 		m.set_shader_parameter(&"use_wide_tex", wide != null)
-		m.set_shader_parameter(&"keep_tracks", wide != null and wide.resource_path.contains("/drawn/"))
+		var drawn := wide != null and wide.resource_path.contains("/drawn/")
+		m.set_shader_parameter(&"keep_tracks", drawn)
+		m.set_shader_parameter(&"road_texels", DRAWN_ROAD_TEXELS if drawn else 0.0)
 	return m
 
 

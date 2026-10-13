@@ -32,8 +32,7 @@ func spawn() -> HumanBody:
 	var brain := OutlawBrain.new()
 	brain.name = "Brain"
 	outlaw.add_child(brain)
-	get_parent().add_child(outlaw)
-	outlaw.global_transform = global_transform
+	outlaw.enter(get_parent(), global_position, global_rotation.y)
 	return outlaw
 
 

@@ -110,7 +110,10 @@ gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a f
 twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
 anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
 time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
-summary and an artifact.
+summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
+lost bodies with their path, script, rubble members and speed; stuck men with where they are and
+where they're going) and each window prints the process's resident memory, so a run the runner
+kills still leaves its log; past 6 GB resident it stops early and reports.
 
 ## Feel ranges
 
@@ -580,8 +583,13 @@ a few views renders them as the full run does.
   a few hundred bottles merged into one mesh per material; scenery, not shootable).
   `ShotMatch` turns and places its whole set (`ROOM_YAW`, `TABLE`: beside the bar, the tall front
   door on your left) and stages extras (`EXTRAS`, `CARD_TABLE`) for the shot. The moon has its
-  own low arc (`DayCycleConfig.moon_tilt_degrees` 78: it crosses ~12° up over +Z), so from the
-  shot (23:40) it stands in the saloon's doorway over the `EatingHouse` across the street.
+  own low arc (`DayCycleConfig.moon_tilt_degrees` -79.3, `moon_azimuth_degrees` 15.5: it crosses
+  ~11° up over -Z, since Main Street the saloon's door faces -Z), so from the shot (23:40) it
+  stands in the saloon's doorway over the livery across the street; the backdrop's mid ring's
+  north panel is turned (`shift` 14) clear of it, `ShotMatch._doorway` swings the batwings open
+  for the shot (`BATWINGS_OPEN`), and the livery's west lantern shows lit between them. The sky
+  draws the moon in squares with grey-blue seas and a blue glow round it (`moon_radius`,
+  `moon_bright`, `moon_glow` in `sky.gdshader`).
 
 ## src/art/sign_art.gd and the backdrop
 
