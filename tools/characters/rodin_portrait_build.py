@@ -32,13 +32,24 @@ HEAD_TRIS = 12000
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below the second
 
 
-def head_part(V, T, UV, pts):
-    """The faces of the bust that are his head and neck (not his collar and shoulders)."""
+def skin_like(c):
+    """Rodin's own colours that are skin (warm, mid-bright), not his shirt, tie or coat."""
+    lum = c.mean(1)
+    return (c[:, 0] > c[:, 1]) & (c[:, 1] > c[:, 2]) & (c[:, 0] - c[:, 2] > 0.08) & (lum > 0.18) & (lum < 0.8)
+
+
+def head_part(V, T, UV, pts, own=None):
+    """The faces of the bust that are his head and neck (not his collar and shoulders): under his
+    chin only what's within NECK_RADIUS of his neck's middle and, with `own` (Rodin's colours),
+    skin."""
     chin_y = pts[152, 1]
     ring = (V[:, 1] < chin_y - 0.03) & (V[:, 1] > chin_y - 0.05) & (np.abs(V[:, 0]) < 0.06)
     neck_c = np.array([np.median(V[ring, 0]), np.median(V[ring, 2])]) if ring.any() else np.array([0.0, pts[152, 2] + 0.05])
     r = np.hypot(V[:, 0] - neck_c[0], V[:, 2] - neck_c[1])
-    keep_v = (V[:, 1] > chin_y - CUT_BELOW_CHIN) | ((V[:, 1] > chin_y - NECK_DOWN) & (r < NECK_RADIUS))
+    neck = (V[:, 1] > chin_y - NECK_DOWN) & (r < NECK_RADIUS)
+    if own is not None:
+        neck &= skin_like(own)
+    keep_v = (V[:, 1] > chin_y - CUT_BELOW_CHIN) | neck
     keep = keep_v[T].all(1)
     return T[keep]
 
@@ -71,7 +82,7 @@ def build(man, spec):
         c_mine = (mine["right"] + mine["left"]) / 2
         c_goal = (eyes["right"] + eyes["left"]) / 2
         Vp = (V - c_mine) * k + c_goal
-        Tk = head_part(Vp, T, UV, (pts - c_mine) * k + c_goal)
+        Tk = head_part(Vp, T, UV, (pts - c_mine) * k + c_goal, mesh.get("own"))
         # One vertex per position (Rodin's corners come split at every UV seam: left so, the mesh
         # is a triangle soup that decimation tears and nothing shades smooth across), each
         # corner keeping its own UV.

@@ -47,7 +47,11 @@ SEAM = 0.04
 BG_TOL = 0.09         # a colour this near the painting's background is background
 UNSQUARE = 9         # pixels: the style portraits' squares are ~10 px at 1672 wide
 BRIM_ABOVE_EYES = 0.032  # the portraits' hat brim: what's above this over his eyes is hat in every one
-DELIGHT = 0.5         # how much of each portrait's shading is taken out (0 none, 1 all)
+BRIM_SIDES = 0.002       # and round his sides, where the brim's shadow lies on his hair
+HAIRLINE = 0.062         # over his eyes: his forehead's skin up to here, his hair above
+HIGHLIGHT_FROM = 90      # percentile of his face's brightness from which the lit side is calmed
+HIGHLIGHT_KEEP = 0.4     # how much of the brightness above it stays
+DELIGHT = 0.6         # how much of each portrait's shading is taken out (0 none, 1 all)
 DELIGHT_CLAMP = (0.75, 1.35)
 DEPTH_TOL = 0.004
 MIN_FACING = 0.1
@@ -345,25 +349,51 @@ def paint(man, spec):
     # Above the portraits' brim every portrait shows hat: there his hair and forehead's colour
     # carries on up from below (the game's hat covers it).
     eye_y = float((pts[468, 1] + pts[473, 1]) / 2)
-    hat = cover & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES)
+    front = (N[..., 2] < -0.5) & (np.abs(Pp[..., 0]) < 0.06)
+    # The brim sits lower round his sides than over his forehead (its shadow lies on his hair
+    # there): his forehead is hat above BRIM_ABOVE_EYES, the rest above BRIM_SIDES.
+    hat = cover & (Pp[..., 1] > eye_y + np.where(front, BRIM_ABOVE_EYES, BRIM_SIDES))
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
-    # forehead's skin where it faces you, his grey hair's colour round the rest (each the median
-    # of what's just under the brim line there).
-    near = below & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES - 0.025)
-    front = (N[..., 2] < -0.5) & (np.abs(Pp[..., 0]) < 0.06)
-    skin_src = tex[near & front]
+    # forehead's skin where it faces you, his grey hair round the rest (the medians of his
+    # forehead just under the brim line, and of the grey at his temples and sideburns).
+    near = below & front & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES - 0.025)
     sat = tex.max(-1) - tex.min(-1)
-    hair_src = tex[near & ~front & (sat < 0.12)]
-    skin_c = np.median(skin_src, 0) if len(skin_src) > 20 else np.median(tex[below], 0)
-    hair_c = np.median(hair_src, 0) if len(hair_src) > 20 else np.median(tex[below], 0)
-    tex[hat & front] = skin_c
-    tex[hat & ~front] = hair_c
+    lumt = tex.mean(-1)
+    temples = cover & ~front & (np.abs(Pp[..., 0]) > 0.06) & (Pp[..., 1] > eye_y - 0.03) \
+        & (Pp[..., 1] < eye_y + 0.012) & (lumt > 0.2)
+    # The painted grey is warm: his temples' least coloured 40% is his hair, the rest skin and ear.
+    if temples.sum() > 50:
+        cand = tex[temples]
+        csat = sat[temples]
+        hair_c = np.median(cand[csat <= np.percentile(csat, 40)], 0)
+    else:
+        hair_c = np.median(tex[below], 0)
+    skin_c = np.median(tex[near], 0) if near.sum() > 20 else np.median(tex[below], 0)
+    report["fill"] = {"temples": int(temples.sum()), "hair": [round(float(x), 3) for x in hair_c],
+                      "forehead": [round(float(x), 3) for x in skin_c]}
+    forehead = front & (Pp[..., 1] < eye_y + HAIRLINE)
+    tex[hat & forehead] = skin_c
+    tex[hat & ~forehead] = hair_c
+    # His lit side calmed (the game's lamp lights him again): the face's brightest tenth brought
+    # down towards the rest, hue kept; and lone near-white specks (a catchlight that missed his
+    # eye) taken to the face's bright level.
+    face = below & (Pp[..., 1] > float(pts[152, 1])) & (N[..., 2] < 0.2)
+    lum = tex @ np.array([0.2126, 0.7152, 0.0722])
+    if face.sum() > 100:
+        hi = np.percentile(lum[face], HIGHLIGHT_FROM)
+        over = face & (lum > hi)
+        target = hi + (lum[over] - hi) * HIGHLIGHT_KEEP
+        tex[over] *= (target / np.maximum(lum[over], 1e-6))[:, None]
+        speck = face & (sat < 0.1) & (lum > np.percentile(lum[face], 99.5))
+        tex[speck] *= (hi / np.maximum(lum[speck], 1e-6))[:, None]
     # Squares, once, last: SQUARE_M cells in 3D on him (so they sit square on his head, whatever
     # Rodin's UV islands do), each the median of its texels.
     sq = cube_squares(tex, cover, Pp)
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
-    np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts}, allow_pickle=True)
+    # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
+    np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
+            allow_pickle=True)
     report["cameras"] = {v: c.json() for v, c in cams.items()}
     report["seen"] = round(float(seen_any.mean()), 3)
     json.dump(report, open(os.path.join(WORK, man + "_report.json"), "w"), indent=1)
