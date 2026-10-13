@@ -1,10 +1,8 @@
-COWBOY REFERENCE SET — PROTOTYPE
+References for the portrait factory (docs/briefs/portrait-factory.md). Made by Sean in ChatGPT.
 
-Character 1 (bold_cowboy): front.png, left.png, back.png, right.png.
-Use the original provided bold-cowboy image as its style target.
+Each cowboy: front.png, left.png (faces left), right.png (faces right), back.png: plain,
+hatless, flat light, grey ground, 1254x1254. These are fitted and projected onto the base head.
 
-Character 2 (older_heavyset_cowboy): style_front.png, front.png, left.png, back.png, right.png.
-
-Character 3 (young_lean_cowboy): style_front.png, front.png, left.png, back.png, right.png.
-
-These PNGs are crops from a single generated contact sheet. The plain views have no painted square/pixel grid or hats, but retain some painted tonal modeling and are NOT rigorously shadowless, orthographic, identity-locked or production-resolution. Use them for initial comparisons and pipeline testing, not as final validated projection textures. For final assets, generate each view at full resolution and confirm identity, alignment, lighting and silhouette consistency.
+Style targets (what he should look like in the end):
+- bold_cowboy: docs/concept/style/portrait-cowboy-*.png
+- older_heavyset_cowboy, young_lean_cowboy: style_front.png (a crop for now; full size to come)
