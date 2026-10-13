@@ -55,7 +55,7 @@ def style_head(name, height):
 
 # Where his head is in each saloon frame (1280x720) when MediaPipe can't find it in the lamplight:
 # ShotMatch seats him in the same place every time.
-FRAME_HEAD = {"shot_match_saloon": (395, 140, 575, 345), "shot_match_close": (470, 100, 870, 540)}
+FRAME_HEAD = {"shot_match_saloon": (380, 130, 620, 410), "shot_match_close": (470, 100, 870, 540)}
 
 
 def frame_head(path):
