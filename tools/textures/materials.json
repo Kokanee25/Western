@@ -12,7 +12,7 @@
     2.0,
     1.0
    ],
-   "colours": 28,
+   "colours": 16,
    "what": "worn saloon floorboards: one continuous surface of old pine planking, the grain running left to right, scuffed by boots, darkened with spilt whiskey and tobacco, small knots and nail heads",
    "ref": [
     "saloon",
@@ -20,7 +20,8 @@
     520,
     1130,
     650
-   ]
+   ],
+   "mosaic": 1.9
   },
   "saloon_wall": {
    "lightness": 0.75,
@@ -32,7 +33,7 @@
     2.0,
     1.0
    ],
-   "colours": 28,
+   "colours": 16,
    "what": "the inside wall of an old saloon: rough-sawn pine boards stained dark reddish brown by years of lamp smoke, the grain running left to right, saw marks and the odd knot",
    "ref": [
     "saloon",
@@ -40,7 +41,9 @@
     20,
     860,
     200
-   ]
+   ],
+   "mosaic": 1.9,
+   "contrast": 1.8
   },
   "dark_trim": {
    "lightness": 0.9,
@@ -51,7 +54,7 @@
     2.0,
     1.0
    ],
-   "colours": 28,
+   "colours": 16,
    "what": "dark stained and oiled hardwood, like a polished bar top worn by elbows and glasses, the grain running left to right",
    "ref": [
     "saloon",
@@ -59,7 +62,8 @@
     380,
     1640,
     560
-   ]
+   ],
+   "mosaic": 1.7
   },
   "shot_table": {
    "lightness": 0.72,
@@ -95,7 +99,7 @@
     2.0,
     1.0
    ],
-   "colours": 28,
+   "colours": 16,
    "what": "a rough-hewn pine beam: weathered brown timber with deep checks (cracks) along the grain, the grain running left to right",
    "ref": [
     "saloon",
@@ -103,7 +107,8 @@
     20,
     860,
     200
-   ]
+   ],
+   "mosaic": 1.7
   },
   "weathered_pine": {
    "boards": true,
