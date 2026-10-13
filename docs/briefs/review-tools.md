@@ -30,7 +30,7 @@ played by an agent before it reaches him.
      frame times, counts), quit.
    - `tools/bridge.py` client, plus a script format (one command per line) so a session can run a
      sequence under xvfb in the workspace and collect the screenshots.
-   - Documented in CLAUDE.md (Commands) with an example. Use it in the perf benchmark if useful.
+   - Documented in CLAUDE.md (Commands) and docs/LAYOUT.md with an example. Use it in the perf benchmark if useful.
 
 3. **Camera tour video** (Sean watches each build on his phone)
    - A fixed tour, about 30 s, smooth path, no input: the street at golden hour, west past the

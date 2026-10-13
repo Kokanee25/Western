@@ -44,8 +44,8 @@ Kokanee25/Pixel-factory is read-only reference for the volume format, voxeliser 
    test fixes it or explains, never deletes or weakens the test.
 6. **Tunable numbers in resources** (`config/*.tres`), not code; seedable randomness; simulation
    testable headless. Voxel work that can't be tested without a GPU says so.
-7. **Update the Status at the end of CLAUDE.md** at the end of every session, in date order, your
-   entries only; tell Sean exactly what to try in each build (docs/BUILD_NOTES.md).
+7. **Add one short status entry to the newest `docs/status/` file** at the end of every session, in
+   date order, your entries only, and update your lines in CLAUDE.md "Current state"; tell Sean exactly what to try in each build (docs/BUILD_NOTES.md).
 8. **No keys in the repo. No third-party assets with licences that forbid redistribution.**
 9. **Performance is a rule, not a polish step.** The game is pinned on one core. Every carve,
    re-mesh and collision rebuild runs on the plugin's own threads; the main thread only swaps

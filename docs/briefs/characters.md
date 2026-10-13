@@ -49,7 +49,7 @@ off; `PeopleBodies.OUTFIT_KEYS` are the ones it may turn off.
   through as they do now.
 - **Its own texture**, painted in **flat, even light** (no lamp, no cast shadow, no baked
   ambient occlusion: the game lights him), smooth at about 1024² for a coat, less for small
-  pieces (the screen mosaic makes the squares; see A1 in CLAUDE.md). The cloth drawn as cloth:
+  pieces (the screen mosaic makes the squares; see A1 in docs/status/2026-10-03_to_04.md). The cloth drawn as cloth:
   a tweed check, a vest's pattern, stitching, wear at the elbows and knees.
 - **A triangle budget** so a man stays within the frame budget (CLAUDE.md, People row): today
   body 5,500, head 2,200, coat 2,600, hat 700; the others to be set by the first man.
@@ -66,7 +66,7 @@ Two routes; pick per man.
    places and warps each piece onto the body (`Piece.place`, `warp_points`). The hat works this
    way (`stranger_layered`). **The coat doesn't yet:** a Tripo garment is a double shell sized for
    an average man, and no landmark fit put it cleanly over a broad body. The route to try next
-   (CLAUDE.md, "Layers"): build the coat as an offset shell of his own body, then bake the Tripo
+   (docs/LAYOUT.md, "Layers"): build the coat as an offset shell of his own body, then bake the Tripo
    coat's colour onto it (per vertex from the nearest coat point at full resolution, unwrapped and
    baked to its own texture, then decimated).
 2. **MakeHuman** (`make_people.py` + `clothes.py`; the townsfolk and extras): the garments are
