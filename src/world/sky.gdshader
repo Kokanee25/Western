@@ -19,7 +19,7 @@ uniform float moon_bright = 0.9;
 uniform float moon_glow = 2.2;
 uniform vec3 moon_glow_color : source_color = vec3(0.08, 0.15, 0.32);
 uniform float star_strength = 0.0;
-uniform float sun_size = 0.035;
+uniform float sun_size = 0.045;
 // Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
 // painting's are small broken heaps, not big sheets), how ragged their edges are (high-frequency
 // noise eaten out of them), and how many painted tones each is drawn in (0: smooth, the
@@ -48,9 +48,9 @@ uniform float dusk_clouds = 1.0;
 // look: src/art/bold_look.json sets it 1): a deeper blue overhead, the horizon band left bright
 // gold, a stronger glow round the sun, and the clouds lit cream-gold and orange rather than dimmed.
 // 0 = the sky as it was.
-uniform float gold = 0.0;
+uniform float gold = 1.0;
 // Sun rays at golden hour (src/render/sun_rays.gdshaderinc): how strong the shafts are. 0 = none.
-uniform float ray_strength = 0.55;
+uniform float ray_strength = 0.65;
 
 #include "res://src/render/sun_rays.gdshaderinc"
 
@@ -149,7 +149,8 @@ void sky() {
 		float sunward = pow(toward, 3.0);
 		vec3 lit = sun_color * mix(vec3(1.0, 0.96, 0.9), mix(vec3(0.84, 0.64, 0.42), vec3(1.0, 0.82, 0.6), gold), low);
 		vec3 body = mix(vec3(0.78, 0.78, 0.8), mix(mix(vec3(0.82, 0.62, 0.5), vec3(0.86, 0.52, 0.34), gold), vec3(0.98, 0.64, 0.4), sunward), low);
-		vec3 belly = mix(vec3(0.48, 0.5, 0.56), mix(vec3(0.58, 0.45, 0.48), vec3(0.4, 0.42, 0.54), gold), low);
+		// (the gold sky's bellies warm, 2026-10-13: lavender-grey ones read overcast, the blind critic)
+		vec3 belly = mix(vec3(0.48, 0.5, 0.56), mix(vec3(0.58, 0.45, 0.48), vec3(0.6, 0.42, 0.38), gold), low);
 		float lift = clamp(top * 1.2 + sunward * 0.25 * low, 0.0, 1.0);
 		float sink = clamp(under * 1.1 - top * 0.5, 0.0, 1.0);
 		float tones = mix(cloud_tones, 3.0, gold);
@@ -172,7 +173,9 @@ void sky() {
 		col = mix(col, cloud, c * 0.95);
 		// The painting's golden-hour sky is a deeper picture than a bright clear one (its band over
 		// the street at L* ~60, ours was 80 with the clouds in).
-		col *= 1.0 - 0.15 * gold * low * sun_up * (1.0 - near_sun);
+		// 2026-10-13: 0.15 -> 0.4 with the gold sky on by default (its clouds and the sky between
+		// them went near white: 22% of the street shot's top over L* 80, the painting's 2%).
+		col *= 1.0 - 0.4 * gold * low * sun_up * (1.0 - near_sun);
 	}
 
 	// Haze low over the land: the horizon's colour, warmest toward the sun.
@@ -184,11 +187,19 @@ void sky() {
 	vec3 ray_light = sun_color * vec3(1.0, 0.8, 0.5);
 	col = col * (1.0 - 0.35 * rays.y) + ray_light * 0.8 * rays.x;
 
+	// The gold sky at golden hour (2026-10-13, the blind critic: "lavender-grey, the sun a white
+	// blob"): the whole sky leaned warm, and a gold halo round the sun, wide and soft, as the
+	// painting's sun sits in a glow over the mesas.
+	float golden = gold * low * sun_up;
+	col = mix(col, col * vec3(1.12, 0.93, 0.74), 0.6 * golden);
+	col += vec3(1.0, 0.62, 0.28) * (pow(sun_dot, 60.0) * 0.8 + pow(sun_dot, 10.0) * 0.18) * golden;
 	// The painting's setting sun is big and soft-edged: well over twice as big near the horizon.
 	float disk_size = sun_size * mix(1.0, 2.4, low * sun_up);
 	float disk = smoothstep(cos(disk_size), cos(disk_size * 0.75), sun_dot);
 	// Low, it's a gold disk (the painting's), not a white burn.
-	vec3 disk_col = mix(sun_color * 8.0, vec3(1.0, 0.8, 0.42) * 2.4, low * sun_up);
+	// Under the gold sky a white-gold disk a step over its halo (at 1.3x white gold it sank into the
+	// halo, the blind critic: "no sun disc"; at 2.4 it drew a white burn).
+	vec3 disk_col = mix(sun_color * 8.0, mix(vec3(1.0, 0.8, 0.42) * 2.4, vec3(1.0, 0.88, 0.64) * 2.2, gold), low * sun_up);
 	col = mix(col, disk_col, disk * step(-0.02, h));
 
 	vec3 md = normalize(moon_dir);
