@@ -583,8 +583,13 @@ a few views renders them as the full run does.
   a few hundred bottles merged into one mesh per material; scenery, not shootable).
   `ShotMatch` turns and places its whole set (`ROOM_YAW`, `TABLE`: beside the bar, the tall front
   door on your left) and stages extras (`EXTRAS`, `CARD_TABLE`) for the shot. The moon has its
-  own low arc (`DayCycleConfig.moon_tilt_degrees` 78: it crosses ~12° up over +Z), so from the
-  shot (23:40) it stands in the saloon's doorway over the `EatingHouse` across the street.
+  own low arc (`DayCycleConfig.moon_tilt_degrees` -79.3, `moon_azimuth_degrees` 15.5: it crosses
+  ~11° up over -Z, since Main Street the saloon's door faces -Z), so from the shot (23:40) it
+  stands in the saloon's doorway over the livery across the street; the backdrop's mid ring's
+  north panel is turned (`shift` 14) clear of it, `ShotMatch._doorway` swings the batwings open
+  for the shot (`BATWINGS_OPEN`), and the livery's west lantern shows lit between them. The sky
+  draws the moon in squares with grey-blue seas and a blue glow round it (`moon_radius`,
+  `moon_bright`, `moon_glow` in `sky.gdshader`).
 
 ## src/art/sign_art.gd and the backdrop
 

@@ -314,11 +314,15 @@ frozen until Sean names one.
   side key, `weathered_face` in `body_skin`); job 3, the light (the gold sky warm, a gold sun in
   the notch, the room's lamps up). Judge v2: saloon 0.419, street 0.729 (notes; Sean's eye is the
   gate). Sheets for Sean in `docs/screenshots/review/`.
-- Next: job 4 (more people in both shots, staged in the shots), ready on a local branch. After:
-  the saloon's doorway (the critic's first point three rounds running), the road's loudness at
-  noon, the saloon's square size (~20 px to the painting's ~5).
-- Known: extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire
-  views' golden tolerances pass any fire look; a full golden render is ~2.5 h on lavapipe here.
+- Done (the doorway, a second art session): the moon back in the saloon's doorway (its arc over
+  -Z, the backdrop's mid ring cleared round it, drawn in squares), the batwings open for the shot,
+  the livery's west lantern after dark. Saloon 0.205 → 0.174 before job 3.
+- Next: job 4 (more people in both shots, staged in the shots), ready on a local branch. Then the
+  fire view staged (the bucket line, the livery's frame coming apart); across the doorway a lit
+  front, not the livery's blank gable; the road's loudness at noon; the saloon's square size.
+- Known: the saloon's squares are ~20 px to the painting's ~5 (a room-wide density change);
+  extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire views'
+  golden tolerances pass any fire look; a full golden render is ~2.5 h on lavapipe here.
 - Waiting on Sean: his eye on each job's sheet; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-protected-features`, not merged):
