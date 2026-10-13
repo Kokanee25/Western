@@ -324,12 +324,13 @@ frozen until Sean names one.
   it); the first-pass set-direction cards.
 
 **Characters** (branch `claude/characters-portrait-factory`, not merged; brief `docs/briefs/portrait-factory.md`):
-- Done on the branch: the portrait factory (`tools/characters/portrait.py`): the bold cowboy from
-  his four pictures onto the shared base head → `bold_cowboy_portrait` (sheet
-  `docs/screenshots/portrait/bold_cowboy_sheet.jpg`). $0 spent.
-- Next: Sean's verdict, then the older heavy-set and young lean cowboys by the same run. Trap:
-  after a build, `godot --headless --import` before rendering, or the old man draws.
-- Waiting on Sean: the sheet; the merge.
+- Done on the branch: three men by Rodin's shape (a bust from his plain views) painted from five
+  style portraits each (`tools/characters/rodin_portrait.py`, `rodin_portrait_build.py`) →
+  `assets/people/{bold,older_heavyset,young_lean}_cowboy_rodin.glb`; sheets in
+  `docs/screenshots/portrait/*_rodin_sheet.png`. ~$5.26 of $15 spent.
+- Next: Sean's look at the other two; then their hats/hair at the back, the specks under the
+  chin. Trap: after a build, `godot --headless --import` before rendering, or the old man draws.
+- Waiting on Sean: the two sheets; the merge. For art: faces burn hot under the saloon's lamp.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
