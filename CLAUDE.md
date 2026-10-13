@@ -100,8 +100,11 @@ his own).
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
 scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
 Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
-(lavapipe 19.2 ms, 15,400 draws), 6.6 since the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
-draws); the rest is the larger town's own draws and the sun's cascades.
+(lavapipe 19.2 ms, 15,400 draws), 6.6 after the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
+draws), ~5.8 since a room's lamps stopped lighting its people from the street (8.9 ms). What's
+left, by turning one thing off at a time: the saloon's 14 lamps' shadows ~3.7 ms (per lamp, not per
+pass: two passes cost the same as six under lavapipe), the sun's shadow ~1.7, the rest the town's
+own draws.
 scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
 
 ## Tech decisions
@@ -300,7 +303,7 @@ python3 tools/bridge.py stop
 - **tests** — the runner, how a test is written.
 - **CI** — build.yml, releases, Pages, notes from `docs/BUILD_NOTES.md`.
 
-## Current state (2026-10-12; each session replaces its own lines)
+## Current state (2026-10-12 evening; each session replaces its own lines)
 
 Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
@@ -333,7 +336,7 @@ frozen until Sean names one.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
-  man keeps his momentum; lamps draw their full shadows only near you (street render CPU 19.2 →
+  man keeps his momentum, crumples with muscle tone and keeps his limbs out of his body; lamps draw their full shadows only near you (street render CPU 19.2 →
   10.2 ms on lavapipe, draws 15,412 → 3,290).
 - Next: Prompt 09 (fix the falls) when Sean says; the rest of the street's render budget (the
   larger town's draws, the sun's cascades); brick as a material wants a brief first; M4 step 5

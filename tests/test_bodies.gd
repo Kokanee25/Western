@@ -226,6 +226,8 @@ func test_knees_only_bend_the_right_way() -> void:
 	man.has_gun = false
 	world.add_child(man)
 	await physics_frames(3)
+	# Dead, so no muscle tone holds his joints as he goes: the hinges' own limits.
+	man.physiology._die(&"test")
 	man.go_limp()
 	await physics_frames(2)
 	var shin_r := man.parts[&"shin_r"] as RigidBody3D
@@ -245,8 +247,9 @@ func test_knees_only_bend_the_right_way() -> void:
 	var fr := man.parts[&"forearm_r"] as RigidBody3D
 	var fl := man.parts[&"forearm_l"] as RigidBody3D
 	for i in 20:
-		fr.apply_torque_impulse(right * 1.5)
-		fl.apply_torque_impulse(-right * 1.5)
+		# About each upper arm's own right (the hinge's axis): he's turned as he fell.
+		fr.apply_torque_impulse((man.parts[&"upper_arm_r"] as Node3D).global_basis.x * 1.5)
+		fl.apply_torque_impulse(-(man.parts[&"upper_arm_l"] as Node3D).global_basis.x * 1.5)
 		await physics_frames(1)
 	var er := _joint_bend(man, &"upper_arm_r", &"forearm_r")
 	var el := _joint_bend(man, &"upper_arm_l", &"forearm_l")
