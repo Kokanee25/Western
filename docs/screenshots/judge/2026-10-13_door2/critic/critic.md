@@ -1,4 +1,4 @@
-# Blind critic, 2026-10-13_r2
+# Blind critic, 2026-10-13_door2
 
 1. **The room behind the man is an empty brown wall** (saloon). The painting fills the back half with a busy, lit house: a turned-baluster balcony with a man leaning on the rail before a blue night window, pipe smoke drifting, framed pictures, a piano and its player, a barkeep at a lamplit back mirror. The render has a plain plank wall in one smooth orange-brown wash, a bare stair rail with a headless, half-hidden figure on it and a few lamps; it reads as an empty barn rather than a saloon in full swing. Crop: `critic/1_back_room.png`
 2. **The sky is lavender-grey, not a gold sunset** (street). The painting's sky is warm amber and peach with lit, chunky cumulus, and a big pale-gold sun sits between the mesas with rays fanning down through dusty haze over a valley. The render's sky is a cool washed-out lilac with thin orange streaks pasted on top, and the sun is a small white blob half-hidden behind the cliffs with only a faint vertical glow, so the shot feels like an overcast dusk, not golden hour. Crop: `critic/2_sky.png`

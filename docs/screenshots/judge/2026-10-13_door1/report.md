@@ -1,4 +1,4 @@
-# 2026-10-13_r1: the moon back in the saloon's doorway (its arc over -Z, the mid ring cleared round it, drawn in squares with seas and a blue glow), the shot's batwings open, the livery's west lantern lit after dark
+# 2026-10-13_door1: the moon back in the saloon's doorway (its arc over -Z, the mid ring cleared round it, drawn in squares with seas and a blue glow), the shot's batwings open, the livery's west lantern lit after dark
 
 ## shot_match_saloon (score 0.216, lower is closer)
 

@@ -1,4 +1,4 @@
-# 2026-10-13_r2: the moon brighter and bluer, its glow wider (the sky round it the painting's blue)
+# 2026-10-13_door2: the moon brighter and bluer, its glow wider (the sky round it the painting's blue)
 
 ## shot_match_saloon (score 0.217, lower is closer)
 
