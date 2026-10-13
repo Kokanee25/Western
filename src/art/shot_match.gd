@@ -107,6 +107,8 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# Less of the room's smoke lit by it: a light a few centimetres inside the chimney lit the air
 	# round the glass white, where the painting's chimney glows amber.
 	lamp.haze = 0.4
+	# His head is the side key's (KEY_FROM): the lamp low in front of him lit it flat and hot.
+	lamp.cull_out = FACE_LAYER
 	root.add_child(lamp)
 	lamp.position = Vector3(0.183, TABLE_HEIGHT, -0.011)
 	_bottle(root, Vector3(-0.152, TABLE_HEIGHT, -0.006))
@@ -135,6 +137,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	man.set_pose(&"sit_lean")
 	man.pose_offsets = (fit(&"pose_offsets") as Dictionary).duplicate()
 	_cup_in_hand(man)
+	for key: String in man.skin_meshes:
+		if key.begins_with("head/"):
+			(man.skin_meshes[key] as MeshInstance3D).layers |= FACE_LAYER
 	_fill(root)
 	_extras(street)
 	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
@@ -159,12 +164,24 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 ## The man 0.722 -> 0.501, the whole frame 0.348 -> 0.331.
 const FILL_FROM := Vector3(-0.15, 1.35, -1.25)
 const FILL_AT := Vector3(0.6, 0.92, -0.55)
-static var fill_energy := 0.45
+static var fill_energy := 0.04
 ## Trials (tools/screenshots.gd --shot-light=): the fill's aim height, cone and colour's warmth.
 static var fill_at_y := FILL_AT.y
 static var fill_from_y := FILL_FROM.y
 static var fill_angle := 34.0
 static var fill_warm := 0.4
+## The side key (2026-10-13, Sean: the painting's man is side-lit with a deep shadow side, eyes
+## in shadow under his brows; ours was lit from the front by the lamp and the fill, a pale mask):
+## a warm spot on his right (your left), a little above his eyes so it gets under the brim (higher,
+## the brim took all of it), aimed at his face, with shadows, so the cheek away from it falls into
+## shadow. The fill
+## above is down to a third so that side stays dark.
+const KEY_FROM := Vector3(1.15, 1.28, -1.38)
+const KEY_AT := Vector3(0.74, 1.08, -0.47)
+static var key_energy := 6.5
+## The render layer his head is on, which the table lamp leaves alone (OilLamp.cull_out).
+const FACE_LAYER := 1 << 10
+static var key_angle := 13.0
 ## The table lamp's energy (the key on his face).
 static var lamp_energy := 2.2
 
@@ -182,6 +199,19 @@ static func _fill(root: Node3D) -> void:
 	fill.shadow_enabled = false
 	fill.light_specular = 0.0
 	fill.light_volumetric_fog_energy = 0.0
+	var key := SpotLight3D.new()
+	key.name = "SideKey"
+	root.add_child(key)
+	key.position = KEY_FROM
+	key.look_at(root.to_global(KEY_AT))
+	key.light_color = Color(1.0, 0.8, 0.56)
+	key.light_energy = key_energy
+	key.spot_range = 3.0
+	key.spot_angle = key_angle
+	key.spot_angle_attenuation = 1.5
+	key.shadow_enabled = true
+	key.light_specular = 0.2
+	key.light_volumetric_fog_energy = 0.0
 
 
 ## The painting's room has people in it: three men at cards in front of the door, one at the
@@ -255,6 +285,23 @@ static func frame_camera(player: Player, street: Node3D) -> void:
 	hands_off_camera(player)
 	player.camera.global_transform = camera_transform(street)
 	player.camera.fov = FOV
+	aim_key(street)
+
+
+## The side key on his head where it has settled (he leans in over the table, so his head is
+## nearer you than KEY_AT): KEY_FROM's offset from KEY_AT kept, aimed at the head.
+static func aim_key(street: Node3D) -> void:
+	var key := street.find_child("SideKey", true, false) as SpotLight3D
+	var man := street.find_child("SeatedMan", true, false) as HumanBody
+	if key == null or man == null or not man.parts.has(&"head"):
+		return
+	var head: Vector3 = (man.parts[&"head"] as Node3D).global_position
+	key.global_position = head + rig(street).basis * (KEY_FROM - KEY_AT)
+	key.look_at(head)
+	# Every lamp in the room leaves his head to the key, as the table lamp does: the room's lamps
+	# behind you lit his face flat from the front.
+	for lamp in street.find_children("*", "OilLamp", true, false):
+		(lamp as OilLamp).cull_out |= FACE_LAYER
 
 
 ## Take every gun out of the player's hands so a staged camera keeps its lens and aim.

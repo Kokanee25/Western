@@ -669,6 +669,15 @@ func _wet_eyes(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"eye_radius", float(r.radius) + 0.002)
 	# His painted whites brightened as his model's report asks (the characters session's men).
 	m.set_shader_parameter(&"eye_gain", float(PeopleBodies.report(body_model).get("eye_gain", 1.0)))
+	# His face weathered and stern as his model's report asks (body_skin.gdshaderinc face_*; the
+	# art session's, 2026-10-13).
+	var face: Variant = PeopleBodies.report(body_model).get("weathered", {})
+	if not face is Dictionary:
+		face = {}
+	var skin: Array = face.get("skin", [1.0, 1.0, 1.0])
+	m.set_shader_parameter(&"face_skin", Vector3(skin[0], skin[1], skin[2]))
+	for k in ["brows", "frown", "sockets", "whites"]:
+		m.set_shader_parameter(StringName("face_" + k), float(face.get(k, 0.0)))
 
 
 ## Every mesh showing a body part: the generated skin and clothes pieces, and whatever hangs on

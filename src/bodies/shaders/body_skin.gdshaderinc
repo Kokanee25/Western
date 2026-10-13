@@ -25,6 +25,21 @@ uniform float eye_radius = 0.0;
 // eyes read clear and bright under a brim as the painting's do. 1 = as painted; set per man from
 // his model's report ("eye_gain", PeopleBodies.report()).
 uniform float eye_gain = 1.0;
+// A weathered, stern face drawn over his painted one, placed from the eyes (eye_r_pos, eye_l_pos:
+// head-centred, y up; the head's pieces only), so it stays on him as he turns and moves (Sean,
+// 2026-10-12: the saloon painting's man is weathered and frowning, eyes in shadow under heavy
+// brows, where ours was a pale mask with big white eyes). Each 0 = off; set per man from his
+// model's report ("weathered", PeopleBodies.report()). face_skin: his skin's colour times this where
+// the texture is skin (warm, mid, not the hair or the whites); face_brows: heavy dark brows over
+// each eye, their inner ends pulled down (face_frown also draws the two creases between them);
+// face_sockets: the lids and sockets round each eye shaded, so the eyes sit back in shadow;
+// face_whites: the painted whites dimmed and narrowed to the eye's middle (1 = to the iris's
+// colour at the corners).
+uniform vec3 face_skin = vec3(1.0);
+uniform float face_brows = 0.0;
+uniform float face_frown = 0.0;
+uniform float face_sockets = 0.0;
+uniform float face_whites = 0.0;
 // Light in flat steps, not a smooth ramp: the painting's faces and cloth are blocks of colour with
 // hard edges between light and shade. Steps per unit of (gamma-space) light; 0 = smooth.
 uniform float light_steps = 4.0;
@@ -81,6 +96,65 @@ vec3 painted_to_scene(vec3 c) {
 	return aces_inverse(from_srgb(s));
 }
 
+// How much of a box (half sizes) the point is inside, 1 inside, 0 out, hard edged (the painting
+// draws a brow as a block of dark, not a soft smudge).
+float face_box(vec2 p, vec2 half_size) {
+	return step(abs(p.x), half_size.x) * step(abs(p.y), half_size.y);
+}
+
+// face_skin, face_brows, face_frown, face_sockets and face_whites on the head's texture colour.
+vec3 weathered_face(vec3 base, vec3 p) {
+	// Nothing asked for (every man without a "weathered" report): his face as painted.
+	if (face_brows + face_frown + face_sockets + face_whites == 0.0 && face_skin == vec3(1.0)) {
+		return base;
+	}
+	vec3 mid = 0.5 * (eye_r_pos + eye_l_pos);
+	vec3 across = normalize(eye_r_pos - eye_l_pos);
+	float s = 0.5 * distance(eye_r_pos, eye_l_pos);  // half the eyes' spacing: the face's unit
+	// Forward: from the head's centre (this space's origin) out through the eyes.
+	vec3 fwd = normalize(vec3(mid.x, 0.0, mid.z));
+	vec3 d = p - mid;
+	// Only the front of the face, near the eyes.
+	if (dot(d, fwd) < -0.9 * s || length(d) > 3.2 * s) {
+		return base;
+	}
+	float top = max(max(base.r, base.g), base.b);
+	float low = min(min(base.r, base.g), base.b);
+	// Skin: warm (red over blue), mid bright, not pale (the whites) or dark (hair, brows).
+	float skin = step(0.12, top) * step(top, 0.95) * smoothstep(0.08, 0.2, (base.r - base.b) / max(top, 1e-3))
+			* step(low / max(top, 1e-3), 0.82);
+	// The texture's own baked highlights (a hot forehead and nose) pressed toward the skin's mid
+	// tone, then his colour: the light on him is the scene's, not the photo's.
+	float lum = dot(base, vec3(0.2126, 0.7152, 0.0722));
+	vec3 flat_skin = base * clamp(mix(1.0, 0.11 / max(lum, 1e-3), 0.6), 0.5, 1.6);
+	base = mix(base, flat_skin * face_skin, skin);
+	float x = dot(d, across) / s;  // + toward his right eye
+	float y = d.y / s;
+	float shade = 1.0;
+	for (int k = 0; k < 2; k++) {
+		float side = k == 0 ? 1.0 : -1.0;
+		// In the eye's own frame: u out from the nose, v up.
+		vec2 e = vec2(x * side - 1.0, y);
+		float inner = clamp(-e.x, 0.0, 1.0);  // 1 at the eye's inner end
+		// The brow: a band above the eye, its inner end lower (the frown) and thicker.
+		float b0 = 0.62 - 0.22 * face_frown * (e.x < 0.0 ? inner * 1.6 : -0.1 * e.x);
+		float brow = face_box(vec2(e.x + 0.05, e.y - b0), vec2(0.85, 0.15 + 0.06 * inner)) * face_brows;
+		shade = min(shade, mix(1.0, 0.22, brow));
+		// The socket and lids: the eye's ellipse and a band above it, the outside of the eyeball.
+		float sock = step(length(vec2(e.x / 0.78, (e.y - 0.08) / 0.5)), 1.0);
+		float in_eye = step(length(vec2(e.x / 0.5, e.y / 0.24)), 1.0);
+		shade = min(shade, mix(1.0, 0.55, sock * (1.0 - in_eye) * face_sockets));
+		// The whites: dimmed, and toward the corners turned to the lids' colour.
+		float pale = smoothstep(0.55, 0.8, low / max(top, 1e-4)) * step(0.2, top) * in_eye;
+		float corner = smoothstep(0.18, 0.42, abs(e.x));
+		base = mix(base, base * mix(0.62, 0.3, corner), pale * face_whites);
+	}
+	// The frown's two creases between the brows.
+	float crease = (face_box(vec2(x - 0.16, y - 0.42), vec2(0.045, 0.22)) + face_box(vec2(x + 0.16, y - 0.42), vec2(0.045, 0.22)));
+	shade = min(shade, mix(1.0, 0.6, min(crease, 1.0) * face_frown));
+	return base * shade;
+}
+
 void fragment() {
 	bool painted = uv_rect.z > 0.0;
 	vec2 tuv = painted ? (UV - uv_rect.xy) / uv_rect.zw : UV * uv_scale;
@@ -131,6 +205,9 @@ void fragment() {
 		float top = max(max(base.r, base.g), base.b);
 		float pale = smoothstep(0.55, 0.8, min(min(base.r, base.g), base.b) / max(top, 1e-4)) * step(0.2, top);
 		eye_boost = mix(1.0, eye_gain, pale);
+	}
+	if (eye_radius > 0.0) {
+		base = weathered_face(base, local_pos);
 	}
 	if (reach < 1.0) {
 		if (!reduced_gore) {

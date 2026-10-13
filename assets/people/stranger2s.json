@@ -5,7 +5,18 @@
  "model": "stranger2s_rodin",
  "triangles_in": 33228,
  "pieces": {},
- "eye_gain": 1.8,
+ "eye_gain": 1.0,
+ "weathered": {
+  "skin": [
+   0.68,
+   0.55,
+   0.45
+  ],
+  "brows": 1.0,
+  "frown": 1.0,
+  "sockets": 1.0,
+  "whites": 1.0
+ },
  "head_shift_m": [
   -0.0002,
   0.0,
