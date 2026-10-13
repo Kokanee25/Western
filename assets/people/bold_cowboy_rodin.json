@@ -127,12 +127,13 @@
   0.3529
  ],
  "shells": [],
- "seconds": 16.0,
+ "seconds": 15.9,
  "head": {
   "from": "assets/people/tripo/test/bold_cowboy_rodin.glb",
   "scale": 0.9438,
   "triangles": 12000,
-  "paint": "rodin_portrait.py (the style portraits)"
+  "paint": "rodin_portrait.py (the style portraits)",
+  "triangles_round_eyes": 149
  },
  "fit_joints": {
   "r-eye": [

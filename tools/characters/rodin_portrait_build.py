@@ -27,7 +27,8 @@ import rodin_portrait as RP  # noqa: E402
 CUT_BELOW_CHIN = 0.012    # everything this far under his chin and lower is cut, but his neck
 NECK_DOWN = 0.06          # which goes on down this far
 NECK_RADIUS = 0.055       # within this of his neck's middle
-EYE_DEPTH = 0.011         # an eye's middle behind its iris
+EYE_DEPTH = 0.012         # an eye's middle behind its iris
+DETAIL_M = 0.03           # round his eyes and mouth the mesh keeps its detail
 HEAD_TRIS = 12000
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below the second
 
@@ -115,11 +116,22 @@ def build(man, spec):
             obj.vertex_groups["head"].add([i], float(1 - w) if w < 1 else 0.0, "REPLACE")
             if w > 0:
                 obj.vertex_groups["neck"].add([i], float(w), "REPLACE")
+        # His eyes, lids and mouth keep their detail when he's cut down (the game's wet-eye glint
+        # filled a whole flat triangle of lower lid): DETAIL_M round each, weighted.
+        det = obj.vertex_groups.new(name="detail")
+        feats = [eyes["right"], eyes["left"], ((pts[13] - c_mine) * k + c_goal)]
+        dmin = np.min([np.linalg.norm(Vh - f, axis=1) for f in feats], axis=0)
+        for i, d in enumerate(dmin):
+            if d < DETAIL_M:
+                det.add([i], float(1.0 - d / DETAIL_M), "REPLACE")
         tris = len(Th)
         if tris > HEAD_TRIS:
             mod = obj.modifiers.new("decimate", "DECIMATE")
             mod.ratio = HEAD_TRIS / tris
             mod.use_collapse_triangulate = True
+            mod.vertex_group = "detail"
+            mod.invert_vertex_group = True   # the weighted vertices are the ones kept
+            mod.vertex_group_factor = 10.0
             bpy.context.view_layer.objects.active = obj
             bpy.ops.object.modifier_apply(modifier="decimate")
         m = obj.modifiers.new("skeleton", "ARMATURE")
@@ -130,6 +142,14 @@ def build(man, spec):
         rep["head"] = {"from": "assets/people/tripo/test/%s_rodin.glb" % man, "scale": round(float(k), 4),
                        "triangles": len(obj.data.polygons), "paint": "rodin_portrait.py (the style portraits)"}
         rep["triangles"]["head"] = len(obj.data.polygons)
+        g = obj.vertex_groups.get("detail")
+        if g is not None:
+            obj.vertex_groups.remove(g)
+        vs = np.array([v.co[:] for v in obj.data.vertices])
+        body = np.stack([vs[:, 0], vs[:, 2], -vs[:, 1]], 1)  # Blender → body space (mp.to_blender's inverse)
+        cen = np.array([body[list(p_.vertices)].mean(0) for p_ in obj.data.polygons])
+        near_eyes = np.min([np.linalg.norm(cen - f, axis=1) for f in feats[:2]], axis=0) < 0.02
+        rep["head"]["triangles_round_eyes"] = int(near_eyes.sum())
         rep["triangles"].pop("hair", None)
         made["ok"] = True
         export(person)
