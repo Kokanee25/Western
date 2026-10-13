@@ -17,6 +17,8 @@ import urllib.request
 COMMIT = "c28443c2af7e6b6e9367a3c6ee76f090c81796fd"
 BASE = "https://raw.githubusercontent.com/makehumancommunity/makehuman/%s/" % COMMIT
 ALWAYS = ["LICENSE.md", "LICENSE.ASSETS.md", "makehuman/data/3dobjs/base.obj"]
+# Every target in these folders (the portrait factory's fit solves over the face's targets).
+FACE_DIRS = ["cheek", "chin", "ears", "eyebrows", "eyes", "forehead", "head", "mouth", "neck", "nose"]
 
 
 def fetch(path: str, dest: str) -> None:
@@ -46,8 +48,27 @@ def main() -> None:
     for t in wanted:
         for name in ([t.replace("{s}", s) for s in "rl"] if "{s}" in t else [t]):
             paths.append("makehuman/data/targets/%s.target" % name)
+    paths += face_targets(dest)
     for path in sorted(set(paths)):
         fetch(path, dest)
+
+
+def face_targets(dest: str) -> list:
+    """The paths of every target in FACE_DIRS at COMMIT (listed by a blobless clone, kept in
+    build/makehuman_tree.txt so later runs need no git)."""
+    listing = os.path.join(os.path.dirname(dest.rstrip("/")) or ".", "makehuman_tree.txt")
+    if not os.path.exists(listing):
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run(["git", "clone", "-q", "--filter=blob:none", "--no-checkout",
+                            "https://github.com/makehumancommunity/makehuman.git", tmp], check=True)
+            out = subprocess.run(["git", "-C", tmp, "ls-tree", "-r", "--name-only", COMMIT,
+                                  "makehuman/data/targets"], check=True, capture_output=True, text=True).stdout
+        with open(listing, "w") as f:
+            f.write(out)
+    names = open(listing).read().split()
+    return [n for n in names if n.endswith(".target") and n.split("/")[3] in FACE_DIRS]
 
 
 if __name__ == "__main__":

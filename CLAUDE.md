@@ -323,15 +323,13 @@ frozen until Sean names one.
 - Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
   it); the first-pass set-direction cards.
 
-**Characters** (branch `claude/characters-protected-features`, not merged):
-- Done on main: `stranger2s` (the stylised Rodin stranger) fitted, painted, seated in the shot;
-  the character judge (`tools/characters/judge_man.py`). On the branch: experiments E1–E7
-  (moustache, collar and hard-edged head squares as defaults; eyes on their own squares tried,
-  not adopted), written up in `docs/screenshots/tripo/experiments/README.md`.
-- Next: the branch's merge and the style-sheet character test, both on Sean's yes; then the
-  critics' biggest (his eyes, the ear's rim, the collar's points, the brim's streaks). Trap:
-  after a fit, `godot --headless --import` before rendering, or the old man draws.
-- Waiting on Sean: the merge; the eye's size and opening (bigger read as cartoony, 2026-10-07).
+**Characters** (branch `claude/characters-portrait-factory`, not merged; brief `docs/briefs/portrait-factory.md`):
+- Done on the branch: the portrait factory (`tools/characters/portrait.py`): the bold cowboy from
+  his four pictures onto the shared base head → `bold_cowboy_portrait` (sheet
+  `docs/screenshots/portrait/bold_cowboy_sheet.jpg`). $0 spent.
+- Next: Sean's verdict, then the older heavy-set and young lean cowboys by the same run. Trap:
+  after a build, `godot --headless --import` before rendering, or the old man draws.
+- Waiting on Sean: the sheet; the merge.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling

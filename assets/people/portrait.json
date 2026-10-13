@@ -1,0 +1,21 @@
+{
+ "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures.",
+ "men": {
+  "bold_cowboy": {
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   }
+  }
+ }
+}
