@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man); portrait = repaint the portrait factory's man in `characters` (empty = bold_cowboy) in the style, his four plain views at two LoRA strengths (about $0.30); target = paint the man over in docs/screenshots/portrait/target/frame.png as the paintings would have him (about $0.16)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man); portrait = repaint the portrait factory's man in `characters` (empty = bold_cowboy) in the style, his four plain views at two LoRA strengths (about $0.30); rodin = Rodin Gen-2.5 on fal builds the portrait factory's man in `characters` (empty = bold_cowboy) from his four plain pictures, as a bust ($1.60); target = paint the man over in docs/screenshots/portrait/target/frame.png as the paintings would have him (about $0.16)"
         required: false
         default: ""
 
@@ -271,6 +271,35 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "People: the target frame painted over (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # A portrait-factory man's shape from Rodin (Sean, 2026-10-13): his four plain pictures, a bust.
+  rodin-portrait:
+    if: ${{ inputs.style == 'rodin' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rodin on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          WHICH: ${{ inputs.characters }}
+        run: |
+          id="${WHICH:-bold_cowboy}"
+          python3 tools/characters/rodin.py --dry-run
+          python3 tools/characters/rodin.py --only=$id --pictures=docs/concept/style/factory/$id --bust
+      - name: Commit him
+        run: |
+          git add assets/people/tripo/test
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Characters: Rodin from the portrait factory's pictures (run ${{ github.run_number }})"
           git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 

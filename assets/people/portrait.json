@@ -16,7 +16,8 @@
     "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
     "side": "docs/concept/style/portrait-cowboy-profile-right.png"
    },
-   "style_hair": "grey, thick and wavy, to his collar, as in his style portraits"
+   "style_hair": "grey, thick and wavy, to his collar, as in his style portraits",
+   "what": "a weathered frontier man of about forty, bare-headed, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache, a brown wool coat over a vest, a white shirt and a black tie"
   },
   "older_heavyset_cowboy": {
    "pictures": "docs/concept/style/factory/older_heavyset_cowboy",
