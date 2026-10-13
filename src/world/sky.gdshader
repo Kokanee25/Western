@@ -15,9 +15,9 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_dir = vec3(0.0, -1.0, 0.0);
 // The moon's size (its radius, radians), brightness, and the glow it puts in the sky round it.
 uniform float moon_radius = 0.019;
-uniform float moon_bright = 0.6;
-uniform float moon_glow = 1.0;
-uniform vec3 moon_glow_color : source_color = vec3(0.07, 0.12, 0.26);
+uniform float moon_bright = 0.9;
+uniform float moon_glow = 2.2;
+uniform vec3 moon_glow_color : source_color = vec3(0.08, 0.15, 0.32);
 uniform float star_strength = 0.0;
 uniform float sun_size = 0.035;
 // Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
@@ -197,7 +197,7 @@ void sky() {
 	// across, pale blue-white, drawn in squares (~11 across it) with grey-blue seas, the sky round
 	// it lit a clear mid blue and fading to the night's navy some 30 degrees out.
 	float md_dot = dot(d, md);
-	col += moon_glow_color * (pow(max(md_dot, 0.0), 40.0) * 0.6 + pow(max(md_dot, 0.0), 6.0) * 0.4) * moon_glow * moon_up;
+	col += moon_glow_color * (pow(max(md_dot, 0.0), 40.0) * 0.5 + pow(max(md_dot, 0.0), 8.0) * 0.5) * moon_glow * moon_up;
 	vec3 mt = normalize(cross(md, abs(md.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
 	vec3 mb = cross(mt, md);
 	vec2 muv = vec2(dot(d, mt), dot(d, mb)) / sin(moon_radius);
