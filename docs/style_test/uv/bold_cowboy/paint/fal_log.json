@@ -430,5 +430,79 @@
    "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
   },
   "image": "https://v3b.fal.media/files/b/0aae44be/MZe6qbgj25SNxWMG363qd.png"
+ },
+ {
+  "r2_a_face": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1379c-9e20-78a2-a1c0-6fc5853d9cef",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-9e20-78a2-a1c0-6fc5853d9cef",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-9e20-78a2-a1c0-6fc5853d9cef/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-9e20-78a2-a1c0-6fc5853d9cef/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.45,
+   "controlnet": 0.5,
+   "ip_adapter": 0.0,
+   "seed": 21,
+   "prompt": "SLTCRK pixel-art portrait made of big square pixels, about twenty squares across his face, every square one flat colour, of a weathered cowboy's bare head seen from straight in front, no hat, keep every square where it is in the picture and choose its colour as a painter would so his features read: his eyes as a dark lid square over a lit white square and a dark brown iris, a heavy dark drooping moustache several squares thick, thick dark eyebrows, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw, olive-grey in the hollows under his brow and cheekbones, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, plain grey background",
+   "start": "face_start_sq.png"
+  }
+ },
+ {
+  "r2_a_face_answer": {
+   "timings": {
+    "inference": 8.167025960000046
+   },
+   "seed": 21,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art portrait made of big square pixels, about twenty squares across his face, every square one flat colour, of a weathered cowboy's bare head seen from straight in front, no hat, keep every square where it is in the picture and choose its colour as a painter would so his features read: his eyes as a dark lid square over a lit white square and a dark brown iris, a heavy dark drooping moustache several squares thick, thick dark eyebrows, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw, olive-grey in the hollows under his brow and cheekbones, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, plain grey background"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae465d/aptJF0qLTorpYyEAxWX9M.png"
+ },
+ {
+  "r2_b_face": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1379c-cf01-7e82-aa92-5c30c39a330f",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-cf01-7e82-aa92-5c30c39a330f",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-cf01-7e82-aa92-5c30c39a330f/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1379c-cf01-7e82-aa92-5c30c39a330f/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.6,
+   "controlnet": 0.5,
+   "ip_adapter": 0.0,
+   "seed": 21,
+   "prompt": "SLTCRK pixel-art portrait made of big square pixels, about twenty squares across his face, every square one flat colour, of a weathered cowboy's bare head seen from straight in front, no hat, keep every square where it is in the picture and choose its colour as a painter would so his features read: his eyes as a dark lid square over a lit white square and a dark brown iris, a heavy dark drooping moustache several squares thick, thick dark eyebrows, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw, olive-grey in the hollows under his brow and cheekbones, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, plain grey background",
+   "start": "face_start_sq.png"
+  }
+ },
+ {
+  "r2_b_face_answer": {
+   "timings": {
+    "inference": 6.569272628999897
+   },
+   "seed": 21,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art portrait made of big square pixels, about twenty squares across his face, every square one flat colour, of a weathered cowboy's bare head seen from straight in front, no hat, keep every square where it is in the picture and choose its colour as a painter would so his features read: his eyes as a dark lid square over a lit white square and a dark brown iris, a heavy dark drooping moustache several squares thick, thick dark eyebrows, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw, olive-grey in the hollows under his brow and cheekbones, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, plain grey background"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae465e/KYiwBS3MRJXWAnngHCjDZ.png"
  }
 ]
