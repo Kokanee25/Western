@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man); portrait = repaint the portrait factory's man in `characters` (empty = bold_cowboy) in the style, his four plain views at two LoRA strengths (about $0.30)"
         required: false
         default: ""
 
@@ -195,6 +195,45 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Characters: painted full length and turned round (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # The portrait factory's styled pictures: a man's four plain views repainted in the style by
+  # Kontext and the LoRA, to run the factory on (tools/characters/portrait_style.py).
+  style-portrait:
+    if: ${{ inputs.style == 'portrait' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repaint his views on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
+          WHICH: ${{ inputs.characters }}
+        run: |
+          pip install pillow
+          python3 tools/characters/portrait_style.py --man="${WHICH:-bold_cowboy}" --dry-run
+          git checkout -- docs/concept/style/factory 2>/dev/null; git clean -fdq docs/concept/style/factory
+          python3 tools/characters/portrait_style.py --man="${WHICH:-bold_cowboy}"
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-portrait
+          path: build/portrait_style/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the pictures
+        run: |
+          git add docs/concept/style/factory
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Portrait factory: styled pictures (run ${{ github.run_number }})"
           git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
