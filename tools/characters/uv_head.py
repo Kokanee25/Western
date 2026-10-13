@@ -1,7 +1,7 @@
 """The UV portrait, step 1: his head's shape (docs/briefs/uv-portrait.md; Sean, 2026-10-13).
 
     python3 tools/characters/uv_head.py shape --man=bold_cowboy    # bpy (mathutils), numpy, mediapipe
-    python3 tools/characters/uv_head.py build --man=bold_cowboy [--tex=PNG]   # bpy: into the game
+    python3 tools/characters/uv_head.py build --man=bold_cowboy [--tex=PNG] [--faceted]   # bpy: into the game
 
 One shared head, his shape taken from Rodin by shrinkwrapping, not by fitting landmarks:
 
@@ -62,6 +62,7 @@ NECK_HOPS = 8         # edges from the head's join with the body over which the 
 EYE_HOLD = (0.014, 0.024)  # metres from an eye's middle: held (weight EYE_W) inside, free outside
 EYE_W = 0.0           # the lids aren't cast: they ride on the smoothed displacement round them
 EAR_W = 0.0           # the ears ride too (Rodin's are under his hair)
+FACETED_TRIS = 800     # step 6's test: the head this many triangles, drawn flat
 CLAY = 0.5            # the grey head's albedo (until it is painted)
 MOUTH_HOLD = (0.008, 0.016)  # metres from a mouth corner: its folds ride, not cast
 # His ears in (Sean, 2026-10-13: in his pictures his hair covers them): the base head's flare taken
@@ -450,7 +451,7 @@ def label(im, text):
 
 # --- Into the game ---------------------------------------------------------------------------------
 
-def build(man, tex=None):
+def build(man, tex=None, faceted=False):
     """The factory's body with this head (same vertices, moved); → assets/people/<man>_uv.glb.
     With uv_layout.py's layout (build/uv_head/<man>_layout.npz) its UVs, and tex (a PNG in that
     layout) on it; else the factory's layout, grey."""
@@ -485,10 +486,31 @@ def build(man, tex=None):
     env = json.load(open(mp.ENVELOPE))
     spec = dict(FSPEC)
     spec["outfit"] = json.load(open(os.path.join(ROOT, "assets", "people", "portrait.json")))["men"].get(man, {}).get("outfit", {})
+    export = FB.mp.export
+
+    def export_faceted(person):
+        """The test look (Sean, step 6): the head cut to FACETED_TRIS, every face drawn flat."""
+        import bpy
+        o = bpy.data.objects["body_head"]
+        tris = sum(len(q.vertices) - 2 for q in o.data.polygons)
+        mod = o.modifiers.new("facets", "DECIMATE")
+        mod.ratio = min(1.0, FACETED_TRIS / max(tris, 1))
+        mod.use_collapse_triangulate = True
+        bpy.context.view_layer.objects.active = o
+        bpy.ops.object.modifier_move_to_index(modifier="facets", index=0)
+        bpy.ops.object.modifier_apply(modifier="facets")
+        for q in o.data.polygons:
+            q.use_smooth = False
+        person.report["triangles"]["head"] = len(o.data.polygons)
+        person.report["faceted"] = True
+        export(person)
+    if faceted:
+        FB.mp.export = export_faceted
     try:
-        FB.build(man + "_uv", spec, env, F.load_factory())
+        FB.build(man + ("_uv_faceted" if faceted else "_uv"), spec, env, F.load_factory())
     finally:
         FB.F.make_person = make
+        FB.mp.export = export
 
 
 def main():
@@ -498,7 +520,7 @@ def main():
     if "shape" in sys.argv:
         shape(man)
     elif "build" in sys.argv:
-        build(man, args.get("--tex"))
+        build(man, args.get("--tex"), "--faceted" in sys.argv)
     else:
         print(__doc__)
 
