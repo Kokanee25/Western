@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       style:
-        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man); portrait = repaint the portrait factory's man in `characters` (empty = bold_cowboy) in the style, his four plain views at two LoRA strengths (about $0.30)"
+        description: "Instead: photo = have the image model photograph the concept scene (docs/style_test/); train = train a style LoRA on fal from docs/concept/ crops + docs/concept/style/; sample = paint test pictures with it; characters = paint the men in `characters` (empty = all) full length and turned round with it, no Tripo; head = paint the man's head in the style (and his whole body, if characters.json gives him body words) and bake it onto his texture (all need FAL_KEY); test3d = the model test: the man in `characters` (empty = stranger) through Tripo's newest model and Rodin on fal, into assets/people/tripo/test/ (about $3 a man); portrait = repaint the portrait factory's man in `characters` (empty = bold_cowboy) in the style, his four plain views at two LoRA strengths (about $0.30); target = paint the man over in docs/screenshots/portrait/target/frame.png as the paintings would have him (about $0.16)"
         required: false
         default: ""
 
@@ -234,6 +234,43 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Portrait factory: styled pictures (run ${{ github.run_number }})"
+          git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
+          git push
+
+  # A target frame: a real game frame with the man painted over in the style
+  # (tools/characters/target_frame.py), what every route to people is judged against.
+  style-target:
+    if: ${{ inputs.style == 'target' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paint the man over on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          FAL_EDITOR: ${{ vars.FAL_EDITOR }}
+        run: |
+          pip install pillow
+          python3 tools/characters/target_frame.py --dry-run
+          python3 tools/characters/target_frame.py
+      - name: Keep the fal log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-target
+          path: build/target_frame/fal_log.json
+          if-no-files-found: ignore
+      - name: Commit the paint-overs
+        run: |
+          git add docs/screenshots/portrait/target
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "People: the target frame painted over (run ${{ github.run_number }})"
           git pull --rebase origin "$GITHUB_REF_NAME"  # the branch may have moved while this ran
           git push
 
