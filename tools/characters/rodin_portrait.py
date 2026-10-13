@@ -32,6 +32,7 @@ import sys
 
 import numpy as np
 from PIL import Image
+from scipy.cluster.vq import kmeans2
 from scipy.spatial import cKDTree
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +52,7 @@ BRIM_SIDES = 0.002       # and round his sides, where the brim's shadow lies on 
 HAIRLINE = 0.062         # over his eyes: his forehead's skin up to here, his hair above
 HIGHLIGHT_FROM = 90      # percentile of his face's brightness from which the lit side is calmed
 HIGHLIGHT_KEEP = 0.4     # how much of the brightness above it stays
+NECK_TOL = 0.2           # under his chin, a colour this far from his jaw's is the painted collar
 DELIGHT = 0.6         # how much of each portrait's shading is taken out (0 none, 1 all)
 DELIGHT_CLAMP = (0.75, 1.35)
 DEPTH_TOL = 0.004
@@ -360,31 +362,51 @@ def paint(man, spec):
     hat = cover & (Pp[..., 1] > eye_y + np.where(front, BRIM_ABOVE_EYES, BRIM_SIDES))
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
-    # forehead's skin where it faces you, his grey hair round the rest (the medians of his
-    # forehead just under the brim line, and of the grey at his temples and sideburns).
+    # forehead's skin where it faces you, his hair round the rest, from his temples and sideburns.
+    # The painted grey is warm: for grey hair (`hair_fill` "grey", the default) their least coloured
+    # 40% is his hair; dark hair lit orange is as coloured as his skin, so for "dark" it's the darker
+    # of their two colours. His forehead: what under the brim line is nearer his cheeks' colour
+    # than his hair's (a fringe hangs over the young man's).
     near = below & front & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES - 0.025)
+    chin_y = float(pts[152, 1])
+    cheek = below & (N[..., 2] < -0.5) & (Pp[..., 1] < eye_y - 0.015) & (Pp[..., 1] > chin_y + 0.02)
+    skin_ref = np.median(tex[cheek], 0) if cheek.sum() > 100 else np.median(tex[below], 0)
     sat = tex.max(-1) - tex.min(-1)
     lumt = tex.mean(-1)
+    dark = spec.get("hair_fill", "grey") == "dark"
     temples = cover & ~front & (np.abs(Pp[..., 0]) > 0.06) & (Pp[..., 1] > eye_y - 0.03) \
-        & (Pp[..., 1] < eye_y + 0.012) & (lumt > 0.2)
-    # The painted grey is warm: his temples' least coloured 40% is his hair, the rest skin and ear.
-    if temples.sum() > 50:
+        & (Pp[..., 1] < eye_y + 0.012) & (lumt > (0.08 if dark else 0.2))
+    if temples.sum() > 50 and dark:
+        cand = tex[temples]
+        centres, lab = kmeans2(cand, 2, minit="++", seed=0)
+        hair_c = np.median(cand[lab == int(np.argmin(centres.mean(1)))], 0)
+    elif temples.sum() > 50:
         cand = tex[temples]
         csat = sat[temples]
         hair_c = np.median(cand[csat <= np.percentile(csat, 40)], 0)
     else:
         hair_c = np.median(tex[below], 0)
-    skin_c = np.median(tex[near], 0) if near.sum() > 20 else np.median(tex[below], 0)
-    report["fill"] = {"temples": int(temples.sum()), "hair": [round(float(x), 3) for x in hair_c],
-                      "forehead": [round(float(x), 3) for x in skin_c]}
+    nc = tex[near]
+    skin_side = np.linalg.norm(nc - skin_ref, axis=1) < np.linalg.norm(nc - hair_c, axis=1)
+    skin_c = np.median(nc[skin_side], 0) if skin_side.sum() > 20 else skin_ref
     forehead = front & (Pp[..., 1] < eye_y + HAIRLINE)
     tex[hat & forehead] = skin_c
     tex[hat & ~forehead] = hair_c
+    # Under his chin the paintings show his collar and neckcloth, which on Rodin's longer neck
+    # land on skin: what's far from his jaw's colour there takes it.
+    jaw = below & (Pp[..., 1] > chin_y) & (Pp[..., 1] < chin_y + 0.03)
+    jaw_c = np.median(tex[jaw], 0) if jaw.sum() > 50 else skin_ref
+    collar = cover & (Pp[..., 1] < chin_y - 0.005) & (N[..., 2] < 0.3) & (np.linalg.norm(tex - jaw_c, axis=-1) > NECK_TOL)
+    tex[collar] = jaw_c
+    report["fill"] = {"temples": int(temples.sum()), "hair": [round(float(x), 3) for x in hair_c],
+                      "forehead": [round(float(x), 3) for x in skin_c], "cheeks": [round(float(x), 3) for x in skin_ref],
+                      "neck_from_jaw": int(collar.sum())}
     # His lit side calmed (the game's lamp lights him again): the face's brightest tenth brought
     # down towards the rest, hue kept; and lone near-white specks (a catchlight that missed his
     # eye) taken to the face's bright level.
     face = below & (Pp[..., 1] > float(pts[152, 1])) & (N[..., 2] < 0.2)
     lum = tex @ np.array([0.2126, 0.7152, 0.0722])
+    sat = tex.max(-1) - tex.min(-1)
     if face.sum() > 100:
         hi = np.percentile(lum[face], HIGHLIGHT_FROM)
         over = face & (lum > hi)
