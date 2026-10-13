@@ -333,11 +333,15 @@ frozen until Sean names one.
 - Waiting on Sean: the merge; the eye's size and opening (bigger read as cartoony, 2026-10-07).
 
 **Gameplay** (branch `claude/gameplay-…`):
-- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
-  man keeps his momentum, crumples with muscle tone and keeps his limbs out of his body; lamps draw their full shadows only near you (street render CPU 19.2 →
-  10.2 ms on lavapipe, draws 15,412 → 3,290); a room's lamps don't light its people from the
-  street (8.9 ms); dynamite breaks the studs by it, so you can blow your way out of a building.
-- Next: Prompt 09 (fix the falls) when Sean says; the rest of the street's render budget (the
-  larger town's draws, the sun's cascades); brick as a material wants a brief first; M4 step 5
-  (money) stays frozen with the features.
-- Waiting on Sean: Prompt 09's go; performance part B's next step; the `proposed` feel ranges.
+- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
+  momentum and crumples with muscle tone; dynamite breaks the studs by it; lamp shadows drawn
+  once, not every frame (shadow atlas one cell size: street render CPU 8.6 → 4.5 ms lavapipe,
+  ~2.9 at Sean's, under budget); the nightly soak's faults (a freed mate, rubble on you, the gang
+  flinging rubble as it rode in, shapeless rubble through the ground) and it now logs what it
+  finds and its memory as it goes.
+- Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (the runner was
+  shutting it down; its log now says memory and disk each minute); brick wants a brief first; M4
+  step 5 (money) stays frozen with the features.
+- Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
+  four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
+  after a fight; the `proposed` feel ranges.
