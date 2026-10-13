@@ -31,6 +31,8 @@ EYE_DEPTH = 0.012         # an eye's middle behind its iris
 DETAIL_M = 0.03           # round his eyes and mouth the mesh keeps its detail
 HEAD_TRIS = 12000
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below the second
+COLLAR_FROM = 0.06        # the shirt's collar and neckcloth above this far under his chin...
+COLLAR_KEEP = 0.4         # ...squeezed down to this much of their height
 
 
 def skin_like(c):
@@ -151,6 +153,25 @@ def build(man, spec):
         near_eyes = np.min([np.linalg.norm(cen - f, axis=1) for f in feats[:2]], axis=0) < 0.02
         rep["head"]["triangles_round_eyes"] = int(near_eyes.sum())
         rep["triangles"].pop("hair", None)
+        # The factory's collar stands up to the factory man's chin; Rodin's face is longer, so with
+        # his eyes on the anatomy's his chin is lower and the collar cut through his throat (grey
+        # and red bits under his jaw): its top squeezed down under his chin.
+        h0 = chin_y - COLLAR_FROM
+        lowered = {}
+        for name in ("cloth_shirt", "cloth_cravat"):
+            o = bpy.data.objects.get(name)
+            if o is None:
+                continue
+            mw, inv = o.matrix_world, o.matrix_world.inverted()
+            n = 0
+            for v in o.data.vertices:
+                w = mw @ v.co
+                if w.z > h0 and abs(w.x) < 0.12:     # Blender's Z is his height
+                    w.z = h0 + (w.z - h0) * COLLAR_KEEP
+                    v.co = inv @ w
+                    n += 1
+            lowered[name.split("_", 1)[1]] = n
+        rep["head"]["collar_lowered"] = lowered
         made["ok"] = True
         export(person)
 

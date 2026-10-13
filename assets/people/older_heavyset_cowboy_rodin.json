@@ -127,13 +127,17 @@
   0.3529
  ],
  "shells": [],
- "seconds": 16.5,
+ "seconds": 15.0,
  "head": {
   "from": "assets/people/tripo/test/older_heavyset_cowboy_rodin.glb",
   "scale": 0.9437,
   "triangles": 11999,
   "paint": "rodin_portrait.py (the style portraits)",
-  "triangles_round_eyes": 151
+  "triangles_round_eyes": 151,
+  "collar_lowered": {
+   "shirt": 172,
+   "cravat": 24
+  }
  },
  "fit_joints": {
   "r-eye": [

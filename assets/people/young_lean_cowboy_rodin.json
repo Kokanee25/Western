@@ -127,13 +127,17 @@
   0.3529
  ],
  "shells": [],
- "seconds": 16.0,
+ "seconds": 14.8,
  "head": {
   "from": "assets/people/tripo/test/young_lean_cowboy_rodin.glb",
   "scale": 0.9438,
   "triangles": 12000,
   "paint": "rodin_portrait.py (the style portraits)",
-  "triangles_round_eyes": 196
+  "triangles_round_eyes": 196,
+  "collar_lowered": {
+   "shirt": 160,
+   "cravat": 20
+  }
  },
  "fit_joints": {
   "r-eye": [
