@@ -25,8 +25,8 @@ import portrait as P  # noqa: E402
 import rodin_portrait as RP  # noqa: E402
 
 CUT_BELOW_CHIN = 0.012    # everything this far under his chin and lower is cut, but his neck
-NECK_DOWN = 0.075         # which goes on down this far
-NECK_RADIUS = 0.07        # within this of his neck's middle
+NECK_DOWN = 0.06          # which goes on down this far
+NECK_RADIUS = 0.055       # within this of his neck's middle
 EYE_DEPTH = 0.011         # an eye's middle behind its iris
 HEAD_TRIS = 12000
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below the second

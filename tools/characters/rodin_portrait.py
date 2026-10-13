@@ -32,6 +32,7 @@ import sys
 
 import numpy as np
 from PIL import Image
+from scipy.spatial import cKDTree
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -43,6 +44,9 @@ WORK = os.path.join(ROOT, "build", "rodin_portrait")
 TEX = 2048            # his paint's size (Rodin's UVs are an atlas of many islands)
 SQUARE_M = 0.004
 SEAM = 0.04
+BG_TOL = 0.09         # a colour this near the painting's background is background
+UNSQUARE = 9         # pixels: the style portraits' squares are ~10 px at 1672 wide
+BRIM_ABOVE_EYES = 0.032  # the portraits' hat brim: what's above this over his eyes is hat in every one
 DELIGHT = 0.5         # how much of each portrait's shading is taken out (0 none, 1 all)
 DELIGHT_CLAMP = (0.75, 1.35)
 DEPTH_TOL = 0.004
@@ -105,8 +109,9 @@ def weld(V, T, tol=1e-6):
 
 
 def to_body(V):
-    """glTF (Y up, facing +Z) → our body space (Y up, facing -Z, his right +X): a half turn about Y."""
-    return V * np.array([-1.0, 1.0, -1.0])
+    """Blender's import (Z up; Rodin's man faces -Y there, glTF's +Z) → our body space (Y up, facing
+    -Z, his right +X): body = (-x, z, y)."""
+    return np.stack([-V[:, 0], V[:, 2], V[:, 1]], 1)
 
 
 def sample_tex(tex, uv):
@@ -188,6 +193,24 @@ def fit_camera(view, pts, lm, normals_at, s0, turn0):
 
 # --- Painting him -------------------------------------------------------------------------------------
 
+def cube_squares(tex, cover, Pp):
+    """Each texel the median colour of all texels in its SQUARE_M cube of him (per channel)."""
+    sq = tex.copy()
+    idx = np.nonzero(cover)
+    cell = np.floor(Pp[idx] / SQUARE_M).astype(np.int64)
+    _u, gid = np.unique(cell, axis=0, return_inverse=True)
+    gid = gid.ravel()
+    counts = np.bincount(gid)
+    starts = np.concatenate([[0], np.cumsum(counts)[:-1]])
+    out = np.zeros((len(counts), 3))
+    for c in range(3):
+        v = tex[idx][:, c]
+        order = np.lexsort((v, gid))
+        out[:, c] = v[order][starts + counts // 2]
+    sq[idx] = out[gid]
+    return sq
+
+
 def islands(cover):
     from scipy import ndimage
     lab, n = ndimage.label(cover)
@@ -220,7 +243,11 @@ def paint(man, spec):
     report = {"scale": round(k, 5), "views": {}}
     cams, pics = {}, {}
     for view, path in spec["paint_views"].items():
-        img = np.asarray(Image.open(os.path.join(ROOT, path)).convert("RGB")).astype(float) / 255.0
+        # The painting's own squares taken out (a median over a square, a little blur), so ours are
+        # the only squares: projected and squared again, its squares come out as zigzags.
+        from PIL import ImageFilter
+        raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
+        img = np.asarray(raw.filter(ImageFilter.MedianFilter(UNSQUARE)).filter(ImageFilter.GaussianBlur(1.0))).astype(float) / 255.0
         pics[view] = img
         if view == "back":
             continue
@@ -270,8 +297,13 @@ def paint(man, spec):
         qi = np.clip(q.astype(int), 0, [w - 1, h - 1])
         seen = (cam.depth(p) <= zb[qi[:, 1], qi[:, 0]] + DEPTH_TOL) & (q[:, 0] >= 0) & (q[:, 0] < w) & (q[:, 1] >= 0) & (q[:, 1] < h)
         f = n @ cam.toward()
-        score[view] = np.where(seen & (f > MIN_FACING), f, -np.inf)
         colour[view] = P.sample(img, q[:, 0], q[:, 1])
+        # His mane is bigger than the painted hair: where it lands on the painting's background
+        # (the colours of its left and right edges), this view doesn't paint it.
+        edge = np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)])
+        bg = np.median(edge, 0)
+        bg_like = (np.linalg.norm(colour[view] - bg, axis=1) < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
+        score[view] = np.where(seen & ~bg_like & (f > MIN_FACING), f, -np.inf)
     names = list(cams)
     S = np.stack([score[v] for v in names])
     best = S.max(0)
@@ -309,31 +341,26 @@ def paint(man, spec):
     palv = np.array([[0.9, 0.3, 0.3], [0.3, 0.9, 0.3], [0.3, 0.3, 0.9], [0.9, 0.9, 0.3], [0.9, 0.3, 0.9]])
     which[idx] = palv[best_v % 5] * np.where(seen_any, 1.0, 0.2)[:, None]
     P.to_pil(which).save(os.path.join(WORK, man + "_which_view.png"))
-    # Squares, once, last: per UV island at its own density, each the median of its texels.
-    sq = tex.copy()
-    lab, nlab = islands(cover)
-    dP = np.linalg.norm(np.diff(Pp, axis=1), axis=-1)
-    okd = cover[:, 1:] & cover[:, :-1]
-    from scipy import ndimage as nd
-    objs = nd.find_objects(lab)
-    for li, sl in enumerate(objs, start=1):
-        if sl is None:
-            continue
-        m = lab[sl] == li
-        if m.sum() < 16:
-            continue
-        sub = dP[sl[0], sl[1].start:max(sl[1].start + 1, sl[1].stop - 1)]
-        subok = okd[sl[0], sl[1].start:max(sl[1].start + 1, sl[1].stop - 1)] & m[:, :sub.shape[1]]
-        mpt = float(np.median(sub[subok])) if subok.any() else 1e-3
-        step = max(1, int(round(SQUARE_M / max(mpt, 1e-9))))
-        y0, x0 = sl[0].start, sl[1].start
-        for by in range(y0, sl[0].stop, step):
-            for bx in range(x0, sl[1].stop, step):
-                blk = (slice(by, min(by + step, sl[0].stop)), slice(bx, min(bx + step, sl[1].stop)))
-                mm = lab[blk] == li
-                if mm.any():
-                    v = np.median(tex[blk][mm], 0)
-                    sq[blk][mm] = v
+    # Above the portraits' brim every portrait shows hat: there his hair and forehead's colour
+    # carries on up from below (the game's hat covers it).
+    eye_y = float((pts[468, 1] + pts[473, 1]) / 2)
+    hat = cover & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES)
+    below = cover & ~hat
+    # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
+    # forehead's skin where it faces you, his grey hair's colour round the rest (each the median
+    # of what's just under the brim line there).
+    near = below & (Pp[..., 1] > eye_y + BRIM_ABOVE_EYES - 0.025)
+    front = (N[..., 2] < -0.5) & (np.abs(Pp[..., 0]) < 0.06)
+    skin_src = tex[near & front]
+    sat = tex.max(-1) - tex.min(-1)
+    hair_src = tex[near & ~front & (sat < 0.12)]
+    skin_c = np.median(skin_src, 0) if len(skin_src) > 20 else np.median(tex[below], 0)
+    hair_c = np.median(hair_src, 0) if len(hair_src) > 20 else np.median(tex[below], 0)
+    tex[hat & front] = skin_c
+    tex[hat & ~front] = hair_c
+    # Squares, once, last: SQUARE_M cells in 3D on him (so they sit square on his head, whatever
+    # Rodin's UV islands do), each the median of its texels.
+    sq = cube_squares(tex, cover, Pp)
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts}, allow_pickle=True)
     report["cameras"] = {v: c.json() for v, c in cams.items()}
