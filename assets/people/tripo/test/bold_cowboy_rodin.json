@@ -13,8 +13,8 @@
   "upload_initiate": {
    "file": "front.png",
    "answer": {
-    "file_url": "https://v3b.fal.media/files/b/0aae417f/PCBMJV9dEHmNt-rdq4GWK_front.png",
-    "upload_url": "https://v3b.fal.media/files/b/0aae417f/PCBMJV9dEHmNt-rdq4GWK_front.png?signature=nJVr3B9zX9J8yWqE"
+    "file_url": "https://v3b.fal.media/files/b/0aae42c2/a0N49BjeYfFxkCt0-Q47s_front.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae42c2/a0N49BjeYfFxkCt0-Q47s_front.png?signature=MOM1XXDGlbHTdOsY"
    }
   }
  },
@@ -25,8 +25,8 @@
   "upload_initiate": {
    "file": "left.png",
    "answer": {
-    "file_url": "https://v3b.fal.media/files/b/0aae417f/OVNFxB__lmxFewfwfSkMy_left.png",
-    "upload_url": "https://v3b.fal.media/files/b/0aae417f/OVNFxB__lmxFewfwfSkMy_left.png?signature=LCBDdCg8Za2-oZ1Y"
+    "file_url": "https://v3b.fal.media/files/b/0aae42c2/XMBVaN897R49iD7GcE1Lx_left.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae42c2/XMBVaN897R49iD7GcE1Lx_left.png?signature=lcDMfzMWP6t-TSxZ"
    }
   }
  },
@@ -37,8 +37,8 @@
   "upload_initiate": {
    "file": "back.png",
    "answer": {
-    "file_url": "https://v3b.fal.media/files/b/0aae417f/uu0oAEZ8VDckSV_KLlNR2_back.png",
-    "upload_url": "https://v3b.fal.media/files/b/0aae417f/uu0oAEZ8VDckSV_KLlNR2_back.png?signature=xvfOiymsrBC9X-tH"
+    "file_url": "https://v3b.fal.media/files/b/0aae42c2/yUcyfw8mekZotSFDcXeGN_back.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae42c2/yUcyfw8mekZotSFDcXeGN_back.png?signature=Fb07vSPB9TYlHBa8"
    }
   }
  },
@@ -49,8 +49,8 @@
   "upload_initiate": {
    "file": "right.png",
    "answer": {
-    "file_url": "https://v3b.fal.media/files/b/0aae417f/sIyOq5v-VWFasgm5GDIek_right.png",
-    "upload_url": "https://v3b.fal.media/files/b/0aae417f/sIyOq5v-VWFasgm5GDIek_right.png?signature=EcxvtjT8j3XaTUCX"
+    "file_url": "https://v3b.fal.media/files/b/0aae42c2/KKSN6T4T6xehR8v1pgjKx_right.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae42c2/KKSN6T4T6xehR8v1pgjKx_right.png?signature=NhTAj70s9ig0VySx"
    }
   }
  },
@@ -60,10 +60,10 @@
  {
   "queued": {
    "status": "IN_QUEUE",
-   "request_id": "01a136de-7f73-7c30-9f96-a6fcd8ddafc9",
-   "response_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a136de-7f73-7c30-9f96-a6fcd8ddafc9",
-   "status_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a136de-7f73-7c30-9f96-a6fcd8ddafc9/status",
-   "cancel_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a136de-7f73-7c30-9f96-a6fcd8ddafc9/cancel",
+   "request_id": "01a1370f-d4fa-7f83-80f1-a4ff99e4881f",
+   "response_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a1370f-d4fa-7f83-80f1-a4ff99e4881f",
+   "status_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a1370f-d4fa-7f83-80f1-a4ff99e4881f/status",
+   "cancel_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a1370f-d4fa-7f83-80f1-a4ff99e4881f/cancel",
    "logs": null,
    "metrics": {},
    "queue_position": 0,
@@ -74,26 +74,26 @@
  {
   "answer": {
    "model_mesh": {
-    "url": "https://v3b.fal.media/files/b/0aae41a4/4f5ib9QsP5wDEAJrip_Hc_base_high_pbr.glb",
+    "url": "https://v3b.fal.media/files/b/0aae4307/_ZiJBTa5HmoBwsJ77C2-s_base_high_pbr.glb",
     "content_type": "application/octet-stream",
     "file_name": "base_high_pbr.glb",
-    "file_size": 39416372
+    "file_size": 33324076
    },
    "model_meshes": [
     {
-     "url": "https://v3b.fal.media/files/b/0aae41a5/kMASfsXmo_xD5WgdoS5FN_model_export_raw.glb",
+     "url": "https://v3b.fal.media/files/b/0aae4307/dAZnuPQSE8mCE-Lha0Qp6_model_export_raw.glb",
      "content_type": "application/octet-stream",
      "file_name": "model_export_raw.glb",
-     "file_size": 18536772
+     "file_size": 18875188
     }
    ],
-   "seed": 16618,
+   "seed": 61505,
    "textures": [
     {
-     "url": "https://v3b.fal.media/files/b/0aae41a5/7DMsJy9lOqu-lxY3iu9Q-_preview.webp",
+     "url": "https://v3b.fal.media/files/b/0aae4308/g9Rbke4qSH1lGh04S48mB_preview.webp",
      "content_type": "application/octet-stream",
      "file_name": "preview.webp",
-     "file_size": 8588,
+     "file_size": 8176,
      "width": null,
      "height": null
     }
