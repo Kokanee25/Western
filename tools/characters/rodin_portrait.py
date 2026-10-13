@@ -390,6 +390,19 @@ def paint(man, spec):
     # Squares, once, last: SQUARE_M cells in 3D on him (so they sit square on his head, whatever
     # Rodin's UV islands do), each the median of its texels.
     sq = cube_squares(tex, cover, Pp)
+    # A whole square of near-white or the shirt's cream on his face (a catchlight that missed his
+    # eye, the collar seen past his cheek, fills one): the colour of the face round it (the median
+    # of its nearest texels on him).
+    lsq = sq @ np.array([0.2126, 0.7152, 0.0722])
+    ssq = sq.max(-1) - sq.min(-1)
+    white = cover & (Pp[..., 1] > float(pts[152, 1])) & (lsq > 0.72) & (ssq < 0.25)
+    if white.any():
+        ok_ = np.nonzero(cover & ~white)
+        pick = np.random.default_rng(0).choice(len(ok_[0]), min(len(ok_[0]), 200000), replace=False)
+        tree = cKDTree(Pp[ok_[0][pick], ok_[1][pick]])
+        _d, j = tree.query(Pp[white], k=40)
+        sq[white] = np.median(sq[ok_[0][pick][j], ok_[1][pick][j]], axis=1)
+    report["white_squares_calmed"] = int(white.sum())
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
