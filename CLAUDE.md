@@ -4460,3 +4460,36 @@ a few views renders them as the full run does.
     The close view frames on his head, so it moves with the turn. Visual checks 170, none
     failed. Shot-match and body tests pass.
   - Merged as PR #101, **build 886** (green).
+- 2026-10-13 (art session): **Guns rebuilt, on `claude/art-guns`, not merged yet** (Sean: "Can
+  we fix the guns first? They look like shit"; `docs/briefs/guns.md`). Gameplay's
+  `src/weapons/` files changed at Sean's ask (said in each commit; the gameplay session wasn't
+  running to be told):
+  - **What's done:**
+    - `RevolverModel` is built from a Colt Single Action Army's side profile (`GunParts.slab`,
+      `sweep`, `lofted`, new): the curved walnut grip, the brass guard and backstrap, a fluted
+      cylinder, the hammer spur, the ejector rod, a thicker barrel. Its API, local space and
+      moving parts are unchanged.
+    - `HandModel`: fingers are rounded bones wrapped round the grip (three a finger, two for
+      the thumb, as before). The index finger reaches through the guard to the trigger, and
+      the thumb lies along the frame and turns up to the spur when you cock. The palm, wrist,
+      cuff and sleeve are rounded too. Its static helpers (`chain`, `tube`, `oval_point`,
+      `shell_ring`) also build the coach gun's two hands (`ShotgunViewmodel._build_hands`).
+    - `ShotgunModel`: rebuilt from its side profile in the same way, with the same API.
+    - The revolver's HIP pose is held out and turned so the gun's left side shows,
+      `[(0.28, -0.16, -0.38), (10, 20, -9)]`, after
+      `docs/concept/style/street-standoff-revolver-in-hand.png`. Shots still follow the line
+      of sight.
+    - `HeldFill` `FILL_ENERGY` 0.55 → 1.1.
+    - The held steel is darker, the skin warmer.
+    - `tools/gun_lab.gd` (new): the gun and hand alone in the game camera, or from any side.
+  - **Checked:** the full suite passes (376). The coach gun's right thumb and left fingers
+    were moved off the rib and the bead after the first aim render.
+  - **Left to merge:**
+    - render the goldens twice `--fresh` (`golden_check.py --render --out=A`, then `B`; the
+      gun views, `shot_match_street`, `gun_at_wall*`, `gun_smoke_saloon` and
+      `shotgun_shot_saloon` will move);
+    - approve only views where the gun or hand is what changed;
+    - visual checks, a judge round, the blind critic;
+    - BUILD_NOTES, this entry's merge line, the PR.
+  - **Known:** aimed, the coach gun's stock wrist ends in a dark round cap at the bottom of
+    the frame (the old box did the same); the shotgun's hip pose is unchanged.
