@@ -1066,7 +1066,8 @@ def paint(man, spec, env, fitted, out):
     lid_c = np.array(spec.get("lid", [0.13, 0.08, 0.06]))
     tex = stamp_eyes(tex, P, cover, eyes, [plain.v[e] for e in eye_ids], iris_c, white_c, lid_c)
     regions["lid"] = np.zeros_like(cover)
-    sq, _ids = squares(tex, cover, P, rects, zones, regions)
+    # `"squares": false` in portrait.json: the smooth-faced man (the brief's route 4), no squares.
+    sq = squares(tex, cover, P, rects, zones, regions)[0] if spec.get("squares", True) else tex
     to_pil(sq).save(os.path.join(out, man + "_head.png"))
     # His hair's shell: where the hair is (not his brows: they're painted), as deep as his outlines.
     hv = hair_vertices(table, np.where(cover, hair_t, 0.0), HEAD_TEX, nv)
@@ -1111,7 +1112,7 @@ def paint(man, spec, env, fitted, out):
     _d, (yy, xx) = ndimage.distance_transform_edt(~hhave, return_indices=True)
     htex = htex[yy, xx]
     hregions = {"hair": hcover}
-    hsq, _ = squares(htex, hcover, HP, rects, np.zeros_like(hcover), hregions)
+    hsq = squares(htex, hcover, HP, rects, np.zeros_like(hcover), hregions)[0] if spec.get("squares", True) else htex
     to_pil(hsq).save(os.path.join(out, man + "_hair.png"))
     print("portrait: hair shell", len(ids), "vertices, depth mm median %.1f max %.1f" % (np.median(depth) * 1000, depth.max() * 1000))
     views_sheet(final.v, table, sq, os.path.join(out, man + "_views.jpg"))
