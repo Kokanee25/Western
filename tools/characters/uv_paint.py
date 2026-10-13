@@ -81,6 +81,11 @@ IP_ADAPTER = {"path": "XLabs-AI/flux-ip-adapter", "weight_name": "ip_adapter.saf
 DELIGHT = 0.7
 SQUARE = 0.008
 LIKE = 0.10           # cells nearer than this (RGB distance) are smoothed together
+SPREAD = 0.22         # a cell whose texels' brightness spans this much holds two colours
+MINORITY = 0.25       # each of them at least this share of it
+KEEP = 0.5            # such a cell goes this far from its median toward the colour that stands out
+SKIN_LEVEL = 0.30     # his skin's brightness as albedo (the stranger2s's is 0.29: the game's lamps are
+                      # set for it; the paintings' 0.5 burns under them). The whole head scaled, hues kept
 LONE = 0.16           # a cell further than this from every neighbour, its neighbours agreeing, is pulled in
 SEAM_SIGMA = 0.03     # metres: how far a seam's colour match reaches into the side patches
 
@@ -410,26 +415,48 @@ def sample(img, xy):
             img[y0 + 1, x0] * (1 - fx) * fy + img[y0 + 1, x0 + 1] * fx * fy)
 
 
-def squares(tex, mask, rect, density):
-    """The patch's texels in rect squared once: SQUARE cells in its camera plane, each the median of
-    its texels, then grouped (see the module's note). Texels of the rect outside the patch take
+def squares(tex, mask, rect, density, phase=(0.0, 0.0)):
+    """The patch's texels in rect squared once: SQUARE cells in its camera plane (shifted by phase,
+    texels), each the median of its texels, or, where a cell holds two clearly different colours
+    (a lid line on skin, a white beside an iris), the one of them that stands out from the cells
+    round it; then grouped (see the module's note). Texels of the rect outside the patch take
     their nearest cell, so nothing dark bleeds in at its edge."""
     x, y, w, h = rect
     n = SQUARE * density
-    gx = (np.arange(w) / n).astype(int)
-    gy = (np.arange(h) / n).astype(int)
+    gx = np.floor((np.arange(w) - phase[0]) / n).astype(int)
+    gy = np.floor((np.arange(h) - phase[1]) / n).astype(int)
+    gx -= gx.min()
+    gy -= gy.min()
     cw, ch = gx.max() + 1, gy.max() + 1
     sub = tex[y:y + h, x:x + w]
     m = mask[y:y + h, x:x + w]
     cell = np.full((ch, cw, 3), np.nan)
+    split = {}
     for j in range(ch):
         rows = gy == j
         for i in range(cw):
             sel = m[np.ix_(rows, gx == i)]
-            if sel.any():
-                cell[j, i] = np.median(sub[np.ix_(rows, gx == i)][sel], 0)
+            if not sel.any():
+                continue
+            px = sub[np.ix_(rows, gx == i)][sel]
+            cell[j, i] = np.median(px, 0)
+            lum = px @ np.array([0.3, 0.59, 0.11])
+            lo, hi = np.percentile(lum, 10), np.percentile(lum, 90)
+            if hi - lo > SPREAD:
+                dark = lum < (lo + hi) / 2
+                if MINORITY <= dark.mean() <= 1 - MINORITY:
+                    split[(j, i)] = (np.median(px[dark], 0), np.median(px[~dark], 0))
     have = np.isfinite(cell[:, :, 0])
-    cell = group(cell, have)
+    first = cell.copy()
+    for (j, i), (d, l) in split.items():
+        ns = [first[jj, ii] for jj in range(j - 1, j + 2) for ii in range(i - 1, i + 2)
+              if (jj, ii) != (j, i) and 0 <= jj < ch and 0 <= ii < cw and have[jj, ii]]
+        if not ns:
+            continue
+        around = np.median(np.array(ns), 0)
+        pick = d if np.linalg.norm(d - around) > np.linalg.norm(l - around) else l
+        cell[j, i] = first[j, i] * (1 - KEEP) + pick * KEEP
+    cell = group(cell, have, keep=set(split))
     # Cells with no texel of the patch: their nearest cell's colour.
     from scipy import ndimage
     _d, (iy, ix) = ndimage.distance_transform_edt(~have, return_indices=True)
@@ -438,7 +465,7 @@ def squares(tex, mask, rect, density):
     return tex
 
 
-def group(cell, have):
+def group(cell, have, keep=()):
     """Neighbouring squares into shapes: each cell smoothed with its alike neighbours (RGB within
     LIKE: not across an edge), then a lone cell (further than LONE from every neighbour, while
     they agree among themselves) takes their median."""
@@ -468,7 +495,7 @@ def group(cell, have):
                 continue
             ns = [src[j + dj, i + di] for dj, di in nbrs
                   if 0 <= j + dj < ch and 0 <= i + di < cw and have[j + dj, i + di]]
-            if len(ns) < 5:
+            if len(ns) < 5 or (j, i) in keep:
                 continue
             ns = np.array(ns)
             med = np.median(ns, 0)
@@ -538,9 +565,30 @@ def apply(man, take, build):
         tree = cKDTree(surf[done])
         _d, idx = tree.query(surf[todo])
         tex[todo] = tex[done][idx]
+    # His albedo at the game's level: the face's skin brought to SKIN_LEVEL, every patch alike.
+    fm_ = (texl == "face") & done
+    f = tex[fm_]
+    lum = f @ np.array([0.3, 0.59, 0.11])
+    skin = (f[:, 0] > f[:, 2] + 0.08) & (lum > 0.25)
+    if skin.any():
+        tex = np.clip(tex * (SKIN_LEVEL / np.median(lum[skin])), 0, 1)
     # Squares once, each patch in its own camera's grid.
+    # The face's grid lined up on his eyes: their middle in the middle of a cell.
+    phase = {}
+    fm = texl == "face"
+    if fm.any():
+        ys, xs = np.nonzero(fm)
+        pts = surf[fm]
+        mid = []
+        for i in (468, 473):
+            k = np.argmin(np.linalg.norm(pts - lm[i], axis=1))
+            mid.append((xs[k], ys[k]))
+        mx, my = np.mean(mid, 0)
+        n = SQUARE * density
+        fx, fy = rects["face"][:2]
+        phase["face"] = ((mx - fx) % n - n / 2, (my - fy) % n - n / 2)
     for patch, rect in rects.items():
-        tex = squares(tex, texl == patch, rect, density)
+        tex = squares(tex, texl == patch, rect, density, phase.get(patch, (0.0, 0.0)))
     path = os.path.join(WORK, "%s_%s_tex.png" % (man, take))
     P.to_pil(tex).save(path)
     print("apply: wrote", path)

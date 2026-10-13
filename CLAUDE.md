@@ -324,15 +324,14 @@ frozen until Sean names one.
   it); the first-pass set-direction cards.
 
 **Characters** (branch `claude/characters-uv-portrait`, not merged; brief `docs/briefs/uv-portrait.md`):
-- Done on the branch: step 1, the shape (`tools/characters/uv_head.py shape|build`, ears in);
-  step 2, the layout (`tools/characters/uv_layout.py`: the face one front-on patch, sides, back,
-  crown, throat, ears each from their own side; 8 mm = 15 texels). Sheets
-  `docs/screenshots/uv_portrait/bold_cowboy_{shape,layout}.jpg`. Spent $1.60 of $15 (the brief).
-- Step 3 ready (`tools/characters/uv_paint.py guides|paint|apply`, People `style: uvpaint`;
-  `uv_head.py build --faceted` for step 6): round 1 refused by fal, its balance exhausted.
-- Next: round 1 once fal is topped up (~$0.90), then apply, sheet. Traps: after a build, `godot --headless --import` before
-  rendering; bpy here is 5.1 on Python 3.13 (MediaPipe needs libegl1).
-- Waiting on Sean: a fal top-up.
+- Done on the branch: steps 1-3 and 6's test: the shape (`uv_head.py`), the layout
+  (`uv_layout.py`), the paint (`uv_paint.py guides|paint|apply`, People `style: uvpaint`, round 1
+  take b on him), the faceted head (`uv_head.py build --faceted`). Sheets
+  `docs/screenshots/uv_portrait/bold_cowboy_{shape,layout,painted,faceted}.jpg`. ~$3.10 of $15.
+- Next: Sean's verdict on the painted face; then round 2 or the clothes (step 5). Traps: after
+  a build, `godot --headless --import` before rendering; bpy here is 5.1 on Python 3.13
+  (MediaPipe needs libegl1); the head's albedo is pitched to the stranger's (SKIN_LEVEL).
+- Waiting on Sean: the painted face.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
