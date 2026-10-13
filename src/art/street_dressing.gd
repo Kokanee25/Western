@@ -257,11 +257,12 @@ func _lanterns() -> void:
 		var faces := -1.0 if float(placed.get("facing", 0.0)) == 0.0 else 1.0
 		var settings: Dictionary = b[4]
 		if settings.get("gable_front", false):
-			# The livery's, either side of its big door (the west one is what the saloon's doorway
-			# shows lit under the moon at night, as the painting's lit windows across the street).
+			# The livery's, either side of its big door. The west one is lit only after dark: it's
+			# what the saloon's doorway shows lit under the moon (the painting's lit windows across
+			# the street), and at golden hour its halo was a pale blaze on the street shot's near wall.
 			var gw := float(placed.get("width", (b[2] as float) - (b[1] as float)))
-			for lx in [3.35, gw - 3.35]:
-				_lantern(t * Vector3(lx, 2.6, -0.05), faces)
+			_lantern(t * Vector3(3.35, 2.6, -0.05), faces)
+			_lantern(t * Vector3(gw - 3.35, 2.6, -0.05), faces, 20)
 			continue
 		var w := float(placed.get("width", (b[2] as float) - (b[1] as float)))
 		var door: Vector2 = settings.get("door_size", Vector2(1.1, 2.2))
@@ -280,7 +281,7 @@ func _lanterns() -> void:
 			_lantern(b.transform * local, -1.0 if absf(b.rotation.y) < 0.1 else 1.0)
 
 
-func _lantern(at: Vector3, faces: float) -> void:
+func _lantern(at: Vector3, faces: float, lit_from := 17) -> void:
 	var root := Node3D.new()
 	root.name = "Lantern"
 	PropModels.lantern(root)
@@ -295,7 +296,7 @@ func _lantern(at: Vector3, faces: float) -> void:
 	lamp.light_range = 6.0
 	lamp.haze = 1.6
 	lamp.casts_shadows = false
-	lamp.lit_from_hour = 17  # lit before the sun's down, as the painting has them
+	lamp.lit_from_hour = lit_from  # 17: lit before the sun's down, as the painting has them
 	lamp.lit_until_hour = 6
 	root.add_child(lamp)
 	lamp.position = Vector3(0, -0.08, 0.2)
