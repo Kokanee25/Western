@@ -60,7 +60,19 @@
     "coat": "#5c4029",
     "cravat": "#16120f"
    },
-   "what": "a lean young frontier man of about twenty-two, bare-headed, tousled brown hair, clean-shaven with light stubble, a narrow face, a brown coat over a shirt with a red bandana at his neck"
+   "what": "a lean young frontier man of about twenty-two, bare-headed, tousled brown hair, clean-shaven with light stubble, a narrow face, a brown coat over a shirt with a red bandana at his neck",
+   "paint_views": {
+    "front": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/young_lean_cowboy/style_three_quarter.png",
+    "profile_left": "docs/concept/style/factory/young_lean_cowboy/style_profile_left.png",
+    "profile_right": "docs/concept/style/factory/young_lean_cowboy/style_profile_right.png",
+    "back": "docs/concept/style/factory/young_lean_cowboy/style_back.png"
+   },
+   "style_views": {
+    "front": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/young_lean_cowboy/style_three_quarter.png",
+    "side": "docs/concept/style/factory/young_lean_cowboy/style_profile_left.png"
+   }
   },
   "bold_cowboy_styled_30": {
    "pictures": "docs/concept/style/factory/bold_cowboy_styled_30",
