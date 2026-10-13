@@ -158,7 +158,7 @@ func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embed
 
 
 ## Something heavy fell on you.
-func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN) -> PackedStringArray:
+func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN, _momentum := -1.0) -> PackedStringArray:
 	var seg := _segment_at(point)
 	var harm := physiology.blow(seg, joules, _rng)
 	_flash = 1.0

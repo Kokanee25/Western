@@ -39,7 +39,7 @@ func is_mate(who: Node) -> bool:
 
 ## His friends in town right now (looked up once a second).
 func mates(now: float) -> Array[HumanBody]:
-	if now - _mates_at > 1.0 or _mates.any(func(m: HumanBody) -> bool: return not is_instance_valid(m)):
+	if now - _mates_at > 1.0 or _mates.any(func(m: Variant) -> bool: return not is_instance_valid(m)):
 		_mates_at = now
 		_mates.clear()
 		if me and me.is_inside_tree() and not ids.is_empty():

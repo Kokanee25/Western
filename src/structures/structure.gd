@@ -523,8 +523,12 @@ func _drop(ids: Array[StringName]) -> void:
 			for c in m.get_children():
 				if c is MeshInstance3D or c is CollisionShape3D:
 					c.reparent(rb, true)
+				if c is CollisionShape3D and not (c as CollisionShape3D).shape is BoxShape3D:
+					# Carved (concave): a moving body takes its box, as in _snap, or it falls
+					# through the ground (a blasted sign, the nightly soak, 2026-10-13).
+					(c as CollisionShape3D).shape = _box_shape(m.size)
 			Events.member_broken.emit(id)
-		if not rb.get_children().any(func(c: Node) -> bool: return c is CollisionShape3D and not (c as CollisionShape3D).disabled):
+		if not has_solid_shape(rb):
 			# Only shattered glass or burnt-away members: no shape to land with (it'd fall for ever).
 			rubble.erase(rb)
 			rb.queue_free()
@@ -549,6 +553,14 @@ func _rewake(at: Vector3, radius: float) -> void:
 			if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
 				rb.linear_velocity = v
 			rb.remove_meta(&"start_v")
+
+
+## Has this body a shape left to land with? Not a shattered pane's (disabled) nor one going this
+## frame (a member burnt away as it fell: the nightly soak, 2026-10-13, found a sign falling
+## through the ground with nothing left to hold it up).
+static func has_solid_shape(body: Node) -> bool:
+	return body.get_children().any(func(c: Node) -> bool:
+		return c is CollisionShape3D and not (c as CollisionShape3D).disabled and not c.is_queued_for_deletion())
 
 
 func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
