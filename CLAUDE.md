@@ -324,12 +324,14 @@ frozen until Sean names one.
   it); the first-pass set-direction cards.
 
 **Characters** (branch `claude/characters-uv-portrait`, not merged; brief `docs/briefs/uv-portrait.md`):
-- Done on the branch: step 1, the shape: MakeHuman's head shrinkwrapped onto a fresh Rodin bust
-  (`tools/characters/uv_head.py shape|build` → `bold_cowboy_uv`, grey); sheet
-  `docs/screenshots/uv_portrait/bold_cowboy_shape.jpg`. Spent $1.60 of $15 (log in the brief).
-- Next: on Sean's yes, step 2 (the face layout, a checker). Traps: after a build, `godot
-  --headless --import` before rendering; bpy here is 5.1 on Python 3.13 (MediaPipe needs libegl1).
-- Waiting on Sean: the shape.
+- Done on the branch: step 1, the shape (`tools/characters/uv_head.py shape|build`, ears in);
+  step 2, the layout (`tools/characters/uv_layout.py`: the face one front-on patch, sides, back,
+  crown, throat, ears each from their own side; 8 mm = 15 texels). Sheets
+  `docs/screenshots/uv_portrait/bold_cowboy_{shape,layout}.jpg`. Spent $1.60 of $15 (the brief).
+- Next: on Sean's yes, step 3 (paint the face patch: FLUX + LoRA on fal, guided by the
+  patch's own depth and normals). Traps: after a build, `godot --headless --import` before
+  rendering; bpy here is 5.1 on Python 3.13 (MediaPipe needs libegl1).
+- Waiting on Sean: the layout.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling

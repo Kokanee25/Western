@@ -1,7 +1,7 @@
 """The UV portrait, step 1: his head's shape (docs/briefs/uv-portrait.md; Sean, 2026-10-13).
 
     python3 tools/characters/uv_head.py shape --man=bold_cowboy    # bpy (mathutils), numpy, mediapipe
-    python3 tools/characters/uv_head.py build --man=bold_cowboy    # bpy: into the game, grey (clay)
+    python3 tools/characters/uv_head.py build --man=bold_cowboy [--tex=PNG]   # bpy: into the game
 
 One shared head, his shape taken from Rodin by shrinkwrapping, not by fitting landmarks:
 
@@ -64,7 +64,10 @@ EYE_W = 0.0           # the lids aren't cast: they ride on the smoothed displace
 EAR_W = 0.0           # the ears ride too (Rodin's are under his hair)
 CLAY = 0.5            # the grey head's albedo (until it is painted)
 MOUTH_HOLD = (0.008, 0.016)  # metres from a mouth corner: its folds ride, not cast
-FSPEC = {"source": "factory", "targets": dict(P.DEFAULT_MACRO), "hair": "none", "moustache": "none",
+# His ears in (Sean, 2026-10-13: in his pictures his hair covers them): the base head's flare taken
+# back and the wing turned in.
+EARS_IN = {"ears/{s}-ear-wing-incr": -0.6, "ears/{s}-ear-wing-decr": 0.7, "ears/{s}-ear-flap-incr": -0.5}
+FSPEC = {"source": "factory", "targets": dict(P.DEFAULT_MACRO, **EARS_IN), "hair": "none", "moustache": "none",
          "beard": "none", "skin": "#b07a5a"}
 
 
@@ -331,7 +334,7 @@ def shape(man):
                                "p95": round(float(np.percentile(gap, 95) * 1000), 2)},
            "folded_triangles": int(folded(p.v, v, tris)),
            "head_triangles": int(len(tris)), "eye_triangles": int(len(all_tris) - len(tris))}
-    np.savez(os.path.join(WORK, man + "_shape.npz"), v=v, v0=p.v, w=w, Vr=Vr, Tr=Tr, tris=all_tris)
+    np.savez(os.path.join(WORK, man + "_shape.npz"), v=v, v0=p.v, w=w, Vr=Vr, Tr=Tr, tris=all_tris, lm=lm_r)
     json.dump(rep, open(os.path.join(WORK, man + "_shape.json"), "w"), indent=1)
     views(man, v, p.v, all_tris, Vr, Tr, centres)
     print(json.dumps(rep, indent=1))
@@ -447,9 +450,17 @@ def label(im, text):
 
 # --- Into the game ---------------------------------------------------------------------------------
 
-def build(man):
-    """The factory's body with this head (same vertices, moved), grey; → assets/people/<man>_uv.glb."""
+def build(man, tex=None):
+    """The factory's body with this head (same vertices, moved); → assets/people/<man>_uv.glb.
+    With uv_layout.py's layout (build/uv_head/<man>_layout.npz) its UVs, and tex (a PNG in that
+    layout) on it; else the factory's layout, grey."""
     import factory_build as FB
+    lay = os.path.join(WORK, man + "_layout.npz")
+    if os.path.exists(lay):
+        z = np.load(lay, allow_pickle=True)
+        table = {tuple(int(i) for i in f): [tuple(uv) for uv in cs] for f, cs in zip(z["faces"], z["corner"])}
+        FB._cache["base"] = None
+        FB._cache["layout"] = (table, {}, None, None, None)
     shaped = np.load(os.path.join(WORK, man + "_shape.npz"))["v"]
     make = F.make_person
 
@@ -465,7 +476,11 @@ def build(man):
         p.run = run_shaped
         return p
     FB.F.make_person = make_shaped
-    FB.paint_head = lambda *_a, **_k: np.full((FB.HEAD_TEX, FB.HEAD_TEX, 3), CLAY)
+    if tex:
+        paint = np.asarray(Image.open(tex).convert("RGB")).astype(float) / 255
+        FB.paint_head = lambda *_a, **_k: paint
+    else:
+        FB.paint_head = lambda *_a, **_k: np.full((FB.HEAD_TEX, FB.HEAD_TEX, 3), CLAY)
     FB.shells = lambda *_a, **_k: []
     env = json.load(open(mp.ENVELOPE))
     spec = dict(FSPEC)
@@ -483,7 +498,7 @@ def main():
     if "shape" in sys.argv:
         shape(man)
     elif "build" in sys.argv:
-        build(man)
+        build(man, args.get("--tex"))
     else:
         print(__doc__)
 
