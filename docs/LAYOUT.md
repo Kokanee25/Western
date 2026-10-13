@@ -419,7 +419,9 @@ a few views renders them as the full run does.
 
 ## src/blast
 
-- `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance; `detonate()` breaks
+- `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
+  face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
+  more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
   on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,

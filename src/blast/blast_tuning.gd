@@ -24,8 +24,9 @@ extends Resource
 @export var sympathetic_kpa := 2000.0
 
 @export_group("Structures")
-## Pressure on a face turned to the blast is reflected, and this much higher.
-@export var reflection := 2.0
+## A shock reflected off a face square to it hits 2x as hard when weak, rising toward this when
+## strong (8 for an ideal gas; Blast.reflection()).
+@export var reflection_strong := 8.0
 ## Timber breaks when the kick the blast gives it (impulse² / 2m) passes the energy it can soak
 ## up bending: this share of f²/2E over its volume.
 @export var absorb_factor := 0.2

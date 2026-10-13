@@ -1,6 +1,7 @@
 extends TestCase
 ## Dynamite: the blast's pressure and impulse by distance (Kinney-Graham), what it breaks (plank
-## siding near it, not heavy framing; panes much further out), splinters flown as projectiles,
+## siding and the studs right by it, not the sills, plates or roof; panes much further out), a way
+## out blown through a wall, splinters flown as projectiles,
 ## fire in dry wood, people (ears, lungs, thrown down, limbs at close range, burns), the fuse,
 ## and the stick in the player's hand.
 
@@ -116,10 +117,56 @@ func test_a_stick_by_the_wall_blows_a_hole_in_the_siding() -> void:
 			broken_framing += 1
 	print("  one stick at 25 cm from the wall: %d boards, %d framing, %d in all, %d splinters" % [broken_siding, broken_framing, report.broken.size(), report.splinters])
 	check(broken_siding >= 2, "siding boards blown in (%d)" % broken_siding)
-	check(broken_framing <= 2, "the heavy framing mostly stands (%d broken)" % broken_framing)
+	check(broken_framing >= 1 and broken_framing <= 5, "the studs by it go, not the wall's framing (%d broken)" % broken_framing)
 	check(report.broken.size() < store.member_count() / 4, "a hole, not the whole store (%d of %d)" % [report.broken.size(), store.member_count()])
 	check(report.splinters > 0, "splinters thrown (%d)" % report.splinters)
 	check_eq(booms.size(), 1, "announced")
+
+
+func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
+	var store := await _store()
+	# On the floor against the inside of the side wall, between two studs.
+	var siding := _side_board(store)
+	var at := Vector3(0.02, store.floor_top + DynamiteStick.RADIUS, siding.global_position.z)
+	var report := Blast.detonate(world, at, Blast.t().tnt_per_stick)
+	var kinds := {}
+	for id: StringName in report.broken:
+		var m := store.get_member(id)
+		if m:
+			kinds[m.kind] = kinds.get(m.kind, 0) + 1
+	print("  a stick inside against the wall: %s" % kinds)
+	check(kinds.get(&"stud", 0) >= 2, "the studs either side of it are broken (%d)" % kinds.get(&"stud", 0))
+	for k: StringName in [&"sill", &"plate", &"rafter", &"ridge", &"post"]:
+		check_eq(kinds.get(k, 0), 0, "no %s broken: the building stands round the hole" % k)
+	await physics_frames(120)
+	# A man's way through: half a metre wide, from a step over the sill to his head, clear of
+	# anything standing (loose rubble is pushed aside).
+	var q := PhysicsShapeQueryParameters3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.4, 1.3, 0.5)
+	q.shape = box
+	q.collision_mask = Layers.WORLD
+	var way := false
+	for k in range(-10, 11):
+		q.transform = Transform3D(Basis.IDENTITY, Vector3(0.0, 0.45 + box.size.y * 0.5, at.z + k * 0.05))
+		var standing := world.get_world_3d().direct_space_state.intersect_shape(q, 8).filter(
+				func(h: Dictionary) -> bool: return not h.collider is RigidBody3D)
+		if standing.is_empty():
+			way = true
+			break
+	check(way, "a hole in the wall a man can walk through")
+
+
+func test_on_its_sill_it_leaves_the_wall_standing() -> void:
+	var store := await _store()
+	# On the ground outside, against the sill: a charge like this cuts the sill, but it still lies
+	# on its footing and carries the wall.
+	var siding := _side_board(store)
+	var report := Blast.detonate(world, Vector3(-0.045, 0.02, siding.global_position.z), Blast.t().tnt_per_stick)
+	var heavy := (report.broken as Array).filter(func(id: StringName) -> bool:
+		var m := store.get_member(id)
+		return m != null and m.kind in [&"sill", &"plate", &"rafter", &"roof_board"])
+	check_eq(heavy.size(), 0, "the sill holds and the roof stays up (%s)" % [heavy])
 
 
 func test_far_off_it_only_cracks_panes() -> void:
