@@ -192,8 +192,9 @@ void sky() {
 	float disk_size = sun_size * mix(1.0, 2.4, low * sun_up);
 	float disk = smoothstep(cos(disk_size), cos(disk_size * 0.75), sun_dot);
 	// Low, it's a gold disk (the painting's), not a white burn.
-	// (Under 1.3 times display white so it stays gold after the tone map: at 2.4 it drew white.)
-	vec3 disk_col = mix(sun_color * 8.0, mix(vec3(1.0, 0.8, 0.42) * 2.4, vec3(1.0, 0.74, 0.36) * 1.3, gold), low * sun_up);
+	// Under the gold sky a white-gold disk a step over its halo (at 1.3x white gold it sank into the
+	// halo, the blind critic: "no sun disc"; at 2.4 it drew a white burn).
+	vec3 disk_col = mix(sun_color * 8.0, mix(vec3(1.0, 0.8, 0.42) * 2.4, vec3(1.0, 0.88, 0.64) * 2.2, gold), low * sun_up);
 	col = mix(col, disk_col, disk * step(-0.02, h));
 
 	vec3 md = normalize(moon_dir);

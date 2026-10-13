@@ -310,14 +310,15 @@ frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; brief: Sean's four jobs of 2026-10-12, in `docs/status/`):
 - Done: merges 3a–3j; job 1, the mosaic (build 956: the road drawn from the painting's squares
-  at 16/m, bolder drawn wood, the table in fine squares at 128/m, saloon woods pushed); job 2, his
-  face (side key, `weathered_face` in `body_skin`). Judge v2: saloon 0.205, street 0.279. Sheets
-  for Sean in `docs/screenshots/review/`.
-- Next: job 3 (the gold sky, a big sun, brighter lamps), job 4 (more people in both shots, staged
-  in the shots), one merge each; both ready on local branches.
-- Known: the saloon's squares are ~20 px to the painting's ~5 (a room-wide density change);
-  extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire views'
-  golden tolerances pass any fire look.
+  at 16/m, bolder drawn wood, the table in fine squares at 128/m); job 2, his face (build 960:
+  side key, `weathered_face` in `body_skin`); job 3, the light (the gold sky warm, a gold sun in
+  the notch, the room's lamps up). Judge v2: saloon 0.419, street 0.729 (notes; Sean's eye is the
+  gate). Sheets for Sean in `docs/screenshots/review/`.
+- Next: job 4 (more people in both shots, staged in the shots), ready on a local branch. After:
+  the saloon's doorway (the critic's first point three rounds running), the road's loudness at
+  noon, the saloon's square size (~20 px to the painting's ~5).
+- Known: extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire
+  views' golden tolerances pass any fire look; a full golden render is ~2.5 h on lavapipe here.
 - Waiting on Sean: his eye on each job's sheet; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-protected-features`, not merged):
