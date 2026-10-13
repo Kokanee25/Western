@@ -1,0 +1,434 @@
+[
+ {
+  "r1_a_face": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a13756-b2e0-7cc2-a65b-d22a3d50f827",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13756-b2e0-7cc2-a65b-d22a3d50f827",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13756-b2e0-7cc2-a65b-d22a3d50f827/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13756-b2e0-7cc2-a65b-d22a3d50f827/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_a_face_answer": {
+   "timings": {
+    "inference": 32.72958665099941
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae4493/P5qfo3HO8N6CGfBxUfALD.png"
+ },
+ {
+  "r1_a_right": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a13757-463f-7a10-a326-63ce53e747d9",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13757-463f-7a10-a326-63ce53e747d9",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13757-463f-7a10-a326-63ce53e747d9/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13757-463f-7a10-a326-63ce53e747d9/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_a_right_answer": {
+   "timings": {
+    "inference": 44.89427893800894
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44a0/SMKaWnn3ci7OFZaMFoQq9.png"
+ },
+ {
+  "r1_a_left": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a13759-8ed5-7061-bc17-6f1850a23958",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-8ed5-7061-bc17-6f1850a23958",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-8ed5-7061-bc17-6f1850a23958/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-8ed5-7061-bc17-6f1850a23958/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_a_left_answer": {
+   "timings": {
+    "inference": 8.022450023010606
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44a5/YRSaEKUJ30Kz3uG8-z9aX.png"
+ },
+ {
+  "r1_a_back": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a13759-ba65-7ea3-8e80-9132b285dee2",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-ba65-7ea3-8e80-9132b285dee2",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-ba65-7ea3-8e80-9132b285dee2/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-ba65-7ea3-8e80-9132b285dee2/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_a_back_answer": {
+   "timings": {
+    "inference": 7.203727899002843
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44a7/4SOwI6Rkno8YF57n9qOMc.png"
+ },
+ {
+  "r1_b_face": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a13759-e60d-7f42-9873-b52cf6f326b7",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-e60d-7f42-9873-b52cf6f326b7",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-e60d-7f42-9873-b52cf6f326b7/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a13759-e60d-7f42-9873-b52cf6f326b7/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.88,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 12,
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_b_face_answer": {
+   "timings": {
+    "inference": 8.535546347004129
+   },
+   "seed": 12,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44a8/eKC971xK2iXJ7AhWf0lbx.png"
+ },
+ {
+  "r1_b_right": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375a-175d-7921-b2ec-d58f0c0cd1f3",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-175d-7921-b2ec-d58f0c0cd1f3",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-175d-7921-b2ec-d58f0c0cd1f3/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-175d-7921-b2ec-d58f0c0cd1f3/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.88,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 12,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_b_right_answer": {
+   "timings": {
+    "inference": 8.669494111003587
+   },
+   "seed": 12,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44a9/1FqWWJS5DfMGJtSKFNUjc.png"
+ },
+ {
+  "r1_b_left": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375a-4357-7413-a398-cab6e9d7e946",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-4357-7413-a398-cab6e9d7e946",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-4357-7413-a398-cab6e9d7e946/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-4357-7413-a398-cab6e9d7e946/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.88,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 12,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_b_left_answer": {
+   "timings": {
+    "inference": 8.65445334801916
+   },
+   "seed": 12,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44aa/BSiKWwpzfgP-SXLSxqH2e.png"
+ },
+ {
+  "r1_b_back": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375a-6e97-7df2-a4f5-283be41dee6d",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-6e97-7df2-a4f5-283be41dee6d",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-6e97-7df2-a4f5-283be41dee6d/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-6e97-7df2-a4f5-283be41dee6d/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 1.0,
+   "strength": 0.88,
+   "controlnet": 0.6,
+   "ip_adapter": 0.0,
+   "seed": 12,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_b_back_answer": {
+   "timings": {
+    "inference": 7.738356952002505
+   },
+   "seed": 12,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44ab/Y1hEzNkXpfEzlHDqTenOa.png"
+ },
+ {
+  "r1_c_face": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375a-9b04-7ed3-b396-6004141c093b",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-9b04-7ed3-b396-6004141c093b",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-9b04-7ed3-b396-6004141c093b/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375a-9b04-7ed3-b396-6004141c093b/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.5,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_c_face_answer": {
+   "timings": {
+    "inference": 51.01463082400733
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close portrait of a weathered cowboy's bare head, seen from straight in front, his face filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44ac/fpNrKveiGayHFy4HyC78H.png"
+ },
+ {
+  "r1_c_right": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375b-69b5-7991-80c0-ecafed7baabd",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-69b5-7991-80c0-ecafed7baabd",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-69b5-7991-80c0-ecafed7baabd/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-69b5-7991-80c0-ecafed7baabd/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.5,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_c_right_answer": {
+   "timings": {
+    "inference": 16.964939953002613
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing right, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44b2/WAwkc33YSEk37hAVuW8L_.png"
+ },
+ {
+  "r1_c_left": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375b-be5e-7e40-8f3e-3ecdc0051590",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-be5e-7e40-8f3e-3ecdc0051590",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-be5e-7e40-8f3e-3ecdc0051590/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375b-be5e-7e40-8f3e-3ecdc0051590/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.5,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_c_left_answer": {
+   "timings": {
+    "inference": 16.827437191997888
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen in full profile facing left, his ear in the middle of the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, peach and cream skin where the light falls, a ruddy red nose, red cheeks and ears, blue-grey stubble on his jaw and chin, olive-grey in the hollows under his brow and cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44b4/iaC94RAqGP4I797kxCLC4.png"
+ },
+ {
+  "r1_c_back": {
+   "queued": {
+    "status": "IN_QUEUE",
+    "request_id": "01a1375c-1254-7cb2-ac31-39b7f52a7491",
+    "response_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375c-1254-7cb2-ac31-39b7f52a7491",
+    "status_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375c-1254-7cb2-ac31-39b7f52a7491/status",
+    "cancel_url": "https://queue.fal.run/fal-ai/flux-general/requests/01a1375c-1254-7cb2-ac31-39b7f52a7491/cancel",
+    "logs": null,
+    "metrics": {},
+    "queue_position": 0,
+    "user_queue_position": 0,
+    "user_queued_count": 1
+   },
+   "control_way": 0,
+   "lora": 0.8,
+   "strength": 0.82,
+   "controlnet": 0.6,
+   "ip_adapter": 0.5,
+   "seed": 11,
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  }
+ },
+ {
+  "r1_c_back_answer": {
+   "timings": {
+    "inference": 64.40057267100019
+   },
+   "seed": 11,
+   "has_nsfw_concepts": [
+    false
+   ],
+   "prompt": "SLTCRK pixel-art painting, close study of a weathered cowboy's bare head, seen from straight behind, the back of his head filling the picture, no hat, thick dark brown hair swept back, grey at the temples and over the ears, flat even light from the front, no cast shadows, plain grey background, the same head shape and features as the picture, painted in many small shades of colour"
+  },
+  "image": "https://v3b.fal.media/files/b/0aae44be/MZe6qbgj25SNxWMG363qd.png"
+ }
+]
