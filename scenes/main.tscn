@@ -14,6 +14,9 @@ audio_listener_enable_3d = true
 size = Vector2i(640, 360)
 render_target_update_mode = 4
 positional_shadow_atlas_size = 4096
+positional_shadow_atlas_quad_0 = 3
+positional_shadow_atlas_quad_1 = 3
+positional_shadow_atlas_quad_3 = 3
 
 [node name="TestStreet" parent="GameViewport" instance=ExtResource("2_street")]
 

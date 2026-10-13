@@ -500,10 +500,7 @@ func _cmd_spawn(a: Array) -> Dictionary:
 		var ob := OutlawBrain.new()
 		ob.name = "Brain"
 		man.add_child(ob)
-	street.add_child(man)
-	man.global_position = _vec(a, 1)
-	if a.size() >= 5:
-		man.rotation.y = deg_to_rad(-float(a[4]))
+	man.enter(street, _vec(a, 1), deg_to_rad(-float(a[4])) if a.size() >= 5 else 0.0)
 	if kind == "townsman":
 		(man.get_node(^"Brain") as CivilianBrain).post = man.global_position
 	await _physics_frames(3)

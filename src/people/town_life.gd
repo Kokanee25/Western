@@ -72,8 +72,7 @@ func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, 
 	brain.post = places.at(at)
 	brain.faces = faces
 	man.add_child(brain)
-	get_parent().add_child(man)
-	man.global_position = places.at(at)
+	man.enter(get_parent(), places.at(at), HumanBody.yaw_toward(places.at(at), faces))
 	man.face(faces)
 	return man
 
@@ -111,9 +110,8 @@ func bring_gang(only: Array = []) -> void:
 		brain.bar_spot = g.bar
 		brain.agenda = _plan(g, i)
 		man.add_child(brain)
-		get_parent().add_child(man)
-		man.global_position = places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2))
-		man.rotation.y = -PI * 0.5  # facing east, into town
+		# Facing east, into town.
+		man.enter(get_parent(), places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2)), -PI * 0.5)
 		gang.append(man)
 
 

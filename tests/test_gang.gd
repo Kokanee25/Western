@@ -425,3 +425,20 @@ func test_a_steady_man_holds_when_the_leader_quits() -> void:
 	_brain(&"a")._surrender()
 	await physics_frames(60 * 2)
 	check(b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING], "b's got his nerve still (%s)" % b.describe().substr(0, 60))
+
+
+## A friend freed out from under him (taken out of the town) between his once-a-second looks: the
+## next look drops him at once, not hands back a freed man (the nightly soak, 2026-10-12: the
+## check's typed lambda couldn't take a freed object, so the stale list came back).
+func test_a_friend_freed_drops_out_of_his_mates() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	await physics_frames(3)
+	var crew := _brain(&"b").crew
+	check_eq(crew.mates(100.0).size(), 1, "b knows a's in town")
+	men[&"a"].free()
+	men.erase(&"a")
+	var left := crew.mates(100.2)
+	check(left.all(func(m: Variant) -> bool: return is_instance_valid(m)), "no freed man among his mates")
+	check_eq(left.size(), 0, "and a's gone from them")
+	check_eq(crew.standing(100.3).size(), 0, "nor standing")

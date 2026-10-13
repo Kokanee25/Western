@@ -110,7 +110,10 @@ gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a f
 twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
 anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
 time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
-summary and an artifact.
+summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
+lost bodies with their path, script, rubble members and speed; stuck men with where they are and
+where they're going) and each window prints the process's resident memory, so a run the runner
+kills still leaves its log; past 6 GB resident it stops early and reports.
 
 ## Feel ranges
 
