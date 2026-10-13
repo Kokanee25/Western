@@ -366,7 +366,7 @@ def shaded_patch(nrm, face_at, label, rect, name="face"):
 
 def textured_views(v, faces, corner, tex, size=420):
     """The head with the atlas on it from the front, three-quarters, both sides and behind."""
-    xy_t, T, uvs = [], [], []
+    T, uvs = [], []
     pts = []
     for k, f in enumerate(faces):
         base = len(pts)

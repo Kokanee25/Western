@@ -42,3 +42,4 @@ Sean.
 | When | What | Why | Cost |
 |---|---|---|---|
 | 2026-10-13 | Rodin Gen-2.5 bust, bold cowboy (People workflow, `style: rodin`) | the shape (Sean: fresh, not run 61's) | $1.60 |
+| 2026-10-13 | Paint round 1: 3 takes x 4 views on fal flux-general (LoRA, depth ControlNet; take c with his style portrait as IP-Adapter reference), People workflow `style: uvpaint` | step 3, the painted face; which settings read best | ~$0.90 (12 x $0.075) |
