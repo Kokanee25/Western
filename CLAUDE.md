@@ -4564,4 +4564,4 @@ a few views renders them as the full run does.
   material). Sheet `docs/screenshots/painterly/hand_scan.jpg`. People workflow: one new job
   (`held-scan`, said in its commit). Known: the strips that close the cut have no scan detail
   (plain skin, mostly in the gap between the index and the middle finger); Lincoln's hand is a big one; the thumb's cocking shape is a
-  plain turn (no joint bends); the skin's colour is set by hand, not measured.
+  plain turn (no joint bends) and stretches the web at its root; the skin's colour is set by hand, not measured.
