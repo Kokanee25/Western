@@ -3,8 +3,9 @@
 // hand, CC0): the cast gives the shape and its maps give the skin's own folds and creases (its
 // normals, and its occlusion and the darkening in its creases); this gives it colour: sun-browned
 // on the back of the hand, paler in the palm, a fine mottle, flushed over the knuckles, the nails.
-// What it reads: UV the scan's own texture coordinates; UV2.x 1 where the hand was closed after
-// the cut (no scan texture there); COLOR.r the nails, .g how open, .b the flush, .a the back of
+// What it reads: UV the scan's own texture coordinates; UV2.x 1 where the hand was rebuilt (no
+// scan texture there: creases and wrinkles are drawn instead), UV2.y how far along the index
+// finger or thumb a point is from its nearest joint (m); COLOR.r the nails, .g how open, .b the flush, .a the back of
 // the hand (1) or the palm (0).
 shader_type spatial;
 render_mode diffuse_burley, specular_schlick_ggx;
@@ -23,6 +24,11 @@ uniform float crease = 0.6;         // how dark the cast's creases draw
 uniform float occlusion = 0.8;
 uniform float ao_strength = 0.6;
 uniform float sss = 0.3;
+uniform float crease_width = 0.0009;     // m: the line across a joint's palm side
+uniform float crease_dark = 0.4;
+uniform float wrinkle_pitch = 0.0016;    // m between the wrinkles over a knuckle
+uniform float wrinkle_reach = 0.0045;
+uniform float wrinkle_dark = 0.2;
 
 varying vec3 p;
 varying vec3 n;
@@ -43,6 +49,12 @@ void fragment() {
 	c = mix(c, flush.rgb, clamp(COLOR.b * flush_amount, 0.0, 1.0)) * t.rgb;
 	vec4 cav = texture(cavity_tex, UV);
 	c *= mix(1.0, mix(1.0 - crease, 1.0, cav.g), scan);
+	float u = UV2.y;
+	float drawn = 1.0 - scan;
+	float line = exp(-pow(u / crease_width, 2.0)) * (1.0 - back);
+	float wr = (0.5 + 0.5 * cos(u * 6.2832 / wrinkle_pitch)) * exp(-pow(u / wrinkle_reach, 2.0)) * back;
+	float dark = (line * crease_dark + wr * wrinkle_dark) * drawn;
+	c *= 1.0 - dark;
 	float nl = smoothstep(0.35, 0.75, COLOR.r);
 	c = mix(c, nail.rgb * t.rgb, nl);
 	ALBEDO = c;
@@ -50,7 +62,7 @@ void fragment() {
 	NORMAL_MAP_DEPTH = normal_depth;
 	ROUGHNESS = mix(0.6 + (1.0 - t.a) * 0.15 + (1.0 - cav.g) * 0.15 * scan, 0.35, nl);
 	SPECULAR = 0.35;
-	AO = mix(1.0, COLOR.g, ao_strength) * mix(1.0, cav.r, occlusion * scan);
+	AO = mix(1.0, COLOR.g, ao_strength) * mix(1.0, cav.r, occlusion * scan) * (1.0 - dark * 0.5);
 	AO_LIGHT_AFFECT = 0.4;
 	SSS_STRENGTH = sss * (1.0 - nl);
 }

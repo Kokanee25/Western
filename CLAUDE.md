@@ -4565,3 +4565,24 @@ a few views renders them as the full run does.
   (`held-scan`, said in its commit). Known: the strips that close the cut have no scan detail
   (plain skin, mostly in the gap between the index and the middle finger); Lincoln's hand is a big one; the thumb's cocking shape is a
   plain turn (no joint bends) and stretches the web at its root; the skin's colour is set by hand, not measured.
+- 2026-10-13 (characters session, branch `claude/characters-painterly`, not merged, later): **The
+  scanned hand's index finger and thumb rebuilt whole; the thumb cocks the hammer with real
+  joints** (Sean: "Love it… keep going"). Shown without the gun, the cast's index finger and thumb
+  were open half-shells: their palm sides lay on the broom handle and on each other and were never
+  cast, so opening the index exposed a missing side (the strips over it made ribbons and
+  membranes) and the thumb's swing dragged a curtain of faces after it. `held_scan_hand.py` now
+  rebuilds each past its root (`digit_tube`: a section a 2 degrees round the handle, a smooth
+  ellipse sized from the cast's width and back, nudged by the scan's surface within `FOLLOW` 3 mm,
+  which keeps the scan's texture there: a quarter of the index, a third of the thumb), drops every
+  face that touches a rebuilt part, closes the middle finger's side where the index lay, and gives
+  the thumb joints: its root's swing up the grip and bend, its knuckle and tip joint, searched to
+  bring its pad onto the hammer's spur (4 mm off, nothing in the gun but two sampled points), the
+  swing carried into the ball of the thumb by a falloff eased over the mesh (`THUMB_BASE`), so
+  nothing stretches (0 faces over three times their length, was 202). Where the rebuilt digits have
+  no scan texture, `held_scan_skin.gdshader` draws the creases across their joints and the
+  wrinkles over the knuckles (UV2.y: how far from the nearest joint). Sheet
+  `docs/screenshots/painterly/hand_scan_r2.jpg` (last round and this one). Known: the rebuilt thumb
+  is smoother and a little tubular beside the cast's own; the hand sits a little low on the grip,
+  so cocking swings the thumb a long way (100 degrees at its root); the handle's two holes are
+  open (the grip fills them); the fist's slot where the index lay is open inside (hidden by the
+  grip from every view checked).

@@ -10,14 +10,18 @@ cast's shading in the creases).
 
 How: the cast's fist is a hand round a 25 mm cylinder, so the fit works in the handle's own
 coordinates (t along it, the index finger's end +; theta round it from the wrist; r out from it).
-The handle's two stubs are cut off and their holes closed. The fist is set on the grip (the
-handle's axis on the grip's centre line, the wrist behind it) and the flesh nearest the handle
-pushed out to the grip's own shape (it's oval and bigger than a broom handle). The index finger is
-found (grown over the scan from seeds on it, the thumb, the middle finger and the hand, the
-borders falling in the creases), cut free where it touches the thumb and the middle finger (the
-cuts closed), and opened out of the fist onto the trigger by turning its three joints about axes
-along the handle, as a finger flexes round a thing it holds. The `trigger` shape closes it on the
-trigger pulled back; `thumb` swings the thumb up onto the hammer's spur.
+The handle's two stubs are cut off (their holes are where the grip passes through). The index
+finger, the thumb and the middle finger are found (grown over the scan from seeds on each, the
+borders falling in the creases) and the index cut free of its neighbours. The index finger and the
+thumb lay on the handle and on each other, so the cast has only their backs: each is rebuilt past
+its root as a closed digit, a smooth ellipse a section that follows the scan's own surface where
+it has it (keeping its texture there), and the middle finger's side closed where the index lay.
+The fist is set on the grip (the handle's axis on the grip's centre line, the wrist behind it)
+and each ring of it swells out to the grip's oval (bigger than a broom handle). The index opens
+onto the trigger by turning its three joints about axes along the handle and swinging at its
+knuckle; the `trigger` shape closes it on the trigger pulled back. The thumb's `thumb` shape
+swings it up onto the hammer's spur at its root (the ball of the thumb carried with it) and bends
+its knuckle and tip joint, searched as the index is.
 """
 
 import math
@@ -69,7 +73,17 @@ SEEDS = {
              (50, 70, "out")],
 }
 CREASE = 6.0                          # how much more a step costs where the surface folds in
-KNUCKLE_THETA = 105.0                 # the index finger leaves the hand here (theta): no cut before it
+KNUCKLE_THETA = 105.0
+JOIN = 125.0                          # theta past which the index finger is rebuilt (digit_tube)
+# The thumb runs the other way round the handle: from its root (theta ~320) to its tip (~200).
+# Measured as how far round from THUMB_REF, back from it: its joints there, its rebuild past
+# THUMB_JOIN, and how far each joint may turn to bring its pad onto the hammer's spur.
+FOLLOW = 3.0                          # mm the rebuilt digits follow the scan's own surface
+THUMB_REF = 360.0
+THUMB_JOIN = 50.0
+THUMB_JOINTS = {"root": 45.0, "mcp": 72.0, "ip": 118.0}
+THUMB_OPEN = {"swing": (0, 130), "root": (-50, 50), "mcp": (-40, 40), "ip": (-40, 60)}
+THUMB_BASE = 32.0                     # mm round the thumb's root that its swing carries (fading)                 # the index finger leaves the hand here (theta): no cut before it
 
 # The index finger's joints (theta, degrees round the handle) and how far each opens out of the
 # fist to the trigger: searched, these are the ranges.
@@ -257,11 +271,13 @@ def cut_stubs(scan):
 
 
 def compact(scan):
+    """Drops vertices no face uses; returns the kept ones' old indices."""
     used = np.unique(scan.f)
     remap = np.full(len(scan.v), -1)
     remap[used] = np.arange(len(used))
     scan.v = scan.v[used]
     scan.f = remap[scan.f]
+    return used
 
 
 def split_index(scan, parts):
@@ -294,6 +310,150 @@ def split_index(scan, parts):
     return index, thumb, seam
 
 
+def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name="index"):
+    """The index finger rebuilt as a closed tube: the scan's own surface where the cast has it (the
+    back and sides of the finger), and its palm side, which lay on the broom handle and was never
+    cast, rounded off between them. Sections are half-planes through the handle's axis, a step of
+    theta apart (the finger runs round the handle); in each, the finger's outline round its middle
+    is the scan's furthest point in each direction, and the directions the scan hasn't got are
+    filled in round from those either side. Returns (vertices, faces, theta of each vertex, whether
+    each vertex is on the scan's surface)."""
+    t, th, r = scan.cyl(scan.v)
+    th = (sign * (th - ref)) % 360         # how far round from `ref`, the way the digit runs
+    m = mask & (th < 300)
+    tip = th[m].max()
+    secs = []
+    for a in np.arange(th_from, tip - 1.0, step):
+        near = m & (np.abs(th - a) < step * 0.75)
+        if near.sum() < 10:
+            continue
+        secs.append((a, t[near], r[near]))
+    A = np.array([x[0] for x in secs])
+    lo = np.array([x[1].min() for x in secs])
+    hi = np.array([x[1].max() for x in secs])
+    out = np.array([x[2].max() for x in secs])
+
+    def smooth_fit(y, keep=None, deg=3):
+        k = np.ones(len(y), bool) if keep is None else keep
+        for _ in range(3):
+            c = np.polyfit(A[k], y[k], deg)
+            f = np.polyval(c, A)
+            res = y - f
+            k = k & (np.abs(res) < max(2.5 * np.std(res[k]), 0.8))
+        return np.polyval(np.polyfit(A[k], y[k], deg), A)
+
+    # The finger's width along the handle and its back are what the cast has best; where the
+    # thumb lay on it the back is missing (lower), so the fit leaves those out.
+    width = smooth_fit(np.clip(hi - lo, 8, 30))
+    ct = smooth_fit((hi + lo) / 2)
+    back = smooth_fit(out)
+    lowback = out < back - 2.0
+    back = smooth_fit(out, ~lowback)
+    width = np.minimum(width, 24.0)
+    h = width * 0.88
+    Cn = np.stack([ct, back - h / 2], 1)
+    # Each section an ellipse, nudged by the scan where it has the surface (within 1.5 mm).
+    R = []
+    have = []
+    al = -math.pi + (np.arange(sides) + 0.5) * 2 * math.pi / sides
+    for i, (a, ts, rs) in enumerate(secs):
+        e = 1.0 / np.sqrt((np.cos(al) / (width[i] / 2)) ** 2 + (np.sin(al) / (h[i] / 2)) ** 2)
+        q = np.stack([ts - Cn[i, 0], rs - Cn[i, 1]], 1)
+        ang = np.arctan2(q[:, 1], q[:, 0])
+        dist = np.linalg.norm(q, axis=1)
+        k = ((ang + math.pi) / (2 * math.pi) * sides).astype(int) % sides
+        rr = e.copy()
+        hv = np.zeros(sides, bool)
+        for b in range(sides):
+            if (k == b).any():
+                dd = dist[k == b].max() - e[b]
+                if abs(dd) < FOLLOW + 1.0:
+                    rr[b] = e[b] + np.clip(dd, -FOLLOW, FOLLOW)
+                    hv[b] = abs(dd) < FOLLOW
+        R.append(rr)
+        have.append(hv)
+    R = np.array(R)
+    have = np.array(have)
+    for _ in range(5):
+        R[1:-1] = 0.5 * R[1:-1] + 0.25 * (R[:-2] + R[2:])
+        R = 0.5 * R + 0.25 * (np.roll(R, 1, 1) + np.roll(R, -1, 1))
+
+    def ring(a, c, rr):
+        ar = math.radians(ref + sign * a)
+        radial = scan.u * math.cos(ar) + scan.w * math.sin(ar)
+        tt = c[0] + rr * np.cos(al)
+        rd = c[1] + rr * np.sin(al)
+        return scan.q + np.outer(tt, scan.d) + np.outer(rd, radial)
+
+    V, TH, ON = [], [], []
+    for i in range(len(A)):
+        V.append(ring(A[i], Cn[i], R[i]))
+        TH.append(np.full(sides, A[i]))
+        ON.append(have[i])
+    # The fingertip: two rings closing in past the last section, then its end.
+    for f_, sc in ((0.5, 0.8), (1.0, 0.5), (1.4, 0.2)):
+        a = A[-1] + step * f_ * 1.5
+        V.append(ring(a, Cn[-1], R[-1] * sc))
+        TH.append(np.full(sides, a))
+        ON.append(np.zeros(sides, bool))
+    V = np.concatenate(V)
+    TH = np.concatenate(TH)
+    ON = np.concatenate(ON)
+    n = len(V) // sides
+    tipc = V[-sides:].mean(0)
+    V = np.concatenate([V, tipc[None]])
+    TH = np.concatenate([TH, [TH[-1] + step]])
+    ON = np.concatenate([ON, [False]])
+    F = []
+    for i in range(n - 1):
+        for j in range(sides):
+            a_, b_ = i * sides + j, i * sides + (j + 1) % sides
+            c_, d_ = (i + 1) * sides + (j + 1) % sides, (i + 1) * sides + j
+            F += [[a_, b_, c_], [a_, c_, d_]]
+    last = (n - 1) * sides
+    for j in range(sides):
+        F.append([last + j, last + (j + 1) % sides, len(V) - 1])
+    F = np.array(F)
+    # Wound outward: the first face's normal should point away from the finger's middle.
+    p0, p1, p2 = V[F[0]]
+    if np.cross(p1 - p0, p2 - p0) @ (p0 - V[:sides].mean(0)) < 0:
+        F = F[:, ::-1]
+    print("  %s rebuilt as a tube: %d sections from %.0f to %.0f round, %.0f%% of it from the scan"
+          % (name, len(A), A[0], A[-1], 100 * have.mean()))
+    centres = (A, Cn)
+    TH = (ref + sign * TH) % 360
+    return V, F, TH, ON, centres
+
+
+def tube_uv(scan, tree, V, F, ON):
+    """Texture coordinates for the tube from the scan's own (the nearest point of the cast's
+    surface) where it lies on the scan; a face whose corners land on different islands of the
+    scan's texture, or off it, gets none (flag 1)."""
+    uv = np.zeros((len(F), 3, 2))
+    flag = np.ones((len(F), 3))
+    per = np.zeros((len(V), 2))
+    for i, p in enumerate(V):
+        if not ON[i]:
+            continue
+        loc, _, fi, _ = tree.find_nearest(Vector(p))
+        if fi is None:
+            continue
+        a, b, c = scan.v[scan.f[fi]]
+        M = np.stack([b - a, c - a], 1)
+        w = np.linalg.lstsq(M, np.asarray(loc) - a, rcond=None)[0]
+        bc = np.array([1 - w.sum(), w[0], w[1]])
+        per[i] = bc @ scan.uv[fi]
+    for k, f in enumerate(F):
+        if ON[f].all():
+            u = per[f]
+            if np.max(np.linalg.norm(u[:, None] - u[None], axis=2)) < 0.02:
+                uv[k] = u
+                flag[k] = 0
+                continue
+        uv[k] = per[f[0]] if ON[f[0]] else 0
+    return uv, flag
+
+
 def to_bmesh(scan):
     bm = bmesh.new()
     vs = [bm.verts.new(p) for p in scan.v]
@@ -316,52 +476,6 @@ def from_bmesh(scan, bm):
     scan.v = np.array([v.co[:] for v in bm.verts])
     scan.f = np.array([[v.index for v in f.verts] for f in bm.faces])
     scan.uv = np.array([[lp[uvl].uv[:] for lp in f.loops] for f in bm.faces])
-
-
-def cap(bm, rims, step=1.2):
-    """Closes each rim (a list of vertices in order) with a patch: rings stepping in to its middle,
-    then faired from the rim inward. Returns the patch's new vertices."""
-    uvl = bm.loops.layers.uv["UVMap"]
-    new = []
-    for rim in rims:
-        rim = [v for i, v in enumerate(rim) if v is not rim[i - 1]]
-        if len(rim) < 3:
-            continue
-        P = np.array([v.co[:] for v in rim])
-        c = P.mean(0)
-        span = np.linalg.norm(P - c, axis=1).mean()
-        K = int(max(2, min(14, span / step)))
-        rings = [rim]
-        for k in range(1, K):
-            s_ = k / K
-            ring = [bm.verts.new(tuple(p * (1 - s_) + c * s_)) for p in P]
-            new += ring
-            rings.append(ring)
-        mid = bm.verts.new(tuple(c))
-        new.append(mid)
-        n = len(rim)
-        faces = []
-        for a, b in zip(rings, rings[1:]):
-            for i in range(n):
-                j = (i + 1) % n
-                for tri in ((a[i], a[j], b[j]), (a[i], b[j], b[i])):
-                    try:
-                        faces.append(bm.faces.new(tri))
-                    except ValueError:
-                        pass
-        last = rings[-1]
-        for i in range(n):
-            try:
-                faces.append(bm.faces.new((last[i], last[(i + 1) % n], mid)))
-            except ValueError:
-                pass
-        for f in faces:
-            for lp in f.loops:
-                lp[uvl].uv = (0.0, 0.0)
-    for _ in range(80):
-        bmesh.ops.smooth_vert(bm, verts=new, factor=0.6, use_axis_x=True, use_axis_y=True, use_axis_z=True)
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    return new
 
 
 def boundary_loops(bm, side=None, seam=None):
@@ -406,17 +520,6 @@ def boundary_loops(bm, side=None, seam=None):
         seen |= comp
         loops.append(loop)
     return loops
-
-
-def close_stubs(scan):
-    bm = to_bmesh(scan)
-    n0 = len(bm.verts)
-    rims = boundary_loops(bm)
-    print("  stub holes: %s rims of %s vertices" % (len(rims), [len(r) for r in rims]))
-    cap(bm, rims, step=1.5)
-    from_bmesh(scan, bm)
-    bm.free()
-    return n0
 
 
 def bridge(bm, scan, chain, body, rows=5, bulge=0.35):
@@ -535,23 +638,30 @@ def orient(bm, n_faces):
         todo = rest
 
 
-def close_cut(scan, index, seam, thumb):
+def close_cut(scan, index, seam, thumb, parts=None, skip_thumb=False):
     """Closes the cut's sides apart: the index finger's, the thumb's and the middle finger's (and
     the palm's where the index's tip lay), each rim bridged along its length."""
     bm = to_bmesh(scan)
     bm.verts.ensure_lookup_table()
     is_index = lambda f: sum(index[v.index] for v in f.verts) >= 2   # noqa: E731
-    rims = [(r_, index) for r_ in boundary_loops(bm, is_index, seam)]
+    rims = []
     other = boundary_loops(bm, lambda f: not is_index(f), seam)
-    # The other side's rims run over the thumb and the rest: bridge each body's part on its own.
+    # The other side's rims run over the thumb and the middle finger: each closed on its own. The
+    # rim's vertices the growing gave the index finger (the cut's own) take their neighbours'.
     for r_ in other:
-        lab = np.array([bool(thumb[v.index]) if v.index < len(thumb) else False for v in r_], float)
-        k_ = 15
+        lab = np.array([1.0 if v.index < len(thumb) and thumb[v.index] else
+                        (0.0 if v.index < len(parts["middle"]) and parts["middle"][v.index] else np.nan) for v in r_])
+        known = np.nonzero(~np.isnan(lab))[0]
+        if len(known):
+            lab = np.interp(np.arange(len(lab)), known, lab[known])
+        else:
+            lab = np.zeros(len(lab))
+        k_ = 6
         sm = np.array([lab[max(0, i - k_):i + k_ + 1].mean() for i in range(len(lab))]) > 0.5
         start = 0
         for i in range(1, len(r_) + 1):
             if i == len(r_) or sm[i] != sm[start]:
-                if i - start > 6:
+                if i - start > 6 and not (skip_thumb and sm[start]):
                     rims.append((r_[start:i], thumb if sm[start] else ~thumb & ~index))
                 start = i
     print("  cut: rims of %s vertices (the other side's %s)" % ([len(r_) for r_, _ in rims], [len(r_) for r_ in other]))
@@ -748,11 +858,56 @@ def main():
     for k, m in parts.items():
         print("  %s: %d vertices" % (k, m.sum()))
     index, thumb, seam = split_index(scan, parts)
+    # The index finger rebuilt whole past its knuckle (the scan has only its back: its palm side
+    # lay on the handle), the scan's own finger dropped there.
+    tree0 = scan.tree()
+    TV, TF, TTH, TON, _ = digit_tube(scan, index, JOIN - 15)
+    tuv, tflag = tube_uv(scan, tree0, TV, TF, TON)
+    thumb_scan = thumb.copy()
+    UV_, UF, UTH, UON, ucent = digit_tube(scan, thumb_scan, THUMB_JOIN - 15, sign=-1.0, ref=THUMB_REF, name="thumb")
+    uuv, uflag = tube_uv(scan, tree0, UV_, UF, UON)
+    tjoints = {}
+    for k_, u_j in THUMB_JOINTS.items():
+        c_ = np.array([np.interp(u_j, ucent[0], ucent[1][:, 0]), np.interp(u_j, ucent[0], ucent[1][:, 1])])
+        ar = math.radians(THUMB_REF - u_j)
+        tjoints[k_] = scan.q + scan.d * c_[0] + (scan.u * math.cos(ar) + scan.w * math.sin(ar)) * c_[1]
+    t_, th_, r_ = scan.cyl(scan.v)
+    uu_ = (THUMB_REF - th_) % 360
+    # Every face with a corner on the rebuilt part goes (a face half on it, half on a neighbour,
+    # would be dragged after the digit as it moves).
+    gone_i = index & (th_ > JOIN)
+    gone_t = thumb_scan & (uu_ > THUMB_JOIN) & (uu_ < 300)
+    drop = gone_i[scan.f].any(1) | gone_t[scan.f].any(1)
+    scan.f, scan.uv = scan.f[~drop], scan.uv[~drop]
     n_cut = len(scan.v)
-    index, _ = close_cut(scan, index, seam, thumb)
+    _, _ = close_cut(scan, index, seam, thumb, parts, skip_thumb=True)
     patch = np.zeros(len(scan.v), bool)
     patch[n_cut:] = True
+    pad = len(scan.v) - len(index)
+    index = np.concatenate([index, np.zeros(pad, bool)])
     thumb = np.concatenate([thumb, np.zeros(len(scan.v) - len(thumb), bool)])
+    base = len(scan.v)
+    scan.v = np.concatenate([scan.v, TV, UV_])
+    scan.f = np.concatenate([scan.f, TF + base, UF + base + len(TV)])
+    scan.uv = np.concatenate([scan.uv, tuv, uuv])
+    tpatch = ~TON
+    tpatch[np.unique(TF[(tflag > 0).any(1)])] = True
+    upatch = ~UON
+    upatch[np.unique(UF[(uflag > 0).any(1)])] = True
+    index = np.concatenate([index, np.ones(len(TV), bool), np.zeros(len(UV_), bool)])
+    thumb = np.concatenate([thumb, np.zeros(len(TV), bool), np.ones(len(UV_), bool)])
+    patch = np.concatenate([patch, tpatch, upatch])
+    used = compact(scan)
+    index, thumb, patch = index[used], thumb[used], patch[used]
+    h = np.zeros(base + len(TV) + len(UV_), bool)
+    h[:len(parts["hand"])] = parts["hand"]
+    parts["hand"] = h[used]
+    dbg = next((a_.split("=", 1)[1] for a_ in sys.argv if a_.startswith("--cut-debug=")), None)
+    if dbg:
+        keep = index | patch
+        fk = keep[scan.f].all(1)
+        show_parts(scan, {"index": index & ~patch, "thumb": np.zeros(len(scan.v), bool), "middle": patch & index,
+                          "hand": patch & ~index}, dbg, "rest", faces=scan.f[fk] if "--only-index" in sys.argv else None)
     m = scan.decimate(KEEP, {"index": index, "thumb": thumb, "patch": patch, "hand": parts_hand(scan, parts)})
     index, thumb, patch = m["index"], m["thumb"], m["patch"]
     parts = {"hand": m["hand"]}
@@ -791,39 +946,101 @@ def main():
     sq = best_index(scan, fit, j, index, gun, scan.v[idx_sample], top=60, target=SQUEEZED, around=b[1])
     print("  squeezed: %s, pad %.1f mm off" % (sq[1], sq[2]))
     G_sq = fit(pose_index(scan, index, j, sq[1]))
-    G_ck = thumb_up(scan, G, thumb, parts_hand(scan, parts), COCKING)
+    tj = {k: apply_push(scan, x[None], push)[0] for k, x in tjoints.items()}
+    G_ck = fit(thumb_cock(scan, fit, v, thumb, tj, gun))
+    if preview and "--cock-debug" in sys.argv:
+        Fc = scan.f
+        e_rest = np.linalg.norm(G[Fc[:, 0]] - G[Fc[:, 1]], axis=1) + np.linalg.norm(G[Fc[:, 1]] - G[Fc[:, 2]], axis=1)
+        e_ck = np.linalg.norm(G_ck[Fc[:, 0]] - G_ck[Fc[:, 1]], axis=1) + np.linalg.norm(G_ck[Fc[:, 1]] - G_ck[Fc[:, 2]], axis=1)
+        bad = e_ck > 3 * e_rest + 0.002
+        print("  cocked: %d faces stretched over 3x" % bad.sum())
+        bv = np.unique(Fc[bad])
+        print("    their corners: thumb %d, index %d, patch %d, other %d" % (thumb[bv].sum(), index[bv].sum(), patch[bv].sum(), (~thumb[bv] & ~index[bv] & ~patch[bv]).sum()))
+        if len(bv):
+            tt_, hh_, rr_ = scan.cyl(scan.v[bv])
+            print("    theta %s, t %.0f..%.0f" % (np.percentile(hh_, [5, 50, 95]).round(), tt_.min(), tt_.max()))
+        show_on_gun(G_ck, scan.f, {"index": thumb, "thumb": thumb, "patch": np.isin(np.arange(len(G)), bv)}, preview,
+                    gun=False, prefix="cock")
     if preview:
         show_on_gun(G, scan.f, {"index": index, "thumb": thumb, "patch": patch}, preview)
+        show_on_gun(G, scan.f, {"index": index, "thumb": thumb, "patch": patch}, preview, gun=False)
     write(scan, fit, G, G_sq, G_ck, index, thumb, patch, gun)
+
+
+def pose_thumb(scan, rest, pts, mask, joints, angles, hand_too=None):
+    """`pts` (the hand as posed so far) with the thumb's joints turned by `angles`: its tip joint,
+    knuckle and root bend about axes along the handle (as it curled round it), and the whole
+    thumb swings at its root along the handle (up the grip). Weights from the rest pose; the
+    root's turns carry the flesh round the root too (`hand_too`), fading over THUMB_BASE, so the
+    ball of the thumb moves with it rather than tearing from it."""
+    t, th, r = scan.cyl(rest)
+    u = (THUMB_REF - th) % 360
+    out = pts.copy()
+    for name in ("ip", "mcp", "root", "swing"):
+        uj = THUMB_JOINTS["root" if name == "swing" else name]
+        s_ = np.clip((u - (uj - 8)) / 16.0, 0, 1)
+        s_ = s_ * s_ * (3 - 2 * s_) * mask * (u < 300)
+        c = joints["root" if name == "swing" else name]
+        if name in ("root", "swing") and hand_too is not None:
+            d_ = np.linalg.norm(rest - joints["root"], axis=1)
+            fall = np.clip(1 - d_ / THUMB_BASE, 0, 1)
+            fall = fall * fall * (3 - 2 * fall) * 0.85
+            s_ = np.where(mask, np.maximum(s_, fall), fall * hand_too)
+            # One smooth field over the ball of the thumb: eased across the mesh, the thumb past
+            # its root and the flesh well away from it held.
+            held = (mask & (u > uj + 10) & (u < 300)) | (d_ > THUMB_BASE * 1.6)
+            a_, b_, _ = neighbours(scan.f, len(rest))
+            deg = np.bincount(a_, minlength=len(rest)) + np.bincount(b_, minlength=len(rest))
+            for _ in range(40):
+                acc = np.bincount(a_, s_[b_], len(rest)) + np.bincount(b_, s_[a_], len(rest))
+                sm = np.where(deg > 0, acc / np.maximum(deg, 1), s_)
+                s_ = np.where(held, s_, 0.5 * s_ + 0.5 * sm)
+        if name == "swing":
+            ar = math.radians(THUMB_REF - uj)
+            axis = scan.u * math.cos(ar) + scan.w * math.sin(ar)
+        else:
+            axis = scan.d
+        for k in np.nonzero(s_ > 0)[0]:
+            out[k] = c + rot(axis, -angles[name] * s_[k]) @ (out[k] - c)
+    return out
+
+
+def thumb_cock(scan, fit, v, thumb, joints, gun):
+    """The thumb up on the hammer's spur: its joints' angles searched to bring its pad (the palm
+    side of its tip) onto the spur without going into the gun. Returns the hand so posed."""
+    import itertools
+    t, th, r = scan.cyl(scan.v)
+    u = (THUMB_REF - th) % 360
+    um = u[thumb & (u < 300)]
+    tipv = thumb & (u < 300) & (u > um.max() - 18)
+    pad_i = np.nonzero(tipv & (r < np.percentile(r[tipv], 40)))[0]
+    target = np.asarray(COCKING)
+    rest = scan.v
+    cands = []
+    rng_ = {k: range(THUMB_OPEN[k][0], THUMB_OPEN[k][1] + 1, 10) for k in THUMB_OPEN}
+    sub = pad_i[:: max(1, len(pad_i) // 6)]
+    for sw, ro, mc, ip in itertools.product(rng_["swing"], rng_["root"], rng_["mcp"], rng_["ip"]):
+        ang = {"swing": sw, "root": ro, "mcp": mc, "ip": ip}
+        q_ = fit(pose_thumb(scan, rest[sub], v[sub], np.ones(len(sub), bool), joints, ang)).mean(0)
+        cands.append((np.linalg.norm(q_ - target) * 1000, ang))
+    cands.sort(key=lambda c: c[0])
+    sample = np.nonzero(thumb)[0][::10]
+    best = None
+    for err, ang in cands[:25]:
+        pts = fit(pose_thumb(scan, rest[sample], v[sample], np.ones(len(sample), bool), joints, ang))
+        n_in = held_hand.inside(gun, pts, 0.0)
+        score = err + n_in * 1.0
+        if best is None or score < best[0]:
+            best = (score, ang, err, n_in)
+    print("  thumb to the spur: %s, pad %.1f mm off, %d of %d sampled points in the gun"
+          % (best[1], best[2], best[3], len(sample)))
+    return pose_thumb(scan, rest, v, thumb, joints, best[1], hand_too=~thumb)
 
 
 def parts_hand(scan, parts):
     h = np.zeros(len(scan.v), bool)
     h[:len(parts["hand"])] = parts["hand"]
     return h
-
-
-def thumb_up(scan, G, thumb, hand, target):
-    """The thumb swung up onto the hammer's spur: turned about its root (where it joins the hand)
-    toward the spur, the turn fading in from the root to two thirds of the way out."""
-    a, b, _ = neighbours(scan.f, len(scan.v))
-    root = np.zeros(len(G), bool)
-    for x, y in ((a, b), (b, a)):
-        m = thumb[x] & hand[y]
-        root[x[m]] = True
-    B = G[root].mean(0)
-    T = G[thumb][np.argmax(np.linalg.norm(G[thumb] - B, axis=1))]
-    ax = np.cross(T - B, np.asarray(target) - B)
-    ang = math.degrees(math.atan2(np.linalg.norm(ax), (T - B) @ (np.asarray(target) - B)))
-    L = np.linalg.norm(T - B)
-    f = np.clip(((G - B) @ unit(T - B)) / L, 0, 1)
-    w = np.clip((f - 0.05) / 0.6, 0, 1)
-    w = w * w * (3 - 2 * w) * thumb
-    out = G.copy()
-    for k in np.nonzero(w > 0)[0]:
-        out[k] = B + rot(ax, ang * w[k]) @ (G[k] - B)
-    print("  thumb: %.0f mm long, turned %.0f degrees up to the spur" % (L * 1000, ang))
-    return out
 
 
 def write(scan, fit, G, G_sq, G_ck, index, thumb, patch, gun):
@@ -858,9 +1075,19 @@ def write(scan, fit, G, G_sq, G_ck, index, thumb, patch, gun):
     me = ob.data
     uv = me.uv_layers.new(name="UVMap")
     uv.data.foreach_set("uv", scan.uv.reshape(-1))
+    # How far along its digit each point of the index finger and thumb is from the nearest joint
+    # (m): the skin shader draws the creases and the wrinkles over the knuckles by it, where the
+    # rebuilt digits have no scan.
+    crease = np.full(len(G), 0.02)
+    for m, js, uf in ((index, [JOINTS["pip"], JOINTS["dip"]], lambda a: a),
+                      (thumb, [THUMB_JOINTS["mcp"], THUMB_JOINTS["ip"]], lambda a: (THUMB_REF - a) % 360)):
+        uu = uf(th)
+        dist = np.min([np.abs(uu - j) for j in js], axis=0) * math.pi / 180 * np.maximum(r, 20) / 1000
+        crease = np.where(m, np.minimum(dist, 0.02), crease)
     flag = me.uv_layers.new(name="patch")
-    fl = np.repeat(patch[F].reshape(-1).astype(float), 1)
-    flag.data.foreach_set("uv", np.stack([fl, np.zeros_like(fl)], 1).reshape(-1))
+    fl = patch[F].reshape(-1).astype(float)
+    cr = crease[F].reshape(-1)
+    flag.data.foreach_set("uv", np.stack([fl, cr], 1).reshape(-1))
     me.uv_layers.active = uv
     me.shade_smooth()
     ob.shape_key_add(name="Basis")
@@ -969,11 +1196,12 @@ class Grip:
         return self.tree.ray_cast(*a)
 
 
-def show_on_gun(G, F, parts, out):
-    """Renders the fitted hand on the gun (Blender, for checking)."""
+def show_on_gun(G, F, parts, out, gun=True, prefix=None):
+    """Renders the fitted hand on the gun (Blender, for checking); without it, `bare_` views."""
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
-    bpy.ops.import_scene.gltf(filepath=os.path.join(OUT, "revolver.glb"))
+    if gun:
+        bpy.ops.import_scene.gltf(filepath=os.path.join(OUT, "revolver.glb"))
     metal = bpy.data.materials.new("metal")
     metal.use_nodes = True
     metal.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.15, 0.17, 0.2, 1)
@@ -999,12 +1227,14 @@ def show_on_gun(G, F, parts, out):
     B = lambda x, y, z: (x, -z, y)   # noqa: E731
     render_views(ob, B(0.0, -0.01, 0.0), [("right", B(1, 0.2, 0.1)), ("left", B(-1, 0.2, 0.1)),
                  ("eye", B(0.15, 0.5, 1)), ("front", B(0.2, 0.1, -1)), ("under", B(0.3, -1, 0.2)),
-                 ("top", B(0.1, 1, 0.3))], out, "gun", 0.2)
+                 ("top", B(0.1, 1, 0.3))], out, prefix or ("gun" if gun else "bare"), 0.2)
+    if not gun:
+        return
     render_views(ob, B(*TRIGGER), [("cright", B(1, 0.1, 0.2)), ("cfront", B(0.3, 0.2, -1)),
                  ("cunder", B(0.4, -1, -0.3)), ("cleft", B(-1, 0.1, 0.1))], out, "gun", 0.1)
 
 
-def show_parts(scan, parts, out, prefix="parts"):
+def show_parts(scan, parts, out, prefix="parts", faces=None):
     """Renders the scan coloured by part, from a few sides (for checking the growing)."""
     colours = {"index": (0.9, 0.2, 0.2), "thumb": (0.2, 0.4, 0.9), "middle": (0.2, 0.8, 0.3),
                "hand": (0.7, 0.7, 0.7)}
@@ -1014,7 +1244,7 @@ def show_parts(scan, parts, out, prefix="parts"):
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
     me = bpy.data.meshes.new("scan")
-    me.from_pydata(scan.v.tolist(), [], scan.f.tolist())
+    me.from_pydata(scan.v.tolist(), [], (scan.f if faces is None else faces).tolist())
     ob = bpy.data.objects.new("scan", me)
     bpy.context.scene.collection.objects.link(ob)
     a = me.color_attributes.new("C", "FLOAT_COLOR", "POINT")
