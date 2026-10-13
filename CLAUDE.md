@@ -340,8 +340,9 @@ frozen until Sean names one.
   flinging rubble as it rode in, shapeless rubble through the ground) and it now logs what it
   finds and its memory as it goes.
 - Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (the runner was
-  shutting it down; its log now says memory and disk each minute); brick wants a brief first; M4
-  step 5 (money) stays frozen with the features.
+  shutting it down; its log now says memory and disk each minute); `test_chaos` is flaky on main
+  (thread scheduling: exact on one worker thread; see the status entry); brick wants a brief
+  first; M4 step 5 (money) stays frozen with the features.
 - Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
   four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
   after a fight; the `proposed` feel ranges.
