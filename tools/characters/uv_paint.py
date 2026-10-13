@@ -3,7 +3,8 @@
     python3 tools/characters/uv_paint.py guides --man=bold_cowboy           # here (bpy for the factory man)
     FAL_KEY=... python3 tools/characters/uv_paint.py paint --man=bold_cowboy [--round=1]   # People workflow `style: uvpaint`
     python3 tools/characters/uv_paint.py paint --man=bold_cowboy --dry-run  # the requests, written not sent
-    python3 tools/characters/uv_paint.py apply --man=bold_cowboy --take=NAME   # here: onto him, squared
+    python3 tools/characters/uv_paint.py apply --man=bold_cowboy --take=NAME [--face=NAME] [--build]   # here: onto him
+    python3 tools/characters/uv_paint.py squares-start --man=bold_cowboy --take=r1_b   # round 2's start: his squares
 
 Each patch of uv_layout.py's layout is seen by its own camera, so a picture made from that camera
 IS the patch: no projection between views, no blending of views, one painting per patch.
@@ -65,9 +66,25 @@ FACE_WORDS = ("peach and cream skin where the light falls, a ruddy red nose, red
               "cheekbones, a heavy dark drooping moustache, thick dark eyebrows, brown eyes, ")
 HAIR_WORDS = "thick dark brown hair swept back, grey at the temples and over the ears, "
 # The takes, a round at a time: (name, LoRA scale, strength, ControlNet scale, IP-Adapter scale, seed).
+# A take may end in a dict: "views" (which to paint), "start" (its start picture's file, {view} in
+# it), "ask" ("squares": the model told it is painting the squares themselves).
+SQ_ONLY = {"views": ("face",), "start": "{view}_start_sq.png", "ask": "squares"}
 ROUNDS = {
     1: [("a", 0.8, 0.82, 0.6, 0.0, 11), ("b", 1.0, 0.88, 0.6, 0.0, 12), ("c", 0.8, 0.82, 0.6, 0.5, 11)],
+    # Sean, 2026-10-13: paint at the square size. The start is take r1_b's face cut into his own
+    # 8 mm grid (`squares-start`); the model repaints that mosaic lightly, so it keeps the grid and
+    # chooses each square's colour itself; apply --face= takes each square from its middle.
+    2: [("a", 1.0, 0.45, 0.5, 0.0, 21, SQ_ONLY), ("b", 1.0, 0.60, 0.5, 0.0, 21, SQ_ONLY),
+        ("c", 1.0, 0.45, 0.5, 0.0, 22, SQ_ONLY), ("d", 1.0, 0.60, 0.5, 0.0, 22, SQ_ONLY)],
 }
+ASK_SQUARES = ("SLTCRK pixel-art portrait made of big square pixels, about twenty squares across his "
+               "face, every square one flat colour, of a weathered cowboy's bare head seen from straight "
+               "in front, no hat, keep every square where it is in the picture and choose its colour as "
+               "a painter would so his features read: his eyes as a dark lid square over a lit white "
+               "square and a dark brown iris, a heavy dark drooping moustache several squares thick, "
+               "thick dark eyebrows, peach and cream skin where the light falls, a ruddy red nose, red "
+               "cheeks and ears, blue-grey stubble on his jaw, olive-grey in the hollows under his brow "
+               "and cheekbones, {hair}flat even light from the front, plain grey background")
 # The ways of asking flux-general for a depth ControlNet, tried in order on a 422.
 CONTROL = [
     lambda url, s: {"controlnet_unions": [{"path": "InstantX/FLUX.1-dev-Controlnet-Union", "controls": [
@@ -328,15 +345,18 @@ def paint(man, rnd, dry):
     made, spent = 0, 0.0
     control_way = 0
     ip_broken = False
-    for name, lora, strength, cn, ip, seed in ROUNDS[rnd]:
-        for view in PAINTED:
+    for name, lora, strength, cn, ip, seed, *more in ROUNDS[rnd]:
+        opt = more[0] if more else {}
+        for view in opt.get("views", PAINTED):
             if ip > 0 and ip_broken:
                 print("skipped", name, view, "(the reference failed)")
                 continue
             if os.path.exists(os.path.join(out, "paint", "r%d_%s_%s.png" % (rnd, name, view))):
                 continue   # painted already
             W, H = meta["views"][view]["size"]
-            body = {"prompt": ask(view), "image_url": data_url(os.path.join(out, view + "_start.png")),
+            prompt = ASK_SQUARES.format(hair=HAIR_WORDS) if opt.get("ask") == "squares" else ask(view)
+            start = opt.get("start", "{view}_start.png").format(view=view)
+            body = {"prompt": prompt, "image_url": data_url(os.path.join(out, start)),
                     "strength": strength, "num_inference_steps": 30, "guidance_scale": 3.5, "seed": seed,
                     "num_images": 1, "enable_safety_checker": False, "output_format": "png",
                     "image_size": {"width": W, "height": H},
@@ -365,7 +385,7 @@ def paint(man, rnd, dry):
                         continue
                     raise
                 log.append({what: {"queued": queued, "control_way": control_way, "lora": lora, "strength": strength,
-                                   "controlnet": cn, "ip_adapter": ip, "seed": seed, "prompt": body["prompt"]}})
+                                   "controlnet": cn, "ip_adapter": ip, "seed": seed, "prompt": body["prompt"], "start": start}})
                 status_url = queued.get("status_url") or "%s%s/requests/%s/status" % (QUEUE, APP, queued["request_id"])
                 response_url = queued.get("response_url") or "%s%s/requests/%s" % (QUEUE, APP, queued["request_id"])
                 print("queued", what, queued.get("request_id"), flush=True)
@@ -400,6 +420,59 @@ def paint(man, rnd, dry):
             else:
                 print("failed", what)
     print("uv_paint: %d pictures, about $%.2f on fal" % (made, spent))
+
+
+# --- The face's squares (round 2 on: painted at the square size) -----------------------------------
+
+def face_grid(L, lm):
+    """The face's 8 mm grid in the front camera's plane: the middle between his irises is the middle
+    of a cell. Returns (origin, size): cell (i, j) spans origin + (i, j) * size, one size wide."""
+    mid = (L.project("face", lm[468]) + L.project("face", lm[473])) / 2
+    return mid - SQUARE / 2, SQUARE
+
+
+def cell_colours(img, frame_, grid, centre=0.3):
+    """Each grid cell's colour in a face picture (frame_: its x0, y0, s): the median of the middle
+    of the cell (within `centre` of a cell's size from its middle), so the square's own colour,
+    not its edges. Returns {(i, j): colour} and the cells' pixel bounds."""
+    x0, y0, s = frame_
+    (ox, oy), size = grid
+    H, W = img.shape[:2]
+    i0 = int(np.floor((x0 - ox) / size)) - 1
+    i1 = int(np.ceil((x0 + W / s - ox) / size)) + 1
+    j0 = int(np.floor((y0 - oy) / size)) - 1
+    j1 = int(np.ceil((y0 + H / s - oy) / size)) + 1
+    out, bounds = {}, {}
+    for j in range(j0, j1):
+        for i in range(i0, i1):
+            xa, xb = (ox + i * size - x0) * s, (ox + (i + 1) * size - x0) * s
+            ya, yb = (oy + j * size - y0) * s, (oy + (j + 1) * size - y0) * s
+            cx, cy, hw = (xa + xb) / 2, (ya + yb) / 2, (xb - xa) * centre
+            sub = img[max(0, int(cy - hw)):min(H, int(cy + hw) + 1), max(0, int(cx - hw)):min(W, int(cx + hw) + 1)]
+            if sub.size == 0:
+                continue
+            out[(i, j)] = np.median(sub.reshape(-1, 3), 0)
+            bounds[(i, j)] = (xa, xb, ya, yb)
+    return out, bounds
+
+
+def squares_start(man, take):
+    """Round 2's start picture: take's face painting as his own 8 mm squares, one flat colour each
+    (each cell's middle), drawn at the painting's size → DIR/face_start_sq.png."""
+    import portrait as P
+    L, _v, _faces, _label, _rep, lm = load(man)
+    out = DIR % man
+    meta = json.load(open(os.path.join(out, "guides.json")))
+    W, H = SIZE["face"]
+    img = np.asarray(Image.open(os.path.join(out, "paint", take + "_face.png")).convert("RGB").resize((W, H), Image.LANCZOS)).astype(float) / 255
+    cols, bounds = cell_colours(img, meta["views"]["face"]["frame"], face_grid(L, lm))
+    sq = img.copy()
+    for k, c in cols.items():
+        xa, xb, ya, yb = bounds[k]
+        sq[max(0, int(round(ya))):max(0, int(round(yb))), max(0, int(round(xa))):max(0, int(round(xb)))] = c
+    P.to_pil(sq).save(os.path.join(out, "face_start_sq.png"))
+    print("squares-start: %d cells, %.1f px a square -> %s" % (len(cols), SQUARE * meta["views"]["face"]["frame"][2],
+                                                               os.path.join(out, "face_start_sq.png")))
 
 
 # --- 3. Apply --------------------------------------------------------------------------------------------
@@ -504,7 +577,7 @@ def group(cell, have, keep=()):
     return out
 
 
-def apply(man, take, build):
+def apply(man, take, build, face_take=None):
     import uv_layout as L
     import portrait as P
     from scipy.spatial import cKDTree
@@ -537,6 +610,24 @@ def apply(man, take, build):
             xy = (L.project(view, surf[m]) - [x0, y0]) * s
             tex[m] = np.clip(sample(img, xy), 0, 1)
             done[m] = True
+    # The face from a squares take (round 2 on): each texel its cell's colour, the cell's middle in
+    # that painting, the start's light divided out there. Already squares: not squared again.
+    if face_take:
+        img = np.asarray(Image.open(os.path.join(out, "paint", face_take + "_face.png")).convert("RGB")
+                         .resize(tuple(SIZE["face"]), Image.LANCZOS)).astype(float) / 255
+        shade = np.asarray(Image.open(os.path.join(out, "face_shade.png")).convert("L")).astype(float) / 255
+        sh = np.asarray(Image.fromarray((shade * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(6))).astype(float) / 255
+        sh = sh / max(np.median(sh[shade < 0.999]), 1e-3)
+        img = img / np.clip(sh, 0.5, 1.6)[:, :, None] ** DELIGHT
+        grid = face_grid(L, lm)
+        cols, _b = cell_colours(img, meta["views"]["face"]["frame"], grid)
+        m = texl == "face"
+        (ox, oy), size_ = grid
+        xy = L.project("face", surf[m])
+        ij = np.floor((xy - [ox, oy]) / size_).astype(int)
+        fallback = np.median(np.array(list(cols.values())), 0)
+        tex[m] = np.array([cols.get((int(a), int(b)), fallback) for a, b in ij]).clip(0, 1)
+        done[m] = True
     # Seams: the side patches' colour matched to the face's along where they meet on him, low
     # frequency only (a smooth offset fading over SEAM_SIGMA), the face itself untouched.
     face_m = texl == "face"
@@ -588,8 +679,16 @@ def apply(man, take, build):
         fx, fy = rects["face"][:2]
         phase["face"] = ((mx - fx) % n - n / 2, (my - fy) % n - n / 2)
     for patch, rect in rects.items():
+        if patch == "face" and face_take:
+            # Its rect's texels off the patch: their nearest face texel (nothing dark bleeds in).
+            from scipy import ndimage
+            x, y, w, h = rect
+            fm2 = (texl == "face")[y:y + h, x:x + w]
+            _d, (iy, ix) = ndimage.distance_transform_edt(~fm2, return_indices=True)
+            tex[y:y + h, x:x + w] = tex[y:y + h, x:x + w][iy, ix]
+            continue
         tex = squares(tex, texl == patch, rect, density, phase.get(patch, (0.0, 0.0)))
-    path = os.path.join(WORK, "%s_%s_tex.png" % (man, take))
+    path = os.path.join(WORK, "%s_%s_tex.png" % (man, face_take or take))
     P.to_pil(tex).save(path)
     print("apply: wrote", path)
     if build:
@@ -608,12 +707,17 @@ def main():
         if rnd == "next":   # the first round with a take not painted yet
             done = os.listdir(os.path.join(DIR % man, "paint")) if os.path.isdir(os.path.join(DIR % man, "paint")) else []
             rnd = next((r for r in sorted(ROUNDS) if not all("r%d_%s_face.png" % (r, t[0]) in done for t in ROUNDS[r])), None)
+            if rnd is not None and rnd > 1 and not os.path.exists(os.path.join(DIR % man, "face_start_sq.png")):
+                print("uv_paint: round %d wants face_start_sq.png (uv_paint.py squares-start)" % rnd)
+                return
             if rnd is None:
                 print("uv_paint: every round in ROUNDS is painted; add one")
                 return
         paint(man, int(rnd), "--dry-run" in sys.argv)
     elif "apply" in sys.argv:
-        apply(man, args["--take"], "--build" in sys.argv)
+        apply(man, args["--take"], "--build" in sys.argv, args.get("--face"))
+    elif "squares-start" in sys.argv:
+        squares_start(man, args.get("--take", "r1_b"))
     else:
         print(__doc__)
 

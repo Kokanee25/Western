@@ -45,5 +45,6 @@ Sean.
 | 2026-10-13 | Paint round 1: 3 takes x 4 views on fal flux-general (LoRA, depth ControlNet; take c with his style portrait as IP-Adapter reference), People workflow `style: uvpaint` | step 3, the painted face; which settings read best | $0: refused, fal's balance exhausted (run 65); to run again on a top-up (~$0.90) |
 | 2026-10-13 | Paint round 1, first try (run 66): 8 pictures made (takes a, b), lost: take c's IP-Adapter failed inside fal and stopped the job before its commit | | ~$0.60, lost |
 | 2026-10-13 | Paint round 1 again (run 67): 12 pictures, all made (depth ControlNet by the union model; the IP-Adapter worked) | the same | ~$0.90 |
+| 2026-10-13 | Paint round 2: 4 faces at the square size (start: r1_b's face as his 8 mm squares; strength 0.45/0.6, two seeds) | Sean's test before calling the route: can the model choose each square so eyes and moustache read | ~$0.30 |
 
-Total so far: ~$3.10 of $15.
+Total so far: ~$3.40 of $15.
