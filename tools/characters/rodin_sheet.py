@@ -1,13 +1,16 @@
 """The Rodin bold cowboy's sheet (Sean, 2026-10-13): his face beside the bold portrait at 3x, front,
 three-quarter and profile in neutral light, and in the saloon.
 
-    ~/bpyenv/bin/python tools/characters/rodin_sheet.py --dist=DIR --shots=DIR --out=PNG
+    ~/bpyenv/bin/python tools/characters/rodin_sheet.py [--man=bold_cowboy] --dist=DIR --shots=DIR --out=PNG
+    (--dist rendered at each style view's own turn: `python3 tools/characters/rodin_sheet.py --turns --man=M`
+    prints them for distance_lab.gd --turns=)
 
 --dist: tools/characters/distance_lab.gd --distances=1.2 --turns=0,-40,-90 (the player's camera, the
 lineup's plain light); --shots: tools/screenshots.gd shot_match_saloon / shot_match_close. Each
 game crop is his head at the game's own pixels, enlarged 3x nearest; each portrait crop is cut to
 the same head height beside it.
 """
+import json
 import os
 import sys
 
@@ -38,7 +41,8 @@ def dist_head(path):
 
 
 def style_head(name, height):
-    im = Image.open(os.path.join(ROOT, STYLE % name)).convert("RGB")
+    path = name if name.endswith(".png") else STYLE % name
+    im = Image.open(os.path.join(ROOT, path)).convert("RGB")
     lm = P.landmarks(im)
     if lm is None:
         return im.resize((int(im.width * height / im.height), height))
@@ -80,22 +84,39 @@ def label(im, text):
     return im
 
 
+def turns(man):
+    """Each style view's turn, as rodin_portrait.py's camera fit found it (whole degrees)."""
+    rep = json.load(open(os.path.join(ROOT, "build", "rodin_portrait", man + "_report.json")))
+    return {v: int(round(rep["cameras"][v]["yaw"])) for v in ("front", "three_quarter", "profile_left") if v in rep["cameras"]}
+
+
 def main():
+    if "--turns" in sys.argv:
+        m = next((x.split("=", 1)[1] for x in sys.argv if x.startswith("--man=")), "bold_cowboy")
+        print(",".join(str(t) for t in turns(m).values()))
+        return
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
+    man = a.get("--man", "bold_cowboy")
+    spec = json.load(open(os.path.join(ROOT, "assets", "people", "portrait.json")))["men"][man]
+    views = spec["paint_views"]
     rows = []
-    for turn, name, title in ((0, "front", "front"), (-40, "three-quarter", "three-quarter"), (-90, "profile", "profile")):
-        g = dist_head(os.path.join(a["--dist"], "bold_cowboy_rodin_1.2_%d.png" % turn))
+    for view, title in (("front", "front"), ("three_quarter", "three-quarter"), ("profile_left", "profile")):
+        t = turns(man).get(view, 0)
+        path = os.path.join(a["--dist"], "%s_rodin_1.2_%d.png" % (man, t))
+        if not os.path.exists(path):
+            continue
+        g = dist_head(path)
         g = g.resize((g.width * K, g.height * K), Image.NEAREST)
-        s = style_head(name, g.height)
-        rows.append([label(s, "bold portrait: " + title), label(g, "ours, neutral light, 3x: " + title)])
+        s = style_head(views[view], g.height)
+        rows.append([label(s, "style portrait: " + title), label(g, "ours, neutral light, 3x: " + title)])
     for shot in ("shot_match_saloon", "shot_match_close"):
         g = frame_head(os.path.join(a["--shots"], shot + ".png"))
         if g is None:
             continue
         k = K if shot == "shot_match_saloon" else 1
         g = g.resize((g.width * k, g.height * k), Image.NEAREST)
-        s = style_head("front", g.height)
-        rows.append([label(s, "bold portrait"), label(g, "ours in the saloon%s" % (", 3x" if k == 3 else ", close view (1x)"))])
+        s = style_head(views["front"], g.height)
+        rows.append([label(s, "style portrait"), label(g, "ours in the saloon%s" % (", 3x" if k == 3 else ", close view (1x)"))])
     W = max(sum(c.width for c in r) + 10 for r in rows)
     H = sum(max(c.height for c in r) + 10 for r in rows)
     sheet = Image.new("RGB", (W, H), BG)

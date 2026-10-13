@@ -36,7 +36,19 @@
     "coat": "#5c4029",
     "cravat": "#16120f"
    },
-   "what": "a heavy-set frontier man in his late fifties, bare-headed, thick grey hair swept back to his collar, a big grey walrus moustache, heavy jowls and a broad face, a brown wool coat over a vest, a white shirt and a dark tie"
+   "what": "a heavy-set frontier man in his late fifties, bare-headed, thick grey hair swept back to his collar, a big grey walrus moustache, heavy jowls and a broad face, a brown wool coat over a vest, a white shirt and a dark tie",
+   "paint_views": {
+    "front": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/older_heavyset_cowboy/style_three_quarter.png",
+    "profile_left": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_left.png",
+    "profile_right": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_right.png",
+    "back": "docs/concept/style/factory/older_heavyset_cowboy/style_back.png"
+   },
+   "style_views": {
+    "front": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/older_heavyset_cowboy/style_three_quarter.png",
+    "side": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_left.png"
+   }
   },
   "young_lean_cowboy": {
    "pictures": "docs/concept/style/factory/young_lean_cowboy",

@@ -181,13 +181,18 @@ def fit_camera(view, pts, lm, normals_at, s0, turn0):
         r = (q - lm[:, :2]) / c.s
         return np.where(facing[:, None], r, 0.0).ravel()
 
-    # A start: scale from the eye spacing in 3D and in the picture, offset by the nose.
-    c0 = P.PoseCamera(base, s0, 0, 0, turn0, 0, 0)
-    q0 = c0.project(pts)
-    z0 = np.array([s0, lm[1, 0] - q0[1, 0], lm[1, 1] - q0[1, 1], turn0, 0.0, 0.0])
+    # Starts: scale from the eye spacing in 3D and in the picture, offset by the nose; turned as
+    # the view says and 25 degrees either side (a "profile" painted at 65 degrees stalls from 90).
     lo = [0.3 * s0, -1e6, -1e6, turn0 - 40, -25, -25]
     hi = [3.0 * s0, 1e6, 1e6, turn0 + 40, 25, 25]
-    res = least_squares(residuals, z0, bounds=(lo, hi), loss="soft_l1", f_scale=0.004, x_scale=[s0, 50, 50, 5, 5, 5])
+    res = None
+    for t0 in (turn0, turn0 - 25, turn0 + 25):
+        c0 = P.PoseCamera(base, s0, 0, 0, t0, 0, 0)
+        q0 = c0.project(pts)
+        z0 = np.array([s0, lm[1, 0] - q0[1, 0], lm[1, 1] - q0[1, 1], t0, 0.0, 0.0])
+        r = least_squares(residuals, z0, bounds=(lo, hi), loss="soft_l1", f_scale=0.004, x_scale=[s0, 50, 50, 5, 5, 5])
+        if res is None or r.cost < res.cost:
+            res = r
     c = cam_of(res.x)
     q = c.project(pts)
     facing = (normals_at @ c.toward()) > 0.15
