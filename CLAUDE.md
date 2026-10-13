@@ -105,7 +105,6 @@ draws), ~5.8 since a room's lamps stopped lighting its people from the street (8
 left, by turning one thing off at a time: the saloon's 14 lamps' shadows ~3.7 ms (per lamp, not per
 pass: two passes cost the same as six under lavapipe), the sun's shadow ~1.7, the rest the town's
 own draws.
-scene's render CPU (lavapipe; carved members and chips draw on their own, smoke).
 
 ## Tech decisions
 
