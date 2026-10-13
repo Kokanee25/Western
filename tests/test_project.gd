@@ -127,3 +127,21 @@ func test_native_resolution_follows_the_window() -> void:
 	Settings.reset_to_defaults()
 	await process_frames(1)
 	check_eq(vp.size, Vector2i(window), "back to the default: native")
+
+
+## The lamps' shadow atlas: every quadrant one cell size, and room for every lamp that casts a
+## shadow. With the default mix (2, 2, 3, 4) the saloon's 14 lamps all wanted the biggest cells,
+## of which there are four, and took them from each other in turn, so their shadows were drawn
+## again every frame: ~4 ms of the street's render (2026-10-13). Cells all one size, a lamp never
+## wants another, so a shadow is drawn only when something in it moves.
+func test_the_shadow_atlas_holds_every_lamp_in_one_size() -> void:
+	var vp := main.get_node(^"GameViewport") as SubViewport
+	var quads := []
+	for q in 4:
+		quads.append(vp.get("positional_shadow_atlas_quad_%d" % q))
+	check(quads.all(func(q: int) -> bool: return q == quads[0]), "one cell size in every quadrant: %s" % str(quads))
+	var cells_per_quadrant := [0, 1, 4, 16, 64, 256, 1024][quads[0]] as int
+	var omni_slots := 4 * cells_per_quadrant / 2  # an omni light takes two cells
+	var shadowed := get_tree().root.find_children("*", "OilLamp", true, false).filter(
+			func(l: OilLamp) -> bool: return l.casts_shadows).size()
+	check(shadowed > 0 and shadowed <= omni_slots, "room for every lamp that casts a shadow (%d, slots %d)" % [shadowed, omni_slots])

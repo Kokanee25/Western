@@ -12,6 +12,13 @@ extends Node3D
 @export var show_mesh := true
 ## How much its light shows in the air (smoke, haze): the halo round a lamp in a smoky room.
 @export var haze := 1.2
+## Render layers this lamp's light leaves alone (the art session's staged shots: the saloon shot's
+## lamps leave the seated man's head to its side key, ShotMatch.FACE_LAYER).
+var cull_out := 0:
+	set(value):
+		cull_out = value
+		if _light:
+			_light.light_cull_mask &= ~value
 ## Shadows from its light (a lamp on a table, a porch lantern). Off for small wall lanterns: their
 ## own cap and frame cut hard wedges out of the light on the wall.
 @export var casts_shadows := true
@@ -115,7 +122,7 @@ func _shadow_for_distance() -> void:
 		# inside are a glimpse through the door, lit by the room's fill (2-3 ms of the street's
 		# render with the saloon's barkeep and drinkers in it).
 		var indoor := _room() is FalseFrontBuilding
-		_light.light_cull_mask = LIGHTS_ALL if near or not indoor else LIGHTS_ALL & ~Layers.VIS_BODY
+		_light.light_cull_mask = (LIGHTS_ALL if near or not indoor else LIGHTS_ALL & ~Layers.VIS_BODY) & ~cull_out
 	# Far off, two shadow passes (a dual paraboloid) for six (a cube): each pass costs the render
 	# thread ~50 us however little is in it, and from that far the seams' leaks don't show.
 	var cube_now := _light.omni_shadow_mode == OmniLight3D.SHADOW_CUBE
@@ -222,6 +229,7 @@ func _build() -> void:
 	_light.shadow_enabled = casts_shadows
 	_light.shadow_bias = 0.05
 	_light.shadow_caster_mask = ALL_CASTERS
+	_light.light_cull_mask = LIGHTS_ALL & ~cull_out
 	_light.position.y = 0.22
 	add_child(_light)
 	# Something for a bullet to hit.
