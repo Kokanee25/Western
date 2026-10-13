@@ -14,7 +14,7 @@ uniform vec3 sun_color : source_color = vec3(1.0, 0.95, 0.9);
 uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_dir = vec3(0.0, -1.0, 0.0);
 uniform float star_strength = 0.0;
-uniform float sun_size = 0.055;
+uniform float sun_size = 0.045;
 // Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
 // painting's are small broken heaps, not big sheets), how ragged their edges are (high-frequency
 // noise eaten out of them), and how many painted tones each is drawn in (0: smooth, the
@@ -45,7 +45,7 @@ uniform float dusk_clouds = 1.0;
 // 0 = the sky as it was.
 uniform float gold = 1.0;
 // Sun rays at golden hour (src/render/sun_rays.gdshaderinc): how strong the shafts are. 0 = none.
-uniform float ray_strength = 0.9;
+uniform float ray_strength = 0.65;
 
 #include "res://src/render/sun_rays.gdshaderinc"
 
@@ -167,7 +167,9 @@ void sky() {
 		col = mix(col, cloud, c * 0.95);
 		// The painting's golden-hour sky is a deeper picture than a bright clear one (its band over
 		// the street at L* ~60, ours was 80 with the clouds in).
-		col *= 1.0 - 0.15 * gold * low * sun_up * (1.0 - near_sun);
+		// 2026-10-13: 0.15 -> 0.4 with the gold sky on by default (its clouds and the sky between
+		// them went near white: 22% of the street shot's top over L* 80, the painting's 2%).
+		col *= 1.0 - 0.4 * gold * low * sun_up * (1.0 - near_sun);
 	}
 
 	// Haze low over the land: the horizon's colour, warmest toward the sun.
