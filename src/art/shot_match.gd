@@ -135,6 +135,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	_cup_in_hand(man)
 	_fill(root)
 	_extras(street)
+	_doorway(street)
 	# The voxel trial (VoxelTrial, behind its flags): cube-built props and hat, smooth eyes.
 	if VoxelTrial.props:
 		VoxelTrial.replace_props(root, lamp.get_node_or_null(^"Model"), man)
@@ -282,6 +283,26 @@ static func rig(street: Node3D) -> Transform3D:
 	var t := saloon.global_transform * Transform3D(Basis(Vector3.UP, deg_to_rad(ROOM_YAW_IN_SALOON)), TABLE_IN_SALOON)
 	t.origin.y = _floor_at(street, t.origin)
 	return t
+
+
+## The painting's batwings stand open at the jambs, the moonlit street between them; shut, they
+## filled the lower doorway with lamplit slats. Swung in this far for the shot (the leaves are
+## FacadeArt's drawn ones; nobody's coming through).
+const BATWINGS_OPEN := 70.0
+
+static func _doorway(street: Node3D) -> void:
+	var saloon := street.find_child("Saloon", true, false) as FalseFrontBuilding
+	if saloon == null:
+		return
+	var o := saloon.door_rect
+	for i in 2:
+		var leaf := saloon.get_node_or_null(NodePath("Batwing%d" % i)) as Node3D
+		if leaf == null:
+			continue
+		# Each on its own jamb, swinging into the room (+Z in the building's space).
+		var hinge := Vector3(o.position.x if i == 0 else o.end.x, 0.0, leaf.position.z)
+		var turn := Transform3D(Basis(Vector3.UP, deg_to_rad(-BATWINGS_OPEN if i == 0 else BATWINGS_OPEN)), Vector3.ZERO)
+		leaf.transform = Transform3D(Basis(), hinge) * turn * Transform3D(Basis(), -hinge) * leaf.transform
 
 
 static func _floor_at(street: Node3D, at: Vector3) -> float:

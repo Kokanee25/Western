@@ -257,8 +257,11 @@ func _lanterns() -> void:
 		var faces := -1.0 if float(placed.get("facing", 0.0)) == 0.0 else 1.0
 		var settings: Dictionary = b[4]
 		if settings.get("gable_front", false):
-			# The livery's, by its big door.
-			_lantern(t * Vector3(3.35, 2.6, -0.05), faces)
+			# The livery's, either side of its big door (the west one is what the saloon's doorway
+			# shows lit under the moon at night, as the painting's lit windows across the street).
+			var gw := float(placed.get("width", (b[2] as float) - (b[1] as float)))
+			for lx in [3.35, gw - 3.35]:
+				_lantern(t * Vector3(lx, 2.6, -0.05), faces)
 			continue
 		var w := float(placed.get("width", (b[2] as float) - (b[1] as float)))
 		var door: Vector2 = settings.get("door_size", Vector2(1.1, 2.2))
