@@ -21,8 +21,8 @@ func _init() -> void:
 	door_size = Vector2(1.5, 3.2)
 	porch = true
 	porch_height = 3.75
-	night_ambient = 0.06
-	room_haze = 0.022
+	night_ambient = 0.04
+	room_haze = 0.012
 
 
 ## The heights above are for a floor at the street's usual 0.38 m; config/town.json raises the
