@@ -27,9 +27,13 @@ extends Resource
 ## The clouds' drift (sky units a real second).
 @export var cloud_drift_speed := 0.002
 ## Tilt of the moon's arc (a full moon, opposite the sun's hour): it rises in the east, sets in the
-## west and crosses the sky this far from straight overhead, over the +Z side (the street, seen from
-## the saloon's door). Low, as the saloon painting's moon is in its doorway.
+## west and crosses the sky this far from straight overhead, over the +Z side when positive, -Z
+## when negative (since Main Street the saloon faces -Z: the street seen from its door). Low, as
+## the saloon painting's moon is in its doorway.
 @export var moon_tilt_degrees := 35.0
+## Turns the moon's arc round the vertical, as `sun_azimuth_degrees` does the sun's (positive swings
+## it from -Z toward -X): from the saloon painting's seat (23:40) the moon stands in the doorway.
+@export var moon_azimuth_degrees := 0.0
 
 @export_group("Light")
 @export var sun_max_energy := 1.6

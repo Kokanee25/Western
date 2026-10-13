@@ -202,6 +202,17 @@ def main():
         out = np.zeros((th, width, 4), dtype=np.uint8)
         out[..., :3] = rd.lab_to_rgb(full)
         out[..., 3] = np.where(land, 255, 0)
+        # `clear`: bearings [from, to] (round the circle) with no land, the land east of them
+        # sloped up from nothing as a panel's own ends are; after the palette, so nothing else in
+        # the layer changes (a sight line cleared: the moon in the saloon's doorway).
+        for a, b in layer.get("clear", []):
+            n = max(int(round(span * layer.get("scale", 1.0) / dpt * TAPER)), 1)
+            x, end = int(round(a / dpt)) % width, int(round(b / dpt)) % width
+            while x != end:
+                out[:, x, 3] = 0
+                x = (x + 1) % width
+            for k in range(n):
+                out[:th - int(round(th * (k + 0.5) / n)), (end + k) % width, 3] = 0
         name = "backdrop_%s.png" % lid
         Image.fromarray(out, "RGBA").save(os.path.join(rd.OUT, name))
         imp = os.path.join(rd.OUT, name + ".import")

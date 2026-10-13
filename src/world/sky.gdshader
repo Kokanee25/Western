@@ -13,6 +13,11 @@ uniform vec3 ground_color : source_color = vec3(0.22, 0.17, 0.12);
 uniform vec3 sun_color : source_color = vec3(1.0, 0.95, 0.9);
 uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_dir = vec3(0.0, -1.0, 0.0);
+// The moon's size (its radius, radians), brightness, and the glow it puts in the sky round it.
+uniform float moon_radius = 0.019;
+uniform float moon_bright = 0.9;
+uniform float moon_glow = 2.2;
+uniform vec3 moon_glow_color : source_color = vec3(0.08, 0.15, 0.32);
 uniform float star_strength = 0.0;
 uniform float sun_size = 0.035;
 // Clouds: how much of the sky they cover (0..1), how big (repeats per unit of the cloud plane: the
@@ -187,9 +192,23 @@ void sky() {
 	col = mix(col, disk_col, disk * step(-0.02, h));
 
 	vec3 md = normalize(moon_dir);
-	float moon_disk = smoothstep(0.99955, 0.9997, dot(d, md));
-	// Well over white: it blooms into the haze round it, as the painting's does.
-	col += vec3(0.85, 0.9, 1.0) * moon_disk * 2.5 * step(0.0, md.y);
+	float moon_up = smoothstep(-0.01, 0.03, md.y) * (1.0 - smoothstep(-0.12, 0.05, sd.y));
+	// The saloon painting's moon (docs/concept/saloon-blocks.png, in its doorway): ~2 degrees
+	// across, pale blue-white, drawn in squares (~11 across it) with grey-blue seas, the sky round
+	// it lit a clear mid blue and fading to the night's navy some 30 degrees out.
+	float md_dot = dot(d, md);
+	col += moon_glow_color * (pow(max(md_dot, 0.0), 40.0) * 0.5 + pow(max(md_dot, 0.0), 8.0) * 0.5) * moon_glow * moon_up;
+	vec3 mt = normalize(cross(md, abs(md.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+	vec3 mb = cross(mt, md);
+	vec2 muv = vec2(dot(d, mt), dot(d, mb)) / sin(moon_radius);
+	vec2 mcell = floor(muv * 5.5);
+	vec2 mc = (mcell + 0.5) / 5.5;
+	float moon_disk = step(length(mc), 1.0) * step(0.0, md_dot);
+	// Its seas: a few soft blots, read off the squares' centres so each square is one shade.
+	float seas = smoothstep(0.38, 0.56, fbm(vec2(mc.x * 1.7 + 3.1, mc.y * 1.7 - 1.3)))
+			* 0.5 + (hash2(mcell + 11.0) - 0.5) * 0.1;
+	vec3 moon_col = mix(vec3(0.8, 0.88, 1.0), vec3(0.42, 0.52, 0.74), seas) * moon_bright;
+	col = mix(col, moon_col, moon_disk * moon_up);
 
 	vec3 cell = floor(d * 260.0);
 	float s = hash(cell);

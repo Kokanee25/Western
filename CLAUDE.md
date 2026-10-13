@@ -313,8 +313,13 @@ frozen until Sean names one.
   at 16/m, bolder drawn wood, the table in fine squares at 128/m, saloon woods pushed); job 2, his
   face (side key, `weathered_face` in `body_skin`). Judge v2: saloon 0.205, street 0.279. Sheets
   for Sean in `docs/screenshots/review/`.
+- Done (the doorway, a second art session): the moon back in the saloon's doorway (its arc over
+  -Z, the backdrop's mid ring cleared round it, drawn in squares), the batwings open for the shot,
+  the livery's west lantern after dark. Saloon 0.205 → 0.174.
 - Next: job 3 (the gold sky, a big sun, brighter lamps), job 4 (more people in both shots, staged
-  in the shots), one merge each; both ready on local branches.
+  in the shots), one merge each; both ready on local branches. Then the fire view staged (the
+  bucket line, the livery's frame coming apart); across the doorway a lit front, not the
+  livery's blank gable.
 - Known: the saloon's squares are ~20 px to the painting's ~5 (a room-wide density change);
   extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire views'
   golden tolerances pass any fire look.
