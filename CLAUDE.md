@@ -328,10 +328,11 @@ frozen until Sean names one.
   (`uv_layout.py`), the paint (`uv_paint.py guides|paint|apply`, People `style: uvpaint`, round 1
   take b on him), the faceted head (`uv_head.py build --faceted`). Sheets
   `docs/screenshots/uv_portrait/bold_cowboy_{shape,layout,painted,faceted}.jpg`. ~$3.10 of $15.
-- Next: Sean's verdict on the painted face; then round 2 or the clothes (step 5). Traps: after
-  a build, `godot --headless --import` before rendering; bpy here is 5.1 on Python 3.13
-  (MediaPipe needs libegl1); the head's albedo is pitched to the stranger's (SKIN_LEVEL).
-- Waiting on Sean: the painted face.
+- Next: Sean's call after the squares test (round 2) failed its own bar: 8 mm squares from
+  this route don't carry his eyes and moustache. Options in the brief's verdict. Traps: after a
+  build, `godot --headless --import` before rendering; bpy here is 5.1 on Python 3.13 (MediaPipe
+  needs libegl1); the head's albedo is pitched to the stranger's (SKIN_LEVEL); fal's balance.
+- Waiting on Sean: the route decision (square size on faces, or stop).
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
