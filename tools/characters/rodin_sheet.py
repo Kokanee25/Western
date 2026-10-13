@@ -84,7 +84,7 @@ def main():
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     rows = []
     for turn, name, title in ((0, "front", "front"), (-40, "three-quarter", "three-quarter"), (-90, "profile", "profile")):
-        g = dist_head(os.path.join(a["--dist"], "bold_cowboy_rodin_1.2_%d.png" % turn))
+        g = dist_head(os.path.join(a["--dist"], "%s_1.2_%d.png" % (a.get("--id", "bold_cowboy_rodin"), turn)))
         g = g.resize((g.width * K, g.height * K), Image.NEAREST)
         s = style_head(name, g.height)
         rows.append([label(s, "bold portrait: " + title), label(g, "ours, neutral light, 3x: " + title)])

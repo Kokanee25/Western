@@ -123,7 +123,7 @@ def head_layout(base):
         fs = face_of_edge.get(tuple(sorted((a, b))), [])
         isl = {island[f] for f in fs}
         back = abs(v[a][0]) < 1e-5 and abs(v[b][0]) < 1e-5 and v[a][2] > base.centre[2] and v[b][2] > base.centre[2]
-        e.use_seam = len(isl) > 1 or (back and "scalp" in isl)
+        e.use_seam = bool(len(isl) > 1 or (back and "scalp" in isl))
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
     bpy.ops.object.mode_set(mode="EDIT")

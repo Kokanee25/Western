@@ -323,13 +323,13 @@ frozen until Sean names one.
 - Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
   it); the first-pass set-direction cards.
 
-**Characters** (branch `claude/characters-portrait-factory`, not merged; brief `docs/briefs/portrait-factory.md`):
-- Done on the branch: the portrait factory (`tools/characters/portrait.py`): the bold cowboy from
-  his four pictures onto the shared base head → `bold_cowboy_portrait` (sheet
-  `docs/screenshots/portrait/bold_cowboy_sheet.jpg`). $0 spent.
-- Next: Sean's verdict, then the older heavy-set and young lean cowboys by the same run. Trap:
-  after a build, `godot --headless --import` before rendering, or the old man draws.
-- Waiting on Sean: the sheet; the merge.
+**Characters** (branch `claude/characters-uv-portrait`, not merged; brief `docs/briefs/uv-portrait.md`):
+- Done on the branch: step 1, the shape: MakeHuman's head shrinkwrapped onto a fresh Rodin bust
+  (`tools/characters/uv_head.py shape|build` → `bold_cowboy_uv`, grey); sheet
+  `docs/screenshots/uv_portrait/bold_cowboy_shape.jpg`. Spent $1.60 of $15 (log in the brief).
+- Next: on Sean's yes, step 2 (the face layout, a checker). Traps: after a build, `godot
+  --headless --import` before rendering; bpy here is 5.1 on Python 3.13 (MediaPipe needs libegl1).
+- Waiting on Sean: the shape.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling
