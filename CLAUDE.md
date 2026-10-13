@@ -92,19 +92,18 @@ his own).
 | Physics (the engine: server paused vs running) | 2.0 | 1.1 | 0.3* | 1.5 |
 | Structures (structures, voxels, ballistics) | 1.0 | 0.0 | 0.1 | 0.4 |
 | Fire and effects (fire, incl. burning buildings' settle; smoke; dynamite) | 2.0 | 0.1 | **2.4** | 0.6 |
-| Render CPU (draw calls) | 4.0 | 3.5 | – | 6.1–6.4 |
+| Render CPU (draw calls) | 4.0 | 2.9 | – | 6.1–6.4 |
 | Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
-| **Total** | **≤ 14** | **6.6** | 6.6 + render | 4.7 + 6.4 |
+| **Total** | **≤ 14** | **6.0** | 6.6 + render | 4.7 + 6.4 |
 
 \* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
 (the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
-scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). Since Main
-Street's new buildings (2026-10-06) the calm street's render CPU is over too: 12.5 at Sean's
-(lavapipe 19.2 ms, 15,400 draws), 6.6 after the lamp-shadow pass of 2026-10-12 (10.2 ms, 3,300
-draws), ~5.8 since a room's lamps stopped lighting its people from the street (8.9 ms). What's
-left, by turning one thing off at a time: the saloon's 14 lamps' shadows ~3.7 ms (per lamp, not per
-pass: two passes cost the same as six under lavapipe), the sun's shadow ~1.7, the rest the town's
-own draws.
+scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). The calm
+street's render CPU went over with Main Street's new buildings (2026-10-06: 12.5 at Sean's,
+lavapipe 19.2 ms, 15,400 draws) and is back under since 2026-10-13: **~2.9 at Sean's** (lavapipe
+4.5 ms, 2,700 draws). The saloon's 14 lamps were taking each other's shadow-atlas slots and so
+redrawing every frame (~4 ms); with every atlas quadrant one cell size (`GameViewport`) a lamp's
+shadow is drawn only when something in it moves. The sun's shadow is ~0.7 of what's left.
 
 ## Tech decisions
 
