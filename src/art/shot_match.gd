@@ -237,6 +237,12 @@ const EXTRAS := [
 			{"hair": Color(0.1, 0.08, 0.06), "moustache": &"handlebar", "beard": &"none", "age": 0.45, "brows": 0.7}],
 	["ManOnTheBalcony", Vector3(8.9, 2.3, 1.25), Vector3(5.0, 3.3, 3.5), &"stand", Color(0.7, 0.64, 0.52), Color(0.16, 0.13, 0.1), Color(0, 0, 0, 0), Color(0.14, 0.11, 0.09),
 			{"hair": Color(0.12, 0.09, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.8}],
+	# 2026-10-13 (Sean: "the scenes are empty"; the painting has men along the bar and standing
+	# about): a third at the bar, and one on his feet watching the cards.
+	["ThirdAtTheBar", Vector3(7.12, 0.0, 5.25), Vector3(8.5, 1.4, 5.1), &"stand", Color(0.82, 0.78, 0.68), Color(0.3, 0.12, 0.09), Color(0.2, 0.17, 0.14, 1.0), Color(0.12, 0.1, 0.08),
+			{"hair": Color(0.14, 0.1, 0.07), "moustache": &"walrus", "beard": &"stubble", "age": 0.55, "brows": 0.7}],
+	["CardWatcher", Vector3(5.9, 0.0, 2.35), Vector3(4.75, 1.0, 3.7), &"stand", Color(0.66, 0.6, 0.5), Color(0.18, 0.14, 0.11), Color(0, 0, 0, 0), Color(0.26, 0.19, 0.12),
+			{"hair": Color(0.22, 0.15, 0.09), "moustache": &"handlebar", "beard": &"none", "age": 0.4, "brows": 0.6}],
 	["ManOnTheStair", Vector3(7.0, 1.16, 0.55), Vector3(9.0, 2.4, 0.55), &"stand", Color(0.6, 0.22, 0.18), Color(0.2, 0.12, 0.1), Color(0, 0, 0, 0), Color(0.18, 0.13, 0.1),
 			{"hair": Color(0.22, 0.12, 0.06), "moustache": &"trim", "beard": &"stubble", "age": 0.3, "brows": 0.6}],
 ]
