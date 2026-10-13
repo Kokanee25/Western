@@ -36,11 +36,14 @@ WOODS = {
     # The saloon's posts, frames and the sign's frame (FacadeArt): weathered grey-brown (the
     # painting's posts average a warm mid brown, lit gold where the sun catches them).
     "timber": {"boxes": [[12, 200, 62, 560], [255, 290, 290, 560]], "keep": "wood", "albedo": [0.56, 0.47, 0.37],
-               "contrast": 1.0, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.45, "lean": 0.4,
+               "contrast": 1.3, "rows": 8, "count": 12, "board_spread": 0.1, "grey": 0.45, "lean": 0.4,
                "patch": 2, "patch_jitter": 1.6},
     # The general store's front and the plain fronts' boards: pale grey.
+    # `contrast` 1.6 (2026-10-13, Sean: "the squares don't read"): at 1.0 the plain fronts drew as
+    # one flat grey-tan beside the painting's, whose squares step cream / tan / grey.
     "store_boards": {"boxes": [[640, 110, 800, 400]], "keep": "pale", "albedo": [0.68, 0.64, 0.56],
-                     "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
+                     "contrast": 1.6, "rows": 6, "count": 12, "board_spread": 0.12, "grey": 0.3,
+                     "patch_jitter": 1.5},
     # The saloon's red boards.
     # `worn`: that share of the board's squares, in clumps, is the paint worn through to grey wood
     # (the painting's red boards are faded brick red with pale patches, not an even red).
@@ -49,7 +52,8 @@ WOODS = {
                    "worn": 0.16, "worn_from": "store_boards", "patch": 2, "patch_jitter": 1.2},
     # Bare weathered boards (side walls, the livery, sheds): the livery's front.
     "weathered_pine": {"boxes": [[1440, 150, 1600, 420]], "keep": "pale", "albedo": [0.6, 0.55, 0.47],
-                       "contrast": 1.0, "rows": 6, "count": 12, "board_spread": 0.2, "grey": 0.3},
+                       "contrast": 1.6, "rows": 6, "count": 12, "board_spread": 0.12, "grey": 0.3,
+                       "patch_jitter": 1.5},
     # The boardwalks' planks (and the floors under the bold look): the saloon's boardwalk, warmer.
     "floor": {"boxes": [[130, 540, 420, 640]], "keep": "wood", "albedo": [0.64, 0.53, 0.41],
               "contrast": 0.9, "rows": 5, "count": 12, "board_spread": 0.12, "grey": 0.2},
@@ -120,7 +124,8 @@ def board(spec: dict, pal: np.ndarray, rng: np.random.Generator, worn: np.ndarra
     # `lean`: how far toward the palette's light end a wood's boards sit (the painting's posts and
     # frames are mostly pale cream with grey-brown patches, not mid-brown).
     base = n / 2 - 0.5 + spec.get("lean", 0.0) * n / 4 + rng.normal(0, 0.6 + spec["board_spread"] * 3.0)
-    bright = 1.0 + rng.normal(0, spec["board_spread"])
+    # (clipped: one board in fifty went near white beside its neighbours)
+    bright = 1.0 + float(np.clip(rng.normal(0, spec["board_spread"]), -0.2, 0.2))
     idx = np.zeros((rows, LENGTH))
     # `patch`: squares this many rows tall and runs this much longer (the painting's posts are
     # bold patches, two squares across and three to six long, not fine speckle).

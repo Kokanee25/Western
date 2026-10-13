@@ -60,7 +60,7 @@ func test_texel_size_changes_live() -> void:
 
 
 func test_holed_members_stay_on_the_grid() -> void:
-	var base := WoodMaterials.get_material(&"weathered_pine", 2) as ShaderMaterial
+	var base := WoodMaterials.get_material(&"floor", 2) as ShaderMaterial
 	var holed := PixelArt.hole_material(base)
 	check(holed.shader == PixelArt.HOLE_SHADER, "the hole shader")
 	check(holed.get_shader_parameter(&"albedo_tex") == base.get_shader_parameter(&"albedo_tex"), "same texture")

@@ -20,6 +20,8 @@ const TABLE_IN_SALOON := Vector3(6.64, 0.0, 6.81)
 const ROOM_YAW_IN_SALOON := 107.2
 const TABLE_HEIGHT := 0.76
 const TABLE_RADIUS := 0.7
+## Degrees the table top is turned about its axis (the grain across the eye's view).
+const TOP_TURN := 53.0
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
 ## it and back from its edge; and where you look. Fitted to the painting (2026-09-29): his eyes land
 ## where the painting has them (0.39 across, 0.40 down) at the painting's size (eye to chin 106 of
@@ -334,7 +336,9 @@ static func _table(root: Node3D) -> void:
 	top.bottom_radius = TABLE_RADIUS - 0.02
 	top.height = 0.045
 	top.radial_segments = 20
-	_mesh(body, "Top", top, Vector3(0, TABLE_HEIGHT - 0.022, 0), wood)
+	# Turned so its planks run across your view, as the painting's do (its texture's grain runs
+	# along the top's own x; the eye looks 37° off the set's x).
+	_mesh(body, "Top", top, Vector3(0, TABLE_HEIGHT - 0.022, 0), wood).rotation.y = deg_to_rad(TOP_TURN)
 	var skirt := CylinderMesh.new()
 	skirt.top_radius = TABLE_RADIUS - 0.05
 	skirt.bottom_radius = TABLE_RADIUS - 0.05

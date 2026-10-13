@@ -13,7 +13,8 @@ For each material in tools/textures/materials.json with a raw painting:
      offsets across);
   3. a median over half a texel (the model's fine noise) and an area average down to 64 texels a
      metre (tools/textures/materials.json `texels_per_metre`): each texel the colour under it;
-  4. the material's `lightness` and `chroma` (`MOSAIC` is 1: no random push since the review)
+  4. each texel's difference from its neighbours pushed by the material's `mosaic` (default
+     `MOSAIC` 1: none), then its `lightness` and `chroma`
      (scales on L* and on a*/b*, set from what tools/judge.py measures against the paintings);
   5. its own palette (k-means in Lab, `colours`), every texel snapped to it;
   6. board materials (`boards`): each board the painting drew is also cut out as its own strip,
@@ -282,8 +283,11 @@ def reduce(mid, spec, tpm):
         a = seamless(a, rng)
     size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
     t = to_texels(a, size)
-    lab = mosaic(to_lab((t * 255).astype(np.uint8)), spec.get("mosaic", BOLD_MOSAIC) if BOLD and kind != "sign" else MOSAIC,
-                 kind != "sign")
+    # The push square to square: the bold set's, or the material's own `mosaic` (2026-10-13, Sean:
+    # "every surface should read as clear, distinct squares like the paintings"; the review's
+    # MOSAIC 1.0 had smoothed them away), never on the smooth set or a sign.
+    push = MOSAIC if kind == "sign" or SMOOTH else spec.get("mosaic", BOLD_MOSAIC if BOLD else MOSAIC)
+    lab = mosaic(to_lab((t * 255).astype(np.uint8)), push, kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
     lab = grade(lab, spec)
     if SMOOTH:
@@ -302,7 +306,7 @@ def reduce(mid, spec, tpm):
                                              metres[0] / metres[1])).astype(np.float64) / 255.0, FLATTEN)
         for k, (strip, share) in enumerate(board_strips(flat_raw, np.random.default_rng(sum(map(ord, mid)) + 7))):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
-            st = to_lab((to_texels(strip, ssize) * 255).astype(np.uint8))
+            st = mosaic(to_lab((to_texels(strip, ssize) * 255).astype(np.uint8)), push)
             st = grade(st, spec)
             if not SMOOTH:
                 d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)

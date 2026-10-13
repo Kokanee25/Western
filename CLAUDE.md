@@ -308,19 +308,16 @@ green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) an
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
 
-**Art** (branch `claude/art-…`; briefs `docs/briefs/fire-look.md`, `docs/briefs/set-direction.md`):
-- Done: merges 3a–3j (the fire in the painting's bands, its smoke column and embers, the dusk
-  afterglow; the seated man's light and his head turned to the bold painting; the street's
-  golden hour; the road re-graded to the painting's pale dust). Judge v2: saloon 0.216, street
-  0.279. Critic's top three: the room behind the man is dark murk (the doorway a navy wedge);
-  the sky lavender-grey with a small white sun; his face hot, pale and wide-eyed.
-- Next: the saloon's doorway (the moonlit street through it); the fire view staged (the bucket
-  line, the livery's frame coming apart). After: the saloon room, the other fronts, the
-  set-direction cards.
-- Known: the fire views' golden tolerances pass any new fire look (`store_fire_close` checks
-  nothing).
-- Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
-  it); the first-pass set-direction cards.
+**Art** (branch `claude/art-…`; brief: Sean's four jobs of 2026-10-12, in `docs/status/`):
+- Done: merges 3a–3j; job 1, the mosaic (the road drawn from the painting's squares at 16/m,
+  bolder drawn wood, the table in fine squares at 128/m, saloon woods pushed). Judge v2: saloon
+  0.215, street 0.279. Sheets for Sean in `docs/screenshots/review/`.
+- Next: job 2 (his face: side key, weathered skin, frown, shaded eyes), job 3 (the gold sky, a
+  big sun, brighter lamps), job 4 (more people in both shots), one merge each.
+- Known: the saloon's squares are ~20 px to the painting's ~5 (a room-wide density change);
+  extra street folk cost ~43 meshes each (the calm street has ~50 to spare); the fire views'
+  golden tolerances pass any fire look.
+- Waiting on Sean: his eye on each job's sheet; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-protected-features`, not merged):
 - Done on main: `stranger2s` (the stylised Rodin stranger) fitted, painted, seated in the shot;
