@@ -730,14 +730,15 @@ a few views renders them as the full run does.
   `build/portrait/layout.json`). `fit`: MediaPipe's landmarks found once on a render of the plain
   head (`landmark_map`, so each is a point on the mesh) and on his front; his profiles' outlines
   (skin rows only) and ears; MakeHuman's face and ear targets (90-odd signed parameters, the kink
-  at 0 smoothed) and each picture's camera (scale, offset, a small turn) solved together by scipy
-  least squares → `build/portrait/<id>_fit.json` and `_fit.jpg` (the head over each picture).
+  at 0 smoothed; three build targets, `BUILD`) and each picture's camera (scale, offset, a small
+  turn) solved together by scipy least squares (soft L1, `ROBUST_M`: plain squares stalled on stray
+  outline rows; restarted while it helps) → `build/portrait/<id>_fit.json` and `_fit.jpg` (the head over each picture).
   `paint`: every texel takes the squarest picture that sees it (depth-tested, `SEAM` feathering
-  only), ears only from their own side, each picture's shading fitted to normals and divided
+  only; a picture only paints what lands inside its outline), ears only from their own side, each picture's shading fitted to normals and divided
   out, highlights clipped, pores smoothed (`SMOOTH_M`), collar colours under the jaw made skin;
   iris (colour from MediaPipe's iris points), whites, pupil, glint, lid lines and nostrils
   stamped; then squares once, last (`SQUARE_M` 4 mm, `FINE_M` 2 mm round the eyes and mouth,
-  medians, a palette per region) → `<id>_head.png`. His hair is a shell (`hull_depth`: the
+  medians, a palette per region, each square the nearest of all their colours) → `<id>_head.png`. His hair is a shell (`hull_depth`: the
   visual hull of the four outlines along the normals, scalp/sides/back and moustache only,
   `UNDER_HAT_M` above the hat band) with its own projected texture `<id>_hair.png` on the same
   layout. `build` (`portrait_build.py`, bpy): factory_build's man with these →

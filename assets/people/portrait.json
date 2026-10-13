@@ -16,6 +16,28 @@
     "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
     "side": "docs/concept/style/portrait-cowboy-profile-right.png"
    }
+  },
+  "older_heavyset_cowboy": {
+   "pictures": "docs/concept/style/factory/older_heavyset_cowboy",
+   "style": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   }
+  },
+  "young_lean_cowboy": {
+   "pictures": "docs/concept/style/factory/young_lean_cowboy",
+   "style": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   }
   }
  }
 }

@@ -165,6 +165,12 @@ NOT_FITTED = ("head/head-trans-", "head/head-angle-", "nose/nose-trans-in", "nos
               "ears/{s}-ear-shape", "ears/{s}-ear-lobe", "ears/{s}-ear-scale-depth")
 
 
+# His build, fitted from his face as lone parameters on top of the default build: heavier, leaner,
+# older (they move his whole body; the envelope fit holds that to ours afterwards).
+BUILD = ["macrodetails/universal-male-young-averagemuscle-maxweight",
+         "macrodetails/universal-male-young-averagemuscle-minweight", "macrodetails/caucasian-male-old"]
+
+
 def fit_parameters():
     """The fit's parameters: [(name, negative target or None, positive target)], each target with
     "{s}" for both sides. A pair (decr/incr, down/up, ...) is one signed parameter in [-1, 1]; a
@@ -194,7 +200,7 @@ def fit_parameters():
         else:
             out.append((n, None, n))
             used.add(n)
-    return out
+    return out + [(b, None, b) for b in BUILD]
 
 
 class Shape:
@@ -504,6 +510,16 @@ class Colours:
         y1 = int(lm[10, 1]) - int(0.25 * (lm[10, 1] - top))
         x0, x1 = int(lm[10, 0] - 0.12 * pics.w), int(lm[10, 0] + 0.12 * pics.w)
         hair = a[top + 10:y1, x0:x1].reshape(-1, 3)
+        # And the back of his head (all hair, unless he's bald): the middle third, from the top of
+        # his outline down a fifth of the picture.
+        b = pics.img["back"]
+        hb = pics.him("back")
+        cols_b = np.where(hb.any(0))[0]
+        if len(cols_b):
+            cx = int((cols_b.min() + cols_b.max()) / 2)
+            tb = int(np.argmax(hb[:, cx]))
+            back = b[tb + 15:tb + int(0.2 * pics.h), cx - int(0.08 * pics.w):cx + int(0.08 * pics.w)].reshape(-1, 3)
+            hair = np.concatenate([hair, back])
         self.skin_mean, self.skin_cov = skin.mean(0), np.cov(skin.T) + np.eye(3) * 1e-4
         self.hair_mean, self.hair_cov = hair.mean(0), np.cov(hair.T) + np.eye(3) * 1e-4
 
@@ -532,6 +548,8 @@ LIPS = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 185, 40, 39, 37, 0, 2
 LIP_WEIGHT = 0.3
 EAR_WEIGHT = 2.0      # the ear's centre (one point, but it alone says how deep his head is)
 REG = 0.0025          # a parameter at 1 costs as much as a landmark 2.5 mm off
+ROBUST_M = 0.003      # residuals past this count less (soft L1): a stray outline row or landmark
+                      # can't hold the solve (plain least squares stalled on them)
 POSE_LIMIT = 15.0     # degrees the front picture may turn him
 SIDE_YAW_LIMIT = 5.0  # and a side picture about the vertical (they're true profiles)
 
@@ -673,8 +691,19 @@ def fit(man, spec, env, out):
     hi = np.concatenate([shape.hi] + [np.array([2.5 * s0, 1e5, 1e5] + l) / unit for l in lim])
     z0 = np.clip(z0, lo + 1e-9, hi - 1e-9)
     r0 = residuals(z0)
-    res = least_squares(residuals, z0, bounds=(lo, hi), x_scale=1.0, diff_step=1e-4, max_nfev=300,
-                        xtol=1e-15, ftol=1e-10, gtol=1e-10)
+    # Restarted from its own answer while that still helps (a fresh trust region each time: the
+    # outlines' rows make the cost a little rough, and it can stall short of the bottom).
+    z = z0.copy()
+    best = None
+    for _round in range(4):
+        res = least_squares(residuals, z, bounds=(lo, hi), x_scale=1.0, diff_step=1e-4, max_nfev=300,
+                            xtol=1e-15, ftol=1e-10, gtol=1e-10, loss="soft_l1", f_scale=ROBUST_M)
+        if best is not None and res.cost > best.cost * 0.99:
+            best = res if res.cost < best.cost else best
+            break
+        best = res
+        z = res.x
+    res = best
     x, cams = unpack(res.x)
     print("portrait: solver:", res.message)
     r1 = res.fun
@@ -832,6 +861,10 @@ def project(pics, cams, person, table, size=HEAD_TEX, rects=None):
     idx = np.nonzero(cover)
     p, n = P[idx], N[idx]
     score, colour = {}, {}
+    # A picture only paints what lands inside his outline there (a little in from its edge: the
+    # ground's grey bleeds into the edge's pixels).
+    from scipy import ndimage
+    inside = {view: ndimage.binary_erosion(pics.him(view), iterations=3) for view in VIEWS}
     for view in VIEWS:
         cam = cams[view]
         xy = cam.project(v)
@@ -841,6 +874,7 @@ def project(pics, cams, person, table, size=HEAD_TEX, rects=None):
         q = cam.project(p)
         qi = np.clip(q.astype(int), 0, [pics.w - 1, pics.h - 1])
         seen = cam.depth(p) <= zb[qi[:, 1], qi[:, 0]] + DEPTH_TOL
+        seen &= inside[view][qi[:, 1], qi[:, 0]]
         f = n @ cam.toward()
         allowed = np.ones(len(p), bool)
         for isl, views in (EAR_VIEWS.items() if rects else ()):
@@ -1322,18 +1356,23 @@ def squares(tex, cover, P, rects, zones, regions):
                     out[blk] = np.median(tex[blk][cv], 0)
                     ids[blk] = nid
                     nid += 1
-    # Each region's palette: k-means of its squares' colours, every square snapped to the nearest.
+    # The palette: each region's colours (k-means of its squares'), every square snapped to the
+    # nearest of them all (a region told wrong, a grey moustache taken for skin, keeps its colour).
+    pals = []
     for name, m in regions.items():
         sel = m & (ids >= 0)
-        if not sel.any():
-            continue
+        if sel.any():
+            _u, first = np.unique(ids[sel], return_index=True)
+            pals.append(kmeans(out[sel][first], PALETTE.get(name, 8)))
+    if pals:
+        pal = np.concatenate(pals)
+        sel = ids >= 0
         u, first = np.unique(ids[sel], return_index=True)
         cols = out[sel][first]
-        pal = kmeans(cols, PALETTE.get(name, 8))
         lab = ((cols[:, None] - pal[None]) ** 2).sum(-1).argmin(1)
-        lut = dict(zip(u.tolist(), pal[lab]))
-        snap = np.array([lut[i] for i in ids[sel]])
-        out[sel] = snap
+        lut = np.zeros((ids.max() + 1, 3))
+        lut[u] = pal[lab]
+        out[sel] = lut[ids[sel]]
     return out, ids
 
 

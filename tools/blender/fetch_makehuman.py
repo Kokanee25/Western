@@ -18,6 +18,9 @@ COMMIT = "c28443c2af7e6b6e9367a3c6ee76f090c81796fd"
 BASE = "https://raw.githubusercontent.com/makehumancommunity/makehuman/%s/" % COMMIT
 ALWAYS = ["LICENSE.md", "LICENSE.ASSETS.md", "makehuman/data/3dobjs/base.obj"]
 # Every target in these folders (the portrait factory's fit solves over the face's targets).
+# And the build parameters it fits (tools/characters/portrait.py BUILD).
+BUILD = ["macrodetails/universal-male-young-averagemuscle-maxweight",
+         "macrodetails/universal-male-young-averagemuscle-minweight", "macrodetails/caucasian-male-old"]
 FACE_DIRS = ["cheek", "chin", "ears", "eyebrows", "eyes", "forehead", "head", "mouth", "neck", "nose"]
 
 
@@ -48,7 +51,7 @@ def main() -> None:
     for t in wanted:
         for name in ([t.replace("{s}", s) for s in "rl"] if "{s}" in t else [t]):
             paths.append("makehuman/data/targets/%s.target" % name)
-    paths += face_targets(dest)
+    paths += face_targets(dest) + ["makehuman/data/targets/%s.target" % t for t in BUILD]
     for path in sorted(set(paths)):
         fetch(path, dest)
 
