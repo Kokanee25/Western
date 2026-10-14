@@ -79,7 +79,16 @@ jobs:
                   # stat after the name's ")" (names have spaces): state, then utime and stime at 12, 13
                   echo "thread $(basename $t) '$(cat $t/comm)' state $(sed 's/.*) //' $t/stat | awk '{print $1 ", cpu ticks " $12+$13}') wchan $(cat $t/wchan 2>/dev/null)"
                 done
+                # The game clock a minute apart: moving (a crawl) or not (frozen).
+                echo "game clock: $(cat build/soak/clock.txt 2>/dev/null)"; sleep 60
+                echo "a minute later: $(cat build/soak/clock.txt 2>/dev/null)"
                 sudo gdb -p $pid -batch -ex "info threads" -ex "thread apply all bt 40" 2>&1 | grep -v "^\[New LWP\|^warning:" | head -600
+                # The main thread five more times, a second apart: where it spends its time.
+                for i in 1 2 3 4 5; do
+                  sleep 1
+                  echo "main thread, sample $i:"
+                  sudo gdb -p $pid -batch -ex "thread 1" -ex "bt 12" 2>&1 | grep "^#"
+                done
                 echo '```'
               } > build/soak/frozen.md
               cat build/soak/frozen.md

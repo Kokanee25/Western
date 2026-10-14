@@ -107,6 +107,7 @@ func _initialize() -> void:
 	_street.get_node(^"DayCycle").set_time_scale(30.0)
 	print("soak: %.0f minutes of game time" % _minutes)
 	_build = load("res://src/debug/debug_overlay.gd").build_label()
+	DirAccess.make_dir_recursive_absolute(_out)
 	_dog = Thread.new()
 	_dog.start(_watch)
 	_run()
@@ -120,6 +121,7 @@ func _watch() -> void:
 	var seen := -1
 	var since := Time.get_ticks_msec()
 	var marks: Array = []  # [msec, frames] once a second, the last CRAWL_SECONDS
+	print("soak: watchdog on")
 	while not _done:
 		OS.delay_msec(1000)
 		var now := Time.get_ticks_msec()
@@ -171,6 +173,12 @@ func _run() -> void:
 		await physics_frame
 		_beat += 1
 		_doing = "the soak's own step"
+		if _beat % 600 == 0:
+			# The game clock, for the nightly workflow: a frozen game and a crawling one both go
+			# quiet in the log; this says which.
+			var hb := FileAccess.open(_out.path_join("clock.txt"), FileAccess.WRITE)
+			if hb:
+				hb.store_line("%s frame %d" % [_clock(), _beat])
 		PROF.frame(60)
 		if PROF._frames == 0:
 			_prof = ", ".join(PROF.top(6))

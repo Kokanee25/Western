@@ -58,8 +58,14 @@ func _physics_step(delta: float) -> void:
 	_t = TICK
 	_forget_gone()
 	if body == null or not is_instance_valid(body) or not body.physiology.is_conscious():
-		for k: Dictionary in known.values():
+		var entries := known.values()
+		var steps := 0
+		for k: Dictionary in entries:
 			k.seen = false
+			steps += 1
+			if steps > entries.size():  # can't happen; the nightly soak froze on this line (2026-10-14)
+				push_error("Senses: walked %d of %d entries (%d known)" % [steps, entries.size(), known.size()])
+				break
 		return
 	_look(dt)
 
