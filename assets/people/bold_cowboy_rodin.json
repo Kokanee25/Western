@@ -102,7 +102,7 @@
  },
  "triangles": {
   "skin": 5199,
-  "head": 12000,
+  "head": 11999,
   "shirt": 1500,
   "trousers": 1200,
   "vest": 699,
@@ -123,22 +123,22 @@
  },
  "skin_tone": [
   0.3176,
-  0.1294,
+  0.1255,
   0.0392
  ],
  "shells": [],
- "seconds": 28.7,
+ "seconds": 28.3,
  "head": {
   "from": "assets/people/tripo/test/bold_cowboy_rodin.glb",
-  "scale": 0.9432,
-  "triangles": 12000,
+  "scale": 0.9388,
+  "triangles": 11999,
   "paint": "rodin_portrait.py (the style portraits)",
-  "triangles_round_eyes": 144,
+  "triangles_round_eyes": 156,
   "collar_lowered": {
-   "shirt": 162,
+   "shirt": 160,
    "cravat": 20
   },
-  "skin_faces_cut": 176
+  "skin_faces_cut": 174
  },
  "fit_joints": {
   "r-eye": [
