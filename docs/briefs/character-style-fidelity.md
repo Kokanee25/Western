@@ -213,3 +213,25 @@ far off (L* 20, tones 8, chroma 26); the saloon matches lightness but runs hot a
 the same nor the character looking exactly the same — this is just the art style." So likeness
 (hair colour, the jaw's line, the exact moustache) is not the aim; the painted look is: block
 size and shape, tones, clean edges, the light's warmth and contrast, colour strength.
+
+### The style pass (2026-10-14, Sean: "go in that order")
+
+1. **Blocks:** his paint's patches at 2 mm instead of 3 changed nothing in the light (warm,
+   three-quarter: 3.06 → 3.10 % of eye-to-chin); back at 3 mm. Seen side by side the gap isn't
+   size: the portraits draw crisp squares with clear tone steps between neighbours, his face has
+   small soft irregular patches (patches by anatomy, `unsquare`). Squaring him up is a change to
+   the approved look: Sean's call.
+2. **Edges:** the white speck under his eye is the shader's wet eyes: within the eyeball's radius
+   + 2 mm of each anatomy eye it is glossy (roughness 0.12, specular 0.9), and his lower lid sits
+   10–11 mm from the eye's middle, nearer than his iris (12 mm), so no sphere can leave it out;
+   the lamp glints there. **For art** (`body_skin.gdshaderinc`, the wet-eye block): gloss only the
+   eye-coloured paint, e.g. `SPECULAR = 0.9 * max(pale, dark)` with `dark` the iris's low value,
+   or leave painted heads matt. A backdrop test by the backdrop's several colours (k-means) was
+   tried for his ragged hair and dropped: the portraits' browns are his too (a fifth of his paint
+   went). The flat hat-hair band and the back of his head are what read as broken; his hat covers
+   them.
+3. **His own hat in his build** (`portrait.json` hat: `wear`, `paint` "designed", the numbers fitted
+   to Sean's marks; `style_hat._ring` fixed; `style_hat.design_hat`): worn in place of the game's
+   hat on him, round every side, at 1.2 m and in the saloon. Under its brim his forehead is now
+   refilled from the portraits' brim line too (their band and studs were left painted there).
+   Sheets: `docs/style_test/fidelity-2026-10-14/s5_*.png`.
