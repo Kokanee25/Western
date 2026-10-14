@@ -123,6 +123,13 @@ the three views, before → after (portrait):
 | tones, detail | game, neutral | 17.3, 5.7 | 17.3, 6.7 | 14.0, 6.6 |
 | light | saloon L*, chroma, highlights % | 48, 56, 8.0 | 50, 55, 8.6 | 33, 35, 0 |
 
+The other two (same settings; the young man no moustache): **young** proportions 13.8 → 7.2 %,
+features 3.0 → 2.5 %, paint patches 3.70 → 2.09 % (portrait 1.90), eyes and brows clearer; but
+the warp dents the corners of his mouth a little, and the game's profile of him isn't found by
+MediaPipe (that row is blank). **Older** a wash: he was close already (proportions 5.4 → 6.6 %,
+jaw 6.8 → 5.3, features 2.4 → 1.5, patches 3.19 → 2.13 against 1.73); his grey walrus moustache
+is lighter than his skin, so the hair test found only 28 vertices of it and it hardly rose.
+
 Unresolved: the saloon's light (art's, below); the grey at his temples comes out dark brown
 (the hat region's hair fill); a flat band of forehead under the game's hat where the portrait
 has the brim's shadow; ragged hair pixels at his outline; the game's black bowler against his

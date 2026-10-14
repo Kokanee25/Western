@@ -1,0 +1,247 @@
+{
+ "man": "young_lean_cowboy",
+ "tag": "after",
+ "views": {
+  "front": {
+   "geometry_err_pct": {
+    "brow": 1.4,
+    "eyes": 0.6,
+    "nose": 0.4,
+    "mouth": 0.6,
+    "jaw": NaN
+   },
+   "proportions": {
+    "portrait": {
+     "cheeks": 1.212,
+     "jaw": 1.036,
+     "nose": 0.402,
+     "mouth": 0.458,
+     "brow_to_eye": 0.156,
+     "chin": 0.329
+    },
+    "ours": {
+     "cheeks": 1.274,
+     "jaw": 1.056,
+     "nose": 0.417,
+     "mouth": 0.468,
+     "brow_to_eye": 0.166,
+     "chin": 0.312
+    }
+   },
+   "panels": {
+    "portrait": {
+     "patch_pct": 1.87,
+     "patch_mean_pct": 2.83,
+     "tones": 20,
+     "detail_rms": 6.8,
+     "L_mean": 43.6,
+     "L_sd": 18.0,
+     "chroma": 50.1,
+     "highlights_pct": 0.01
+    },
+    "clay": {
+     "patch_pct": 3.75,
+     "patch_mean_pct": 6.47,
+     "tones": 6,
+     "detail_rms": 5.4,
+     "L_mean": 51.1,
+     "L_sd": 17.9,
+     "chroma": 6.0,
+     "highlights_pct": 0.0
+    },
+    "final paint": {
+     "patch_pct": 1.87,
+     "patch_mean_pct": 3.47,
+     "tones": 16,
+     "detail_rms": 6.1,
+     "L_mean": 40.9,
+     "L_sd": 14.6,
+     "chroma": 50.2,
+     "highlights_pct": 0.0
+    },
+    "projected": {
+     "patch_pct": 1.61,
+     "patch_mean_pct": 2.83,
+     "tones": 16,
+     "detail_rms": 5.2,
+     "L_mean": 40.5,
+     "L_sd": 15.5,
+     "chroma": 49.6,
+     "highlights_pct": 0.0
+    },
+    "game, neutral": {
+     "patch_pct": 4.28,
+     "patch_mean_pct": 5.12,
+     "tones": 16,
+     "detail_rms": 5.2,
+     "L_mean": 34.9,
+     "L_sd": 17.6,
+     "chroma": 45.3,
+     "highlights_pct": 0.0,
+     "game_pixel_pct": 2.27
+    },
+    "game, saloon": {
+     "patch_pct": 1.61,
+     "patch_mean_pct": 2.78,
+     "tones": 20,
+     "detail_rms": 10.4,
+     "L_mean": 61.0,
+     "L_sd": 21.3,
+     "chroma": 67.3,
+     "highlights_pct": 12.09,
+     "game_pixel_pct": 0.76
+    }
+   }
+  },
+  "three_quarter": {
+   "geometry_err_pct": {
+    "brow": 1.0,
+    "eyes": 0.7,
+    "nose": 0.4,
+    "mouth": 0.7,
+    "jaw": NaN
+   },
+   "proportions": {
+    "portrait": {
+     "cheeks": 1.084,
+     "jaw": 0.948,
+     "nose": 0.413,
+     "mouth": 0.409,
+     "brow_to_eye": 0.17,
+     "chin": 0.32
+    },
+    "ours": {
+     "cheeks": 1.129,
+     "jaw": 0.92,
+     "nose": 0.416,
+     "mouth": 0.413,
+     "brow_to_eye": 0.171,
+     "chin": 0.318
+    }
+   },
+   "panels": {
+    "portrait": {
+     "patch_pct": 1.72,
+     "patch_mean_pct": 2.86,
+     "tones": 24,
+     "detail_rms": 6.2,
+     "L_mean": 44.2,
+     "L_sd": 18.7,
+     "chroma": 54.2,
+     "highlights_pct": 0.0
+    },
+    "clay": {
+     "patch_pct": 4.01,
+     "patch_mean_pct": 8.27,
+     "tones": 6,
+     "detail_rms": 4.2,
+     "L_mean": 57.4,
+     "L_sd": 15.3,
+     "chroma": 6.6,
+     "highlights_pct": 0.0
+    },
+    "final paint": {
+     "patch_pct": 2.0,
+     "patch_mean_pct": 3.84,
+     "tones": 16,
+     "detail_rms": 6.0,
+     "L_mean": 40.0,
+     "L_sd": 14.8,
+     "chroma": 49.6,
+     "highlights_pct": 0.0
+    },
+    "projected": {
+     "patch_pct": 1.72,
+     "patch_mean_pct": 3.1,
+     "tones": 16,
+     "detail_rms": 5.0,
+     "L_mean": 39.7,
+     "L_sd": 15.8,
+     "chroma": 48.8,
+     "highlights_pct": 0.0
+    },
+    "game, neutral": {
+     "patch_pct": 2.86,
+     "patch_mean_pct": 4.92,
+     "tones": 16,
+     "detail_rms": 5.4,
+     "L_mean": 38.7,
+     "L_sd": 19.1,
+     "chroma": 48.9,
+     "highlights_pct": 0.0,
+     "game_pixel_pct": 2.28
+    }
+   }
+  },
+  "profile_left": {
+   "geometry_err_pct": {
+    "brow": 10.0,
+    "eyes": 8.5,
+    "nose": 1.9,
+    "mouth": 3.7,
+    "jaw": NaN
+   },
+   "proportions": {
+    "portrait": {
+     "cheeks": 0.454,
+     "jaw": 0.292,
+     "nose": 0.422,
+     "mouth": 0.219,
+     "brow_to_eye": 0.109,
+     "chin": 0.318
+    },
+    "ours": {
+     "cheeks": 0.374,
+     "jaw": 0.303,
+     "nose": 0.417,
+     "mouth": 0.134,
+     "brow_to_eye": 0.142,
+     "chin": 0.329
+    }
+   },
+   "panels": {
+    "game, neutral": "no face found",
+    "portrait": {
+     "patch_pct": 2.11,
+     "patch_mean_pct": 3.09,
+     "tones": 12,
+     "detail_rms": 6.1,
+     "L_mean": 38.9,
+     "L_sd": 18.9,
+     "chroma": 49.5,
+     "highlights_pct": 0.02
+    },
+    "clay": {
+     "patch_pct": 6.62,
+     "patch_mean_pct": 10.68,
+     "tones": 4,
+     "detail_rms": 2.6,
+     "L_mean": 52.3,
+     "L_sd": 14.1,
+     "chroma": 6.1,
+     "highlights_pct": 0.0
+    },
+    "final paint": {
+     "patch_pct": 2.41,
+     "patch_mean_pct": 4.62,
+     "tones": 8,
+     "detail_rms": 5.9,
+     "L_mean": 35.7,
+     "L_sd": 16.1,
+     "chroma": 47.0,
+     "highlights_pct": 0.0
+    },
+    "projected": {
+     "patch_pct": 2.11,
+     "patch_mean_pct": 3.39,
+     "tones": 10,
+     "detail_rms": 5.1,
+     "L_mean": 35.6,
+     "L_sd": 17.5,
+     "chroma": 45.8,
+     "highlights_pct": 0.0
+    }
+   }
+  }
+ }
+}
