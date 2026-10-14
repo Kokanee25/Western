@@ -8,7 +8,7 @@ extends SceneTree
 ## and lamplit night from fixed views, and a short walk past them.
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- --out=DIR \
-##       [--lab] [--lights=noon,golden,night] [--views=front,close,post,walk_detail] [--pan=N]
+##       [--lab | --lab2] [--flag | --reshape] [--man] [--lights=noon,golden,night] [--views=...] [--pan=N]
 ##
 ## --lab: the lab's woods (tools/textures/paint_woods.py, PixelArt.lab); without, production's.
 ## Writes DIR/<light>_<view>.png and, with --pan, DIR/pan_<light>_<k>.png (N frames walking past).
@@ -24,6 +24,15 @@ const VIEWS := {
 	"close": [Vector3(1.4, 1.7, -2.6), Vector3(1.0, 1.6, 0.0), 50.0],
 	"post": [Vector3(5.4, 1.7, -3.4), Vector3(4.9, 1.6, -2.1), 45.0],
 	"walk_detail": [Vector3(6.6, 1.9, -3.4), Vector3(7.2, 0.4, -1.0), 50.0],
+	# The timber pass (docs/briefs/material-lab-timber.md): the deck's plank ends face-on, the walk's
+	# corner three-quarters, the deck's top, the posts and their bracket, and a man at gameplay
+	# distance for scale.
+	"deck_end_on": [Vector3(1.1, 0.42, -3.3), Vector3(1.1, 0.32, -2.4), 38.0],
+	"deck_corner": [Vector3(-0.9, 0.95, -3.5), Vector3(1.0, 0.3, -2.2), 42.0],
+	"deck_top": [Vector3(3.6, 1.55, -3.2), Vector3(3.7, 0.38, -1.4), 50.0],
+	"post_close": [Vector3(4.95, 1.6, -3.4), Vector3(4.95, 1.45, -2.05), 42.0],
+	"post_bracket": [Vector3(3.6, 1.3, -3.7), Vector3(4.8, 2.4, -2.0), 52.0],
+	"gameplay": [Vector3(2.4, 1.65, -7.5), Vector3(4.6, 1.3, 0.0), 60.0],
 }
 const WIDTH := 4.8
 
@@ -37,11 +46,26 @@ func _run() -> void:
 	var lights: Array = ["noon", "golden", "night"]
 	var views: Array = VIEWS.keys()
 	var pan := 0
+	var geometry := 0
+	var man := false
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
 		elif arg == "--lab":
 			load("res://src/art/pixel_art.gd").lab = true
+		# --lab2: the timber pass's woods (tools/textures/grain_woods.py); --flag: the members'
+		# meshes redrawn with their ends flagged for end grain (today's geometry); --reshape: and
+		# chamfered, the planks 45 mm and past the fascia (LabGeometry).
+		elif arg == "--lab2":
+			var pa = load("res://src/art/pixel_art.gd")
+			pa.lab = true
+			pa.lab_set = "lab2"
+		elif arg == "--flag":
+			geometry = 1
+		elif arg == "--reshape":
+			geometry = 2
+		elif arg == "--man":
+			man = true
 		elif arg.begins_with("--lights="):
 			lights = Array(arg.substr(9).split(","))
 		elif arg.begins_with("--views="):
@@ -68,6 +92,17 @@ func _run() -> void:
 	street.add_child(set)
 	set.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)), ORIGIN)
 	_build(set)
+	# The town's dry grass grows across the desert here and stands in front of the low deck views.
+	var grass := street.find_child("DryGrass", true, false)
+	if grass:
+		grass.visible = false
+	for i in 3:
+		await process_frame
+	if geometry > 0:
+		print("LabGeometry: %d meshes" % load("res://src/art/lab_geometry.gd").apply(set, geometry == 2))
+	if man:
+		_man(set)
+	_count(set)
 	var cam := Camera3D.new()
 	cam.name = "LabCamera"
 	street.add_child(cam)
@@ -92,8 +127,9 @@ func _run() -> void:
 		# stay on the boards as the camera moves).
 		for k in pan:
 			var t: float = float(k) / maxf(pan - 1, 1)
-			var eye := Vector3(lerpf(1.0, 8.6, t), 1.65, -3.4)
-			_place(cam, set, eye, eye + Vector3(0.9, -0.05, 2.6), 50.0)
+			# Low and a step out from the deck: its plank ends, the posts and the walls all in it.
+			var eye := Vector3(lerpf(1.0, 8.6, t), 1.25, -3.9)
+			_place(cam, set, eye, eye + Vector3(0.7, -0.4, 2.6), 50.0)
 			for i in 3:
 				await process_frame
 			viewport.get_texture().get_image().save_png("%s/pan_%s_%02d.png" % [out, light, k])
@@ -106,6 +142,38 @@ func _place(cam: Camera3D, set: Node3D, eye: Vector3, at: Vector3, fov: float) -
 	cam.global_position = set.global_transform * eye
 	cam.look_at(set.global_transform * at, Vector3.UP)
 	cam.fov = fov
+
+
+## A man standing on the saloon's porch, for scale and to judge the woods beside the people.
+func _man(set: Node3D) -> void:
+	var m = load("res://src/bodies/human_body.gd").new()
+	m.name = "LabMan"
+	m.body_model = &"bold_cowboy_rodin"
+	set.add_child(m)
+	m.global_position = set.global_transform * Vector3(3.3, 0.38, -1.3)
+	m.face(set.global_transform * Vector3(3.3, 1.5, -6.0))
+	m.set_pose(&"stand")
+
+
+## What the set costs to draw: meshes, triangles and materials of its members (print).
+func _count(set: Node3D) -> void:
+	var meshes := 0
+	var tris := 0
+	var mats := {}
+	for mi in set.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null or not mi.is_visible_in_tree():
+			continue
+		meshes += 1
+		mats[mi.material_override] = true
+		for si in mi.mesh.get_surface_count():
+			var a: Array = mi.mesh.surface_get_arrays(si)
+			var idx = a[Mesh.ARRAY_INDEX]
+			tris += (idx.size() if idx != null else (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()) / 3
+	print("LabCount: %d meshes, %d triangles, %d materials" % [meshes, tris, mats.size()])
+	var woods := {}
+	for m in set.find_children("*", "StructureMember", true, false):
+		woods[m.wood] = woods.get(m.wood, 0) + 1
+	print("LabWoods: ", woods)
 
 
 ## Two fronts side by side along +X, each with its boardwalk: the saloon's red lap siding (its

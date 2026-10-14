@@ -75,17 +75,21 @@ static var use_drawn := true
 ## brief: an experiment, off in the game): with it on, a key with a lab texture is drawn from it,
 ## at DRAWN_TEXELS, its boards' long edges a dark seam on one side and a lit lip on the other
 ## (texel_grid edge_lip), as the exterior wood sheet draws them.
-const LAB_PATH := "res://assets/textures/lab/%s.png"
+const LAB_PATH := "res://assets/textures/%s/%s.png"
 const LAB_EDGE_SHADE := 0.32
 const LAB_EDGE_LIP := 1.4
 static var lab := false
+## Which lab set: "lab" (paint_woods.py, the first, squares) or "lab2" (grain_woods.py, the timber
+## pass: 128 texels a metre, mipmapped, never coarsened, end grain on LabGeometry's ends).
+static var lab_set := "lab"
 static var _lab_density := {}
 
 
-## A lab wood's squares a metre (assets/textures/lab/lab.json, paint_woods.py), DRAWN_TEXELS if unsaid.
+## A lab wood's squares a metre (assets/textures/<lab_set>/lab.json), DRAWN_TEXELS if unsaid.
 static func lab_density(key: String) -> float:
-	if _lab_density.is_empty() and FileAccess.file_exists("res://assets/textures/lab/lab.json"):
-		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/textures/lab/lab.json"))
+	var jp := "res://assets/textures/%s/lab.json" % lab_set
+	if _lab_density.is_empty() and FileAccess.file_exists(jp):
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
 		if info is Dictionary:
 			for w: String in (info as Dictionary).get("woods", {}):
 				_lab_density[w] = float(info.woods[w].get("texels_per_metre", DRAWN_TEXELS))
@@ -113,6 +117,19 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
+	elif tex and tex.resource_path.contains("/textures/lab2/"):
+		# The timber pass: fine texels, mipmapped (far off they average, not shimmer), never
+		# coarsened into squares, the edges a soft line, end grain where LabGeometry flags an end.
+		var key := tex.resource_path.get_file().get_basename()
+		m.set_meta(&"texels", lab_density(key))
+		m.set_shader_parameter(&"fixed_squares", true)
+		m.set_shader_parameter(&"use_mipmaps", true)
+		m.set_shader_parameter(&"edge_shade", 0.78)
+		m.set_shader_parameter(&"edge_lip", 1.1)
+		var end := "res://assets/textures/lab2/%s_end.png" % _wood_of(key)
+		if ResourceLoader.exists(end):
+			m.set_shader_parameter(&"end_tex", load(end))
+			m.set_shader_parameter(&"use_end_tex", true)
 	return track(m)
 
 
@@ -195,8 +212,8 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
-	if lab and ResourceLoader.exists(LAB_PATH % key):
-		return load(LAB_PATH % key) as Texture2D
+	if lab and ResourceLoader.exists(LAB_PATH % [lab_set, key]):
+		return load(LAB_PATH % [lab_set, key]) as Texture2D
 	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key

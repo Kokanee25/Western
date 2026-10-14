@@ -1,0 +1,513 @@
+{
+ "about": "The material lab's second woods (tools/textures/grain_woods.py; Sean's reference pack of 2026-10-14, docs/concept/material_pack/: grounded 3D, controlled stylization, the approved saloon exterior docs/concept/approved-saloon-exterior.png the target). Colours are the woods' own (sRGB, dark to light), set from the approved exterior with its golden light taken off, never the light baked in. Every wood: `texels_per_metre` (128: a texel 8 mm, mipmapped, so far off it averages instead of shimmering), `rows` texels across a board (its strip repeats every rows/texels_per_metre m across the member), `count` boards, `seed`. A board: `base` [mean, spread] its place on `ramp` (one coherent colour a piece), `patch` [amount, length m, width m] the large soft areas of tone along it, `levels` how many flat tones the patches are stepped into (the stylization: painted patches, not noise), `grain` [amount, spacing m, wander m] the fine lines along the length, `knot` [chance, size m], `checks` [count range, length m] dark splits along the grain, `saw` [amount, spacing m] faint marks across it, `edge` lightening of the worn long edges. Painted woods: `paint` (true), `wear` [amount, near edges, near nails], `under` the bare wood's ramp, `nails` places along the 2 m (m). `end`: the end-grain face's colours (darker, it soaks up weather), `rings` [spacing m, amount] (broad stylized bands, at least 2-3 texels: real rings of 2-6 mm alias at 8 mm texels), `pith` the growth centre's distance below the face (m, a flat-sawn board's arcs), `end_checks` chance.",
+ "length_m": 2.0,
+ "woods": {
+  "timber": {
+   "what": "weathered structural timber: posts, beams, braces (the approved exterior's grey-tan posts)",
+   "texels_per_metre": 128,
+   "rows": 32,
+   "count": 8,
+   "seed": 11,
+   "ramp": [
+    "#4a3e35",
+    "#5e5045",
+    "#716153",
+    "#827161",
+    "#93806d",
+    "#a5917c",
+    "#b8a48e"
+   ],
+   "base": [
+    3.0,
+    0.35
+   ],
+   "patch": [
+    1.3,
+    0.5,
+    0.05
+   ],
+   "levels": 5,
+   "grain": [
+    0.9,
+    0.011,
+    0.006
+   ],
+   "knot": [
+    0.45,
+    0.035
+   ],
+   "checks": [
+    [
+     1,
+     3
+    ],
+    [
+     0.15,
+     0.6
+    ]
+   ],
+   "saw": [
+    0.25,
+    0.06
+   ],
+   "edge": 0.5,
+   "end": [
+    "#3c3029",
+    "#4c3e34",
+    "#5d4c40",
+    "#6e5b4c"
+   ],
+   "rings": [
+    0.024,
+    0.5
+   ],
+   "pith": [
+    0.05,
+    0.25
+   ],
+   "end_checks": 0.6
+  },
+  "floor": {
+   "what": "exterior boardwalk and porch planks, rough-sawn, foot-worn and weathered",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 10,
+   "seed": 23,
+   "ramp": [
+    "#3e2e23",
+    "#52392b",
+    "#654634",
+    "#77543e",
+    "#896248",
+    "#9a7053",
+    "#ab7f60"
+   ],
+   "base": [
+    3.0,
+    0.3
+   ],
+   "patch": [
+    1.0,
+    0.6,
+    0.06
+   ],
+   "levels": 5,
+   "grain": [
+    0.8,
+    0.012,
+    0.005
+   ],
+   "knot": [
+    0.3,
+    0.03
+   ],
+   "checks": [
+    [
+     0,
+     2
+    ],
+    [
+     0.1,
+     0.4
+    ]
+   ],
+   "saw": [
+    0.12,
+    0.07
+   ],
+   "edge": 0.4,
+   "end": [
+    "#35261c",
+    "#443124",
+    "#533d2e",
+    "#614938"
+   ],
+   "rings": [
+    0.02,
+    0.45
+   ],
+   "pith": [
+    0.08,
+    0.3
+   ],
+   "end_checks": 0.35
+  },
+  "saloon_red": {
+   "what": "red painted lap siding, faded: the paint one coherent colour, worn to bare wood at the lap edges and nails",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 8,
+   "seed": 37,
+   "paint": true,
+   "ramp": [
+    "#5a2219",
+    "#6a281d",
+    "#792e21",
+    "#863425",
+    "#933b2a",
+    "#a04431",
+    "#ac4e38"
+   ],
+   "base": [
+    3.2,
+    0.3
+   ],
+   "patch": [
+    0.6,
+    0.7,
+    0.08
+   ],
+   "levels": 4,
+   "grain": [
+    0.25,
+    0.012,
+    0.005
+   ],
+   "knot": [
+    0.05,
+    0.02
+   ],
+   "checks": [
+    [
+     0,
+     1
+    ],
+    [
+     0.1,
+     0.3
+    ]
+   ],
+   "saw": [
+    0.0,
+    0.06
+   ],
+   "edge": 0.2,
+   "wear": [
+    0.1,
+    0.7,
+    0.5
+   ],
+   "under": [
+    "#6f6052",
+    "#837262",
+    "#978573",
+    "#a99683"
+   ],
+   "nails": [
+    0.15,
+    0.75,
+    1.35,
+    1.95
+   ],
+   "end": [
+    "#4a3a30",
+    "#58463a",
+    "#665244",
+    "#745e4f"
+   ],
+   "rings": [
+    0.022,
+    0.35
+   ],
+   "pith": [
+    0.1,
+    0.3
+   ],
+   "end_checks": 0.2
+  },
+  "store_boards": {
+   "what": "pale cream-grey painted store boards, aged and dirty",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 8,
+   "seed": 41,
+   "paint": true,
+   "ramp": [
+    "#867a6c",
+    "#968a7b",
+    "#a5998a",
+    "#b2a797",
+    "#beb3a3",
+    "#c9bfaf",
+    "#d4cbbc"
+   ],
+   "base": [
+    3.4,
+    0.3
+   ],
+   "patch": [
+    0.6,
+    0.7,
+    0.08
+   ],
+   "levels": 4,
+   "grain": [
+    0.3,
+    0.012,
+    0.005
+   ],
+   "knot": [
+    0.08,
+    0.02
+   ],
+   "checks": [
+    [
+     0,
+     1
+    ],
+    [
+     0.1,
+     0.3
+    ]
+   ],
+   "saw": [
+    0.0,
+    0.06
+   ],
+   "edge": 0.2,
+   "wear": [
+    0.08,
+    0.7,
+    0.5
+   ],
+   "under": [
+    "#6b5a4b",
+    "#7d6a59",
+    "#8f7a67",
+    "#a08b77"
+   ],
+   "nails": [
+    0.15,
+    0.75,
+    1.35,
+    1.95
+   ],
+   "end": [
+    "#5b4c40",
+    "#6a5a4c",
+    "#7a6858",
+    "#887564"
+   ],
+   "rings": [
+    0.022,
+    0.35
+   ],
+   "pith": [
+    0.1,
+    0.3
+   ],
+   "end_checks": 0.2
+  },
+  "weathered_pine": {
+   "what": "bare weathered pine boards: side walls, the walk's fascia, porch roof boards (greyer than the posts: thinner boards, more sun)",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 8,
+   "seed": 53,
+   "ramp": [
+    "#4f463e",
+    "#615549",
+    "#726555",
+    "#837462",
+    "#94846f",
+    "#a4937d",
+    "#b4a28c"
+   ],
+   "base": [
+    3.2,
+    0.35
+   ],
+   "patch": [
+    1.1,
+    0.5,
+    0.06
+   ],
+   "levels": 5,
+   "grain": [
+    0.8,
+    0.012,
+    0.006
+   ],
+   "knot": [
+    0.25,
+    0.025
+   ],
+   "checks": [
+    [
+     0,
+     2
+    ],
+    [
+     0.1,
+     0.4
+    ]
+   ],
+   "saw": [
+    0.1,
+    0.07
+   ],
+   "edge": 0.35,
+   "end": [
+    "#3f362f",
+    "#4d423a",
+    "#5b4f45",
+    "#695b50"
+   ],
+   "rings": [
+    0.022,
+    0.4
+   ],
+   "pith": [
+    0.08,
+    0.3
+   ],
+   "end_checks": 0.3
+  },
+  "framing": {
+   "what": "rough-sawn framing lumber: studs, sleepers, joists, plain posts (fresher, warmer, saw-marked)",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 8,
+   "seed": 61,
+   "ramp": [
+    "#5a4535",
+    "#6c5442",
+    "#7e624e",
+    "#8f715b",
+    "#a08069",
+    "#b08f77",
+    "#bf9e86"
+   ],
+   "base": [
+    3.0,
+    0.3
+   ],
+   "patch": [
+    0.9,
+    0.5,
+    0.06
+   ],
+   "levels": 5,
+   "grain": [
+    0.7,
+    0.011,
+    0.005
+   ],
+   "knot": [
+    0.3,
+    0.025
+   ],
+   "checks": [
+    [
+     0,
+     1
+    ],
+    [
+     0.1,
+     0.3
+    ]
+   ],
+   "saw": [
+    0.3,
+    0.05
+   ],
+   "edge": 0.3,
+   "end": [
+    "#6a5242",
+    "#7b604e",
+    "#8c6e5a",
+    "#9c7c66"
+   ],
+   "rings": [
+    0.02,
+    0.4
+   ],
+   "pith": [
+    0.06,
+    0.25
+   ],
+   "end_checks": 0.25
+  },
+  "dark_trim": {
+   "what": "dark brown painted or oiled trim: door and window frames, sills, rails (smoother, defined edges)",
+   "texels_per_metre": 128,
+   "rows": 24,
+   "count": 6,
+   "seed": 71,
+   "paint": true,
+   "ramp": [
+    "#2a1d16",
+    "#33241b",
+    "#3c2a20",
+    "#453125",
+    "#4f382a",
+    "#593f30",
+    "#634636"
+   ],
+   "base": [
+    3.0,
+    0.25
+   ],
+   "patch": [
+    0.5,
+    0.6,
+    0.08
+   ],
+   "levels": 4,
+   "grain": [
+    0.3,
+    0.012,
+    0.005
+   ],
+   "knot": [
+    0.0,
+    0.02
+   ],
+   "checks": [
+    [
+     0,
+     0
+    ],
+    [
+     0.1,
+     0.2
+    ]
+   ],
+   "saw": [
+    0.0,
+    0.06
+   ],
+   "edge": 0.6,
+   "wear": [
+    0.06,
+    0.8,
+    0.3
+   ],
+   "under": [
+    "#5e4c3e",
+    "#6e5a4a",
+    "#7e6856",
+    "#8c7562"
+   ],
+   "nails": [
+    0.5,
+    1.5
+   ],
+   "end": [
+    "#2c2019",
+    "#382920",
+    "#433128",
+    "#4e3a2f"
+   ],
+   "rings": [
+    0.02,
+    0.3
+   ],
+   "pith": [
+    0.08,
+    0.25
+   ],
+   "end_checks": 0.1
+  }
+ }
+}

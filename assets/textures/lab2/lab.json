@@ -1,0 +1,25 @@
+{
+ "woods": {
+  "weathered_pine": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "weathered_pine_end.png"
+  },
+  "framing": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "framing_end.png"
+  },
+  "dark_trim": {
+   "boards": 6,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "dark_trim_end.png"
+  }
+ }
+}

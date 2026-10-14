@@ -41,6 +41,12 @@ uniform bool cube_faces = false;
 // warm brown, not grey); white = none. PixelArt.material sets it per material.
 uniform vec3 shade_tint : source_color = vec3(1.0);
 
+// The material lab's end grain (2026-10-14, LabGeometry): faces its meshes flag as a member's cut
+// ends (COLOR r 1, g 0) are drawn from this texture, at the same density; off everywhere else.
+uniform sampler2D end_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform bool use_end_tex = false;
+varying float end_face;
+
 varying vec3 tri_pos;
 varying vec3 tri_weights;
 varying vec3 local_pos;
@@ -59,6 +65,7 @@ float seg_dist(vec3 p, vec3 a, vec3 b) {
 
 void vertex() {
 	local_pos = VERTEX;
+	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
 	// Triplanar textures are square: one scale for every axis.
 	float uv_scale = texels_per_meter / float(textureSize(albedo_tex, 0).x);
 	if (mapping == 2) {
@@ -85,7 +92,8 @@ vec4 square_sample(vec2 uv, vec2 size, float b) {
 }
 
 void fragment() {
-	vec2 size = vec2(textureSize(albedo_tex, 0));
+	bool endf = end_face > 0.5;
+	vec2 size = vec2(endf ? textureSize(end_tex, 0) : textureSize(albedo_tex, 0));
 	vec4 col;
 	// The texture coordinates whose texels the lighting snaps to: the UVs, or for triplanar the
 	// projection that faces this surface most.
@@ -93,7 +101,10 @@ void fragment() {
 	vec2 uv_scale = vec2(texels_per_meter) / size;
 	float b = 1.0;
 	bool soft = block_soft > 0.0;
-	if (mapping == 0) {
+	if (mapping == 0 && endf) {
+		grid_uv = UV * uv_scale + uv_offset.xy;
+		col = use_mipmaps ? texture(end_tex, grid_uv) : textureLod(end_tex, grid_uv, 0.0);
+	} else if (mapping == 0) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
 		b = fixed_squares || soft ? 1.0 : tile_square(grid_uv * size);
 		if (soft) {
@@ -172,7 +183,7 @@ void fragment() {
 			}
 		}
 	}
-	if (tile_ragged > 0.0 && b <= 1.0 && !soft) {
+	if (tile_ragged > 0.0 && b <= 1.0 && !soft && !endf) {
 		// Ragged tiles: one colour a tile, its own texel's, so the edges between colours wander too.
 		vec2 g = centre / size;
 		col = use_mipmaps ? textureGrad(albedo_tex, g, dFdx(grid_uv), dFdy(grid_uv)) : textureLod(albedo_tex, g, 0.0);
