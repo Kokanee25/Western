@@ -356,7 +356,7 @@ def main():
     cams = {v: P.PoseCamera.of(c) for v, c in rep["cameras"].items()}
     pics = {v: np.asarray(Image.open(os.path.join(root, spec["paint_views"][v])).convert("RGB")).astype(float) / 255 for v in cams}
     h = numbers(spec.get("hat"))
-    if h.get("marks"):
+    if h.get("marks") and h.get("fit", True):
         fitted, err = fit_marks(mesh["V"], mesh["pts"], cams, h["marks"], h)
         h.update(fitted)
         print("style_hat: fitted", fitted, "rms px", err)

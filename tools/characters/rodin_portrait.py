@@ -478,6 +478,19 @@ def paint(man, spec):
     # The brim sits lower round his sides than over his forehead (its shadow lies on his hair
     # there): his forehead is hat above BRIM_ABOVE_EYES, the rest above BRIM_SIDES.
     hat = cover & (Pp[..., 1] > eye_y + np.where(front, BRIM_ABOVE_EYES, BRIM_SIDES))
+    if spec.get("hat"):
+        # His own hat covers what the portraits' hat covers: only under it is the paint refilled
+        # (the plane of its crown's foot, a few mm below); below its brim the portraits' own
+        # hair stays (the bold cowboy's grey temples were refilled brown under the game's hat).
+        import style_hat as SH
+        hh = SH.numbers(spec.get("hat"))
+        if hh.get("marks") and hh.get("fit", True):
+            hh.update(SH.fit_marks(V, pts, cams, hh["marks"], hh)[0])
+        foot = SH.make_hat(V, pts, hh)["hat"][0][:SH.AROUND]
+        A = np.c_[foot[:, 0], foot[:, 2], np.ones(len(foot))]
+        coef = np.linalg.lstsq(A, foot[:, 1], rcond=None)[0]
+        plane = coef[0] * Pp[..., 0] + coef[1] * Pp[..., 2] + coef[2]
+        hat = cover & (Pp[..., 1] > plane - 0.004)
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
     # forehead's skin where it faces you, his hair round the rest, from his temples and sideburns.
@@ -569,7 +582,9 @@ def paint(man, spec):
     if spec.get("hat"):
         import style_hat as SH
         h = SH.numbers(spec.get("hat"))
-        if h.get("marks"):
+        # `fit` false: his numbers as given (the marks kept as the check; portraits that disagree
+        # about the hat can pull a fit into a shape none of them shows).
+        if h.get("marks") and h.get("fit", True):
             fitted, err = SH.fit_marks(V, pts, cams, h["marks"], h)
             h.update(fitted)
             report["hat"] = dict(fitted, marks_rms_px=err)
