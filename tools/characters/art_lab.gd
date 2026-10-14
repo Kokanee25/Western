@@ -150,6 +150,7 @@ func _run() -> void:
 				var path := "%s/%s%s_%s_%d.png" % [out, tag, mat, light, int(turn)]
 				vp.get_texture().get_image().save_png(path)
 				print("wrote ", path)
+	print("art_lab: done")
 	quit()
 
 
@@ -218,13 +219,17 @@ func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets
 			var g := base.duplicate() as ShaderMaterial
 			for k in sets:
 				g.set_shader_parameter(StringName(k), sets[k])
-			if nomip:
+			if mipdir != "":
+				g.set_shader_parameter(&"albedo_tex", _mip_chain(mipdir))
+			elif nomip or mip:
 				var t0 = g.get_shader_parameter(&"albedo_tex")
 				if t0 is Texture2D:
 					var im: Image = (t0 as Texture2D).get_image()
 					if im.is_compressed():
 						im.decompress()
 					im.clear_mipmaps()
+					if mip:
+						im.generate_mipmaps()
 					g.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(im))
 			mi.material_override = g
 			continue
