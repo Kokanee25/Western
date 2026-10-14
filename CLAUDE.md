@@ -324,7 +324,9 @@ frozen until Sean names one.
 - Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
   goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
   folk cost ~43 meshes each (~50 to spare).
-- Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
+- Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07); the material
+  lab's timber finish (`claude/art-material-lab`, not merged: the red's trade-off, then integration
+  with gameplay's boardwalk).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
 - On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
