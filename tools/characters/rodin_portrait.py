@@ -350,10 +350,12 @@ def paint(man, spec):
     if fid.get("shape_fit"):
         import style_shape as SS
         rounds = []
+        V_rodin = V.copy()
         for _r in range(int(fid.get("shape_rounds", 2))):
             before = {v: report["views"][v]["landmarks_mm"] for v in cams}
             move, seen = SS.solve_landmarks(pts, nrm, cams, lms, ok)
-            V = SS.warp(V, pts, move)
+            guard = {}
+            V, move = SS.warp_safe(V, T, pts, move, guard)
             pts = np.where(ok[:, None], pts + move, pts)
             n_loop = P.vertex_normals(V, T)
             acc = np.zeros((inv.max() + 1, 3))
@@ -364,8 +366,10 @@ def paint(man, spec):
             mm = 1000 * np.linalg.norm(move[:468], axis=1)
             rounds.append({"landmarks_mm_before": before, "after": {v: report["views"][v]["landmarks_mm"] for v in cams},
                            "move_mm_mean": round(float(mm.mean()), 1), "move_mm_max": round(float(mm.max()), 1),
-                           "seen_by_two_or_more": int((seen >= 2).sum())})
+                           "seen_by_two_or_more": int((seen >= 2).sum()), **guard})
         report["shape_fit"] = rounds
+        # The whole warp against Rodin's own shape (folds start near 1).
+        report["shape_strain_max"] = round(SS.strain(V_rodin, T, V), 2)
     if "back" in pics and any(v.startswith("profile") for v in cams):
         side = [cams[v] for v in cams if v.startswith("profile")]
         s = float(np.mean([c.s for c in side]))

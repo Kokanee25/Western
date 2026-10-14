@@ -24,8 +24,12 @@ from scipy.spatial import cKDTree
 PULL = 0.15          # a landmark's pull back to Rodin's place, against the portraits' (each 1)
 FACING = 0.3         # how squarely a portrait must see a landmark for it to count
 MAX_MOVE = 0.018     # metres a landmark may move
-SIGMA = 0.018        # metres: the warp's falloff round each landmark
-SMOOTH = 1e-3        # the warp's give (so it doesn't ring between close landmarks)
+MOVE_SMOOTH_R = 0.008  # each landmark's move averaged with its neighbours' within this (3 passes)
+SIGMA = 0.035        # metres: the warp's falloff round each landmark
+SMOOTH = 3e-2        # the warp's give (so it doesn't ring between close landmarks)
+STRAIN_MAX = 0.75    # the most two neighbouring points' moves may differ, per metre apart: past
+                     # ~1 the surface folds over itself (the bold cowboy's crease under his chin,
+                     # 2026-10-14); the whole warp is eased back until it holds
 
 
 def linear(cam):
@@ -71,12 +75,44 @@ def solve_landmarks(pts, nrm, cams, lms, use):
     mag = np.linalg.norm(move, axis=1, keepdims=True)
     move *= np.minimum(1.0, MAX_MOVE / np.maximum(mag, 1e-9))
     move[~use[:n]] = 0
+    # Neighbouring landmarks the portraits disagree on (his jaw, most) asked for moves that
+    # fought each other and folded the surface between them: each move is averaged with its
+    # neighbours' first.
+    from scipy.spatial import cKDTree
+    idx = np.nonzero(use[:n])[0]
+    tree = cKDTree(pts[idx])
+    nb = tree.query_ball_point(pts[idx], MOVE_SMOOTH_R)
+    m = move[idx]
+    for _ in range(3):
+        m = np.array([m[j].mean(0) for j in nb])
+    move[idx] = m
     full = np.zeros_like(pts)
     full[:n] = move
     # The irises with their eyes (the mean move of each eye's ring).
     for iris, ring in ((range(468, 473), [33, 133, 159, 145]), (range(473, 478), [362, 263, 386, 374])):
         full[list(iris)] = move[ring].mean(0)
     return full, seen
+
+
+def strain(V, T, W):
+    """The worst stretch of the warp V → W along any edge (metres moved apart per metre)."""
+    e = np.concatenate([T[:, [0, 1]], T[:, [1, 2]], T[:, [2, 0]]])
+    el = np.linalg.norm(V[e[:, 0]] - V[e[:, 1]], axis=1)
+    d = W - V
+    return float((np.linalg.norm(d[e[:, 0]] - d[e[:, 1]], axis=1) / np.maximum(el, 1e-4)).max())
+
+
+def warp_safe(V, T, at, move, report):
+    """warp(), eased back (the moves scaled down) until its strain is under STRAIN_MAX."""
+    scale = 1.0
+    for _ in range(8):
+        W = warp(V, at, move * scale)
+        st = strain(V, T, W)
+        if st <= STRAIN_MAX:
+            break
+        scale *= 0.8
+    report.update({"strain_max": round(st, 2), "warp_scale": round(scale, 2)})
+    return W, move * scale
 
 
 def warp(V, at, move):
