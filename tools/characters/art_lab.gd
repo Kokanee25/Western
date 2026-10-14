@@ -9,8 +9,13 @@ extends SceneTree
 ##       [--fov=75 --dist=1.2] [--global=name:value,...] [--set=k:v,...] [--nomip] [--tag=NAME]
 ## --fov, --dist: the camera (75 and 1.2: the player's at conversation distance). --global: shader
 ## globals for the run (min_square_px, tile_light...). --set: values on his head's game material
-## too (light_steps...). --nomip: his head's texture without mipmaps (each pixel one texel).
+## too (light_steps...). --nomip: his head's texture without mipmaps (each pixel one texel); --mip:
+## with them (the game imports his head without: each screen pixel then one texel of several);
+## --mipdir=DIR: with mips read from DIR/level_N.png (made otherwise than by averaging).
+## --grade=tonemap|adjust|game: the game's picture grade on the frame (see _grade).
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
+## --hat=lab:NAME: the hat prototype (tools/characters/hat_proto.py: assets/people/lab/NAME_*.obj and
+## .png) on his head bone in place of the game's, drawn by the skin shader as his clothes are.
 ## --look: the painted material's values over PAINTED (the skin shader's painted mode,
 ## src/bodies/shaders/body_skin.gdshaderinc: used, not changed).
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
@@ -45,6 +50,9 @@ func _run() -> void:
 	var dist := DIST
 	var sets := {}
 	var nomip := false
+	var mip := false
+	var mipdir := ""
+	var grade := ""
 	var tag := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--fov="):
@@ -53,6 +61,12 @@ func _run() -> void:
 			dist = float(a.substr(7))
 		elif a == "--nomip":
 			nomip = true
+		elif a == "--mip":
+			mip = true
+		elif a.begins_with("--mipdir="):
+			mipdir = a.substr(9)
+		elif a.begins_with("--grade="):
+			grade = a.substr(8)
 		elif a.begins_with("--tag="):
 			tag = a.substr(6) + "_"
 		elif a.begins_with("--global="):
@@ -94,6 +108,7 @@ func _run() -> void:
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
 	env_node.environment = env
+	_grade(env, grade)
 	w.add_child(env_node)
 	var cam := Camera3D.new()
 	cam.fov = fov
@@ -111,6 +126,8 @@ func _run() -> void:
 	m.rng_seed = 7
 	m.hat_color = HAT if hat == "game" else Color(0, 0, 0, 0)
 	w.add_child(m)
+	if hat.begins_with("lab:"):
+		_wear_lab_hat(m, hat.substr(4))
 	m.global_position = Vector3.ZERO
 	cam.position = Vector3(0, EYE, -dist)
 	cam.look_at(Vector3(0, EYE - 0.05, 0))
@@ -134,6 +151,17 @@ func _run() -> void:
 				vp.get_texture().get_image().save_png(path)
 				print("wrote ", path)
 	quit()
+
+
+## --grade: the game's picture grade (scenes/test_street.tscn's Environment) or a part of it:
+## "tonemap" (ACES), "adjust" (contrast 1.15, saturation 1.12), "game" both.
+func _grade(env: Environment, which: String) -> void:
+	if which in ["tonemap", "game"]:
+		env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	if which in ["adjust", "game"]:
+		env.adjustment_enabled = true
+		env.adjustment_contrast = 1.15
+		env.adjustment_saturation = 1.12
 
 
 ## The light: "neutral", the people lineup's (a grey ground, a sun and soft ambient); "warm", the
@@ -176,7 +204,7 @@ func _light(w: Node3D, env: Environment, kind: String) -> Array:
 
 ## His head's material: "game", as the game builds it; "painted", the painted mode with `look`
 ## (and `tex` for its texture, if given). Only the head's pieces (Head_*) are changed.
-func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets: Dictionary = {}, nomip := false) -> void:
+func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets: Dictionary = {}, nomip := false, mip := false, mipdir := "") -> void:
 	for mi in _meshes(m):
 		if not String(mi.name).begins_with("Head_"):
 			continue
@@ -207,6 +235,52 @@ func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets
 		if tex != null:
 			p.set_shader_parameter(&"albedo_tex", tex)
 		mi.material_override = p
+
+
+## A texture from its own mip levels (DIR/level_0.png, level_1.png ... down to 1×1, each RGB8): to
+## try mips made otherwise than by averaging.
+func _mip_chain(dir: String) -> ImageTexture:
+	var data := PackedByteArray()
+	var first: Image = null
+	var i := 0
+	while FileAccess.file_exists("%s/level_%d.png" % [dir, i]):
+		var im := Image.load_from_file("%s/level_%d.png" % [dir, i])
+		im.convert(Image.FORMAT_RGB8)
+		if first == null:
+			first = im
+		data.append_array(im.get_data())
+		i += 1
+	var out := Image.create_from_data(first.get_width(), first.get_height(), true, Image.FORMAT_RGB8, data)
+	return ImageTexture.create_from_image(out)
+
+
+## The prototype hat: each piece on his head bone, its body-space vertices put back at his rest
+## pose (so it moves with his head), the material the game gives a baked garment.
+func _wear_lab_hat(m: Node, hat_name: String) -> void:
+	var skel: Skeleton3D = m.skeleton
+	var head := skel.find_bone("head")
+	var att := BoneAttachment3D.new()
+	att.bone_name = "head"
+	skel.add_child(att)
+	var to_rest := skel.get_bone_global_rest(head).affine_inverse()
+	for part in ["hat", "hat_brim", "hat_band"]:
+		var mesh: Mesh = load("res://assets/people/lab/%s_%s.obj" % [hat_name, part])
+		var tex: Texture2D = load("res://assets/people/lab/%s_%s.png" % [hat_name, part])
+		if mesh == null or tex == null:
+			push_error("art_lab: no %s %s (run hat_proto.py, then --import)" % [hat_name, part])
+			continue
+		var base := StandardMaterial3D.new()
+		base.albedo_texture = tex
+		base.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+		base.roughness = 0.95
+		var mat: ShaderMaterial = m._piece_material(base, true)
+		mat.set_shader_parameter(&"use_custom_pos", false)
+		var mi := MeshInstance3D.new()
+		mi.name = "LabHat_" + part
+		mi.mesh = mesh
+		mi.material_override = mat
+		mi.transform = to_rest
+		att.add_child(mi)
 
 
 func _meshes(n: Node) -> Array:
