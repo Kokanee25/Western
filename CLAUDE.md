@@ -303,7 +303,7 @@ python3 tools/bridge.py stop
 - **tests** — the runner, how a test is written.
 - **CI** — build.yml, releases, Pages, notes from `docs/BUILD_NOTES.md`.
 
-## Current state (2026-10-12 evening; each session replaces its own lines)
+## Current state (2026-10-14; each session replaces its own lines)
 
 Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
@@ -339,14 +339,12 @@ frozen until Sean names one.
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
   momentum and crumples with muscle tone; dynamite breaks the studs by it; lamp shadows drawn
-  once, not every frame (shadow atlas one cell size: street render CPU 8.6 → 4.5 ms lavapipe,
-  ~2.9 at Sean's, under budget); the nightly soak's faults (a freed mate, rubble on you, the gang
-  flinging rubble as it rode in, shapeless rubble through the ground) and it now logs what it
-  finds and its memory as it goes.
-- Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (the runner was
-  shutting it down; its log now says memory and disk each minute); `test_chaos` is flaky on main
-  (thread scheduling: exact on one worker thread; see the status entry); brick wants a brief
-  first; M4 step 5 (money) stays frozen with the features.
+  once, not every frame (street render CPU ~2.9 ms at Sean's); the soak's freeze (Senses walked a
+  Dictionary keyed by freed people: loops for ever in Godot 4.7; walk a copy of the keys), and
+  the soak now fails a stall, a crawl or a frozen game with a backtrace instead of sitting silent.
+- Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (240 min);
+  `test_chaos` is flaky on main (thread scheduling); brick wants a brief first; M4 step 5
+  (money) stays frozen with the features.
 - Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
   four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
   after a fight; the `proposed` feel ranges.
