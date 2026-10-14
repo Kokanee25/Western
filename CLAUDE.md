@@ -332,9 +332,14 @@ frozen until Sean names one.
   `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
   `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
   `look/portrait-men-2026-10-14`. ~$5.26 of $15.
-- Next: his hat (the portrait's brown wide brim, studded band), grey temples, hair edges, the
-  older man's grey moustache relief. Trap: after a build, `godot --headless --import` first.
-- For art: the saloon lamp burns faces (numbers in the brief).
+- Done 2026-10-14 (branch, not merged): the fidelity investigation (brief, "The fidelity
+  investigation"; sheets `docs/style_test/fidelity-2026-10-14/`): a prototype hat (lab asset,
+  `hat_proto.py`; the old one had no back: `style_hat._ring`), a colour-independent moustache test.
+- Next, on Sean's word: fix `style_hat._ring`, the hat into the build, the moustache test into
+  relief, hair matched to the portraits, the jaw from the profiles. Trap: after a build,
+  `godot --headless --import` first.
+- For art: faces' chroma +8–10 in the saloon (ACES +13, warm lamps +9); `test_street.tscn`'s
+  `volumetric_adjustment_enabled` typo (contrast/saturation never apply).
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his

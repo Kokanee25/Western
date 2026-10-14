@@ -170,7 +170,11 @@ there 4.5; lit in neutral light 6.7 (tones 16 → 10, L* 20: the dark, flat ligh
 in the warm light 3.1; in the saloon's close shot 2.2. Light steps and tile light change nothing
 measurable. His head texture is imported **without mipmaps**, so at 1.2 m each pixel is one texel
 of ~7 (point sampled: it shimmers as he turns); with mips the shader reads level 2–3.
-MIPS_RESULT
+Tried at 1.2 m (`t2_sampling.png`: point | averaged mips | medoid mips, each level's texel one of
+its four real colours): blocks 6.6 / 6.3 / 6.5 %, tones 8 / 8 / 8, detail 6.1 / 4.9 / 6.7. Mips
+don't make the blocks smaller: averaged ones only soften (less pixel noise, a little blur), the
+medoid ones stay crisp like point sampling. Turned a degree, ~22 % of face pixels change in all
+three (the turn moves him; this measure doesn't separate shimmer from motion).
 So: at conversation distance the frame can't hold the portrait's blocks; the paint's own
 blocks and the light's darkness make them bigger still. What would help: paint blocks sized to
 the distance they're seen at, and a light that keeps a face's tones apart (the warm one does).
