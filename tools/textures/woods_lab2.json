@@ -133,20 +133,20 @@
    "end_checks": 0.35
   },
   "saloon_red": {
-   "what": "red painted lap siding, faded: the paint one coherent colour, worn to bare wood at the lap edges and nails",
+   "what": "red painted lap siding, faded: the paint one coherent colour, worn to bare wood at the lap edges and nails (muted brick: the approved exterior's sunlit red is L* ~18-25, chroma ~30; the first ramp went vivid under the low sun)",
    "texels_per_metre": 128,
    "rows": 24,
    "count": 8,
    "seed": 37,
    "paint": true,
    "ramp": [
-    "#5a2219",
-    "#6a281d",
-    "#792e21",
-    "#863425",
-    "#933b2a",
-    "#a04431",
-    "#ac4e38"
+    "#4d2620",
+    "#5a2d25",
+    "#66342a",
+    "#713a2f",
+    "#7c4134",
+    "#87483a",
+    "#924f40"
    ],
    "base": [
     3.2,
