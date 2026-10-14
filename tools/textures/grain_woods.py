@@ -186,7 +186,9 @@ def main():
     spec = json.load(open(SPEC))
     only = set(args["only"].split(",")) if "only" in args else None
     os.makedirs(OUT, exist_ok=True)
-    info = {"woods": {}}
+    # Merged into what's there: painting some woods (--only) keeps the others listed.
+    lj = os.path.join(OUT, "lab.json")
+    info = json.load(open(lj)) if os.path.exists(lj) else {"woods": {}}
     sheet = []
     for name, w in spec["woods"].items():
         if only and name not in only:

@@ -20,6 +20,34 @@
    "length": 256,
    "texels_per_metre": 128,
    "end": "dark_trim_end.png"
+  },
+  "timber": {
+   "boards": 8,
+   "rows": 32,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "timber_end.png"
+  },
+  "floor": {
+   "boards": 10,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "floor_end.png"
+  },
+  "saloon_red": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "saloon_red_end.png"
+  },
+  "store_boards": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "store_boards_end.png"
   }
  }
 }

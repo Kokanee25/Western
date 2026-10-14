@@ -85,10 +85,18 @@ static var lab_set := "lab"
 static var _lab_density := {}
 
 
+## Whether the lab set paints this wood (assets/textures/<lab_set>/lab.json).
+static func _lab_has(wood: String) -> bool:
+	lab_density(wood)
+	return _lab_density.has(wood)
+
+
 ## A lab wood's squares a metre (assets/textures/<lab_set>/lab.json), DRAWN_TEXELS if unsaid.
 static func lab_density(key: String) -> float:
 	var jp := "res://assets/textures/%s/lab.json" % lab_set
-	if _lab_density.is_empty() and FileAccess.file_exists(jp):
+	if _lab_density.get(&"_set", "") != lab_set:
+		_lab_density = {&"_set": lab_set}
+	if _lab_density.size() == 1 and FileAccess.file_exists(jp):
 		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
 		if info is Dictionary:
 			for w: String in (info as Dictionary).get("woods", {}):
@@ -123,7 +131,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		var key := tex.resource_path.get_file().get_basename()
 		m.set_meta(&"texels", lab_density(key))
 		m.set_shader_parameter(&"fixed_squares", true)
-		m.set_shader_parameter(&"use_mipmaps", true)
+		m.set_meta(&"mipmaps", true)
 		m.set_shader_parameter(&"edge_shade", 0.78)
 		m.set_shader_parameter(&"edge_lip", 1.1)
 		var end := "res://assets/textures/lab2/%s_end.png" % _wood_of(key)
@@ -191,7 +199,7 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 
 static func _apply(m: ShaderMaterial) -> void:
 	m.set_shader_parameter(&"texels_per_meter", m.get_meta(&"texels", texels_per_meter))
-	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
+	m.set_shader_parameter(&"use_mipmaps", m.get_meta(&"mipmaps", use_mipmaps))
 	if smooth:
 		m.set_shader_parameter(&"smooth_source", true)
 
@@ -214,6 +222,10 @@ static func factory(key: String) -> Texture2D:
 		return null
 	if lab and ResourceLoader.exists(LAB_PATH % [lab_set, key]):
 		return load(LAB_PATH % [lab_set, key]) as Texture2D
+	if lab and _lab_has(_wood_of(key)):
+		# A wood the lab set paints is all the lab's: no falling back to production's strips past
+		# the lab's last board (WoodMaterials counts strips until one is missing).
+		return null
 	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key

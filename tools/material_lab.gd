@@ -72,6 +72,8 @@ func _run() -> void:
 			views = Array(arg.substr(8).split(","))
 		elif arg.begins_with("--pan="):
 			pan = int(arg.substr(6))
+	# Whatever woods were counted before the lab's set was chosen, counted again.
+	load("res://src/structures/wood_materials.gd").reset()
 	DirAccess.make_dir_recursive_absolute(out)
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
@@ -174,6 +176,15 @@ func _count(set: Node3D) -> void:
 	for m in set.find_children("*", "StructureMember", true, false):
 		woods[m.wood] = woods.get(m.wood, 0) + 1
 	print("LabWoods: ", woods)
+	# Which textures each wood's members draw with (their own meshes', and the batches').
+	var tex := {}
+	for m in set.find_children("*", "StructureMember", true, false):
+		for c in m.get_children():
+			if c is MeshInstance3D and c.material_override is ShaderMaterial:
+				var t = (c.material_override as ShaderMaterial).get_shader_parameter(&"albedo_tex")
+				var key := "%s <- %s" % [m.wood, (t.resource_path.get_base_dir().get_file() if t else "none")]
+				tex[key] = tex.get(key, 0) + 1
+	print("LabTextures: ", tex)
 
 
 ## Two fronts side by side along +X, each with its boardwalk: the saloon's red lap siding (its
