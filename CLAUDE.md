@@ -332,12 +332,13 @@ frozen until Sean names one.
   `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
   `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
   `look/portrait-men-2026-10-14`. ~$5.26 of $15.
-- Done 2026-10-14 (branch, not merged): the fidelity investigation (brief, "The fidelity
-  investigation"; sheets `docs/style_test/fidelity-2026-10-14/`): a prototype hat (lab asset,
-  `hat_proto.py`; the old one had no back: `style_hat._ring`), a colour-independent moustache test.
-- Next, on Sean's word: fix `style_hat._ring`, the hat into the build, the moustache test into
-  relief, hair matched to the portraits, the jaw from the profiles. Trap: after a build,
-  `godot --headless --import` first.
+- Done 2026-10-14 (branch, not merged; bookmark `look/bold-cowboy-own-hat-2026-10-14`): the
+  fidelity investigation and the style pass (brief: "The fidelity investigation", "The style
+  pass"): the bold cowboy in his own hat (`portrait.json` hat `wear`, `paint` "designed";
+  `style_hat._ring` fixed), his forehead refilled under the brim.
+- Next: Sean is trying another art style in a new session on this pipeline (the style lives in
+  the five style portraits; RECIPE.md). Open: square blocks on his face (Sean's call); hats for
+  the other two men (Sean's marks). Trap: after a build, `godot --headless --import` first.
 - For art: faces' chroma +8–10 in the saloon (ACES +13, warm lamps +9); `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo (contrast/saturation never apply).
 
