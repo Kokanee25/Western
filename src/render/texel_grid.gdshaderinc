@@ -46,6 +46,12 @@ uniform vec3 shade_tint : source_color = vec3(1.0);
 uniform sampler2D end_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform bool use_end_tex = false;
 varying float end_face;
+// The material lab (lab3): a painted board's paint worn through to `wear_tex` (its bare wood)
+// within about `end_wear` m of the board's own ends, ragged row by row (0: never). Long faces of
+// flagged (LabGeometry) members only, which carry their face's length in UV2.x.
+uniform sampler2D wear_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform float end_wear = 0.0;
+varying float lab_face;
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
@@ -66,6 +72,7 @@ float seg_dist(vec3 p, vec3 a, vec3 b) {
 void vertex() {
 	local_pos = VERTEX;
 	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
+	lab_face = use_end_tex && COLOR.g < 0.5 ? 1.0 - COLOR.r : 0.0;
 	// Triplanar textures are square: one scale for every axis.
 	float uv_scale = texels_per_meter / float(textureSize(albedo_tex, 0).x);
 	if (mapping == 2) {
@@ -132,6 +139,17 @@ void fragment() {
 			col = square_sample(uv_z, size, b) * tri_weights.z + square_sample(uv_y, size, b) * tri_weights.y + square_sample(uv_x, size, b) * tri_weights.x;
 		} else {
 			col = grid_sample(uv_z) * tri_weights.z + grid_sample(uv_y) * tri_weights.y + grid_sample(uv_x) * tri_weights.x;
+		}
+	}
+	if (end_wear > 0.0 && mapping == 0 && lab_face > 0.5 && UV2.x > 0.0) {
+		// Which end, how far from it, and a ragged reach a texel row (and a little a texel).
+		vec2 tx = floor(UV * texels_per_meter);
+		float far_end = UV.x > UV2.x * 0.5 ? 1.0 : 0.0;
+		float d = far_end > 0.5 ? UV2.x - UV.x : UV.x;
+		float row = fract(sin(dot(vec2(tx.y, far_end + floor(UV2.x * 7.0)), vec2(12.9898, 78.233))) * 43758.5453);
+		float cell = fract(sin(dot(tx, vec2(39.346, 11.135))) * 24634.6345);
+		if (d < end_wear * row * row * (0.7 + 0.6 * cell)) {
+			col = use_mipmaps ? texture(wear_tex, grid_uv) : textureLod(wear_tex, grid_uv, 0.0);
 		}
 	}
 	vec2 texel = grid_uv * size;

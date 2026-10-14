@@ -1,0 +1,79 @@
+{
+ "woods": {
+  "timber": {
+   "boards": 8,
+   "rows": 32,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "timber_end.png"
+  },
+  "floor": {
+   "boards": 10,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "floor_end.png"
+  },
+  "saloon_red": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "saloon_red_end.png",
+   "end_wear": 0.07
+  },
+  "saloon_red_low": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "saloon_red_low_end.png",
+   "end_wear": 0.07
+  },
+  "store_boards": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "store_boards_end.png",
+   "end_wear": 0.06
+  },
+  "store_boards_low": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "store_boards_low_end.png",
+   "end_wear": 0.06
+  },
+  "weathered_pine": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "weathered_pine_end.png"
+  },
+  "fascia": {
+   "boards": 6,
+   "rows": 26,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "fascia_end.png"
+  },
+  "framing": {
+   "boards": 8,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "framing_end.png"
+  },
+  "dark_trim": {
+   "boards": 6,
+   "rows": 24,
+   "length": 256,
+   "texels_per_metre": 128,
+   "end": "dark_trim_end.png",
+   "end_wear": 0.04
+  }
+ }
+}

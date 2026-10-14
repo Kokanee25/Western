@@ -8,7 +8,8 @@ extends SceneTree
 ## and lamplit night from fixed views, and a short walk past them.
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- --out=DIR \
-##       [--lab | --lab2] [--flag | --reshape] [--man] [--lights=noon,golden,night] [--views=...] [--pan=N]
+##       [--lab | --lab2 | --lab3] [--flag | --reshape | --build] [--man] [--lights=noon,golden,night]
+##       [--views=...] [--pan=N] [--pan-lights=golden]
 ##
 ## --lab: the lab's woods (tools/textures/paint_woods.py, PixelArt.lab); without, production's.
 ## Writes DIR/<light>_<view>.png and, with --pan, DIR/pan_<light>_<k>.png (N frames walking past).
@@ -33,6 +34,11 @@ const VIEWS := {
 	"post_close": [Vector3(4.95, 1.6, -3.4), Vector3(4.95, 1.45, -2.05), 42.0],
 	"post_bracket": [Vector3(3.6, 1.3, -3.7), Vector3(4.8, 2.4, -2.0), 52.0],
 	"gameplay": [Vector3(2.4, 1.65, -7.5), Vector3(4.6, 1.3, 0.0), 60.0],
+	# The timber pass's finish (Sean's notes): the plank ends unobstructed, low and close; a post's
+	# foot on the deck; the steps.
+	"deck_ends": [Vector3(0.45, 0.42, -2.95), Vector3(1.0, 0.34, -2.4), 30.0],
+	"post_base": [Vector3(4.3, 0.95, -3.2), Vector3(4.95, 0.45, -2.1), 40.0],
+	"steps": [Vector3(1.2, 0.95, -3.9), Vector3(2.4, 0.25, -2.6), 45.0],
 }
 const WIDTH := 4.8
 
@@ -48,6 +54,7 @@ func _run() -> void:
 	var pan := 0
 	var geometry := 0
 	var man := false
+	var pan_lights: Array = []
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
@@ -60,6 +67,16 @@ func _run() -> void:
 			var pa = load("res://src/art/pixel_art.gd")
 			pa.lab = true
 			pa.lab_set = "lab2"
+		# --lab3, --build: the finish (LabGeometry's `build`: the walk as built, the lowest
+		# siding splashed).
+		elif arg == "--lab3":
+			var pa = load("res://src/art/pixel_art.gd")
+			pa.lab = true
+			pa.lab_set = "lab3"
+		elif arg == "--build":
+			geometry = 3
+		elif arg.begins_with("--pan-lights="):
+			pan_lights = Array(arg.substr(13).split(","))
 		elif arg == "--flag":
 			geometry = 1
 		elif arg == "--reshape":
@@ -101,7 +118,7 @@ func _run() -> void:
 	for i in 3:
 		await process_frame
 	if geometry > 0:
-		print("LabGeometry: %d meshes" % load("res://src/art/lab_geometry.gd").apply(set, geometry == 2))
+		print("LabGeometry: %d meshes" % load("res://src/art/lab_geometry.gd").apply(set, geometry >= 2, 0.045, 0.03, geometry == 3))
 	if man:
 		_man(set)
 	_count(set)
@@ -127,7 +144,7 @@ func _run() -> void:
 			print("saved %s_%s" % [light, v])
 		# The walk: past the fronts along the boardwalk's edge, looking at the walls (texels must
 		# stay on the boards as the camera moves).
-		for k in pan:
+		for k in (pan if pan_lights.is_empty() or light in pan_lights else 0):
 			var t: float = float(k) / maxf(pan - 1, 1)
 			# Low and a step out from the deck: its plank ends, the posts and the walls all in it.
 			var eye := Vector3(lerpf(1.0, 8.6, t), 1.25, -3.9)
@@ -135,7 +152,7 @@ func _run() -> void:
 			for i in 3:
 				await process_frame
 			viewport.get_texture().get_image().save_png("%s/pan_%s_%02d.png" % [out, light, k])
-		if pan > 0:
+		if pan > 0 and (pan_lights.is_empty() or light in pan_lights):
 			print("saved pan_%s (%d)" % [light, pan])
 	quit()
 
@@ -171,6 +188,11 @@ func _count(set: Node3D) -> void:
 			var a: Array = mi.mesh.surface_get_arrays(si)
 			var idx = a[Mesh.ARRAY_INDEX]
 			tris += (idx.size() if idx != null else (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()) / 3
+	for mmi in set.find_children("*", "MultiMeshInstance3D", true, false):
+		var mm: MultiMesh = mmi.multimesh
+		meshes += 1
+		mats[mmi] = true
+		tris += mm.instance_count * mm.mesh.get_faces().size() / 3
 	print("LabCount: %d meshes, %d triangles, %d materials" % [meshes, tris, mats.size()])
 	var woods := {}
 	for m in set.find_children("*", "StructureMember", true, false):

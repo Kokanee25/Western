@@ -26,3 +26,27 @@ the fascia, chamfered planks and posts) built over the real members' meshes, col
 geometry), same cameras, three lights; end-on, side-on, 3/4, gameplay and close views of deck ends
 and posts, a man for scale; a walk for shimmer; the numbers (thickness, texel size, draw calls,
 triangles, texture memory). Sean's eye is the gate; nothing goes to production before it.
+
+## The finish (Sean's notes on the timber pass, 2026-10-14)
+
+Baseline (A): lab2's woods with LabGeometry `reshape` (45 mm planks, 30 mm overhang). The finish
+(B): `tools/textures/woods_lab3.json` -> `assets/textures/lab3/` (`grain_woods.py --set=lab3`) and
+LabGeometry `build` (`tools/material_lab.gd --lab3 --build`). Not in the game; nothing merged.
+
+1. Plank ends: the walk drawn as built. Its fascia becomes a rim joist (0.2 m x 45 mm) under the
+   planks, so their cut ends stand 30 mm clear above it (each ±8 mm, its end up to 5 mm off
+   square); joists on edge on pads instead of solid blocks; end grain darker, closer bands, a
+   dark rim. New view `deck_ends`: low and close, nothing in front of them.
+2. Fascia: its own wood (`fascia`: darker, greyer, weathered streaks, splash at the foot).
+3. Timber: 1-3 knots a board, checks with a lighter lifted lip, patchy saw marks, long weather
+   streaks and sun-greyed patches, all stepped (no per-texel noise).
+4. Paint wear: no edge strip; short broken runs of worn lap edge, some nails, a flake or two along
+   the grain; paint worn at board ends by the shader (`end_wear`, `<wood>_bare.png`); the boards
+   below 1 m from `<wood>_low` (splashed, worn more).
+5. The red: the approved exterior's sunlit siding measures L* 21-27, chroma 25-34, hue ~44; lab2's
+   rendered L* 40, chroma 66. lab3's ramp: light x0.62, chroma x0.55, hue +3 (albedo only; the
+   light is the game's).
+6. Construction: two nails a joist on every plank (one multimesh, one draw); steps as two tread
+   boards with a nosing, a riser and stringers.
+
+Judged by A/B sheets (`tools/material_compare3.py` -> `docs/screenshots/material_lab/finish/`).

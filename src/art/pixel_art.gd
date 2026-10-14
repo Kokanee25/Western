@@ -83,6 +83,8 @@ static var lab := false
 ## pass: 128 texels a metre, mipmapped, never coarsened, end grain on LabGeometry's ends).
 static var lab_set := "lab"
 static var _lab_density := {}
+## The lab set's lab.json woods (each wood's entry), read with its densities.
+static var _lab_info := {}
 
 
 ## Whether the lab set paints this wood (assets/textures/<lab_set>/lab.json).
@@ -99,7 +101,8 @@ static func lab_density(key: String) -> float:
 	if _lab_density.size() == 1 and FileAccess.file_exists(jp):
 		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
 		if info is Dictionary:
-			for w: String in (info as Dictionary).get("woods", {}):
+			_lab_info = (info as Dictionary).get("woods", {})
+			for w: String in _lab_info:
 				_lab_density[w] = float(info.woods[w].get("texels_per_metre", DRAWN_TEXELS))
 	return _lab_density.get(_wood_of(key), DRAWN_TEXELS)
 
@@ -125,19 +128,26 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
-	elif tex and tex.resource_path.contains("/textures/lab2/"):
-		# The timber pass: fine texels, mipmapped (far off they average, not shimmer), never
-		# coarsened into squares, the edges a soft line, end grain where LabGeometry flags an end.
+	elif tex and (tex.resource_path.contains("/textures/lab2/") or tex.resource_path.contains("/textures/lab3/")):
+		# The timber pass (lab2) and its finish (lab3): fine texels, mipmapped (far off they
+		# average, not shimmer), never coarsened into squares, the edges a soft line, end grain
+		# where LabGeometry flags an end; lab3's painted woods worn to bare wood near board ends.
 		var key := tex.resource_path.get_file().get_basename()
+		var dir := tex.resource_path.get_base_dir()
 		m.set_meta(&"texels", lab_density(key))
 		m.set_shader_parameter(&"fixed_squares", true)
 		m.set_meta(&"mipmaps", true)
 		m.set_shader_parameter(&"edge_shade", 0.78)
 		m.set_shader_parameter(&"edge_lip", 1.1)
-		var end := "res://assets/textures/lab2/%s_end.png" % _wood_of(key)
+		var end := "%s/%s_end.png" % [dir, _wood_of(key)]
 		if ResourceLoader.exists(end):
 			m.set_shader_parameter(&"end_tex", load(end))
 			m.set_shader_parameter(&"use_end_tex", true)
+		var bare := "%s/%s_bare.png" % [dir, _wood_of(key)]
+		var wear := float((_lab_info.get(_wood_of(key), {}) as Dictionary).get("end_wear", 0.0))
+		if wear > 0.0 and ResourceLoader.exists(bare):
+			m.set_shader_parameter(&"wear_tex", load(bare))
+			m.set_shader_parameter(&"end_wear", wear)
 	return track(m)
 
 
