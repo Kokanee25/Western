@@ -221,8 +221,9 @@ def end_grain(spec, dens, rng, size=32):
     spacing, amt = spec["rings"]
     # Growth bands: broad arcs, the late wood of each year a little darker; not hard rings.
     bands = 0.5 + 0.5 * np.sin(2 * np.pi * r / spacing + noise2(size, size, 3, 3, rng) * 2.0)
-    fib = rng.random((size, size)) * 0.35
-    t = 1.6 + (bands - 0.5) * 2.0 * amt + (fib - 0.17) + (noise2(size, size, 2, 2, rng) - 0.5) * 0.8
+    fv = spec.get("fibres", 0.35)
+    fib = rng.random((size, size)) * fv
+    t = 1.6 + (bands - 0.5) * 2.0 * amt + (fib - (fv * 0.5 if "fibres" in spec else 0.17)) + (noise2(size, size, 2, 2, rng) - 0.5) * 0.8
     # lab3 `end_rim`: the cut end's outer texels darker (the arris dirtied and weathered), so the
     # end reads as a cut face with an edge, not a decal.
     if spec.get("end_rim"):

@@ -133,7 +133,12 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 				nails.append(Transform3D(wt.basis * Basis(Vector3.UP, rng.randf_range(0.0, 1.5)), wt * p))
 		return _mesh(arrays)
 	if id.begins_with("step/"):
-		# A tread (two boards, a nosing out front), a riser under its nose and two stringers.
+		# A tread (two boards, a nosing out front), a riser under its nose and two stringers, in
+		# the deck's wood.
+		var wm = load("res://src/structures/wood_materials.gd")
+		for c in m.get_children():
+			if c is MeshInstance3D:
+				c.material_override = wm.get_material(&"floor", hash(m.member_id))
 		var h := size.y
 		var d := size.z
 		var w := size.x
