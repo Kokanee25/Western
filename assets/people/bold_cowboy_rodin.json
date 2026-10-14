@@ -123,11 +123,11 @@
  },
  "skin_tone": [
   0.3176,
-  0.1255,
+  0.1294,
   0.0392
  ],
  "shells": [],
- "seconds": 28.3,
+ "seconds": 25.4,
  "head": {
   "from": "assets/people/tripo/test/bold_cowboy_rodin.glb",
   "scale": 0.9388,
