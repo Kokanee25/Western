@@ -32,9 +32,12 @@ const STUCK_SECONDS := 60.0
 const CREEP := 3.0  # the last window's median frame over the first's
 const MEMORY_GROWTH := 1.5  # the last window's memory over the first's, while still climbing
 const RUNAWAY_MB := 6000.0  # resident memory: stop and report (the CI runner has 16 GB)
-const STALL_SECONDS := 120.0  # real time without a frame: the game has hung (a slow frame is ~0.05 s)
+const STALL_SECONDS := 120.0  # real time without a frame: the game has hung (a slow frame is ~0.1 s)
+const CRAWL_SECONDS := 120.0  # real time over which...
+const CRAWL_FRAMES := 240  # ...fewer frames than this is a crawl (half a second a frame; ~5 ms is usual)
 
 var OB: Script  # OutlawBrain, loaded once the game is up (a -s script can't name game classes)
+var PROF: Script  # Prof, the same way
 
 class Catcher:
 	extends Logger
@@ -72,6 +75,8 @@ var _build := ""  # the build's label, read up front: the watchdog mustn't load 
 var _done := false
 var _stall_seconds := STALL_SECONDS
 var _hang_at := -1.0
+var _crawl_at := -1.0
+var _prof := "?"  # the systems' share of a frame, the last Prof window (for the watchdog)
 
 
 func _initialize() -> void:
@@ -84,6 +89,8 @@ func _initialize() -> void:
 			_stall_seconds = float(a.substr(16))
 		elif a.begins_with("--hang-at="):  # hang on purpose at this game second (for trying it)
 			_hang_at = float(a.substr(10))
+		elif a.begins_with("--crawl-at="):  # a second a frame from this game second (for trying it)
+			_crawl_at = float(a.substr(11))
 	OS.add_logger(_catcher)
 	_rng.seed = 1882
 	root.get_node(^"Settings").autosave = false
@@ -92,6 +99,7 @@ func _initialize() -> void:
 	await process_frame
 	await process_frame
 	OB = load("res://src/bodies/outlaw_brain.gd")
+	PROF = load("res://src/debug/prof.gd")
 	_street = _main.find_child("TestStreet", true, false)
 	_town = _street.get_node(^"TownLife")
 	_player = _street.get_node(^"Player")
@@ -104,27 +112,39 @@ func _initialize() -> void:
 	_run()
 
 
-## The watchdog (its own thread): no frame for STALL_SECONDS and the main thread is stuck, so
-## nothing it does will report it. Reads the soak's state without a lock: the main thread isn't
-## moving.
+## The watchdog (its own thread): the main thread stuck (no frame for STALL_SECONDS) or crawling
+## (fewer than CRAWL_FRAMES frames in CRAWL_SECONDS: soak #11 went from ~5 ms frames to seconds
+## each at game minute 80 and printed nothing for an hour, every frame still a heartbeat) won't
+## report itself. Reads the soak's state without a lock: the main thread is stuck in its frame.
 func _watch() -> void:
 	var seen := -1
 	var since := Time.get_ticks_msec()
+	var marks: Array = []  # [msec, frames] once a second, the last CRAWL_SECONDS
 	while not _done:
 		OS.delay_msec(1000)
+		var now := Time.get_ticks_msec()
+		marks.append([now, _beat])
+		while now - int(marks[0][0]) > CRAWL_SECONDS * 1000.0:
+			marks.pop_front()
 		if _beat != seen:
 			seen = _beat
-			since = Time.get_ticks_msec()
+			since = now
+		var stalled := (now - since) / 1000.0
+		var frames := _beat - int(marks[0][1])
+		var span := (now - int(marks[0][0])) / 1000.0
+		var why := ""
+		if stalled >= _stall_seconds:
+			why = "stall"
+		elif span >= CRAWL_SECONDS - 1.5 and frames < CRAWL_FRAMES:
+			why = "crawl"
+		if why == "":
 			continue
-		var stalled := (Time.get_ticks_msec() - since) / 1000.0
-		if stalled < _stall_seconds:
-			continue
-		_problem("stall", "no frame for %.0f s of real time (frame %d), while %s; last: %s" % [
-				stalled, _beat, _doing, "; ".join(_happened.slice(-3))])
+		_problem(why, "%d frames in the last %.0f s of real time, none for %.0f s (frame %d), while %s; the frame's systems (ms, before): %s; last: %s" % [
+				frames, span, stalled, _beat, _doing, _prof, "; ".join(_happened.slice(-3))])
 		_report()
-		print("soak: stalled; crashing on purpose for the main thread's backtrace")
+		print("soak: %s; crashing on purpose for the main thread's backtrace" % why)
 		# A process-wide SIGSEGV lands on the main thread (the kernel offers it there first), so
-		# the engine's crash handler prints where it's stuck, GDScript included, and exits.
+		# the engine's crash handler prints where it is, GDScript included, and exits.
 		OS.execute("kill", ["-SEGV", str(OS.get_process_id())])
 		OS.delay_msec(30000)
 		OS.kill(OS.get_process_id())
@@ -145,11 +165,18 @@ func _run() -> void:
 			events.append([cycle + float(e[0]), e[1]])
 		cycle += 6000.0
 	var last := Time.get_ticks_usec()
+	PROF.on = true  # each system's time a frame, so a stall or crawl says where the time goes
 	while _t < _minutes * 60.0 and not _runaway:
 		_doing = "waiting for a frame (the game's own work)"
 		await physics_frame
 		_beat += 1
 		_doing = "the soak's own step"
+		PROF.frame(60)
+		if PROF._frames == 0:
+			_prof = ", ".join(PROF.top(6))
+		if _crawl_at >= 0.0 and _t >= _crawl_at:
+			_doing = "crawling on purpose (--crawl-at)"
+			OS.delay_msec(1000)
 		if _hang_at >= 0.0 and _t >= _hang_at:
 			_doing = "hanging on purpose (--hang-at)"
 			while true:

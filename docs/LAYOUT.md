@@ -114,10 +114,12 @@ summary and an artifact. Each problem is also printed as it's found (`soak probl
 lost bodies with their path, script, rubble members and speed; stuck men with where they are and
 where they're going) and each window prints the process's resident memory, so a run the runner
 kills still leaves its log; past 6 GB resident it stops early and reports. A watchdog thread
-fails a hang: no frame for 2 minutes of real time and it writes `soak.md` with a `stall` problem
-(the game clock, what the soak was doing, the last things that happened), then crashes the process
-on purpose so the engine prints the main thread's GDScript backtrace (exit 134). `--hang-at=S
---stall-seconds=N` hang it on purpose to try that.
+fails a hang: no frame for 2 minutes of real time (`stall`) or under 240 frames in 2 minutes
+(`crawl`: soak #11 went from ~5 ms frames to seconds each and printed nothing for an hour), it
+writes `soak.md` with the problem (the game clock, what the soak was doing, each system's ms a
+frame from `Prof` just before, the last things that happened), then crashes the process on purpose
+so the engine prints the main thread's GDScript backtrace (exit 134). `--hang-at=S
+[--stall-seconds=N]` and `--crawl-at=S` do either on purpose to try it.
 
 ## Feel ranges
 
