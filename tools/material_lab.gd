@@ -36,7 +36,7 @@ const VIEWS := {
 	"gameplay": [Vector3(2.4, 1.65, -7.5), Vector3(4.6, 1.3, 0.0), 60.0],
 	# The timber pass's finish (Sean's notes): the plank ends unobstructed, low and close; a post's
 	# foot on the deck; the steps.
-	"deck_ends": [Vector3(0.15, 0.46, -2.8), Vector3(1.3, 0.33, -2.43), 34.0],
+	"deck_ends": [Vector3(1.45, 0.4, -2.95), Vector3(0.5, 0.35, -2.42), 32.0],
 	"post_base": [Vector3(4.3, 0.95, -3.2), Vector3(4.95, 0.45, -2.1), 40.0],
 	"steps": [Vector3(1.2, 0.95, -3.9), Vector3(2.4, 0.25, -2.6), 45.0],
 }
