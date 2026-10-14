@@ -3,7 +3,9 @@
 docs/briefs/character-style-fidelity.md "For the art session").
 
     xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- \\
-        --out=DIR --only=shot_match_close --model=<id> --face-probe
+        --out=DIR --only=shot_match_close --model=<id> --face-probe [--fresh]
+    (--fresh with more than one view: a staged view seats a new man, and the probe would find
+    the last view's by name)
     python3 tools/face_light.py DIR [--view=shot_match_close] [--json=OUT]
 
 screenshots.gd --face-probe saves, beside each shot and with him held still, <view>_game.png (as
