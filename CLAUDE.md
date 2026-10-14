@@ -344,8 +344,8 @@ frozen until Sean names one.
   in 10 min with every thread's backtrace (`frozen.md`) instead of sitting silent.
 - Next: Prompt 09 (fix the falls) when Sean says; watch the nightly soak: one CI run froze once
   more after the fix (ObjectDB's lock stuck, unexplained), the next `frozen.md` says where;
-  brick wants a brief first; M4 step 5 frozen. (`test_chaos`'s flake fixed: its child runs use one
-  worker thread, build 1067.)
+  brick wants a brief first; M4 step 5 frozen. (Flakes fixed: `test_chaos` runs its children on one
+  worker thread; `test_drop` turns misfires off.)
 - Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
   four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
   after a fight; the `proposed` feel ranges.
