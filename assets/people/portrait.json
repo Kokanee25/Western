@@ -88,7 +88,7 @@
       ]
      }
     },
-    "crown_h": 0.125,
+    "crown_h": 0.12,
     "patch_m": 0.015,
     "band_colour": [
      0.196,
@@ -107,19 +107,22 @@
      0.071
     ],
     "fit": false,
-    "band_above_eyes": 0.015,
-    "tilt": 10.0,
-    "roll": 2.0,
-    "brim_w": 0.23,
-    "brim_f": 0.23,
-    "brim_b": 0.26,
-    "curl": 0.025,
-    "dip": 0.012,
-    "clear": 0.03,
-    "shift_z": 0.03,
-    "pinch": 0.3,
-    "dent": 0.02,
-    "wear": false
+    "band_above_eyes": 0.044,
+    "tilt": 14.5445,
+    "roll": -0.3714,
+    "brim_w": 0.1726,
+    "brim_f": 0.2202,
+    "brim_b": 0.2312,
+    "curl": -0.0388,
+    "dip": 0.03,
+    "clear": 0.0099,
+    "shift_z": 0.0148,
+    "pinch": 0.32,
+    "dent": 0.022,
+    "wear": true,
+    "band_h": 0.016,
+    "crown_top": 0.84,
+    "paint": "designed"
    }
   },
   "older_heavyset_cowboy": {
