@@ -28,6 +28,10 @@ func before_each() -> void:
 	gun.tuning = gun.tuning.duplicate()
 	gun.tuning.spread_aim_degrees = 0.0
 	gun.tuning.spread_hip_degrees = 0.0
+	# No misfires: the gun's dice are seeded by its node path, which shifts with what ran before it in
+	# the suite, so one run in a hundred or so the 1% misfire came up and "it fired" failed.
+	gun.tuning.misfire_chance = 0.0
+	gun.state.tuning = gun.tuning
 	shots.clear()
 	await physics_frames(5)
 	gun.take_out()
