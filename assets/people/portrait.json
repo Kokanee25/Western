@@ -35,7 +35,8 @@
     "unsquare": 3,
     "keep_features": true,
     "neck_cut": "smooth",
-    "skin_from_paint": true
+    "skin_from_paint": true,
+    "sideburns_m": 0.012
    },
    "hat": {
     "marks": {

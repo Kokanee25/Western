@@ -147,9 +147,16 @@ def _soften(x, edges, steps):
     return x
 
 
-def relief(V, T, colour, pts, moustache_m, brows_m, report):
-    """V (loop vertices) with the moustache and brows raised along the surface's normal where
-    `colour` (each vertex's paint) is hair, not skin. Welded first, so seams move together."""
+def _near_segment(W, a, b):
+    """Each point's distance to the segment a-b."""
+    ab = b - a
+    t = np.clip(((W - a) @ ab) / max(float(ab @ ab), 1e-12), 0, 1)
+    return np.linalg.norm(W - (a + t[:, None] * ab), axis=1)
+
+
+def relief(V, T, colour, pts, moustache_m, brows_m, report, sideburns_m=0.0):
+    """V (loop vertices) with the moustache, brows and sideburns raised along the surface's normal
+    where `colour` (each vertex's paint) is hair, not skin. Welded first, so seams move together."""
     key = np.round(V / 1e-6).astype(np.int64)
     _u, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True)
     inv = inv.ravel()
@@ -200,6 +207,21 @@ def relief(V, T, colour, pts, moustache_m, brows_m, report):
         m = _soften(np.clip(m, 0, 1), edges, 4)
         lift += brows_m * np.clip(m * 1.6, 0, 1) ** 1.5
         out["brow_vertices"] = int((m > 0.3).sum())
+    if sideburns_m > 0:
+        # Each sideburn: the side of his face, from the outer corner of his eye back to the front
+        # of his ear (MediaPipe's face edge, 234 / 454, and a little behind it) and from his eye
+        # line down to the angle of his jaw (172 / 397); the paint says which of it is hair.
+        m = np.zeros(len(W))
+        nose_x = pts[1, 0]
+        for corner, edge, jaw in ((33, 234, 172), (263, 454, 397)):
+            out_x = abs(pts[corner, 0] - nose_x)
+            side = np.sign(pts[edge, 0] - nose_x)
+            band = (side * (W[:, 0] - nose_x) > out_x) & (W[:, 1] < eye_y + 0.01) & (W[:, 1] > pts[jaw, 1]) \
+                & (W[:, 2] < pts[edge, 2] + 0.015) & (side * n[:, 0] > 0.3)
+            m += (band & hairlike).astype(float)
+        m = _soften(np.clip(m, 0, 1), edges, 2)   # a crisper edge than the moustache's: it stands off the cheek
+        lift += sideburns_m * np.clip(m * 1.6, 0, 1) ** 1.5
+        out["sideburn_vertices"] = int((m > 0.3).sum())
     out["lift_max_mm"] = round(1000 * float(lift.max()), 1)
     report.update(out)
     return V + (n * lift[:, None])[inv]

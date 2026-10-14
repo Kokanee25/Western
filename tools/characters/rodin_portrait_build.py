@@ -193,6 +193,13 @@ def build(man, spec):
         # filled a whole flat triangle of lower lid): DETAIL_M round each, weighted.
         det = obj.vertex_groups.new(name="detail")
         feats = [eyes["right"], eyes["left"], ((pts[13] - c_mine) * k + c_goal)]
+        # His sideburns too, when they stand off his cheeks (`fidelity.sideburns_m`): cut down
+        # with the rest of his head, their relief was flattened away. Each between the front of
+        # his ear (234 / 454) and the angle of his jaw (172 / 397).
+        if fid.get("sideburns_m"):
+            for edge, jaw in ((234, 172), (454, 397)):
+                for t in (0.0, 0.5, 1.0):
+                    feats.append(((pts[edge] * (1 - t) + pts[jaw] * t) - c_mine) * k + c_goal)
         dmin = np.min([np.linalg.norm(Vh - f, axis=1) for f in feats], axis=0)
         for i, d in enumerate(dmin):
             if d < DETAIL_M:

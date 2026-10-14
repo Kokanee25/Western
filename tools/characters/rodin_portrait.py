@@ -578,11 +578,12 @@ def paint(man, spec):
     report["white_squares_calmed"] = int(white.sum())
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
     # The moustache and brows raised where the paint says hair (style_shape.relief; portrait.json
-    # `fidelity.moustache_m`, `brows_m`).
-    if fid.get("moustache_m", 0) or fid.get("brows_m", 0):
+    # `fidelity.moustache_m`, `brows_m`, `sideburns_m`).
+    if fid.get("moustache_m", 0) or fid.get("brows_m", 0) or fid.get("sideburns_m", 0):
         import style_shape as SS
         report["relief"] = {}
-        V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"])
+        V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"],
+                      sideburns_m=float(fid.get("sideburns_m", 0)))
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
             allow_pickle=True)
