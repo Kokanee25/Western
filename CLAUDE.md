@@ -323,16 +323,12 @@ frozen until Sean names one.
 - Waiting on Sean: the style-sheet review (DESIGN.md §4; Prompt 07 is the test when he starts
   it); the first-pass set-direction cards.
 
-**Characters** (branch `claude/characters-uv-portrait`, not merged; brief `docs/briefs/uv-portrait.md`):
-- Done on the branch: steps 1-3 and 6's test: the shape (`uv_head.py`), the layout
-  (`uv_layout.py`), the paint (`uv_paint.py guides|paint|apply`, People `style: uvpaint`, round 1
-  take b on him), the faceted head (`uv_head.py build --faceted`). Sheets
-  `docs/screenshots/uv_portrait/bold_cowboy_{shape,layout,painted,faceted}.jpg`. ~$3.10 of $15.
-- Next: Sean's call after the squares test (round 2) failed its own bar: 8 mm squares from
-  this route don't carry his eyes and moustache. Options in the brief's verdict. Traps: after a
-  build, `godot --headless --import` before rendering; bpy here is 5.1 on Python 3.13 (MediaPipe
-  needs libegl1); the head's albedo is pitched to the stranger's (SKIN_LEVEL); fal's balance.
-- Waiting on Sean: the route decision (square size on faces, or stop).
+**Characters** (no open branch of work):
+- Done: the UV portrait (`claude/characters-uv-portrait`, brief `docs/briefs/uv-portrait.md`):
+  shape, layout and paint worked, but 8 mm squares never carried his eyes and moustache; Sean
+  stopped it 2026-10-14. The branch is the record, not merged (~$3.25 spent on fal and Rodin).
+- Next: Sean's next brief for people.
+- Waiting on Sean: what to try next for faces.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01, five faults baselined); a falling

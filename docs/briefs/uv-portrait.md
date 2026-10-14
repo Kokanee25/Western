@@ -57,3 +57,5 @@ don't read as eyes, the moustache is still a thin chevron, the skin mostly one b
 test's own bar (eyes and a heavy moustache read, skin not one brown) it failed: at ~18 squares
 across his face, painting at the square size doesn't carry his features through this route.
 Sheet: `docs/screenshots/uv_portrait/bold_cowboy_squares_test.jpg`.
+
+**Stopped (Sean, 2026-10-14):** the route is closed; the branch stays as the record, not merged.
