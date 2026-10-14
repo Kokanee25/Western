@@ -50,3 +50,49 @@ LabGeometry `build` (`tools/material_lab.gd --lab3 --build`). Not in the game; n
    boards with a nosing, a riser and stringers.
 
 Judged by A/B sheets (`tools/material_compare3.py` -> `docs/screenshots/material_lab/finish/`).
+
+## The final candidate and production readiness (Sean's notes on the finish, 2026-10-14)
+
+C (`--lab4 --build2`; `woods_lab4.json`, LabGeometry `build` 2) against A (the game today) and B
+(the finish). Sheets and Main Street's costs in `docs/screenshots/material_lab/final/`.
+
+- Red: lab2's colours' light x0.8, chroma x0.62 (between lab2 and lab3). Golden-hour siding
+  L* 32.5, chroma 52, hue 44 (A 42/68, B 26/40, the approved exterior 21-27/25-34, hue 44).
+- End grain: `end_grain2`, coherent years (wide earlywood, narrow latewood), stepped tones, no
+  per-texel randomness, at 256 texels a metre (`end_texels`, its own shader density) so the arcs
+  don't staircase; lab3's `end_rim` was drawn on the texture's tile edges, not the board's (part
+  of the checkerboard), and is gone. Posts' and beams' rings round an off-centre heart.
+- Steps: B's never changed (LabGeometry's step test never matched: kept so for B). C's are open:
+  two tread boards with a 35 mm nosing, a riser set back under it, a gap at the ground, three
+  stringers; treads in the deck's wood, the rest grey pine (two surfaces, drawn unbatched).
+- Repetition: every member starts at its own place along its strip (0-2 m, COLOR.b; the shader's
+  `lab_u0`) and on its end grain, and lab4 has 10-12 boards a wood where lab3 had 6-8: two posts
+  sharing a strip no longer show the same knot at the same height. Nails jittered; ~6% of joists
+  a nail short, ~8% a third.
+
+What production needs (none of it done; the structure code is gameplay's):
+- Geometry (`src/structures/boardwalk.gd`, gameplay's): the rim joist, joists on pads and the open
+  steps as real members, so each breaks, burns and is supported on its own (planks on joists,
+  joists on pads, the rim on the joists' ends, treads on stringers). The planks 45 mm thick and
+  30 mm past the rim in their own size and place, not a drawn offset.
+- Meshes (`src/structures/member_mesh.gd`, gameplay's): the end flag, the per-member strip
+  offset and the chamfer in MemberMesh, indexed, ends as two triangles (four for a chamfered
+  end's octagon, not the lab's eight-triangle fan); chamfer only where it shows (posts, beams,
+  the walk's planks and joists; not the studs inside walls). The lab's builder is unindexed and
+  chamfers every framing member: Main Street's measured mesh data 22.5 -> 89 MB, its triangles
+  228k -> 393k (`MemProbe`). MemberMesh's per-size cache can't share a mesh once every member
+  has its own offset: the offset goes in the batch's vertices (they're merged per structure
+  anyway) and the members' own meshes are made only when a member leaves its batch (damage).
+- Collision: today's boxes are the game's members; with members as built, their boxes follow
+  (the rim 45 mm, not a 25 mm fascia 2 cm proud of it; joists and pads instead of solid sleepers,
+  so a bullet under the deck goes through the gaps a player sees).
+- Navigation: none to change: people walk the waypoint graph and the steps' invisible ramps; the
+  open steps' treads stay where the blocks' tops were.
+- Destruction: a carved member (voxels) is meshed from its box: chamfer, end flag and offset must
+  carry into the voxel mesher or a shot post pops square. Fire and breaking need the new woods
+  (`fascia`, the `_low` sidings) mapped to existing wood properties.
+- Textures: lab4's woods into the texture factory's production set and WoodMaterials, with
+  mipmaps; the shader's `end_tex`, `end_texels`, `wear_tex`/`end_wear`, `lab_u0` (renamed) on for
+  members. ~3.3-4 MB of textures with mipmaps.
+- Goldens: every fixed view with a boardwalk or a red front re-approved in the same merge; the
+  judge and the blind critic as for any art merge.
