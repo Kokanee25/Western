@@ -1,0 +1,367 @@
+{
+ "id": "bold_cowboy_styled_60_portrait",
+ "targets": {
+  "ears/r-ear-wing-incr": 0.6,
+  "ears/l-ear-wing-incr": 0.6,
+  "ears/r-ear-flap-incr": 0.8,
+  "ears/l-ear-flap-incr": 0.8,
+  "ears/r-ear-scale-incr": 0.25,
+  "ears/l-ear-scale-incr": 0.25,
+  "ears/r-ear-scale-depth-incr": 0.6,
+  "ears/l-ear-scale-depth-incr": 0.6,
+  "nose/nose-scale-horiz-incr": 1.0942,
+  "nose/nose-scale-vert-incr": 1.0,
+  "nose/nose-scale-depth-incr": 1.0,
+  "nose/nose-flaring-incr": 0.4103,
+  "eyes/r-eye-eyefold-down": 0.4,
+  "eyes/l-eye-eyefold-down": 0.4,
+  "eyes/r-eye-eyefold-convex": 0.6,
+  "eyes/l-eye-eyefold-convex": 0.6,
+  "mouth/mouth-upperlip-volume-incr": 0.3313,
+  "mouth/mouth-lowerlip-volume-incr": 0.35,
+  "mouth/mouth-cupidsbow-incr": 0.5,
+  "eyebrows/eyebrows-trans-forward": 0.25,
+  "forehead/forehead-nubian-incr": 0.15,
+  "macrodetails/caucasian-male-young": 0.6,
+  "macrodetails/caucasian-male-old": 0.4,
+  "macrodetails/universal-male-young-maxmuscle-averageweight": 0.35,
+  "macrodetails/universal-male-young-averagemuscle-minweight": 0.0866,
+  "cheek/r-cheek-bones-decr": 0.0288,
+  "cheek/l-cheek-bones-decr": 0.0288,
+  "cheek/r-cheek-inner-decr": 0.0568,
+  "cheek/l-cheek-inner-decr": 0.0568,
+  "cheek/r-cheek-trans-down": 0.0386,
+  "cheek/l-cheek-trans-down": 0.0386,
+  "cheek/r-cheek-volume-incr": 0.1483,
+  "cheek/l-cheek-volume-incr": 0.1483,
+  "chin/chin-bones-decr": 0.1728,
+  "chin/chin-cleft-incr": 0.0622,
+  "chin/chin-height-incr": 0.0733,
+  "chin/chin-jaw-drop-decr": 0.0158,
+  "chin/chin-prognathism-incr": 0.171,
+  "chin/chin-prominent-incr": 0.3107,
+  "chin/chin-triangle": 0.2313,
+  "chin/chin-width-incr": 0.1251,
+  "ears/r-ear-rot-backward": 0.0335,
+  "ears/l-ear-rot-backward": 0.0335,
+  "ears/r-ear-scale-decr": 0.2664,
+  "ears/l-ear-scale-decr": 0.2664,
+  "ears/r-ear-scale-vert-decr": 0.0693,
+  "ears/l-ear-scale-vert-decr": 0.0693,
+  "ears/r-ear-trans-backward": 0.5361,
+  "ears/l-ear-trans-backward": 0.5361,
+  "ears/r-ear-trans-down": 0.1538,
+  "ears/l-ear-trans-down": 0.1538,
+  "eyebrows/eyebrows-angle-up": 0.0923,
+  "eyebrows/eyebrows-trans-backward": 0.0555,
+  "eyebrows/eyebrows-trans-up": 0.0706,
+  "eyes/r-eye-bag-height-incr": 0.0205,
+  "eyes/l-eye-bag-height-incr": 0.0205,
+  "eyes/r-eye-bag-in": 0.0105,
+  "eyes/l-eye-bag-in": 0.0105,
+  "eyes/r-eye-corner1-down": 0.1247,
+  "eyes/l-eye-corner1-down": 0.1247,
+  "eyes/r-eye-corner2-down": 0.0545,
+  "eyes/l-eye-corner2-down": 0.0545,
+  "eyes/r-eye-epicanthus-in": 0.0089,
+  "eyes/l-eye-epicanthus-in": 0.0089,
+  "eyes/r-eye-eyefold-angle-up": 0.0355,
+  "eyes/l-eye-eyefold-angle-up": 0.0355,
+  "eyes/r-eye-eyefold-up": 0.0447,
+  "eyes/l-eye-eyefold-up": 0.0447,
+  "eyes/r-eye-height1-incr": 0.0133,
+  "eyes/l-eye-height1-incr": 0.0133,
+  "eyes/r-eye-height2-incr": 0.1099,
+  "eyes/l-eye-height2-incr": 0.1099,
+  "eyes/r-eye-height3-incr": 0.233,
+  "eyes/l-eye-height3-incr": 0.233,
+  "eyes/r-eye-push1-in": 0.1028,
+  "eyes/l-eye-push1-in": 0.1028,
+  "eyes/r-eye-push2-in": 0.0057,
+  "eyes/l-eye-push2-in": 0.0057,
+  "eyes/r-eye-scale-incr": 0.0949,
+  "eyes/l-eye-scale-incr": 0.0949,
+  "eyes/r-eye-trans-down": 0.0776,
+  "eyes/l-eye-trans-down": 0.0776,
+  "eyes/r-eye-trans-in": 0.0794,
+  "eyes/l-eye-trans-in": 0.0794,
+  "forehead/forehead-temple-decr": 0.0786,
+  "forehead/forehead-trans-backward": 0.0291,
+  "head/head-age-incr": 0.0614,
+  "head/head-fat-incr": 0.0686,
+  "head/head-round": 0.2037,
+  "head/head-scale-depth-incr": 0.1418,
+  "head/head-scale-horiz-incr": 0.1114,
+  "head/head-scale-vert-decr": 0.0888,
+  "head/head-triangular": 0.0665,
+  "mouth/mouth-angles-up": 0.0116,
+  "mouth/mouth-dimples-out": 0.0225,
+  "mouth/mouth-laugh-lines-out": 0.0264,
+  "mouth/mouth-lowerlip-height-incr": 0.0686,
+  "mouth/mouth-lowerlip-middle-up": 0.0415,
+  "mouth/mouth-lowerlip-volume-decr": 0.0282,
+  "mouth/mouth-lowerlip-width-decr": 0.0066,
+  "mouth/mouth-scale-depth-decr": 0.031,
+  "mouth/mouth-scale-horiz-incr": 0.1653,
+  "mouth/mouth-scale-vert-decr": 0.0374,
+  "mouth/mouth-trans-backward": 0.0185,
+  "mouth/mouth-trans-down": 0.0704,
+  "mouth/mouth-upperlip-ext-down": 0.0089,
+  "mouth/mouth-upperlip-height-decr": 0.0104,
+  "mouth/mouth-upperlip-middle-down": 0.0061,
+  "mouth/mouth-upperlip-width-incr": 0.0891,
+  "nose/nose-base-up": 0.0133,
+  "nose/nose-compression-uncompress": 0.0237,
+  "nose/nose-curve-convex": 0.1531,
+  "nose/nose-greek-incr": 0.1257,
+  "nose/nose-hump-decr": 0.0308,
+  "nose/nose-nostrils-width-incr": 0.0952,
+  "nose/nose-point-up": 0.1329,
+  "nose/nose-scale-depth-decr": 0.3128,
+  "nose/nose-scale-vert-decr": 0.0144,
+  "nose/nose-septumangle-decr": 0.0247,
+  "nose/nose-trans-backward": 0.1653,
+  "nose/nose-trans-up": 0.1026,
+  "nose/nose-width1-incr": 0.026,
+  "nose/nose-width2-incr": 0.0174,
+  "nose/nose-width3-incr": 0.0657
+ },
+ "source": "portrait",
+ "archetype": "",
+ "forms": {
+  "ear_r_flare_deg": 18.4,
+  "ear_l_flare_deg": 18.4,
+  "nose_scale": [
+   1.092,
+   1.008,
+   1.165
+  ]
+ },
+ "mh_height_m": 1.7411439199999998,
+ "head_map": {
+  "from": [
+   1.5534259090138862,
+   1.6753167495984485,
+   1.7915085238904325
+  ],
+  "to": [
+   1.545,
+   1.655,
+   1.795
+  ]
+ },
+ "head_back_m": -0.0494,
+ "faces_before_finger_cut": 13378,
+ "faces_after_finger_cut": 11416,
+ "layout": {
+  "face": [
+   0.012,
+   0.012,
+   0.372,
+   0.4312
+  ],
+  "scalp": [
+   0.012,
+   0.4552,
+   0.3966,
+   0.3603
+  ],
+  "ear_r": [
+   0.8225,
+   0.4552,
+   0.1122,
+   0.1451
+  ],
+  "ear_l": [
+   0.012,
+   0.8275,
+   0.1122,
+   0.1451
+  ],
+  "eye_r": [
+   0.1362,
+   0.8275,
+   0.0874,
+   0.0874
+  ],
+  "eye_l": [
+   0.2356,
+   0.8275,
+   0.0874,
+   0.0874
+  ]
+ },
+ "head_faces_off_layout": 0,
+ "textures": {
+  "shirt": 64,
+  "trousers": 64,
+  "vest": 64,
+  "coat": 128,
+  "cravat": 32
+ },
+ "triangles": {
+  "skin": 5199,
+  "head": 8452,
+  "hair": 1764,
+  "shirt": 1499,
+  "trousers": 1200,
+  "vest": 699,
+  "coat": 2200,
+  "cravat": 36
+ },
+ "eyes": {
+  "right": [
+   0.0306,
+   1.6564,
+   -0.0826
+  ],
+  "left": [
+   -0.0306,
+   1.6564,
+   -0.0826
+  ]
+ },
+ "skin_tone": [
+  0.8627,
+  0.5804,
+  0.4235
+ ],
+ "shells": [
+  "hair"
+ ],
+ "seconds": 37.1,
+ "fit_joints": {
+  "r-eye": [
+   0.0306,
+   1.655,
+   -0.083
+  ],
+  "l-eye": [
+   -0.0306,
+   1.655,
+   -0.083
+  ],
+  "mouth": [
+   0.0,
+   1.6269,
+   -0.0121
+  ],
+  "jaw": [
+   0.0,
+   1.5722,
+   -0.0989
+  ]
+ },
+ "portrait": {
+  "pictures": "docs/concept/style/factory/bold_cowboy_styled_60",
+  "fit": {
+   "landmarks_mm": 0.91,
+   "landmarks_mm_before": 22.56,
+   "cost": 0.001914,
+   "evaluations": 23,
+   "ears": {
+    "left": {
+     "picture": [
+      702.7,
+      468.2
+     ],
+     "model": [
+      637.4,
+      568.8
+     ]
+    },
+    "right": {
+     "picture": [
+      515.3,
+      492.8
+     ],
+     "model": [
+      565.5,
+      492.5
+     ]
+    }
+   }
+  },
+  "targets": {
+   "cheek/{s}-cheek-bones-decr": 0.0288,
+   "cheek/{s}-cheek-inner-decr": 0.0568,
+   "cheek/{s}-cheek-trans-down": 0.0386,
+   "cheek/{s}-cheek-volume-incr": 0.1483,
+   "chin/chin-bones-decr": 0.1728,
+   "chin/chin-cleft-incr": 0.0622,
+   "chin/chin-height-incr": 0.0733,
+   "chin/chin-jaw-drop-decr": 0.0158,
+   "chin/chin-prognathism-incr": 0.171,
+   "chin/chin-prominent-incr": 0.3107,
+   "chin/chin-triangle": 0.2313,
+   "chin/chin-width-incr": 0.1251,
+   "ears/{s}-ear-rot-backward": 0.0335,
+   "ears/{s}-ear-scale-decr": 0.2664,
+   "ears/{s}-ear-scale-vert-decr": 0.0693,
+   "ears/{s}-ear-trans-backward": 0.5361,
+   "ears/{s}-ear-trans-down": 0.1538,
+   "eyebrows/eyebrows-angle-up": 0.0923,
+   "eyebrows/eyebrows-trans-backward": 0.0555,
+   "eyebrows/eyebrows-trans-up": 0.0706,
+   "eyes/{s}-eye-bag-height-incr": 0.0205,
+   "eyes/{s}-eye-bag-in": 0.0105,
+   "eyes/{s}-eye-corner1-down": 0.1247,
+   "eyes/{s}-eye-corner2-down": 0.0545,
+   "eyes/{s}-eye-epicanthus-in": 0.0089,
+   "eyes/{s}-eye-eyefold-angle-up": 0.0355,
+   "eyes/{s}-eye-eyefold-up": 0.0447,
+   "eyes/{s}-eye-height1-incr": 0.0133,
+   "eyes/{s}-eye-height2-incr": 0.1099,
+   "eyes/{s}-eye-height3-incr": 0.233,
+   "eyes/{s}-eye-push1-in": 0.1028,
+   "eyes/{s}-eye-push2-in": 0.0057,
+   "eyes/{s}-eye-scale-incr": 0.0949,
+   "eyes/{s}-eye-trans-down": 0.0776,
+   "eyes/{s}-eye-trans-in": 0.0794,
+   "forehead/forehead-temple-decr": 0.0786,
+   "forehead/forehead-trans-backward": 0.0291,
+   "head/head-age-incr": 0.0614,
+   "head/head-fat-incr": 0.0686,
+   "head/head-round": 0.2037,
+   "head/head-scale-depth-incr": 0.1418,
+   "head/head-scale-horiz-incr": 0.1114,
+   "head/head-scale-vert-decr": 0.0888,
+   "head/head-triangular": 0.0665,
+   "mouth/mouth-angles-up": 0.0116,
+   "mouth/mouth-dimples-out": 0.0225,
+   "mouth/mouth-laugh-lines-out": 0.0264,
+   "mouth/mouth-lowerlip-height-incr": 0.0686,
+   "mouth/mouth-lowerlip-middle-up": 0.0415,
+   "mouth/mouth-lowerlip-volume-decr": 0.0282,
+   "mouth/mouth-lowerlip-width-decr": 0.0066,
+   "mouth/mouth-scale-depth-decr": 0.031,
+   "mouth/mouth-scale-horiz-incr": 0.1653,
+   "mouth/mouth-scale-vert-decr": 0.0374,
+   "mouth/mouth-trans-backward": 0.0185,
+   "mouth/mouth-trans-down": 0.0704,
+   "mouth/mouth-upperlip-ext-down": 0.0089,
+   "mouth/mouth-upperlip-height-decr": 0.0104,
+   "mouth/mouth-upperlip-middle-down": 0.0061,
+   "mouth/mouth-upperlip-volume-incr": 0.0313,
+   "mouth/mouth-upperlip-width-incr": 0.0891,
+   "nose/nose-base-up": 0.0133,
+   "nose/nose-compression-uncompress": 0.0237,
+   "nose/nose-curve-convex": 0.1531,
+   "nose/nose-flaring-incr": 0.0103,
+   "nose/nose-greek-incr": 0.1257,
+   "nose/nose-hump-decr": 0.0308,
+   "nose/nose-nostrils-width-incr": 0.0952,
+   "nose/nose-point-up": 0.1329,
+   "nose/nose-scale-depth-decr": 0.3128,
+   "nose/nose-scale-horiz-incr": 0.0942,
+   "nose/nose-scale-vert-decr": 0.0144,
+   "nose/nose-septumangle-decr": 0.0247,
+   "nose/nose-trans-backward": 0.1653,
+   "nose/nose-trans-up": 0.1026,
+   "nose/nose-width1-incr": 0.026,
+   "nose/nose-width2-incr": 0.0174,
+   "nose/nose-width3-incr": 0.0657,
+   "macrodetails/universal-male-young-averagemuscle-minweight": 0.0866
+  }
+ }
+}

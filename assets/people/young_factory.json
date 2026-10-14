@@ -1,0 +1,150 @@
+{
+ "id": "young_factory",
+ "targets": {
+  "ears/r-ear-wing-incr": 0.6,
+  "ears/l-ear-wing-incr": 0.6,
+  "ears/r-ear-flap-incr": 0.8,
+  "ears/l-ear-flap-incr": 0.8,
+  "ears/r-ear-scale-incr": 0.25,
+  "ears/l-ear-scale-incr": 0.25,
+  "ears/r-ear-scale-depth-incr": 0.6,
+  "ears/l-ear-scale-depth-incr": 0.6,
+  "nose/nose-scale-horiz-incr": 1.0,
+  "nose/nose-scale-vert-incr": 1.0,
+  "nose/nose-scale-depth-incr": 1.0,
+  "nose/nose-flaring-incr": 0.4,
+  "eyes/r-eye-eyefold-down": 0.4,
+  "eyes/l-eye-eyefold-down": 0.4,
+  "eyes/r-eye-eyefold-convex": 0.6,
+  "eyes/l-eye-eyefold-convex": 0.6,
+  "mouth/mouth-upperlip-volume-incr": 0.3,
+  "mouth/mouth-lowerlip-volume-incr": 0.35,
+  "mouth/mouth-cupidsbow-incr": 0.5,
+  "eyebrows/eyebrows-trans-forward": 0.25,
+  "forehead/forehead-nubian-incr": 0.15,
+  "macrodetails/caucasian-male-young": 1.0,
+  "macrodetails/universal-male-young-averagemuscle-minweight": 0.5,
+  "head/head-age-decr": 0.4,
+  "chin/chin-prominent-decr": 0.2
+ },
+ "source": "factory",
+ "archetype": "young",
+ "forms": {
+  "ear_r_flare_deg": 14.6,
+  "ear_l_flare_deg": 14.6,
+  "nose_scale": [
+   1.097,
+   1.008,
+   1.123
+  ]
+ },
+ "mh_height_m": 1.75482,
+ "head_map": {
+  "from": [
+   1.553529834968829,
+   1.6774947145576182,
+   1.7934554256276996
+  ],
+  "to": [
+   1.545,
+   1.655,
+   1.795
+  ]
+ },
+ "head_back_m": -0.0504,
+ "faces_before_finger_cut": 13378,
+ "faces_after_finger_cut": 11422,
+ "layout": {
+  "face": [
+   0.012,
+   0.012,
+   0.372,
+   0.4312
+  ],
+  "scalp": [
+   0.012,
+   0.4552,
+   0.3966,
+   0.3603
+  ],
+  "ear_r": [
+   0.8225,
+   0.4552,
+   0.1122,
+   0.1451
+  ],
+  "ear_l": [
+   0.012,
+   0.8275,
+   0.1122,
+   0.1451
+  ],
+  "eye_r": [
+   0.1362,
+   0.8275,
+   0.0874,
+   0.0874
+  ],
+  "eye_l": [
+   0.2356,
+   0.8275,
+   0.0874,
+   0.0874
+  ]
+ },
+ "head_faces_off_layout": 0,
+ "textures": {
+  "shirt": 64,
+  "trousers": 64
+ },
+ "triangles": {
+  "skin": 5199,
+  "head": 8496,
+  "hair": 1172,
+  "shirt": 1500,
+  "trousers": 1200
+ },
+ "eyes": {
+  "right": [
+   0.03,
+   1.6566,
+   -0.083
+  ],
+  "left": [
+   -0.03,
+   1.6566,
+   -0.083
+  ]
+ },
+ "skin_tone": [
+  0.7882,
+  0.6039,
+  0.4706
+ ],
+ "shells": [
+  "hair"
+ ],
+ "seconds": 17.3,
+ "fit_joints": {
+  "r-eye": [
+   0.03,
+   1.655,
+   -0.083
+  ],
+  "l-eye": [
+   -0.03,
+   1.655,
+   -0.083
+  ],
+  "mouth": [
+   -0.0,
+   1.6256,
+   -0.0151
+  ],
+  "jaw": [
+   0.0,
+   1.5795,
+   -0.0951
+  ]
+ }
+}

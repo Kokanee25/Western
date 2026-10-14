@@ -5,7 +5,7 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd -- --out=DIR
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
 ##   [--poses=stand,hands_up,aim] (HumanBody.POSES; docs/briefs/characters.md's pose check is
-##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint)
+##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint) [--hatless]
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -18,6 +18,7 @@ func _run() -> void:
 	var ids := ["outlaw", "kid"]
 	var poses := ["stand", "hands_up", "aim"]
 	var close := false
+	var hatless := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
@@ -27,6 +28,8 @@ func _run() -> void:
 			poses = Array(a.substr(8).split(","))
 		elif a == "--head":
 			close = true
+		elif a == "--hatless":
+			hatless = true
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
 	# Close (--head): a square of 0.42 m a man, the men that far apart.
@@ -59,6 +62,8 @@ func _run() -> void:
 		m.body_model = StringName(ids[i])
 		m.person_id = StringName(String(ids[i]) + "_lineup")
 		m.rng_seed = 7 + i
+		if hatless:
+			m.hat_color = Color(0, 0, 0, 0)
 		w.add_child(m)
 		m.global_position = Vector3((i - (ids.size() - 1) * 0.5) * spacing, 0.0, 0.0)
 		men.append(m)

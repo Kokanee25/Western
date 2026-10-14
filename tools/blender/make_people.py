@@ -651,7 +651,8 @@ def main():
     for pid, spec in people.items():
         if only and pid != only:
             continue
-        if spec.get("source") == "tripo":   # a Tripo model: tools/blender/fit_tripo.py's
+        # A Tripo or Rodin man is tools/blender/fit_tripo.py's, a factory man factory.py's.
+        if spec.get("source", "makehuman") != "makehuman":
             continue
         p = Person(pid, spec, env)
         p.run()

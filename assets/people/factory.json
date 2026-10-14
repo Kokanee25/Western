@@ -1,0 +1,111 @@
+{
+ "_readme": "The character factory (docs/briefs/character-factory.md; tools/blender/factory.py). One base head made from MakeHuman's base mesh (CC0): `base` is what every factory man has (targets that make the small forms readable at ~8 mm squares, and `forms`, shaping done by script on the regions MakeHuman's own targets move). A man is a people.json entry with \"source\": \"factory\": an `archetype` from here, his own `targets` on top, a `hair`, `moustache` and `beard` style from here, `skin`, `brows`, `wear` and an `outfit`. Targets are MakeHuman paths (makehuman/data/targets, no extension) and weights; \"{s}\" stands for both sides (r and l). Styles are made once and fitted to any head by the same script; the head's UV layout is laid out once from the base head, so anything drawn on it works on every man.",
+ "base": {
+  "targets": {
+   "ears/{s}-ear-wing-incr": 0.6,
+   "ears/{s}-ear-flap-incr": 0.8,
+   "ears/{s}-ear-scale-incr": 0.25,
+   "ears/{s}-ear-scale-depth-incr": 0.6,
+   "nose/nose-scale-horiz-incr": 1.0,
+   "nose/nose-scale-vert-incr": 1.0,
+   "nose/nose-scale-depth-incr": 1.0,
+   "nose/nose-flaring-incr": 0.4,
+   "eyes/{s}-eye-eyefold-down": 0.4,
+   "eyes/{s}-eye-eyefold-convex": 0.6,
+   "mouth/mouth-upperlip-volume-incr": 0.3,
+   "mouth/mouth-lowerlip-volume-incr": 0.35,
+   "mouth/mouth-cupidsbow-incr": 0.5,
+   "eyebrows/eyebrows-trans-forward": 0.25,
+   "forehead/forehead-nubian-incr": 0.15
+  },
+  "forms": {
+   "ear_rim_m": 0.0015,
+   "ear_hollow_m": 0.0035,
+   "nostril_m": 0.004,
+   "lid_ledge_m": 0.0018,
+   "lip_line_m": 0.0016,
+   "brow_ridge_m": 0.0015
+  }
+ },
+ "archetypes": {
+  "lean_hard": {
+   "note": "A hard man in his late thirties: lean, wiry, long in the face.",
+   "targets": {
+    "macrodetails/caucasian-male-young": 0.6,
+    "macrodetails/caucasian-male-old": 0.4,
+    "macrodetails/universal-male-young-maxmuscle-averageweight": 0.35,
+    "macrodetails/universal-male-young-averagemuscle-minweight": 0.3,
+    "head/head-oval": 0.4,
+    "cheek/{s}-cheek-bones-incr": 0.5,
+    "cheek/{s}-cheek-volume-decr": 0.4,
+    "chin/chin-width-incr": 0.3,
+    "chin/chin-prominent-incr": 0.3,
+    "nose/nose-hump-incr": 0.35,
+    "eyes/{s}-eye-height2-decr": 0.3
+   }
+  },
+  "heavy_older": {
+   "note": "A heavy man in his late fifties: broad, round in the face, jowls, a soft nose.",
+   "targets": {
+    "macrodetails/caucasian-male-old": 1.0,
+    "macrodetails/universal-male-old-averagemuscle-maxweight": 0.8,
+    "head/head-round": 0.6,
+    "head/head-fat-incr": 0.8,
+    "head/head-scale-horiz-incr": 0.2,
+    "neck/neck-double-incr": 0.8,
+    "cheek/{s}-cheek-volume-incr": 0.8,
+    "cheek/{s}-cheek-trans-down": 0.4,
+    "chin/chin-width-incr": 0.5,
+    "nose/nose-volume-incr": 0.6,
+    "nose/nose-point-width-incr": 0.6,
+    "nose/nose-point-down": 0.3,
+    "eyes/{s}-eye-bag-incr": 0.8,
+    "eyes/{s}-eye-height2-decr": 0.4,
+    "mouth/mouth-angles-down": 0.4,
+    "eyebrows/eyebrows-angle-down": 0.3
+   }
+  },
+  "young": {
+   "note": "A lad of about twenty: slight, smooth in the face.",
+   "targets": {
+    "macrodetails/caucasian-male-young": 1.0,
+    "macrodetails/universal-male-young-averagemuscle-minweight": 0.5,
+    "head/head-age-decr": 0.4,
+    "chin/chin-prominent-decr": 0.2
+   }
+  },
+  "old_timer": {
+   "note": "A weathered old-timer: thin, hollow-cheeked, a long hooked nose.",
+   "targets": {
+    "macrodetails/caucasian-male-old": 1.0,
+    "macrodetails/universal-male-old-averagemuscle-minweight": 0.7,
+    "head/head-age-incr": 0.8,
+    "cheek/{s}-cheek-volume-decr": 0.8,
+    "cheek/{s}-cheek-bones-incr": 0.6,
+    "nose/nose-hump-incr": 0.6,
+    "nose/nose-point-down": 0.5,
+    "nose/nose-scale-vert-incr": 1.0,
+    "eyes/{s}-eye-bag-incr": 0.5
+   }
+  }
+ },
+ "hair": {
+  "_line": "Each style's hairline: [degrees round from straight ahead, height above the eyes (m)] (sideburns in front of the ear at ~85, the nape at 180); `thickness` off the scalp; `crown`: bald above this height.",
+  "short": {"thickness": 0.007, "line": [[0, 0.064], [30, 0.065], [55, 0.058], [72, 0.035], [84, -0.022], [95, -0.005], [120, -0.03], [180, -0.068]]},
+  "collar": {"thickness": 0.009, "line": [[0, 0.062], [30, 0.064], [55, 0.056], [72, 0.032], [84, -0.03], [95, -0.02], [125, -0.08], [180, -0.125]]},
+  "fringe": {"thickness": 0.008, "crown": 0.03, "line": [[0, 0.074], [55, 0.062], [72, 0.03], [84, -0.012], [95, -0.005], [120, -0.03], [180, -0.072]]},
+  "none": null
+ },
+ "moustache": {
+  "walrus": {"thickness": 0.009, "width": 0.032, "top": 0.017, "below": 0.008, "droop": 0.016, "up": 0.0},
+  "handlebar": {"thickness": 0.006, "width": 0.04, "top": 0.014, "below": 0.002, "droop": 0.0, "up": 0.012},
+  "trimmed": {"thickness": 0.005, "width": 0.024, "top": 0.013, "below": 0.001, "droop": 0.0, "up": 0.0},
+  "none": null
+ },
+ "beard": {
+  "stubble": {"shell": 0.0, "paint": 0.55},
+  "short": {"shell": 0.006, "paint": 0.8},
+  "full": {"shell": 0.016, "paint": 0.9},
+  "none": null
+ }
+}

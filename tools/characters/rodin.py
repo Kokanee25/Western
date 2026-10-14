@@ -5,6 +5,9 @@ pictures, to be judged beside Tripo's newest before either is fitted.
 
     FAL_KEY=... python3 tools/characters/rodin.py [--only=stranger]
     python3 tools/characters/rodin.py --dry-run      (a stand-in fal on this machine)
+    FAL_KEY=... python3 tools/characters/rodin.py --only=bold_cowboy --pictures=DIR [--bust]
+      (the portrait factory's men: DIR/front, left, back, right.png; --bust: head-and-shoulders
+      pictures, so no A-pose is asked for; the words from assets/people/portrait.json `what`)
 
 For each man asked for (stranger by default) with his four pictures in assets/people/tripo/
 (<id>_full.png, the front, and _left, _back, _right: tools/characters/paint_full_length.py's
@@ -101,18 +104,30 @@ def what_of(cid):
         return ""
 
 
-def make(cid, key, src=None, out=None):
+def portrait_what(cid):
+    """A portrait-factory man's words (assets/people/portrait.json `what`)."""
+    try:
+        return json.load(open(os.path.join(ROOT, "assets", "people", "portrait.json")))["men"][cid].get("what", "")
+    except (OSError, ValueError, KeyError):
+        return ""
+
+
+def make(cid, key, src=None, out=None, pictures=None, bust=False):
     src = src or DIR
     out = out or OUT
     os.makedirs(out, exist_ok=True)
-    paths = [os.path.join(src, "%s_%s.png" % (cid, v)) for v in VIEWS]
+    if pictures:   # a folder of front/left/back/right.png (the portrait factory's)
+        paths = [os.path.join(pictures, ("front" if v == "full" else v) + ".png") for v in VIEWS]
+    else:
+        paths = [os.path.join(src, "%s_%s.png" % (cid, v)) for v in VIEWS]
     missing = [p for p in paths if not os.path.exists(p)]
     if missing:
         raise RuntimeError("missing pictures: %s" % ", ".join(os.path.basename(p) for p in missing))
-    log = [{"asked": REQUEST}]
+    asked = dict(REQUEST, TAPose=False) if bust else REQUEST
+    log = [{"asked": asked}]
     urls = [upload(p, key, log) for p in paths]
-    body = dict(REQUEST, image_urls=urls)
-    words = what_of(cid)
+    body = dict(asked, image_urls=urls)
+    words = what_of(cid) or portrait_what(cid)
     if words:
         body["prompt"] = words
     queued = request("POST", QUEUE + APP, key, body)
@@ -183,13 +198,16 @@ def main():
         print("No FAL_KEY: no model made (--dry-run runs it all against a stand-in).")
         return
     only = ["stranger"]
+    pictures = None
     for a in sys.argv[1:]:
         if a.startswith("--only=") and a.split("=", 1)[1]:
             only = a.split("=", 1)[1].split(",")
+        elif a.startswith("--pictures="):
+            pictures = a.split("=", 1)[1]
     failed = []
     for cid in only:
         try:
-            make(cid, key)
+            make(cid, key, pictures=pictures, bust="--bust" in sys.argv)
         except (RuntimeError, OSError, KeyError, ValueError, TypeError) as e:
             print("failed:", cid, e)
             failed.append(cid)

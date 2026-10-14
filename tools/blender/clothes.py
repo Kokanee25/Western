@@ -259,6 +259,8 @@ def _collar_points(g, person):
         for dx, dy in COLLAR_POINT[:3]:
             x, y = side * dx, knot[1] + dy
             z, w = surface(x, y)
+            # A heavy man's jowl hangs in front of his collar: a point never reaches past it.
+            z = z if z > knot[2] - 0.03 else knot[2]
             ids.append(g.add_vertex(np.array([x, y, min(z - COLLAR_POINT[3], knot[2] - 0.004)]), w))
         g.F.append(ids if side > 0 else ids[::-1])
 

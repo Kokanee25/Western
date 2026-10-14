@@ -1,0 +1,132 @@
+{
+ "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures. `style_hair`: his style portraits' hair, where it differs from his plain pictures' (tools/characters/portrait_style.py paints it so). `hair_fill`: \"grey\" (default) or \"dark\", how tools/characters/rodin_portrait.py picks his hair's colour for under the game's hat.",
+ "men": {
+  "bold_cowboy": {
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "style_hair": "grey, thick and wavy, to his collar, as in his style portraits",
+   "what": "a weathered frontier man of about forty, bare-headed, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache, a brown wool coat over a vest, a white shirt and a black tie",
+   "paint_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "profile_left": "docs/concept/style/portrait-cowboy-profile.png",
+    "profile_right": "docs/concept/style/portrait-cowboy-profile-right.png",
+    "back": "docs/concept/style/portrait-cowboy-from-behind.png"
+   }
+  },
+  "older_heavyset_cowboy": {
+   "pictures": "docs/concept/style/factory/older_heavyset_cowboy",
+   "style": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "what": "a heavy-set frontier man in his late fifties, bare-headed, thick grey hair swept back to his collar, a big grey walrus moustache, heavy jowls and a broad face, a brown wool coat over a vest, a white shirt and a dark tie",
+   "paint_views": {
+    "front": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/older_heavyset_cowboy/style_three_quarter.png",
+    "profile_left": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_left.png",
+    "profile_right": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_right.png",
+    "back": "docs/concept/style/factory/older_heavyset_cowboy/style_back.png"
+   },
+   "style_views": {
+    "front": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/older_heavyset_cowboy/style_three_quarter.png",
+    "side": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_left.png"
+   }
+  },
+  "young_lean_cowboy": {
+   "pictures": "docs/concept/style/factory/young_lean_cowboy",
+   "style": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#6b2a20"
+   },
+   "what": "a lean young frontier man of about twenty-two, bare-headed, tousled brown hair, clean-shaven with light stubble, a narrow face, a brown coat over a shirt with a red bandana at his neck",
+   "paint_views": {
+    "front": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/young_lean_cowboy/style_three_quarter.png",
+    "profile_left": "docs/concept/style/factory/young_lean_cowboy/style_profile_left.png",
+    "profile_right": "docs/concept/style/factory/young_lean_cowboy/style_profile_right.png",
+    "back": "docs/concept/style/factory/young_lean_cowboy/style_back.png"
+   },
+   "style_views": {
+    "front": "docs/concept/style/factory/young_lean_cowboy/style_front.png",
+    "three_quarter": "docs/concept/style/factory/young_lean_cowboy/style_three_quarter.png",
+    "side": "docs/concept/style/factory/young_lean_cowboy/style_profile_left.png"
+   },
+   "hair_fill": "dark"
+  },
+  "bold_cowboy_styled_30": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_styled_30",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "note": "The bold cowboy from his plain views repainted in the style (portrait_style.py, LoRA 0.3)"
+  },
+  "bold_cowboy_styled_60": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_styled_60",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "note": "The bold cowboy from his plain views repainted in the style (portrait_style.py, LoRA 0.6)"
+  },
+  "bold_cowboy_smooth": {
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-cowboy-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-cowboy-front.png",
+    "three_quarter": "docs/concept/style/portrait-cowboy-three-quarter.png",
+    "side": "docs/concept/style/portrait-cowboy-profile-right.png"
+   },
+   "style_hair": "grey, thick and wavy, to his collar, as in his style portraits",
+   "squares": false,
+   "note": "The bold cowboy with no squares on his face or hair (the smooth-faced test, docs/briefs/portrait-factory.md route 4)."
+  }
+ }
+}
