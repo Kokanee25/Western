@@ -170,16 +170,21 @@ def main():
     for name, w in spec["woods"].items():
         if only and name not in only:
             continue
-        w = dict(w, length=spec["length"])
+        # A wood laid coarser or finer than 32 a metre keeps its strip 2 m long (and its nails at the
+        # same places along it).
+        dens = w.get("texels_per_metre", spec["texels_per_metre"])
+        k = dens / spec["texels_per_metre"]
+        w = dict(w, length=int(round(spec["length"] * k)), nails=[int(round(x * k)) for x in w["nails"]],
+                 stroke=[max(2, int(round(v * k))) for v in w["stroke"]])
         rng = np.random.default_rng(sum(map(ord, name)) * 7919)
         boards = lay_round_albedo([paint_board(w, k, rng) for k in range(w["count"])], w["albedo"])
-        for k, b in enumerate(boards):
-            Image.fromarray((b * 255 + 0.5).astype(np.uint8)).save(os.path.join(OUT, "%s_b%d.png" % (name, k)))
+        for i, b in enumerate(boards):
+            Image.fromarray((b * 255 + 0.5).astype(np.uint8)).save(os.path.join(OUT, "%s_b%d.png" % (name, i)))
         stack = np.concatenate(boards[:4], 0)
         Image.fromarray((stack * 255 + 0.5).astype(np.uint8)).save(os.path.join(OUT, "%s.png" % name))
-        info["woods"][name] = {"boards": w["count"], "rows": w["rows"], "length": spec["length"]}
+        info["woods"][name] = {"boards": w["count"], "rows": w["rows"], "length": w["length"], "texels_per_metre": dens}
         sheet_rows.append((name, boards))
-        print("%-14s %d boards, %dx%d" % (name, w["count"], spec["length"], w["rows"]))
+        print("%-14s %d boards, %dx%d at %g/m" % (name, w["count"], w["length"], w["rows"], dens))
     json.dump(info, open(os.path.join(OUT, "lab.json"), "w"), indent=1)
     if "sheet" in args:
         zoom, pad = 6, 6

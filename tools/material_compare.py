@@ -26,7 +26,7 @@ NEAR_CROP = (0, 150, 800, 600)
 # Close-ups: [name, the painting's box, the render's box (facade_lab `near`, 1280x720)], the same
 # shape, each where that wood is nearest and lit alike.
 CLOSE = [
-    ["red siding", (300, 330, 370, 400), (180, 170, 250, 240)],
+    ["red siding", (440, 160, 500, 220), (180, 170, 240, 230)],
     ["timber post", (425, 380, 475, 450), (575, 280, 625, 350)],
     ["boardwalk", (250, 620, 350, 690), (400, 560, 500, 630)],
 ]

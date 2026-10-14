@@ -5,22 +5,26 @@
   "saloon_red": {
    "boards": 10,
    "rows": 6,
-   "length": 64
+   "length": 64,
+   "texels_per_metre": 32
   },
   "store_boards": {
    "boards": 12,
    "rows": 6,
-   "length": 64
+   "length": 64,
+   "texels_per_metre": 32
   },
   "timber": {
    "boards": 12,
    "rows": 8,
-   "length": 64
+   "length": 64,
+   "texels_per_metre": 32
   },
   "floor": {
    "boards": 12,
-   "rows": 5,
-   "length": 64
+   "rows": 3,
+   "length": 32,
+   "texels_per_metre": 16
   }
  }
 }

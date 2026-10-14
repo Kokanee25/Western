@@ -79,6 +79,17 @@ const LAB_PATH := "res://assets/textures/lab/%s.png"
 const LAB_EDGE_SHADE := 0.32
 const LAB_EDGE_LIP := 1.4
 static var lab := false
+static var _lab_density := {}
+
+
+## A lab wood's squares a metre (assets/textures/lab/lab.json, paint_woods.py), DRAWN_TEXELS if unsaid.
+static func lab_density(key: String) -> float:
+	if _lab_density.is_empty() and FileAccess.file_exists("res://assets/textures/lab/lab.json"):
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/textures/lab/lab.json"))
+		if info is Dictionary:
+			for w: String in (info as Dictionary).get("woods", {}):
+				_lab_density[w] = float(info.woods[w].get("texels_per_metre", DRAWN_TEXELS))
+	return _lab_density.get(_wood_of(key), DRAWN_TEXELS)
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -99,7 +110,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	if tex and tex.resource_path.contains("/drawn/"):
 		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
 	elif tex and tex.resource_path.contains("/textures/lab/"):
-		m.set_meta(&"texels", DRAWN_TEXELS)
+		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
 	return track(m)

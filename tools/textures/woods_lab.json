@@ -1,12 +1,12 @@
 {
- "about": "The material lab's woods (tools/textures/paint_woods.py; Sean's brief of 2026-10-14, the exterior wood materials sheet docs/concept/wood-materials.png against the masters). Each wood: `ramp` its intrinsic colours dark to light, sRGB, taken from the sheet's swatch (median-cut, docs/screenshots/material_lab/analysis.md) and checked against the street painting's same wood; the light (sunset, lamps) is the game's, not painted in. `grey` pulls the ramp toward its own lightness (the sheet is more saturated than the masters: its red at golden hour in the game measured chroma 67 to the street painting's 30). `albedo` is the mean the ramp is laid round (the production wood's, tools/textures/draw_boards.py, so the game's exposure fits both). `rows` squares across a board at 32 a metre (as the production strips: members' UVs repeat them), `count` boards. Strokes: `stroke` [min, max] squares along the grain, `tones` how far a stroke steps from its board (in ramp places, with weights), `wave` the slow lengthwise tone (ramp places), `streaks` long dark grain lines a board, `knot` a board's chance of a knot, `nails` places along the 2 m strip (texels) where a nail sits by an edge, `wear` (painted woods) the share worn through to `under` in clumps by the edges and ends.",
+ "about": "The material lab's woods (tools/textures/paint_woods.py; Sean's brief of 2026-10-14, the exterior wood materials sheet docs/concept/wood-materials.png against the masters). Each wood: `ramp` its intrinsic colours dark to light, sRGB, taken from the sheet's swatch (median-cut, docs/screenshots/material_lab/analysis.md) and checked against the street painting's same wood; the light (sunset, lamps) is the game's, not painted in. `grey` pulls the ramp toward its own lightness (the sheet is more saturated than the masters: its red at golden hour in the game measured chroma 67 to the street painting's 30). `albedo` is the mean the ramp is laid round (the production wood's, tools/textures/draw_boards.py, so the game's exposure fits both). `texels_per_metre` a wood's own squares a metre (the boardwalk's at 16: the masters paint a plank three squares across), `rows` squares across a board at it (as the production strips: members' UVs repeat them), `count` boards. Strokes: `stroke` [min, max] squares along the grain, `tones` how far a stroke steps from its board (in ramp places, with weights), `wave` the slow lengthwise tone (ramp places), `streaks` long dark grain lines a board, `knot` a board's chance of a knot, `nails` places along the 2 m strip (texels) where a nail sits by an edge, `wear` (painted woods) the share worn through to `under` in clumps by the edges and ends.",
  "length": 64,
  "texels_per_metre": 32,
  "woods": {
   "saloon_red": {
    "what": "red painted saloon siding, faded and worn (sheet 1)",
    "ramp": ["#3f1813", "#5c211a", "#702619", "#82301f", "#923a26", "#a24a31", "#b4613f"],
-   "albedo": [0.4, 0.16, 0.11], "grey": 0.45,
+   "albedo": [0.46, 0.2, 0.15], "grey": 0.4,
    "rows": 6, "count": 10, "base": [2.6, 0.7],
    "stroke": [3, 9], "tones": [[-2, 0.06], [-1, 0.22], [0, 0.42], [1, 0.22], [2, 0.08]],
    "wave": 0.7, "streaks": [1, 2], "knot": 0.15, "nails": [5, 24, 43, 62],
@@ -26,7 +26,7 @@
   "timber": {
    "what": "weathered grey timber posts and beams, sun-bleached (sheet 3)",
    "ramp": ["#33251f", "#45352e", "#57443a", "#6b5345", "#84654f", "#9c7a5e", "#b18f70"],
-   "albedo": [0.56, 0.47, 0.37],
+   "albedo": [0.56, 0.47, 0.37], "grey": 0.25,
    "rows": 8, "count": 12, "base": [3.2, 0.7],
    "stroke": [4, 11], "tones": [[-2, 0.1], [-1, 0.24], [0, 0.34], [1, 0.22], [2, 0.1]],
    "wave": 0.9, "streaks": [2, 4], "knot": 0.25, "nails": [],
@@ -36,8 +36,8 @@
   "floor": {
    "what": "warm boardwalk planks, porch flooring (sheet 6; the masters' boardwalk)",
    "ramp": ["#3a261c", "#553828", "#6a4630", "#7c5638", "#8e6441", "#9f7149", "#b3835a"],
-   "albedo": [0.64, 0.53, 0.41],
-   "rows": 5, "count": 12, "base": [3.2, 0.7],
+   "albedo": [0.64, 0.53, 0.41], "grey": 0.3, "texels_per_metre": 16,
+   "rows": 3, "count": 12, "base": [3.2, 0.7],
    "stroke": [3, 10], "tones": [[-2, 0.08], [-1, 0.22], [0, 0.4], [1, 0.22], [2, 0.08]],
    "wave": 0.8, "streaks": [1, 2], "knot": 0.2, "nails": [3, 60],
    "wear": 0.0, "under": [],

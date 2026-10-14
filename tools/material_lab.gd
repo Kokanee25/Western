@@ -78,6 +78,7 @@ func _run() -> void:
 		await physics_frame
 	for light in lights:
 		clock.set_time(HOURS[light])
+		set.get_node(^"LabLamp").visible = light == "night"
 		for i in 20:
 			await process_frame
 		for v in views:
@@ -139,13 +140,14 @@ func _build(set: Node3D) -> void:
 		walk.steps = [Vector2(WIDTH * 0.5, 1.6)]
 		walk.position = b.position
 		set.add_child(walk)
-	# An oil lantern on the saloon's wall by the close view (lit from dusk): the woods by lamplight.
-	var lamp = load("res://src/world/oil_lamp.gd").new()
-	lamp.name = "LabLantern"
-	lamp.lit_from_hour = 18
-	lamp.lit_until_hour = 6
-	lamp.energy = 1.0
-	lamp.light_range = 6.0
-	lamp.casts_shadows = false
+	# Lamplight on the saloon's wall by the close view: a warm light the colour of the game's oil
+	# lamps (OilLamp's), on only at night (the woods by lamplight, not a second sun by day).
+	var lamp := OmniLight3D.new()
+	lamp.name = "LabLamp"
+	lamp.light_color = Color(1.0, 0.74, 0.48)
+	lamp.light_energy = 1.4
+	lamp.omni_range = 6.0
+	lamp.shadow_enabled = false
 	set.add_child(lamp)
-	lamp.position = Vector3(2.3, 2.1, -0.25)
+	lamp.position = Vector3(2.0, 2.1, -0.5)
+	lamp.set_meta(&"night_only", true)
