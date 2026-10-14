@@ -157,7 +157,7 @@ faces; the road's static; the street's sky and one-colour frame.
 
 Cost: a wash. The rule is a dozen arithmetic operations a light a fragment; render CPU and the
 software raster moved within run-to-run noise. Real-GPU time not measured (no GPU here); expect
-well under 0.1 ms at 1080p. Tests: see the status entry.
+well under 0.1 ms at 1080p. Tests: 387/387 (the native plugin built here for its seven); no game file changed.
 
 Two side results from the controls: **AgX** (Godot's other filmic tonemapper, one setting:
 `--env=tonemap_mode:4`) takes the noon clipping from 27 % to 0 % and the hue turn from 21.5° to
