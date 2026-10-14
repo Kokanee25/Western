@@ -310,21 +310,19 @@ green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) an
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
 
-**Art** (branch `claude/art-…`; brief: Sean's four jobs of 2026-10-12, all four done):
-- Done: job 1, the mosaic (build 956: the road from the painting's squares at 16/m, bolder drawn
-  wood, the table at 128/m); job 2, his face (build 960: side key, `weathered_face`); job 3, the
-  light (#109: the gold sky warm, a gold sun in the notch, the room's lamps up); job 4, the shots'
-  own extras. Judge v2: saloon 0.423, street 0.713 (notes; Sean's eye is the gate). Sheets in
-  `docs/screenshots/review/`.
-- Next: the critic's top three (round r7): the saloon's standing men block the room and read as
-  mannequins; the road loud static (calmer far off and at noon). Done since: faces held under
-  `light_cap` (`body_skin`; saloon 0.306 → 0.233; `tools/face_light.py` measures a face's light). Then the
-  saloon's square size (~20 px to the painting's ~5). Done since: the saloon's darks back (haze,
-  lamp glow, fill, exposure; judge saloon 0.306).
-- Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
-  goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
-  folk cost ~43 meshes each (~50 to spare).
-- Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
+**Art** (branch `claude/art-…`; latest: the render lab, `docs/briefs/render-lab.md`):
+- Done: Sean's four jobs of 2026-10-12 (mosaic, face, light, extras); faces held under
+  `light_cap`; the saloon's darks back (judge saloon 0.232, street 0.696). The render lab
+  (`experiments/render_lab/`, branch `claude/art-render-lab`, not merged, nothing in production):
+  a stage of the game's assets, a paint probe (each surface unlit beside its frame), and "paint
+  light" (the light's colour shared by how lit a surface is). Judge saloon 0.218, street 0.617, no
+  cost, but a blind critic can't tell it from production. Verdict: keep the renderer; the gap is
+  the frame's content and the textures, not the drawing.
+- Next (Sean's call): desaturate the golden sun (`day_cycle.tres`) and hold noon (a quarter of the
+  noon store front clips); the critic's top three: the saloon's standing men and murky back
+  half, the road's static, the street's sky; the saloon's square size (~20 px to the painting's ~5).
+- Known: a full golden render is ~2.5 h on lavapipe here; the lab's stage is ~1 min a look.
+- Waiting on Sean: the four sheets; the style-sheet review (Prompt 07); the render lab's verdict.
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
 - On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
