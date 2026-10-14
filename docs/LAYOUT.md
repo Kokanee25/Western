@@ -119,7 +119,10 @@ fails a hang: no frame for 2 minutes of real time (`stall`) or under 240 frames 
 writes `soak.md` with the problem (the game clock, what the soak was doing, each system's ms a
 frame from `Prof` just before, the last things that happened), then crashes the process on purpose
 so the engine prints the main thread's GDScript backtrace (exit 134). `--hang-at=S
-[--stall-seconds=N]` and `--crawl-at=S` do either on purpose to try it.
+[--stall-seconds=N]` and `--crawl-at=S` do either on purpose to try it. A game frozen whole (the
+watchdog thread too) is the workflow's to catch: it runs the soak in the background into
+`build/soak/soak.log`, and with that log quiet 10 minutes writes `frozen.md` (every thread's
+state, wait channel and gdb backtrace) to the log and the summary, sends SIGSEGV and fails.
 
 ## Feel ranges
 
