@@ -593,8 +593,9 @@ func _save_man_mask(viewport: SubViewport, player, path: String) -> void:
 
 
 ## The seated man's head drawn as painted and unlit (body_skin paint_probe = the exposure, so the
-## grade gives back the paint), then black: `<base>_paint.png`, `<base>_headblack.png`. Where the
-## two differ is his head; there the frame ÷ the paint is the light on his face.
+## grade gives back the paint), then black, all three held still: `<base>_game.png`, `_paint.png`,
+## `_headblack.png`. Where the last two differ is his head; there the game ÷ the paint is the
+## light on his face.
 func _save_face_probe(viewport: SubViewport, player, base: String) -> void:
 	var man := viewport.find_child("SeatedMan", true, false) as Node3D
 	if man == null:
@@ -609,17 +610,21 @@ func _save_face_probe(viewport: SubViewport, player, base: String) -> void:
 	for mi: MeshInstance3D in man.find_children("Head_*", "MeshInstance3D", true, false):
 		if mi.material_override is ShaderMaterial:
 			heads.append(mi.material_override)
-	for pass_value in [exposure, -1.0]:
+	# He breathes: held still for all three, so they line up square for square.
+	var mode := man.process_mode
+	man.process_mode = Node.PROCESS_MODE_DISABLED
+	for pass_value in [0.0, exposure, -1.0]:
 		for m: ShaderMaterial in heads:
 			m.set_shader_parameter(&"paint_probe", pass_value)
 		for i in 4:
 			await process_frame
 		await RenderingServer.frame_post_draw
-		var path := "%s_%s.png" % [base, "paint" if pass_value > 0.0 else "headblack"]
+		var path := "%s_%s.png" % [base, "game" if pass_value == 0.0 else ("paint" if pass_value > 0.0 else "headblack")]
 		viewport.get_texture().get_image().save_png(path)
 		print("saved ", path.get_file(), " (exposure %.3f, %d head pieces)" % [exposure, heads.size()])
 	for m: ShaderMaterial in heads:
 		m.set_shader_parameter(&"paint_probe", 0.0)
+	man.process_mode = mode
 
 
 ## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).
