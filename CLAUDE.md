@@ -303,7 +303,7 @@ python3 tools/bridge.py stop
 - **tests** — the runner, how a test is written.
 - **CI** — build.yml, releases, Pages, notes from `docs/BUILD_NOTES.md`.
 
-## Current state (2026-10-14; each session replaces its own lines)
+## Current state (2026-10-12 evening; each session replaces its own lines)
 
 Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
