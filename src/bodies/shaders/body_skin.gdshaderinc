@@ -60,6 +60,9 @@ uniform float paint_contrast = 1.08;
 // How much of the scene's ambient light a painted part takes (0: none, self_lit stands in for
 // it; 1: lit like everything else, the hybrid finish's way).
 uniform float paint_ambient = 0.0;
+// For tools/face_light.py only (screenshots.gd --face-probe; 0 in the game): > 0 shows the piece
+// as painted, unlit (its colour ÷ this exposure, so the grade gives back the paint); < 0 black.
+uniform float paint_probe = 0.0;
 // Texels a side in one of the painted texture's squares (lit as one): 1, or 3 on the face, whose
 // eyes are drawn finer than its squares.
 uniform float square_texels = 1.0;
@@ -225,6 +228,10 @@ void fragment() {
 	}
 	ALBEDO = base * (1.0 - glow) * (painted ? paint_gain : 1.0) * eye_boost;
 	EMISSION = base * glow;
+	if (paint_probe != 0.0) {
+		ALBEDO = vec3(0.0);
+		EMISSION = paint_probe > 0.0 ? base / paint_probe : vec3(0.0);
+	}
 	if (painted) {
 		AO = paint_ambient;
 		// Painted matt: no sheen of the sky or the room on him (a night sky turned his shirt blue).
