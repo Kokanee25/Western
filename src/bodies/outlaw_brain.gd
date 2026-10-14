@@ -550,7 +550,7 @@ func _pick_fight(delta: float) -> void:
 	_retarget = 1.0
 	var best: Node = null
 	var best_p := -1.0
-	for who in relations.entries:
+	for who in relations.entries.keys():  # a copy: a freed key can loop the walk (Senses)
 		if not is_instance_valid(who) or relations.stance(who) != Relations.Stance.FIGHT or _done_with(who):
 			continue
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (0.5 if who == t else 0.0)
@@ -692,7 +692,7 @@ func _can_go_about() -> bool:
 		return false
 	if agenda[0].do in [&"call_out", &"duel"]:
 		return true
-	for who in relations.entries:
+	for who in relations.entries.keys():  # a copy (see above)
 		var e: Dictionary = relations.entries[who]
 		if is_instance_valid(who) and e.stance >= Relations.Stance.WARY and not e.cowed:
 			return false

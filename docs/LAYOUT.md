@@ -113,7 +113,13 @@ time creeping (the last 5-minute window's median over 3x the first's). `soak.md`
 summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
 lost bodies with their path, script, rubble members and speed; stuck men with where they are and
 where they're going) and each window prints the process's resident memory, so a run the runner
-kills still leaves its log; past 6 GB resident it stops early and reports.
+kills still leaves its log; past 6 GB resident it stops early and reports. A frozen game prints
+nothing, so it writes the game clock to `build/soak/clock.txt` every 600 frames; the workflow runs
+it in the background into `build/soak/soak.log`, and with that log quiet 10 minutes writes
+`frozen.md` (the clock a minute apart, every thread's state, wait channel and gdb backtrace, five
+samples of the main thread) to the log and the summary, sends SIGSEGV for the GDScript backtrace
+and fails. `--hang-at=S` hangs it on purpose to try that. (An in-process watchdog thread was tried
+and never started on the CI runner: the workflow does it.)
 
 ## Feel ranges
 

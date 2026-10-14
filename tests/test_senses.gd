@@ -116,3 +116,35 @@ func test_footsteps() -> void:
 	senses.known.clear()
 	Events.noise.emit(player.global_position, 2.0, &"footsteps", player)
 	check(not senses.knows(player), "not creeping crouched")
+
+
+## People come and go (the gang rides out, is freed, rides in again, often where the last ones
+## were in memory): he forgets the gone, and his look never walks round in a circle. The nightly
+## soak froze for hours in the knocked-out man's loop over who he knew (2026-10-14): a Dictionary
+## keyed by freed objects can loop for ever in Godot 4.7.
+func test_forgets_people_who_are_gone() -> void:
+	var others: Array = []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var me := senses.body
+	for round in 40:
+		for i in 3:
+			var n := Node3D.new()
+			others.append(n)
+			senses._entry(n)
+		while others.size() > 6:
+			var k := rng.randi_range(0, others.size() - 1)
+			(others[k] as Node).free()
+			others.remove_at(k)
+		# Knocked out (no body to look with): the loop that froze.
+		senses.body = null
+		senses._t = 0.0
+		senses._physics_step(0.0)
+		senses.body = me
+	senses._t = 0.0
+	senses._physics_step(0.0)
+	var gone := senses.known.keys().filter(func(w: Variant) -> bool: return not is_instance_valid(w))
+	check_eq(gone.size(), 0, "nobody gone is still known")
+	check(senses.known.size() <= others.size() + 2, "only the living (and you) are (%d known)" % senses.known.size())
+	for n: Node in others:
+		n.free()
