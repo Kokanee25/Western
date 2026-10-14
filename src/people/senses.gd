@@ -56,11 +56,23 @@ func _physics_step(delta: float) -> void:
 		return
 	var dt := TICK - _t
 	_t = TICK
+	_forget_gone()
 	if body == null or not is_instance_valid(body) or not body.physiology.is_conscious():
-		for who in known:
-			known[who].seen = false
+		for k: Dictionary in known.values():
+			k.seen = false
 		return
 	_look(dt)
+
+
+## The people he knew of who've left the world (rode out, freed). Never walk `known` itself while
+## one might be in it: a Dictionary keyed by a freed object can walk round in a circle for ever in
+## Godot 4.7 once new people take the freed ones' places in memory (the nightly soak froze on
+## line 61's loop here, 2026-10-14; the same in a 30-line script). Erased through a copy of the
+## keys, which is safe.
+func _forget_gone() -> void:
+	for who: Variant in known.keys():
+		if not is_instance_valid(who):
+			known.erase(who)
 
 
 ## The time on his own clock (seconds since he came into the world).
