@@ -103,7 +103,11 @@ static func _member_rng(m: Node) -> RandomNumberGenerator:
 
 
 static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, nails: Array[Transform3D], level := 1) -> ArrayMesh:
-	var id := String(m.member_id).get_slice("/", 1)
+	# The member's path in its structure ("plank/003", "step/0_1"). Level 1 read only its first
+	# part, so its "step/" test never matched and the finish's steps stayed the game's blocks:
+	# kept so for level 1 (what Sean reviewed), the whole path from level 2.
+	var mid := String(m.member_id)
+	var id := mid.substr(mid.find("/") + 1) if level >= 2 else mid.get_slice("/", 1)
 	var wd: float = walk.walk_depth
 	var top: float = walk.top
 	var at: Vector3 = (m as Node3D).position
