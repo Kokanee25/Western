@@ -395,7 +395,10 @@ a few views renders them as the full run does.
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
   per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
-  `body_inside` cut wound openings, `wounds.gdshaderinc`).
+  `body_inside` cut wound openings, `wounds.gdshaderinc`). `body_skin`'s light pass holds the sum
+  of a person's lights under `light_cap` × his own colour (top channel; `light_knee` where it
+  starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
+  measures a face's light ÷ its paint.
 
 ## src/people
 

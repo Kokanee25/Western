@@ -149,6 +149,7 @@ func _run() -> void:
 	var globals_after := {}
 	var fresh := false
 	var man_mask := false
+	var face_probe := false
 	var msaa := -1
 	var view_at: Array = []
 	var settings = root.get_node(^"Settings")
@@ -268,6 +269,10 @@ func _run() -> void:
 		# (<view>_man.png), his outline for the character judge (tools/characters/judge_man.py).
 		elif arg == "--man-mask":
 			man_mask = true
+		# --face-probe: with each shot, the seated man's head as painted (unlit) and black, for
+		# tools/face_light.py (the light on his face ÷ its paint; art's, 2026-10-14).
+		elif arg == "--face-probe":
+			face_probe = true
 		elif arg.begins_with("--man-pose="):
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
@@ -540,6 +545,8 @@ func _run() -> void:
 		print("saved ", v[0])
 		if man_mask:
 			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
+		if face_probe:
+			await _save_face_probe(viewport, player, "%s/%s" % [out, v[0]])
 	quit()
 
 
@@ -583,6 +590,41 @@ func _save_man_mask(viewport: SubViewport, player, path: String) -> void:
 			gi.material_override = was[gi][0]
 			gi.material_overlay = was[gi][1]
 			gi.visible = was[gi][2]
+
+
+## The seated man's head drawn as painted and unlit (body_skin paint_probe = the exposure, so the
+## grade gives back the paint), then black, all three held still: `<base>_game.png`, `_paint.png`,
+## `_headblack.png`. Where the last two differ is his head; there the game ÷ the paint is the
+## light on his face.
+func _save_face_probe(viewport: SubViewport, player, base: String) -> void:
+	var man := viewport.find_child("SeatedMan", true, false) as Node3D
+	if man == null:
+		return
+	var cam: Camera3D = player.camera
+	var env: Environment = cam.environment
+	if env == null:
+		var we := viewport.find_child("WorldEnvironment", true, false) as WorldEnvironment
+		env = we.environment if we else null
+	var exposure: float = env.tonemap_exposure if env else 1.0
+	var heads: Array = []
+	for mi: MeshInstance3D in man.find_children("Head_*", "MeshInstance3D", true, false):
+		if mi.material_override is ShaderMaterial:
+			heads.append(mi.material_override)
+	# He breathes: held still for all three, so they line up square for square.
+	var mode := man.process_mode
+	man.process_mode = Node.PROCESS_MODE_DISABLED
+	for pass_value in [0.0, exposure, -1.0]:
+		for m: ShaderMaterial in heads:
+			m.set_shader_parameter(&"paint_probe", pass_value)
+		for i in 4:
+			await process_frame
+		await RenderingServer.frame_post_draw
+		var path := "%s_%s.png" % [base, "game" if pass_value == 0.0 else ("paint" if pass_value > 0.0 else "headblack")]
+		viewport.get_texture().get_image().save_png(path)
+		print("saved ", path.get_file(), " (exposure %.3f, %d head pieces)" % [exposure, heads.size()])
+	for m: ShaderMaterial in heads:
+		m.set_shader_parameter(&"paint_probe", 0.0)
+	man.process_mode = mode
 
 
 ## "k:v,k:v" → {k: float}: the mosaic's shader knobs (--mosaic-tune, --saloon-tune, --street-tune).
