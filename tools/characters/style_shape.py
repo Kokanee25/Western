@@ -115,6 +115,28 @@ def warp_safe(V, T, at, move, report):
     return W, move * scale
 
 
+def warp_broad(V, at, move, centre, radius=0.09, ridge=1e-3):
+    """The landmarks' moves as one broad correction of his face (a quadratic in position, fitted to
+    them), fading out past `radius` from the face's middle: it can lengthen his chin, shorten his
+    nose, narrow his cheeks, but can't put a lump between two landmarks the portraits disagree on
+    (warp() did: a muzzle round his mouth and a groove down to his jaw, 2026-10-14)."""
+    ok = ~np.isnan(at).any(1) & (np.linalg.norm(move, axis=1) > 0)
+
+    def feats(p):
+        q = (p - centre) / 0.1
+        x, y, z = q[:, 0], q[:, 1], q[:, 2]
+        return np.stack([np.ones_like(x), x, y, z, x * x, y * y, z * z, x * y, y * z, x * z], 1)
+
+    F = feats(at[ok])
+    A = F.T @ F + ridge * len(F) * np.eye(F.shape[1])
+    coef = np.linalg.solve(A, F.T @ move[ok])
+    d = feats(V) @ coef
+    r = np.linalg.norm(V - centre, axis=1)
+    fade = np.clip((radius * 1.5 - r) / (radius * 0.5), 0, 1)
+    fade = fade * fade * (3 - 2 * fade)
+    return V + d * fade[:, None]
+
+
 def warp(V, at, move):
     """Every vertex moved by the landmarks' moves, interpolated with a Gaussian of SIGMA."""
     ok = ~np.isnan(at).any(1)

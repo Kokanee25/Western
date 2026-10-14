@@ -355,7 +355,18 @@ def paint(man, spec):
             before = {v: report["views"][v]["landmarks_mm"] for v in cams}
             move, seen = SS.solve_landmarks(pts, nrm, cams, lms, ok)
             guard = {}
-            V, move = SS.warp_safe(V, T, pts, move, guard)
+            if fid.get("shape_fit") == "broad":
+                # One broad correction of his face, not a nudge per landmark (those made lumps:
+                # style_shape.warp_broad).
+                centre = np.nanmean(pts[:468], 0)
+                Vn = SS.warp_broad(V, pts, move, centre)
+                pn = pts.copy()
+                pn[ok] = SS.warp_broad(pts[ok], pts, move, centre)
+                guard["strain_max"] = round(SS.strain(V, T, Vn), 2)
+                move = np.where(ok[:, None], pn - pts, 0.0)
+                V = Vn
+            else:
+                V, move = SS.warp_safe(V, T, pts, move, guard)
             pts = np.where(ok[:, None], pts + move, pts)
             n_loop = P.vertex_normals(V, T)
             acc = np.zeros((inv.max() + 1, 3))
