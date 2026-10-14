@@ -58,7 +58,10 @@ def _ring(c, hw, hf, hb, n=AROUND, closed=False):
     one more point, the first again (so a texture can wrap without a seam)."""
     a = np.linspace(0, 2 * math.pi, n + 1 if closed else n, endpoint=closed)
     x = c[0] + hw * np.sin(a)
-    z = c[2] + np.where(np.cos(a) > 0, -hf, hb) * np.cos(a)    # a = 0 is his front (-z)
+    # a = 0 is his front (-z). (Until 2026-10-14 this read `+ where(cos > 0, -hf, hb) * cos`,
+    # which put the back half in front too: every ring folded onto its front and the hat had no
+    # back; the refill plane rodin_portrait.py takes from the foot ring was unaffected.)
+    z = c[2] - np.where(np.cos(a) > 0, hf, hb) * np.cos(a)
     return np.stack([x, np.full(len(a), c[1]), z], 1), a
 
 
@@ -199,6 +202,52 @@ def draw_band(h):
     return tex
 
 
+# The designed paint (`hat.paint` "designed"): projected from the portraits the felt came out as
+# orange smears of his face; drawn instead, as the portraits draw a hat: the felt's brown in
+# squares of a few close tones, lighter up the crown, the crease and the brim's underside darker,
+# the brim's edge bound in a lighter tan.
+DESIGN_TEX = 256                  # read nearest: a texel ~4 mm on the crown
+DESIGN_SQUARE_M = 0.016           # the felt's squares (the portraits' crown checker)
+FELT_TONES = (0.86, 0.94, 1.0, 1.07, 1.15)
+RIM = (0.55, 0.33, 0.17)          # the brim's bound edge (the portraits' tan line)
+
+
+def _tones(u, v, cells_u, cells_v, seed):
+    """A tone per square of a (cells_u × cells_v) grid over UV."""
+    rng = np.random.default_rng(seed)
+    grid = rng.choice(FELT_TONES, size=(int(cells_v) + 1, int(cells_u) + 1))
+    return grid[np.clip((v * cells_v).astype(int), 0, int(cells_v)), np.clip((u * cells_u).astype(int), 0, int(cells_u))]
+
+
+def design_hat(parts, h):
+    """{part: (DESIGN_TEX, DESIGN_TEX, 3)}: the designed paint (see above)."""
+    tex_n, sq_m = DESIGN_TEX, float(h.get("square_m", DESIGN_SQUARE_M))
+    felt = np.array(h["colour"], float)
+    yy, xx = np.mgrid[0:tex_n, 0:tex_n]
+    u, v = (xx + 0.5) / tex_n, (yy + 0.5) / tex_n
+    out = {}
+    # The crown: u round it, v from its top (0) to the band (1).
+    girth = math.pi * np.ptp(parts["hat"][0][:, 0])
+    t = _tones(u, v, girth / sq_m, h["crown_h"] / sq_m, 1)
+    c = felt * (t * (1.12 - 0.2 * v))[..., None]          # lighter towards the top
+    c[(v < 0.22) & (np.abs(np.sin(u * 2 * math.pi)) < 0.3)] *= 0.62   # the top's dent
+    out["hat"] = c
+    # The brim: its top in the left half (centre 0.25, 0.5), its underside in the right.
+    du = np.where(u < 0.5, u - 0.25, u - 0.75) / 0.24
+    rad = np.hypot(du, (v - 0.5) / 0.48) / 2               # 0.05 at the crown's foot, 0.5 at the edge
+    cells = 2 * max(h["brim_w"], h["brim_f"], h["brim_b"]) / sq_m
+    t = _tones(u, v, cells, cells, 2)
+    c = np.where((u < 0.5)[..., None], felt * (t * 1.05)[..., None], felt * (t * 0.58)[..., None])
+    c[(rad > 0.465) & (u < 0.5)] = RIM
+    c[(rad > 0.47) & (u >= 0.5)] = np.array(RIM) * 0.7
+    c[rad < 0.07] *= 0.75                                  # the crown's foot shades the brim
+    out["hat_brim"] = c
+    big = draw_band(h)
+    step = big.shape[0] // tex_n
+    out["hat_band"] = big[step // 2::step, step // 2::step]
+    return out
+
+
 def paint_hat(parts, occluders, cams, pics, h, patch_squares, delight=None):
     """Each part's texture (TEX, TEX, 3): the portraits projected as on his face."""
     import portrait as P
@@ -277,7 +326,8 @@ MARKS = {
 # The crown's height isn't fitted (no portrait shows its top whole): `crown_h` as given.
 FIT_KEYS = ["band_above_eyes", "tilt", "roll", "brim_w", "brim_f", "brim_b", "curl", "dip", "clear", "shift_z"]
 # A cattleman's brim: flat or rolled up at the sides (curl >= 0), a little dip front and back.
-FIT_LO = [0.0, -25.0, -20.0, 0.12, 0.12, 0.12, 0.0, 0.0, -0.01, -0.04]
+# The portraits' brims droop at the sides as often as they roll up: curl may go below 0.
+FIT_LO = [0.0, -25.0, -20.0, 0.12, 0.12, 0.12, -0.04, 0.0, -0.01, -0.04]
 FIT_HI = [0.08, 25.0, 20.0, 0.32, 0.36, 0.40, 0.05, 0.03, 0.07, 0.10]
 
 

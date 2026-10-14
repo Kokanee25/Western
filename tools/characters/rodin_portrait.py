@@ -430,8 +430,16 @@ def paint(man, spec):
         # His mane is bigger than the painted hair: where it lands on the painting's background
         # (the colours of its left and right edges), this view doesn't paint it.
         edge = np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)])
-        bg = np.median(edge, 0)
-        bg_like = (np.linalg.norm(colour[view] - bg, axis=1) < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
+        if fid.get("backdrop_palette"):
+            # The backdrop is a checker of several browns, not one: its edge columns' k colours
+            # (`fidelity.backdrop_palette`), and a colour near any of them is backdrop. One median
+            # let the lighter and darker squares through onto his hair's outline (ragged edges).
+            from scipy.cluster.vq import kmeans2
+            bgs, _l = kmeans2(edge[::3], int(fid["backdrop_palette"]), minit="++", seed=0)
+            d_bg = np.min(np.linalg.norm(colour[view][:, None, :] - bgs[None], axis=2), 1)
+        else:
+            d_bg = np.linalg.norm(colour[view] - np.median(edge, 0), axis=1)
+        bg_like = (d_bg < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
         if fid.get("keep_features"):
             # His face is never the backdrop (the bold portrait's dark brown ground is his eye
             # sockets' colour: they were thrown out and a profile painted them).
@@ -610,7 +618,12 @@ def paint(man, spec):
             h.update(fitted)
             report["hat"] = dict(fitted, marks_rms_px=err)
         parts = SH.make_hat(V, pts, h)
-        texs = SH.paint_hat(parts, [(V, T)], cams, pics, h, patch_squares)
+        # `paint` "designed": drawn as the portraits draw a hat (style_hat.design_hat), not
+        # projected from them (the projected felt took his face's colours).
+        if h.get("paint") == "designed":
+            texs = SH.design_hat(parts, h)
+        else:
+            texs = SH.paint_hat(parts, [(V, T)], cams, pics, h, patch_squares)
         np.save(os.path.join(WORK, man + "_hat.npy"), {k: {"V": v, "T": t, "UV": u} for k, (v, t, u) in parts.items()},
                 allow_pickle=True)
         for k, tex in texs.items():
