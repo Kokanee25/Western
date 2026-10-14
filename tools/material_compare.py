@@ -22,12 +22,13 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAINTING = os.path.join(ROOT, "docs", "concept", "street-golden-hour.png")
 # The painting's saloon as facade_lab's `near` view frames it (pixels of the 1672-wide picture).
-NEAR_CROP = (0, 40, 760, 470)
-# Close-ups: [name, the painting's box, the render's box (facade near, 1280x720)].
+NEAR_CROP = (0, 150, 800, 600)
+# Close-ups: [name, the painting's box, the render's box (facade_lab `near`, 1280x720)], the same
+# shape, each where that wood is nearest and lit alike.
 CLOSE = [
-    ["red siding", (440, 160, 510, 230), None],
-    ["timber post", (420, 330, 470, 400), None],
-    ["boardwalk", (300, 600, 400, 670), None],
+    ["red siding", (300, 330, 370, 400), (180, 170, 250, 240)],
+    ["timber post", (425, 380, 475, 450), (575, 280, 625, 350)],
+    ["boardwalk", (250, 620, 350, 690), (400, 560, 500, 630)],
 ]
 
 
@@ -77,7 +78,6 @@ def main():
     # Close-ups, nearest-neighbour: each wood's squares as drawn.
     rows = []
     for name, pbox, rbox in CLOSE:
-        rbox = rbox or tuple(int(v) for v in a.get("box_" + name.split()[-1], "0,0,1,1").split(","))
         z = 3
         pc = painting.crop(pbox)
         pc = pc.resize((pc.width * z * 2, pc.height * z * 2), Image.NEAREST)
