@@ -507,7 +507,8 @@ def paint(man, spec):
         plane = coef[0] * Pp[..., 0] + coef[1] * Pp[..., 2] + coef[2]
         # Over his forehead the portraits' own hat line counts too: his hat may sit higher than
         # theirs, and between his brim and his brows their band and studs were left painted.
-        hat = cover & ((Pp[..., 1] > plane - 0.004) | (hat & front))
+        brow = (N[..., 2] < -0.4) & (np.abs(Pp[..., 0]) < 0.075)   # his forehead, out to his temples' front
+        hat = cover & ((Pp[..., 1] > plane - 0.004) | (hat & brow))
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
     # forehead's skin where it faces you, his hair round the rest, from his temples and sideburns.
