@@ -18,3 +18,6 @@ __pycache__/
 /addons/saltcreek_native/bin/*.so
 /addons/saltcreek_native/bin/*.dll
 /addons/saltcreek_native/bin/*.dylib
+
+# Written and removed by tests/test_chaos.gd for its child runs (one worker thread)
+/override.cfg
