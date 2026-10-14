@@ -95,8 +95,19 @@ def paint_board(w, k, rng):
                 r = int(np.clip(r + rng.choice([-1, 1]), 1, rows - 2))
             place[r, (x0 + i) % n] = min(place[r, (x0 + i) % n], base - 1.6)
     idx = np.clip(np.rint(place), 0, ramp - 1).astype(int)
+    # Checks (structural timber): a long dark crack or two down the grain, the sheet's posts' splits.
+    checks = []
+    for _ in range(int(rng.integers(*w.get("checks", [0, 0])) if w.get("checks") else 0)):
+        r = int(rng.integers(1, rows - 1))
+        x0, ln = int(rng.integers(n)), int(rng.integers(18, 40))
+        for i in range(ln):
+            if rng.random() < 0.08:
+                r = int(np.clip(r + rng.choice([-1, 1]), 1, rows - 2))
+            checks.append((r, (x0 + i) % n))
     colours = greyed(np.array([hex_rgb(h) for h in w["ramp"]]), w.get("grey", 0.0))
     img = colours[idx]
+    for r, x in checks:
+        img[r, x] = hex_rgb(w["knot_colours"][0])
     # A knot: a dark eye two squares across, a darker ring of grain round it, lighter squares
     # either side along the grain where the fibres bend round it (the sheet's knots).
     if rng.random() < w["knot"]:

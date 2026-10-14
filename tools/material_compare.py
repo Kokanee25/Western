@@ -12,6 +12,7 @@ lights, its views and a walk). Writes:
   closeups.png       the same three, each wood's square-by-square close-up (nearest, 3x)
   lights.png         B | C on the lab set: noon, golden hour, lamplit night
   pan_strip.png      the walk past the fronts, six frames (C); pan.gif all of them (in build/)
+  swatches.png       the wood sheet's swatch beside the lab's boards, the textures themselves
 """
 import glob
 import os
@@ -105,7 +106,32 @@ def main():
             gif = os.path.join(ROOT, "build", "material_lab_pan.gif")
             ims[0].save(gif, save_all=True, append_images=ims[1:] + ims[-2:0:-1], duration=180, loop=0)
             print("gif", gif)
+    swatches(out)
     print("sheets in", out)
+
+
+# The wood sheet's close-up swatch a wood (pixels of docs/concept/wood-materials.png).
+SWATCH = {"saloon_red": (26, 150, 285, 515), "store_boards": (521, 150, 779, 515),
+          "timber": (1019, 150, 1219, 515), "floor": (1019, 620, 1260, 990)}
+
+
+def swatches(out):
+    """The sheet's swatch beside the lab's boards stacked as a wall (nearest, a texel 6 pixels;
+    the dark line between boards stands in for the member's seam), unlit: the texture itself."""
+    sheet = Image.open(os.path.join(ROOT, "docs", "concept", "wood-materials.png")).convert("RGB")
+    rows = []
+    for wood, box in SWATCH.items():
+        strips = sorted(glob.glob(os.path.join(ROOT, "assets", "textures", "lab", "%s_b*.png" % wood)),
+                        key=lambda f: int(f.rsplit("_b", 1)[1].split(".")[0]))[:8]
+        if not strips:
+            continue
+        boards = [Image.open(f).convert("RGB") for f in strips]
+        z = 6 if boards[0].width >= 64 else 12
+        wall = column([b.resize((b.width * z, b.height * z), Image.NEAREST) for b in boards], gap=z // 2, bg=(30, 22, 18))
+        sw = sheet.crop(box)
+        sw = sw.resize((round(sw.width * wall.height / sw.height), wall.height), Image.LANCZOS)
+        rows.append(row([label(sw, "sheet: " + wood), label(wall, "lab: " + wood)]))
+    column(rows, gap=12).save(os.path.join(out, "swatches.png"))
 
 
 if __name__ == "__main__":

@@ -2,18 +2,6 @@
  "texels_per_metre": 32,
  "length": 64,
  "woods": {
-  "saloon_red": {
-   "boards": 10,
-   "rows": 6,
-   "length": 64,
-   "texels_per_metre": 32
-  },
-  "store_boards": {
-   "boards": 12,
-   "rows": 6,
-   "length": 64,
-   "texels_per_metre": 32
-  },
   "timber": {
    "boards": 12,
    "rows": 8,
