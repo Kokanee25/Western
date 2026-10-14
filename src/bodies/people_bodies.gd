@@ -54,6 +54,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		shapes.erase("bandana")
 	var textures := {}
 	for k: String in generated:
+		# His own hat's brim and band go with his hat: a man not wearing one wears neither.
+		if k in ["hat_brim", "hat_band"] and not shapes.has("hat") and not whole:
+			continue
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
 		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie). A whole
 		# man wears every piece his model came with (his own coat and hat, fitted as pieces).

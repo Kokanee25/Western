@@ -33,7 +33,9 @@
     "moustache_m": 0.004,
     "brows_m": 0.002,
     "unsquare": 3,
-    "keep_features": true
+    "keep_features": true,
+    "neck_cut": "smooth",
+    "skin_from_paint": true
    },
    "hat": {
     "marks": {
@@ -114,7 +116,8 @@
     "clear": 0.03,
     "shift_z": 0.03,
     "pinch": 0.3,
-    "dent": 0.02
+    "dent": 0.02,
+    "wear": false
    }
   },
   "older_heavyset_cowboy": {

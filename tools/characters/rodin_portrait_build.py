@@ -30,6 +30,7 @@ NECK_RADIUS = 0.055       # within this of his neck's middle
 EYE_DEPTH = 0.012         # an eye's middle behind its iris
 DETAIL_M = 0.03           # round his eyes and mouth the mesh keeps its detail
 HEAD_TRIS = 12000
+SKIN_CUT = 0.035          # the body's skin cut away above this far under his chin (his head's neck covers it)
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below the second
 COLLAR_FROM = 0.06        # the shirt's collar and neckcloth above this far under his chin...
 COLLAR_KEEP = 0.4         # ...squeezed down to this much of their height
@@ -57,6 +58,60 @@ def head_part(V, T, UV, pts, own=None):
     return T[keep]
 
 
+def neck_field(V, pts):
+    """Where his head is kept (> 0): above CUT_BELOW_CHIN under his chin, or, down to NECK_DOWN,
+    within NECK_RADIUS of his neck's middle. Continuous, so the cut along it is one clean line."""
+    chin_y = pts[152, 1]
+    ring = (V[:, 1] < chin_y - 0.03) & (V[:, 1] > chin_y - 0.05) & (np.abs(V[:, 0]) < 0.06)
+    neck_c = np.array([np.median(V[ring, 0]), np.median(V[ring, 2])]) if ring.any() else np.array([0.0, pts[152, 2] + 0.05])
+    r = np.hypot(V[:, 0] - neck_c[0], V[:, 2] - neck_c[1])
+    return np.maximum(V[:, 1] - (chin_y - CUT_BELOW_CHIN), np.minimum(NECK_RADIUS - r, V[:, 1] - (chin_y - NECK_DOWN)))
+
+
+def clip_part(V, T, UV, pts):
+    """His head cut exactly along neck_field's zero (each triangle across it clipped, a new corner
+    where an edge crosses, its UV between its ends'), not by whole triangles: Rodin's are 5-10 mm,
+    so that cut was a row of teeth with the body's neck showing between. → (V, T, UV), V and UV
+    one per corner as Rodin's are."""
+    f = neck_field(V, pts)
+    keep = (f[T] >= 0).all(1)
+    cross = (f[T] >= 0).any(1) & ~keep
+    V2, UV2, T2 = [V], [UV], [T[keep]]
+    extra_v, extra_uv, extra_t = [], [], []
+    n = len(V)
+
+    def cut(i, j):
+        # The same point for both triangles that share the edge: from its lower endpoint.
+        a, b = (i, j) if tuple(V[i]) <= tuple(V[j]) else (j, i)
+        t = f[a] / (f[a] - f[b])
+        return V[a] + t * (V[b] - V[a]), UV[a] + t * (UV[b] - UV[a])
+
+    for tri in T[cross]:
+        poly = []
+        for k in range(3):
+            i, j = tri[k], tri[(k + 1) % 3]
+            if f[i] >= 0:
+                poly.append(("v", i))
+            if (f[i] >= 0) != (f[j] >= 0):
+                poly.append(("c", cut(i, j)))
+        ids = []
+        for kind, x in poly:
+            if kind == "v":
+                extra_v.append(V[x])
+                extra_uv.append(UV[x])
+            else:
+                extra_v.append(x[0])
+                extra_uv.append(x[1])
+            ids.append(n + len(extra_v) - 1)
+        for k in range(1, len(ids) - 1):
+            extra_t.append((ids[0], ids[k], ids[k + 1]))
+    if extra_v:
+        V2.append(np.array(extra_v))
+        UV2.append(np.array(extra_uv))
+        T2.append(np.array(extra_t))
+    return np.concatenate(V2), np.concatenate(T2), np.concatenate(UV2)
+
+
 def build(man, spec):
     pid = man + "_rodin"
     mesh = np.load(os.path.join(RP.WORK, man + "_mesh.npy"), allow_pickle=True).item()
@@ -64,8 +119,18 @@ def build(man, spec):
     paint = os.path.join(RP.WORK, man + "_paint.png")
     env = json.load(open(mp.ENVELOPE))
     factory = F.load_factory()
+    fid = spec.get("fidelity", {})
     fspec = {"source": "factory", "targets": dict(P.DEFAULT_MACRO), "hair": "none", "moustache": "none",
              "beard": "none", "skin": "#b07a5a", "outfit": spec.get("outfit", {})}
+    # His body's skin the colour of his painted jaw (portrait.json `fidelity.skin_from_paint`): the
+    # factory's flat skin showed paler pink round his neck where it meets his head.
+    if fid.get("skin_from_paint"):
+        from PIL import Image as _Im
+        tex = np.asarray(_Im.open(paint).convert("RGB")).astype(float) / 255
+        chin_y0 = pts[152, 1]
+        jaw = (V[:, 1] < chin_y0 + 0.03) & (V[:, 1] > chin_y0 - 0.01) & (np.abs(V[:, 0] - pts[152, 0]) < 0.05)
+        c = np.median(RP.sample_tex(tex, UV[jaw]), 0)
+        fspec["skin"] = "#%02x%02x%02x" % tuple(int(round(255 * x)) for x in c)
     made = {}
     export = mp.export
 
@@ -85,7 +150,13 @@ def build(man, spec):
         c_mine = (mine["right"] + mine["left"]) / 2
         c_goal = (eyes["right"] + eyes["left"]) / 2
         Vp = (V - c_mine) * k + c_goal
-        Tk = head_part(Vp, T, UV, (pts - c_mine) * k + c_goal, mesh.get("own"))
+        # `fidelity.neck_cut` "smooth": his neck cut as a clean cylinder, not by Rodin's own colours
+        # (that cut zigzagged along the mesh and left spikes under his jaw).
+        UVk = UV
+        if fid.get("neck_cut") == "smooth":
+            Vp, Tk, UVk = clip_part(Vp, T, UV, (pts - c_mine) * k + c_goal)
+        else:
+            Tk = head_part(Vp, T, UV, (pts - c_mine) * k + c_goal, mesh.get("own"))
         # One vertex per position (Rodin's corners come split at every UV seam: left so, the mesh
         # is a triangle soup that decimation tears and nothing shades smooth across), each
         # corner keeping its own UV.
@@ -96,7 +167,7 @@ def build(man, spec):
         weld_of[used] = inv.ravel()
         Vh = Vp[used][first]
         Th = weld_of[Tk]
-        corner_uv = UV[Tk]
+        corner_uv = UVk[Tk]
         keep = (Th[:, 0] != Th[:, 1]) & (Th[:, 1] != Th[:, 2]) & (Th[:, 0] != Th[:, 2])
         Th, corner_uv = Th[keep], corner_uv[keep]
         chin_y = ((pts[152] - c_mine) * k + c_goal)[1]
@@ -172,11 +243,27 @@ def build(man, spec):
                     n += 1
             lowered[name.split("_", 1)[1]] = n
         rep["head"]["collar_lowered"] = lowered
+        # The factory body's neck ends in a ragged fringe where its own head came off; above
+        # SKIN_CUT under his chin his head covers it (down to NECK_DOWN), so it goes
+        # (`fidelity.neck_cut` "smooth"): its spikes poked out beside his jaw, bright under the
+        # ears (2026-10-14).
+        if fid.get("neck_cut") == "smooth":
+            import bmesh
+            skin_o = bpy.data.objects.get("body_skin")
+            if skin_o is not None:
+                bm = bmesh.new()
+                bm.from_mesh(skin_o.data)
+                cut_z = chin_y - SKIN_CUT          # Blender's Z is his height
+                gone = [f for f in bm.faces if all(v.co.z > cut_z for v in f.verts)]
+                bmesh.ops.delete(bm, geom=gone, context="FACES")
+                bm.to_mesh(skin_o.data)
+                bm.free()
+                rep["head"]["skin_faces_cut"] = len(gone)
         # His own hat (rodin_portrait.py's, from style_hat.py): three rigid pieces on his head
         # bone, moved with his head; they take the place of BodyMesh's (people_bodies.gd: a model's
         # own `hat`, `hat_brim`, `hat_band` replace the game's).
         hat_path = os.path.join(RP.WORK, man + "_hat.npy")
-        if spec.get("hat") and os.path.exists(hat_path):
+        if spec.get("hat") and spec["hat"].get("wear", True) and os.path.exists(hat_path):
             hat = np.load(hat_path, allow_pickle=True).item()
             for part, d in hat.items():
                 Vh2 = (d["V"] - c_mine) * k + c_goal
@@ -201,6 +288,12 @@ def build(man, spec):
         made["ok"] = True
         export(person)
 
+    # `fidelity.garment_budget`: his clothes cut down less (the factory's budgets are small, and
+    # cutting a garment down eats its edges: the vest's collar and armholes came out as spikes).
+    if fid.get("garment_budget"):
+        import clothes as _clothes
+        for g in list(_clothes.BUDGET):
+            _clothes.BUDGET[g] = int(_clothes.BUDGET[g] * float(fid["garment_budget"]))
     FB.paint_head = lambda *_a, **_k: np.zeros((FB.HEAD_TEX, FB.HEAD_TEX, 3))
     FB.shells = lambda *_a, **_k: []
     FB.mp.export = export_with_rodin_head
@@ -211,6 +304,6 @@ def build(man, spec):
     shutil.copy(paint, os.path.join(mp.OUT, pid + "_head.png"))
     for part in ("hat", "hat_brim", "hat_band"):
         src = os.path.join(RP.WORK, "%s_%s.png" % (man, part))
-        if spec.get("hat") and os.path.exists(src):
+        if spec.get("hat") and spec["hat"].get("wear", True) and os.path.exists(src):
             shutil.copy(src, os.path.join(mp.OUT, "%s_%s.png" % (pid, part)))
     print("rodin_portrait: built", pid, made)

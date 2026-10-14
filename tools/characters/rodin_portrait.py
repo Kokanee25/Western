@@ -563,7 +563,12 @@ def paint(man, spec):
     # of its nearest texels on him).
     lsq = sq @ np.array([0.2126, 0.7152, 0.0722])
     ssq = sq.max(-1) - sq.min(-1)
-    white = cover & (Pp[..., 1] > float(pts[152, 1])) & (lsq > 0.72) & (ssq < 0.25)
+    # (keep_features: down his neck too, as far as the build keeps it: under his ears the portraits
+    # show his shirt's collar, which painted cream flaps there.)
+    white_from = float(pts[152, 1]) - (0.06 if fid.get("keep_features") else 0.0)
+    eyes_t = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0) < FEATURE_KEEP_M
+    white = cover & ~eyes_t & (Pp[..., 1] > white_from) & (lsq > 0.62) & (ssq < 0.25) if fid.get("keep_features") else \
+        cover & (Pp[..., 1] > float(pts[152, 1])) & (lsq > 0.72) & (ssq < 0.25)
     if white.any():
         ok_ = np.nonzero(cover & ~white)
         pick = np.random.default_rng(0).choice(len(ok_[0]), min(len(ok_[0]), 200000), replace=False)
