@@ -160,7 +160,17 @@ func test_write_a_digest_when_asked() -> void:
 ## The same seed, two fresh starts: each run in its own Godot, since a second run in the same
 ## process starts from what the first left in the physics engine (rubble resting differently, a
 ## blast at a wall junction going one of two ways: ~20 of ~89 members, seen on the art branch).
+## Both on one worker thread (an override.cfg beside project.godot while they run): with Godot's
+## pool at its usual size the engine's own jobs finish in whatever order the threads manage and a
+## long cascade of rubble comes out differently about one run in two (2026-10-13: 14, 6 and 2
+## members; exact on one thread, so it's scheduling, not the game). This test is about the game.
 func test_the_same_seed_gives_the_same_chaos() -> void:
+	var override := ProjectSettings.globalize_path("res://override.cfg")
+	var mine := not FileAccess.file_exists(override)
+	if mine:
+		var f := FileAccess.open(override, FileAccess.WRITE)
+		f.store_string("[threading]\n\nworker_pool/max_threads=1\n")
+		f.close()
 	var runs: Array[Dictionary] = []
 	for i in 2:
 		var path := ProjectSettings.globalize_path("user://chaos_digest_%d.json" % i)
@@ -174,9 +184,13 @@ func test_the_same_seed_gives_the_same_chaos() -> void:
 		var d: Variant = JSON.parse_string(text) if text != "" else null
 		check(d is Dictionary, "run %d wrote what happened" % i)
 		if not d is Dictionary:
-			return
+			break
 		runs.append(d)
 		DirAccess.remove_absolute(path)
+	if mine:
+		DirAccess.remove_absolute(override)
+	if runs.size() < 2:
+		return
 	var first: Dictionary = runs[0]
 	var second: Dictionary = runs[1]
 	check_eq(first.log, second.log, "the same things happened")

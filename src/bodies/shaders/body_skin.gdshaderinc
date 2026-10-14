@@ -56,10 +56,22 @@ uniform float self_lit = 0.0;
 uniform float paint_gain = 1.0;
 uniform float paint_wrap = 0.6;
 uniform float paint_limit = 1.3;
+// The most all the lights together make a person, × his own colour (painted or not; its top
+// channel). paint_limit
+// holds each light alone on a painted part, and nothing held an unpainted one: 2026-10-14, the
+// characters session's portrait men (unpainted, their Rodin skins) in the saloon's lamps lit
+// their faces to 2.4-2.7x at the 90th percentile and clipped a quarter to two fifths of them.
+// Up to light_knee of it the lights add as they come; past that they ease off towards light_cap.
+// 0 = no cap.
+uniform float light_cap = 1.35;
+uniform float light_knee = 0.6;
 uniform float paint_contrast = 1.08;
 // How much of the scene's ambient light a painted part takes (0: none, self_lit stands in for
 // it; 1: lit like everything else, the hybrid finish's way).
 uniform float paint_ambient = 0.0;
+// For tools/face_light.py only (screenshots.gd --face-probe; 0 in the game): > 0 shows the piece
+// as painted, unlit (its colour ÷ this exposure, so the grade gives back the paint); < 0 black.
+uniform float paint_probe = 0.0;
 // Texels a side in one of the painted texture's squares (lit as one): 1, or 3 on the face, whose
 // eyes are drawn finer than its squares.
 uniform float square_texels = 1.0;
@@ -225,6 +237,10 @@ void fragment() {
 	}
 	ALBEDO = base * (1.0 - glow) * (painted ? paint_gain : 1.0) * eye_boost;
 	EMISSION = base * glow;
+	if (paint_probe != 0.0) {
+		ALBEDO = vec3(0.0);
+		EMISSION = paint_probe > 0.0 ? base / paint_probe : vec3(0.0);
+	}
 	if (painted) {
 		AO = paint_ambient;
 		// Painted matt: no sheen of the sky or the room on him (a night sky turned his shirt blue).
@@ -243,13 +259,34 @@ void light() {
 		float g = pow(k, 1.0 / 2.2);
 		k = pow(floor(g * steps + 0.5) / steps, 2.2);
 	}
+	vec3 add;
 	if (uv_rect.z > 0.0) {
 		// How much brighter than painted this light makes him (ALBEDO carries paint_gain), eased
 		// off towards paint_limit so a lamp at his elbow doesn't burn the painted colours out.
 		float m = k * dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722)) / PI * paint_gain;
-		DIFFUSE_LIGHT += vec3(m / (1.0 + m / paint_limit) / paint_gain);
+		add = vec3(m / (1.0 + m / paint_limit) / paint_gain);
 	} else {
-		DIFFUSE_LIGHT += k * LIGHT_COLOR * (light_bands > 0.0 ? mix(shade_tint, vec3(1.0), k) : vec3(1.0)) / PI;
+		add = k * LIGHT_COLOR * (light_bands > 0.0 ? mix(shade_tint, vec3(1.0), k) : vec3(1.0)) / PI;
+	}
+	if (light_cap > 0.0) {
+		// The lights so far (DIFFUSE_LIGHT, already eased) un-eased, this one added, the whole
+		// eased again: held under light_cap whatever order the lights come in. Measured on his
+		// colour's top channel (a warm lamp on warm skin lifts the red far more than the whole:
+		// the clipping was the red), so no channel passes light_cap × his own.
+		float top = max(max(ALBEDO.r, ALBEDO.g), max(ALBEDO.b, 1e-4));
+		vec3 sum = DIFFUSE_LIGHT + add;
+		float so_far = max(max(DIFFUSE_LIGHT.r * ALBEDO.r, DIFFUSE_LIGHT.g * ALBEDO.g), DIFFUSE_LIGHT.b * ALBEDO.b) / top;
+		float a = max(max(add.r * ALBEDO.r, add.g * ALBEDO.g), add.b * ALBEDO.b) / top;
+		float whole = max(max(sum.r * ALBEDO.r, sum.g * ALBEDO.g), sum.b * ALBEDO.b) / top;
+		float c = light_cap;
+		float kn = c * light_knee;
+		float s0 = min(so_far, c * 0.9999);
+		float raw = s0 <= kn ? s0 : kn - (c - kn) * log(1.0 - (s0 - kn) / (c - kn));
+		float t = raw + a;
+		float held = t <= kn ? t : kn + (c - kn) * (1.0 - exp(-(t - kn) / (c - kn)));
+		DIFFUSE_LIGHT = sum * (held / max(whole, 1e-5));
+	} else {
+		DIFFUSE_LIGHT += add;
 	}
 	// Only wet things shine (the eyes): a small hard glint.
 	if (ROUGHNESS < 0.3) {

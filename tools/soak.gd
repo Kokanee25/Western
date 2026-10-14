@@ -13,6 +13,10 @@ extends SceneTree
 ##
 ## Each problem is printed as it's found and each window prints the process's resident memory, so
 ## a run the CI runner kills still leaves its log; past RUNAWAY_MB it stops early and reports.
+## A frozen game prints nothing, so every 600 frames it writes the game clock to <out>/clock.txt:
+## the nightly workflow watches the log and that clock, and dumps every thread when they stop
+## (soak #10 sat silent four hours at game minute 95, 2026-10-13). `--hang-at=S` hangs it on purpose
+## to try that.
 ##
 ## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
 ## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
@@ -59,6 +63,8 @@ var _problems := {}
 var _track := {}  # person (instance id) -> {at, since}
 var _happened: Array[String] = []
 var _runaway := false
+var _frames := 0
+var _hang_at := -1.0
 
 
 func _initialize() -> void:
@@ -67,6 +73,8 @@ func _initialize() -> void:
 			_minutes = float(a.substr(10))
 		elif a.begins_with("--out="):
 			_out = a.substr(6)
+		elif a.begins_with("--hang-at="):  # hang on purpose at this game second (for trying it)
+			_hang_at = float(a.substr(10))
 	OS.add_logger(_catcher)
 	_rng.seed = 1882
 	root.get_node(^"Settings").autosave = false
@@ -81,6 +89,7 @@ func _initialize() -> void:
 	_player.input_enabled = false
 	_street.get_node(^"DayCycle").set_time_scale(30.0)
 	print("soak: %.0f minutes of game time" % _minutes)
+	DirAccess.make_dir_recursive_absolute(_out)
 	_run()
 
 
@@ -100,6 +109,16 @@ func _run() -> void:
 	var last := Time.get_ticks_usec()
 	while _t < _minutes * 60.0 and not _runaway:
 		await physics_frame
+		_frames += 1
+		if _frames % 600 == 0:
+			# The game clock, for the nightly workflow: a frozen game and a crawling one both go
+			# quiet in the log; this says which.
+			var hb := FileAccess.open(_out.path_join("clock.txt"), FileAccess.WRITE)
+			if hb:
+				hb.store_line("%s frame %d" % [_clock(), _frames])
+		if _hang_at >= 0.0 and _t >= _hang_at:
+			while true:
+				_hang_at += 0.0
 		var now := Time.get_ticks_usec()
 		_frame_ms.append((now - last) / 1000.0)
 		last = now

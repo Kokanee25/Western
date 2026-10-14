@@ -201,7 +201,7 @@ func focus() -> Node:
 	var best: Node = null
 	var best_s := -1
 	var best_p := -1.0
-	for who in entries:
+	for who in entries.keys():  # a copy: walking a Dictionary with a freed key can loop (Senses)
 		if not is_instance_valid(who):
 			continue
 		var e: Dictionary = entries[who]
@@ -226,7 +226,7 @@ func stand_down(who: Node) -> void:
 
 func to_dict() -> Dictionary:
 	var out := {}
-	for who in entries:
+	for who in entries.keys():  # a copy (see focus)
 		if is_instance_valid(who):
 			var key := String((who as HumanBody).person_id) if who is HumanBody else ("player" if who is Player else str(who.name))
 			var e: Dictionary = entries[who]
