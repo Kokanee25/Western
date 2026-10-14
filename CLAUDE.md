@@ -317,7 +317,8 @@ frozen until Sean names one.
   own extras. Judge v2: saloon 0.423, street 0.713 (notes; Sean's eye is the gate). Sheets in
   `docs/screenshots/review/`.
 - Next: the critic's top three (round r7): the saloon's standing men block the room and read as
-  mannequins; his face smeared and hot; the road loud static (calmer far off and at noon). Then the
+  mannequins; the road loud static (calmer far off and at noon). Done since: faces held under
+  `light_cap` (`body_skin`; saloon 0.306 → 0.233; `tools/face_light.py` measures a face's light). Then the
   saloon's square size (~20 px to the painting's ~5). Done since: the saloon's darks back (haze,
   lamp glow, fill, exposure; judge saloon 0.306).
 - Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
