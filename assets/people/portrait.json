@@ -1,5 +1,5 @@
 {
- "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures. `style_hair`: his style portraits' hair, where it differs from his plain pictures' (tools/characters/portrait_style.py paints it so). `hair_fill`: \"grey\" (default) or \"dark\", how tools/characters/rodin_portrait.py picks his hair's colour for under the game's hat.",
+ "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures. `style_hair`: his style portraits' hair, where it differs from his plain pictures' (tools/characters/portrait_style.py paints it so). `hair_fill`: \"grey\" (default) or \"dark\", how tools/characters/rodin_portrait.py picks his hair's colour for under the game's hat. `fidelity` (docs/briefs/character-style-fidelity.md; each optional, off when absent): `shape_fit` (his mesh warped to where all his style portraits put his face's landmarks, tools/characters/style_shape.py), `patches` \"anatomy\" with `patch_m` and `patch_compact` (patches grown along his paint's edges, not cubes), `keep_features` (his eyes painted whole from the front portrait, not de-lit, and his face never taken for the portrait's backdrop), `unsquare` (the median that takes the portraits' own squares out, px), `moustache_m` and `brows_m` (metres they stand off his face).",
  "men": {
   "bold_cowboy": {
    "pictures": "docs/concept/style/factory/bold_cowboy",
@@ -24,6 +24,16 @@
     "profile_left": "docs/concept/style/portrait-cowboy-profile.png",
     "profile_right": "docs/concept/style/portrait-cowboy-profile-right.png",
     "back": "docs/concept/style/portrait-cowboy-from-behind.png"
+   },
+   "fidelity": {
+    "shape_fit": true,
+    "patches": "anatomy",
+    "patch_m": 0.003,
+    "patch_compact": 12.0,
+    "moustache_m": 0.004,
+    "brows_m": 0.002,
+    "unsquare": 3,
+    "keep_features": true
    }
   },
   "older_heavyset_cowboy": {
@@ -48,6 +58,16 @@
     "front": "docs/concept/style/factory/older_heavyset_cowboy/style_front.png",
     "three_quarter": "docs/concept/style/factory/older_heavyset_cowboy/style_three_quarter.png",
     "side": "docs/concept/style/factory/older_heavyset_cowboy/style_profile_left.png"
+   },
+   "fidelity": {
+    "shape_fit": true,
+    "patches": "anatomy",
+    "patch_m": 0.003,
+    "patch_compact": 12.0,
+    "keep_features": true,
+    "unsquare": 3,
+    "brows_m": 0.002,
+    "moustache_m": 0.005
    }
   },
   "young_lean_cowboy": {
@@ -73,7 +93,17 @@
     "three_quarter": "docs/concept/style/factory/young_lean_cowboy/style_three_quarter.png",
     "side": "docs/concept/style/factory/young_lean_cowboy/style_profile_left.png"
    },
-   "hair_fill": "dark"
+   "hair_fill": "dark",
+   "fidelity": {
+    "shape_fit": true,
+    "patches": "anatomy",
+    "patch_m": 0.003,
+    "patch_compact": 12.0,
+    "keep_features": true,
+    "unsquare": 3,
+    "brows_m": 0.002,
+    "moustache_m": 0.0
+   }
   },
   "bold_cowboy_styled_30": {
    "pictures": "docs/concept/style/factory/bold_cowboy_styled_30",
