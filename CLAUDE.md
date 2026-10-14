@@ -340,11 +340,11 @@ frozen until Sean names one.
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
   momentum and crumples with muscle tone; dynamite breaks the studs by it; lamp shadows drawn
   once, not every frame (street render CPU ~2.9 ms at Sean's); the soak's freeze (Senses walked a
-  Dictionary keyed by freed people: loops for ever in Godot 4.7; walk a copy of the keys), and
-  the soak now fails a stall, a crawl or a frozen game with a backtrace instead of sitting silent.
-- Next: Prompt 09 (fix the falls) when Sean says; watch the next nightly soak (240 min);
-  `test_chaos` is flaky on main (thread scheduling); brick wants a brief first; M4 step 5
-  (money) stays frozen with the features.
+  Dictionary keyed by freed people: loops for ever in Godot 4.7), and a frozen soak now goes red
+  in 10 min with every thread's backtrace (`frozen.md`) instead of sitting silent.
+- Next: Prompt 09 (fix the falls) when Sean says; watch the nightly soak: one CI run froze once
+  more after the fix (ObjectDB's lock stuck, unexplained), the next `frozen.md` says where;
+  `test_chaos` is flaky (1 in 2, main too); brick wants a brief first; M4 step 5 frozen.
 - Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
   four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
   after a fight; the `proposed` feel ranges.
