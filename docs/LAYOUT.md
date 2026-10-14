@@ -113,7 +113,11 @@ time creeping (the last 5-minute window's median over 3x the first's). `soak.md`
 summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
 lost bodies with their path, script, rubble members and speed; stuck men with where they are and
 where they're going) and each window prints the process's resident memory, so a run the runner
-kills still leaves its log; past 6 GB resident it stops early and reports.
+kills still leaves its log; past 6 GB resident it stops early and reports. A watchdog thread
+fails a hang: no frame for 2 minutes of real time and it writes `soak.md` with a `stall` problem
+(the game clock, what the soak was doing, the last things that happened), then crashes the process
+on purpose so the engine prints the main thread's GDScript backtrace (exit 134). `--hang-at=S
+--stall-seconds=N` hang it on purpose to try that.
 
 ## Feel ranges
 
