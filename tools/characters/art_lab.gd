@@ -6,6 +6,10 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/characters/art_lab.gd -- \
 ##       --out=DIR [--id=bold_cowboy_rodin] [--turns=0,-45,-80,80] [--lights=neutral,warm]
 ##       [--materials=game,painted] [--texture=PATH.png] [--hat=game|none] [--look=k:v,...]
+##       [--fov=75 --dist=1.2] [--global=name:value,...] [--set=k:v,...] [--nomip] [--tag=NAME]
+## --fov, --dist: the camera (75 and 1.2: the player's at conversation distance). --global: shader
+## globals for the run (min_square_px, tile_light...). --set: values on his head's game material
+## too (light_steps...). --nomip: his head's texture without mipmaps (each pixel one texel).
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
 ## --look: the painted material's values over PAINTED (the skin shader's painted mode,
 ## src/bodies/shaders/body_skin.gdshaderinc: used, not changed).
@@ -37,7 +41,30 @@ func _run() -> void:
 	var texture_path := ""
 	var hat := "game"
 	var look := PAINTED.duplicate()
+	var fov := FOV
+	var dist := DIST
+	var sets := {}
+	var nomip := false
+	var tag := ""
 	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--fov="):
+			fov = float(a.substr(6))
+		elif a.begins_with("--dist="):
+			dist = float(a.substr(7))
+		elif a == "--nomip":
+			nomip = true
+		elif a.begins_with("--tag="):
+			tag = a.substr(6) + "_"
+		elif a.begins_with("--global="):
+			for kv in a.substr(9).split(","):
+				var g := kv.split(":")
+				if g.size() == 2:
+					RenderingServer.global_shader_parameter_set(StringName(g[0]), float(g[1]))
+		elif a.begins_with("--set="):
+			for kv in a.substr(6).split(","):
+				var q := kv.split(":")
+				if q.size() == 2:
+					sets[q[0]] = float(q[1])
 		if a.begins_with("--out="):
 			out = a.substr(6)
 		elif a.begins_with("--id="):
@@ -69,7 +96,7 @@ func _run() -> void:
 	env_node.environment = env
 	w.add_child(env_node)
 	var cam := Camera3D.new()
-	cam.fov = FOV
+	cam.fov = fov
 	w.add_child(cam)
 	cam.current = true
 	var tex: Texture2D = null
@@ -85,7 +112,7 @@ func _run() -> void:
 	m.hat_color = HAT if hat == "game" else Color(0, 0, 0, 0)
 	w.add_child(m)
 	m.global_position = Vector3.ZERO
-	cam.position = Vector3(0, EYE, -DIST)
+	cam.position = Vector3(0, EYE, -dist)
 	cam.look_at(Vector3(0, EYE - 0.05, 0))
 	var rig := []
 	for light in lights:
@@ -93,7 +120,7 @@ func _run() -> void:
 			n.queue_free()
 		rig = _light(w, env, light)
 		for mat in materials:
-			_set_material(m, mat, tex, look)
+			_set_material(m, mat, tex, look, sets, nomip)
 			for turn in turns:
 				# Turned as the portrait is: negative toward the picture's left.
 				var dir := Vector3(sin(deg_to_rad(-turn)), 0, -cos(deg_to_rad(-turn)))
@@ -103,7 +130,7 @@ func _run() -> void:
 				for f in 8:
 					await physics_frame
 				await RenderingServer.frame_post_draw
-				var path := "%s/%s_%s_%d.png" % [out, mat, light, int(turn)]
+				var path := "%s/%s%s_%s_%d.png" % [out, tag, mat, light, int(turn)]
 				vp.get_texture().get_image().save_png(path)
 				print("wrote ", path)
 	quit()
@@ -149,7 +176,7 @@ func _light(w: Node3D, env: Environment, kind: String) -> Array:
 
 ## His head's material: "game", as the game builds it; "painted", the painted mode with `look`
 ## (and `tex` for its texture, if given). Only the head's pieces (Head_*) are changed.
-func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary) -> void:
+func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets: Dictionary = {}, nomip := false) -> void:
 	for mi in _meshes(m):
 		if not String(mi.name).begins_with("Head_"):
 			continue
@@ -160,7 +187,18 @@ func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary) -> v
 			mi.set_meta("game_material", sm.duplicate())
 		var base: ShaderMaterial = mi.get_meta("game_material")
 		if kind == "game":
-			mi.material_override = base
+			var g := base.duplicate() as ShaderMaterial
+			for k in sets:
+				g.set_shader_parameter(StringName(k), sets[k])
+			if nomip:
+				var t0 = g.get_shader_parameter(&"albedo_tex")
+				if t0 is Texture2D:
+					var im: Image = (t0 as Texture2D).get_image()
+					if im.is_compressed():
+						im.decompress()
+					im.clear_mipmaps()
+					g.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(im))
+			mi.material_override = g
 			continue
 		var p := base.duplicate() as ShaderMaterial
 		p.set_shader_parameter(&"uv_rect", Vector4(0, 0, 1, 1))
