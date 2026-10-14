@@ -34,8 +34,10 @@ the history in `docs/status/`.
     `tools/character_lab.gd`, `tools/lab_stage.gd`, `tools/fit_shot.gd`,
     `tools/people_envelope.gd`, `tools/tripo_lab.gd`, `assets/people/`, `src/bodies/body_mesh.gd`,
     `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
-    each man before Tripo is paid. The art session judges each new man in the shots and says
-    what's off; the characters session fixes him.
+    each man before Tripo is paid. **New men are made by `tools/characters/RECIPE.md`** (the
+    Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
+    with Sean's OK. The art session judges each new man in the shots and says what's off; the
+    characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
   - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
