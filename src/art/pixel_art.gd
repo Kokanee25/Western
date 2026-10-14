@@ -71,6 +71,14 @@ const DRAWN_DENSITY := {"shot_table": 128.0}
 ## 2026-10-12: "the squares don't read"), so the ground lays it at this whatever the look's density.
 const DRAWN_ROAD_TEXELS := 16.0
 static var use_drawn := true
+## The material lab's woods (tools/textures/paint_woods.py, tools/material_lab.gd; 2026-10-14, Sean's
+## brief: an experiment, off in the game): with it on, a key with a lab texture is drawn from it,
+## at DRAWN_TEXELS, its boards' long edges a dark seam on one side and a lit lip on the other
+## (texel_grid edge_lip), as the exterior wood sheet draws them.
+const LAB_PATH := "res://assets/textures/lab/%s.png"
+const LAB_EDGE_SHADE := 0.45
+const LAB_EDGE_LIP := 1.3
+static var lab := false
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -90,6 +98,10 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
 		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
+	elif tex and tex.resource_path.contains("/textures/lab/"):
+		m.set_meta(&"texels", DRAWN_TEXELS)
+		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
+		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
 	return track(m)
 
 
@@ -172,6 +184,8 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
+	if lab and ResourceLoader.exists(LAB_PATH % key):
+		return load(LAB_PATH % key) as Texture2D
 	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key

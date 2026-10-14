@@ -26,6 +26,10 @@ uniform float edge_shade : hint_range(0.0, 1.0) = 0.7;
 global uniform float seam_px;
 uniform float seam_shade : hint_range(0.0, 1.0) = 0.45;
 uniform float seam_lip : hint_range(1.0, 2.0) = 1.3;
+// A member's long edges as the exterior wood sheet draws a board's: the near one (v 0) a lit lip,
+// the far one the dark seam (edge_shade), each a texel row of the board's own; 0 = both shaded
+// alike, as before. The material lab's woods only (PixelArt.lab).
+uniform float edge_lip : hint_range(0.0, 2.0) = 0.0;
 uniform float metallic : hint_range(0.0, 1.0) = 0.0;
 uniform float specular : hint_range(0.0, 1.0) = 0.2;
 // Never coarsened into bigger squares far off (min_square_px): a sign's lettering has to stay
@@ -143,7 +147,9 @@ void fragment() {
 		}
 		float line = b > 1.0 ? b * 0.5 : 1.0;
 		float shade = b > 1.0 ? mix(edge_shade, 1.0, 0.5) : edge_shade;
-		if (at.y < line || at.y > across.y - line) {
+		if (edge_lip > 0.0 && at.y < line) {
+			edge = mix(edge_lip, 1.0, b > 1.0 ? 0.5 : 0.0);
+		} else if (at.y < line || at.y > across.y - line) {
 			edge = shade;
 		} else if (at.x < line || at.x > across.x - line) {
 			edge = mix(shade, 1.0, 0.4);

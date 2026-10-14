@@ -3,7 +3,7 @@ extends SceneTree
 ## at the painting's hour, a camera placed in the saloon's own space (so it follows the building
 ## wherever the town's layout puts it), the render beside the painting's crop of its saloon.
 ##
-##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/facade_lab.gd -- --out=DIR [--blocks] [--building=Jail]
+##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/facade_lab.gd -- --out=DIR [--blocks] [--building=Jail] [--lab]
 ##
 ## Writes DIR/facade_<view>.png for each view and DIR/facade_sheet.png (the painting's saloon over
 ## the renders). Views, in the saloon's space (front-left corner the origin, the front facing -Z):
@@ -49,6 +49,10 @@ func _run() -> void:
 			shade = float(arg.substr(8))
 		elif arg.begins_with("--building="):
 			building = arg.substr(11)
+		# --lab: the material lab's woods (PixelArt.lab, tools/textures/paint_woods.py) in place of
+		# the production ones, for the A | B | C against the painting.
+		elif arg == "--lab":
+			load("res://src/art/pixel_art.gd").lab = true
 	DirAccess.make_dir_recursive_absolute(out)
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
