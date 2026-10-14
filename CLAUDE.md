@@ -324,14 +324,14 @@ frozen until Sean names one.
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
-- On main: the three Rodin portrait men (#112, build 1016). On the branch, not merged: the style
-  probe and its fixes (shape fitted to the portraits, moustache and brow relief, patches by
-  anatomy, eyes kept whole; `portrait.json` `fidelity`); before/after sheets in
-  `docs/screenshots/portrait/probe/`. ~$5.26 of $15.
+- On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
+  portraits, moustache and brow relief, patches by anatomy, eyes kept whole; `portrait.json`
+  `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
+  `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
+  `look/portrait-men-2026-10-14`. ~$5.26 of $15.
 - Next: his hat (the portrait's brown wide brim, studded band), grey temples, hair edges, the
   older man's grey moustache relief. Trap: after a build, `godot --headless --import` first.
-- Waiting on Sean: the before/after sheets; the merge. For art: the saloon lamp burns faces
-  (numbers in the brief).
+- For art: the saloon lamp burns faces (numbers in the brief).
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
