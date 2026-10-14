@@ -52,6 +52,12 @@ def periodic_noise(n, cells, rng):
     return pts[i % cells] * (1 - t) + pts[(i + 1) % cells] * t
 
 
+def greyed(c, g):
+    """Colours pulled toward their own lightness by g (0 none): the sheet's swatches are more
+    saturated than the masters' same woods, which a low warm sun saturates again in the game."""
+    return c + (lum(c)[..., None] - c) * g
+
+
 def paint_board(w, k, rng):
     n, rows = w["length"], w["rows"]
     ramp = len(w["ramp"])
@@ -89,7 +95,7 @@ def paint_board(w, k, rng):
                 r = int(np.clip(r + rng.choice([-1, 1]), 1, rows - 2))
             place[r, (x0 + i) % n] = min(place[r, (x0 + i) % n], base - 1.6)
     idx = np.clip(np.rint(place), 0, ramp - 1).astype(int)
-    colours = np.array([hex_rgb(h) for h in w["ramp"]])
+    colours = greyed(np.array([hex_rgb(h) for h in w["ramp"]]), w.get("grey", 0.0))
     img = colours[idx]
     # A knot: a dark eye two squares across, a darker ring of grain round it, lighter squares
     # either side along the grain where the fibres bend round it (the sheet's knots).
@@ -113,7 +119,7 @@ def paint_board(w, k, rng):
     # Worn paint: clumps of the bare wood under it, mostly where a board wears (its edges and its
     # ends' quarter), each clump strokes along the grain, the bare wood's own tones in it.
     if w.get("wear", 0) > 0 and w.get("under"):
-        under = np.array([hex_rgb(h) for h in w["under"]])
+        under = greyed(np.array([hex_rgb(h) for h in w["under"]]), w.get("grey", 0.0) * 0.5)
         field = np.zeros((rows, n))
         edge = np.abs(np.arange(rows) - (rows - 1) / 2.0) / ((rows - 1) / 2.0)
         for _ in range(int(rng.integers(2, 5))):

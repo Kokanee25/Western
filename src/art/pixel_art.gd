@@ -76,8 +76,8 @@ static var use_drawn := true
 ## at DRAWN_TEXELS, its boards' long edges a dark seam on one side and a lit lip on the other
 ## (texel_grid edge_lip), as the exterior wood sheet draws them.
 const LAB_PATH := "res://assets/textures/lab/%s.png"
-const LAB_EDGE_SHADE := 0.45
-const LAB_EDGE_LIP := 1.3
+const LAB_EDGE_SHADE := 0.32
+const LAB_EDGE_LIP := 1.4
 static var lab := false
 
 

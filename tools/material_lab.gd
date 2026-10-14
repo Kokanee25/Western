@@ -139,3 +139,13 @@ func _build(set: Node3D) -> void:
 		walk.steps = [Vector2(WIDTH * 0.5, 1.6)]
 		walk.position = b.position
 		set.add_child(walk)
+	# An oil lantern on the saloon's wall by the close view (lit from dusk): the woods by lamplight.
+	var lamp = load("res://src/world/oil_lamp.gd").new()
+	lamp.name = "LabLantern"
+	lamp.lit_from_hour = 18
+	lamp.lit_until_hour = 6
+	lamp.energy = 1.0
+	lamp.light_range = 6.0
+	lamp.casts_shadows = false
+	set.add_child(lamp)
+	lamp.position = Vector3(2.3, 2.1, -0.25)
