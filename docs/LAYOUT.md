@@ -732,6 +732,12 @@ a few views renders them as the full run does.
   refuse) into a scratch folder: no key, no .env, no network; `--balance` checks a real key and
   spends nothing. The workflow runs both before the real call.
 
+- **The Rodin portrait route (the approved look, 2026-10-14): `tools/characters/RECIPE.md`**, the
+  whole recipe for a new man (Sean's pictures and the ChatGPT prompt, his `portrait.json` entry
+  and `fidelity` settings, the commands, what good looks like, traps, going back to the bookmark branch
+  `look/portrait-men-2026-10-14`). `rodin_portrait.py` (paint, build), `style_shape.py` (the
+  shape fitted to the portraits, relief), `style_probe.py` / `style_compare.py` (measured against
+  the portraits, framed as each), `render_man.sh` (build, renders, sheet).
 - **The portrait factory** (`tools/characters/portrait.py`, `docs/briefs/portrait-factory.md`;
   men in `assets/people/portrait.json`): a man's face from four plain pictures projected onto the
   character factory's shared base head (`tools/blender/factory.py`, one UV layout cached as

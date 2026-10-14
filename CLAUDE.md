@@ -323,15 +323,15 @@ frozen until Sean names one.
   folk cost ~43 meshes each (~50 to spare).
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
-**Characters** (branch `claude/characters-portrait-factory`, merged; brief `docs/briefs/portrait-factory.md`):
-- Done on main: three men by Rodin's shape (a bust from his plain views) painted from five
-  style portraits each (`tools/characters/rodin_portrait.py`, `rodin_portrait_build.py`) →
-  `assets/people/{bold,older_heavyset,young_lean}_cowboy_rodin.glb`; sheets in
-  `docs/screenshots/portrait/*_rodin_sheet.png`. Sean: "the closest we've had yet". ~$5.26 of $15.
-- Next: put them in the game's cast (where they stand, who they are); the ragged edge where head
-  meets collar; the young man's side hair. Trap: after a build, `godot --headless --import`
-  before rendering, or the old man draws.
-- For art: faces burn hot under the saloon's table lamp.
+**Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
+- On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
+  portraits, moustache and brow relief, patches by anatomy, eyes kept whole; `portrait.json`
+  `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
+  `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
+  `look/portrait-men-2026-10-14`. ~$5.26 of $15.
+- Next: his hat (the portrait's brown wide brim, studded band), grey temples, hair edges, the
+  older man's grey moustache relief. Trap: after a build, `godot --headless --import` first.
+- For art: the saloon lamp burns faces (numbers in the brief).
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his

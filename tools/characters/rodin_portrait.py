@@ -51,6 +51,7 @@ BRIM_ABOVE_EYES = 0.032  # the portraits' hat brim: what's above this over his e
 BRIM_SIDES = 0.002       # and round his sides, where the brim's shadow lies on his hair
 HAIRLINE = 0.062         # over his eyes: his forehead's skin up to here, his hair above
 HIGHLIGHT_FROM = 90      # percentile of his face's brightness from which the lit side is calmed
+FEATURE_KEEP_M = 0.014   # round his eyes the de-light fades out over this
 HIGHLIGHT_KEEP = 0.4     # how much of the brightness above it stays
 NECK_TOL = 0.2           # under his chin, a colour this far from his jaw's is the painted collar
 DELIGHT = 0.6         # how much of each portrait's shading is taken out (0 none, 1 all)
@@ -223,6 +224,66 @@ def cube_squares(tex, cover, Pp):
     return sq
 
 
+def patch_squares(tex, cover, Pp, spacing, compact, iters=5):
+    """Each texel the median colour of its patch: patches seeded one per `spacing` cube of him and
+    grown by position and colour together (SLIC's idea: Achanta et al. 2012, "SLIC superpixels",
+    on his surface in 3D rather than an image), so a patch keeps to one side of an edge in his
+    paint (a lid, an iris, a brow, the lip line) where a cube cut across it. `compact`: Lab units
+    of colour difference worth one `spacing` of distance (higher, squarer; lower, follows colour
+    more). → (squared texture, patch count)."""
+    idx = np.nonzero(cover)
+    p = Pp[idx]
+    lab = _lab(tex[idx])
+    cell = np.floor(p / spacing).astype(np.int64)
+    key_of = lambda c: (c[:, 0] * 4096 + c[:, 1]) * 4096 + c[:, 2]  # noqa: E731
+    cell -= cell.min(0)
+    ckey = key_of(cell)
+    seeds_key, sid = np.unique(ckey, return_inverse=True)
+    sid = sid.ravel()
+    n = len(seeds_key)
+    cnt = np.maximum(np.bincount(sid, minlength=n), 1)[:, None]
+    sp = np.stack([np.bincount(sid, p[:, i], n) for i in range(3)], 1) / cnt
+    sc = np.stack([np.bincount(sid, lab[:, i], n) for i in range(3)], 1) / cnt
+    offs = np.array([(a, b, c) for a in (-1, 0, 1) for b in (-1, 0, 1) for c in (-1, 0, 1)])
+    label = sid.copy()
+    for _ in range(iters):
+        best_d = np.full(len(p), np.inf)
+        for o in offs:
+            k = key_of(cell + o)
+            j = np.searchsorted(seeds_key, k)
+            j = np.clip(j, 0, n - 1)
+            hit = seeds_key[j] == k
+            d = np.full(len(p), np.inf)
+            ds = ((p[hit] - sp[j[hit]]) ** 2).sum(1) / spacing ** 2
+            dc = ((lab[hit] - sc[j[hit]]) ** 2).sum(1) / compact ** 2
+            d[hit] = ds + dc
+            better = d < best_d
+            best_d[better] = d[better]
+            label[better] = j[better]
+        cnt = np.maximum(np.bincount(label, minlength=n), 1)[:, None]
+        sp = np.stack([np.bincount(label, p[:, i], n) for i in range(3)], 1) / cnt
+        sc = np.stack([np.bincount(label, lab[:, i], n) for i in range(3)], 1) / cnt
+    # Each patch its median (per channel), as the cubes were.
+    sq = tex.copy()
+    counts = np.bincount(label, minlength=n)
+    starts = np.concatenate([[0], np.cumsum(counts)[:-1]])
+    out = np.zeros((n, 3))
+    for c in range(3):
+        v = tex[idx][:, c]
+        order = np.lexsort((v, label))
+        out[:, c] = v[order][np.minimum(starts + counts // 2, len(v) - 1)]
+    sq[idx] = out[label]
+    return sq, int((counts > 0).sum())
+
+
+def _lab(rgb):
+    c = np.where(rgb > 0.04045, ((rgb + 0.055) / 1.055) ** 2.4, rgb / 12.92)
+    M = np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]])
+    xyz = c @ M.T / np.array([0.9505, 1.0, 1.089])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16 / 116)
+    return np.stack([116 * f[:, 1] - 16, 500 * (f[:, 0] - f[:, 1]), 200 * (f[:, 1] - f[:, 2])], -1)
+
+
 def islands(cover):
     from scipy import ndimage
     lab, n = ndimage.label(cover)
@@ -253,13 +314,16 @@ def paint(man, spec):
     nrm = np.zeros_like(pts)
     nrm[ok] = n_loop[cKDTree(V).query(pts[ok])[1]]
     report = {"scale": round(k, 5), "views": {}}
-    cams, pics = {}, {}
+    fid = spec.get("fidelity", {})
+    pics, lms = {}, {}
     for view, path in spec["paint_views"].items():
         # The painting's own squares taken out (a median over a square, a little blur), so ours are
         # the only squares: projected and squared again, its squares come out as zigzags.
         from PIL import ImageFilter
         raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
-        img = np.asarray(raw.filter(ImageFilter.MedianFilter(UNSQUARE)).filter(ImageFilter.GaussianBlur(1.0))).astype(float) / 255.0
+        # (portrait.json `fidelity.unsquare`: a smaller median keeps his irises, which UNSQUARE wipes.)
+        uns = int(fid.get("unsquare", UNSQUARE))
+        img = np.asarray(raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0 if uns > 3 else 0.5))).astype(float) / 255.0
         pics[view] = img
         if view == "back":
             continue
@@ -267,13 +331,41 @@ def paint(man, spec):
         if lm is None:
             report["views"][view] = "no face found"
             continue
-        s0 = float(np.linalg.norm(lm[468, :2] - lm[473, :2])) / EYE_SPAN
-        if view.startswith("profile"):
-            s0 = float(abs(lm[152, 1] - lm[168, 1])) / max(abs(pts[152, 1] - pts[168, 1]), 1e-6)
-        use = ok.copy()
-        cam, err = fit_camera(view, np.where(use[:, None], pts, 0.0), lm, np.where(use[:, None], nrm, 0.0), s0, VIEW_TURN[view])
-        cams[view] = cam
-        report["views"][view] = {"landmarks_mm": err, "turn": round(cam.yaw, 1), "s": round(cam.s, 1)}
+        lms[view] = lm
+
+    def fit_views(pts, nrm):
+        cams = {}
+        for view, lm in lms.items():
+            s0 = float(np.linalg.norm(lm[468, :2] - lm[473, :2])) / EYE_SPAN
+            if view.startswith("profile"):
+                s0 = float(abs(lm[152, 1] - lm[168, 1])) / max(abs(pts[152, 1] - pts[168, 1]), 1e-6)
+            cam, err = fit_camera(view, np.where(ok[:, None], pts, 0.0), lm, np.where(ok[:, None], nrm, 0.0), s0, VIEW_TURN[view])
+            cams[view] = cam
+            report["views"][view] = {"landmarks_mm": err, "turn": round(cam.yaw, 1), "s": round(cam.s, 1)}
+        return cams
+
+    cams = fit_views(pts, nrm)
+    # His shape fitted to the portraits (style_shape.py; portrait.json `fidelity.shape_fit`): the
+    # landmarks where all the portraits put them, the mesh warped to them, the cameras fitted again.
+    if fid.get("shape_fit"):
+        import style_shape as SS
+        rounds = []
+        for _r in range(int(fid.get("shape_rounds", 2))):
+            before = {v: report["views"][v]["landmarks_mm"] for v in cams}
+            move, seen = SS.solve_landmarks(pts, nrm, cams, lms, ok)
+            V = SS.warp(V, pts, move)
+            pts = np.where(ok[:, None], pts + move, pts)
+            n_loop = P.vertex_normals(V, T)
+            acc = np.zeros((inv.max() + 1, 3))
+            np.add.at(acc, inv, n_loop)
+            n_loop = acc[inv] / np.maximum(np.linalg.norm(acc[inv], axis=1, keepdims=True), 1e-9)
+            nrm = SS.nearest_normals(V, n_loop, pts)
+            cams = fit_views(pts, nrm)
+            mm = 1000 * np.linalg.norm(move[:468], axis=1)
+            rounds.append({"landmarks_mm_before": before, "after": {v: report["views"][v]["landmarks_mm"] for v in cams},
+                           "move_mm_mean": round(float(mm.mean()), 1), "move_mm_max": round(float(mm.max()), 1),
+                           "seen_by_two_or_more": int((seen >= 2).sum())})
+        report["shape_fit"] = rounds
     if "back" in pics and any(v.startswith("profile") for v in cams):
         side = [cams[v] for v in cams if v.startswith("profile")]
         s = float(np.mean([c.s for c in side]))
@@ -300,14 +392,24 @@ def paint(man, spec):
     idx = np.nonzero(cover)
     p, n = Pp[idx], N[idx]
     score, colour = {}, {}
+    near_eyes = np.min([np.linalg.norm(p - pts[i], axis=1) for i in (468, 473)], axis=0) < FEATURE_KEEP_M
+    face_ok = ~np.isnan(pts[:468]).any(1)
+    in_face = cKDTree(pts[:468][face_ok]).query(p)[0] < 0.012
     for view, cam in cams.items():
         img = pics[view]
         h, w = img.shape[:2]
         _tid, _b, zb = P.rasterise(cam.project(V), cam.depth(V), T, w, h)
+        zb_plain = zb
         zb = ndimage.minimum_filter(zb, size=3)
         q = cam.project(p)
         qi = np.clip(q.astype(int), 0, [w - 1, h - 1])
-        seen = (cam.depth(p) <= zb[qi[:, 1], qi[:, 0]] + DEPTH_TOL) & (q[:, 0] >= 0) & (q[:, 0] < w) & (q[:, 1] >= 0) & (q[:, 1] < h)
+        z_at = zb[qi[:, 1], qi[:, 0]]
+        if fid.get("keep_features"):
+            # Round his eyes the cautious depth (the nearest over 3 pixels) would hide the eyeball
+            # behind its own lid's edge from the front, and a side portrait would paint it with
+            # eye white: there the plain depth.
+            z_at = np.where(near_eyes, zb_plain[qi[:, 1], qi[:, 0]], z_at)
+        seen = (cam.depth(p) <= z_at + DEPTH_TOL) & (q[:, 0] >= 0) & (q[:, 0] < w) & (q[:, 1] >= 0) & (q[:, 1] < h)
         f = n @ cam.toward()
         colour[view] = P.sample(img, q[:, 0], q[:, 1])
         # His mane is bigger than the painted hair: where it lands on the painting's background
@@ -315,6 +417,15 @@ def paint(man, spec):
         edge = np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)])
         bg = np.median(edge, 0)
         bg_like = (np.linalg.norm(colour[view] - bg, axis=1) < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
+        if fid.get("keep_features"):
+            # His face is never the backdrop (the bold portrait's dark brown ground is his eye
+            # sockets' colour: they were thrown out and a profile painted them).
+            bg_like &= ~in_face
+        # An eye is drawn whole in each portrait, and no two portraits draw it alike: round his
+        # eyes (keep_features) the front portrait paints wherever it sees, so an eye isn't stitched
+        # from two drawings (its sideways-facing half went to a profile's eye white).
+        if fid.get("keep_features") and view == "front":
+            f = np.where(near_eyes, f + 1.0, f)
         score[view] = np.where(seen & ~bg_like & (f > MIN_FACING), f, -np.inf)
     names = list(cams)
     S = np.stack([score[v] for v in names])
@@ -335,6 +446,13 @@ def paint(man, spec):
             shade = np.c_[np.ones(len(n)), n] @ coef
             ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** DELIGHT
             ratio = np.clip(ratio, *DELIGHT_CLAMP)
+            # His eye sockets are dark because the painter drew them so, not because they face
+            # away from the light: no de-light within FEATURE_KEEP_M of his eyes (portrait.json
+            # `fidelity.keep_features`), or they come out pale and glassy.
+            if fid.get("keep_features"):
+                de = np.min([np.linalg.norm(p - pts[i], axis=1) for i in (468, 473)], axis=0)
+                keep = np.exp(-(de / FEATURE_KEEP_M) ** 2)
+                ratio = ratio * (1 - keep) + keep
             c = np.clip(c / ratio[:, None], 0, 1)
             report["views"].setdefault(v, {})
             if isinstance(report["views"][v], dict):
@@ -416,7 +534,13 @@ def paint(man, spec):
         tex[speck] *= (hi / np.maximum(lum[speck], 1e-6))[:, None]
     # Squares, once, last: SQUARE_M cells in 3D on him (so they sit square on his head, whatever
     # Rodin's UV islands do), each the median of its texels.
-    sq = cube_squares(tex, cover, Pp)
+    # portrait.json `fidelity.patches`: "anatomy" grows patches along his paint's edges
+    # (patch_squares); otherwise SQUARE_M cubes.
+    if fid.get("patches") == "anatomy":
+        sq, n_patches = patch_squares(tex, cover, Pp, float(fid.get("patch_m", SQUARE_M)), float(fid.get("patch_compact", 12.0)))
+        report["patches"] = {"kind": "anatomy", "count": n_patches, "spacing_m": float(fid.get("patch_m", SQUARE_M))}
+    else:
+        sq = cube_squares(tex, cover, Pp)
     # A whole square of near-white or the shirt's cream on his face (a catchlight that missed his
     # eye, the collar seen past his cheek, fills one): the colour of the face round it (the median
     # of its nearest texels on him).
@@ -431,6 +555,12 @@ def paint(man, spec):
         sq[white] = np.median(sq[ok_[0][pick][j], ok_[1][pick][j]], axis=1)
     report["white_squares_calmed"] = int(white.sum())
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
+    # The moustache and brows raised where the paint says hair (style_shape.relief; portrait.json
+    # `fidelity.moustache_m`, `brows_m`).
+    if fid.get("moustache_m", 0) or fid.get("brows_m", 0):
+        import style_shape as SS
+        report["relief"] = {}
+        V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"])
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
             allow_pickle=True)
