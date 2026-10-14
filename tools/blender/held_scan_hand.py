@@ -62,6 +62,7 @@ GRIP_CLEAR = 0.6                      # mm the flesh against the grip stands off
 KEEP = 0.45                           # of the scan's triangles (the rest is in its normal map)
 SEARCH_T = (-1.0,)                   # the handle's t on GRIP_AT and the fist's turn: searched over these
 SEARCH_ROLL = (5.0,)
+THUMB_REACH = 0.0                     # the placement's score per degree the thumb swings up to cock
 
 # Seeds for growing the index finger, the thumb and the middle finger over the scan (t mm, theta
 # degrees, and whether to find the surface from outside or from the handle outward).
@@ -82,7 +83,15 @@ FOLLOW = 3.0                          # mm the rebuilt digits follow the scan's 
 THUMB_REF = 360.0
 THUMB_JOIN = 50.0
 THUMB_JOINTS = {"root": 45.0, "mcp": 72.0, "ip": 118.0}
-THUMB_OPEN = {"swing": (0, 130), "root": (-50, 50), "mcp": (-40, 40), "ip": (-40, 60)}
+# The thumb at rest (thumb_rest): its joints searched over these (degrees), its pad on the frame
+# within THUMB_TOUCH (m).
+THUMB_REST = {"swing": (40, 50), "root": (-40, 40), "mcp": (-40, 40), "ip": (-40, 40)}
+THUMB_TOUCH = 0.004
+# The rebuilt thumb's form (shape_digit): its knuckle and tip joint standing up on the back, the
+# creases under them, a flatter pad side, a full pad and a rounded end.
+THUMB_FORM = {"joints": (72.0, 118.0), "flat": 0.18, "knuckle": 0.7, "crease": 0.5, "pad": 0.8,
+              "tip": 0.55, "tip_up": 0.25}
+THUMB_OPEN = {"swing": (0, 140), "root": (-50, 50), "mcp": (0, 60), "ip": (0, 70)}
 THUMB_BASE = 32.0                     # mm round the thumb's root that its swing carries (fading)                 # the index finger leaves the hand here (theta): no cut before it
 
 # The index finger's joints (theta, degrees round the handle) and how far each opens out of the
@@ -310,7 +319,7 @@ def split_index(scan, parts):
     return index, thumb, seam
 
 
-def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name="index"):
+def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name="index", form=None):
     """The index finger rebuilt as a closed tube: the scan's own surface where the cast has it (the
     back and sides of the finger), and its palm side, which lay on the broom handle and was never
     cast, rounded off between them. Sections are half-planes through the handle's axis, a step of
@@ -377,6 +386,8 @@ def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name=
     for _ in range(5):
         R[1:-1] = 0.5 * R[1:-1] + 0.25 * (R[:-2] + R[2:])
         R = 0.5 * R + 0.25 * (np.roll(R, 1, 1) + np.roll(R, -1, 1))
+    if form:
+        R = shape_digit(R, A, al, have, form, A[-1])
 
     def ring(a, c, rr):
         ar = math.radians(ref + sign * a)
@@ -390,12 +401,24 @@ def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name=
         V.append(ring(A[i], Cn[i], R[i]))
         TH.append(np.full(sides, A[i]))
         ON.append(have[i])
-    # The fingertip: two rings closing in past the last section, then its end.
-    for f_, sc in ((0.5, 0.8), (1.0, 0.5), (1.4, 0.2)):
-        a = A[-1] + step * f_ * 1.5
-        V.append(ring(a, Cn[-1], R[-1] * sc))
-        TH.append(np.full(sides, a))
-        ON.append(np.zeros(sides, bool))
+    # The fingertip: two rings closing in past the last section, then its end; or, with `form`,
+    # a rounded end (a quarter ellipse along the digit, its middle easing toward the nail side).
+    if form:
+        reach = form.get("tip", 0.45) * R[-1].mean()
+        per_deg = max(Cn[-1, 1], 5.0) * math.pi / 180
+        caps = [(math.sin(math.radians(p_)), math.cos(math.radians(p_))) for p_ in (22, 44, 63, 78, 88)]
+        for e_, sc in caps:
+            a = A[-1] + reach * e_ / per_deg
+            c = Cn[-1] + np.array([0.0, (1 - sc) * form.get("tip_up", 0.2) * h[-1]])
+            V.append(ring(a, c, R[-1] * sc))
+            TH.append(np.full(sides, a))
+            ON.append(np.zeros(sides, bool))
+    else:
+        for f_, sc in ((0.5, 0.8), (1.0, 0.5), (1.4, 0.2)):
+            a = A[-1] + step * f_ * 1.5
+            V.append(ring(a, Cn[-1], R[-1] * sc))
+            TH.append(np.full(sides, a))
+            ON.append(np.zeros(sides, bool))
     V = np.concatenate(V)
     TH = np.concatenate(TH)
     ON = np.concatenate(ON)
@@ -423,6 +446,28 @@ def digit_tube(scan, mask, th_from, step=2.0, sides=36, sign=1.0, ref=0.0, name=
     centres = (A, Cn)
     TH = (ref + sign * TH) % 360
     return V, F, TH, ON, centres
+
+
+def shape_digit(R, A, al, have, form, tip):
+    """A rebuilt digit's sections given a finger's form rather than a plain ellipse's: the pad side
+    flatter (`flat`), each knuckle standing up on the back (`knuckle` mm) with a crease under it on
+    the pad side (`crease` mm), and the pad of the last bone full (`pad` mm). Where a section
+    follows the scan's own surface it's left as cast."""
+    back = np.clip(np.sin(al), 0, 1)
+    palm = np.clip(-np.sin(al), 0, 1)
+    js = sorted(form["joints"])
+    knuckle = np.zeros(len(A))
+    crease = np.zeros(len(A))
+    for aj in js:
+        knuckle += np.exp(-0.5 * ((A - aj) / form.get("knuckle_w", 7.0)) ** 2)
+        crease += np.exp(-0.5 * ((A - aj) / form.get("crease_w", 3.0)) ** 2)
+    padc = (js[-1] + tip) / 2
+    pad = np.exp(-0.5 * ((A - padc) / max((tip - js[-1]) / 3, 3.0)) ** 2)
+    d = (np.outer(knuckle, back ** 2) * form.get("knuckle", 0.0)
+         - np.outer(crease, palm ** 2) * form.get("crease", 0.0)
+         + np.outer(pad, palm ** 2) * form.get("pad", 0.0))
+    out = R * (1 - form.get("flat", 0.0) * palm ** 3) + d
+    return np.where(have, R, out)
 
 
 def tube_uv(scan, tree, V, F, ON):
@@ -864,7 +909,8 @@ def main():
     TV, TF, TTH, TON, _ = digit_tube(scan, index, JOIN - 15)
     tuv, tflag = tube_uv(scan, tree0, TV, TF, TON)
     thumb_scan = thumb.copy()
-    UV_, UF, UTH, UON, ucent = digit_tube(scan, thumb_scan, THUMB_JOIN - 15, sign=-1.0, ref=THUMB_REF, name="thumb")
+    UV_, UF, UTH, UON, ucent = digit_tube(scan, thumb_scan, THUMB_JOIN - 15, sign=-1.0, ref=THUMB_REF, name="thumb",
+                                          form=THUMB_FORM)
     uuv, uflag = tube_uv(scan, tree0, UV_, UF, UON)
     tjoints = {}
     for k_, u_j in THUMB_JOINTS.items():
@@ -917,8 +963,10 @@ def main():
     hand_sample = rng.choice(np.nonzero(~index & ~patch)[0], 1500, replace=False)
     idx_sample = np.nonzero(index & ~patch)[0][::14]
     results = []
-    for t0 in SEARCH_T:
-        for roll in SEARCH_ROLL:
+    arg = lambda k, d: tuple(float(x) for x in next((a_.split("=", 1)[1] for a_ in sys.argv
+                                                     if a_.startswith(k + "=")), ",".join(map(str, d))).split(","))
+    for t0 in arg("--search-t", SEARCH_T):
+        for roll in arg("--search-roll", SEARCH_ROLL):
             fit = Fit(scan, t0, roll)
             push = grip_push(scan, fit, grip_parts)
             v = apply_push(scan, rest, push)
@@ -927,9 +975,17 @@ def main():
             b = best_index(scan, fit, j, index, gun, v[idx_sample], top=12)
             n_hand = held_hand.inside(gun, fit(v[hand_sample]), 0.0)
             score = b[0] + n_hand * 0.4
+            ck = None
+            if "--place-search" in sys.argv:
+                tj_ = {k: apply_push(scan, x[None], push)[0] for k, x in tjoints.items()}
+                vi = pose_index(scan, index, j, b[1])
+                ck = thumb_cock(scan, fit, vi, thumb, tj_, gun, pose=False)
+                score += ck[1]["swing"] * THUMB_REACH
             results.append((score, t0, roll, b, n_hand))
-            print("  t0 %5.1f roll %5.1f: index %s %.1f mm off, %d in; hand %d of %d in -> %.1f"
-                  % (t0, roll, b[1], b[2], b[3], n_hand, len(hand_sample), score))
+            print("  t0 %5.1f roll %5.1f: index %s %.1f mm off, %d in; hand %d of %d in%s -> %.1f"
+                  % (t0, roll, b[1], b[2], b[3], n_hand, len(hand_sample),
+                     "" if ck is None else "; thumb %s %.1f mm off, %d in, root at y %.1f mm"
+                     % (ck[1], ck[2], ck[3], fit(tj_["root"])[1] * 1000), score))
             scan.v = rest
     results.sort(key=lambda r: r[0])
     score, t0, roll, b, n_hand = results[0]
@@ -942,11 +998,12 @@ def main():
     print("  index to the trigger: %s, pad %.1f mm off, %d of %d sampled points in the gun"
           % (b[1], b[2], b[3], len(idx_sample)))
     v = pose_index(scan, index, j, b[1])
-    G = fit(v)
+    tj = {k: apply_push(scan, x[None], push)[0] for k, x in tjoints.items()}
+    v_rest, rest_ang = thumb_rest(scan, fit, v, thumb, tj, gun)
+    G = fit(v_rest)
     sq = best_index(scan, fit, j, index, gun, scan.v[idx_sample], top=60, target=SQUEEZED, around=b[1])
     print("  squeezed: %s, pad %.1f mm off" % (sq[1], sq[2]))
-    G_sq = fit(pose_index(scan, index, j, sq[1]))
-    tj = {k: apply_push(scan, x[None], push)[0] for k, x in tjoints.items()}
+    G_sq = fit(pose_thumb(scan, scan.v, pose_index(scan, index, j, sq[1]), thumb, tj, rest_ang, hand_too=~thumb))
     G_ck = fit(thumb_cock(scan, fit, v, thumb, tj, gun))
     if preview and "--cock-debug" in sys.argv:
         Fc = scan.f
@@ -1005,9 +1062,67 @@ def pose_thumb(scan, rest, pts, mask, joints, angles, hand_too=None):
     return out
 
 
-def thumb_cock(scan, fit, v, thumb, joints, gun):
+def thumb_rest(scan, fit, v, thumb, joints, gun):
+    """Where the thumb rests while he holds the gun: not wrapped round the grip as the cast's was
+    round the broom handle (from there cocking swung it 100 degrees), but swung part way up and
+    lying along the frame's left side under the hammer, its pad on the frame. Its joints' angles
+    are searched (THUMB_REST's ranges) for the most of its pad within THUMB_TOUCH of the frame,
+    none of it in the gun, its joints bent as little as will do. Returns (the hand so posed, the
+    angles)."""
+    import itertools
+    t, th, r = scan.cyl(scan.v)
+    u = (THUMB_REF - th) % 360
+    on = thumb & (u < 300) & (u > THUMB_JOINTS["mcp"] - 5)
+    # Its pad: the inner part of each 4-degree slice of it (nearest the handle's axis).
+    pad = np.zeros(len(u), bool)
+    for x in np.arange(u[on].min(), u[on].max() + 4, 4.0):
+        sl = on & (u >= x) & (u < x + 4)
+        if sl.any():
+            pad |= sl & (r <= np.percentile(r[sl], 45))
+    pad_i = np.nonzero(pad)[0]
+    every = np.nonzero(thumb)[0]
+    rest = scan.v
+
+    def score(ang, sub_pad, sub_all):
+        q_pad = fit(pose_thumb(scan, rest[sub_pad], v[sub_pad], np.ones(len(sub_pad), bool), joints, ang))
+        q_all = fit(pose_thumb(scan, rest[sub_all], v[sub_all], np.ones(len(sub_all), bool), joints, ang))
+        n_in = held_hand.inside(gun, q_all, 0.0)
+        near = held_hand.inside(gun, q_pad, THUMB_TOUCH) - held_hand.inside(gun, q_pad, 0.0)
+        bend = abs(ang["root"]) + abs(ang["mcp"]) + abs(ang["ip"])
+        return n_in * 3.0 - near * 1.0 + bend * 0.02, near, n_in
+
+    sp = pad_i[:: max(1, len(pad_i) // 14)]
+    sa = every[:: max(1, len(every) // 16)]
+    rng_ = {k: range(THUMB_REST[k][0], THUMB_REST[k][1] + 1, 20) for k in THUMB_REST}
+    rng_["swing"] = range(THUMB_REST["swing"][0], THUMB_REST["swing"][1] + 1, 10)
+    coarse = []
+    for sw, ro, mc, ip in itertools.product(rng_["swing"], rng_["root"], rng_["mcp"], rng_["ip"]):
+        ang = {"swing": sw, "root": ro, "mcp": mc, "ip": ip}
+        coarse.append((score(ang, sp, sa)[0], ang))
+    coarse.sort(key=lambda c: c[0])
+    sp = pad_i[:: max(1, len(pad_i) // 40)]
+    sa = every[:: max(1, len(every) // 60)]
+    best = None
+    seen = set()
+    for _, a0 in coarse[:6]:
+        for d in itertools.product((-10, 0, 10), repeat=4):
+            ang = {k: int(np.clip(a0[k] + d_, *THUMB_REST[k])) for k, d_ in zip(("swing", "root", "mcp", "ip"), d)}
+            key = tuple(ang.values())
+            if key in seen:
+                continue
+            seen.add(key)
+            sc = score(ang, sp, sa)
+            if best is None or sc[0] < best[0]:
+                best = (sc[0], ang, sc[1], sc[2])
+    print("  the thumb at rest: %s, %d of %d sampled pad points on the frame, %d of %d in the gun"
+          % (best[1], best[2], len(sp), best[3], len(sa)))
+    return pose_thumb(scan, rest, v, thumb, joints, best[1], hand_too=~thumb), best[1]
+
+
+def thumb_cock(scan, fit, v, thumb, joints, gun, pose=True):
     """The thumb up on the hammer's spur: its joints' angles searched to bring its pad (the palm
-    side of its tip) onto the spur without going into the gun. Returns the hand so posed."""
+    side of its tip) onto the spur without going into the gun. Returns the hand so posed (or,
+    with `pose` false, the search's best: score, angles, mm off, points in the gun)."""
     import itertools
     t, th, r = scan.cyl(scan.v)
     u = (THUMB_REF - th) % 360
@@ -1032,6 +1147,8 @@ def thumb_cock(scan, fit, v, thumb, joints, gun):
         score = err + n_in * 1.0
         if best is None or score < best[0]:
             best = (score, ang, err, n_in)
+    if not pose:
+        return best
     print("  thumb to the spur: %s, pad %.1f mm off, %d of %d sampled points in the gun"
           % (best[1], best[2], best[3], len(sample)))
     return pose_thumb(scan, rest, v, thumb, joints, best[1], hand_too=~thumb)
