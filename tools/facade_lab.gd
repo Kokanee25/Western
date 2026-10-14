@@ -16,6 +16,9 @@ const VIEWS := [
 	["painting", Vector3(12.0, 1.75, -11.0), Vector3(3.6, 3.6, -0.6), 50.0],
 	["square", Vector3(8.6, 1.7, -9.0), Vector3(4.2, 3.9, 0.0), 58.0],
 	["door", Vector3(3.9, 1.65, -3.2), Vector3(3.6, 1.7, 0.0), 58.0],
+	# Nearer, as the painter stood (the master's saloon fills its left half: its near post at the
+	# frame's edge, the porch running away to the store): the woods at the painting's size.
+	["near", Vector3(9.2, 1.65, -4.6), Vector3(2.8, 2.6, 0.2), 62.0],
 ]
 ## The painting's saloon (pixels of the 1672-wide painting).
 const CROP := Rect2i(0, 0, 900, 640)

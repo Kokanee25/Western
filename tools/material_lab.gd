@@ -1,4 +1,5 @@
 extends SceneTree
+## (Untyped where it names the game's classes: -s scripts compile before the autoloads exist.)
 ## The material lab (art, 2026-10-14; Sean's brief: one section of Salt Creek's architecture in the
 ## masters' painted woods): a short run of the real fronts out in the desert west of town, built by
 ## the game's own classes (FalseFrontBuilding with FacadeArt's porch, posts and brackets; Boardwalk),
@@ -19,10 +20,10 @@ const YAW := 90.0
 const HOURS := {"noon": 12.0, "golden": 17.6, "night": 22.5}
 ## [name, eye, look at, vertical fov] in the set's space (the fronts along +X, faces toward -Z).
 const VIEWS := {
-	"front": [Vector3(5.2, 1.7, -8.5), Vector3(5.0, 2.4, 0.0), 50.0],
-	"close": [Vector3(2.6, 1.6, -3.3), Vector3(2.2, 1.6, 0.0), 50.0],
-	"post": [Vector3(5.6, 1.4, -3.6), Vector3(4.9, 1.9, -2.0), 45.0],
-	"walk_detail": [Vector3(7.4, 1.65, -3.6), Vector3(6.6, 0.6, -1.2), 50.0],
+	"front": [Vector3(5.0, 2.2, -7.0), Vector3(5.0, 2.0, 0.0), 55.0],
+	"close": [Vector3(1.4, 1.7, -2.6), Vector3(1.0, 1.6, 0.0), 50.0],
+	"post": [Vector3(5.4, 1.7, -3.4), Vector3(4.9, 1.6, -2.1), 45.0],
+	"walk_detail": [Vector3(6.6, 1.9, -3.4), Vector3(7.2, 0.4, -1.0), 50.0],
 }
 const WIDTH := 4.8
 
@@ -109,10 +110,12 @@ func _place(cam: Camera3D, set: Node3D, eye: Vector3, at: Vector3, fov: float) -
 ## Two fronts side by side along +X, each with its boardwalk: the saloon's red lap siding (its
 ## timber porch posts and brackets, FacadeArt "saloon"), then the store's pale boards ("store").
 func _build(set: Node3D) -> void:
-	var fronts := [["LabSaloon", &"saloon_red", "saloon"], ["LabStore", &"store_boards", "store"]]
+	# [name, wood, FacadeArt style, windows]: the saloon's front without its windows, so a run of its
+	# siding shows (the painting's red boards are its walls between and under the windows).
+	var fronts := [["LabSaloon", &"saloon_red", "saloon", false], ["LabStore", &"store_boards", "store", true]]
 	for i in fronts.size():
 		var f: Array = fronts[i]
-		var b := FalseFrontBuilding.new()
+		var b = load("res://src/structures/false_front_building.gd").new()
 		b.name = f[0]
 		b.structure_id = StringName((f[0] as String).to_snake_case())
 		b.build_seed = 900 + i
@@ -126,13 +129,13 @@ func _build(set: Node3D) -> void:
 		b.porch = true
 		b.porch_lantern = true
 		b.furnished = false
-		b.front_windows = true
+		b.front_windows = f[3]
 		b.position = Vector3(i * (WIDTH + 0.3), 0.0, 0.0)
 		set.add_child(b)
-		var walk := Boardwalk.new()
+		var walk = load("res://src/structures/boardwalk.gd").new()
 		walk.name = f[0] + "Walk"
 		walk.structure_id = StringName((f[0] as String).to_snake_case() + "_walk")
 		walk.length = WIDTH
-		walk.steps = [[WIDTH * 0.5, 1.6]]
+		walk.steps = [Vector2(WIDTH * 0.5, 1.6)]
 		walk.position = b.position
 		set.add_child(walk)
