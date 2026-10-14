@@ -107,7 +107,10 @@
   "trousers": 1200,
   "vest": 699,
   "coat": 2199,
-  "cravat": 36
+  "cravat": 36,
+  "hat": 720,
+  "hat_brim": 864,
+  "hat_band": 96
  },
  "eyes": {
   "right": [
@@ -123,11 +126,11 @@
  },
  "skin_tone": [
   0.3176,
-  0.1294,
+  0.1255,
   0.0392
  ],
  "shells": [],
- "seconds": 25.4,
+ "seconds": 25.1,
  "head": {
   "from": "assets/people/tripo/test/bold_cowboy_rodin.glb",
   "scale": 0.9388,
@@ -140,6 +143,7 @@
   },
   "skin_faces_cut": 174
  },
+ "hat": "his own (style_hat.py)",
  "fit_joints": {
   "r-eye": [
    0.0302,
