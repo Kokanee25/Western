@@ -215,7 +215,9 @@ def relief(V, T, colour, pts, moustache_m, brows_m, report, sideburns_m=0.0):
     if moustache_m > 0:
         half = np.linalg.norm(pts[61] - pts[291]) / 2 + 0.012
         mid = (pts[61] + pts[291]) / 2
-        region = front & (W[:, 1] < pts[2, 1] - 0.002) & (W[:, 1] > pts[17, 1] - 0.004) \
+        # The upper lip only (nose base down to the lips' parting, 13): taken down past the lower
+        # lip it lifted his lips too and made a muzzle of his mouth (2026-10-14).
+        region = front & (W[:, 1] < pts[2, 1] - 0.002) & (W[:, 1] > pts[13, 1]) \
             & (np.abs(W[:, 0] - mid[0]) < half)
         m = (region & hairlike).astype(float)
         m = _soften(m, edges, 6)
@@ -238,7 +240,9 @@ def relief(V, T, colour, pts, moustache_m, brows_m, report, sideburns_m=0.0):
         for corner, edge, jaw in ((33, 234, 172), (263, 454, 397)):
             out_x = abs(pts[corner, 0] - nose_x)
             side = np.sign(pts[edge, 0] - nose_x)
-            band = (side * (W[:, 0] - nose_x) > out_x) & (W[:, 1] < eye_y + 0.01) & (W[:, 1] > pts[jaw, 1]) \
+            # From 1.5 cm under his eye line and 1.5 cm behind the eye's corner: from the eye line
+            # itself it cut a crease across his temple (2026-10-14).
+            band = (side * (W[:, 0] - nose_x) > out_x + 0.015) & (W[:, 1] < eye_y - 0.015) & (W[:, 1] > pts[jaw, 1]) \
                 & (W[:, 2] < pts[edge, 2] + 0.015) & (side * n[:, 0] > 0.3)
             m += (band & hairlike).astype(float)
         m = _soften(np.clip(m, 0, 1), edges, 2)   # a crisper edge than the moustache's: it stands off the cheek
