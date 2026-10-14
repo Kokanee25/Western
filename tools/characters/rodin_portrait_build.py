@@ -172,6 +172,32 @@ def build(man, spec):
                     n += 1
             lowered[name.split("_", 1)[1]] = n
         rep["head"]["collar_lowered"] = lowered
+        # His own hat (rodin_portrait.py's, from style_hat.py): three rigid pieces on his head
+        # bone, moved with his head; they take the place of BodyMesh's (people_bodies.gd: a model's
+        # own `hat`, `hat_brim`, `hat_band` replace the game's).
+        hat_path = os.path.join(RP.WORK, man + "_hat.npy")
+        if spec.get("hat") and os.path.exists(hat_path):
+            hat = np.load(hat_path, allow_pickle=True).item()
+            for part, d in hat.items():
+                Vh2 = (d["V"] - c_mine) * k + c_goal
+                me2 = bpy.data.meshes.new("cloth_" + part)
+                me2.from_pydata([mp.to_blender(p_) for p_ in Vh2], [], d["T"].tolist())
+                uv2 = me2.uv_layers.new(name="UVMap")
+                for poly in me2.polygons:
+                    poly.use_smooth = True
+                    for vi, li in zip(poly.vertices, poly.loop_indices):
+                        u, v = d["UV"][vi]
+                        uv2.data[li].uv = (u, 1.0 - v)
+                o2 = bpy.data.objects.new("cloth_" + part, me2)
+                bpy.context.scene.collection.objects.link(o2)
+                for b in env["bones"]:
+                    o2.vertex_groups.new(name=b)
+                o2.vertex_groups["head"].add(list(range(len(Vh2))), 1.0, "REPLACE")
+                m2 = o2.modifiers.new("skeleton", "ARMATURE")
+                m2.object = arm
+                o2.parent = arm
+                rep["triangles"][part] = len(me2.polygons)
+            rep["hat"] = "his own (style_hat.py)"
         made["ok"] = True
         export(person)
 
@@ -183,4 +209,8 @@ def build(man, spec):
     finally:
         FB.mp.export = export
     shutil.copy(paint, os.path.join(mp.OUT, pid + "_head.png"))
+    for part in ("hat", "hat_brim", "hat_band"):
+        src = os.path.join(RP.WORK, "%s_%s.png" % (man, part))
+        if spec.get("hat") and os.path.exists(src):
+            shutil.copy(src, os.path.join(mp.OUT, "%s_%s.png" % (pid, part)))
     print("rodin_portrait: built", pid, made)

@@ -564,6 +564,21 @@ def paint(man, spec):
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
             allow_pickle=True)
+    # His own hat (style_hat.py; portrait.json `hat`): fitted to the marks on his portraits,
+    # painted from them, cut into patches like his face.
+    if spec.get("hat"):
+        import style_hat as SH
+        h = SH.numbers(spec.get("hat"))
+        if h.get("marks"):
+            fitted, err = SH.fit_marks(V, pts, cams, h["marks"], h)
+            h.update(fitted)
+            report["hat"] = dict(fitted, marks_rms_px=err)
+        parts = SH.make_hat(V, pts, h)
+        texs = SH.paint_hat(parts, [(V, T)], cams, pics, h, patch_squares)
+        np.save(os.path.join(WORK, man + "_hat.npy"), {k: {"V": v, "T": t, "UV": u} for k, (v, t, u) in parts.items()},
+                allow_pickle=True)
+        for k, tex in texs.items():
+            P.to_pil(tex).save(os.path.join(WORK, "%s_%s.png" % (man, k)))
     report["cameras"] = {v: c.json() for v, c in cams.items()}
     report["seen"] = round(float(seen_any.mean()), 3)
     json.dump(report, open(os.path.join(WORK, man + "_report.json"), "w"), indent=1)
