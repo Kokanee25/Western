@@ -734,7 +734,7 @@ a few views renders them as the full run does.
 
 - **The Rodin portrait route (the approved look, 2026-10-14): `tools/characters/RECIPE.md`**, the
   whole recipe for a new man (Sean's pictures and the ChatGPT prompt, his `portrait.json` entry
-  and `fidelity` settings, the commands, what good looks like, traps, going back to the tag
+  and `fidelity` settings, the commands, what good looks like, traps, going back to the bookmark branch
   `look/portrait-men-2026-10-14`). `rodin_portrait.py` (paint, build), `style_shape.py` (the
   shape fitted to the portraits, relief), `style_probe.py` / `style_compare.py` (measured against
   the portraits, framed as each), `render_man.sh` (build, renders, sheet).

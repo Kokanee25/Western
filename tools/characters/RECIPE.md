@@ -10,7 +10,8 @@ colour from the portrait facing it squarest); then the shape is pulled to where 
 put his face, the moustache and brows are raised where the paint says hair, and the paint is cut
 into patches that follow its edges.
 
-**The approved state** is the git tag `look/portrait-men-2026-10-14` (see "Going back" below).
+**The approved state** is the branch `look/portrait-men-2026-10-14` on GitHub, a bookmark at commit
+775f0c5: never push to it (see "Going back" below; this environment's git proxy refuses tags).
 
 ## 1. What Sean makes (ChatGPT, free)
 
@@ -129,8 +130,9 @@ nose and mouth landmarks off ~1.6 % of eye-to-chin, jaw ~9 %; paint patches ~2.5
 
 ## 7. Going back
 
-- **The whole approved look:** `git checkout look/portrait-men-2026-10-14 -- assets/people
-  tools/characters` (then `godot --headless --import`) puts every man and the pipeline back as
-  approved. `git diff look/portrait-men-2026-10-14 -- assets/people` shows what has changed since.
+- **The whole approved look:** `git fetch origin look/portrait-men-2026-10-14 && git checkout
+  FETCH_HEAD -- assets/people tools/characters` (then `godot --headless --import`) puts every man
+  and the pipeline back as approved; `git diff FETCH_HEAD -- assets/people` shows what has changed
+  since. Merged to main, the same commit is there too.
 - **One man, one setting:** each `fidelity` key is off when absent; rebuild him (steps 2–3).
 - **Before this pass (build 1016's men):** remove his `fidelity` block and rebuild.
