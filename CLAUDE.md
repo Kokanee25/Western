@@ -323,14 +323,15 @@ frozen until Sean names one.
   folk cost ~43 meshes each (~50 to spare).
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
-**Characters** (branch `claude/characters-portrait-factory`, not merged; brief `docs/briefs/portrait-factory.md`):
-- Done on the branch: three men by Rodin's shape (a bust from his plain views) painted from five
+**Characters** (branch `claude/characters-portrait-factory`, merged; brief `docs/briefs/portrait-factory.md`):
+- Done on main: three men by Rodin's shape (a bust from his plain views) painted from five
   style portraits each (`tools/characters/rodin_portrait.py`, `rodin_portrait_build.py`) →
   `assets/people/{bold,older_heavyset,young_lean}_cowboy_rodin.glb`; sheets in
-  `docs/screenshots/portrait/*_rodin_sheet.png`. ~$5.26 of $15 spent.
-- Next: Sean's look at the other two; then their hats/hair at the back, the specks under the
-  chin. Trap: after a build, `godot --headless --import` before rendering, or the old man draws.
-- Waiting on Sean: the two sheets; the merge. For art: faces burn hot under the saloon's lamp.
+  `docs/screenshots/portrait/*_rodin_sheet.png`. Sean: "the closest we've had yet". ~$5.26 of $15.
+- Next: put them in the game's cast (where they stand, who they are); the ragged edge where head
+  meets collar; the young man's side hair. Trap: after a build, `godot --headless --import`
+  before rendering, or the old man draws.
+- For art: faces burn hot under the saloon's table lamp.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
