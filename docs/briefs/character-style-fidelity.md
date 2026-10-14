@@ -208,3 +208,8 @@ the warm light made to the portraits is closest on every measure but chroma (thr
 30 vs 31.6, L sd 16.6 vs 17.2, tones 16 vs 16, patches 3.1 vs 2.3, chroma 47 vs 40); neutral is
 far off (L* 20, tones 8, chroma 26); the saloon matches lightness but runs hot and noisy (chroma
 50, detail 13 vs 9). The hat changes the face's numbers little; its look is the sheet's.
+
+**Sean, 2026-10-14, after the investigation:** "I'm not worried about the hairstyle or colour being
+the same nor the character looking exactly the same — this is just the art style." So likeness
+(hair colour, the jaw's line, the exact moustache) is not the aim; the painted look is: block
+size and shape, tones, clean edges, the light's warmth and contrast, colour strength.
