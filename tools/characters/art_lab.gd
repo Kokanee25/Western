@@ -137,7 +137,7 @@ func _run() -> void:
 			n.queue_free()
 		rig = _light(w, env, light)
 		for mat in materials:
-			_set_material(m, mat, tex, look, sets, nomip)
+			_set_material(m, mat, tex, look, sets, nomip, mip, mipdir)
 			for turn in turns:
 				# Turned as the portrait is: negative toward the picture's left.
 				var dir := Vector3(sin(deg_to_rad(-turn)), 0, -cos(deg_to_rad(-turn)))
@@ -219,7 +219,12 @@ func _set_material(m: Node, kind: String, tex: Texture2D, look: Dictionary, sets
 			var g := base.duplicate() as ShaderMaterial
 			for k in sets:
 				g.set_shader_parameter(StringName(k), sets[k])
-			if mipdir != "":
+			if OS.get_environment("ART_LAB_RED") != "":
+				var red := Image.create(4, 4, false, Image.FORMAT_RGB8)
+				red.fill(Color.RED)
+				g.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(red))
+				print("art_lab: red on ", mi.name)
+			elif mipdir != "":
 				g.set_shader_parameter(&"albedo_tex", _mip_chain(mipdir))
 			elif nomip or mip:
 				var t0 = g.get_shader_parameter(&"albedo_tex")
@@ -256,7 +261,9 @@ func _mip_chain(dir: String) -> ImageTexture:
 		data.append_array(im.get_data())
 		i += 1
 	var out := Image.create_from_data(first.get_width(), first.get_height(), true, Image.FORMAT_RGB8, data)
-	return ImageTexture.create_from_image(out)
+	var it := ImageTexture.create_from_image(out)
+	print("art_lab: mip chain %d levels, image mipmaps %s (%d), texture's image mipmaps %s" % [i, out.has_mipmaps(), out.get_mipmap_count(), it.get_image().has_mipmaps()])
+	return it
 
 
 ## The prototype hat: each piece on his head bone, its body-space vertices put back at his rest

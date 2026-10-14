@@ -142,3 +142,65 @@ paint, the same frame): median 1.7–2.0×, 90th percentile ~5×, 26–50 % of f
 channel clipped; L* 48–59 against the portraits' 33–44. Neutral light: 0.6–0.8×, clipping
 0–3.5 %. Asked: hold a face's light so the 90th percentile stays under ~1.3× its paint with no
 clipping (the table lamp's energy or falloff on people, or a skin-side cap in `body_skin`).
+
+### The fidelity investigation (2026-10-14, Sean's five tasks; nothing in the pipeline changed)
+
+Tools (lab only): `art_lab.gd` (now `--fov --dist --global --set --mip --mipdir --grade
+--hat=lab:NAME`), `fidelity_compare.py` (portrait vs renders, landmark-cropped, style_probe's
+measures), `hat_proto.py`, `moustache_probe.py`. Sheets: `docs/style_test/fidelity-2026-10-14/`.
+The approved man as `assets/people/lab/bold_cowboy_approved` (a copy of main's, git-excluded).
+
+**1. The light cap (art's `light_cap`/`light_knee`) on the approved man, `shot_match_close`:**
+light ÷ paint median 1.74 → 0.69, p90 4.85 → 0.77, clipped 25.9 % → 0.1 %; face L* 30–32 (portrait
+32). Brightness and clipping: fixed. Chroma not (style_probe: 48–50 vs the portrait's 40). Not
+the texture (his paint unlit, no grade: L* 35, chroma 39, the portraits' level) and not the
+material. Sources (art_lab `--grade`, unlit and lit, neutral and warm): the **ACES tone mapper**
+lifts everything's chroma +13 and L* +4.6 (the saloon's unlit paint pass, chroma 52.5, is exactly
+this), the **warm lamps** add ~+9 and turn the hue ~6° redder. Also found: `scenes/test_street.tscn`
+spells `volumetric_adjustment_enabled`, not `adjustment_enabled`, so its contrast 1.15 and
+saturation 1.12 never apply (with them chroma would be 65 unlit). Remedies are art's: a skin-side
+chroma hold under ACES, lamp colour on people, or the tone mapper. Still in his paint: a white
+speck under his left eye (a catchlight) and, under the game's hat in the saloon, a flat brown
+band of the hat-hair fill on his forehead (gone on the branch's hatless build).
+
+**2. Screen blocks at 1.2 m** (block = style_probe's median one-colour run, % of eye-to-chin):
+portrait 2.3; his paint itself 3.9 (mean 7.2: patches by anatomy merge more than the
+portrait's); at 1.2 m one pixel is already 2.6 % (eye-to-chin ~38 px at 1280×720, 75°); unlit
+there 4.5; lit in neutral light 6.7 (tones 16 → 10, L* 20: the dark, flat light merges neighbours);
+in the warm light 3.1; in the saloon's close shot 2.2. Light steps and tile light change nothing
+measurable. His head texture is imported **without mipmaps**, so at 1.2 m each pixel is one texel
+of ~7 (point sampled: it shimmers as he turns); with mips the shader reads level 2–3.
+MIPS_RESULT
+So: at conversation distance the frame can't hold the portrait's blocks; the paint's own
+blocks and the light's darkness make them bigger still. What would help: paint blocks sized to
+the distance they're seen at, and a light that keeps a face's tones apart (the warm one does).
+
+**3. The hat:** `style_hat._ring` put every ring's back half in front (`where(cos > 0, -hf, hb) *
+cos`), so the old hat had **no back**: its brim stopped behind the crown, his hair showed through
+(the "hat sucks"). `hat_proto.py` patches it for itself only (the approved build's hat-hair line
+comes from the folded ring, so `style_hat.py` is unchanged until Sean says). The prototype
+(`assets/people/lab/hat_cattleman_*`, worn by `art_lab --hat=lab:hat_cattleman`; the game's hat
+untouched): fitted to Sean's brim and band marks (rms 44 → 23 px once the brim may droop at the
+sides), crown 12 cm, band 16 mm with brass studs, tipped back 15°, a designed paint (the portraits'
+browns in 16 mm squares, a lighter bound edge, a darker underside) instead of the portraits'
+colours projected. In the warm light the brim shades his brow and eyes and both stay readable.
+Left: the forehead's hat-hair fill shows under the brim front-on; the crown a little tall;
+not yet in the game build.
+
+**4. Features:** *grey moustache*: the test "darker or greyer than skin, upper lip only" found 105
+of the older man's vertices; "differs from skin (ΔE > 16), lips left out, grown over the surface
+into the drooping ends" finds 534 (all of it), and 527 on the bold cowboy (his ends too).
+*Hair colour*: 44 % of his hair is seen by no portrait and filled (dark, L* 19); what the portraits
+paint is L* 16–30 by view against their grey hair's L* 44 (de-light, the brim's shadow, the
+backdrop at the edges). *Silhouette*: ragged where the projection takes the backdrop at grazing
+angles and where views alternate along thin triangles. *Profile jaw*: his chin matches the
+profiles within 5 mm; under it his throat stands 25–43 mm forward of theirs (the bust fills in
+under the jaw). Fixes proposed, not made: the colour-independent moustache test in relief; hair
+matched per source to the portraits' hair and unseen hair filled from seen hair; the profiles'
+silhouettes as shape-fit targets for the jaw and throat.
+
+**5. Controlled comparison** (`t5_three_quarter.png`, `t5_front.png`; same man, pose, framing):
+the warm light made to the portraits is closest on every measure but chroma (three-quarter: L*
+30 vs 31.6, L sd 16.6 vs 17.2, tones 16 vs 16, patches 3.1 vs 2.3, chroma 47 vs 40); neutral is
+far off (L* 20, tones 8, chroma 26); the saloon matches lightness but runs hot and noisy (chroma
+50, detail 13 vs 9). The hat changes the face's numbers little; its look is the sheet's.
