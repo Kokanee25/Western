@@ -128,7 +128,8 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
-	elif tex and (tex.resource_path.contains("/textures/lab2/") or tex.resource_path.contains("/textures/lab3/")):
+	elif tex and (tex.resource_path.contains("/textures/lab2/") or tex.resource_path.contains("/textures/lab3/")
+			or tex.resource_path.contains("/textures/lab4/")):
 		# The timber pass (lab2) and its finish (lab3): fine texels, mipmapped (far off they
 		# average, not shimmer), never coarsened into squares, the edges a soft line, end grain
 		# where LabGeometry flags an end; lab3's painted woods worn to bare wood near board ends.
@@ -143,6 +144,9 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		if ResourceLoader.exists(end):
 			m.set_shader_parameter(&"end_tex", load(end))
 			m.set_shader_parameter(&"use_end_tex", true)
+		var et := float((_lab_info.get(_wood_of(key), {}) as Dictionary).get("end_texels", 0.0))
+		if et > 0.0:
+			m.set_shader_parameter(&"end_texels", et)
 		var bare := "%s/%s_bare.png" % [dir, _wood_of(key)]
 		var wear := float((_lab_info.get(_wood_of(key), {}) as Dictionary).get("end_wear", 0.0))
 		if wear > 0.0 and ResourceLoader.exists(bare):

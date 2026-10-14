@@ -8,8 +8,12 @@ extends SceneTree
 ## and lamplit night from fixed views, and a short walk past them.
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- --out=DIR \
-##       [--lab | --lab2 | --lab3] [--flag | --reshape | --build] [--man] [--lights=noon,golden,night]
-##       [--views=...] [--pan=N] [--pan-lights=golden]
+##       [--lab | --lab2 | --lab3 | --lab4] [--flag | --reshape | --build | --build2] [--man]
+##       [--lights=noon,golden,night] [--views=...] [--pan=N] [--pan-lights=golden] [--street]
+##
+## --street: no lab set; the woods and geometry on the town itself, rendered from STREET_VIEWS
+## with what each view costs to draw (draws, primitives, objects, render CPU ms; `LabStreet` lines)
+## and the whole street's members counted (`LabCount`).
 ##
 ## --lab: the lab's woods (tools/textures/paint_woods.py, PixelArt.lab); without, production's.
 ## Writes DIR/<light>_<view>.png and, with --pan, DIR/pan_<light>_<k>.png (N frames walking past).
@@ -41,6 +45,15 @@ const VIEWS := {
 	"steps": [Vector3(1.2, 0.95, -3.9), Vector3(2.4, 0.25, -2.6), 45.0],
 }
 const WIDTH := 4.8
+## Main Street's own views (world space): the street from each end, each row's fronts, along the
+## saloon's walk. The north row stands at z 0 facing -Z, the south at z -16.8 facing +Z.
+const STREET_VIEWS := {
+	"street_east": [Vector3(22.0, 1.65, -8.4), Vector3(-10.0, 2.0, -6.0), 60.0],
+	"street_west": [Vector3(-30.0, 1.65, -8.4), Vector3(5.0, 2.0, -9.0), 60.0],
+	"north_fronts": [Vector3(-8.0, 1.65, -11.5), Vector3(-8.0, 2.2, 0.0), 70.0],
+	"south_fronts": [Vector3(4.0, 1.65, -5.5), Vector3(4.0, 2.2, -17.0), 70.0],
+	"saloon_walk": [Vector3(0.5, 1.65, -3.6), Vector3(12.0, 1.0, -2.2), 60.0],
+}
 
 
 func _initialize() -> void:
@@ -55,6 +68,7 @@ func _run() -> void:
 	var geometry := 0
 	var man := false
 	var pan_lights: Array = []
+	var street_mode := false
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
@@ -75,6 +89,15 @@ func _run() -> void:
 			pa.lab_set = "lab3"
 		elif arg == "--build":
 			geometry = 3
+		# --lab4, --build2: the final candidate (LabGeometry `build` 2).
+		elif arg == "--lab4":
+			var pa = load("res://src/art/pixel_art.gd")
+			pa.lab = true
+			pa.lab_set = "lab4"
+		elif arg == "--build2":
+			geometry = 4
+		elif arg == "--street":
+			street_mode = true
 		elif arg.begins_with("--pan-lights="):
 			pan_lights = Array(arg.substr(13).split(","))
 		elif arg == "--flag":
@@ -110,7 +133,8 @@ func _run() -> void:
 	set.name = "MaterialLab"
 	street.add_child(set)
 	set.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)), ORIGIN)
-	_build(set)
+	if not street_mode:
+		_build(set)
 	# The town's dry grass grows across the desert here and stands in front of the low deck views.
 	var grass := street.find_child("DryGrass", true, false)
 	if grass:
@@ -118,10 +142,12 @@ func _run() -> void:
 	for i in 3:
 		await process_frame
 	if geometry > 0:
-		print("LabGeometry: %d meshes" % load("res://src/art/lab_geometry.gd").apply(set, geometry >= 2, 0.045, 0.03, geometry == 3))
-	if man:
+		var target: Node = street if street_mode else set
+		print("LabGeometry: %d meshes" % load("res://src/art/lab_geometry.gd").apply(target, geometry >= 2, 0.045, 0.03,
+				maxi(geometry - 2, 0)))
+	if man and not street_mode:
 		_man(set)
-	_count(set)
+	_count(street if street_mode else set)
 	var cam := Camera3D.new()
 	cam.name = "LabCamera"
 	street.add_child(cam)
@@ -130,6 +156,10 @@ func _run() -> void:
 	mosaic.apply(cam, settings.mosaic_active(), settings.MOSAIC_K, settings.MOSAIC_STEPS)
 	for i in 30:
 		await physics_frame
+	if street_mode:
+		await _street(street, viewport, cam, clock, lights, out)
+		quit()
+		return
 	for light in lights:
 		clock.set_time(HOURS[light])
 		set.get_node(^"LabLamp").visible = light == "night"
@@ -155,6 +185,35 @@ func _run() -> void:
 		if pan > 0 and (pan_lights.is_empty() or light in pan_lights):
 			print("saved pan_%s (%d)" % [light, pan])
 	quit()
+
+
+## Main Street from its views under each light: a render each, and what it cost to draw (the
+## mean of 30 frames: draw calls, primitives, objects, the viewport's render CPU ms).
+func _street(street: Node3D, viewport: SubViewport, cam: Camera3D, clock, lights: Array, out: String) -> void:
+	var vp := viewport.get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(vp, true)
+	for light in lights:
+		clock.set_time(HOURS[light])
+		for i in 20:
+			await process_frame
+		for v in STREET_VIEWS:
+			var view: Array = STREET_VIEWS[v]
+			cam.global_position = view[0]
+			cam.look_at(view[1], Vector3.UP)
+			cam.fov = view[2]
+			for i in 15:
+				await process_frame
+			var sums := [0.0, 0.0, 0.0, 0.0]
+			for i in 30:
+				await process_frame
+				sums[0] += RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
+				sums[1] += RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
+				sums[2] += RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)
+				sums[3] += RenderingServer.viewport_get_measured_render_time_cpu(vp) + RenderingServer.get_frame_setup_time_cpu()
+			print("LabStreet %s %s draws %.0f primitives %.0f objects %.0f render_cpu_ms %.2f" % [light, v,
+					sums[0] / 30.0, sums[1] / 30.0, sums[2] / 30.0, sums[3] / 30.0])
+			viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out, light, v])
+			print("saved %s_%s" % [light, v])
 
 
 func _place(cam: Camera3D, set: Node3D, eye: Vector3, at: Vector3, fov: float) -> void:

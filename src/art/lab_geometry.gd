@@ -18,6 +18,11 @@ class_name LabGeometry
 ## overhang off its neighbours' (hand-cut); the steps as treads, a riser and stringers; two nails
 ## where each plank crosses a joist. Painted siding below `LOW_Y` takes its wood's "_low" boards
 ## (splashed and worn). Only what's drawn: collision, ids and the support graph are the game's.
+## `build` 2 (the final candidate, Sean's notes on the finish): as 1, and every member starts at its
+## own place along its strip and on its end grain (members sharing a strip don't repeat a knot at
+## the same height); the steps open up (a 35 mm nosing over a riser set back under it, a gap at the
+## ground, three stringers, treads in the deck's wood and the rest in grey pine); the nails jittered,
+## now and then a third or one missing.
 
 ## Chamfer a long edge by this much (m), by the member's wood.
 const CHAMFER := {&"timber": 0.012, &"framing": 0.01, &"floor": 0.005}
@@ -32,7 +37,7 @@ static var _wind := 0.0
 
 
 ## Flag (and with `reshape`, chamfer and thicken) every member under root. Returns how many meshes.
-static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.03, build := false) -> int:
+static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.03, build := 0) -> int:
 	var n := 0
 	var nails: Array[Transform3D] = []
 	for m in root.find_children("*", "StructureMember", true, false):
@@ -56,19 +61,25 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 				size.z += overhang
 				shift = Vector3(0.0, -dt * 0.5, -overhang * 0.5)
 		var walk: Node = m.get_parent()
-		if build and walk != null and "walk_depth" in walk:
-			var built := _walk_member(m, walk, plank_t, overhang, nails)
+		if build > 0 and walk != null and "walk_depth" in walk:
+			var built := _walk_member(m, walk, plank_t, overhang, nails, build)
 			if built != null:
 				mi.mesh = built
 				mi.visible = true
 				n += 1
 				continue
-		if build and m.wood in [&"saloon_red", &"store_boards"] and m.kind == &"board" \
+		if build > 0 and m.wood in [&"saloon_red", &"store_boards"] and m.kind == &"board" \
 				and (m as Node3D).global_position.y - (root as Node3D).global_position.y < LOW_Y:
 			var low := StringName(String(m.wood) + "_low")
 			if load("res://src/structures/wood_materials.gd").strip_count(low) > 0:
 				mi.material_override = load("res://src/structures/wood_materials.gd").get_material(low, hash(m.member_id))
-		mi.mesh = box(size, chamfer, shift)
+		if build >= 2:
+			var r2 := _member_rng(m)
+			var arrays := _arrays()
+			_add_box(arrays, size, chamfer, shift, 0.0, r2.randf_range(0.0, 2.0), Vector2(r2.randf_range(0.0, 0.25), r2.randf_range(0.0, 0.01)))
+			mi.mesh = _mesh(arrays)
+		else:
+			mi.mesh = box(size, chamfer, shift)
 		# Shown again: a batched member's own mesh is hidden, and the batches are built only from
 		# visible ones (Structure._batch_all hides them again).
 		mi.visible = true
@@ -84,7 +95,14 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 
 
 ## A boardwalk's member as built (`build`), in its own space; null for a member drawn as usual.
-static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, nails: Array[Transform3D]) -> ArrayMesh:
+## A member's own random numbers (level 2's offsets), apart from its shape's.
+static func _member_rng(m: Node) -> RandomNumberGenerator:
+	var r := RandomNumberGenerator.new()
+	r.seed = hash(String(m.member_id) + "#lab4")
+	return r
+
+
+static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, nails: Array[Transform3D], level := 1) -> ArrayMesh:
 	var id := String(m.member_id).get_slice("/", 1)
 	var wd: float = walk.walk_depth
 	var top: float = walk.top
@@ -97,8 +115,12 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 	var outer_z := -wd + 0.08 - JOIST_W * 0.5
 	var rim_face := outer_z - RIM_T
 	var arrays := _arrays()
+	# Level 2: this member's own start along its strip and on its end grain.
+	var r2 := _member_rng(m)
+	var u0 := r2.randf_range(0.0, 2.0) if level >= 2 else 0.0
+	var eo := Vector2(r2.randf_range(0.0, 0.25), r2.randf_range(0.0, 0.01)) if level >= 2 else Vector2.ZERO
 	if id == "fascia":
-		_add_box(arrays, Vector3(size.x, RIM_H, RIM_T), 0.0, Vector3(0.0, under - RIM_H * 0.5, outer_z - RIM_T * 0.5) - at)
+		_add_box(arrays, Vector3(size.x, RIM_H, RIM_T), 0.0, Vector3(0.0, under - RIM_H * 0.5, outer_z - RIM_T * 0.5) - at, 0.0, u0, eo)
 		var wm = load("res://src/structures/wood_materials.gd")
 		if wm.strip_count(&"fascia") > 0:
 			for c in m.get_children():
@@ -108,7 +130,7 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 	if id.begins_with("sleeper"):
 		# A joist on edge under the planks, on pads at the ends and every PAD_STEP between.
 		var jh := RIM_H
-		_add_box(arrays, Vector3(size.x, jh, JOIST_W), CHAMFER[&"framing"] * 0.5, Vector3(0.0, under - jh * 0.5 - at.y, 0.0))
+		_add_box(arrays, Vector3(size.x, jh, JOIST_W), CHAMFER[&"framing"] * 0.5, Vector3(0.0, under - jh * 0.5 - at.y, 0.0), 0.0, u0, eo)
 		var pad_h := under - jh
 		var k := maxi(1, ceili(size.x / PAD_STEP))
 		for i in k + 1:
@@ -124,14 +146,25 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 		var s2 := Vector3(size.x, plank_t, size.z + ext)
 		var top_y := size.y * 0.5 + rng.randf_range(-0.0015, 0.0015)
 		var shift := Vector3(0.0, top_y - plank_t * 0.5, -ext * 0.5)
-		_add_box(arrays, s2, CHAMFER[&"floor"], shift, rng.randf_range(-0.005, 0.005))
+		_add_box(arrays, s2, CHAMFER[&"floor"], shift, rng.randf_range(-0.005, 0.005), u0, eo)
 		# Two cut nails where it crosses each joist (the sleepers' lines).
 		var wt: Transform3D = (walk as Node3D).global_transform
 		for jz in [-wd + 0.08, -wd * 0.5, -0.1]:
-			for side in [-1.0, 1.0]:
-				var p := Vector3(at.x + side * (size.x * 0.5 - 0.035), at.y + top_y + 0.0008, jz + rng.randf_range(-0.006, 0.006))
+			var spots: Array = [-1.0, 1.0]
+			if level >= 2:
+				# Driven by hand: now and then one missing (pulled, or never driven) or a third.
+				var roll := r2.randf()
+				if roll < 0.06:
+					spots = [[-1.0], [1.0]][r2.randi() % 2]
+				elif roll < 0.14:
+					spots = [-1.0, 0.0, 1.0]
+			for side in spots:
+				var jit := r2.randf_range(-0.006, 0.006) if level >= 2 else 0.0
+				var p := Vector3(at.x + side * (size.x * 0.5 - 0.035) + jit, at.y + top_y + 0.0008, jz + rng.randf_range(-0.006, 0.006))
 				nails.append(Transform3D(wt.basis * Basis(Vector3.UP, rng.randf_range(0.0, 1.5)), wt * p))
 		return _mesh(arrays)
+	if id.begins_with("step/") and level >= 2:
+		return _open_step(m, size, u0, eo)
 	if id.begins_with("step/"):
 		# A tread (two boards, a nosing out front), a riser under its nose and two stringers, in
 		# the deck's wood.
@@ -153,6 +186,47 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 					Vector3(side * (w * 0.5 - 0.0225), -TREAD_T * 0.5, 0.015))
 		return _mesh(arrays)
 	return null
+
+
+## Level 2's step: the treads (two boards, a 35 mm nosing, a little past the sides) in the deck's
+## wood; a riser set back under the nosing and stopping short of the ground; three stringers behind
+## it to the ground, their cut ends showing in the gap; riser and stringers in grey pine. Two
+## surfaces, two materials: the member draws on its own (no batch), as few steps as there are.
+static func _open_step(m: Node, size: Vector3, u0: float, eo: Vector2) -> ArrayMesh:
+	var h := size.y
+	var d := size.z
+	var w := size.x
+	var nose := 0.035
+	var gap := 0.006
+	var treads := _arrays()
+	var bd := (d + nose - gap) * 0.5
+	for b in 2:
+		var zc := d * 0.5 - bd * 0.5 - b * (bd + gap)
+		_add_box(treads, Vector3(w + 0.03, TREAD_T, bd), CHAMFER[&"floor"], Vector3(0.0, h * 0.5 - TREAD_T * 0.5, zc), 0.0, u0 + b * 0.7, eo)
+	var frame := _arrays()
+	var under := h - TREAD_T
+	var riser_front := -d * 0.5 + 0.025
+	var ground_gap := 0.03
+	_add_box(frame, Vector3(w - 0.08, under - ground_gap, 0.022), 0.0,
+			Vector3(0.0, h * 0.5 - TREAD_T - (under - ground_gap) * 0.5, riser_front + 0.011), 0.0, u0 + 0.3, eo)
+	var sd := d * 0.5 - (riser_front + 0.022)
+	for k in 3:
+		var sx := (float(k) - 1.0) * (w * 0.5 - 0.07)
+		_add_box(frame, Vector3(0.045, under, sd), 0.0,
+				Vector3(sx, -h * 0.5 + under * 0.5, d * 0.5 - sd * 0.5), 0.0, u0 + 0.5 * k, eo + Vector2(0.05 * k, 0.0))
+	var mesh := _mesh(treads)
+	var fa := []
+	fa.resize(Mesh.ARRAY_MAX)
+	for i in 5:
+		fa[[Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_COLOR][i]] = frame[i]
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, fa)
+	var wm = load("res://src/structures/wood_materials.gd")
+	mesh.surface_set_material(0, wm.get_material(&"floor", hash(m.member_id)))
+	mesh.surface_set_material(1, wm.get_material(&"weathered_pine", hash(m.member_id) + 1))
+	for c in m.get_children():
+		if c is MeshInstance3D:
+			c.material_override = null
+	return mesh
 
 
 ## The nails: one multimesh (a draw), dark iron heads a centimetre square.
@@ -206,7 +280,8 @@ static func _mesh(a: Array) -> ArrayMesh:
 
 ## Appends a box (as `box`) to `a`; `skew` moves its -long-axis end's corners along the long axis
 ## by up to that much across its width (an end cut off square).
-static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, skew := 0.0) -> void:
+static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, skew := 0.0, u0 := 0.0,
+		end_off := Vector2.ZERO) -> void:
 	if _wind == 0.0:
 		_wind = _box_winding()
 	var la := 0
@@ -249,8 +324,8 @@ static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, s
 			n2 = -n2
 		var nn: Vector3 = to3.call(0.0, n2) - shift
 		var q := [to3.call(-L / 2, p0), to3.call(L / 2, p0), to3.call(L / 2, p1), to3.call(-L / 2, p1)]
-		var quv := [Vector2(0, 0), Vector2(L, 0), Vector2(L, el), Vector2(0, el)]
-		_quad(v, nr, uv, uv2, col, q, quv, nn, Vector2(L, el), Color(0, 0, 0, 1))
+		var quv := [Vector2(u0, 0), Vector2(u0 + L, 0), Vector2(u0 + L, el), Vector2(u0, el)]
+		_quad(v, nr, uv, uv2, col, q, quv, nn, Vector2(L, el), Color(0, 0, u0 * 0.5, 1))
 		vstart += el
 	# The two ends: the outline as a fan, u along the end's larger side.
 	for s in [-1.0, 1.0]:
@@ -266,6 +341,8 @@ static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, s
 			var uvs := [Vector2(A / 2, B / 2), p0 + Vector2(A / 2, B / 2), p1 + Vector2(A / 2, B / 2)]
 			if not big_x:
 				uvs = [Vector2(B / 2, A / 2), Vector2(p0.y + B / 2, p0.x + A / 2), Vector2(p1.y + B / 2, p1.x + A / 2)]
+			if end_off != Vector2.ZERO:
+				uvs = [uvs[0] + end_off, uvs[1] + end_off, uvs[2] + end_off]
 			_tri(v, nr, uv, uv2, col, pts, uvs, nn, esize, Color(1, 0, 0, 1))
 	a[0] = v
 	a[1] = nr

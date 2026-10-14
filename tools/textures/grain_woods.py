@@ -212,7 +212,48 @@ def board(w, spec, n, rows, dens, rng):
     return np.clip(img, 0, 1)
 
 
+def end_grain2(spec, rng):
+    """lab4's end grain (`end_style` 2): growth years as coherent bands, each a wide light earlywood
+    and a narrow dark latewood band, stepped into flat tones, no per-texel randomness; at its own
+    density (`end_texels`, finer than the long grain so the arcs don't staircase into a
+    checkerboard), `end_size` texels square. `pith` [lo, hi] m below the face (a flat-sawn plank's
+    arcs, heart side down) or `pith_centre` (boxed heart: a post's or beam's rings round the middle).
+    """
+    ramp = np.array([hex_rgb(h) for h in spec["end"]])
+    dens, size = spec["end_texels"], spec["end_size"]
+    y, x = (np.mgrid[0:size, 0:size] + 0.5) / dens
+    w = size / dens
+    if spec.get("pith_centre"):
+        cx, cy = w * rng.uniform(0.25, 0.75), w * rng.uniform(0.25, 0.75)
+    else:
+        cx, cy = rng.uniform(0.2, 0.8) * w, -rng.uniform(*spec["pith"])
+    spacing, amt = spec["rings"]
+    # The years, wobbling a little round the pith (low-frequency, so a band stays a band).
+    r = np.sqrt((x - cx) ** 2 + (y - cy) ** 2)
+    yr = r / spacing + (noise2(size, size, 2, 2, rng) - 0.5) * spec.get("ring_wobble", 0.6)
+    f = yr % 1.0
+    late = spec.get("latewood", 0.28)
+    # Earlywood light, a step darker as it turns, then the latewood band.
+    band = np.where(f < 1.0 - late - 0.12, 0.0, np.where(f < 1.0 - late, -0.5, -1.0))
+    # Tone across the end, large and stepped (heartwood a shade darker toward the pith).
+    tone = np.floor(noise2(size, size, 2, 2, rng) * 3) / 3 - 0.33
+    t = 1.9 + band * amt * 1.6 + tone * 0.5 - np.clip(1.0 - r / (spacing * 3), 0, 1) * 0.4
+    img = ramp_at(ramp, t)
+    if rng.random() < spec["end_checks"]:
+        # A check: a split running out from the pith, a texel wide, narrowing.
+        a0 = rng.uniform(-np.pi, np.pi) if spec.get("pith_centre") else rng.uniform(0.35, 0.65) * np.pi
+        dx, dy = x - cx, y - cy
+        along = dx * np.cos(a0) + dy * np.sin(a0)
+        off = np.abs(-dx * np.sin(a0) + dy * np.cos(a0))
+        reach = rng.uniform(0.4, 0.8) * w
+        crack = (along > 0) & (off < (0.9 / dens) * (1.0 - along / reach)) & (along < reach)
+        img = np.where(crack[..., None], ramp[0] * 0.6, img)
+    return np.clip(img, 0, 1)
+
+
 def end_grain(spec, dens, rng, size=32):
+    if spec.get("end_style") == 2:
+        return end_grain2(spec, rng)
     ramp = np.array([hex_rgb(h) for h in spec["end"]])
     y, x = np.mgrid[0:size, 0:size] / dens
     cx = rng.uniform(0.2, 0.8) * size / dens
@@ -270,6 +311,8 @@ def main():
         save(end, os.path.join(OUT, "%s_end.png" % name))
         info["woods"][name] = {"boards": w["count"], "rows": rows, "length": n, "texels_per_metre": dens,
                                "end": "%s_end.png" % name}
+        if w.get("end_texels"):
+            info["woods"][name]["end_texels"] = w["end_texels"]
         # A painted wood's bare wood (lab3 `end_wear`: the shader wears the paint to it near each
         # board's ends): one board of its `under` ramp, grain and all.
         if w.get("end_wear"):

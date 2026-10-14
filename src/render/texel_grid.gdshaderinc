@@ -52,6 +52,11 @@ varying float end_face;
 uniform sampler2D wear_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform float end_wear = 0.0;
 varying float lab_face;
+// lab4: end grain at its own density (texels a metre; 0: texels_per_meter), and each flagged
+// member's long faces starting `lab_u0` m along its strip (COLOR.b x 2 m: LabGeometry's per-member
+// offset, so members sharing a strip don't show the same knot at the same place).
+uniform float end_texels = 0.0;
+varying float lab_u0;
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
@@ -73,6 +78,7 @@ void vertex() {
 	local_pos = VERTEX;
 	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
 	lab_face = use_end_tex && COLOR.g < 0.5 ? 1.0 - COLOR.r : 0.0;
+	lab_u0 = lab_face > 0.5 ? COLOR.b * 2.0 : 0.0;
 	// Triplanar textures are square: one scale for every axis.
 	float uv_scale = texels_per_meter / float(textureSize(albedo_tex, 0).x);
 	if (mapping == 2) {
@@ -105,7 +111,7 @@ void fragment() {
 	// The texture coordinates whose texels the lighting snaps to: the UVs, or for triplanar the
 	// projection that faces this surface most.
 	vec2 grid_uv;
-	vec2 uv_scale = vec2(texels_per_meter) / size;
+	vec2 uv_scale = vec2(endf && end_texels > 0.0 ? end_texels : texels_per_meter) / size;
 	float b = 1.0;
 	bool soft = block_soft > 0.0;
 	if (mapping == 0 && endf) {
@@ -144,8 +150,8 @@ void fragment() {
 	if (end_wear > 0.0 && mapping == 0 && lab_face > 0.5 && UV2.x > 0.0) {
 		// Which end, how far from it, and a ragged reach a texel row (and a little a texel).
 		vec2 tx = floor(UV * texels_per_meter);
-		float far_end = UV.x > UV2.x * 0.5 ? 1.0 : 0.0;
-		float d = far_end > 0.5 ? UV2.x - UV.x : UV.x;
+		float far_end = UV.x - lab_u0 > UV2.x * 0.5 ? 1.0 : 0.0;
+		float d = far_end > 0.5 ? UV2.x - (UV.x - lab_u0) : UV.x - lab_u0;
 		float row = fract(sin(dot(vec2(tx.y, far_end + floor(UV2.x * 7.0)), vec2(12.9898, 78.233))) * 43758.5453);
 		float cell = fract(sin(dot(tx, vec2(39.346, 11.135))) * 24634.6345);
 		if (d < end_wear * row * row * (0.7 + 0.6 * cell)) {
@@ -162,13 +168,13 @@ void fragment() {
 		// to it. Keep the point the light is worked out at on this face: a face thinner than a
 		// texel (a plank's edge) would otherwise be lit from a point off it, above the plank and
 		// out of its neighbour's shadow.
-		vec2 lo = uv_offset.xy * size;
+		vec2 lo = (uv_offset.xy + vec2(lab_u0, 0.0) * uv_scale) * size;
 		vec2 hi = lo + UV2 * uv_scale * size;
 		vec2 inset = min(vec2(0.25 * b), (hi - lo) * 0.5);
 		centre = clamp(centre, lo + inset, hi - inset);
 		// Which texel of the face this is, from its near corner: the first and last row are the
 		// board's edges.
-		vec2 at = UV * texels_per_meter;
+		vec2 at = (UV - vec2(lab_u0, 0.0)) * texels_per_meter;
 		vec2 across = UV2 * texels_per_meter;
 		if (b > 1.0) {
 			// In big squares: the square's own place, the line a square wide and fainter.
