@@ -13,6 +13,11 @@ extends SceneTree
 ##
 ## Each problem is printed as it's found and each window prints the process's resident memory, so
 ## a run the CI runner kills still leaves its log; past RUNAWAY_MB it stops early and reports.
+## A watchdog thread watches the frames go by: with none for STALL_SECONDS of real time the game
+## has hung, so it writes the report (a "stall" problem: the game clock, what the soak was doing,
+## what happened last) and crashes the process on purpose, so the engine prints where the main
+## thread was stuck (its GDScript backtrace) and the run fails within minutes, not at the runner's
+## timeout (soak #10 sat silent four hours at game minute 95, 2026-10-13).
 ##
 ## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
 ## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
@@ -27,6 +32,7 @@ const STUCK_SECONDS := 60.0
 const CREEP := 3.0  # the last window's median frame over the first's
 const MEMORY_GROWTH := 1.5  # the last window's memory over the first's, while still climbing
 const RUNAWAY_MB := 6000.0  # resident memory: stop and report (the CI runner has 16 GB)
+const STALL_SECONDS := 120.0  # real time without a frame: the game has hung (a slow frame is ~0.05 s)
 
 var OB: Script  # OutlawBrain, loaded once the game is up (a -s script can't name game classes)
 
@@ -59,6 +65,13 @@ var _problems := {}
 var _track := {}  # person (instance id) -> {at, since}
 var _happened: Array[String] = []
 var _runaway := false
+var _beat := 0  # frames gone by, for the watchdog
+var _doing := "starting"  # what the soak itself is doing, for the stall report
+var _dog: Thread
+var _build := ""  # the build's label, read up front: the watchdog mustn't load anything
+var _done := false
+var _stall_seconds := STALL_SECONDS
+var _hang_at := -1.0
 
 
 func _initialize() -> void:
@@ -67,6 +80,10 @@ func _initialize() -> void:
 			_minutes = float(a.substr(10))
 		elif a.begins_with("--out="):
 			_out = a.substr(6)
+		elif a.begins_with("--stall-seconds="):  # the watchdog's patience (for trying it)
+			_stall_seconds = float(a.substr(16))
+		elif a.begins_with("--hang-at="):  # hang on purpose at this game second (for trying it)
+			_hang_at = float(a.substr(10))
 	OS.add_logger(_catcher)
 	_rng.seed = 1882
 	root.get_node(^"Settings").autosave = false
@@ -81,7 +98,37 @@ func _initialize() -> void:
 	_player.input_enabled = false
 	_street.get_node(^"DayCycle").set_time_scale(30.0)
 	print("soak: %.0f minutes of game time" % _minutes)
+	_build = load("res://src/debug/debug_overlay.gd").build_label()
+	_dog = Thread.new()
+	_dog.start(_watch)
 	_run()
+
+
+## The watchdog (its own thread): no frame for STALL_SECONDS and the main thread is stuck, so
+## nothing it does will report it. Reads the soak's state without a lock: the main thread isn't
+## moving.
+func _watch() -> void:
+	var seen := -1
+	var since := Time.get_ticks_msec()
+	while not _done:
+		OS.delay_msec(1000)
+		if _beat != seen:
+			seen = _beat
+			since = Time.get_ticks_msec()
+			continue
+		var stalled := (Time.get_ticks_msec() - since) / 1000.0
+		if stalled < _stall_seconds:
+			continue
+		_problem("stall", "no frame for %.0f s of real time (frame %d), while %s; last: %s" % [
+				stalled, _beat, _doing, "; ".join(_happened.slice(-3))])
+		_report()
+		print("soak: stalled; crashing on purpose for the main thread's backtrace")
+		# A process-wide SIGSEGV lands on the main thread (the kernel offers it there first), so
+		# the engine's crash handler prints where it's stuck, GDScript included, and exits.
+		OS.execute("kill", ["-SEGV", str(OS.get_process_id())])
+		OS.delay_msec(30000)
+		OS.kill(OS.get_process_id())
+		return
 
 
 func _run() -> void:
@@ -99,7 +146,14 @@ func _run() -> void:
 		cycle += 6000.0
 	var last := Time.get_ticks_usec()
 	while _t < _minutes * 60.0 and not _runaway:
+		_doing = "waiting for a frame (the game's own work)"
 		await physics_frame
+		_beat += 1
+		_doing = "the soak's own step"
+		if _hang_at >= 0.0 and _t >= _hang_at:
+			_doing = "hanging on purpose (--hang-at)"
+			while true:
+				_hang_at += 0.0
 		var now := Time.get_ticks_usec()
 		_frame_ms.append((now - last) / 1000.0)
 		last = now
@@ -107,6 +161,7 @@ func _run() -> void:
 		if _t >= next_gang:
 			next_gang += 240.0
 			if _town.gang.is_empty() or _town.gang.all(func(g): return not is_instance_valid(g)):
+				_doing = "bringing the gang in"
 				_town.bring_gang()
 				_happened.append("%s the gang rides in" % _clock())
 		if _t >= next_fight:
@@ -116,12 +171,15 @@ func _run() -> void:
 				var man = live[_rng.randi_range(0, live.size() - 1)]
 				var b = man.get_node_or_null(^"Brain")
 				if b and b.relations:
+					_doing = "%s picking a fight" % man.person_id
 					b.relations.provoke(_player)
 					_happened.append("%s %s picks a fight" % [_clock(), man.person_id])
 		while not events.is_empty() and _t >= float(events[0][0]):
+			_doing = "a %s" % events[0][1]
 			_event(String(events.pop_front()[1]))
 		if _t >= next_check:
 			next_check += 1.0
+			_doing = "checking the street"
 			_check()
 		if _t >= window_end:
 			window_end += WINDOW
@@ -258,7 +316,15 @@ func _climbing(key: String) -> bool:
 
 
 func _finish() -> void:
+	_done = true
+	_dog.wait_to_finish()
 	OS.remove_logger(_catcher)
+	var ok := _report()
+	quit(0 if ok else 1)
+
+
+## Writes <out>/soak.md and soak.json; true when nothing failed.
+func _report() -> bool:
 	if not _catcher.counts.is_empty():
 		for k: String in _catcher.counts:
 			_problem("errors", "%s (x%d)" % [k, _catcher.counts[k]])
@@ -275,7 +341,7 @@ func _finish() -> void:
 			_problem("orphans", "%d nodes out of the tree and never freed" % last.orphans)
 	var ok := _problems.is_empty()
 	DirAccess.make_dir_recursive_absolute(_out)
-	var md := "# Soak: %s\n\n%.0f minutes of game time, %s.\n\n" % ["passed" if ok else "FAILED", _minutes, load("res://src/debug/debug_overlay.gd").build_label()]
+	var md := "# Soak: %s\n\n%.0f minutes of game time, %s.\n\n" % ["passed" if ok else "FAILED", _minutes, _build]
 	for kind: String in _problems:
 		md += "## %s\n\n" % kind.capitalize()
 		for line: String in _problems[kind]:
@@ -290,4 +356,4 @@ func _finish() -> void:
 	f = FileAccess.open(_out.path_join("soak.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify({"ok": ok, "problems": _problems, "windows": _windows, "happened": _happened}, "  "))
 	print(md)
-	quit(0 if ok else 1)
+	return ok
