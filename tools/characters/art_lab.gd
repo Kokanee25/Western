@@ -13,6 +13,7 @@ extends SceneTree
 ## with them (the game imports his head without: each screen pixel then one texel of several);
 ## --mipdir=DIR: with mips read from DIR/level_N.png (made otherwise than by averaging).
 ## --grade=tonemap|adjust|game: the game's picture grade on the frame (see _grade).
+## --aim=Y: the camera level with height Y and looking at it (with --fov 35 --dist 3.4: the whole man).
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
 ## --hat=lab:NAME: the hat prototype (tools/characters/hat_proto.py: assets/people/lab/NAME_*.obj and
 ## .png) on his head bone in place of the game's, drawn by the skin shader as his clothes are.
@@ -53,6 +54,7 @@ func _run() -> void:
 	var mip := false
 	var mipdir := ""
 	var grade := ""
+	var aim := -1.0
 	var tag := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--fov="):
@@ -67,6 +69,8 @@ func _run() -> void:
 			mipdir = a.substr(9)
 		elif a.begins_with("--grade="):
 			grade = a.substr(8)
+		elif a.begins_with("--aim="):
+			aim = float(a.substr(6))
 		elif a.begins_with("--tag="):
 			tag = a.substr(6) + "_"
 		elif a.begins_with("--global="):
@@ -129,8 +133,10 @@ func _run() -> void:
 	if hat.begins_with("lab:"):
 		_wear_lab_hat(m, hat.substr(4))
 	m.global_position = Vector3.ZERO
-	cam.position = Vector3(0, EYE, -dist)
-	cam.look_at(Vector3(0, EYE - 0.05, 0))
+	# --aim=Y: the camera level with Y and looking at it (0.9: the whole man), else at his eyes.
+	var cy := aim if aim >= 0.0 else EYE
+	cam.position = Vector3(0, cy, -dist)
+	cam.look_at(Vector3(0, cy - (0.0 if aim >= 0.0 else 0.05), 0))
 	var rig := []
 	for light in lights:
 		for n in rig:
