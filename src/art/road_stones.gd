@@ -15,8 +15,6 @@ const TRIES := 9000
 const STREET_X := Vector2(-80.0, 30.0)
 ## Sizes (metres across) and how often: gravel, stones, the odd fist-sized rock.
 const SIZES := [[0.025, 0.05, 0.62], [0.05, 0.1, 0.3], [0.1, 0.16, 0.08]]
-## Past this a stone is under a pixel: not drawn.
-const DRAW_TO := 45.0
 
 @export var stone_seed := 1882
 
@@ -62,9 +60,10 @@ func _scatter() -> void:
 		# The rock is a unit across: its centre a sixth of its height above the dirt.
 		p.y = tall / 6.0
 		transforms.append(Transform3D(basis, p))
-		# Tan-grey, rust, pale and dark stones, as the target's.
-		var shades := [Color(0.66, 0.56, 0.46), Color(0.62, 0.42, 0.3), Color(0.78, 0.7, 0.6), Color(0.45, 0.37, 0.3)]
-		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.6, 0.5, 0.4), rng.randf() * 0.4))
+		# Tan-grey, rust, pale and dark stones, as the target's, near the dirt's own value (paler,
+		# they read as white blobs in the noon sun).
+		var shades := [Color(0.46, 0.38, 0.3), Color(0.47, 0.31, 0.21), Color(0.55, 0.47, 0.39), Color(0.33, 0.26, 0.21)]
+		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.45, 0.35, 0.27), rng.randf() * 0.4))
 	stones = transforms
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -77,7 +76,8 @@ func _scatter() -> void:
 	var mmi := MultiMeshInstance3D.new()
 	mmi.name = "Stones"
 	mmi.multimesh = mm
-	mmi.visibility_range_end = DRAW_TO
+	# No visibility range: it's measured to the middle of the whole street's box, so from one end
+	# every stone went at once.
 	add_child(mmi)
 
 
