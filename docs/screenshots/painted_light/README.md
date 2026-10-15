@@ -47,3 +47,29 @@ The remaining brief items are not done here. Faces' chroma in the saloon (ACES +
 needs measuring with him painted. `scenes/test_street.tscn`'s misspelt
 `volumetric_adjustment_enabled` changes the whole street's contrast and saturation once fixed, so
 it needs a look review and new goldens of its own.
+
+## In the game (roadmap 1.2's sheet, 2026-10-15, after the characters session's merge, PR #124)
+
+`in_game.jpg`: the painterly cowboy (`bold_cowboy_painterly_lit_rodin`, drawn painted with his own
+look, v5) beside his portrait, at the card table at night (`shot_match_close`) and standing in the
+street at golden hour (`face_street_golden`, a new view: the low sun behind you, framed on his face),
+each with his face as the game draws it and as painted (unlit). Rendered on main (d4b25b1) plus only
+the new view. Numbers from `tools/face_light.py` (`*_face.json`; the hold: p90 under ~1.3, nothing
+clipped):
+
+| | face light median | p90 | clipped | L* game (paint) |
+|---|---|---|---|---|
+| saloon at night | 1.03 | 1.16 | 0% | 48 (47) |
+| street, golden hour | 0.61 | 0.78 | 0% | 34 (47) |
+
+- **Saloon:** passes. His painting holds under the lamp: no burnt orange, no clipping, eyes readable
+  under the brim, a lit and a shadow cheek.
+- **Street:** doesn't yet. He's drawn at about 0.6 of his paint (L* 34 to 47) and redder, though he
+  faces the low sun. Likely `paint_tint` 0.75 taking the golden-hour sun's deep orange, which cuts
+  his green and blue; not yet tested. That's art's knob, the next 1.2 fix if Sean wants him lighter.
+
+```sh
+xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/screenshots.gd -- --out=DIR \
+  --only=shot_match_close,face_street_golden --model=bold_cowboy_painterly_lit_rodin --face-probe --fresh
+python3 tools/face_light.py DIR --view=face_street_golden
+```
