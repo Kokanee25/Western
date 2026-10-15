@@ -99,6 +99,9 @@ func _ready() -> void:
 	var stones := RoadStones.new()
 	stones.name = "RoadStones"
 	add_child(stones)
+	var prints := RoadPrints.new()
+	prints.name = "RoadPrints"
+	add_child(prints)
 
 
 func _buildings() -> void:

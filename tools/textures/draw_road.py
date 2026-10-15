@@ -221,34 +221,13 @@ def road_palette(sq: np.ndarray, k: int, seed: int = 7) -> tuple[np.ndarray, np.
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sheet", action="store_true")
-    ap.add_argument("--guide", action="store_true",
-                    help="also write the ruts alone (drawn/road_guide.png): the layout the image model paints over")
     args = ap.parse_args()
     img = np.asarray(Image.open(PAINTING).convert("RGB"))
     pal, share = road_palette(painting_squares(img), len(PAL_STEPS))
     n = len(pal)
     OUT.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(3301)
-    ruts = grooves(128 * S, 128 * S, rng)
-    if args.guide:
-        # The wheel grooves only (their deep part), dark on plain dust: the painted road's layout
-        # (materials.json road_wide "guide"), so its ruts run where the street's wheels do.
-        # Each groove widened to a trough about 12 cm across (the painting's ruts are wide, deep
-        # cuts; one texel drew thin scratches) with a lighter lip of thrown-up dirt either side.
-        from scipy.ndimage import binary_dilation, label
-        deep = ruts < -1.5
-        # Only the ruts: the hoof churn's lone dark squares between them are left out.
-        parts, n = label(deep, structure=np.ones((3, 3), bool))
-        sizes = np.bincount(parts.ravel())
-        deep = deep & (sizes[parts] >= 6 * S)
-        groove = binary_dilation(deep, structure=np.ones((3, 1), bool))
-        groove = binary_dilation(groove, structure=np.ones((1, 5), bool))
-        lip = binary_dilation(groove, structure=np.ones((5, 1), bool)) & ~groove
-        g = np.where(groove, 0.3, np.where(lip, 0.86, 0.68))
-        rgb = np.stack([g * 1.0, g * 0.85, g * 0.66], -1)
-        Image.fromarray((rgb * 255).astype(np.uint8)).save(OUT / "road_guide.png")
-        print("road_guide.png: the ruts alone")
-    wide = dust(128 * S, 128 * S, share, rng, ruts)
+    wide = dust(128 * S, 128 * S, share, rng, grooves(128 * S, 128 * S, rng))
     stones(wide, 60 * S * S, rng)
     small = dust(32 * S, 32 * S, share, rng)
     stones(small, 2 * S * S, rng)

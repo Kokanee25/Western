@@ -127,20 +127,6 @@ def reference(spec):
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
 
 
-# A material with a "guide": a layout to paint over (the road's ruts where the street's wheels run,
-# from tools/textures/draw_road.py), given first, the reference for its look second.
-GUIDE = (
-    "The first picture is a layout seen from directly above; keep every dark line in it exactly where "
-    "it is, as the only wheel ruts, and add no other lines, tracks, bands or furrows. Paint over it, "
-    "in the look of the second picture (a painting of the same kind of ground, seen at an angle), "
-)
-
-
-def guide(spec):
-    g = Image.open(os.path.join(ROOT, spec["guide"])).convert("RGB")
-    return g.resize((1024, round(1024 * g.height / g.width)), Image.NEAREST)
-
-
 def main():
     key = os.environ.get("OPENROUTER_API_KEY", "")
     if not key:
@@ -170,9 +156,6 @@ def main():
         prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
             what=spec["what"], text=spec.get("text", ""))
         refs = [reference(spec)]
-        if spec.get("guide"):
-            prompt = GUIDE + prompt[0].lower() + prompt[1:]
-            refs = [guide(spec)] + refs
         img = None
         for attempt in range(3):
             try:

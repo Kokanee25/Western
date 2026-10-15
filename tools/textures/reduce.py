@@ -192,25 +192,6 @@ def wavy_mask(n, m, rng, axis):
     return mask if axis == 1 else mask.T
 
 
-def patch(a, boxes):
-    """Cover what mustn't be in a painting with the ground beside it (the road's boot prints: prints
-    come from people walking, gameplay's): each box (x0, y0, x1, y1, dx in the raw picture) is
-    replaced by the same-sized patch dx to the side, in the same band of the street, behind a soft
-    edge."""
-    a = a.copy()
-    h, w = a.shape[:2]
-    for x0, y0, x1, y1, dx in boxes:
-        bw, bh = x1 - x0, y1 - y0
-        src = a[y0:y1, (np.arange(x0, x1) + dx) % w]
-        yy, xx = np.mgrid[0:bh, 0:bw]
-        edge = np.minimum(np.minimum(xx, bw - 1 - xx), np.minimum(yy, bh - 1 - yy))
-        m = np.clip(edge / (0.2 * min(bw, bh)), 0.0, 1.0)
-        if a.ndim == 3:
-            m = m[..., None]
-        a[y0:y1, x0:x1] = src * m + a[y0:y1, x0:x1] * (1 - m)
-    return a
-
-
 def seamless(a, rng):
     h, w = a.shape[:2]
     b = np.roll(a, w // 2, axis=1)
@@ -295,22 +276,17 @@ def reduce(mid, spec, tpm):
     else:
         raw = crop_to(raw, metres[0] / metres[1])
     a = np.asarray(raw).astype(np.float64) / 255.0
-    if spec.get("patches"):
-        a = patch(a, spec["patches"])
     a = flatten(a, FLATTEN if kind != "sign" else 0.5)
     joints = 0
     if spec.get("boards", False):
         a, joints = wipe_joints(a)
     size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
     if spec.get("height") and not (SMOOTH or BOLD) and os.path.exists(os.path.join(RAW, mid + "_height.jpg")):
-        # Its relief (paint_textures.py "height"), cut the same way (the same patches, the same
-        # seamless mask) at twice the texels, grey, no palette: <id>_height.png, for the ground
+        # Its relief (paint_textures.py "height"), cut the same way (the same seamless mask) at twice the texels, grey, no palette: <id>_height.png, for the ground
         # shader's light (ruts, ridges and stones in the low sun).
         hraw = crop_to(Image.open(os.path.join(RAW, mid + "_height.jpg")).convert("L").resize(raw.size, Image.LANCZOS),
                        metres[0] / metres[1])
         hm = np.asarray(hraw).astype(np.float64) / 255.0
-        if spec.get("patches"):
-            hm = patch(hm, spec["patches"])
         hm = seamless(hm[..., None], np.random.default_rng(sum(map(ord, mid))))[..., 0]
         if spec.get("height_blur"):
             # Its fine grain off (metres): lit, it read as a pebbly crust over the whole road;

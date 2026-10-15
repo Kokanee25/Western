@@ -303,77 +303,23 @@
     8.0,
     8.0
    ],
-   "colours": 48,
-   "lightness": 1.35,
-   "what": "the dry dirt main street of a frontier desert town: four deep wagon-wheel ruts in two pairs, each a wide trough a hand's width across worn deep into the dirt, its bottom in shadowy darker earth, with a raised lip of crumbled, thrown-up dirt along both edges, broken here and there where dust has blown back in; between and beside them the ground is random, lumpy and uneven packed russet-ochre earth, clods, loose crumbs and small cracks, with no regular pattern; stones and pebbles of many sizes, from gravel to fist-sized rocks, scattered irregularly, gathered along the ruts' lips; only earth and stones",
+   "colours": 32,
+   "lightness": 1.18,
+   "what": "a long stretch of the dry packed-dirt main street of a frontier desert town seen from directly above, the street running exactly left to right: two pairs of worn wagon-wheel ruts running straight left to right across the whole picture with low ridges of thrown-up dirt along them, hoof prints and boot prints between them, scattered dark stones and pebbles, small clumps of dry yellow grass here and there, warm russet-ochre earth with darker damp patches",
    "ref": [
-    "road",
-    200,
-    480,
-    1300,
-    1086
+    "street",
+    500,
+    620,
+    1000,
+    900
    ],
    "contrast": 1.0,
-   "chroma": 0.95,
+   "chroma": 0.75,
    "hue": 7,
    "bold": {
     "contrast": 0.8,
     "colours": 12
-   },
-   "height": true,
-   "about_ref": "Sean's road picture (docs/concept/targets/6_road_target.jpg, 2026-10-15): its foreground road, for the look; the guide is draw_road.py's layout, so the ruts run where the street's wheels do. Footprints are gameplay's (people walking).",
-   "guide": "assets/textures/drawn/road_guide.png",
-   "patches": [
-    [
-     130,
-     30,
-     230,
-     110,
-     256
-    ],
-    [
-     820,
-     40,
-     920,
-     130,
-     -256
-    ],
-    [
-     1150,
-     130,
-     1230,
-     210,
-     -256
-    ],
-    [
-     950,
-     440,
-     1060,
-     530,
-     256
-    ],
-    [
-     310,
-     520,
-     410,
-     610,
-     256
-    ],
-    [
-     1290,
-     540,
-     1390,
-     630,
-     -256
-    ]
-   ],
-   "about_patches": "The painting's boot prints, covered from the ground beside them (prints come from people walking: gameplay's, docs/BACKLOG.md).",
-   "about_paint": "Painted by run 72 (try 2 of 3, 2026-10-15, $0.25 a call): the ruts and stones right; try 3 drew more bands and blotches and was not kept.",
-   "median": false,
-   "texels_per_metre": 128,
-   "smooth": true,
-   "about_smooth": "Sean, 2026-10-15: the road drawn smooth like his picture (no squares, no palette), at 128 texels a metre with linear filtering; its stones stand up as RoadStones.",
-   "height_blur": 0.02
+   }
   },
   "road_compact": {
    "for": "street",
