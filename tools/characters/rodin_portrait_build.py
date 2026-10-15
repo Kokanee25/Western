@@ -219,7 +219,7 @@ def build(man, spec):
         obj.parent = arm
         rep["source"] = "rodin_portrait"
         rep["eyes"] = {s: [round(float(x), 4) for x in eyes[s]] for s in eyes}
-        rep["head"] = {"from": "assets/people/tripo/test/%s_rodin.glb" % man, "scale": round(float(k), 4),
+        rep["head"] = {"from": "assets/people/tripo/test/%s_rodin.glb" % spec.get("shape", man), "scale": round(float(k), 4),
                        "triangles": len(obj.data.polygons), "paint": "rodin_portrait.py (the style portraits)"}
         rep["triangles"]["head"] = len(obj.data.polygons)
         g = obj.vertex_groups.get("detail")

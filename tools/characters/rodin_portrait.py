@@ -293,7 +293,8 @@ def islands(cover):
 def paint(man, spec):
     from scipy import ndimage
     os.makedirs(WORK, exist_ok=True)
-    glb = os.path.join(ROOT, "assets", "people", "tripo", "test", man + "_rodin.glb")
+    # `shape`: another man's bust (the same man painted in another style needs no new Rodin).
+    glb = os.path.join(ROOT, "assets", "people", "tripo", "test", spec.get("shape", man) + "_rodin.glb")
     V, T, UV, own = load_glb(glb)
     V = to_body(V)
     # MediaPipe on his own colours (the loop mesh: one UV a corner).
@@ -509,6 +510,10 @@ def paint(man, spec):
         # theirs, and between his brim and his brows their band and studs were left painted.
         brow = (N[..., 2] < -0.4) & (np.abs(Pp[..., 0]) < 0.075)   # his forehead, out to his temples' front
         hat = cover & ((Pp[..., 1] > plane - 0.004) | (hat & brow))
+    if spec.get("portraits_hatless"):
+        # Portraits painted bare-headed (`portraits_hatless`): his hair is painted all the way up,
+        # nothing to refill.
+        hat = np.zeros_like(hat)
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
     # forehead's skin where it faces you, his hair round the rest, from his temples and sideburns.
