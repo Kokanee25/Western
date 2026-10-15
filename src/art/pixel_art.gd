@@ -98,8 +98,10 @@ static var woods := true
 const WOODS_SQUARE := 4.0
 ## Their end grain's (256 a metre, so 128 a metre: its rings are finer than the long faces' squares).
 const WOODS_END_SQUARE := 2.0
-## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY): the table's top.
-const DRAWN_SQUARES := {"shot_table": 4.0}
+## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY), none: the table's top
+## in 4s read as a checkerboard at four times the painting's squares (the blind critic, 2026-10-15_r2:
+## the saloon painting draws it finer than the man, about 5 px a square).
+const DRAWN_SQUARES := {}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
 static var _sets := {}
 
@@ -150,7 +152,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	if tex and tex.resource_path.contains("/drawn/"):
 		var drawn_key := tex.resource_path.get_file().get_basename()
 		m.set_meta(&"texels", DRAWN_DENSITY.get(drawn_key, DRAWN_TEXELS))
-		m.set_shader_parameter(&"square_texels", DRAWN_SQUARES.get(drawn_key, 1.0))
+		m.set_shader_parameter(&"square_texels", float(DRAWN_SQUARES.get(drawn_key, 1.0)))
 	elif tex and tex.resource_path.contains("/textures/lab/"):
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)

@@ -260,8 +260,8 @@ a few views renders them as the full run does.
   man's squares (his face and coat, 36-48 a metre). The game's woods are drawn in squares of 4 of
   C's 128 texels, 32 a metre (`grain_woods.py` `squared`, `woods_grain.json` `squares`: a square's
   dark-weighted mean, specks under a square left out, snapped to the board's tones; ends in squares
-  of 2), and `texel_grid` `square_texels` / `end_square_texels` (`PixelArt.WOODS_SQUARE`,
-  `DRAWN_SQUARES` for the table) reads each whole (`tile_block_sample`: the mip of its size) and lights
+  of 2), and `texel_grid` `square_texels` / `end_square_texels` (`PixelArt.WOODS_SQUARE`;
+  not the table's drawn top, finer in the painting) reads each whole (`tile_block_sample`: the mip of its size) and lights
   it as one. The ground: the drawn road at 32 a metre (`DRAWN_ROAD_TEXELS`), its squares sized per
   axis (`tile_square_screen`, `square_px` 3) so they stay square on screen far off, each its texels'
   mean (mipmapped samplers), so the far road calms. `tools/surface_squares.py` measures square size
