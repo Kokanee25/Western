@@ -324,7 +324,11 @@ def paint(man, spec):
         raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
         # (portrait.json `fidelity.unsquare`: a smaller median keeps his irises, which UNSQUARE wipes.)
         uns = int(fid.get("unsquare", UNSQUARE))
-        img = np.asarray(raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0 if uns > 3 else 0.5))).astype(float) / 255.0
+        if uns <= 1:
+            # 0 or 1: the painting as it is (a painterly style with no squares to take out).
+            img = np.asarray(raw).astype(float) / 255.0
+        else:
+            img = np.asarray(raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0 if uns > 3 else 0.5))).astype(float) / 255.0
         pics[view] = img
         if view == "back":
             continue
@@ -575,6 +579,10 @@ def paint(man, spec):
     if fid.get("patches") == "anatomy":
         sq, n_patches = patch_squares(tex, cover, Pp, float(fid.get("patch_m", SQUARE_M)), float(fid.get("patch_compact", 12.0)))
         report["patches"] = {"kind": "anatomy", "count": n_patches, "spacing_m": float(fid.get("patch_m", SQUARE_M))}
+    elif fid.get("patches") == "none":
+        # No squares or patches at all: the paintings' own brushwork kept (a smooth, painterly style).
+        sq = tex.copy()
+        report["patches"] = {"kind": "none"}
     else:
         sq = cube_squares(tex, cover, Pp)
     # A whole square of near-white or the shirt's cream on his face (a catchlight that missed his
