@@ -1,0 +1,103 @@
+[
+ {
+  "asked": {
+   "tier": "Gen-2.5-Extreme-High",
+   "quality_mesh_option": "18K Quad",
+   "material": "PBR",
+   "geometry_file_format": "glb",
+   "TAPose": true,
+   "addons": "HighPack"
+  }
+ },
+ {
+  "upload_initiate": {
+   "file": "front.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aae7aa2/9vIayFNJRxvqQ9lsXYjDf_front.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae7aa2/9vIayFNJRxvqQ9lsXYjDf_front.png?signature=xyZ0VyMipLJkp1wp"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "left.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aae7aa2/Qs1R1Oi-OQF96mqWdKUxk_left.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae7aa2/Qs1R1Oi-OQF96mqWdKUxk_left.png?signature=y_k6czwT0rlCklNG"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "back.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aae7aa2/uHbhDFq1NsW87BCP_Qdk2_back.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae7aa2/uHbhDFq1NsW87BCP_Qdk2_back.png?signature=HoQYciH1VTmjvD4t"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "upload_initiate": {
+   "file": "right.png",
+   "answer": {
+    "file_url": "https://v3b.fal.media/files/b/0aae7aa2/_Pe7EC1_4N8_EVV2Pn_U6_right.png",
+    "upload_url": "https://v3b.fal.media/files/b/0aae7aa2/_Pe7EC1_4N8_EVV2Pn_U6_right.png?signature=bGBSjlBGw1FSiMQS"
+   }
+  }
+ },
+ {
+  "upload_put": 200
+ },
+ {
+  "queued": {
+   "status": "IN_QUEUE",
+   "request_id": "01a13f96-7530-7ff0-968c-06a47be6ff50",
+   "response_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a13f96-7530-7ff0-968c-06a47be6ff50",
+   "status_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a13f96-7530-7ff0-968c-06a47be6ff50/status",
+   "cancel_url": "https://queue.fal.run/fal-ai/hyper3d/requests/01a13f96-7530-7ff0-968c-06a47be6ff50/cancel",
+   "logs": null,
+   "metrics": {},
+   "queue_position": 0,
+   "user_queue_position": 0,
+   "user_queued_count": 1
+  }
+ },
+ {
+  "answer": {
+   "model_mesh": {
+    "url": "https://v3b.fal.media/files/b/0aae7abf/n3Z0c33GhC95qa2xlfvY6_base_high_pbr.glb",
+    "content_type": "application/octet-stream",
+    "file_name": "base_high_pbr.glb",
+    "file_size": 22800144
+   },
+   "model_meshes": [
+    {
+     "url": "https://v3b.fal.media/files/b/0aae7abf/7XZ2zauiWpgqfSGp8RUzy_model_export_raw.glb",
+     "content_type": "application/octet-stream",
+     "file_name": "model_export_raw.glb",
+     "file_size": 9633572
+    }
+   ],
+   "seed": 37295,
+   "textures": [
+    {
+     "url": "https://v3b.fal.media/files/b/0aae7abf/7aF7Q6g2ftSzb354bhPBl_preview.webp",
+     "content_type": "application/octet-stream",
+     "file_name": "preview.webp",
+     "file_size": 4994,
+     "width": null,
+     "height": null
+    }
+   ]
+  }
+ }
+]
