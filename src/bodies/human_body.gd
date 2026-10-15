@@ -551,8 +551,12 @@ func _build_skin() -> void:
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
 						float(data.get("paint_squares", {}).get(shape, 1.0)))
+				var own_look: Dictionary = data.get("paint_look", {})
 				for k: StringName in paint_look:
-					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
+					(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look.get(k, paint_look[k]))
+				for k: StringName in own_look:
+					if not paint_look.has(k):
+						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
