@@ -4,8 +4,9 @@
         --head=bold_cowboy_painterly_lit --out=bold_cowboy_layered
 
 - The base body (assets/people/<body>.glb, fitted by tools/blender/fit_tripo.py) comes in two
-  meshes cut at one height above his collar: `body_skin` and `body_head`. That cut is the **neck
-  ring**: the loop of `body_skin`'s open edge round his neck. His own head goes.
+  meshes, `body_skin` and `body_head`. The **neck ring** is a level cut RING_BELOW_CHIN under the
+  laid head's chin: his old head's neck joins body_skin up to it (the body keeps its own neck,
+  painted from the body's pictures), and everything of him above it goes.
 - The painted head (rodin_portrait.py's bust and paint: build/rodin_portrait/<head>_mesh.npy and
   _paint.png) is laid where his own head was: a similarity (turn, scale, move) fitted by nearest
   points (ICP) from the bust's head (above its chin) to the body's head, so any head of the same
@@ -32,7 +33,8 @@ sys.path.insert(0, HERE)
 ROOT = os.path.dirname(os.path.dirname(HERE))
 WORK = os.path.join(ROOT, "build", "rodin_portrait")
 PEOPLE = os.path.join(ROOT, "assets", "people")
-RING_BLEND = 0.03      # metres above the ring over which the head's neck is pulled onto it
+RING_BLEND = 0.045     # metres above the ring over which the head's neck is pulled onto it
+RING_BELOW_CHIN = 0.03 # the ring's height: this far under the laid head's chin (his body keeps its neck)
 NECK_FADE = 0.015      # metres under his jaw over which his painted collar fades to skin
 HEAD_TRIS = 12000
 ICP_ROUNDS = 40
@@ -85,24 +87,7 @@ def main():
     for o in list(bpy.data.objects):
         if o.type == "MESH" and o.name not in ("body_skin", "body_head"):
             bpy.data.objects.remove(o)
-    # The ring: body_skin's open edge round his neck (the highest open loop).
-    bm = bmesh.new()
-    bm.from_mesh(skin.data)
-    bm.verts.ensure_lookup_table()
-    edge_v = {v.index for e in bm.edges if e.is_boundary for v in e.verts}
-    co = np.array([v.co[:] for v in bm.verts])
-    bv = np.array(sorted(edge_v))
-    top_z = co[bv, 2].max()
-    ring = co[bv[co[bv, 2] > top_z - 0.04]]                 # Blender: Z is his height
-    bm.free()
-    centre = ring.mean(0)
-    ring_z = float(np.median(ring[:, 2]))
-    ring_ang = np.arctan2(ring[:, 1] - centre[1], ring[:, 0] - centre[0])
-    order = np.argsort(ring_ang)
-    ring, ring_ang = ring[order], ring_ang[order]
     old_co = np.array([v.co[:] for v in old.data.vertices])
-    skin_co_all = np.array([v.co[:] for v in skin.data.vertices])
-    print("neck_ring: ring of %d points at %.3f m, his old head %d vertices" % (len(ring), ring_z, len(old_co)))
     # The painted bust into Blender's space (body space: Y up, facing -Z → x, -z, y).
     mesh = np.load(os.path.join(WORK, head + "_mesh.npy"), allow_pickle=True).item()
     V, T, UV, pts = mesh["V"], mesh["T"], mesh["UV"], mesh["pts"]
@@ -117,10 +102,35 @@ def main():
     # Under his jaw the bust is still dressed (collar, lapels): only what's within the neck's
     # reach of the ring's axis is his neck; the rest goes.
     chin_p = s * np.array([pts[152, 0], -pts[152, 2], pts[152, 1]]) @ R.T + t
-    ring_r = float(np.percentile(np.hypot(ring[:, 0] - centre[0], ring[:, 1] - centre[1]), 90))
-    radial = np.hypot(Vp[:, 0] - centre[0], Vp[:, 1] - centre[1])
-    neck_only = (Vp[:, 2] > chin_p[2]) | (radial < ring_r + 0.012)
-    keepv = (Vp[:, 2] > ring_z - 0.002) & neck_only
+    # The ring: under his jaw (RING_BELOW_CHIN under the laid head's chin). His body keeps its own
+    # neck up to there: his old head's neck is joined onto body_skin and the two cut level at the
+    # ring (both are painted from the same pictures, one texture).
+    ring_z = float(chin_p[2] - RING_BELOW_CHIN)
+    bm = bmesh.new()
+    bm.from_mesh(skin.data)
+    bm.from_mesh(old.data)                                  # appended: same groups, same UVs
+    geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
+    bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(0, 0, ring_z), plane_no=(0, 0, 1), clear_outer=True)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-5)
+    bm.to_mesh(skin.data)
+    bm.free()
+    skin.data.update()
+    skin_co_all = np.array([v.co[:] for v in skin.data.vertices])
+    bm = bmesh.new()
+    bm.from_mesh(skin.data)
+    edge_v = {v.index for e in bm.edges if e.is_boundary for v in e.verts}
+    bm.free()
+    bv = np.array(sorted(edge_v))
+    ring = skin_co_all[bv[np.abs(skin_co_all[bv, 2] - ring_z) < 0.003]]
+    centre = ring.mean(0)
+    ring_ang = np.arctan2(ring[:, 1] - centre[1], ring[:, 0] - centre[0])
+    order = np.argsort(ring_ang)
+    ring, ring_ang = ring[order], ring_ang[order]
+    print("neck_ring: ring of %d points at %.3f m (%.0f mm under his chin), his old head %d vertices" % (
+        len(ring), ring_z, RING_BELOW_CHIN * 1000, len(old_co)))
+    # (Under his jaw the bust is dressed, but the ring is above the collar: everything of the
+    # head over the ring stays; trimming by reach left a hole under his chin.)
+    keepv = Vp[:, 2] > ring_z - 0.002
     tk = T[keepv[T].all(1)]
     used = np.unique(tk)
     remap = -np.ones(len(Vp), int)
@@ -173,12 +183,24 @@ def main():
         & (np.abs(V[:, 0] - pts[1, 0]) > 0.025) & (np.abs(V[:, 0] - pts[1, 0]) < 0.05)
     import rodin_portrait as RP
     cheek_c = np.median(RP.sample_tex(paint, UV[cheek]), 0)
-    gain = np.clip(skin_c / np.maximum(cheek_c, 1e-3), 0.7, 1.4) if cheek.sum() > 20 else np.ones(3)
-    paint = np.clip(paint * gain, 0, 1)
+    gain = np.clip(skin_c / np.maximum(cheek_c, 1e-3), 0.5, 2.0) if cheek.sum() > 20 else np.ones(3)
+    # Only skin takes all of it: each texel by how near his cheeks' colour it is (Lab), so his hair,
+    # brows and moustache keep theirs.
+    lab = RP._lab(paint.reshape(-1, 3)).reshape(paint.shape)
+    near_skin = np.exp(-np.linalg.norm(lab - RP._lab(cheek_c[None])[0], axis=-1) / 25.0)[..., None]
+    paint = np.clip(paint * (1 + near_skin * (gain - 1)), 0, 1)
     print("neck_ring: his face's skin %s to the body's %s (gain %s)" % (np.round(cheek_c, 3).tolist(),
           np.round(skin_c, 3).tolist(), np.round(gain, 3).tolist()))
     jaw_z = chin_p[2] - 0.005
-    w = np.clip((jaw_z - Mz[..., 0]) / NECK_FADE, 0, 1) * cover
+    zt = Mz[..., 0]
+    w = np.clip((jaw_z - zt) / NECK_FADE, 0, 1)
+    # All round his neck just above the ring (the nape, under his ears), and any of the collar's
+    # white left low on his head (under his jaw), to skin too.
+    w = np.maximum(w, np.clip((ring_z + 0.02 - zt) / 0.015, 0, 1))
+    lab_t = RP._lab(paint.reshape(-1, 3)).reshape(paint.shape)
+    collar = (lab_t[..., 0] > 68) & (np.hypot(lab_t[..., 1], lab_t[..., 2]) < 30) & (zt < chin_p[2] + 0.04)
+    w = np.maximum(w, collar.astype(float))
+    w = w * cover
     paint = paint * (1 - w[..., None]) + skin_c * w[..., None]
     neck_paint = paint
     print("neck_ring: neck below his jaw to skin %s over %d texels" % (np.round(skin_c, 3).tolist(), int((w > 0.5).sum())))

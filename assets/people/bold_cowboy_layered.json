@@ -17,7 +17,7 @@
   0.325
  ],
  "texture": {
-  "from": "tripo",
+  "from": "bold_cowboy_body_color.png",
   "size": [
    2048,
    2048
@@ -26,14 +26,14 @@
  },
  "triangles": {
   "skin": 21559,
-  "head": 12000
+  "head": 11998
  },
  "neck_ring": {
   "body": "bold_cowboy_body",
   "head": "bold_cowboy_painterly_lit",
-  "ring_m": 1.5713,
+  "ring_m": 1.6117,
   "icp_scale": 1.2843,
   "icp_gap_mm": 6.5,
-  "edge_vertices": 586
+  "edge_vertices": 427
  }
 }
