@@ -50,6 +50,7 @@
    "rodin": "test/bold_cowboy_body_rodin",
    "tris": {"skin": 30000, "head": 10000},
    "outfit": {},
+   "pieces": {"coat": "bold_cowboy_coat", "trousers": "bold_cowboy_trousers"},
    "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
   },
   "stranger2": {

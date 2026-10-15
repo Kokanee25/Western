@@ -1,16 +1,23 @@
-"""His clothes out of his dressed twin (docs/briefs/layered-people.md): the coat as a garment piece
-the fitter hangs on his base body (tools/blender/fit_tripo.py `pieces`).
+"""His clothes out of his dressed twin (docs/briefs/layered-people.md): what of the dressed man
+stands off his bare body, cut into garment pieces the fitter carries on him as they are
+(tools/blender/fit_tripo.py `pieces`, a twin piece: not placed by landmarks nor rebuilt as a shell).
 
-    ~/bpyenv/bin/python tools/characters/twin_pieces.py --dressed=bold_cowboy_dressed --out=bold_cowboy
+    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=bold_cowboy_body \\
+        --dressed=bold_cowboy_dressed --out=bold_cowboy
 
-- His dressed twin: Rodin's whole man from the four dressed pictures
-  (assets/people/tripo/test/<dressed>_rodin.glb), painted from them by body_paint.py
-  (assets/people/tripo/<dressed>_color.png; else Rodin's own colours).
-- Turned into Tripo's frame (facing +X, 1.0 tall, feet on 0) as fit_tripo.load_rodin turns a
-  Rodin man, and cut to the coat: from his collar (COLLAR of his height) to its hem (HEM), his
-  head and his legs below the hem gone. What his coat shows at the front (vest, shirt, tie) stays
-  on it: fit_tripo makes the coat a shell of the body and takes only its look from this piece.
-→ assets/people/tripo/<out>_coat.glb (a Tripo-style item: unrigged, its texture inside).
+- His bare body and his dressed twin are both Rodin's whole man, the same man in the same A-pose
+  (assets/people/tripo/test/<id>_rodin.glb). Both are turned into Tripo's frame as
+  fit_tripo.load_rodin turns a Rodin man (facing +X, feet on 0, 1.0 tall, centred), and the twin
+  is laid on the body by a trimmed ICP (scale, turn, shift: his face and hands, which match, carry
+  it; the clothes standing off have no partner and drop out of each round).
+- His clothes: the twin's surface below his chin (CHIN of his height) except where it lies on the
+  bare body's skin (within SKIN_NEAR, in a skin colour): his hands and the open throat stay the
+  body's. What of them lies inside his skin or nearer it than CLEAR is pushed out along the
+  skin's normal to CLEAR, so his skin never shows through a sleeve.
+- Cut into pieces: the coat (with what it shows at the front: vest, shirt, tie), and the
+  trousers with the boots (below his belt, near black: told from the coat's brown by colour).
+→ assets/people/tripo/<out>_<piece>.glb (unrigged, the twin's texture inside, at TEX px) and
+  <out>_<piece>.json (`twin`: the body it was laid on).
 """
 import json
 import os
@@ -21,56 +28,208 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 TRIPO = os.path.join(ROOT, "assets", "people", "tripo")
-COLLAR = 0.845     # of his height: the coat's collar top (his neck)
-HEM = 0.30         # of his height: the coat's hem, at his knees
+sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "tools", "blender"))
+CHIN = 0.855       # of his height: nothing above (his face and hair are the head's)
+BELT = 0.50        # of his height: below it his coat and his trousers are told apart by colour
+BOOT_TOP = 0.12    # of his height: below it, boots (brown, with the trousers' piece)
+TROUSER_CHROMA = 6.0
+SKIN_NEAR = 0.006  # of his height (~1 cm): the twin's surface this near the bare skin, in a skin colour, is skin
+THROAT = 0.80      # of his height: above it, the twin's surface on his skin in a skin colour is his skin
+SKIN_DE = 18.0     # Lab distance from his skin tone that still counts as skin
+CLEAR = 0.006      # of his height (~11 mm): clothes at least this far outside his skin
+HAND_LEN = 0.12    # of his height: wrist to finger tips, and a little
+HAND_R = 0.03      # of his height: how far off the forearm's line his hand reaches
+HAND_PAST = 0.006  # of his height (~1 cm) past his wrist along the forearm: his hand, not his cuff
+TEX = 2048
 
 
-def main():
-    a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
-    dressed, out = a["--dressed"], a["--out"]
-    sys.path.insert(0, os.path.join(ROOT, "tools", "blender"))
-    import fit_tripo as FT
-    import bpy
-    from PIL import Image
-    pos, _n, uv, tris, _j, colour = FT.load_glb(os.path.join(TRIPO, "test", dressed + "_rodin.glb"))
-    painted = os.path.join(TRIPO, dressed + "_color.png")
-    if os.path.exists(painted):
-        colour = Image.open(painted).convert("RGB")
-    v = np.stack([pos[:, 2], pos[:, 1], -pos[:, 0]], axis=1)          # as load_rodin turns him
+def frame(pos):
+    """fit_tripo.load_rodin's turn: Tripo's frame, feet on 0, 1.0 tall, centred."""
+    v = np.stack([pos[:, 2], pos[:, 1], -pos[:, 0]], axis=1)
     y0, y1 = v[:, 1].min(), v[:, 1].max()
     v = (v - [0, y0, 0]) / (y1 - y0)
-    v -= [(v[:, 0].min() + v[:, 0].max()) / 2, 0, (v[:, 2].min() + v[:, 2].max()) / 2]
-    cy = v[tris].mean(1)[:, 1]
-    keep = (cy < COLLAR) & (cy > HEM)
-    t = tris[keep]
+    return v - [(v[:, 0].min() + v[:, 0].max()) / 2, 0, (v[:, 2].min() + v[:, 2].max()) / 2]
+
+
+def _lab(rgb):
+    c = np.where(rgb > 0.04045, ((rgb + 0.055) / 1.055) ** 2.4, rgb / 12.92)
+    xyz = c @ np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]).T
+    xyz /= [0.9505, 1.0, 1.089]
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16 / 116)
+    return np.stack([116 * f[:, 1] - 16, 500 * (f[:, 0] - f[:, 1]), 200 * (f[:, 1] - f[:, 2])], 1)
+
+
+def vertex_normals(v, t):
+    fn = np.cross(v[t[:, 1]] - v[t[:, 0]], v[t[:, 2]] - v[t[:, 0]])
+    n = np.zeros_like(v)
+    for k in range(3):
+        np.add.at(n, t[:, k], fn)
+    return n / (np.linalg.norm(n, axis=1, keepdims=True) + 1e-12)
+
+
+def bone_of(p, j):
+    """Which of his bones each point is nearest (by its segment): trunk, a thigh or shin, an
+    upper arm, or a forearm with its hand (the wrist's segment run on past the finger tips)."""
+    segs = {"trunk": (j["Hip"], j["NeckTwist01"])}
+    for lr in "RL":
+        segs[lr + "_thigh"] = (j[lr + "_Thigh"], j[lr + "_Calf"])
+        segs[lr + "_shin"] = (j[lr + "_Calf"], j[lr + "_Foot"])
+        segs[lr + "_upper"] = (j[lr + "_Upperarm"], j[lr + "_Forearm"])
+        a, b = j[lr + "_Forearm"], j[lr + "_Hand"]
+        segs[lr + "_fore"] = (a, b + (b - a) * 1.5)
+    names = list(segs)
+    D = []
+    for n in names:
+        a, b = segs[n]
+        t = np.clip((p - a) @ (b - a) / max((b - a) @ (b - a), 1e-12), 0, 1)
+        D.append(np.linalg.norm(p - (a + t[:, None] * (b - a)), axis=1))
+    return np.array(names)[np.argmin(np.array(D), 0)]
+
+
+def write_piece(name, v, uv, t, colour, body, out):
+    import bpy
     used = np.unique(t)
     remap = -np.ones(len(v), int)
     remap[used] = np.arange(len(used))
     vk, tk, uvk = v[used], remap[t], uv[used]
-    print("twin_pieces: coat %d of %d triangles (collar %.2f, hem %.2f of his height)" % (len(tk), len(tris), COLLAR, HEM))
-    # Into Blender (its Z up; glTF's export turns (x, y, z) back to (x, z, -y)), textured, out.
+    # Stored in his Tripo frame: fit_tripo turns the piece's positions into body space as it turns
+    # his body's after load_rodin. Blender's Z up: glTF (x, y, z) is (x, -z, y).
+    g = vk
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    me = bpy.data.meshes.new("coat")
-    me.from_pydata([(p[0], -p[2], p[1]) for p in vk], [], [tuple(int(i) for i in f) for f in tk])
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([(p[0], -p[2], p[1]) for p in g], [], [tuple(int(i) for i in f) for f in tk])
     uvl = me.uv_layers.new(name="UVMap")
     corner = uvk[tk.ravel()]
     uvl.data.foreach_set("uv", np.c_[corner[:, 0], 1.0 - corner[:, 1]].astype(np.float32).ravel())
-    ob = bpy.data.objects.new("coat", me)
+    ob = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(ob)
-    tex_path = os.path.join(ROOT, "build", out + "_coat_tex.png")
+    tex_path = os.path.join(ROOT, "build", "%s_%s_tex.png" % (out, name))
     os.makedirs(os.path.dirname(tex_path), exist_ok=True)
-    colour.save(tex_path)
-    mat = bpy.data.materials.new("coat")
+    colour.resize((TEX, TEX)).save(tex_path)
+    mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
     node = mat.node_tree.nodes.new("ShaderNodeTexImage")
     node.image = bpy.data.images.load(tex_path)
     mat.node_tree.links.new(node.outputs["Color"], bsdf.inputs["Base Color"])
     me.materials.append(mat)
-    path = os.path.join(TRIPO, out + "_coat.glb")
+    path = os.path.join(TRIPO, "%s_%s.glb" % (out, name))
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_texcoords=True, export_normals=True,
                               export_materials="EXPORT", export_image_format="AUTO")
-    print("twin_pieces: wrote", path)
+    json.dump({"twin": body, "note": "cut from his dressed twin by tools/characters/twin_pieces.py; "
+               "already in place on the body: fit_tripo carries it as it is"},
+              open(os.path.join(TRIPO, "%s_%s.json" % (out, name)), "w"), indent=1)
+    print("twin_pieces: %-8s %6d triangles → %s" % (name, len(tk), path))
+
+
+def main():
+    a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
+    body, dressed, out = a["--body"], a["--dressed"], a["--out"]
+    import fit_tripo as FT
+    import neck_ring as NR
+    import rodin_portrait as RP
+    from scipy.spatial import cKDTree
+    bpos, _bn, buv, btris, _bj, bcol = FT.load_glb(os.path.join(TRIPO, "test", body + "_rodin.glb"))
+    dpos, _dn, duv, dtris, _dj, dcol = FT.load_glb(os.path.join(TRIPO, "test", dressed + "_rodin.glb"))
+    bv, dv = frame(bpos), frame(dpos)
+    # The twin onto the body: trimmed ICP, half the pairs (what matches: face, hands, skin).
+    tree = cKDTree(bv)
+    s, R, t = 1.0, np.eye(3), np.zeros(3)
+    for _ in range(40):
+        d, j = tree.query(s * dv @ R.T + t)
+        keep = d < np.percentile(d, 50)
+        s, R, t = NR.similarity(dv[keep], bv[j[keep]])
+    dv = s * dv @ R.T + t
+    # His arms hang a little differently in each (the twin's ~4 cm higher, nearer his sides): each
+    # sleeve turned onto the body's arm by his hands, which match (a rigid ICP of the twin's hand
+    # onto the body's), in full from the elbow down, fading to nothing at the shoulder.
+    jb, jd = FT.find_joints(bv, btris), FT.find_joints(dv, dtris)
+    bone_d = bone_of(dv, jd)
+    for lr in "RL":
+        sh, el, wr = jd[lr + "_Upperarm"], jd[lr + "_Forearm"], jd[lr + "_Hand"]
+        ax = (wr - sh) / np.linalg.norm(wr - sh)
+        along = (dv - sh) @ ax
+        arm = np.isin(bone_d, [lr + "_upper", lr + "_fore"])
+        bax = (jb[lr + "_Hand"] - jb[lr + "_Forearm"])
+        bax /= np.linalg.norm(bax)
+        bh = bv[((bv - jb[lr + "_Hand"]) @ bax > -0.01) & (np.sign(bv[:, 2]) == np.sign(sh[2]))
+                & (np.linalg.norm(bv - jb[lr + "_Hand"], axis=1) < 0.08)]
+        dh = dv[arm & (along > (wr - sh) @ ax - 0.01)]
+        htree = cKDTree(bh)
+        Rh, th = np.eye(3), np.zeros(3)
+        for _ in range(30):
+            hd, hj = htree.query(dh @ Rh.T + th)
+            k = hd < np.percentile(hd, 80)
+            _s, Rh, th = NR.similarity(dh[k], bh[hj[k]])
+            th += (_s - 1.0) * (Rh @ dh[k].mean(0))      # rigid: the scale left out
+        w = np.clip(along / max((el - sh) @ ax, 1e-6), 0, 1) * arm
+        dv += w[:, None] * (dv @ Rh.T + th - dv)
+        print("twin_pieces: %s sleeve turned %.1f deg, moved %.0f mm at the hand" % (
+            lr, np.degrees(np.arccos(np.clip((np.trace(Rh) - 1) / 2, -1, 1))), 1850 * np.linalg.norm(dh.mean(0) @ Rh.T + th - dh.mean(0))))
+    d, j = tree.query(dv)
+    print("twin_pieces: twin laid on the body: scale %.3f, turn %.1f deg, median gap %.1f mm of a 1.85 m man"
+          % (s, np.degrees(np.arccos(np.clip((np.trace(R) - 1) / 2, -1, 1))), np.median(d) * 1850))
+    # Which side of his skin each twin point is on, and is it skin.
+    bnorm = vertex_normals(bv, btris)
+    side = ((dv - bv[j]) * bnorm[j]).sum(1)
+    btone = RP.sample_tex(np.asarray(bcol).astype(float) / 255, buv)
+    trunk = (bv[:, 1] > 0.55) & (bv[:, 1] < 0.75)
+    skin_lab = np.median(_lab(btone[trunk]), 0)
+    dtone = RP.sample_tex(np.asarray(dcol).astype(float) / 255, duv)
+    skinlike = np.linalg.norm(_lab(dtone) - skin_lab, axis=1) < SKIN_DE
+    # Bare skin on a dressed man is his hands (below) and his throat: only there (the coat's lit
+    # brown is near enough his skin's colour to be cut out of a sleeve).
+    skin = (np.abs(side) < SKIN_NEAR) & skinlike & (dv[:, 1] > THROAT)
+    # His twin's hands are his body's hands' business (a colour or a pose apart, they'd double):
+    # past each wrist (the body's joints, from his shape), along the forearm, nothing is cloth.
+    hand = np.zeros(len(dv), bool)
+    bone_b = bone_of(dv, jb)
+    for lr in "RL":
+        el, wr = jb[lr + "_Forearm"], jb[lr + "_Hand"]
+        u = (wr - el) / np.linalg.norm(wr - el)
+        along = (dv - wr) @ u
+        off = np.linalg.norm((dv - wr) - along[:, None] * u, axis=1)
+        # Past his wrist on the forearm's line, or within a hand's reach of it (hanging by his
+        # thigh, his hand is nearer the thigh's bone than the forearm's); never his coat's body.
+        hand |= ((bone_b == lr + "_fore") & (along > HAND_PAST)) | (
+            (along > HAND_PAST) & (along < HAND_LEN) & (off < HAND_R) & (bone_b != "trunk"))
+    cy = dv[dtris].mean(1)[:, 1]
+    cloth = (cy < CHIN) & ~skin[dtris].any(1) & ~hand[dtris].any(1)
+    # Out of his skin: each point's nearest point on his skin's surface (not his nearest vertex:
+    # Rodin's triangles share none, and at a fold like the shorts' fly one face's normal points
+    # anywhere), and the point set CLEAR outside it along that face's normal; twice, as a push can
+    # bring it nearer another face.
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    bvh = BVHTree.FromPolygons([tuple(p) for p in bv], [tuple(int(i) for i in f) for f in btris])
+    pts = np.unique(dtris[cloth])
+    moved = np.zeros(len(dv), bool)
+    for _ in range(2):
+        for i in pts:
+            loc, nrm, _f, _d = bvh.find_nearest(Vector(dv[i]))
+            if loc is None:
+                continue
+            sd = (dv[i] - np.array(loc)) @ np.array(nrm)
+            if sd < CLEAR:
+                dv[i] = dv[i] + np.array(nrm) * (CLEAR - sd)
+                moved[i] = True
+    low = moved
+    print("twin_pieces: %d of %d twin triangles are clothes; %.0f%% of their points pushed out of his skin"
+          % (cloth.sum(), len(dtris), 100 * low[np.unique(dtris[cloth])].mean()))
+    # Coat from trousers by colour below his belt (the coat's brown wool, chroma ~15-30; the
+    # trousers near black, ~2), each triangle by the share of dark ones within 1.5 cm, so the
+    # split follows the coat's own edges; his boots go with the trousers.
+    tl = _lab(RP.sample_tex(np.asarray(dcol).astype(float) / 255, duv[dtris].mean(1)))
+    dark = np.hypot(tl[:, 1], tl[:, 2]) < TROUSER_CHROMA
+    cent = dv[dtris].mean(1)
+    ctree = cKDTree(cent)
+    share = np.array([dark[n].mean() for n in ctree.query_ball_point(cent, 0.008)])
+    legs = cloth & (cy < BELT) & ((share > 0.5) | (cy < BOOT_TOP))
+    if os.environ.get("TWIN_DEBUG"):
+        np.savez(os.path.join(ROOT, "build", "twin_debug.npz"), dv=dv, dtris=dtris, cloth=cloth, skin=skin, hand=hand, cy=cy, legs=legs)
+    for name, sel in (("coat", cloth & ~legs), ("trousers", legs)):
+        write_piece(name, dv, duv, dtris[sel], dcol, body, out)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ extends SceneTree
 ## --grade=tonemap|adjust|game: the game's picture grade on the frame (see _grade).
 ## --aim=Y: the camera level with height Y and looking at it (with --fov 35 --dist 3.4: the whole man).
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
+## --hide=A,B: his meshes whose names begin A or B not drawn.
 ## --hat=lab:NAME: the hat prototype (tools/characters/hat_proto.py: assets/people/lab/NAME_*.obj and
 ## .png) on his head bone in place of the game's, drawn by the skin shader as his clothes are.
 ## --look: the painted material's values over PAINTED (the skin shader's painted mode,
@@ -56,6 +57,7 @@ func _run() -> void:
 	var grade := ""
 	var aim := -1.0
 	var tag := ""
+	var hide := PackedStringArray()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--fov="):
 			fov = float(a.substr(6))
@@ -97,6 +99,8 @@ func _run() -> void:
 			texture_path = a.substr(10)
 		elif a.begins_with("--hat="):
 			hat = a.substr(6)
+		elif a.begins_with("--hide="):
+			hide = a.substr(7).split(",")
 		elif a.begins_with("--look="):
 			for kv in a.substr(7).split(","):
 				var p := kv.split(":")
@@ -132,6 +136,14 @@ func _run() -> void:
 	w.add_child(m)
 	if hat.begins_with("lab:"):
 		_wear_lab_hat(m, hat.substr(4))
+	if not hide.is_empty():
+		# --hide=Skin,Trousers: his meshes whose names begin so are not drawn (a garment seen
+		# without the body under it).
+		for mi in _meshes(m):
+			for h in hide:
+				if String(mi.name).begins_with(h):
+					mi.visible = false
+		print("art_lab: meshes ", _meshes(m).map(func(x): return "%s%s" % [x.name, "" if x.visible else " (hidden)"]))
 	m.global_position = Vector3.ZERO
 	# --aim=Y: the camera level with Y and looking at it (0.9: the whole man), else at his eyes.
 	var cy := aim if aim >= 0.0 else EYE
