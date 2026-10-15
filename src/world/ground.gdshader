@@ -70,13 +70,15 @@ uniform float sky_fill_low_sun = 0.05;
 // Past the map the ground is as before (squares). relief_depth: metres of the earths' relief from
 // black to white; the packed earth's at compact_relief of it.
 uniform bool use_street = false;
-uniform sampler2D street_map : filter_linear_mipmap, repeat_disable;
+// Anisotropic: the ruts run along the view, and plain mipmaps picked their level from the
+// street's foreshortening and blurred the troughs away across it.
+uniform sampler2D street_map : filter_linear_mipmap_anisotropic, repeat_disable;
 uniform vec4 street_area = vec4(-86.0, -22.0, 35.0, 5.0);
 uniform float street_rut_range = 0.12;
 uniform sampler2D compact_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D loose_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D compact_h : filter_linear_mipmap, repeat_enable;
-uniform sampler2D loose_h : filter_linear_mipmap, repeat_enable;
+uniform sampler2D compact_h : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D loose_h : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float earth_metres = 8.0;
 uniform float relief_depth = 0.06;
 uniform float compact_relief = 0.35;
