@@ -221,9 +221,10 @@ def seamless(a, rng):
     return a * m + b * (1 - m)
 
 
-def to_texels(a, size):
-    """Median over half a texel, then the area average of each texel's patch."""
-    k = max(1, int(a.shape[1] / size[0] / 2))
+def to_texels(a, size, median=True):
+    """Median over half a texel, then the area average of each texel's patch (no median for a
+    material that says so: the painted road's stones went with it)."""
+    k = max(1, int(a.shape[1] / size[0] / 2)) if median else 1
     if k > 1:
         a = median_filter(a, size=(k, k, 1), mode="wrap")
     img = Image.fromarray((a * 255 + 0.5).astype(np.uint8))
@@ -318,7 +319,7 @@ def reduce(mid, spec, tpm):
         _import_file(os.path.join(out_dir(), mid + "_height.png.import"))
     if kind != "sign":
         a = seamless(a, rng)
-    t = to_texels(a, size)
+    t = to_texels(a, size, spec.get("median", True))
     # The push square to square: the bold set's, or the material's own `mosaic` (2026-10-13, Sean:
     # "every surface should read as clear, distinct squares like the paintings"; the review's
     # MOSAIC 1.0 had smoothed them away), never on the smooth set or a sign.

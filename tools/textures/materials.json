@@ -303,8 +303,8 @@
     8.0,
     8.0
    ],
-   "colours": 32,
-   "lightness": 1.18,
+   "colours": 48,
+   "lightness": 1.35,
    "what": "the dry dirt main street of a frontier desert town: four deep wagon-wheel ruts in two pairs, each a wide trough a hand's width across worn deep into the dirt, its bottom in shadowy darker earth, with a raised lip of crumbled, thrown-up dirt along both edges, broken here and there where dust has blown back in; between and beside them the ground is random, lumpy and uneven packed russet-ochre earth, clods, loose crumbs and small cracks, with no regular pattern; stones and pebbles of many sizes, from gravel to fist-sized rocks, scattered irregularly, gathered along the ruts' lips; only earth and stones",
    "ref": [
     "road",
@@ -314,7 +314,7 @@
     1086
    ],
    "contrast": 1.0,
-   "chroma": 0.75,
+   "chroma": 0.95,
    "hue": 7,
    "bold": {
     "contrast": 0.8,
@@ -368,7 +368,8 @@
     ]
    ],
    "about_patches": "The painting's boot prints, covered from the ground beside them (prints come from people walking: gameplay's, docs/BACKLOG.md).",
-   "about_paint": "Painted by run 72 (try 2 of 3, 2026-10-15, $0.25 a call): the ruts and stones right; try 3 drew more bands and blotches and was not kept."
+   "about_paint": "Painted by run 72 (try 2 of 3, 2026-10-15, $0.25 a call): the ruts and stones right; try 3 drew more bands and blotches and was not kept.",
+   "median": false
   }
  }
 }

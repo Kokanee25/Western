@@ -63,11 +63,12 @@ uniform float sky_fill_low_sun = 0.05;
 // so the low sun lights a rut's far wall and a stone's top and leaves the near wall dark; the
 // hollows a little darker (relief_cavity); and the sun's light traced a few centimetres toward it
 // over the heights (light()), so a rut's bottom lies in the shadow of its lip, long with the sun
-// low, as the target's ruts do. relief_depth: metres from black to white (a rut ~5 cm deep).
+// low, as the target's ruts do. relief_depth: metres from black to white (its fist-sized stones
+// stand ~10 cm proud; at 6 cm they were 2 cm bumps that threw no shadow).
 uniform sampler2D height_tex : filter_linear_mipmap, repeat_enable;
 uniform bool use_height = false;
-uniform float relief_depth = 0.06;
-uniform float relief_cavity = 0.3;
+uniform float relief_depth = 0.15;
+uniform float relief_cavity = 0.35;
 // How far toward the sun the shadow trace looks (metres) and how dark a fully hidden square goes
 // (of the sun's light; the sky's fill still reaches it).
 uniform float relief_shadow_reach = 0.45;
