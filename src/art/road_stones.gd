@@ -57,8 +57,10 @@ func _scatter() -> void:
 		var basis := Basis(Vector3.UP, rng.randf() * TAU) \
 				* Basis(Vector3(rng.randf() - 0.5, 0.0, rng.randf() - 0.5).normalized() if rng.randf() < 0.5 else Vector3.RIGHT,
 						rng.randf_range(-0.3, 0.3))
-		basis = basis.scaled(Vector3(size * rng.randf_range(0.9, 1.3), size * rng.randf_range(0.45, 0.7), size))
-		p.y = -0.3 * size * 0.55
+		var tall := size * rng.randf_range(0.45, 0.7)
+		basis = basis.scaled(Vector3(size * rng.randf_range(0.9, 1.3), tall, size))
+		# The rock is a unit across: its centre a sixth of its height above the dirt.
+		p.y = tall / 6.0
 		transforms.append(Transform3D(basis, p))
 		# Tan-grey, rust, pale and dark stones, as the target's.
 		var shades := [Color(0.66, 0.56, 0.46), Color(0.62, 0.42, 0.3), Color(0.78, 0.7, 0.6), Color(0.45, 0.37, 0.3)]
