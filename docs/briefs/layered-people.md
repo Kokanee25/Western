@@ -108,3 +108,7 @@ the town beyond the first outfit.
 direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their light mostly kept
 (`delight` 0.15), drawn with the game's own material (not self-lit). Bookmark:
 `look/painterly-2026-10-15`.
+
+**Paid calls:** 2026-10-15, Rodin Gen-2.5 (Extreme-High, 18K quads, HighPack, A-pose) on fal for
+`bold_cowboy_body` from his four boxer-shorts pictures: $1.60 (the characters session's total
+~$6.86 of the $15 Sean allowed).
