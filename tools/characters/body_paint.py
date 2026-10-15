@@ -77,10 +77,18 @@ def refine(cam, V, T, mask, rounds=3):
     sub = mask[::4, ::4]
     h, w = sub.shape
 
+    from scipy import ndimage
+    u, v = V @ cam.x, -V[:, 1]
+
     def iou(s, ox, oy):
-        q = np.stack([s * (V @ cam.x) + ox, s * (-V[:, 1]) + oy], -1) / 4
-        tid, _b, _z = P.rasterise(q, cam.depth(V), T, w, h)
-        m = tid >= 0
+        # His outline from his vertices splatted at a quarter size (dense enough, closed by a
+        # dilation): milliseconds a try, where drawing his triangles took seconds.
+        x = ((s * u + ox) / 4).astype(int)
+        y = ((s * v + oy) / 4).astype(int)
+        ok = (x >= 0) & (x < w) & (y >= 0) & (y < h)
+        m = np.zeros((h, w), bool)
+        m[y[ok], x[ok]] = True
+        m = ndimage.binary_fill_holes(ndimage.binary_closing(m, iterations=2))
         return (m & sub).sum() / max((m | sub).sum(), 1)
 
     best = (iou(cam.s, cam.ox, cam.oy), cam.s, cam.ox, cam.oy)
