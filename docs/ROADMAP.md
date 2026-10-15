@@ -65,7 +65,7 @@ The approach is settled (the paintings' squares on the surfaces, smooth light, f
 
 | # | Step | Done when | Who |
 |---|---|---|---|
-| 1.1 | **The targets locked** | One folder, `docs/concept/targets/`, holds the pictures the game is judged against: a man close at a table, the saloon at night, the street at golden hour, a wall and a post up close, a prop. Each has its three biggest gaps written beside it, from a render made today. One session. | art |
+| 1.1 ✅ 2026-10-15 | **The targets locked** | One folder, `docs/concept/targets/`, holds the pictures the game is judged against: a man close at a table, the saloon at night, the street at golden hour, a wall and a post up close, a prop. Each has its three biggest gaps written beside it, from a render made today. One session. | art |
 | 1.2 | **Faces in the game's light** | A portrait man in the saloon at night and on the street at golden hour: no burnt orange, eyes readable under the brim, skin matching his portrait's lit and shadow cheeks. Measured with `tools/face_light.py`, judged on a sheet. | art (light), characters (paint) |
 | 1.3 | **The man complete** | The bold cowboy whole: the portrait's hat (brown, dented crown, studded band) as its own piece that can be shot off, his hair edges, coat, vest, shirt, tie and hands as separate pieces, through the pose check (stand, sit, hands up, crouch, back) with no tears. | characters |
 | 1.4 | **Surfaces to the man** | Wood, end grain, posts, planks and the road at the same square size and finish as his face and coat: they look like one picture, close and far. | art |
@@ -154,8 +154,9 @@ All lanes, one at a time. **Gate F: the demo ships.**
 ## ▶ Now
 
 - **Phase 0, step 0.1** (gameplay): green and quiet.
-- **Then Phase 1, step 1.1** (art), with **1.3** (characters) able to run beside it: the bold
-  cowboy's hat and pieces don't wait on the targets.
+- **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`); next **1.2** (art's
+  light with the characters' paint: the painted-light brief), with **1.3** (characters) able to
+  run beside it.
 
 ## Decisions Sean can change
 

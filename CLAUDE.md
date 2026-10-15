@@ -293,8 +293,9 @@ frozen until Sean names one.
   folk cost ~43 meshes each (~50 to spare).
 - Done since: the game's woods are the material lab's C (Sean's pick, 2026-10-15; brief
   `docs/briefs/material-lab-timber.md`; the lab's record on `claude/art-material-lab`).
-- Next: merge 2 with gameplay: the built boardwalk and hand-laid boards as real members (the
-  brief's production list); then the characters session's painted-light brief (`body_skin`).
+- Done since: roadmap 1.1, the targets (`docs/concept/targets/`, each with its three gaps).
+- Next: roadmap 1.2, faces in the game's light (the characters session's painted-light brief,
+  `body_skin`). The built boardwalk is in `docs/BACKLOG.md`.
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
