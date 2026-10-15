@@ -312,6 +312,10 @@ def reduce(mid, spec, tpm):
         if spec.get("patches"):
             hm = patch(hm, spec["patches"])
         hm = seamless(hm[..., None], np.random.default_rng(sum(map(ord, mid))))[..., 0]
+        if spec.get("height_blur"):
+            # Its fine grain off (metres): lit, it read as a pebbly crust over the whole road;
+            # the lumps, ruts and stones stay.
+            hm = gaussian_filter(hm, spec["height_blur"] * hm.shape[1] / metres[0], mode="wrap")
         hsize = size if spec.get("smooth") else (size[0] * 2, size[1] * 2)
         hm = np.asarray(Image.fromarray((hm * 255 + 0.5).astype(np.uint8)).resize(hsize, Image.BOX))
         os.makedirs(out_dir(), exist_ok=True)

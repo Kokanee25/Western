@@ -63,8 +63,8 @@ uniform float sky_fill_low_sun = 0.05;
 // so the low sun lights a rut's far wall and a stone's top and leaves the near wall dark; the
 // hollows a little darker (relief_cavity); and the sun's light traced a few centimetres toward it
 // over the heights (light()), so a rut's bottom lies in the shadow of its lip, long with the sun
-// low, as the target's ruts do. relief_depth: metres from black to white (its fist-sized stones
-// stand ~10 cm proud; at 6 cm they were 2 cm bumps that threw no shadow).
+// low, as the target's ruts do. relief_depth: metres from black to white (the ruts' depth; its
+// stones stand up as RoadStones; at 15 cm over the painting's fine grain the road read as a crust).
 uniform sampler2D height_tex : filter_linear_mipmap, repeat_enable;
 uniform bool use_height = false;
 // The painted road drawn smooth (Sean, 2026-10-15: "smooth road", like his picture): on the road
@@ -73,7 +73,7 @@ uniform bool use_height = false;
 // ground keeps its squares. wide_metres: the painting's size along the street.
 uniform sampler2D wide_smooth_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float wide_metres = 8.0;
-uniform float relief_depth = 0.15;
+uniform float relief_depth = 0.08;
 uniform float relief_cavity = 0.35;
 // How far toward the sun the shadow trace looks (metres) and how dark a fully hidden square goes
 // (of the sun's light; the sky's fill still reaches it).

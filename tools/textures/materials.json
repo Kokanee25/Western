@@ -372,7 +372,8 @@
    "median": false,
    "texels_per_metre": 128,
    "smooth": true,
-   "about_smooth": "Sean, 2026-10-15: the road drawn smooth like his picture (no squares, no palette), at 128 texels a metre with linear filtering; its stones stand up as RoadStones."
+   "about_smooth": "Sean, 2026-10-15: the road drawn smooth like his picture (no squares, no palette), at 128 texels a metre with linear filtering; its stones stand up as RoadStones.",
+   "height_blur": 0.02
   }
  }
 }
