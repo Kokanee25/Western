@@ -98,9 +98,9 @@ def refine(cam, V, T, mask, rounds=3):
             for dx in (-step, 0, step):
                 for dy in (-step, 0, step):
                     s1 = s0 * (1 + ds)
-                    v = iou(s1, x0 + dx, y0 + dy)
-                    if v > best[0]:
-                        best = (v, s1, x0 + dx, y0 + dy)
+                    score = iou(s1, x0 + dx, y0 + dy)
+                    if score > best[0]:
+                        best = (score, s1, x0 + dx, y0 + dy)
     _v, cam.s, cam.ox, cam.oy = best
 
 
