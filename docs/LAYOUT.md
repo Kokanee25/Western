@@ -256,6 +256,16 @@ a few views renders them as the full run does.
   where its point of the world was a frame before and counts those whose colour isn't there (the
   camera's own movement taken out; no mosaic scores 0.1-0.2 %); `measure` gives the plain changed
   and flipped-back shares, `video` a side-by-side (`--crop=` for a phone).
+  **Surfaces to the man** (roadmap 1.4, 2026-10-15): the world's near surfaces in the portrait
+  man's squares (his face and coat, 36-48 a metre). The game's woods are drawn in squares of 4 of
+  C's 128 texels, 32 a metre (`grain_woods.py` `squared`, `woods_grain.json` `squares`: a square's
+  dark-weighted mean, specks under a square left out, snapped to the board's tones; ends in squares
+  of 2), and `texel_grid` `square_texels` / `end_square_texels` (`PixelArt.WOODS_SQUARE`,
+  `DRAWN_SQUARES` for the table) reads each whole (`tile_block_sample`: the mip of its size) and lights
+  it as one. The ground: the drawn road at 32 a metre (`DRAWN_ROAD_TEXELS`), its squares sized per
+  axis (`tile_square_screen`, `square_px` 3) so they stay square on screen far off, each its texels'
+  mean (mipmapped samplers), so the far road calms. `tools/surface_squares.py` measures square size
+  and finish crop by crop (`surface_squares.json`) and makes target | before | now sheets.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
