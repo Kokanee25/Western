@@ -71,6 +71,31 @@ class Ortho:
         return -(p @ self.toward_v)
 
 
+def refine(cam, V, T, mask, rounds=3):
+    """Scale and offset searched for the most overlap of his outline and the figure (at a quarter
+    size): his A-pose arms and his hair can pull a plain bounding-box fit off."""
+    sub = mask[::4, ::4]
+    h, w = sub.shape
+
+    def iou(s, ox, oy):
+        q = np.stack([s * (V @ cam.x) + ox, s * (-V[:, 1]) + oy], -1) / 4
+        tid, _b, _z = P.rasterise(q, cam.depth(V), T, w, h)
+        m = tid >= 0
+        return (m & sub).sum() / max((m | sub).sum(), 1)
+
+    best = (iou(cam.s, cam.ox, cam.oy), cam.s, cam.ox, cam.oy)
+    for step in (24.0, 8.0, 3.0)[:rounds]:
+        _v, s0, x0, y0 = best
+        for ds in (-0.04, -0.02, 0, 0.02, 0.04):
+            for dx in (-step, 0, step):
+                for dy in (-step, 0, step):
+                    s1 = s0 * (1 + ds)
+                    v = iou(s1, x0 + dx, y0 + dy)
+                    if v > best[0]:
+                        best = (v, s1, x0 + dx, y0 + dy)
+    _v, cam.s, cam.ox, cam.oy = best
+
+
 def main():
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     body = a["--body"]
@@ -87,6 +112,7 @@ def main():
         img = raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0)) if uns > 1 else raw
         pics[view] = np.asarray(img).astype(float) / 255
         cams[view] = Ortho(*VIEWS[view], V, masks[view])
+        refine(cams[view], V, T, masks[view])
         # The check: his outline over the painting.
         h, w = masks[view].shape
         tid, _b, _z = P.rasterise(cams[view].project(V), cams[view].depth(V), T, w, h)
