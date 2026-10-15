@@ -294,8 +294,9 @@ frozen until Sean names one.
 - Done since: the game's woods are the material lab's C (Sean's pick, 2026-10-15; brief
   `docs/briefs/material-lab-timber.md`; the lab's record on `claude/art-material-lab`).
 - Done since: roadmap 1.1, the targets (`docs/concept/targets/`, each with its three gaps).
-- Next: roadmap 1.2, faces in the game's light (the characters session's painted-light brief,
-  `body_skin`). The built boardwalk is in `docs/BACKLOG.md`.
+- Next: roadmap 1.2, faces in the game's light: art's shader half done (`paint_tint`, the v5 look,
+  `docs/screenshots/painted_light/`); waits on characters drawing the painterly man painted, with a
+  per-model look, then the in-game sheet. The built boardwalk is in `docs/BACKLOG.md`.
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
