@@ -106,6 +106,9 @@ PIECE_CLEARANCE = 0.012
 TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
 TUCK_MAX_M = 0.03
 PIECE_REACH = 0.06
+CUFF_PAST = 0.01       # metres: a sleeve ends this far past the cut his hand joins at (clear_hands)
+HAND_LINE = 0.015      # metres: his hand's points this near a skirt point's line behind it count
+HAND_FOLD_STEPS = 12   # smoothing steps the skirt's move spreads by round his hand (~a few cm)
 # How many times the clearance push is averaged over neighbours before it is applied.
 PIECE_SMOOTH = 8
 # The coat as a shell of his body (Piece.as_shell, metres): how far off his skin over the trunk
@@ -962,7 +965,7 @@ class TripoPerson(mp.Person):
         import mh_hand as MH
         o = self.our_joints()
         F = self.env["fingers"]
-        self.hand_paint, self.hand_fw, self.finger_rests = [], [], {}
+        self.hand_paint, self.hand_fw, self.finger_rests, self.wrists = [], [], {}, {}
         self.extra_bones = MH.finger_bone_names("r") + MH.finger_bone_names("l")
         rep = self.report.setdefault("own_fingers", {"from": "makehuman, skinned"})
         # His colours from the texture his skin is drawn with: his repaint where there is one
@@ -994,6 +997,7 @@ class TripoPerson(mp.Person):
             ring_q = remap[ring_q][remap[ring_q] >= 0]
             q, t, u, pa, W = q[used], remap[t], u[used], pa[used], W[used]
             palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+            self.wrists[side] = (point, ax, palm_dir)
             if len(ring) and len(ring_q):
                 fore = np.nonzero(np.isin(self.region, ["forearm_" + side, "hand_" + side]))[0]
                 up = (self.v[fore] - point) @ ax
@@ -1159,7 +1163,9 @@ class TripoPerson(mp.Person):
                 piece.region[:] = "head"
             mp.Person.weights(piece)
             if piece.twin:
+                own = piece.region.copy()
                 piece.weights_from_skin()
+                piece.clear_hands(own)
         twins = [pc for pc in self.pieces if pc.twin]
         if twins:
             self.tuck_skin(twins)
@@ -1389,6 +1395,75 @@ class Piece:
                     pushed[i] = True
         self.report["pushed_out_after_warp"] = int(pushed.sum())
 
+    def clear_hands(self, own):
+        """His hands out of a twin piece (Sean, 2026-10-15: "his hands seem like they're melting
+        into the jacket"). A sleeve ends at his wrist: what of it runs on CUFF_PAST beyond the
+        cut his hand joins at (the dressed model's own hands, a long cuff) is dropped. The coat's
+        skirt hangs where his hand does: each skirt point inside his hand, or within
+        PIECE_CLEARANCE of it, goes behind it (towards his thigh, the way his palm faces), and
+        the skirt round it follows smoothly, so the hand hangs in front of the coat."""
+        wrists = getattr(self.body, "wrists", {})
+        if not wrists:
+            return
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        from scipy.spatial import cKDTree
+        body = self.body
+        drop = np.zeros(len(self.tris), bool)
+        move = np.zeros_like(self.v)
+        for side, (point, ax, palm_dir) in wrists.items():
+            # His sleeve by the piece's own regions (by the skin under it, the skirt by his hand
+            # is his hand's too).
+            arm = np.isin(own, ["forearm_" + side, "hand_" + side])
+            past = arm & ((self.v - point) @ ax > CUFF_PAST)
+            drop |= past[self.tris].any(1)
+            hand = np.nonzero(body.region == "hand_" + side)[0]
+            ht = body.tris[np.isin(body.tris, hand).all(1)]
+            if not len(ht):
+                continue
+            bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in ht])
+            tree = cKDTree(body.v[hand])
+            skirt = np.nonzero(~arm & ((self.v - point) @ ax > 0))[0]
+            for i in skirt:
+                loc, nrm, _f, _d = bvh.find_nearest(Vector(self.v[i]), 0.05)
+                if loc is None:
+                    continue
+                if float((Vector(self.v[i]) - loc).dot(nrm)) >= PIECE_CLEARANCE:
+                    continue
+                # Behind his hand along the way his palm faces: past the deepest of his hand on
+                # this point's line through it.
+                near = hand[tree.query_ball_point(self.v[i], 0.06)]
+                rel = body.v[near] - self.v[i]
+                along_p = rel @ palm_dir
+                on_line = np.linalg.norm(rel - along_p[:, None] * palm_dir, axis=1) < HAND_LINE
+                if not on_line.any():
+                    continue
+                move[i] = palm_dir * max(float(along_p[on_line].max()) + PIECE_CLEARANCE, 0.0)
+        hit = np.nonzero(np.linalg.norm(move, axis=1) > 0)[0]
+        if len(hit):
+            # The skirt round each moved point follows, smoothly: the moves spread over his
+            # welded skirt (Rodin's triangles share no corners), the moved points held.
+            _u, first, weld = np.unique(np.round(self.v / 1e-6).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+            weld = weld.ravel()
+            n = len(first)
+            gm = np.zeros((n, 3))
+            order = np.argsort(np.linalg.norm(move, axis=1))
+            gm[weld[order]] = move[order]       # each place its corners' biggest move
+            held = np.linalg.norm(gm, axis=1) > 0
+            from scipy.sparse import coo_matrix
+            t = weld[self.tris]
+            e = np.concatenate([t[:, [0, 1]], t[:, [1, 2]], t[:, [2, 0]]])
+            A = coo_matrix((np.ones(2 * len(e)), (np.r_[e[:, 0], e[:, 1]], np.r_[e[:, 1], e[:, 0]])), shape=(n, n)).tocsr()
+            A.data[:] = 1.0
+            deg = np.maximum(np.asarray(A.sum(1)).ravel(), 1)
+            D = gm.copy()
+            for _k in range(HAND_FOLD_STEPS):
+                D = 0.5 * D + 0.5 * (A @ D) / deg[:, None]
+                D[held] = gm[held]
+            self.v = self.v + D[weld]
+        self.tris = self.tris[~drop]
+        self.report["clear_hands"] = {"cuff_triangles_dropped": int(drop.sum()), "skirt_points_behind_hands": int(len(hit))}
+
     def weights_from_skin(self):
         """A twin piece bends as the skin under it does: each point takes the weights (and the
         body part) of the nearest point of his skin's surface, the three corners' weights by
@@ -1400,6 +1475,9 @@ class Piece:
         body = self.body
         bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
         took = 0
+        own = self.region.copy()
+        bones = list(self.env["bones"])
+        arm_cols = [k for k, b in enumerate(bones) if str(b).startswith(("upper_arm", "forearm", "hand", "finger"))]
         for i in range(len(self.v)):
             loc, _n, f, _d = bvh.find_nearest(Vector(self.v[i]))
             if f is None:
@@ -1413,6 +1491,18 @@ class Piece:
             bary /= max(bary.sum(), 1e-9)
             reg = body.region[tri[int(np.argmax(bary))]]
             if self.shape == "coat" and str(reg).startswith(("thigh", "shin", "foot")):
+                continue
+            # Nor, cloth that isn't a sleeve, his hanging hands' and forearms' (the skirt and the
+            # trousers by his hand took the hand's weights and went where it went: "his hands
+            # seem like they're melting into the jacket"); and none of his arms' at all (its own
+            # weights blend in the arm's capsule by his hand).
+            sleeve = self.shape == "coat" and str(own[i]).startswith(("upper", "forearm", "hand"))
+            if not sleeve and str(reg).startswith(("forearm", "hand")):
+                w = self.W[i].copy()
+                w[arm_cols] = 0.0
+                if w.sum() <= 1e-6:
+                    w[bones.index("pelvis")] = 1.0
+                self.W[i] = w / w.sum()
                 continue
             w = bary @ body.W[tri][:, :self.W.shape[1]]    # the body's bones only (not his fingers')
             self.W[i] = w / max(float(w.sum()), 1e-9)

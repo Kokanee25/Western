@@ -63,7 +63,8 @@ facing its right, from behind:
        --views=front:$P/front.png,left:$P/left.png,right:$P/right.png,back:$P/back.png --unsquare=9
    ```
    → `assets/people/tripo/<man>_body_color.png`. Check `build/body_paint/<man>_body_*_fit.png`
-   (the outline over each picture; side views ~0.86 overlap is good).
+   (the outline over each picture; side views ~0.86 overlap is good). Its log's "his shorts from
+   ... to ... m" should span his shorts (-0.19 to 0.15 for the bold cowboy).
 4. **His clothes:**
    `~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>`
    → `assets/people/tripo/<man>_{coat,trousers}.glb` + `.json`. Good: "twin laid on the body:
@@ -110,7 +111,14 @@ way: the same man, triangle for triangle).
   relaxed idle curl (`HumanBody.RELAXED_BEND`: each joint bent at least that much, the game's own
   curl past it); painted in his repainted skin's colour (`MATCH` of his forearm's), laid in flat
   planes (`_planes`), lighter knuckles and darker creases (`KNUCKLE_R`). Sheets
-  `c7_skinned_hands.png`, `c8_hands_round2.png`.
+  `c7_skinned_hands.png`, `c8_hands_round2.png`. Round three (Sean: "his hands seem like
+  they're melting into the jacket", "there's more than one hand"): cloth that isn't a sleeve
+  takes none of his arms' weights (`Piece.weights_from_skin`: the skirt and trousers by his hand
+  had taken the hand's and swung with it); `Piece.clear_hands` drops a sleeve's cloth `CUFF_PAST`
+  beyond his wrist's cut and moves the skirt behind his hand, smoothly; `body_paint.py` takes no
+  picture's colour of the wrong kind (skin or cloth, `cloth_like`) or the backdrop's grey (the
+  side pictures' hands, hanging on his shorts, had been painted on his hips). Sheet
+  `c9_hands_clear.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
