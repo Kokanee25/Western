@@ -86,7 +86,10 @@ FINGER_REACH = 2.5
 BRIDGE_SHOULDER = 0.35
 # Pieces (a garment modelled alone, hung on the body): triangles after decimation, and how much
 # wider than what they go over they are scaled (room for the cloth under them).
-PIECE_TRIS = {"coat": 2600, "hat": 700}
+PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
+# A twin piece keeps its own shape (lapels, pockets, the skirt's fall): more triangles.
+TWIN_TRIS = {"coat": 6000, "trousers": 8000}
+FINGER_TRIS = 80      # a finger bone's piece (own_fingers)
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
@@ -95,6 +98,8 @@ COAT_COLLAR = 0.032
 # A piece is pushed out of his skin to this clearance, where it lies within this reach of him
 # (Tripo units: ~2 cm and ~11 cm on him).
 PIECE_CLEARANCE = 0.012
+TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
+TUCK_MAX_M = 0.03
 PIECE_REACH = 0.06
 # How many times the clearance push is averaged over neighbours before it is applied.
 PIECE_SMOOTH = 8
@@ -529,6 +534,12 @@ class TripoPerson(mp.Person):
             # neck's warp (another girth scale since HAIR_M) would bend it.
             piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
                                                      only="head" if piece.shape == "hat" else None)
+        k = float(self.spec.get("shoulders", 1.0))
+        if k != 1.0:
+            self.v = self.broaden(self.v, self.region, k, report=True)
+            for piece in self.pieces:
+                if piece.shape != "hat":
+                    piece.v = self.broaden(piece.v, piece.region, k)
 
     def face_points(self):
         """MediaPipe's face landmarks on his mesh (`<model>_face.json`, written by
@@ -723,6 +734,182 @@ class TripoPerson(mp.Person):
         self.tris = np.concatenate(tris)
         self.report["cuts_closed"] = len(runs)
 
+    def broaden(self, v, region, k, report=False):
+        """His shoulders broader by k (people.json `shoulders`; Sean, 2026-10-15: "shoulders
+        aren't broad enough") without moving a joint (the hitboxes are the anatomy's): each arm
+        moved out by D at the shoulder, fading to nothing at the wrist (his hands stay on their
+        bones, where the game's fingers are), and his upper chest and back stretched out to meet
+        them, from his neck's side to the shoulder joint, fading below the armpit. D is half of
+        (k - 1) times his width across the shoulders."""
+        o = self.our_joints()
+        sh_y = (o["r-shoulder"][1] + o["l-shoulder"][1]) * 0.5
+        sh_x = abs(o["r-shoulder"][0] - o["l-shoulder"][0]) * 0.5
+        row = np.abs(self.v[:, 1] - (sh_y - 0.05)) < 0.015
+        width = float(np.ptp(self.v[row, 0])) if row.any() else 2 * sh_x + 0.15
+        D = (k - 1.0) * width * 0.5
+        out = v.copy()
+        reg = np.asarray(region).astype(str)
+        for side in "rl":
+            a, b = o[side + "-shoulder"], o[side + "-hand"]
+            sx = np.sign(a[0])
+            arm = np.isin(reg, ["upper_arm_" + side, "forearm_" + side, "hand_" + side])
+            t = np.clip(((v - a) @ (b - a)) / max(float((b - a) @ (b - a)), 1e-9), 0, 1)
+            out[arm, 0] += sx * D * (1 - t[arm])
+        body = np.isin(reg, ["trunk", "neck"])
+        ax = np.abs(v[:, 0])
+        across = np.clip((ax - 0.06) / max(sh_x - 0.06, 1e-6), 0, 1)
+        across = across * across * (3 - 2 * across)
+        down = np.clip((v[:, 1] - (sh_y - 0.25)) / 0.19, 0, 1)
+        down = down * down * (3 - 2 * down)
+        out[body, 0] += np.sign(v[body, 0]) * D * (across * down)[body]
+        if report:
+            self.report["shoulders"] = {"k": k, "width_m": round(width, 3), "moved_m": round(D, 4)}
+        return out
+
+    def tuck_skin(self, pieces):
+        """His skin tucked under his twin garments: a garment's faces are long (Rodin's quads,
+        ~2 cm, some 10) and its flat faces cut through the round of an arm or the flare of his
+        shorts wherever its corners sit only just outside him. Each skin point the garment
+        covers (its nearest garment face within 5 cm, facing as his skin does: not the coat's
+        lining, which faces him) and that lies outside it or less than TUCK_M under it is drawn
+        in along its normal to TUCK_M under, by TUCK_MAX_M at most. Only this man's skin moves
+        (the base body is untouched), and only where he is dressed: his hands, neck and head never."""
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        trees = [BVHTree.FromPolygons([tuple(p) for p in pc.v], [tuple(int(i) for i in f) for f in pc.tris]) for pc in pieces]
+        fn = np.cross(self.v[self.tris[:, 1]] - self.v[self.tris[:, 0]], self.v[self.tris[:, 2]] - self.v[self.tris[:, 0]])
+        vn = np.zeros_like(self.v)
+        for k in range(3):
+            np.add.at(vn, self.tris[:, k], fn)
+        # One place, one move: his points come in once per face that meets there (Rodin's
+        # triangles share none), and moved apart they'd crack.
+        _u, first, weld = np.unique(np.round(self.v / 1e-6).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+        weld = weld.ravel()
+        gn = np.zeros((len(first), 3))
+        np.add.at(gn, weld, vn)
+        gn /= np.linalg.norm(gn, axis=1, keepdims=True) + 1e-12
+        bare = np.array([str(r).startswith(("hand", "head", "neck")) for r in self.region])[first]
+        gv = self.v[first].copy()
+        moved = np.zeros(len(first), bool)
+        for _ in range(2):
+            for g in np.where(~bare)[0]:
+                p = Vector(gv[g])
+                need = 0.0
+                for tree in trees:
+                    loc, nrm, _f, _d = tree.find_nearest(p, 0.05)
+                    if loc is None or float(nrm.dot(Vector(gn[g]))) < 0.3:
+                        continue
+                    need = max(need, float((p - loc).dot(nrm)) + TUCK_M)
+                if need > 0:
+                    gv[g] -= gn[g] * min(need, TUCK_MAX_M)
+                    moved[g] = True
+        self.v = gv[weld]
+        self.report["skin_tucked"] = int(moved.sum())
+
+    def own_fingers(self):
+        """His own fingers as the game's finger pieces (tools/blender/fingers.py; people.json
+        `own_fingers`): each hand's thumb and four fingers found on his mesh, cut in three, each
+        piece laid straight on its bone in the game's rest pose, and taken out of his skin; his
+        palm narrowed to the game's hand. A hand that doesn't come apart in five keeps the old way
+        (fingers cut off at the knuckles, the game's own drawn instead)."""
+        if self.spec.get("own_fingers") == "makehuman":
+            return self.makehuman_hands()
+        import fingers as FG
+        o = self.our_joints()
+        F = self.env.get("fingers", {})
+        self.finger_pieces = {}
+        drop = np.zeros(len(self.tris), bool)
+        rep = self.report.setdefault("own_fingers", {})
+        for side in "rl":
+            hand = self.region == "hand_" + side
+            w, k = o[side + "-hand"], o[side + "-knuckle"]
+            seg = FG.segment(self.v, self.tris, hand, w, k) if F else None
+            if seg is None:
+                rep[side] = "not found: the game's fingers"
+                continue
+            pos, d, weld, hv = seg["pos"], seg["d"], seg["weld"], seg["hv"]
+            label = np.full(len(pos), -1)
+            frac = np.zeros(len(pos))
+            moves = {}
+            for n, name in enumerate(FG.FINGERS):
+                ids = seg["fingers"][name]
+                fid = "%s_%s" % (name, side)
+                f, mv = FG.straighten(pos, d, ids, np.array(F[fid]["a"]), np.array(F[fid]["b"]), side)
+                label[ids] = n
+                frac[ids] = f
+                moves[fid] = mv
+            local = -np.ones(len(self.v), np.int64)
+            local[hv] = weld
+            t = local[self.tris]
+            inhand = (t >= 0).all(1)
+            lab = np.where(inhand[:, None], label[np.where(t >= 0, t, 0)], -1)
+            # A triangle goes with the finger two or more of its corners are in.
+            for n, name in enumerate(FG.FINGERS):
+                fid = "%s_%s" % (name, side)
+                mine = inhand & ((lab == n).sum(1) >= 2)
+                bone = FG.bone_of(np.nanmean(np.where(lab == n, frac[np.where(t >= 0, t, 0)], np.nan)[mine], axis=1) if mine.any() else np.zeros(0))
+                pieces = []
+                for b in range(3):
+                    tb = self.tris[mine][bone == b]
+                    used = np.unique(tb)
+                    remap = -np.ones(len(self.v), np.int64)
+                    remap[used] = np.arange(len(used))
+                    pieces.append((self.uv[used], FG.move(self.v[used], moves[fid][b]), remap[tb]))
+                self.finger_pieces[fid] = pieces
+                drop |= mine
+            # His palm to the game's hand: across his index to little knuckles, his against the anatomy's.
+            base = lambda ids: pos[ids[np.argsort(d[ids])[:max(5, len(ids) // 6)]]].mean(0)
+            his = float(np.linalg.norm(base(seg["fingers"]["index"]) - base(seg["fingers"]["little"])))
+            game = float(np.linalg.norm(np.array(F["index_" + side]["a"]) - np.array(F["little_" + side]["a"])))
+            s = float(np.clip(game / max(his, 1e-6), 0.5, 1.0))
+            palm = hand.copy()
+            palm[np.unique(self.tris[drop])] = False
+            self.v = FG.narrow_palm(self.v, palm, w, k, s)
+            rep[side] = {"palm_narrowed": round(s, 3), "finger_triangles": {n: int(sum(len(p[2]) for p in self.finger_pieces["%s_%s" % (n, side)])) for n in FG.FINGERS}}
+        self.report["faces_before_finger_cut"] = int(len(self.tris))
+        self.tris = self.tris[~drop]
+        self.report["faces_after_finger_cut"] = int(len(self.tris))
+        if any(isinstance(rep.get(sd), str) for sd in "rl"):
+            # A hand that didn't come apart: its fingers off at the knuckles as before.
+            self.cut_fingers()
+
+    def makehuman_hands(self):
+        """MakeHuman's hands for his (tools/blender/mh_hand.py; people.json own_fingers
+        "makehuman"): his own hand off his skin, MakeHuman's palm in its place and its fingers as
+        the game's finger pieces, all fitted to the game's hand and painted in his hand's colour. His own fingers, cut from Rodin's
+        coarse, half-curled, outsized hand, came out in shards."""
+        import mh_hand as MH
+        o = self.our_joints()
+        F = self.env["fingers"]
+        self.finger_pieces = {}
+        rep = self.report.setdefault("own_fingers", {"from": "makehuman"})
+        for side in "rl":
+            hand = self.region == "hand_" + side
+            his = np.nonzero(hand)[0]
+            palm, ptris, fingers = MH.place(side, o, F)
+            # One colour, his hand's: the UV of his hand's point nearest its median colour (his
+            # own hand's paint, laid by nearest point, came out a patchwork of his palm and
+            # fingers; the light gives the new hand its shape).
+            img = np.asarray(self.colour, dtype=np.float64) / 255.0
+            hgt, wid = img.shape[:2]
+            uvh = self.uv[his]
+            col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
+            uv0 = uvh[int(np.argmin(np.linalg.norm(col - np.median(col, 0), axis=1)))]
+            uv_of = lambda pts: np.tile(uv0, (len(pts), 1))
+            for fid, pieces in fingers.items():
+                self.finger_pieces[fid] = [(uv_of(pts), pts, tt) for pts, tt in pieces]
+            gone = hand[self.tris].any(axis=1)    # every triangle that touches his hand: no slivers
+            self.tris = self.tris[~gone]
+            n0 = len(self.v)
+            self.v = np.vstack([self.v, palm])
+            self.v_tripo = np.vstack([self.v_tripo, palm])
+            self.uv = np.vstack([self.uv, uv_of(palm)])
+            self.region = np.concatenate([self.region, np.full(len(palm), "hand_" + side, dtype=self.region.dtype)])
+            self.head = np.concatenate([self.head, np.zeros(len(palm), bool)])
+            self.tris = np.vstack([self.tris, ptris + n0])
+            rep[side] = {"his_hand_triangles_off": int(gone.sum()), "palm_triangles": int(len(ptris)),
+                         "finger_triangles": {fid: int(sum(len(t) for _u, _p, t in pc)) for fid, pc in self.finger_pieces.items() if fid.endswith(side)}}
+
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
         v = self.v
@@ -780,22 +967,35 @@ class TripoPerson(mp.Person):
 
     def run(self):
         self.warp()
-        if "model" not in self.spec:
+        if "model" not in self.spec and "coat" not in self.spec.get("pieces", {}):
             # A whole man's coat skirt is in his skin; a layered man's body wears trousers, and
-            # the rule would hand their legs to his pelvis.
+            # the rule would hand their legs to his pelvis (a base body wears its coat as a piece).
             self.skirt()
         if self.bare:
             self.cut_bridges()
             self.close_cuts()
-        self.cut_fingers()
+        if self.spec.get("own_fingers"):
+            self.own_fingers()
+        else:
+            self.cut_fingers()
         self.skin_tone()
         self.weights()
         for piece in self.pieces:
-            if piece.shape == "coat":
+            if piece.shape == "coat" and not piece.twin:
                 piece.as_shell()
+            elif piece.shape == "coat":
+                # The skirt hangs from his hips, as the shell's does.
+                piece.region[np.isin(piece.region, ["thigh_r", "thigh_l"])] = "trunk"
+            if piece.twin:
+                piece.clear_twin()
             if piece.shape == "hat":
                 piece.region[:] = "head"
             mp.Person.weights(piece)
+            if piece.twin:
+                piece.weights_from_skin()
+        twins = [pc for pc in self.pieces if pc.twin]
+        if twins:
+            self.tuck_skin(twins)
 
 
 class Piece:
@@ -818,6 +1018,14 @@ class Piece:
         self.region = None
         self.our_joints = body.our_joints
         self.report = body.report.setdefault("piece_" + shape, {})
+        # A twin piece (tools/characters/twin_pieces.py: cut from his dressed twin, Rodin's same
+        # man in clothes) comes laid on this body already: carried as it is, not placed by
+        # landmarks nor rebuilt as a shell.
+        side = os.path.join(TRIPO, cid + ".json")
+        self.twin = os.path.exists(side) and json.load(open(side)).get("twin") == body.spec.get("rodin", "").split("/")[-1].replace("_rodin", "")
+        self.report["twin"] = self.twin
+        if self.twin:
+            return
         self.v, self.uv, self.tris = drop_scraps(self.v, self.uv, self.tris, self.report)
         if shape == "coat":
             self._drop_lining()
@@ -880,6 +1088,8 @@ class Piece:
     def place(self):
         """Scale and move the piece in the body's Tripo space (before the warp)."""
         body, v = self.body, self.v
+        if self.twin:
+            return
         y0, y1 = v[:, 1].min(), v[:, 1].max()
         h = y1 - y0
         if self.shape == "hat":
@@ -989,6 +1199,58 @@ class Piece:
         self.region = region
         self.report["shell_vertices"] = int(len(used))
         self.report["shell_faces"] = int(len(self.tris))
+
+    def clear_twin(self):
+        """A twin piece out of his warped skin: the warp moves a sleeve and the arm under it by a
+        little more or less (each point's bones blended by its own distance), so up to a few
+        centimetres of cloth end under the skin. Each point set PIECE_CLEARANCE outside the
+        nearest point of his skin's surface, along that face's normal (twice: a push can bring it
+        nearer another face)."""
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        body = self.body
+        bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
+        pushed = np.zeros(len(self.v), bool)
+        for _ in range(2):
+            for i in range(len(self.v)):
+                loc, nrm, _f, _d = bvh.find_nearest(Vector(self.v[i]), PIECE_REACH)
+                if loc is None:
+                    continue
+                sd = float((Vector(self.v[i]) - loc).dot(nrm))
+                if sd < PIECE_CLEARANCE:
+                    self.v[i] = self.v[i] + np.array(nrm) * (PIECE_CLEARANCE - sd)
+                    pushed[i] = True
+        self.report["pushed_out_after_warp"] = int(pushed.sum())
+
+    def weights_from_skin(self):
+        """A twin piece bends as the skin under it does: each point takes the weights (and the
+        body part) of the nearest point of his skin's surface, the three corners' weights by
+        where on the face it lies; by its own region's weights a sleeve and the arm in it bent
+        apart and the arm came through. The coat's skirt keeps its own (from his hips: a skirt
+        that took his thighs' would split like trousers)."""
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        body = self.body
+        bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
+        took = 0
+        for i in range(len(self.v)):
+            loc, _n, f, _d = bvh.find_nearest(Vector(self.v[i]))
+            if f is None:
+                continue
+            tri = body.tris[f]
+            a, b, c = body.v[tri]
+            p = np.array(loc)
+            m = np.array([b - a, c - a]).T
+            uv_ = np.linalg.lstsq(m, p - a, rcond=None)[0]
+            bary = np.clip(np.array([1 - uv_.sum(), uv_[0], uv_[1]]), 0, 1)
+            bary /= max(bary.sum(), 1e-9)
+            reg = body.region[tri[int(np.argmax(bary))]]
+            if self.shape == "coat" and str(reg).startswith(("thigh", "shin", "foot")):
+                continue
+            self.W[i] = bary @ body.W[tri]
+            self.region[i] = reg
+            took += 1
+        self.report["weights_from_skin"] = took
 
     def _clear_body(self):
         """Whatever of the piece lies inside him, or nearer his skin than PIECE_CLEARANCE, is pushed
@@ -1151,9 +1413,37 @@ def build_blender(person):
     skin = make("skin", person.tris[~head_tris], budget.get("skin", TRI_BUDGET))
     made = [skin, head]
     for piece in person.pieces:
-        made.append(make(piece.shape, piece.tris, PIECE_TRIS.get(piece.shape, 1500), piece))
+        made.append(make(piece.shape, piece.tris, (TWIN_TRIS if piece.twin else PIECE_TRIS).get(piece.shape, 1500), piece))
     person.report["triangles"] = {o.name.split("_", 1)[1]: sum(len(p.vertices) - 2 for p in o.data.polygons)
                                   for o in made}
+    # His own fingers (own_fingers): each bone's piece a plain mesh in the game's rest pose, not
+    # skinned (HumanBody hangs it on that finger bone), named finger_<finger>_<side>_<bone>.
+    for fid, pieces in getattr(person, "finger_pieces", {}).items():
+        for b, (uvs, pos, tris) in enumerate(pieces):
+            if not len(tris):
+                continue
+            mesh = bpy.data.meshes.new("finger_%s_%d" % (fid, b))
+            mesh.from_pydata([mp.to_blender(p) for p in pos], [], [[int(i) for i in t] for t in tris])
+            uvl = mesh.uv_layers.new(name="UVMap")
+            for poly in mesh.polygons:
+                poly.use_smooth = True
+                for li in poly.loop_indices:
+                    u, vv = uvs[mesh.loops[li].vertex_index]
+                    uvl.data[li].uv = (u, 1.0 - vv)
+            obj = bpy.data.objects.new("finger_%s_%d" % (fid, b), mesh)
+            bpy.context.scene.collection.objects.link(obj)
+            if len(tris) > FINGER_TRIS:
+                # Welded first (seams would open), then thinned: a finger is a few pixels.
+                import bmesh
+                bm = bmesh.new()
+                bm.from_mesh(mesh)
+                bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+                bm.to_mesh(mesh)
+                bm.free()
+                mod = obj.modifiers.new("decimate", "DECIMATE")
+                mod.ratio = FINGER_TRIS / max(len(mesh.polygons), 1)
+                bpy.context.view_layer.objects.active = obj
+                bpy.ops.object.modifier_apply(modifier="decimate")
 
 
 def export(person):
