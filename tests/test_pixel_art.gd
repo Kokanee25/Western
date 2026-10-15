@@ -42,18 +42,25 @@ func test_member_uvs_follow_the_grain() -> void:
 	check(MemberMesh.box(size) == mesh, "meshes are shared per size")
 
 
+## The game's woods (PixelArt.WOODS_SET, 2026-10-15) keep to the world's grid at four times its
+## density (128 a metre at 32); every other material at the world's own.
+func _grain(wood: StringName) -> float:
+	var t := PixelArt.factory("%s_b0" % wood)
+	return 4.0 if t and t.resource_path.contains("/%s/" % PixelArt.WOODS_SET) else 1.0
+
+
 func test_texel_density_is_the_same_everywhere() -> void:
 	for wood in [&"weathered_pine", &"framing", &"painted_ochre", &"floor"]:
 		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
 		check(m != null and m.shader == PixelArt.GRID_SHADER, "%s: on the texel grid" % wood)
-		check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter, 0.001, "%s: %d texels per metre" % [wood, PixelArt.texels_per_meter])
+		check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter * _grain(wood), 0.001, "%s: %d texels per metre (x%d)" % [wood, PixelArt.texels_per_meter, _grain(wood)])
 		check_eq(m.get_shader_parameter(&"use_mipmaps"), PixelArt.use_mipmaps, "%s: smoothing follows the setting" % wood)
 
 
 func test_texel_size_changes_live() -> void:
 	var m := WoodMaterials.get_material(&"framing", 1) as ShaderMaterial
 	PixelArt.set_density(16.0, false)
-	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0, 0.001, "existing materials follow the new density")
+	check_near(m.get_shader_parameter(&"texels_per_meter"), 16.0 * _grain(&"framing"), 0.001, "existing materials follow the new density")
 	check(not m.get_shader_parameter(&"use_mipmaps"), "no mipmaps: crunchy")
 	PixelArt.set_density(32.0, true)
 	check(m.get_shader_parameter(&"use_mipmaps"), "and back")
@@ -66,7 +73,7 @@ func test_holed_members_stay_on_the_grid() -> void:
 	check(holed.get_shader_parameter(&"albedo_tex") == base.get_shader_parameter(&"albedo_tex"), "same texture")
 	check_eq(holed.get_shader_parameter(&"uv_offset"), base.get_shader_parameter(&"uv_offset"), "same offset, so the board doesn't jump")
 	PixelArt.set_density(24.0, false)
-	check_near(holed.get_shader_parameter(&"texels_per_meter"), 24.0, 0.001, "follows the density")
+	check_near(holed.get_shader_parameter(&"texels_per_meter"), 24.0 * _grain(&"floor"), 0.001, "follows the density")
 	PixelArt.set_density(32.0, true)
 
 

@@ -71,6 +71,55 @@ const DRAWN_DENSITY := {"shot_table": 128.0}
 ## 2026-10-12: "the squares don't read"), so the ground lays it at this whatever the look's density.
 const DRAWN_ROAD_TEXELS := 16.0
 static var use_drawn := true
+## The material lab's woods (tools/textures/paint_woods.py, tools/material_lab.gd; 2026-10-14, Sean's
+## brief: an experiment, off in the game): with it on, a key with a lab texture is drawn from it,
+## at DRAWN_TEXELS, its boards' long edges a dark seam on one side and a lit lip on the other
+## (texel_grid edge_lip), as the exterior wood sheet draws them.
+const LAB_PATH := "res://assets/textures/%s/%s.png"
+const LAB_EDGE_SHADE := 0.32
+const LAB_EDGE_LIP := 1.4
+static var lab := false
+## Which lab set: "lab" (paint_woods.py, the first, squares) or "lab2" (grain_woods.py, the timber
+## pass: 128 texels a metre, mipmapped, never coarsened, end grain on LabGeometry's ends).
+static var lab_set := "lab"
+## The game's woods (Sean chose the material lab's final candidate C, 2026-10-15; docs/briefs/
+## material-lab-timber.md): tools/textures/grain_woods.py --set=woods -> assets/textures/woods/,
+## the woods its lab.json lists drawn from it whatever the look (timber, floor, the red and pale
+## sidings, weathered pine, framing, dark trim): coherent boards at 128 texels a metre, mipmapped,
+## never coarsened, end grain and worn paint ends where a member's mesh flags them. Off: the woods
+## as before (drawn/, the factory).
+const WOODS_SET := "woods"
+static var woods := true
+## Each set's lab.json woods, read once: {set: {wood: entry}}.
+static var _sets := {}
+
+
+## A set's woods (assets/textures/<set>/lab.json "woods"), {} if it has none.
+static func _set_woods(set: String) -> Dictionary:
+	if not _sets.has(set):
+		var jp := "res://assets/textures/%s/lab.json" % set
+		var woods_of := {}
+		if FileAccess.file_exists(jp):
+			var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
+			if info is Dictionary:
+				woods_of = (info as Dictionary).get("woods", {})
+		_sets[set] = woods_of
+	return _sets[set]
+
+
+## Whether the lab set paints this wood (assets/textures/<lab_set>/lab.json).
+static func _lab_has(wood: String) -> bool:
+	return _set_woods(lab_set).has(wood)
+
+
+## A set's wood's entry (its lab.json): texels_per_metre, end_texels, end_wear...
+static func _wood_info(set: String, key: String) -> Dictionary:
+	return _set_woods(set).get(_wood_of(key), {})
+
+
+## A lab wood's squares a metre (assets/textures/<lab_set>/lab.json), DRAWN_TEXELS if unsaid.
+static func lab_density(key: String, set := "") -> float:
+	return float(_wood_info(set if set != "" else lab_set, key).get("texels_per_metre", DRAWN_TEXELS))
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -90,6 +139,41 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
 		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
+	elif tex and tex.resource_path.contains("/textures/lab/"):
+		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
+		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
+		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
+	elif tex and (tex.resource_path.contains("/textures/lab2/") or tex.resource_path.contains("/textures/lab3/")
+			or tex.resource_path.contains("/textures/lab4/") or tex.resource_path.contains("/textures/%s/" % WOODS_SET)):
+		# The timber pass (lab2) and its finish (lab3): fine texels, mipmapped (far off they
+		# average, not shimmer), never coarsened into squares, the edges a soft line, end grain
+		# where LabGeometry flags an end; lab3's painted woods worn to bare wood near board ends.
+		var key := tex.resource_path.get_file().get_basename()
+		var dir := tex.resource_path.get_base_dir()
+		var set := dir.get_file()
+		m.set_shader_parameter(&"fixed_squares", true)
+		if set == WOODS_SET:
+			# The game's woods keep to the world's texel grid at a fixed multiple of it (128 a
+			# metre at the default 32), so F7's texel size and the mipmap setting move them too.
+			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
+		else:
+			m.set_meta(&"texels", lab_density(key, set))
+			m.set_meta(&"mipmaps", true)
+		m.set_shader_parameter(&"edge_shade", 0.78)
+		m.set_shader_parameter(&"edge_lip", 1.1)
+		var end := "%s/%s_end.png" % [dir, _wood_of(key)]
+		if ResourceLoader.exists(end):
+			m.set_shader_parameter(&"end_tex", load(end))
+			m.set_shader_parameter(&"use_end_tex", true)
+		var et := float(_wood_info(set, key).get("end_texels", 0.0))
+		if et > 0.0:
+			m.set_meta(&"end_scale", et / lab_density(key, set))
+			m.set_shader_parameter(&"end_texels", et)
+		var bare := "%s/%s_bare.png" % [dir, _wood_of(key)]
+		var wear := float(_wood_info(set, key).get("end_wear", 0.0))
+		if wear > 0.0 and ResourceLoader.exists(bare):
+			m.set_shader_parameter(&"wear_tex", load(bare))
+			m.set_shader_parameter(&"end_wear", wear)
 	return track(m)
 
 
@@ -97,8 +181,9 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
 	var m := base.duplicate() as ShaderMaterial
 	m.shader = hole_shader()
-	if base.has_meta(&"texels"):
-		m.set_meta(&"texels", base.get_meta(&"texels"))
+	for k in [&"texels", &"texels_scale", &"end_scale", &"mipmaps"]:
+		if base.has_meta(k):
+			m.set_meta(k, base.get_meta(k))
 	return track(m)
 
 
@@ -150,8 +235,11 @@ static func set_density(texels: float, mipmaps: bool) -> void:
 
 
 static func _apply(m: ShaderMaterial) -> void:
-	m.set_shader_parameter(&"texels_per_meter", m.get_meta(&"texels", texels_per_meter))
-	m.set_shader_parameter(&"use_mipmaps", use_mipmaps)
+	var tpm: float = m.get_meta(&"texels", texels_per_meter * float(m.get_meta(&"texels_scale", 1.0)))
+	m.set_shader_parameter(&"texels_per_meter", tpm)
+	if m.has_meta(&"end_scale"):
+		m.set_shader_parameter(&"end_texels", tpm * float(m.get_meta(&"end_scale")))
+	m.set_shader_parameter(&"use_mipmaps", m.get_meta(&"mipmaps", use_mipmaps))
 	if smooth:
 		m.set_shader_parameter(&"smooth_source", true)
 
@@ -172,6 +260,16 @@ static var _cache := {}
 static func factory(key: String) -> Texture2D:
 	if not use_factory:
 		return null
+	if lab and ResourceLoader.exists(LAB_PATH % [lab_set, key]):
+		return load(LAB_PATH % [lab_set, key]) as Texture2D
+	if lab and _lab_has(_wood_of(key)):
+		# A wood the lab set paints is all the lab's: no falling back to production's strips past
+		# the lab's last board (WoodMaterials counts strips until one is missing).
+		return null
+	if woods and not lab and not smooth and _set_woods(WOODS_SET).has(_wood_of(key)):
+		# The game's woods: likewise all theirs.
+		var wp := LAB_PATH % [WOODS_SET, key]
+		return load(wp) as Texture2D if ResourceLoader.exists(wp) else null
 	if use_drawn and not smooth and (bold or _wood_of(key) in DRAWN_ALWAYS) and ResourceLoader.exists(DRAWN_PATH % key):
 		return load(DRAWN_PATH % key) as Texture2D
 	var path := (SMOOTH_PATH if smooth else BOLD_PATH if bold else FACTORY_PATH) % key
