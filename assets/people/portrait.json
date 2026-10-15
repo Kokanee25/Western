@@ -326,7 +326,16 @@
     "shape_rounds": 1,
     "delight": 0.15
    },
-   "_note": "As bold_cowboy_painterly with the paintings' own light kept (delight 0.15), to be drawn self-lit."
+   "_note": "As bold_cowboy_painterly with the paintings' own light kept (delight 0.15), to be drawn self-lit. painted_look: the art session's v5 (docs/screenshots/painted_light/README.md), his head in painted mode in the game.",
+   "painted_look": {
+    "self_lit": 0.12,
+    "paint_gain": 1.6,
+    "paint_wrap": 0.25,
+    "paint_limit": 1.6,
+    "light_steps": 0,
+    "paint_ambient": 0.5,
+    "paint_tint": 0.75
+   }
   },
   "bold_cowboy_body": {
    "pictures": "docs/concept/style/factory/bold_cowboy_body",

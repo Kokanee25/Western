@@ -112,6 +112,16 @@ def clip_part(V, T, UV, pts):
     return np.concatenate(V2), np.concatenate(T2), np.concatenate(UV2)
 
 
+def write_painted(pid, paint, look):
+    """His head drawn in the skin shader's painted mode in the game (docs/briefs/painted-light.md):
+    <pid>_paint.json (the head's paint over all its UVs, and his own `look`: the painted mode's
+    values, laid over HumanBody.paint_look) and <pid>_paint_head.png, read by people_bodies.gd."""
+    shutil.copy(paint, os.path.join(mp.OUT, pid + "_paint_head.png"))
+    doc = {"note": "Painted mode for his head (rodin_portrait_build.write_painted, portrait.json painted_look).",
+           "shapes": {"head": {"uv_rect": [0, 0, 1, 1], "texels_per_square": 1}}, "look": look}
+    json.dump(doc, open(os.path.join(mp.OUT, pid + "_paint.json"), "w"), indent=1)
+
+
 def build(man, spec):
     pid = man + "_rodin"
     mesh = np.load(os.path.join(RP.WORK, man + "_mesh.npy"), allow_pickle=True).item()
@@ -309,6 +319,8 @@ def build(man, spec):
     finally:
         FB.mp.export = export
     shutil.copy(paint, os.path.join(mp.OUT, pid + "_head.png"))
+    if spec.get("painted_look"):
+        write_painted(pid, paint, spec["painted_look"])
     for part in ("hat", "hat_brim", "hat_band"):
         src = os.path.join(RP.WORK, "%s_%s.png" % (man, part))
         if spec.get("hat") and spec["hat"].get("wear", True) and os.path.exists(src):

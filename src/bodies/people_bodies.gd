@@ -16,8 +16,9 @@ const TEXTURE_PATH := "res://assets/people/%s_%s.png"
 static var smooth_paint := false
 ## What make_people.py did for him (and what it measured, like his skin tone).
 const REPORT_PATH := "res://assets/people/%s.json"
-## His painted textures (tools/paint_bake.gd + tools/paint/finish.py): per shape, the texture
-## <id>_paint_<shape>.png and the rect of the shape's UVs it covers.
+## His painted textures (tools/paint_bake.gd + tools/paint/finish.py, or
+## rodin_portrait_build.write_painted): per shape, the texture <id>_paint_<shape>.png and the rect
+## of the shape's UVs it covers; and his own `look` (the painted mode's values), if he has one.
 const PAINT_PATH := "res://assets/people/%s_paint.json"
 ## Garments an outfit turns on or off (the rest of a generated body is always worn).
 const OUTFIT_KEYS := ["shirt", "vest", "coat", "trousers", "boots", "bandana", "hat"]
@@ -81,6 +82,11 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if FileAccess.file_exists(PAINT_PATH % model):
 		var p: Variant = JSON.parse_string(FileAccess.get_file_as_string(PAINT_PATH % model))
 		if p is Dictionary:
+			# His own painted look (the painted mode's values), over HumanBody.paint_look's.
+			var own := {}
+			for k: String in ((p as Dictionary).get("look", {}) as Dictionary):
+				own[StringName(k)] = float(p.look[k])
+			out["paint_look"] = own
 			for shape: String in ((p as Dictionary).get("shapes", {}) as Dictionary):
 				var png := TEXTURE_PATH % [model, "paint_" + shape]
 				if shapes.has(shape) and ResourceLoader.exists(png):
