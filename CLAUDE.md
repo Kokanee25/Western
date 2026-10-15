@@ -277,27 +277,21 @@ green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) an
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
 
-**Art** (branch `claude/art-…`; brief: Sean's four jobs of 2026-10-12, all four done):
-- Done: job 1, the mosaic (build 956: the road from the painting's squares at 16/m, bolder drawn
-  wood, the table at 128/m); job 2, his face (build 960: side key, `weathered_face`); job 3, the
-  light (#109: the gold sky warm, a gold sun in the notch, the room's lamps up); job 4, the shots'
-  own extras. Judge v2: saloon 0.423, street 0.713 (notes; Sean's eye is the gate). Sheets in
-  `docs/screenshots/review/`.
-- Next: the critic's top three (round r7): the saloon's standing men block the room and read as
-  mannequins; the road loud static (calmer far off and at noon). Done since: faces held under
-  `light_cap` (`body_skin`; saloon 0.306 → 0.233; `tools/face_light.py` measures a face's light). Then the
-  saloon's square size (~20 px to the painting's ~5). Done since: the saloon's darks back (haze,
-  lamp glow, fill, exposure; judge saloon 0.306).
-- Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
-  goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
-  folk cost ~43 meshes each (~50 to spare).
-- Done since: the game's woods are the material lab's C (Sean's pick, 2026-10-15; brief
-  `docs/briefs/material-lab-timber.md`; the lab's record on `claude/art-material-lab`).
-- Done since: roadmap 1.1, the targets (`docs/concept/targets/`, each with its three gaps).
-- Next: roadmap 1.2, faces in the game's light: art's shader half done (`paint_tint`, the v5 look,
-  `docs/screenshots/painted_light/`); waits on characters drawing the painterly man painted, with a
-  per-model look, then the in-game sheet. The built boardwalk is in `docs/BACKLOG.md`.
-- Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
+**Art** (branch `claude/art-…`; the roadmap's steps; targets in `docs/concept/targets/`):
+- Done: the woods are the material lab's C (2026-10-15); roadmap 1.1, the targets; 1.2's shader
+  half (`paint_tint`, v5) and its in-game sheet (`docs/screenshots/painted_light/in_game.jpg`: the
+  painted cowboy holds in the saloon, face light 1.03; in the street at golden hour 0.61, too dark
+  and red, `paint_tint` under the orange sun the likely cause); 1.4 merge 1, surfaces to the man
+  (woods drawn in his 32/m squares, the road at 32/m square on screen and calming far off, ruts;
+  `tools/surface_squares.py`, sheets in `docs/screenshots/surfaces/`).
+- Next: 1.4's road to Sean's new target (`targets/6_road_target.jpg`): relief in the low sun (a
+  height for ruts and ridges, lit and shadowed in `ground.gdshader`), real stones; small squares
+  kept, drawn in code unless Sean says otherwise. Footprints are gameplay's (`docs/BACKLOG.md`).
+  Then 1.2's street light if Sean wants him lighter. Critic r2's top: the saloon's standing men,
+  the street's mauve sky and weak sun.
+- Known: a full golden render is ~2.5 h on lavapipe (batches of 24, `golden_check.py --render
+  --only=`); `pgrep -f` in a watch matches the watch itself (use `[o]ut=`).
+- Waiting on Sean: squares or smooth on the road; his eye on the sheets.
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
 - On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the

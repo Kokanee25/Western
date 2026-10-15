@@ -14,3 +14,8 @@ Sean picks from it between steps. Bigger ideas already filed: DESIGN.md §11 "Ba
   joints, tilted lap siding), as real members in `boardwalk.gd`/`member_mesh.gd` (gameplay's),
   with collision and the voxel mesher. Drawn and costed in the lab (LabGeometry levels 2-3,
   `claude/art-material-lab`); the production list is in `docs/briefs/material-lab-timber.md`.
+- 2026-10-15 (Sean, with the road's new target `docs/concept/targets/6_road_target.jpg`):
+  **footprints from people actually walking**, boot and hoof prints left in the street's dirt
+  where people and horses step (not painted into the road). Gameplay's: where feet land; art can
+  draw a print once given where. The road's relief (ruts, ridges, stones in the low sun) is art's,
+  roadmap 1.4's follow-up.
