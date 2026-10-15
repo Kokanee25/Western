@@ -61,18 +61,44 @@ factory man's: skin 5k, head 12k, coat 2.2k).
 Sean's eye on sheets beside his paintings (`fidelity_compare.py` numbers alongside: tones,
 lightness, contrast, chroma, block size). The art session judges him in the shots.
 
+## Shared bodies, swappable heads (Sean, 2026-10-15: "option 2")
+
+Skyrim's way: a few **base bodies** (average first, from the bold cowboy's pictures; lean and
+heavyset later) and every **head cut to one standard neck ring**, so any head goes on any body
+and clothes are made once per body type.
+
+- **The neck ring:** a fixed loop round the neck, between the jaw and the collarbones, defined on
+  the game's skeleton (`envelope.json`: the neck bone, a height above the shoulders and a section
+  shape). Every base body is cut there; every head is cut there too and its last few centimetres
+  pulled onto the ring (position and shape), so the seam closes with no gap or step.
+  `rodin_portrait_build.py` already scales each head to the anatomy's eyes and trims its neck
+  (`neck_cut` "smooth"); the ring makes that trim the same for everyone.
+- **Skin at the seam:** each head's neck paint blended to the body's skin colour over the last
+  2 cm; the body's skin tinted to the head's (`skin_from_paint`, already measured per man).
+- **The body's head** (Rodin builds his body with a head on) is cut off at the ring; the bold
+  cowboy's own head goes back on through the ring like anyone's, so the swap is tested on day one.
+- **Clothes per body type:** each garment made once on a base body, sized to its shape; a man of
+  that type wears it as is. A new body type gets the wardrobe refitted (`clothes.py` shapes from
+  whatever body it's given).
+- **A new man then needs:** head pictures (four plain, five portraits; Rodin bust $1.60) and a
+  body type. His entry in `portrait.json` names his `body` ("average" ...).
+
 ## Steps and cost
 
-1. Rodin builds his body from the four plain pictures (People workflow, `style: rodin`;
+1. Rodin builds the average body from the four plain pictures (People workflow, `style: rodin`;
    $1.60, total ~$6.86 of $15).
-2. Fit it to the skeleton (a `fit_tripo.py` mode for an undressed Rodin body); render him bare in
-   the lab (`art_lab.gd`).
-3. His head painted onto it (the projection on the whole body's head).
-4. The coat: shaped on his body, painted from the paintings; sheet. Then shirt, vest, trousers.
-5. Each step on its own trial entry in `portrait.json`; nothing replaces the approved men until
+2. Fit it to the skeleton (a `fit_tripo.py` mode for an undressed Rodin body); define the neck
+   ring; cut the body there; render it bare in the lab (`art_lab.gd`).
+3. Heads through the ring: the bold cowboy's (both styles), then the older and young men's
+   existing busts on the same body, as the proof that any head fits.
+4. The coat: shaped on the average body, painted from the paintings; sheet. Then shirt, vest,
+   trousers, boots.
+5. Lean and heavyset bodies (two more Rodin bodies, $3.20, Sean's go) and the wardrobe refitted.
+6. Each step on its own trial entry in `portrait.json`; nothing replaces the approved men until
    Sean says.
 
 ## Not in this brief
 
 Changing the game's lighting (the art session's: faces' tones and saturation under its lamps,
-measured in `character-style-fidelity.md`); the other two men; women; a wardrobe for the town.
+measured in `character-style-fidelity.md`); women (their own base bodies, later); a wardrobe for
+the town beyond the first outfit.
