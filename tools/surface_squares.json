@@ -1,5 +1,5 @@
 {
- "about": "tools/surface_squares.py's crops (x0, y0, x1, y1 in the 1280x720 render): the man (the yardstick: the portrait man's face and coat in shot_match_close, rendered with --model=bold_cowboy_portrait) and the surfaces round him, near and far. Roadmap 1.4, art, 2026-10-15.",
+ "about": "tools/surface_squares.py's crops (x0, y0, x1, y1 in the 1280x720 render): the man (the yardstick: the painterly cowboy's face and coat in shot_match_close, rendered with --model=bold_cowboy_painterly_lit_rodin, drawn painted since #124) and the surfaces round him, near and far. Roadmap 1.4, art, 2026-10-15.",
  "targets": {
   "shot_match_close": "docs/concept/targets/1_man_at_table_target.jpg",
   "shot_match_saloon": "docs/concept/targets/2_saloon_night_target.jpg",
@@ -10,9 +10,9 @@
  },
  "views": {
   "shot_match_close": [
-   {"name": "man_cheek", "box": [560, 330, 640, 390], "what": "the man's cheek, ~1 m"},
-   {"name": "man_coat", "box": [380, 520, 540, 660], "what": "the man's coat, ~1 m"},
-   {"name": "table", "box": [960, 680, 1280, 720], "what": "the table's top, ~0.8 m"},
+   {"name": "man_cheek", "box": [656, 336, 712, 400], "what": "the man's cheek, ~1 m"},
+   {"name": "man_coat", "box": [304, 480, 480, 640], "what": "the man's coat, ~1 m"},
+   {"name": "table", "box": [960, 656, 1280, 720], "what": "the table's top, ~0.8 m"},
    {"name": "wall_back", "box": [0, 0, 150, 130], "what": "the back wall's boards, ~8 m"},
    {"name": "floor", "box": [0, 610, 140, 720], "what": "the floor's planks, ~3 m"}
   ],
