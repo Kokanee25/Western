@@ -775,12 +775,25 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 		last[fid] = i
 
 
+## A skinned hand at rest is a little curled, as a hand hangs (the drawn fingers hung dead straight;
+## his paintings' hands curl): each joint bent at least this much (degrees, knuckle out); the
+## game's own curl takes over past it.
+const RELAXED_BEND := [28.0, 38.0, 24.0]
+const RELAXED_THUMB := [10.0, 20.0, 14.0]
+
+
 func _pose_fingers() -> void:
 	for e: Dictionary in _finger_rig:
 		var bend := Basis.IDENTITY
 		var gone := not fingers.has(e.fid)
 		if not gone:
-			bend = (finger_bones[e.fid][e.k] as Node3D).basis.orthonormalized()
+			var node := finger_bones[e.fid][e.k] as Node3D
+			var sx := -1.0 if String(e.fid).ends_with("_r") else 1.0
+			var rest: float = deg_to_rad((RELAXED_THUMB if String(e.fid).begins_with("thumb") else RELAXED_BEND)[e.k])
+			var angle := node.rotation.z
+			if absf(angle) < rest:
+				angle = sx * rest
+			bend = Basis(Vector3(0, 0, 1), angle)
 		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle

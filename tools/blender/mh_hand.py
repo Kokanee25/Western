@@ -230,7 +230,7 @@ def _turn(u, w):
     return np.eye(3) + s * K + (1 - c) * K @ K
 
 
-def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
+def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
     """His hand painted in his own skin: an image (size x size, 0..1), and the palm and the
     fingers' pieces again ((points, triangles, UV in the image 0..1), each triangle its own
     corners) laid out in it.
@@ -341,11 +341,18 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
     tris_c = np.arange(len(corner)).reshape(-1, 3)
     pts_c = pts[corner]
     table = {tuple(int(i) for i in t): [tuple(cu[i]) for i in t] for t in tris_c}
-    vals = np.c_[ao, palmness, nail][corner]
+    # Knuckles: the backs of the finger joints a lighter plane, their palm side a darker crease.
+    knuck = np.zeros(len(pts))
+    for jp in joints:
+        near = np.clip(1.0 - np.linalg.norm(pts - jp, axis=1) / KNUCKLE_R, 0, 1)
+        knuck = np.maximum(knuck, near)
+    back = np.clip((nrm @ -palm_dir - 0.2) / 0.5, 0, 1)
+    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness][corner]
     M, cover = P.raster_uv(table, [list(map(int, t)) for t in tris_c], vals, size)
     _d, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
     M = M[iy, ix]
     ao_t, palm_t, nail_t = M[..., 0], M[..., 1], ndimage.gaussian_filter(M[..., 2], 1.0)
+    kn_t, cr_t = M[..., 3], M[..., 4]
     base = np.asarray(base, float)
     # Brushwork: low-frequency light and warm/cool shifts, a little finer grain.
     noise = lambda s: ndimage.zoom(rng.normal(size=(s, s)), size / s, order=3)[:size, :size]
@@ -357,10 +364,16 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
     pink = np.array([1.08, 0.98, 0.95])
     col = col * (1 - 0.35 * palm_t[..., None]) + (col * 1.12 * pink) * (0.35 * palm_t[..., None])
     col *= (0.45 + 0.55 * np.clip(ao_t, 0, 1) ** 0.8)[..., None]
+    col *= (1.0 + 0.16 * kn_t - 0.22 * cr_t)[..., None]
     nail_col = np.clip(base * 1.3 + 0.08, 0, 1) * np.array([1.0, 0.92, 0.88])
     rim = np.clip(nail_t * (1 - nail_t) * 4 - 0.5, 0, 1)
     col = col * (1 - nail_t[..., None]) + nail_col * nail_t[..., None]
     col *= (1 - 0.25 * rim)[..., None]
+    col = _planes(col, cover, rng, size)
+    # Back onto his forearm's colour overall (the palm's lightening and pink pulled it paler and
+    # greyer than his arm: a step at the wrist), a little darker for the hand's own shadow.
+    med = np.median(col[cover], axis=0)
+    col = col * (base * MATCH / np.maximum(med, 1e-6))[None, None]
     # The pieces again, each triangle its own corners, with their place in this paint (0..1).
     out, n0 = [], 0
     for k, pc in enumerate(pieces):
@@ -565,7 +578,8 @@ def taper(pts, his_ring, mh_ring, centre, ax, ref, reach, swell):
     return centre + h[:, None] * ax + flat * k[:, None]
 
 
-CHUNK = 1.12        # the skinned hand's fingers this much thicker than MakeHuman's (his are working hands)
+CHUNK = 1.2         # the skinned hand's fingers this much thicker than MakeHuman's (his are working hands)
+HAND_SCALE = 1.15   # and the whole hand this much bigger, about the wrist (his paintings' hands are big)
 JOINT_BLEND = 0.007  # metres either side of a finger joint over which the bones share the skin
 
 
@@ -608,6 +622,9 @@ def skinned(side, ours, fingers_env):
     M, *_ = np.linalg.lstsq(np.c_[np.array(src), np.ones(len(src))], np.array(dst), rcond=None)
     affine = lambda x: np.c_[x, np.ones(len(x))] @ M
     q = affine(p)
+    q = gw + (q - gw) * HAND_SCALE       # his big working hand (the bones are its own: the hitboxes stay)
+    affine0 = affine
+    affine = lambda x: gw + (affine0(x) - gw) * HAND_SCALE
     W = np.zeros((len(q), 15))
     rests = []
     for f in range(5):
@@ -639,3 +656,31 @@ def skinned(side, ours, fingers_env):
         for b in range(3):
             rests.append((J[b], np.array(along_basis(J[b] - J[b + 1]))))
     return q, tris, uv, part, W, rests
+
+
+PLANE_PX = 1.0 / 30  # a painted plane, of the hand's paint a side (his paintings' hands are laid in planes)
+PLANE_KEEP = 0.3     # how much of the smooth shading shows through a plane
+MATCH = 0.97         # the hand's typical colour: this times his forearm's
+KNUCKLE_R = 0.011    # metres round a finger joint: its knuckle's light plane, its crease
+
+
+def _planes(col, cover, rng, size):
+    """The paint laid in flat planes, as his paintings lay a hand in: the layout cut into small
+    irregular patches (around random seeds) and each patch one tone (its mean), a little of the
+    smooth shading kept so the form still turns."""
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+    step = max(4, int(size * PLANE_PX))
+    n = int((size / step) ** 2 * 1.3)
+    seeds = rng.random((n, 2)) * size
+    gy, gx = np.mgrid[0:size, 0:size]
+    _d, lab = cKDTree(seeds).query(np.c_[gx.ravel() + 0.5, gy.ravel() + 0.5])
+    lab = lab.reshape(size, size) + 1
+    lab[~ndimage.binary_dilation(cover, iterations=2)] = 0
+    out = col.copy()
+    idx = np.arange(1, n + 1)
+    for c in range(3):
+        m = np.asarray(ndimage.mean(col[..., c], labels=lab, index=idx))
+        flat = np.r_[0.0, np.nan_to_num(m)][lab]
+        out[..., c] = np.where(lab > 0, flat * (1 - PLANE_KEEP) + col[..., c] * PLANE_KEEP, col[..., c])
+    return out

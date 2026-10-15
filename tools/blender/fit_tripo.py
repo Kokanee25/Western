@@ -965,7 +965,11 @@ class TripoPerson(mp.Person):
         self.hand_paint, self.hand_fw, self.finger_rests = [], [], {}
         self.extra_bones = MH.finger_bone_names("r") + MH.finger_bone_names("l")
         rep = self.report.setdefault("own_fingers", {"from": "makehuman, skinned"})
-        img = np.asarray(self.colour, dtype=np.float64) / 255.0
+        # His colours from the texture his skin is drawn with: his repaint where there is one
+        # (body_paint.py), not Rodin's own (the hand came out paler and greyer than his arm).
+        named = self.id if os.path.exists(os.path.join(TRIPO, self.id + "_color.png")) else self.model
+        painted = os.path.join(TRIPO, named + "_color.png")
+        img = np.asarray(Image.open(painted).convert("RGB") if os.path.exists(painted) else self.colour, dtype=np.float64) / 255.0
         hgt, wid = img.shape[:2]
         made = {}
         for side in "rl":
@@ -1009,11 +1013,11 @@ class TripoPerson(mp.Person):
                 rm[uu] = np.arange(len(uu))
                 pieces.append((q[uu], rm[tk], u[uu], pa[uu]))
                 useds.append(uu)
-            made[side] = (pieces, useds, W, base)
+            made[side] = (pieces, useds, W, base, [o_ for o_, _b in rests])
         squares = self._free_squares(2, HAND_SQUARE)
         for side, (u0, v0) in zip("rl", squares):
-            pieces, useds, W, base = made[side]
-            paint, palm, fingers = MH.paint(pieces[0], {"%s_%s" % (MH.FINGERS[k // 3], side): pieces[1 + 3 * (k // 3):4 + 3 * (k // 3)] for k in range(0, 15, 3)}, side, base)
+            pieces, useds, W, base, joints = made[side]
+            paint, palm, fingers = MH.paint(pieces[0], {"%s_%s" % (MH.FINGERS[k // 3], side): pieces[1 + 3 * (k // 3):4 + 3 * (k // 3)] for k in range(0, 15, 3)}, side, base, joints=joints)
             self.hand_paint.append((paint, (u0, v0, HAND_SQUARE)))
             out = [palm] + [pc for name in MH.FINGERS for pc in fingers["%s_%s" % (name, side)]]
             tris_n = 0

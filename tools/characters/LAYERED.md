@@ -105,7 +105,12 @@ way: the same man, triangle for triangle).
   loses a finger (the bones shrink to the knuckle; the drawn finger flies) as before; the drawn
   fingers are hidden. Earlier tries, kept as options: `own_fingers: true` (his own Rodin fingers
   in rigid pieces, `fingers.py`) and `"makehuman"` (MakeHuman's in rigid pieces): both read as a
-  wooden doll's. Sheet `c7_skinned_hands.png`.
+  wooden doll's. Round two (Sean: "keep fixing them up"): the hand `HAND_SCALE` bigger about
+  the wrist and the fingers `CHUNK` thicker (his paintings' hands are big working hands); a
+  relaxed idle curl (`HumanBody.RELAXED_BEND`: each joint bent at least that much, the game's own
+  curl past it); painted in his repainted skin's colour (`MATCH` of his forearm's), laid in flat
+  planes (`_planes`), lighter knuckles and darker creases (`KNUCKLE_R`). Sheets
+  `c7_skinned_hands.png`, `c8_hands_round2.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
