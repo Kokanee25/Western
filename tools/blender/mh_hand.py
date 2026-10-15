@@ -249,8 +249,9 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
     import portrait as P
     pieces = [palm] + [pc for name in FINGERS for pc in fingers["%s_%s" % (name, side)]]
-    pts, tris, uvs, parts, n0 = [], [], [], [], 0
+    pts, tris, uvs, parts, n0, offs = [], [], [], [], 0, []
     for q, t, u, pa in pieces:
+        offs.append(n0)
         pts.append(q)
         tris.append(t + n0)
         uvs.append(u)
@@ -365,7 +366,7 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
     for k, pc in enumerate(pieces):
         nt = len(pc[1])
         sl = slice(n0 * 3, (n0 + nt) * 3)
-        out.append((pts_c[sl], np.arange(nt * 3).reshape(-1, 3), cu[sl]))
+        out.append((pts_c[sl], np.arange(nt * 3).reshape(-1, 3), cu[sl], corner[sl] - offs[k]))
         n0 += nt
     palm_out = out[0]
     fingers_out = {}
@@ -562,3 +563,79 @@ def taper(pts, his_ring, mh_ring, centre, ax, ref, reach, swell):
     k = 1.0 + w * (r_meet / np.maximum(r_his, 1e-6) - 1.0)
     flat = (pts - centre) - h[:, None] * ax
     return centre + h[:, None] * ax + flat * k[:, None]
+
+
+CHUNK = 1.12        # the skinned hand's fingers this much thicker than MakeHuman's (his are working hands)
+JOINT_BLEND = 0.007  # metres either side of a finger joint over which the bones share the skin
+
+
+def finger_bone_names(side):
+    """The skinned hand's 15 bones, finger by finger, knuckle out (HumanBody._own_finger_bones)."""
+    return ["finger_%s_%s_%d" % (name, side, b) for name in FINGERS for b in range(3)]
+
+
+def _chain(j, side, f):
+    """Finger f's joints, knuckle to tip (the thumb from its second joint: its pad is the palm's)."""
+    if f == 0:
+        ks = [j["%s-finger-1-%d" % (side, k)] for k in (2, 3, 4)]
+        return ks + [ks[2] + (ks[2] - ks[1]) * TIP]
+    ks = [j["%s-finger-%d-%d" % (side, f + 1, k)] for k in (1, 2, 3, 4)]
+    return ks[:3] + [ks[3] + (ks[3] - ks[2]) * TIP]
+
+
+def skinned(side, ours, fingers_env):
+    """MakeHuman's hand whole, skinned to its finger bones, on the game's hand (the brief:
+    docs/briefs/skinned-hands.md): its points, triangles, MakeHuman UVs, parts, each point's
+    weights over the side's 15 finger bones (the rest is the hand's), and each bone's rest
+    (origin, basis: +Y back up the finger as HumanBody._along) at MakeHuman's own joints.
+
+    Fitted by an affine through his wrist and the four finger knuckles onto the game's (the thumb
+    left as MakeHuman has it: the anatomy hangs it parallel to the index, and that looked wrong).
+    The game bends these bones by its finger nodes' angles about these joints."""
+    p, tris, part, j, uv = hand(side)
+    mw = j[side + "-hand"]
+    gw = np.array(ours[side + "-hand"])
+    src = [mw] + [j["%s-finger-%d-1" % (side, f)] for f in range(2, 6)]
+    dst = [gw] + [np.array(fingers_env["%s_%s" % (n, side)]["a"]) for n in FINGERS[1:]]
+    Fm, _lm, wm = _frame(mw, j[side + "-finger-3-1"], j[side + "-finger-5-1"] - j[side + "-finger-2-1"])
+    gk = np.array(ours[side + "-knuckle"])
+    Fg, _lg, wg = _frame(gw, gk, np.array(fingers_env["little_" + side]["a"]) - np.array(fingers_env["index_" + side]["a"]))
+    ng = Fg[2] * 0.02 * (wg / wm)
+    for k in (2, 3, 4, 5):
+        src += [j["%s-finger-%d-1" % (side, k)] + Fm[2] * 0.02, j["%s-finger-%d-1" % (side, k)] - Fm[2] * 0.02]
+        g0 = np.array(fingers_env["%s_%s" % (FINGERS[k - 1], side)]["a"])
+        dst += [g0 + ng, g0 - ng]
+    M, *_ = np.linalg.lstsq(np.c_[np.array(src), np.ones(len(src))], np.array(dst), rcond=None)
+    affine = lambda x: np.c_[x, np.ones(len(x))] @ M
+    q = affine(p)
+    W = np.zeros((len(q), 15))
+    rests = []
+    for f in range(5):
+        J = affine(np.array(_chain(j, side, f)))
+        seg = np.linalg.norm(np.diff(J, axis=0), axis=1)
+        cum = np.r_[0.0, np.cumsum(seg)]
+        mine = (part // 3 == f) & (part >= 0)
+        # The palm's points just past this knuckle share it too (the knuckle bends in the skin).
+        d0, t0 = mp.seg_dist(q, J[0], J[1])
+        mine |= (part == -1) & (d0 < 0.02) & (t0 > 0) & (((q - J[0]) @ (J[1] - J[0])) > -JOINT_BLEND * seg[0])
+        ids = np.nonzero(mine)[0]
+        # Each point's place along the finger (arc length of its nearest point on the chain).
+        best = np.full(len(ids), np.inf)
+        s = np.zeros(len(ids))
+        foot = np.zeros((len(ids), 3))
+        for k in range(3):
+            d, t = mp.seg_dist(q[ids], J[k], J[k + 1])
+            better = d < best
+            best[better] = d[better]
+            s[better] = cum[k] + t[better] * seg[k]
+            foot[better] = J[k] + t[better][:, None] * (J[k + 1] - J[k])
+        ramp = lambda x, at: np.clip((x - (at - JOINT_BLEND)) / (2 * JOINT_BLEND), 0, 1)
+        on = [ramp(s, cum[0]) * (1 - ramp(s, cum[1])), ramp(s, cum[1]) * (1 - ramp(s, cum[2])), ramp(s, cum[2])]
+        for b in range(3):
+            W[ids, f * 3 + b] = on[b]
+        # Chunkier: out from the finger's line by CHUNK, as much as the point is finger.
+        wf = W[ids, f * 3:f * 3 + 3].sum(1)
+        q[ids] = q[ids] + (CHUNK - 1.0) * wf[:, None] * (q[ids] - foot)
+        for b in range(3):
+            rests.append((J[b], np.array(along_basis(J[b] - J[b + 1]))))
+    return q, tris, uv, part, W, rests

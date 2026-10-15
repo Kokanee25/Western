@@ -504,6 +504,7 @@ func _build_skin() -> void:
 		skeleton.set_bone_rest(i, rests[i])
 		skin.add_bind(i, rests[i].affine_inverse())
 		_bone_parts.append(sid)
+	_add_finger_bones(data, skin, rests)
 	skeleton.reset_bone_poses()
 	var f := look.duplicate()
 	f["tone"] = skin_tone
@@ -567,6 +568,13 @@ func _build_skin() -> void:
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
 	_own_fingers(data)
+	if not _finger_rig.is_empty():
+		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off.
+		for fid: StringName in finger_bones:
+			for bone: Node3D in finger_bones[fid]:
+				for c in bone.get_children():
+					if c is MeshInstance3D:
+						(c as MeshInstance3D).visible = false
 	_merge_pieces(skin)
 	_update_skeleton()
 
@@ -731,6 +739,52 @@ func _update_skeleton() -> void:
 		var part: Node3D = parts.get(_bone_parts[i])
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
+	_pose_fingers()
+
+
+## A skinned hand's finger bones (the characters session's skinned hands,
+## docs/briefs/skinned-hands.md): after the anatomy's, each resting at his model's own finger
+## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
+## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
+var _finger_rig: Array = []
+
+
+func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
+	var fb: Dictionary = data.get("finger_bones", {})
+	if fb.is_empty():
+		return
+	var last := {}
+	for name: String in data.get("finger_bone_names", []):
+		if not fb.has(name):
+			return
+		var r: Dictionary = fb[name]
+		var o: Array = r.origin
+		var b: Array = r.basis
+		var rest := Transform3D(Basis(Vector3(b[0][0], b[0][1], b[0][2]), Vector3(b[1][0], b[1][1], b[1][2]),
+				Vector3(b[2][0], b[2][1], b[2][2])), Vector3(o[0], o[1], o[2]))
+		var i := skeleton.get_bone_count()
+		skeleton.add_bone(name)
+		skeleton.set_bone_rest(i, rest)
+		skin.add_bind(i, rest.affine_inverse())
+		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
+		var fid := StringName("%s_%s" % [bits[1], bits[2]])
+		var k := int(bits[3])
+		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
+		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
+		_finger_rig.append({"bone": i, "parent": parent, "local": parent_rest.affine_inverse() * rest, "fid": fid, "k": k})
+		last[fid] = i
+
+
+func _pose_fingers() -> void:
+	for e: Dictionary in _finger_rig:
+		var bend := Basis.IDENTITY
+		var gone := not fingers.has(e.fid)
+		if not gone:
+			bend = (finger_bones[e.fid][e.k] as Node3D).basis.orthonormalized()
+		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
+		if gone:
+			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
+		skeleton.set_bone_pose(e.bone, pose)
 
 
 func _process(delta: float) -> void:
@@ -1657,6 +1711,9 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	rb.global_transform = knuckle.global_transform
 	rb.add_child(shape)
 	knuckle.reparent(rb, true)
+	# A skinned hand hid the drawn finger: it's the one that flies.
+	for mi in knuckle.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).visible = true
 	rb.add_to_group(&"severed_parts")
 	rb.apply_impulse(dir * 0.08 + Vector3(0, 0.05, 0))
 	# The stump bleeds.

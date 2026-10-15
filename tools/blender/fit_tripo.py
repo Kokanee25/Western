@@ -819,6 +819,8 @@ class TripoPerson(mp.Person):
         (fingers cut off at the knuckles, the game's own drawn instead)."""
         if self.spec.get("own_fingers") == "makehuman":
             return self.makehuman_hands()
+        if self.spec.get("own_fingers") == "skinned":
+            return self.skinned_hands()
         import fingers as FG
         o = self.our_joints()
         F = self.env.get("fingers", {})
@@ -938,8 +940,8 @@ class TripoPerson(mp.Person):
             self.hand_paint.append((paint, (u0, v0, HAND_SQUARE)))
             to_uv = lambda uv: np.c_[u0 + uv[:, 0] * HAND_SQUARE, v0 + uv[:, 1] * HAND_SQUARE]
             for fid, pieces in fingers.items():
-                self.finger_pieces[fid] = [(to_uv(u), q, t) for q, t, u in pieces]
-            q, t, u = palm
+                self.finger_pieces[fid] = [(to_uv(pc[2]), pc[0], pc[1]) for pc in pieces]
+            q, t, u = palm[:3]
             n0 = len(self.v)
             self.v = np.vstack([self.v, q])
             self.v_tripo = np.vstack([self.v_tripo, q])
@@ -950,6 +952,102 @@ class TripoPerson(mp.Person):
             rep[side] = {"his_hand_triangles_off": gone, "palm_triangles": int(len(t)),
                          "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), HAND_SQUARE],
                          "finger_triangles": {fid: int(sum(len(pc[2]) for pc in self.finger_pieces[fid])) for fid in fingers}}
+
+    def skinned_hands(self):
+        """MakeHuman's hand whole on each arm, skinned to 15 finger bones (people.json
+        own_fingers "skinned"; docs/briefs/skinned-hands.md): no pieces, so no seams or doll
+        joints; the game bends the bones by its finger nodes' angles. His arm and the hand are cut
+        along one plane and joined as `makehuman_hands` joins them; painted by mh_hand.paint into
+        free squares of his texture. Its weights go on in finger_weights (after weights())."""
+        import mh_hand as MH
+        o = self.our_joints()
+        F = self.env["fingers"]
+        self.hand_paint, self.hand_fw, self.finger_rests = [], [], {}
+        self.extra_bones = MH.finger_bone_names("r") + MH.finger_bone_names("l")
+        rep = self.report.setdefault("own_fingers", {"from": "makehuman, skinned"})
+        img = np.asarray(self.colour, dtype=np.float64) / 255.0
+        hgt, wid = img.shape[:2]
+        made = {}
+        for side in "rl":
+            # His hand's colour from his forearm near the wrist (his own hand's paint is paler: the
+            # new hand stood out pink against his arm).
+            el, wr = o[side + "-elbow"], o[side + "-hand"]
+            axw = (wr - el) / np.linalg.norm(wr - el)
+            fore = np.nonzero((self.region == "forearm_" + side) & ((self.v - wr) @ axw > -0.08) & ((self.v - wr) @ axw < -0.01))[0]
+            uvh = self.uv[fore]
+            col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
+            base = np.median(col, 0)
+            ax = (wr - el) / np.linalg.norm(wr - el)
+            point = wr - ax * WRIST_CUT
+            arm = np.isin(self.region, ["forearm_" + side, "hand_" + side])
+            self.v, self.tris, (self.v_tripo, self.uv), (self.region, self.head), ring = MH.clip(
+                self.v, self.tris, point, ax, arm[self.tris].all(axis=1), lerp=(self.v_tripo, self.uv), copy=(self.region, self.head))
+            q, t, u, pa, W, rests = MH.skinned(side, o, F)
+            q, t, (u, W), (pa,), ring_q = MH.clip(q, t, point, -ax, np.ones(len(t), bool), lerp=(u, W), copy=(pa,))
+            used = np.unique(t)
+            remap = -np.ones(len(q), np.int64)
+            remap[used] = np.arange(len(used))
+            ring_q = remap[ring_q][remap[ring_q] >= 0]
+            q, t, u, pa, W = q[used], remap[t], u[used], pa[used], W[used]
+            palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+            if len(ring) and len(ring_q):
+                fore = np.nonzero(np.isin(self.region, ["forearm_" + side, "hand_" + side]))[0]
+                up = (self.v[fore] - point) @ ax
+                near = fore[(up <= 1e-9) & (up > -ARM_TAPER)]
+                self.v[near] = MH.taper(self.v[near], self.v[ring], q[ring_q], point, ax, palm_dir, ARM_TAPER, WRIST_SWELL)
+                q = MH.join_ring(q, ring_q, self.v[ring], point, ax, palm_dir, WRIST_BLEND)
+            for name, (origin, basis) in zip(MH.finger_bone_names(side), rests):
+                self.finger_rests[name] = (origin, basis)
+            # Laid out and painted by part (the palm, each finger bone), as the pieced hands were.
+            pt = pa[t]
+            tri_part = np.where((pt[:, 0] == pt[:, 1]) | (pt[:, 0] == pt[:, 2]), pt[:, 0], np.where(pt[:, 1] == pt[:, 2], pt[:, 1], pt[:, 0]))
+            pieces, useds = [], []
+            for key in [-1] + list(range(15)):
+                tk = t[tri_part == key]
+                uu = np.unique(tk)
+                rm = -np.ones(len(q), np.int64)
+                rm[uu] = np.arange(len(uu))
+                pieces.append((q[uu], rm[tk], u[uu], pa[uu]))
+                useds.append(uu)
+            made[side] = (pieces, useds, W, base)
+        squares = self._free_squares(2, HAND_SQUARE)
+        for side, (u0, v0) in zip("rl", squares):
+            pieces, useds, W, base = made[side]
+            paint, palm, fingers = MH.paint(pieces[0], {"%s_%s" % (MH.FINGERS[k // 3], side): pieces[1 + 3 * (k // 3):4 + 3 * (k // 3)] for k in range(0, 15, 3)}, side, base)
+            self.hand_paint.append((paint, (u0, v0, HAND_SQUARE)))
+            out = [palm] + [pc for name in MH.FINGERS for pc in fingers["%s_%s" % (name, side)]]
+            tris_n = 0
+            for (pts, tt, cu, local), uu in zip(out, useds):
+                n0 = len(self.v)
+                self.v = np.vstack([self.v, pts])
+                self.v_tripo = np.vstack([self.v_tripo, pts])
+                self.uv = np.vstack([self.uv, np.c_[u0 + cu[:, 0] * HAND_SQUARE, v0 + cu[:, 1] * HAND_SQUARE]])
+                self.region = np.concatenate([self.region, np.full(len(pts), "hand_" + side, dtype=self.region.dtype)])
+                self.head = np.concatenate([self.head, np.zeros(len(pts), bool)])
+                self.tris = np.vstack([self.tris, tt + n0])
+                self.hand_fw.append((n0, W[uu[local]], side))
+                tris_n += len(tt)
+            rep[side] = {"hand_triangles": tris_n, "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), HAND_SQUARE]}
+        self.report["finger_bones"] = {n: {"origin": [round(float(x), 5) for x in o_],
+                                           "basis": [[round(float(x), 5) for x in row] for row in b_]}
+                                       for n, (o_, b_) in self.finger_rests.items()}
+
+    def finger_weights(self):
+        """The skinned hands' finger weights onto his skin's (W grows by the 30 finger bones,
+        `extra_bones`): each hand point's finger share taken from its hand weight."""
+        extra = getattr(self, "extra_bones", [])
+        if not extra:
+            return
+        nb = self.W.shape[1]
+        W = np.zeros((len(self.v), nb + len(extra)))
+        W[:, :nb] = self.W
+        for n0, fw, side in self.hand_fw:
+            rows = np.arange(n0, n0 + len(fw))
+            share = fw.sum(1)
+            W[rows, :nb] *= (1.0 - share)[:, None]
+            off = 0 if side == "r" else 15
+            W[rows, nb + off:nb + off + 15] = fw
+        self.W = W
 
     def _free_squares(self, n, side):
         """n squares `side` of the texture a side that no face of his uses (UV, top-left corners):
@@ -1044,6 +1142,7 @@ class TripoPerson(mp.Person):
             self.cut_fingers()
         self.skin_tone()
         self.weights()
+        self.finger_weights()
         for piece in self.pieces:
             if piece.shape == "coat" and not piece.twin:
                 piece.as_shell()
@@ -1311,7 +1410,8 @@ class Piece:
             reg = body.region[tri[int(np.argmax(bary))]]
             if self.shape == "coat" and str(reg).startswith(("thigh", "shin", "foot")):
                 continue
-            self.W[i] = bary @ body.W[tri]
+            w = bary @ body.W[tri][:, :self.W.shape[1]]    # the body's bones only (not his fingers')
+            self.W[i] = w / max(float(w.sum()), 1e-9)
             self.region[i] = reg
             took += 1
         self.report["weights_from_skin"] = took
@@ -1425,6 +1525,13 @@ def build_blender(person):
         parent = env["segments"][b]["parent"]
         if parent:
             arm_data.edit_bones[b].parent = arm_data.edit_bones[parent]
+    # The skinned hands' finger bones (skinned_hands), children of the hands.
+    for name in getattr(person, "extra_bones", []):
+        origin, basis = person.finger_rests[name]
+        eb = arm_data.edit_bones.new(name)
+        eb.head = mp.to_blender(origin)
+        eb.tail = mp.to_blender(origin - basis[1] * 0.02)
+        eb.parent = arm_data.edit_bones["hand_" + name.split("_")[2]]
     bpy.ops.object.mode_set(mode="OBJECT")
     person.arm = arm
 
@@ -1442,7 +1549,8 @@ def build_blender(person):
             poly.use_smooth = True
         obj = bpy.data.objects.new("body_" + name, mesh)
         bpy.context.scene.collection.objects.link(obj)
-        for bname in bones:
+        names = bones + (getattr(person, "extra_bones", []) if src is person and src.W.shape[1] > len(bones) else [])
+        for bname in names:
             obj.vertex_groups.new(name=bname)
         for new_i, old_i in enumerate(used):
             for b, w in enumerate(src.W[old_i]):

@@ -40,7 +40,7 @@ facing its right, from behind:
 - `assets/people/people.json` `people.<man>_body`:
   ```json
   "source": "rodin", "rodin": "test/<man>_body_rodin",
-  "shoulders": 1.10, "own_fingers": "makehuman",
+  "shoulders": 1.10, "own_fingers": "skinned",
   "tris": {"skin": 30000, "head": 10000}, "outfit": {},
   "pieces": {"coat": "<man>_coat", "trousers": "<man>_trousers"}
   ```
@@ -92,18 +92,20 @@ way: the same man, triangle for triangle).
   "shoulders aren't broad enough"). Arms out 26 mm at the shoulder, nothing at the wrist; no
   joint moves (the hitboxes are the anatomy's).
 - `--head_scale=0.92`: his head was 1/7.2 of his height, now 1/7.7 (Sean: "a bit too big").
-- `own_fingers: "makehuman"`: his own Rodin fingers (`own_fingers: true`, `fingers.py`) came
-  out in shards, so the hand is MakeHuman's palm (`mh_hand.py`), fitted through the wrist and the
-  five knuckles exactly, its finger openings closed, the thumb's pad kept with the palm. Each
-  finger bone is a closed, rounded piece (`mh_hand.tube`: MakeHuman's thickness there, one smooth
-  taper to the tip, a little flatter than round, overlapping the next bone and pushed into the
-  palm), so curled fingers show no gap or edge (cut from MakeHuman's mesh, the pieces were ragged
-  and gapped). The wrist: his arm and the palm cut along one plane (`mh_hand.clip`), his forearm
-  tapered in over `ARM_TAPER` to meet `WRIST_SWELL` x MakeHuman's wrist, the palm's ring drawn onto
-  his (`join_ring`, over `WRIST_BLEND`), as the neck ring joins his head. Painted by
-  `mh_hand.paint` (his hand's colour, shadow from the hand's shape, palm, nails, brushwork) in
-  their own layout, into two free squares of his skin texture (`HAND_SQUARE`). Sheet
-  `c6_hands_clean.png`.
+- `own_fingers: "skinned"` (docs/briefs/skinned-hands.md; Sean: "Let's do the skinned hand"):
+  MakeHuman's hand whole on each arm (`mh_hand.skinned`): fitted by an affine through his wrist
+  and four finger knuckles (the thumb where MakeHuman has it), fingers `CHUNK` thicker, skinned
+  to 15 finger bones a hand (`finger_<finger>_<side>_<0..2>`, resting at MakeHuman's own joints,
+  blended `JOINT_BLEND` across each joint). `fit_tripo.skinned_hands` cuts his arm and the hand
+  along one plane, tapers his forearm in to meet it and joins the rings (as the neck ring does),
+  paints it (`mh_hand.paint`, his forearm's colour near the wrist) into free squares of his
+  texture, and exports the finger bones in his armature and their rests in his report
+  (`finger_bones`). In the game (`HumanBody._add_finger_bones`, `_pose_fingers`) each finger bone
+  takes its finger node's bend about its own joint, so the hand curls, grips the revolver and
+  loses a finger (the bones shrink to the knuckle; the drawn finger flies) as before; the drawn
+  fingers are hidden. Earlier tries, kept as options: `own_fingers: true` (his own Rodin fingers
+  in rigid pieces, `fingers.py`) and `"makehuman"` (MakeHuman's in rigid pieces): both read as a
+  wooden doll's. Sheet `c7_skinned_hands.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
@@ -114,7 +116,7 @@ way: the same man, triangle for triangle).
 
 - His coat is darker and more mottled than his pictures (Rodin's own colours).
 - A light band at his nape (his dressed twin's hair over the collar).
-- His fingers are plain rounded pieces (clean, a little doll-like close up); his thumb is short and lies along the palm, where the game's anatomy puts it.
+- His hands' paint is plainer than his face's (his forearm's colour, shadow, nails).
 - His skin is tucked under his coat: with the coat taken off his arms look rough.
 - The vest and shirt are painted on the coat (one layer).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,
