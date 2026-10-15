@@ -56,6 +56,13 @@ uniform float self_lit = 0.0;
 uniform float paint_gain = 1.0;
 uniform float paint_wrap = 0.6;
 uniform float paint_limit = 1.3;
+// How much of each light's own colour reaches a painted part (0: its brightness only, as the
+// painted colours already hold the lamps' warmth; 1: its full colour, as an unpainted part).
+// The painted-light brief (the characters session, 2026-10-15): a painterly man's painting stays
+// how he looks and each light only changes his colour and amount, so the campfire warms the side
+// facing it and the night round him darkens and cools him. Eased channel by channel towards
+// paint_limit, so a hot orange lamp warms him without driving his face to flat orange.
+uniform float paint_tint = 0.0;
 // The most all the lights together make a person, × his own colour (painted or not; its top
 // channel). paint_limit
 // holds each light alone on a painted part, and nothing held an unpainted one: 2026-10-14, the
@@ -263,8 +270,9 @@ void light() {
 	if (uv_rect.z > 0.0) {
 		// How much brighter than painted this light makes him (ALBEDO carries paint_gain), eased
 		// off towards paint_limit so a lamp at his elbow doesn't burn the painted colours out.
-		float m = k * dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722)) / PI * paint_gain;
-		add = vec3(m / (1.0 + m / paint_limit) / paint_gain);
+		vec3 col = mix(vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), LIGHT_COLOR, paint_tint);
+		vec3 m = k * col / PI * paint_gain;
+		add = m / (1.0 + m / paint_limit) / paint_gain;
 	} else {
 		add = k * LIGHT_COLOR * (light_bands > 0.0 ? mix(shade_tint, vec3(1.0), k) : vec3(1.0)) / PI;
 	}
