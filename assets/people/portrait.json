@@ -26,103 +26,14 @@
     "back": "docs/concept/style/portrait-cowboy-from-behind.png"
    },
    "fidelity": {
-    "shape_fit": "broad",
+    "shape_fit": true,
     "patches": "anatomy",
     "patch_m": 0.003,
     "patch_compact": 12.0,
     "moustache_m": 0.004,
     "brows_m": 0.002,
     "unsquare": 3,
-    "keep_features": true,
-    "neck_cut": "smooth",
-    "skin_from_paint": true,
-    "sideburns_m": 0.012,
-    "shape_rounds": 1
-   },
-   "hat": {
-    "marks": {
-     "front": {
-      "brim_left": [
-       90,
-       195
-      ],
-      "brim_right": [
-       1505,
-       310
-      ]
-     },
-     "profile_left": {
-      "brim_left": [
-       180,
-       190
-      ],
-      "brim_right": [
-       1490,
-       480
-      ],
-      "band_left": [
-       520,
-       150
-      ],
-      "band_right": [
-       1190,
-       260
-      ]
-     },
-     "three_quarter": {
-      "brim_left": [
-       136,
-       200
-      ],
-      "brim_right": [
-       1420,
-       370
-      ],
-      "band_left": [
-       450,
-       150
-      ],
-      "band_right": [
-       1090,
-       200
-      ]
-     }
-    },
-    "crown_h": 0.12,
-    "patch_m": 0.015,
-    "band_colour": [
-     0.196,
-     0.122,
-     0.09
-    ],
-    "stud_colour": [
-     0.847,
-     0.627,
-     0.365
-    ],
-    "studs": 8,
-    "colour": [
-     0.271,
-     0.149,
-     0.071
-    ],
-    "fit": false,
-    "band_above_eyes": 0.044,
-    "tilt": 14.5445,
-    "roll": -0.3714,
-    "brim_w": 0.1726,
-    "brim_f": 0.2202,
-    "brim_b": 0.2312,
-    "curl": -0.0388,
-    "dip": 0.03,
-    "clear": 0.02,
-    "shift_z": 0.0,
-    "pinch": 0.3,
-    "dent": 0.022,
-    "wear": true,
-    "band_h": 0.016,
-    "crown_top": 0.84,
-    "paint": "designed"
+    "keep_features": true
    }
   },
   "older_heavyset_cowboy": {
