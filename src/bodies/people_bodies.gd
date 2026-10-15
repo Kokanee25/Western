@@ -55,6 +55,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		shapes.erase("bandana")
 	var textures := {}
 	for k: String in generated:
+		if k == "fingers":
+			continue
 		# His own hat's brim and band go with his hat: a man not wearing one wears neither.
 		if k in ["hat_brim", "hat_band"] and not shapes.has("hat") and not whole:
 			continue
@@ -75,6 +77,9 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if ResourceLoader.exists(ao):
 		textures["head_ao"] = load(ao)
 	var out := {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
+	# His own fingers, a mesh a finger bone (HumanBody._own_fingers), if he was fitted with them.
+	if generated.has("fingers"):
+		out["fingers"] = generated.fingers
 	# Painted from the painting: per shape, a texture, the UV rect it covers and how many texels a
 	# side make one of its squares (the face: three, so its eyes can be drawn finer).
 	var paint := {}
@@ -139,6 +144,9 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 		var shape := String(mi.name).to_lower().trim_prefix("body_").trim_prefix("cloth_")
 		if mi.mesh == null:
 			continue
+		if shape.begins_with("finger_"):
+			_own_finger(out, shape, mi)
+			continue
 		# The mesh's bone numbers are the skin's binds; ours are the anatomy's segment order.
 		var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D
 		var remap := PackedInt32Array()
@@ -189,6 +197,36 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	root.free()
 	_cache[model] = out
 	return out
+
+
+## One bone's piece of his own finger (tools/blender/fit_tripo.py own_fingers: a plain mesh in the
+## rest pose named finger_<finger>_<side>_<bone>), into out.fingers[finger id][bone] for
+## HumanBody to hang on that finger bone.
+static func _own_finger(out: Dictionary, shape: String, mi: MeshInstance3D) -> void:
+	var parts := shape.trim_prefix("finger_").rsplit("_", true, 1)
+	if parts.size() != 2 or not parts[1].is_valid_int():
+		return
+	var xf := mi.global_transform if mi.is_inside_tree() else _to_root(mi)
+	var src := mi.mesh.surface_get_arrays(0)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	var verts: PackedVector3Array = src[Mesh.ARRAY_VERTEX]
+	for i in verts.size():
+		verts[i] = xf * verts[i]
+	var normals: PackedVector3Array = src[Mesh.ARRAY_NORMAL]
+	for i in normals.size():
+		normals[i] = (xf.basis * normals[i]).normalized()
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TEX_UV] = src[Mesh.ARRAY_TEX_UV]
+	arrays[Mesh.ARRAY_INDEX] = src[Mesh.ARRAY_INDEX]
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	var fingers: Dictionary = out.get_or_add("fingers", {})
+	var bones: Array = fingers.get_or_add(parts[0], [null, null, null])
+	var b := int(parts[1])
+	if b >= 0 and b < bones.size():
+		bones[b] = mesh
 
 
 ## Where a hat's band goes round this head: the middle of the head a little above the brow, and how

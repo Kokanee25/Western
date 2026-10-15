@@ -13,6 +13,8 @@ into patches that follow its edges.
 **The approved state** is the branch `look/portrait-men-2026-10-14` on GitHub, a bookmark at commit
 775f0c5: never push to it (see "Going back" below; this environment's git proxy refuses tags).
 
+**The layered man** (a base body in boxers, his head through the neck ring, his clothes and hands as pieces): `LAYERED.md`.
+
 ## 1. What Sean makes (ChatGPT, free)
 
 Per man, in `docs/concept/style/factory/<man>/`:

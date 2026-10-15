@@ -1,0 +1,87 @@
+{
+ "id": "bold_cowboy_layered",
+ "source": "rodin",
+ "whole": true,
+ "model": "test/bold_cowboy_body_rodin",
+ "triangles_in": 34270,
+ "pieces": {
+  "coat": "bold_cowboy_coat",
+  "trousers": "bold_cowboy_trousers"
+ },
+ "piece_coat": {
+  "twin": true,
+  "pushed_out_after_warp": 23598,
+  "weights_from_skin": 49580
+ },
+ "piece_trousers": {
+  "twin": true,
+  "pushed_out_after_warp": 14656,
+  "weights_from_skin": 23804
+ },
+ "scale": 1.8367,
+ "head_scale": 1.8367,
+ "height_m": 1.905,
+ "shoulders": {
+  "k": 1.1,
+  "width_m": 0.524,
+  "moved_m": 0.0262
+ },
+ "own_fingers": {
+  "from": "makehuman",
+  "r": {
+   "his_hand_triangles_off": 1556,
+   "palm_triangles": 556,
+   "finger_triangles": {
+    "thumb_r": 396,
+    "index_r": 572,
+    "middle_r": 564,
+    "ring_r": 566,
+    "little_r": 576
+   }
+  },
+  "l": {
+   "his_hand_triangles_off": 1394,
+   "palm_triangles": 556,
+   "finger_triangles": {
+    "thumb_l": 396,
+    "index_l": 572,
+    "middle_l": 564,
+    "ring_l": 566,
+    "little_l": 576
+   }
+  }
+ },
+ "skin_tone": [
+  0.804,
+  0.482,
+  0.329
+ ],
+ "skin_tucked": 5229,
+ "texture": {
+  "from": "bold_cowboy_body_color.png",
+  "size": [
+   2048,
+   2048
+  ],
+  "square_texels": 2
+ },
+ "triangles": {
+  "skin": 22140,
+  "head": 11997,
+  "coat": 6000,
+  "trousers": 7936
+ },
+ "pieces_kept": [
+  "coat",
+  "trousers"
+ ],
+ "neck_ring": {
+  "body": "bold_cowboy_body",
+  "head": "bold_cowboy_painterly_lit",
+  "head_scale": 0.92,
+  "ring_m": 1.6117,
+  "icp_scale": 1.2843,
+  "icp_gap_mm": 6.5,
+  "edge_vertices": 425
+ }
+}

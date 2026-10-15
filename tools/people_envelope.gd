@@ -26,6 +26,15 @@ func _initialize() -> void:
 	for r: Array in BodyMesh.HEAD:
 		head.append([_v(r[0]), r[1], r[2], r[3]])
 	out.tables["HEAD"] = head
+	# The fingers (HumanBody._build_hand: each three bones from its knuckle, lengths 0.42, 0.33,
+	# 0.25 of it): knuckle and tip in the rest pose, so a fitted man's own fingers can be cut to them.
+	var fingers := {}
+	for side in ["r", "l"]:
+		for fname: String in ["thumb", "index", "middle", "ring", "little"]:  # HumanBody.FINGERS (its autoloads aren't loaded here)
+			var st := a.structure(StringName("%s_%s" % [fname, side]))
+			if not st.is_empty():
+				fingers["%s_%s" % [fname, side]] = {"a": _v(st.a), "b": _v(st.b)}
+	out["fingers"] = fingers
 	out["head_bottom"] = BodyMesh.HEAD_BOTTOM
 	out["head_top"] = BodyMesh.HEAD_TOP
 	var f := FileAccess.open("res://assets/people/envelope.json", FileAccess.WRITE)

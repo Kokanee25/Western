@@ -1,5 +1,5 @@
 {
- "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures. `style_hair`: his style portraits' hair, where it differs from his plain pictures' (tools/characters/portrait_style.py paints it so). `hair_fill`: \"grey\" (default) or \"dark\", how tools/characters/rodin_portrait.py picks his hair's colour for under the game's hat. `fidelity` (docs/briefs/character-style-fidelity.md; each optional, off when absent): `shape_fit` (his mesh warped to where all his style portraits put his face's landmarks, tools/characters/style_shape.py), `patches` \"anatomy\" with `patch_m` and `patch_compact` (patches grown along his paint's edges, not cubes), `keep_features` (his eyes painted whole from the front portrait, not de-lit, and his face never taken for the portrait's backdrop), `unsquare` (the median that takes the portraits' own squares out, px), `moustache_m` and `brows_m` (metres they stand off his face).",
+ "_readme": "The portrait factory's men (docs/briefs/portrait-factory.md; tools/characters/portrait.py). Each: `pictures`, a folder of four plain pictures (front, left, right, back: hatless, flat light, grey ground); `style`, what he should look like in the end, and `style_views` (front, three_quarter, side) where there are more (for the sheet, tools/characters/portrait_sheet.py); optional `macro` (MakeHuman macro targets for his build; else the factory's lean hard man's) and `outfit` (clothes.py's garments and colours). Output: assets/people/<id>_portrait.glb and its textures. `style_hair`: his style portraits' hair, where it differs from his plain pictures' (tools/characters/portrait_style.py paints it so). `hair_fill`: \"grey\" (default) or \"dark\", how tools/characters/rodin_portrait.py picks his hair's colour for under the game's hat. `fidelity` (docs/briefs/character-style-fidelity.md; each optional, off when absent): `shape_fit` (his mesh warped to where all his style portraits put his face's landmarks, tools/characters/style_shape.py; \"broad\": one smooth correction of the whole face, true: a nudge per landmark, which can leave lumps), `patches` \"anatomy\" with `patch_m` and `patch_compact` (patches grown along his paint's edges, not cubes), `keep_features` (his eyes painted whole from the front portrait, not de-lit, and his face never taken for the portrait's backdrop), `unsquare` (the median that takes the portraits' own squares out, px), `moustache_m` and `brows_m` (metres they stand off his face).",
  "men": {
   "bold_cowboy": {
    "pictures": "docs/concept/style/factory/bold_cowboy",
@@ -157,6 +157,106 @@
    "style_hair": "grey, thick and wavy, to his collar, as in his style portraits",
    "squares": false,
    "note": "The bold cowboy with no squares on his face or hair (the smooth-faced test, docs/briefs/portrait-factory.md route 4)."
+  },
+  "bold_cowboy_painterly": {
+   "shape": "bold_cowboy",
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-painterly-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "side": "docs/concept/style/portrait-painterly-profile-right.png"
+   },
+   "what": "a weathered frontier man of about forty, bare-headed, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache, a brown wool coat over a vest, a white shirt and a black tie",
+   "paint_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "profile_left": "docs/concept/style/portrait-painterly-profile.png",
+    "profile_right": "docs/concept/style/portrait-painterly-profile-right.png",
+    "back": "docs/concept/style/portrait-painterly-from-behind.png"
+   },
+   "portraits_hatless": true,
+   "hair_fill": "dark",
+   "fidelity": {
+    "shape_fit": "broad",
+    "patches": "none",
+    "moustache_m": 0.004,
+    "brows_m": 0.002,
+    "unsquare": 0,
+    "keep_features": true,
+    "neck_cut": "smooth",
+    "skin_from_paint": true,
+    "sideburns_m": 0.012,
+    "shape_rounds": 1
+   },
+   "_note": "The bold cowboy in Sean's second style (2026-10-15: painterly, fine mosaic, bare-headed; his five paintings, the three-quarter mirrored to face the picture's left), on the bold cowboy's own Rodin bust (`shape`)."
+  },
+  "bold_cowboy_painterly_lit": {
+   "shape": "bold_cowboy",
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-painterly-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "side": "docs/concept/style/portrait-painterly-profile-right.png"
+   },
+   "what": "a weathered frontier man of about forty, bare-headed, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache, a brown wool coat over a vest, a white shirt and a black tie",
+   "paint_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "profile_left": "docs/concept/style/portrait-painterly-profile.png",
+    "profile_right": "docs/concept/style/portrait-painterly-profile-right.png",
+    "back": "docs/concept/style/portrait-painterly-from-behind.png"
+   },
+   "portraits_hatless": true,
+   "hair_fill": "dark",
+   "fidelity": {
+    "shape_fit": "broad",
+    "patches": "none",
+    "moustache_m": 0.004,
+    "brows_m": 0.002,
+    "unsquare": 0,
+    "keep_features": true,
+    "neck_cut": "smooth",
+    "skin_from_paint": true,
+    "sideburns_m": 0.012,
+    "shape_rounds": 1,
+    "delight": 0.15
+   },
+   "_note": "As bold_cowboy_painterly with the paintings' own light kept (delight 0.15), to be drawn self-lit. painted_look: the art session's v5 (docs/screenshots/painted_light/README.md), his head in painted mode in the game.",
+   "painted_look": {
+    "self_lit": 0.12,
+    "paint_gain": 1.6,
+    "paint_wrap": 0.25,
+    "paint_limit": 1.6,
+    "light_steps": 0,
+    "paint_ambient": 0.5,
+    "paint_tint": 0.75
+   }
+  },
+  "bold_cowboy_body": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_body",
+   "what": "a weathered frontier man of about forty, solid build, standing in an A-pose, bare-chested and barefoot in plain old cream cotton boxer shorts, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache",
+   "_note": "The average base body (docs/briefs/layered-people.md, option 2): Rodin builds him whole from these four pictures (no --bust), his head comes off at the neck ring. Dressed paintings for his clothes: docs/concept/style/portrait-painterly-full-*."
+  },
+  "bold_cowboy_dressed": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_dressed",
+   "what": "a weathered frontier man of about forty standing in an A-pose, bare-headed, a long brown wool coat to his knees, open at the front, a dark brown waistcoat, a white shirt with a high collar, a black tie, a leather belt, dark wool trousers, worn brown leather boots",
+   "_note": "The base body dressed (docs/briefs/layered-people.md): Rodin builds him whole from Sean's four dressed pictures; his clothes are what stands off the bare body (bold_cowboy_body), cut into coat, trousers and boots."
   }
  }
 }

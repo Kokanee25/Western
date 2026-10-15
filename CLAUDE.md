@@ -293,15 +293,21 @@ frozen until Sean names one.
   --only=`); `pgrep -f` in a watch matches the watch itself (use `[o]ut=`).
 - Waiting on Sean: squares or smooth on the road; his eye on the sheets.
 
-**Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
-- On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
-  portraits, moustache and brow relief, patches by anatomy, eyes kept whole; `portrait.json`
-  `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
-  `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
-  `look/portrait-men-2026-10-14`. ~$5.26 of $15.
-- Next: his hat (the portrait's brown wide brim, studded band), grey temples, hair edges, the
-  older man's grey moustache relief. Trap: after a build, `godot --headless --import` first.
-- For art: the saloon lamp burns faces (numbers in the brief).
+**Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
+`painted-light.md`):
+- On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; approved bookmark
+  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124, build 1181:
+  `bold_cowboy_painterly_lit_rodin`, his own look in `_paint.json`). ~$8.46 of $15 spent.
+- On the branch, not merged (Sean's OK needed): his own hat (`look/bold-cowboy-own-hat-2026-10-14`);
+  the tools behind the painterly man (`portrait.json` `painted_look` → `write_painted`;
+  `look/painterly-2026-10-15`); layered people: base body
+  `bold_cowboy_body`, head through `neck_ring.py`, coat and trousers from his dressed twin
+  (`twin_pieces.py`), → `bold_cowboy_layered`; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`.
+- Next: Sean's eye on the dressed sheet; the coat's colour (Rodin's own, darker than his
+  paintings); vest and shirt as their own layer; the nape band; the holster outside the coat.
+  Trap: after a build, `godot --headless --import` first; lab renders via `build/lab_run.sh`.
+- For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
+  `volumetric_adjustment_enabled` typo.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
