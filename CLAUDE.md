@@ -291,6 +291,10 @@ frozen until Sean names one.
 - Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
   goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
   folk cost ~43 meshes each (~50 to spare).
+- Done since: the game's woods are the material lab's C (Sean's pick, 2026-10-15; brief
+  `docs/briefs/material-lab-timber.md`; the lab's record on `claude/art-material-lab`).
+- Next: merge 2 with gameplay: the built boardwalk and hand-laid boards as real members (the
+  brief's production list); then the characters session's painted-light brief (`body_skin`).
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
