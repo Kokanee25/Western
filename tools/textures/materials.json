@@ -374,6 +374,60 @@
    "smooth": true,
    "about_smooth": "Sean, 2026-10-15: the road drawn smooth like his picture (no squares, no palette), at 128 texels a metre with linear filtering; its stones stand up as RoadStones.",
    "height_blur": 0.02
+  },
+  "road_compact": {
+   "for": "street",
+   "kind": "ground",
+   "metres": [
+    8.0,
+    8.0
+   ],
+   "lightness": 1.35,
+   "contrast": 1.0,
+   "chroma": 0.95,
+   "hue": 7,
+   "colours": 48,
+   "texels_per_metre": 128,
+   "smooth": true,
+   "median": false,
+   "height": true,
+   "height_blur": 0.02,
+   "what": "the packed, compacted dirt of a frontier town's main street, beaten smooth and hard by wheels and hooves: broad gently uneven russet-ochre earth, very fine dust over it, a few faint hairline cracks, sparse tiny pebbles; calm and even, no ruts, no tracks, no grooves, no lines",
+   "ref": [
+    "road",
+    600,
+    400,
+    900,
+    520
+   ],
+   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's compacted earth, blended with road_loose by the traffic map; the ruts and prints are drawn in code over both."
+  },
+  "road_loose": {
+   "for": "street",
+   "kind": "ground",
+   "metres": [
+    8.0,
+    8.0
+   ],
+   "lightness": 1.35,
+   "contrast": 1.0,
+   "chroma": 0.95,
+   "hue": 7,
+   "colours": 48,
+   "texels_per_metre": 128,
+   "smooth": true,
+   "median": false,
+   "height": true,
+   "height_blur": 0.02,
+   "what": "loose, churned dirt of a frontier town's main street where wheels, hooves and boots have broken it up: crumbled clods and lumps, loose crumbs, small clusters of stones and pebbles of many sizes, russet-ochre earth, uneven and broken; no ruts, no tracks, no grooves, no lines",
+   "ref": [
+    "road",
+    0,
+    600,
+    600,
+    1086
+   ],
+   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's disturbed earth, blended with road_compact by the traffic map."
   }
  }
 }
