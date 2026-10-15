@@ -1,7 +1,16 @@
 {
- "note": "Painted mode for his head (rodin_portrait_build.write_painted, portrait.json painted_look).",
+ "note": "Painted mode for his head (rodin_portrait_build.write_painted, portrait.json painted_look). Skin (hands, neck): a painted tone a little under his face's skin median (Sean, 2026-10-15: paint the skin too).",
  "shapes": {
   "head": {
+   "uv_rect": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "texels_per_square": 1
+  },
+  "skin": {
    "uv_rect": [
     0,
     0,
