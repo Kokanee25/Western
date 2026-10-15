@@ -112,3 +112,6 @@ direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their
 **Paid calls:** 2026-10-15, Rodin Gen-2.5 (Extreme-High, 18K quads, HighPack, A-pose) on fal for
 `bold_cowboy_body` from his four boxer-shorts pictures: $1.60 (the characters session's total
 ~$6.86 of the $15 Sean allowed).
+2026-10-15, Rodin on fal for `bold_cowboy_dressed` (his four dressed pictures, whole, A-pose):
+$1.60 (total ~$8.46 of $15). His clothes from it: what stands off the bare body, cut into coat,
+trousers and boots (a quicker route to the coat's real shape than shelling the body).

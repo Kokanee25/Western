@@ -332,6 +332,11 @@
    "pictures": "docs/concept/style/factory/bold_cowboy_body",
    "what": "a weathered frontier man of about forty, solid build, standing in an A-pose, bare-chested and barefoot in plain old cream cotton boxer shorts, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache",
    "_note": "The average base body (docs/briefs/layered-people.md, option 2): Rodin builds him whole from these four pictures (no --bust), his head comes off at the neck ring. Dressed paintings for his clothes: docs/concept/style/portrait-painterly-full-*."
+  },
+  "bold_cowboy_dressed": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_dressed",
+   "what": "a weathered frontier man of about forty standing in an A-pose, bare-headed, a long brown wool coat to his knees, open at the front, a dark brown waistcoat, a white shirt with a high collar, a black tie, a leather belt, dark wool trousers, worn brown leather boots",
+   "_note": "The base body dressed (docs/briefs/layered-people.md): Rodin builds him whole from Sean's four dressed pictures; his clothes are what stands off the bare body (bold_cowboy_body), cut into coat, trousers and boots."
   }
  }
 }

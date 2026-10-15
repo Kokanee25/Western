@@ -290,9 +290,9 @@ jobs:
           pip install pillow
           id="${WHICH:-bold_cowboy}"
           python3 tools/characters/rodin.py --dry-run
-          # A base body (an id ending _body, docs/briefs/layered-people.md) is built whole and in
-          # an A-pose; everyone else is a bust.
-          bust="--bust"; case "$id" in *_body) bust="";; esac
+          # A base body or its dressed twin (an id ending _body or _dressed, docs/briefs/
+          # layered-people.md) is built whole and in an A-pose; everyone else is a bust.
+          bust="--bust"; case "$id" in *_body|*_dressed) bust="";; esac
           python3 tools/characters/rodin.py --only=$id --pictures=docs/concept/style/factory/$id $bust
       - name: Commit him
         run: |

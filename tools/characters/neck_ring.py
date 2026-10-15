@@ -196,9 +196,9 @@ def main():
     w = np.clip((jaw_z - zt) / NECK_FADE, 0, 1)
     # All round his neck just above the ring (the nape, under his ears), and any of the collar's
     # white left low on his head (under his jaw), to skin too.
-    w = np.maximum(w, np.clip((ring_z + 0.02 - zt) / 0.015, 0, 1))
+    w = np.maximum(w, np.clip((ring_z + 0.03 - zt) / 0.03, 0, 1))
     lab_t = RP._lab(paint.reshape(-1, 3)).reshape(paint.shape)
-    collar = (lab_t[..., 0] > 68) & (np.hypot(lab_t[..., 1], lab_t[..., 2]) < 30) & (zt < chin_p[2] + 0.04)
+    collar = (lab_t[..., 0] > 68) & (np.hypot(lab_t[..., 1], lab_t[..., 2]) < 30) & (zt < chin_p[2] + 0.06)
     w = np.maximum(w, collar.astype(float))
     w = w * cover
     paint = paint * (1 - w[..., None]) + skin_c * w[..., None]
