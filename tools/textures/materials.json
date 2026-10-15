@@ -305,12 +305,12 @@
    ],
    "colours": 32,
    "lightness": 1.18,
-   "what": "a long stretch of the dry dirt main street of a frontier desert town seen from directly above, the street running exactly left to right: two pairs of deep wagon-wheel ruts running straight left to right across the whole picture, each rut a worn groove with a ridge of thrown-up dirt along both sides, the ruts drifting a little and doubling where other wagons ran; packed russet-ochre earth between them, rough and lumpy, with loose dirt; scattered stones and pebbles of many sizes, from gravel to fist-sized rocks, more of them along the ruts' ridges; no footprints, no hoof prints, no grass, no wood, no buildings",
+   "what": "the dry dirt main street of a frontier desert town: four deep wagon-wheel ruts, two pairs, each a worn groove with a low ridge of thrown-up dirt along both sides, broken here and there where dust has blown in; between and beside them uneven, lumpy, packed russet-ochre earth with loose crumbs and small cracks; stones and pebbles of many sizes, from gravel to fist-sized rocks, scattered irregularly, more along the ruts; no footprints, no hoof prints, no tyre treads, no grass, no fences, no wood, nothing man-made",
    "ref": [
     "road",
-    0,
-    380,
-    1448,
+    200,
+    480,
+    1300,
     1086
    ],
    "contrast": 1.0,
@@ -321,7 +321,8 @@
     "colours": 12
    },
    "height": true,
-   "about_ref": "Sean's road picture (docs/concept/targets/6_road_target.jpg, 2026-10-15): its foreground road, for colour and character; footprints are gameplay's (people walking), so none are painted."
+   "about_ref": "Sean's road picture (docs/concept/targets/6_road_target.jpg, 2026-10-15): its foreground road, for the look; the guide is draw_road.py's layout, so the ruts run where the street's wheels do. Footprints are gameplay's (people walking).",
+   "guide": "assets/textures/drawn/road_guide.png"
   }
  }
 }

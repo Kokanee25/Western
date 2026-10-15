@@ -221,13 +221,23 @@ def road_palette(sq: np.ndarray, k: int, seed: int = 7) -> tuple[np.ndarray, np.
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sheet", action="store_true")
+    ap.add_argument("--guide", action="store_true",
+                    help="also write the ruts alone (drawn/road_guide.png): the layout the image model paints over")
     args = ap.parse_args()
     img = np.asarray(Image.open(PAINTING).convert("RGB"))
     pal, share = road_palette(painting_squares(img), len(PAL_STEPS))
     n = len(pal)
     OUT.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(3301)
-    wide = dust(128 * S, 128 * S, share, rng, grooves(128 * S, 128 * S, rng))
+    ruts = grooves(128 * S, 128 * S, rng)
+    if args.guide:
+        # The wheel grooves only (their deep part), dark on plain dust: the painted road's layout
+        # (materials.json road_wide "guide"), so its ruts run where the street's wheels do.
+        g = np.where(ruts < -1.5, 0.32, 0.72)
+        rgb = np.stack([g * 1.0, g * 0.85, g * 0.66], -1)
+        Image.fromarray((rgb * 255).astype(np.uint8)).save(OUT / "road_guide.png")
+        print("road_guide.png: the ruts alone")
+    wide = dust(128 * S, 128 * S, share, rng, ruts)
     stones(wide, 60 * S * S, rng)
     small = dust(32 * S, 32 * S, share, rng)
     stones(small, 2 * S * S, rng)

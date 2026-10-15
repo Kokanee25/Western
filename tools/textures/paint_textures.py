@@ -91,6 +91,7 @@ def ask(prompt, images, config, what, key):
             + [{"type": "image_url", "image_url": {"url": data_url(im)}} for im in images],
         }],
         "image_config": config,
+        "usage": {"include": True},
     }
     for attempt in (0, 1):
         req = urllib.request.Request(API, data=json.dumps(body).encode(), headers={
@@ -111,6 +112,8 @@ def ask(prompt, images, config, what, key):
             raise RuntimeError("%s: OpenRouter said %d: %s" % (what, e.code, said)) from None
     if not answer.get("choices"):
         raise RuntimeError("%s: no answer: %s" % (what, json.dumps(answer)[:400]))
+    usage = answer.get("usage") or {}
+    print("%s: cost $%s" % (what, usage.get("cost", "?")), flush=True)
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
@@ -122,6 +125,20 @@ def ask(prompt, images, config, what, key):
 def reference(spec):
     painting, x0, y0, x1, y1 = spec["ref"]
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
+
+
+# A material with a "guide": a layout to paint over (the road's ruts where the street's wheels run,
+# from tools/textures/draw_road.py), given first, the reference for its look second.
+GUIDE = (
+    "The first picture is a layout seen from directly above; keep every dark line in it exactly where "
+    "it is, as the only wheel ruts, and add no other lines, tracks, bands or furrows. Paint over it, "
+    "in the look of the second picture (a painting of the same kind of ground, seen at an angle), "
+)
+
+
+def guide(spec):
+    g = Image.open(os.path.join(ROOT, spec["guide"])).convert("RGB")
+    return g.resize((1024, round(1024 * g.height / g.width)), Image.NEAREST)
 
 
 def main():
@@ -152,10 +169,14 @@ def main():
         kind = spec["kind"]
         prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
             what=spec["what"], text=spec.get("text", ""))
+        refs = [reference(spec)]
+        if spec.get("guide"):
+            prompt = GUIDE + prompt[0].lower() + prompt[1:]
+            refs = [guide(spec)] + refs
         img = None
         for attempt in range(3):
             try:
-                img = ask(prompt, [reference(spec)], {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
+                img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
                 break
             except (RuntimeError, OSError, KeyError, ValueError) as e:
                 print("failed (try %d):" % (attempt + 1), e)
