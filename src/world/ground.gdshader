@@ -266,7 +266,7 @@ void fragment() {
 			earth *= mix(1.0 - relief_cavity, 1.0, mix(1.0, h0, mix(compact_relief, 1.0, loose)));
 			// Most of a trough dark, not only its deepest line: with the sun down the street, along
 			// the ruts, their walls take no raking light, and the target draws them as dark bands.
-			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.03, -rut);
+			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.05, -rut);
 			earth *= 1.0 + 0.18 * smoothstep(0.002, 0.012, rut);
 			earth *= 0.94 + 0.12 * fbm(q * 0.25 + 9.0);
 			v_earth = e;

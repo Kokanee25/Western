@@ -118,8 +118,10 @@ def ruts(w, h, rng):
                 spread = (0.0 if twin == 0 else 0.12 + 0.08 * noise1(w, 6 * MAP_PX, rng))
                 centre = zc + off + side * GAUGE + drift + spread * np.sign(side)
                 # How deep and wide along the street: fresh stretches, worn ones, nearly gone ones.
-                wear = noise1(w, 7 * MAP_PX, rng) * 0.5 + noise1(w, 1.5 * MAP_PX, rng) * 0.25
-                depth = np.clip(0.065 * use * (1.0 + wear), 0.0, 0.1) * (0.55 if twin else 1.0)
+                # Wear along it: long fresh stretches, shallow ones, and some worn nearly away
+                # (below 0 the groove's gone; a few metres of street with only a trace of it).
+                wear = noise1(w, 7 * MAP_PX, rng) * 0.75 + noise1(w, 1.5 * MAP_PX, rng) * 0.3
+                depth = np.clip(0.065 * use * (0.55 + wear), 0.0, 0.1) * (0.55 if twin else 1.0)
                 depth *= np.clip(1.0 + noise1(w, 0.4 * MAP_PX, rng) * 0.25, 0.4, 1.4)
                 width = np.clip(0.24 + 0.06 * noise1(w, 3 * MAP_PX, rng), 0.12, 0.36)
                 fresh = np.clip(wear + 0.2, 0.0, 1.0)
