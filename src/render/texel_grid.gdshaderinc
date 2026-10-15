@@ -35,6 +35,13 @@ uniform float specular : hint_range(0.0, 1.0) = 0.2;
 // Never coarsened into bigger squares far off (min_square_px): a sign's lettering has to stay
 // legible down the street, as the painting's does.
 uniform bool fixed_squares = false;
+// Texels a side of the squares the texture is drawn in, each one colour (the mean of its texels)
+// and lit as one: the man's painted squares (roadmap 1.4, "surfaces to the man": the game's woods
+// are 128 texels a metre, their squares 4 of them, 32 a metre, his face's and coat's 36-48). A
+// whole power of two (the mip lines up with the squares). 1: every texel its own, as before.
+uniform float square_texels = 1.0;
+// End grain's squares, texels of end_tex a side (its rings are finer than the long faces' squares).
+uniform float end_square_texels = 1.0;
 // A cube-built mesh: light each face where the fragment is, not at the texel's centre (VoxelTrial).
 uniform bool cube_faces = false;
 // The surface-blocks look: the colour the lower bands of light lean toward (wood's half-light a
@@ -114,14 +121,22 @@ void fragment() {
 	vec2 uv_scale = vec2(endf && end_texels > 0.0 ? end_texels : texels_per_meter) / size;
 	float b = 1.0;
 	bool soft = block_soft > 0.0;
+	// The squares the texture is drawn in (square_texels, end_square_texels), texels a side.
+	float sq = soft ? 1.0 : max(endf ? end_square_texels : square_texels, 1.0);
 	if (mapping == 0 && endf) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
-		col = use_mipmaps ? texture(end_tex, grid_uv) : textureLod(end_tex, grid_uv, 0.0);
+		if (sq > 1.0) {
+			col = tile_block_sample(end_tex, grid_uv * size, size, vec2(sq), use_mipmaps);
+		} else {
+			col = use_mipmaps ? texture(end_tex, grid_uv) : textureLod(end_tex, grid_uv, 0.0);
+		}
 	} else if (mapping == 0) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
 		b = fixed_squares || soft ? 1.0 : tile_square(grid_uv * size);
 		if (soft) {
 			col = tile_sample_soft(albedo_tex, tile_soft_point(grid_uv * size), size, dFdx(grid_uv), dFdy(grid_uv));
+		} else if (sq > 1.0) {
+			col = tile_block_sample(albedo_tex, grid_uv * size, size, vec2(max(b, sq)), use_mipmaps);
 		} else {
 			col = b > 1.0 ? square_sample(grid_uv, size, b) : grid_sample(grid_uv);
 		}
@@ -141,6 +156,11 @@ void fragment() {
 			col = tile_sample_soft(albedo_tex, tile_soft_point(uv_z * size), size, dFdx(uv_z), dFdy(uv_z)) * tri_weights.z
 					+ tile_sample_soft(albedo_tex, tile_soft_point(uv_y * size), size, dFdx(uv_y), dFdy(uv_y)) * tri_weights.y
 					+ tile_sample_soft(albedo_tex, tile_soft_point(uv_x * size), size, dFdx(uv_x), dFdy(uv_x)) * tri_weights.x;
+		} else if (sq > 1.0) {
+			vec2 bs = vec2(max(b, sq));
+			col = tile_block_sample(albedo_tex, uv_z * size, size, bs, use_mipmaps) * tri_weights.z
+					+ tile_block_sample(albedo_tex, uv_y * size, size, bs, use_mipmaps) * tri_weights.y
+					+ tile_block_sample(albedo_tex, uv_x * size, size, bs, use_mipmaps) * tri_weights.x;
 		} else if (b > 1.0) {
 			col = square_sample(uv_z, size, b) * tri_weights.z + square_sample(uv_y, size, b) * tri_weights.y + square_sample(uv_x, size, b) * tri_weights.x;
 		} else {
@@ -149,19 +169,25 @@ void fragment() {
 	}
 	if (end_wear > 0.0 && mapping == 0 && lab_face > 0.5 && UV2.x > 0.0) {
 		// Which end, how far from it, and a ragged reach a texel row (and a little a texel).
-		vec2 tx = floor(UV * texels_per_meter);
+		vec2 tx = floor(UV * texels_per_meter / sq);
 		float far_end = UV.x - lab_u0 > UV2.x * 0.5 ? 1.0 : 0.0;
 		float d = far_end > 0.5 ? UV2.x - (UV.x - lab_u0) : UV.x - lab_u0;
 		float row = fract(sin(dot(vec2(tx.y, far_end + floor(UV2.x * 7.0)), vec2(12.9898, 78.233))) * 43758.5453);
 		float cell = fract(sin(dot(tx, vec2(39.346, 11.135))) * 24634.6345);
 		if (d < end_wear * row * row * (0.7 + 0.6 * cell)) {
-			col = use_mipmaps ? texture(wear_tex, grid_uv) : textureLod(wear_tex, grid_uv, 0.0);
+			if (sq > 1.0) {
+				col = tile_block_sample(wear_tex, grid_uv * size, size, vec2(max(b, sq)), use_mipmaps);
+			} else {
+				col = use_mipmaps ? texture(wear_tex, grid_uv) : textureLod(wear_tex, grid_uv, 0.0);
+			}
 		}
 	}
 	vec2 texel = grid_uv * size;
 	// Where the light is worked out: the tile's centre, or under soft edges the soft point, so the
 	// light too slides from one block's to the next across the edge.
-	vec2 centre = soft ? tile_soft_point(texel) : (b > 1.0 ? (floor(texel / b) + 0.5) * b : tile_centre(texel));
+	// With drawn squares (sq), the square's centre: lit as one, as the man's squares are.
+	float lb = max(b, sq);
+	vec2 centre = soft ? tile_soft_point(texel) : (lb > 1.0 ? (floor(texel / lb) + 0.5) * lb : tile_centre(texel));
 	float edge = 1.0;
 	if (mapping == 0 && UV2.x > 0.0) {
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
@@ -170,7 +196,7 @@ void fragment() {
 		// out of its neighbour's shadow.
 		vec2 lo = (uv_offset.xy + vec2(lab_u0, 0.0) * uv_scale) * size;
 		vec2 hi = lo + UV2 * uv_scale * size;
-		vec2 inset = min(vec2(0.25 * b), (hi - lo) * 0.5);
+		vec2 inset = min(vec2(0.25 * lb), (hi - lo) * 0.5);
 		centre = clamp(centre, lo + inset, hi - inset);
 		// Which texel of the face this is, from its near corner: the first and last row are the
 		// board's edges.
@@ -207,7 +233,7 @@ void fragment() {
 			}
 		}
 	}
-	if (tile_ragged > 0.0 && b <= 1.0 && !soft && !endf) {
+	if (tile_ragged > 0.0 && lb <= 1.0 && !soft && !endf) {
 		// Ragged tiles: one colour a tile, its own texel's, so the edges between colours wander too.
 		vec2 g = centre / size;
 		col = use_mipmaps ? textureGrad(albedo_tex, g, dFdx(grid_uv), dFdy(grid_uv)) : textureLod(albedo_tex, g, 0.0);
@@ -217,7 +243,7 @@ void fragment() {
 	// than a texel, so the light stays where the fragment is (the texel's centre would be off the
 	// face, inside the thing, and in its shadow).
 	if (!cube_faces) {
-		tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15 * b);
+		tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15 * lb);
 	}
 #ifdef HOLES
 	// Bullet holes, tested at the centre of the texel (so they're drawn in whole texels).
