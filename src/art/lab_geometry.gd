@@ -61,11 +61,14 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 				size.z += overhang
 				shift = Vector3(0.0, -dt * 0.5, -overhang * 0.5)
 		var walk: Node = m.get_parent()
+		# Shown again below only if its batch hid it: a member hidden for its own reasons (a sign's
+		# plain board under its painted one, SignArt) stays hidden.
+		var show: bool = mi.visible or (walk != null and "_batched" in walk and (walk._batched as Dictionary).has(m))
 		if build > 0 and walk != null and "walk_depth" in walk:
 			var built := _walk_member(m, walk, plank_t, overhang, nails, build)
 			if built != null:
 				mi.mesh = built
-				mi.visible = true
+				mi.visible = show
 				n += 1
 				continue
 		if build > 0 and m.wood in [&"saloon_red", &"store_boards"] and m.kind == &"board" \
@@ -82,7 +85,7 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 			mi.mesh = box(size, chamfer, shift)
 		# Shown again: a batched member's own mesh is hidden, and the batches are built only from
 		# visible ones (Structure._batch_all hides them again).
-		mi.visible = true
+		mi.visible = show
 		n += 1
 	# A structure draws its members through batches built from their meshes (Structure: one a
 	# material); rebuilt from the new ones.
