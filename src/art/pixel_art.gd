@@ -66,10 +66,10 @@ const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "w
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
 const DRAWN_DENSITY := {"shot_table": 128.0}
-## The drawn road's squares a metre (tools/textures/draw_road.py TEXELS): the street painting's near
-## road squares are about 11 render pixels across at 1280 wide, twice what 32 a metre gives (Sean,
-## 2026-10-12: "the squares don't read"), so the ground lays it at this whatever the look's density.
-const DRAWN_ROAD_TEXELS := 16.0
+## The drawn road's squares a metre (tools/textures/draw_road.py TEXELS), whatever the look's density:
+## 32 since roadmap 1.4 (2026-10-15, the road at the portrait man's square size, 36-48 a metre; 16
+## before, Sean 2026-10-12's "the squares don't read" at the old factory road's per-texel noise).
+const DRAWN_ROAD_TEXELS := 32.0
 static var use_drawn := true
 ## The material lab's woods (tools/textures/paint_woods.py, tools/material_lab.gd; 2026-10-14, Sean's
 ## brief: an experiment, off in the game): with it on, a key with a lab texture is drawn from it,

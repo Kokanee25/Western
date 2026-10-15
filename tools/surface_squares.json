@@ -1,0 +1,29 @@
+{
+ "about": "tools/surface_squares.py's crops (x0, y0, x1, y1 in the 1280x720 render): the man (the yardstick: the portrait man's face and coat in shot_match_close, rendered with --model=bold_cowboy_portrait) and the surfaces round him, near and far. Roadmap 1.4, art, 2026-10-15.",
+ "views": {
+  "shot_match_close": [
+   {"name": "man_cheek", "box": [560, 330, 640, 390], "what": "the man's cheek, ~1 m"},
+   {"name": "man_coat", "box": [380, 520, 540, 660], "what": "the man's coat, ~1 m"},
+   {"name": "table", "box": [960, 680, 1280, 720], "what": "the table's top, ~0.8 m"},
+   {"name": "wall_back", "box": [0, 0, 150, 130], "what": "the back wall's boards, ~8 m"},
+   {"name": "floor", "box": [0, 610, 140, 720], "what": "the floor's planks, ~3 m"}
+  ],
+  "shot_match_street": [
+   {"name": "road_near", "box": [240, 620, 720, 710], "what": "the road at the feet, ~3 m"},
+   {"name": "road_mid", "box": [400, 470, 700, 540], "what": "the road ~8 m off"},
+   {"name": "road_far", "box": [560, 412, 760, 440], "what": "the road ~25 m off"},
+   {"name": "saloon_post", "box": [60, 180, 120, 440], "what": "the saloon's near porch post, ~5 m"},
+   {"name": "saloon_wall", "box": [100, 260, 200, 400], "what": "the saloon's red siding, ~6 m"},
+   {"name": "front_right", "box": [1130, 60, 1270, 300], "what": "the near front on the right, ~5 m"},
+   {"name": "man_mid", "box": [560, 390, 590, 470], "what": "a man in the street, ~10 m"}
+  ],
+  "texel_porch": [
+   {"name": "post", "box": [160, 120, 235, 420], "what": "the near porch post, ~1.5 m"},
+   {"name": "beam", "box": [480, 64, 672, 96], "what": "a beam overhead, ~2 m"},
+   {"name": "siding", "box": [360, 180, 430, 270], "what": "the wall's boards, ~5 m"},
+   {"name": "floor", "box": [480, 392, 720, 464], "what": "the porch floor's planks, ~3 m"},
+   {"name": "ground", "box": [0, 560, 240, 720], "what": "the ground at the feet, ~1.5 m"},
+   {"name": "man", "box": [296, 224, 344, 320], "what": "the man on the porch, ~5 m"}
+  ]
+ }
+}
