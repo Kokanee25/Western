@@ -233,7 +233,18 @@ def main() -> None:
     if args.guide:
         # The wheel grooves only (their deep part), dark on plain dust: the painted road's layout
         # (materials.json road_wide "guide"), so its ruts run where the street's wheels do.
-        g = np.where(ruts < -1.5, 0.32, 0.72)
+        # Each groove widened to a trough about 12 cm across (the painting's ruts are wide, deep
+        # cuts; one texel drew thin scratches) with a lighter lip of thrown-up dirt either side.
+        from scipy.ndimage import binary_dilation, label
+        deep = ruts < -1.5
+        # Only the ruts: the hoof churn's lone dark squares between them are left out.
+        parts, n = label(deep, structure=np.ones((3, 3), bool))
+        sizes = np.bincount(parts.ravel())
+        deep = deep & (sizes[parts] >= 6 * S)
+        groove = binary_dilation(deep, structure=np.ones((3, 1), bool))
+        groove = binary_dilation(groove, structure=np.ones((1, 5), bool))
+        lip = binary_dilation(groove, structure=np.ones((5, 1), bool)) & ~groove
+        g = np.where(groove, 0.3, np.where(lip, 0.86, 0.68))
         rgb = np.stack([g * 1.0, g * 0.85, g * 0.66], -1)
         Image.fromarray((rgb * 255).astype(np.uint8)).save(OUT / "road_guide.png")
         print("road_guide.png: the ruts alone")
