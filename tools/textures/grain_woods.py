@@ -287,11 +287,16 @@ def save(arr, path):
     Image.fromarray((arr * 255 + 0.5).astype(np.uint8)).save(path)
 
 
+# Fewer texels than this, far off a square's tone, are a speck smaller than the square (squared).
+SPECK = 3
+
+
 def squared(arr, k, dark_weight):
     """The wood in squares of k x k texels, each one colour, as the portrait man's face and coat are
     painted (roadmap 1.4, 2026-10-15, "surfaces to the man"; the woods' spec `squares`): the mean of
-    its texels with the darker weighing more ((1 - L) ** dark_weight, so a check or a nail hole
-    through a square still darkens it, where a plain mean washed them out), then snapped to the
+    its texels with the darker weighing more ((1 - L) ** dark_weight, so a check or a knot through
+    a square still darkens it, where a plain mean washed them out) and specks smaller than the
+    square (a nail, a fleck: SPECK) left out, as the man's paint has none, then snapped to the
     nearest of the colours the board itself uses, so the squares keep its few flat tones rather
     than every in-between. The texture keeps its size, every square filled (the shader lines its
     squares up with them: texel_grid square_texels); a last row or column short of k is a square of
@@ -304,7 +309,14 @@ def squared(arr, k, dark_weight):
     for y in range(0, h, k):
         for x in range(0, w, k):
             blk = arr[y:y + k, x:x + k].reshape(-1, 3)
-            wt = (1.0 - lum[y:y + k, x:x + k].reshape(-1)) ** dark_weight + 1e-6
+            bl = lum[y:y + k, x:x + k].reshape(-1)
+            wt = (1.0 - bl) ** dark_weight + 1e-6
+            # A speck far off the square's own tone that only one or two texels show (a nail, a
+            # fleck of worn paint: smaller than the square) is left out; a check, a knot or a worn
+            # patch takes more of the square and stays.
+            odd = np.abs(bl - np.median(bl)) > 0.12
+            if 0 < odd.sum() < SPECK:
+                wt = wt * ~odd
             c = (blk * wt[:, None]).sum(0) / wt.sum()
             out[y:y + k, x:x + k] = tones[((tones - c) ** 2).sum(1).argmin()]
     return out
