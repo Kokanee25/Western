@@ -2,7 +2,7 @@
 
 Characters session, from 2026-10-15. Sean: "why aren't we just starting with the body next so it
 all fits"; "if we're going Skyrim are we doing clothes on or in underwear" → underwear, clothes
-as separate pieces. A trial beside the approved route (`tools/characters/RECIPE.md`), not in
+as separate pieces; "just plain cream old looking boxer shorts". A trial beside the approved route (`tools/characters/RECIPE.md`), not in
 place of it until Sean says.
 
 ## Why
@@ -17,7 +17,7 @@ a coat taken, a shirt opened to tend a wound; and one coat should dress every ma
 
 ## What to build
 
-1. **His body, in period underwear** (a union suit), from four plain pictures: Rodin ($1.60)
+1. **His body, in plain old cream boxer shorts** (bare chest, arms and legs), from four plain pictures: Rodin ($1.60)
    builds it whole, head included, so neck and head fit by construction. Fitted to the game's
    skeleton and hitboxes as `tools/blender/fit_tripo.py` fits a whole man (warp limb by limb to
    `envelope.json`, eyes onto the anatomy's, skinned to our 17 bones, fingers off), but not
@@ -37,8 +37,8 @@ a coat taken, a shirt opened to tend a wound; and one coat should dress every ma
 
 ## What Sean makes (ChatGPT)
 
-- **Shape:** four plain pictures, full figure head to bare feet, in a union suit (1880s
-  one-piece long johns), bare-headed, standing upright, arms a little away from his sides, feet
+- **Shape:** four plain pictures, full figure head to bare feet, in plain cream, old-looking
+  boxer shorts and nothing else, bare-headed, standing upright, arms a little away from his sides, feet
   a little apart; front, facing the picture's left, facing its right, from behind; plain grey
   ground, flat even light; square.
 - **Paint:** the same four views dressed (long brown wool coat, dark vest, white shirt with a high
