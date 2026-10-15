@@ -286,6 +286,47 @@
     "shape_rounds": 1
    },
    "_note": "The bold cowboy in Sean's second style (2026-10-15: painterly, fine mosaic, bare-headed; his five paintings, the three-quarter mirrored to face the picture's left), on the bold cowboy's own Rodin bust (`shape`)."
+  },
+  "bold_cowboy_painterly_lit": {
+   "shape": "bold_cowboy",
+   "pictures": "docs/concept/style/factory/bold_cowboy",
+   "style": "docs/concept/style/portrait-painterly-front.png",
+   "outfit": {
+    "shirt": "#cdbf9f",
+    "trousers": "#3a3129",
+    "vest": "#3b2a1d",
+    "coat": "#5c4029",
+    "cravat": "#16120f"
+   },
+   "style_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "side": "docs/concept/style/portrait-painterly-profile-right.png"
+   },
+   "what": "a weathered frontier man of about forty, bare-headed, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache, a brown wool coat over a vest, a white shirt and a black tie",
+   "paint_views": {
+    "front": "docs/concept/style/portrait-painterly-front.png",
+    "three_quarter": "docs/concept/style/portrait-painterly-three-quarter.png",
+    "profile_left": "docs/concept/style/portrait-painterly-profile.png",
+    "profile_right": "docs/concept/style/portrait-painterly-profile-right.png",
+    "back": "docs/concept/style/portrait-painterly-from-behind.png"
+   },
+   "portraits_hatless": true,
+   "hair_fill": "dark",
+   "fidelity": {
+    "shape_fit": "broad",
+    "patches": "none",
+    "moustache_m": 0.004,
+    "brows_m": 0.002,
+    "unsquare": 0,
+    "keep_features": true,
+    "neck_cut": "smooth",
+    "skin_from_paint": true,
+    "sideburns_m": 0.012,
+    "shape_rounds": 1,
+    "delight": 0.15
+   },
+   "_note": "As bold_cowboy_painterly with the paintings' own light kept (delight 0.15), to be drawn self-lit."
   }
  }
 }

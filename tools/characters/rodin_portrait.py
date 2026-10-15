@@ -464,7 +464,9 @@ def paint(man, spec):
             A = np.c_[np.ones(sel.sum()), n[sel]]
             coef = np.linalg.lstsq(A, y[sel], rcond=None)[0]
             shade = np.c_[np.ones(len(n)), n] @ coef
-            ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** DELIGHT
+            # (`fidelity.delight`: how much; 0 keeps the paintings' own light, for a painterly
+            # style whose light is part of its look.)
+            ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** float(fid.get("delight", DELIGHT))
             ratio = np.clip(ratio, *DELIGHT_CLAMP)
             # His eye sockets are dark because the painter drew them so, not because they face
             # away from the light: no de-light within FEATURE_KEEP_M of his eyes (portrait.json
