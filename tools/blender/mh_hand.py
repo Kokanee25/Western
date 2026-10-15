@@ -24,10 +24,15 @@ import os
 import numpy as np
 
 import make_people as mp
+from fingers import along_basis  # HumanBody._along: the finger bones' frame
 
 SHARES = (0.42, 0.33, 0.25)
 TIP = 0.6          # past joint 4 (the last bone's end) by this much of that bone: the fingertip's points
 WRIST_OVERLAP = 0.025  # metres up his forearm: the new palm runs over his arm's cut edge
+OVERLAP = 0.6       # of its radius: a finger bone runs on into the next (no gap when curled)
+BASE_IN = 1.0       # ... and the first into his palm (over its finger openings)
+TUBE_SIDES = 8      # around a finger bone
+TUBE_FLAT = (1.08, 0.92)   # a finger's section: a little wider across the hand than deep
 STRAY = 0.02       # metres off its bone: a point that far isn't that finger's
 TIP_LENGTH = 0.25  # ... and the last bone's length (joint 3 to its tip) taken this far past joint 4
 FINGERS = ["thumb", "index", "middle", "ring", "little"]
@@ -97,7 +102,13 @@ def hand(side):
         k1, k2, k3, k4 = [j["%s-finger-%d-%d" % (side, f, k)] for k in range(1, 5)]
         tip = k4 + (k4 - k3) * TIP
         palm_d = np.minimum(palm_d, mp.seg_dist(p, wrist, k1)[0])
-        for bone, (a, b) in enumerate(((k1, k2), (k2, k3), (k3, tip))):
+        bones = ((k1, k2), (k2, k3), (k3, tip))
+        if f == 1:
+            # The thumb's first bone is the pad under it, part of the palm: its three are from
+            # its second joint out (its opening, at the pad, joined the wrist's and stayed open).
+            palm_d = np.minimum(palm_d, mp.seg_dist(p, k1, k2)[0])
+            bones = ((k2, k3), (k3, k4), (k4, tip))
+        for bone, (a, b) in enumerate(bones):
             d, t = mp.seg_dist(p, a, b)
             if bone == 0:
                 d = np.where(t < 0.12, np.inf, d)       # a little past the knuckle before it counts
@@ -160,34 +171,47 @@ def place(side, ours, fingers_env):
         a, b = np.array(fingers_env[fid]["a"]), np.array(fingers_env[fid]["b"])
         la = float(np.linalg.norm(b - a))
         dirn = (b - a) / la
-        ks = [affine(j["%s-finger-%d-%d" % (side, f + 1, k)]) for k in (1, 2, 3, 4)]
-        ks[3] = ks[3] + (ks[3] - ks[2]) * TIP_LENGTH
+        if f == 0:
+            ks = [affine(j["%s-finger-1-%d" % (side, k)]) for k in (2, 3, 4)]
+            ks.append(ks[2] + (ks[2] - ks[1]) * 0.8)
+        else:
+            ks = [affine(j["%s-finger-%d-%d" % (side, f + 1, k)]) for k in (1, 2, 3, 4)]
+            ks[3] = ks[3] + (ks[3] - ks[2]) * TIP_LENGTH
         # His finger as thick as MakeHuman's for its length; each piece as long as its slot.
         thick = la / sum(float(np.linalg.norm(ks[k + 1] - ks[k])) for k in range(3))
+        # Each bone a closed, rounded piece of the right thickness (cut from MakeHuman's mesh, the
+        # pieces' edges came out ragged and they gapped where they met): as thick as MakeHuman's
+        # finger is there (measured on its own points, scaled with the finger), a little flatter
+        # than round, overlapping the next bone and pushed into the palm, so a curled finger shows
+        # no gap and no edge.
+        radii = []
+        for bone in range(3):
+            s0, e0 = ks[bone], ks[bone + 1]
+            pts_b = q[part == f * 3 + bone]
+            d, t = mp.seg_dist(pts_b, s0, e0)
+            r0 = float(np.median(d[t < 0.35])) if (t < 0.35).any() else float(np.median(d))
+            r1 = float(np.median(d[t > 0.65])) if (t > 0.65).any() else r0
+            radii.append((r0 * thick, r1 * thick))
+        x, _y, _z = along_basis(a - b)
+        curl_to = -x if side == "r" else x
+        curl_to = curl_to - (curl_to @ dirn) * dirn
+        curl_to /= np.linalg.norm(curl_to)
+        across = np.cross(dirn, curl_to)
         start = a
         pieces = []
         for bone in range(3):
-            s0, e0 = ks[bone], ks[bone + 1]
-            u = (e0 - s0) / np.linalg.norm(e0 - s0)
-            R = _turn(u, dirn)
-            sel = tris[tri_part == f * 3 + bone]
-            used = np.unique(sel)
-            remap = -np.ones(len(q), np.int64)
-            remap[used] = np.arange(len(used))
-            # Each piece to its slot on the bone (MakeHuman's bones aren't the game's shares):
-            # stretched along the bone, as thick as the whole finger's scale makes it.
-            along = la * SHARES[bone] / max(float(np.linalg.norm(e0 - s0)), 1e-6)
-            r = (q[used] - s0) @ R.T
-            t = r @ dirn
-            pts = start + dirn * (t * along)[:, None] + (r - t[:, None] * dirn) * thick
-            # A stray (a point classed by its nearest bone but lying off it) goes.
             end = start + dirn * la * SHARES[bone]
-            off = mp.seg_dist(pts, start, end)[0] > STRAY
-            tt = remap[sel]
-            tt = tt[~off[tt].any(1)]
-            pieces.append((pts, tt, uv[used], part[used]))
-            start = start + dirn * la * SHARES[bone]
+            # One smooth taper, knuckle to tip: each bone ends as thick as the next begins (steps
+            # showed where they didn't), never thicker than it started.
+            r0 = min(radii[k][0] for k in range(bone + 1))
+            r1 = min(r0, radii[bone + 1][0] if bone < 2 else radii[2][1])
+            a0 = start - dirn * r0 * (BASE_IN if bone == 0 else OVERLAP)
+            b0 = end + dirn * (r1 * OVERLAP if bone < 2 else 0.0)
+            pts, tt = tube(a0, b0, r0, r1, across, curl_to)
+            pieces.append((pts, tt, np.zeros((len(pts), 2)), np.full(len(pts), f * 3 + bone)))
+            start = end
         fingers[fid] = pieces
+    palm_tris = close_openings(q, palm_tris, keep_near=mw, axis=Fg[0])
     used = np.unique(palm_tris)
     remap = -np.ones(len(q), np.int64)
     remap[used] = np.arange(len(used))
@@ -348,3 +372,193 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7):
     for f, name in enumerate(FINGERS):
         fingers_out["%s_%s" % (name, side)] = out[1 + 3 * f: 4 + 3 * f]
     return np.clip(col, 0, 1), palm_out, fingers_out
+
+
+def tube(a, b, ra, rb, across, depth, n=TUBE_SIDES, rings=3, caps=2):
+    """A closed, rounded piece from a to b: radius ra to rb, a little wider across the hand
+    than deep (TUBE_FLAT), a rounded cap at each end. Points and outward-wound triangles."""
+    axis = (b - a) / np.linalg.norm(b - a)
+    th = np.linspace(0, 2 * np.pi, n, endpoint=False)
+    shape = np.c_[np.cos(th) * TUBE_FLAT[0], np.sin(th) * TUBE_FLAT[1]]
+    rows = []
+    for k in range(caps, 0, -1):                     # the cap at a
+        ph = np.pi / 2 * k / (caps + 1)
+        rows.append((a - axis * ra * np.sin(ph), ra * np.cos(ph)))
+    for t in np.linspace(0, 1, rings + 1):
+        rows.append((a + (b - a) * t, ra + (rb - ra) * t))
+    for k in range(1, caps + 1):                     # the cap at b
+        ph = np.pi / 2 * k / (caps + 1)
+        rows.append((b + axis * rb * np.sin(ph), rb * np.cos(ph)))
+    pts = [a - axis * ra]
+    for c, r in rows:
+        pts += list(c + r * (shape[:, :1] * across + shape[:, 1:] * depth))
+    pts.append(b + axis * rb)
+    pts = np.array(pts)
+    tris = []
+    first, last = 0, len(pts) - 1
+    for i in range(n):
+        tris.append([first, 1 + (i + 1) % n, 1 + i])
+    for r in range(len(rows) - 1):
+        o0, o1 = 1 + r * n, 1 + (r + 1) * n
+        for i in range(n):
+            i2 = (i + 1) % n
+            tris += [[o0 + i, o0 + i2, o1 + i], [o0 + i2, o1 + i2, o1 + i]]
+    o = 1 + (len(rows) - 1) * n
+    for i in range(n):
+        tris.append([o + i, o + (i + 1) % n, last])
+    tris = np.array(tris)
+    # Outward: flip all if the first side faces in.
+    fn = np.cross(pts[tris[:, 1]] - pts[tris[:, 0]], pts[tris[:, 2]] - pts[tris[:, 0]])
+    mid = pts[tris].mean(1)
+    centre = a + np.clip(((mid - a) @ axis), 0, np.linalg.norm(b - a))[:, None] * axis
+    if ((fn * (mid - centre)).sum(1) < 0).mean() > 0.5:
+        tris = tris[:, ::-1]
+    return pts, tris
+
+
+def clip(v, tris, point, normal, which, lerp=(), copy=()):
+    """The triangles in `which` (a mask over tris) cut clean by a plane: what lies on the side
+    the normal points away from is kept, triangles across it cut along it (new points on the
+    plane, one per cut edge, shared by both triangles on it). `lerp`: per-point arrays
+    interpolated at the new points (positions too); `copy`: per-point arrays the new point takes
+    from the kept end. Returns (v, tris, lerp arrays, copy arrays, the new points' ids)."""
+    s = (v - point) @ normal
+    keep_tris = [tris[~which]]
+    out = [t for t in tris[which] if (s[t] <= 0).all()]
+    v = list(v)
+    lerp = [list(x) for x in lerp]
+    copy = [list(x) for x in copy]
+    made = {}
+
+    def cut(i, j):                                  # i kept, j cut away
+        key = (min(i, j), max(i, j))
+        if key not in made:
+            t = s[i] / (s[i] - s[j])
+            v.append(v[i] + (v[j] - v[i]) * t)
+            for arr in lerp:
+                arr.append(arr[i] + (arr[j] - arr[i]) * t)
+            for arr in copy:
+                arr.append(arr[i])
+            made[key] = len(v) - 1
+        return made[key]
+
+    for t in tris[which]:
+        inside = s[t] <= 0
+        n_in = int(inside.sum())
+        if n_in in (0, 3):
+            continue
+        k = int(np.argmax(inside if n_in == 1 else ~inside))
+        a_, b_, c_ = t[k], t[(k + 1) % 3], t[(k + 2) % 3]   # a_ the odd one out, winding kept
+        if n_in == 1:
+            out.append([a_, cut(a_, b_), cut(a_, c_)])
+        else:
+            ab, ac = cut(b_, a_), cut(c_, a_)
+            out += [[ab, b_, c_], [ab, c_, ac]]
+    tris = np.vstack(keep_tris + ([np.array(out, np.int64)] if out else []))
+    return (np.array(v), tris, [np.array(x) for x in lerp], [np.array(x) for x in copy],
+            np.array(sorted(made.values()), np.int64))
+
+
+def join_ring(q, ring_q, his_ring, centre, ax, ref, blend):
+    """The new palm's points drawn onto his arm's cut ring: each point's angle round the arm and
+    its height past the cut; at the cut its ring lies exactly on his, easing off over `blend`."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), np.linalg.norm(flat, axis=1)
+
+    def at(angles, ring):
+        _h, a, r = polar(ring)
+        o = np.argsort(a)
+        a, r = a[o], r[o]
+        a = np.r_[a[-1] - 2 * np.pi, a, a[0] + 2 * np.pi]
+        r = np.r_[r[-1], r, r[0]]
+        return np.interp(angles, a, r)
+
+    mh_c = q[ring_q].mean(0)
+    his_c = his_ring.mean(0)
+    h, ang, rad = polar(q)
+    w = np.clip(1.0 - h / blend, 0, 1) ** 1.5
+    shift = (his_c - mh_c) - ((his_c - mh_c) @ ax) * ax
+    target = rad + (at(ang, his_ring) - at(ang, q[ring_q]))
+    new_r = rad + w * (target - rad)
+    flat_dir = np.c_[np.cos(ang), np.sin(ang)]
+    out = centre + h[:, None] * ax + (flat_dir[:, :1] * e1 + flat_dir[:, 1:] * e2) * new_r[:, None] + w[:, None] * shift
+    return out
+
+
+def close_openings(q, tris, keep_near, axis):
+    """The palm's finger openings (where MakeHuman's fingers joined it) closed: each loop of its
+    open edges, but the one at the wrist (the lowest along the hand), filled with a fan to the
+    loop's first point. The finger pieces sit over them; open, they showed as holes."""
+    from collections import defaultdict
+    pos = np.round(q / 1e-6).astype(np.int64)
+    _u, first, weld = np.unique(pos, axis=0, return_index=True, return_inverse=True)
+    weld = weld.ravel()
+    wt = weld[tris]
+    count = defaultdict(int)
+    for t in wt:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            count[(min(a, b), max(a, b))] += 1
+    nxt = {}
+    for t in wt:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            if count[(min(a, b), max(a, b))] == 1:
+                nxt[b] = a                              # walk the open edge backwards: the fan faces out
+    loops, seen = [], set()
+    for start in list(nxt):
+        if start in seen:
+            continue
+        loop, k = [], start
+        while k in nxt and k not in seen:
+            seen.add(k)
+            loop.append(k)
+            k = nxt[k]
+        if len(loop) >= 3:
+            loops.append(loop)
+    if not loops:
+        return tris
+    low = min(range(len(loops)), key=lambda i: float(np.mean((q[first[loops[i]]] - keep_near) @ axis)))
+    extra = []
+    for i, loop in enumerate(loops):
+        if i == low:
+            continue
+        ids = first[loop]
+        extra += [[ids[0], ids[k], ids[k + 1]] for k in range(1, len(ids) - 1)]
+    return np.vstack([tris, np.array(extra, np.int64)]) if extra else tris
+
+
+def taper(pts, his_ring, mh_ring, centre, ax, ref, reach, swell):
+    """His forearm's points (above the cut, within `reach` of it) drawn in towards the wrist they
+    meet: at the cut his ring becomes min(his, swell x MakeHuman's) at each angle round the arm,
+    easing back to his own over `reach` up the arm."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), np.linalg.norm(flat, axis=1)
+
+    def at(angles, ring):
+        _h, a, r = polar(ring)
+        o = np.argsort(a)
+        a, r = a[o], r[o]
+        a = np.r_[a[-1] - 2 * np.pi, a, a[0] + 2 * np.pi]
+        r = np.r_[r[-1], r, r[0]]
+        return np.interp(angles, a, r)
+
+    h, ang, rad = polar(pts)
+    r_his = at(ang, his_ring)
+    r_meet = np.minimum(r_his, at(ang, mh_ring) * swell)
+    w = np.clip(1.0 + h / reach, 0, 1) ** 1.5          # h <= 0 up his arm
+    k = 1.0 + w * (r_meet / np.maximum(r_his, 1e-6) - 1.0)
+    flat = (pts - centre) - h[:, None] * ax
+    return centre + h[:, None] * ax + flat * k[:, None]

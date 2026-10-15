@@ -89,10 +89,11 @@ BRIDGE_SHOULDER = 0.35
 PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 # A twin piece keeps its own shape (lapels, pockets, the skirt's fall): more triangles.
 TWIN_TRIS = {"coat": 6000, "trousers": 8000}
-FINGER_TRIS = 80      # a finger bone's piece (own_fingers)
+FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
 WRIST_CUT = 0.004     # metres short of his wrist joint: his arm's skin ends (makehuman_hands)
-WRIST_BLEND = 0.04    # metres past it: the new palm's wrist eases from his arm to its own shape
-WRIST_FULL = 0.014    # ... and lies on his arm all the way to this far past it
+WRIST_BLEND = 0.03    # metres past it: the new palm's wrist eases from his arm to its own shape
+ARM_TAPER = 0.07      # metres up his forearm over which it tapers in to meet the new wrist
+WRIST_SWELL = 1.3     # the meeting ring: this times MakeHuman's wrist (never wider than his arm)
 HAND_SQUARE = 0.06    # of his skin's texture a side: each MakeHuman hand's paint (~245 px of 4096)
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
@@ -899,37 +900,36 @@ class TripoPerson(mp.Person):
             uvh = self.uv[his]
             col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
             base = np.median(col, 0)
-            # His arm cut clean across just short of his wrist (every triangle with a corner past
-            # the cut goes), and the new palm's wrist swollen to his forearm's girth there, so his
-            # cut edge sits inside it (his ragged edge showed round a thinner MakeHuman wrist).
+            # His arm and the new palm cut along one plane just short of his wrist, and the new
+            # palm's ring drawn onto his (as the neck ring joins his head): no ragged edge, no gap.
             el, wr = o[side + "-elbow"], o[side + "-hand"]
             ax = (wr - el) / np.linalg.norm(wr - el)
-            cut = float((wr - el) @ ax) - WRIST_CUT
+            point = wr - ax * WRIST_CUT
             arm = np.isin(self.region, ["forearm_" + side, "hand_" + side])
-            past = arm & ((self.v - el) @ ax > cut)
-            # By each triangle's middle (Rodin's triangles are long: cut by any corner, his arm
-            # stopped up to 2 cm short and left a gap); the swollen new wrist covers the edge.
-            gone = arm[self.tris].all(axis=1) & ((self.v[self.tris].mean(1) - el) @ ax > cut)
-            self.tris = self.tris[~gone]
+            his_arm_tris = arm[self.tris].all(axis=1)
+            before = len(self.tris)
+            self.v, self.tris, (self.v_tripo, self.uv), (self.region, self.head), ring = MH.clip(
+                self.v, self.tris, point, ax, his_arm_tris, lerp=(self.v_tripo, self.uv), copy=(self.region, self.head))
+            gone = np.zeros(before, bool)
             (palm, fingers) = MH.place(side, o, F)
-            q = palm[0]
-            # The new wrist wrapped onto his forearm: each point of it within WRIST_BLEND of the
-            # cut drawn onto his arm's surface (a hair outside it), all the way at the cut and up
-            # his arm, easing off towards the hand (a radial swell flared it into spikes).
-            from mathutils import Vector
-            from mathutils.bvhtree import BVHTree
-            keep_arm = self.tris[np.isin(self.region[self.tris], ["forearm_" + side]).all(axis=1)]
-            bvh = BVHTree.FromPolygons([tuple(x) for x in self.v], [tuple(int(i) for i in t) for t in keep_arm])
-            tq = (q - el) @ ax - cut
-            # Fully on his arm to WRIST_FULL below the cut (his cut edge reaches that far: his
-            # triangles end by their middles), then easing off.
-            w = np.clip((WRIST_BLEND - tq) / (WRIST_BLEND - WRIST_FULL), 0, 1) ** 1.5
-            q = q.copy()
-            for i in np.nonzero(w > 0)[0]:
-                loc, nrm, _f, _d = bvh.find_nearest(Vector(q[i]))
-                if loc is not None:
-                    q[i] = q[i] + w[i] * (np.array(loc) + np.array(nrm) * 0.001 - q[i])
-            palm = (q,) + tuple(palm[1:])
+            q, t, u, pa = palm
+            q, t, (u,), (pa,), ring_q = MH.clip(q, t, point, -ax, np.ones(len(t), bool), lerp=(u,), copy=(pa,))
+            used = np.unique(t)
+            remap = -np.ones(len(q), np.int64)
+            remap[used] = np.arange(len(used))
+            ring_q = remap[ring_q][remap[ring_q] >= 0]
+            q, t, u, pa = q[used], remap[t], u[used], pa[used]
+            if len(ring) and len(ring_q):
+                # They meet in the middle: his forearm tapers in towards his wrist over ARM_TAPER
+                # (Rodin's forearm runs on thick to the hand) to WRIST_SWELL of MakeHuman's wrist,
+                # and the new palm's ring is drawn onto that (all the hand's own flare was a bell).
+                palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+                fore = np.nonzero(np.isin(self.region, ["forearm_" + side, "hand_" + side]))[0]
+                up = (self.v[fore] - point) @ ax
+                near = fore[(up <= 1e-9) & (up > -ARM_TAPER)]
+                self.v[near] = MH.taper(self.v[near], self.v[ring], q[ring_q], point, ax, palm_dir, ARM_TAPER, WRIST_SWELL)
+                q = MH.join_ring(q, ring_q, self.v[ring], point, ax, palm_dir, WRIST_BLEND)
+            palm = (q, t, u, pa)
             placed[side] = ((palm, fingers), base, int(gone.sum()))
         squares = self._free_squares(2, HAND_SQUARE)
         for side, (u0, v0) in zip("rl", squares):
