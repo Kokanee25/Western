@@ -302,11 +302,11 @@ frozen until Sean names one.
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; approved bookmark
-  `look/portrait-men-2026-10-14`). ~$8.46 of $15 spent.
+  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124, build 1181:
+  `bold_cowboy_painterly_lit_rodin`, his own look in `_paint.json`). ~$8.46 of $15 spent.
 - On the branch, not merged (Sean's OK needed): his own hat (`look/bold-cowboy-own-hat-2026-10-14`);
-  the painterly style Sean chose (`bold_cowboy_painterly_lit`, `look/painterly-2026-10-15`),
-  his head painted in the game with art's v5 look (`portrait.json` `painted_look` →
-  `<pid>_paint.json` `look`; five lines in gameplay's `human_body.gd`); layered people: base body
+  the tools behind the painterly man (`portrait.json` `painted_look` → `write_painted`;
+  `look/painterly-2026-10-15`); layered people: base body
   `bold_cowboy_body`, head through `neck_ring.py`, coat and trousers from his dressed twin
   (`twin_pieces.py`), → `bold_cowboy_layered`; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`.
 - Next: Sean's eye on the dressed sheet; the coat's colour (Rodin's own, darker than his
