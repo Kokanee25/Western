@@ -165,13 +165,72 @@ func _grade(env: Environment, which: String) -> void:
 		env.adjustment_saturation = 1.12
 
 
-## The light: "neutral", the people lineup's (a grey ground, a sun and soft ambient); "warm", the
+## The light: "noon" (high sun, a post's hard shadow across his face), "fire" (a campfire low in
+## front, a cold night), "smoke" (neutral light, a bank of powder smoke before his face); "neutral", the people lineup's (a grey ground, a sun and soft ambient); "warm", the
 ## portraits' (a warm lamp in front of him and to his right, a dim warm fill on the other side, a
 ## dark brown ground, little ambient).
 func _light(w: Node3D, env: Environment, kind: String) -> Array:
 	var nodes := []
 	env.background_mode = Environment.BG_COLOR
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.volumetric_fog_enabled = false
+	if kind == "noon":
+		# Noon sun high and to his right, a post between it and him laying a hard shadow across
+		# his face; a pale sky ambient.
+		env.background_color = Color(0.62, 0.68, 0.76)
+		env.ambient_light_color = Color(0.7, 0.76, 0.85)
+		env.ambient_light_energy = 0.45
+		var sun := DirectionalLight3D.new()
+		w.add_child(sun)
+		sun.rotation_degrees = Vector3(-55, 30, 0)
+		sun.light_color = Color(1.0, 0.95, 0.86)
+		sun.light_energy = 1.6
+		sun.shadow_enabled = true
+		var post := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.08, 3.0, 0.08)
+		post.mesh = bm
+		w.add_child(post)
+		post.position = Vector3(0.25, 1.5, 0.35)
+		post.layers = 1
+		post.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		return [sun, post]
+	if kind == "fire":
+		# A campfire low in front of him and to his left: orange from below, a cold night round it.
+		env.background_color = Color(0.03, 0.035, 0.06)
+		env.ambient_light_color = Color(0.25, 0.3, 0.45)
+		env.ambient_light_energy = 0.12
+		var fire := OmniLight3D.new()
+		w.add_child(fire)
+		fire.position = Vector3(-0.35, 0.6, -0.7)
+		fire.light_color = Color(1.0, 0.55, 0.22)
+		fire.light_energy = 3.2
+		fire.omni_range = 4.0
+		fire.shadow_enabled = true
+		return [fire]
+	if kind == "smoke":
+		# The neutral light with black-powder smoke drifting between him and you (volumetric fog
+		# in a box round his head).
+		env.background_color = Color(0.5, 0.5, 0.52)
+		env.ambient_light_color = Color(0.75, 0.72, 0.68)
+		env.ambient_light_energy = 0.7
+		env.volumetric_fog_enabled = true
+		env.volumetric_fog_density = 0.0
+		env.volumetric_fog_albedo = Color(0.85, 0.84, 0.82)
+		var sun2 := DirectionalLight3D.new()
+		w.add_child(sun2)
+		sun2.rotation_degrees = Vector3(-35, 25, 0)
+		sun2.light_energy = 1.1
+		sun2.shadow_enabled = true
+		var fog := FogVolume.new()
+		w.add_child(fog)
+		fog.size = Vector3(1.2, 0.6, 0.5)
+		fog.position = Vector3(0.1, EYE - 0.05, -0.35)
+		var fm := FogMaterial.new()
+		fm.density = 2.5
+		fm.albedo = Color(0.88, 0.87, 0.85)
+		fog.material = fm
+		return [sun2, fog]
 	if kind == "warm":
 		env.background_color = Color(0.11, 0.05, 0.025)
 		env.ambient_light_color = Color(0.5, 0.34, 0.22)
