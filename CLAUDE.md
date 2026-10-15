@@ -17,7 +17,7 @@ the history in `docs/status/`.
 
 ## How we work
 
-- **Exactly three working sessions at a time** (since 2026-10-05; Sean: the characters session):
+- **Sessions follow `docs/ROADMAP.md`:** at most two at a time, each on its lane's current step; the phase says which lanes are active (the three lanes, since 2026-10-05):
   - **Art:** shaders, textures and how things are lit and drawn (people included: how skin and
     cloth take light); the world's look, dressing, props; the judge, the critic and the golden
     images. Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
@@ -161,48 +161,12 @@ shadow is drawn only when something in it moves. The sun's shadow is ~0.7 of wha
 
 ## Build plan
 
-Work in this order; each milestone ends playable. The first slice is defined in DESIGN.md §12.
-
-1. **M0 — Project skeleton:** Godot project, low-res pixel pipeline, first-person controller (walk, look,
-   crouch, controller support), a test street with one false-front building, day/night lighting.
-2. **M1 — The gun:** single-action revolver (cock, fire, gate reload, black-powder smoke), hit traces.
-3. **M2 — Bodies:** hidden anatomy, ballistics through tissue, physiology (blood, shock, pain, adrenaline),
-   fear and surrender, visible wound decals and clothing layers, one test outlaw. **Prove the gunfight
-   feels good here.**
-   **M2 follow-ups** (after M3's core, before the people art pass): grazes, glass cuts and embedded
-   shards, visible interior anatomy with wound volumes, shotgun pellets (DESIGN.md §7 "Grazes, glass
-   cuts and open wounds"); outlaw cover, fleeing and tending himself; active ragdoll balance.
-4. **M3 — Structures:** member-based buildings with a support graph, breakage, collapse, persistent
-   sleeping rubble; then fire spread; then dynamite.
-   **Rope** comes right after M3's core (needs members, ragdolls and physics): lasso and tying people
-   up first, then pulling walls down with a horse, hitching, pulleys (DESIGN.md §8 "Rope").
-   **Town build-out (runs alongside M4–M5):** once M3's systems exist, build the town from
-   `docs/TOWN.md` one building per session — every building, interior, set piece and piece of dressing,
-   in the order listed there.
-5. **M4 — People** (gameplay session), in this order:
-   1. ✅ Senses for everyone. 2. ✅ Deeds, opinions, the escalation ladder. 3. ✅ A day in town for
-   the gang, backing down, call-outs, duels. 4. ✅ The gang fights together.
-   5. **Money and social acts** (DESIGN.md §10 "Social interactions: a round on me"): a purse of real
-      coins at 1882 prices; the barkeep sells drinks, keeps a ledger, runs tabs, throws out men who
-      can't pay; "buy him a drink" and "a round on me!" as deeds (the room counts heads, you pay,
-      they cheer and toast, opinions warm by context); drunkenness for everyone (sway, speech,
-      courage). Keys for now, conversation later.
-   6. **Reasons to fight, first two** (DESIGN.md §5 "Reasons to fight"): a shooting match at the
-      range with money on it (drop, sway and the guns' feel against other shooters, prize from the
-      purse); a bounty from a wanted poster on a man camped outside town (alive pays more: arrest
-      and surrender as they are). No animals, ever.
-   7. Conversation hooks: talking a man down, bargaining, surrender terms.
-   8. Memory records and routines for townsfolk (who saw what, who owes whom, where they are when).
-   9. Conversation (DESIGN.md §9: written, voiced lines keyed to the moment; the AI reads what you
-      type into a deed), with the speaker's body state
-      fed in (DESIGN.md §11 "Signature features" 1: the body changes how people talk).
-6. **M5 — The town slice:** Salt Creek's first dozen people, the outlaw scenario with multiple endings,
-   the doctor, the jail, saving in bed and waking at the doctor's. **The sheriff opening** is the
-   first piece of the story spine (DESIGN.md §5 "Story flow", §11 signature features 1–3): you find
-   him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out
-   is evidence. Then forensics (the doctor and undertaker read wounds) and the trial.
-7. **M6+ —** the three acts on the railroad clock with faction plans, the drama manager, rumours,
-   letters and the telegraph, leading deputies, the mine, the full cast, legends between games.
+**The plan is `docs/ROADMAP.md`: phases, steps, gates and the ▶ Now marker. Work only on your
+lane's current step there.** Done before it (history in `docs/status/`): M0 skeleton, M1 the
+revolver, M2 bodies and its follow-ups, M3 structures, fire and dynamite, M4 steps 1–4 (senses,
+deeds and the ladder, a day in town, the gang together). M4's steps 5–9 and M5 are in the
+roadmap's Phases 4–5; rope, the town build-out beyond the block, and M6+ wait until after the
+demo. The first slice's definition (DESIGN.md §12) is the roadmap's Gate D.
 
 ## Working lean
 
@@ -305,6 +269,9 @@ python3 tools/bridge.py stop
 
 ## Current state (2026-10-12 evening; each session replaces its own lines)
 
+**The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
+what each lane had open when it was adopted (2026-10-14).
+
 Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
@@ -324,6 +291,12 @@ frozen until Sean names one.
 - Known: two art sessions ran at once on 2026-10-13 (this and `claude/art-saloon-doorway`): their
   goldens and sky edits collide; a full golden render is ~2.5 h on lavapipe here; extra street
   folk cost ~43 meshes each (~50 to spare).
+- Done since: the game's woods are the material lab's C (Sean's pick, 2026-10-15; brief
+  `docs/briefs/material-lab-timber.md`; the lab's record on `claude/art-material-lab`).
+- Done since: roadmap 1.1, the targets (`docs/concept/targets/`, each with its three gaps).
+- Next: roadmap 1.2, faces in the game's light: art's shader half done (`paint_tint`, the v5 look,
+  `docs/screenshots/painted_light/`); waits on characters drawing the painterly man painted, with a
+  per-model look, then the in-game sheet. The built boardwalk is in `docs/BACKLOG.md`.
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
 **Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
