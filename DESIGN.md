@@ -19,7 +19,9 @@ without asking Sean.
 - **§4 The look** (decided; under review since 2026-10-10) — the bold squares style everywhere
   (`docs/concept/saloon-blocks.png`, the street painting), the per-texel light, materials, the
   concept art references, what's built in code vs Blender; the style test is Prompt 07.
-- **§5 Setting and story** — Salt Creek 1882, the cast, how the story works, the story flow
+- **§5 Setting and story** — Salt Creek 1882, the cast, how the story works; **the story's shape
+  under review (proposed 2026-10-15: ten days of about an hour, the saloon table as the prologue,
+  the side missions placed on days; see "Story shape")**; the story flow
   (decided: the sheriff opening, three acts on the railroad clock), reasons to fight (decided),
   story missions (proposed, frozen), a day in Salt Creek, romance (proposed), history handled with
   care.
@@ -81,7 +83,7 @@ when you push on it.
 | Platform | **PC / big screen first** (Windows, Mac, Linux; Steam later). Not phone-first. Controller and keyboard/mouse. |
 | Engine | **Godot 4** (see CLAUDE.md for why). |
 | View | **First person** only. You can look down and see your body, holster and boots. |
-| Day length | **45 real minutes** per in-game day. The railroad clock is 30 in-game days. |
+| Day length | **45 real minutes** per in-game day. The railroad clock is 30 in-game days. *(Under review, Sean 2026-10-15: about an hour a day over about ten days; see §5 "Story shape".)* |
 | Saving | **Only when you sleep in a bed.** No save-anywhere; consequences stay heavy. |
 | Death | **You wake up at the doctor's** — hurt, poorer, and the town knows what happened. |
 | World | **The town, its outskirts, and a mine.** Grow outward later (ranches, railroad camp, open country). |
@@ -287,7 +289,7 @@ painterly squares. Where this section says otherwise below, this wins. The town'
 - **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
   rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
 
-### Story flow (**decided**, 2026-10-01)
+### Story flow (**decided**, 2026-10-01; its 30-day clock and three acts under review: see "Story shape" below)
 The danger in a systemic game is a sandbox with nothing pulling you along. The flow comes from a
 clock, factions working their plans, and the player always holding a few live leads.
 
@@ -325,6 +327,42 @@ clock, factions working their plans, and the player always holding a few live le
 - **The ending is the state of the world:** who's alive, who owns the spring and the widow's claim,
   who wears the badge, what's still standing, what people think of you. Told as the newspaper's
   front page and the town's reactions on day 30, plus a walk through the town afterwards.
+
+### Story shape: ten days (**proposed**, Sean 2026-10-15: "nothing set in stone, just a rough idea, all may change")
+Sean doesn't want a 30-day, ~22-hour game nobody finishes, and wants room for side missions like
+the camp. This would replace the 30-day clock and the three acts above (§1 and §3 change with it),
+keeping everything else in "Story flow": factions with plans, leads not a quest log, the drama
+manager, the ending as the state of the town.
+
+- **About ten days, each about an hour of play.** Sleep skips the night. The main thread pushed
+  hard is ~6–8 hours; with side missions ~12. No playthrough sees everything: missions arrive as
+  leads on certain days and play out without you if you're elsewhere, so a second game goes
+  differently.
+- **The deadline is something that can arrive in ten days:** the circuit judge, coming on the
+  stage to settle the land claims (the agent's forged deeds, the spring). The railroad's survey crew
+  is already in the valley; the rails are still coming. Whatever the town is when the judge steps
+  down is the ending.
+- **It opens at the saloon table** (Sean 2026-10-15): the evening before day 1, the concept
+  painting's shot. The stranger sits down across from you and talks (friendly, too curious about
+  the sheriff and your spring); a shooting breaks out at the bar and plays out however you handle
+  it. At dawn you find the sheriff on the road; the ball the doctor digs out may match the
+  stranger's gun, or clear him.
+- **The days, roughly:**
+
+| | Main thread | Side missions that can land here |
+|---|---|---|
+| Prologue, evening | The saloon table, the stranger, a shooting at the bar | |
+| Day 1 | The sheriff on the road; the doctor; the ball as evidence | |
+| Days 2–3 | The town without law; the gang in town; offers and threats | The vaquero's horses; the Kid wants out |
+| Days 4–6 | The squeeze: the factions make their moves | **The camp** (the big one, a day and a half); the cave-in; the fever house |
+| Days 7–8 | Things come to a head | Hold him till the Marshal comes; the lynching at the railhead; the dust storm |
+| Day 9 | The reckoning: a trial, a hanging, or the gang's last play | |
+| Day 10 | The judge arrives; the ending is the state of the town | |
+
+- **Little acts in the world, not cutscenes** (Sean 2026-10-15): the table scene, the robbery,
+  the hanging are written as acts (who goes where and says what, beat by beat) that the systems
+  carry out and that hand back to the systems the moment you interfere. The camera stays yours.
+- **The demo** (`docs/ROADMAP.md`) is the prologue and day 1.
 
 ### Reasons to fight (**decided**, Sean 2026-10-01)
 The gunfight and the bodies are the deepest systems we have, so the 30 days must bring regular,
