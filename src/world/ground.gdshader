@@ -58,6 +58,28 @@ uniform float sky_fill = 0.15;
 // shadows); eased by the sun's height as DayCycle's `golden` is (the road is flat, so `facing`
 // is that height's sine).
 uniform float sky_fill_low_sun = 0.05;
+// The painted road's relief (assets/textures/road_wide_height.png, the image model's height of
+// its own painting: roadmap 1.4, Sean's road, 2026-10-15): each square tilted to the slope there,
+// so the low sun lights a rut's far wall and a stone's top and leaves the near wall dark; the
+// hollows a little darker (relief_cavity); and the sun's light traced a few centimetres toward it
+// over the heights (light()), so a rut's bottom lies in the shadow of its lip, long with the sun
+// low, as the target's ruts do. relief_depth: metres from black to white (a rut ~5 cm deep).
+uniform sampler2D height_tex : filter_linear_mipmap, repeat_enable;
+uniform bool use_height = false;
+uniform float relief_depth = 0.06;
+uniform float relief_cavity = 0.3;
+// How far toward the sun the shadow trace looks (metres) and how dark a fully hidden square goes
+// (of the sun's light; the sky's fill still reaches it).
+uniform float relief_shadow_reach = 0.45;
+uniform float relief_shadow = 0.85;
+// The painted road is the whole street: no 2 m tile through it in patches (the drawn one's was
+// to break its repeat; a painting doesn't need it, and its own dirt doesn't match).
+uniform bool wide_only = false;
+varying vec2 v_hw;
+varying float v_hmirror;
+varying float v_hrelief;
+varying float v_h0;
+varying float v_hmetres;
 // The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
 // here; the screen mosaic is the only quantisation.
 uniform bool smooth_source = false;
@@ -128,13 +150,32 @@ void fragment() {
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
 		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, lod).rgb;
+		if (use_height) {
+			// The slope across the square, from the height either side of it (a square or two height
+			// texels apart, whichever is wider), into a normal in world space; x runs backward in
+			// the mirrored cells.
+			vec2 hs = vec2(textureSize(height_tex, 0));
+			float mirror = mod(cell, 2.0) > 0.5 ? -1.0 : 1.0;
+			vec2 d = max(b / tpm, vec2(2.0 * wide_metres) / hs) / wide_metres;
+			float hl = log2(max(d.x * hs.x, 1.0));
+			float hx = textureLod(height_tex, w + vec2(d.x, 0.0), hl).r - textureLod(height_tex, w - vec2(d.x, 0.0), hl).r;
+			float hz = textureLod(height_tex, w + vec2(0.0, d.y), hl).r - textureLod(height_tex, w - vec2(0.0, d.y), hl).r;
+			vec2 slope = vec2(mirror * hx / (2.0 * d.x), hz / (2.0 * d.y)) * relief_depth / wide_metres;
+			v_hw = w;
+			v_hmirror = mirror;
+			v_hmetres = wide_metres;
+			v_h0 = textureLod(height_tex, w, hl).r;
+			v_hrelief = smoothstep(0.25, 0.75, road) * (1.0 - smoothstep(dissolve_from, dissolve_to, length(VERTEX)));
+			vec3 nw = normalize(vec3(-slope.x, 1.0, -slope.y));
+			NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(nw, 0.0)).xyz, v_hrelief));
+		}
 		if (keep_tracks) {
 			// The mip levels a metre and half a metre across, whatever the road's density.
 			float far = smoothstep(dissolve_from, dissolve_to, length(VERTEX));
 			wide = mix(wide, textureLod(wide_tex, w, max(lod, log2(tpm * 0.5))).rgb, far);
 			dirt = mix(dirt, textureLod(road_tex, p * tpm / vec2(textureSize(road_tex, 0)), max(lod, log2(tpm * 0.25))).rgb, far);
 		}
-		float patch = smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
+		float patch = wide_only ? 0.0 : smoothstep(0.5, 0.7, fbm(p * 0.13 + 23.0));
 		if (keep_tracks) {
 			float lw = dot(wide, vec3(0.3, 0.59, 0.11));
 			float ld = dot(dirt, vec3(0.3, 0.59, 0.11));
@@ -181,6 +222,9 @@ void fragment() {
 	if (!smooth_source && !keep_tracks) {
 		col = floor(col * 24.0 + 0.5) / 24.0;
 	}
+	if (use_height) {
+		col *= mix(1.0, mix(1.0 - relief_cavity, 1.0, v_h0), v_hrelief);
+	}
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
 	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
@@ -195,6 +239,22 @@ void light() {
 		vec3 sky = mix(LIGHT_COLOR, vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), 0.5);
 		float fill = mix(sky_fill_low_sun, sky_fill, smoothstep(0.1, 0.6, facing));
 		DIFFUSE_LIGHT += sky * fill * smoothstep(0.0, 0.05, facing);
+	}
+	if (use_height && LIGHT_IS_DIRECTIONAL && v_hrelief > 0.0) {
+		// The relief's own shadow: along the sun's way over the heights, is anything above the
+		// ray from this square? Six steps to relief_shadow_reach; a near miss shades part way.
+		vec3 sun = normalize((INV_VIEW_MATRIX * vec4(LIGHT, 0.0)).xyz);
+		vec2 along = sun.xz / max(length(sun.xz), 1e-4);
+		float rise = sun.y / max(length(sun.xz), 1e-4);
+		float h0 = v_h0 * relief_depth;
+		float hidden = 0.0;
+		for (int i = 1; i <= 6; i++) {
+			float t = relief_shadow_reach * float(i) / 6.0;
+			vec2 q = v_hw + vec2(v_hmirror * along.x, along.y) * t / v_hmetres;
+			float above = textureLod(height_tex, q, 1.0).r * relief_depth - (h0 + t * rise);
+			hidden = max(hidden, smoothstep(0.0, 0.012, above));
+		}
+		lit *= 1.0 - relief_shadow * hidden * v_hrelief;
 	}
 	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after. Under
 	// the surface-blocks look the light steps (tile_band).

@@ -60,8 +60,11 @@ const BOLD_TEXELS := 16.0
 ## for its line and grain to show). The facade's own woods always; the rest under the bold look.
 const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
-const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide",
-		"shot_table"]
+const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "shot_table"]
+## The street's road is painted (roadmap 1.4, Sean's road, 2026-10-15: tools/textures/paint_textures.py
+## from docs/concept/targets/6_road_target.jpg, cut by reduce.py at 32 a metre) with its relief
+## (road_wide_height.png), lit square by square in ground.gdshader; the drawn one (draw_road.py)
+## was "road_wide" in DRAWN_ALWAYS before.
 ## Drawn textures laid at their own density (squares a metre), not DRAWN_TEXELS: the saloon
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
@@ -234,8 +237,14 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		m.set_shader_parameter(&"wide_tex", wide)
 		m.set_shader_parameter(&"use_wide_tex", wide != null)
 		var drawn := wide != null and wide.resource_path.contains("/drawn/")
-		m.set_shader_parameter(&"keep_tracks", drawn)
-		m.set_shader_parameter(&"road_texels", DRAWN_ROAD_TEXELS if drawn else 0.0)
+		var hp := wide.resource_path.get_basename() + "_height.png" if wide else ""
+		var relief := wide != null and not drawn and not smooth and ResourceLoader.exists(hp)
+		m.set_shader_parameter(&"keep_tracks", drawn or relief)
+		m.set_shader_parameter(&"road_texels", DRAWN_ROAD_TEXELS if drawn or relief else 0.0)
+		m.set_shader_parameter(&"use_height", relief)
+		m.set_shader_parameter(&"wide_only", relief)
+		if relief:
+			m.set_shader_parameter(&"height_tex", load(hp))
 	return m
 
 

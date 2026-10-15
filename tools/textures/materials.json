@@ -322,7 +322,53 @@
    },
    "height": true,
    "about_ref": "Sean's road picture (docs/concept/targets/6_road_target.jpg, 2026-10-15): its foreground road, for the look; the guide is draw_road.py's layout, so the ruts run where the street's wheels do. Footprints are gameplay's (people walking).",
-   "guide": "assets/textures/drawn/road_guide.png"
+   "guide": "assets/textures/drawn/road_guide.png",
+   "patches": [
+    [
+     130,
+     30,
+     230,
+     110,
+     256
+    ],
+    [
+     820,
+     40,
+     920,
+     130,
+     -256
+    ],
+    [
+     1150,
+     130,
+     1230,
+     210,
+     -256
+    ],
+    [
+     950,
+     440,
+     1060,
+     530,
+     256
+    ],
+    [
+     310,
+     520,
+     410,
+     610,
+     256
+    ],
+    [
+     1290,
+     540,
+     1390,
+     630,
+     -256
+    ]
+   ],
+   "about_patches": "The painting's boot prints, covered from the ground beside them (prints come from people walking: gameplay's, docs/BACKLOG.md).",
+   "about_paint": "Painted by run 72 (try 2 of 3, 2026-10-15, $0.25 a call): the ruts and stones right; try 3 drew more bands and blotches and was not kept."
   }
  }
 }
