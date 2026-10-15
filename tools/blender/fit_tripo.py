@@ -805,6 +805,71 @@ class TripoPerson(mp.Person):
         self.v = gv[weld]
         self.report["skin_tucked"] = int(moved.sum())
 
+    def own_fingers(self):
+        """His own fingers as the game's finger pieces (tools/blender/fingers.py; people.json
+        `own_fingers`): each hand's thumb and four fingers found on his mesh, cut in three, each
+        piece laid straight on its bone in the game's rest pose, and taken out of his skin; his
+        palm narrowed to the game's hand. A hand that doesn't come apart in five keeps the old way
+        (fingers cut off at the knuckles, the game's own drawn instead)."""
+        import fingers as FG
+        o = self.our_joints()
+        F = self.env.get("fingers", {})
+        self.finger_pieces = {}
+        drop = np.zeros(len(self.tris), bool)
+        rep = self.report.setdefault("own_fingers", {})
+        for side in "rl":
+            hand = self.region == "hand_" + side
+            w, k = o[side + "-hand"], o[side + "-knuckle"]
+            seg = FG.segment(self.v, self.tris, hand, w, k) if F else None
+            if seg is None:
+                rep[side] = "not found: the game's fingers"
+                continue
+            pos, d, weld, hv = seg["pos"], seg["d"], seg["weld"], seg["hv"]
+            label = np.full(len(pos), -1)
+            frac = np.zeros(len(pos))
+            moves = {}
+            for n, name in enumerate(FG.FINGERS):
+                ids = seg["fingers"][name]
+                fid = "%s_%s" % (name, side)
+                f, mv = FG.straighten(pos, d, ids, np.array(F[fid]["a"]), np.array(F[fid]["b"]), side)
+                label[ids] = n
+                frac[ids] = f
+                moves[fid] = mv
+            local = -np.ones(len(self.v), np.int64)
+            local[hv] = weld
+            t = local[self.tris]
+            inhand = (t >= 0).all(1)
+            lab = np.where(inhand[:, None], label[np.where(t >= 0, t, 0)], -1)
+            # A triangle goes with the finger two or more of its corners are in.
+            for n, name in enumerate(FG.FINGERS):
+                fid = "%s_%s" % (name, side)
+                mine = inhand & ((lab == n).sum(1) >= 2)
+                bone = FG.bone_of(np.nanmean(np.where(lab == n, frac[np.where(t >= 0, t, 0)], np.nan)[mine], axis=1) if mine.any() else np.zeros(0))
+                pieces = []
+                for b in range(3):
+                    tb = self.tris[mine][bone == b]
+                    used = np.unique(tb)
+                    remap = -np.ones(len(self.v), np.int64)
+                    remap[used] = np.arange(len(used))
+                    pieces.append((used, FG.move(self.v[used], moves[fid][b]), remap[tb]))
+                self.finger_pieces[fid] = pieces
+                drop |= mine
+            # His palm to the game's hand: across his index to little knuckles, his against the anatomy's.
+            base = lambda ids: pos[ids[np.argsort(d[ids])[:max(5, len(ids) // 6)]]].mean(0)
+            his = float(np.linalg.norm(base(seg["fingers"]["index"]) - base(seg["fingers"]["little"])))
+            game = float(np.linalg.norm(np.array(F["index_" + side]["a"]) - np.array(F["little_" + side]["a"])))
+            s = float(np.clip(game / max(his, 1e-6), 0.5, 1.0))
+            palm = hand.copy()
+            palm[np.unique(self.tris[drop])] = False
+            self.v = FG.narrow_palm(self.v, palm, w, k, s)
+            rep[side] = {"palm_narrowed": round(s, 3), "finger_triangles": {n: int(sum(len(p[2]) for p in self.finger_pieces["%s_%s" % (n, side)])) for n in FG.FINGERS}}
+        self.report["faces_before_finger_cut"] = int(len(self.tris))
+        self.tris = self.tris[~drop]
+        self.report["faces_after_finger_cut"] = int(len(self.tris))
+        if any(isinstance(rep.get(sd), str) for sd in "rl"):
+            # A hand that didn't come apart: its fingers off at the knuckles as before.
+            self.cut_fingers()
+
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
         v = self.v
@@ -869,7 +934,10 @@ class TripoPerson(mp.Person):
         if self.bare:
             self.cut_bridges()
             self.close_cuts()
-        self.cut_fingers()
+        if self.spec.get("own_fingers"):
+            self.own_fingers()
+        else:
+            self.cut_fingers()
         self.skin_tone()
         self.weights()
         for piece in self.pieces:
@@ -1308,6 +1376,22 @@ def build_blender(person):
         made.append(make(piece.shape, piece.tris, (TWIN_TRIS if piece.twin else PIECE_TRIS).get(piece.shape, 1500), piece))
     person.report["triangles"] = {o.name.split("_", 1)[1]: sum(len(p.vertices) - 2 for p in o.data.polygons)
                                   for o in made}
+    # His own fingers (own_fingers): each bone's piece a plain mesh in the game's rest pose, not
+    # skinned (HumanBody hangs it on that finger bone), named finger_<finger>_<side>_<bone>.
+    for fid, pieces in getattr(person, "finger_pieces", {}).items():
+        for b, (used, pos, tris) in enumerate(pieces):
+            if not len(tris):
+                continue
+            mesh = bpy.data.meshes.new("finger_%s_%d" % (fid, b))
+            mesh.from_pydata([mp.to_blender(p) for p in pos], [], [[int(i) for i in t] for t in tris])
+            uvl = mesh.uv_layers.new(name="UVMap")
+            for poly in mesh.polygons:
+                poly.use_smooth = True
+                for li in poly.loop_indices:
+                    u, vv = person.uv[used[mesh.loops[li].vertex_index]]
+                    uvl.data[li].uv = (u, 1.0 - vv)
+            obj = bpy.data.objects.new("finger_%s_%d" % (fid, b), mesh)
+            bpy.context.scene.collection.objects.link(obj)
 
 
 def export(person):

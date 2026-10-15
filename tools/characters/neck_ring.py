@@ -84,11 +84,12 @@ def main():
     arm = next(o for o in bpy.data.objects if o.type == "ARMATURE")
     skin = bpy.data.objects["body_skin"]
     old = bpy.data.objects["body_head"]
-    # His garment pieces (fit_tripo's `pieces`: body_coat ...) come along as they are.
+    # His garment pieces (fit_tripo's `pieces`: body_coat ...) and his own fingers (finger_*)
+    # come along as they are.
     pieces = [o.name[5:] for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("body_")
               and o.name not in ("body_skin", "body_head")]
     for o in list(bpy.data.objects):
-        if o.type == "MESH" and not o.name.startswith("body_"):
+        if o.type == "MESH" and not o.name.startswith(("body_", "finger_")):
             bpy.data.objects.remove(o)
     old_co = np.array([v.co[:] for v in old.data.vertices])
     # The painted bust into Blender's space (body space: Y up, facing -Z → x, -z, y).
