@@ -29,7 +29,9 @@ MODEL = os.environ.get("TEXTURE_MODEL") or os.environ.get("PAINT_MODEL") or "bla
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SPEC = os.path.join(ROOT, "tools", "textures", "materials.json")
 RAW = os.path.join(ROOT, "assets", "textures", "raw")
-PAINTINGS = {"saloon": "docs/concept/saloon-night.png", "street": "docs/concept/street-golden-hour.png"}
+PAINTINGS = {"saloon": "docs/concept/saloon-night.png", "street": "docs/concept/street-golden-hour.png",
+             # Sean's road (2026-10-15, roadmap 1.4): what the street's dirt is to look like.
+             "road": "docs/concept/targets/6_road_target.jpg"}
 
 TILE = (
     "A seamless, tileable texture: {what}. Seen perfectly straight on (orthographic, no perspective, "
@@ -50,6 +52,17 @@ SIGN = (
     "and character are those of the sign in the reference image, which is a cropped pixel-art "
     "painting: do NOT copy its square pixels, paint a clean, detailed real board instead. No other "
     "text, no building, no sky, no border."
+)
+
+
+# A material with "height": its relief, painted from its own picture (the ground shader lights the
+# road's ruts, ridges and stones by it in the low sun: roadmap 1.4, Sean's road).
+HEIGHT = (
+    "This picture is a seamless texture of {what}. Paint its height map: the very same picture, "
+    "every feature in exactly the same place and size, as a smooth greyscale relief. White where the "
+    "ground stands highest (the tops of stones, the ridges of dirt thrown up beside the wheel ruts), "
+    "mid grey for the flat ground, black at the bottoms of the ruts and hollows. Only height: no "
+    "colour, no light or shading, no shadows, no texture of the paint, no text, no border."
 )
 
 
@@ -156,6 +169,20 @@ def main():
         img.save(out, "JPEG", quality=92)
         painted += 1
         print("painted:", mid, img.size)
+        if spec.get("height"):
+            h = None
+            for attempt in range(3):
+                try:
+                    h = ask(HEIGHT.format(what=spec["what"]), [img], {"aspect_ratio": aspect_name(spec["metres"])},
+                            mid + " height", key)
+                    break
+                except (RuntimeError, OSError, KeyError, ValueError) as e:
+                    print("failed (try %d):" % (attempt + 1), e)
+            if h is None:
+                failed.append(mid + "_height")
+                continue
+            h.convert("L").resize(img.size, Image.LANCZOS).save(os.path.join(RAW, mid + "_height.jpg"), "JPEG", quality=95)
+            print("painted:", mid + "_height")
     if failed:
         print("not painted:", ", ".join(failed))
         if painted == 0:
