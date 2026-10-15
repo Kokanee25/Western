@@ -197,6 +197,18 @@ def main():
     newh = bpy.data.objects.new("body_head_new", me)
     bpy.context.scene.collection.objects.link(newh)
     mark("mesh made")
+    # Cut down to the game's budget first (before any skinning, so nothing needs re-ordering).
+    print("neck_ring: head %d triangles" % len(Th), flush=True)
+    if len(Th) > HEAD_TRIS:
+        for o in bpy.context.view_layer.objects:
+            o.select_set(False)
+        newh.select_set(True)
+        bpy.context.view_layer.objects.active = newh
+        dec = newh.modifiers.new("dec", "DECIMATE")
+        dec.ratio = HEAD_TRIS / len(Th)
+        bpy.ops.object.modifier_apply(modifier="dec")
+    mark("decimated")
+    Vw = np.array([v.co[:] for v in newh.data.vertices])
     groups = [g.name for g in old.vertex_groups]
     for g in groups:
         newh.vertex_groups.new(name=g)
@@ -213,26 +225,21 @@ def main():
     skin_co = np.array([v.co[:] for v in skin.data.vertices])
     src_co = np.vstack([old_co, skin_co])
     src_w = np.vstack([w_old, w_skin])
-    Vw = Vh[first]
     near = Vw[:, 2] < ring_z + RING_BLEND
     _d, jo = cKDTree(old_co).query(Vw)
     _d2, jb = cKDTree(src_co).query(Vw)
     W = np.where(near[:, None], src_w[jb], w_old[jo])
     for gi, g in enumerate(groups):
         vg = newh.vertex_groups[g]
-        for vi in np.nonzero(W[:, gi] > 1e-4)[0]:
-            vg.add([int(vi)], float(W[vi, gi]), "REPLACE")
+        nz = np.nonzero(W[:, gi] > 1e-4)[0]
+        # One call per distinct weight (rounded to 1/256), not one per vertex.
+        q = np.round(W[nz, gi] * 256) / 256
+        for val in np.unique(q):
+            vg.add([int(i) for i in nz[q == val]], float(val), "REPLACE")
     mark("skinned")
     newh.parent = arm
     mod = newh.modifiers.new("skeleton", "ARMATURE")
     mod.object = arm
-    if len(Th) > HEAD_TRIS:
-        dec = newh.modifiers.new("dec", "DECIMATE")
-        dec.ratio = HEAD_TRIS / len(Th)
-        bpy.context.view_layer.objects.active = newh
-        bpy.ops.object.modifier_move_to_index(modifier="dec", index=0)
-        bpy.ops.object.modifier_apply(modifier="dec")
-    mark("decimated")
     bpy.data.objects.remove(old)
     newh.name = "body_head"
     newh.data.name = "body_head"
