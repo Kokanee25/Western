@@ -299,21 +299,21 @@ frozen until Sean names one.
   per-model look, then the in-game sheet. The built boardwalk is in `docs/BACKLOG.md`.
 - Waiting on Sean: his eye on the four sheets; the style-sheet review (Prompt 07).
 
-**Characters** (branch `claude/characters-portrait-factory`; brief `docs/briefs/character-style-fidelity.md`):
-- On main: the three Rodin portrait men with the style-fidelity pass (shape fitted to the
-  portraits, moustache and brow relief, patches by anatomy, eyes kept whole; `portrait.json`
-  `fidelity`). Sean: "I love where we're at". **The recipe for the next man:
-  `tools/characters/RECIPE.md`**; the approved state is the bookmark branch
-  `look/portrait-men-2026-10-14`. ~$5.26 of $15.
-- Done 2026-10-14 (branch, not merged; bookmark `look/bold-cowboy-own-hat-2026-10-14`): the
-  fidelity investigation and the style pass (brief: "The fidelity investigation", "The style
-  pass"): the bold cowboy in his own hat (`portrait.json` hat `wear`, `paint` "designed";
-  `style_hat._ring` fixed), his forehead refilled under the brim.
-- Next: Sean is trying another art style in a new session on this pipeline (the style lives in
-  the five style portraits; RECIPE.md). Open: square blocks on his face (Sean's call); hats for
-  the other two men (Sean's marks). Trap: after a build, `godot --headless --import` first.
-- For art: faces' chroma +8–10 in the saloon (ACES +13, warm lamps +9); `test_street.tscn`'s
-  `volumetric_adjustment_enabled` typo (contrast/saturation never apply).
+**Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
+`painted-light.md`):
+- On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; approved bookmark
+  `look/portrait-men-2026-10-14`). ~$8.46 of $15 spent.
+- On the branch, not merged (Sean's OK needed): his own hat (`look/bold-cowboy-own-hat-2026-10-14`);
+  the painterly style Sean chose (`bold_cowboy_painterly_lit`, `look/painterly-2026-10-15`),
+  his head painted in the game with art's v5 look (`portrait.json` `painted_look` →
+  `<pid>_paint.json` `look`; five lines in gameplay's `human_body.gd`); layered people: base body
+  `bold_cowboy_body`, head through `neck_ring.py`, coat and trousers from his dressed twin
+  (`twin_pieces.py`), → `bold_cowboy_layered`; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`.
+- Next: Sean's eye on the dressed sheet; the coat's colour (Rodin's own, darker than his
+  paintings); vest and shirt as their own layer; the nape band; the holster outside the coat.
+  Trap: after a build, `godot --headless --import` first; lab renders via `build/lab_run.sh`.
+- For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
+  `volumetric_adjustment_enabled` typo.
 
 **Gameplay** (branch `claude/gameplay-…`):
 - Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
