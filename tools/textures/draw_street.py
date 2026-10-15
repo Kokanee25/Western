@@ -237,6 +237,16 @@ def main():
             "prints_about": "decals (RoadPrints): kind, x, z (world), turn (radians), wear (0 fresh .. 1 gone)",
             "prints": prints}
     (OUT / "street_map.json").write_text(json.dumps(info, indent=1) + "\n")
+    # Its import: data, not a picture. Godot's default fills a fully transparent pixel's colour
+    # from its neighbours (fix_alpha_border), and A is 0 in every groove's bottom, so the ruts were
+    # filled in; mipmaps on, lossless whatever 3D use it's put to.
+    imp = OUT / "street_map.png.import"
+    if imp.exists():
+        t = imp.read_text()
+        t = (t.replace("mipmaps/generate=false", "mipmaps/generate=true")
+             .replace("process/fix_alpha_border=true", "process/fix_alpha_border=false")
+             .replace("detect_3d/compress_to=1", "detect_3d/compress_to=0"))
+        imp.write_text(t)
     print("street_map.png %dx%d (%d px a metre over x %.0f..%.0f, z %.0f..%.0f); %d steps, %d rails/troughs, %d prints"
           % (w, h, MAP_PX, AREA[0], AREA[2], AREA[1], AREA[3], len(steps), len(hooves), len(prints)))
     if args.sheet:
