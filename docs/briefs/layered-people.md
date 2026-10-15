@@ -115,3 +115,19 @@ direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their
 2026-10-15, Rodin on fal for `bold_cowboy_dressed` (his four dressed pictures, whole, A-pose):
 $1.60 (total ~$8.46 of $15). His clothes from it: what stands off the bare body, cut into coat,
 trousers and boots (a quicker route to the coat's real shape than shelling the body).
+
+**2026-10-15, the twin route (done; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`):**
+his clothes are cut from Rodin's dressed model of him, not rebuilt as a shell (tried first: the
+shell placed by landmarks came out scrambled, `fit_tripo` `as_shell`).
+`tools/characters/twin_pieces.py` lays the dressed twin on the bare body (trimmed ICP; each sleeve
+turned onto its arm by his hands, ~10°), keeps what stands off his skin below his chin (not his
+hands, not his throat), pushes it out of his skin and splits coat from trousers by colour
+(`assets/people/tripo/bold_cowboy_{coat,trousers}.glb` + a `.json` naming the body). `fit_tripo`
+carries a twin piece as it is: warped with him, pushed out again after the warp
+(`clear_twin`), weighted from the skin under it (`weights_from_skin`), and his skin tucked
+under it (`tuck_skin`: Rodin's long faces cut through an arm's round otherwise). Painting the
+twin from the dressed pictures failed (their dark glowing backdrop defeats `body_paint`'s
+outline): Rodin's own colours, darker and more mottled than the paintings. Open: the coat's
+colour; a light band at the nape (his twin's hair over the collar); specks of skin at the
+shoulders; the game's holster outside the coat; vest and shirt are painted on the coat (one
+layer: the coat off shows his bare chest).
