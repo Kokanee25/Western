@@ -105,6 +105,16 @@ def main():
     # Under his jaw the bust is still dressed (collar, lapels): only what's within the neck's
     # reach of the ring's axis is his neck; the rest goes.
     chin_p = s * np.array([pts[152, 0], -pts[152, 2], pts[152, 1]]) @ R.T + t
+    # --head_scale: his head smaller or bigger than his body's own (laid by ICP it takes that
+    # head's size, from the body's pictures: 1/7.2 of his height, big against his shoulders;
+    # Sean, 2026-10-15). Scaled about his neck's middle at his chin, so the ring stays put.
+    k = float(a.get("--head_scale", 1.0))
+    if k != 1.0:
+        at = np.abs(Vp[:, 2] - chin_p[2]) < 0.01
+        pivot = np.array([Vp[at, 0].mean(), Vp[at, 1].mean(), chin_p[2]])
+        Vp = pivot + (Vp - pivot) * k
+        chin_p = pivot + (chin_p - pivot) * k
+        print("neck_ring: head scaled %.2f about his neck at the chin" % k)
     # The ring: under his jaw (RING_BELOW_CHIN under the laid head's chin). His body keeps its own
     # neck up to there: his old head's neck is joined onto body_skin and the two cut level at the
     # ring (both are painted from the same pictures, one texture).
@@ -288,7 +298,7 @@ def main():
             shutil.copy(src, os.path.join(PEOPLE, "%s_%s.png" % (out, shape)))
     Image.fromarray((np.clip(neck_paint, 0, 1) * 255).astype(np.uint8)).save(os.path.join(PEOPLE, out + "_head.png"))
     rep = json.load(open(os.path.join(PEOPLE, body + ".json")))
-    rep.update({"id": out, "pieces_kept": pieces, "neck_ring": {"body": body, "head": head, "ring_m": round(ring_z, 4),
+    rep.update({"id": out, "pieces_kept": pieces, "neck_ring": {"body": body, "head": head, "head_scale": k, "ring_m": round(ring_z, 4),
                                          "icp_scale": round(float(s), 4), "icp_gap_mm": round(err * 1000, 1),
                                          "edge_vertices": int(len(low))}})
     rep["triangles"] = dict(rep.get("triangles", {}), head=len(newh.data.polygons))

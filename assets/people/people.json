@@ -48,6 +48,7 @@
    "note": "The average base body (docs/briefs/layered-people.md): Rodin Gen-2.5 from Sean's four boxer-shorts pictures of the bold cowboy (2026-10-15), whole and in an A-pose, fitted by tools/blender/fit_tripo.py with his joints found from his shape. Bare: his clothes come as separate pieces.",
    "source": "rodin",
    "rodin": "test/bold_cowboy_body_rodin",
+   "shoulders": 1.10,
    "tris": {"skin": 30000, "head": 10000},
    "outfit": {},
    "pieces": {"coat": "bold_cowboy_coat", "trousers": "bold_cowboy_trousers"},

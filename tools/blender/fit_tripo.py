@@ -533,6 +533,12 @@ class TripoPerson(mp.Person):
             # neck's warp (another girth scale since HAIR_M) would bend it.
             piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
                                                      only="head" if piece.shape == "hat" else None)
+        k = float(self.spec.get("shoulders", 1.0))
+        if k != 1.0:
+            self.v = self.broaden(self.v, self.region, k, report=True)
+            for piece in self.pieces:
+                if piece.shape != "hat":
+                    piece.v = self.broaden(piece.v, piece.region, k)
 
     def face_points(self):
         """MediaPipe's face landmarks on his mesh (`<model>_face.json`, written by
@@ -726,6 +732,38 @@ class TripoPerson(mp.Person):
         self.region, self.head = np.array(reg), np.array(head)
         self.tris = np.concatenate(tris)
         self.report["cuts_closed"] = len(runs)
+
+    def broaden(self, v, region, k, report=False):
+        """His shoulders broader by k (people.json `shoulders`; Sean, 2026-10-15: "shoulders
+        aren't broad enough") without moving a joint (the hitboxes are the anatomy's): each arm
+        moved out by D at the shoulder, fading to nothing at the wrist (his hands stay on their
+        bones, where the game's fingers are), and his upper chest and back stretched out to meet
+        them, from his neck's side to the shoulder joint, fading below the armpit. D is half of
+        (k - 1) times his width across the shoulders."""
+        o = self.our_joints()
+        sh_y = (o["r-shoulder"][1] + o["l-shoulder"][1]) * 0.5
+        sh_x = abs(o["r-shoulder"][0] - o["l-shoulder"][0]) * 0.5
+        row = np.abs(self.v[:, 1] - (sh_y - 0.05)) < 0.015
+        width = float(np.ptp(self.v[row, 0])) if row.any() else 2 * sh_x + 0.15
+        D = (k - 1.0) * width * 0.5
+        out = v.copy()
+        reg = np.asarray(region).astype(str)
+        for side in "rl":
+            a, b = o[side + "-shoulder"], o[side + "-hand"]
+            sx = np.sign(a[0])
+            arm = np.isin(reg, ["upper_arm_" + side, "forearm_" + side, "hand_" + side])
+            t = np.clip(((v - a) @ (b - a)) / max(float((b - a) @ (b - a)), 1e-9), 0, 1)
+            out[arm, 0] += sx * D * (1 - t[arm])
+        body = np.isin(reg, ["trunk", "neck"])
+        ax = np.abs(v[:, 0])
+        across = np.clip((ax - 0.06) / max(sh_x - 0.06, 1e-6), 0, 1)
+        across = across * across * (3 - 2 * across)
+        down = np.clip((v[:, 1] - (sh_y - 0.25)) / 0.19, 0, 1)
+        down = down * down * (3 - 2 * down)
+        out[body, 0] += np.sign(v[body, 0]) * D * (across * down)[body]
+        if report:
+            self.report["shoulders"] = {"k": k, "width_m": round(width, 3), "moved_m": round(D, 4)}
+        return out
 
     def tuck_skin(self, pieces):
         """His skin tucked under his twin garments: a garment's faces are long (Rodin's quads,
