@@ -296,8 +296,10 @@ void light() {
 	} else {
 		DIFFUSE_LIGHT += add;
 	}
-	// Only wet things shine (the eyes): a small hard glint.
-	if (ROUGHNESS < 0.3) {
+	// Only wet things shine (the eyes): a small hard glint. Not on a painted head (the
+	// characters session, 2026-10-15): its eyes' glints are painted in, and the eyeball's radius
+	// reaches its lower lids, which glinted white.
+	if (ROUGHNESS < 0.3 && uv_rect.z <= 0.0) {
 		vec3 h = normalize(VIEW + LIGHT);
 		float s = pow(clamp(dot(NORMAL, h), 0.0, 1.0), 120.0) * ATTENUATION;
 		SPECULAR_LIGHT += step(0.5, s) * LIGHT_COLOR * 0.35;
