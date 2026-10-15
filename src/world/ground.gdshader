@@ -82,7 +82,7 @@ uniform float relief_depth = 0.06;
 uniform float compact_relief = 0.35;
 uniform float relief_cavity = 0.3;
 // How dark a rut's bottom is at full depth (damp, shadowed earth), and how light its crumbled lip.
-uniform float rut_dark = 0.3;
+uniform float rut_dark = 0.45;
 // How far toward the sun the shadow trace looks (metres) and how dark a fully hidden pixel goes
 // (of the sun's light; the sky's fill still reaches it).
 uniform float relief_shadow_reach = 0.5;

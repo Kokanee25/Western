@@ -119,9 +119,9 @@ def ruts(w, h, rng):
                 centre = zc + off + side * GAUGE + drift + spread * np.sign(side)
                 # How deep and wide along the street: fresh stretches, worn ones, nearly gone ones.
                 wear = noise1(w, 7 * MAP_PX, rng) * 0.5 + noise1(w, 1.5 * MAP_PX, rng) * 0.25
-                depth = np.clip(0.045 * use * (1.0 + wear), 0.0, 0.08) * (0.55 if twin else 1.0)
+                depth = np.clip(0.065 * use * (1.0 + wear), 0.0, 0.1) * (0.55 if twin else 1.0)
                 depth *= np.clip(1.0 + noise1(w, 0.4 * MAP_PX, rng) * 0.25, 0.4, 1.4)
-                width = np.clip(0.11 + 0.035 * noise1(w, 3 * MAP_PX, rng), 0.06, 0.18)
+                width = np.clip(0.18 + 0.05 * noise1(w, 3 * MAP_PX, rng), 0.1, 0.28)
                 fresh = np.clip(wear + 0.2, 0.0, 1.0)
                 d = np.abs(zrow[:, None] - centre[None, :])
                 # The groove: a rounded trough, its edge crumbled (wobbled by fine noise).
@@ -130,7 +130,7 @@ def ruts(w, h, rng):
                 hgt -= groove * depth[None, :]
                 # The lip: dirt thrown up just outside, where the rut is fresh and deep.
                 ring = np.exp(-((d - edge * 1.25) / (edge * 0.45)) ** 2)
-                lift = ring * depth[None, :] * 0.4 * fresh[None, :]
+                lift = ring * depth[None, :] * 0.55 * fresh[None, :]
                 hgt += lift
                 lip = np.maximum(lip, ring * fresh[None, :] * np.clip(depth[None, :] / 0.04, 0.0, 1.0))
     return hgt, np.clip(lip, 0.0, 1.0)

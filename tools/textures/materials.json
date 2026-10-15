@@ -328,9 +328,9 @@
     8.0,
     8.0
    ],
-   "lightness": 1.35,
+   "lightness": 1.1,
    "contrast": 1.0,
-   "chroma": 0.95,
+   "chroma": 1.15,
    "hue": 7,
    "colours": 48,
    "texels_per_metre": 128,
@@ -355,9 +355,9 @@
     8.0,
     8.0
    ],
-   "lightness": 1.35,
+   "lightness": 1.1,
    "contrast": 1.0,
-   "chroma": 0.95,
+   "chroma": 1.15,
    "hue": 7,
    "colours": 48,
    "texels_per_metre": 128,
