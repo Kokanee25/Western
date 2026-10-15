@@ -293,7 +293,8 @@ def islands(cover):
 def paint(man, spec):
     from scipy import ndimage
     os.makedirs(WORK, exist_ok=True)
-    glb = os.path.join(ROOT, "assets", "people", "tripo", "test", man + "_rodin.glb")
+    # `shape`: another man's bust (the same man painted in another style needs no new Rodin).
+    glb = os.path.join(ROOT, "assets", "people", "tripo", "test", spec.get("shape", man) + "_rodin.glb")
     V, T, UV, own = load_glb(glb)
     V = to_body(V)
     # MediaPipe on his own colours (the loop mesh: one UV a corner).
@@ -323,7 +324,11 @@ def paint(man, spec):
         raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
         # (portrait.json `fidelity.unsquare`: a smaller median keeps his irises, which UNSQUARE wipes.)
         uns = int(fid.get("unsquare", UNSQUARE))
-        img = np.asarray(raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0 if uns > 3 else 0.5))).astype(float) / 255.0
+        if uns <= 1:
+            # 0 or 1: the painting as it is (a painterly style with no squares to take out).
+            img = np.asarray(raw).astype(float) / 255.0
+        else:
+            img = np.asarray(raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0 if uns > 3 else 0.5))).astype(float) / 255.0
         pics[view] = img
         if view == "back":
             continue
@@ -350,10 +355,23 @@ def paint(man, spec):
     if fid.get("shape_fit"):
         import style_shape as SS
         rounds = []
+        V_rodin = V.copy()
         for _r in range(int(fid.get("shape_rounds", 2))):
             before = {v: report["views"][v]["landmarks_mm"] for v in cams}
             move, seen = SS.solve_landmarks(pts, nrm, cams, lms, ok)
-            V = SS.warp(V, pts, move)
+            guard = {}
+            if fid.get("shape_fit") == "broad":
+                # One broad correction of his face, not a nudge per landmark (those made lumps:
+                # style_shape.warp_broad).
+                centre = np.nanmean(pts[:468], 0)
+                Vn = SS.warp_broad(V, pts, move, centre)
+                pn = pts.copy()
+                pn[ok] = SS.warp_broad(pts[ok], pts, move, centre)
+                guard["strain_max"] = round(SS.strain(V, T, Vn), 2)
+                move = np.where(ok[:, None], pn - pts, 0.0)
+                V = Vn
+            else:
+                V, move = SS.warp_safe(V, T, pts, move, guard)
             pts = np.where(ok[:, None], pts + move, pts)
             n_loop = P.vertex_normals(V, T)
             acc = np.zeros((inv.max() + 1, 3))
@@ -364,8 +382,10 @@ def paint(man, spec):
             mm = 1000 * np.linalg.norm(move[:468], axis=1)
             rounds.append({"landmarks_mm_before": before, "after": {v: report["views"][v]["landmarks_mm"] for v in cams},
                            "move_mm_mean": round(float(mm.mean()), 1), "move_mm_max": round(float(mm.max()), 1),
-                           "seen_by_two_or_more": int((seen >= 2).sum())})
+                           "seen_by_two_or_more": int((seen >= 2).sum()), **guard})
         report["shape_fit"] = rounds
+        # The whole warp against Rodin's own shape (folds start near 1).
+        report["shape_strain_max"] = round(SS.strain(V_rodin, T, V), 2)
     if "back" in pics and any(v.startswith("profile") for v in cams):
         side = [cams[v] for v in cams if v.startswith("profile")]
         s = float(np.mean([c.s for c in side]))
@@ -415,8 +435,8 @@ def paint(man, spec):
         # His mane is bigger than the painted hair: where it lands on the painting's background
         # (the colours of its left and right edges), this view doesn't paint it.
         edge = np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)])
-        bg = np.median(edge, 0)
-        bg_like = (np.linalg.norm(colour[view] - bg, axis=1) < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
+        d_bg = np.linalg.norm(colour[view] - np.median(edge, 0), axis=1)
+        bg_like = (d_bg < BG_TOL) & (p[:, 1] > float(pts[152, 1]))
         if fid.get("keep_features"):
             # His face is never the backdrop (the bold portrait's dark brown ground is his eye
             # sockets' colour: they were thrown out and a profile painted them).
@@ -444,7 +464,9 @@ def paint(man, spec):
             A = np.c_[np.ones(sel.sum()), n[sel]]
             coef = np.linalg.lstsq(A, y[sel], rcond=None)[0]
             shade = np.c_[np.ones(len(n)), n] @ coef
-            ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** DELIGHT
+            # (`fidelity.delight`: how much; 0 keeps the paintings' own light, for a painterly
+            # style whose light is part of its look.)
+            ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** float(fid.get("delight", DELIGHT))
             ratio = np.clip(ratio, *DELIGHT_CLAMP)
             # His eye sockets are dark because the painter drew them so, not because they face
             # away from the light: no de-light within FEATURE_KEEP_M of his eyes (portrait.json
@@ -478,6 +500,26 @@ def paint(man, spec):
     # The brim sits lower round his sides than over his forehead (its shadow lies on his hair
     # there): his forehead is hat above BRIM_ABOVE_EYES, the rest above BRIM_SIDES.
     hat = cover & (Pp[..., 1] > eye_y + np.where(front, BRIM_ABOVE_EYES, BRIM_SIDES))
+    if spec.get("hat"):
+        # His own hat covers what the portraits' hat covers: only under it is the paint refilled
+        # (the plane of its crown's foot, a few mm below); below its brim the portraits' own
+        # hair stays (the bold cowboy's grey temples were refilled brown under the game's hat).
+        import style_hat as SH
+        hh = SH.numbers(spec.get("hat"))
+        if hh.get("marks") and hh.get("fit", True):
+            hh.update(SH.fit_marks(V, pts, cams, hh["marks"], hh)[0])
+        foot = SH.make_hat(V, pts, hh)["hat"][0][:SH.AROUND]
+        A = np.c_[foot[:, 0], foot[:, 2], np.ones(len(foot))]
+        coef = np.linalg.lstsq(A, foot[:, 1], rcond=None)[0]
+        plane = coef[0] * Pp[..., 0] + coef[1] * Pp[..., 2] + coef[2]
+        # Over his forehead the portraits' own hat line counts too: his hat may sit higher than
+        # theirs, and between his brim and his brows their band and studs were left painted.
+        brow = (N[..., 2] < -0.4) & (np.abs(Pp[..., 0]) < 0.075)   # his forehead, out to his temples' front
+        hat = cover & ((Pp[..., 1] > plane - 0.004) | (hat & brow))
+    if spec.get("portraits_hatless"):
+        # Portraits painted bare-headed (`portraits_hatless`): his hair is painted all the way up,
+        # nothing to refill.
+        hat = np.zeros_like(hat)
     below = cover & ~hat
     # Under the game's hat nobody sees much, but what shows must be him, not the painted brim: his
     # forehead's skin where it faces you, his hair round the rest, from his temples and sideburns.
@@ -539,6 +581,10 @@ def paint(man, spec):
     if fid.get("patches") == "anatomy":
         sq, n_patches = patch_squares(tex, cover, Pp, float(fid.get("patch_m", SQUARE_M)), float(fid.get("patch_compact", 12.0)))
         report["patches"] = {"kind": "anatomy", "count": n_patches, "spacing_m": float(fid.get("patch_m", SQUARE_M))}
+    elif fid.get("patches") == "none":
+        # No squares or patches at all: the paintings' own brushwork kept (a smooth, painterly style).
+        sq = tex.copy()
+        report["patches"] = {"kind": "none"}
     else:
         sq = cube_squares(tex, cover, Pp)
     # A whole square of near-white or the shirt's cream on his face (a catchlight that missed his
@@ -546,7 +592,12 @@ def paint(man, spec):
     # of its nearest texels on him).
     lsq = sq @ np.array([0.2126, 0.7152, 0.0722])
     ssq = sq.max(-1) - sq.min(-1)
-    white = cover & (Pp[..., 1] > float(pts[152, 1])) & (lsq > 0.72) & (ssq < 0.25)
+    # (keep_features: down his neck too, as far as the build keeps it: under his ears the portraits
+    # show his shirt's collar, which painted cream flaps there.)
+    white_from = float(pts[152, 1]) - (0.06 if fid.get("keep_features") else 0.0)
+    eyes_t = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0) < FEATURE_KEEP_M
+    white = cover & ~eyes_t & (Pp[..., 1] > white_from) & (lsq > 0.62) & (ssq < 0.25) if fid.get("keep_features") else \
+        cover & (Pp[..., 1] > float(pts[152, 1])) & (lsq > 0.72) & (ssq < 0.25)
     if white.any():
         ok_ = np.nonzero(cover & ~white)
         pick = np.random.default_rng(0).choice(len(ok_[0]), min(len(ok_[0]), 200000), replace=False)
@@ -556,14 +607,37 @@ def paint(man, spec):
     report["white_squares_calmed"] = int(white.sum())
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
     # The moustache and brows raised where the paint says hair (style_shape.relief; portrait.json
-    # `fidelity.moustache_m`, `brows_m`).
-    if fid.get("moustache_m", 0) or fid.get("brows_m", 0):
+    # `fidelity.moustache_m`, `brows_m`, `sideburns_m`).
+    if fid.get("moustache_m", 0) or fid.get("brows_m", 0) or fid.get("sideburns_m", 0):
         import style_shape as SS
         report["relief"] = {}
-        V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"])
+        V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"],
+                      sideburns_m=float(fid.get("sideburns_m", 0)))
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
     np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
             allow_pickle=True)
+    # His own hat (style_hat.py; portrait.json `hat`): fitted to the marks on his portraits,
+    # painted from them, cut into patches like his face.
+    if spec.get("hat"):
+        import style_hat as SH
+        h = SH.numbers(spec.get("hat"))
+        # `fit` false: his numbers as given (the marks kept as the check; portraits that disagree
+        # about the hat can pull a fit into a shape none of them shows).
+        if h.get("marks") and h.get("fit", True):
+            fitted, err = SH.fit_marks(V, pts, cams, h["marks"], h)
+            h.update(fitted)
+            report["hat"] = dict(fitted, marks_rms_px=err)
+        parts = SH.make_hat(V, pts, h)
+        # `paint` "designed": drawn as the portraits draw a hat (style_hat.design_hat), not
+        # projected from them (the projected felt took his face's colours).
+        if h.get("paint") == "designed":
+            texs = SH.design_hat(parts, h)
+        else:
+            texs = SH.paint_hat(parts, [(V, T)], cams, pics, h, patch_squares)
+        np.save(os.path.join(WORK, man + "_hat.npy"), {k: {"V": v, "T": t, "UV": u} for k, (v, t, u) in parts.items()},
+                allow_pickle=True)
+        for k, tex in texs.items():
+            P.to_pil(tex).save(os.path.join(WORK, "%s_%s.png" % (man, k)))
     report["cameras"] = {v: c.json() for v, c in cams.items()}
     report["seen"] = round(float(seen_any.mean()), 3)
     json.dump(report, open(os.path.join(WORK, man + "_report.json"), "w"), indent=1)

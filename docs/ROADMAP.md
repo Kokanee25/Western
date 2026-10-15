@@ -101,8 +101,9 @@ it would.
 | 3.3 | **Hands on the world** | Pick up, carry, drop, throw, open, close: doors, bottles, chairs, a hat off the floor. It feels natural with mouse and controller. | gameplay |
 | 3.4 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
 | 3.5 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
-| 3.6 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
-| 3.7 | **Gate C** | The saloon fight played five ways (they back down; you shoot first; they surrender; one flees; the room catches fire) by the playtest agent, then Sean. All five hold up. | Sean |
+| 3.6 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
+| 3.7 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
+| 3.8 | **Gate C** | The saloon fight played five ways (they back down; you shoot first; they surrender; one flees; the room catches fire), and a man shoved into a table, by the playtest agent, then Sean. All five hold up. | Sean |
 
 ## Phase 4: Consequence
 
@@ -154,9 +155,11 @@ All lanes, one at a time. **Gate F: the demo ships.**
 ## ▶ Now
 
 - **Phase 0, step 0.1** (gameplay): green and quiet.
-- **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`); next **1.2** (art's
-  light with the characters' paint: the painted-light brief), with **1.3** (characters) able to
-  run beside it.
+- **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
+  in the game (#124) and its sheet (`docs/screenshots/painted_light/in_game.jpg`): the saloon holds,
+  the street at golden hour is too dark and red. **1.4** (art): merge 1 done (the woods in the man's
+  squares, the road calmer with ruts; 2026-10-15); now the road to Sean's new target
+  (`targets/6_road_target.jpg`). **1.3** (characters) beside it.
 
 ## Decisions Sean can change
 

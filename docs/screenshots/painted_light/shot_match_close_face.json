@@ -1,0 +1,18 @@
+{
+ "pixels": 34772,
+ "face_pixels": 27065,
+ "head": {
+  "light_median": 1.02,
+  "light_p90": 1.17,
+  "clip_share": 0.0,
+  "lstar_game": 44.9,
+  "lstar_paint": 44.8
+ },
+ "face": {
+  "light_median": 1.03,
+  "light_p90": 1.16,
+  "clip_share": 0.0,
+  "lstar_game": 47.7,
+  "lstar_paint": 47.3
+ }
+}

@@ -551,8 +551,12 @@ func _build_skin() -> void:
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
 						float(data.get("paint_squares", {}).get(shape, 1.0)))
+				var own_look: Dictionary = data.get("paint_look", {})
 				for k: StringName in paint_look:
-					(mi.material_override as ShaderMaterial).set_shader_parameter(k, paint_look[k])
+					(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look.get(k, paint_look[k]))
+				for k: StringName in own_look:
+					if not paint_look.has(k):
+						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
@@ -562,6 +566,7 @@ func _build_skin() -> void:
 			mi.skeleton = NodePath("..")
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
+	_own_fingers(data)
 	_merge_pieces(skin)
 	_update_skeleton()
 
@@ -783,6 +788,38 @@ func _build_hand(sid: StringName, vis: Node3D, center: Vector3) -> void:
 			parent = bone
 		fingers[fid] = knuckle
 		finger_bones[fid] = bones
+
+
+## His own fingers in place of the drawn ones, if his model has them (PeopleBodies: the
+## characters session's fit_tripo own_fingers): each bone's piece of his hand, made in the rest
+## pose, hung on that bone in his skin's material. They curl, take wounds and come off as the drawn
+## ones did (the same bones and nodes).
+func _own_fingers(data: Dictionary) -> void:
+	var own: Dictionary = data.get("fingers", {})
+	if own.is_empty():
+		return
+	var mat: ShaderMaterial = null
+	for key: String in skin_meshes:
+		if key.begins_with("skin/"):
+			mat = ((skin_meshes[key] as MeshInstance3D).material_override as ShaderMaterial).duplicate() as ShaderMaterial
+			break
+	if mat == null:
+		return
+	mat.set_shader_parameter(&"use_custom_pos", false)
+	for fid: StringName in finger_bones:
+		var meshes: Array = own.get(String(fid), [])
+		if meshes.size() != 3 or meshes.has(null):
+			continue
+		var center := anatomy.segment_center(StringName("hand_" + String(fid).right(1)))
+		var rest: Transform3D = (fingers[fid] as Node3D).transform
+		var bones: Array = finger_bones[fid]
+		for i in 3:
+			var bone := bones[i] as Node3D
+			rest = rest * Transform3D(Basis.IDENTITY, bone.position)  # the bone at rest, uncurled
+			var mi := bone.get_child(0) as MeshInstance3D
+			mi.mesh = meshes[i]
+			mi.transform = rest.affine_inverse() * Transform3D(Basis.IDENTITY, -center)
+			mi.material_override = mat
 
 
 ## Curl a hand's fingers (0 open, 1 fist) about the palm side.

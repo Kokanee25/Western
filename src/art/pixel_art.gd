@@ -66,10 +66,10 @@ const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "w
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
 const DRAWN_DENSITY := {"shot_table": 128.0}
-## The drawn road's squares a metre (tools/textures/draw_road.py TEXELS): the street painting's near
-## road squares are about 11 render pixels across at 1280 wide, twice what 32 a metre gives (Sean,
-## 2026-10-12: "the squares don't read"), so the ground lays it at this whatever the look's density.
-const DRAWN_ROAD_TEXELS := 16.0
+## The drawn road's squares a metre (tools/textures/draw_road.py TEXELS), whatever the look's density:
+## 32 since roadmap 1.4 (2026-10-15, the road at the portrait man's square size, 36-48 a metre; 16
+## before, Sean 2026-10-12's "the squares don't read" at the old factory road's per-texel noise).
+const DRAWN_ROAD_TEXELS := 32.0
 static var use_drawn := true
 ## The material lab's woods (tools/textures/paint_woods.py, tools/material_lab.gd; 2026-10-14, Sean's
 ## brief: an experiment, off in the game): with it on, a key with a lab texture is drawn from it,
@@ -90,6 +90,18 @@ static var lab_set := "lab"
 ## as before (drawn/, the factory).
 const WOODS_SET := "woods"
 static var woods := true
+## The squares the game's woods are drawn in, texels a side: 4 of C's 128 a metre, 32 a metre, the
+## portrait man's face's and coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the
+## man": C's grain alone, a texel 0.8 cm, read as fine smooth 3D beside his squares). The textures
+## are drawn in them (woods_grain.json `squares`, grain_woods.py squared); texel_grid square_texels
+## lights each as one and reads it whole. 1 here and no `squares` there: C's texels, as chosen.
+const WOODS_SQUARE := 4.0
+## Their end grain's (256 a metre, so 128 a metre: its rings are finer than the long faces' squares).
+const WOODS_END_SQUARE := 2.0
+## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY), none: the table's top
+## in 4s read as a checkerboard at four times the painting's squares (the blind critic, 2026-10-15_r2:
+## the saloon painting draws it finer than the man, about 5 px a square).
+const DRAWN_SQUARES := {}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
 static var _sets := {}
 
@@ -138,7 +150,9 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"metallic", metallic)
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
-		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
+		var drawn_key := tex.resource_path.get_file().get_basename()
+		m.set_meta(&"texels", DRAWN_DENSITY.get(drawn_key, DRAWN_TEXELS))
+		m.set_shader_parameter(&"square_texels", float(DRAWN_SQUARES.get(drawn_key, 1.0)))
 	elif tex and tex.resource_path.contains("/textures/lab/"):
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
@@ -156,6 +170,8 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 			# The game's woods keep to the world's texel grid at a fixed multiple of it (128 a
 			# metre at the default 32), so F7's texel size and the mipmap setting move them too.
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
+			m.set_shader_parameter(&"square_texels", WOODS_SQUARE)
+			m.set_shader_parameter(&"end_square_texels", WOODS_END_SQUARE)
 		else:
 			m.set_meta(&"texels", lab_density(key, set))
 			m.set_meta(&"mipmaps", true)

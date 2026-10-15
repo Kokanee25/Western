@@ -44,6 +44,17 @@
    "outfit": {},
    "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair"
   },
+  "bold_cowboy_body": {
+   "note": "The average base body (docs/briefs/layered-people.md): Rodin Gen-2.5 from Sean's four boxer-shorts pictures of the bold cowboy (2026-10-15), whole and in an A-pose, fitted by tools/blender/fit_tripo.py with his joints found from his shape. Bare: his clothes come as separate pieces.",
+   "source": "rodin",
+   "rodin": "test/bold_cowboy_body_rodin",
+   "shoulders": 1.10,
+   "own_fingers": "makehuman",
+   "tris": {"skin": 30000, "head": 10000},
+   "outfit": {},
+   "pieces": {"coat": "bold_cowboy_coat", "trousers": "bold_cowboy_trousers"},
+   "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
+  },
   "stranger2": {
    "note": "The stranger by Rodin Gen-2.5 (tools/characters/rodin.py) from Sean's own front picture and the three views painted from it (the model test, 2026-10-06), fitted by tools/blender/fit_tripo.py with his joints found from his shape: he comes dressed, hat and all.",
    "source": "rodin",

@@ -4,7 +4,7 @@ extends SceneTree
 ## light, hatted as the game dresses him; the pixels round his head saved exactly as rendered
 ## (no scaling): <out>/<id>_<metres>.png.
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/characters/distance_lab.gd -- \
-##       --out=DIR --ids=bold_cowboy_portrait,stranger2s [--distances=1.2,3,6] [--turns=0,-35,-90]
+##       --out=DIR --ids=bold_cowboy_portrait,stranger2s [--distances=1.2,3,6] [--turns=0,-35,-90] [--hatless]
 ## --turns: degrees he's turned from facing you (negative: toward the picture's left), each written
 ## as <id>_<metres>_<turn>.png.
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
@@ -22,7 +22,10 @@ func _run() -> void:
 	var ids := ["bold_cowboy_portrait", "stranger2s"]
 	var distances := [1.2, 3.0, 6.0]
 	var turns := []
+	var hatless := false
 	for a in OS.get_cmdline_user_args():
+		if a == "--hatless":
+			hatless = true
 		if a.begins_with("--out="):
 			out = a.substr(6)
 		elif a.begins_with("--ids="):
@@ -63,6 +66,8 @@ func _run() -> void:
 		m.body_model = StringName(id)
 		m.person_id = StringName(String(id) + "_distance")
 		m.rng_seed = 7
+		if hatless:
+			m.hat_color = Color(0, 0, 0, 0)
 		w.add_child(m)
 		for job in _jobs(distances, turns):
 			var d: float = job[0]
