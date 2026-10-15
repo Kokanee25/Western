@@ -63,6 +63,13 @@ def icp(src, dst, rounds=ICP_ROUNDS):
     return s, R, t, err
 
 
+T0 = __import__("time").time()
+
+
+def mark(what):
+    print("neck_ring: %5.0f s  %s" % (__import__("time").time() - T0, what), flush=True)
+
+
 def main():
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     body, head, out = a["--body"], a["--head"], a["--out"]
@@ -105,6 +112,7 @@ def main():
     s, R, t, err = icp(Vb[above][::3], old_co)
     Vp = s * Vb @ R.T + t
     print("neck_ring: head laid on his by ICP: scale %.3f, median gap %.1f mm" % (s, err * 1000))
+    mark("laid")
     # Cut at the ring and pull the open edge onto it.
     # Under his jaw the bust is still dressed (collar, lapels): only what's within the neck's
     # reach of the ring's axis is his neck; the rest goes.
@@ -140,6 +148,7 @@ def main():
     Vh[low] = tgt
     print("neck_ring: %d edge vertices onto the ring (moved %.1f mm median, %.1f max)" % (
         len(low), np.median(np.linalg.norm(move, axis=1)) * 1000, np.linalg.norm(move, axis=1).max() * 1000))
+    mark("cut and pulled")
     # Below his jaw the paintings show his collar and coat: on a bare body that's skin, so the
     # paint there fades to the body's skin colour at the ring (NECK_FADE under his chin).
     import portrait as P
@@ -156,11 +165,24 @@ def main():
                               np.clip((uvr[:, 0] * ws).astype(int), 0, ws - 1)], 0)
     table = {tuple(t_): [tuple(UVh[i]) for i in t_] for t_ in Th}
     Mz, cover = P.raster_uv(table, [list(t_) for t_ in Th], Vh[:, 2:3], size)
+    # His face's skin matched to his body's (the two are painted from different pictures): each
+    # channel of the whole head scaled so his cheeks' median comes to the body's skin at the ring.
+    eye_y = (pts[468, 1] + pts[473, 1]) / 2
+    nv = P.vertex_normals(V, T)
+    cheek = (nv[:, 2] < -0.2) & (V[:, 1] < eye_y - 0.015) & (V[:, 1] > pts[2, 1]) \
+        & (np.abs(V[:, 0] - pts[1, 0]) > 0.025) & (np.abs(V[:, 0] - pts[1, 0]) < 0.05)
+    import rodin_portrait as RP
+    cheek_c = np.median(RP.sample_tex(paint, UV[cheek]), 0)
+    gain = np.clip(skin_c / np.maximum(cheek_c, 1e-3), 0.7, 1.4) if cheek.sum() > 20 else np.ones(3)
+    paint = np.clip(paint * gain, 0, 1)
+    print("neck_ring: his face's skin %s to the body's %s (gain %s)" % (np.round(cheek_c, 3).tolist(),
+          np.round(skin_c, 3).tolist(), np.round(gain, 3).tolist()))
     jaw_z = chin_p[2] - 0.005
     w = np.clip((jaw_z - Mz[..., 0]) / NECK_FADE, 0, 1) * cover
     paint = paint * (1 - w[..., None]) + skin_c * w[..., None]
     neck_paint = paint
     print("neck_ring: neck below his jaw to skin %s over %d texels" % (np.round(skin_c, 3).tolist(), int((w > 0.5).sum())))
+    mark("neck repainted")
     # The new head mesh, skinned as his old one.
     # The bust is a loop mesh (each corner its own vertex, for its UV): welded by position for
     # Blender, the UVs kept per corner, so decimating it doesn't tear it into holes.
@@ -169,12 +191,12 @@ def main():
     me = bpy.data.meshes.new("body_head")
     me.from_pydata([tuple(p) for p in Vh[first]], [], [tuple(int(wi2[i]) for i in t_) for t_ in Th])
     uvl = me.uv_layers.new(name="UVMap")
-    for poly, t_ in zip(me.polygons, Th):
-        poly.use_smooth = True
-        for k_, li in enumerate(poly.loop_indices):
-            uvl.data[li].uv = (float(UVh[t_[k_], 0]), 1.0 - float(UVh[t_[k_], 1]))
+    corner_uv = np.c_[UVh[Th.ravel(), 0], 1.0 - UVh[Th.ravel(), 1]]    # loops run face by face
+    uvl.data.foreach_set("uv", corner_uv.astype(np.float32).ravel())
+    me.polygons.foreach_set("use_smooth", np.ones(len(me.polygons), bool))
     newh = bpy.data.objects.new("body_head_new", me)
     bpy.context.scene.collection.objects.link(newh)
+    mark("mesh made")
     groups = [g.name for g in old.vertex_groups]
     for g in groups:
         newh.vertex_groups.new(name=g)
@@ -200,6 +222,7 @@ def main():
         vg = newh.vertex_groups[g]
         for vi in np.nonzero(W[:, gi] > 1e-4)[0]:
             vg.add([int(vi)], float(W[vi, gi]), "REPLACE")
+    mark("skinned")
     newh.parent = arm
     mod = newh.modifiers.new("skeleton", "ARMATURE")
     mod.object = arm
@@ -209,6 +232,7 @@ def main():
         bpy.context.view_layer.objects.active = newh
         bpy.ops.object.modifier_move_to_index(modifier="dec", index=0)
         bpy.ops.object.modifier_apply(modifier="dec")
+    mark("decimated")
     bpy.data.objects.remove(old)
     newh.name = "body_head"
     newh.data.name = "body_head"
