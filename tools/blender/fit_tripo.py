@@ -89,6 +89,7 @@ BRIDGE_SHOULDER = 0.35
 PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 # A twin piece keeps its own shape (lapels, pockets, the skirt's fall): more triangles.
 TWIN_TRIS = {"coat": 6000, "trousers": 8000}
+FINGER_TRIS = 80      # a finger bone's piece (own_fingers)
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
@@ -811,6 +812,8 @@ class TripoPerson(mp.Person):
         piece laid straight on its bone in the game's rest pose, and taken out of his skin; his
         palm narrowed to the game's hand. A hand that doesn't come apart in five keeps the old way
         (fingers cut off at the knuckles, the game's own drawn instead)."""
+        if self.spec.get("own_fingers") == "makehuman":
+            return self.makehuman_hands()
         import fingers as FG
         o = self.our_joints()
         F = self.env.get("fingers", {})
@@ -851,7 +854,7 @@ class TripoPerson(mp.Person):
                     used = np.unique(tb)
                     remap = -np.ones(len(self.v), np.int64)
                     remap[used] = np.arange(len(used))
-                    pieces.append((used, FG.move(self.v[used], moves[fid][b]), remap[tb]))
+                    pieces.append((self.uv[used], FG.move(self.v[used], moves[fid][b]), remap[tb]))
                 self.finger_pieces[fid] = pieces
                 drop |= mine
             # His palm to the game's hand: across his index to little knuckles, his against the anatomy's.
@@ -869,6 +872,43 @@ class TripoPerson(mp.Person):
         if any(isinstance(rep.get(sd), str) for sd in "rl"):
             # A hand that didn't come apart: its fingers off at the knuckles as before.
             self.cut_fingers()
+
+    def makehuman_hands(self):
+        """MakeHuman's hands for his (tools/blender/mh_hand.py; people.json own_fingers
+        "makehuman"): his own hand off his skin, MakeHuman's palm in its place and its fingers as
+        the game's finger pieces, all fitted to the game's hand and painted in his hand's colour. His own fingers, cut from Rodin's
+        coarse, half-curled, outsized hand, came out in shards."""
+        import mh_hand as MH
+        o = self.our_joints()
+        F = self.env["fingers"]
+        self.finger_pieces = {}
+        rep = self.report.setdefault("own_fingers", {"from": "makehuman"})
+        for side in "rl":
+            hand = self.region == "hand_" + side
+            his = np.nonzero(hand)[0]
+            palm, ptris, fingers = MH.place(side, o, F)
+            # One colour, his hand's: the UV of his hand's point nearest its median colour (his
+            # own hand's paint, laid by nearest point, came out a patchwork of his palm and
+            # fingers; the light gives the new hand its shape).
+            img = np.asarray(self.colour, dtype=np.float64) / 255.0
+            hgt, wid = img.shape[:2]
+            uvh = self.uv[his]
+            col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
+            uv0 = uvh[int(np.argmin(np.linalg.norm(col - np.median(col, 0), axis=1)))]
+            uv_of = lambda pts: np.tile(uv0, (len(pts), 1))
+            for fid, pieces in fingers.items():
+                self.finger_pieces[fid] = [(uv_of(pts), pts, tt) for pts, tt in pieces]
+            gone = hand[self.tris].any(axis=1)    # every triangle that touches his hand: no slivers
+            self.tris = self.tris[~gone]
+            n0 = len(self.v)
+            self.v = np.vstack([self.v, palm])
+            self.v_tripo = np.vstack([self.v_tripo, palm])
+            self.uv = np.vstack([self.uv, uv_of(palm)])
+            self.region = np.concatenate([self.region, np.full(len(palm), "hand_" + side, dtype=self.region.dtype)])
+            self.head = np.concatenate([self.head, np.zeros(len(palm), bool)])
+            self.tris = np.vstack([self.tris, ptris + n0])
+            rep[side] = {"his_hand_triangles_off": int(gone.sum()), "palm_triangles": int(len(ptris)),
+                         "finger_triangles": {fid: int(sum(len(t) for _u, _p, t in pc)) for fid, pc in self.finger_pieces.items() if fid.endswith(side)}}
 
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
@@ -1379,7 +1419,7 @@ def build_blender(person):
     # His own fingers (own_fingers): each bone's piece a plain mesh in the game's rest pose, not
     # skinned (HumanBody hangs it on that finger bone), named finger_<finger>_<side>_<bone>.
     for fid, pieces in getattr(person, "finger_pieces", {}).items():
-        for b, (used, pos, tris) in enumerate(pieces):
+        for b, (uvs, pos, tris) in enumerate(pieces):
             if not len(tris):
                 continue
             mesh = bpy.data.meshes.new("finger_%s_%d" % (fid, b))
@@ -1388,10 +1428,22 @@ def build_blender(person):
             for poly in mesh.polygons:
                 poly.use_smooth = True
                 for li in poly.loop_indices:
-                    u, vv = person.uv[used[mesh.loops[li].vertex_index]]
+                    u, vv = uvs[mesh.loops[li].vertex_index]
                     uvl.data[li].uv = (u, 1.0 - vv)
             obj = bpy.data.objects.new("finger_%s_%d" % (fid, b), mesh)
             bpy.context.scene.collection.objects.link(obj)
+            if len(tris) > FINGER_TRIS:
+                # Welded first (seams would open), then thinned: a finger is a few pixels.
+                import bmesh
+                bm = bmesh.new()
+                bm.from_mesh(mesh)
+                bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+                bm.to_mesh(mesh)
+                bm.free()
+                mod = obj.modifiers.new("decimate", "DECIMATE")
+                mod.ratio = FINGER_TRIS / max(len(mesh.polygons), 1)
+                bpy.context.view_layer.objects.active = obj
+                bpy.ops.object.modifier_apply(modifier="decimate")
 
 
 def export(person):

@@ -10,12 +10,12 @@
  },
  "piece_coat": {
   "twin": true,
-  "pushed_out_after_warp": 23574,
-  "weights_from_skin": 49539
+  "pushed_out_after_warp": 23598,
+  "weights_from_skin": 49580
  },
  "piece_trousers": {
   "twin": true,
-  "pushed_out_after_warp": 14722,
+  "pushed_out_after_warp": 14656,
   "weights_from_skin": 23804
  },
  "scale": 1.8367,
@@ -26,14 +26,37 @@
   "width_m": 0.524,
   "moved_m": 0.0262
  },
- "faces_before_finger_cut": 34270,
- "faces_after_finger_cut": 31851,
+ "own_fingers": {
+  "from": "makehuman",
+  "r": {
+   "his_hand_triangles_off": 1556,
+   "palm_triangles": 556,
+   "finger_triangles": {
+    "thumb_r": 396,
+    "index_r": 572,
+    "middle_r": 564,
+    "ring_r": 566,
+    "little_r": 576
+   }
+  },
+  "l": {
+   "his_hand_triangles_off": 1394,
+   "palm_triangles": 556,
+   "finger_triangles": {
+    "thumb_l": 396,
+    "index_l": 572,
+    "middle_l": 564,
+    "ring_l": 566,
+    "little_l": 576
+   }
+  }
+ },
  "skin_tone": [
-  0.788,
-  0.476,
-  0.325
+  0.804,
+  0.482,
+  0.329
  ],
- "skin_tucked": 5233,
+ "skin_tucked": 5229,
  "texture": {
   "from": "bold_cowboy_body_color.png",
   "size": [
@@ -43,9 +66,9 @@
   "square_texels": 2
  },
  "triangles": {
-  "skin": 21559,
+  "skin": 22140,
   "head": 10000,
-  "coat": 5999,
+  "coat": 6000,
   "trousers": 7936
  }
 }

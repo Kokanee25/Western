@@ -49,7 +49,7 @@
    "source": "rodin",
    "rodin": "test/bold_cowboy_body_rodin",
    "shoulders": 1.10,
-   "own_fingers": false,
+   "own_fingers": "makehuman",
    "tris": {"skin": 30000, "head": 10000},
    "outfit": {},
    "pieces": {"coat": "bold_cowboy_coat", "trousers": "bold_cowboy_trousers"},
