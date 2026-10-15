@@ -137,8 +137,8 @@ func _size(rng: RandomNumberGenerator) -> float:
 	return SIZES[0][0]
 
 
-## A lumpy rock a unit across: an icosphere split once, each corner pushed in or out a little, its
-## faces smooth-shaded so the sun rounds it.
+## A lumpy rock about a unit across: an icosphere split once, pushed out and in by broad lumps,
+## its bottom flat, faceted.
 func rock_mesh() -> ArrayMesh:
 	var t := (1.0 + sqrt(5.0)) / 2.0
 	var verts: Array[Vector3] = []
@@ -162,16 +162,29 @@ func rock_mesh() -> ArrayMesh:
 				mid[key] = verts.size() - 1
 			m.append(mid[key])
 		split.append_array([[f[0], m[0], m[2]], [f[1], m[1], m[0]], [f[2], m[2], m[1]], [m[0], m[1], m[2]]])
+	# Lumpy, not an egg: each corner pushed out or in by a few broad lumps and a little of its own,
+	# the bottom sliced flat where it sits in the dirt.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 77
+	var lumps: Array[Vector3] = []
+	for k in 5:
+		lumps.append(Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1)).normalized())
 	for i in verts.size():
-		verts[i] = verts[i] * rng.randf_range(0.82, 1.12) * 0.5
+		var v := verts[i]
+		var r := 1.0 + rng.randf_range(-0.08, 0.08)
+		for k in lumps.size():
+			r += 0.22 * (v.dot(lumps[k]) ** 3) * (1.0 if k % 2 == 0 else -0.7)
+		v = v * r * 0.5
+		v.y = maxf(v.y, -0.22)
+		verts[i] = v
+	# Faceted: each face its own normal, so the low sun picks out its planes as the target's
+	# stones' do (smooth-shaded they read as eggs).
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(-1)
 	for f: Array in split:
 		for k in [0, 2, 1]:
 			st.add_vertex(verts[f[k]])
-	st.index()
 	st.generate_normals()
 	var mesh := st.commit()
 	var m := StandardMaterial3D.new()
