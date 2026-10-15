@@ -35,10 +35,10 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_road.png"
 # much greyer than its lit colours (draw_boards.palette). The spread is pushed past the painting's:
 # the game's low sun and haze take some back (at 1.0 the rendered road's squares were half as
 # contrasted as the painting's).
-# 1.4: greyer and calmer than before (contrast 1.0, grey 0.1): the rendered road was C* 53 to the
+# 1.4: greyer and calmer than before (albedo 0.68, 0.53, 0.39, contrast 1.0, grey 0.1): the rendered road was C* 53 to the
 # painting's 37 and its square-to-square step 7.3 L* near the feet to the painting's 6.2 and the
 # man's coat's 2 (tools/surface_squares.py).
-SPEC = {"albedo": [0.66, 0.53, 0.41], "contrast": 0.8, "grey": 0.3}
+SPEC = {"albedo": [0.64, 0.53, 0.43], "contrast": 0.8, "grey": 0.45}
 # Where the painting's road squares are read (x0, y0, x1, y1 in the 1672-wide picture, the square's
 # size there): the near road either side of the gun, and the road a few metres on.
 SQUARES = [(420, 780, 800, 940, 14), (880, 780, 1180, 940, 14), (560, 650, 1000, 780, 9)]

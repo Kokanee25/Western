@@ -90,6 +90,13 @@ static var lab_set := "lab"
 ## as before (drawn/, the factory).
 const WOODS_SET := "woods"
 static var woods := true
+## The squares the game's woods are drawn in, texels a side (texel_grid square_texels: each the
+## mean of its texels, lit as one): 4 of C's 128 a metre, 32 a metre, the portrait man's face's and
+## coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the man": C's grain alone,
+## a texel 0.8 cm, read as fine smooth 3D beside his squares). 1: C's texels, as chosen.
+const WOODS_SQUARE := 4.0
+## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY): the table's top.
+const DRAWN_SQUARES := {"shot_table": 4.0}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
 static var _sets := {}
 
@@ -138,7 +145,9 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 	m.set_shader_parameter(&"metallic", metallic)
 	m.set_shader_parameter(&"specular", specular)
 	if tex and tex.resource_path.contains("/drawn/"):
-		m.set_meta(&"texels", DRAWN_DENSITY.get(tex.resource_path.get_file().get_basename(), DRAWN_TEXELS))
+		var drawn_key := tex.resource_path.get_file().get_basename()
+		m.set_meta(&"texels", DRAWN_DENSITY.get(drawn_key, DRAWN_TEXELS))
+		m.set_shader_parameter(&"square_texels", DRAWN_SQUARES.get(drawn_key, 1.0))
 	elif tex and tex.resource_path.contains("/textures/lab/"):
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
@@ -156,6 +165,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 			# The game's woods keep to the world's texel grid at a fixed multiple of it (128 a
 			# metre at the default 32), so F7's texel size and the mipmap setting move them too.
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
+			m.set_shader_parameter(&"square_texels", WOODS_SQUARE)
 		else:
 			m.set_meta(&"texels", lab_density(key, set))
 			m.set_meta(&"mipmaps", true)
