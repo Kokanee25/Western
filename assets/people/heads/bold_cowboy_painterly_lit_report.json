@@ -1,0 +1,156 @@
+{
+ "scale": 0.18787,
+ "views": {
+  "front": {
+   "landmarks_mm": 1.27,
+   "turn": 2.9,
+   "s": 2931.5,
+   "shading": [
+    0.121,
+    -0.042,
+    -0.013,
+    -0.098
+   ]
+  },
+  "three_quarter": {
+   "landmarks_mm": 3.36,
+   "turn": 5.0,
+   "s": 2650.7,
+   "shading": [
+    0.165,
+    0.031,
+    -0.06,
+    -0.111
+   ]
+  },
+  "profile_left": {
+   "landmarks_mm": 2.85,
+   "turn": -65.2,
+   "s": 2615.4,
+   "shading": [
+    0.075,
+    -0.142,
+    -0.007,
+    -0.13
+   ]
+  },
+  "profile_right": {
+   "landmarks_mm": 4.07,
+   "turn": 87.3,
+   "s": 2888.7,
+   "shading": [
+    0.171,
+    0.038,
+    -0.007,
+    -0.062
+   ]
+  },
+  "back": {
+   "from": "the profiles' scale and height, his grey hair's middle",
+   "shading": [
+    0.086,
+    0.037,
+    -0.002,
+    0.068
+   ]
+  }
+ },
+ "shape_fit": [
+  {
+   "landmarks_mm_before": {
+    "front": 1.62,
+    "three_quarter": 4.39,
+    "profile_left": 3.75,
+    "profile_right": 4.67
+   },
+   "after": {
+    "front": 1.27,
+    "three_quarter": 3.36,
+    "profile_left": 2.85,
+    "profile_right": 4.07
+   },
+   "move_mm_mean": 2.5,
+   "move_mm_max": 13.7,
+   "seen_by_two_or_more": 434,
+   "strain_max": 0.55
+  }
+ ],
+ "shape_strain_max": 0.55,
+ "fill": {
+  "temples": 96643,
+  "hair": [
+   0.212,
+   0.094,
+   0.044
+  ],
+  "forehead": [
+   0.764,
+   0.328,
+   0.135
+  ],
+  "cheeks": [
+   0.384,
+   0.152,
+   0.064
+  ],
+  "neck_from_jaw": 425298
+ },
+ "patches": {
+  "kind": "none"
+ },
+ "white_squares_calmed": 116,
+ "relief": {
+  "moustache_vertices": 76,
+  "brow_vertices": 111,
+  "sideburn_vertices": 42,
+  "lift_max_mm": 12.0
+ },
+ "cameras": {
+  "front": {
+   "view": "front",
+   "s": 2931.5039869247657,
+   "tu": 692.089372080126,
+   "tv": 569.0525405816029,
+   "yaw": 2.925,
+   "pitch": -1.524,
+   "roll": 7.532
+  },
+  "three_quarter": {
+   "view": "front",
+   "s": 2650.725618948518,
+   "tu": 830.4405914453592,
+   "tv": 529.8626034595616,
+   "yaw": 5.0,
+   "pitch": -1.408,
+   "roll": -7.298
+  },
+  "profile_left": {
+   "view": "front",
+   "s": 2615.4401691717894,
+   "tu": 666.6626975028764,
+   "tv": 554.7361240149934,
+   "yaw": -65.179,
+   "pitch": 3.041,
+   "roll": 2.375
+  },
+  "profile_right": {
+   "view": "front",
+   "s": 2888.6642635537364,
+   "tu": 671.9413564476461,
+   "tv": 560.6895126710061,
+   "yaw": 87.321,
+   "pitch": 0.454,
+   "roll": -1.606
+  },
+  "back": {
+   "view": "front",
+   "s": 2752.052216362763,
+   "tu": 733.4902427460788,
+   "tv": 557.7128183429998,
+   "yaw": 180.0,
+   "pitch": 0.0,
+   "roll": 0.0
+  }
+ },
+ "seen": 0.735
+}

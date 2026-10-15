@@ -33,6 +33,7 @@ sys.path.insert(0, HERE)
 ROOT = os.path.dirname(os.path.dirname(HERE))
 WORK = os.path.join(ROOT, "build", "rodin_portrait")
 PEOPLE = os.path.join(ROOT, "assets", "people")
+HEADS = os.path.join(PEOPLE, "heads")   # painted busts kept for the ring (see LAYERED.md)
 RING_BLEND = 0.045     # metres above the ring over which the head's neck is pulled onto it
 RING_BELOW_CHIN = 0.03 # the ring's height: this far under the laid head's chin (his body keeps its neck)
 NECK_FADE = 0.015      # metres under his jaw over which his painted collar fades to skin
@@ -93,7 +94,13 @@ def main():
             bpy.data.objects.remove(o)
     old_co = np.array([v.co[:] for v in old.data.vertices])
     # The painted bust into Blender's space (body space: Y up, facing -Z → x, -z, y).
-    mesh = np.load(os.path.join(WORK, head + "_mesh.npy"), allow_pickle=True).item()
+    # The painted bust: kept in assets/people/heads (build/ is wiped with the workspace), else
+    # fresh from rodin_portrait.py's work folder.
+    kept = os.path.join(HEADS, head + "_mesh.npz")
+    if os.path.exists(kept):
+        mesh = dict(np.load(kept))
+    else:
+        mesh = np.load(os.path.join(WORK, head + "_mesh.npy"), allow_pickle=True).item()
     V, T, UV, pts = mesh["V"], mesh["T"], mesh["UV"], mesh["pts"]
     Vb = np.c_[V[:, 0], -V[:, 2], V[:, 1]]
     chin = float(pts[152, 1])                              # body space: Y is his height
@@ -177,7 +184,10 @@ def main():
     # paint there fades to the body's skin colour at the ring (NECK_FADE under his chin).
     import portrait as P
     from PIL import Image
-    paint = np.asarray(Image.open(os.path.join(WORK, head + "_paint.png")).convert("RGB")).astype(float) / 255
+    paint_path = os.path.join(HEADS, head + "_paint.png")
+    if not os.path.exists(paint_path):
+        paint_path = os.path.join(WORK, head + "_paint.png")
+    paint = np.asarray(Image.open(paint_path).convert("RGB")).astype(float) / 255
     size = paint.shape[0]
     sk_tex = np.asarray(Image.open(os.path.join(PEOPLE, body + "_skin.png")).convert("RGB")).astype(float) / 255
     sk_uv = np.array([[d.uv[0], d.uv[1]] for d in skin.data.uv_layers.active.data])
