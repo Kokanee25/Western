@@ -327,6 +327,11 @@
     "delight": 0.15
    },
    "_note": "As bold_cowboy_painterly with the paintings' own light kept (delight 0.15), to be drawn self-lit."
+  },
+  "bold_cowboy_body": {
+   "pictures": "docs/concept/style/factory/bold_cowboy_body",
+   "what": "a weathered frontier man of about forty, solid build, standing in an A-pose, bare-chested and barefoot in plain old cream cotton boxer shorts, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache",
+   "_note": "The average base body (docs/briefs/layered-people.md, option 2): Rodin builds him whole from these four pictures (no --bust), his head comes off at the neck ring. Dressed paintings for his clothes: docs/concept/style/portrait-painterly-full-*."
   }
  }
 }
