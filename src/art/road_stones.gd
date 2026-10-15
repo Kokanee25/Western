@@ -11,7 +11,7 @@ extends Node3D
 const ROAD_Z := -8.4
 const ROAD_HALF := 6.0
 ## How many stones to try placing, and the stretch of street (x0, x1).
-const TRIES := 9000
+const TRIES := 22000
 const STREET_X := Vector2(-80.0, 30.0)
 ## Sizes (metres across) and how often: gravel, stones, the odd fist-sized rock.
 const SIZES := [[0.035, 0.07, 0.5], [0.07, 0.13, 0.38], [0.13, 0.22, 0.12]]
@@ -80,8 +80,8 @@ func _scatter() -> void:
 		transforms.append(Transform3D(basis, p))
 		# Tan-grey, rust, pale and dark stones, as the target's, near the dirt's own value (paler,
 		# they read as white blobs in the noon sun).
-		var shades := [Color(0.52, 0.4, 0.29), Color(0.5, 0.32, 0.2), Color(0.6, 0.49, 0.37), Color(0.38, 0.28, 0.2)]
-		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.5, 0.37, 0.26), rng.randf() * 0.4))
+		var shades := [Color(0.62, 0.52, 0.42), Color(0.58, 0.4, 0.28), Color(0.7, 0.61, 0.5), Color(0.46, 0.36, 0.28)]
+		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.6, 0.47, 0.35), rng.randf() * 0.4))
 	stones = transforms
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D

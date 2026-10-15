@@ -121,7 +121,7 @@ def ruts(w, h, rng):
                 wear = noise1(w, 7 * MAP_PX, rng) * 0.5 + noise1(w, 1.5 * MAP_PX, rng) * 0.25
                 depth = np.clip(0.065 * use * (1.0 + wear), 0.0, 0.1) * (0.55 if twin else 1.0)
                 depth *= np.clip(1.0 + noise1(w, 0.4 * MAP_PX, rng) * 0.25, 0.4, 1.4)
-                width = np.clip(0.18 + 0.05 * noise1(w, 3 * MAP_PX, rng), 0.1, 0.28)
+                width = np.clip(0.24 + 0.06 * noise1(w, 3 * MAP_PX, rng), 0.12, 0.36)
                 fresh = np.clip(wear + 0.2, 0.0, 1.0)
                 d = np.abs(zrow[:, None] - centre[None, :])
                 # The groove: a rounded trough, its edge crumbled (wobbled by fine noise).

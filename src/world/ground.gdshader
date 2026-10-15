@@ -262,8 +262,10 @@ void fragment() {
 			float h0 = mix(texture(compact_h, e).r, texture(loose_h, e2).r, loose);
 			float rut = (m.g - 0.5) * 2.0 * street_rut_range;
 			earth *= mix(1.0 - relief_cavity, 1.0, mix(1.0, h0, mix(compact_relief, 1.0, loose)));
-			earth *= 1.0 - rut_dark * clamp(-rut / 0.06, 0.0, 1.0);
-			earth *= 1.0 + 0.6 * clamp(rut / 0.02, 0.0, 0.25);
+			// Most of a trough dark, not only its deepest line: with the sun down the street, along
+			// the ruts, their walls take no raking light, and the target draws them as dark bands.
+			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.03, -rut);
+			earth *= 1.0 + 0.18 * smoothstep(0.002, 0.012, rut);
 			earth *= 0.94 + 0.12 * fbm(q * 0.25 + 9.0);
 			v_earth = e;
 			v_mirror = mirror;
