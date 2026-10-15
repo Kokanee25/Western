@@ -93,7 +93,13 @@ way: the same man, triangle for triangle).
   joint moves (the hitboxes are the anatomy's).
 - `--head_scale=0.92`: his head was 1/7.2 of his height, now 1/7.7 (Sean: "a bit too big").
 - `own_fingers: "makehuman"`: his own Rodin fingers (`own_fingers: true`, `fingers.py`) came
-  out in shards; MakeHuman's hand is fitted to the game's (`mh_hand.py`).
+  out in shards; MakeHuman's hand is fitted to the game's (`mh_hand.py`: the palm an affine
+  through the wrist and the five knuckles, so each finger's base sits on its knuckle). His arm is
+  cut clean `WRIST_CUT` short of the wrist and the new wrist wrapped onto his forearm's surface
+  (fully for `WRIST_FULL`, easing off by `WRIST_BLEND`). The hands are painted (`mh_hand.paint`:
+  his hand's colour, shadow baked from the hand's shape, a lighter palm, nails, brushwork) in
+  their own layout (palm and back flattened, each finger bone unrolled) into two free squares of
+  his skin's texture (`HAND_SQUARE`, found by `_free_squares`); sheet `c5_hands_painted.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
@@ -104,7 +110,7 @@ way: the same man, triangle for triangle).
 
 - His coat is darker and more mottled than his pictures (Rodin's own colours).
 - A light band at his nape (his dressed twin's hair over the collar).
-- His hands are one flat colour; a few slivers at the wrist (under his cuffs).
+- His hands' wrist join is still a visible band on the bare body (under his cuffs when dressed).
 - His skin is tucked under his coat: with the coat taken off his arms look rough.
 - The vest and shirt are painted on the coat (one layer).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,
