@@ -312,7 +312,7 @@ def reduce(mid, spec, tpm):
         if spec.get("patches"):
             hm = patch(hm, spec["patches"])
         hm = seamless(hm[..., None], np.random.default_rng(sum(map(ord, mid))))[..., 0]
-        hsize = (size[0] * 2, size[1] * 2)
+        hsize = size if spec.get("smooth") else (size[0] * 2, size[1] * 2)
         hm = np.asarray(Image.fromarray((hm * 255 + 0.5).astype(np.uint8)).resize(hsize, Image.BOX))
         os.makedirs(out_dir(), exist_ok=True)
         Image.fromarray(hm).save(os.path.join(out_dir(), mid + "_height.png"))
@@ -323,11 +323,12 @@ def reduce(mid, spec, tpm):
     # The push square to square: the bold set's, or the material's own `mosaic` (2026-10-13, Sean:
     # "every surface should read as clear, distinct squares like the paintings"; the review's
     # MOSAIC 1.0 had smoothed them away), never on the smooth set or a sign.
-    push = MOSAIC if kind == "sign" or SMOOTH else spec.get("mosaic", BOLD_MOSAIC if BOLD else MOSAIC)
+    push = MOSAIC if kind == "sign" or SMOOTH or spec.get("smooth") else spec.get("mosaic", BOLD_MOSAIC if BOLD else MOSAIC)
     lab = mosaic(to_lab((t * 255).astype(np.uint8)), push, kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
     lab = grade(lab, spec)
-    if SMOOTH:
+    if SMOOTH or spec.get("smooth"):
+        # No palette: the painted road is drawn smooth (Sean, 2026-10-15), its own shades kept.
         pal = np.unique(np.round(lab.reshape(-1, 3), 0), axis=0)[:64]
     else:
         lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
@@ -425,7 +426,7 @@ def main():
             continue
         if not os.path.exists(os.path.join(RAW, mid + ".jpg")):
             continue
-        index[mid], raw, rgb = reduce(mid, m, tpm)
+        index[mid], raw, rgb = reduce(mid, m, m.get("texels_per_metre", tpm) if not (SMOOTH or BOLD) else tpm)
         rows.append((mid, raw, rgb, m["kind"]))
     with open(index_path, "w") as f:
         json.dump(dict(sorted(index.items())), f, indent=1)

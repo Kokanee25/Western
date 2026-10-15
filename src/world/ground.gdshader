@@ -59,7 +59,7 @@ uniform float sky_fill = 0.15;
 // is that height's sine).
 uniform float sky_fill_low_sun = 0.05;
 // The painted road's relief (assets/textures/road_wide_height.png, the image model's height of
-// its own painting: roadmap 1.4, Sean's road, 2026-10-15): each square tilted to the slope there,
+// its own painting: roadmap 1.4, Sean's road, 2026-10-15): each pixel tilted to the slope there,
 // so the low sun lights a rut's far wall and a stone's top and leaves the near wall dark; the
 // hollows a little darker (relief_cavity); and the sun's light traced a few centimetres toward it
 // over the heights (light()), so a rut's bottom lies in the shadow of its lip, long with the sun
@@ -67,6 +67,12 @@ uniform float sky_fill_low_sun = 0.05;
 // stand ~10 cm proud; at 6 cm they were 2 cm bumps that threw no shadow).
 uniform sampler2D height_tex : filter_linear_mipmap, repeat_enable;
 uniform bool use_height = false;
+// The painted road drawn smooth (Sean, 2026-10-15: "smooth road", like his picture): on the road
+// the painting is read pixel by pixel with smooth filtering (wide_smooth_tex, the same picture as
+// wide_tex at 128 texels a metre), its relief and light pixel by pixel too; off the road the wild
+// ground keeps its squares. wide_metres: the painting's size along the street.
+uniform sampler2D wide_smooth_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float wide_metres = 8.0;
 uniform float relief_depth = 0.15;
 uniform float relief_cavity = 0.35;
 // How far toward the sun the shadow trace looks (metres) and how dark a fully hidden square goes
@@ -145,31 +151,14 @@ void fragment() {
 	if (use_wide_tex) {
 		// The 8 m painting along the street; every other 8 m the picture is mirrored end for end
 		// (seamless, so the join holds), and the 2 m tile shows through in broad patches.
-		float wide_metres = float(textureSize(wide_tex, 0).x) / tpm;
-		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wide_metres) / wide_metres;
+		// Its size along the street: the painted road's own (wide_metres), else the drawn one's at
+		// the ground's density.
+		float wm = use_height ? wide_metres : float(textureSize(wide_tex, 0).x) / tpm;
+		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wm) / wm;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
 		vec3 wide = soft ? tile_sample_soft(wide_tex, w * ws, ws, vec2(0.0), vec2(0.0)).rgb : textureLod(wide_tex, w, lod).rgb;
-		if (use_height) {
-			// The slope across the square, from the height either side of it (a square or two height
-			// texels apart, whichever is wider), into a normal in world space; x runs backward in
-			// the mirrored cells.
-			vec2 hs = vec2(textureSize(height_tex, 0));
-			float mirror = mod(cell, 2.0) > 0.5 ? -1.0 : 1.0;
-			vec2 d = max(b / tpm, vec2(2.0 * wide_metres) / hs) / wide_metres;
-			float hl = log2(max(d.x * hs.x, 1.0));
-			float hx = textureLod(height_tex, w + vec2(d.x, 0.0), hl).r - textureLod(height_tex, w - vec2(d.x, 0.0), hl).r;
-			float hz = textureLod(height_tex, w + vec2(0.0, d.y), hl).r - textureLod(height_tex, w - vec2(0.0, d.y), hl).r;
-			vec2 slope = vec2(mirror * hx / (2.0 * d.x), hz / (2.0 * d.y)) * relief_depth / wide_metres;
-			v_hw = w;
-			v_hmirror = mirror;
-			v_hmetres = wide_metres;
-			v_h0 = textureLod(height_tex, w, hl).r;
-			v_hrelief = smoothstep(0.25, 0.75, road) * (1.0 - smoothstep(dissolve_from, dissolve_to, length(VERTEX)));
-			vec3 nw = normalize(vec3(-slope.x, 1.0, -slope.y));
-			NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(nw, 0.0)).xyz, v_hrelief));
-		}
 		if (keep_tracks) {
 			// The mip levels a metre and half a metre across, whatever the road's density.
 			float far = smoothstep(dissolve_from, dissolve_to, length(VERTEX));
@@ -223,12 +212,43 @@ void fragment() {
 	if (!smooth_source && !keep_tracks) {
 		col = floor(col * 24.0 + 0.5) / 24.0;
 	}
-	if (use_height) {
-		col *= mix(1.0, mix(1.0 - relief_cavity, 1.0, v_h0), v_hrelief);
+	bool smooth_road = false;
+	if (use_height && !soft) {
+		// The road pixel by pixel: where it is (its edge wanders, as the squares' did), the
+		// painting there (mirrored every other wide_metres along the street), and the slope of its
+		// relief one height texel either side, as a normal in world space.
+		vec2 q = world_pos.xz;
+		float nq = fbm(q * 0.3);
+		float road_q = 1.0 - smoothstep(road_half_width - 1.0, road_half_width + 1.5, abs(q.y - road_center_z) + (nq - 0.5) * 3.0);
+		smooth_road = road_q > 0.5;
+		vec2 w = vec2(q.x, q.y - road_center_z + 0.5 * wide_metres) / wide_metres;
+		float cell = floor(w.x);
+		float mirror = mod(cell, 2.0) > 0.5 ? -1.0 : 1.0;
+		w.x = mirror < 0.0 ? cell + 1.0 - fract(w.x) : w.x;
+		vec3 painted = texture(wide_smooth_tex, w).rgb;
+		float far = smoothstep(dissolve_from, dissolve_to, length(VERTEX));
+		vec2 hs = vec2(textureSize(height_tex, 0));
+		// A height texel either side, or what a pixel covers when that's more (far off).
+		vec2 d = max(1.0 / hs, fwidth(w));
+		float hx = texture(height_tex, w + vec2(d.x, 0.0)).r - texture(height_tex, w - vec2(d.x, 0.0)).r;
+		float hz = texture(height_tex, w + vec2(0.0, d.y)).r - texture(height_tex, w - vec2(0.0, d.y)).r;
+		vec2 slope = vec2(mirror * hx / (2.0 * d.x), hz / (2.0 * d.y)) * relief_depth / wide_metres;
+		v_hw = w;
+		v_hmirror = mirror;
+		v_hmetres = wide_metres;
+		v_h0 = texture(height_tex, w).r;
+		v_hrelief = smoothstep(0.25, 0.75, road_q) * (1.0 - far);
+		vec3 nw = normalize(vec3(-slope.x, 1.0, -slope.y));
+		NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(nw, 0.0)).xyz, v_hrelief));
+		painted *= mix(1.0, mix(1.0 - relief_cavity, 1.0, v_h0), v_hrelief);
+		painted *= 0.92 + 0.16 * nq;
+		col = mix(col, painted, smoothstep(0.25, 0.75, road_q));
 	}
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
-	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
+	if (!smooth_road) {
+		LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
+	}
 }
 
 void light() {

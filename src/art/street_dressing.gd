@@ -96,6 +96,9 @@ func _ready() -> void:
 	var grass := DryGrass.new()
 	grass.name = "DryGrass"
 	add_child(grass)
+	var stones := RoadStones.new()
+	stones.name = "RoadStones"
+	add_child(stones)
 
 
 func _buildings() -> void:

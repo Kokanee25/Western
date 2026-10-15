@@ -64,7 +64,8 @@ const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "w
 ## The street's road is painted (roadmap 1.4, Sean's road, 2026-10-15: tools/textures/paint_textures.py
 ## from docs/concept/targets/6_road_target.jpg, cut by reduce.py at 32 a metre) with its relief
 ## (road_wide_height.png), lit square by square in ground.gdshader; the drawn one (draw_road.py)
-## was "road_wide" in DRAWN_ALWAYS before.
+## was "road_wide" in DRAWN_ALWAYS before. Drawn smooth (Sean's call): its texels a metre.
+const ROAD_PAINTED_TEXELS := 128.0
 ## Drawn textures laid at their own density (squares a metre), not DRAWN_TEXELS: the saloon
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
@@ -245,6 +246,8 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		m.set_shader_parameter(&"wide_only", relief)
 		if relief:
 			m.set_shader_parameter(&"height_tex", load(hp))
+			m.set_shader_parameter(&"wide_smooth_tex", wide)
+			m.set_shader_parameter(&"wide_metres", float(wide.get_width()) / ROAD_PAINTED_TEXELS)
 	return m
 
 

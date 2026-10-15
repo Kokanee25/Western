@@ -369,7 +369,10 @@
    ],
    "about_patches": "The painting's boot prints, covered from the ground beside them (prints come from people walking: gameplay's, docs/BACKLOG.md).",
    "about_paint": "Painted by run 72 (try 2 of 3, 2026-10-15, $0.25 a call): the ruts and stones right; try 3 drew more bands and blotches and was not kept.",
-   "median": false
+   "median": false,
+   "texels_per_metre": 128,
+   "smooth": true,
+   "about_smooth": "Sean, 2026-10-15: the road drawn smooth like his picture (no squares, no palette), at 128 texels a metre with linear filtering; its stones stand up as RoadStones."
   }
  }
 }
