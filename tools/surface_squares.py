@@ -5,6 +5,7 @@ and coat's square size and finish, so close and far they're one picture).
 
     python3 tools/surface_squares.py measure DIR [--spec=tools/surface_squares.json] [--json=OUT]
     python3 tools/surface_squares.py sheet DIR OUT.png [--before=DIR0] [--spec=...]
+    python3 tools/surface_squares.py targets DIR OUT_DIR [--before=DIR0]
 
 DIR holds the views' renders (<view>.png, as tools/screenshots.gd writes them). The spec names, per
 view, crops of the render (x0, y0, x1, y1 at 1280x720) and what each shows; a crop of the man (his
@@ -19,7 +20,9 @@ cheek, his coat) is the yardstick the surfaces round him are read against. For e
   flat    the share of pixels within 2 L* of their right-hand neighbour (flat squares: high);
   L*, C*  mean lightness and chroma.
 
-The sheet lays every crop at 3x, the render (and --before's beside it) with its numbers.
+The sheet lays every crop at 3x, the render (and --before's beside it) with its numbers. `targets`
+writes, per view the spec gives a target (docs/concept/targets/), target | before | now, each
+720 high, as <view>.jpg in OUT_DIR.
 """
 import json
 import os
@@ -135,10 +138,38 @@ def sheet(d: str, out: str, spec: dict, before: str = None) -> None:
     print("wrote", out, s.size)
 
 
+def targets(d: str, out_dir: str, targets_of: dict, before: str = None) -> None:
+    font = _font(18)
+    os.makedirs(out_dir, exist_ok=True)
+    for view, target in targets_of.items():
+        p = os.path.join(d, view + ".png")
+        if not os.path.exists(p):
+            continue
+        panels = [("target", Image.open(os.path.join(ROOT, target)).convert("RGB"))]
+        if before and os.path.exists(os.path.join(before, view + ".png")):
+            panels.append(("before", Image.open(os.path.join(before, view + ".png")).convert("RGB")))
+        panels.append(("now", Image.open(p).convert("RGB")))
+        h = 720
+        panels = [(n, im.resize((im.width * h // im.height, h), Image.LANCZOS)) for n, im in panels]
+        W = sum(im.width for _, im in panels) + 8 * (len(panels) - 1)
+        sheet = Image.new("RGB", (W, h + 28), (20, 20, 20))
+        x = 0
+        for n, im in panels:
+            sheet.paste(im, (x, 28))
+            ImageDraw.Draw(sheet).text((x + 6, 4), "%s  %s" % (n, view if n != "target" else os.path.basename(target)),
+                    fill=(235, 235, 235), font=font)
+            x += im.width + 8
+        out = os.path.join(out_dir, view + ".jpg")
+        sheet.save(out, quality=88)
+        print("wrote", out, sheet.size)
+
+
 def main() -> None:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     spec = load_spec(opts.get("spec", SPEC))
+    with open(opts.get("spec", SPEC)) as f:
+        targets_of = json.load(f).get("targets", {})
     if not args:
         print(__doc__)
         sys.exit(2)
@@ -148,6 +179,8 @@ def main() -> None:
         if "json" in opts:
             with open(opts["json"], "w") as f:
                 json.dump(m, f, indent=1)
+    elif args[0] == "targets":
+        targets(args[1], args[2], targets_of, opts.get("before"))
     elif args[0] == "sheet":
         sheet(args[1], args[2], spec, opts.get("before"))
     else:

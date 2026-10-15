@@ -1,5 +1,13 @@
 {
  "about": "tools/surface_squares.py's crops (x0, y0, x1, y1 in the 1280x720 render): the man (the yardstick: the portrait man's face and coat in shot_match_close, rendered with --model=bold_cowboy_portrait) and the surfaces round him, near and far. Roadmap 1.4, art, 2026-10-15.",
+ "targets": {
+  "shot_match_close": "docs/concept/targets/1_man_at_table_target.jpg",
+  "shot_match_saloon": "docs/concept/targets/2_saloon_night_target.jpg",
+  "shot_match_street": "docs/concept/targets/3_street_golden_target.jpg",
+  "texel_porch": "docs/concept/targets/4_wall_and_post_target.jpg",
+  "wall_closeup_noon": "docs/concept/targets/4_wall_and_post_target.jpg",
+  "texel_store_golden": "docs/concept/targets/4_wall_and_post_target_whole.jpg"
+ },
  "views": {
   "shot_match_close": [
    {"name": "man_cheek", "box": [560, 330, 640, 390], "what": "the man's cheek, ~1 m"},
