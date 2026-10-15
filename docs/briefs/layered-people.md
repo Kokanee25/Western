@@ -102,3 +102,9 @@ and clothes are made once per body type.
 Changing the game's lighting (the art session's: faces' tones and saturation under its lamps,
 measured in `character-style-fidelity.md`); women (their own base bodies, later); a wardrobe for
 the town beyond the first outfit.
+
+**Sean, 2026-10-15, on the painterly trial sheets** (`docs/style_test/painterly-2026-10-15/`):
+"it's fucking mint - it needs a bit of fixing up but that's fucking it". The painterly style is the
+direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their light mostly kept
+(`delight` 0.15), drawn with the game's own material (not self-lit). Bookmark:
+`look/painterly-2026-10-15`.
