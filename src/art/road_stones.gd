@@ -18,6 +18,14 @@ const SIZES := [[0.035, 0.07, 0.5], [0.07, 0.13, 0.38], [0.13, 0.22, 0.12]]
 
 @export var stone_seed := 1882
 
+## The street's map (tools/textures/draw_street.py): its A says how likely a stone is (churned
+## ground and the ruts' lips, none in a groove), its G the ruts' height a stone sits on.
+const MAP := "res://assets/textures/street/street_map.png"
+const MAP_INFO := "res://assets/textures/street/street_map.json"
+var _map: Image
+var _area := Vector4.ZERO
+var _rut_range := 0.12
+
 ## Where each stone lies (the multimesh's transforms; kept here too, as a headless renderer
 ## doesn't keep them).
 var stones: Array[Transform3D] = []
@@ -31,6 +39,15 @@ func _ready() -> void:
 
 
 func _scatter() -> void:
+	if ResourceLoader.exists(MAP) and FileAccess.file_exists(MAP_INFO):
+		_map = (load(MAP) as Texture2D).get_image()
+		if _map.is_compressed():
+			_map.decompress()
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(MAP_INFO))
+		if info is Dictionary:
+			var a: Array = (info as Dictionary).get("area", [])
+			_area = Vector4(a[0], a[1], a[2], a[3])
+			_rut_range = float((info as Dictionary).get("rut_range", 0.12))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = stone_seed
 	var space := get_world_3d().direct_space_state
@@ -57,8 +74,9 @@ func _scatter() -> void:
 						rng.randf_range(-0.3, 0.3))
 		var tall := size * rng.randf_range(0.45, 0.7)
 		basis = basis.scaled(Vector3(size * rng.randf_range(0.9, 1.3), tall, size))
-		# The rock is a unit across: its centre a sixth of its height above the dirt.
-		p.y = tall / 6.0
+		# The rock is a unit across: its centre a sixth of its height above the dirt (the ruts'
+		# height there, on the map).
+		p.y = tall / 6.0 + _rut_height(p)
 		transforms.append(Transform3D(basis, p))
 		# Tan-grey, rust, pale and dark stones, as the target's, near the dirt's own value (paler,
 		# they read as white blobs in the noon sun).
@@ -81,9 +99,29 @@ func _scatter() -> void:
 	add_child(mmi)
 
 
-## How likely a stone is at `p` (0..1): in clumps over the whole road, thicker toward its edges
-## where the wheels throw them, thinning out off it.
+## The map's pixel under `p` (null off the map).
+func _sample(p: Vector3) -> Variant:
+	if _map == null:
+		return null
+	var u := (p.x - _area.x) / (_area.z - _area.x)
+	var v := (p.z - _area.y) / (_area.w - _area.y)
+	if u < 0.0 or u >= 1.0 or v < 0.0 or v >= 1.0:
+		return null
+	return _map.get_pixel(int(u * _map.get_width()), int(v * _map.get_height()))
+
+
+func _rut_height(p: Vector3) -> float:
+	var c: Variant = _sample(p)
+	return ((c as Color).g - 0.5) * 2.0 * _rut_range if c != null else 0.0
+
+
+## How likely a stone is at `p` (0..1): the map's say where there is one (churned ground and the
+## ruts' lips), in clumps; else thicker toward the road's edges, thinning out off it.
 func _density(p: Vector3, noise: FastNoiseLite) -> float:
+	var c: Variant = _sample(p)
+	if c != null:
+		var clump_m := clampf(noise.get_noise_2d(p.x, p.z) * 0.9 + 0.5, 0.0, 1.0)
+		return (c as Color).a * smoothstep(0.15, 0.7, clump_m)
 	var dz := absf(p.z - ROAD_Z)
 	var clump := clampf(noise.get_noise_2d(p.x, p.z) * 0.9 + 0.5, 0.0, 1.0)
 	var edge := lerpf(0.6, 1.0, smoothstep(1.0, ROAD_HALF - 0.5, dz)) * (1.0 - smoothstep(ROAD_HALF - 0.3, ROAD_HALF + 0.5, dz))
