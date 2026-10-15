@@ -90,11 +90,14 @@ static var lab_set := "lab"
 ## as before (drawn/, the factory).
 const WOODS_SET := "woods"
 static var woods := true
-## The squares the game's woods are drawn in, texels a side (texel_grid square_texels: each the
-## mean of its texels, lit as one): 4 of C's 128 a metre, 32 a metre, the portrait man's face's and
-## coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the man": C's grain alone,
-## a texel 0.8 cm, read as fine smooth 3D beside his squares). 1: C's texels, as chosen.
+## The squares the game's woods are drawn in, texels a side: 4 of C's 128 a metre, 32 a metre, the
+## portrait man's face's and coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the
+## man": C's grain alone, a texel 0.8 cm, read as fine smooth 3D beside his squares). The textures
+## are drawn in them (woods_grain.json `squares`, grain_woods.py squared); texel_grid square_texels
+## lights each as one and reads it whole. 1 here and no `squares` there: C's texels, as chosen.
 const WOODS_SQUARE := 4.0
+## Their end grain's (256 a metre, so 128 a metre: its rings are finer than the long faces' squares).
+const WOODS_END_SQUARE := 2.0
 ## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY): the table's top.
 const DRAWN_SQUARES := {"shot_table": 4.0}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
@@ -166,6 +169,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 			# metre at the default 32), so F7's texel size and the mipmap setting move them too.
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
 			m.set_shader_parameter(&"square_texels", WOODS_SQUARE)
+			m.set_shader_parameter(&"end_square_texels", WOODS_END_SQUARE)
 		else:
 			m.set_meta(&"texels", lab_density(key, set))
 			m.set_meta(&"mipmaps", true)

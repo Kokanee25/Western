@@ -39,8 +39,9 @@ uniform bool fixed_squares = false;
 // and lit as one: the man's painted squares (roadmap 1.4, "surfaces to the man": the game's woods
 // are 128 texels a metre, their squares 4 of them, 32 a metre, his face's and coat's 36-48). A
 // whole power of two (the mip lines up with the squares). 1: every texel its own, as before.
-// End grain's squares are the same size in metres (end_texels / texels_per_meter times this).
 uniform float square_texels = 1.0;
+// End grain's squares, texels of end_tex a side (its rings are finer than the long faces' squares).
+uniform float end_square_texels = 1.0;
 // A cube-built mesh: light each face where the fragment is, not at the texel's centre (VoxelTrial).
 uniform bool cube_faces = false;
 // The surface-blocks look: the colour the lower bands of light lean toward (wood's half-light a
@@ -120,9 +121,8 @@ void fragment() {
 	vec2 uv_scale = vec2(endf && end_texels > 0.0 ? end_texels : texels_per_meter) / size;
 	float b = 1.0;
 	bool soft = block_soft > 0.0;
-	// The squares the texture is drawn in (square_texels), texels a side; on an end face the same
-	// size in metres.
-	float sq = soft ? 1.0 : max(square_texels, 1.0) * (endf && end_texels > 0.0 ? end_texels / texels_per_meter : 1.0);
+	// The squares the texture is drawn in (square_texels, end_square_texels), texels a side.
+	float sq = soft ? 1.0 : max(endf ? end_square_texels : square_texels, 1.0);
 	if (mapping == 0 && endf) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
 		if (sq > 1.0) {
