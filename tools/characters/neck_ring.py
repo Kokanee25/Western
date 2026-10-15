@@ -188,25 +188,34 @@ def main():
     # Blender, the UVs kept per corner, so decimating it doesn't tear it into holes.
     _u, first, wi2 = np.unique(np.round(Vh / 1e-5).astype(np.int64), axis=0, return_index=True, return_inverse=True)
     wi2 = wi2.ravel()
+    # Triangles that welding folds flat (two corners at one point) go: Blender's decimation hangs
+    # on them.
+    Fw = wi2[Th]
+    good = (Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])
+    Th, Fw = Th[good], Fw[good]
     me = bpy.data.meshes.new("body_head")
-    me.from_pydata([tuple(p) for p in Vh[first]], [], [tuple(int(wi2[i]) for i in t_) for t_ in Th])
+    me.from_pydata([tuple(p) for p in Vh[first]], [], [tuple(int(i) for i in f) for f in Fw])
     uvl = me.uv_layers.new(name="UVMap")
     corner_uv = np.c_[UVh[Th.ravel(), 0], 1.0 - UVh[Th.ravel(), 1]]    # loops run face by face
     uvl.data.foreach_set("uv", corner_uv.astype(np.float32).ravel())
     me.polygons.foreach_set("use_smooth", np.ones(len(me.polygons), bool))
+    me.validate(clean_customdata=False)
+    print("neck_ring: head mesh %d vertices, %d triangles (%d folded flat dropped)" % (
+        len(me.vertices), len(me.polygons), int((~good).sum())), flush=True)
     newh = bpy.data.objects.new("body_head_new", me)
     bpy.context.scene.collection.objects.link(newh)
     mark("mesh made")
     # Cut down to the game's budget first (before any skinning, so nothing needs re-ordering).
     print("neck_ring: head %d triangles" % len(Th), flush=True)
     if len(Th) > HEAD_TRIS:
-        for o in bpy.context.view_layer.objects:
-            o.select_set(False)
-        newh.select_set(True)
-        bpy.context.view_layer.objects.active = newh
+        # Applied through the evaluated mesh (no operators: they want a selection context).
         dec = newh.modifiers.new("dec", "DECIMATE")
         dec.ratio = HEAD_TRIS / len(Th)
-        bpy.ops.object.modifier_apply(modifier="dec")
+        dg = bpy.context.evaluated_depsgraph_get()
+        cut = bpy.data.meshes.new_from_object(newh.evaluated_get(dg))
+        newh.modifiers.remove(dec)
+        newh.data = cut
+        cut.name = "body_head"
     mark("decimated")
     Vw = np.array([v.co[:] for v in newh.data.vertices])
     groups = [g.name for g in old.vertex_groups]
