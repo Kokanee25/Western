@@ -96,3 +96,11 @@ What production needs (none of it done; the structure code is gameplay's):
   members. ~3.3-4 MB of textures with mipmaps.
 - Goldens: every fixed view with a boardwalk or a red front re-approved in the same merge; the
   judge and the blind critic as for any art merge.
+
+Measured on Main Street (`tools/material_lab.gd --street`, five views, 30 frames each, each
+variant run alone; `docs/screenshots/material_lab/final/street.md`): draw calls A -> C +18% at
+noon, +21% at golden hour (B +10-11%: C's extra boards a wood are extra batches); render CPU
+under lavapipe +14-20% (about ±1 ms a view run to run), ~0.4-0.6 ms at Sean's scale on the calm
+street's 2.9. Triangles and mesh data: the lab builder's 228k -> 393k and 22.5 -> 89 MB; built
+for production an estimated +19k triangles (+8.5%: posts 5.3k, planks 5.2k, joists and pads 3.9k,
+steps 1.0k, nails as quads 4k) and ~24 MB.
