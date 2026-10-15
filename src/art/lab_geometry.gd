@@ -23,6 +23,12 @@ class_name LabGeometry
 ## the same height); the steps open up (a 35 mm nosing over a riser set back under it, a gap at the
 ## ground, three stringers, treads in the deck's wood and the rest in grey pine); the nails jittered,
 ## now and then a third or one missing.
+## `build` 3 (Sean, 2026-10-15: "can the boards not be so evenly spaced and perfectly shaped?"): as
+## 2, and boards drawn as sawn and laid by hand. Floor boards and the walk's planks each a little
+## wider or narrower on each side and tapered along their length (gaps of 2-40 mm, never a rhythm),
+## bowed a few mm, their tops a hair up or down and twisted, now and then an end lifted or a board
+## proud; one plank in seven two shorter boards butted over the middle joist; the lap siding
+## tilted as clapboard is (each board's lower edge proud of the one below) with a wandering lap line.
 
 ## Chamfer a long edge by this much (m), by the member's wood.
 const CHAMFER := {&"timber": 0.012, &"framing": 0.01, &"floor": 0.005}
@@ -79,7 +85,29 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 		if build >= 2:
 			var r2 := _member_rng(m)
 			var arrays := _arrays()
-			_add_box(arrays, size, chamfer, shift, 0.0, r2.randf_range(0.0, 2.0), Vector2(r2.randf_range(0.0, 0.25), r2.randf_range(0.0, 0.01)))
+			var u0 := r2.randf_range(0.0, 2.0)
+			var eo := Vector2(r2.randf_range(0.0, 0.25), r2.randf_range(0.0, 0.01))
+			var segs := 1
+			var warp := Callable()
+			if build >= 3:
+				var r3 := _member_rng(m)
+				r3.seed = hash(String(m.member_id) + "#lab5")
+				if m.kind == &"floor_board":
+					warp = _board_warp(r3)
+					segs = 4
+				elif m.kind == &"board" and String(m.member_id).contains("/siding/r"):
+					var away: Vector3 = (m as Node3D).global_transform.basis.inverse() * ((m as Node3D).global_position - _centre_of(walk))
+					var la := 0
+					for ax in 3:
+						if size[ax] > size[la]:
+							la = ax
+					var thin := 0
+					for ax in 3:
+						if size[ax] < size[thin]:
+							thin = ax
+					warp = _lap_warp(r3, signf(away[thin]) if absf(away[thin]) > 1e-4 else 1.0)
+					segs = 3
+			_add_box(arrays, size, chamfer, shift, 0.0, u0, eo, segs, warp)
 			mi.mesh = _mesh(arrays)
 		else:
 			mi.mesh = box(size, chamfer, shift)
@@ -98,6 +126,55 @@ static func apply(root: Node, reshape := false, plank_t := 0.045, overhang := 0.
 
 
 ## A boardwalk's member as built (`build`), in its own space; null for a member drawn as usual.
+## Level 3: a floor board's or plank's warp (see _add_box): each side its own reach at each end
+## (taper, uneven gaps), a bow, its top up or down and twisted, sometimes an end lifted.
+static func _board_warp(r: RandomNumberGenerator) -> Callable:
+	var en0 := r.randf_range(-0.012, 0.008)
+	var en1 := r.randf_range(-0.012, 0.008)
+	var ep0 := r.randf_range(-0.012, 0.008)
+	var ep1 := r.randf_range(-0.012, 0.008)
+	var bow := r.randf_range(-0.005, 0.005)
+	var h0 := r.randf_range(-0.002, 0.002) + (0.004 if r.randf() < 0.05 else 0.0)
+	var tw := r.randf_range(-0.0015, 0.0015)
+	var lift := r.randf_range(0.001, 0.004) if r.randf() < 0.25 else 0.0
+	var lift_end := -1.0 if r.randf() < 0.5 else 1.0
+	return func(l: float, w: float, W: float, L: float) -> Vector3:
+		var t := l / L + 0.5
+		var side := -lerpf(en0, en1, t) if w < 0.0 else lerpf(ep0, ep1, t)
+		var x := 2.0 * l / L
+		var y := h0 + tw * (w / W) * x + lift * pow(clampf(x * lift_end, 0.0, 1.0), 3.0)
+		return Vector3(0.0, side + bow * (1.0 - x * x), y)
+
+
+## Level 3: a lap siding board's warp: its lower edge `out` (the wall's outward sign along its
+## thickness) by a tilt, reaching a little lower (over the board below), the lap line wandering.
+static func _lap_warp(r: RandomNumberGenerator, out: float) -> Callable:
+	var tilt := r.randf_range(0.004, 0.007)
+	var reach := r.randf_range(0.002, 0.005)
+	var wander := r.randf_range(-0.003, 0.003)
+	var slope := r.randf_range(-0.002, 0.002)
+	return func(l: float, w: float, W: float, L: float) -> Vector3:
+		var low := clampf(0.5 - w / W, 0.0, 1.0)
+		var x := 2.0 * l / L
+		var drop := (reach + wander * (1.0 - x * x) + slope * x) * low
+		return Vector3(0.0, -drop, out * tilt * low)
+
+
+static var _centres := {}
+
+
+## The middle of a structure (its members' mean place), for which way is out of a wall.
+static func _centre_of(s: Node) -> Vector3:
+	if not _centres.has(s):
+		var c := Vector3.ZERO
+		var n := 0
+		for m in s.find_children("*", "StructureMember", true, false):
+			c += (m as Node3D).global_position
+			n += 1
+		_centres[s] = c / maxf(n, 1)
+	return _centres[s]
+
+
 ## A member's own random numbers (level 2's offsets), apart from its shape's.
 static func _member_rng(m: Node) -> RandomNumberGenerator:
 	var r := RandomNumberGenerator.new()
@@ -153,7 +230,25 @@ static func _walk_member(m: Node, walk: Node, plank_t: float, overhang: float, n
 		var s2 := Vector3(size.x, plank_t, size.z + ext)
 		var top_y := size.y * 0.5 + rng.randf_range(-0.0015, 0.0015)
 		var shift := Vector3(0.0, top_y - plank_t * 0.5, -ext * 0.5)
-		_add_box(arrays, s2, CHAMFER[&"floor"], shift, rng.randf_range(-0.005, 0.005), u0, eo)
+		var skw := rng.randf_range(-0.005, 0.005)
+		if level >= 3:
+			var r3 := RandomNumberGenerator.new()
+			r3.seed = hash(mid + "#lab5")
+			skw *= 1.6
+			# One in seven two shorter boards, butted over the middle joist.
+			var zj := -wd * 0.5 - at.z
+			var z0 := shift.z - s2.z * 0.5
+			var z1 := shift.z + s2.z * 0.5
+			if r3.randf() < 0.15 and zj > z0 + 0.3 and zj < z1 - 0.3:
+				var g := 0.003
+				_add_box(arrays, Vector3(s2.x, s2.y, zj - g - z0), CHAMFER[&"floor"], Vector3(shift.x, shift.y, (z0 + zj - g) * 0.5),
+						skw, u0, eo, 3, _board_warp(r3))
+				_add_box(arrays, Vector3(s2.x, s2.y, z1 - zj - g), CHAMFER[&"floor"], Vector3(shift.x, shift.y + r3.randf_range(-0.002, 0.002), (zj + g + z1) * 0.5),
+						r3.randf_range(-0.004, 0.004), u0 + 0.9, eo + Vector2(0.07, 0.0), 3, _board_warp(r3))
+			else:
+				_add_box(arrays, s2, CHAMFER[&"floor"], shift, skw, u0, eo, 4, _board_warp(r3))
+		else:
+			_add_box(arrays, s2, CHAMFER[&"floor"], shift, skw, u0, eo)
 		# Two cut nails where it crosses each joist (the sleepers' lines).
 		var wt: Transform3D = (walk as Node3D).global_transform
 		for jz in [-wd + 0.08, -wd * 0.5, -0.1]:
@@ -288,7 +383,7 @@ static func _mesh(a: Array) -> ArrayMesh:
 ## Appends a box (as `box`) to `a`; `skew` moves its -long-axis end's corners along the long axis
 ## by up to that much across its width (an end cut off square).
 static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, skew := 0.0, u0 := 0.0,
-		end_off := Vector2.ZERO) -> void:
+		end_off := Vector2.ZERO, segs := 1, warp := Callable()) -> void:
 	if _wind == 0.0:
 		_wind = _box_winding()
 	var la := 0
@@ -313,11 +408,18 @@ static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, s
 	var uv: PackedVector2Array = a[2]
 	var uv2: PackedVector2Array = a[3]
 	var col: PackedColorArray = a[4]
+	# `warp` (l, w, W, L) -> Vector3(along, across, through): how far the point `l` along the board
+	# and `w` across its width W is from true (level 3's irregular boards: tapered, bowed, twisted,
+	# an end lifted; the lap siding's tilt).
 	var to3 := func(l: float, p: Vector2) -> Vector3:
+		var w := Vector3.ZERO
+		if warp.is_valid():
+			# (along, across the board's width, through its thickness), whichever axes those are.
+			w = warp.call(l, p.x if A >= B else p.y, maxf(A, B), L)
 		var r := Vector3.ZERO
-		r[la] = l + (skew * p.x / maxf(A, 1e-4) if l < 0.0 else 0.0)
-		r[xa] = p.x
-		r[ya] = p.y
+		r[la] = l + (skew * p.x / maxf(A, 1e-4) if l < 0.0 else 0.0) + w.x
+		r[xa] = p.x + (w.y if A >= B else w.z)
+		r[ya] = p.y + (w.z if A >= B else w.y)
 		return r + shift
 	# Long faces: one quad an outline edge, u along the length, v along the edge.
 	var vstart := 0.0
@@ -329,10 +431,15 @@ static func _add_box(a: Array, size: Vector3, c := 0.0, shift := Vector3.ZERO, s
 		var n2 := Vector2(e.y, -e.x).normalized()
 		if n2.dot((p0 + p1) * 0.5) < 0.0:
 			n2 = -n2
-		var nn: Vector3 = to3.call(0.0, n2) - shift
-		var q := [to3.call(-L / 2, p0), to3.call(L / 2, p0), to3.call(L / 2, p1), to3.call(-L / 2, p1)]
-		var quv := [Vector2(u0, 0), Vector2(u0 + L, 0), Vector2(u0 + L, el), Vector2(u0, el)]
-		_quad(v, nr, uv, uv2, col, q, quv, nn, Vector2(L, el), Color(0, 0, u0 * 0.5, 1))
+		var nn := Vector3.ZERO
+		nn[xa] = n2.x
+		nn[ya] = n2.y
+		for k in segs:
+			var l0 := -L / 2 + L * float(k) / segs
+			var l1 := -L / 2 + L * float(k + 1) / segs
+			var q := [to3.call(l0, p0), to3.call(l1, p0), to3.call(l1, p1), to3.call(l0, p1)]
+			var quv := [Vector2(u0 + l0 + L / 2, 0), Vector2(u0 + l1 + L / 2, 0), Vector2(u0 + l1 + L / 2, el), Vector2(u0 + l0 + L / 2, el)]
+			_quad(v, nr, uv, uv2, col, q, quv, nn, Vector2(L, el), Color(0, 0, u0 * 0.5, 1))
 		vstart += el
 	# The two ends: the outline as a fan, u along the end's larger side.
 	for s in [-1.0, 1.0]:

@@ -96,6 +96,9 @@ func _run() -> void:
 			pa.lab_set = "lab4"
 		elif arg == "--build2":
 			geometry = 4
+		# --build3: and the boards sawn and laid by hand (LabGeometry `build` 3).
+		elif arg == "--build3":
+			geometry = 5
 		elif arg == "--street":
 			street_mode = true
 		elif arg.begins_with("--pan-lights="):
