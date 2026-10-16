@@ -97,20 +97,40 @@ def wrap(strip):
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).resize((w, a.shape[0]), Image.LANCZOS)
 
 
+def seams(painted, n):
+    """Where the painting's boards meet: the darkest row (the gap between two boards) near each of
+    the n - 1 even splits, searched within a third of a board either way. The model paints the
+    right number of boards but not to the texel, so cut lines at fixed rows ran through boards."""
+    lum = np.asarray(painted.convert("L")).astype(np.float32).mean(axis=1)
+    lum = np.convolve(lum, np.ones(5) / 5.0, mode="same")
+    h = len(lum)
+    step = h / n
+    cuts = [0]
+    for k in range(1, n):
+        lo = int(k * step - step / 3)
+        hi = int(k * step + step / 3)
+        cuts.append(lo + int(np.argmin(lum[lo:hi])))
+    cuts.append(h)
+    return cuts
+
+
 def cut(wood, info):
     names = strips(wood, info)
     sizes = [Image.open(os.path.join(WOODS, n)).size for n in names]
-    w = sizes[0][0]
-    h = sum(s[1] for s in sizes)
-    painted = Image.open(RAW % wood).convert("RGB").resize((w * 4, h * 4), Image.LANCZOS)
-    y = 0
+    painted = Image.open(RAW % wood).convert("RGB")
+    cuts = seams(painted, len(names))
+    # Each board between its seams, the seam's dark line itself left out (the game draws the
+    # boards' edges: edge_shade, edge_lip).
+    trim = max(int(painted.height / len(names) * 0.06), 1)
     out = []
-    for n, (sw, sh) in zip(names, sizes):
-        piece = painted.crop((0, y * 4, w * 4, (y + sh) * 4)).resize((sw, sh), Image.LANCZOS)
+    for i, (n, (sw, sh)) in enumerate(zip(names, sizes)):
+        top = cuts[i] + (trim if i > 0 else 0)
+        bottom = cuts[i + 1] - (trim if i < len(names) - 1 else 0)
+        piece = painted.crop((0, top, painted.width, bottom)).resize((sw, sh), Image.LANCZOS)
         piece = wrap(piece)
         piece.save(os.path.join(WOODS, n))
         out.append(piece)
-        y += sh
+    w = sizes[0][0]
     boards = [p for n, p in zip(names, out) if not n.endswith("_bare.png")][:4]
     preview = Image.new("RGB", (w, sum(p.height for p in boards)))
     y = 0
