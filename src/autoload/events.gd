@@ -34,6 +34,8 @@ signal near_miss(person: Node, shooter: Node, distance: float, at: Vector3, spee
 signal hat_shot(person: Node, shooter: Node, at: Vector3)
 ## Someone gave up: dropped their gun and put their hands up.
 signal person_surrendered(person: Node)
+## Someone who'd given up had his hands bound by `by`: under arrest, he goes where he's taken.
+signal person_arrested(person: Node, by: Node)
 ## Someone said something out loud (shown as a subtitle to a player in earshot).
 signal spoke(speaker: Node, text: String)
 ## Someone's too close to a fire: `amount` is how badly it burnt them this moment.
