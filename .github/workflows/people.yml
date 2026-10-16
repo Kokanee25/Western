@@ -384,6 +384,13 @@ jobs:
               case "$WHICH" in sky:*) only="--only=${WHICH#sky:}" ;; esac
               python3 tools/textures/paint_sky.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
               exit 0 ;;
+            # textures = woods (or woods:store_boards,...): the game's woods repainted in the man's
+            # hand (tools/textures/paint_woods.py, art, 2026-10-16, docs/briefs/match-the-man.md).
+            woods|woods:*)
+              only=""
+              case "$WHICH" in woods:*) only="--only=${WHICH#woods:}" ;; esac
+              python3 tools/textures/paint_woods.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
+              exit 0 ;;
             # textures = reference (or reference:street,...): the judge's reference paintings in
             # the painted look (tools/textures/paint_reference.py, art, 2026-10-16).
             reference|reference:*)
