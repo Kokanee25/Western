@@ -148,10 +148,12 @@ HEAD_TRIS = 2200
 # One square of the texture: this many of Tripo's 2048 texels a side (~2.8 mm on him: the
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
-CLOTH_MEDIAN = 7       # texels: a twin piece's cloth smoothed by a median this wide (paint_cloth) ...
-CLOTH_BLUR = 1.2       # ... and a blur this wide
+CLOTH_MEDIAN = 3       # texels: a twin piece's cloth smoothed by a median this wide (paint_cloth) ...
+CLOTH_BLUR = 0.0       # ... and a blur this wide (7 and 1.2 kept 30-45% of the coat's fine detail: too soft)
 MOTTLE_FINE = 3.0      # texels of a 1024 texture: the blotches people.json `cloth.<shape>.mottle` flattens are
 MOTTLE_WIDE = 28.0     # between these two sizes
+KEEP_WHITE = (130.0, 170.0)  # luma: cloth.<shape>.keep_ends leaves texels lighter than these untoned (fading in) ...
+KEEP_BLACK = (18.0, 32.0)    # ... and darker than these (the coat's painted shirt front and tie)
 SMOOTH = False  # --smooth: see main()
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
@@ -2109,16 +2111,27 @@ def paint_cloth(piece, tone):
     a = np.asarray(img).copy()
     _d, (iy, ix) = ndimage.distance_transform_edt(~inside, return_indices=True)
     a = a[iy, ix]
-    img = Image.fromarray(a).filter(ImageFilter.MedianFilter(CLOTH_MEDIAN)).filter(ImageFilter.GaussianBlur(CLOTH_BLUR))
+    img = Image.fromarray(a).filter(ImageFilter.MedianFilter(CLOTH_MEDIAN))
+    if CLOTH_BLUR > 0:
+        img = img.filter(ImageFilter.GaussianBlur(CLOTH_BLUR))
     if tone:
         y, cb, cr = [np.asarray(c).astype(np.float64) for c in img.convert("YCbCr").split()]
+        y0, cb0, cr0 = y.copy(), cb.copy(), cr.copy()
+        # `keep_ends`: what is painted white or black on this cloth (the coat's shirt front and
+        # tie) is left as it is; the toning below lifted the tie to grey and its mottle, taking
+        # out the narrow white shirt as a blotch, greyed the shirt (Sean, 2026-10-16).
+        keep = np.ones_like(y)
+        if tone.get("keep_ends"):
+            ss = lambda e0, e1, x: np.clip((x - e0) / (e1 - e0), 0, 1)
+            keep = (1 - ss(KEEP_WHITE[0], KEEP_WHITE[1], y)) * ss(KEEP_BLACK[0], KEEP_BLACK[1], y)
         # `mottle`: the blotches' share taken out (light and dark between a few texels and a
         # tenth of the texture across: Rodin's camouflage, not the cloth's folds, which are
-        # bigger, nor its weave, which is smaller).
+        # bigger, nor its weave, which is smaller); measured over the toned cloth alone.
         mo = float(tone.get("mottle", 0.0))
         if mo:
+            blur = lambda c, r: ndimage.gaussian_filter(c * keep, r) / np.maximum(ndimage.gaussian_filter(keep, r), 1e-3)
             for ch in (y, cb, cr):
-                band = ndimage.gaussian_filter(ch, MOTTLE_FINE * W / 1024) - ndimage.gaussian_filter(ch, MOTTLE_WIDE * W / 1024)
+                band = blur(ch, MOTTLE_FINE * W / 1024) - blur(ch, MOTTLE_WIDE * W / 1024)
                 ch -= mo * band
         light = float(tone.get("light", 1.0))
         if "L" in tone:
@@ -2135,6 +2148,7 @@ def paint_cloth(piece, tone):
         k = float(tone.get("chroma", 1.0))
         cb = np.clip(128 + (cb - 128) * k, 0, 255)
         cr = np.clip(128 + (cr - 128) * k, 0, 255)
+        y, cb, cr = (keep * t + (1 - keep) * o for t, o in ((y, y0), (cb, cb0), (cr, cr0)))
         img = Image.merge("YCbCr", [Image.fromarray(c.astype(np.uint8)) for c in (y, cb, cr)]).convert("RGB")
     piece.report["cloth"] = {"median": CLOTH_MEDIAN, "tone": tone}
     return img

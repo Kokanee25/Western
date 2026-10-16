@@ -157,7 +157,7 @@ def stand_collar(bpy, shirt, head, tree, centre, ring_z, shirt_png):
     print("neck_ring: his shirt's stand-up collar: %d faces, %.0f mm high" % (2 * n, 1000 * (COLLAR_H + COLLAR_FROM)))
 
 
-def collar_out(bpy, head, ring_z, shirt_png):
+def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     """His shirt's collar (and a coat's or vest's) outside his new head's neck: the bust's neck
     is a little fuller than the body's, so a collar laid on the body's neck came out under it
     (his neck showed orange where the collar should stand). Garment points within COLLAR_BAND of
@@ -194,14 +194,14 @@ def collar_out(bpy, head, ring_z, shirt_png):
         bm.from_mesh(me)
         # (A shirt's own collar, ragged, is replaced by the built one: cut from a little above
         # where that starts.)
-        top = (ring_z - COLLAR_FROM + 0.008) if ob.name == "body_shirt" else (ring_z + COLLAR_UP)
+        top = (ring_z - COLLAR_FROM + 0.008) if (ob.name == "body_shirt" and mode == "built") else (ring_z + COLLAR_UP)
         high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
         bmesh.ops.delete(bm, geom=high, context="FACES")
         bm.to_mesh(me)
         bm.free()
         me.update()
         print("neck_ring: %s collar: %d points out of his neck, %d faces above it cut" % (ob.name, moved, len(high)))
-        if ob.name == "body_shirt":
+        if ob.name == "body_shirt" and mode == "built":
             stand_collar(bpy, ob, head, tree, centre, ring_z, shirt_png)
 
 
@@ -432,7 +432,12 @@ def main():
     mod = newh.modifiers.new("skeleton", "ARMATURE")
     mod.object = arm
     bpy.data.objects.remove(old)
-    collar_out(bpy, newh, ring_z, os.path.join(PEOPLE, body + "_shirt.png"))
+    # --collar=none: the garments left as the fit made them, the bust's own painted collar meeting
+    # them (a coat's twin's collar and tie are clean, and the built one reads as a neck brace
+    # close up: Sean, 2026-10-16); built (the default): collar_out and stand_collar, for a twin
+    # whose own collar came out ragged (the coatless twin's); own: collar_out without the build.
+    if a.get("--collar", "built") != "none":
+        collar_out(bpy, newh, ring_z, os.path.join(PEOPLE, body + "_shirt.png"), a.get("--collar", "built"))
     newh.name = "body_head"
     newh.data.name = "body_head"
     path = os.path.join(PEOPLE, out + ".glb")

@@ -97,6 +97,8 @@ facing its right, from behind:
 6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`) (and the same with `--body=<man>_vest_body
    --out=<man>_vest_layered`):
    `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
+   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean; the
+   coatless man keeps the default `built`)
    → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
 7. **Import, test, look:** `godot --headless --import`; `test_bodies`; then the lab:
    ```sh
@@ -188,6 +190,13 @@ way: the same man, triangle for triangle).
     and `stand_collar` builds the shirt's stand-up collar round it (in his shirt's lightest white)
     in place of the twin's ragged one. His face is matched to his bare skin
     (`build/bare_skin/`, written by the fitter), not his shirt-painted neck.
+  - Clothes softer than main's (texture: Sean, 2026-10-16, against the face-rig session's picture):
+    `paint_cloth`'s median of 7 texels and blur kept 30-45% of the cloth's fine detail; now a
+    median of 3 and no blur (the coat's detail as main's). The coat's tone (`light`, `chroma`,
+    `mottle`) had greyed its painted shirt front and tie: `cloth.coat.keep_ends` leaves what is
+    painted white or black untoned. The built collar reads as a neck brace close up (the jaw
+    through it): the coated man goes without it (`--collar=none`); the coatless man still has it,
+    his twin's own collar and tie knot being ragged fins in Rodin's model (sheet `d7_cloth_crisp.png`).
   - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
     `MIN_PART` triangles folded into the garment round them.
   - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a
