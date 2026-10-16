@@ -407,7 +407,9 @@ a few views renders them as the full run does.
   config/physiology.tres), `HumanBody` (segment hitboxes, meshes, clothes, wound decals, ragdoll:
   parts weighed by `MASS_SHARE` (Winter/Dempster), self-colliding hands included, wrists and
   ankles damped; muscle tone as he goes, capped by each pair's inertia about the joint, `TONE`;
-  Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
+  killed outright, an instant of it with the stance leg held `TONE_STANCE` harder; his legs go
+  on at his hips' speed, the stance leg turning about its planted foot (the gait's skate left
+  out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),

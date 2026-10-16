@@ -1868,10 +1868,37 @@ func go_limp(push := Vector3.ZERO) -> void:
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
 	# wind, the same on all of him. Nothing scripted on top (there was a shove of the chest and a
 	# random kick: experiments/physics_lab/README.md, baseline).
+	# His legs go on at his hips' speed and the foot he stands on stays put: the procedural gait's
+	# swing isn't a real stride (it floats the stance foot and skates the other along the ground
+	# at 5-7 m/s), and handed to the fall it threw his legs out ahead and sat him down. A real
+	# stance foot is still, and that leg turns about it. What the ground takes is the stance leg's
+	# share and the gait's swing: a runner at 3.5 m/s keeps 93% (279 -> 260 N*s), and the rest of
+	# him all of his. Real strides will come with mocap.
+	var space := get_world_3d().direct_space_state
+	var hips: Vector3 = _carry_v.get(&"pelvis", Vector3.ZERO)
+	var side := _stance_side(bodies)
+	var foot: RigidBody3D = bodies.get(StringName("foot" + side))
+	var planted := foot != null and _on_ground(space, foot)
+	var hip_y: float = (bodies[&"pelvis"] as Node3D).global_position.y if bodies.has(&"pelvis") else 1.0
+	# The stance leg turns as one about its ankle, carrying the hips at their speed: v = w x r with
+	# r straight up from the ankle, so w = up x v / height.
+	var leg_h := maxf(hip_y - foot.global_position.y, 0.1) if planted else 1.0
+	var hips_flat := Vector3(hips.x, 0.0, hips.z)
+	var leg_w := Vector3.UP.cross(hips_flat) / leg_h
 	for sid: StringName in bodies:
 		var rb: RigidBody3D = bodies[sid]
-		rb.linear_velocity = (_carry_v.get(sid, Vector3.ZERO) as Vector3) + push
-		rb.angular_velocity = _carry_w.get(sid, Vector3.ZERO)
+		var v: Vector3 = (_carry_v.get(sid, Vector3.ZERO) as Vector3)
+		var w: Vector3 = _carry_w.get(sid, Vector3.ZERO)
+		var leg := String(sid).begins_with("thigh") or String(sid).begins_with("shin") or String(sid).begins_with("foot")
+		if leg:
+			v = hips
+			w = Vector3.ZERO
+			if planted and String(sid).ends_with(side):
+				var up := clampf((rb.global_position.y - foot.global_position.y) / leg_h, 0.0, 1.0)
+				v = hips_flat * up + Vector3(0.0, minf(hips.y, 0.0), 0.0)
+				w = leg_w
+		rb.linear_velocity = v + push
+		rb.angular_velocity = w
 	_rig.queue_free()
 	pivots.clear()
 	_blocker.queue_free()
@@ -1928,6 +1955,14 @@ const TONE_START := 0.55
 const TONE_START_CONSCIOUS := 0.7
 const TONE_FADE := 0.35
 const TONE_FADE_CONSCIOUS := 0.6
+## Killed outright (a ball through the brain): his tone goes in this long.
+const TONE_FADE_DEAD := 0.15
+## ... and for that moment the leg he stands on holds this many times harder: a man's weight on a
+## near-straight leg is carried down the bones, not by the muscle, so the planted leg props him up
+## for an instant and a runner pitches forward over it. Without it, killed running, his knees
+## folded on the first tick: he dropped into a kneel and slid on it (experiments/physics_lab,
+## group J, 2026-10-16).
+const TONE_STANCE := 6.0
 const TONE_UNTIL := 1.5
 ## Damping: seconds' worth of the stiffness, on the joint's relative spin.
 const TONE_DAMP := 0.06
@@ -1965,10 +2000,13 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 	_tone.clear()
 	_tone_t = 0.0
 	var dead := not physiology.alive
-	_tone_start = 0.0 if dead else (TONE_START_CONSCIOUS if conscious else TONE_START)
-	_tone_fade = TONE_FADE_CONSCIOUS if conscious else TONE_FADE
+	# Killed outright he keeps his tone for an instant too (muscle doesn't go slack the moment the
+	# brain does), and the leg he stands on holds like a post for it: TONE_STANCE (see there).
+	_tone_start = TONE_START if dead else (TONE_START_CONSCIOUS if conscious else TONE_START)
+	_tone_fade = TONE_FADE_DEAD if dead else (TONE_FADE_CONSCIOUS if conscious else TONE_FADE)
 	if _tone_start <= 0.0:
 		return
+	var stance := _stance_side(bodies)
 	for sid: StringName in bodies:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -1977,7 +2015,10 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 		var up := bodies[parent] as RigidBody3D
 		var rest := (up.global_basis.orthonormalized().inverse() * child.global_basis.orthonormalized()).get_rotation_quaternion()
 		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
-		_tone.append([child, up, rest, float(TONE.get(key, 30.0)), child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
+		var k := float(TONE.get(key, 30.0))
+		if dead and String(sid).ends_with(stance) and (key == &"shin" or key == &"thigh"):
+			k *= TONE_STANCE
+		_tone.append([child, up, rest, k, child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
 
 
 func _step_tone(delta: float) -> void:
@@ -2153,6 +2194,23 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 ## The limits are measured from how bent the joint is as he goes limp.
 const KNEE_BEND := 150.0
 const ELBOW_BEND := 150.0
+
+
+## A foot whose middle is this near the ground under it is down on it (standing, ~5 cm).
+const PLANTED_WITHIN := 0.12
+
+
+func _on_ground(space: PhysicsDirectSpaceState3D, rb: RigidBody3D) -> bool:
+	var at := rb.global_position
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.WORLD))
+	return not hit.is_empty()
+
+
+## The side he's standing on ("_l" or "_r"): his lower foot.
+static func _stance_side(bodies: Dictionary) -> String:
+	if not bodies.has(&"foot_l") or not bodies.has(&"foot_r"):
+		return "_l"
+	return "_r" if (bodies[&"foot_r"] as Node3D).global_position.y < (bodies[&"foot_l"] as Node3D).global_position.y else "_l"
 
 
 func _hinge(sid: StringName, parent: StringName, bodies: Dictionary, at: Vector3) -> void:
