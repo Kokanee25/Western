@@ -35,6 +35,7 @@ var _world: Node3D
 var _men: Array[HumanBody] = []
 var _tick := 0
 var _limp_tick := -1
+var _hit_tick := -1  ## a "knock" scenario: when the ball hit (he may stumble on before he's limp)
 var _last_us := 0
 var _frame_us: Array[int] = []
 var _ticks_csv: FileAccess
@@ -264,7 +265,29 @@ func _physics_process(delta: float) -> void:
 	if _tick < pre_ticks:
 		_before(pre, delta)
 	elif _limp_tick < 0:
-		_go_limp()
+		# "knock": a ball that drops him, as HumanBody.take_bullet has it (HumanBody._knocked): on
+		# the move he may stumble on first. The lab's "limp" is when he actually goes limp.
+		var knock: Dictionary = scenario.get("knock", {})
+		if not knock.is_empty() and _hit_tick < 0:
+			_hit_tick = _tick
+			for man in _men:
+				var part := man.parts[StringName(knock.segment)] as Node3D
+				var p: Array = knock.get("point", [0, 0, 0])
+				var d: Array = knock.get("dir", [0, 0, 1])
+				var at := part.global_transform * Vector3(p[0], p[1], p[2])
+				var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+				var given := float(knock.get("momentum", 4.5))
+				if man.has_method(&"_knocked"):
+					man._knocked(StringName(knock.segment), at, dw, given)
+				else:
+					# An older HumanBody (comparing): what its take_bullet did, down where he stood.
+					man.go_limp()
+					var rb := man.parts[StringName(knock.segment)] as RigidBody3D
+					rb.apply_impulse(dw * given, at - rb.global_position)
+					if man.has_method(&"_hunch"):
+						man._hunch(StringName(knock.segment), at, dw)
+		if knock.is_empty() or _men[0].limp:
+			_go_limp()
 	if _limp_tick >= 0 and (_tick - _limp_tick) % 60 == 0:
 		var n := 0
 		for man in _men:
@@ -661,7 +684,7 @@ func _finish() -> void:
 		ms.append((_frame_us[i] - _frame_us[i - 1]) / 1000.0)
 	summary = {
 		"scenario": scenario.name, "group": scenario.get("group", ""), "fixture": scenario.get("fixture", "ground"),
-		"men": count, "limp_t": limp_t,
+		"men": count, "limp_t": limp_t, "hit_t": (_hit_tick / 60.0) if _hit_tick >= 0 else limp_t,
 		"settle_s": (_settled_tick - _limp_tick) / 60.0 if _settled_tick >= 0 else null,
 		"all_asleep_at_end": sleeping == bodies, "asleep_at_end": sleeping, "bodies": bodies,
 		"sleep_flips": _sleep_flips, "shapes": shapes, "joints": joints,

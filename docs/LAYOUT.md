@@ -408,7 +408,8 @@ a few views renders them as the full run does.
   parts weighed by `MASS_SHARE` (Winter/Dempster), self-colliding hands included, wrists and
   ankles damped; muscle tone as he goes, capped by each pair's inertia about the joint, `TONE`;
   killed outright, an instant of it; dead or on one foot, the stance leg held `TONE_STANCE`
-  harder; a ball that drops him alive curls him round it, `_hunch`; his legs go
+  harder; a ball that drops him alive curls him round it, `_hunch`, and on the move he stumbles
+  on a step first (`_knocked`, `stumbling`: brains stand back); his legs go
   on at his hips' speed, the stance leg turning about its planted foot (the gait's skate left
   out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,

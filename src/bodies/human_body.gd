@@ -151,6 +151,9 @@ var garments: Array[Dictionary] = []
 ## {segment, entry, exit (segment-local or null), lodged, hits, bleeds, garments, stain (Decal)}
 var wounds: Array[Dictionary] = []
 var limp := false
+## Seconds left on his feet after a ball that drops him caught him on the move (_knocked): his
+## stride carries him on, slowing, as he folds round it, then he goes down. Brains leave him be.
+var stumbling := 0.0
 var pose := &"stand"
 ## Staged scenes' touch on top of whatever pose he's in: segment -> extra rotation (degrees, same
 ## axes as POSES), e.g. {&"head": Vector3(0, 12, -10)} to turn his head to you and tip it.
@@ -182,6 +185,9 @@ var _rig: Node3D
 var _blocker: StaticBody3D
 var _rng := RandomNumberGenerator.new()
 var _flinch := {}  ## segment -> [offset degrees, velocity]
+var _stumble := {}  ## the ball that's taking him down: segment, where on it, direction, momentum
+var _stumble_lean := {}  ## segment -> degrees he's folded by as he stumbles (on top of the pose)
+var _legs_gone := false  ## the stumble ended because his legs gave: no column, his knees go first
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
 var _was_alive := true
@@ -1016,9 +1022,13 @@ func _physics_step(delta: float) -> void:
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
 	physiology.step(delta * scale_now)
 	_update_stains()
+	if stumbling > 0.0 and not limp:
+		_stumble_on(delta)
 	if not limp:
 		_apply_pose(delta)
-		if not physiology.can_stand() and not prone:
+		if stumbling > 0.0:
+			pass  # he's going down already
+		elif not physiology.can_stand() and not prone:
 			if _can_crawl():
 				go_prone()
 			else:
@@ -1108,7 +1118,7 @@ func go_prone() -> void:
 ## Walk (or run, or crawl) towards a point on the ground, this tick. Stops short of walls and
 ## people; slides along them; climbs a step up to a boardwalk. Returns true on arrival.
 func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> bool:
-	if limp:
+	if limp or (stumbling > 0.0 and not _stumble.get("steering", false)):
 		return false
 	var to := target - global_position
 	to.y = 0.0
@@ -1308,7 +1318,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var overlay := _gait_overlay(delta)
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO)
+		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
+				+ _stumble_lean.get(sid, Vector3.ZERO)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
@@ -1494,15 +1505,12 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
-		# He drops: he goes on as he was moving, with the ball's push on the part it hit, and
-		# curls round it as he goes.
-		go_limp()
-		var rb := parts.get(seg) as RigidBody3D
-		if rb:
-			rb.apply_impulse(dir * given, pos - rb.global_position)
-		_hunch(seg, pos, dir)
+		_knocked(seg, pos, dir, given, mass * speed)
 	elif limp and collider is RigidBody3D:
 		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
+	elif stumbling > 0.0:
+		# Hit again as he stumbles: that's him down now.
+		_fall_now()
 	else:
 		_flinch_from(seg, pos, dir, mass * speed)
 	var exit_world: Variant = xf * (tr.exit - center) if tr.exit != null else null
@@ -1521,6 +1529,76 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 
 
 ## Does the hit itself put him down? A heavy ball dumping its energy in the trunk often does.
+## A ball that drops him. Standing, he goes down where he is, curling round it (_hunch). On the
+## move and still with it, he doesn't drop dead in his tracks: his stride carries him on a step or
+## so, slowing, as he flinches and folds round it, and then his legs go (Sean, 2026-10-16: the
+## walking stumble). A leg wound gives under him sooner; the head or neck, no stumble. `given` is
+## the ball's momentum (N*s) on the part it hit, `flinch` what the flinch takes from it.
+const STUMBLE_FROM := 0.8  ## m/s: slower than this he drops where he is
+## How he folds round a ball in his front as he stumbles, reached in STUMBLE_FOLD_IN (degrees, the
+## poses' axes; z toward the wound's side).
+const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0, 6), &"neck": Vector3(-6, 0, 0),
+		&"head": Vector3(-10, 0, 0)}
+const STUMBLE_FOLD_IN := 0.2
+
+
+func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch := 0.0) -> void:
+	var s := String(seg)
+	var leg := s.begins_with("thigh") or s.begins_with("shin")
+	if move_speed > STUMBLE_FROM and gait in [&"walk", &"run"] and physiology.is_conscious() \
+			and not seg in [&"head", &"neck"] and parts.has(seg):
+		# About a step: a walk's ~0.6 s, a run's ~0.35 (cadence rises with speed); a shot leg
+		# takes no more weight than it must.
+		var t := (0.25 if leg else 0.7 / sqrt(move_speed)) * _rng.randf_range(0.8, 1.2)
+		stumbling = t
+		var chest := parts[&"chest"] as Node3D
+		_stumble = {"seg": seg, "at": (parts[seg] as Node3D).global_transform.affine_inverse() * pos,
+				"dir": dir, "given": given, "speed": move_speed, "time": t, "heading": -global_basis.z,
+				"front": dir.dot(-global_basis.z) < 0.3 and not leg,
+				"left": -signf((pos - chest.global_position).dot(chest.global_basis.x))}
+		_flinch_from(seg, pos, dir, maxf(flinch, given))
+		return
+	go_limp()
+	var rb := parts.get(seg) as RigidBody3D
+	if rb:
+		rb.apply_impulse(dir * given, pos - rb.global_position)
+	_hunch(seg, pos, dir)
+
+
+func _stumble_on(delta: float) -> void:
+	stumbling -= delta
+	var k := clampf(1.0 - stumbling / float(_stumble.time), 0.0, 1.0)
+	# Folding round a wound in his front as he goes (at once: it's a flinch that stays); his stride
+	# dying under him.
+	if _stumble.front:
+		var fold := clampf((float(_stumble.time) - stumbling) / STUMBLE_FOLD_IN, 0.0, 1.0)
+		for sid: StringName in STUMBLE_FOLD:
+			var d: Vector3 = STUMBLE_FOLD[sid]
+			_stumble_lean[sid] = Vector3(d.x, 0.0, d.z * float(_stumble.left)) * fold
+	var heading: Vector3 = _stumble.heading
+	_stumble.steering = true
+	walk_to(global_position + heading * 2.0, float(_stumble.speed) * lerpf(1.0, 0.6, k), delta)
+	_stumble.steering = false
+	if stumbling <= 0.0:
+		_fall_now()
+
+
+func _fall_now() -> void:
+	stumbling = 0.0
+	_stumble_lean.clear()
+	if limp or _stumble.is_empty():
+		return
+	var seg: StringName = _stumble.seg
+	_legs_gone = true
+	go_limp()
+	var rb := parts.get(seg) as RigidBody3D
+	if rb:
+		var at := rb.global_transform * (_stumble.at as Vector3)
+		rb.apply_impulse((_stumble.dir as Vector3) * float(_stumble.given), at - rb.global_position)
+		_hunch(seg, at, _stumble.dir)
+	_stumble.clear()
+
+
 func _knocked_down(seg: StringName, deposited: float, severe: bool, pellet := false) -> bool:
 	var s := String(seg)
 	if not (seg in [&"chest", &"abdomen", &"pelvis", &"head", &"neck"] or s.begins_with("thigh")):
@@ -1968,6 +2046,8 @@ const TONE_STANCE := 6.0
 ## A foot this much higher than the other is off the ground: he's on one leg (a walk's swing foot
 ## clears it by 2-3 cm).
 const SINGLE_SUPPORT := 0.015
+## His knees' share of their tone when a stumble ends in his legs going (they buckle first).
+const LEGS_GONE := 0.3
 const TONE_UNTIL := 1.5
 ## Damping: seconds' worth of the stiffness, on the joint's relative spin.
 const TONE_DAMP := 0.06
@@ -2018,6 +2098,8 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 	var column := dead
 	if bodies.has(&"foot_l") and bodies.has(&"foot_r"):
 		column = column or absf((bodies[&"foot_l"] as Node3D).global_position.y - (bodies[&"foot_r"] as Node3D).global_position.y) > SINGLE_SUPPORT
+	# At the end of a stumble his legs are what gave: they fold first.
+	column = column and not _legs_gone
 	for sid: StringName in bodies:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -2029,6 +2111,8 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 		var k := float(TONE.get(key, 30.0))
 		if column and String(sid).ends_with(stance) and (key == &"shin" or key == &"thigh"):
 			k *= TONE_STANCE
+		elif _legs_gone and key == &"shin":
+			k *= LEGS_GONE
 		_tone.append([child, up, rest, k, child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
 
 

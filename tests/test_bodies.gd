@@ -271,6 +271,48 @@ func test_a_ball_that_drops_him_shows_where_it_hit() -> void:
 	check(lean.thigh_r.y > 5.0, "the shot leg gave and he leans to it (%.0f deg)" % lean.thigh_r.y)
 
 
+## Shot down walking, he doesn't drop in his tracks: his stride carries him on a step or so as he
+## folds round it, then his legs go (Sean, 2026-10-16: "walking stumble"). Before, he dropped where
+## the ball found him, knees first. Hit again as he stumbles, he's down at once.
+func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
+	for again in [false, true]:
+		var walker := HumanBody.new()
+		walker.has_gun = false
+		world.add_child(walker)
+		walker.global_position = Vector3(-8.0 if again else 8.0, 0.0, 15.0)
+		await physics_frames(2)
+		var target := walker.global_position + Vector3(0, 0, -30)
+		for i in 90:
+			walker.walk_to(target, 1.4, 1.0 / 60.0)
+			await physics_frames(1)
+		var hit_at := walker.global_position
+		var chest := walker.parts[&"chest"] as Node3D
+		walker._knocked(&"chest", chest.global_position - walker.global_basis.z * 0.12, walker.global_basis.z, 4.5)
+		if again:
+			check(not walker.limp and walker.stumbling > 0.0, "he stumbles on")
+			await physics_frames(6)
+			walker._fall_now()
+			check(walker.limp, "hit again as he stumbles, he's down at once")
+			walker.queue_free()
+			continue
+		check(not walker.limp, "not down the instant he's hit")
+		# Anyone else's walking doesn't move him now: his last steps are his body's.
+		var before := walker.global_position
+		walker.stumbling = maxf(walker.stumbling, 0.1)
+		walker.walk_to(walker.global_position + Vector3(10, 0, 0), 3.0, 1.0 / 60.0)
+		check(walker.global_position.x == before.x, "a brain can't walk him off sideways as he goes")
+		var frames := 0
+		while not walker.limp and frames < 90:
+			await physics_frames(1)
+			frames += 1
+		var on := hit_at.z - walker.global_position.z
+		print("  down after %.2f s, %.2f m on from where he was hit" % [frames / 60.0, on])
+		check(walker.limp, "down within 1.5 s (%.2f s)" % (frames / 60.0))
+		check(frames >= 15, "he stayed up a moment (%.2f s)" % (frames / 60.0))
+		check(on > 0.3, "carried on forwards (%.2f m)" % on)
+		walker.queue_free()
+
+
 func test_knees_only_bend_the_right_way() -> void:
 	var world := Node3D.new()
 	add_child(world)
