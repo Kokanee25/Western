@@ -376,6 +376,15 @@ jobs:
             *) args="--only=$WHICH" ;;
           esac
           if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
+          # textures = sky (or sky:sun,away): the painted sky's panels (tools/textures/paint_sky.py,
+          # art, 2026-10-16), cut for the game by reduce_sky.py in the art session.
+          case "$WHICH" in
+            sky|sky:*)
+              only=""
+              case "$WHICH" in sky:*) only="--only=${WHICH#sky:}" ;; esac
+              python3 tools/textures/paint_sky.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
+              exit 0 ;;
+          esac
           python3 tools/textures/paint_textures.py $args
           python3 tools/textures/reduce.py --sheet=docs/screenshots/textures/factory_run${{ github.run_number }}.png
       - name: Commit the textures

@@ -90,6 +90,10 @@ const VIEWS := [
 	# Roadmap 1.2's street half (art, 2026-10-15): the seated man's model (--model=) standing in
 	# the street at golden hour, the low sun behind you, framed on his face; --face-probe finds him.
 	["face_street_golden", 17.6, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
+	# The road (art, 2026-10-15, docs/briefs/road.md): low and down the ruts toward the low sun, as
+	# Sean's road target is (docs/concept/targets/6_road_target.jpg), at golden hour and at noon.
+	["road_low_golden", 17.6, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
+	["road_low_noon", 12.5, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
 ]
 
 ## The views were laid out on the old test street; the town now stands on Sean's map
@@ -468,6 +472,8 @@ func _run() -> void:
 			await _portrait_setup(main, player)
 		if setup == "face_street":
 			await _face_street_setup(main, player)
+		if setup == "road_low":
+			await _road_low_setup(main, player)
 		if setup.begins_with("kid_"):
 			# One Kid for all three views (the street isn't reloaded between them).
 			var town = main.find_child("TownLife", true, false)
@@ -738,6 +744,26 @@ func _face_street_setup(main, player) -> void:
 	var eye: Vector3 = at + (-man.global_basis.z) * 1.1 + Vector3(0, 0.03, 0)
 	player.camera.global_transform = Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye)
 	player.camera.fov = 40.0
+
+
+## The road's view (docs/briefs/road.md): the camera a metre off the dirt, looking west down the
+## street's ruts toward the low sun as Sean's road target does; no gun, no body, nobody walking in.
+func _road_low_setup(main, player) -> void:
+	var town = main.find_child("TownLife", true, false)
+	town.gang_arrives = 1e9
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	if spawner.outlaw:
+		spawner.outlaw.queue_free()
+	var gun = player.get_node(^"Head/Camera3D/Gun")
+	gun._draw = 0.0
+	load("res://src/art/shot_match.gd").hands_off_camera(player)
+	player.set_physics_process(false)
+	player.body.visible = false
+	for i in 30:
+		await physics_frame
+	var eye := Vector3(14.0, 1.0, -7.6)
+	player.camera.global_transform = Transform3D(Basis.looking_at(Vector3(4.0, 0.0, -8.6) - eye, Vector3.UP), eye)
+	player.camera.fov = 60.0
 
 
 ## The painting's shot (src/art/shot_match.gd): sat at the card table, the man across the lamp.

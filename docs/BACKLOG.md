@@ -16,6 +16,6 @@ Sean picks from it between steps. Bigger ideas already filed: DESIGN.md §11 "Ba
   `claude/art-material-lab`); the production list is in `docs/briefs/material-lab-timber.md`.
 - 2026-10-15 (Sean, with the road's new target `docs/concept/targets/6_road_target.jpg`):
   **footprints from people actually walking**, boot and hoof prints left in the street's dirt
-  where people and horses step (not painted into the road). Gameplay's: where feet land; art can
-  draw a print once given where. The road's relief (ruts, ridges, stones in the low sun) is art's,
-  roadmap 1.4's follow-up.
+  where people and horses step (not painted into the road). Gameplay's: where feet land; art's
+  `RoadPrints.press(kind, at, turn, wear)` (src/art/road_prints.gd, a Decal with relief) draws one
+  there. The street's old prints (the town's past traffic, Sean 2026-10-16) are already placed.

@@ -158,12 +158,17 @@ All lanes, one at a time. **Gate F: the demo ships.**
 - **3.2 Falls and hits, moved up by Sean** (2026-10-16: "Nah build the falls spend all night working
   on it if needed"), running beside Phase 1 (gameplay; brief `docs/briefs/fix-the-falls.md`).
 - **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
-  in the game (#124) and its sheet (`docs/screenshots/painted_light/in_game.jpg`): the saloon holds,
-  the street at golden hour is too dark and red. **1.4** (art): merge 1 done (the woods in the man's
-  squares, the road calmer with ruts; 2026-10-15); now the road to Sean's new target
-  (`targets/6_road_target.jpg`). **1.3** (characters) beside it.
+  in the game (#124); the street's light fixed 2026-10-16 (the sun's own ceiling, face 0.61 -> 0.92,
+  the saloon 1.03 as before; `docs/screenshots/painted_light/in_game_sun_limit.jpg`); waits on
+  Sean's eye. **1.4** (art): the road to Sean's target (#130, build 1280), the woods smooth again
+  (painted illustration), the painted sky and a slight haze (`docs/screenshots/sky/`); waits on
+  Sean's word. **1.3** (characters) beside it.
 
 ## Decisions Sean can change
+
+- The look is painted illustration (Sean, 2026-10-16; DESIGN.md §4): smooth painted surfaces,
+  the squares retired surface by surface (road and wood done, the men's clothes in 1.3). Gate A
+  (1.5) is judged on it, its street target brought into line.
 
 - The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
   an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and

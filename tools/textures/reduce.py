@@ -202,9 +202,10 @@ def seamless(a, rng):
     return a * m + b * (1 - m)
 
 
-def to_texels(a, size):
-    """Median over half a texel, then the area average of each texel's patch."""
-    k = max(1, int(a.shape[1] / size[0] / 2))
+def to_texels(a, size, median=True):
+    """Median over half a texel, then the area average of each texel's patch (no median for a
+    material that says so: the painted road's stones went with it)."""
+    k = max(1, int(a.shape[1] / size[0] / 2)) if median else 1
     if k > 1:
         a = median_filter(a, size=(k, k, 1), mode="wrap")
     img = Image.fromarray((a * 255 + 0.5).astype(np.uint8))
@@ -279,18 +280,35 @@ def reduce(mid, spec, tpm):
     joints = 0
     if spec.get("boards", False):
         a, joints = wipe_joints(a)
+    size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
+    if spec.get("height") and not (SMOOTH or BOLD) and os.path.exists(os.path.join(RAW, mid + "_height.jpg")):
+        # Its relief (paint_textures.py "height"), cut the same way (the same seamless mask) at twice the texels, grey, no palette: <id>_height.png, for the ground
+        # shader's light (ruts, ridges and stones in the low sun).
+        hraw = crop_to(Image.open(os.path.join(RAW, mid + "_height.jpg")).convert("L").resize(raw.size, Image.LANCZOS),
+                       metres[0] / metres[1])
+        hm = np.asarray(hraw).astype(np.float64) / 255.0
+        hm = seamless(hm[..., None], np.random.default_rng(sum(map(ord, mid))))[..., 0]
+        if spec.get("height_blur"):
+            # Its fine grain off (metres): lit, it read as a pebbly crust over the whole road;
+            # the lumps, ruts and stones stay.
+            hm = gaussian_filter(hm, spec["height_blur"] * hm.shape[1] / metres[0], mode="wrap")
+        hsize = size if spec.get("smooth") else (size[0] * 2, size[1] * 2)
+        hm = np.asarray(Image.fromarray((hm * 255 + 0.5).astype(np.uint8)).resize(hsize, Image.BOX))
+        os.makedirs(out_dir(), exist_ok=True)
+        Image.fromarray(hm).save(os.path.join(out_dir(), mid + "_height.png"))
+        _import_file(os.path.join(out_dir(), mid + "_height.png.import"))
     if kind != "sign":
         a = seamless(a, rng)
-    size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
-    t = to_texels(a, size)
+    t = to_texels(a, size, spec.get("median", True))
     # The push square to square: the bold set's, or the material's own `mosaic` (2026-10-13, Sean:
     # "every surface should read as clear, distinct squares like the paintings"; the review's
     # MOSAIC 1.0 had smoothed them away), never on the smooth set or a sign.
-    push = MOSAIC if kind == "sign" or SMOOTH else spec.get("mosaic", BOLD_MOSAIC if BOLD else MOSAIC)
+    push = MOSAIC if kind == "sign" or SMOOTH or spec.get("smooth") else spec.get("mosaic", BOLD_MOSAIC if BOLD else MOSAIC)
     lab = mosaic(to_lab((t * 255).astype(np.uint8)), push, kind != "sign")
     # The judge's corrections per material: how light, how strongly coloured.
     lab = grade(lab, spec)
-    if SMOOTH:
+    if SMOOTH or spec.get("smooth"):
+        # No palette: the painted road is drawn smooth (Sean, 2026-10-15), its own shades kept.
         pal = np.unique(np.round(lab.reshape(-1, 3), 0), axis=0)[:64]
     else:
         lab, pal = palette_snap(lab, spec["colours"], sum(map(ord, mid)))
@@ -388,7 +406,7 @@ def main():
             continue
         if not os.path.exists(os.path.join(RAW, mid + ".jpg")):
             continue
-        index[mid], raw, rgb = reduce(mid, m, tpm)
+        index[mid], raw, rgb = reduce(mid, m, m.get("texels_per_metre", tpm) if not (SMOOTH or BOLD) else tpm)
         rows.append((mid, raw, rgb, m["kind"]))
     with open(index_path, "w") as f:
         json.dump(dict(sorted(index.items())), f, indent=1)

@@ -278,34 +278,36 @@ pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`d
 frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; the roadmap's steps; targets in `docs/concept/targets/`):
-- Done: the woods are the material lab's C (2026-10-15); roadmap 1.1, the targets; 1.2's shader
-  half (`paint_tint`, v5) and its in-game sheet (`docs/screenshots/painted_light/in_game.jpg`: the
-  painted cowboy holds in the saloon, face light 1.03; in the street at golden hour 0.61, too dark
-  and red, `paint_tint` under the orange sun the likely cause); 1.4 merge 1, surfaces to the man
-  (woods drawn in his 32/m squares, the road at 32/m square on screen and calming far off, ruts;
-  `tools/surface_squares.py`, sheets in `docs/screenshots/surfaces/`).
-- Next: 1.4's road to Sean's new target (`targets/6_road_target.jpg`): relief in the low sun (a
-  height for ruts and ridges, lit and shadowed in `ground.gdshader`), real stones; small squares
-  kept, drawn in code unless Sean says otherwise. Footprints are gameplay's (`docs/BACKLOG.md`).
-  Then 1.2's street light if Sean wants him lighter. Critic r2's top: the saloon's standing men,
-  the street's mauve sky and weak sun.
-- Known: a full golden render is ~2.5 h on lavapipe (batches of 24, `golden_check.py --render
-  --only=`); `pgrep -f` in a watch matches the watch itself (use `[o]ut=`).
-- Waiting on Sean: squares or smooth on the road; his eye on the sheets.
+- Done: the woods are C (2026-10-15); 1.1 the targets; 1.4 the road (#130, build 1280: painted
+  earths, a street map of ruts, stones, old prints; brief `docs/briefs/road.md`); the painted sky
+  (two panels toward and away from the sun, `reduce_sky.py`, shown while the sun is low), a slight
+  haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
+  street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
+  `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$2.70 (road $2.44, sky $0.26).
+- Next: Sean's eye on the sky, haze, wood and the cowboy's light. Critic 2026-10-16_r3's top: the
+  saloon's standing men; the sky too full of cloud (no blue, no sun disc) and the road too orange
+  with straight ruts, both judged against the old squared, clear-sky street painting: the judge's
+  street target wants bringing into line with Sean's new ones (Gate A, 1.5).
+- Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
+  --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
+  kill match the command itself; a data texture with an alpha channel needs
+  `process/fix_alpha_border=false` in its import; the rendered perf bench doesn't finish under
+  lavapipe (draw calls through the bridge's `read frame` instead); volumetric haze lifts near
+  shadows (measure the darks before raising it).
+- For characters (Sean, 2026-10-16: the look is painted illustration, DESIGN.md §4): the painterly
+  cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
+  painted smooth like his face, as part of 1.3; the wood is smooth again.
 
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
-`painted-light.md`):
-- On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; approved bookmark
-  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124, build 1181:
-  `bold_cowboy_painterly_lit_rodin`, his own look in `_paint.json`). ~$8.46 of $15 spent.
-- On the branch, not merged (Sean's OK needed): his own hat (`look/bold-cowboy-own-hat-2026-10-14`);
-  the tools behind the painterly man (`portrait.json` `painted_look` → `write_painted`;
-  `look/painterly-2026-10-15`); layered people: base body
-  `bold_cowboy_body`, head through `neck_ring.py`, coat and trousers from his dressed twin
-  (`twin_pieces.py`), → `bold_cowboy_layered`; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`.
-- Next: Sean's eye on the dressed sheet; the coat's colour (Rodin's own, darker than his
-  paintings); vest and shirt as their own layer; the nape band; the holster outside the coat.
-  Trap: after a build, `godot --headless --import` first; lab renders via `build/lab_run.sh`.
+`painted-light.md`, `skinned-hands.md`):
+- On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
+  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
+  cowboy** `bold_cowboy_layered` with his skinned hands (#125, #129; recipe
+  `tools/characters/LAYERED.md`; bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
+- Not merged: the bold cowboy's own hat (`look/bold-cowboy-own-hat-2026-10-14`).
+- Next: the layered man in the painted look (head, hands, coat, trousers) so art's shots can use
+  him painted; the coat's colour; vest and shirt as their own layer. Trap: after a build,
+  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 

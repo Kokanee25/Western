@@ -261,11 +261,21 @@ a few views renders them as the full run does.
   C's 128 texels, 32 a metre (`grain_woods.py` `squared`, `woods_grain.json` `squares`: a square's
   dark-weighted mean, specks under a square left out, snapped to the board's tones; ends in squares
   of 2), and `texel_grid` `square_texels` / `end_square_texels` (`PixelArt.WOODS_SQUARE`;
-  not the table's drawn top, finer in the painting) reads each whole (`tile_block_sample`: the mip of its size) and lights
-  it as one. The ground: the drawn road at 32 a metre (`DRAWN_ROAD_TEXELS`), its squares sized per
-  axis (`tile_square_screen`, `square_px` 3) so they stay square on screen far off, each its texels'
-  mean (mipmapped samplers), so the far road calms. `tools/surface_squares.py` measures square size
-  and finish crop by crop (`surface_squares.json`) and makes target | before | now sheets.
+  not the table's drawn top, finer in the painting) reads each whole (`tile_block_sample`: the mip of
+  its size) and lights it as one. `tools/surface_squares.py` measures square size and finish crop by
+  crop (`surface_squares.json`) and makes target | before | now sheets.
+  **The main street** (`docs/briefs/road.md`, Sean's road target, 2026-10-16): smooth painted earth
+  to the boardwalks, no squares. `tools/textures/draw_street.py` draws its map from `config/town.json`
+  (`assets/textures/street/street_map.png` + `.json`: R churned vs packed, G the wagon ruts' height
+  the street's length at a wagon's gauge, depth and wear varying, A where stones lie; imported as
+  data, no alpha-border fix) and the old prints' list and decal pictures. `ground.gdshader`'s street
+  path (`use_street`, `PixelArt._street`): two painted earths (`road_compact`, `road_loose`, the
+  texture factory's, each with `_height`) blended by the map, the earths' relief and the ruts lit
+  pixel by pixel, rut troughs dark and lips lit, a short shadow trace toward the sun; the squared
+  ground past the map (the drawn road at 32 a metre, squares square on screen, `tile_square_screen`).
+  `RoadStones` (`src/art/road_stones.gd`): faceted rocks along the ruts' lips, one MultiMesh;
+  `RoadPrints`: old horseshoe and boot prints as Decals, `press()` for gameplay's fresh ones.
+  Fixed views `road_low_golden` / `road_low_noon` look down the ruts as the target does.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -587,6 +597,11 @@ a few views renders them as the full run does.
   of the code-painted texture of that key (`use_factory` off = the old ones); the grid material
   sizes any texture by its own size; the ground shader takes `road`. Change a material's numbers
   and re-run `reduce.py` here: no new painting needed.
+  Since 2026-10-15 (the road): a material's `height` has the model paint its relief from its own
+  picture (`raw/<id>_height.jpg`, cut the same way into `<id>_height.png`, `height_blur` metres of
+  its fine grain off); `smooth` cuts it with no palette or pushed mosaic; its own
+  `texels_per_metre`; `median` false keeps small things (stones); the reference may be Sean's road
+  picture (`PAINTINGS["road"]`); every call prints OpenRouter's cost.
 
 ## src/props/prop_models.gd
 
@@ -643,6 +658,14 @@ a few views renders them as the full run does.
   `cloud_cover`/`_scale`/`_ragged`; soft-edged, shaded smoothly from cream-gold tops through warm
   bodies to grey-violet undersides, `cloud_tones` 0 = smooth; dark at night). The sky is smooth
   (`sky_squares` 0, `sky_mosaic` 0 since §10.4: the painting's sky and far clouds are soft).
+  **The painted sky** (2026-10-16, Sean's `targets/7_sky_target.jpg`): while the sun is low
+  (`painted`, under ~26 degrees) two painted panels replace it, 180 degrees each toward and away
+  from the sun (`tools/textures/paint_sky.py` paints them, `reduce_sky.py` cuts them to
+  `assets/textures/sky/` with `sky.json`, Backdrop hands them over), turned and lifted so the
+  painted sun lies on DayCycle's; `paint_gain`, `paint_saturation`. Only what's seen: the radiance
+  pass (`AT_CUBEMAP_PASS`) keeps the coded sky, so the town's light doesn't move with it. The haze
+  at golden hour is DayCycle's (`volumetric_low_sun` 0.3: at 1, with `fog_low_sun` 0.85, it took
+  the street's darks from 7.6% of the frame to 1%); the saloon's smoke is its `room_haze` (0.02).
   **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
   country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
   m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in

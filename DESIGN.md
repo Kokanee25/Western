@@ -16,7 +16,7 @@ without asking Sean.
   and gritty with humour; a small world, deep.
 - **§3 Platform, view, time, saving** (decided) — PC first, Godot 4, first person only, a
   45-minute day on a 30-day railroad clock, save only in a bed, death wakes you at the doctor's.
-- **§4 The look** (decided; under review since 2026-10-10) — the bold squares style everywhere
+- **§4 The look** (decided; changed 2026-10-16: painted illustration, the squares retired surface by surface) — the bold squares style everywhere
   (`docs/concept/saloon-blocks.png`, the street painting), the per-texel light, materials, the
   concept art references, what's built in code vs Blender; the style test is Prompt 07.
 - **§5 Setting and story** — Salt Creek 1882, the cast, how the story works; **the story's shape
@@ -89,6 +89,15 @@ when you push on it.
 | World | **The town, its outskirts, and a mine.** Grow outward later (ranches, railroad camp, open country). |
 
 ## 4. The look (**decided**)
+
+**Painted illustration (Sean, 2026-10-16; this wins over the bold squares below).** The look is
+smooth painted illustration, not squares: surfaces painted smooth with real detail (the painterly
+cowboy's face, the road, the wood), and light, shadow and haze doing the work, as Sean's newest
+targets are (`docs/concept/targets/`: the portrait, `6_road_target.jpg`, `7_sky_target.jpg`, the
+wall and post). The squares are retired surface by surface: the road and its stones (2026-10-16),
+the wood next (art), the men's clothes with 1.3 (characters); what still has squares (the open
+ground past the street, some props, signs' lettering) follows. Gate A's street target is to be
+brought into line (the judge still scores against the squared street painting).
 
 **Under review (Sean, 2026-10-10):** "we're going to test the art style a bit more and decide how
 to finally handle it." What's below stays the working look until Sean decides; the comparison is

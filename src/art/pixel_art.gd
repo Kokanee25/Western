@@ -62,6 +62,14 @@ const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
 const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide",
 		"shot_table"]
+## The main street (docs/briefs/road.md; roadmap 1.4, Sean's road, 2026-10-15): smooth painted earth
+## to the boardwalks, packed and churned (the texture factory's road_compact and road_loose, painted
+## from his target, each with its _height), blended and rutted by the street's map
+## (tools/textures/draw_street.py); ground.gdshader's street path. The drawn road above is the
+## ground past the map. Each earth's texels a metre.
+const STREET_MAP := "res://assets/textures/street/street_map.png"
+const STREET_INFO := "res://assets/textures/street/street_map.json"
+const EARTH_TEXELS := 128.0
 ## Drawn textures laid at their own density (squares a metre), not DRAWN_TEXELS: the saloon
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
@@ -90,14 +98,14 @@ static var lab_set := "lab"
 ## as before (drawn/, the factory).
 const WOODS_SET := "woods"
 static var woods := true
-## The squares the game's woods are drawn in, texels a side: 4 of C's 128 a metre, 32 a metre, the
-## portrait man's face's and coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the
-## man": C's grain alone, a texel 0.8 cm, read as fine smooth 3D beside his squares). The textures
-## are drawn in them (woods_grain.json `squares`, grain_woods.py squared); texel_grid square_texels
-## lights each as one and reads it whole. 1 here and no `squares` there: C's texels, as chosen.
-const WOODS_SQUARE := 4.0
-## Their end grain's (256 a metre, so 128 a metre: its rings are finer than the long faces' squares).
-const WOODS_END_SQUARE := 2.0
+## The squares the game's woods are drawn in, texels a side (texel_grid square_texels): 1, C's own
+## texels, 128 a metre, smooth. They were 4 (32 a metre, the portrait man's squares; roadmap 1.4,
+## 2026-10-15) until Sean chose the painted-illustration look (DESIGN.md §4, 2026-10-16: smooth
+## painted wood beside the painted men). Over 1 needs the textures drawn in them too
+## (woods_grain.json `squares`, grain_woods.py squared).
+const WOODS_SQUARE := 1.0
+## Their end grain's (256 a metre).
+const WOODS_END_SQUARE := 1.0
 ## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY), none: the table's top
 ## in 4s read as a checkerboard at four times the painting's squares (the blind critic, 2026-10-15_r2:
 ## the saloon painting draws it finer than the man, about 5 px a square).
@@ -236,7 +244,36 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		var drawn := wide != null and wide.resource_path.contains("/drawn/")
 		m.set_shader_parameter(&"keep_tracks", drawn)
 		m.set_shader_parameter(&"road_texels", DRAWN_ROAD_TEXELS if drawn else 0.0)
+		_street(m)
 	return m
+
+
+## The street's path in the ground shader, when its map and both earths (with their heights) are
+## there and the look isn't the quantise-once trial.
+static func _street(m: ShaderMaterial) -> void:
+	var compact := factory("road_compact")
+	var loose := factory("road_loose")
+	var ok := not smooth and compact != null and loose != null and ResourceLoader.exists(STREET_MAP) \
+			and ResourceLoader.exists(_height_path(compact)) and ResourceLoader.exists(_height_path(loose))
+	m.set_shader_parameter(&"use_street", ok)
+	if not ok:
+		return
+	m.set_shader_parameter(&"street_map", load(STREET_MAP))
+	m.set_shader_parameter(&"compact_tex", compact)
+	m.set_shader_parameter(&"loose_tex", loose)
+	m.set_shader_parameter(&"compact_h", load(_height_path(compact)))
+	m.set_shader_parameter(&"loose_h", load(_height_path(loose)))
+	m.set_shader_parameter(&"earth_metres", float(compact.get_width()) / EARTH_TEXELS)
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(STREET_INFO)) if FileAccess.file_exists(STREET_INFO) else null
+	if info is Dictionary:
+		var a: Array = (info as Dictionary).get("area", [])
+		if a.size() == 4:
+			m.set_shader_parameter(&"street_area", Vector4(a[0], a[1], a[2], a[3]))
+		m.set_shader_parameter(&"street_rut_range", float((info as Dictionary).get("rut_range", 0.12)))
+
+
+static func _height_path(tex: Texture2D) -> String:
+	return tex.resource_path.get_basename() + "_height.png"
 
 
 static func set_density(texels: float, mipmaps: bool) -> void:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7tpib3achcv3"
-path="res://.godot/imported/bold_cowboy_painterly_lit_paint.png-b33cb7e66c82d36709c648a45d51d8e3.ctex"
+uid="uid://c7dgjclryjkjn"
+path="res://.godot/imported/sky_sun.jpg-72716054a2c4072be4d66c9b69d30a2f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/heads/bold_cowboy_painterly_lit_paint.png"
-dest_files=["res://.godot/imported/bold_cowboy_painterly_lit_paint.png-b33cb7e66c82d36709c648a45d51d8e3.ctex"]
+source_file="res://assets/textures/sky/sky_sun.jpg"
+dest_files=["res://.godot/imported/sky_sun.jpg-72716054a2c4072be4d66c9b69d30a2f.ctex"]
 
 [params]
 

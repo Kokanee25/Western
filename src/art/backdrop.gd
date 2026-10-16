@@ -12,6 +12,9 @@ extends Node3D
 const SHADER := preload("res://src/art/backdrop.gdshader")
 const INFO_PATH := "res://assets/textures/backdrop.json"
 const TEXTURES := "res://assets/textures/%s"
+## The painted sky's panels and what reduce_sky.py measured of them (sky.gdshader's `painted`).
+const SKY_INFO := "res://assets/textures/sky/sky.json"
+const SKY_PANEL := "res://assets/textures/sky/sky_%s.jpg"
 ## The ring's middle: the middle of the street between the store and the far false fronts.
 const CENTRE := Vector3(-15.0, 0.0, -8.4)
 ## The eye height the strip's angles are measured from.
@@ -53,7 +56,27 @@ func _ready() -> void:
 	_day = get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
 	var we := get_tree().root.find_child("WorldEnvironment", true, false) as WorldEnvironment
 	_env = we.environment if we else null
+	_paint_sky()
 	_light()
+
+
+## The painted sky's panels onto the sky's shader, if they're there (none: the coded sky alone).
+func _paint_sky() -> void:
+	if _env == null or _env.sky == null or not _env.sky.sky_material is ShaderMaterial:
+		return
+	if not FileAccess.file_exists(SKY_INFO) or not ResourceLoader.exists(SKY_PANEL % "sun"):
+		return
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(SKY_INFO))
+	if not info is Dictionary:
+		return
+	var m := _env.sky.sky_material as ShaderMaterial
+	m.set_shader_parameter(&"paint_sun_tex", load(SKY_PANEL % "sun"))
+	m.set_shader_parameter(&"paint_away_tex", load(SKY_PANEL % "away"))
+	m.set_shader_parameter(&"paint_span", float(info.span))
+	m.set_shader_parameter(&"paint_sun", Vector2(info.sun[0], info.sun[1]))
+	var z: Array = info.zenith
+	m.set_shader_parameter(&"paint_zenith", Color(z[0], z[1], z[2]))
+	m.set_shader_parameter(&"painted", 1.0)
 
 
 static func load_info() -> Dictionary:

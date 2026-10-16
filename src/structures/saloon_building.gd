@@ -22,7 +22,7 @@ func _init() -> void:
 	porch = true
 	porch_height = 3.75
 	night_ambient = 0.04
-	room_haze = 0.012
+	room_haze = 0.02  # a slight tobacco haze under the lamps (art; Sean, 2026-10-16)
 
 
 ## The heights above are for a floor at the street's usual 0.38 m; config/town.json raises the
