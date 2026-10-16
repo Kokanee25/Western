@@ -880,6 +880,13 @@
     },
     "max_mm": 31.4
    },
+   "lips_apart": {
+    "units": {
+     "UpperLipUp": 0.6,
+     "lowerLipDown": 1.0
+    },
+    "max_mm": 20.1
+   },
    "ee": {
     "units": {
      "MouthLeftPullSide": 1.1,

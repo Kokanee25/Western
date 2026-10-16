@@ -1,6 +1,6 @@
 # Brief: a talking face for the Rodin men (the bold cowboy first)
 
-Sean, 2026-10-16. Characters lane. Five steps; **1, 2 and 4 (sheet) done, the first pass's concerns worked; 3 and 4 (video) built and tested on a
+Sean, 2026-10-16. Characters lane. Five steps; **1-4 done (Sean's take played, 2026-10-16), the first pass's concerns worked; 3 and 4 (video) built and tested on a
 stand-in take, waiting on Sean's Live Link Face take.** How it's laid out: `docs/LAYOUT.md` "The talking face".
 
 1. **Audit** (done): `docs/style_test/face_rig_audit.png`. His in-game head (`bold_cowboy_layered`,
@@ -72,6 +72,22 @@ lids painted from outside his painted eye).
   small kink left in the closing line at very close range.
 - *The neck:* not a gap. With his head turned 30° the join stays closed and matches the layered
   man's; what showed in the first video was his collar.
+
+## Sean's take (2026-10-16): the real test
+
+`LiveLinkFace_20261016_MySlate_2` (6.8 s, 60 fps, recorded uncalibrated; kept out of the public repo:
+his face and voice). What it taught the mapping (`arkit_take.py`):
+- **His resting face comes off first** (`neutral()`): the quiet before his voice (found from the
+  sound) is his rest, as Live Link's own calibration would take it; at rest his brows read 0.68
+  down, his eyes 0.14 shut, his gaze 0.26 down (the phone below him). Without it he scowled
+  throughout.
+- **Lips apart without the jaw** (`lips_apart`, a 20th shape: UpperLipUp + lowerLipDown): ARKit's
+  mouthUpperUp/LowerDown move only the lips; borrowed for "aa" (which carries jaw) they cancelled
+  his jaw. Speech now: jaw open to 0.34, the lips doing the rest.
+- **A scowl is the nose wrinkled with the brows down or the cheeks squinting**: talking wrinkles
+  the nose too, and his brows were already low at rest.
+The video (him, game size, Sean's own recording side by side, his voice) syncs: his mouth opens
+and shuts with the words and bares its teeth on Sean's snarls. Sent to Sean, not committed.
 
 ## Eyes on a target (2026-10-16, Sean: "eyes tracking the player or whoever")
 

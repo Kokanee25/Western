@@ -825,8 +825,9 @@ morph targets), `<out>_head.png` (his + the face's), `<out>.json` (`facerig`, `t
 In the game the shapes ride `PeopleBodies._load` → `BodyMesh.split_pieces` onto `Head_head`.
 `face_lab.gd` (via `lab_run.sh`): him as the game builds him; `--mode=sheet` each expression,
 `--mode=take` a take frame by frame; `face_sheet.py` the sheet. `arkit_take.py`: a Live Link
-Face CSV (+ .mov's sound, lined up by its timecode) → `take.json` by `MAP` (52 → 15).
-`take_video.sh`: close and game-size side by side, with sound. `synth_take.py`: a stand-in take
+Face CSV (+ .mov's sound, lined up by its timecode), his resting face taken off (`neutral`: the
+quiet before he speaks) → `take.json` by `MAP` (52 → 20).
+`take_video.sh`: close and game-size side by side, with sound (and the performer's .mov if given). `synth_take.py`: a stand-in take
 spoken by espeak-ng (for testing without one). `readability.py`: how much of his face each
 expression changes at 1080p, 2 m (the lab holds him still for the sheet; `rest2` checks it).
 Gaze: `src/bodies/face_gaze.gd` (`FaceGaze`, a child of his HumanBody: a target node or point;

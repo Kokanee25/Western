@@ -367,6 +367,8 @@ def zip_loops(A, B, PA, PB, centre):
 EXPRESSIONS = {
     "jaw_open": {"JawDrop": 1.0},
     "aa": {"JawDrop": 0.7, "UpperLipUp": 0.35, "lowerLipDown": 0.5},
+    # the lips parted without the jaw (a performance's mouthUpperUp / mouthLowerDown)
+    "lips_apart": {"UpperLipUp": 0.6, "lowerLipDown": 1.0},
     "ee": {"MouthLeftPullSide": 1.1, "MouthRightPullSide": 1.1, "JawDrop": 0.2, "UpperLipUp": 0.35, "lowerLipDown": 0.45},
     "oo": {"LipsKiss": 1.35, "JawDrop": 0.25},
     "fv": {"lowerLipUp": 1.0, "lowerLipBackward": 1.7, "UpperLipUp": 0.5, "JawDrop": 0.12},

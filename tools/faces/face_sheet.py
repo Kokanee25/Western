@@ -19,7 +19,7 @@ F = lambda n, b=True: ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaV
 def main():
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     out, lab = a.get("--out", "bold_cowboy_talking"), a.get("--lab", "build/faces/lab")
-    names = ["rest", "jaw_open", "aa", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "squint",
+    names = ["rest", "jaw_open", "aa", "lips_apart", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "squint",
              "brows_up", "brows_down", "scowl", "smile", "smile_l", "smile_r", "look_left", "look_right",
              "look_up", "look_down"]
     names = [n for n in names if os.path.exists(os.path.join(lab, n + "_0.png"))]
