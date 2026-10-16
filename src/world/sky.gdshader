@@ -67,8 +67,10 @@ uniform float paint_span = 77.3;
 uniform vec2 paint_sun = vec2(0.37, 7.6);
 // The colour the painted sky fades to overhead, above the panels' tops.
 uniform vec3 paint_zenith : source_color = vec3(0.31, 0.37, 0.5);
-// The panels' brightness in the frame (the tonemap takes some of it).
+// The panels' brightness in the frame, and their colour pushed back up (the tonemap takes some of
+// both: at 1 the target's blue and gold went pale lilac and cream).
 uniform float paint_gain = 0.95;
+uniform float paint_saturation = 1.3;
 
 #include "res://src/render/sun_rays.gdshaderinc"
 
@@ -92,6 +94,7 @@ vec3 painted_sky(vec3 d, vec3 sd) {
 	col = mix(col, paint_zenith, smoothstep(paint_span - 12.0, paint_span + 4.0, up));
 	// The painted sun and the light nearest it a little over white, so it glows as the target's.
 	float l = dot(col, vec3(0.333));
+	col = max(mix(vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), col, paint_saturation), vec3(0.0));
 	return col * paint_gain * (1.0 + 1.5 * smoothstep(0.75, 1.0, l));
 }
 
