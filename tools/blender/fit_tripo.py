@@ -95,6 +95,7 @@ WRIST_BLEND = 0.03    # metres past it: the new palm's wrist eases from his arm 
 ARM_TAPER = 0.07      # metres up his forearm over which it tapers in to meet the new wrist
 WRIST_SWELL = 1.3     # the meeting ring: this times MakeHuman's wrist (never wider than his arm)
 HAND_SQUARE = 0.06    # of his skin's texture a side: each MakeHuman hand's paint (~245 px of 4096)
+HAND_SQUARE_MAX = 0.09  # ... or as big as this, where his texture has the room (skinned_hands)
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
@@ -1018,24 +1019,35 @@ class TripoPerson(mp.Person):
                 pieces.append((q[uu], rm[tk], u[uu], pa[uu]))
                 useds.append(uu)
             made[side] = (pieces, useds, W, base, [o_ for o_, _b in rests])
-        squares = self._free_squares(2, HAND_SQUARE)
+        # The biggest squares his texture has free, up to HAND_SQUARE_MAX: a hand in his
+        # texture's chunky squares has few of them (its nails a few texels).
+        for hs in np.arange(HAND_SQUARE_MAX, HAND_SQUARE - 1e-9, -0.005):
+            try:
+                squares = self._free_squares(2, float(hs))
+                break
+            except RuntimeError:
+                continue
+        else:
+            squares, hs = self._free_squares(2, HAND_SQUARE), HAND_SQUARE
+        hs = float(hs)
+        rep["hand_square"] = round(hs, 3)
         for side, (u0, v0) in zip("rl", squares):
             pieces, useds, W, base, joints = made[side]
             paint, palm, fingers = MH.paint(pieces[0], {"%s_%s" % (MH.FINGERS[k // 3], side): pieces[1 + 3 * (k // 3):4 + 3 * (k // 3)] for k in range(0, 15, 3)}, side, base, joints=joints)
-            self.hand_paint.append((paint, (u0, v0, HAND_SQUARE)))
+            self.hand_paint.append((paint, (u0, v0, hs)))
             out = [palm] + [pc for name in MH.FINGERS for pc in fingers["%s_%s" % (name, side)]]
             tris_n = 0
             for (pts, tt, cu, local), uu in zip(out, useds):
                 n0 = len(self.v)
                 self.v = np.vstack([self.v, pts])
                 self.v_tripo = np.vstack([self.v_tripo, pts])
-                self.uv = np.vstack([self.uv, np.c_[u0 + cu[:, 0] * HAND_SQUARE, v0 + cu[:, 1] * HAND_SQUARE]])
+                self.uv = np.vstack([self.uv, np.c_[u0 + cu[:, 0] * hs, v0 + cu[:, 1] * hs]])
                 self.region = np.concatenate([self.region, np.full(len(pts), "hand_" + side, dtype=self.region.dtype)])
                 self.head = np.concatenate([self.head, np.zeros(len(pts), bool)])
                 self.tris = np.vstack([self.tris, tt + n0])
                 self.hand_fw.append((n0, W[uu[local]], side))
                 tris_n += len(tt)
-            rep[side] = {"hand_triangles": tris_n, "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), HAND_SQUARE]}
+            rep[side] = {"hand_triangles": tris_n, "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), round(hs, 4)]}
         self.report["finger_bones"] = {n: {"origin": [round(float(x), 5) for x in o_],
                                            "basis": [[round(float(x), 5) for x in row] for row in b_]}
                                        for n, (o_, b_) in self.finger_rests.items()}

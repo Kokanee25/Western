@@ -120,7 +120,11 @@ way: the same man, triangle for triangle).
   side pictures' hands, hanging on his shorts, had been painted on his hips). Sheet
   `c9_hands_clear.png`. Then his fist (`HumanBody.FIST_GAIN`: a skinned hand's joints bend more
   than the finger nodes, whose full curl is a loose claw on a whole hand; `THUMB_ACROSS`: his
-  thumb folds across the fist, not into his palm). Sheet `c10_fist.png`.
+  thumb folds across the fist, not into his palm). Sheet `c10_fist.png`. Then its paint: his key
+  light laid in as three tones (`mh_hand.KEY_TONES`, the darks warmer), a nail on each finger
+  (`NAIL_LEN`, `NAIL_WIDE`; the thumb's facing its own way) kept crisp through the planes, and
+  the hand's paint as big as his texture has room for (`fit_tripo.HAND_SQUARE_MAX`: 0.09 of it,
+  ~184 of his 2048 texels a side). Sheet `c11_hands_paint.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
@@ -131,7 +135,8 @@ way: the same man, triangle for triangle).
 
 - His coat is darker and more mottled than his pictures (Rodin's own colours).
 - A light band at his nape (his dressed twin's hair over the collar).
-- His hands' paint is plainer than his face's (his forearm's colour, shadow, nails).
+- His hands have far fewer texels than his face (184 a side for a whole hand): fine detail
+  (tendons, veins) can't show.
 - His skin is tucked under his coat: with the coat taken off his arms look rough.
 - The vest and shirt are painted on the coat (one layer).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,

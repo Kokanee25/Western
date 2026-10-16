@@ -36,20 +36,21 @@
  },
  "own_fingers": {
   "from": "makehuman, skinned",
+  "hand_square": 0.09,
   "r": {
    "hand_triangles": 3280,
    "painted_at_uv": [
-    0.4648,
-    0.3936,
-    0.06
+    0.4492,
+    0.3779,
+    0.09
    ]
   },
   "l": {
    "hand_triangles": 3280,
    "painted_at_uv": [
-    0.5098,
-    0.915,
-    0.06
+    0.4941,
+    0.8994,
+    0.09
    ]
   }
  },
@@ -776,8 +777,8 @@
   }
  },
  "skin_tone": [
-  0.831,
-  0.518,
+  0.8,
+  0.514,
   0.353
  ],
  "skin_tucked": 5216,

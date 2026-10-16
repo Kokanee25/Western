@@ -37,6 +37,7 @@ STRAY = 0.02       # metres off its bone: a point that far isn't that finger's
 TIP_LENGTH = 0.25  # ... and the last bone's length (joint 3 to its tip) taken this far past joint 4
 FINGERS = ["thumb", "index", "middle", "ring", "little"]
 _cache = {}
+FORWARD = np.array([0.0, 0.0, -1.0])
 PAINT_PX = 512      # his hand's paint, a side (a hand's texture in his skin's)
 AO_RAYS = 24
 AO_REACH = 0.03     # metres: what shades a point (a finger beside it, the palm under the thumb)
@@ -239,7 +240,9 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
       variation (the bold cowboy's paintings are brushwork, not flat colour);
     - shadow baked in from the hand's own shape (how much of the sky each point sees, within
       AO_REACH): dark between the fingers, in the creases at the joints, under the thumb;
-    - the palm lighter and pinker, the backs of the fingers' last bones a pale nail with a darker rim.
+    - the palm lighter and pinker; his key light laid in as three soft-edged tones (KEY_TONES),
+      the darks warmer; a nail on each last bone (the thumb's facing its own way) with a darker
+      cuticle and a light streak; then cut into flat planes (`_planes`), the nails kept crisp.
     Hand-painted rules after how painters lay in a hand (no texture copied from anywhere).
     """
     import sys
@@ -282,8 +285,11 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
     # Which way each point faces: towards his body's middle is his palm.
     palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
     palmness = np.clip((nrm @ palm_dir - 0.2) / 0.6, 0, 1)
-    # Nails: the backs of the last bones, their outer half.
+    # Nails: the back of each last bone (for the thumb, the way its nail faces: forward and out,
+    # as it hangs by his palm), its outer NAIL_LEN, NAIL_WIDE across: a crisp edge, a darker
+    # cuticle at its root.
     nail = np.zeros(len(pts))
+    cut = np.zeros(len(pts))
     for f in range(5):
         m = parts == f * 3 + 2
         if not m.any():
@@ -291,9 +297,20 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
         q = pts[m]
         axis = q.mean(0) - pts[parts == f * 3 + 1].mean(0) if (parts == f * 3 + 1).any() else np.array([0, -1.0, 0])
         axis /= np.linalg.norm(axis)
+        face = -palm_dir if f else FORWARD + 0.5 * -palm_dir
+        face = face - (face @ axis) * axis
+        face /= np.linalg.norm(face)
         t = (q - q.mean(0)) @ axis
-        back = np.clip((nrm[m] @ -palm_dir - 0.35) / 0.4, 0, 1)
-        nail[m] = back * np.clip((t / max(np.ptp(t), 1e-6) + 0.1) * 3.0, 0, 1)
+        t = (t - t.min()) / max(np.ptp(t), 1e-6)
+        on = nrm[m] @ face
+        inside = np.clip((on - NAIL_WIDE) / 0.12, 0, 1) * np.clip((t - (1 - NAIL_LEN)) / 0.08, 0, 1)
+        nail[m] = inside
+        cut[m] = np.clip((on - NAIL_WIDE) / 0.12, 0, 1) * np.clip(1 - np.abs(t - (1 - NAIL_LEN)) / 0.08, 0, 1)
+    # His key light, laid in (his paintings light a hand from above, in front, his outer side):
+    # how squarely each point faces it.
+    key = np.array([0.0, 0.75, 0.0]) + 0.5 * FORWARD + 0.55 * -palm_dir
+    key /= np.linalg.norm(key)
+    lam = np.clip(nrm @ key, 0, 1)
     # The hand's own part of MakeHuman's layout (a few wrist points belong to the forearm's,
     # far off: they're clamped to its edge, not let stretch the frame).
     # His hand's own layout (MakeHuman's runs the hand into the forearm's patch, small and
@@ -347,12 +364,12 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
         near = np.clip(1.0 - np.linalg.norm(pts - jp, axis=1) / KNUCKLE_R, 0, 1)
         knuck = np.maximum(knuck, near)
     back = np.clip((nrm @ -palm_dir - 0.2) / 0.5, 0, 1)
-    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness][corner]
+    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness, lam, cut][corner]
     M, cover = P.raster_uv(table, [list(map(int, t)) for t in tris_c], vals, size)
     _d, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
     M = M[iy, ix]
-    ao_t, palm_t, nail_t = M[..., 0], M[..., 1], ndimage.gaussian_filter(M[..., 2], 1.0)
-    kn_t, cr_t = M[..., 3], M[..., 4]
+    ao_t, palm_t, nail_t = M[..., 0], M[..., 1], np.clip((M[..., 2] - 0.35) / 0.3, 0, 1)
+    kn_t, cr_t, lam_t, cut_t = M[..., 3], M[..., 4], M[..., 5], M[..., 6]
     base = np.asarray(base, float)
     # Brushwork: low-frequency light and warm/cool shifts, a little finer grain.
     noise = lambda s: ndimage.zoom(rng.normal(size=(s, s)), size / s, order=3)[:size, :size]
@@ -365,15 +382,28 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
     col = col * (1 - 0.35 * palm_t[..., None]) + (col * 1.12 * pink) * (0.35 * palm_t[..., None])
     col *= (0.45 + 0.55 * np.clip(ao_t, 0, 1) ** 0.8)[..., None]
     col *= (1.0 + 0.16 * kn_t - 0.22 * cr_t)[..., None]
-    nail_col = np.clip(base * 1.3 + 0.08, 0, 1) * np.array([1.0, 0.92, 0.88])
-    rim = np.clip(nail_t * (1 - nail_t) * 4 - 0.5, 0, 1)
+    # The light in three tones (shadow, half-tone, light), their edges soft, as a painter lays them.
+    band = lambda x, e: np.clip((x - e) / 0.08 + 0.5, 0, 1)
+    tone = KEY_TONES[0] + (KEY_TONES[1] - KEY_TONES[0]) * band(lam_t, 0.25) + (KEY_TONES[2] - KEY_TONES[1]) * band(lam_t, 0.62)
+    col *= tone[..., None]
+    # Lit shadow's warmth: the darks redder (his paintings' shadows on skin go red, not grey).
+    dark = np.clip(1.0 - tone, 0, 1)[..., None]
+    col *= 1 + dark * np.array([0.25, -0.05, -0.15])
+    nail_col = np.clip(base * 1.35 + 0.16, 0, 1) * np.array([1.0, 0.88, 0.84]) * np.maximum(tone, 0.9)[..., None]
     col = col * (1 - nail_t[..., None]) + nail_col * nail_t[..., None]
-    col *= (1 - 0.25 * rim)[..., None]
-    col = _planes(col, cover, rng, size)
+    col *= (1 - 0.5 * cut_t)[..., None]
+    col = _planes(col, cover, rng, size, keep=(nail_t + cut_t) > 0.2)
+    # A light streak down each nail (its gloss).
+    streak = nail_t * np.clip(1 - np.abs(lam_t - 0.8) / 0.12, 0, 1)
+    col = col + 0.12 * streak[..., None]
     # Back onto his forearm's colour overall (the palm's lightening and pink pulled it paler and
     # greyer than his arm: a step at the wrist), a little darker for the hand's own shadow.
     med = np.median(col[cover], axis=0)
     col = col * (base * MATCH / np.maximum(med, 1e-6))[None, None]
+    if os.environ.get("MH_PAINT_DEBUG"):
+        from PIL import Image
+        dbg = np.concatenate([np.clip(col, 0, 1), np.repeat(nail_t[..., None], 3, 2), np.repeat(lam_t[..., None], 3, 2)], 1)
+        Image.fromarray((dbg * 255).astype(np.uint8)).save("build/mh_paint_%s.png" % side)
     # The pieces again, each triangle its own corners, with their place in this paint (0..1).
     out, n0 = [], 0
     for k, pc in enumerate(pieces):
@@ -662,9 +692,12 @@ PLANE_PX = 1.0 / 30  # a painted plane, of the hand's paint a side (his painting
 PLANE_KEEP = 0.3     # how much of the smooth shading shows through a plane
 MATCH = 0.97         # the hand's typical colour: this times his forearm's
 KNUCKLE_R = 0.011    # metres round a finger joint: its knuckle's light plane, its crease
+KEY_TONES = np.array([0.62, 0.95, 1.28])   # the key light's shadow, half-tone and light on his hand
+NAIL_LEN = 0.55      # of the last bone, from its tip: the nail
+NAIL_WIDE = 0.45     # how squarely a point faces the nail's way to be nail (its width across)
 
 
-def _planes(col, cover, rng, size):
+def _planes(col, cover, rng, size, keep=None):
     """The paint laid in flat planes, as his paintings lay a hand in: the layout cut into small
     irregular patches (around random seeds) and each patch one tone (its mean), a little of the
     smooth shading kept so the form still turns."""
@@ -683,4 +716,6 @@ def _planes(col, cover, rng, size):
         m = np.asarray(ndimage.mean(col[..., c], labels=lab, index=idx))
         flat = np.r_[0.0, np.nan_to_num(m)][lab]
         out[..., c] = np.where(lab > 0, flat * (1 - PLANE_KEEP) + col[..., c] * PLANE_KEEP, col[..., c])
+    if keep is not None:
+        out[keep] = col[keep]       # small marks (the nails) stay crisp, not averaged away
     return out
