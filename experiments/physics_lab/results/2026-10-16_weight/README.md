@@ -50,4 +50,11 @@ Two blind judges (fresh sub-agents shown only the contact sheets, versions shuff
   hips high; he rarely goes down sideways or ends with his legs out. With the trunk weighed as a
   man's he's less top-heavy, so he crumples rather than pitching over.
 
+- **This version (step 6) against main, the six sheets here: this better in 4 of 6** (running faint,
+  shove, table, stairs; main a little better standing). The only plainly wrong frames were main's:
+  an arm sticking straight up while he lies on the ground (running faint) and a jump at the table.
+- Shared, next: every limp fall folds at the knees into a kneel; a chest shot looks like a faint
+  (no sign of the hit: Prompt 09's hit reactions short of a fall); the shove makes a hip-hinged
+  bridge; propped-up poses mid-tumble on the stairs.
+
 Sheets: `side_<scenario>.jpg` (top three rows main, bottom three this; front, side, three-quarter).
