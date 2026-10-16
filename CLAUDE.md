@@ -278,20 +278,21 @@ pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`d
 frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; the roadmap's steps; targets in `docs/concept/targets/`):
-- Done: the woods are the material lab's C (2026-10-15); roadmap 1.1, the targets; 1.2's shader
-  half (`paint_tint`, v5) and its in-game sheet (`docs/screenshots/painted_light/in_game.jpg`: the
-  painted cowboy holds in the saloon, face light 1.03; in the street at golden hour 0.61, too dark
-  and red, `paint_tint` under the orange sun the likely cause); 1.4 merge 1, surfaces to the man
-  (woods drawn in his 32/m squares, the road at 32/m square on screen and calming far off, ruts;
-  `tools/surface_squares.py`, sheets in `docs/screenshots/surfaces/`).
-- Next: 1.4's road to Sean's new target (`targets/6_road_target.jpg`): relief in the low sun (a
-  height for ruts and ridges, lit and shadowed in `ground.gdshader`), real stones; small squares
-  kept, drawn in code unless Sean says otherwise. Footprints are gameplay's (`docs/BACKLOG.md`).
-  Then 1.2's street light if Sean wants him lighter. Critic r2's top: the saloon's standing men,
-  the street's mauve sky and weak sun.
-- Known: a full golden render is ~2.5 h on lavapipe (batches of 24, `golden_check.py --render
-  --only=`); `pgrep -f` in a watch matches the watch itself (use `[o]ut=`).
-- Waiting on Sean: squares or smooth on the road; his eye on the sheets.
+- Done: the woods are C (2026-10-15); 1.1 the targets; 1.2's shader half and in-game sheet
+  (`docs/screenshots/painted_light/in_game.jpg`: saloon holds, the street at golden hour too dark
+  and red); 1.4 surfaces to the man (#126: woods in his 32/m squares) and the road (brief
+  `docs/briefs/road.md`): smooth painted earth to the boardwalks, a street map of packed and
+  churned earth with the ruts drawn the street's length, old prints as decals, 3D stones along the
+  ruts (sheets `docs/screenshots/surfaces/road_low.jpg`, `road_street.jpg`; views `road_low_golden`,
+  `road_low_noon`). Paint ~$2.44 of Sean's $3.50.
+- Next: Sean's word on 1.4; then 1.2's street light (the cowboy at 0.61 of his paint at golden hour)
+  if he wants him lighter. Critic 2026-10-16_r1's top: the ruts still read flatter than the target's,
+  the stones; then the saloon's standing men, the street's mauve sky.
+- Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
+  --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
+  kill match the command itself; a data texture with an alpha channel needs
+  `process/fix_alpha_border=false` in its import; noon views wash out (exposure, not the road).
+- Waiting on Sean: his eye on the road sheets.
 
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`):
