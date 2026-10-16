@@ -86,7 +86,7 @@ uniform float compact_relief = 0.35;
 uniform float loose_relief = 0.6;
 uniform float relief_cavity = 0.3;
 // How dark a rut's bottom is at full depth (damp, shadowed earth), and how light its crumbled lip.
-uniform float rut_dark = 0.45;
+uniform float rut_dark = 0.55;
 // How far toward the sun the shadow trace looks (metres) and how dark a fully hidden pixel goes
 // (of the sun's light; the sky's fill still reaches it).
 uniform float relief_shadow_reach = 0.5;
@@ -269,7 +269,9 @@ void fragment() {
 			// Most of a trough dark, not only its deepest line: with the sun down the street, along
 			// the ruts, their walls take no raking light, and the target draws them as dark bands.
 			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.05, -rut);
-			earth *= 1.0 + 0.18 * smoothstep(0.002, 0.012, rut);
+			// A lip's crest lit (the target's ruts read by their sunlit crests as much as their dark
+			// troughs; with the sun along the street the light alone doesn't pick them out).
+			earth *= 1.0 + 0.4 * smoothstep(0.002, 0.014, rut);
 			earth *= 0.94 + 0.12 * fbm(q * 0.25 + 9.0);
 			v_earth = e;
 			v_mirror = mirror;

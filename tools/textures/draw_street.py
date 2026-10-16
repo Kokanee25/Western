@@ -224,7 +224,9 @@ def main():
     print_pictures()
 
     # Stones: in churned ground and on the lips, never in a groove's bottom.
-    stones = np.clip(loose * 0.8 + lip * 0.6, 0.0, 1.0) * np.clip(1.0 + rut_h / 0.02, 0.0, 1.0)
+    # Mostly along the ruts' lips, where the wheels throw them (the blind critic, 2026-10-16_r1:
+    # spread evenly they read as scattered dots, the target's cluster at the rut edges).
+    stones = np.clip(lip * 1.1 + loose * 0.3, 0.0, 1.0) * np.clip(1.0 + rut_h / 0.02, 0.0, 1.0)
 
     def enc(m):
         return np.clip(0.5 + m / (2 * RUT_RANGE), 0.0, 1.0)
