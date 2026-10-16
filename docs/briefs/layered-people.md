@@ -97,6 +97,32 @@ and clothes are made once per body type.
 6. Each step on its own trial entry in `portrait.json`; nothing replaces the approved men until
    Sean says.
 
+## Roadmap 1.3: vest, shirt and tie under the coat (2026-10-16, plan)
+
+Sean's four coatless pictures (`docs/concept/style/factory/bold_cowboy_vest_dressed/`, a little
+blockiness is fine: "the concept art has some") built by Rodin as `bold_cowboy_vest_dressed`
+(run 81, $1.60; sheet `docs/style_test/layered-2026-10-15/d1_rodin_vest.png`). No more paid calls
+planned. Steps:
+1. **Cut the coatless twin** (`twin_pieces.py --dressed=bold_cowboy_vest_dressed`): shirt with its
+   tie (cream/white, and the black tie at his throat), vest (brown, above his belt), trousers with
+   boots (as now). By colour per triangle with the neighbourhood share (`TROUSER_CHROMA`, 8 mm),
+   as the coat/trouser split does; the classes as named pieces, not two hard-coded ones.
+2. **Trousers from the coatless twin** (no coat skirt over them: cleaner than the coated twin's).
+3. **The coat alone:** the coated twin's coat less what shows through its open front (the vest,
+   shirt and tie painted on it): what of it lies within ~1 cm of the coatless twin's vest or shirt
+   (laid on the same body) is dropped, so the real vest shows.
+4. **Layers in the fit** (`fit_tripo`): shirt < vest < coat, each pushed out of the skin and the
+   layers under it (`clear_twin` against their union), each lower layer tucked under the one over
+   it where they overlap (as `tuck_skin` does for the skin); weights from the skin under each
+   (`weights_from_skin`, the skirt/hand rules as now). `people.json` `pieces`: shirt, vest, coat,
+   trousers.
+5. **The pose check** (1.3): stand, sit, hands up, crouch, back; no tears or poke-through, coat
+   off and on.
+6. **Painted smooth** (DESIGN.md §4, painted illustration): the clothes' paint from Rodin's own
+   texture without the squares (`fit_tripo` `squares` at 1 for pieces), the coat lighter and less
+   mottled to his paintings.
+Then a sheet (coat on, coat off, the five poses) for Sean, and a merge.
+
 ## Not in this brief
 
 Changing the game's lighting (the art session's: faces' tones and saturation under its lamps,
@@ -115,6 +141,9 @@ direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their
 2026-10-15, Rodin on fal for `bold_cowboy_dressed` (his four dressed pictures, whole, A-pose):
 $1.60 (total ~$8.46 of $15). His clothes from it: what stands off the bare body, cut into coat,
 trousers and boots (a quicker route to the coat's real shape than shelling the body).
+2026-10-16, Rodin on fal for `bold_cowboy_vest_dressed` (Sean's four pictures of him without his
+coat; Sean's go): $1.60 (total ~$10.06 of $15). His vest, shirt and tie from it, as their own
+layers under the coat (roadmap 1.3).
 
 **2026-10-15, the twin route (done; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`):**
 his clothes are cut from Rodin's dressed model of him, not rebuilt as a shell (tried first: the
