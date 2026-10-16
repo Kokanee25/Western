@@ -658,6 +658,14 @@ a few views renders them as the full run does.
   `cloud_cover`/`_scale`/`_ragged`; soft-edged, shaded smoothly from cream-gold tops through warm
   bodies to grey-violet undersides, `cloud_tones` 0 = smooth; dark at night). The sky is smooth
   (`sky_squares` 0, `sky_mosaic` 0 since §10.4: the painting's sky and far clouds are soft).
+  **The painted sky** (2026-10-16, Sean's `targets/7_sky_target.jpg`): while the sun is low
+  (`painted`, under ~26 degrees) two painted panels replace it, 180 degrees each toward and away
+  from the sun (`tools/textures/paint_sky.py` paints them, `reduce_sky.py` cuts them to
+  `assets/textures/sky/` with `sky.json`, Backdrop hands them over), turned and lifted so the
+  painted sun lies on DayCycle's; `paint_gain`, `paint_saturation`. Only what's seen: the radiance
+  pass (`AT_CUBEMAP_PASS`) keeps the coded sky, so the town's light doesn't move with it. The haze
+  at golden hour is DayCycle's (`volumetric_low_sun` 0.3: at 1, with `fog_low_sun` 0.85, it took
+  the street's darks from 7.6% of the frame to 1%); the saloon's smoke is its `room_haze` (0.02).
   **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
   country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
   m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in
