@@ -36,9 +36,11 @@ func press(kind: StringName, at: Vector3, turn: float, wear: float) -> Decal:
 	d.size = Vector3(s, 0.2, s)
 	d.texture_albedo = _textures[kind][0]
 	d.texture_normal = _textures[kind][1]
-	d.modulate = Color(1, 1, 1, clampf(1.0 - wear, 0.0, 1.0))
-	d.albedo_mix = 0.7
-	d.normal_fade = 0.5
+	# Worn, but still read: at most half of it worn off (at a full share a print 13 cm across, worn
+	# to a third and mixed in at 0.7, was gone at 2 m).
+	d.modulate = Color(1, 1, 1, clampf(1.0 - 0.5 * wear, 0.0, 1.0))
+	d.albedo_mix = 1.0
+	d.normal_fade = 0.3
 	d.cull_mask = 1  # the ground (and what lies on it), not people walking through
 	add_child(d)
 	d.global_position = at + Vector3.UP * 0.05

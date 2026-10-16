@@ -166,13 +166,13 @@ def print_pictures():
     for kind, shape in (("hoof", horseshoe(PRINT_PX)), ("boot", boot(PRINT_PX))):
         hgt = gaussian_filter(shape, 1.2)
         hgt /= hgt.max()
-        gy, gx = np.gradient(-hgt * 6.0)
+        gy, gx = np.gradient(-hgt * 12.0)
         nrm = np.stack([-gx, -gy, np.ones_like(gx)], -1)
         nrm /= np.linalg.norm(nrm, axis=-1, keepdims=True)
         normal = (nrm * 0.5 + 0.5)
         normal[..., 1] = 1.0 - normal[..., 1]  # Godot's normal maps are OpenGL-style (green up)
         a = np.clip(hgt * 1.4, 0.0, 1.0)
-        col = np.stack([np.full_like(a, 0.42), np.full_like(a, 0.28), np.full_like(a, 0.19), a], -1)
+        col = np.stack([np.full_like(a, 0.34), np.full_like(a, 0.21), np.full_like(a, 0.13), a], -1)
         Image.fromarray((col * 255 + 0.5).astype(np.uint8), "RGBA").save(OUT / ("print_%s.png" % kind))
         Image.fromarray((normal * 255 + 0.5).astype(np.uint8), "RGB").save(OUT / ("print_%s_normal.png" % kind))
 
