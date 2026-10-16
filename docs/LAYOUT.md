@@ -664,8 +664,8 @@ a few views renders them as the full run does.
   `assets/textures/sky/` with `sky.json`, Backdrop hands them over), turned and lifted so the
   painted sun lies on DayCycle's; `paint_gain`, `paint_saturation`. Only what's seen: the radiance
   pass (`AT_CUBEMAP_PASS`) keeps the coded sky, so the town's light doesn't move with it. The haze
-  at golden hour is DayCycle's (`volumetric_low_sun` 1, `fog_low_sun` 0.85); the saloon's smoke is
-  its `room_haze` (0.04).
+  at golden hour is DayCycle's (`volumetric_low_sun` 0.3: at 1, with `fog_low_sun` 0.85, it took
+  the street's darks from 7.6% of the frame to 1%); the saloon's smoke is its `room_haze` (0.02).
   **The painted backdrop** (`src/art/backdrop.gd`, `Backdrop`, added by StreetDressing): the
   country round the town as three painted strips on rings round `CENTRE` (far spires and mesas 650
   m, mid hills 430 m, near foothills with junipers 260 m), lit by the time of day in
