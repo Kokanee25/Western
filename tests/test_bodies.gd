@@ -242,6 +242,35 @@ func test_killed_running_he_pitches_over_not_onto_his_knees() -> void:
 		runner.queue_free()
 
 
+## Dropped by a ball, he looks hit, not fainted: he doubles over a belly wound, and a shot leg goes
+## from under him so he leans to that side. (Before, every knockdown was the same faint: he stood
+## stiff, leant back, then sank.) His own muscles do it (HumanBody._hunch): no push.
+func test_a_ball_that_drops_him_shows_where_it_hit() -> void:
+	var lean := {}
+	for case: String in ["belly", "thigh_r"]:
+		var shot := HumanBody.new()
+		shot.has_gun = false
+		world.add_child(shot)
+		shot.global_position = Vector3(-6.0 if case == "belly" else 6.0, 0.0, 6.0)
+		await physics_frames(30)
+		var seg := &"abdomen" if case == "belly" else &"thigh_r"
+		var part := shot.parts[seg] as Node3D
+		var front := part.global_position - shot.global_basis.z * 0.1
+		shot.go_limp()
+		var dir := shot.global_basis.z
+		(shot.parts[seg] as RigidBody3D).apply_impulse(dir * 4.5, front - part.global_position)
+		shot._hunch(seg, front, dir)
+		await physics_frames(27)
+		var up := (shot.parts[&"chest"] as Node3D).global_basis.y
+		# Forward is his -z, his right +x.
+		lean[case] = Vector2(rad_to_deg(asin(clampf(up.dot(-shot.global_basis.z), -1.0, 1.0))),
+				rad_to_deg(asin(clampf(up.dot(shot.global_basis.x), -1.0, 1.0))))
+		shot.queue_free()
+	print("  at 0.45 s: belly-shot chest %.0f deg forward; thigh-shot chest %.0f deg to his right" % [lean.belly.x, lean.thigh_r.y])
+	check(lean.belly.x > 10.0, "doubled over the belly wound (%.0f deg forward)" % lean.belly.x)
+	check(lean.thigh_r.y > 5.0, "the shot leg gave and he leans to it (%.0f deg)" % lean.thigh_r.y)
+
+
 func test_knees_only_bend_the_right_way() -> void:
 	var world := Node3D.new()
 	add_child(world)

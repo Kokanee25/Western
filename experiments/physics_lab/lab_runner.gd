@@ -348,6 +348,11 @@ func _go_limp() -> void:
 			r.apply_impulse(jw, r.global_transform * Vector3(p[0], p[1], p[2]) - r.global_position)
 		_events.append({"tick": _tick, "kind": "lab_impulse", "source": "the lab (scenarios.json)",
 				"segment": String(sid), "at_world": _v(at_world), "impulse_Ns": _v(jw)})
+		# "hunch": as a ball that knocks him down does (HumanBody.take_bullet): he curls round it.
+		if imp.get("hunch", false):
+			for man in _men:
+				if man.has_method(&"_hunch"):
+					man._hunch(sid, man.parts[sid].global_transform * Vector3(p[0], p[1], p[2]), jw.normalized())
 	_take_reference(man0)
 
 
