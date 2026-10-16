@@ -1838,9 +1838,9 @@ func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
 ## N*m/rad at full tone, about what holds that joint's share of him up; a man still conscious
 ## keeps more of it a little longer. Tunable in TONE.
 const TONE := {
-	&"abdomen": 260.0, &"chest": 220.0, &"neck": 60.0, &"head": 30.0,
+	&"abdomen": 130.0, &"chest": 110.0, &"neck": 60.0, &"head": 30.0,
 	&"upper_arm": 30.0, &"forearm": 15.0, &"hand": 3.0,
-	&"thigh": 320.0, &"shin": 100.0, &"foot": 60.0,
+	&"thigh": 160.0, &"shin": 100.0, &"foot": 60.0,
 }
 const TONE_START := 0.55
 const TONE_START_CONSCIOUS := 0.7
