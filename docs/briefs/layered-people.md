@@ -115,6 +115,9 @@ direction: his paintings' brushwork kept (`patches` "none", `unsquare` 0), their
 2026-10-15, Rodin on fal for `bold_cowboy_dressed` (his four dressed pictures, whole, A-pose):
 $1.60 (total ~$8.46 of $15). His clothes from it: what stands off the bare body, cut into coat,
 trousers and boots (a quicker route to the coat's real shape than shelling the body).
+2026-10-16, Rodin on fal for `bold_cowboy_vest_dressed` (Sean's four pictures of him without his
+coat; Sean's go): $1.60 (total ~$10.06 of $15). His vest, shirt and tie from it, as their own
+layers under the coat (roadmap 1.3).
 
 **2026-10-15, the twin route (done; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`):**
 his clothes are cut from Rodin's dressed model of him, not rebuilt as a shell (tried first: the
