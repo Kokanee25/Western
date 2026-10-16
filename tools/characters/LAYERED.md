@@ -12,8 +12,14 @@ What he is, outside in:
 - **His head** (`bold_cowboy_painterly_lit`): the painterly bust from his five portraits
   (`RECIPE.md` route), laid on the body's own head and joined through **the neck ring**, 8% smaller
   than the body's own head.
-- **His clothes** (`bold_cowboy_coat`, `bold_cowboy_trousers`): cut from Rodin's dressed model of
-  the same man, each its own mesh (coat off, holes, blood work as for any garment).
+- **His clothes in layers** (roadmap 1.3, 2026-10-16): shirt (with its tie), vest and trousers
+  (`bold_cowboy_under_*`) cut from Rodin's model of him without his coat, and his coat
+  (`bold_cowboy_coat`) from Rodin's model of him dressed; each its own mesh (holes, blood work as
+  for any garment), one inside another.
+- **Two outfits of one man** (the game never takes a coat off): **`bold_cowboy_layered`** in his
+  coat (`bold_cowboy_body`: the shirt's sleeves and whatever of vest and shirt the coat covers cut
+  away) and **`bold_cowboy_vest_layered`** without it (`bold_cowboy_vest_body`: vest, whole shirt,
+  trousers). Sheet `docs/style_test/layered-2026-10-15/d2_layers.png`.
 - **His hands:** MakeHuman's (CC0) whole, skinned to the game's finger bones (they curl, grip and
   come off), painted in his skin and his light, joined smoothly at the wrist.
 
@@ -26,6 +32,10 @@ facing its right, from behind:
   `docs/concept/style/factory/<man>_body/{front,left,right,back}.png` (Rodin's shape).
 - **Painterly, in boxers:** the same four in the painterly style →
   `docs/concept/style/factory/<man>_body/painterly/` (his body's paint).
+- **Without his coat:** the four again in shirt, vest, tie, trousers and boots, painterly, on plain
+  grey with his arms clear of his sides (the prompt: Sean's chat, 2026-10-16; his dressed front
+  picture attached so it's the same man) → `docs/concept/style/factory/<man>_vest_dressed/`
+  (his vest, shirt and trousers). A little blockiness in the cloth is fine (Sean).
 - **Dressed:** the four dressed (coat, vest, shirt, tie, trousers, boots), painterly →
   `docs/concept/style/factory/<man>_dressed/` (his clothes' shape and colour). A plain flat backdrop
   helps: the bold cowboy's dark, glowing one defeated `body_paint.py`, so his clothes keep
@@ -34,7 +44,8 @@ facing its right, from behind:
 
 ## 2. His entries
 
-- `assets/people/portrait.json` `men`: `<man>_body` and `<man>_dressed` (pictures only; the
+- `assets/people/portrait.json` `men`: `<man>_body`, `<man>_dressed` and `<man>_vest_dressed`
+  (pictures only; an id ending `_dressed` is built whole; the
   workflow reads them), and his head (`<man>_painterly_lit` for the bold cowboy: `fidelity`
   `patches` "none", `unsquare` 0, `delight` 0.15; see that entry).
 - `assets/people/people.json` `people.<man>_body`:
@@ -42,14 +53,17 @@ facing its right, from behind:
   "source": "rodin", "rodin": "test/<man>_body_rodin",
   "shoulders": 1.10, "own_fingers": "skinned",
   "tris": {"skin": 30000, "head": 10000}, "outfit": {},
-  "pieces": {"coat": "<man>_coat", "trousers": "<man>_trousers"}
+  "pieces": {"coat": "<man>_coat", "vest": "<man>_under_vest",
+             "shirt": "<man>_under_shirt", "trousers": "<man>_under_trousers"}
   ```
-  Insert it by hand (a `json.dumps` rewrite reformats the whole file).
+  and `people.<man>_vest_body` the same but `"pieces"` without the coat and
+  `"paint": "<man>_body"` (his body's repaint shared, not copied). Insert both by hand (a
+  `json.dumps` rewrite reformats the whole file).
 
 ## 3. Making him (the workspace as `RECIPE.md` §3; MakeHuman once: `python3 tools/blender/fetch_makehuman.py`)
 
-1. **Two Rodin models ($1.60 each, the only paid steps):** Actions → People → `style: rodin`,
-   `characters: <man>_body`, then `<man>_dressed`. An id ending `_body` or `_dressed` is built
+1. **Three Rodin models ($1.60 each, the only paid steps):** Actions → People → `style: rodin`,
+   `characters: <man>_body`, then `<man>_dressed`, then `<man>_vest_dressed`. An id ending `_body` or `_dressed` is built
    whole, not as a bust (`people.yml`). Pull: `assets/people/tripo/test/<man>_{body,dressed}_rodin.glb`.
 2. **His head:** `RECIPE.md` §4 steps 1-2 for `<man>_painterly_lit` (a bust, $1.60 if not made
    yet; the paint). Then keep it (build/ is wiped with the workspace):
@@ -66,14 +80,21 @@ facing its right, from behind:
    (the outline over each picture; side views ~0.86 overlap is good). Its log's "his shorts from
    ... to ... m" should span his shorts (-0.19 to 0.15 for the bold cowboy).
 4. **His clothes:**
-   `~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>`
-   → `assets/people/tripo/<man>_{coat,trousers}.glb` + `.json`. Good: "twin laid on the body:
-   scale ~1.0, turn ~1 deg", each sleeve turned ~10 deg.
-5. **The fit:** `~/bpyenv/bin/python tools/blender/fit_tripo.py --only=<man>_body`
+   ```sh
+   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>
+   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_vest_dressed \
+       --out=<man>_under --split=layers
+   ```
+   → `assets/people/tripo/<man>_coat.glb` (and `_trousers`, unused now) and
+   `<man>_under_{shirt,vest,trousers}.glb` + `.json`. Good: "twin laid on the body: scale ~1.0,
+   turn ~1 deg"; `--split=layers` also lays his sleeves on the body's arm bones joint to joint.
+5. **The fit:** `~/bpyenv/bin/python tools/blender/fit_tripo.py --only=<man>_body` (and again
+   `--only=<man>_vest_body`)
    → `assets/people/<man>_body.glb` (+ `_skin.png`, `_coat.png`, `_trousers.png`, `.json`). The
    report's `shoulders`, `own_fingers` (palm and finger triangles a side), `piece_coat`
    (`pushed_out_after_warp`, `weights_from_skin`) and `skin_tucked` say what it did.
-6. **His head on, through the ring:**
+6. **His head on, through the ring** (and the same with `--body=<man>_vest_body
+   --out=<man>_vest_layered`):
    `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
    → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
 7. **Import, test, look:** `godot --headless --import`; `test_bodies`; then the lab:
@@ -83,6 +104,8 @@ facing its right, from behind:
    ```
    (`tools/characters/lab_run.sh` ends the lab when it hangs on quit.)
    `--hide=Skin_whole` (or `Coat_whole`, ...) draws him without a mesh: a garment seen alone.
+   The pose check: `xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd
+   -- --out=build/pc --ids=<man>_layered,<man>_vest_layered --poses=stand,sit,hands_up,crouch,aim --hatless`.
 
 The whole chain from step 4 runs from the repo alone (checked 2026-10-15 with `build/` out of the
 way: the same man, triangle for triangle).
@@ -142,6 +165,15 @@ way: the same man, triangle for triangle).
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
   (12 mm), weights each garment point from the skin under it, and tucks his skin 12 mm under his
   garments (this man's skin only).
+- His layers (roadmap 1.3; in `fit_tripo`): his arms drawn in under the shirt's sleeves by one
+  factor an arm (`_arms_in_sleeves`; point by point they crumpled into shards) and his torso
+  narrowed under the shirt (`_trunk_in`, `TRUNK_IN_X`, `TRUNK_IN`); every layer's sleeves
+  weighted alike by their place along the arm (`weights_from_skin`, the arm's own profile), the
+  shirt's and vest's body cloth none of his arms' (no wing with his hands up), the shirt's sleeve
+  cut from its side below his armpit (`ARMPIT_DROP`); garments tucked one under another in
+  `LAYERS` order (`tuck_layers`); in a coat, the shirt's sleeves and what of vest and shirt the
+  coat covers (ahead, out from his middle, by his armholes: `COVER_REACH`, `ARMHOLE_R`) cut away;
+  under a shirt his torso's and upper arms' skin painted the shirt's colour (`paint_under_shirt`).
 
 ## 5. Known
 
@@ -152,7 +184,11 @@ way: the same man, triangle for triangle).
   and one runs on into his hand on his left wrist.
 - His thumb lies along the revolver, a little high on its grip; the revolver sits where the game
   hangs it from the anatomy's hand (gameplay's), not this hand's palm.
-- His skin is tucked under his coat: with the coat taken off his arms look rough.
-- The vest and shirt are painted on the coat (one layer).
+- With his hands up his coat's sides stretch from his arms (its sleeves and sides are fused in
+  the dressed model; cut or weighted apart they gaped when he stood). The coatless man doesn't.
+- Sitting and crouching, his coat's skirt and his trousers' seat crumple at the bench and the
+  ground (as before the layers); a few dark specks by his armpits in the coat.
+- The coat's front still has the dressed model's vest and shirt painted in its opening's edges
+  (the real vest shows in the middle).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,
   `RECIPE.md`); the layered man isn't wired to it yet.

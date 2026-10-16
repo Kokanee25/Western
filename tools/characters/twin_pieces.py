@@ -4,6 +4,8 @@ stands off his bare body, cut into garment pieces the fitter carries on him as t
 
     ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=bold_cowboy_body \\
         --dressed=bold_cowboy_dressed --out=bold_cowboy
+    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=bold_cowboy_body \\
+        --dressed=bold_cowboy_vest_dressed --out=bold_cowboy --split=layers
 
 - His bare body and his dressed twin are both Rodin's whole man, the same man in the same A-pose
   (assets/people/tripo/test/<id>_rodin.glb). Both are turned into Tripo's frame as
@@ -16,6 +18,9 @@ stands off his bare body, cut into garment pieces the fitter carries on him as t
   skin's normal to CLEAR, so his skin never shows through a sleeve.
 - Cut into pieces: the coat (with what it shows at the front: vest, shirt, tie), and the
   trousers with the boots (below his belt, near black: told from the coat's brown by colour).
+  `--split=layers` (his twin without a coat): shirt with its tie, vest, trousers with boots.
+  `--without=<out>` (with the coated twin): the coat less what lies on that cut's shirt and vest
+  in their colour (them, seen through its open front); `--only=coat` writes the coat alone.
 → assets/people/tripo/<out>_<piece>.glb (unrigged, the twin's texture inside, at TEX px) and
   <out>_<piece>.json (`twin`: the body it was laid on).
 """
@@ -34,6 +39,14 @@ CHIN = 0.855       # of his height: nothing above (his face and hair are the hea
 BELT = 0.50        # of his height: below it his coat and his trousers are told apart by colour
 BOOT_TOP = 0.12    # of his height: below it, boots (brown, with the trousers' piece)
 TROUSER_CHROMA = 6.0
+TIE_LOW = 0.66     # of his height: dark cloth above it is his tie (--split=layers), below his trousers
+VEST_LOW = 0.48    # of his height: brown cloth below it is his boots' (--split=layers)
+WITHOUT_NEAR = 0.006  # of his height (~11 mm): the coated twin this near his coatless twin's shirt or vest ...
+WITHOUT_DE = 22.0     # ... and this near its colour (Lab) is them, seen through the coat's front
+WOOL_DE = 16.0        # ... or this far from the coat's own wool colour (Lab)
+ELBOW_BLEND = 0.25    # of his upper arm's length: upper and lower sleeve blended across his elbow (--split=layers)
+SHOULDER_EASE = 0.35  # ... and the sleeve eased onto the bones from nothing at his shoulder over this much of it
+LAYER_NEAR = 0.006  # of his height (~1 cm): each triangle the commonest class within it
 SKIN_NEAR = 0.006  # of his height (~1 cm): the twin's surface this near the bare skin, in a skin colour, is skin
 THROAT = 0.80      # of his height: above it, the twin's surface on his skin in a skin colour is his skin
 SKIN_DE = 18.0     # Lab distance from his skin tone that still counts as skin
@@ -85,6 +98,20 @@ def bone_of(p, j):
         t = np.clip((p - a) @ (b - a) / max((b - a) @ (b - a), 1e-12), 0, 1)
         D.append(np.linalg.norm(p - (a + t[:, None] * (b - a)), axis=1))
     return np.array(names)[np.argmin(np.array(D), 0)]
+
+
+def _turn_onto(u, v):
+    """The least rotation taking direction u onto direction v (Rodrigues)."""
+    u = u / np.linalg.norm(u)
+    v = v / np.linalg.norm(v)
+    c = float(u @ v)
+    ax = np.cross(u, v)
+    s_ = np.linalg.norm(ax)
+    if s_ < 1e-9:
+        return np.eye(3)
+    k = ax / s_
+    K = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+    return np.eye(3) + s_ * K + (1 - c) * K @ K
 
 
 def write_piece(name, v, uv, t, colour, body, out):
@@ -167,6 +194,33 @@ def main():
         dv += w[:, None] * (dv @ Rh.T + th - dv)
         print("twin_pieces: %s sleeve turned %.1f deg, moved %.0f mm at the hand" % (
             lr, np.degrees(np.arccos(np.clip((np.trace(Rh) - 1) / 2, -1, 1))), 1850 * np.linalg.norm(dh.mean(0) @ Rh.T + th - dh.mean(0))))
+    if a.get("--split") == "layers":
+        # His sleeves laid on the body's arm bones, joint to joint (roadmap 1.3): turned by his
+        # hands alone, the coatless twin's upper sleeves sat off his arms, and his arm came
+        # through the inside of his shirt's sleeve however thin it was drawn. Each part of the
+        # sleeve turned and moved from the twin's joints onto the body's (upper: shoulder to
+        # elbow, about the shoulder; lower: elbow to wrist, about the elbow), blended across his
+        # elbow and eased into his shoulder.
+        jd = FT.find_joints(dv, dtris)
+        bone_d = bone_of(dv, jd)
+        moved = dv.copy()
+        for lr in "RL":
+            shd, eld, wrd = jd[lr + "_Upperarm"], jd[lr + "_Forearm"], jd[lr + "_Hand"]
+            shb, elb, wrb = jb[lr + "_Upperarm"], jb[lr + "_Forearm"], jb[lr + "_Hand"]
+            R1, R2 = _turn_onto(eld - shd, elb - shb), _turn_onto(wrd - eld, wrb - elb)
+            arm = np.isin(bone_d, [lr + "_upper", lr + "_fore"])
+            up_ax = (eld - shd) / np.linalg.norm(eld - shd)
+            t_up = (dv - shd) @ up_ax / np.linalg.norm(eld - shd)
+            p_up = shb + (dv - shd) @ R1.T
+            p_lo = elb + (dv - eld) @ R2.T
+            # Upper or lower by where along the arm (blended over ELBOW_BLEND of the upper arm).
+            w_lo = np.clip((t_up - 1.0) / ELBOW_BLEND + 0.5, 0, 1)
+            target = p_up * (1 - w_lo)[:, None] + p_lo * w_lo[:, None]
+            w_in = np.clip(t_up / SHOULDER_EASE, 0, 1)      # nothing at his shoulder, all of it beyond
+            k = (arm * w_in)[:, None]
+            moved = moved * (1 - k) + target * k
+        print("twin_pieces: sleeves laid on the body's arm bones (shift up to %.0f mm)" % (1850 * np.abs(moved - dv).max()))
+        dv = moved
     d, j = tree.query(dv)
     print("twin_pieces: twin laid on the body: scale %.3f, turn %.1f deg, median gap %.1f mm of a 1.85 m man"
           % (s, np.degrees(np.arccos(np.clip((np.trace(R) - 1) / 2, -1, 1))), np.median(d) * 1850))
@@ -228,7 +282,64 @@ def main():
     legs = cloth & (cy < BELT) & ((share > 0.5) | (cy < BOOT_TOP))
     if os.environ.get("TWIN_DEBUG"):
         np.savez(os.path.join(ROOT, "build", "twin_debug.npz"), dv=dv, dtris=dtris, cloth=cloth, skin=skin, hand=hand, cy=cy, legs=legs)
-    for name, sel in (("coat", cloth & ~legs), ("trousers", legs)):
+    if a.get("--split", "coat") == "layers":
+        # His twin without a coat (roadmap 1.3): shirt (with its tie), vest, trousers (with
+        # boots), each by its colour (from Sean's coatless bold cowboy: the shirt cream, L 55+,
+        # chroma under 20; the vest brown, chroma 10-30, L under 40; the trousers and the tie
+        # near black, chroma under 10, told apart by height; boots by height), then each
+        # triangle the commonest class within LAYER_NEAR (a stray lit or shadowed patch, and
+        # what's left of his hands' skin, go with what's round them).
+        L, C = tl[:, 0], np.hypot(tl[:, 1], tl[:, 2])
+        cls = np.full(len(dtris), -1)
+        SHIRT, VEST, TROUSERS = 0, 1, 2
+        cls[(L >= 40) & (C < 20)] = SHIRT
+        cls[(L < 40) & (C >= 10)] = VEST
+        cls[(L < 40) & (C < 10)] = TROUSERS
+        cls[(cls == TROUSERS) & (cy > TIE_LOW)] = SHIRT        # his tie, at his throat
+        cls[(cls == VEST) & (cy < VEST_LOW)] = TROUSERS        # brown below his waist: his boots
+        cls[cy < BOOT_TOP] = TROUSERS
+        for _ in range(2):
+            near = ctree.query_ball_point(cent, LAYER_NEAR)
+            votes = np.array([np.bincount(cls[n][(cls[n] >= 0) & cloth[n]], minlength=3) for n in near])
+            cls = np.where(votes.sum(1) > 0, votes.argmax(1), cls)
+        if os.environ.get("TWIN_DEBUG"):
+            np.savez(os.path.join(ROOT, "build", "twin_layers.npz"), dv=dv, dtris=dtris, cloth=cloth, cls=cls, cy=cy)
+        for name, k in (("shirt", SHIRT), ("vest", VEST), ("trousers", TROUSERS)):
+            write_piece(name, dv, duv, dtris[cloth & (cls == k)], dcol, body, out)
+        return
+    coat = cloth & ~legs
+    if a.get("--without"):
+        # The coat alone (roadmap 1.3): what of it lies on his coatless twin's shirt, vest or
+        # trousers (`--without=<out>` of a --split=layers cut, laid on the same body), in their
+        # colour or not in the coat's, is them seen through its open front: dropped, so his own
+        # vest and trousers show.
+        under_v, under_c = [], []
+        for name in ("shirt", "vest", "trousers"):
+            upos, _un, uuv, utris, _uj, ucol = FT.load_glb(os.path.join(TRIPO, "%s_%s.glb" % (a["--without"], name)))
+            # The pieces are stored in his Tripo frame already (glTF y-up as written).
+            uc = upos[utris].mean(1)
+            under_v.append(uc)
+            under_c.append(_lab(RP.sample_tex(np.asarray(ucol).astype(float) / 255, uuv[utris].mean(1))))
+        under_v, under_c = np.vstack(under_v), np.vstack(under_c)
+        dist, k = cKDTree(under_v).query(cent)
+        same = np.linalg.norm(tl - under_c[k], axis=1) < WITHOUT_DE
+        # Or not the coat's own wool (its colour across his back, above his belt, where nothing
+        # shows through): the two twins paint his vest in different browns.
+        back = coat & (cent[:, 0] < np.median(cent[coat, 0])) & (cy > BELT) & (cy < CHIN - 0.1)
+        wool = np.median(tl[back], 0)
+        not_wool = np.linalg.norm(tl - wool, axis=1) > WOOL_DE
+        # Only his front shows through (the coat is open there); its back lies on his vest's back
+        # in much the same brown and is the coat.
+        front = cent[:, 0] > np.median(cent[coat, 0])
+        shown = coat & front & (dist < WITHOUT_NEAR) & (not_wool | (same & (np.linalg.norm(tl - under_c[k], axis=1) < WITHOUT_DE / 2)))
+        # Each triangle as most of those within LAYER_NEAR (no speckle along the lapels).
+        near = ctree.query_ball_point(cent, LAYER_NEAR)
+        shown = coat & np.array([shown[n].mean() > 0.5 for n in near])
+        print("twin_pieces: %d of %d coat triangles are his vest and shirt seen through it: dropped" % (shown.sum(), coat.sum()))
+        coat = coat & ~shown
+    for name, sel in (("coat", coat), ("trousers", legs)):
+        if a.get("--only") and name not in a["--only"].split(","):
+            continue
         write_piece(name, dv, duv, dtris[sel], dcol, body, out)
 
 
