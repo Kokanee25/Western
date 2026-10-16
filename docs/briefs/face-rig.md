@@ -1,6 +1,7 @@
 # Brief: a talking face for the Rodin men (the bold cowboy first)
 
-Sean, 2026-10-16. Characters lane. Five steps; **step 1 done, the rest wait on Sean's yes.**
+Sean, 2026-10-16. Characters lane. Five steps; **1, 2 and 4 (sheet) done; 3 and 4 (video) built and tested on a
+stand-in take, waiting on Sean's Live Link Face take.** How it's laid out: `docs/LAYOUT.md` "The talking face".
 
 1. **Audit** (done): `docs/style_test/face_rig_audit.png`. His in-game head (`bold_cowboy_layered`,
    12k triangles) is one closed painted skin: no lip line (MediaPipe's inner upper and lower lip
@@ -35,3 +36,46 @@ Sean, 2026-10-16. Characters lane. Five steps; **step 1 done, the rest wait on S
 
 Judged by Sean: the line reads as his speech at 2 m; blinks and brows read at 5 m; his paint holds.
 Cost so far $0 (no paid calls). Step 2 is ~a day of work.
+
+## Where it stands (2026-10-16)
+
+- **2. Done:** `bold_cowboy_talking` (`assets/people/bold_cowboy_talking.*`; the layered man
+  untouched). MakeHuman's face grafted on (5,609 triangles; 990 of his cut out; MakeHuman's mouth
+  already has its inside, its throat capped dark), his paint carried over, 15 expressions as
+  blend shapes (`talking_face.py` `EXPRESSIONS`). In the game the shapes now survive the cut into
+  pieces (`PeopleBodies._load`, `BodyMesh.split_pieces`; test `tests/test_face_rig.gd`).
+- **4. The sheet:** `docs/style_test/bold_cowboy_talking_expressions.jpg`, drawn by the game's own
+  materials (`face_lab.gd`), with rows at game size (1080p, 75°) at 2 m and 5 m.
+- **3. The take:** `arkit_take.py` + `take_video.sh` run end to end on a stand-in (`synth_take.py`:
+  espeak-ng's voice, its phonemes as ARKit values, written as Live Link Face writes them, the
+  .mov's sound lined up by timecode). Waiting on Sean's take for the real test.
+
+What worked: MakeHuman's pose units drive his face well once its teeth are set back and the pull
+onto his surface is kept off the lids; his moustache rides his upper lip; his paint holds (the
+lids painted from outside his painted eye). At 2 m jaw, ee, oo, brows, scowl, smile and blinks
+read; at 5 m only jaw, brows and blinks do (about 1-2 pixels of mouth).
+
+What didn't, or is rough: the shapes under the moustache (fv, mbp, the smile's corners) barely
+show on him; the teeth are MakeHuman's plain helpers, painted flat; no eye turns (his eyes look
+ahead; ARKit's eyeLook* are dropped); MakeHuman's lid can crease a little when it shuts; his head's
+turn in the lab shows the layered man's neck ring a little.
+
+## What RECIPE.md would need (the characters session's change, with Sean's OK)
+
+A step after "Into the game" (and for a layered man, after LAYERED.md's step 6):
+
+1. Once per workspace: `~/bpyenv/bin/python tools/faces/mh_units.py --fetch` (needs
+   `fetch_makehuman.py` first; `apt-get install libegl1` for MediaPipe).
+2. `~/bpyenv/bin/python tools/faces/talking_face.py --man=<man> --out=<man>` (in place, or to a
+   copy while he's judged) → his glb with the face and expressions, `<man>_head.png` doubled in
+   width (his + the face's), `facerig` in his report. Needs his kept bust
+   (`assets/people/heads/<head>_mesh.npz`, its MediaPipe `pts`) and his game glb's `body_head`.
+3. `godot --headless --import`; `tests/test_face_rig.gd` (pointed at him); the sheet:
+   `tools/faces/lab_run.sh LOG --id=<man> --out=DIR --turns=0,-40 --fov=12 --dist=1.4 --size=600x600`
+   then `python3 tools/faces/face_sheet.py --out=<man> --lab=DIR`.
+4. Check on the sheet: blinks shut clean, nothing pokes through the lips (`teeth_back_mm` in the
+   report), the mouth's inside dark, his paint unbroken round the eyes and mouth.
+Numbers a man may need changed: `EYE_FADE`, `PULL_OUT` (a man with a beard or bigger brows),
+`TEETH_BEHIND`. A clean-shaven man will show the lip shapes far better than the bold cowboy.
+Not yet in the game: something that drives the shapes (blinks, speech) on people in town; that's
+gameplay's call (a FacePlayer on HumanBody, its dials in a resource).

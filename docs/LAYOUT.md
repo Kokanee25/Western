@@ -811,6 +811,24 @@ a few views renders them as the full run does.
   `assets/people/<id>_portrait.glb`. `portrait_sheet.py` makes Sean's sheet (style | plain | game,
   saloon, crops) from `people_lineup.gd --head [--hatless]` and `screenshots.gd --model=`.
 
+### The talking face (tools/faces; brief `docs/briefs/face-rig.md`)
+
+A Rodin man's head given lips that part, a mouth, teeth, tongue, eyelids and 15 expressions as
+blend shapes, all from MakeHuman's CC0 data. `mh_units.py`: MakeHuman's 59 face pose units
+(`face-poseunits.bvh` on its `default` skeleton, `default_weights.mhw`) posed by plain skinning
+about the base mesh's own joints → `build/faces/mh_units.npz`. `talking_face.py --man= --out=`:
+MediaPipe's landmarks on both faces, a thin-plate warp, the skin pulled onto his (moustache and
+brows come along; not near the eyes, `EYE_FADE`), his face cut out and MakeHuman's stitched in,
+his paint copied texel by texel (lids from outside his painted eye), teeth set back behind his
+lips; `EXPRESSIONS` (units and amounts) → `assets/people/<out>.glb` (one head mesh, sparse
+morph targets), `<out>_head.png` (his + the face's), `<out>.json` (`facerig`, `textures_from`).
+In the game the shapes ride `PeopleBodies._load` → `BodyMesh.split_pieces` onto `Head_head`.
+`face_lab.gd` (via `lab_run.sh`): him as the game builds him; `--mode=sheet` each expression,
+`--mode=take` a take frame by frame; `face_sheet.py` the sheet. `arkit_take.py`: a Live Link
+Face CSV (+ .mov's sound, lined up by its timecode) → `take.json` by `MAP` (52 → 15).
+`take_video.sh`: close and game-size side by side, with sound. `synth_take.py`: a stand-in take
+spoken by espeak-ng (for testing without one).
+
 ## Training the image model on our style (tools/style)
 
 - **Training the image model on our style** (`tools/style/train_style.py`, People workflow input
