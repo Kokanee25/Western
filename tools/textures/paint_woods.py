@@ -41,12 +41,36 @@ ASK = (
     "Repaint it in the same painted hand as the second image, the game's character: the soft, "
     "broad, hand-painted mottling of his vest, trousers and boots, a few painted tones to each "
     "board, gentle grain strokes along its length, knots and worn edges painted, not photographed; "
-    "no fine photographic noise or texture. Keep every board exactly where it is, the same height "
-    "and the same colour and value as in the first image, every strip straight and horizontal "
+    "no fine photographic noise or texture.{wear} Keep every board exactly where it is, the same height "
+    "and the same base colour as in the first image, every strip straight and horizontal "
     "across the full width. Flat, even light: no shadows, no highlights, no perspective. Only the "
     "boards: no text, no frame, no border."
 )
 BARE = " The bottom strip is the same wood with its paint worn off: bare weathered wood."
+# How used and dirty each wood is (Sean, 2026-10-16: "make the floor boards look more weathered and
+# damaged and dirty ... this would all be dirty and stained"): painted into the boards themselves.
+WEAR = {
+    "floor": "Heavily used and dirty, a frontier boardwalk and saloon floor: dark grime ground into "
+             "the grain and the cracks between boards, tobacco-juice and whisky stains, dark rings "
+             "and old spills, muddy boot scuffs tracked in from the street, dust in the cracks, split "
+             "and broken board ends, gouges, rusted nail heads with dark rust bleeding into the wood, "
+             "paler worn paths where boots pass most.",
+    "store_boards": "Old and dirty: the paint chalky, flaking and blistered, streaks of grime and rust "
+                    "running down from the nails, dust and mud splashed up the lowest boards, fly specks, "
+                    "hand-greased smudges, cracks with dirt in them.",
+    "saloon_red": "Old and dirty: the red paint faded, chalky and flaking to grey wood in patches, grime "
+                  "in the grain and along the board edges, rust streaks below the nails, dust and mud "
+                  "splashed low, water stains.",
+    "weathered_pine": "Old and dirty: silvered, cracked and split, dark water stains and mildew, grime "
+                      "in every crack, rust bleeding from the nails, dust and mud on the lower boards.",
+    "timber": "Old posts and beams, dirty and used: dark hand grime where people lean and hitch horses, "
+              "deep checks and splits with dirt in them, rope and bridle wear, mud splashed at the foot, "
+              "rust stains from iron.",
+    "dark_trim": "Old and dirty: the dark paint scuffed, chipped and worn through to wood at the edges, "
+                 "greasy hand marks, dust in the corners.",
+    "fascia": "Old and dirty: mud and dust splashed up from the street, dark water stains, cracks and "
+              "split ends, rust from the nails.",
+}
 
 
 def strips(wood, info):
@@ -81,7 +105,8 @@ def paint(wood, info, spec, key):
     man = Image.open(MAN).convert("RGB")
     man.thumbnail((768, 768))  # the style, not the detail: a smaller request (a 1024 one dropped mid-reply)
     bare = BARE if names[-1].endswith("_bare.png") else ""
-    img = pt.ask(ASK.format(n=len(names), what=what_of(spec, wood), bare=bare), [send, man],
+    wear = (" " + WEAR[wood]) if wood in WEAR else ""
+    img = pt.ask(ASK.format(n=len(names), what=what_of(spec, wood), bare=bare, wear=wear), [send, man],
                  {"aspect_ratio": name}, "woods_" + wood, key)
     img.convert("RGB").save(RAW % wood, "JPEG", quality=94)
     print("painted: woods_%s %s (%s)" % (wood, img.size, name))
