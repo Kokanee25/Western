@@ -305,18 +305,15 @@ frozen until Sean names one.
 `painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
-  cowboy** `bold_cowboy_layered` with his skinned hands (#125, #129; recipe
-  `tools/characters/LAYERED.md`; bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
-- Not merged (branch): roadmap 1.3, the cowboy in layers: shirt+tie, vest, trousers from the
-  coatless twin (`bold_cowboy_vest_dressed`, ~$10.06 of $15 spent), the coat over them; two outfits
-  `bold_cowboy_layered` (coat) and `bold_cowboy_vest_layered`; clothes smoothed, the coat toned to
-  his painting; the clothes' defects fixed by cause (2026-10-16); sheets
-  `docs/style_test/layered-2026-10-15/d5_no_coat_fixed.png`, `d6_coat_fixed.png`,
-  `d4_coat_silhouette.png`; waiting on Sean's OK to merge. Also not
-  merged: his own hat (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: Sean's OK to merge 1.3; the coat's wing with hands up (sleeve fused to its side); seated
-  crumpling; then the layered man in the painted look. Trap: after a build, `godot --headless
-  --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx` to look at a hand).
+  cowboy** (roadmap 1.3, merged 2026-10-16 as a safe copy, still being fixed; recipe
+  `tools/characters/LAYERED.md`): shirt+tie, vest and trousers from the coatless twin
+  (`bold_cowboy_vest_dressed`), the coat over them; outfits `bold_cowboy_layered` (coat) and
+  `bold_cowboy_vest_layered`; sheets `docs/style_test/layered-2026-10-15/d4`-`d7`. ~$10.06 of $15
+  spent. Not merged: his own hat (`look/bold-cowboy-own-hat-2026-10-14`).
+- Next (Sean, 2026-10-16): the coatless man's collar (his twin's is ragged; the built one reads as
+  a neck brace: give him the coated twin's collar and tie knot) and his barrel chest; then the
+  coat's wing with hands up, seated crumpling, the painted look. Trap: after a build,
+  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx`).
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
