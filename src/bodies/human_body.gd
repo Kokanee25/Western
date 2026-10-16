@@ -1079,6 +1079,15 @@ func drag_toward(holder: Vector3, delta: float) -> void:
 			want.y = chest.linear_velocity.y if to.y < 0.0 else minf(want.y, 0.8)
 			chest.linear_velocity = chest.linear_velocity.lerp(want, clampf(delta * 12.0, 0.0, 1.0))
 			chest.sleeping = false
+			# Hauled by the collar his whole trunk comes along and his legs trail: towing the chest
+			# alone, his legs and hips (half of him, weighed as a man's) held it where it was.
+			var flat := Vector3(want.x, 0.0, want.z)
+			for sid: StringName in [&"abdomen", &"pelvis"]:
+				var rb := parts.get(sid) as RigidBody3D
+				if rb:
+					var v := rb.linear_velocity
+					rb.linear_velocity = v.lerp(Vector3(flat.x, v.y, flat.z), clampf(delta * 12.0, 0.0, 1.0))
+					rb.sleeping = false
 		return
 	# Prone: he lies from his feet (here) forward to his head, ~1.75 m.
 	var to := holder - global_position
