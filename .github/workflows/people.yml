@@ -373,6 +373,8 @@ jobs:
           case "$WHICH" in
             all) ;;
             saloon|street) args="--for=$WHICH" ;;
+            # man:<ids>: repainted in the layered cowboy's hand (art, docs/briefs/match-the-man.md).
+            man:*) args="--only=${WHICH#man:} --style=man --repaint" ;;
             *) args="--only=$WHICH" ;;
           esac
           if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi
