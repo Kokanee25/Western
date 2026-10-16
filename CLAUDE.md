@@ -310,7 +310,9 @@ frozen until Sean names one.
 - Not merged (branch): roadmap 1.3, the cowboy in layers: shirt+tie, vest, trousers from the
   coatless twin (`bold_cowboy_vest_dressed`, ~$10.06 of $15 spent), the coat over them; two outfits
   `bold_cowboy_layered` (coat) and `bold_cowboy_vest_layered`; clothes smoothed, the coat toned to
-  his painting; sheets `docs/style_test/layered-2026-10-15/d2_layers.png`, `d3_cloth.png`. Also not
+  his painting; the clothes' defects fixed by cause (2026-10-16); sheets
+  `docs/style_test/layered-2026-10-15/d5_no_coat_fixed.png`, `d6_coat_fixed.png`,
+  `d4_coat_silhouette.png`; waiting on Sean's OK to merge. Also not
   merged: his own hat (`look/bold-cowboy-own-hat-2026-10-14`).
 - Next: Sean's OK to merge 1.3; the coat's wing with hands up (sleeve fused to its side); seated
   crumpling; then the layered man in the painted look. Trap: after a build, `godot --headless
