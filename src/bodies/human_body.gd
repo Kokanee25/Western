@@ -21,6 +21,9 @@ const POSES := {
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
 	&"hands_up": {&"upper_arm_r": Vector3(0, 0, 150), &"forearm_r": Vector3(0, 0, 25),
 			&"upper_arm_l": Vector3(0, 0, -150), &"forearm_l": Vector3(0, 0, -25), &"head": Vector3(8, 0, 0)},
+	# Under arrest: hands bound behind his back, head down a little.
+	&"hands_bound": {&"upper_arm_r": Vector3(-35, 0, 0), &"forearm_r": Vector3(40, 40, 0),
+			&"upper_arm_l": Vector3(-35, 0, 0), &"forearm_l": Vector3(40, -40, 0), &"head": Vector3(-6, 0, 0)},
 	&"clutch": {&"upper_arm_r": Vector3(18, 0, -16), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(18, 0, 16), &"forearm_l": Vector3(100, 0, 0),
 			&"chest": Vector3(-18, 0, 0), &"head": Vector3(-10, 0, 0)},
@@ -1250,7 +1253,7 @@ func _gait_overlay(delta: float) -> Dictionary:
 			out[&"thigh_l"] = Vector3(-s * amp_t * k_l, 0, 0)
 			out[&"shin_r"] = Vector3(-maxf(c, 0.0) * amp_s * k_r, 0, 0)
 			out[&"shin_l"] = Vector3(-maxf(-c, 0.0) * amp_s * k_l, 0, 0)
-			if not aiming:
+			if not aiming and pose != &"hands_bound":
 				out[&"upper_arm_r"] = Vector3(-s * amp_a, 0, 0)
 				out[&"upper_arm_l"] = Vector3(s * amp_a, 0, 0)
 			if run:

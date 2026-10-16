@@ -704,6 +704,8 @@ func _people() -> Array:
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
 			e["tactic"] = OutlawBrain.Tactic.keys()[brain.tactic].to_lower()
+			if brain.arrested_by != null:
+				e["arrested"] = "following" if brain.follow else "waiting"
 			if brain.relations:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
 		elif brain is CivilianBrain:

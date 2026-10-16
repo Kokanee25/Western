@@ -291,13 +291,58 @@ func _physics_process(delta: float) -> void:
 	Prof.stop(&"player", t)
 
 
+## Arm's reach of a man who's given himself up (or one you've arrested), in front of you: the
+## nearest. Shouting then is "hands behind your back" (and after it, "come on" or "wait here").
+const ARREST_REACH := 3.0
+
+
+func _given_up_in_reach() -> HumanBody:
+	var cam := player.camera
+	var fwd := -cam.global_transform.basis.z
+	fwd.y = 0.0
+	var best: HumanBody = null
+	var best_d := ARREST_REACH
+	for p: Node in get_tree().get_nodes_in_group(&"people"):
+		var h := p as HumanBody
+		if h == null or not h.physiology.is_conscious():
+			continue
+		var b := h.get_node_or_null(^"Brain") as OutlawBrain
+		if b == null or b.mood != OutlawBrain.Mood.SURRENDERED:
+			continue
+		# Where he is: his chest (a man lying down has fallen away from where he stood).
+		var chest := h.parts.get(&"chest") as Node3D
+		var to := (chest.global_position if chest else h.global_position) - player.global_position
+		to.y = 0.0
+		if to.length() < best_d and (to.length() < 0.6 or rad_to_deg(fwd.angle_to(to)) < 50.0):
+			best = h
+			best_d = to.length()
+	return best
+
+
+func _arrest(h: HumanBody) -> void:
+	var b := h.get_node(^"Brain") as OutlawBrain
+	var again := b.arrested_by == player
+	if not b.arrest(player):
+		return
+	if not again:
+		say("\"Hands behind your back.\"", 2.5)
+	elif b.follow:
+		say("\"Come on. Walk.\"", 2.0)
+	else:
+		say("\"Wait here.\"", 2.0)
+	Events.deed.emit(player, &"arrest", h, player.camera.global_position)
+
+
 func _physics_step(delta: float) -> void:
 	if _day_cycle == null and is_inside_tree():
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale: float = _day_cycle.time_scale if _day_cycle != null else 1.0
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
-		if w != null and w.armed and w.selected and w.drawn:
+		var given_up := _given_up_in_reach()
+		if given_up != null:
+			_arrest(given_up)
+		elif w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
 		else:
