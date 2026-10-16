@@ -98,14 +98,14 @@ static var lab_set := "lab"
 ## as before (drawn/, the factory).
 const WOODS_SET := "woods"
 static var woods := true
-## The squares the game's woods are drawn in, texels a side: 4 of C's 128 a metre, 32 a metre, the
-## portrait man's face's and coat's square (36-48 a metre; roadmap 1.4, 2026-10-15, "surfaces to the
-## man": C's grain alone, a texel 0.8 cm, read as fine smooth 3D beside his squares). The textures
-## are drawn in them (woods_grain.json `squares`, grain_woods.py squared); texel_grid square_texels
-## lights each as one and reads it whole. 1 here and no `squares` there: C's texels, as chosen.
-const WOODS_SQUARE := 4.0
-## Their end grain's (256 a metre, so 128 a metre: its rings are finer than the long faces' squares).
-const WOODS_END_SQUARE := 2.0
+## The squares the game's woods are drawn in, texels a side (texel_grid square_texels): 1, C's own
+## texels, 128 a metre, smooth. They were 4 (32 a metre, the portrait man's squares; roadmap 1.4,
+## 2026-10-15) until Sean chose the painted-illustration look (DESIGN.md §4, 2026-10-16: smooth
+## painted wood beside the painted men). Over 1 needs the textures drawn in them too
+## (woods_grain.json `squares`, grain_woods.py squared).
+const WOODS_SQUARE := 1.0
+## Their end grain's (256 a metre).
+const WOODS_END_SQUARE := 1.0
 ## The same for the drawn textures laid finer than DRAWN_TEXELS (DRAWN_DENSITY), none: the table's top
 ## in 4s read as a checkerboard at four times the painting's squares (the blind critic, 2026-10-15_r2:
 ## the saloon painting draws it finer than the man, about 5 px a square).
