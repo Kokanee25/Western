@@ -163,6 +163,10 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## Decisions Sean can change
 
+- The look is painted illustration (Sean, 2026-10-16; DESIGN.md §4): smooth painted surfaces,
+  the squares retired surface by surface (road done, wood next, the men's clothes in 1.3). Gate A
+  (1.5) is judged on it, its street target brought into line.
+
 - The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
   an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and
   day 1; the store robbery is the second act (5.4). All of it may change.

@@ -293,6 +293,9 @@ frozen until Sean names one.
   kill match the command itself; a data texture with an alpha channel needs
   `process/fix_alpha_border=false` in its import; noon views wash out (exposure, not the road).
 - Waiting on Sean: his eye on the road sheets.
+- For characters (Sean, 2026-10-16: the look is painted illustration, DESIGN.md §4): the painterly
+  cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
+  painted smooth like his face, as part of 1.3; art smooths the wood.
 
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`):
