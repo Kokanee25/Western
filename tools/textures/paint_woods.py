@@ -15,6 +15,7 @@ same strips; each strip's two ends crossfaded so it still tiles along its length
 preview <wood>.png (its first four boards) is rewritten. End grain (<wood>_end.png) is left as it is.
 Runs on GitHub Actions (People workflow, textures = woods); each call's cost printed.
 """
+import http.client
 import json
 import os
 import sys
@@ -78,7 +79,7 @@ def paint(wood, info, spec, key):
     name, r = aspect_for(stack.width, stack.height)
     send = stack.resize((1024, int(round(1024 / r))), Image.LANCZOS)
     man = Image.open(MAN).convert("RGB")
-    man.thumbnail((1024, 1024))
+    man.thumbnail((768, 768))  # the style, not the detail: a smaller request (a 1024 one dropped mid-reply)
     bare = BARE if names[-1].endswith("_bare.png") else ""
     img = pt.ask(ASK.format(n=len(names), what=what_of(spec, wood), bare=bare), [send, man],
                  {"aspect_ratio": name}, "woods_" + wood, key)
@@ -143,7 +144,7 @@ def main():
                 try:
                     paint(wood, info, spec, key)
                     break
-                except (RuntimeError, OSError, KeyError, ValueError) as e:
+                except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
                     print("failed (try %d):" % (attempt + 1), e)
             else:
                 failed.append(wood)
