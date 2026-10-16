@@ -59,11 +59,11 @@ from scipy.ndimage import gaussian_filter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JUDGE_DIR = os.path.join(ROOT, "docs", "screenshots", "judge")
 VIEWS = {
-    "saloon": ("shot_match_saloon", "docs/concept/saloon-blocks.png"),
-    "street": ("shot_match_street", "docs/concept/street-golden-hour.png"),
+    "saloon": ("shot_match_saloon", "docs/concept/saloon-painted.png"),
+    "street": ("shot_match_street", "docs/concept/street-golden-hour-painted.png"),
     # The fire painting (docs/briefs/fire-look.md): judged with --only=fire, not by default, so the
     # two shots' rounds stay comparable.
-    "fire": ("livery_fire_dusk", "docs/concept/livery-fire.png"),
+    "fire": ("livery_fire_dusk", "docs/concept/livery-fire-painted.png"),
 }
 DEFAULT_VIEWS = ["saloon", "street"]
 W, H = 1280, 720
