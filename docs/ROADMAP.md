@@ -101,8 +101,9 @@ it would.
 | 3.3 | **Hands on the world** | Pick up, carry, drop, throw, open, close: doors, bottles, chairs, a hat off the floor. It feels natural with mouse and controller. | gameplay |
 | 3.4 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
 | 3.5 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
-| 3.6 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
-| 3.7 | **Gate C** | The saloon fight played five ways (they back down; you shoot first; they surrender; one flees; the room catches fire) by the playtest agent, then Sean. All five hold up. | Sean |
+| 3.6 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
+| 3.7 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
+| 3.8 | **Gate C** | The saloon fight played five ways (they back down; you shoot first; they surrender; one flees; the room catches fire), and a man shoved into a table, by the playtest agent, then Sean. All five hold up. | Sean |
 
 ## Phase 4: Consequence
 
@@ -113,12 +114,12 @@ The first complete scenario: the gang leaning on the storekeeper. It's the close
 | # | Step | Done when | Who |
 |---|---|---|---|
 | 4.1 | **Money** | M4 step 5: a purse of coins, the barkeep's prices and tabs, "a round on me". | gameplay |
-| 4.2 | **The store scenario** | Brody's gang and the storekeeper, end to end, with every way out working: pay them off, talk them down, threaten, fight, arrest. | gameplay |
-| 4.3 | **Talking** | M4 steps 7 and 9 for this scenario: written lines for its cast, voiced (ElevenLabs, budget stated first); what you type or say read into a deed. | gameplay, characters (voices) |
+| 4.2 | **Acts, and the first: the saloon table** | A way to write little acts as data (who goes where, says what, beat by beat, and what hands back to the systems when you interfere: DESIGN.md §5 "Story shape"), and the prologue written in it: you at the card table, the stranger sits down and talks, a shooting at the bar that plays out however you handle it. Sitting at a table, for you and for people, comes with it. | gameplay |
+| 4.3 | **Talking** | M4 steps 7 and 9 for the prologue: written lines for its cast, voiced (ElevenLabs, budget stated first); what you type or say read into a deed. | gameplay, characters (voices) |
 | 4.4 | **Witnesses and memory** | M4 step 8: who saw what, who heard about it, and it changes how they treat you. | gameplay |
 | 4.5 | **The jail and the doctor** | An arrested man stays jailed; the wounded are treated; you sleep in a bed and wake at the doctor's if you went down. | gameplay |
 | 4.6 | **Saving** | The outcome survives sleeping, quitting and loading. | gameplay |
-| 4.7 | **Gate D** | 20–30 minutes from riding in to the next morning, played blind by the playtest agent (report in `docs/playtests/`), then by Sean. | Sean |
+| 4.7 | **Gate D** | The prologue and on into the next morning, 20–30 minutes, played blind by the playtest agent (report in `docs/playtests/`), then by Sean. | Sean |
 
 ## Phase 5: The story's door
 
@@ -129,7 +130,7 @@ Lanes: gameplay, characters. **Gate E: content complete.**
 | 5.1 | **The sheriff opening** | M5: you find him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out is evidence. | gameplay, characters |
 | 5.2 | **A day for everyone** | The block's dozen people work, eat, drink and sleep on routines, and break off from them when something happens. | gameplay |
 | 5.3 | **The law answers** | The sheriff (or his deputy), the gang and the town respond to what they witnessed, the same day and the next. | gameplay |
-| 5.4 | **A second reason to fight** | M4 step 6: the shooting match or the bounty, whichever Sean picks. | gameplay |
+| 5.4 | **A second act** | The store robbery (Brody's gang and the storekeeper, every way out working: pay, talk, threaten, fight, arrest), or whichever act day 2 needs. | gameplay |
 | 5.5 | **The next morning holds** | Three different playthroughs, each followed into the next day: what changed makes sense every time. | gameplay |
 | 5.6 | **Gate E** | Every scenario and ending the demo has is in and playable start to finish. | Sean |
 
@@ -162,8 +163,9 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## Decisions Sean can change
 
-- The first scenario is the store robbery (closest to built). The sheriff opening, the story's
-  real start, comes second (5.1). Swapping them is a reorder of Phases 4 and 5.
+- The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
+  an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and
+  day 1; the store robbery is the second act (5.4). All of it may change.
 - The block is five buildings. Anything more waits until after Gate B.
 - No new systems before Gate D unless a step needs one. DESIGN.md §11's backlog and
   `docs/prompts/` stay frozen until a step names one.
