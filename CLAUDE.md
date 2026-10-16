@@ -307,10 +307,14 @@ frozen until Sean names one.
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
   cowboy** `bold_cowboy_layered` with his skinned hands (#125, #129; recipe
   `tools/characters/LAYERED.md`; bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
-- Not merged: the bold cowboy's own hat (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: the layered man in the painted look (head, hands, coat, trousers) so art's shots can use
-  him painted; the coat's colour; vest and shirt as their own layer. Trap: after a build,
-  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+- Not merged: the bold cowboy's own hat (`look/bold-cowboy-own-hat-2026-10-14`); roadmap 1.3's
+  coatless twin `bold_cowboy_vest_dressed` (Rodin run 81, $1.60; ~$10.06 of $15 spent; sheet
+  `docs/style_test/layered-2026-10-15/d1_rodin_vest.png`).
+- Next: 1.3 by the plan in `docs/briefs/layered-people.md` "Roadmap 1.3": shirt+tie, vest,
+  trousers cut from the coatless twin, the coat alone, layered in the fit; the pose check; his
+  clothes painted smooth; then the layered man in the painted look. Trap: after a build,
+  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx` to
+  look at a hand).
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
