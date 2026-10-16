@@ -103,6 +103,10 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	out["paint_squares"] = paint_squares
 	# His skin tone, measured from his painted face, so body and painted sides match it.
 	var info := report(model)
+	# His skinned hands' finger bones (tools/blender/fit_tripo.py skinned_hands): each one's rest.
+	if info.has("finger_bones"):
+		out["finger_bones"] = info.finger_bones
+		out["finger_bone_names"] = finger_bone_names()
 	if info.has("skin_tone"):
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
@@ -137,6 +141,13 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	var index := {}
 	for i in order.size():
 		index[order[i]] = i
+	# A skinned hand's finger bones come after the anatomy's (HumanBody adds them to its skeleton
+	# in this order) and are cut into their hand's piece.
+	var piece_of := {}
+	var names := finger_bone_names()
+	for k in names.size():
+		index[StringName(names[k])] = order.size() + k
+		piece_of[order.size() + k] = index.get(StringName("hand_" + String(names[k]).split("_")[2]), 0)
 	var centres := {}
 	for i in order.size():
 		centres[i] = anatomy.segment_center(order[i])
@@ -191,11 +202,22 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 					bones[v * 4 + k] = pairs[k][0]
 					weights[v * 4 + k] = float(pairs[k][1]) / total
 		var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres)
+		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of)
 		if shape == "head":
 			_hat_fits[model] = hat_fit(verts)
 	root.free()
 	_cache[model] = out
+	return out
+
+
+## A skinned hand's finger bones, in the order the skeleton has them after the anatomy's: right
+## hand then left, thumb to little finger, knuckle out (tools/blender/mh_hand.py finger_bone_names).
+static func finger_bone_names() -> Array:
+	var out := []
+	for side in ["r", "l"]:
+		for f in ["thumb", "index", "middle", "ring", "little"]:
+			for b in 3:
+				out.append("finger_%s_%s_%d" % [f, side, b])
 	return out
 
 

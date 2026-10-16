@@ -24,19 +24,28 @@ import os
 import numpy as np
 
 import make_people as mp
+from fingers import along_basis  # HumanBody._along: the finger bones' frame
 
 SHARES = (0.42, 0.33, 0.25)
 TIP = 0.6          # past joint 4 (the last bone's end) by this much of that bone: the fingertip's points
-WRIST_OVERLAP = 0.012  # metres up his forearm: the new palm tucks into his wrist, no gap
+WRIST_OVERLAP = 0.025  # metres up his forearm: the new palm runs over his arm's cut edge
+OVERLAP = 0.6       # of its radius: a finger bone runs on into the next (no gap when curled)
+BASE_IN = 1.0       # ... and the first into his palm (over its finger openings)
+TUBE_SIDES = 8      # around a finger bone
+TUBE_FLAT = (1.08, 0.92)   # a finger's section: a little wider across the hand than deep
 STRAY = 0.02       # metres off its bone: a point that far isn't that finger's
 TIP_LENGTH = 0.25  # ... and the last bone's length (joint 3 to its tip) taken this far past joint 4
 FINGERS = ["thumb", "index", "middle", "ring", "little"]
 _cache = {}
+FORWARD = np.array([0.0, 0.0, -1.0])
+PAINT_PX = 512      # his hand's paint, a side (a hand's texture in his skin's)
+AO_RAYS = 24
+AO_REACH = 0.03     # metres: what shades a point (a finger beside it, the palm under the thumb)
 
 
 def _base():
     if "base" not in _cache:
-        v, _uv, groups = mp.load_obj(os.path.join(mp.MH, "3dobjs/base.obj"))
+        v, uv, groups = mp.load_obj(os.path.join(mp.MH, "3dobjs/base.obj"))
         j = {}
         for side in "rl":
             for name in ("elbow", "hand"):
@@ -46,37 +55,47 @@ def _base():
                     key = "%s-finger-%d-%d" % (side, f, k)
                     j[key] = mp.joint(v, groups, key)
         body = groups["body"]
-        _cache["base"] = (mp.to_body_space(v), {k: mp.to_body_space(p) for k, p in j.items()}, body)
+        _cache["base"] = (mp.to_body_space(v), {k: mp.to_body_space(p) for k, p in j.items()}, body, uv)
     return _cache["base"]
 
 
-def _tris(faces, keep):
+def _corners(faces, keep):
+    """The kept faces as triangles of (vertex, uv) corners: [n, 3, 2]."""
     out = []
-    for fv, _ft in faces:
+    for fv, ft in faces:
         if all(keep[i] for i in fv):
-            out += [[fv[0], fv[k], fv[k + 1]] for k in range(1, len(fv) - 1)]
-    return np.array(out, np.int64).reshape(-1, 3)
+            c = list(zip(fv, ft))
+            out += [[c[0], c[k], c[k + 1]] for k in range(1, len(c) - 1)]
+    return np.array(out, np.int64).reshape(-1, 3, 2)
 
 
 def hand(side):
-    """MakeHuman's hand: its points, triangles (indices into the points), and each point's part:
-    -1 the palm, else finger * 3 + bone (finger 0 the thumb .. 4 the little; bone 0..2)."""
-    v, j, faces = _base()
+    """MakeHuman's hand: its points, triangles (indices into the points), each point's part
+    (-1 the palm, else finger * 3 + bone: finger 0 the thumb .. 4 the little; bone 0..2), its
+    joints and each point's UV in MakeHuman's layout."""
+    v, j, faces, uvs = _base()
     wrist, elbow = j[side + "-hand"], j[side + "-elbow"]
     knuckle = j[side + "-finger-3-1"]
     d_hand, t_hand = mp.seg_dist(v, wrist, knuckle)
     d_arm, _t = mp.seg_dist(v, elbow, wrist)
     u = (knuckle - wrist) / np.linalg.norm(knuckle - wrist)
-    near = (d_hand < d_arm * 1.6) & ((v - wrist) @ u > -WRIST_OVERLAP) & (d_hand < 0.6)
+    # Straight across his forearm WRIST_OVERLAP above the wrist (a ragged top edge showed as a
+    # rim once wrapped onto his arm), within a hand's reach of its line.
+    reach, _t = mp.seg_dist(v, wrist - u * WRIST_OVERLAP, knuckle + (knuckle - wrist) * 1.1)   # to his fingertips
+    t1, t4 = j[side + "-finger-1-1"], j[side + "-finger-1-4"]
+    thumb, _t = mp.seg_dist(v, t1, t4 + (t4 - j[side + "-finger-1-3"]) * 0.8)   # and his thumb's
+    near = ((v - wrist) @ u > -WRIST_OVERLAP) & ((reach < 0.06) | (thumb < 0.03))
     keep = np.zeros(len(v), bool)
     used = set(i for fv, _ft in faces for i in fv)
     keep[list(used)] = True
     keep &= near
-    tris = _tris(faces, keep)
-    ids = np.unique(tris)
-    remap = -np.ones(len(v), np.int64)
-    remap[ids] = np.arange(len(ids))
-    p = v[ids]
+    corners = _corners(faces, keep)
+    # One point a (vertex, uv) pair: split where MakeHuman's UV layout is cut, so his hand keeps
+    # it (the hand is painted in it, paint()).
+    pairs, inv = np.unique(corners.reshape(-1, 2), axis=0, return_inverse=True)
+    tris = inv.reshape(-1, 3)
+    p = v[pairs[:, 0]]
+    uv = uvs[pairs[:, 1]]
     palm_d = np.full(len(p), np.inf)
     best = np.full(len(p), np.inf)
     part = -np.ones(len(p), np.int64)
@@ -84,7 +103,13 @@ def hand(side):
         k1, k2, k3, k4 = [j["%s-finger-%d-%d" % (side, f, k)] for k in range(1, 5)]
         tip = k4 + (k4 - k3) * TIP
         palm_d = np.minimum(palm_d, mp.seg_dist(p, wrist, k1)[0])
-        for bone, (a, b) in enumerate(((k1, k2), (k2, k3), (k3, tip))):
+        bones = ((k1, k2), (k2, k3), (k3, tip))
+        if f == 1:
+            # The thumb's first bone is the pad under it, part of the palm: its three are from
+            # its second joint out (its opening, at the pad, joined the wrist's and stayed open).
+            palm_d = np.minimum(palm_d, mp.seg_dist(p, k1, k2)[0])
+            bones = ((k2, k3), (k3, k4), (k4, tip))
+        for bone, (a, b) in enumerate(bones):
             d, t = mp.seg_dist(p, a, b)
             if bone == 0:
                 d = np.where(t < 0.12, np.inf, d)       # a little past the knuckle before it counts
@@ -93,7 +118,7 @@ def hand(side):
             part[closer] = (f - 1) * 3 + bone
     part[best >= palm_d] = -1
     joints = {k: v for k, v in j.items() if k.startswith(side + "-")}
-    return p, remap[tris], part, joints
+    return p, tris, part, joints, uv
 
 
 def _frame(wrist, knuckle, across):
@@ -107,10 +132,10 @@ def _frame(wrist, knuckle, across):
 
 
 def place(side, ours, fingers_env):
-    """MakeHuman's hand on the game's: (palm points, palm triangles, {finger id: [(points,
-    triangles)] x 3}) in the game's rest pose. `ours`: the game's joints (fit_tripo's
+    """MakeHuman's hand on the game's, in the game's rest pose: the palm (points, triangles, UVs,
+    parts) and {finger id: [(points, triangles, UVs, parts)] x 3}. `ours`: the game's joints (fit_tripo's
     our_joints); `fingers_env`: envelope.json's fingers (knuckle a, tip b)."""
-    p, tris, part, j = hand(side)
+    p, tris, part, j, uv = hand(side)
     mw, mk = j[side + "-hand"], j[side + "-finger-3-1"]
     m_across = j[side + "-finger-5-1"] - j[side + "-finger-2-1"]
     gw, gk = np.array(ours[side + "-hand"]), np.array(ours[side + "-knuckle"])
@@ -118,51 +143,80 @@ def place(side, ours, fingers_env):
     Fm, lm, wm = _frame(mw, mk, m_across)
     Fg, lg, wg = _frame(gw, gk, g_across)
     S = np.diag([lg / lm, wg / wm, wg / wm])        # along; across and through as wide
-    A = Fg.T @ S @ Fm
+    A0 = Fg.T @ S @ Fm
+    # Then fitted so his knuckles land on the game's exactly (the fingers turn about them; off
+    # them, each finger's base stood off the palm): an affine through the wrist and the five
+    # knuckles, the hand's thickness held by two points off the palm either side.
+    src = [mw] + [j["%s-finger-%d-1" % (side, f)] for f in range(1, 6)]
+    dst = [gw] + [np.array(fingers_env["%s_%s" % (n, side)]["a"]) for n in FINGERS]
+    nm, ng = Fm[2] * 0.02, (A0 @ Fm[2]) * 0.02
+    for k in range(2, 4):
+        src += [j["%s-finger-%d-1" % (side, k)] + nm, j["%s-finger-%d-1" % (side, k)] - nm]
+        g0 = np.array(fingers_env["%s_%s" % (FINGERS[k - 1], side)]["a"])
+        dst += [g0 + ng, g0 - ng]
+    X = np.c_[np.array(src), np.ones(len(src))]
+    M, *_ = np.linalg.lstsq(X, np.array(dst), rcond=None)
 
     def affine(q):
-        return gw + (q - mw) @ A.T
+        return np.c_[q, np.ones(len(q))] @ M if q.ndim == 2 else np.r_[q, 1.0] @ M
 
     q = affine(p)
-    palm_tris = tris[(part[tris] == -1).sum(1) >= 2]
+    # Every triangle to one part: the part most of its corners are in, else its first corner's
+    # (a triangle across three parts went to none and left a hole).
+    pt = part[tris]
+    tri_part = np.where((pt[:, 0] == pt[:, 1]) | (pt[:, 0] == pt[:, 2]), pt[:, 0], np.where(pt[:, 1] == pt[:, 2], pt[:, 1], pt[:, 0]))
+    palm_tris = tris[tri_part == -1]
     fingers = {}
     for f, name in enumerate(FINGERS):
         fid = "%s_%s" % (name, side)
         a, b = np.array(fingers_env[fid]["a"]), np.array(fingers_env[fid]["b"])
         la = float(np.linalg.norm(b - a))
         dirn = (b - a) / la
-        ks = [affine(j["%s-finger-%d-%d" % (side, f + 1, k)]) for k in (1, 2, 3, 4)]
-        ks[3] = ks[3] + (ks[3] - ks[2]) * TIP_LENGTH
+        if f == 0:
+            ks = [affine(j["%s-finger-1-%d" % (side, k)]) for k in (2, 3, 4)]
+            ks.append(ks[2] + (ks[2] - ks[1]) * 0.8)
+        else:
+            ks = [affine(j["%s-finger-%d-%d" % (side, f + 1, k)]) for k in (1, 2, 3, 4)]
+            ks[3] = ks[3] + (ks[3] - ks[2]) * TIP_LENGTH
         # His finger as thick as MakeHuman's for its length; each piece as long as its slot.
         thick = la / sum(float(np.linalg.norm(ks[k + 1] - ks[k])) for k in range(3))
+        # Each bone a closed, rounded piece of the right thickness (cut from MakeHuman's mesh, the
+        # pieces' edges came out ragged and they gapped where they met): as thick as MakeHuman's
+        # finger is there (measured on its own points, scaled with the finger), a little flatter
+        # than round, overlapping the next bone and pushed into the palm, so a curled finger shows
+        # no gap and no edge.
+        radii = []
+        for bone in range(3):
+            s0, e0 = ks[bone], ks[bone + 1]
+            pts_b = q[part == f * 3 + bone]
+            d, t = mp.seg_dist(pts_b, s0, e0)
+            r0 = float(np.median(d[t < 0.35])) if (t < 0.35).any() else float(np.median(d))
+            r1 = float(np.median(d[t > 0.65])) if (t > 0.65).any() else r0
+            radii.append((r0 * thick, r1 * thick))
+        x, _y, _z = along_basis(a - b)
+        curl_to = -x if side == "r" else x
+        curl_to = curl_to - (curl_to @ dirn) * dirn
+        curl_to /= np.linalg.norm(curl_to)
+        across = np.cross(dirn, curl_to)
         start = a
         pieces = []
         for bone in range(3):
-            s0, e0 = ks[bone], ks[bone + 1]
-            u = (e0 - s0) / np.linalg.norm(e0 - s0)
-            R = _turn(u, dirn)
-            sel = tris[(part[tris] == f * 3 + bone).sum(1) >= 2]
-            used = np.unique(sel)
-            remap = -np.ones(len(q), np.int64)
-            remap[used] = np.arange(len(used))
-            # Each piece to its slot on the bone (MakeHuman's bones aren't the game's shares):
-            # stretched along the bone, as thick as the whole finger's scale makes it.
-            along = la * SHARES[bone] / max(float(np.linalg.norm(e0 - s0)), 1e-6)
-            r = (q[used] - s0) @ R.T
-            t = r @ dirn
-            pts = start + dirn * (t * along)[:, None] + (r - t[:, None] * dirn) * thick
-            # A stray (a point classed by its nearest bone but lying off it) goes.
             end = start + dirn * la * SHARES[bone]
-            off = mp.seg_dist(pts, start, end)[0] > STRAY
-            tt = remap[sel]
-            tt = tt[~off[tt].any(1)]
-            pieces.append((pts, tt))
-            start = start + dirn * la * SHARES[bone]
+            # One smooth taper, knuckle to tip: each bone ends as thick as the next begins (steps
+            # showed where they didn't), never thicker than it started.
+            r0 = min(radii[k][0] for k in range(bone + 1))
+            r1 = min(r0, radii[bone + 1][0] if bone < 2 else radii[2][1])
+            a0 = start - dirn * r0 * (BASE_IN if bone == 0 else OVERLAP)
+            b0 = end + dirn * (r1 * OVERLAP if bone < 2 else 0.0)
+            pts, tt = tube(a0, b0, r0, r1, across, curl_to)
+            pieces.append((pts, tt, np.zeros((len(pts), 2)), np.full(len(pts), f * 3 + bone)))
+            start = end
         fingers[fid] = pieces
+    palm_tris = close_openings(q, palm_tris, keep_near=mw, axis=Fg[0])
     used = np.unique(palm_tris)
     remap = -np.ones(len(q), np.int64)
     remap[used] = np.arange(len(used))
-    return q[used], remap[palm_tris], fingers
+    return (q[used], remap[palm_tris], uv[used], part[used]), fingers
 
 
 def _turn(u, w):
@@ -175,3 +229,589 @@ def _turn(u, w):
     ax /= s
     K = np.array([[0, -ax[2], ax[1]], [ax[2], 0, -ax[0]], [-ax[1], ax[0], 0]])
     return np.eye(3) + s * K + (1 - c) * K @ K
+
+
+def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=(), wrist=None):
+    """His hand painted in his own skin: an image (size x size, 0..1), and the palm and the
+    fingers' pieces again ((points, triangles, UV in the image 0..1), each triangle its own
+    corners) laid out in it.
+
+    - His hand's colour (`base`, the median of his own hand's paint) with a soft painterly
+      variation (the bold cowboy's paintings are brushwork, not flat colour);
+    - shadow baked in from the hand's own shape (how much of the sky each point sees, within
+      AO_REACH): dark between the fingers, in the creases at the joints, under the thumb;
+    - the palm lighter and pinker; his key light laid in as three soft-edged tones (KEY_TONES),
+      the darks warmer; a nail on each last bone (the thumb's facing its own way) with a darker
+      cuticle and a light streak; then cut into flat planes (`_planes`), the nails kept crisp.
+    Hand-painted rules after how painters lay in a hand (no texture copied from anywhere).
+    """
+    import sys
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    from scipy import ndimage
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
+    import portrait as P
+    pieces = [palm] + [pc for name in FINGERS for pc in fingers["%s_%s" % (name, side)]]
+    pts, tris, uvs, parts, n0, offs = [], [], [], [], 0, []
+    for q, t, u, pa in pieces:
+        offs.append(n0)
+        pts.append(q)
+        tris.append(t + n0)
+        uvs.append(u)
+        parts.append(pa)
+        n0 += len(q)
+    pts, tris, uvs, parts = np.vstack(pts), np.vstack(tris), np.vstack(uvs), np.concatenate(parts)
+    # Normals, the same at a place however many points sit there (the layout's seams).
+    _u, weld = np.unique(np.round(pts / 1e-5).astype(np.int64), axis=0, return_inverse=True)
+    weld = weld.ravel()
+    fn = np.cross(pts[tris[:, 1]] - pts[tris[:, 0]], pts[tris[:, 2]] - pts[tris[:, 0]])
+    nw = np.zeros((weld.max() + 1, 3))
+    for k in range(3):
+        np.add.at(nw, weld[tris[:, k]], fn)
+    nrm = nw[weld]
+    nrm /= np.linalg.norm(nrm, axis=1, keepdims=True) + 1e-12
+    # Ambient occlusion: AO_RAYS rays over each point's half of the sky.
+    bvh = BVHTree.FromPolygons([tuple(p) for p in pts], [tuple(int(i) for i in t) for t in tris])
+    rng = np.random.default_rng(seed)
+    dirs = rng.normal(size=(AO_RAYS, 3))
+    dirs /= np.linalg.norm(dirs, axis=1, keepdims=True)
+    ao = np.zeros(len(pts))
+    for i in range(len(pts)):
+        n = nrm[i]
+        d = np.where((dirs @ n)[:, None] < 0, -dirs, dirs)
+        o = Vector(pts[i] + n * 0.0015)
+        hit = sum(bvh.ray_cast(o, Vector(x), AO_REACH)[0] is not None for x in d)
+        ao[i] = 1.0 - hit / AO_RAYS
+    # Which way each point faces: towards his body's middle is his palm.
+    palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+    palmness = np.clip((nrm @ palm_dir - 0.2) / 0.6, 0, 1)
+    # Nails: the back of each last bone (for the thumb, the way its nail faces: forward and out,
+    # as it hangs by his palm), its outer NAIL_LEN, NAIL_WIDE across: a crisp edge, a darker
+    # cuticle at its root.
+    nail = np.zeros(len(pts))
+    cut = np.zeros(len(pts))
+    for f in range(5):
+        m = parts == f * 3 + 2
+        if not m.any():
+            continue
+        q = pts[m]
+        axis = q.mean(0) - pts[parts == f * 3 + 1].mean(0) if (parts == f * 3 + 1).any() else np.array([0, -1.0, 0])
+        axis /= np.linalg.norm(axis)
+        face = -palm_dir if f else FORWARD + 0.5 * -palm_dir
+        face = face - (face @ axis) * axis
+        face /= np.linalg.norm(face)
+        t = (q - q.mean(0)) @ axis
+        t = (t - t.min()) / max(np.ptp(t), 1e-6)
+        on = nrm[m] @ face
+        inside = np.clip((on - NAIL_WIDE) / 0.12, 0, 1) * np.clip((t - (1 - NAIL_LEN)) / 0.08, 0, 1)
+        nail[m] = inside
+        cut[m] = np.clip((on - NAIL_WIDE) / 0.12, 0, 1) * np.clip(1 - np.abs(t - (1 - NAIL_LEN)) / 0.08, 0, 1)
+    # His key light, laid in (his paintings light a hand from above, in front, his outer side):
+    # how squarely each point faces it.
+    key = np.array([0.0, 0.75, 0.0]) + 0.5 * FORWARD + 0.55 * -palm_dir
+    key /= np.linalg.norm(key)
+    lam = np.clip(nrm @ key, 0, 1)
+    # The hand's own part of MakeHuman's layout (a few wrist points belong to the forearm's,
+    # far off: they're clamped to its edge, not let stretch the frame).
+    # His hand's own layout (MakeHuman's runs the hand into the forearm's patch, small and
+    # stretched): every triangle its own corners; the palm side and the back of the hand
+    # flattened into the top two squares, each finger bone unrolled round its own axis into a cell
+    # of the bottom half (five fingers across, three bones down).
+    owner = np.concatenate([np.full(len(pc[1]), k) for k, pc in enumerate(pieces)])
+    corner = tris.reshape(-1)
+    cu = np.zeros((len(corner), 2))
+    u_al = pts[parts >= 0].mean(0) - pts[parts == -1].mean(0)
+    u_al /= np.linalg.norm(u_al)
+    across = np.cross(u_al, palm_dir)
+    for k in range(len(pieces)):
+        tk = np.nonzero(owner == k)[0]
+        cs = (tk[:, None] * 3 + np.arange(3)).reshape(-1)
+        q = pts[corner[cs]]
+        if k == 0:
+            front = (nrm[tris[tk]].mean(1) @ palm_dir) >= 0
+            for side_k, sel in ((0, front), (1, ~front)):
+                cc = (tk[sel][:, None] * 3 + np.arange(3)).reshape(-1)
+                qq = pts[corner[cc]]
+                a, b = qq @ u_al, qq @ across
+                a = (a - a.min()) / max(np.ptp(a), 1e-6)
+                b = (b - b.min()) / max(np.ptp(b), 1e-6)
+                cu[cc] = np.c_[0.5 * side_k + 0.02 + 0.46 * b, 0.02 + 0.46 * a]
+            continue
+        f, bone = (k - 1) // 3, (k - 1) % 3
+        c = q.mean(0)
+        _s, _v, vt = np.linalg.svd(q - c, full_matrices=False)
+        ax = vt[0] if vt[0] @ u_al > 0 else -vt[0]
+        ref = palm_dir - (palm_dir @ ax) * ax
+        ref /= np.linalg.norm(ref) + 1e-12
+        ref2 = np.cross(ax, ref)
+        d = q - c
+        th = np.arctan2(d @ ref2, d @ ref)            # 0 on the palm side, the seam on the back
+        th = th.reshape(-1, 3)
+        wrap = np.ptp(th, axis=1) > np.pi            # a triangle across the seam: one side round
+        th[wrap] = np.where(th[wrap] < 0, th[wrap] + 2 * np.pi, th[wrap])
+        th = th.reshape(-1)
+        x = (th + np.pi) / (2.5 * np.pi)             # 0 .. 1 (with the wrapped ones)
+        t = d @ ax
+        y = (t - t.min()) / max(np.ptp(t), 1e-6)
+        cx, cy = 0.2 * f, 0.5 + bone * (0.5 / 3)
+        cu[cs] = np.c_[cx + 0.01 + 0.18 * x, cy + 0.01 + (0.5 / 3 - 0.02) * y]
+    tris_c = np.arange(len(corner)).reshape(-1, 3)
+    pts_c = pts[corner]
+    table = {tuple(int(i) for i in t): [tuple(cu[i]) for i in t] for t in tris_c}
+    # Knuckles: the backs of the finger joints a lighter plane, their palm side a darker crease.
+    knuck = np.zeros(len(pts))
+    for jp in joints:
+        near = np.clip(1.0 - np.linalg.norm(pts - jp, axis=1) / KNUCKLE_R, 0, 1)
+        knuck = np.maximum(knuck, near)
+    back = np.clip((nrm @ -palm_dir - 0.2) / 0.5, 0, 1)
+    # Near the wrist the hand fades into his forearm's own colour there, angle by angle (its
+    # paint, a step in colour at the cut, drew a line round his wrist).
+    fade = np.zeros(len(pts))
+    lit_in = np.ones(len(pts))
+    ring_c = np.zeros((len(pts), 3))
+    if wrist is not None and len(wrist[2]):
+        w_pt, w_ax, w_ring, w_col = wrist
+        down = (pts - w_pt) @ w_ax
+        x = np.clip(1.0 - down / WRIST_FADE, 0, 1)
+        fade = x * x * (3 - 2 * x)
+        # His key light grows in down the hand too (his arm has none laid in: lit at once,
+        # the hand's back stood out light against it at the wrist).
+        lit_in = np.clip(down / LIGHT_IN, 0, 1)
+        from scipy.spatial import cKDTree
+        _d, k = cKDTree(w_ring).query(pts, k=4)
+        ring_c = w_col[k].mean(1)
+    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness, lam, cut, fade, ring_c, lit_in][corner]
+    M, cover = P.raster_uv(table, [list(map(int, t)) for t in tris_c], vals, size)
+    _d, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
+    M = M[iy, ix]
+    ao_t, palm_t, nail_t = M[..., 0], M[..., 1], np.clip((M[..., 2] - 0.35) / 0.3, 0, 1)
+    kn_t, cr_t, lam_t, cut_t = M[..., 3], M[..., 4], M[..., 5], M[..., 6]
+    base = np.asarray(base, float)
+    # Brushwork: low-frequency light and warm/cool shifts, a little finer grain.
+    noise = lambda s: ndimage.zoom(rng.normal(size=(s, s)), size / s, order=3)[:size, :size]
+    light = 1.0 + 0.07 * noise(6) + 0.03 * noise(24)
+    warm = 0.03 * noise(8)
+    col = base[None, None] * light[..., None]
+    col[..., 0] *= 1 + warm
+    col[..., 2] *= 1 - warm
+    pink = np.array([1.08, 0.98, 0.95])
+    col = col * (1 - 0.35 * palm_t[..., None]) + (col * 1.12 * pink) * (0.35 * palm_t[..., None])
+    col *= (0.45 + 0.55 * np.clip(ao_t, 0, 1) ** 0.8)[..., None]
+    col *= (1.0 + 0.16 * kn_t - 0.22 * cr_t)[..., None]
+    # The light in three tones (shadow, half-tone, light), their edges soft, as a painter lays them.
+    band = lambda x, e: np.clip((x - e) / 0.08 + 0.5, 0, 1)
+    tone = KEY_TONES[0] + (KEY_TONES[1] - KEY_TONES[0]) * band(lam_t, 0.25) + (KEY_TONES[2] - KEY_TONES[1]) * band(lam_t, 0.62)
+    tone = KEY_TONES[1] + (tone - KEY_TONES[1]) * M[..., 11]
+    col *= tone[..., None]
+    # The light goes pink, not yellow (his red can't rise as far as his green and blue).
+    lit = np.clip((tone - 1.0) / (KEY_TONES[2] - 1.0), 0, 1)[..., None]
+    col *= 1 + lit * np.array([-0.02, -0.06, 0.06])
+    # Lit shadow's warmth: the darks redder (his paintings' shadows on skin go red, not grey).
+    dark = np.clip(1.0 - tone, 0, 1)[..., None]
+    col *= 1 + dark * np.array([0.25, -0.05, -0.15])
+    nail_col = np.clip(base * 1.35 + 0.16, 0, 1) * np.array([1.0, 0.88, 0.84]) * np.maximum(tone, 0.9)[..., None]
+    col = col * (1 - nail_t[..., None]) + nail_col * nail_t[..., None]
+    col *= (1 - 0.5 * cut_t)[..., None]
+    col = _planes(col, cover, rng, size, keep=(nail_t + cut_t) > 0.2)
+    # A light streak down each nail (its gloss).
+    streak = nail_t * np.clip(1 - np.abs(lam_t - 0.8) / 0.12, 0, 1)
+    col = col + 0.12 * streak[..., None]
+    # Back onto his forearm's colour overall (the palm's lightening and pink pulled it paler and
+    # greyer than his arm: a step at the wrist), a little darker for the hand's own shadow.
+    med = np.median(col[cover], axis=0)
+    col = col * (base * MATCH / np.maximum(med, 1e-6))[None, None]
+    fade_t = M[..., 7][..., None]
+    col = col * (1 - fade_t) + M[..., 8:11] * fade_t
+    if os.environ.get("MH_PAINT_DEBUG"):
+        from PIL import Image
+        dbg = np.concatenate([np.clip(col, 0, 1), np.repeat(nail_t[..., None], 3, 2), np.repeat(lam_t[..., None], 3, 2)], 1)
+        Image.fromarray((dbg * 255).astype(np.uint8)).save("build/mh_paint_%s.png" % side)
+    # The pieces again, each triangle its own corners, with their place in this paint (0..1).
+    out, n0 = [], 0
+    for k, pc in enumerate(pieces):
+        nt = len(pc[1])
+        sl = slice(n0 * 3, (n0 + nt) * 3)
+        out.append((pts_c[sl], np.arange(nt * 3).reshape(-1, 3), cu[sl], corner[sl] - offs[k]))
+        n0 += nt
+    palm_out = out[0]
+    fingers_out = {}
+    for f, name in enumerate(FINGERS):
+        fingers_out["%s_%s" % (name, side)] = out[1 + 3 * f: 4 + 3 * f]
+    return np.clip(col, 0, 1), palm_out, fingers_out
+
+
+def tube(a, b, ra, rb, across, depth, n=TUBE_SIDES, rings=3, caps=2):
+    """A closed, rounded piece from a to b: radius ra to rb, a little wider across the hand
+    than deep (TUBE_FLAT), a rounded cap at each end. Points and outward-wound triangles."""
+    axis = (b - a) / np.linalg.norm(b - a)
+    th = np.linspace(0, 2 * np.pi, n, endpoint=False)
+    shape = np.c_[np.cos(th) * TUBE_FLAT[0], np.sin(th) * TUBE_FLAT[1]]
+    rows = []
+    for k in range(caps, 0, -1):                     # the cap at a
+        ph = np.pi / 2 * k / (caps + 1)
+        rows.append((a - axis * ra * np.sin(ph), ra * np.cos(ph)))
+    for t in np.linspace(0, 1, rings + 1):
+        rows.append((a + (b - a) * t, ra + (rb - ra) * t))
+    for k in range(1, caps + 1):                     # the cap at b
+        ph = np.pi / 2 * k / (caps + 1)
+        rows.append((b + axis * rb * np.sin(ph), rb * np.cos(ph)))
+    pts = [a - axis * ra]
+    for c, r in rows:
+        pts += list(c + r * (shape[:, :1] * across + shape[:, 1:] * depth))
+    pts.append(b + axis * rb)
+    pts = np.array(pts)
+    tris = []
+    first, last = 0, len(pts) - 1
+    for i in range(n):
+        tris.append([first, 1 + (i + 1) % n, 1 + i])
+    for r in range(len(rows) - 1):
+        o0, o1 = 1 + r * n, 1 + (r + 1) * n
+        for i in range(n):
+            i2 = (i + 1) % n
+            tris += [[o0 + i, o0 + i2, o1 + i], [o0 + i2, o1 + i2, o1 + i]]
+    o = 1 + (len(rows) - 1) * n
+    for i in range(n):
+        tris.append([o + i, o + (i + 1) % n, last])
+    tris = np.array(tris)
+    # Outward: flip all if the first side faces in.
+    fn = np.cross(pts[tris[:, 1]] - pts[tris[:, 0]], pts[tris[:, 2]] - pts[tris[:, 0]])
+    mid = pts[tris].mean(1)
+    centre = a + np.clip(((mid - a) @ axis), 0, np.linalg.norm(b - a))[:, None] * axis
+    if ((fn * (mid - centre)).sum(1) < 0).mean() > 0.5:
+        tris = tris[:, ::-1]
+    return pts, tris
+
+
+def clip(v, tris, point, normal, which, lerp=(), copy=()):
+    """The triangles in `which` (a mask over tris) cut clean by a plane: what lies on the side
+    the normal points away from is kept, triangles across it cut along it (new points on the
+    plane, one per cut edge, shared by both triangles on it). `lerp`: per-point arrays
+    interpolated at the new points (positions too); `copy`: per-point arrays the new point takes
+    from the kept end. Returns (v, tris, lerp arrays, copy arrays, the new points' ids)."""
+    s = (v - point) @ normal
+    keep_tris = [tris[~which]]
+    out = [t for t in tris[which] if (s[t] <= 0).all()]
+    v = list(v)
+    lerp = [list(x) for x in lerp]
+    copy = [list(x) for x in copy]
+    made = {}
+
+    def cut(i, j):                                  # i kept, j cut away
+        key = (min(i, j), max(i, j))
+        if key not in made:
+            t = s[i] / (s[i] - s[j])
+            v.append(v[i] + (v[j] - v[i]) * t)
+            for arr in lerp:
+                arr.append(arr[i] + (arr[j] - arr[i]) * t)
+            for arr in copy:
+                arr.append(arr[i])
+            made[key] = len(v) - 1
+        return made[key]
+
+    for t in tris[which]:
+        inside = s[t] <= 0
+        n_in = int(inside.sum())
+        if n_in in (0, 3):
+            continue
+        k = int(np.argmax(inside if n_in == 1 else ~inside))
+        a_, b_, c_ = t[k], t[(k + 1) % 3], t[(k + 2) % 3]   # a_ the odd one out, winding kept
+        if n_in == 1:
+            out.append([a_, cut(a_, b_), cut(a_, c_)])
+        else:
+            ab, ac = cut(b_, a_), cut(c_, a_)
+            out += [[ab, b_, c_], [ab, c_, ac]]
+    tris = np.vstack(keep_tris + ([np.array(out, np.int64)] if out else []))
+    return (np.array(v), tris, [np.array(x) for x in lerp], [np.array(x) for x in copy],
+            np.array(sorted(made.values()), np.int64))
+
+
+def join_ring(q, ring_q, his_ring, centre, ax, ref, blend):
+    """The new palm's points drawn onto his arm's cut ring: each point's angle round the arm and
+    its height past the cut; at the cut its ring lies exactly on his, easing off over `blend`."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), np.linalg.norm(flat, axis=1)
+
+    def at(angles, ring):
+        _h, a, r = polar(ring)
+        o = np.argsort(a)
+        a, r = a[o], r[o]
+        a = np.r_[a[-1] - 2 * np.pi, a, a[0] + 2 * np.pi]
+        r = np.r_[r[-1], r, r[0]]
+        return np.interp(angles, a, r)
+
+    mh_c = q[ring_q].mean(0)
+    his_c = his_ring.mean(0)
+    h, ang, rad = polar(q)
+    w = np.clip(1.0 - h / blend, 0, 1) ** 1.5
+    shift = (his_c - mh_c) - ((his_c - mh_c) @ ax) * ax
+    target = rad + (at(ang, his_ring) - at(ang, q[ring_q]))
+    new_r = rad + w * (target - rad)
+    flat_dir = np.c_[np.cos(ang), np.sin(ang)]
+    out = centre + h[:, None] * ax + (flat_dir[:, :1] * e1 + flat_dir[:, 1:] * e2) * new_r[:, None] + w[:, None] * shift
+    return out
+
+
+def close_openings(q, tris, keep_near, axis):
+    """The palm's finger openings (where MakeHuman's fingers joined it) closed: each loop of its
+    open edges, but the one at the wrist (the lowest along the hand), filled with a fan to the
+    loop's first point. The finger pieces sit over them; open, they showed as holes."""
+    from collections import defaultdict
+    pos = np.round(q / 1e-6).astype(np.int64)
+    _u, first, weld = np.unique(pos, axis=0, return_index=True, return_inverse=True)
+    weld = weld.ravel()
+    wt = weld[tris]
+    count = defaultdict(int)
+    for t in wt:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            count[(min(a, b), max(a, b))] += 1
+    nxt = {}
+    for t in wt:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            if count[(min(a, b), max(a, b))] == 1:
+                nxt[b] = a                              # walk the open edge backwards: the fan faces out
+    loops, seen = [], set()
+    for start in list(nxt):
+        if start in seen:
+            continue
+        loop, k = [], start
+        while k in nxt and k not in seen:
+            seen.add(k)
+            loop.append(k)
+            k = nxt[k]
+        if len(loop) >= 3:
+            loops.append(loop)
+    if not loops:
+        return tris
+    low = min(range(len(loops)), key=lambda i: float(np.mean((q[first[loops[i]]] - keep_near) @ axis)))
+    extra = []
+    for i, loop in enumerate(loops):
+        if i == low:
+            continue
+        ids = first[loop]
+        extra += [[ids[0], ids[k], ids[k + 1]] for k in range(1, len(ids) - 1)]
+    return np.vstack([tris, np.array(extra, np.int64)]) if extra else tris
+
+
+def taper(pts, his_ring, mh_ring, centre, ax, ref, reach, swell):
+    """His forearm's points (above the cut, within `reach` of it) drawn in towards the wrist they
+    meet: at the cut his ring becomes min(his, swell x MakeHuman's) at each angle round the arm,
+    easing back to his own over `reach` up the arm."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), np.linalg.norm(flat, axis=1)
+
+    def at(angles, ring):
+        _h, a, r = polar(ring)
+        o = np.argsort(a)
+        a, r = a[o], r[o]
+        a = np.r_[a[-1] - 2 * np.pi, a, a[0] + 2 * np.pi]
+        r = np.r_[r[-1], r, r[0]]
+        return np.interp(angles, a, r)
+
+    h, ang, rad = polar(pts)
+    r_his = at(ang, his_ring)
+    r_meet = np.minimum(r_his, at(ang, mh_ring) * swell)
+    w = np.clip(1.0 + h / reach, 0, 1) ** 1.5          # h <= 0 up his arm
+    k = 1.0 + w * (r_meet / np.maximum(r_his, 1e-6) - 1.0)
+    flat = (pts - centre) - h[:, None] * ax
+    return centre + h[:, None] * ax + flat * k[:, None]
+
+
+WRIST_ARM = 0.03    # metres up his forearm and ...
+WRIST_HAND = 0.025  # ... down the hand over which the two share one smooth profile (smooth_wrist)
+WRIST_BINS = 12     # angles round the wrist the profile is read at
+WRIST_FADE = 0.035  # metres down the hand over which its paint fades from his forearm's colour
+LIGHT_IN = 0.045    # ... and over which its key light grows in
+
+
+def smooth_wrist(arm, hand, centre, ax, ref):
+    """His forearm and the new hand on one smooth profile across the cut (Sean: "smoothing that
+    line where the hand and wrist meet"): at each angle round the wrist, the radius from his arm's
+    at WRIST_ARM up it to the hand's at WRIST_HAND down it by a smooth S; the points between
+    laid on it. The arm tapered in to the cut and
+    the hand flared out of it: a crease the light caught. Returns both point sets."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), flat
+
+    ha, aa, fa = polar(arm)
+    hh, ah, fh = polar(hand)
+    ra, rh = np.linalg.norm(fa, axis=1), np.linalg.norm(fh, axis=1)
+    edges = np.linspace(-np.pi, np.pi, WRIST_BINS + 1)
+    mids = 0.5 * (edges[:-1] + edges[1:])
+
+    def read(h, a, r, lo, hi):
+        """Per angle bin: the median radius of the points between lo and hi (Rodin's arm is
+        coarse: a bin can be empty, filled from its neighbours round the wrist), then eased
+        round the wrist."""
+        out = np.full(WRIST_BINS, np.nan)
+        sel = (h >= lo) & (h <= hi)
+        b = np.clip(np.searchsorted(edges, a, side="right") - 1, 0, WRIST_BINS - 1)
+        for k in range(WRIST_BINS):
+            m = sel & (b == k)
+            if m.any():
+                out[k] = np.median(r[m])
+        ok = np.isfinite(out)
+        if ok.sum() < 3:
+            return None
+        xs = np.r_[mids[ok] - 2 * np.pi, mids[ok], mids[ok] + 2 * np.pi]
+        out[~ok] = np.interp(mids[~ok], xs, np.tile(out[ok], 3))
+        return (np.roll(out, 1) + 2 * out + np.roll(out, -1)) / 4
+
+    h0, h1 = -WRIST_ARM, WRIST_HAND
+    A = read(ha, aa, ra, h0 - 0.015, h0 + 0.005)
+    H = read(hh, ah, rh, h1 - 0.005, h1 + 0.01)
+    if A is None or H is None:
+        print("smooth_wrist: too few points to read his wrist; left as it is")
+        return arm, hand
+    L = h1 - h0
+
+    def target(h, a):
+        t = np.clip((h - h0) / L, 0, 1)
+        xs = np.r_[mids - 2 * np.pi, mids, mids + 2 * np.pi]
+        r0 = np.interp(a, xs, np.tile(A, 3))
+        r1 = np.interp(a, xs, np.tile(H, 3))
+        # An S from his arm's radius to the hand's, flat at both ends: carrying the arm's
+        # taper and the hand's flare into it pinched the wrist into a neck.
+        st = t * t * (3 - 2 * t)
+        return r0 + (r1 - r0) * st
+
+    def lay(p, h, a, flat, r):
+        out = p.copy()
+        m = (h > h0) & (h < h1)
+        out[m] = centre + h[m, None] * ax + flat[m] / np.maximum(r[m], 1e-9)[:, None] * target(h[m], a[m])[:, None]
+        return out
+
+    return lay(arm, ha, aa, fa, ra), lay(hand, hh, ah, fh, rh)
+
+
+CHUNK = 1.2         # the skinned hand's fingers this much thicker than MakeHuman's (his are working hands)
+HAND_SCALE = 1.15   # and the whole hand this much bigger, about the wrist (his paintings' hands are big)
+JOINT_BLEND = 0.007  # metres either side of a finger joint over which the bones share the skin
+
+
+def finger_bone_names(side):
+    """The skinned hand's 15 bones, finger by finger, knuckle out (HumanBody._own_finger_bones)."""
+    return ["finger_%s_%s_%d" % (name, side, b) for name in FINGERS for b in range(3)]
+
+
+def _chain(j, side, f):
+    """Finger f's joints, knuckle to tip (the thumb from its second joint: its pad is the palm's)."""
+    if f == 0:
+        ks = [j["%s-finger-1-%d" % (side, k)] for k in (2, 3, 4)]
+        return ks + [ks[2] + (ks[2] - ks[1]) * TIP]
+    ks = [j["%s-finger-%d-%d" % (side, f + 1, k)] for k in (1, 2, 3, 4)]
+    return ks[:3] + [ks[3] + (ks[3] - ks[2]) * TIP]
+
+
+def skinned(side, ours, fingers_env):
+    """MakeHuman's hand whole, skinned to its finger bones, on the game's hand (the brief:
+    docs/briefs/skinned-hands.md): its points, triangles, MakeHuman UVs, parts, each point's
+    weights over the side's 15 finger bones (the rest is the hand's), and each bone's rest
+    (origin, basis: +Y back up the finger as HumanBody._along) at MakeHuman's own joints.
+
+    Fitted by an affine through his wrist and the four finger knuckles onto the game's (the thumb
+    left as MakeHuman has it: the anatomy hangs it parallel to the index, and that looked wrong).
+    The game bends these bones by its finger nodes' angles about these joints."""
+    p, tris, part, j, uv = hand(side)
+    mw = j[side + "-hand"]
+    gw = np.array(ours[side + "-hand"])
+    src = [mw] + [j["%s-finger-%d-1" % (side, f)] for f in range(2, 6)]
+    dst = [gw] + [np.array(fingers_env["%s_%s" % (n, side)]["a"]) for n in FINGERS[1:]]
+    Fm, _lm, wm = _frame(mw, j[side + "-finger-3-1"], j[side + "-finger-5-1"] - j[side + "-finger-2-1"])
+    gk = np.array(ours[side + "-knuckle"])
+    Fg, _lg, wg = _frame(gw, gk, np.array(fingers_env["little_" + side]["a"]) - np.array(fingers_env["index_" + side]["a"]))
+    ng = Fg[2] * 0.02 * (wg / wm)
+    for k in (2, 3, 4, 5):
+        src += [j["%s-finger-%d-1" % (side, k)] + Fm[2] * 0.02, j["%s-finger-%d-1" % (side, k)] - Fm[2] * 0.02]
+        g0 = np.array(fingers_env["%s_%s" % (FINGERS[k - 1], side)]["a"])
+        dst += [g0 + ng, g0 - ng]
+    M, *_ = np.linalg.lstsq(np.c_[np.array(src), np.ones(len(src))], np.array(dst), rcond=None)
+    affine = lambda x: np.c_[x, np.ones(len(x))] @ M
+    q = affine(p)
+    q = gw + (q - gw) * HAND_SCALE       # his big working hand (the bones are its own: the hitboxes stay)
+    affine0 = affine
+    affine = lambda x: gw + (affine0(x) - gw) * HAND_SCALE
+    W = np.zeros((len(q), 15))
+    rests = []
+    for f in range(5):
+        J = affine(np.array(_chain(j, side, f)))
+        seg = np.linalg.norm(np.diff(J, axis=0), axis=1)
+        cum = np.r_[0.0, np.cumsum(seg)]
+        mine = (part // 3 == f) & (part >= 0)
+        # The palm's points just past this knuckle share it too (the knuckle bends in the skin).
+        d0, t0 = mp.seg_dist(q, J[0], J[1])
+        mine |= (part == -1) & (d0 < 0.02) & (t0 > 0) & (((q - J[0]) @ (J[1] - J[0])) > -JOINT_BLEND * seg[0])
+        ids = np.nonzero(mine)[0]
+        # Each point's place along the finger (arc length of its nearest point on the chain).
+        best = np.full(len(ids), np.inf)
+        s = np.zeros(len(ids))
+        foot = np.zeros((len(ids), 3))
+        for k in range(3):
+            d, t = mp.seg_dist(q[ids], J[k], J[k + 1])
+            better = d < best
+            best[better] = d[better]
+            s[better] = cum[k] + t[better] * seg[k]
+            foot[better] = J[k] + t[better][:, None] * (J[k + 1] - J[k])
+        ramp = lambda x, at: np.clip((x - (at - JOINT_BLEND)) / (2 * JOINT_BLEND), 0, 1)
+        on = [ramp(s, cum[0]) * (1 - ramp(s, cum[1])), ramp(s, cum[1]) * (1 - ramp(s, cum[2])), ramp(s, cum[2])]
+        for b in range(3):
+            W[ids, f * 3 + b] = on[b]
+        # Chunkier: out from the finger's line by CHUNK, as much as the point is finger.
+        wf = W[ids, f * 3:f * 3 + 3].sum(1)
+        q[ids] = q[ids] + (CHUNK - 1.0) * wf[:, None] * (q[ids] - foot)
+        for b in range(3):
+            rests.append((J[b], np.array(along_basis(J[b] - J[b + 1]))))
+    return q, tris, uv, part, W, rests
+
+
+PLANE_PX = 1.0 / 30  # a painted plane, of the hand's paint a side (his paintings' hands are laid in planes)
+PLANE_KEEP = 0.3     # how much of the smooth shading shows through a plane
+MATCH = 0.97         # the hand's typical colour: this times his forearm's
+KNUCKLE_R = 0.011    # metres round a finger joint: its knuckle's light plane, its crease
+KEY_TONES = np.array([0.55, 0.95, 1.36])   # the key light's shadow, half-tone and light on his hand
+NAIL_LEN = 0.55      # of the last bone, from its tip: the nail
+NAIL_WIDE = 0.45     # how squarely a point faces the nail's way to be nail (its width across)
+
+
+def _planes(col, cover, rng, size, keep=None):
+    """The paint laid in flat planes, as his paintings lay a hand in: the layout cut into small
+    irregular patches (around random seeds) and each patch one tone (its mean), a little of the
+    smooth shading kept so the form still turns."""
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+    step = max(4, int(size * PLANE_PX))
+    n = int((size / step) ** 2 * 1.3)
+    seeds = rng.random((n, 2)) * size
+    gy, gx = np.mgrid[0:size, 0:size]
+    _d, lab = cKDTree(seeds).query(np.c_[gx.ravel() + 0.5, gy.ravel() + 0.5])
+    lab = lab.reshape(size, size) + 1
+    lab[~ndimage.binary_dilation(cover, iterations=2)] = 0
+    out = col.copy()
+    idx = np.arange(1, n + 1)
+    for c in range(3):
+        m = np.asarray(ndimage.mean(col[..., c], labels=lab, index=idx))
+        flat = np.r_[0.0, np.nan_to_num(m)][lab]
+        out[..., c] = np.where(lab > 0, flat * (1 - PLANE_KEEP) + col[..., c] * PLANE_KEEP, col[..., c])
+    if keep is not None:
+        out[keep] = col[keep]       # small marks (the nails) stay crisp, not averaged away
+    return out

@@ -12,7 +12,10 @@ rodin_portrait.py paints a head from its portraits.
 - The paintings' own squares are taken out first (a median over `unsquare` pixels, a little blur).
 - Each texel of his body's texture takes its colour from the painting facing it squarest that
   sees it (depth-tested, and inside that painting's figure), feathered between views; what none
-  sees takes the nearest painted texel's colour.
+  sees takes the nearest painted texel's colour. A side picture paints only texels of its own
+  kind (skin or cloth: his arms skin, between his shorts' waistband and hem cloth, elsewhere as
+  the front or back picture shows): the pictures' arms hang against his shorts, where Rodin's
+  are held out.
 → assets/people/tripo/<body>_color.png (the fitter's repaint), build/body_paint/<body>_*.png
   (each view's outline over its painting, and which view painted each texel) to check by.
 """
@@ -38,6 +41,20 @@ VIEWS = {"front": (np.array([-1.0, 0, 0]), np.array([0, 0, -1.0])),
 SEAM = 0.08            # facing difference over which two views blend
 MIN_FACING = 0.15
 BG_TOL = 0.09
+# Skin or cloth: his cream shorts' blue is ~half their red (0.41-0.61 in his pictures), his skin's,
+# lit or shadowed, a third or less (0.17-0.34).
+CLOTH_BR = 0.38
+CLOTH_RED = 0.35       # and light (his dark hair and the shadow between his legs are bluish too)
+CLOTH_BR_MAX = 0.75    # and warmer than the grey backdrop (blue as much as red)
+# Of his height off his middle: past this, his arms (Rodin holds them well out from his shorts).
+ARM_OUT = 0.15
+SHORTS_MID = 0.05      # of his height either side of his middle: where his shorts' band is read
+SHORTS_INSET = 0.008   # of his height in from the waistband and hem (~1.5 cm)
+
+
+def cloth_like(c):
+    br = c[..., 2] / np.maximum(c[..., 0], 1e-6)
+    return (br > CLOTH_BR) & (br < CLOTH_BR_MAX) & (c[..., 0] > CLOTH_RED)
 
 
 def figure_mask(img):
@@ -143,6 +160,7 @@ def main():
     names = list(views)
     S = np.full((len(names), len(p)), -np.inf)
     C = np.zeros((len(names), len(p), 3))
+    SEEN = np.zeros((len(names), len(p)), bool)
     for k, view in enumerate(names):
         cam, img, mask = cams[view], pics[view], masks[view]
         h, w = mask.shape
@@ -153,6 +171,49 @@ def main():
         f = n @ cam.toward_v
         S[k] = np.where(seen & (f > MIN_FACING), f, -np.inf)
         C[k] = P.sample(img, q[:, 0], q[:, 1])
+        SEEN[k] = seen & (f > 0)
+    # The side pictures hang his arms against his shorts, where Rodin's body holds them out: from
+    # the side his hand was painted on his hip (Sean: "looks like there's more than one hand")
+    # and his shorts on his forearm. What each texel is, skin or cloth: his arms skin; the rest as
+    # the front or back picture (whichever faces it squarer) shows it. No picture's colour of the
+    # other kind is taken there (another's, or a neighbour's, is).
+    height = float(V[:, 1].max() - V[:, 1].min())
+    arm = np.abs(p[:, 0] - np.median(V[:, 0])) > ARM_OUT * height
+    fb = [k for k, v in enumerate(names) if v in ("front", "back")]
+    kind = np.full(len(p), -1)
+    if fb:
+        f_fb = np.array([np.where(SEEN[k], n @ cams[names[k]].toward_v, -np.inf) for k in fb])
+        pick = np.argmax(f_fb, 0)
+        known = np.isfinite(f_fb.max(0))
+        kc = cloth_like(np.array([C[fb[j]][i] for i, j in enumerate(pick)])) if len(p) else np.zeros(0, bool)
+        kind = np.where(known, kc.astype(int), -1)
+    # Between his shorts' waistband and hem (where his middle shows cloth, front or back), all
+    # but his arms is cloth: the front picture's hands hang by his shorts too.
+    mid = (np.abs(p[:, 0] - np.median(V[:, 0])) < SHORTS_MID * height) & (kind >= 0)
+    edges = np.arange(V[:, 1].min(), V[:, 1].max() + 0.02, 0.02)
+    n_all, _e = np.histogram(p[mid, 1], edges)
+    n_cloth, _e = np.histogram(p[mid & (kind == 1), 1], edges)
+    share = n_cloth / np.maximum(n_all, 1)
+    if n_cloth.max() > 100:
+        # The one run of mostly-cloth rows round the clothiest row.
+        a = b = int(np.argmax(n_cloth))
+        while a > 0 and share[a - 1] > 0.5:
+            a -= 1
+        while b < len(share) - 1 and share[b + 1] > 0.5:
+            b += 1
+        lo, hi = edges[a], edges[b + 1]
+        kind[(p[:, 1] > lo + SHORTS_INSET * height) & (p[:, 1] < hi - SHORTS_INSET * height)] = 1
+        print("body_paint: his shorts from %.2f to %.2f m (of %.2f to %.2f)" % (lo, hi, V[:, 1].min(), V[:, 1].max()))
+    kind[arm] = 0
+    rejected = 0
+    for k, view in enumerate(names):
+        grey = C[k][:, 2] >= CLOTH_BR_MAX * np.maximum(C[k][:, 0], 1e-6)   # the backdrop, between arm and body
+        wrong = (((kind >= 0) & (cloth_like(C[k]).astype(int) != kind)) | grey) & np.isfinite(S[k])
+        S[k][wrong] = -np.inf
+        rejected += int(wrong.sum())
+    if os.environ.get("BODY_PAINT_DEBUG"):
+        np.savez(os.path.join(WORK, "debug.npz"), p=p, n=n, kind=kind, S=S, C=C, SEEN=SEEN, names=np.array(names))
+    print("body_paint: %d picture texels of the other kind (skin on cloth, cloth on skin) left out" % rejected)
     best = S.max(0)
     ok = np.isfinite(best)
     Wt = np.where(np.isfinite(S), np.exp((S - np.where(ok, best, 0)[None]) / SEAM), 0.0)

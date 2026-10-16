@@ -14,8 +14,10 @@ extends SceneTree
 ## --mipdir=DIR: with mips read from DIR/level_N.png (made otherwise than by averaging).
 ## --grade=tonemap|adjust|game: the game's picture grade on the frame (see _grade).
 ## --aim=Y: the camera level with height Y and looking at it (with --fov 35 --dist 3.4: the whole man).
+## --aimx=X: and moved X across (sideways, the same way whatever his turn): at a hand, say.
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
-## --hide=A,B: his meshes whose names begin A or B not drawn.
+## --hide=A,B: his meshes whose names begin A or B not drawn. --curl=r:1,l:0.5: his hands curled.
+## --draw: his revolver drawn; --sever=index_r,...: those fingers shot off.
 ## --hat=lab:NAME: the hat prototype (tools/characters/hat_proto.py: assets/people/lab/NAME_*.obj and
 ## .png) on his head bone in place of the game's, drawn by the skin shader as his clothes are.
 ## --look: the painted material's values over PAINTED (the skin shader's painted mode,
@@ -56,8 +58,12 @@ func _run() -> void:
 	var mipdir := ""
 	var grade := ""
 	var aim := -1.0
+	var aimx := 0.0
 	var tag := ""
 	var hide := PackedStringArray()
+	var curl := PackedStringArray()
+	var sever := PackedStringArray()
+	var draw := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--fov="):
 			fov = float(a.substr(6))
@@ -73,6 +79,8 @@ func _run() -> void:
 			grade = a.substr(8)
 		elif a.begins_with("--aim="):
 			aim = float(a.substr(6))
+		elif a.begins_with("--aimx="):
+			aimx = float(a.substr(7))
 		elif a.begins_with("--tag="):
 			tag = a.substr(6) + "_"
 		elif a.begins_with("--global="):
@@ -101,6 +109,12 @@ func _run() -> void:
 			hat = a.substr(6)
 		elif a.begins_with("--hide="):
 			hide = a.substr(7).split(",")
+		elif a.begins_with("--curl="):
+			curl = a.substr(7).split(",")
+		elif a.begins_with("--sever="):
+			sever = a.substr(8).split(",")
+		elif a == "--draw":
+			draw = true
 		elif a.begins_with("--look="):
 			for kv in a.substr(7).split(","):
 				var p := kv.split(":")
@@ -136,6 +150,16 @@ func _run() -> void:
 	w.add_child(m)
 	if hat.begins_with("lab:"):
 		_wear_lab_hat(m, hat.substr(4))
+	# --draw: his revolver in his hand; --sever=index_r,...: those fingers shot off.
+	if draw:
+		m.draw_gun()
+	for fid: String in sever:
+		m.sever_finger(StringName(fid), Vector3(1, 0, 0))
+	# --curl=r:1,l:0.5: his hands curled (0 open, 1 a fist), after he's built.
+	for c: String in curl:
+		var kv := c.split(":")
+		if kv.size() == 2:
+			m.curl_hand(kv[0], float(kv[1]))
 	if not hide.is_empty():
 		# --hide=Skin,Trousers: his meshes whose names begin so are not drawn (a garment seen
 		# without the body under it).
@@ -147,8 +171,8 @@ func _run() -> void:
 	m.global_position = Vector3.ZERO
 	# --aim=Y: the camera level with Y and looking at it (0.9: the whole man), else at his eyes.
 	var cy := aim if aim >= 0.0 else EYE
-	cam.position = Vector3(0, cy, -dist)
-	cam.look_at(Vector3(0, cy - (0.0 if aim >= 0.0 else 0.05), 0))
+	cam.position = Vector3(aimx, cy, -dist)
+	cam.look_at(Vector3(aimx, cy - (0.0 if aim >= 0.0 else 0.05), 0))
 	var rig := []
 	for light in lights:
 		for n in rig:
