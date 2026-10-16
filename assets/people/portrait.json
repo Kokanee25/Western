@@ -257,6 +257,7 @@
    "pictures": "docs/concept/style/factory/bold_cowboy_dressed",
    "what": "a weathered frontier man of about forty standing in an A-pose, bare-headed, a long brown wool coat to his knees, open at the front, a dark brown waistcoat, a white shirt with a high collar, a black tie, a leather belt, dark wool trousers, worn brown leather boots",
    "_note": "The base body dressed (docs/briefs/layered-people.md): Rodin builds him whole from Sean's four dressed pictures; his clothes are what stands off the bare body (bold_cowboy_body), cut into coat, trousers and boots."
-  }
+  },
+  "bold_cowboy_vest_dressed": {"pictures": "docs/concept/style/factory/bold_cowboy_vest_dressed", "what": "a weathered frontier man of about forty standing in an A-pose, bare-headed, no coat, a dark brown waistcoat buttoned, a white shirt with a high collar and buttoned cuffs, a black tie, dark wool trousers tucked into worn brown leather boots with buckled straps", "_note": "The base body dressed without his coat (roadmap 1.3): Rodin builds him whole from Sean's four pictures; his vest, shirt and tie are what stands off the bare body, cut as their own layers under the coat."}
  }
 }

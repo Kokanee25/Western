@@ -38,6 +38,14 @@ RING_BLEND = 0.045     # metres above the ring over which the head's neck is pul
 RING_BELOW_CHIN = 0.03 # the ring's height: this far under the laid head's chin (his body keeps its neck)
 NECK_FADE = 0.015      # metres under his jaw over which his painted collar fades to skin
 HEAD_TRIS = 12000
+COLLAR_BAND = 0.05     # metres either side of the ring: garment points pushed out of the head's neck (collar_out)
+COLLAR_CLEAR = 0.004   # ... to this far outside it
+COLLAR_UP = 0.012      # a vest's or coat's faces reaching more than this above the ring are cut (a shirt's: above it)
+COLLAR_H = 0.022        # metres his shirt's stand-up collar rises above the ring (stand_collar) ...
+COLLAR_FROM = 0.035    # ... from this far below it (over the shirt's own top)
+COLLAR_ROWS = 4
+COLLAR_SIDES = 40
+COLLAR_FLARE = 0.004   # metres its top is turned out
 ICP_ROUNDS = 40
 
 
@@ -71,6 +79,130 @@ T0 = __import__("time").time()
 
 def mark(what):
     print("neck_ring: %5.0f s  %s" % (__import__("time").time() - T0, what), flush=True)
+
+
+def stand_collar(bpy, shirt, head, tree, centre, ring_z, shirt_png):
+    """His shirt's stand-up collar, built: the twin's came apart in shards against his jaw (cut
+    in collar_out). A band round his neck from COLLAR_FROM below the ring to COLLAR_H above it,
+    at each of COLLAR_SIDES angles COLLAR_CLEAR outside the head's surface there (a ray out from
+    his neck's middle), its top turned out a little; in his shirt's white (the UV of the shirt's
+    lightest place near his throat), weighted as the head's nearest point is."""
+    import bmesh
+    from mathutils import Vector
+    me = shirt.data
+    uvl = me.uv_layers.active
+    # His shirt's white: the lightest-looking UV near the front of his neck (its texture is in
+    # the material, not here; the collar's own points near his throat are white by the cut).
+    from PIL import Image
+    tex = np.asarray(Image.open(shirt_png).convert("RGB")).astype(float) / 255
+    th, tw = tex.shape[:2]
+    uvs = np.array([uvl.data[l.index].uv[:] for l in me.loops])
+    # glTF's v runs down (the import flips it): the texel under each loop's UV.
+    px = tex[np.clip(((1 - uvs[:, 1]) * th).astype(int), 0, th - 1), np.clip((uvs[:, 0] * tw).astype(int), 0, tw - 1)]
+    light = px.mean(1) - (px.max(1) - px.min(1))          # light and colourless: his shirt's cloth
+    from mathutils import Vector as _V
+    uv_white = _V(uvs[int(np.argsort(light)[int(0.97 * (len(light) - 1))])])
+    hgroups = {g.index: g.name for g in head.vertex_groups}
+    hv = np.array([v.co[:] for v in head.data.vertices])
+    from scipy.spatial import cKDTree
+    htree = cKDTree(hv)
+    for name in hgroups.values():
+        if name not in shirt.vertex_groups:
+            shirt.vertex_groups.new(name=name)
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    deform = bm.verts.layers.deform.verify()
+    uv_layer = bm.loops.layers.uv[uvl.name]
+    rows = []
+    zs = np.linspace(ring_z - COLLAR_FROM, ring_z + COLLAR_H, COLLAR_ROWS)
+    for k, z in enumerate(zs):
+        row = []
+        for j in range(COLLAR_SIDES):
+            a = 2 * np.pi * j / COLLAR_SIDES
+            d = Vector((np.cos(a), np.sin(a), 0.0))
+            start = Vector((centre[0], centre[1], z))
+            # His neck's outermost surface at this angle (cast in from outside: from the middle,
+            # the first hit missed folds of the head's edge standing further out, which came
+            # through the collar).
+            far = start + d * 0.3
+            hit, _n, _f, back = tree.ray_cast(far, -d, 0.3)
+            dist = 0.3 - back if hit is not None else None
+            if hit is None:
+                # Below the head's lowest edge: his body's neck under the old collar, from the head's
+                # nearest ring point's distance.
+                dist = float(np.median(np.linalg.norm((hv[np.abs(hv[:, 2] - ring_z) < 0.01] - centre)[:, :2], axis=1)))
+            flare = COLLAR_FLARE * max(0.0, (z - ring_z) / COLLAR_H)
+            p = start + d * (dist + COLLAR_CLEAR + flare)
+            v = bm.verts.new(p)
+            _dd, hi = htree.query(p[:])
+            for ge in head.data.vertices[int(hi)].groups:
+                gname = hgroups[ge.group]
+                v[deform][shirt.vertex_groups[gname].index] = ge.weight
+            row.append(v)
+        rows.append(row)
+    n = 0
+    for k in range(len(rows) - 1):
+        for j in range(COLLAR_SIDES):
+            a, b = rows[k][j], rows[k][(j + 1) % COLLAR_SIDES]
+            c, d = rows[k + 1][(j + 1) % COLLAR_SIDES], rows[k + 1][j]
+            f = bm.faces.new((a, b, c, d))
+            for l in f.loops:
+                l[uv_layer].uv = uv_white
+            n += 1
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 3])
+    bm.normal_update()
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+    print("neck_ring: his shirt's stand-up collar: %d faces, %.0f mm high" % (2 * n, 1000 * (COLLAR_H + COLLAR_FROM)))
+
+
+def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
+    """His shirt's collar (and a coat's or vest's) outside his new head's neck: the bust's neck
+    is a little fuller than the body's, so a collar laid on the body's neck came out under it
+    (his neck showed orange where the collar should stand). Garment points within COLLAR_BAND of
+    the ring pushed COLLAR_CLEAR outside the head's surface (out from his neck's middle; the
+    bust's faces are wound either way); and what of a garment stands more than COLLAR_UP above
+    the ring is cut (shards of the twin's collar against his jaw)."""
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    hv = [v.co.copy() for v in head.data.vertices]
+    tree = BVHTree.FromPolygons(hv, [tuple(p.vertices) for p in head.data.polygons])
+    neck = np.array([v[:] for v in hv])
+    band = np.abs(neck[:, 2] - ring_z) < 0.02
+    centre = neck[band].mean(0) if band.any() else neck.mean(0)
+    for ob in [o for o in bpy.data.objects if o.type == "MESH" and o.name in ("body_shirt", "body_vest", "body_coat")]:
+        me = ob.data
+        moved = 0
+        for v in me.vertices:
+            p = v.co
+            if abs(p.z - ring_z) > COLLAR_BAND:
+                continue
+            loc, _n, _f, _d = tree.find_nearest(p, 0.06)
+            if loc is None:
+                continue
+            out = Vector((p.x - centre[0], p.y - centre[1], 0.0))
+            if out.length < 1e-6:
+                continue
+            out.normalize()
+            depth = (p - loc).dot(out)
+            if depth < COLLAR_CLEAR:
+                v.co = p + out * (COLLAR_CLEAR - depth)
+                moved += 1
+        import bmesh
+        bm = bmesh.new()
+        bm.from_mesh(me)
+        # (A shirt's own collar, ragged, is replaced by the built one: cut from a little above
+        # where that starts.)
+        top = (ring_z - COLLAR_FROM + 0.008) if (ob.name == "body_shirt" and mode == "built") else (ring_z + COLLAR_UP)
+        high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
+        bmesh.ops.delete(bm, geom=high, context="FACES")
+        bm.to_mesh(me)
+        bm.free()
+        me.update()
+        print("neck_ring: %s collar: %d points out of his neck, %d faces above it cut" % (ob.name, moved, len(high)))
+        if ob.name == "body_shirt" and mode == "built":
+            stand_collar(bpy, ob, head, tree, centre, ring_z, shirt_png)
 
 
 def main():
@@ -189,7 +321,11 @@ def main():
         paint_path = os.path.join(WORK, head + "_paint.png")
     paint = np.asarray(Image.open(paint_path).convert("RGB")).astype(float) / 255
     size = paint.shape[0]
-    sk_tex = np.asarray(Image.open(os.path.join(PEOPLE, body + "_skin.png")).convert("RGB")).astype(float) / 255
+    # A shirted body's neck is painted the shirt's colour (under his collar): his face is matched
+    # to his bare skin as the fitter wrote it before that (else it took the shirt's colour).
+    bare = os.path.join(ROOT, "build", "bare_skin", body + "_skin.png")
+    sk_path = bare if os.path.exists(bare) else os.path.join(PEOPLE, body + "_skin.png")
+    sk_tex = np.asarray(Image.open(sk_path).convert("RGB")).astype(float) / 255
     sk_uv = np.array([[d.uv[0], d.uv[1]] for d in skin.data.uv_layers.active.data])
     sk_loop_v = np.array([lp.vertex_index for lp in skin.data.loops])
     ring_loops = np.isin(sk_loop_v, np.nonzero(np.abs(skin_co_all[:, 2] - ring_z) < 0.03)[0])
@@ -296,6 +432,12 @@ def main():
     mod = newh.modifiers.new("skeleton", "ARMATURE")
     mod.object = arm
     bpy.data.objects.remove(old)
+    # --collar=none: the garments left as the fit made them, the bust's own painted collar meeting
+    # them (a coat's twin's collar and tie are clean, and the built one reads as a neck brace
+    # close up: Sean, 2026-10-16); built (the default): collar_out and stand_collar, for a twin
+    # whose own collar came out ragged (the coatless twin's); own: collar_out without the build.
+    if a.get("--collar", "built") != "none":
+        collar_out(bpy, newh, ring_z, os.path.join(PEOPLE, body + "_shirt.png"), a.get("--collar", "built"))
     newh.name = "body_head"
     newh.data.name = "body_head"
     path = os.path.join(PEOPLE, out + ".glb")

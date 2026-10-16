@@ -52,7 +52,19 @@
    "own_fingers": "skinned",
    "tris": {"skin": 30000, "head": 10000},
    "outfit": {},
-   "pieces": {"coat": "bold_cowboy_coat", "trousers": "bold_cowboy_trousers"},
+   "pieces": {"coat": "bold_cowboy_coat", "vest": "bold_cowboy_under_vest", "shirt": "bold_cowboy_under_shirt", "trousers": "bold_cowboy_trousers"},
+   "cloth": {"coat": {"light": 1.35, "chroma": 1.6, "mottle": 0.7, "keep_ends": true}, "trousers": {"L": 24, "chroma": 1.3, "mottle": 0.6}},
+   "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
+  },
+  "bold_cowboy_vest_body": {
+   "note": "The average base body (docs/briefs/layered-people.md): Rodin Gen-2.5 from Sean's four boxer-shorts pictures of the bold cowboy (2026-10-15), whole and in an A-pose, fitted by tools/blender/fit_tripo.py with his joints found from his shape. Bare: his clothes come as separate pieces.",
+   "source": "rodin",
+   "rodin": "test/bold_cowboy_body_rodin",
+   "shoulders": 1.10,
+   "own_fingers": "skinned",
+   "tris": {"skin": 30000, "head": 10000},
+   "outfit": {},
+   "pieces": {"vest": "bold_cowboy_under_vest", "shirt": "bold_cowboy_under_shirt", "trousers": "bold_cowboy_under_trousers"}, "cloth": {"trousers": {"L": 24, "chroma": 1.3, "mottle": 0.6}}, "paint": "bold_cowboy_body",
    "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
   },
   "stranger2": {
