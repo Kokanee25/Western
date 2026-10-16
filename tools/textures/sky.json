@@ -1,0 +1,15 @@
+{
+ "about": "The painted sky (Sean's target docs/concept/targets/7_sky_target.jpg, 2026-10-16): two panels, each 180 degrees of the sky from the horizon to near the top (21:9 pictures), painted by tools/textures/paint_sky.py and cut by tools/textures/reduce_sky.py into assets/textures/sky/; src/world/sky.gdshader lays them round the town at golden hour and blends back to its own sky at other hours. Bearings as backdrop.json's: degrees round from the town's middle, 270 west down the street, where the golden-hour sun sets (DayCycle at 17.6: bearing ~277, 9.5 degrees up).",
+ "panels": {
+  "sun": {
+   "centre_bearing": 270,
+   "ref": [0, 0, 900, 760],
+   "look": "looking straight toward the setting sun: the sun a small white-hot disc low over the horizon in the very middle of the picture, about a tenth of the way up, with soft golden rays fanning up from it through a warm golden haze; the sky above it deepening from gold and apricot to a clear deep blue at the top; broken heaps of cumulus and long thin streaks of altocumulus on both sides, their edges lit hot gold and orange by the low sun, their shadowed sides violet-grey"
+  },
+  "away": {
+   "centre_bearing": 90,
+   "ref": [800, 0, 1672, 760],
+   "look": "looking away from the setting sun, which lies behind the viewer: a clear deep blue sky, warmer and paler toward the horizon; great towering cumulus clouds rising in billows across the middle, their sunward faces lit cream, peach and rose-pink by the low sun from behind the viewer, their shadowed undersides lilac and slate grey; small wisps of high cloud lit pink"
+  }
+ }
+}

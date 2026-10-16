@@ -157,11 +157,15 @@ All lanes, one at a time. **Gate F: the demo ships.**
 - **Phase 0, step 0.1** (gameplay): green and quiet.
 - **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
   in the game (#124) and its sheet (`docs/screenshots/painted_light/in_game.jpg`): the saloon holds,
-  the street at golden hour is too dark and red. **1.4** (art): merge 1 done (the woods in the man's
-  squares, the road calmer with ruts; 2026-10-15); now the road to Sean's new target
-  (`targets/6_road_target.jpg`). **1.3** (characters) beside it.
+  the street at golden hour is too dark and red. **1.4** (art): merge 1 (the woods in the man's
+  squares, 2026-10-15) and merge 2 (the road to Sean's target, `docs/briefs/road.md`, 2026-10-16)
+  done; waits on Sean's word. **1.3** (characters) beside it.
 
 ## Decisions Sean can change
+
+- The look is painted illustration (Sean, 2026-10-16; DESIGN.md §4): smooth painted surfaces,
+  the squares retired surface by surface (road done, wood next, the men's clothes in 1.3). Gate A
+  (1.5) is judged on it, its street target brought into line.
 
 - The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
   an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and

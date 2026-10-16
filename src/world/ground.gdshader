@@ -58,6 +58,45 @@ uniform float sky_fill = 0.15;
 // shadows); eased by the sun's height as DayCycle's `golden` is (the road is flat, so `facing`
 // is that height's sine).
 uniform float sky_fill_low_sun = 0.05;
+// The main street (docs/briefs/road.md; roadmap 1.4, Sean's road, 2026-10-15): smooth painted
+// earth to the boardwalks, no squares. Its map (street_map, tools/textures/draw_street.py: R how
+// churned, G the wagon ruts' height, A the stones') over street_area (x0, z0, x1, z1 in metres)
+// blends two painted earths, packed (compact_tex) and churned (loose_tex), 8 m tiles mirrored
+// every other tile along the street, each with its relief (compact_h, loose_h); the ruts are the
+// map's own, the whole street long. Each pixel is tilted to the slope of the earth's relief and the
+// ruts together, so the low sun lights a rut's far wall and a clod's top and leaves the near wall
+// dark; the hollows a little darker (relief_cavity); and the sun's light traced a little toward it
+// over the heights (light()), so a rut's bottom lies in its lip's shadow, long with the sun low.
+// Past the map the ground is as before (squares). relief_depth: metres of the earths' relief from
+// black to white; the packed earth's at compact_relief of it.
+uniform bool use_street = false;
+// Anisotropic: the ruts run along the view, and plain mipmaps picked their level from the
+// street's foreshortening and blurred the troughs away across it.
+uniform sampler2D street_map : filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 street_area = vec4(-86.0, -22.0, 35.0, 5.0);
+uniform float street_rut_range = 0.12;
+uniform sampler2D compact_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D loose_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D compact_h : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D loose_h : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float earth_metres = 8.0;
+uniform float relief_depth = 0.06;
+uniform float compact_relief = 0.35;
+// And the churned earth's (at 1 its clods read as a dark speckle over the near ground).
+uniform float loose_relief = 0.6;
+uniform float relief_cavity = 0.3;
+// How dark a rut's bottom is at full depth (damp, shadowed earth), and how light its crumbled lip.
+uniform float rut_dark = 0.55;
+// How far toward the sun the shadow trace looks (metres) and how dark a fully hidden pixel goes
+// (of the sun's light; the sky's fill still reaches it).
+uniform float relief_shadow_reach = 0.5;
+uniform float relief_shadow = 0.85;
+varying vec2 v_earth;
+varying float v_mirror;
+varying vec2 v_muv;
+varying float v_loose;
+varying float v_on;
+varying float v_h0;
 // The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
 // here; the screen mosaic is the only quantisation.
 uniform bool smooth_source = false;
@@ -122,8 +161,10 @@ void fragment() {
 	if (use_wide_tex) {
 		// The 8 m painting along the street; every other 8 m the picture is mirrored end for end
 		// (seamless, so the join holds), and the 2 m tile shows through in broad patches.
-		float wide_metres = float(textureSize(wide_tex, 0).x) / tpm;
-		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wide_metres) / wide_metres;
+		// Its size along the street: the painted road's own (wide_metres), else the drawn one's at
+		// the ground's density.
+		float wm = float(textureSize(wide_tex, 0).x) / tpm;
+		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wm) / wm;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
@@ -181,9 +222,71 @@ void fragment() {
 	if (!smooth_source && !keep_tracks) {
 		col = floor(col * 24.0 + 0.5) / 24.0;
 	}
+	bool smooth_road = false;
+	if (use_street && !soft) {
+		vec2 q = world_pos.xz;
+		vec2 span = street_area.zw - street_area.xy;
+		float inner = min(min(q.x - street_area.x, street_area.z - q.x), min(q.y - street_area.y, street_area.w - q.y));
+		v_on = smoothstep(0.0, 2.0, inner);
+		float on = v_on;
+		if (on > 0.0) {
+			smooth_road = v_on > 0.5;
+			vec2 muv = (q - street_area.xy) / span;
+			vec4 m = texture(street_map, muv);
+			// The earths: 8 m tiles mirrored every other one along the street (seamless so), the
+			// churned one shifted so their repeats never line up.
+			vec2 e = vec2(q.x, q.y - street_area.y) / earth_metres;
+			float cell = floor(e.x);
+			float mirror = mod(cell, 2.0) > 0.5 ? -1.0 : 1.0;
+			e.x = mirror < 0.0 ? cell + 1.0 - fract(e.x) : e.x;
+			vec2 e2 = e + vec2(0.41, 0.23);
+			float nq = fbm(q * 0.7 + 5.0);
+			float loose = smoothstep(0.3, 0.7, m.r + (nq - 0.5) * 0.25);
+			vec3 earth = mix(texture(compact_tex, e).rgb, texture(loose_tex, e2).rgb, loose);
+			// The relief's slope: the earths' (a height texel either side, or what a pixel covers)
+			// and the ruts' (a map texel either side), in metres per metre, x backward in mirrored
+			// tiles for the earths.
+			vec2 hs = vec2(textureSize(compact_h, 0));
+			vec2 d = max(1.0 / hs, fwidth(e));
+			float kc = compact_relief * (1.0 - loose);
+			float hx = (texture(compact_h, e + vec2(d.x, 0.0)).r - texture(compact_h, e - vec2(d.x, 0.0)).r) * kc
+					+ (texture(loose_h, e2 + vec2(d.x, 0.0)).r - texture(loose_h, e2 - vec2(d.x, 0.0)).r) * loose * loose_relief;
+			float hz = (texture(compact_h, e + vec2(0.0, d.y)).r - texture(compact_h, e - vec2(0.0, d.y)).r) * kc
+					+ (texture(loose_h, e2 + vec2(0.0, d.y)).r - texture(loose_h, e2 - vec2(0.0, d.y)).r) * loose * loose_relief;
+			vec2 slope = vec2(mirror * hx / (2.0 * d.x), hz / (2.0 * d.y)) * relief_depth / earth_metres;
+			vec2 ms = vec2(textureSize(street_map, 0));
+			vec2 dm = max(1.0 / ms, fwidth(muv));
+			float rx = texture(street_map, muv + vec2(dm.x, 0.0)).g - texture(street_map, muv - vec2(dm.x, 0.0)).g;
+			float rz = texture(street_map, muv + vec2(0.0, dm.y)).g - texture(street_map, muv - vec2(0.0, dm.y)).g;
+			slope += vec2(rx / (2.0 * dm.x * span.x), rz / (2.0 * dm.y * span.y)) * 2.0 * street_rut_range;
+			float near = 1.0 - smoothstep(dissolve_from, dissolve_to, length(VERTEX));
+			vec3 nw = normalize(vec3(-slope.x * near, 1.0, -slope.y * near));
+			NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(nw, 0.0)).xyz, v_on));
+			// The hollows darker; a rut's bottom darker still, its fresh lip a touch lighter.
+			float h0 = mix(texture(compact_h, e).r, texture(loose_h, e2).r, loose);
+			float rut = (m.g - 0.5) * 2.0 * street_rut_range;
+			earth *= mix(1.0 - relief_cavity, 1.0, mix(1.0, h0, mix(compact_relief, loose_relief, loose)));
+			// Most of a trough dark, not only its deepest line: with the sun down the street, along
+			// the ruts, their walls take no raking light, and the target draws them as dark bands.
+			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.05, -rut);
+			// A lip's crest lit (the target's ruts read by their sunlit crests as much as their dark
+			// troughs; with the sun along the street the light alone doesn't pick them out).
+			earth *= 1.0 + 0.4 * smoothstep(0.002, 0.014, rut);
+			earth *= 0.94 + 0.12 * fbm(q * 0.25 + 9.0);
+			v_earth = e;
+			v_mirror = mirror;
+			v_muv = muv;
+			v_loose = loose;
+			v_h0 = h0 * mix(compact_relief, loose_relief, loose) * relief_depth + rut;
+			v_on *= near;
+			col = mix(col, earth, on);
+		}
+	}
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
-	LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
+	if (!smooth_road) {
+		LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
+	}
 }
 
 void light() {
@@ -195,6 +298,25 @@ void light() {
 		vec3 sky = mix(LIGHT_COLOR, vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), 0.5);
 		float fill = mix(sky_fill_low_sun, sky_fill, smoothstep(0.1, 0.6, facing));
 		DIFFUSE_LIGHT += sky * fill * smoothstep(0.0, 0.05, facing);
+	}
+	if (use_street && LIGHT_IS_DIRECTIONAL && v_on > 0.0) {
+		// The street's own shadow: along the sun's way over the earth's and the ruts' heights, is
+		// anything above the ray from this pixel? Six steps to relief_shadow_reach.
+		vec3 sun = normalize((INV_VIEW_MATRIX * vec4(LIGHT, 0.0)).xyz);
+		vec2 along = sun.xz / max(length(sun.xz), 1e-4);
+		float rise = sun.y / max(length(sun.xz), 1e-4);
+		vec2 span = street_area.zw - street_area.xy;
+		float hidden = 0.0;
+		for (int i = 1; i <= 6; i++) {
+			float t = relief_shadow_reach * float(i) / 6.0;
+			vec2 e = v_earth + vec2(v_mirror * along.x, along.y) * t / earth_metres;
+			vec2 muv = v_muv + along * t / span;
+			float he = mix(textureLod(compact_h, e, 1.0).r * compact_relief,
+					textureLod(loose_h, e + vec2(0.41, 0.23), 1.0).r * loose_relief, v_loose) * relief_depth;
+			float hr = (textureLod(street_map, muv, 0.0).g - 0.5) * 2.0 * street_rut_range;
+			hidden = max(hidden, smoothstep(0.0, 0.012, he + hr - (v_h0 + t * rise)));
+		}
+		lit *= 1.0 - relief_shadow * hidden * v_on;
 	}
 	// LIGHT_COLOR already carries the light's energy / PI; the albedo is applied after. Under
 	// the surface-blocks look the light steps (tile_band).

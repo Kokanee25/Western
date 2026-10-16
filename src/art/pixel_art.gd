@@ -62,6 +62,14 @@ const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
 const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide",
 		"shot_table"]
+## The main street (docs/briefs/road.md; roadmap 1.4, Sean's road, 2026-10-15): smooth painted earth
+## to the boardwalks, packed and churned (the texture factory's road_compact and road_loose, painted
+## from his target, each with its _height), blended and rutted by the street's map
+## (tools/textures/draw_street.py); ground.gdshader's street path. The drawn road above is the
+## ground past the map. Each earth's texels a metre.
+const STREET_MAP := "res://assets/textures/street/street_map.png"
+const STREET_INFO := "res://assets/textures/street/street_map.json"
+const EARTH_TEXELS := 128.0
 ## Drawn textures laid at their own density (squares a metre), not DRAWN_TEXELS: the saloon
 ## painting's table top is squares about 5 render pixels across, a quarter of what 32 gave
 ## (tools/textures/draw_table.py).
@@ -236,7 +244,36 @@ static func track(m: ShaderMaterial) -> ShaderMaterial:
 		var drawn := wide != null and wide.resource_path.contains("/drawn/")
 		m.set_shader_parameter(&"keep_tracks", drawn)
 		m.set_shader_parameter(&"road_texels", DRAWN_ROAD_TEXELS if drawn else 0.0)
+		_street(m)
 	return m
+
+
+## The street's path in the ground shader, when its map and both earths (with their heights) are
+## there and the look isn't the quantise-once trial.
+static func _street(m: ShaderMaterial) -> void:
+	var compact := factory("road_compact")
+	var loose := factory("road_loose")
+	var ok := not smooth and compact != null and loose != null and ResourceLoader.exists(STREET_MAP) \
+			and ResourceLoader.exists(_height_path(compact)) and ResourceLoader.exists(_height_path(loose))
+	m.set_shader_parameter(&"use_street", ok)
+	if not ok:
+		return
+	m.set_shader_parameter(&"street_map", load(STREET_MAP))
+	m.set_shader_parameter(&"compact_tex", compact)
+	m.set_shader_parameter(&"loose_tex", loose)
+	m.set_shader_parameter(&"compact_h", load(_height_path(compact)))
+	m.set_shader_parameter(&"loose_h", load(_height_path(loose)))
+	m.set_shader_parameter(&"earth_metres", float(compact.get_width()) / EARTH_TEXELS)
+	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(STREET_INFO)) if FileAccess.file_exists(STREET_INFO) else null
+	if info is Dictionary:
+		var a: Array = (info as Dictionary).get("area", [])
+		if a.size() == 4:
+			m.set_shader_parameter(&"street_area", Vector4(a[0], a[1], a[2], a[3]))
+		m.set_shader_parameter(&"street_rut_range", float((info as Dictionary).get("rut_range", 0.12)))
+
+
+static func _height_path(tex: Texture2D) -> String:
+	return tex.resource_path.get_basename() + "_height.png"
 
 
 static func set_density(texels: float, mipmaps: bool) -> void:
