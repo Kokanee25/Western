@@ -3,8 +3,26 @@
  "references": {
   "street": {
    "base": "docs/concept/street-golden-hour.png",
-   "refs": ["docs/concept/targets/7_sky_target.jpg", "docs/concept/targets/6_road_target.jpg"],
-   "look": "the sky as in the second image: a deep clear blue overhead, towering cumulus clouds lit gold, peach and rose by the low sun with violet-grey undersides, and the sun a small white-hot disc low between the mesas with soft golden rays through a warm haze. The road as in the third image: smooth packed dirt, never squares, with long wagon ruts and wheel tracks running down the street, low ridges and clods and loose pale stones catching the low sun, long raking shadows across it. The buildings' weathered boards and painted signs lit warm on their sunward faces, crisp shadows under the porches."
+   "refs": [
+    "docs/concept/targets/7_sky_target.jpg",
+    "docs/concept/targets/6_road_target.jpg"
+   ],
+   "look": "the sky as in the second image: a deep clear blue overhead, towering cumulus clouds lit gold, peach and rose by the low sun with violet-grey undersides, and the sun a small white-hot disc low between the mesas with soft golden rays through a warm haze. The road as in the third image: smooth packed dirt, never squares, with long wagon ruts and wheel tracks running down the street, low ridges and clods and loose pale stones catching the low sun, long raking shadows across it. The buildings' weathered boards and painted signs lit warm on their sunward faces, crisp shadows under the porches. The red-rock spires and mesas at the end of the street stay exactly where they are, standing under the sky; the water tower and windmill too."
+  },
+  "saloon": {
+   "base": "docs/concept/saloon-blocks.png",
+   "refs": [
+    "docs/concept/targets/1_man_at_table_target.jpg"
+   ],
+   "look": "painted like the second image, the portrait: soft modelled light across faces and hands, warm lamplight with cool shadow, smooth fabric and wood, two or three values to a plane. Many oil lamps, each with a near-white core and a soft halo pooling warm light on its own patch of wood, deep near-black shadows between them, a slight haze of tobacco smoke toward the back of the room; the moonlit street through the doorway cool blue. The men posed and busy as in the first image."
+  },
+  "fire": {
+   "base": "docs/concept/livery-fire.png",
+   "refs": [
+    "docs/concept/targets/1_man_at_table_target.jpg",
+    "docs/concept/targets/7_sky_target.jpg"
+   ],
+   "look": "painted like the second image, the portrait (soft modelled light, smooth painted surfaces), with clouds painted like the third image's. The fire's flames bright and alive, glowing smoke rising and lit from below, the town's boards lit orange by the fire against the dusk."
   }
  }
 }

@@ -25,7 +25,9 @@ SPEC = os.path.join(pt.ROOT, "tools", "textures", "references.json")
 ASK = (
     "Repaint the first image as the same picture: keep its composition exactly, the same camera, "
     "the same buildings, signs, people, animals and objects in the same places and at the same "
-    "sizes, and the same time of day. Change only how it is painted: {look} No pixel squares, "
+    "sizes, and the same time of day. Do not zoom out, widen, crop or move the camera: each edge "
+    "of the new picture shows what the same edge of the first image shows, and nothing is added "
+    "or left out. Change only how it is painted: {look} No pixel squares, "
     "blocks or mosaic anywhere: a luminous, detailed painted illustration with soft painterly "
     "brushwork and rich colour. No added text, no frame, no border."
 )
