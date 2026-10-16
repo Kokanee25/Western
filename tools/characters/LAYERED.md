@@ -174,10 +174,15 @@ way: the same man, triangle for triangle).
   `LAYERS` order (`tuck_layers`); in a coat, the shirt's sleeves and what of vest and shirt the
   coat covers (ahead, out from his middle, by his armholes: `COVER_REACH`, `ARMHOLE_R`) cut away;
   under a shirt his torso's and upper arms' skin painted the shirt's colour (`paint_under_shirt`).
+- His clothes' paint (painted illustration, DESIGN.md §4): every twin piece's texture smoothed
+  within its own UV islands (`paint_cloth`: a median of `CLOTH_MEDIAN` texels, a soft blur), and
+  toned by people.json `cloth.<shape>`: `light` and `chroma` (the coat 1.35 and 1.6: it came out
+  darker and greyer than his painting's), `mottle` (the share of Rodin's camouflage blotches,
+  between `MOTTLE_FINE` and `MOTTLE_WIDE` texels, taken out: coat 0.7, trousers 0.6). Sheet
+  `d3_cloth.png`.
 
 ## 5. Known
 
-- His coat is darker and more mottled than his pictures (Rodin's own colours).
 - A light band at his nape (his dressed twin's hair over the collar).
 - His hands have far fewer texels than his face (184 a side for a whole hand): fine detail
   (tendons, veins) can't show. His forearm's own paint has dark streaks (the pictures' shading),

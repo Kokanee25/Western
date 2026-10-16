@@ -142,6 +142,10 @@ HEAD_TRIS = 2200
 # One square of the texture: this many of Tripo's 2048 texels a side (~2.8 mm on him: the
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
+CLOTH_MEDIAN = 7       # texels: a twin piece's cloth smoothed by a median this wide (paint_cloth) ...
+CLOTH_BLUR = 1.2       # ... and a blur this wide
+MOTTLE_FINE = 3.0      # texels of a 1024 texture: the blotches people.json `cloth.<shape>.mottle` flattens are
+MOTTLE_WIDE = 28.0     # between these two sizes
 SMOOTH = False  # --smooth: see main()
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
@@ -2027,6 +2031,46 @@ class Piece:
 
 # --- Textures -----------------------------------------------------------------------------------
 
+def paint_cloth(piece, tone):
+    """A twin piece's cloth as painted illustration (DESIGN.md §4; Sean, 2026-10-16): Rodin's
+    texture carries a blotchy patchwork (his pictures' blockiness), so it is smoothed (a median of
+    CLOTH_MEDIAN texels, then a soft blur) within the piece's own UV islands (what lies outside
+    them filled from the nearest inside first, so no seam takes another island's colour); and
+    toned to his pictures where people.json `cloth.<shape>` says (`light`: its lightness times
+    that, `chroma`: its colour's strength times that; the coat's came out darker and greyer than
+    his paintings)."""
+    import sys as _sys
+    from PIL import ImageFilter
+    from scipy import ndimage
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
+    import portrait as P
+    img = piece.colour.convert("RGB")
+    W, H = img.size
+    tid, _b, _z = P.rasterise(piece.uv * np.array([W, H]), np.zeros(len(piece.uv)), piece.tris, W, H)
+    inside = ndimage.binary_dilation(tid >= 0, iterations=2)
+    a = np.asarray(img).copy()
+    _d, (iy, ix) = ndimage.distance_transform_edt(~inside, return_indices=True)
+    a = a[iy, ix]
+    img = Image.fromarray(a).filter(ImageFilter.MedianFilter(CLOTH_MEDIAN)).filter(ImageFilter.GaussianBlur(CLOTH_BLUR))
+    if tone:
+        y, cb, cr = [np.asarray(c).astype(np.float64) for c in img.convert("YCbCr").split()]
+        # `mottle`: the blotches' share taken out (light and dark between a few texels and a
+        # tenth of the texture across: Rodin's camouflage, not the cloth's folds, which are
+        # bigger, nor its weave, which is smaller).
+        mo = float(tone.get("mottle", 0.0))
+        if mo:
+            for ch in (y, cb, cr):
+                band = ndimage.gaussian_filter(ch, MOTTLE_FINE * W / 1024) - ndimage.gaussian_filter(ch, MOTTLE_WIDE * W / 1024)
+                ch -= mo * band
+        y = np.clip(y * float(tone.get("light", 1.0)), 0, 255)
+        k = float(tone.get("chroma", 1.0))
+        cb = np.clip(128 + (cb - 128) * k, 0, 255)
+        cr = np.clip(128 + (cr - 128) * k, 0, 255)
+        img = Image.merge("YCbCr", [Image.fromarray(c.astype(np.uint8)) for c in (y, cb, cr)]).convert("RGB")
+    piece.report["cloth"] = {"median": CLOTH_MEDIAN, "tone": tone}
+    return img
+
+
 def paint_under_shirt(p, colour, shirt):
     """His skin's torso and upper-arm triangles painted in his shirt's median colour."""
     import sys as _sys
@@ -2204,7 +2248,9 @@ def main():
         p.run()
         for piece in p.pieces:
             # Each piece's own texture, in the same squares (Tripo's colour: the pieces aren't
-            # repainted in the style yet).
+            # repainted in the style yet); a twin piece's cloth smoothed and toned first.
+            if piece.twin:
+                piece.colour = paint_cloth(piece, spec.get("cloth", {}).get(piece.shape, {}))
             squares(piece.colour, os.path.join(OUT, "%s_%s%s.png" % (pid, piece.shape, "_smooth" if SMOOTH else "")),
                     1 if SMOOTH else SQUARE_TEXELS)
         # His texture: the head repainted in the style where it has been (head_paint.py works on a

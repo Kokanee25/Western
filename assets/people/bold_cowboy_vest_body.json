@@ -17,7 +17,11 @@
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 0
   },
-  "arm_bits_dropped": 0
+  "arm_bits_dropped": 0,
+  "cloth": {
+   "median": 7,
+   "tone": {}
+  }
  },
  "piece_shirt": {
   "twin": true,
@@ -28,7 +32,11 @@
    "cuff_triangles_dropped": 19,
    "skirt_points_behind_hands": 0
   },
-  "tucked_under_trousers_vest": 2437
+  "tucked_under_trousers_vest": 2437,
+  "cloth": {
+   "median": 7,
+   "tone": {}
+  }
  },
  "piece_trousers": {
   "twin": true,
@@ -38,7 +46,13 @@
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 266
   },
-  "tucked_under_vest": 835
+  "tucked_under_vest": 835,
+  "cloth": {
+   "median": 7,
+   "tone": {
+    "mottle": 0.6
+   }
+  }
  },
  "scale": 1.8367,
  "head_scale": 1.8367,

@@ -17,6 +17,14 @@
   "clear_hands": {
    "cuff_triangles_dropped": 47,
    "skirt_points_behind_hands": 848
+  },
+  "cloth": {
+   "median": 7,
+   "tone": {
+    "light": 1.35,
+    "chroma": 1.6,
+    "mottle": 0.7
+   }
   }
  },
  "piece_vest": {
@@ -29,7 +37,11 @@
   },
   "arm_bits_dropped": 0,
   "covered_by_coat_dropped": 2859,
-  "tucked_under_coat": 983
+  "tucked_under_coat": 983,
+  "cloth": {
+   "median": 7,
+   "tone": {}
+  }
  },
  "piece_shirt": {
   "twin": true,
@@ -42,7 +54,11 @@
   },
   "covered_by_coat_dropped": 4601,
   "sleeves_cut_under_coat": 317,
-  "tucked_under_trousers_vest_coat": 370
+  "tucked_under_trousers_vest_coat": 370,
+  "cloth": {
+   "median": 7,
+   "tone": {}
+  }
  },
  "piece_trousers": {
   "twin": true,
@@ -52,7 +68,13 @@
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 266
   },
-  "tucked_under_vest_coat": 2198
+  "tucked_under_vest_coat": 2198,
+  "cloth": {
+   "median": 7,
+   "tone": {
+    "mottle": 0.6
+   }
+  }
  },
  "scale": 1.8367,
  "head_scale": 1.8367,
@@ -822,9 +844,9 @@
  "painted_under_shirt": {
   "triangles": 11773,
   "colour": [
-   33,
+   32,
    24,
-   19
+   20
   ]
  },
  "texture": {
