@@ -7,7 +7,7 @@
     "docs/concept/targets/7_sky_target.jpg",
     "docs/concept/targets/6_road_target.jpg"
    ],
-   "look": "the sky as in the second image: a deep clear blue overhead, towering cumulus clouds lit gold, peach and rose by the low sun with violet-grey undersides, and the sun a small white-hot disc low between the mesas with soft golden rays through a warm haze. The road as in the third image: smooth packed dirt, never squares, with long wagon ruts and wheel tracks running down the street, low ridges and clods and loose pale stones catching the low sun, long raking shadows across it. The buildings' weathered boards and painted signs lit warm on their sunward faces, crisp shadows under the porches. The red-rock spires and mesas at the end of the street stay exactly where they are, standing under the sky; the water tower and windmill too."
+   "look": "golden hour, as in the first image: the sun low on the horizon between the red-rock spires at the end of the street, a small white-hot disc with soft golden rays through a warm haze; the whole street in warm gold light with long raking shadows toward the viewer. The sky as in the second image (a sunset): a deep blue only high overhead, gold, apricot and orange toward the horizon, towering cumulus clouds lit gold, peach and rose by the low sun with violet-grey undersides, and the sun a small white-hot disc low between the mesas with soft golden rays through a warm haze. The road as in the third image: smooth packed dirt, never squares, with long wagon ruts and wheel tracks running down the street, low ridges and clods and loose pale stones catching the low sun, long raking shadows across it. The buildings' weathered boards and painted signs lit warm on their sunward faces, crisp shadows under the porches. The red-rock spires and mesas at the end of the street stay exactly where they are, standing under the sky; the water tower and windmill too."
   },
   "saloon": {
    "base": "docs/concept/saloon-blocks.png",
@@ -19,10 +19,9 @@
   "fire": {
    "base": "docs/concept/livery-fire.png",
    "refs": [
-    "docs/concept/targets/1_man_at_table_target.jpg",
-    "docs/concept/targets/7_sky_target.jpg"
+    "docs/concept/targets/1_man_at_table_target.jpg"
    ],
-   "look": "painted like the second image, the portrait (soft modelled light, smooth painted surfaces), with clouds painted like the third image's. The fire's flames bright and alive, glowing smoke rising and lit from below, the town's boards lit orange by the fire against the dusk."
+   "look": "dusk after sunset, as in the first image: a deep purple, crimson and orange sky, no daylight, the town lit mostly by the fire. Painted like the second image, the portrait: soft modelled light, smooth painted surfaces, no squares. The fire's flames bright and alive, glowing smoke rising and lit orange from below, the boards, the faces and the wet ground lit orange by the fire, deep blue-violet shadows away from it."
   }
  }
 }
