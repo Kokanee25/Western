@@ -14,8 +14,8 @@ What he is, outside in:
   than the body's own head.
 - **His clothes** (`bold_cowboy_coat`, `bold_cowboy_trousers`): cut from Rodin's dressed model of
   the same man, each its own mesh (coat off, holes, blood work as for any garment).
-- **His hands:** MakeHuman's (CC0), its fingers the game's finger pieces (they curl, grip and come
-  off), in his hand's colour.
+- **His hands:** MakeHuman's (CC0) whole, skinned to the game's finger bones (they curl, grip and
+  come off), painted in his skin and his light, joined smoothly at the wrist.
 
 ## 1. What Sean makes (ChatGPT, free)
 
@@ -93,38 +93,50 @@ way: the same man, triangle for triangle).
   "shoulders aren't broad enough"). Arms out 26 mm at the shoulder, nothing at the wrist; no
   joint moves (the hitboxes are the anatomy's).
 - `--head_scale=0.92`: his head was 1/7.2 of his height, now 1/7.7 (Sean: "a bit too big").
-- `own_fingers: "skinned"` (docs/briefs/skinned-hands.md; Sean: "Let's do the skinned hand"):
-  MakeHuman's hand whole on each arm (`mh_hand.skinned`): fitted by an affine through his wrist
-  and four finger knuckles (the thumb where MakeHuman has it), fingers `CHUNK` thicker, skinned
-  to 15 finger bones a hand (`finger_<finger>_<side>_<0..2>`, resting at MakeHuman's own joints,
-  blended `JOINT_BLEND` across each joint). `fit_tripo.skinned_hands` cuts his arm and the hand
-  along one plane, tapers his forearm in to meet it and joins the rings (as the neck ring does),
-  paints it (`mh_hand.paint`, his forearm's colour near the wrist) into free squares of his
-  texture, and exports the finger bones in his armature and their rests in his report
-  (`finger_bones`). In the game (`HumanBody._add_finger_bones`, `_pose_fingers`) each finger bone
-  takes its finger node's bend about its own joint, so the hand curls, grips the revolver and
-  loses a finger (the bones shrink to the knuckle; the drawn finger flies) as before; the drawn
-  fingers are hidden. Earlier tries, kept as options: `own_fingers: true` (his own Rodin fingers
-  in rigid pieces, `fingers.py`) and `"makehuman"` (MakeHuman's in rigid pieces): both read as a
-  wooden doll's. Round two (Sean: "keep fixing them up"): the hand `HAND_SCALE` bigger about
-  the wrist and the fingers `CHUNK` thicker (his paintings' hands are big working hands); a
-  relaxed idle curl (`HumanBody.RELAXED_BEND`: each joint bent at least that much, the game's own
-  curl past it); painted in his repainted skin's colour (`MATCH` of his forearm's), laid in flat
-  planes (`_planes`), lighter knuckles and darker creases (`KNUCKLE_R`). Sheets
-  `c7_skinned_hands.png`, `c8_hands_round2.png`. Round three (Sean: "his hands seem like
-  they're melting into the jacket", "there's more than one hand"): cloth that isn't a sleeve
-  takes none of his arms' weights (`Piece.weights_from_skin`: the skirt and trousers by his hand
-  had taken the hand's and swung with it); `Piece.clear_hands` drops a sleeve's cloth `CUFF_PAST`
-  beyond his wrist's cut and moves the skirt behind his hand, smoothly; `body_paint.py` takes no
-  picture's colour of the wrong kind (skin or cloth, `cloth_like`) or the backdrop's grey (the
-  side pictures' hands, hanging on his shorts, had been painted on his hips). Sheet
-  `c9_hands_clear.png`. Then his fist (`HumanBody.FIST_GAIN`: a skinned hand's joints bend more
-  than the finger nodes, whose full curl is a loose claw on a whole hand; `THUMB_ACROSS`: his
-  thumb folds across the fist, not into his palm). Sheet `c10_fist.png`. Then its paint: his key
-  light laid in as three tones (`mh_hand.KEY_TONES`, the darks warmer), a nail on each finger
-  (`NAIL_LEN`, `NAIL_WIDE`; the thumb's facing its own way) kept crisp through the planes, and
-  the hand's paint as big as his texture has room for (`fit_tripo.HAND_SQUARE_MAX`: 0.09 of it,
-  ~184 of his 2048 texels a side). Sheet `c11_hands_paint.png`.
+- `own_fingers: "skinned"`: his hands (docs/briefs/skinned-hands.md; Sean, 2026-10-15/16; sheets
+  `c7` to `c12` in `docs/style_test/layered-2026-10-15/`, `c12_hands_finished.png` the last):
+  - **The hand** (`tools/blender/mh_hand.py` `skinned`): MakeHuman's (CC0) whole, on each arm by
+    an affine through his wrist and four finger knuckles (the thumb where MakeHuman has it),
+    `HAND_SCALE` 1.15 bigger about the wrist, its fingers `CHUNK` 1.2 thicker (his paintings'
+    hands are big working hands); skinned to 15 finger bones a hand
+    (`finger_<finger>_<side>_<0..2>`, resting at MakeHuman's joints, blended `JOINT_BLEND`
+    across each).
+  - **The wrist** (`fit_tripo.skinned_hands`): his arm cut on a plane `WRIST_CUT` short of his
+    wrist, the hand `BRIDGE` (3 mm) below it; his forearm tapered in (`ARM_TAPER`,
+    `WRIST_SWELL`); the hand's edge drawn onto his arm's (`join_ring`); both laid on one smooth
+    S of a profile across the join (`mh_hand.smooth_wrist`, `WRIST_ARM` up, `WRIST_HAND` down);
+    the strip between the cuts stitched (`_stitch`, each triangle one colour of his arm's); and
+    everything at the join bending exactly as his arm's cut edge does, easing into the hand's
+    own weights over `SEAM_BLEND` (`finger_weights`). Without these: a ledge, a crease, a
+    hairline of background and spikes in any pose.
+  - **Its paint** (`mh_hand.paint`, into the biggest free squares of his texture, up to
+    `fit_tripo.HAND_SQUARE_MAX` 0.09, ~184 of his 2048 texels a side): his repainted skin's
+    colour (`MATCH` of his forearm's); shadow from its own shape; his key light laid in as three
+    soft tones (`KEY_TONES`, the darks warmer, the light pink), growing in down the hand over
+    `LIGHT_IN`; flat planes (`_planes`); lighter knuckles, darker creases (`KNUCKLE_R`); a nail
+    on each finger (`NAIL_LEN`, `NAIL_WIDE`; the thumb's facing its own way) kept crisp; and
+    fading from his forearm's own colour round the wrist over `WRIST_FADE`.
+  - **In the game** (`src/bodies/human_body.gd`, gameplay's file, Sean's OK):
+    `_add_finger_bones` puts the finger bones in his skeleton, `_pose_fingers` bends each by
+    its finger node's angle about its own joint: a relaxed curl at rest (`RELAXED_BEND`,
+    `RELAXED_THUMB`), `FIST_GAIN` more than the node (the game's full curl is a loose claw on a
+    whole hand), the thumb leaning `THUMB_ACROSS` 45 deg the `THUMB_ACROSS_SIGN` way so it
+    folds across the fist and lies along the revolver. A finger shot off: its bones shrink to
+    the knuckle and the drawn finger flies. The drawn cylinder fingers are hidden.
+  - Tried and kept as options: `own_fingers: true` (his own Rodin fingers in rigid pieces,
+    `fingers.py`) and `"makehuman"` (MakeHuman's in rigid pieces): both read as a wooden doll's.
+  - Look at them close with the lab's `--aimx` (sideways), e.g. his right wrist from in front:
+    `bash tools/characters/lab_run.sh build/z.log --out=build/z --id=<man>_layered --turns=0
+    --lights=neutral --materials=game --hat=none --fov=8 --dist=1.2 --aim=0.86 --aimx=-0.24
+    --hide=Coat_whole,Trousers_whole`; `--curl=r:1,l:1` a fist, `--draw` the revolver,
+    `--sever=index_l` a finger off.
+- His clothes off his hands (Sean: "melting into the jacket"): cloth that isn't a sleeve takes
+  none of his arms' weights (`Piece.weights_from_skin`); `Piece.clear_hands` ends a sleeve
+  `CUFF_PAST` beyond his wrist's cut and moves the coat's skirt smoothly behind his hand.
+- His body's paint (Sean: "more than one hand"): `body_paint.py` takes no picture's colour of
+  the wrong kind (skin or cloth, `cloth_like`; between his shorts' waistband and hem all is
+  cloth but his arms) or the backdrop's grey: the side pictures' arms hang against his shorts
+  where Rodin's are held out, and painted a hand on his hips.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
@@ -136,7 +148,10 @@ way: the same man, triangle for triangle).
 - His coat is darker and more mottled than his pictures (Rodin's own colours).
 - A light band at his nape (his dressed twin's hair over the collar).
 - His hands have far fewer texels than his face (184 a side for a whole hand): fine detail
-  (tendons, veins) can't show.
+  (tendons, veins) can't show. His forearm's own paint has dark streaks (the pictures' shading),
+  and one runs on into his hand on his left wrist.
+- His thumb lies along the revolver, a little high on its grip; the revolver sits where the game
+  hangs it from the anatomy's hand (gameplay's), not this hand's palm.
 - His skin is tucked under his coat: with the coat taken off his arms look rough.
 - The vest and shirt are painted on the coat (one layer).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,

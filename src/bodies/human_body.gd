@@ -783,11 +783,11 @@ const RELAXED_THUMB := [10.0, 20.0, 14.0]
 ## A skinned hand's joints bend this many times the finger node's angle (curl_hand's full curl,
 ## 55/80/60 degrees, is a loose claw on a whole hand; a fist is ~90/100/65).
 const FIST_GAIN := [1.6, 1.25, 1.1]
-const FIST_GAIN_THUMB := [1.2, 1.2, 1.1]
+const FIST_GAIN_THUMB := [1.7, 1.5, 1.2]
 ## A skinned thumb folds across the fist, not only towards the palm: its bend leans this far
 ## (degrees) from the fingers' axis onto the bone's X, that way (THUMB_ACROSS_SIGN).
-const THUMB_ACROSS := 60.0
-const THUMB_ACROSS_SIGN := 1.0
+const THUMB_ACROSS := 45.0
+const THUMB_ACROSS_SIGN := -1.0
 
 
 func _pose_fingers() -> void:

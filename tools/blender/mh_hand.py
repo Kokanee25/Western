@@ -231,7 +231,7 @@ def _turn(u, w):
     return np.eye(3) + s * K + (1 - c) * K @ K
 
 
-def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
+def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=(), wrist=None):
     """His hand painted in his own skin: an image (size x size, 0..1), and the palm and the
     fingers' pieces again ((points, triangles, UV in the image 0..1), each triangle its own
     corners) laid out in it.
@@ -364,7 +364,23 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
         near = np.clip(1.0 - np.linalg.norm(pts - jp, axis=1) / KNUCKLE_R, 0, 1)
         knuck = np.maximum(knuck, near)
     back = np.clip((nrm @ -palm_dir - 0.2) / 0.5, 0, 1)
-    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness, lam, cut][corner]
+    # Near the wrist the hand fades into his forearm's own colour there, angle by angle (its
+    # paint, a step in colour at the cut, drew a line round his wrist).
+    fade = np.zeros(len(pts))
+    lit_in = np.ones(len(pts))
+    ring_c = np.zeros((len(pts), 3))
+    if wrist is not None and len(wrist[2]):
+        w_pt, w_ax, w_ring, w_col = wrist
+        down = (pts - w_pt) @ w_ax
+        x = np.clip(1.0 - down / WRIST_FADE, 0, 1)
+        fade = x * x * (3 - 2 * x)
+        # His key light grows in down the hand too (his arm has none laid in: lit at once,
+        # the hand's back stood out light against it at the wrist).
+        lit_in = np.clip(down / LIGHT_IN, 0, 1)
+        from scipy.spatial import cKDTree
+        _d, k = cKDTree(w_ring).query(pts, k=4)
+        ring_c = w_col[k].mean(1)
+    vals = np.c_[ao, palmness, nail, knuck * back, knuck * palmness, lam, cut, fade, ring_c, lit_in][corner]
     M, cover = P.raster_uv(table, [list(map(int, t)) for t in tris_c], vals, size)
     _d, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
     M = M[iy, ix]
@@ -385,7 +401,11 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
     # The light in three tones (shadow, half-tone, light), their edges soft, as a painter lays them.
     band = lambda x, e: np.clip((x - e) / 0.08 + 0.5, 0, 1)
     tone = KEY_TONES[0] + (KEY_TONES[1] - KEY_TONES[0]) * band(lam_t, 0.25) + (KEY_TONES[2] - KEY_TONES[1]) * band(lam_t, 0.62)
+    tone = KEY_TONES[1] + (tone - KEY_TONES[1]) * M[..., 11]
     col *= tone[..., None]
+    # The light goes pink, not yellow (his red can't rise as far as his green and blue).
+    lit = np.clip((tone - 1.0) / (KEY_TONES[2] - 1.0), 0, 1)[..., None]
+    col *= 1 + lit * np.array([-0.02, -0.06, 0.06])
     # Lit shadow's warmth: the darks redder (his paintings' shadows on skin go red, not grey).
     dark = np.clip(1.0 - tone, 0, 1)[..., None]
     col *= 1 + dark * np.array([0.25, -0.05, -0.15])
@@ -400,6 +420,8 @@ def paint(palm, fingers, side, base, size=PAINT_PX, seed=7, joints=()):
     # greyer than his arm: a step at the wrist), a little darker for the hand's own shadow.
     med = np.median(col[cover], axis=0)
     col = col * (base * MATCH / np.maximum(med, 1e-6))[None, None]
+    fade_t = M[..., 7][..., None]
+    col = col * (1 - fade_t) + M[..., 8:11] * fade_t
     if os.environ.get("MH_PAINT_DEBUG"):
         from PIL import Image
         dbg = np.concatenate([np.clip(col, 0, 1), np.repeat(nail_t[..., None], 3, 2), np.repeat(lam_t[..., None], 3, 2)], 1)
@@ -608,6 +630,80 @@ def taper(pts, his_ring, mh_ring, centre, ax, ref, reach, swell):
     return centre + h[:, None] * ax + flat * k[:, None]
 
 
+WRIST_ARM = 0.03    # metres up his forearm and ...
+WRIST_HAND = 0.025  # ... down the hand over which the two share one smooth profile (smooth_wrist)
+WRIST_BINS = 12     # angles round the wrist the profile is read at
+WRIST_FADE = 0.035  # metres down the hand over which its paint fades from his forearm's colour
+LIGHT_IN = 0.045    # ... and over which its key light grows in
+
+
+def smooth_wrist(arm, hand, centre, ax, ref):
+    """His forearm and the new hand on one smooth profile across the cut (Sean: "smoothing that
+    line where the hand and wrist meet"): at each angle round the wrist, the radius from his arm's
+    at WRIST_ARM up it to the hand's at WRIST_HAND down it by a smooth S; the points between
+    laid on it. The arm tapered in to the cut and
+    the hand flared out of it: a crease the light caught. Returns both point sets."""
+    e1 = ref - (ref @ ax) * ax
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+
+    def polar(p):
+        d = p - centre
+        h = d @ ax
+        flat = d - h[:, None] * ax
+        return h, np.arctan2(flat @ e2, flat @ e1), flat
+
+    ha, aa, fa = polar(arm)
+    hh, ah, fh = polar(hand)
+    ra, rh = np.linalg.norm(fa, axis=1), np.linalg.norm(fh, axis=1)
+    edges = np.linspace(-np.pi, np.pi, WRIST_BINS + 1)
+    mids = 0.5 * (edges[:-1] + edges[1:])
+
+    def read(h, a, r, lo, hi):
+        """Per angle bin: the median radius of the points between lo and hi (Rodin's arm is
+        coarse: a bin can be empty, filled from its neighbours round the wrist), then eased
+        round the wrist."""
+        out = np.full(WRIST_BINS, np.nan)
+        sel = (h >= lo) & (h <= hi)
+        b = np.clip(np.searchsorted(edges, a, side="right") - 1, 0, WRIST_BINS - 1)
+        for k in range(WRIST_BINS):
+            m = sel & (b == k)
+            if m.any():
+                out[k] = np.median(r[m])
+        ok = np.isfinite(out)
+        if ok.sum() < 3:
+            return None
+        xs = np.r_[mids[ok] - 2 * np.pi, mids[ok], mids[ok] + 2 * np.pi]
+        out[~ok] = np.interp(mids[~ok], xs, np.tile(out[ok], 3))
+        return (np.roll(out, 1) + 2 * out + np.roll(out, -1)) / 4
+
+    h0, h1 = -WRIST_ARM, WRIST_HAND
+    A = read(ha, aa, ra, h0 - 0.015, h0 + 0.005)
+    H = read(hh, ah, rh, h1 - 0.005, h1 + 0.01)
+    if A is None or H is None:
+        print("smooth_wrist: too few points to read his wrist; left as it is")
+        return arm, hand
+    L = h1 - h0
+
+    def target(h, a):
+        t = np.clip((h - h0) / L, 0, 1)
+        xs = np.r_[mids - 2 * np.pi, mids, mids + 2 * np.pi]
+        r0 = np.interp(a, xs, np.tile(A, 3))
+        r1 = np.interp(a, xs, np.tile(H, 3))
+        # An S from his arm's radius to the hand's, flat at both ends: carrying the arm's
+        # taper and the hand's flare into it pinched the wrist into a neck.
+        st = t * t * (3 - 2 * t)
+        return r0 + (r1 - r0) * st
+
+    def lay(p, h, a, flat, r):
+        out = p.copy()
+        m = (h > h0) & (h < h1)
+        out[m] = centre + h[m, None] * ax + flat[m] / np.maximum(r[m], 1e-9)[:, None] * target(h[m], a[m])[:, None]
+        return out
+
+    return lay(arm, ha, aa, fa, ra), lay(hand, hh, ah, fh, rh)
+
+
 CHUNK = 1.2         # the skinned hand's fingers this much thicker than MakeHuman's (his are working hands)
 HAND_SCALE = 1.15   # and the whole hand this much bigger, about the wrist (his paintings' hands are big)
 JOINT_BLEND = 0.007  # metres either side of a finger joint over which the bones share the skin
@@ -692,7 +788,7 @@ PLANE_PX = 1.0 / 30  # a painted plane, of the hand's paint a side (his painting
 PLANE_KEEP = 0.3     # how much of the smooth shading shows through a plane
 MATCH = 0.97         # the hand's typical colour: this times his forearm's
 KNUCKLE_R = 0.011    # metres round a finger joint: its knuckle's light plane, its crease
-KEY_TONES = np.array([0.62, 0.95, 1.28])   # the key light's shadow, half-tone and light on his hand
+KEY_TONES = np.array([0.55, 0.95, 1.36])   # the key light's shadow, half-tone and light on his hand
 NAIL_LEN = 0.55      # of the last bone, from its tip: the nail
 NAIL_WIDE = 0.45     # how squarely a point faces the nail's way to be nail (its width across)
 

@@ -14,6 +14,7 @@ extends SceneTree
 ## --mipdir=DIR: with mips read from DIR/level_N.png (made otherwise than by averaging).
 ## --grade=tonemap|adjust|game: the game's picture grade on the frame (see _grade).
 ## --aim=Y: the camera level with height Y and looking at it (with --fov 35 --dist 3.4: the whole man).
+## --aimx=X: and moved X across (sideways, the same way whatever his turn): at a hand, say.
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
 ## --hide=A,B: his meshes whose names begin A or B not drawn. --curl=r:1,l:0.5: his hands curled.
 ## --draw: his revolver drawn; --sever=index_r,...: those fingers shot off.
@@ -57,6 +58,7 @@ func _run() -> void:
 	var mipdir := ""
 	var grade := ""
 	var aim := -1.0
+	var aimx := 0.0
 	var tag := ""
 	var hide := PackedStringArray()
 	var curl := PackedStringArray()
@@ -77,6 +79,8 @@ func _run() -> void:
 			grade = a.substr(8)
 		elif a.begins_with("--aim="):
 			aim = float(a.substr(6))
+		elif a.begins_with("--aimx="):
+			aimx = float(a.substr(7))
 		elif a.begins_with("--tag="):
 			tag = a.substr(6) + "_"
 		elif a.begins_with("--global="):
@@ -167,8 +171,8 @@ func _run() -> void:
 	m.global_position = Vector3.ZERO
 	# --aim=Y: the camera level with Y and looking at it (0.9: the whole man), else at his eyes.
 	var cy := aim if aim >= 0.0 else EYE
-	cam.position = Vector3(0, cy, -dist)
-	cam.look_at(Vector3(0, cy - (0.0 if aim >= 0.0 else 0.05), 0))
+	cam.position = Vector3(aimx, cy, -dist)
+	cam.look_at(Vector3(aimx, cy - (0.0 if aim >= 0.0 else 0.05), 0))
 	var rig := []
 	for light in lights:
 		for n in rig:
