@@ -278,24 +278,25 @@ pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`d
 frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; the roadmap's steps; targets in `docs/concept/targets/`):
-- Done: the woods are C (2026-10-15); 1.1 the targets; 1.2's shader half and in-game sheet
-  (`docs/screenshots/painted_light/in_game.jpg`: saloon holds, the street at golden hour too dark
-  and red); 1.4 surfaces to the man (#126: woods in his 32/m squares) and the road (brief
-  `docs/briefs/road.md`): smooth painted earth to the boardwalks, a street map of packed and
-  churned earth with the ruts drawn the street's length, old prints as decals, 3D stones along the
-  ruts (sheets `docs/screenshots/surfaces/road_low.jpg`, `road_street.jpg`; views `road_low_golden`,
-  `road_low_noon`). Paint ~$2.44 of Sean's $3.50.
-- Next: Sean's word on 1.4; then 1.2's street light (the cowboy at 0.61 of his paint at golden hour)
-  if he wants him lighter. Critic 2026-10-16_r1's top: the ruts still read flatter than the target's,
-  the stones; then the saloon's standing men, the street's mauve sky.
+- Done: the woods are C (2026-10-15); 1.1 the targets; 1.4 the road (#130, build 1280: painted
+  earths, a street map of ruts, stones, old prints; brief `docs/briefs/road.md`); the painted sky
+  (two panels toward and away from the sun, `reduce_sky.py`, shown while the sun is low), a slight
+  haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
+  street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
+  `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$2.70 (road $2.44, sky $0.26).
+- Next: Sean's eye on the sky, haze, wood and the cowboy's light. Critic 2026-10-16_r3's top: the
+  saloon's standing men; the sky too full of cloud (no blue, no sun disc) and the road too orange
+  with straight ruts, both judged against the old squared, clear-sky street painting: the judge's
+  street target wants bringing into line with Sean's new ones (Gate A, 1.5).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
-  `process/fix_alpha_border=false` in its import; noon views wash out (exposure, not the road).
-- Waiting on Sean: his eye on the road sheets.
+  `process/fix_alpha_border=false` in its import; the rendered perf bench doesn't finish under
+  lavapipe (draw calls through the bridge's `read frame` instead); volumetric haze lifts near
+  shadows (measure the darks before raising it).
 - For characters (Sean, 2026-10-16: the look is painted illustration, DESIGN.md §4): the painterly
   cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
-  painted smooth like his face, as part of 1.3; art smooths the wood.
+  painted smooth like his face, as part of 1.3; the wood is smooth again.
 
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`, `skinned-hands.md`):
