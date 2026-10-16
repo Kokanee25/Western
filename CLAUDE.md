@@ -283,11 +283,14 @@ frozen until Sean names one.
   (two panels toward and away from the sun, `reduce_sky.py`, shown while the sun is low), a slight
   haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
   street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
-  `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$2.70 (road $2.44, sky $0.26).
-- Next: Sean's eye on the sky, haze, wood and the cowboy's light. Critic 2026-10-16_r3's top: the
-  saloon's standing men; the sky too full of cloud (no blue, no sun disc) and the road too orange
-  with straight ruts, both judged against the old squared, clear-sky street painting: the judge's
-  street target wants bringing into line with Sean's new ones (Gate A, 1.5).
+  `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$3.98 (road $2.44, sky $0.26,
+  references $1.28).
+- The judge and critic compare against painted references since 2026-10-16
+  (`docs/concept/*-painted.png`, `tools/textures/paint_reference.py`; Sean chose street C).
+- Next: Sean's eye on the sky (#131, build 1294). Critic r4's top: the card player still in squares
+  (characters' 1.3), the street's sky an orange blanket near the sun with canyon walls closing it,
+  the standing men; then blocky roadside grass, no cool moonlight in the saloon (the new saloon
+  painting is cooler and less yellow than ours: judge r4 saloon 0.644).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
