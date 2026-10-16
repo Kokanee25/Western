@@ -24,8 +24,6 @@
    "mosaic": 1.9
   },
   "saloon_wall": {
-   "lightness": 0.75,
-   "chroma": 0.45,
    "boards": true,
    "for": "saloon",
    "kind": "tile",
@@ -42,10 +40,9 @@
     860,
     200
    ],
-   "contrast": 1.8,
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "dark_trim": {
    "lightness": 0.9,
@@ -68,8 +65,6 @@
    "mosaic": 1.7
   },
   "shot_table": {
-   "lightness": 0.72,
-   "chroma": 1.6,
    "boards": true,
    "for": "saloon",
    "kind": "tile",
@@ -86,14 +81,9 @@
     1300,
     900
    ],
-   "contrast": 2.6,
-   "hue": -12,
-   "bold": {
-    "contrast": 2.6
-   },
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "framing": {
    "lightness": 0.9,
@@ -152,7 +142,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "painted_rust": {
    "boards": true,
@@ -173,7 +163,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "sign": {
    "boards": true,
@@ -194,7 +184,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "road": {
    "for": "street",
@@ -239,7 +229,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "sign_general_store": {
    "for": "street",
@@ -260,7 +250,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "sign_dry_goods": {
    "for": "street",
@@ -281,7 +271,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "sign_jail": {
    "for": "street",
@@ -302,7 +292,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "sign_livery": {
    "for": "street",
@@ -323,7 +313,7 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "road_wide": {
    "for": "street",
