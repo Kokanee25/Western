@@ -80,8 +80,8 @@ func _scatter() -> void:
 		transforms.append(Transform3D(basis, p))
 		# Tan-grey, rust, pale and dark stones, as the target's, near the dirt's own value (paler,
 		# they read as white blobs in the noon sun).
-		var shades := [Color(0.62, 0.52, 0.42), Color(0.58, 0.4, 0.28), Color(0.7, 0.61, 0.5), Color(0.46, 0.36, 0.28)]
-		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.6, 0.47, 0.35), rng.randf() * 0.4))
+		var shades := [Color(0.56, 0.44, 0.33), Color(0.55, 0.36, 0.24), Color(0.64, 0.53, 0.41), Color(0.42, 0.32, 0.24)]
+		colours.append((shades[rng.randi() % shades.size()] as Color).lerp(Color(0.56, 0.42, 0.3), rng.randf() * 0.4))
 	stones = transforms
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D

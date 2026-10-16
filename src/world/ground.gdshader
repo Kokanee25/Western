@@ -82,6 +82,8 @@ uniform sampler2D loose_h : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float earth_metres = 8.0;
 uniform float relief_depth = 0.06;
 uniform float compact_relief = 0.35;
+// And the churned earth's (at 1 its clods read as a dark speckle over the near ground).
+uniform float loose_relief = 0.6;
 uniform float relief_cavity = 0.3;
 // How dark a rut's bottom is at full depth (damp, shadowed earth), and how light its crumbled lip.
 uniform float rut_dark = 0.45;
@@ -248,9 +250,9 @@ void fragment() {
 			vec2 d = max(1.0 / hs, fwidth(e));
 			float kc = compact_relief * (1.0 - loose);
 			float hx = (texture(compact_h, e + vec2(d.x, 0.0)).r - texture(compact_h, e - vec2(d.x, 0.0)).r) * kc
-					+ (texture(loose_h, e2 + vec2(d.x, 0.0)).r - texture(loose_h, e2 - vec2(d.x, 0.0)).r) * loose;
+					+ (texture(loose_h, e2 + vec2(d.x, 0.0)).r - texture(loose_h, e2 - vec2(d.x, 0.0)).r) * loose * loose_relief;
 			float hz = (texture(compact_h, e + vec2(0.0, d.y)).r - texture(compact_h, e - vec2(0.0, d.y)).r) * kc
-					+ (texture(loose_h, e2 + vec2(0.0, d.y)).r - texture(loose_h, e2 - vec2(0.0, d.y)).r) * loose;
+					+ (texture(loose_h, e2 + vec2(0.0, d.y)).r - texture(loose_h, e2 - vec2(0.0, d.y)).r) * loose * loose_relief;
 			vec2 slope = vec2(mirror * hx / (2.0 * d.x), hz / (2.0 * d.y)) * relief_depth / earth_metres;
 			vec2 ms = vec2(textureSize(street_map, 0));
 			vec2 dm = max(1.0 / ms, fwidth(muv));
@@ -263,7 +265,7 @@ void fragment() {
 			// The hollows darker; a rut's bottom darker still, its fresh lip a touch lighter.
 			float h0 = mix(texture(compact_h, e).r, texture(loose_h, e2).r, loose);
 			float rut = (m.g - 0.5) * 2.0 * street_rut_range;
-			earth *= mix(1.0 - relief_cavity, 1.0, mix(1.0, h0, mix(compact_relief, 1.0, loose)));
+			earth *= mix(1.0 - relief_cavity, 1.0, mix(1.0, h0, mix(compact_relief, loose_relief, loose)));
 			// Most of a trough dark, not only its deepest line: with the sun down the street, along
 			// the ruts, their walls take no raking light, and the target draws them as dark bands.
 			earth *= 1.0 - rut_dark * smoothstep(0.004, 0.05, -rut);
@@ -273,7 +275,7 @@ void fragment() {
 			v_mirror = mirror;
 			v_muv = muv;
 			v_loose = loose;
-			v_h0 = h0 * mix(compact_relief, 1.0, loose) * relief_depth + rut;
+			v_h0 = h0 * mix(compact_relief, loose_relief, loose) * relief_depth + rut;
 			v_on *= near;
 			col = mix(col, earth, on);
 		}
@@ -308,7 +310,7 @@ void light() {
 			vec2 e = v_earth + vec2(v_mirror * along.x, along.y) * t / earth_metres;
 			vec2 muv = v_muv + along * t / span;
 			float he = mix(textureLod(compact_h, e, 1.0).r * compact_relief,
-					textureLod(loose_h, e + vec2(0.41, 0.23), 1.0).r, v_loose) * relief_depth;
+					textureLod(loose_h, e + vec2(0.41, 0.23), 1.0).r * loose_relief, v_loose) * relief_depth;
 			float hr = (textureLod(street_map, muv, 0.0).g - 0.5) * 2.0 * street_rut_range;
 			hidden = max(hidden, smoothstep(0.0, 0.012, he + hr - (v_h0 + t * rise)));
 		}
