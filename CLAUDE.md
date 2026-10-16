@@ -314,16 +314,13 @@ frozen until Sean names one.
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
-**Gameplay** (branch `claude/gameplay-…`):
-- Done: the ragdoll lab (`experiments/physics_lab/`, Prompt 01); a falling man keeps his
-  momentum and crumples with muscle tone; dynamite breaks the studs by it; lamp shadows drawn
-  once, not every frame (street render CPU ~2.9 ms at Sean's); the soak's freeze (Senses walked a
-  Dictionary keyed by freed people: loops for ever in Godot 4.7), and a frozen soak now goes red
-  in 10 min with every thread's backtrace (`frozen.md`) instead of sitting silent.
-- Next: Prompt 09 (fix the falls) when Sean says; watch the nightly soak: one CI run froze once
-  more after the fix (ObjectDB's lock stuck, unexplained), the next `frozen.md` says where;
-  brick wants a brief first; M4 step 5 frozen. (Flakes fixed: `test_chaos` runs its children on one
-  worker thread; `test_drop` turns misfires off.)
-- Waiting on Sean: Prompt 09's go; performance part B's next step; the sun's cascades (two for
-  four saves ~0.2 ms, a look call); whether a wary man should stand still for most of an hour
-  after a fight; the `proposed` feel ranges.
+**Gameplay** (branch `claude/gameplay-…`; roadmap 0.1, and 3.2 moved up by Sean 2026-10-16):
+- Done: the soak's freeze (Senses' walk over freed people) and a frozen soak reports itself
+  (`frozen.md`); flakes fixed (`test_chaos`, `test_drop`); after a fight the gang rides out, a man
+  down gives himself up, the shout key arrests (#128, build 1259); the falls' first round (#132,
+  build 1320): weights, solver steps, tone about the joint; lab flags 90 -> 10
+  (`experiments/physics_lab/results/2026-10-16_weight/`, brief `docs/briefs/fix-the-falls.md`).
+- Next: 3.2 on: every limp fall folds at the knees into a kneel, a chest shot looks like a faint
+  (hit reactions short of a fall), the shove's hip-hinged bridge; 0.1: the nightlies green three
+  nights; performance part B (Sean: "do what works best"; the fire tick native, step 2, first).
+- Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
