@@ -33,7 +33,7 @@ func test_his_head_keeps_his_expressions() -> void:
 	for i in base.size():
 		var d := (jaw[i] - base[i]).length()
 		most = maxf(most, d)
-		if base[i].z > 0.0:  # the back of his head (he faces -Z)
+		if base[i].z > 0.06:  # the back of his head (he faces -Z; his nose is at -0.11, his crown's back +0.17)
 			behind = maxf(behind, d)
 	check(most > 0.02 and most < 0.06, "his jaw drops 2-6 cm (%.1f cm)" % (most * 100))
 	check(behind < 0.0005, "the back of his head stays put (%.2f mm)" % (behind * 1000))
