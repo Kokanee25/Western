@@ -1840,7 +1840,7 @@ func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
 const TONE := {
 	&"abdomen": 260.0, &"chest": 220.0, &"neck": 60.0, &"head": 30.0,
 	&"upper_arm": 30.0, &"forearm": 15.0, &"hand": 3.0,
-	&"thigh": 320.0, &"shin": 300.0, &"foot": 60.0,
+	&"thigh": 320.0, &"shin": 100.0, &"foot": 60.0,
 }
 const TONE_START := 0.55
 const TONE_START_CONSCIOUS := 0.7
