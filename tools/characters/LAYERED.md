@@ -118,7 +118,9 @@ way: the same man, triangle for triangle).
   beyond his wrist's cut and moves the skirt behind his hand, smoothly; `body_paint.py` takes no
   picture's colour of the wrong kind (skin or cloth, `cloth_like`) or the backdrop's grey (the
   side pictures' hands, hanging on his shorts, had been painted on his hips). Sheet
-  `c9_hands_clear.png`.
+  `c9_hands_clear.png`. Then his fist (`HumanBody.FIST_GAIN`: a skinned hand's joints bend more
+  than the finger nodes, whose full curl is a loose claw on a whole hand; `THUMB_ACROSS`: his
+  thumb folds across the fist, not into his palm). Sheet `c10_fist.png`.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
   his face's skin matched to the body's; the white collar under his jaw repainted to skin.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
