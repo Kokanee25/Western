@@ -54,9 +54,10 @@ facing its right, from behind:
   "shoulders": 1.10, "own_fingers": "skinned",
   "tris": {"skin": 30000, "head": 10000}, "outfit": {},
   "pieces": {"coat": "<man>_coat", "vest": "<man>_under_vest",
-             "shirt": "<man>_under_shirt", "trousers": "<man>_under_trousers"}
+             "shirt": "<man>_under_shirt", "trousers": "<man>_trousers"}
   ```
-  and `people.<man>_vest_body` the same but `"pieces"` without the coat and
+  and `people.<man>_vest_body` the same but `"pieces"` without the coat, its trousers
+  `<man>_under_trousers`, and
   `"paint": "<man>_body"` (his body's repaint shared, not copied). Insert both by hand (a
   `json.dumps` rewrite reformats the whole file).
 
@@ -93,7 +94,7 @@ facing its right, from behind:
    → `assets/people/<man>_body.glb` (+ `_skin.png`, `_coat.png`, `_trousers.png`, `.json`). The
    report's `shoulders`, `own_fingers` (palm and finger triangles a side), `piece_coat`
    (`pushed_out_after_warp`, `weights_from_skin`) and `skin_tucked` say what it did.
-6. **His head on, through the ring** (and the same with `--body=<man>_vest_body
+6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`) (and the same with `--body=<man>_vest_body
    --out=<man>_vest_layered`):
    `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
    → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
@@ -180,6 +181,26 @@ way: the same man, triangle for triangle).
   darker and greyer than his painting's), `mottle` (the share of Rodin's camouflage blotches,
   between `MOTTLE_FINE` and `MOTTLE_WIDE` texels, taken out: coat 0.7, trousers 0.6). Sheet
   `d3_cloth.png`.
+- His clothes' defects, by cause (Sean, 2026-10-16; sheets `d5_no_coat_fixed.png`,
+  `d6_coat_fixed.png`, silhouettes `d4_coat_silhouette.png`):
+  - Collar missing (geometry: cut at CHIN, and the bust's neck sat outside it): the twin's collar
+    kept to `twin_pieces.COLLAR_TOP`; `neck_ring.collar_out` pushes garments out of the bust's neck
+    and `stand_collar` builds the shirt's stand-up collar round it (in his shirt's lightest white)
+    in place of the twin's ragged one. His face is matched to his bare skin
+    (`build/bare_skin/`, written by the fitter), not his shirt-painted neck.
+  - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
+    `MIN_PART` triangles folded into the garment round them.
+  - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a
+    smooth curve round his waist (`HEM_BINS`, `HEM_BAND`); each garment runs `UNDERLAP` under the
+    edge of the one over it.
+  - Arm through the sleeve (overlap: the sleeve dented by the layer tuck): sleeves aren't tucked
+    under trousers or vest; `_sleeves_round_arms` keeps a sleeve `SLEEVE_ROOM` outside his arm.
+  - Orange skin between garments (texture: his skin under the shirt unpainted where the twin's
+    neck reaches into his head's region): painted the shirt's colour up to his collar.
+  - Trousers near black (texture and light): `cloth.trousers.L` 24 (his pictures' 20-26); the
+    lab's light still renders dark cloth at about half its texture's lightness (art's lane).
+  - In a coat he wears his coat's own trousers (`bold_cowboy_trousers`): the coatless ones' top
+    showed in the coat's opening, which has the dressed twin's trousers painted in it.
 
 ## 5. Known
 
@@ -195,5 +216,10 @@ way: the same man, triangle for triangle).
   ground (as before the layers); a few dark specks by his armpits in the coat.
 - The coat's front still has the dressed model's vest and shirt painted in its opening's edges
   (the real vest shows in the middle).
+- From behind, his coat's skirt parts at the vent and shows his trousers (the painting's hangs
+  closed); from the front it hangs a little narrower than the painting's.
+- A few white shards round his tie's knot; under the coat his trousers render near black.
+- In lamp light his face's colour strength rises from ~37 to ~58 (Lab chroma), as before these
+  changes (his face is unchanged: the light is art's).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,
   `RECIPE.md`); the layered man isn't wired to it yet.

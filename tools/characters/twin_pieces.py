@@ -46,6 +46,11 @@ WITHOUT_DE = 22.0     # ... and this near its colour (Lab) is them, seen through
 WOOL_DE = 16.0        # ... or this far from the coat's own wool colour (Lab)
 ELBOW_BLEND = 0.25    # of his upper arm's length: upper and lower sleeve blended across his elbow (--split=layers)
 SHOULDER_EASE = 0.35  # ... and the sleeve eased onto the bones from nothing at his shoulder over this much of it
+COLLAR_TOP = 0.875    # of his height: his shirt's collar kept up to here (--split=layers)
+HEM_BINS = 36         # angles round his waist the vest's hem is read at (--split=layers) ...
+HEM_BAND = 0.03       # ... and how far either side of it (of his height) it decides vest or trousers
+MIN_PART = 40         # triangles: a garment's piece smaller than this is a stray fragment
+UNDERLAP = 0.008      # of his height (~1.5 cm): an inner garment runs on this far under an outer's edge
 LAYER_NEAR = 0.006  # of his height (~1 cm): each triangle the commonest class within it
 SKIN_NEAR = 0.006  # of his height (~1 cm): the twin's surface this near the bare skin, in a skin colour, is skin
 THROAT = 0.80      # of his height: above it, the twin's surface on his skin in a skin colour is his skin
@@ -98,6 +103,40 @@ def bone_of(p, j):
         t = np.clip((p - a) @ (b - a) / max((b - a) @ (b - a), 1e-12), 0, 1)
         D.append(np.linalg.norm(p - (a + t[:, None] * (b - a)), axis=1))
     return np.array(names)[np.argmin(np.array(D), 0)]
+
+
+def _tri_adjacency(v, tris):
+    """Each triangle's neighbours (sharing a corner's place: Rodin's triangles share no points)."""
+    _u, weld = np.unique(np.round(v / 1e-6).astype(np.int64), axis=0, return_inverse=True)
+    wt = weld.ravel()[tris]
+    by_pt = {}
+    for t, row in enumerate(wt):
+        for q in row:
+            by_pt.setdefault(int(q), []).append(t)
+    adj = [set() for _ in range(len(tris))]
+    for ts in by_pt.values():
+        for t in ts:
+            adj[t].update(ts)
+    return [np.array(sorted(a - {i}), np.int64) for i, a in enumerate(adj)]
+
+
+def _components(adj, ids):
+    """Connected pieces of the triangles `ids` (lists of triangle ids)."""
+    left = set(int(i) for i in ids)
+    out = []
+    while left:
+        seed = left.pop()
+        comp, stack = [seed], [seed]
+        while stack:
+            i = stack.pop()
+            for j in adj[i]:
+                j = int(j)
+                if j in left:
+                    left.remove(j)
+                    comp.append(j)
+                    stack.append(j)
+        out.append(np.array(comp, np.int64))
+    return out
 
 
 def _turn_onto(u, v):
@@ -302,10 +341,74 @@ def main():
             near = ctree.query_ball_point(cent, LAYER_NEAR)
             votes = np.array([np.bincount(cls[n][(cls[n] >= 0) & cloth[n]], minlength=3) for n in near])
             cls = np.where(votes.sum(1) > 0, votes.argmax(1), cls)
+        # His shirt's collar stands up past CHIN (the head's cut): kept, white cloth to COLLAR_TOP.
+        collar = (cy >= CHIN) & (cy < COLLAR_TOP) & (L >= 55) & (C < 20) & (np.abs(cent[:, 2]) < 0.08)
+        cloth = cloth | collar
+        cls[collar] = SHIRT
+        cls[~cloth] = -1
+        # Stray fragments (a fold's shadow read as vest on his shirt, a lit patch on his vest)
+        # folded into the garment round them: each connected piece of a garment smaller than
+        # MIN_PART triangles takes the commonest garment it touches.
+        adj = _tri_adjacency(dv, dtris)
+        for _ in range(3):
+            changed = 0
+            for k in (SHIRT, VEST, TROUSERS):
+                for comp in _components(adj, np.nonzero(cloth & (cls == k))[0]):
+                    if len(comp) >= MIN_PART:
+                        continue
+                    nb = np.concatenate([adj[i] for i in comp])
+                    nb = nb[(cls[nb] >= 0) & (cls[nb] != k)]
+                    if len(nb):
+                        cls[comp] = np.bincount(cls[nb], minlength=3).argmax()
+                        changed += len(comp)
+            if not changed:
+                break
+        # The vest's hem on a smooth curve round his waist (cut by colour, triangle by triangle,
+        # it came out in sawteeth): at each of HEM_BINS angles round his middle, the height where
+        # vest meets trousers (the median of the vest's triangles touching the trousers), eased
+        # round him; within HEM_BAND of it, vest above, trousers below.
+        cen_x, cen_z = float(np.median(cent[cloth, 0])), float(np.median(cent[cloth, 2]))
+        ang = np.arctan2(cent[:, 2] - cen_z, cent[:, 0] - cen_x)
+        edge = np.array([(cls[i] == VEST) and np.any(cls[adj[i]] == TROUSERS) for i in range(len(dtris))])
+        bins = np.linspace(-np.pi, np.pi, HEM_BINS + 1)
+        b_of = np.clip(np.searchsorted(bins, ang, side="right") - 1, 0, HEM_BINS - 1)
+        hem = np.full(HEM_BINS, np.nan)
+        for k in range(HEM_BINS):
+            m = edge & (b_of == k) & (cy > VEST_LOW) & (cy < TIE_LOW)
+            if m.sum() >= 3:
+                hem[k] = np.median(cy[m])
+        ok = np.isfinite(hem)
+        if ok.sum() >= 4:
+            mids = 0.5 * (bins[:-1] + bins[1:])
+            xs = np.r_[mids[ok] - 2 * np.pi, mids[ok], mids[ok] + 2 * np.pi]
+            hem = np.interp(mids, xs, np.tile(hem[ok], 3))
+            for _ in range(2):
+                hem = (np.roll(hem, 1) + 2 * hem + np.roll(hem, -1)) / 4
+            h_at = np.interp(ang, np.r_[mids - 2 * np.pi, mids, mids + 2 * np.pi], np.tile(hem, 3))
+            band = cloth & np.isin(cls, [VEST, TROUSERS]) & (np.abs(cy - h_at) < HEM_BAND)
+            cls[band] = np.where(cy[band] > h_at[band], VEST, TROUSERS)
+            print("twin_pieces: the vest's hem laid on a smooth line round his waist (%.3f to %.3f of his height)" % (hem.min(), hem.max()))
+        # And what's still left alone (no garment round it) dropped.
+        for k in (SHIRT, VEST, TROUSERS):
+            for comp in _components(adj, np.nonzero(cloth & (cls == k))[0]):
+                if len(comp) < MIN_PART:
+                    cls[comp] = -1
         if os.environ.get("TWIN_DEBUG"):
             np.savez(os.path.join(ROOT, "build", "twin_layers.npz"), dv=dv, dtris=dtris, cloth=cloth, cls=cls, cy=cy)
-        for name, k in (("shirt", SHIRT), ("vest", VEST), ("trousers", TROUSERS)):
-            write_piece(name, dv, duv, dtris[cloth & (cls == k)], dcol, body, out)
+        # Each garment runs on UNDERLAP under the edges of those over it (shirt < trousers < vest):
+        # cut at one line, the vest's hem and the waistband stood apart in sawteeth with his skin
+        # between; overlapped, the fitter tucks the inner under the outer and no gap can open.
+        order = (SHIRT, TROUSERS, VEST)
+        tree_c = cKDTree(cent)
+        for n, k in enumerate(order):
+            own = cloth & (cls == k)
+            over = np.isin(cls, order[n + 1:]) & cloth
+            near = np.zeros(len(dtris), bool)
+            for hits in tree_c.query_ball_point(cent[own], UNDERLAP):
+                near[hits] = True
+            sel = own | (near & over)
+            name = ("shirt", "vest", "trousers")[k]
+            write_piece(name, dv, duv, dtris[sel], dcol, body, out)
         return
     coat = cloth & ~legs
     if a.get("--without"):
