@@ -301,6 +301,11 @@ func _go_limp() -> void:
 	# the engine gives them no velocity, so it's from his position).
 	# _record has already run this tick: its centre-of-mass velocity is last tick's walk.
 	_speed_before = _com_v_now
+	# "dead": killed outright as he goes (a ball through the brain): no tone at all (HumanBody
+	# gives a dead man none), where a "blackout" goes limp alive and keeps a moment of it.
+	if scenario.get("dead", false):
+		for man in _men:
+			man.physiology._die(&"brain")
 	for man in _men:
 		man.go_limp(push)
 	# Read what go_limp left in the bodies before the solver has run: the push it gives every part,
