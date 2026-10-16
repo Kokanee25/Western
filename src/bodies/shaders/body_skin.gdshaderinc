@@ -63,6 +63,12 @@ uniform float paint_limit = 1.3;
 // facing it and the night round him darkens and cools him. Eased channel by channel towards
 // paint_limit, so a hot orange lamp warms him without driving his face to flat orange.
 uniform float paint_tint = 0.0;
+// The sun's own ceiling for a painted part, as a share of paint_limit (roadmap 1.2, 2026-10-16):
+// in the saloon several lamps each stay under the limit, but in the street one strong sun is
+// nearly all the light, and capped at the limit it left the painted cowboy at 0.61 of his paint at
+// golden hour (tools/face_light.py). At 3.5 he's 0.91 there and the saloon's 1.03 as before (its
+// lamps aren't directional). 1 = as before.
+uniform float paint_sun_limit = 3.5;
 // The most all the lights together make a person, × his own colour (painted or not; its top
 // channel). paint_limit
 // holds each light alone on a painted part, and nothing held an unpainted one: 2026-10-14, the
@@ -272,7 +278,8 @@ void light() {
 		// off towards paint_limit so a lamp at his elbow doesn't burn the painted colours out.
 		vec3 col = mix(vec3(dot(LIGHT_COLOR, vec3(0.2126, 0.7152, 0.0722))), LIGHT_COLOR, paint_tint);
 		vec3 m = k * col / PI * paint_gain;
-		add = m / (1.0 + m / paint_limit) / paint_gain;
+		float lim = paint_limit * (LIGHT_IS_DIRECTIONAL ? paint_sun_limit : 1.0);
+		add = m / (1.0 + m / lim) / paint_gain;
 	} else {
 		add = k * LIGHT_COLOR * (light_bands > 0.0 ? mix(shade_tint, vec3(1.0), k) : vec3(1.0)) / PI;
 	}
