@@ -1736,7 +1736,9 @@ func go_limp(push := Vector3.ZERO) -> void:
 		# on the ground rather than in it.
 		rb.continuous_cd = sid == &"head" or sid == &"hand_l" or sid == &"hand_r"
 		rb.linear_damp = 0.2
-		rb.angular_damp = 2.0
+		# Wrists and ankles: light ends on a joint that soft tissue damps; at 2 a hand or foot lying
+		# still on the ground kept turning (~2 rad/s) and he never came to rest.
+		rb.angular_damp = 6.0 if String(sid).begins_with("hand") or String(sid).begins_with("foot") else 2.0
 		rb.set_meta(&"human_body", self)
 		rb.set_meta(&"segment", sid)
 		rb.set_meta(&"mass", rb.mass)
