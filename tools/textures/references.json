@@ -1,0 +1,27 @@
+{
+ "about": "The judge's and the blind critic's reference paintings in the painted-illustration look (Sean, 2026-10-16; DESIGN.md §4), painted by tools/textures/paint_reference.py: each the old painting's shot (`base`, its composition kept) repainted beside the targets that set its look (`refs`, in the order the prompt names them).",
+ "references": {
+  "street": {
+   "base": "docs/concept/street-golden-hour.png",
+   "refs": [
+    "docs/concept/targets/7_sky_target.jpg",
+    "docs/concept/targets/6_road_target.jpg"
+   ],
+   "look": "golden hour, as in the first image: the sun low on the horizon between the red-rock spires at the end of the street, a small white-hot disc with soft golden rays through a warm haze; the whole street in warm gold light with long raking shadows toward the viewer. The sky as in the second image (a sunset): a deep blue only high overhead, gold, apricot and orange toward the horizon, towering cumulus clouds lit gold, peach and rose by the low sun with violet-grey undersides, and the sun a small white-hot disc low between the mesas with soft golden rays through a warm haze. The road as in the third image: smooth packed dirt, never squares, with long wagon ruts and wheel tracks running down the street, low ridges and clods and loose pale stones catching the low sun, long raking shadows across it. The buildings' weathered boards and painted signs lit warm on their sunward faces, crisp shadows under the porches. The red-rock spires and mesas at the end of the street stay exactly where they are, standing under the sky; the water tower and windmill too."
+  },
+  "saloon": {
+   "base": "docs/concept/saloon-blocks.png",
+   "refs": [
+    "docs/concept/targets/1_man_at_table_target.jpg"
+   ],
+   "look": "painted like the second image, the portrait: soft modelled light across faces and hands, warm lamplight with cool shadow, smooth fabric and wood, two or three values to a plane. Many oil lamps, each with a near-white core and a soft halo pooling warm light on its own patch of wood, deep near-black shadows between them, a slight haze of tobacco smoke toward the back of the room; the moonlit street through the doorway cool blue. The men posed and busy as in the first image."
+  },
+  "fire": {
+   "base": "docs/concept/livery-fire.png",
+   "refs": [
+    "docs/concept/targets/1_man_at_table_target.jpg"
+   ],
+   "look": "dusk after sunset, as in the first image: a deep purple, crimson and orange sky, no daylight, the town lit mostly by the fire. Painted like the second image, the portrait: soft modelled light, smooth painted surfaces, no squares. The fire's flames bright and alive, glowing smoke rising and lit orange from below, the boards, the faces and the wet ground lit orange by the fire, deep blue-violet shadows away from it."
+  }
+ }
+}

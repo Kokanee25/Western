@@ -31,10 +31,10 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 W, H = 1280, 720
 VIEWS = {
-    "saloon": ("shot_match_saloon.png", "docs/concept/saloon-blocks.png", "the saloon at night, the man at the card table"),
-    "street": ("shot_match_street.png", "docs/concept/street-golden-hour.png", "the street at golden hour, revolver at the hip"),
+    "saloon": ("shot_match_saloon.png", "docs/concept/saloon-painted.png", "the saloon at night, the man at the card table"),
+    "street": ("shot_match_street.png", "docs/concept/street-golden-hour-painted.png", "the street at golden hour, revolver at the hip"),
     # Only when the round has it (judge.py --only=...,fire).
-    "fire": ("livery_fire_dusk.png", "docs/concept/livery-fire.png", "the livery burning at dusk, seen from the street"),
+    "fire": ("livery_fire_dusk.png", "docs/concept/livery-fire-painted.png", "the livery burning at dusk, seen from the street"),
 }
 OPTIONAL = {"fire"}
 SCALE = 3
@@ -47,8 +47,8 @@ The target look is the concept paintings below. The game renders the same shots.
 look hard at the painting and the render at the same size, then list the FIVE biggest
 differences a viewer would notice between the renders and the paintings, biggest first, across
 all the shots together (say which shot each is in). Think like a viewer, not a tester: light and
-shadow, colour, what things look like, how much is going on, the pixel style (the paintings are
-cut into small squares of flat colour), the people, the mood. A difference should be something
+shadow, colour, what things look like, how much is going on, the painting style (the paintings
+are smooth painted illustrations, soft brushwork, no pixel squares), the people, the mood. A difference should be something
 one could act on ("the lamp's glass is a flat orange disc; the painting's is near-white over the
 flame with a halo"), not a score.
 

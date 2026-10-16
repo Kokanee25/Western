@@ -15,6 +15,12 @@ The prop is `docs/concept/style/prop-lamp-card-table.png`.
 
 Changing a target is Sean's call; a gap closes when a new render beside it no longer shows it.
 
+Since 2026-10-16 the judge and the blind critic compare against the paintings redrawn in the
+painted-illustration look (DESIGN.md §4; Sean chose street C): `docs/concept/street-golden-hour-painted.png`
+(the old shot under his sky and on his road), `saloon-painted.png`, `livery-fire-painted.png`, painted
+by `tools/textures/paint_reference.py` (`references.json`; the tries in `assets/textures/raw/ref_*`,
+sheet `docs/screenshots/sky/references_new.jpg`). The squared originals stay for history.
+
 ## 1. A man close at a table
 
 Render: `shot_match_close`.

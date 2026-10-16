@@ -384,6 +384,13 @@ jobs:
               case "$WHICH" in sky:*) only="--only=${WHICH#sky:}" ;; esac
               python3 tools/textures/paint_sky.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
               exit 0 ;;
+            # textures = reference (or reference:street,...): the judge's reference paintings in
+            # the painted look (tools/textures/paint_reference.py, art, 2026-10-16).
+            reference|reference:*)
+              only=""
+              case "$WHICH" in reference:*) only="--only=${WHICH#reference:}" ;; esac
+              python3 tools/textures/paint_reference.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
+              exit 0 ;;
           esac
           python3 tools/textures/paint_textures.py $args
           python3 tools/textures/reduce.py --sheet=docs/screenshots/textures/factory_run${{ github.run_number }}.png
