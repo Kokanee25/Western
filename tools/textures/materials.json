@@ -349,7 +349,7 @@
    ],
    "lightness": 1.1,
    "contrast": 1.0,
-   "chroma": 1.15,
+   "chroma": 0.95,
    "hue": 7,
    "colours": 48,
    "texels_per_metre": 128,
@@ -365,7 +365,7 @@
     900,
     520
    ],
-   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's compacted earth, blended with road_loose by the traffic map; the ruts and prints are drawn in code over both."
+   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's compacted earth, blended with road_loose by the traffic map; the ruts and prints are drawn in code over both. Chroma down 2026-10-16 (docs/briefs/match-the-man.md): the street read saturation 0.69 against the man's 0.52, 'too orange' (critic r3, r4)."
   },
   "road_loose": {
    "for": "street",
@@ -376,7 +376,7 @@
    ],
    "lightness": 1.1,
    "contrast": 1.0,
-   "chroma": 1.15,
+   "chroma": 0.95,
    "hue": 7,
    "colours": 48,
    "texels_per_metre": 128,
@@ -392,7 +392,7 @@
     600,
     1086
    ],
-   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's disturbed earth, blended with road_compact by the traffic map."
+   "about": "Roadmap 1.4's road (docs/briefs/road.md): the street's disturbed earth, blended with road_compact by the traffic map. Chroma down 2026-10-16 (docs/briefs/match-the-man.md): the street read saturation 0.69 against the man's 0.52, 'too orange' (critic r3, r4)."
   }
  }
 }
