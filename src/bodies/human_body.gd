@@ -102,6 +102,16 @@ const JOINT_LIMITS := {
 	&"thigh": [60, 20], &"shin": [70, 5], &"foot": [30, 5],
 }
 const FINGERS := ["thumb", "index", "middle", "ring", "little"]
+## Each part's share of the body's mass, after the cadaver measurements in D. A. Winter,
+## "Biomechanics and Motor Control of Human Movement" (table 4.1, from Dempster 1955); head and neck
+## split as de Leva (1996). Weighing the parts by their capsules' volume made the trunk 70% of him
+## and a foot 0.8% (real: 50% and 1.45%), and Jolt couldn't hold a 25 kg chest to a third of a
+## kilo of hand or a man to a 0.7 kg foot: the feet and head overran their joints on landing.
+const MASS_SHARE := {
+	&"pelvis": 0.142, &"abdomen": 0.139, &"chest": 0.216, &"neck": 0.012, &"head": 0.069,
+	&"upper_arm": 0.028, &"forearm": 0.016, &"hand": 0.006,
+	&"thigh": 0.100, &"shin": 0.0465, &"foot": 0.0145,
+}
 
 @export var person_id := &"outlaw"
 @export var rng_seed := 1
@@ -278,15 +288,23 @@ func _build() -> void:
 	_rig = Node3D.new()
 	_rig.name = "Rig"
 	add_child(_rig)
+	# Each part's share of him: the published segment masses (MASS_SHARE), or for a part not in
+	# the table its capsules' volume at the body's mean density.
 	var volumes := {}
-	var total := 0.0
+	var total_v := 0.0
 	for sid: StringName in anatomy.segments:
 		var v := 0.0
 		for c: Array in anatomy.segments[sid].capsules:
 			var r: float = c[2]
 			v += PI * r * r * (((c[1] as Vector3) - (c[0] as Vector3)).length() + 4.0 / 3.0 * r)
 		volumes[sid] = v
-		total += v
+		total_v += v
+	var shares := {}
+	var total := 0.0
+	for sid: StringName in anatomy.segments:
+		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
+		shares[sid] = MASS_SHARE.get(key, volumes[sid] / total_v)
+		total += shares[sid]
 	for sid: StringName in anatomy.segment_order():
 		var s: Dictionary = anatomy.segments[sid]
 		var parent: StringName = s.parent
@@ -307,7 +325,7 @@ func _build() -> void:
 		part.collision_mask = 0
 		part.set_meta(&"human_body", self)
 		part.set_meta(&"segment", sid)
-		part.set_meta(&"mass", total_mass * volumes[sid] / total)
+		part.set_meta(&"mass", total_mass * shares[sid] / total)
 		pivot.add_child(part)
 		part.position = anatomy.segment_center(sid) - rest
 		var center := anatomy.segment_center(sid)
@@ -1140,6 +1158,15 @@ func drag_toward(holder: Vector3, delta: float) -> void:
 			want.y = chest.linear_velocity.y if to.y < 0.0 else minf(want.y, 0.8)
 			chest.linear_velocity = chest.linear_velocity.lerp(want, clampf(delta * 12.0, 0.0, 1.0))
 			chest.sleeping = false
+			# Hauled by the collar his whole trunk comes along and his legs trail: towing the chest
+			# alone, his legs and hips (half of him, weighed as a man's) held it where it was.
+			var flat := Vector3(want.x, 0.0, want.z)
+			for sid: StringName in [&"abdomen", &"pelvis"]:
+				var rb := parts.get(sid) as RigidBody3D
+				if rb:
+					var v := rb.linear_velocity
+					rb.linear_velocity = v.lerp(Vector3(flat.x, v.y, flat.z), clampf(delta * 12.0, 0.0, 1.0))
+					rb.sleeping = false
 		return
 	# Prone: he lies from his feet (here) forward to his head, ~1.75 m.
 	var to := holder - global_position
@@ -1791,17 +1818,18 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
 		rb.name = "Rag_%s" % sid
-		# His parts collide with each other (Layers.RAGDOLL), but not his hands: small and loose at
-		# the wrist, one resting on him jittered there and never let him come to rest.
-		var loose := sid == &"hand_l" or sid == &"hand_r"
-		rb.collision_layer = Layers.BODY_PARTS | (0 if loose else Layers.RAGDOLL)
-		rb.collision_mask = Layers.WORLD | (0 if loose else Layers.RAGDOLL)
+		# His parts collide with each other (Layers.RAGDOLL), his hands too: with the parts weighed
+		# as a man's (MASS_SHARE) a hand resting on him settles; left out, it lay inside his thigh.
+		rb.collision_layer = Layers.BODY_PARTS | Layers.RAGDOLL
+		rb.collision_mask = Layers.WORLD | Layers.RAGDOLL
 		rb.mass = part.get_meta(&"mass", 5.0)
 		# The head and hands are small and land fast (he topples whole now): swept, so they stop
 		# on the ground rather than in it.
 		rb.continuous_cd = sid == &"head" or sid == &"hand_l" or sid == &"hand_r"
 		rb.linear_damp = 0.2
-		rb.angular_damp = 2.0
+		# Wrists and ankles: light ends on a joint that soft tissue damps; at 2 a hand or foot lying
+		# still on the ground kept turning (~2 rad/s) and he never came to rest.
+		rb.angular_damp = 6.0 if String(sid).begins_with("hand") or String(sid).begins_with("foot") else 2.0
 		rb.set_meta(&"human_body", self)
 		rb.set_meta(&"segment", sid)
 		rb.set_meta(&"mass", rb.mass)
@@ -1836,7 +1864,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(lim[0]))
 		j.set_param(ConeTwistJoint3D.PARAM_TWIST_SPAN, deg_to_rad(lim[1]))
 	_keep_apart(bodies)
-	_start_tone(bodies, conscious)
+	_start_tone(bodies, conscious, joint_at)
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
 	# wind, the same on all of him. Nothing scripted on top (there was a shove of the chest and a
 	# random kick: experiments/physics_lab/README.md, baseline).
@@ -1892,9 +1920,9 @@ func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
 ## N*m/rad at full tone, about what holds that joint's share of him up; a man still conscious
 ## keeps more of it a little longer. Tunable in TONE.
 const TONE := {
-	&"abdomen": 260.0, &"chest": 220.0, &"neck": 60.0, &"head": 30.0,
+	&"abdomen": 130.0, &"chest": 110.0, &"neck": 60.0, &"head": 30.0,
 	&"upper_arm": 30.0, &"forearm": 15.0, &"hand": 3.0,
-	&"thigh": 320.0, &"shin": 300.0, &"foot": 60.0,
+	&"thigh": 160.0, &"shin": 100.0, &"foot": 60.0,
 }
 const TONE_START := 0.55
 const TONE_START_CONSCIOUS := 0.7
@@ -1908,26 +1936,32 @@ const TOUCH_SLACK := 0.01
 const TONE_STEP_SHARE := 0.25
 
 
-## How hard the pair is to turn against each other about `axis` (kg*m^2): the two parts'
-## inertias about it in series. 0 until the physics knows them (or with no axis).
-func _tone_inertia(a: RigidBody3D, b: RigidBody3D, axis: Vector3) -> float:
+## How hard the pair is to turn against each other about `axis` through the joint at `joint`
+## (kg*m^2): each part's inertia about that axis through the joint (its own about its centre, plus
+## its mass times its centre's distance from the axis squared), the two in series. 0 until the
+## physics knows them (or with no axis). Taken about each part's own centre, as it once was, a
+## thigh read an eighth of what swinging it at the hip is: the cap held the hips to a fifth of
+## their tone and, with the parts weighed as a man's, he folded double.
+func _tone_inertia(a: RigidBody3D, b: RigidBody3D, axis: Vector3, joint: Vector3) -> float:
 	if axis.length_squared() < 0.5:
 		return 0.0
 	var inv := 0.0
 	for rb in [a, b]:
 		var st := PhysicsServer3D.body_get_direct_state((rb as RigidBody3D).get_rid())
-		if st == null:
+		if st == null or st.inverse_mass <= 0.0:
 			return 0.0
-		inv += axis.dot(st.inverse_inertia_tensor * axis)
+		var i_com := 1.0 / maxf(axis.dot(st.inverse_inertia_tensor * axis), 1e-9)
+		var arm := (st.transform.origin + st.center_of_mass - joint).cross(axis)
+		inv += 1.0 / (i_com + arm.length_squared() / st.inverse_mass)
 	return 1.0 / inv if inv > 0.0 else 0.0
 
-var _tone: Array = []  ## [child, parent, rest rotation (child in parent), stiffness]
+var _tone: Array = []  ## [child, parent, rest rotation (child in parent), stiffness, joint (in child)]
 var _tone_t := 0.0
 var _tone_start := 0.0
 var _tone_fade := 1.0
 
 
-func _start_tone(bodies: Dictionary, conscious: bool) -> void:
+func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> void:
 	_tone.clear()
 	_tone_t = 0.0
 	var dead := not physiology.alive
@@ -1943,7 +1977,7 @@ func _start_tone(bodies: Dictionary, conscious: bool) -> void:
 		var up := bodies[parent] as RigidBody3D
 		var rest := (up.global_basis.orthonormalized().inverse() * child.global_basis.orthonormalized()).get_rotation_quaternion()
 		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
-		_tone.append([child, up, rest, float(TONE.get(key, 30.0))])
+		_tone.append([child, up, rest, float(TONE.get(key, 30.0)), child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
 
 
 func _step_tone(delta: float) -> void:
@@ -1969,8 +2003,9 @@ func _step_tone(delta: float) -> void:
 		# Stiffness and damping held under what one physics step can take for the lighter of the two
 		# parts (a hand's or the neck's inertia is tiny: uncapped, they spun 45 degrees a tick).
 		var rel_w := child.angular_velocity - up.angular_velocity
-		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis) / (delta * delta))
-		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized()) / delta)
+		var at: Vector3 = child.global_transform * (j[4] as Vector3)
+		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
+		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized(), at) / delta)
 		if is_nan(k) or is_nan(c):
 			continue
 		var torque := axis * angle * k - rel_w * c
