@@ -294,18 +294,15 @@ frozen until Sean names one.
 - Waiting on Sean: squares or smooth on the road; his eye on the sheets.
 
 **Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
-`painted-light.md`):
+`painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
-  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124, build 1181); **the
-  layered cowboy** (#125, build 1199: `bold_cowboy_layered`; recipe `tools/characters/LAYERED.md`;
-  bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
-- On the branch, not merged: his hands painted and a cleaner wrist (sheet
-  `docs/style_test/layered-2026-10-15/c5_hands_painted.png`); the bold cowboy's own hat
-  (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: Sean's call on the hands (merge, or more on the wrist and thumb); then the layered man in
-  the painted look (head, hands, coat, trousers) so art's shots can use him; the coat's colour;
-  vest and shirt as their own layer. Trap: after a build, `godot --headless --import` first; lab
-  renders via `tools/characters/lab_run.sh`.
+  `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
+  cowboy** `bold_cowboy_layered` with his skinned hands (#125, #129; recipe
+  `tools/characters/LAYERED.md`; bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
+- Not merged: the bold cowboy's own hat (`look/bold-cowboy-own-hat-2026-10-14`).
+- Next: the layered man in the painted look (head, hands, coat, trousers) so art's shots can use
+  him painted; the coat's colour; vest and shirt as their own layer. Trap: after a build,
+  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
