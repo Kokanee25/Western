@@ -102,6 +102,16 @@ const JOINT_LIMITS := {
 	&"thigh": [60, 20], &"shin": [70, 5], &"foot": [30, 5],
 }
 const FINGERS := ["thumb", "index", "middle", "ring", "little"]
+## Each part's share of the body's mass, after the cadaver measurements in D. A. Winter,
+## "Biomechanics and Motor Control of Human Movement" (table 4.1, from Dempster 1955); head and neck
+## split as de Leva (1996). Weighing the parts by their capsules' volume made the trunk 70% of him
+## and a foot 0.8% (real: 50% and 1.45%), and Jolt couldn't hold a 25 kg chest to a third of a
+## kilo of hand or a man to a 0.7 kg foot: the feet and head overran their joints on landing.
+const MASS_SHARE := {
+	&"pelvis": 0.142, &"abdomen": 0.139, &"chest": 0.216, &"neck": 0.012, &"head": 0.069,
+	&"upper_arm": 0.028, &"forearm": 0.016, &"hand": 0.006,
+	&"thigh": 0.100, &"shin": 0.0465, &"foot": 0.0145,
+}
 
 @export var person_id := &"outlaw"
 @export var rng_seed := 1
@@ -278,15 +288,23 @@ func _build() -> void:
 	_rig = Node3D.new()
 	_rig.name = "Rig"
 	add_child(_rig)
+	# Each part's share of him: the published segment masses (MASS_SHARE), or for a part not in
+	# the table its capsules' volume at the body's mean density.
 	var volumes := {}
-	var total := 0.0
+	var total_v := 0.0
 	for sid: StringName in anatomy.segments:
 		var v := 0.0
 		for c: Array in anatomy.segments[sid].capsules:
 			var r: float = c[2]
 			v += PI * r * r * (((c[1] as Vector3) - (c[0] as Vector3)).length() + 4.0 / 3.0 * r)
 		volumes[sid] = v
-		total += v
+		total_v += v
+	var shares := {}
+	var total := 0.0
+	for sid: StringName in anatomy.segments:
+		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
+		shares[sid] = MASS_SHARE.get(key, volumes[sid] / total_v)
+		total += shares[sid]
 	for sid: StringName in anatomy.segment_order():
 		var s: Dictionary = anatomy.segments[sid]
 		var parent: StringName = s.parent
@@ -307,7 +325,7 @@ func _build() -> void:
 		part.collision_mask = 0
 		part.set_meta(&"human_body", self)
 		part.set_meta(&"segment", sid)
-		part.set_meta(&"mass", total_mass * volumes[sid] / total)
+		part.set_meta(&"mass", total_mass * shares[sid] / total)
 		pivot.add_child(part)
 		part.position = anatomy.segment_center(sid) - rest
 		var center := anatomy.segment_center(sid)
@@ -1709,11 +1727,10 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
 		rb.name = "Rag_%s" % sid
-		# His parts collide with each other (Layers.RAGDOLL), but not his hands: small and loose at
-		# the wrist, one resting on him jittered there and never let him come to rest.
-		var loose := sid == &"hand_l" or sid == &"hand_r"
-		rb.collision_layer = Layers.BODY_PARTS | (0 if loose else Layers.RAGDOLL)
-		rb.collision_mask = Layers.WORLD | (0 if loose else Layers.RAGDOLL)
+		# His parts collide with each other (Layers.RAGDOLL), his hands too: with the parts weighed
+		# as a man's (MASS_SHARE) a hand resting on him settles; left out, it lay inside his thigh.
+		rb.collision_layer = Layers.BODY_PARTS | Layers.RAGDOLL
+		rb.collision_mask = Layers.WORLD | Layers.RAGDOLL
 		rb.mass = part.get_meta(&"mass", 5.0)
 		# The head and hands are small and land fast (he topples whole now): swept, so they stop
 		# on the ground rather than in it.

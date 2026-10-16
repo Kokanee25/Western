@@ -155,6 +155,8 @@ All lanes, one at a time. **Gate F: the demo ships.**
 ## ▶ Now
 
 - **Phase 0, step 0.1** (gameplay): green and quiet.
+- **3.2 Falls and hits, moved up by Sean** (2026-10-16: "Nah build the falls spend all night working
+  on it if needed"), running beside Phase 1 (gameplay; brief `docs/briefs/fix-the-falls.md`).
 - **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
   in the game (#124) and its sheet (`docs/screenshots/painted_light/in_game.jpg`): the saloon holds,
   the street at golden hour is too dark and red. **1.4** (art): merge 1 done (the woods in the man's
