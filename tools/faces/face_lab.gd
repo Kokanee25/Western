@@ -8,9 +8,17 @@ extends SceneTree
 ## sheet: one picture per expression and turn (DIR/<expression>_<turn>.png, "rest" the face at rest).
 ## take: FILE.json {"fps": 30, "names": [...], "frames": [[w, ...], ...]} (tools/faces/arkit_take.py)
 ## played frame by frame, each saved as DIR/f_00000.png (the audio is put on by ffmpeg after).
+## gaze: a marker moved round him (GAZE_PATH), his eyes and head on it (FaceGaze), a fixed step a
+## frame, each saved as DIR/f_00000.png; --check prints which way his head turned.
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
 
 const EYE := 1.76
+## The marker's path for --mode=gaze: [seconds, degrees to his left, degrees up, metres from his eyes]
+## held from one to the next (a jump) or eased ("~" in front: a slow move to it).
+const GAZE_PATH := [
+	[0.0, "cam"], [1.2, 35.0, 0.0, 0.55], [2.6, "~", -35.0, 5.0, 0.55], [4.4, 20.0, 22.0, 0.55],
+	[5.6, -25.0, -28.0, 0.55], [6.8, "cam"], [8.2, "~", 8.0, 6.0, 0.55], [9.0, "~", -8.0, -4.0, 0.55],
+	[9.8, "cam"], [11.0, "end"]]
 
 
 func _init() -> void:
@@ -100,7 +108,9 @@ func _run() -> void:
 		for k in mesh.get_blend_shape_count():
 			names.append(String(mesh.get_blend_shape_name(k)))
 	print("face_lab: %d head pieces with %d expressions: %s" % [faces.size(), names.size(), ", ".join(names)])
-	if mode == "take":
+	if mode == "gaze":
+		await _gaze(m, out)
+	elif mode == "take":
 		var take: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(take_path))
 		var tnames: Array = take.names
 		var turn: float = turns[0]
@@ -168,3 +178,80 @@ func _faces(n: Node) -> Array:
 		if am != null and am.get_blend_shape_count() > 0:
 			out.append(c)
 	return out
+
+
+## His eyes and head following a marker along GAZE_PATH (the camera itself where it says "cam").
+func _gaze(m: Node, out: String) -> void:
+	var dt := 1.0 / 30.0
+	var g = load("res://src/bodies/face_gaze.gd").new()
+	g.body = m
+	g.auto = false
+	g.rng_seed = 3
+	m.add_child(g)
+	var marker := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = 0.025
+	sm.height = 0.05
+	marker.mesh = sm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(1.0, 0.85, 0.1)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	marker.material_override = mat
+	(m.get_parent() as Node3D).add_child(marker)
+	var cam := (m.get_viewport() as Viewport).get_camera_3d()
+	_turn(m, 0.0)
+	for f in 6:
+		await physics_frame
+	m.process_mode = Node.PROCESS_MODE_DISABLED   # driven a fixed step a frame below
+	var c: Array = load("res://src/bodies/people_bodies.gd").report(m.body_model).get("facerig", {}).get("eye_centre", [0, EYE, 0])
+	var eye := Vector3(c[0], c[1], c[2])
+	var t := 0.0
+	var n := 0
+	var check := "--check" in OS.get_cmdline_user_args()
+	while true:
+		var p: Variant = _gaze_point(t, eye, cam.global_position)
+		if p == null:
+			break
+		marker.global_position = p
+		marker.visible = (p as Vector3).distance_to(cam.global_position) > 0.05
+		g.target_point = p
+		g.step(dt)
+		m._apply_pose(dt)
+		m._update_skeleton()   # (his own _process would; he's held to the fixed step here)
+		await RenderingServer.frame_post_draw
+		if not check:
+			vp_save(m, "%s/f_%05d.png" % [out, n])
+		elif n % 15 == 0:
+			var head := m.parts[&"head"] as Node3D
+			var fwd := -head.global_transform.basis.z
+			print("face_lab: t %.1f looking %s head forward %s (his left is -x)" % [t, g.looking(), fwd])
+		n += 1
+		t += dt
+	print("face_lab: %d frames of gaze" % n)
+
+
+func vp_save(m: Node, path: String) -> void:
+	(m.get_viewport() as Viewport).get_texture().get_image().save_png(path)
+
+
+## The marker at time t along GAZE_PATH: a point (or null past its end).
+func _gaze_point(t: float, eye: Vector3, cam: Vector3) -> Variant:
+	var at := func(k: Array) -> Vector3:
+		if k[1] is String and k[1] == "cam":
+			return cam
+		var o := 1 if k[1] is String else 0
+		var yaw := deg_to_rad(float(k[1 + o]))
+		var pitch := deg_to_rad(float(k[2 + o]))
+		var d := float(k[3 + o])
+		return eye + Vector3(-sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch)) * d
+	for i in GAZE_PATH.size() - 1:
+		var a: Array = GAZE_PATH[i]
+		var b: Array = GAZE_PATH[i + 1]
+		if t >= float(a[0]) and t < float(b[0]):
+			if b[1] is String and b[1] == "~":
+				var u := (t - float(a[0])) / (float(b[0]) - float(a[0]))
+				return at.call(a).lerp(at.call(b), u * u * (3.0 - 2.0 * u))
+			return at.call(a)
+		if b[1] is String and b[1] == "end" and t >= float(b[0]):
+			return null
+	return null

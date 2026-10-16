@@ -712,6 +712,9 @@ def build(man, out, head, report_only=False):
     VF[mouth, 1] -= drop
     rep["teeth_back_mm"] = round(back * 1000, 1)
     rep["teeth_down_mm"] = round(drop * 1000, 1)
+    # His eyes' centres (body space, at rest): where FaceGaze looks from.
+    rep["eye_centres"] = {g: np.round(VF[span[g]].mean(0), 4).tolist() for g in ("helper-l-eye", "helper-r-eye")}
+    rep["eye_centre"] = np.round(np.mean([VF[span[g]].mean(0) for g in ("helper-l-eye", "helper-r-eye")], 0), 4).tolist()
     NF = vertex_normals(VF, TF)
     rep["facerig"] = {"vertices": int(len(VF)), "triangles": int(len(TF))}
 

@@ -829,6 +829,12 @@ Face CSV (+ .mov's sound, lined up by its timecode) → `take.json` by `MAP` (52
 `take_video.sh`: close and game-size side by side, with sound. `synth_take.py`: a stand-in take
 spoken by espeak-ng (for testing without one). `readability.py`: how much of his face each
 expression changes at 1080p, 2 m (the lab holds him still for the sheet; `rest2` checks it).
+Gaze: `src/bodies/face_gaze.gd` (`FaceGaze`, a child of his HumanBody: a target node or point;
+his look shapes carry the first `eye_range` degrees measured in his head's frame as it is, so the
+eyes lead and hold while `pose_offsets[&"head"]` (x up, y to his left) catches up; blinks, small
+flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_lab.gd --mode=gaze`
+(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
+in the game: who a man looks at is gameplay's.
 
 ## Training the image model on our style (tools/style)
 

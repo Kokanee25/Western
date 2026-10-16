@@ -51,3 +51,39 @@ func test_the_copy_wears_the_original_mans_clothes() -> void:
 				"his coat's from the layered man (%s)" % (tex.coat as Texture2D).resource_path)
 	if tex.has("head"):
 		check(String((tex.head as Texture2D).resource_path).contains(String(MAN)), "his head's his own")
+
+
+func test_his_eyes_lead_and_his_head_follows() -> void:
+	# FaceGaze on a target to his left: his eyes there at once (look_left, not look_right), his
+	# head turning after them (HumanBody.pose_offsets: y turns it to his left).
+	var him := HumanBody.new()
+	him.body_model = MAN
+	him.person_id = &"gaze_test"
+	add_child(him)
+	await physics_frames(2)
+	var g := FaceGaze.new()
+	g.body = him
+	g.auto = false
+	g.blinks = false
+	him.add_child(g)
+	check(g.has_face(), "his look shapes are found")
+	var head := _head(him)
+	var left := head.find_blend_shape_by_name(&"look_left")
+	var right := head.find_blend_shape_by_name(&"look_right")
+	var eye := (him.parts[&"head"] as Node3D).global_position + Vector3(0, 0.08, 0)
+	g.target_point = eye + Vector3(-0.6, 0, -0.85)   # about 35 degrees to his left (he faces -Z)
+	for i in 6:
+		g.step(1.0 / 60.0)
+	check(head.get_blend_shape_value(left) > 0.5, "his eyes go first (%.2f)" % head.get_blend_shape_value(left))
+	check(head.get_blend_shape_value(right) == 0.0, "and the right way")
+	var early: float = (him.pose_offsets.get(&"head", Vector3.ZERO) as Vector3).y
+	for i in 60:
+		g.step(1.0 / 60.0)
+	var later: float = (him.pose_offsets.get(&"head", Vector3.ZERO) as Vector3).y
+	check(early < later and later > 15.0, "his head follows to his left (%.1f then %.1f degrees)" % [early, later])
+	g.target_point = eye + Vector3(0, 0, -2.0)        # straight ahead
+	for i in 120:
+		g.step(1.0 / 60.0)
+	check(head.get_blend_shape_value(left) < 0.15 and absf((him.pose_offsets[&"head"] as Vector3).y) < 3.0,
+			"and comes back to look ahead")
+	him.queue_free()

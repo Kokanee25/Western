@@ -73,6 +73,18 @@ lids painted from outside his painted eye).
 - *The neck:* not a gap. With his head turned 30° the join stays closed and matches the layered
   man's; what showed in the first video was his collar.
 
+## Eyes on a target (2026-10-16, Sean: "eyes tracking the player or whoever")
+
+`FaceGaze` (`src/bodies/face_gaze.gd`, numbers in `config/gaze.tres`): his eyes take the first 19°
+at once (time constant 35 ms), his head follows (180 ms, then HumanBody's own easing) to 75% of a
+held look, past 10° from where his body faces, up to 65° across and 30° up or down; the eyes are
+measured against his head as it really is each frame, so they stay on the target while it turns.
+Blinks every 2.5-6 s and (60%) on a jump over 25°; half-degree flicks every 0.6-1.8 s. Video:
+`docs/style_test/bold_cowboy_talking_gaze.mp4` (a marker jumping and sweeping round him; close and
+1080p at 2 m). Test: `test_face_rig::test_his_eyes_lead_and_his_head_follows`. Costs a few vector
+sums a man a frame. For gameplay: add one to a talking man, set `target` (the player's camera, a
+speaker, a gun on him), `active = false` to let go; who he looks at is his brain's.
+
 ## What RECIPE.md would need (the characters session's change, with Sean's OK)
 
 A step after "Into the game" (and for a layered man, after LAYERED.md's step 6):

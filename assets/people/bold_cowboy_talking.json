@@ -832,6 +832,23 @@
   "holes_capped": 1,
   "teeth_back_mm": 8.1,
   "teeth_down_mm": 0.0,
+  "eye_centres": {
+   "helper-l-eye": [
+    -0.0344,
+    1.7598,
+    -0.0518
+   ],
+   "helper-r-eye": [
+    0.0372,
+    1.7603,
+    -0.0516
+   ]
+  },
+  "eye_centre": [
+   0.0014,
+   1.7601,
+   -0.0517
+  ],
   "facerig": {
    "vertices": 3474,
    "triangles": 6567
