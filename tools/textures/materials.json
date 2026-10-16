@@ -42,8 +42,10 @@
     860,
     200
    ],
-   "mosaic": 1.9,
-   "contrast": 1.8
+   "contrast": 1.8,
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "dark_trim": {
    "lightness": 0.9,
@@ -88,7 +90,10 @@
    "hue": -12,
    "bold": {
     "contrast": 2.6
-   }
+   },
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "framing": {
    "lightness": 0.9,
@@ -144,7 +149,10 @@
     120,
     780,
     330
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "painted_rust": {
    "boards": true,
@@ -162,7 +170,10 @@
     0,
     440,
     240
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "sign": {
    "boards": true,
@@ -180,7 +191,10 @@
     120,
     780,
     330
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "road": {
    "for": "street",
@@ -222,7 +236,10 @@
     0,
     440,
     240
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "sign_general_store": {
    "for": "street",
@@ -240,7 +257,10 @@
     120,
     780,
     330
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "sign_dry_goods": {
    "for": "street",
@@ -258,7 +278,10 @@
     200,
     640,
     320
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "sign_jail": {
    "for": "street",
@@ -276,7 +299,10 @@
     340,
     1300,
     410
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "sign_livery": {
    "for": "street",
@@ -294,7 +320,10 @@
     50,
     1590,
     300
-   ]
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette."
   },
   "road_wide": {
    "for": "street",
