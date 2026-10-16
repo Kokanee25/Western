@@ -89,7 +89,15 @@ BRIDGE_SHOULDER = 0.35
 PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 # A twin piece keeps its own shape (lapels, pockets, the skirt's fall): more triangles.
 TWIN_TRIS = {"coat": 6000, "trousers": 8000}
-FINGER_TRIS = 80      # a finger bone's piece (own_fingers)
+FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
+WRIST_CUT = 0.004     # metres short of his wrist joint: his arm's skin ends (makehuman_hands)
+WRIST_BLEND = 0.03    # metres past it: the new palm's wrist eases from his arm to its own shape
+ARM_TAPER = 0.07      # metres up his forearm over which it tapers in to meet the new wrist
+WRIST_SWELL = 1.3     # the meeting ring: this times MakeHuman's wrist (never wider than his arm)
+HAND_SQUARE = 0.06    # of his skin's texture a side: each MakeHuman hand's paint (~245 px of 4096)
+BRIDGE = 0.003         # metres between his arm's cut and the hand's: the stitched strip
+SEAM_BLEND = 0.02     # metres down the hand over which it eases from his arm's edge's weights
+HAND_SQUARE_MAX = 0.09  # ... or as big as this, where his texture has the room (skinned_hands)
 PIECE_MARGIN = {"coat": 1.06, "hat": 1.05}
 # The hat's brim sits this share of the way up his head from the jaw joint to the crown.
 HAT_BAND = 0.72
@@ -101,6 +109,9 @@ PIECE_CLEARANCE = 0.012
 TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
 TUCK_MAX_M = 0.03
 PIECE_REACH = 0.06
+CUFF_PAST = 0.01       # metres: a sleeve ends this far past the cut his hand joins at (clear_hands)
+HAND_LINE = 0.015      # metres: his hand's points this near a skirt point's line behind it count
+HAND_FOLD_STEPS = 12   # smoothing steps the skirt's move spreads by round his hand (~a few cm)
 # How many times the clearance push is averaged over neighbours before it is applied.
 PIECE_SMOOTH = 8
 # The coat as a shell of his body (Piece.as_shell, metres): how far off his skin over the trunk
@@ -814,6 +825,8 @@ class TripoPerson(mp.Person):
         (fingers cut off at the knuckles, the game's own drawn instead)."""
         if self.spec.get("own_fingers") == "makehuman":
             return self.makehuman_hands()
+        if self.spec.get("own_fingers") == "skinned":
+            return self.skinned_hands()
         import fingers as FG
         o = self.our_joints()
         F = self.env.get("fingers", {})
@@ -876,39 +889,302 @@ class TripoPerson(mp.Person):
     def makehuman_hands(self):
         """MakeHuman's hands for his (tools/blender/mh_hand.py; people.json own_fingers
         "makehuman"): his own hand off his skin, MakeHuman's palm in its place and its fingers as
-        the game's finger pieces, all fitted to the game's hand and painted in his hand's colour. His own fingers, cut from Rodin's
-        coarse, half-curled, outsized hand, came out in shards."""
+        the game's finger pieces, all fitted to the game's hand, and painted in his skin
+        (mh_hand.paint: his hand's colour, shadow from the hand's shape, palm, nails) into a free
+        square of his skin's texture (where his own hand was painted, or any space no face uses).
+        His own fingers, cut from Rodin's coarse, half-curled, outsized hand, came out in shards."""
         import mh_hand as MH
         o = self.our_joints()
         F = self.env["fingers"]
         self.finger_pieces = {}
+        self.hand_paint = []
         rep = self.report.setdefault("own_fingers", {"from": "makehuman"})
+        img = np.asarray(self.colour, dtype=np.float64) / 255.0
+        hgt, wid = img.shape[:2]
+        placed = {}
         for side in "rl":
             hand = self.region == "hand_" + side
             his = np.nonzero(hand)[0]
-            palm, ptris, fingers = MH.place(side, o, F)
-            # One colour, his hand's: the UV of his hand's point nearest its median colour (his
-            # own hand's paint, laid by nearest point, came out a patchwork of his palm and
-            # fingers; the light gives the new hand its shape).
-            img = np.asarray(self.colour, dtype=np.float64) / 255.0
-            hgt, wid = img.shape[:2]
             uvh = self.uv[his]
             col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
-            uv0 = uvh[int(np.argmin(np.linalg.norm(col - np.median(col, 0), axis=1)))]
-            uv_of = lambda pts: np.tile(uv0, (len(pts), 1))
+            base = np.median(col, 0)
+            # His arm and the new palm cut along one plane just short of his wrist, and the new
+            # palm's ring drawn onto his (as the neck ring joins his head): no ragged edge, no gap.
+            el, wr = o[side + "-elbow"], o[side + "-hand"]
+            ax = (wr - el) / np.linalg.norm(wr - el)
+            point = wr - ax * WRIST_CUT
+            arm = np.isin(self.region, ["forearm_" + side, "hand_" + side])
+            his_arm_tris = arm[self.tris].all(axis=1)
+            before = len(self.tris)
+            self.v, self.tris, (self.v_tripo, self.uv), (self.region, self.head), ring = MH.clip(
+                self.v, self.tris, point, ax, his_arm_tris, lerp=(self.v_tripo, self.uv), copy=(self.region, self.head))
+            gone = np.zeros(before, bool)
+            (palm, fingers) = MH.place(side, o, F)
+            q, t, u, pa = palm
+            q, t, (u,), (pa,), ring_q = MH.clip(q, t, point, -ax, np.ones(len(t), bool), lerp=(u,), copy=(pa,))
+            used = np.unique(t)
+            remap = -np.ones(len(q), np.int64)
+            remap[used] = np.arange(len(used))
+            ring_q = remap[ring_q][remap[ring_q] >= 0]
+            q, t, u, pa = q[used], remap[t], u[used], pa[used]
+            if len(ring) and len(ring_q):
+                # They meet in the middle: his forearm tapers in towards his wrist over ARM_TAPER
+                # (Rodin's forearm runs on thick to the hand) to WRIST_SWELL of MakeHuman's wrist,
+                # and the new palm's ring is drawn onto that (all the hand's own flare was a bell).
+                palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+                fore = np.nonzero(np.isin(self.region, ["forearm_" + side, "hand_" + side]))[0]
+                up = (self.v[fore] - point) @ ax
+                near = fore[(up <= 1e-9) & (up > -ARM_TAPER)]
+                self.v[near] = MH.taper(self.v[near], self.v[ring], q[ring_q], point, ax, palm_dir, ARM_TAPER, WRIST_SWELL)
+                q = MH.join_ring(q, ring_q, self.v[ring], point, ax, palm_dir, WRIST_BLEND)
+            palm = (q, t, u, pa)
+            placed[side] = ((palm, fingers), base, int(gone.sum()))
+        squares = self._free_squares(2, HAND_SQUARE)
+        for side, (u0, v0) in zip("rl", squares):
+            (palm, fingers), base, gone = placed[side]
+            paint, palm, fingers = MH.paint(palm, fingers, side, base)
+            self.hand_paint.append((paint, (u0, v0, HAND_SQUARE)))
+            to_uv = lambda uv: np.c_[u0 + uv[:, 0] * HAND_SQUARE, v0 + uv[:, 1] * HAND_SQUARE]
             for fid, pieces in fingers.items():
-                self.finger_pieces[fid] = [(uv_of(pts), pts, tt) for pts, tt in pieces]
-            gone = hand[self.tris].any(axis=1)    # every triangle that touches his hand: no slivers
-            self.tris = self.tris[~gone]
+                self.finger_pieces[fid] = [(to_uv(pc[2]), pc[0], pc[1]) for pc in pieces]
+            q, t, u = palm[:3]
             n0 = len(self.v)
-            self.v = np.vstack([self.v, palm])
-            self.v_tripo = np.vstack([self.v_tripo, palm])
-            self.uv = np.vstack([self.uv, uv_of(palm)])
-            self.region = np.concatenate([self.region, np.full(len(palm), "hand_" + side, dtype=self.region.dtype)])
-            self.head = np.concatenate([self.head, np.zeros(len(palm), bool)])
-            self.tris = np.vstack([self.tris, ptris + n0])
-            rep[side] = {"his_hand_triangles_off": int(gone.sum()), "palm_triangles": int(len(ptris)),
-                         "finger_triangles": {fid: int(sum(len(t) for _u, _p, t in pc)) for fid, pc in self.finger_pieces.items() if fid.endswith(side)}}
+            self.v = np.vstack([self.v, q])
+            self.v_tripo = np.vstack([self.v_tripo, q])
+            self.uv = np.vstack([self.uv, to_uv(u)])
+            self.region = np.concatenate([self.region, np.full(len(q), "hand_" + side, dtype=self.region.dtype)])
+            self.head = np.concatenate([self.head, np.zeros(len(q), bool)])
+            self.tris = np.vstack([self.tris, t + n0])
+            rep[side] = {"his_hand_triangles_off": gone, "palm_triangles": int(len(t)),
+                         "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), HAND_SQUARE],
+                         "finger_triangles": {fid: int(sum(len(pc[2]) for pc in self.finger_pieces[fid])) for fid in fingers}}
+
+    def skinned_hands(self):
+        """MakeHuman's hand whole on each arm, skinned to 15 finger bones (people.json
+        own_fingers "skinned"; docs/briefs/skinned-hands.md): no pieces, so no seams or doll
+        joints; the game bends the bones by its finger nodes' angles. His arm and the hand are cut
+        along one plane and joined as `makehuman_hands` joins them; painted by mh_hand.paint into
+        free squares of his texture. Its weights go on in finger_weights (after weights())."""
+        import mh_hand as MH
+        o = self.our_joints()
+        F = self.env["fingers"]
+        self.hand_paint, self.hand_fw, self.finger_rests, self.wrists, self.seams = [], [], {}, {}, {}
+        self.extra_bones = MH.finger_bone_names("r") + MH.finger_bone_names("l")
+        rep = self.report.setdefault("own_fingers", {"from": "makehuman, skinned"})
+        # His colours from the texture his skin is drawn with: his repaint where there is one
+        # (body_paint.py), not Rodin's own (the hand came out paler and greyer than his arm).
+        named = self.id if os.path.exists(os.path.join(TRIPO, self.id + "_color.png")) else self.model
+        painted = os.path.join(TRIPO, named + "_color.png")
+        img = np.asarray(Image.open(painted).convert("RGB") if os.path.exists(painted) else self.colour, dtype=np.float64) / 255.0
+        hgt, wid = img.shape[:2]
+        made = {}
+        for side in "rl":
+            # His hand's colour from his forearm near the wrist (his own hand's paint is paler: the
+            # new hand stood out pink against his arm).
+            el, wr = o[side + "-elbow"], o[side + "-hand"]
+            axw = (wr - el) / np.linalg.norm(wr - el)
+            fore = np.nonzero((self.region == "forearm_" + side) & ((self.v - wr) @ axw > -0.08) & ((self.v - wr) @ axw < -0.01))[0]
+            uvh = self.uv[fore]
+            col = img[np.clip((uvh[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvh[:, 0] * wid).astype(int), 0, wid - 1)]
+            base = np.median(col, 0)
+            ax = (wr - el) / np.linalg.norm(wr - el)
+            point = wr - ax * WRIST_CUT
+            arm = np.isin(self.region, ["forearm_" + side, "hand_" + side])
+            self.v, self.tris, (self.v_tripo, self.uv), (self.region, self.head), ring = MH.clip(
+                self.v, self.tris, point, ax, arm[self.tris].all(axis=1), lerp=(self.v_tripo, self.uv), copy=(self.region, self.head))
+            q, t, u, pa, W, rests = MH.skinned(side, o, F)
+            # The hand cut BRIDGE below his arm's cut: the strip between is stitched (a strip of
+            # no width between rings in one place had no way to face, and drew a line).
+            q, t, (u, W), (pa,), ring_q = MH.clip(q, t, point + ax * BRIDGE, -ax, np.ones(len(t), bool), lerp=(u, W), copy=(pa,))
+            used = np.unique(t)
+            remap = -np.ones(len(q), np.int64)
+            remap[used] = np.arange(len(used))
+            ring_q = remap[ring_q][remap[ring_q] >= 0]
+            q, t, u, pa, W = q[used], remap[t], u[used], pa[used], W[used]
+            palm_dir = np.array([-1.0, 0, 0]) if side == "r" else np.array([1.0, 0, 0])
+            self.wrists[side] = (point, ax, palm_dir)
+            if len(ring) and len(ring_q):
+                fore = np.nonzero(np.isin(self.region, ["forearm_" + side, "hand_" + side]))[0]
+                up = (self.v[fore] - point) @ ax
+                near = fore[(up <= 1e-9) & (up > -ARM_TAPER)]
+                self.v[near] = MH.taper(self.v[near], self.v[ring], q[ring_q], point, ax, palm_dir, ARM_TAPER, WRIST_SWELL)
+                q = MH.join_ring(q, ring_q, self.v[ring], point, ax, palm_dir, WRIST_BLEND)
+                # One smooth profile across the cut (no crease where the hand meets the wrist).
+                band = fore[((self.v[fore] - point) @ ax > -MH.WRIST_ARM - 0.02) & ((self.v[fore] - point) @ ax <= 1e-9)]
+                self.v[band], q = MH.smooth_wrist(self.v[band], q, point, ax, palm_dir)
+                # And the two cut edges stitched together (they don't share points: cracks
+                # between them showed the background, "that line where the hand and wrist meet").
+                self.seams[side] = (point, ax, np.asarray(ring)) + self._stitch(ring, q[ring_q], point, ax, palm_dir, side)
+                if os.environ.get("WRIST_DEBUG"):
+                    np.savez("build/wrist_%s.npz" % side, arm=self.v[fore], hand=q, point=point, ax=ax, ref=palm_dir, ring=self.v[ring], ring_q=q[ring_q])
+            for name, (origin, basis) in zip(MH.finger_bone_names(side), rests):
+                self.finger_rests[name] = (origin, basis)
+            # Laid out and painted by part (the palm, each finger bone), as the pieced hands were.
+            pt = pa[t]
+            tri_part = np.where((pt[:, 0] == pt[:, 1]) | (pt[:, 0] == pt[:, 2]), pt[:, 0], np.where(pt[:, 1] == pt[:, 2], pt[:, 1], pt[:, 0]))
+            pieces, useds = [], []
+            for key in [-1] + list(range(15)):
+                tk = t[tri_part == key]
+                uu = np.unique(tk)
+                rm = -np.ones(len(q), np.int64)
+                rm[uu] = np.arange(len(uu))
+                pieces.append((q[uu], rm[tk], u[uu], pa[uu]))
+                useds.append(uu)
+            # His forearm's colour round the cut, for the hand's paint to fade into.
+            uvr = self.uv[ring] if len(ring) else np.zeros((0, 2))
+            ring_col = img[np.clip((uvr[:, 1] * hgt).astype(int), 0, hgt - 1), np.clip((uvr[:, 0] * wid).astype(int), 0, wid - 1)]
+            wrist = (point, ax, self.v[ring].copy(), ring_col) if len(ring) else None
+            made[side] = (pieces, useds, W, base, [o_ for o_, _b in rests], wrist)
+        # The biggest squares his texture has free, up to HAND_SQUARE_MAX: a hand in his
+        # texture's chunky squares has few of them (its nails a few texels).
+        for hs in np.arange(HAND_SQUARE_MAX, HAND_SQUARE - 1e-9, -0.005):
+            try:
+                squares = self._free_squares(2, float(hs))
+                break
+            except RuntimeError:
+                continue
+        else:
+            squares, hs = self._free_squares(2, HAND_SQUARE), HAND_SQUARE
+        hs = float(hs)
+        rep["hand_square"] = round(hs, 3)
+        for side, (u0, v0) in zip("rl", squares):
+            pieces, useds, W, base, joints, wrist = made[side]
+            paint, palm, fingers = MH.paint(pieces[0], {"%s_%s" % (MH.FINGERS[k // 3], side): pieces[1 + 3 * (k // 3):4 + 3 * (k // 3)] for k in range(0, 15, 3)}, side, base, joints=joints, wrist=wrist)
+            self.hand_paint.append((paint, (u0, v0, hs)))
+            out = [palm] + [pc for name in MH.FINGERS for pc in fingers["%s_%s" % (name, side)]]
+            tris_n = 0
+            for (pts, tt, cu, local), uu in zip(out, useds):
+                n0 = len(self.v)
+                self.v = np.vstack([self.v, pts])
+                self.v_tripo = np.vstack([self.v_tripo, pts])
+                self.uv = np.vstack([self.uv, np.c_[u0 + cu[:, 0] * hs, v0 + cu[:, 1] * hs]])
+                self.region = np.concatenate([self.region, np.full(len(pts), "hand_" + side, dtype=self.region.dtype)])
+                self.head = np.concatenate([self.head, np.zeros(len(pts), bool)])
+                self.tris = np.vstack([self.tris, tt + n0])
+                self.hand_fw.append((n0, W[uu[local]], side))
+                tris_n += len(tt)
+            rep[side] = {"hand_triangles": tris_n, "painted_at_uv": [round(float(u0), 4), round(float(v0), 4), round(hs, 4)]}
+        self.report["finger_bones"] = {n: {"origin": [round(float(x), 5) for x in o_],
+                                           "basis": [[round(float(x), 5) for x in row] for row in b_]}
+                                       for n, (o_, b_) in self.finger_rests.items()}
+
+    def _stitch(self, ring, hand_ring, point, ax, ref, side):
+        """A strip of triangles from his arm's cut edge (`ring`, his points) to the hand's
+        (`hand_ring`, positions, BRIDGE below), zipped round the wrist by angle, each triangle
+        its own corners in one colour of his arm's. Returns its corners on his arm's ring and on
+        the hand's (finger_weights gives each the weights of the ring it lies on)."""
+        e1 = ref - (ref @ ax) * ax
+        e1 /= np.linalg.norm(e1)
+        e2 = np.cross(ax, e1)
+        ang = lambda p: np.arctan2((p - point) @ e2, (p - point) @ e1)
+        # One point a place (Rodin's triangles share none; the hand's ring has its seams).
+        _u, first = np.unique(np.round(self.v[ring] / 1e-6).astype(np.int64), axis=0, return_index=True)
+        arm = np.asarray(ring)[first]
+        arm = arm[np.argsort(ang(self.v[arm]))]
+        _u, first = np.unique(np.round(hand_ring / 1e-6).astype(np.int64), axis=0, return_index=True)
+        hp = hand_ring[first]
+        hp = hp[np.argsort(ang(hp))]
+        if len(arm) < 3 or len(hp) < 3:
+            return np.zeros(0, np.int64), np.zeros(0, np.int64)
+        n0 = len(self.v)
+        aa, ha = ang(self.v[arm]), ang(hp)
+        tris, i, j = [], 0, 0
+        na, nh = len(arm), len(hp)
+        A, H = 0, 1   # a corner on his arm's ring or the hand's
+        while i < na or j < nh:
+            a0, a1 = (A, i % na), (A, (i + 1) % na)
+            h0, h1 = (H, j % nh), (H, (j + 1) % nh)
+            # Advance whichever ring's next point comes first round the wrist.
+            next_a = aa[(i + 1) % na] + (2 * np.pi if i + 1 >= na else 0)
+            next_h = ha[(j + 1) % nh] + (2 * np.pi if j + 1 >= nh else 0)
+            if j >= nh or (i < na and next_a <= next_h):
+                tris.append((a0, a1, h0))
+                i += 1
+            else:
+                tris.append((a0, h1, h0))
+                j += 1
+        # Each triangle its own corners, all one colour (its first arm point's place in his
+        # texture: his ring's neighbours can lie in different patches of it, and a strip
+        # across them drew stripes).
+        pos = lambda c: self.v[arm[c[1]]] if c[0] == A else hp[c[1]]
+        P = np.array([[pos(c) for c in t] for t in tris])
+        on_hand = np.array([[c[0] == H for c in t] for t in tris]).reshape(-1)
+        uv = np.repeat(self.uv[arm[[t[0][1] for t in tris]]], 3, axis=0)
+        P = P.reshape(-1, 3)
+        T = np.arange(len(P)).reshape(-1, 3)
+        # Facing out from his wrist.
+        fn = np.cross(P[T[:, 1]] - P[T[:, 0]], P[T[:, 2]] - P[T[:, 0]])
+        c = P[T].mean(1) - point
+        out = c - (c @ ax)[:, None] * ax
+        flip = (fn * out).sum(1) < 0
+        T[flip] = T[flip][:, [0, 2, 1]]
+        self.v = np.vstack([self.v, P])
+        self.v_tripo = np.vstack([self.v_tripo, P])
+        self.uv = np.vstack([self.uv, uv])
+        self.region = np.concatenate([self.region, np.where(on_hand, "hand_" + side, "forearm_" + side).astype(self.region.dtype)])
+        self.head = np.concatenate([self.head, np.zeros(len(P), bool)])
+        self.tris = np.vstack([self.tris, T + n0])
+        self.report.setdefault("own_fingers", {}).setdefault("wrist_stitch", {})[side] = int(len(T))
+        idx = np.arange(n0, n0 + len(P))
+        return idx[~on_hand], idx[on_hand]
+
+    def finger_weights(self):
+        """The skinned hands' finger weights onto his skin's (W grows by the 30 finger bones,
+        `extra_bones`): each hand point's finger share taken from its hand weight."""
+        extra = getattr(self, "extra_bones", [])
+        if not extra:
+            return
+        # At the wrist the hand bends as his arm's cut edge does (each point its nearest edge
+        # point's weights), easing into its own over SEAM_BLEND down the hand: the arm's edge,
+        # the hand's and the stitch between them, weighted apart, pulled apart in any pose (a
+        # hairline of background, spikes).
+        from scipy.spatial import cKDTree
+        for side, (point, ax, ring, arm_c, hand_c) in getattr(self, "seams", {}).items():
+            if not len(ring):
+                continue
+            rows = np.concatenate([np.arange(n0, n0 + len(fw)) for n0, fw, sd in self.hand_fw if sd == side]).astype(np.int64)
+            ring_tree = cKDTree(self.v[ring])
+            k = ring_tree.query(self.v[rows])[1]
+            t = np.clip(((self.v[rows] - point) @ ax) / SEAM_BLEND, 0, 1)[:, None]
+            self.W[rows] = self.W[ring[k]] * (1 - t) + self.W[rows] * t
+            # The strip's corners exactly as the ring each lies on.
+            if len(arm_c):
+                self.W[arm_c] = self.W[ring[ring_tree.query(self.v[arm_c])[1]]]
+            if len(hand_c):
+                self.W[hand_c] = self.W[rows[cKDTree(self.v[rows]).query(self.v[hand_c])[1]]]
+        nb = self.W.shape[1]
+        W = np.zeros((len(self.v), nb + len(extra)))
+        W[:, :nb] = self.W
+        for n0, fw, side in self.hand_fw:
+            rows = np.arange(n0, n0 + len(fw))
+            share = fw.sum(1)
+            W[rows, :nb] *= (1.0 - share)[:, None]
+            off = 0 if side == "r" else 15
+            W[rows, nb + off:nb + off + 15] = fw
+        self.W = W
+
+    def _free_squares(self, n, side):
+        """n squares `side` of the texture a side that no face of his uses (UV, top-left corners):
+        his faces drawn into the layout, a texel's margin, the clearest places taken in turn."""
+        import sys as _sys
+        from scipy import ndimage
+        _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
+        import portrait as P
+        G = 1024
+        tid, _b, _z = P.rasterise(self.uv * G, np.zeros(len(self.uv)), self.tris, G, G)
+        used = ndimage.binary_dilation(tid >= 0, iterations=2)
+        used[:2, :] = used[-2:, :] = True     # the texture's edge is a wall, not free space
+        used[:, :2] = used[:, -2:] = True
+        half = int(np.ceil(side * G / 2)) + 1
+        out = []
+        for _k in range(n):
+            dt = ndimage.distance_transform_cdt(~used, metric="chessboard")
+            y, x = np.unravel_index(np.argmax(dt), dt.shape)
+            if dt[y, x] < half:
+                raise RuntimeError("no free square %.3f a side in his texture for a hand" % side)
+            out.append(((x - half + 1) / G, (y - half + 1) / G))
+            used[y - half:y + half + 1, x - half:x + half + 1] = True
+        return out
 
     def cut_fingers(self):
         """Drop what lies beyond the knuckles along each hand."""
@@ -980,6 +1256,7 @@ class TripoPerson(mp.Person):
             self.cut_fingers()
         self.skin_tone()
         self.weights()
+        self.finger_weights()
         for piece in self.pieces:
             if piece.shape == "coat" and not piece.twin:
                 piece.as_shell()
@@ -992,7 +1269,9 @@ class TripoPerson(mp.Person):
                 piece.region[:] = "head"
             mp.Person.weights(piece)
             if piece.twin:
+                own = piece.region.copy()
                 piece.weights_from_skin()
+                piece.clear_hands(own)
         twins = [pc for pc in self.pieces if pc.twin]
         if twins:
             self.tuck_skin(twins)
@@ -1222,6 +1501,75 @@ class Piece:
                     pushed[i] = True
         self.report["pushed_out_after_warp"] = int(pushed.sum())
 
+    def clear_hands(self, own):
+        """His hands out of a twin piece (Sean, 2026-10-15: "his hands seem like they're melting
+        into the jacket"). A sleeve ends at his wrist: what of it runs on CUFF_PAST beyond the
+        cut his hand joins at (the dressed model's own hands, a long cuff) is dropped. The coat's
+        skirt hangs where his hand does: each skirt point inside his hand, or within
+        PIECE_CLEARANCE of it, goes behind it (towards his thigh, the way his palm faces), and
+        the skirt round it follows smoothly, so the hand hangs in front of the coat."""
+        wrists = getattr(self.body, "wrists", {})
+        if not wrists:
+            return
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        from scipy.spatial import cKDTree
+        body = self.body
+        drop = np.zeros(len(self.tris), bool)
+        move = np.zeros_like(self.v)
+        for side, (point, ax, palm_dir) in wrists.items():
+            # His sleeve by the piece's own regions (by the skin under it, the skirt by his hand
+            # is his hand's too).
+            arm = np.isin(own, ["forearm_" + side, "hand_" + side])
+            past = arm & ((self.v - point) @ ax > CUFF_PAST)
+            drop |= past[self.tris].any(1)
+            hand = np.nonzero(body.region == "hand_" + side)[0]
+            ht = body.tris[np.isin(body.tris, hand).all(1)]
+            if not len(ht):
+                continue
+            bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in ht])
+            tree = cKDTree(body.v[hand])
+            skirt = np.nonzero(~arm & ((self.v - point) @ ax > 0))[0]
+            for i in skirt:
+                loc, nrm, _f, _d = bvh.find_nearest(Vector(self.v[i]), 0.05)
+                if loc is None:
+                    continue
+                if float((Vector(self.v[i]) - loc).dot(nrm)) >= PIECE_CLEARANCE:
+                    continue
+                # Behind his hand along the way his palm faces: past the deepest of his hand on
+                # this point's line through it.
+                near = hand[tree.query_ball_point(self.v[i], 0.06)]
+                rel = body.v[near] - self.v[i]
+                along_p = rel @ palm_dir
+                on_line = np.linalg.norm(rel - along_p[:, None] * palm_dir, axis=1) < HAND_LINE
+                if not on_line.any():
+                    continue
+                move[i] = palm_dir * max(float(along_p[on_line].max()) + PIECE_CLEARANCE, 0.0)
+        hit = np.nonzero(np.linalg.norm(move, axis=1) > 0)[0]
+        if len(hit):
+            # The skirt round each moved point follows, smoothly: the moves spread over his
+            # welded skirt (Rodin's triangles share no corners), the moved points held.
+            _u, first, weld = np.unique(np.round(self.v / 1e-6).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+            weld = weld.ravel()
+            n = len(first)
+            gm = np.zeros((n, 3))
+            order = np.argsort(np.linalg.norm(move, axis=1))
+            gm[weld[order]] = move[order]       # each place its corners' biggest move
+            held = np.linalg.norm(gm, axis=1) > 0
+            from scipy.sparse import coo_matrix
+            t = weld[self.tris]
+            e = np.concatenate([t[:, [0, 1]], t[:, [1, 2]], t[:, [2, 0]]])
+            A = coo_matrix((np.ones(2 * len(e)), (np.r_[e[:, 0], e[:, 1]], np.r_[e[:, 1], e[:, 0]])), shape=(n, n)).tocsr()
+            A.data[:] = 1.0
+            deg = np.maximum(np.asarray(A.sum(1)).ravel(), 1)
+            D = gm.copy()
+            for _k in range(HAND_FOLD_STEPS):
+                D = 0.5 * D + 0.5 * (A @ D) / deg[:, None]
+                D[held] = gm[held]
+            self.v = self.v + D[weld]
+        self.tris = self.tris[~drop]
+        self.report["clear_hands"] = {"cuff_triangles_dropped": int(drop.sum()), "skirt_points_behind_hands": int(len(hit))}
+
     def weights_from_skin(self):
         """A twin piece bends as the skin under it does: each point takes the weights (and the
         body part) of the nearest point of his skin's surface, the three corners' weights by
@@ -1233,6 +1581,9 @@ class Piece:
         body = self.body
         bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
         took = 0
+        own = self.region.copy()
+        bones = list(self.env["bones"])
+        arm_cols = [k for k, b in enumerate(bones) if str(b).startswith(("upper_arm", "forearm", "hand", "finger"))]
         for i in range(len(self.v)):
             loc, _n, f, _d = bvh.find_nearest(Vector(self.v[i]))
             if f is None:
@@ -1247,7 +1598,20 @@ class Piece:
             reg = body.region[tri[int(np.argmax(bary))]]
             if self.shape == "coat" and str(reg).startswith(("thigh", "shin", "foot")):
                 continue
-            self.W[i] = bary @ body.W[tri]
+            # Nor, cloth that isn't a sleeve, his hanging hands' and forearms' (the skirt and the
+            # trousers by his hand took the hand's weights and went where it went: "his hands
+            # seem like they're melting into the jacket"); and none of his arms' at all (its own
+            # weights blend in the arm's capsule by his hand).
+            sleeve = self.shape == "coat" and str(own[i]).startswith(("upper", "forearm", "hand"))
+            if not sleeve and str(reg).startswith(("forearm", "hand")):
+                w = self.W[i].copy()
+                w[arm_cols] = 0.0
+                if w.sum() <= 1e-6:
+                    w[bones.index("pelvis")] = 1.0
+                self.W[i] = w / w.sum()
+                continue
+            w = bary @ body.W[tri][:, :self.W.shape[1]]    # the body's bones only (not his fingers')
+            self.W[i] = w / max(float(w.sum()), 1e-9)
             self.region[i] = reg
             took += 1
         self.report["weights_from_skin"] = took
@@ -1361,6 +1725,13 @@ def build_blender(person):
         parent = env["segments"][b]["parent"]
         if parent:
             arm_data.edit_bones[b].parent = arm_data.edit_bones[parent]
+    # The skinned hands' finger bones (skinned_hands), children of the hands.
+    for name in getattr(person, "extra_bones", []):
+        origin, basis = person.finger_rests[name]
+        eb = arm_data.edit_bones.new(name)
+        eb.head = mp.to_blender(origin)
+        eb.tail = mp.to_blender(origin - basis[1] * 0.02)
+        eb.parent = arm_data.edit_bones["hand_" + name.split("_")[2]]
     bpy.ops.object.mode_set(mode="OBJECT")
     person.arm = arm
 
@@ -1378,7 +1749,8 @@ def build_blender(person):
             poly.use_smooth = True
         obj = bpy.data.objects.new("body_" + name, mesh)
         bpy.context.scene.collection.objects.link(obj)
-        for bname in bones:
+        names = bones + (getattr(person, "extra_bones", []) if src is person and src.W.shape[1] > len(bones) else [])
+        for bname in names:
             obj.vertex_groups.new(name=bname)
         for new_i, old_i in enumerate(used):
             for b, w in enumerate(src.W[old_i]):
@@ -1497,6 +1869,12 @@ def main():
             print("wrote", pid, "smooth textures from", os.path.basename(src) if os.path.exists(src) else "tripo")
             continue
         colour = Image.open(repainted).convert("RGB") if os.path.exists(repainted) else p.colour
+        # MakeHuman's hands painted into his texture's free squares (makehuman_hands).
+        for paint, (u0, v0, side) in getattr(p, "hand_paint", []):
+            px = max(1, int(round(side * colour.width)))
+            tile = Image.fromarray((paint * 255).astype(np.uint8)).resize((px, px), Image.LANCZOS)
+            colour = colour.copy()
+            colour.paste(tile, (int(round(u0 * colour.width)), int(round(v0 * colour.height))))
         # A repaint smaller than his model's texture (head_paint.py bakes at most 2048 a side; a
         # Rodin man's is 4096) is already in squares that size: it keeps its texels.
         sq = max(1, SQUARE_TEXELS * colour.width // p.colour.width)

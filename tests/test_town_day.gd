@@ -347,6 +347,123 @@ func test_in_a_fight_they_work_together() -> void:
 	print("  the gang in a fight on the street: %s" % ", ".join(calls))
 
 
+## Sean (2026-10-16): after a fight the gang shouldn't stand about for an hour; some ride out,
+## some give themselves up, and you can arrest those. Break a fight off (gun away, out of sight)
+## and inside a minute and a half nobody's still at it: the ones standing are gone or going.
+func test_break_off_a_fight_and_they_ride_out_not_stand_about() -> void:
+	await _fight_at_the_bar_and_break_off()
+	var done := await wait_until(func() -> bool: return _still_at_it().is_empty(), 60 * 90)
+	check(done, "nobody's still fighting or hanging about a minute and a half on (%s)" % ", ".join(_still_at_it()))
+
+
+## A man down with his legs gone, awake, and against you: alone he lies there; when you come up
+## on him he gives himself up, and a shout binds his hands. (At the bar, Brody shot through the
+## thigh with you three metres off gives up there and then.)
+func test_a_man_down_gives_himself_up_when_you_come_and_you_can_arrest_him() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	kid.global_position = town.places.at(&"street_west")
+	await physics_frames(10)
+	b.relations.provoke(player)
+	kid.go_limp()
+	await physics_frames(60 * 10)
+	check(kid.physiology.is_conscious() and b.mood == OutlawBrain.Mood.DOWN, "down, and awake")
+	check(b.mood != OutlawBrain.Mood.SURRENDERED, "lying there with you nowhere near, he hasn't given up")
+	var at := OutlawBrain._lying_at(kid)
+	_put_player(Vector3(at.x + 2.0, kid.global_position.y, at.z), 90.0)
+	_look_at(at)
+	var gave := await wait_until(func() -> bool: return b.mood == OutlawBrain.Mood.SURRENDERED, 60 * 3)
+	check(gave, "you come up on him and he gives himself up")
+	await _shout()
+	await physics_frames(5)
+	check(b.arrested_by == player, "a shout and his hands are bound: arrested")
+
+
+## A man who's given himself up on his feet: arrested, he walks along behind you; told to wait,
+## he waits.
+func test_an_arrested_man_goes_where_you_take_him() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	kid.global_position = town.places.at(&"street_west")
+	await physics_frames(10)
+	b._surrender()
+	check(kid.held_gun == null, "he's dropped his gun")
+	_put_player(kid.global_position + Vector3(1.5, 0, 0), 90.0)
+	_look_at(kid.global_position + Vector3.UP * 1.2)
+	await physics_frames(2)
+	await _shout()
+	await physics_frames(5)
+	check(b.arrested_by == player and b.follow, "arrested, and coming along")
+	check_eq(kid.pose, &"hands_bound", "hands behind his back")
+	await physics_frames(30)
+	var inv := kid.global_transform.affine_inverse()
+	var chest := inv * (kid.parts[&"chest"] as Node3D).global_position
+	for side in ["r", "l"]:
+		var hand := inv * (kid.parts[StringName("hand_" + side)] as Node3D).global_position - chest
+		check(hand.z > 0.08 and absf(hand.x) < 0.16 and hand.y < -0.25, "his %s hand's at the small of his back (%s)" % [side, hand])
+	var from := player.global_position
+	_put_player(from + Vector3(10, 0, 0), -90.0)
+	var near := await wait_until(func() -> bool: return kid.global_position.distance_to(player.global_position) < 3.0, 60 * 10)
+	check(near, "walks along after you (%.1f m)" % kid.global_position.distance_to(player.global_position))
+	_look_at(kid.global_position + Vector3.UP * 1.2)
+	await physics_frames(2)
+	await _shout()
+	await physics_frames(5)
+	check(not b.follow, "told to wait")
+	var stood := kid.global_position
+	_put_player(player.global_position + Vector3(10, 0, 0), -90.0)
+	await physics_frames(60 * 4)
+	check(kid.global_position.distance_to(stood) < 0.5, "and waits where he is")
+
+
+## The gang at the bar; you, out of their reach, put one through Brody's thigh; eight seconds of
+## it, then your gun goes away and you're gone from sight at the east end.
+func _fight_at_the_bar_and_break_off() -> void:
+	town.bring_gang()
+	for g in town.gang:
+		var gb := g.get_node(^"Brain") as OutlawBrain
+		g.global_position = town.places.at(gb.bar_spot)
+		gb.agenda = [{"do": &"drink", "seconds": 999.0, "face": town.places.at(gb.bar_spot) + TownLayout.facing_toward(&"Saloon", Vector3(2, 0, 0)) + Vector3.UP * 1.2}]
+		gb._step_started = false
+	player.remove_meta(&"human_body")  # their rounds stop on you: this is about them
+	_put_player(TownLayout.point(&"Saloon", Vector3(5.0, _saloon_floor(), 1.8)), float(TownLayout.entry(&"Saloon").get("facing", 0.0)) + 180.0)
+	await physics_frames(30)
+	var brody := _man(&"brody")
+	var at := (brody.parts[&"thigh_r"] as Node3D).global_position
+	var bl := street.find_child("Ballistics", true, false) as Ballistics
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var ex: Array[RID] = [player.get_rid()]
+	var from := player.camera.global_position
+	var bullet := bl.fire(from, (at - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
+	bullet.shooter = player
+	await physics_frames(60 * 8)
+	player.revolver().put_away()
+	Events.deed.emit(player, &"holster", null, player.global_position)
+	_put_player(Vector3(60.0, 0.0, -12.0), -90.0)
+
+
+## The gang men still on their feet and still at it: fighting, searching, or standing about
+## rather than gone or on their way out of town.
+func _still_at_it() -> Array[String]:
+	var out: Array[String] = []
+	for g in town.gang:
+		if not is_instance_valid(g) or g.limp or not g.physiology.is_conscious():
+			continue
+		var b := g.get_node(^"Brain") as OutlawBrain
+		var leaving: bool = b.mood == OutlawBrain.Mood.CALM and not b.agenda.is_empty() and b.agenda[0].do == &"leave"
+		if not leaving and b.mood != OutlawBrain.Mood.SURRENDERED and b.mood != OutlawBrain.Mood.FLEEING:
+			out.append("%s %s" % [g.person_id, b.describe().get_slice(".", 0)])
+	return out
+
+
+func _shout() -> void:
+	Input.action_press(&"shout")
+	await physics_frames(2)
+	Input.action_release(&"shout")
+
+
 ## The saloon's floor (config/town.json raises it above the street's other walks).
 func _saloon_floor() -> float:
 	return float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38))

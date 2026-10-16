@@ -28,9 +28,9 @@
       "measured_by": "test_feel::test_outlaw_hit_rates",
       "last": 1.0,
       "history": [
-        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: 9 of 9 shots hit a standing man at 5 m"
-      ],
-      "proposed": true
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: 9 of 9 shots hit a standing man at 5 m",
+        "2026-10-16 Sean agreed it: 'The proposed ranges sound good for now'"
+      ]
     },
     "outlaw_hit_rate_15m": {
       "min": 0.15,
@@ -39,9 +39,9 @@
       "measured_by": "test_feel::test_outlaw_hit_rates",
       "last": 0.31,
       "history": [
-        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
-      ],
-      "proposed": true
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change",
+        "2026-10-16 Sean agreed it: 'The proposed ranges sound good for now'"
+      ]
     },
     "outlaw_hit_rate_30m": {
       "min": 0.03,
@@ -50,9 +50,9 @@
       "measured_by": "test_feel::test_outlaw_hit_rates",
       "last": 0.125,
       "history": [
-        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
-      ],
-      "proposed": true
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change",
+        "2026-10-16 Sean agreed it: 'The proposed ranges sound good for now'"
+      ]
     },
     "duel_draw_seconds": {
       "min": 2.0,
@@ -62,9 +62,9 @@
       "last": 4.93,
       "history": [
         "2026-09-29 designed as 2.5-5 s (status entry, M4 step 3)",
-        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change"
-      ],
-      "proposed": true
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change",
+        "2026-10-16 Sean agreed it: 'The proposed ranges sound good for now'"
+      ]
     },
     "back_down_share": {
       "min": 0.0,
@@ -73,9 +73,9 @@
       "measured_by": "test_feel::test_back_down_rate",
       "last": 0.0,
       "history": [
-        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: none of the three backed down in the street at 6 m (all drew), though the Kid backs down when caught leaning on the storekeeper: is that right?"
-      ],
-      "proposed": true
+        "2026-10-05 measured as the game is and proposed by the gameplay session: Sean to OK or change: none of the three backed down in the street at 6 m (all drew), though the Kid backs down when caught leaning on the storekeeper: is that right?",
+        "2026-10-16 Sean agreed it: 'The proposed ranges sound good for now'"
+      ]
     },
     "fire_store_roof_seconds": {
       "min": 360,

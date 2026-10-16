@@ -41,6 +41,7 @@ const LINES := {
 	&"stand_down": ["That's better.", "Smart.", "Go on, then."],
 	&"search": ["Where'd he go?", "Come on out!", "I know you're there."],
 	&"lost": ["...Gone.", "Damn it. Lost him."],
+	&"arrested": ["Alright, alright. Easy with that.", "You got me. Don't make 'em tight.", "Go on, then."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
 	&"drink": ["Whiskey. Leave the bottle.", "Another.", "This the best you got?"],
 	&"fire": ["Place is going up!", "Fire! Let's git!", "Hell, she's burning!", "Out! Get out!"],
@@ -216,6 +217,12 @@ var _rescue_goal := Vector3.INF
 var _tried_rescue := {}
 var _rescue_best := INF
 var _gang_check := 0.0
+## Who's arrested him (null: nobody has). Hands bound, he goes along where he's taken.
+var arrested_by: Node3D = null
+## Arrested and told to come along (false: told to wait where he is).
+var follow := true
+## Down on the ground with his legs gone, how soon he looks again for a gun coming at him.
+var _give_up_look := 0.0
 
 
 func _ready() -> void:
@@ -479,7 +486,9 @@ func _physics_step(delta: float) -> void:
 		_set_mood(Mood.DEAD)
 		return
 	if body.limp:
-		_set_mood(Mood.DOWN)
+		if mood != Mood.SURRENDERED:
+			_set_mood(Mood.DOWN)
+			_down_but_awake(delta)
 		return
 	_now += delta
 	if body.dragged_by != null:
@@ -498,6 +507,8 @@ func _physics_step(delta: float) -> void:
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
 	fear = maxf(move_toward(fear, floor_fear, 0.01 * delta), floor_fear * 0.9)
 	if mood == Mood.SURRENDERED:
+		if arrested_by != null:
+			_go_along(delta)
 		return
 	if mood == Mood.FLEEING:
 		_flee(delta)
@@ -692,9 +703,11 @@ func _can_go_about() -> bool:
 		return false
 	if agenda[0].do in [&"call_out", &"duel"]:
 		return true
+	# On his way out of town he keeps an eye on a man he's wary of, and keeps going.
+	var holds := Relations.Stance.WARNING if agenda[0].do == &"leave" else Relations.Stance.WARY
 	for who in relations.entries.keys():  # a copy (see above)
 		var e: Dictionary = relations.entries[who]
-		if is_instance_valid(who) and e.stance >= Relations.Stance.WARY and not e.cowed:
+		if is_instance_valid(who) and e.stance >= holds and not e.cowed:
 			return false
 	return true
 
@@ -1111,7 +1124,7 @@ func _hunt(delta: float, t: Node3D) -> void:
 		_cover_search = 0.0
 		return
 	var spot := senses.last_known(t)
-	if _search_time > 25.0 or spot == Vector3.INF:
+	if _search_time > 25.0 or spot == Vector3.INF or senses.since_known(t) > HUNT_GIVE_UP:
 		say(&"lost")
 		relations.stand_down(t)
 		target = null
@@ -1405,6 +1418,16 @@ const FLANK_TRAVEL := 16.0
 ## How much a flanker wants a new angle on the man (Cover.search `new_angle`; 3 moving on his own).
 const FLANK_ANGLE := 9.0
 const RESCUE_REACH := 18.0
+## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
+## after a friend in between doesn't start the count again).
+const HUNT_GIVE_UP := 30.0
+## He only goes for a friend down in the open while the man who put him there is about: seen or
+## heard this recently.
+const RESCUE_WHILE_KNOWN := 8.0
+## Down with his legs gone: he gives himself up to a man he's against who comes this near.
+const GIVE_UP_NEAR := 8.0
+## ... or this near, seen or not (he hears him come).
+const GIVE_UP_HEARD := 4.0
 ## Walking backwards with a man by the collar (m/s).
 const DRAG_SPEED := 1.1
 ## The least time between two shouts of one kind (s); the rest every time.
@@ -1534,7 +1557,7 @@ static func _lying_at(m: HumanBody) -> Vector3:
 ## and nobody else getting him: the nearest such. Not if he's in no state to go himself.
 func _wounded_mate(t: Node3D) -> HumanBody:
 	if body.prone or not body.physiology.can_run() or fear > nerve * 0.8 or _stand_and_fight \
-			or suppressed > 0.0 or body.held_gun == null:
+			or suppressed > 0.0 or body.held_gun == null or senses.since_known(t) > RESCUE_WHILE_KNOWN:
 		return null
 	var eye := _eye_of(t)
 	var space := body.get_world_3d().direct_space_state
@@ -1929,6 +1952,59 @@ func _surrender() -> void:
 		_release_pressure()
 	body.set_pose(&"prone" if body.prone else &"hands_up")
 	Events.person_surrendered.emit(body)
+
+
+## Down with his legs gone but awake: when a man he's against comes near with him lying there, he
+## gives himself up (and can be arrested) rather than lie there for ever.
+func _down_but_awake(delta: float) -> void:
+	_give_up_look -= delta
+	if _give_up_look > 0.0 or not body.physiology.is_conscious():
+		return
+	_give_up_look = 0.5
+	for who in relations.entries.keys():  # a copy (see _pick_fight)
+		if not is_instance_valid(who) or not who is Node3D or relations.stance(who) < Relations.Stance.WARY:
+			continue
+		# Lying there he may be looking at the sky: a man walking up to him he hears.
+		var d := (who as Node3D).global_position.distance_to(body.global_position)
+		if d < GIVE_UP_HEARD or (senses.sees(who) and d < GIVE_UP_NEAR):
+			_surrender()
+			return
+
+
+## He's given himself up and that man's binding his hands: from now on he goes where he's taken
+## (or waits where he's told). A second word from the same man says which. False if he hasn't
+## given up (or can't hear it).
+func arrest(by: Node3D) -> bool:
+	if mood != Mood.SURRENDERED or not body.physiology.is_conscious():
+		return false
+	if arrested_by == by:
+		follow = not follow
+		return true
+	arrested_by = by
+	follow = true
+	target = null
+	say(&"arrested")
+	if not body.limp:
+		body.set_pose(&"hands_bound")
+	Events.person_arrested.emit(body, by)
+	return true
+
+
+## Arrested: hands behind him; he keeps a few steps behind the man who took him, at a walk.
+func _go_along(delta: float) -> void:
+	if not is_instance_valid(arrested_by):
+		arrested_by = null
+		return
+	if body.prone or not body.physiology.can_stand():
+		return
+	body.set_pose(&"hands_bound")
+	var by := arrested_by.global_position
+	var flat := Vector3(by.x, body.global_position.y, by.z)
+	var d := flat.distance_to(body.global_position)
+	if follow and d > 2.6:
+		body.walk_to(flat + (body.global_position - flat).normalized() * 1.8, walk_speed, delta)
+	else:
+		body.face(by + Vector3.UP * 1.4)
 
 
 func describe() -> String:

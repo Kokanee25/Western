@@ -21,6 +21,9 @@ const POSES := {
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
 	&"hands_up": {&"upper_arm_r": Vector3(0, 0, 150), &"forearm_r": Vector3(0, 0, 25),
 			&"upper_arm_l": Vector3(0, 0, -150), &"forearm_l": Vector3(0, 0, -25), &"head": Vector3(8, 0, 0)},
+	# Under arrest: hands bound behind his back, head down a little.
+	&"hands_bound": {&"upper_arm_r": Vector3(-35, 0, 0), &"forearm_r": Vector3(40, 40, 0),
+			&"upper_arm_l": Vector3(-35, 0, 0), &"forearm_l": Vector3(40, -40, 0), &"head": Vector3(-6, 0, 0)},
 	&"clutch": {&"upper_arm_r": Vector3(18, 0, -16), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(18, 0, 16), &"forearm_l": Vector3(100, 0, 0),
 			&"chest": Vector3(-18, 0, 0), &"head": Vector3(-10, 0, 0)},
@@ -504,6 +507,7 @@ func _build_skin() -> void:
 		skeleton.set_bone_rest(i, rests[i])
 		skin.add_bind(i, rests[i].affine_inverse())
 		_bone_parts.append(sid)
+	_add_finger_bones(data, skin, rests)
 	skeleton.reset_bone_poses()
 	var f := look.duplicate()
 	f["tone"] = skin_tone
@@ -567,6 +571,13 @@ func _build_skin() -> void:
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
 	_own_fingers(data)
+	if not _finger_rig.is_empty():
+		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off.
+		for fid: StringName in finger_bones:
+			for bone: Node3D in finger_bones[fid]:
+				for c in bone.get_children():
+					if c is MeshInstance3D:
+						(c as MeshInstance3D).visible = false
 	_merge_pieces(skin)
 	_update_skeleton()
 
@@ -731,6 +742,77 @@ func _update_skeleton() -> void:
 		var part: Node3D = parts.get(_bone_parts[i])
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
+	_pose_fingers()
+
+
+## A skinned hand's finger bones (the characters session's skinned hands,
+## docs/briefs/skinned-hands.md): after the anatomy's, each resting at his model's own finger
+## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
+## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
+var _finger_rig: Array = []
+
+
+func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
+	var fb: Dictionary = data.get("finger_bones", {})
+	if fb.is_empty():
+		return
+	var last := {}
+	for name: String in data.get("finger_bone_names", []):
+		if not fb.has(name):
+			return
+		var r: Dictionary = fb[name]
+		var o: Array = r.origin
+		var b: Array = r.basis
+		var rest := Transform3D(Basis(Vector3(b[0][0], b[0][1], b[0][2]), Vector3(b[1][0], b[1][1], b[1][2]),
+				Vector3(b[2][0], b[2][1], b[2][2])), Vector3(o[0], o[1], o[2]))
+		var i := skeleton.get_bone_count()
+		skeleton.add_bone(name)
+		skeleton.set_bone_rest(i, rest)
+		skin.add_bind(i, rest.affine_inverse())
+		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
+		var fid := StringName("%s_%s" % [bits[1], bits[2]])
+		var k := int(bits[3])
+		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
+		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
+		_finger_rig.append({"bone": i, "parent": parent, "local": parent_rest.affine_inverse() * rest, "fid": fid, "k": k})
+		last[fid] = i
+
+
+## A skinned hand at rest is a little curled, as a hand hangs (the drawn fingers hung dead straight;
+## his paintings' hands curl): each joint bent at least this much (degrees, knuckle out); the
+## game's own curl takes over past it.
+const RELAXED_BEND := [28.0, 38.0, 24.0]
+const RELAXED_THUMB := [10.0, 20.0, 14.0]
+## A skinned hand's joints bend this many times the finger node's angle (curl_hand's full curl,
+## 55/80/60 degrees, is a loose claw on a whole hand; a fist is ~90/100/65).
+const FIST_GAIN := [1.6, 1.25, 1.1]
+const FIST_GAIN_THUMB := [1.7, 1.5, 1.2]
+## A skinned thumb folds across the fist, not only towards the palm: its bend leans this far
+## (degrees) from the fingers' axis onto the bone's X, that way (THUMB_ACROSS_SIGN).
+const THUMB_ACROSS := 45.0
+const THUMB_ACROSS_SIGN := -1.0
+
+
+func _pose_fingers() -> void:
+	for e: Dictionary in _finger_rig:
+		var bend := Basis.IDENTITY
+		var gone := not fingers.has(e.fid)
+		if not gone:
+			var node := finger_bones[e.fid][e.k] as Node3D
+			var sx := -1.0 if String(e.fid).ends_with("_r") else 1.0
+			var rest: float = deg_to_rad((RELAXED_THUMB if String(e.fid).begins_with("thumb") else RELAXED_BEND)[e.k])
+			var angle: float = node.rotation.z * (FIST_GAIN_THUMB if String(e.fid).begins_with("thumb") else FIST_GAIN)[e.k]
+			if absf(angle) < rest:
+				angle = sx * rest
+			if String(e.fid).begins_with("thumb"):
+				var lean := deg_to_rad(THUMB_ACROSS)
+				bend = Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
+			else:
+				bend = Basis(Vector3(0, 0, 1), angle)
+		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
+		if gone:
+			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
+		skeleton.set_bone_pose(e.bone, pose)
 
 
 func _process(delta: float) -> void:
@@ -1250,7 +1332,7 @@ func _gait_overlay(delta: float) -> Dictionary:
 			out[&"thigh_l"] = Vector3(-s * amp_t * k_l, 0, 0)
 			out[&"shin_r"] = Vector3(-maxf(c, 0.0) * amp_s * k_r, 0, 0)
 			out[&"shin_l"] = Vector3(-maxf(-c, 0.0) * amp_s * k_l, 0, 0)
-			if not aiming:
+			if not aiming and pose != &"hands_bound":
 				out[&"upper_arm_r"] = Vector3(-s * amp_a, 0, 0)
 				out[&"upper_arm_l"] = Vector3(s * amp_a, 0, 0)
 			if run:
@@ -1657,6 +1739,9 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	rb.global_transform = knuckle.global_transform
 	rb.add_child(shape)
 	knuckle.reparent(rb, true)
+	# A skinned hand hid the drawn finger: it's the one that flies.
+	for mi in knuckle.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).visible = true
 	rb.add_to_group(&"severed_parts")
 	rb.apply_impulse(dir * 0.08 + Vector3(0, 0.05, 0))
 	# The stump bleeds.

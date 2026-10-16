@@ -58,7 +58,7 @@ ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
-Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
+Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -438,6 +438,13 @@ a few views renders them as the full run does.
   `CivilianBrain.FIRE_SEEN` 30 m come to fight it. `Crew` (per man:
   his friends in a fight as he knows them, from what he saw and `Events.callout`s he heard:
   reloading, hit, spotted, flank, covering, help, drag, down, dead, quit, fall_back, give_up).
+  After a fight: a man who's lost you gives up looking `OutlawBrain.HUNT_GIVE_UP` (30 s) after he
+  last saw or heard you, goes for a friend down only while you're about (`RESCUE_WHILE_KNOWN`),
+  and rides out (a `leave` step isn't held up by being wary, only by a warning or worse). A man
+  down with his legs gone gives himself up to a man he's against within `GIVE_UP_HEARD` 4 m (or 8
+  seen). The shout key in arm's reach (3 m) of a man who's given up arrests him
+  (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
+  follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
 
 ## src/weapons
 
