@@ -58,7 +58,7 @@ ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
-Z]`, `read frame|player|people|look|places|counts|all`, `events [N]`, `quit`. Facing is degrees
+Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -256,6 +256,16 @@ a few views renders them as the full run does.
   where its point of the world was a frame before and counts those whose colour isn't there (the
   camera's own movement taken out; no mosaic scores 0.1-0.2 %); `measure` gives the plain changed
   and flipped-back shares, `video` a side-by-side (`--crop=` for a phone).
+  **Surfaces to the man** (roadmap 1.4, 2026-10-15): the world's near surfaces in the portrait
+  man's squares (his face and coat, 36-48 a metre). The game's woods are drawn in squares of 4 of
+  C's 128 texels, 32 a metre (`grain_woods.py` `squared`, `woods_grain.json` `squares`: a square's
+  dark-weighted mean, specks under a square left out, snapped to the board's tones; ends in squares
+  of 2), and `texel_grid` `square_texels` / `end_square_texels` (`PixelArt.WOODS_SQUARE`;
+  not the table's drawn top, finer in the painting) reads each whole (`tile_block_sample`: the mip of its size) and lights
+  it as one. The ground: the drawn road at 32 a metre (`DRAWN_ROAD_TEXELS`), its squares sized per
+  axis (`tile_square_screen`, `square_px` 3) so they stay square on screen far off, each its texels'
+  mean (mipmapped samplers), so the far road calms. `tools/surface_squares.py` measures square size
+  and finish crop by crop (`surface_squares.json`) and makes target | before | now sheets.
   Still lit smoothly (StandardMaterial3D): guns, lamps, `PropLibrary` props, effects.
   **Light with range** (`docs/ART_REVIEW.md` §3.1, §8.1): the night room is dark
   (`ambient_energy_night` 0.7, the saloon's `night_ambient` 0.035, `exposure_night` 0.72) and lit by
@@ -418,6 +428,13 @@ a few views renders them as the full run does.
   `CivilianBrain.FIRE_SEEN` 30 m come to fight it. `Crew` (per man:
   his friends in a fight as he knows them, from what he saw and `Events.callout`s he heard:
   reloading, hit, spotted, flank, covering, help, drag, down, dead, quit, fall_back, give_up).
+  After a fight: a man who's lost you gives up looking `OutlawBrain.HUNT_GIVE_UP` (30 s) after he
+  last saw or heard you, goes for a friend down only while you're about (`RESCUE_WHILE_KNOWN`),
+  and rides out (a `leave` step isn't held up by being wary, only by a warning or worse). A man
+  down with his legs gone gives himself up to a man he's against within `GIVE_UP_HEARD` 4 m (or 8
+  seen). The shout key in arm's reach (3 m) of a man who's given up arrests him
+  (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
+  follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
 
 ## src/weapons
 

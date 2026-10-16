@@ -11,7 +11,10 @@ in the painting's colours with the light taken out (as draw_boards.py does):
     assets/textures/drawn/road.png       the 2 m tile shown through it in broad patches: dust and
                                          stones, no tracks
 
-Both at 16 texels a metre (the bold look's: PixelArt.BOLD_TEXELS), seamless.
+Both at TEXELS a metre, seamless: 32 since roadmap 1.4 (2026-10-15, "surfaces to the man": the
+road's squares at the portrait man's face's and coat's, 36-48 a metre; it was 16, the bold look's,
+four times his square at the same distance). Every size below is in 16ths of a metre and scaled
+by S, so the tracks, clumps and stones are where and how big they were.
 
     python3 tools/textures/draw_road.py [--sheet]
 """
@@ -32,7 +35,10 @@ SHEET = ROOT / "docs/screenshots/textures/drawn_road.png"
 # much greyer than its lit colours (draw_boards.palette). The spread is pushed past the painting's:
 # the game's low sun and haze take some back (at 1.0 the rendered road's squares were half as
 # contrasted as the painting's).
-SPEC = {"albedo": [0.68, 0.53, 0.39], "contrast": 1.0, "grey": 0.1}
+# 1.4: greyer and calmer than before (albedo 0.68, 0.53, 0.39, contrast 1.0, grey 0.1): the rendered road was C* 53 to the
+# painting's 37 and its square-to-square step 7.3 L* near the feet to the painting's 6.2 and the
+# man's coat's 2 (tools/surface_squares.py).
+SPEC = {"albedo": [0.64, 0.53, 0.43], "contrast": 0.8, "grey": 0.45}
 # Where the painting's road squares are read (x0, y0, x1, y1 in the 1672-wide picture, the square's
 # size there): the near road either side of the gun, and the road a few metres on.
 SQUARES = [(420, 780, 800, 940, 14), (880, 780, 1180, 940, 14), (560, 650, 1000, 780, 9)]
@@ -44,14 +50,15 @@ PAL_STEPS = range(10)
 DARK = 0.16
 JITTER = 0.2
 # The share of a groove's squares filled with dust.
-GAPS = 0.35
-TEXELS = 16  # a metre
+GAPS = 0.15
+TEXELS = 32  # a metre
+S = TEXELS // 16
 # The wheel tracks, in texels from the road's centre line (+ toward the saloon's side, z up): (where,
 # how worn). The most used pair runs 2.2 m toward the saloon's side, under the street shot's feet
 # (StreetMatch.FEET is 2.4 m off the centre line), so its grooves run out of the bottom of the frame
 # toward the far end as the painting's do; a second pair on the centre line, a faint third beyond.
 # A wagon's wheels are 1.5 m apart (24 texels).
-GROOVES = [(23, 1.0), (47, 1.0), (-12, 0.7), (12, 0.7), (-50, 0.4), (-26, 0.4)]
+GROOVES = [(23, 1.0), (47, 1.0), (-12, 0.7), (12, 0.7), (-50, 0.4), (-26, 0.4)]  # in 16ths, x S
 
 
 def painting_squares(img: np.ndarray) -> np.ndarray:
@@ -105,7 +112,7 @@ def dust(w: int, h: int, share: np.ndarray, rng: np.random.Generator, ruts=None)
     uses it). `ruts`: a value per square pushed down where the wheels ran (grooves())."""
     n = len(share)
     dark_n = int(np.searchsorted(np.cumsum(share), DARK)) + 1
-    clump = field(w, h, ((16, 1.0), (8, 0.6)), rng)
+    clump = field(w, h, ((16 * S, 1.0), (8 * S, 0.6)), rng)
     v = clump * 0.9 + rng.normal(0, JITTER, (h, w))
     if ruts is not None:
         v = v + ruts * v.std()
@@ -113,15 +120,20 @@ def dust(w: int, h: int, share: np.ndarray, rng: np.random.Generator, ruts=None)
     # The dark squares: more in some patches than others (and down the ruts), runs of one to three
     # across the street (y).
     want = share[:dark_n].sum()
-    p = want * (1.0 + 1.6 * field(w, h, ((8, 1.0),), rng))
+    p = want * (1.0 + 1.6 * field(w, h, ((8 * S, 1.0),), rng))
     if ruts is not None:
         p = p + np.clip(-ruts, 0.0, None) * 0.35
-    seeds = rng.random((h, w)) < p / 1.7
+    # Half of them a square of S x S (a stone or scuff at the painting's square size), half one
+    # texel: the same dark share as before, in fewer, bigger marks (all one texel at 32 a metre
+    # read as pepper).
+    seeds = rng.random((h, w)) < p / 1.7 / ((1 + S * S) / 2)
     tone = rng.choice(dark_n, size=(h, w), p=share[:dark_n] / want)
     for y, x in zip(*np.nonzero(seeds)):
         run = 1 + int(rng.random() < 0.45) + int(rng.random() < 0.2)
-        for k in range(run):
-            idx[(y + k) % h, x] = min(dark_n - 1, tone[y, x] + int(rng.integers(0, 2)) * (k > 0))
+        size = S if rng.random() < 0.5 else 1
+        for k in range(run * size):
+            for j in range(size):
+                idx[(y + k) % h, (x + j) % w] = min(dark_n - 1, tone[y, x] + int(rng.integers(0, 2)) * (k >= size))
     if ruts is not None:
         # The ruts in the dark tones (deeper, darker). No lit ridge beside them: a ridge every
         # groove drew ruled light lines down the street, a grid (the blind critic, 2026-10-13).
@@ -150,29 +162,34 @@ def stones(idx: np.ndarray, count: int, rng: np.random.Generator) -> None:
 
 def grooves(h: int, w: int, rng: np.random.Generator) -> np.ndarray:
     """The wheel tracks as a value per square (in the dust's spreads, negative = darker): each
-    groove two squares of dark bottom with a lit ridge either side, and beside it a fainter second
-    groove a few squares off where other wagons ran, drifting nearer and further; hoof churn in
-    loose bands between the tracks."""
+    groove a dark bottom a 16th of a metre or so wide, and beside it a fainter second groove a few
+    16ths off where other wagons ran, drifting nearer and further; hoof churn in loose bands between
+    the tracks. Since 1.4 a groove's gaps come in runs (dust blown in over a stretch), not square by
+    square: broken square by square, the painting's long ruts didn't read in the game at all (the
+    blind critic, every round: "no ruts")."""
     v = np.zeros((h, w))
     centre = h // 2
     for off, depth in GROOVES:
-        wobble = (smooth_noise(w, 64, rng) - 0.5) * 2.0 + (smooth_noise(w, 16, rng) - 0.5) * 2.0
-        twin = 2.5 + smooth_noise(w, 32, rng) * 2.5
+        off *= S
+        wobble = ((smooth_noise(w, 64 * S, rng) - 0.5) * 2.0 + (smooth_noise(w, 16 * S, rng) - 0.5) * 2.0) * S
+        twin = (2.5 + smooth_noise(w, 32 * S, rng) * 2.5) * S
+        gap = smooth_noise(w, 3 * S, rng)
+        gap = gap < np.quantile(gap, GAPS)
         side = 1 if rng.random() < 0.5 else -1
         for x in range(w):
-            if rng.random() < GAPS:
+            if gap[x]:
                 continue  # dust blown into it: the painting's ruts are broken runs of dark squares
             y = centre + off + int(round(wobble[x]))
-            v[y % h, x] -= 2.6 * depth
-            v[(y + 1) % h, x] -= 1.2 * depth * (rng.random() < 0.6)
-            v[(y - 1) % h, x] += 0.7 * depth  # the ridge thrown up beside the groove
+            for k in range(S):
+                v[(y + k) % h, x] -= 2.6 * depth
+            v[(y + S) % h, x] -= 1.2 * depth * (rng.random() < 0.6)
             t = y + side * int(round(twin[x]))
-            if (x // 5) % 4 != 3:  # broken where the second wheel bit less
+            if (x // (5 * S)) % 4 != 3:  # broken where the second wheel bit less
                 v[t % h, x] -= 1.0 * depth * (rng.random() < 0.6)
     for mid in (35, 0):
-        for _ in range(w // 2):
+        for _ in range(w // 2 * S):
             x = int(rng.integers(0, w))
-            y = centre + mid + int(rng.normal(0, 5))
+            y = centre + mid * S + int(rng.normal(0, 5 * S))
             v[y % h, x] -= 1.0
     return v
 
@@ -210,10 +227,10 @@ def main() -> None:
     n = len(pal)
     OUT.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(3301)
-    wide = dust(128, 128, share, rng, grooves(128, 128, rng))
-    stones(wide, 60, rng)
-    small = dust(32, 32, share, rng)
-    stones(small, 2, rng)
+    wide = dust(128 * S, 128 * S, share, rng, grooves(128 * S, 128 * S, rng))
+    stones(wide, 60 * S * S, rng)
+    small = dust(32 * S, 32 * S, share, rng)
+    stones(small, 2 * S * S, rng)
     made = {}
     for name, idx in (("road_wide", wide), ("road", small)):
         i = np.clip(np.round(idx), 0, n - 1).astype(int)

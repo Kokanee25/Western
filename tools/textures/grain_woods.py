@@ -287,6 +287,41 @@ def save(arr, path):
     Image.fromarray((arr * 255 + 0.5).astype(np.uint8)).save(path)
 
 
+# Fewer texels than this, far off a square's tone, are a speck smaller than the square (squared).
+SPECK = 3
+
+
+def squared(arr, k, dark_weight):
+    """The wood in squares of k x k texels, each one colour, as the portrait man's face and coat are
+    painted (roadmap 1.4, 2026-10-15, "surfaces to the man"; the woods' spec `squares`): the mean of
+    its texels with the darker weighing more ((1 - L) ** dark_weight, so a check or a knot through
+    a square still darkens it, where a plain mean washed them out) and specks smaller than the
+    square (a nail, a fleck: SPECK) left out, as the man's paint has none, then snapped to the
+    nearest of the colours the board itself uses, so the squares keep its few flat tones rather
+    than every in-between. The texture keeps its size, every square filled (the shader lines its
+    squares up with them: texel_grid square_texels); a last row or column short of k is a square of
+    what's left."""
+    h, w = arr.shape[:2]
+    out = arr.copy()
+    flat = arr.reshape(-1, 3)
+    tones = np.unique(np.round(flat * 255).astype(int), axis=0) / 255.0
+    lum = arr @ np.array([0.3, 0.59, 0.11])
+    for y in range(0, h, k):
+        for x in range(0, w, k):
+            blk = arr[y:y + k, x:x + k].reshape(-1, 3)
+            bl = lum[y:y + k, x:x + k].reshape(-1)
+            wt = (1.0 - bl) ** dark_weight + 1e-6
+            # A speck far off the square's own tone that only one or two texels show (a nail, a
+            # fleck of worn paint: smaller than the square) is left out; a check, a knot or a worn
+            # patch takes more of the square and stays.
+            odd = np.abs(bl - np.median(bl)) > 0.12
+            if 0 < odd.sum() < SPECK:
+                wt = wt * ~odd
+            c = (blk * wt[:, None]).sum(0) / wt.sum()
+            out[y:y + k, x:x + k] = tones[((tones - c) ** 2).sum(1).argmin()]
+    return out
+
+
 def main():
     args = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     global OUT
@@ -308,10 +343,18 @@ def main():
         dens, rows = w["texels_per_metre"], w["rows"]
         n = int(round(spec["length_m"] * dens))
         boards = [board(None, w, n, rows, dens, rng) for _ in range(w["count"])]
+        sq = spec.get("squares", {})
+        k = int(sq.get("texels", 1))
+        if k > 1:
+            boards = [squared(b, k, sq.get("dark_weight", 1.0)) for b in boards]
         for i, b in enumerate(boards):
             save(b, os.path.join(OUT, "%s_b%d.png" % (name, i)))
         save(np.concatenate(boards[:4], 0), os.path.join(OUT, "%s.png" % name))
         end = end_grain(w, dens, rng)
+        if k > 1:
+            # The end's squares (`end_texels` of its own texels a side): smaller than the long
+            # faces' in metres; at theirs a post's growth rings, its whole character, went flat.
+            end = squared(end, int(sq.get("end_texels", k)), sq.get("dark_weight", 1.0))
         save(end, os.path.join(OUT, "%s_end.png" % name))
         info["woods"][name] = {"boards": w["count"], "rows": rows, "length": n, "texels_per_metre": dens,
                                "end": "%s_end.png" % name}
@@ -322,7 +365,10 @@ def main():
         if w.get("end_wear"):
             bare = dict(w, ramp=w["under"] + w["under"][-1:] * 3, paint=False, base=[2.0, 0.3], knots=[0, 0],
                         checks=[[0, 1], w["checks"][1]])
-            save(board(None, bare, n, rows, dens, rng), os.path.join(OUT, "%s_bare.png" % name))
+            bare_b = board(None, bare, n, rows, dens, rng)
+            if k > 1:
+                bare_b = squared(bare_b, k, sq.get("dark_weight", 1.0))
+            save(bare_b, os.path.join(OUT, "%s_bare.png" % name))
             info["woods"][name]["end_wear"] = w["end_wear"]
         sheet.append((name, boards, end))
         print("%-14s %d boards %dx%d at %d/m (a texel %.1f mm), end %dx%d" % (

@@ -113,6 +113,45 @@ float tile_square(vec2 t) {
 	return exp2(clamp(ceil(log2(min_square_px * per_px)), 0.0, 6.0));
 }
 
+// The colour of the square of `b` texels (across, down) that texel-space point `t` falls in: the
+// mean of its texels (the texture's mip of the square's size, read at its centre; a whole power of
+// two lines the square up with the mip's texels), and never finer than the fragment's own mip.
+// So a square is one colour, as the man's painted squares are (roadmap 1.4, "surfaces to the
+// man"), and where squares shrink under a pixel far off the surface calms into its mip, as his
+// coat does, rather than one texel's colour flickering for each. `mips` off: as close up, always.
+vec4 tile_block_sample(sampler2D tex, vec2 t, vec2 size, vec2 b, bool mips) {
+	vec2 c = (floor(t / b) + 0.5) * b;
+	float lod = log2(max(sqrt(b.x * b.y), 1.0));
+	if (mips) {
+		vec2 dx = dFdx(t);
+		vec2 dy = dFdy(t);
+		lod = max(lod, 0.5 * log2(max(max(dot(dx, dx), dot(dy, dy)), 1e-8)));
+	}
+	return textureLod(tex, c / size, lod);
+}
+
+// Texels a side of the squares here along each texel axis (1, 2, 4...), each at least `px` render
+// pixels on screen that way, so a surface seen at a slant (the road down the street) keeps its
+// squares square on screen, as the paintings draw them, not thin strips across it (tile_square
+// sizes by area, so a far road's squares were 8 px wide and 1.5 tall: loud static). `t`: the
+// fragment's texel-space position.
+vec2 tile_square_screen(vec2 t, float px) {
+	if (px <= 0.0) {
+		return vec2(1.0);
+	}
+	vec2 tx = dFdx(t);
+	vec2 ty = dFdy(t);
+	float det = tx.x * ty.y - ty.x * tx.y;
+	if (abs(det) < 1e-12) {
+		return vec2(64.0);
+	}
+	// The screen step one texel along each axis makes (the inverse of how t changes on screen).
+	vec2 along_u = vec2(ty.y, -tx.y) / det;
+	vec2 along_v = vec2(-ty.x, tx.x) / det;
+	vec2 on_screen = max(vec2(length(along_u), length(along_v)), vec2(1e-4));
+	return exp2(clamp(ceil(log2(px / on_screen)), vec2(0.0), vec2(6.0)));
+}
+
 // Screen pixels from this fragment to the texel-space point `target`, `t` being the fragment's own
 // texel-space position: the inverse of how t changes across the screen. Zero when the surface is
 // edge-on. Whatever the tile look (bullet holes use it to draw in whole texels).

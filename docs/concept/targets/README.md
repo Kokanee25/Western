@@ -85,3 +85,10 @@ Render: a crop of `shot_match_saloon`.
 
 **Closest already:** the street's composition and the painted SALOON sign; the lamp's chimney
 with its glowing flame.
+
+## 6. The road (Sean, 2026-10-15)
+
+`6_road_target.jpg`, added after step 1.4's first merge: "this is what it needs to look like now".
+Deep wheel ruts with a sunlit ridge and a shadowed groove, solid stones each with a lit top and a
+shadow, long raking light and dust haze down the street. Its boot prints are to come from people
+walking (gameplay's, `docs/BACKLOG.md`), not painted into the road.

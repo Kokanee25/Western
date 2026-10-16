@@ -87,6 +87,9 @@ const VIEWS := [
 	["texel_rail_shadow", 17.0, Vector3(5.2, 0.0, -6.2), 170.0, -38.0],
 	["texel_porch", 17.0, Vector3(2.0, 0.0, -4.8), 180.0, -12.0],
 	["texel_store_golden", 17.6, Vector3(3.0, 0.0, -7.5), 180.0, 6.0],
+	# Roadmap 1.2's street half (art, 2026-10-15): the seated man's model (--model=) standing in
+	# the street at golden hour, the low sun behind you, framed on his face; --face-probe finds him.
+	["face_street_golden", 17.6, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
 ]
 
 ## The views were laid out on the old test street; the town now stands on Sean's map
@@ -463,6 +466,8 @@ func _run() -> void:
 			await _town_setup(main, setup, player)
 		if setup == "portrait":
 			await _portrait_setup(main, player)
+		if setup == "face_street":
+			await _face_street_setup(main, player)
 		if setup.begins_with("kid_"):
 			# One Kid for all three views (the street isn't reloaded between them).
 			var town = main.find_child("TownLife", true, false)
@@ -692,6 +697,45 @@ func _portrait_setup(main, player) -> void:
 	var head = man.parts[&"head"]
 	var at: Vector3 = head.global_position + Vector3(0, -0.05, 0)
 	var eye: Vector3 = at + (-man.global_basis.z) * 0.9 + Vector3(0, 0.03, 0)
+	player.camera.global_transform = Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye)
+	player.camera.fov = 40.0
+
+
+## Roadmap 1.2's sheet (art, 2026-10-15): the seated man's model (ShotMatch.model, --model=) in his
+## clothes, standing in the street where the Kid's views stand him, facing you with the low sun
+## behind you, and the camera on his face as portrait_day frames the outlaw's. Named SeatedMan so
+## --face-probe (tools/face_light.py) finds him as it finds the man at the card table.
+func _face_street_setup(main, player) -> void:
+	var town = main.find_child("TownLife", true, false)
+	town.gang_arrives = 1e9
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	if spawner.outlaw:
+		spawner.outlaw.queue_free()
+	var street = main.find_child("TestStreet", true, false)
+	var man = load("res://src/bodies/human_body.gd").new()
+	man.name = "SeatedMan"
+	man.person_id = &"stranger"
+	man.body_model = load("res://src/art/shot_match.gd").model
+	man.rng_seed = 7
+	man.coat_color = Color(0.36, 0.25, 0.16, 1.0)
+	man.vest_color = Color(0.2, 0.15, 0.11)
+	man.shirt_color = Color(0.82, 0.77, 0.66)
+	man.hat_color = Color(0.27, 0.19, 0.13)
+	man.bandana_color = Color(0.1, 0.08, 0.07)
+	street.add_child(man)
+	man.global_position = Vector3(3.0, 0.0, -9.0)
+	man.face(Vector3(0.0, 0.0, -9.0))
+	man.set_pose(&"stand")
+	var gun = player.get_node(^"Head/Camera3D/Gun")
+	gun._draw = 0.0
+	load("res://src/art/shot_match.gd").hands_off_camera(player)
+	player.set_physics_process(false)
+	player.body.visible = false
+	for i in 60:
+		await physics_frame
+	var head = man.parts[&"head"]
+	var at: Vector3 = head.global_position + Vector3(0, -0.05, 0)
+	var eye: Vector3 = at + (-man.global_basis.z) * 1.1 + Vector3(0, 0.03, 0)
 	player.camera.global_transform = Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye)
 	player.camera.fov = 40.0
 
