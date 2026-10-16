@@ -369,8 +369,8 @@ EXPRESSIONS = {
     "aa": {"JawDrop": 0.7, "UpperLipUp": 0.35, "lowerLipDown": 0.5},
     "ee": {"MouthLeftPullSide": 1.1, "MouthRightPullSide": 1.1, "JawDrop": 0.2, "UpperLipUp": 0.35, "lowerLipDown": 0.45},
     "oo": {"LipsKiss": 1.35, "JawDrop": 0.25},
-    "fv": {"lowerLipUp": 0.8, "lowerLipBackward": 1.3, "UpperLipUp": 0.4, "JawDrop": 0.1},
-    "mbp": {"lowerLipUp": 0.8, "UpperLipBackward": 0.6, "UpperLipStretched": 0.5},
+    "fv": {"lowerLipUp": 1.0, "lowerLipBackward": 1.7, "UpperLipUp": 0.5, "JawDrop": 0.12},
+    "mbp": {"lowerLipUp": 0.5, "LipsKiss": 0.25},        # shut and pressed (stretched, they part on his teeth)
     "blink_l": {"LeftUpperLidClosed": 1.0, "LeftLowerLidUp": 0.25},
     "blink_r": {"RightUpperLidClosed": 1.0, "RightLowerLidUp": 0.25},
     "squint": {"LeftLowerLidUp": 0.8, "RightLowerLidUp": 0.8, "LeftCheekUp": 0.6, "RightCheekUp": 0.6,
@@ -379,14 +379,22 @@ EXPRESSIONS = {
     "brows_down": {"LeftBrowDown": 1.0, "RightBrowDown": 1.0},
     "scowl": {"LeftBrowDown": 1.0, "RightBrowDown": 1.0, "NoseWrinkler": 0.7, "MouthLeftPullDown": 0.6,
               "MouthRightPullDown": 0.6, "lowerLipUp": 0.3, "LeftLowerLidUp": 0.3, "RightLowerLidUp": 0.3},
-    "smile": {"MouthLeftPullUp": 1.2, "MouthRightPullUp": 1.2, "LeftCheekUp": 0.7, "RightCheekUp": 0.7},
-    "smile_l": {"MouthLeftPullUp": 1.4, "LeftCheekUp": 0.8},
-    "smile_r": {"MouthRightPullUp": 1.4, "RightCheekUp": 0.8},
+    # a smile shows in his eyes too (the lower lids up): under the moustache its corners barely do
+    "smile": {"MouthLeftPullUp": 1.2, "MouthRightPullUp": 1.2, "LeftCheekUp": 0.8, "RightCheekUp": 0.8,
+              "LeftLowerLidUp": 0.35, "RightLowerLidUp": 0.35},
+    "smile_l": {"MouthLeftPullUp": 1.4, "LeftCheekUp": 0.9, "LeftLowerLidUp": 0.35},
+    "smile_r": {"MouthRightPullUp": 1.4, "RightCheekUp": 0.9, "RightLowerLidUp": 0.35},
+    # his eyes turned (about 19 degrees; the lids follow up and down), Left his left
+    "look_left": {"LeftEyeturnLeft": 1.0, "RightEyeturnLeft": 1.0},
+    "look_right": {"LeftEyeturnRight": 1.0, "RightEyeturnRight": 1.0},
+    "look_up": {"LeftEyeUp": 1.0, "RightEyeUp": 1.0},
+    "look_down": {"LeftEyeDown": 1.0, "RightEyeDown": 1.0},
 }
 # Inside his mouth, painted dark: the game draws no shadow that small.
 DARK = np.array([0.09, 0.03, 0.03])
-TEETH = np.array([0.66, 0.60, 0.47])
-TEETH_BEHIND = 0.0025  # metres: the upper teeth's front behind his inner lip line
+TEETH = np.array([0.56, 0.48, 0.35])
+TEETH_BEHIND = 0.004   # metres: the upper teeth's front behind his inner lip line
+TEETH_SHOW = 0.0       # metres: the upper teeth's edge under it (lower and they show through "mbp")
 TONGUE = np.array([0.28, 0.10, 0.09])
 LID_OUT = 0.0025       # a lid's paint: his skin this far outside his eye's painted outline
 TEX = 1024                                    # the new face's texture, texels a side
@@ -410,6 +418,77 @@ def dilate(img, filled, px=8):
     grow = (~filled) & (d <= px)
     out[grow] = img[iy[grow], ix[grow]]
     return out
+
+
+# Strips of the face's texture for the teeth and tongue: (u0, v0, u1, v1).
+STRIPS = {"helper-upper-teeth": (0.78, 0.46, 0.98, 0.54), "helper-lower-teeth": (0.78, 0.56, 0.98, 0.64),
+          "helper-tongue": (0.78, 0.66, 0.98, 0.80)}
+GUM = np.array([0.42, 0.17, 0.15])
+
+
+def mouth_uv(P, gname):
+    """Teeth: across the strip their way round the arch, down it from the biting edge to the gum.
+    The tongue: across it side to side, down it front to back."""
+    u0, v0, u1, v1 = STRIPS[gname]
+    c = P.mean(0)
+    if gname == "helper-tongue":
+        s = (P[:, 0] - P[:, 0].min()) / np.ptp(P[:, 0])
+        h = (P[:, 2] - P[:, 2].min()) / np.ptp(P[:, 2])
+    else:
+        back = P[:, 2].max()
+        a = np.arctan2(P[:, 0] - c[0], -(P[:, 2] - back) + 1e-6)
+        s = np.clip(a / np.pi + 0.5, 0, 1)
+        y = (P[:, 1] - P[:, 1].min()) / np.ptp(P[:, 1])
+        h = 1 - y if "upper" in gname else y                         # 0 at the biting edge
+    return np.c_[u0 + (u1 - u0) * (0.04 + 0.92 * s), v0 + (v1 - v0) * (0.04 + 0.92 * h)]
+
+
+def paint_mouth(img, filled):
+    """The teeth and tongue's strips painted by rule: the teeth lighter at the biting edge, a gum
+    along the root, a dark line between each front tooth, darker round the arch (further in); the
+    tongue darker toward the throat with a groove down its middle. Plain: they're a pixel or two
+    in the game, more only in close conversation."""
+    for gname, (u0, v0, u1, v1) in STRIPS.items():
+        x0, y0, x1, y1 = int(u0 * TEX), int(v0 * TEX), int(u1 * TEX), int(v1 * TEX)
+        s, h = np.meshgrid(np.linspace(-0.04, 1.04, x1 - x0) , np.linspace(-0.04, 1.04, y1 - y0))
+        s, h = np.clip(s, 0, 1), np.clip(h, 0, 1)
+        if gname == "helper-tongue":
+            col = TONGUE[None, None] * (1 - 0.65 * h)[..., None]
+            col *= (1 - 0.35 * np.exp(-((s - 0.5) / 0.04) ** 2))[..., None]
+        else:
+            side = np.abs(s - 0.5) * 2                                  # 0 at the front, 1 round the back
+            col = TEETH[None, None] * (1 - 0.55 * side)[..., None]
+            col = col * (1 + 0.12 * (h < 0.15))[..., None]
+            gum = np.clip((h - 0.72) / 0.12, 0, 1)[..., None]
+            col = col * (1 - gum) + GUM * (1 - 0.5 * side)[..., None] * gum
+            front = side < 0.55
+            gap = (np.abs(((s - 0.5) * 16 + 0.5) % 1 - 0.5) < 0.06) & front & (h < 0.8)
+            col[gap] *= 0.7
+        img[y0:y1, x0:x1] = np.clip(col, 0, 1)
+        filled[y0:y1, x0:x1] = True
+
+
+# The blinks' movement smoothed over the lids (passes): MakeHuman's lid shut on his warped face
+# closes along a wavy line, a fold across the lid.
+SMOOTH_SHAPES = {"blink_l": 4, "blink_r": 4, "squint": 2}
+SMOOTH_NEAR = 0.012    # metres from his eye's outline
+SMOOTH_EDGE = 0.0025
+
+
+def smooth_near(D, V, T, ring, skin, passes):
+    """Offsets D averaged with their neighbours' (half and half, `passes` times) on the skin within
+    SMOOTH_NEAR of the points `ring`."""
+    from scipy.sparse import coo_matrix
+    e = edges_of(T)
+    n = len(V)
+    A = coo_matrix((np.ones(2 * len(e)), (np.r_[e[:, 0], e[:, 1]], np.r_[e[:, 1], e[:, 0]])), shape=(n, n)).tocsr()
+    deg = np.maximum(np.asarray(A.sum(1)).ravel(), 1)[:, None]
+    near = cKDTree(ring).query(V)[0]
+    zone = skin & (near < SMOOTH_NEAR) & (near > SMOOTH_EDGE)      # the lid's own edge keeps its way shut
+    for _ in range(passes):
+        avg = (A @ D) / deg
+        D = np.where(zone[:, None], 0.5 * D + 0.5 * avg, D)
+    return D
 
 
 def build(man, out, head, report_only=False):
@@ -594,30 +673,45 @@ def build(man, out, head, report_only=False):
     rep["holes_capped"] = len(holes)
     parts = [("helper-l-eye", 1), ("helper-r-eye", 1), ("helper-upper-teeth", 2), ("helper-lower-teeth", 2),
              ("helper-tongue", 3)]
+    # The right-hand column of the face's texture: each eye a disc (polar about its forward axis,
+    # the front half inside, the back the outer ring: every point its own texel, so the eye can
+    # turn), the teeth and tongue each a strip painted by rule (paint_mouth).
     eye_box = {"helper-l-eye": (0.78, 0.02), "helper-r-eye": (0.78, 0.24)}
+    centres = {}
+    span = {}                                               # each part's vertices in VF
     for gname, k in parts:
         ids = mh.ids(gname)
         base = len(VF)
         m = -np.ones(len(mh.v), int)
         m[ids] = np.arange(len(ids)) + base
         P = W(mh.v[ids])
+        span[gname] = np.arange(base, base + len(ids))
         VF = np.r_[VF, P]
         TF = np.r_[TF, m[mh.T[gname]]]
         smv = np.r_[smv, ids]
         kind = np.r_[kind, np.full(len(ids), k)]
-        if k == 1:                                          # an eye: seen from the front, in a square
+        if k == 1:
             ex, ey = eye_box[gname]
-            pmin, pmax = P[:, :2].min(0), P[:, :2].max(0)
-            uv = (P[:, :2] - pmin) / (pmax - pmin).max()
-            UVF = np.r_[UVF, np.c_[ex + 0.2 * (1 - uv[:, 0]), ey + 0.2 * (1 - uv[:, 1])]]
+            c = P.mean(0)
+            centres[gname] = (c, (ex, ey))
+            d = (P - c) / np.linalg.norm(P - c, axis=1, keepdims=True)
+            th = np.arccos(np.clip(-d[:, 2], -1, 1)) / np.pi           # 0 straight ahead, 1 behind
+            ph = np.arctan2(d[:, 1], -d[:, 0])
+            UVF = np.r_[UVF, np.c_[ex + 0.1 + 0.098 * th * np.cos(ph), ey + 0.1 - 0.098 * th * np.sin(ph)]]
         else:
-            UVF = np.r_[UVF, np.tile([[0.82, 0.55], [0.82, 0.70], [0.82, 0.85]][k - 2], (len(ids), 1))]
+            UVF = np.r_[UVF, mouth_uv(P, gname)]
     # MakeHuman's teeth land ahead of his lips (his lips sit back behind his moustache): the teeth
     # and tongue go back until the upper teeth are TEETH_BEHIND behind his inner lip line.
     mouth = (kind == 2) | (kind == 3)
-    back = max(0.0, float(his[13][2] + TEETH_BEHIND - VF[kind == 2][:, 2].min()))
+    upper = span["helper-upper-teeth"]
+    back = max(0.0, float(his[13][2] + TEETH_BEHIND - VF[upper][:, 2].min()))
     VF[mouth, 2] += back
+    # ... and down, the upper teeth's edge TEETH_SHOW under his lip line (hidden while his lips
+    # meet; there to see when they part, as a man's are)
+    drop = max(0.0, float(VF[upper][:, 1].min() - (his[13][1] - TEETH_SHOW)))
+    VF[mouth, 1] -= drop
     rep["teeth_back_mm"] = round(back * 1000, 1)
+    rep["teeth_down_mm"] = round(drop * 1000, 1)
     NF = vertex_normals(VF, TF)
     rep["facerig"] = {"vertices": int(len(VF)), "triangles": int(len(TF))}
 
@@ -649,13 +743,35 @@ def build(man, out, head, report_only=False):
             _, t2, b2, _, _ = S.closest(cont[k] + away * LID_OUT)
             ct[inn], cb[inn] = t2, b2
     col = bilinear(tex, (game["UV"][Th[ct]] * cb[:, :, None]).sum(1))
+    # An eye: his painted eye where it lies in his eye's outline and faces forward; past it white,
+    # greying round the back (it shows when he looks aside).
+    ball = (kind[tt] == 1).all(1)
+    for gname in ("helper-l-eye", "helper-r-eye"):
+        c, _ = centres[gname]
+        ring = min((EYE_L, EYE_R), key=lambda r: np.linalg.norm(his[r].mean(0)[:2] - c[:2]))
+        mine = ball & (np.linalg.norm(P3 - c, axis=1) < 0.03)
+        if not mine.any():
+            continue
+        d = P3[mine] - c
+        d /= np.linalg.norm(d, axis=1, keepdims=True)
+        seen = inside_polygon(P3[mine, :2], his[ring][:, :2]) & (-d[:, 2] > 0.5)
+        inn = inside_polygon(S.P[:, :2], his[ring][:, :2]) & (S.P[:, 2] < c[2])
+        pc = bilinear(tex, (game["UV"][Th[S.tri[inn]]] * S.bary[inn][:, :, None]).sum(1))
+        # (his whites are painted warm, as the rest of him: the brightest of his paint there)
+        white = pc[pc.mean(1) >= np.percentile(pc.mean(1), 95)].mean(0) if len(pc) > 20 else np.array([0.72, 0.56, 0.45])
+        fwd = np.clip(-d[:, 2], 0, 1)[:, None]
+        plain = white * (0.45 + 0.55 * fwd)
+        sub = col[mine]
+        sub[~seen] = plain[~seen]
+        col[mine] = sub
+        rep.setdefault("eye_white", {})[gname] = np.round(white, 3).tolist()
     w = np.clip((ins - 0.15) / 0.6, 0, 1)[:, None]
     img[hit] = col * (1 - w) + DARK * w
     filled |= hit
-    for k, colr, (u, v) in ((2, TEETH, (0.82, 0.55)), (3, TONGUE, (0.82, 0.70)), (4, DARK, (0.9, 0.95))):
-        y0, x0 = int(v * TEX) - 12, int(u * TEX) - 12
-        img[y0:y0 + 24, x0:x0 + 24] = colr
-        filled[y0:y0 + 24, x0:x0 + 24] = True
+    paint_mouth(img, filled)
+    y0, x0 = int(0.95 * TEX) - 12, int(0.9 * TEX) - 12
+    img[y0:y0 + 24, x0:x0 + 24] = DARK
+    filled[y0:y0 + 24, x0:x0 + 24] = True
     img = dilate(img, filled)
     face_png = os.path.join(WORK, out + "_facerig.png")
     Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8)).save(face_png)
@@ -682,6 +798,8 @@ def build(man, out, head, report_only=False):
         D[real] = (W(mh_to_body(mh.v_mh[smv[real]] + dmh[smv[real]])) - rest_w[real]) * fade[real, None]
         for kc, fl in capped:
             D[kc] = D[fl].mean(0)
+        if e in SMOOTH_SHAPES:
+            D = smooth_near(D, VF, TF, np.r_[his[EYE_L], his[EYE_R]], kind == 0, SMOOTH_SHAPES[e])
         shapes[e] = D
         print("talking_face: %-10s moves %.1f mm at most" % (e, np.linalg.norm(D, axis=1).max() * 1000))
     rep["expressions"] = {e: {"units": mix, "max_mm": round(float(np.linalg.norm(shapes[e], axis=1).max() * 1000), 1)}

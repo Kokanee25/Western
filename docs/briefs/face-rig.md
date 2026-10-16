@@ -1,6 +1,6 @@
 # Brief: a talking face for the Rodin men (the bold cowboy first)
 
-Sean, 2026-10-16. Characters lane. Five steps; **1, 2 and 4 (sheet) done; 3 and 4 (video) built and tested on a
+Sean, 2026-10-16. Characters lane. Five steps; **1, 2 and 4 (sheet) done, the first pass's concerns worked; 3 and 4 (video) built and tested on a
 stand-in take, waiting on Sean's Live Link Face take.** How it's laid out: `docs/LAYOUT.md` "The talking face".
 
 1. **Audit** (done): `docs/style_test/face_rig_audit.png`. His in-game head (`bold_cowboy_layered`,
@@ -42,7 +42,7 @@ Cost so far $0 (no paid calls). Step 2 is ~a day of work.
 - **2. Done:** `bold_cowboy_talking` (`assets/people/bold_cowboy_talking.*`; the layered man
   untouched). MakeHuman's face grafted on (5,609 triangles; 990 of his cut out; MakeHuman's mouth
   already has its inside, its throat capped dark), his paint carried over, 15 expressions as
-  blend shapes (`talking_face.py` `EXPRESSIONS`). In the game the shapes now survive the cut into
+  blend shapes (`talking_face.py` `EXPRESSIONS`; 19 since the second pass). In the game the shapes now survive the cut into
   pieces (`PeopleBodies._load`, `BodyMesh.split_pieces`; test `tests/test_face_rig.gd`).
 - **4. The sheet:** `docs/style_test/bold_cowboy_talking_expressions.jpg`, drawn by the game's own
   materials (`face_lab.gd`), with rows at game size (1080p, 75°) at 2 m and 5 m.
@@ -52,13 +52,26 @@ Cost so far $0 (no paid calls). Step 2 is ~a day of work.
 
 What worked: MakeHuman's pose units drive his face well once its teeth are set back and the pull
 onto his surface is kept off the lids; his moustache rides his upper lip; his paint holds (the
-lids painted from outside his painted eye). At 2 m jaw, ee, oo, brows, scowl, smile and blinks
-read; at 5 m only jaw, brows and blinks do (about 1-2 pixels of mouth).
+lids painted from outside his painted eye).
 
-What didn't, or is rough: the shapes under the moustache (fv, mbp, the smile's corners) barely
-show on him; the teeth are MakeHuman's plain helpers, painted flat; no eye turns (his eyes look
-ahead; ARKit's eyeLook* are dropped); MakeHuman's lid can crease a little when it shuts; his head's
-turn in the lab shows the layered man's neck ring a little.
+**The concerns, worked (2026-10-16, second pass):** 19 expressions now (the eyes turn).
+- *Under the moustache:* measured, not guessed (`tools/faces/readability.py`: pixels of his face
+  that change at 1080p, 2 m, him held still; rest against itself 0). Against jaw open: smile 89%,
+  aa 87%, oo 66%, ee 59%, half smiles 51-57%, scowl 49%, fv 48% (was 42%: the lower lip now tucks
+  under his upper teeth), brows up 39%, mbp 26% (a shut mouth from a shut mouth: its work is
+  closing between vowels), blinks and eye turns 6-11% (small, but the eye is where one looks).
+  The smiles now lift his lower lids too, so they show in his eyes.
+- *Teeth:* painted by rule (gum, a line between the front teeth, darker round the arch), set 4 mm
+  behind his lip line; "mbp" remade as lips shut and pressed (stretched, they parted on his teeth).
+  His upper teeth stay hidden under his moustache except in "fv", as a real man's would.
+- *Eyes:* four turns (MakeHuman's eye units, about 19°, the lids following up and down); each
+  eyeball mapped polar about its forward axis (every point its own texel) and painted white past
+  his painted eye (his own whites' colour, warm as his paint is). ARKit's eyeLook* now drive them.
+  The skin shader's wet-eye gloss (art's) greys the whites against a grey sky: as for every man.
+- *The lid's crease:* the blinks' movement smoothed over the lid above its edge; it shuts fully, a
+  small kink left in the closing line at very close range.
+- *The neck:* not a gap. With his head turned 30° the join stays closed and matches the layered
+  man's; what showed in the first video was his collar.
 
 ## What RECIPE.md would need (the characters session's change, with Sean's OK)
 

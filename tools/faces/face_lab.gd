@@ -3,6 +3,7 @@ extends SceneTree
 ## (HumanBody, his game materials), in plain neutral light, his blend shapes set by hand.
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/faces/face_lab.gd -- \
 ##       --id=bold_cowboy_talking --out=DIR --mode=sheet [--turns=0,-40] [--size=WxH] [--fov=18 --dist=1.4]
+##       [--aim=X,Y (where it looks)] [--head=pitch,yaw,roll (his head turned)] [--only=rest,jaw_open]
 ##   ... --mode=take --take=FILE.json [--turn=-20]
 ## sheet: one picture per expression and turn (DIR/<expression>_<turn>.png, "rest" the face at rest).
 ## take: FILE.json {"fps": 30, "names": [...], "frames": [[w, ...], ...]} (tools/faces/arkit_take.py)
@@ -26,6 +27,8 @@ func _run() -> void:
 	var dist := 1.4
 	var take_path := ""
 	var only := PackedStringArray()
+	var aim := Vector3(0, EYE - 0.05, 0)  # --aim=x,y: the point the camera looks at, level with it
+	var head_turn := Vector3.ZERO  # --head=pitch,yaw,roll degrees: his head turned over his pose
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--id="):
 			id = a.substr(5)
@@ -46,6 +49,12 @@ func _run() -> void:
 			dist = float(a.substr(7))
 		elif a.begins_with("--take="):
 			take_path = a.substr(7)
+		elif a.begins_with("--aim="):
+			var p := a.substr(6).split(",")
+			aim = Vector3(float(p[0]), float(p[1]), 0)
+		elif a.begins_with("--head="):
+			var h := a.substr(7).split(",")
+			head_turn = Vector3(float(h[0]), float(h[1]), float(h[2]))
 		elif a.begins_with("--only="):
 			only = a.substr(7).split(",")
 	DirAccess.make_dir_recursive_absolute(out)
@@ -80,17 +89,16 @@ func _run() -> void:
 	m.hat_color = Color(0, 0, 0, 0)
 	w.add_child(m)
 	m.global_position = Vector3.ZERO
-	cam.position = Vector3(0, EYE - 0.03, -dist)
-	cam.look_at(Vector3(0, EYE - 0.05, 0))
+	cam.position = Vector3(aim.x, aim.y + 0.02, -dist)
+	cam.look_at(aim)
 	var faces := _faces(m)
-	if faces.is_empty():
-		push_error("face_lab: %s has no blend shapes on his head" % id)
-		quit(1)
-		return
 	var names := []
-	var mesh := (faces[0] as MeshInstance3D).mesh as ArrayMesh
-	for k in mesh.get_blend_shape_count():
-		names.append(String(mesh.get_blend_shape_name(k)))
+	if faces.is_empty():
+		print("face_lab: %s has no blend shapes on his head (only his face at rest)" % id)
+	else:
+		var mesh := (faces[0] as MeshInstance3D).mesh as ArrayMesh
+		for k in mesh.get_blend_shape_count():
+			names.append(String(mesh.get_blend_shape_name(k)))
 	print("face_lab: %d head pieces with %d expressions: %s" % [faces.size(), names.size(), ", ".join(names)])
 	if mode == "take":
 		var take: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(take_path))
@@ -114,13 +122,17 @@ func _run() -> void:
 			n += 1
 		print("face_lab: %d frames" % n)
 	else:
-		var list := ["rest"] + names
+		var list := ["rest"] + names + ["rest2"]
 		if not only.is_empty():
 			list = Array(only)
 		for turn: float in turns:
-			_turn(m, turn)
+			m.process_mode = Node.PROCESS_MODE_INHERIT
+			_turn(m, turn, head_turn)
 			for f in 6:
 				await physics_frame
+			# Held still (no breathing, no idle) while his expressions are drawn: each picture
+			# differs from the rest one by its expression alone.
+			m.process_mode = Node.PROCESS_MODE_DISABLED
 			for e: String in list:
 				for nm: String in names:
 					_weight(faces, nm, 1.0 if nm == e else 0.0)
@@ -132,10 +144,12 @@ func _run() -> void:
 	quit()
 
 
-func _turn(m: Node, turn: float) -> void:
+func _turn(m: Node, turn: float, head := Vector3.ZERO) -> void:
 	var dir := Vector3(sin(deg_to_rad(-turn)), 0, -cos(deg_to_rad(-turn)))
 	m.face(m.global_position + dir * 5.0)
 	m.set_pose(&"stand")
+	if head != Vector3.ZERO:
+		m.pose_offsets = {&"head": head}
 	m._apply_pose(0.0, true)
 
 

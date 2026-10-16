@@ -7,7 +7,7 @@
 
 Live Link Face's CSV: a Timecode column (HH:MM:SS:FF.fff, its frame rate the highest frame number
 + 1), BlendShapeCount, then ARKit's 52 blend shapes (0..1) and the head's and eyes' turns. The
-52 come down to his 15 expressions (tools/faces/talking_face.py EXPRESSIONS) by MAP below, each
+52 come down to his 19 expressions (tools/faces/talking_face.py EXPRESSIONS) by MAP below, each
 expression a sum of ARKit values times a gain, less what the others already show (his "aa" holds
 some jaw, his "scowl" the brows), clamped to 0..1, then lightly smoothed (SMOOTH frames).
 The .mov's own timecode (if it has one) lines its sound up with the CSV's first row.
@@ -39,10 +39,15 @@ MAP = {
     "smile": {"@smile_both": 1.2},
     "smile_l": {"mouthsmileleft": 1.2, "@smile_both": -1.2},
     "smile_r": {"mouthsmileright": 1.2, "@smile_both": -1.2},
+    # his eyes: to his left the left eye looks out and the right one in (ARKit's left is his left)
+    "look_left": {"eyelookoutleft": 0.6, "eyelookinright": 0.6},
+    "look_right": {"eyelookinleft": 0.6, "eyelookoutright": 0.6},
+    "look_up": {"eyelookupleft": 0.6, "eyelookupright": 0.6},
+    "look_down": {"eyelookdownleft": 0.6, "eyelookdownright": 0.6},
 }
 # Expressions worked out first, so others can take them away ("@name").
 ORDER = ["aa", "scowl", "jaw_open", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "squint", "brows_up",
-         "brows_down", "smile", "smile_l", "smile_r"]
+         "brows_down", "smile", "smile_l", "smile_r", "look_left", "look_right", "look_up", "look_down"]
 
 
 def seconds(tc, fps):

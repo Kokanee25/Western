@@ -23,7 +23,7 @@ func test_his_head_keeps_his_expressions() -> void:
 	var names := []
 	for k in mesh.get_blend_shape_count():
 		names.append(String(mesh.get_blend_shape_name(k)))
-	for e in ["jaw_open", "aa", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "brows_up", "scowl", "smile"]:
+	for e in ["jaw_open", "aa", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "brows_up", "scowl", "smile", "look_left", "look_down"]:
 		check(e in names, "%s among his expressions (%s)" % [e, names])
 	var base: PackedVector3Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var jaw: PackedVector3Array = mesh.surface_get_blend_shape_arrays(0)[names.find("jaw_open")][Mesh.ARRAY_VERTEX]

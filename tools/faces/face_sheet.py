@@ -20,9 +20,10 @@ def main():
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     out, lab = a.get("--out", "bold_cowboy_talking"), a.get("--lab", "build/faces/lab")
     names = ["rest", "jaw_open", "aa", "ee", "oo", "fv", "mbp", "blink_l", "blink_r", "squint",
-             "brows_up", "brows_down", "scowl", "smile", "smile_l", "smile_r"]
+             "brows_up", "brows_down", "scowl", "smile", "smile_l", "smile_r", "look_left", "look_right",
+             "look_up", "look_down"]
     names = [n for n in names if os.path.exists(os.path.join(lab, n + "_0.png"))]
-    cols = 4
+    cols = 5
     rows = (len(names) + cols - 1) // cols
     game = [(d, k) for d, k in ((a.get("--game2"), 2), (a.get("--game5"), 5)) if d]
     gh = sum(6 * (40 if k == 2 else 20) + 30 for _, k in game) + 20
@@ -49,7 +50,7 @@ def main():
         x = 10
         half = 40 if dist == 2 else 20
         cell = 6 * half
-        for e in ("rest", "jaw_open", "ee", "oo", "blink_l", "brows_up", "scowl", "smile"):
+        for e in ("rest", "jaw_open", "ee", "oo", "fv", "blink_l", "brows_up", "scowl", "smile", "look_left"):
             p = os.path.join(d, e + "_0.png")
             if not os.path.exists(p):
                 continue
