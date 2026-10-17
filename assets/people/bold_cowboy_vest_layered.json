@@ -11,31 +11,32 @@
  },
  "piece_vest": {
   "twin": true,
-  "pushed_out_after_warp": 9453,
-  "weights_from_skin": 13114,
+  "pushed_out_after_warp": 9391,
+  "weights_from_skin": 13006,
   "clear_hands": {
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 0
   },
   "arm_bits_dropped": 0,
   "cloth": {
-   "median": 3,
+   "median": 1,
    "tone": {}
   }
  },
  "piece_shirt": {
   "twin": true,
-  "pushed_out_after_warp": 9448,
-  "sleeve_side_cut": 468,
-  "weights_from_skin": 18091,
+  "pushed_out_after_warp": 9572,
+  "sleeve_side_cut": 478,
+  "armpit_comb_dropped": 0,
+  "weights_from_skin": 18289,
   "clear_hands": {
    "cuff_triangles_dropped": 17,
    "skirt_points_behind_hands": 0
   },
-  "sleeve_points_out_of_arm": 1381,
-  "tucked_under_trousers_vest": 1436,
+  "sleeve_points_out_of_arm": 1421,
+  "tucked_under_trousers_vest": 1489,
   "cloth": {
-   "median": 3,
+   "median": 1,
    "tone": {}
   }
  },
@@ -49,12 +50,12 @@
   },
   "tucked_under_vest": 902,
   "cloth_L": {
-   "from": 19.7,
+   "from": 18.8,
    "to": 24,
-   "light": 1.15
+   "light": 1.19
   },
   "cloth": {
-   "median": 3,
+   "median": 1,
    "tone": {
     "L": 24,
     "chroma": 1.3,
@@ -827,18 +828,32 @@
   "l": 0.547
  },
  "trunk_in": 0.85,
- "skin_tucked": 7377,
- "painted_under_shirt": {
-  "triangles": 13079,
-  "colour": [
-   220,
-   181,
-   149
-  ],
-  "neck": 12060,
+ "skin_tucked": 7342,
+ "painted_under_garments": {
+  "triangles": {
+   "none": 13079
+  },
+  "colours": {
+   "vest": [
+    83,
+    39,
+    28
+   ],
+   "shirt": [
+    250,
+    218,
+    188
+   ],
+   "trousers": [
+    72,
+    45,
+    31
+   ]
+  },
+  "neck": 1440,
   "neck_colour": [
-   249,
-   217,
+   250,
+   218,
    188
   ]
  },
@@ -853,8 +868,8 @@
  "triangles": {
   "skin": 27560,
   "head": 11997,
-  "vest": 4373,
-  "shirt": 4999,
+  "vest": 4337,
+  "shirt": 5000,
   "trousers": 7999
  },
  "pieces_kept": [
