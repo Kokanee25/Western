@@ -310,27 +310,30 @@ frozen until Sean names one.
   cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
   painted smooth like his face, as part of 1.3; the wood is smooth again.
 
-**Characters** (branch `claude/characters-portrait-factory`; briefs `docs/briefs/layered-people.md`,
+**Characters** (branch `claude/characters-…`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
-  cowboy** (roadmap 1.3; recipe `tools/characters/LAYERED.md`): shirt+tie, vest and trousers
-  from the coatless twin (`bold_cowboy_vest_dressed`), painted from his four pictures
-  (`body_paint --dressed`), the coat over them; outfits `bold_cowboy_layered` (coat) and
-  `bold_cowboy_vest_layered`; chest, collar and paint fixed 2026-10-17 (sheets
-  `docs/style_test/layered-2026-10-15/d4`-`d10`). ~$10.06 of $15 spent. Not merged: his own hat
+  cowboy** (roadmap 1.3; recipe `tools/characters/LAYERED.md`, the exact chain in its §3):
+  shirt+tie, vest and trousers cut from the coatless twin, painted from his four pictures, the
+  coat over them; outfits `bold_cowboy_layered` (coat) and `bold_cowboy_vest_layered`; chest,
+  collar and paint fixed (#142), then the fix-up session's good parts (clothes at 2048, sleeve
+  flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
+  (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next (Sean, 2026-10-17: a fresh session "fixing him up", then the recipe): blotchy cloth close
-  up, light flecks at his sleeve edges (side pictures line up 81-82%), a plainer collar than his
-  pictures', the coat's edges and back vent, its wing with hands up, seated crumpling. Trap: after
-  a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+- Next: the coat's sleeves apart from its sides (the wing with his hands up; Rodin fused them);
+  a per-limb line-up of the side pictures (his arms hang nearer his sides than Rodin's twin's);
+  seated crumpling is skinning, not the recipe's. Judge every change against Sean's pictures and
+  his words (he turned down a flat collar band twice). Trap: after a build, `godot --headless
+  --import` first; lab renders via `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
   for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
   sync; then RECIPE.md's step for every man (with Sean's OK).
-- For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
-  `volumetric_adjustment_enabled` typo.
+- For art: the vest and trousers render darker and flatter than their textures (the vest keeps
+  0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
+  the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
 
 **Gameplay** (branch `claude/gameplay-…`; roadmap 0.1, and 3.2 moved up by Sean 2026-10-16):
 - Done: the soak's freeze (Senses' walk over freed people) and a frozen soak reports itself
