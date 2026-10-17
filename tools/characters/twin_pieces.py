@@ -57,6 +57,7 @@ THROAT = 0.80      # of his height: above it, the twin's surface on his skin in 
 SKIN_DE = 18.0     # Lab distance from his skin tone that still counts as skin
 CLEAR = 0.006      # of his height (~11 mm): clothes at least this far outside his skin
 HAND_LEN = 0.12    # of his height: wrist to finger tips, and a little
+ARM_DARK_L = 40.0  # Lab lightness: cut into layers, a twin point drawn darker is cloth over his trunk, not his sleeve
 HAND_R = 0.03      # of his height: how far off the forearm's line his hand reaches
 HAND_PAST = 0.006  # of his height (~1 cm) past his wrist along the forearm: his hand, not his cuff
 TEX = 2048
@@ -212,6 +213,15 @@ def main():
     # onto the body's), in full from the elbow down, fading to nothing at the shoulder.
     jb, jd = FT.find_joints(bv, btris), FT.find_joints(dv, dtris)
     bone_d = bone_of(dv, jd)
+    # Cut into layers, only his sleeves move with his arms: the coatless twin's arms hang against
+    # his waist, so the waistcoat's sides (and his trousers by his hands) were nearer an arm bone
+    # than his trunk's, went out with the sleeves onto the body's arms and flared the waistcoat
+    # from armpit to hem (Sean, 2026-10-16: "barrel chested"; ~560 of its points). What is drawn
+    # dark (the waistcoat, trousers) is not arm.
+    not_arm = np.zeros(len(dv), dtype=bool)
+    if a.get("--split") == "layers":
+        not_arm = _lab(RP.sample_tex(np.asarray(dcol).astype(float) / 255, duv))[:, 0] < ARM_DARK_L
+        bone_d = np.where(not_arm & np.isin(bone_d, ["R_upper", "R_fore", "L_upper", "L_fore"]), "trunk", bone_d)
     for lr in "RL":
         sh, el, wr = jd[lr + "_Upperarm"], jd[lr + "_Forearm"], jd[lr + "_Hand"]
         ax = (wr - sh) / np.linalg.norm(wr - sh)
@@ -242,6 +252,7 @@ def main():
         # elbow and eased into his shoulder.
         jd = FT.find_joints(dv, dtris)
         bone_d = bone_of(dv, jd)
+        bone_d = np.where(not_arm & np.isin(bone_d, ["R_upper", "R_fore", "L_upper", "L_fore"]), "trunk", bone_d)
         moved = dv.copy()
         for lr in "RL":
             shd, eld, wrd = jd[lr + "_Upperarm"], jd[lr + "_Forearm"], jd[lr + "_Hand"]

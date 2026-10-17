@@ -108,6 +108,8 @@ COAT_COLLAR = 0.032
 # A piece is pushed out of his skin to this clearance, where it lies within this reach of him
 # (Tripo units: ~2 cm and ~11 cm on him).
 PIECE_CLEARANCE = 0.012
+BROADEN_LOW = 0.12     # metres under his shoulders where `shoulders` stops widening his trunk ...
+BROADEN_FULL = 0.02    # ... and where it widens it in full (0.25 and 0.06 widened his chest: "barrel chested")
 TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
 TUCK_MAX_M = 0.05
 TUCK_SPREAD = 3        # neighbour steps a tuck is eased over (tuck_under)
@@ -798,7 +800,7 @@ class TripoPerson(mp.Person):
         ax = np.abs(v[:, 0])
         across = np.clip((ax - 0.06) / max(sh_x - 0.06, 1e-6), 0, 1)
         across = across * across * (3 - 2 * across)
-        down = np.clip((v[:, 1] - (sh_y - 0.25)) / 0.19, 0, 1)
+        down = np.clip((v[:, 1] - (sh_y - BROADEN_LOW)) / (BROADEN_LOW - BROADEN_FULL), 0, 1)
         down = down * down * (3 - 2 * down)
         out[body, 0] += np.sign(v[body, 0]) * D * (across * down)[body]
         if report:

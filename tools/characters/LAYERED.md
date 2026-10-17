@@ -197,6 +197,12 @@ way: the same man, triangle for triangle).
     painted white or black untoned. The built collar reads as a neck brace close up (the jaw
     through it): the coated man goes without it (`--collar=none`); the coatless man still has it,
     his twin's own collar and tie knot being ragged fins in Rodin's model (sheet `d7_cloth_crisp.png`).
+  - Barrel chest (two causes; sheet `d8_chest.png`): the coatless twin's arms hang against his
+    waist, so laying the sleeves on the body's arms took ~560 of the waistcoat's points with them
+    and flared it from armpit to hem (`twin_pieces`: cut into layers, what is drawn darker than
+    `ARM_DARK_L` is never arm); and `shoulders` widened his whole upper chest (now only from
+    `BROADEN_LOW` 12 cm under the shoulder joints up). His waist is now his picture's (17.6% of his
+    height against 21%).
   - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
     `MIN_PART` triangles folded into the garment round them.
   - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a
