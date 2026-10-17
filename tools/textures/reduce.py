@@ -332,7 +332,9 @@ def reduce(mid, spec, tpm):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
             st = mosaic(to_lab((to_texels(strip, ssize) * 255).astype(np.uint8)), push)
             st = grade(st, spec)
-            if not SMOOTH:
+            # A smooth material's strips keep their own shades (its "palette" is only a sample:
+            # snapping to it drew every board one flat dark colour, 2026-10-16 to -17).
+            if not (SMOOTH or spec.get("smooth")):
                 d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
                 st = pal[d.argmin(1)].reshape(st.shape)
             Image.fromarray(lab_to_rgb(st)).save(os.path.join(out_dir(), "%s_b%d.png" % (mid, k)))

@@ -357,13 +357,11 @@ static func lantern_halo() -> StandardMaterial3D:
 	return _lantern_halo
 
 
-## The carriage lantern's glass: the chimney glass with its flame at the glass's centre and
-## squares a size for a pane this big.
+## The carriage lantern's glass: the chimney glass with its flame at the glass's centre.
 static func lantern_glass() -> ShaderMaterial:
 	if _lantern_glass == null:
 		_lantern_glass = PropModels.chimney_glass().duplicate() as ShaderMaterial
 		_lantern_glass.set_shader_parameter(&"flame_y", -0.01)
-		_lantern_glass.set_shader_parameter(&"squares_per_m", 60.0)
 		# Brighter than a table lamp's chimney: the painting's lanterns are the brightest things on
 		# the fronts, near white at the flame with a halo.
 		_lantern_glass.set_shader_parameter(&"bloom", 7.0)
