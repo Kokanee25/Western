@@ -1,15 +1,16 @@
 {
- "degrees_per_texel": 0.15,
+ "degrees_per_texel": 0.1,
+ "smooth": true,
  "layers": {
   "far": {
    "texture": "backdrop_far.png",
    "radius": 650.0,
    "haze": 0.2,
    "bottom": -3.0,
-   "top": 35.699999999999996,
+   "top": 35.7,
    "texels": [
-    2400,
-    258
+    3600,
+    387
    ],
    "panels": 4
   },
@@ -18,10 +19,10 @@
    "radius": 560.0,
    "haze": 0.22,
    "bottom": -3.0,
-   "top": 35.699999999999996,
+   "top": 35.7,
    "texels": [
-    2400,
-    258
+    3600,
+    387
    ],
    "panels": 1
   },
@@ -30,10 +31,10 @@
    "radius": 430.0,
    "haze": 0.12,
    "bottom": -3.0,
-   "top": 35.699999999999996,
+   "top": 35.7,
    "texels": [
-    2400,
-    258
+    3600,
+    387
    ],
    "panels": 4
   },
@@ -42,10 +43,10 @@
    "radius": 260.0,
    "haze": 0.06,
    "bottom": -3.0,
-   "top": 35.699999999999996,
+   "top": 35.7,
    "texels": [
-    2400,
-    258
+    3600,
+    387
    ],
    "panels": 4
   }

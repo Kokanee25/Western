@@ -30,11 +30,17 @@ modest saturation. Painted illustration (DESIGN.md §4).
 3. **The rest**: every wood, then the 18 painted materials, the same way; then one palette pass
    so the road and walls sit inside his range (saturation, value).
 4. **Props seen close** (table, chair, lamp, bottle, glass): painted textures the same way.
+   Done 2026-10-17 (Sean: "keep going, use another $5"): ten prop materials painted (run 87,
+   $2.20; pewter and glass again, run 88, $0.44), cut finer the closer they're seen; factory tiles
+   at their own density; the card table's painted top in use; turned props shaded round; the
+   bottle label drawn fine. With them, the backdrop cut smooth (critic r5's stepped canyon walls).
+   Sheet `docs/screenshots/sky/match_props.jpg`.
 5. Not this brief: the other townsmen to his standard (characters' 1.3).
 
 ## Budget
 
-~$6 (Sean, 2026-10-16), FLUX.2 [max] via the People workflow; each call's cost logged.
+~$6 (Sean, 2026-10-16), FLUX.2 [max] via the People workflow; each call's cost logged. Then
+another $5 (2026-10-17): $2.64 on the props.
 
 ## Done when
 
