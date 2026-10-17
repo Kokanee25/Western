@@ -413,7 +413,7 @@ static func _nose_and_ears(head: Lofter) -> void:
 ## go in their hand's: they aren't body parts).
 static func split_pieces(verts: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array,
 		bones: PackedInt32Array, weights: PackedFloat32Array, tris: PackedInt32Array, centres: Dictionary,
-		piece_of: Dictionary = {}) -> Dictionary:
+		piece_of: Dictionary = {}, blends: Dictionary = {}) -> Dictionary:
 	var owner := {}  # bone -> Array of triangle starts (a plain Array: packed ones copy)
 	for t in range(0, tris.size(), 3):
 		var score := {}
@@ -441,6 +441,7 @@ static func split_pieces(verts: PackedVector3Array, normals: PackedVector3Array,
 		var rw := PackedFloat32Array()
 		var pc := PackedFloat32Array()
 		var pi := PackedInt32Array()
+		var src := PackedInt32Array()  # each piece vertex's own in the whole mesh (for its blend shapes)
 		var centre: Vector3 = centres.get(b, Vector3.ZERO)
 		for t: int in owner[b]:
 			for j in 3:
@@ -457,8 +458,17 @@ static func split_pieces(verts: PackedVector3Array, normals: PackedVector3Array,
 					rw.append_array([1.0, 0.0, 0.0, 0.0])
 					var local := verts[v] - centre
 					pc.append_array([local.x, local.y, local.z])
+					src.append(v)
 				pi.append(remap[v])
-		out[b] = [Lofter._mesh(pv, pn, pu, pb, pw, pc, pi), Lofter._mesh(pv, pn, pu, rb, rw, pc, pi)]
+		var pbs := {}  # blend shape name -> this piece's vertices in it
+		for n: StringName in blends:
+			var whole: PackedVector3Array = blends[n]
+			var part := PackedVector3Array()
+			part.resize(src.size())
+			for i in src.size():
+				part[i] = whole[src[i]]
+			pbs[n] = part
+		out[b] = [Lofter._mesh(pv, pn, pu, pb, pw, pc, pi, pbs), Lofter._mesh(pv, pn, pu, rb, rw, pc, pi)]
 	return out
 
 
@@ -680,8 +690,10 @@ class Lofter:
 	func to_pieces(centres: Dictionary) -> Dictionary:
 		return BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres)
 
+	## `shapes`: blend shapes, name -> the vertices in that shape (whole positions, as glTF's
+	## imported ones are: the normalized mode), the normals kept.
 	static func _mesh(pv: PackedVector3Array, pn: PackedVector3Array, pu: PackedVector2Array, pb: PackedInt32Array,
-			pw: PackedFloat32Array, pc: PackedFloat32Array, pi: PackedInt32Array) -> ArrayMesh:
+			pw: PackedFloat32Array, pc: PackedFloat32Array, pi: PackedInt32Array, shapes: Dictionary = {}) -> ArrayMesh:
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
 		arrays[Mesh.ARRAY_VERTEX] = pv
@@ -692,7 +704,17 @@ class Lofter:
 		arrays[Mesh.ARRAY_CUSTOM0] = pc
 		arrays[Mesh.ARRAY_INDEX] = pi
 		var mesh := ArrayMesh.new()
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {},
+		var blend_arrays := []
+		if not shapes.is_empty():
+			mesh.blend_shape_mode = Mesh.BLEND_SHAPE_MODE_NORMALIZED
+			for n: StringName in shapes:
+				mesh.add_blend_shape(n)
+				var ba := []
+				ba.resize(Mesh.ARRAY_MAX)
+				ba[Mesh.ARRAY_VERTEX] = shapes[n]
+				ba[Mesh.ARRAY_NORMAL] = pn
+				blend_arrays.append(ba)
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, blend_arrays, {},
 				Mesh.ARRAY_CUSTOM_RGB_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
 		return mesh
 

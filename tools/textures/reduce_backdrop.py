@@ -14,8 +14,9 @@ For each panel in tools/textures/backdrop.json with a raw painting
   4. the land made solid: each column filled down from its top (no holes to see the sky through
      under a rock), the nearest layer's foot carried right round so the horizon has no gaps, lone
      specks dropped;
-  5. the painting's mosaic pushed (gently: MOSAIC) and each layer cut to its own palette.
-Writes assets/textures/backdrop_<layer>.png (RGBA, read nearest; alpha = land) and
+  5. the painting's mosaic pushed (gently: MOSAIC) and each layer cut to its own palette; or with
+     `smooth` (2026-10-17, painted illustration) neither: its own colours, read filtered.
+Writes assets/textures/backdrop_<layer>.png (RGBA; alpha = land) and
 assets/textures/backdrop.json (each layer's ring: radius, bearings, the angles its rows span,
 haze), which src/art/backdrop.gd reads; and a contact sheet with --sheet.
 """
@@ -80,13 +81,14 @@ def taper(land):
     return out
 
 
-def hill_line(width, rows, seed):
-    """Rows of land to keep in each column: a rolling line between 55% and 100% of `rows`."""
+def hill_line(width, rows, seed, stretch=1.0):
+    """Rows of land to keep in each column: a rolling line between 55% and 100% of `rows`; its
+    periods (texels at 0.15 degrees) times `stretch`, so it rolls the same at any texel size."""
     rng = np.random.default_rng(seed)
     x = np.arange(width, dtype=np.float64)
     n = np.zeros(width)
     for period, amp in ((140.0, 0.5), (55.0, 0.3), (23.0, 0.2)):
-        n += amp * np.sin(2.0 * np.pi * x / period + rng.uniform(0, 2.0 * np.pi))
+        n += amp * np.sin(2.0 * np.pi * x / (period * stretch) + rng.uniform(0, 2.0 * np.pi))
     n = (n - n.min()) / max(n.max() - n.min(), 1e-6)
     return np.round(rows * (0.55 + 0.45 * n)).astype(int)
 
@@ -102,7 +104,7 @@ def to_squares(rgba, size):
     return np.clip(rgb, 0, 1), alpha >= 0.5
 
 
-def solid(rgb, land, ground):
+def solid(rgb, land, ground, min_island=MIN_ISLAND):
     """Fill each column down from its topmost land texel; `ground`: carry the foot round so every
     column has land at least up to the horizon row (the nearest layer)."""
     h, w = land.shape
@@ -134,7 +136,7 @@ def solid(rgb, land, ground):
     lab, n = label(out_land)
     for i in range(1, n + 1):
         m = lab == i
-        if m.sum() < MIN_ISLAND:
+        if m.sum() < min_island:
             out_land[m] = False
     return out_rgb, out_land
 
@@ -148,7 +150,7 @@ def main():
     dpt = spec["degrees_per_texel"]
     span = spec["span"]
     width = int(round(360.0 / dpt))
-    info = {"degrees_per_texel": dpt, "layers": {}}
+    info = {"degrees_per_texel": dpt, "smooth": bool(spec.get("smooth")), "layers": {}}
     strips = []
     for lid, layer in spec["layers"].items():
         rgb = np.zeros((1, width, 3))
@@ -173,7 +175,7 @@ def main():
             if scale < 1.0:
                 pland = taper(pland)
             if "band" in layer:
-                keep = hill_line(pw, int(round(layer["band"] * rgb.shape[0])), 7 + i)
+                keep = hill_line(pw, int(round(layer["band"] * rgb.shape[0])), 7 + i, 0.15 / dpt)
                 for k in range(pw):
                     pland[:max(ph - keep[k], 0), k] = False
             x0 = int(round(((panel["centre"] + panel.get("shift", 0.0) - span * scale / 2.0) % 360.0) / dpt))
@@ -193,14 +195,20 @@ def main():
         ground = None
         if lid == "near":
             ground = (horizon_row, np.median(rgb[land], 0))
-        rgb, land = solid(rgb, land, ground)
-        # The mosaic: on the whole strip (neighbours), then the palette on the land.
-        full = rd.to_lab((rgb * 255).astype(np.uint8))
-        full = rd.mosaic(full, MOSAIC, True)
-        snapped, pal = rd.palette_snap(full[land][None], layer["colours"], sum(map(ord, lid)))
-        full[land] = snapped[0]
+        rgb, land = solid(rgb, land, ground, int(round(MIN_ISLAND * (0.15 / dpt) ** 2)))
         out = np.zeros((th, width, 4), dtype=np.uint8)
-        out[..., :3] = rd.lab_to_rgb(full)
+        if spec.get("smooth"):
+            # Painted illustration (DESIGN.md §4; the critic, 2026-10-16: the canyon walls' edges
+            # stair-stepped): the painting's own colours, no mosaic or palette, read smooth.
+            pal = []
+            out[..., :3] = np.clip(rgb * 255.0 + 0.5, 0, 255).astype(np.uint8)
+        else:
+            # The mosaic: on the whole strip (neighbours), then the palette on the land.
+            full = rd.to_lab((rgb * 255).astype(np.uint8))
+            full = rd.mosaic(full, MOSAIC, True)
+            snapped, pal = rd.palette_snap(full[land][None], layer["colours"], sum(map(ord, lid)))
+            full[land] = snapped[0]
+            out[..., :3] = rd.lab_to_rgb(full)
         out[..., 3] = np.where(land, 255, 0)
         # `clear`: bearings [from, to] (round the circle) with no land, the land east of them
         # sloped up from nothing as a panel's own ends are; after the palette, so nothing else in

@@ -88,7 +88,9 @@ BRIDGE_SHOULDER = 0.35
 # wider than what they go over they are scaled (room for the cloth under them).
 PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 # A twin piece keeps its own shape (lapels, pockets, the skirt's fall): more triangles.
-TWIN_TRIS = {"coat": 6000, "trousers": 8000}
+TWIN_TRIS = {"coat": 6000, "trousers": 8000, "vest": 5000, "shirt": 5000}
+# A layered man's garments, innermost first: each tucked under every one outside it (tuck_layers).
+LAYERS = ["shirt", "trousers", "vest", "coat"]
 FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
 WRIST_CUT = 0.004     # metres short of his wrist joint: his arm's skin ends (makehuman_hands)
 WRIST_BLEND = 0.03    # metres past it: the new palm's wrist eases from his arm to its own shape
@@ -106,8 +108,32 @@ COAT_COLLAR = 0.032
 # A piece is pushed out of his skin to this clearance, where it lies within this reach of him
 # (Tripo units: ~2 cm and ~11 cm on him).
 PIECE_CLEARANCE = 0.012
+UNDER_SHIRT_LIGHT = 70.0   # percentile of his shirt's lightness: his neck under it painted the median above it ...
+UNDER_SHIRT_NECK = 0.03    # ... from this far under his neck joint up
+BROADEN_LOW = 0.12     # metres under his shoulders where `shoulders` stops widening his trunk ...
+BROADEN_FULL = 0.02    # ... and where it widens it in full (0.25 and 0.06 widened his chest: "barrel chested")
 TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
-TUCK_MAX_M = 0.03
+TUCK_MAX_M = 0.05
+TUCK_SPREAD = 3        # neighbour steps a tuck is eased over (tuck_under)
+TUCK_SHIRT_M = 0.025   # his skin this far under his garments when he wears a whole shirt (tuck_skin)
+SLEEVE_IN = 0.015      # metres: his arm at least this far inside a shirt's sleeve (_arms_in_sleeves) ...
+SLEEVE_MIN = 0.5       # ... but never thinner than this much of itself
+ARMHOLE_R = 0.12       # metres from his upper arm's bone: a vest or shirt under a coat is dropped there
+COVER_REACH = 0.08     # metres: a vest or shirt triangle with the coat this near straight outside it is under it
+ARMPIT_DROP = 0.08     # metres below his shoulder joints: his armpit (sleeve and side cut apart below it)
+SLEEVE_INNER = 0.02    # metres inside his arm's bone a sleeve still reaches (weights_from_skin)
+SLEEVE_RINGS = 12      # bands along an arm a sleeve is kept outside it by (_sleeves_round_arms) ...
+SLEEVE_ANGLES = 16     # ... and angles round it
+SLEEVE_ROOM = 0.003    # metres between his arm's skin and his sleeve at the least
+SLEEVE_ARM_MAX = 0.065 # metres from the bone: skin further out than this isn't his arm's
+SLEEVE_R = 0.09        # metres from his arm's bone: a coat's or shirt's point there is its sleeve (weights_from_skin) ...
+SLEEVE_FROM = 0.12     # ... from this share of the way from his shoulder to his wrist
+COLLAR_TOP_SHARE = 0.91   # of the envelope's head top (1.795 m): his collar's top (neck_ring's ring, 1.61 m, and
+                          # stand_collar's 2 cm above it); skin below it is under a shirt
+TRUNK_IN = 0.85        # his torso this much of its depth under a shirt (_trunk_in) ...
+TRUNK_IN_X = 0.72      # ... and this much of its width
+SLEEVE_SPARE = 0.03    # the share of his arm let stay nearer the sleeve than SLEEVE_IN (stray rays)
+SLEEVE_FADE = 0.015     # metres above his wrist's cut over which they come back to all of it
 PIECE_REACH = 0.06
 CUFF_PAST = 0.01       # metres: a sleeve ends this far past the cut his hand joins at (clear_hands)
 HAND_LINE = 0.015      # metres: his hand's points this near a skirt point's line behind it count
@@ -126,6 +152,12 @@ HEAD_TRIS = 2200
 # One square of the texture: this many of Tripo's 2048 texels a side (~2.8 mm on him: the
 # painting's blocks on his face are about 3 mm).
 SQUARE_TEXELS = 2
+CLOTH_MEDIAN = 3       # texels: a twin piece's cloth smoothed by a median this wide (paint_cloth) ...
+CLOTH_BLUR = 0.0       # ... and a blur this wide (7 and 1.2 kept 30-45% of the coat's fine detail: too soft)
+MOTTLE_FINE = 3.0      # texels of a 1024 texture: the blotches people.json `cloth.<shape>.mottle` flattens are
+MOTTLE_WIDE = 28.0     # between these two sizes
+KEEP_WHITE = (130.0, 170.0)  # luma: cloth.<shape>.keep_ends leaves texels lighter than these untoned (fading in) ...
+KEEP_BLACK = (18.0, 32.0)    # ... and darker than these (the coat's painted shirt front and tie)
 SMOOTH = False  # --smooth: see main()
 # The coat's skirt (metres, our space): further than this from a thigh's axis, or nearer the
 # middle than this between the legs, it hangs from the hips.
@@ -770,7 +802,7 @@ class TripoPerson(mp.Person):
         ax = np.abs(v[:, 0])
         across = np.clip((ax - 0.06) / max(sh_x - 0.06, 1e-6), 0, 1)
         across = across * across * (3 - 2 * across)
-        down = np.clip((v[:, 1] - (sh_y - 0.25)) / 0.19, 0, 1)
+        down = np.clip((v[:, 1] - (sh_y - BROADEN_LOW)) / (BROADEN_LOW - BROADEN_FULL), 0, 1)
         down = down * down * (3 - 2 * down)
         out[body, 0] += np.sign(v[body, 0]) * D * (across * down)[body]
         if report:
@@ -785,37 +817,207 @@ class TripoPerson(mp.Person):
         lining, which faces him) and that lies outside it or less than TUCK_M under it is drawn
         in along its normal to TUCK_M under, by TUCK_MAX_M at most. Only this man's skin moves
         (the base body is untouched), and only where he is dressed: his hands, neck and head never."""
+        bare = np.array([str(r).startswith(("hand", "head", "neck")) for r in self.region])
+        shirt = any(pc.shape == "shirt" for pc in pieces)
+        if shirt:
+            # His arms are in their sleeves already (_arms_in_sleeves), as a whole: not tucked
+            # point by point.
+            bare |= np.array([str(r).startswith(("upper_arm", "forearm")) for r in self.region])
+        # Under a whole shirt his skin is never seen, and posed (his arms down from the model's
+        # pose) his armpits and sides move apart from it by more than TUCK_M: deeper there.
+        self.v, moved = tuck_under(self.v, self.tris, ~bare, pieces, TUCK_SHIRT_M if shirt else None,
+                                   outward_from_bones(self.v, self.region, self.bones()))
+        self.report["skin_tucked"] = int(moved)
+
+    def _sleeves_round_arms(self, shirt):
+        """A shirt's sleeve never inside his arm: the twin's sleeves are dented in places (their
+        insides within 5 mm of the bone where his forearm is 2 cm thick: his arm came through).
+        Along each arm in SLEEVE_RINGS bands and round it in SLEEVE_ANGLES, the sleeve's points
+        no nearer the bone than his skin's furthest there plus SLEEVE_ROOM."""
+        o = self.our_joints()
+        moved = 0
+        for side in "rl":
+            for name, a, b in (("upper_arm_" + side, o[side + "-shoulder"], o[side + "-elbow"]),
+                               ("forearm_" + side, o[side + "-elbow"], o[side + "-hand"])):
+                ab = b - a
+                L = float(np.linalg.norm(ab))
+                u = ab / L
+                ref = np.cross(u, [0.0, 0.0, 1.0])
+                ref /= np.linalg.norm(ref) + 1e-12
+                ref2 = np.cross(u, ref)
+
+                def polar(P):
+                    t = (P - a) @ u / L
+                    f = P - a - (t * L)[:, None] * u
+                    return t, np.arctan2(f @ ref2, f @ ref), np.linalg.norm(f, axis=1), f
+
+                ts, as_, rs, _f = polar(self.v[self.region == name])
+                tp, ap, rp, fp = polar(shirt.v)
+                mine = (tp > 0.05) & (tp < 0.98) & (rp < SLEEVE_R)
+                tb = np.clip((ts * SLEEVE_RINGS).astype(int), 0, SLEEVE_RINGS - 1)
+                abin = np.clip(((as_ + np.pi) / (2 * np.pi) * SLEEVE_ANGLES).astype(int), 0, SLEEVE_ANGLES - 1)
+                need = np.zeros((SLEEVE_RINGS, SLEEVE_ANGLES))
+                # (His arm's own skin: not what of his chest or back the region reaches into.)
+                arm_pts = (ts >= 0) & (ts < 1) & (rs < SLEEVE_ARM_MAX)
+                np.maximum.at(need, (tb[arm_pts], abin[arm_pts]), rs[arm_pts])
+                need = np.maximum(need, np.roll(need, 1, 1))     # a little round each way
+                need = np.maximum(need, np.roll(need, -1, 1))
+                pb = np.clip((tp * SLEEVE_RINGS).astype(int), 0, SLEEVE_RINGS - 1)
+                pa = np.clip(((ap + np.pi) / (2 * np.pi) * SLEEVE_ANGLES).astype(int), 0, SLEEVE_ANGLES - 1)
+                floor = need[pb, pa] + SLEEVE_ROOM
+                low = mine & (need[pb, pa] > 0) & (rp < floor)
+                shirt.v[low] = shirt.v[low] + fp[low] / np.maximum(rp[low], 1e-9)[:, None] * (floor[low] - rp[low])[:, None]
+                moved += int(low.sum())
+        shirt.report["sleeve_points_out_of_arm"] = moved
+
+    def _arms_in_sleeves(self, sleeves):
+        """His arms inside a shirt's sleeves (roadmap 1.3), each drawn in towards its bone by one
+        factor: from each arm bone straight out through each skin point to the sleeve
+        (`sleeves`: the shirt), the factor that puts all but SLEEVE_SPARE of the arm SLEEVE_IN
+        inside it (never under SLEEVE_MIN), easing back to his own over SLEEVE_FADE at his
+        shoulder and above his wrist's cut. One factor keeps the arm's own smooth shape: point
+        by point (the face-by-face tuck, Rodin's faces wound either way) it crumpled into shards
+        that came through the shirt. Unseen under the shirt; his wrist where the cuff ends is his
+        own."""
         from mathutils import Vector
         from mathutils.bvhtree import BVHTree
-        trees = [BVHTree.FromPolygons([tuple(p) for p in pc.v], [tuple(int(i) for i in f) for f in pc.tris]) for pc in pieces]
-        fn = np.cross(self.v[self.tris[:, 1]] - self.v[self.tris[:, 0]], self.v[self.tris[:, 2]] - self.v[self.tris[:, 0]])
-        vn = np.zeros_like(self.v)
-        for k in range(3):
-            np.add.at(vn, self.tris[:, k], fn)
-        # One place, one move: his points come in once per face that meets there (Rodin's
-        # triangles share none), and moved apart they'd crack.
-        _u, first, weld = np.unique(np.round(self.v / 1e-6).astype(np.int64), axis=0, return_index=True, return_inverse=True)
-        weld = weld.ravel()
-        gn = np.zeros((len(first), 3))
-        np.add.at(gn, weld, vn)
-        gn /= np.linalg.norm(gn, axis=1, keepdims=True) + 1e-12
-        bare = np.array([str(r).startswith(("hand", "head", "neck")) for r in self.region])[first]
-        gv = self.v[first].copy()
-        moved = np.zeros(len(first), bool)
-        for _ in range(2):
-            for g in np.where(~bare)[0]:
-                p = Vector(gv[g])
-                need = 0.0
-                for tree in trees:
-                    loc, nrm, _f, _d = tree.find_nearest(p, 0.05)
-                    if loc is None or float(nrm.dot(Vector(gn[g]))) < 0.3:
-                        continue
-                    need = max(need, float((p - loc).dot(nrm)) + TUCK_M)
-                if need > 0:
-                    gv[g] -= gn[g] * min(need, TUCK_MAX_M)
-                    moved[g] = True
-        self.v = gv[weld]
-        self.report["skin_tucked"] = int(moved.sum())
+        trees = [BVHTree.FromPolygons([tuple(p) for p in pc.v], [tuple(int(i) for i in f) for f in pc.tris]) for pc in sleeves]
+        o = self.our_joints()
+        wrists = getattr(self, "wrists", {})
+        rep = self.report.setdefault("arms_in_sleeves", {})
+        for side in "rl":
+            sh, el, wr = o[side + "-shoulder"], o[side + "-elbow"], o[side + "-hand"]
+            cut = wrists[side][0] if side in wrists else wr
+            segs = (("upper_arm_" + side, sh, el), ("forearm_" + side, el, cut))
+            ratios = []
+            geo = {}
+            for name, a, b in segs:
+                idx = np.nonzero(self.region == name)[0]
+                if not len(idx):
+                    continue
+                ab = b - a
+                t = (self.v[idx] - a) @ ab / max(float(ab @ ab), 1e-12)
+                foot = a + t[:, None] * ab
+                r_vec = self.v[idx] - foot
+                r = np.linalg.norm(r_vec, axis=1)
+                geo[name] = (idx, foot, r_vec, t, a, b)
+                inside = (t > 0.15) & (t < 0.9) & (r > 1e-6)
+                for n in np.nonzero(inside)[0][::3]:
+                    best = None
+                    for tree in trees:
+                        hit, _hn, _f, dist = tree.ray_cast(Vector(foot[n]), Vector(r_vec[n] / r[n]), 0.2)
+                        if hit is not None and (best is None or dist < best):
+                            best = dist
+                    if best is not None:
+                        ratios.append((best - SLEEVE_IN) / r[n])
+            if not ratios:
+                continue
+            k = float(np.clip(np.percentile(ratios, 100 * SLEEVE_SPARE), SLEEVE_MIN, 1.0))
+            rep[side] = round(k, 3)
+            for name, (idx, foot, r_vec, t, a, b) in geo.items():
+                if name.startswith("upper_arm"):
+                    ease = np.ones(len(idx))      # to his shoulder: under the shirt there too
+                else:
+                    u = (b - a) / np.linalg.norm(b - a)
+                    ease = np.clip(-((self.v[idx] - cut) @ u) / SLEEVE_FADE, 0, 1)  # above his wrist
+                kk = 1.0 - (1.0 - k) * ease
+                self.v[idx] = foot + r_vec * kk[:, None]
+
+    def _trunk_in(self):
+        """His torso drawn in towards its middle under a shirt (TRUNK_IN_X of its width, TRUNK_IN
+        of its depth),
+        from his hips to under his collar, fading out at his collarbones: the model stands with
+        its arms out, the game lets them hang, and his sides came through between his vest and
+        his sleeves. His clothes close over it without a gap (checked with his skin hidden), so it
+        is never seen; his throat above the collar is his own."""
+        o = self.our_joints()
+        sh_y = (o["r-shoulder"][1] + o["l-shoulder"][1]) * 0.5
+        sel = self.region == "trunk"
+        p = self.v[sel]
+        axis_x = 0.5 * (o["r-shoulder"][0] + o["l-shoulder"][0])
+        axis_z = float(np.median(p[:, 2]))
+        fade = np.clip(((sh_y - 0.02) - p[:, 1]) / 0.08, 0, 1)
+        kx = 1.0 - (1.0 - TRUNK_IN_X) * fade      # most across: his arms hang at his sides
+        kz = 1.0 - (1.0 - TRUNK_IN) * fade
+        p[:, 0] = axis_x + (p[:, 0] - axis_x) * kx
+        p[:, 2] = axis_z + (p[:, 2] - axis_z) * kz
+        self.v[sel] = p
+        self.report["trunk_in"] = TRUNK_IN
+
+    def tuck_layers(self, pieces):
+        """His garments one inside another (roadmap 1.3): each tucked under every garment outside
+        it in LAYERS (the shirt under his trousers, vest and coat; the vest under the coat), as
+        his skin is under them all. Garments cut from different twins (his coat from the coated
+        one, the rest from the coatless) poke through each other otherwise: his shirt's sleeves
+        through the coat's."""
+        order = [pc for name in LAYERS for pc in pieces if pc.shape == name]
+        for pc in pieces:
+            if pc.shape == "vest":
+                # A vest has no sleeves: what of it the cut found on his arms (a shadowed fold of
+                # his shirt, brown enough) came through the coat's sleeves.
+                arm = np.array([str(r).startswith(("upper_arm", "forearm", "hand")) for r in pc.region])
+                keep = ~arm[pc.tris].any(axis=1)
+                pc.report["arm_bits_dropped"] = int((~keep).sum())
+                pc.tris = pc.tris[keep]
+        coats = [pc for pc in pieces if pc.shape == "coat"]
+        if coats:
+            # Under a coat only what shows through its opening is ever seen (the game never
+            # takes a coat off): a vest or shirt triangle with the coat straight outside it
+            # (out from his middle, or straight ahead, within COVER_REACH) is dropped. Kept, its
+            # sides came through the coat when his arms hung.
+            from mathutils import Vector
+            from mathutils.bvhtree import BVHTree
+            o = self.our_joints()
+            mid = 0.5 * (o["r-shoulder"] + o["l-shoulder"])
+            ctree = [BVHTree.FromPolygons([tuple(q) for q in c.v], [tuple(int(i) for i in f) for f in c.tris]) for c in coats]
+            for pc in pieces:
+                if pc.shape not in ("vest", "shirt"):
+                    continue
+                cen = pc.v[pc.tris].mean(1)
+                out = cen - mid
+                out[:, 1] = 0.0
+                out /= np.linalg.norm(out, axis=1, keepdims=True) + 1e-12
+                covered = np.zeros(len(pc.tris), bool)
+                fwd = Vector((0.0, 0.0, -1.0))         # body space faces -Z
+                for k in range(len(cen)):
+                    # Out from his middle, and straight ahead (his sides are under the coat's
+                    # sleeves when his arms hang, which they don't in the model's A-pose).
+                    for d in (Vector(out[k]), fwd):
+                        start = Vector(cen[k]) + d * 0.002
+                        if any(tree.ray_cast(start, d, COVER_REACH)[0] is not None for tree in ctree):
+                            covered[k] = True
+                            break
+                # And by his armholes: the coat's sleeve comes down over them when his arms hang.
+                for lr in "rl":
+                    a, b = o[lr + "-shoulder"], o[lr + "-elbow"]
+                    ab = b - a
+                    t = np.clip((cen - a) @ ab / max(float(ab @ ab), 1e-12), 0, 1)
+                    covered |= np.linalg.norm(cen - (a + t[:, None] * ab), axis=1) < ARMHOLE_R
+                pc.report["covered_by_coat_dropped"] = int(covered.sum())
+                pc.tris = pc.tris[~covered]
+        if coats:
+            # Under a coat his shirt's sleeves are never seen (the game never takes a coat off:
+            # a man without one is his own outfit, people.json), and two garments from two twins
+            # never nest cleanly: they came through the coat's sleeves. Cut away.
+            for pc in pieces:
+                if pc.shape == "shirt":
+                    arm = np.array([str(r).startswith(("upper_arm", "forearm", "hand")) for r in pc.region])
+                    keep = ~arm[pc.tris].any(axis=1)
+                    pc.report["sleeves_cut_under_coat"] = int((~keep).sum())
+                    pc.tris = pc.tris[keep]
+        for k, pc in enumerate(order):
+            over = order[k + 1:]
+            if not over:
+                continue
+            movable = np.ones(len(pc.v), bool)
+            if pc.shape == "shirt":
+                # His sleeves aren't under his trousers or vest: tucked under them where his arm
+                # hangs by his hip, their insides were dented into his arm.
+                movable &= ~np.array([str(r).startswith(("upper_arm", "forearm", "hand")) for r in pc.region])
+            pc.v, moved = tuck_under(pc.v, pc.tris, movable, over,
+                                     outward=outward_from_bones(pc.v, pc.region, self.bones()),
+                                     flip_faces=pc.shape == "trousers")
+            pc.report["tucked_under_" + "_".join(o.shape for o in over)] = int(moved)
 
     def own_fingers(self):
         """His own fingers as the game's finger pieces (tools/blender/fingers.py; people.json
@@ -973,7 +1175,7 @@ class TripoPerson(mp.Person):
         rep = self.report.setdefault("own_fingers", {"from": "makehuman, skinned"})
         # His colours from the texture his skin is drawn with: his repaint where there is one
         # (body_paint.py), not Rodin's own (the hand came out paler and greyer than his arm).
-        named = self.id if os.path.exists(os.path.join(TRIPO, self.id + "_color.png")) else self.model
+        named = self.spec.get("paint") or (self.id if os.path.exists(os.path.join(TRIPO, self.id + "_color.png")) else self.model)
         painted = os.path.join(TRIPO, named + "_color.png")
         img = np.asarray(Image.open(painted).convert("RGB") if os.path.exists(painted) else self.colour, dtype=np.float64) / 255.0
         hgt, wid = img.shape[:2]
@@ -1274,7 +1476,97 @@ class TripoPerson(mp.Person):
                 piece.clear_hands(own)
         twins = [pc for pc in self.pieces if pc.twin]
         if twins:
+            # His arms and torso inside his shirt, while it still has its sleeves (a coat cuts
+            # them away in tuck_layers); then the garments into one another; then his skin
+            # under all of them (tucked the other way, a shirt drawn in under the coat went
+            # under his skin).
+            shirt = [pc for pc in twins if pc.shape == "shirt"]
+            if shirt:
+                self._sleeves_round_arms(shirt[0])
+                self._arms_in_sleeves(shirt)
+                self._trunk_in()
+            self.tuck_layers(twins)
             self.tuck_skin(twins)
+
+
+def outward_from_bones(v, region, bones):
+    """Each point's way out from its own bone (its region's segment in `bones`, the warp's
+    [name, .., .., our a, our b, ..]): Rodin's faces are wound either way, and a point moved
+    "in" along a face normal that pointed out became a spike through the shirt."""
+    out = np.zeros_like(v)
+    reg = np.asarray(region).astype(str)
+    for b in bones:
+        sel = reg == b[0]
+        if not sel.any():
+            continue
+        a, c = np.asarray(b[3]), np.asarray(b[4])
+        ac = c - a
+        # Square to the bone's line (past its ends too: clipped, the way "out" ran along the arm).
+        t = (v[sel] - a) @ ac / max(float(ac @ ac), 1e-12)
+        r = v[sel] - (a + t[:, None] * ac)
+        out[sel] = r / (np.linalg.norm(r, axis=1, keepdims=True) + 1e-12)
+    return out
+
+
+def tuck_under(v, tris, movable, pieces, depth=None, outward=None, flip_faces=False):
+    """Points of a surface (`v`, `tris`) tucked under garments laid over it: a garment's faces are
+    long (Rodin's quads, ~2 cm, some 10) and its flat faces cut through the round of an arm or a
+    flare wherever its corners sit only just outside. Each movable point a garment covers (its
+    nearest garment face within 5 cm, facing as the point does: not a lining, which faces in)
+    and that lies outside it or less than TUCK_M under it is drawn in along its normal to TUCK_M
+    under, by TUCK_MAX_M at most. Returns the points and how many places moved."""
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    trees = [BVHTree.FromPolygons([tuple(p) for p in pc.v], [tuple(int(i) for i in f) for f in pc.tris]) for pc in pieces]
+    fn = np.cross(v[tris[:, 1]] - v[tris[:, 0]], v[tris[:, 2]] - v[tris[:, 0]])
+    vn = np.zeros_like(v)
+    for k in range(3):
+        np.add.at(vn, tris[:, k], fn)
+    # One place, one move: points come in once per face that meets there (Rodin's triangles
+    # share none), and moved apart they'd crack.
+    _u, first, weld = np.unique(np.round(v / 1e-6).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+    weld = weld.ravel()
+    gn = np.zeros((len(first), 3))
+    np.add.at(gn, weld, vn)
+    gn /= np.linalg.norm(gn, axis=1, keepdims=True) + 1e-12
+    if outward is not None:
+        # Out from the bone, where there is one (the face normals where it agrees, else the bone's).
+        ob = outward[first]
+        has = np.linalg.norm(ob, axis=1) > 0.5
+        flip = has & ((gn * ob).sum(1) < 0)
+        gn[flip] = ob[flip]
+    still = ~np.asarray(movable)[first]
+    gv = v[first].copy()
+    moved = np.zeros(len(first), bool)
+    # Neighbours over the welded surface, to move patches together.
+    wt = weld[tris]
+    e = np.concatenate([wt[:, [0, 1]], wt[:, [1, 2]], wt[:, [2, 0]]])
+    from scipy.sparse import coo_matrix
+    A = coo_matrix((np.ones(2 * len(e)), (np.r_[e[:, 0], e[:, 1]], np.r_[e[:, 1], e[:, 0]])), shape=(len(first),) * 2).tocsr()
+    A.data[:] = 1.0
+    deg = np.maximum(np.asarray(A.sum(1)).ravel(), 1)
+    for _ in range(2):
+        need = np.zeros(len(first))
+        for g in np.where(~still)[0]:
+            p = Vector(gv[g])
+            for tree in trees:
+                loc, nrm, _f, _d = tree.find_nearest(p, 0.05)
+                if loc is None:
+                    continue
+                if flip_faces and float(nrm.dot(Vector(gn[g]))) < 0:
+                    nrm = -nrm          # a twin garment's faces are wound either way (Rodin's)
+                if float(nrm.dot(Vector(gn[g]))) < 0.3:
+                    continue
+                need[g] = max(need[g], float((p - loc).dot(nrm)) + (TUCK_M if depth is None else depth))
+        # Eased over neighbours (point by point, next-door points moved apart by centimetres
+        # crumpled his forearm into spikes).
+        for _ in range(TUCK_SPREAD):
+            need = 0.5 * need + 0.5 * (A @ need) / deg
+        need[still] = 0.0
+        go = need > 1e-4
+        gv[go] -= gn[go] * np.minimum(need[go], TUCK_MAX_M)[:, None]
+        moved |= go
+    return gv[weld], int(moved.sum())
 
 
 class Piece:
@@ -1584,8 +1876,100 @@ class Piece:
         own = self.region.copy()
         bones = list(self.env["bones"])
         arm_cols = [k for k, b in enumerate(bones) if str(b).startswith(("upper_arm", "forearm", "hand", "finger"))]
+        # A sleeve takes only its own arm's skin: on its inside, his side is often nearer than
+        # his arm, and a sleeve point weighted to his trunk stayed while the arm moved (his arm
+        # came through his shirt's sleeve).
+        arm_bvh = {}
+        if self.shape in ("coat", "shirt"):
+            for lr in "rl":
+                parts = ["upper_arm_" + lr, "forearm_" + lr, "hand_" + lr]
+                fi = np.nonzero(np.isin(body.region[body.tris], parts).all(axis=1))[0]
+                if len(fi):
+                    arm_bvh[lr] = (BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris[fi]]), fi)
+        # Which arm a sleeve point belongs to, by its distance from the arm's bone (shoulder to
+        # wrist) rather than its region: the inside of a sleeve, near his side, was "trunk", took
+        # his side's weights and stayed while the arm moved (a slit down the inside of his sleeve).
+        sleeve_of = np.full(len(self.v), None, dtype=object)
+        fn = np.cross(self.v[self.tris[:, 1]] - self.v[self.tris[:, 0]], self.v[self.tris[:, 2]] - self.v[self.tris[:, 0]])
+        vnorm = np.zeros_like(self.v)
+        for k in range(3):
+            np.add.at(vnorm, self.tris[:, k], fn)
+        # Faces wound either way (Rodin's): each point's normal turned out from his middle.
+        mid_x = 0.5 * (self.our_joints()["r-shoulder"][0] + self.our_joints()["l-shoulder"][0])
+        flip = vnorm[:, 0] * np.sign(self.v[:, 0] - mid_x) < 0
+        vnorm[flip] *= -1
+        vnorm /= np.linalg.norm(vnorm, axis=1, keepdims=True) + 1e-12
+        if arm_bvh:
+            o = self.our_joints()
+            for lr in arm_bvh:
+                a, b = o[lr + "-shoulder"], o[lr + "-hand"]
+                ab = b - a
+                t = (self.v - a) @ ab / max(float(ab @ ab), 1e-12)
+                d = np.linalg.norm(self.v - (a + np.clip(t, 0, 1)[:, None] * ab), axis=1)
+                mine_reg = np.isin(own.astype(str), ["upper_arm_" + lr, "forearm_" + lr])
+                near = (t > SLEEVE_FROM) & (t < 1.1) & ((d < SLEEVE_R) | mine_reg)
+                # Where his sleeve meets his coat's side (fused: the dressed model's arms hang
+                # against it), the side is what lies inside his arm's bone and faces out; the
+                # sleeve lies outside it or faces in, towards him. With his hands up the side
+                # stretched from his arm to his waist.
+                sx = np.sign(a[0])
+                bone_x = a[0] + np.clip(t, 0, 1) * ab[0]
+                outside = sx * (self.v[:, 0] - bone_x) > -SLEEVE_INNER
+                faces_in = (vnorm[:, 0] * -sx) > 0.3
+                sleeve_of[near & (outside | faces_in)] = lr
+        # Every layer's sleeves bend alike: a sleeve point takes the mean weights of his arm's
+        # skin at its place along the arm (shoulder to wrist), whatever lies nearest it. Each
+        # layer weighted from its own nearest skin bent its own way, and posed (his arms down
+        # from the model's A-pose) his shirt's sleeves came through the coat's.
+        profile = getattr(body, "_arm_profile", None)
+        if profile is None and arm_bvh:
+            profile = body._arm_profile = {}
+            o = self.our_joints()
+            nb = self.W.shape[1]
+            for lr in arm_bvh:
+                a, b = o[lr + "-shoulder"], o[lr + "-hand"]
+                ab = b - a
+                parts = ["upper_arm_" + lr, "forearm_" + lr]
+                sel = np.isin(body.region, parts)
+                ts = (body.v[sel] - a) @ ab / max(float(ab @ ab), 1e-12)
+                edges = np.linspace(SLEEVE_FROM - 0.05, 1.0, 22)
+                mids, rows = [], []
+                for k in range(len(edges) - 1):
+                    m = (ts >= edges[k]) & (ts < edges[k + 1])
+                    if m.sum() >= 3:
+                        w = body.W[sel][m][:, :nb].mean(0)
+                        mids.append(0.5 * (edges[k] + edges[k + 1]))
+                        rows.append(w / max(w.sum(), 1e-9))
+                profile[lr] = (a, ab, np.array(mids), np.array(rows))
+        # Sleeve and side fused below his armpit (the dressed model's arms hang against its
+        # sides): the triangles joining them stretched into a wing with his hands up. Cut, as
+        # the cloth is cut there; above his armpit the armhole's seam stays.
+        if arm_bvh and self.shape == "shirt":
+            o = self.our_joints()
+            pit_y = 0.5 * (o["r-shoulder"][1] + o["l-shoulder"][1]) - ARMPIT_DROP
+            sl = np.array([x is not None for x in sleeve_of])
+            mixed = sl[self.tris].any(axis=1) & ~sl[self.tris].all(axis=1)
+            low = (self.v[self.tris][:, :, 1] < pit_y).any(axis=1)
+            cut = mixed & low
+            self.tris = self.tris[~cut]
+            self.report["sleeve_side_cut"] = int(cut.sum())
         for i in range(len(self.v)):
-            loc, _n, f, _d = bvh.find_nearest(Vector(self.v[i]))
+            if sleeve_of[i] is not None and profile and sleeve_of[i] in profile:
+                a, ab, mids, rows = profile[sleeve_of[i]]
+                if len(mids) >= 2:
+                    t = float((self.v[i] - a) @ ab / max(float(ab @ ab), 1e-12))
+                    self.W[i] = np.array([np.interp(t, mids, rows[:, c]) for c in range(rows.shape[1])])
+                    self.W[i] /= max(self.W[i].sum(), 1e-9)
+                    self.region[i] = ("upper_arm_" if t < 0.5 else "forearm_") + sleeve_of[i]
+                    took += 1
+                    continue
+            own_arm = sleeve_of[i] if sleeve_of[i] is not None else (str(own[i])[-1] if str(own[i]).startswith(("upper_arm", "forearm")) else None)
+            if own_arm in arm_bvh:
+                tree_, fi = arm_bvh[own_arm]
+                loc, _n, f, _d = tree_.find_nearest(Vector(self.v[i]))
+                f = None if f is None else int(fi[f])
+            else:
+                loc, _n, f, _d = bvh.find_nearest(Vector(self.v[i]))
             if f is None:
                 continue
             tri = body.tris[f]
@@ -1602,7 +1986,24 @@ class Piece:
             # trousers by his hand took the hand's weights and went where it went: "his hands
             # seem like they're melting into the jacket"); and none of his arms' at all (its own
             # weights blend in the arm's capsule by his hand).
-            sleeve = self.shape == "coat" and str(own[i]).startswith(("upper", "forearm", "hand"))
+            sleeve = (self.shape == "shirt" and sleeve_of[i] is not None) or (
+                self.shape == "coat" and str(own[i]).startswith(("upper", "forearm", "hand")))
+            # Cloth beside his ribs follows his ribs, not his arm (with his hands up, his coat's
+            # and vest's sides stretched from his arms to his waist): a vest has no sleeves, and
+            # a coat's or shirt's body is what isn't its sleeve.
+            # (Not the coat: its sleeves and sides are fused too closely to tell apart there, and
+            # cut apart or weighted apart they gaped when he stood; it keeps the wing with his
+            # hands up.)
+            body_cloth = self.shape == "vest" or (self.shape == "shirt" and sleeve_of[i] is None)
+            if body_cloth and str(reg).startswith(("upper_arm", "forearm", "hand")):
+                w = bary @ body.W[tri][:, :self.W.shape[1]]
+                w[arm_cols] = 0.0
+                if w.sum() <= 1e-6:
+                    w[bones.index("chest")] = 1.0
+                self.W[i] = w / w.sum()
+                self.region[i] = "trunk"
+                took += 1
+                continue
             if not sleeve and str(reg).startswith(("forearm", "hand")):
                 w = self.W[i].copy()
                 w[arm_cols] = 0.0
@@ -1693,6 +2094,109 @@ class Piece:
 
 
 # --- Textures -----------------------------------------------------------------------------------
+
+def paint_cloth(piece, tone):
+    """A twin piece's cloth as painted illustration (DESIGN.md §4; Sean, 2026-10-16): Rodin's
+    texture carries a blotchy patchwork (his pictures' blockiness), so it is smoothed (a median of
+    CLOTH_MEDIAN texels, then a soft blur) within the piece's own UV islands (what lies outside
+    them filled from the nearest inside first, so no seam takes another island's colour); and
+    toned to his pictures where people.json `cloth.<shape>` says (`light`: its lightness times
+    that, or `L`: its median brought to that Lab lightness; `chroma`: its colour's strength times
+    that; the coat's came out darker and greyer than his paintings)."""
+    import sys as _sys
+    from PIL import ImageFilter
+    from scipy import ndimage
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
+    import portrait as P
+    img = piece.colour.convert("RGB")
+    W, H = img.size
+    tid, _b, _z = P.rasterise(piece.uv * np.array([W, H]), np.zeros(len(piece.uv)), piece.tris, W, H)
+    inside = ndimage.binary_dilation(tid >= 0, iterations=2)
+    a = np.asarray(img).copy()
+    _d, (iy, ix) = ndimage.distance_transform_edt(~inside, return_indices=True)
+    a = a[iy, ix]
+    img = Image.fromarray(a).filter(ImageFilter.MedianFilter(CLOTH_MEDIAN))
+    if CLOTH_BLUR > 0:
+        img = img.filter(ImageFilter.GaussianBlur(CLOTH_BLUR))
+    if tone:
+        y, cb, cr = [np.asarray(c).astype(np.float64) for c in img.convert("YCbCr").split()]
+        y0, cb0, cr0 = y.copy(), cb.copy(), cr.copy()
+        # `keep_ends`: what is painted white or black on this cloth (the coat's shirt front and
+        # tie) is left as it is; the toning below lifted the tie to grey and its mottle, taking
+        # out the narrow white shirt as a blotch, greyed the shirt (Sean, 2026-10-16).
+        keep = np.ones_like(y)
+        if tone.get("keep_ends"):
+            ss = lambda e0, e1, x: np.clip((x - e0) / (e1 - e0), 0, 1)
+            keep = (1 - ss(KEEP_WHITE[0], KEEP_WHITE[1], y)) * ss(KEEP_BLACK[0], KEEP_BLACK[1], y)
+        # `mottle`: the blotches' share taken out (light and dark between a few texels and a
+        # tenth of the texture across: Rodin's camouflage, not the cloth's folds, which are
+        # bigger, nor its weave, which is smaller); measured over the toned cloth alone.
+        mo = float(tone.get("mottle", 0.0))
+        if mo:
+            blur = lambda c, r: ndimage.gaussian_filter(c * keep, r) / np.maximum(ndimage.gaussian_filter(keep, r), 1e-3)
+            for ch in (y, cb, cr):
+                band = blur(ch, MOTTLE_FINE * W / 1024) - blur(ch, MOTTLE_WIDE * W / 1024)
+                ch -= mo * band
+        light = float(tone.get("light", 1.0))
+        if "L" in tone:
+            # Lightness to a target (Lab L of the cloth's median, from his pictures): two cuts of
+            # the same trousers came out L 5 and L 14, against his paintings' 20.
+            covered = tid >= 0
+            med = np.median(y[covered]) / 255.0 if covered.any() else 0.5
+            lin = lambda c: ((c + 0.055) / 1.055) ** 2.4 if c > 0.04045 else c / 12.92
+            L_now = 116 * lin(med) ** (1 / 3) - 16
+            target_lin = ((float(tone["L"]) + 16) / 116) ** 3
+            light = (target_lin / max(lin(med), 1e-5)) ** (1 / 2.4)
+            piece.report["cloth_L"] = {"from": round(L_now, 1), "to": tone["L"], "light": round(light, 2)}
+        y = np.clip(y * light, 0, 255)
+        k = float(tone.get("chroma", 1.0))
+        cb = np.clip(128 + (cb - 128) * k, 0, 255)
+        cr = np.clip(128 + (cr - 128) * k, 0, 255)
+        y, cb, cr = (keep * t + (1 - keep) * o for t, o in ((y, y0), (cb, cb0), (cr, cr0)))
+        img = Image.merge("YCbCr", [Image.fromarray(c.astype(np.uint8)) for c in (y, cb, cr)]).convert("RGB")
+    piece.report["cloth"] = {"median": CLOTH_MEDIAN, "tone": tone}
+    return img
+
+
+def paint_under_shirt(p, colour, shirt):
+    """His skin under his shirt (all but his forearms, hands and legs, and what is wholly his head
+    mesh) painted in his shirt's light colour (UNDER_SHIRT_LIGHT): never meant to be seen, where it shows between
+    vest and sleeve it reads as his shirt. His neck is under his collar (neck_ring.stand_collar)."""
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "characters"))
+    import portrait as P
+    sc = np.asarray(shirt.colour.convert("RGB"), dtype=np.float64)
+    h, w = sc.shape[:2]
+    uvs = shirt.uv[np.unique(shirt.tris)]
+    samp = sc[np.clip((uvs[:, 1] * h).astype(int), 0, h - 1), np.clip((uvs[:, 0] * w).astype(int), 0, w - 1)]
+    tone = np.median(samp, axis=0)
+    # His neck in the lighter part of his shirt (its cloth, not its tie or shadows): where it shows
+    # above his collar's front it reads as the collar's white, not a grey band (Sean, 2026-10-17).
+    # Only his neck: lighter on his chest, it showed through the gaps at a coat's edges.
+    lum = samp @ [0.299, 0.587, 0.114]
+    light = np.median(samp[lum >= np.percentile(lum, UNDER_SHIRT_LIGHT)], axis=0)
+    reg = np.asarray(p.region).astype(str)
+    # His neck too (its triangles reach into his head's region: wholly head is his head mesh,
+    # replaced by the painted bust; the rest is under his collar).
+    head = np.asarray(p.head, bool)
+    bare = np.zeros(len(reg), bool)
+    for part in ("forearm", "hand", "thigh", "shin", "foot"):
+        bare |= np.char.startswith(reg, part)
+    # (Head-weighted skin below his collar's top too: the twin's neck reaches into his head's
+    # region; above it is his face, which the layered man's bust replaces anyway.)
+    low = p.v[:, 1] < COLLAR_TOP_SHARE * float(p.env["head_top"])
+    tri = p.tris[(~bare)[p.tris].all(axis=1) & (~head[p.tris].all(axis=1) | low[p.tris].all(axis=1))]
+    G = colour.width
+    tid, _b, _z = P.rasterise(p.uv * G, np.zeros(len(p.uv)), tri, G, colour.height)
+    out = np.asarray(colour.convert("RGB")).copy()
+    out[tid >= 0] = tone.astype(np.uint8)
+    neck = tri[(p.v[tri, 1] > p.j["neck"][1] - UNDER_SHIRT_NECK).all(axis=1)]
+    nid, _b, _z = P.rasterise(p.uv * G, np.zeros(len(p.uv)), neck, G, colour.height)
+    out[nid >= 0] = light.astype(np.uint8)
+    p.report["painted_under_shirt"] = {"triangles": int(len(tri)), "colour": [int(x) for x in tone],
+                                       "neck": int(len(neck)), "neck_colour": [int(x) for x in light]}
+    return Image.fromarray(out)
+
 
 def squares(colour, out_path, square=SQUARE_TEXELS):
     """The texture in squares: each `square`×`square` block one colour (its average), one texel
@@ -1850,12 +2354,15 @@ def main():
         p.run()
         for piece in p.pieces:
             # Each piece's own texture, in the same squares (Tripo's colour: the pieces aren't
-            # repainted in the style yet).
+            # repainted in the style yet); a twin piece's cloth smoothed and toned first.
+            if piece.twin:
+                piece.colour = paint_cloth(piece, spec.get("cloth", {}).get(piece.shape, {}))
             squares(piece.colour, os.path.join(OUT, "%s_%s%s.png" % (pid, piece.shape, "_smooth" if SMOOTH else "")),
                     1 if SMOOTH else SQUARE_TEXELS)
         # His texture: the head repainted in the style where it has been (head_paint.py works on a
         # glb, so a layered man's repaint is his model's, <model>_color.png).
-        named = pid if os.path.exists(os.path.join(TRIPO, pid + "_color.png")) else spec.get("model", pid)
+        # people.json `paint`: another man's repaint (the same body in another outfit).
+        named = spec.get("paint") or (pid if os.path.exists(os.path.join(TRIPO, pid + "_color.png")) else spec.get("model", pid))
         repainted = os.path.join(TRIPO, named + "_color.png")
         if SMOOTH:
             # The "quantise once" set: the smooth repaint (head_paint.py --smooth) if there is one,
@@ -1875,6 +2382,16 @@ def main():
             tile = Image.fromarray((paint * 255).astype(np.uint8)).resize((px, px), Image.LANCZOS)
             colour = colour.copy()
             colour.paste(tile, (int(round(u0 * colour.width)), int(round(v0 * colour.height))))
+        # A man in a shirt: his torso's and upper arms' skin in the shirt's colour (never meant
+        # to be seen; where it shows between his vest and sleeves it reads as his shirt, not his
+        # bare side). His forearms keep their own (his wrist's join is painted from them).
+        shirt = [pc for pc in p.pieces if pc.shape == "shirt"]
+        if shirt:
+            # His bare skin as it was, for neck_ring to match his face to (build/: rebuilt with him).
+            sq0 = max(1, SQUARE_TEXELS * colour.width // p.colour.width)
+            os.makedirs(os.path.join("build", "bare_skin"), exist_ok=True)
+            squares(colour, os.path.join("build", "bare_skin", pid + "_skin.png"), sq0)
+            colour = paint_under_shirt(p, colour, shirt[0])
         # A repaint smaller than his model's texture (head_paint.py bakes at most 2048 a side; a
         # Rodin man's is 4096) is already in squares that size: it keeps its texels.
         sq = max(1, SQUARE_TEXELS * colour.width // p.colour.width)

@@ -162,7 +162,9 @@ All lanes, one at a time. **Gate F: the demo ships.**
   the saloon 1.03 as before; `docs/screenshots/painted_light/in_game_sun_limit.jpg`); waits on
   Sean's eye. **1.4** (art): the road to Sean's target (#130, build 1280), the woods smooth again
   (painted illustration), the painted sky and a slight haze (`docs/screenshots/sky/`); waits on
-  Sean's word. **1.3** (characters) beside it.
+  Sean's word. The world painted in the man's hand (target 8, `docs/briefs/match-the-man.md`):
+  woods and materials repainted dirty and worn, grass in strokes, the road into his palette; the
+  close props (table, chairs, lamp, bottle) next. **1.3** (characters) beside it.
 
 ## Decisions Sean can change
 

@@ -284,13 +284,22 @@ frozen until Sean names one.
   haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
   street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
   `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$3.98 (road $2.44, sky $0.26,
-  references $1.28).
-- The judge and critic compare against painted references since 2026-10-16
-  (`docs/concept/*-painted.png`, `tools/textures/paint_reference.py`; Sean chose street C).
-- Next: Sean's eye on the sky (#131, build 1294). Critic r4's top: the card player still in squares
-  (characters' 1.3), the street's sky an orange blanket near the sun with canyon walls closing it,
-  the standing men; then blocky roadside grass, no cool moonlight in the saloon (the new saloon
-  painting is cooler and less yellow than ours: judge r4 saloon 0.644).
+  references $1.28) before the match work.
+- The judge and critic compare against painted references (`docs/concept/*-painted.png`; street C,
+  the saloon warm). The world painted in the man's hand (target 8, brief `docs/briefs/match-the-man.md`):
+  woods and materials repainted dirty and worn (`paint_woods.py`, `paint_textures.py --style=man`),
+  grass in strokes, the road into his palette; ~$5.5 of Sean's $6.
+- The close props in his hand (2026-10-17, $2.64 of a further $5): ten prop materials, factory tiles
+  at their own density, the table's painted top, turned props round, the backdrop smooth.
+- The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
+  shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
+- Sean, 2026-10-17: "our art isn't completely smooth, it can have a bit of square to it" (DESIGN.md
+  §4): squares aren't a fault in themselves; the critic's prompt says so. Sheet
+  `docs/screenshots/sky/how_square.jpg` (A smooth now / C halfway / B the cowboy's squares) unpicked.
+- **Paused (Sean, 2026-10-17):** no more world art until the character (1.3) is finished and can be
+  used in the renders: "once we know how the character looks we can better mould the world". Then:
+  how square (the sheet), the back bar's dark void, the table's flat top, the street all one
+  orange and its canyon end (the hero rocks' size is Sean's call). ~$2.36 of his $5 unspent.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
@@ -305,12 +314,21 @@ frozen until Sean names one.
 `painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
-  cowboy** `bold_cowboy_layered` with his skinned hands (#125, #129; recipe
-  `tools/characters/LAYERED.md`; bookmark `look/layered-cowboy-2026-10-15`). ~$8.46 of $15 spent.
-- Not merged: the bold cowboy's own hat (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: the layered man in the painted look (head, hands, coat, trousers) so art's shots can use
-  him painted; the coat's colour; vest and shirt as their own layer. Trap: after a build,
-  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+  cowboy** (roadmap 1.3; recipe `tools/characters/LAYERED.md`): shirt+tie, vest and trousers
+  from the coatless twin (`bold_cowboy_vest_dressed`), painted from his four pictures
+  (`body_paint --dressed`), the coat over them; outfits `bold_cowboy_layered` (coat) and
+  `bold_cowboy_vest_layered`; chest, collar and paint fixed 2026-10-17 (sheets
+  `docs/style_test/layered-2026-10-15/d4`-`d10`). ~$10.06 of $15 spent. Not merged: his own hat
+  (`look/bold-cowboy-own-hat-2026-10-14`).
+- Next (Sean, 2026-10-17: a fresh session "fixing him up", then the recipe): blotchy cloth close
+  up, light flecks at his sleeve edges (side pictures line up 81-82%), a plainer collar than his
+  pictures', the coat's edges and back vent, its wing with hands up, seated crumpling. Trap: after
+  a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
+  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
+  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
+  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
+  sync; then RECIPE.md's step for every man (with Sean's OK).
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 

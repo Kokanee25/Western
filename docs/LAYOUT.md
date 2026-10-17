@@ -584,6 +584,21 @@ a few views renders them as the full run does.
 
 ## The texture factory (tools/textures)
 
+- **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
+  model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
+  reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
+  into the same `woods/<wood>_b<k>.png`, seamless along the length (`--cut` re-cuts the kept
+  `raw/woods_<wood>.jpg` with no calls; People workflow `textures = woods[:ids]`).
+  `paint_textures.py --style=man` paints materials in his hand (`textures = man:<ids>`); those
+  are `smooth` at 128 a metre with their own colours. Match views `man_store_golden`,
+  `man_saloon_night`. `paint_reference.py` paints the judge's references (`references.json`).
+  The close props (2026-10-17): `prop_wood`, `prop_felt`, `prop_pewter`, `shot_tin`, `prop_brass`,
+  `prop_iron`, `prop_glass`, `prop_staves`, `prop_barrel_head`, `walnut` (the gun stock) are factory
+  materials under the keys PropModels/ShotMatch already ask for, finer the closer they're seen (512
+  a metre over 25 cm for the metals, glass and walnut); `PixelArt.factory_density()` lays a factory
+  tile at its own texels a metre (textures.json), a multiple of the world's; `turn` in a material
+  turns its painting a quarter round before it's cut. `PropModels.lathe` shares ring normals
+  under `SMOOTH_CREASE` (turned props shade round, not in rings).
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
@@ -683,7 +698,8 @@ a few views renders them as the full run does.
   screen, the street painting's mountains as reference; `tools/textures/backdrop.json` says what
   each panel shows, its bearing and `shift`, the layer's `scale` and `band`) and cut by
   `reduce_backdrop.py` (runs anywhere: green keyed out, the band under the land's foot dropped,
-  squares at 0.15 degrees (half the first cut's: the painting's far rock is soft), panels shown
+  squares at 0.15 degrees (half the first cut's: the painting's far rock is soft; since 2026-10-17
+  `smooth`: 0.1 degrees, its own colours, read filtered, no mosaic or palette), panels shown
   smaller than 90 degrees tapered at their sides, the near layer kept to a low band under a
   rolling hill line, columns filled solid, a faint mosaic, a palette a layer (40/36/32 colours);
   in the shader each layer's haze is scaled by the scene's fog density (`haze_scale`) → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
@@ -814,6 +830,32 @@ a few views renders them as the full run does.
   layout. `build` (`portrait_build.py`, bpy): factory_build's man with these →
   `assets/people/<id>_portrait.glb`. `portrait_sheet.py` makes Sean's sheet (style | plain | game,
   saloon, crops) from `people_lineup.gd --head [--hatless]` and `screenshots.gd --model=`.
+
+### The talking face (tools/faces; brief `docs/briefs/face-rig.md`)
+
+A Rodin man's head given lips that part, a mouth, teeth, tongue, eyelids and 15 expressions as
+blend shapes (19: speech, blinks, brows, smiles, eye turns), all from MakeHuman's CC0 data. `mh_units.py`: MakeHuman's 59 face pose units
+(`face-poseunits.bvh` on its `default` skeleton, `default_weights.mhw`) posed by plain skinning
+about the base mesh's own joints → `build/faces/mh_units.npz`. `talking_face.py --man= --out=`:
+MediaPipe's landmarks on both faces, a thin-plate warp, the skin pulled onto his (moustache and
+brows come along; not near the eyes, `EYE_FADE`), his face cut out and MakeHuman's stitched in,
+his paint copied texel by texel (lids from outside his painted eye), teeth set back behind his
+lips; `EXPRESSIONS` (units and amounts) → `assets/people/<out>.glb` (one head mesh, sparse
+morph targets), `<out>_head.png` (his + the face's), `<out>.json` (`facerig`, `textures_from`).
+In the game the shapes ride `PeopleBodies._load` → `BodyMesh.split_pieces` onto `Head_head`.
+`face_lab.gd` (via `lab_run.sh`): him as the game builds him; `--mode=sheet` each expression,
+`--mode=take` a take frame by frame; `face_sheet.py` the sheet. `arkit_take.py`: a Live Link
+Face CSV (+ .mov's sound, lined up by its timecode), his resting face taken off (`neutral`: the
+quiet before he speaks) → `take.json` by `MAP` (52 → 20).
+`take_video.sh`: close and game-size side by side, with sound (and the performer's .mov if given). `synth_take.py`: a stand-in take
+spoken by espeak-ng (for testing without one). What Sean records: `docs/FACE_TAKES.md`. `readability.py`: how much of his face each
+expression changes at 1080p, 2 m (the lab holds him still for the sheet; `rest2` checks it).
+Gaze: `src/bodies/face_gaze.gd` (`FaceGaze`, a child of his HumanBody: a target node or point;
+his look shapes carry the first `eye_range` degrees measured in his head's frame as it is, so the
+eyes lead and hold while `pose_offsets[&"head"]` (x up, y to his left) catches up; blinks, small
+flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_lab.gd --mode=gaze`
+(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
+in the game: who a man looks at is gameplay's.
 
 ## Training the image model on our style (tools/style)
 

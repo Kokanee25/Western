@@ -14,6 +14,7 @@ painted unless --repaint. The key comes from the environment (a GitHub Actions s
 repo); the model is TEXTURE_MODEL, else PAINT_MODEL, else FLUX.2 [max].
 """
 import base64
+import http.client
 import io
 import json
 import os
@@ -122,6 +123,23 @@ def ask(prompt, images, config, what, key):
     return Image.open(io.BytesIO(base64.b64decode(url.split(",", 1)[1]))).convert("RGB")
 
 
+# --style=man (art, 2026-10-16, docs/briefs/match-the-man.md): painted in the layered cowboy's hand,
+# his model sheet sent as a second picture, instead of realistic and sharp.
+MAN = os.path.join(ROOT, "docs", "concept", "targets", "8_man_model.png")
+MAN_HAND = ("Painted in the same hand as the second image, the game's character: the soft, broad, "
+            "hand-painted mottling of his vest, trousers and boots, a few painted tones and gentle "
+            "strokes, worn edges and weathering painted, not photographed; no fine photographic noise.")
+
+
+def in_mans_hand(prompt):
+    for real in ("Realistic and sharp, with rich detail and many close shades of colour.",
+                 "Realistic and sharp, rich weathering."):
+        prompt = prompt.replace(real, MAN_HAND)
+    for real in ("paint a clean, detailed real surface instead", "paint a clean, detailed real board instead"):
+        prompt = prompt.replace(real, "paint it in the second image's hand instead")
+    return prompt
+
+
 def reference(spec):
     painting, x0, y0, x1, y1 = spec["ref"]
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
@@ -156,12 +174,17 @@ def main():
         prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
             what=spec["what"], text=spec.get("text", ""))
         refs = [reference(spec)]
+        if "--style=man" in sys.argv:
+            prompt = in_mans_hand(prompt)
+            man = Image.open(MAN).convert("RGB")
+            man.thumbnail((768, 768))
+            refs.append(man)
         img = None
         for attempt in range(3):
             try:
                 img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
                 break
-            except (RuntimeError, OSError, KeyError, ValueError) as e:
+            except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
                 print("failed (try %d):" % (attempt + 1), e)
         if img is None:
             failed.append(mid)
