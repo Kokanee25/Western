@@ -53,6 +53,8 @@ COLLAR_SMOOTH_BACK = 0.04   # ... and higher behind, up under his hair (at 15 an
 COLLAR_SMOOTH_STEPS = 12
 COLLAR_LIFT_FROM = 0.06    # --collar=smooth: metres under the ring from where his collar is drawn up (lift_collar) ...
 COLLAR_LIFT_BINS = 24      # ... at this many angles round his neck ...
+COLLAR_PLAIN_UP = 0.045    # --collar=plain: metres above the ring his collar's front stands ...
+COLLAR_PLAIN_BACK = 0.015  # ... and its sides and back
 COLLAR_OVER = 0.006        # ... to this far over the cut that levels it
 COLLAR_TOP_PCT = 70        # the collar's top at an angle: this percentile of its points' heights there (the 95th was the
                            # twin's spikes at his nape, so its back never rose; too low only overshoots, which the levelling takes)
@@ -297,8 +299,9 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     for ob in [o for o in bpy.data.objects if o.type == "MESH" and o.name in ("body_shirt", "body_vest", "body_coat")]:
         me = ob.data
         moved = 0
-        if mode == "smooth" and ob.name == "body_shirt":
+        if mode in ("smooth", "plain") and ob.name == "body_shirt":
             smooth_collar(me, ring_z)
+        if mode == "smooth" and ob.name == "body_shirt":
             lift_collar(me, ring_z, centre, fwd)
         for v in me.vertices:
             p = v.co
@@ -344,6 +347,16 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
                         levelled += 1
             print("neck_ring: his collar's top levelled: %d points" % levelled)
             high = [f for f in bm.faces if any(vv.co.z > top_at(vv.co) + 1e-5 for vv in f.verts)]
+        elif ob.name == "body_shirt" and mode == "plain":
+            # --collar=plain: his own collar smoothed and cut where it stands, not lifted or
+            # levelled (lifted and levelled, the coatless man's read as a flat band again: Sean,
+            # 2026-10-17). Its front stands to COLLAR_PLAIN_UP, easing down to COLLAR_PLAIN_BACK
+            # at his sides and behind (the twin's collar is shredded high at his nape).
+            def top_plain(p):
+                d = np.array([p.x - centre[0], p.y - centre[1]])
+                c = float(d @ fwd) / max(np.linalg.norm(d), 1e-6)
+                return ring_z + COLLAR_PLAIN_BACK + (COLLAR_PLAIN_UP - COLLAR_PLAIN_BACK) * max(c, 0.0) ** 2
+            high = [f for f in bm.faces if any(vv.co.z > top_plain(vv.co) for vv in f.verts)]
         else:
             high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
         bmesh.ops.delete(bm, geom=high, context="FACES")

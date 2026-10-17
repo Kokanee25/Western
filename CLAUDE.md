@@ -310,28 +310,22 @@ frozen until Sean names one.
   cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
   painted smooth like his face, as part of 1.3; the wood is smooth again.
 
-**Characters** (branch `claude/characters-fix-him-up`; briefs `docs/briefs/layered-people.md`,
+**Characters** (branch `claude/characters-…`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
   cowboy** (roadmap 1.3; recipe `tools/characters/LAYERED.md`, the exact chain in its §3):
   shirt+tie, vest and trousers cut from the coatless twin, painted from his four pictures, the
   coat over them; outfits `bold_cowboy_layered` (coat) and `bold_cowboy_vest_layered`; chest,
-  collar and paint fixed 2026-10-17 (#142). ~$10.06 of $15 spent. Not merged: his own hat
+  collar and paint fixed (#142), then the fix-up session's good parts (clothes at 2048, sleeve
+  flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
+  (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- On the branch (2026-10-17, "fixing him up", sheets `d11`-`d14`, each defect by cause in
-  LAYERED.md): clothes at his skin's texture density (`cloth_detail.py` measures each stage
-  against his picture), the sleeve-edge flecks (body_paint's mask edge, backdrop grey, island
-  fill), his own collar lifted to his jaw (both men), his skin painted by the garment over it,
-  the coat's vent closed (tails on the pelvis), the cream at its seams gone (what lay under its
-  sides painted and covered), the white teeth at the vest's armholes traced to the shirt's sleeve root (not fixed). The hands-up wing stays (cutting the
-  sleeves from the sides made skinny arms and mush: off). Waiting on Sean's OK to merge.
-- Next: the shirt's sleeve root at the vest's armholes (strips where the sleeve-from-side cut
-  deletes mixed triangles: split or re-weight them); the coat's sleeves apart from its sides (the
-  wing with his hands up; Rodin fused them);
+- Next: the coat's sleeves apart from its sides (the wing with his hands up; Rodin fused them);
   a per-limb line-up of the side pictures (his arms hang nearer his sides than Rodin's twin's);
-  seated crumpling is skinning, not the recipe's. Trap: after a build, `godot
-  --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+  seated crumpling is skinning, not the recipe's. Judge every change against Sean's pictures and
+  his words (he turned down a flat collar band twice). Trap: after a build, `godot --headless
+  --import` first; lab renders via `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)

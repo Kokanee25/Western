@@ -124,7 +124,9 @@ ARMHOLE_R = 0.12       # metres from his upper arm's bone: a vest or shirt under
 COVER_REACH = 0.08     # metres: a vest or shirt triangle with the coat this near straight outside it is under it ...
 COVER_SIDE_X = 0.08    # ... and, this far from his middle (his sides, not the opening), with the coat this near in any direction
 ARMPIT_DROP = 0.08     # metres below his shoulder joints: his armpit (sleeve and side cut apart below it)
-COMB_T = 0.4           # of the way down his upper arm: the shirt's side left in a comb by that cut is dropped there ...
+COMB_T = 0.0           # of the way down his upper arm: the shirt's side left in a comb by that cut is dropped there
+                       # (0: off; at 0.4 the gaps it left showed his skin as stripes at the waistcoat's armholes) ...
+UNDER_COAT_ONLY = True # paint_under_garments: his skin takes a coat's colour under a coat, else the shirt's median
 COMB_R = 0.02          # ... within SLEEVE_R plus this of the arm's bone (his skin under it is painted the shirt's colour)
 SLEEVE_INNER = 0.02    # metres inside his arm's bone a sleeve still reaches (weights_from_skin)
 SLEEVE_RINGS = 12      # bands along an arm a sleeve is kept outside it by (_sleeves_round_arms) ...
@@ -2316,6 +2318,10 @@ def paint_under_garments(p, colour, pieces):
                 if loc is not None and d < best_d:
                     best, best_d = shape, d
         over[k] = best
+    if UNDER_COAT_ONLY:
+        over = np.where(over == "coat", "coat", "")
+        if shirt is not None:
+            tone = _piece_colours(shirt)[0]
     G = colour.width
     out = np.asarray(colour.convert("RGB")).copy()
     counts = {}

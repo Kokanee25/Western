@@ -27,14 +27,14 @@
   "twin": true,
   "pushed_out_after_warp": 9572,
   "sleeve_side_cut": 478,
-  "armpit_comb_dropped": 1,
+  "armpit_comb_dropped": 0,
   "weights_from_skin": 18289,
   "clear_hands": {
    "cuff_triangles_dropped": 17,
    "skirt_points_behind_hands": 0
   },
   "sleeve_points_out_of_arm": 1421,
-  "tucked_under_trousers_vest": 1488,
+  "tucked_under_trousers_vest": 1489,
   "cloth": {
    "median": 1,
    "tone": {}
@@ -831,9 +831,7 @@
  "skin_tucked": 7342,
  "painted_under_garments": {
   "triangles": {
-   "shirt": 3044,
-   "trousers": 6175,
-   "vest": 3860
+   "none": 13079
   },
   "colours": {
    "vest": [
@@ -871,7 +869,7 @@
   "skin": 27560,
   "head": 10000,
   "vest": 4337,
-  "shirt": 4999,
+  "shirt": 5000,
   "trousers": 7999
  }
 }

@@ -109,9 +109,11 @@ facing its right, from behind:
    ~/bpyenv/bin/python tools/characters/neck_ring.py --body=bold_cowboy_body --head=bold_cowboy_painterly_lit \
        --out=bold_cowboy_layered --head_scale=0.92 --collar=smooth
    ~/bpyenv/bin/python tools/characters/neck_ring.py --body=bold_cowboy_vest_body --head=bold_cowboy_painterly_lit \
-       --out=bold_cowboy_vest_layered --head_scale=0.92 --collar=smooth
+       --out=bold_cowboy_vest_layered --head_scale=0.92 --collar=plain
    ```
-   (`--collar=smooth`, both men since 2026-10-17: his twin's own collar and tie knot smoothed,
+   (`--collar=plain` for the coatless man: his own collar smoothed and cut where it stands,
+   higher in front; lifted and levelled (`smooth`) it read as a flat band again (Sean,
+   2026-10-17). `--collar=smooth` for the coat man: his twin's own collar and tie knot smoothed,
    its top drawn up to under his jaw and levelled, every garment pushed out of the bust's neck;
    `none` leaves the garments as the fit made them; `built` is the old stand collar, "a neck
    brace") → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
@@ -373,3 +375,16 @@ way: the same man, triangle for triangle).
   changes (his face is unchanged: the light is art's).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,
   `RECIPE.md`); the layered man isn't wired to it yet.
+
+### Second look (2026-10-17, after the fix-up session; sheet `d17_take2.png`)
+Kept from the fix-up: the clothes at 2048 with no median on painted cloth, the sleeve-flecks fixes
+(`body_paint --dressed`), the coat's tails, sides and its collar. Taken back, both made him worse
+than before it (Sean: "why'd he fuck shit up"):
+- The coatless man's collar lifted and levelled (`--collar=smooth`) read as the flat band Sean had
+  turned down: he has `--collar=plain`.
+- Brown-and-cream stripes at his waistcoat's sides: his skin, painted the colour of the outermost
+  garment over it (waistcoat brown beside shirt cream, a triangle-sawtooth line between), poked
+  out there, and the "comb" cut (`COMB_T`) took away shirt that had covered it. Now the comb cut
+  is off and his skin takes a coat's colour only under a coat (`UNDER_COAT_ONLY`), else the
+  shirt's median, as before.
+
