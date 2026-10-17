@@ -13,11 +13,14 @@ TH = json.load(open(os.path.join(HERE, "thresholds.json")))
 STEP_M, STEP_DEG = 0.25, 45.0
 
 
-def measures(row):
+def measures(row, going=(0.0, 0.0, 0.0)):
     seg = row["segment"]
     key = seg[:-2] if seg.endswith(("_r", "_l")) else seg
+    v = [float(row[k]) for k in ("vx", "vy", "vz")]
     m = {"penetration": float(row["penetration"]), "self_overlap": float(row["self_overlap"]),
-         "joint_gap": float(row["joint_gap"]), "speed": math.sqrt(sum(float(row[k]) ** 2 for k in ("vx", "vy", "vz")))}
+         "joint_gap": float(row["joint_gap"]), "speed": math.sqrt(sum(c * c for c in v)),
+         # Faster than he was already going when he went down (a sprinter's head isn't thrown at 8).
+         "speed_over_going": math.sqrt(sum((c - g) ** 2 for c, g in zip(v, going)))}
     sw, tw, ls, lt, bend = (float(row[k]) for k in ("swing", "twist", "swing_limit", "twist_limit", "bend"))
     if key in ("shin", "forearm"):
         m["wrong_bend"] = bend if key == "shin" else -bend
@@ -33,6 +36,8 @@ def analyse(run):
     limp = int(round(sm["limp_t"] * 60))
     settle = None if sm["settle_s"] is None else limp + int(round(sm["settle_s"] * 60))
     runs, peaks, flags = {}, {}, {}
+    going = next((tuple(e["speed_before_mps"]) for e in sm.get("events", [])
+                  if e.get("kind") == "go_limp" and "speed_before_mps" in e), (0.0, 0.0, 0.0))
 
     def hit(rule, t, what, seg=""):
         f = flags.setdefault(rule, {"count": 0, "first_t": round(t, 3), "first": what, "parts": []})
@@ -46,7 +51,7 @@ def analyse(run):
             continue
         seg = row["segment"]
         t = (tick - limp) / 60.0
-        for name, val in measures(row).items():
+        for name, val in measures(row, going).items():
             pk = peaks.setdefault(name, [-1e9, "", 0])
             if val > pk[0]:
                 peaks[name] = [round(val, 4), seg, round(t, 3)]

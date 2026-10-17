@@ -211,6 +211,108 @@ func _knee_bend(man: HumanBody, side: String) -> float:
 	return rad_to_deg(a.signed_angle_to(b, right))
 
 
+## Shot dead running (Sean: "as real as possible so just drops if dead esp running"): he goes on
+## over his legs and down on his front, not down onto his knees. Before the stance leg held for an
+## instant, a running man killed folded one knee right under him (150 deg by 0.4 s) and knelt.
+func test_killed_running_he_pitches_over_not_onto_his_knees() -> void:
+	for n in 4:
+		var runner := HumanBody.new()
+		runner.has_gun = false
+		world.add_child(runner)
+		runner.global_position = Vector3(-15.0 + n * 4.0, 0.0, 15.0)
+		await physics_frames(2)
+		var target := runner.global_position + Vector3(0, 0, -30)
+		# Four points in his stride (the lab's group J: 1.5 to 1.95 s of running).
+		for i in 90 + n * 9:
+			runner.walk_to(target, 3.5, 1.0 / 60.0)
+			await physics_frames(1)
+		var died_at := runner.global_position
+		runner.physiology._die(&"brain")
+		runner.go_limp()
+		await physics_frames(24)
+		var r := _knee_bend(runner, "r")
+		var l := _knee_bend(runner, "l")
+		print("  stride %d: knees at 0.4 s %.0f / %.0f" % [n, l, r])
+		check(absf(r) < 100.0 and absf(l) < 100.0,
+				"stride %d: he didn't drop onto his knees (knees %.0f / %.0f at 0.4 s)" % [n, l, r])
+		await physics_frames(150)
+		var chest := (runner.parts[&"chest"] as Node3D).global_position
+		check(chest.y < 0.35, "stride %d: he's down (chest %.2f m up)" % [n, chest.y])
+		check(died_at.z - chest.z > 1.0, "stride %d: he went on forwards (%.2f m)" % [n, died_at.z - chest.z])
+		runner.queue_free()
+
+
+## Dropped by a ball, he looks hit, not fainted: he doubles over a belly wound, and a shot leg goes
+## from under him so he leans to that side. (Before, every knockdown was the same faint: he stood
+## stiff, leant back, then sank.) His own muscles do it (HumanBody._hunch): no push.
+func test_a_ball_that_drops_him_shows_where_it_hit() -> void:
+	var lean := {}
+	for case: String in ["belly", "thigh_r"]:
+		var shot := HumanBody.new()
+		shot.has_gun = false
+		world.add_child(shot)
+		shot.global_position = Vector3(-6.0 if case == "belly" else 6.0, 0.0, 6.0)
+		await physics_frames(30)
+		var seg := &"abdomen" if case == "belly" else &"thigh_r"
+		var part := shot.parts[seg] as Node3D
+		var front := part.global_position - shot.global_basis.z * 0.1
+		shot.go_limp()
+		var dir := shot.global_basis.z
+		(shot.parts[seg] as RigidBody3D).apply_impulse(dir * 4.5, front - part.global_position)
+		shot._hunch(seg, front, dir)
+		await physics_frames(27)
+		var up := (shot.parts[&"chest"] as Node3D).global_basis.y
+		# Forward is his -z, his right +x.
+		lean[case] = Vector2(rad_to_deg(asin(clampf(up.dot(-shot.global_basis.z), -1.0, 1.0))),
+				rad_to_deg(asin(clampf(up.dot(shot.global_basis.x), -1.0, 1.0))))
+		shot.queue_free()
+	print("  at 0.45 s: belly-shot chest %.0f deg forward; thigh-shot chest %.0f deg to his right" % [lean.belly.x, lean.thigh_r.y])
+	check(lean.belly.x > 10.0, "doubled over the belly wound (%.0f deg forward)" % lean.belly.x)
+	check(lean.thigh_r.y > 5.0, "the shot leg gave and he leans to it (%.0f deg)" % lean.thigh_r.y)
+
+
+## Shot down walking, he doesn't drop in his tracks: his stride carries him on a step or so as he
+## folds round it, then his legs go (Sean, 2026-10-16: "walking stumble"). Before, he dropped where
+## the ball found him, knees first. Hit again as he stumbles, he's down at once.
+func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
+	for again in [false, true]:
+		var walker := HumanBody.new()
+		walker.has_gun = false
+		world.add_child(walker)
+		walker.global_position = Vector3(-8.0 if again else 8.0, 0.0, 15.0)
+		await physics_frames(2)
+		var target := walker.global_position + Vector3(0, 0, -30)
+		for i in 90:
+			walker.walk_to(target, 1.4, 1.0 / 60.0)
+			await physics_frames(1)
+		var hit_at := walker.global_position
+		var chest := walker.parts[&"chest"] as Node3D
+		walker._knocked(&"chest", chest.global_position - walker.global_basis.z * 0.12, walker.global_basis.z, 4.5)
+		if again:
+			check(not walker.limp and walker.stumbling > 0.0, "he stumbles on")
+			await physics_frames(6)
+			walker._fall_now()
+			check(walker.limp, "hit again as he stumbles, he's down at once")
+			walker.queue_free()
+			continue
+		check(not walker.limp, "not down the instant he's hit")
+		# Anyone else's walking doesn't move him now: his last steps are his body's.
+		var before := walker.global_position
+		walker.stumbling = maxf(walker.stumbling, 0.1)
+		walker.walk_to(walker.global_position + Vector3(10, 0, 0), 3.0, 1.0 / 60.0)
+		check(walker.global_position.x == before.x, "a brain can't walk him off sideways as he goes")
+		var frames := 0
+		while not walker.limp and frames < 90:
+			await physics_frames(1)
+			frames += 1
+		var on := hit_at.z - walker.global_position.z
+		print("  down after %.2f s, %.2f m on from where he was hit" % [frames / 60.0, on])
+		check(walker.limp, "down within 1.5 s (%.2f s)" % (frames / 60.0))
+		check(frames >= 15, "he stayed up a moment (%.2f s)" % (frames / 60.0))
+		check(on > 0.3, "carried on forwards (%.2f m)" % on)
+		walker.queue_free()
+
+
 func test_knees_only_bend_the_right_way() -> void:
 	var world := Node3D.new()
 	add_child(world)
@@ -226,22 +328,23 @@ func test_knees_only_bend_the_right_way() -> void:
 	man.has_gun = false
 	world.add_child(man)
 	await physics_frames(3)
-	# Dead, so no muscle tone holds his joints as he goes: the hinges' own limits.
+	# Dead, and his last instant of tone gone (HumanBody.TONE_FADE_DEAD): the hinges' own limits.
 	man.physiology._die(&"test")
 	man.go_limp()
-	await physics_frames(2)
+	await physics_frames(int(HumanBody.TONE_FADE_DEAD * 60.0 * 4.0))
 	var shin_r := man.parts[&"shin_r"] as RigidBody3D
 	var shin_l := man.parts[&"shin_l"] as RigidBody3D
-	var right := man.global_basis.x
-	# Kick the right shin forwards (the wrong way for a knee), the left one backwards.
+	# Kick the right shin forwards (the wrong way for a knee), the left one backwards: about each
+	# thigh's own right (the hinge's axis), as he's turned as he fell.
 	for i in 20:
-		shin_r.apply_torque_impulse(right * 4.0)
-		shin_l.apply_torque_impulse(-right * 4.0)
+		shin_r.apply_torque_impulse((man.parts[&"thigh_r"] as Node3D).global_basis.x * 4.0)
+		shin_l.apply_torque_impulse(-(man.parts[&"thigh_l"] as Node3D).global_basis.x * 4.0)
 		await physics_frames(1)
 	var r := _knee_bend(man, "r")
 	var l := _knee_bend(man, "l")
 	print("  knee bends after the kicks: right %.0f, left %.0f" % [r, l])
-	check(absf(r) < 15.0, "the right knee won't bend forwards (%.0f)" % r)
+	# (A knee bends negative: he may have folded it the right way as he fell.)
+	check(r < 15.0, "the right knee won't bend forwards (%.0f)" % r)
 	check(absf(l) > 20.0, "the left one bends back (%.0f)" % l)
 	# Elbows the other way: the forearm comes forward, never back past straight.
 	var fr := man.parts[&"forearm_r"] as RigidBody3D

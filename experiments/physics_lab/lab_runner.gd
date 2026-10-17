@@ -23,6 +23,10 @@ var views: Array = ["front", "side", "three"]
 var view_size := Vector2i(480, 360)
 var every := 2
 var cam_distance := 3.2
+## --follow: the cameras keep him in shot across the ground (for footage of a running man), at
+## the same offset, eased; without it they stay where he started (for comparing frames).
+var follow := false
+var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
@@ -35,6 +39,7 @@ var _world: Node3D
 var _men: Array[HumanBody] = []
 var _tick := 0
 var _limp_tick := -1
+var _hit_tick := -1  ## a "knock" scenario: when the ball hit (he may stumble on before he's limp)
 var _last_us := 0
 var _frame_us: Array[int] = []
 var _ticks_csv: FileAccess
@@ -237,11 +242,19 @@ func _build_cameras() -> void:
 		var off: Vector3 = at.get(v, at.front)
 		cam.look_at_from_position(f + off + Vector3.UP * (0.3 if v != "top" else 0.0), f, Vector3.UP if v != "top" else -b.z)
 		cam.current = true
+		_follow_cams.append([cam, off + Vector3.UP * (0.3 if v != "top" else 0.0), Vector3.UP if v != "top" else -b.z, f])
 		_viewports.append([v, sv])
 		DirAccess.make_dir_recursive_absolute(out_dir.path_join("frames").path_join(v))
 
 
 func _save_frames() -> void:
+	if follow and not _men.is_empty():
+		var com := _com(_men[0])
+		for c: Array in _follow_cams:
+			var f: Vector3 = c[3]
+			f = f.lerp(Vector3(com.x, f.y, com.z), 0.25)
+			c[3] = f
+			(c[0] as Camera3D).look_at_from_position(f + (c[1] as Vector3), f, c[2])
 	await RenderingServer.frame_post_draw
 	for pair: Array in _viewports:
 		var img: Image = (pair[1] as SubViewport).get_texture().get_image()
@@ -264,7 +277,29 @@ func _physics_process(delta: float) -> void:
 	if _tick < pre_ticks:
 		_before(pre, delta)
 	elif _limp_tick < 0:
-		_go_limp()
+		# "knock": a ball that drops him, as HumanBody.take_bullet has it (HumanBody._knocked): on
+		# the move he may stumble on first. The lab's "limp" is when he actually goes limp.
+		var knock: Dictionary = scenario.get("knock", {})
+		if not knock.is_empty() and _hit_tick < 0:
+			_hit_tick = _tick
+			for man in _men:
+				var part := man.parts[StringName(knock.segment)] as Node3D
+				var p: Array = knock.get("point", [0, 0, 0])
+				var d: Array = knock.get("dir", [0, 0, 1])
+				var at := part.global_transform * Vector3(p[0], p[1], p[2])
+				var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+				var given := float(knock.get("momentum", 4.5))
+				if man.has_method(&"_knocked"):
+					man._knocked(StringName(knock.segment), at, dw, given)
+				else:
+					# An older HumanBody (comparing): what its take_bullet did, down where he stood.
+					man.go_limp()
+					var rb := man.parts[StringName(knock.segment)] as RigidBody3D
+					rb.apply_impulse(dw * given, at - rb.global_position)
+					if man.has_method(&"_hunch"):
+						man._hunch(StringName(knock.segment), at, dw)
+		if knock.is_empty() or _men[0].limp:
+			_go_limp()
 	if _limp_tick >= 0 and (_tick - _limp_tick) % 60 == 0:
 		var n := 0
 		for man in _men:
@@ -301,8 +336,8 @@ func _go_limp() -> void:
 	# the engine gives them no velocity, so it's from his position).
 	# _record has already run this tick: its centre-of-mass velocity is last tick's walk.
 	_speed_before = _com_v_now
-	# "dead": killed outright as he goes (a ball through the brain): no tone at all (HumanBody
-	# gives a dead man none), where a "blackout" goes limp alive and keeps a moment of it.
+	# "dead": killed outright as he goes (a ball through the brain): his tone goes in an instant
+	# (HumanBody.TONE_FADE_DEAD), where a "blackout" goes limp alive and keeps it a little longer.
 	if scenario.get("dead", false):
 		for man in _men:
 			man.physiology._die(&"brain")
@@ -348,6 +383,11 @@ func _go_limp() -> void:
 			r.apply_impulse(jw, r.global_transform * Vector3(p[0], p[1], p[2]) - r.global_position)
 		_events.append({"tick": _tick, "kind": "lab_impulse", "source": "the lab (scenarios.json)",
 				"segment": String(sid), "at_world": _v(at_world), "impulse_Ns": _v(jw)})
+		# "hunch": as a ball that knocks him down does (HumanBody.take_bullet): he curls round it.
+		if imp.get("hunch", false):
+			for man in _men:
+				if man.has_method(&"_hunch"):
+					man._hunch(sid, man.parts[sid].global_transform * Vector3(p[0], p[1], p[2]), jw.normalized())
 	_take_reference(man0)
 
 
@@ -656,7 +696,7 @@ func _finish() -> void:
 		ms.append((_frame_us[i] - _frame_us[i - 1]) / 1000.0)
 	summary = {
 		"scenario": scenario.name, "group": scenario.get("group", ""), "fixture": scenario.get("fixture", "ground"),
-		"men": count, "limp_t": limp_t,
+		"men": count, "limp_t": limp_t, "hit_t": (_hit_tick / 60.0) if _hit_tick >= 0 else limp_t,
 		"settle_s": (_settled_tick - _limp_tick) / 60.0 if _settled_tick >= 0 else null,
 		"all_asleep_at_end": sleeping == bodies, "asleep_at_end": sleeping, "bodies": bodies,
 		"sleep_flips": _sleep_flips, "shapes": shapes, "joints": joints,

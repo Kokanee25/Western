@@ -490,6 +490,8 @@ func _physics_step(delta: float) -> void:
 			_set_mood(Mood.DOWN)
 			_down_but_awake(delta)
 		return
+	if body.stumbling > 0.0:
+		return  # going down: his last steps are his body's, not his
 	_now += delta
 	if body.dragged_by != null:
 		var helper := Crew.brain_of(body.dragged_by)
