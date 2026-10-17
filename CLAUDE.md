@@ -315,6 +315,11 @@ frozen until Sean names one.
   a neck brace: give him the coated twin's collar and tie knot) and his barrel chest; then the
   coat's wing with hands up, seated crumpling, the painted look. Trap: after a build,
   `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx`).
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
+  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
+  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
+  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
+  sync; then RECIPE.md's step for every man (with Sean's OK).
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
