@@ -267,6 +267,10 @@ def reduce(mid, spec, tpm):
     if BOLD:
         spec = bold_spec(spec)
     raw = Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB")
+    if spec.get("turn"):
+        # `turn`: the painting turned a quarter round first (the model painted the grain up the
+        # picture where the game reads it along u: the barrel's staves).
+        raw = raw.transpose(Image.Transpose.ROTATE_90)
     kind = spec["kind"]
     metres = list(spec["metres"])
     rng = np.random.default_rng(sum(map(ord, mid)))

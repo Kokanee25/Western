@@ -1,5 +1,5 @@
 {
- "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, contrast, chroma, hue: the judge's corrections on the tiles in Lab (L*, L*'s spread, a*/b*, a turn of a*/b* in degrees). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated). bold: settings for the bold set only (reduce.py --bold, assets/textures/bold/), over reduce.py's BOLD_GRADE.",
+ "about": "The texture factory's materials (tools/textures/). Each id is the key PixelArt and WoodMaterials ask for (PixelArt.factory). metres: the real size the texture covers, [along u (the grain), across v]; texels follow at texels_per_metre (32) a metre. colours: palette size. ref: [painting, x0, y0, x1, y1], a crop of a concept painting shown to the image model for colour and character (never its pixels). boards: the model's board joints are wiped (members are single boards). lightness, contrast, chroma, hue: the judge's corrections on the tiles in Lab (L*, L*'s spread, a*/b*, a turn of a*/b* in degrees). kind: tile (seamless, repeats on members and props), ground (seamless both ways, laid on the ground from above), sign (one whole board with lettering, not repeated). bold: settings for the bold set only (reduce.py --bold, assets/textures/bold/), over reduce.py's BOLD_GRADE. turn: the painting turned a quarter round before it's cut (its grain painted up the picture).",
  "texels_per_metre": 32,
  "materials": {
   "floor": {
@@ -82,7 +82,7 @@
     900
    ],
    "smooth": true,
-   "texels_per_metre": 128,
+   "texels_per_metre": 384,
    "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
   },
   "framing": {
@@ -398,8 +398,8 @@
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.5,
+    0.5
    ],
    "colours": 16,
    "what": "the worn wood of an old saloon chair: mid brown oak, darker grime in the grain and on the edges where hands and boots rub, paler worn patches, scratches and small dents, the grain running left to right",
@@ -411,15 +411,15 @@
     697
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 256,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "prop_felt": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.5,
+    0.5
    ],
    "colours": 16,
    "what": "the green baize of an old card table seen from above: deep bottle-green felt worn thin and paler where arms and cards slide, darker stains of spilled whisky, a few small cigarette burns, dust",
@@ -431,18 +431,18 @@
     505
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 256,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "prop_pewter": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.25,
+    0.25
    ],
    "colours": 16,
-   "what": "the side of an old pewter mug seen close: soft dull grey metal, darker grey-brown tarnish, faint dents and scratches, a dull soft sheen, no reflections of anything",
+   "what": "the smooth side of an old pewter mug seen close, a flat even surface: soft dull grey metal mottled with darker grey-brown tarnish, faint fine scratches, a dull soft sheen; no ridges, no corrugation, no rivets, no holes, no dents, no reflections of anything",
    "ref": [
     "saloon",
     958,
@@ -451,8 +451,8 @@
     941
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 512,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "shot_tin": {
    "for": "saloon",
@@ -478,8 +478,8 @@
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.25,
+    0.25
    ],
    "colours": 16,
    "what": "old tarnished brass seen close, like a lamp foot: warm dull gold brass, darker brown-green tarnish in patches, rubbed brighter where handled, fine scratches, a soft sheen",
@@ -491,15 +491,15 @@
     775
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 512,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "prop_iron": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.25,
+    0.25
    ],
    "colours": 16,
    "what": "old black cast iron seen close: dark grey-black iron, rust brown in patches, a dull soft sheen on worn edges, pitted",
@@ -511,18 +511,18 @@
     923
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 512,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "prop_glass": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.25,
+    0.25
    ],
    "colours": 16,
-   "what": "old hand-blown bottle glass seen close: an even mid grey with faint streaks, a few tiny bubbles and soft painted glints, no label, no reflections of anything",
+   "what": "old hand-blown bottle glass seen close, a flat even surface: a plain mid grey with faint soft streaks and a few tiny bubbles; no shapes, no patterns, no label, no highlights, no reflections of anything",
    "ref": [
     "saloon",
     1463,
@@ -531,15 +531,15 @@
     871
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 512,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "prop_staves": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.5,
+    0.5
    ],
    "colours": 16,
    "what": "the oak staves of an old whiskey barrel side by side, the grain running left to right along each stave: warm brown oak, darker gaps between staves, grime, water stains, scuffs",
@@ -551,15 +551,16 @@
     697
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 256,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key.",
+   "turn": true
   },
   "prop_barrel_head": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.5,
+    0.5
    ],
    "colours": 16,
    "what": "the round head of an old oak whiskey barrel seen face on: boards running left to right, dark joints between them, grime and a few branded marks worn faint",
@@ -571,15 +572,15 @@
     697
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 256,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   },
   "walnut": {
    "for": "saloon",
    "kind": "tile",
    "metres": [
-    1.0,
-    1.0
+    0.25,
+    0.25
    ],
    "colours": 16,
    "what": "the walnut stock of an old revolver or shotgun seen close: dark warm walnut with dark grain lines running left to right, rubbed smooth and darker by hands, small dents and scratches, oil-dark patches",
@@ -591,8 +592,8 @@
     560
    ],
    "smooth": true,
-   "texels_per_metre": 128,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth at 128 a metre, no palette, its own colours; PropModels/ShotMatch ask for it by this key."
+   "texels_per_metre": 512,
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
   }
  }
 }
