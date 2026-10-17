@@ -1,18 +1,19 @@
 shader_type spatial;
-// The painted backdrop (src/art/backdrop.gd): a strip of the image model's red-rock country cut
-// to squares, on a ring round the town, lit here by the time of day rather than by the scene's
-// lights (it's a painting of things miles off). With the sun high it shows as painted; with the
-// sun low the side facing the sun goes gold and the side with the sun behind it goes dark and
-// violet with gold rims along its skyline; at night it's dark blue shapes. Its own haze (the
-// scene's fog is off it, as it buried the old mountains), the haze's colour the fog's. Colours are
-// worked out as they should show and turned back through the tonemap (src/render/aces.gdshaderinc)
-// so they land as written.
+// The painted backdrop (src/art/backdrop.gd): a strip of the image model's red-rock country (read
+// filtered, its skyline a smooth line where the land's alpha crosses a half; 2026-10-17, painted
+// illustration: it was cut to squares, the critic's stair-stepped canyon walls), on a ring round
+// the town, lit here by the time of day rather than by the scene's lights (it's a painting of
+// things miles off). With the sun high it shows as painted; with the sun low the side facing the
+// sun goes gold and the side with the sun behind it goes dark and violet with gold rims along its
+// skyline; at night it's dark blue shapes. Its own haze (the scene's fog is off it, as it buried
+// the old mountains), the haze's colour the fog's. Colours are worked out as they should show and
+// turned back through the tonemap (src/render/aces.gdshaderinc) so they land as written.
 render_mode unshaded, cull_disabled, fog_disabled;
 
 #include "res://src/render/aces.gdshaderinc"
 #include "res://src/render/sun_rays.gdshaderinc"
 
-uniform sampler2D albedo_tex : source_color, filter_nearest, repeat_enable;
+uniform sampler2D albedo_tex : source_color, filter_linear, repeat_enable;
 // The strip's size in texels (the rim looks one texel up and either side).
 uniform vec2 texels = vec2(1200.0, 129.0);
 // The ring's middle (world), so each texel knows which way it faces.

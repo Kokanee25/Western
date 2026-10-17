@@ -267,6 +267,10 @@ def reduce(mid, spec, tpm):
     if BOLD:
         spec = bold_spec(spec)
     raw = Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB")
+    if spec.get("turn"):
+        # `turn`: the painting turned a quarter round first (the model painted the grain up the
+        # picture where the game reads it along u: the barrel's staves).
+        raw = raw.transpose(Image.Transpose.ROTATE_90)
     kind = spec["kind"]
     metres = list(spec["metres"])
     rng = np.random.default_rng(sum(map(ord, mid)))
@@ -276,7 +280,9 @@ def reduce(mid, spec, tpm):
     else:
         raw = crop_to(raw, metres[0] / metres[1])
     a = np.asarray(raw).astype(np.float64) / 255.0
-    a = flatten(a, FLATTEN if kind != "sign" else 0.5)
+    # `flatten`: a material's own (1 takes the painting's broad light right out: a painted sheen
+    # on the pewter would sit on the mug whatever the light).
+    a = flatten(a, spec.get("flatten", FLATTEN if kind != "sign" else 0.5))
     joints = 0
     if spec.get("boards", False):
         a, joints = wipe_joints(a)
@@ -326,7 +332,9 @@ def reduce(mid, spec, tpm):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
             st = mosaic(to_lab((to_texels(strip, ssize) * 255).astype(np.uint8)), push)
             st = grade(st, spec)
-            if not SMOOTH:
+            # A smooth material's strips keep their own shades (its "palette" is only a sample:
+            # snapping to it drew every board one flat dark colour, 2026-10-16 to -17).
+            if not (SMOOTH or spec.get("smooth")):
                 d = ((st.reshape(-1, 3)[:, None, :] - pal[None]) ** 2).sum(-1)
                 st = pal[d.argmin(1)].reshape(st.shape)
             Image.fromarray(lab_to_rgb(st)).save(os.path.join(out_dir(), "%s_b%d.png" % (mid, k)))

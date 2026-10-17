@@ -7,6 +7,8 @@ adds its own lines.
 
 - **MakeHuman** base mesh and targets, v1.2.0 (makehumancommunity/makehuman): CC0. Fetched by
   `tools/blender/fetch_makehuman.py` into `build/`; the men in `assets/people/` are made from them.
+  Also its face pose units, default skeleton and weights (`poseunits/`, `rigs/`; CC0, fetched by
+  `tools/faces/mh_units.py --fetch`): the talking men's mouths, lids and expressions.
 - **MediaPipe Face Landmarker** (Google, `face_landmarker.task`): Apache-2.0. Fetched into
   `build/mediapipe/` at run time and used by the tools only (the portrait factory's fit,
   `tools/paint/align.py`); not in the repo or the game.

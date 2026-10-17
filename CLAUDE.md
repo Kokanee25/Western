@@ -284,13 +284,18 @@ frozen until Sean names one.
   haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
   street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
   `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$3.98 (road $2.44, sky $0.26,
-  references $1.28).
-- The judge and critic compare against painted references since 2026-10-16
-  (`docs/concept/*-painted.png`, `tools/textures/paint_reference.py`; Sean chose street C).
-- Next: Sean's eye on the sky (#131, build 1294). Critic r4's top: the card player still in squares
-  (characters' 1.3), the street's sky an orange blanket near the sun with canyon walls closing it,
-  the standing men; then blocky roadside grass, no cool moonlight in the saloon (the new saloon
-  painting is cooler and less yellow than ours: judge r4 saloon 0.644).
+  references $1.28) before the match work.
+- The judge and critic compare against painted references (`docs/concept/*-painted.png`; street C,
+  the saloon warm). The world painted in the man's hand (target 8, brief `docs/briefs/match-the-man.md`):
+  woods and materials repainted dirty and worn (`paint_woods.py`, `paint_textures.py --style=man`),
+  grass in strokes, the road into his palette; ~$5.5 of Sean's $6.
+- The close props in his hand (2026-10-17, $2.64 of a further $5): ten prop materials, factory tiles
+  at their own density, the table's painted top, turned props round, the backdrop smooth.
+- The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
+  shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
+- Next (critic 2026-10-17_r2): the wall strips at their painted density (still 32 a metre, squares),
+  the back bar's dark void, the table's flat top; the street all one orange and its canyon end
+  (the hero rocks' size is Sean's call). The card player is characters' 1.3.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
@@ -314,6 +319,11 @@ frozen until Sean names one.
   a neck brace: give him the coated twin's collar and tie knot) and his barrel chest; then the
   coat's wing with hands up, seated crumpling, the painted look. Trap: after a build,
   `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx`).
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
+  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
+  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
+  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
+  sync; then RECIPE.md's step for every man (with Sean's OK).
 - For art: faces' chroma in the saloon once he's painted; `test_street.tscn`'s
   `volumetric_adjustment_enabled` typo.
 
