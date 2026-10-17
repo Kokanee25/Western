@@ -311,10 +311,13 @@ way: the same man, triangle for triangle).
     `TAILS_FULL` degrees of straight behind, eased out to `TAILS_NONE`) the skirt's leg weights
     go to his pelvis; its front and sides keep their thighs' share (on his lap when he sits).
   - The coat's sides up with his hands (the wing): its sleeves and sides are fused in Rodin's
-    model and its body cloth took his arms' weights. `COAT_SIDES_CUT`: the sleeve is cut from the
-    side below his armpit and the body cloth weighted off his arms, as the shirt's
-    (`weights_from_skin`; 967 triangles cut); standing, the slit shows his skin, painted the
-    coat's colour under it.
+    model and its body cloth takes his arms' weights. Tried: the sleeve cut from the side below
+    his armpit and the body cloth weighted off his arms, as the shirt's (`COAT_SIDES_CUT`,
+    `weights_from_skin`); the wing went, but it split Rodin's fused sleeve-and-side blob: each
+    upper sleeve lost its inner half (skinny arms) and the side cloth sat where the arm then
+    hung (Sean: "the arm and body meshing together"). Off: the wing stays, with the tails on his
+    pelvis. The real fix needs the sleeves modelled apart from the sides (a coatless twin's arms
+    held out, or a cut that rebuilds the sleeve's inner half).
   - Cream patches on the coat's sides and lines at its seams: what lies under its cut sides,
     showing through where the two surfaces meet. Measured on the game's coat texture, the side
     faces' texels are 99.6% dark wool, so not the coat's paint (hiding the shirt or the skin
@@ -325,11 +328,24 @@ way: the same man, triangle for triangle).
     ahead missed the coat's side there; now at his sides, beyond `COVER_SIDE_X`, the coat anywhere
     within `COVER_REACH` covers). Rodin's cream inside the fused sleeve-and-side (a few thousand
     texels) is painted wool too (`COAT_SIDE_WHITE`, `COAT_SIDE_SPREAD`, beyond `COAT_SIDE_X`).
+    Both stay with the sides cut off again: they are what showed as the white lines at the
+    sleeves' seams.
   - The collar's back tan-brown once lifted: the twin's collar behind his neck took the back
     picture's hair and neck (the picture's hair hangs over it), and the collar's top at its nape
     stayed low (the lift read the twin's spikes there as its top: now `COLLAR_TOP_PCT`, the
     70th percentile). `whiten_collar_back` paints the lifted faces behind his neck the shirt's
     white; its back stands `COLLAR_SMOOTH_BACK` 40 mm over the ring, up under his hair.
+  - White teeth at the vest's armholes (2026-10-17, sheet `d16_armholes.png`): the shirt, not
+    the vest's edge (`--hide=Shirt_whole` took them away; smoothing the vest's colour boundary
+    round the arm's root, `ARMHOLE_*` in `twin_pieces`, kept for its own sake, changed nothing
+    visible). The fitter's cut of the shirt's sleeve from its side below the armpit
+    (`ARMPIT_DROP`) leaves the side there in a comb of strips, which stood out beside the vest's
+    armhole front and back. **Not fixed yet:** a rule dropping the side's cloth near the arm's bone
+    below the armpit (`COMB_T`, `COMB_R`) caught one triangle, so the strips are the sleeve's
+    own (`sleeve_of` set), the sleeve's root cut into a comb where its mixed triangles went. Next:
+    split or re-weight the mixed triangles at the armpit instead of deleting them, or drop the
+    sleeve's strips that reach past the vest's armhole (his skin under them is painted the
+    shirt's colour, so a hole there reads as shirt).
   - Sitting and crouching his trousers' seat and the coat's skirt still crumple at the bench
     (linear skinning of a seat folded to 90 degrees: not this recipe's; the pose check shows it).
 
@@ -341,8 +357,8 @@ way: the same man, triangle for triangle).
   and one runs on into his hand on his left wrist.
 - His thumb lies along the revolver, a little high on its grip; the revolver sits where the game
   hangs it from the anatomy's hand (gameplay's), not this hand's palm.
-- Standing, a slit shows at the coat's sides below the armpits where its sleeves are cut from
-  them (`COAT_SIDES_CUT`), in the coat's colour (his skin under it).
+- With his hands up his coat's sides still stretch from his arms (the wing; `COAT_SIDES_CUT`
+  is off, see the defects); its tails hang from his pelvis.
 - Sitting and crouching, his coat's skirt and his trousers' seat crumple at the bench and the
   ground (as before the layers); a few dark specks by his armpits in the coat.
 - The coat's front still has the dressed model's vest and shirt painted in its opening's edges

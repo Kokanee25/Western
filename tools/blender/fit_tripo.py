@@ -124,13 +124,16 @@ ARMHOLE_R = 0.12       # metres from his upper arm's bone: a vest or shirt under
 COVER_REACH = 0.08     # metres: a vest or shirt triangle with the coat this near straight outside it is under it ...
 COVER_SIDE_X = 0.08    # ... and, this far from his middle (his sides, not the opening), with the coat this near in any direction
 ARMPIT_DROP = 0.08     # metres below his shoulder joints: his armpit (sleeve and side cut apart below it)
+COMB_T = 0.4           # of the way down his upper arm: the shirt's side left in a comb by that cut is dropped there ...
+COMB_R = 0.02          # ... within SLEEVE_R plus this of the arm's bone (his skin under it is painted the shirt's colour)
 SLEEVE_INNER = 0.02    # metres inside his arm's bone a sleeve still reaches (weights_from_skin)
 SLEEVE_RINGS = 12      # bands along an arm a sleeve is kept outside it by (_sleeves_round_arms) ...
 SLEEVE_ANGLES = 16     # ... and angles round it
 SLEEVE_ROOM = 0.003    # metres between his arm's skin and his sleeve at the least
 SLEEVE_ARM_MAX = 0.065 # metres from the bone: skin further out than this isn't his arm's
 SLEEVE_R = 0.09        # metres from his arm's bone: a coat's or shirt's point there is its sleeve (weights_from_skin) ...
-COAT_SIDES_CUT = True  # a coat's sleeves cut from its sides below his armpits and its body off his arms, as a shirt's (weights_from_skin)
+COAT_SIDES_CUT = False # a coat's sleeves cut from its sides and its body off his arms, as a shirt's: off (Sean, 2026-10-17: it split Rodin's fused
+                       # sleeve-and-side, the upper sleeves went skinny and the side cloth sat where the arm hung); the wing stays
 TAILS_BELOW = 0.05     # metres under his hip joints and below: a coat's skirt behind him hangs from his pelvis alone (tails_on_pelvis) ...
 TAILS_FULL = 50.0      # ... in full within this many degrees of straight behind ...
 TAILS_NONE = 80.0      # ... and not at all beyond this (its front and sides follow his thighs: on his lap when he sits)
@@ -1972,8 +1975,21 @@ class Piece:
             mixed = sl[self.tris].any(axis=1) & ~sl[self.tris].all(axis=1)
             low = (self.v[self.tris][:, :, 1] < pit_y).any(axis=1)
             cut = mixed & low
-            self.tris = self.tris[~cut]
+            # What the cut leaves of the side at his armpit is a comb of strips beside the
+            # vest's armhole (white teeth, front and back; 2026-10-17: `--hide=Shirt_whole`
+            # took them away): the side's cloth near the arm's bone below the armpit, over the
+            # upper arm's first COMB_T, goes too. His skin under it is painted the shirt's colour.
+            cen = self.v[self.tris].mean(1)
+            comb = np.zeros(len(self.tris), bool)
+            for lr in arm_bvh:
+                a_, b_ = o[lr + "-shoulder"], o[lr + "-elbow"]
+                ab = b_ - a_
+                t = (cen - a_) @ ab / max(float(ab @ ab), 1e-12)
+                d = np.linalg.norm(cen - (a_ + np.clip(t, 0, 1)[:, None] * ab), axis=1)
+                comb |= ~sl[self.tris].any(axis=1) & (t > 0) & (t < COMB_T) & (d < SLEEVE_R + COMB_R) & (cen[:, 1] < pit_y)
+            self.tris = self.tris[~(cut | comb)]
             self.report["sleeve_side_cut"] = int(cut.sum())
+            self.report["armpit_comb_dropped"] = int(comb.sum())
         for i in range(len(self.v)):
             if sleeve_of[i] is not None and profile and sleeve_of[i] in profile:
                 a, ab, mids, rows = profile[sleeve_of[i]]

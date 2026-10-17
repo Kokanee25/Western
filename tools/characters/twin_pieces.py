@@ -50,6 +50,9 @@ SHOULDER_EASE = 0.35  # ... and the sleeve eased onto the bones from nothing at 
 COLLAR_TOP = 0.875    # of his height: his shirt's collar kept up to here (--split=layers)
 HEM_BINS = 36         # angles round his waist the vest's hem is read at (--split=layers) ...
 HEM_BAND = 0.03       # ... and how far either side of it (of his height) it decides vest or trousers
+ARMHOLE_BINS = 24     # angles round each arm's root the vest's armhole is read at (--split=layers) ...
+ARMHOLE_BAND = 0.025  # ... how far either side of it along the arm (of his height) it decides vest or shirt ...
+ARMHOLE_REACH = 0.09  # ... within this of the shoulder joint (not the vest's neck or front)
 MIN_PART = 40         # triangles: a garment's piece smaller than this is a stray fragment
 UNDERLAP = 0.008      # of his height (~1.5 cm): an inner garment runs on this far under an outer's edge
 LAYER_NEAR = 0.006  # of his height (~1 cm): each triangle the commonest class within it
@@ -409,6 +412,43 @@ def main():
             band = cloth & np.isin(cls, [VEST, TROUSERS]) & (np.abs(cy - h_at) < HEM_BAND)
             cls[band] = np.where(cy[band] > h_at[band], VEST, TROUSERS)
             print("twin_pieces: the vest's hem laid on a smooth line round his waist (%.3f to %.3f of his height)" % (hem.min(), hem.max()))
+        # The vest's armholes on a smooth curve round each arm's root (cut by colour, triangle by
+        # triangle, the vest's edge against the shirt's sleeve came out in sawteeth: white spikes
+        # of shirt beside it, front and back; 2026-10-17). Round each arm's axis (the body's
+        # shoulder to elbow, the sleeves now lie on it) at ARMHOLE_BINS angles, the distance along
+        # the arm where vest meets shirt (the median of the vest's triangles touching the shirt),
+        # eased round; within ARMHOLE_BAND of it, vest toward the trunk, shirt toward the hand.
+        for lr in "RL":
+            sh, el = jb[lr + "_Upperarm"], jb[lr + "_Forearm"]
+            u = (el - sh) / max(np.linalg.norm(el - sh), 1e-9)
+            ref = np.cross(u, [0.0, 1.0, 0.0])
+            ref /= max(np.linalg.norm(ref), 1e-9)
+            ref2 = np.cross(u, ref)
+            rel = cent - sh
+            t_al = rel @ u
+            perp = rel - t_al[:, None] * u
+            th = np.arctan2(perp @ ref2, perp @ ref)
+            near = np.linalg.norm(rel, axis=1) < ARMHOLE_REACH
+            edge_v = np.array([(cls[i] == VEST) and near[i] and np.any(cls[adj[i]] == SHIRT) for i in range(len(dtris))])
+            bins_a = np.linspace(-np.pi, np.pi, ARMHOLE_BINS + 1)
+            b_of = np.clip(np.searchsorted(bins_a, th, side="right") - 1, 0, ARMHOLE_BINS - 1)
+            t_edge = np.full(ARMHOLE_BINS, np.nan)
+            for k in range(ARMHOLE_BINS):
+                m = edge_v & (b_of == k)
+                if m.sum() >= 2:
+                    t_edge[k] = np.median(t_al[m])
+            ok = np.isfinite(t_edge)
+            if ok.sum() < 4:
+                continue
+            mids = 0.5 * (bins_a[:-1] + bins_a[1:])
+            xs = np.r_[mids[ok] - 2 * np.pi, mids[ok], mids[ok] + 2 * np.pi]
+            t_edge = np.interp(mids, xs, np.tile(t_edge[ok], 3))
+            for _ in range(2):
+                t_edge = (np.roll(t_edge, 1) + 2 * t_edge + np.roll(t_edge, -1)) / 4
+            t_at = np.interp(th, np.r_[mids - 2 * np.pi, mids, mids + 2 * np.pi], np.tile(t_edge, 3))
+            band = cloth & near & np.isin(cls, [VEST, SHIRT]) & (np.abs(t_al - t_at) < ARMHOLE_BAND)
+            cls[band] = np.where(t_al[band] < t_at[band], VEST, SHIRT)
+            print("twin_pieces: the vest's %s armhole on a smooth curve round the arm (%d triangles decided)" % (lr, band.sum()))
         # And what's still left alone (no garment round it) dropped.
         for k in (SHIRT, VEST, TROUSERS):
             for comp in _components(adj, np.nonzero(cloth & (cls == k))[0]):

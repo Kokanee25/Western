@@ -319,11 +319,14 @@ frozen until Sean names one.
   LAYERED.md): clothes at his skin's texture density (`cloth_detail.py` measures each stage
   against his picture), the sleeve-edge flecks (body_paint's mask edge, backdrop grey, island
   fill), his own collar lifted to his jaw (both men), his skin painted by the garment over it,
-  the coat's vent closed (tails on the pelvis), no wing with his hands up (sides off his arms),
-  the cream through its cut sides gone (what lay under them painted and covered). Waiting on
-  Sean's OK to merge.
-- Next: a per-limb line-up of the side pictures (his arms hang nearer his sides than Rodin's
-  twin's); seated crumpling is skinning, not the recipe's. Trap: after a build, `godot
+  the coat's vent closed (tails on the pelvis), the cream at its seams gone (what lay under its
+  sides painted and covered), the white teeth at the vest's armholes traced to the shirt's sleeve root (not fixed). The hands-up wing stays (cutting the
+  sleeves from the sides made skinny arms and mush: off). Waiting on Sean's OK to merge.
+- Next: the shirt's sleeve root at the vest's armholes (strips where the sleeve-from-side cut
+  deletes mixed triangles: split or re-weight them); the coat's sleeves apart from its sides (the
+  wing with his hands up; Rodin fused them);
+  a per-limb line-up of the side pictures (his arms hang nearer his sides than Rodin's twin's);
+  seated crumpling is skinning, not the recipe's. Trap: after a build, `godot
   --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
