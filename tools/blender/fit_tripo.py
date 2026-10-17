@@ -108,7 +108,8 @@ COAT_COLLAR = 0.032
 # A piece is pushed out of his skin to this clearance, where it lies within this reach of him
 # (Tripo units: ~2 cm and ~11 cm on him).
 PIECE_CLEARANCE = 0.012
-UNDER_SHIRT_LIGHT = 70.0   # percentile of his shirt's lightness: his skin under it painted the median above it
+UNDER_SHIRT_LIGHT = 70.0   # percentile of his shirt's lightness: his neck under it painted the median above it ...
+UNDER_SHIRT_NECK = 0.03    # ... from this far under his neck joint up
 BROADEN_LOW = 0.12     # metres under his shoulders where `shoulders` stops widening his trunk ...
 BROADEN_FULL = 0.02    # ... and where it widens it in full (0.25 and 0.06 widened his chest: "barrel chested")
 TUCK_M = 0.012         # his skin this far under a twin garment's surface (tuck_skin)
@@ -2168,10 +2169,12 @@ def paint_under_shirt(p, colour, shirt):
     h, w = sc.shape[:2]
     uvs = shirt.uv[np.unique(shirt.tris)]
     samp = sc[np.clip((uvs[:, 1] * h).astype(int), 0, h - 1), np.clip((uvs[:, 0] * w).astype(int), 0, w - 1)]
-    # The lighter part of his shirt (its cloth, not its tie or shadows): where his neck shows above
-    # his collar's front it reads as the collar's white, not a grey band (Sean, 2026-10-17).
+    tone = np.median(samp, axis=0)
+    # His neck in the lighter part of his shirt (its cloth, not its tie or shadows): where it shows
+    # above his collar's front it reads as the collar's white, not a grey band (Sean, 2026-10-17).
+    # Only his neck: lighter on his chest, it showed through the gaps at a coat's edges.
     lum = samp @ [0.299, 0.587, 0.114]
-    tone = np.median(samp[lum >= np.percentile(lum, UNDER_SHIRT_LIGHT)], axis=0)
+    light = np.median(samp[lum >= np.percentile(lum, UNDER_SHIRT_LIGHT)], axis=0)
     reg = np.asarray(p.region).astype(str)
     # His neck too (its triangles reach into his head's region: wholly head is his head mesh,
     # replaced by the painted bust; the rest is under his collar).
@@ -2187,7 +2190,11 @@ def paint_under_shirt(p, colour, shirt):
     tid, _b, _z = P.rasterise(p.uv * G, np.zeros(len(p.uv)), tri, G, colour.height)
     out = np.asarray(colour.convert("RGB")).copy()
     out[tid >= 0] = tone.astype(np.uint8)
-    p.report["painted_under_shirt"] = {"triangles": int(len(tri)), "colour": [int(x) for x in tone]}
+    neck = tri[(p.v[tri, 1] > p.j["neck"][1] - UNDER_SHIRT_NECK).all(axis=1)]
+    nid, _b, _z = P.rasterise(p.uv * G, np.zeros(len(p.uv)), neck, G, colour.height)
+    out[nid >= 0] = light.astype(np.uint8)
+    p.report["painted_under_shirt"] = {"triangles": int(len(tri)), "colour": [int(x) for x in tone],
+                                       "neck": int(len(neck)), "neck_colour": [int(x) for x in light]}
     return Image.fromarray(out)
 
 

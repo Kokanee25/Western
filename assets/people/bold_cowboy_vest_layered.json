@@ -49,9 +49,9 @@
   },
   "tucked_under_vest": 902,
   "cloth_L": {
-   "from": 15.0,
+   "from": 19.7,
    "to": 24,
-   "light": 1.38
+   "light": 1.15
   },
   "cloth": {
    "median": 3,
@@ -831,9 +831,15 @@
  "painted_under_shirt": {
   "triangles": 13079,
   "colour": [
-   216,
-   199,
-   185
+   220,
+   181,
+   149
+  ],
+  "neck": 12060,
+  "neck_colour": [
+   249,
+   217,
+   188
   ]
  },
  "texture": {

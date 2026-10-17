@@ -199,6 +199,10 @@ def main():
     from scipy.spatial import cKDTree
     bpos, _bn, buv, btris, _bj, bcol = FT.load_glb(os.path.join(TRIPO, "test", body + "_rodin.glb"))
     dpos, _dn, duv, dtris, _dj, dcol = FT.load_glb(os.path.join(TRIPO, "test", dressed + "_rodin.glb"))
+    from PIL import Image
+    # --painted: the garments written with the twin's texture painted from his pictures
+    # (body_paint.py --dressed; Sean, 2026-10-17), cut as ever by Rodin's own colours.
+    wcol = Image.open(os.path.join(TRIPO, dressed + "_color.png")).convert("RGB") if "--painted" in sys.argv else dcol
     bv, dv = frame(bpos), frame(dpos)
     # The twin onto the body: trimmed ICP, half the pairs (what matches: face, hands, skin).
     tree = cKDTree(bv)
@@ -419,7 +423,7 @@ def main():
                 near[hits] = True
             sel = own | (near & over)
             name = ("shirt", "vest", "trousers")[k]
-            write_piece(name, dv, duv, dtris[sel], dcol, body, out)
+            write_piece(name, dv, duv, dtris[sel], wcol, body, out)
         return
     coat = cloth & ~legs
     if a.get("--without"):
@@ -454,7 +458,7 @@ def main():
     for name, sel in (("coat", coat), ("trousers", legs)):
         if a.get("--only") and name not in a["--only"].split(","):
             continue
-        write_piece(name, dv, duv, dtris[sel], dcol, body, out)
+        write_piece(name, dv, duv, dtris[sel], wcol, body, out)
 
 
 if __name__ == "__main__":

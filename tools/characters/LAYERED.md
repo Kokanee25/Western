@@ -83,8 +83,10 @@ facing its right, from behind:
 4. **His clothes:**
    ```sh
    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>
+   ~/bpyenv/bin/python tools/characters/body_paint.py --body=<man>_vest_dressed --dressed --unsquare=1 \
+       --views=front:<pics>/front.png,left:<pics>/left.png,right:<pics>/right.png,back:<pics>/back.png
    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_vest_dressed \
-       --out=<man>_under --split=layers
+       --out=<man>_under --split=layers --painted
    ```
    → `assets/people/tripo/<man>_coat.glb` (and `_trousers`, unused now) and
    `<man>_under_{shirt,vest,trousers}.glb` + `.json`. Good: "twin laid on the body: scale ~1.0,
@@ -207,7 +209,13 @@ way: the same man, triangle for triangle).
     read as "a flat straight piece". Now `neck_ring --collar=smooth` Taubin-smooths his own
     collar (`COLLAR_SMOOTH` 9 cm under the ring) and lets it stand to his jaw in front, lower
     behind (`COLLAR_SMOOTH_UP`, `_BACK`), and his neck under it is painted his shirt's light
-    colour, not its average grey (`fit_tripo.UNDER_SHIRT_LIGHT`). Sheet `d9_collar.png`.
+    colour, not its average grey (`fit_tripo.UNDER_SHIRT_LIGHT`, his neck only: lighter on his
+    chest it showed through a coat's edges). Sheet `d9_collar.png`.
+  - His clothes painted from his four coatless pictures (Sean, 2026-10-17): `body_paint --dressed`
+    paints the coatless twin's texture from them (lined up by outline; each texel takes only
+    picture colour as light or dark as Rodin's there, `DRESSED_LIGHT`, or the waistcoat's brown
+    fell on his sleeves' edges); `twin_pieces --painted` writes the garments with it, cut as ever
+    by Rodin's own colours. Sheet `d10_painted.png`.
   - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
     `MIN_PART` triangles folded into the garment round them.
   - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a

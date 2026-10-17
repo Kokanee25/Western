@@ -853,9 +853,15 @@
  "painted_under_shirt": {
   "triangles": 12505,
   "colour": [
-   203,
-   184,
-   169
+   108,
+   51,
+   34
+  ],
+  "neck": 11891,
+  "neck_colour": [
+   237,
+   200,
+   171
   ]
  },
  "texture": {
