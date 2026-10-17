@@ -13,6 +13,14 @@ const IRON := Color(0.2, 0.19, 0.18)
 const FELT := Color(0.16, 0.3, 0.2)
 const BOTTLE_GLASS := [Color(0.2, 0.12, 0.05), Color(0.12, 0.17, 0.08), Color(0.26, 0.15, 0.06)]
 
+## Where a turned prop's surface stops being smooth and shows an edge (degrees between bands).
+const SMOOTH_CREASE := 50.0
+## Sides round the props seen close at the table (the critic: the lamp's foot a stack of facets,
+## the mug's rim jagged); the bottle's fewer, as the bottle wall has hundreds.
+const LAMP_SEGMENTS := 24
+const CUP_SEGMENTS := 20
+const BOTTLE_SEGMENTS := 16
+
 static var _materials := {}
 static var _meshes := {}
 
@@ -129,16 +137,23 @@ static func lathe(profile: PackedVector2Array, segments: int, grain_up := false,
 	for p in profile:
 		r_mean += p.x
 	r_mean /= profile.size()
+	# Outward normal of each band in the (r, y) plane.
+	var bands: Array[Vector2] = []
+	for i in profile.size() - 1:
+		var d := profile[i + 1] - profile[i]
+		bands.append(Vector2(d.y, -d.x).normalized() * (-1.0 if inside else 1.0))
 	for i in profile.size() - 1:
 		var a := profile[i]
 		var b := profile[i + 1]
-		# Outward normal of this band in the (r, y) plane.
-		var d := b - a
-		var n2 := Vector2(d.y, -d.x).normalized() * (-1.0 if inside else 1.0)
+		# Turned, not faceted (the painting's lamp foot and mugs are smoothly modelled metal): each
+		# ring's normal shared with the next band's where they meet at under SMOOTH_CREASE, so
+		# only real edges (a rim, a step) show; a band's own normal across a sharper turn.
+		var na := _ring_normal(bands, i, i - 1)
+		var nb := _ring_normal(bands, i, i + 1)
 		for s in segments:
 			var t0 := TAU * s / segments
 			var t1 := TAU * (s + 1) / segments
-			var quad := [[a, t0, along[i]], [a, t1, along[i]], [b, t1, along[i + 1]], [b, t0, along[i + 1]]]
+			var quad := [[a, t0, along[i], na], [a, t1, along[i], na], [b, t1, along[i + 1], nb], [b, t0, along[i + 1], nb]]
 			var verts: Array[Vector3] = []
 			var norms: Array[Vector3] = []
 			var uvs: Array[Vector2] = []
@@ -146,7 +161,7 @@ static func lathe(profile: PackedVector2Array, segments: int, grain_up := false,
 				var p: Vector2 = q[0]
 				var t: float = q[1]
 				verts.append(Vector3(cos(t) * p.x, p.y, sin(t) * p.x))
-				var tm := (t0 + t1) * 0.5
+				var n2: Vector2 = q[3]
 				norms.append(Vector3(cos(t) * n2.x, n2.y, sin(t) * n2.x).normalized())
 				var around := t * r_mean
 				uvs.append(Vector2(q[2], around) if grain_up else Vector2(around, q[2]))
@@ -165,6 +180,14 @@ static func lathe(profile: PackedVector2Array, segments: int, grain_up := false,
 	var mesh := st.commit()
 	_meshes[key] = mesh
 	return mesh
+
+
+## A turned surface's normal where band `i` meets band `j` (in the (r, y) plane): the two averaged
+## if they turn less than SMOOTH_CREASE from each other, else band i's own.
+static func _ring_normal(bands: Array[Vector2], i: int, j: int) -> Vector2:
+	if j < 0 or j >= bands.size() or absf(bands[i].angle_to(bands[j])) > deg_to_rad(SMOOTH_CREASE):
+		return bands[i]
+	return (bands[i] + bands[j]).normalized()
 
 
 ## A flat disc (a lid, a table top, a cup's bottom) facing up (or down), UVs in metres.
@@ -396,30 +419,30 @@ static func _spittoon(root: Node3D) -> void:
 ## narrowing to the top (the light comes from OilLamp; its flame sits inside at 0.205 m). Shared by
 ## OilLamp.
 static func lamp(root: Node3D) -> void:
-	_add(root, "Foot", lathe(_profile([[0.072, 0.0], [0.076, 0.012], [0.07, 0.03], [0.05, 0.045], [0.042, 0.06], [0.058, 0.08], [0.062, 0.1], [0.04, 0.122], [0.026, 0.13]]), 12), lamp_brass())
-	_add(root, "Collar", lathe(_profile([[0.03, 0.13], [0.034, 0.145], [0.03, 0.155]]), 10), lamp_brass())
+	_add(root, "Foot", lathe(_profile([[0.072, 0.0], [0.076, 0.012], [0.07, 0.03], [0.05, 0.045], [0.042, 0.06], [0.058, 0.08], [0.062, 0.1], [0.04, 0.122], [0.026, 0.13]]), LAMP_SEGMENTS), lamp_brass())
+	_add(root, "Collar", lathe(_profile([[0.03, 0.13], [0.034, 0.145], [0.03, 0.155]]), LAMP_SEGMENTS), lamp_brass())
 	for k in 4:
 		var a := TAU * k / 4.0 + PI * 0.25
 		_box(root, "Prong", Vector3(0.006, 0.03, 0.006), Vector3(cos(a) * 0.031, 0.168, sin(a) * 0.031), lamp_brass())
-	_add(root, "Chimney", lathe(_profile([[0.03, 0.155], [0.044, 0.18], [0.05, 0.21], [0.046, 0.245], [0.032, 0.285], [0.023, 0.32], [0.022, 0.38]]), 12), chimney_glass())
+	_add(root, "Chimney", lathe(_profile([[0.03, 0.155], [0.044, 0.18], [0.05, 0.21], [0.046, 0.245], [0.032, 0.285], [0.023, 0.32], [0.022, 0.38]]), LAMP_SEGMENTS), chimney_glass())
 
 
 ## A whiskey bottle in dark glass: shoulders, a neck, a cork and a paper label with a few lines
 ## of print on it. `variant` picks the glass and the label.
 static func bottle(root: Node3D, variant := 0) -> void:
-	_add(root, "Glass", lathe(_profile([[0.03, 0.0], [0.042, 0.004], [0.044, 0.02], [0.044, 0.19], [0.038, 0.215], [0.016, 0.24], [0.013, 0.27], [0.015, 0.275], [0.014, 0.285]]), 10), bottle_glass(variant))
-	_add(root, "Base", disc(0.03, 10, 0.0, false), bottle_glass(variant))
+	_add(root, "Glass", lathe(_profile([[0.03, 0.0], [0.042, 0.004], [0.044, 0.02], [0.044, 0.19], [0.038, 0.215], [0.016, 0.24], [0.013, 0.27], [0.015, 0.275], [0.014, 0.285]]), BOTTLE_SEGMENTS), bottle_glass(variant))
+	_add(root, "Base", disc(0.03, BOTTLE_SEGMENTS, 0.0, false), bottle_glass(variant))
 	_add(root, "Cork", lathe(_profile([[0.012, 0.28], [0.011, 0.3]]), 6), _mat("cork", PixelArt.dirt("prop_cork", Color(0.55, 0.4, 0.25), 233)))
-	_add(root, "Label", lathe(_profile([[0.0455, 0.07], [0.0455, 0.15]]), 10), _mat("label%d" % posmod(variant, 3), label_texture(posmod(variant, 3)), Color.WHITE, 0.9))
+	_add(root, "Label", lathe(_profile([[0.0455, 0.07], [0.0455, 0.15]]), BOTTLE_SEGMENTS), _mat("label%d" % posmod(variant, 3), label_texture(posmod(variant, 3)), Color.WHITE, 0.9))
 
 
 ## A pewter mug, as the painting's: straight sides with a band near the foot and a rolled rim
 ## that catches the light, a dark inside, and a loop handle.
 static func cup(root: Node3D) -> void:
-	_add(root, "Outside", lathe(_profile([[0.036, 0.0], [0.039, 0.004], [0.039, 0.016], [0.037, 0.02], [0.04, 0.1]]), 10), pewter())
-	_add(root, "Inside", lathe(_profile([[0.033, 0.008], [0.037, 0.1]]), 10, false, true), _mat("tin_in", PixelArt.metal("prop_tin_in", Color(0.14, 0.13, 0.12), 235), Color.WHITE, 0.7, 0.1))
-	_add(root, "Bottom", disc(0.034, 10, 0.008), _mat("tin_in", null))
-	_add(root, "Lip", lathe(_profile([[0.037, 0.1], [0.042, 0.102], [0.041, 0.106], [0.037, 0.104]]), 10), pewter())
+	_add(root, "Outside", lathe(_profile([[0.036, 0.0], [0.039, 0.004], [0.039, 0.016], [0.037, 0.02], [0.04, 0.1]]), CUP_SEGMENTS), pewter())
+	_add(root, "Inside", lathe(_profile([[0.033, 0.008], [0.037, 0.1]]), CUP_SEGMENTS, false, true), _mat("tin_in", PixelArt.metal("prop_tin_in", Color(0.14, 0.13, 0.12), 235), Color.WHITE, 0.7, 0.1))
+	_add(root, "Bottom", disc(0.034, CUP_SEGMENTS, 0.008), _mat("tin_in", null))
+	_add(root, "Lip", lathe(_profile([[0.037, 0.1], [0.042, 0.102], [0.041, 0.106], [0.037, 0.104]]), CUP_SEGMENTS), pewter())
 	# The handle: a flat strap out from under the rim, down and back in near the foot.
 	_box(root, "HandleTop", Vector3(0.035, 0.008, 0.016), Vector3(0.055, 0.088, 0.0), pewter())
 	_box(root, "HandleSide", Vector3(0.008, 0.06, 0.016), Vector3(0.071, 0.058, 0.0), pewter())

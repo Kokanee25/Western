@@ -60,8 +60,7 @@ const BOLD_TEXELS := 16.0
 ## for its line and grain to show). The facade's own woods always; the rest under the bold look.
 const DRAWN_PATH := "res://assets/textures/drawn/%s.png"
 const DRAWN_TEXELS := 32.0
-const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide",
-		"shot_table"]
+const DRAWN_ALWAYS := ["timber", "store_boards", "saloon_red", "jail_boards", "weathered_pine", "road", "road_wide"]
 ## The main street (docs/briefs/road.md; roadmap 1.4, Sean's road, 2026-10-15): smooth painted earth
 ## to the boardwalks, packed and churned (the texture factory's road_compact and road_loose, painted
 ## from his target, each with its _height), blended and rutted by the street's map
@@ -112,6 +111,8 @@ const WOODS_END_SQUARE := 1.0
 const DRAWN_SQUARES := {}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
 static var _sets := {}
+const FACTORY_INDEX := "res://assets/textures/textures.json"
+static var _factory_index: Variant = null
 
 
 ## A set's woods (assets/textures/<set>/lab.json "woods"), {} if it has none.
@@ -140,6 +141,23 @@ static func _wood_info(set: String, key: String) -> Dictionary:
 ## A lab wood's squares a metre (assets/textures/<lab_set>/lab.json), DRAWN_TEXELS if unsaid.
 static func lab_density(key: String, set := "") -> float:
 	return float(_wood_info(set if set != "" else lab_set, key).get("texels_per_metre", DRAWN_TEXELS))
+
+
+## A factory tile's own texels a metre (assets/textures/textures.json: its texels over its metres;
+## the props and table painted in the man's hand are 128, the older tiles 32), 0 for what is laid at
+## the world's: a board strip (sized to its board), a sign, the ground, or one the index doesn't list.
+static func factory_density(key: String) -> float:
+	if _factory_index == null:
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(FACTORY_INDEX)) if FileAccess.file_exists(FACTORY_INDEX) else null
+		_factory_index = info if info is Dictionary else {}
+	if _wood_of(key) != key:
+		return 0.0
+	var e: Variant = (_factory_index as Dictionary).get(key)
+	if not (e is Dictionary and (e as Dictionary).get("kind") == "tile"):
+		return 0.0
+	var texels: Array = (e as Dictionary).get("texels", [])
+	var metres: Array = (e as Dictionary).get("metres", [])
+	return float(texels[0]) / float(metres[0]) if texels.size() == 2 and metres.size() == 2 and float(metres[0]) > 0.0 else 0.0
 
 
 ## A pixel-art material on the texel grid: `tex` repeats every SIZE texels at texels_per_meter,
@@ -198,6 +216,11 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		if wear > 0.0 and ResourceLoader.exists(bare):
 			m.set_shader_parameter(&"wear_tex", load(bare))
 			m.set_shader_parameter(&"end_wear", wear)
+	elif tex and tex.resource_path.get_base_dir() == FACTORY_PATH.get_base_dir():
+		# A factory tile at its own density (a multiple of the world's, so F7 moves it too).
+		var fd := factory_density(tex.resource_path.get_file().get_basename())
+		if fd > 0.0:
+			m.set_meta(&"texels_scale", fd / DRAWN_TEXELS)
 	return track(m)
 
 

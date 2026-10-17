@@ -443,7 +443,7 @@ static func _table(root: Node3D) -> void:
 
 ## A plain spindle-back chair, seat 0.45 m up, facing `yaw` degrees.
 static func _chair(root: Node3D, at: Vector3, yaw: float) -> void:
-	var wood := _mat("chair", PixelArt.wood("shot_chair", Color(0.3, 0.19, 0.11), 67, 1, 2, 0.8))
+	var wood := _mat("chair", PixelArt.wood("prop_wood", Color(0.38, 0.25, 0.15), 211, 1, 2, 0.9))
 	var chair := Node3D.new()
 	chair.name = "Chair"
 	root.add_child(chair)
@@ -489,7 +489,7 @@ static func _ashtray(root: Node3D, at: Vector3) -> void:
 	t.bottom_radius = 0.055
 	t.height = 0.025
 	t.radial_segments = 10
-	_mesh(root, "Ashtray", t, at + Vector3(0, 0.012, 0), _mat("iron", PixelArt.metal("shot_iron", Color(0.22, 0.2, 0.18), 79, 0.8), Color.WHITE, 0.7, 0.6))
+	_mesh(root, "Ashtray", t, at + Vector3(0, 0.012, 0), _mat("iron", PixelArt.metal("prop_iron", PropModels.IRON, 217, 0.6), Color.WHITE, 0.7, 0.6))
 
 
 ## Once he's settled into the pose, stand the cup up (a man holds his whiskey level).
