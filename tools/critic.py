@@ -48,7 +48,9 @@ look hard at the painting and the render at the same size, then list the FIVE bi
 differences a viewer would notice between the renders and the paintings, biggest first, across
 all the shots together (say which shot each is in). Think like a viewer, not a tester: light and
 shadow, colour, what things look like, how much is going on, the painting style (the paintings
-are smooth painted illustrations, soft brushwork, no pixel squares), the people, the mood. A difference should be something
+are painted illustrations with soft brushwork; the game's look is painted with a bit of square
+showing, as its main character's model sheet is, so small squares are not a difference in
+themselves: only coarse or noisy squares beside smooth work are), the people, the mood. A difference should be something
 one could act on ("the lamp's glass is a flat orange disc; the painting's is near-white over the
 flame with a halo"), not a score.
 
