@@ -48,9 +48,20 @@ COLLAR_SIDES = 40
 COLLAR_FLARE = 0.004   # metres its top is turned out
 COLLAR_SMOOTH = 0.09       # --collar=smooth: metres under the ring smoothed ...
 COLLAR_SMOOTH_FADE = 0.02   # ... faded in over this
-COLLAR_SMOOTH_UP = 0.045   # ... its front's top this far above the ring ...
-COLLAR_SMOOTH_BACK = 0.015  # ... its back's
+COLLAR_SMOOTH_UP = 0.025   # ... its top this far above the ring in front and at the sides (5 mm under his chin) ...
+COLLAR_SMOOTH_BACK = 0.04   # ... and higher behind, up under his hair (at 15 and 25 mm his neck showed between)
 COLLAR_SMOOTH_STEPS = 12
+COLLAR_LIFT_FROM = 0.06    # --collar=smooth: metres under the ring from where his collar is drawn up (lift_collar) ...
+COLLAR_LIFT_BINS = 24      # ... at this many angles round his neck ...
+COLLAR_OVER = 0.006        # ... to this far over the cut that levels it
+COLLAR_TOP_PCT = 70        # the collar's top at an angle: this percentile of its points' heights there (the 95th was the
+                           # twin's spikes at his nape, so its back never rose; too low only overshoots, which the levelling takes)
+COLLAR_KNOT_DEG = 25.0     # degrees either side of his front: his tie's knot, lifted only ...
+COLLAR_KNOT_LIFT = 0.5     # ... this share of the way (it hangs under his chin)
+COLLAR_COAT_UP = 0.045     # a coat's collar's top above the ring (--collar=smooth; twin_pieces keeps it up under his hair)
+COLLAR_WHITE_BEHIND = -0.3 # the collar's faces behind this (cos from his front) above COLLAR_WHITE_FROM under the ring are painted ...
+COLLAR_WHITE_FROM = 0.025  # ... the shirt's white (whiten_collar_back): lifted, they wore the back picture's hair and neck
+COLLAR_WHITE_PCT = 97      # the shirt's white: the median of its texels lighter than this percentile
 ICP_ROUNDS = 40
 
 
@@ -197,6 +208,74 @@ def smooth_collar(me, ring_z):
     print("neck_ring: his shirt's collar smoothed: %d points" % len(live))
 
 
+def top_height(ring_z, c):
+    """Where a smoothed collar's top is cut: COLLAR_SMOOTH_UP above the ring round the front half of
+    his neck (c, 1 in front to -1 behind), easing to COLLAR_SMOOTH_BACK behind."""
+    return ring_z + COLLAR_SMOOTH_BACK + (COLLAR_SMOOTH_UP - COLLAR_SMOOTH_BACK) * min(max(c + 1.0, 0.0), 1.0)
+
+
+def lift_collar(me, ring_z, centre, fwd):
+    """His collar's top drawn up to under his jaw (--collar=smooth): Rodin's twin ends its collar at
+    the ring, 3 cm under his chin, where his pictures' stands to his jaw (Sean, 2026-10-17: "lower
+    and plainer"). At each of COLLAR_LIFT_BINS angles round his neck the collar's top now (its
+    highest point above COLLAR_LIFT_FROM under the ring) is brought COLLAR_OVER over where the cut
+    will level it (top_height); everything above COLLAR_LIFT_FROM under the ring rises with it, in
+    full at the ring and above, nothing at the bottom (a quadratic ease), so the collar stretches
+    rather than steps. His tie's knot in front rises COLLAR_KNOT_LIFT of the way."""
+    co = np.array([v.co[:] for v in me.vertices])
+    a_f = math.atan2(fwd[1], fwd[0])
+    rel = (np.arctan2(co[:, 1] - centre[1], co[:, 0] - centre[0]) - a_f + np.pi) % (2 * np.pi) - np.pi
+    bins = np.floor((rel + np.pi) / (2 * np.pi) * COLLAR_LIFT_BINS).astype(int) % COLLAR_LIFT_BINS
+    band = co[:, 2] > ring_z - COLLAR_LIFT_FROM
+    top_now = np.full(COLLAR_LIFT_BINS, np.nan)
+    for b in range(COLLAR_LIFT_BINS):
+        m = band & (bins == b)
+        if m.sum() >= 3:
+            top_now[b] = np.percentile(co[m, 2], COLLAR_TOP_PCT)
+    mids = (np.arange(COLLAR_LIFT_BINS) + 0.5) / COLLAR_LIFT_BINS * 2 * np.pi - np.pi
+    target = np.array([top_height(ring_z, math.cos(a)) + COLLAR_OVER for a in mids])
+    delta = np.where(np.isfinite(top_now), np.maximum(target - np.nan_to_num(top_now, nan=0.0), 0.0), 0.0)
+    delta[np.abs(np.degrees(mids)) < COLLAR_KNOT_DEG] *= COLLAR_KNOT_LIFT
+    for _ in range(2):
+        delta = (np.roll(delta, 1) + 2 * delta + np.roll(delta, -1)) / 4
+    d_at = np.interp(rel, np.r_[mids - 2 * np.pi, mids, mids + 2 * np.pi], np.tile(delta, 3))
+    w = np.clip((co[:, 2] - (ring_z - COLLAR_LIFT_FROM)) / COLLAR_LIFT_FROM, 0, 1) ** 2
+    co[:, 2] += w * d_at
+    for i, v in enumerate(me.vertices):
+        v.co.z = float(co[i, 2])
+    print("neck_ring: his collar's top drawn up %.0f-%.0f mm round his neck (%d bins)" % (1000 * delta.min(), 1000 * delta.max(), COLLAR_LIFT_BINS))
+
+
+def whiten_collar_back(me, ring_z, centre, fwd, src_png, dst_png):
+    """The lifted collar's back painted the shirt's white: the twin's collar behind his neck took
+    the back picture's hair and neck (the picture's hair hangs over it), and drawn up to under
+    his hair it showed tan-brown. Faces behind COLLAR_WHITE_BEHIND of his front and above
+    COLLAR_WHITE_FROM under the ring: their texels (the shirt's texture, v down as glTF stores
+    it) in the median of the shirt's lightest COLLAR_WHITE_PCT-percentile texels."""
+    from PIL import Image, ImageDraw
+    img = Image.open(src_png).convert("RGB")
+    w, h = img.size
+    a = np.asarray(img).astype(float)
+    lum = a @ np.array([0.299, 0.587, 0.114])
+    white = np.median(a[lum >= np.percentile(lum, COLLAR_WHITE_PCT)], axis=0)
+    uvl = me.uv_layers.active
+    draw = ImageDraw.Draw(img)
+    n = 0
+    for poly in me.polygons:
+        c = poly.center
+        if c.z < ring_z - COLLAR_WHITE_FROM:
+            continue
+        d = np.array([c.x - centre[0], c.y - centre[1]])
+        if float(d @ fwd) / max(np.linalg.norm(d), 1e-6) > COLLAR_WHITE_BEHIND:
+            continue
+        pts = [(uvl.data[li].uv[0] * w, (1 - uvl.data[li].uv[1]) * h) for li in poly.loop_indices]
+        draw.polygon(pts, fill=tuple(int(x) for x in white), outline=tuple(int(x) for x in white))
+        n += 1
+    img.save(dst_png)
+    print("neck_ring: his collar's back painted the shirt's white: %d faces, %s" % (n, [int(x) for x in white]))
+    return n
+
+
 def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     """His shirt's collar (and a coat's or vest's) outside his new head's neck: the bust's neck
     is a little fuller than the body's, so a collar laid on the body's neck came out under it
@@ -211,11 +290,16 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     neck = np.array([v[:] for v in hv])
     band = np.abs(neck[:, 2] - ring_z) < 0.02
     centre = neck[band].mean(0) if band.any() else neck.mean(0)
+    # Front is where his jaw reaches, over his neck.
+    jaw = neck[(neck[:, 2] > ring_z + 0.03) & (neck[:, 2] < ring_z + 0.08)]
+    fwd = jaw[:, :2].mean(0) - centre[:2]
+    fwd = fwd / max(np.linalg.norm(fwd), 1e-6)
     for ob in [o for o in bpy.data.objects if o.type == "MESH" and o.name in ("body_shirt", "body_vest", "body_coat")]:
         me = ob.data
         moved = 0
         if mode == "smooth" and ob.name == "body_shirt":
             smooth_collar(me, ring_z)
+            lift_collar(me, ring_z, centre, fwd)
         for v in me.vertices:
             p = v.co
             if abs(p.z - ring_z) > COLLAR_BAND:
@@ -238,22 +322,28 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
         # where that starts.)
         if ob.name == "body_shirt" and mode == "built":
             top = ring_z - COLLAR_FROM + 0.008
-        elif ob.name == "body_shirt" and mode == "smooth":
-            top = ring_z + COLLAR_SMOOTH_UP     # smoothed, no shards left to cut: it stands to his jaw
+        elif ob.name == "body_coat" and mode == "smooth":
+            top = ring_z + COLLAR_COAT_UP       # its own collar, kept by twin_pieces, stands to his jaw
         else:
             top = ring_z + COLLAR_UP
         if ob.name == "body_shirt" and mode == "smooth":
-            # Lower behind: his collar's back stands COLLAR_SMOOTH_BACK above the ring, its front
-            # COLLAR_SMOOTH_UP (the twin's collar is shredded high at his nape, white spikes by
-            # his hair). Front is where his jaw reaches, over his neck.
-            jaw = neck[(neck[:, 2] > ring_z + 0.03) & (neck[:, 2] < ring_z + 0.08)]
-            fwd = jaw[:, :2].mean(0) - centre[:2]
-            fwd = fwd / max(np.linalg.norm(fwd), 1e-6)
+            # Lifted to over the line (lift_collar), the collar is levelled to it: its points above
+            # top_height brought down onto it (cutting the faces there left a sawtooth a face
+            # deep); lower behind, under his hair (the twin's collar is shredded high at his
+            # nape, white spikes by his hair).
             def top_at(p):
                 d = np.array([p.x - centre[0], p.y - centre[1]])
                 c = float(d @ fwd) / max(np.linalg.norm(d), 1e-6)          # 1 in front, -1 behind
-                return ring_z + COLLAR_SMOOTH_BACK + (COLLAR_SMOOTH_UP - COLLAR_SMOOTH_BACK) * max(c, 0.0) ** 2
-            high = [f for f in bm.faces if any(vv.co.z > top_at(vv.co) for vv in f.verts)]
+                return top_height(ring_z, c)
+            levelled = 0
+            for vv in bm.verts:
+                if vv.co.z > ring_z - 0.02:
+                    t = top_at(vv.co)
+                    if vv.co.z > t:
+                        vv.co.z = t
+                        levelled += 1
+            print("neck_ring: his collar's top levelled: %d points" % levelled)
+            high = [f for f in bm.faces if any(vv.co.z > top_at(vv.co) + 1e-5 for vv in f.verts)]
         else:
             high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
         bmesh.ops.delete(bm, geom=high, context="FACES")
@@ -263,6 +353,8 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
         print("neck_ring: %s collar: %d points out of his neck, %d faces above it cut" % (ob.name, moved, len(high)))
         if ob.name == "body_shirt" and mode == "built":
             stand_collar(bpy, ob, head, tree, centre, ring_z, shirt_png)
+        if ob.name == "body_shirt" and mode == "smooth":
+            collar_out.whiten = (me, centre, fwd)
 
 
 def main():
@@ -510,7 +602,20 @@ def main():
         src = os.path.join(PEOPLE, "%s_%s.png" % (body, shape))
         if os.path.exists(src):
             shutil.copy(src, os.path.join(PEOPLE, "%s_%s.png" % (out, shape)))
-    Image.fromarray((np.clip(neck_paint, 0, 1) * 255).astype(np.uint8)).save(os.path.join(PEOPLE, out + "_head.png"))
+    if getattr(collar_out, "whiten", None) and "shirt" in pieces:
+        me_s, centre_s, fwd_s = collar_out.whiten
+        whiten_collar_back(me_s, ring_z, centre_s, fwd_s, os.path.join(PEOPLE, body + "_shirt.png"),
+                           os.path.join(PEOPLE, out + "_shirt.png"))
+        collar_out.whiten = None
+    # His head's texture is the approved one: once it exists it is kept (--head_png=write
+    # overwrites it). Its neck fade and skin match read the fitted skin near the ring, which the
+    # garments' tuck moves a little whenever the clothes change, and the whole head drifted a
+    # level (2026-10-17: 800k texels by 1).
+    head_png = os.path.join(PEOPLE, out + "_head.png")
+    if os.path.exists(head_png) and a.get("--head_png") != "write":
+        print("neck_ring: kept the approved head texture", head_png)
+    else:
+        Image.fromarray((np.clip(neck_paint, 0, 1) * 255).astype(np.uint8)).save(head_png)
     rep = json.load(open(os.path.join(PEOPLE, body + ".json")))
     rep.update({"id": out, "pieces_kept": pieces, "neck_ring": {"body": body, "head": head, "head_scale": k, "ring_m": round(ring_z, 4),
                                          "icp_scale": round(float(s), 4), "icp_gap_mm": round(err * 1000, 1),

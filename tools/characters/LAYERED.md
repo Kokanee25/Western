@@ -80,37 +80,61 @@ facing its right, from behind:
    → `assets/people/tripo/<man>_body_color.png`. Check `build/body_paint/<man>_body_*_fit.png`
    (the outline over each picture; side views ~0.86 overlap is good). Its log's "his shorts from
    ... to ... m" should span his shorts (-0.19 to 0.15 for the bold cowboy).
-4. **His clothes:**
+4. **His clothes.** The chain from here, in this order after any change (the bold cowboy's
+   exact commands; `P=docs/concept/style/factory/bold_cowboy_vest_dressed`):
    ```sh
-   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>
-   ~/bpyenv/bin/python tools/characters/body_paint.py --body=<man>_vest_dressed --dressed --unsquare=1 \
-       --views=front:<pics>/front.png,left:<pics>/left.png,right:<pics>/right.png,back:<pics>/back.png
-   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_vest_dressed \
-       --out=<man>_under --split=layers --painted
+   # 1. the coatless twin painted from his pictures (only when the painting changes)
+   ~/bpyenv/bin/python tools/characters/body_paint.py --body=bold_cowboy_vest_dressed --dressed --unsquare=1 \
+       --views=front:$P/front.png,left:$P/left.png,right:$P/right.png,back:$P/back.png
+   # 2. the garments cut (shirt+tie, vest, trousers from the coatless twin; the coat from the coated)
+   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=bold_cowboy_body --dressed=bold_cowboy_vest_dressed \
+       --out=bold_cowboy_under --split=layers --painted
+   ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=bold_cowboy_body --dressed=bold_cowboy_dressed --out=bold_cowboy
    ```
-   → `assets/people/tripo/<man>_coat.glb` (and `_trousers`, unused now) and
-   `<man>_under_{shirt,vest,trousers}.glb` + `.json`. Good: "twin laid on the body: scale ~1.0,
-   turn ~1 deg"; `--split=layers` also lays his sleeves on the body's arm bones joint to joint.
-5. **The fit:** `~/bpyenv/bin/python tools/blender/fit_tripo.py --only=<man>_body` (and again
-   `--only=<man>_vest_body`)
+   → `assets/people/tripo/<man>_coat.glb` (and `_trousers`) and `<man>_under_{shirt,vest,trousers}.glb`
+   + `.json` (`twin`, `painted`). Good: "twin laid on the body: scale ~1.0, turn ~1 deg";
+   `--split=layers` also lays his sleeves on the body's arm bones joint to joint; "his coat's
+   collar kept above the head's cut: ~40 triangles" (the coat's collar behind his neck).
+5. **The fit (both bodies):**
+   ```sh
+   ~/bpyenv/bin/python tools/blender/fit_tripo.py --only=bold_cowboy_body
+   ~/bpyenv/bin/python tools/blender/fit_tripo.py --only=bold_cowboy_vest_body
+   ```
    → `assets/people/<man>_body.glb` (+ `_skin.png`, `_coat.png`, `_trousers.png`, `.json`). The
    report's `shoulders`, `own_fingers` (palm and finger triangles a side), `piece_coat`
-   (`pushed_out_after_warp`, `weights_from_skin`) and `skin_tucked` say what it did.
-6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`) (and the same with `--body=<man>_vest_body
-   --out=<man>_vest_layered`):
-   `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
-   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean;
-   `--collar=smooth` for the coatless man: his twin's own collar and knot smoothed)
-   → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
+   (`pushed_out_after_warp`, `weights_from_skin`, `tails_on_pelvis`), `painted_under_garments`
+   and `skin_tucked` say what it did.
+6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`):
+   ```sh
+   ~/bpyenv/bin/python tools/characters/neck_ring.py --body=bold_cowboy_body --head=bold_cowboy_painterly_lit \
+       --out=bold_cowboy_layered --head_scale=0.92 --collar=smooth
+   ~/bpyenv/bin/python tools/characters/neck_ring.py --body=bold_cowboy_vest_body --head=bold_cowboy_painterly_lit \
+       --out=bold_cowboy_vest_layered --head_scale=0.92 --collar=smooth
+   ```
+   (`--collar=smooth`, both men since 2026-10-17: his twin's own collar and tie knot smoothed,
+   its top drawn up to under his jaw and levelled, every garment pushed out of the bust's neck;
+   `none` leaves the garments as the fit made them; `built` is the old stand collar, "a neck
+   brace") → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
+   **His head's textures must not change:** `assets/people/bold_cowboy_*layered_head.png` are
+   byte for byte the approved ones; `neck_ring` keeps an existing one (its neck fade and skin
+   match read the fitted skin near the ring, which moves a little with the clothes' tuck, and
+   the whole head drifted a level); `--head_png=write` repaints it (a new man, or a new head).
+   Check with `md5sum` against main's.
 7. **Import, test, look:** `godot --headless --import`; `test_bodies`; then the lab:
    ```sh
-   bash tools/characters/lab_run.sh build/l.log --out=build/l --id=<man>_layered --turns=0,-45,-90,180 \
-       --lights=neutral,warm --materials=game --hat=none --fov=35 --dist=3.4 --aim=1.0 --tag=full
+   # the whole man (tools/characters/lab_run.sh ends the lab when it hangs on quit)
+   bash tools/characters/lab_run.sh build/l.log --out=build/l --id=<outfit> --turns=0,90,180 --lights=neutral \
+       --materials=game --hat=none --fov=6 --dist=20 --aim=0.95
+   # head and shoulders (add --lights=neutral,warm for lamp light)
+   bash tools/characters/lab_run.sh build/l.log --out=build/l --id=<outfit> --turns=0,90,180 --lights=neutral \
+       --materials=game --hat=none --fov=16 --dist=2.0 --aim=1.55
    ```
-   (`tools/characters/lab_run.sh` ends the lab when it hangs on quit.)
-   `--hide=Skin_whole` (or `Coat_whole`, ...) draws him without a mesh: a garment seen alone.
+   `--hide=Skin_whole` (or `Shirt_whole`, `Vest_whole`, `Coat_whole`) draws him without a mesh:
+   which layer a defect is in.
    The pose check: `xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd
    -- --out=build/pc --ids=<man>_layered,<man>_vest_layered --poses=stand,sit,hands_up,crouch,aim --hatless`.
+   Each fix gets a before/after sheet against his pictures in `docs/style_test/layered-2026-10-15/`
+   (`d11` onward); `cloth_detail.py` gives the numbers for the cloth.
 
 The whole chain from step 4 runs from the repo alone (checked 2026-10-15 with `build/` out of the
 way: the same man, triangle for triangle).
@@ -166,7 +190,9 @@ way: the same man, triangle for triangle).
   cloth but his arms) or the backdrop's grey: the side pictures' arms hang against his shorts
   where Rodin's are held out, and painted a hand on his hips.
 - The neck ring (`neck_ring.py`): 3 cm under his chin; his head's edge pulled onto it over 4.5 cm;
-  his face's skin matched to the body's; the white collar under his jaw repainted to skin.
+  his face's skin matched to the body's; the white collar under his jaw repainted to skin. His
+  shirt's collar (`--collar=smooth`) smoothed, lifted to 25 mm over the ring (5 mm under his
+  chin) all round and levelled there; the coat's cut 30 mm over it, the vest's 12.
 - Clothes: `twin_pieces.py` CLEAR 11 mm out of his skin; `fit_tripo` pushes again after the warp
   (12 mm), weights each garment point from the skin under it, and tucks his skin 12 mm under his
   garments (this man's skin only).
@@ -179,12 +205,18 @@ way: the same man, triangle for triangle).
   `LAYERS` order (`tuck_layers`); in a coat, the shirt's sleeves and what of vest and shirt the
   coat covers (ahead, out from his middle, by his armholes: `COVER_REACH`, `ARMHOLE_R`) cut away;
   under a shirt his torso's and upper arms' skin painted the shirt's colour (`paint_under_shirt`).
-- His clothes' paint (painted illustration, DESIGN.md §4): every twin piece's texture smoothed
-  within its own UV islands (`paint_cloth`: a median of `CLOTH_MEDIAN` texels, a soft blur), and
-  toned by people.json `cloth.<shape>`: `light` and `chroma` (the coat 1.35 and 1.6: it came out
-  darker and greyer than his painting's), `mottle` (the share of Rodin's camouflage blotches,
-  between `MOTTLE_FINE` and `MOTTLE_WIDE` texels, taken out: coat 0.7, trousers 0.6). Sheet
-  `d3_cloth.png`.
+- His clothes' paint (painted illustration, DESIGN.md §4): a twin piece's texture cut from
+  Rodin's own (the coat) is smoothed within its own UV islands (`paint_cloth`: a median of
+  `CLOTH_MEDIAN` texels, a soft blur), and toned by people.json `cloth.<shape>`: `light` and
+  `chroma` (the coat 1.35 and 1.6: it came out darker and greyer than his painting's), `mottle`
+  (the share of Rodin's camouflage blotches, between `MOTTLE_FINE` and `MOTTLE_WIDE` texels, taken
+  out: coat 0.7, trousers 0.6). Sheet `d3_cloth.png`. A piece painted from his pictures
+  (`twin_pieces --painted`, the piece's json `painted`) gets no median: it is as smooth as they
+  are. Every garment's texture is written at his skin's density (2048 a side, `SQUARE_TEXELS` of
+  his model's 4096 texels, ~1.8 mm on him; at 1024 the vest's pattern lost its edges).
+  **Measure before changing** (`tools/characters/cloth_detail.py`: each stage of the texture
+  re-projected into a picture's own frame, with a render laid over it; the edge strength and
+  the contrast in bands of 3-100 mm as shares of the picture's).
 - His clothes' defects, by cause (Sean, 2026-10-16; sheets `d5_no_coat_fixed.png`,
   `d6_coat_fixed.png`, silhouettes `d4_coat_silhouette.png`):
   - Collar missing (geometry: cut at CHIN, and the bust's neck sat outside it): the twin's collar
@@ -197,8 +229,9 @@ way: the same man, triangle for triangle).
     median of 3 and no blur (the coat's detail as main's). The coat's tone (`light`, `chroma`,
     `mottle`) had greyed its painted shirt front and tie: `cloth.coat.keep_ends` leaves what is
     painted white or black untoned. The built collar reads as a neck brace close up (the jaw
-    through it): the coated man goes without it (`--collar=none`); the coatless man still has it,
-    his twin's own collar and tie knot being ragged fins in Rodin's model (sheet `d7_cloth_crisp.png`).
+    through it): the coated man went without it (`--collar=none`, until 2026-10-17: now `smooth`
+    too); the coatless man kept it a while, his twin's own collar and tie knot being ragged fins
+    in Rodin's model (sheet `d7_cloth_crisp.png`).
   - Barrel chest (two causes; sheet `d8_chest.png`): the coatless twin's arms hang against his
     waist, so laying the sleeves on the body's arms took ~560 of the waistcoat's points with them
     and flared it from armpit to hem (`twin_pieces`: cut into layers, what is drawn darker than
@@ -229,6 +262,76 @@ way: the same man, triangle for triangle).
     lab's light still renders dark cloth at about half its texture's lightness (art's lane).
   - In a coat he wears his coat's own trousers (`bold_cowboy_trousers`): the coatless ones' top
     showed in the coat's opening, which has the dressed twin's trousers painted in it.
+  - Blotchy cloth close up (2026-10-17; sheet `d12_density.png`, numbers in
+    `cloth_detail.py`'s json): measured in his front picture's frame, the painted twin texture
+    keeps 0.91 of the picture's edge strength on the vest, the piece written at 1024 a side
+    0.79 (the 3 mm band 0.71), and the game's render 0.56. Rodin's lumpy surface and the view
+    blend add no contrast at 1-10 cm (the render's bands there are the texture's), so the
+    "blotches" are the picture's own pattern with its edges lost. Now written at 2048 (1.8 mm a
+    texel, the skin's density) and without the median on painted cloth: 0.88 (3 mm band 0.84),
+    the render 0.59. What the render loses past that is the light and the shader (the vest and
+    trousers render dark and flat: art's).
+  - Light flecks at his sleeves' edges (2026-10-17; sheet `d11_flecks.png`): three causes in
+    `body_paint --dressed`. The figure mask's outermost pixel ring is half backdrop (Lab ΔE ~18
+    from it) and was sampled (now `BG_ERODE` 2 px in); the backdrop's luma (0.405-0.435) straddles
+    `DRESSED_LIGHT` 0.42, so it passed as shirt in two pictures and as waistcoat in the other two
+    (now a colour within `BG_DE` 12 of the backdrop's is backdrop); and what no picture sees (a
+    sleeve's inside) was filled from the nearest painted texel of any UV island (now its own:
+    `island_fill`). The side pictures line up 0.82 by outline because his arms hang nearer his
+    sides in them than in Rodin's twin; the twin's sleeve edges then project onto the backdrop
+    or the vest. What is left at his armpits is geometry: the slit where the sleeve is cut from
+    the shirt's side (`ARMPIT_DROP`) shows his skin under it, painted the shirt's light colour
+    since the skin is painted by the garment over it (`paint_under_garments`).
+  - The collar low and plain (2026-10-17; sheet `d13_collar.png`): Rodin's coatless twin has no
+    collar above the ring (3 cm under his chin; no white triangle higher, measured by height and
+    radius round his neck), where his pictures' stands to his jaw, so no cut or smoothing could
+    raise it. `neck_ring --collar=smooth` now draws his own collar up (`lift_collar`: at 24
+    angles round his neck its top is brought to `COLLAR_OVER` above the line, everything from
+    `COLLAR_LIFT_FROM` under the ring rising with it on a quadratic ease; his tie's knot half
+    way) and levels it there (`top_height`: `COLLAR_SMOOTH_UP` 25 mm over the ring, 5 mm under
+    his chin, all round; the faces were cut there before, a sawtooth a face deep), then pushes
+    every garment out of the bust's neck. The coat man uses it too (he was `none`): the white
+    slivers beside his neck were his shirt's collar standing out of the coat's, which
+    `twin_pieces` cut at CHIN 6 cm under his chin; it now keeps the coat's collar behind his
+    neck (`COAT_COLLAR_*`: the coat's brown, near the neck's axis and behind it, up to his jaw;
+    a looser rule took his jaw and beard for collar, a tan bib over his chin) and
+    `COLLAR_COAT_UP` cuts it 30 mm over the ring.
+  - Lines of his skin at his clothes' edges (2026-10-17): his skin under his clothes was painted
+    his shirt's colour everywhere, so it showed white at a coat's edges and, in the shirt's
+    median cream, tan in the slits between his sleeves and his vest. `paint_under_garments`
+    paints each skin triangle the colour of the garment over it (a ray out from the skin: the
+    furthest garment within `UNDER_REACH` is the one over it; the shirt's light colour, the
+    others' median); his neck the shirt's light colour (`UNDER_SHIRT_NECK`, within
+    `UNDER_NECK_R` of the neck joint's axis: the joint sits at his shoulder line, and without
+    the radius his shoulders were "neck").
+  - The coat's vent open behind (2026-10-17; sheet `d14_coat.png`): the fitted coat's skirt is
+    closed at rest (rasterised from behind); posed, its tails went apart with his legs because
+    its weights came from the skin round his hip joints, which carry a share of each thigh's.
+    `fit_tripo.tails_on_pelvis`: below `TAILS_BELOW` under his hips and behind him (within
+    `TAILS_FULL` degrees of straight behind, eased out to `TAILS_NONE`) the skirt's leg weights
+    go to his pelvis; its front and sides keep their thighs' share (on his lap when he sits).
+  - The coat's sides up with his hands (the wing): its sleeves and sides are fused in Rodin's
+    model and its body cloth took his arms' weights. `COAT_SIDES_CUT`: the sleeve is cut from the
+    side below his armpit and the body cloth weighted off his arms, as the shirt's
+    (`weights_from_skin`; 967 triangles cut); standing, the slit shows his skin, painted the
+    coat's colour under it.
+  - Cream patches on the coat's sides and lines at its seams: what lies under its cut sides,
+    showing through where the two surfaces meet. Measured on the game's coat texture, the side
+    faces' texels are 99.6% dark wool, so not the coat's paint (hiding the shirt or the skin
+    alone left the patches: each is cream there). Two things under it: his skin where no garment
+    lay straight out from it (`paint_under_garments`: at his ribs the coat's side hangs up and
+    away in the A-pose; now the nearest garment within reach decides, else the shirt's colour),
+    and the shirt's rib triangles the cover rule kept (a ray out from his middle or straight
+    ahead missed the coat's side there; now at his sides, beyond `COVER_SIDE_X`, the coat anywhere
+    within `COVER_REACH` covers). Rodin's cream inside the fused sleeve-and-side (a few thousand
+    texels) is painted wool too (`COAT_SIDE_WHITE`, `COAT_SIDE_SPREAD`, beyond `COAT_SIDE_X`).
+  - The collar's back tan-brown once lifted: the twin's collar behind his neck took the back
+    picture's hair and neck (the picture's hair hangs over it), and the collar's top at its nape
+    stayed low (the lift read the twin's spikes there as its top: now `COLLAR_TOP_PCT`, the
+    70th percentile). `whiten_collar_back` paints the lifted faces behind his neck the shirt's
+    white; its back stands `COLLAR_SMOOTH_BACK` 40 mm over the ring, up under his hair.
+  - Sitting and crouching his trousers' seat and the coat's skirt still crumple at the bench
+    (linear skinning of a seat folded to 90 degrees: not this recipe's; the pose check shows it).
 
 ## 5. Known
 
@@ -238,15 +341,18 @@ way: the same man, triangle for triangle).
   and one runs on into his hand on his left wrist.
 - His thumb lies along the revolver, a little high on its grip; the revolver sits where the game
   hangs it from the anatomy's hand (gameplay's), not this hand's palm.
-- With his hands up his coat's sides stretch from his arms (its sleeves and sides are fused in
-  the dressed model; cut or weighted apart they gaped when he stood). The coatless man doesn't.
+- Standing, a slit shows at the coat's sides below the armpits where its sleeves are cut from
+  them (`COAT_SIDES_CUT`), in the coat's colour (his skin under it).
 - Sitting and crouching, his coat's skirt and his trousers' seat crumple at the bench and the
   ground (as before the layers); a few dark specks by his armpits in the coat.
 - The coat's front still has the dressed model's vest and shirt painted in its opening's edges
-  (the real vest shows in the middle).
-- From behind, his coat's skirt parts at the vent and shows his trousers (the painting's hangs
-  closed); from the front it hangs a little narrower than the painting's.
-- A few white shards round his tie's knot; under the coat his trousers render near black.
+  (the real vest shows in the middle); from the front it hangs a little narrower than the
+  painting's.
+- Under the coat his trousers render near black, and the vest and trousers render darker and
+  flatter than their textures (the lab's light: art's).
+- His sleeves' outer edges take the side pictures' colour a little off their place: the
+  pictures' arms hang nearer his sides than Rodin's twin's (outline overlap 0.82 against the
+  front's 0.87); a per-limb line-up would paint them truer.
 - In lamp light his face's colour strength rises from ~37 to ~58 (Lab chroma), as before these
   changes (his face is unchanged: the light is art's).
 - Only his head and skin are drawn in the painted look in the game so far (`<pid>_paint.json`,

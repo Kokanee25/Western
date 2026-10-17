@@ -16,8 +16,9 @@ stands off his bare body, cut into garment pieces the fitter carries on him as t
   bare body's skin (within SKIN_NEAR, in a skin colour): his hands and the open throat stay the
   body's. What of them lies inside his skin or nearer it than CLEAR is pushed out along the
   skin's normal to CLEAR, so his skin never shows through a sleeve.
-- Cut into pieces: the coat (with what it shows at the front: vest, shirt, tie), and the
-  trousers with the boots (below his belt, near black: told from the coat's brown by colour).
+- Cut into pieces: the coat (with what it shows at the front: vest, shirt, tie, and its collar
+  behind his neck above CHIN, COAT_COLLAR_*), and the trousers with the boots (below his belt,
+  near black: told from the coat's brown by colour).
   `--split=layers` (his twin without a coat): shirt with its tie, vest, trousers with boots.
   `--without=<out>` (with the coated twin): the coat less what lies on that cut's shirt and vest
   in their colour (them, seen through its open front); `--only=coat` writes the coat alone.
@@ -60,6 +61,10 @@ HAND_LEN = 0.12    # of his height: wrist to finger tips, and a little
 ARM_DARK_L = 40.0  # Lab lightness: cut into layers, a twin point drawn darker is cloth over his trunk, not his sleeve
 HAND_R = 0.03      # of his height: how far off the forearm's line his hand reaches
 HAND_PAST = 0.006  # of his height (~1 cm) past his wrist along the forearm: his hand, not his cuff
+COAT_COLLAR_TOP = 0.895  # of his height: his coat's collar kept up to here, under his hair (the cut at CHIN took it off, 6 cm under his chin) ...
+COAT_COLLAR_R = 0.07     # ... within this of his neck's axis, behind it (in front is his jaw; his hair lies further out, and higher) ...
+COAT_COLLAR_L = (13.0, 30.0)   # ... in the coat's brown (Lab L within, chroma within): his hair is darker, his skin lighter and stronger
+COAT_COLLAR_C = (9.0, 20.0)
 TEX = 2048
 
 
@@ -154,7 +159,7 @@ def _turn_onto(u, v):
     return np.eye(3) + s_ * K + (1 - c) * K @ K
 
 
-def write_piece(name, v, uv, t, colour, body, out):
+def write_piece(name, v, uv, t, colour, body, out, painted=False):
     import bpy
     used = np.unique(t)
     remap = -np.ones(len(v), int)
@@ -184,7 +189,8 @@ def write_piece(name, v, uv, t, colour, body, out):
     path = os.path.join(TRIPO, "%s_%s.glb" % (out, name))
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_texcoords=True, export_normals=True,
                               export_materials="EXPORT", export_image_format="AUTO")
-    json.dump({"twin": body, "note": "cut from his dressed twin by tools/characters/twin_pieces.py; "
+    json.dump({"twin": body, "painted": painted,
+               "note": "cut from his dressed twin by tools/characters/twin_pieces.py; "
                "already in place on the body: fit_tripo carries it as it is"},
               open(os.path.join(TRIPO, "%s_%s.json" % (out, name)), "w"), indent=1)
     print("twin_pieces: %-8s %6d triangles → %s" % (name, len(tk), path))
@@ -423,9 +429,33 @@ def main():
                 near[hits] = True
             sel = own | (near & over)
             name = ("shirt", "vest", "trousers")[k]
-            write_piece(name, dv, duv, dtris[sel], wcol, body, out)
+            write_piece(name, dv, duv, dtris[sel], wcol, body, out, "--painted" in sys.argv)
         return
     coat = cloth & ~legs
+    # His coat's collar stands up past CHIN (the head's cut) behind his neck: kept, the coat's
+    # brown round his neck's axis (the throat: skin-coloured triangles just under his chin) and
+    # behind it, up to COAT_COLLAR_TOP; his hair is darker and further out, his jaw in front (a
+    # looser rule took his jaw and beard for collar: a tan bib over his chin). Cut at CHIN his
+    # coat's collar ended 6 cm under his chin and his shirt's stood out of it in white slivers
+    # (2026-10-17).
+    throat = (cy > CHIN) & (cy < CHIN + 0.02) & (np.hypot(tl[:, 1], tl[:, 2]) >= 18) & (tl[:, 0] >= 35) & (tl[:, 0] < 75)
+    if throat.sum() >= 20:
+        axis = np.median(cent[throat][:, [0, 2]], 0)
+        r = np.hypot(cent[:, 0] - axis[0], cent[:, 2] - axis[1])
+        chroma = np.hypot(tl[:, 1], tl[:, 2])
+        collar = ((cy >= CHIN) & (cy < COAT_COLLAR_TOP) & (r < COAT_COLLAR_R) & (cent[:, 0] < axis[0])
+                  & ~skin[dtris].any(1) & ~hand[dtris].any(1)
+                  & (tl[:, 0] >= COAT_COLLAR_L[0]) & (tl[:, 0] < COAT_COLLAR_L[1]) & (chroma >= COAT_COLLAR_C[0]) & (chroma < COAT_COLLAR_C[1]))
+        # Each triangle as most of those round it, and only what touches the coat below.
+        near = ctree.query_ball_point(cent, LAYER_NEAR)
+        collar = np.array([collar[n].mean() > 0.5 for n in near]) & (cy >= CHIN)
+        adj = _tri_adjacency(dv, dtris)
+        kept = np.zeros(len(dtris), bool)
+        for comp in _components(adj, np.nonzero(collar)[0]):
+            if np.any(coat[np.concatenate([adj[i] for i in comp])]):
+                kept[comp] = True
+        coat = coat | kept
+        print("twin_pieces: his coat's collar kept above the head's cut: %d triangles" % kept.sum())
     if a.get("--without"):
         # The coat alone (roadmap 1.3): what of it lies on his coatless twin's shirt, vest or
         # trousers (`--without=<out>` of a --split=layers cut, laid on the same body), in their
@@ -458,7 +488,7 @@ def main():
     for name, sel in (("coat", coat), ("trousers", legs)):
         if a.get("--only") and name not in a["--only"].split(","):
             continue
-        write_piece(name, dv, duv, dtris[sel], wcol, body, out)
+        write_piece(name, dv, duv, dtris[sel], wcol, body, out, "--painted" in sys.argv)
 
 
 if __name__ == "__main__":

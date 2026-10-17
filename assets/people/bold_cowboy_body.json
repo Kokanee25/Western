@@ -12,11 +12,21 @@
  },
  "piece_coat": {
   "twin": true,
-  "pushed_out_after_warp": 23033,
-  "weights_from_skin": 49092,
+  "pushed_out_after_warp": 23157,
+  "sleeve_side_cut": 967,
+  "weights_from_skin": 50739,
+  "tails_on_pelvis": 94,
   "clear_hands": {
-   "cuff_triangles_dropped": 47,
+   "cuff_triangles_dropped": 41,
    "skirt_points_behind_hands": 848
+  },
+  "side_white_painted": {
+   "texels": 4684,
+   "wool": [
+    56,
+    37,
+    25
+   ]
   },
   "cloth": {
    "median": 3,
@@ -37,10 +47,10 @@
    "skirt_points_behind_hands": 0
   },
   "arm_bits_dropped": 0,
-  "covered_by_coat_dropped": 3004,
-  "tucked_under_coat": 943,
+  "covered_by_coat_dropped": 3362,
+  "tucked_under_coat": 701,
   "cloth": {
-   "median": 3,
+   "median": 1,
    "tone": {}
   }
  },
@@ -54,11 +64,11 @@
    "skirt_points_behind_hands": 0
   },
   "sleeve_points_out_of_arm": 1381,
-  "covered_by_coat_dropped": 4606,
-  "sleeves_cut_under_coat": 268,
-  "tucked_under_trousers_vest_coat": 527,
+  "covered_by_coat_dropped": 5056,
+  "sleeves_cut_under_coat": 0,
+  "tucked_under_trousers_vest_coat": 348,
   "cloth": {
-   "median": 3,
+   "median": 1,
    "tone": {}
   }
  },
@@ -70,7 +80,7 @@
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 72
   },
-  "tucked_under_vest_coat": 898,
+  "tucked_under_vest_coat": 890,
   "cloth_L": {
    "from": 9.6,
    "to": 24,
@@ -849,19 +859,41 @@
   "l": 0.547
  },
  "trunk_in": 0.85,
- "skin_tucked": 7276,
- "painted_under_shirt": {
-  "triangles": 12505,
-  "colour": [
-   108,
-   51,
-   34
-  ],
-  "neck": 11891,
+ "skin_tucked": 7184,
+ "painted_under_garments": {
+  "triangles": {
+   "coat": 10429,
+   "shirt": 105,
+   "trousers": 1864,
+   "vest": 107
+  },
+  "colours": {
+   "coat": [
+    78,
+    49,
+    26
+   ],
+   "vest": [
+    91,
+    43,
+    30
+   ],
+   "shirt": [
+    141,
+    106,
+    88
+   ],
+   "trousers": [
+    49,
+    44,
+    39
+   ]
+  },
+  "neck": 1488,
   "neck_colour": [
-   237,
-   200,
-   171
+   141,
+   106,
+   88
   ]
  },
  "texture": {
@@ -875,9 +907,9 @@
  "triangles": {
   "skin": 27560,
   "head": 10000,
-  "coat": 6000,
-  "vest": 1369,
-  "shirt": 675,
+  "coat": 5999,
+  "vest": 1011,
+  "shirt": 493,
   "trousers": 7936
  }
 }

@@ -6,7 +6,12 @@ rodin_portrait.py paints a head from its portraits.
     then tools/blender/fit_tripo.py --only=<body> (it takes assets/people/tripo/<body>_color.png)
     --dressed: a dressed twin (--body=<man>_vest_dressed) painted from its own pictures, every
     picture painting what it sees; tools/characters/twin_pieces.py --painted writes its garments
-    with that paint.
+    with that paint. Dressed, too (2026-10-17, the flecks at his sleeves' edges): the figure's
+    outermost BG_ERODE pixels are never sampled (they blend into the backdrop), a picture colour
+    within BG_DE of the backdrop's is the backdrop (its grey is as light as the shirt rule allows),
+    and what no picture sees is filled from its own UV island (the nearest painted texel of any
+    island put a sleeve's edge, or the vest's brown, inside the sleeve). The base body's paint is
+    left as approved (the man's face is matched to it).
 
 - Each painting is lined up with his Rodin body (assets/people/tripo/test/<body>_rodin.glb) by
   outline: an orthographic view from the side the painting shows (front: from in front of him,
@@ -54,6 +59,8 @@ CLOTH_BR_MAX = 0.75    # and warmer than the grey backdrop (blue as much as red)
 ARM_OUT = 0.15
 SHORTS_MID = 0.05      # of his height either side of his middle: where his shorts' band is read
 SHORTS_INSET = 0.008   # of his height in from the waistband and hem (~1.5 cm)
+BG_ERODE = 2           # --dressed: pixels in from the figure's edge never sampled (the outermost ring is half backdrop)
+BG_DE = 12.0           # --dressed: Lab distance from the backdrop's colour within which a picture colour is backdrop
 
 
 def cloth_like(c):
@@ -61,11 +68,48 @@ def cloth_like(c):
     return (br > CLOTH_BR) & (br < CLOTH_BR_MAX) & (c[..., 0] > CLOTH_RED)
 
 
+def backdrop(img):
+    """The plain backdrop's colour, from the picture's edges."""
+    edge = np.concatenate([img[:20].reshape(-1, 3), img[-20:].reshape(-1, 3), img[:, :20].reshape(-1, 3)])
+    return np.median(edge, 0)
+
+
+def _lab(rgb):
+    c = np.where(rgb > 0.04045, ((rgb + 0.055) / 1.055) ** 2.4, rgb / 12.92)
+    M = np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]])
+    xyz = c @ M.T / np.array([0.9505, 1.0, 1.089])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16 / 116)
+    return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], -1)
+
+
+def island_fill(tex, have, cover):
+    """Unpainted texels (`cover` and not `have`) filled from the nearest painted texel of their own
+    UV island (a connected patch of `cover`); an island with no painted texel, and what lies
+    outside every island, from the nearest painted texel anywhere."""
+    from scipy import ndimage
+    _d, (iy, ix) = ndimage.distance_transform_edt(~have, return_indices=True)
+    lbl, n = ndimage.label(cover)
+    wrong = cover & ~have & (lbl[iy, ix] != lbl)
+    fixed = 0
+    for c in np.unique(lbl[wrong]):
+        ys, xs = np.nonzero(lbl == c)
+        y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+        own = (lbl[y0:y1, x0:x1] == c) & have[y0:y1, x0:x1]
+        if not own.any():
+            continue
+        _d2, (jy, jx) = ndimage.distance_transform_edt(~own, return_indices=True)
+        sel = wrong[y0:y1, x0:x1]
+        iy[y0:y1, x0:x1][sel] = jy[sel] + y0
+        ix[y0:y1, x0:x1][sel] = jx[sel] + x0
+        fixed += int(sel.sum())
+    print("body_paint: %d unpainted texels filled from their own island (of %d unpainted)" % (fixed, int((cover & ~have).sum())))
+    return tex[iy, ix]
+
+
 def figure_mask(img):
     """What isn't the plain backdrop (its colour from the picture's edges)."""
     from scipy import ndimage
-    edge = np.concatenate([img[:20].reshape(-1, 3), img[-20:].reshape(-1, 3), img[:, :20].reshape(-1, 3)])
-    bg = np.median(edge, 0)
+    bg = backdrop(img)
     m = np.linalg.norm(img - bg, axis=-1) > BG_TOL
     m = ndimage.binary_opening(m, iterations=2)
     lbl, n = ndimage.label(m)
@@ -134,10 +178,14 @@ def main():
     V, T, UV, own = RP.load_glb(os.path.join(ROOT, "assets", "people", "tripo", "test", body + "_rodin.glb"))
     V = RP.to_body(V)
     size = own.shape[0]
-    pics, cams, masks = {}, {}, {}
+    pics, cams, masks, bgs, samp = {}, {}, {}, {}, {}
+    dressed = "--dressed" in sys.argv
     for view, path in views.items():
         raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
         masks[view] = figure_mask(np.asarray(raw).astype(float) / 255)
+        bgs[view] = backdrop(np.asarray(raw).astype(float) / 255)
+        from scipy import ndimage as _nd
+        samp[view] = _nd.binary_erosion(masks[view], iterations=BG_ERODE) if dressed else masks[view]
         img = raw.filter(ImageFilter.MedianFilter(uns)).filter(ImageFilter.GaussianBlur(1.0)) if uns > 1 else raw
         pics[view] = np.asarray(img).astype(float) / 255
         cams[view] = Ortho(*VIEWS[view], V, masks[view])
@@ -171,7 +219,7 @@ def main():
         _tid, _b, zb = P.rasterise(cam.project(V), cam.depth(V), T, w, h)
         q = cam.project(p)
         qi = np.clip(q.astype(int), 0, [w - 1, h - 1])
-        seen = (cam.depth(p) <= zb[qi[:, 1], qi[:, 0]] + 0.01) & mask[qi[:, 1], qi[:, 0]]
+        seen = (cam.depth(p) <= zb[qi[:, 1], qi[:, 0]] + 0.01) & samp[view][qi[:, 1], qi[:, 0]]
         f = n @ cam.toward_v
         S[k] = np.where(seen & (f > MIN_FACING), f, -np.inf)
         C[k] = P.sample(img, q[:, 0], q[:, 1])
@@ -222,8 +270,9 @@ def main():
     rejected = 0
     for k, view in enumerate(names):
         grey = C[k][:, 2] >= CLOTH_BR_MAX * np.maximum(C[k][:, 0], 1e-6)   # the backdrop, between arm and body
-        if "--dressed" in sys.argv:
-            grey[:] = False     # his white shirt is as blue as red too: the figure's outline decides
+        if dressed:
+            # His white shirt is as blue as red too: the backdrop is what is near its own colour.
+            grey = np.linalg.norm(_lab(C[k]) - _lab(bgs[view][None])[0], axis=1) < BG_DE
         wrong = (((kind >= 0) & (cloth_like(C[k]).astype(int) != kind)) | grey) & np.isfinite(S[k])
         if dressed_light is not None:
             wrong |= ((C[k] @ np.array([0.299, 0.587, 0.114]) >= DRESSED_LIGHT) != dressed_light) & np.isfinite(S[k])
@@ -242,8 +291,11 @@ def main():
     tex[idx] = col
     have[idx] = ok
     from scipy import ndimage
-    _d, (iy, ix) = ndimage.distance_transform_edt(~have, return_indices=True)
-    tex = tex[iy, ix]
+    if dressed:
+        tex = island_fill(tex, have, cover)
+    else:
+        _d, (iy, ix) = ndimage.distance_transform_edt(~have, return_indices=True)
+        tex = tex[iy, ix]
     which = np.zeros((size, size, 3))
     pal = np.array([[0.9, 0.3, 0.3], [0.3, 0.9, 0.3], [0.3, 0.3, 0.9], [0.9, 0.9, 0.3]])
     which[idx] = pal[np.argmax(S, 0) % 4] * np.where(ok, 1.0, 0.2)[:, None]
