@@ -293,9 +293,10 @@ frozen until Sean names one.
   at their own density, the table's painted top, turned props round, the backdrop smooth.
 - The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
   shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
-- Next (critic 2026-10-17_r2): the wall strips at their painted density (still 32 a metre, squares),
-  the back bar's dark void, the table's flat top; the street all one orange and its canyon end
-  (the hero rocks' size is Sean's call). The card player is characters' 1.3.
+- Sean, 2026-10-17: "our art isn't completely smooth, it can have a bit of square to it" (DESIGN.md
+  §4): squares aren't a fault in themselves; the critic's prompt says so. Next (critic r2): the back
+  bar's dark void, the table's flat top; the street all one orange and its canyon end (the hero
+  rocks' size is Sean's call).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
