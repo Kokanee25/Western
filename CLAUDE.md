@@ -165,7 +165,7 @@ shadow is drawn only when something in it moves. The sun's shadow is ~0.7 of wha
 lane's current step there.** Done before it (history in `docs/status/`): M0 skeleton, M1 the
 revolver, M2 bodies and its follow-ups, M3 structures, fire and dynamite, M4 steps 1–4 (senses,
 deeds and the ladder, a day in town, the gang together). M4's steps 5–9 and M5 are in the
-roadmap's Phases 4–5; rope, the town build-out beyond the block, and M6+ wait until after the
+roadmap's Phases 3 and 5; rope, the town build-out beyond the block, and M6+ wait until after the
 demo. The first slice's definition (DESIGN.md §12) is the roadmap's Gate D.
 
 ## Working lean
