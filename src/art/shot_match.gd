@@ -401,8 +401,9 @@ static func _mesh(parent: Node3D, n: String, mesh: Mesh, pos: Vector3, mat: Mate
 
 ## A round card table: a thick top of dark boards on a turned pedestal and four splayed feet.
 static func _table(root: Node3D) -> void:
-	# Its painted top as painted (2026-10-17: the tint that darkened the drawn squares' top dulled it).
-	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9))
+	# Its painted top a little darker than painted (2026-10-17): untinted, its lit half came out at
+	# L* ~54 to the painting's ~45; the old tint (0.46, 0.38, 0.33), for the drawn squares, ~39.
+	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), Color(0.7, 0.62, 0.56))
 	var body := StaticBody3D.new()
 	body.name = "Table"
 	root.add_child(body)
