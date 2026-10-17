@@ -20,6 +20,8 @@ const SMOOTH_CREASE := 50.0
 const LAMP_SEGMENTS := 24
 const CUP_SEGMENTS := 20
 const BOTTLE_SEGMENTS := 16
+## A bottle label's texels a metre (drawn in code, laid at its own density).
+const LABEL_TEXELS := 512.0
 
 static var _materials := {}
 static var _meshes := {}
@@ -55,10 +57,14 @@ static func has_model(id: StringName) -> bool:
 
 # --- materials ---------------------------------------------------------------------------------
 
-static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0, spec := 0.3) -> ShaderMaterial:
+static func _mat(key: String, tex: Texture2D, tint := Color.WHITE, rough := 0.9, metal := 0.0, spec := 0.3, texels := 0.0) -> ShaderMaterial:
 	if not _materials.has(key):
 		var m := PixelArt.material(tex, tint, PixelArt.Mapping.UV, Vector3.ZERO, rough, metal, spec)
 		m.resource_name = key
+		if texels > 0.0:
+			# Its own texels a metre, whatever the world's (kept through F7: PixelArt._apply reads it).
+			m.set_meta(&"texels", texels)
+			m.set_shader_parameter(&"texels_per_meter", texels)
 		_materials[key] = m
 	return _materials[key]
 
@@ -433,7 +439,7 @@ static func bottle(root: Node3D, variant := 0) -> void:
 	_add(root, "Glass", lathe(_profile([[0.03, 0.0], [0.042, 0.004], [0.044, 0.02], [0.044, 0.19], [0.038, 0.215], [0.016, 0.24], [0.013, 0.27], [0.015, 0.275], [0.014, 0.285]]), BOTTLE_SEGMENTS), bottle_glass(variant))
 	_add(root, "Base", disc(0.03, BOTTLE_SEGMENTS, 0.0, false), bottle_glass(variant))
 	_add(root, "Cork", lathe(_profile([[0.012, 0.28], [0.011, 0.3]]), 6), _mat("cork", PixelArt.dirt("prop_cork", Color(0.55, 0.4, 0.25), 233)))
-	_add(root, "Label", lathe(_profile([[0.0455, 0.07], [0.0455, 0.15]]), BOTTLE_SEGMENTS), _mat("label%d" % posmod(variant, 3), label_texture(posmod(variant, 3)), Color.WHITE, 0.9))
+	_add(root, "Label", lathe(_profile([[0.0455, 0.07], [0.0455, 0.15]]), BOTTLE_SEGMENTS), _mat("label%d" % posmod(variant, 3), label_texture(posmod(variant, 3)), Color.WHITE, 0.9, 0.0, 0.3, LABEL_TEXELS))
 
 
 ## A pewter mug, as the painting's: straight sides with a band near the foot and a rolled rim
@@ -531,20 +537,31 @@ static func label_texture(variant: int) -> ImageTexture:
 	# stand out from the glass).
 	var paper: Color = [Color(0.4, 0.3, 0.2), Color(0.46, 0.4, 0.3), Color(0.36, 0.27, 0.17)][variant]
 	var ink: Color = [Color(0.16, 0.09, 0.05), Color(0.12, 0.1, 0.1), Color(0.32, 0.08, 0.05)][variant]
-	# 0.29 m round x 0.08 m tall at the world's texels a metre (the grid lays it at that).
-	var w := maxi(int(round(0.29 * PixelArt.texels_per_meter)), 6)
-	var h := maxi(int(round(0.08 * PixelArt.texels_per_meter)), 3)
+	# 0.29 m round x 0.08 m tall at LABEL_TEXELS a metre (2026-10-17: at the world's 32 it was nine
+	# squares by three beside the painted glass): soft paper, a ruled border, a name and two lines
+	# of small print as broken ink strokes.
+	var w := int(round(0.29 * LABEL_TEXELS))
+	var h := int(round(0.08 * LABEL_TEXELS))
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 300 + variant
+	var noise := FastNoiseLite.new()
+	noise.seed = 300 + variant
+	noise.frequency = 0.08
+	var rows := [[0.3, 0.42, 0.9], [0.55, 0.62, 0.55], [0.7, 0.76, 0.55]]  # name, then small print: from, to, ink
 	for y in h:
+		var v := float(y) / float(h - 1)
 		for x in w:
-			var c := paper.darkened(rng.randf() * 0.15)
-			if y == 0 or y == h - 1:
-				c = ink
-			elif x >= w / 3 and x <= w * 2 / 3 and rng.randf() < 0.55:
-				c = ink.lerp(paper, rng.randf() * 0.3)
+			var u := float(x) / float(w - 1)
+			var c := paper.darkened(0.08 + 0.08 * noise.get_noise_2d(x, y))
+			if v < 0.08 or v > 0.92 or ((v > 0.13 and v < 0.16) or (v > 0.84 and v < 0.87)):
+				c = ink.lerp(c, 0.25)
+			elif u > 0.3 and u < 0.7:
+				for r: Array in rows:
+					if v > r[0] and v < r[1] and noise.get_noise_2d(x * 3.0, float(r[0]) * 50.0) > -0.15:
+						c = ink.lerp(c, 1.0 - float(r[2]))
 			img.set_pixel(x, y, c)
+	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
 	_materials[key] = tex
 	return tex
