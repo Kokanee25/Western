@@ -35,14 +35,18 @@ isn't the whole game; it's the proof of it, and the base the rest is built on.
 
 ## The phases
 
+Sean, 2026-10-17: lock the look, make a few generic bad guys to stand in for everyone, then find
+out whether missions are fun **before** the world is built out. The world and the art are the
+easy part; making it fun is the hard part, so it comes first.
+
 | Phase | What it proves | Lanes | Gate |
 |---|---|---|---|
 | 0. Clean slate | the build is trustworthy | gameplay | main green 3 nights |
 | 1. The look | it looks like the paintings | art, characters | A: Sean's yes on the shots |
-| 2. The place | a block of town worth standing in | art, characters | B: the block at four hours |
-| 3. The feel | a fight in the saloon is physically real | gameplay (+ art for fixes) | C: five ways the fight can go |
-| 4. Consequence | what you do changes how people treat you | gameplay | D: the slice, played blind |
-| 5. The story's door | the opening of the real game | gameplay, characters | E: content complete |
+| 2. Stand-ins | enough people to test with | characters | Sean's quick OK |
+| 3. Is it fun? | the fight and rough missions are fun to play | gameplay (+ characters for fixes) | C: Sean plays them again by choice |
+| 4. The place | a block of town worth standing in, built for the missions that worked | art, characters, gameplay | B: the block at four hours |
+| 5. Consequence and story | what you do changes how people treat you; the opening of the real game | gameplay, characters | D: the slice, played blind |
 | 6. The demo | a stranger can play it | all, in turn | F: the demo ships |
 
 ---
@@ -68,71 +72,72 @@ The approach is settled (the paintings' squares on the surfaces, smooth light, f
 | 1.1 ✅ 2026-10-15 | **The targets locked** | One folder, `docs/concept/targets/`, holds the pictures the game is judged against: a man close at a table, the saloon at night, the street at golden hour, a wall and a post up close, a prop. Each has its three biggest gaps written beside it, from a render made today. One session. | art |
 | 1.2 | **Faces in the game's light** | A portrait man in the saloon at night and on the street at golden hour: no burnt orange, eyes readable under the brim, skin matching his portrait's lit and shadow cheeks. Measured with `tools/face_light.py`, judged on a sheet. | art (light), characters (paint) |
 | 1.3 | **The man complete** | The bold cowboy whole: the portrait's hat (brown, dented crown, studded band) as its own piece that can be shot off, his hair edges, coat, vest, shirt, tie and hands as separate pieces, through the pose check (stand, sit, hands up, crouch, back) with no tears. | characters |
+| 1.3b | **Faces that move** (Sean 2026-10-16) | A test on the bold cowboy, before more men are made: his head gets a mouth that opens (lips, teeth, tongue dark), eyelids that close and a jaw, and 10–15 expressions that read at the game's square size (jaw, the main speech shapes, blink, squint, brows up and down, scowl, half smile), carried from MakeHuman's free expression shapes onto his Rodin head by script. Then one short line of Sean's iPhone performance (Live Link Face's recording, his voice through ElevenLabs' voice changer) played on him in Godot. Done when he speaks and pulls faces without losing his look, and the recipe (`RECIPE.md`) says how every man after him gets the same rig. | characters |
 | 1.4 | **Surfaces to the man** | Wood, end grain, posts, planks and the road at the same square size and finish as his face and coat: they look like one picture, close and far. | art |
 | 1.5 | **Gate A** | Two fixed shots, the man at the saloon table and the street at golden hour, side by side with their targets. Sean says yes. Then: goldens re-approved, the look's settings frozen, and later changes only to close a gap Sean names. | Sean |
 
-## Phase 2: The place
+## Phase 2: Stand-ins
 
-Lanes: art and characters. **Gate B: the block at four hours.**
-
-A small block finished to the look, not the whole town: the saloon, the store, the telegraph,
-the jail and the livery, and the street between them.
+Lane: characters. Small and quick.
 
 | # | Step | Done when | Who |
 |---|---|---|---|
-| 2.1 | **The cast by recipe** | Brody, Lyle and the storekeeper made by `RECIPE.md`, each within ~2 h of session and ~$2, each passing the pose check and the art session's look. The recipe's real test: a fresh session makes the third man from the recipe alone. | characters |
-| 2.2 | **Townsfolk** | Eight background people, cheaper than principals (shared bodies and wardrobe, their own faces), different enough that the street isn't brothers. | characters |
-| 2.3 | **The saloon finished** | Outside and in, to its set-direction card (`docs/briefs/set-direction.md`): lit, dressed, the critic's top three closed. | art |
-| 2.4 | **The block finished** | The store, telegraph, jail and livery to their cards: fronts, signs, what's seen through the doors, the street's dressing. | art |
-| 2.5 | **Light across the day** | Dawn, noon, golden hour, night, and inside, each a fixed view with a golden image. None of them breaks the look. | art |
-| 2.6 | **Gate B** | A walk down the block at each of the four hours (the tour video), a blind critic's report, and Sean's yes: "it looks like the game". | Sean |
+| 2.1 | **Generic bad guys** | Two or three rough men made by the recipe (`RECIPE.md`, `LAYERED.md`), each with a couple of outfit and hat swaps, so a street of them isn't one man repeated. They stand in for everyone (the gang, the townsfolk, the storekeeper) while missions are tested; the real cast comes in Phase 4. Each passes the pose check. | characters |
+| 2.2 | **Sean's quick OK** | A line-up sheet; Sean says they'll do for testing. Not a look gate. | Sean |
 
-## Phase 3: The feel
+## Phase 3: Is it fun?
 
-Lane: gameplay. Art only to fix what this phase breaks. **Gate C: five ways the fight can go.**
+Lane: gameplay. Characters only to fix the stand-ins. **Gate C: Sean plays them again by choice.**
 
-The scene: the saloon, the gang at the bar, you at a table. Everything in it should behave as
-it would.
+Rough on purpose: stand-in men, typed lines instead of voices, missions in the street and saloon as
+they are. The question is only whether it's fun; anything that doesn't serve that waits.
 
 | # | Step | Done when | Who |
 |---|---|---|---|
-| 3.1 | **Motion** | Sean records the shot list in `docs/MOCAP.md` (walk, run, turn, idle, sit, stand up, draw); it's retargeted and the people move by it, with procedural breathing, aim and flinches on top. *Needs Sean's recording time: book it at the start of the phase.* | Sean, gameplay |
-| 3.2 | **Falls and hits** | Prompt 09: the ragdoll lab's faults fixed against its baseline (no folding straight down, no limbs through the body, joints in their limits), and hit reactions short of a fall. | gameplay |
-| 3.3 | **Hands on the world** | Pick up, carry, drop, throw, open, close: doors, bottles, chairs, a hat off the floor. It feels natural with mouse and controller. | gameplay |
-| 3.4 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
-| 3.5 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
-| 3.6 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
-| 3.7 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
-| 3.8 | **Gate C** | The saloon fight played five ways (they back down; you shoot first; they surrender; one flees; the room catches fire), and a man shoved into a table, by the playtest agent, then Sean. All five hold up. | Sean |
+| 3.1 | **Falls and hits** | Prompt 09: the ragdoll lab's faults fixed against its baseline (no folding straight down, no limbs through the body, joints in their limits), and hit reactions short of a fall. | gameplay |
+| 3.2 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
+| 3.3 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
+| 3.4 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
+| 3.5 | **Acts** | A way to write missions and little scenes as data: who goes where, says what, beat by beat, and what hands back to the systems when you interfere (DESIGN.md §5 "Story shape"). Lines are typed on screen for now. | gameplay |
+| 3.6 | **Three rough missions** | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
+| 3.7 | **Play, note, fix** | Sean plays a build for 15 minutes a few times a week and says what felt wrong; the playtest agent plays each mission blind. What they find is fixed here, in this phase, before moving on. | Sean, gameplay |
+| 3.8 | **Gate C** | Sean plays all three missions and wants to play at least two of them again a different way. If not, this phase goes on: the missions or the feel change until he does. | Sean |
 
-## Phase 4: Consequence
+## Phase 4: The place
 
-Lane: gameplay; characters for voices. **Gate D: the slice.**
+Lanes: art, characters, gameplay. **Gate B: the block at four hours.**
 
-The first complete scenario: the gang leaning on the storekeeper. It's the closest to built.
-
-| # | Step | Done when | Who |
-|---|---|---|---|
-| 4.1 | **Money** | M4 step 5: a purse of coins, the barkeep's prices and tabs, "a round on me". | gameplay |
-| 4.2 | **Acts, and the first: the saloon table** | A way to write little acts as data (who goes where, says what, beat by beat, and what hands back to the systems when you interfere: DESIGN.md §5 "Story shape"), and the prologue written in it: you at the card table, the stranger sits down and talks, a shooting at the bar that plays out however you handle it. Sitting at a table, for you and for people, comes with it. | gameplay |
-| 4.3 | **Talking** | M4 steps 7 and 9 for the prologue: written lines for its cast, voiced (ElevenLabs, budget stated first); what you type or say read into a deed. | gameplay, characters (voices) |
-| 4.4 | **Witnesses and memory** | M4 step 8: who saw what, who heard about it, and it changes how they treat you. | gameplay |
-| 4.5 | **The jail and the doctor** | An arrested man stays jailed; the wounded are treated; you sleep in a bed and wake at the doctor's if you went down. | gameplay |
-| 4.6 | **Saving** | The outcome survives sleeping, quitting and loading. | gameplay |
-| 4.7 | **Gate D** | The prologue and on into the next morning, 20–30 minutes, played blind by the playtest agent (report in `docs/playtests/`), then by Sean. | Sean |
-
-## Phase 5: The story's door
-
-Lanes: gameplay, characters. **Gate E: content complete.**
+A small block finished to the look, shaped by what the missions in Phase 3 turned out to need:
+the saloon, the store, the telegraph, the jail and the livery, and the street between them.
 
 | # | Step | Done when | Who |
 |---|---|---|---|
-| 5.1 | **The sheriff opening** | M5: you find him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out is evidence. | gameplay, characters |
-| 5.2 | **A day for everyone** | The block's dozen people work, eat, drink and sleep on routines, and break off from them when something happens. | gameplay |
-| 5.3 | **The law answers** | The sheriff (or his deputy), the gang and the town respond to what they witnessed, the same day and the next. | gameplay |
-| 5.4 | **A second act** | The store robbery (Brody's gang and the storekeeper, every way out working: pay, talk, threaten, fight, arrest), or whichever act day 2 needs. | gameplay |
-| 5.5 | **The next morning holds** | Three different playthroughs, each followed into the next day: what changed makes sense every time. | gameplay |
-| 5.6 | **Gate E** | Every scenario and ending the demo has is in and playable start to finish. | Sean |
+| 4.1 | **The cast by recipe** | Brody, Lyle and the storekeeper made by `RECIPE.md`, each within ~2 h of session and ~$2, each passing the pose check and the art session's look. The recipe's real test: a fresh session makes the third man from the recipe alone. | characters |
+| 4.2 | **Townsfolk** | Eight background people, cheaper than principals (shared bodies and wardrobe, their own faces), different enough that the street isn't brothers. | characters |
+| 4.3 | **The saloon finished** | Outside and in, to its set-direction card (`docs/briefs/set-direction.md`): lit, dressed, the critic's top three closed. | art |
+| 4.4 | **The block finished** | The store, telegraph, jail and livery to their cards: fronts, signs, what's seen through the doors, the street's dressing. | art |
+| 4.5 | **Light across the day** | Dawn, noon, golden hour, night, and inside, each a fixed view with a golden image. None of them breaks the look. | art |
+| 4.6 | **Motion** | Sean records the shot list in `docs/MOCAP.md` (walk, run, turn, idle, sit, stand up, draw); it's retargeted and the people move by it, with procedural breathing, aim and flinches on top. *Needs Sean's recording time: book it at the start of the phase.* | Sean, gameplay |
+| 4.7 | **Hands on the world** | Pick up, carry, drop, throw, open, close: doors, bottles, chairs, a hat off the floor. It feels natural with mouse and controller. | gameplay |
+| 4.8 | **Inside the budget** | The fight with a fire in the room fits the frame budget on Sean's PC (his F3 readout, not this workspace's guess). | gameplay |
+| 4.9 | **Gate B** | A walk down the block at each of the four hours (the tour video), a blind critic's report, and Sean's yes: "it looks like the game". | Sean |
+
+## Phase 5: Consequence and story
+
+Lanes: gameplay; characters for voices. **Gate D: the slice.**
+
+| # | Step | Done when | Who |
+|---|---|---|---|
+| 5.1 | **Money** | M4 step 5: a purse of coins, the barkeep's prices and tabs, "a round on me". | gameplay |
+| 5.2 | **Talking** | M4 steps 7 and 9 for the prologue: written lines for its cast, voiced (ElevenLabs, budget stated first); what you type or say read into a deed. | gameplay, characters (voices) |
+| 5.3 | **Witnesses and memory** | M4 step 8: who saw what, who heard about it, and it changes how they treat you. | gameplay |
+| 5.4 | **The jail and the doctor** | An arrested man stays jailed; the wounded are treated; you sleep in a bed and wake at the doctor's if you went down. | gameplay |
+| 5.5 | **Saving** | The outcome survives sleeping, quitting and loading. | gameplay |
+| 5.6 | **The sheriff opening** | M5: you find him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out is evidence. | gameplay, characters |
+| 5.7 | **A day for everyone** | The block's dozen people work, eat, drink and sleep on routines, and break off from them when something happens. | gameplay |
+| 5.8 | **The law answers** | The sheriff (or his deputy), the gang and the town respond to what they witnessed, the same day and the next. | gameplay |
+| 5.9 | **The next morning holds** | Three different playthroughs, each followed into the next day: what changed makes sense every time. | gameplay |
+| 5.10 | **Gate D** | The prologue and on into the next morning, 20–30 minutes, played blind by the playtest agent (report in `docs/playtests/`), then by Sean. | Sean |
 
 ## Phase 6: The demo
 
@@ -155,7 +160,7 @@ All lanes, one at a time. **Gate F: the demo ships.**
 ## ▶ Now
 
 - **Phase 0, step 0.1** (gameplay): green and quiet.
-- **3.2 Falls and hits, moved up by Sean** (2026-10-16: "Nah build the falls spend all night working
+- **3.1 Falls and hits, moved up by Sean** (2026-10-16: "Nah build the falls spend all night working
   on it if needed"), running beside Phase 1 (gameplay; brief `docs/briefs/fix-the-falls.md`).
 - **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
   in the game (#124); the street's light fixed 2026-10-16 (the sun's own ceiling, face 0.61 -> 0.92,
@@ -166,6 +171,9 @@ All lanes, one at a time. **Gate F: the demo ships.**
   woods and materials repainted dirty and worn, grass in strokes, the road into his palette; the
   close props (table, chairs, lamp, bottle) next. **1.3** (characters) beside it.
 
+- **After Gate A:** Phase 2's stand-ins (characters), then Phase 3, the fun test (gameplay).
+  Phase 4's world-building waits until Gate C.
+
 ## Decisions Sean can change
 
 - The look is painted illustration (Sean, 2026-10-16; DESIGN.md §4): smooth painted surfaces,
@@ -174,7 +182,8 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 - The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
   an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and
-  day 1; the store robbery is the second act (5.4). All of it may change.
+  day 1; the saloon table, the store robbery and a bounty are Phase 3's rough missions (3.6). All of it may change.
 - The block is five buildings. Anything more waits until after Gate B.
+- Fun first (Sean, 2026-10-17): the world is built out only after Gate C says the missions are fun.
 - No new systems before Gate D unless a step needs one. DESIGN.md §11's backlog and
   `docs/prompts/` stay frozen until a step names one.
