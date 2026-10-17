@@ -46,6 +46,11 @@ COLLAR_FROM = 0.035    # ... from this far below it (over the shirt's own top)
 COLLAR_ROWS = 4
 COLLAR_SIDES = 40
 COLLAR_FLARE = 0.004   # metres its top is turned out
+COLLAR_SMOOTH = 0.09       # --collar=smooth: metres under the ring smoothed ...
+COLLAR_SMOOTH_FADE = 0.02   # ... faded in over this
+COLLAR_SMOOTH_UP = 0.045   # ... its front's top this far above the ring ...
+COLLAR_SMOOTH_BACK = 0.015  # ... its back's
+COLLAR_SMOOTH_STEPS = 12
 ICP_ROUNDS = 40
 
 
@@ -157,6 +162,41 @@ def stand_collar(bpy, shirt, head, tree, centre, ring_z, shirt_png):
     print("neck_ring: his shirt's stand-up collar: %d faces, %.0f mm high" % (2 * n, 1000 * (COLLAR_H + COLLAR_FROM)))
 
 
+def smooth_collar(me, ring_z):
+    """His shirt's own collar and tie knot smoothed (--collar=smooth): the coatless twin drew them
+    as thin slivers standing off the cloth (Sean, 2026-10-17: the built collar is "a flat straight
+    piece"). Taubin smoothing (Taubin 1995: a shrink step then an inflate step, so the shape keeps
+    its size) of what lies above COLLAR_SMOOTH under the ring, over points welded by place (Rodin's
+    triangles share none), faded in over COLLAR_SMOOTH_FADE."""
+    co = np.array([v.co[:] for v in me.vertices])
+    _u, weld = np.unique(np.round(co / 1e-5).astype(np.int64), axis=0, return_inverse=True)
+    weld = weld.ravel()
+    n = weld.max() + 1
+    pos = np.zeros((n, 3))
+    np.add.at(pos, weld, co)
+    pos /= np.bincount(weld, minlength=n)[:, None]
+    edges = set()
+    for p in me.polygons:
+        w = [weld[i] for i in p.vertices]
+        for a, b in zip(w, w[1:] + w[:1]):
+            if a != b:
+                edges.add((min(a, b), max(a, b)))
+    e = np.array(sorted(edges))
+    nbr = [[] for _ in range(n)]
+    for a, b in e:
+        nbr[a].append(b)
+        nbr[b].append(a)
+    fade = np.clip((pos[:, 2] - (ring_z - COLLAR_SMOOTH)) / COLLAR_SMOOTH_FADE, 0, 1)
+    live = np.nonzero(fade > 0)[0]
+    for _ in range(COLLAR_SMOOTH_STEPS):
+        for lam in (0.5, -0.53):
+            avg = np.array([pos[nbr[i]].mean(0) if nbr[i] else pos[i] for i in live])
+            pos[live] += (lam * fade[live])[:, None] * (avg - pos[live])
+    for i, v in enumerate(me.vertices):
+        v.co = pos[weld[i]].tolist()
+    print("neck_ring: his shirt's collar smoothed: %d points" % len(live))
+
+
 def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     """His shirt's collar (and a coat's or vest's) outside his new head's neck: the bust's neck
     is a little fuller than the body's, so a collar laid on the body's neck came out under it
@@ -174,6 +214,8 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
     for ob in [o for o in bpy.data.objects if o.type == "MESH" and o.name in ("body_shirt", "body_vest", "body_coat")]:
         me = ob.data
         moved = 0
+        if mode == "smooth" and ob.name == "body_shirt":
+            smooth_collar(me, ring_z)
         for v in me.vertices:
             p = v.co
             if abs(p.z - ring_z) > COLLAR_BAND:
@@ -194,8 +236,26 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
         bm.from_mesh(me)
         # (A shirt's own collar, ragged, is replaced by the built one: cut from a little above
         # where that starts.)
-        top = (ring_z - COLLAR_FROM + 0.008) if (ob.name == "body_shirt" and mode == "built") else (ring_z + COLLAR_UP)
-        high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
+        if ob.name == "body_shirt" and mode == "built":
+            top = ring_z - COLLAR_FROM + 0.008
+        elif ob.name == "body_shirt" and mode == "smooth":
+            top = ring_z + COLLAR_SMOOTH_UP     # smoothed, no shards left to cut: it stands to his jaw
+        else:
+            top = ring_z + COLLAR_UP
+        if ob.name == "body_shirt" and mode == "smooth":
+            # Lower behind: his collar's back stands COLLAR_SMOOTH_BACK above the ring, its front
+            # COLLAR_SMOOTH_UP (the twin's collar is shredded high at his nape, white spikes by
+            # his hair). Front is where his jaw reaches, over his neck.
+            jaw = neck[(neck[:, 2] > ring_z + 0.03) & (neck[:, 2] < ring_z + 0.08)]
+            fwd = jaw[:, :2].mean(0) - centre[:2]
+            fwd = fwd / max(np.linalg.norm(fwd), 1e-6)
+            def top_at(p):
+                d = np.array([p.x - centre[0], p.y - centre[1]])
+                c = float(d @ fwd) / max(np.linalg.norm(d), 1e-6)          # 1 in front, -1 behind
+                return ring_z + COLLAR_SMOOTH_BACK + (COLLAR_SMOOTH_UP - COLLAR_SMOOTH_BACK) * max(c, 0.0) ** 2
+            high = [f for f in bm.faces if any(vv.co.z > top_at(vv.co) for vv in f.verts)]
+        else:
+            high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
         bmesh.ops.delete(bm, geom=high, context="FACES")
         bm.to_mesh(me)
         bm.free()
@@ -434,8 +494,9 @@ def main():
     bpy.data.objects.remove(old)
     # --collar=none: the garments left as the fit made them, the bust's own painted collar meeting
     # them (a coat's twin's collar and tie are clean, and the built one reads as a neck brace
-    # close up: Sean, 2026-10-16); built (the default): collar_out and stand_collar, for a twin
-    # whose own collar came out ragged (the coatless twin's); own: collar_out without the build.
+    # close up: Sean, 2026-10-16); smooth: the twin's own ragged collar and knot smoothed
+    # (smooth_collar) and standing to his jaw in front (the coatless man, 2026-10-17); built (the
+    # default): collar_out and stand_collar; own: collar_out without the build.
     if a.get("--collar", "built") != "none":
         collar_out(bpy, newh, ring_z, os.path.join(PEOPLE, body + "_shirt.png"), a.get("--collar", "built"))
     newh.name = "body_head"

@@ -83,8 +83,10 @@ facing its right, from behind:
 4. **His clothes:**
    ```sh
    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_dressed --out=<man>
+   ~/bpyenv/bin/python tools/characters/body_paint.py --body=<man>_vest_dressed --dressed --unsquare=1 \
+       --views=front:<pics>/front.png,left:<pics>/left.png,right:<pics>/right.png,back:<pics>/back.png
    ~/bpyenv/bin/python tools/characters/twin_pieces.py --body=<man>_body --dressed=<man>_vest_dressed \
-       --out=<man>_under --split=layers
+       --out=<man>_under --split=layers --painted
    ```
    → `assets/people/tripo/<man>_coat.glb` (and `_trousers`, unused now) and
    `<man>_under_{shirt,vest,trousers}.glb` + `.json`. Good: "twin laid on the body: scale ~1.0,
@@ -97,8 +99,8 @@ facing its right, from behind:
 6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`) (and the same with `--body=<man>_vest_body
    --out=<man>_vest_layered`):
    `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
-   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean; the
-   coatless man keeps the default `built`)
+   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean;
+   `--collar=smooth` for the coatless man: his twin's own collar and knot smoothed)
    → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
 7. **Import, test, look:** `godot --headless --import`; `test_bodies`; then the lab:
    ```sh
@@ -197,6 +199,23 @@ way: the same man, triangle for triangle).
     painted white or black untoned. The built collar reads as a neck brace close up (the jaw
     through it): the coated man goes without it (`--collar=none`); the coatless man still has it,
     his twin's own collar and tie knot being ragged fins in Rodin's model (sheet `d7_cloth_crisp.png`).
+  - Barrel chest (two causes; sheet `d8_chest.png`): the coatless twin's arms hang against his
+    waist, so laying the sleeves on the body's arms took ~560 of the waistcoat's points with them
+    and flared it from armpit to hem (`twin_pieces`: cut into layers, what is drawn darker than
+    `ARM_DARK_L` is never arm); and `shoulders` widened his whole upper chest (now only from
+    `BROADEN_LOW` 12 cm under the shoulder joints up). His waist is now his picture's (17.6% of his
+    height against 21%).
+  - Collar (geometry): the coatless twin's collar and tie knot are thin slivers. The built band
+    read as "a flat straight piece". Now `neck_ring --collar=smooth` Taubin-smooths his own
+    collar (`COLLAR_SMOOTH` 9 cm under the ring) and lets it stand to his jaw in front, lower
+    behind (`COLLAR_SMOOTH_UP`, `_BACK`), and his neck under it is painted his shirt's light
+    colour, not its average grey (`fit_tripo.UNDER_SHIRT_LIGHT`, his neck only: lighter on his
+    chest it showed through a coat's edges). Sheet `d9_collar.png`.
+  - His clothes painted from his four coatless pictures (Sean, 2026-10-17): `body_paint --dressed`
+    paints the coatless twin's texture from them (lined up by outline; each texel takes only
+    picture colour as light or dark as Rodin's there, `DRESSED_LIGHT`, or the waistcoat's brown
+    fell on his sleeves' edges); `twin_pieces --painted` writes the garments with it, cut as ever
+    by Rodin's own colours. Sheet `d10_painted.png`.
   - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
     `MIN_PART` triangles folded into the garment round them.
   - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a
