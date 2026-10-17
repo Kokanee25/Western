@@ -284,13 +284,14 @@ frozen until Sean names one.
   haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
   street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
   `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$3.98 (road $2.44, sky $0.26,
-  references $1.28).
-- The judge and critic compare against painted references since 2026-10-16
-  (`docs/concept/*-painted.png`, `tools/textures/paint_reference.py`; Sean chose street C).
-- Next: Sean's eye on the sky (#131, build 1294). Critic r4's top: the card player still in squares
-  (characters' 1.3), the street's sky an orange blanket near the sun with canyon walls closing it,
-  the standing men; then blocky roadside grass, no cool moonlight in the saloon (the new saloon
-  painting is cooler and less yellow than ours: judge r4 saloon 0.644).
+  references $1.28) before the match work.
+- The judge and critic compare against painted references (`docs/concept/*-painted.png`; street C,
+  the saloon warm). The world painted in the man's hand (target 8, brief `docs/briefs/match-the-man.md`):
+  woods and materials repainted dirty and worn (`paint_woods.py`, `paint_textures.py --style=man`),
+  grass in strokes, the road into his palette; ~$5.5 of Sean's $6.
+- Next: the close props in his hand (the card table's drawn top, chairs, lamp, bottle, mugs: built in
+  code, flat colours); then critic r5's: the canyon walls' stepped edges, the saloon's dark depth,
+  the street's dark silhouettes. The card player is characters' 1.3.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs

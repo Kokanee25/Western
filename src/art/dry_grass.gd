@@ -13,9 +13,11 @@ const ROAD_HALF := 6.0
 ## How many tufts to try placing, and the area they're scattered over (x0, z0, x1, z1).
 const TRIES := 32000
 const AREA := Rect2(-80.0, -45.0, 110.0, 80.0)
-## Tuft size in metres (width, height) and texels in its picture (one texel a blade's width).
+## Tuft size in metres (width, height) and texels in its picture. 156 x 108 since 2026-10-16
+## (docs/briefs/match-the-man.md): at 26 x 18, one texel a blade and drawn nearest, every blade was
+## a big square beside the painted man; now thin tapering strokes, filtered smooth.
 const SIZE := Vector2(0.85, 0.55)
-const TEXELS := Vector2i(26, 18)
+const TEXELS := Vector2i(156, 108)
 
 @export var grass_seed := 1876
 
@@ -112,7 +114,7 @@ func tuft_mesh() -> ArrayMesh:
 func material() -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = blades()
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 	m.alpha_scissor_threshold = 0.5
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -122,28 +124,52 @@ func material() -> StandardMaterial3D:
 	return m
 
 
-## The tuft's picture: blades one texel wide rising from the bottom, leaning out from the middle,
-## the tallest in the middle; straw, gold, pale and a few brown, darker at the root.
+## The tuft's picture: blades as thin painted strokes rising from the bottom, two or three texels
+## wide at the root tapering to one at the tip, curving out from the middle, the tallest in the
+## middle; straw, gold, pale and a few brown, darker at the root, a little lighter along one side
+## (the man's painted hand: a few tones a stroke, no noise). Mipmapped, so far tufts soften.
 func blades() -> ImageTexture:
 	if _texture:
 		return _texture
 	var img := Image.create(TEXELS.x, TEXELS.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
+	# Transparent straw, not black: the mipmaps blend what's round a blade into its edge.
+	img.fill(Color(0.82, 0.67, 0.4, 0.0))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 33
 	var shades := [Color(0.85, 0.68, 0.38), Color(0.93, 0.79, 0.48), Color(0.76, 0.59, 0.32),
 			Color(0.98, 0.88, 0.6), Color(0.64, 0.48, 0.27), Color(0.82, 0.73, 0.45)]
-	for b in 44:
-		var x0 := rng.randf_range(TEXELS.x * 0.2, TEXELS.x * 0.8)
-		var lean := (x0 - TEXELS.x * 0.5) / (TEXELS.x * 0.5) * rng.randf_range(0.2, 0.8) + rng.randf_range(-0.15, 0.15)
-		var middle := 1.0 - absf(x0 - TEXELS.x * 0.5) / (TEXELS.x * 0.5)
-		var h := int(TEXELS.y * rng.randf_range(0.35, 0.65 + 0.35 * middle))
+	var w := float(TEXELS.x)
+	var hgt := float(TEXELS.y)
+	for b in 150:
+		var x0 := rng.randf_range(w * 0.25, w * 0.75)
+		var out := (x0 - w * 0.5) / (w * 0.5)
+		var lean := out * rng.randf_range(0.15, 0.6) + rng.randf_range(-0.12, 0.12)
+		var bend := out * rng.randf_range(0.2, 0.9) + rng.randf_range(-0.2, 0.2)
+		var middle := 1.0 - absf(out)
+		var h := hgt * rng.randf_range(0.35, 0.6 + 0.38 * middle)
 		var c: Color = shades[rng.randi() % shades.size()]
-		for y in h:
-			var x := int(round(x0 + lean * y))
-			if x < 0 or x >= TEXELS.x:
-				break
-			var root := 1.0 - float(y) / maxf(h, 1)
-			img.set_pixel(x, TEXELS.y - 1 - y, c.darkened(root * root * 0.3))
+		var root_w := rng.randf_range(1.6, 2.8)
+		var steps := int(h * 1.5)
+		for k in steps:
+			var t := float(k) / steps
+			var y := t * h
+			# The blade curves out more as it rises (bend), leaning from its root.
+			var x := x0 + lean * y + bend * y * t * 0.6
+			var half := root_w * (1.0 - t * 0.75) * 0.5
+			var shade := c.darkened((1.0 - t) * (1.0 - t) * 0.35)
+			for dx in range(int(floor(x - half)), int(ceil(x + half)) + 1):
+				if dx < 0 or dx >= TEXELS.x:
+					continue
+				var cover := clampf(half + 0.5 - absf(float(dx) - x), 0.0, 1.0)
+				if cover <= 0.0:
+					continue
+				var py := TEXELS.y - 1 - int(y)
+				if py < 0:
+					continue
+				var lit := shade.lightened(0.12) if float(dx) < x else shade
+				var was := img.get_pixel(dx, py)
+				var a := maxf(was.a, cover)
+				img.set_pixel(dx, py, Color(lit.r, lit.g, lit.b, a))
+	img.generate_mipmaps()
 	_texture = ImageTexture.create_from_image(img)
 	return _texture

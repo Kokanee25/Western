@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fl1ycc3fhemm"
-path="res://.godot/imported/shot_table_b4.png-dc797a584af80d06b97deaba4125723c.ctex"
+uid="uid://v0o0hygmh0mp"
+path="res://.godot/imported/saloon_wall_b7.png-851eac8942ab8c6f71c42b9b7b5abb14.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/shot_table_b4.png"
-dest_files=["res://.godot/imported/shot_table_b4.png-dc797a584af80d06b97deaba4125723c.ctex"]
+source_file="res://assets/textures/saloon_wall_b7.png"
+dest_files=["res://.godot/imported/saloon_wall_b7.png-851eac8942ab8c6f71c42b9b7b5abb14.ctex"]
 
 [params]
 

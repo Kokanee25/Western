@@ -94,6 +94,11 @@ const VIEWS := [
 	# Sean's road target is (docs/concept/targets/6_road_target.jpg), at golden hour and at noon.
 	["road_low_golden", 17.6, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
 	["road_low_noon", 12.5, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
+	# The man beside the town's surfaces (art, 2026-10-16, docs/briefs/match-the-man.md): the
+	# layered cowboy (--model= to change) standing before the general store's boards at golden
+	# hour, and in the saloon at night: the world is judged against him.
+	["man_store_golden", 17.6, Vector3(3.0, 0.0, -8.6), 180.0, 2.0, "man_store"],
+	["man_saloon_night", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, -4.0, "man_saloon"],
 ]
 
 ## The views were laid out on the old test street; the town now stands on Sean's map
@@ -103,9 +108,9 @@ const VIEWS := [
 const STORE_VIEWS := ["store_front_noon", "porch_dusk", "inside_store_afternoon", "inside_store_night", "look_down_body",
 	"holes_from_inside", "window_shot", "wall_closeup_noon", "porch_collapse", "store_fire_night", "store_fire_close",
 	"store_fire_later", "gun_at_wall", "gun_at_wall_aim", "dynamite_store_blast", "dynamite_store_after",
-	"texel_porch", "texel_store_golden", "town_holdup"]
+	"texel_porch", "texel_store_golden", "town_holdup", "man_store_golden"]
 const SALOON_VIEWS := ["gun_smoke_saloon", "saloon_front_dusk", "saloon_night", "saloon_back_wall_night",
-	"saloon_toward_door_night", "shotgun_shot_saloon", "town_bar"]
+	"saloon_toward_door_night", "shotgun_shot_saloon", "town_bar", "man_saloon_night"]
 const RANGE_VIEWS := ["gun_hip_range", "gun_aim_range", "gun_loading", "smoke_drift_street", "outlaw_range", "outlaw_close",
 	"outlaw_fight", "outlaw_surrender", "outlaw_down", "outlaw_graze", "outlaw_open", "outlaw_open_close", "outlaw_open_reduced",
 	"outlaw_neck", "outlaw_xray", "outlaw_face", "outlaw_face_evening", "outlaw_side", "outlaw_back", "shotgun_hip_range",
@@ -474,6 +479,8 @@ func _run() -> void:
 			await _face_street_setup(main, player)
 		if setup == "road_low":
 			await _road_low_setup(main, player)
+		if setup == "man_store" or setup == "man_saloon":
+			await _man_setup(main, player)
 		if setup.begins_with("kid_"):
 			# One Kid for all three views (the street isn't reloaded between them).
 			var town = main.find_child("TownLife", true, false)
@@ -744,6 +751,35 @@ func _face_street_setup(main, player) -> void:
 	var eye: Vector3 = at + (-man.global_basis.z) * 1.1 + Vector3(0, 0.03, 0)
 	player.camera.global_transform = Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye)
 	player.camera.fov = 40.0
+
+
+## The match views (docs/briefs/match-the-man.md): the layered cowboy (or --model=) standing three
+## metres in front of the camera, facing it, nobody else about; no gun, no body.
+func _man_setup(main, player) -> void:
+	var town = main.find_child("TownLife", true, false)
+	town.gang_arrives = 1e9
+	var spawner = main.find_child("OutlawSpawn", true, false)
+	if spawner.outlaw:
+		spawner.outlaw.queue_free()
+	var street = main.find_child("TestStreet", true, false)
+	var man = load("res://src/bodies/human_body.gd").new()
+	man.name = "MatchMan"
+	man.person_id = &"stranger"
+	var chosen: StringName = load("res://src/art/shot_match.gd").model
+	man.body_model = &"bold_cowboy_layered" if chosen == &"stranger2s" else chosen
+	man.rng_seed = 7
+	street.add_child(man)
+	var fwd: Vector3 = -player.camera.global_basis.z
+	fwd = Vector3(fwd.x, 0.0, fwd.z).normalized()
+	man.global_position = player.global_position + fwd * 3.0
+	man.face(player.global_position)
+	man.set_pose(&"stand")
+	var gun = player.get_node(^"Head/Camera3D/Gun")
+	gun._draw = 0.0
+	load("res://src/art/shot_match.gd").hands_off_camera(player)
+	player.body.visible = false
+	for i in 60:
+		await physics_frame
 
 
 ## The road's view (docs/briefs/road.md): the camera a metre off the dirt, looking west down the

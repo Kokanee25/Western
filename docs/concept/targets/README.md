@@ -98,3 +98,10 @@ with its glowing flame.
 Deep wheel ruts with a sunlit ridge and a shadowed groove, solid stones each with a lit top and a
 shadow, long raking light and dust haze down the street. Its boot prints are to come from people
 walking (gameplay's, `docs/BACKLOG.md`), not painted into the road.
+
+## 8. The man as he is in the game (Sean, 2026-10-16)
+
+`8_man_model.png`: the layered cowboy's model sheet (front, side, back). Sean: "we need to figure
+out how we take the rest of the art to match him". The world's materials, props and light are
+judged against him: the same hand, the same detail per metre, the same palette.
+

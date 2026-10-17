@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ckw5wtgucsy8t"
-path="res://.godot/imported/painted_rust_b5.png-dc572d5d1d0aafea0250da418e90e88a.ctex"
+uid="uid://d0rerjo0bmy3k"
+path="res://.godot/imported/saloon_wall_b8.png-e171cf53975d3b6df624a8a4ae86fe67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/painted_rust_b5.png"
-dest_files=["res://.godot/imported/painted_rust_b5.png-dc572d5d1d0aafea0250da418e90e88a.ctex"]
+source_file="res://assets/textures/saloon_wall_b8.png"
+dest_files=["res://.godot/imported/saloon_wall_b8.png-e171cf53975d3b6df624a8a4ae86fe67.ctex"]
 
 [params]
 
