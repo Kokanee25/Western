@@ -123,6 +123,8 @@ func _run() -> void:
 				runner.view_size = Vector2i(int(wh[0]), int(wh[1]))
 			if args.has("every"):
 				runner.every = int(args.every)
+			if args.has("mocap"):
+				runner.mocap = true
 			if args.has("follow"):
 				runner.follow = true
 			if args.has("cam-dist"):
