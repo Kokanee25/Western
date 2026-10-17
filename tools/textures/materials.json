@@ -42,7 +42,9 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these). 2026-10-17: lighter and warmer (lightness 1.3, chroma 1.15): the saloon's back was ~8 L* under the warm reference (critic r1, a dim brown void).",
+   "lightness": 1.3,
+   "chroma": 1.15
   },
   "dark_trim": {
    "lightness": 0.9,
@@ -83,8 +85,9 @@
    ],
    "smooth": true,
    "texels_per_metre": 384,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these).",
-   "turn": true
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these). 2026-10-17: contrast 2 (its grain was faint, the critic's flat salmon plane).",
+   "turn": true,
+   "contrast": 2.0
   },
   "framing": {
    "lightness": 0.9,
