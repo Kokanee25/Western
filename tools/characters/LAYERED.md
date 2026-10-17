@@ -97,8 +97,8 @@ facing its right, from behind:
 6. **His head on, through the ring** (right after the fit: it reads `build/bare_skin/`) (and the same with `--body=<man>_vest_body
    --out=<man>_vest_layered`):
    `~/bpyenv/bin/python tools/characters/neck_ring.py --body=<man>_body --head=<head> --out=<man>_layered --head_scale=0.92`
-   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean; the
-   coatless man keeps the default `built`)
+   (`--collar=none` for the man in his coat: his coat's twin's collar and tie are clean;
+   `--collar=smooth` for the coatless man: his twin's own collar and knot smoothed)
    → `assets/people/<man>_layered.glb` (+ textures, `.json` with `neck_ring`).
 7. **Import, test, look:** `godot --headless --import`; `test_bodies`; then the lab:
    ```sh
@@ -203,6 +203,11 @@ way: the same man, triangle for triangle).
     `ARM_DARK_L` is never arm); and `shoulders` widened his whole upper chest (now only from
     `BROADEN_LOW` 12 cm under the shoulder joints up). His waist is now his picture's (17.6% of his
     height against 21%).
+  - Collar (geometry): the coatless twin's collar and tie knot are thin slivers. The built band
+    read as "a flat straight piece". Now `neck_ring --collar=smooth` Taubin-smooths his own
+    collar (`COLLAR_SMOOTH` 9 cm under the ring) and lets it stand to his jaw in front, lower
+    behind (`COLLAR_SMOOTH_UP`, `_BACK`), and his neck under it is painted his shirt's light
+    colour, not its average grey (`fit_tripo.UNDER_SHIRT_LIGHT`). Sheet `d9_collar.png`.
   - Shards on shirt and vest (segmentation: colour, triangle by triangle): pieces under
     `MIN_PART` triangles folded into the garment round them.
   - Sawtooth hem and a gap at the waistband (segmentation and the cut): the vest's hem on a
