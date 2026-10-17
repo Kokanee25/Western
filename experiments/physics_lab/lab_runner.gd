@@ -26,7 +26,7 @@ var cam_distance := 3.2
 ## --follow: the cameras keep him in shot across the ground (for footage of a running man), at
 ## the same offset, eased; without it they stay where he started (for comparing frames).
 var follow := false
-var _cams: Array = []  ## [Camera3D, offset, up]
+var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
@@ -242,7 +242,7 @@ func _build_cameras() -> void:
 		var off: Vector3 = at.get(v, at.front)
 		cam.look_at_from_position(f + off + Vector3.UP * (0.3 if v != "top" else 0.0), f, Vector3.UP if v != "top" else -b.z)
 		cam.current = true
-		_cams.append([cam, off + Vector3.UP * (0.3 if v != "top" else 0.0), Vector3.UP if v != "top" else -b.z, f])
+		_follow_cams.append([cam, off + Vector3.UP * (0.3 if v != "top" else 0.0), Vector3.UP if v != "top" else -b.z, f])
 		_viewports.append([v, sv])
 		DirAccess.make_dir_recursive_absolute(out_dir.path_join("frames").path_join(v))
 
@@ -250,7 +250,7 @@ func _build_cameras() -> void:
 func _save_frames() -> void:
 	if follow and not _men.is_empty():
 		var com := _com(_men[0])
-		for c: Array in _cams:
+		for c: Array in _follow_cams:
 			var f: Vector3 = c[3]
 			f = f.lerp(Vector3(com.x, f.y, com.z), 0.25)
 			c[3] = f
