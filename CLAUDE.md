@@ -291,8 +291,11 @@ frozen until Sean names one.
   grass in strokes, the road into his palette; ~$5.5 of Sean's $6.
 - The close props in his hand (2026-10-17, $2.64 of a further $5): ten prop materials, factory tiles
   at their own density, the table's painted top, turned props round, the backdrop smooth.
-- Next: the saloon (the chimney glass in squares, the table's faint grain, the back room's dark
-  depth: critic 2026-10-17_r1); the street's dark silhouettes. The card player is characters' 1.3.
+- The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
+  shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
+- Next (critic 2026-10-17_r2): the wall strips at their painted density (still 32 a metre, squares),
+  the back bar's dark void, the table's flat top; the street all one orange and its canyon end
+  (the hero rocks' size is Sean's call). The card player is characters' 1.3.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
