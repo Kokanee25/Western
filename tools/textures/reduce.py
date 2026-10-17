@@ -280,7 +280,9 @@ def reduce(mid, spec, tpm):
     else:
         raw = crop_to(raw, metres[0] / metres[1])
     a = np.asarray(raw).astype(np.float64) / 255.0
-    a = flatten(a, FLATTEN if kind != "sign" else 0.5)
+    # `flatten`: a material's own (1 takes the painting's broad light right out: a painted sheen
+    # on the pewter would sit on the mug whatever the light).
+    a = flatten(a, spec.get("flatten", FLATTEN if kind != "sign" else 0.5))
     joints = 0
     if spec.get("boards", False):
         a, joints = wipe_joints(a)
