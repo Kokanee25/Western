@@ -294,9 +294,12 @@ frozen until Sean names one.
 - The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
   shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
 - Sean, 2026-10-17: "our art isn't completely smooth, it can have a bit of square to it" (DESIGN.md
-  §4): squares aren't a fault in themselves; the critic's prompt says so. Next (critic r2): the back
-  bar's dark void, the table's flat top; the street all one orange and its canyon end (the hero
-  rocks' size is Sean's call).
+  §4): squares aren't a fault in themselves; the critic's prompt says so. Sheet
+  `docs/screenshots/sky/how_square.jpg` (A smooth now / C halfway / B the cowboy's squares) unpicked.
+- **Paused (Sean, 2026-10-17):** no more world art until the character (1.3) is finished and can be
+  used in the renders: "once we know how the character looks we can better mould the world". Then:
+  how square (the sheet), the back bar's dark void, the table's flat top, the street all one
+  orange and its canyon end (the hero rocks' size is Sean's call). ~$2.36 of his $5 unspent.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
   kill match the command itself; a data texture with an alpha channel needs
