@@ -314,15 +314,16 @@ frozen until Sean names one.
 `painted-light.md`, `skinned-hands.md`):
 - On main: the three Rodin portrait men (`tools/characters/RECIPE.md`; bookmark
   `look/portrait-men-2026-10-14`); the painterly bold cowboy drawn painted (#124); **the layered
-  cowboy** (roadmap 1.3, merged 2026-10-16 as a safe copy, still being fixed; recipe
-  `tools/characters/LAYERED.md`): shirt+tie, vest and trousers from the coatless twin
-  (`bold_cowboy_vest_dressed`), the coat over them; outfits `bold_cowboy_layered` (coat) and
-  `bold_cowboy_vest_layered`; sheets `docs/style_test/layered-2026-10-15/d4`-`d7`. ~$10.06 of $15
-  spent. Not merged: his own hat (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next (Sean, 2026-10-16): the coatless man's collar (his twin's is ragged; the built one reads as
-  a neck brace: give him the coated twin's collar and tie knot) and his barrel chest; then the
-  coat's wing with hands up, seated crumpling, the painted look. Trap: after a build,
-  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh` (`--aimx`).
+  cowboy** (roadmap 1.3; recipe `tools/characters/LAYERED.md`): shirt+tie, vest and trousers
+  from the coatless twin (`bold_cowboy_vest_dressed`), painted from his four pictures
+  (`body_paint --dressed`), the coat over them; outfits `bold_cowboy_layered` (coat) and
+  `bold_cowboy_vest_layered`; chest, collar and paint fixed 2026-10-17 (sheets
+  `docs/style_test/layered-2026-10-15/d4`-`d10`). ~$10.06 of $15 spent. Not merged: his own hat
+  (`look/bold-cowboy-own-hat-2026-10-14`).
+- Next (Sean, 2026-10-17: a fresh session "fixing him up", then the recipe): blotchy cloth close
+  up, light flecks at his sleeve edges (side pictures line up 81-82%), a plainer collar than his
+  pictures', the coat's edges and back vent, its wing with hands up, seated crumpling. Trap: after
+  a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)

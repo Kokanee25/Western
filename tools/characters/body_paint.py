@@ -4,6 +4,9 @@ rodin_portrait.py paints a head from its portraits.
     ~/bpyenv/bin/python tools/characters/body_paint.py --body=bold_cowboy_body \\
         --views=front:PATH,left:PATH,right:PATH,back:PATH [--unsquare=9]
     then tools/blender/fit_tripo.py --only=<body> (it takes assets/people/tripo/<body>_color.png)
+    --dressed: a dressed twin (--body=<man>_vest_dressed) painted from its own pictures, every
+    picture painting what it sees; tools/characters/twin_pieces.py --painted writes its garments
+    with that paint.
 
 - Each painting is lined up with his Rodin body (assets/people/tripo/test/<body>_rodin.glb) by
   outline: an orthographic view from the side the painting shows (front: from in front of him,
@@ -38,6 +41,7 @@ VIEWS = {"front": (np.array([-1.0, 0, 0]), np.array([0, 0, -1.0])),
          "back": (np.array([1.0, 0, 0]), np.array([0, 0, 1.0])),
          "left": (np.array([0, 0, 1.0]), np.array([-1.0, 0, 0])),
          "right": (np.array([0, 0, -1.0]), np.array([1.0, 0, 0]))}
+DRESSED_LIGHT = 0.42   # --dressed: luma (0-1) parting light texels (shirt, skin) from dark (waistcoat, trousers, tie)
 SEAM = 0.08            # facing difference over which two views blend
 MIN_FACING = 0.15
 BG_TOL = 0.09
@@ -205,10 +209,24 @@ def main():
         kind[(p[:, 1] > lo + SHORTS_INSET * height) & (p[:, 1] < hi - SHORTS_INSET * height)] = 1
         print("body_paint: his shorts from %.2f to %.2f m (of %.2f to %.2f)" % (lo, hi, V[:, 1].min(), V[:, 1].max()))
     kind[arm] = 0
+    dressed_light = None
+    if "--dressed" in sys.argv:
+        # A dressed twin (Rodin's man made from these same pictures, stood as they show him): no
+        # skin-or-shorts rule. Each texel takes only picture colour as light or as dark as Rodin
+        # painted it there (his shirt and skin light; his waistcoat, trousers and tie dark): where
+        # the outlines are a little off, the waistcoat's brown fell on his sleeves' edges and the
+        # backdrop on his trousers.
+        kind[:] = -1
+        lum = lambda c: c @ np.array([0.299, 0.587, 0.114])
+        dressed_light = lum(own[idx][:, :3].astype(float) / (255.0 if own.max() > 1.5 else 1.0)) >= DRESSED_LIGHT
     rejected = 0
     for k, view in enumerate(names):
         grey = C[k][:, 2] >= CLOTH_BR_MAX * np.maximum(C[k][:, 0], 1e-6)   # the backdrop, between arm and body
+        if "--dressed" in sys.argv:
+            grey[:] = False     # his white shirt is as blue as red too: the figure's outline decides
         wrong = (((kind >= 0) & (cloth_like(C[k]).astype(int) != kind)) | grey) & np.isfinite(S[k])
+        if dressed_light is not None:
+            wrong |= ((C[k] @ np.array([0.299, 0.587, 0.114]) >= DRESSED_LIGHT) != dressed_light) & np.isfinite(S[k])
         S[k][wrong] = -np.inf
         rejected += int(wrong.sum())
     if os.environ.get("BODY_PAINT_DEBUG"):
