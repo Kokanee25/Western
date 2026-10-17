@@ -1623,6 +1623,8 @@ const STUMBLE_FROM := 0.8  ## m/s: slower than this he drops where he is
 const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0, 6), &"neck": Vector3(-6, 0, 0),
 		&"head": Vector3(-10, 0, 0)}
 const STUMBLE_FOLD_IN := 0.2
+## The share of a standing man's flinch he gives as he's dropped on the move (a few degrees).
+const STUMBLE_JOLT := 0.12
 
 
 func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch := 0.0) -> void:
@@ -1639,7 +1641,10 @@ func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch 
 				"dir": dir, "given": given, "speed": move_speed, "time": t, "heading": -global_basis.z,
 				"front": dir.dot(-global_basis.z) < 0.3 and not leg,
 				"left": -signf((pos - chest.global_position).dot(chest.global_basis.x))}
-		_flinch_from(seg, pos, dir, maxf(flinch, given))
+		# A jolt where it hit, no more: his reaction is folding round it (STUMBLE_FOLD). The whole
+		# flinch threw his chest back 45 degrees in a twentieth of a second, as if shoved (Sean:
+		# "too quickly pushed back before falling").
+		_flinch_from(seg, pos, dir, maxf(flinch, given) * STUMBLE_JOLT)
 		return
 	go_limp()
 	var rb := parts.get(seg) as RigidBody3D

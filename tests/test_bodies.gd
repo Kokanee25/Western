@@ -296,6 +296,15 @@ func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
 			walker.queue_free()
 			continue
 		check(not walker.limp, "not down the instant he's hit")
+		# He isn't thrown back by it: a jolt, then he folds over it (Sean: the chest shots were
+		# "too quickly pushed back before falling", the flinch threw his chest back 45 degrees).
+		var back := 0.0
+		for i in 9:
+			await physics_frames(1)
+			var up := (walker.parts[&"chest"] as Node3D).global_basis.y
+			back = maxf(back, rad_to_deg(asin(clampf(up.dot(walker.global_basis.z), -1.0, 1.0))))
+		print("  chest back at most %.0f deg in the first 0.15 s" % back)
+		check(back < 12.0, "a jolt, not thrown back (%.0f deg)" % back)
 		# Anyone else's walking doesn't move him now: his last steps are his body's.
 		var before := walker.global_position
 		walker.stumbling = maxf(walker.stumbling, 0.1)
