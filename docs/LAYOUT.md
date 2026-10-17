@@ -580,6 +580,14 @@ a few views renders them as the full run does.
 
 ## The texture factory (tools/textures)
 
+- **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
+  model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
+  reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
+  into the same `woods/<wood>_b<k>.png`, seamless along the length (`--cut` re-cuts the kept
+  `raw/woods_<wood>.jpg` with no calls; People workflow `textures = woods[:ids]`).
+  `paint_textures.py --style=man` paints materials in his hand (`textures = man:<ids>`); those
+  are `smooth` at 128 a metre with their own colours. Match views `man_store_golden`,
+  `man_saloon_night`. `paint_reference.py` paints the judge's references (`references.json`).
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
