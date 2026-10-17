@@ -83,7 +83,8 @@
    ],
    "smooth": true,
    "texels_per_metre": 384,
-   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these)."
+   "about": "Painted in the man's hand (docs/briefs/match-the-man.md, 2026-10-16): smooth at 128 a metre, no palette, its own colours (the earlier paintings' lightness, chroma and contrast pushes gutted these).",
+   "turn": true
   },
   "framing": {
    "lightness": 0.9,
@@ -412,7 +413,9 @@
    ],
    "smooth": true,
    "texels_per_metre": 256,
-   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
+   "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key.",
+   "lightness": 0.65,
+   "chroma": 1.5
   },
   "prop_felt": {
    "for": "saloon",

@@ -588,6 +588,13 @@ a few views renders them as the full run does.
   `paint_textures.py --style=man` paints materials in his hand (`textures = man:<ids>`); those
   are `smooth` at 128 a metre with their own colours. Match views `man_store_golden`,
   `man_saloon_night`. `paint_reference.py` paints the judge's references (`references.json`).
+  The close props (2026-10-17): `prop_wood`, `prop_felt`, `prop_pewter`, `shot_tin`, `prop_brass`,
+  `prop_iron`, `prop_glass`, `prop_staves`, `prop_barrel_head`, `walnut` (the gun stock) are factory
+  materials under the keys PropModels/ShotMatch already ask for, finer the closer they're seen (512
+  a metre over 25 cm for the metals, glass and walnut); `PixelArt.factory_density()` lays a factory
+  tile at its own texels a metre (textures.json), a multiple of the world's; `turn` in a material
+  turns its painting a quarter round before it's cut. `PropModels.lathe` shares ring normals
+  under `SMOOTH_CREASE` (turned props shade round, not in rings).
 - **The texture factory** (`tools/textures/`): `materials.json` lists the world's materials (id =
   the key `PixelArt`/`WoodMaterials` ask for: floor, saloon_wall, dark_trim, shot_table, framing,
   weathered_pine, painted_ochre/rust, sign, road) and lettered signs (sign_saloon, …), each with a
@@ -687,7 +694,8 @@ a few views renders them as the full run does.
   screen, the street painting's mountains as reference; `tools/textures/backdrop.json` says what
   each panel shows, its bearing and `shift`, the layer's `scale` and `band`) and cut by
   `reduce_backdrop.py` (runs anywhere: green keyed out, the band under the land's foot dropped,
-  squares at 0.15 degrees (half the first cut's: the painting's far rock is soft), panels shown
+  squares at 0.15 degrees (half the first cut's: the painting's far rock is soft; since 2026-10-17
+  `smooth`: 0.1 degrees, its own colours, read filtered, no mosaic or palette), panels shown
   smaller than 90 degrees tapered at their sides, the near layer kept to a low band under a
   rolling hill line, columns filled solid, a faint mosaic, a palette a layer (40/36/32 colours);
   in the shader each layer's haze is scaled by the scene's fog density (`haze_scale`) → `assets/textures/backdrop_<layer>.png` + `backdrop.json`). Bearings increase to
