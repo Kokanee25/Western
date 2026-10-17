@@ -65,7 +65,7 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		# man wears every piece his model came with (his own coat and hat, fitted as pieces).
 		if k in ["skin", "head"] or shapes.has(k) or not k in OUTFIT_KEYS or whole:
 			shapes[k] = generated[k]
-			var png := TEXTURE_PATH % [model, k]
+			var png := TEXTURE_PATH % [_textures_of(model, k), k]
 			if smooth_paint and ResourceLoader.exists(TEXTURE_PATH % [model, k + "_smooth"]):
 				png = TEXTURE_PATH % [model, k + "_smooth"]
 			if ResourceLoader.exists(png):
@@ -111,6 +111,14 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
 	return out
+
+
+## Whose texture a shape wears: his own, or (a copy made by tools/faces/talking_face.py, whose
+## report says "textures_from") the man he was copied from, for what the copy didn't change.
+static func _textures_of(model: StringName, shape: String) -> StringName:
+	if ResourceLoader.exists(TEXTURE_PATH % [model, shape]):
+		return model
+	return StringName(report(model).get("textures_from", model))
 
 
 ## Whether the model comes dressed (his report says "whole": clothes, hat and all in his skin).
@@ -202,7 +210,18 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 					bones[v * 4 + k] = pairs[k][0]
 					weights[v * 4 + k] = float(pairs[k][1]) / total
 		var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of)
+		# His face's expressions (tools/faces/talking_face.py), carried into his pieces: each the
+		# whole mesh's vertices in that expression.
+		var blends := {}
+		var am := mi.mesh as ArrayMesh
+		if am != null and am.get_blend_shape_count() > 0:
+			var bs := am.surface_get_blend_shape_arrays(0)
+			for k in am.get_blend_shape_count():
+				var bv: PackedVector3Array = (bs[k] as Array)[Mesh.ARRAY_VERTEX]
+				for i in bv.size():
+					bv[i] = xf * bv[i]
+				blends[am.get_blend_shape_name(k)] = bv
+		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of, blends)
 		if shape == "head":
 			_hat_fits[model] = hat_fit(verts)
 	root.free()
