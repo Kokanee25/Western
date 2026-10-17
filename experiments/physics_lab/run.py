@@ -3,6 +3,7 @@
 process a scenario after the first can fall differently), then gather their summaries.
 
   python3 experiments/physics_lab/run.py --out=build/physics_lab/base [--scenario=all|group:F|A_x,B_y]
+      (--follow: the cameras keep him in shot across the ground, for footage of a runner)
       [--render [--views=front,side,three] [--size=480x360] [--every=2]] [--seed=N] [--model=ID] [--jobs=N]
   python3 experiments/physics_lab/run.py --perf --out=build/physics_lab/perf
 
@@ -64,7 +65,7 @@ def main():
     os.makedirs(out, exist_ok=True)
     render = arg("render") is not None
     extra = [a for a in sys.argv[1:] if a.split("=")[0] in
-             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds")]
+             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds", "--follow", "--cam-dist")]
     if arg("scenario") == "list":
         for s in scenarios():
             print("%-24s %s  %s" % (s["name"], s["group"], s["fixture"]))
