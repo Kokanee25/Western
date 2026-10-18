@@ -174,7 +174,8 @@ def crop(round_dir, view, x, y, w, h, slug):
 JUDGE_DIR = os.path.join(ROOT, "docs", "concept", "judge")
 # The references the judge is shown (README.md): the authority first, then the style pictures.
 JUDGE_REFS = ["10_authority_saloon_man.jpg", "05_style_table_lantern.jpg", "08_style_street_a.jpg",
-              "09_style_street_b.jpg", "11_style_saloon_bar.jpg", "13_style_saloon_door.jpg"]
+              "09_style_street_b.jpg", "11_style_saloon_bar.jpg", "13_style_saloon_door.jpg",
+              "14_style_man_saloon_front.jpg"]
 
 JUDGE_PROMPT = """You are Salt Creek's art judge. You have NOT seen the game's code, its history or
 anyone's reasoning, and you must not read any of it: open only the files named here. Judge with

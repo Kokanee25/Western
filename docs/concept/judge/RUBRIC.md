@@ -1,7 +1,7 @@
 # Salt Creek: the art judge's rubric
 
 The yardstick is `10_authority_saloon_man.jpg` (it wins when references disagree), with the style
-pictures beside it (`05`, `08`, `09`, `11`, `12`, `13`). See README.md for what each picture is for.
+pictures beside it (`05`, `08`, `09`, `11`, `12`, `13`, `14`: `14` is the man outdoors by day). See README.md for what each picture is for.
 
 ## The look
 
