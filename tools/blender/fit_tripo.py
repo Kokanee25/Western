@@ -469,7 +469,11 @@ class TripoPerson(mp.Person):
         # A layered man (docs/DESTRUCTION_BRIEF.md part 5): his body is the Tripo model `model`
         # (bare-headed, no coat) and `pieces` {shape: character id} are his garments modelled alone.
         self.model = spec.get("model", pid)
-        self.bare = "model" in spec       # bare-headed: his top is his crown, not a hat
+        # bare-headed: his top is his crown, not a hat. A Rodin base body names no `model` and says
+        # so with "bare": fitted as a hatted whole man its trunk was stretched joint to joint from
+        # Tripo's fixed joint shares, his shoulders and chin up 7-8 cm, 1.89 m on our 1.815
+        # (docs/briefs/garments.md "Measured before choosing", 2026-10-18).
+        self.bare = "model" in spec or bool(spec.get("bare"))
         if spec.get("source") == "rodin":
             # A Rodin man (tools/characters/rodin.py): `rodin` is his glb under assets/people/tripo.
             self.model = spec["rodin"]
@@ -1472,7 +1476,7 @@ class TripoPerson(mp.Person):
 
     def run(self):
         self.warp()
-        if "model" not in self.spec and "coat" not in self.spec.get("pieces", {}):
+        if not self.bare and "coat" not in self.spec.get("pieces", {}):
             # A whole man's coat skirt is in his skin; a layered man's body wears trousers, and
             # the rule would hand their legs to his pelvis (a base body wears its coat as a piece).
             self.skirt()
