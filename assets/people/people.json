@@ -89,7 +89,39 @@
    "outfit": {},
    "pieces": {"vest": "bold_cowboy_made_vest", "shirt": "bold_cowboy_made_shirt", "trousers": "bold_cowboy_made_trousers", "boots": "bold_cowboy_made_boots"}, "paint": "bold_cowboy_body",
    "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
+  },  "bold_cowboy_mh_body": {
+   "note": "The garments trial on a MakeHuman body (docs/briefs/garments.md): MakeHuman's base mesh (CC0) shaped by `mh` targets and stood as his pictures by tools/characters/mh_body.py, painted from his boxer-shorts pictures, his made clothes lofted on it, his Rodin head through the ring. Beside bold_cowboy_vest_body until Sean says.",
+   "source": "rodin",
+   "rodin": "test/bold_cowboy_mh_rodin",
+   "bare": true,
+   "shoulders": 1.0,
+   "own_fingers": "skinned",
+   "tris": {
+    "skin": 30000,
+    "head": 10000
+   },
+   "outfit": {},
+   "pieces": {
+    "vest": "bold_cowboy_mhmade_vest",
+    "shirt": "bold_cowboy_mhmade_shirt",
+    "trousers": "bold_cowboy_mhmade_trousers",
+    "boots": "bold_cowboy_mhmade_boots"
+   },
+   "paint": "bold_cowboy_mh",
+   "mh": {
+    "targets": {
+     "macrodetails/caucasian-male-young": 0.6,
+     "macrodetails/caucasian-male-old": 0.4,
+     "macrodetails/universal-male-young-maxmuscle-averageweight": 0.7,
+     "macrodetails/universal-male-young-maxmuscle-maxweight": 0.3
+    },
+    "arms": 20.0,
+     "head": 0.142,
+     "fit": ["measure/measure-upperleg-height-decr|measure/measure-upperleg-height-incr", "measure/measure-lowerleg-height-decr|measure/measure-lowerleg-height-incr", "measure/measure-napetowaist-dist-decr|measure/measure-napetowaist-dist-incr", "measure/measure-waisttohip-dist-decr|measure/measure-waisttohip-dist-incr"]
+   },
+   "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
   },
+
   "stranger2": {
    "note": "The stranger by Rodin Gen-2.5 (tools/characters/rodin.py) from Sean's own front picture and the three views painted from it (the model test, 2026-10-06), fitted by tools/blender/fit_tripo.py with his joints found from his shape: he comes dressed, hat and all.",
    "source": "rodin",

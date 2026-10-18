@@ -1,0 +1,14 @@
+{
+ "twin": "bold_cowboy_mh",
+ "painted": true,
+ "made": true,
+ "islands": {
+  "vest": [
+   0.0,
+   0.0,
+   1.0,
+   0.8
+  ]
+ },
+ "note": "made on his base body by tools/characters/garments.py; already in place on the body: fit_tripo carries it as it is"
+}

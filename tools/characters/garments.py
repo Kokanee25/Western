@@ -54,8 +54,20 @@ ARM_FROM = 0.22        # of the way down his arm: above it his shoulder and delt
 ARM_LOW_R = 0.10       # ... and below ARM_LOW of the way down it (his hand, his cuff) this much nearer
 ARM_LOW = 0.35
 SLEEVE_R = 0.080       # of his height: skin within this of the arm's bone makes the sleeve
+# The shirt's armholes (metres): half-widths front to back and up and down round the shoulder joint,
+# centred this far under it, reaching this far in towards his neck (and all the way out past it).
+SHIRT_ARMHOLE = {"w": 0.05, "h": 0.075, "down": 0.03, "in": 0.035}
+SLEEVE_HEAD_R = 0.055  # of his height: at its head (above SLEEVE_HEAD_T), skin within this of the arm's bone
 SLEEVE_HEAD_T = 0.2    # of the way down the arm: above it the sleeve's head takes its outer side's radius on its inner side
 NECK_BASE_WIDE = 2.0   # the neck's base: where his neck is this much wider than its narrowest
+NECK_TIGHT = 0.05       # of his height: skin this near his neck's axis just under his chin is his neck (his trapezius beyond)
+JUNC_UNDER_CHIN = 0.025 # metres under his chin his neck's radius is measured
+JUNC_EASE = 0.012       # metres: his neck's base, where the trunk comes in to within this of his neck's radius
+JUNC_UP = 0.012         # metres the shirt's trunk runs on above his neck's base, inside the collar
+COLLAR_STAND = 0.04     # metres the collar stands above his neck's base
+COLLAR_SIDE_UP = 0.03   # metres: at his sides and behind its top may stand this far over its front's
+NECK_FOOT = 0.03       # metres: his neck's base at least this far under the head's ring
+CHIN_FWD = 0.025       # of his height: his chin, where his front's profile comes this far forward of his throat
 CHIN_WIDE = 1.2        # his chin: where, above the narrowest, he is this much wider again
 ROWS = {"trunk": 36, "sleeve": 28, "collar": 4, "leg": 30}
 ANGLES = {"trunk": 56, "sleeve": 28, "collar": 36, "leg": 28}
@@ -97,6 +109,8 @@ TIE = {"knot": (0.034, 0.026, 0.016), "width": 0.036, "length": 0.17, "spread": 
 CLASS = {"shirt": (58.0, 101.0, 31.0, 62.0), "tie": (0.0, 42.0, 24.0, 0.0), "vest": (4.0, 46.0, 42.0, 0.0),
          "trousers": (0.0, 46.0, 16.0, 0.0)}
 HUE_FROM_CHROMA = 12.0
+CLEAN = {"shirt": 14.0}        # garments painted clean: their lit colour, shaded by the pictures blurred over this many texels
+CLEAN_RANGE = (0.80, 1.05)     # ... the shade's range
 # Each part's island in the texture (left, top, width, height), as shares of it.
 # The waistcoat (metres): its hem this far above his hip joints at his back, its two front points
 # this much lower; its V open from his neck's base down this far, as wide at the top as his
@@ -111,7 +125,7 @@ HUE_FROM_CHROMA = 12.0
 # his flanks in the game's stand), the shoulder seam's straight cut only over his shoulder
 # (above seam_low under the joint).
 VEST = {"hem": 0.17, "points": 0.045, "notch": 0.8, "v_depth": 0.15, "v_top": 0.085,
-        "arm_w": 0.13, "arm_h": 0.16, "arm_down": 0.03, "arm_in": 0.11, "seam_in": 0.075, "top": 0.004,
+        "arm_w": 0.13, "arm_h": 0.16, "arm_down": 0.03, "arm_in": 0.11, "seam_in": 0.075, "below_junction": 0.012,
         "seam_low": 0.02}
 # The trousers (metres, but `hem` and `boot_top` of his height above the floor): their top this far
 # above his hip joints (under the waistcoat's hem); the legs from `crotch` under the hip joints,
@@ -121,7 +135,8 @@ VEST = {"hem": 0.17, "points": 0.045, "notch": 0.8, "v_depth": 0.15, "v_top": 0.
 # The leg's line runs from `thigh_drop` under the crotch to the boot; his calf may lie `tuck` inside it;
 # the legs `gap` apart at least below the crotch.
 TROUSERS = {"waist": 0.20, "crotch": 0.065, "hem": 0.115, "boot_top": 0.16, "boot_ease": 0.008, "twin": "bold_cowboy_under_trousers",
-            "thigh_drop": 0.06, "tuck": 0.012, "gap": 0.01}
+            "thigh_drop": 0.06, "tuck": 0.012, "gap": 0.01,
+            "seat_over": 0.015}
 LAYOUT = {"vest": {"vest": (0.0, 0.0, 1.0, 0.8)},
           "trousers": {"seat": (0.0, 0.0, 1.0, 0.24), "leg_r": (0.0, 0.26, 0.49, 0.72), "leg_l": (0.51, 0.26, 0.49, 0.72)},
           "shirt": {"trunk": (0.0, 0.0, 0.52, 0.5), "sleeve_r": (0.53, 0.0, 0.22, 0.5), "sleeve_l": (0.76, 0.0, 0.22, 0.5),
@@ -332,7 +347,7 @@ class Man:
         self.body = body
         self.v = TP.frame(pos)
         self.uv, self.tris, self.colour = uv, tris, colour
-        self.j = FT.find_joints(self.v, tris)
+        self.j = FT.body_joints(os.path.join(TRIPO, "test", body + "_rodin.glb"), self.v, tris)
         self.pts = np.concatenate([self.v, FT.surface_points(self.v, tris, n=250000, seed=2)])
         rep = os.path.join(ROOT, "assets", "people", body + ".json")
         self.height_m = json.load(open(rep)).get("height_m", 1.78) if os.path.exists(rep) else 1.78
@@ -351,33 +366,66 @@ class Man:
             d = np.linalg.norm(self.pts - (a + t[:, None] * ab), axis=1)
             self.arm |= ((d < ARM_R) & (t > ARM_FROM)) | ((d < ARM_LOW_R) & (t > ARM_LOW))
             self.arm_t[lr] = (t, d)
+        # A body that knows its own arms (tools/characters/mh_body.py: MakeHuman's skin weights)
+        # says so: by distance from the bone a MakeHuman man's side lay inside his arm's reach and
+        # each sleeve took it, a wing from armpit to forearm (2026-10-18).
+        side = os.path.join(TRIPO, "test", self.body + "_rodin_arms.npz")
+        if os.path.exists(side):
+            from scipy.spatial import cKDTree
+            d_ = np.load(side)
+            _dist, k = cKDTree(d_["v"]).query(self.pts)
+            self.arm = (d_["arm"][k] > 0) & ((self.arm_t["R"][0] > ARM_FROM) | (self.arm_t["L"][0] > ARM_FROM))
 
     def find_neck(self):
         """His neck's base (where it meets his shoulders), the narrowest of his neck, and his chin,
         from the width of his sections near his middle above the shoulders."""
         p = self.pts
         xc, zc = self.j["NeckTwist01"][0], self.j["NeckTwist01"][2]
-        ys = np.arange(self.j["R_Upperarm"][1] - 0.03, self.j["Head"][1] + 0.08, 0.004)
-        widths = []
+        ys = np.arange(self.j["R_Upperarm"][1] - 0.03, self.j["Head"][1] + 0.14, 0.004)
+        widths, front = [], []
         for y in ys:
             sel = (np.abs(p[:, 1] - y) < 0.003) & (np.abs(p[:, 0] - xc) < 0.07) & (np.abs(p[:, 2] - zc) < 0.14)
             widths.append(float(np.percentile(np.abs(p[sel, 2] - zc), 98) * 2) if sel.sum() > 5 else np.nan)
-        widths = np.array(widths)
-        # The neck: the narrowest rows; the chin: above them, where the width is back up by a fifth.
-        above = ys > self.j["R_Upperarm"][1]
-        i_min = int(np.nanargmin(np.where(above, widths, np.nan)))
+            mid = (np.abs(p[:, 1] - y) < 0.0025) & (np.abs(p[:, 2] - zc) < 0.02)
+            front.append(float(p[mid, 0].max()) if mid.sum() > 2 else np.nan)
+        widths, front = np.array(widths), np.array(front)
+        # The chin: by his front's profile, where above his throat (the profile's hollow over his
+        # shoulders) it comes CHIN_FWD further forward. By widths alone (the chin where the neck
+        # is a fifth wider again) a MakeHuman man's slim neck put his chin in his face and the
+        # collar round his mouth (2026-10-18); the narrowest is looked for under the chin.
+        sh = self.j["R_Upperarm"][1]
+        low = (ys > sh) & (ys < sh + 0.15)
+        i_th = int(np.nanargmin(np.where(low, front, np.nan)))
+        ahead = np.nonzero((np.arange(len(ys)) > i_th) & (front - front[i_th] > CHIN_FWD))[0]
+        i_chin = int(ahead[0]) if len(ahead) else None
+        if i_chin is not None:
+            # His neck's narrowest between his shoulders and his chin (searched higher, a slim
+            # neck's narrowest was his face; just over the chin it was his jaw, 171 mm wide).
+            under = (ys > sh) & (np.arange(len(ys)) < i_chin)
+            i_min = int(np.nanargmin(np.where(under, widths, np.nan)))
+        else:
+            i_min = int(np.nanargmin(np.where(ys > sh, widths, np.nan)))
         w_min = widths[i_min]
-        i = i_min
-        while i < len(ys) - 1 and widths[i + 1] < w_min * CHIN_WIDE:
-            i += 1
-        self.chin_y = float(ys[i])
+        if i_chin is None:
+            i = i_min
+            while i < len(ys) - 1 and widths[i + 1] < w_min * CHIN_WIDE:
+                i += 1
+            i_chin = i
+        self.chin_y = float(ys[i_chin])
         i = i_min
         while i > 0 and widths[i - 1] < w_min * NECK_BASE_WIDE:
             i -= 1
-        self.neck_base_y = float(ys[i])
-        self.neck_narrow_y = float(ys[i_min])
-        self.neck_axis = np.array([xc, 0.0, zc])
         self.ring_y = self.chin_y - 0.03 * self.m
+        # At least NECK_FOOT under the ring (a MakeHuman man's trapezius rises steeply to his jaw:
+        # by width alone his neck's base was over the ring and the collar had no height).
+        self.neck_base_y = float(min(ys[i], self.ring_y - NECK_FOOT * self.m))
+        self.neck_narrow_y = float(ys[i_min])
+        # The neck's axis through the middle of its narrowest section (the rig's joint, from
+        # Tripo's fixed shares, sat 4 cm behind a MakeHuman man's).
+        sec = p[(np.abs(p[:, 1] - self.neck_narrow_y) < 0.003) & (np.abs(p[:, 2] - zc) < 0.06)]
+        if len(sec) > 10:
+            xc = 0.5 * (float(np.percentile(sec[:, 0], 2)) + float(np.percentile(sec[:, 0], 98)))
+        self.neck_axis = np.array([xc, 0.0, zc])
         print("garments: neck base %.3f, narrowest %.3f (%.0f mm wide), chin %.3f, ring %.3f (of his height; %.2f m tall)" % (
             self.neck_base_y, ys[i_min], w_min * self.height_m * 1000, self.chin_y, self.ring_y, self.height_m))
 
@@ -403,8 +451,49 @@ class Man:
             tr = self._trunk
             at_hip = int(np.argmin(np.abs(tr.a[1] + tr.ts * (tr.b[1] - tr.a[1]) - self.j["Hip"][1])))
             tr.R[:at_hip] = np.minimum(tr.R[:at_hip], tr.R[at_hip][None])
+            self._junction(tr)
         t = self._trunk
         return Tube(t.a, t.b, t.ts, t.R + offset * self.m, t.e1, t.e2)
+
+    def _junction(self, tr):
+        """His neck's base as a line round it (self.J: a height at each of the trunk tube's
+        angles): where, going up, the trunk's surface comes in to his neck's own radius (+
+        JUNC_EASE). Low at his throat and nape, high at his sides, as a shirt's collar line runs:
+        cut level (a ring) the shirt stood as a shelf over his trapezius, which on a MakeHuman man
+        rises nearly to his jaw beside his neck (and in his pictures too, 2026-10-18)."""
+        m = self.m
+        n = tr.R.shape[1]
+        ys = tr.a[1] + tr.ts * (tr.b[1] - tr.a[1])
+        # His neck's radius at each angle, in the tube's frame: his skin near the neck's axis
+        # just under his chin.
+        sel = (np.abs(self.pts[:, 1] - (self.chin_y - JUNC_UNDER_CHIN * m)) < 0.006) & (
+            np.linalg.norm((self.pts - self.neck_axis)[:, [0, 2]], axis=1) < NECK_TIGHT)
+        q = self.pts[sel] - tr.a
+        ang = np.arctan2(q @ tr.e2, q @ tr.e1) % (2 * np.pi)
+        rad = np.hypot(q @ tr.e1, q @ tr.e2)
+        jbin = np.round(ang / (2 * np.pi) * n).astype(int) % n
+        r_n = np.array([np.percentile(rad[jbin == k], 95) if (jbin == k).sum() >= 2 else np.nan for k in range(n)])
+        ok = np.isfinite(r_n)
+        r_n = np.interp(np.arange(n), np.r_[np.nonzero(ok)[0] - n, np.nonzero(ok)[0], np.nonzero(ok)[0] + n], np.r_[r_n[ok], r_n[ok], r_n[ok]])
+        low = int(np.argmin(np.abs(ys - (self.j["R_Upperarm"][1]))))
+        J = np.full(n, ys[-1])
+        for k in range(n):
+            for i in range(low, len(ys)):
+                if tr.R[i, k] <= r_n[k] + JUNC_EASE * m:
+                    J[k] = ys[i]
+                    break
+        J = (np.roll(J, 1) + 2 * J + np.roll(J, -1)) / 4
+        self.J, self.J_tube, self.r_neck = J, tr, r_n
+        print("garments: neck's base %.3f in front, %.3f at the sides, %.3f behind (of his height)" % (J[0], J[n // 4], J[n // 2]))
+
+    def junction_at(self, p):
+        """self.J at each point's angle round the trunk's tube."""
+        tr = self.J_tube
+        q = np.atleast_2d(p) - tr.a
+        ang = np.arctan2(q @ tr.e2, q @ tr.e1) % (2 * np.pi)
+        n = len(self.J)
+        f = ang / (2 * np.pi) * n
+        return np.interp(f, np.arange(n + 1), np.r_[self.J, self.J[0]])
 
     # --- the waistcoat -----------------------------------------------------------------------
     def vest(self):
@@ -443,7 +532,7 @@ class Man:
             low = sh[1] - VEST["seam_low"] * m
             fields.append(np.where(mine & (y > low), abs(sh[2]) - VEST["seam_in"] * m - az, np.inf))
         # Its top at his neck's base (the trunk's tube runs on up his neck, inside the collar).
-        fields.append(self.neck_base_y + VEST["top"] * m - y)
+        fields.append(self.junction_at(v) - VEST["below_junction"] * m - y)
         cut = cut_along(mesh, np.min(fields, axis=0))
         print("garments: vest cut to shape: %d faces" % cut)
         return mesh
@@ -463,10 +552,12 @@ class Man:
         hip = j["Hip"][1]
         seat = self.trunk_tube(OFFSET["trousers"])
         tube_mesh(seat, mesh, "seat", lay["seat"])
-        v = np.array(mesh.v, float)
-        cut_along(mesh, hip + TROUSERS["waist"] * m - v[:, 1])
         crotch = hip - TROUSERS["crotch"] * m
         hem, top = TROUSERS["hem"], crotch + 0.6 * (hip - crotch)    # the legs start inside the seat
+        # The seat from the waist down to just under where the legs begin (left to the hips' tube
+        # end it hung between his thighs as a flap when he sat or crouched, 2026-10-18).
+        v = np.array(mesh.v, float)
+        cut_along(mesh, np.minimum(hip + TROUSERS["waist"] * m - v[:, 1], v[:, 1] - (top - TROUSERS["seat_over"] * m)))
         boots = self.boot_points()
         for lr, part in (("R", "leg_r"), ("L", "leg_l")):
             sgn = np.sign(j[lr + "_Thigh"][2])
@@ -552,7 +643,9 @@ class Man:
             # His arm's own skin (what the trunk leaves out, `arm`) and his shoulder's cap: out to
             # SLEEVE_R the whole way it took his side and the sleeve was a sack round his arm
             # once he stood with it down (2026-10-18).
-            near = (d < SLEEVE_R) & (self.arm | (t < SLEEVE_HEAD_T)) & (t > -0.12) & (t < 1.1)
+            # (its head within SLEEVE_HEAD_R: out to SLEEVE_R it took his shoulder's top too and
+            # the head stood up over the waistcoat like a pad, 2026-10-18)
+            near = (d < np.where(t < SLEEVE_HEAD_T, SLEEVE_HEAD_R, SLEEVE_R)) & (self.arm | (t < SLEEVE_HEAD_T)) & (t > -0.12) & (t < 1.1)
             up = np.array([0, 1.0, 0])
             sleeve = loft(self.pts[near], sa, sb, -0.06, 1.0 + CUFF_PAST, ROWS["sleeve"], ANGLES["sleeve"],
                           OFFSET["shirt"] * m, front=up)
@@ -573,8 +666,25 @@ class Man:
         part_v = np.empty(len(v), object)
         _v, _uv, tris, parts = mesh.arrays()
         part_v[tris.ravel()] = np.repeat(parts, 3)
-        top = np.array([self.collar_top - self.collar_drop_at(p) - COLLAR_TRUNK_UNDER * self.m for p in v])
+        top = self.junction_at(v) + JUNC_UP * self.m
         cut_along(mesh, np.where(part_v == "trunk", top - v[:, 1], np.inf))
+        # The armholes: the trunk cut round each shoulder joint, so the sleeve's head alone covers
+        # his shoulder (left whole under it, the trunk's side came out through the sleeve's head
+        # in ragged flaps once his arm hung lower than the A-pose, 2026-10-18).
+        v = np.array(mesh.v, float)
+        part_v = np.empty(len(v), object)
+        _v, _uv, tris, parts = mesh.arrays()
+        part_v[tris.ravel()] = np.repeat(parts, 3)
+        f = np.full(len(v), np.inf)
+        for lr in "RL":
+            sh = self.j[lr + "_Upperarm"]
+            t_, d_ = self.arm_t[lr]
+            ax = float(np.median(self.pts[(d_ < ARM_R) & (t_ > 0.12) & (t_ < 0.3), 0]))
+            ex = (v[:, 0] - ax) / (SHIRT_ARMHOLE["w"] * self.m)
+            ey = (v[:, 1] - (sh[1] - SHIRT_ARMHOLE["down"] * self.m)) / (SHIRT_ARMHOLE["h"] * self.m)
+            ez = np.minimum((v[:, 2] - sh[2]) * np.sign(sh[2]), 0) / (SHIRT_ARMHOLE["in"] * self.m)
+            f = np.minimum(f, (np.sqrt(ex ** 2 + ey ** 2 + ez ** 2) - 1.0) * SHIRT_ARMHOLE["w"] * self.m)
+        cut_along(mesh, np.where(part_v == "trunk", f, np.inf))
         self.tie(mesh, lay)
         return mesh
 
@@ -595,15 +705,24 @@ class Man:
         for i, t in enumerate(band.ts):
             band.R[i] = narrow + COLLAR_LEAN * t * (y1 - y0)
         tube_mesh(band, mesh, "collar", lay["collar"])
-        # Lower behind: each point's height above the foot shrunk by its share of COLLAR_BACK_DROP.
-        drop = self.collar_drop(band)
-        self.collar_drop_at = drop
+        # Its foot on his neck's base (self.J: low at his throat and nape, high at his sides),
+        # standing COLLAR_STAND above it, its top no higher than under his chin in front.
+        self.trunk_tube(OFFSET["shirt"])
         k0 = len(mesh.v) - ROWS["collar"] * (ANGLES["collar"] + 1)
+        def top_at(p):
+            q = np.asarray(p, float) - self.neck_axis
+            c = (q[0] * band.e1[0] + q[2] * band.e1[2]) / max(np.hypot(q[0], q[2]), 1e-9)     # 1 in front
+            foot = float(self.junction_at(p)[0]) - COLLAR_OVERLAP * m
+            return foot, min(foot + COLLAR_STAND * m, y1 + max(-c, 0.0) * 0.0 + (1.0 - max(c, 0.0)) * COLLAR_SIDE_UP * m)
+        self.collar_top_at = top_at
         for k in range(k0, len(mesh.v)):
             p = np.asarray(mesh.v[k], float)
             sh = (p[1] - y0) / (y1 - y0)
-            p[1] -= sh * drop(p)
+            foot, top = top_at(p)
+            p[1] = foot + sh * (top - foot)
             mesh.v[k] = p
+        drop = lambda p: 0.0
+        self.collar_drop_at = drop
         # Open in front, its two ends either side of the knot.
         f = np.full(len(mesh.v), np.inf)
         for k in range(k0, len(mesh.v)):
@@ -629,7 +748,7 @@ class Man:
             jf = (th % (2 * np.pi)) / (2 * np.pi) * len(top)
             r0 = np.interp(jf, np.arange(len(top) + 1), np.r_[top, top[0]]) + 0.003 * m
             d = np.cos(th) * band.e1 + np.sin(th) * band.e2
-            y_top = y1 - drop(self.neck_axis + d)
+            y_top = self.collar_top_at(self.neck_axis + d * 0.05 + np.array([0, y1, 0]))[1]
             for i in range(FALL_ROWS):
                 sfr = i / (FALL_ROWS - 1)
                 y = y_top - sfr * depth
@@ -660,7 +779,8 @@ class Man:
     def tie(self, mesh, lay):
         m = self.m
         kw, kh, kd = [x * m for x in TIE["knot"]]
-        yk = self.neck_base_y + TIE["drop"] * m
+        self.trunk_tube(OFFSET["shirt"])
+        yk = float(self.J[0]) + TIE["drop"] * m      # at the collar's front, on his neck's base
         x0 = chest_x(self.pts, yk, 0.0) + OFFSET["shirt"] * m + TIE["off"] * m * 0.5
         # The knot: a box, its front and sides (the back is against his collar).
         front = [(x0 + kd, yk + kh / 2, -kw / 2), (x0 + kd, yk + kh / 2, kw / 2), (x0 + kd, yk - kh / 2, kw / 2), (x0 + kd, yk - kh / 2, -kw / 2)]
@@ -805,6 +925,17 @@ def paint(man, meshes, views, uns):
                 own[kind == k_] = np.median(col[sel][lum >= np.percentile(lum, FILL_LIT)], axis=0)
         far = np.clip(ndimage.distance_transform_edt(~have) / FILL_FEATHER, 0, 1)[..., None]
         tex = np.where(have[..., None], tex, near * (1 - far) + own * far)
+        if gname in CLEAN:
+            # Painted clean (the art judge, 2026-10-18: "the shirt should read clean lit white"):
+            # its own lit colour everywhere, shaded only by the pictures' broad light and dark
+            # (their lightness blurred over CLEAN texels): soft folds, none of the patches.
+            sel = cover & (kind == 0)
+            lum = tex @ np.array([0.3, 0.59, 0.11])
+            w = ndimage.gaussian_filter(sel.astype(float), CLEAN[gname])
+            blur = ndimage.gaussian_filter(np.where(sel, lum, 0.0), CLEAN[gname]) / np.maximum(w, 1e-6)
+            ref = float(own[sel][0] @ np.array([0.3, 0.59, 0.11])) if sel.any() else 1.0
+            shade = np.clip(blur / max(ref, 1e-6), CLEAN_RANGE[0], CLEAN_RANGE[1])
+            tex = np.where(sel[..., None], own * shade[..., None], tex)
         which = np.zeros((TEX, TEX, 3))
         pal = np.array([[0.9, 0.3, 0.3], [0.3, 0.9, 0.3], [0.3, 0.3, 0.9], [0.9, 0.9, 0.3]])
         which[idx] = pal[np.argmax(S, 0) % 4] * np.where(ok, 1.0, 0.2)[:, None]

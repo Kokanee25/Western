@@ -1,0 +1,56 @@
+{
+ "twin": "bold_cowboy_mh",
+ "painted": true,
+ "made": true,
+ "islands": {
+  "trunk": [
+   0.0,
+   0.0,
+   0.52,
+   0.5
+  ],
+  "sleeve_r": [
+   0.53,
+   0.0,
+   0.22,
+   0.5
+  ],
+  "sleeve_l": [
+   0.76,
+   0.0,
+   0.22,
+   0.5
+  ],
+  "collar": [
+   0.0,
+   0.52,
+   0.5,
+   0.06
+  ],
+  "fall": [
+   0.0,
+   0.6,
+   0.5,
+   0.12
+  ],
+  "knot": [
+   0.74,
+   0.52,
+   0.08,
+   0.06
+  ],
+  "tie_r": [
+   0.52,
+   0.64,
+   0.06,
+   0.3
+  ],
+  "tie_l": [
+   0.6,
+   0.64,
+   0.06,
+   0.3
+  ]
+ },
+ "note": "made on his base body by tools/characters/garments.py; already in place on the body: fit_tripo carries it as it is"
+}

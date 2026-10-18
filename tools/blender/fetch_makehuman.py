@@ -43,7 +43,10 @@ def main() -> None:
             dest = a.split("=", 1)[1]
     people = json.load(open("assets/people/people.json"))
     paths = list(ALWAYS)
-    wanted = [t for p in people["people"].values() for t in p.get("targets", {})]
+    wanted = [t for p in people["people"].values() for t in list(p.get("targets", {})) + list(p.get("mh", {}).get("targets", {}))
+              + [t for pair in p.get("mh", {}).get("fit", []) for t in pair.split("|")]
+              + ([h + e for h in ("head/head-scale-vert", "head/head-scale-horiz", "head/head-scale-depth") for e in ("-decr", "-incr")]
+                 if p.get("mh", {}).get("head") else [])]
     # The character factory's base head and archetypes (assets/people/factory.json; "{s}" = r, l).
     factory = json.load(open("assets/people/factory.json"))
     for block in [factory["base"]] + list(factory["archetypes"].values()):
@@ -52,6 +55,8 @@ def main() -> None:
         for name in ([t.replace("{s}", s) for s in "rl"] if "{s}" in t else [t]):
             paths.append("makehuman/data/targets/%s.target" % name)
     paths += face_targets(dest) + ["makehuman/data/targets/%s.target" % t for t in BUILD]
+    # MakeHuman's default skeleton and skin weights (CC0), for tools/characters/mh_body.py's posing.
+    paths += ["makehuman/data/rigs/default.mhskel", "makehuman/data/rigs/default_weights.mhw"]
     for path in sorted(set(paths)):
         fetch(path, dest)
 

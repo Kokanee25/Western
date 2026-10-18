@@ -91,6 +91,8 @@ PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 TWIN_TRIS = {"coat": 6000, "trousers": 8000, "vest": 5000, "shirt": 5000}
 # A layered man's garments, innermost first: each tucked under every one outside it (tuck_layers).
 LAYERS = ["shirt", "trousers", "vest", "coat"]
+TROUSER_KNEE = 0.04   # metres either side of his knee over which a made trouser leg goes from thigh to shin
+TROUSER_FADE = 0.12   # metres under his hip joints over which made trousers go from his pelvis's weights to his legs'
 ISLAND_EPS = 1e-4     # a made garment's island test's slack in UV (float32 seams on the edge)
 SLEEVE_OWN_T = 0.3   # of the way from shoulder to elbow by which a made sleeve takes only its arm's weights
 MADE_SLEEVES = ["sleeve_r", "sleeve_l"]   # a made shirt's parts that take his arms' weights (the rest hang from his trunk)
@@ -414,7 +416,17 @@ def load_rodin(path):
     y0, y1 = v[:, 1].min(), v[:, 1].max()
     v = (v - np.array([0.0, y0, 0.0])) / (y1 - y0)
     v -= np.array([(v[:, 0].min() + v[:, 0].max()) / 2, 0.0, (v[:, 2].min() + v[:, 2].max()) / 2])
-    return v, n, uv, tris, find_joints(v, tris), colour
+    return v, n, uv, tris, body_joints(path, v, tris), colour
+
+
+def body_joints(path, v, tris):
+    """His joints: his body's own when it brings them (`<glb>_joints.json`, in this frame: a
+    MakeHuman base body, tools/characters/mh_body.py, knows its skeleton), else found from his
+    shape (find_joints: Tripo's shares, which put a MakeHuman man's hips and neck centimetres off)."""
+    side = path[:-4] + "_joints.json"
+    if os.path.exists(side):
+        return {k: np.asarray(x, float) for k, x in json.load(open(side)).items()}
+    return find_joints(v, tris)
 
 
 def drop_scraps(v, uv, tris, report):
@@ -1528,6 +1540,35 @@ class TripoPerson(mp.Person):
                     self._trunk_in()
             self.tuck_layers(twins)
             self.tuck_skin(twins)
+            if any(pc.made and pc.shape == "trousers" for pc in twins):
+                self._legs_bend_as_trousers()
+
+    def _legs_bend_as_trousers(self):
+        """His skin under made trousers bends as they do (Piece.weights_from_skin's made-trousers
+        rule: thigh to shin over TROUSER_KNEE, his pelvis's fading into his legs' over TROUSER_FADE
+        under his hip joints): bent his own way, seated, his buttocks swung out under the
+        trousers' seat (2026-10-18)."""
+        bones = list(self.env["bones"])
+        oj = self.our_joints()
+        hip_y = 0.5 * (oj["r-upper-leg"][1] + oj["l-upper-leg"][1])
+        reg = np.asarray(self.region).astype(str)
+        moved = 0
+        for lr in "rl":
+            # (by place, not region: his own leg's side, under his hip joints, over his ankle,
+            # not his hanging hands)
+            arm = np.array([r.startswith(("upper_arm", "forearm", "hand", "finger")) for r in reg])
+            mine = (self.v[:, 0] - 0.5 * (oj["r-upper-leg"][0] + oj["l-upper-leg"][0])) * np.sign(oj[lr + "-upper-leg"][0]) > 0
+            sel = mine & ~arm & (self.v[:, 1] < hip_y) & (self.v[:, 1] > oj[lr + "-ankle"][1] + 0.06)
+            knee_y = oj[lr + "-knee"][1]
+            g = np.clip((knee_y + TROUSER_KNEE - self.v[sel, 1]) / (2 * TROUSER_KNEE), 0.0, 1.0)
+            f = np.clip((hip_y - self.v[sel, 1]) / TROUSER_FADE, 0.0, 1.0)
+            W = np.zeros((int(sel.sum()), self.W.shape[1]))
+            W[:, bones.index("pelvis")] = 1.0 - f
+            W[:, bones.index("thigh_" + lr)] = f * (1.0 - g)
+            W[:, bones.index("shin_" + lr)] = f * g
+            self.W[sel] = W
+            moved += int(sel.sum())
+        self.report["skin_bent_as_trousers"] = moved
 
 
 def outward_from_bones(v, region, bones):
@@ -2119,13 +2160,30 @@ class Piece:
             # leg's nearest skin at the crotch is the other leg's), none of them his arms'.
             W = self.W.copy()
             W[:, arm_cols] = 0.0
+            oj = self.our_joints()
             for part, lr in (("leg_r", "r"), ("leg_l", "l")):
-                other = [k for k, bn in enumerate(bones) if str(bn).startswith(("thigh", "shin", "foot")) and not str(bn).endswith("_" + lr)]
+                # A leg by its height along its own leg: the thigh's above the knee, the shin's
+                # below, blended over TROUSER_KNEE (from the nearest skin, its inner side by the
+                # crotch and knee was nearer the other leg, and with those weights cut it hung
+                # from the pelvis between his knees when he sat, 2026-10-18).
                 sel_ = self.part.astype(str) == part
-                W[np.ix_(sel_, other)] = 0.0
+                knee_y = oj[lr + "-knee"][1]
+                g = np.clip((knee_y + TROUSER_KNEE - self.v[sel_, 1]) / (2 * TROUSER_KNEE), 0.0, 1.0)
+                W[sel_] = 0.0
+                W[sel_, bones.index("thigh_" + lr)] = 1.0 - g
+                W[sel_, bones.index("shin_" + lr)] = g
             empty = W.sum(1) < 1e-6
             W[empty, bones.index("pelvis")] = 1.0
-            self.W = W / W.sum(1, keepdims=True)
+            W = W / W.sum(1, keepdims=True)
+            # From his pelvis at his hip joints to his legs TROUSER_FADE lower: the seat's cloth
+            # behind his hip joints took his thighs' weights, and seated (the thigh forward) it
+            # swung down to the floor behind him, a sheet (2026-10-18).
+            oj = self.our_joints()
+            hip_y = 0.5 * (oj["r-upper-leg"][1] + oj["l-upper-leg"][1])
+            f = np.clip((hip_y - self.v[:, 1]) / TROUSER_FADE, 0.0, 1.0)[:, None]
+            pel = np.zeros(W.shape[1])
+            pel[bones.index("pelvis")] = 1.0
+            self.W = (1.0 - f) * pel[None] + f * W
             self.report["leg_weights_kept_own"] = int(len(W) - empty.sum())
         if self.made and self.shape in ("vest", "shirt"):
             # A made waistcoat hangs from his trunk: none of its points take his arms' weights
