@@ -39,6 +39,24 @@ extends Resource
 @export var spread_aim_degrees := 0.35
 
 @export_group("Feel")
-@export var recoil_degrees := 4.5
-@export var recoil_recovery := 0.7  ## fraction of the kick the view settles back
+## The kick (GunKick): how far the muzzle climbs from the hip (degrees), reached `kick_rise`
+## seconds after the shot, brought back by the hand like a spring (`kick_damping`: lower dips
+## further past where it was). A .45 black-powder load is a heavy, slow shove (Sean: "should push,
+## not flip"). Held out at arm's length on the sights the wrist is locked: `kick_aimed` of it.
+@export var kick_degrees := 17.0
+@export var kick_aimed := 0.7
+@export var kick_rise := 0.085
+@export var kick_damping := 0.6
+## Shot to shot it's never quite the same: spread of the climb (a fraction), a little to one side
+## (degrees), the gun twisting in the hand (degrees, to the right) and coming back at you (metres).
+@export var kick_variation := 0.12
+@export var kick_side_degrees := 1.5
+@export var kick_roll_degrees := 5.0
+@export var kick_back := 0.035
+## Your view goes with it, less and a moment later (the shove reaching your shoulder and head), and
+## doesn't quite all come back: `view_climb_degrees` stays (pull it down yourself).
+@export var view_kick_degrees := 2.6
+@export var view_kick_rise := 0.09
+@export var view_kick_back := 0.0
+@export var view_climb_degrees := 0.9
 @export var aim_fov := 58.0
