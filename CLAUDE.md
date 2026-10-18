@@ -354,7 +354,10 @@ frozen until Sean names one.
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
   `HumanBody.mocap_gait`, the lab's `--mocap`).
-- Next: 0.1 the nightlies green three nights; performance part B (the fire tick native first).
-  Sean's calls: a key to try the CMU walk in town; the mocap clean-up pipeline (capture: Move One
-  proposed, a two-app bake-off).
+- Gunplay (3.2, Sean 2026-10-18): the audit and five changes ranked (the kick, the shot's sound,
+  hearing the hit, a hit man's behaviour after, seeing through the smoke); the kick merged (#153,
+  `GunKick`); the smoke next (`claude/gameplay-smoke`: simulated puffs, `GunSmoke.transmittance()`,
+  six proposed ranges), then a hit man's behaviour. Feel ranges marked proposed wait on Sean's play.
+- Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
+  Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
