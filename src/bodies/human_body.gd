@@ -1582,7 +1582,6 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
 			severe = true
-	var speed := sqrt(2.0 * deposited / maxf(mass, 0.001))
 	# The momentum the ball leaves in him: what it came in with less what it went on with
 	# (a .45 ball stopped in him is 4.5 N*s: a man's speed changes by 6 cm/s, it doesn't throw him).
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
@@ -1594,8 +1593,10 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	elif stumbling > 0.0:
 		# Hit again as he stumbles: that's him down now.
 		_fall_now()
-	else:
-		_flinch_from(seg, pos, dir, mass * speed)
+	# Hit and still on his feet: nothing from the ball itself (its push moves a man a few
+	# centimetres). The flinch kicked him 50 degrees back in a twentieth of a second, and a wince
+	# in its place still read as a twitch (Sean: "just get rid of these winces"); what the wound
+	# does to him is his pain, his blood and his brain's.
 	var exit_world: Variant = xf * (tr.exit - center) if tr.exit != null else null
 	if exit_world != null and get_parent() is Node3D:
 		# The spray out of the exit wound spatters whatever's behind him.

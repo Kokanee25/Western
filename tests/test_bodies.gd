@@ -323,6 +323,32 @@ func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
 		walker.queue_free()
 
 
+## Hit and still on his feet, the ball itself doesn't move him: no flinch, no wince (Sean: the
+## flinch threw him back 50 degrees in a twentieth of a second; a wince in its place was still
+## "like a twitch", "just get rid of these winces"). A .45 stopped in him is 4.5 N*s: centimetres.
+func test_a_ball_that_doesnt_drop_him_doesnt_jerk_him() -> void:
+	man.physiology.tuning = man.physiology.tuning.duplicate()
+	man.physiology.tuning.knockdown_max = 0.0
+	await physics_frames(10)
+	# Through his right arm: on his feet after (a chest shot can take his legs: prone, another path).
+	var arm := man.parts[&"upper_arm_r"] as Node3D
+	var chest := man.parts[&"chest"] as Node3D
+	var arm_was := arm.global_basis.y
+	var chest_was := chest.global_basis.y
+	var fwd := -man.global_basis.z
+	await _shoot(arm.global_position + fwd * 5.0, arm.global_position)
+	check(not man.limp and not man.prone, "still on his feet")
+	check(body_hits.size() > 0 and body_hits[0].segment == &"upper_arm_r", "the ball went through his arm")
+	var moved := 0.0
+	for i in 30:
+		await physics_frames(1)
+		moved = maxf(moved, rad_to_deg(arm.global_basis.y.angle_to(arm_was)))
+		moved = maxf(moved, rad_to_deg(chest.global_basis.y.angle_to(chest_was)))
+	print("  arm and chest moved at most %.1f deg in the half second after the hit" % moved)
+	# (Within his breath: a degree or so.)
+	check(moved < 3.0, "no flinch or wince from the ball (%.1f deg)" % moved)
+
+
 func test_knees_only_bend_the_right_way() -> void:
 	var world := Node3D.new()
 	add_child(world)
