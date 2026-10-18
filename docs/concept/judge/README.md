@@ -11,6 +11,8 @@ the name says what each is for.
   close), `08_style_street_a.jpg`, `09_style_street_b.jpg` (the street at sunset, first person),
   `11_style_saloon_bar.jpg`, `12_style_saloon_overhead.jpg`, `13_style_saloon_door.jpg` (the
   saloon at night: chandelier, turned balusters, rugs, stools, mirror bar, lamps everywhere).
+  `14_style_man_saloon_front.jpg` (Sean, 2026-10-18: a man full length outside the saloon at golden
+  hour, coat and waistcoat in the same squared paint as the authority's: the man outdoors by day).
 - **Content only, not the look** (photoreal): `01_content_fire_dusk.jpg`, `02_content_fire_day.jpg`
   (how a building burns and falls in), `03_content_dynamite.jpg` (the blast's dust and clods),
   `04_content_floor_close.jpg` (worn boards and chairs close up). Repainted in the authority's hand
