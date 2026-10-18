@@ -82,10 +82,20 @@ TIE = {"knot": (0.034, 0.026, 0.016), "width": 0.036, "length": 0.17, "spread": 
 # arms-out front picture (2026-10-18): the shirt L 65-87, chroma 13-31 (warm cream); his skin
 # L 39-69 at chroma 35-55; the waistcoat L 8-38, chroma 4-38; the tie L under 40, chroma under 25.
 CLASS = {"shirt": (58.0, 101.0, 31.0), "tie": (0.0, 42.0, 24.0), "vest": (4.0, 46.0, 42.0), "trousers": (0.0, 46.0, 16.0)}
+# The waistcoat: its hem VEST["hem_above_hip"] over his hip joints at the sides and back, its two
+# front points VEST["point"] lower; its V from VEST["v_bottom"] of the way up it (the top
+# button) to VEST["v_half"] either side of the front at the top; its lapels VEST["lapel"] wide,
+# lying VEST["lapel_off"] off its front; the armholes cut where the shirt's sleeve heads pass
+# (ARMHOLE_T of the way down the arm, ARMHOLE_GAP outside the sleeve).
+VEST = {"hem_above_hip": 0.045, "point": 0.05, "point_deg": 16.0, "v_bottom": 0.5, "v_half": 0.06, "lapel": 0.045, "lapel_off": 0.008,
+        "arm_from": 0.04}
+ARMHOLE_T = 0.28
+ARMHOLE_GAP = 0.012
 # Each part's island in the texture (left, top, width, height), as shares of it.
 LAYOUT = {"shirt": {"trunk": (0.0, 0.0, 0.52, 0.5), "sleeve_r": (0.53, 0.0, 0.22, 0.5), "sleeve_l": (0.76, 0.0, 0.22, 0.5),
                     "collar": (0.0, 0.52, 0.5, 0.06), "fall": (0.0, 0.6, 0.5, 0.12),
-                    "knot": (0.74, 0.52, 0.08, 0.06), "tie_r": (0.52, 0.64, 0.06, 0.3), "tie_l": (0.6, 0.64, 0.06, 0.3)}}
+                    "knot": (0.74, 0.52, 0.08, 0.06), "tie_r": (0.52, 0.64, 0.06, 0.3), "tie_l": (0.6, 0.64, 0.06, 0.3)},
+          "vest": {"vest_body": (0.0, 0.0, 0.7, 0.6), "lapel_r": (0.72, 0.0, 0.12, 0.4), "lapel_l": (0.86, 0.0, 0.12, 0.4)}}
 
 
 class Mesh:
@@ -237,6 +247,16 @@ def cut_inside(mesh, part, tube, margin, t_range=(-1e9, 1e9)):
     return int(inside.sum())
 
 
+def drop_faces(mesh, part, keep_fn):
+    """Drop this part's faces whose centres keep_fn rejects."""
+    v, uv, tris, parts = mesh.arrays()
+    cen = v[tris].mean(1)
+    keep = (parts != part) | keep_fn(cen)
+    mesh.tris = [list(x) for x in tris[keep]]
+    mesh.part = list(parts[keep])
+    return int((~keep).sum())
+
+
 def chest_x(pts, y, z, band=0.01):
     """How far forward his chest reaches at (y, z): the front of his skin there."""
     sel = (np.abs(pts[:, 1] - y) < band) & (np.abs(pts[:, 2] - z) < band)
@@ -299,6 +319,7 @@ class Man:
 
     # --- the shirt ---------------------------------------------------------------------------
     def shirt(self):
+        self.sleeves = {}
         mesh = Mesh()
         m = self.m
         lay = LAYOUT["shirt"]
@@ -335,10 +356,78 @@ class Man:
                 if t < SLEEVE_HEAD_T:
                     sleeve.R[i, inner] = np.minimum(sleeve.R[i, inner], np.median(sleeve.R[i, ~inner]))
             tube_mesh(sleeve, mesh, part, lay[part])
+            self.sleeves[lr] = sleeve
         # Both tubes stay whole where they overlap (the body's side under the sleeve's head):
         # cut, the one left his shoulder bare where the other didn't quite cover it.
         self.collar(mesh, lay, trunk)
         self.tie(mesh, lay)
+        return mesh
+
+    # --- the waistcoat ----------------------------------------------------------------------
+    def vest(self):
+        if not getattr(self, "sleeves", None):
+            self.shirt()       # for its sleeve tubes (the armholes)
+        mesh = Mesh()
+        m = self.m
+        lay = LAYOUT["vest"]
+        j = self.j
+        hip_y = j["Hip"][1]
+        hem_y = hip_y + VEST["hem_above_hip"] * m
+        top_y = self.neck_base_y - 0.006 * m
+        # Its body: a tube up his trunk from under the hem (the points) to his neck's base, his
+        # arms' points left out from just below the shoulder (the armhole starts at the
+        # shoulder's point, not over the deltoid as the shirt's yoke does).
+        arm = np.zeros(len(self.pts), bool)
+        for lr in "RL":
+            t, d = self.arm_t[lr]
+            arm |= ((d < ARM_R) & (t > VEST["arm_from"])) | ((d < ARM_LOW_R) & (t > ARM_LOW))
+        xc = float(np.median(self.pts[~arm & (np.abs(self.pts[:, 1] - 0.6) < 0.05), 0]))
+        zc = float(np.median(self.pts[~arm & (np.abs(self.pts[:, 1] - 0.6) < 0.05), 2]))
+        a = np.array([xc, hem_y - VEST["point"] * m - 0.01 * m, zc])
+        b = np.array([xc, top_y, zc])
+        body = loft(self.pts[~arm], a, b, 0.0, 1.0, ROWS["trunk"], ANGLES["trunk"], OFFSET["vest"] * m)
+        tube_mesh(body, mesh, "vest_body", lay["vest_body"])
+        span = top_y - hem_y
+        v_bottom_y = hem_y + VEST["v_bottom"] * span
+        gap = lambda y: VEST["v_half"] * m * np.clip((y - v_bottom_y) / (top_y - v_bottom_y), 0, 1)
+        front = lambda c: c[:, 0] > xc
+        # The V down the front, from its top to the top button.
+        n_v = drop_faces(mesh, "vest_body", lambda c: ~(front(c) & (np.abs(c[:, 2] - zc) < gap(c[:, 1]))))
+        # The hem: hem_y at the sides and back, dropping to the two points either side of the
+        # front, where the fronts part below the last button.
+        def hem_at(c):
+            ang = np.degrees(np.arctan2(c[:, 2] - zc, c[:, 0] - xc))      # 0 ahead
+            pt = np.clip(1.0 - np.abs(np.abs(ang) - VEST["point_deg"]) / VEST["point_deg"], 0, 1)
+            return hem_y - VEST["point"] * m * pt
+        n_h = drop_faces(mesh, "vest_body", lambda c: c[:, 1] > hem_at(c))
+        # The armholes: where the shirt's sleeve heads pass, with room.
+        n_a = 0
+        for lr, sl in self.sleeves.items():
+            def keep(c, sl=sl):
+                R, r, t = sl.radius_at(c)
+                return ~((r < R + ARMHOLE_GAP * m) & (t > -0.3) & (t < ARMHOLE_T))
+            n_a += drop_faces(mesh, "vest_body", keep)
+        print("garments: vest: %d faces cut for the V, %d at the hem, %d at the armholes" % (n_v, n_h, n_a))
+        # The lapels: a strip along each edge of the V, folded out over the front.
+        for sgn, part in ((1.0, "lapel_r"), (-1.0, "lapel_l")):
+            rows = 9
+            V, UV, k = [], [], {}
+            left, tp, w, h = lay[part]
+            for i in range(rows):
+                sfr = i / (rows - 1)
+                y = top_y - sfr * (top_y - v_bottom_y)
+                g = gap(y)
+                for jj, u in enumerate((0.0, 1.0)):
+                    z = zc + sgn * (g + u * VEST["lapel"] * m * (1.0 - 0.5 * sfr))
+                    x = chest_x(self.pts, y, z) + (OFFSET["vest"] + (VEST["lapel_off"] if u > 0 else 0.002)) * m
+                    V.append([x, y, z])
+                    UV.append([left + w * jj, tp + h * sfr])
+                    k[(i, jj)] = len(V) - 1
+            tris = []
+            for i in range(rows - 1):
+                a_, b_, c_, d_ = k[(i, 0)], k[(i, 1)], k[(i + 1, 1)], k[(i + 1, 0)]
+                tris += [[a_, b_, c_], [a_, c_, d_]]
+            mesh.add(V, UV, tris, part)
         return mesh
 
     def collar(self, mesh, lay, trunk):
@@ -552,7 +641,7 @@ def preview(man, meshes, path, size=900):
     tiles = []
     cols = {"body": [0.80, 0.62, 0.50], "trunk": [0.93, 0.90, 0.80], "sleeve_r": [0.9, 0.88, 0.78], "sleeve_l": [0.9, 0.88, 0.78],
             "collar": [1.0, 1.0, 0.95], "fall": [0.98, 0.98, 0.9], "knot": [0.1, 0.1, 0.1],
-            "tie_r": [0.15, 0.12, 0.12], "tie_l": [0.15, 0.12, 0.12]}
+            "tie_r": [0.15, 0.12, 0.12], "tie_l": [0.15, 0.12, 0.12], "vest_body": [0.45, 0.25, 0.15], "lapel_r": [0.5, 0.3, 0.18], "lapel_l": [0.5, 0.3, 0.18]}
     V = [man.v]
     T = [man.tris]
     labels = [np.array(["body"] * len(man.tris), dtype=object)]
@@ -589,6 +678,8 @@ def main():
     meshes = {}
     if "shirt" in garments:
         meshes["shirt"] = man.shirt()
+    if "vest" in garments:
+        meshes["vest"] = man.vest()
     for name, mesh in meshes.items():
         v, uv, tris, part = mesh.arrays()
         print("garments: %s: %d triangles (%s)" % (name, len(tris), ", ".join("%s %d" % (p, (part == p).sum()) for p in dict.fromkeys(part))))
