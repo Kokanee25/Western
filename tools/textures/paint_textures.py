@@ -118,7 +118,11 @@ def ask(prompt, images, config, what, key):
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
-        raise RuntimeError("%s: no image in the answer: %s" % (what, str(message.get("content"))[:300]))
+        # Why not (a refusal says so in finish_reason / native_finish_reason, e.g. IMAGE_SAFETY).
+        choice = answer["choices"][0]
+        raise RuntimeError("%s: no image in the answer: %s (finish %s / %s; refusal %s)" % (
+            what, str(message.get("content"))[:300], choice.get("finish_reason"),
+            choice.get("native_finish_reason"), str(message.get("refusal"))[:200]))
     url = images[0]["image_url"]["url"]
     return Image.open(io.BytesIO(base64.b64decode(url.split(",", 1)[1]))).convert("RGB")
 

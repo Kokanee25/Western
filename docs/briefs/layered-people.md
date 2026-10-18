@@ -145,6 +145,13 @@ trousers and boots (a quicker route to the coat's real shape than shelling the b
 coat; Sean's go): $1.60 (total ~$10.06 of $15). His vest, shirt and tie from it, as their own
 layers under the coat (roadmap 1.3).
 
+2026-10-18, Rodin on fal for `bold_cowboy_armsout_dressed` (Sean's four coatless pictures again,
+his arms held clear of his body and his collar standing; People run 89): $1.60 (total ~$11.66 of
+$15). Rodin's model has his sleeves apart from his sides (the old one's touched the waistcoat).
+Through the recipe unchanged it is not yet usable: a slimmer upper chest than his base body and
+the shirt's sleeve roots over the waistcoat's armholes (white slivers), the side pictures lined
+up 58%. On branch `claude/characters-arms-out`; main untouched.
+
 **2026-10-15, the twin route (done; sheet `docs/style_test/layered-2026-10-15/c2_dressed.png`):**
 his clothes are cut from Rodin's dressed model of him, not rebuilt as a shell (tried first: the
 shell placed by landmarks came out scrambled, `fit_tripo` `as_shell`).

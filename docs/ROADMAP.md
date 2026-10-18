@@ -94,6 +94,7 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 
 | # | Step | Done when | Who |
 |---|---|---|---|
+| 3.0 | **The three-gunman fight** (Sean 2026-10-17; brief `docs/briefs/three-gunmen.md`) | The player against three gunmen of different temper on the existing street, run again and again: fights that can end with one good shot but usually become a tense 45–90 seconds of cover, flanking, suppression, reloads and retreats; misses that come from the gun's sway, not dice, for NPCs as for the player; enemies you can hear (steps, cocking, shouts) but who never know where you are by magic. Measured over many runs (fight length, hits per side, who hits first), then played by Sean. | gameplay |
 | 3.1 | **Falls and hits** | Prompt 09: the ragdoll lab's faults fixed against its baseline (no folding straight down, no limbs through the body, joints in their limits), and hit reactions short of a fall. | gameplay |
 | 3.2 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
 | 3.3 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
