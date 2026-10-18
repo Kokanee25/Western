@@ -321,16 +321,18 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: **proper garments** in place of clothes cut from Rodin's dressed twin (brief
-  `docs/briefs/garments.md`, Sean's go 2026-10-18; recipe `tools/characters/LAYERED.md` §6). On
-  branch `claude/characters-garments` (not merged): `tools/characters/garments.py` lofts a shirt
-  (separate sleeves, a stand collar with a fall and points, the tie) and a waistcoat from the base
-  body's own skin, painted by projection from the arms-out pictures; the fitter carries them as
-  `made` pieces. Trial man `bold_cowboy_made_layered`, sheets `docs/style_test/garments-2026-10-18/`
-  (`g1_shirt`, `g2_vest`). Sean's call on the collar close up (he turned a flat band down twice).
-  Then: the waistcoat's armholes (too big, ragged), the trousers with boots, the coat man; one
-  garment a merge with his OK; today's men stay until the new one is better. Trap: after a build,
-  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
+- Next: **garments and the body under them** (brief `docs/briefs/garments.md`, revised
+  2026-10-18 with Sean's full list; **waiting for his OK on the revision**). Found: the Rodin base
+  body is fitted as a hatted "whole man" (`fit_tripo` `self.bare` needs a `model` key): that is
+  the boxy high shoulders, missing neck and low crotch (sheets `p0_proportions_*` in
+  `docs/style_test/garments-2026-10-18/`); plus `shoulders` 1.1, `--head_scale` 0.92, trousers
+  pushed out along the skin. Plan: the body fitted bare first, then made shirt and waistcoat (one
+  tube, branch `claude/characters-garments-second` the base), trousers that hang, boots their own
+  piece, the coat last; judged in the game's poses (people_lineup) beside his pictures. Two
+  sessions built the same trial shirt and waistcoat at once on 2026-10-18: one session per lane.
+  Traps: after a build `godot --headless --import`; lab renders via `tools/characters/lab_run.sh`;
+  in a fresh container build the native plugin (`cargo build --release` in
+  `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
