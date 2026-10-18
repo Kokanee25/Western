@@ -5,10 +5,11 @@
   "street/porch_loafer": {"clothes_share": 0.18, "known": "shirt outside the coat by ~1 cm (max 3) at 14% of the shirt near it, along the sleeve seams and at the coat's open front at the waist (2026-10-05). Where the coat's surface turns or ends the measure is weakest, so not confirmed by eye; the same on every BodyMesh man in a coat (characters session: body_mesh.gd)."},
   "street/street_walker": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
   "street/far_man_b": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
-  "street/brody": {"clothes_share": 0.21, "known": "as street/porch_loafer (16% on Brody)"},
+  "street/brody": {"clothes_share": 0.19, "known": "the made-clothes men (tools/characters/men.py, 2026-10-18): his hair under the game hat's brim and below its band, outside the brim's edge at 15% of the head's vertices near the hat; by eye nothing comes through the crown (the crown is sized to his hair, PeopleBodies.hat_fit's top)"},
+  "street/lyle": {"clothes_share": 0.13, "known": "the made-clothes men (tools/characters/men.py, 2026-10-18): his hair under the game hat's brim and below its band, outside the brim's edge at 10% of the head's vertices near the hat; by eye nothing comes through the crown (the crown is sized to his hair, PeopleBodies.hat_fit's top)"},
   "saloon/man_at_the_bar": {"clothes_share": 0.18, "known": "as street/porch_loafer"},
   "saloon/seated_man": {"feet_in": 0.12, "known": "the stranger's left sole 11 cm under the saloon floor in sit_lean (2026-10-05): below the frame in the saloon shot, but wrong. The seat and pose are ShotMatch's (SEAT, pose offsets: art), his legs the fit's (characters)."},
-  "street/kid": {"clothes_share": 0.42, "known": "the Kid's hair under his hat's brim at the sides, outside its edge, at 39% of the head's vertices near the hat (2026-10-05): by eye the hat perches high and nothing comes through the crown; the hat piece's size and seat are the characters session's (fit_tripo.py CROWN_SHARE, HAT_BAND)."}
+  "street/kid": {"clothes_share": 0.09, "known": "the made-clothes men (tools/characters/men.py, 2026-10-18): his hair under the game hat's brim and below its band, outside the brim's edge at 6% of the head's vertices near the hat; by eye nothing comes through the crown (the crown is sized to his hair, PeopleBodies.hat_fit's top)"}
  },
  "props": {}
 }
