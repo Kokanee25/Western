@@ -1,0 +1,9 @@
+a docs/screenshots/golden/saloon_night.png
+b docs/screenshots/golden/saloon_back_wall_night.png
+c docs/screenshots/golden/saloon_toward_door_night.png
+d docs/screenshots/golden/shot_match_saloon.png
+e docs/screenshots/golden/shot_match_close.png
+f docs/screenshots/golden/man_saloon_night.png
+g docs/screenshots/golden/inside_store_afternoon.png
+h docs/screenshots/golden/inside_store_night.png
+i docs/screenshots/golden/town_bar.png
