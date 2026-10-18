@@ -5,7 +5,12 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/people_lineup.gd -- --out=DIR
 ##   [--ids=outlaw,kid] (people.json ids; outlaw, the MakeHuman man, is our skeleton's own build)
 ##   [--poses=stand,hands_up,aim] (HumanBody.POSES; docs/briefs/characters.md's pose check is
-##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint) [--hatless]
+##   stand,sit,hands_up,crouch) [--head] (their heads close: the paint) [--hatless] [--unarmed]
+##   Besides HumanBody.POSES: `walk` and `run` (his stride at its widest, from the gait overlay),
+##   `wounds` (standing, shot from the front in the chest, right upper arm and left thigh) and
+##   `hat` (a ball through his hat from the front: it comes off) and `fall` (shot down: limp, a
+##   push back, 2.5 s of ragdoll on a floor, seen from above). `fall` comes last: he's a ragdoll
+##   after it.
 ## A Tripo man fitted by tools/blender/fit_tripo.py is checked here before he goes in the game:
 ## hands up and aiming show anything of him Tripo fused together (an arm to his side).
 
@@ -19,6 +24,7 @@ func _run() -> void:
 	var poses := ["stand", "hands_up", "aim"]
 	var close := false
 	var hatless := false
+	var unarmed := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)
@@ -30,6 +36,8 @@ func _run() -> void:
 			close = true
 		elif a == "--hatless":
 			hatless = true
+		elif a == "--unarmed":
+			unarmed = true
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
 	# Close (--head): a square of 0.42 m a man, the men that far apart.
@@ -64,9 +72,21 @@ func _run() -> void:
 		m.rng_seed = 7 + i
 		if hatless:
 			m.hat_color = Color(0, 0, 0, 0)
+		if unarmed:
+			m.has_gun = false
 		w.add_child(m)
 		m.global_position = Vector3((i - (ids.size() - 1) * 0.5) * spacing, 0.0, 0.0)
 		men.append(m)
+	# A floor for the falls.
+	var floor := StaticBody3D.new()
+	floor.collision_layer = 1
+	var fs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(40, 1, 40)
+	fs.shape = box
+	floor.add_child(fs)
+	w.add_child(floor)
+	floor.position = Vector3(0, -0.5, 0)
 	for f in 12:
 		await physics_frame
 	var cam := Camera3D.new()
@@ -85,13 +105,59 @@ func _run() -> void:
 			elif view == "back":
 				to = Vector3(0, 0, -5)
 			for m in men:
+				if m.limp and pose != "fall":
+					continue
+				if pose == "fall":
+					if view == "front":
+						_fall(m, to)
+					continue
+				m.set_physics_process(true)
 				m.face(m.global_position + to)
-				m.set_pose(StringName(pose))
+				m.set_pose(&"stand" if pose in ["walk", "run", "wounds", "hat"] else StringName(pose))
 				m._apply_pose(0.0, true)
-			for f in 8:
+				if pose == "wounds" and view == "front":
+					_shoot(m, to)
+				if pose == "hat" and view == "front" and m.hat_body != null:
+					m.take_hat_shot(m.hat_body.global_position + to.normalized() * 0.3, -to.normalized(), 400.0, null)
+				if pose in ["walk", "run", "wounds"]:
+					# Held still: the gait overlay at its widest (walking's own tick would end it).
+					m.set_physics_process(false)
+					m.gait = StringName(pose) if pose != "wounds" else &""
+					m.move_speed = 4.0 if pose == "run" else (1.4 if pose == "walk" else 0.0)
+					m._gait_phase = PI * 0.5
+					m._apply_pose(0.0, true)
+			for f in (150 if pose == "fall" and view == "front" else (40 if pose == "hat" and view == "front" else 8)):
 				await physics_frame
+			if pose == "fall":
+				# Round the men where they lie (they fall once, at the first view).
+				var at := Vector3.ZERO
+				for m in men:
+					at += (m.parts[&"pelvis"] as Node3D).global_position / men.size()
+				at.y = 0.0
+				cam.size = 3.2
+				cam.position = at + Vector3(to.x, 0, to.z).normalized() * 4.0 + Vector3.UP * 2.4
+				cam.look_at(at)
+				await RenderingServer.frame_post_draw
 			await RenderingServer.frame_post_draw
 			var path := "%s/%s%s_%s.png" % [out, "head_" if close else "", pose, view]
 			vp.get_texture().get_image().save_png(path)
 			print("wrote ", path)
 	quit()
+
+
+## Shot from the front (`to` is where he faces): chest, right upper arm, left thigh.
+func _shoot(m, to: Vector3) -> void:
+	var dir := -to.normalized()
+	for seg in [&"chest", &"upper_arm_r", &"thigh_l"]:
+		var part: Node3D = m.parts[seg]
+		var at: Vector3 = part.global_position - dir * 0.3 + Vector3.UP * 0.03
+		m.take_bullet(part, at, dir, 150.0 if seg != &"chest" else 120.0, 0.0057)
+
+
+## Shot down: limp, pushed back from the front (`to`), left to fall on the floor.
+func _fall(m, to: Vector3) -> void:
+	m.set_physics_process(true)
+	m.face(m.global_position + to)
+	m.set_pose(&"stand")
+	m._apply_pose(0.0, true)
+	m.go_limp(-to.normalized() * 0.6)

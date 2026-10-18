@@ -321,16 +321,18 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: **garments and the body under them** (brief `docs/briefs/garments.md`; recipe
-  `tools/characters/GARMENTS.md`; branch `claude/characters-garments`, nothing merged). Sean saw the
-  made clothes on the Rodin body (`bold_cowboy_made_layered`) and said he still looks bad. Then a
-  MakeHuman body (`tools/characters/mh_body.py`, trial `bold_cowboy_mh_layered`): solved to the
-  skeleton's proportions, it bends clean in all five poses (no webs or sheets), but close up the
-  shirt's shoulders are a puffy cape, the collar too big and the head small (sheet
-  `docs/style_test/garments-2026-10-18/m1_makehuman.jpg`). **Waiting on Sean** before more work:
-  the script-built clothes may be the wrong tool for the close look. Traps: after a build `godot
-  --headless --import`; in a fresh container build the native plugin (`cargo build --release` in
-  `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
+- **Men that work, not men that look perfect** (Sean, 2026-10-18; looks parked till gameplay
+  proves the game fun): `tools/characters/men.py` + `men.json` make the gang from the made-clothes
+  body (`GARMENTS.md` §7): `bold_made` (Brody), `heavy_made` (Lyle), `lean_made` (the kid), the
+  three portrait heads, a build and colours each; townsmen `storekeeper_made`, `barkeep_made` (same
+  mesh, other colours). The game's hat over their own heads, shot off as any. Checked in stand,
+  walk, run, hands up, aim, sit, crouch, wounds, hat and a ragdoll fall (`people_lineup.gd`);
+  a man costs what an outlaw does (`people_cost.gd`). Branch `claude/characters-working-men`,
+  waiting on Sean's OK to merge (sheet `docs/style_test/men-2026-10-18/men_sheet.jpg`). $0 spent.
+  A fourth face needs pictures (OpenRouter, the People workflow) and Rodin (~$2). Traps: after a
+  build `godot --headless --import`; in a fresh container build the native plugin (`cargo build
+  --release` in `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail; `men.py`
+  needs `build/bare_skin/` (run `fit_tripo.py --only=bold_cowboy_made_body` first).
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)

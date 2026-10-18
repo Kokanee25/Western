@@ -171,10 +171,14 @@ static func hat_rows(fit: Dictionary) -> Array:
 	var sx := maxf(1.0, (float(fit.half_width) + HAT_CLEARANCE) / float(b0[1]))
 	var sz := maxf(1.0, (float(fit.half_depth) + HAT_CLEARANCE) / (0.5 * (float(b0[2]) + float(b0[3]))))
 	var shift: Vector3 = (fit.band as Vector3) - (b0[0] as Vector3)
+	# A head whose hair stands higher over the band than the crown does (`top`): the crown taller.
+	var c0: Vector3 = b0[0]
+	var rise := float((HAT_CROWN[HAT_CROWN.size() - 1][0] as Vector3).y - c0.y)
+	var sy := maxf(1.0, (float(fit.get("top", 0.0)) + HAT_CLEARANCE - float((fit.band as Vector3).y)) / rise)
 	var out := []
 	for r: Array in HAT_CROWN:
 		var c: Vector3 = r[0]
-		out.append([Vector3(c.x + shift.x, c.y + shift.y, c.z + shift.z), r[1] * sx, r[2] * sz, r[3] * sz])
+		out.append([Vector3(c.x + shift.x, c0.y + shift.y + (c.y - c0.y) * sy, c.z + shift.z), r[1] * sx, r[2] * sz, r[3] * sz])
 	return out
 
 
@@ -186,7 +190,8 @@ static func hat_clears(fit: Dictionary) -> bool:
 	var band: Vector3 = fit.band
 	var hw := float(fit.half_width)
 	var hd := float(fit.half_depth)
-	return (absf(band.x - c.x) + hw <= float(b0[1])
+	var top := float((HAT_CROWN[HAT_CROWN.size() - 1][0] as Vector3).y) - HAT_CLEARANCE
+	return (not fit.has("top") or float(fit.top) <= top) and (absf(band.x - c.x) + hw <= float(b0[1])
 			and c.z - (band.z - hd) <= float(b0[2])
 			and (band.z + hd) - c.z <= float(b0[3]))
 

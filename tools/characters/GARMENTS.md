@@ -100,3 +100,15 @@ a defect is in. Beside his pictures at equal height (`s3_stand_vs_pictures.png`,
 - Lighting (the clothes render darker than their textures) is art's.
 - Next: the coat man (`bold_cowboy_layered`): the coat as a made garment (the trunk tube further
   out, sleeves of its own, lapels and collar, the skirt draped from his hips).
+
+## 7. More men from him (tools/characters/men.py, 2026-10-18)
+
+`men.json` lists men made from `bold_cowboy_made_body`: a portrait head each (`heads/` keeps the
+bust and paint; the older and young are painted by `rodin_portrait.py paint` first), a `build`
+(x and y factors per part about its axis, `belly`) and garment colours; `ways` are the same men in
+other colours. `~/bpyenv/bin/python tools/characters/men.py build` (needs `build/bare_skin/`, i.e.
+`fit_tripo.py --only=bold_cowboy_made_body` run in this workspace first; else every face turns
+yellow), `men.py colour` for the colours alone. What it fixes that the trial man still has:
+palm skinned to the thigh (a patch at the hip with his hands up), skin and shirt tail through the
+trousers, the fly opening in a fall. Checked with `people_lineup.gd --poses=stand,walk,run,
+hands_up,aim,sit,crouch,wounds,hat,fall`; sheet `docs/style_test/men-2026-10-18/`.

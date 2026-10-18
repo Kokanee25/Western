@@ -103,7 +103,7 @@ func _person(man, phase: String, space: PhysicsDirectSpaceState3D) -> void:
 			data.bones.append(sk.get_bone_name(b))
 	var mats: Array[Transform3D] = []
 	for b in sk.get_bone_count():
-		mats.append(sk.global_transform * sk.get_bone_pose(b) * sk.get_bone_rest(b).affine_inverse())
+		mats.append(sk.global_transform * sk.get_bone_global_pose(b) * sk.get_bone_global_rest(b).affine_inverse())
 	var by_shape := {}
 	for key: String in man.skin_meshes:
 		(by_shape.get_or_add(key.get_slice("/", 0), []) as Array).append(man.skin_meshes[key])

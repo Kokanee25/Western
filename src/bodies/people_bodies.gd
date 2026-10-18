@@ -33,23 +33,39 @@ const EYE_HEIGHT := 1.655
 
 
 static func has_model(model: StringName) -> bool:
-	return model != &"" and ResourceLoader.exists(PATH % model)
+	return model != &"" and ResourceLoader.exists(PATH % mesh_of(model))
+
+
+## Whose mesh a man wears: his own glb, or (a colourway, tools/characters/men.py: his report
+## says "mesh_from") the man whose clothes he wears in other colours. Loaded once for both.
+static func mesh_of(model: StringName) -> StringName:
+	if model == &"" or ResourceLoader.exists(PATH % model):
+		return model
+	return StringName(report(model).get("mesh_from", model))
 
 
 static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Dictionary:
 	if not has_model(model):
 		return BodyMesh.build(anatomy, outfit)
-	var generated := _load(anatomy, model)
+	var mesh := mesh_of(model)
+	var generated := _load(anatomy, mesh)
 	if generated.is_empty():
 		return BodyMesh.build(anatomy, outfit)
 	# Boots, belts and the hat are still BodyMesh's; the hat is fitted to this man's own head.
 	# A model that comes dressed ("whole" in his report: a Tripo man, tools/blender/fit_tripo.py)
 	# wears nothing of BodyMesh's.
-	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
+	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(mesh, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
 	var whole := _is_whole(model)
 	if whole:
-		shapes.clear()
+		# A whole man without a hat of his own ("game_hat" in his report: the made-clothes men,
+		# tools/characters/GARMENTS.md) wears BodyMesh's, fitted to his head, in his hat colour.
+		var keep := {}
+		if bool(report(model).get("game_hat", false)) and not generated.has("hat"):
+			for k in ["hat", "hat_brim", "hat_band"]:
+				if shapes.has(k):
+					keep[k] = shapes[k]
+		shapes = keep
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
@@ -223,7 +239,10 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 				blends[am.get_blend_shape_name(k)] = bv
 		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of, blends)
 		if shape == "head":
-			_hat_fits[model] = hat_fit(verts)
+			# A head laid on by the neck ring sits at its own height: his report says where his
+			# eyes are (tools/characters/men.py), and his hair's height is taken in.
+			var eyes := float(report(model).get("hat_eye_y", -1.0))
+			_hat_fits[model] = hat_fit(verts, eyes if eyes > 0.0 else EYE_HEIGHT, eyes > 0.0)
 	root.free()
 	_cache[model] = out
 	return out
@@ -272,18 +291,24 @@ static func _own_finger(out: Dictionary, shape: String, mi: MeshInstance3D) -> v
 
 ## Where a hat's band goes round this head: the middle of the head a little above the brow, and how
 ## wide and deep the head is there and anywhere above it (the crown has to clear it all).
-static func hat_fit(head: PackedVector3Array) -> Dictionary:
-	var band_y := EYE_HEIGHT + BAND_ABOVE_EYES
+static func hat_fit(head: PackedVector3Array, eye_y := EYE_HEIGHT, crown := false) -> Dictionary:
+	var band_y := eye_y + BAND_ABOVE_EYES
 	var lo := Vector3(INF, 0.0, INF)
 	var hi := Vector3(-INF, 0.0, -INF)
+	var top := -INF
 	for p in head:
 		if p.y >= band_y - 0.005:
 			lo = Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
 			hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
+			top = maxf(top, p.y)
 	if lo.x == INF:
 		return {}
-	return {"band": Vector3((lo.x + hi.x) * 0.5, band_y, (lo.z + hi.z) * 0.5),
+	var fit := {"band": Vector3((lo.x + hi.x) * 0.5, band_y, (lo.z + hi.z) * 0.5),
 			"half_width": (hi.x - lo.x) * 0.5, "half_depth": (hi.z - lo.z) * 0.5}
+	# `crown`: the crown taller if his hair stands higher than it (BodyMesh.hat_rows).
+	if crown:
+		fit["top"] = top
+	return fit
 
 
 ## A node's transform relative to the scene root, before it's in a tree.

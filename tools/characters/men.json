@@ -1,0 +1,75 @@
+{
+ "_readme": "The men who work (Sean, 2026-10-18): one made-clothes body (tools/characters/GARMENTS.md), each man a portrait head, a build and his own colours. tools/characters/men.py builds them. `build`: how much wider (x, his sides) and deeper (y, front to back) each part of him is about its own axis than the bold cowboy, and `belly` how much further his belly comes forward. `colours`: each garment's main cloth recoloured to this sRGB colour (its shading and paint kept). A `ways` entry is the same man in other colours (a townsman): a report and textures, his mesh shared.",
+ "from": "bold_cowboy_made_body",
+ "men": {
+  "bold_made": {
+   "head": "bold_cowboy_painterly_lit",
+   "build": {},
+   "colours": {
+    "shirt": [0.86, 0.82, 0.72],
+    "vest": [0.45, 0.25, 0.15],
+    "trousers": [0.27, 0.25, 0.23],
+    "boots": [0.4, 0.22, 0.13]
+   }
+  },
+  "heavy_made": {
+   "head": "older_heavyset_cowboy",
+   "build": {
+    "chest": [1.1, 1.2],
+    "abdomen": [1.16, 1.38],
+    "pelvis": [1.12, 1.2],
+    "neck": [1.08, 1.08],
+    "upper_arm": [1.14, 1.14],
+    "forearm": [1.08, 1.08],
+    "thigh": [1.12, 1.12],
+    "shin": [1.05, 1.05],
+    "belly": 1.15
+   },
+   "colours": {
+    "shirt": [0.62, 0.66, 0.7],
+    "vest": [0.16, 0.15, 0.14],
+    "trousers": [0.42, 0.36, 0.27],
+    "boots": [0.16, 0.12, 0.1]
+   }
+  },
+  "lean_made": {
+   "head": "young_lean_cowboy",
+   "build": {
+    "chest": [0.88, 0.86],
+    "abdomen": [0.84, 0.82],
+    "pelvis": [0.9, 0.88],
+    "neck": [0.92, 0.92],
+    "upper_arm": [0.84, 0.84],
+    "forearm": [0.9, 0.9],
+    "thigh": [0.86, 0.86],
+    "shin": [0.9, 0.9]
+   },
+   "colours": {
+    "shirt": [0.55, 0.24, 0.18],
+    "vest": [0.3, 0.33, 0.24],
+    "trousers": [0.5, 0.44, 0.33],
+    "boots": [0.33, 0.2, 0.12]
+   }
+  }
+ },
+ "ways": {
+  "storekeeper_made": {
+   "man": "heavy_made",
+   "colours": {
+    "shirt": [0.88, 0.86, 0.8],
+    "vest": [0.3, 0.3, 0.32],
+    "trousers": [0.22, 0.22, 0.24],
+    "boots": [0.14, 0.11, 0.09]
+   }
+  },
+  "barkeep_made": {
+   "man": "lean_made",
+   "colours": {
+    "shirt": [0.9, 0.89, 0.85],
+    "vest": [0.12, 0.11, 0.1],
+    "trousers": [0.18, 0.17, 0.16],
+    "boots": [0.13, 0.1, 0.08]
+   }
+  }
+ }
+}

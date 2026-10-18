@@ -20,14 +20,18 @@ var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
 
+## Each rider's body (`model`): the made-clothes men, a head, a build and colours each
+## (tools/characters/men.json); his hat the game's in `hat`.
 const GANG := [
-	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0",
+	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_made",
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
-	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1",
+	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1", "model": &"heavy_made",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
-	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"kid",
+	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"lean_made",
 			"shirt": Color(0.62, 0.62, 0.56), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.45, 0.38, 0.28)},
 ]
+## The townsmen's bodies: the gang's men in their own clothes (men.json `ways`).
+const TOWNSMEN := {&"storekeeper": &"storekeeper_made", &"barkeep": &"barkeep_made"}
 
 
 func _ready() -> void:
@@ -67,6 +71,7 @@ func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, 
 	man.vest_color = vest
 	man.hat_color = Color(0, 0, 0, 0)
 	man.bandana_color = Color(0, 0, 0, 0)
+	man.body_model = TOWNSMEN.get(id, man.body_model)
 	var brain := CivilianBrain.new()
 	brain.name = "Brain"
 	brain.post = places.at(at)

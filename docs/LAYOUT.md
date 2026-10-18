@@ -868,6 +868,16 @@ in the game: who a man looks at is gameplay's.
   offsets, cut along lines, painted by Lab class from his pictures; the boots cut from the twin.
   `fit_tripo` carries `made` pieces whole, weights them by part, pushes each off its own skin.
   Trial man `bold_cowboy_made_layered`; `art_lab.gd --pose=` for any pose with layers hidden.
+- **The men who work** (`tools/characters/men.py`, `men.json`; Sean 2026-10-18: men that bend,
+  lose hats, bleed and fit the frame before any look): the made-clothes body widened or narrowed
+  about each part's own axis (`build`, weights from his skin of the point's own family, smoothed
+  3 cm so the layers stay nested), stray skinning mended, skin under the clothes and the shirt's
+  tail dropped, seat and legs blended, a portrait head through the neck ring, garments and skin
+  recoloured by cloth (`recolour_man`), `hat_eye_y` measured → `bold_made`, `heavy_made`,
+  `lean_made` (the gang) and `ways` (`storekeeper_made`, `barkeep_made`: `mesh_from`,
+  `PeopleBodies.mesh_of`). Their report's `game_hat`: a whole man wears BodyMesh's hat, its band
+  over his own eyes and crown over his hair (`hat_fit`'s `top`). `people_lineup.gd` poses `walk`,
+  `run`, `wounds`, `hat`, `fall`; `people_cost.gd` a man's frame cost by model; `men_sheet.py`.
 
 ## Training the image model on our style (tools/style)
 

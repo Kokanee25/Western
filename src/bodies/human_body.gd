@@ -783,6 +783,8 @@ func _update_skeleton() -> void:
 ## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
 ## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
 var _finger_rig: Array = []
+## A finger curled or shot off since they were last posed (curl_hand, sever_finger).
+var _fingers_moved := true
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
@@ -790,6 +792,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 	if fb.is_empty():
 		return
 	var last := {}
+	var rest_of := {}
 	for name: String in data.get("finger_bone_names", []):
 		if not fb.has(name):
 			return
@@ -800,14 +803,24 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 				Vector3(b[2][0], b[2][1], b[2][2])), Vector3(o[0], o[1], o[2]))
 		var i := skeleton.get_bone_count()
 		skeleton.add_bone(name)
-		skeleton.set_bone_rest(i, rest)
 		skin.add_bind(i, rest.affine_inverse())
 		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
 		var fid := StringName("%s_%s" % [bits[1], bits[2]])
 		var k := int(bits[3])
 		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
-		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
-		_finger_rig.append({"bone": i, "parent": parent, "local": parent_rest.affine_inverse() * rest, "fid": fid, "k": k})
+		var parent_rest: Transform3D = rests[parent] if k == 0 else rest_of[parent]
+		rest_of[i] = rest
+		# A child of his hand's bone (or the knuckle before): the skeleton carries it with his
+		# hand, and _pose_fingers only sets its bend when that changes (each man's 30 finger bones
+		# set from GDScript every frame were a third of his skeleton's time).
+		var local := parent_rest.affine_inverse() * rest
+		skeleton.set_bone_parent(i, parent)
+		skeleton.set_bone_rest(i, local)
+		var thumb := bits[1] == "thumb"
+		_finger_rig.append({"bone": i, "local": local, "fid": fid, "k": k, "thumb": thumb, "node": finger_bones[fid][k],
+				"sx": -1.0 if bits[2] == "r" else 1.0,
+				"rest": deg_to_rad((RELAXED_THUMB if thumb else RELAXED_BEND)[k]),
+				"gain": (FIST_GAIN_THUMB if thumb else FIST_GAIN)[k], "angle": NAN})
 		last[fid] = i
 
 
@@ -827,22 +840,27 @@ const THUMB_ACROSS_SIGN := -1.0
 
 
 func _pose_fingers() -> void:
+	if not _fingers_moved:
+		return
+	_fingers_moved = false
 	for e: Dictionary in _finger_rig:
-		var bend := Basis.IDENTITY
 		var gone := not fingers.has(e.fid)
+		var angle := INF
 		if not gone:
-			var node := finger_bones[e.fid][e.k] as Node3D
-			var sx := -1.0 if String(e.fid).ends_with("_r") else 1.0
-			var rest: float = deg_to_rad((RELAXED_THUMB if String(e.fid).begins_with("thumb") else RELAXED_BEND)[e.k])
-			var angle: float = node.rotation.z * (FIST_GAIN_THUMB if String(e.fid).begins_with("thumb") else FIST_GAIN)[e.k]
-			if absf(angle) < rest:
-				angle = sx * rest
-			if String(e.fid).begins_with("thumb"):
+			angle = (e.node as Node3D).rotation.z * float(e.gain)
+			if absf(angle) < float(e.rest):
+				angle = float(e.sx) * float(e.rest)
+		if angle == e.angle:
+			continue
+		e.angle = angle
+		var bend := Basis.IDENTITY
+		if not gone:
+			if e.thumb:
 				var lean := deg_to_rad(THUMB_ACROSS)
 				bend = Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
 			else:
 				bend = Basis(Vector3(0, 0, 1), angle)
-		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
+		var pose: Transform3D = (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
 		skeleton.set_bone_pose(e.bone, pose)
@@ -947,7 +965,10 @@ func curl_hand(side: String, amount: float) -> void:
 		var bones: Array = finger_bones[fid]
 		var k := 0.6 if f == "thumb" else 1.0
 		for i in bones.size():
-			(bones[i] as Node3D).rotation_degrees.z = sx * amount * k * [55.0, 80.0, 60.0][i]
+			var z: float = sx * amount * k * [55.0, 80.0, 60.0][i]
+			if not is_equal_approx((bones[i] as Node3D).rotation_degrees.z, z):
+				(bones[i] as Node3D).rotation_degrees.z = z
+				_fingers_moved = true
 
 
 func _give_gun() -> void:
@@ -1918,6 +1939,7 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	if knuckle == null:
 		return
 	fingers.erase(fid)
+	_fingers_moved = true
 	var rb := RigidBody3D.new()
 	rb.name = "Finger_%s" % fid
 	rb.mass = 0.02

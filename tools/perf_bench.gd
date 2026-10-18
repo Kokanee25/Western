@@ -34,6 +34,10 @@ var budget_report := true
 ## Leave out the render time read (viewport_get_measured_render_time_cpu makes a separate render
 ## thread wait for the main one every frame, so it hides what the thread gains): --no-render-time.
 var render_time := true
+## Extra men standing in the street in view, the made-clothes men in turn (--crowd=N: with the
+## gang and the two townsmen, a street of N + 5; the characters lane's ten-man check).
+var crowd := 0
+const CROWD_MODELS := [&"bold_made", &"heavy_made", &"lean_made", &"storekeeper_made", &"barkeep_made"]
 
 
 func _initialize() -> void:
@@ -55,6 +59,8 @@ func _initialize() -> void:
 			budget_report = false
 		elif a == "--no-render-time":
 			render_time = false
+		elif a.begins_with("--crowd="):
+			crowd = int(a.substr(8))
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a == "--no-smoke":
@@ -241,6 +247,17 @@ func _run() -> void:
 	# Stand in the street looking down it, at the saloon and the store.
 	player.global_position = Vector3(11.0, 0.0, -9.0)
 	player.rotation = Vector3(0, deg_to_rad(121.0), 0)
+	var ahead: Vector3 = -player.global_transform.basis.z
+	for i in crowd:
+		var man = load("res://src/bodies/human_body.gd").new()
+		man.name = "Crowd%d" % i
+		man.person_id = StringName("crowd_%d" % i)
+		man.rng_seed = 300 + i
+		man.body_model = CROWD_MODELS[i % CROWD_MODELS.size()]
+		man.hat_color = Color(0.15 + 0.06 * (i % 4), 0.12 + 0.05 * (i % 3), 0.1)
+		var at: Vector3 = player.global_position + ahead * (5.0 + 1.5 * (i / 2)) + ahead.cross(Vector3.UP) * (1.2 if i % 2 == 0 else -1.2)
+		man.enter(street, at, 0.0)
+		man.face(player.global_position)
 	await _frames(120)
 	var scenes := []
 	if only == "" or only == "calm":
