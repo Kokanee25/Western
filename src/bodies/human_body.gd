@@ -1588,7 +1588,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
-		_knocked(seg, pos, dir, given, mass * speed)
+		_knocked(seg, pos, dir, given)
 	elif limp and collider is RigidBody3D:
 		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
 	elif stumbling > 0.0:
@@ -1616,18 +1616,16 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 ## move and still with it, he doesn't drop dead in his tracks: his stride carries him on a step or
 ## so, slowing, as he flinches and folds round it, and then his legs go (Sean, 2026-10-16: the
 ## walking stumble). A leg wound gives under him sooner; the head or neck, no stumble. `given` is
-## the ball's momentum (N*s) on the part it hit, `flinch` what the flinch takes from it.
+## the ball's momentum (N*s) on the part it hit.
 const STUMBLE_FROM := 0.8  ## m/s: slower than this he drops where he is
 ## How he folds round a ball in his front as he stumbles, reached in STUMBLE_FOLD_IN (degrees, the
 ## poses' axes; z toward the wound's side).
 const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0, 6), &"neck": Vector3(-6, 0, 0),
 		&"head": Vector3(-10, 0, 0)}
 const STUMBLE_FOLD_IN := 0.2
-## The share of a standing man's flinch he gives as he's dropped on the move (a few degrees).
-const STUMBLE_JOLT := 0.12
 
 
-func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch := 0.0) -> void:
+func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float) -> void:
 	var s := String(seg)
 	var leg := s.begins_with("thigh") or s.begins_with("shin")
 	if move_speed > STUMBLE_FROM and gait in [&"walk", &"run"] and physiology.is_conscious() \
@@ -1641,10 +1639,10 @@ func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch 
 				"dir": dir, "given": given, "speed": move_speed, "time": t, "heading": -global_basis.z,
 				"front": dir.dot(-global_basis.z) < 0.3 and not leg,
 				"left": -signf((pos - chest.global_position).dot(chest.global_basis.x))}
-		# A jolt where it hit, no more: his reaction is folding round it (STUMBLE_FOLD). The whole
-		# flinch threw his chest back 45 degrees in a twentieth of a second, as if shoved (Sean:
-		# "too quickly pushed back before falling").
-		_flinch_from(seg, pos, dir, maxf(flinch, given) * STUMBLE_JOLT)
+		# No flinch back from the ball: his reaction is folding round it (STUMBLE_FOLD). The
+		# standing man's flinch threw his chest back 45 degrees in a twentieth of a second (Sean:
+		# "too quickly pushed back before falling"); even an eighth of it, 4 degrees, jumped his
+		# head back in a single tick ("still too much of a super fast backwards jerk").
 		return
 	go_limp()
 	var rb := parts.get(seg) as RigidBody3D
