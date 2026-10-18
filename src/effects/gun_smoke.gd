@@ -17,6 +17,8 @@ static var _clouds: Array[Node] = []
 static var _material: StandardMaterial3D
 ## At most this many puffs in one cloud (dynamite's is a big `amount`).
 const MAX_PUFFS := 40
+## Smoke this close to the eye is faded out (metres: none at x, all from y).
+const NEAR_FADE := Vector2(0.35, 1.1)
 
 var indoors := false
 var _fog: FogVolume
@@ -110,7 +112,8 @@ func optical_depth(from: Vector3, to: Vector3) -> float:
 		if along < -r or along > length + r:
 			continue
 		var off := (_pos[i] - (a + dir * clampf(along, 0.0, length))).length_squared()
-		depth += _mass[i] / (r * r) * exp(-off / (r * r))
+		var near := clampf((_pos[i] - a).length() - NEAR_FADE.x, 0.0, NEAR_FADE.y - NEAR_FADE.x) / (NEAR_FADE.y - NEAR_FADE.x)
+		depth += _mass[i] / (r * r) * exp(-off / (r * r)) * near
 	if _fog and _fog_mat:
 		depth += _fog_depth(a, dir, length)
 	return depth
@@ -295,4 +298,9 @@ static func _puff_material() -> StandardMaterial3D:
 		_material.billboard_keep_scale = true
 		_material.roughness = 1.0
 		_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
+		# A puff right in front of your eye would be one flat square over the whole view: smoke
+		# that close fades out (and `optical_depth` counts it the same way).
+		_material.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+		_material.distance_fade_min_distance = NEAR_FADE.x
+		_material.distance_fade_max_distance = NEAR_FADE.y
 	return _material

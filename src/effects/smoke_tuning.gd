@@ -31,7 +31,7 @@ extends Resource
 ## Each puff is a fixed amount of smoke (m²: looking through its middle the smoke's optical depth is
 ## this over its radius squared), so it's dense the moment it leaves the muzzle and thins as it
 ## spreads, as real smoke does.
-@export var puff_mass := 0.06
+@export var puff_mass := 0.07
 ## A puff's radius as it leaves (m), what it spreads to in its first moments and how quickly
 ## (seconds), and how much it grows after that (m/s).
 @export var start_radius := 0.05
@@ -40,7 +40,7 @@ extends Resource
 @export var growth := 0.22
 ## The smoke thinning into the air (seconds for its mass to fall to a third): quickly in a breeze,
 ## slowly in a still room.
-@export var thin_outdoors := 2.5
+@export var thin_outdoors := 4.0
 @export var thin_indoors := 5.0
 ## Hot gas rises: an upward pull (m/s²) that fades over its first second.
 @export var buoyancy := 3.0
