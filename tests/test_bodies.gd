@@ -323,50 +323,30 @@ func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
 		walker.queue_free()
 
 
-## Hit and still on his feet, he winces round it: no jerk (Sean turned down the flinch's snap, 50
-## degrees back in a twentieth of a second, in the stumble), a curl toward a wound in his front,
-## a little arch from one in his back, held a moment ("so fast" at three quarters of a second),
-## and with nothing hurting he's straight again by 2.5 s.
-func test_a_ball_that_doesnt_drop_him_makes_him_wince_not_jerk() -> void:
-	for case: String in ["front", "back"]:
-		var shot := HumanBody.new()
-		shot.has_gun = false
-		world.add_child(shot)
-		shot.global_position = Vector3(-6.0 if case == "front" else 6.0, 0.0, -6.0)
-		await physics_frames(30)
-		var chest := shot.parts[&"chest"] as Node3D
-		var fwd := -shot.global_basis.z
-		var lean := func() -> float:
-			return rad_to_deg(asin(clampf(chest.global_basis.y.dot(fwd), -1.0, 1.0)))
-		var start: float = lean.call()
-		var at := chest.global_position + (fwd if case == "front" else -fwd) * 0.12
-		shot._wince_at(&"chest", at, -fwd if case == "front" else fwd, 4.5)
-		var most := 0.0
-		var least := 0.0
-		var step := 0.0
-		var last: float = start
-		var held := 0.0
-		for i in 150:
-			await physics_frames(1)
-			var now: float = lean.call()
-			most = maxf(most, now - start)
-			least = minf(least, now - start)
-			step = maxf(step, absf(now - last))
-			last = now
-			if i == 50:
-				held = now - start
-		print("  %s: lean %.0f..%.0f deg, at most %.1f deg a tick, %.0f still at 0.85 s, %.1f at 2.5 s" % [case, least, most, step, held, last - start])
-		check(step < 4.0, "%s: no jerk (%.1f deg in a tick)" % [case, step])
-		check(absf(held) > 0.6 * maxf(most, -least), "%s: held a moment, not a twitch (%.0f at 0.85 s)" % [case, held])
-		# (Within his breath: the chest rises and falls a degree or so either way.)
-		check(absf(last - start) < 3.0, "%s: straight again by 2.5 s with nothing hurting (%.1f)" % [case, last - start])
-		if case == "front":
-			check(most > 10.0 and most < 30.0, "front: curls forward round it (%.0f deg)" % most)
-			check(least > -2.0, "front: not thrown back (%.0f deg)" % least)
-		else:
-			check(most < 3.0, "back: not thrown forward (%.0f deg)" % most)
-			check(least < -3.0, "back: arches a little (%.0f deg)" % least)
-		shot.queue_free()
+## Hit and still on his feet, the ball itself doesn't move him: no flinch, no wince (Sean: the
+## flinch threw him back 50 degrees in a twentieth of a second; a wince in its place was still
+## "like a twitch", "just get rid of these winces"). A .45 stopped in him is 4.5 N*s: centimetres.
+func test_a_ball_that_doesnt_drop_him_doesnt_jerk_him() -> void:
+	man.physiology.tuning = man.physiology.tuning.duplicate()
+	man.physiology.tuning.knockdown_max = 0.0
+	await physics_frames(10)
+	# Through his right arm: on his feet after (a chest shot can take his legs: prone, another path).
+	var arm := man.parts[&"upper_arm_r"] as Node3D
+	var chest := man.parts[&"chest"] as Node3D
+	var arm_was := arm.global_basis.y
+	var chest_was := chest.global_basis.y
+	var fwd := -man.global_basis.z
+	await _shoot(arm.global_position + fwd * 5.0, arm.global_position)
+	check(not man.limp and not man.prone, "still on his feet")
+	check(body_hits.size() > 0 and body_hits[0].segment == &"upper_arm_r", "the ball went through his arm")
+	var moved := 0.0
+	for i in 30:
+		await physics_frames(1)
+		moved = maxf(moved, rad_to_deg(arm.global_basis.y.angle_to(arm_was)))
+		moved = maxf(moved, rad_to_deg(chest.global_basis.y.angle_to(chest_was)))
+	print("  arm and chest moved at most %.1f deg in the half second after the hit" % moved)
+	# (Within his breath: a degree or so.)
+	check(moved < 3.0, "no flinch or wince from the ball (%.1f deg)" % moved)
 
 
 func test_knees_only_bend_the_right_way() -> void:
