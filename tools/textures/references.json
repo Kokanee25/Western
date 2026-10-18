@@ -30,7 +30,7 @@
     "docs/concept/judge/09_style_street_b.jpg"
    ],
    "look": "dusk, the two-storey wooden building ablaze as in the first image: flames bright and alive, the roof's frame burning through, glowing smoke and embers rising, the street, the puddles and the boards lit orange by the fire, cool blue-violet dusk sky and shadows away from it.",
-   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "finish": "The whole picture, the building, its boards and posts, the smoke, the flames and the ground included, must look painted by the same hand as the second image and not photographed: the boards in a few flat painted tones with angular edges, the flames and smoke in broad painted shapes. Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
    "aspect": "16:9",
    "out": "docs/concept/judge/made_%s.jpg"
   },
@@ -41,7 +41,7 @@
     "docs/concept/judge/09_style_street_b.jpg"
    ],
    "look": "afternoon, the wooden building burning as in the first image: flames through the windows and the roof's frame, dark smoke rolling up into a blue sky, fallen boards and barrels on the dirt, warm sunlight.",
-   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "finish": "The whole picture, the building, its boards and posts, the smoke, the flames and the ground included, must look painted by the same hand as the second image and not photographed: the boards in a few flat painted tones with angular edges, the flames and smoke in broad painted shapes. Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
    "aspect": "16:9",
    "out": "docs/concept/judge/made_%s.jpg"
   },
@@ -73,9 +73,64 @@
     "docs/concept/judge/10_authority_saloon_man.jpg",
     "docs/concept/judge/08_style_street_a.jpg"
    ],
-   "look": "noon instead of sunset: the sun high, a clear deep blue sky with a few white clouds, short dark shadows under the porches and the people, the dirt street pale and bright, the red rock in clear daylight; the lamps unlit. Everything else as in the first image.",
+   "look": "noon instead of sunset: the sun high, a clear deep blue sky with a few white clouds, short dark shadows under the porches and the people, the dirt street pale and bright, the red rock in clear daylight; the lamps unlit. Everything else as in the first image. Keep the camera exactly where it is in the first image: the same street, the same buildings on the same sides, the same gun in the same hand.",
    "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
    "aspect": "4:3",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_porch_close": {
+   "scene": "Close up on the boardwalk of a frontier town's general store at golden hour, about two metres from the wall: weathered clapboard siding with flaking ochre paint and grey wood showing through, rusty nail heads, a square porch post with a hitching rail and a coiled rope, a hand-painted sign board with chipped letters, a barrel and a crate, low warm sunlight raking across the boards with long shadows, dust in the air.",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/05_style_table_lantern.jpg",
+    "docs/concept/judge/09_style_street_b.jpg"
+   ],
+   "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_store_inside": {
+   "scene": "Inside a frontier general store in mid-afternoon, first person: shelves of tins, sacks and bolts of cloth, a long wooden counter with a brass scale and a jar of candy, a storekeeper in an apron behind it, sunlight pouring through the dusty front windows in bright shafts across the worn plank floor, the rest of the room in warm brown shade.",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/05_style_table_lantern.jpg",
+    "docs/concept/judge/11_style_saloon_bar.jpg"
+   ],
+   "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_street_night": {
+   "scene": "A frontier town's main street at night, first person, a revolver in the right hand at the bottom right: a full moon over the red rock at the end of the street, deep blue moonlight on the dirt and the roofs, warm yellow light spilling from the saloon's windows and swinging doors onto the boardwalk, lanterns on posts, a horse at a hitching rail, two men talking in a pool of lamplight.",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/09_style_street_b.jpg",
+    "docs/concept/judge/13_style_saloon_door.jpg"
+   ],
+   "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_townsman_day": {
+   "scene": "A weathered townsman standing in the dirt street in full afternoon sun, seen from the waist up at about two metres, three-quarter view, looking at the viewer warily: a battered grey hat, a sunburnt lined face with a moustache and stubble, a faded blue shirt with rolled sleeves, a brown leather vest, suspenders, a gun belt; bright sunlight on his face and clothes with crisp shadows under the hat brim, the store fronts behind him slightly hazy.",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/08_style_street_a.jpg",
+    "docs/concept/judge/09_style_street_b.jpg"
+   ],
+   "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_town_edge": {
+   "scene": "The edge of a small frontier town at noon, first person, a revolver in the right hand at the bottom right: the last wooden buildings and a windmill on the left, a wagon track running out across dry scrubland with sagebrush, yellow grass and scattered rocks, red rock mesas and buttes far off under a clear deep blue sky with a few white clouds, the noon sun high and the shadows short.",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/09_style_street_b.jpg",
+    "docs/concept/judge/06_comp_river.jpg"
+   ],
+   "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
    "out": "docs/concept/judge/made_%s.jpg"
   }
  }

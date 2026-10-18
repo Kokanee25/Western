@@ -31,6 +31,12 @@ ASK = (
     "of the new picture shows what the same edge of the first image shows, and nothing is added "
     "or left out. Change only how it is painted: {look} {finish}"
 )
+# A new picture with no base to repaint (`scene` in place of `base`): the refs set its hand.
+NEW = (
+    "Paint a new picture: {scene} Paint it in exactly the same hand as the images given: the same "
+    "painted style, palette, light and level of detail, as if by the same artist for the same game. "
+    "Wide 16:9 frame, eye level unless said otherwise. {finish}"
+)
 # The ending a reference gets unless it gives its own `finish` (the judge's set has a bit of square,
 # Sean 2026-10-17).
 FINISH = ("No pixel squares, blocks or mosaic anywhere: a luminous, detailed painted illustration "
@@ -58,14 +64,16 @@ def main():
             print("already painted:", name)
             continue
         images = []
-        for p in [r["base"]] + r["refs"]:
+        for p in ([r["base"]] if "base" in r else []) + r["refs"]:
             im = Image.open(os.path.join(pt.ROOT, p)).convert("RGB")
             im.thumbnail((1344, 1344))  # sent as PNG: full-size pictures made the request huge
             images.append(im)
         img = None
         for attempt in range(2):
             try:
-                img = pt.ask(ASK.format(look=r["look"], finish=r.get("finish", FINISH)), images,
+                prompt = (ASK.format(look=r["look"], finish=r.get("finish", FINISH)) if "base" in r
+                          else NEW.format(scene=r["scene"], finish=r.get("finish", FINISH)))
+                img = pt.ask(prompt, images,
                              {"aspect_ratio": r.get("aspect", "16:9")}, "ref_" + name, key)
                 break
             except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
