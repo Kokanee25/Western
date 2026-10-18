@@ -6,12 +6,13 @@ uniform float flash = 0.0;
 uniform float shock = 0.0;
 uniform float pain = 0.0;
 uniform float black = 0.0;
+uniform float throb_t = 0.0;  // the game's time (player_wounds.gd), not the renderer's TIME
 
 void fragment() {
 	vec2 d = UV - 0.5;
 	d.x *= 1.6;
 	float edge = smoothstep(0.35 - shock * 0.25, 0.95, length(d));
-	float throb = pain * (0.55 + 0.45 * sin(TIME * 5.0)) * 0.35;
+	float throb = pain * (0.55 + 0.45 * sin(throb_t * 5.0)) * 0.35;
 	float a = flash * (0.18 + 0.55 * edge) + (shock * 0.85 + throb) * edge;
 	vec3 red = mix(vec3(0.5, 0.02, 0.0), vec3(0.08, 0.05, 0.05), shock);
 	vec4 c = vec4(red, clamp(a, 0.0, 1.0));

@@ -34,6 +34,9 @@ var dims := Vector3i.ONE
 var structure: Structure
 
 var _accum := 0.0
+## Every step here and now, none dropped (tests): on the worker thread, a busy machine skips steps
+## when the last isn't done, so a test of how far the smoke has got in 20 s failed under load.
+static var synchronous := false
 var _ready_cells := false
 var _raster: Array[StructureMember] = []
 var _raster_at := 0
@@ -133,12 +136,20 @@ func _physics_step(delta: float) -> void:
 		return
 	# A step at a time on a worker thread (SmokeGrid.step_async): handed off when the last is done,
 	# so a frame never waits on one; a long frame's backlog is dropped rather than run all at once.
-	_accum = minf(_accum + delta, STEP * 3.0)
-	if _accum >= STEP and not grid.call(&"is_busy"):
-		var burning := _emit()
-		if grid.call(&"step_async", STEP, _wind.x, _wind.z):
+	if synchronous:
+		_accum += delta
+		while _accum >= STEP:
+			var lit := _emit()
+			grid.call(&"step", STEP, _wind.x, _wind.z)
 			_accum -= STEP
-			_quiet = 0.0 if burning > 0 else _quiet + STEP
+			_quiet = 0.0 if lit > 0 else _quiet + STEP
+	else:
+		_accum = minf(_accum + delta, STEP * 3.0)
+		if _accum >= STEP and not grid.call(&"is_busy"):
+			var burning := _emit()
+			if grid.call(&"step_async", STEP, _wind.x, _wind.z):
+				_accum -= STEP
+				_quiet = 0.0 if burning > 0 else _quiet + STEP
 	var done: int = grid.call(&"steps")
 	if _fog and done != _drawn_step:
 		_drawn_step = done

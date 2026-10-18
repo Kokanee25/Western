@@ -405,7 +405,7 @@ jobs:
           python3 tools/textures/reduce.py --sheet=docs/screenshots/textures/factory_run${{ github.run_number }}.png
       - name: Commit the textures
         run: |
-          git add assets/textures docs/screenshots/textures
+          git add assets/textures docs/screenshots/textures docs/concept/judge
           if git diff --cached --quiet; then
             echo "No change to the textures."
             exit 0
