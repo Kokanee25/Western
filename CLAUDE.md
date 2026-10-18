@@ -346,9 +346,15 @@ frozen until Sean names one.
   down gives himself up, the shout key arrests (#128, build 1259); the falls' first round (#132,
   build 1320): weights, solver steps, tone about the joint; lab flags 90 -> 10
   (`experiments/physics_lab/results/2026-10-16_weight/`, brief `docs/briefs/fix-the-falls.md`).
-- Then the falls' second round (2026-10-17): shot dead running he goes over his legs; a ball that
-  drops him curls him round it (`_hunch`); on the move he stumbles a step first (`_knocked`).
-- Next: Sean's experiment, walking and running by CMU motion capture (`experiments/mocap_walk/`,
-  `HumanBody.mocap_gait`, off by default); 0.1: the nightlies green three nights; performance part B
-  (the fire tick native first).
+- Then the falls' second round (#144, build 1405): shot dead running he goes over his legs; a ball
+  that drops him curls him round it (`_hunch`); on the move he stumbles a step first (`_knocked`),
+  folding over the wound with no backward jerk (#146, build 1418). A ball that doesn't drop him
+  gives no flinch or wince at all (Sean, 2026-10-18).
+- The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
+  fire-smoke test steps synchronously.
+- Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
+  `HumanBody.mocap_gait`, the lab's `--mocap`).
+- Next: 0.1 the nightlies green three nights; performance part B (the fire tick native first).
+  Sean's calls: a key to try the CMU walk in town; the mocap clean-up pipeline (capture: Move One
+  proposed, a two-app bake-off).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
