@@ -40,6 +40,7 @@ NECK_FADE = 0.015      # metres under his jaw over which his painted collar fade
 HEAD_TRIS = 12000
 COLLAR_BAND = 0.05     # metres either side of the ring: garment points pushed out of the head's neck (collar_out)
 COLLAR_CLEAR = 0.004   # ... to this far outside it
+COLLAR_MADE_NECK = 0.008   # --collar=made: only points whose nearest head surface is under this far above the ring
 COLLAR_UP = 0.012      # a vest's or coat's faces reaching more than this above the ring are cut (a shirt's: above it)
 COLLAR_H = 0.022        # metres his shirt's stand-up collar rises above the ring (stand_collar) ...
 COLLAR_FROM = 0.035    # ... from this far below it (over the shirt's own top)
@@ -310,6 +311,8 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
             loc, _n, _f, _d = tree.find_nearest(p, 0.06)
             if loc is None:
                 continue
+            if mode == "made" and loc.z > ring_z + COLLAR_MADE_NECK:
+                continue    # nearest his jaw, not his neck: pushed out past it, the fall stood out under his chin
             out = Vector((p.x - centre[0], p.y - centre[1], 0.0))
             if out.length < 1e-6:
                 continue
@@ -357,6 +360,11 @@ def collar_out(bpy, head, ring_z, shirt_png, mode="built"):
                 c = float(d @ fwd) / max(np.linalg.norm(d), 1e-6)
                 return ring_z + COLLAR_PLAIN_BACK + (COLLAR_PLAIN_UP - COLLAR_PLAIN_BACK) * max(c, 0.0) ** 2
             high = [f for f in bm.faces if any(vv.co.z > top_plain(vv.co) for vv in f.verts)]
+        elif ob.name == "body_shirt" and mode == "made":
+            # --collar=made: a made shirt's collar (tools/characters/garments.py) already stands
+            # to under his chin, clean: only pushed out of the bust's neck, never cut (cut at
+            # COLLAR_UP its top was sliced flat, 2026-10-18).
+            high = []
         else:
             high = [f for f in bm.faces if any(vv.co.z > top for vv in f.verts)]
         bmesh.ops.delete(bm, geom=high, context="FACES")
@@ -601,7 +609,8 @@ def main():
     # them (a coat's twin's collar and tie are clean, and the built one reads as a neck brace
     # close up: Sean, 2026-10-16); smooth: the twin's own ragged collar and knot smoothed
     # (smooth_collar) and standing to his jaw in front (the coatless man, 2026-10-17); built (the
-    # default): collar_out and stand_collar; own: collar_out without the build.
+    # default): collar_out and stand_collar; own: collar_out without the build; made: a made
+    # shirt's collar (garments.py) pushed out of the neck, not cut.
     if a.get("--collar", "built") != "none":
         collar_out(bpy, newh, ring_z, os.path.join(PEOPLE, body + "_shirt.png"), a.get("--collar", "built"))
     newh.name = "body_head"

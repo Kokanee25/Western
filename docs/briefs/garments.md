@@ -284,3 +284,27 @@ GitHub and by search, not verified file by file)
 - Quaternius' "Modular Character Outfits" (fantasy; a 2026 note puts new downloads under a
   licence forbidding redistribution as a pack); Sketchfab CC0: a scanned military coat (286k
   tris, Małopolska museums); OpenGameArt CC0: a cowboy hat.
+
+## Progress
+
+- 2026-10-18 (second session): **the shirt and the waistcoat made** (sheet
+  `docs/style_test/garments-2026-10-18/g1_shirt_vest.png`: today's coatless man, the trial man,
+  his pictures). The shirt alone under the cut twin's waistcoat poked through it everywhere (two
+  surfaces from two sources never nest; today's man hides it by his shirt painted brown under the
+  waistcoat), so step 2's waistcoat came forward: one trunk tube for both, 8 mm apart. Fixed on
+  the way: the collar was as wide as his neck's base (a ring round his trapezius) and flared out
+  22 mm (now his neck's narrowest + 10 mm, lower behind, open in front); the fitter's decimation
+  shredded the collar (made pieces kept whole: shirt 7.7k, waistcoat 2.0k triangles) and its push
+  off his skin stood the fall out under his chin; `neck_ring`'s cut sliced the collar flat
+  (`--collar=made`); his throat painted the collar tan (a hue floor on the shirt's class; the
+  mask round his head halved; unpainted cloth its lit colour, not the shadowed median).
+  Chain: `garments.py --garments=shirt,vest --views=...armsout_dressed...`, `fit_tripo.py
+  --only=bold_cowboy_made_body`, `neck_ring.py --body=bold_cowboy_made_body
+  --head=bold_cowboy_painterly_lit --out=bold_cowboy_made_layered --head_scale=0.92
+  --collar=made` (seed `bold_cowboy_made_layered_head.png` from the vest man's first: the head
+  texture is kept). Today's men byte-identical through the changed fitter.
+  **Open:** the shirt shows at his back waist (the twin trousers' top is ragged there: made
+  trousers next); grey-brown smears on the upper sleeves from the side pictures (their outlines
+  fit at 0.62); the collar reads tan in the lab's light and its back takes the fill (hair covers
+  it in the back picture); the tie's strips hang past its painted bow; the knot's box shows
+  black at the collar; the waistcoat's back is boxy at the shoulders. Waiting on Sean's eye.

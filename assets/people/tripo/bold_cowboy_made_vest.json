@@ -3,23 +3,11 @@
  "painted": true,
  "made": true,
  "islands": {
-  "vest_body": [
+  "vest": [
    0.0,
    0.0,
-   0.7,
-   0.6
-  ],
-  "lapel_r": [
-   0.72,
-   0.0,
-   0.12,
-   0.4
-  ],
-  "lapel_l": [
-   0.86,
-   0.0,
-   0.12,
-   0.4
+   1.0,
+   0.8
   ]
  },
  "note": "made on his base body by tools/characters/garments.py; already in place on the body: fit_tripo carries it as it is"

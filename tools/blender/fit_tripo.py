@@ -91,6 +91,7 @@ PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 TWIN_TRIS = {"coat": 6000, "trousers": 8000, "vest": 5000, "shirt": 5000}
 # A layered man's garments, innermost first: each tucked under every one outside it (tuck_layers).
 LAYERS = ["shirt", "trousers", "vest", "coat"]
+NECK_PARTS = ["collar", "fall", "knot", "tie_r", "tie_l"]   # a made shirt's parts never pushed off his skin (clear_twin)
 NO_TUCK = ["fall", "knot", "tie_r", "tie_l"]   # a made shirt's parts that lie over the waistcoat (tuck_layers)
 FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
 WRIST_CUT = 0.004     # metres short of his wrist joint: his arm's skin ends (makehuman_hands)
@@ -1044,10 +1045,15 @@ class TripoPerson(mp.Person):
             if pc.shape == "shirt":
                 # His sleeves aren't under his trousers or vest: tucked under them where his arm
                 # hangs by his hip, their insides were dented into his arm.
-                movable &= ~np.array([str(r).startswith(("upper_arm", "forearm", "hand")) for r in pc.region])
+                # A made shirt's sleeve is its own tube, and its head stood out through the
+                # waistcoat's armhole untucked (2026-10-18): only its forearm and cuff kept out.
+                arms = ("forearm", "hand") if pc.made else ("upper_arm", "forearm", "hand")
+                movable &= ~np.array([str(r).startswith(arms) for r in pc.region])
             pc.v, moved = tuck_under(pc.v, pc.tris, movable, over,
                                      outward=outward_from_bones(pc.v, pc.region, self.bones()),
-                                     flip_faces=pc.shape == "trousers")
+                                     # (a made shirt under a twin's waistcoat: its faces are
+                                     # wound either way, and inward-wound ones tucked nothing)
+                                     flip_faces=pc.shape == "trousers" or pc.made)
             pc.report["tucked_under_" + "_".join(o.shape for o in over)] = int(moved)
 
     def own_fingers(self):
@@ -1829,8 +1835,14 @@ class Piece:
         body = self.body
         bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
         pushed = np.zeros(len(self.v), bool)
+        # A made garment's collar and tie are built clear of his neck and follow it through the
+        # warp: pushed off the nearest skin, the fall's points under his jaw stood out past his
+        # chin (2026-10-18).
+        skip = np.isin(self.part.astype(str), NECK_PARTS) if self.made else np.zeros(len(self.v), bool)
         for _ in range(2):
             for i in range(len(self.v)):
+                if skip[i]:
+                    continue
                 loc, nrm, _f, _d = bvh.find_nearest(Vector(self.v[i]), PIECE_REACH)
                 if loc is None:
                     continue
@@ -2465,7 +2477,12 @@ def build_blender(person):
     skin = make("skin", person.tris[~head_tris], budget.get("skin", TRI_BUDGET))
     made = [skin, head]
     for piece in person.pieces:
-        made.append(make(piece.shape, piece.tris, (TWIN_TRIS if piece.twin else PIECE_TRIS).get(piece.shape, 1500), piece))
+        budget = (TWIN_TRIS if piece.twin else PIECE_TRIS).get(piece.shape, 1500)
+        if piece.made:
+            # A made garment (garments.py) is lean already: decimated to the twin's budget, its
+            # thin collar and fall were shredded into shards (2026-10-18).
+            budget = max(budget, len(piece.tris))
+        made.append(make(piece.shape, piece.tris, budget, piece))
     person.report["triangles"] = {o.name.split("_", 1)[1]: sum(len(p.vertices) - 2 for p in o.data.polygons)
                                   for o in made}
     # His own fingers (own_fingers): each bone's piece a plain mesh in the game's rest pose, not

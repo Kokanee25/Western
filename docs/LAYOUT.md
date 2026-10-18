@@ -856,6 +856,17 @@ eyes lead and hold while `pose_offsets[&"head"]` (x up, y to his left) catches u
 flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_lab.gd --mode=gaze`
 (a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
 in the game: who a man looks at is gameplay's.
+- **Garments made on his body** (`tools/characters/garments.py`, brief `docs/briefs/garments.md`):
+  a shirt (trunk, sleeves of their own, a stand collar open in front with its fall and points, the
+  tie) and a waistcoat lofted from his base body's own cross-sections round one trunk tube (the
+  waistcoat 8 mm outside the shirt everywhere: they nest by construction), cut cleanly along
+  fields (`cut_along`: hem and points, V, armholes, shoulder seams), unwrapped by construction,
+  painted by projection from his arms-out pictures by Lab class (lightness, chroma, a hue floor)
+  with unpainted cloth its lit colour → `tripo/<out>_<garment>.glb` (`made`), carried by
+  `fit_tripo.py` (a made piece: not decimated, its collar and tie not pushed off his skin, its
+  sleeves' heads tucked) and `neck_ring.py --collar=made` (pushed out of the bust's neck, not
+  cut). Trial man `bold_cowboy_made_body` → `bold_cowboy_made_layered`; the chain and sheets in the
+  brief's "Progress"; `garment_sheet.py` makes the before/after sheet.
 
 - **Garments made on the base body** (`tools/characters/garments.py`, brief
   `docs/briefs/garments.md`, recipe `tools/characters/LAYERED.md` §6): tubes lofted from his
