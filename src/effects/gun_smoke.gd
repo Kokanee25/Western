@@ -147,9 +147,10 @@ func _start(direction: Vector3, under_roof: bool, amount := 1.0, gap := Vector3.
 	var up := side.cross(dir)
 	var n := clampi(int(round(tuning.jet_puffs * amount)), 1, MAX_PUFFS)
 	for i in n:
-		# Out along the bore, opening a little: the slow ones stop near the muzzle, the fast ones
-		# carry a metre or two.
-		var spread := _rng.randf_range(0.0, 0.18)
+		# Out of the bore in an opening cone (the blast turns over into a ring as it leaves): the
+		# slow ones stop near the muzzle, the fast ones carry a metre or two, and few stay on the
+		# line itself, so it opens up as the cone does.
+		var spread := _rng.randf_range(tuning.jet_cone.x, tuning.jet_cone.y)
 		var turn := _rng.randf() * TAU
 		var v := (dir + (side * cos(turn) + up * sin(turn)) * spread).normalized()
 		var speed := lerpf(tuning.jet_speed.x, tuning.jet_speed.y, pow(float(i) / maxf(n - 1, 1), 0.8)) * _rng.randf_range(0.85, 1.15)
