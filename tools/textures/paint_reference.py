@@ -76,8 +76,10 @@ def main():
         img.save(out, "JPEG", quality=94)
         print("painted: ref_%s %s" % (name, img.size))
     if failed:
+        # The ones painted are still committed (a run that painted none fails).
         print("not painted:", ", ".join(failed))
-        sys.exit(1)
+        if len(failed) == len([n for n in spec if not only or n in only]):
+            sys.exit(1)
 
 
 if __name__ == "__main__":
