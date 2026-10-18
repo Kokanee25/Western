@@ -18,7 +18,9 @@ static var _material: StandardMaterial3D
 ## At most this many puffs in one cloud (dynamite's is a big `amount`).
 const MAX_PUFFS := 40
 ## Smoke this close to the eye is faded out (metres: none at x, all from y).
-const NEAR_FADE := Vector2(0.35, 1.1)
+const NEAR_FADE := Vector2(0.2, 0.6)
+## A puff's billboard is this many radii across (its texture fades out about there).
+const QUAD_RADII := 2.6
 
 var indoors := false
 var _fog: FogVolume
@@ -234,7 +236,7 @@ func _process_step(delta: float) -> void:
 		queue_free()
 
 
-## Each puff a billboard three radii across (the texture's soft edge is about there), as opaque
+## Each puff a billboard QUAD_RADII radii across (the texture's soft edge is about there), as opaque
 ## through its middle as its smoke makes it, fading out over the cloud's last fifth.
 func _draw() -> void:
 	if _mm == null:
@@ -243,7 +245,7 @@ func _draw() -> void:
 	for i in _pos.size():
 		var r := _rad[i]
 		var alpha := (1.0 - exp(-_mass[i] / (r * r))) * end
-		_mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3.ONE * r * 3.0), _pos[i]))
+		_mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3.ONE * r * QUAD_RADII), _pos[i]))
 		_mm.set_instance_color(i, Color(tuning.colour, alpha))
 
 
@@ -297,7 +299,12 @@ static func _puff_material() -> StandardMaterial3D:
 		_material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 		_material.billboard_keep_scale = true
 		_material.roughness = 1.0
-		_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
+		# Smoke is lit through as much as on its face: a lamp or the sun behind a cloud makes it
+		# glow (per pixel, so the backlight counts; a few dozen quads).
+		_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+		_material.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
+		_material.backlight_enabled = true
+		_material.backlight = Color(0.75, 0.73, 0.7)
 		# A puff right in front of your eye would be one flat square over the whole view: smoke
 		# that close fades out (and `optical_depth` counts it the same way).
 		_material.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA

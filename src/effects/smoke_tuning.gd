@@ -21,7 +21,7 @@ extends Resource
 
 @export_group("The discharge")
 ## Puffs a .45 Colt load throws out of the muzzle (a 12-bore shell, `amount` 1.8, more).
-@export var jet_puffs := 5
+@export var jet_puffs := 14
 ## How fast they leave (m/s) and how quickly the air stops them (per second): they come to rest
 ## between `jet_speed.x / jet_drag` and `jet_speed.y / jet_drag` metres out.
 @export var jet_speed := Vector2(4.0, 14.0)
@@ -31,13 +31,13 @@ extends Resource
 ## Each puff is a fixed amount of smoke (m²: looking through its middle the smoke's optical depth is
 ## this over its radius squared), so it's dense the moment it leaves the muzzle and thins as it
 ## spreads, as real smoke does.
-@export var puff_mass := 0.07
+@export var puff_mass := 0.025
 ## A puff's radius as it leaves (m), what it spreads to in its first moments and how quickly
 ## (seconds), and how much it grows after that (m/s).
 @export var start_radius := 0.05
-@export var spread_radius := 0.4
+@export var spread_radius := 0.28
 @export var spread_time := 0.2
-@export var growth := 0.22
+@export var growth := 0.18
 ## The smoke thinning into the air (seconds for its mass to fall to a third): quickly in a breeze,
 ## slowly in a still room.
 @export var thin_outdoors := 4.0
