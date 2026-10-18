@@ -1,0 +1,3 @@
+a build/char2/man_saloon_night.png
+b build/char2/man_store_golden.png
+c build/char/shot_match_close.png
