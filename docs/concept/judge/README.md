@@ -22,4 +22,11 @@ the name says what each is for.
 - **Composition and mood** (painted, smoother than the authority): `06_comp_river.jpg`,
   `07_comp_triptych.jpg`.
 
-Missing from Sean's set, made: a midday street in the authority's hand (all of his are sunset or night): `made_noon_street_flash.jpg` (Nano Banana; it moved the camera).
+Made to fill the set's gaps (Nano Banana Pro, $0.14 each, 2026-10-18; sheet `made_sheet_pro2.jpg`):
+`made_noon_street.jpg` (Sean's #9 at noon, its camera kept), `made_porch_close.jpg` (siding, flaking
+paint, a sign, a hitching rail at golden hour), `made_store_inside.jpg` (an interior by daylight),
+`made_street_night.jpg` (Main Street by moonlight and lamplight), `made_townsman_day.jpg` (a face and
+clothes in full sun), `made_town_edge.jpg` (scrub, rocks and mesas at noon). These are smoother than
+the authority: they show what's in a view and how it's lit, not how square the paint is. Of the
+repaints, the fires' second Pro pass (`made_fire_*`) is the most painted; for the dynamite the
+first Nano Banana pass (`made_dynamite_flash`) is (Pro left it near photoreal).
