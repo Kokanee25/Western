@@ -1,11 +1,11 @@
 # Brief: garments and the body under them (shirt with a collar, waistcoat, trousers that hang, then the coat)
 
 Characters session, from 2026-10-18. Builds on `docs/briefs/layered-people.md` (the base body, the
-neck ring, clothes as layers) and the recipe `tools/characters/LAYERED.md`. **Status: revised
-2026-10-18 (second pass) with Sean's full list ("it just doesn't look natural or right"): the
-body's proportions and trousers that hang are now in it. Waiting for Sean's OK on this revision
-before anything more is built.** Two trial runs of the shirt and waistcoat were made first
-(below, "What the trial runs taught"); nothing of them is on main.
+neck ring, clothes as layers) and the recipe `tools/characters/LAYERED.md`. **Status: Sean's go on the revision (2026-10-18, "Go"). Steps 1-3 built on the trial man
+`bold_cowboy_made_layered` (branch `claude/characters-garments`, not merged): the body fitted bare,
+the made shirt and waistcoat, trousers that hang and the boots; through the pose check with no web
+and nothing through the waistcoat (sheets `s3_*` in `docs/style_test/garments-2026-10-18/`; recipe
+`tools/characters/GARMENTS.md`). Waiting on Sean's OK to merge the no-coat man; then the coat man.**
 
 ## Why
 

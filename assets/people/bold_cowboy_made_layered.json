@@ -7,7 +7,8 @@
  "pieces": {
   "vest": "bold_cowboy_made_vest",
   "shirt": "bold_cowboy_made_shirt",
-  "trousers": "bold_cowboy_under_trousers"
+  "trousers": "bold_cowboy_made_trousers",
+  "boots": "bold_cowboy_made_boots"
  },
  "piece_vest": {
   "parts": {
@@ -49,34 +50,45 @@
    "skirt_points_behind_hands": 24
   },
   "sleeve_points_out_of_arm": 1639,
-  "tucked_under_trousers_vest": 2835,
+  "tucked_under_trousers_vest": 2834,
   "cloth": {
    "median": 1,
    "tone": {}
   }
  },
  "piece_trousers": {
+  "parts": {
+   "leg_l": 4814,
+   "leg_r": 4819,
+   "seat": 4138
+  },
   "twin": true,
-  "made": false,
-  "pushed_out_after_warp": 26963,
-  "weights_from_skin": 41205,
+  "made": true,
+  "pushed_out_after_warp": 5626,
+  "weights_from_skin": 12838,
+  "leg_weights_kept_own": 13664,
   "clear_hands": {
    "cuff_triangles_dropped": 0,
-   "skirt_points_behind_hands": 246
+   "skirt_points_behind_hands": 402
   },
-  "tucked_under_vest": 1060,
-  "cloth_L": {
-   "from": 18.8,
-   "to": 24,
-   "light": 1.19
+  "tucked_under_vest": 416,
+  "cloth": {
+   "median": 1,
+   "tone": {}
+  }
+ },
+ "piece_boots": {
+  "twin": true,
+  "made": false,
+  "pushed_out_after_warp": 8733,
+  "weights_from_skin": 17477,
+  "clear_hands": {
+   "cuff_triangles_dropped": 0,
+   "skirt_points_behind_hands": 0
   },
   "cloth": {
    "median": 1,
-   "tone": {
-    "L": 24,
-    "chroma": 1.3,
-    "mottle": 0.6
-   }
+   "tone": {}
   }
  },
  "scale": 1.8367,
@@ -835,7 +847,7 @@
   0.514,
   0.357
  ],
- "skin_tucked": 8867,
+ "skin_tucked": 7925,
  "painted_under_garments": {
   "triangles": {
    "none": 15558
@@ -853,11 +865,16 @@
    ],
    "trousers": [
     72,
-    45,
-    31
+    53,
+    44
+   ],
+   "boots": [
+    80,
+    39,
+    27
    ]
   },
-  "neck": 1740,
+  "neck": 1738,
   "neck_colour": [
    246,
    210,
@@ -877,9 +894,11 @@
   "head": 11998,
   "vest": 2299,
   "shirt": 7622,
-  "trousers": 8000
+  "trousers": 4704,
+  "boots": 1500
  },
  "pieces_kept": [
+  "boots",
   "shirt",
   "trousers",
   "vest"

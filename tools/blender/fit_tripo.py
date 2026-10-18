@@ -2114,6 +2114,19 @@ class Piece:
             self.region[i] = reg
             took += 1
         self.report["weights_from_skin"] = took
+        if self.made and self.shape == "trousers":
+            # Made trousers: each leg takes only its own leg's weights and the pelvis's (a loose
+            # leg's nearest skin at the crotch is the other leg's), none of them his arms'.
+            W = self.W.copy()
+            W[:, arm_cols] = 0.0
+            for part, lr in (("leg_r", "r"), ("leg_l", "l")):
+                other = [k for k, bn in enumerate(bones) if str(bn).startswith(("thigh", "shin", "foot")) and not str(bn).endswith("_" + lr)]
+                sel_ = self.part.astype(str) == part
+                W[np.ix_(sel_, other)] = 0.0
+            empty = W.sum(1) < 1e-6
+            W[empty, bones.index("pelvis")] = 1.0
+            self.W = W / W.sum(1, keepdims=True)
+            self.report["leg_weights_kept_own"] = int(len(W) - empty.sum())
         if self.made and self.shape in ("vest", "shirt"):
             # A made waistcoat hangs from his trunk: none of its points take his arms' weights
             # (near his shoulders the nearest skin is the upper arm's, and the waistcoat's edge

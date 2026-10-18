@@ -113,7 +113,17 @@ HUE_FROM_CHROMA = 12.0
 VEST = {"hem": 0.17, "points": 0.045, "notch": 0.8, "v_depth": 0.15, "v_top": 0.085,
         "arm_w": 0.13, "arm_h": 0.16, "arm_down": 0.03, "arm_in": 0.11, "seam_in": 0.075, "top": 0.004,
         "seam_low": 0.02}
+# The trousers (metres, but `hem` and `boot_top` of his height above the floor): their top this far
+# above his hip joints (under the waistcoat's hem); the legs from `crotch` under the hip joints,
+# lofted round a straight axis to the hem, over the boots, `boot_ease` outside a boot's top. The
+# boots: the twin's trousers piece below `boot_top` (a boot is fused to nothing, so the cut is clean).
+# His pictures: boots showing from about 0.12 of his height, the trousers straight above them.
+# The leg's line runs from `thigh_drop` under the crotch to the boot; his calf may lie `tuck` inside it;
+# the legs `gap` apart at least below the crotch.
+TROUSERS = {"waist": 0.20, "crotch": 0.065, "hem": 0.115, "boot_top": 0.16, "boot_ease": 0.008, "twin": "bold_cowboy_under_trousers",
+            "thigh_drop": 0.06, "tuck": 0.012, "gap": 0.01}
 LAYOUT = {"vest": {"vest": (0.0, 0.0, 1.0, 0.8)},
+          "trousers": {"seat": (0.0, 0.0, 1.0, 0.24), "leg_r": (0.0, 0.26, 0.49, 0.72), "leg_l": (0.51, 0.26, 0.49, 0.72)},
           "shirt": {"trunk": (0.0, 0.0, 0.52, 0.5), "sleeve_r": (0.53, 0.0, 0.22, 0.5), "sleeve_l": (0.76, 0.0, 0.22, 0.5),
                     "collar": (0.0, 0.52, 0.5, 0.06), "fall": (0.0, 0.6, 0.5, 0.12),
                     "knot": (0.74, 0.52, 0.08, 0.06), "tie_r": (0.52, 0.64, 0.06, 0.3), "tie_l": (0.6, 0.64, 0.06, 0.3)}}
@@ -294,6 +304,22 @@ def cut_along(mesh, f):
     return int((~keep).sum())
 
 
+def upper_hull(ts, R):
+    """Each angle's radii down a tube (R[row, angle] at heights ts) raised to their upper hull:
+    the least concave line over them, so the cloth runs straight from bulge to bulge."""
+    out = R.copy()
+    for jj in range(R.shape[1]):
+        pts = list(zip(ts, R[:, jj]))
+        hull = []
+        for p_ in pts:
+            while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (p_[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (p_[0] - hull[-2][0]) >= 0:
+                hull.pop()
+            hull.append(p_)
+        hx, hy = zip(*hull)
+        out[:, jj] = np.maximum(R[:, jj], np.interp(ts, hx, hy))
+    return out
+
+
 def chest_x(pts, y, z, band=0.01):
     """How far forward his chest reaches at (y, z): the front of his skin there."""
     sel = (np.abs(pts[:, 1] - y) < band) & (np.abs(pts[:, 2] - z) < band)
@@ -421,6 +447,84 @@ class Man:
         cut = cut_along(mesh, np.min(fields, axis=0))
         print("garments: vest cut to shape: %d faces" % cut)
         return mesh
+
+    # --- the trousers ------------------------------------------------------------------------
+    def trousers(self):
+        """The trousers: the seat is his trunk's tube at the trousers' offset (between the shirt's
+        and the waistcoat's: the three nest by construction), cut at his waist; each leg a tube
+        round a straight axis from inside the seat to the hem, its radius at each angle the
+        upper hull of his leg's (and, at the bottom, his boot's) radii down the leg: the
+        straightest line over thigh, knee and calf, so the cloth hangs from them and follows none
+        (the twin's trousers, pushed out along his skin, clung to every bulge: "a bodybuilder in
+        tights")."""
+        mesh = Mesh()
+        m, j = self.m, self.j
+        lay = LAYOUT["trousers"]
+        hip = j["Hip"][1]
+        seat = self.trunk_tube(OFFSET["trousers"])
+        tube_mesh(seat, mesh, "seat", lay["seat"])
+        v = np.array(mesh.v, float)
+        cut_along(mesh, hip + TROUSERS["waist"] * m - v[:, 1])
+        crotch = hip - TROUSERS["crotch"] * m
+        hem, top = TROUSERS["hem"], crotch + 0.6 * (hip - crotch)    # the legs start inside the seat
+        boots = self.boot_points()
+        for lr, part in (("R", "leg_r"), ("L", "leg_l")):
+            sgn = np.sign(j[lr + "_Thigh"][2])
+            # (his arm's points left out: in the A-pose his hands hang by his hips)
+            mine = (self.pts[:, 2] * sgn > 0.004) & (self.pts[:, 1] < crotch + 0.02) & (self.pts[:, 1] > hem - 0.02) & ~self.arm
+            pts = self.pts[mine]
+            bt = boots[(boots[:, 2] * sgn > 0) & (boots[:, 1] < TROUSERS["boot_top"]) & (boots[:, 1] > hem - 0.02)]
+            def centre(y):
+                s_ = pts[np.abs(pts[:, 1] - y) < 0.01]
+                return np.array([np.median(s_[:, 0]), y, np.median(s_[:, 2])])
+            a = centre(crotch - 0.02)
+            b = centre(hem + 0.03)
+            a[1], b[1] = top, hem
+            src = np.concatenate([pts, bt])
+            leg = loft(src, a, b, 0.0, 1.0, ROWS["leg"], ANGLES["leg"], OFFSET["trousers"] * m, fill="round")
+            # The hem over the boot: no narrower than the boot's top and its ease.
+            if len(bt):
+                bleg = loft(bt, a, b, 0.0, 1.0, ROWS["leg"], ANGLES["leg"], TROUSERS["boot_ease"] * m, fill="round")
+                low = leg.ts > 1.0 - (TROUSERS["boot_top"] - hem) / max(top - hem, 1e-6)
+                leg.R[low] = np.maximum(leg.R[low], bleg.R[low])
+            # Straight from his upper thigh to the boot's top: his calf and knee may lie up to
+            # TROUSERS tuck inside the line (the fitter tucks his skin under the cloth there).
+            # Over every bulge (the upper hull) they were as wide at the knee as his calf
+            # (0.108 of his height against the pictures' 0.079): Rodin's calves are bigger than
+            # the pictures' man's.
+            ys = top + leg.ts * (hem - top)
+            i0 = int(np.argmin(np.abs(ys - (crotch - TROUSERS["thigh_drop"] * m))))
+            r_top, r_bot = leg.R[i0], leg.R[-1]
+            below = leg.ts >= leg.ts[i0]
+            share = ((leg.ts - leg.ts[i0]) / (1.0 - leg.ts[i0]))[below][:, None]
+            line = r_top[None] + share * (r_bot - r_top)[None]
+            leg.R[below] = np.maximum(line, leg.R[below] - TROUSERS["tuck"] * m)
+            leg.R = upper_hull(leg.ts, leg.R) if TROUSERS["tuck"] <= 0 else leg.R
+            # Its inner side short of his middle by half TROUSERS gap: the legs part from the
+            # crotch down, as his feet do (they touched to his calves).
+            ab = leg.b - leg.a
+            th = 2 * np.pi * np.arange(leg.R.shape[1]) / leg.R.shape[1]
+            dz = np.cos(th) * leg.e1[2] + np.sin(th) * leg.e2[2]
+            inner = dz * sgn < -0.05
+            for i, t in enumerate(leg.ts):
+                cz = abs(leg.a[2] + t * ab[2])
+                lim = (cz - 0.5 * TROUSERS["gap"] * m) / np.maximum(-dz[inner] * sgn, 1e-6)
+                if ys[i] < crotch:
+                    leg.R[i, inner] = np.minimum(leg.R[i, inner], np.maximum(lim, 0.01 * m))
+            tube_mesh(leg, mesh, part, lay[part])
+        return mesh
+
+    def boot_points(self):
+        """The twin's trousers piece's points (his Tripo frame): its boots are cut from it."""
+        pos, _n, _uv, tris, _j, _c = FT.load_glb(os.path.join(TRIPO, TROUSERS["twin"] + ".glb"))
+        return np.concatenate([pos, FT.surface_points(pos, tris, n=60000, seed=3)])
+
+    def boots_piece(self, body, out):
+        """The boots: the twin's trousers piece below TROUSERS boot_top, as a piece of their own."""
+        pos, _n, uv, tris, _j, colour = FT.load_glb(os.path.join(TRIPO, TROUSERS["twin"] + ".glb"))
+        keep = (pos[tris][:, :, 1] < TROUSERS["boot_top"]).all(1)
+        print("garments: boots %d triangles from %s" % (int(keep.sum()), TROUSERS["twin"]))
+        TP.write_piece("boots", pos, uv, tris[keep], colour, body, out, painted=True, made=False)
 
     # --- the shirt ---------------------------------------------------------------------------
     def shirt(self):
@@ -716,7 +820,8 @@ def preview(man, meshes, path, size=900):
     tiles = []
     cols = {"body": [0.80, 0.62, 0.50], "trunk": [0.93, 0.90, 0.80], "sleeve_r": [0.9, 0.88, 0.78], "sleeve_l": [0.9, 0.88, 0.78],
             "collar": [1.0, 1.0, 0.95], "fall": [0.98, 0.98, 0.9], "knot": [0.1, 0.1, 0.1],
-            "tie_r": [0.15, 0.12, 0.12], "tie_l": [0.15, 0.12, 0.12], "vest": [0.45, 0.22, 0.12]}
+            "tie_r": [0.15, 0.12, 0.12], "tie_l": [0.15, 0.12, 0.12], "vest": [0.45, 0.22, 0.12],
+            "seat": [0.25, 0.23, 0.22], "leg_r": [0.25, 0.23, 0.22], "leg_l": [0.25, 0.23, 0.22]}
     V = [man.v]
     T = [man.tris]
     labels = [np.array(["body"] * len(man.tris), dtype=object)]
@@ -755,6 +860,8 @@ def main():
         meshes["shirt"] = man.shirt()
     if "vest" in garments:
         meshes["vest"] = man.vest()
+    if "trousers" in garments:
+        meshes["trousers"] = man.trousers()
     for name, mesh in meshes.items():
         v, uv, tris, part = mesh.arrays()
         print("garments: %s: %d triangles (%s)" % (name, len(tris), ", ".join("%s %d" % (p, (part == p).sum()) for p in dict.fromkeys(part))))
@@ -770,6 +877,8 @@ def main():
         v, uv, tris, _part = mesh.arrays()
         textures[name].save(os.path.join(WORK, "%s_%s_paint.png" % (out, name)))
         TP.write_piece(name, v, uv, tris, textures[name], body, out, painted=True, made=True, islands=LAYOUT[name])
+    if "boots" in garments:
+        man.boots_piece(body, out)
 
 
 if __name__ == "__main__":

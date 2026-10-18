@@ -321,18 +321,17 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: **garments and the body under them** (brief `docs/briefs/garments.md`, revised
-  2026-10-18 with Sean's full list; **waiting for his OK on the revision**). Found: the Rodin base
-  body is fitted as a hatted "whole man" (`fit_tripo` `self.bare` needs a `model` key): that is
-  the boxy high shoulders, missing neck and low crotch (sheets `p0_proportions_*` in
-  `docs/style_test/garments-2026-10-18/`); plus `shoulders` 1.1, `--head_scale` 0.92, trousers
-  pushed out along the skin. Plan: the body fitted bare first, then made shirt and waistcoat (one
-  tube, branch `claude/characters-garments-second` the base), trousers that hang, boots their own
-  piece, the coat last; judged in the game's poses (people_lineup) beside his pictures. Two
-  sessions built the same trial shirt and waistcoat at once on 2026-10-18: one session per lane.
-  Traps: after a build `godot --headless --import`; lab renders via `tools/characters/lab_run.sh`;
-  in a fresh container build the native plugin (`cargo build --release` in
-  `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
+- Next: **garments and the body under them** (brief `docs/briefs/garments.md`, Sean's go 2026-10-18;
+  recipe `tools/characters/GARMENTS.md`; branch `claude/characters-garments`, not merged). Built
+  on the trial man `bold_cowboy_made_layered`: the base body fitted bare (`"bare": true`; it was
+  fitted as a hatted whole man: high boxy shoulders, no neck), shoulders 1.0, head 1.05; shirt
+  (sleeve tubes, a standing collar), waistcoat and trousers that hang, lofted round one trunk
+  tube at nested offsets; boots cut from the twin. Pose check clean (sheets `s3_*` in
+  `docs/style_test/garments-2026-10-18/`). **Waiting on Sean's OK to merge the no-coat man**; then
+  the coat man. Open: knees wider than the pictures' (Rodin's legs), side-picture smears on the
+  sleeves; the stand pose's arms hang ~10° against the pictures' 21° (gameplay's). Traps: after a
+  build `godot --headless --import`; in a fresh container build the native plugin (`cargo build
+  --release` in `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
