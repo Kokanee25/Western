@@ -1,0 +1,9 @@
+a docs/screenshots/golden/livery_fire_dusk.png
+b docs/screenshots/golden/store_fire_night.png
+c docs/screenshots/golden/store_fire_close.png
+d docs/screenshots/golden/dynamite_store_blast.png
+e docs/screenshots/golden/wall_closeup_noon.png
+f docs/screenshots/golden/texel_store_golden.png
+g docs/screenshots/golden/gun_smoke_saloon.png
+h docs/screenshots/golden/face_street_golden.png
+i docs/screenshots/golden/smoke_drift_street.png
