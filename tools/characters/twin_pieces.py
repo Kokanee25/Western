@@ -162,7 +162,7 @@ def _turn_onto(u, v):
     return np.eye(3) + s_ * K + (1 - c) * K @ K
 
 
-def write_piece(name, v, uv, t, colour, body, out, painted=False):
+def write_piece(name, v, uv, t, colour, body, out, painted=False, made=False, islands=None):
     import bpy
     used = np.unique(t)
     remap = -np.ones(len(v), int)
@@ -192,9 +192,10 @@ def write_piece(name, v, uv, t, colour, body, out, painted=False):
     path = os.path.join(TRIPO, "%s_%s.glb" % (out, name))
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_texcoords=True, export_normals=True,
                               export_materials="EXPORT", export_image_format="AUTO")
-    json.dump({"twin": body, "painted": painted,
-               "note": "cut from his dressed twin by tools/characters/twin_pieces.py; "
-               "already in place on the body: fit_tripo carries it as it is"},
+    json.dump({"twin": body, "painted": painted, "made": made, "islands": islands,
+               "note": ("made on his base body by tools/characters/garments.py" if made else
+                        "cut from his dressed twin by tools/characters/twin_pieces.py") +
+               "; already in place on the body: fit_tripo carries it as it is"},
               open(os.path.join(TRIPO, "%s_%s.json" % (out, name)), "w"), indent=1)
     print("twin_pieces: %-8s %6d triangles → %s" % (name, len(tk), path))
 

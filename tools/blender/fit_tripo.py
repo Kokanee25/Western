@@ -91,6 +91,7 @@ PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 TWIN_TRIS = {"coat": 6000, "trousers": 8000, "vest": 5000, "shirt": 5000}
 # A layered man's garments, innermost first: each tucked under every one outside it (tuck_layers).
 LAYERS = ["shirt", "trousers", "vest", "coat"]
+NO_TUCK = ["fall", "knot", "tie_r", "tie_l"]   # a made shirt's parts that lie over the waistcoat (tuck_layers)
 FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
 WRIST_CUT = 0.004     # metres short of his wrist joint: his arm's skin ends (makehuman_hands)
 WRIST_BLEND = 0.03    # metres past it: the new palm's wrist eases from his arm to its own shape
@@ -591,7 +592,7 @@ class TripoPerson(mp.Person):
         for piece in self.pieces:
             # A hat moves with his head alone: its brim reaches past the head's radius, and the
             # neck's warp (another girth scale since HAIR_M) would bend it.
-            piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v), bones,
+            piece.v, piece.region = self.warp_points(piece.v, self.head_mask(piece.v) & ~getattr(piece, "made", False), bones,
                                                      only="head" if piece.shape == "hat" else None)
         k = float(self.spec.get("shoulders", 1.0))
         if k != 1.0:
@@ -1034,6 +1035,8 @@ class TripoPerson(mp.Person):
             if not over:
                 continue
             movable = np.ones(len(pc.v), bool)
+            if pc.made:
+                movable &= ~np.isin(pc.part.astype(str), NO_TUCK)
             if pc.shape == "shirt":
                 # His sleeves aren't under his trousers or vest: tucked under them where his arm
                 # hangs by his hip, their insides were dented into his arm.
@@ -1507,8 +1510,9 @@ class TripoPerson(mp.Person):
             shirt = [pc for pc in twins if pc.shape == "shirt"]
             if shirt:
                 self._sleeves_round_arms(shirt[0])
-                self._arms_in_sleeves(shirt)
-                self._trunk_in()
+                if not shirt[0].made:
+                    self._arms_in_sleeves(shirt)
+                    self._trunk_in()
             self.tuck_layers(twins)
             self.tuck_skin(twins)
 
@@ -1620,7 +1624,20 @@ class Piece:
         meta = json.load(open(side)) if os.path.exists(side) else {}
         self.twin = meta.get("twin") == body.spec.get("rodin", "").split("/")[-1].replace("_rodin", "")
         self.painted = bool(meta.get("painted"))    # its texture painted from his pictures (body_paint --dressed)
+        # A made garment (tools/characters/garments.py: lofted from his base body's own skin, its
+        # sleeves tubes of their own, docs/briefs/garments.md) is carried as a twin piece is, but
+        # needs none of the twin's repairs: no sleeve cut from its side, no comb, and his arms and
+        # trunk stay their own size under it.
+        self.made = bool(meta.get("made"))
+        # A made garment's parts by their islands in its texture (garments.py LAYOUT: left,
+        # top, width, height as shares): the collar's fall, its points and the tie lie over the
+        # waistcoat and are never tucked under it.
+        self.part = np.full(len(self.v), "", dtype=object)
+        for pname, (left, top, w, h) in (meta.get("islands") or {}).items():
+            inside = (self.uv[:, 0] >= left) & (self.uv[:, 0] <= left + w) & (self.uv[:, 1] >= top) & (self.uv[:, 1] <= top + h)
+            self.part[inside] = pname
         self.report["twin"] = self.twin
+        self.report["made"] = self.made
         if self.twin:
             return
         self.v, self.uv, self.tris = drop_scraps(self.v, self.uv, self.tris, self.report)
@@ -1970,7 +1987,7 @@ class Piece:
         # Sleeve and side fused below his armpit (the dressed model's arms hang against its
         # sides): the triangles joining them stretched into a wing with his hands up. Cut, as
         # the cloth is cut there; above his armpit the armhole's seam stays.
-        if arm_bvh and (self.shape == "shirt" or (self.shape == "coat" and COAT_SIDES_CUT)):
+        if arm_bvh and not self.made and (self.shape == "shirt" or (self.shape == "coat" and COAT_SIDES_CUT)):
             o = self.our_joints()
             pit_y = 0.5 * (o["r-shoulder"][1] + o["l-shoulder"][1]) - ARMPIT_DROP
             sl = np.array([x is not None for x in sleeve_of])
