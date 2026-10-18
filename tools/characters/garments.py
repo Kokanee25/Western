@@ -87,7 +87,8 @@ CLASS = {"shirt": (58.0, 101.0, 31.0), "tie": (0.0, 42.0, 24.0), "vest": (4.0, 4
 # button) to VEST["v_half"] either side of the front at the top; its lapels VEST["lapel"] wide,
 # lying VEST["lapel_off"] off its front; the armholes cut where the shirt's sleeve heads pass
 # (ARMHOLE_T of the way down the arm, ARMHOLE_GAP outside the sleeve).
-VEST = {"hem_above_hip": 0.045, "point": 0.05, "point_deg": 16.0, "v_bottom": 0.5, "v_half": 0.06, "lapel": 0.045, "lapel_off": 0.008}
+VEST = {"hem_above_hip": 0.045, "point": 0.05, "point_deg": 16.0, "v_bottom": 0.58, "v_half": 0.045, "lapel": 0.045, "lapel_off": 0.008,
+        "lapel_in": 0.012}
 ARMHOLE_T = 0.28
 ARMHOLE_GAP = 0.012
 # Each part's island in the texture (left, top, width, height), as shares of it.
@@ -414,8 +415,10 @@ class Man:
                 y = top_y - sfr * (top_y - v_bottom_y)
                 g = gap(y)
                 for jj, u in enumerate((0.0, 1.0)):
-                    z = zc + sgn * (g + u * VEST["lapel"] * m * (1.0 - 0.5 * sfr))
-                    x = chest_x(self.pts, y, z) + (OFFSET["vest"] + (VEST["lapel_off"] if u > 0 else 0.002)) * m
+                    # From inside the V's edge (over the panel's cut edge, which the grid leaves
+                    # ragged) out over the front, lifting off it.
+                    z = zc + sgn * (g - VEST["lapel_in"] * m + u * (VEST["lapel"] + VEST["lapel_in"]) * m * (1.0 - 0.4 * sfr))
+                    x = chest_x(self.pts, y, z) + (OFFSET["vest"] + (VEST["lapel_off"] if u > 0 else 0.004)) * m
                     V.append([x, y, z])
                     UV.append([left + w * jj, tp + h * sfr])
                     k[(i, jj)] = len(V) - 1

@@ -395,15 +395,15 @@ The cut-twin clothes above fuse sleeve to side and collar to neck (the white sme
 that never stood). **The new route: garments lofted from his base body's own skin**, by
 `tools/characters/garments.py`, each its own clean mesh with UVs by construction, painted by
 projection from his arms-out pictures, carried by the fitter as a laid-on piece (`made`). The
-trial man is `bold_cowboy_made_layered` (people.json `bold_cowboy_made_body`: the made shirt
-over the twin waistcoat and trousers for now); today's men are untouched until Sean says.
+trial man is `bold_cowboy_made_layered` (people.json `bold_cowboy_made_body`: the made shirt and
+waistcoat over the twin trousers for now); today's men are untouched until Sean says.
 
 The chain (the workspace as §3; `P=docs/concept/style/factory/bold_cowboy_armsout_dressed`):
 ```sh
 # 1. the garments, shaped on his base body and painted from the four arms-out pictures
 ~/bpyenv/bin/python tools/characters/garments.py --body=bold_cowboy_body --out=bold_cowboy_made \
-    --garments=shirt --preview --views=front:$P/front.png,left:$P/left.png,right:$P/right.png,back:$P/back.png
-#    → assets/people/tripo/bold_cowboy_made_shirt.glb + .json ("made", "islands"); build/garments/:
+    --garments=shirt,vest --preview --views=front:$P/front.png,left:$P/left.png,right:$P/right.png,back:$P/back.png
+#    → assets/people/tripo/bold_cowboy_made_{shirt,vest}.glb + .json ("made", "islands"); build/garments/:
 #      the preview (flat-shaded, no game), each view's outline fit, which view painted what.
 # 2. the fit, the head through the ring (--collar=none: the shirt has its own), the import
 ~/bpyenv/bin/python tools/blender/fit_tripo.py --only=bold_cowboy_made_body
@@ -450,7 +450,20 @@ How the shirt is made (`garments.py`, numbers at its top):
   trunk stay their own size (`_arms_in_sleeves`, `_trunk_in` skipped), its collar follows his
   neck in the warp (not the head's placing), and its fall and tie (`NO_TUCK`, by their islands)
   are never tucked under the waistcoat.
-- Known (2026-10-18, sheet `docs/style_test/garments-2026-10-18/g1_shirt.png`): the shirt's
+- **The waistcoat** (`vest`, `--garments=shirt,vest`; sheet `g2_vest.png`): a tube lofted from
+  the same skin set as the shirt (lofted without the deltoids it sat inside the shirt's yoke) from
+  under his hips (VEST hem_above_hip, the two front points VEST point lower) to his neck's base,
+  OFFSET vest out; the V cut down the front from VEST v_half at the top to the top button at
+  v_bottom of the way up; the armholes cut where the shirt's sleeve heads pass (ARMHOLE_T,
+  ARMHOLE_GAP); the lapels strips along the V's edges from VEST lapel_in inside it to lapel
+  out, lapel_off off the front. Its class: brown (chroma at least 12: the grey trousers at its
+  hem passed without it). In the fitter a made waistcoat takes none of his arms' weights
+  (`arm_weights_dropped`: near the shoulders the nearest skin was the upper arm's, and its edge
+  and lapel swung down with his arm).
+- Known (2026-10-18, sheets `docs/style_test/garments-2026-10-18/g1_shirt.png`, `g2_vest.png`): the
+  waistcoat's armholes are far too big (a lot of shirt shows at the shoulder) and their cut
+  edge is ragged (the grid's cells): next, a smaller ARMHOLE_T and the edge on a smooth curve
+  round the sleeve head, as the hem's; its lapels are plain strips (no notch); the shirt's
   front under the waistcoat is mostly unseen in his pictures (filled); the points are flatter
   than his picture's; the waistcoat is still the twin's (its armholes wide, its shoulder's tan
   patch its own); the shirt sits 6 mm off him and the fitter pushes it to 12.

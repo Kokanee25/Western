@@ -321,17 +321,16 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
-  twin (the cut twin fuses sleeve to side and collar to neck: the white smear and the collar,
-  retuned for every new twin). **The brief is written** (`docs/briefs/garments.md`, branch
-  `claude/characters-garments`) and waits for Sean's OK: garments modelled by script on the base
-  body (a shirt with a stand collar, points and separate sleeves; waistcoat; trousers), painted by
-  projection from the arms-out pictures (`bold_cowboy_armsout_dressed`, whose pose matches the
-  base body's), reusable for every man; MakeHuman's clothes ruled out (fused suits, AGPL headers).
-  Then: the shirt on the no-coat man first, one garment a merge, each with a sheet against his
-  pictures. Judge every change against Sean's pictures and his words (he turned down a flat
-  collar band twice). Trap: after a build, `godot --headless --import` first; lab renders via
-  `tools/characters/lab_run.sh`.
+- Next: **proper garments** in place of clothes cut from Rodin's dressed twin (brief
+  `docs/briefs/garments.md`, Sean's go 2026-10-18; recipe `tools/characters/LAYERED.md` §6). On
+  branch `claude/characters-garments` (not merged): `tools/characters/garments.py` lofts a shirt
+  (separate sleeves, a stand collar with a fall and points, the tie) and a waistcoat from the base
+  body's own skin, painted by projection from the arms-out pictures; the fitter carries them as
+  `made` pieces. Trial man `bold_cowboy_made_layered`, sheets `docs/style_test/garments-2026-10-18/`
+  (`g1_shirt`, `g2_vest`). Sean's call on the collar close up (he turned a flat band down twice).
+  Then: the waistcoat's armholes (too big, ragged), the trousers with boots, the coat man; one
+  garment a merge with his OK; today's men stay until the new one is better. Trap: after a build,
+  `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)

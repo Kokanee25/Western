@@ -5,15 +5,16 @@
  "model": "test/bold_cowboy_body_rodin",
  "triangles_in": 34270,
  "pieces": {
-  "vest": "bold_cowboy_under_vest",
+  "vest": "bold_cowboy_made_vest",
   "shirt": "bold_cowboy_made_shirt",
   "trousers": "bold_cowboy_under_trousers"
  },
  "piece_vest": {
   "twin": true,
-  "made": false,
-  "pushed_out_after_warp": 9129,
-  "weights_from_skin": 13006,
+  "made": true,
+  "pushed_out_after_warp": 823,
+  "arm_weights_dropped": 294,
+  "weights_from_skin": 9422,
   "clear_hands": {
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 0
@@ -34,7 +35,7 @@
    "skirt_points_behind_hands": 60
   },
   "sleeve_points_out_of_arm": 1599,
-  "tucked_under_trousers_vest": 2614,
+  "tucked_under_trousers_vest": 2533,
   "cloth": {
    "median": 1,
    "tone": {}
@@ -49,7 +50,7 @@
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 266
   },
-  "tucked_under_vest": 905,
+  "tucked_under_vest": 1472,
   "cloth_L": {
    "from": 18.8,
    "to": 24,
@@ -824,21 +825,21 @@
   0.514,
   0.353
  ],
- "skin_tucked": 8827,
+ "skin_tucked": 8811,
  "painted_under_garments": {
   "triangles": {
    "none": 13079
   },
   "colours": {
    "vest": [
-    83,
-    39,
-    28
+    97,
+    54,
+    37
    ],
    "shirt": [
     247,
-    212,
-    174
+    213,
+    173
    ],
    "trousers": [
     72,
@@ -846,11 +847,11 @@
     31
    ]
   },
-  "neck": 1283,
+  "neck": 1242,
   "neck_colour": [
    247,
-   212,
-   174
+   213,
+   173
   ]
  },
  "texture": {
@@ -864,8 +865,8 @@
  "triangles": {
   "skin": 27560,
   "head": 11997,
-  "vest": 4337,
-  "shirt": 5000,
+  "vest": 3142,
+  "shirt": 4999,
   "trousers": 7999
  },
  "pieces_kept": [

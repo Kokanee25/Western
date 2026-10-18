@@ -3,7 +3,9 @@
 Characters session, from 2026-10-18. Sean, 2026-10-18: proper garments in place of clothes cut
 from Rodin's dressed twin; brief first, his OK before building. Builds on
 `docs/briefs/layered-people.md` (the base body, the neck ring, clothes as layers) and the recipe
-`tools/characters/LAYERED.md`. **Status: draft for Sean's OK; nothing built yet.**
+`tools/characters/LAYERED.md`. **Status: Sean's go (2026-10-18, "do what you think will work");
+route (b) built for the shirt and the waistcoat on the trial man (LAYERED.md §6, sheets
+`docs/style_test/garments-2026-10-18/`); trousers and the coat man next.**
 
 ## Why
 
