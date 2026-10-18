@@ -24,26 +24,26 @@ extends Resource
 @export var jet_puffs := 14
 ## How fast they leave (m/s) and how quickly the air stops them (per second): they come to rest
 ## between `jet_speed.x / jet_drag` and `jet_speed.y / jet_drag` metres out.
-@export var jet_speed := Vector2(4.0, 14.0)
+@export var jet_speed := Vector2(3.0, 11.0)
 @export var jet_drag := 7.0
 ## How far off the bore the puffs leave (radians, least and most): an opening cone, not a line.
 @export var jet_cone := Vector2(0.3, 0.6)
 ## Each puff is a fixed amount of smoke (m²: looking through its middle the smoke's optical depth is
 ## this over its radius squared), so it's dense the moment it leaves the muzzle and thins as it
 ## spreads, as real smoke does.
-@export var puff_mass := 0.025
+@export var puff_mass := 0.02
 ## A puff's radius as it leaves (m), what it spreads to in its first moments and how quickly
 ## (seconds), and how much it grows after that (m/s).
 @export var start_radius := 0.05
 @export var spread_radius := 0.28
-@export var spread_time := 0.2
-@export var growth := 0.18
+@export var spread_time := 0.25
+@export var growth := 0.14
 ## The smoke thinning into the air (seconds for its mass to fall to a third): quickly in a breeze,
 ## slowly in a still room.
-@export var thin_outdoors := 4.0
-@export var thin_indoors := 5.0
+@export var thin_outdoors := 6.0
+@export var thin_indoors := 9.0
 ## Hot gas rises: an upward pull (m/s²) that fades over its first second.
-@export var buoyancy := 3.0
+@export var buoyancy := 2.0
 ## Smoke is grey, not white: lit by the sun it shouldn't glow.
 @export var colour := Color(0.72, 0.71, 0.69)
 ## The little puff out of a revolver's cylinder gap, either side (a share of a muzzle puff).

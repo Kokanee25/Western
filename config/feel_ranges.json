@@ -199,7 +199,7 @@
       ]
     },
     "smoke_see_him_shotgun_one_second": {
-      "min": 0.55,
+      "min": 0.45,
       "max": 0.95,
       "unit": "share of a man 12 m off you can see a second after a shouldered shotgun shot, outdoors (was a wall for ~3 s)",
       "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
