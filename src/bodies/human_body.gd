@@ -187,6 +187,9 @@ var _rng := RandomNumberGenerator.new()
 var _flinch := {}  ## segment -> [offset degrees, velocity]
 var _stumble := {}  ## the ball that's taking him down: segment, where on it, direction, momentum
 var _stumble_lean := {}  ## segment -> degrees he's folded by as he stumbles (on top of the pose)
+## The wince a ball that didn't drop him gives (_wince_at): segment -> degrees at full, and its age.
+var _wince := {}
+var _wince_t := 99.0
 var _legs_gone := false  ## the stumble ended because his legs gave: no column, his knees go first
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
@@ -1323,6 +1326,7 @@ func face(point: Vector3) -> void:
 
 func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta
+	_wince_t += delta
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var clip := _mocap_now(delta)
@@ -1344,7 +1348,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			f[1] += (-f[0] * 220.0 - f[1] * 18.0) * delta
 			f[0] += f[1] * delta
 			_flinch[sid] = f
-		var rot: Vector3 = now + f[0]
+		var rot: Vector3 = now + f[0] + _wince_now(sid)
 		if sid == &"chest":
 			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
 		var pv := pivots[sid] as Node3D
@@ -1352,7 +1356,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles) on top of it.
-			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
+			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) + _wince_now(sid)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
 	if held_gun != null and not gun_holstered:
@@ -1520,6 +1524,80 @@ func _cough(delta: float) -> void:
 
 
 ## Throw the hit segment and the ones above it back from the bullet.
+## Hit and still on his feet: he winces round it, his own muscles, not the ball (a ball's push
+## moves a man a few centimetres; the old flinch kicked him 40 degrees back in a twentieth of a
+## second, a jerk Sean turned down in the stumble). It comes on in WINCE_IN, holds, and lets go by
+## WINCE_OUT. In his belly or chest he curls round it and toward its side; from behind he arches a
+## little; an arm hit pulls in to him; a leg hit buckles that knee and he dips on it; a graze of the
+## head turns it aside. Degrees in the poses' axes (forward -x, his left +z), scaled by how hard
+## it hit (a .45 ball stopped in him, 4.5 N*s, is full).
+const WINCE_IN := 0.12
+const WINCE_HOLD := 0.2
+const WINCE_OUT := 0.75
+const WINCE := {
+	&"front": {&"abdomen": Vector3(-9, 0, 5), &"chest": Vector3(-7, 0, 4), &"neck": Vector3(-3, 0, 0), &"head": Vector3(-6, 0, 0)},
+	&"back": {&"abdomen": Vector3(5, 0, 4), &"chest": Vector3(5, 0, 3), &"head": Vector3(6, 0, 0)},
+	&"arm": {&"upper_arm": Vector3(12, 0, -10), &"forearm": Vector3(18, 0, 0), &"chest": Vector3(0, 6, 4)},
+	&"leg": {&"thigh": Vector3(14, 0, 0), &"shin": Vector3(-24, 0, 0), &"abdomen": Vector3(-6, 0, 4)},
+	&"head": {&"neck": Vector3(0, 8, 0), &"head": Vector3(-4, 14, 6)},
+}
+
+
+func _wince_at(seg: StringName, at: Vector3, dir: Vector3, momentum: float) -> void:
+	var s := String(seg)
+	var side := "_r" if s.ends_with("_r") else ("_l" if s.ends_with("_l") else "")
+	var chest := parts.get(&"chest") as Node3D
+	var front := -global_basis.z
+	var left := 1.0
+	if chest:
+		left = -signf((at - chest.global_position).dot(chest.global_basis.x))
+	var kind := &"front"
+	if s.begins_with("upper_arm") or s.begins_with("forearm") or s.begins_with("hand"):
+		kind = &"arm"
+	elif s.begins_with("thigh") or s.begins_with("shin") or s.begins_with("foot"):
+		kind = &"leg"
+	elif seg == &"head" or seg == &"neck":
+		kind = &"head"
+	elif dir.dot(front) > 0.3:
+		kind = &"back"
+	var k := clampf(momentum / 4.5, 0.35, 1.0)
+	var shape := {}
+	for key: StringName in WINCE[kind]:
+		var d: Vector3 = WINCE[kind][key]
+		var sid := key
+		if key in [&"upper_arm", &"forearm", &"thigh", &"shin"]:
+			sid = StringName(String(key) + side)
+			# An arm pulls in toward his body: the poses' z is out from him on the left, in on the right.
+			if key == &"upper_arm" and side == "_l":
+				d.z = -d.z
+		elif d.z != 0.0:
+			d.z *= left
+		if kind == &"head":
+			d.y *= -left
+		shape[sid] = d * k
+	# A second hit before the first has let go: the harder of the two, from now.
+	if _wince_t < WINCE_OUT and not _wince.is_empty():
+		for sid: StringName in _wince:
+			if not shape.has(sid):
+				shape[sid] = (_wince[sid] as Vector3) * _wince_amount()
+	_wince = shape
+	_wince_t = 0.0
+
+
+func _wince_amount() -> float:
+	if _wince_t < WINCE_IN:
+		return smoothstep(0.0, WINCE_IN, _wince_t)
+	if _wince_t < WINCE_HOLD:
+		return 1.0
+	return 1.0 - smoothstep(WINCE_HOLD, WINCE_OUT, _wince_t)
+
+
+func _wince_now(sid: StringName) -> Vector3:
+	if _wince.is_empty() or _wince_t >= WINCE_OUT or not _wince.has(sid):
+		return Vector3.ZERO
+	return (_wince[sid] as Vector3) * _wince_amount()
+
+
 func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: float) -> void:
 	var sid := segment
 	var k := 900.0 * momentum
@@ -1595,7 +1673,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		# Hit again as he stumbles: that's him down now.
 		_fall_now()
 	else:
-		_flinch_from(seg, pos, dir, mass * speed)
+		_wince_at(seg, pos, dir, mass * speed)
 	var exit_world: Variant = xf * (tr.exit - center) if tr.exit != null else null
 	if exit_world != null and get_parent() is Node3D:
 		# The spray out of the exit wound spatters whatever's behind him.

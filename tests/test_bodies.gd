@@ -323,6 +323,46 @@ func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
 		walker.queue_free()
 
 
+## Hit and still on his feet, he winces round it: no jerk (Sean turned down the flinch's snap, 50
+## degrees back in a twentieth of a second, in the stumble), a curl toward a wound in his front,
+## a little arch from one in his back, and he's straight again within a second.
+func test_a_ball_that_doesnt_drop_him_makes_him_wince_not_jerk() -> void:
+	for case: String in ["front", "back"]:
+		var shot := HumanBody.new()
+		shot.has_gun = false
+		world.add_child(shot)
+		shot.global_position = Vector3(-6.0 if case == "front" else 6.0, 0.0, -6.0)
+		await physics_frames(30)
+		var chest := shot.parts[&"chest"] as Node3D
+		var fwd := -shot.global_basis.z
+		var lean := func() -> float:
+			return rad_to_deg(asin(clampf(chest.global_basis.y.dot(fwd), -1.0, 1.0)))
+		var start: float = lean.call()
+		var at := chest.global_position + (fwd if case == "front" else -fwd) * 0.12
+		shot._wince_at(&"chest", at, -fwd if case == "front" else fwd, 4.5)
+		var most := 0.0
+		var least := 0.0
+		var step := 0.0
+		var last: float = start
+		for i in 60:
+			await physics_frames(1)
+			var now: float = lean.call()
+			most = maxf(most, now - start)
+			least = minf(least, now - start)
+			step = maxf(step, absf(now - last))
+			last = now
+		print("  %s: lean %.0f..%.0f deg, at most %.1f deg a tick, %.1f after 1 s" % [case, least, most, step, last - start])
+		check(step < 6.0, "%s: no jerk (%.1f deg in a tick)" % [case, step])
+		check(absf(last - start) < 2.0, "%s: straight again within a second (%.1f)" % [case, last - start])
+		if case == "front":
+			check(most > 10.0 and most < 30.0, "front: curls forward round it (%.0f deg)" % most)
+			check(least > -2.0, "front: not thrown back (%.0f deg)" % least)
+		else:
+			check(most < 2.0, "back: not thrown forward (%.0f deg)" % most)
+			check(least < -3.0, "back: arches a little (%.0f deg)" % least)
+		shot.queue_free()
+
+
 func test_knees_only_bend_the_right_way() -> void:
 	var world := Node3D.new()
 	add_child(world)
