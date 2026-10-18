@@ -332,6 +332,8 @@ func _before(pre: Dictionary, delta: float) -> void:
 			var d: Array = hit.get("dir", [0, 0, 1])
 			var at := part.global_transform * Vector3(p[0], p[1], p[2])
 			var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+			# "pain": what the wound hurts (Physiology.pain), as a real one would: he guards it.
+			man.physiology.pain = float(hit.get("pain", 0.0))
 			if old_flinch or not man.has_method(&"_wince_at"):
 				man._flinch_from(StringName(hit.segment), at, dw, float(hit.get("momentum", 4.5)))
 			else:

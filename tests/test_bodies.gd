@@ -325,7 +325,8 @@ func test_shot_down_walking_he_stumbles_on_a_step_then_drops() -> void:
 
 ## Hit and still on his feet, he winces round it: no jerk (Sean turned down the flinch's snap, 50
 ## degrees back in a twentieth of a second, in the stumble), a curl toward a wound in his front,
-## a little arch from one in his back, and he's straight again within a second.
+## a little arch from one in his back, held a moment ("so fast" at three quarters of a second),
+## and with nothing hurting he's straight again by 2.5 s.
 func test_a_ball_that_doesnt_drop_him_makes_him_wince_not_jerk() -> void:
 	for case: String in ["front", "back"]:
 		var shot := HumanBody.new()
@@ -344,21 +345,26 @@ func test_a_ball_that_doesnt_drop_him_makes_him_wince_not_jerk() -> void:
 		var least := 0.0
 		var step := 0.0
 		var last: float = start
-		for i in 60:
+		var held := 0.0
+		for i in 150:
 			await physics_frames(1)
 			var now: float = lean.call()
 			most = maxf(most, now - start)
 			least = minf(least, now - start)
 			step = maxf(step, absf(now - last))
 			last = now
-		print("  %s: lean %.0f..%.0f deg, at most %.1f deg a tick, %.1f after 1 s" % [case, least, most, step, last - start])
-		check(step < 6.0, "%s: no jerk (%.1f deg in a tick)" % [case, step])
-		check(absf(last - start) < 2.0, "%s: straight again within a second (%.1f)" % [case, last - start])
+			if i == 50:
+				held = now - start
+		print("  %s: lean %.0f..%.0f deg, at most %.1f deg a tick, %.0f still at 0.85 s, %.1f at 2.5 s" % [case, least, most, step, held, last - start])
+		check(step < 4.0, "%s: no jerk (%.1f deg in a tick)" % [case, step])
+		check(absf(held) > 0.6 * maxf(most, -least), "%s: held a moment, not a twitch (%.0f at 0.85 s)" % [case, held])
+		# (Within his breath: the chest rises and falls a degree or so either way.)
+		check(absf(last - start) < 3.0, "%s: straight again by 2.5 s with nothing hurting (%.1f)" % [case, last - start])
 		if case == "front":
 			check(most > 10.0 and most < 30.0, "front: curls forward round it (%.0f deg)" % most)
 			check(least > -2.0, "front: not thrown back (%.0f deg)" % least)
 		else:
-			check(most < 2.0, "back: not thrown forward (%.0f deg)" % most)
+			check(most < 3.0, "back: not thrown forward (%.0f deg)" % most)
 			check(least < -3.0, "back: arches a little (%.0f deg)" % least)
 		shot.queue_free()
 

@@ -190,6 +190,7 @@ var _stumble_lean := {}  ## segment -> degrees he's folded by as he stumbles (on
 ## The wince a ball that didn't drop him gives (_wince_at): segment -> degrees at full, and its age.
 var _wince := {}
 var _wince_t := 99.0
+var _wince_k := 0.0  ## how much of it this tick (_wince_amount, once a tick)
 var _legs_gone := false  ## the stumble ended because his legs gave: no column, his knees go first
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
@@ -1327,6 +1328,7 @@ func face(point: Vector3) -> void:
 func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta
 	_wince_t += delta
+	_wince_k = _wince_amount() if not _wince.is_empty() else 0.0
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var clip := _mocap_now(delta)
@@ -1527,13 +1529,16 @@ func _cough(delta: float) -> void:
 ## Hit and still on his feet: he winces round it, his own muscles, not the ball (a ball's push
 ## moves a man a few centimetres; the old flinch kicked him 40 degrees back in a twentieth of a
 ## second, a jerk Sean turned down in the stumble). It comes on in WINCE_IN, holds, and lets go by
-## WINCE_OUT. In his belly or chest he curls round it and toward its side; from behind he arches a
+## WINCE_OUT (Sean: the first, over in three quarters of a second, was "so fast"); while the wound
+## still hurts he keeps favouring it, WINCE_GUARD of it for all his pain. In his belly or chest he
+## curls round it and toward its side; from behind he arches a
 ## little; an arm hit pulls in to him; a leg hit buckles that knee and he dips on it; a graze of the
 ## head turns it aside. Degrees in the poses' axes (forward -x, his left +z), scaled by how hard
 ## it hit (a .45 ball stopped in him, 4.5 N*s, is full).
-const WINCE_IN := 0.12
-const WINCE_HOLD := 0.2
-const WINCE_OUT := 0.75
+const WINCE_IN := 0.25
+const WINCE_HOLD := 0.9
+const WINCE_OUT := 2.4
+const WINCE_GUARD := 0.5
 const WINCE := {
 	&"front": {&"abdomen": Vector3(-9, 0, 5), &"chest": Vector3(-7, 0, 4), &"neck": Vector3(-3, 0, 0), &"head": Vector3(-6, 0, 0)},
 	&"back": {&"abdomen": Vector3(5, 0, 4), &"chest": Vector3(5, 0, 3), &"head": Vector3(6, 0, 0)},
@@ -1576,7 +1581,7 @@ func _wince_at(seg: StringName, at: Vector3, dir: Vector3, momentum: float) -> v
 			d.y *= -left
 		shape[sid] = d * k
 	# A second hit before the first has let go: the harder of the two, from now.
-	if _wince_t < WINCE_OUT and not _wince.is_empty():
+	if not _wince.is_empty() and _wince_amount() > 0.0:
 		for sid: StringName in _wince:
 			if not shape.has(sid):
 				shape[sid] = (_wince[sid] as Vector3) * _wince_amount()
@@ -1585,17 +1590,20 @@ func _wince_at(seg: StringName, at: Vector3, dir: Vector3, momentum: float) -> v
 
 
 func _wince_amount() -> float:
+	var guard := WINCE_GUARD * clampf(physiology.felt_pain(), 0.0, 1.0)
 	if _wince_t < WINCE_IN:
 		return smoothstep(0.0, WINCE_IN, _wince_t)
 	if _wince_t < WINCE_HOLD:
 		return 1.0
-	return 1.0 - smoothstep(WINCE_HOLD, WINCE_OUT, _wince_t)
+	return maxf(1.0 - smoothstep(WINCE_HOLD, WINCE_OUT, _wince_t), minf(guard, 1.0))
 
 
 func _wince_now(sid: StringName) -> Vector3:
-	if _wince.is_empty() or _wince_t >= WINCE_OUT or not _wince.has(sid):
+	if _wince.is_empty() or not _wince.has(sid):
 		return Vector3.ZERO
-	return (_wince[sid] as Vector3) * _wince_amount()
+	if _wince_k <= 0.0:
+		return Vector3.ZERO
+	return (_wince[sid] as Vector3) * _wince_k
 
 
 func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: float) -> void:
