@@ -47,6 +47,20 @@ extends Resource
 @export var blast_reach := 2.5
 
 @export_group("Feel")
-@export var recoil_degrees := 9.0
-@export var recoil_recovery := 0.6
+## The kick (GunKick; see RevolverTuning). From the hip the gun rides up in your hands; shouldered
+## it shoves you, so the barrels stay with your eye (`kick_aimed`) and your view takes it
+## (`view_kick_shouldered`, and your head shoved back `view_kick_back` metres).
+@export var kick_degrees := 15.0
+@export var kick_aimed := 0.35
+@export var kick_rise := 0.085
+@export var kick_damping := 0.6
+@export var kick_variation := 0.1
+@export var kick_side_degrees := 2.0
+@export var kick_roll_degrees := 2.0
+@export var kick_back := 0.06
+@export var view_kick_degrees := 3.5
+@export var view_kick_shouldered := 7.0
+@export var view_kick_rise := 0.1
+@export var view_kick_back := 0.045
+@export var view_climb_degrees := 1.4
 @export var aim_fov := 62.0

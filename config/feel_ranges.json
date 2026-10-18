@@ -87,6 +87,83 @@
         "2026-09-28 built so the store's roof comes in about 2 minutes after the back wall's lit",
         "2026-10-05 Sean: 'the fire probably burns too fast, it would be cool if you could actually have time to put it out' (every fire rate a quarter: 129 s became 511)"
       ]
+    },
+    "revolver_kick_degrees": {
+      "min": 12,
+      "max": 22,
+      "unit": "degrees the revolver climbs on screen from the hip at the top of its kick",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "revolver_kick_rise_ms": {
+      "min": 50,
+      "max": 110,
+      "unit": "milliseconds from the shot to the top of the revolver's kick (a push rises; a flip is there at once: it was 16, the first frame)",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "revolver_kick_settle_ms": {
+      "min": 220,
+      "max": 450,
+      "unit": "milliseconds from the shot till the revolver's back on its aim (within a tenth of its kick)",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "revolver_view_climb_degrees": {
+      "min": 0.5,
+      "max": 1.4,
+      "unit": "degrees your view stays higher after an aimed revolver shot (you pull it back down)",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "shotgun_shouldered_view_kick_degrees": {
+      "min": 5,
+      "max": 9,
+      "unit": "degrees the shouldered coach gun's shove lifts your view at its top",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "shotgun_view_climb_degrees": {
+      "min": 0.8,
+      "max": 2.0,
+      "unit": "degrees your view stays higher after a shouldered shotgun shot (was 3.6)",
+      "measured_by": "test_gun_feel::test_kick_pushes",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
+    },
+    "kick_shot_to_shot": {
+      "min": 0.05,
+      "max": 0.25,
+      "unit": "spread of the revolver's kick from shot to shot (standard deviation / mean of its top)",
+      "measured_by": "test_gun_feel::test_kick_varies_shot_to_shot",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
+      ]
     }
   }
 }

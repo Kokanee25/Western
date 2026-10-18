@@ -34,7 +34,6 @@ var _cyl := 0.0
 var _gate := 0.0
 var _trigger := 0.0
 var _thumb := 0.0
-var _recoil := 0.0
 var _ejector := 0.0
 var _reload_held := 0.0
 
@@ -164,11 +163,8 @@ func _on_fired() -> void:
 	ImpactEffects.muzzle_flash(world, origin)
 	_play(&"gunshot")
 	Events.shot_fired.emit(origin, dir, _player)
-	_recoil = 1.0
+	_kick_shot(tuning)
 	_unsettle()
-	if _player:
-		_player.add_look(Vector2(_rng.randf_range(-0.4, 0.4), tuning.recoil_degrees * (1.0 - tuning.recoil_recovery)))
-	_view_kick += tuning.recoil_degrees * tuning.recoil_recovery
 
 
 func _load() -> Dictionary:
@@ -194,7 +190,7 @@ func _animate(delta: float) -> void:
 	var k := 1.0 - exp(-delta * 12.0)
 	_pose_pos = _pose_pos.lerp(POSES[pose][0], k)
 	_pose_rot = _pose_rot.lerp(POSES[pose][1], k)
-	_recoil = move_toward(_recoil, 0.0, delta * 4.5)
+	kick.step(delta)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (18.0 if _tuck_target > tuck else 9.0)))
 	_update_sway(delta)
 	_apply_pose(_draw)
@@ -221,8 +217,8 @@ func _animate(delta: float) -> void:
 
 func _apply_pose(drawn_amount: float) -> void:
 	var t := smoothstep(0.0, 1.0, tuck)
-	var pos := HOLSTER_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, 0.012, 0.06) * _recoil
-	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(24.0 * _recoil * (1.0 - t), 0.0, 0.0) \
+	var pos := HOLSTER_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, kick.back * 0.2, kick.back)
+	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(kick.pitch, -kick.yaw, -kick.roll) * (1.0 - t) \
 			+ _sway_rotation() * (1.0 - t) * (0.0 if state.gate_open else 1.0)
 	position = pos
 	rotation_degrees = rot

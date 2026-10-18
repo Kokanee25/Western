@@ -3,7 +3,7 @@
 
 Start the game with the bridge, send it commands, stop it:
 
-    python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N]
+    python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
@@ -11,6 +11,10 @@ Start the game with the bridge, send it commands, stop it:
 or all at once (start, the script, stop), the way a session collects screenshots:
 
     python3 tools/bridge.py run script.txt [--size=...]
+
+--movie records every frame drawn, with the game's sound, to an AVI (Godot's Movie Maker; it
+runs on a fixed step, 30 fps unless --fps says otherwise, so slow rendering doesn't slow the game's
+clock), from start to stop; cut clips from it with ffmpeg by the game's clock.
 
 Each command prints the game's one-line JSON answer. `start` runs Godot under xvfb with the
 Vulkan renderer (lavapipe here) so screenshots work; --headless is quicker but draws nothing.
@@ -53,8 +57,13 @@ def start(args):
         cmd = ["xvfb-run", "-a", "-s", "-screen 0 %sx24" % size] + cmd + ["--rendering-driver", "vulkan"]
         cmd += ["--resolution", size]
     fps = _opt(args, "fps")
+    movie = _opt(args, "movie")
+    if movie and not fps:
+        fps = 30
     if fps:
         cmd += ["--fixed-fps", str(fps)]
+    if movie:
+        cmd += ["--write-movie", os.path.abspath(movie)]
     cmd += ["--", "--dev-bridge", f"--bridge-port={port}"]
     script = _opt(args, "script")
     if script:
