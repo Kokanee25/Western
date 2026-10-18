@@ -10,6 +10,7 @@ var lit: StructureMember
 
 
 func before_each() -> void:
+	SmokeField.synchronous = true  # every step taken: how far the smoke gets mustn't hang on the machine's load
 	world = Node3D.new()
 	add_child(world)
 	var ground := StaticBody3D.new()
@@ -42,6 +43,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	SmokeField.synchronous = false
 	world.queue_free()
 	await physics_frames(2)
 

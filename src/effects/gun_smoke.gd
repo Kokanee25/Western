@@ -71,6 +71,11 @@ func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 	p.lifetime = tuning.lifetime * 0.85
 	p.explosiveness = 0.92
 	p.randomness = 0.5
+	# Seeded by where and which way the shot went, to the centimetre: in play no two puffs match,
+	# and the same shot (the screenshot tool's fixed views) makes the same smoke. Unseeded, the
+	# fight view's smoke was new every night and failed its golden image by a hair (2026-10-17).
+	p.use_fixed_seed = true
+	p.seed = hash([Vector3i((global_position * 100.0).round()), Vector3i((direction * 1000.0).round())]) & 0x7fffffff
 	p.local_coords = true
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	p.visibility_aabb = AABB(Vector3(-8, -3, -8), Vector3(16, 10, 16))
