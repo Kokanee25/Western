@@ -322,14 +322,15 @@ frozen until Sean names one.
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
 - Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
-  twin: a shirt with a real collar and separate sleeves, waistcoat and trousers as their own
-  meshes, fitted to his body and painted from his pictures, reusable for every man (the cut
-  twin fuses sleeve to side and collar to neck: the white smear and the collar, retuned for every
-  new twin). Brief first. The arms-out coatless pictures and their Rodin model
-  (`bold_cowboy_armsout_dressed`, run 89, $1.60, ~$11.66 of $15) are on main for painting;
-  through the cut-twin recipe that model leaves the shirt and skin out past the waistcoat.
-  Judge every change against Sean's pictures and his words (he turned down a flat collar band
-  twice). Trap: after a build, `godot --headless --import` first; lab renders via
+  twin (the cut twin fuses sleeve to side and collar to neck: the white smear and the collar,
+  retuned for every new twin). **The brief is written** (`docs/briefs/garments.md`, branch
+  `claude/characters-garments`) and waits for Sean's OK: garments modelled by script on the base
+  body (a shirt with a stand collar, points and separate sleeves; waistcoat; trousers), painted by
+  projection from the arms-out pictures (`bold_cowboy_armsout_dressed`, whose pose matches the
+  base body's), reusable for every man; MakeHuman's clothes ruled out (fused suits, AGPL headers).
+  Then: the shirt on the no-coat man first, one garment a merge, each with a sheet against his
+  pictures. Judge every change against Sean's pictures and his words (he turned down a flat
+  collar band twice). Trap: after a build, `godot --headless --import` first; lab renders via
   `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
