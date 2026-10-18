@@ -14,9 +14,12 @@ the name says what each is for.
 - **Content only, not the look** (photoreal): `01_content_fire_dusk.jpg`, `02_content_fire_day.jpg`
   (how a building burns and falls in), `03_content_dynamite.jpg` (the blast's dust and clods),
   `04_content_floor_close.jpg` (worn boards and chairs close up). Repainted in the authority's hand
-  as `made_*.jpg` (`tools/textures/references.json`, the `judge_*` entries; Nano Banana,
-  `google/gemini-2.5-flash-image`).
+  as `made_*.jpg` (`tools/textures/references.json`, the `judge_*` entries): Nano Banana
+  (`google/gemini-2.5-flash-image`, $0.04 a picture; `made_*_flash.jpg`, the fires barely
+  restyled) and Nano Banana Pro (`google/gemini-3-pro-image-preview`, $0.14; `made_fire_*`,
+  `made_floor_close`: closer to the authority's angular paint). Sheets `made_sheet.jpg`,
+  `made_sheet_pro.jpg`.
 - **Composition and mood** (painted, smoother than the authority): `06_comp_river.jpg`,
   `07_comp_triptych.jpg`.
 
-Missing: a midday street in the authority's hand (all of these are sunset or night): `made_noon_street.jpg`.
+Missing from Sean's set, made: a midday street in the authority's hand (all of his are sunset or night): `made_noon_street_flash.jpg` (Nano Banana; it moved the camera).
