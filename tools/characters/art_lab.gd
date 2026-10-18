@@ -16,6 +16,7 @@ extends SceneTree
 ## --aim=Y: the camera level with height Y and looking at it (with --fov 35 --dist 3.4: the whole man).
 ## --aimx=X: and moved X across (sideways, the same way whatever his turn): at a hand, say.
 ## --texture: his head's texture for the painted material (a PNG on disk, read as is, nearest).
+## --pose=hands_up: one of HumanBody.POSES (stand by default).
 ## --hide=A,B: his meshes whose names begin A or B not drawn. --curl=r:1,l:0.5: his hands curled.
 ## --draw: his revolver drawn; --sever=index_r,...: those fingers shot off.
 ## --hat=lab:NAME: the hat prototype (tools/characters/hat_proto.py: assets/people/lab/NAME_*.obj and
@@ -61,6 +62,7 @@ func _run() -> void:
 	var aimx := 0.0
 	var tag := ""
 	var hide := PackedStringArray()
+	var pose_name := &"stand"
 	var curl := PackedStringArray()
 	var sever := PackedStringArray()
 	var draw := false
@@ -109,6 +111,8 @@ func _run() -> void:
 			hat = a.substr(6)
 		elif a.begins_with("--hide="):
 			hide = a.substr(7).split(",")
+		elif a.begins_with("--pose="):
+			pose_name = StringName(a.substr(7))
 		elif a.begins_with("--curl="):
 			curl = a.substr(7).split(",")
 		elif a.begins_with("--sever="):
@@ -184,7 +188,7 @@ func _run() -> void:
 				# Turned as the portrait is: negative toward the picture's left.
 				var dir := Vector3(sin(deg_to_rad(-turn)), 0, -cos(deg_to_rad(-turn)))
 				m.face(m.global_position + dir * 5.0)
-				m.set_pose(&"stand")
+				m.set_pose(pose_name)
 				m._apply_pose(0.0, true)
 				for f in 8:
 					await physics_frame

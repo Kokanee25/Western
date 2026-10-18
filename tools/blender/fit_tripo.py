@@ -91,6 +91,9 @@ PIECE_TRIS = {"coat": 2600, "hat": 700, "trousers": 1600}
 TWIN_TRIS = {"coat": 6000, "trousers": 8000, "vest": 5000, "shirt": 5000}
 # A layered man's garments, innermost first: each tucked under every one outside it (tuck_layers).
 LAYERS = ["shirt", "trousers", "vest", "coat"]
+ISLAND_EPS = 1e-4     # a made garment's island test's slack in UV (float32 seams on the edge)
+SLEEVE_OWN_T = 0.3   # of the way from shoulder to elbow by which a made sleeve takes only its arm's weights
+MADE_SLEEVES = ["sleeve_r", "sleeve_l"]   # a made shirt's parts that take his arms' weights (the rest hang from his trunk)
 NECK_PARTS = ["collar", "fall", "knot", "tie_r", "tie_l"]   # a made shirt's parts never pushed off his skin (clear_twin)
 NO_TUCK = ["fall", "knot", "tie_r", "tie_l"]   # a made shirt's parts that lie over the waistcoat (tuck_layers)
 FINGER_TRIS = 140     # a finger bone's piece (own_fingers)
@@ -1644,8 +1647,13 @@ class Piece:
         # waistcoat and are never tucked under it.
         self.part = np.full(len(self.v), "", dtype=object)
         for pname, (left, top, w, h) in (meta.get("islands") or {}).items():
-            inside = (self.uv[:, 0] >= left) & (self.uv[:, 0] <= left + w) & (self.uv[:, 1] >= top) & (self.uv[:, 1] <= top + h)
+            # (ISLAND_EPS: the glb's UVs are float32, and a tube's seam column on its island's
+            # edge fell outside it: a sleeve's seam took the trunk's weights and tore, 2026-10-18)
+            e = ISLAND_EPS
+            inside = (self.uv[:, 0] >= left - e) & (self.uv[:, 0] <= left + w + e) & (self.uv[:, 1] >= top - e) & (self.uv[:, 1] <= top + h + e)
             self.part[inside] = pname
+        if self.made:
+            self.report["parts"] = {str(k): int((self.part == k).sum()) for k in sorted(set(self.part.astype(str)))}
         self.report["twin"] = self.twin
         self.report["made"] = self.made
         if self.twin:
@@ -1834,16 +1842,28 @@ class Piece:
         from mathutils.bvhtree import BVHTree
         body = self.body
         bvh = BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris])
+        trees = [bvh] * len(self.v)
         pushed = np.zeros(len(self.v), bool)
         # A made garment's collar and tie are built clear of his neck and follow it through the
         # warp: pushed off the nearest skin, the fall's points under his jaw stood out past his
         # chin (2026-10-18).
         skip = np.isin(self.part.astype(str), NECK_PARTS) if self.made else np.zeros(len(self.v), bool)
+        if self.made:
+            # A made garment's sleeves off his arms' skin, the rest off his trunk's: the warp
+            # swings his arm in from the model's A-pose (9.4 degrees) to ours (3.5), through the
+            # shirt's side, and pushed off the nearest skin the side wrapped round the outside of
+            # his arm, a white sheet from armpit to hip (2026-10-18).
+            arm_v = np.array([str(r).startswith(("upper_arm", "forearm", "hand")) for r in body.region])
+            arm_t = arm_v[body.tris].all(1)
+            split = [BVHTree.FromPolygons([tuple(p) for p in body.v], [tuple(int(i) for i in f) for f in body.tris[sel]])
+                     for sel in (arm_t, ~arm_t)]
+            sleeve = np.isin(self.part.astype(str), MADE_SLEEVES)
+            trees = [split[0] if sl else split[1] for sl in sleeve]
         for _ in range(2):
             for i in range(len(self.v)):
                 if skip[i]:
                     continue
-                loc, nrm, _f, _d = bvh.find_nearest(Vector(self.v[i]), PIECE_REACH)
+                loc, nrm, _f, _d = trees[i].find_nearest(Vector(self.v[i]), PIECE_REACH)
                 if loc is None:
                     continue
                 sd = float((Vector(self.v[i]) - loc).dot(nrm))
@@ -1976,6 +1996,11 @@ class Piece:
                 outside = sx * (self.v[:, 0] - bone_x) > -SLEEVE_INNER
                 faces_in = (vnorm[:, 0] * -sx) > 0.3
                 sleeve_of[near & (outside | faces_in)] = lr
+        if self.made and self.shape == "shirt":
+            # A made shirt knows its sleeves: they are its sleeve tubes, and nothing else is.
+            sleeve_of[:] = None
+            for part, lr in (("sleeve_r", "r"), ("sleeve_l", "l")):
+                sleeve_of[self.part.astype(str) == part] = lr
         # Every layer's sleeves bend alike: a sleeve point takes the mean weights of his arm's
         # skin at its place along the arm (shoulder to wrist), whatever lies nearest it. Each
         # layer weighted from its own nearest skin bent its own way, and posed (his arms down
@@ -2025,16 +2050,6 @@ class Piece:
             self.tris = self.tris[~(cut | comb)]
             self.report["sleeve_side_cut"] = int(cut.sum())
             self.report["armpit_comb_dropped"] = int(comb.sum())
-        if self.made and self.shape == "vest":
-            # A made waistcoat hangs from his trunk: none of its points take his arms' weights
-            # (near his shoulders the nearest skin is the upper arm's, and the waistcoat's edge
-            # and lapel swung down with his arm).
-            W = self.W.copy()
-            W[:, arm_cols] = 0.0
-            empty = W.sum(1) < 1e-6
-            W[empty, bones.index("chest")] = 1.0
-            self.W = W / W.sum(1, keepdims=True)
-            self.report["arm_weights_dropped"] = int(empty.sum())
         for i in range(len(self.v)):
             if sleeve_of[i] is not None and profile and sleeve_of[i] in profile:
                 a, ab, mids, rows = profile[sleeve_of[i]]
@@ -2099,6 +2114,40 @@ class Piece:
             self.region[i] = reg
             took += 1
         self.report["weights_from_skin"] = took
+        if self.made and self.shape in ("vest", "shirt"):
+            # A made waistcoat hangs from his trunk: none of its points take his arms' weights
+            # (near his shoulders the nearest skin is the upper arm's, and the waistcoat's edge
+            # and lapel swung down with his arm). A made shirt's the same but for its sleeves:
+            # the trunk's side under his armpit took his arm's weights and, his arm lowered from
+            # the A-pose, stretched from his hip to his arm, a white sheet (2026-10-18).
+            # (after the nearest-skin weights above, which would overwrite it)
+            W = self.W.copy()
+            hangs = ~np.isin(self.part.astype(str), MADE_SLEEVES) if self.shape == "shirt" else np.ones(len(W), bool)
+            W[np.ix_(hangs, arm_cols)] = 0.0
+            empty = W.sum(1) < 1e-6
+            W[empty, bones.index("chest")] = 1.0
+            if self.shape == "shirt":
+                # And a made sleeve below its head takes only its own arm's weights: its inner
+                # side, near his trunk in the A-pose, took the trunk's, and with his hands up the
+                # sleeve stretched from his wrist to his hip, a white sheet (2026-10-18).
+                oj = self.our_joints()
+                for part, lr in (("sleeve_r", "r"), ("sleeve_l", "l")):
+                    sel_ = self.part.astype(str) == part
+                    a_, b_ = oj[lr + "-shoulder"], oj[lr + "-elbow"]
+                    ab_ = b_ - a_
+                    ts = (self.v - a_) @ ab_ / max(float(ab_ @ ab_), 1e-12)
+                    own_cols = [k for k, bn in enumerate(bones) if str(bn).endswith("_" + lr) and str(bn).startswith(("upper_arm", "forearm", "hand", "finger"))]
+                    keep_cols = np.zeros(W.shape[1], bool)
+                    keep_cols[own_cols] = True
+                    # its head eases from his chest's weights at the shoulder to none by SLEEVE_OWN_T
+                    fade = np.clip(ts / SLEEVE_OWN_T, 0.0, 1.0)[:, None]
+                    W[sel_] = np.where(keep_cols[None], W[sel_], W[sel_] * (1.0 - fade[sel_]))
+                    lost = W[sel_].sum(1) < 1e-6
+                    lost_rows = np.nonzero(sel_)[0][lost]
+                    W[lost_rows, bones.index("upper_arm_" + lr)] = 1.0
+                    empty |= np.isin(np.arange(len(W)), lost_rows)
+            self.W = W / W.sum(1, keepdims=True)
+            self.report["arm_weights_dropped"] = int(empty.sum())
         if self.shape == "coat":
             self.tails_on_pelvis()
 

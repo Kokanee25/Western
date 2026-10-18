@@ -10,10 +10,14 @@
   "trousers": "bold_cowboy_under_trousers"
  },
  "piece_vest": {
+  "parts": {
+   "vest": 6893
+  },
   "twin": true,
   "made": true,
-  "pushed_out_after_warp": 612,
-  "weights_from_skin": 5918,
+  "pushed_out_after_warp": 1028,
+  "weights_from_skin": 6893,
+  "arm_weights_dropped": 0,
   "clear_hands": {
    "cuff_triangles_dropped": 0,
    "skirt_points_behind_hands": 0
@@ -25,16 +29,27 @@
   }
  },
  "piece_shirt": {
+  "parts": {
+   "collar": 639,
+   "fall": 1689,
+   "knot": 12,
+   "sleeve_l": 4436,
+   "sleeve_r": 4470,
+   "tie_l": 36,
+   "tie_r": 36,
+   "trunk": 11295
+  },
   "twin": true,
   "made": true,
-  "pushed_out_after_warp": 17183,
-  "weights_from_skin": 22848,
+  "pushed_out_after_warp": 15982,
+  "weights_from_skin": 22613,
+  "arm_weights_dropped": 0,
   "clear_hands": {
-   "cuff_triangles_dropped": 56,
-   "skirt_points_behind_hands": 52
+   "cuff_triangles_dropped": 54,
+   "skirt_points_behind_hands": 24
   },
-  "sleeve_points_out_of_arm": 1563,
-  "tucked_under_trousers_vest": 2705,
+  "sleeve_points_out_of_arm": 1639,
+  "tucked_under_trousers_vest": 2835,
   "cloth": {
    "median": 1,
    "tone": {}
@@ -43,13 +58,13 @@
  "piece_trousers": {
   "twin": true,
   "made": false,
-  "pushed_out_after_warp": 27005,
-  "weights_from_skin": 41344,
+  "pushed_out_after_warp": 26963,
+  "weights_from_skin": 41205,
   "clear_hands": {
    "cuff_triangles_dropped": 0,
-   "skirt_points_behind_hands": 266
+   "skirt_points_behind_hands": 246
   },
-  "tucked_under_vest": 1053,
+  "tucked_under_vest": 1060,
   "cloth_L": {
    "from": 18.8,
    "to": 24,
@@ -65,14 +80,10 @@
   }
  },
  "scale": 1.8367,
- "head_scale": 1.8367,
- "height_m": 1.905,
- "shoulders": {
-  "k": 1.1,
-  "width_m": 0.524,
-  "moved_m": 0.0262
- },
- "skirt_vertices": 5882,
+ "head_scale": 1.6812,
+ "height_m": 1.815,
+ "bridges_cut": 115,
+ "cuts_closed": 4,
  "own_fingers": {
   "from": "makehuman, skinned",
   "wrist_stitch": {
@@ -91,7 +102,7 @@
   "l": {
    "hand_triangles": 3270,
    "painted_at_uv": [
-    0.4941,
+    0.4951,
     0.8994,
     0.09
    ]
@@ -820,25 +831,25 @@
   }
  },
  "skin_tone": [
-  0.8,
+  0.812,
   0.514,
-  0.353
+  0.357
  ],
- "skin_tucked": 8814,
+ "skin_tucked": 8867,
  "painted_under_garments": {
   "triangles": {
-   "none": 13079
+   "none": 15558
   },
   "colours": {
    "vest": [
-    105,
+    104,
     55,
-    38
+    37
    ],
    "shirt": [
     246,
     210,
-    170
+    169
    ],
    "trousers": [
     72,
@@ -846,11 +857,11 @@
     31
    ]
   },
-  "neck": 1256,
+  "neck": 1740,
   "neck_colour": [
    246,
    210,
-   170
+   169
   ]
  },
  "texture": {
@@ -862,10 +873,10 @@
   "square_texels": 2
  },
  "triangles": {
-  "skin": 27560,
+  "skin": 27564,
   "head": 10000,
-  "vest": 1974,
-  "shirt": 7620,
-  "trousers": 7999
+  "vest": 2299,
+  "shirt": 7622,
+  "trousers": 8000
  }
 }

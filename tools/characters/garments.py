@@ -106,9 +106,13 @@ HUE_FROM_CHROMA = 12.0
 # waistcoat (hem 0.21 above the hip at the back, points 0.165; the V to 0.15 under the neck's base);
 # the hem lowered to 0.17 (at 0.21 the shirt showed between it and the trousers behind) and the
 # shoulders cut in further (seam_in 0.075, arm_in 0.11; at 0.05/0.09 they stood broader than his
-# pictures').
+# pictures'); the armholes a waistcoat's (arm_h 0.16 from arm_down 0.03: at 0.22 from 0.05, with the
+# seam's cut running down to their foot, the waistcoat was a plate and the shirt showed down both
+# his flanks in the game's stand), the shoulder seam's straight cut only over his shoulder
+# (above seam_low under the joint).
 VEST = {"hem": 0.17, "points": 0.045, "notch": 0.8, "v_depth": 0.15, "v_top": 0.085,
-        "arm_w": 0.13, "arm_h": 0.22, "arm_down": 0.05, "arm_in": 0.11, "seam_in": 0.075, "top": 0.004}
+        "arm_w": 0.13, "arm_h": 0.16, "arm_down": 0.03, "arm_in": 0.11, "seam_in": 0.075, "top": 0.004,
+        "seam_low": 0.02}
 LAYOUT = {"vest": {"vest": (0.0, 0.0, 1.0, 0.8)},
           "shirt": {"trunk": (0.0, 0.0, 0.52, 0.5), "sleeve_r": (0.53, 0.0, 0.22, 0.5), "sleeve_l": (0.76, 0.0, 0.22, 0.5),
                     "collar": (0.0, 0.52, 0.5, 0.06), "fall": (0.0, 0.6, 0.5, 0.12),
@@ -363,7 +367,16 @@ class Man:
             # Up over his trapezius into his neck, to its narrowest, inside the collar's stand
             # (ending at the neck's base, his shoulders' skin showed between it and the collar).
             b = np.array([xc, self.neck_narrow_y, 0.0])
-            self._trunk = loft(self.pts[~self.arm], a, b, 0.0, 1.0, ROWS["trunk"], ANGLES["trunk"], 0.0)
+            # Filled round (from his chest and back at the same height), not down: under his arm
+            # the trunk has none of its own points, and filled down from his deltoids its sides
+            # fell straight to his hips as wide as his shoulders, a sheet once his arms hung.
+            self._trunk = loft(self.pts[~self.arm], a, b, 0.0, 1.0, ROWS["trunk"], ANGLES["trunk"], 0.0, fill="round")
+            # Under his hips no wider than at them: round both thighs the loft took the 95th
+            # percentile of the two, a flare too far out to tuck under the trousers (it hung
+            # down his sides in the game's stand, 2026-10-18).
+            tr = self._trunk
+            at_hip = int(np.argmin(np.abs(tr.a[1] + tr.ts * (tr.b[1] - tr.a[1]) - self.j["Hip"][1])))
+            tr.R[:at_hip] = np.minimum(tr.R[:at_hip], tr.R[at_hip][None])
         t = self._trunk
         return Tube(t.a, t.b, t.ts, t.R + offset * self.m, t.e1, t.e2)
 
@@ -401,7 +414,7 @@ class Man:
             fields.append((np.sqrt(ex ** 2 + ey ** 2 + ez ** 2) - 1.0) * 0.5 * VEST["arm_w"] * m)
             # The shoulder seam ends short of his shoulder's point, front and back.
             mine = v[:, 2] * np.sign(sh[2]) > 0
-            low = sh[1] - (VEST["arm_down"] + 0.5 * VEST["arm_h"]) * m
+            low = sh[1] - VEST["seam_low"] * m
             fields.append(np.where(mine & (y > low), abs(sh[2]) - VEST["seam_in"] * m - az, np.inf))
         # Its top at his neck's base (the trunk's tube runs on up his neck, inside the collar).
         fields.append(self.neck_base_y + VEST["top"] * m - y)
@@ -432,7 +445,10 @@ class Man:
             axis = (tb - ta) / np.linalg.norm(tb - ta)
             sa = ta + axis * ((ja - ta) @ axis)
             sb = ta + axis * ((jb - ta) @ axis)
-            near = (d < SLEEVE_R) & (t > -0.12) & (t < 1.1)
+            # His arm's own skin (what the trunk leaves out, `arm`) and his shoulder's cap: out to
+            # SLEEVE_R the whole way it took his side and the sleeve was a sack round his arm
+            # once he stood with it down (2026-10-18).
+            near = (d < SLEEVE_R) & (self.arm | (t < SLEEVE_HEAD_T)) & (t > -0.12) & (t < 1.1)
             up = np.array([0, 1.0, 0])
             sleeve = loft(self.pts[near], sa, sb, -0.06, 1.0 + CUFF_PAST, ROWS["sleeve"], ANGLES["sleeve"],
                           OFFSET["shirt"] * m, front=up)
