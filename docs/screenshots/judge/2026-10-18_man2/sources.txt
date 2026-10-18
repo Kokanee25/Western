@@ -1,0 +1,6 @@
+a man_saloon_night
+b man_store_golden
+c shot_match_saloon
+d shot_match_close
+e shot_match_street
+(tools/screenshots.gd views on main f727640, lavapipe; the man is bold_cowboy_layered, the card player stranger2s)
