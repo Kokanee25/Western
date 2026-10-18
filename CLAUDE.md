@@ -321,17 +321,16 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
-  twin (the cut twin fuses sleeve to side and collar to neck: the white smear and the collar,
-  retuned for every new twin). **The brief is written** (`docs/briefs/garments.md`, branch
-  `claude/characters-garments`) and waits for Sean's OK: garments modelled by script on the base
-  body (a shirt with a stand collar, points and separate sleeves; waistcoat; trousers), painted by
-  projection from the arms-out pictures (`bold_cowboy_armsout_dressed`, whose pose matches the
-  base body's), reusable for every man; MakeHuman's clothes ruled out (fused suits, AGPL headers).
-  Then: the shirt on the no-coat man first, one garment a merge, each with a sheet against his
-  pictures. Judge every change against Sean's pictures and his words (he turned down a flat
-  collar band twice). Trap: after a build, `godot --headless --import` first; lab renders via
-  `tools/characters/lab_run.sh`.
+- Next (Sean, 2026-10-18): **proper garments** (brief `docs/briefs/garments.md`, his OK given;
+  branch `claude/characters-garments`, not merged): the made shirt (stand collar open in front,
+  points, own sleeves, tie) and waistcoat (one trunk tube, 8 mm apart: no poke-through) on the
+  trial man `bold_cowboy_made_layered`; sheet `docs/style_test/garments-2026-10-18/g1_shirt_vest.png`
+  waits on Sean. Open (the brief's "Progress"): made trousers (the shirt shows at his back
+  waist), sleeve smears from the side pictures, the collar's tan in the lab light. Judge every
+  change against Sean's pictures and his words (he turned down a flat collar band twice). Trap:
+  after a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`;
+  in a fresh container build the native plugin (`cargo build --release` in
+  `addons/saltcreek_native`, copy the .so to its `bin/`) or 5 tests fail.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
