@@ -16,6 +16,13 @@ a person sees. Use both to choose what's next.
       labelled, into ROUND/critic/<n>_<slug>.png; prints the path to cite in critic.md
   python3 tools/critic.py top ROUND
       prints the top three from ROUND/critic/critic.md (for the status entry)
+  python3 tools/critic.py judge OUT IMAGE [IMAGE...]
+      the art judge (docs/concept/judge/RUBRIC.md, 2026-10-18): lays the images (named a, b,
+      c... so nothing in a filename gives them away) and Sean's reference set out in OUT/ and
+      prints the prompt for a fresh sub-agent, which writes OUT/verdict.md: per image, each
+      trait PASS / FAIL / N/A and the three biggest problems with their cause and a fix
+  python3 tools/critic.py cut OUT NAME X Y W H SLUG
+      the judge's tool: a box of image NAME (a, b, ...) at 3x into OUT/<slug>.png
 
 ROUND is a judge round folder, e.g. docs/screenshots/judge/2026-10-04_r1. The critic's files
 stay in the round (every round is kept).
@@ -164,6 +171,78 @@ def crop(round_dir, view, x, y, w, h, slug):
     print(path)
 
 
+JUDGE_DIR = os.path.join(ROOT, "docs", "concept", "judge")
+# The references the judge is shown (README.md): the authority first, then the style pictures.
+JUDGE_REFS = ["10_authority_saloon_man.jpg", "05_style_table_lantern.jpg", "08_style_street_a.jpg",
+              "09_style_street_b.jpg", "11_style_saloon_bar.jpg", "13_style_saloon_door.jpg",
+              "14_style_man_saloon_front.jpg"]
+
+JUDGE_PROMPT = """You are Salt Creek's art judge. You have NOT seen the game's code, its history or
+anyone's reasoning, and you must not read any of it: open only the files named here. Judge with
+your eyes.
+
+Read the rubric first: {rubric}
+
+The references (the first is the authority, which wins when they disagree):
+{refs}
+
+The pictures to judge (each on its own; some may be references for other games, some renders of
+this one; judge each against the rubric and the authority, not against each other):
+{images}
+
+For each problem you name, cut its box to look at it closely (it prints the path; look at it):
+
+  cd {root} && python3 tools/critic.py cut {out} NAME X Y W H slug
+
+Then write {md} in this form, nothing else before it:
+
+# Art judge, {name}
+
+## <image name, e.g. a>
+- Shapes: PASS|FAIL|N/A (the region that decides it)
+- Painted surface: PASS|FAIL|N/A (...)
+- Light: PASS|FAIL|N/A (...)
+- People: PASS|FAIL|N/A (...)
+- One hand: PASS|FAIL|N/A (...)
+- **Verdict: PASS|FAIL**
+1. **<problem>** (`x y w h`): <what's wrong against the authority>. Cause: paint|shape|light. Fix: <one thing to try>.
+2. ...
+3. ...
+
+(one section per image, in order). Write it with the Write tool. Do not edit anything else."""
+
+
+def judge(out, images):
+    out = os.path.abspath(out)
+    os.makedirs(out, exist_ok=True)
+    refs = []
+    for i, f in enumerate(JUDGE_REFS):
+        dst = os.path.join(out, "ref_%d.jpg" % (i + 1))
+        shutil.copyfile(os.path.join(JUDGE_DIR, f), dst)
+        refs.append("- ref_%d%s: %s" % (i + 1, " (the authority)" if i == 0 else "", dst))
+    listed = []
+    for i, src in enumerate(images):
+        name = chr(ord("a") + i)
+        Image.open(src).convert("RGB").save(os.path.join(out, name + ".png"))
+        listed.append("- %s: %s" % (name, os.path.join(out, name + ".png")))
+    with open(os.path.join(out, "sources.txt"), "w") as f:
+        f.write("".join("%s %s\n" % (chr(ord("a") + i), src) for i, src in enumerate(images)))
+    print(JUDGE_PROMPT.format(rubric=os.path.join(JUDGE_DIR, "RUBRIC.md"), refs="\n".join(refs),
+                              images="\n".join(listed), root=ROOT, out=os.path.relpath(out, ROOT),
+                              md=os.path.join(out, "verdict.md"), name=os.path.basename(out)))
+
+
+def cut(out, name, x, y, w, h, slug):
+    img = Image.open(os.path.join(out, name + ".png")).convert("RGB")
+    x, y = max(0, min(x, img.width - 1)), max(0, min(y, img.height - 1))
+    w, h = max(8, min(w, img.width - x)), max(8, min(h, img.height - y))
+    piece = img.crop((x, y, x + w, y + h)).resize((w * SCALE, h * SCALE), Image.NEAREST)
+    slug = re.sub(r"[^a-z0-9]+", "_", slug.lower()).strip("_") or "cut"
+    path = os.path.join(out, "%s_%s.png" % (name, slug))
+    piece.save(path)
+    print(path)
+
+
 def top(round_dir):
     path = os.path.join(round_dir, "critic", "critic.md")
     with open(path) as f:
@@ -186,8 +265,21 @@ def main():
     c.add_argument("slug")
     t = sub.add_parser("top")
     t.add_argument("round")
+    j = sub.add_parser("judge")
+    j.add_argument("out")
+    j.add_argument("images", nargs="+")
+    k = sub.add_parser("cut")
+    k.add_argument("out")
+    k.add_argument("name")
+    for v in ("x", "y", "w", "h"):
+        k.add_argument(v, type=int)
+    k.add_argument("slug")
     args = ap.parse_args()
-    if args.cmd == "prepare":
+    if args.cmd == "judge":
+        judge(args.out, args.images)
+    elif args.cmd == "cut":
+        cut(args.out, args.name, args.x, args.y, args.w, args.h, args.slug)
+    elif args.cmd == "prepare":
         prepare(args.round, args.extra)
     elif args.cmd == "crop":
         crop(args.round, args.view, args.x, args.y, args.w, args.h, args.slug)
