@@ -59,14 +59,24 @@ var _muzzle_local := Vector3(0, 0.02, -0.3)
 var _probe_shape := SphereShape3D.new()
 var _sounds := {}
 var _base_fov := 75.0
-var _view_kick := 0.0
+## The kick (GunKick): the gun in your hands, and your view.
+var kick := GunKick.new()
+var view_kick := GunKick.new()
+## Its own dice, so the shots' spread draws stay as they were.
+var _kick_rng := RandomNumberGenerator.new()
+## What's left of the view's climb to hand to your pitch (degrees), and how fast (seconds).
+var _climb_left := 0.0
+const CLIMB_TIME := 0.12
+var _cam_base := Vector3.ZERO
 
 
 func _setup_common() -> void:
 	_player = _find_player()
+	_kick_rng.seed = _rng.seed + 1882
 	var cam := get_parent() as Camera3D
 	if cam:
 		_base_fov = cam.fov
+		_cam_base = cam.position
 	_probe_shape.radius = 0.03
 	_add_fill()
 	_mark_held.call_deferred()
@@ -222,8 +232,10 @@ func _shot_line(muzzle: Vector3) -> Array:
 		var blocked := get_world_3d().direct_space_state.intersect_ray(q0)
 		if not blocked.is_empty():
 			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
-		# Where the barrel's pointing: your line of sight, turned by the sway.
-		aim_dir = cam.global_transform.basis * (Basis.from_euler(Vector3(deg_to_rad(sway.y), deg_to_rad(-sway.x), 0.0)) * Vector3.FORWARD)
+		# Where the barrel's pointing: your line of sight, turned by the sway and by what's left of
+		# the last shot's kick (fire again before it's settled and it goes high).
+		var off := sway + Vector2(kick.yaw, kick.pitch)
+		aim_dir = cam.global_transform.basis * (Basis.from_euler(Vector3(deg_to_rad(off.y), deg_to_rad(-off.x), 0.0)) * Vector3.FORWARD)
 		var cartridge := _load()
 		if not cartridge.is_empty():
 			last_shot_origin = origin
@@ -332,11 +344,40 @@ func _cone(dir: Vector3, half_angle: float) -> Vector3:
 	return off.rotated(dir, _rng.randf() * TAU).normalized()
 
 
+## The shot's shove, from the gun's tuning (RevolverTuning / ShotgunTuning share the names):
+## the gun climbs in your hands and your view goes with it, each a little different every shot.
+func _kick_shot(t: Resource) -> void:
+	var vary := 1.0 + clampf(_kick_rng.randfn(0.0, float(t.get(&"kick_variation"))), -0.35, 0.35)
+	var held := float(t.get(&"kick_aimed")) if aiming else 1.0
+	kick.rise = float(t.get(&"kick_rise"))
+	kick.damping = float(t.get(&"kick_damping"))
+	kick.fire(float(t.get(&"kick_degrees")) * held * vary,
+			_kick_rng.randfn(0.0, float(t.get(&"kick_side_degrees"))),
+			float(t.get(&"kick_roll_degrees")) * vary * _kick_rng.randf_range(0.6, 1.2),
+			float(t.get(&"kick_back")) * vary)
+	var shouldered: Variant = t.get(&"view_kick_shouldered")
+	var view_deg := float(shouldered) if aiming and shouldered != null else float(t.get(&"view_kick_degrees"))
+	view_kick.rise = float(t.get(&"view_kick_rise"))
+	view_kick.damping = kick.damping
+	view_kick.fire(view_deg * vary, _kick_rng.randfn(0.0, float(t.get(&"kick_side_degrees")) * 0.3), 0.0,
+			float(t.get(&"view_kick_back")) * (1.0 if aiming else 0.4) * vary)
+	_climb_left += float(t.get(&"view_climb_degrees")) * vary
+
+
 ## The camera's kick and zoom; only the gun in your hands moves the camera.
 func _animate_camera(delta: float, aim_fov: float) -> void:
 	var cam := get_parent() as Camera3D
 	if cam == null or not selected:
 		return
-	_view_kick = move_toward(_view_kick, 0.0, delta * (4.0 + _view_kick * 6.0))
-	cam.rotation.x = deg_to_rad(_view_kick)
+	view_kick.step(delta)
+	cam.rotation.x = deg_to_rad(view_kick.pitch)
+	cam.rotation.y = deg_to_rad(-view_kick.yaw)
+	cam.position = _cam_base + Vector3(0.0, 0.0, view_kick.back)
+	# What doesn't come back: handed to your own pitch over a moment, not in one jump.
+	if _climb_left > 0.0 and _player:
+		var give := _climb_left * (1.0 - exp(-delta / CLIMB_TIME))
+		if _climb_left < 0.01:
+			give = _climb_left
+		_climb_left -= give
+		_player.add_look(Vector2(0.0, give))
 	cam.fov = lerpf(cam.fov, aim_fov if aiming else _base_fov, 1.0 - exp(-delta * 10.0))

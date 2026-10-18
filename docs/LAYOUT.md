@@ -49,7 +49,8 @@ session or a script. Only in a debug build started with `-- --dev-bridge` (never
 listens on 127.0.0.1:8737; one command a line, one JSON line back, in order (a command that takes
 game time answers when it's done). `python3 tools/bridge.py start` runs the game under xvfb with
 the Vulkan renderer so screenshots work (`--size=960x540`, `--headless` for no drawing, `--fps=N`
-for a fixed step; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
+for a fixed step, `--movie=OUT.avi` records it all with sound through Godot's Movie Maker, 30 fps on game
+time; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
 file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
 (a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON|PLACE`,
 `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round buildings to a place), `press
@@ -130,7 +131,8 @@ Sean's OK (change min/max and add a line to `history` with the date and his word
 `proposed` was set from the game as it measured and still waits for his OK). Measured: body hits to
 stop a man (`test_gunfight`), the shotgun at 20 m (`test_shotgun`), the store's roof falling in
 (`test_fire`), the outlaw's hit rate at 5/15/30 m, the duel's stand-off and the gang's back-down
-share (`test_feel`). CI prints every number against its range in the test run's summary.
+share (`test_feel`), the guns' kick: rise, top, settle, the climb that stays, shot-to-shot
+spread (`test_gun_feel`). CI prints every number against its range in the test run's summary.
 
 ## The smoke test
 
@@ -458,6 +460,10 @@ a few views renders them as the full run does.
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
+  `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
+  dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
+  in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
+  measures it (and the rhythm, reload, sway) frame by frame against the feel ranges.
   `Ballistics.fire_charge()` flies a shotgun charge as separate pellets. `DynamiteViewmodel` is the
   stick in hand. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a

@@ -4,6 +4,7 @@ extends TestCase
 ## reload, how much the sights wander held still. Measured on the real test street with the
 ## player's own guns, frame by frame at 60 fps.
 
+const Feel := preload("res://tests/feel.gd")
 const GUN_ACTIONS := [&"fire", &"aim", &"cock", &"reload", &"holster"]
 
 var street: Node3D
@@ -47,8 +48,9 @@ func _ready_to_fire(w: WeaponViewmodel) -> bool:
 	return (w as ShotgunViewmodel).state.cocked_hammers.has(true)
 
 
-## Fire once (cocking first) and follow the muzzle and the view for `seconds`. Returns
-## {muzzle: [deg above where it was], view: [...]} a sample a frame.
+## Fire once (cocking first) and follow the gun and the view for `seconds`. Returns, a sample a
+## frame (the first a frame after the trigger), in degrees above where each was: `gun` how far the
+## gun's turned on screen (against your view), `view` your line of sight.
 func _kick(w: WeaponViewmodel, aim: bool, seconds := 1.0) -> Dictionary:
 	w.steady_hands = true
 	if aim:
@@ -59,24 +61,26 @@ func _kick(w: WeaponViewmodel, aim: bool, seconds := 1.0) -> Dictionary:
 	Input.action_release(&"cock")
 	await wait_until(func() -> bool: return _ready_to_fire(w), 60)
 	await process_frames(20)
-	var muzzle0 := _elev(-w.global_transform.basis.z)
+	var gun0 := _elev(-w.global_transform.basis.z) - _elev(-player.camera.global_transform.basis.z)
 	var view0 := _elev(-player.camera.global_transform.basis.z)
 	Input.action_press(&"fire")
-	var muzzle: Array[float] = []
+	var gun: Array[float] = []
 	var view: Array[float] = []
 	for i in int(seconds * 60.0):
 		await process_frames(1)
 		if i == 1:
 			Input.action_release(&"fire")
-		muzzle.append(_elev(-w.global_transform.basis.z) - muzzle0)
-		view.append(_elev(-player.camera.global_transform.basis.z) - view0)
+		var v := _elev(-player.camera.global_transform.basis.z)
+		gun.append(_elev(-w.global_transform.basis.z) - v - gun0)
+		view.append(v - view0)
 	Input.action_release(&"aim")
 	w.steady_hands = false
-	return {"muzzle": muzzle, "view": view}
+	await physics_frames(30)
+	return {"gun": gun, "view": view}
 
 
-## Peak (deg), frames to the peak, frames from the peak till it's back within 10% of the peak
-## of where it ends, and what's left at the end (deg).
+## Peak (deg), ms from the shot to the peak, ms from the shot till it's back within a tenth of
+## the peak of where it ends, and what's left at the end (deg).
 static func _shape(curve: Array[float]) -> Dictionary:
 	var peak := 0.0
 	var at := 0
@@ -90,23 +94,61 @@ static func _shape(curve: Array[float]) -> Dictionary:
 		if absf(curve[i] - rest) > 0.1 * (peak - rest):
 			settle = i + 1
 			break
-	return {"peak": peak, "rise_ms": at * 1000.0 / 60.0, "settle_ms": (settle - at) * 1000.0 / 60.0, "rest": rest}
+	return {"peak": peak, "rise_ms": (at + 1) * 1000.0 / 60.0, "settle_ms": (settle + 1) * 1000.0 / 60.0, "rest": rest}
 
 
-func test_kick_measured() -> void:
+## Sean: "too snappy", "should push, not flip" (DESIGN.md §7 "Recoil"). The gun climbs over a few
+## frames, not in one; comes back in a few tenths; your view takes some of it and keeps a little.
+func test_kick_pushes() -> void:
+	var shapes := {}
 	for which in ["revolver", "shotgun"]:
 		for aim in [false, true]:
 			var w := await _gun(which)
 			var k := await _kick(w, aim)
-			var m := _shape(k.muzzle)
+			var g := _shape(k.gun)
 			var v := _shape(k.view)
-			print("    %s %s: muzzle peak %.1f° at %d ms, settles %d ms, stays %.2f° | view peak %.1f° at %d ms, settles %d ms, stays %.2f°" % [
-					which, "aimed" if aim else "hip", m.peak, m.rise_ms, m.settle_ms, m.rest, v.peak, v.rise_ms, v.settle_ms, v.rest])
+			shapes["%s_%s" % [which, "aimed" if aim else "hip"]] = [g, v]
+			print("    %s %s: gun on screen %.1f° at %d ms, settled %d ms | view %.1f° at %d ms, settled %d ms, keeps %.2f°" % [
+					which, "aimed" if aim else "hip", g.peak, g.rise_ms, g.settle_ms, v.peak, v.rise_ms, v.settle_ms, v.rest])
 			var line := ""
-			for i in mini(24, k.muzzle.size()):
-				line += "%.1f " % k.muzzle[i]
-			print("      muzzle by frame: ", line)
-			check(m.peak > 0.0, "%s kicks" % which)
+			for i in 24:
+				line += "%.1f " % k.gun[i]
+			print("      gun by frame: ", line)
+	var rh: Array = shapes.revolver_hip
+	Feel.within(self, "revolver_kick_degrees", rh[0].peak)
+	Feel.within(self, "revolver_kick_rise_ms", rh[0].rise_ms)
+	Feel.within(self, "revolver_kick_settle_ms", rh[0].settle_ms)
+	Feel.within(self, "revolver_view_climb_degrees", (shapes.revolver_aimed[1] as Dictionary).rest)
+	Feel.within(self, "shotgun_shouldered_view_kick_degrees", (shapes.shotgun_aimed[1] as Dictionary).peak)
+	Feel.within(self, "shotgun_view_climb_degrees", (shapes.shotgun_aimed[1] as Dictionary).rest)
+	# Shouldered, the barrels stay with your eye and you take the shove; from the hip it's the
+	# other way round.
+	check((shapes.shotgun_aimed[0] as Dictionary).peak < (shapes.shotgun_hip[0] as Dictionary).peak * 0.6,
+			"shouldered, the barrels climb less on screen than from the hip")
+	check((shapes.shotgun_aimed[1] as Dictionary).peak > (shapes.shotgun_hip[1] as Dictionary).peak * 1.4,
+			"shouldered, your view takes more of the shove than from the hip")
+
+
+## No two shots kick quite the same.
+func test_kick_varies_shot_to_shot() -> void:
+	var w := await _gun("revolver")
+	var peaks: Array[float] = []
+	for i in 6:
+		var k := await _kick(w, false, 0.4)
+		peaks.append(_shape(k.gun).peak)
+		var r := (w as RevolverViewmodel).state
+		if r.rounds_loaded() == 0:
+			r.chambers.fill(RevolverState.Chamber.LOADED)
+	var mean := 0.0
+	for p in peaks:
+		mean += p
+	mean /= peaks.size()
+	var sd := 0.0
+	for p in peaks:
+		sd += (p - mean) * (p - mean)
+	sd = sqrt(sd / peaks.size())
+	print("    revolver kick shot to shot: %s" % str(peaks.map(func(p): return snappedf(p, 0.1))))
+	Feel.within(self, "kick_shot_to_shot", sd / mean)
 
 
 func test_rhythm_measured() -> void:
