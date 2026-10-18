@@ -159,7 +159,7 @@ func _on_fired() -> void:
 	bullet.form = tuning.form_factor
 	bullet.shooter = _player
 	var world := ballistics.get_parent()
-	GunSmoke.spawn(world, origin, dir)
+	GunSmoke.spawn(world, origin, dir, 1.0, model.global_transform.basis.x)
 	ImpactEffects.muzzle_flash(world, origin)
 	_play(&"gunshot")
 	Events.shot_fired.emit(origin, dir, _player)

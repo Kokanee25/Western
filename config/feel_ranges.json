@@ -164,6 +164,72 @@
       "history": [
         "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
       ]
+    },
+    "smoke_puff_at_the_shot": {
+      "min": 0.0,
+      "max": 0.5,
+      "unit": "share of a man 12 m off you can see through your own revolver smoke 0.05 s after the shot (the dense black-powder puff: low)",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
+    },
+    "smoke_see_him_half_second": {
+      "min": 0.55,
+      "max": 0.95,
+      "unit": "share of a man 12 m off you can see through your revolver smoke half a second after the shot, outdoors (was a white wall for ~1.5 s)",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
+    },
+    "smoke_see_him_one_second": {
+      "min": 0.75,
+      "max": 1.0,
+      "unit": "share of him you can see a second after the revolver shot, outdoors",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
+    },
+    "smoke_see_him_shotgun_one_second": {
+      "min": 0.6,
+      "max": 1.0,
+      "unit": "share of a man 12 m off you can see a second after a shouldered shotgun shot, outdoors (was a wall for ~3 s)",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
+    },
+    "smoke_see_him_indoors_one_second": {
+      "min": 0.5,
+      "max": 0.95,
+      "unit": "share of a man 8 m off you can see a second after a revolver shot under a roof (it hangs there)",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
+    },
+    "smoke_see_him_indoors_after_six": {
+      "min": 0.35,
+      "max": 0.85,
+      "unit": "share of him you can see indoors a second after the sixth of six shots fired 1.2 s apart (the room filling, never a wall)",
+      "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",
+      "last": null,
+      "proposed": true,
+      "history": [
+        "2026-10-18 proposed (gunplay: the smoke, Sean: 'I want to be able to actually see the bad guy react to being shot'); waits for his OK after he plays it"
+      ]
     }
   }
 }

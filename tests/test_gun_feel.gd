@@ -205,3 +205,79 @@ func test_sway_measured() -> void:
 		rms = sqrt(rms / xs.size())
 		print("    %s aimed and settled: sway rms %.2f°, widest %.2f° (= %.0f cm at 15 m)" % [which, rms, mx, tan(deg_to_rad(mx)) * 1500.0])
 		check(rms > 0.0, "it wanders")
+
+
+## Put a roof over the player (the smoke takes it for indoors: no breeze).
+func _roof() -> StaticBody3D:
+	var roof := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(30, 0.2, 30)
+	cs.shape = box
+	roof.add_child(cs)
+	street.add_child(roof)
+	roof.global_position = player.global_position + Vector3(0, 3.2, 0)
+	await physics_frames(2)
+	return roof
+
+
+## How much of a man `metres` ahead shows through your own smoke: the light that gets from your
+## eye to his chest, sampled after one aimed shot at `seconds` (an array) after it.
+func _see_through(which: String, metres: float, seconds: Array, shots := 1, gap := 1.0) -> Array[float]:
+	for c in street.find_children("*", "GunSmoke", true, false):
+		c.free()
+	var w := await _gun(which)
+	w.steady_hands = true
+	Input.action_press(&"aim")
+	await physics_frames(40)
+	var eye := player.camera.global_position
+	var target := eye - player.camera.global_transform.basis.z * metres
+	for k in shots:
+		if w is RevolverViewmodel:
+			var r := (w as RevolverViewmodel).state
+			if r.rounds_loaded() == 0:
+				r.chambers.fill(RevolverState.Chamber.LOADED)
+			r.busy = 0.0
+			r.cock()
+			r.busy = 0.0
+			(w as RevolverViewmodel).pull_trigger()
+		else:
+			var sg := (w as ShotgunViewmodel).state
+			sg.busy = 0.0
+			sg.cock()
+			sg.busy = 0.0
+			(w as ShotgunViewmodel).pull_trigger()
+		if k < shots - 1:
+			await process_frames(int(gap * 60.0))
+	var out: Array[float] = []
+	var elapsed := 0
+	for s: float in seconds:
+		await process_frames(maxi(0, int(round(s * 60.0)) - elapsed))
+		elapsed = int(round(s * 60.0))
+		out.append(GunSmoke.transmittance(eye, target))
+	Input.action_release(&"aim")
+	w.steady_hands = false
+	return out
+
+
+## Sean, 2026-10-18: "I want to be able to actually see the bad guy react to being shot." The shot
+## still throws a dense puff at the muzzle (black powder), but it thins and moves off your line
+## within half a second; indoors it hangs longer and builds over a fight, never to a wall.
+func test_smoke_lets_you_see_him() -> void:
+	var times := [0.05, 0.25, 0.5, 1.0, 2.0]
+	var out := await _see_through("revolver", 12.0, times)
+	print("    revolver, outdoors, a man at 12 m: seen %s at %s s" % [str(out.map(func(v): return snappedf(v, 0.01))), str(times)])
+	var sg := await _see_through("shotgun", 12.0, times)
+	print("    shotgun, outdoors, 12 m: seen %s" % str(sg.map(func(v): return snappedf(v, 0.01))))
+	var roof := await _roof()
+	var inside := await _see_through("revolver", 8.0, times)
+	print("    revolver, indoors, 8 m: seen %s" % str(inside.map(func(v): return snappedf(v, 0.01))))
+	var fight := await _see_through("revolver", 8.0, [1.0], 6, 1.2)
+	print("    revolver, indoors, 8 m, a second after the sixth shot in seven: seen %.2f" % fight[0])
+	roof.queue_free()
+	Feel.within(self, "smoke_puff_at_the_shot", out[0])
+	Feel.within(self, "smoke_see_him_half_second", out[2])
+	Feel.within(self, "smoke_see_him_one_second", out[3])
+	Feel.within(self, "smoke_see_him_shotgun_one_second", sg[3])
+	Feel.within(self, "smoke_see_him_indoors_one_second", inside[3])
+	Feel.within(self, "smoke_see_him_indoors_after_six", fight[0])

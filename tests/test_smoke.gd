@@ -49,5 +49,5 @@ func test_clouds_and_fog_are_capped() -> void:
 	check(clouds.size() <= t.max_clouds, "at most %d clouds (%d)" % [t.max_clouds, clouds.size()])
 	var fogs := world.find_children("*", "FogVolume", true, false)
 	check(fogs.size() <= t.max_fog_volumes, "at most %d fog volumes (%d)" % [t.max_fog_volumes, fogs.size()])
-	var puffs := world.find_children("*", "GPUParticles3D", true, false)
-	check(puffs.all(func(p: GPUParticles3D) -> bool: return p.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF), "smoke doesn't cast shadows")
+	var puffs := world.find_children("*", "MultiMeshInstance3D", true, false)
+	check(not puffs.is_empty() and puffs.all(func(p: MultiMeshInstance3D) -> bool: return p.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF), "smoke doesn't cast shadows")
