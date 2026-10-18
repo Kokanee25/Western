@@ -74,7 +74,8 @@ NECK_R = 0.075         # of his height: skin within this of the neck's axis is h
 FALL_DEPTH = 0.034     # metres
 FALL_OUT = 0.022       # metres
 FALL_ROWS = 5
-POINT = {"in": 13.0, "out": 50.0, "drop": 0.062, "stand": 0.014}
+POINT = {"in": 13.0, "out": 56.0, "drop": 0.072, "stand": 0.014}
+FILL_NEAR = 30         # texels: a texel further than this from any painted one takes the garment's own median colour
 SKIN_MASK = 0.02       # of the figure's height: picture pixels this near his own hands' and head's outline are never sampled
 TIE = {"knot": (0.034, 0.026, 0.016), "width": 0.036, "length": 0.17, "spread": 0.03, "off": 0.012, "drop": 0.008}
 # What each garment is in his pictures (Lab: L from, L to, chroma at most), measured on the
@@ -520,6 +521,22 @@ def paint(man, meshes, views, uns):
         tex[idx] = col
         have[idx] = ok
         tex = BP.island_fill(tex, have, cover)
+        # What lies far from anything a picture saw (the yoke under the collar's fall, the
+        # trunk under the waistcoat) takes the garment's own colour, not a smear of the nearest
+        # painted edge.
+        far = cover & (ndimage.distance_transform_edt(~have) > FILL_NEAR)
+        if ok.any() and far.any():
+            tex[far] = np.median(col[ok], axis=0)
+            print("garments: %s: %.0f%% of its texels take its median colour, far from any picture" % (gname, 100 * far.sum() / max(cover.sum(), 1)))
+        # The collar (its stand and fall) is the shirt's whitest cloth in his pictures: what no
+        # picture saw of it takes the lightest of the shirt's painted colours, not its median.
+        lightest = col[ok][np.argsort(BP._lab(col[ok])[:, 0])[int(0.9 * ok.sum())]] if ok.any() else None
+        for pname in ("collar", "fall"):
+            if pname in lay and lightest is not None:
+                left, top, w_, h_ = lay[pname]
+                yy, xx = np.mgrid[0:TEX, 0:TEX]
+                inside = (xx / TEX >= left) & (xx / TEX <= left + w_) & (yy / TEX >= top) & (yy / TEX <= top + h_)
+                tex[inside & cover & ~have] = lightest
         which = np.zeros((TEX, TEX, 3))
         pal = np.array([[0.9, 0.3, 0.3], [0.3, 0.9, 0.3], [0.3, 0.3, 0.9], [0.9, 0.9, 0.3]])
         which[idx] = pal[np.argmax(S, 0) % 4] * np.where(ok, 1.0, 0.2)[:, None]

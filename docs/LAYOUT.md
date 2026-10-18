@@ -857,6 +857,12 @@ flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_l
 (a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
 in the game: who a man looks at is gameplay's.
 
+- **Garments made on the base body** (`tools/characters/garments.py`, brief
+  `docs/briefs/garments.md`, recipe `tools/characters/LAYERED.md` §6): tubes lofted from his
+  skin's cross-sections (trunk, sleeves), a stand collar with a fall and points, the tie; UVs
+  by construction; painted by projection from his pictures by Lab colour class; written as a
+  `made` piece the fitter carries (`fit_tripo.Piece.made`, `NO_TUCK`). The sheet:
+  `tools/characters/garment_sheet.py`.
 ## Training the image model on our style (tools/style)
 
 - **Training the image model on our style** (`tools/style/train_style.py`, People workflow input

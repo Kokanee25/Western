@@ -388,3 +388,69 @@ than before it (Sean: "why'd he fuck shit up"):
   is off and his skin takes a coat's colour only under a coat (`UNDER_COAT_ONLY`), else the
   shirt's median, as before.
 
+
+## 6. Garments made on the base body (2026-10-18; brief `docs/briefs/garments.md`)
+
+The cut-twin clothes above fuse sleeve to side and collar to neck (the white smear, the collar
+that never stood). **The new route: garments lofted from his base body's own skin**, by
+`tools/characters/garments.py`, each its own clean mesh with UVs by construction, painted by
+projection from his arms-out pictures, carried by the fitter as a laid-on piece (`made`). The
+trial man is `bold_cowboy_made_layered` (people.json `bold_cowboy_made_body`: the made shirt
+over the twin waistcoat and trousers for now); today's men are untouched until Sean says.
+
+The chain (the workspace as §3; `P=docs/concept/style/factory/bold_cowboy_armsout_dressed`):
+```sh
+# 1. the garments, shaped on his base body and painted from the four arms-out pictures
+~/bpyenv/bin/python tools/characters/garments.py --body=bold_cowboy_body --out=bold_cowboy_made \
+    --garments=shirt --preview --views=front:$P/front.png,left:$P/left.png,right:$P/right.png,back:$P/back.png
+#    → assets/people/tripo/bold_cowboy_made_shirt.glb + .json ("made", "islands"); build/garments/:
+#      the preview (flat-shaded, no game), each view's outline fit, which view painted what.
+# 2. the fit, the head through the ring (--collar=none: the shirt has its own), the import
+~/bpyenv/bin/python tools/blender/fit_tripo.py --only=bold_cowboy_made_body
+~/bpyenv/bin/python tools/characters/neck_ring.py --body=bold_cowboy_made_body --head=bold_cowboy_painterly_lit \
+    --out=bold_cowboy_made_layered --head_scale=0.92 --collar=none
+godot --headless --import
+# 3. the lab (whole; head and shoulders; --hide=Vest_whole shows the shirt alone) and the sheet
+bash tools/characters/lab_run.sh build/l.log --out=build/lab_bold_cowboy_made_layered --id=bold_cowboy_made_layered \
+    --turns=0,90,180 --lights=neutral --materials=game --hat=none --fov=6 --dist=20 --aim=0.95
+python3 tools/characters/garment_sheet.py --before=build/lab_bold_cowboy_vest_layered --after=build/lab_bold_cowboy_made_layered \
+    --before_head=... --after_head=... --pictures=$P --out=docs/style_test/garments-2026-10-18/g1_shirt.png
+```
+Only the layered outfit and the piece are committed; `bold_cowboy_made_body.*` is an
+intermediate the chain rebuilds.
+
+How the shirt is made (`garments.py`, numbers at its top):
+- **Tubes lofted from his cross-sections** (`loft`): round an axis in ROWS bands and ANGLES
+  angles, each cell's radius the PCT-th percentile of his skin's points there, filled straight
+  down where he has none (the armhole), smoothed once, pushed out by OFFSET. The body tube runs
+  up his trunk's axis from HEM_BELOW_HIP under his hips to his neck's base, his arms' points
+  left out (`ARM_R` of the arm's bone below `ARM_FROM` of the way down it: above that his
+  shoulder and deltoid are the trunk's, the yoke). Each sleeve is a tube of its own down an
+  axis through the middle of his arm (the rig's joints sit off it), from above the shoulder
+  to CUFF_PAST the wrist; on its head's inner side (t < SLEEVE_HEAD_T) it takes the outer
+  side's radius (else his side's skin). Both stay whole where they overlap.
+- **The neck** (`find_neck`): the width of his sections above the shoulders; the narrowest is
+  his neck, the chin where it widens CHIN_WIDE again above, the neck's base where it is
+  NECK_BASE_WIDE below; the ring 3 cm under the chin (neck_ring's).
+- **The collar** (`collar`): a stand lofted round his neck from COLLAR_OVERLAP into the shirt's
+  top to COLLAR_UNDER_CHIN below his chin, leaning out COLLAR_LEAN; a fall folded down from
+  the stand's top round the back and sides (FALL_DEPTH down, FALL_OUT out), ending in front in
+  two points (from POINT in to out degrees either side of the front, POINT drop below the
+  fold, lying POINT stand off his chest); the tie a knot in the front gap and two ends lying
+  TIE off his chest. Sean's call close up (he turned a flat band down twice): the sheet.
+- **UVs**: LAYOUT, each part an upright island; the texture at TEX (2048, the skin's density).
+- **Paint** (`paint`): as body_paint --dressed, his body and the garments together lined up
+  with each picture by the figure's outline (front 0.82, sides 0.62, back 0.80 on the arms-out
+  set); a texel takes only a colour of its garment's **Lab class** (CLASS: the shirt L 58+ at
+  chroma under 31, the tie dark and grey; measured on the front picture), never one on or
+  SKIN_MASK near his own hands' and head's outline; what no picture saw is filled from its
+  own island, and further than FILL_NEAR from any painted texel takes the garment's median
+  colour (the collar: its lightest).
+- **In the fitter** (`fit_tripo`): a `made` piece gets no sleeve-side cut or comb, his arms and
+  trunk stay their own size (`_arms_in_sleeves`, `_trunk_in` skipped), its collar follows his
+  neck in the warp (not the head's placing), and its fall and tie (`NO_TUCK`, by their islands)
+  are never tucked under the waistcoat.
+- Known (2026-10-18, sheet `docs/style_test/garments-2026-10-18/g1_shirt.png`): the shirt's
+  front under the waistcoat is mostly unseen in his pictures (filled); the points are flatter
+  than his picture's; the waistcoat is still the twin's (its armholes wide, its shoulder's tan
+  patch its own); the shirt sits 6 mm off him and the fitter pushes it to 12.

@@ -14,13 +14,15 @@ import sys
 
 from PIL import Image, ImageDraw
 
-# Crops of the whole-man render (shares of its width and height): the collar, the right armpit,
-# the waist, the left sleeve.
-CROPS = {"collar": (0.44, 0.08, 0.56, 0.22), "armpit": (0.36, 0.18, 0.48, 0.34), "waist": (0.40, 0.36, 0.60, 0.52),
-         "sleeve": (0.52, 0.20, 0.66, 0.52)}
+# Close-ups (shares of a render's width and height): off the head-and-shoulders render at 0
+# (the collar, the right armpit) and the whole-man render at 0 (the waist, the left sleeve).
+CROPS = {"collar": ("head", (0.40, 0.33, 0.60, 0.52)), "armpit": ("head", (0.58, 0.40, 0.74, 0.62)),
+         "waist": ("whole", (0.42, 0.38, 0.58, 0.50)), "sleeve": ("whole", (0.57, 0.20, 0.68, 0.52))}
 # The same places in a front picture (the figure fills about the middle 45% of it).
-PIC_CROPS = {"collar": (0.42, 0.14, 0.58, 0.30), "armpit": (0.30, 0.24, 0.46, 0.42), "waist": (0.38, 0.44, 0.62, 0.60),
-             "sleeve": (0.56, 0.26, 0.76, 0.58)}
+PIC_CROPS = {"collar": (0.42, 0.11, 0.58, 0.24), "armpit": (0.56, 0.22, 0.70, 0.38), "waist": (0.40, 0.42, 0.60, 0.56),
+             "sleeve": (0.60, 0.24, 0.72, 0.54)}
+# A picture cut to its figure (the backdrop either side dropped).
+PIC_FIGURE = (0.24, 0.0, 0.76, 1.0)
 
 
 def load(path, size=None):
@@ -64,9 +66,9 @@ def main():
         n = load(os.path.join(after, "game_neutral_%d.png" % turn))
         w, h = b.size
         whole += [b.crop((int(w * 0.33), 0, int(w * 0.67), h)), n.crop((int(w * 0.33), 0, int(w * 0.67), h)),
-                  load(os.path.join(pics, pic + ".png"))]
+                  crop(load(os.path.join(pics, pic + ".png")), PIC_FIGURE)]
         labels += ["before %d" % turn, "after %d" % turn, "picture " + pic]
-    rows.append(row(whole, 520, labels))
+    rows.append(row(whole, 440, labels))
     if "--before_head" in a and "--after_head" in a:
         heads, labels = [], []
         for turn in (0, 45, 90):
@@ -79,14 +81,22 @@ def main():
         labels.append("picture")
         rows.append(row(heads, 360, labels))
     # Close-ups off the front render and the front picture.
-    b0 = load(os.path.join(before, "game_neutral_0.png"))
-    n0 = load(os.path.join(after, "game_neutral_0.png"))
+    src = {"whole": (load(os.path.join(before, "game_neutral_0.png")), load(os.path.join(after, "game_neutral_0.png")))}
+    if "--before_head" in a and "--after_head" in a:
+        src["head"] = (load(os.path.join(a["--before_head"], "game_neutral_0.png")), load(os.path.join(a["--after_head"], "game_neutral_0.png")))
     p0 = load(os.path.join(pics, "front.png"))
     crops, labels = [], []
-    for name, box in CROPS.items():
+    for name, (which, box) in CROPS.items():
+        if which not in src:
+            continue
+        b0, n0 = src[which]
         crops += [crop(b0, box), crop(n0, box), crop(p0, PIC_CROPS[name])]
         labels += ["before " + name, "after " + name, "picture " + name]
-    rows.append(row(crops, 300, labels))
+        if len(crops) == 6:
+            rows.append(row(crops, 300, labels))
+            crops, labels = [], []
+    if crops:
+        rows.append(row(crops, 300, labels))
     width = max(r.width for r in rows)
     sheet = Image.new("RGB", (width, sum(r.height for r in rows) + 10 * (len(rows) - 1)), (60, 60, 60))
     y = 0
