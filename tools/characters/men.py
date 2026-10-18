@@ -56,7 +56,9 @@ EDGE_KEEP_M = 0.035 # ...and no edge of his shirt is this near
 SEAT_BAND_M = 0.10  # the band round his crotch where seat and legs are weighted alike...
 SEAT_BLEND_M = 0.05 # ...from the points this near
 TUCK_M = 0.03       # his shirt ends this far inside his trousers' waistband
-CLOTHED = ["pelvis", "abdomen", "thigh", "shin", "foot"]   # parts the made clothes always cover
+CLOTHED = ["pelvis", "abdomen", "chest", "upper_arm", "thigh", "shin", "foot"]   # parts always clothed
+SOLE_LIFT = 0.047   # his boots' soles were this far under the skeleton's (the stand sank them 5-6 cm)...
+SOLE_TOP = 0.20     # ...lifted by squashing what's under this height (m), the shafts kept
 STRAY_SHARE = 0.05  # a piece of a part's skinning this much smaller than its biggest is a stray
 
 
@@ -230,6 +232,15 @@ def warp(src, dst, build):
             v.co = y
         o.data.update()
         print("men: %s moved %.1f mm at most" % (o.name, 1000 * np.linalg.norm(Y - X, axis=1).max()))
+    # His boots onto the ground: everything under SOLE_TOP squashed up so the soles are
+    # SOLE_LIFT higher (the same map for every layer, so they keep their order).
+    low = min(v.co.z for v in bpy.data.objects["body_boots"].data.vertices)
+    k = (SOLE_TOP - low - SOLE_LIFT) / (SOLE_TOP - low)
+    for o in meshes:
+        for v in o.data.vertices:
+            if v.co.z < SOLE_TOP:
+                v.co.z = SOLE_TOP - (SOLE_TOP - v.co.z) * k
+        o.data.update()
     for o in meshes:
         mend_strays(o)
     kept = drop_hidden_skin(skin, [o for o in meshes if o.name[5:] in GARMENTS])
@@ -350,13 +361,14 @@ def drop_hidden_skin(skin, garments):
     names = [g.name for g in skin.vertex_groups]
     hidden = np.zeros(len(co), bool)
     for v in skin.data.vertices:
-        if near_edge[v.index]:
-            continue
-        # His legs, hips and belly are always clothed: what of them is out (a patch where Rodin
-        # fused his palm to his thigh, at his hip) goes too.
+        # His trunk, upper arms and legs are always clothed: what of them is out (a patch where
+        # Rodin fused his palm to his thigh, at his hip; points by a cuff, out through the
+        # trousers or a sleeve: the visual checks' "skin through") goes too, cuff or no cuff.
         part = max(v.groups, key=lambda ge: ge.weight).group if len(v.groups) else -1
         if part >= 0 and names[part].rsplit("_", 1)[0] in CLOTHED:
             hidden[v.index] = True
+            continue
+        if near_edge[v.index]:
             continue
         o = v.co + v.normal * 0.001
         hidden[v.index] = any(t.ray_cast(o, v.normal, HIDDEN_M)[0] is not None for t in trees)
