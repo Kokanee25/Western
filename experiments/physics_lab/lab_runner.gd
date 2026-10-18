@@ -26,6 +26,8 @@ var cam_distance := 3.2
 ## --follow: the cameras keep him in shot across the ground (for footage of a running man), at
 ## the same offset, eased; without it they stay where he started (for comparing frames).
 var follow := false
+## --mocap: he walks and runs by the motion-capture clips (HumanBody.mocap_gait, an experiment).
+var mocap := false
 var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
 ## Several men side by side (the performance runs): each one is logged in the summary only.
@@ -67,6 +69,7 @@ var _pairs: Array = []  ## non-adjacent segment pairs
 
 func _ready() -> void:
 	process_physics_priority = -100
+	HumanBody.mocap_gait = mocap
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	_world = Node3D.new()
 	_world.name = "LabWorld"
