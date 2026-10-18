@@ -321,17 +321,16 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- Next: **garments and the body under them** (brief `docs/briefs/garments.md`, Sean's go 2026-10-18;
-  recipe `tools/characters/GARMENTS.md`; branch `claude/characters-garments`, not merged). Built
-  on the trial man `bold_cowboy_made_layered`: the base body fitted bare (`"bare": true`; it was
-  fitted as a hatted whole man: high boxy shoulders, no neck), shoulders 1.0, head 1.05; shirt
-  (sleeve tubes, a standing collar), waistcoat and trousers that hang, lofted round one trunk
-  tube at nested offsets; boots cut from the twin. Pose check clean (sheets `s3_*` in
-  `docs/style_test/garments-2026-10-18/`). **Waiting on Sean's OK to merge the no-coat man**; then
-  the coat man. Open: knees wider than the pictures' (Rodin's legs), side-picture smears on the
-  sleeves; the stand pose's arms hang ~10° against the pictures' 21° (gameplay's). Traps: after a
-  build `godot --headless --import`; in a fresh container build the native plugin (`cargo build
-  --release` in `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
+- Next: **garments and the body under them** (brief `docs/briefs/garments.md`; recipe
+  `tools/characters/GARMENTS.md`; branch `claude/characters-garments`, nothing merged). Sean saw the
+  made clothes on the Rodin body (`bold_cowboy_made_layered`) and said he still looks bad. Then a
+  MakeHuman body (`tools/characters/mh_body.py`, trial `bold_cowboy_mh_layered`): solved to the
+  skeleton's proportions, it bends clean in all five poses (no webs or sheets), but close up the
+  shirt's shoulders are a puffy cape, the collar too big and the head small (sheet
+  `docs/style_test/garments-2026-10-18/m1_makehuman.jpg`). **Waiting on Sean** before more work:
+  the script-built clothes may be the wrong tool for the close look. Traps: after a build `godot
+  --headless --import`; in a fresh container build the native plugin (`cargo build --release` in
+  `addons/saltcreek_native`, the .so into its `bin/`) or 5 tests fail.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
   layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
   shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
