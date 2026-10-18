@@ -15,3 +15,12 @@ adds its own lines.
 - **Blender** (`bpy` 5.0.1): GPL, a tool run headless; nothing of it ships.
 - **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU): Python libraries the tools use.
 - The portrait factory's reference pictures (`docs/concept/style/factory/`): made by Sean in ChatGPT.
+
+## Motion (the gameplay session)
+
+- **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu): "free for use in research and
+  commercial projects worldwide". The data used in this project was obtained from
+  mocap.cs.cmu.edu; the database was created with funding from NSF EIA-0196217. In B. Hahne's 2010
+  BVH conversion (cgspeed.com; no further restrictions), fetched by
+  `experiments/mocap_walk/fetch.sh` into `build/cmu/`. The walk (35_01) and run (35_17) are
+  retargeted onto our rig in `experiments/mocap_walk/clips/` (an experiment, off by default).

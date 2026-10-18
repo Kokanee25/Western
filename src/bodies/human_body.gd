@@ -213,6 +213,15 @@ var prone := false
 ## Someone has him by the collar and is dragging him (a friend getting him out of the line of fire).
 var dragged_by: Node3D
 var _gait_phase := 0.0
+## Experiment (Sean, 2026-10-17: "let's just experiment with it"): walking and running by motion
+## capture (experiments/mocap_walk/: a CMU walk and run retargeted onto this rig) in place of the
+## swinging sines of _gait_overlay. Off unless something turns it on (the lab's --mocap, the dev
+## bridge's "mocap on").
+static var mocap_gait := false
+static var _mocap_clips := {}  ## gait -> {stride (m), frames: [{segment: Quaternion}]}, loaded once
+var _mocap_w := 0.0  ## how far the clip has him: eases in as he sets off, out as he stops
+var _mocap_last := {}  ## the clip he was last on (to ease out of)
+var _mocap_hips := -1.0  ## his hip joints' height above the ground in the clip now, in leg lengths (-1: none)
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
 var _pool: Decal
@@ -1316,7 +1325,11 @@ func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
-	var overlay := _gait_overlay(delta)
+	var clip := _mocap_now(delta)
+	var overlay := _gait_overlay(delta) if clip.is_empty() and _mocap_w <= 0.0 else {}
+	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
+	# up or bound, clutching a wound, the pose has his arms and back).
+	var all_of_him := pose == &"stand"
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
 				+ _stumble_lean.get(sid, Vector3.ZERO)
@@ -1334,10 +1347,67 @@ func _apply_pose(delta: float, snap := false) -> void:
 		var rot: Vector3 = now + f[0]
 		if sid == &"chest":
 			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
-		(pivots[sid] as Node3D).rotation_degrees = rot
+		var pv := pivots[sid] as Node3D
+		pv.rotation_degrees = rot
+		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
+			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
+			# as he stumbles) on top of it.
+			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
+			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
+
+
+const _MOCAP_ALWAYS := ["pelvis", "thigh", "shin", "foot"]
+
+
+## This tick's frame of the walk or run clip (segment -> Quaternion, blended between the clip's
+## samples by where he is in his stride), or {} when there's none (not walking or running, the
+## experiment off). Its phase goes with the ground he covers, a stride per the clip's stride
+## (scaled to his legs), so his planted foot stays planted whatever his speed.
+func _mocap_now(delta: float) -> Dictionary:
+	var c := {}
+	if mocap_gait and (gait == &"walk" or gait == &"run") and move_speed >= 0.05:
+		c = _mocap_clip(gait)
+	if not c.is_empty():
+		_mocap_last = c
+		_mocap_w = move_toward(_mocap_w, 1.0, delta * 5.0)
+		_gait_phase = fmod(_gait_phase + delta * move_speed / float(c.stride) * TAU, TAU)
+	else:
+		_mocap_w = move_toward(_mocap_w, 0.0, delta * 5.0)
+		c = _mocap_last if _mocap_w > 0.0 else {}
+	if c.is_empty():
+		return {}
+	var frames: Array = c.frames
+	var at := _gait_phase / TAU * frames.size()
+	var i0 := int(at) % frames.size()
+	var i1 := (i0 + 1) % frames.size()
+	var k := at - floorf(at)
+	var out := {}
+	for sid: StringName in frames[i0]:
+		out[sid] = (frames[i0][sid] as Quaternion).slerp(frames[i1][sid], k)
+	var hh: Array = c.hip_height
+	_mocap_hips = lerpf(hh[i0], hh[i1], k) if hh.size() == frames.size() else -1.0
+	return out
+
+
+static func _mocap_clip(g: StringName) -> Dictionary:
+	if not _mocap_clips.has(g):
+		var clip := {}
+		var path := "res://experiments/mocap_walk/clips/%s.json" % g
+		if FileAccess.file_exists(path):
+			var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+			var frames := []
+			for fr: Dictionary in d.frames:
+				var q := {}
+				for key: String in fr:
+					var a: Array = fr[key]
+					q[StringName(key)] = Quaternion(a[0], a[1], a[2], a[3]).normalized()
+				frames.append(q)
+			clip = {"stride": float(d.stride_m), "frames": frames, "hip_height": d.get("hip_height", [])}
+		_mocap_clips[g] = clip
+	return _mocap_clips[g]
 
 
 ## Swinging legs and arms while he moves: a walk, a run, a limp favouring the bad leg, a crawl.
@@ -1392,8 +1462,21 @@ func _place_rig(delta: float, snap: bool) -> void:
 	if _rest_foot_y == 0.0:
 		_rest_foot_y = _foot_height()
 	var drop := _rest_foot_y - _foot_height() + _rig.position.y
+	if _mocap_w > 0.0 and _mocap_hips >= 0.0:
+		# On the clip his hips ride as the capture's did (a run leaves the ground: grounding his
+		# lower foot dragged it along through the flight). Standing straight that's a leg length
+		# above his ankles' rest: the rig where it stands.
+		var hip_rest := _pivot_rest(&"thigh_l").y
+		var ankle_rest := _pivot_rest(&"foot_l").y
+		drop = lerpf(drop, _mocap_hips * _leg_length() + ankle_rest - hip_rest, _mocap_w)
 	_rig.position.y = lerpf(_rig.position.y, drop, k)
 	_set_blocker(false)
+
+
+func _leg_length() -> float:
+	var t: Dictionary = anatomy.segments[&"thigh_l"]
+	var s: Dictionary = anatomy.segments[&"shin_l"]
+	return ((t.b as Vector3) - (t.a as Vector3)).length() + ((s.b as Vector3) - (s.a as Vector3)).length()
 
 
 func _foot_height() -> float:
@@ -1505,7 +1588,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
-		_knocked(seg, pos, dir, given, mass * speed)
+		_knocked(seg, pos, dir, given)
 	elif limp and collider is RigidBody3D:
 		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
 	elif stumbling > 0.0:
@@ -1533,7 +1616,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 ## move and still with it, he doesn't drop dead in his tracks: his stride carries him on a step or
 ## so, slowing, as he flinches and folds round it, and then his legs go (Sean, 2026-10-16: the
 ## walking stumble). A leg wound gives under him sooner; the head or neck, no stumble. `given` is
-## the ball's momentum (N*s) on the part it hit, `flinch` what the flinch takes from it.
+## the ball's momentum (N*s) on the part it hit.
 const STUMBLE_FROM := 0.8  ## m/s: slower than this he drops where he is
 ## How he folds round a ball in his front as he stumbles, reached in STUMBLE_FOLD_IN (degrees, the
 ## poses' axes; z toward the wound's side).
@@ -1542,7 +1625,7 @@ const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0,
 const STUMBLE_FOLD_IN := 0.2
 
 
-func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch := 0.0) -> void:
+func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float) -> void:
 	var s := String(seg)
 	var leg := s.begins_with("thigh") or s.begins_with("shin")
 	if move_speed > STUMBLE_FROM and gait in [&"walk", &"run"] and physiology.is_conscious() \
@@ -1556,7 +1639,10 @@ func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float, flinch 
 				"dir": dir, "given": given, "speed": move_speed, "time": t, "heading": -global_basis.z,
 				"front": dir.dot(-global_basis.z) < 0.3 and not leg,
 				"left": -signf((pos - chest.global_position).dot(chest.global_basis.x))}
-		_flinch_from(seg, pos, dir, maxf(flinch, given))
+		# No flinch back from the ball: his reaction is folding round it (STUMBLE_FOLD). The
+		# standing man's flinch threw his chest back 45 degrees in a twentieth of a second (Sean:
+		# "too quickly pushed back before falling"); even an eighth of it, 4 degrees, jumped his
+		# head back in a single tick ("still too much of a super fast backwards jerk").
 		return
 	go_limp()
 	var rb := parts.get(seg) as RigidBody3D
