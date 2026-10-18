@@ -30,6 +30,7 @@ var out_cold := 0.0
 
 var _rng := RandomNumberGenerator.new()
 var _flash := 0.0
+var _throb_t := 0.0  ## the pain throb's clock: game time, so a fixed screenshot view throbs alike every run
 var _drip_ml := 0.0
 var _overlay: ColorRect
 var _message: Label
@@ -379,6 +380,8 @@ func _physics_step(delta: float) -> void:
 	mat.set_shader_parameter(&"flash", _flash)
 	mat.set_shader_parameter(&"shock", p.shock())
 	mat.set_shader_parameter(&"pain", clampf(p.felt_pain(), 0.0, 1.0))
+	_throb_t += delta
+	mat.set_shader_parameter(&"throb_t", _throb_t)
 	mat.set_shader_parameter(&"black", clampf(out_cold / 1.5, 0.0, 1.0) if out_cold > 0.0 else clampf((p.shock() - 0.8) * 2.0, 0.0, 0.6))
 	_held = maxf(_held - delta, 0.0)
 	if _message_time > 0.0:

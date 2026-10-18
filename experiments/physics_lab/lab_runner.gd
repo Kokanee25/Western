@@ -28,6 +28,8 @@ var cam_distance := 3.2
 var follow := false
 ## --mocap: he walks and runs by the motion-capture clips (HumanBody.mocap_gait, an experiment).
 var mocap := false
+## --old-flinch: a "hit" kicks him as the flinch did before 2026-10-18 (for comparing).
+var old_flinch := false
 var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
 ## Several men side by side (the performance runs): each one is logged in the summary only.
@@ -319,6 +321,22 @@ func _physics_process(delta: float) -> void:
 
 
 func _before(pre: Dictionary, delta: float) -> void:
+	# "hit": a ball that doesn't drop him, at "at" seconds into the run: as the game has it, nothing
+	# from the ball itself (no flinch, no wince: Sean, 2026-10-18), or with --old-flinch the kick he
+	# got before (_flinch_from).
+	var hit: Dictionary = pre.get("hit", {})
+	if not hit.is_empty() and _tick == int(round(float(hit.get("at", 1.0)) * 60.0)):
+		_hit_tick = _tick
+		for man in _men:
+			var part := man.parts[StringName(hit.segment)] as Node3D
+			var p: Array = hit.get("point", [0, 0, 0])
+			var d: Array = hit.get("dir", [0, 0, 1])
+			var at := part.global_transform * Vector3(p[0], p[1], p[2])
+			var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+			# "pain": what the wound hurts (Physiology.pain), as a real one would.
+			man.physiology.pain = float(hit.get("pain", 0.0))
+			if old_flinch:
+				man._flinch_from(StringName(hit.segment), at, dw, float(hit.get("momentum", 4.5)))
 	for man in _men:
 		match String(pre.get("do", "stand")):
 			"walk", "run":
