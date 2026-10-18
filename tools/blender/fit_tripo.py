@@ -2009,6 +2009,16 @@ class Piece:
             self.tris = self.tris[~(cut | comb)]
             self.report["sleeve_side_cut"] = int(cut.sum())
             self.report["armpit_comb_dropped"] = int(comb.sum())
+        if self.made and self.shape == "vest":
+            # A made waistcoat hangs from his trunk: none of its points take his arms' weights
+            # (near his shoulders the nearest skin is the upper arm's, and the waistcoat's edge
+            # and lapel swung down with his arm).
+            W = self.W.copy()
+            W[:, arm_cols] = 0.0
+            empty = W.sum(1) < 1e-6
+            W[empty, bones.index("chest")] = 1.0
+            self.W = W / W.sum(1, keepdims=True)
+            self.report["arm_weights_dropped"] = int(empty.sum())
         for i in range(len(self.v)):
             if sleeve_of[i] is not None and profile and sleeve_of[i] in profile:
                 a, ab, mids, rows = profile[sleeve_of[i]]

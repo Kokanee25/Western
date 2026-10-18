@@ -48,7 +48,7 @@ import fit_tripo as FT  # noqa: E402
 
 TEX = 2048
 # Metres, turned into his frame by his height (fit_tripo's report, assets/people/<body>.json).
-OFFSET = {"shirt": 0.006, "vest": 0.014, "trousers": 0.009}
+OFFSET = {"shirt": 0.006, "vest": 0.018, "trousers": 0.009}
 ARM_R = 0.050          # of his height: skin nearer his arm's bone than this is his arm's (t > ARM_FROM) ...
 ARM_FROM = 0.22        # of the way down his arm: above it his shoulder and deltoid are the trunk's (the yoke)
 ARM_LOW_R = 0.10       # ... and below ARM_LOW of the way down it (his hand, his cuff) this much nearer
@@ -79,16 +79,15 @@ FILL_NEAR = 30         # texels: a texel further than this from any painted one 
 SKIN_MASK = 0.02       # of the figure's height: picture pixels this near his own hands' and head's outline are never sampled
 TIE = {"knot": (0.034, 0.026, 0.016), "width": 0.036, "length": 0.17, "spread": 0.03, "off": 0.012, "drop": 0.008}
 # What each garment is in his pictures (Lab: L from, L to, chroma at most), measured on the
-# arms-out front picture (2026-10-18): the shirt L 65-87, chroma 13-31 (warm cream); his skin
-# L 39-69 at chroma 35-55; the waistcoat L 8-38, chroma 4-38; the tie L under 40, chroma under 25.
-CLASS = {"shirt": (58.0, 101.0, 31.0), "tie": (0.0, 42.0, 24.0), "vest": (4.0, 46.0, 42.0), "trousers": (0.0, 46.0, 16.0)}
+# arms-out front picture (2026-10-18; a fourth number: chroma at least): the shirt L 65-87, chroma 13-31 (warm cream); his skin
+# L 39-69 at chroma 35-55; the waistcoat L 8-38, chroma 4-38 (the grey trousers under 8); the tie L under 40, chroma under 25.
+CLASS = {"shirt": (58.0, 101.0, 31.0), "tie": (0.0, 42.0, 24.0), "vest": (4.0, 46.0, 42.0, 12.0), "trousers": (0.0, 46.0, 16.0)}
 # The waistcoat: its hem VEST["hem_above_hip"] over his hip joints at the sides and back, its two
 # front points VEST["point"] lower; its V from VEST["v_bottom"] of the way up it (the top
 # button) to VEST["v_half"] either side of the front at the top; its lapels VEST["lapel"] wide,
 # lying VEST["lapel_off"] off its front; the armholes cut where the shirt's sleeve heads pass
 # (ARMHOLE_T of the way down the arm, ARMHOLE_GAP outside the sleeve).
-VEST = {"hem_above_hip": 0.045, "point": 0.05, "point_deg": 16.0, "v_bottom": 0.5, "v_half": 0.06, "lapel": 0.045, "lapel_off": 0.008,
-        "arm_from": 0.04}
+VEST = {"hem_above_hip": 0.045, "point": 0.05, "point_deg": 16.0, "v_bottom": 0.5, "v_half": 0.06, "lapel": 0.045, "lapel_off": 0.008}
 ARMHOLE_T = 0.28
 ARMHOLE_GAP = 0.012
 # Each part's island in the texture (left, top, width, height), as shares of it.
@@ -374,13 +373,10 @@ class Man:
         hip_y = j["Hip"][1]
         hem_y = hip_y + VEST["hem_above_hip"] * m
         top_y = self.neck_base_y - 0.006 * m
-        # Its body: a tube up his trunk from under the hem (the points) to his neck's base, his
-        # arms' points left out from just below the shoulder (the armhole starts at the
-        # shoulder's point, not over the deltoid as the shirt's yoke does).
-        arm = np.zeros(len(self.pts), bool)
-        for lr in "RL":
-            t, d = self.arm_t[lr]
-            arm |= ((d < ARM_R) & (t > VEST["arm_from"])) | ((d < ARM_LOW_R) & (t > ARM_LOW))
+        # Its body: a tube up his trunk from under the hem (the points) to his neck's base, lofted
+        # from the same skin as the shirt's (the deltoids in its yoke: lofted without them it sat
+        # inside the shirt at the shoulders) and the armholes cut from it.
+        arm = self.arm
         xc = float(np.median(self.pts[~arm & (np.abs(self.pts[:, 1] - 0.6) < 0.05), 0]))
         zc = float(np.median(self.pts[~arm & (np.abs(self.pts[:, 1] - 0.6) < 0.05), 2]))
         a = np.array([xc, hem_y - VEST["point"] * m - 0.01 * m, zc])
@@ -575,14 +571,14 @@ def paint(man, meshes, views, uns):
         p, nrm = M[..., :3][idx], M[..., 3:][idx]
         nrm /= np.maximum(np.linalg.norm(nrm, axis=-1, keepdims=True), 1e-9)
         # Each texel's class (what colour it may take) from the part whose island it lies in.
-        cls = np.zeros((len(p), 3))
-        cls[:] = CLASS[gname]
+        cls = np.zeros((len(p), 4))
+        cls[:] = (list(CLASS[gname]) + [0.0])[:4]        # L from, L to, chroma at most, chroma at least
         lay = LAYOUT[gname]
         u, vv = idx[1] / TEX, idx[0] / TEX
         for pname, (left, top, w_, h_) in lay.items():
             if pname.startswith(("tie", "knot")):
                 inside = (u >= left) & (u <= left + w_) & (vv >= top) & (vv <= top + h_)
-                cls[inside] = CLASS["tie"]
+                cls[inside] = (list(CLASS["tie"]) + [0.0])[:4]
         S = np.full((len(names), len(p)), -np.inf)
         C = np.zeros((len(names), len(p), 3))
         for k, view in enumerate(names):
@@ -598,7 +594,7 @@ def paint(man, meshes, views, uns):
             # skin on the shirt, the shirt on the tie).
             lab = BP._lab(C[k])
             chroma = np.hypot(lab[:, 1], lab[:, 2])
-            wrong = grey | (lab[:, 0] < cls[:, 0]) | (lab[:, 0] > cls[:, 1]) | (chroma > cls[:, 2])
+            wrong = grey | (lab[:, 0] < cls[:, 0]) | (lab[:, 0] > cls[:, 1]) | (chroma > cls[:, 2]) | (chroma < cls[:, 3])
             S[k] = np.where(seen & (f > BP.MIN_FACING) & ~wrong, f, -np.inf)
         best = S.max(0)
         ok = np.isfinite(best)
