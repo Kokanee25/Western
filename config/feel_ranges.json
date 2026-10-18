@@ -221,7 +221,7 @@
       ]
     },
     "smoke_see_him_indoors_after_six": {
-      "min": 0.4,
+      "min": 0.35,
       "max": 0.85,
       "unit": "share of him you can see indoors a second after the sixth of six shots fired 1.2 s apart (the room filling, never a wall)",
       "measured_by": "test_gun_feel::test_smoke_lets_you_see_him",

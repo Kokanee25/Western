@@ -15,7 +15,7 @@ extends Resource
 @export var max_clouds := 8
 @export var max_fog_volumes := 4
 ## The haze a cloud leaves hanging in a room (indoors only: out of doors the breeze takes it).
-@export var fog_density := 0.25
+@export var fog_density := 0.15
 ## Swirl inside the cloud (m/s of wander).
 @export var turbulence := 0.35
 

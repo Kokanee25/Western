@@ -226,9 +226,9 @@ func _process_step(delta: float) -> void:
 	if _fog:
 		var s := lerpf(0.8, 3.5, sqrt(t))
 		_fog.size = Vector3(s, s * 0.7, s)
-		# The haze is what the puffs have shed, spread through the volume it fills.
-		var shed := 1.0 - exp(-_age / maxf(_thin, 0.01))
-		_fog_mat.density = _fog_mass * shed * pow(1.0 - t, 2.0) / maxf(s * s * 0.7, 0.5)
+		# The haze is what the puffs have shed into the room: it gathers as they thin, then fades.
+		var shed := 1.0 - exp(-_age / maxf(_thin * 0.5, 0.01))
+		_fog_mat.density = _fog_mass * shed * pow(1.0 - t, 2.0)
 	_draw()
 	if _age > _life:
 		queue_free()
