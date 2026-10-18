@@ -1,0 +1,7 @@
+a docs/concept/judge/04_content_floor_close.jpg
+b docs/concept/judge/12_style_saloon_overhead.jpg
+c build/judge_cal_src/noise_squares.png
+d docs/concept/judge/made_townsman_day.jpg
+e docs/concept/saloon-blocks.png
+f docs/concept/judge/01_content_fire_dusk.jpg
+g docs/concept/judge/made_porch_close.jpg
