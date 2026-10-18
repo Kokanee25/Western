@@ -1,0 +1,9 @@
+a docs/screenshots/golden/street_golden_hour.png
+b docs/screenshots/golden/street_morning.png
+c docs/screenshots/golden/street_night.png
+d docs/screenshots/golden/store_front_noon.png
+e docs/screenshots/golden/road_low_golden.png
+f docs/screenshots/golden/road_low_noon.png
+g docs/screenshots/golden/porch_dusk.png
+h docs/screenshots/golden/saloon_front_dusk.png
+i docs/screenshots/golden/man_store_golden.png
