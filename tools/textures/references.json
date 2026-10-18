@@ -1,5 +1,5 @@
 {
- "about": "The judge's and the blind critic's reference paintings in the painted-illustration look (Sean, 2026-10-16; DESIGN.md §4), painted by tools/textures/paint_reference.py: each the old painting's shot (`base`, its composition kept) repainted beside the targets that set its look (`refs`, in the order the prompt names them).",
+ "about": "The judge's and the blind critic's reference paintings in the painted-illustration look (Sean, 2026-10-16; DESIGN.md §4), painted by tools/textures/paint_reference.py: each the old painting's shot (`base`, its composition kept) repainted beside the targets that set its look (`refs`, in the order the prompt names them). `judge_*` (2026-10-18): Sean's photoreal content pictures and a noon street repainted in his authority picture's hand (docs/concept/judge/), with `finish` in place of the smooth-illustration ending, their own `aspect` and `out`.",
  "references": {
   "street": {
    "base": "docs/concept/street-golden-hour.png",
@@ -22,6 +22,61 @@
     "docs/concept/targets/1_man_at_table_target.jpg"
    ],
    "look": "dusk after sunset, as in the first image: a deep purple, crimson and orange sky, no daylight, the town lit mostly by the fire. Painted like the second image, the portrait: soft modelled light, smooth painted surfaces, no squares. The fire's flames bright and alive, glowing smoke rising and lit orange from below, the boards, the faces and the wet ground lit orange by the fire, deep blue-violet shadows away from it."
+  },
+  "judge_fire_dusk": {
+   "base": "docs/concept/judge/01_content_fire_dusk.jpg",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/09_style_street_b.jpg"
+   ],
+   "look": "dusk, the two-storey wooden building ablaze as in the first image: flames bright and alive, the roof's frame burning through, glowing smoke and embers rising, the street, the puddles and the boards lit orange by the fire, cool blue-violet dusk sky and shadows away from it.",
+   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_fire_day": {
+   "base": "docs/concept/judge/02_content_fire_day.jpg",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/09_style_street_b.jpg"
+   ],
+   "look": "afternoon, the wooden building burning as in the first image: flames through the windows and the roof's frame, dark smoke rolling up into a blue sky, fallen boards and barrels on the dirt, warm sunlight.",
+   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_dynamite": {
+   "base": "docs/concept/judge/03_content_dynamite.jpg",
+   "refs": [
+    "docs/concept/judge/09_style_street_b.jpg",
+    "docs/concept/judge/10_authority_saloon_man.jpg"
+   ],
+   "look": "a stick of dynamite going off in a dirt street on a sunny day as in the first image: a tall plume of dust and earth, clods and stones flying, the wooden fronts and telegraph poles either side.",
+   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_floor_close": {
+   "base": "docs/concept/judge/04_content_floor_close.jpg",
+   "refs": [
+    "docs/concept/judge/05_style_table_lantern.jpg",
+    "docs/concept/judge/10_authority_saloon_man.jpg"
+   ],
+   "look": "inside the saloon at golden hour, low over the worn floorboards as in the first image: the chair and the round table, warm sunlight raking across the boards from the door, lamps glowing at the bar behind.",
+   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "16:9",
+   "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "judge_noon_street": {
+   "base": "docs/concept/judge/09_style_street_b.jpg",
+   "refs": [
+    "docs/concept/judge/10_authority_saloon_man.jpg",
+    "docs/concept/judge/08_style_street_a.jpg"
+   ],
+   "look": "noon instead of sunset: the sun high, a clear deep blue sky with a few white clouds, short dark shadows under the porches and the people, the dirt street pale and bright, the red rock in clear daylight; the lamps unlit. Everything else as in the first image.",
+   "finish": "Painted exactly in the hand of the second image: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the second image; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
+   "aspect": "4:3",
+   "out": "docs/concept/judge/made_%s.jpg"
   }
  }
 }
