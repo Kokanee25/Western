@@ -42,6 +42,7 @@ RING_BELOW_CHIN = 0.012    # metres: the body cut level this far under the head'
 HEAD_TUCK = 0.02           # metres of the head's neck kept under the cut, inside his collar
 COLLAR_CLEAR = 0.003       # the body's edge this far outside the head's neck
 COLLAR_EASE = 0.035        # metres down him over which the draw onto the neck fades
+HAT_SOFTEN = 3.0           # texels of the hat's paint (at 256) its patches are blurred across (soften)
 INSIDE_UP = 0.01           # metres over his chin: the head's throat and under-jaw also drawn from inside (join)
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below (rodin_portrait_build)
 
@@ -106,6 +107,17 @@ def keep_hat(bpy, head, glb):
     print("whole_man: kept his own hat from", glb)
 
 
+def soften(src, dst):
+    """His hat's paint without its squares: the hat's designed paint (style_hat.py) is laid in
+    1.5 cm patches, 256 texels a side drawn nearest, a checker beside his painted face (the art
+    judge, 2026-10-19). Four times the texels and blurred across half a patch (HAT_SOFTEN), its
+    colours kept."""
+    from PIL import Image, ImageFilter
+    im = Image.open(src).convert("RGB")
+    big = im.resize((im.width * 4, im.height * 4), Image.BICUBIC)
+    big.filter(ImageFilter.GaussianBlur(HAT_SOFTEN * 4)).save(dst)
+
+
 def add_hat(bpy, out, head):
     """His own hat's pieces into <out>.glb, on his head bone."""
     hat = dict(np.load(os.path.join(HEADS, head + "_hat.npz")))
@@ -148,7 +160,9 @@ def add_hat(bpy, out, head):
         m = obj.modifiers.new("skeleton", "ARMATURE")
         m.object = arm
         tris[p] = len(me.polygons)
-        shutil.copy(os.path.join(HEADS, "%s_%s.png" % (head, p)), os.path.join(PEOPLE, "%s_%s.png" % (out, p)))
+        src, dst = os.path.join(HEADS, "%s_%s.png" % (head, p)), os.path.join(PEOPLE, "%s_%s.png" % (out, p))
+        # The band keeps its own (its studs are its paint: softened they went).
+        soften(src, dst) if p != "hat_band" else shutil.copy(src, dst)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_skins=True, export_animations=False,
                               export_apply=False, export_yup=True, export_normals=True, export_texcoords=True,
                               export_materials="NONE")
