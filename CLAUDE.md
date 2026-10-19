@@ -321,6 +321,11 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
+- **The two tests** (2026-10-19, `claude/characters-two-tests`, PR not merged, $0): the fit's
+  stretch fixed for hatless whole men (`"bare": true`); Test 1 `bold_cowboy_whole` (the arms-out
+  Rodin man kept whole, the approved head, his own hat) passes the works check
+  (`works_check.gd`); Test 2 blocked (asset sites outside the network policy). Report and sheets
+  `docs/style_test/two-tests-2026-10-19/`. Waiting on Sean: which route becomes the recipe.
 - Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
   twin: a shirt with a real collar and separate sleeves, waistcoat and trousers as their own
   meshes, fitted to his body and painted from his pictures, reusable for every man (the cut

@@ -82,7 +82,24 @@ runs are lavapipe's (over a second a frame): only the draw calls count there.
 
 ## The art judge (docs/concept/judge/RUBRIC.md; blind sub-agents)
 
-JUDGE_PLACEHOLDER
+Six renders a man (card table close and wide, across the saloon at night, across the street at
+golden hour, plain front, plain head), five traits each; verdicts in `judge/*/verdict.md`.
+
+| | card table close | card table wide | saloon night | street golden | plain front | plain head |
+|---|---|---|---|---|---|---|
+| Oct 14 man | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL |
+| Test 1, round 1 | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL |
+| Test 1, round 2 (neck closed, hat softened) | FAIL | FAIL | FAIL | FAIL | **PASS** | FAIL |
+
+- **Oct 14 man:** the coat, vest and trousers in random squares coarser than the face ("two
+  hands"); orange shards at his neck, no white collar; too dark, close to a silhouette in the street.
+- **Test 1, round 2:** close up "reads as the authority's kind of painted man and as his style
+  portrait", "the best face of the set"; a lit person across the saloon, not a silhouette. Its
+  three biggest problems: **the shirt's paint** (sleeves and shoulders a camouflage mottle, not
+  fold planes; too bright under the lamps); **the pose and hands** (the game's stand pose reads as
+  an A-pose, claw fingers, a fused mitt on the mug); **outdoor light** (backlit at golden hour, his
+  face 42 of 255). Behind those: skin too red-orange, the red boots and vest, ragged hair behind
+  the ear under the brim. Round 1's neck gap (jaw to collar) is gone from the list.
 
 ## What I chose, and why
 
