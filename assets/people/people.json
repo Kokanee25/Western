@@ -44,6 +44,16 @@
    "outfit": {},
    "face": "a nervous young outlaw of about nineteen: thin, freckled and clean-shaven, worried brown eyes under a frown, short tousled brown hair"
   },
+  "bold_cowboy_whole_body": {
+   "note": "Test 1 (2026-10-19, docs/style_test/two-tests-2026-10-19): the arms-out dressed bold cowboy (Rodin run 89 from Sean's arms-out coatless pictures) kept whole, his clothes part of his skin, nothing cut out; fitted bare-headed at his true height (`bare`: fit_tripo's bare_shares and HIP_OVER_CROTCH) to our 17 bones, painted from his arms-out pictures (body_paint.py --dressed). The approved portrait head and his own hat go on after (tools/characters/whole_man.py).",
+   "source": "rodin",
+   "rodin": "test/bold_cowboy_armsout_dressed_rodin",
+   "bare": true,
+   "tris": {"skin": 30000, "head": 10000},
+   "outfit": {},
+   "paint": "bold_cowboy_armsout_dressed",
+   "face": "a weathered frontier man of about forty: heavy brows, thick dark wavy hair to his collar, mutton-chop sideburns, a thick drooping moustache"
+  },
   "bold_cowboy_body": {
    "note": "The average base body (docs/briefs/layered-people.md): Rodin Gen-2.5 from Sean's four boxer-shorts pictures of the bold cowboy (2026-10-15), whole and in an A-pose, fitted by tools/blender/fit_tripo.py with his joints found from his shape. Bare: his clothes come as separate pieces.",
    "source": "rodin",

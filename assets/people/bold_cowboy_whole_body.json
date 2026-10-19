@@ -1,0 +1,51 @@
+{
+ "id": "bold_cowboy_whole_body",
+ "source": "rodin",
+ "whole": true,
+ "model": "test/bold_cowboy_armsout_dressed_rodin",
+ "triangles_in": 34182,
+ "pieces": {},
+ "limb_sides": {
+  "right_arm": 1736,
+  "left_arm": 1704,
+  "right_leg": 1934,
+  "left_leg": 1712,
+  "trunk": 3592
+ },
+ "bare_whole": {
+  "crotch_share": 0.435,
+  "hip_share": 0.4598,
+  "shoulder_share": 0.7879,
+  "neck_share": 0.8099,
+  "jaw_share": 0.8595
+ },
+ "scale": 1.815,
+ "head_scale": 1.815,
+ "height_m": 1.815,
+ "bridges_cut": 0,
+ "cuts_closed": 0,
+ "faces_before_finger_cut": 34182,
+ "faces_after_finger_cut": 31932,
+ "skin_tone": [
+  0.741,
+  0.455,
+  0.333
+ ],
+ "seams_smoothed": {
+  "vertices": 3039,
+  "reach_m": 0.07,
+  "rounds": 12
+ },
+ "texture": {
+  "from": "bold_cowboy_armsout_dressed_color.png",
+  "size": [
+   2048,
+   2048
+  ],
+  "square_texels": 2
+ },
+ "triangles": {
+  "skin": 24369,
+  "head": 7563
+ }
+}
