@@ -144,6 +144,9 @@ var probe_params := {}
 ## --man-pose=head:6,-13.25,0;neck:0,-0.5,0: the seated man's pose offsets changed for this run only
 ## (the characters session's diagnostic, from its branch: ShotMatch's own fit is left as it is).
 var man_pose := {}
+## --man-dist=M: the match views' man (man_store, man_saloon) this far in front of the camera, not
+## 3 m (characters, the two tests' sheet: him across the street and the saloon).
+var man_dist := 3.0
 
 
 func _initialize() -> void:
@@ -172,6 +175,8 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
+		elif arg.begins_with("--man-dist="):
+			man_dist = float(arg.substr(11))
 		elif arg.begins_with("--model="):
 			# The seated man's body (outlaw, stranger). Loaded at run time: naming ShotMatch here
 			# makes the game's scripts compile with this one, before the autoloads exist.
@@ -771,7 +776,7 @@ func _man_setup(main, player) -> void:
 	street.add_child(man)
 	var fwd: Vector3 = -player.camera.global_basis.z
 	fwd = Vector3(fwd.x, 0.0, fwd.z).normalized()
-	man.global_position = player.global_position + fwd * 3.0
+	man.global_position = player.global_position + fwd * man_dist
 	man.face(player.global_position)
 	man.set_pose(&"stand")
 	var gun = player.get_node(^"Head/Camera3D/Gun")
