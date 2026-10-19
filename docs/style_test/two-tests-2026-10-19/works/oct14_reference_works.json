@@ -1,0 +1,544 @@
+{
+ "aim": {
+  "pass": false,
+  "sheet_at_rest": {
+   "shirt/chest": [
+    0.18,
+    1.39,
+    0.06
+   ],
+   "shirt/upper_arm_r": [
+    0.17,
+    1.44,
+    -0.07
+   ],
+   "skin/chest": [
+    0.17,
+    1.38,
+    -0.08
+   ],
+   "skin/upper_arm_r": [
+    0.17,
+    1.4,
+    0.06
+   ],
+   "vest/chest": [
+    0.16,
+    1.42,
+    -0.09
+   ],
+   "vest/upper_arm_r": [
+    0.18,
+    1.43,
+    0.08
+   ]
+  },
+  "sheet_cm2": 450.7,
+  "sheets": 69,
+  "sheets_in": {
+   "shirt/chest": 13,
+   "shirt/upper_arm_r": 10,
+   "skin/chest": 14,
+   "skin/upper_arm_r": 17,
+   "vest/chest": 12,
+   "vest/upper_arm_r": 3
+  },
+  "worst_stretch": 6.98
+ },
+ "crouch": {
+  "pass": false,
+  "sheet_at_rest": {
+   "shirt/abdomen": [
+    0.16,
+    1.01,
+    -0.03
+   ],
+   "shirt/chest": [
+    0.18,
+    1.39,
+    0.06
+   ],
+   "shirt/pelvis": [
+    0.14,
+    0.97,
+    0.05
+   ],
+   "shirt/upper_arm_l": [
+    -0.16,
+    1.35,
+    -0.02
+   ],
+   "shirt/upper_arm_r": [
+    0.18,
+    1.4,
+    0.07
+   ],
+   "skin/abdomen": [
+    -0.15,
+    1.01,
+    -0.01
+   ],
+   "skin/chest": [
+    -0.17,
+    1.38,
+    -0.08
+   ],
+   "skin/pelvis": [
+    0.05,
+    0.79,
+    -0.08
+   ],
+   "skin/thigh_l": [
+    -0.11,
+    0.8,
+    -0.1
+   ],
+   "skin/thigh_r": [
+    0.11,
+    0.86,
+    0.07
+   ],
+   "skin/upper_arm_l": [
+    -0.17,
+    1.38,
+    -0.07
+   ],
+   "skin/upper_arm_r": [
+    0.17,
+    1.38,
+    0.05
+   ],
+   "trousers/abdomen": [
+    0.16,
+    1.01,
+    -0.01
+   ],
+   "trousers/pelvis": [
+    0.11,
+    0.85,
+    0.08
+   ],
+   "trousers/thigh_l": [
+    -0.1,
+    0.84,
+    0.08
+   ],
+   "trousers/thigh_r": [
+    0.1,
+    0.84,
+    0.08
+   ],
+   "vest/abdomen": [
+    -0.16,
+    1.01,
+    0.0
+   ],
+   "vest/chest": [
+    0.18,
+    1.37,
+    -0.07
+   ],
+   "vest/pelvis": [
+    0.17,
+    0.99,
+    -0.01
+   ]
+  },
+  "sheet_cm2": 2890.3,
+  "sheets": 198,
+  "sheets_in": {
+   "shirt/abdomen": 2,
+   "shirt/chest": 3,
+   "shirt/pelvis": 19,
+   "shirt/upper_arm_l": 2,
+   "shirt/upper_arm_r": 1,
+   "skin/abdomen": 4,
+   "skin/chest": 8,
+   "skin/pelvis": 43,
+   "skin/thigh_l": 14,
+   "skin/thigh_r": 15,
+   "skin/upper_arm_l": 2,
+   "skin/upper_arm_r": 3,
+   "trousers/abdomen": 4,
+   "trousers/pelvis": 43,
+   "trousers/thigh_l": 12,
+   "trousers/thigh_r": 12,
+   "vest/abdomen": 1,
+   "vest/chest": 3,
+   "vest/pelvis": 7
+  },
+  "worst_stretch": 5.62
+ },
+ "fails": [
+  "hands_up",
+  "aim",
+  "sit",
+  "crouch",
+  "ragdoll"
+ ],
+ "hands_up": {
+  "pass": false,
+  "sheet_at_rest": {
+   "shirt/chest": [
+    0.18,
+    1.39,
+    0.06
+   ],
+   "shirt/upper_arm_l": [
+    -0.17,
+    1.43,
+    -0.07
+   ],
+   "shirt/upper_arm_r": [
+    0.17,
+    1.44,
+    -0.07
+   ],
+   "skin/chest": [
+    -0.17,
+    1.37,
+    -0.07
+   ],
+   "skin/upper_arm_l": [
+    -0.17,
+    1.38,
+    -0.07
+   ],
+   "skin/upper_arm_r": [
+    0.17,
+    1.4,
+    0.06
+   ],
+   "vest/chest": [
+    0.17,
+    1.41,
+    -0.09
+   ],
+   "vest/upper_arm_l": [
+    -0.17,
+    1.43,
+    -0.08
+   ],
+   "vest/upper_arm_r": [
+    0.17,
+    1.43,
+    -0.08
+   ]
+  },
+  "sheet_cm2": 1393.8,
+  "sheets": 134,
+  "sheets_in": {
+   "shirt/chest": 23,
+   "shirt/upper_arm_l": 10,
+   "shirt/upper_arm_r": 9,
+   "skin/chest": 28,
+   "skin/upper_arm_l": 16,
+   "skin/upper_arm_r": 17,
+   "vest/chest": 21,
+   "vest/upper_arm_l": 5,
+   "vest/upper_arm_r": 5
+  },
+  "worst_stretch": 8.95
+ },
+ "hat": {
+  "ball_energy_kept_j": 594.0,
+  "had_his_own_hat": true,
+  "hat_meshes_still_on_him": 0,
+  "hat_off": true,
+  "hats_fallen": 1,
+  "pass": true
+ },
+ "ragdoll": {
+  "pass": false,
+  "sheet_at_rest": {
+   "shirt/chest": [
+    -0.17,
+    1.43,
+    0.07
+   ],
+   "shirt/head": [
+    0.05,
+    1.51,
+    -0.01
+   ],
+   "shirt/neck": [
+    0.06,
+    1.51,
+    0.03
+   ],
+   "shirt/upper_arm_l": [
+    -0.18,
+    1.44,
+    0.07
+   ],
+   "shirt/upper_arm_r": [
+    0.17,
+    1.38,
+    -0.07
+   ],
+   "skin/chest": [
+    0.17,
+    1.4,
+    0.06
+   ],
+   "skin/head": [
+    0.05,
+    1.55,
+    0.01
+   ],
+   "skin/neck": [
+    0.06,
+    1.55,
+    0.04
+   ],
+   "skin/upper_arm_l": [
+    -0.17,
+    1.4,
+    0.06
+   ],
+   "skin/upper_arm_r": [
+    0.17,
+    1.4,
+    0.06
+   ],
+   "vest/chest": [
+    0.19,
+    1.39,
+    0.07
+   ],
+   "vest/upper_arm_l": [
+    -0.17,
+    1.43,
+    -0.08
+   ],
+   "vest/upper_arm_r": [
+    0.18,
+    1.43,
+    0.08
+   ]
+  },
+  "sheet_cm2": 472.8,
+  "sheets": 117,
+  "sheets_in": {
+   "shirt/chest": 14,
+   "shirt/head": 4,
+   "shirt/neck": 14,
+   "shirt/upper_arm_l": 4,
+   "shirt/upper_arm_r": 3,
+   "skin/chest": 19,
+   "skin/head": 8,
+   "skin/neck": 15,
+   "skin/upper_arm_l": 13,
+   "skin/upper_arm_r": 10,
+   "vest/chest": 11,
+   "vest/upper_arm_l": 1,
+   "vest/upper_arm_r": 1
+  },
+  "worst_stretch": 6.64
+ },
+ "rest": {
+  "meshes": [
+   "skin/head",
+   "skin/neck",
+   "skin/chest",
+   "skin/upper_arm_r",
+   "skin/forearm_r",
+   "skin/hand_r",
+   "skin/abdomen",
+   "skin/pelvis",
+   "skin/thigh_l",
+   "skin/shin_l",
+   "skin/upper_arm_l",
+   "skin/thigh_r",
+   "skin/shin_r",
+   "skin/foot_r",
+   "skin/forearm_l",
+   "skin/hand_l",
+   "skin/foot_l",
+   "head/head",
+   "head/neck",
+   "shirt/head",
+   "shirt/neck",
+   "shirt/upper_arm_r",
+   "shirt/chest",
+   "shirt/upper_arm_l",
+   "shirt/abdomen",
+   "shirt/pelvis",
+   "shirt/forearm_r",
+   "shirt/thigh_r",
+   "shirt/forearm_l",
+   "shirt/thigh_l",
+   "vest/neck",
+   "vest/chest",
+   "vest/upper_arm_r",
+   "vest/abdomen",
+   "vest/upper_arm_l",
+   "vest/pelvis",
+   "vest/thigh_l",
+   "trousers/pelvis",
+   "trousers/abdomen",
+   "trousers/thigh_r",
+   "trousers/shin_r",
+   "trousers/thigh_l",
+   "trousers/shin_l",
+   "boots/shin_r",
+   "boots/foot_r",
+   "boots/shin_l",
+   "boots/foot_l",
+   "gun_belt/pelvis",
+   "belt/pelvis",
+   "hat/head",
+   "hat_brim/head",
+   "hat_band/head",
+   "holster/pelvis",
+   "cravat/head",
+   "cravat/neck",
+   "cravat/chest"
+  ],
+  "triangles": 21377
+ },
+ "run": {
+  "pass": true,
+  "sheet_at_rest": {},
+  "sheet_cm2": 0.0,
+  "sheets": 0,
+  "sheets_in": {},
+  "worst_stretch": 1.3
+ },
+ "sit": {
+  "pass": false,
+  "sheet_at_rest": {
+   "shirt/chest": [
+    0.17,
+    1.39,
+    -0.08
+   ],
+   "shirt/pelvis": [
+    0.16,
+    1.0,
+    -0.01
+   ],
+   "shirt/upper_arm_l": [
+    -0.17,
+    1.4,
+    -0.07
+   ],
+   "shirt/upper_arm_r": [
+    0.17,
+    1.4,
+    -0.08
+   ],
+   "skin/abdomen": [
+    -0.15,
+    1.01,
+    -0.01
+   ],
+   "skin/chest": [
+    -0.17,
+    1.38,
+    -0.08
+   ],
+   "skin/pelvis": [
+    0.05,
+    0.79,
+    -0.08
+   ],
+   "skin/thigh_l": [
+    -0.11,
+    0.8,
+    -0.1
+   ],
+   "skin/thigh_r": [
+    0.11,
+    0.86,
+    0.07
+   ],
+   "skin/upper_arm_l": [
+    -0.17,
+    1.4,
+    -0.07
+   ],
+   "skin/upper_arm_r": [
+    0.17,
+    1.4,
+    0.06
+   ],
+   "trousers/abdomen": [
+    0.16,
+    1.01,
+    -0.01
+   ],
+   "trousers/pelvis": [
+    0.11,
+    0.85,
+    0.08
+   ],
+   "trousers/thigh_l": [
+    -0.1,
+    0.84,
+    0.08
+   ],
+   "trousers/thigh_r": [
+    0.1,
+    0.84,
+    0.08
+   ],
+   "vest/chest": [
+    0.17,
+    1.41,
+    -0.09
+   ],
+   "vest/pelvis": [
+    0.17,
+    0.99,
+    -0.01
+   ]
+  },
+  "sheet_cm2": 2746.9,
+  "sheets": 223,
+  "sheets_in": {
+   "shirt/chest": 11,
+   "shirt/pelvis": 14,
+   "shirt/upper_arm_l": 4,
+   "shirt/upper_arm_r": 7,
+   "skin/abdomen": 3,
+   "skin/chest": 18,
+   "skin/pelvis": 38,
+   "skin/thigh_l": 14,
+   "skin/thigh_r": 15,
+   "skin/upper_arm_l": 7,
+   "skin/upper_arm_r": 13,
+   "trousers/abdomen": 2,
+   "trousers/pelvis": 38,
+   "trousers/thigh_l": 12,
+   "trousers/thigh_r": 12,
+   "vest/chest": 12,
+   "vest/pelvis": 3
+  },
+  "worst_stretch": 5.31
+ },
+ "stand": {
+  "pass": true,
+  "sheet_at_rest": {},
+  "sheet_cm2": 0.0,
+  "sheets": 0,
+  "sheets_in": {},
+  "worst_stretch": 1.12
+ },
+ "walk": {
+  "pass": true,
+  "sheet_at_rest": {},
+  "sheet_cm2": 0.0,
+  "sheets": 0,
+  "sheets_in": {},
+  "worst_stretch": 1.77
+ },
+ "wounds": {
+  "openings": 2,
+  "pass": true,
+  "wounds": [
+   "upper arm (right): through and through — biceps torn, deltoid torn, humerus broken, triceps torn, radial artery cut",
+   "chest: through and through — sternum broken, heart torn, aorta artery cut, thoracic broken, cord artery cut"
+  ]
+ }
+}

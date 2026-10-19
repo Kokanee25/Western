@@ -863,6 +863,15 @@ flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_l
 (a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
 in the game: who a man looks at is gameplay's.
 
+A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
+fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his
+crotch, arms and legs by his shape `limb_sides`, weights smoothed across the limb seams
+`smooth_seams`); `whole_man.py` puts the approved game head (`heads/<head>_mesh.npz`) on him at his
+collar and his own hat as three pieces (`heads/<head>_hat.npz`). `works_check.gd`: the pose check,
+a ragdoll fall, the hat shot off, a wound, and every triangle's stretch (`--ref=` another man's
+`works.json`, judged by sheet area). `men_bench.gd`: perf_bench's calm street with N copies of
+one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and layout.
+
 ## Training the image model on our style (tools/style)
 
 - **Training the image model on our style** (`tools/style/train_style.py`, People workflow input
