@@ -42,6 +42,7 @@ RING_BELOW_CHIN = 0.012    # metres: the body cut level this far under the head'
 HEAD_TUCK = 0.02           # metres of the head's neck kept under the cut, inside his collar
 COLLAR_CLEAR = 0.003       # the body's edge this far outside the head's neck
 COLLAR_EASE = 0.035        # metres down him over which the draw onto the neck fades
+INSIDE_UP = 0.01           # metres over his chin: the head's throat and under-jaw also drawn from inside (join)
 NECK_BLEND = (0.02, 0.06)  # under his chin: all head above the first, all neck below (rodin_portrait_build)
 
 
@@ -248,8 +249,39 @@ def join(bpy, body, head, out):
     for i, v in enumerate(skin.data.vertices):
         v.co = new[i]
     skin.data.update()
+    # A lid over his collar's opening, a fan to its middle a little under the cut: his jaw stands
+    # over the head's throat, and looking down past his chin you saw into the body, its inside
+    # culled, and the room through his back. The head's neck hides the lid but in that gap.
+    bm = bmesh.new()
+    bm.from_mesh(skin.data)
+    bm.verts.ensure_lookup_table()
+    uvl = bm.loops.layers.uv.active
+    dl = bm.verts.layers.deform.active
+    on_edge = set(int(i) for i in edge)
+    nape = max(on_edge, key=lambda i: bm.verts[i].co.y)        # Blender's +Y is his back
+    nape_uv = next(iter(bm.verts[nape].link_loops))[uvl].uv.copy()
+    mid = bm.verts.new((centre[0], centre[1], ring - 0.004))
+    bm.verts.ensure_lookup_table()
+    gi = skin.vertex_groups["neck"].index
+    if dl is not None:
+        mid[dl][gi] = 1.0
+    lid = 0
+    for e in [e for e in bm.edges if e.is_boundary and e.verts[0].index in on_edge and e.verts[1].index in on_edge]:
+        a, b = e.verts
+        loop = e.link_loops[0]
+        # The fan's winding follows the boundary's, turned: its face looks up, out of the opening.
+        f = bm.faces.new((b, a, mid)) if loop.vert == a else bm.faces.new((a, b, mid))
+        for lp in f.loops:
+            lp[uvl].uv = nape_uv      # one colour, his nape's (drawn across the texture it streaked)
+        f.smooth = True
+        lid += 1
+    bm.normal_update()
+    bm.to_mesh(skin.data)
+    bm.free()
+    skin.data.update()
+    print("whole_man: a lid of %d triangles over his collar's opening" % lid)
     print("whole_man: his collar cut at %.3f m (%.0f mm under the head's chin), %d edge vertices drawn onto its "
-          "neck (%.1f mm median, %.1f max); %d vertices of scraps dropped" % (
+          "neck (%.1f mm median, %.1f max), %d vertices of scraps dropped" % (
               ring, RING_BELOW_CHIN * 1000, len(edge), np.median(np.abs(tgt - r_e)) * 1000,
               np.abs(tgt - r_e).max() * 1000, dropped))
     # The head: whole above the cut and HEAD_TUCK under it, welded by position, its UVs per corner.
@@ -260,11 +292,27 @@ def join(bpy, body, head, out):
     F = wi[tk]
     good = (F[:, 0] != F[:, 1]) & (F[:, 1] != F[:, 2]) & (F[:, 0] != F[:, 2])
     F, tk = F[good], tk[good]
+    # The approved head has no throat under his jaw (on Oct 14 the factory's collar hid that):
+    # looking down past his chin you saw into his neck, its inside culled, and the room through
+    # it. Its throat and under-jaw are drawn from inside too (the same triangles turned round),
+    # so that look finds his neck's inside, in shadow.
+    # Their own vertices, a millimetre in towards his neck's axis (the same corners turned round
+    # are one face to Blender, and it drops them).
+    Vw = Vb[first]
+    low = (Vw[F][:, :, 2] < chin + INSIDE_UP).all(1)
+    inner_v = np.unique(F[low])
+    copy_of = -np.ones(len(Vw), int)
+    copy_of[inner_v] = len(Vw) + np.arange(len(inner_v))
+    radial = np.c_[Vw[inner_v, 0] - centre[0], Vw[inner_v, 1] - centre[1], np.zeros(len(inner_v))]
+    radial /= np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-6)
+    Vw = np.r_[Vw, Vw[inner_v] - radial * 0.001]
+    F = np.r_[F, copy_of[F[low]][:, ::-1]]
+    tk = np.r_[tk, tk[low][:, ::-1]]
     used = np.unique(F)
-    remap = -np.ones(len(first), int)
+    remap = -np.ones(len(Vw), int)
     remap[used] = np.arange(len(used))
     me = bpy.data.meshes.new("body_head")
-    me.from_pydata([tuple(p) for p in Vb[first][used]], [], remap[F].tolist())
+    me.from_pydata([tuple(p) for p in Vw[used]], [], remap[F].tolist())
     uvl = me.uv_layers.new(name="UVMap")
     cuv = np.c_[UV[tk.ravel(), 0], 1.0 - UV[tk.ravel(), 1]]
     uvl.data.foreach_set("uv", cuv.astype(np.float32).ravel())
