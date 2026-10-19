@@ -71,7 +71,7 @@ The frame stays within 14 ms; "people" goes over its own 4 ms with ten more men 
 draws fewer calls than the Oct 14 man (one skin against six garments). Frame times in the rendered
 runs are lavapipe's (over a second a frame): only the draw calls count there.
 
-**All tests:** 401 passed (before the last head fixes; rerun at the end: see the PR).
+**All tests:** 401 passed, 0 failed (rerun on the final assets).
 
 ## The sheets
 
