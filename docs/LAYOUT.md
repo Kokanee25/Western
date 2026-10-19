@@ -872,6 +872,21 @@ a ragdoll fall, the hat shot off, a wound, and every triangle's stretch (`--ref=
 `works.json`, judged by sheet area). `men_bench.gd`: perf_bench's calm street with N copies of
 one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and layout.
 
+The whole man's head and neck (2026-10-19, `head_neck.py`; report
+`docs/style_test/whole-man-face-2026-10-19/`): try A `shape` warps the kept Oct 14 head's chin and
+lower jaw to his front portrait's (`CHIN_TARGET`, a thin-plate spline), smooths the hair behind his
+ears (Taubin), cuts his underside exactly along his jaw (`cut_y`, `clip`) and lofts a neck from that
+edge (`loft`: under-jaw, throat, nape, then a tube into the collar; its UVs in the atlas's empty
+square) → `heads/<out>_mesh.npz`; `paint` runs `rodin_portrait.paint` on it (portrait.json `mesh`;
+`fidelity`: `smooth_px` blurs the portraits' squares out with his eyes kept sharp, `hat_fill`
+"reflect" carries the paint on up under the brim, `skin_sat`, `delight_clamp`) then paints the
+neck (skin, smoothed, eased into the hair at his nape) and lifts his eyes' whites; `join` cuts the
+body round his collar (`COLLAR_CUT`), stands it round the neck, builds his shirt's turned-down
+collar (`collar_band`: stand and fall, open for the tie) and skins the neck inside the collar with
+the body's weights. Try B `twin` / `join_twin`: run 89's own head and neck moved onto the
+anatomy's eyes, eased down its neck, new UVs. `measure`: chin to collar, neck over jaw, ear ahead
+of shoulder. `face_neck_renders.sh` / `face_neck_sheet.py`: the sheet.
+
 ## Training the image model on our style (tools/style)
 
 - **Training the image model on our style** (`tools/style/train_style.py`, People workflow input
