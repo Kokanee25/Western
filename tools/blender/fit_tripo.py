@@ -255,6 +255,25 @@ SH_MARGIN = 0.035            # a shoulder joint, in from his outline at its heig
 ARM_OUT = 0.10               # an arm's middle is at least this far out from his (a leg's isn't)
 F_ELBOW, F_WRIST = 0.40, 0.74  # the elbow and wrist along his shoulder to his finger tips
 HIP_WIDTH = (0.045, 0.09)    # a hip joint from his middle (a long coat hides his thighs)
+# A bare-headed whole man (people.json "bare": true; a dressed Rodin man with no hat): RIG_Y's
+# shares are of a hatted man's height, so on a man whose top is his crown they put his neck joint
+# under his shoulders, his jaw 4 cm low and his hips low, and the trunk's warp stretched him x1.16,
+# his shoulders and chin up 7-8 cm (1.89 m on our 1.815; docs/briefs/garments.md on
+# claude/characters-garments, 2026-10-18). His joints are found instead at our own skeleton's
+# shares of its height to the crown plus HAIR_M (bare_shares), his hips from his crotch:
+# HIP_OVER_CROTCH over where his legs meet (the Oct 14 bold cowboy's skin is 3 cm under our hip
+# joints, his trousers' seam ~1.5 cm under that).
+HIP_OVER_CROTCH = 0.045      # metres, his hip joints over his trousers' crotch
+CROTCH_BAND = 0.12           # a leg's middle within this of his (his share of height): legs, not arms
+
+
+def bare_shares(o, top):
+    """Our skeleton's joints as shares of its height to `top` (the crown plus his hair), for
+    find_joints on a bare-headed man: {neck, head, shoulder, knee, ankle, hip}."""
+    sh = (o["r-shoulder"][1] + o["l-shoulder"][1]) / 2
+    return {"neck": o["neck"][1] / top, "head": o["head"][1] / top, "shoulder": sh / top,
+            "knee": (o["r-knee"][1] + o["l-knee"][1]) / 2 / top, "ankle": (o["r-ankle"][1] + o["l-ankle"][1]) / 2 / top,
+            "hip": o["hips"][1] / top, "top_m": top}
 
 
 def surface_points(v, tris, n=400000, seed=1):
@@ -305,17 +324,19 @@ def slice_parts(pts, y, band=0.004, cell=0.004):
     return [p for p in (sl[which == k] for k in np.unique(which)) if len(p) > 20]
 
 
-def find_joints(v, tris):
+def find_joints(v, tris, shares=None):
     """His joints by Tripo's names, in Tripo's frame (v: 1.0 tall, feet on 0, facing +X, his
     right at +Z), from his shape: the shoulders SH_TOP under the tops of his shoulders, the neck
     and head over them at Tripo's spacing; each arm traced down his side in slices (the pieces well out from his trunk), the elbow and
     wrist along his shoulder to his finger tips on that line; each leg a line through the middles
     of its cross-sections below his coat, the knee and ankle on it, the hip joint where it reaches
-    up to RIG_Y (within HIP_WIDTH of his middle)."""
+    up to RIG_Y (within HIP_WIDTH of his middle). `shares` (bare_shares, a bare-headed man): our
+    skeleton's shares in place of RIG_Y, and his hips HIP_OVER_CROTCH over his crotch."""
+    rig = RIG_Y if shares is None else shares
     pts = surface_points(v, tris)
     mid = float(np.median(pts[:, 2]))
     j = {}
-    ysh = RIG_Y["shoulder"]
+    ysh = rig["shoulder"]
     for _ in range(4):
         # The shoulder joints' height: SH_TOP under the tops of his shoulders, measured over where
         # the joints are at this height (they move out as it drops: the arms hang out).
@@ -324,7 +345,7 @@ def find_joints(v, tris):
         for sgn in (1.0, -1.0):
             out = (at_sh[:, 2] - mid) * sgn
             tops.append(shoulder_top(pts, mid + sgn * (np.percentile(out[out > 0], 99.5) - SH_MARGIN), ysh))
-        y = float(np.clip(np.mean(tops) - SH_TOP, RIG_Y["shoulder"] + SH_RANGE[0], RIG_Y["shoulder"] + SH_RANGE[1]))
+        y = float(np.clip(np.mean(tops) - SH_TOP, rig["shoulder"] + SH_RANGE[0], rig["shoulder"] + SH_RANGE[1]))
         if abs(y - ysh) < 0.001:
             break
         ysh = y
@@ -369,13 +390,28 @@ def find_joints(v, tris):
             for p in legs:
                 c = p.mean(axis=0)
                 rows["R" if c[2] > mid else "L"].append([y, c[0], c[2]])
+    hip_y, knee_y = RIG_Y["hip"], RIG_Y["knee"]
+    if shares is not None:
+        # His crotch: the lowest height where his legs are no longer two pieces near his middle.
+        crotch = None
+        for y in np.arange(0.30, 0.62, 0.0025):
+            legs = [p for p in slice_parts(pts, y) if len(p) > 200 and abs(p.mean(axis=0)[2] - mid) < CROTCH_BAND]
+            if len(legs) < 2:
+                crotch = float(y)
+                break
+        hip_y = (crotch if crotch is not None else shares["hip"]) + HIP_OVER_CROTCH / shares["top_m"]
+        # The knee at our share of the way from the ankle to the hip.
+        f = (shares["knee"] - shares["ankle"]) / (shares["hip"] - shares["ankle"])
+        knee_y = shares["ankle"] + (hip_y - shares["ankle"]) * f
+        if crotch is not None:
+            j["_crotch"] = crotch
     for side, sgn in (("R", 1.0), ("L", -1.0)):
         r = np.array(rows[side])
         fx, fz = np.polyfit(r[:, 0], r[:, 1], 1), np.polyfit(r[:, 0], r[:, 2], 1)
         at = lambda y: np.array([np.polyval(fx, y), y, np.polyval(fz, y)])
-        j[side + "_Calf"] = at(RIG_Y["knee"])
-        j[side + "_Foot"] = at(RIG_Y["ankle"])
-        th = at(RIG_Y["hip"])
+        j[side + "_Calf"] = at(knee_y)
+        j[side + "_Foot"] = at(rig["ankle"])
+        th = at(hip_y)
         th[2] = mid + sgn * float(np.clip((th[2] - mid) * sgn, *HIP_WIDTH))
         j[side + "_Thigh"] = th
         # Only its direction counts: TripoPerson.bones finds where his boot ends.
@@ -386,7 +422,7 @@ def find_joints(v, tris):
     # stylised stranger's sat 6 cm behind his shoulders and leant his trunk back).
     sh = (j["R_Upperarm"] + j["L_Upperarm"]) / 2
     for name, key in (("NeckTwist01", "neck"), ("Head", "head")):
-        j[name] = np.array([sh[0], ysh + RIG_Y[key] - RIG_Y["shoulder"], sh[2]])
+        j[name] = np.array([sh[0], ysh + rig[key] - rig["shoulder"], sh[2]])
     return j
 
 
@@ -400,16 +436,17 @@ def shoulder_top(pts, z, y0, reach=0.12, step=0.003, width=0.01):
     return y0 + step * (int(np.argmin(filled)) if not filled.all() else len(filled))
 
 
-def load_rodin(path):
+def load_rodin(path, shares=None):
     """A Rodin man as load_glb gives a Tripo one: turned into Tripo's frame (his front +X, his
-    right +Z), feet on 0, 1.0 tall, centred, and his joints found from his shape."""
+    right +Z), feet on 0, 1.0 tall, centred, and his joints found from his shape (`shares`: a
+    bare-headed man's, find_joints)."""
     pos, nrm, uv, tris, _joints, colour = load_glb(path)
     turn = lambda p: np.stack([p[:, 2], p[:, 1], -p[:, 0]], axis=1)
     v, n = turn(pos), turn(nrm)
     y0, y1 = v[:, 1].min(), v[:, 1].max()
     v = (v - np.array([0.0, y0, 0.0])) / (y1 - y0)
     v -= np.array([(v[:, 0].min() + v[:, 0].max()) / 2, 0.0, (v[:, 2].min() + v[:, 2].max()) / 2])
-    return v, n, uv, tris, find_joints(v, tris), colour
+    return v, n, uv, tris, find_joints(v, tris, shares), colour
 
 
 def drop_scraps(v, uv, tris, report):
@@ -469,10 +506,15 @@ class TripoPerson(mp.Person):
         # (bare-headed, no coat) and `pieces` {shape: character id} are his garments modelled alone.
         self.model = spec.get("model", pid)
         self.bare = "model" in spec       # bare-headed: his top is his crown, not a hat
+        # A whole man with no hat (`"bare": true`, HIP_OVER_CROTCH): fitted bare-headed, his joints
+        # at our skeleton's shares, at his true height (`bones`).
+        self.whole_bare = bool(spec.get("bare")) and "model" not in spec
+        self.bare = self.bare or self.whole_bare
+        shares = bare_shares(self.our_joints(), env["head_top"] + HAIR_M) if self.whole_bare else None
         if spec.get("source") == "rodin":
             # A Rodin man (tools/characters/rodin.py): `rodin` is his glb under assets/people/tripo.
             self.model = spec["rodin"]
-            pos, nrm, uv, tris, joints, colour = load_rodin(os.path.join(TRIPO, self.model + ".glb"))
+            pos, nrm, uv, tris, joints, colour = load_rodin(os.path.join(TRIPO, self.model + ".glb"), shares)
         else:
             pos, nrm, uv, tris, joints, colour = load_glb(os.path.join(TRIPO, self.model + ".glb"))
         self.v = to_body_space(pos)
@@ -484,7 +526,7 @@ class TripoPerson(mp.Person):
         self.j = {ours: to_body_space(joints[theirs]) for ours, theirs in JOINTS.items()}
         self.j["hips"] = (self.j["r-upper-leg"] + self.j["l-upper-leg"]) / 2
         y0, y1 = self.v[:, 1].min(), self.v[:, 1].max()
-        if "model" in spec:
+        if self.bare:
             # Bare-headed, his crown is his top: the collar is a share of the neck, from its joints.
             self.head_cut = self.j["neck"][1] + (self.j["head"][1] - self.j["neck"][1]) * HEAD_FROM_NECK
         else:
@@ -493,6 +535,12 @@ class TripoPerson(mp.Person):
                        "triangles_in": int(len(tris)),
                        "pieces": dict(spec.get("pieces", {}))}
         self.report.update(scraps)
+        if self.whole_bare:
+            self.report["bare_whole"] = {"crotch_share": round(float(joints["_crotch"]), 4) if "_crotch" in joints else None,
+                                         "hip_share": round(float(joints["Hip"][1]), 4),
+                                         "shoulder_share": round(float(joints["R_Upperarm"][1]), 4),
+                                         "neck_share": round(float(joints["NeckTwist01"][1]), 4),
+                                         "jaw_share": round(float(joints["Head"][1]), 4)}
         # How much more light his drawn whites take (people.json `eye_gain`; the art session's
         # body_skin reads it from this report through PeopleBodies: Sean wants the eyes clear and
         # bright, past the painting's style).
@@ -513,6 +561,10 @@ class TripoPerson(mp.Person):
         # His overall scale (widths, the head): his hips to ours. Each bone's length is its own
         # stretch (Tripo's trunk is shorter than ours for his height).
         k = o["hips"][1] / max(m["hips"][1], 1e-6)
+        if self.whole_bare:
+            # A bare-headed whole man at his true height (his crown and hair on ours): from his
+            # hips his legs' share of him set his width (Rodin's men have shorter legs than ours).
+            k = (o["crown"][1] + HAIR_M) / max(float(self.v[:, 1].max()), 1e-6)
         self.scale = k
         self.head_scale = k
         if self.bare:
@@ -1469,7 +1521,7 @@ class TripoPerson(mp.Person):
 
     def run(self):
         self.warp()
-        if "model" not in self.spec and "coat" not in self.spec.get("pieces", {}):
+        if not self.bare and "coat" not in self.spec.get("pieces", {}):
             # A whole man's coat skirt is in his skin; a layered man's body wears trousers, and
             # the rule would hand their legs to his pelvis (a base body wears its coat as a piece).
             self.skirt()
