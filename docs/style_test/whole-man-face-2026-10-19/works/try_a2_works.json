@@ -73,11 +73,12 @@
   "worst_stretch": 4.11
  },
  "hat": {
-  "ball_energy_kept_j": 594.0,
-  "had_his_own_hat": true,
+  "ball_energy_kept_j": 0.0,
+  "had_his_own_hat": false,
   "hat_meshes_still_on_him": 0,
-  "hat_off": true,
-  "hats_fallen": 1,
+  "hat_off": false,
+  "hatless": true,
+  "hats_fallen": 0,
   "pass": true
  },
  "ragdoll": {
@@ -130,12 +131,9 @@
    "skin/thigh_l",
    "skin/upper_arm_r",
    "skin/forearm_r",
-   "skin/hand_r",
-   "hat/head",
-   "hat_band/head",
-   "hat_brim/head"
+   "skin/hand_r"
   ],
-  "triangles": 40024
+  "triangles": 38344
  },
  "run": {
   "pass": true,

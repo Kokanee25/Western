@@ -46,10 +46,7 @@
  },
  "triangles": {
   "skin": 24369,
-  "head": 13245,
-  "hat": 720,
-  "hat_brim": 864,
-  "hat_band": 96
+  "head": 13245
  },
  "eyes": {
   "right": [
@@ -81,6 +78,6 @@
  "whole_man": {
   "body": "bold_cowboy_whole_body",
   "head": "bold_cowboy_whole_a2",
-  "hat": "his own (look/bold-cowboy-own-hat-2026-10-14)"
+  "hat": "none"
  }
 }

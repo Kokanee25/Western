@@ -415,6 +415,11 @@ def paint(man, spec):
         band = img[max(0, y0):max(y0 + 1, y1)]
         sat = band.max(2) - band.min(2)
         grey = (sat < 0.08) & (band.mean(2) > 0.35)
+        if fid.get("back_centre") == "silhouette":
+            # (`back_centre` "silhouette": dark hair on a grey ground, where the grey test finds the
+            # ground: the middle of what isn't the ground.)
+            edge_c = np.median(np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)]), 0)
+            grey = np.linalg.norm(band - edge_c, axis=2) > 2 * BG_TOL
         xs = np.nonzero(grey)[1]
         cx = float(np.median(xs)) if len(xs) > 50 else img.shape[1] / 2
         back.tu = cx - float(back.project(np.array([[np.median(V[:, 0]), 0.0, 0.0]]))[0, 0])

@@ -325,7 +325,8 @@ frozen until Sean names one.
   whole (`whole_man.py`, the fit's `"bare": true`), the Oct 14 head, his own hat.
 - **His head and neck** (`claude/characters-whole-man-face`, PR #155 not merged, $0): round 2
   `bold_cowboy_whole_a2` (`head_neck.py`: try A's chin, neck and turned-down collar wearing the
-  Oct 14 face paint as it is, its under-brim fills and stray hair fixed) passes the works check.
+  Oct 14 face paint as it is; **no hat** (Sean, 2026-10-20), his hair from his plain views in the
+  Oct 14 colours).
   Sheets and report `docs/style_test/whole-man-face-2026-10-19/`. Waiting on Sean; then the talking
   face on it (`bold_cowboy_whole_talking`; face-rig.md's step). The saloon's orange is art's.
 - Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed

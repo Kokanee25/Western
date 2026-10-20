@@ -886,9 +886,11 @@ collar (`collar_band`: stand and fall, open for the tie) and skins the neck insi
 the body's weights. Try B `twin` / `join_twin`: run 89's own head and neck moved onto the
 anatomy's eyes, eased down its neck, new UVs. `measure`: chin to collar, neck over jaw, ear ahead
 of shoulder. `face_neck_renders.sh` / `face_neck_sheet.py`: the sheet. Round 2 `oct14` (portrait.json
-`paint_from`): the Oct 14 face paint as it is on try A's shape, its under-brim fills redone (forehead
-skin to a hairline at `FILL_TEMPLE_Z`, hair mirrored up behind it, cut into patches) and stray grey
-patches on the face made skin; the neck projected the Oct 14 way and cut into the same patches.
+`paint_from`): the Oct 14 face paint as it is on try A's shape; bare-headed (`hatless`, no hat
+piece; Sean 2026-10-20) his hair and forehead projected from his plain views (`hair_views`) in the
+Oct 14 paint's colours and cut into its patches (with a hat: the under-brim fills redone instead);
+stray grey patches on the face made skin; the neck projected the Oct 14 way, same patches.
+`works_check.gd --hatless`: the hat check passes for a man with none.
 `face_light_renders.sh` / `face_light_sheet.py`: art_lab's neutral and warm lights and the saloon
 (`screenshots.gd --man-turn=`), front, 3/4, side.
 

@@ -76,6 +76,8 @@ FILL_BAND = 0.01             # ... beyond it his hair mirrored up from this far 
 STRAY_INSET = 0.007          # ... stray hair looked for this far inside his face's outline (his sideburns left)
 STRAY_BROWS = 0.024          # ... and not between his eyes and this far over them (his brows)
 STRAY_SAT = 0.45             # ... a patch is hair if its colour is under this share of his skin's (relative to lightness)
+HAIR_BEHIND_Z = -0.02        # oct14 bare-headed: the plain views' hair also behind this depth (the front of his ear)
+HAIR_REL = 0.55              # oct14 bare-headed: hair is less coloured than this share of its lightness
 HAIR_BAND = 0.012            # ... behind, his hair's lowest this many metres mirrored on down the taper
 NECK_LIFT = 0.012            # ... its colour from this far up the head plus its own distance down
 EYE_R = 0.013                # paint: his eyes' whites lifted within this of each iris ...
@@ -90,6 +92,7 @@ COLLAR_EASE = 0.04           # ... eased back to the body as it was over this
 COLLAR_CLEAR = 0.005         # ... this far outside the neck
 COLLAR_REACH = (0.05, 0.08)  # ... all of what's within the first of that band, none past the second
 COLLAR_LID = 0.012           # the lid inside his collar this far under its edge
+HAT_PARTS_PNG = ("hat", "hat_brim", "hat_band")
 COLLAR_WEIGHTS = 0.02        # the neck takes the body's weights fully this far under the collar's cut
 # His shirt's collar (collar_band, his arms-out pictures' turned-down collar): the stand from
 # BAND_TUCK under the body's cut up to BAND_TOP (front, back), open BAND_GAP degrees either side of
@@ -841,14 +844,20 @@ def join(body, man, out, head):
     shutil.copy(os.path.join(PEOPLE, body + "_skin.png"), os.path.join(PEOPLE, out + "_skin.png"))
     shutil.copy(os.path.join(WORK, man + "_paint.png"), os.path.join(PEOPLE, out + "_head.png"))
     n_head = len(me.polygons)
-    tris = WM.add_hat(bpy, out, head)
+    # (portrait.json <man> `hatless`: no hat on him at all, Sean 2026-10-20.)
+    tris = {} if spec.get("hatless") else WM.add_hat(bpy, out, head)
+    for p_ in HAT_PARTS_PNG if spec.get("hatless") else ():
+        old_png = os.path.join(PEOPLE, "%s_%s.png" % (out, p_))
+        for f_ in (old_png, old_png + ".import"):
+            if os.path.exists(f_):
+                os.remove(f_)
     rep = json.load(open(os.path.join(PEOPLE, body + ".json")))
     rep.update({"id": out, "triangles": dict(rep.get("triangles", {}), head=n_head, **tris),
                 "eyes": json.load(open(os.path.join(PEOPLE, head + ".json")))["eyes"],
                 "head_neck": {"head": man + " (tools/characters/head_neck.py: the Oct 14 head, his portrait's chin, a built neck, painted smooth)",
                               "collar_cut": [list(c) for c in COLLAR_CUT], "collar_moved_mm_max": round(float(moved.max()) * 1000, 1),
                               "chin_y": round(chin, 4)},
-                "whole_man": {"body": body, "head": man, "hat": "his own (look/bold-cowboy-own-hat-2026-10-14)"}})
+                "whole_man": {"body": body, "head": man, "hat": "none" if spec.get("hatless") else "his own (look/bold-cowboy-own-hat-2026-10-14)"}})
     json.dump(rep, open(os.path.join(PEOPLE, out + ".json"), "w"), indent=1)
     print("head_neck: collar band, %d faces" % band)
     print("head_neck: wrote %s (collar moved up to %.0f mm, head %d triangles)" % (path, moved.max() * 1000, n_head))
@@ -1054,6 +1063,8 @@ def oct14(man):
       (varied, cut into his patches) and his temples his own hair mirrored up from under the line;
     - grey, hair-coloured patches on his forehead and cheeks (stray strands from the portraits'
       hair and sideburns) take the colour of the nearest skin patch.
+    Bare-headed (portrait.json `hatless`): his hair and forehead from his hatless plain views in
+    the Oct 14 paint's colours (see 1b), no hat on him.
     His new neck (and the chin's underside it meets) is painted the Oct 14 way: projected from the
     portraits with his Oct 14 settings (portrait.json <man>, `paint_from` the Oct 14 paint), the
     portraits' collar made skin, eased into the head's paint at the cut, then cut into his paint's
@@ -1111,6 +1122,72 @@ def oct14(man):
     tex[si] = old[ok_[0][j], ok_[1][j]]
     sq_f, _n = RP.patch_squares(tex, brow, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
     tex[brow] = sq_f[brow]
+    # 1b. Bare-headed (portrait.json `hatless`, Sean 2026-10-20: "stop trying to put a hat on him"):
+    # above the portraits' brim nothing of his paint is real, every portrait wears the hat. There
+    # his hair and forehead come from his hatless, flat-lit plain views (`hair_views`, the pictures
+    # his shape was built from), projected as the recipe projects, each of hair and skin given the
+    # colours of the Oct 14 paint's own hair (his sides and back, under the line) and forehead
+    # (mean and spread matched, channel by channel), then cut into his 3 mm patches.
+    if spec.get("hatless"):
+        # With no brim over it, the Oct 14 forehead under the line is the portraits' brim shadow (a
+        # dark red band): from over his brows up, his forehead comes from the plain views too.
+        fill = fill | (head & front & (Pp[..., 1] > eye_y + STRAY_BROWS))
+        hspec = dict(spec, paint_views=spec["hair_views"], portraits_hatless=True, hair_fill="dark",
+                     fidelity={"patches": "none", "unsquare": 0, "keep_features": True, "back_centre": "silhouette"})
+        RP.paint(man + "_hair", hspec)
+        P.close_landmarker()
+        H = np.asarray(Image.open(os.path.join(RP.WORK, man + "_hair_paint.png")).convert("RGB")).astype(float) / 255.0
+        # Bare-headed his hair shows all round, so the plain views' hair goes on behind the front of
+        # his ear too, under the line (else a straight seam ran along his sides at the brim's old
+        # line, through his ear); the Oct 14 paint keeps his face, sideburns and ears.
+        region = fill | (head & (Pp[..., 2] > HAIR_BEHIND_Z) & (Pp[..., 1] > float(pts[152, 1])))
+        hz = H[region]
+        lab_h = RP._lab(hz)
+        from scipy.cluster.vq import kmeans2
+        cen, lab_k = kmeans2(lab_h[:, :1], 2, minit="++", seed=0)
+        is_hair = lab_k == int(np.argmin(cen[:, 0]))
+        in_fill = fill[region]
+        # Above the line, behind his temples' hairline, it's all hair (the plain views' lighter
+        # patches there are light on his hair, not skin).
+        is_hair |= in_fill & (Pp[region][:, 2] > FILL_TEMPLE_Z)
+        # His hair's colours: the Oct 14 paint's hair behind his ears and at the back (warm, painted
+        # in the portraits' lamplight; it reads grey in his light): its less coloured texels (his
+        # ears' skin is coloured past HAIR_REL of its lightness), shadow left out.
+        ref_hair = old[head & ~fill & (Pp[..., 2] > 0.01) & (Pp[..., 1] > float(pts[152, 1]))]   # (before it's repainted)
+        l_ref = ref_hair @ lum_w
+        rel = (ref_hair.max(1) - ref_hair.min(1)) / np.maximum(l_ref, 1e-3)
+        ref_hair = ref_hair[(rel < HAIR_REL) & (l_ref > np.percentile(l_ref, 20)) & (l_ref < np.percentile(l_ref, 97))]
+        # His forehead's skin to the plain views' hairline: the Oct 14 build's own forehead colour
+        # (round 2's: it read right), gently varied.
+        skin_c = np.median(old[fill & front & (Pp[..., 1] > eye_y + 0.036) & (Pp[..., 1] < eye_y + 0.058)], 0)
+        print("head_neck: hatless: %d hair, %d skin texels from the plain views; Oct 14 hair %d texels mean %s; "
+              "plain hair mean %s; forehead %s" % (int(is_hair.sum()), int((~is_hair).sum()), len(ref_hair),
+                                                   np.round(ref_hair.mean(0), 3) if len(ref_hair) else None,
+                                                   np.round(hz[is_hair].mean(0), 3), np.round(skin_c, 3)))
+
+        def match(src, ref):
+            return np.clip((src - src.mean(0)) / np.maximum(src.std(0), 1e-3) * ref.std(0) + ref.mean(0), 0, 1)
+
+        out_ = tex[region].copy()                       # under the line, his ears and skin: as Oct 14
+        out_[is_hair] = match(hz[is_hair], ref_hair) if len(ref_hair) > 50 else hz[is_hair]
+        # The crown no picture sees (filled pale by the projection) and stray light: hair lighter
+        # than its 97th percentile takes the nearest hair's colour.
+        lh = out_[is_hair] @ lum_w
+        hi = lh > np.percentile(lh, 97)
+        if hi.any():
+            ph = Pp[region][is_hair]
+            _d, j = cKDTree(ph[~hi]).query(ph[hi])
+            vals = out_[is_hair]
+            vals[hi] = vals[~hi][j]
+            out_[is_hair] = vals
+        skin_new = ~is_hair & in_fill
+        out_[skin_new] = np.clip(skin_c * (1 + FILL_VARY * noise[region][skin_new][:, None]), 0, 1)
+        tex[region] = out_
+        newp = np.zeros_like(region)
+        newp[region] = is_hair | skin_new
+        sq_h, _n = RP.patch_squares(tex, newp, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
+        tex[newp] = sq_h[newp]
+        fill = fill | newp
     # 2. Grey, hair-coloured patches on his forehead and cheeks: inside his face's outline by
     # STRAY_INSET, from his mouth's corners up to the hat, not his eyes, brows or moustache.
     half_w = float(np.nanmedian(np.abs(pts[[234, 454], 0] - (pts[234, 0] + pts[454, 0]) / 2)))
@@ -1120,7 +1197,7 @@ def oct14(man):
     d_eye = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0)
     mouth_y = float((pts[61, 1] + pts[291, 1]) / 2)
     brow_top = eye_y + STRAY_BROWS
-    face = head & (N[..., 2] < -0.25) & (np.abs(Pp[..., 0] - cx) < half_w - STRAY_INSET) & (Pp[..., 1] > mouth_y) \
+    face = head & ~fill & (N[..., 2] < -0.25) & (np.abs(Pp[..., 0] - cx) < half_w - STRAY_INSET) & (Pp[..., 1] > mouth_y) \
         & (d_eye > 0.016) & ~((Pp[..., 1] > eye_y + 0.004) & (Pp[..., 1] < brow_top))
     skin_ref = np.median(tex[face & (chroma > 0.15)], 0)
     sat_rel = chroma / np.maximum(lum, 1e-3)
