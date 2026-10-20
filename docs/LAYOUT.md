@@ -885,7 +885,12 @@ body round his collar (`COLLAR_CUT`), stands it round the neck, builds his shirt
 collar (`collar_band`: stand and fall, open for the tie) and skins the neck inside the collar with
 the body's weights. Try B `twin` / `join_twin`: run 89's own head and neck moved onto the
 anatomy's eyes, eased down its neck, new UVs. `measure`: chin to collar, neck over jaw, ear ahead
-of shoulder. `face_neck_renders.sh` / `face_neck_sheet.py`: the sheet.
+of shoulder. `face_neck_renders.sh` / `face_neck_sheet.py`: the sheet. Round 2 `oct14` (portrait.json
+`paint_from`): the Oct 14 face paint as it is on try A's shape, its under-brim fills redone (forehead
+skin to a hairline at `FILL_TEMPLE_Z`, hair mirrored up behind it, cut into patches) and stray grey
+patches on the face made skin; the neck projected the Oct 14 way and cut into the same patches.
+`face_light_renders.sh` / `face_light_sheet.py`: art_lab's neutral and warm lights and the saloon
+(`screenshots.gd --man-turn=`), front, 3/4, side.
 
 ## Training the image model on our style (tools/style)
 

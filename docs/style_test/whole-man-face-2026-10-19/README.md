@@ -1,5 +1,45 @@
 # The whole man's head and neck (2026-10-19): the bold cowboy only
 
+## Round 2 (2026-10-20): try A's shape with the Oct 14 face paint (`bold_cowboy_whole_a2`)
+
+Sean on round 1: try A's shape is right (the chin and jaw, the neck, the turned-down collar), its
+paint isn't; then, after the Oct 14 fidelity sheets (`docs/style_test/fidelity-2026-10-14/t5_*`):
+in neutral and portrait-matched light the original Oct 14 face paint already reads like his
+portrait, and its orange in the saloon is the lighting (the ACES tone mapper +13 chroma, the warm
+lamps +9; `docs/briefs/character-style-fidelity.md`), not the paint. Sheet `sheet_round2.jpg`:
+his portrait | today | try A | this, in art_lab's neutral light, the warm light made to his
+portraits, and the saloon at night, each front, three-quarter and side.
+
+- **Shape:** try A's (chin and jaw, the neck in front, the turned-down collar), with round 1's
+  notes for the back: his hair's mass carried on down to just over his collar and tapering into
+  his nape there (`NECK_JOIN` behind 4.6 cm), his collar low behind (`BAND_TOP` 1.515 m, a short
+  fall: it no longer rises up the back of his neck). (Try A's and B's assets on this branch were built before
+  these constants changed: `head_neck.py` now builds the back as this try's.)
+- **Paint:** the approved Oct 14 face paint as it is, squares and all, no blurring or muting
+  (`head_neck.py oct14`; his head keeps its own UVs, so the warp moved his chin, not the paint).
+  Every texel of his face under the portraits' brim line is the Oct 14 paint but 1,383 stray-hair
+  texels. Fixed, as asked, only its real faults:
+  - *the forehead band and the temple patch:* under the portraits' brim the Oct 14 build filled
+    his forehead with one flat skin colour and the rest with one flat hair colour, and the game's
+    hat sits higher, so they showed (a brown band across his forehead, a flat grey patch at his
+    temple). Now his forehead and temples, to a hairline ~2.5 cm before his ear, take the Oct 14
+    fill's own skin colour up to the hat, gently varied and cut into his 3 mm patches; behind the
+    hairline his own grey hair is mirrored up from under the line, strands and all;
+  - *stray hair on his forehead and cheeks:* grey, hair-coloured patches inside his face's outline
+    (not his brows, eyes, moustache or sideburns) take the nearest skin patch's colour.
+- **The new chin's underside and neck:** painted the Oct 14 way: projected from his portraits
+  with his Oct 14 settings, the portraits' collar made skin, eased into the head's paint at the
+  cut (his hair behind, carried on down the taper), then cut into the same 3 mm patches.
+- **The saloon's orange is the art lane's** (tone mapper and lamps on people); not touched here.
+
+**Works check** (against Test 1, cm² of stretched sheets): stand, walk, run 0; hands up 695; aim 12;
+sit 20; crouch 30 (all as Test 1); ragdoll **26** (Test 1 37); hat off and wounds yes: **passes
+every check** (`works/try_a2_works.json`). Renders: `tools/characters/face_light_renders.sh`
+(art_lab's lights, and `screenshots.gd --man-turn=`, a new shared option), sheet
+`face_light_sheet.py`.
+
+## Round 1 (2026-10-19)
+
 Branch `claude/characters-whole-man-face`. Paid calls: **$0** (no Rodin, no training; try C, a
 new Rodin head at $1.60, not run: it waits on Sean's call). The talking face waits on Sean's OK of
 the face and neck.

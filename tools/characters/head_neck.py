@@ -55,7 +55,8 @@ HAIR_SMOOTH = 12            # ... Taubin rounds
 NECK_HALF_W = 0.052
 NECK_HALF_D = 0.060
 NECK_CENTRE_Z = 0.0
-NECK_JOIN = (0.022, 0.03)   # metres under the jaw cut where the lofted neck becomes the tube: front, back
+NECK_JOIN = (0.022, 0.046)  # metres under the jaw cut where the lofted neck becomes the tube: front, back
+                             # (behind, his hair's mass carries on down to just over his collar)
 NECK_BOTTOM = 1.43           # the tube's open end, well down inside his collar
 NECK_RINGS = 7               # rings in the loft
 NECK_TUBE_RINGS = 5
@@ -68,10 +69,18 @@ JAW_HALF_W = (0.050, 0.066)  # ... inside his jaw (all of it within the first of
 NECK_SKIN_TOL = 0.16         # paint: a neck texel this far from his neck's skin colour is collar or coat (made skin)
 NECK_BLUR = 6.0              # ... the neck's paint smoothed over this many texels
 NECK_EASE = 0.015            # ... and eased into the head's colour over this far down from the cut
+FILL_TEMPLE_Z = -0.05        # oct14: under the brim his forehead's skin in front of this depth (his temples' hairline,
+                             # ~2.5 cm before his ear, as his profile portrait), his hair behind it
+FILL_VARY = 0.05             # ... its colour varied this much (then cut into patches)
+FILL_BAND = 0.01             # ... beyond it his hair mirrored up from this far under the line
+STRAY_INSET = 0.007          # ... stray hair looked for this far inside his face's outline (his sideburns left)
+STRAY_BROWS = 0.024          # ... and not between his eyes and this far over them (his brows)
+STRAY_SAT = 0.45             # ... a patch is hair if its colour is under this share of his skin's (relative to lightness)
+HAIR_BAND = 0.012            # ... behind, his hair's lowest this many metres mirrored on down the taper
 NECK_LIFT = 0.012            # ... its colour from this far up the head plus its own distance down
 EYE_R = 0.013                # paint: his eyes' whites lifted within this of each iris ...
-EYE_WHITE = 0.35             # ... this much of the way to white
-NECK_EASE_BACK = 0.045       # ... this far at his nape, where his hair comes down to his collar
+EYE_WHITE = 0.2             # ... this much of the way to white
+NECK_EASE_BACK = 0.06        # ... this far at his nape, where his hair comes down to his collar (all the loft)
 NECK_BLEND = (0.02, 0.06)    # join: under his chin, all head above the first, all neck below (rodin_portrait_build)
 # join: the body cut round his collar, a plane through these (z, y) points (front, back): his
 # collar's front under his throat, its back up under his nape.
@@ -85,12 +94,13 @@ COLLAR_WEIGHTS = 0.02        # the neck takes the body's weights fully this far 
 # His shirt's collar (collar_band, his arms-out pictures' turned-down collar): the stand from
 # BAND_TUCK under the body's cut up to BAND_TOP (front, back), open BAND_GAP degrees either side of
 # his front, and the fall folded down over it.
-BAND_TOP = (1.522, 1.538)   # his profile portrait: his chin's underside 0.2 of eye-to-chin over his collar
+BAND_TOP = (1.522, 1.515)   # front: his profile portrait's chin 0.2 of eye-to-chin over his collar; back: low,
+                             # just over his vest, under his hair (his arms-out back view; 1.538 rose up his neck)
 BAND_TUCK = 0.008
 BAND_OUT = 0.006
 BAND_GAP = 10.0
 BAND_ROWS = 3
-FALL = (0.014, 0.038)        # the fall's depth down from the stand's top: at his back, at its points
+FALL = (0.010, 0.038)        # the fall's depth down from the stand's top: at his back, at its points
 FALL_FLARE = 0.006           # ... flaring out this far at its edge
 FALL_SPREAD = 14.0           # ... its points spread this many degrees apart at their tips
 FALL_CLEAR = 0.003           # ... and kept this far off his shirt and vest
@@ -572,6 +582,18 @@ def paint(man):
     backness = ((1 - np.cos(polar(M[npx][:, :3])[0])) / 2) ** 2
     e = np.clip(1 - M[npx][:, 4] / (NECK_EASE + (NECK_EASE_BACK - NECK_EASE) * backness), 0, 1) ** 1.5
     out[npx] = out[npx] * (1 - e[:, None]) + edge * e[:, None]
+    # Behind, his hair's own strands carried on down the taper (the band just over the cut mirrored
+    # down, HAIR_BAND), not one flat colour (it read as a dark shelf under his hair).
+    pn = M[npx][:, :3]
+    th_n, r_n = polar(pn)
+    d_n = M[npx][:, 4]
+    m_ = np.mod(d_n, 2 * HAIR_BAND)
+    up = 0.001 + np.where(m_ < HAIR_BAND, m_, 2 * HAIR_BAND - m_)
+    src = at_polar(th_n, r_n * 1.35, pn[:, 1] + d_n + up)
+    _d, jh = tree.query(src)
+    hair = tex[hp[0][pick][jh], hp[1][pick][jh]]
+    w_h = np.clip((backness ** 0.5 - 0.35) / 0.4, 0, 1)[:, None] * (d_n < NECK_EASE_BACK)[:, None]
+    out[npx] = out[npx] * (1 - w_h) + hair * w_h
     # Texels nobody covers take the nearest covered one's colour (so filtering at the edges of the
     # neck's strips doesn't bleed the atlas's old colours in).
     _dd, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
@@ -1021,6 +1043,135 @@ def measure(men):
     return out
 
 
+def oct14(man):
+    """Try A with the approved Oct 14 face paint (Sean, 2026-10-20: in neutral and portrait-matched
+    light it already reads like his portrait; its orange in the saloon is the lighting): his head's
+    texels are that paint as it is, squares and all, through his own UVs (the warp moved his chin,
+    not his UVs), with only its faults fixed:
+    - under the portraits' brim the Oct 14 build filled his forehead with one flat skin colour and
+      his temples with one flat hair colour (the game's hat sits higher, so they show: a brown band,
+      the temple patch); there his forehead takes the Oct 14 fill's own skin colour up to the hat
+      (varied, cut into his patches) and his temples his own hair mirrored up from under the line;
+    - grey, hair-coloured patches on his forehead and cheeks (stray strands from the portraits'
+      hair and sideburns) take the colour of the nearest skin patch.
+    His new neck (and the chin's underside it meets) is painted the Oct 14 way: projected from the
+    portraits with his Oct 14 settings (portrait.json <man>, `paint_from` the Oct 14 paint), the
+    portraits' collar made skin, eased into the head's paint at the cut, then cut into his paint's
+    3 mm patches. → build/head_neck/<man>_paint.png."""
+    import rodin_portrait as RP
+    import portrait as P
+    from PIL import Image
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+    spec = json.load(open(os.path.join(PEOPLE, "portrait.json")))["men"][man]
+    fid = spec.get("fidelity", {})
+    m = dict(np.load(os.path.join(ROOT, spec["mesh"])))
+    V, T, UV, pts, neck, down = m["V"], m["T"], m["UV"], m["pts"], m["neck"], m["down"]
+    old = np.asarray(Image.open(os.path.join(ROOT, spec["paint_from"])).convert("RGB")).astype(float) / 255.0
+    size = old.shape[0]
+    nrm = P.vertex_normals(*weld(V, T))
+    _vw, Fw = weld(V, T)
+    # Per corner normals (welded, smooth across UV seams).
+    n_c = nrm[Fw.ravel()]
+    table = {tuple(t): [tuple(UV[i]) for i in t] for t in T}
+    M, cover = P.raster_uv(table, [list(t) for t in T], np.c_[V, neck.astype(float), down, n_c], size)
+    Pp, N = M[..., :3], M[..., 5:8]
+    N /= np.maximum(np.linalg.norm(N, axis=-1, keepdims=True), 1e-9)
+    is_neck = cover & (M[..., 3] > 0.5)
+    head = cover & ~is_neck
+    tex = old.copy()
+    lum_w = np.array([0.2126, 0.7152, 0.0722])
+    eye_y = float((pts[468, 1] + pts[473, 1]) / 2)
+    # 1. The flat fills under the portraits' brim (rodin_portrait's: his forehead, then the sides).
+    front = (N[..., 2] < -0.5) & (np.abs(Pp[..., 0]) < 0.06)
+    line = eye_y + np.where(front, RP.BRIM_ABOVE_EYES, RP.BRIM_SIDES)
+    fill = head & (Pp[..., 1] > line)
+    # His forehead and temples (to their hairline) up to the hat: the Oct 14 build's own
+    # forehead fill colour (its light band, the one that read right), gently varied and cut into
+    # his 3 mm patches, up past where its brown hair band began. Beyond the hairline his own hair
+    # carried on up, each texel the one mirrored under the line within FILL_BAND (strands and
+    # all: no flat patch at his temple, no edge where the fill began).
+    skin_c = np.median(old[fill & front & (Pp[..., 1] > eye_y + 0.036) & (Pp[..., 1] < eye_y + 0.058)], 0)
+    # (Skin in front of his temples' hairline: a depth, so it follows round his temple behind his
+    # eye, which faces sideways and took his sideburn's grey when "facing forward" decided it.)
+    brow = fill & (Pp[..., 2] < FILL_TEMPLE_Z) & (N[..., 1] < 0.7)
+    rng = np.random.default_rng(1)
+    noise = ndimage.gaussian_filter(rng.normal(0, 1, (size // 8, size // 8)), 1.5)
+    noise = np.kron(noise / max(float(noise.std()), 1e-6), np.ones((8, 8)))[:size, :size]
+    tex[brow] = np.clip(skin_c * (1 + FILL_VARY * noise[brow][:, None]), 0, 1)
+    sides = fill & ~brow
+    t = np.maximum(Pp[..., 1] - line, 0)
+    m_ = np.mod(t, 2 * FILL_BAND)
+    src_y = line - 0.001 - np.where(m_ < FILL_BAND, m_, 2 * FILL_BAND - m_)
+    ok_ = np.nonzero(head & ~fill)
+    si = np.nonzero(sides)
+    q = Pp[si].copy()
+    q[:, 1] = src_y[si]
+    _d, j = cKDTree(Pp[ok_]).query(q)
+    tex[si] = old[ok_[0][j], ok_[1][j]]
+    sq_f, _n = RP.patch_squares(tex, brow, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
+    tex[brow] = sq_f[brow]
+    # 2. Grey, hair-coloured patches on his forehead and cheeks: inside his face's outline by
+    # STRAY_INSET, from his mouth's corners up to the hat, not his eyes, brows or moustache.
+    half_w = float(np.nanmedian(np.abs(pts[[234, 454], 0] - (pts[234, 0] + pts[454, 0]) / 2)))
+    cx = float((pts[234, 0] + pts[454, 0]) / 2)
+    lum = tex @ lum_w
+    chroma = tex.max(-1) - tex.min(-1)
+    d_eye = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0)
+    mouth_y = float((pts[61, 1] + pts[291, 1]) / 2)
+    brow_top = eye_y + STRAY_BROWS
+    face = head & (N[..., 2] < -0.25) & (np.abs(Pp[..., 0] - cx) < half_w - STRAY_INSET) & (Pp[..., 1] > mouth_y) \
+        & (d_eye > 0.016) & ~((Pp[..., 1] > eye_y + 0.004) & (Pp[..., 1] < brow_top))
+    skin_ref = np.median(tex[face & (chroma > 0.15)], 0)
+    sat_rel = chroma / np.maximum(lum, 1e-3)
+    stray = face & (sat_rel < STRAY_SAT * (skin_ref.max() - skin_ref.min()) / max(float(skin_ref @ lum_w), 1e-3))
+    good = np.nonzero(face & ~stray)
+    if stray.any() and len(good[0]):
+        _d, j = cKDTree(Pp[good]).query(Pp[stray])
+        tex[stray] = tex[good[0][j], good[1][j]]
+    # 3. The neck, the Oct 14 way.
+    RP.paint(man, spec)
+    P.close_landmarker()
+    proj = np.asarray(Image.open(os.path.join(RP.WORK, man + "_projected.png")).convert("RGB")).astype(float) / 255.0
+    c = proj[is_neck]
+    l_ = c @ lum_w
+    sat = c.max(1) - c.min(1)
+    skinlike = (sat > 0.12) & (l_ > 0.18) & (l_ < 0.6)
+    skin = np.median(c[skinlike], 0) if skinlike.sum() > 100 else np.median(c, 0)
+    far = np.linalg.norm(c - skin, axis=1) > NECK_SKIN_TOL
+    c[far] = skin
+    nx = np.nonzero(is_neck)
+    hp = np.nonzero(head)
+    pick = np.random.default_rng(0).choice(len(hp[0]), min(len(hp[0]), 300000), replace=False)
+    htree = cKDTree(Pp[hp[0][pick], hp[1][pick]])
+    pn, d_n = Pp[nx], M[nx][:, 4]
+    backness = ((1 - np.cos(polar(pn)[0])) / 2) ** 2
+    _d, j = htree.query(pn + np.c_[np.zeros(len(pn)), NECK_LIFT + d_n, np.zeros(len(pn))])
+    edge = tex[hp[0][pick][j], hp[1][pick][j]]
+    e = np.clip(1 - d_n / (NECK_EASE + (NECK_EASE_BACK - NECK_EASE) * backness), 0, 1) ** 1.5
+    c = c * (1 - e[:, None]) + edge * e[:, None]
+    # Behind, his hair's strands carried on down the taper (as `paint`).
+    th_n, r_n = polar(pn)
+    m2 = np.mod(d_n, 2 * HAIR_BAND)
+    up = 0.001 + np.where(m2 < HAIR_BAND, m2, 2 * HAIR_BAND - m2)
+    _d, jh = htree.query(at_polar(th_n, r_n * 1.35, pn[:, 1] + d_n + up))
+    w_h = (np.clip((backness ** 0.5 - 0.35) / 0.4, 0, 1) * (d_n < NECK_EASE_BACK))[:, None]
+    c = c * (1 - w_h) + tex[hp[0][pick][jh], hp[1][pick][jh]] * w_h
+    tex[is_neck] = c
+    sq, n_patches = RP.patch_squares(tex, is_neck, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
+    tex[is_neck] = sq[is_neck]
+    # Texels nobody covers: the nearest covered one's colour (no old colours bleeding in at the
+    # neck's strips' edges when filtered).
+    _dd, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
+    tex = np.where(cover[..., None], tex, tex[iy, ix])
+    os.makedirs(WORK, exist_ok=True)
+    P.to_pil(tex).save(os.path.join(WORK, man + "_paint.png"))
+    changed = head & (np.abs(tex - old).max(-1) > 1e-6)
+    print("head_neck: oct14 paint for %s: %d head texels as Oct 14 (%.1f%%), %d under-brim fill, %d stray hair, "
+          "%d neck texels in %d patches" % (man, int((head & ~changed).sum()), 100.0 * (head & ~changed).sum() / max(head.sum(), 1),
+                                            int(fill.sum()), int(stray.sum()), int(is_neck.sum()), n_patches))
+
+
 def main():
     step = sys.argv[1]
     a = dict(x.split("=", 1) for x in sys.argv[2:] if "=" in x)
@@ -1028,6 +1179,8 @@ def main():
         shape(a["--head"], a["--out"])
     elif step == "paint":
         paint(a["--man"])
+    elif step == "oct14":
+        oct14(a["--man"])
     elif step == "measure":
         measure(a["--men"])
     elif step == "twin":
