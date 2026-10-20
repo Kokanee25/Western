@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VERSIONS = [("asis", "as now (no mipmaps)"), ("mips", "mipmaps on"), ("custom", "painted mips"),
-            ("value", "painted mips + value pass")]
+            ("value", "painted mips + value pass"), ("hybrid", "as now up close,\npainted mips from 6 m")]
 SCENES = [("man_saloon_night", "saloon, night", ["1.2", "3", "6", "10", "20"]),
           ("man_store_golden", "street, golden hour", ["1.2", "3", "6", "10", "20"])]
 PORTRAIT = os.path.join(ROOT, "docs", "concept", "style", "portrait-cowboy-front.png")

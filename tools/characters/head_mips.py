@@ -5,13 +5,16 @@ dozens: his moustache, brows and eyes break up into speckle. These levels are ma
 being seen small (the brief's medoid mips, docs/briefs/character-style-fidelity.md, kept the paint's
 own colours; here his features are kept bold as well):
 
-    ~/bpyenv/bin/python tools/characters/head_mips.py --man=bold_cowboy_whole_a2 --out=DIR [--value]
+    ~/bpyenv/bin/python tools/characters/head_mips.py --man=bold_cowboy_whole_a2 --out=DIR [--value] [--plain-to=N]
 
 - each level from the one above by 2x2 blocks: a block touching his moustache, a brow or an eye takes
   the darkest of its feature texels (so those dark lines thicken as he shrinks instead of averaging
   away into his skin); any other block takes its medoid (the one of its four colours nearest their
   mean: no new, blended colours, no blur);
 - from SIMPLIFY_FROM down his skin is put into a palette of PALETTE colours (simplified, not noisy);
+- `--plain-to=N`: levels 1..N not painted but every 2^k-th texel of the full texture (what the game
+  draws today without mipmaps, so up close he looks as he does now), the painted levels only below N
+  (on his face level 4 is about 3 m in the game, level 5 about 6 m);
 - `--value`: first a stronger value pass on the full texture: his brow shadow, eye sockets and
   moustache darkened (VALUE), his eyes' whites kept.
 → DIR/level_0.png (the full texture, after the value pass if asked) ... level_N.png (1x1), read by
@@ -113,14 +116,18 @@ def main():
     sample = tex[skin][np.random.default_rng(0).choice(int(skin.sum()), min(int(skin.sum()), 40000), replace=False)]
     palette, _ = kmeans2(sample, PALETTE, minit="++", seed=0)
     os.makedirs(out_dir, exist_ok=True)
+    plain_to = int(a.get("--plain-to", "0"))
     level, cur, f = 0, tex, feat
     Image.fromarray((np.clip(cur, 0, 1) * 255).round().astype(np.uint8)).save(os.path.join(out_dir, "level_0.png"))
     while cur.shape[0] > 1:
         level += 1
         cur, f = down(cur, f, palette if level >= SIMPLIFY_FROM else None)
-        Image.fromarray((np.clip(cur, 0, 1) * 255).round().astype(np.uint8)).save(os.path.join(out_dir, "level_%d.png" % level))
-    print("head_mips: %s → %s: %d levels, %d feature texels, skin lightness %.3f%s" % (
-        man, out_dir, level + 1, int(feat.sum()), skin_l, ", value pass" if "--value" in sys.argv else ""))
+        k = 2 ** level
+        shown = tex[k // 2::k, k // 2::k] if level <= plain_to else cur
+        Image.fromarray((np.clip(shown, 0, 1) * 255).round().astype(np.uint8)).save(os.path.join(out_dir, "level_%d.png" % level))
+    print("head_mips: %s → %s: %d levels, %d feature texels, skin lightness %.3f%s%s" % (
+        man, out_dir, level + 1, int(feat.sum()), skin_l, ", value pass" if "--value" in sys.argv else "",
+        ", levels 1-%d plain" % plain_to if plain_to else ""))
 
 
 if __name__ == "__main__":
