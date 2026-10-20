@@ -47,6 +47,13 @@ JAW_WIDTH_SHARE = 0.75   # how much of the portrait's wider jaw he takes (its ou
 HOLD_BEHIND = 0.0        # vertices behind this z (his ears, the back of his head) held still by the warp
 HAIR_FROM_Z = (0.0, 0.025)  # his hair smoothed behind his ears: none in front of the first z, all behind the second
 HAIR_SMOOTH = 12            # ... Taubin rounds
+# shape --close (round 3): his hair's outer surface an ellipsoid (centre height, half-width, half-
+# depth, half-height above the centre), drawn in to it level; never inside his neck plus NAPE_CLEAR.
+SKULL = (1.655, 0.079, 0.099, 0.110)
+NAPE_CLEAR = 0.008
+HAIR_FRONT_Z = (-0.07, -0.04)   # ... in front of the first, his face (not moved), behind the second all hair
+HAIRLINE_Y = (1.715, 1.735)     # ... and over this, in front too (his hair over his forehead)
+EAR_KEEP = (0.025, 0.04)        # ... his ears not moved within the first of them, all behind the second
 
 # The neck (metres, body space: y up, he faces -Z). An ellipse round NECK_CENTRE_Z, NECK_HALF_W
 # across and NECK_HALF_D front to back (a solid man's neck, ~0.35 m round; at his collar 0.88 of
@@ -77,6 +84,16 @@ STRAY_INSET = 0.007          # ... stray hair looked for this far inside his fac
 STRAY_BROWS = 0.024          # ... and not between his eyes and this far over them (his brows)
 STRAY_SAT = 0.45             # ... a patch is hair if its colour is under this share of his skin's (relative to lightness)
 HAIR_BEHIND_Z = -0.02        # oct14 bare-headed: the plain views' hair also behind this depth (the front of his ear)
+KEEP_TOL = 0.0003            # oct14 keep_from: a texel's point on him moved less than this is unchanged
+FRONT_SOFT = (0.045, 0.065)  # ... his forehead all of him within the first of his middle, none past the second
+FOREHEAD_OVER = 0.002        # ... his new forehead eased in from this far over his brows' top line
+BROW_TOP = [70, 63, 105, 66, 107, 336, 296, 334, 293, 300]   # MediaPipe's upper brow points, both brows
+BLEND_M = 0.012              # oct14 hair_soft: new paint eased in over this from every edge with the old
+HAIR_SOFT = 3                # ... (texels: the views' lightness blurred this much before hair or skin is told)
+HAIR_BLUR = 4.0              # ... the hair's fine strands blurred out over this many texels
+HAIR_SPREAD = 0.6            # ... its colours' spread this share of the Oct 14 hair's
+TEMPLE_GREY = ((0.60, 0.48, 0.39), 0.55)   # ... his portraits' grey at his temples (the profile's, behind his ear:
+                             # warm, as their lamp paints it), and how much of it
 HAIR_REL = 0.55              # oct14 bare-headed: hair is less coloured than this share of its lightness
 HAIR_BAND = 0.012            # ... behind, his hair's lowest this many metres mirrored on down the taper
 NECK_LIFT = 0.012            # ... its colour from this far up the head plus its own distance down
@@ -195,6 +212,36 @@ def smooth_hair(V, T, pts):
     key = np.round(V / 1e-5).astype(np.int64)
     _u, inv = np.unique(key, axis=0, return_inverse=True)
     return X[inv.ravel()]
+
+
+def close_hair(V, T, pts):
+    """His hair brought in close to his skull (round 3, Sean: "short, swept back, close to the head
+    ... no volume hanging behind his ears; if the skull is too big, trim the mesh"): every hair
+    vertex further out than SKULL (an ellipsoid round his head, his hair's outer surface: a short-
+    haired man's 15.8 cm across, 19.8 deep) drawn in to it, level (along his neck's radius), never
+    inside his neck plus NAPE_CLEAR; his face (in front of HAIR_FRONT_Z, under his hairline) and
+    his ears (within EAR_KEEP of them) not moved."""
+    Vw, F = weld(V, T)
+    th, r = polar(Vw)
+    cy, ax, az, ay = SKULL
+    s_y = np.sqrt(np.clip(1 - ((Vw[:, 1] - cy) / ay) ** 2, 0, 1))
+    r_ell = s_y / np.sqrt((np.sin(th) / ax) ** 2 + (np.cos(th) / az) ** 2)
+    r_lim = np.maximum(r_ell, ellipse_r(th) + NAPE_CLEAR)
+    w = np.clip((Vw[:, 2] - HAIR_FRONT_Z[0]) / (HAIR_FRONT_Z[1] - HAIR_FRONT_Z[0]), 0, 1)
+    w = np.maximum(w, np.clip((Vw[:, 1] - HAIRLINE_Y[0]) / (HAIRLINE_Y[1] - HAIRLINE_Y[0]), 0, 1))
+    ears = np.array([[pts[i, 0] + np.sign(pts[i, 0]) * 0.008, pts[i, 1] - 0.012, pts[i, 2] + 0.03] for i in (234, 454)])
+    d_ear = np.min(np.linalg.norm(Vw[:, None] - ears[None], axis=-1), axis=1)
+    w *= np.clip((d_ear - EAR_KEEP[0]) / (EAR_KEEP[1] - EAR_KEEP[0]), 0, 1)
+    w *= np.clip((Vw[:, 1] - float(pts[152, 1]) + 0.01) / 0.02, 0, 1)        # not his neck
+    eye_y = float((pts[468, 1] + pts[473, 1]) / 2)
+    w *= np.where(Vw[:, 1] < eye_y - 0.02, np.clip((Vw[:, 2] + 0.02) / 0.02, 0, 1), 1.0)   # nor his jaw
+    r_new = r - np.maximum(r - r_lim, 0) * w
+    out = at_polar(th, r_new, Vw[:, 1])
+    key = np.round(V / 1e-5).astype(np.int64)
+    _u, inv = np.unique(key, axis=0, return_inverse=True)
+    moved = np.linalg.norm(out - Vw, axis=1)
+    return out[inv.ravel()], {"hair_in_mm_max": round(float(moved.max()) * 1000, 1),
+                              "hair_vertices_moved": int((moved > 1e-4).sum())}
 
 
 def cut_y(p, pts):
@@ -454,10 +501,13 @@ def free_square(UV, T, N=512):
     return (c - h) / N, (r - h) / N, 2 * h / N
 
 
-def shape(head, out):
+def shape(head, out, close=False):
     V, T, UV, pts = load_head(head)
     V2, pts2, rep = warp(V, pts)
     V2 = smooth_hair(V2, T, pts2)
+    if close:
+        V2, rep_c = close_hair(V2, T, pts2)
+        rep.update(rep_c)
     Vc0, Uc0, Vw, F, loop = trim(V2, T, UV, pts2)
     newV, Fn, th, down = loft(Vw, np.array(loop))
     Vall = np.r_[Vw, newV]
@@ -1052,6 +1102,89 @@ def measure(men):
     return out
 
 
+def hair_soft(spec, fid, old, tex, M, Pp, N, head, fill, front, line, eye_y, pts, noise, lum_w):
+    """Round 3's hair and forehead (Sean: the forehead's colour, patch size and variation as the
+    rest of his face, a soft hairline; the hair short, swept back, grey at the temples, no grain
+    or sparkle; no blocky stripes where face paint meets hair). From his hatless plain views
+    (`hair_views`) projected as the recipe projects:
+    - which is hair and which skin by the views' lightness, soft (HAIR_SOFT), not two classes;
+    - his forehead the views' own (its wrinkles and shading) given the mean and spread of his
+      Oct 14 face paint, channel by channel;
+    - his hair the views' broad masses (fine strands blurred out over HAIR_BLUR texels, its spread
+      HAIR_SPREAD of the Oct 14 hair's: strand-sized contrast sparkled under the saloon's lamps) in
+      the Oct 14 hair's colours, greyer at his temples (his front portrait's grey, TEMPLE_GREY);
+    - every edge with the Oct 14 paint (his brows, the old brim line at his sides, in front of his
+      ears) eased over BLEND_M with a ragged line (the noise), then all cut into his 3 mm patches.
+    → the texels changed (a mask). Changes `tex` in place."""
+    import rodin_portrait as RP
+    import portrait as P
+    from PIL import Image
+    from scipy import ndimage
+    hspec = dict(spec, paint_views=spec["hair_views"], portraits_hatless=True, hair_fill="dark",
+                 fidelity={"patches": "none", "unsquare": 0, "keep_features": True, "back_centre": "silhouette"})
+    RP.paint(spec["_id"] + "_hair", hspec)
+    P.close_landmarker()
+    H = np.asarray(Image.open(os.path.join(RP.WORK, spec["_id"] + "_hair_paint.png")).convert("RGB")).astype(float) / 255.0
+    chin = float(pts[152, 1])
+    # Where the new paint goes, and how much: over the line (in front, from over his brows) and
+    # behind the front of his ear, each eased in over BLEND_M from its edge, the edge ragged.
+    rag = BLEND_M * 0.35 * noise
+    # His new forehead eased in from the top of his brows, following their line (MediaPipe's upper
+    # brow points; the strip over them was the brim's shadow, and a level start left a straight edge).
+    brow = pts[BROW_TOP]
+    brow = brow[np.argsort(brow[:, 0])]
+    forehead_from = np.interp(Pp[..., 0], brow[:, 0], brow[:, 1]) + FOREHEAD_OVER
+    # (How much of him is forehead: soft at his temples, where a hard edge left a block.)
+    fr = np.clip((FRONT_SOFT[1] - np.abs(Pp[..., 0])) / (FRONT_SOFT[1] - FRONT_SOFT[0]), 0, 1) * np.clip((-N[..., 2] - 0.35) / 0.3, 0, 1)
+    s_top = ((Pp[..., 1] - rag) - (fr * forehead_from + (1 - fr) * line)) / BLEND_M
+    s_back = (Pp[..., 2] - HAIR_BEHIND_Z - rag) / BLEND_M
+    w = np.clip(np.maximum(s_top, np.where(Pp[..., 1] > chin, s_back, -1)), 0, 1)
+    w = w * w * (3 - 2 * w)
+    w[~head] = 0
+    zone = w > 0
+    # Hair or skin, soft: by the views' lightness (blurred a little, so the hairline is soft).
+    L = H @ lum_w
+    Lb = ndimage.gaussian_filter(np.where(zone, L, 0.0), HAIR_SOFT) / np.maximum(ndimage.gaussian_filter(zone.astype(float), HAIR_SOFT), 1e-6)
+    l_skin = float(np.percentile(Lb[zone & front], 70)) if (zone & front).sum() > 100 else float(np.percentile(Lb[zone], 85))
+    l_hair = float(np.percentile(Lb[zone], 25))
+    p_hair = np.clip((l_skin - Lb) / max(l_skin - l_hair, 1e-3) * 1.4 - 0.2, 0, 1)
+    # Behind his temples' hairline it's all hair but his ears (the plain back view's lit hair is as
+    # light as his forehead, and was taken for skin).
+    ear_c = np.array([[pts[i, 0] + np.sign(pts[i, 0]) * 0.008, pts[i, 1] - 0.012, pts[i, 2] + 0.03] for i in (234, 454)])
+    d_ear = np.min([np.linalg.norm(Pp - c, axis=-1) for c in ear_c], axis=0)
+    p_hair = np.where((Pp[..., 2] > FILL_TEMPLE_Z) & (d_ear > EAR_KEEP[0]), 1.0, p_hair)
+    # His forehead: the views' skin with the Oct 14 face paint's mean and spread.
+    d_eye = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0)
+    face_ref = old[head & (N[..., 2] < -0.5) & (Pp[..., 1] > float(pts[0, 1]) + 0.004) & (Pp[..., 1] < forehead_from)
+                   & (np.abs(Pp[..., 0]) < 0.05) & (d_eye > 0.016)]
+    skin_src = zone & (p_hair < 0.5) & front
+    hs = H[skin_src]
+    skin_new = np.clip((H - hs.mean(0)) / np.maximum(hs.std(0), 1e-3) * face_ref.std(0) + face_ref.mean(0), 0, 1)
+    # His hair: broad masses in the Oct 14 hair's colours, grey at his temples.
+    hz = zone & (p_hair >= 0.5)
+    Hb = np.stack([ndimage.gaussian_filter(np.where(zone, H[..., c], 0.0), HAIR_BLUR) for c in range(3)], -1) \
+        / np.maximum(ndimage.gaussian_filter(zone.astype(float), HAIR_BLUR), 1e-6)[..., None]
+    ref = old[head & (Pp[..., 2] > 0.01) & (Pp[..., 1] > chin)]           # (the Oct 14 paint, untouched)
+    l_ref = ref @ lum_w
+    rel = (ref.max(1) - ref.min(1)) / np.maximum(l_ref, 1e-3)
+    ref = ref[(rel < HAIR_REL) & (l_ref > np.percentile(l_ref, 20)) & (l_ref < np.percentile(l_ref, 97))]
+    hb = Hb[hz]
+    hair = np.clip((Hb - hb.mean(0)) / np.maximum(hb.std(0), 1e-3) * ref.std(0) * HAIR_SPREAD + ref.mean(0), 0, 1)
+    temple = np.clip((np.abs(Pp[..., 0]) - 0.045) / 0.02, 0, 1) * np.clip((0.03 - Pp[..., 2]) / 0.04, 0, 1) \
+        * np.clip(1 - np.abs(Pp[..., 1] - eye_y - 0.02) / 0.05, 0, 1)
+    hair = hair * (1 - TEMPLE_GREY[1] * temple[..., None]) + np.array(TEMPLE_GREY[0]) * TEMPLE_GREY[1] * temple[..., None]
+    # Skin elsewhere (his ears, his temples beside his eyes) stays the Oct 14 paint's.
+    fr_s = (fr * (d_ear > EAR_KEEP[1]))[..., None]
+    skin = fr_s * skin_new + (1 - fr_s) * old
+    new = p_hair[..., None] * hair + (1 - p_hair[..., None]) * skin
+    tex[zone] = (old[zone] * (1 - w[zone, None]) + new[zone] * w[zone, None])
+    sq, n_p = RP.patch_squares(tex, zone, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
+    tex[zone] = sq[zone]
+    print("head_neck: hair_soft: %d texels (%d hair), forehead mean %s spread %s, hair %s, %d patches" % (
+        int(zone.sum()), int(hz.sum()), np.round(face_ref.mean(0), 3), np.round(face_ref.std(0), 3), np.round(ref.mean(0), 3), n_p))
+    return fill | zone
+
+
 def oct14(man):
     """Try A with the approved Oct 14 face paint (Sean, 2026-10-20: in neutral and portrait-matched
     light it already reads like his portrait; its orange in the saloon is the lighting): his head's
@@ -1074,7 +1207,7 @@ def oct14(man):
     from PIL import Image
     from scipy import ndimage
     from scipy.spatial import cKDTree
-    spec = json.load(open(os.path.join(PEOPLE, "portrait.json")))["men"][man]
+    spec = dict(json.load(open(os.path.join(PEOPLE, "portrait.json")))["men"][man], _id=man)
     fid = spec.get("fidelity", {})
     m = dict(np.load(os.path.join(ROOT, spec["mesh"])))
     V, T, UV, pts, neck, down = m["V"], m["T"], m["UV"], m["pts"], m["neck"], m["down"]
@@ -1128,7 +1261,9 @@ def oct14(man):
     # his shape was built from), projected as the recipe projects, each of hair and skin given the
     # colours of the Oct 14 paint's own hair (his sides and back, under the line) and forehead
     # (mean and spread matched, channel by channel), then cut into his 3 mm patches.
-    if spec.get("hatless"):
+    if spec.get("hair_soft"):
+        fill = hair_soft(spec, fid, old, tex, M, Pp, N, head, fill, front, line, eye_y, pts, noise, lum_w)
+    elif spec.get("hatless"):
         # With no brim over it, the Oct 14 forehead under the line is the portraits' brim shadow (a
         # dark red band): from over his brows up, his forehead comes from the plain views too.
         fill = fill | (head & front & (Pp[..., 1] > eye_y + STRAY_BROWS))
@@ -1237,6 +1372,17 @@ def oct14(man):
     tex[is_neck] = c
     sq, n_patches = RP.patch_squares(tex, is_neck, Pp, float(fid.get("patch_m", 0.003)), float(fid.get("patch_compact", 12.0)))
     tex[is_neck] = sq[is_neck]
+    # `keep_from` (round 3: "round 2's face, chin and neck are right: keep them exactly"): every
+    # texel not repainted here whose point on him hasn't moved takes that build's colour.
+    if spec.get("keep_from"):
+        km = dict(np.load(os.path.join(ROOT, spec["keep_from"]["mesh"])))
+        kp = np.asarray(Image.open(os.path.join(ROOT, spec["keep_from"]["paint"])).convert("RGB")).astype(float) / 255.0
+        ktable = {tuple(t): [tuple(km["UV"][i]) for i in t] for t in km["T"]}
+        Mk, kcover = P.raster_uv(ktable, [list(t) for t in km["T"]], km["V"], size)
+        same = cover & kcover & ~fill & (np.linalg.norm(Mk - Pp, axis=-1) < KEEP_TOL)
+        tex[same] = kp[same]
+        print("head_neck: kept %d texels as %s (%.1f%% of his covered texels)" % (int(same.sum()), spec["keep_from"]["paint"],
+                                                                              100.0 * same.sum() / max(cover.sum(), 1)))
     # Texels nobody covers: the nearest covered one's colour (no old colours bleeding in at the
     # neck's strips' edges when filtered).
     _dd, (iy, ix) = ndimage.distance_transform_edt(~cover, return_indices=True)
@@ -1253,7 +1399,7 @@ def main():
     step = sys.argv[1]
     a = dict(x.split("=", 1) for x in sys.argv[2:] if "=" in x)
     if step == "shape":
-        shape(a["--head"], a["--out"])
+        shape(a["--head"], a["--out"], close="--close" in sys.argv)
     elif step == "paint":
         paint(a["--man"])
     elif step == "oct14":

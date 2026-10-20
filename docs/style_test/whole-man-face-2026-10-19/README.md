@@ -1,5 +1,36 @@
 # The whole man's head and neck (2026-10-19): the bold cowboy only
 
+## Round 3 (2026-10-20): hair and forehead only (`bold_cowboy_whole_a3`)
+
+Sean on round 2: its face, chin and neck are right, keep them exactly; one more round on the hair
+and forehead. Sheet `sheet_round3.jpg`: his portrait | today | try A | round 2 | round 3, in
+art_lab's neutral light, the warm light made to his portraits, and the saloon at night, front,
+three-quarter and side.
+
+- **Kept exactly:** every texel of round 2 not repainted here whose point on him hasn't moved
+  (portrait.json `keep_from`): his face, chin, jaw, ears and the front of his neck are round 2's
+  texels, byte for byte.
+- **The hair, trimmed** (`head_neck.py shape --close`): the head mesh's hair was a big shell (17-18
+  cm across over his ears, a short-haired man's head is ~16); every hair vertex outside an
+  ellipsoid round his skull (15.8 cm across, 19.8 deep) is drawn in to it, never inside his neck,
+  his face, jaw and ears not moved: short and close, nothing hanging behind his ears, the back
+  tapering into his nape just over his collar.
+- **The hair, painted** (`hair_soft`): from his hatless plain views, the fine strands blurred into
+  broad masses and their contrast lowered (strand-sized contrast was the grain and sparkle under
+  the saloon's lamps), in the Oct 14 paint's hair colours, greyer at his temples (his portraits'
+  warm grey, sampled behind his ear in the profile).
+- **The forehead:** the plain views' own forehead (its wrinkles and shading) given the mean and
+  spread of his Oct 14 face paint, cut into the same 3 mm patches; eased in from the top of his
+  brows along their line (the strip over them was the portraits' brim shadow), with a soft,
+  ragged hairline (hair or skin decided softly from the views' lightness, not two classes).
+- **No blocky stripes:** every edge between new and old paint (his brows, the old brim line at his
+  sides, in front of his ears, his temples) fades over 1.2 cm along a ragged line, then is cut
+  into patches across it.
+
+**Works check** (`--hatless`, against Test 1): stand, walk, run 0; hands up 695; aim 12; sit 20;
+crouch 30 (all as Test 1); ragdoll **23** (Test 1 37); wounds yes: **passes every check**
+(`works/try_a3_works.json`). **All tests: 401 passed.**
+
 ## Round 2 (2026-10-20): try A's shape with the Oct 14 face paint, bare-headed (`bold_cowboy_whole_a2`)
 
 Sean on round 1: try A's shape is right (the chin and jaw, the neck, the turned-down collar), its
