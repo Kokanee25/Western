@@ -149,6 +149,9 @@ var man_pose := {}
 var man_dist := 3.0
 ## --man-turn=DEG: and turned this far from facing the camera (characters: his three-quarter and side).
 var man_turn := 0.0
+## --head-variant=mips|dir:PATH: the man's head texture tried another way (PeopleBodies.head_variant;
+## characters, the distance test).
+var head_variant := ""
 
 
 func _initialize() -> void:
@@ -181,6 +184,9 @@ func _run() -> void:
 			man_dist = float(arg.substr(11))
 		elif arg.begins_with("--man-turn="):
 			man_turn = float(arg.substr(11))
+		elif arg.begins_with("--head-variant="):
+			head_variant = arg.substr(15)
+			load("res://src/bodies/people_bodies.gd").head_variant = head_variant
 		elif arg.begins_with("--model="):
 			# The seated man's body (outlaw, stranger). Loaded at run time: naming ShotMatch here
 			# makes the game's scripts compile with this one, before the autoloads exist.
@@ -789,6 +795,13 @@ func _man_setup(main, player) -> void:
 	player.body.visible = false
 	for i in 60:
 		await physics_frame
+	# Where his head lands in the frame and how big (characters: the distance test's crops).
+	var cam: Camera3D = player.camera
+	var hp: Vector3 = man.parts[&"head"].global_position
+	var top := cam.unproject_position(hp + Vector3(0, 0.06, 0))
+	var low := cam.unproject_position(hp - Vector3(0, 0.06, 0))
+	print("man_head_px %.1f %.1f %.2f fov %.1f dist %.2f" % [cam.unproject_position(hp).x, cam.unproject_position(hp).y,
+			low.distance_to(top), cam.fov, cam.global_position.distance_to(hp)])
 
 
 ## The road's view (docs/briefs/road.md): the camera a metre off the dirt, looking west down the

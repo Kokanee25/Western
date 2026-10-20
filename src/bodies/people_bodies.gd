@@ -14,6 +14,11 @@ const TEXTURE_PATH := "res://assets/people/%s_%s.png"
 ## The "quantise once" set: a whole man's <id>_skin_smooth.png / <id>_head_smooth.png
 ## (tools/blender/fit_tripo.py --smooth: no squares, no palette) where they exist. Off by default.
 static var smooth_paint := false
+## His head's texture tried another way (characters, the distance test, 2026-10-20; off by default):
+## "" as imported; "mips" with mipmaps made from it at load (heads are imported without); "dir:PATH"
+## its mip chain read from PATH/level_0.png, level_1.png ... (painted mips, made otherwise than by
+## averaging: tools/characters/head_mips.py).
+static var head_variant := ""
 ## What make_people.py did for him (and what it measured, like his skin tone).
 const REPORT_PATH := "res://assets/people/%s.json"
 ## His painted textures (tools/paint_bake.gd + tools/paint/finish.py, or
@@ -70,6 +75,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 				png = TEXTURE_PATH % [model, k + "_smooth"]
 			if ResourceLoader.exists(png):
 				textures[k] = load(png)
+				if k == "head" and head_variant != "":
+					textures[k] = _head_variant(textures[k])
 	var face := TEXTURE_PATH % [model, "face"]
 	if ResourceLoader.exists(face):
 		textures["face"] = load(face)
@@ -111,6 +118,30 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
 	return out
+
+
+## His head's texture as `head_variant` says.
+static func _head_variant(tex: Texture2D) -> Texture2D:
+	if head_variant == "mips":
+		var im := tex.get_image()
+		im.decompress()
+		im.generate_mipmaps()
+		return ImageTexture.create_from_image(im)
+	if head_variant.begins_with("dir:"):
+		var dir := head_variant.substr(4)
+		var data := PackedByteArray()
+		var first: Image = null
+		var i := 0
+		while FileAccess.file_exists("%s/level_%d.png" % [dir, i]):
+			var lv := Image.load_from_file("%s/level_%d.png" % [dir, i])
+			lv.convert(Image.FORMAT_RGB8)
+			if first == null:
+				first = lv
+			data.append_array(lv.get_data())
+			i += 1
+		if first != null:
+			return ImageTexture.create_from_image(Image.create_from_data(first.get_width(), first.get_height(), true, Image.FORMAT_RGB8, data))
+	return tex
 
 
 ## Whose texture a shape wears: his own, or (a copy made by tools/faces/talking_face.py, whose
