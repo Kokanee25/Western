@@ -321,11 +321,14 @@ frozen until Sean names one.
   flecks, the coat's vent, sides and collar) with its collar lift and armhole stripes taken back
   (2026-10-17, sheet `d17_take2.png`). ~$10.06 of $15 spent. Not merged: his own hat
   (`look/bold-cowboy-own-hat-2026-10-14`).
-- **The two tests** (2026-10-19, `claude/characters-two-tests`, PR not merged, $0): the fit's
-  stretch fixed for hatless whole men (`"bare": true`); Test 1 `bold_cowboy_whole` (the arms-out
-  Rodin man kept whole, the approved head, his own hat) passes the works check
-  (`works_check.gd`); Test 2 blocked (asset sites outside the network policy). Report and sheets
-  `docs/style_test/two-tests-2026-10-19/`. Waiting on Sean: which route becomes the recipe.
+- **The two tests** merged (#154, build 1503): `bold_cowboy_whole`, the arms-out Rodin man kept
+  whole (`whole_man.py`, the fit's `"bare": true`), the Oct 14 head, his own hat.
+- **His head and neck** (`claude/characters-whole-man-face`, PR #155 not merged, $0): round 3
+  `bold_cowboy_whole_a3` (`head_neck.py`: try A's chin, neck and turned-down collar, the Oct 14 face
+  paint as round 2 had it, **no hat** (Sean, 2026-10-20), the hair trimmed close to his skull and
+  painted from his plain views, the forehead in his face paint's colours; round 2 `_a2` beside it).
+  Sheets and report `docs/style_test/whole-man-face-2026-10-19/`. Waiting on Sean; then the talking
+  face on it (`bold_cowboy_whole_talking`; face-rig.md's step). The saloon's orange is art's.
 - Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
   twin: a shirt with a real collar and separate sleeves, waistcoat and trousers as their own
   meshes, fitted to his body and painted from his pictures, reusable for every man (the cut

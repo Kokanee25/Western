@@ -62,6 +62,9 @@ MIN_FACING = 0.1
 # along +Z): left faces the picture's left.
 VIEW_TURN = {"front": 0.0, "three_quarter": -35.0, "profile_left": -90.0, "profile_right": 90.0, "back": 180.0}
 EYE_SPAN = 0.064      # metres between his irises' middles (the anatomy's eyes, 3.2 cm either side)
+EYES_SHARP_M = (0.010, 0.016)  # `smooth_px`: round his irises the sharp portrait wholly, faded out by the second
+REFLECT_BAND = 0.01   # `hat_fill` "reflect": metres under the brim's line mirrored up into what the brim hid
+REFLECT_BAND_FRONT = 0.004  # ... over his forehead (his skin above his brows)
 
 
 # --- His bust -----------------------------------------------------------------------------------------
@@ -294,14 +297,21 @@ def paint(man, spec):
     from scipy import ndimage
     os.makedirs(WORK, exist_ok=True)
     # `shape`: another man's bust (the same man painted in another style needs no new Rodin).
-    glb = os.path.join(ROOT, "assets", "people", "tripo", "test", spec.get("shape", man) + "_rodin.glb")
-    V, T, UV, own = load_glb(glb)
-    V = to_body(V)
-    # MediaPipe on his own colours (the loop mesh: one UV a corner).
-    pts, _cam = face_points(V, T, UV, own)
-    k = EYE_SPAN / float(np.linalg.norm(pts[468] - pts[473]))
-    V *= k
-    pts *= k
+    if spec.get("mesh"):
+        # A head already shaped and placed (tools/characters/head_neck.py: V, T, UV per corner and
+        # its MediaPipe points, in the game's body space): painted as it is, nothing moved.
+        m = dict(np.load(os.path.join(ROOT, spec["mesh"])))
+        V, T, UV, pts, own = m["V"], m["T"], m["UV"], m["pts"], None
+        k = 1.0
+    else:
+        glb = os.path.join(ROOT, "assets", "people", "tripo", "test", spec.get("shape", man) + "_rodin.glb")
+        V, T, UV, own = load_glb(glb)
+        V = to_body(V)
+        # MediaPipe on his own colours (the loop mesh: one UV a corner).
+        pts, _cam = face_points(V, T, UV, own)
+        k = EYE_SPAN / float(np.linalg.norm(pts[468] - pts[473]))
+        V *= k
+        pts *= k
     n_loop = P.vertex_normals(V, T)
     # Smooth normals across UV seams: average over welded positions.
     _u, inv = np.unique(np.round(V / 1e-6).astype(np.int64), axis=0, return_inverse=True)
@@ -316,7 +326,7 @@ def paint(man, spec):
     nrm[ok] = n_loop[cKDTree(V).query(pts[ok])[1]]
     report = {"scale": round(k, 5), "views": {}}
     fid = spec.get("fidelity", {})
-    pics, lms = {}, {}
+    pics, lms, sharp = {}, {}, {}
     for view, path in spec["paint_views"].items():
         # The painting's own squares taken out (a median over a square, a little blur), so ours are
         # the only squares: projected and squared again, its squares come out as zigzags.
@@ -324,7 +334,13 @@ def paint(man, spec):
         raw = Image.open(os.path.join(ROOT, path)).convert("RGB")
         # (portrait.json `fidelity.unsquare`: a smaller median keeps his irises, which UNSQUARE wipes.)
         uns = int(fid.get("unsquare", UNSQUARE))
-        if uns <= 1:
+        if fid.get("smooth_px"):
+            # `smooth_px`: the portraits' squares blurred out altogether (a gaussian of that many
+            # pixels), for a smooth painted head; his eyes, painted finer than the squares, are
+            # taken from the portrait as it is (`unsquare`'s light median) within EYES_SHARP_M.
+            img = np.asarray(raw.filter(ImageFilter.GaussianBlur(float(fid["smooth_px"])))).astype(float) / 255.0
+            sharp[view] = np.asarray(raw.filter(ImageFilter.MedianFilter(max(uns, 1) | 1))).astype(float) / 255.0
+        elif uns <= 1:
             # 0 or 1: the painting as it is (a painterly style with no squares to take out).
             img = np.asarray(raw).astype(float) / 255.0
         else:
@@ -352,7 +368,7 @@ def paint(man, spec):
     cams = fit_views(pts, nrm)
     # His shape fitted to the portraits (style_shape.py; portrait.json `fidelity.shape_fit`): the
     # landmarks where all the portraits put them, the mesh warped to them, the cameras fitted again.
-    if fid.get("shape_fit"):
+    if fid.get("shape_fit") and not spec.get("mesh"):
         import style_shape as SS
         rounds = []
         V_rodin = V.copy()
@@ -399,6 +415,11 @@ def paint(man, spec):
         band = img[max(0, y0):max(y0 + 1, y1)]
         sat = band.max(2) - band.min(2)
         grey = (sat < 0.08) & (band.mean(2) > 0.35)
+        if fid.get("back_centre") == "silhouette":
+            # (`back_centre` "silhouette": dark hair on a grey ground, where the grey test finds the
+            # ground: the middle of what isn't the ground.)
+            edge_c = np.median(np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)]), 0)
+            grey = np.linalg.norm(band - edge_c, axis=2) > 2 * BG_TOL
         xs = np.nonzero(grey)[1]
         cx = float(np.median(xs)) if len(xs) > 50 else img.shape[1] / 2
         back.tu = cx - float(back.project(np.array([[np.median(V[:, 0]), 0.0, 0.0]]))[0, 0])
@@ -432,6 +453,10 @@ def paint(man, spec):
         seen = (cam.depth(p) <= z_at + DEPTH_TOL) & (q[:, 0] >= 0) & (q[:, 0] < w) & (q[:, 1] >= 0) & (q[:, 1] < h)
         f = n @ cam.toward()
         colour[view] = P.sample(img, q[:, 0], q[:, 1])
+        if view in sharp:
+            de = np.min([np.linalg.norm(p - pts[i], axis=1) for i in (468, 473)], axis=0)
+            w_s = np.clip((EYES_SHARP_M[1] - de) / (EYES_SHARP_M[1] - EYES_SHARP_M[0]), 0, 1)[:, None]
+            colour[view] = colour[view] * (1 - w_s) + P.sample(sharp[view], q[:, 0], q[:, 1]) * w_s
         # His mane is bigger than the painted hair: where it lands on the painting's background
         # (the colours of its left and right edges), this view doesn't paint it.
         edge = np.concatenate([img[:, :40].reshape(-1, 3), img[:, -40:].reshape(-1, 3)])
@@ -467,7 +492,7 @@ def paint(man, spec):
             # (`fidelity.delight`: how much; 0 keeps the paintings' own light, for a painterly
             # style whose light is part of its look.)
             ratio = np.clip(shade / max(float(np.median(shade[sel])), 1e-6), 1e-3, None) ** float(fid.get("delight", DELIGHT))
-            ratio = np.clip(ratio, *DELIGHT_CLAMP)
+            ratio = np.clip(ratio, *fid.get("delight_clamp", DELIGHT_CLAMP))
             # His eye sockets are dark because the painter drew them so, not because they face
             # away from the light: no de-light within FEATURE_KEEP_M of his eyes (portrait.json
             # `fidelity.keep_features`), or they come out pale and glassy.
@@ -550,8 +575,28 @@ def paint(man, spec):
     skin_side = np.linalg.norm(nc - skin_ref, axis=1) < np.linalg.norm(nc - hair_c, axis=1)
     skin_c = np.median(nc[skin_side], 0) if skin_side.sum() > 20 else skin_ref
     forehead = front & (Pp[..., 1] < eye_y + HAIRLINE)
-    tex[hat & forehead] = skin_c
-    tex[hat & ~forehead] = hair_c
+    if fid.get("hat_fill") == "reflect":
+        # `hat_fill` "reflect": under the portraits' brim his own paint carried on up, each texel
+        # the one mirrored under the brim's line in a REFLECT_BAND band (his temples' grey hair
+        # and his forehead's skin, strands and all), not one flat colour (a pale patch at his
+        # temple and a grey clump under the game's hat, which sits higher than the portraits').
+        line = eye_y + np.where(front, BRIM_ABOVE_EYES, BRIM_SIDES)
+        # (Over his forehead the band is thinner, REFLECT_BAND_FRONT: a centimetre reached his brows
+        # and mirrored them up his forehead in stripes.)
+        band = np.where(front, REFLECT_BAND_FRONT, REFLECT_BAND)
+        t = np.maximum(Pp[..., 1] - line, 0)
+        m_ = np.mod(t, 2 * band)
+        src_y = line - 0.001 - np.where(m_ < band, m_, 2 * band - m_)
+        ok_ = np.nonzero(below)
+        tree = cKDTree(Pp[ok_])
+        hi_ = np.nonzero(hat)
+        q_ = Pp[hi_].copy()
+        q_[:, 1] = src_y[hi_]
+        _d, j = tree.query(q_)
+        tex[hi_] = tex[ok_[0][j], ok_[1][j]]
+    else:
+        tex[hat & forehead] = skin_c
+        tex[hat & ~forehead] = hair_c
     # Under his chin the paintings show his collar and neckcloth, which on Rodin's longer neck
     # land on skin: what's far from his jaw's colour there takes it.
     jaw = below & (Pp[..., 1] > chin_y) & (Pp[..., 1] < chin_y + 0.03)
@@ -574,6 +619,15 @@ def paint(man, spec):
         tex[over] *= (target / np.maximum(lum[over], 1e-6))[:, None]
         speck = face & (sat < 0.1) & (lum > np.percentile(lum[face], 99.5))
         tex[speck] *= (hi / np.maximum(lum[speck], 1e-6))[:, None]
+    # `skin_sat`: his paint's colour taken down to that share (the portraits' lamplight is orange;
+    # the game's lamps light him again), his eyes' whites and irises kept.
+    if fid.get("skin_sat"):
+        lum3 = (tex @ np.array([0.2126, 0.7152, 0.0722]))[..., None]
+        eyes_k = np.min([np.linalg.norm(Pp - pts[i], axis=-1) for i in (468, 473)], axis=0) < EYES_SHARP_M[0]
+        k_ = np.where(eyes_k, 1.0, float(fid["skin_sat"]))[..., None]
+        tex = np.where(cover[..., None], np.clip(lum3 + (tex - lum3) * k_, 0, 1), tex)
+        if fid.get("skin_gain"):
+            tex = np.where(cover[..., None] & ~eyes_k[..., None], np.clip(tex * float(fid["skin_gain"]), 0, 1), tex)
     # Squares, once, last: SQUARE_M cells in 3D on him (so they sit square on his head, whatever
     # Rodin's UV islands do), each the median of its texels.
     # portrait.json `fidelity.patches`: "anatomy" grows patches along his paint's edges
@@ -608,13 +662,14 @@ def paint(man, spec):
     P.to_pil(sq).save(os.path.join(WORK, man + "_paint.png"))
     # The moustache and brows raised where the paint says hair (style_shape.relief; portrait.json
     # `fidelity.moustache_m`, `brows_m`, `sideburns_m`).
-    if fid.get("moustache_m", 0) or fid.get("brows_m", 0) or fid.get("sideburns_m", 0):
+    if (fid.get("moustache_m", 0) or fid.get("brows_m", 0) or fid.get("sideburns_m", 0)) and not spec.get("mesh"):
         import style_shape as SS
         report["relief"] = {}
         V = SS.relief(V, T, sample_tex(sq, UV), pts, float(fid.get("moustache_m", 0)), float(fid.get("brows_m", 0)), report["relief"],
                       sideburns_m=float(fid.get("sideburns_m", 0)))
     # Rodin's own colour at each corner (the build keeps only his neck's skin, not his collar).
-    np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts, "own": sample_tex(own, UV)},
+    np.save(os.path.join(WORK, man + "_mesh.npy"), {"V": V, "T": T, "UV": UV, "pts": pts,
+                                                    "own": sample_tex(own, UV) if own is not None else None},
             allow_pickle=True)
     # His own hat (style_hat.py; portrait.json `hat`): fitted to the marks on his portraits,
     # painted from them, cut into patches like his face.

@@ -27,6 +27,8 @@ var report := {}
 var poses := ["stand", "walk", "run", "hands_up", "aim", "sit", "crouch"]
 ## --poses-only: the pose check alone (no fall, hat or wounds).
 var poses_only := false
+## --hatless: a man made bare-headed (no hat to shoot off): the hat check passes if he has none.
+var hatless := false
 ## --ref=works.json: another man's check (the Oct 14 bold cowboy's, who bends cleanly): a pose
 ## passes with up to REF_SHARE of his sheets (or SHEETS_ALLOWED), not only SHEETS_ALLOWED.
 var ref := {}
@@ -49,6 +51,8 @@ func _run() -> void:
 			poses = Array(a.substr(8).split(","))
 		elif a == "--poses-only":
 			poses_only = true
+		elif a == "--hatless":
+			hatless = true
 		elif a.begins_with("--ref="):
 			var r = JSON.parse_string(FileAccess.get_file_as_string(a.substr(6)))
 			if r is Dictionary:
@@ -171,7 +175,9 @@ func _run() -> void:
 			hat_meshes_left += 1
 	report["hat"] = {"had_his_own_hat": had_hat, "hat_off": man.hat_off, "hats_fallen": hats.size(),
 			"hat_meshes_still_on_him": hat_meshes_left, "ball_energy_kept_j": kept,
-			"pass": had_hat and man.hat_off and hats.size() > 0 and hat_meshes_left == 0}
+			"pass": (had_hat and man.hat_off and hats.size() > 0 and hat_meshes_left == 0) or (hatless and not had_hat)}
+	if hatless:
+		report["hat"]["hatless"] = true
 	await _shots("hat_off", man, ["front", "three_quarter"])
 	man.queue_free()
 	await physics_frame

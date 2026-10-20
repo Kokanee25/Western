@@ -872,6 +872,32 @@ a ragdoll fall, the hat shot off, a wound, and every triangle's stretch (`--ref=
 `works.json`, judged by sheet area). `men_bench.gd`: perf_bench's calm street with N copies of
 one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and layout.
 
+The whole man's head and neck (2026-10-19, `head_neck.py`; report
+`docs/style_test/whole-man-face-2026-10-19/`): try A `shape` warps the kept Oct 14 head's chin and
+lower jaw to his front portrait's (`CHIN_TARGET`, a thin-plate spline), smooths the hair behind his
+ears (Taubin), cuts his underside exactly along his jaw (`cut_y`, `clip`) and lofts a neck from that
+edge (`loft`: under-jaw, throat, nape, then a tube into the collar; its UVs in the atlas's empty
+square) → `heads/<out>_mesh.npz`; `paint` runs `rodin_portrait.paint` on it (portrait.json `mesh`;
+`fidelity`: `smooth_px` blurs the portraits' squares out with his eyes kept sharp, `hat_fill`
+"reflect" carries the paint on up under the brim, `skin_sat`, `delight_clamp`) then paints the
+neck (skin, smoothed, eased into the hair at his nape) and lifts his eyes' whites; `join` cuts the
+body round his collar (`COLLAR_CUT`), stands it round the neck, builds his shirt's turned-down
+collar (`collar_band`: stand and fall, open for the tie) and skins the neck inside the collar with
+the body's weights. Try B `twin` / `join_twin`: run 89's own head and neck moved onto the
+anatomy's eyes, eased down its neck, new UVs. `measure`: chin to collar, neck over jaw, ear ahead
+of shoulder. `face_neck_renders.sh` / `face_neck_sheet.py`: the sheet. Round 2 `oct14` (portrait.json
+`paint_from`): the Oct 14 face paint as it is on try A's shape; bare-headed (`hatless`, no hat
+piece; Sean 2026-10-20) his hair and forehead projected from his plain views (`hair_views`) in the
+Oct 14 paint's colours and cut into its patches (with a hat: the under-brim fills redone instead);
+stray grey patches on the face made skin; the neck projected the Oct 14 way, same patches.
+`works_check.gd --hatless`: the hat check passes for a man with none. Round 3: `shape --close`
+(`close_hair`: the hair drawn in to the `SKULL` ellipsoid, face, jaw and ears kept), `hair_soft`
+(the plain views' hair in broad masses and the forehead in the face paint's mean and spread, soft
+hairline, every edge eased over `BLEND_M`), `keep_from` (an earlier build's texels where he
+hasn't moved).
+`face_light_renders.sh` / `face_light_sheet.py`: art_lab's neutral and warm lights and the saloon
+(`screenshots.gd --man-turn=`), front, 3/4, side.
+
 ## Training the image model on our style (tools/style)
 
 - **Training the image model on our style** (`tools/style/train_style.py`, People workflow input
