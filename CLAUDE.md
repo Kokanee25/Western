@@ -329,6 +329,11 @@ frozen until Sean names one.
   painted from his plain views, the forehead in his face paint's colours; round 2 `_a2` beside it).
   Sheets and report `docs/style_test/whole-man-face-2026-10-19/`. Waiting on Sean; then the talking
   face on it (`bold_cowboy_whole_talking`; face-rig.md's step). The saloon's orange is art's.
+- **His face by distance** (`claude/characters-face-distance`, on #155's branch, not merged, $0):
+  far away his face speckles (0.4 mm texels, no mipmaps); recommended the hybrid head texture (as
+  now up close, painted mips from ~6 m, `head_mips.py --plain-to=4`); the light's share (street
+  face in shadow, faces too saturated) noted for art. `docs/style_test/face-distance-2026-10-20/`.
+  Waiting on Sean.
 - Next (Sean, 2026-10-18): **proper garments** in place of clothes cut from Rodin's dressed
   twin: a shirt with a real collar and separate sleeves, waistcoat and trousers as their own
   meshes, fitted to his body and painted from his pictures, reusable for every man (the cut

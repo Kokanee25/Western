@@ -118,7 +118,7 @@ def main():
         rows.append((dists, sizes, row))
     ncol = 5
     ch = int(CELL * 1.15)
-    H = head_h + sum(len(r[2]) * (ch + pad) + 40 for r in rows) + 60
+    H = head_h + sum(len(r[2]) * (ch + pad) + 40 for r in rows) + 160
     W = label_w + ncol * (CELL + pad) + pad
     canvas = Image.new("RGB", (W, H), (30, 30, 32))
     dr = ImageDraw.Draw(canvas)
@@ -143,7 +143,7 @@ def main():
         y += 6
     for i, n in enumerate(a.get("--notes", "").split("|") if a.get("--notes") else []):
         dr.text((pad * 2, y + 6 + 20 * i), n, fill=(210, 205, 195), font=font(15))
-    canvas = canvas.crop((0, 0, W, y + 30 + 20 * len(a.get("--notes", "").split("|"))))
+    canvas = canvas.crop((0, 0, W, y + 44 + 20 * len(a.get("--notes", "").split("|"))))
     canvas.save(a["--out"], quality=90)
     for k, vals in SPECKLE.items():
         print("speckle", k, vals)
