@@ -65,7 +65,49 @@ A/B sheet and by the blind critic.
 
 ## Results
 
-(Filled in as the rounds run; the measures in `docs/screenshots/material_lab/<round>/measure.md`.)
+### Round 1 (2026-10-21): the baseline and the first candidates
+
+Sheets, the critic and the stairs in `docs/screenshots/material_lab/2026-10-21/`. Paint: ~$4.44 of
+Sean's $9 ($4, then $5 more): studio1 $2.11 (run 94), studio2 $1.70 (run 95), the runner and a
+first dark oak $0.41 (run 96), the painted dark oak ≤$0.22 (run 98); run 97 was refused by
+OpenRouter's monthly guardrail ($40.32 of $40; Sean raised it) and cost nothing.
+
+| Set | What | Detail (mm; the men's cloth 5.5-7.1, pass 4.3-9.6) | Colour (pooled, 3 lights) |
+|---|---|---|---|
+| woods (C, today) | the game's | 14-34: fails every wood | fails at golden and lamplit on most; the paint itself is far lighter than the men's (median L* 52-74 against 27.5) |
+| recut512 | today's paintings cut at 512 a metre (no call) | 3.7-7.9: passes all but store_boards (too fine) | as today |
+| fit512 | recut512 graded to the men's lightness (no call) | as recut512 | weathered pine passes noon, fascia and floor golden; the sunlit top tenth still over the men at golden |
+| studio1 / studio2 | repainted with the Studio men's sheet, 512 a metre, graded; dark trim 7 boards, framing 8, floor 10, timber 3 m, dark trim 4 m; the props | 3.3-6.3: most too fine at 512 | dark trim (studio2) passes noon and golden |
+| studio1_384 | studio1's paintings cut at 384 (no call) | 5.2-7.1: passes every wood | (rendering) |
+
+Stand cost: 37 draws whatever the set; texture memory 1.3 MB today, 18-31 MB at 512 (RGBA8 with
+mipmaps, as the woods import today), about 0.56 of that at 384.
+
+The blind critic (`critic.md`): today 4 CLOSE / 5 DIFFERENT, the 512 repaint 3 CLOSE / 6 DIFFERENT,
+none SAME. The floor improved, saloon red and dark trim got worse. What gives the wood away is
+photographic grain (sharp knots, grain lines, nail holes, speckle) beside men painted in broad
+shapes and hard tone bands; then the wood's lightness (bleached or blown to orange-white beside
+warm dark men); then edge flaws (black seam dashes on the walls, square blocks on the fascia and
+steps). The detail measure (the size of the finest variance) said the 512 repaint matched; the
+critic says finer grain reads more photographic. **Next round:** paint broad (few grain lines,
+knots as soft shapes), darker and warmer, cut at 384; fix the seam dashes (texel_grid's
+edge_shade on boards) and the mosaic blocks on the fascia and steps.
+
+**Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
+Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
+`material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
+added in the merge that moves it into `assets/textures/woods/`.
+
+### The hotel's oak stair (Sean, 2026-10-21)
+
+`OakStair` (`src/art/oak_stair.gd`, `--material=stair`): 13 risers of 190 on a 270 going to a
+landing, a bullnose first step round a turned newel, two turned balusters a tread, a moulded rail,
+cut and wall strings cut as built (the open string dies into the newel with a level cut on the
+first step: Sean saw the first version's run through the bottom step), the landing's balustrade,
+a runner on brass rods, in a lobby of painted boards over an oak skirting. Two oaks: studio3 cut
+with no call from the walnut painting the gun stocks use (warm, red-brown, eight boards), studio4
+painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.jpg`,
+`stair_walnut_*.jpg`.
 
 ## What production needs (none of it done; the structure code is gameplay's)
 
@@ -91,8 +133,14 @@ Carried over from the Oct 14 notes (`material-lab-timber.md`), checked against m
   30 mm past a rim joist, joists on pads instead of solid sleepers, open steps (treads on
   stringers, set-back risers), as real members so each breaks, burns and is supported on its own;
   their collision boxes follow.
-- **Density**, if Sean approves a set at 256 texels a metre: no code (PixelArt reads `lab.json`'s
-  `texels_per_metre`); the woods' texture memory about x4 (see Results).
+- **Density and memory**, if Sean approves a set at 384 (or 512) texels a metre: no code (PixelArt
+  reads `lab.json`'s `texels_per_metre`), but the woods import lossless (RGBA8 in video memory):
+  at 512 the stand's textures alone are 18-31 MB against 1.3 today. The woods should import
+  VRAM-compressed (BPTC/S3TC, ~4x smaller; art's import settings, checked for the look in the lab)
+  before a fine set goes in.
+- **Furniture as members** (3.3, the breakage lab): a chair or table built of members draws from
+  the woods' strips, not a 0.5 m prop tile; it wants a furniture wood in the woods set (an oak,
+  painted as the woods are), one painting.
 - **Goldens**: every fixed view with a board in it re-approved in the same merge as any of this.
 
 ## Wear-down: the plan (after Gate A; not built)

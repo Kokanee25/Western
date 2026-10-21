@@ -278,37 +278,30 @@ pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`d
 frozen until Sean names one.
 
 **Art** (branch `claude/art-…`; the roadmap's steps; targets in `docs/concept/targets/`):
-- Done: the woods are C (2026-10-15); 1.1 the targets; 1.4 the road (#130, build 1280: painted
-  earths, a street map of ruts, stones, old prints; brief `docs/briefs/road.md`); the painted sky
-  (two panels toward and away from the sun, `reduce_sky.py`, shown while the sun is low), a slight
-  haze outside and in the saloon, smooth wood again (painted illustration, DESIGN.md §4), and 1.2's
-  street light (`paint_sun_limit`: the cowboy 0.92 in the street, 1.03 in the saloon); sheets
-  `docs/screenshots/sky/`, `painted_light/in_game_sun_limit.jpg`. Paint ~$3.98 (road $2.44, sky $0.26,
-  references $1.28) before the match work.
-- The judge and critic compare against painted references (`docs/concept/*-painted.png`; street C,
-  the saloon warm). The world painted in the man's hand (target 8, brief `docs/briefs/match-the-man.md`):
-  woods and materials repainted dirty and worn (`paint_woods.py`, `paint_textures.py --style=man`),
-  grass in strokes, the road into his palette; ~$5.5 of Sean's $6.
-- The close props in his hand (2026-10-17, $2.64 of a further $5): ten prop materials, factory tiles
-  at their own density, the table's painted top, turned props round, the backdrop smooth.
-- The saloon's boards, glass and grain (2026-10-17): smooth materials' board strips keep their
-  shades (a reduce.py bug drew them one flat dark colour), the chimney glass smooth; no paint.
-- Sean, 2026-10-17: "our art isn't completely smooth, it can have a bit of square to it" (DESIGN.md
-  §4): squares aren't a fault in themselves; the critic's prompt says so. Sheet
-  `docs/screenshots/sky/how_square.jpg` (A smooth now / C halfway / B the cowboy's squares) unpicked.
-- **Paused (Sean, 2026-10-17):** no more world art until the character (1.3) is finished and can be
-  used in the renders: "once we know how the character looks we can better mould the world". Then:
-  how square (the sheet), the back bar's dark void, the table's flat top, the street all one
-  orange and its canyon end (the hero rocks' size is Sean's call). ~$2.36 of his $5 unspent.
+- Done before: the woods are C (2026-10-15); 1.1 the targets; 1.4 the road (#130); the painted sky,
+  haze, smooth wood, 1.2's street light; the world and the close props painted in the layered
+  cowboy's hand (target 8; `docs/briefs/match-the-man.md`); the judge and critic against the painted
+  references. Sean, 2026-10-17: a bit of square is fine (DESIGN.md §4; `docs/screenshots/sky/how_square.jpg`
+  unpicked). World art otherwise paused until 1.3 (how square, the back bar, the table's top, the
+  street's one orange and canyon end); ~$2.36 of that $5 unspent.
+- **1.4a, the material lab** (2026-10-21, branch `claude/art-material-lab`, brief
+  `docs/briefs/material-lab.md`): `MaterialStand` + `tools/material_lab.gd` (one wood at a time, three
+  lights, the Studio's three men in every view; `--repeats` for Main Street) and
+  `tools/material_measure.py`; the men's sheet `9_studio_men.png` is now `--style=man`'s reference;
+  candidate sets `tools/textures/material_lab.json` -> `assets/textures/mlab_*`. Round 1: no wood
+  passes; the critic finds the Studio repaint (512 a metre) photographic. Waiting on Sean's A/B picks
+  (`docs/screenshots/material_lab/2026-10-21/`); next round 2: broad paint, darker and warmer, at
+  384, the seam dashes and mosaic blocks fixed. The hotel's oak stair (`OakStair`) on the bench, two
+  oaks for Sean. Paint ~$4.44 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean
+  raised it). Wear-down planned in the brief (after Gate A).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
-  --only=`; an empty name in `--only` matches every view); `pgrep -f`/`pkill -f` in a watch or a
-  kill match the command itself; a data texture with an alpha channel needs
-  `process/fix_alpha_border=false` in its import; the rendered perf bench doesn't finish under
-  lavapipe (draw calls through the bridge's `read frame` instead); volumetric haze lifts near
-  shadows (measure the darks before raising it).
+  --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
+  a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
+  the Studio men's `.import` stubs fill in (characters' files: keep them out of commits, but leave
+  them filled locally or the men draw white); a material lab view takes ~1 min under lavapipe.
 - For characters (Sean, 2026-10-16: the look is painted illustration, DESIGN.md §4): the painterly
-  cowboy's clothes (coat, vest, shirt, trousers; today 64-128 px textures in 16 colours, squares)
-  painted smooth like his face, as part of 1.3; the wood is smooth again.
+  cowboy's clothes painted smooth like his face, as part of 1.3. From the lab: under the saloon's
+  lamps the Studio men measure far darker than the wood beside them (their painted light).
 
 **Characters** (branch `claude/characters-…`; briefs `docs/briefs/layered-people.md`,
 `painted-light.md`, `skinned-hands.md`):
