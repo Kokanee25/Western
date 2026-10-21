@@ -164,6 +164,39 @@ def reference(spec):
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
 
 
+def paint_material(mid, spec, key, out, style_man, tries=3, budget=None):
+    """One material painted (in the men's hand with style_man) and kept at `out`; None if every
+    try failed or the budget (dollars for the run, SPENT so far) can't take another call."""
+    kind = spec["kind"]
+    prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
+        what=spec["what"], text=spec.get("text", ""))
+    refs = [reference(spec)]
+    if style_man:
+        prompt = in_mans_hand(prompt)
+        man = Image.open(MAN).convert("RGB")
+        man.thumbnail((768, 768))
+        refs.append(man)
+    img = None
+    for attempt in range(tries):
+        if budget is not None and SPENT + 0.35 > budget:
+            print("budget: $%.2f spent of $%.2f; %s not painted" % (SPENT, budget, mid))
+            return None
+        try:
+            img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
+            break
+        except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
+            print("failed (try %d):" % (attempt + 1), e)
+    if img is None:
+        return None
+    # Kept big enough to reduce well, small enough for git.
+    if max(img.size) > 1536:
+        s = 1536 / max(img.size)
+        img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
+    img.save(out, "JPEG", quality=92)
+    print("painted:", mid, img.size)
+    return img
+
+
 def main():
     key = os.environ.get("OPENROUTER_API_KEY", "")
     if not key:
@@ -189,32 +222,11 @@ def main():
         if os.path.exists(out) and not repaint:
             print("already painted:", mid)
             continue
-        kind = spec["kind"]
-        prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
-            what=spec["what"], text=spec.get("text", ""))
-        refs = [reference(spec)]
-        if "--style=man" in sys.argv:
-            prompt = in_mans_hand(prompt)
-            man = Image.open(MAN).convert("RGB")
-            man.thumbnail((768, 768))
-            refs.append(man)
-        img = None
-        for attempt in range(3):
-            try:
-                img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
-                break
-            except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
-                print("failed (try %d):" % (attempt + 1), e)
+        img = paint_material(mid, spec, key, out, "--style=man" in sys.argv)
         if img is None:
             failed.append(mid)
             continue
-        # Kept big enough to reduce well, small enough for git.
-        if max(img.size) > 1536:
-            s = 1536 / max(img.size)
-            img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
-        img.save(out, "JPEG", quality=92)
         painted += 1
-        print("painted:", mid, img.size)
         if spec.get("height"):
             h = None
             for attempt in range(3):

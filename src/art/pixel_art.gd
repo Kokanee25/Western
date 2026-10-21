@@ -187,7 +187,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
-	elif tex and (tex.resource_path.contains("/textures/%s/" % WOODS_SET)
+	elif tex and not _lab_prop(tex) and (tex.resource_path.contains("/textures/%s/" % WOODS_SET)
 			or not _set_woods(tex.resource_path.get_base_dir().get_file()).is_empty()):
 		# The timber pass (lab2) and its finish (lab3): fine texels, mipmapped (far off they
 		# average, not shimmer), never coarsened into squares, the edges a soft line, end grain
@@ -220,12 +220,20 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		if wear > 0.0 and ResourceLoader.exists(bare):
 			m.set_shader_parameter(&"wear_tex", load(bare))
 			m.set_shader_parameter(&"end_wear", wear)
-	elif tex and tex.resource_path.get_base_dir() == FACTORY_PATH.get_base_dir():
-		# A factory tile at its own density (a multiple of the world's, so F7 moves it too).
-		var fd := factory_density(tex.resource_path.get_file().get_basename())
+	elif tex and (_lab_prop(tex) or tex.resource_path.get_base_dir() == FACTORY_PATH.get_base_dir()):
+		# A factory tile at its own density (a multiple of the world's, so F7 moves it too); a
+		# material lab set's prop at its set's.
+		var fd := lab_density(tex.resource_path.get_file().get_basename(), tex.resource_path.get_base_dir().get_file()) \
+				if _lab_prop(tex) else factory_density(tex.resource_path.get_file().get_basename())
 		if fd > 0.0:
 			m.set_meta(&"texels_scale", fd / DRAWN_TEXELS)
 	return track(m)
+
+
+## Whether a texture is a material lab set's prop (its lab.json marks it "prop": a factory tile, not
+## a board strip).
+static func _lab_prop(tex: Texture2D) -> bool:
+	return tex != null and bool(_wood_info(tex.resource_path.get_base_dir().get_file(), tex.resource_path.get_file().get_basename()).get("prop", false))
 
 
 ## The same material with bullet holes (the hole uniforms are set by the member).

@@ -250,7 +250,19 @@ BOLD_MOSAIC = 1.8
 BOLD_GRADE = {"contrast": 2.0, "colours": 10}
 
 
+# --set=NAME (the material lab, roadmap 1.4a): paintings raw/NAME_<id>.jpg cut into the candidate
+# set assets/textures/mlab_NAME/ (its lab.json gets each one's texels a metre, as a prop), not the
+# factory's own textures.
+SET = None
+
+
+def raw_name(mid):
+    return ("%s_%s" % (SET, mid) if SET else mid) + ".jpg"
+
+
 def out_dir():
+    if SET:
+        return os.path.join(OUT, "mlab_" + SET)
     return os.path.join(OUT, "smooth") if SMOOTH else os.path.join(OUT, "bold") if BOLD else OUT
 
 
@@ -266,7 +278,7 @@ def bold_spec(spec):
 def reduce(mid, spec, tpm):
     if BOLD:
         spec = bold_spec(spec)
-    raw = Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB")
+    raw = Image.open(os.path.join(RAW, raw_name(mid))).convert("RGB")
     if spec.get("turn"):
         # `turn`: the painting turned a quarter round first (the model painted the grain up the
         # picture where the game reads it along u: the barrel's staves).
@@ -326,7 +338,7 @@ def reduce(mid, spec, tpm):
     if spec.get("boards", False):
         # Each board of the painting as its own strip (board_strips), snapped to the tile's palette
         # so a wall of them and the tile match; WoodMaterials hands a member one by its ID.
-        flat_raw = flatten(np.asarray(crop_to(Image.open(os.path.join(RAW, mid + ".jpg")).convert("RGB"),
+        flat_raw = flatten(np.asarray(crop_to(Image.open(os.path.join(RAW, raw_name(mid))).convert("RGB"),
                                              metres[0] / metres[1])).astype(np.float64) / 255.0, FLATTEN)
         for k, (strip, share) in enumerate(board_strips(flat_raw, np.random.default_rng(sum(map(ord, mid)) + 7))):
             ssize = (size[0], max(2, round(metres[1] * share * tpm)))
@@ -390,9 +402,10 @@ def sheet(rows, path):
 
 
 def main():
-    global SMOOTH, MOSAIC, BOLD
+    global SMOOTH, MOSAIC, BOLD, SET
     only = None
     sheet_path = None
+    texels = None
     for a in sys.argv[1:]:
         if a.startswith("--only=") and a.split("=", 1)[1] not in ("", "all"):
             only = a.split("=", 1)[1].split(",")
@@ -403,6 +416,11 @@ def main():
             MOSAIC = 1.0
         elif a == "--bold":
             BOLD = True
+        elif a.startswith("--set="):
+            SET = a.split("=", 1)[1]
+        elif a.startswith("--texels="):
+            # A candidate set's own density for every material it cuts (the material lab's props).
+            texels = float(a.split("=", 1)[1])
     spec = json.load(open(SPEC))
     tpm = BOLD_TEXELS if BOLD else spec["texels_per_metre"] * (SMOOTH_TEXELS if SMOOTH else 1)
     os.makedirs(out_dir(), exist_ok=True)
@@ -412,10 +430,19 @@ def main():
     for mid, m in spec["materials"].items():
         if only and mid not in only:
             continue
-        if not os.path.exists(os.path.join(RAW, mid + ".jpg")):
+        if not os.path.exists(os.path.join(RAW, raw_name(mid))):
             continue
+        if texels:
+            m = dict(m, texels_per_metre=texels)
         index[mid], raw, rgb = reduce(mid, m, m.get("texels_per_metre", tpm) if not (SMOOTH or BOLD) else tpm)
         rows.append((mid, raw, rgb, m["kind"]))
+        if SET:
+            # The candidate set's index (PixelArt reads its lab.json): this material as a prop tile
+            # at its own texels a metre.
+            lp = os.path.join(out_dir(), "lab.json")
+            lj = json.load(open(lp)) if os.path.exists(lp) else {"woods": {}}
+            lj.setdefault("woods", {})[mid] = {"prop": True, "texels_per_metre": m.get("texels_per_metre", tpm)}
+            json.dump(lj, open(lp, "w"), indent=1)
     with open(index_path, "w") as f:
         json.dump(dict(sorted(index.items())), f, indent=1)
     if rows and sheet_path:

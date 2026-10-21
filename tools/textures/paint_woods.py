@@ -98,14 +98,23 @@ def strips(wood, info):
 
 def source(wood, name, info):
     """A strip of the game's wood to send: its own, or for an extra board (see strips) one of the
-    game's boards turned end for end and rolled a metre."""
+    game's boards turned end for end and rolled a metre. A set may want longer boards
+    (info["length_scale"]: a 2 m strip made 3 m by running on into its own mirror) so a long
+    member (a post, the bar's top) doesn't show its strip twice."""
     path = os.path.join(WOODS, name)
     if os.path.exists(path):
-        return Image.open(path).convert("RGB")
-    k = int(name[len(wood) + 2:-4])
-    im = Image.open(os.path.join(WOODS, "%s_b%d.png" % (wood, k % int(info["boards"])))).convert("RGB")
-    a = np.roll(np.asarray(im)[:, ::-1], im.width // 2, axis=1)
-    return Image.fromarray(np.ascontiguousarray(a))
+        im = Image.open(path).convert("RGB")
+    else:
+        k = int(name[len(wood) + 2:-4])
+        im = Image.open(os.path.join(WOODS, "%s_b%d.png" % (wood, k % int(info["boards"])))).convert("RGB")
+        im = Image.fromarray(np.ascontiguousarray(np.roll(np.asarray(im)[:, ::-1], im.width // 2, axis=1)))
+    scale = float(info.get("length_scale", 1.0))
+    if scale > 1.0:
+        a = np.asarray(im)
+        more = int(round(a.shape[1] * (scale - 1.0)))
+        tail = np.tile(a[:, ::-1], (1, int(np.ceil(scale)), 1))[:, :more]
+        im = Image.fromarray(np.ascontiguousarray(np.concatenate([a, tail], axis=1)))
+    return im
 
 
 def aspect_for(w, h):
@@ -237,12 +246,26 @@ def candidate(name, only, cut_only, repaint, key, spec):
     index["set"] = name
     index["note"] = cfg.get("note", "")
     failed = []
+    if "inherit" in cfg:
+        # The woods this set doesn't paint, as the set it builds on has them.
+        base = os.path.join(pt.ROOT, "assets", "textures", "mlab_" + cfg["inherit"])
+        base_index = json.load(open(os.path.join(base, "lab.json")))["woods"]
+        for wood, entry in base_index.items():
+            if wood in cfg["woods"] or wood in cfg.get("props", []):
+                continue
+            for f in os.listdir(base):
+                if f.endswith(".png") and (f == wood + ".png" or f.startswith(wood + "_")) and \
+                        not any(f.startswith(w + "_") for w in base_index if w != wood and w.startswith(wood + "_")):
+                    Image.open(os.path.join(base, f)).save(os.path.join(out_dir, f))
+            index["woods"][wood] = entry
     for wood in cfg["woods"]:
         if only and wood not in only:
             continue
         info = dict(lab[wood])
         if wood in cfg.get("boards", {}):
             info["paint_boards"] = int(cfg["boards"][wood])
+        if wood in cfg.get("length", {}):
+            info["length_scale"] = float(cfg["length"][wood]) / 2.0
         if not cut_only and (repaint or not os.path.exists(raw % wood)):
             for attempt in range(2):
                 # The set's budget (Sean's approval): no call that could take the run past it.
@@ -268,10 +291,24 @@ def candidate(name, only, cut_only, repaint, key, spec):
         entry = dict(info)
         entry["boards"] = int(entry.pop("paint_boards", entry["boards"]))
         entry["texels_per_metre"] = tpm
-        entry["length"] = round(info["length"] * scale)
+        entry["length"] = round(info["length"] * scale * float(entry.pop("length_scale", 1.0)))
         entry["rows"] = round(info["rows"] * scale)
         index["woods"][wood] = entry
     json.dump(index, open(index_path, "w"), indent=1)
+    # The set's props (materials.json ids: chairs, the card table, barrels), painted with the same
+    # sheet inside the same budget and cut by reduce.py --set into this set.
+    props = [p for p in cfg.get("props", []) if not only or p in only]
+    if props:
+        materials = json.load(open(pt.SPEC))["materials"]
+        for mid in props:
+            out = os.path.join(pt.RAW, "%s_%s.jpg" % (name, mid))
+            if not cut_only and (repaint or not os.path.exists(out)):
+                if pt.paint_material(mid, materials[mid], key, out, True, 2, float(cfg.get("budget", 1e9))) is None:
+                    failed.append(mid)
+        import subprocess
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "reduce.py"),
+                        "--set=" + name, "--only=" + ",".join(props)]
+                       + (["--texels=%g" % cfg["prop_texels"]] if "prop_texels" in cfg else []), check=False)
     import_like_woods(out_dir)
     print("spent: $%.2f" % pt.SPENT)
     if failed:

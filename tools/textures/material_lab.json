@@ -1,5 +1,5 @@
 {
- "about": "The material lab's candidate sets (roadmap 1.4a; tools/material_lab.gd, tools/material_measure.py). Each set: the woods paint_woods.py --set=NAME paints from the game's strips with the Studio men's sheet as the style reference (docs/concept/targets/9_studio_men.png) into assets/textures/mlab_NAME/, at texels_per_metre; `boards` paints more boards than the game's wood has; `grade` scales a wood's lightness, contrast and chroma in L*a*b* when it is cut (no paid call); `ask` is added to the prompt. Nothing here is the game's until Sean approves a wood and it is moved into assets/textures/woods/.",
+ "about": "The material lab's candidate sets (roadmap 1.4a; tools/material_lab.gd, tools/material_measure.py). Each set: the woods paint_woods.py --set=NAME paints from the game's strips with the Studio men's sheet as the style reference (docs/concept/targets/9_studio_men.png) into assets/textures/mlab_NAME/, at texels_per_metre; `boards` paints more boards than the game's wood has; `grade` scales a wood's lightness, contrast and chroma in L*a*b* when it is cut (no paid call); `ask` is added to the prompt; `inherit` takes the woods it doesn't paint from another set; `length` paints a wood's boards longer (metres); `props` paints materials.json materials with the same sheet and cuts them by reduce.py --set (at `prop_texels`); `budget` is the most a run spends. Nothing here is the game's until Sean approves a wood and it is moved into assets/textures/woods/.",
  "sets": {
   "recut256": {
    "note": "No paint: the game's own paintings (raw/woods_<wood>.jpg, Oct 16) cut again at 256 texels a metre instead of 128, to see what density alone does beside the men.",
@@ -137,6 +137,46 @@
    },
    "ask": "",
    "budget": 3.6
+  },
+  "studio2": {
+   "note": "studio1 filled out (Sean, 2026-10-21: \"take $5 more\"): the floor 10 boards, timber 8 boards 3 m long (a post or beam no longer shows its strip twice), dark trim 7 boards 4 m long (the bar's top is dark trim, ~6 m); the rest as studio1. With the props judged beside the men: the chairs' and tables' wood, the card table's baize and top, a barrel's staves and head, painted with the same sheet.",
+   "inherit": "studio1",
+   "texels_per_metre": 512,
+   "woods": [
+    "floor",
+    "timber",
+    "dark_trim"
+   ],
+   "boards": {
+    "floor": 10,
+    "timber": 8,
+    "dark_trim": 7
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "grade": {
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "props": [
+    "prop_wood",
+    "prop_felt",
+    "shot_table",
+    "prop_staves",
+    "prop_barrel_head"
+   ],
+   "budget": 2.5,
+   "ask": "",
+   "prop_texels": 512
   }
  }
 }
