@@ -192,6 +192,26 @@ Re-run the lab on main first, on the Studio's men (--model) and on outlaw: that'
 You're the only session changing HumanBody; the other labs only measure. Any change to human_body.gd comes to me as a proposed patch with before-and-after sheets and real-speed footage before merging. Physics within budget with ten men going down (--perf). Videos in the PR, not git.
 ```
 
+## Treatment lab, part 1: field first aid (3.1c, after the body lab's baseline) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-treatment-lab. Roadmap 3.1c. Read the Treatment lab section of docs/briefs/labs.md, DESIGN.md §7 ("Treatment" and "Field first aid"), the body lab's README and baseline, and the src/bodies and src/player sections of docs/LAYOUT.md.
+
+Bench and baseline first: experiments/treatment_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded. Measure today's treatment (the player's tend key, outlaws tending themselves, the doctor's patch-up) on the body lab's wounds, against the untreated baseline, on the Studio's men.
+
+Then build part 1, one treatment at a time, each measured: the player treating someone else; pressure, tourniquets (tight and loose), packing, sealing a sucking chest wound (a hand at once, then something airtight, watched in case it traps air), splints, whiskey, moving a casualty; NPCs treating themselves and each other by their relationships. Each with its cost in hands, time and cloth.
+
+Write the rules as a short list in the README and ask me to check them against my first-aid training before they're final. Coordinate with whoever is changing HumanBody or Physiology. The playtest agent tries it blind before I do; tell me exactly what to try.
+```
+
+## Treatment lab, part 2: the doctor (Phase 5, with 5.4 and 5.6) [Salt Creek]
+
+```
+Gameplay lane (characters for his lines), branch claude/gameplay-doctor. Roadmap 5.4 and 5.6, through the Treatment lab's part 2 (docs/briefs/labs.md). Read the brief, DESIGN.md §7 and the doctor in §5, and the treatment lab's README and results.
+
+Build the doctor as a person with 1882's tools and limits, treating anyone brought in: probing for and removing a ball (and leaving one in when that's safer), cleaning (or not), chloroform, amputation, what he can and can't do for a gut or chest wound, and infection days later. It takes time and costs money; the ball he digs out is evidence. Measure each body-lab wound brought in at once, after an hour, and after a bad field dressing, against the field-only results. Cite period medical sources in the README (don't copy their text). Show me the plan before building.
+```
+
 ## Lab fixes (after a lab's baseline) [Salt Creek]
 
 ```
