@@ -4,6 +4,7 @@ extends SceneTree
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/faces/face_lab.gd -- \
 ##       --id=bold_cowboy_talking --out=DIR --mode=sheet [--turns=0,-40] [--size=WxH] [--fov=18 --dist=1.4]
 ##       [--aim=X,Y (where it looks)] [--head=pitch,yaw,roll (his head turned)] [--only=rest,jaw_open]
+##       [--bandana=none|neck|mask (tools/faces/bandana.py's, at his neck or over his face)]
 ##   ... --mode=take --take=FILE.json [--turn=-20]
 ## sheet: one picture per expression and turn (DIR/<expression>_<turn>.png, "rest" the face at rest).
 ## take: FILE.json {"fps": 30, "names": [...], "frames": [[w, ...], ...]} (tools/faces/arkit_take.py)
@@ -37,8 +38,11 @@ func _run() -> void:
 	var only := PackedStringArray()
 	var aim := Vector3(0, EYE - 0.05, 0)  # --aim=x,y: the point the camera looks at, level with it
 	var head_turn := Vector3.ZERO  # --head=pitch,yaw,roll degrees: his head turned over his pose
+	var bandana := "none"  # --bandana=none|neck|mask: his bandana (tools/faces/bandana.py) at his neck or over his face
 	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--id="):
+		if a.begins_with("--bandana="):
+			bandana = a.substr(10)
+		elif a.begins_with("--id="):
 			id = a.substr(5)
 		elif a.begins_with("--out="):
 			out = a.substr(6)
@@ -95,6 +99,9 @@ func _run() -> void:
 	m.person_id = StringName(id + "_facelab")
 	m.rng_seed = 7
 	m.hat_color = Color(0, 0, 0, 0)
+	if bandana == "none":
+		m.bandana_color = Color(0, 0, 0, 0)
+	m.masked = bandana == "mask"
 	w.add_child(m)
 	m.global_position = Vector3.ZERO
 	cam.position = Vector3(aim.x, aim.y + 0.02, -dist)
