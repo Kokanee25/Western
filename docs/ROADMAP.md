@@ -65,6 +65,7 @@ then.
 | Water lab 1, liquid in containers (slosh, holes that drain, pouring) | With the prop lab's bottles, cups and trough | gameplay (art for the look) | `labs.md` |
 | Water lab 2, spills (whiskey and oil running, soaking, burning) | After part 1, with the fire lab | gameplay | `labs.md` |
 | Water lab 3, the flood | Once the water tower is built as members | gameplay | `labs.md` |
+| Fire flipbooks: the Blender fire simulation baked into sheets, the new flame shader (fire-look.md "next approach"); the final painted pass waits for Gate A | Now (Sean 2026-10-21: moved up from Phase 4) | art | `fire-look.md` |
 | Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
 | Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
 | Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
@@ -83,7 +84,7 @@ then.
 | Building lab: the spec format, tried on the saloon (`docs/concept/saloon-sheet.png`), changing nothing in the game | After Gate A | gameplay (structures), art (look) | `building-pipeline.md` |
 | Building lab for real: the saloon (4.3), then the block (4.4) | Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
 | Breakage paint (4.4a) | Phase 4, once the woods are locked | art | `damage-pipelines.md` |
-| Fire lab, and finishing `fire-look.md` (4.4b) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
+| Fire lab, and finishing `fire-look.md` (4.4b; the flipbooks start now, above) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
 | Movement lab: walking, running, mocap | 4.6, when Sean records | gameplay | `MOCAP.md` |
 | People lab: town life, memory, the next morning | Phase 5, once the memory store exists | gameplay | to write |
 | The town, through the building lab | After Gate B, past the demo | all | `building-pipeline.md` |

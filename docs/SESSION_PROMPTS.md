@@ -72,6 +72,14 @@ Test: colour, grain and knots (no repeats between neighbours), plank, board and 
 Don't touch gameplay's structure code (boardwalk.gd, member_mesh.gd): list what production needs instead. Wear-down waits for Gate A: write its plan, don't build it.
 ```
 
+## Fire flipbooks (now; moved up by Sean 2026-10-21) [Salt Creek]
+
+```
+Art lane, branch claude/art-fire-flipbooks. Read the "next approach" section at the end of docs/briefs/fire-look.md, the src/fire section of docs/LAYOUT.md (FireFX, flame.gdshader, SmokeColumn) and docs/PARTS.md. Put the simulation scripts in tools/textures/fire_sim/ (art's folder) and run Blender headless as tools/blender/ does.
+
+Bake a few flame types from a Blender Mantaflow fire simulation (a small lick, a tongue, a big column), each a looping 64-frame sheet with motion vectors. Write the new flame shader: motion-vector frame blending, a bright core layer that keeps its colour and an alpha-blended tip and smoke layer, soft edges against walls and floors, plus heat haze. Swap it in for the script-drawn tongues behind a setting so I can compare both on livery_fire_dusk and a burning saloon interior. Push the colours toward docs/concept/livery-fire-painted.png now, but leave the final painted pass for after Gate A. Fire's spread and FireFX's spawning are gameplay's: ask for any change there. Measure frame time with a building fully alight. Judge beside the painted target with the blind critic, give me an A/B video, and add the flipbooks to docs/PARTS.md.
+```
+
 ## Phase 1 resumed (when I unpark it) [Salt Creek]
 
 ```
