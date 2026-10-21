@@ -228,11 +228,26 @@ func _frame() -> void:
 ## ends, radius in the middle, how far the middle of its top is worn down] in metres; zero: square.
 func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, length: float, width: float, thickness: float,
 		across := Vector3.ZERO, wear := Vector3.ZERO) -> void:
-	var wood := wood_for(part)
 	along = along.normalized()
 	thick = thick.normalized()
 	if across == Vector3.ZERO:
 		across = thick.cross(along).normalized()
+	var took := _take(part, Vector3(length, width, thickness))
+	var tools: Dictionary = _tools[part]
+	var pick: int = took[0]
+	var u0: float = took[1]
+	if wear == Vector3.ZERO:
+		_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
+	else:
+		_worn_box(tools[pick], centre, along * length, across * width, thick * thickness, u0, wear)
+	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+
+
+## A board's strip and its place along it (neither of the last two boards in its part took that
+## strip), recorded for the lab's numbers, its part's SurfaceTool for that strip made ready, and its
+## weathering frame set: [strip, u0].
+func _take(part: StringName, size: Vector3) -> Array:
+	var wood := wood_for(part)
 	var strips := maxi(WoodMaterials.strip_count(wood), 1)
 	var prev: Array = _last.get(part, [])
 	var pick := _rng.randi_range(0, strips - 1)
@@ -248,7 +263,7 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 	var u0 := _rng.randf_range(0.0, 1.99)
 	if not boards.has(wood):
 		boards[wood] = []
-	boards[wood].append({"part": part, "size": Vector3(length, width, thickness), "strip": pick})
+	boards[wood].append({"part": part, "size": size, "strip": pick})
 	if not _tools.has(part):
 		_tools[part] = {}
 	var tools: Dictionary = _tools[part]
@@ -266,12 +281,29 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 		_frame_of = Color(w[0], w[1], w[2], 0.0)
 		if part == &"siding" or part == &"siding_low":
 			_nails_of = Color(NAILS[0], NAILS[1], NAILS[2], NAILS[3])
-	if wear == Vector3.ZERO:
-		_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
-	else:
-		_worn_box(tools[pick], centre, along * length, across * width, thick * thickness, u0, wear)
-	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+	return [pick, u0]
 
+
+## A board run to a profile (Profiles: its cross-section, x along `across`, y along `up`), `length`
+## along `along` and centred at `centre` (Profiles.extrude_tris: each run a long face, smooth within
+## it, the cut ends the profile's shape in end grain). Its collision a box round the profile.
+func _profiled(part: StringName, centre: Vector3, along: Vector3, across: Vector3, up: Vector3, length: float, runs: Array) -> void:
+	along = along.normalized()
+	across = across.normalized()
+	up = up.normalized()
+	var sz := Profiles.size_of(runs)
+	var took := _take(part, Vector3(length, sz.x, sz.y))
+	_emit(_tools[part][took[0]], Profiles.extrude_tris(runs, length, took[1]), Transform3D(Basis(along, across, up), centre))
+	_solid_box(part, centre, along, across, up, Vector3(length, sz.x, sz.y))
+
+
+## Profiles' triangles (extrude_tris, panel_tris, cut_tris) into a part's SurfaceTool, moved by `xf`.
+func _emit(st: SurfaceTool, tris: Array, xf: Transform3D) -> void:
+	var nb := xf.basis.inverse().transposed()
+	for tr in tris:
+		_tri(st, [xf * (tr[0] as Vector3), xf * (tr[1] as Vector3), xf * (tr[2] as Vector3)],
+				[(nb * (tr[3] as Vector3)).normalized(), (nb * (tr[4] as Vector3)).normalized(), (nb * (tr[5] as Vector3)).normalized()],
+				[tr[6], tr[7], tr[8]], tr[9], tr[10])
 
 ## A collision box for a board (when `solid` and its part is one of `solid_parts`): axes along,
 ## across and thick, sized length, width and thickness.

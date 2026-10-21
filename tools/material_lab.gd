@@ -168,12 +168,29 @@ func _run() -> void:
 		await physics_frame
 	var men_density := _men_density(men)
 	for mat in materials:
-		var stand = load("res://src/art/oak_stair.gd" if mat == "stair" else "res://src/art/material_stand.gd").new()
+		# interior / interior_square: the saloon's woodwork (InteriorStand; docs/briefs/interior-woodwork.md),
+		# profiled or every piece square; its own views, men and lamps.
+		var interior: bool = mat.begins_with("interior")
+		var script_path := "res://src/art/oak_stair.gd" if mat == "stair" else ("res://src/art/interior_stand.gd" if interior else "res://src/art/material_stand.gd")
+		var stand = load(script_path).new()
 		stand.name = "Stand"
 		stand.material = StringName(mat) if mat != "props" else &""
+		if mat == "interior_square":
+			stand.profiled = false
 		place.add_child(stand)
 		stand.build()
-		_stand_men(place, men, STAIR_MEN if mat == "stair" else MEN)
+		_stand_men(place, men, STAIR_MEN if mat == "stair" else (stand.MEN if interior else MEN))
+		var lamp_at: Array = stand.LAMPS if interior else SCONCES + [HANGING]
+		for i in lamps.size():
+			lamps[i].position = lamp_at[i]
+			# Indoors the lamps are seen and cast shadows (raised panels, chamfers and mouldings
+			# read by them); on the outdoor stand, as before.
+			# (OilLamp reads both when it's built: set what it built.)
+			lamps[i].casts_shadows = interior
+			lamps[i]._light.shadow_enabled = interior
+			(lamps[i].get_node(^"Model") as Node3D).visible = interior
+			lamps[i]._flame.visible = interior
+		var views_of: Dictionary = stand.VIEWS if interior else VIEWS
 		var name: String = mat if mat != "" else "stand"
 		var dir := "%s/%s" % [_out, name]
 		DirAccess.make_dir_recursive_absolute(dir)
@@ -185,10 +202,11 @@ func _run() -> void:
 		if mat == "props":
 			for mi in _props(stand).find_children("*", "MeshInstance3D", true, false):
 				(mi as MeshInstance3D).layers |= MASK_WOOD
-		var views: Array = ["stair"] if mat == "stair" else ["stand", "gameplay"]
+		var views: Array = ["stair"] if mat == "stair" else (stand.VIEWS.keys() if interior else ["stand", "gameplay"])
 		for part in focus:
 			for v in PART_VIEWS.get(part, []):
-				if not views.has(v):
+				# (The interior stand's turnings are the oak stair's parts but not its views.)
+				if not views.has(v) and views_of.has(v):
 					views.append(v)
 		if not only_views.is_empty():
 			views = only_views
@@ -200,7 +218,7 @@ func _run() -> void:
 			for i in 20:
 				await process_frame
 			for v in views:
-				var view: Array = VIEWS[v]
+				var view: Array = views_of[v]
 				cam.global_position = place.global_transform * (view[0] as Vector3)
 				cam.look_at(place.global_transform * (view[1] as Vector3), Vector3.UP)
 				cam.fov = view[2]

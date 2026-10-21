@@ -61,11 +61,16 @@ then.
 |---|---|---|---|
 | Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
 | Prop lab: every prop end to end (look, members, breaking, burning, shattering), tables and chairs first | Now, with 3.3 (furniture) | gameplay and art (its own lane exception) | `prop-lab.md` |
+| Face rig lab: every man's face rigged by one recipe, then a Character Studio stage | After the stand-ins (2.1) and wound paint (2.3), so faces are ready for 5.2 (talking) | characters | `labs.md` |
+| Water lab 1, liquid in containers (slosh, holes that drain, pouring) | With the prop lab's bottles, cups and trough | gameplay (art for the look) | `labs.md` |
+| Water lab 2, spills (whiskey and oil running, soaking, burning) | After part 1, with the fire lab | gameplay | `labs.md` |
+| Water lab 3, the flood | Once the water tower is built as members | gameplay | `labs.md` |
+| Fire flipbooks: the Blender fire simulation baked into sheets, the new flame shader (fire-look.md "next approach"); the final painted pass waits for Gate A | Now (Sean 2026-10-21: moved up from Phase 4) | art | `fire-look.md` |
 | Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
 | Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
 | Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
 | Combat decisions and morale | Inside the gunfight lab, after its baseline | gameplay | `labs.md` |
-| Weapon handling and feel | Inside 3.2 | gameplay | `labs.md` |
+| Gun lab: the guns' look in the player's and men's hands, draw, cock, reload, holster, drop, and the handling and feel measures | Now, with 3.2 (guns agreed) | gameplay (art for the look) | `labs.md` |
 | The Systems Playground (systems interaction) | Phase 3, once the gunfight lab's baseline is in; grows every phase | gameplay | `labs.md` |
 | Navigation and avoidance lab | Phase 3 before 3.6; again before 5.7 | gameplay | `labs.md` |
 | Law, witnesses and consequences lab | Phase 5, with 5.3 and 5.8 | gameplay | `labs.md` |
@@ -76,10 +81,10 @@ then.
 | Material lab: colour, grain, thickness, end grain, dirt, paint wear (1.4a) | Now, beside Phases 2 and 3 | art | `building-pipeline.md`, `material-lab-timber.md` |
 | Wound paint (2.3) | After the stand-ins (2.1) | characters (+ a line of gameplay) | `damage-pipelines.md` |
 | Material lab: wear-down (worn paths, paint gone where hands touch, new / a year / ten years) | After Gate A | art | `building-pipeline.md` |
-| Building lab: the spec format, tried on the saloon (`docs/concept/saloon-sheet.png`), changing nothing in the game | After Gate A | gameplay (structures), art (look) | `building-pipeline.md` |
-| Building lab for real: the saloon (4.3), then the block (4.4) | Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
+| Building lab: the saloon's spec and structure (frame, floors, walls, both stairs, both balconies, the bar, bedrooms; `docs/concept/saloon-sheet.png`), as an experiment first | When Sean has picked the interior woods (the material lab) and the breakable railing is promoted (Sean 2026-10-21; was "after Gate A") | gameplay (structures), art (look) | `building-pipeline.md` |
+| Building lab for real: the saloon (4.3), furnished with the prop lab's pieces as each is promoted, then the block (4.4) | The saloon once its structure passes the checks; the block in Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
 | Breakage paint (4.4a) | Phase 4, once the woods are locked | art | `damage-pipelines.md` |
-| Fire lab, and finishing `fire-look.md` (4.4b) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
+| Fire lab, and finishing `fire-look.md` (4.4b; the flipbooks start now, above) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
 | Movement lab: walking, running, mocap | 4.6, when Sean records | gameplay | `MOCAP.md` |
 | People lab: town life, memory, the next morning | Phase 5, once the memory store exists | gameplay | to write |
 | The town, through the building lab | After Gate B, past the demo | all | `building-pipeline.md` |
@@ -143,7 +148,7 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 | 3.3 | **Furniture** (through the prop lab, `docs/briefs/prop-lab.md`) | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
 | 3.4 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
 | 3.5 | **Acts** | A way to write missions and little scenes as data: who goes where, says what, beat by beat, and what hands back to the systems when you interfere (DESIGN.md §5 "Story shape"). Lines are typed on screen for now. | gameplay |
-| 3.6 | **Three rough missions** | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
+| 3.6 | **Three rough missions** (ideas: `docs/briefs/showcase-moments.md`; the card cheat for the saloon table) | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
 | 3.7 | **Play, note, fix** | Sean plays a build for 15 minutes a few times a week and says what felt wrong; the playtest agent plays each mission blind. What they find is fixed here, in this phase, before moving on. | Sean, gameplay |
 | 3.8 | **Gate C** | Sean plays all three missions and wants to play at least two of them again a different way. If not, this phase goes on: the missions or the feel change until he does. | Sean |
 
@@ -223,7 +228,9 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   boards SAME; round 3 (the weathering layer in texel_grid, the boards graded to one palette in the
   cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
   8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
-  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 next (free). Nothing in the
+  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 (free): timber and the deck SAME;
+  round 6 next (banded light on the wood); the interior woodwork (Sean's saloon picture: profiles,
+  the interior stand, one umber stain, `interior-woodwork.md`) waits on his pick. Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).

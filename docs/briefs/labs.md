@@ -196,6 +196,67 @@ plays a known setup every build, and the gate before a system goes into a missio
 
 It starts from the gunfight lab's street once its baseline is in, in `experiments/playground/`.
 
+Its standing scenarios grow from `docs/briefs/showcase-moments.md` (the card cheat, the balcony
+blown out, the night-meeting trap and the rest), each added once the parts it needs are in the game.
+
+## Water lab (Sean, 2026-10-21)
+
+Liquids as games do them well: simple models that follow real rules, not a 3D particle
+simulation (that would break the frame budget on one core, and the painted look doesn't need it).
+It joins the water already in the game (buckets, the bucket line, `FireSystem.douse()`, wet
+members that dry before they burn) and the lamp oil that already spills and burns.
+
+| Part | What it does | Measured |
+| --- | --- | --- |
+| **1. Liquid in containers** (cups, bottles, barrels, the trough, the water tower) | A fill level per container; the surface sloshes when it's moved or bumped (a spring settling); a ball's hole drains it by real physics (a stream from each hole, stronger the deeper below the surface: Torricelli's law) until the level reaches the hole; it pours when tipped; a shattered bottle lets go of what it held | Stream speed and drain time against the formula; slosh settling time; frame time with a bar full of glasses |
+| **2. Spills** | A flat grid of puddles over floors and ground (as the smoke's grid fills rooms, on the native plugin's workers): whiskey runs across boards and between them, soaks into dirt, reaches a lamp; oil burns where it runs | Spread against the floor's slope and gaps; what catches fire; frame time |
+| **3. The flood** (with a water tower to knock down) | A short-lived shallow-water height map over the ground: the wave knocks people over by depth and speed, puts out fire, wets timber, turns dirt to mud, then drains | People knocked down against depth and speed; fires out; frame time during the wave |
+
+Order: containers with the prop lab's bottles, cups and trough; spills next, joined with fire; the
+flood once the water tower is built as members. Lane: gameplay (art for the water's look).
+
+## Face rig lab (Sean, 2026-10-21)
+
+Every man gets a working face: a mouth that opens, lips, teeth, a tongue, eyelids, a jaw, and the
+expressions that read at the game's size, so he can talk, blink and pull faces. The method exists:
+`docs/briefs/face-rig.md` and `tools/faces/` gave the old layered cowboy (`bold_cowboy_talking`) a
+grafted MakeHuman face (CC0), 12-15 blend shapes, Live Link Face takes played on him, and
+`FaceGaze` (eyes lead, head follows). Roadmap 1.3b asked for the recipe to rig every man after him.
+
+- **The lab:** rig each of the Studio's men (`bold_cowboy_s0`, `old_rancher_s1`,
+  `young_drifter_s1`, `sean_s2`) by one recipe, on copies, and measure each: lip sync on the same
+  take, the shapes reading at 2, 5 and 10 m, his painted look kept (a sheet beside his portrait),
+  the face surviving wounds and the hat, frame time with a room of talking men.
+- **Then the recipe:** written into `tools/characters/RECIPE.md` (with Sean's OK, as 1.3b says), and
+  once it holds for all four, made a stage of the Character Studio so every new man arrives rigged.
+- **Privacy:** Sean's own takes, face and voice stay out of the public repo, as they did for the
+  first take; `sean_s2` is rigged and tested on a stand-in take.
+- Lane: characters.
+
+## Gun lab (Sean, 2026-10-21)
+
+Everything about a gun except where its ball goes: how it looks in the player's hands and in a
+man's, and every movement of handling it: draw, cock, aim, fire, reload, holster, drop. It takes
+in the "weapon handling and feel" measures (above), so the guns have one lab.
+
+**What exists:** `RevolverModel` (a Colt Single Action Army built from parts in code: hammer,
+trigger, cylinder, loading gate and ejector rod moving, brass showing in loaded chambers),
+`ShotgunModel`, `HandModel` (the player's right hand, finger by finger, gripping the revolver),
+the viewmodels and `GunKick` (`src/weapons/`), `tests/test_gun_feel.gd` and the feel ranges, and
+`tools/gun_views.gd` (renders the shotgun alone). A man's gun is a `RevolverModel` placed at his
+right hand at a fixed offset (`HumanBody`), holstered on his right hip; the Studio's men have no
+finger bones yet, so their hands can't close round it.
+
+| Part | What it covers | Judged by |
+| --- | --- | --- |
+| **The look** | The revolver and coach gun in the painted style, matched to the men (the material lab's hand): blued steel, case-hardened frame, worn walnut, brass; up close in first person and at a man's hip across the room | Sheets beside the men; the blind critic; a gun that reads as its model at 10 m |
+| **In the player's hands** | Both hands on the guns (the coach gun is two-handed), the grip, the thumb on the hammer, the hands matching the player's visible body; how the view frames the gun at rest, aiming and moving | First-person sheets at rest, aiming, walking, running; nothing clipping the view |
+| **The handling, step by step** | Draw and holster; cocking the hammer; the revolver's reload as it was (half-cock, open the gate, turn the cylinder, punch each spent case out with the ejector rod, load one round at a time, close the gate); the coach gun broken open, shells out, two in, snapped shut; reloading while hurt or rushed | Every step readable; draw to first shot, reload time and accuracy against the feel ranges (`test_gun_feel.gd`) |
+| **In a man's hands** | His grip (once the men have finger bones; until then the hand placed round the grip), the gun moving with his aim and his recoil, his own draw, cock and reload played the same way, holstered, dropped, shot out of his hand, picked up | Sheets of each Studio man drawing, aiming, firing and reloading; no gun floating off his hand |
+
+Lane: gameplay (`src/weapons/`), art judging the look and painting the materials. Promoted guns,
+hands and moves go in `docs/PARTS.md`.
+
 ## Other labs
 
 Two already exist; three more come later, each when its phase needs it.

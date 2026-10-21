@@ -20,8 +20,14 @@ const HATS := 32
 ## other and with other limp men, so a fallen man's arm lands on his chest, not in it. A standing
 ## man's hitboxes aren't on it, so a body can be dragged and walked past as before.
 const RAGDOLL := 64
+## Physics: a surface only for walking on, where the real thing is steps no walker could climb
+## (the saloon stair's ramp under its treads). The player and people stand and walk on it; a
+## falling man, debris, a hat, a ball, a blast and sight pass through it to the treads themselves.
+const WALK := 128
+## What a walker stands on: the world and the walking ramps.
+const STAND := WORLD | WALK
 ## Everything a bullet can hit.
-const BULLETS := 0xFFFFFFFF & ~PEOPLE
+const BULLETS := 0xFFFFFFFF & ~PEOPLE & ~WALK
 
 ## Render: people's skin and clothes (wound and blood decals paint only these).
 const VIS_BODY := 2
@@ -35,3 +41,6 @@ const VIS_HELD := 8
 ## shadow meshes out (`ALL_BUT_WALLS`): theirs is cast by the batches, as before.
 const VIS_WALLS := 16
 const ALL_BUT_WALLS := 0xFFFFFFFF & ~VIS_WALLS
+## Render: dust and smoke in the air, off the world's layer so the ground's decals (a blast's scorch)
+## don't paint it; cameras and lights see it as any other.
+const VIS_AIR := 32

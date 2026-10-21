@@ -135,6 +135,9 @@ const MASS_SHARE := {
 @export var hat_color := Color(0.18, 0.14, 0.11)
 ## Alpha 0 = no bandana.
 @export var bandana_color := Color(0.55, 0.12, 0.1)
+## His bandana pulled up over his nose and mouth (a Studio man's `cloth_bandana_mask`,
+## tools/faces/bandana.py), in place of the one at his neck.
+@export var masked := false
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
@@ -161,6 +164,8 @@ var garments: Array[Dictionary] = []
 ## {segment, entry, exit (segment-local or null), lodged, hits, bleeds, garments, stain (Decal)}
 var wounds: Array[Dictionary] = []
 var limp := false
+## Limp: what he breaks being thrown into timber (a railing).
+var _impacts: BodyImpacts
 ## Seconds left on his feet after a ball that drops him caught him on the move (_knocked): his
 ## stride carries him on, slowing, as he folds round it, then he goes down. Brains leave him be.
 var stumbling := 0.0
@@ -174,7 +179,7 @@ var gun_holstered := false
 const DRAW_TIME := 0.5
 ## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
 ## whose faces point inward).
-const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
@@ -572,7 +577,7 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0,
-			"hair": look.get("hair_long", false)}
+			"hair": look.get("hair_long", false), "mask": masked}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	if data.has("skin_tone"):
 		skin_tone = data.skin_tone
@@ -1124,6 +1129,8 @@ func _physics_step(delta: float) -> void:
 		if hat_body != null:
 			_hat_meets_ground()
 		_step_tone(delta)
+		if _impacts:
+			_impacts.step(delta)
 		if not _apart.is_empty():
 			_rejoin_apart()
 		_update_pool()
@@ -1288,7 +1295,7 @@ func _slide(motion: Vector3) -> Vector3:
 		q.shape = shape
 		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75))
 		q.motion = left
-		q.collision_mask = Layers.WORLD | Layers.PEOPLE
+		q.collision_mask = Layers.STAND | Layers.PEOPLE
 		q.exclude = exclude
 		var frac := space.cast_motion(q)
 		if frac[0] <= 0.0 and frac[1] <= 0.0:
@@ -1331,7 +1338,7 @@ func _slide(motion: Vector3) -> Vector3:
 			q.shape = shape
 			q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3.UP * (0.35 if prone else 0.75))
 			q.motion = turned
-			q.collision_mask = Layers.WORLD | Layers.PEOPLE
+			q.collision_mask = Layers.STAND | Layers.PEOPLE
 			q.exclude = exclude
 			var got: Vector3 = turned * space.cast_motion(q)[0]
 			if got.length() > best.length():
@@ -1350,7 +1357,7 @@ func _snap_to_ground() -> void:
 	var best := -INF
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
 		var at := global_position + off
-		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.WORLD)
+		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.STAND)
 		if _blocker and is_instance_valid(_blocker):
 			q.exclude = [_blocker.get_rid()]
 		var hit := space.intersect_ray(q)
@@ -2926,6 +2933,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if not _grab.is_empty():
 		_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
 		_grab.clear()
+	_impacts = BodyImpacts.new()
 	var conscious := physiology.is_conscious()
 	var joint_at := {}
 	for sid: StringName in pivots:
@@ -2955,6 +2963,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 		pm.bounce = 0.0
 		rb.physics_material_override = pm
 		add_child(rb)
+		# What he's thrown into (BodyImpacts): a railing breaks under him as under falling timber.
+		_impacts.watch(rb)
 		rb.global_transform = part.global_transform
 		for c in part.get_children():
 			# The new body isn't in the space until the physics server next steps: a ball flown this
@@ -3487,7 +3497,7 @@ const PLANTED_WITHIN := 0.12
 
 func _on_ground(space: PhysicsDirectSpaceState3D, rb: RigidBody3D) -> bool:
 	var at := rb.global_position
-	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.WORLD))
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.STAND))
 	return not hit.is_empty()
 
 

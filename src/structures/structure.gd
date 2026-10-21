@@ -31,6 +31,10 @@ var members := {}
 var _order: Array[StructureMember] = []
 ## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
 const LOST_BELOW := -5.0
+## A cut leaves no end shorter than this (m): it goes with the stretch.
+const CUT_MIN_PIECE := 0.15
+## The stretch a cut tears out flies in pieces about this long (m).
+const CUT_CHUNK := 0.3
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
 var tuning: TimberTuning
@@ -55,6 +59,8 @@ var _by_stack: Array[StructureMember] = []  # see by_stack()
 var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
 var _rebuild_queued := false
 var _rebuild_timed := false
+var _panes: Array[StructureMember] = []
+var _panes_of := -1  # _order.size() when _panes was made
 var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
@@ -73,6 +79,7 @@ func rebuild() -> void:
 		m.free()
 	members.clear()
 	_order.clear()
+	_panes_of = -1
 	_rng.seed = build_seed
 	build()
 	infer_supports()
@@ -98,6 +105,14 @@ func get_members() -> Array[StructureMember]:
 
 func members_of_kind(kind: StringName) -> Array[StructureMember]:
 	return _order.filter(func(m: StructureMember) -> bool: return m.kind == kind)
+
+
+## Its panes, kept (a blast looks at glass much further out than at timber: Blast.gather).
+func panes() -> Array[StructureMember]:
+	if _panes_of != _order.size():
+		_panes = members_of_kind(&"glass")
+		_panes_of = _order.size()
+	return _panes
 
 
 ## Add one member: an axis-aligned box of `size` centred at `center` (structure space),
@@ -143,25 +158,35 @@ func infer_supports() -> void:
 		m.touching.clear()
 		m.analysis_cache = {}
 		var box: AABB = boxes[m]
-		var tier := StructureMember.tier_of(m.kind)
-		m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON
-		m.stack_key = tier * 100.0 + box.position.y
-		var grown := box.grow(CONTACT_EPSILON)
+		_place_in_stack(m, box)
 		for other in _order:
-			if other == m or not grown.intersects(boxes[other]):
-				continue
-			m.touching.append(other.member_id)
-			var other_tier := StructureMember.tier_of(other.kind)
-			var other_box: AABB = boxes[other]
-			# Lower tiers hold up higher ones; the same kind stacked (timbers in a pile) rests on
-			# what's underneath it.
-			var beneath := other_tier == tier and other_box.end.y <= box.position.y + CONTACT_EPSILON \
-					and other_box.position.y < box.position.y - CONTACT_EPSILON
-			if other_tier < tier or beneath:
-				m.supported_by.append(other.member_id)
-				var contact := grown.intersection(boxes[other])
-				m.support_points[other.member_id] = contact.get_center()
-				m.support_boxes[other.member_id] = contact
+			if other != m:
+				_link(m, box, other, boxes[other])
+
+
+## Where a member sits in the stack (its tier, then its height), and whether it's on the ground.
+func _place_in_stack(m: StructureMember, box: AABB) -> void:
+	var tier := StructureMember.tier_of(m.kind)
+	m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON
+	m.stack_key = tier * 100.0 + box.position.y
+
+
+## `m` touching `other` (their boxes, structure space): it notes the touch, and rests on `other` if
+## that's a lower tier, or the same kind stacked underneath it (timbers in a pile).
+func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AABB) -> void:
+	var grown := box.grow(CONTACT_EPSILON)
+	if not grown.intersects(other_box):
+		return
+	m.touching.append(other.member_id)
+	var tier := StructureMember.tier_of(m.kind)
+	var other_tier := StructureMember.tier_of(other.kind)
+	var beneath := other_tier == tier and other_box.end.y <= box.position.y + CONTACT_EPSILON \
+			and other_box.position.y < box.position.y - CONTACT_EPSILON
+	if other_tier < tier or beneath:
+		m.supported_by.append(other.member_id)
+		var contact := grown.intersection(other_box)
+		m.support_points[other.member_id] = contact.get_center()
+		m.support_boxes[other.member_id] = contact
 
 
 ## True if a chain of supports leads from this member down to the ground.
@@ -402,24 +427,135 @@ func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]
 	return out
 
 
-## Break several members at once (a blast), each thrown by its own push, then settle once.
-func break_members(list: Array[StructureMember], pushes: Array[Vector3]) -> Array[StringName]:
+## Break several members at once (a blast), each thrown by its own push, then settle once. A
+## member with a stretch in `cuts` (Vector2(t0, t1), or null) has that stretch cut out instead.
+func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = []) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if not collapses:
 		return out
+	var structural := false
 	for i in list.size():
 		var m := list[i]
 		if m == null or not is_instance_valid(m) or m.broken:
 			continue
 		var push: Vector3 = pushes[i] if i < pushes.size() else Vector3.ZERO
+		var cut: Variant = cuts[i] if i < cuts.size() else null
 		if m.kind == &"glass":
 			m.shatter(m.global_position, push.normalized() if push.length() > 0.01 else Vector3.DOWN)
+		elif cut is Vector2:
+			cut_member(m, (cut as Vector2).x, (cut as Vector2).y, push)
 		else:
 			# Where the blast hit it, if it says; else where it's weakest.
 			_snap(m, float(m.get_meta(&"blast_t", m.weakest_t())), push)
 		out.append(m.member_id)
-	out.append_array(settle())
+		structural = structural or m.kind != &"glass"
+	# Panes carry nothing: a building that only lost glass doesn't need its loads worked out again
+	# (a whole building's analysis, ~0.1 s for the saloon, for a window across the street).
+	if structural:
+		out.append_array(settle())
 	return out
+
+
+## Cut the stretch `t0`..`t1` (along it, from its middle) out of a member, as a charge tears a
+## hole in a board: the stretch flies as short pieces (thrown by `push`), and what's left either
+## side stays in the frame as a member of its own (`<id>/a`, `<id>/b`), resting on whatever held
+## that part of it. An end shorter than CUT_MIN_PIECE goes with the stretch. The member itself is
+## broken (its record: `cut` meta, `to_dict`'s "cuts"). Returns the pieces left standing.
+func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) -> Array[StructureMember]:
+	var left: Array[StructureMember] = []
+	if m == null or not is_instance_valid(m) or m.broken or m.consumed:
+		return left
+	var length := m.length()
+	var half := length * 0.5
+	var lo := clampf(minf(t0, t1), -half, half)
+	t1 = clampf(maxf(t0, t1), -half, half)
+	t0 = lo
+	if t0 - -half < CUT_MIN_PIECE:
+		t0 = -half
+	if half - t1 < CUT_MIN_PIECE:
+		t1 = half
+	unbatch(m)
+	m.broken = true
+	m.set_meta(&"cut", Vector2(t0, t1))
+	for c in m.get_children():
+		if c is MeshInstance3D or c is CollisionShape3D:
+			c.queue_free()
+	m.pieces = []
+	var ai := m.axis_index()
+	var base := String(m.member_id).trim_prefix(String(structure_id) + "/")
+	for side in 2:
+		var a := -half if side == 0 else t1
+		var b := t0 if side == 0 else half
+		if b - a < CUT_MIN_PIECE:
+			continue
+		var size := m.size
+		size[ai] = b - a
+		var offset := Vector3.ZERO
+		offset[ai] = (a + b) * 0.5
+		var p := add_member("%s/%s" % [base, "a" if side == 0 else "b"], m.kind, m.wood, size, m.transform * offset, m.transform.basis)
+		p.set_meta(&"cut_from", m.member_id)
+		p.temperature = m.temperature
+		p.char_depth = m.char_depth
+		p.wet = m.wet
+		left.append(p)
+	_relink(m, left)
+	m.set_meta(&"cut_pieces", left)
+	# The stretch, in pieces about a hand-span long, thrown.
+	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
+	for k in n:
+		var ca := t0 + (t1 - t0) * k / n
+		var cb := t0 + (t1 - t0) * (k + 1) / n
+		var size := m.size
+		size[ai] = cb - ca
+		var offset := Vector3.ZERO
+		offset[ai] = (ca + cb) * 0.5
+		var rb := _new_rubble([m.member_id])
+		rb.global_transform = m.global_transform * Transform3D(Basis(), offset)
+		var mi := MeshInstance3D.new()
+		mi.mesh = MemberMesh.box(size)
+		mi.material_override = WoodMaterials.get_material(m.wood, hash(m.member_id) + k)
+		rb.add_child(mi)
+		var cs := CollisionShape3D.new()
+		cs.shape = _box_shape(size)
+		rb.add_child(cs)
+		rb.mass = maxf(m.weight(tuning) / 9.81 * (cb - ca) / length, 0.05)
+		# Short pieces are small debris (you walk through them), as wood chips are.
+		if maxf(size.x, maxf(size.y, size.z)) < Fittings.SMALL:
+			rb.collision_layer = Layers.DEBRIS
+			rb.collision_mask = Layers.DEBRIS_MASK
+		var spread := Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-0.2, 1.0), _rng.randf_range(-1, 1)) * 0.25
+		rb.linear_velocity = push * _rng.randf_range(0.6, 1.1) + spread * push.length()
+		rb.angular_velocity = Vector3(_rng.randf_range(-12, 12), _rng.randf_range(-12, 12), _rng.randf_range(-12, 12))
+		rb.set_meta(&"start_v", rb.linear_velocity)
+	_wake_near(m.global_position, length + 2.0)
+	_play(&"timber_crack", m.global_position)
+	Events.member_broken.emit(m.member_id)
+	Events.member_cut.emit(m, left)
+	return left
+
+
+## The pieces left of `old` take its place in the support graph: each touches, rests on and holds
+## up whichever of `old`'s neighbours its own box meets (the rules of infer_supports, worked for
+## them alone: the whole building's would be thousands of box tests).
+func _relink(old: StructureMember, pieces: Array[StructureMember]) -> void:
+	var boxes := {}
+	for p in pieces:
+		boxes[p] = p.structure_aabb()
+		_place_in_stack(p, boxes[p])
+	for id: StringName in old.touching:
+		var o := get_member(id)
+		if o == null:
+			continue
+		var obox := o.structure_aabb()
+		o.touching.erase(old.member_id)
+		o.supported_by.erase(old.member_id)
+		o.support_points.erase(old.member_id)
+		o.support_boxes.erase(old.member_id)
+		o.analysis_cache = {}
+		for p in pieces:
+			_link(p, boxes[p], o, obox)
+			_link(o, obox, p, boxes[p])
+	_by_stack.clear()
 
 
 ## An overloaded member snaps at `t` along its length into two falling pieces (short ones just
@@ -696,7 +832,13 @@ func to_dict() -> Dictionary:
 			pieces.append({"members": (rb.get_meta(&"members", []) as Array).map(func(x): return String(x)),
 					"origin": [t.origin.x, t.origin.y, t.origin.z],
 					"basis": [t.basis.x.x, t.basis.x.y, t.basis.x.z, t.basis.y.x, t.basis.y.y, t.basis.y.z, t.basis.z.x, t.basis.z.y, t.basis.z.z]})
-	return {"id": String(structure_id), "broken": broken_ids, "holes": holes, "rubble": pieces}
+	# Members a stretch was cut out of: the cut (along it, from its middle) remakes its pieces.
+	var cuts := {}
+	for m in _order:
+		if m.has_meta(&"cut"):
+			var c: Vector2 = m.get_meta(&"cut")
+			cuts[String(m.member_id)] = [c.x, c.y]
+	return {"id": String(structure_id), "broken": broken_ids, "holes": holes, "rubble": pieces, "cuts": cuts}
 
 
 func rand_range(from: float, to: float) -> float:

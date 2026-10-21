@@ -171,17 +171,10 @@ static func _balcony(s: FalseFrontBuilding, f: float) -> void:
 	_rail(s, "balcony/rail_z", Vector3(x0 + 0.03, y, z1 - 0.03), Vector3(x1 - 0.04, y, z1 - 0.03))
 
 
-## Balusters every 0.15 m from a to b (on a floor at a.y), and a cap rail on top of them.
+## Balusters every 0.15 m from a to b (on a floor at a.y), and a cap rail on top of them: the
+## game's railing part (Railing: a body thrown into it breaks the span it hits).
 static func _rail(s: FalseFrontBuilding, id: String, a: Vector3, b: Vector3) -> void:
-	var height := 0.95
-	var n := maxi(1, int(a.distance_to(b) / 0.15))
-	for k in n + 1:
-		var p := a.lerp(b, float(k) / n)
-		s.add_member("%s/baluster/%02d" % [id, k], &"trim", &"dark_trim", Vector3(0.035, height - 0.05, 0.035), p + Vector3.UP * ((height - 0.05) * 0.5))
-	var mid := (a + b) * 0.5 + Vector3.UP * (height - 0.025)
-	var along := (b - a)
-	var size := Vector3(absf(along.x) + 0.08, 0.05, absf(along.z) + 0.08)
-	s.add_member("%s/cap" % id, &"trim", &"dark_trim", size, mid)
+	Railing.build(s, id, a, b, {"height": 0.95, "spacing": 0.15})
 
 
 static func _stair(s: FalseFrontBuilding, f: float) -> void:
@@ -206,21 +199,23 @@ static func _stair(s: FalseFrontBuilding, f: float) -> void:
 		var top := f + (i + 1) * rise
 		s.add_member("stair/tread/%02d" % i, &"furniture_top", &"floor", Vector3(TREAD + 0.02, 0.035, STAIR_WIDTH - 0.02),
 				Vector3(x + TREAD * 0.5, top - 0.0175, (z_in + z_out) * 0.5))
-	# A newel post at the foot and balusters up the open side, a hand rail along them.
+	# A newel post at the foot and balusters up the open side, one on each tread, a hand rail along
+	# them from the newel to the balcony: the game's railing part (Railing), in spans.
 	s.add_member("stair/newel", &"furniture_frame", &"dark_trim", Vector3(0.09, 1.05, 0.09), Vector3(x_bottom - TREAD + 0.05, f + 0.525, z_out + 0.045))
+	var treads: Array = []
 	for i in RISERS - 1:
-		var x := x_bottom + (i - 0.5) * TREAD + TREAD * 0.5
-		var top := f + (i + 1) * rise
-		s.add_member("stair/baluster/%02d" % i, &"trim", &"dark_trim", Vector3(0.03, 0.9, 0.03), Vector3(x, top + 0.45, z_out - 0.03))
+		treads.append(Vector3(x_bottom + i * TREAD, f + (i + 1) * rise, z_out - 0.03))
+	# The rail's centre line from the newel's top to the balcony's rail (as it always ran).
 	var ra := Vector3(x_bottom - TREAD + 0.05, f + 1.05, z_out - 0.03)
 	var rb := Vector3(x_top, f + BALCONY_HEIGHT + 0.95, z_out - 0.03)
-	var rl := Vector2(rb.x - ra.x, rb.y - ra.y).length()
-	s.add_member("stair/hand_rail", &"trim", &"dark_trim", Vector3(rl, 0.05, 0.06), (ra + rb) * 0.5,
-			Basis(Vector3.BACK, atan2(rb.y - ra.y, rb.x - ra.x)))
-	# Something to walk up: a ramp under the treads (the player's controller doesn't climb steps).
+	Railing.build(s, "stair", ra, rb, {"height": 0.025, "posts": treads, "baluster": 0.03,
+			"rail": Vector2(0.06, 0.05), "overhang": 0.0})
+	# Something to walk up: a ramp under the treads (the player's controller doesn't climb steps),
+	# for walkers only (Layers.WALK): a man falling down the stair meets the treads, not a slide
+	# through their nosings (it stood half a riser above each tread's back; Sean's OK, 2026-10-21).
 	var ramp := StaticBody3D.new()
 	ramp.name = "StairRamp"
-	ramp.collision_layer = Layers.WORLD
+	ramp.collision_layer = Layers.WALK
 	ramp.collision_mask = 0
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()

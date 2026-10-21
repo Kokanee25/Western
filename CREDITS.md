@@ -13,17 +13,20 @@ adds its own lines.
   `build/mediapipe/` at run time and used by the tools only (the portrait factory's fit,
   `tools/paint/align.py`); not in the repo or the game.
 - **Blender** (`bpy` 5.0.1): GPL, a tool run headless; nothing of it ships.
+- **Mantaflow** (Apache-2.0, inside Blender's `bpy` 4.5.3): the fire simulation the flame
+  flipbooks are baked from (`tools/textures/fire_sim/`); only its output, our sheets in
+  `assets/textures/fire/`, is in the game.
 - **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU): Python libraries the tools use.
 - The portrait factory's reference pictures (`docs/concept/style/factory/`): made by Sean in ChatGPT.
 - **Hyper3D Rodin** Gen-2.5 (Deemos), through **fal.ai**: paid API generations, output owned by the
   customer with commercial use allowed (as understood; the terms pages couldn't be opened from the
   workspace, shipped on that basis with Sean's OK, 2026-10-21). The meshes and paint of
   `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`, `barkeep_s1`, `widow_s1` and
-  `sean_s2` (and the earlier Rodin men).
+  `sean_s2`, `doctor_s1`, `colter_rider_s1` (and the earlier Rodin men).
 - `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`: made by the Character Studio
   (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
   Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
-- `barkeep_s1`, `widow_s1`, `sean_s2`: made by the Character Studio the same way, their pictures by Sean
+- `barkeep_s1`, `widow_s1`, `sean_s2`, `doctor_s1`, `colter_rider_s1`: made by the Character Studio the same way, their pictures by Sean
   (ChatGPT) or OpenAI's GPT-5.4 Image 2 (through OpenRouter), `sean_s2` from Sean's own photo.
 
 ## Motion (the gameplay session)

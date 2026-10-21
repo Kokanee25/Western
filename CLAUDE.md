@@ -267,6 +267,7 @@ python3 tools/bridge.py stop
 - **src/art/street_match.gd** — the street painting's shot, the judge's scores.
 - **The texture factory (tools/textures)** — materials.json, paint, reduce, flames, backdrop.
 - **src/props/prop_models.gd** — props modelled in code, prop views.
+- **The prop kit (src/props/prop_kit.gd, kit_prop.gd)** — props as data, built of members; the bench.
 - **src/art/saloon_dressing.gd** — the saloon's walls, bar, dressing.
 - **src/art/sign_art.gd and the backdrop** — lettering, the painted backdrop, FacadeArt.
 - **Characters by image-to-3D (tools/characters)** — the People workflow, Tripo/Rodin, head
@@ -305,15 +306,29 @@ frozen until Sean names one.
   space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
   cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
-  stains read as light, not dirt. **Round 4** (free, `claude/art-round4`, set studio7: stains
-  multiply the board down, bleach on sky faces only, calmer trim and timber, less sheen): the critic
-  1 SAME / 7 CLOSE / 0 DIFFERENT, the first set with no wood DIFFERENT. **Next: round 5, free**
-  (the brief's "What's next": the low siding's pale boards showing between the mud), then Sean's
-  picks on `round4_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
+  **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
+  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
+  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
+  Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
+  brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
+  interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
+  woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
+  (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
+  kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
+  DIFFERENT, too dark against the walls). **Next: Sean's call** on a lighter oak for the fixtures,
+  then painted mirror reflections; the saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
   Wear-down planned in the brief (after Gate A).
+- **Fire flipbooks** (2026-10-21, branch `claude/art-fire-flipbooks`, `docs/briefs/fire-look.md` "The
+  next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
+  bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
+  `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`). Waiting on Sean's A/B
+  (`docs/screenshots/fire/flipbooks_ab.mp4`). Next: firelight's look (step 5), then the painted pass
+  after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -373,9 +388,15 @@ frozen until Sean names one.
   collide, no push past physics, his hat off when it meets the ground, hip and spine cones centred
   anatomically, and a hit short of a fall shows as the wound's consequence (`_favour_step`). Lab
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
-  re-approved (art's, Sean's OK). Next: **the faint** (Sean: "maybe just the fainting needs
-  work"; his OK to try a stance with the weight ~3 deg forward at the ankles), then his stairs,
-  railings, tables, chairs and props.
+  re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
+  and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
+  squat as his tone lets go). **Round 4: stairs, railings, props** (#184, build 1792;
+  `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
+  treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
+  game saloon (group T). Then **`Railing`** (`claude/gameplay-railing`): the railing part, the
+  saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
+  (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
+  (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -396,3 +417,24 @@ frozen until Sean names one.
   jets, the blood marks painted and gore by Gemini (stump faces, torn edges), and the gore lab's
   first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`; $2.18 of Sean's $3). Waiting
   on Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.
+- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
+  break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
+  into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
+  `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
+  made: `Blast.gather` (the near field queried on its own; `results/2026-10-21_near_field/`): the
+  street breaks where the stick is, more far panes go. Step 2 made: boards cut over the stretch the
+  blast overcomes (`Blast.torn_stretch`, `Structure.cut_member`; `results/2026-10-21_board_cut/`):
+  holes, not missing boards; one stick a crawl hole in a wall, three a doorway (Sean's feel call);
+  glass-only buildings not re-settled. **The blast's look** (Sean: "try doing the art", art's
+  ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
+  dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
+  catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
+  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
+  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+
+**Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
+`assets/props/`):
+- The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
+  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
+  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
+  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.

@@ -1,0 +1,421 @@
+{
+ "_doc": "The saloon's bar, a 3 m section the saloon lines up as long as the room needs (Sean 2026-10-21, his saloon picture; docs/briefs/interior-woodwork.md). Customers on +Z. A front of tall raised panels under a band of short ones (the picture's frieze), between chamfered pilasters on a plinth, the top glued up of oak with a full bullnose front on corbels (the interior bar top: polished, drink rings, the front worn where arms rest), a brass foot rail on brackets, the bartender's side boarded with a shelf. Oak, in the interior woods (int_oak, int_bar_top). Its members break and burn as any kit prop's. A fixture (\"fixture\": true): new to the game, it replaces no drawn prop.",
+ "id": "bar",
+ "kind": "members",
+ "fixture": true,
+ "wood": "oak",
+ "look": "wood:int_oak",
+ "splits_below": 0.5,
+ "blow_wood_share": 0.5,
+ "members": [
+  {
+   "id": "end_l",
+   "kind": "post",
+   "size": [
+    0.04,
+    1.03,
+    0.6
+   ],
+   "at": [
+    -1.48,
+    0.515,
+    0.0
+   ]
+  },
+  {
+   "id": "end_r",
+   "kind": "post",
+   "size": [
+    0.04,
+    1.03,
+    0.6
+   ],
+   "at": [
+    1.48,
+    0.515,
+    0.0
+   ]
+  },
+  {
+   "id": "plinth",
+   "kind": "sill",
+   "size": [
+    3.0,
+    0.15,
+    0.04
+   ],
+   "at": [
+    0.0,
+    0.075,
+    0.29
+   ],
+   "draw": {
+    "shape": "profile",
+    "profile": "rounded",
+    "along": "x",
+    "across": "y",
+    "up": "z",
+    "args": [
+     0.012,
+     [
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "id": "pilaster%d",
+   "kind": "post",
+   "size": [
+    0.12,
+    0.88,
+    0.05
+   ],
+   "at": [
+    -1.44,
+    0.59,
+    0.285
+   ],
+   "repeat": {
+    "count": 6,
+    "step": [
+     0.576,
+     0,
+     0
+    ]
+   },
+   "draw": {
+    "shape": "profile",
+    "profile": "chamfered",
+    "along": "y",
+    "across": "x",
+    "up": "z",
+    "args": [
+     0.012
+    ]
+   }
+  },
+  {
+   "id": "rail_low",
+   "kind": "furniture_frame",
+   "size": [
+    2.92,
+    0.08,
+    0.03
+   ],
+   "at": [
+    0.0,
+    0.19,
+    0.275
+   ],
+   "draw": {
+    "shape": "profile",
+    "profile": "chamfered",
+    "along": "x",
+    "across": "y",
+    "up": "z",
+    "args": [
+     0.005
+    ]
+   }
+  },
+  {
+   "id": "frieze",
+   "kind": "furniture_frame",
+   "size": [
+    2.92,
+    0.08,
+    0.03
+   ],
+   "at": [
+    0.0,
+    0.99,
+    0.275
+   ],
+   "draw": {
+    "shape": "profile",
+    "profile": "chamfered",
+    "along": "x",
+    "across": "y",
+    "up": "z",
+    "args": [
+     0.005
+    ]
+   }
+  },
+  {
+   "id": "panel%d",
+   "kind": "board",
+   "size": [
+    0.456,
+    0.52,
+    0.028
+   ],
+   "at": [
+    -1.152,
+    0.49,
+    0.266
+   ],
+   "repeat": {
+    "count": 5,
+    "step": [
+     0.576,
+     0,
+     0
+    ]
+   },
+   "draw": {
+    "shape": "panel",
+    "out": "z",
+    "bevel": 0.07
+   }
+  },
+  {
+   "id": "frieze_panel%d",
+   "kind": "board",
+   "size": [
+    0.456,
+    0.15,
+    0.028
+   ],
+   "at": [
+    -1.152,
+    0.875,
+    0.266
+   ],
+   "repeat": {
+    "count": 5,
+    "step": [
+     0.576,
+     0,
+     0
+    ]
+   },
+   "draw": {
+    "shape": "panel",
+    "out": "z",
+    "bevel": 0.04
+   }
+  },
+  {
+   "id": "rail_mid",
+   "kind": "furniture_frame",
+   "size": [
+    2.92,
+    0.05,
+    0.03
+   ],
+   "at": [
+    0.0,
+    0.775,
+    0.275
+   ],
+   "draw": {
+    "shape": "profile",
+    "profile": "chamfered",
+    "along": "x",
+    "across": "y",
+    "up": "z",
+    "args": [
+     0.005
+    ]
+   }
+  },
+  {
+   "id": "shelf",
+   "kind": "furniture_frame",
+   "size": [
+    2.92,
+    0.03,
+    0.45
+   ],
+   "at": [
+    0.0,
+    0.5,
+    -0.05
+   ]
+  },
+  {
+   "id": "back",
+   "kind": "board",
+   "size": [
+    2.92,
+    1.03,
+    0.02
+   ],
+   "at": [
+    0.0,
+    0.515,
+    -0.29
+   ]
+  },
+  {
+   "id": "top",
+   "kind": "furniture_top",
+   "size": [
+    3.14,
+    0.065,
+    0.84
+   ],
+   "at": [
+    0.0,
+    1.0625,
+    0.08
+   ],
+   "look": "wood:int_bar_top",
+   "draw": {
+    "shape": "profile",
+    "profile": "bar_top",
+    "along": "x",
+    "across": "z",
+    "up": "y"
+   }
+  },
+  {
+   "id": "corbel%d",
+   "kind": "trim",
+   "size": [
+    0.05,
+    0.14,
+    0.12
+   ],
+   "at": [
+    -1.44,
+    0.96,
+    0.35
+   ],
+   "repeat": {
+    "count": 6,
+    "step": [
+     0.576,
+     0,
+     0
+    ]
+   },
+   "draw": {
+    "shape": "cut",
+    "plane": "zy",
+    "outline": [
+     [
+      -0.06,
+      0.07
+     ],
+     [
+      0.06,
+      0.07
+     ],
+     [
+      0.06,
+      0.055
+     ],
+     [
+      0.0463,
+      0.0539
+     ],
+     [
+      0.0328,
+      0.0507
+     ],
+     [
+      0.0198,
+      0.0455
+     ],
+     [
+      0.0075,
+      0.0383
+     ],
+     [
+      -0.0039,
+      0.0292
+     ],
+     [
+      -0.0142,
+      0.0184
+     ],
+     [
+      -0.0233,
+      0.0061
+     ],
+     [
+      -0.0309,
+      -0.0075
+     ],
+     [
+      -0.037,
+      -0.0222
+     ],
+     [
+      -0.0414,
+      -0.0376
+     ],
+     [
+      -0.0441,
+      -0.0537
+     ],
+     [
+      -0.045,
+      -0.07
+     ],
+     [
+      -0.06,
+      -0.07
+     ]
+    ]
+   }
+  },
+  {
+   "id": "foot_rail",
+   "kind": "trim",
+   "size": [
+    2.9,
+    0.05,
+    0.05
+   ],
+   "at": [
+    0.0,
+    0.16,
+    0.5
+   ],
+   "look": "prop:brass",
+   "draw": {
+    "shape": "profile",
+    "profile": "rounded",
+    "along": "x",
+    "across": "z",
+    "up": "y",
+    "args": [
+     0.024,
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rail_bracket%d",
+   "kind": "furniture_frame",
+   "size": [
+    0.02,
+    0.03,
+    0.21
+   ],
+   "at": [
+    -1.2,
+    0.16,
+    0.395
+   ],
+   "look": "prop:brass",
+   "repeat": {
+    "count": 4,
+    "step": [
+     0.7999999999999999,
+     0,
+     0
+    ]
+   }
+  }
+ ]
+}

@@ -16,20 +16,20 @@
   "share": 0.01
  },
  "dynamite_store_after": {
-  "mean": 1.5,
+  "mean": 3.208,
   "noise": {
-   "mean": 0.116,
-   "share": 0.0012
+   "mean": 1.069,
+   "share": 0.0158
   },
-  "share": 0.01
+  "share": 0.0475
  },
  "dynamite_store_blast": {
-  "mean": 1.5,
+  "mean": 4.06,
   "noise": {
-   "mean": 0.18,
-   "share": 0.0028
+   "mean": 1.353,
+   "share": 0.0183
   },
-  "share": 0.01
+  "share": 0.0548
  },
  "gun_aim_range": {
   "mean": 1.5,
@@ -358,6 +358,14 @@
    "share": 0.0027
   },
   "share": 0.01
+ },
+ "saloon_fire_inside": {
+  "mean": 32.05,
+  "noise": {
+   "mean": 10.683,
+   "share": 0.211
+  },
+  "share": 0.6329
  },
  "saloon_front_dusk": {
   "mean": 1.5,

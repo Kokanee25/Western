@@ -72,6 +72,14 @@ Test: colour, grain and knots (no repeats between neighbours), plank, board and 
 Don't touch gameplay's structure code (boardwalk.gd, member_mesh.gd): list what production needs instead. Wear-down waits for Gate A: write its plan, don't build it.
 ```
 
+## Fire flipbooks (now; moved up by Sean 2026-10-21) [Salt Creek]
+
+```
+Art lane, branch claude/art-fire-flipbooks. Read the "next approach" section at the end of docs/briefs/fire-look.md, the src/fire section of docs/LAYOUT.md (FireFX, flame.gdshader, SmokeColumn) and docs/PARTS.md. Put the simulation scripts in tools/textures/fire_sim/ (art's folder) and run Blender headless as tools/blender/ does.
+
+Bake a few flame types from a Blender Mantaflow fire simulation (a small lick, a tongue, a big column), each a looping 64-frame sheet with motion vectors. Write the new flame shader: motion-vector frame blending, a bright core layer that keeps its colour and an alpha-blended tip and smoke layer, soft edges against walls and floors, plus heat haze. Swap it in for the script-drawn tongues behind a setting so I can compare both on livery_fire_dusk and a burning saloon interior. Push the colours toward docs/concept/livery-fire-painted.png now, but leave the final painted pass for after Gate A. Fire's spread and FireFX's spawning are gameplay's: ask for any change there. Measure frame time with a building fully alight. Judge beside the painted target with the blind critic, give me an A/B video, and add the flipbooks to docs/PARTS.md.
+```
+
 ## Phase 1 resumed (when I unpark it) [Salt Creek]
 
 ```
@@ -151,6 +159,31 @@ Next, one at a time, each measured with run.py against baseline/ and report.py d
 ```
 
 ## Breakage lab (3.3a) [Salt Creek]
+
+Built 2026-10-21 (`claude/gameplay-breakage-lab-ksr17d`, merged): the bench, its README and the
+baseline (`experiments/breakage_lab/baseline/baseline.md`); blast-surfaces steps 1 and 2 and the
+blast's look made in the same branch (below).
+
+## Ground that can be dug, and craters (blast-surfaces step 3) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-dig-ground. Step 3 of docs/briefs/blast-surfaces.md: ground that can be dug, with a blast's crater as its first user. Read that brief (its step 3, its decisions and "Later: digging with a shovel"), the src/world, src/structures and src/blast sections of docs/LAYOUT.md, and the breakage lab's README and baseline (experiments/breakage_lab/). Steps 1 and 2 and the blast's look (docs/briefs/blast-look.md) are merged.
+
+First write its own brief, docs/briefs/dig-ground.md, and stop for my decisions: height field or ground voxels (the choice, its costs in collision, drawing and the frame); how earth comes out at one point and goes down at another, many times over the same spot; what rests in a hole and what walks, falls and rolls into it (the player, the men's feet, ragdolls, a strongbox, a stick of dynamite); nav, bullets glancing off dirt; how the save records it as a difference from the authored town; and the crater's size from the published fits (cube root of the charge). The ground's look (ground.gdshader, the textures, the crater's earth and lip) is the art lane's: say what it needs from them.
+
+Then build it in the brief's order, one step a merge, each measured in the breakage lab against its baseline (ground_dynamite_0m and _1m, the surface scan, the blast frame) with before-and-after sheets in the PR, and the lab's run.py --look sheet for the crater.
+
+Also from the prop lab (its kit, claude/prop-lab-inventory-kit-*, once on main): the breakage lab's chair and card_table targets look for a StaticBody3D with prop_id and will find nothing in its KitProps (runner.gd _find_target, _target_result, _man's table height): read them as members. Its other notes (Blast and KitProp, kit props' smoke joining the room's SmokeField, splitting a holed slender member, _batch_all's index merge, range_cover's ungrounded members) are for gameplay to weigh, not this job.
+```
+
+## Blast damage to surfaces (after Sean's decisions in its brief) [Salt Creek]
+
+Steps 1 (the near field queried on its own) and 2 (boards cut, not broken whole) merged with the
+breakage lab, 2026-10-21. Step 3 is the prompt above. The original prompt:
+
+```
+Gameplay lane, branch claude/gameplay-blast-surfaces. Brief: docs/briefs/blast-surfaces.md (read its decisions first: they're mine). Read the src/structures and src/blast sections of docs/LAYOUT.md and the breakage lab's README and baseline. In the brief's order, one step a merge: Blast's near field queried on its own; boards cut over the stretch the blast overcomes (not broken whole); then craters in the dirt. Measure each step in the breakage lab against its baseline (the surface scenarios and the blast frame) with before-and-after sheets in the PR. The look of the cut ends and the crater's earth is the art lane's (4.4a).
+```
 
 ```
 Gameplay lane, branch claude/gameplay-breakage-lab. Build the breakage lab, roadmap 3.3a. Read the breakage section of docs/briefs/labs.md, the src/structures and src/blast sections of docs/LAYOUT.md, Prompts 03 and 06 and their notes in docs/prompts/STATUS.md, and experiments/physics_lab/README.md as the pattern.
@@ -241,7 +274,7 @@ Gameplay lane, branch claude/gameplay-playground. Start the Systems Playground, 
 
 For each part on a branch or waiting to be promoted (the walking-ramp stair and BodyImpacts on claude/gameplay-falls-props, the breakable railing, the Studio woods), list what it needs and take it in once it's in the game. Don't promote another lab's part yourself: say which session should.
 
-Then the systems-interaction scenarios, one at a time, recording for each whether the whole chain runs with no special cases, which system fails first, and the combined frame time: a shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door); a man shoved through the balcony railing; a shoved drunk through a table. Make it the playtest agent's standing setup every build. Update docs/PARTS.md with what the playground uses. Report before fixing anything.
+Then the systems-interaction scenarios, one at a time, recording for each whether the whole chain runs with no special cases, which system fails first, and the combined frame time: a shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door); a man shoved through the balcony railing; a shoved drunk through a table. Then the moments in docs/briefs/showcase-moments.md, each once the parts it needs are in the game. Make it the playtest agent's standing setup every build. Update docs/PARTS.md with what the playground uses. Report before fixing anything.
 ```
 
 ## Prop lab (now, with 3.3) [Salt Creek]
@@ -252,6 +285,20 @@ Prop lab, branch claude/prop-lab. Read docs/briefs/prop-lab.md, the Props and St
 First, find every prop that already exists and write it into docs/PARTS.md's Props table: the 12 drawn props in assets/props/manifest.json (PropLibrary, PropModels), every hand-built furnishing (FalseFrontBuilding._furnish_*, saloon_dressing.gd's bar, the trough, rail, well), what Fittings and the smashed lamp already do, and what the breakage lab (claude/gameplay-breakage-lab-*, experiments/breakage_lab/) and the ragdoll lab's railing have built or measured. Note for each: how it's built, what it can and can't do (break, burn, shatter, carry weight), and which lane's files it lives in. Show me that inventory before building.
 
 Then design the prop kit: one data file per prop (members, shatter or fitting), read by one builder, with the look from the texture factory's approved materials matched to the Studio's men. Build the table and the chair first (roadmap 3.3): legs snap, tops split, they carry weight, burn piece by piece, a seated man drops when his chair goes. Each must look at least as good as PropModels' version in the same shot, pass the breakage lab's scenarios, and fit the frame budget batched. Use the shared systems as they are; anything they need changed goes to gameplay. Costs before any paid painting. Promote each finished prop into PARTS.md and tell the test saloon session.
+
+For the saloon (Sean, 2026-10-21: everything in it destructible), the drawn props it needs as kit props, in this order: whiskey bottles (glass members that shatter, for the shelves and the bottle wall), the oil lamp and wall sconce (the model breaking with the lamp), bar stools, barrels, spittoons, framed paintings, the deer head, the piano, tin cups. The bar and back bar are in the kit already (bar.json, back_bar.json).
+```
+
+## Face rig lab (after 2.1 and 2.3) [Salt Creek]
+
+```
+Characters lane, branch claude/characters-face-rig-lab. The face rig lab (docs/briefs/labs.md, "Face rig lab"). Read docs/briefs/face-rig.md, the talking face section of docs/LAYOUT.md and tools/faces/. Rig the Studio's men (bold_cowboy_s0, old_rancher_s1, young_drifter_s1, sean_s2) by one recipe, on copies, starting with one man and showing me before doing the rest. Measure each: lip sync on the same take, the shapes reading at 2, 5 and 10 m, his painted look kept (a sheet beside his portrait), the face with wounds and his hat, frame time with a room of talking men. My own takes, face and voice stay out of the repo: test sean_s2 on a stand-in take. Then write the recipe into tools/characters/RECIPE.md for my OK, and say what the Character Studio needs to make it a stage so every new man arrives rigged. Costs before any paid call.
+```
+
+## Water lab (part 1 with the prop lab's bottles and trough) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-water-lab. The water lab (docs/briefs/labs.md, "Water lab"). Read it, the src/fire section of docs/LAYOUT.md (water, douse, wet members, spilt oil) and docs/PARTS.md. Bench and baseline first in experiments/water_lab/ (README, its own bridge.gd, outputs in build/, seeded). Part 1, liquid in containers, on the prop lab's cup, bottle, barrel and the trough: a fill level, slosh when moved or bumped, a ball's hole draining by Torricelli's law until the level reaches it, pouring when tipped, a shattered bottle letting go. Check streams and drain times against the formula, and frame time with a bar full of glasses. No 3D particle fluid. Promote what works into the game and docs/PARTS.md. Parts 2 (spills) and 3 (the flood) come later, as the roadmap's schedule says.
 ```
 
 ## Promote a lab's part into the game [Salt Creek]
@@ -266,10 +313,14 @@ Then design the prop kit: one data file per prop (members, shatter or fitting), 
 Gameplay lane, branch claude/gameplay-gunfight-decisions. Extend the gunfight lab (experiments/gunfight_lab/) with the combat decisions and morale measures in docs/briefs/labs.md: log why each gunman made each choice (courage, aggression, skill, loyalty), and measure tactical variety, surrender and flight rates, the same man deciding the same way in the same spot, and how they adapt when cover is shot away. Baseline first; then the gunfight lab's fixes are judged on these numbers too.
 ```
 
-## Weapon handling and feel (inside 3.2) [Salt Creek]
+## Gun lab (now, with 3.2) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-weapon-handling. Inside roadmap 3.2: measure the guns without the AI (docs/briefs/labs.md, weapon handling and feel), on tests/test_gun_feel.gd and config/feel_ranges.json: draw to first shot, cocking, reload time one round at a time, practical accuracy, sight recovery after recoil, input response, and all of it wounded and rushed. Report against the feel ranges, mark anything that feels awkward rather than hard, and give me builds to try with exactly what to look for.
+Gameplay lane (art judges the look), branch claude/gameplay-gun-lab. The gun lab (docs/briefs/labs.md, "Gun lab"). Read it, the src/weapons section of docs/LAYOUT.md, the Guns section of docs/PARTS.md, tests/test_gun_feel.gd and config/feel_ranges.json.
+
+Bench and baseline first in experiments/gun_lab/ (README, its own bridge.gd, outputs in build/): sheets of the revolver and coach gun in first person (at rest, aiming, walking, running, every reload step) and in each Studio man's hands (drawing, aiming, firing, reloading, holstered, dropped), at 1, 5 and 10 m; the handling numbers (draw to first shot, cocking, reload time one round at a time, sight recovery, accuracy rushed and wounded) against the feel ranges. List everything that looks wrong or floats.
+
+Then, one at a time and measured: the look in the painted style matched to the men (materials through the texture factory, costs first); both hands on the coach gun and hands matching the player's body; the revolver's period reload step by step (half-cock, gate, ejector rod per spent case, one round at a time) and the coach gun's; a man's grip, aim, recoil, draw and reload played the same way; holster, drop, shot out of the hand, picked up. The men's hands need finger bones (characters lane): ask, and place the hand round the grip until then. Give me builds to try with exactly what to look for. Promote what's done into docs/PARTS.md.
 ```
 
 ## Law, witnesses and consequences lab (Phase 5) [Salt Creek]
@@ -309,16 +360,29 @@ FUTURE LABS AND PIPELINES (start when the roadmap row says)
 Art lane, branch claude/art-wear-down. Gate A is passed; the woods are locked. Build the material lab's wear-down from its plan (docs/briefs/building-pipeline.md, Material lab): boards worn where people walk (the saloon door, the bar rail, the boardwalk steps), paint gone where hands touch, and every wood at new, a year old and ten years old. Judged with the Studio's men in front of it, on A/B sheets and by the blind critic. Costs before painting.
 ```
 
-## Building lab: spec trial on the saloon (after Gate A) [Salt Creek]
+## Building lab: the saloon (start now: Sean picked the interior woods, the railing is in the game) [Salt Creek]
 
 ```
-Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md and docs/concept/saloon-sheet.png. Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment only, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md, docs/concept/saloon-sheet.png, Sean's saloon picture docs/concept/targets/10_saloon_interior.png (the look inside), docs/briefs/interior-woodwork.md ("Results" and "What's next") and docs/PARTS.md (all of it: build only from parts marked "in the game" or "in the kit"). Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment first, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+
+Everything in the saloon must be destructible (Sean, 2026-10-21): every object is a member of a Structure (it breaks, burns, is carved by balls, is thrown by Blast, falls when its support goes) or a kit prop (assets/props/kit/), or a fitting that comes down with what holds it. No drawn PropLibrary prop, no scenery mesh, no solid box. Write a test that walks the built saloon and fails on any collision body that isn't a StructureMember, the ground or an OilLamp's hitbox, and on any visible mesh that isn't a member's or a fitting's; list every exception it allows, each with its owner.
+
+What you have to build with:
+- Woods: the interior woods Sean picked (int_floor, int_timber for posts, beams and brackets, int_boards for wall boards, int_oak for wainscot, casings, rails and balusters; int_bar_top for the bar top), dark_oak and stair_runner (the hotel stair), and the exterior woods for the outside. A member takes one as its wood or as a look "wood:<name>".
+- Woodwork as members: PropKit.dress_member(member, draw, look) draws any member of your Structure as a moulding run along it ("profile": chamfered, rounded, bar_top, handrail, ogee, beaded, rect), a raised panel ("panel") or a board cut to an outline ("cut"), still a breakable member, one batch a look. Use it for the wainscot, door and window casings, chamfered posts, brackets, beams and the cornice; the shapes and sizes are in src/art/interior_stand.gd, which draws them as plain meshes (a reference, not parts).
+- Kit props: PropKit.spawn(&"bar") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair (PropLibrary.spawn(&"chair") hands it out); the kit card table (in the kit, waiting on Sean's look).
+- Structure parts: Railing (balconies and the stair's rails, breakable, men go through them by BodyImpacts), the stair with its walking ramp, glass members for windows (they shatter), doors, the floor on joists, Fittings (what stands on a member falls when it goes; a lamp smashes and spills burning oil), OilLamp for every lamp.
+
+Not yet destructible, so not in the saloon until it is (say which you need first, and to whom):
+- The prop lab (kit versions): bar stools, the piano, barrels, spittoons, whiskey bottles (glass members that shatter; the shelves' bottles and the bottle wall, saloon_dressing.gd, are scenery today), tin cups, the deer head, framed paintings, wall sconces (an OilLamp's model stays whole when it smashes).
+- Gameplay: a prop knocked by a ball or a body doesn't move (Fittings moves it only when its support goes); what stands on a shelf adds no weight (extra_load unused); furniture_frame members are never load-checked.
+- Sean: the kit card table's look; whether the bar and back bar take a lighter oak (the critic: darker than the walls).
 ```
 
 ## Building lab for real: the saloon, then the block (Phase 4, after Gate C) [Salt Creek]
 
 ```
-Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
+Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Everything in a building is destructible: members, kit props or fittings only, with the saloon's destructibility test run on every building. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
 ```
 
 ## Breakage paint (4.4a) [Salt Creek]
@@ -330,7 +394,7 @@ Art lane, branch claude/art-breakage-paint. Roadmap 4.4a. Brief: the Breakage se
 ## Fire lab and fire finished (4.4b, before 4.5) [Salt Creek]
 
 ```
-Gameplay (spread) and art (look), roadmap 4.4b. Build the fire lab in experiments/fire_lab/ on the labs.md pattern: a room, a building, then the block; measure spread speed against published fire-science figures, how smoke fills, and frame time, baseline first. Then finish docs/briefs/fire-look.md: firelight reaching the street, the smoke column (the critic's "flat maroon cut-out"), and the flames redrawn by script in the locked look against docs/concept/livery-fire-painted.png.
+Gameplay (spread) and art (look), roadmap 4.4b. Build the fire lab in experiments/fire_lab/ on the labs.md pattern: a room, a building, then the block; measure spread speed against published fire-science figures, how smoke fills, and frame time, baseline first. Then finish docs/briefs/fire-look.md: firelight reaching the street, the smoke column (the critic's "flat maroon cut-out"), and the flames remade as fire-look.md's "next approach": flipbooks baked from a Blender fire simulation (headless), pushed into the painted style against docs/concept/livery-fire-painted.png, with motion-vector blending, a core and a tip layer, soft edges, heat haze and firelight on the street.
 ```
 
 ## Movement lab (4.6, when I record) [Salt Creek]

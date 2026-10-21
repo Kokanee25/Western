@@ -91,6 +91,53 @@
    "length": 1536,
    "end": "dark_oak_end.png",
    "end_texels": 256
+  },
+  "int_floor": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "int_floor_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/floor"
+  },
+  "int_timber": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1152,
+   "texels_per_metre": 384.0,
+   "end": "int_timber_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/timber"
+  },
+  "int_boards": {
+   "boards": 7,
+   "rows": 72,
+   "length": 1536,
+   "texels_per_metre": 384.0,
+   "end": "int_boards_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/dark_trim"
+  },
+  "int_oak": {
+   "boards": 8,
+   "rows": 69,
+   "length": 1152,
+   "texels_per_metre": 384.0,
+   "end": "int_oak_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/dark_oak"
+  },
+  "int_bar_top": {
+   "boards": 3,
+   "rows": 323,
+   "length": 1152,
+   "texels_per_metre": 384,
+   "end": "int_bar_top_end.png",
+   "end_texels": 256,
+   "roughness": 0.6,
+   "specular": 0.4,
+   "made_by": "tools/textures/bar_top.py (int_oak glued up, rings, worn front, polished)"
   }
  }
 }

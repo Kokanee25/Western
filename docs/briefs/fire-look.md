@@ -74,3 +74,35 @@ What the painting does:
 - **Gameplay:** `fire_fx.gd`'s spawning (where, how many, how big by heat), the smoke grid, the
   fire lights' count and placement, anything in `FireSystem`. Asked for, never edited without
   saying so.
+
+## The next approach (Sean, 2026-10-21): simulated fire, painted
+
+Sean: the script-drawn flames look bad ("shit looking 2d sprites"). The flames move to
+**flipbooks baked from a real fire simulation, pushed into the painted style**:
+
+1. **Simulate in Blender** (Mantaflow fire and smoke, free, run headless like the rest of
+   `tools/blender/`): a few flame types (a small lick, a tongue, a big column), each rendered as a
+   64-frame looping sheet. One simulation per sheet, so every frame matches its neighbours (the
+   problem image-model frames had).
+2. **Painted, not photographic:** the sheets pushed toward `docs/concept/livery-fire-painted.png`
+   (fewer tones, strong shapes, the painting's colour bands: near-white yellow low, orange body,
+   deep red tips), the way the woods were painted toward the men.
+3. **Motion vectors** rendered with each sheet, so the shader blends between frames smoothly.
+4. **Two layers:** a bright core that keeps its colour, and alpha-blended darker tips and smoke over
+   it (purely additive flames went cream where they overlapped).
+5. **Soft edges** where a flame meets a wall or floor; **heat haze** behind the fire; the glowing
+   char edge, embers and the volumetric smoke as they are; **firelight that reaches the street**,
+   flickering slowly.
+
+Not fully volumetric fire: too soft and costly in Godot; a faint glow inside a burning room at most.
+Judged in the fire lab on `livery_fire_dusk` beside the painted target, with the blind critic.
+
+### Where it stands (2026-10-21, art, branch `claude/art-fire-flipbooks`)
+
+Steps 1, 3 and 4 above are built, behind `Settings.fire_flipbooks` (off; look panel N,
+`--fire-flipbooks`) so Sean can compare: three types (lick, tongue, column) baked in Mantaflow
+(`tools/textures/fire_sim/`), the core/tips/haze shader (`FireFlipbook`), soft edges. The colours
+are pushed toward the painting (its own tones, k-medians, as the ramp; the core banded, hotter at
+the roots); the final painted pass waits for Gate A. Not yet: step 5's firelight reaching the
+street (gameplay places the lights; the look of their flicker is art's, next). Sizes come from
+FireFX's sheets as they are; a per-type size by heat would be gameplay's (asked, not done).

@@ -33,6 +33,7 @@ means a section of this file.
 - [src/art/street_match.gd (the street painting's shot)](#srcartstreet_matchgd-the-street-paintings-shot)
 - [The texture factory (tools/textures)](#the-texture-factory-toolstextures)
 - [src/props/prop_models.gd](#srcpropsprop_modelsgd)
+- [The prop kit (src/props/prop_kit.gd, kit_prop.gd)](#the-prop-kit-srcpropsprop_kitgd-kit_propgd)
 - [src/art/saloon_dressing.gd](#srcartsaloon_dressinggd)
 - [src/art/sign_art.gd and the backdrop](#srcartsign_artgd-and-the-backdrop)
 - [Characters by image-to-3D (tools/characters)](#characters-by-image-to-3d-toolscharacters)
@@ -75,7 +76,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 `seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
-already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
 
 ## The playtest
 
@@ -371,6 +373,11 @@ a few views renders them as the full run does.
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
+  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
+  stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
+  `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -382,6 +389,16 @@ a few views renders them as the full run does.
   fresh wood, collision a ConcavePolygonShape3D); `section_left`/`weakest_t`/`weight` read the
   voxels (holes within the member's depth along the grain count together). No plugin (web) or
   `enabled` off: holes drawn by `member_holes.gdshader` as before.
+  **A body thrown into timber** (`BodyImpacts`, one per limp man, since 2026-10-21): near any
+  member (a 1.6 m probe round his pelvis every 10 ticks) his parts' contacts are reported; a
+  member breaks (`break_member`) when the level work of stopping him on it passes
+  `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
+  (its cap broken) tears off its nails when his bearing on it, times the height, passes
+  `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
+  post set in the ground isn't nailed. **Railings** (`Railing.build(s, id, from, to, spec)`):
+  balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
+  treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
+  and stair rails and the lab's 1 m railing (group Q) are built of it.
 
 ## src/fire
 
@@ -408,6 +425,24 @@ a few views renders them as the full run does.
   volumetric fog lights it (the art session's to judge). `FireSystem.smoke_at(p)`, `smoked(m)`;
   members in a field have no particle smoke (`FireFX.refresh(..., smoke)`). No plugin (web) or
   the Compatibility renderer: the old particles.
+- **The fire flipbooks** (art's; docs/briefs/fire-look.md "The next approach"; behind
+  `Settings.fire_flipbooks`, look panel N or `--fire-flipbooks`, off by default): FireFX's fire
+  sheets drawn with `FireFlipbook.material()` instead of `fire_sheet.gdshader` (`FireFX.flipbooks`;
+  same quads and instance uniforms, so spawning is unchanged). Three passes chained by
+  `next_pass`: `flame_haze` (priority -1: the scene behind shifted by the heat), `flame_core` (0:
+  where the flame is thick, the painting's tones in flat bands from `fire_ramp.png`, hotter toward
+  the roots), `flame_tips` (1: thin flame and its smoke, alpha-blended), all sharing
+  `flipbook.gdshaderinc` (the sheet picks a lick, tongue or column by its height, frames blended
+  along their motion vectors, squares fixed in the world at `squares_per_m`, soft where the
+  depth buffer meets it). Sheets: `assets/textures/fire/fire_<type>.png` (R flame, G smoke, B
+  heat; 8 x 8 frames) and `_mv.png`, sizes in `fire_sheets.json`; made by
+  `tools/textures/fire_sim/`: `bake_flames.py` (Mantaflow in the pip bpy, which needs
+  `manta_relink.py`: its classes lost their bases; ~10 min for all three on 4 cores; projections to
+  `build/fire_sim/`), then `make_sheets.py` (loop, crop, motion scale, painting's ramp; seconds).
+  Re-import after (`godot --headless --import`). Looking: `tools/flame_views.gd` (a stage, drawn
+  sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
+  `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
+  `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
 
 ## src/bodies
 
@@ -432,7 +467,9 @@ a few views renders them as the full run does.
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
-  `Layers` (physics/render layer bits),
+  `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
+  ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
+  debris, balls and sight WORLD alone),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
   per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
@@ -491,8 +528,16 @@ a few views renders them as the full run does.
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
-  on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
-  sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
+  on people; what it acts on comes from `gather()`: every member where timber can break,
+  `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
+  every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). Wood it lights
+  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
+  jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
+  `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's
+  `run.py --look=T,T...` and `sheets.py look`.
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 
 ## src/art/shot_match.gd (the saloon painting's shot)
@@ -636,6 +681,16 @@ a few views renders them as the full run does.
   The cut's board grading (`grade`/`grade_all`: `unify`, `unify_L`, `rows`, `highs`, `calm`,
   `seams`; `paint_woods.board_grade`). The lab's sets draw seams a pixel wide (`edge_aa`, the lap's
   butt a dark line); the game's woods don't until Sean picks.
+  **The interior woodwork** (Sean's saloon picture, `docs/concept/targets/10_saloon_interior.png`;
+  brief `docs/briefs/interior-woodwork.md`): `Profiles` (`src/art/profiles.gd`: cross-sections as
+  data, runs of points smooth within a run: `rect`, `chamfered`, `rounded`, `bar_top`, `handrail`,
+  `ogee`, `beaded`), `MaterialStand._profiled` (a profile run along a board, end grain on its ends)
+  and `_take` (every board's strip pick); `InteriorStand` (`--material=interior`, or
+  `interior_square` with every piece a box): wainscot with raised panels (`_panel`), casings, the bar
+  and back bar, chamfered posts with brackets (`_cut`: a board cut to an outline), the gallery's
+  joists, deck and balustrade (the oak stair's newels and balusters, a moulded handrail); its own
+  views, men and lamps. The interior stain: set `studio_int` (`grade_all.target`: one L*a*b* for
+  every wood).
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
@@ -688,6 +743,34 @@ a few views renders them as the full run does.
   arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
   twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
   `--street` the street's code models (horse from three sides, hay, crate).
+
+## The prop kit (src/props/prop_kit.gd, kit_prop.gd)
+
+- The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
+  once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
+  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
+  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
+  shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
+  KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
+  every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
+  man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
+  (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
+  it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
+  `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
+  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
+  nothing). The bench: `experiments/prop_lab/` (README).
 
 ## src/art/saloon_dressing.gd
 

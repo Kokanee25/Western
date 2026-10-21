@@ -882,3 +882,17 @@ func test_a_big_opening_has_a_torn_edge() -> void:
 	man.open_wound(&"chest", Vector3(0, 0, -0.12), 1400.0)
 	check(d.size.x > before, "it grows with the hole (%.3f -> %.3f m)" % [before, d.size.x])
 	check(d.texture_albedo.resource_path.ends_with("gore_crater.png"), "painted")
+
+
+func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
+	# tools/faces/bandana.py gives a Studio man two: at his neck, and over his nose and mouth.
+	# He wears the one over his face when masked, else the neck one if he wears a bandana; never both.
+	var a := Anatomy.new()
+	var outfit := {"bandana": true, "mask": false}
+	var down: Dictionary = PeopleBodies.build(a, outfit, &"hothead_lyle_s2_talking").shapes
+	check(down.has("bandana") and not down.has("bandana_mask"), "a bandana, down: at his neck")
+	outfit.mask = true
+	var up: Dictionary = PeopleBodies.build(a, outfit, &"hothead_lyle_s2_talking").shapes
+	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
+	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
+	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")

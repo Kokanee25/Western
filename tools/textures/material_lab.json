@@ -743,6 +743,219 @@
     "bleach_walls": 0.0,
     "specular": 0.08
    }
+  },
+  "studio8": {
+   "note": "Round 5 (Sean, 2026-10-21), free: studio7 with the low siding graded to its wall's palette (`match`: round 4's 'pale clouds' were the low boards' paler cream showing between the mud), the mud capped short of covering the foot (`mud_cover`), timber and fascia's dark blots lifted (`lows`) and their grain calmed further, every wood's chroma down a touch (golden hour's orange).",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "grade_all": {
+    "unify": 0.7,
+    "unify_L": 0.6,
+    "highs": [
+     80,
+     0.45
+    ],
+    "calm": [
+     2.0,
+     0.35
+    ],
+    "rows": 0.5,
+    "seams": 3
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75,
+     "C": 0.88
+    },
+    "saloon_red_low": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75,
+     "C": 0.88,
+     "match": "saloon_red",
+     "unify": 0.9,
+     "unify_L": 0.9
+    },
+    "store_boards": {
+     "L": 0.81,
+     "C": 0.88
+    },
+    "store_boards_low": {
+     "L": 0.81,
+     "C": 0.88,
+     "match": "store_boards",
+     "unify": 0.9,
+     "unify_L": 0.9
+    },
+    "weathered_pine": {
+     "L": 0.775,
+     "unify": 0.85,
+     "unify_L": 0.75,
+     "C": 0.88
+    },
+    "floor": {
+     "L": 0.872,
+     "C": 0.88
+    },
+    "timber": {
+     "L": 0.83,
+     "unify": 0.85,
+     "unify_L": 0.75,
+     "rows": 0.75,
+     "calm": [
+      3.0,
+      0.7
+     ],
+     "C": 0.88,
+     "lows": [
+      12,
+      0.5
+     ]
+    },
+    "fascia": {
+     "L": 0.809,
+     "C": 0.88,
+     "lows": [
+      12,
+      0.5
+     ],
+     "calm": [
+      3.0,
+      0.5
+     ]
+    },
+    "framing": {
+     "L": 0.937,
+     "C": 0.88
+    },
+    "dark_trim": {
+     "L": 0.938,
+     "calm": [
+      4.0,
+      0.7
+     ],
+     "C": 0.88
+    }
+   },
+   "weathering": {
+    "metres": 3.0,
+    "tones": 0,
+    "mud": "#8a7560",
+    "streak": "#a69b8e",
+    "grime": "#8a7866",
+    "bleach": "#c9c3b8",
+    "amounts": [
+     0.85,
+     0.6,
+     0.55,
+     0.45
+    ],
+    "reach": [
+     0.6,
+     1.1,
+     1.0,
+     0.16
+    ],
+    "multiply": true,
+    "bleach_walls": 0.0,
+    "specular": 0.08,
+    "mud_cover": 0.7
+   }
+  },
+  "studio_int": {
+   "note": "The interior stain (Sean, 2026-10-21, his saloon picture; docs/briefs/interior-woodwork.md): the woods the saloon's woodwork uses (floor, timber, the wall boards' dark trim, the stair's dark oak) cut from kept paintings with no call and graded to one warm umber family (`target`), calmed and evened; on the interior stand (--material=interior).",
+   "texels_per_metre": 384,
+   "woods": [
+    "floor",
+    "timber",
+    "dark_trim"
+   ],
+   "boards": {
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "from_painting": {
+    "dark_oak": {
+     "raw": "studio4_dark_oak.jpg",
+     "boards": 8,
+     "board_m": 0.18,
+     "length_m": 3.0,
+     "end_from": "timber"
+    }
+   },
+   "grade_all": {
+    "seams": 3,
+    "calm": [
+     2.5,
+     0.45
+    ],
+    "rows": 0.5,
+    "highs": [
+     80,
+     0.45
+    ],
+    "lows": [
+     10,
+     0.6
+    ],
+    "unify": 0.85,
+    "unify_L": 0.8,
+    "target": [
+     36,
+     15,
+     19
+    ]
+   },
+   "grade": {
+    "floor": {
+     "target": [
+      19,
+      9,
+      12
+     ],
+     "unify_L": 0.95,
+     "highs": [
+      85,
+      0.35
+     ]
+    }
+   }
   }
  }
 }

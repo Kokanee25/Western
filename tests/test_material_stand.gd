@@ -207,3 +207,103 @@ func test_the_stairs_walkway_has_a_railing_to_fall_over() -> void:
 	var drawn := (s.part_nodes[&"oak_rail"] as Node).find_children("*", "MeshInstance3D", true, false)
 	check(not drawn.is_empty(), "the rails are drawn, not only solid")
 	s.queue_free()
+
+
+func test_the_interior_stand_builds_profiled_and_square() -> void:
+	# The saloon's woodwork (docs/briefs/interior-woodwork.md): built both ways, every piece's every
+	# face flagged (long or end grain), and the profiled one has more to it than the square one.
+	var tris := {}
+	for profiled in [true, false]:
+		var s := InteriorStand.new()
+		s.profiled = profiled
+		s.build()
+		var n := 0
+		for mi in s.find_children("*", "MeshInstance3D", true, false):
+			var m := (mi as MeshInstance3D).mesh
+			if not (m is ArrayMesh) or (mi as MeshInstance3D).material_override is StandardMaterial3D:
+				continue
+			var a: Array = m.surface_get_arrays(0)
+			if a[Mesh.ARRAY_COLOR] == null:
+				continue  # the lathe's turnings and brass
+			var cols: PackedColorArray = a[Mesh.ARRAY_COLOR]
+			for c in cols:
+				if c.g > 0.5:
+					check(false, "an unflagged face (profiled %s)" % profiled)
+					break
+			n += cols.size() / 3
+		tris[profiled] = n
+		for part in [&"int_wainscot", &"int_bar", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
+			check(s.part_nodes.has(part), "%s built (profiled %s)" % [part, profiled])
+		s.free()
+	check(tris[true] > tris[false] * 2, "profiles add shape (%d against %d triangles)" % [tris[true], tris[false]])
+
+
+func test_every_profile_is_closed_and_counter_clockwise() -> void:
+	for runs in [Profiles.rect(0.1, 0.02), Profiles.chamfered(0.2, 0.2, 0.02), Profiles.rounded(0.18, 0.03, 0.008, [1]),
+			Profiles.bar_top(0.7, 0.05), Profiles.handrail(0.075, 0.06), Profiles.ogee(0.06, 0.045), Profiles.beaded(0.148, 0.02, 0.006)]:
+		for i in runs.size():
+			var a: PackedVector2Array = runs[i]
+			var b: PackedVector2Array = runs[(i + 1) % runs.size()]
+			check(a[a.size() - 1].distance_to(b[0]) < 1e-5, "each run starts where the last ended")
+		var ring := Profiles.outline(runs)
+		check(not Geometry2D.is_polygon_clockwise(ring), "counter-clockwise (outward normals)")
+		check(Geometry2D.triangulate_polygon(ring).size() >= 3, "fills (its ends in end grain)")
+
+
+func test_the_interior_woods_are_in_the_game() -> void:
+	# Sean picked the interior stain (C, 2026-10-21): four woods in the game's woods set, each with
+	# its strips and end grain, drawn with seams a pixel wide; the outside's woods untouched.
+	for wood in [&"int_floor", &"int_timber", &"int_boards", &"int_oak"]:
+		check(WoodMaterials.strip_count(wood) >= 7, "%s has its boards (%d)" % [wood, WoodMaterials.strip_count(wood)])
+		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
+		check(m != null and m.get_shader_parameter(&"edge_aa") == true, "%s drawn with seams a pixel wide" % wood)
+		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
+	var outside := WoodMaterials.get_material(&"floor", 0) as ShaderMaterial
+	check(outside.get_shader_parameter(&"edge_aa") != true, "the outside's floor as it was")
+
+
+func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
+	# The saloon's bar (assets/props/kit/bar.json): members (so it breaks and burns), drawn with the
+	# woodwork shapes (profile, panel, cut), its top in the polished interior bar top.
+	check(PropKit.has(&"bar"), "the bar's kit file")
+	var def := PropKit.definition(&"bar")
+	var members := PropKit.expand(def)
+	check(members.size() >= 25, "its members laid out (%d)" % members.size())
+	var shapes := {}
+	for mspec in members:
+		if mspec.has("draw"):
+			shapes[mspec.draw.shape] = true
+	for s in ["profile", "panel", "cut"]:
+		check(shapes.has(s), "drawn with %s" % s)
+	var top: Dictionary = members.filter(func(x): return x.id == "top")[0]
+	check(String(top.look) == "wood:int_bar_top", "its top the polished bar top")
+	check(WoodMaterials.strip_count(&"int_bar_top") >= 3, "the bar top's wood in the game")
+	var m := StructureMember.new()
+	m.member_id = &"top"
+	m.size = PropKit.vec(top.size)
+	var mesh := PropKit.draw_mesh(top.draw, m)
+	var aabb := mesh.get_aabb()
+	check(aabb.size.distance_to(m.size) < 0.01, "the top's drawn shape fills its box (%s against %s)" % [aabb.size, m.size])
+	m.free()
+
+
+## A building's own members drawn as woodwork (PropKit.dress_member): the saloon's wainscot, casings
+## and chamfered posts are members (they break, burn, fall) and draw in one batch a look.
+class _Dressed extends Structure:
+	func build() -> void:
+		for i in 3:
+			var m := add_member("post%d" % i, &"post", &"oak", Vector3(0.2, 3.0, 0.2), Vector3(i * 1.0, 1.5, 0.0))
+			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "across": "x", "up": "z",
+					"args": [0.02]}, "wood:int_timber")
+
+
+func test_a_buildings_members_are_drawn_as_woodwork() -> void:
+	var s := _Dressed.new()
+	add_child(s)
+	await physics_frames(2)
+	var m: StructureMember = s.get_members()[0]
+	var mi := m.get_child(0) as MeshInstance3D
+	check(mi.mesh.get_faces().size() > 36, "the post drawn chamfered, not a box (%d)" % mi.mesh.get_faces().size())
+	check(mi.mesh.get_aabb().size.distance_to(m.size) < 0.01, "its drawn shape fills its box")
+	check(s.batch_count() == 1, "three posts in one wood draw in one batch (%d)" % s.batch_count())
+	s.free()
