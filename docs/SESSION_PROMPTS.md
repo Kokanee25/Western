@@ -249,7 +249,7 @@ Gameplay lane, branch claude/gameplay-playground. Start the Systems Playground, 
 
 For each part on a branch or waiting to be promoted (the walking-ramp stair and BodyImpacts on claude/gameplay-falls-props, the breakable railing, the Studio woods), list what it needs and take it in once it's in the game. Don't promote another lab's part yourself: say which session should.
 
-Then the systems-interaction scenarios, one at a time, recording for each whether the whole chain runs with no special cases, which system fails first, and the combined frame time: a shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door); a man shoved through the balcony railing; a shoved drunk through a table. Make it the playtest agent's standing setup every build. Update docs/PARTS.md with what the playground uses. Report before fixing anything.
+Then the systems-interaction scenarios, one at a time, recording for each whether the whole chain runs with no special cases, which system fails first, and the combined frame time: a shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door); a man shoved through the balcony railing; a shoved drunk through a table. Then the moments in docs/briefs/showcase-moments.md, each once the parts it needs are in the game. Make it the playtest agent's standing setup every build. Update docs/PARTS.md with what the playground uses. Report before fixing anything.
 ```
 
 ## Prop lab (now, with 3.3) [Salt Creek]
