@@ -76,7 +76,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 `seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
-already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
 
 ## The playtest
 
@@ -372,6 +373,11 @@ a few views renders them as the full run does.
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
+  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
+  stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
+  `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -389,7 +395,10 @@ a few views renders them as the full run does.
   `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
   (its cap broken) tears off its nails when his bearing on it, times the height, passes
   `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
-  post set in the ground isn't nailed. The lab's breakable railing: group Q, `lab_railing.gd`.
+  post set in the ground isn't nailed. **Railings** (`Railing.build(s, id, from, to, spec)`):
+  balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
+  treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
+  and stair rails and the lab's 1 m railing (group Q) are built of it.
 
 ## src/fire
 
@@ -499,8 +508,16 @@ a few views renders them as the full run does.
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
-  on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
-  sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
+  on people; what it acts on comes from `gather()`: every member where timber can break,
+  `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
+  every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). Wood it lights
+  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
+  jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
+  `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's
+  `run.py --look=T,T...` and `sheets.py look`.
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 
 ## src/art/shot_match.gd (the saloon painting's shot)
@@ -705,14 +722,21 @@ a few views renders them as the full run does.
   on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
-  hands out a kit prop for any id the kit has (`use_kit`), with the drawn prop's metas.
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
   KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
   every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
   man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
   (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
-  (an inelastic knock: the wood's share of the energy lost against its `toughness` x volume breaks
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
   it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
-  him); `Events.exploded` (pushed by Blast's rule for loose bodies when the blast didn't break it);
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
   chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws

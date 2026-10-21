@@ -125,6 +125,7 @@ func _build_world() -> void:
 	world.add_child(ground)
 	# The floor: 4 x 4 m of boards on joists, a room's.
 	var floor_s = load("res://src/structures/structure.gd").new()
+	floor_s.name = "bench_floor"
 	floor_s.structure_id = &"bench_floor"
 	world.add_child(floor_s)
 	for x in [-1.8, -0.6, 0.6, 1.8]:
@@ -174,9 +175,14 @@ func _place_prop() -> void:
 	prop.position = Vector3(0, FLOOR_TOP, 0)
 	world.add_child(prop)
 	if sc.get("lamp", false):
+		# In a structure's Props, as the saloon's lamps are, so Fittings takes it (it brings things
+		# down when what they stand on goes).
+		var props := Node3D.new()
+		props.name = "Props"
+		world.get_node("bench_floor").add_child(props)
 		lamp = load("res://src/world/oil_lamp.gd").new()
 		lamp.name = "TableLamp"
-		world.add_child(lamp)
+		props.add_child(lamp)
 		lamp.global_position = prop.global_position + Vector3(0.12, 0.761, -0.1)
 		lamp.set_lit(true)
 	for i in 6:
@@ -213,6 +219,7 @@ func _step(ms: float) -> void:
 			rec.seat_h = snappedf((man.parts[&"pelvis"] as Node3D).global_position.y - FLOOR_TOP, 0.001)
 	if tick == int(LEAD * 60.0):
 		event_tick = tick
+		rec.kg = prop.mass()
 		_event()
 	if event_tick >= 0:
 		var since := (tick - event_tick) / 60.0
@@ -330,6 +337,10 @@ func _write_summary() -> void:
 			snapped.append(String(m.member_id).trim_prefix("bench_prop/"))
 	var pieces := 0
 	var farthest := 0.0
+	var biggest: RigidBody3D = null
+	for rb in prop.rubble:
+		if is_instance_valid(rb) and (biggest == null or (rb as RigidBody3D).mass > biggest.mass):
+			biggest = rb
 	for rb in prop.rubble:
 		if is_instance_valid(rb):
 			pieces += 1
@@ -339,7 +350,8 @@ func _write_summary() -> void:
 	var mean_before := _mean(before.slice(maxi(before.size() - 60, 0)))
 	var out := {
 		"scenario": sc.name, "prop": sc.prop, "members": prop.member_count(), "snapped": snapped,
-		"loose": prop.loose, "loose_t": rec.loose_t, "pieces": pieces, "farthest_m": snappedf(farthest, 0.01),
+		"loose": prop.loose, "loose_t": rec.loose_t,
+		"upright": biggest == null or biggest.global_basis.y.y > 0.8, "pieces": pieces, "farthest_m": snappedf(farthest, 0.01),
 		"max_piece_speed": snappedf(rec.max_piece_speed, 0.01), "caught": rec.caught, "consumed": rec.consumed,
 		"consumed_t": rec.get("consumed_t", []), "faults": rec.faults,
 		"frame": {"event_ms": snappedf(_max(frames.slice(0, 2)), 0.01),
@@ -353,6 +365,10 @@ func _write_summary() -> void:
 		out.flung_first = rec.flung_first
 	if rec.has("kick"):
 		out.kick = rec.kick
+	if prop.has_meta(&"blast_push"):
+		var bp: Vector3 = prop.get_meta(&"blast_push")
+		out.blast_push = [snappedf(bp.x, 0.1), snappedf(bp.y, 0.1), snappedf(bp.z, 0.1)]
+		out.blast_v = snappedf(bp.length() / maxf(float(rec.get("kg", 1.0)), 0.1), 0.01)
 	if sc.get("lamp", false):
 		out.lamp = {"smashed": not is_instance_valid(lamp) or bool(lamp.get(&"broken")), "spills": (fire.get(&"spills") as Array).size()}
 	if man:

@@ -71,6 +71,24 @@ func test_a_lamp_on_a_burnt_wall_falls_and_spills_its_oil() -> void:
 	check(fire.spills.size() >= 1, "its burning oil spilt (%d)" % fire.spills.size())
 
 
+## A charge holes the board below the lamp (Structure.cut_member): the piece left above still holds
+## it; holed where it hangs, it falls.
+func test_a_lamp_stays_on_what_is_left_of_a_holed_board() -> void:
+	var made := await _wall_with_lamp()
+	var s: Structure = made[0]
+	var board: StructureMember = made[1]
+	var lamp: OilLamp = made[2]
+	# The board stands upright (its length up): cut its lower part out, below the lamp.
+	s.cut_member(board, -1.1, -0.5)
+	await physics_frames(60)
+	check(lamp.global_position.y > 1.3, "held by the piece left above the hole (%.2f)" % lamp.global_position.y)
+	var top: StructureMember = board.get_meta(&"cut_pieces")[0]
+	top.consumed = true
+	top.collision_layer = 0
+	var down := await wait_until(func() -> bool: return lamp.global_position.y < 0.5, 60 * 3)
+	check(down, "and falls when that goes (at %.2f)" % lamp.global_position.y)
+
+
 func test_what_stands_on_the_ground_is_left_alone() -> void:
 	var barrel := PropLibrary.spawn(&"barrel")
 	world.add_child(barrel)

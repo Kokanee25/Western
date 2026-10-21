@@ -377,13 +377,13 @@ frozen until Sean names one.
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
   re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
   and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
-  squat as his tone lets go). **Round 4: stairs, railings, props** (`claude/gameplay-falls-props`, PR to main;
-  `results/2026-10-21_round4/`): the new men's baseline (critic 4.8/10); friction and the back arch
-  off tried, not kept; the saloon stair's ramp on `Layers.WALK` (falling men meet the treads);
-  `BodyImpacts` (a limp man thrown into timber breaks it and carries on through; groups Q and T,
-  the game's saloon in the lab). Next: the railing promoted to a part in `src/structures/`
-  (`docs/PARTS.md`), then the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him
-  at a stair's head; a trunk-first sweep started); loose props wait on Sean.
+  squat as his tone lets go). **Round 4: stairs, railings, props** (#184, build 1792;
+  `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
+  treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
+  game saloon (group T). Then **`Railing`** (`claude/gameplay-railing`): the railing part, the
+  saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
+  (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
+  (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -398,10 +398,24 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
+- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
+  break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
+  into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
+  `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
+  made: `Blast.gather` (the near field queried on its own; `results/2026-10-21_near_field/`): the
+  street breaks where the stick is, more far panes go. Step 2 made: boards cut over the stretch the
+  blast overcomes (`Blast.torn_stretch`, `Structure.cut_member`; `results/2026-10-21_board_cut/`):
+  holes, not missing boards; one stick a crawl hole in a wall, three a doorway (Sean's feel call);
+  glass-only buildings not re-settled. **The blast's look** (Sean: "try doing the art", art's
+  ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
+  dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
+  catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
+  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
+  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`) has the chair and the card table, handed out by `PropLibrary.spawn`; bench
-  `experiments/prop_lab/` (baseline 2026-10-21). PropModels' chair and table stay till Sean passes
-  the kit's look (sheets in the baseline). Next: bottles and the oil lamp (shattering, spills).
+  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
+  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
+  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.

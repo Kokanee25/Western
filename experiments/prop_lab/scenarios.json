@@ -17,6 +17,7 @@
     {"name": "table_revolver_5m", "prop": "card_table", "lamp": true, "event": {"do": "shoot", "weapon": "revolver", "from": [-5.0, 1.5, 0.0], "at_member": "pedestal", "height": 0.4}},
     {"name": "table_shotgun_5m", "prop": "card_table", "lamp": true, "event": {"do": "shoot", "weapon": "shotgun", "from": [-5.0, 0.6, 0.0], "at_member": "pedestal", "height": 0.4}},
     {"name": "table_dynamite_1m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-1.0, 0.02, 0.0]}},
+    {"name": "table_dynamite_1m_bare", "prop": "card_table", "event": {"do": "dynamite", "at": [-1.0, 0.02, 0.0]}},
     {"name": "table_dynamite_3m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-3.0, 0.02, 0.0]}},
     {"name": "table_dynamite_6m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-6.0, 0.02, 0.0]}},
     {"name": "table_man_dropped", "prop": "card_table", "lamp": true, "event": {"do": "drop_man", "height": 1.0}},

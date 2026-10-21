@@ -168,6 +168,31 @@ Report: a baseline table, a sheet of the wounds on each man, where the game is f
 
 ## Breakage lab (3.3a) [Salt Creek]
 
+Built 2026-10-21 (`claude/gameplay-breakage-lab-ksr17d`, merged): the bench, its README and the
+baseline (`experiments/breakage_lab/baseline/baseline.md`); blast-surfaces steps 1 and 2 and the
+blast's look made in the same branch (below).
+
+## Ground that can be dug, and craters (blast-surfaces step 3) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-dig-ground. Step 3 of docs/briefs/blast-surfaces.md: ground that can be dug, with a blast's crater as its first user. Read that brief (its step 3, its decisions and "Later: digging with a shovel"), the src/world, src/structures and src/blast sections of docs/LAYOUT.md, and the breakage lab's README and baseline (experiments/breakage_lab/). Steps 1 and 2 and the blast's look (docs/briefs/blast-look.md) are merged.
+
+First write its own brief, docs/briefs/dig-ground.md, and stop for my decisions: height field or ground voxels (the choice, its costs in collision, drawing and the frame); how earth comes out at one point and goes down at another, many times over the same spot; what rests in a hole and what walks, falls and rolls into it (the player, the men's feet, ragdolls, a strongbox, a stick of dynamite); nav, bullets glancing off dirt; how the save records it as a difference from the authored town; and the crater's size from the published fits (cube root of the charge). The ground's look (ground.gdshader, the textures, the crater's earth and lip) is the art lane's: say what it needs from them.
+
+Then build it in the brief's order, one step a merge, each measured in the breakage lab against its baseline (ground_dynamite_0m and _1m, the surface scan, the blast frame) with before-and-after sheets in the PR, and the lab's run.py --look sheet for the crater.
+
+Also from the prop lab (its kit, claude/prop-lab-inventory-kit-*, once on main): the breakage lab's chair and card_table targets look for a StaticBody3D with prop_id and will find nothing in its KitProps (runner.gd _find_target, _target_result, _man's table height): read them as members. Its other notes (Blast and KitProp, kit props' smoke joining the room's SmokeField, splitting a holed slender member, _batch_all's index merge, range_cover's ungrounded members) are for gameplay to weigh, not this job.
+```
+
+## Blast damage to surfaces (after Sean's decisions in its brief) [Salt Creek]
+
+Steps 1 (the near field queried on its own) and 2 (boards cut, not broken whole) merged with the
+breakage lab, 2026-10-21. Step 3 is the prompt above. The original prompt:
+
+```
+Gameplay lane, branch claude/gameplay-blast-surfaces. Brief: docs/briefs/blast-surfaces.md (read its decisions first: they're mine). Read the src/structures and src/blast sections of docs/LAYOUT.md and the breakage lab's README and baseline. In the brief's order, one step a merge: Blast's near field queried on its own; boards cut over the stretch the blast overcomes (not broken whole); then craters in the dirt. Measure each step in the breakage lab against its baseline (the surface scenarios and the blast frame) with before-and-after sheets in the PR. The look of the cut ends and the crater's earth is the art lane's (4.4a).
+```
+
 ```
 Gameplay lane, branch claude/gameplay-breakage-lab. Build the breakage lab, roadmap 3.3a. Read the breakage section of docs/briefs/labs.md, the src/structures and src/blast sections of docs/LAYOUT.md, Prompts 03 and 06 and their notes in docs/prompts/STATUS.md, and experiments/physics_lab/README.md as the pattern.
 

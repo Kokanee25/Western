@@ -41,7 +41,7 @@ def run_one(name, out, render):
 
 
 def table(root):
-    rows = ["| scenario | broke | went over | pieces (farthest) | fire | man | lamp | faults | frame ms (event / settle) |",
+    rows = ["| scenario | broke | loose | pieces (farthest) | fire | man | lamp | faults | frame ms (event / settle) |",
             "|---|---|---|---|---|---|---|---|---|"]
     for name in scenarios():
         p = os.path.join(root, name, "summary.json")
@@ -50,6 +50,8 @@ def table(root):
         s = json.load(open(p))
         broke = ", ".join(s["snapped"]) or "nothing"
         over = "at %.2f s" % s["loose_t"] if s["loose"] and s["loose_t"] is not None else ("yes" if s["loose"] else "no")
+        if s["loose"] and "upright" in s:
+            over += ", " + ("on its feet" if s["upright"] else "knocked over")
         fire = "caught %d, burnt %d" % (len(s["caught"]), len(s["consumed"])) if s["caught"] else "-"
         if s["consumed_t"]:
             fire += " (%s s)" % ", ".join("%g" % t for t in s["consumed_t"][:4])
