@@ -375,5 +375,6 @@ frozen until Sean names one.
   front; props never break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths;
   side panes shatter into 1 m slabs; a blast 0.2–0.65 s of hitch at Sean's. Surfaces measured too
   (no holes off the saloon floor, whole boards on it, no crater): draft brief
-  `docs/briefs/blast-surfaces.md`, waiting on Sean's four decisions. Next: the near-field query
+  `docs/briefs/blast-surfaces.md` (Sean: the ground made ready for the shovel, so craters are real
+  dips in dig-able ground; three decisions left). Next: the near-field query
   fix, then holes, then craters, each against `baseline/`; then 3.3.

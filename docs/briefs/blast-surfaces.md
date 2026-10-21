@@ -56,10 +56,15 @@ Two faults stack:
    batched); the cut stretch flies as splinters and short pieces, thrown by the impulse it took (not
    the 25 m/s cap); the cut ends carved ragged with the existing `VoxelMember` (as a bullet hole's
    edges are). A new `Structure` operation, used by Blast and later by axes and shoves.
-3. **Craters in the dirt.** For a charge on or near the ground: a crater sized by scaled distance
-   (radius proportional to the cube root of the charge; the constant from the published fits, below),
-   drawn as a bowl and a lip over the ground, with the scorch and the thrown clods as now. Collision:
-   the lip only, the ground staying flat (decision 2). Saved as the charge's point and size.
+3. **Ground that can be dug, and craters as its first user** (decision 2, Sean 2026-10-21: "just
+   that the ground is ready for" the shovel). The street's flat collision plane round town becomes
+   ground that can lose earth in one place and gain it in another, its collision and its mesh
+   following; a blast takes out a crater sized by scaled distance (radius proportional to the cube
+   root of the charge; the constant from the published fits, below) and heaps the lip and clods round
+   it, the scorch over it. What digging will need is there from the start: take earth out at a
+   point, put it down at another, and the save records both as differences from the authored town.
+   Its own brief before it's built (the choice of height field or ground voxels, below; walking,
+   feet, falls, rolling, nav, bullets glancing off dirt, and the ground's look all meet it).
 4. **Then** the frame: a blast's two big frames (0.3–1 s here today: `Blast.detonate`, then the settle) are
    measured at each step and must end no worse than the baseline; the near-field query should cut
    it.
@@ -106,14 +111,11 @@ the playtest agent, then Sean.
 
 ## Decisions for Sean
 
-1. **Order**: the query fix first on its own (small, merges alone), then holes, then craters, as
-   above? Or craters first (they don't depend on the others)?
-2. **The ground**: (a) a crater drawn and its lip solid, the ground staying flat under it (cheap;
-   a body or a piece lying in the crater rests a few inches above its floor), or (b) the ground made
-   a height field round town so a crater is a real dip (everything that walks, falls or rolls on the
-   ground changes; costs a frame budget check and a soak). Recommendation: (a), and (b) only if the
-   lab and the playtest show things floating. **But the shovel** (below) needs (b): if digging is
-   coming, the crater can be the dig-able ground's first user instead of something built twice.
+1. **Order**: the query fix first on its own (small, merges alone), then holes, then the ground and
+   craters, as above? Or the ground first (it doesn't depend on the others)?
+2. ~~**The ground**: a drawn crater over flat ground, or ground that really dips?~~ **Decided
+   (Sean, 2026-10-21): the ground is made ready for the shovel**, so craters are real dips in ground
+   that can be dug (step 3). When the shovel comes doesn't matter.
 3. **Where it sits on the roadmap**: a new gameplay step beside 3.3 (furniture), since both cut and
    break members the same way? (`docs/ROADMAP.md` is Sean's to change.)
 4. **How big a hole one stick makes** in a plank wall is a feel number once it's built: a range for
@@ -121,20 +123,29 @@ the playtest agent, then Sean.
 
 ## Later: digging with a shovel (Sean, 2026-10-21)
 
-Already parked in DESIGN.md §11 (Sean, 2026-10-05: "a shovel that digs real dirt, and treasure to
-find": the ground carved as the voxel damage carves members, the dirt thrown in a pile, things
-buried, graves). It isn't part of this job, but it shares its hardest part: a crater and a dug hole
-are the same thing, ground taken out of one place and heaped in another. So, whichever way decision
-2 goes:
+Parked in DESIGN.md §11 (Sean, 2026-10-05: "a shovel that digs real dirt, and treasure to find":
+the ground carved, the dirt thrown in a pile, things buried, graves). Not part of this job, but the
+ground step 3 builds is the one it digs: **"not worried about when the shovel comes, just that the
+ground is ready for it."** So step 3's ground must, from the start:
 
-- The crater is stored as what the ground lost (where, how much, the shape) and where its earth
-  went, not as a picture: the same record a dug hole will need, in the save the same way.
-- If the drawn crater (a) comes first, it's replaced by the dig-able ground when digging is built,
-  and its lab scenarios (`ground_dynamite_*`) carry over to judge that ground.
-- If digging is wanted soon, choose (b) now: build the dig-able ground once (a height field, or
-  ground voxels round town as DESIGN.md has it), with the blast as its first user and the shovel
-  its second. That's a bigger job (walking, falling, rolling, the ground's look and its frame
-  budget all change) and wants its own brief.
+- **Lose earth at a point and gain it at another** (a scoop and its pile), by any amount, many
+  times over the same spot (a hole dug deeper, a crater dug out, a hole filled back in).
+- **Hold things in it**: a body, a strongbox, a stick of dynamite lying at the bottom of a hole rests
+  on its floor, and the walls of the hole stop things rolling in sideways (the lab's flags check it).
+- **Be walked and fallen into**: the player and the men step down into it and out of it; feet sit on
+  its floor (the visual checks' `feet`).
+- **Keep what's under it** for later: what's buried at a point (DESIGN.md's caches, bones, graves) is
+  data the ground can hand back when that earth is dug away.
+- **Save as differences** from the authored town: the earth moved, not the whole ground.
+- **Fit the frame**: editing a patch of ground is local (only the cells it touches rebuild their
+  collision and mesh), and standing ground costs no more than the flat plane does now, measured on
+  the perf bench.
+
+Height field or ground voxels: a height field (cells of ground height, chunked round town) does
+craters, holes, piles and graves, and is far cheaper; voxels (as DESIGN.md's note has it, the
+members' carving on the ground) also do overhangs and tunnels, which only the mine needs. Proposed:
+a height field for the town's ground, the mine's tunnels their own thing when the mine comes. That's
+the ground brief's call, with Sean.
 
 ## Sources
 
