@@ -65,6 +65,12 @@ var _settled_tick := -1
 var _sleep_flips := 0
 var _last_sleep := {}
 var _com_min_y := INF
+## Kneeling as he falls (2026-10-21): ticks with both shins down on the floor and his seat up off it.
+var _kneel_ticks := 0
+var _ref_facing := Vector3.FORWARD  ## the way he faced as he went limp
+## Ground fixtures only (the floor at y 0): the stairs and the slope have no one floor height.
+const KNEEL_SHIN := 0.14  ## a shin's centre under this: it lies along the floor
+const KNEEL_SEAT := 0.28  ## the pelvis's centre over this: he's up on his knees, not lying
 var _shapes := {}  ## segment -> Array of [CollisionShape3D, a, b, r] (rest-centred capsule ends)
 var _pairs: Array = []  ## non-adjacent segment pairs
 
@@ -80,17 +86,23 @@ func _ready() -> void:
 	_light()
 	var yaw := deg_to_rad(float(scenario.get("yaw", 0.0)))
 	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point())
+	count = maxi(count, int(scenario.get("men", 1)))
 	for i in count:
 		var man := HumanBody.new()
 		man.name = "Man%d" % i
-		man.has_gun = false
+		# "gun": armed (drawn at the start; pre "pose": "aim" to aim it).
+		man.has_gun = bool(scenario.get("gun", false))
+		man.start_holstered = not man.has_gun
 		man.body_model = model
 		man.rng_seed = int(scenario.get("seed", 1))
 		man.person_id = StringName("lab_%d" % i)
 		_world.add_child(man)
-		man.global_transform = Transform3D(_start_xf.basis, _start_xf.origin + _start_xf.basis.x * 1.2 * i)
+		# "men": several men in a row ("spacing" m apart, his right), every one going down the
+		# same way; man 0 is the one logged tick by tick, the rest in the summary.
+		var gap := float(scenario.get("spacing", 1.2))
+		man.global_transform = Transform3D(_start_xf.basis, _start_xf.origin + _start_xf.basis.x * gap * i)
 		_men.append(man)
-	if count == 1:
+	if not light:
 		_ticks_csv = FileAccess.open(out_dir.path_join("ticks.csv"), FileAccess.WRITE)
 		_ticks_csv.store_line("tick,t,phase,com_x,com_y,com_z,com_vx,com_vy,com_vz,max_speed,max_penetration,max_self_overlap,max_joint_gap,awake,contacts,contact_impulse_sum,frame_ms")
 		_segs_csv = FileAccess.open(out_dir.path_join("segments.csv"), FileAccess.WRITE)
@@ -176,6 +188,12 @@ func _build_fixture(kind: String) -> void:
 			_table(Vector3(-0.85, 0, 0))
 		"chair":
 			_chair(Vector3(0, 0, 0.5))
+		"seat", "seat_table":
+			# A fixed seat under him (production's chairs and benches are static props) and, for
+			# seat_table, a table before him: he sits (pre "pose": "sit") and goes down off it.
+			_box(Vector3(0, 0.22, 0.05), Vector3(0.45, 0.44, 0.45), Color(0.4, 0.27, 0.17))
+			if kind == "seat_table":
+				_table(Vector3(0, 0, -0.75))
 
 
 func _table(at: Vector3) -> void:
@@ -303,8 +321,34 @@ func _physics_process(delta: float) -> void:
 					rb.apply_impulse(dw * given, at - rb.global_position)
 					if man.has_method(&"_hunch"):
 						man._hunch(StringName(knock.segment), at, dw)
-		if knock.is_empty() or _men[0].limp:
+		# "cause": what puts him down, through the game's own entry point: a blast (take_blast, a
+		# charge of "kg" at "from" in his frame from his feet), a limb torn off (sever_limb) or a
+		# blow (take_blow: "joules", "momentum", on "segment" along "dir"). He goes down only if
+		# it puts him down; the lab's "limp" is when he does.
+		var cause: Dictionary = scenario.get("cause", {})
+		if not cause.is_empty() and _hit_tick < 0:
+			_hit_tick = _tick
+			for man in _men:
+				match String(cause.kind):
+					"blast":
+						var f: Array = cause.get("from", [0, 0, -1])
+						var at := man.global_transform * Vector3(f[0], f[1], f[2])
+						var info: Dictionary = man.take_blast(at, float(cause.get("kg", 0.15)))
+						if man == _men[0]:
+							_events.append({"tick": _tick, "kind": "blast", "source": "HumanBody.take_blast", "at": _v(at),
+									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false)})
+					"sever":
+						man.sever_limb(StringName(cause.segment))
+					"blow":
+						var part := man.parts[StringName(cause.segment)] as Node3D
+						var d: Array = cause.get("dir", [0, 0, 1])
+						man.take_blow(part, float(cause.joules), part.global_position, (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized(),
+								float(cause.get("momentum", -1.0)))
+		var waiting := not knock.is_empty() or not cause.is_empty()
+		if not waiting or _men[0].limp:
 			_go_limp()
+	if _limp_tick >= 0:
+		_after(delta)
 	if _limp_tick >= 0 and (_tick - _limp_tick) % 60 == 0:
 		var n := 0
 		for man in _men:
@@ -320,6 +364,36 @@ func _physics_process(delta: float) -> void:
 		_finish()
 
 
+## Once he's down: "drag" (hauled by the collar, HumanBody.drag_toward, by a man walking off at
+## "speed" along "dir" in his frame from "start" for "seconds", as the gang's rescues do) and
+## "later" (more of the lab's impulses at "t" seconds after he went down: balls into a man going
+## down or lying there).
+func _after(delta: float) -> void:
+	var t := (_tick - _limp_tick) / 60.0
+	var drag: Dictionary = scenario.get("drag", {})
+	if not drag.is_empty() and t >= float(drag.get("start", 1.5)) and t < float(drag.get("start", 1.5)) + float(drag.get("seconds", 3.0)):
+		var d: Array = drag.get("dir", [0, 0, 1])
+		var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+		for man in _men:
+			if not drag.has("_holder"):
+				var chest := man.parts[&"chest"] as Node3D
+				drag["_holder"] = chest.global_position + dw * 0.5
+			drag["_holder"] = (drag["_holder"] as Vector3) + dw * float(drag.get("speed", 1.2)) * delta
+			man.drag_toward(Vector3((drag["_holder"] as Vector3).x, 0.0, (drag["_holder"] as Vector3).z), delta)
+	for imp: Dictionary in scenario.get("later", []):
+		if _tick - _limp_tick == int(round(float(imp.t) * 60.0)):
+			for man in _men:
+				var rb := man.parts.get(StringName(imp.segment)) as RigidBody3D
+				if rb == null:
+					continue
+				var p: Array = imp.get("point", [0, 0, 0])
+				var j: Array = imp.get("impulse", [0, 0, 0])
+				var jw := _start_xf.basis * Vector3(j[0], j[1], j[2])
+				rb.apply_impulse(jw, rb.global_transform * Vector3(p[0], p[1], p[2]) - rb.global_position)
+			_events.append({"tick": _tick, "kind": "lab_impulse_later", "source": "the lab (scenarios.json)",
+					"segment": imp.segment, "impulse_Ns": imp.get("impulse", [])})
+
+
 func _before(pre: Dictionary, delta: float) -> void:
 	# "hit": a ball that doesn't drop him, at "at" seconds into the run: as the game has it, nothing
 	# from the ball itself (no flinch, no wince: Sean, 2026-10-18), or with --old-flinch the kick he
@@ -333,6 +407,16 @@ func _before(pre: Dictionary, delta: float) -> void:
 			var d: Array = hit.get("dir", [0, 0, 1])
 			var at := part.global_transform * Vector3(p[0], p[1], p[2])
 			var dw := (_start_xf.basis * Vector3(d[0], d[1], d[2])).normalized()
+			if hit.get("ball", false):
+				# A real .45 ball through take_bullet (wound, pain, torn muscle: what it does to
+				# him, HumanBody._favour_step); "stays_up" takes the knockdown roll away.
+				if hit.get("stays_up", true):
+					man.physiology.tuning = man.physiology.tuning.duplicate()
+					man.physiology.tuning.knockdown_max = 0.0
+				var t_rev: RevolverTuning = load("res://config/revolver.tres")
+				man.take_bullet(part, at - dw * 0.15, dw, 0.5 * t_rev.bullet_mass * t_rev.muzzle_velocity * t_rev.muzzle_velocity,
+						t_rev.bullet_diameter * 0.5, t_rev.bullet_mass, 5.0)
+				continue
 			# "pain": what the wound hurts (Physiology.pain), as a real one would.
 			man.physiology.pain = float(hit.get("pain", 0.0))
 			if old_flinch:
@@ -344,6 +428,8 @@ func _before(pre: Dictionary, delta: float) -> void:
 				man.walk_to(man.global_position - _start_xf.basis.z * 5.0, speed, delta)
 			"crouch":
 				man.set_pose(&"crouch")
+			"pose":
+				man.set_pose(StringName(pre.get("pose", "stand")))
 			_:
 				pass
 
@@ -413,6 +499,7 @@ func _go_limp() -> void:
 
 
 func _take_reference(man: HumanBody) -> void:
+	_ref_facing = -man.global_basis.z
 	var anat := man.anatomy
 	for sid: StringName in man.parts:
 		var rb := man.parts[sid] as Node3D
@@ -546,11 +633,13 @@ func _record(frame_ms: float) -> void:
 		var lim: Array = [0, 0]
 		if limp:
 			for pr: Array in _pairs:
-				if pr[0] == sid or pr[1] == sid:
+				if (pr[0] == sid or pr[1] == sid) and not _torn_off(man, pr[0]) and not _torn_off(man, pr[1]):
 					var o := _overlap(man, pr[0], pr[1]) - float(_rest_overlap["%s|%s" % pr])
 					self_o = maxf(self_o, o)
 			var r: Dictionary = _ref[sid]
-			if r.has("rel"):
+			# A limb torn off has no joint to measure against (sever_limb frees it).
+			var torn := _torn_off(man, sid)
+			if r.has("rel") and not torn:
 				var parent: StringName = man.anatomy.segments[sid].parent
 				var pb := man.parts[parent] as Node3D
 				var rel := (pb.global_basis.orthonormalized().inverse() * n.global_basis.orthonormalized()).get_rotation_quaternion()
@@ -592,6 +681,8 @@ func _record(frame_ms: float) -> void:
 			_peak.speed = maxf(_peak.speed, max_speed)
 		_peak.up = maxf(_peak.up, com_v.y)
 		_com_min_y = minf(_com_min_y, com.y)
+		if _flat_floor() and _kneeling(man):
+			_kneel_ticks += 1
 		# Settling: every part slow and hardly turning for half a second.
 		var still := true
 		for sid: StringName in man.parts:
@@ -688,6 +779,101 @@ static func _v(v: Vector3) -> Array:
 	return [snappedf(v.x, 0.0001), snappedf(v.y, 0.0001), snappedf(v.z, 0.0001)]
 
 
+func _torn_off(man: HumanBody, sid: StringName) -> bool:
+	var s := sid
+	while s != &"":
+		if man.physiology.severed_segments.has(s):
+			return true
+		s = man.anatomy.segments[s].parent
+	return false
+
+
+func _flat_floor() -> bool:
+	return not String(scenario.get("fixture", "ground")) in ["stairs", "slope"]
+
+
+func _kneeling(man: HumanBody) -> bool:
+	for sid in [&"shin_l", &"shin_r"]:
+		var n := man.parts.get(sid) as Node3D
+		if n == null or n.global_position.y > KNEEL_SHIN:
+			return false
+	return (man.parts[&"pelvis"] as Node3D).global_position.y > KNEEL_SEAT
+
+
+## How he lies at the end: on his back, face down or on his side (the chest's front, -z, against
+## up); his seat's height; up on his knees; each knee's bend; and how deep each hand lies in his
+## thighs or trunk (the capsules' raw overlap, nothing subtracted).
+func _rest(man: HumanBody) -> Dictionary:
+	var chest := man.parts[&"chest"] as Node3D
+	# His front as he went limp (the way he faced), carried in the chest's own frame.
+	var ref_b: Basis = (_ref[&"chest"].xf as Transform3D).basis.orthonormalized()
+	var front_local := ref_b.inverse() * (_ref_facing)
+	var front := (chest.global_basis.orthonormalized() * front_local).normalized()
+	var up := front.dot(Vector3.UP)
+	var lying := "back" if up > 0.5 else ("face_down" if up < -0.5 else "side")
+	var hands := {}
+	for h in [&"hand_l", &"hand_r"]:
+		var deepest := 0.0
+		for other in [&"thigh_l", &"thigh_r", &"pelvis", &"abdomen", &"chest"]:
+			if man.parts.has(h) and man.parts.has(other):
+				deepest = maxf(deepest, _overlap(man, h, other))
+		hands[String(h)] = snappedf(deepest, 0.001)
+	var knees := {}
+	for sid in [&"shin_l", &"shin_r"]:
+		var n := man.parts.get(sid) as Node3D
+		var th := man.parts.get(StringName("thigh" + String(sid).right(2))) as Node3D
+		if n and th:
+			knees[String(sid)] = snappedf(rad_to_deg((-th.global_basis.y).angle_to(-n.global_basis.y)), 0.1)
+	return {"lying": lying, "chest_front_up": snappedf(up, 0.01),
+			"seat_h": snappedf((man.parts[&"pelvis"] as Node3D).global_position.y, 0.001) if _flat_floor() else null,
+			"kneeling": _kneeling(man) if _flat_floor() else null, "knee_bend": knees, "hand_in_body": hands,
+			"kneel_s": snappedf(_kneel_ticks / 60.0, 0.01) if _flat_floor() else null}
+
+
+## Several men: each one's ending, and how deep any part of one lies in another man.
+func _men_rest() -> Array:
+	var out := []
+	for i in _men.size():
+		var man := _men[i]
+		var deepest := 0.0
+		for k in _men.size():
+			if k == i:
+				continue
+			for a: StringName in man.parts:
+				for b: StringName in _men[k].parts:
+					deepest = maxf(deepest, _overlap_between(man, a, _men[k], b))
+		var awake := 0
+		for sid: StringName in man.parts:
+			if man.parts[sid] is RigidBody3D and not (man.parts[sid] as RigidBody3D).sleeping:
+				awake += 1
+		out.append({"limp": man.limp, "seat_h": snappedf((man.parts[&"pelvis"] as Node3D).global_position.y, 0.001),
+				"in_another_m": snappedf(deepest, 0.001), "awake_parts": awake})
+	return out
+
+
+func _overlap_between(ma: HumanBody, a: StringName, mb: HumanBody, b: StringName) -> float:
+	var na := ma.parts[a] as Node3D
+	var nb := mb.parts[b] as Node3D
+	if na.global_position.distance_to(nb.global_position) > 0.8:
+		return 0.0
+	var best := 0.0
+	for ca in na.get_children():
+		if not (ca is CollisionShape3D and (ca as CollisionShape3D).shape is CapsuleShape3D):
+			continue
+		for cb in nb.get_children():
+			if not (cb is CollisionShape3D and (cb as CollisionShape3D).shape is CapsuleShape3D):
+				continue
+			var sa := (ca as CollisionShape3D).shape as CapsuleShape3D
+			var sb := (cb as CollisionShape3D).shape as CapsuleShape3D
+			var xa := na.global_transform * (ca as CollisionShape3D).transform
+			var xb := nb.global_transform * (cb as CollisionShape3D).transform
+			var ha := sa.height * 0.5 - sa.radius
+			var hb := sb.height * 0.5 - sb.radius
+			var d := _seg_dist(xa * Vector3(0, -ha, 0), xa * Vector3(0, ha, 0), xb * Vector3(0, -hb, 0), xb * Vector3(0, hb, 0))
+			best = maxf(best, sa.radius + sb.radius - d)
+	return best
+
+
 # --- Finishing -----------------------------------------------------------------------------------
 
 func _finish() -> void:
@@ -730,6 +916,8 @@ func _finish() -> void:
 		"frame_ms_collapse_3s": _stats(ms.slice(_limp_tick - 1, _limp_tick + 179)),
 		"frame_ms_after_5s": _stats(ms.slice(_limp_tick + 299)),
 		"asleep_by_second": _asleep_by_second,
+		"rest": _rest(_men[0]) if _limp_tick >= 0 else {},
+		"men_rest": _men_rest() if _men.size() > 1 else [],
 	}
 	var f := FileAccess.open(out_dir.path_join("summary.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))

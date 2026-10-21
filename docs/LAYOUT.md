@@ -413,7 +413,12 @@ a few views renders them as the full run does.
   harder; a ball that drops him alive curls him round it, `_hunch`, and on the move he stumbles
   on a step first (`_knocked`, `stumbling`: brains stand back); his legs go
   on at his hips' speed, the stance leg turning about its planted foot (the gait's skate left
-  out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
+  out); the neck, hands and feet turn with `INERTIA_SCALE` times their inertia; parts only resting
+  on each other as he goes collide (`_keep_apart`, `_rejoin_apart`); a blow puts him down only by
+  its push (`take_blow`, `knockdown_speed`), a blast throws along its line, a torn limb takes its
+  own push (`_limb_throw`); hit and still up, he favours the wound as it comes on (`_favour_step`:
+  a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
+  steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
