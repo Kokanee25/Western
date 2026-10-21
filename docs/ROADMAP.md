@@ -229,7 +229,8 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
   8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
   no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 (free): timber and the deck SAME;
-  round 6 next (banded light on the wood, the interior stand for Sean's saloon). Nothing in the
+  round 6 next (banded light on the wood); the interior woodwork (Sean's saloon picture: profiles,
+  the interior stand, one umber stain, `interior-woodwork.md`) waits on his pick. Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
