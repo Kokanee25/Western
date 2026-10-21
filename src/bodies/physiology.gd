@@ -14,6 +14,9 @@ var blood_ml := 5000.0
 ## `kind` is &"artery" (a pulsing jet), &"vein" (a dark steady flow), &"ooze" (the rest), or
 ## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
+## Whether packing holds a bleed too fast to clot on its own (PhysiologyTuning.packing_holds) is
+## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed).
+var rng := RandomNumberGenerator.new()
 ## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
 const BALL_RADIUS := 0.0057
 
@@ -83,7 +86,7 @@ func apply_trace(tr: Dictionary) -> Array:
 					wound_pain += tuning.pain_bone * 0.4
 			&"artery", &"vein":
 				cut[h.id] = true
-				_add_bleed(h.id, seg, float(st.get(&"bleed", 5.0)), h.kind)
+				_add_bleed(h.id, seg, float(st.get(&"bleed", 5.0)), &"internal" if st.get(&"inside", false) else h.kind)
 			&"nerve":
 				cut[h.id] = true
 				wound_pain += tuning.pain_nerve
@@ -95,7 +98,9 @@ func apply_trace(tr: Dictionary) -> Array:
 			&"organ":
 				torn[h.id] = true
 				wound_pain += tuning.pain_organ
-				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.5)))
+				# The heart, liver and spleen bleed into him (`inside` in the anatomy): no pressure
+				# from outside reaches it.
+				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.5)), &"internal" if st.get(&"inside", false) else &"ooze")
 				match StringName(st.get(&"organ", "")):
 					&"brain":
 						brain_dead = true
@@ -180,7 +185,7 @@ func step(dt: float) -> void:
 		var ml := bleed_rate(b) * dt
 		b.lost += ml
 		loss += ml
-		if b.clots:
+		if b.clots or (b.pressure and _packing_holds(b)):
 			b.clot *= exp(-dt / tuning.clot_time)
 	var bleeding := loss > 0.0001
 	blood_ml = maxf(blood_ml - loss, 0.0)
@@ -211,6 +216,14 @@ func step(dt: float) -> void:
 		_die(&"broken_neck" if neck_seconds >= 0.0 else &"suffocation")
 	elif gut_seconds >= tuning.gut_death_game_hours * tuning.game_hour_seconds:
 		_die(&"gut_wound")
+
+
+## A bleed too fast to clot on its own, pressed or packed: whether the packing holds it (rolled
+## once, the first time it's pressed). If it does it clots under the pressure, as a cut does.
+func _packing_holds(b: Dictionary) -> bool:
+	if not b.has("holds"):
+		b.holds = rng.randf() < tuning.packing_holds
+	return b.holds
 
 
 ## Current ml/s from one bleed, with clotting, falling blood pressure and treatment.

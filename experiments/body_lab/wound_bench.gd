@@ -262,9 +262,10 @@ static func treat(p: Physiology, what: String) -> bool:
 
 ## Run a copy of his physiology (`state`, Physiology.to_dict(), taken `from_t` seconds after the
 ## hit) forward under one treatment, to `horizon` seconds. Times are seconds after the hit.
-static func outcome(state: Dictionary, from_t: float, treatment: Dictionary, horizon: float, dt: float) -> Dictionary:
+static func outcome(state: Dictionary, from_t: float, treatment: Dictionary, horizon: float, dt: float, seed := 1) -> Dictionary:
 	var p := Physiology.new()
 	p.from_dict(state)
+	p.rng.seed = hash(["physiology", seed])
 	var t := from_t
 	var steps := []  # [time, treatment] still to do
 	match String(treatment.name):
@@ -305,7 +306,7 @@ static func outcomes(state: Dictionary, from_t: float) -> Dictionary:
 	var d := data()
 	var out := {}
 	for tr: Dictionary in d.treatments:
-		out[tr.name] = outcome(state, from_t, tr, float(d.horizon_seconds), float(d.sim_dt))
+		out[tr.name] = outcome(state, from_t, tr, float(d.horizon_seconds), float(d.sim_dt), int(d.seed))
 	return out
 
 
@@ -316,7 +317,20 @@ static func vessel(id: StringName) -> Dictionary:
 	var p := Physiology.new()
 	var effect := &"cut" if st.kind in [&"artery", &"vein"] else &"torn"
 	p.apply_trace({"segment": st.segment, "track_cm": 0.0, "hits": [{"id": id, "kind": st.kind, "effect": effect}]})
-	var row := {"id": String(id), "kind": String(st.kind), "segment": String(st.segment), "ml_s": float(st.get(&"bleed", 0.0)),
+	var row := {"id": String(id), "kind": String(st.kind) + (" (inside)" if st.get(&"inside", false) else ""), "segment": String(st.segment), "ml_s": float(st.get(&"bleed", 0.0)),
 			"limb": bool(st.get(&"limb", false)), "clots": p.bleeds[0].clots if not p.bleeds.is_empty() else false}
 	row.outcomes = outcomes(p.to_dict(), 0.0)
+	# Packing holds or not by a roll (PhysiologyTuning.packing_holds): the share of 40 seeds he lives.
+	var d := data()
+	var packing: Dictionary = d.treatments.filter(func(t: Dictionary) -> bool: return t.name == "packing")[0]
+	# Only a bleed too fast to clot that packing reaches rolls; for the rest one run says it all.
+	if p.bleeds.is_empty() or p.bleeds[0].clots or p.bleeds[0].kind == &"internal":
+		row.packed_lives_share = 1.0 if row.outcomes.packing.dead_s == null else 0.0
+		return row
+	var lives := 0
+	for k in 40:
+		# Packed or not, a bleed that hasn't killed him in an hour won't (it's held or clotted).
+		if outcome(p.to_dict(), 0.0, packing, 3600.0, 0.5, k + 1).dead_s == null:
+			lives += 1
+	row.packed_lives_share = lives / 40.0
 	return row

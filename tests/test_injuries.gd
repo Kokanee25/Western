@@ -98,6 +98,33 @@ func test_a_ball_on_the_tick_he_goes_limp_still_hits_him() -> void:
 	check_eq(man.wounds.size(), 1, "the ball finds him")
 
 
+## The heart, great vessels, liver and spleen bleed into him: nothing pressed on the outside
+## reaches it (experiments/body_lab/results/2026-10-21_packing).
+func test_a_ball_through_the_heart_bleeds_inside() -> void:
+	var p := Physiology.new()
+	p.apply_trace({"segment": &"chest", "track_cm": 0.0, "hits": [{"id": &"heart", "kind": &"organ", "effect": &"torn"}]})
+	check_eq(p.bleeds[0].kind, &"internal", "inside")
+	var before := p.total_bleed_rate()
+	p.apply_pressure(&"chest")
+	check_near(p.total_bleed_rate(), before, 0.001, "pressing on his chest doesn't slow it")
+
+
+## Packing an artery holds it about half the time; held, it clots under the pressure.
+func test_packing_holds_an_artery_some_of_the_time() -> void:
+	var held := 0
+	for k in 40:
+		var p := Physiology.new()
+		p.rng.seed = hash(["test", k])
+		p.apply_trace({"segment": &"thigh_r", "track_cm": 0.0, "hits": [{"id": &"femoral_r", "kind": &"artery", "effect": &"cut"}]})
+		p.apply_pressure(&"thigh_r")
+		for i in 1800:  # packed and not held, a femoral kills in about 18 minutes
+			p.step(1.0)
+		if p.alive:
+			held += 1
+			check(p.total_bleed_rate() < 0.1, "a held artery has stopped (%.2f ml/s)" % p.total_bleed_rate())
+	check(held >= 10 and held <= 30, "about half hold (%d of 40)" % held)
+
+
 func test_a_blow_to_the_belly_bleeds_inside() -> void:
 	var p := Physiology.new()
 	var harm := p.blow(&"abdomen", 600.0, rng)

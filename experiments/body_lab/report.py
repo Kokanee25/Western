@@ -156,12 +156,14 @@ def gather(root):
 
 def vessels(root):
     data = json.load(open(os.path.join(root, "vessels.json")))
-    md = ["| vessel | kind | ml/s | clots | untreated: out / dead | packed 30 s | tourniquet 30 s | doctor 10 min |", "|---|---|---|---|---|---|---|---|"]
+    md = ["| vessel | kind | ml/s | clots | untreated: out / dead | packed 30 s | packed: lives (40 seeds) | tourniquet 30 s | doctor 10 min |", "|---|---|---|---|---|---|---|---|---|"]
     for v in sorted(data["vessels"], key=lambda v: -v["ml_s"]):
         o = v["outcomes"]
         n = o["none"]
-        md.append("| %s | %s | %s | %s | %s / %s | %s | %s | %s |" % (v["id"], v["kind"], v["ml_s"], "yes" if v["clots"] else "no",
-                  t(n.get("unconscious_s")), fate(n), fate(o["packing"]), fate(o["tourniquet"]), fate(o["doctor"])))
+        md.append("| %s | %s | %s | %s | %s / %s | %s | %s | %s | %s |" % (v["id"], v["kind"], v["ml_s"], "yes" if v["clots"] else "no",
+                  t(n.get("unconscious_s")), fate(n), fate(o["packing"]),
+                  "%.0f%%" % (v.get("packed_lives_share", 0) * 100) if "packed_lives_share" in v else "-",
+                  fate(o["tourniquet"]), fate(o["doctor"])))
     open(os.path.join(root, "vessels.md"), "w").write("\n".join(md) + "\n")
     print("vessels into %s" % os.path.join(root, "vessels.md"))
 
