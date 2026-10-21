@@ -194,17 +194,18 @@ static func _top_free(s: Structure, m: StructureMember) -> bool:
 
 
 ## What a member takes from a body thrown into it before it gives way (J): its wood's, as falling
-## timber's (`impact_toughness` x its volume); but trim (balustrades, hand rails: finish carpentry,
-## light nails) lets go at its nails first, each member it touches a nailed joint that gives way
-## after ~10 mm of slip at its nails, a turn of NAIL_TURN over its depth (load-slip of nailed
-## joints, USDA Wood Handbook ch. 8: an assumption to judge by eye), half its `nailed_moment` x that
-## turn. A 1.2 m oak cap on nine balusters and two newels ~51 J (its wood ~150), a baluster ~6.5.
+## timber's (`impact_toughness` x its volume); but a railing's members (trim and balusters: finish
+## carpentry, light nails) let go at their nails first. Each member it touches is a nailed joint that
+## gives way after ~10 mm of slip at its nails, a turn of NAIL_TURN over its depth (load-slip of
+## nailed joints, USDA Wood Handbook ch. 8: an assumption to judge by eye), half its
+## `nailed_moment` x that turn. A 1.2 m oak cap on nine balusters and two newels ~51 J (its wood
+## ~150), a baluster ~6.5.
 const NAIL_TURN := 0.15
 
 
 static func capacity(s: Structure, m: StructureMember) -> float:
 	var wood := s.tuning.impact_toughness * m.volume()
-	if m.kind != &"trim":
+	if m.kind != &"trim" and m.kind != &"baluster":
 		return wood
 	var joints := 0.0
 	for id: StringName in m.touching:

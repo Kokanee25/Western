@@ -1,0 +1,69 @@
+{
+  "caught": [
+    "bench_prop/leg_front_l",
+    "bench_prop/stretcher_l",
+    "bench_prop/seat",
+    "bench_prop/post_back_l",
+    "bench_prop/spindle0",
+    "bench_prop/spindle1",
+    "bench_prop/spindle2",
+    "bench_prop/spindle3",
+    "bench_prop/spindle4",
+    "bench_prop/crest",
+    "bench_prop/post_back_r",
+    "bench_prop/stretcher_r",
+    "bench_prop/leg_front_r"
+  ],
+  "consumed": [
+    "bench_prop/spindle0",
+    "bench_prop/stretcher_l",
+    "bench_prop/spindle1",
+    "bench_prop/spindle2",
+    "bench_prop/spindle3",
+    "bench_prop/spindle4",
+    "bench_prop/leg_front_l",
+    "bench_prop/crest",
+    "bench_prop/seat",
+    "bench_prop/post_back_l",
+    "bench_prop/stretcher_r",
+    "bench_prop/post_back_r",
+    "bench_prop/leg_front_r"
+  ],
+  "consumed_t": [
+    167.0,
+    168.2,
+    168.7,
+    169.2,
+    169.4,
+    169.9,
+    248.2,
+    271.9,
+    282.7,
+    293.9,
+    312.7,
+    329.7,
+    406.2
+  ],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 1.09,
+    "before_ms": 0.02,
+    "event_ms": 0.18,
+    "settle_ms": 0.29
+  },
+  "loose": true,
+  "loose_t": 406.183,
+  "max_piece_speed": 0.0,
+  "members": 13,
+  "pieces": 0,
+  "prop": "chair",
+  "scenario": "chair_burn",
+  "snapped": []
+}

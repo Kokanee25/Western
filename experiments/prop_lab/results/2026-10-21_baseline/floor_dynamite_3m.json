@@ -1,0 +1,44 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 3.26,
+    "before_ms": 0.02,
+    "event_ms": 145.0,
+    "settle_ms": 4.29
+  },
+  "hits": [
+    {
+      "j_in": 72.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 21.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 58.0,
+      "through": true,
+      "what": "bench_floor/joist-18"
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 0,
+  "pieces": 0,
+  "prop": "",
+  "scenario": "floor_dynamite_3m",
+  "snapped": []
+}

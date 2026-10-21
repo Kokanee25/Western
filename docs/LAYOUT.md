@@ -33,6 +33,7 @@ means a section of this file.
 - [src/art/street_match.gd (the street painting's shot)](#srcartstreet_matchgd-the-street-paintings-shot)
 - [The texture factory (tools/textures)](#the-texture-factory-toolstextures)
 - [src/props/prop_models.gd](#srcpropsprop_modelsgd)
+- [The prop kit (src/props/prop_kit.gd, kit_prop.gd)](#the-prop-kit-srcpropsprop_kitgd-kit_propgd)
 - [src/art/saloon_dressing.gd](#srcartsaloon_dressinggd)
 - [src/art/sign_art.gd and the backdrop](#srcartsign_artgd-and-the-backdrop)
 - [Characters by image-to-3D (tools/characters)](#characters-by-image-to-3d-toolscharacters)
@@ -394,7 +395,10 @@ a few views renders them as the full run does.
   `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
   (its cap broken) tears off its nails when his bearing on it, times the height, passes
   `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
-  post set in the ground isn't nailed. The lab's breakable railing: group Q, `lab_railing.gd`.
+  post set in the ground isn't nailed. **Railings** (`Railing.build(s, id, from, to, spec)`):
+  balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
+  treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
+  and stair rails and the lab's 1 m railing (group Q) are built of it.
 
 ## src/fire
 
@@ -719,6 +723,34 @@ a few views renders them as the full run does.
   arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
   twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
   `--street` the street's code models (horse from three sides, hay, crate).
+
+## The prop kit (src/props/prop_kit.gd, kit_prop.gd)
+
+- The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
+  once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
+  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
+  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
+  shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
+  KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
+  every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
+  man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
+  (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
+  it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
+  `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
+  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
+  nothing). The bench: `experiments/prop_lab/` (README).
 
 ## src/art/saloon_dressing.gd
 
