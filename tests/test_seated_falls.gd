@@ -45,8 +45,15 @@ func test_back_legs_kicked_out_he_goes_over_backwards_onto_his_back() -> void:
 		if m and not m.broken:
 			did.append(chair.take_blow(m, Vector3(m.global_position.x, 0.12, m.global_position.z), Vector3(0, 0, -48), 8.0))
 	check(did.has(&"broke"), "the kick breaks a back leg under him (%s)" % [did])
-	check(chair.loose, "and the chair goes over")
+	# The chair goes over on its own balance (KitProp._check_balance, a tick or two on).
+	for i in 30:
+		if man.limp:
+			break
+		await physics_frames(1)
+	check(chair.loose, "the chair goes over")
 	check(man.limp, "he goes down with it")
+	if not man.limp:
+		return
 	# His front in his ragdoll chest's own frame, as he goes over (he faced -z).
 	var chest := man.parts[&"chest"] as Node3D
 	var front_local := chest.global_basis.orthonormalized().inverse() * Vector3.FORWARD

@@ -42,7 +42,8 @@ keep his eyes level, hands in his lap. Sean asked for it and approved it from th
   (`ground_penetration` 0.03-0.04 m once he's limp, easing out over ~10 ticks). It was the same
   before the kit chair reached main (0.029); it reads as a flag only at the line.
 - **Test:** `tests/test_seated_falls.gd`: sat back, back legs kicked out from behind, he ends on his
-  back behind where he sat. It fails with the upright `sit` (face down, 1.08 m in front).
+  back behind where he sat. Before the prop lab's sweep (below) it failed with the upright `sit`
+  (face down, 1.08 m in front); since, the kick takes both legs and either pose goes over backwards.
 
 ## The scene (Sean's ask)
 
@@ -56,10 +57,42 @@ the leg it meets, below); he goes over with it; the kicker draws, walks over and
 It scored the kick from behind 4 and the kick from the side 2. In both he ends on his back with his
 legs over the chair. Its top three:
 
-1. **The chair stands too long.** It stays level on three legs with a man leaning back, for 1 s
+1. **The chair stands too long** (fixed since: below). It stays level on three legs with a man leaning back, for 1 s
    (from behind) and 2 s (from the side). This is the one-leg kick above.
 2. **He goes limp instead of reacting.** His head drops back and his arms hang like a man passed
    out; a man taken by surprise would grab the seat and tuck his chin. This is the prop lab's ask
    (a conscious man who loses his seat catches himself).
 3. **Kicked from behind, he rolls face-down on the way.** The chair tips back and to the left, the
    way the broken leg was, so he twists hat-first before coming onto his back.
+
+## After the prop lab's sweep (#206, the same day)
+
+The prop lab took the first finding: a kick that breaks a member goes on along its line into the
+next one in its way, with what breaking it didn't take, and only that leftover pushes what's left.
+Runs `build/physics_lab/u8`, `u8r` (rendered).
+
+| U, rancher | the kick did | he ends | his chest's front up |
+|---|---|---|---|
+| sit, back legs kicked from behind (48 N·s each) | broke both | on his back, 0.57 m behind | 0.89 |
+| **sit_back, back legs kicked from behind** | broke both | **on his back**, 0.5 m behind, legs over the chair | 0.85 |
+| sit_back, back legs kicked from the side | broke both | on his back | 0.94 |
+| sit_back, one back leg kicked | broke it | on his back | 0.95 |
+| sit_back, one sweep from the side (80 N·s) | broke the near leg and went on through the far one | on his back | 0.89 |
+| sit_back, a front leg kicked from in front | broke it | **still seated**: the chair stands on three legs | |
+
+- **The chair no longer stands on three legs.** With both back legs gone it drops and tips back at
+  once, and he's on his back within a second.
+- **`sit_back` is now the look, not the fall.** The upright `sit` also goes over backwards now, so
+  `sit_back` is just the lean-back Sean asked for.
+- **A kicked front leg leaves him seated.** His weight is 5 cm inside the other three legs, so he
+  doesn't go limp in a standing chair any more.
+
+A fresh blind critic on the sat-back kick from behind and the side sweep: **5 and 4 of 10** (round
+one 4 and 2). He ends on his back in both, hat off, legs over the chair. Its top three:
+
+1. **He drops instead of tipping** (0.48 s). The chair folds flat under him and he sinks, chin to
+   chest, then lies back. A chair losing its back legs should pivot back on its front legs with his
+   head and shoulders leading.
+2. **His arms show no surprise.** They stay in his lap as the chair goes (the catch-himself ask).
+3. **The side sweep falls the same as the kick from behind.** The chair's pieces fly off sideways,
+   so it reads as the chair exploding rather than being swept.
