@@ -75,7 +75,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 `seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
-already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
 
 ## The playtest
 
@@ -371,6 +372,11 @@ a few views renders them as the full run does.
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
+  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
+  stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
+  `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -498,8 +504,16 @@ a few views renders them as the full run does.
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
-  on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
-  sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
+  on people; what it acts on comes from `gather()`: every member where timber can break,
+  `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
+  every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). Wood it lights
+  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
+  jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
+  `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's
+  `run.py --look=T,T...` and `sheets.py look`.
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 
 ## src/art/shot_match.gd (the saloon painting's shot)
