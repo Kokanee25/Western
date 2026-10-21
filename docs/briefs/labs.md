@@ -85,6 +85,72 @@ The test bench for step 3.3 (furniture): what breaks, how, and what it costs a f
 
 **What changes, after the baseline:** Prompts 03 and 06 as one job (chairs and tables built as members that break by how they're built, a seated man dropped when his chair goes), bottles that shatter and spill, and furniture that dynamite throws and breaks.
 
+## Treatment lab (Sean, 2026-10-21)
+
+A bench for treating wounds: what the player, the townsfolk and the doctor can do for a wounded
+man, checked against real first aid and against what an 1882 doctor could and couldn't do.
+DESIGN.md §7 ("Treatment", "Field first aid") is the design; treatment rules follow Sean's
+first-aid training, as DESIGN.md says. Two parts, run at different times.
+
+**What exists to build on:** `Physiology.apply_tourniquet()` (every bleed below it stops) and
+`apply_pressure()` (pressure or packing on one segment); the player's hold-to-tend key
+(`tend_wounds`: pressure on the worst bleed, then a tourniquet high on the limb, then a bandage);
+outlaws who stop to tend themselves when it's quiet (`OutlawBrain.tend_bleed`); holed lungs
+tracked in `lung_damage` (a sucking wound when the ribs are blown out); the doctor's building
+with its furnished room; and waking at the doctor's, where `_patch_up()` simply ties off
+everything and seals the lung. Nobody treats anyone else yet, and the doctor does nothing on
+screen.
+
+### Part 1: field first aid (3.1c, after the body lab's baseline)
+
+The player on himself and on others, and NPCs on themselves and each other.
+
+| Treatment | What it does | Its cost |
+| --- | --- | --- |
+| Direct pressure | Slows a bleed while held | Both hands busy: no shooting, reloading or riding |
+| Tourniquet (belt, bandana and stick, rope) | Tight stops an arterial bleed; loose only slows it, and can make it worse | Seconds to apply; hours on and the limb may be lost |
+| Packing a wound | Stops a bleed a tourniquet can't reach (groin, armpit, neck) | Slower; needs cloth (the shirt gets shorter); dirty cloth raises infection later |
+| Sealing a sucking chest wound | A hand over it at once, then anything airtight (oilcloth, leather, waxed paper) | Must be watched: a seal that traps air makes his breathing worse until it's lifted |
+| Splint | A broken leg or arm can be moved without more damage | A rifle, a board off the rubble, a fence rail |
+| Whiskey | Pain down, for a while | Cleans a wound badly; a drunk patient |
+| Moving him | Drag to cover, carry, throw over a horse | Slow, exposed, and it reopens bleeds |
+
+- **On someone else:** you kneel by him and choose what to do; his wounds show you where. A man
+  you're treating may still be holding a gun.
+- **NPCs do it too,** by who they are: a loyal friend drags a partner behind cover and cinches a
+  belt on his leg (two men not shooting); a lone wounded man stops to tie off his own arm; hired
+  guns leave each other; townsfolk who like you press a rag on your wound.
+- **Scenarios:** each wound from the body lab (thigh, neck, upper arm, chest, belly), treated by the
+  player, by a partner, by himself, and untreated; in the open, under fire, and after the fight.
+- **Measured:** time to stop each bleed; blood lost before and after; who lives against the
+  untreated baseline; how often an NPC treats instead of fighting, and whether that opens a chance
+  (closing in, calling for surrender); a seal that traps air, caught and lifted or not.
+
+### Part 2: the doctor (with roadmap 5.4 and 5.6)
+
+The doctor as a person with tools and limits, treating anyone brought in: the player, the
+sheriff, a prisoner, a wounded outlaw.
+
+| Procedure | 1882 as it was |
+| --- | --- |
+| Finding and removing a ball | Probes and forceps, by feel; a ball left in is often safer than digging |
+| Cleaning | Carbolic acid if he follows Lister; plenty of doctors still didn't. Dirty probing infects |
+| Anaesthesia | Chloroform or ether; whiskey and laudanum when there's none |
+| Amputation | A shattered limb or one left too long under a tourniquet, done fast; ligatures on the arteries |
+| Chest and belly | A shot through the gut usually kills slowly whatever he does; he can ease it, not fix it |
+| Infection | Shows days later as fever and smell; can kill a man who survived the shooting |
+
+- **It takes time and costs money:** a man brought in is out of the story for hours or days; the
+  doctor charges, talks, and remembers who paid.
+- **What he finds is evidence:** the ball he digs out (5.6: the sheriff's) matches a gun.
+- **Scenarios:** each body-lab wound brought in at once, after an hour, and after a bad field
+  dressing; an amputation (a crushed leg, a tourniquet left on too long); a fever a week later.
+- **Measured:** survival with and without him, time out of action, what each case leaves behind
+  (a limp, a stump, a scar), cost, and frame time with the room full.
+
+**Not in this lab:** what wounds look like (the painted wound atlas, roadmap 2.3) and stump
+meshes (the body lab).
+
 ## Other labs
 
 Two already exist; three more come later, each when its phase needs it.
