@@ -76,7 +76,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	var ao := TEXTURE_PATH % [model, "head_ao"]
 	if ResourceLoader.exists(ao):
 		textures["head_ao"] = load(ao)
-	var out := {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures}
+	var out := {"bones": data.bones, "rests": data.rests, "shapes": shapes, "model": model, "textures": textures,
+			"whole": whole}
 	# His own fingers, a mesh a finger bone (HumanBody._own_fingers), if he was fitted with them.
 	if generated.has("fingers"):
 		out["fingers"] = generated.fingers
