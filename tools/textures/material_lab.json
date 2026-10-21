@@ -437,7 +437,8 @@
      2.0,
      0.35
     ],
-    "rows": 0.5
+    "rows": 0.5,
+    "seams": 3
    },
    "grade": {
     "saloon_red": {
@@ -508,7 +509,7 @@
    }
   },
   "studio6p": {
-   "note": "Round 3 with the painted stain sheet (Sean, 2026-10-21: two takes, $0.90): as studio6, its weathering from the four-panel painting take a (raw/stains_r3_a.jpg); textures = mlab:studio6p paints both takes, studio6q cuts take b with no call.",
+   "note": "Round 3 with a painted stain sheet (Sean, 2026-10-21: two takes, cap $0.90). Takes a and b (run 106, $0.38) edited the men's sheet instead of painting panels: unusable; take c (raw/stains_r3_c.jpg) paints onto four blank grey panels with the men's cloth swatches as the style, inside what's left ($0.52). textures = mlab:studio6p.",
    "texels_per_metre": 384,
    "woods": [
     "saloon_red",
@@ -544,7 +545,8 @@
      2.0,
      0.35
     ],
-    "rows": 0.5
+    "rows": 0.5,
+    "seams": 3
    },
    "grade": {
     "saloon_red": {
@@ -615,14 +617,15 @@
     "painting": "stains_r3_%s.jpg",
     "takes": [
      "a",
-     "b"
+     "b",
+     "c"
     ],
-    "pick": "a"
+    "pick": "c"
    },
-   "budget": 0.9
+   "budget": 0.52
   },
   "studio6q": {
-   "note": "Round 3 with the painted stain sheet (Sean, 2026-10-21: two takes, $0.90): as studio6, its weathering from the four-panel painting take b (raw/stains_r3_b.jpg); textures = mlab:studio6p paints both takes, studio6q cuts take b with no call.",
+   "note": "As studio6p, another take's sheet (pick), cut with no call.",
    "texels_per_metre": 384,
    "woods": [
     "saloon_red",
@@ -658,7 +661,8 @@
      2.0,
      0.35
     ],
-    "rows": 0.5
+    "rows": 0.5,
+    "seams": 3
    },
    "grade": {
     "saloon_red": {
@@ -729,7 +733,8 @@
     "painting": "stains_r3_%s.jpg",
     "takes": [
      "a",
-     "b"
+     "b",
+     "c"
     ],
     "pick": "b"
    }

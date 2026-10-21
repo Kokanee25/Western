@@ -68,7 +68,8 @@ varying float lab_u0;
 // texel-wide line on a fine wood (384 a metre: 2.6 mm) is under a pixel past a metre or two and
 // broke into dashes as it fell on and off the pixels' centres (both blind critics' "black dashes
 // along the seams"). On: the line a pixel wide where a texel is smaller, as dark as the share of
-// that pixel the texel row covers (never under half: the painting draws every seam). The material
+// that pixel the texel row covers (never under half: the painting draws every seam), both long
+// edges dark (no lit lip; see the fragment). The material
 // lab's sets only, until Sean picks a wood.
 uniform bool edge_aa = false;
 
@@ -297,6 +298,15 @@ void fragment() {
 	float edge = 1.0;
 	// Texels of the board a screen pixel covers, along and across (edge_aa), outside the branch.
 	vec2 at_px = max(fwidth((UV - vec2(lab_u0, 0.0)) * texels_per_meter), vec2(1e-4));
+	// Whether v runs up or down a wall (a horizontal board: its lower long edge is the lap's butt),
+	// from how the position changes with the UVs on screen: +1 v up (the butt at v 0), -1 v down
+	// (the butt at the far edge; MaterialStand's siding shows its -t face), 0 not a lap.
+	vec2 du1 = dFdx(UV);
+	vec2 du2 = dFdy(UV);
+	float jd = du1.x * du2.y - du1.y * du2.x;
+	vec3 dpdv = (dpy * du1.x - dpx * du2.x) * sign(jd);
+	float up = length(dpdv) > 1e-12 ? normalize(dpdv).y : 0.0;
+	float lap = up > 0.7 ? 1.0 : (up < -0.7 ? -1.0 : 0.0);
 	if (mapping == 0 && UV2.x > 0.0) {
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
 		// to it. Keep the point the light is worked out at on this face: a face thinner than a
@@ -324,7 +334,16 @@ void fragment() {
 			lw = max(lw, at_px);
 			strength = clamp(vec2(line) / at_px, vec2(0.5), vec2(1.0));
 		}
-		if (edge_lip > 0.0 && at.y < lw.y) {
+		// Under edge_aa the near edge's lit lip (a texel row, 2.6 mm on a fine wood: light dashes)
+		// becomes the dark line too, and on lap siding (v up or down a wall: `lap`) the butt is the lap's
+		// shadow: the lap's underside below it, a real strip under a pixel tall above eye level,
+		// rasterised as black dashes beside a lit lip; a continuous dark line takes it in, as the
+		// painting draws a lap.
+		float butt_w = max(line, 1.5 * at_px.y);
+		if (edge_aa && ((lap > 0.5 && at.y < butt_w) || (lap < -0.5 && at.y > across.y - butt_w))) {
+			// The butt of a lap board: the lap's shadow, a pixel and a half at least, dark.
+			edge = edge_shade * 0.6;
+		} else if (edge_lip > 0.0 && at.y < lw.y && !edge_aa) {
 			edge = mix(1.0, lip, strength.y);
 		} else if (at.y < lw.y || at.y > across.y - lw.y) {
 			edge = mix(1.0, shade, strength.y);

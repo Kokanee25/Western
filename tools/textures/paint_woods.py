@@ -205,9 +205,12 @@ def board_grade(pieces, names, g):
     palette), "unify_L" the same for its lightness; "highs" [percentile, keep]: lightness above the
     wood's percentile compressed to `keep` of its height over it; "calm" [texels, share]: detail
     finer than that many texels (the grain's lines and swirls) cut by that share; "rows" each
-    texel row's mean (a band along the grain) pulled that share toward the board's. The bare strip
+    texel row's mean (a band along the grain) pulled that share toward the board's; "seams" N: the
+    painting's dark seam line, where it wavers into a board's outer N rows (cut along its darkest
+    row, not every texel of it), filled from the row inside (the blind critics' black dashes along
+    the walls' seams: a board's edge row drawn in crisp dark segments). The bare strip
     (under the paint) is left as it is."""
-    keys = ("unify", "unify_L", "highs", "calm", "rows")
+    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams")
     if not g or not any(k in g for k in keys):
         return pieces
     import reduce  # noqa: E402 (its Lab conversions)
@@ -221,6 +224,13 @@ def board_grade(pieces, names, g):
     out = list(pieces)
     for j, i in enumerate(boards):
         a = labs[i]
+        if "seams" in g:
+            n = int(g["seams"])
+            for rows, inner in ((range(n), n), (range(a.shape[0] - n, a.shape[0]), a.shape[0] - n - 1)):
+                ref = a[inner]
+                for r in rows:
+                    dark = a[r, :, 0] < ref[:, 0] - 12.0
+                    a[r, dark] = ref[dark]
         if "calm" in g:
             px, share = float(g["calm"][0]), float(g["calm"][1])
             # Along the grain (x) blurred further than across, so a board's long tone bands stay.

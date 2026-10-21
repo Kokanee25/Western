@@ -13,7 +13,8 @@ rank-evened to 0-1, so the shader's reach for a stain is about the share of the 
 --from: a painting of four panels in a 2 x 2 grid (top left mud splash, top right rain streaks,
 bottom left grime, bottom right bleach, each on a plain grey ground; STAIN_ASK), each panel's stain
 taken as its distance from the panel's own ground colour, made seamless and evened.
---paint: that painting asked of the image model with the men's sheet as the style (one call,
+--paint: that painting asked of the image model: four blank grey panels to paint onto, the men's
+cloth swatches (the bottom row of their sheet) as the style (one call,
 ~$0.22; on Actions: People workflow, textures = mlab:NAME for a set with "stains"). Also a
 --sheet=PNG preview of the four masks side by side.
 """
@@ -27,18 +28,32 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SIZE = 512
 STAIN_ASK = (
-    "The image shows a game's characters, painted. In exactly their painted hand, paint a sheet of four "
-    "square panels in a two by two grid, each panel a plain, flat, even mid grey with nothing else on it: "
-    "no wood, no boards, no wall, no objects, no lettering, no frame. Top left: mud splashed up from the "
-    "ground, big soft earthy brown splash shapes, joined and heaviest along the bottom edge, broken and "
-    "fewer higher up, none in the top third. Top right: rain streaks, long soft grey-brown runs hanging "
-    "straight down from the top edge, some long, some short, of different widths. Bottom left: grime, "
-    "big soft dark brown smudges and patches of different sizes scattered over the panel. Bottom right: "
-    "sun bleaching, big soft pale grey patches scattered over the panel. Every stain painted as broad, "
-    "soft shapes of two or three close tones with clean edges between them, like the dirt and wear on "
-    "the characters' clothes: no specks, no spatter, no dots, no drips of single lines, no fine "
-    "texture, nothing photographic. Flat, even light, seen face on."
+    "The first image is a sheet of four plain, flat grey square panels. The second image is a row of "
+    "swatches of the painted cloth of a game's characters: their dirt, stains and wear are painted in "
+    "broad, soft shapes of two or three close tones with clean edges. Paint stains onto the four grey "
+    "panels of the first image in exactly that painted hand, keeping the panels, their grey and the white "
+    "gutters between them where they are, and nothing else in the picture: no people, no objects, no "
+    "wood, no boards, no lettering, no frame. Top left panel: mud splashed up from the ground, big soft "
+    "earthy brown splash shapes, joined and heaviest along the panel's bottom edge, broken and fewer "
+    "higher up. Top right panel: rain streaks, long soft grey-brown runs hanging straight down from the "
+    "panel's top edge, some long, some short, of different widths. Bottom left panel: grime, big soft "
+    "dark brown smudges and patches of different sizes over the whole panel. Bottom right panel: sun "
+    "bleaching, big soft pale grey-white patches over the whole panel. No specks, no spatter, no dots, "
+    "no thin single drips, no fine texture, nothing photographic. Flat, even light, seen face on."
 )
+# The swatches of the men's painted cloth: the bottom row of their style sheet (men_reference.py).
+SWATCH_ROW = (800, 1180)
+
+
+def blank_panels(size=1024, gutter=16):
+    """Four flat grey panels with white gutters between them: the picture the model paints onto."""
+    im = Image.new("RGB", (size, size), (255, 255, 255))
+    half = (size - gutter) // 2
+    for r in range(2):
+        for c in range(2):
+            x, y = c * (half + gutter), r * (half + gutter)
+            im.paste((128, 126, 122), (x, y, x + half, y + half))
+    return im
 
 
 def periodic_noise(rng, size, sx, sy, octaves=((1.0, 1.0),)):
@@ -141,11 +156,13 @@ def preview(masks, out):
 
 
 def paint(out, key):
-    """One call: the four-panel stain painting, in the men's hand."""
+    """One call: stains painted onto four blank grey panels, in the hand of the men's cloth swatches
+    (sending their whole sheet, the model edited the men instead: run 106's two takes)."""
     import paint_textures as pt
     man = Image.open(pt.MAN).convert("RGB")
-    man.thumbnail((768, 768))
-    img = pt.ask(STAIN_ASK, [man], {"aspect_ratio": "1:1"}, "stains", key)
+    swatches = man.crop((0, SWATCH_ROW[0], man.width, SWATCH_ROW[1]))
+    swatches.thumbnail((1024, 1024))
+    img = pt.ask(STAIN_ASK, [blank_panels(), swatches], {"aspect_ratio": "1:1"}, "stains", key)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     img.convert("RGB").save(out, "JPEG", quality=94)
     print("painted: %s %s" % (out, img.size))
