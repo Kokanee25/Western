@@ -18,6 +18,7 @@ var storekeeper: HumanBody
 var barkeep: HumanBody
 var widow: HumanBody
 var sheriff: HumanBody
+var doctor: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -63,6 +64,13 @@ func _spawn_townsfolk() -> void:
 	# civilian's mind for now: no gun, no law yet.
 	sheriff = _civilian(&"sheriff", &"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 1.4, -9.0)), 104,
 			Color(0.85, 0.8, 0.7), Color(0.2, 0.2, 0.22), &"sean_s2")
+	# The doctor (the Studio's doctor_s1) in front of his office, watching the street. A civilian's
+	# mind for now: his doctoring is to come.
+	doctor = _civilian(&"doctor", &"doctor_front", TownLayout.point(&"Doctor", Vector3(3.0, 1.4, -9.0)), 105,
+			Color(0.85, 0.8, 0.7), Color(0.4, 0.15, 0.15), &"doctor_s1")
+	# His building is the node "Doctor": named so, he'd be renamed by the engine, differently each
+	# run, and a bug report's replay couldn't find him again.
+	doctor.name = "TheDoctor"
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,

@@ -477,3 +477,6 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.sheriff != null, "the sheriff is in town")
 	check_eq(town.sheriff.body_model, &"sean_s2", "the sheriff is the Studio's sean_s2")
 	check(town.sheriff.global_position.distance_to(town.places.at(&"jail_front")) < 0.6, "in front of his jail")
+	check(town.doctor != null and town.doctor.held_gun == null, "the doctor is in town, unarmed")
+	check_eq(town.doctor.body_model, &"doctor_s1", "the doctor is the Studio's doctor_s1")
+	check(town.doctor.global_position.distance_to(town.places.at(&"doctor_front")) < 0.6, "in front of his office")
