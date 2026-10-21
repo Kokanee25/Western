@@ -40,6 +40,18 @@ about a minute for every 4 s drawn.
 To try a controller later, put it behind a switch read by the scenario (a new field in
 `scenarios.json`). Run both into two roots, then `compare.py diff` and `compare.py side`.
 
+**Since 2026-10-21** (`results/2026-10-21_round3/`):
+- `python3 experiments/physics_lab/tally.py ROOT [ROOT...] [--rest] [--peaks] [--only=...]`: a
+  run's flags by family over the falls (V, W and R left out), its peaks summed, and how he ends.
+- Each summary has `rest` (on his back, side or face; seat height; knees; how deep each hand lies
+  in his trunk or thighs; seconds kneeling, ground fixtures only) and, for several men, `men_rest`.
+- Scenario options: `cause` (a blast through `take_blast`, a limb torn off, a blow through
+  `take_blow`), `drag` (hauled by the collar once down), `later` (more impulses while he's down),
+  `men` and `spacing`, `gun`, `pre` `"do": "pose"`, `"hit"` with `"ball": true` (a real ball through
+  `take_bullet` that doesn't drop him); fixtures `seat` and `seat_table`. Groups M (the matrix),
+  N (blasts and a blow) and R (hits short of a fall: `compare.py sheet --from=hit`).
+- Joints of a torn-off limb aren't measured; `lab.gd` quits if `lab_runner.gd` doesn't load.
+
 ## Files
 
 - `scenarios.json`: the 25 scenarios, A–I. Directions are in the man's frame (−z is the way he
