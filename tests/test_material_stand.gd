@@ -248,3 +248,15 @@ func test_every_profile_is_closed_and_counter_clockwise() -> void:
 		var ring := Profiles.outline(runs)
 		check(not Geometry2D.is_polygon_clockwise(ring), "counter-clockwise (outward normals)")
 		check(Geometry2D.triangulate_polygon(ring).size() >= 3, "fills (its ends in end grain)")
+
+
+func test_the_interior_woods_are_in_the_game() -> void:
+	# Sean picked the interior stain (C, 2026-10-21): four woods in the game's woods set, each with
+	# its strips and end grain, drawn with seams a pixel wide; the outside's woods untouched.
+	for wood in [&"int_floor", &"int_timber", &"int_boards", &"int_oak"]:
+		check(WoodMaterials.strip_count(wood) >= 7, "%s has its boards (%d)" % [wood, WoodMaterials.strip_count(wood)])
+		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
+		check(m != null and m.get_shader_parameter(&"edge_aa") == true, "%s drawn with seams a pixel wide" % wood)
+		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
+	var outside := WoodMaterials.get_material(&"floor", 0) as ShaderMaterial
+	check(outside.get_shader_parameter(&"edge_aa") != true, "the outside's floor as it was")

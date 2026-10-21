@@ -32,17 +32,32 @@ const IPARTS := [&"int_floor", &"int_walls", &"int_wainscot", &"int_panels", &"i
 
 ## Profiles on (the kit, Profiles) or every piece a plain box.
 var profiled := true
+## The game's exterior woods instead of the interior ones (set before build: the A/B sheets).
+static var game_woods := false
 
 
 func _init() -> void:
 	super()
-	roles[&"int_floor"] = &"floor"
-	roles[&"int_gallery"] = &"floor"
-	roles[&"int_walls"] = &"dark_trim"
-	for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail"]:
-		roles[p] = &"dark_oak"
+	# The interior stain (Sean picked C, 2026-10-21): the game's interior woods
+	# (tools/textures/promote_woods.py from the lab's studio_int).
+	roles[&"int_floor"] = &"int_floor"
+	roles[&"int_gallery"] = &"int_floor"
+	roles[&"int_walls"] = &"int_boards"
+	for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail",
+			&"oak_newels", &"oak_balusters"]:
+		roles[p] = &"int_oak"
 	for p in [&"int_posts", &"int_beams", &"int_brackets"]:
-		roles[p] = &"timber"
+		roles[p] = &"int_timber"
+	# `game_woods`: the woods the game drew interiors in before (the A/B sheet's A and B).
+	if game_woods:
+		roles[&"int_floor"] = &"floor"
+		roles[&"int_gallery"] = &"floor"
+		roles[&"int_walls"] = &"dark_trim"
+		for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail",
+				&"oak_newels", &"oak_balusters"]:
+			roles[p] = &"dark_oak"
+		for p in [&"int_posts", &"int_beams", &"int_brackets"]:
+			roles[p] = &"timber"
 
 
 func focus_parts() -> Array:

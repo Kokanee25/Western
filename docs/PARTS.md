@@ -53,7 +53,9 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The Studio woods (round 4, set `studio7`) | `assets/textures/mlab_*`, `tools/textures/material_lab.json` | material lab, round 4 (critic: 1 same, 7 close, 0 different) | waiting on Sean (his picks on `round4_sheets/`), then promoted into the texture factory's game set |
 | Worn treads (nosings worn by feet) | the oak stair and the stand's steps | material lab | in the game |
 | The hotel's oak stair, painted oak and runner (`dark_oak`, `stair_runner`) | `src/art/oak_stair.gd` (drawn only) | material lab | in the game as a drawing; waiting to be promoted as members when the hotel is built |
-| The test stand | `src/art/material_stand.gd`, `tools/material_lab.gd` | — | a lab fixture (stays in the lab) |
+| **The interior woods** (Sean picked the interior stain, C, 2026-10-21): `int_floor`, `int_timber` (posts, beams, brackets), `int_boards` (wall boards), `int_oak` (wainscot, casings, the bar, rails, balusters); one warm umber family; their own names, so the outside keeps its woods | `assets/textures/woods/int_*` (+ `lab.json`), from the lab's `studio_int` by `tools/textures/promote_woods.py`; `PixelArt` draws them with seams a pixel wide | interior stand, blind critic against his saloon picture (`docs/screenshots/material_lab/2026-10-21/interior/`) | in the game (for the saloon's interior: `wood:int_oak` in a kit file, or a member's wood) |
+| **Profiles** (the woodwork's cross-sections as data: chamfer, rounded, bar top, handrail, ogee, bead) | `src/art/profiles.gd` | interior stand, `tests/test_material_stand.gd` | in the game (code); members drawn with them come with the kit's draw shapes |
+| The test stand, the interior stand | `src/art/material_stand.gd`, `src/art/interior_stand.gd`, `tools/material_lab.gd` | — | lab fixtures (stay in the lab) |
 
 ## Props (the prop lab, `docs/briefs/prop-lab.md`)
 
