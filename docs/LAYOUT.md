@@ -388,7 +388,10 @@ a few views renders them as the full run does.
   `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
   (its cap broken) tears off its nails when his bearing on it, times the height, passes
   `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
-  post set in the ground isn't nailed. The lab's breakable railing: group Q, `lab_railing.gd`.
+  post set in the ground isn't nailed. **Railings** (`Railing.build(s, id, from, to, spec)`):
+  balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
+  treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
+  and stair rails and the lab's 1 m railing (group Q) are built of it.
 
 ## src/fire
 
