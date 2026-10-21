@@ -57,6 +57,13 @@ the history in `docs/status/`.
 - **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
   references, what done looks like, how it's judged). Open briefs are in `docs/briefs/`; the
   current one for both sessions is `docs/briefs/review-tools.md`.
+- **Labs measure; parts live in the game** (Sean, 2026-10-21): a lab may build anything to test
+  with, but what it makes is only done once **promoted** into the game's shared code or assets,
+  where every lab, building and scene can use it (a lab's railing becomes a railing part in
+  `src/structures/`; an approved wood goes into the texture factory). **`docs/PARTS.md`** lists
+  every part: read it before building something new (use or extend what's there, never make a
+  second one), and update your rows in the merge that promotes one. The test saloon (the Systems
+  Playground) is built only from parts marked "in the game".
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
