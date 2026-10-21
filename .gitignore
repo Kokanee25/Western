@@ -21,3 +21,8 @@ __pycache__/
 
 # Written and removed by tests/test_chaos.gd for its child runs (one worker thread)
 /override.cfg
+
+# Secrets: API keys live in the environment or GitHub Actions secrets, never in this public repo
+.env
+.env.*
+!.env.example
