@@ -115,6 +115,8 @@ const WOODS_END_SQUARE := 1.0
 const DRAWN_SQUARES := {}
 ## Each set's lab.json woods, read once: {set: {wood: entry}}.
 static var _sets := {}
+## Each set's lab.json "weathering" (round 3's stain sheet and palette), read with its woods.
+static var _set_weather := {}
 const FACTORY_INDEX := "res://assets/textures/textures.json"
 static var _factory_index: Variant = null
 
@@ -124,11 +126,14 @@ static func _set_woods(set: String) -> Dictionary:
 	if not _sets.has(set):
 		var jp := "res://assets/textures/%s/lab.json" % set
 		var woods_of := {}
+		var weather := {}
 		if FileAccess.file_exists(jp):
 			var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
 			if info is Dictionary:
 				woods_of = (info as Dictionary).get("woods", {})
+				weather = (info as Dictionary).get("weathering", {})
 		_sets[set] = woods_of
+		_set_weather[set] = weather
 	return _sets[set]
 
 
@@ -202,6 +207,11 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
 			m.set_shader_parameter(&"square_texels", WOODS_SQUARE)
 			m.set_shader_parameter(&"end_square_texels", WOODS_END_SQUARE)
+			if set.begins_with(MLAB_PREFIX):
+				# Round 3 (2026-10-21): the seams a pixel wide at least, and the set's weathering
+				# layer (laid only where a mesh asks: MaterialStand's weathered parts).
+				m.set_shader_parameter(&"edge_aa", true)
+				_weathering(m, set)
 		else:
 			m.set_meta(&"texels", lab_density(key, set))
 			m.set_meta(&"mipmaps", true)
@@ -228,6 +238,32 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		if fd > 0.0:
 			m.set_meta(&"texels_scale", fd / DRAWN_TEXELS)
 	return track(m)
+
+
+## A set's weathering layer on a wood's material (its lab.json "weathering": the stain sheet, its
+## size on the building, the palette, amounts and reaches; texel_grid.gdshaderinc `weathered`).
+static func _weathering(m: ShaderMaterial, set: String) -> void:
+	_set_woods(set)
+	var w: Dictionary = _set_weather.get(set, {})
+	var sheet := String(w.get("sheet", ""))
+	if sheet == "" or not ResourceLoader.exists(sheet):
+		return
+	m.set_shader_parameter(&"weather_tex", load(sheet))
+	m.set_shader_parameter(&"use_weather", true)
+	m.set_shader_parameter(&"weather_metres", float(w.get("metres", 3.0)))
+	m.set_shader_parameter(&"weather_tones", float(w.get("tones", 3.0)))
+	m.set_shader_parameter(&"weather_multiply", bool(w.get("multiply", false)))
+	m.set_shader_parameter(&"weather_bleach_walls", float(w.get("bleach_walls", 0.45)))
+	if w.has("specular"):
+		# The woods' sheen (round 4: the steps read as varnished furniture).
+		m.set_shader_parameter(&"specular", float(w["specular"]))
+	for k in ["mud", "streak", "grime", "bleach"]:
+		if w.has(k):
+			m.set_shader_parameter(StringName("weather_" + k), Color.html(String(w[k])))
+	for k in ["amounts", "reach"]:
+		var v: Array = w.get(k, [])
+		if v.size() == 4:
+			m.set_shader_parameter(StringName("weather_" + k), Vector4(v[0], v[1], v[2], v[3]))
 
 
 ## Whether a texture is a material lab set's prop (its lab.json marks it "prop": a factory tile, not

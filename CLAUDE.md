@@ -40,6 +40,9 @@ the history in `docs/status/`.
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
+  - **The prop lab** (Sean, 2026-10-21; `docs/briefs/prop-lab.md`): makes each prop end to end,
+    so it may edit art's `src/props/` and `assets/props/` as well as the prop kit's structure code,
+    saying so in each commit. Changes to the members, fire or blast code go to gameplay.
   - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
     `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
     and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
@@ -57,6 +60,13 @@ the history in `docs/status/`.
 - **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
   references, what done looks like, how it's judged). Open briefs are in `docs/briefs/`; the
   current one for both sessions is `docs/briefs/review-tools.md`.
+- **Labs measure; parts live in the game** (Sean, 2026-10-21): a lab may build anything to test
+  with, but what it makes is only done once **promoted** into the game's shared code or assets,
+  where every lab, building and scene can use it (a lab's railing becomes a railing part in
+  `src/structures/`; an approved wood goes into the texture factory). **`docs/PARTS.md`** lists
+  every part: read it before building something new (use or extend what's there, never make a
+  second one), and update your rows in the merge that promotes one. The test saloon (the Systems
+  Playground) is built only from parts marked "in the game".
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
@@ -290,10 +300,19 @@ frozen until Sean names one.
   `tools/material_measure.py`; the men's sheet `9_studio_men.png` is now `--style=man`'s reference;
   candidate sets `tools/textures/material_lab.json` -> `assets/textures/mlab_*`. Round 1: no wood
   passes; the critic finds the Studio repaint (512 a metre) photographic. Round 2 (studio5: broad,
-  darker, warmer, 384) painted; Sean: "too clean" -> studio5w (weathering per board, free). **Next:
-  the brief's "What's next"** (round 2's critic and A/B sheets, then round 3: the weathering layer in
-  texel_grid from a painted stain sheet). The hotel's oak stair (`OakStair`), two oaks for Sean.
-  Paint ~$6.58 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
+  darker, warmer, 384) painted; Sean: "too clean". **Round 3** (branch `claude/art-weathering`):
+  the weathering layer (texel_grid `weathered`: a stain sheet of four masks laid in the structure's
+  space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
+  cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
+  sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
+  stains read as light, not dirt. **Round 4** (free, `claude/art-round4`, set studio7: stains
+  multiply the board down, bleach on sky faces only, calmer trim and timber, less sheen): the critic
+  1 SAME / 7 CLOSE / 0 DIFFERENT, the first set with no wood DIFFERENT. **Next: round 5, free**
+  (the brief's "What's next": the low siding's pale boards showing between the mud), then Sean's
+  picks on `round4_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
+  textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
+  approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
   Wear-down planned in the brief (after Gate A).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);

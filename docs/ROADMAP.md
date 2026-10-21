@@ -60,6 +60,18 @@ then.
 | Lab or pipeline | Starts | Lane | Brief |
 |---|---|---|---|
 | Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
+| Prop lab: every prop end to end (look, members, breaking, burning, shattering), tables and chairs first | Now, with 3.3 (furniture) | gameplay and art (its own lane exception) | `prop-lab.md` |
+| Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
+| Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
+| Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
+| Combat decisions and morale | Inside the gunfight lab, after its baseline | gameplay | `labs.md` |
+| Weapon handling and feel | Inside 3.2 | gameplay | `labs.md` |
+| The Systems Playground (systems interaction) | Phase 3, once the gunfight lab's baseline is in; grows every phase | gameplay | `labs.md` |
+| Navigation and avoidance lab | Phase 3 before 3.6; again before 5.7 | gameplay | `labs.md` |
+| Law, witnesses and consequences lab | Phase 5, with 5.3 and 5.8 | gameplay | `labs.md` |
+| World persistence and recovery lab | Phase 5, with 5.5 and 5.9 | gameplay | `labs.md` |
+| Treatment lab part 1: field first aid (3.1c) | After the body lab's baseline (Phase 3) | gameplay | `labs.md` |
+| Treatment lab part 2: the doctor (with 5.4 and 5.6) | Phase 5 | gameplay, characters (his lines) | `labs.md` |
 | Sound | Inside the gunfight lab; its own lab only if that gap outgrows it | gameplay | `labs.md` |
 | Material lab: colour, grain, thickness, end grain, dirt, paint wear (1.4a) | Now, beside Phases 2 and 3 | art | `building-pipeline.md`, `material-lab-timber.md` |
 | Wound paint (2.3) | After the stand-ins (2.1) | characters (+ a line of gameplay) | `damage-pipelines.md` |
@@ -125,9 +137,10 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 | 3.0 | **The three-gunman fight** (Sean 2026-10-17; brief `docs/briefs/three-gunmen.md`) | The player against three gunmen of different temper on the existing street, run again and again: fights that can end with one good shot but usually become a tense 45–90 seconds of cover, flanking, suppression, reloads and retreats; misses that come from the gun's sway, not dice, for NPCs as for the player; enemies you can hear (steps, cocking, shouts) but who never know where you are by magic. Measured over many runs (fight length, hits per side, who hits first), then played by Sean. **Its arena is the gunfight lab** (`docs/briefs/labs.md`, `experiments/gunfight_lab/`): street, saloon and ambush setups at golden hour and night, revolver and shotgun, a scripted player in three styles; the baseline first, then the brief's gaps one at a time, each measured. | gameplay |
 | 3.1 | **Falls and hits** | Prompt 09: the ragdoll lab's faults fixed against its baseline (no folding straight down, no limbs through the body, joints in their limits), and hit reactions short of a fall. | gameplay |
 | 3.1b | **The body lab** (beside 3.1; `docs/briefs/labs.md`, `experiments/body_lab/`) | Shots at 5, 15 and 30 m and dynamite at 1, 3 and 6 m into a standing man at marked spots, then treated: what the ball crosses, bleed-out per artery, broken bones and what they stop, limbs lost, ten wounded men against the people budget, all checked against cited trauma figures. The bench and its baseline first; fixes (cut points and stumps, missing arteries, breaks that change what a man can do) measured against it. Reduced gore stays a setting. **Bench and baseline done 2026-10-21** (`experiments/body_lab/README.md`: the baseline, the gaps from the medicine, the first fix). | gameplay |
+| 3.1c | **Field first aid** (Sean 2026-10-21; after 3.1b's baseline; `docs/briefs/labs.md`, Treatment lab part 1, `experiments/treatment_lab/`) | The player treats himself and others, and NPCs treat themselves and each other by who they are: pressure, tourniquets, packing, sealing a sucking chest wound, splints, whiskey, moving a casualty, each with its cost. Measured against the untreated baseline: time to stop each bleed, who lives, how often an NPC treats instead of fighting. Rules checked against Sean's first-aid training. | gameplay |
 | 3.2 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
 | 3.3a | **The breakage lab** (before 3.3; `docs/briefs/labs.md`, `experiments/breakage_lab/`) | A chair, table, door, bottle, lamp, window and the store front against the revolver and shotgun at 5 m and dynamite at 1, 3 and 6 m, and a man thrown into a table: breaks or holds (against the Wood Handbook), pieces and how far they fly, what catches fire, physics faults, same seed same result, frame time per blast. Its baseline is what 3.3 is built against. | gameplay |
-| 3.3 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
+| 3.3 | **Furniture** (through the prop lab, `docs/briefs/prop-lab.md`) | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
 | 3.4 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
 | 3.5 | **Acts** | A way to write missions and little scenes as data: who goes where, says what, beat by beat, and what hands back to the systems when you interfere (DESIGN.md §5 "Story shape"). Lines are typed on screen for now. | gameplay |
 | 3.6 | **Three rough missions** | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
@@ -165,7 +178,7 @@ Lanes: gameplay; characters for voices. **Gate D: the slice.**
 | 5.1 | **Money** | M4 step 5: a purse of coins, the barkeep's prices and tabs, "a round on me". | gameplay |
 | 5.2 | **Talking** | M4 steps 7 and 9 for the prologue: written lines for its cast, voiced (ElevenLabs, budget stated first); what you type or say read into a deed. | gameplay, characters (voices) |
 | 5.3 | **Witnesses and memory** | M4 step 8: who saw what, who heard about it, and it changes how they treat you. | gameplay |
-| 5.4 | **The jail and the doctor** | An arrested man stays jailed; the wounded are treated; you sleep in a bed and wake at the doctor's if you went down. | gameplay |
+| 5.4 | **The jail and the doctor** (the doctor through the Treatment lab's part 2, `docs/briefs/labs.md`) | An arrested man stays jailed; the wounded are treated; you sleep in a bed and wake at the doctor's if you went down. | gameplay |
 | 5.5 | **Saving** | The outcome survives sleeping, quitting and loading. | gameplay |
 | 5.6 | **The sheriff opening** | M5: you find him on the road at dawn, treat him, his words follow his blood loss, the ball the doctor digs out is evidence. | gameplay, characters |
 | 5.7 | **A day for everyone** | The block's dozen people work, eat, drink and sleep on routines, and break off from them when something happens. | gameplay |
@@ -206,8 +219,12 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
 - **Phase 1, beside them** (art): **1.4a** the **material lab** (Sean 2026-10-21). Progress: the lab
   built (stand, three lights, the Studio men, the measures, the critic's question;
   `docs/briefs/material-lab.md`); round 1 measured and painted (~$4.44): no wood passes yet, the
-  critic finds the repaints' fine grain photographic; Sean's A/B picks, then round 2 (broad paint,
-  384 a metre). The hotel's oak stair on the bench. Wear-down planned (after Gate A).
+  critic finds the repaints' fine grain photographic; round 2 (broad paint, 384 a metre): the store
+  boards SAME; round 3 (the weathering layer in texel_grid, the boards graded to one palette in the
+  cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
+  8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
+  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 next (free). Nothing in the
+  game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
 - Parked with Phase 1: 1.2, 1.3, 1.3b and 1.4 where they stand (1.3's proper garments were

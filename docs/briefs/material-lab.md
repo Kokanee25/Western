@@ -64,7 +64,7 @@ Paid painting runs on Actions (openrouter.ai is blocked from the workspace): Peo
 `textures = mlab:NAME`; the set's `budget` stops it short. Renders stay out of git (`build/` or a
 scratch folder); sheets and the critic's crops go in `docs/screenshots/material_lab/<date>/`.
 The sets in git: studio1-5 (painted). Remade with no calls and ignored: recut256/512, fit512,
-studio1_384, studio5w.
+studio1_384, studio5w, studio6, studio6p, studio7 (`--cut`; their stain sheets in `assets/textures/weather/`).
 
 ## The tests and how each is judged
 
@@ -131,12 +131,56 @@ darker and warmer (timber passes every light, dark trim noon and golden), its de
 over the men's (10-12 mm): the measure can't tell broad paint from coarse cutting, so the critic
 decides. Sheets: `round2_sheets/` (A today, B round 2 clean, C weathered; three lights).
 
-**Round 3, weathering as a layer (proposed):** weathering belongs to the building, not the board:
-mud splashes up from the ground across several boards, rain streaks down from the eaves and from
-under nails, the sun bleaches what faces it. A painted stain sheet in the men's hand (splash,
-streaks, grime, bleach; one or two calls) laid by texel_grid in the structure's own space (height
-above the ground, distance below an overhang, facing the sun), on top of clean painted boards; one
-more texture fetch on weathered members. The per-board `weather` is the quick stand-in.
+**Round 3** (2026-10-21, $0.60 of the $0.90 Sean approved for two takes; sets studio6 and studio6p,
+cut from studio5's paintings with no call): three things, judged on the stand against studio5 and
+studio5w (sheets `round3_sheets/`: A studio5, B studio5w, C studio6, D studio6p, three lights).
+- **The weathering layer** (texel_grid `weathered`, one fetch): a stain sheet of four masks (mud
+  splash, rain streaks, grime, sun-bleach) laid in the structure's own space where a board's mesh
+  carries its frame (MaterialStand: ground, drip line, amount; the siding's nails), so a splash runs
+  up across several boards from the deck, streaks hang from the wall's top and the planks' edge,
+  rust drips under one nail in four, grime gathers low and toward the ends, the bleach is on what
+  faces the sky; each board takes them a touch differently (3b, after the first critic pass called
+  the stepped tones "tide marks" and the stains "stamped"). studio6 uses the free stand-in sheet
+  (`stain_sheet.py --procedural`, `round3_stains_studio6.jpg`); studio6p the painted one: takes a
+  and b (run 106, $0.38) edited the men's sheet instead of painting panels (the men holding a
+  board up) and are unused; take c (run 107, $0.22) painted onto four blank grey panels with the
+  men's cloth swatches as the style gave good mud and bleach (big soft shapes) but dots for streaks
+  and spatter for grime, so those two are the stand-in's (`round3_stains_studio6p.jpg`).
+- **Grading in the cut** (free; `round3_boards.jpg`): each wood's boards pulled toward the wood's
+  median (`unify` 0.7, lightness 0.6; timber and weathered pine 0.85), bands along the grain toward
+  the board's (`rows`: the cream streak down a red board), the top fifth's lightness compressed
+  (`highs`), fine detail calmed (`calm`, saloon red most). Saloon red needed no repaint.
+- **Edges**: the black dashes along the walls' seams were the strips' outer rows (the painting's
+  seam wavering past the cut: `seams` fills them from the row inside) and the laps' undersides, a
+  real strip under a pixel tall above eye level, rasterised in segments; on the lab's sets the
+  seams are drawn at least a pixel wide and a lap's butt as a dark line (`edge_aa`), which takes
+  them in. The square blocks on the fascia and risers were today's 128-a-metre woods seen close:
+  at 384 they're gone. The shadows' stair-steps are the light's (the sun's hard 4096 shadow map,
+  stepping the men's sleeves too), not the material's: left alone (production list).
+
+The blind critic (`critic_round3.md`, 32 crops): round 2 clean 0 SAME / 4 CLOSE / 4 DIFFERENT,
+round 2 per board 0 / 3 / 5, **round 3 free sheet 2 / 5 / 1, round 3 painted sheet 1 / 6 / 1**.
+Saloon red and timber go from DIFFERENT to CLOSE, weathered pine to SAME (free) and CLOSE
+(painted), the store boards stay SAME; framing (free) and dark trim (painted) are the one
+DIFFERENT each. Its top three now: board-to-board stripes and bleached boards (all round 2's
+crops); **the weathering reads as light, not dirt** (pale soft blobs, worst on the lower wall and
+the framing view; the men's stains are darker than their cloth); fine photographic detail (crisp
+knots and cracks, a sandy speckle on the dark trim post). Measures (L* and C* inside the men's
+range, 24 wood-and-light cells): studio5 9, studio5w 10, studio6 12, studio6p 12; the detail
+measure as round 2. Stand cost unchanged (49 draws, 876 triangles); the sheet adds 1.4 MB a set.
+
+**Round 4** (2026-10-21, free; set studio7, round 3's studio6 changed; sheets `round4_sheets/`: A
+studio5, B studio6, C studio7): the stains darker than the board (`weathering.multiply`: mud
+multiplies the board down, grime stronger), bleach only on what faces the sky (`bleach_walls` 0),
+dark trim's speckle and timber's cracks calmed in the cut (`calm`), less sheen (`specular` 0.08).
+The blind critic (`critic_round4.md`, 24 crops): round 2 clean 0 SAME / 2 CLOSE / 6 DIFFERENT,
+round 3 1 / 6 / 1, **round 4 1 / 7 / 0: no wood DIFFERENT** (saloon red DIFFERENT -> CLOSE; the
+deck SAME). The colour measure: 13 of 24 cells (round 3 12, round 2 9). What's left: "pale cloud
+stains" on the low wall at golden hour, which are the low siding's own paler cream boards showing
+between the mud (figure and ground swapped: at noon the mud reads as dark dirt shapes); fine
+photographic grain and knots on posts and beams; dark stains on beam ends and step faces read as
+airbrushed blots; the wood brighter and more orange than the men at golden hour (the dark decks
+match).
 
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
@@ -152,20 +196,31 @@ first step: Sean saw the first version's run through the bottom step), the landi
 a runner on brass rods, in a lobby of painted boards over an oak skirting. Two oaks: studio3 cut
 with no call from the walnut painting the gun stocks use (warm, red-brown, eight boards), studio4
 painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.jpg`,
-`stair_walnut_*.jpg`.
+`stair_walnut_*.jpg`. **Sean picked B, the painted oak** (2026-10-21), and asked for the stair for
+the ragdoll session: `dark_oak` (studio4's four boards, 512 a metre) is in the game's woods set and
+`stair_runner` in the factory (nothing else uses them, so no golden moves), and `OakStair.solid`
+gives it collision (a box a board, the turnings by their bounds, on Layers.WORLD; `room = false`
+for the stair alone). Its golden view waits for the hotel.
+
+Worn treads (Sean, 2026-10-21: "round the edges of the stairs out ... they'd be round down from
+foot traffic"): `MaterialStand._worn_box` rounds a tread's front top edge, most in the middle of
+its length (where feet go) and least at its ends, and wears its top a few mm hollow there; one
+long face wraps top, round and front (no seam line on the round), the ends in the worn profile's
+end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 2 mm down
+(`NOSING_WEAR`; the runner wraps the round); the stand's outdoor steps' front boards 10 to 25 mm,
+5 mm down, their back boards eased (`TREAD_WEAR`). Collision stays a box a board.
 
 ## What's next, in order
 
 1. ~~Round 2's verdict~~ (done 2026-10-21, above): store boards round 2 SAME; the rest mixed.
-2. **Round 3, the weathering layer** (Sean, 2026-10-21; see Round 2 above): a stain sheet painted in
-   the men's hand (mud splash, rain streaks, grime, sun-bleach; one or two calls, ~$0.22-0.44 of the
-   $2.42 left of Sean's $9) laid by texel_grid in the structure's space over round 2's clean boards;
-   judged on the stand against studio5 and studio5w, then the critic. From round 2's critic: the
-   stains big and soft (never specks or spatter), and with them, free in the cut: each wood's boards
-   graded toward one shared muddy palette (no candy stripes or patchwork), the bleached highs pulled
-   down, saloon red's swirling grain calmed (a repaint of that wood alone if grading can't).
-3. **Edge flaws** the critics named (round 2 adds the shadows' stair-stepped edges on the wood): the black dashes along the walls' board seams (texel_grid's
-   `edge_shade` on boards) and the square blocks on the fascia and steps (mosaic on thin faces).
+2. ~~Round 3, the weathering layer~~ (done 2026-10-21, above): the layer and the grading lift every
+   stripy wood to CLOSE or SAME; the stains read as light, not dirt.
+3. ~~Round 4~~ (done 2026-10-21, above): no wood DIFFERENT.
+   **Round 5, free:** the low siding graded into the upper wall's palette (`saloon_red_low` and
+   `store_boards_low` are paler: the pale clouds), the mud thinner near the ground so it reads as
+   dark shapes on wood; the dark blots on beam ends and step faces (the painted boards' own stains:
+   `calm` on timber and fascia); golden hour's orange (the woods' chroma down a touch at that
+   light is a grade, not a light change).
 4. **Sean's picks.** A wood he approves moves into `assets/textures/woods/` (its `lab.json`
    entry, 384 a metre) with a `material_<wood>` golden view in `tools/screenshots.gd`, the goldens
    re-approved in the same merge, the judge and the blind critic as for any art merge; the woods
@@ -174,7 +229,8 @@ painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.
    oaks (studio3 walnut cut, studio4 painted) wait on Sean's pick; the stair goes into the hotel
    when the building lab builds its interior.
 6. **Gameplay's half** (below): end grain and strip offsets in MemberMesh, a neighbour-aware strip
-   pick, the `_low` siding, the walk as built. Listed for the gameplay lane; nothing done here.
+   pick, the `_low` siding, the walk as built, the weathering frame on members. Listed for the
+   gameplay lane; nothing done here.
 7. **Wear-down** after Gate A (the plan at the end).
 
 ## What production needs (none of it done; the structure code is gameplay's)
@@ -209,6 +265,26 @@ Carried over from the Oct 14 notes (`material-lab-timber.md`), checked against m
 - **Furniture as members** (3.3, the breakage lab): a chair or table built of members draws from
   the woods' strips, not a 0.5 m prop tile; it wants a furniture wood in the woods set (an oak,
   painted as the woods are), one painting.
+- **The weathering layer (round 3)**: texel_grid weathers a member only where its mesh carries the
+  frame, in the structure's own space: CUSTOM0 (its ground's height, the drip line above it, how
+  much) and CUSTOM1 (nails: pitch along, the first, the rows' pitch, the first row), RGBA float.
+  MemberMesh and the structure's batch would write them from what the building spec holds: a wall's
+  ground is the walk or the street it stands on, its drip line the eave or the porch roof's edge;
+  the walk's frame splashes from the street and streaks from the planks' edge; nails at the studs.
+  Batches are already in the structure's space; a member's own mesh (when it leaves its batch) must
+  keep its vertices in that space or its stains slide (fine once it has fallen). Each structure
+  wants its own offset into the sheet (from its ID, so two fronts side by side don't wear the same
+  stains): a fourth number in CUSTOM0. The voxel mesher must carry the frame too.
+  Cost: one 512 x 512 RGBA sheet a set (1.4 MB with mipmaps), one more fetch and two vec4s a
+  vertex on weathered members only (none elsewhere: `use_weather` off, no fetch).
+- **The edge fixes**, when Sean picks a wood: `edge_aa` (seams at least a pixel wide, the lap's
+  butt a dark line) is on for the lab's sets only, so the game's woods and goldens are untouched;
+  the game's woods take it with the wood that moves in, and their strips re-cut with `seams` (the
+  painting's dark seam remnants out of a board's outer rows). The square blocks on the fascia and
+  risers were today's 128-a-metre woods seen close; at 384 they're gone with no code.
+- **The shadows' stair-steps** are the light's, not the material's: the sun's shadow map (4096,
+  `soft_shadow_filter_quality` 0, hard) steps every shadow edge, on the men's sleeves as on the
+  wood. Softening it is a look and a cost call (with gameplay's open question on the sun's cascades).
 - **Goldens**: every fixed view with a board in it re-approved in the same merge as any of this.
 
 ## Wear-down: the plan (after Gate A; not built)
