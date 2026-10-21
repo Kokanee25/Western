@@ -282,3 +282,51 @@ func test_a_ball_carries_his_clothes_in() -> void:
 			check(", ".join(man._hit_words(w)).contains("carried in"), "said: %s" % ", ".join(man._hit_words(w)))
 	check(shots > 10, "shots into him (%d)" % shots)
 	check(carried > shots / 5 and carried < shots, "some carry cloth in, not all (%d of %d)" % [carried, shots])
+
+
+func _man() -> HumanBody:
+	var man := HumanBody.new()
+	man.has_gun = false
+	world.add_child(man)
+	await physics_frames(3)
+	return man
+
+
+## A knife: a stab goes in narrow and deep; a slash across the throat opens the vessels under it.
+func test_a_knife_stabs_deep_and_slashes_open() -> void:
+	var man := await _man()
+	var belly := man.parts[&"abdomen"] as Node3D
+	var stab := man.take_knife(belly, belly.global_position + Vector3(0.03, 0, -0.2), Vector3.BACK, true, 0.12)
+	check_eq(stab.kind, &"stab", "a stab")
+	check(not stab.hits.is_empty(), "it reaches what's inside (%s)" % [stab.hits])
+	var neck := man.parts[&"neck"] as Node3D
+	var center := man.anatomy.segment_center(&"neck")
+	var start := neck.global_transform * (Vector3(0.06, 1.5, -0.04) - center)
+	var cut := man.take_knife(neck, start, Vector3.BACK, false, 0.035, Vector3.LEFT, 0.12)
+	check_eq(cut.kind, &"slash", "a slash")
+	check(cut.hits.any(func(h: Dictionary) -> bool: return String(h.id).begins_with("carotid") or String(h.id).begins_with("jugular")),
+			"across the throat it opens a great vessel (%s)" % [cut.hits])
+	check(man._describe_one(cut).contains("knife"), "said: %s" % man._describe_one(cut))
+
+
+func test_glass_and_splinters_stay_standing_in_him() -> void:
+	var man := await _man()
+	var arm := man.parts[&"forearm_r"] as Node3D
+	man.take_cut(arm, arm.global_position + Vector3(0, 0, -0.1), Vector3.BACK, 0.01, true)
+	var vis := man.visuals[&"forearm_r"] as Node3D
+	check(vis.find_children("Shard", "MeshInstance3D", false, false).size() == 1, "a shard of glass stands in his arm")
+	var leg := man.parts[&"thigh_l"] as Node3D
+	var res := man.take_bullet(leg, leg.global_position + Vector3(0, 0, -0.2), Vector3.BACK, 6.0, 0.004, 0.002, 2.0, 0.0, &"splinter")
+	if res.wound.lodged:
+		check((man.visuals[&"thigh_l"] as Node3D).find_children("Splinter", "MeshInstance3D", false, false).size() == 1, "a splinter stands in his thigh")
+
+
+## Fired from close, the powder burns and tattoos round the hole; burns from a fire mark him.
+func test_close_shots_powder_burn_and_fire_burns_him() -> void:
+	var man := await _man()
+	var chest := man.parts[&"chest"] as Node3D
+	var res := man.take_bullet(chest, chest.global_position + Vector3(0.05, 0, -0.2), Vector3.BACK, 475.0, 0.0057, 0.0165, 0.4)
+	check(float(res.wound.get("powder", 0.0)) > 0.0, "powder round the hole from 40 cm")
+	check(man._describe_one(res.wound).contains("powder"), "said: %s" % man._describe_one(res.wound))
+	Events.scorched.emit(man, 0.6)
+	check(man.find_children("Burn", "Decal", true, false).size() >= 1, "and the fire's burns are on him")

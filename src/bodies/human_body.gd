@@ -277,7 +277,10 @@ func _ready() -> void:
 	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
-	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))
+	Events.scorched.connect(func(who: Node, amount: float) -> void:
+		if who == self:
+			physiology.burn(amount)
+			burn_marks(amount))
 	if xray_all:
 		set_xray(true)
 
@@ -2042,6 +2045,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	# cloth was the commonest thing taken out of a wound); one that stays in him keeps it.
 	if not holed.is_empty() and not tr.graze and _chance(tr.entry, 7) < (CLOTH_IN_LODGED if wound.lodged else CLOTH_IN_THROUGH):
 		wound.cloth = holed[0]
+	# Fired within about a metre: burnt powder and soot round the hole (`powder`, how far off).
+	if travelled < POWDER_RANGE and mass >= PELLET_MASS and not tr.graze:
+		wound.powder = maxf(travelled, 0.001)
 	wounds.append(wound)
 	_paint_wound(wound)
 	# A scalp wound above the eyes bleeds freely and runs into the eye on that side.
@@ -2058,7 +2064,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		blast = 300.0 if travelled < 0.3 else 120.0 * maxf(1.5 - travelled, 0.0)
 	at_entry += blast
 	if not tr.graze:
-		open_wound(seg, tr.entry - center, at_entry, dir)
+		open_wound(seg, tr.entry - center, at_entry, dir, &"gore_exit" if travelled < CONTACT_RANGE else &"gore_crater")
 		if tr.exit != null:
 			open_wound(seg, tr.exit - center, deposited * 0.75 * (1.6 if tr.flattened else 1.0), dir, &"gore_exit")
 		for i in range(1, (tr.exits as Array).size()):
@@ -2220,6 +2226,122 @@ func take_cut(collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedd
 	return wound
 
 
+## A knife (the gore lab; DiMaio's sharp-force wounds): a stab goes in narrow and deep along `dir`
+## (`depth` metres of blade), cutting what it reaches but stopped by bone; a slash is drawn across
+## him from `pos` along `along` for `length` metres, `depth` deep, and gapes, the skin and muscle
+## pulled apart across its line. Returns the wound.
+func take_knife(collider: Node3D, pos: Vector3, dir: Vector3, stab := true, depth := 0.1, along := Vector3.ZERO, length := 0.12) -> Dictionary:
+	var seg: StringName = collider.get_meta(&"segment", &"")
+	if seg == &"":
+		seg = segment_at(pos)
+		collider = parts[seg]
+	var xf := collider.global_transform
+	var center := anatomy.segment_center(seg)
+	var inv := xf.affine_inverse()
+	var d := (inv.basis * dir).normalized()
+	var per_m := 100.0 * anatomy.flesh_resistance
+	var tr: Dictionary
+	if stab:
+		tr = anatomy.trace(seg, inv * pos + center - d * 0.02, d, depth * per_m, 0.004, _rng)
+	else:
+		# Down the line of the cut, a few blade-depths in from the skin.
+		var a := (inv.basis * along).normalized()
+		var start := inv * pos + center
+		tr = {}
+		for i in 5:
+			var at: Vector3 = start + a * length * (float(i) / 4.0)
+			var one := anatomy.trace(seg, at - d * 0.02, d, depth * per_m, 0.002, _rng)
+			if tr.is_empty():
+				tr = one
+			else:
+				for h: Dictionary in one.hits:
+					if not tr.hits.any(func(x: Dictionary) -> bool: return x.id == h.id):
+						tr.hits.append(h)
+				tr.stop = one.entry
+		tr.cut = true
+		tr.track_cm = length * 100.0
+	var bleeds := physiology.apply_trace(tr)
+	var wound := {"segment": seg, "entry": tr.entry - center, "exit": null, "lodged": false,
+			"stop": (tr.stop - center) if tr.stop != null else tr.entry - center,
+			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
+			"bleeds": bleeds, "garments": [], "stain": null, "kind": &"stab" if stab else &"slash", "dir": d}
+	wounds.append(wound)
+	_paint_wound(wound)
+	if stab:
+		open_wound(seg, tr.entry - center, 150.0, dir, &"")
+	if not _knocked_down(seg, 0.0, false, false):
+		_reach_for(wound)
+	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": wound.hits,
+			"position": pos, "direction": dir, "exit": null, "lodged": false, "kind": wound.kind}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return wound
+
+
+## Something left standing in a wound: a shard of window glass, a splinter of wood off a blast,
+## sticking out of him along the way it went in.
+func _stuck_in(w: Dictionary, glass: bool) -> void:
+	var vis: Node3D = visuals.get(w.segment)
+	if vis == null:
+		return
+	var mi := MeshInstance3D.new()
+	mi.name = "Shard" if glass else "Splinter"
+	var box := BoxMesh.new()
+	var length := 0.03 + _chance(w.entry, 11) * 0.04
+	box.size = Vector3(0.022, 0.003, length) if glass else Vector3(0.006, 0.006, length * 1.6)
+	mi.mesh = box
+	var m := StandardMaterial3D.new()
+	if glass:
+		m.albedo_color = Color(0.75, 0.88, 0.85, 0.45)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.roughness = 0.05
+		m.metallic_specular = 0.9
+	else:
+		m.albedo_color = Color(0.55, 0.4, 0.26)
+		m.roughness = 0.9
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Half in him, half out, back along the way it came.
+	var out := -(w.dir as Vector3).normalized()
+	var b := _along(out)
+	mi.basis = Basis(b.x, b.z, b.y) * Basis(Vector3.BACK, _spin(w.entry))
+	mi.position = (w.entry as Vector3) + out * box.size.z * 0.3
+	vis.add_child(mi)
+
+
+## Burns on him (fire, a blast's flash): the bare skin facing it reddens, blisters and chars, and
+## his clothes there scorch and burn onto him. `amount` as Physiology.burn takes it; `from` is
+## where the heat came from (Vector3.INF: all round, a fire he's in).
+const BURN_MARKS_MAX := 10
+var _burn_marks := 0
+
+
+func burn_marks(amount: float, from := Vector3.INF) -> void:
+	if amount <= 0.0 or _burn_marks >= BURN_MARKS_MAX:
+		return
+	var n := clampi(int(ceil(amount * 3.0)), 1, BURN_MARKS_MAX - _burn_marks)
+	var bare := [&"hand_r", &"hand_l", &"head", &"forearm_r", &"forearm_l", &"neck"]
+	var clothed := [&"chest", &"abdomen", &"upper_arm_r", &"upper_arm_l", &"thigh_r", &"thigh_l"]
+	for i in n:
+		var pool: Array = bare if i % 2 == 0 else clothed
+		var sid: StringName = pool[(_burn_marks + i * 3) % pool.size()]
+		var part := parts.get(sid) as Node3D
+		var vis: Node3D = visuals.get(sid)
+		if part == null or vis == null:
+			continue
+		var toward := Vector3.FORWARD
+		if from != Vector3.INF:
+			toward = (part.global_basis.inverse() * (from - part.global_position)).normalized()
+		var r := float(anatomy.segments[sid].radius)
+		var local := toward * r + Vector3(0, (_chance(Vector3(i, 0, 0) + part.global_position, 13) - 0.5) * r, 0)
+		var key := "burn" if pool == bare else "charred"
+		var d := _decal(vis, sid, local, 0.07 if key == "burn" else 0.1, PixelArt.blood(key, 81, false, 32))
+		d.name = "Burn"
+		d.basis = d.basis * Basis(Vector3.UP, _spin(local + part.global_position))
+	_burn_marks += n
+
+
 ## Hit by something heavy (falling timber, a fall): bruises, broken bones, a burst spleen or a
 ## cracked skull by the energy of it. A standing man hit hard enough goes down.
 func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN, momentum := -1.0) -> PackedStringArray:
@@ -2317,9 +2439,38 @@ func _paint_wound(w: Dictionary) -> void:
 		line.size = Vector3(0.022 if w.kind == &"graze" else 0.009, 0.06, length)
 		w.stain = _decal(vis, w.segment, mid, 0.03, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 		_add_jet(vis, w, mid, 1.0)
+		if w.get("embedded", false):
+			_stuck_in(w, true)
+		return
+	if w.kind == &"slash":
+		# The knife's cut gapes along its line (the painted gash, laid lengthwise).
+		var a: Vector3 = w.entry
+		var b: Vector3 = w.stop
+		var gash := _decal(vis, w.segment, (a + b) * 0.5, 0.03, PixelArt.blood("gore_gash" if not Settings.reduced_gore else "furrow", 19, true, 16))
+		var n := gash.basis.y
+		var z := (b - a) - n * (b - a).dot(n)
+		if z.length() > 0.005:
+			z = z.normalized()
+			gash.basis = Basis(n.cross(z), n, z)
+		gash.size = Vector3(0.035, 0.06, maxf(a.distance_to(b), 0.04) * 1.15)
+		w.stain = _decal(vis, w.segment, (a + b) * 0.5, 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+		(w.stain as Node).add_to_group(&"blood_drying")
+		_add_jet(vis, w, (a + b) * 0.5, 1.0)
 		return
 	var pellet := _small_wound(w.kind)
-	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
+	_decal(vis, w.segment, w.entry, 0.014 if w.kind == &"stab" else (0.022 if pellet else 0.035),
+			PixelArt.blood("furrow" if w.kind == &"stab" else "wound_entry", 5, true, 16))
+	if w.kind == &"splinter" and w.lodged:
+		_stuck_in(w, false)
+	elif pellet and w.lodged:
+		# A pellet from further off lodges just under the skin: a dark lump round its hole.
+		_decal(vis, w.segment, w.entry, 0.03, PixelArt.blood("bruise", 23, false, 16))
+	if w.get("powder", 0.0) > 0.0:
+		# Fired close: soot and burnt powder tattooed round the hole, wider and fainter the further
+		# off (black powder's reaches about a metre: DiMaio).
+		var spread: float = 0.04 + float(w.powder) * 0.16
+		var soot := _decal(vis, w.segment, w.entry, spread, PixelArt.blood("powder", 29, false, 32))
+		soot.modulate.a = clampf(1.0 - float(w.powder) / POWDER_RANGE * 0.7, 0.3, 1.0)
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	(w.stain as Node).add_to_group(&"blood_drying")
 	if w.exit != null:
@@ -2923,6 +3074,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var harm := physiology.blast_injury(kpa.get(&"head", 0.0), kpa.get(&"chest", 0.0), kpa.get(&"head", 0.0), bt, _rng)
 	if chest.distance_to(at) < Blast.fireball_radius(kg):
 		physiology.burn(bt.burn_in_fireball)
+		burn_marks(bt.burn_in_fireball, at)
 		harm.append("burnt")
 	# Torn open where the pressure was worst.
 	for sid: StringName in kpa:
@@ -3244,6 +3396,10 @@ func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 
 ## How often a ball carries cloth into him: staying in him, and going through (the way out takes
 ## some of it with it).
+## How close a shot leaves burnt powder round its hole (m), and how close is a contact shot whose
+## gas tears the hole open in a star (DiMaio).
+const POWDER_RANGE := 0.9
+const CONTACT_RANGE := 0.05
 const CLOTH_IN_LODGED := 0.7
 const CLOTH_IN_THROUGH := 0.35
 
@@ -3522,6 +3678,14 @@ func _describe_one(w: Dictionary) -> String:
 			how = "a graze, a bloody furrow"
 		&"cut":
 			how = "glass cut" + (", a shard still in it" if w.get("embedded", false) else "")
+		&"stab":
+			how = "a stab wound, narrow and deep"
+		&"slash":
+			how = "a knife cut, gaping"
+		&"splinter":
+			how = "a splinter" + (", still in him" if w.lodged else "")
+	if w.get("powder", false):
+		how += ", powder-burnt (fired close)"
 	return "%s%s" % [how, (" — " + ", ".join(what)) if not what.is_empty() else ""]
 
 
