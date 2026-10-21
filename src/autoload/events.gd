@@ -15,6 +15,9 @@ signal time_scale_changed(scale: float)
 signal shot_fired(origin: Vector3, direction: Vector3, shooter: Node)
 ## A structure member broke (a pane shattered; in M3, boards and beams too).
 signal member_broken(member_id: StringName)
+## A stretch was torn out of a member (a charge holed a board, Structure.cut_member): `old` is gone
+## and `pieces` (StructureMembers) are what's left of it either side, still in the frame.
+signal member_cut(old: Node, pieces: Array)
 ## A bullet struck something. info: position, normal, direction, collider, member_id (if a building
 ## member), penetrated (bool), energy_before / energy_after (joules).
 signal bullet_hit(info: Dictionary)

@@ -16,20 +16,20 @@
   "share": 0.01
  },
  "dynamite_store_after": {
-  "mean": 1.5,
+  "mean": 5.09,
   "noise": {
-   "mean": 0.116,
-   "share": 0.0012
+   "mean": 1.697,
+   "share": 0.0218
   },
-  "share": 0.01
+  "share": 0.0653
  },
  "dynamite_store_blast": {
-  "mean": 1.5,
+  "mean": 6.239,
   "noise": {
-   "mean": 0.18,
-   "share": 0.0028
+   "mean": 2.08,
+   "share": 0.0306
   },
-  "share": 0.01
+  "share": 0.0917
  },
  "gun_aim_range": {
   "mean": 1.5,
