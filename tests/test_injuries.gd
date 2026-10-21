@@ -185,7 +185,7 @@ func test_a_ball_through_the_femur_flattens_or_splits() -> void:
 		check(tr.flattened, "a ball that broke the femur flattened (seed %d)" % k)
 		if tr.split:
 			split += 1
-			check((tr.exits as Array).size() >= 1, "a split ball has its ways out (%d)" % tr.exits.size())
+			check(tr.has("second"), "a split ball goes two ways (its halves often stay in him)")
 		else:
 			flat += 1
 			check(float(tr.radius) > 0.0057 * 1.4, "and went on wider (%.1f mm)" % (float(tr.radius) * 1000.0))

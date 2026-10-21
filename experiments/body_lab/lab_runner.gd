@@ -61,6 +61,10 @@ func _ready() -> void:
 		"same_tick":
 			for i in 3:
 				_men.append(_spawn(Vector3(i * 3.0, 0, 0), i))
+		"gore":
+			# The gore lab's sheet: a row of men, an injury each (gore_sheet.gd).
+			for i in GoreSheet.SETUPS.size():
+				_men.append(_spawn(Vector3(i * 2.5, 0, 0), i))
 		"check":
 			# Four men far enough apart that the blast (at the last) reaches only its own.
 			for i in 4:
@@ -110,6 +114,8 @@ func _physics_process(_delta: float) -> void:
 			_run_blast()
 		"check":
 			_run_check()
+		"gore":
+			_run_gore()
 		"perf":
 			_run_perf()
 		"same_tick":
@@ -302,6 +308,51 @@ func _write() -> void:
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()
 	done = true
+
+
+# --- The gore lab's sheet -------------------------------------------------------------------------
+
+const GoreSheet := preload("res://experiments/body_lab/gore_sheet.gd")
+const GORE_SNAP_AT := 240  ## ticks after the injuries (4 s: the hand to a wound, a drip or two)
+
+
+func _run_gore() -> void:
+	if _tick == _stand_ticks:
+		for i in _men.size():
+			GoreSheet.apply(GoreSheet.SETUPS[i], _men[i], _world)
+	elif _tick > _stand_ticks and _tick < _stand_ticks + GORE_SNAP_AT:
+		for i in _men.size():
+			GoreSheet.tick(GoreSheet.SETUPS[i], _men[i], 1.0 / 60.0)
+	elif _tick == _stand_ticks + GORE_SNAP_AT:
+		var rows := {}
+		for i in _men.size():
+			var m: HumanBody = _men[i]
+			var setup: String = GoreSheet.SETUPS[i]
+			rows[setup] = {"describe": ", ".join(m.describe_wounds()) + " | " + m.physiology.describe(), "wounds": m.wounds.size(),
+					"alive": m.physiology.alive,
+					"pivots": {} if m.limp else {"forearm_l": Bench.arr((m.pivots[&"forearm_l"] as Node3D).rotation_degrees),
+						"upper_arm_l": Bench.arr((m.pivots[&"upper_arm_l"] as Node3D).rotation_degrees),
+						"hand_r": Bench.arr((m.pivots[&"hand_r"] as Node3D).rotation_degrees)},
+					"pose": String(m.pose), "slung": m.slung.keys()}
+			if render:
+				var seg: StringName = GoreSheet.LOOK[setup]
+				var at := (m.parts[seg] as Node3D).global_position
+				var chest := (m.parts[&"chest"] as Node3D).global_position
+				# From in front of him and out to the side the part's on (a right arm from his right).
+				var side := at - chest
+				side.y = 0.0
+				var out := side.normalized() if side.length() > 0.08 else Vector3.ZERO
+				var from := at + (-m.global_basis.z) * 0.7 + out * 0.4 + Vector3.UP * 0.1
+				if m.limp or m.prone:
+					from = at + Vector3(0.35, 1.3, -0.5)
+				if setup == "handprint":
+					# Across at the wall by his hand, from in front of him on his other side.
+					from = at + (-m.global_basis.z) * 0.6 - m.global_basis.x * 0.3 + Vector3.UP * 0.1
+					at = at + m.global_basis.x * 0.04
+				_snap("gore_%02d_%s" % [i, setup], from, at, 40.0)
+		summary["gore"] = rows
+	elif _tick == _stand_ticks + GORE_SNAP_AT + 10:
+		_write()
 
 
 # --- Each man's own check ------------------------------------------------------------------------

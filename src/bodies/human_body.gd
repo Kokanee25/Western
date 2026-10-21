@@ -1091,12 +1091,7 @@ func _physics_step(delta: float) -> void:
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
 	physiology.step(delta * scale_now)
 	_update_stains(delta * scale_now)
-	if signs == null:
-		signs = WoundSigns.new()
-		signs.name = "WoundSigns"
-		signs.body = self
-		add_child(signs)
-	signs.step(delta * scale_now)
+	signs_now().step(delta * scale_now)
 	_after_step(delta, delta * scale_now)
 	var chest_now := (parts[&"chest"] as Node3D).global_position if parts.has(&"chest") else global_position
 	_velocity_now = (chest_now - _chest_was) / maxf(delta, 1e-4) if _chest_was != Vector3.INF else Vector3.ZERO
@@ -1434,6 +1429,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
 	_grab_step(delta)
+	_sling_step(delta)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 
@@ -1600,6 +1596,16 @@ func breath_period() -> float:
 	return TAU / 1.6 / maxf(breath_rate(), 0.1)
 
 
+## His WoundSigns, made the first time it's wanted.
+func signs_now() -> WoundSigns:
+	if signs == null:
+		signs = WoundSigns.new()
+		signs.name = "WoundSigns"
+		signs.body = self
+		add_child(signs)
+	return signs
+
+
 ## How fast he's going (his chest's speed, m/s, world).
 func velocity_now() -> Vector3:
 	return _velocity_now
@@ -1638,13 +1644,10 @@ func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
 		want = goal + Vector3(0, 0, -WRIST_DROP if side == "r" else WRIST_DROP)
 	elif (s.begins_with("forearm_") or s.begins_with("upper_arm_")) and \
 			(p.broken.has(StringName("radius_" + side)) or p.broken.has(StringName("ulna_" + side)) or p.broken.has(StringName("humerus_" + side))):
-		if _grab.is_empty() or _grab.side != side:
+		if (_grab.is_empty() or _grab.side != side) and not slung.has(side):
 			want = Vector3.ZERO  # it hangs at his side
 	elif s.begins_with("shin_") and p.broken.has(StringName("patella_" + side)):
 		want = Vector3.ZERO  # the knee won't bend
-	if slung.has(side) and (s.begins_with("forearm_") or s.begins_with("upper_arm_")):
-		var k: Vector3 = SLING[StringName(s.trim_suffix("_" + side))]
-		want = Vector3(k.x, k.y, k.z if side == "r" else -k.z)
 	if GUT_HUNCH.has(sid) and (p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")):
 		want += GUT_HUNCH[sid]
 	if want == goal:
@@ -1672,7 +1675,7 @@ func _bind_wound(how: StringName, seg: StringName) -> void:
 	var center := anatomy.segment_center(seg)
 	var a: Vector3 = (cap[0] as Vector3) - center
 	var b: Vector3 = (cap[1] as Vector3) - center
-	var r := float(cap[2])
+	var r := _limb_radius(seg, b - a, float(cap[2]))
 	var at := (a + b) * 0.5
 	if how == &"pressure":
 		for w: Dictionary in wounds:
@@ -1684,8 +1687,8 @@ func _bind_wound(how: StringName, seg: StringName) -> void:
 	var mi := MeshInstance3D.new()
 	mi.name = "Bandage" if how == &"pressure" else "Tourniquet"
 	var band := CylinderMesh.new()
-	band.top_radius = r * 1.12
-	band.bottom_radius = r * 1.12
+	band.top_radius = r * 1.06
+	band.bottom_radius = r * 1.06
 	band.height = 0.08 if how == &"pressure" else 0.035
 	band.radial_segments = 12
 	band.rings = 1
@@ -1722,9 +1725,45 @@ func _bind_wound(how: StringName, seg: StringName) -> void:
 			vis.add_child(stick)
 
 
+## How thick a limb is round its middle: his own clothed mesh's (a Studio man's thigh in his
+## trousers is wider than the anatomy's), else the anatomy's capsule.
+func _limb_radius(seg: StringName, axis: Vector3, fallback: float) -> float:
+	var best := 0.0
+	for mi: MeshInstance3D in segment_pieces.get(seg, []):
+		var m: Mesh = _rigid_meshes.get(mi, null)
+		if m == null:
+			continue
+		var box := m.get_aabb()
+		var ax := axis.normalized()
+		# Half its width across the limb (the box's extent off the axis, averaged).
+		var w := 0.0
+		var n := 0
+		for k in 3:
+			var e := Vector3.ZERO
+			e[k] = 1.0
+			if absf(e.dot(ax)) < 0.7:
+				w += box.size[k] * 0.5
+				n += 1
+		if n > 0:
+			best = maxf(best, w / n)
+	return best if best > fallback * 0.8 and best < fallback * 3.0 else fallback
+
+
 ## Which arms ("r"/"l") are in a sling: held across him, not hanging.
 var slung := {}
-const SLING := {&"upper_arm": Vector3(15, 0, 8), &"forearm": Vector3(95, 0, 0)}
+## Where a slung hand rests: across the front of him, under the other breast (his own space).
+const SLING_HAND := Vector3(0.07, 1.13, -0.2)
+
+
+func _sling_step(delta: float) -> void:
+	for side: String in slung:
+		if limp or (not _grab.is_empty() and _grab.side == side):
+			continue
+		var key := StringName("sling_" + side)
+		var w: float = minf(float(_injury_w.get(key, 0.0)) + delta / INJURY_ONSET, 1.0)
+		_injury_w[key] = w
+		var sx := 1.0 if side == "r" else -1.0
+		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w))
 
 
 ## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
@@ -1792,6 +1831,8 @@ func _heal(game_dt: float) -> void:
 		for d: Variant in w.get("marks", []):
 			if is_instance_valid(d):
 				(d as Node).queue_free()
+		w.marks = []
+		w.stain = null
 		var vis: Node3D = visuals.get(w.segment)
 		if vis == null:
 			continue
@@ -2484,14 +2525,17 @@ func _stuck_in(w: Dictionary, glass: bool) -> void:
 	mi.name = "Shard" if glass else "Splinter"
 	var box := BoxMesh.new()
 	var length := 0.03 + _chance(w.entry, 11) * 0.04
-	box.size = Vector3(0.022, 0.003, length) if glass else Vector3(0.006, 0.006, length * 1.6)
+	box.size = Vector3(0.03, 0.004, length * 1.3) if glass else Vector3(0.006, 0.006, length * 1.6)
 	mi.mesh = box
 	var m := StandardMaterial3D.new()
 	if glass:
-		m.albedo_color = Color(0.75, 0.88, 0.85, 0.45)
+		# Window glass seen edge-on is green; it catches the light.
+		m.albedo_color = Color(0.72, 0.86, 0.8, 0.75)
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.roughness = 0.05
-		m.metallic_specular = 0.9
+		m.metallic_specular = 1.0
+		m.rim_enabled = true
+		m.rim = 0.6
 	else:
 		m.albedo_color = Color(0.55, 0.4, 0.26)
 		m.roughness = 0.9
@@ -2754,9 +2798,10 @@ const STAIN_WICK := 40.0
 func _update_stains(dt: float) -> void:
 	var k := 1.0 - exp(-dt / STAIN_WICK)
 	for w in wounds:
-		var stain: Decal = w.stain
-		if stain == null or not is_instance_valid(stain):
+		var was: Variant = w.stain
+		if was == null or not is_instance_valid(was):
 			continue
+		var stain := was as Decal
 		var ml := physiology.blood_lost_from(w.bleeds)
 		var target := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
 		var s: float = w.get("stain_size", 0.04)
@@ -3896,6 +3941,8 @@ func _describe_one(w: Dictionary) -> String:
 			how = "a knife cut, gaping"
 		&"splinter":
 			how = "a splinter" + (", still in him" if w.lodged else "")
+		&"amputated":
+			how = "the %s taken off by the doctor, the stump sewn" % _place(w.get("part", w.segment))
 	if w.get("powder", false):
 		how += ", powder-burnt (fired close)"
 	return "%s%s" % [how, (" — " + ", ".join(what)) if not what.is_empty() else ""]

@@ -201,7 +201,9 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 					_add_hit(result, st, &"broken", at)
 					if _depth < 2 and ev.roll == 0.0:
 						# Soft lead flattens on it, and a strong bone can split it.
-						var past: Vector3 = origin + dir * float(ev.t_end) + dir * 0.002
+						# On from where it broke in (what's inside the bone, the spinal cord, is next),
+						# the bone itself left behind.
+						var past: Vector3 = at + dir * 0.001
 						result.flattened = true
 						if strength >= SPLIT_STRENGTH and e > SPLIT_ENERGY and _roll(at, 2) < SPLIT_CHANCE:
 							result.split = true
@@ -210,14 +212,14 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 							var off := side.rotated(dir, turn)
 							var d1 := dir.rotated(off, SPLIT_SPREAD)
 							var d2 := dir.rotated(off, -SPLIT_SPREAD)
-							_go_on(result, segment, past, d1, e * 0.5, bullet_radius * 0.8, rng, _depth, ev.t_end - t_in, _met + [st.id])
+							_go_on(result, segment, past, d1, e * 0.5, bullet_radius * 0.8, rng, _depth, t - t_in, _met + [st.id])
 							var second := trace(segment, past, d2, e * 0.5, bullet_radius * 0.8, rng, _depth + 1, _met + [st.id])
 							for h: Dictionary in second.hits:
 								_add_hit(result, structure(h.id), h.effect, h.position)
 							result.exits.append_array(second.exits)
 							result.second = second
 						else:
-							_go_on(result, segment, past, dir, e, bullet_radius * BONE_FLATTEN, rng, _depth, ev.t_end - t_in, _met + [st.id])
+							_go_on(result, segment, past, dir, e, bullet_radius * BONE_FLATTEN, rng, _depth, t - t_in, _met + [st.id])
 						return result
 				else:
 					e = 0.0

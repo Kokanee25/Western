@@ -11,7 +11,7 @@ var body: HumanBody
 
 ## Where on the head (the anatomy's rest space).
 const EAR := Vector3(0.085, 1.63, 0.0)  ## x mirrored for the left
-const NOSE := Vector3(0.0, 1.605, -0.098)
+const NOSE := Vector3(0.0, 1.62, -0.098)
 const MOUTH := Vector3(0.0, 1.575, -0.092)
 const EYE := Vector3(0.033, 1.66, -0.08)
 
@@ -36,6 +36,7 @@ var _ears_done := {}
 var _eyes_done := {}
 var _scalp_done := {}
 var _nose_marked := false
+var _mouth_marked := false
 var _mouth_in := 2.0
 var _spit_in := 4.0
 var _teeth_out := false
@@ -94,7 +95,8 @@ func _run_down(rest: Vector3, size: float, key: String) -> Decal:
 		z = z.normalized()
 		d.basis = Basis(n.cross(z), n, z)
 		d.position = local + z * size * 0.4
-	d.size = Vector3(size * 0.6, 0.06, size)
+	# (Deep: the anatomy's points sit a few centimetres off a Studio man's own face.)
+	d.size = Vector3(size * 0.6, 0.2, size)
 	return d
 
 
@@ -105,7 +107,7 @@ func _ears(p: Physiology) -> void:
 			continue
 		_ears_done[side] = true
 		var at := EAR * Vector3(1.0 if side == &"r" else -1.0, 1.0, 1.0)
-		_run_down(at, 0.07, "ear_run")
+		_run_down(at, 0.18, "ear_run")
 
 
 ## A blind eye (the ball through it) and a scalp wound's blood in an eye: blood down his cheek.
@@ -185,7 +187,7 @@ func _nose(p: Physiology, world: Node3D, dt: float) -> void:
 		return
 	if not _nose_marked:
 		_nose_marked = true
-		_run_down(NOSE + Vector3(0, -0.01, 0), 0.035, "ear_run")
+		_run_down(NOSE + Vector3(0, -0.01, 0), 0.08, "ear_run")
 	_drip_gap -= dt
 	if _drip_gap <= 0.0:
 		_drip_gap = 0.9
@@ -200,6 +202,10 @@ func _mouth(p: Physiology, world: Node3D, dt: float) -> void:
 			or p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")
 	if not inside:
 		return
+	if not _mouth_marked:
+		_mouth_marked = true
+		# A run of it from the corner of his mouth down his chin.
+		_run_down(MOUTH + Vector3(0.022, -0.005, 0.005), 0.08, "ear_run")
 	_mouth_in -= dt
 	if (body.limp or body.prone) and _mouth_in <= 0.0:
 		_mouth_in = randf_range(2.0, 4.0)

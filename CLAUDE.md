@@ -374,6 +374,6 @@ frozen until Sean names one.
 - The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
   and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
   in a blast, the femur's bleed; `results/`), a hand to the wound (`HumanBody._grab`), arterial
-  jets, the blood marks painted and gore by Gemini (stump faces, torn edges; $1.62 of Sean's $3,
-  `results/2026-10-21_blood_paint/`, `_gore/`). Waiting
+  jets, the blood marks painted and gore by Gemini (stump faces, torn edges), and the gore lab's
+  first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`; $2.18 of Sean's $3). Waiting
   on Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.
