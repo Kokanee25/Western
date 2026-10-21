@@ -2346,6 +2346,9 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
 	if down:
 		harm.append("thrown off his feet")
+		# The blast that throws a man takes his hat: a light thing with a wide brim, it goes faster
+		# than he does (experiments/body_lab: it stayed on every man thrown down).
+		knock_hat_off(push * 1.5 + Vector3.UP * 1.5)
 	if down and not limp:
 		go_limp(push)
 	elif limp:
