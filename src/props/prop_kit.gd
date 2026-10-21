@@ -18,7 +18,10 @@ class_name PropKit
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
 ##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments"}: part of one;
-##   {"shape": "disc", "radius", "segments"}: the member's box cut round to the circle about Y.
+##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
+##   Y ("above": instead a layer that thick laid on its top: a table's baize).
+## "dress": [{"look", "draw"}]: layers drawn on the member (glued, painted: not members of their
+## own), going wherever the member goes; untouched, batched with it (KitProp).
 ## Profiles and radii are in the prop's space; the mesh is laid into the member's own.
 
 const DIR := "res://assets/props/kit/"
@@ -96,6 +99,17 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 	return out
 
 
+## Its members' boxes together, in its own space.
+static func bounds(def: Dictionary) -> AABB:
+	var box := AABB()
+	var first := true
+	for spec in expand(def):
+		var b := Transform3D(basis_of(spec), vec(spec.at)) * AABB(-vec(spec.size) * 0.5, vec(spec.size))
+		box = b if first else box.merge(b)
+		first = false
+	return box
+
+
 static func vec(a: Variant) -> Vector3:
 	if a is Vector3:
 		return a
@@ -143,13 +157,14 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 		"sweep":
 			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)))
 		"disc":
-			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m)
+			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
 		_:
 			return MemberMesh.box(m.size)
-	if draw.get("shape") == "disc":
-		return src  # already in the member's space
+	# Indexed, as MemberMesh's boxes are: a structure's batch (SurfaceTool.append_from) keeps the
+	# first mesh's indices, and a mesh without any merged after an indexed one draws nothing.
 	var st := SurfaceTool.new()
-	st.append_from(src, 0, m.transform.affine_inverse())
+	st.append_from(src, 0, Transform3D.IDENTITY if draw.get("shape") == "disc" else m.transform.affine_inverse())
+	st.index()
 	return st.commit()
 
 
@@ -173,11 +188,17 @@ static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: i
 	for p in profile:
 		r_mean += p.x
 	r_mean /= profile.size()
+	# Outward is to the right of the way the profile runs when it runs anticlockwise round its
+	# cross-section (r right, y up); a profile run clockwise (the rim's) has it on the left.
+	var area := 0.0
+	for i in profile.size():
+		area += profile[i].cross(profile[(i + 1) % profile.size()])
+	var side := 1.0 if area >= 0.0 else -1.0
 	for i in profile.size() - 1:
 		var p0 := profile[i]
 		var p1 := profile[i + 1]
 		var d := p1 - p0
-		var n2 := Vector2(d.y, -d.x).normalized()  # the band's outward normal in (r, y)
+		var n2 := Vector2(d.y, -d.x).normalized() * side  # the band's outward normal in (r, y)
 		for s in segments:
 			var t0 := lerpf(a0, a1, float(s) / segments)
 			var t1 := lerpf(a0, a1, float(s + 1) / segments)
@@ -212,8 +233,14 @@ static func _quad(st: SurfaceTool, verts: Array[Vector3], norms: Array[Vector3],
 ## The member's box cut round to a circle of `radius` about the prop's Y axis (a round top's
 ## boards, its baize): its top and bottom faces clipped to the circle, its sides the circle's arc
 ## and whatever of the box's own sides is left. In the member's own space, UVs in metres.
-static func disc_cut(radius: float, segments: int, m: StructureMember) -> ArrayMesh:
+static func disc_cut(radius: float, segments: int, m: StructureMember, above := 0.0) -> ArrayMesh:
 	var h := m.size * 0.5
+	# A layer on its top (`above` thick) rather than the member itself: drawn about its own middle,
+	# lifted onto the top by the caller's transform.
+	var lift := 0.0
+	if above > 0.0:
+		lift = h.y + above * 0.5
+		h.y = above * 0.5
 	var inv := m.transform.affine_inverse()
 	var poly := PackedVector2Array()
 	for s in segments:
@@ -232,7 +259,7 @@ static func disc_cut(radius: float, segments: int, m: StructureMember) -> ArrayM
 			var v: Array[Vector3] = []
 			for k in 3:
 				var p := outline[tris[i + k]]
-				v.append(Vector3(p.x, h.y * face, p.y))
+				v.append(Vector3(p.x, h.y * face + lift, p.y))
 			if (v[1] - v[0]).cross(v[2] - v[0]).dot(n) > 0.0:
 				v = [v[0], v[2], v[1]]
 			for q in v:
@@ -254,7 +281,7 @@ static func disc_cut(radius: float, segments: int, m: StructureMember) -> ArrayM
 			n2 = -n2
 		var n := Vector3(n2.x, 0.0, n2.y)
 		var span := e.length()
-		_quad(st, [Vector3(a.x, -h.y, a.y), Vector3(b.x, -h.y, b.y), Vector3(b.x, h.y, b.y), Vector3(a.x, h.y, a.y)],
+		_quad(st, [Vector3(a.x, lift - h.y, a.y), Vector3(b.x, lift - h.y, b.y), Vector3(b.x, lift + h.y, b.y), Vector3(a.x, lift + h.y, a.y)],
 				[n, n, n, n], [Vector2(run, 0), Vector2(run + span, 0), Vector2(run + span, h.y * 2.0), Vector2(run, h.y * 2.0)])
 		run += span
 	return st.commit()

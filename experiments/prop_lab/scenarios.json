@@ -1,0 +1,28 @@
+{
+  "_doc": "The prop lab's bench (docs/briefs/prop-lab.md): each kit prop against the breakage lab's set (revolver and shotgun at 5 m, dynamite at 1, 3 and 6 m, a limp man dropped on it from 1 m), fire, and for chairs a seated man whose chair is shot or kicked from under him. Positions in the prop's space (origin on the floor, facing +Z). 'seated': a Studio man sits in it first. 'event' do: shoot (weapon, from, at_member, height: aimed at the member that high above the floor, else its middle), dynamite (at: the stick on the floor), kick (at_member, height above the floor, impulse N*s), drop_man, burn (ignite: members). Edit to add scenarios. 'prop': '' runs the floor alone (a baseline for frame times).",
+  "scenarios": [
+    {"name": "chair_revolver_5m", "prop": "chair", "event": {"do": "shoot", "weapon": "revolver", "from": [-5.0, 1.5, 0.2], "at_member": "leg_front_l", "height": 0.25}},
+    {"name": "chair_shotgun_5m", "prop": "chair", "event": {"do": "shoot", "weapon": "shotgun", "from": [-5.0, 1.5, 0.0], "at_member": "seat"}},
+    {"name": "chair_dynamite_1m", "prop": "chair", "event": {"do": "dynamite", "at": [-1.0, 0.02, 0.0]}},
+    {"name": "chair_dynamite_3m", "prop": "chair", "event": {"do": "dynamite", "at": [-3.0, 0.02, 0.0]}},
+    {"name": "chair_dynamite_6m", "prop": "chair", "event": {"do": "dynamite", "at": [-6.0, 0.02, 0.0]}},
+    {"name": "chair_man_dropped", "prop": "chair", "event": {"do": "drop_man", "height": 1.0}},
+    {"name": "chair_kick_empty", "prop": "chair", "event": {"do": "kick", "at_member": "leg_front_l", "height": 0.12, "impulse": [48.0, 0.0, 0.0]}},
+    {"name": "chair_burn", "prop": "chair", "seconds": 600, "event": {"do": "burn", "ignite": ["leg_front_l", "stretcher_l"]}},
+    {"name": "seated_shot_back_leg", "prop": "chair", "seated": true, "event": {"do": "shoot", "weapon": "revolver", "from": [-5.0, 1.5, -0.175], "at_member": "post_back_l", "height": 0.25}},
+    {"name": "seated_shot_front_leg", "prop": "chair", "seated": true, "event": {"do": "shoot", "weapon": "revolver", "from": [-5.0, 1.5, 0.2], "at_member": "leg_front_l", "height": 0.25}},
+    {"name": "seated_kick_front_leg", "prop": "chair", "seated": true, "event": {"do": "kick", "at_member": "leg_front_l", "height": 0.12, "impulse": [48.0, 0.0, 0.0]}},
+    {"name": "seated_kick_back_leg", "prop": "chair", "seated": true, "event": {"do": "kick", "at_member": "post_back_l", "height": 0.12, "impulse": [48.0, 0.0, 0.0]}},
+    {"name": "seated_shotgun_legs", "prop": "chair", "seated": true, "event": {"do": "shoot", "weapon": "shotgun", "from": [-5.0, 1.5, 0.0], "at_member": "leg_front_l", "height": 0.25}},
+    {"name": "table_revolver_5m", "prop": "card_table", "lamp": true, "event": {"do": "shoot", "weapon": "revolver", "from": [-5.0, 1.5, 0.0], "at_member": "pedestal", "height": 0.4}},
+    {"name": "table_shotgun_5m", "prop": "card_table", "lamp": true, "event": {"do": "shoot", "weapon": "shotgun", "from": [-5.0, 0.6, 0.0], "at_member": "pedestal", "height": 0.4}},
+    {"name": "table_dynamite_1m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-1.0, 0.02, 0.0]}},
+    {"name": "table_dynamite_3m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-3.0, 0.02, 0.0]}},
+    {"name": "table_dynamite_6m", "prop": "card_table", "lamp": true, "event": {"do": "dynamite", "at": [-6.0, 0.02, 0.0]}},
+    {"name": "table_man_dropped", "prop": "card_table", "lamp": true, "event": {"do": "drop_man", "height": 1.0}},
+    {"name": "table_kick", "prop": "card_table", "lamp": true, "event": {"do": "kick", "at_member": "pedestal", "height": 0.3, "impulse": [48.0, 0.0, 0.0]}},
+    {"name": "table_burn", "prop": "card_table", "lamp": true, "seconds": 600, "event": {"do": "burn", "ignite": ["foot0", "pedestal"]}},
+    {"name": "floor_dynamite_1m", "prop": "", "event": {"do": "dynamite", "at": [-1.0, 0.02, 0.0]}},
+    {"name": "floor_dynamite_3m", "prop": "", "event": {"do": "dynamite", "at": [-3.0, 0.02, 0.0]}}
+  ]
+}

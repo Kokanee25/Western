@@ -1,0 +1,31 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 3.77,
+    "before_ms": 0.03,
+    "event_ms": 181.77,
+    "settle_ms": 1.25
+  },
+  "lamp": {
+    "smashed": false,
+    "spills": 0
+  },
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 20,
+  "pieces": 0,
+  "prop": "card_table",
+  "scenario": "table_dynamite_6m",
+  "snapped": []
+}

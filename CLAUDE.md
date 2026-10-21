@@ -267,6 +267,7 @@ python3 tools/bridge.py stop
 - **src/art/street_match.gd** — the street painting's shot, the judge's scores.
 - **The texture factory (tools/textures)** — materials.json, paint, reduce, flames, backdrop.
 - **src/props/prop_models.gd** — props modelled in code, prop views.
+- **The prop kit (src/props/prop_kit.gd, kit_prop.gd)** — props as data, built of members; the bench.
 - **src/art/saloon_dressing.gd** — the saloon's walls, bar, dressing.
 - **src/art/sign_art.gd and the backdrop** — lettering, the painted backdrop, FacadeArt.
 - **Characters by image-to-3D (tools/characters)** — the People workflow, Tripo/Rodin, head

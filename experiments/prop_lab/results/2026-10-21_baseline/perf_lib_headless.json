@@ -1,0 +1,7 @@
+{
+  "draws": [],
+  "frame_ms": 0.017,
+  "static_bodies": 10,
+  "which": "lib",
+  "worst_ms": 0.11
+}

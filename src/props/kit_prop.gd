@@ -76,6 +76,12 @@ func build() -> void:
 			mi.material_override = PropKit.material(look, hash(m.member_id))
 		if spec.has("draw"):
 			mi.mesh = PropKit.draw_mesh(spec.draw, m)
+		for d: Dictionary in spec.get("dress", []):
+			var layer := MeshInstance3D.new()
+			layer.name = "Dress"
+			layer.mesh = PropKit.draw_mesh(d.draw, m)
+			layer.material_override = PropKit.material(String(d.get("look", "")), hash(m.member_id))
+			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 	var seat: Dictionary = definition.get("seat", {})
 	_seat_member = members.get(StringName("%s/%s" % [structure_id, seat.get("member", "")]))
@@ -101,6 +107,56 @@ func _physics_step(delta: float) -> void:
 		if not m.broken and not _has_footing(m):
 			go_loose()
 			return
+
+
+# --- Drawing: its members' dress layers batched with them ----------------------------------------
+
+var _dress := {}  # Material -> MeshInstance3D drawing the dress layers of the batched members
+
+
+func _batch_all() -> void:
+	super._batch_all()
+	_batch_dress()
+
+
+func _rebuild_dirty_batches() -> void:
+	super._rebuild_dirty_batches()
+	_batch_dress()
+
+
+## The dress layers of every member still in a batch, one mesh per material (a batched member's
+## own mesh is hidden, its layers with it); a member drawn on its own draws its own.
+func _batch_dress() -> void:
+	var groups := {}
+	for m: StructureMember in _batched:
+		if not is_instance_valid(m) or m.get_child_count() == 0:
+			continue
+		var mi := m.get_child(0) as MeshInstance3D
+		for c in mi.get_children():
+			if c is MeshInstance3D and c.name.begins_with("Dress"):
+				var layer := c as MeshInstance3D
+				groups.get_or_add(layer.material_override, []).append([layer.mesh, m.transform * mi.transform * layer.transform])
+	for mat: Variant in _dress.keys():
+		if not groups.has(mat) and is_instance_valid(_dress[mat]):
+			(_dress[mat] as Node).queue_free()
+			_dress.erase(mat)
+	for mat: Variant in groups:
+		var st := SurfaceTool.new()
+		for e: Array in groups[mat]:
+			st.append_from(e[0], 0, e[1])
+		var batch: MeshInstance3D = _dress.get(mat)
+		if batch == null or not is_instance_valid(batch):
+			batch = MeshInstance3D.new()
+			batch.name = "DressBatch"
+			batch.material_override = mat
+			add_child(batch, false, Node.INTERNAL_MODE_BACK)
+			_dress[mat] = batch
+		batch.mesh = st.commit()
+
+
+## How many draw calls its untouched members and their dress take.
+func batch_count() -> int:
+	return super.batch_count() + _dress.size()
 
 
 # --- What it stands on ---------------------------------------------------------------------------
@@ -300,22 +356,25 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 	var reduced := blow_mass * big_m / (blow_mass + big_m)
 	var lost := 0.5 * reduced * v_in * v_in
 	var to_wood := lost * float(definition.get("blow_wood_share", 0.5))
+	var result := &"moved"
 	if to_wood > toughness_of(m):
-		var piece := maxf(m.weight(tuning) / 9.81, 0.3)
-		break_member(m, impulse / piece * 0.3)
-		return &"broke"
+		# It breaks; the broken piece goes off at the boot's speed, and the rest of the blow's
+		# momentum still goes into what's left (and him on it).
+		break_member(m, impulse.normalized() * minf(v_in, 8.0))
+		result = &"broke"
+		if loose:
+			return result
+		big_m = mass() + load_kg
 	var v := impulse / (blow_mass + big_m)
 	if seated:
 		# His weight holds it to the floor: does it slide far enough to leave him?
 		var slide := v.length() * v.length() / (2.0 * FLOOR_FRICTION * 9.81)
 		if slide < float(definition.get("seat", {}).get("hold", 0.05)):
-			return &"held"
+			return result if result == &"broke" else &"held"
 	elif v.length() < LOOSE_FROM:
-		return &"held"
-	if loose:
-		return &"moved"
+		return result if result == &"broke" else &"held"
 	go_loose(Vector3.ZERO, v * mass(), at)
-	return &"moved"
+	return result
 
 
 ## A blast that didn't break it pushes it as Blast pushes anything loose (Blast.detonate's rule for
@@ -357,9 +416,9 @@ func sit(man: Node3D) -> bool:
 	if loose or _seat_member == null or _seat_member.broken or (seated and seated != man):
 		return false
 	seated = man
-	var kg := 0.0
+	var kg := float(man.get(&"total_mass")) if man.get(&"total_mass") != null else 0.0
 	var parts: Variant = man.get(&"parts")
-	if parts is Dictionary:
+	if kg <= 0.0 and parts is Dictionary:
 		for sid: StringName in parts:
 			kg += float((parts[sid] as Node).get_meta(&"mass", 0.0))
 	if kg <= 0.0:
