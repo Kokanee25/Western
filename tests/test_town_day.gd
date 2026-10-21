@@ -470,10 +470,20 @@ func _saloon_floor() -> float:
 
 
 func test_the_studios_people_are_cast_in_town() -> void:
-	check_eq(town.barkeep.body_model, &"barkeep_s1", "the barkeep is the Studio's")
+	check_eq(town.barkeep.body_model, &"barkeep_s2_talking", "the barkeep is the Studio's")
 	check(town.widow != null and town.widow.held_gun == null, "the widow is in town, unarmed")
-	check_eq(town.widow.body_model, &"widow_s1", "the widow is the Studio's first woman")
+	check_eq(town.widow.body_model, &"widow_s2_talking", "the widow is the Studio's first woman")
 	check(town.widow.global_position.distance_to(town.places.at(&"store_aisle")) < 0.6, "browsing in the store")
 	check(town.sheriff != null, "the sheriff is in town")
-	check_eq(town.sheriff.body_model, &"sean_s2", "the sheriff is the Studio's sean_s2")
+	check_eq(town.sheriff.body_model, &"sean_s3_talking", "the sheriff is the Studio's sean_s3, talking")
 	check(town.sheriff.global_position.distance_to(town.places.at(&"jail_front")) < 0.6, "in front of his jail")
+	check(town.doctor != null and town.doctor.held_gun == null, "the doctor is in town, unarmed")
+	check_eq(town.doctor.body_model, &"doctor_s2_talking", "the doctor is the Studio's doctor_s2, talking")
+	check(town.doctor.global_position.distance_to(town.places.at(&"doctor_front")) < 0.6, "in front of his office")
+	check(town.colter != null and town.colter.held_gun == null, "the fourth Colter is in town, unarmed for now")
+	check_eq(town.colter.body_model, &"colter_rider_s2_talking", "he is the Studio's colter_rider_s2, talking")
+	check(town.colter.global_position.distance_to(town.places.at(&"livery_front")) < 0.6, "in front of the livery")
+	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
+	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter]:
+		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])

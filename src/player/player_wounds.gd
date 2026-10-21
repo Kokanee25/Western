@@ -563,7 +563,7 @@ func _what_still_hurts() -> String:
 ## A name to tell you by: a man's own name ("Brody"), what he is ("The storekeeper"), else
 ## "Somebody"; "" for nobody, or yourself.
 const CALLED := {&"outlaw": "The outlaw", &"kid": "The Kid", &"storekeeper": "The storekeeper",
-		&"barkeep": "The barkeep", &"widow": "The widow", &"sheriff": "The sheriff"}
+		&"barkeep": "The barkeep", &"widow": "The widow", &"sheriff": "The sheriff", &"doctor": "The doctor", &"colter": "The Colter"}
 
 
 func _name_of(who: Node) -> String:
