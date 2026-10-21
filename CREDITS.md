@@ -15,6 +15,13 @@ adds its own lines.
 - **Blender** (`bpy` 5.0.1): GPL, a tool run headless; nothing of it ships.
 - **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU): Python libraries the tools use.
 - The portrait factory's reference pictures (`docs/concept/style/factory/`): made by Sean in ChatGPT.
+- **Hyper3D Rodin** Gen-2.5 (Deemos), through **fal.ai**: paid API generations, output owned by the
+  customer with commercial use allowed (as understood; the terms pages couldn't be opened from the
+  workspace, shipped on that basis with Sean's OK, 2026-10-21). The meshes and paint of
+  `bold_cowboy_s0`, `old_rancher_s1` and `young_drifter_s1` (and the earlier Rodin men).
+- `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`: made by the Character Studio
+  (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
+  Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
 
 ## Motion (the gameplay session)
 
