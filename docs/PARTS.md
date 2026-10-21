@@ -44,6 +44,15 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | A working face (mouth, lips, teeth, lids, jaw, 12-15 shapes, Live Link takes, `FaceGaze`) | `tools/faces/`, `bold_cowboy_talking` | face rig brief (`docs/briefs/face-rig.md`) | in the game on the old layered cowboy only; the face rig lab brings it to the Studio's men |
 | The Studio's men: `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `sean_s2` | `assets/people/` | `works_check.gd`, `test_bodies.gd` | in the game (cast as the gang, the storekeeper and the sheriff) |
 
+## Guns (the gun lab)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd` | in the game; the gun lab reworks the look and the moves |
+| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | — | in the game |
+| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests | in the game; the Studio's men can't close a hand round it yet (no finger bones) |
+| The kick | `src/weapons/gun_kick.gd` | `test_gun_feel.gd`, feel ranges | in the game |
+
 ## Materials and look (art)
 
 | Part | Where it lives | Proven by | Status |
@@ -53,7 +62,19 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The Studio woods (round 4, set `studio7`) | `assets/textures/mlab_*`, `tools/textures/material_lab.json` | material lab, round 4 (critic: 1 same, 7 close, 0 different) | waiting on Sean (his picks on `round4_sheets/`), then promoted into the texture factory's game set |
 | Worn treads (nosings worn by feet) | the oak stair and the stand's steps | material lab | in the game |
 | The hotel's oak stair, painted oak and runner (`dark_oak`, `stair_runner`) | `src/art/oak_stair.gd` (drawn only) | material lab | in the game as a drawing; waiting to be promoted as members when the hotel is built |
-| The test stand | `src/art/material_stand.gd`, `tools/material_lab.gd` | — | a lab fixture (stays in the lab) |
+| **The interior woods** (Sean picked the interior stain, C, 2026-10-21): `int_floor`, `int_timber` (posts, beams, brackets), `int_boards` (wall boards), `int_oak` (wainscot, casings, the bar, rails, balusters); one warm umber family; their own names, so the outside keeps its woods | `assets/textures/woods/int_*` (+ `lab.json`), from the lab's `studio_int` by `tools/textures/promote_woods.py`; `PixelArt` draws them with seams a pixel wide | interior stand, blind critic against his saloon picture (`docs/screenshots/material_lab/2026-10-21/interior/`) | in the game (for the saloon's interior: `wood:int_oak` in a kit file, or a member's wood) |
+| **The bar top** (`int_bar_top`): `int_oak` glued up across the top's 0.84 m depth, polished (`roughness` 0.35), drink rings (dark wet rings and pale heat blooms, where men stand) and the front edge worn by elbows; procedural, free, seeded | `assets/textures/woods/int_bar_top_*`, made by `tools/textures/bar_top.py` | the bar's `bar_top` view, `tests/test_material_stand.gd` | in the game (the kit bar's top: `wood:int_bar_top`) |
+| **Profiles** (the woodwork's cross-sections as data: chamfer, rounded, bar top, handrail, ogee, bead) | `src/art/profiles.gd` | interior stand, `tests/test_material_stand.gd` | in the game (code); a kit member draws with them by its `draw` (shape `profile`, `panel` or `cut`: `PropKit.woodwork_mesh`), and any building's member by `PropKit.dress_member` (still a member: breaks, burns, falls) |
+| The test stand, the interior stand | `src/art/material_stand.gd`, `src/art/interior_stand.gd`, `tools/material_lab.gd` | — | lab fixtures (stay in the lab) |
+
+## Fire (art draws it; gameplay's `FireSystem` and `FireFX` spread and place it)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The drawn fire sheet (one noise field of tongues a burning member, in the painting's bands) | `src/fire/fire_sheet.gdshader`, placed by `FireFX._sheet_on` | the judge's fire view (`livery_fire_dusk`) | in the game (the default) |
+| The fire flipbooks: a lick, a tongue and a big column, each 64 looping frames baked from a Mantaflow fire, with motion vectors (R flame, G smoke, B heat) | `assets/textures/fire/`, made by `tools/textures/fire_sim/` (`bake_flames.py`, `make_sheets.py`, `flames.json`) | `tests/test_fire_flipbooks.gd` (whole, loop seam like a step), `tools/flame_views.gd` | in the game behind `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`), waiting on Sean's A/B; the final painted pass after Gate A |
+| The flipbook flame shader: motion-vector frame blending, a core in the painting's bands that keeps its hue, alpha-blended tips and smoke, soft edges at walls and floors, heat haze | `src/fire/fire_flipbook.gd` (`FireFlipbook`), `flipbook.gdshaderinc`, `flame_core`/`flame_tips`/`flame_haze.gdshader` | `tools/fire_cost.gd` (a building fully alight), `tools/fire_ab.gd` (the A/B film) | as above; uses FireFX's sheets as they are (same quad, same instance uniforms) |
+| The fire painting's colours (its fire's tones, edge to root; its smoke dark and lit) | `assets/textures/fire/fire_ramp.png`, `fire_sheets.json` (from `docs/concept/livery-fire-painted.png`) | `make_sheets.py` | in the game with the flipbooks |
 
 ## Props (the prop lab, `docs/briefs/prop-lab.md`)
 
@@ -68,6 +89,8 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | A seated man on a kit seat: his weight on the seat member (`sit`/`leave`), down with the chair when it goes or is knocked from under him | `KitProp.sit`, `seat` in the kit file | bench: `seated_*` (a leg shot or kicked out puts him on the floor) | in the game; nobody sits yet (gameplay: brains to call `sit`); how he falls is the ragdoll lab's |
 | The kit's **chair** (`chair.json`: PropModels' spindle-back chair in 13 oak members, the back legs running up as the back posts) | `assets/props/kit/chair.json` | bench (`results/2026-10-21_baseline/`); the look sheet against PropModels' | in the game (`in_game`): the drawn `chair` everywhere `PropLibrary` spawns it (saloon 8, doctor, bank); waiting on Sean's look to retire PropModels' |
 | The kit's **card table** (`card_table.json`: four feet, a turned pedestal, two cleats, five top boards cut round with the baize on them, an eight-piece rim; 19 oak members) | `assets/props/kit/card_table.json` | as the chair | in the kit, not yet in the game: waiting on Sean's look (blind critic: better than PropModels' in 3 of 4 views); then `in_game` |
+| The kit's **bar** (`bar.json`, a fixture: 3 m section, lined up as long as the room needs; a raised-panel front between chamfered pilasters on a plinth, a frieze, corbels under the top's overhang, the top glued up in `int_bar_top` with a bullnose front, a brass foot rail on brackets, the bartender's side boarded; 30 oak members, 3 batches) | `assets/props/kit/bar.json` | `tests/test_prop_kit.gd` (stands, batches), `tests/test_material_stand.gd`; interior stand views `bar`, `bar_top`; blind critic against Sean's saloon picture (`docs/screenshots/material_lab/2026-10-21/bar/`) | in the kit, for the saloon session to put in place of `SaloonBuilding`'s hand-built bar (`PropKit.spawn(&"bar")`, turned to face the room) |
+| The kit's **back bar** (`back_bar.json`, a fixture: 2.5 m; a panelled base and counter, three columns with bases and capitals, two arched frames with their mirrors (`prop:mirror`), two shelves a bay on brackets, an ogee cornice on dentils, a carved crest; 43 oak members, 2 batches) | `assets/props/kit/back_bar.json` | as the bar; views `back_bar`, `interior` | in the kit, as the bar |
 | Clear white oak (`oak`: Wood Handbook clear figures, `toughness` 101 kJ/m³) | `src/structures/timber_tuning.gd` (gameplay's file, one entry added by the prop lab) | the bench's kicks | in the game |
 | The prop lab's bench: the breakage lab's set, kicks, fire, the seated man; the look sheet; the budget | `experiments/prop_lab/` | — | a lab fixture (stays in the lab) |
 

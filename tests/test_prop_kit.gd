@@ -41,14 +41,14 @@ func before_each() -> void:
 	ground.add_child(shape)
 	ground.position.y = -0.5
 	world.add_child(ground)
-	# A floor of boards on joists, 0.3 m up: what a prop in a room stands on.
+	# A floor of boards on joists, 0.3 m up: what a prop in a room stands on (3.4 m: the bar fits).
 	floor_s = Structure.new()
 	floor_s.structure_id = &"floor"
 	world.add_child(floor_s)
 	for x in [-1.0, 1.0]:
 		floor_s.add_member("joist%d" % int(x), &"joist", &"framing", Vector3(0.05, 0.25, 3.0), Vector3(x, 0.125, 0))
 	for i in 12:
-		floor_s.add_member("board%d" % i, &"floor_board", &"floor", Vector3(2.4, 0.05, 0.25), Vector3(0, 0.275, -1.375 + 0.25 * i))
+		floor_s.add_member("board%d" % i, &"floor_board", &"floor", Vector3(3.4, 0.05, 0.25), Vector3(0, 0.275, -1.375 + 0.25 * i))
 	floor_s.infer_supports()
 
 
@@ -78,12 +78,14 @@ func test_every_kit_file_builds_and_stands() -> void:
 		check(p.settle().is_empty(), "%s stands: nothing breaks or falls" % id)
 		check(not p.loose, "%s stands on its feet" % id)
 		check(p.batch_count() <= 3, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
-		check(not def.get("replaces", "").is_empty(), "%s names the drawn prop it replaces" % id)
-		var size: Vector3 = PropLibrary.size_of(StringName(def.replaces))
-		var box := AABB()
-		for m in p.get_members():
-			box = m.structure_aabb() if box.size == Vector3.ZERO else box.merge(m.structure_aabb())
-		check_near(box.size.y, size.y, 0.03, "%s stands as tall as the drawn one" % id)
+		# A fixture (the bar) is new to the game: it replaces no drawn prop.
+		check(not def.get("replaces", "").is_empty() or def.get("fixture", false), "%s names the drawn prop it replaces" % id)
+		if def.has("replaces"):
+			var size: Vector3 = PropLibrary.size_of(StringName(def.replaces))
+			var box := AABB()
+			for m in p.get_members():
+				box = m.structure_aabb() if box.size == Vector3.ZERO else box.merge(m.structure_aabb())
+			check_near(box.size.y, size.y, 0.03, "%s stands as tall as the drawn one" % id)
 		p.queue_free()
 		await physics_frames(1)
 
