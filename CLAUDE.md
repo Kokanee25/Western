@@ -391,3 +391,10 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
+
+**Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
+`assets/props/`):
+- The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
+  `PropKit`/`KitProp`) has the chair and the card table, handed out by `PropLibrary.spawn`; bench
+  `experiments/prop_lab/` (baseline 2026-10-21). PropModels' chair and table stay till Sean passes
+  the kit's look (sheets in the baseline). Next: bottles and the oil lamp (shattering, spills).
