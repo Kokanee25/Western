@@ -48,6 +48,10 @@ MASK_POINT = 0.10
 MASK_SIDE = 95.0
 BAND = 0.022
 GAP_BAND = 0.003         # the band that ties it, closer (it's pulled tight)
+DIP = 0.018              # the band dips this much toward the knot at the back of his head
+KNOT = (0.020, 0.015, 0.011)   # the knot's half-sizes: across, up, out (metres)
+TAILS = ((0.075, 16.0), (0.062, -20.0))   # its two ends: length, and degrees off straight down (+: his left)
+TAIL_W = (0.026, 0.012)  # an end's width at the knot and at its tip
 # The neck one: its top this far below his chin's front, the roll this tall, its point this far
 # below the roll.
 NECK_TOP = 0.030
@@ -146,6 +150,63 @@ def sheet(shell, top, bottom, gap, cols=COLS, rows=ROWS, band=None):
     return V.reshape(-1, 3), UV.reshape(-1, 2), np.array(T)
 
 
+def knot_and_tails(shell, axis, y, V, UV, T):
+    """The mask's knot at the back of his head, where the band meets, and its two ends hanging
+    from it: added to the sheet (V, UV, T). His back is +Z from the axis."""
+    back = np.array([0.0, 0.0, 1.0])
+    r0 = float(shell.r(180, y)) + GAP_BAND
+    c = np.array([axis[0], y, axis[1] + r0 + KNOT[2] * 0.6])
+    # The knot: a squashed ball of cloth, its UVs a corner of the cloth.
+    nu, nv = 10, 7
+    kv, kuv = [], []
+    for i in range(nv + 1):
+        th = math.pi * i / nv
+        for j in range(nu):
+            ph = 2 * math.pi * j / nu
+            d = np.array([math.sin(th) * math.cos(ph), math.cos(th), math.sin(th) * math.sin(ph)])
+            kv.append(c + d * KNOT)
+            kuv.append((0.02 + 0.06 * j / nu, 0.4 + 0.2 * i / nv))
+    kt = []
+    for i in range(nv):
+        for j in range(nu):
+            a, b = i * nu + j, i * nu + (j + 1) % nu
+            cc, dd = a + nu, b + nu
+            kt += [[a, b, dd], [a, dd, cc]]
+    kv, kt = np.array(kv), np.array(kt)
+    fn = np.cross(kv[kt[:, 1]] - kv[kt[:, 0]], kv[kt[:, 2]] - kv[kt[:, 0]])
+    flip = np.einsum("ij,ij->i", fn, kv[kt].mean(1) - c) < 0
+    kt[flip] = kt[flip][:, ::-1]
+    parts = [(np.array(kv), np.array(kuv), kt)]
+    # The ends: strips from under the knot, falling down and a little out, lying on his hair.
+    rows = 7
+    for length, ang in TAILS:
+        t = math.radians(ang)
+        down = np.array([math.sin(t), -math.cos(t), 0.0])
+        side = np.array([math.cos(t), math.sin(t), 0.0])
+        tv, tuv = [], []
+        for k in range(rows):
+            s = k / (rows - 1)
+            p = c + down * (KNOT[1] * 0.5 + length * s)
+            rr = float(shell.r(180, p[1])) + GAP_BAND + 0.004 + 0.006 * s
+            p[2] = max(p[2] - KNOT[2] * 0.4, axis[1] + rr)
+            w = TAIL_W[0] + (TAIL_W[1] - TAIL_W[0]) * s
+            for e in (-0.5, 0.5):
+                tv.append(p + side * w * e)
+                tuv.append((0.1 + 0.05 * (e + 0.5), 0.1 + 0.8 * s))
+        tt = []
+        for k in range(rows - 1):
+            a = 2 * k
+            tt += [[a, a + 1, a + 3], [a, a + 3, a + 2]]
+        tv, tt = np.array(tv), np.array(tt)
+        tt = facing_out(tv, tt, axis)
+        parts.append((tv, np.array(tuv), tt))
+    for pv, puv, pt in parts:
+        T = np.r_[T, pt + len(V)]
+        V = np.r_[V, pv]
+        UV = np.r_[UV, puv]
+    return V, UV, T
+
+
 def normals(V, T):
     N = np.zeros_like(V)
     fn = np.cross(V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]])
@@ -219,14 +280,18 @@ def build(man, landmarks, colour, neck=True):
     pieces = {}
     # The mask: the band all round at its top edge; in front, down over his face to a point.
     m_top = eye_y - MASK_TOP
-    mask_top = lambda a: m_top
+    def mask_top(a):
+        # level across his face, dipping round the back to the knot
+        k = float(np.clip((abs(a) - 90) / 90, 0, 1))
+        return m_top - DIP * k * k * (3 - 2 * k)
     def mask_bottom(a):
         f = tri(a, 0, MASK_SIDE)
         face = chin[1] - MASK_POINT * max(0.0, 1 - abs(a) / MASK_SIDE) ** 1.5
-        return m_top - BAND + (face - (m_top - BAND)) * min(1.0, f * 1.6)
+        return mask_top(a) - BAND + (face - (mask_top(a) - BAND)) * min(1.0, f * 1.6)
     V, UV, T = sheet(shell, mask_top, mask_bottom, GAP_MASK,
                      band=(lambda a: float(np.clip((abs(a) - 60) / 35, 0, 1)), GAP_BAND))
     T = facing_out(V, T, axis)
+    V, UV, T = knot_and_tails(shell, axis, mask_top(180) - BAND / 2, V, UV, T)
     hj = names.index("head")
     pieces["cloth_bandana_mask"] = (V, UV, T, np.tile([hj, 0, 0, 0], (len(V), 1)), np.tile([1.0, 0, 0, 0], (len(V), 1)))
     rep["mask"] = {"top_y": round(m_top, 3), "point_y": round(float(mask_bottom(0)), 3), "triangles": len(T)}
