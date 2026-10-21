@@ -197,6 +197,60 @@ def grade(im, g):
     return Image.fromarray(reduce.lab_to_rgb(a))
 
 
+def board_grade(pieces, names, g):
+    """Round 3's grading of a wood's boards when they're cut (no call; Sean 2026-10-21, after round
+    2's critic: plank-to-plank colour jumps read as candy stripes and patchwork, the bleached highs
+    as overexposed, saloon red's swirling grain as loud). `g` (the wood's `grade`) may hold:
+    "unify" each board's mean a*b* pulled this share of the way to the wood's median board (one
+    palette), "unify_L" the same for its lightness; "highs" [percentile, keep]: lightness above the
+    wood's percentile compressed to `keep` of its height over it; "calm" [texels, share]: detail
+    finer than that many texels (the grain's lines and swirls) cut by that share; "rows" each
+    texel row's mean (a band along the grain) pulled that share toward the board's; "seams" N: the
+    painting's dark seam line, where it wavers into a board's outer N rows (cut along its darkest
+    row, not every texel of it), filled from the row inside (the blind critics' black dashes along
+    the walls' seams: a board's edge row drawn in crisp dark segments). The bare strip
+    (under the paint) is left as it is."""
+    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams")
+    if not g or not any(k in g for k in keys):
+        return pieces
+    import reduce  # noqa: E402 (its Lab conversions)
+    from scipy.ndimage import gaussian_filter
+    labs = [reduce.to_lab(np.asarray(p.convert("RGB"))) for p in pieces]
+    boards = [i for i, n in enumerate(names) if not n.endswith("_bare.png")]
+    means = np.array([labs[i].reshape(-1, 3).mean(axis=0) for i in boards])
+    target = np.median(means, axis=0)
+    allL = np.concatenate([labs[i][..., 0].ravel() for i in boards])
+    knee = np.percentile(allL, float(g["highs"][0])) if "highs" in g else None
+    out = list(pieces)
+    for j, i in enumerate(boards):
+        a = labs[i]
+        if "seams" in g:
+            n = int(g["seams"])
+            for rows, inner in ((range(n), n), (range(a.shape[0] - n, a.shape[0]), a.shape[0] - n - 1)):
+                ref = a[inner]
+                for r in rows:
+                    dark = a[r, :, 0] < ref[:, 0] - 12.0
+                    a[r, dark] = ref[dark]
+        if "calm" in g:
+            px, share = float(g["calm"][0]), float(g["calm"][1])
+            # Along the grain (x) blurred further than across, so a board's long tone bands stay.
+            low = np.stack([gaussian_filter(a[..., c], (px, px * 2.0), mode=("reflect", "wrap")) for c in range(3)], axis=-1)
+            a = low + (a - low) * (1.0 - share)
+        if "rows" in g:
+            # Bands along the grain inside a board (a cream streak down a red board): each row's
+            # mean pulled this share toward the board's.
+            rows = gaussian_filter(a.mean(axis=1), (1.0, 0.0), mode="nearest")
+            a = a + (np.median(rows, axis=0) - rows)[:, None, :] * float(g["rows"])
+        shift = target - means[j]
+        a[..., 0] += shift[0] * float(g.get("unify_L", 0.0))
+        a[..., 1:] += shift[1:] * float(g.get("unify", 0.0))
+        if knee is not None:
+            over = a[..., 0] > knee
+            a[..., 0] = np.where(over, knee + (a[..., 0] - knee) * float(g["highs"][1]), a[..., 0])
+        out[i] = Image.fromarray(reduce.lab_to_rgb(np.clip(a, [0, -128, -128], [100, 127, 127])))
+    return out
+
+
 def weather(piece, wood, k, w):
     """Weathering laid on a clean painted board when it's cut (a set's `weather`; no call), broad and
     soft like the men's paint, never speckle: grime in soft dark patches, dirt settled along the
@@ -255,10 +309,13 @@ def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
     # boards' edges: edge_shade, edge_lip).
     trim = max(int(painted.height / len(names) * 0.06), 1)
     out = []
+    pieces = []
     for i, (n, (sw, sh)) in enumerate(zip(names, sizes)):
         top = cuts[i] + (trim if i > 0 else 0)
         bottom = cuts[i + 1] - (trim if i < len(names) - 1 else 0)
-        piece = painted.crop((0, top, painted.width, bottom)).resize((sw, sh), Image.LANCZOS)
+        pieces.append(painted.crop((0, top, painted.width, bottom)).resize((sw, sh), Image.LANCZOS))
+    pieces = board_grade(pieces, names, g)
+    for i, (n, piece) in enumerate(zip(names, pieces)):
         if info.get("weather"):
             # Before the ends are crossfaded, so the board still repeats seamlessly.
             piece = weather(piece, wood, i, info["weather"])
@@ -318,6 +375,54 @@ def bands(wood, cfg, out_dir, tpm):
             "end": "%s_end.png" % wood, "end_texels": 256}
 
 
+def stains(name, cfg, cut_only, repaint, key):
+    """A set's weathering layer (round 3; its `weathering`, texel_grid's `weathered`): the stain
+    sheet made into assets/textures/weather/stains_<name>.png from the set's painting
+    (`weathering.painting`, raw/<it>, "%s" filled by each of `takes`, the sheet from `pick`; each
+    take that's missing painted first, one call each inside the set's budget, unless this is a
+    --cut) or, with none, the free procedural stand-in (`seed`). Returns the block for the set's
+    lab.json (the sheet's res:// path, the palette, amounts, reaches), {} if none."""
+    w = dict(cfg.get("weathering", {}))
+    if not w:
+        return {}
+    w.pop("channels_note", None)
+    import stain_sheet
+    out = os.path.join(pt.ROOT, "assets", "textures", "weather", "stains_%s.png" % name)
+    pattern = w.pop("painting", "")
+    takes = w.pop("takes", [""])
+    pick = w.pop("pick", takes[0])
+    seed = int(w.pop("seed", 7))
+    painting = os.path.join(pt.RAW, pattern % pick if "%s" in pattern else pattern) if pattern else ""
+    for take in (takes if pattern and not cut_only and key else []):
+        path = os.path.join(pt.RAW, pattern % take if "%s" in pattern else pattern)
+        if os.path.exists(path) and not repaint:
+            continue
+        if "budget" in cfg and pt.SPENT + NEXT_CALL > float(cfg["budget"]):
+            print("budget: $%.2f spent of $%.2f; stains %s not painted" % (pt.SPENT, float(cfg["budget"]), take))
+            continue
+        try:
+            stain_sheet.paint(path, key)
+        except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
+            print("stains %s failed:" % take, e)
+    if painting and os.path.exists(painting):
+        masks = stain_sheet.from_painting(painting, channels=w.pop("channels", "rgba"), seed=seed)
+        print("stains: from %s" % os.path.basename(painting))
+    else:
+        masks = stain_sheet.procedural(seed)
+        print("stains: the procedural stand-in (seed %d)" % seed)
+    stain_sheet.save(masks, out)
+    os.makedirs(os.path.join(pt.ROOT, "build"), exist_ok=True)
+    stain_sheet.preview(masks, os.path.join(pt.ROOT, "build", "stains_%s_masks.jpg" % name))
+    imp = out + ".import"
+    if not os.path.exists(imp):
+        with open(imp, "w") as fh:
+            # Masks, not colour: lossless, mipmapped (soft shapes, no blocks).
+            fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=0\n'
+                     'mipmaps/generate=true\nprocess/fix_alpha_border=false\n')
+    w["sheet"] = "res://assets/textures/weather/stains_%s.png" % name
+    return w
+
+
 def candidate(name, only, cut_only, repaint, key, spec):
     """A material lab candidate set: painted from the game's strips, cut into mlab_<name>/."""
     sets = json.load(open(SETS))["sets"]
@@ -330,6 +435,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
     os.makedirs(out_dir, exist_ok=True)
     # `raw`: cut another set's kept paintings instead (e.g. the game's own, "woods_%s.jpg": no calls).
     raw = os.path.join(pt.RAW, cfg.get("raw", "woods_" + name + "_%s.jpg"))
+    weathering = stains(name, cfg, cut_only, repaint, key)
     if "raw" in cfg:
         cut_only = True
     tpm = float(cfg.get("texels_per_metre", 128))
@@ -337,6 +443,8 @@ def candidate(name, only, cut_only, repaint, key, spec):
     index = json.load(open(index_path)) if os.path.exists(index_path) else {"woods": {}}
     index["set"] = name
     index["note"] = cfg.get("note", "")
+    if weathering:
+        index["weathering"] = weathering
     failed = []
     if "inherit" in cfg:
         # The woods this set doesn't paint, as the set it builds on has them.
@@ -385,7 +493,9 @@ def candidate(name, only, cut_only, repaint, key, spec):
         if not os.path.exists(raw % wood):
             continue
         scale = tpm / float(info.get("texels_per_metre", 128))
-        cut(wood, info, raw, out_dir, scale, cfg.get("grade", {}).get(wood))
+        g = dict(cfg.get("grade_all", {}))
+        g.update(cfg.get("grade", {}).get(wood, {}))
+        cut(wood, info, raw, out_dir, scale, g)
         # End grain as the game's (its own density): copied.
         end = os.path.join(WOODS, "%s_end.png" % info.get("from", wood))
         if os.path.exists(end):
