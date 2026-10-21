@@ -233,6 +233,30 @@ grafted MakeHuman face (CC0), 12-15 blend shapes, Live Link Face takes played on
   first take; `sean_s2` is rigged and tested on a stand-in take.
 - Lane: characters.
 
+## Gun lab (Sean, 2026-10-21)
+
+Everything about a gun except where its ball goes: how it looks in the player's hands and in a
+man's, and every movement of handling it: draw, cock, aim, fire, reload, holster, drop. It takes
+in the "weapon handling and feel" measures (above), so the guns have one lab.
+
+**What exists:** `RevolverModel` (a Colt Single Action Army built from parts in code: hammer,
+trigger, cylinder, loading gate and ejector rod moving, brass showing in loaded chambers),
+`ShotgunModel`, `HandModel` (the player's right hand, finger by finger, gripping the revolver),
+the viewmodels and `GunKick` (`src/weapons/`), `tests/test_gun_feel.gd` and the feel ranges, and
+`tools/gun_views.gd` (renders the shotgun alone). A man's gun is a `RevolverModel` placed at his
+right hand at a fixed offset (`HumanBody`), holstered on his right hip; the Studio's men have no
+finger bones yet, so their hands can't close round it.
+
+| Part | What it covers | Judged by |
+| --- | --- | --- |
+| **The look** | The revolver and coach gun in the painted style, matched to the men (the material lab's hand): blued steel, case-hardened frame, worn walnut, brass; up close in first person and at a man's hip across the room | Sheets beside the men; the blind critic; a gun that reads as its model at 10 m |
+| **In the player's hands** | Both hands on the guns (the coach gun is two-handed), the grip, the thumb on the hammer, the hands matching the player's visible body; how the view frames the gun at rest, aiming and moving | First-person sheets at rest, aiming, walking, running; nothing clipping the view |
+| **The handling, step by step** | Draw and holster; cocking the hammer; the revolver's reload as it was (half-cock, open the gate, turn the cylinder, punch each spent case out with the ejector rod, load one round at a time, close the gate); the coach gun broken open, shells out, two in, snapped shut; reloading while hurt or rushed | Every step readable; draw to first shot, reload time and accuracy against the feel ranges (`test_gun_feel.gd`) |
+| **In a man's hands** | His grip (once the men have finger bones; until then the hand placed round the grip), the gun moving with his aim and his recoil, his own draw, cock and reload played the same way, holstered, dropped, shot out of his hand, picked up | Sheets of each Studio man drawing, aiming, firing and reloading; no gun floating off his hand |
+
+Lane: gameplay (`src/weapons/`), art judging the look and painting the materials. Promoted guns,
+hands and moves go in `docs/PARTS.md`.
+
 ## Other labs
 
 Two already exist; three more come later, each when its phase needs it.

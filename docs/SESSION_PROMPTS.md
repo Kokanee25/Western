@@ -319,10 +319,14 @@ Gameplay lane, branch claude/gameplay-water-lab. The water lab (docs/briefs/labs
 Gameplay lane, branch claude/gameplay-gunfight-decisions. Extend the gunfight lab (experiments/gunfight_lab/) with the combat decisions and morale measures in docs/briefs/labs.md: log why each gunman made each choice (courage, aggression, skill, loyalty), and measure tactical variety, surrender and flight rates, the same man deciding the same way in the same spot, and how they adapt when cover is shot away. Baseline first; then the gunfight lab's fixes are judged on these numbers too.
 ```
 
-## Weapon handling and feel (inside 3.2) [Salt Creek]
+## Gun lab (now, with 3.2) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-weapon-handling. Inside roadmap 3.2: measure the guns without the AI (docs/briefs/labs.md, weapon handling and feel), on tests/test_gun_feel.gd and config/feel_ranges.json: draw to first shot, cocking, reload time one round at a time, practical accuracy, sight recovery after recoil, input response, and all of it wounded and rushed. Report against the feel ranges, mark anything that feels awkward rather than hard, and give me builds to try with exactly what to look for.
+Gameplay lane (art judges the look), branch claude/gameplay-gun-lab. The gun lab (docs/briefs/labs.md, "Gun lab"). Read it, the src/weapons section of docs/LAYOUT.md, the Guns section of docs/PARTS.md, tests/test_gun_feel.gd and config/feel_ranges.json.
+
+Bench and baseline first in experiments/gun_lab/ (README, its own bridge.gd, outputs in build/): sheets of the revolver and coach gun in first person (at rest, aiming, walking, running, every reload step) and in each Studio man's hands (drawing, aiming, firing, reloading, holstered, dropped), at 1, 5 and 10 m; the handling numbers (draw to first shot, cocking, reload time one round at a time, sight recovery, accuracy rushed and wounded) against the feel ranges. List everything that looks wrong or floats.
+
+Then, one at a time and measured: the look in the painted style matched to the men (materials through the texture factory, costs first); both hands on the coach gun and hands matching the player's body; the revolver's period reload step by step (half-cock, gate, ejector rod per spent case, one round at a time) and the coach gun's; a man's grip, aim, recoil, draw and reload played the same way; holster, drop, shot out of the hand, picked up. The men's hands need finger bones (characters lane): ask, and place the hand round the grip until then. Give me builds to try with exactly what to look for. Promote what's done into docs/PARTS.md.
 ```
 
 ## Law, witnesses and consequences lab (Phase 5) [Salt Creek]
