@@ -89,11 +89,21 @@ SHEETS = {
              "off-white linen bandage, a loose weave; the same bandage soaked through with dark blood "
              "in the middle; faded red cotton kerchief cloth; cloth burnt black and brown, charred and "
              "holed. " + factory.MAN_HAND + " No text, no border.",
+    # Run 108 painted the sewn stump at a slant; here it's asked as a coin, flat on.
+    "aftercare2": "Four separate studies for a gritty frontier Western game: the end of an amputated "
+                  "arm seen exactly end-on like a coin, filling a circle, a round flap of skin closed "
+                  "over it with a line of dark surgical stitches straight across the middle, bruised, a "
+                  "little dried blood, none of the arm's length showing; a small scorched hole burnt "
+                  "through a shirt by a gun fired close, a ring of black soot and singed threads round "
+                  "it; a long thin pale healed knife scar on weathered skin; a wound gone to gangrene, "
+                  "black and green dead flesh, wet, the skin round it dusky purple. Each seen straight "
+                  "on, flat. " + WHITE,
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
 GEMINI = "google/gemini-3-pro-image-preview"
-MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI}
+MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI,
+          "aftercare2": GEMINI}
 
 
 def main():

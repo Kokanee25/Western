@@ -118,7 +118,7 @@
     },
     "aftercare": {
       "keys": [
-        "stump_sewn",
+        "",
         "scar",
         "infected",
         "ear_run"
@@ -153,6 +153,29 @@
       ],
       "size": 128,
       "key": "none"
+    },
+    "aftercare2": {
+      "keys": [
+        "stump_sewn",
+        "scorched",
+        "scar_line",
+        "gangrene"
+      ],
+      "size": 128,
+      "per": {
+        "scar_line": {
+          "key": "skin",
+          "lo": 28,
+          "hi": 60,
+          "fade": 0.8
+        },
+        "gangrene": {
+          "key": "skin",
+          "lo": 30,
+          "hi": 70,
+          "fade": 0.8
+        }
+      }
     }
   },
   "mirror": {

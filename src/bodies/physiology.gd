@@ -1,5 +1,9 @@
 class_name Physiology
 extends RefCounted
+
+## A wound dressed (`how`: &"pressure" packed and bound, &"tourniquet" a belt above it) on
+## `segment`, for the body to draw the bandage.
+signal treated(how: StringName, segment: StringName)
 ## One person's body state, not hit points: blood, bleeds, broken bones, torn organs, lost fingers,
 ## breathing, pain, shock and adrenaline. Wounds come in from `Anatomy.trace()` results; `step()`
 ## runs it forward on a fixed timestep (real seconds at normal game speed). Pure rules, no nodes,
@@ -184,6 +188,9 @@ func _add_bleed(source: StringName, segment: StringName, rate: float, kind := &"
 func step(dt: float) -> void:
 	if not alive:
 		return
+	_fester(dt)
+	if not alive:
+		return
 	nose_bleed = maxf(nose_bleed - dt, 0.0)
 	for side: StringName in blood_in_eye.keys():
 		blood_in_eye[side] = float(blood_in_eye[side]) - dt
@@ -287,6 +294,7 @@ func apply_tourniquet(segment: StringName) -> int:
 		if below.has(b.segment) and (b.get("kind", &"ooze") != &"internal" or b.has("limit")):
 			b.tourniquet = true
 			n += 1
+	treated.emit(&"tourniquet", segment)
 	return n
 
 
@@ -295,6 +303,64 @@ func apply_pressure(segment: StringName, on := true) -> void:
 	for b in bleeds:
 		if b.segment == segment and b.get("kind", &"ooze") != &"internal":
 			b.pressure = on
+	if on:
+		treated.emit(&"pressure", segment)
+
+
+# --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
+## A wound with cloth carried in festers on its own; a clean one only sometimes, later. It shows
+## (red, swollen, pus) from about the third day, fever with it; a limb's goes to gangrene, and
+## gangrene kills in a few days more unless the limb comes off. The doctor cleaning it (the cloth
+## out, the wound washed) stops it starting. Game hours (tuning.game_hour_seconds).
+const FESTER_DIRTY_HOURS := 60.0
+const FESTER_CLEAN_HOURS := 96.0
+const FESTER_RAMP_HOURS := 48.0
+const GANGRENE_DEATH_HOURS := 96.0
+var infections := {}  ## segment -> {"hours": since the wound, "dirty": cloth in it}
+var gangrene_hours := 0.0
+
+
+func contaminate(segment: StringName, dirty: bool) -> void:
+	var inf: Dictionary = infections.get_or_add(segment, {"hours": 0.0, "dirty": false})
+	inf.dirty = inf.dirty or dirty
+
+
+func clean(segment: StringName) -> void:
+	infections.erase(segment)
+
+
+## How far a segment's wound has gone bad, 0..1.
+func infection(segment: StringName) -> float:
+	var inf: Dictionary = infections.get(segment, {})
+	if inf.is_empty():
+		return 0.0
+	var onset := FESTER_DIRTY_HOURS if inf.dirty else FESTER_CLEAN_HOURS
+	return clampf((float(inf.hours) - onset) / FESTER_RAMP_HOURS, 0.0, 1.0)
+
+
+## Fever, 0..1: the worst wound's.
+func fever() -> float:
+	var f := 0.0
+	for seg: StringName in infections:
+		if not severed_segments.has(seg):
+			f = maxf(f, infection(seg))
+	return f
+
+
+func _fester(dt: float) -> void:
+	if infections.is_empty():
+		return
+	var hours := dt / maxf(tuning.game_hour_seconds, 1e-3)
+	var gone_bad := false
+	for seg: StringName in infections:
+		infections[seg].hours = float(infections[seg].hours) + hours
+		var s := String(seg)
+		if infection(seg) >= 1.0 and not severed_segments.has(seg) and not (s in ["chest", "abdomen", "pelvis", "head", "neck"]):
+			gone_bad = true
+	if gone_bad:
+		gangrene_hours += hours
+		if gangrene_hours >= GANGRENE_DEATH_HOURS:
+			_die(&"gangrene")
 
 
 ## A blunt blow of `joules` on a segment (falling timber, a fall, a kick): bruising always, and
@@ -462,7 +528,7 @@ func arm_steadiness(side: String) -> float:
 	for f in ["thumb_", "index_", "middle_", "ring_", "little_"]:
 		if lost_fingers.has(StringName(f + side)):
 			fingers -= 0.25 if f == "index_" else 0.1
-	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5 * maxf(fingers, 0.2)
+	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5 * maxf(fingers, 0.2) * (1.0 - fever() * 0.4)
 
 
 func can_speak() -> bool:
@@ -475,7 +541,7 @@ func shock() -> float:
 
 
 func felt_pain() -> float:
-	return pain * (1.0 - adrenaline * tuning.adrenaline_masks)
+	return pain * (1.0 - adrenaline * tuning.adrenaline_masks) + fever() * 0.3
 
 
 func breath_capacity() -> float:
@@ -513,7 +579,7 @@ func leg_ok(side: String) -> bool:
 
 func can_stand() -> bool:
 	return is_conscious() and not legs_paralysed() and not broken.has(&"pelvis_bone") \
-			and leg_ok("r") and leg_ok("l") and shock() < 0.85
+			and leg_ok("r") and leg_ok("l") and shock() < 0.85 and fever() < 0.9
 
 
 func can_run() -> bool:
@@ -587,6 +653,8 @@ func describe() -> String:
 		parts.append("an eye gone")
 	if gut_seconds >= 0.0:
 		parts.append("gut-shot")
+	if fever() > 0.2:
+		parts.append("a wound gone bad, feverish" if gangrene_hours <= 0.0 else "gangrene setting in, burning with fever")
 	if burns > 0.5:
 		parts.append("badly burnt" if burns > 2.0 else "burnt")
 	if not broken.is_empty():
@@ -608,7 +676,8 @@ func to_dict() -> Dictionary:
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
-			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate()}
+			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
+			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -627,6 +696,10 @@ func from_dict(d: Dictionary) -> void:
 	severed_segments = _set_of(d.severed)
 	eardrums_burst = _set_of(d.get("eardrums", []))
 	nose_bleed = d.get("nose_bleed", 0.0)
+	infections = {}
+	for k in d.get("infections", {}):
+		infections[StringName(k)] = (d.infections[k] as Dictionary).duplicate()
+	gangrene_hours = d.get("gangrene_hours", 0.0)
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]

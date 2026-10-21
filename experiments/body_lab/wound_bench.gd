@@ -266,6 +266,8 @@ static func treat(p: Physiology, what: String) -> bool:
 			p.lung_damage.clear()
 			p.airway_blood = false
 			p.gut_seconds = -1.0
+			# The cloth fished out and the wounds washed: they don't go bad (the gore lab).
+			p.infections.clear()
 	return did
 
 

@@ -158,3 +158,68 @@ func test_blood_dries_brown_over_hours() -> void:
 	check(hour.r < fresh.r and hour.r > two_days.r, "darker with every hour (%.2f, %.2f, %.2f)" % [fresh.r, hour.r, two_days.r])
 	check(two_days.r < fresh.r * 0.65, "dark after two days")
 	check(two_days.g / two_days.r < fresh.g / fresh.r * 0.85 or two_days.b / two_days.r > 0.0, "browned (%s)" % two_days)
+
+
+func _shot(seg: StringName, at_rest: Vector3) -> Dictionary:
+	var part := man.parts[seg] as Node3D
+	var at := part.global_transform * (at_rest - man.anatomy.segment_center(seg))
+	return man.take_bullet(part, at + Vector3(0, 0, -0.3), Vector3.BACK, 300.0, 0.0057)
+
+
+## Bound up: a bandage at the wound (red through while it bleeds), a belt for a tourniquet, a
+## broken arm in a sling, a broken leg splinted.
+func test_dressings_show() -> void:
+	_shot(&"thigh_r", Vector3(0.0975, 0.7, 0.0))
+	man.physiology.apply_pressure(&"thigh_r")
+	man.physiology.apply_tourniquet(&"thigh_r")
+	var vis := man.visuals[&"thigh_r"] as Node3D
+	check_eq(vis.find_children("Bandage", "MeshInstance3D", false, false).size(), 1, "a bandage")
+	check_eq(vis.find_children("Tourniquet", "MeshInstance3D", false, false).size(), 1, "and a belt above")
+	if man.physiology.broken.has(&"femur_r"):
+		check_eq(vis.find_children("Splint", "MeshInstance3D", false, false).size(), 2, "a broken thigh splinted")
+	man.physiology.broken[&"humerus_l"] = true
+	man.physiology.apply_pressure(&"upper_arm_l")
+	check(man.slung.has("l"), "a broken arm in a sling")
+
+
+## A wound with his shirt in it festers over the next days; untouched, a leg goes to gangrene and
+## kills him; the leg off in time, he lives.
+func test_a_dirty_wound_festers_and_the_saw_saves_him() -> void:
+	var p := man.physiology
+	var hour: float = p.tuning.game_hour_seconds
+	p.contaminate(&"shin_l", true)
+	for i in 72:
+		p.step(hour)
+	check(p.infection(&"shin_l") > 0.0 and p.fever() > 0.0, "gone bad by the third day (fever %.2f)" % p.fever())
+	check(p.describe().contains("gone bad") or p.describe().contains("gangrene"), "said: %s" % p.describe())
+	var p2 := Physiology.new()
+	p2.contaminate(&"shin_l", true)
+	for i in 24 * 12:
+		p2.step(hour)
+	check(not p2.alive and p2.cause_of_death == &"gangrene", "untouched, gangrene kills him (%s)" % p2.cause_of_death)
+	for i in 50:
+		p.step(hour)
+	man.amputate(&"shin_l")
+	check(p.infections.is_empty() and p.fever() == 0.0, "the leg off, the fever goes")
+	check((man.visuals[&"thigh_l"] as Node3D).find_children("StumpFace", "MeshInstance3D", false, false).size() == 1, "a sewn stump")
+	for i in 24 * 8:
+		p.step(hour)
+	check(p.alive, "and he lives")
+
+
+## Days on, a clean wound closes to a scar that stays.
+func test_a_wound_heals_to_a_scar() -> void:
+	var res := _shot(&"upper_arm_r", Vector3(0.2025, 1.235, -0.0175))
+	var w: Dictionary = res.wound
+	man.physiology.infections.clear()
+	man._heal(HumanBody.HEAL_GAME_DAYS * 24.0 * man.physiology.tuning.game_hour_seconds + 1.0)
+	check(w.get("healed", false), "healed")
+	check((man.visuals[w.segment] as Node3D).find_children("Scar", "Decal", false, false).size() >= 1, "a scar where it was")
+
+
+func test_flies_come_to_the_dead() -> void:
+	man.physiology._die(&"blood_loss")
+	man.go_limp()
+	man.signs._dead_for = WoundSigns.FLIES_AFTER_HOURS * man.physiology.tuning.game_hour_seconds
+	await physics_frames(3)
+	check(man.signs._flies != null, "flies over him")

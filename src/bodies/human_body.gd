@@ -207,6 +207,9 @@ var signs: WoundSigns
 var _velocity_now := Vector3.ZERO
 var _chest_was := Vector3.INF
 var _rids: Array[RID] = []
+var _face_mats: Array[ShaderMaterial] = []
+var _pallor_in := 0.0
+var _bands: Array[Dictionary] = []  ## the dressings on him: {mi, segment}
 var _was_alive := true
 ## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
 ## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
@@ -269,6 +272,7 @@ func _ready() -> void:
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
+	physiology.treated.connect(_bind_wound)
 	_dress()
 	_build()
 	if has_gun:
@@ -752,6 +756,7 @@ func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMate
 
 ## Glossy eyeballs on the head piece (the shader's rest positions are head-centred).
 func _wet_eyes(m: ShaderMaterial) -> void:
+	_face_mats.append(m)
 	var centre := anatomy.segment_center(&"head")
 	var r := anatomy.structure(&"eye_r")
 	var l := anatomy.structure(&"eye_l")
@@ -1092,6 +1097,7 @@ func _physics_step(delta: float) -> void:
 		signs.body = self
 		add_child(signs)
 	signs.step(delta * scale_now)
+	_after_step(delta, delta * scale_now)
 	var chest_now := (parts[&"chest"] as Node3D).global_position if parts.has(&"chest") else global_position
 	_velocity_now = (chest_now - _chest_was) / maxf(delta, 1e-4) if _chest_was != Vector3.INF else Vector3.ZERO
 	_chest_was = chest_now
@@ -1416,7 +1422,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 			_flinch[sid] = f
 		var rot: Vector3 = now + f[0]
 		if sid == &"chest":
-			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
+			var gasp := 2.5 if physiology.shock() > AGONAL_SHOCK else 1.0
+			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + physiology.shock() * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
 		pv.rotation_degrees = rot
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
@@ -1583,6 +1590,8 @@ func breath_rate() -> float:
 	var p := physiology
 	if not p.alive:
 		return 0.0
+	if p.shock() > AGONAL_SHOCK:
+		return 0.35  # the last of it: slow, deep gasps
 	return 1.0 + (1.0 - p.breath_capacity()) * 1.2 + p.shock() * 1.0
 
 
@@ -1633,6 +1642,9 @@ func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
 			want = Vector3.ZERO  # it hangs at his side
 	elif s.begins_with("shin_") and p.broken.has(StringName("patella_" + side)):
 		want = Vector3.ZERO  # the knee won't bend
+	if slung.has(side) and (s.begins_with("forearm_") or s.begins_with("upper_arm_")):
+		var k: Vector3 = SLING[StringName(s.trim_suffix("_" + side))]
+		want = Vector3(k.x, k.y, k.z if side == "r" else -k.z)
 	if GUT_HUNCH.has(sid) and (p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")):
 		want += GUT_HUNCH[sid]
 	if want == goal:
@@ -1641,6 +1653,176 @@ func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
 	var w: float = minf(float(_injury_w.get(sid, 0.0)) + delta / INJURY_ONSET, 1.0)
 	_injury_w[sid] = w
 	return goal.lerp(want, smoothstep(0.0, 1.0, w))
+
+
+## Near the end, in deep shock, his breathing turns to slow gasps (agonal breathing).
+const AGONAL_SHOCK := 0.92
+
+
+# --- After the wound: dressings, the limb off, healing (the gore lab, part E) -----------------
+
+## A wound bound up (Physiology.treated): a bandage round the limb or the body at the wound, red
+## through where it still bleeds; a belt above for a tourniquet; a broken arm in a sling across
+## him; a broken leg splinted with two sticks.
+func _bind_wound(how: StringName, seg: StringName) -> void:
+	var vis: Node3D = visuals.get(seg)
+	if vis == null or anatomy.segments[seg].capsules.is_empty():
+		return
+	var cap: Array = anatomy.segments[seg].capsules[0]
+	var center := anatomy.segment_center(seg)
+	var a: Vector3 = (cap[0] as Vector3) - center
+	var b: Vector3 = (cap[1] as Vector3) - center
+	var r := float(cap[2])
+	var at := (a + b) * 0.5
+	if how == &"pressure":
+		for w: Dictionary in wounds:
+			if w.segment == seg and w.entry != null:
+				var t := clampf(((w.entry as Vector3) - a).dot(b - a) / maxf((b - a).length_squared(), 1e-6), 0.0, 1.0)
+				at = a.lerp(b, t)
+	else:
+		at = a.lerp(b, 0.2)  # high up the limb, toward the body
+	var mi := MeshInstance3D.new()
+	mi.name = "Bandage" if how == &"pressure" else "Tourniquet"
+	var band := CylinderMesh.new()
+	band.top_radius = r * 1.12
+	band.bottom_radius = r * 1.12
+	band.height = 0.08 if how == &"pressure" else 0.035
+	band.radial_segments = 12
+	band.rings = 1
+	mi.mesh = band
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = PixelArt.blood("bandage" if how == &"pressure" else "sling", 83, false, 32)
+	m.roughness = 0.95
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.basis = _along(b - a)
+	mi.position = at
+	vis.add_child(mi)
+	_bands.append({"mi": mi, "segment": seg})
+	var s := String(seg)
+	var side := s.right(1)
+	if (s.begins_with("forearm") or s.begins_with("upper_arm")) and (physiology.broken.has(StringName("humerus_" + side)) \
+			or physiology.broken.has(StringName("radius_" + side)) or physiology.broken.has(StringName("ulna_" + side))):
+		slung[side] = true
+	if (s.begins_with("thigh") or s.begins_with("shin")) and (physiology.broken.has(StringName("femur_" + side)) \
+			or physiology.broken.has(StringName("tibia_" + side))):
+		for k in 2:
+			var stick := MeshInstance3D.new()
+			stick.name = "Splint"
+			var box := BoxMesh.new()
+			box.size = Vector3(0.025, (b - a).length() * 1.1, 0.012)
+			stick.mesh = box
+			var wood := StandardMaterial3D.new()
+			wood.albedo_color = Color(0.5, 0.38, 0.25)
+			stick.material_override = wood
+			stick.layers = Layers.VIS_BODY
+			var basis := _along(b - a)
+			stick.basis = basis
+			stick.position = (a + b) * 0.5 + basis.x * (r * 1.2) * (1.0 if k == 0 else -1.0)
+			vis.add_child(stick)
+
+
+## Which arms ("r"/"l") are in a sling: held across him, not hanging.
+var slung := {}
+const SLING := {&"upper_arm": Vector3(15, 0, 8), &"forearm": Vector3(95, 0, 0)}
+
+
+## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
+## bone with stitches (the Medical and Surgical History's flap operation), the vessels tied, the
+## limb gone with what festered in it.
+func amputate(segment: StringName) -> void:
+	if physiology.severed_segments.has(segment):
+		return
+	var parent: StringName = anatomy.segments[segment].parent
+	var joint := get_node_or_null(NodePath("Joint_%s" % segment)) as Node3D
+	# (Standing, he has no joint bodies: the joint's rest place in his parent part.)
+	var at: Vector3 = joint.global_position if joint else \
+			(parts[parent] as Node3D).global_transform * (_pivot_rest(segment) - anatomy.segment_center(parent))
+	var limb := parts[segment] as Node3D
+	var down := limb.global_position - at
+	var first := physiology.bleeds.size()
+	physiology.sever(segment)
+	# Tied off: the stump oozes, no more.
+	for i in range(first, physiology.bleeds.size()):
+		physiology.bleeds[i].rate = 0.05
+		physiology.bleeds[i].kind = &"ooze"
+	for sid in anatomy.segments_below(segment) + [segment]:
+		physiology.infections.erase(sid)
+	if physiology.fever() <= 0.0:
+		physiology.gangrene_hours = 0.0
+	_stop_skinning_across_joints(segment)
+	if joint:
+		joint.queue_free()
+	for sid in anatomy.segments_below(segment):
+		var rb := parts.get(sid) as Node3D
+		if rb:
+			rb.visible = false
+			if rb is CollisionObject3D:
+				(rb as CollisionObject3D).collision_layer = 0
+				(rb as CollisionObject3D).collision_mask = 0
+			for mi in segment_pieces.get(sid, []):
+				(mi as MeshInstance3D).visible = false
+	_stump_face(parent, at, down, float(anatomy.segments[segment].radius) * 1.2, &"stump_sewn")
+	wounds.append({"segment": parent, "part": segment, "entry": parts[parent].global_transform.affine_inverse() * at,
+			"exit": null, "lodged": false, "hits": [], "bleeds": range(first, physiology.bleeds.size()),
+			"garments": [], "stain": null, "kind": &"amputated", "dir": down.normalized()})
+	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
+		if held_gun and String(segment).ends_with("_r"):
+			drop_gun()
+
+
+## A wound heals over days when it hasn't gone bad: it stops bleeding and closes to a scar, which
+## he keeps (Wound.healed, in to_dict). What it did to him under the skin (a muscle torn, a bone
+## that set crooked) stays: he favours an old leg wound for good.
+const HEAL_GAME_DAYS := 12.0
+
+
+func _heal(game_dt: float) -> void:
+	var day := 24.0 * physiology.tuning.game_hour_seconds
+	for w: Dictionary in wounds:
+		if w.get("healed", false) or w.kind in [&"blast", &"severed", &"amputated"]:
+			continue
+		w.age = float(w.get("age", 0.0)) + game_dt
+		if float(w.age) < HEAL_GAME_DAYS * day or physiology.infection(w.segment) > 0.0:
+			continue
+		w.healed = true
+		for i: int in w.get("bleeds", []):
+			if i < physiology.bleeds.size():
+				physiology.bleeds[i].rate = 0.0
+		for d: Variant in w.get("marks", []):
+			if is_instance_valid(d):
+				(d as Node).queue_free()
+		var vis: Node3D = visuals.get(w.segment)
+		if vis == null:
+			continue
+		for hole: Variant in [w.entry, w.exit]:
+			if hole != null:
+				var scar := _decal(vis, w.segment, hole, 0.035, PixelArt.blood("scar", 87, false, 32))
+				scar.name = "Scar"
+
+
+func _after_step(real_dt: float, game_dt: float) -> void:
+	if not physiology.alive and _face_mats.is_empty():
+		return
+	_heal(game_dt)
+	_pallor_in -= real_dt
+	if _pallor_in <= 0.0:
+		_pallor_in = 0.5
+		# Grey and waxy in shock, and the more so dead (ATLS: pale, cool, clammy skin).
+		var p := physiology
+		var pallor := clampf(p.shock() * 0.8 + (0.0 if p.alive else 0.5), 0.0, 1.0)
+		for m in _face_mats:
+			m.set_shader_parameter(&"pallor", pallor)
+		# A bandage that's still bleeding through shows it.
+		for band: Dictionary in _bands:
+			var mi := band.mi as MeshInstance3D
+			if not is_instance_valid(mi) or mi.name != "Bandage":
+				continue
+			var wet := false
+			for b: Dictionary in p.bleeds:
+				if b.segment == band.segment and p.bleed_rate(b) > 0.15:
+					wet = true
+			(mi.material_override as StandardMaterial3D).albedo_texture = PixelArt.blood("bandage_soaked" if wet else "bandage", 83, false, 32)
 
 
 ## Blood in the windpipe or a holed lung: he coughs it up, now and then.
@@ -2045,6 +2227,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	# cloth was the commonest thing taken out of a wound); one that stays in him keeps it.
 	if not holed.is_empty() and not tr.graze and _chance(tr.entry, 7) < (CLOTH_IN_LODGED if wound.lodged else CLOTH_IN_THROUGH):
 		wound.cloth = holed[0]
+	# A wound with cloth in it festers; a clean one sometimes does (Physiology.contaminate).
+	if not tr.graze and (wound.has("cloth") or _chance(tr.entry, 17) < FESTER_CLEAN_CHANCE):
+		physiology.contaminate(seg, wound.has("cloth"))
 	# Fired within about a metre: burnt powder and soot round the hole (`powder`, how far off).
 	if travelled < POWDER_RANGE and mass >= PELLET_MASS and not tr.graze:
 		wound.powder = maxf(travelled, 0.001)
@@ -2423,6 +2608,17 @@ func _skin_normal(seg: StringName, local: Vector3) -> Vector3:
 
 func _paint_wound(w: Dictionary) -> void:
 	var vis: Node3D = visuals[w.segment]
+	var had := vis.get_child_count()
+	_paint_wound_marks(w, vis)
+	# What was laid on him for it, so it can go when it heals.
+	var marks := []
+	for i in range(had, vis.get_child_count()):
+		if vis.get_child(i) is Decal:
+			marks.append(vis.get_child(i))
+	w.marks = marks
+
+
+func _paint_wound_marks(w: Dictionary, vis: Node3D) -> void:
 	var seed := wounds.size() * 13 + rng_seed
 	if w.kind == &"graze" or w.kind == &"cut":
 		# A furrow or a slice: a bloody line along the way it went, no hole.
@@ -3400,6 +3596,7 @@ func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 ## gas tears the hole open in a star (DiMaio).
 const POWDER_RANGE := 0.9
 const CONTACT_RANGE := 0.05
+const FESTER_CLEAN_CHANCE := 0.3
 const CLOTH_IN_LODGED := 0.7
 const CLOTH_IN_THROUGH := 0.35
 
@@ -3715,7 +3912,8 @@ func to_dict() -> Dictionary:
 				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments,
 				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false),
 				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray()),
-				"cloth": w.get("cloth", &""), "flattened": w.get("flattened", false)})
+				"cloth": w.get("cloth", &""), "flattened": w.get("flattened", false),
+				"healed": w.get("healed", false), "age": w.get("age", 0.0)})
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)

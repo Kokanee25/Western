@@ -36,6 +36,9 @@ uniform float eye_gain = 1.0;
 // face_whites: the painted whites dimmed and narrowed to the eye's middle (1 = to the iris's
 // colour at the corners).
 uniform vec3 face_skin = vec3(1.0);
+// The gore lab (gameplay, at Sean's word): his face going grey and waxy in shock and in death
+// (HumanBody._after_step; ATLS: pale, cool, clammy). 0 = his own colour.
+uniform float pallor = 0.0;
 uniform float face_brows = 0.0;
 uniform float face_frown = 0.0;
 uniform float face_sockets = 0.0;
@@ -153,6 +156,8 @@ vec3 weathered_face(vec3 base, vec3 p) {
 	float lum = dot(base, vec3(0.2126, 0.7152, 0.0722));
 	vec3 flat_skin = base * clamp(mix(1.0, 0.11 / max(lum, 1e-3), 0.6), 0.5, 1.6);
 	base = mix(base, flat_skin * face_skin, skin);
+	float grey = dot(base, vec3(0.3, 0.55, 0.15));
+	base = mix(base, vec3(grey) * vec3(0.95, 0.97, 1.02) * 1.08, pallor * skin * 0.85);
 	float x = dot(d, across) / s;  // + toward his right eye
 	float y = d.y / s;
 	float shade = 1.0;

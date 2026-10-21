@@ -43,6 +43,13 @@ var _bloody := {}  ## "r"/"l" -> prints left in that hand
 var _print_gap := {}
 var _smear_from := {}  ## segment -> where the last smear was
 var _bubble_in := 0.0
+var _festered := {}
+var _dead_for := 0.0
+var _flies: GPUParticles3D
+
+## Flies find the dead within a couple of hours in the heat (forensic entomology: blowflies
+## arrive within minutes to hours).
+const FLIES_AFTER_HOURS := 2.0
 
 
 func step(dt: float) -> void:
@@ -54,8 +61,12 @@ func step(dt: float) -> void:
 		return
 	_ears(p)
 	_eyes(p)
+	_festering(p)
 	if not p.alive:
 		_smears(world, dt)
+		_dead_for += dt
+		if _flies == null and _dead_for > FLIES_AFTER_HOURS * p.tuning.game_hour_seconds:
+			_flies = _swarm(world)
 		return
 	_nose(p, world, dt)
 	_mouth(p, world, dt)
@@ -111,6 +122,49 @@ func _eyes(p: Physiology) -> void:
 		_scalp_done[side] = true
 		var at := EYE * Vector3(1.0 if side == &"r" else -1.0, 1.0, 1.0) + Vector3(0, 0.05, 0.02)
 		_run_down(at, 0.09, "ear_run")
+
+
+## A wound gone bad (Physiology.infection): red, swollen, pus round it.
+func _festering(p: Physiology) -> void:
+	for seg: StringName in p.infections:
+		if _festered.has(seg) or p.infection(seg) < 0.3 or p.severed_segments.has(seg):
+			continue
+		for w: Dictionary in body.wounds:
+			if w.segment == seg and w.entry != null and not w.get("healed", false):
+				_festered[seg] = true
+				body._decal(body.visuals[seg], seg, w.entry, 0.06, PixelArt.blood("infected", 77, false, 32)).name = "Festering"
+				break
+
+
+## A few flies over him: black specks wandering over the body.
+func _swarm(world: Node3D) -> GPUParticles3D:
+	var flies := GPUParticles3D.new()
+	flies.name = "Flies"
+	flies.amount = 10
+	flies.lifetime = 3.0
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	pm.emission_sphere_radius = 0.3
+	pm.gravity = Vector3.ZERO
+	pm.direction = Vector3.UP
+	pm.spread = 180.0
+	pm.initial_velocity_min = 0.2
+	pm.initial_velocity_max = 0.6
+	pm.turbulence_enabled = true
+	pm.turbulence_noise_strength = 4.0
+	pm.turbulence_noise_scale = 1.5
+	flies.process_material = pm
+	var speck := QuadMesh.new()
+	speck.size = Vector2(0.008, 0.008)
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.05, 0.05, 0.05)
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	speck.material = m
+	flies.draw_pass_1 = speck
+	world.add_child(flies)
+	flies.global_position = (body.parts[&"chest"] as Node3D).global_position + Vector3.UP * 0.25
+	return flies
 
 
 ## A nosebleed after a blow to the face: drops from his nose, a run down his lip.
