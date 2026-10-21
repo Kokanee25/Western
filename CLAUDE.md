@@ -370,5 +370,7 @@ frozen until Sean names one.
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`, branch
   `claude/gunfight-lab-arena-measures-ifll1r`, not merged): bench and baseline built, 780 fights;
-  median 5.1 s, 2% in 45–90 s. Next (Sean's OK): the first fix, the gang's aim from the gun's
-  state, measured against `baseline/`. Trap: wounds bleed on the day clock's time scale.
+  median 5.1 s, 2% in 45–90 s. Fix 1 on the same branch (`results/2026-10-21_gun_hand/`): the
+  gang aims by the player's sway (`GunHand`, `Sway`, `config/gun_hand.tres`) and reacts before
+  drawing; their first shot 0.85 → 2.1 s, fights 5.1 → 6.5 s. Next: Sean's pick of the next fix
+  (nerve, cover first, a fair standoff). Trap: wounds bleed on the day clock's time scale.

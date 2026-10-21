@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="GunHandTuning" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/bodies/gun_hand_tuning.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+sway_aim = 1.4
+sway_hip = 3.0
+breath = 0.3
+breath_rate = 0.25
+tremor = 0.08
+unsettled = 2.5
+settle_time = 1.0
+crouch_sway = 0.75
+move_sway = 1.2
+winded_seconds = 4.0
+hand_lag = 0.1
+turn_rate = 240.0
+turn_unsettle = 15.0
+fear_sway = 1.5
+pain_sway = 1.0
+shock_sway = 2.0
+rattled_sway = 0.8
+arm_tremor = 0.6
+wrong_eye = 1.5
+near_miss_jerk = 1.2
+hit_jerk = 4.0
+wrong_finger_jerk = 1.5
+squeeze_jerk = 1.0
+trigger_lag = 0.1
+patience_cool = 0.8
+patience_hot = 2.2
+hold_cool = 2.0
+hold_hot = 0.7
+target_half_width = 0.22
+head_half_width = 0.1
+react_cool = 0.6
+react_hot = 0.3
+react_timid = 0.45
+react_spread = 0.25

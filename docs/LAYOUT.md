@@ -426,7 +426,10 @@ a few views renders them as the full run does.
   on at his hips' speed, the stance leg turning about its planted foot (the gait's skate left
   out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
-  surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
+  surrenders; a moment to react to a fight he didn't start, then draws), `GunHand` (where his
+  barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
+  you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
+  his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
   `Layers` (physics/render layer bits),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
@@ -468,7 +471,8 @@ a few views renders them as the full run does.
 
 ## src/weapons
 
-- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
+- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
+  its wander is `Sway`, shared with the gang's `GunHand`),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,

@@ -111,7 +111,9 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
 - **Per man:** shots, hits on you, hits taken, **cover changes** (his tactic into MOVING), peeks,
   **flanks** (his `flank` callout: a flanker calls it as he goes), **suppressing shots** (fired
   while covering a friend or without seeing you), times **pinned** (heads down from a near miss),
-  reloads, every mood change, and how he ended.
+  reloads, every mood change, and how he ended; and since fix 1, each shot's error
+  (`shot_errors`: time, how far his barrel was off where he meant in degrees, range, at your
+  head, his fear).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,
   **dust on a line** (a ball into the ground within 1 m of your line of sight to a man still in
@@ -255,6 +257,15 @@ two fights in three. Measured against this baseline: the gang's first-shot hit r
 first hit (0.9 s), how often you go down when they hit first (68%), and fight length. It won't
 make 45–90 s alone (reasons 2, 4 and 5 stay), but it gives you the moment to react that both
 playtests asked for.
+
+## Fixes measured against it
+
+Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --vs=BASE_ROOT
+--where=bodies=studio`, and the new run's tables). The baseline above stays as it was.
+
+- `2026-10-21_gun_hand/`: the gang's aim from the gun's state (`GunHand`, the player's `Sway`)
+  and a moment to react. Their first shot 0.85 → 2.1 s and hitting first 67% → 33%, but fights
+  5.1 → 6.5 s: the opening now goes to whoever's gun is up, and reasons 2, 4 and 5 stand.
 
 ## Limitations
 

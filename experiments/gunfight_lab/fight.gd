@@ -466,6 +466,14 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		var b := brains[_mid(shooter)] as OutlawBrain
 		if b.covering > 0.0 or not b.senses.sees(player):
 			m.suppressing_shots += 1
+		# How far off his barrel was from where he meant it (degrees), at what range, at your head
+		# or your chest: why he hit or missed.
+		if b.hand != null and b._find_target() != null:
+			var want: Vector3 = b._want_dir(_origin, b._find_target())
+			if not m.has("shot_errors"):
+				m["shot_errors"] = []
+			(m.shot_errors as Array).append([snappedf(t, 0.01), snappedf(rad_to_deg(_dir.angle_to(want)), 0.01),
+				snappedf(_origin.distance_to(player.global_position), 0.1), b._aim_head, snappedf(b.fear, 0.01)])
 	_note("shot", "%s fired" % who)
 
 

@@ -4,7 +4,10 @@
     python3 experiments/gunfight_lab/analyse.py RUN [RUN2 ...] [--out=DIR] [--where=scenario=street,bodies=studio]
 
 Writes DIR (default the first RUN) /baseline.md (the tables), baseline.json (the same numbers) and
-fights.csv (one row a fight). Several RUNs are pooled; --where keeps the fights that match. Fights are grouped into setups (scenario, hour, weapon, style,
+fights.csv (one row a fight). Several RUNs are pooled; --where keeps the fights that match.
+--vs=BEFORE writes DIR/compare.md instead: BEFORE against RUN, headline numbers side by side, by
+arena and in all (a fix against the baseline: --vs=experiments/gunfight_lab/baseline isn't
+enough, it needs a run root with its fights/). Fights are grouped into setups (scenario, hour, weapon, style,
 bodies); the tables pool them as each says.
 """
 import csv
@@ -153,6 +156,45 @@ def diagnostics(fs):
     }
 
 
+def headline(fs):
+    """The numbers a fix is judged on."""
+    s = summary(fs)
+    gs = sum(f["gang"]["shots"] for f in fs)
+    gh = sum(f["gang"]["hits_on_you"] for f in fs)
+    ys = sum(f["you"]["shots"] for f in fs)
+    yh = sum(f["you"]["hits"] for f in fs)
+    open_ = Counter()
+    for f in fs:
+        for row in f["track"]:
+            for m in row["men"].values():
+                if m[3] in ("fighting", "reloading"):
+                    open_[m[2] == "open"] += 1
+    gang_first = [f["first_shot_at"] for f in fs if f["first_shot_by"] not in ("you", "none")]
+    top = sorted(s["endings"].items(), key=lambda kv: -kv[1])[:3]
+    return [
+        ("fights", str(len(fs))),
+        ("length, median s", fmt(s["length_median_s"])),
+        ("in 45–90 s", f"{fmt(s['in_45_90_pct'], 0)}%"),
+        ("the gang's first shot, median s", fmt(med(gang_first), 2)),
+        ("the gang hits first", f"{fmt(s['gang_hit_first_pct'], 0)}%"),
+        ("you're first hit at, median s (never)", f"{fmt(s['you_first_hit_median_s'])} ({fmt(s['you_never_hit_pct'], 0)}%)"),
+        ("the gang's hits a shot", f"{fmt(pct(gh, gs), 0)}% ({gh}/{gs})"),
+        ("your hits a shot", f"{fmt(pct(yh, ys), 0)}%"),
+        ("near misses on you a minute", fmt(s["near_misses_per_min"])),
+        ("longest quiet, median s", fmt(s["quiet_median_s"])),
+        ("the men's fighting time in the open", f"{fmt(pct(open_[True], sum(open_.values())), 0)}%"),
+        ("you down", f"{fmt(s['you_down_pct'], 0)}%"),
+        ("how it ended (top 3)", ", ".join(f"{k} {round(100 * v / len(fs))}%" for k, v in top)),
+    ]
+
+
+def compare(before, after, title):
+    lines = [f"### {title}", "", "| | before | after |", "|---|---|---|"]
+    for (k, a), (_, b) in zip(headline(before), headline(after)):
+        lines.append(f"| {k} | {a} | {b} |")
+    return lines + [""]
+
+
 def group(fights, keys):
     g = defaultdict(list)
     for f in fights:
@@ -223,6 +265,19 @@ def main(argv):
         print("no fights in", run)
         return 1
     os.makedirs(out, exist_ok=True)
+    vs = next((a.split("=", 1)[1] for a in argv if a.startswith("--vs=")), "")
+    if vs:
+        before = load(vs)
+        for cond in filter(None, where.split(",")):
+            k, v = cond.split("=")
+            before = [f for f in before if str(f[k]) == v]
+        md = [f"# Gunfight lab: {vs} (before) against {run} (after)", ""] + compare(before, fights, "All")
+        for (sc,), fs in sorted(group(fights, ("scenario",)).items()):
+            md += compare([f for f in before if f["scenario"] == sc], fs, sc)
+        with open(os.path.join(out, "compare.md"), "w") as fh:
+            fh.write("\n".join(md))
+        print("->", os.path.join(out, "compare.md"))
+        return 0
     data = {"all": summary(fights)}
     md = [f"# Gunfight lab: {len(fights)} fights ({run})", ""]
     if os.path.exists(os.path.join(runs[0], "manifest.json")):
