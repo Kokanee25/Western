@@ -6,6 +6,8 @@ extends SceneTree
 ##       --scenario=A_stand_shot_front --render --out=build/physics_lab/shots
 ##
 ## --scenario=NAME[,NAME...] | all | group:A[,F] | list. --seconds=S (override each one's length).
+## --friction=F, --friction-ends=F: his parts' friction (hands and feet: ends) from the tick he goes
+## limp, in place of HumanBody's 0.9 (an experiment; logged in the events).
 ## --seed=N (HumanBody.rng_seed). --model=ID (the body: outlaw, the MakeHuman man, by default).
 ## --repeat=K (each scenario K times in this one process, compared tick by tick with the first).
 ## --perf (1, 5 and 10 men going limp on the same tick; frame times).
@@ -140,6 +142,10 @@ func _run() -> void:
 				runner.cam_distance = float(args["cam-dist"])
 			if args.has("model"):
 				runner.model = StringName(args.model)
+			if args.has("friction"):
+				runner.friction = float(args.friction)
+			if args.has("friction-ends"):
+				runner.friction_ends = float(args["friction-ends"])
 			root.add_child(runner)
 			while not runner.done:
 				await physics_frame

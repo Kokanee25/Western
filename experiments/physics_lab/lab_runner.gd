@@ -32,6 +32,9 @@ var mocap := false
 var old_flinch := false
 var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
+## --friction / --friction-ends: his parts' friction once he's limp (HumanBody gives 0.9); < 0 keeps it.
+var friction := -1.0
+var friction_ends := -1.0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -375,7 +378,7 @@ func _build_cameras() -> void:
 		var cam := Camera3D.new()
 		cam.fov = 50.0
 		sv.add_child(cam)
-		var ou: Array = _view_offset(v)
+		var ou: Array = _view_offset(v.get_slice("^", 0), float(v.get_slice("^", 1)) if "^" in v else -1.0)
 		cam.look_at_from_position(f + ou[0], f, ou[1])
 		cam.current = true
 		_follow_cams.append([cam, ou[0], ou[1], f])
@@ -386,8 +389,9 @@ func _build_cameras() -> void:
 ## How much of him each view sees (every view, rendered or not): a ray from the camera to each
 ## part's centre, blocked if the world (a rail, the bar, a step) is hit first. Every 6 ticks from
 ## the hit to the end; in the summary as "seen": a view's mean and least share of his parts in
-## sight, and the share of samples with under half of him seen. "front^1.5" is the same view
-## from 1.5 m above the focus, for choosing a scenario's "cam_up".
+## sight, and the share of samples with under half of him seen. A part counts only inside the
+## camera's frame (50 deg high, 4:3). "front^1.5" is the view from 1.5 m above the focus, as a
+## scenario's "views" can name it.
 func _sample_seen() -> void:
 	var space := get_world_3d().direct_space_state
 	var f := _focus()
@@ -398,7 +402,11 @@ func _sample_seen() -> void:
 	for key: String in keys:
 		var v := key.get_slice("^", 0)
 		var up := float(key.get_slice("^", 1)) if "^" in key else -1.0
-		var eye: Vector3 = f + (_view_offset(v, up)[0] as Vector3)
+		var ou: Array = _view_offset(v, up)
+		var eye: Vector3 = f + (ou[0] as Vector3)
+		var look := Transform3D.IDENTITY.looking_at(f - eye, ou[1])
+		var half_v := tan(deg_to_rad(25.0))
+		var half_h := half_v * 4.0 / 3.0
 		var seen := 0
 		var n := 0
 		for sid: StringName in man.parts:
@@ -406,6 +414,9 @@ func _sample_seen() -> void:
 			if not is_instance_valid(part):
 				continue
 			n += 1
+			var c := look.basis.inverse() * (part.global_position - eye)  # camera space: -z ahead
+			if c.z > -0.05 or absf(c.x / -c.z) > half_h or absf(c.y / -c.z) > half_v:
+				continue
 			var q := PhysicsRayQueryParameters3D.create(eye, part.global_position, Layers.WORLD)
 			var hit := space.intersect_ray(q)
 			if hit.is_empty() or eye.distance_to(hit.position) > eye.distance_to(part.global_position) - 0.08:
@@ -599,6 +610,20 @@ func _go_limp() -> void:
 			man.physiology._die(&"brain")
 	for man in _men:
 		man.go_limp(push)
+	if friction >= 0.0 or friction_ends >= 0.0:
+		for man in _men:
+			for sid: StringName in man.parts:
+				var rb := man.parts[sid] as RigidBody3D
+				if rb == null:
+					continue
+				var ends := String(sid).begins_with("hand") or String(sid).begins_with("foot")
+				var f := friction_ends if ends and friction_ends >= 0.0 else friction
+				if f < 0.0:
+					continue
+				var pm := (rb.physics_material_override as PhysicsMaterial).duplicate() as PhysicsMaterial
+				pm.friction = f
+				rb.physics_material_override = pm
+		_events.append({"tick": _tick, "kind": "friction", "source": "the lab (--friction)", "parts": friction, "hands_feet": friction_ends})
 	# Read what go_limp left in the bodies before the solver has run: the push it gives every part,
 	# and the chest's extra (push * 4 plus a random level kick, HumanBody._rng).
 	var total_after := Vector3.ZERO
