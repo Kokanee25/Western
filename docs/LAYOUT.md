@@ -621,6 +621,15 @@ a few views renders them as the full run does.
   `PixelArt` lays an `mlab_` set as it lays the game's woods. The men's style sheet
   `docs/concept/targets/9_studio_men.png` (`men_reference.py`) is what `paint_woods.py` and
   `paint_textures.py --style=man` send since 2026-10-21 (target 8 before).
+  **Round 3, the weathering layer** (2026-10-21): texel_grid's `weathered` lays a stain sheet
+  (`assets/textures/weather/stains_<set>.png`, four masks: R mud splash, G rain streaks, B grime,
+  A sun-bleach; `stain_sheet.py`: `--procedural` free, `--from` a painted four-panel sheet,
+  `--paint` one call) in the structure's own space where a mesh carries the frame (CUSTOM0 ground,
+  drip line, amount; CUSTOM1 nails; `MaterialStand.WEATHER`); a set's `weathering` (palette,
+  amounts, reaches, `painting`/`takes`/`pick`/`channels`) -> its lab.json -> `PixelArt._weathering`.
+  The cut's board grading (`grade`/`grade_all`: `unify`, `unify_L`, `rows`, `highs`, `calm`,
+  `seams`; `paint_woods.board_grade`). The lab's sets draw seams a pixel wide (`edge_aa`, the lap's
+  butt a dark line); the game's woods don't until Sean picks.
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams

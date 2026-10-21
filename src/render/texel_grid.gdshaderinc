@@ -166,6 +166,9 @@ float weather_cover(float m, float env) {
 // the face's UV and size, for its ends).
 vec3 weathered(vec3 c0, vec3 p, vec3 n, vec3 dpx, vec3 dpy, vec2 uv1, vec2 uv2) {
 	vec3 c = c0;
+	// Each board takes the stains a little differently (its own offset along its strip seeds it),
+	// so a stain runs on across the boards but breaks a touch at each seam, not stamped over them.
+	float board = lab_face > 0.5 ? 0.7 + 0.3 * fract(lab_u0 * 7.31 + 0.17) : 1.0;
 	float h = p.y - weather_frame.x;
 	float d = weather_frame.y - p.y;
 	float side = 1.0 - abs(n.y);
@@ -182,13 +185,13 @@ vec3 weathered(vec3 c0, vec3 p, vec3 n, vec3 dpx, vec3 dpy, vec2 uv1, vec2 uv2) 
 	vec4 m = textureGrad(weather_tex, uv / weather_metres, gx / weather_metres, gy / weather_metres);
 	// Sun-bleach on what faces the sky, and a little on walls away from their drip line's shade:
 	// greyer and a touch lighter, never white.
-	float bleach = weather_cover(m.a, max(sky, side * 0.45 * smoothstep(0.1, 0.8, d))) * weather_amounts.w;
+	float bleach = weather_cover(m.a, max(sky, side * 0.45 * smoothstep(0.1, 0.8, d))) * weather_amounts.w * board;
 	float grey = dot(c, vec3(0.3, 0.55, 0.15));
 	c = mix(c, grey * weather_bleach / max(dot(weather_bleach, vec3(0.3, 0.55, 0.15)), 1e-3) * 1.06, bleach * 0.7);
 	// Grime gathered low and toward a face's ends (the corners boards meet in), a little everywhere.
 	float ends = uv2.x > 0.0 ? 1.0 - smoothstep(0.0, 0.3, min(uv1.x - lab_u0, uv2.x - (uv1.x - lab_u0))) : 0.0;
 	float low = 1.0 - smoothstep(0.0, weather_reach.z, h);
-	float grime = weather_cover(m.b, max(max(low * 0.85, ends * 0.45), 0.2)) * weather_amounts.z;
+	float grime = weather_cover(m.b, max(max(low * 0.85, ends * 0.45), 0.2)) * weather_amounts.z * board;
 	c *= mix(vec3(1.0), weather_grime, grime);
 	// Rain streaks hanging from the drip line above, on walls.
 	float streak = d >= 0.0 ? weather_cover(m.g, (1.0 - smoothstep(0.0, weather_reach.y, d)) * side) : 0.0;
@@ -207,9 +210,9 @@ vec3 weathered(vec3 c0, vec3 p, vec3 n, vec3 dpx, vec3 dpy, vec2 uv1, vec2 uv2) 
 			streak = max(streak, drip * (0.5 + 0.5 * m.g) * step(0.0, dn));
 		}
 	}
-	c *= mix(vec3(1.0), weather_streak, streak * weather_amounts.y);
+	c *= mix(vec3(1.0), weather_streak, streak * weather_amounts.y * board);
 	// Mud splashed up from the ground, over everything, on walls (and a little on decks).
-	float mud = weather_cover(m.r, (1.0 - smoothstep(0.0, weather_reach.x, h)) * mix(0.3, 1.0, side)) * weather_amounts.x;
+	float mud = weather_cover(m.r, (1.0 - smoothstep(0.0, weather_reach.x, h)) * mix(0.3, 1.0, side)) * weather_amounts.x * board;
 	return mix(c0, mix(c, weather_mud, mud), clamp(weather_frame.z, 0.0, 1.0));
 }
 

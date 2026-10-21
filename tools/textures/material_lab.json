@@ -489,7 +489,7 @@
    },
    "weathering": {
     "metres": 3.0,
-    "tones": 3,
+    "tones": 0,
     "mud": "#5e4a37",
     "streak": "#a69b8e",
     "grime": "#9a8977",
@@ -597,7 +597,7 @@
    },
    "weathering": {
     "metres": 3.0,
-    "tones": 3,
+    "tones": 0,
     "mud": "#5e4a37",
     "streak": "#a69b8e",
     "grime": "#9a8977",
