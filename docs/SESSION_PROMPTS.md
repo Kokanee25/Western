@@ -350,7 +350,7 @@ Art lane, branch claude/art-breakage-paint. Roadmap 4.4a. Brief: the Breakage se
 ## Fire lab and fire finished (4.4b, before 4.5) [Salt Creek]
 
 ```
-Gameplay (spread) and art (look), roadmap 4.4b. Build the fire lab in experiments/fire_lab/ on the labs.md pattern: a room, a building, then the block; measure spread speed against published fire-science figures, how smoke fills, and frame time, baseline first. Then finish docs/briefs/fire-look.md: firelight reaching the street, the smoke column (the critic's "flat maroon cut-out"), and the flames redrawn by script in the locked look against docs/concept/livery-fire-painted.png.
+Gameplay (spread) and art (look), roadmap 4.4b. Build the fire lab in experiments/fire_lab/ on the labs.md pattern: a room, a building, then the block; measure spread speed against published fire-science figures, how smoke fills, and frame time, baseline first. Then finish docs/briefs/fire-look.md: firelight reaching the street, the smoke column (the critic's "flat maroon cut-out"), and the flames remade as fire-look.md's "next approach": flipbooks baked from a Blender fire simulation (headless), pushed into the painted style against docs/concept/livery-fire-painted.png, with motion-vector blending, a core and a tip layer, soft edges, heat haze and firelight on the street.
 ```
 
 ## Movement lab (4.6, when I record) [Salt Creek]
