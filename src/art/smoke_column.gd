@@ -15,6 +15,14 @@ const FULL := 30.0
 const EASE := 0.6
 ## Metres sideways a metre up, a metre a second of wind (smoke climbing at about 1.2 m/s).
 const LEAN := 0.45
+## No column until the fire has grown this much: burning members, each counted by how far it has
+## grown (its burn time over `growth_seconds`, the flames' own clock). A fire just caught (a smashed
+## lamp's oil, boards a blast lit) has no smoke over the roof yet; its column stood over the false
+## front a second after the blast as a dark blot against the sky.
+const GROWN_BEFORE := 1.0
+## Grown this much when first seen, the column is there at once (a building already well alight);
+## less, it eases in as the fire grows.
+const GROWN_AT_ONCE := 3.0
 
 static var _mat: ShaderMaterial
 static var _quad: QuadMesh
@@ -26,6 +34,7 @@ var _look := 0.0
 var _want := Vector4.ZERO  # x, z of its foot, its width, its strength
 var _have := Vector4.ZERO
 var _started := false
+var _grown := 0.0
 
 
 ## A column over `f`'s building, made its child.
@@ -61,8 +70,8 @@ func _process(delta: float) -> void:
 		_look = LOOK_EVERY
 		_want = _from_fire()
 		if not _started and _want.w > 0.0:
-			# The first look sets it at once (a fire seen for the first time is already burning).
-			_have = _want
+			# The first look sets it at once if the fire's already well alight; a young one eases in.
+			_have = _want if _grown >= GROWN_AT_ONCE else Vector4(_want.x, _want.y, _want.z, 0.0)
 			_started = true
 	var k := clampf(EASE * delta, 0.0, 1.0)
 	# Where it stands follows the fire quickly; how much there is, slowly.
@@ -87,6 +96,8 @@ func _from_fire() -> Vector4:
 	var n := 0
 	var sum := Vector2.ZERO
 	var sum2 := Vector2.ZERO
+	var growth := maxf(field.fire.tuning.growth_seconds, 0.01)
+	_grown = 0.0
 	for m in field.fire.burning_members():
 		if m.get_parent() != field.structure:
 			continue
@@ -94,7 +105,8 @@ func _from_fire() -> Vector4:
 		sum += Vector2(p.x, p.z)
 		sum2 += Vector2(p.x * p.x, p.z * p.z)
 		n += 1
-	if n == 0:
+		_grown += clampf(m.burn_time / growth, 0.0, 1.0)
+	if n == 0 or _grown < GROWN_BEFORE:
 		return Vector4(_have.x, _have.y, _have.z, 0.0)
 	var mean := sum / n
 	var spread := (sum2 / n - mean * mean).max(Vector2.ZERO)

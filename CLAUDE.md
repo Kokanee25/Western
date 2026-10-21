@@ -397,7 +397,7 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
-- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200): bench and baseline (`baseline/`): props never
+- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
   `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
@@ -408,5 +408,6 @@ frozen until Sean names one.
   glass-only buildings not re-settled. **The blast's look** (Sean: "try doing the art", art's
   ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
-  catches 1–4 s later; three blast goldens re-approved. Next: the dig-able ground and craters (its
+  catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
+  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
   own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
