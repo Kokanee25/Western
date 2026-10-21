@@ -369,6 +369,7 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
-- The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, not merged): bench and baseline done; its
-  first fix (a ball on the tick a man goes limp passes through him) waits on Sean (HumanBody is the
-  falls session's).
+- The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
+  and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
+  in a blast, the femur's bleed; `results/`). Waiting on Sean: dynamite up close (the options in
+  `results/2026-10-21_dynamite_options/`), the gut's time.

@@ -274,6 +274,29 @@ No stump on any man is capped: every cut leaves an open rim of skin. What fills 
 opening (`BodyInterior`, the insides drawn through the 2,200 J opening `sever_limb` makes). The sheets
 show how that reads.
 
+### Since the baseline (2026-10-21, `results/`)
+
+The baseline above is kept as it was. Each change, with its before and after:
+
+- `results/2026-10-21_same_tick/` (**fix 1**): a ball on the tick a man goes limp hits him. A
+  blast's gravel and a charge's later pellets now land.
+- `results/2026-10-21_packing/` (**fixes 5, 6**):
+  - The heart, great vessels, liver and spleen bleed inside, so packing can't reach them.
+  - Packing holds an artery half the time: a packed femoral lived in 42% of 40 seeds, where before
+    it always killed.
+- `results/2026-10-21_stumps/` (**fix 2**): one limb off no longer cracks every joint.
+- `results/2026-10-21_hat_in_blast/` (**fix 4**): the blast that throws a man takes his hat.
+- `results/2026-10-21_femur/` (**fix 9**): a broken femur bleeds 1.2 L into the thigh. A belt
+  above it stops that.
+- `results/2026-10-21_perf_brains/`: ten wounded men with their brains average 1.7–1.9 ms of the
+  4 ms at Sean's. The worst 1% of frames reach ~4.3 ms.
+- `results/2026-10-21_dynamite_options/` (item 7, nothing changed): Sean's call between leaving
+  dynamite as it is, counting the ground, or the ground and the man's front.
+
+Still open: the cut through the bone's shaft rather than the joint (4 below; it needs the mesh cut
+mid-part, the people pipeline's job), capped stumps, the rancher's hat crown (characters), the gut's
+time (Sean's call), and the artery rates against their resting flow (no source to set them by).
+
 ## Where the game is furthest from the medicine
 
 1. **Packing never stops an artery.**
