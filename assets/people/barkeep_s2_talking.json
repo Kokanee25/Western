@@ -236,5 +236,23 @@
     "max_mm": 7.5
    }
   }
+ },
+ "bandana": {
+  "colour": [
+   70,
+   60,
+   50
+  ],
+  "neck": true,
+  "mask": {
+   "top_y": 1.629,
+   "point_y": 1.428,
+   "triangles": 2880
+  },
+  "neck_piece": {
+   "top_y": 1.498,
+   "point_y": 1.353,
+   "triangles": 2880
+  }
  }
 }
