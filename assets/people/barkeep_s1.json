@@ -1,0 +1,22 @@
+{
+ "eyes": {
+  "right": [
+   0.0342,
+   1.6549,
+   -0.0824
+  ],
+  "left": [
+   -0.0342,
+   1.6551,
+   -0.0836
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from his approved pictures",
+ "id": "barkeep_s1",
+ "whole": true,
+ "triangles": {
+  "body_skin": 31729,
+  "body_head": 3120
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)"
+}
