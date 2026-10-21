@@ -408,6 +408,24 @@ a few views renders them as the full run does.
   volumetric fog lights it (the art session's to judge). `FireSystem.smoke_at(p)`, `smoked(m)`;
   members in a field have no particle smoke (`FireFX.refresh(..., smoke)`). No plugin (web) or
   the Compatibility renderer: the old particles.
+- **The fire flipbooks** (art's; docs/briefs/fire-look.md "The next approach"; behind
+  `Settings.fire_flipbooks`, look panel N or `--fire-flipbooks`, off by default): FireFX's fire
+  sheets drawn with `FireFlipbook.material()` instead of `fire_sheet.gdshader` (`FireFX.flipbooks`;
+  same quads and instance uniforms, so spawning is unchanged). Three passes chained by
+  `next_pass`: `flame_haze` (priority -1: the scene behind shifted by the heat), `flame_core` (0:
+  where the flame is thick, the painting's tones in flat bands from `fire_ramp.png`, hotter toward
+  the roots), `flame_tips` (1: thin flame and its smoke, alpha-blended), all sharing
+  `flipbook.gdshaderinc` (the sheet picks a lick, tongue or column by its height, frames blended
+  along their motion vectors, squares fixed in the world at `squares_per_m`, soft where the
+  depth buffer meets it). Sheets: `assets/textures/fire/fire_<type>.png` (R flame, G smoke, B
+  heat; 8 x 8 frames) and `_mv.png`, sizes in `fire_sheets.json`; made by
+  `tools/textures/fire_sim/`: `bake_flames.py` (Mantaflow in the pip bpy, which needs
+  `manta_relink.py`: its classes lost their bases; ~10 min for all three on 4 cores; projections to
+  `build/fire_sim/`), then `make_sheets.py` (loop, crop, motion scale, painting's ramp; seconds).
+  Re-import after (`godot --headless --import`). Looking: `tools/flame_views.gd` (a stage, drawn
+  sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
+  `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
+  `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
 
 ## src/bodies
 

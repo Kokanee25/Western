@@ -46,6 +46,9 @@ const VIEWS := [
 	# front on z -16.8), the sun just down, its front alight a few minutes; from the street's east
 	# end, the saloon's front on the left, as the painting has a building on its left.
 	["livery_fire_dusk", 18.6, Vector3(27.0, 0.0, -7.0), 58.0, 8.0, "livery_fire"],
+	# A burning saloon from inside at night (docs/briefs/fire-look.md, the flipbooks): the walls and
+	# the back bar ahead of the night view's place alight a minute and a half.
+	["saloon_fire_inside", 21.5, Vector3(10.0, 0.38, -18.3), 35.0, 2.0, "saloon_fire"],
 	["saloon_toward_door_night", 21.5, Vector3(5.2, 0.38, -27.3), -158.0, -4.0],
 	["outlaw_face", 15.0, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
 	["outlaw_face_evening", 18.2, Vector3(24.0, 0.0, -12.5), -90.0, 0.0, "outlaw_calm"],
@@ -185,6 +188,14 @@ func _run() -> void:
 		# --flame-sprites: the flipbook tongues in place of the fire sheets (FireFX.sheets), to compare.
 		elif arg == "--flame-sprites":
 			load("res://src/fire/fire_fx.gd").sheets = false
+		# --fire-flipbooks: the fire drawn from the simulated flipbooks (Settings.fire_flipbooks).
+		elif arg == "--fire-flipbooks":
+			settings.set_fire_flipbooks(true, false)
+		# --flipbook=bands:4,haze_px:3: the flipbooks' uniforms, on every pass that has them (trials).
+		elif arg.begins_with("--flipbook="):
+			for m: ShaderMaterial in load("res://src/fire/fire_flipbook.gd").passes():
+				for kv in arg.substr(11).split(","):
+					m.set_shader_parameter(kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 		# --flame=grow:1.6: the flames' shader uniforms for one render (trials).
 		elif arg.begins_with("--flame="):
 			var ffx: Variant = load("res://src/fire/fire_fx.gd")
@@ -452,6 +463,26 @@ func _run() -> void:
 			# The fire's four times slower since 2026-10-05: four minutes in, the front is ablaze.
 			for i in 480:
 				fire.step(0.5)
+			for i in 90:
+				await physics_frame
+		if setup == "saloon_fire":
+			# What's ahead of the camera (six metres along its heading) catches, low down.
+			var saloon = main.find_child("Saloon", true, false)
+			var fire = main.find_child("FireSystem", true, false)
+			var yaw := deg_to_rad(35.0)
+			var aim := Vector3(10.0, 1.0, -18.3) + Vector3(-sin(yaw), 0.0, -cos(yaw)) * 6.0
+			var lit := 0
+			for m in saloon.get_members():
+				if lit < 24 and m.global_position.distance_to(aim) < 3.5 and m.global_position.y < 2.2 and m.wood != &"glass":
+					fire.ignite(m)
+					lit += 1
+			# The player lifted out of reach while it burns (the fire would scorch him and he'd wake
+			# at the doctor's), then back.
+			var here: Vector3 = player.global_position
+			player.global_position = here + Vector3.UP * 40.0
+			for i in 180:
+				fire.step(0.5)
+			player.global_position = here
 			for i in 90:
 				await physics_frame
 		if setup == "porch_collapse":

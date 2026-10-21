@@ -1,0 +1,72 @@
+{
+ "_doc": "Written by tools/textures/fire_sim/make_sheets.py: each flame type's sheet, its size in metres (across, up), squares a frame, motion range (UV a frame) and fps; the painting's smoke colours.",
+ "smoke_dark": [
+  0.259,
+  0.122,
+  0.122
+ ],
+ "smoke_lit": [
+  0.529,
+  0.243,
+  0.204
+ ],
+ "types": {
+  "column": {
+   "fps": 24,
+   "frames": 64,
+   "grid": [
+    8,
+    8
+   ],
+   "mv_range": 0.02500000037252903,
+   "seam_error": 0.003377,
+   "size": [
+    2.0,
+    3.5
+   ],
+   "squares": [
+    64,
+    128
+   ],
+   "step_error": 0.004571
+  },
+  "lick": {
+   "fps": 24,
+   "frames": 64,
+   "grid": [
+    8,
+    8
+   ],
+   "mv_range": 0.11500000208616257,
+   "seam_error": 0.024193,
+   "size": [
+    0.504,
+    0.75
+   ],
+   "squares": [
+    32,
+    48
+   ],
+   "step_error": 0.018583
+  },
+  "tongue": {
+   "fps": 24,
+   "frames": 64,
+   "grid": [
+    8,
+    8
+   ],
+   "mv_range": 0.10999999940395355,
+   "seam_error": 0.027309,
+   "size": [
+    0.7,
+    1.6
+   ],
+   "squares": [
+    32,
+    72
+   ],
+   "step_error": 0.018966
+  }
+ }
+}
