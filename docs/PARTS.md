@@ -54,6 +54,15 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The hotel's oak stair, painted oak and runner (`dark_oak`, `stair_runner`) | `src/art/oak_stair.gd` (drawn only) | material lab | in the game as a drawing; waiting to be promoted as members when the hotel is built |
 | The test stand | `src/art/material_stand.gd`, `tools/material_lab.gd` | — | a lab fixture (stays in the lab) |
 
+## Props (the prop lab, `docs/briefs/prop-lab.md`)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The 12 drawn props (card table, chair, bar stool, piano, barrel, spittoon, oil lamp, whiskey bottle, tin cup, deer head, framed painting, wall sconce) | `assets/props/manifest.json`, `src/props/prop_library.gd`, `src/props/prop_models.gd` | the judge's shots | in the game, solid (one collision box, can't break or burn); targets for their kit versions |
+| Buildings' hand-built furnishings (store, telegraph, doctor, bank; the saloon's bar) | `FalseFrontBuilding._furnish_*`, `src/art/saloon_dressing.gd` | tests | in the game, as members; to be brought into the kit |
+| A smashed lamp spills burning oil | `src/structures/fittings.gd`, `src/fire/` | tests | in the game |
+| The prop kit (one data file per prop: members, shatter or fitting) | — | — | not started: the prop lab's first job |
+
 ## The Systems Playground
 
 The test saloon (`docs/briefs/labs.md`, "The Systems Playground"): the game's own saloon and a

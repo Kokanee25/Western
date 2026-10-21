@@ -40,6 +40,9 @@ the history in `docs/status/`.
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
+  - **The prop lab** (Sean, 2026-10-21; `docs/briefs/prop-lab.md`): makes each prop end to end,
+    so it may edit art's `src/props/` and `assets/props/` as well as the prop kit's structure code,
+    saying so in each commit. Changes to the members, fire or blast code go to gameplay.
   - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
     `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
     and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
