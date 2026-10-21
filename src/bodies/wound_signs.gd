@@ -127,12 +127,24 @@ func _eyes(p: Physiology) -> void:
 ## A wound gone bad (Physiology.infection): red, swollen, pus round it.
 func _festering(p: Physiology) -> void:
 	for seg: StringName in p.infections:
-		if _festered.has(seg) or p.infection(seg) < 0.3 or p.severed_segments.has(seg):
+		if p.severed_segments.has(seg):
+			continue
+		var level := p.infection(seg)
+		var d: Decal = _festered.get(seg)
+		if d != null and is_instance_valid(d):
+			# Gone to gangrene: black and green, dead.
+			if level >= 1.0 and p.gangrene_hours > 0.0 and d.name != "Gangrene":
+				d.texture_albedo = PixelArt.blood("gangrene", 79, false, 32)
+				d.name = "Gangrene"
+				d.size = d.size * 1.4
+			continue
+		if level < 0.3:
 			continue
 		for w: Dictionary in body.wounds:
 			if w.segment == seg and w.entry != null and not w.get("healed", false):
-				_festered[seg] = true
-				body._decal(body.visuals[seg], seg, w.entry, 0.06, PixelArt.blood("infected", 77, false, 32)).name = "Festering"
+				d = body._decal(body.visuals[seg], seg, w.entry, 0.06, PixelArt.blood("infected", 77, false, 32))
+				d.name = "Festering"
+				_festered[seg] = d
 				break
 
 

@@ -1797,8 +1797,19 @@ func _heal(game_dt: float) -> void:
 			continue
 		for hole: Variant in [w.entry, w.exit]:
 			if hole != null:
-				var scar := _decal(vis, w.segment, hole, 0.035, PixelArt.blood("scar", 87, false, 32))
+				var line := w.kind == &"slash" or w.kind == &"cut" or w.kind == &"graze"
+				var scar := _decal(vis, w.segment, hole, 0.035, PixelArt.blood("scar_line" if line else "scar", 87, false, 32))
 				scar.name = "Scar"
+				if line and w.get("stop") != null:
+					var a: Vector3 = hole
+					var b: Vector3 = w.stop
+					var n := scar.basis.y
+					var z := (b - a) - n * (b - a).dot(n)
+					if z.length() > 0.005:
+						z = z.normalized()
+						scar.basis = Basis(n.cross(z), n, z)
+						scar.position = (a + b) * 0.5
+						scar.size = Vector3(0.02, 0.06, maxf(a.distance_to(b), 0.04) * 1.1)
 
 
 func _after_step(real_dt: float, game_dt: float) -> void:
@@ -2667,6 +2678,9 @@ func _paint_wound_marks(w: Dictionary, vis: Node3D) -> void:
 		var spread: float = 0.04 + float(w.powder) * 0.16
 		var soot := _decal(vis, w.segment, w.entry, spread, PixelArt.blood("powder", 29, false, 32))
 		soot.modulate.a = clampf(1.0 - float(w.powder) / POWDER_RANGE * 0.7, 0.3, 1.0)
+		if float(w.powder) < SCORCH_RANGE and not (w.get("garments", []) as Array).is_empty():
+			# Closer still, the flash scorches the cloth round the hole.
+			_decal(vis, w.segment, w.entry, 0.05, PixelArt.blood("scorched", 31, false, 32))
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	(w.stain as Node).add_to_group(&"blood_drying")
 	if w.exit != null:
@@ -3596,6 +3610,7 @@ func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 ## gas tears the hole open in a star (DiMaio).
 const POWDER_RANGE := 0.9
 const CONTACT_RANGE := 0.05
+const SCORCH_RANGE := 0.3
 const FESTER_CLEAN_CHANCE := 0.3
 const CLOTH_IN_LODGED := 0.7
 const CLOTH_IN_THROUGH := 0.35
