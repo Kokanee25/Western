@@ -13,6 +13,7 @@ const LIFETIME := 16.0
 
 static var _hot_material: StandardMaterial3D
 static var _chunk_material: StandardMaterial3D
+static var _dust_material: StandardMaterial3D
 
 var _drift := Vector3.ZERO
 var _age := 0.0
@@ -253,8 +254,18 @@ func _dust(amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 func _quad(side: float) -> QuadMesh:
 	var quad := QuadMesh.new()
 	quad.size = Vector2(side, side)
-	quad.material = GunSmoke._puff_material()
+	quad.material = _dust_mat()
 	return quad
+
+
+## The gun smoke's lit puff, faded where it meets the ground or a wall (a puff the size of a man cut
+## by the street drew a hard dark edge).
+static func _dust_mat() -> StandardMaterial3D:
+	if _dust_material == null:
+		_dust_material = GunSmoke._puff_material().duplicate() as StandardMaterial3D
+		_dust_material.proximity_fade_enabled = true
+		_dust_material.proximity_fade_distance = 0.8
+	return _dust_material
 
 
 func _process(delta: float) -> void:
@@ -317,7 +328,7 @@ static func _ramp(stops: Array) -> GradientTexture1D:
 ## Draw it once, out of sight, so its materials are compiled at load rather than on the first blast.
 static func warm_up(parent: Node3D, at: Vector3) -> Array[Node]:
 	var out: Array[Node] = []
-	for mat: Material in [_hot(), _chunk()]:
+	for mat: Material in [_hot(), _chunk(), _dust_mat()]:
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
 		box.size = Vector3.ONE * 0.001
