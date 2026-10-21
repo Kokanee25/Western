@@ -435,7 +435,10 @@ a few views renders them as the full run does.
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
+  the town's ways (in at a door, down the steps), and something wide a few metres off counts:
+  a doorway, a building's corner),
   `Layers` (physics/render layer bits),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
   per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),

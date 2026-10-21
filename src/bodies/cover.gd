@@ -21,14 +21,20 @@ const CROUCH_GUN := 0.9
 ## Lying flat behind it.
 const LIE_HEAD := 0.42
 const LIE_CHEST := 0.28
-## How near the thing that blocks the shot must be, to count as his cover (not a far-off hill).
+## How near the thing that blocks the shot must be, to count as his cover (not a far-off hill):
+## within this, or (`far`, a man who knows the town) this share of the way to the threat, if it's
+## wide (a building's corner a few metres off is cover from a man across the street; a crate there
+## or the trough by the shooter's own knees is not).
 const HUGGING := 1.6
+const HUGGING_SHARE := 0.35
+## A pace to the side (m): further-off cover has to hide him from there too.
+const PACE := 0.8
 
 
 ## The best spot from `from` against a threat whose eye is at `threat_eye`. `exclude`: his own
 ## body. `bias_from`: a spot he's been using (flanking: prefer a new angle). {} if none.
 static func find(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
-		bias_from := Vector3.INF, max_travel := 11.0) -> Dictionary:
+		bias_from := Vector3.INF, max_travel := 11.0, places: Waypoints = null) -> Dictionary:
 	var space := world.get_world_3d().direct_space_state
 	var best := {}
 	var threat_flat := Vector3(threat_eye.x, from.y, threat_eye.z)
@@ -42,7 +48,7 @@ static func find(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Arr
 			candidates.append(from + Vector3(cos(ang), 0.0, sin(ang)) * r)
 	candidates.append_array(_shadows(space, from, threat_eye, exclude, max_travel))
 	candidates = _dedupe(candidates)
-	return _best(space, candidates, from, threat_eye, threat_flat, exclude, rng, bias_from)
+	return _best(space, candidates, from, threat_eye, threat_flat, exclude, rng, bias_from, 3.0, places)
 
 
 ## A search spread over several frames (the cover hunt is a few thousand rays): `step()` each
@@ -59,21 +65,25 @@ class Search:
 	var _rng: RandomNumberGenerator
 	var _bias: Vector3
 	var _angle := 3.0
+	var _places: Waypoints
+	var _ctx := {}
 	var _i := 0
 
 	func step(per_tick := 120) -> bool:
 		var chunk := _cands.slice(_i, _i + per_tick)
 		_i += per_tick
-		var best := Cover._best(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias, _angle)
+		var best := Cover._best(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias, _angle, _places, _ctx)
 		if not best.is_empty() and (result.is_empty() or best.score > result.score):
 			result = best
 		return _i >= _cands.size()
 
 
 ## `new_angle`: how much a spot at a new angle on the threat from `bias_from` counts (a man going
-## round on him with friends keeping him busy wants it far more).
+## round on him with friends keeping him busy wants it far more). `places`: the town's ways (a
+## man who knows them goes up and down steps and in at doors: spots on another level, or inside,
+## count, reached by them).
 static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
-		bias_from := Vector3.INF, max_travel := 11.0, new_angle := 3.0) -> Search:
+		bias_from := Vector3.INF, max_travel := 11.0, new_angle := 3.0, places: Waypoints = null) -> Search:
 	var s := Search.new()
 	s._space = world.get_world_3d().direct_space_state
 	s._from = from
@@ -83,6 +93,7 @@ static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: A
 	s._rng = rng
 	s._bias = bias_from
 	s._angle = new_angle
+	s._places = places
 	var start_angle := rng.randf() * TAU
 	for r: float in RADII:
 		if r > max_travel:
@@ -107,7 +118,10 @@ static func _dedupe(points: Array[Vector3]) -> Array[Vector3]:
 
 
 static func _best(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], from: Vector3, threat_eye: Vector3,
-		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle := 3.0) -> Dictionary:
+		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle := 3.0,
+		places: Waypoints = null, ctx := {}) -> Dictionary:
+	if places != null:
+		return _best_in_town(space, candidates, from, threat_eye, threat_flat, exclude, rng, bias_from, new_angle, places, ctx)
 	var best := {}
 	for p in candidates:
 		var r := Vector2(p.x - from.x, p.z - from.z).length()
@@ -123,26 +137,67 @@ static func _best(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], 
 		# Not right under his gun, and not charging at him to get there.
 		if d_threat < 5.0 or spot_to.dot((threat_flat - from).normalized()) > 3.0:
 			continue
-		var score := -r * 0.35 - absf(d_threat - 12.0) * 0.12 + rng.randf() * 0.6
-		if not spot.low:
-			score += 0.5  # a wall is better than a trough
-		if spot.lie:
-			score -= 0.4  # flat in the dirt is the worst of it
-		if d_threat < 4.0:
-			score -= 3.0  # not right on top of him
-		# Don't run towards the gun to get there.
-		var spot_at: Vector3 = spot.at
-		var toward := (spot_at - from).normalized().dot((threat_flat - from).normalized())
-		score -= maxf(toward, 0.0) * r * 0.25
-		if bias_from != Vector3.INF:
-			# Flanking: a new angle on him counts for a lot.
-			var a0 := (bias_from - threat_flat).normalized()
-			var a1 := (spot_at - threat_flat).normalized()
-			score += clampf(1.0 - a0.dot(a1), 0.0, 1.0) * new_angle - (2.0 if (spot.at as Vector3).distance_to(bias_from) < 1.5 else 0.0)
+		var score := _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
 		spot.score = score
 		if best.is_empty() or score > best.score:
 			best = spot
 	return best
+
+
+## As `_best`, for a man who knows the town's ways: each spot dropped onto the floor under it (up
+## on the porch or down in the street), something wide a few metres off counted as cover, and the
+## way there found best spot first (straight, round one thing, or by the town's places), so only
+## the few best are routed.
+static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], from: Vector3, threat_eye: Vector3,
+		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle: float,
+		places: Waypoints, ctx: Dictionary) -> Dictionary:
+	var scored: Array[Dictionary] = []
+	for p0 in candidates:
+		var floor_at: Variant = _floor_under(space, p0, exclude)
+		if floor_at == null:
+			continue
+		var p: Vector3 = floor_at
+		var spot := evaluate(space, p, threat_eye, exclude, true)
+		if spot.is_empty():
+			continue
+		var r := Vector2(p.x - from.x, p.z - from.z).length()
+		var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
+		if d_threat < 5.0 or ((spot.at as Vector3) - from).dot((threat_flat - from).normalized()) > 3.0:
+			continue
+		spot.score = _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
+		spot.r = r
+		scored.append(spot)
+	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
+	for spot in scored:
+		var way := route(space, from, spot.at, exclude)
+		if way.is_empty():
+			way = _town_way(space, from, spot.at, exclude, places, spot.r, ctx)
+		if not way.is_empty():
+			spot.route = way
+			spot.erase("r")
+			return spot
+	return {}
+
+
+static func _score(spot: Dictionary, r: float, d_threat: float, from: Vector3, threat_flat: Vector3, rng: RandomNumberGenerator,
+		bias_from: Vector3, new_angle: float) -> float:
+	var score := -r * 0.35 - absf(d_threat - 12.0) * 0.12 + rng.randf() * 0.6
+	if not spot.low:
+		score += 0.5  # a wall is better than a trough
+	if spot.lie:
+		score -= 0.4  # flat in the dirt is the worst of it
+	if d_threat < 4.0:
+		score -= 3.0  # not right on top of him
+	# Don't run towards the gun to get there.
+	var spot_at: Vector3 = spot.at
+	var toward := (spot_at - from).normalized().dot((threat_flat - from).normalized())
+	score -= maxf(toward, 0.0) * r * 0.25
+	if bias_from != Vector3.INF:
+		# Flanking: a new angle on him counts for a lot.
+		var a0 := (bias_from - threat_flat).normalized()
+		var a1 := (spot_at - threat_flat).normalized()
+		score += clampf(1.0 - a0.dot(a1), 0.0, 1.0) * new_angle - (2.0 if (spot.at as Vector3).distance_to(bias_from) < 1.5 else 0.0)
+	return score
 
 
 ## Spots just behind whatever stands between the threat and the ground round him: follow the
@@ -179,8 +234,9 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 	return out
 
 
-## Is a spot any good? {} if not; else {at, low, crouch_ok, lie, peek}.
-static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> Dictionary:
+## Is a spot any good? {} if not; else {at, low, crouch_ok, lie, peek}. `far`: something wide a few
+## metres off counts as his cover too (a man who knows the town: OutlawBrain with its `places`).
+static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> Dictionary:
 	var ground: Variant = _ground(space, p, exclude)
 	if ground == null:
 		return {}
@@ -188,18 +244,18 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 	if absf(at.y - p.y) > 0.5:
 		return {}
 	# Cheapest first: one ray at his chest lying down; if that's seen, nothing here hides him.
-	if not _blocked(space, at, threat_eye, LIE_CHEST, exclude):
+	if not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far):
 		return {}
 	if not _room(space, at, exclude):
 		return {}
 	var lie := false
-	if not hidden_at(space, at, threat_eye, HIDE_HEAD, exclude) or not hidden_at(space, at, threat_eye, CHEST, exclude):
+	if not hidden_at(space, at, threat_eye, HIDE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, CHEST, exclude, far):
 		# Too low to duck behind: flat on the ground, then.
-		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude):
+		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude, far):
 			return {}
 		lie = true
-	var low := not hidden_at(space, at, threat_eye, STAND_HEAD, exclude)
-	var crouch_ok := hidden_at(space, at, threat_eye, CROUCH_HEAD, exclude)
+	var low := not hidden_at(space, at, threat_eye, STAND_HEAD, exclude, far)
+	var crouch_ok := hidden_at(space, at, threat_eye, CROUCH_HEAD, exclude, far)
 	var peek := Vector3.INF
 	if low:
 		# Rise up and shoot over it.
@@ -224,12 +280,12 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 
 ## Is a man at `at` hidden from the threat at this height, all of him (his shoulders either side,
 ## not just a line down his middle)? The shot has to be stopped close to him.
-static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID]) -> bool:
+static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false) -> bool:
 	var to := threat_eye - at
 	to.y = 0.0
 	var side := to.normalized().cross(Vector3.UP) if to.length() > 0.01 else Vector3.RIGHT
 	for off in [0.0, SHOULDERS, -SHOULDERS]:
-		if not _blocked(space, at + side * float(off), threat_eye, height, exclude):
+		if not _blocked(space, at + side * float(off), threat_eye, height, exclude, far):
 			return false
 	return true
 
@@ -238,7 +294,7 @@ static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye:
 const SHOULDERS := 0.18
 
 
-static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID]) -> bool:
+static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false) -> bool:
 	var target := at + Vector3.UP * height
 	var q := PhysicsRayQueryParameters3D.create(threat_eye, target, Layers.WORLD)
 	q.exclude = exclude
@@ -248,7 +304,25 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 	var c: Object = hit.collider
 	if c is CharacterBody3D:
 		return false  # the shooter himself
-	return (hit.position as Vector3).distance_to(target) < HUGGING
+	var d := (hit.position as Vector3).distance_to(target)
+	if d < HUGGING:
+		return true
+	var reach := threat_eye.distance_to(target) * HUGGING_SHARE if far else 0.0
+	if d >= reach:
+		return false
+	# Further off than arm's length: only something wide (a wall, a building's corner, not a crate
+	# across the street), that still hides him from a pace either side of where the threat stands.
+	var side := (target - threat_eye).cross(Vector3.UP)
+	if side.length() < 0.01:
+		return true
+	side = side.normalized() * PACE
+	for s: Vector3 in [side, -side]:
+		var q2 := PhysicsRayQueryParameters3D.create(threat_eye + s, target, Layers.WORLD)
+		q2.exclude = exclude
+		var h2 := space.intersect_ray(q2)
+		if h2.is_empty() or h2.collider is CharacterBody3D or (h2.position as Vector3).distance_to(target) >= reach:
+			return false
+	return true
 
 
 static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> bool:
@@ -281,6 +355,55 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 		if not space.intersect_shape(q, 1).is_empty():
 			return false
 	return true
+
+
+## The floor under a point, a step up to a porch's height above it or below it (null if none).
+static func _floor_under(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
+	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * LEVELS, p + Vector3.DOWN * LEVELS, Layers.WORLD)
+	q.exclude = exclude
+	var hit := space.intersect_ray(q)
+	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
+		return null
+	return hit.position
+
+
+## How far up or down (m) a spot may be from him when he knows the town's ways (a porch is 0.78).
+const LEVELS := 1.0
+## A way round by the town's ways may be this many times as long as the straight line, plus this.
+const WAY_LONGER := 1.6
+const WAY_EXTRA := 6.0
+## The places nearest a spot he'll try reaching it from.
+const TOWN_NEAREST := 4
+
+
+## The way there by the town's places (in at the door, down the steps), if there's one not much
+## longer than the straight line `r`; [] if not.
+static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID], places: Waypoints,
+		r: float, ctx: Dictionary) -> Array[Vector3]:
+	# His ways to every place, worked out once a search (`ctx`).
+	if not ctx.has("routes"):
+		ctx.routes = places.routes_from(space, from, exclude)
+	var routes: Dictionary = ctx.routes
+	var near: Array = routes.keys()
+	near.sort_custom(func(a: StringName, b: StringName) -> bool:
+		return (places.points[a] as Vector3).distance_squared_to(to) < (places.points[b] as Vector3).distance_squared_to(to))
+	var way: Array[Vector3] = []
+	for n: StringName in near.slice(0, TOWN_NEAREST):
+		var at_place: Vector3 = places.points[n]
+		if absf(at_place.y - to.y) < 0.6 and Waypoints._walkable(space, at_place, to, exclude):
+			way.assign(routes[n])
+			way.append(to)
+			break
+	if way.is_empty():
+		return []
+	var length := 0.0
+	var at := from
+	for w in way:
+		length += Vector2(w.x - at.x, w.z - at.z).length()
+		at = w
+	if length > r * WAY_LONGER + WAY_EXTRA:
+		return []
+	return way
 
 
 ## How to get there on foot: straight if he can, else round the thing in the way by one point

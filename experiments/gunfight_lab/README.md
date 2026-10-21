@@ -34,6 +34,8 @@ The bridge commands (`bridge.gd`, `python3 tools/bridge.py help` lists them with
   end; answers the headline, writes the whole record to `out`.
 - `gf_cover X Y Z [EYE_X EYE_Y EYE_Z]`: is there cover within 1.5 m of a spot from that eye, by
   the gang's own test (`Cover.evaluate`). How the ambushers' spots were placed.
+- `gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] [levels]`: the gang's cover search from a spot:
+  every candidate and why it was turned down, what the search picks and what it cost.
 - `gf_map [X Z R]`: what stands round the arena (props, troughs, lamps, places).
 
 `run.py` starts one game per fight with `gf_fight` as its `--bridge-script`, so a fight starts on
@@ -113,7 +115,8 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
   while covering a friend or without seeing you), times **pinned** (heads down from a near miss),
   reloads, every mood change, and how he ended; and since fix 1, each shot's error
   (`shot_errors`: time, how far his barrel was off where he meant in degrees, range, at your
-  head, his fear).
+  head, his fear); and since fix 2, why he was in the open (`open_searching`, `open_waiting`,
+  `searches_empty`).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,
   **dust on a line** (a ball into the ground within 1 m of your line of sight to a man still in
@@ -266,6 +269,10 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
 - `2026-10-21_gun_hand/`: the gang's aim from the gun's state (`GunHand`, the player's `Sway`)
   and a moment to react. Their first shot 0.85 → 2.1 s and hitting first 67% → 33%, but fights
   5.1 → 6.5 s: the opening now goes to whoever's gun is up, and reasons 2, 4 and 5 stand.
+- `2026-10-21_cover/`: cover first, by finding the cover that's there (spots up or down a step,
+  the town's ways in at doors and round the bar, wide cover a few metres off). Their time in the
+  open 42% → 22%, cover changes 0.42 → 0.97 a man, the street 7.1 → 12.7 s, fights 6.5 → 8.5 s;
+  now men quitting on 0–1 hits ends most fights.
 
 ## Limitations
 

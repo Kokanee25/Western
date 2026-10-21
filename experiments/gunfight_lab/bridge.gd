@@ -10,6 +10,7 @@ const HELP := {
 	"gf_lineup": "gf_lineup PATH [holstered] [studio|outlaw|MODEL...] -> the men side by side, guns up (or holstered), facing a camera: a picture (drawn runs)",
 	"gf_cover": "gf_cover X Y Z [FROM_X FROM_Y FROM_Z] -> is there cover within 1.5 m of X Y Z from that eye (default: the street's trough), as the gang judges it",
 	"gf_bodies": "gf_bodies [studio|outlaw|MODEL...] -> each man stood up alone: his hat's hitbox, his gun, and how much of what you see of him no hitbox covers",
+	"gf_coverwhy": "gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] -> the gang's cover search from X Y Z against that eye: how many spots, and why each was turned down",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -55,10 +56,25 @@ func _cmd_gf_cover(a: Array) -> Dictionary:
 	var eye := vec(a, 3) if a.size() >= 6 else Vector3(3.6, 1.64, -5.2)
 	var fight := Fight.new(self, {})
 	fight.player = player
-	var c: Dictionary = fight._cover_near(player.get_world_3d().direct_space_state, vec(a, 0), eye, null)
+	var space := player.get_world_3d().direct_space_state
+	var c: Dictionary = fight._cover_near(space, vec(a, 0), eye, null)
 	fight.free()
 	if c.is_empty():
-		return {"cover": false}
+		# Why not, at the spot itself.
+		var ex: Array[RID] = [player.get_rid()]
+		var g: Variant = Cover._ground(space, vec(a, 0), ex)
+		var why := "no ground" if g == null else "in plain view" if not Cover._blocked(space, g, eye, Cover.LIE_CHEST, ex) \
+				else "no room" if not Cover._room(space, g, ex) \
+				else "too low to hide him" if not (Cover.hidden_at(space, g, eye, Cover.HIDE_HEAD, ex) and Cover.hidden_at(space, g, eye, Cover.CHEST, ex)) \
+				else "no peek"
+		var parts := {}
+		if g != null:
+			for h in [Cover.LIE_CHEST, Cover.CHEST, Cover.HIDE_HEAD, Cover.CROUCH_HEAD, Cover.STAND_HEAD]:
+				var q := PhysicsRayQueryParameters3D.create(eye, (g as Vector3) + Vector3.UP * h, Layers.WORLD)
+				q.exclude = ex
+				var hit := space.intersect_ray(q)
+				parts[str(h)] = "clear" if hit.is_empty() else "%s at %.2f m from him" % [String((hit.collider as Node).name), (hit.position as Vector3).distance_to((g as Vector3) + Vector3.UP * h)]
+		return {"cover": false, "why": why, "rays": parts}
 	return {"cover": true, "at": arr(c.at), "peek": arr(c.peek) if c.peek != Vector3.INF else null, "low": c.low, "lie": c.lie, "crouch_ok": c.crouch_ok}
 
 
@@ -178,6 +194,78 @@ func _surface_outside(man: HumanBody) -> Dictionary:
 		"outside_hitboxes_over_3cm_pct": snappedf(100.0 * out3 / maxf(n, 1), 0.1),
 		"outside_hitboxes_over_8cm_pct": snappedf(100.0 * out8 / maxf(n, 1), 0.1), "furthest_outside_m": snappedf(worst, 0.01),
 		"by_shape": shapes}
+
+
+func _cmd_gf_coverwhy(a: Array) -> Dictionary:
+	if a.size() < 6:
+		return {"ok": false, "error": HELP.gf_coverwhy}
+	var from := vec(a, 0)
+	var eye := vec(a, 3)
+	var travel := float(a[6]) if a.size() > 6 else 11.0
+	var levels := "levels" in a  # candidates dropped to whatever ground is under them, any height
+	var space := player.get_world_3d().direct_space_state
+	var ex: Array[RID] = [player.get_rid()]
+	var rng := RandomNumberGenerator.new()
+	var cands: Array[Vector3] = []
+	for r: float in Cover.RADII:
+		if r > travel:
+			break
+		for i in Cover.DIRECTIONS:
+			var ang := TAU * i / Cover.DIRECTIONS
+			cands.append(from + Vector3(cos(ang), 0.0, sin(ang)) * r)
+	var shadows := Cover._shadows(space, from, eye, ex, travel)
+	cands.append_array(shadows)
+	cands = Cover._dedupe(cands)
+	var why := {}
+	var good: Array = []
+	var flat := Vector3(eye.x, from.y, eye.z)
+	for p0 in cands:
+		var p := p0
+		if levels:
+			var q := PhysicsRayQueryParameters3D.create(p0 + Vector3.UP * 2.0, p0 + Vector3.DOWN * 2.0, Layers.WORLD)
+			q.exclude = ex
+			var hit := space.intersect_ray(q)
+			if not hit.is_empty() and (hit.normal as Vector3).y > 0.7:
+				p = (hit.position as Vector3) + Vector3.UP * 0.05
+		var reason := ""
+		var g: Variant = Cover._ground(space, p, ex)
+		if g == null:
+			reason = "no ground"
+		elif absf((g as Vector3).y - p.y) > 0.5:
+			reason = "step up or down"
+		elif not Cover._blocked(space, g, eye, Cover.LIE_CHEST, ex):
+			reason = "in plain view (nothing near him in the way)"
+		elif not Cover._room(space, g, ex):
+			reason = "no room"
+		else:
+			var spot := Cover.evaluate(space, p, eye, ex)
+			if spot.is_empty():
+				var hid := Cover.hidden_at(space, g, eye, Cover.HIDE_HEAD, ex) and Cover.hidden_at(space, g, eye, Cover.CHEST, ex)
+				var lay := Cover.hidden_at(space, g, eye, Cover.LIE_HEAD, ex) and Cover.hidden_at(space, g, eye, Cover.LIE_CHEST, ex)
+				reason = "no peek to shoot from" if hid or lay else "too low to hide him"
+			elif not levels and Cover.route(space, from, spot.at, ex).is_empty():
+				reason = "no way there"
+			elif (spot.at as Vector3).distance_to(flat) < 5.0 or ((spot.at as Vector3) - from).dot((flat - from).normalized()) > 3.0:
+				reason = "toward you, or within 5 m of you"
+			else:
+				good.append(arr(spot.at))
+		if reason != "":
+			why[reason] = int(why.get(reason, 0)) + 1
+	# And what the gang's own search picks (with the town's ways, as their brains call it).
+	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	rng.seed = 7
+	var t0 := Time.get_ticks_usec()
+	Cover.find(street, from, eye, ex, rng, Vector3.INF, travel)
+	var t_plain := Time.get_ticks_usec() - t0
+	rng.seed = 7
+	t0 = Time.get_ticks_usec()
+	var pick := Cover.find(street, from, eye, ex, rng, Vector3.INF, travel, places)
+	var t_town := Time.get_ticks_usec() - t0
+	var picked: Variant = null
+	if not pick.is_empty():
+		picked = {"at": arr(pick.at), "low": pick.low, "lie": pick.lie, "way": (pick.route as Array).map(func(w: Vector3) -> Array: return arr(w))}
+	return {"candidates": cands.size(), "shadow_points": shadows.size(), "good": good.size(), "good_spots": good.slice(0, 8), "turned_down": why,
+		"picked": picked, "ms_plain": t_plain / 1000.0, "ms_town": t_town / 1000.0}
 
 
 func _cmd_gf_map(a: Array) -> Dictionary:

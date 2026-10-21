@@ -1206,7 +1206,7 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 	if _search != null:
 		return
 	_search = Cover.search(body.get_parent() as Node3D, body.global_position, eye, _exclude(_find_target()), _think, bias_from,
-			max_travel, new_angle)
+			max_travel, new_angle, places)
 	_search_bias = bias_from
 
 
@@ -1259,7 +1259,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_check = 0.5
 		var space := body.get_world_3d().direct_space_state
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
-		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target())):
+		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target()), places != null):
 			# He's come round it: this cover's no good now.
 			tactic = Tactic.OPEN
 			_cover_search = 0.0

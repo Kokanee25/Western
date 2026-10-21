@@ -338,6 +338,13 @@ func _watch_men(_delta: float) -> void:
 		if b.suppressed > 0.0 and float(pv.suppressed) <= 0.0:
 			m.pinned += 1
 		pv.suppressed = b.suppressed
+		# Why he's in the open while fighting: looking for cover, found none, or neither (seconds).
+		if b.tactic == OutlawBrain.Tactic.OPEN and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING] and not man.limp:
+			var why := "open_searching" if b._search != null else ("open_prone" if man.prone else "open_waiting")
+			m[why] = snappedf(float(m.get(why, 0.0)) + _delta, 0.001)
+		if pv.get("searching", false) and b._search == null and b.tactic == OutlawBrain.Tactic.OPEN:
+			m["searches_empty"] = int(m.get("searches_empty", 0)) + 1
+		pv["searching"] = b._search != null
 		if m.out_at < 0.0:
 			if not man.physiology.alive:
 				_out(man, "dead", "dead")
