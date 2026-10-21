@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://b7pfrx7othxem"
+path="res://.godot/imported/floor_end.png-6aa53d5e27ae231b5d5d44a9df35ce9e.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio4/floor_end.png"
+dest_files=["res://.godot/imported/floor_end.png-6aa53d5e27ae231b5d5d44a9df35ce9e.ctex"]
 
 [params]
 

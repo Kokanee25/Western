@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://mhypxmj18ml2"
+path="res://.godot/imported/prop_staves.png-75cc06266a14e735c25430dfa2bb3667.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio4/prop_staves.png"
+dest_files=["res://.godot/imported/prop_staves.png-75cc06266a14e735c25430dfa2bb3667.ctex"]
 
 [params]
 

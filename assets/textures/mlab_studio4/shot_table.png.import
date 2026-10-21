@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dea653g3bj7ul"
+path="res://.godot/imported/shot_table.png-47070ab04bcbaabee3553fef06e89677.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio4/shot_table.png"
+dest_files=["res://.godot/imported/shot_table.png-47070ab04bcbaabee3553fef06e89677.ctex"]
 
 [params]
 

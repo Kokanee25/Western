@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://hwnn4fe0m3an"
+path="res://.godot/imported/stair_runner.png-bedc8ce4435eeebb6a048683d18345c1.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio4/stair_runner.png"
+dest_files=["res://.godot/imported/stair_runner.png-bedc8ce4435eeebb6a048683d18345c1.ctex"]
 
 [params]
 
