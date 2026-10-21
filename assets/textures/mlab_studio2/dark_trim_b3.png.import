@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cdfx1glhvmead"
+path="res://.godot/imported/dark_trim_b3.png-ab4c520663d0b3f305a782432b48ea7c.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio2/dark_trim_b3.png"
+dest_files=["res://.godot/imported/dark_trim_b3.png-ab4c520663d0b3f305a782432b48ea7c.ctex"]
 
 [params]
 

@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://btobyb1vu0fgh"
+path="res://.godot/imported/framing_b1.png-64f6a1b8e86be5a16a4c32c622830197.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio2/framing_b1.png"
+dest_files=["res://.godot/imported/framing_b1.png-64f6a1b8e86be5a16a4c32c622830197.ctex"]
 
 [params]
 

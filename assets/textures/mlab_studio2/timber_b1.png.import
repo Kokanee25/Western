@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://b7e27pw50eegk"
+path="res://.godot/imported/timber_b1.png-ebef48a112d191451d5f07cfa1060b68.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio2/timber_b1.png"
+dest_files=["res://.godot/imported/timber_b1.png-ebef48a112d191451d5f07cfa1060b68.ctex"]
 
 [params]
 
