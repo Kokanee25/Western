@@ -262,6 +262,18 @@ First, find every prop that already exists and write it into docs/PARTS.md's Pro
 Then design the prop kit: one data file per prop (members, shatter or fitting), read by one builder, with the look from the texture factory's approved materials matched to the Studio's men. Build the table and the chair first (roadmap 3.3): legs snap, tops split, they carry weight, burn piece by piece, a seated man drops when his chair goes. Each must look at least as good as PropModels' version in the same shot, pass the breakage lab's scenarios, and fit the frame budget batched. Use the shared systems as they are; anything they need changed goes to gameplay. Costs before any paid painting. Promote each finished prop into PARTS.md and tell the test saloon session.
 ```
 
+## Face rig lab (after 2.1 and 2.3) [Salt Creek]
+
+```
+Characters lane, branch claude/characters-face-rig-lab. The face rig lab (docs/briefs/labs.md, "Face rig lab"). Read docs/briefs/face-rig.md, the talking face section of docs/LAYOUT.md and tools/faces/. Rig the Studio's men (bold_cowboy_s0, old_rancher_s1, young_drifter_s1, sean_s2) by one recipe, on copies, starting with one man and showing me before doing the rest. Measure each: lip sync on the same take, the shapes reading at 2, 5 and 10 m, his painted look kept (a sheet beside his portrait), the face with wounds and his hat, frame time with a room of talking men. My own takes, face and voice stay out of the repo: test sean_s2 on a stand-in take. Then write the recipe into tools/characters/RECIPE.md for my OK, and say what the Character Studio needs to make it a stage so every new man arrives rigged. Costs before any paid call.
+```
+
+## Water lab (part 1 with the prop lab's bottles and trough) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-water-lab. The water lab (docs/briefs/labs.md, "Water lab"). Read it, the src/fire section of docs/LAYOUT.md (water, douse, wet members, spilt oil) and docs/PARTS.md. Bench and baseline first in experiments/water_lab/ (README, its own bridge.gd, outputs in build/, seeded). Part 1, liquid in containers, on the prop lab's cup, bottle, barrel and the trough: a fill level, slosh when moved or bumped, a ball's hole draining by Torricelli's law until the level reaches it, pouring when tipped, a shattered bottle letting go. Check streams and drain times against the formula, and frame time with a bar full of glasses. No 3D particle fluid. Promote what works into the game and docs/PARTS.md. Parts 2 (spills) and 3 (the flood) come later, as the roadmap's schedule says.
+```
+
 ## Promote a lab's part into the game [Salt Creek]
 
 ```

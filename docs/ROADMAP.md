@@ -61,6 +61,10 @@ then.
 |---|---|---|---|
 | Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
 | Prop lab: every prop end to end (look, members, breaking, burning, shattering), tables and chairs first | Now, with 3.3 (furniture) | gameplay and art (its own lane exception) | `prop-lab.md` |
+| Face rig lab: every man's face rigged by one recipe, then a Character Studio stage | After the stand-ins (2.1) and wound paint (2.3), so faces are ready for 5.2 (talking) | characters | `labs.md` |
+| Water lab 1, liquid in containers (slosh, holes that drain, pouring) | With the prop lab's bottles, cups and trough | gameplay (art for the look) | `labs.md` |
+| Water lab 2, spills (whiskey and oil running, soaking, burning) | After part 1, with the fire lab | gameplay | `labs.md` |
+| Water lab 3, the flood | Once the water tower is built as members | gameplay | `labs.md` |
 | Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
 | Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
 | Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |

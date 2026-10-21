@@ -41,6 +41,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The faint | `src/bodies/human_body.gd` | ragdoll lab | on a branch (`claude/gameplay-faint`) |
 | Field first aid: pressure, tourniquet, bandage (the player's tend key; outlaws tend themselves) | `src/bodies/physiology.gd`, `src/player/player_wounds.gd`, `src/people/outlaw_brain.gd` | tests | in the game; the treatment lab widens it |
 | Senses, deeds, relations, the escalation ladder, the gang's crew | `src/people/` | tests | in the game |
+| A working face (mouth, lips, teeth, lids, jaw, 12-15 shapes, Live Link takes, `FaceGaze`) | `tools/faces/`, `bold_cowboy_talking` | face rig brief (`docs/briefs/face-rig.md`) | in the game on the old layered cowboy only; the face rig lab brings it to the Studio's men |
 | The Studio's men: `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `sean_s2` | `assets/people/` | `works_check.gd`, `test_bodies.gd` | in the game (cast as the gang, the storekeeper and the sheriff) |
 
 ## Materials and look (art)
@@ -60,6 +61,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | --- | --- | --- | --- |
 | The 12 drawn props (card table, chair, bar stool, piano, barrel, spittoon, oil lamp, whiskey bottle, tin cup, deer head, framed painting, wall sconce) | `assets/props/manifest.json`, `src/props/prop_library.gd`, `src/props/prop_models.gd` | the judge's shots | in the game, solid (one collision box, can't break or burn); targets for their kit versions |
 | Buildings' hand-built furnishings (store, telegraph, doctor, bank; the saloon's bar) | `FalseFrontBuilding._furnish_*`, `src/art/saloon_dressing.gd` | tests | in the game, as members; to be brought into the kit |
+| Water: buckets, the bucket line, dousing, wet members | `src/fire/`, `src/people/bucket_line.gd` | tests | in the game; the water lab adds liquid in containers, spills and the flood |
 | A smashed lamp spills burning oil | `src/structures/fittings.gd`, `src/fire/` | tests | in the game |
 | The prop kit (one data file per prop: members, shatter or fitting) | — | — | not started: the prop lab's first job |
 
