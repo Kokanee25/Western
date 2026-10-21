@@ -11,7 +11,9 @@ start").
 One material at a time on a test stand (a wall, a post, a deck and steps) under the game's three
 lights, with a man beside it for scale. It already exists: `tools/material_lab.gd` ran the timber
 pass on 2026-10-14 (`docs/briefs/material-lab-timber.md`), and its third version became the game's
-woods on 2026-10-15. This makes it permanent and wider.
+woods on 2026-10-15. This makes it permanent and wider. **Built 2026-10-21: `docs/briefs/material-lab.md`**
+(the stand, the measures against the Studio men, round 1's results, what production needs, the
+wear-down plan).
 
 | Tests | Examples |
 | --- | --- |
