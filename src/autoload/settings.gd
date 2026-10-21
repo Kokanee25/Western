@@ -82,6 +82,10 @@ var finish := false
 ## filters, the look has to be the art": it cut the drawn textures and his face into blotches);
 ## O still turns it on to compare.
 var mosaic := false
+## The fire drawn from the simulated flipbooks (FireFlipbook, docs/briefs/fire-look.md "The next
+## approach") in place of the drawn fire sheets: off by default while Sean compares the two (the
+## look panel, N).
+var fire_flipbooks := false
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
 var surface_blocks := false
@@ -221,6 +225,8 @@ func load_from_disk() -> void:
 		internal_resolution = NATIVE
 	finish = cfg.get_value("video", "finish", finish)
 	mosaic = cfg.get_value("video", "mosaic", mosaic)
+	if cfg.get_value("video", "fire_flipbooks", false):
+		set_fire_flipbooks(true, false)
 	# 5: the screen mosaic, and the finish's softening (the default till then) off under it.
 	if look_version < 5:
 		finish = false
@@ -253,6 +259,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "finish", finish)
 	cfg.set_value("video", "mosaic", mosaic)
+	cfg.set_value("video", "fire_flipbooks", fire_flipbooks)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
 	cfg.set_value("video", "tile_look", String(tile_look))
@@ -297,6 +304,16 @@ func set_finish(on: bool) -> void:
 func set_mosaic(on: bool) -> void:
 	mosaic = on
 	_changed()
+
+
+## The simulated fire's flipbooks on or off (FireFX.flipbooks; burning members change over as
+## FireFX next refreshes them). Loaded by path: naming FireFX here would compile the fire's
+## scripts with this autoload.
+func set_fire_flipbooks(on: bool, save := true) -> void:
+	fire_flipbooks = on
+	load("res://src/fire/fire_fx.gd").flipbooks = on
+	if save:
+		_changed()
 
 
 ## V: the probe mosaic trial on or off. It looks as meant over the quantise-once textures and

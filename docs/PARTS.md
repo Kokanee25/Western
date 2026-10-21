@@ -57,6 +57,15 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | **Profiles** (the woodwork's cross-sections as data: chamfer, rounded, bar top, handrail, ogee, bead) | `src/art/profiles.gd` | interior stand, `tests/test_material_stand.gd` | in the game (code); members drawn with them come with the kit's draw shapes |
 | The test stand, the interior stand | `src/art/material_stand.gd`, `src/art/interior_stand.gd`, `tools/material_lab.gd` | — | lab fixtures (stay in the lab) |
 
+## Fire (art draws it; gameplay's `FireSystem` and `FireFX` spread and place it)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The drawn fire sheet (one noise field of tongues a burning member, in the painting's bands) | `src/fire/fire_sheet.gdshader`, placed by `FireFX._sheet_on` | the judge's fire view (`livery_fire_dusk`) | in the game (the default) |
+| The fire flipbooks: a lick, a tongue and a big column, each 64 looping frames baked from a Mantaflow fire, with motion vectors (R flame, G smoke, B heat) | `assets/textures/fire/`, made by `tools/textures/fire_sim/` (`bake_flames.py`, `make_sheets.py`, `flames.json`) | `tests/test_fire_flipbooks.gd` (whole, loop seam like a step), `tools/flame_views.gd` | in the game behind `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`), waiting on Sean's A/B; the final painted pass after Gate A |
+| The flipbook flame shader: motion-vector frame blending, a core in the painting's bands that keeps its hue, alpha-blended tips and smoke, soft edges at walls and floors, heat haze | `src/fire/fire_flipbook.gd` (`FireFlipbook`), `flipbook.gdshaderinc`, `flame_core`/`flame_tips`/`flame_haze.gdshader` | `tools/fire_cost.gd` (a building fully alight), `tools/fire_ab.gd` (the A/B film) | as above; uses FireFX's sheets as they are (same quad, same instance uniforms) |
+| The fire painting's colours (its fire's tones, edge to root; its smoke dark and lit) | `assets/textures/fire/fire_ramp.png`, `fire_sheets.json` (from `docs/concept/livery-fire-painted.png`) | `make_sheets.py` | in the game with the flipbooks |
+
 ## Props (the prop lab, `docs/briefs/prop-lab.md`)
 
 | Part | Where it lives | Proven by | Status |

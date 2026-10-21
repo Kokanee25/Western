@@ -359,6 +359,14 @@
   },
   "share": 0.01
  },
+ "saloon_fire_inside": {
+  "mean": 32.05,
+  "noise": {
+   "mean": 10.683,
+   "share": 0.211
+  },
+  "share": 0.6329
+ },
  "saloon_front_dusk": {
   "mean": 1.5,
   "noise": {

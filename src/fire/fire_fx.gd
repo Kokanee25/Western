@@ -25,6 +25,9 @@ const FRAME_KINDS := [&"sill", &"post", &"joist", &"stud", &"plate", &"beam", &"
 
 ## Fire as sheets (true) or as the flipbook tongues (false, for comparing; --flame-sprites).
 static var sheets := true
+## The sheets drawn from the simulated flipbooks (FireFlipbook, the art session's) instead of the
+## drawn field (Settings.fire_flipbooks).
+static var flipbooks := false
 static var _sheet_mat: ShaderMaterial
 static var _sheet_quad: QuadMesh
 
@@ -79,6 +82,8 @@ func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 				((e as GPUParticles3D).draw_pass_1 as QuadMesh).size = size * float(e.get_meta(&"flame"))
 			else:
 				(e as GeometryInstance3D).set_instance_shader_parameter(&"heat", heat)
+				if (e as GeometryInstance3D).material_override != _sheet_material():
+					(e as GeometryInstance3D).material_override = _sheet_material()
 
 
 func _exit_tree() -> void:
@@ -159,6 +164,8 @@ static func _sheet_mesh() -> QuadMesh:
 
 
 static func _sheet_material() -> ShaderMaterial:
+	if flipbooks:
+		return FireFlipbook.material()
 	if _sheet_mat == null:
 		_sheet_mat = ShaderMaterial.new()
 		_sheet_mat.shader = SHEET

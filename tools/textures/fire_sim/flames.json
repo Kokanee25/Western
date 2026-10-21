@@ -1,0 +1,137 @@
+{
+  "_doc": "The flame types baked from a Mantaflow fire (tools/textures/fire_sim/bake_flames.py, docs/briefs/fire-look.md 'The next approach'). Each is one simulation: `warm` frames to get going, then 64 + `blend` frames, the last `blend` cross-faded into the first so the sheet loops. Sizes in metres (x across, y depth, z up); `res` the cells along the domain's longest side. `emitter` is a box [x, y, z] of fuel standing on the floor. `domain` and `flow` are Mantaflow's own settings (FluidDomainSettings, FluidFlowSettings), set by name. `turbulence` a turbulence field's strength and size, for the fire's flicker. `squares` the frame's size in the sheet (across, up), the projection resampled to it.",
+  "frames": 64,
+  "grid": [
+    8,
+    8
+  ],
+  "fps": 24,
+  "types": {
+    "lick": {
+      "domain_size": [
+        0.5,
+        0.5,
+        0.75
+      ],
+      "res": 64,
+      "emitter": [
+        0.12,
+        0.1,
+        0.03
+      ],
+      "warm": 30,
+      "blend": 16,
+      "squares": [
+        32,
+        48
+      ],
+      "seed": 11,
+      "turbulence": [
+        1.2,
+        0.12
+      ],
+      "domain": {
+        "alpha": 0.0,
+        "beta": 2.6,
+        "vorticity": 0.35,
+        "burning_rate": 1.0,
+        "flame_smoke": 0.4,
+        "flame_vorticity": 1.6,
+        "flame_ignition": 1.25,
+        "flame_max_temp": 2.5,
+        "use_dissolve_smoke": true,
+        "dissolve_speed": 18
+      },
+      "flow": {
+        "fuel_amount": 1.0,
+        "temperature": 1.4,
+        "surface_distance": 0.6,
+        "subframes": 2
+      }
+    },
+    "tongue": {
+      "domain_size": [
+        0.7,
+        0.7,
+        1.6
+      ],
+      "res": 96,
+      "emitter": [
+        0.16,
+        0.1,
+        0.05
+      ],
+      "warm": 40,
+      "blend": 16,
+      "squares": [
+        32,
+        72
+      ],
+      "seed": 23,
+      "turbulence": [
+        2.0,
+        0.18
+      ],
+      "domain": {
+        "alpha": 0.0,
+        "beta": 3.6,
+        "vorticity": 0.4,
+        "burning_rate": 0.55,
+        "flame_smoke": 0.6,
+        "flame_vorticity": 1.5,
+        "flame_ignition": 1.25,
+        "flame_max_temp": 3.0,
+        "use_dissolve_smoke": true,
+        "dissolve_speed": 22
+      },
+      "flow": {
+        "fuel_amount": 1.4,
+        "temperature": 1.6,
+        "surface_distance": 0.8,
+        "subframes": 2
+      }
+    },
+    "column": {
+      "domain_size": [
+        2.0,
+        2.0,
+        4.0
+      ],
+      "res": 128,
+      "emitter": [
+        0.6,
+        0.4,
+        0.12
+      ],
+      "warm": 50,
+      "blend": 16,
+      "squares": [
+        64,
+        128
+      ],
+      "seed": 37,
+      "turbulence": [
+        2.5,
+        0.35
+      ],
+      "domain": {
+        "alpha": 0.2,
+        "beta": 4.0,
+        "vorticity": 0.35,
+        "burning_rate": 0.45,
+        "flame_smoke": 1.2,
+        "flame_vorticity": 1.5,
+        "flame_ignition": 1.25,
+        "flame_max_temp": 3.0,
+        "use_dissolve_smoke": true,
+        "dissolve_speed": 30
+      },
+      "flow": {
+        "fuel_amount": 1.6,
+        "temperature": 1.8,
+        "surface_distance": 1.0,
+        "subframes": 2
+      }
+    }
+  }
+}
