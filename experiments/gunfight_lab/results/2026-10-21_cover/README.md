@@ -50,7 +50,10 @@ Sean's). 424 tests pass.
 ## Measured (`compare.md`: the same 360 studio fights, before and after)
 
 "Before" is this branch just before the change (fix 1 on today's main), run again so the only
-difference is this change.
+difference is this change. Since merged: main at 4b4b603 (the falls' faint, a body thrown into
+timber, the saloon's lot and cellar, the stair's walking layer). Single fights now play out
+differently, but the street's 120 run again keep the result: 12.5 s median (12.7), the gang's hits
+a shot 17% (17%), their time in the open 27% (25%), the longest quiet 5.0 s (5.1).
 
 | | before | after |
 |---|---|---|
