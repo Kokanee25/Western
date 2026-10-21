@@ -451,6 +451,28 @@ func take_hat_shot(at: Vector3, dir: Vector3, energy: float, shooter: Node, mass
 	return maxf(energy - HAT_RESISTANCE, 0.0)
 
 
+## Down and his hat meets the ground (or anything solid): it's pushed off his head and goes its own
+## way with what his head was doing. Kept on as part of his head, its brim went 7-11 cm into the
+## floor as he lay (experiments/physics_lab, the Studio's men, 2026-10-21).
+func _hat_meets_ground() -> void:
+	var head := parts.get(&"head") as RigidBody3D
+	if head == null or head.sleeping:
+		return
+	var space := get_world_3d().direct_space_state
+	for c in hat_body.get_children():
+		if not c is CollisionShape3D:
+			continue
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = (c as CollisionShape3D).shape
+		q.transform = (c as CollisionShape3D).global_transform
+		q.collision_mask = Layers.WORLD
+		if not space.intersect_shape(q, 1).is_empty():
+			var hat := knock_hat_off(head.linear_velocity)
+			if hat:
+				hat.angular_velocity = head.angular_velocity
+			return
+
+
 ## Take the hat off his head and let it fall (or fly) as a thing of its own, holed where `at` is.
 func knock_hat_off(velocity := Vector3.ZERO, at := Vector3.INF) -> RigidBody3D:
 	if hat_off or hat_body == null:
@@ -1058,6 +1080,8 @@ func _physics_step(delta: float) -> void:
 	if held_gun != null and not gun_holstered and not physiology.can_hold("r"):
 		drop_gun()
 	if limp:
+		if hat_body != null:
+			_hat_meets_ground()
 		_step_tone(delta)
 		if not _apart.is_empty():
 			_rejoin_apart()
