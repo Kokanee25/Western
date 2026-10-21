@@ -5,6 +5,7 @@ his expressions as blend shapes made from MakeHuman's face pose units (tools/fac
 
     ~/bpyenv/bin/python tools/faces/mh_units.py --fetch
     ~/bpyenv/bin/python tools/faces/talking_face.py --man=bold_cowboy_layered --out=bold_cowboy_talking
+    ~/bpyenv/bin/python tools/faces/talking_face.py --man=sean_s3 --out=sean_s3_talking --landmarks=FILE.npy
 
 → assets/people/<out>.glb (his model, body_head replaced: his kept head, the new face, its eyes,
   teeth and tongue, one mesh with his expressions as blend shapes), <out>_head.png (his own paint
@@ -493,13 +494,15 @@ def smooth_near(D, V, T, ring, skin, passes):
     return D
 
 
-def build(man, out, head, report_only=False):
+def build(man, out, head, report_only=False, landmarks=None):
     import portrait as PT
     os.makedirs(WORK, exist_ok=True)
     g = Glb(os.path.join(PEOPLE, man + ".glb"))
     game = g.mesh("body_head")
     hj = g.joint_names().index("head")
-    his = his_landmarks(os.path.join(PEOPLE, "heads", head + "_mesh.npz"), game)
+    # A whole man from the Character Studio has no portrait bust: his 478 landmarks come found on
+    # his own mesh, in game space (`--landmarks=`, the Studio's headshape.landmarks_3d).
+    his = np.load(landmarks) if landmarks else his_landmarks(os.path.join(PEOPLE, "heads", head + "_mesh.npz"), game)
     mh = MHFace()
     ml = mh_landmarks(mh, WORK)
     W = TPS(ml, his)
@@ -623,10 +626,13 @@ def build(man, out, head, report_only=False):
     VH = np.r_[Vh, np.concatenate(SV)]
     UVH = np.r_[game["UV"], np.concatenate(SUV)]
     sn = np.cross(VH[ST[:, 1]] - VH[ST[:, 0]], VH[ST[:, 2]] - VH[ST[:, 0]])
-    out_dir = VH[ST].mean(1) - np.array([axis[0], 0, axis[1]]) * np.array([1, 0, 1])
-    out_dir[:, 1] = 0
-    if (np.einsum("ij,ij->i", sn, out_dir) < 0).mean() > 0.5:
-        ST = ST[:, ::-1]
+    # Each strip triangle faces out from his head's centre (his eyes' height on its axis), one by
+    # one: over his crown and under his chin a sideways test flips some inward (holes, on a coarse
+    # whole man's head; Sean's, 2026-10-21).
+    centre3 = np.array([axis[0], his[[468, 473], 1].mean(), axis[1]])
+    out_dir = VH[ST].mean(1) - centre3
+    flip = np.einsum("ij,ij->i", sn, out_dir) < 0
+    ST[flip] = ST[flip][:, ::-1]
     TH = np.r_[Tk, ST]
     used = np.unique(TH)
     remap = -np.ones(len(VH), int)
@@ -835,4 +841,5 @@ if __name__ == "__main__":
     a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
     man = a.get("--man", "bold_cowboy_layered")
     info = json.load(open(os.path.join(PEOPLE, man + ".json")))
-    build(man, a.get("--out", "bold_cowboy_talking"), a.get("--head", info.get("neck_ring", {}).get("head")))
+    build(man, a.get("--out", "bold_cowboy_talking"), a.get("--head", info.get("neck_ring", {}).get("head")),
+          landmarks=a.get("--landmarks"))
