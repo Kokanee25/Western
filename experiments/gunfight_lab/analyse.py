@@ -19,7 +19,7 @@ import sys
 from collections import Counter, defaultdict
 
 MEN = ["brody", "lyle", "kid"]
-SIT = ["cover_shot_away", "lamps_hit", "fires_started", "dust_on_line", "dust_by_man", "surrenders", "flights", "hats_shot", "townsfolk_hit"]
+SIT = ["cover_shot_away", "lamps_hit", "fires_started", "dust_on_line", "dust_by_man", "surrenders", "flights", "hats_shot", "townsfolk_hit", "shaken", "rallied"]
 ENDINGS = ["you_down", "you_dead", "all_dead", "dead", "down", "surrendered", "fled", "broke_off", "lull", "timeout"]
 
 
@@ -184,6 +184,9 @@ def headline(fs):
         ("longest quiet, median s", fmt(s["quiet_median_s"])),
         ("the men's fighting time in the open", f"{fmt(pct(open_[True], sum(open_.values())), 0)}%"),
         ("you down", f"{fmt(s['you_down_pct'], 0)}%"),
+        ("quits on 0 / 1 / 2+ hits (a man a fight)", " / ".join(fmt(sum(1 for f in fs for m in f["men"].values()
+            if m.get("outcome") in ("surrendered", "fled") and (min(m["hits_taken"], 2) == h)) / len(fs), 2) for h in (0, 1, 2))),
+        ("shaken, rallied (a fight)", f"{fmt(s['situations_per_fight'].get('shaken', 0), 2)}, {fmt(s['situations_per_fight'].get('rallied', 0), 2)}"),
         ("how it ended (top 3)", ", ".join(f"{k} {round(100 * v / len(fs))}%" for k, v in top)),
     ]
 

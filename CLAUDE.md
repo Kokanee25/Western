@@ -402,8 +402,10 @@ frozen until Sean names one.
   gang aims by the player's sway (`GunHand`, `Sway`, `config/gun_hand.tres`) and reacts before
   drawing; their first shot 0.85 → 2.1 s, fights 5.1 → 6.5 s. Fix 2 (`results/2026-10-21_cover/`):
   `Cover` with the town's places finds doorways, corners, the bar and spots a step up or down;
-  time in the open 42% → 22%, fights 6.5 → 8.5 s (street 12.7). Next: nerve (men quit on 0–1
-  hits), Sean's call. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill
+  time in the open 42% → 22%, fights 6.5 → 8.5 s (street 12.7). Fix 3 (`results/2026-10-21_nerve/`):
+  past his nerve behind cover a man is shaken first (`_shaken_holds`) and gets his breath back;
+  fights 7.2 → 10.1 s (street 16.9, 10% in 45–90). Next: Sean's pick (a fair standoff, the
+  leader's surrender, the dials). Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill
   loops match their own command line.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter

@@ -444,7 +444,9 @@ a few views renders them as the full run does.
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
   steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
-  surrenders; a moment to react to a fight he didn't start, then draws), `GunHand` (where his
+  surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
+  cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
+  it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"

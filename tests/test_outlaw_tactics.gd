@@ -196,6 +196,64 @@ func test_rounds_cracking_past_keep_his_head_down() -> void:
 	check_eq(outlaw.pose, &"duck", "head right down")
 
 
+# --- Shaken, not broken ------------------------------------------------------------------------------------
+
+## Past his nerve behind cover he goes to ground rather than give up: head right down, not
+## shooting. Let be, it passes and he's back in it.
+func test_shaken_behind_cover_he_gets_his_nerve_back() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	_crates()
+	brain.nerve = 99.0
+	await physics_frames(2)
+	await _provoke()
+	await wait_until(func() -> bool: return brain.tactic == OutlawBrain.Tactic.HIDDEN, 60 * 6)
+	brain.nerve = 0.75
+	brain.fear = brain.nerve + 0.1
+	shots_by_outlaw = 0
+	await physics_frames(60)
+	check(brain.mood == OutlawBrain.Mood.FIGHTING and brain._shaken >= 0.0, "gone to ground, not given up (%s)" % brain.describe().substr(0, 70))
+	check(outlaw.pose in [&"duck", &"lie"], "head right down (%s)" % outlaw.pose)
+	var back := await wait_until(func() -> bool: return brain._shaken < 0.0, 60 * 6)
+	check(back and brain.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING], "it passes and he's back in it (%s)" % brain.describe().substr(0, 70))
+	check(brain.fear <= brain.nerve, "his fear's settled (%.2f)" % brain.fear)
+
+
+## Kept at it while he's down there, it doesn't pass: he breaks after all. Far past his nerve he
+## breaks at once, cover or no.
+func test_shaken_and_kept_at_it_he_breaks() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	_crates()
+	brain.nerve = 99.0
+	brain.flee_chance = 0.0
+	await physics_frames(2)
+	await _provoke()
+	await wait_until(func() -> bool: return brain.tactic == OutlawBrain.Tactic.HIDDEN, 60 * 6)
+	brain.nerve = 0.75
+	brain.fear = brain.nerve + 0.05
+	var k := 0
+	while k < 60 * 9 and brain.mood != OutlawBrain.Mood.SURRENDERED:
+		if k % 45 == 0:
+			Events.near_miss.emit(outlaw, player, 2.2, outlaw.global_position + Vector3(2.2, 1.5, 0), 240.0, false)
+		await physics_frames(1)
+		k += 1
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "gives up in the end")
+	check(k > 60 * 2, "but not on the spot (%.1f s)" % (k / 60.0))
+
+
+func test_far_past_his_nerve_cover_doesnt_hold_him() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	_crates()
+	brain.nerve = 99.0
+	brain.flee_chance = 0.0
+	await physics_frames(2)
+	await _provoke()
+	await wait_until(func() -> bool: return brain.tactic == OutlawBrain.Tactic.HIDDEN, 60 * 6)
+	brain.nerve = 0.75
+	brain.fear = brain.nerve + brain.shaken_margin + 0.05
+	await physics_frames(2)
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "gives up there and then")
+
+
 # --- Breaking, tending, crawling ---------------------------------------------------------------------------
 
 func test_broken_he_runs_for_it() -> void:

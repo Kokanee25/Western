@@ -61,6 +61,8 @@ var _shoot_dir := ""
 var _shot_every := 0.0
 var _next_shot_t := 0.0
 var _overview: Camera3D
+const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shout"]
+var _fear_why := {}  # id -> [what just frightened him, the frame]
 ## Captures still being taken (the bridge waits for them before it answers).
 var capturing := 0
 
@@ -338,6 +340,32 @@ func _watch_men(_delta: float) -> void:
 		if b.suppressed > 0.0 and float(pv.suppressed) <= 0.0:
 			m.pinned += 1
 		pv.suppressed = b.suppressed
+		# Shaken: gone to ground past his nerve (fix 3); and whether he got it back.
+		var shaken: float = b.get("_shaken") if b.get("_shaken") != null else -1.0
+		if shaken >= 0.0 and float(pv.get("shaken", -1.0)) < 0.0:
+			m.shaken = int(m.get("shaken", 0)) + 1
+			_sit_add("shaken", "%s goes to ground, shaken" % m.id)
+		elif shaken < 0.0 and float(pv.get("shaken", -1.0)) >= 0.0 and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING]:
+			m.rallied = int(m.get("rallied", 0)) + 1
+			_sit_add("rallied", "%s gets his nerve back" % m.id)
+		pv.shaken = shaken
+		# Where his fear came from: each rise put down to what happened to him this tick or the
+		# last (a ball into him, one past him, a friend out of it, a friend's shout), else his
+		# pain, shock and bleeding (his fear's floor) and the like.
+		var df: float = b.fear - float(pv.get("fear", b.fear))
+		if df > 0.0005:
+			var why: String = _fear_why.get(m.id, ["", -9])[0] if Engine.get_physics_frames() - int(_fear_why.get(m.id, ["", -9])[1]) <= 1 else "pain, shock, bleeding"
+			var ledger: Dictionary = m.get_or_add("fear_from", {})
+			ledger[why] = snappedf(float(ledger.get(why, 0.0)) + df, 0.001)
+		pv.fear = b.fear
+		if b._pending_break != &"" and not pv.has("pending"):
+			pv.pending = String(b._pending_break)
+		if b.mood in [OutlawBrain.Mood.SURRENDERED, OutlawBrain.Mood.FLEEING] and not m.has("quit"):
+			m.quit = {"t": snappedf(t, 0.01), "how": "surrendered" if b.mood == OutlawBrain.Mood.SURRENDERED else "fled",
+				"following": pv.get("pending", ""), "fear": snappedf(b.fear, 0.01), "nerve": b.nerve, "hits": m.hits_taken,
+				"fear_from": (m.get("fear_from", {}) as Dictionary).duplicate(), "was": pv.get("was", {})}
+		pv.was = {"tactic": String(OutlawBrain.Tactic.keys()[b.tactic]).to_lower(), "searching": b._search != null,
+			"cover": not b.cover.is_empty(), "prone": man.prone, "gun": man.held_gun != null, "shaken": shaken}
 		# Why he's in the open while fighting: looking for cover, found none, or neither (seconds).
 		if b.tactic == OutlawBrain.Tactic.OPEN and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING] and not man.limp:
 			var why := "open_searching" if b._search != null else ("open_prone" if man.prone else "open_waiting")
@@ -435,6 +463,9 @@ func _hook_events() -> void:
 	_hook(Events.callout, _on_callout)
 	_hook(Events.member_broken, _on_member_broken)
 	_hook(Events.hat_shot, func(p: Node, s: Node, _at: Vector3) -> void: _sit_add("hats_shot", "%s shot %s's hat off" % [_who(s), _who(p)]))
+	for sig: Signal in [Events.person_fell, Events.person_surrendered]:
+		_hook(sig, func(p: Node, _x: Variant = null) -> void: _friend_out(p))
+	_hook(Events.person_died, func(p: Node, _c: StringName) -> void: _friend_out(p))
 	_hook(Events.person_surrendered, func(p: Node) -> void:
 		if p in gang:
 			_sit_add("surrenders", "%s gives up" % _who(p)))
@@ -507,6 +538,7 @@ func _on_bullet_hit(info: Dictionary) -> void:
 			_note("hit", "you hit in the %s by %s" % [info.get("segment", "?"), _who(shooter)])
 		elif victim in gang:
 			_men[_mid(victim)].hits_taken += 1
+			_fright(victim, "hit")
 			if shooter == player:
 				_you.pellet_hits = int(_you.get("pellet_hits", 0)) + 1
 				if first_of_charge:
@@ -548,11 +580,36 @@ func _on_near_miss(person: Node, shooter: Node, dist: float, _at: Vector3, _spee
 		_note("near_miss", "a round from %s passed %.1f m from you" % [_who(shooter), dist])
 	elif person in gang:
 		_men[_mid(person)].near_misses_on_him += 1
+		_fright(person, "near miss")
+
+
+## Something that frightens him (for the fear ledger). Several in one tick: the strongest is
+## named (a ball into him over one past him over a friend out of it over a friend's shout).
+func _fright(man: Node, why: String) -> void:
+	if not man in gang:
+		return
+	var frame := Engine.get_physics_frames()
+	var was: Array = _fear_why.get(_mid(man), ["", -9])
+	if int(was[1]) == frame and _FRIGHTS.find(String(was[0]).get_slice(" (", 0)) <= _FRIGHTS.find(why.get_slice(" (", 0)):
+		return
+	_fear_why[_mid(man)] = [why, frame]
+
+
+## A friend out of it: it frightens the rest.
+func _friend_out(p: Node) -> void:
+	if p in gang:
+		for other in _live():
+			if other != p:
+				_fright(other, "a friend down or quit")
 
 
 func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) -> void:
 	if not started or done or not speaker in gang:
 		return
+	if kind in [&"fall_back", &"give_up", &"quit", &"down", &"dead"]:
+		for other in _live():
+			if other != speaker:
+				_fright(other, "a friend's shout (%s)" % kind)
 	var m: Dictionary = _men[_mid(speaker)]
 	m.callouts[String(kind)] = int(m.callouts.get(String(kind), 0)) + 1
 	if kind == &"flank":
@@ -653,7 +710,7 @@ func _finish(why: String) -> void:
 		"near_misses": int(_you.get("near_misses", 0)), "near_misses_per_min": snappedf(float(_you.get("near_misses", 0)) / minutes, 0.1)}
 	you.merge(bot.stats)
 	var sit := {}
-	for k: String in ["cover_shot_away", "lamps_hit", "fires_started", "dust_on_line", "dust_by_man", "surrenders", "flights", "hats_shot", "townsfolk_hit"]:
+	for k: String in ["cover_shot_away", "lamps_hit", "fires_started", "dust_on_line", "dust_by_man", "surrenders", "flights", "hats_shot", "townsfolk_hit", "shaken", "rallied"]:
 		sit[k] = (_sit.get(k, []) as Array).size()
 	sit["members_broken"] = int(_sit.get("members_broken", 0))
 	sit["ground_hits"] = int(_sit.get("ground_hits", 0))

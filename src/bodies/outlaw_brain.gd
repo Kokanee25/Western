@@ -31,6 +31,8 @@ const LINES := {
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"gut": ["Oh God, not the belly..."],
 	&"surrender": ["Alright! Alright! I'm done!", "Don't shoot! I quit, I quit!", "Enough! It's yours!"],
+	&"shaken": ["Hell. Hell, hell, hell...", "Stay down... stay down...", "Lord, get me out of this one."],
+	&"rally": ["Alright. Alright, you son of a—", "Still here, mister!", "That all you got?"],
 	&"down": ["My leg... damn you...", "Can't... get up..."],
 	&"shot_while_surrendered": ["I give up, you bastard!", "I'm unarmed!"],
 	&"reloading": ["Hold still..."],
@@ -87,6 +89,13 @@ const LINES := {
 @export var fear_hat_shot := 0.3
 ## When his nerve goes and he can run, the chance he runs rather than gives up.
 @export var flee_chance := 0.55
+## Past his nerve behind cover he goes to ground rather than quit on the spot (shaken): this long
+## at most (s) for it to pass; and it doesn't hold him once he's this far past his nerve.
+@export var shaken_seconds := 6.0
+@export var shaken_margin := 0.5
+## Behind cover with nothing cracking past him, his fear settles this fast (a second; it settles
+## 0.01 a second anywhere else). A gun kept on his spot frightens him 0.045 a second (`aim_at`).
+@export var fear_settle_in_cover := 0.08
 ## How little it takes to rile him (0 a cool professional .. 1 a hothead): the small things,
 ## a stare, crowding him, a drawn gun near him.
 @export var temper := 0.5
@@ -181,6 +190,8 @@ var _search: Cover.Search
 var _search_bias := Vector3.INF
 ## Keeping his head down: seconds left (rounds cracking past).
 var suppressed := 0.0
+## How long he's been shaken (gone to ground past his nerve), or -1 when he isn't.
+var _shaken := -1.0
 ## Seconds since the one he's fighting last fired.
 var _quiet := 99.0
 var _flee_to := Vector3.INF
@@ -546,7 +557,8 @@ func _physics_step(delta: float) -> void:
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
-	fear = maxf(move_toward(fear, floor_fear, 0.01 * delta), floor_fear * 0.9)
+	var settle := fear_settle_in_cover if tactic == Tactic.HIDDEN and suppressed <= 0.0 else 0.01
+	fear = maxf(move_toward(fear, floor_fear, settle * delta), floor_fear * 0.9)
 	if mood == Mood.SURRENDERED:
 		if arrested_by != null:
 			_go_along(delta)
@@ -570,9 +582,13 @@ func _physics_step(delta: float) -> void:
 			if body.physiology.can_run() and not body.prone:
 				_start_fleeing()
 				return
-	if fear > nerve:
+	if fear > nerve and not _shaken_holds(delta):
 		_break()
 		return
+	if _shaken >= 0.0 and fear <= nerve:
+		_shaken = -1.0
+		if mood in [Mood.FIGHTING, Mood.RELOADING]:
+			say(&"rally")
 	relations.tick(delta)
 	_pick_fight(delta)
 	match mood:
@@ -1096,7 +1112,8 @@ func _combat(delta: float) -> void:
 		return
 	var eye := _eye_of(t)
 	# Lost sight of him for a while: go and look where he was.
-	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone:
+	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone \
+			and _shaken < 0.0:
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
@@ -1246,7 +1263,7 @@ func _watch_stuck(delta: float) -> void:
 ## Behind it: head down (lower still while rounds crack past), reloading, waiting his moment.
 func _hide(delta: float, eye: Vector3) -> void:
 	body.face(eye)
-	var down_low: bool = cover.low and (suppressed > 0.0 or not cover.get("crouch_ok", false))
+	var down_low: bool = cover.low and (suppressed > 0.0 or _shaken >= 0.0 or not cover.get("crouch_ok", false))
 	if cover.get("lie", false):
 		body.set_pose(&"lie")
 	else:
@@ -1267,6 +1284,8 @@ func _hide(delta: float, eye: Vector3) -> void:
 	if _wants_to_tend():
 		_start_tending(Mood.FIGHTING)
 		return
+	if _shaken >= 0.0:
+		return  # head down till it passes
 	if _in_cover > _flank_after or _peeks >= 4:
 		_in_cover = 0.0
 		_peeks = 0
@@ -1918,8 +1937,30 @@ func _heard_give_up(mate: Node) -> void:
 
 # --- Breaking, running, tending --------------------------------------------------------------------
 
+## Past his nerve, behind cover or on his way to it (or looking for new cover, his own come round
+## on) with his gun in his hand, he goes to ground (head down, not shooting, not going looking for
+## you) rather than quit on the spot, and gets his breath back there if he's let be. He breaks if
+## it hasn't passed in a few seconds, or once he's well past his nerve; in the open, down, or with
+## no gun, at once.
+func _shaken_holds(delta: float) -> bool:
+	var behind := tactic in [Tactic.HIDDEN, Tactic.PEEKING, Tactic.MOVING] \
+			or (tactic == Tactic.OPEN and (_search != null or _cover_search <= 0.0) and not _stand_and_fight)
+	if not mood in [Mood.FIGHTING, Mood.RELOADING] or body.prone or body.held_gun == null or cover.is_empty() \
+			or not behind or fear > nerve + shaken_margin:
+		return false
+	if _shaken < 0.0:
+		_shaken = 0.0
+		say(&"shaken")
+	_shaken += delta
+	_flanking = false
+	if tactic == Tactic.PEEKING:
+		_duck_back()
+	return _shaken < shaken_seconds
+
+
 ## Nerve's gone: run for it if he can, else give up.
 func _break() -> void:
+	_shaken = -1.0
 	var t: Node3D = _find_target()
 	if t == null:
 		t = relations.focus() as Node3D
@@ -2132,7 +2173,8 @@ func _go_along(delta: float) -> void:
 func describe() -> String:
 	var how: String = String(Mood.keys()[mood]).to_lower()
 	if mood == Mood.FIGHTING or mood == Mood.RELOADING:
-		how += " (%s%s%s%s)" % [String(Tactic.keys()[tactic]).to_lower(), ", pinned down" if suppressed > 0.0 else "",
+		how += " (%s%s%s%s%s)" % [String(Tactic.keys()[tactic]).to_lower(), ", pinned down" if suppressed > 0.0 else "",
+				", shaken" if _shaken >= 0.0 else "",
 				", covering" if covering > 0.0 else "", ", in a rage" if rage > 0.0 else ""]
 	elif mood == Mood.CALM and relations:
 		var who := relations.focus()

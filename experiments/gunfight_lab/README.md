@@ -116,7 +116,8 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
   reloads, every mood change, and how he ended; and since fix 1, each shot's error
   (`shot_errors`: time, how far his barrel was off where he meant in degrees, range, at your
   head, his fear); and since fix 2, why he was in the open (`open_searching`, `open_waiting`,
-  `searches_empty`).
+  `searches_empty`); and since fix 3, where his fear came from (`fear_from`), what he'd been through
+  when he quit (`quit`), and times shaken and rallied (also situations `shaken`, `rallied`).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,
   **dust on a line** (a ball into the ground within 1 m of your line of sight to a man still in
@@ -273,6 +274,10 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   the town's ways in at doors and round the bar, wide cover a few metres off). Their time in the
   open 42% → 22%, cover changes 0.42 → 0.97 a man, the street 7.1 → 12.7 s, fights 6.5 → 8.5 s;
   now men quitting on 0–1 hits ends most fights.
+- `2026-10-21_nerve/`: shaken, not broken (past his nerve behind cover he goes to ground for up
+  to 6 s and gets his breath back there; he breaks if it doesn't pass or he's well past it).
+  Quits on no hit 0.53 → 0.34 a fight, a third of shaken men rally; the street 12.7 → 16.9 s
+  (45–90 s: 3% → 10%), fights 7.2 → 10.1 s; the ambush unchanged.
 
 ## Limitations
 
