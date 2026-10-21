@@ -1,0 +1,5157 @@
+{
+ "all": {
+  "fights": 540,
+  "length_median_s": 5.12,
+  "length_q1_s": 2.47,
+  "length_q3_s": 9.77,
+  "length_mean_s": 9.086666666666668,
+  "length_ci95_s": 0.9227160030891968,
+  "in_45_90_pct": 2.037037037037037,
+  "under_15_pct": 83.33333333333333,
+  "gang_hit_first_pct": 67.22222222222223,
+  "you_hit_first_pct": 32.77777777777778,
+  "gang_shot_first_pct": 80.74074074074075,
+  "first_hit_at_median_s": 0.88,
+  "you_first_hit_median_s": 0.88,
+  "you_never_hit_pct": 19.814814814814813,
+  "your_hits_mean": 1.3907407407407408,
+  "your_shots_mean": 1.8333333333333333,
+  "gang_hits_mean": 1.9333333333333333,
+  "gang_shots_mean": 4.788888888888889,
+  "near_misses_per_min": 47.95884648896825,
+  "near_misses_mean": 3.7037037037037037,
+  "quiet_median_s": 1.85,
+  "quiet_share_median": 0.4331775700934579,
+  "endings": {
+   "you_down": 277,
+   "surrendered": 138,
+   "broke_off": 21,
+   "fled": 46,
+   "down": 57,
+   "dead": 1
+  },
+  "you_down_pct": 51.2962962962963,
+  "situations_per_fight": {
+   "cover_shot_away": 0.05185185185185185,
+   "lamps_hit": 0.03888888888888889,
+   "fires_started": 0.0,
+   "dust_on_line": 2.609259259259259,
+   "dust_by_man": 0.6444444444444445,
+   "surrenders": 1.4333333333333333,
+   "flights": 0.23148148148148148,
+   "hats_shot": 0.15,
+   "townsfolk_hit": 0.31851851851851853,
+   "ground_hits": 5.688888888888889,
+   "fights_with_any": 75.37037037037037
+  },
+  "per_man": {
+   "brody": {
+    "cover_changes": 0.7111111111111111,
+    "flanks": 0.016666666666666666,
+    "suppressing_shots": 0.5444444444444444,
+    "pinned": 0.9740740740740741,
+    "peeks": 1.2222222222222223,
+    "shots": 1.5055555555555555,
+    "hits_on_you": 0.7462962962962963,
+    "hits_taken": 2.175925925925926,
+    "outcome": {
+     "standing": 235,
+     "surrendered": 253,
+     "fled": 8,
+     "down": 33,
+     "broke_off": 10,
+     "dead": 1
+    }
+   },
+   "lyle": {
+    "cover_changes": 0.32592592592592595,
+    "flanks": 0.001851851851851852,
+    "suppressing_shots": 1.112962962962963,
+    "pinned": 0.9981481481481481,
+    "peeks": 0.4074074074074074,
+    "shots": 2.1277777777777778,
+    "hits_on_you": 0.8333333333333334,
+    "hits_taken": 1.724074074074074,
+    "outcome": {
+     "surrendered": 228,
+     "broke_off": 12,
+     "standing": 238,
+     "fled": 14,
+     "down": 48
+    }
+   },
+   "kid": {
+    "cover_changes": 0.7870370370370371,
+    "flanks": 0.0,
+    "suppressing_shots": 0.7037037037037037,
+    "pinned": 1.2722222222222221,
+    "peeks": 0.24814814814814815,
+    "shots": 1.1555555555555554,
+    "hits_on_you": 0.3537037037037037,
+    "hits_taken": 0.8629629629629629,
+    "outcome": {
+     "dead": 18,
+     "surrendered": 254,
+     "standing": 201,
+     "down": 7,
+     "fled": 55,
+     "broke_off": 5
+    }
+   }
+  },
+  "three_men_ms": 1.3616574074074073,
+  "people_ms": 3.7889981481481483,
+  "people_p95_ms": 6.384855555555556,
+  "frame_ms": 6.928907407407408,
+  "your_cover_moves_mean": 0.14444444444444443,
+  "your_reloads_mean": 0.37407407407407406,
+  "bot_stuck_mean": 0.6555555555555556,
+  "body_notes": []
+ },
+ "bodies": {
+  "outlaw": {
+   "fights": 180,
+   "length_median_s": 5.12,
+   "length_q1_s": 2.4525,
+   "length_q3_s": 9.2625,
+   "length_mean_s": 8.844833333333334,
+   "length_ci95_s": 1.5930568492354844,
+   "in_45_90_pct": 2.2222222222222223,
+   "under_15_pct": 83.88888888888889,
+   "gang_hit_first_pct": 67.22222222222223,
+   "you_hit_first_pct": 32.77777777777778,
+   "gang_shot_first_pct": 79.44444444444444,
+   "first_hit_at_median_s": 0.87,
+   "you_first_hit_median_s": 0.87,
+   "you_never_hit_pct": 20.0,
+   "your_hits_mean": 1.3666666666666667,
+   "your_shots_mean": 1.8,
+   "gang_hits_mean": 1.9833333333333334,
+   "gang_shots_mean": 4.905555555555556,
+   "near_misses_per_min": 49.89892667049707,
+   "near_misses_mean": 3.827777777777778,
+   "quiet_median_s": 1.7,
+   "quiet_share_median": 0.4127727076886921,
+   "endings": {
+    "you_down": 99,
+    "surrendered": 48,
+    "broke_off": 6,
+    "down": 17,
+    "fled": 10
+   },
+   "you_down_pct": 55.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.06111111111111111,
+    "lamps_hit": 0.027777777777777776,
+    "fires_started": 0.0,
+    "dust_on_line": 2.3777777777777778,
+    "dust_by_man": 0.6666666666666666,
+    "surrenders": 1.4222222222222223,
+    "flights": 0.17222222222222222,
+    "hats_shot": 0.15555555555555556,
+    "townsfolk_hit": 0.34444444444444444,
+    "ground_hits": 5.466666666666667,
+    "fights_with_any": 75.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.7777777777777778,
+     "flanks": 0.022222222222222223,
+     "suppressing_shots": 0.5611111111111111,
+     "pinned": 0.9944444444444445,
+     "peeks": 1.3388888888888888,
+     "shots": 1.5833333333333333,
+     "hits_on_you": 0.8222222222222222,
+     "hits_taken": 2.138888888888889,
+     "outcome": {
+      "standing": 83,
+      "surrendered": 83,
+      "fled": 3,
+      "down": 10,
+      "broke_off": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.35555555555555557,
+     "flanks": 0.0,
+     "suppressing_shots": 1.1555555555555554,
+     "pinned": 0.9611111111111111,
+     "peeks": 0.4166666666666667,
+     "shots": 2.2111111111111112,
+     "hits_on_you": 0.8611111111111112,
+     "hits_taken": 1.5333333333333334,
+     "outcome": {
+      "surrendered": 73,
+      "broke_off": 5,
+      "fled": 4,
+      "standing": 83,
+      "down": 15
+     }
+    },
+    "kid": {
+     "cover_changes": 0.8555555555555555,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7111111111111111,
+     "pinned": 1.3222222222222222,
+     "peeks": 0.18888888888888888,
+     "shots": 1.1111111111111112,
+     "hits_on_you": 0.3,
+     "hits_taken": 0.9222222222222223,
+     "outcome": {
+      "dead": 8,
+      "surrendered": 87,
+      "down": 2,
+      "fled": 12,
+      "standing": 70,
+      "broke_off": 1
+     }
+    }
+   },
+   "three_men_ms": 1.365761111111111,
+   "people_ms": 3.7767833333333334,
+   "people_p95_ms": 6.381022222222223,
+   "frame_ms": 6.983722222222222,
+   "your_cover_moves_mean": 0.11666666666666667,
+   "your_reloads_mean": 0.3611111111111111,
+   "bot_stuck_mean": 0.6722222222222223,
+   "body_notes": []
+  },
+  "studio": {
+   "fights": 360,
+   "length_median_s": 5.12,
+   "length_q1_s": 2.47,
+   "length_q3_s": 10.055,
+   "length_mean_s": 9.207583333333334,
+   "length_ci95_s": 1.1332607579493172,
+   "in_45_90_pct": 1.9444444444444444,
+   "under_15_pct": 83.05555555555556,
+   "gang_hit_first_pct": 67.22222222222223,
+   "you_hit_first_pct": 32.77777777777778,
+   "gang_shot_first_pct": 81.38888888888889,
+   "first_hit_at_median_s": 0.92,
+   "you_first_hit_median_s": 0.92,
+   "you_never_hit_pct": 19.72222222222222,
+   "your_hits_mean": 1.4027777777777777,
+   "your_shots_mean": 1.85,
+   "gang_hits_mean": 1.9083333333333334,
+   "gang_shots_mean": 4.730555555555555,
+   "near_misses_per_min": 46.988806398203835,
+   "near_misses_mean": 3.6416666666666666,
+   "quiet_median_s": 2.01,
+   "quiet_share_median": 0.43553278688524594,
+   "endings": {
+    "you_down": 178,
+    "surrendered": 90,
+    "fled": 36,
+    "down": 40,
+    "broke_off": 15,
+    "dead": 1
+   },
+   "you_down_pct": 49.44444444444444,
+   "situations_per_fight": {
+    "cover_shot_away": 0.04722222222222222,
+    "lamps_hit": 0.044444444444444446,
+    "fires_started": 0.0,
+    "dust_on_line": 2.725,
+    "dust_by_man": 0.6333333333333333,
+    "surrenders": 1.4388888888888889,
+    "flights": 0.2611111111111111,
+    "hats_shot": 0.14722222222222223,
+    "townsfolk_hit": 0.3055555555555556,
+    "ground_hits": 5.8,
+    "fights_with_any": 75.55555555555556
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.6777777777777778,
+     "flanks": 0.013888888888888888,
+     "suppressing_shots": 0.5361111111111111,
+     "pinned": 0.9638888888888889,
+     "peeks": 1.163888888888889,
+     "shots": 1.4666666666666666,
+     "hits_on_you": 0.7083333333333334,
+     "hits_taken": 2.1944444444444446,
+     "outcome": {
+      "standing": 152,
+      "surrendered": 170,
+      "down": 23,
+      "fled": 5,
+      "broke_off": 9,
+      "dead": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.3111111111111111,
+     "flanks": 0.002777777777777778,
+     "suppressing_shots": 1.0916666666666666,
+     "pinned": 1.0166666666666666,
+     "peeks": 0.4027777777777778,
+     "shots": 2.0861111111111112,
+     "hits_on_you": 0.8194444444444444,
+     "hits_taken": 1.8194444444444444,
+     "outcome": {
+      "surrendered": 155,
+      "standing": 155,
+      "fled": 10,
+      "down": 33,
+      "broke_off": 7
+     }
+    },
+    "kid": {
+     "cover_changes": 0.7527777777777778,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7,
+     "pinned": 1.2472222222222222,
+     "peeks": 0.2777777777777778,
+     "shots": 1.1777777777777778,
+     "hits_on_you": 0.38055555555555554,
+     "hits_taken": 0.8333333333333334,
+     "outcome": {
+      "dead": 10,
+      "standing": 131,
+      "surrendered": 167,
+      "down": 5,
+      "fled": 43,
+      "broke_off": 4
+     }
+    }
+   },
+   "three_men_ms": 1.3596055555555555,
+   "people_ms": 3.7951055555555557,
+   "people_p95_ms": 6.386772222222222,
+   "frame_ms": 6.9014999999999995,
+   "your_cover_moves_mean": 0.15833333333333333,
+   "your_reloads_mean": 0.38055555555555554,
+   "bot_stuck_mean": 0.6472222222222223,
+   "body_notes": []
+  }
+ },
+ "scenario x hour x weapon x bodies": {
+  "ambush golden revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 21.1,
+   "length_q1_s": 8.035,
+   "length_q3_s": 29.415,
+   "length_mean_s": 21.514666666666667,
+   "length_ci95_s": 6.99517535850087,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 33.333333333333336,
+   "gang_hit_first_pct": 33.333333333333336,
+   "you_hit_first_pct": 66.66666666666667,
+   "gang_shot_first_pct": 60.0,
+   "first_hit_at_median_s": 2.53,
+   "you_first_hit_median_s": 4.4,
+   "you_never_hit_pct": 6.666666666666667,
+   "your_hits_mean": 2.2666666666666666,
+   "your_shots_mean": 3.533333333333333,
+   "gang_hits_mean": 1.8,
+   "gang_shots_mean": 5.866666666666666,
+   "near_misses_per_min": 18.73989144336513,
+   "near_misses_mean": 5.133333333333334,
+   "quiet_median_s": 7.3,
+   "quiet_share_median": 0.37066666666666664,
+   "endings": {
+    "you_down": 7,
+    "surrendered": 5,
+    "broke_off": 1,
+    "down": 2
+   },
+   "you_down_pct": 46.666666666666664,
+   "situations_per_fight": {
+    "cover_shot_away": 0.06666666666666667,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.3333333333333333,
+    "dust_by_man": 1.4,
+    "surrenders": 1.7333333333333334,
+    "flights": 0.2,
+    "hats_shot": 0.6,
+    "townsfolk_hit": 0.2,
+    "ground_hits": 10.066666666666666,
+    "fights_with_any": 93.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.7333333333333334,
+     "flanks": 0.06666666666666667,
+     "suppressing_shots": 1.8,
+     "pinned": 1.2666666666666666,
+     "peeks": 5.0,
+     "shots": 3.6,
+     "hits_on_you": 1.0666666666666667,
+     "hits_taken": 0.6666666666666666,
+     "outcome": {
+      "standing": 7,
+      "surrendered": 5,
+      "fled": 1,
+      "down": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.9333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 1.0,
+     "pinned": 1.6666666666666667,
+     "peeks": 1.0666666666666667,
+     "shots": 2.2,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 1.0,
+     "outcome": {
+      "surrendered": 12,
+      "broke_off": 1,
+      "fled": 1,
+      "standing": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 2.066666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 2.0,
+     "peeks": 0.06666666666666667,
+     "shots": 0.06666666666666667,
+     "hits_on_you": 0.06666666666666667,
+     "hits_taken": 1.2,
+     "outcome": {
+      "dead": 3,
+      "surrendered": 8,
+      "down": 1,
+      "fled": 2,
+      "standing": 1
+     }
+    }
+   },
+   "three_men_ms": 1.4156666666666666,
+   "people_ms": 3.7582,
+   "people_p95_ms": 5.849466666666667,
+   "frame_ms": 6.456,
+   "your_cover_moves_mean": 0.4,
+   "your_reloads_mean": 0.26666666666666666,
+   "bot_stuck_mean": 1.2666666666666666,
+   "body_notes": []
+  },
+  "ambush golden revolver studio": {
+   "fights": 30,
+   "length_median_s": 11.725000000000001,
+   "length_q1_s": 5.8225,
+   "length_q3_s": 24.93,
+   "length_mean_s": 15.561666666666667,
+   "length_ci95_s": 4.276417955943468,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 56.666666666666664,
+   "gang_hit_first_pct": 40.0,
+   "you_hit_first_pct": 60.0,
+   "gang_shot_first_pct": 70.0,
+   "first_hit_at_median_s": 2.5,
+   "you_first_hit_median_s": 2.62,
+   "you_never_hit_pct": 6.666666666666667,
+   "your_hits_mean": 1.9,
+   "your_shots_mean": 2.9,
+   "gang_hits_mean": 1.7666666666666666,
+   "gang_shots_mean": 5.466666666666667,
+   "near_misses_per_min": 24.48024401830957,
+   "near_misses_mean": 4.566666666666666,
+   "quiet_median_s": 4.665,
+   "quiet_share_median": 0.39796961026324335,
+   "endings": {
+    "you_down": 16,
+    "surrendered": 7,
+    "fled": 1,
+    "down": 6
+   },
+   "you_down_pct": 53.333333333333336,
+   "situations_per_fight": {
+    "cover_shot_away": 0.03333333333333333,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.4666666666666666,
+    "dust_by_man": 1.2666666666666666,
+    "surrenders": 1.4666666666666666,
+    "flights": 0.16666666666666666,
+    "hats_shot": 0.6,
+    "townsfolk_hit": 0.16666666666666666,
+    "ground_hits": 8.5,
+    "fights_with_any": 80.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.2666666666666666,
+     "flanks": 0.03333333333333333,
+     "suppressing_shots": 1.7666666666666666,
+     "pinned": 0.8333333333333334,
+     "peeks": 4.433333333333334,
+     "shots": 2.933333333333333,
+     "hits_on_you": 0.7666666666666667,
+     "hits_taken": 0.6333333333333333,
+     "outcome": {
+      "standing": 16,
+      "surrendered": 6,
+      "down": 7,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.7,
+     "flanks": 0.0,
+     "suppressing_shots": 1.2666666666666666,
+     "pinned": 1.3666666666666667,
+     "peeks": 1.1666666666666667,
+     "shots": 2.2,
+     "hits_on_you": 0.7666666666666667,
+     "hits_taken": 0.8,
+     "outcome": {
+      "surrendered": 18,
+      "standing": 9,
+      "fled": 1,
+      "down": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 1.5333333333333334,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.4333333333333333,
+     "peeks": 0.4,
+     "shots": 0.3333333333333333,
+     "hits_on_you": 0.23333333333333334,
+     "hits_taken": 1.0,
+     "outcome": {
+      "dead": 4,
+      "standing": 6,
+      "surrendered": 16,
+      "down": 2,
+      "fled": 2
+     }
+    }
+   },
+   "three_men_ms": 1.1701000000000001,
+   "people_ms": 3.6101,
+   "people_p95_ms": 5.767799999999999,
+   "frame_ms": 6.243333333333334,
+   "your_cover_moves_mean": 0.3,
+   "your_reloads_mean": 0.2,
+   "bot_stuck_mean": 1.3,
+   "body_notes": []
+  },
+  "ambush golden shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 17.7,
+   "length_q1_s": 8.959999999999999,
+   "length_q3_s": 24.05,
+   "length_mean_s": 18.65266666666667,
+   "length_ci95_s": 7.0514717420345026,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 46.666666666666664,
+   "gang_hit_first_pct": 40.0,
+   "you_hit_first_pct": 60.0,
+   "gang_shot_first_pct": 66.66666666666667,
+   "first_hit_at_median_s": 2.83,
+   "you_first_hit_median_s": 3.13,
+   "you_never_hit_pct": 26.666666666666668,
+   "your_hits_mean": 1.8666666666666667,
+   "your_shots_mean": 2.0,
+   "gang_hits_mean": 2.2,
+   "gang_shots_mean": 7.733333333333333,
+   "near_misses_per_min": 28.7203690354568,
+   "near_misses_mean": 5.866666666666666,
+   "quiet_median_s": 6.02,
+   "quiet_share_median": 0.3426676492262344,
+   "endings": {
+    "broke_off": 1,
+    "you_down": 8,
+    "surrendered": 3,
+    "down": 2,
+    "fled": 1
+   },
+   "you_down_pct": 53.333333333333336,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 2.0,
+    "dust_by_man": 1.3333333333333333,
+    "surrenders": 1.6666666666666667,
+    "flights": 0.26666666666666666,
+    "hats_shot": 0.6,
+    "townsfolk_hit": 0.4666666666666667,
+    "ground_hits": 11.666666666666666,
+    "fights_with_any": 93.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 2.0,
+     "flanks": 0.2,
+     "suppressing_shots": 2.7333333333333334,
+     "pinned": 0.7333333333333333,
+     "peeks": 7.4,
+     "shots": 3.6666666666666665,
+     "hits_on_you": 0.8,
+     "hits_taken": 3.3333333333333335,
+     "outcome": {
+      "surrendered": 7,
+      "standing": 6,
+      "down": 1,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.6666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 2.933333333333333,
+     "pinned": 1.0,
+     "peeks": 0.9333333333333333,
+     "shots": 4.0,
+     "hits_on_you": 1.3333333333333333,
+     "hits_taken": 2.6,
+     "outcome": {
+      "broke_off": 1,
+      "standing": 8,
+      "surrendered": 5,
+      "down": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 2.066666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.4,
+     "peeks": 0.2,
+     "shots": 0.06666666666666667,
+     "hits_on_you": 0.06666666666666667,
+     "hits_taken": 6.133333333333334,
+     "outcome": {
+      "surrendered": 12,
+      "dead": 2,
+      "standing": 1
+     }
+    }
+   },
+   "three_men_ms": 1.2947333333333333,
+   "people_ms": 3.8580666666666668,
+   "people_p95_ms": 6.034066666666666,
+   "frame_ms": 6.922666666666667,
+   "your_cover_moves_mean": 0.06666666666666667,
+   "your_reloads_mean": 0.6666666666666666,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "ambush golden shotgun studio": {
+   "fights": 30,
+   "length_median_s": 13.57,
+   "length_q1_s": 5.83,
+   "length_q3_s": 22.7275,
+   "length_mean_s": 16.572333333333333,
+   "length_ci95_s": 4.775326163700507,
+   "in_45_90_pct": 3.3333333333333335,
+   "under_15_pct": 53.333333333333336,
+   "gang_hit_first_pct": 50.0,
+   "you_hit_first_pct": 50.0,
+   "gang_shot_first_pct": 80.0,
+   "first_hit_at_median_s": 2.67,
+   "you_first_hit_median_s": 2.575,
+   "you_never_hit_pct": 20.0,
+   "your_hits_mean": 1.7333333333333334,
+   "your_shots_mean": 1.7666666666666666,
+   "gang_hits_mean": 1.9,
+   "gang_shots_mean": 6.133333333333334,
+   "near_misses_per_min": 26.381051832235816,
+   "near_misses_mean": 4.466666666666667,
+   "quiet_median_s": 5.785,
+   "quiet_share_median": 0.4512233607604641,
+   "endings": {
+    "broke_off": 3,
+    "you_down": 15,
+    "surrendered": 9,
+    "down": 2,
+    "fled": 1
+   },
+   "you_down_pct": 50.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.4666666666666666,
+    "dust_by_man": 1.1666666666666667,
+    "surrenders": 1.5666666666666667,
+    "flights": 0.23333333333333334,
+    "hats_shot": 0.4,
+    "townsfolk_hit": 0.26666666666666666,
+    "ground_hits": 9.6,
+    "fights_with_any": 80.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.3333333333333333,
+     "flanks": 0.1,
+     "suppressing_shots": 2.0,
+     "pinned": 0.5666666666666667,
+     "peeks": 4.966666666666667,
+     "shots": 2.8,
+     "hits_on_you": 0.5333333333333333,
+     "hits_taken": 2.933333333333333,
+     "outcome": {
+      "surrendered": 13,
+      "standing": 13,
+      "broke_off": 2,
+      "down": 1,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.6666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 1.9666666666666666,
+     "pinned": 0.9666666666666667,
+     "peeks": 0.9333333333333333,
+     "shots": 2.966666666666667,
+     "hits_on_you": 1.1,
+     "hits_taken": 3.2666666666666666,
+     "outcome": {
+      "broke_off": 1,
+      "standing": 15,
+      "surrendered": 13,
+      "down": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 1.5666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.5,
+     "shots": 0.36666666666666664,
+     "hits_on_you": 0.26666666666666666,
+     "hits_taken": 5.1,
+     "outcome": {
+      "surrendered": 21,
+      "standing": 6,
+      "dead": 2,
+      "down": 1
+     }
+    }
+   },
+   "three_men_ms": 1.1781666666666666,
+   "people_ms": 3.706933333333333,
+   "people_p95_ms": 6.0206,
+   "frame_ms": 6.458666666666667,
+   "your_cover_moves_mean": 0.13333333333333333,
+   "your_reloads_mean": 0.6,
+   "bot_stuck_mean": 0.36666666666666664,
+   "body_notes": []
+  },
+  "ambush night revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 5.18,
+   "length_q1_s": 3.985,
+   "length_q3_s": 6.01,
+   "length_mean_s": 5.302666666666667,
+   "length_ci95_s": 1.2945506136794258,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 2.82,
+   "you_first_hit_median_s": 2.82,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.3333333333333333,
+   "your_shots_mean": 0.3333333333333333,
+   "gang_hits_mean": 2.3333333333333335,
+   "gang_shots_mean": 3.6,
+   "near_misses_per_min": 42.67285853739245,
+   "near_misses_mean": 3.466666666666667,
+   "quiet_median_s": 2.5,
+   "quiet_share_median": 0.562406015037594,
+   "endings": {
+    "you_down": 15
+   },
+   "you_down_pct": 100.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.13333333333333333,
+    "dust_by_man": 0.13333333333333333,
+    "surrenders": 0.3333333333333333,
+    "flights": 0.0,
+    "hats_shot": 0.2,
+    "townsfolk_hit": 0.0,
+    "ground_hits": 1.8666666666666667,
+    "fights_with_any": 33.333333333333336
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.3333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.2,
+     "pinned": 0.2,
+     "peeks": 1.4666666666666666,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 15
+     }
+    },
+    "lyle": {
+     "cover_changes": 1.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.3333333333333333,
+     "pinned": 0.0,
+     "peeks": 0.9333333333333333,
+     "shots": 1.4666666666666666,
+     "hits_on_you": 1.0,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 15
+     }
+    },
+    "kid": {
+     "cover_changes": 1.5333333333333334,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.0,
+     "peeks": 0.4666666666666667,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 0.4666666666666667,
+     "outcome": {
+      "standing": 9,
+      "dead": 1,
+      "surrendered": 5
+     }
+    }
+   },
+   "three_men_ms": 1.3978666666666666,
+   "people_ms": 3.7134,
+   "people_p95_ms": 6.5268,
+   "frame_ms": 6.367999999999999,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 0.6666666666666666,
+   "body_notes": []
+  },
+  "ambush night revolver studio": {
+   "fights": 30,
+   "length_median_s": 4.51,
+   "length_q1_s": 3.8975,
+   "length_q3_s": 5.79,
+   "length_mean_s": 5.522333333333333,
+   "length_ci95_s": 1.3565792130439103,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 96.66666666666667,
+   "gang_hit_first_pct": 96.66666666666667,
+   "you_hit_first_pct": 3.3333333333333335,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 2.5949999999999998,
+   "you_first_hit_median_s": 2.52,
+   "you_never_hit_pct": 3.3333333333333335,
+   "your_hits_mean": 0.5666666666666667,
+   "your_shots_mean": 0.5333333333333333,
+   "gang_hits_mean": 2.3666666666666667,
+   "gang_shots_mean": 3.6666666666666665,
+   "near_misses_per_min": 42.822557472643666,
+   "near_misses_mean": 3.5,
+   "quiet_median_s": 2.48,
+   "quiet_share_median": 0.5364341085271318,
+   "endings": {
+    "you_down": 28,
+    "down": 2
+   },
+   "you_down_pct": 93.33333333333333,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.1,
+    "dust_by_man": 0.1,
+    "surrenders": 0.4666666666666667,
+    "flights": 0.03333333333333333,
+    "hats_shot": 0.23333333333333334,
+    "townsfolk_hit": 0.0,
+    "ground_hits": 1.8,
+    "fights_with_any": 40.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.2333333333333334,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5,
+     "pinned": 0.16666666666666666,
+     "peeks": 1.5,
+     "shots": 1.1666666666666667,
+     "hits_on_you": 0.6333333333333333,
+     "hits_taken": 0.06666666666666667,
+     "outcome": {
+      "standing": 28,
+      "down": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.7333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 0.13333333333333333,
+     "peeks": 1.0,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.7,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "standing": 27,
+      "surrendered": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 1.1666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.9,
+     "peeks": 0.5333333333333333,
+     "shots": 1.4333333333333333,
+     "hits_on_you": 1.0333333333333334,
+     "hits_taken": 0.5333333333333333,
+     "outcome": {
+      "standing": 18,
+      "dead": 1,
+      "surrendered": 11
+     }
+    }
+   },
+   "three_men_ms": 1.4220333333333335,
+   "people_ms": 3.7363,
+   "people_p95_ms": 6.535,
+   "frame_ms": 6.557666666666666,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 0.6666666666666666,
+   "body_notes": []
+  },
+  "ambush night shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 5.23,
+   "length_q1_s": 3.985,
+   "length_q3_s": 6.1850000000000005,
+   "length_mean_s": 5.386666666666667,
+   "length_ci95_s": 1.3135087530901512,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 2.82,
+   "you_first_hit_median_s": 2.82,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.3333333333333333,
+   "your_shots_mean": 0.4,
+   "gang_hits_mean": 2.4,
+   "gang_shots_mean": 3.8,
+   "near_misses_per_min": 42.070196171415496,
+   "near_misses_mean": 3.466666666666667,
+   "quiet_median_s": 2.5,
+   "quiet_share_median": 0.5380029806259314,
+   "endings": {
+    "you_down": 15
+   },
+   "you_down_pct": 100.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.26666666666666666,
+    "dust_by_man": 0.2,
+    "surrenders": 0.3333333333333333,
+    "flights": 0.0,
+    "hats_shot": 0.26666666666666666,
+    "townsfolk_hit": 0.0,
+    "ground_hits": 1.8666666666666667,
+    "fights_with_any": 40.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.2666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.2,
+     "pinned": 0.3333333333333333,
+     "peeks": 1.6,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 15
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.9333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5333333333333333,
+     "pinned": 0.06666666666666667,
+     "peeks": 1.0,
+     "shots": 1.6666666666666667,
+     "hits_on_you": 1.0666666666666667,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 15
+     }
+    },
+    "kid": {
+     "cover_changes": 1.5333333333333334,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.0,
+     "peeks": 0.4666666666666667,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 2.4,
+     "outcome": {
+      "standing": 9,
+      "dead": 1,
+      "surrendered": 5
+     }
+    }
+   },
+   "three_men_ms": 1.2584666666666666,
+   "people_ms": 3.6156,
+   "people_p95_ms": 6.278666666666667,
+   "frame_ms": 6.151333333333333,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.06666666666666667,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "ambush night shotgun studio": {
+   "fights": 30,
+   "length_median_s": 4.4,
+   "length_q1_s": 3.8975,
+   "length_q3_s": 6.2025,
+   "length_mean_s": 7.013999999999999,
+   "length_ci95_s": 2.9835674623248716,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 93.33333333333333,
+   "gang_hit_first_pct": 96.66666666666667,
+   "you_hit_first_pct": 3.3333333333333335,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 2.5949999999999998,
+   "you_first_hit_median_s": 2.5949999999999998,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.3,
+   "your_shots_mean": 0.3333333333333333,
+   "gang_hits_mean": 2.5,
+   "gang_shots_mean": 3.8,
+   "near_misses_per_min": 40.46309023872398,
+   "near_misses_mean": 3.533333333333333,
+   "quiet_median_s": 2.48,
+   "quiet_share_median": 0.5561415758096568,
+   "endings": {
+    "you_down": 29,
+    "broke_off": 1
+   },
+   "you_down_pct": 96.66666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.23333333333333334,
+    "dust_by_man": 0.16666666666666666,
+    "surrenders": 0.26666666666666666,
+    "flights": 0.0,
+    "hats_shot": 0.16666666666666666,
+    "townsfolk_hit": 0.0,
+    "ground_hits": 2.0,
+    "fights_with_any": 30.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.2666666666666666,
+     "flanks": 0.03333333333333333,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 0.16666666666666666,
+     "peeks": 1.7666666666666666,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 29,
+      "broke_off": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.7,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4,
+     "pinned": 0.06666666666666667,
+     "peeks": 1.0,
+     "shots": 1.2,
+     "hits_on_you": 0.7,
+     "hits_taken": 0.3,
+     "outcome": {
+      "standing": 29,
+      "surrendered": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 1.1666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.7666666666666667,
+     "peeks": 0.6,
+     "shots": 1.5333333333333334,
+     "hits_on_you": 1.1333333333333333,
+     "hits_taken": 2.0,
+     "outcome": {
+      "standing": 21,
+      "dead": 2,
+      "surrendered": 7
+     }
+    }
+   },
+   "three_men_ms": 1.3858,
+   "people_ms": 3.6761666666666666,
+   "people_p95_ms": 6.420533333333333,
+   "frame_ms": 6.316666666666666,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.06666666666666667,
+   "bot_stuck_mean": 0.5666666666666667,
+   "body_notes": []
+  },
+  "saloon golden revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 2.02,
+   "length_q1_s": 1.89,
+   "length_q3_s": 2.645,
+   "length_mean_s": 2.3313333333333333,
+   "length_ci95_s": 0.37821914306097426,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.7333333333333333,
+   "your_shots_mean": 0.8666666666666667,
+   "gang_hits_mean": 3.2,
+   "gang_shots_mean": 4.133333333333334,
+   "near_misses_per_min": 105.81108551524947,
+   "near_misses_mean": 4.133333333333334,
+   "quiet_median_s": 0.98,
+   "quiet_share_median": 0.435,
+   "endings": {
+    "you_down": 13,
+    "surrendered": 2
+   },
+   "you_down_pct": 86.66666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.2,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.0,
+    "dust_by_man": 0.0,
+    "surrenders": 0.8,
+    "flights": 0.06666666666666667,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.06666666666666667,
+    "ground_hits": 1.6,
+    "fights_with_any": 66.66666666666667
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.2,
+     "peeks": 0.0,
+     "shots": 1.3333333333333333,
+     "hits_on_you": 1.3333333333333333,
+     "hits_taken": 0.7333333333333333,
+     "outcome": {
+      "standing": 8,
+      "surrendered": 7
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.2,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.0,
+     "shots": 1.5333333333333334,
+     "hits_on_you": 1.2666666666666666,
+     "hits_taken": 0.26666666666666666,
+     "outcome": {
+      "standing": 12,
+      "surrendered": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 0.4,
+     "flanks": 0.0,
+     "suppressing_shots": 0.13333333333333333,
+     "pinned": 0.0,
+     "peeks": 0.06666666666666667,
+     "shots": 1.2666666666666666,
+     "hits_on_you": 0.6,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 2
+     }
+    }
+   },
+   "three_men_ms": 1.6598666666666666,
+   "people_ms": 4.1390666666666664,
+   "people_p95_ms": 7.1655999999999995,
+   "frame_ms": 8.294666666666666,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 0.4,
+   "body_notes": []
+  },
+  "saloon golden revolver studio": {
+   "fights": 30,
+   "length_median_s": 2.02,
+   "length_q1_s": 1.73,
+   "length_q3_s": 2.6574999999999998,
+   "length_mean_s": 2.258,
+   "length_ci95_s": 0.270297096246113,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.67,
+   "you_first_hit_median_s": 0.67,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.0666666666666667,
+   "your_shots_mean": 1.1666666666666667,
+   "gang_hits_mean": 3.1666666666666665,
+   "gang_shots_mean": 3.7666666666666666,
+   "near_misses_per_min": 97.27654830569462,
+   "near_misses_mean": 3.7666666666666666,
+   "quiet_median_s": 0.86,
+   "quiet_share_median": 0.42192982456140354,
+   "endings": {
+    "you_down": 21,
+    "surrendered": 7,
+    "down": 2
+   },
+   "you_down_pct": 70.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.13333333333333333,
+    "lamps_hit": 0.03333333333333333,
+    "fires_started": 0.0,
+    "dust_on_line": 0.03333333333333333,
+    "dust_by_man": 0.03333333333333333,
+    "surrenders": 1.2666666666666666,
+    "flights": 0.1,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.06666666666666667,
+    "ground_hits": 1.6,
+    "fights_with_any": 70.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.0666666666666667,
+     "peeks": 0.0,
+     "shots": 1.2333333333333334,
+     "hits_on_you": 1.1666666666666667,
+     "hits_taken": 0.9,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 17
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.16666666666666666,
+     "pinned": 1.2333333333333334,
+     "peeks": 0.0,
+     "shots": 1.5333333333333334,
+     "hits_on_you": 1.4333333333333333,
+     "hits_taken": 0.4666666666666667,
+     "outcome": {
+      "standing": 18,
+      "surrendered": 10,
+      "down": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.6333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.1,
+     "pinned": 0.0,
+     "peeks": 0.2,
+     "shots": 1.0,
+     "hits_on_you": 0.5666666666666667,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 21,
+      "surrendered": 9
+     }
+    }
+   },
+   "three_men_ms": 1.6146,
+   "people_ms": 4.2455,
+   "people_p95_ms": 7.252700000000001,
+   "frame_ms": 8.302333333333333,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 0.5,
+   "body_notes": []
+  },
+  "saloon golden shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 2.02,
+   "length_q1_s": 1.72,
+   "length_q3_s": 2.545,
+   "length_mean_s": 2.24,
+   "length_ci95_s": 0.3293844278853105,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.8666666666666667,
+   "your_shots_mean": 0.8666666666666667,
+   "gang_hits_mean": 3.3333333333333335,
+   "gang_shots_mean": 4.2,
+   "near_misses_per_min": 111.59376733499388,
+   "near_misses_mean": 4.2,
+   "quiet_median_s": 0.98,
+   "quiet_share_median": 0.43333333333333335,
+   "endings": {
+    "you_down": 10,
+    "surrendered": 5
+   },
+   "you_down_pct": 66.66666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.2,
+    "lamps_hit": 0.06666666666666667,
+    "fires_started": 0.0,
+    "dust_on_line": 0.13333333333333333,
+    "dust_by_man": 0.13333333333333333,
+    "surrenders": 1.2,
+    "flights": 0.06666666666666667,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.06666666666666667,
+    "ground_hits": 1.6,
+    "fights_with_any": 66.66666666666667
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.0,
+     "shots": 1.4,
+     "hits_on_you": 1.4,
+     "hits_taken": 4.266666666666667,
+     "outcome": {
+      "standing": 8,
+      "surrendered": 7
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.06666666666666667,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.0,
+     "shots": 1.4666666666666666,
+     "hits_on_you": 1.2666666666666666,
+     "hits_taken": 2.6666666666666665,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 6
+     }
+    },
+    "kid": {
+     "cover_changes": 0.26666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 0.0,
+     "peeks": 0.0,
+     "shots": 1.3333333333333333,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 10,
+      "surrendered": 5
+     }
+    }
+   },
+   "three_men_ms": 1.6071333333333333,
+   "people_ms": 4.102733333333333,
+   "people_p95_ms": 7.103533333333333,
+   "frame_ms": 8.070666666666666,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.4,
+   "bot_stuck_mean": 0.4,
+   "body_notes": []
+  },
+  "saloon golden shotgun studio": {
+   "fights": 30,
+   "length_median_s": 1.9449999999999998,
+   "length_q1_s": 1.6549999999999998,
+   "length_q3_s": 2.5825,
+   "length_mean_s": 2.322,
+   "length_ci95_s": 0.38250447877777516,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.67,
+   "you_first_hit_median_s": 0.67,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.1,
+   "your_shots_mean": 1.1,
+   "gang_hits_mean": 3.1333333333333333,
+   "gang_shots_mean": 3.8333333333333335,
+   "near_misses_per_min": 100.19768100591929,
+   "near_misses_mean": 3.8333333333333335,
+   "quiet_median_s": 0.825,
+   "quiet_share_median": 0.4360215053763441,
+   "endings": {
+    "you_down": 15,
+    "surrendered": 12,
+    "fled": 1,
+    "down": 2
+   },
+   "you_down_pct": 50.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.13333333333333333,
+    "lamps_hit": 0.23333333333333334,
+    "fires_started": 0.0,
+    "dust_on_line": 0.8666666666666667,
+    "dust_by_man": 0.8666666666666667,
+    "surrenders": 1.5666666666666667,
+    "flights": 0.06666666666666667,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.06666666666666667,
+    "ground_hits": 2.4,
+    "fights_with_any": 70.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.1,
+     "peeks": 0.0,
+     "shots": 1.3,
+     "hits_on_you": 1.2,
+     "hits_taken": 4.733333333333333,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 17
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.1,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.0,
+     "shots": 1.5,
+     "hits_on_you": 1.3666666666666667,
+     "hits_taken": 3.5,
+     "outcome": {
+      "standing": 14,
+      "surrendered": 14,
+      "down": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.5666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.16666666666666666,
+     "pinned": 0.0,
+     "peeks": 0.13333333333333333,
+     "shots": 1.0333333333333334,
+     "hits_on_you": 0.5666666666666667,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 15,
+      "surrendered": 14,
+      "fled": 1
+     }
+    }
+   },
+   "three_men_ms": 1.7938666666666667,
+   "people_ms": 4.359666666666667,
+   "people_p95_ms": 8.0534,
+   "frame_ms": 8.178333333333333,
+   "your_cover_moves_mean": 0.03333333333333333,
+   "your_reloads_mean": 0.5333333333333333,
+   "bot_stuck_mean": 0.5,
+   "body_notes": []
+  },
+  "saloon night revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 2.33,
+   "length_q1_s": 2.01,
+   "length_q3_s": 2.975,
+   "length_mean_s": 2.536,
+   "length_ci95_s": 0.4318858787534811,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.0,
+   "your_shots_mean": 1.2,
+   "gang_hits_mean": 2.6,
+   "gang_shots_mean": 3.0,
+   "near_misses_per_min": 70.83686972871322,
+   "near_misses_mean": 2.933333333333333,
+   "quiet_median_s": 1.1,
+   "quiet_share_median": 0.4402985074626865,
+   "endings": {
+    "you_down": 13,
+    "surrendered": 1,
+    "down": 1
+   },
+   "you_down_pct": 86.66666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.06666666666666667,
+    "lamps_hit": 0.06666666666666667,
+    "fires_started": 0.0,
+    "dust_on_line": 0.2,
+    "dust_by_man": 0.2,
+    "surrenders": 1.0,
+    "flights": 0.13333333333333333,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.2,
+    "ground_hits": 1.0,
+    "fights_with_any": 60.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.2,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.5333333333333333,
+     "peeks": 0.0,
+     "shots": 1.0,
+     "hits_on_you": 1.0,
+     "hits_taken": 0.8,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 6
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 0.4666666666666667,
+     "peeks": 0.0,
+     "shots": 1.6,
+     "hits_on_you": 1.4666666666666666,
+     "hits_taken": 0.4666666666666667,
+     "outcome": {
+      "standing": 10,
+      "surrendered": 4,
+      "down": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.6666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4,
+     "pinned": 0.13333333333333333,
+     "peeks": 0.26666666666666666,
+     "shots": 0.4,
+     "hits_on_you": 0.13333333333333333,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "standing": 11,
+      "surrendered": 4
+     }
+    }
+   },
+   "three_men_ms": 1.8345333333333333,
+   "people_ms": 4.1224,
+   "people_p95_ms": 7.683333333333334,
+   "frame_ms": 7.904,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "saloon night revolver studio": {
+   "fights": 30,
+   "length_median_s": 2.425,
+   "length_q1_s": 2.005,
+   "length_q3_s": 3.565,
+   "length_mean_s": 3.283333333333333,
+   "length_ci95_s": 0.9276876401245447,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.69,
+   "you_first_hit_median_s": 0.69,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.1666666666666667,
+   "your_shots_mean": 1.3666666666666667,
+   "gang_hits_mean": 2.5,
+   "gang_shots_mean": 3.2,
+   "near_misses_per_min": 69.18854737313798,
+   "near_misses_mean": 3.1333333333333333,
+   "quiet_median_s": 1.0350000000000001,
+   "quiet_share_median": 0.44123768910549294,
+   "endings": {
+    "you_down": 21,
+    "surrendered": 6,
+    "fled": 1,
+    "dead": 1,
+    "down": 1
+   },
+   "you_down_pct": 70.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.1,
+    "lamps_hit": 0.06666666666666667,
+    "fires_started": 0.0,
+    "dust_on_line": 0.23333333333333334,
+    "dust_by_man": 0.16666666666666666,
+    "surrenders": 1.2333333333333334,
+    "flights": 0.13333333333333333,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.13333333333333333,
+    "ground_hits": 1.3,
+    "fights_with_any": 70.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.3333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.1,
+     "pinned": 0.6666666666666666,
+     "peeks": 0.1,
+     "shots": 1.0333333333333334,
+     "hits_on_you": 0.8,
+     "hits_taken": 0.8333333333333334,
+     "outcome": {
+      "standing": 14,
+      "surrendered": 14,
+      "fled": 1,
+      "dead": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.13333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.3333333333333333,
+     "pinned": 0.6333333333333333,
+     "peeks": 0.0,
+     "shots": 1.6333333333333333,
+     "hits_on_you": 1.4,
+     "hits_taken": 0.6,
+     "outcome": {
+      "standing": 17,
+      "surrendered": 12,
+      "down": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.6666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5333333333333333,
+     "pinned": 0.3,
+     "peeks": 0.23333333333333334,
+     "shots": 0.5333333333333333,
+     "hits_on_you": 0.3,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "standing": 19,
+      "surrendered": 10,
+      "fled": 1
+     }
+    }
+   },
+   "three_men_ms": 1.6177,
+   "people_ms": 3.9166666666666665,
+   "people_p95_ms": 7.0332333333333334,
+   "frame_ms": 7.441666666666666,
+   "your_cover_moves_mean": 0.2,
+   "your_reloads_mean": 0.03333333333333333,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "saloon night shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 2.03,
+   "length_q1_s": 1.795,
+   "length_q3_s": 2.48,
+   "length_mean_s": 2.227333333333333,
+   "length_ci95_s": 0.30958113752473854,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.9333333333333333,
+   "your_shots_mean": 1.0,
+   "gang_hits_mean": 2.533333333333333,
+   "gang_shots_mean": 3.0,
+   "near_misses_per_min": 81.76503243185127,
+   "near_misses_mean": 3.0,
+   "quiet_median_s": 1.1,
+   "quiet_share_median": 0.3953488372093023,
+   "endings": {
+    "you_down": 10,
+    "surrendered": 4,
+    "down": 1
+   },
+   "you_down_pct": 66.66666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.2,
+    "lamps_hit": 0.2,
+    "fires_started": 0.0,
+    "dust_on_line": 1.8,
+    "dust_by_man": 1.8,
+    "surrenders": 1.2666666666666666,
+    "flights": 0.0,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.13333333333333333,
+    "ground_hits": 2.7333333333333334,
+    "fights_with_any": 60.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.2,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.5333333333333333,
+     "peeks": 0.0,
+     "shots": 1.1333333333333333,
+     "hits_on_you": 1.1333333333333333,
+     "hits_taken": 3.7333333333333334,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 6
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.06666666666666667,
+     "pinned": 0.4666666666666667,
+     "peeks": 0.0,
+     "shots": 1.4,
+     "hits_on_you": 1.2666666666666666,
+     "hits_taken": 2.066666666666667,
+     "outcome": {
+      "standing": 8,
+      "surrendered": 6,
+      "down": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.4666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4666666666666667,
+     "pinned": 0.06666666666666667,
+     "peeks": 0.2,
+     "shots": 0.4666666666666667,
+     "hits_on_you": 0.13333333333333333,
+     "hits_taken": 0.26666666666666666,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 6
+     }
+    }
+   },
+   "three_men_ms": 1.9898,
+   "people_ms": 4.3334,
+   "people_p95_ms": 8.944733333333334,
+   "frame_ms": 8.458,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.4666666666666667,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "saloon night shotgun studio": {
+   "fights": 30,
+   "length_median_s": 2.24,
+   "length_q1_s": 1.6775,
+   "length_q3_s": 3.6149999999999998,
+   "length_mean_s": 3.1069999999999998,
+   "length_ci95_s": 0.7429100200523968,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.69,
+   "you_first_hit_median_s": 0.69,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.2,
+   "your_shots_mean": 1.2333333333333334,
+   "gang_hits_mean": 2.2666666666666666,
+   "gang_shots_mean": 3.1,
+   "near_misses_per_min": 70.51669066308747,
+   "near_misses_mean": 3.1,
+   "quiet_median_s": 1.115,
+   "quiet_share_median": 0.444287184765826,
+   "endings": {
+    "you_down": 15,
+    "surrendered": 11,
+    "fled": 2,
+    "down": 2
+   },
+   "you_down_pct": 50.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.16666666666666666,
+    "lamps_hit": 0.2,
+    "fires_started": 0.0,
+    "dust_on_line": 1.6666666666666667,
+    "dust_by_man": 1.5333333333333334,
+    "surrenders": 1.5666666666666667,
+    "flights": 0.06666666666666667,
+    "hats_shot": 0.03333333333333333,
+    "townsfolk_hit": 0.06666666666666667,
+    "ground_hits": 3.3,
+    "fights_with_any": 73.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.3333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.03333333333333333,
+     "pinned": 0.6666666666666666,
+     "peeks": 0.3,
+     "shots": 1.0666666666666667,
+     "hits_on_you": 0.9333333333333333,
+     "hits_taken": 4.033333333333333,
+     "outcome": {
+      "standing": 14,
+      "surrendered": 15,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.16666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 0.6666666666666666,
+     "peeks": 0.0,
+     "shots": 1.5666666666666667,
+     "hits_on_you": 1.2666666666666666,
+     "hits_taken": 3.6333333333333333,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 15,
+      "down": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.5,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4666666666666667,
+     "pinned": 0.3,
+     "peeks": 0.23333333333333334,
+     "shots": 0.4666666666666667,
+     "hits_on_you": 0.06666666666666667,
+     "hits_taken": 0.43333333333333335,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 16,
+      "fled": 1
+     }
+    }
+   },
+   "three_men_ms": 1.8441666666666667,
+   "people_ms": 4.266566666666667,
+   "people_p95_ms": 8.407333333333334,
+   "frame_ms": 8.086333333333334,
+   "your_cover_moves_mean": 0.2,
+   "your_reloads_mean": 0.5666666666666667,
+   "bot_stuck_mean": 0.5666666666666667,
+   "body_notes": []
+  },
+  "street golden revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 6.58,
+   "length_q1_s": 2.49,
+   "length_q3_s": 9.7,
+   "length_mean_s": 7.640666666666666,
+   "length_ci95_s": 2.881011083753603,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 93.33333333333333,
+   "gang_hit_first_pct": 46.666666666666664,
+   "you_hit_first_pct": 53.333333333333336,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.83,
+   "you_first_hit_median_s": 0.655,
+   "you_never_hit_pct": 33.333333333333336,
+   "your_hits_mean": 1.8,
+   "your_shots_mean": 3.2666666666666666,
+   "gang_hits_mean": 1.0,
+   "gang_shots_mean": 5.6,
+   "near_misses_per_min": 23.598045730526653,
+   "near_misses_mean": 3.3333333333333335,
+   "quiet_median_s": 1.68,
+   "quiet_share_median": 0.3728070175438597,
+   "endings": {
+    "you_down": 2,
+    "surrendered": 8,
+    "fled": 2,
+    "down": 3
+   },
+   "you_down_pct": 13.333333333333334,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 3.2666666666666666,
+    "dust_by_man": 0.3333333333333333,
+    "surrenders": 2.4,
+    "flights": 0.3333333333333333,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.6,
+    "ground_hits": 5.6,
+    "fights_with_any": 93.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.3333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.26666666666666666,
+     "pinned": 1.6,
+     "peeks": 0.13333333333333333,
+     "shots": 1.4666666666666666,
+     "hits_on_you": 0.6666666666666666,
+     "hits_taken": 1.0,
+     "outcome": {
+      "standing": 2,
+      "surrendered": 12,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.4666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 1.4666666666666666,
+     "pinned": 1.4,
+     "peeks": 0.2,
+     "shots": 2.533333333333333,
+     "hits_on_you": 0.2,
+     "hits_taken": 1.1333333333333333,
+     "outcome": {
+      "standing": 1,
+      "down": 4,
+      "surrendered": 10
+     }
+    },
+    "kid": {
+     "cover_changes": 0.4666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 1.4666666666666666,
+     "pinned": 2.2666666666666666,
+     "peeks": 0.2,
+     "shots": 1.6,
+     "hits_on_you": 0.13333333333333333,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "standing": 2,
+      "surrendered": 11,
+      "fled": 2
+     }
+    }
+   },
+   "three_men_ms": 1.0491333333333333,
+   "people_ms": 3.481866666666667,
+   "people_p95_ms": 5.285266666666667,
+   "frame_ms": 6.4766666666666675,
+   "your_cover_moves_mean": 0.26666666666666666,
+   "your_reloads_mean": 0.26666666666666666,
+   "bot_stuck_mean": 0.4666666666666667,
+   "body_notes": []
+  },
+  "street golden revolver studio": {
+   "fights": 30,
+   "length_median_s": 7.285,
+   "length_q1_s": 4.555,
+   "length_q3_s": 13.0925,
+   "length_mean_s": 11.915666666666668,
+   "length_ci95_s": 4.880295559946677,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 80.0,
+   "gang_hit_first_pct": 43.333333333333336,
+   "you_hit_first_pct": 56.666666666666664,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.89,
+   "you_first_hit_median_s": 0.95,
+   "you_never_hit_pct": 36.666666666666664,
+   "your_hits_mean": 1.9333333333333333,
+   "your_shots_mean": 3.4,
+   "gang_hits_mean": 0.8666666666666667,
+   "gang_shots_mean": 6.3,
+   "near_misses_per_min": 27.11201184013614,
+   "near_misses_mean": 3.7333333333333334,
+   "quiet_median_s": 2.275,
+   "quiet_share_median": 0.3630701754385965,
+   "endings": {
+    "you_down": 4,
+    "broke_off": 3,
+    "surrendered": 9,
+    "fled": 4,
+    "down": 10
+   },
+   "you_down_pct": 13.333333333333334,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 4.0,
+    "dust_by_man": 0.43333333333333335,
+    "surrenders": 2.2,
+    "flights": 0.36666666666666664,
+    "hats_shot": 0.03333333333333333,
+    "townsfolk_hit": 0.5333333333333333,
+    "ground_hits": 6.666666666666667,
+    "fights_with_any": 96.66666666666667
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.5333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.36666666666666664,
+     "pinned": 1.5333333333333334,
+     "peeks": 0.3,
+     "shots": 1.6333333333333333,
+     "hits_on_you": 0.6333333333333333,
+     "hits_taken": 1.0,
+     "outcome": {
+      "standing": 2,
+      "broke_off": 3,
+      "surrendered": 22,
+      "fled": 1,
+      "down": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.3333333333333333,
+     "flanks": 0.03333333333333333,
+     "suppressing_shots": 1.8,
+     "pinned": 1.6333333333333333,
+     "peeks": 0.23333333333333334,
+     "shots": 2.8666666666666667,
+     "hits_on_you": 0.16666666666666666,
+     "hits_taken": 1.0666666666666667,
+     "outcome": {
+      "standing": 3,
+      "surrendered": 16,
+      "down": 9,
+      "fled": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.43333333333333335,
+     "flanks": 0.0,
+     "suppressing_shots": 1.7,
+     "pinned": 2.5,
+     "peeks": 0.2,
+     "shots": 1.8,
+     "hits_on_you": 0.06666666666666667,
+     "hits_taken": 0.16666666666666666,
+     "outcome": {
+      "standing": 2,
+      "fled": 6,
+      "surrendered": 20,
+      "broke_off": 1,
+      "down": 1
+     }
+    }
+   },
+   "three_men_ms": 1.1264,
+   "people_ms": 3.6748,
+   "people_p95_ms": 5.538466666666666,
+   "frame_ms": 6.614,
+   "your_cover_moves_mean": 0.3,
+   "your_reloads_mean": 0.26666666666666666,
+   "bot_stuck_mean": 0.7666666666666667,
+   "body_notes": []
+  },
+  "street golden shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 7.8,
+   "length_q1_s": 6.72,
+   "length_q3_s": 15.925,
+   "length_mean_s": 13.640666666666666,
+   "length_ci95_s": 5.898262008482762,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 73.33333333333333,
+   "gang_hit_first_pct": 46.666666666666664,
+   "you_hit_first_pct": 53.333333333333336,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.82,
+   "you_first_hit_median_s": 0.63,
+   "you_never_hit_pct": 40.0,
+   "your_hits_mean": 1.8,
+   "your_shots_mean": 2.066666666666667,
+   "gang_hits_mean": 1.0666666666666667,
+   "gang_shots_mean": 7.0,
+   "near_misses_per_min": 18.37160327310322,
+   "near_misses_mean": 3.7333333333333334,
+   "quiet_median_s": 4.67,
+   "quiet_share_median": 0.45081967213114754,
+   "endings": {
+    "you_down": 3,
+    "fled": 5,
+    "surrendered": 5,
+    "down": 2
+   },
+   "you_down_pct": 20.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 4.533333333333333,
+    "dust_by_man": 0.6,
+    "surrenders": 1.9333333333333333,
+    "flights": 0.6666666666666666,
+    "hats_shot": 0.2,
+    "townsfolk_hit": 1.2,
+    "ground_hits": 8.333333333333334,
+    "fights_with_any": 93.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.2,
+     "flanks": 0.0,
+     "suppressing_shots": 0.6666666666666666,
+     "pinned": 1.6,
+     "peeks": 0.2,
+     "shots": 2.066666666666667,
+     "hits_on_you": 0.7333333333333333,
+     "hits_taken": 4.666666666666667,
+     "outcome": {
+      "standing": 2,
+      "surrendered": 13
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.2,
+     "flanks": 0.0,
+     "suppressing_shots": 2.1333333333333333,
+     "pinned": 1.2,
+     "peeks": 0.8666666666666667,
+     "shots": 3.1333333333333333,
+     "hits_on_you": 0.13333333333333333,
+     "hits_taken": 2.8666666666666667,
+     "outcome": {
+      "standing": 2,
+      "down": 2,
+      "surrendered": 9,
+      "fled": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.5333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 1.6,
+     "pinned": 2.933333333333333,
+     "peeks": 0.26666666666666666,
+     "shots": 1.8,
+     "hits_on_you": 0.2,
+     "hits_taken": 0.2,
+     "outcome": {
+      "standing": 2,
+      "fled": 6,
+      "surrendered": 6,
+      "down": 1
+     }
+    }
+   },
+   "three_men_ms": 0.9406666666666667,
+   "people_ms": 3.533933333333333,
+   "people_p95_ms": 5.392799999999999,
+   "frame_ms": 6.332,
+   "your_cover_moves_mean": 0.26666666666666666,
+   "your_reloads_mean": 0.8666666666666667,
+   "bot_stuck_mean": 0.5333333333333333,
+   "body_notes": []
+  },
+  "street golden shotgun studio": {
+   "fights": 30,
+   "length_median_s": 9.815,
+   "length_q1_s": 6.82,
+   "length_q3_s": 17.9625,
+   "length_mean_s": 14.391,
+   "length_ci95_s": 4.170665923876966,
+   "in_45_90_pct": 3.3333333333333335,
+   "under_15_pct": 73.33333333333333,
+   "gang_hit_first_pct": 50.0,
+   "you_hit_first_pct": 50.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.95,
+   "you_first_hit_median_s": 1.0,
+   "you_never_hit_pct": 30.0,
+   "your_hits_mean": 1.7,
+   "your_shots_mean": 2.4,
+   "gang_hits_mean": 1.2333333333333334,
+   "gang_shots_mean": 6.966666666666667,
+   "near_misses_per_min": 20.527438086876,
+   "near_misses_mean": 3.933333333333333,
+   "quiet_median_s": 4.005,
+   "quiet_share_median": 0.3641416646003802,
+   "endings": {
+    "you_down": 7,
+    "fled": 13,
+    "surrendered": 6,
+    "broke_off": 2,
+    "down": 2
+   },
+   "you_down_pct": 23.333333333333332,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 8.0,
+    "dust_by_man": 0.4666666666666667,
+    "surrenders": 1.6333333333333333,
+    "flights": 0.8666666666666667,
+    "hats_shot": 0.3,
+    "townsfolk_hit": 1.6666666666666667,
+    "ground_hits": 13.233333333333333,
+    "fights_with_any": 96.66666666666667
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.8666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5666666666666667,
+     "pinned": 1.6666666666666667,
+     "peeks": 0.3,
+     "shots": 2.0,
+     "hits_on_you": 0.7,
+     "hits_taken": 4.666666666666667,
+     "outcome": {
+      "standing": 6,
+      "surrendered": 22,
+      "broke_off": 1,
+      "down": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.2,
+     "flanks": 0.0,
+     "suppressing_shots": 2.0,
+     "pinned": 1.2666666666666666,
+     "peeks": 0.4666666666666667,
+     "shots": 3.2,
+     "hits_on_you": 0.36666666666666664,
+     "hits_taken": 2.966666666666667,
+     "outcome": {
+      "standing": 5,
+      "surrendered": 17,
+      "down": 3,
+      "fled": 4,
+      "broke_off": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.43333333333333335,
+     "flanks": 0.0,
+     "suppressing_shots": 1.5666666666666667,
+     "pinned": 2.7,
+     "peeks": 0.23333333333333334,
+     "shots": 1.7666666666666666,
+     "hits_on_you": 0.16666666666666666,
+     "hits_taken": 0.5,
+     "outcome": {
+      "standing": 5,
+      "fled": 15,
+      "surrendered": 9,
+      "down": 1
+     }
+    }
+   },
+   "three_men_ms": 1.1307,
+   "people_ms": 3.6227333333333336,
+   "people_p95_ms": 5.4751666666666665,
+   "frame_ms": 6.432333333333333,
+   "your_cover_moves_mean": 0.23333333333333334,
+   "your_reloads_mean": 1.0333333333333334,
+   "bot_stuck_mean": 0.5,
+   "body_notes": []
+  },
+  "street night revolver outlaw": {
+   "fights": 15,
+   "length_median_s": 6.08,
+   "length_q1_s": 4.575,
+   "length_q3_s": 9.649999999999999,
+   "length_mean_s": 10.995333333333333,
+   "length_ci95_s": 7.76976022436843,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 86.66666666666667,
+   "gang_hit_first_pct": 13.333333333333334,
+   "you_hit_first_pct": 86.66666666666667,
+   "gang_shot_first_pct": 13.333333333333334,
+   "first_hit_at_median_s": 1.3,
+   "you_first_hit_median_s": 2.17,
+   "you_never_hit_pct": 73.33333333333333,
+   "your_hits_mean": 2.2666666666666666,
+   "your_shots_mean": 3.066666666666667,
+   "gang_hits_mean": 0.3333333333333333,
+   "gang_shots_mean": 5.0,
+   "near_misses_per_min": 30.933178831603673,
+   "near_misses_mean": 3.4,
+   "quiet_median_s": 1.35,
+   "quiet_share_median": 0.3820754716981132,
+   "endings": {
+    "broke_off": 1,
+    "surrendered": 8,
+    "fled": 2,
+    "down": 3,
+    "you_down": 1
+   },
+   "you_down_pct": 6.666666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 3.466666666666667,
+    "dust_by_man": 0.4,
+    "surrenders": 2.1333333333333333,
+    "flights": 0.13333333333333333,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.2,
+    "ground_hits": 5.666666666666667,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.6666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 0.3333333333333333,
+     "pinned": 1.4666666666666666,
+     "peeks": 0.2,
+     "shots": 0.5333333333333333,
+     "hits_on_you": 0.2,
+     "hits_taken": 1.2,
+     "outcome": {
+      "broke_off": 1,
+      "surrendered": 9,
+      "down": 5
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 2.6,
+     "pinned": 1.3333333333333333,
+     "peeks": 0.0,
+     "shots": 2.6,
+     "hits_on_you": 0.13333333333333333,
+     "hits_taken": 1.0666666666666667,
+     "outcome": {
+      "broke_off": 1,
+      "surrendered": 10,
+      "down": 3,
+      "standing": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.26666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 1.8666666666666667,
+     "pinned": 2.1333333333333333,
+     "peeks": 0.06666666666666667,
+     "shots": 1.8666666666666667,
+     "hits_on_you": 0.0,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "dead": 1,
+      "surrendered": 11,
+      "fled": 2,
+      "standing": 1
+     }
+    }
+   },
+   "three_men_ms": 1.0242,
+   "people_ms": 3.3115333333333337,
+   "people_p95_ms": 5.078133333333333,
+   "frame_ms": 6.228666666666667,
+   "your_cover_moves_mean": 0.2,
+   "your_reloads_mean": 0.06666666666666667,
+   "bot_stuck_mean": 0.4666666666666667,
+   "body_notes": []
+  },
+  "street night revolver studio": {
+   "fights": 30,
+   "length_median_s": 9.649999999999999,
+   "length_q1_s": 5.245,
+   "length_q3_s": 19.9925,
+   "length_mean_s": 15.005333333333335,
+   "length_ci95_s": 5.49776128604532,
+   "in_45_90_pct": 10.0,
+   "under_15_pct": 70.0,
+   "gang_hit_first_pct": 10.0,
+   "you_hit_first_pct": 90.0,
+   "gang_shot_first_pct": 13.333333333333334,
+   "first_hit_at_median_s": 1.12,
+   "you_first_hit_median_s": 2.425,
+   "you_never_hit_pct": 80.0,
+   "your_hits_mean": 2.2,
+   "your_shots_mean": 3.2666666666666666,
+   "gang_hits_mean": 0.23333333333333334,
+   "gang_shots_mean": 4.966666666666667,
+   "near_misses_per_min": 25.45128066161241,
+   "near_misses_mean": 3.2,
+   "quiet_median_s": 3.6500000000000004,
+   "quiet_share_median": 0.3893135979180221,
+   "endings": {
+    "broke_off": 3,
+    "fled": 8,
+    "surrendered": 11,
+    "down": 6,
+    "you_down": 2
+   },
+   "you_down_pct": 6.666666666666667,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 3.6333333333333333,
+    "dust_by_man": 0.43333333333333335,
+    "surrenders": 2.0,
+    "flights": 0.36666666666666664,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.13333333333333333,
+    "ground_hits": 6.433333333333334,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.5666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.36666666666666664,
+     "pinned": 1.5666666666666667,
+     "peeks": 0.2,
+     "shots": 0.6333333333333333,
+     "hits_on_you": 0.16666666666666666,
+     "hits_taken": 1.2666666666666666,
+     "outcome": {
+      "broke_off": 2,
+      "surrendered": 20,
+      "down": 8
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.06666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 2.3333333333333335,
+     "pinned": 1.5333333333333334,
+     "peeks": 0.03333333333333333,
+     "shots": 2.466666666666667,
+     "hits_on_you": 0.06666666666666667,
+     "hits_taken": 1.0333333333333334,
+     "outcome": {
+      "broke_off": 3,
+      "surrendered": 18,
+      "down": 6,
+      "fled": 1,
+      "standing": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.26666666666666666,
+     "flanks": 0.0,
+     "suppressing_shots": 1.8666666666666667,
+     "pinned": 2.2666666666666666,
+     "peeks": 0.06666666666666667,
+     "shots": 1.8666666666666667,
+     "hits_on_you": 0.0,
+     "hits_taken": 0.13333333333333333,
+     "outcome": {
+      "dead": 1,
+      "fled": 8,
+      "surrendered": 18,
+      "broke_off": 1,
+      "standing": 2
+     }
+    }
+   },
+   "three_men_ms": 1.0541333333333334,
+   "people_ms": 3.291933333333333,
+   "people_p95_ms": 4.9699333333333335,
+   "frame_ms": 6.037000000000001,
+   "your_cover_moves_mean": 0.3,
+   "your_reloads_mean": 0.16666666666666666,
+   "bot_stuck_mean": 0.4666666666666667,
+   "body_notes": []
+  },
+  "street night shotgun outlaw": {
+   "fights": 15,
+   "length_median_s": 7.02,
+   "length_q1_s": 5.1850000000000005,
+   "length_q3_s": 16.225,
+   "length_mean_s": 13.67,
+   "length_ci95_s": 6.726179558709386,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 73.33333333333333,
+   "gang_hit_first_pct": 26.666666666666668,
+   "you_hit_first_pct": 73.33333333333333,
+   "gang_shot_first_pct": 13.333333333333334,
+   "first_hit_at_median_s": 1.3,
+   "you_first_hit_median_s": 2.415,
+   "you_never_hit_pct": 60.0,
+   "your_hits_mean": 2.2,
+   "your_shots_mean": 3.0,
+   "gang_hits_mean": 1.0,
+   "gang_shots_mean": 5.933333333333334,
+   "near_misses_per_min": 23.674222012293548,
+   "near_misses_mean": 3.2666666666666666,
+   "quiet_median_s": 1.78,
+   "quiet_share_median": 0.2812006319115324,
+   "endings": {
+    "broke_off": 3,
+    "down": 3,
+    "surrendered": 7,
+    "you_down": 2
+   },
+   "you_down_pct": 13.333333333333334,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 11.4,
+    "dust_by_man": 1.4666666666666666,
+    "surrenders": 2.2666666666666666,
+    "flights": 0.2,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 1.0,
+    "ground_hits": 13.6,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.4,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5333333333333333,
+     "pinned": 1.2,
+     "peeks": 0.06666666666666667,
+     "shots": 0.6666666666666666,
+     "hits_on_you": 0.2,
+     "hits_taken": 5.266666666666667,
+     "outcome": {
+      "surrendered": 11,
+      "down": 2,
+      "standing": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.06666666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 2.2666666666666666,
+     "pinned": 1.4,
+     "peeks": 0.0,
+     "shots": 2.933333333333333,
+     "hits_on_you": 0.5333333333333333,
+     "hits_taken": 4.266666666666667,
+     "outcome": {
+      "broke_off": 2,
+      "down": 3,
+      "surrendered": 8,
+      "fled": 1,
+      "standing": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 2.3333333333333335,
+     "pinned": 2.933333333333333,
+     "peeks": 0.0,
+     "shots": 2.3333333333333335,
+     "hits_on_you": 0.26666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "surrendered": 12,
+      "broke_off": 1,
+      "standing": 2
+     }
+    }
+   },
+   "three_men_ms": 0.9170666666666667,
+   "people_ms": 3.3512,
+   "people_p95_ms": 5.229866666666666,
+   "frame_ms": 6.1419999999999995,
+   "your_cover_moves_mean": 0.2,
+   "your_reloads_mean": 1.2666666666666666,
+   "bot_stuck_mean": 1.7333333333333334,
+   "body_notes": []
+  },
+  "street night shotgun studio": {
+   "fights": 30,
+   "length_median_s": 8.525,
+   "length_q1_s": 6.12,
+   "length_q3_s": 19.8975,
+   "length_mean_s": 13.538333333333332,
+   "length_ci95_s": 4.1453591320685055,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 73.33333333333333,
+   "gang_hit_first_pct": 20.0,
+   "you_hit_first_pct": 80.0,
+   "gang_shot_first_pct": 13.333333333333334,
+   "first_hit_at_median_s": 1.11,
+   "you_first_hit_median_s": 3.375,
+   "you_never_hit_pct": 60.0,
+   "your_hits_mean": 1.9666666666666666,
+   "your_shots_mean": 2.7333333333333334,
+   "gang_hits_mean": 0.9666666666666667,
+   "gang_shots_mean": 5.566666666666666,
+   "near_misses_per_min": 19.44853528006907,
+   "near_misses_mean": 2.933333333333333,
+   "quiet_median_s": 2.81,
+   "quiet_share_median": 0.38697478991596634,
+   "endings": {
+    "broke_off": 3,
+    "fled": 5,
+    "down": 5,
+    "surrendered": 12,
+    "you_down": 5
+   },
+   "you_down_pct": 16.666666666666668,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 11.0,
+    "dust_by_man": 0.9666666666666667,
+    "surrenders": 2.033333333333333,
+    "flights": 0.7333333333333333,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.5666666666666667,
+    "ground_hits": 12.766666666666667,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.4,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4666666666666667,
+     "pinned": 1.5666666666666667,
+     "peeks": 0.1,
+     "shots": 0.7333333333333333,
+     "hits_on_you": 0.3,
+     "hits_taken": 5.266666666666667,
+     "outcome": {
+      "surrendered": 24,
+      "down": 2,
+      "standing": 4
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.03333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 2.2,
+     "pinned": 1.4333333333333333,
+     "peeks": 0.0,
+     "shots": 2.8333333333333335,
+     "hits_on_you": 0.5,
+     "hits_taken": 4.066666666666666,
+     "outcome": {
+      "broke_off": 2,
+      "surrendered": 18,
+      "down": 5,
+      "fled": 2,
+      "standing": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 2.0,
+     "pinned": 2.533333333333333,
+     "peeks": 0.0,
+     "shots": 2.0,
+     "hits_on_you": 0.16666666666666666,
+     "hits_taken": 0.0,
+     "outcome": {
+      "surrendered": 16,
+      "fled": 9,
+      "broke_off": 2,
+      "standing": 3
+     }
+    }
+   },
+   "three_men_ms": 0.9776,
+   "people_ms": 3.4339,
+   "people_p95_ms": 5.1671000000000005,
+   "frame_ms": 6.149666666666667,
+   "your_cover_moves_mean": 0.2,
+   "your_reloads_mean": 1.1,
+   "bot_stuck_mean": 1.0333333333333334,
+   "body_notes": []
+  }
+ },
+ "style x bodies": {
+  "cover outlaw": {
+   "fights": 60,
+   "length_median_s": 4.855,
+   "length_q1_s": 2.565,
+   "length_q3_s": 10.9,
+   "length_mean_s": 10.6855,
+   "length_ci95_s": 3.640975821200889,
+   "in_45_90_pct": 6.666666666666667,
+   "under_15_pct": 81.66666666666667,
+   "gang_hit_first_pct": 66.66666666666667,
+   "you_hit_first_pct": 33.333333333333336,
+   "gang_shot_first_pct": 76.66666666666667,
+   "first_hit_at_median_s": 0.87,
+   "you_first_hit_median_s": 0.87,
+   "you_never_hit_pct": 23.333333333333332,
+   "your_hits_mean": 1.0833333333333333,
+   "your_shots_mean": 1.2333333333333334,
+   "gang_hits_mean": 1.9666666666666666,
+   "gang_shots_mean": 4.833333333333333,
+   "near_misses_per_min": 46.83813508263482,
+   "near_misses_mean": 3.716666666666667,
+   "quiet_median_s": 2.42,
+   "quiet_share_median": 0.47332251082251087,
+   "endings": {
+    "you_down": 39,
+    "surrendered": 10,
+    "broke_off": 4,
+    "fled": 5,
+    "down": 2
+   },
+   "you_down_pct": 65.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.1,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.9333333333333333,
+    "dust_by_man": 0.5833333333333334,
+    "surrenders": 0.8666666666666667,
+    "flights": 0.15,
+    "hats_shot": 0.16666666666666666,
+    "townsfolk_hit": 0.23333333333333334,
+    "ground_hits": 5.05,
+    "fights_with_any": 61.666666666666664
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.8166666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 0.6833333333333333,
+     "pinned": 0.9166666666666666,
+     "peeks": 1.1166666666666667,
+     "shots": 1.75,
+     "hits_on_you": 0.9833333333333333,
+     "hits_taken": 1.2833333333333334,
+     "outcome": {
+      "standing": 38,
+      "surrendered": 16,
+      "fled": 2,
+      "broke_off": 1,
+      "down": 3
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.31666666666666665,
+     "flanks": 0.0,
+     "suppressing_shots": 1.1166666666666667,
+     "pinned": 0.8333333333333334,
+     "peeks": 0.5666666666666667,
+     "shots": 2.15,
+     "hits_on_you": 0.75,
+     "hits_taken": 1.0666666666666667,
+     "outcome": {
+      "surrendered": 16,
+      "broke_off": 4,
+      "standing": 35,
+      "down": 4,
+      "fled": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.9,
+     "flanks": 0.0,
+     "suppressing_shots": 0.43333333333333335,
+     "pinned": 1.15,
+     "peeks": 0.23333333333333334,
+     "shots": 0.9333333333333333,
+     "hits_on_you": 0.23333333333333334,
+     "hits_taken": 1.2333333333333334,
+     "outcome": {
+      "dead": 7,
+      "surrendered": 19,
+      "standing": 29,
+      "fled": 5
+     }
+    }
+   },
+   "three_men_ms": 1.3348166666666665,
+   "people_ms": 3.7504666666666666,
+   "people_p95_ms": 6.089083333333333,
+   "frame_ms": 7.018166666666667,
+   "your_cover_moves_mean": 0.35,
+   "your_reloads_mean": 0.26666666666666666,
+   "bot_stuck_mean": 1.4666666666666666,
+   "body_notes": []
+  },
+  "cover studio": {
+   "fights": 120,
+   "length_median_s": 5.625,
+   "length_q1_s": 3.2575,
+   "length_q3_s": 12.74,
+   "length_mean_s": 10.976416666666667,
+   "length_ci95_s": 2.3782438563589627,
+   "in_45_90_pct": 5.0,
+   "under_15_pct": 80.83333333333333,
+   "gang_hit_first_pct": 66.66666666666667,
+   "you_hit_first_pct": 33.333333333333336,
+   "gang_shot_first_pct": 78.33333333333333,
+   "first_hit_at_median_s": 0.935,
+   "you_first_hit_median_s": 0.88,
+   "you_never_hit_pct": 22.5,
+   "your_hits_mean": 1.0166666666666666,
+   "your_shots_mean": 1.3333333333333333,
+   "gang_hits_mean": 2.1333333333333333,
+   "gang_shots_mean": 5.058333333333334,
+   "near_misses_per_min": 45.92621232504283,
+   "near_misses_mean": 3.941666666666667,
+   "quiet_median_s": 2.48,
+   "quiet_share_median": 0.46666666666666673,
+   "endings": {
+    "you_down": 75,
+    "surrendered": 16,
+    "fled": 15,
+    "broke_off": 8,
+    "down": 6
+   },
+   "you_down_pct": 62.5,
+   "situations_per_fight": {
+    "cover_shot_away": 0.1,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 2.1083333333333334,
+    "dust_by_man": 0.4083333333333333,
+    "surrenders": 0.85,
+    "flights": 0.25833333333333336,
+    "hats_shot": 0.15,
+    "townsfolk_hit": 0.2,
+    "ground_hits": 5.541666666666667,
+    "fights_with_any": 60.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.7416666666666667,
+     "flanks": 0.008333333333333333,
+     "suppressing_shots": 0.575,
+     "pinned": 0.9,
+     "peeks": 0.9666666666666667,
+     "shots": 1.7333333333333334,
+     "hits_on_you": 0.8583333333333333,
+     "hits_taken": 1.3333333333333333,
+     "outcome": {
+      "standing": 73,
+      "surrendered": 33,
+      "down": 5,
+      "fled": 2,
+      "broke_off": 7
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.3,
+     "flanks": 0.008333333333333333,
+     "suppressing_shots": 1.2,
+     "pinned": 1.025,
+     "peeks": 0.5333333333333333,
+     "shots": 2.2416666666666667,
+     "hits_on_you": 0.9,
+     "hits_taken": 1.225,
+     "outcome": {
+      "surrendered": 35,
+      "standing": 70,
+      "broke_off": 3,
+      "down": 8,
+      "fled": 4
+     }
+    },
+    "kid": {
+     "cover_changes": 0.85,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5,
+     "pinned": 1.2,
+     "peeks": 0.36666666666666664,
+     "shots": 1.0833333333333333,
+     "hits_on_you": 0.375,
+     "hits_taken": 0.9583333333333334,
+     "outcome": {
+      "dead": 7,
+      "standing": 62,
+      "surrendered": 32,
+      "down": 1,
+      "fled": 17,
+      "broke_off": 1
+     }
+    }
+   },
+   "three_men_ms": 1.2951333333333332,
+   "people_ms": 3.7455583333333333,
+   "people_p95_ms": 6.1063583333333336,
+   "frame_ms": 6.8469999999999995,
+   "your_cover_moves_mean": 0.475,
+   "your_reloads_mean": 0.2833333333333333,
+   "bot_stuck_mean": 1.3416666666666666,
+   "body_notes": []
+  },
+  "hold outlaw": {
+   "fights": 60,
+   "length_median_s": 4.725,
+   "length_q1_s": 2.7824999999999998,
+   "length_q3_s": 8.85,
+   "length_mean_s": 8.435666666666666,
+   "length_ci95_s": 2.41499361037611,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 85.0,
+   "gang_hit_first_pct": 66.66666666666667,
+   "you_hit_first_pct": 33.333333333333336,
+   "gang_shot_first_pct": 78.33333333333333,
+   "first_hit_at_median_s": 0.87,
+   "you_first_hit_median_s": 0.87,
+   "you_never_hit_pct": 25.0,
+   "your_hits_mean": 1.65,
+   "your_shots_mean": 2.3833333333333333,
+   "gang_hits_mean": 1.8666666666666667,
+   "gang_shots_mean": 4.816666666666666,
+   "near_misses_per_min": 44.009231866497004,
+   "near_misses_mean": 3.3833333333333333,
+   "quiet_median_s": 1.615,
+   "quiet_share_median": 0.37966049034007454,
+   "endings": {
+    "you_down": 29,
+    "surrendered": 18,
+    "down": 6,
+    "fled": 5,
+    "broke_off": 2
+   },
+   "you_down_pct": 48.333333333333336,
+   "situations_per_fight": {
+    "cover_shot_away": 0.05,
+    "lamps_hit": 0.05,
+    "fires_started": 0.0,
+    "dust_on_line": 2.466666666666667,
+    "dust_by_man": 0.7166666666666667,
+    "surrenders": 1.6666666666666667,
+    "flights": 0.26666666666666666,
+    "hats_shot": 0.2,
+    "townsfolk_hit": 0.2833333333333333,
+    "ground_hits": 6.05,
+    "fights_with_any": 83.33333333333333
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.8833333333333333,
+     "flanks": 0.03333333333333333,
+     "suppressing_shots": 0.5,
+     "pinned": 0.9833333333333333,
+     "peeks": 1.6,
+     "shots": 1.6666666666666667,
+     "hits_on_you": 0.8,
+     "hits_taken": 2.716666666666667,
+     "outcome": {
+      "standing": 20,
+      "surrendered": 34,
+      "down": 5,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.31666666666666665,
+     "flanks": 0.0,
+     "suppressing_shots": 1.1666666666666667,
+     "pinned": 1.0666666666666667,
+     "peeks": 0.38333333333333336,
+     "shots": 2.066666666666667,
+     "hits_on_you": 0.7333333333333333,
+     "hits_taken": 1.7833333333333334,
+     "outcome": {
+      "surrendered": 30,
+      "fled": 3,
+      "down": 5,
+      "standing": 21,
+      "broke_off": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.9333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7,
+     "pinned": 1.4833333333333334,
+     "peeks": 0.21666666666666667,
+     "shots": 1.0833333333333333,
+     "hits_on_you": 0.3333333333333333,
+     "hits_taken": 0.48333333333333334,
+     "outcome": {
+      "down": 1,
+      "fled": 6,
+      "surrendered": 32,
+      "standing": 20,
+      "broke_off": 1
+     }
+    }
+   },
+   "three_men_ms": 1.3665333333333334,
+   "people_ms": 3.7641333333333336,
+   "people_p95_ms": 6.361016666666667,
+   "frame_ms": 6.982,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.5,
+   "bot_stuck_mean": 0.11666666666666667,
+   "body_notes": []
+  },
+  "hold studio": {
+   "fights": 120,
+   "length_median_s": 5.25,
+   "length_q1_s": 2.25,
+   "length_q3_s": 9.65,
+   "length_mean_s": 8.303166666666666,
+   "length_ci95_s": 1.5809203923990822,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 85.0,
+   "gang_hit_first_pct": 65.83333333333333,
+   "you_hit_first_pct": 34.166666666666664,
+   "gang_shot_first_pct": 80.0,
+   "first_hit_at_median_s": 0.935,
+   "you_first_hit_median_s": 0.88,
+   "you_never_hit_pct": 22.5,
+   "your_hits_mean": 1.6833333333333333,
+   "your_shots_mean": 2.225,
+   "gang_hits_mean": 1.6833333333333333,
+   "gang_shots_mean": 4.458333333333333,
+   "near_misses_per_min": 40.929362032738155,
+   "near_misses_mean": 3.0416666666666665,
+   "quiet_median_s": 2.32,
+   "quiet_share_median": 0.4114242953354951,
+   "endings": {
+    "you_down": 47,
+    "down": 18,
+    "surrendered": 33,
+    "fled": 18,
+    "dead": 1,
+    "broke_off": 3
+   },
+   "you_down_pct": 39.166666666666664,
+   "situations_per_fight": {
+    "cover_shot_away": 0.016666666666666666,
+    "lamps_hit": 0.10833333333333334,
+    "fires_started": 0.0,
+    "dust_on_line": 2.975,
+    "dust_by_man": 0.825,
+    "surrenders": 1.625,
+    "flights": 0.36666666666666664,
+    "hats_shot": 0.18333333333333332,
+    "townsfolk_hit": 0.25,
+    "ground_hits": 6.466666666666667,
+    "fights_with_any": 82.5
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.7166666666666667,
+     "flanks": 0.016666666666666666,
+     "suppressing_shots": 0.49166666666666664,
+     "pinned": 0.9833333333333333,
+     "peeks": 1.3666666666666667,
+     "shots": 1.4083333333333334,
+     "hits_on_you": 0.675,
+     "hits_taken": 2.75,
+     "outcome": {
+      "standing": 37,
+      "down": 13,
+      "surrendered": 66,
+      "fled": 3,
+      "dead": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.2916666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 1.025,
+     "pinned": 1.0166666666666666,
+     "peeks": 0.36666666666666664,
+     "shots": 1.8583333333333334,
+     "hits_on_you": 0.65,
+     "hits_taken": 1.975,
+     "outcome": {
+      "surrendered": 60,
+      "standing": 38,
+      "fled": 6,
+      "down": 14,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.775,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7416666666666667,
+     "pinned": 1.3416666666666666,
+     "peeks": 0.275,
+     "shots": 1.1916666666666667,
+     "hits_on_you": 0.35833333333333334,
+     "hits_taken": 0.475,
+     "outcome": {
+      "down": 2,
+      "surrendered": 60,
+      "fled": 21,
+      "standing": 33,
+      "dead": 1,
+      "broke_off": 3
+     }
+    }
+   },
+   "three_men_ms": 1.3514249999999999,
+   "people_ms": 3.7910416666666666,
+   "people_p95_ms": 6.488675,
+   "frame_ms": 6.856,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.475,
+   "bot_stuck_mean": 0.10833333333333334,
+   "body_notes": []
+  },
+  "push outlaw": {
+   "fights": 60,
+   "length_median_s": 5.23,
+   "length_q1_s": 2.345,
+   "length_q3_s": 8.9275,
+   "length_mean_s": 7.413333333333333,
+   "length_ci95_s": 1.9091166523279441,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 85.0,
+   "gang_hit_first_pct": 68.33333333333333,
+   "you_hit_first_pct": 31.666666666666668,
+   "gang_shot_first_pct": 83.33333333333333,
+   "first_hit_at_median_s": 0.87,
+   "you_first_hit_median_s": 2.12,
+   "you_never_hit_pct": 11.666666666666666,
+   "your_hits_mean": 1.3666666666666667,
+   "your_shots_mean": 1.7833333333333334,
+   "gang_hits_mean": 2.1166666666666667,
+   "gang_shots_mean": 5.066666666666666,
+   "near_misses_per_min": 58.849413062359375,
+   "near_misses_mean": 4.383333333333334,
+   "quiet_median_s": 1.6,
+   "quiet_share_median": 0.41275461309017497,
+   "endings": {
+    "surrendered": 20,
+    "you_down": 31,
+    "down": 9
+   },
+   "you_down_pct": 51.666666666666664,
+   "situations_per_fight": {
+    "cover_shot_away": 0.03333333333333333,
+    "lamps_hit": 0.03333333333333333,
+    "fires_started": 0.0,
+    "dust_on_line": 2.7333333333333334,
+    "dust_by_man": 0.7,
+    "surrenders": 1.7333333333333334,
+    "flights": 0.1,
+    "hats_shot": 0.1,
+    "townsfolk_hit": 0.5166666666666667,
+    "ground_hits": 5.3,
+    "fights_with_any": 80.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.6333333333333333,
+     "flanks": 0.03333333333333333,
+     "suppressing_shots": 0.5,
+     "pinned": 1.0833333333333333,
+     "peeks": 1.3,
+     "shots": 1.3333333333333333,
+     "hits_on_you": 0.6833333333333333,
+     "hits_taken": 2.4166666666666665,
+     "outcome": {
+      "surrendered": 33,
+      "standing": 25,
+      "down": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.43333333333333335,
+     "flanks": 0.0,
+     "suppressing_shots": 1.1833333333333333,
+     "pinned": 0.9833333333333333,
+     "peeks": 0.3,
+     "shots": 2.4166666666666665,
+     "hits_on_you": 1.1,
+     "hits_taken": 1.75,
+     "outcome": {
+      "surrendered": 27,
+      "standing": 27,
+      "down": 6
+     }
+    },
+    "kid": {
+     "cover_changes": 0.7333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 1.0,
+     "pinned": 1.3333333333333333,
+     "peeks": 0.11666666666666667,
+     "shots": 1.3166666666666667,
+     "hits_on_you": 0.3333333333333333,
+     "hits_taken": 1.05,
+     "outcome": {
+      "surrendered": 36,
+      "standing": 21,
+      "dead": 1,
+      "down": 1,
+      "fled": 1
+     }
+    }
+   },
+   "three_men_ms": 1.3959333333333332,
+   "people_ms": 3.81575,
+   "people_p95_ms": 6.692966666666666,
+   "frame_ms": 6.951,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.31666666666666665,
+   "bot_stuck_mean": 0.43333333333333335,
+   "body_notes": []
+  },
+  "push studio": {
+   "fights": 120,
+   "length_median_s": 4.574999999999999,
+   "length_q1_s": 2.31,
+   "length_q3_s": 8.2575,
+   "length_mean_s": 8.343166666666667,
+   "length_ci95_s": 1.8210952789314472,
+   "in_45_90_pct": 0.8333333333333334,
+   "under_15_pct": 83.33333333333333,
+   "gang_hit_first_pct": 69.16666666666667,
+   "you_hit_first_pct": 30.833333333333332,
+   "gang_shot_first_pct": 85.83333333333333,
+   "first_hit_at_median_s": 0.89,
+   "you_first_hit_median_s": 0.98,
+   "you_never_hit_pct": 14.166666666666666,
+   "your_hits_mean": 1.5083333333333333,
+   "your_shots_mean": 1.9916666666666667,
+   "gang_hits_mean": 1.9083333333333334,
+   "gang_shots_mean": 4.675,
+   "near_misses_per_min": 54.110844836830516,
+   "near_misses_mean": 3.941666666666667,
+   "quiet_median_s": 1.38,
+   "quiet_share_median": 0.4433106575963719,
+   "endings": {
+    "surrendered": 41,
+    "you_down": 56,
+    "down": 16,
+    "broke_off": 4,
+    "fled": 3
+   },
+   "you_down_pct": 46.666666666666664,
+   "situations_per_fight": {
+    "cover_shot_away": 0.025,
+    "lamps_hit": 0.025,
+    "fires_started": 0.0,
+    "dust_on_line": 3.091666666666667,
+    "dust_by_man": 0.6666666666666666,
+    "surrenders": 1.8416666666666666,
+    "flights": 0.15833333333333333,
+    "hats_shot": 0.10833333333333334,
+    "townsfolk_hit": 0.4666666666666667,
+    "ground_hits": 5.391666666666667,
+    "fights_with_any": 84.16666666666667
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.575,
+     "flanks": 0.016666666666666666,
+     "suppressing_shots": 0.5416666666666666,
+     "pinned": 1.0083333333333333,
+     "peeks": 1.1583333333333334,
+     "shots": 1.2583333333333333,
+     "hits_on_you": 0.5916666666666667,
+     "hits_taken": 2.5,
+     "outcome": {
+      "surrendered": 71,
+      "standing": 42,
+      "down": 5,
+      "broke_off": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.3416666666666667,
+     "flanks": 0.0,
+     "suppressing_shots": 1.05,
+     "pinned": 1.0083333333333333,
+     "peeks": 0.30833333333333335,
+     "shots": 2.158333333333333,
+     "hits_on_you": 0.9083333333333333,
+     "hits_taken": 2.2583333333333333,
+     "outcome": {
+      "surrendered": 60,
+      "standing": 47,
+      "down": 11,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.6333333333333333,
+     "flanks": 0.0,
+     "suppressing_shots": 0.8583333333333333,
+     "pinned": 1.2,
+     "peeks": 0.19166666666666668,
+     "shots": 1.2583333333333333,
+     "hits_on_you": 0.4083333333333333,
+     "hits_taken": 1.0666666666666667,
+     "outcome": {
+      "surrendered": 75,
+      "standing": 36,
+      "dead": 2,
+      "fled": 5,
+      "down": 2
+     }
+    }
+   },
+   "three_men_ms": 1.4322583333333334,
+   "people_ms": 3.848716666666667,
+   "people_p95_ms": 6.5652833333333325,
+   "frame_ms": 7.001499999999999,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.38333333333333336,
+   "bot_stuck_mean": 0.49166666666666664,
+   "body_notes": []
+  }
+ },
+ "scenario x style x bodies": {
+  "ambush cover outlaw": {
+   "fights": 20,
+   "length_median_s": 6.635,
+   "length_q1_s": 5.0175,
+   "length_q3_s": 20.23,
+   "length_mean_s": 15.133000000000001,
+   "length_ci95_s": 7.033422603906069,
+   "in_45_90_pct": 10.0,
+   "under_15_pct": 70.0,
+   "gang_hit_first_pct": 65.0,
+   "you_hit_first_pct": 35.0,
+   "gang_shot_first_pct": 80.0,
+   "first_hit_at_median_s": 2.735,
+   "you_first_hit_median_s": 2.82,
+   "you_never_hit_pct": 5.0,
+   "your_hits_mean": 1.3,
+   "your_shots_mean": 1.25,
+   "gang_hits_mean": 2.45,
+   "gang_shots_mean": 5.55,
+   "near_misses_per_min": 34.018341953857615,
+   "near_misses_mean": 4.75,
+   "quiet_median_s": 2.875,
+   "quiet_share_median": 0.4651924295216978,
+   "endings": {
+    "you_down": 16,
+    "surrendered": 2,
+    "broke_off": 2
+   },
+   "you_down_pct": 80.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.75,
+    "dust_by_man": 0.6,
+    "surrenders": 0.85,
+    "flights": 0.0,
+    "hats_shot": 0.45,
+    "townsfolk_hit": 0.1,
+    "ground_hits": 5.8,
+    "fights_with_any": 65.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.55,
+     "flanks": 0.0,
+     "suppressing_shots": 1.35,
+     "pinned": 0.55,
+     "peeks": 3.05,
+     "shots": 2.3,
+     "hits_on_you": 0.95,
+     "hits_taken": 1.15,
+     "outcome": {
+      "standing": 15,
+      "surrendered": 4,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.85,
+     "flanks": 0.0,
+     "suppressing_shots": 1.35,
+     "pinned": 0.65,
+     "peeks": 1.0,
+     "shots": 2.65,
+     "hits_on_you": 1.1,
+     "hits_taken": 0.75,
+     "outcome": {
+      "surrendered": 5,
+      "broke_off": 2,
+      "standing": 13
+     }
+    },
+    "kid": {
+     "cover_changes": 1.8,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.25,
+     "peeks": 0.35,
+     "shots": 0.6,
+     "hits_on_you": 0.4,
+     "hits_taken": 3.6,
+     "outcome": {
+      "dead": 6,
+      "surrendered": 8,
+      "standing": 6
+     }
+    }
+   },
+   "three_men_ms": 1.34405,
+   "people_ms": 3.70135,
+   "people_p95_ms": 5.96665,
+   "frame_ms": 6.833499999999999,
+   "your_cover_moves_mean": 0.35,
+   "your_reloads_mean": 0.2,
+   "bot_stuck_mean": 1.45,
+   "body_notes": []
+  },
+  "ambush cover studio": {
+   "fights": 40,
+   "length_median_s": 6.065,
+   "length_q1_s": 4.2299999999999995,
+   "length_q3_s": 13.42,
+   "length_mean_s": 11.3505,
+   "length_ci95_s": 3.700648610008652,
+   "in_45_90_pct": 2.5,
+   "under_15_pct": 77.5,
+   "gang_hit_first_pct": 70.0,
+   "you_hit_first_pct": 30.0,
+   "gang_shot_first_pct": 85.0,
+   "first_hit_at_median_s": 2.525,
+   "you_first_hit_median_s": 2.62,
+   "you_never_hit_pct": 5.0,
+   "your_hits_mean": 1.125,
+   "your_shots_mean": 1.35,
+   "gang_hits_mean": 2.35,
+   "gang_shots_mean": 4.775,
+   "near_misses_per_min": 34.01454763966342,
+   "near_misses_mean": 4.175,
+   "quiet_median_s": 2.78,
+   "quiet_share_median": 0.49722011791442966,
+   "endings": {
+    "you_down": 31,
+    "surrendered": 6,
+    "fled": 1,
+    "broke_off": 2
+   },
+   "you_down_pct": 77.5,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.625,
+    "dust_by_man": 0.425,
+    "surrenders": 0.825,
+    "flights": 0.05,
+    "hats_shot": 0.35,
+    "townsfolk_hit": 0.05,
+    "ground_hits": 5.4,
+    "fights_with_any": 52.5
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.275,
+     "flanks": 0.025,
+     "suppressing_shots": 0.95,
+     "pinned": 0.425,
+     "peeks": 2.4,
+     "shots": 1.8,
+     "hits_on_you": 0.725,
+     "hits_taken": 0.975,
+     "outcome": {
+      "standing": 30,
+      "surrendered": 7,
+      "down": 1,
+      "fled": 1,
+      "broke_off": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.7,
+     "flanks": 0.0,
+     "suppressing_shots": 1.125,
+     "pinned": 0.65,
+     "peeks": 1.15,
+     "shots": 2.025,
+     "hits_on_you": 0.925,
+     "hits_taken": 1.025,
+     "outcome": {
+      "surrendered": 12,
+      "standing": 27,
+      "broke_off": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 1.45,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.975,
+     "peeks": 0.625,
+     "shots": 0.95,
+     "hits_on_you": 0.7,
+     "hits_taken": 2.55,
+     "outcome": {
+      "dead": 6,
+      "standing": 19,
+      "surrendered": 14,
+      "down": 1
+     }
+    }
+   },
+   "three_men_ms": 1.1820249999999999,
+   "people_ms": 3.6027250000000004,
+   "people_p95_ms": 6.0608249999999995,
+   "frame_ms": 6.619750000000001,
+   "your_cover_moves_mean": 0.325,
+   "your_reloads_mean": 0.25,
+   "bot_stuck_mean": 1.05,
+   "body_notes": []
+  },
+  "ambush hold outlaw": {
+   "fights": 20,
+   "length_median_s": 7.0,
+   "length_q1_s": 4.73,
+   "length_q3_s": 21.2875,
+   "length_mean_s": 12.998500000000002,
+   "length_ci95_s": 4.773731377733554,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 70.0,
+   "gang_hit_first_pct": 65.0,
+   "you_hit_first_pct": 35.0,
+   "gang_shot_first_pct": 85.0,
+   "first_hit_at_median_s": 2.87,
+   "you_first_hit_median_s": 4.02,
+   "you_never_hit_pct": 15.0,
+   "your_hits_mean": 1.3,
+   "your_shots_mean": 2.35,
+   "gang_hits_mean": 1.75,
+   "gang_shots_mean": 5.35,
+   "near_misses_per_min": 28.87753273247795,
+   "near_misses_mean": 4.7,
+   "quiet_median_s": 2.78,
+   "quiet_share_median": 0.40616113744075827,
+   "endings": {
+    "you_down": 13,
+    "surrendered": 3,
+    "down": 3,
+    "fled": 1
+   },
+   "you_down_pct": 65.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.05,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.05,
+    "dust_by_man": 0.85,
+    "surrenders": 1.15,
+    "flights": 0.35,
+    "hats_shot": 0.5,
+    "townsfolk_hit": 0.25,
+    "ground_hits": 8.4,
+    "fights_with_any": 70.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.8,
+     "flanks": 0.1,
+     "suppressing_shots": 1.1,
+     "pinned": 0.75,
+     "peeks": 4.75,
+     "shots": 2.75,
+     "hits_on_you": 0.7,
+     "hits_taken": 1.1,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 4,
+      "down": 2,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.95,
+     "flanks": 0.0,
+     "suppressing_shots": 1.0,
+     "pinned": 0.9,
+     "peeks": 1.15,
+     "shots": 2.0,
+     "hits_on_you": 0.65,
+     "hits_taken": 1.6,
+     "outcome": {
+      "surrendered": 7,
+      "fled": 1,
+      "down": 1,
+      "standing": 11
+     }
+    },
+    "kid": {
+     "cover_changes": 1.8,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.55,
+     "peeks": 0.3,
+     "shots": 0.6,
+     "hits_on_you": 0.4,
+     "hits_taken": 1.2,
+     "outcome": {
+      "down": 1,
+      "fled": 2,
+      "surrendered": 11,
+      "standing": 6
+     }
+    }
+   },
+   "three_men_ms": 1.3493,
+   "people_ms": 3.7784,
+   "people_p95_ms": 6.2137,
+   "frame_ms": 6.374499999999999,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.4,
+   "bot_stuck_mean": 0.35,
+   "body_notes": []
+  },
+  "ambush hold studio": {
+   "fights": 40,
+   "length_median_s": 6.395,
+   "length_q1_s": 4.37,
+   "length_q3_s": 13.57,
+   "length_mean_s": 10.786249999999999,
+   "length_ci95_s": 2.920036603939436,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 77.5,
+   "gang_hit_first_pct": 67.5,
+   "you_hit_first_pct": 32.5,
+   "gang_shot_first_pct": 90.0,
+   "first_hit_at_median_s": 2.72,
+   "you_first_hit_median_s": 2.72,
+   "you_never_hit_pct": 12.5,
+   "your_hits_mean": 1.175,
+   "your_shots_mean": 1.6,
+   "gang_hits_mean": 1.9,
+   "gang_shots_mean": 4.925,
+   "near_misses_per_min": 31.608529906517695,
+   "near_misses_mean": 4.2,
+   "quiet_median_s": 2.75,
+   "quiet_share_median": 0.4234097938694593,
+   "endings": {
+    "you_down": 28,
+    "down": 7,
+    "surrendered": 4,
+    "fled": 1
+   },
+   "you_down_pct": 70.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.65,
+    "dust_by_man": 0.575,
+    "surrenders": 0.85,
+    "flights": 0.25,
+    "hats_shot": 0.425,
+    "townsfolk_hit": 0.175,
+    "ground_hits": 6.375,
+    "fights_with_any": 57.5
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.4,
+     "flanks": 0.05,
+     "suppressing_shots": 1.025,
+     "pinned": 0.4,
+     "peeks": 3.95,
+     "shots": 2.2,
+     "hits_on_you": 0.625,
+     "hits_taken": 1.025,
+     "outcome": {
+      "standing": 28,
+      "down": 6,
+      "surrendered": 5,
+      "fled": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.775,
+     "flanks": 0.0,
+     "suppressing_shots": 0.85,
+     "pinned": 0.675,
+     "peeks": 1.1,
+     "shots": 1.75,
+     "hits_on_you": 0.6,
+     "hits_taken": 1.175,
+     "outcome": {
+      "surrendered": 10,
+      "standing": 26,
+      "fled": 1,
+      "down": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 1.325,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.275,
+     "peeks": 0.525,
+     "shots": 0.975,
+     "hits_on_you": 0.675,
+     "hits_taken": 1.15,
+     "outcome": {
+      "down": 2,
+      "surrendered": 18,
+      "fled": 2,
+      "standing": 17,
+      "dead": 1
+     }
+    }
+   },
+   "three_men_ms": 1.336525,
+   "people_ms": 3.7137000000000002,
+   "people_p95_ms": 6.073525,
+   "frame_ms": 6.315250000000001,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.225,
+   "bot_stuck_mean": 0.325,
+   "body_notes": []
+  },
+  "ambush push outlaw": {
+   "fights": 20,
+   "length_median_s": 5.9350000000000005,
+   "length_q1_s": 4.827500000000001,
+   "length_q3_s": 17.82,
+   "length_mean_s": 10.011,
+   "length_ci95_s": 3.876806281561912,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 70.0,
+   "gang_hit_first_pct": 75.0,
+   "you_hit_first_pct": 25.0,
+   "gang_shot_first_pct": 80.0,
+   "first_hit_at_median_s": 2.67,
+   "you_first_hit_median_s": 2.67,
+   "you_never_hit_pct": 5.0,
+   "your_hits_mean": 1.0,
+   "your_shots_mean": 1.1,
+   "gang_hits_mean": 2.35,
+   "gang_shots_mean": 4.85,
+   "near_misses_per_min": 36.25661170438684,
+   "near_misses_mean": 4.0,
+   "quiet_median_s": 2.635,
+   "quiet_share_median": 0.41275461309017497,
+   "endings": {
+    "surrendered": 3,
+    "you_down": 16,
+    "down": 1
+   },
+   "you_down_pct": 80.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.0,
+    "dust_by_man": 0.85,
+    "surrenders": 1.05,
+    "flights": 0.0,
+    "hats_shot": 0.3,
+    "townsfolk_hit": 0.15,
+    "ground_hits": 4.9,
+    "fights_with_any": 60.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.4,
+     "flanks": 0.1,
+     "suppressing_shots": 1.25,
+     "pinned": 0.6,
+     "peeks": 3.8,
+     "shots": 2.0,
+     "hits_on_you": 0.75,
+     "hits_taken": 0.75,
+     "outcome": {
+      "surrendered": 4,
+      "standing": 15,
+      "down": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.85,
+     "flanks": 0.0,
+     "suppressing_shots": 1.25,
+     "pinned": 0.5,
+     "peeks": 0.8,
+     "shots": 2.35,
+     "hits_on_you": 1.3,
+     "hits_taken": 0.35,
+     "outcome": {
+      "surrendered": 5,
+      "standing": 15
+     }
+    },
+    "kid": {
+     "cover_changes": 1.8,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.25,
+     "peeks": 0.25,
+     "shots": 0.5,
+     "hits_on_you": 0.3,
+     "hits_taken": 2.85,
+     "outcome": {
+      "surrendered": 11,
+      "standing": 8,
+      "dead": 1
+     }
+    }
+   },
+   "three_men_ms": 1.3317,
+   "people_ms": 3.7292,
+   "people_p95_ms": 6.3364,
+   "frame_ms": 6.2155000000000005,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.15,
+   "bot_stuck_mean": 0.45,
+   "body_notes": []
+  },
+  "ambush push studio": {
+   "fights": 40,
+   "length_median_s": 5.175000000000001,
+   "length_q1_s": 3.05,
+   "length_q3_s": 18.045,
+   "length_mean_s": 11.366,
+   "length_ci95_s": 3.72526365496939,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 70.0,
+   "gang_hit_first_pct": 75.0,
+   "you_hit_first_pct": 25.0,
+   "gang_shot_first_pct": 87.5,
+   "first_hit_at_median_s": 2.5,
+   "you_first_hit_median_s": 2.5,
+   "you_never_hit_pct": 5.0,
+   "your_hits_mean": 1.075,
+   "your_shots_mean": 1.2,
+   "gang_hits_mean": 2.15,
+   "gang_shots_mean": 4.6,
+   "near_misses_per_min": 34.98713012525366,
+   "near_misses_mean": 3.675,
+   "quiet_median_s": 2.48,
+   "quiet_share_median": 0.5296367112810707,
+   "endings": {
+    "surrendered": 6,
+    "you_down": 29,
+    "down": 3,
+    "broke_off": 2
+   },
+   "you_down_pct": 72.5,
+   "situations_per_fight": {
+    "cover_shot_away": 0.025,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 1.175,
+    "dust_by_man": 1.025,
+    "surrenders": 1.15,
+    "flights": 0.025,
+    "hats_shot": 0.275,
+    "townsfolk_hit": 0.1,
+    "ground_hits": 4.65,
+    "fights_with_any": 62.5
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 1.15,
+     "flanks": 0.05,
+     "suppressing_shots": 1.425,
+     "pinned": 0.475,
+     "peeks": 3.15,
+     "shots": 1.975,
+     "hits_on_you": 0.6,
+     "hits_taken": 0.725,
+     "outcome": {
+      "surrendered": 7,
+      "standing": 28,
+      "down": 3,
+      "broke_off": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.625,
+     "flanks": 0.0,
+     "suppressing_shots": 0.95,
+     "pinned": 0.575,
+     "peeks": 0.825,
+     "shots": 1.8,
+     "hits_on_you": 0.925,
+     "hits_taken": 1.175,
+     "outcome": {
+      "surrendered": 13,
+      "standing": 27
+     }
+    },
+    "kid": {
+     "cover_changes": 1.3,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.025,
+     "peeks": 0.375,
+     "shots": 0.825,
+     "hits_on_you": 0.625,
+     "hits_taken": 2.775,
+     "outcome": {
+      "surrendered": 23,
+      "standing": 15,
+      "dead": 2
+     }
+    }
+   },
+   "three_men_ms": 1.348525,
+   "people_ms": 3.7307,
+   "people_p95_ms": 6.4236,
+   "frame_ms": 6.247249999999999,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.175,
+   "bot_stuck_mean": 0.8,
+   "body_notes": []
+  },
+  "saloon cover outlaw": {
+   "fights": 20,
+   "length_median_s": 2.365,
+   "length_q1_s": 2.02,
+   "length_q3_s": 2.68,
+   "length_mean_s": 2.5755,
+   "length_ci95_s": 0.3272408460864389,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.0,
+   "your_shots_mean": 0.0,
+   "gang_hits_mean": 2.9,
+   "gang_shots_mean": 4.05,
+   "near_misses_per_min": 91.57389420965893,
+   "near_misses_mean": 4.05,
+   "quiet_median_s": 1.165,
+   "quiet_share_median": 0.47590759075907596,
+   "endings": {
+    "you_down": 20
+   },
+   "you_down_pct": 100.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.3,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.0,
+    "dust_by_man": 0.0,
+    "surrenders": 0.0,
+    "flights": 0.0,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.0,
+    "ground_hits": 1.7,
+    "fights_with_any": 30.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.7,
+     "peeks": 0.0,
+     "shots": 1.55,
+     "hits_on_you": 1.55,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 20
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.6,
+     "peeks": 0.0,
+     "shots": 1.7,
+     "hits_on_you": 1.15,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 20
+     }
+    },
+    "kid": {
+     "cover_changes": 0.4,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.0,
+     "peeks": 0.1,
+     "shots": 0.8,
+     "hits_on_you": 0.2,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 20
+     }
+    }
+   },
+   "three_men_ms": 1.78885,
+   "people_ms": 4.14645,
+   "people_p95_ms": 7.05685,
+   "frame_ms": 7.9254999999999995,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 1.4,
+   "body_notes": []
+  },
+  "saloon cover studio": {
+   "fights": 40,
+   "length_median_s": 2.78,
+   "length_q1_s": 2.3600000000000003,
+   "length_q3_s": 3.905,
+   "length_mean_s": 3.65125,
+   "length_ci95_s": 0.7761617093188895,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.675,
+   "you_first_hit_median_s": 0.675,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 0.05,
+   "your_shots_mean": 0.075,
+   "gang_hits_mean": 3.5,
+   "gang_shots_mean": 4.825,
+   "near_misses_per_min": 90.51717516650822,
+   "near_misses_mean": 4.825,
+   "quiet_median_s": 1.21,
+   "quiet_share_median": 0.45038167938931295,
+   "endings": {
+    "you_down": 40
+   },
+   "you_down_pct": 100.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.3,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 0.0,
+    "dust_by_man": 0.0,
+    "surrenders": 0.05,
+    "flights": 0.0,
+    "hats_shot": 0.025,
+    "townsfolk_hit": 0.025,
+    "ground_hits": 2.4,
+    "fights_with_any": 32.5
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.175,
+     "flanks": 0.0,
+     "suppressing_shots": 0.075,
+     "pinned": 0.625,
+     "peeks": 0.05,
+     "shots": 1.8,
+     "hits_on_you": 1.425,
+     "hits_taken": 0.1,
+     "outcome": {
+      "standing": 39,
+      "surrendered": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.05,
+     "flanks": 0.0,
+     "suppressing_shots": 0.325,
+     "pinned": 0.775,
+     "peeks": 0.0,
+     "shots": 2.275,
+     "hits_on_you": 1.7,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 40
+     }
+    },
+    "kid": {
+     "cover_changes": 0.625,
+     "flanks": 0.0,
+     "suppressing_shots": 0.05,
+     "pinned": 0.175,
+     "peeks": 0.2,
+     "shots": 0.75,
+     "hits_on_you": 0.375,
+     "hits_taken": 0.0,
+     "outcome": {
+      "standing": 39,
+      "surrendered": 1
+     }
+    }
+   },
+   "three_men_ms": 1.615975,
+   "people_ms": 4.16295,
+   "people_p95_ms": 7.1480500000000005,
+   "frame_ms": 7.69525,
+   "your_cover_moves_mean": 0.325,
+   "your_reloads_mean": 0.0,
+   "bot_stuck_mean": 1.575,
+   "body_notes": []
+  },
+  "saloon hold outlaw": {
+   "fights": 20,
+   "length_median_s": 2.215,
+   "length_q1_s": 1.915,
+   "length_q3_s": 2.92,
+   "length_mean_s": 2.4695,
+   "length_ci95_s": 0.354556404212956,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.45,
+   "your_shots_mean": 1.6,
+   "gang_hits_mean": 3.15,
+   "gang_shots_mean": 3.55,
+   "near_misses_per_min": 88.37161868510695,
+   "near_misses_mean": 3.5,
+   "quiet_median_s": 0.825,
+   "quiet_share_median": 0.37612275449101795,
+   "endings": {
+    "you_down": 15,
+    "surrendered": 5
+   },
+   "you_down_pct": 75.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.1,
+    "lamps_hit": 0.15,
+    "fires_started": 0.0,
+    "dust_on_line": 0.75,
+    "dust_by_man": 0.75,
+    "surrenders": 1.55,
+    "flights": 0.15,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.05,
+    "ground_hits": 2.1,
+    "fights_with_any": 80.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.9,
+     "peeks": 0.0,
+     "shots": 1.1,
+     "hits_on_you": 1.1,
+     "hits_taken": 3.5,
+     "outcome": {
+      "standing": 6,
+      "surrendered": 14
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.25,
+     "pinned": 1.0,
+     "peeks": 0.0,
+     "shots": 1.55,
+     "hits_on_you": 1.55,
+     "hits_taken": 1.8,
+     "outcome": {
+      "standing": 10,
+      "surrendered": 10
+     }
+    },
+    "kid": {
+     "cover_changes": 0.65,
+     "flanks": 0.0,
+     "suppressing_shots": 0.45,
+     "pinned": 0.1,
+     "peeks": 0.2,
+     "shots": 0.9,
+     "hits_on_you": 0.5,
+     "hits_taken": 0.25,
+     "outcome": {
+      "standing": 13,
+      "surrendered": 7
+     }
+    }
+   },
+   "three_men_ms": 1.66515,
+   "people_ms": 4.0665,
+   "people_p95_ms": 7.57655,
+   "frame_ms": 8.193000000000001,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.3,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "saloon hold studio": {
+   "fights": 40,
+   "length_median_s": 2.025,
+   "length_q1_s": 1.64,
+   "length_q3_s": 2.8675,
+   "length_mean_s": 2.43075,
+   "length_ci95_s": 0.3777563638622936,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.675,
+   "you_first_hit_median_s": 0.675,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.725,
+   "your_shots_mean": 1.8,
+   "gang_hits_mean": 2.475,
+   "gang_shots_mean": 2.875,
+   "near_misses_per_min": 77.65061048837168,
+   "near_misses_mean": 2.85,
+   "quiet_median_s": 0.76,
+   "quiet_share_median": 0.40162178702570384,
+   "endings": {
+    "you_down": 16,
+    "surrendered": 16,
+    "down": 4,
+    "fled": 3,
+    "dead": 1
+   },
+   "you_down_pct": 40.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.05,
+    "lamps_hit": 0.325,
+    "fires_started": 0.0,
+    "dust_on_line": 1.45,
+    "dust_by_man": 1.425,
+    "surrenders": 2.075,
+    "flights": 0.175,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.025,
+    "ground_hits": 2.65,
+    "fights_with_any": 90.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.175,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 0.95,
+     "peeks": 0.025,
+     "shots": 0.85,
+     "hits_on_you": 0.85,
+     "hits_taken": 3.8,
+     "outcome": {
+      "standing": 6,
+      "surrendered": 31,
+      "fled": 2,
+      "dead": 1
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 0.175,
+     "pinned": 1.025,
+     "peeks": 0.0,
+     "shots": 1.275,
+     "hits_on_you": 1.275,
+     "hits_taken": 2.675,
+     "outcome": {
+      "standing": 11,
+      "surrendered": 25,
+      "down": 4
+     }
+    },
+    "kid": {
+     "cover_changes": 0.7,
+     "flanks": 0.0,
+     "suppressing_shots": 0.425,
+     "pinned": 0.15,
+     "peeks": 0.2,
+     "shots": 0.75,
+     "hits_on_you": 0.35,
+     "hits_taken": 0.2,
+     "outcome": {
+      "standing": 14,
+      "surrendered": 24,
+      "fled": 2
+     }
+    }
+   },
+   "three_men_ms": 1.701125,
+   "people_ms": 4.16985,
+   "people_p95_ms": 8.089875000000001,
+   "frame_ms": 7.9515,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.4,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "saloon push outlaw": {
+   "fights": 20,
+   "length_median_s": 1.875,
+   "length_q1_s": 1.6,
+   "length_q3_s": 2.335,
+   "length_mean_s": 1.956,
+   "length_ci95_s": 0.16467683798403787,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.65,
+   "you_first_hit_median_s": 0.65,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.2,
+   "your_shots_mean": 1.35,
+   "gang_hits_mean": 2.7,
+   "gang_shots_mean": 3.15,
+   "near_misses_per_min": 97.55955336333999,
+   "near_misses_mean": 3.15,
+   "quiet_median_s": 0.86,
+   "quiet_share_median": 0.4603225806451613,
+   "endings": {
+    "you_down": 11,
+    "surrendered": 7,
+    "down": 2
+   },
+   "you_down_pct": 55.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.1,
+    "lamps_hit": 0.1,
+    "fires_started": 0.0,
+    "dust_on_line": 0.85,
+    "dust_by_man": 0.85,
+    "surrenders": 1.65,
+    "flights": 0.05,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.3,
+    "ground_hits": 1.4,
+    "fights_with_any": 80.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 0.0,
+     "pinned": 1.05,
+     "peeks": 0.0,
+     "shots": 1.0,
+     "hits_on_you": 1.0,
+     "hits_taken": 3.65,
+     "outcome": {
+      "standing": 8,
+      "surrendered": 12
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 0.2,
+     "pinned": 1.0,
+     "peeks": 0.0,
+     "shots": 1.25,
+     "hits_on_you": 1.25,
+     "hits_taken": 2.3,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 9,
+      "down": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.3,
+     "flanks": 0.0,
+     "suppressing_shots": 0.5,
+     "pinned": 0.05,
+     "peeks": 0.1,
+     "shots": 0.9,
+     "hits_on_you": 0.45,
+     "hits_taken": 0.05,
+     "outcome": {
+      "standing": 10,
+      "surrendered": 10
+     }
+    }
+   },
+   "three_men_ms": 1.8645,
+   "people_ms": 4.31025,
+   "people_p95_ms": 8.5395,
+   "frame_ms": 8.427,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.35,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "saloon push studio": {
+   "fights": 40,
+   "length_median_s": 1.75,
+   "length_q1_s": 1.55,
+   "length_q3_s": 2.4025,
+   "length_mean_s": 2.14575,
+   "length_ci95_s": 0.3174864066987144,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 100.0,
+   "gang_hit_first_pct": 100.0,
+   "you_hit_first_pct": 0.0,
+   "gang_shot_first_pct": 100.0,
+   "first_hit_at_median_s": 0.675,
+   "you_first_hit_median_s": 0.675,
+   "you_never_hit_pct": 0.0,
+   "your_hits_mean": 1.625,
+   "your_shots_mean": 1.775,
+   "gang_hits_mean": 2.325,
+   "gang_shots_mean": 2.725,
+   "near_misses_per_min": 84.71681485599962,
+   "near_misses_mean": 2.7,
+   "quiet_median_s": 0.85,
+   "quiet_share_median": 0.4468099958118107,
+   "endings": {
+    "you_down": 16,
+    "surrendered": 20,
+    "down": 3,
+    "fled": 1
+   },
+   "you_down_pct": 40.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.05,
+    "lamps_hit": 0.075,
+    "fires_started": 0.0,
+    "dust_on_line": 0.65,
+    "dust_by_man": 0.525,
+    "surrenders": 2.1,
+    "flights": 0.1,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 0.2,
+    "ground_hits": 1.4,
+    "fights_with_any": 90.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.15,
+     "flanks": 0.0,
+     "suppressing_shots": 0.025,
+     "pinned": 1.05,
+     "peeks": 0.225,
+     "shots": 0.825,
+     "hits_on_you": 0.8,
+     "hits_taken": 3.975,
+     "outcome": {
+      "standing": 9,
+      "surrendered": 31
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.075,
+     "flanks": 0.0,
+     "suppressing_shots": 0.15,
+     "pinned": 1.05,
+     "peeks": 0.0,
+     "shots": 1.125,
+     "hits_on_you": 1.125,
+     "hits_taken": 3.475,
+     "outcome": {
+      "standing": 11,
+      "surrendered": 26,
+      "down": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 0.45,
+     "flanks": 0.0,
+     "suppressing_shots": 0.475,
+     "pinned": 0.125,
+     "peeks": 0.2,
+     "shots": 0.775,
+     "hits_on_you": 0.4,
+     "hits_taken": 0.225,
+     "outcome": {
+      "standing": 15,
+      "surrendered": 24,
+      "fled": 1
+     }
+    }
+   },
+   "three_men_ms": 1.83565,
+   "people_ms": 4.2585,
+   "people_p95_ms": 7.822075,
+   "frame_ms": 8.35975,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.45,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "street cover outlaw": {
+   "fights": 20,
+   "length_median_s": 6.734999999999999,
+   "length_q1_s": 4.8325,
+   "length_q3_s": 15.719999999999999,
+   "length_mean_s": 14.347999999999999,
+   "length_ci95_s": 7.342384873056178,
+   "in_45_90_pct": 10.0,
+   "under_15_pct": 75.0,
+   "gang_hit_first_pct": 35.0,
+   "you_hit_first_pct": 65.0,
+   "gang_shot_first_pct": 50.0,
+   "first_hit_at_median_s": 0.86,
+   "you_first_hit_median_s": 0.63,
+   "you_never_hit_pct": 65.0,
+   "your_hits_mean": 1.95,
+   "your_shots_mean": 2.45,
+   "gang_hits_mean": 0.55,
+   "gang_shots_mean": 4.9,
+   "near_misses_per_min": 14.922169084387921,
+   "near_misses_mean": 2.35,
+   "quiet_median_s": 3.66,
+   "quiet_share_median": 0.47467094232059026,
+   "endings": {
+    "you_down": 3,
+    "surrendered": 8,
+    "fled": 5,
+    "broke_off": 2,
+    "down": 2
+   },
+   "you_down_pct": 15.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 5.05,
+    "dust_by_man": 1.15,
+    "surrenders": 1.75,
+    "flights": 0.45,
+    "hats_shot": 0.05,
+    "townsfolk_hit": 0.6,
+    "ground_hits": 7.65,
+    "fights_with_any": 90.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.8,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7,
+     "pinned": 1.5,
+     "peeks": 0.3,
+     "shots": 1.4,
+     "hits_on_you": 0.45,
+     "hits_taken": 2.7,
+     "outcome": {
+      "standing": 3,
+      "surrendered": 12,
+      "fled": 1,
+      "broke_off": 1,
+      "down": 3
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 2.0,
+     "pinned": 1.25,
+     "peeks": 0.7,
+     "shots": 2.1,
+     "hits_on_you": 0.0,
+     "hits_taken": 2.45,
+     "outcome": {
+      "standing": 2,
+      "down": 4,
+      "surrendered": 11,
+      "fled": 1,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.5,
+     "flanks": 0.0,
+     "suppressing_shots": 1.3,
+     "pinned": 2.2,
+     "peeks": 0.25,
+     "shots": 1.4,
+     "hits_on_you": 0.1,
+     "hits_taken": 0.1,
+     "outcome": {
+      "standing": 3,
+      "surrendered": 11,
+      "fled": 5,
+      "dead": 1
+     }
+    }
+   },
+   "three_men_ms": 0.87155,
+   "people_ms": 3.4036,
+   "people_p95_ms": 5.24375,
+   "frame_ms": 6.2955,
+   "your_cover_moves_mean": 0.7,
+   "your_reloads_mean": 0.6,
+   "bot_stuck_mean": 1.55,
+   "body_notes": []
+  },
+  "street cover studio": {
+   "fights": 40,
+   "length_median_s": 10.6,
+   "length_q1_s": 6.555,
+   "length_q3_s": 22.485,
+   "length_mean_s": 17.927500000000002,
+   "length_ci95_s": 5.236285236471779,
+   "in_45_90_pct": 12.5,
+   "under_15_pct": 65.0,
+   "gang_hit_first_pct": 30.0,
+   "you_hit_first_pct": 70.0,
+   "gang_shot_first_pct": 50.0,
+   "first_hit_at_median_s": 1.0350000000000001,
+   "you_first_hit_median_s": 0.95,
+   "you_never_hit_pct": 62.5,
+   "your_hits_mean": 1.875,
+   "your_shots_mean": 2.575,
+   "gang_hits_mean": 0.55,
+   "gang_shots_mean": 5.575,
+   "near_misses_per_min": 13.24691416895686,
+   "near_misses_mean": 2.825,
+   "quiet_median_s": 4.345000000000001,
+   "quiet_share_median": 0.4433943054942817,
+   "endings": {
+    "you_down": 4,
+    "broke_off": 6,
+    "surrendered": 10,
+    "fled": 14,
+    "down": 6
+   },
+   "you_down_pct": 10.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 5.7,
+    "dust_by_man": 0.8,
+    "surrenders": 1.675,
+    "flights": 0.725,
+    "hats_shot": 0.075,
+    "townsfolk_hit": 0.525,
+    "ground_hits": 8.825,
+    "fights_with_any": 95.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.775,
+     "flanks": 0.0,
+     "suppressing_shots": 0.7,
+     "pinned": 1.65,
+     "peeks": 0.45,
+     "shots": 1.6,
+     "hits_on_you": 0.425,
+     "hits_taken": 2.925,
+     "outcome": {
+      "standing": 4,
+      "broke_off": 6,
+      "surrendered": 25,
+      "fled": 1,
+      "down": 4
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.15,
+     "flanks": 0.025,
+     "suppressing_shots": 2.15,
+     "pinned": 1.65,
+     "peeks": 0.45,
+     "shots": 2.425,
+     "hits_on_you": 0.075,
+     "hits_taken": 2.65,
+     "outcome": {
+      "standing": 3,
+      "surrendered": 23,
+      "down": 8,
+      "fled": 4,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.475,
+     "flanks": 0.0,
+     "suppressing_shots": 1.45,
+     "pinned": 2.45,
+     "peeks": 0.275,
+     "shots": 1.55,
+     "hits_on_you": 0.05,
+     "hits_taken": 0.325,
+     "outcome": {
+      "standing": 4,
+      "fled": 17,
+      "surrendered": 17,
+      "broke_off": 1,
+      "dead": 1
+     }
+    }
+   },
+   "three_men_ms": 1.0874000000000001,
+   "people_ms": 3.471,
+   "people_p95_ms": 5.110200000000001,
+   "frame_ms": 6.226,
+   "your_cover_moves_mean": 0.775,
+   "your_reloads_mean": 0.6,
+   "bot_stuck_mean": 1.4,
+   "body_notes": []
+  },
+  "street hold outlaw": {
+   "fights": 20,
+   "length_median_s": 6.47,
+   "length_q1_s": 4.43,
+   "length_q3_s": 9.625,
+   "length_mean_s": 9.839,
+   "length_ci95_s": 4.4286175859813355,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 85.0,
+   "gang_hit_first_pct": 35.0,
+   "you_hit_first_pct": 65.0,
+   "gang_shot_first_pct": 50.0,
+   "first_hit_at_median_s": 0.86,
+   "you_first_hit_median_s": 0.655,
+   "you_never_hit_pct": 60.0,
+   "your_hits_mean": 2.2,
+   "your_shots_mean": 3.2,
+   "gang_hits_mean": 0.7,
+   "gang_shots_mean": 5.55,
+   "near_misses_per_min": 14.778544181906113,
+   "near_misses_mean": 1.95,
+   "quiet_median_s": 1.565,
+   "quiet_share_median": 0.35396280486986403,
+   "endings": {
+    "down": 3,
+    "surrendered": 10,
+    "fled": 4,
+    "you_down": 1,
+    "broke_off": 2
+   },
+   "you_down_pct": 5.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 5.6,
+    "dust_by_man": 0.55,
+    "surrenders": 2.3,
+    "flights": 0.3,
+    "hats_shot": 0.1,
+    "townsfolk_hit": 0.55,
+    "ground_hits": 7.65,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.75,
+     "flanks": 0.0,
+     "suppressing_shots": 0.4,
+     "pinned": 1.3,
+     "peeks": 0.05,
+     "shots": 1.15,
+     "hits_on_you": 0.6,
+     "hits_taken": 3.55,
+     "outcome": {
+      "surrendered": 16,
+      "standing": 1,
+      "down": 3
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 2.25,
+     "pinned": 1.3,
+     "peeks": 0.0,
+     "shots": 2.65,
+     "hits_on_you": 0.0,
+     "hits_taken": 1.95,
+     "outcome": {
+      "down": 4,
+      "surrendered": 13,
+      "fled": 2,
+      "broke_off": 1
+     }
+    },
+    "kid": {
+     "cover_changes": 0.35,
+     "flanks": 0.0,
+     "suppressing_shots": 1.65,
+     "pinned": 2.8,
+     "peeks": 0.15,
+     "shots": 1.75,
+     "hits_on_you": 0.1,
+     "hits_taken": 0.0,
+     "outcome": {
+      "surrendered": 14,
+      "fled": 4,
+      "standing": 1,
+      "broke_off": 1
+     }
+    }
+   },
+   "three_men_ms": 1.08515,
+   "people_ms": 3.4475000000000002,
+   "people_p95_ms": 5.2928,
+   "frame_ms": 6.3785,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.8,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "street hold studio": {
+   "fights": 40,
+   "length_median_s": 8.635,
+   "length_q1_s": 5.88,
+   "length_q3_s": 12.7925,
+   "length_mean_s": 11.692499999999999,
+   "length_ci95_s": 3.012174818904279,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 77.5,
+   "gang_hit_first_pct": 30.0,
+   "you_hit_first_pct": 70.0,
+   "gang_shot_first_pct": 50.0,
+   "first_hit_at_median_s": 1.0350000000000001,
+   "you_first_hit_median_s": 1.0,
+   "you_never_hit_pct": 55.0,
+   "your_hits_mean": 2.15,
+   "your_shots_mean": 3.275,
+   "gang_hits_mean": 0.675,
+   "gang_shots_mean": 5.575,
+   "near_misses_per_min": 13.528945703325096,
+   "near_misses_mean": 2.075,
+   "quiet_median_s": 3.4450000000000003,
+   "quiet_share_median": 0.3838948787061994,
+   "endings": {
+    "down": 7,
+    "surrendered": 13,
+    "fled": 14,
+    "you_down": 3,
+    "broke_off": 3
+   },
+   "you_down_pct": 7.5,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 6.825,
+    "dust_by_man": 0.475,
+    "surrenders": 1.95,
+    "flights": 0.675,
+    "hats_shot": 0.125,
+    "townsfolk_hit": 0.55,
+    "ground_hits": 10.375,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.575,
+     "flanks": 0.0,
+     "suppressing_shots": 0.45,
+     "pinned": 1.6,
+     "peeks": 0.125,
+     "shots": 1.175,
+     "hits_on_you": 0.55,
+     "hits_taken": 3.425,
+     "outcome": {
+      "surrendered": 30,
+      "down": 7,
+      "standing": 3
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.0,
+     "flanks": 0.0,
+     "suppressing_shots": 2.05,
+     "pinned": 1.35,
+     "peeks": 0.0,
+     "shots": 2.55,
+     "hits_on_you": 0.075,
+     "hits_taken": 2.075,
+     "outcome": {
+      "down": 7,
+      "surrendered": 25,
+      "fled": 5,
+      "standing": 1,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.3,
+     "flanks": 0.0,
+     "suppressing_shots": 1.8,
+     "pinned": 2.6,
+     "peeks": 0.1,
+     "shots": 1.85,
+     "hits_on_you": 0.05,
+     "hits_taken": 0.075,
+     "outcome": {
+      "surrendered": 18,
+      "fled": 17,
+      "standing": 2,
+      "broke_off": 3
+     }
+    }
+   },
+   "three_men_ms": 1.016625,
+   "people_ms": 3.489575,
+   "people_p95_ms": 5.302625,
+   "frame_ms": 6.3012500000000005,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.8,
+   "bot_stuck_mean": 0.0,
+   "body_notes": []
+  },
+  "street push outlaw": {
+   "fights": 20,
+   "length_median_s": 8.445,
+   "length_q1_s": 6.145,
+   "length_q3_s": 9.834999999999999,
+   "length_mean_s": 10.273,
+   "length_ci95_s": 3.1396274802962814,
+   "in_45_90_pct": 0.0,
+   "under_15_pct": 85.0,
+   "gang_hit_first_pct": 30.0,
+   "you_hit_first_pct": 70.0,
+   "gang_shot_first_pct": 70.0,
+   "first_hit_at_median_s": 0.85,
+   "you_first_hit_median_s": 3.25,
+   "you_never_hit_pct": 30.0,
+   "your_hits_mean": 1.9,
+   "your_shots_mean": 2.9,
+   "gang_hits_mean": 1.3,
+   "gang_shots_mean": 7.2,
+   "near_misses_per_min": 42.73207411935128,
+   "near_misses_mean": 6.0,
+   "quiet_median_s": 1.7850000000000001,
+   "quiet_share_median": 0.2637366419894301,
+   "endings": {
+    "surrendered": 10,
+    "down": 6,
+    "you_down": 4
+   },
+   "you_down_pct": 20.0,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 6.35,
+    "dust_by_man": 0.4,
+    "surrenders": 2.5,
+    "flights": 0.25,
+    "hats_shot": 0.0,
+    "townsfolk_hit": 1.1,
+    "ground_hits": 9.6,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.4,
+     "flanks": 0.0,
+     "suppressing_shots": 0.25,
+     "pinned": 1.6,
+     "peeks": 0.1,
+     "shots": 1.0,
+     "hits_on_you": 0.3,
+     "hits_taken": 2.85,
+     "outcome": {
+      "surrendered": 17,
+      "down": 1,
+      "standing": 2
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.45,
+     "flanks": 0.0,
+     "suppressing_shots": 2.1,
+     "pinned": 1.45,
+     "peeks": 0.1,
+     "shots": 3.65,
+     "hits_on_you": 0.75,
+     "hits_taken": 2.6,
+     "outcome": {
+      "surrendered": 13,
+      "down": 4,
+      "standing": 3
+     }
+    },
+    "kid": {
+     "cover_changes": 0.1,
+     "flanks": 0.0,
+     "suppressing_shots": 2.5,
+     "pinned": 2.7,
+     "peeks": 0.0,
+     "shots": 2.55,
+     "hits_on_you": 0.25,
+     "hits_taken": 0.25,
+     "outcome": {
+      "surrendered": 15,
+      "down": 1,
+      "fled": 1,
+      "standing": 3
+     }
+    }
+   },
+   "three_men_ms": 0.9916,
+   "people_ms": 3.4078000000000004,
+   "people_p95_ms": 5.203,
+   "frame_ms": 6.2105,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.45,
+   "bot_stuck_mean": 0.85,
+   "body_notes": []
+  },
+  "street push studio": {
+   "fights": 40,
+   "length_median_s": 6.925,
+   "length_q1_s": 5.327500000000001,
+   "length_q3_s": 11.16,
+   "length_mean_s": 11.51775,
+   "length_ci95_s": 3.271583532817489,
+   "in_45_90_pct": 2.5,
+   "under_15_pct": 80.0,
+   "gang_hit_first_pct": 32.5,
+   "you_hit_first_pct": 67.5,
+   "gang_shot_first_pct": 70.0,
+   "first_hit_at_median_s": 1.08,
+   "you_first_hit_median_s": 3.1,
+   "you_never_hit_pct": 37.5,
+   "your_hits_mean": 1.825,
+   "your_shots_mean": 3.0,
+   "gang_hits_mean": 1.25,
+   "gang_shots_mean": 6.7,
+   "near_misses_per_min": 42.628589529238255,
+   "near_misses_mean": 5.45,
+   "quiet_median_s": 1.72,
+   "quiet_share_median": 0.2745223261029385,
+   "endings": {
+    "surrendered": 15,
+    "you_down": 11,
+    "down": 10,
+    "broke_off": 2,
+    "fled": 2
+   },
+   "you_down_pct": 27.5,
+   "situations_per_fight": {
+    "cover_shot_away": 0.0,
+    "lamps_hit": 0.0,
+    "fires_started": 0.0,
+    "dust_on_line": 7.45,
+    "dust_by_man": 0.45,
+    "surrenders": 2.275,
+    "flights": 0.35,
+    "hats_shot": 0.05,
+    "townsfolk_hit": 1.1,
+    "ground_hits": 10.125,
+    "fights_with_any": 100.0
+   },
+   "per_man": {
+    "brody": {
+     "cover_changes": 0.425,
+     "flanks": 0.0,
+     "suppressing_shots": 0.175,
+     "pinned": 1.5,
+     "peeks": 0.1,
+     "shots": 0.975,
+     "hits_on_you": 0.375,
+     "hits_taken": 2.8,
+     "outcome": {
+      "surrendered": 33,
+      "down": 2,
+      "standing": 5
+     }
+    },
+    "lyle": {
+     "cover_changes": 0.325,
+     "flanks": 0.0,
+     "suppressing_shots": 2.05,
+     "pinned": 1.4,
+     "peeks": 0.1,
+     "shots": 3.55,
+     "hits_on_you": 0.675,
+     "hits_taken": 2.125,
+     "outcome": {
+      "surrendered": 21,
+      "standing": 9,
+      "down": 8,
+      "broke_off": 2
+     }
+    },
+    "kid": {
+     "cover_changes": 0.15,
+     "flanks": 0.0,
+     "suppressing_shots": 2.1,
+     "pinned": 2.45,
+     "peeks": 0.0,
+     "shots": 2.175,
+     "hits_on_you": 0.2,
+     "hits_taken": 0.2,
+     "outcome": {
+      "surrendered": 28,
+      "down": 2,
+      "fled": 4,
+      "standing": 6
+     }
+    }
+   },
+   "three_men_ms": 1.1126,
+   "people_ms": 3.5569499999999996,
+   "people_p95_ms": 5.450175,
+   "frame_ms": 6.3975,
+   "your_cover_moves_mean": 0.0,
+   "your_reloads_mean": 0.525,
+   "bot_stuck_mean": 0.675,
+   "body_notes": []
+  }
+ },
+ "diagnostics outlaw": {
+  "the gang's first shot (median s after they turn)": "0.67",
+  "fights where the gang's first shot hit you": "53%",
+  "the gang's hits a shot at you": "40% (357 of 883)",
+  "your hits a shot (a charge once)": "76% (246 of 324)",
+  "men who quit (gave up or ran), by hits taken first: 0 / 1 / 2 / 3+": "69 / 83 / 24 / 86 of 262",
+  "fights where a hit took your gun arm (you can't hold the revolver; the coach gun needs both)": "20% (median 2.5 s in)",
+  "the men's time while fighting: open / moving / hidden / peeking / searching": "46% / 4% / 17% / 11% / 20%",
+  "you went down when the gang hit first / when you hit first": "74% (of 121) / 15% (of 59)",
+  "flank callouts in all": 4,
+  "fights with a quiet stretch of 5 s or more": "18%",
+  "fights lasting 45 s or more": "2%"
+ },
+ "diagnostics studio": {
+  "the gang's first shot (median s after they turn)": "0.85",
+  "fights where the gang's first shot hit you": "56%",
+  "the gang's hits a shot at you": "40% (687 of 1703)",
+  "your hits a shot (a charge once)": "76% (505 of 666)",
+  "men who quit (gave up or ran), by hits taken first: 0 / 1 / 2 / 3+": "152 / 153 / 60 / 185 of 550",
+  "fights where a hit took your gun arm (you can't hold the revolver; the coach gun needs both)": "21% (median 2.2 s in)",
+  "the men's time while fighting: open / moving / hidden / peeking / searching": "45% / 4% / 16% / 11% / 24%",
+  "you went down when the gang hit first / when you hit first": "68% (of 242) / 11% (of 118)",
+  "flank callouts in all": 6,
+  "fights with a quiet stretch of 5 s or more": "19%",
+  "fights lasting 45 s or more": "2%"
+ }
+}

@@ -75,7 +75,10 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 `seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
-already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. The gunfight lab
+(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
+its record), `gf_cover`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the matrix a game a
+fight, `analyse.py` makes the tables, `sheet.py` the contact sheet.
 
 ## The playtest
 

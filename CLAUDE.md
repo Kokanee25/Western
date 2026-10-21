@@ -368,4 +368,7 @@ frozen until Sean names one.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-  Next: the gunfight lab's bench and baseline.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`, branch
+  `claude/gunfight-lab-arena-measures-ifll1r`, not merged): bench and baseline built, 780 fights;
+  median 5.1 s, 2% in 45–90 s. Next (Sean's OK): the first fix, the gang's aim from the gun's
+  state, measured against `baseline/`. Trap: wounds bleed on the day clock's time scale.
