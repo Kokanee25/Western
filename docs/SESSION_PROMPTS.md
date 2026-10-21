@@ -164,6 +164,12 @@ Built 2026-10-21 (`claude/gameplay-breakage-lab-ksr17d`): the bench, its README 
 (`experiments/breakage_lab/baseline/baseline.md`). Its first fix: Blast's near field queried on its
 own (the lab-fix prompt below, with [fix] that).
 
+## Blast damage to surfaces (after Sean's decisions in its brief) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-blast-surfaces. Brief: docs/briefs/blast-surfaces.md (read its decisions first: they're mine). Read the src/structures and src/blast sections of docs/LAYOUT.md and the breakage lab's README and baseline. In the brief's order, one step a merge: Blast's near field queried on its own; boards cut over the stretch the blast overcomes (not broken whole); then craters in the dirt. Measure each step in the breakage lab against its baseline (the surface scenarios and the blast frame) with before-and-after sheets in the PR. The look of the cut ends and the crater's earth is the art lane's (4.4a).
+```
+
 ```
 Gameplay lane, branch claude/gameplay-breakage-lab. Build the breakage lab, roadmap 3.3a. Read the breakage section of docs/briefs/labs.md, the src/structures and src/blast sections of docs/LAYOUT.md, Prompts 03 and 06 and their notes in docs/prompts/STATUS.md, and experiments/physics_lab/README.md as the pattern.
 

@@ -31,7 +31,10 @@ func after_each() -> void:
 func test_every_scenario_has_a_definition() -> void:
 	var d := Runner.data()
 	var names := Runner.names()
-	check_eq(names.size(), d.targets.size() * d.weapons.size() + d.extras.size(), "a scenario per target and weapon, and the extras")
+	var expected: int = d.extras.size()
+	for t: String in d.targets:
+		expected += Runner.weapons_of(d, t).size()
+	check_eq(names.size(), expected, "a scenario per target and its weapons, and the extras")
 	for n: String in names:
 		var s := Runner.spec_of(n, d)
 		check(not s.is_empty() and s.has("weapon") and s.has("building"), "%s has a target and a weapon" % n)

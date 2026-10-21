@@ -105,7 +105,8 @@ def main():
         if only and t not in only:
             continue
         rows = []
-        for w in (d["weapons"] if t in d["targets"] else [""]):
+        ws = d["targets"][t].get("weapons", [w for w in d["weapons"] if not d["weapons"][w].get("only_listed")]) if t in d["targets"] else [""]
+        for w in ws:
             scen = f"{t}_{w}" if w else t
             match = [x for x in dirs if x.split("__")[0] == scen]
             for x in match[:1] if t in d["targets"] else match:

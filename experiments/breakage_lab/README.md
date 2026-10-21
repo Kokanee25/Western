@@ -3,7 +3,9 @@
 Roadmap 3.3a, the bench for 3.3 (furniture); `docs/briefs/labs.md` "Breakage lab". It measures what
 breaks today, how, and what it costs a frame, with furniture, a bottle, a lamp, a door, a window and
 the store's front wall against the revolver, the shotgun and dynamite, and a man dropped onto a
-table. **It changes nothing in the game and claims no improvement.** It exists so 3.3's furniture
+table. Since 2026-10-21 also the surfaces a blast should hole or crater (the saloon floor, the
+store's roof, the boardwalk, the street's dirt, a stick against the wall), for
+`docs/briefs/blast-surfaces.md`. **It changes nothing in the game and claims no improvement.** It exists so 3.3's furniture
 (Prompts 03 and 06 as one job) is built against numbers, one change at a time, each measured
 against this baseline.
 
@@ -13,8 +15,8 @@ table, findings and sheets are in `baseline/`.
 ## Commands
 
 ```sh
-# everything: 7 targets x 5 weapons, + the man on the table; a run with a man once per body
-# (102 games, 4 at a time: ~12 min on this workspace's 4 threads; --repeat=2 doubles it and compares)
+# everything: 11 targets and their weapons (44 scenarios), + the man on the table; a run with a man
+# once per body (138 games, 4 at a time: ~16 min on this workspace's 4 threads; --repeat=2 doubles it)
 python3 experiments/breakage_lab/run.py --out=build/breakage_lab/base
 python3 experiments/breakage_lab/run.py --scenario=list
 python3 experiments/breakage_lab/run.py --scenario=target:lamp,man_on_table --bodies=outlaw --out=...
@@ -81,6 +83,9 @@ python3 tools/bridge.py "breakage_aim door"        # what a shooter's line meets
    - **dynamite 1, 3, 6 m**: a real `DynamiteStick` (0.2 kg TNT) lying on the floor along the same
      line, that far from the target (level distance), lit with a 0.02 s fuse, so the production
      `Blast.detonate` does the rest. A bystander stands at the scenario's spot (2–6 m off).
+   - **dynamite 0 m** (the surfaces, the wall and the door only: a target's `weapons` list): the
+     stick against the target (on the floor at a wall's foot) or, with `charge_on`, lying on it (a
+     floor, a roof, the boardwalk, the dirt).
    - **man on the table**: a man lying on his back, his middle a metre over the card table's top,
      goes limp (`HumanBody.go_limp()`, untouched).
 5. Eight seconds measured, every physics tick.
@@ -106,6 +111,15 @@ A scenario with a man runs once per body.
   one sphere query capped at 1024 colliders. The lab asks the same query capped and uncapped from
   the charge: how many are in reach, whether the target was among the 1024, how many members within
   1, 2 and 5 m were left out.
+- **The surface** (`surface`, for targets with `surface: true` and the ground): the target's plane
+  scanned in 10 cm cells, 3 m either way, before and after. For boards, a cell is closed if a ray
+  through the plane meets a standing member of the target's kind (rubble, a joist behind, looked
+  past): `opened_m2`, `opened_within_1m_m2`, `farthest_opening_m` (from the aim point). For the
+  ground, the ground's height in each cell (a ray down; only the ground counts): `crater_depth_m`,
+  `crater_radius_m`, `rim_m`, and the scorch decals within 3 m. With a stick on or against a
+  surface, `setup.by_rule` is what Blast's own rule would break of it if the query found everything
+  (members of the target's kind within 4 m over 1, the face they'd open, how far it reaches): the
+  frame breaks whole members, so that's the hole the rule implies today.
 - **Pieces**: every RigidBody3D that appears after the event, but the men's parts and the stick:
   rubble (Structure), wood chips (voxel carving), glass shards, fallen fittings. Count, mass, the
   largest (by mass), how far each flew (level distance from where it appeared), peak speed.
@@ -139,11 +153,15 @@ One process a scenario (the ragdoll lab found a second run in the same process d
 baseline's same-seed comparison is in `baseline/baseline.md`: guns, street blasts and the drop
 repeat to the millimetre; blasts on the saloon floor don't.
 
-**A baseline holds for one street.** The lab clears the town, but what the street made before that
-(who TownLife spawned, which bodies) changes the physics engine's body order, and with it the
-falls: after main cast the Studio's men in town (#160), the man on the table came to rest in 3.1 s
-where the baseline has 2.8 (what broke at the wall didn't change). Compare a fix against a baseline
-run on the same main; re-run the baseline (`run.py --repeat=2`) when the street changes.
+**A man's settle time is jumpy.** Where he comes to rest repeats to the centimetre, but the "at
+rest" moment (every part under 5 cm/s and 0.3 rad/s for 30 ticks) sometimes catches a last slow
+wobble: the man on the table read 2.8 s in most runs and 3.1 or 4.2 s in a few, same seed. Compare
+rest positions; take settle times over several runs.
+
+**Re-run the baseline when the street changes** (`run.py --repeat=2`): the lab clears the town, but
+what the street made before that could change the physics engine's body order. When main cast the
+Studio's men in town (#160), only the saloon blasts (already unrepeatable) and one piece of glass
+changed.
 
 ## Baseline (2026-10-21, main at #159)
 
@@ -161,7 +179,8 @@ short:
 - **The man on the table** lands on it and comes to rest in 2.8–4.2 s, every body; the Studio's three
   men are physically the outlaw (the same capsules) and nothing goes wrong on them that doesn't on
   him.
-- **A blast frame is 235–520 ms here** (0.15–0.34 s at Sean's), nearly all in `Blast.detonate`.
+- **A blast is two big frames**, 0.3–1 s here (0.2–0.65 s at Sean's): `Blast.detonate`, then the
+  building settling.
 - **Same seed, same result** for every gun scenario, street blast and the drop; blasts on the
   saloon floor differ run to run (cause not traced).
 - First fix (not made): Blast's near field queried on its own, uncapped.

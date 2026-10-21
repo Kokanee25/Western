@@ -44,8 +44,13 @@ def data():
         return json.load(f)
 
 
+def weapons_of(d, t):
+    """As runner.gd's: a target's own list, else every weapon not marked only_listed."""
+    return d["targets"][t].get("weapons", [w for w in d["weapons"] if not d["weapons"][w].get("only_listed")])
+
+
 def names(d):
-    out = [f"{t}_{w}" for t in d["targets"] for w in d["weapons"]]
+    out = [f"{t}_{w}" for t in d["targets"] for w in weapons_of(d, t)]
     return out + list(d["extras"])
 
 

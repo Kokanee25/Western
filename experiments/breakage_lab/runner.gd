@@ -22,6 +22,8 @@ const SETTLE_TICKS := 30
 const MID_SHOT := 0.15
 ## A FireSystem frame at least this long with nothing hot is its periodic grid rebuild.
 const GRID_MS := 5.0
+## The surface scan's cells (m).
+const SCAN_STEP := 0.1
 
 
 class ErrorCatcher:
@@ -80,6 +82,8 @@ var _measuring := false
 var _shot_paths := {}
 var _draws := {}
 var _setup := {}
+var _scan_before := {}
+var _surface_summary_cache := {}
 
 
 ## The scenarios this lab knows: TARGET_WEAPON for every target and weapon, then the extras.
@@ -87,11 +91,20 @@ static func names() -> Array:
 	var d := data()
 	var out := []
 	for t: String in d.targets:
-		for w: String in d.weapons:
+		for w: String in weapons_of(d, t):
 			out.append("%s_%s" % [t, w])
 	for e: String in d.extras:
 		out.append(e)
 	return out
+
+
+## A target's weapons: its own list if it has one (the surfaces), else every weapon but the ones
+## marked `only_listed` (a charge lying on the target makes sense for a floor, not a bottle).
+static func weapons_of(d: Dictionary, target: String) -> Array:
+	var t: Dictionary = d.targets[target]
+	if t.has("weapons"):
+		return t.weapons
+	return (d.weapons as Dictionary).keys().filter(func(w: String) -> bool: return not d.weapons[w].get("only_listed", false))
 
 
 static func data() -> Dictionary:
@@ -109,7 +122,7 @@ static func spec_of(name: String, d: Dictionary) -> Dictionary:
 		t["weapon"] = {"drop": e.drop}
 		return t
 	for t: String in d.targets:
-		if name.begins_with(t + "_") and d.weapons.has(name.substr(t.length() + 1)):
+		if name.begins_with(t + "_") and name.substr(t.length() + 1) in weapons_of(d, t):
 			var s: Dictionary = (d.targets[t] as Dictionary).duplicate(true)
 			s["target_name"] = t
 			s["weapon_name"] = name.substr(t.length() + 1)
@@ -134,7 +147,7 @@ func run() -> Dictionary:
 	_target = _find_target(_building, _spec.find)
 	if _target == null:
 		return _fail("no target %s in %s" % [JSON.stringify(_spec.find), _spec.building])
-	_target_kind = "member" if _target is StructureMember else "prop"
+	_target_kind = "member" if _target is StructureMember else ("ground" if _spec.find.has("ground") else "prop")
 	_aim = _target_point()
 	_heading = _level(_building.global_basis * _v(_spec.get("from", [0, 0, -1])))
 	_snapshot_before()
@@ -144,7 +157,9 @@ func run() -> Dictionary:
 		line = _line_check(_aim + _heading * float(w.distance))
 	var charge := Vector3.INF
 	if w.has("dynamite"):
-		charge = _floor_point(_aim + _heading * float(w.dynamite), 0.3) + Vector3.UP * (DynamiteStick.RADIUS + 0.004)
+		charge = _charge_point(float(w.dynamite))
+		if _target is StructureMember and _spec.get("surface", false):
+			_setup["by_rule"] = _by_rule(charge, Blast.t().tnt_per_stick)
 		_setup["blast_query"] = _blast_query(charge, Blast.t().tnt_per_stick)
 		_man("bystander", _floor_point(_building.global_transform * _v(_spec.bystander), 1.0), charge, false)
 	if w.has("drop"):
@@ -240,6 +255,8 @@ func _find_target(building: Node3D, find: Dictionary) -> Node3D:
 		return null
 	if find.has("member"):
 		return (building as Structure).get_member(StringName(find.member)) if building is Structure else null
+	if find.has("ground"):
+		return _street.get_node_or_null(^"Ground") as Node3D
 	var near := building.global_transform * _v(find.get("near", [0, 0, 0]))
 	var best: Node3D = null
 	var best_d := INF
@@ -265,6 +282,8 @@ func _find_target(building: Node3D, find: Dictionary) -> Node3D:
 
 func _target_point() -> Vector3:
 	var aim := _v(_spec.get("aim", [0, 0, 0]))
+	if _target_kind == "ground":
+		return _building.global_transform * _v(_spec.find.ground) + aim
 	if _target_kind == "member":
 		var near := _building.global_transform * _v(_spec.find.get("near", [0, 0, 0])) if _spec.find.has("near") else _target.global_position
 		# The face toward the shooter, at the chosen point (the board's middle across its height).
@@ -280,6 +299,20 @@ func _floor_point(p: Vector3, up: float) -> Vector3:
 	var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 6.0, Layers.WORLD)
 	var hit := space.intersect_ray(q)
 	return Vector3(p.x, (hit.position as Vector3).y if not hit.is_empty() else 0.0, p.z)
+
+
+## Where the stick lies: on the floor (or ground) `d` m out along the line from the target; at 0,
+## against it (a wall) or on it (a floor, a roof: `charge_on` looks down from just above the aim).
+func _charge_point(d: float) -> Vector3:
+	var at := _aim + _heading * maxf(d, DynamiteStick.RADIUS + 0.01)
+	var p := _floor_point(at, 0.3)
+	if d <= 0.0 and _spec.get("charge_on", false):
+		var space := _street.get_world_3d().direct_space_state
+		var from := Vector3(_aim.x, _aim.y + 0.6, _aim.z)
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 2.0, Layers.WORLD))
+		if not hit.is_empty():
+			p = hit.position
+	return p + Vector3.UP * (DynamiteStick.RADIUS + 0.004)
 
 
 func _floor_height_guess() -> float:
@@ -373,6 +406,8 @@ func _snapshot_before() -> void:
 	for lamp in _street.find_children("*", "OilLamp", true, false):
 		if (lamp as Node3D).global_position.distance_to(_aim) < 15.0:
 			_lamps.append(lamp as OilLamp)
+	if _spec.get("surface", false) or _target_kind == "ground":
+		_scan_before = _scan()
 	_setup["target"] = _describe(_target)
 	_setup["target_node"] = String(_target.name)
 	_setup["target_at"] = lab.arr(_target.global_position)
@@ -425,6 +460,140 @@ func _box_of_structure(s: Structure) -> AABB:
 	for m: StructureMember in s.get_members():
 		box = box.expand(m.global_position)
 	return box
+
+
+# --- The surface ---------------------------------------------------------------------------------
+
+## The surface round the target, cell by cell (SCAN_STEP apart, `scan_m` either way): for a wall,
+## floor, roof or boardwalk, which cells of its plane are closed by a standing member of the
+## target's own kind (a ray through the plane; anything else it meets, rubble, a joist behind,
+## is looked past); for the ground, how high the ground is (a ray down; only the ground counts).
+func _scan() -> Dictionary:
+	var space := _street.get_world_3d().direct_space_state
+	var half := float(_spec.get("scan_m", 3.0))
+	var n := int(round(half / SCAN_STEP))
+	var out := {}
+	var u: Vector3
+	var v: Vector3
+	var normal: Vector3
+	if _target_kind == "ground":
+		u = Vector3.RIGHT
+		v = Vector3.BACK
+		normal = Vector3.UP
+	else:
+		var m := _target as StructureMember
+		var thin := 0
+		for i in 3:
+			if m.size[i] < m.size[thin]:
+				thin = i
+		normal = m.global_basis[thin].normalized()
+		u = m.global_basis[(thin + 1) % 3].normalized()
+		v = m.global_basis[(thin + 2) % 3].normalized()
+	var kind: StringName = (_target as StructureMember).kind if _target is StructureMember else &""
+	for i in range(-n, n + 1):
+		for j in range(-n, n + 1):
+			var p := _aim + u * (i * SCAN_STEP) + v * (j * SCAN_STEP)
+			if _target_kind == "ground":
+				p.y = 0.0
+				var h: Variant = _ray_to(space, p + Vector3.UP * 1.5, p + Vector3.DOWN * 1.5, func(c: Object) -> int:
+						return 1 if c == _target else (0 if c is StaticBody3D and not c is StructureMember else -1))
+				if h != null:
+					out[Vector2i(i, j)] = (h as Vector3).y
+			else:
+				var h: Variant = _ray_to(space, p + normal * 0.3, p - normal * 0.3, func(c: Object) -> int:
+						return 1 if c is StructureMember and (c as StructureMember).kind == kind and not (c as StructureMember).broken else -1)
+				out[Vector2i(i, j)] = h != null
+	return out
+
+
+## The first hit `judge` takes (1: this one; 0: stop, nothing; -1: look past it), or null.
+func _ray_to(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, judge: Callable) -> Variant:
+	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+	var ex: Array[RID] = []
+	for k in 6:
+		q.exclude = ex
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return null
+		var verdict: int = judge.call(hit.collider)
+		if verdict == 1:
+			return hit.position
+		if verdict == 0:
+			return null
+		ex.append(hit.rid)
+	return null
+
+
+## What Blast's own rule (blast_demand) would break of the target's surface, if its query found
+## every member: the members of the target's kind in its building within 4 m, how many go, the
+## face they'd open (whole members: the frame breaks a member or doesn't) and how far it reaches.
+func _by_rule(at: Vector3, kg: float) -> Dictionary:
+	var timber: TimberTuning = load("res://config/timber.tres")
+	var m0 := _target as StructureMember
+	var s := m0.get_parent() as Structure
+	var n := 0
+	var area := 0.0
+	var reach := 0.0
+	var looked := 0
+	for m: StructureMember in s.get_members():
+		if m.kind != m0.kind or m.broken or _nearest_on(m, at).distance_to(at) > 4.0:
+			continue
+		looked += 1
+		var r := blast_demand(m, at, kg, timber)
+		if float(r.ratio) > 1.0 and not r.get("bedded", false):
+			n += 1
+			var sz := m.size
+			var dims := [sz.x, sz.y, sz.z]
+			dims.sort()
+			area += dims[1] * dims[2]
+			var half := m.axis() * m.length() * 0.5
+			reach = maxf(reach, maxf((m.global_position + half).distance_to(at), (m.global_position - half).distance_to(at)))
+	return {"members_looked": looked, "would_break": n, "face_m2": snappedf(area, 0.01), "reaches_m": snappedf(reach, 0.01)}
+
+
+func _surface_summary() -> Dictionary:
+	if _scan_before.is_empty():
+		return {}
+	var after := _scan()
+	var cell := SCAN_STEP * SCAN_STEP
+	if _target_kind == "ground":
+		var deepest := 0.0
+		var lowered := 0
+		var raised := 0.0
+		var reach := 0.0
+		for k: Vector2i in _scan_before:
+			if not after.has(k):
+				continue
+			var dh: float = float(after[k]) - float(_scan_before[k])
+			if dh < -0.02:
+				lowered += 1
+				reach = maxf(reach, Vector2(k).length() * SCAN_STEP)
+			deepest = minf(deepest, dh)
+			raised = maxf(raised, dh)
+		var scorch := []
+		for d in get_tree().get_nodes_in_group(&"scorch_marks"):
+			if d is Decal and _flat((d as Node3D).global_position - _event_at) < 3.0:
+				scorch.append(snappedf((d as Decal).size.x, 0.01))
+		return {"kind": "ground", "crater_depth_m": snappedf(-deepest, 0.001), "lowered_m2": snappedf(lowered * cell, 0.01),
+				"crater_radius_m": snappedf(reach, 0.01), "rim_m": snappedf(raised, 0.001), "scorch_m": scorch,
+				"scan_m": _spec.get("scan_m", 3.0)}
+	var closed := 0
+	var opened := 0
+	var near := 0
+	var far := 0.0
+	for k: Vector2i in _scan_before:
+		if not _scan_before[k]:
+			continue
+		closed += 1
+		if not after.get(k, true):
+			opened += 1
+			var r := Vector2(k).length() * SCAN_STEP
+			far = maxf(far, r)
+			if r <= 1.0:
+				near += 1
+	return {"kind": String((_target as StructureMember).kind), "closed_before_m2": snappedf(closed * cell, 0.01),
+			"opened_m2": snappedf(opened * cell, 0.01), "opened_within_1m_m2": snappedf(near * cell, 0.01),
+			"farthest_opening_m": snappedf(far, 0.01), "scan_m": _spec.get("scan_m", 3.0)}
 
 
 # --- During the run ------------------------------------------------------------------------------
@@ -663,6 +832,8 @@ func _summarise(line: Dictionary, charge: Vector3) -> Dictionary:
 				"to_target_m": snappedf(_nearest_point_of_target(charge).distance_to(charge), 0.01),
 				"went_off": not _blasts.is_empty()}
 	out["hits"] = _hits.slice(0, 40)
+	_surface_summary_cache = _surface_summary()
+	out["surface"] = _surface_summary_cache
 	out["target_result"] = _target_result(timber, charge)
 	out["broken"] = _broken(timber)
 	out["pieces"] = _piece_summary()
@@ -690,6 +861,11 @@ func _nearest_point_of_target(p: Vector3) -> Vector3:
 ## worked against its wood's strength (config/timber.tres, the USDA Wood Handbook's figures).
 func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 	var r := {"what": _describe(_target) if is_instance_valid(_target) else _setup.target}
+	if _target_kind == "ground":
+		r["kind"] = "the street's ground (a flat WorldBoundaryShape3D under a plane mesh)"
+		var sf: Dictionary = _surface_summary_cache
+		r["result"] = "crater %.2f m deep" % sf.crater_depth_m if float(sf.get("crater_depth_m", 0.0)) > 0.02 else "no crater"
+		return r
 	if _target_kind == "prop":
 		var still := is_instance_valid(_target) and _target.is_inside_tree()
 		r["kind"] = "static prop (one box, PropLibrary)"
@@ -701,7 +877,7 @@ func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 			r["result"] = "fell (what held it gave way)"
 		else:
 			r["result"] = "holds" if still and float(r.moved_m) < 0.01 else "moved"
-		var lamp := _target.find_children("*", "OilLamp", true, false) if still else []
+		var lamp: Array = _target.find_children("*", "OilLamp", true, false) if still else []
 		var lamps := _lamps.filter(func(l: OilLamp) -> bool: return is_instance_valid(l) and l.broken)
 		r["lamps_smashed"] = lamps.size()
 		if _spec.target_name == "lamp" or not lamp.is_empty():
@@ -887,17 +1063,23 @@ func _men_summary() -> Array:
 	return out
 
 
+## The frame, by tick from the event (a stick's: the tick it went off, not the tick it was lit): the
+## event's own frame, the next one (where a building settles: `Structure.settle` runs deferred,
+## outside every Prof timer), the first second, 1–3 s, and the street before it.
 func _frame_summary() -> Dictionary:
 	var pre: Array[float] = []
 	var first: Array[float] = []
 	var next: Array[float] = []
 	var event_ms := 0.0
 	var event_prof := {}
+	var next_ms := 0.0
+	var next_prof := {}
 	var lab_total := 0.0
 	var sys_sum := {}
 	var sys_n := 0
 	var grid := []
 	for f in _frames:
+		var after: int = int(f.tick) - _event_tick
 		var game := maxf(float(f.ms) - float(f.lab_ms), 0.0)
 		lab_total += float(f.lab_ms)
 		# FireSystem redoes its grid every 2 s, burning or not (~15 ms here): a frame that's only
@@ -906,17 +1088,22 @@ func _frame_summary() -> Dictionary:
 		if fire_ms >= GRID_MS and int(f.hot) == 0:
 			grid.append(snappedf(fire_ms, 0.1))
 			game -= fire_ms
-		if f.after < 0:
+		if after < -2:
 			pre.append(game)
-		elif f.after <= 1 and game > event_ms:
+		elif after < 0:
+			continue  # a stick's fuse burning
+		elif after == 0:
 			event_ms = game
 			event_prof = f.prof
-		elif f.after < 60:
+		elif after == 1:
+			next_ms = game
+			next_prof = f.prof
+		elif after < 60:
 			first.append(game)
 			for k: String in f.prof:
 				sys_sum[k] = float(sys_sum.get(k, 0.0)) + float(f.prof[k])
 			sys_n += 1
-		elif f.after < 180:
+		elif after < 180:
 			next.append(game)
 	var sys := {}
 	for k: String in sys_sum:
@@ -924,12 +1111,14 @@ func _frame_summary() -> Dictionary:
 			sys[k] = snappedf(sys_sum[k] / maxf(sys_n, 1), 0.01)
 	var active_end := int(_frames[-1].active) if not _frames.is_empty() else 0
 	var active_pre := int(_frames[0].active) if not _frames.is_empty() else 0
-	var added := 0.0
 	var base := float(_stats(pre).get("mean", 0.0))
+	var added := event_ms + next_ms - 2.0 * base
 	for x in first:
 		added += x - base
 	return {"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)",
-			"before_ms": _stats(pre), "added_ms_first_1s": snappedf(added + event_ms - base, 0.1), "fire_grid_ms": grid, "event_frame_ms": snappedf(event_ms, 0.01), "event_frame_systems": _top(event_prof, 6),
+			"before_ms": _stats(pre), "added_ms_first_1s": snappedf(added, 0.1), "fire_grid_ms": grid,
+			"event_frame_ms": snappedf(event_ms, 0.01), "event_frame_systems": _top(event_prof, 6),
+			"next_frame_ms": snappedf(next_ms, 0.01), "next_frame_systems": _top(next_prof, 6),
 			"first_1s_ms": _stats(first), "first_1s_systems": sys, "1_to_3s_ms": _stats(next),
 			"awake_bodies_before": active_pre, "awake_bodies_end": active_end, "lab_ms_total": snappedf(lab_total, 0.1)}
 

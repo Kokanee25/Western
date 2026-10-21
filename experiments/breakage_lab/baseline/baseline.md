@@ -1,9 +1,11 @@
 # The breakage lab's baseline (2026-10-21)
 
 Today's game, measured, nothing changed. Source: `claude/gameplay-breakage-lab-ksr17d` on main at
-#159 (the Studio's three men). Headless, this workspace's 4-thread Xeon (2.1 GHz); 102 games, each
-run twice (`run.py --repeat=2`), 204 of 204 finished. Sheets from a rendered run (lavapipe).
-Frame times from a serial run (one game at a time, `bold_cowboy_s0`, each twice: 72 games).
+#164 (the Studio's three men cast in town). Headless, this workspace's 4-thread Xeon (2.1 GHz);
+138 games, each run twice (`run.py --repeat=2`), 276 of 276 finished. Sheets from a rendered run
+(lavapipe). Frame times from a serial run (one game at a time, `bold_cowboy_s0`, each twice).
+The first baseline (main at #159, the furniture, door, window and wall only) gave the same results
+but for the saloon blasts, which don't repeat anyway.
 
 - `table.md`: every scenario and body, one line each. `baseline.json`: every summary (slimmed).
 - `sheets/<target>.jpg`: before, just after and at the end, a row a weapon; `sheets/man_on_table.jpg`
@@ -28,30 +30,59 @@ the target at all.
 
 | Dynamite, all targets and bodies | 1 m | 3 m | 6 m |
 |---|---|---|---|
-| Members broken, saloon (chair, table, bottle, lamp) | 36–53 | 33–48 | 37–67 |
+| Members broken, saloon (chair, table, bottle, lamp) | 36–47 | 33–48 | 37–67 |
 | Members broken, store (door, window, wall) | 3–7, glass (one trim) | 6, glass | 6, glass |
-| Pieces, saloon (largest) | 110–165 (a joist, 132 kg, 7.9 m) | 107–176 (the same) | 118–175 (144 kg, 6.6 m) |
+| Pieces, saloon (largest) | 110–152 (a joist, 132 kg, 7.9 m) | 107–176 (the same) | 118–184 (144 kg, 6.6 m) |
 | Pieces, store (largest) | 61–136, glass shards (two 11 kg trims) | 113–131 | 102–120 |
 | In the blast's reach / found | 1,744–2,510 / 1,024 | 1,770–2,461 / 1,024 | 1,607–2,340 / 1,024 |
-| Caught fire, saloon | 2–7 members; a lamp spill in 7 of 16 | 1–4 members | 2–23 members; a lamp spill in 8 of 16 |
+| Caught fire, saloon | 2–7 members; a lamp spill in 8 of 16 | 1–4 members | 2–23 members; a lamp spill in 8 of 16 |
 | Caught fire, store | none | none | none |
 | Bystander | saloon, 2.4 m: thrown down; 2.8 m: nothing | saloon, 0.9 m: down, both eardrums, bruised; 2.3 m: down | saloon, 2.2 m: down; 4.4–4.6 m: nothing |
 
 In the street the bystander stood 3.1–6.8 m off and took nothing at all (under 35 kPa: no
 knockdown, no eardrum).
 
-Man on the table: he lands and stays on it, every body (pelvis 0.21–0.26 m over the top), at rest in
-2.8 s (4.2 s the bold cowboy), the fastest part 6.0 m/s (a foot), nothing sunk past Jolt's slop
-over 3 checks (deepest 4.6 cm for a check), no flags. The table doesn't move or break (a static box).
+Man on the table: he lands and stays on it, every body (pelvis 0.21 m over the top, the same to the
+centimetre for all four), at rest in 2.8 s (a few runs read 3.1 or 4.2 s: the settle rule catching a
+last slow wobble), the fastest part 6.0 m/s (a foot), nothing sunk past Jolt's slop over 3 checks
+(deepest 4.6 cm for a check), no flags. The table doesn't move or break (a static box).
 
-Same seed, same result: **89 of 102** identical in the parallel run (what broke, pieces, where
-every piece ended to the millimetre, the men), **31 of 36** in the serial one. Every one that differs
-is a blast on the saloon floor (13 and 5; not the same ones each time): 1–9 members and 2–11 pieces
-differ between two runs, a piece ends up to 11.6 m from where it did, a man's pelvis 5–39 cm. Every
-gun scenario, every street blast and the man on the table matched every time. One game at a time
-didn't cure it, so it isn't cores being shared; the saloon's blasts are the ones that carve, settle
-and burn the most (the voxel meshing runs on worker threads, and FireSystem settles a building a
-slice a frame), but which of them it is isn't traced.
+Same seed, same result: **131 of 138** identical in the parallel run (what broke, pieces, where
+every piece ended to the millimetre, the men), **41 of 45** in the serial one. Every one that differs is a
+blast on the saloon floor (not the same ones each time; the first baseline had 13 of 102 and 5 of
+36): 1–10 members and 2–13 pieces differ between two runs, a piece ends up to 11.6 m from where it
+did, a man's pelvis 5–39 cm. Every gun scenario, every street blast, every surface scenario and the
+man on the table matched every time. One game at a time didn't cure it, so it isn't cores being
+shared; the saloon's blasts are the ones that carve, settle and burn the most (the voxel meshing
+runs on worker threads, and FireSystem settles a building a slice a frame), but which of them it is
+isn't traced.
+
+## Surfaces: a stick on or against them (added 2026-10-21, `docs/briefs/blast-surfaces.md`)
+
+Every body the same; every run repeated exactly. "Opened" is the surface scanned in 10 cm cells, 3 m
+either way of the aim point (2 m for the ground); "by the rule" is what Blast's own rule would
+break of that surface if its query found everything.
+
+| Scenario | Found | Opened within 1 m | Opened in all (farthest) | By the rule | Members broken anywhere |
+|---|---|---|---|---|---|
+| `wall_dynamite_0m` (at the store front's foot) | no | 0 | 0 | 11 boards, 7.3 m², out to 6.3 m | 4 (glass) |
+| `door_dynamite_0m` (at the open door's foot) | no | – | – | – | 4 (glass) |
+| `floor_dynamite_0m` (on the saloon floor) | yes | 3.2 m² | 22 m² (3.6 m, the scan's edge) | 22 boards, 31 m², out to 5.9 m | 49 |
+| `floor_dynamite_1m` | yes | 3.2 m² | 20 m² (3.4 m) | 22 boards, 31 m² | 36 |
+| `roof_dynamite_0m` (on the store's roof) | no | 0 | 1.4 m², 3.5 m off | 29 boards, 33 m², out to 6.0 m | 7 |
+| `boardwalk_dynamite_0m` (on a plank) | no | 0 | 0 | 15 planks, 6.6 m², out to 1.9 m | 6 (glass) |
+| `boardwalk_dynamite_1m` | no | 0 | 0 (the plank holed) | 15 planks | 4 |
+| `ground_dynamite_0m` / `_1m` (the street's dirt) | – | – | **no crater**: depth 0, a 1.3 m scorch decal | – | 4–5 (glass) |
+
+- Off the saloon floor, the blast finds nothing it should break: the wall, door, roof and boardwalk
+  all hold with the stick touching them, and only windows go, 4–12 m off.
+- Where it does find them (the saloon floor), whole boards go: 22 m² opened in the 6 m scan and more
+  beyond it, not a hole under the stick.
+- Even found, the rule would take whole members: a third of a roof slope for one stick, 11 lap
+  boards across the store's front. Holes need members cut over the stretch the blast overcomes,
+  not broken whole (the brief).
+- The ground has no crater at all: a flat collision plane, a scorch decal and thrown gravel.
+- In the parallel run, men stood 2.7–12 m off these charges and none went down.
 
 ## What doesn't break that should
 
@@ -102,12 +133,12 @@ The Studio's `bold_cowboy_s0`, `old_rancher_s1` and `young_drifter_s1` load (`ha
 71,587 and 70,369 triangles; the outlaw 20,420), stand, go down and come to rest like the outlaw, with
 no errors logged. **Physically they're the outlaw**: the ragdoll is the same 17 capsules for every
 man (built from `Anatomy`, not the model), so old rancher, young drifter and outlaw give the same
-numbers to the centimetre in every scenario (down in the same 6 of 21 blasts, the same harm: thrown off his
-feet, and at 0.9 m bruised and both eardrums burst). The bold cowboy alone differs a little (at rest on the table
-in 4.2 s against 2.8; pelvis 5 cm higher; the saloon blasts' differences are within their run-to-run spread, below). He's
-the only one without a hat (the rancher's and the drifter's come off in a blast as a loose piece,
-the `other` in the table; the outlaw's is part of his head) and the only Stage 0 fit; the cause
-isn't traced. Whether they **look** right going down is in `sheets/man_on_table.jpg`: all four
+numbers to the centimetre in every scenario (down in the same 6 of 21 furniture blasts, the same
+harm: thrown off his feet, and at 0.9 m bruised and both eardrums burst; the only difference is the
+rancher's and the drifter's hats, which come off in a blast as a loose piece, the `other` in the
+table; the outlaw's is part of his head and the bold cowboy has none). In the first baseline the
+bold cowboy seemed to rest on the table later (4.2 s); on re-running, all four rest at 2.8 s (the
+settle rule, above). Whether they **look** right going down is in `sheets/man_on_table.jpg`: all four
 land across the table the same way, and in every one the lamp's chimney and the cups show through
 his chest and arm (static boxes that don't move; his capsules are thinner than he's drawn), the lit
 lamp under him throwing his shadow across the wall. Nothing on the sheet is wrong for the Studio
@@ -115,37 +146,47 @@ men that isn't also wrong for the outlaw.
 
 ## Frame time per blast
 
-Serial run, headless, this workspace's 2.1 GHz core (×0.65 for Sean's), the lab's own measuring
-and FireSystem's periodic grid rebuilds taken out. "Event" is the frame it happens on; "+1st s" is
-what the first second costs over the street's own frames (~1.0–1.5 ms each here).
+Serial run (one game at a time, each twice), headless, this workspace's 2.1 GHz core (×0.65 for
+Sean's), the lab's own measuring and FireSystem's periodic grid rebuilds taken out; the street's own
+frame is ~1.0–1.5 ms here. **A blast costs two big frames**: the one it goes off in (`Blast.detonate`,
+Prof's `dynamite`) and the next, where the struck building settles (`Structure.settle` runs deferred,
+outside every Prof timer). "+1st s" is what the first second costs in all over the street's own frames.
 
-| | Event frame | of which `dynamite` (Blast.detonate) | +1st s in all | Frames in the 1st s (mean / worst) | 1–3 s (mean) |
+| Charge | Detonation frame | Next frame (settle) | +1st s in all | Worst frame after those | 1–3 s (mean) |
 |---|---|---|---|---|---|
-| Revolver 5 m, saloon | 1.6–2.5 ms | – | 0–13 ms | 1.1–1.2 / 2.4 | 1.0–1.1 |
-| Shotgun 5 m, saloon | 2.4–19 ms | – | 4–33 ms | 0.9–1.3 / 3.5 | 1.0–1.2 |
-| Revolver / shotgun 5 m, store | 12–37 ms (ballistics ~13: the carving) | – | 24–107 ms | 1.1–2.2 / 17 | 0.9–1.5 |
-| **Dynamite, store front** | **235–441 ms** | 287–342 ms | 0.48–0.77 s | 5–7 / 61 | 1.7–2.2 |
-| **Dynamite, saloon floor** | **369–520 ms** | 394–430 ms | 1.25–1.85 s | 15–24 / 441 | 2.8–10 |
-| Man on the table | 3.6 ms | – | 18 ms | 1.4 / 2.5 | 1.5 |
+| Saloon, by the furniture (12) | 340–554 ms | 96–431 ms | 1.29–1.77 s | 94–289 ms | 2.5–10 ms |
+| Saloon floor, on it (2) | 436–523 ms | 107–443 ms | 1.39–2.12 s | 198–256 ms | 3.0 ms |
+| Store front (11) | 277–433 ms | 5–49 ms | 0.77–1.04 s | 41–71 ms | 2.0–2.6 ms |
+| Store roof, on it | 321 ms | 39 ms | 0.55 s | 29 ms | 2.8 ms |
+| Boardwalk (2) | 355–364 ms | 41–50 ms | 0.62–0.80 s | 28–56 ms | 2.0–2.3 ms |
+| The dirt (2) | 326–366 ms | 4–7 ms | 0.96–0.98 s | 54–57 ms | 2.3–2.4 ms |
 
-- **A stick is a quarter- to a third-of-a-second hitch on Sean's machine** (0.15–0.34 s at ×0.65),
-  nearly all of it inside `Blast.detonate` (Prof's `dynamite`): ~1,024 colliders each worked
-  through `face_impulse` (17 samples × 3 across, each a Kinney-Graham impulse and pressure), then
-  the breaks and one settle per building. In the saloon the next second costs another 1–1.5 s in
-  all, with frames up to 0.44 s (the floor coming down: settles, rubble landing, fire catching); by
-  1–3 s it's 3–10 ms a frame here (2–6.5 at Sean's), the fire's share growing.
-- Against the 14 ms frame: at Sean's the blast frame alone is 11–24 frames' worth; the saloon's
-  1–3 s fits the whole budget there, but its fire share (~3.5 ms here, ~2.3 there) is over "fire and
-  effects" (2.0 ms).
+| Shot | Its frame | +1st s |
+|---|---|---|
+| Revolver / shotgun 5 m, saloon props | 1.5–20 ms | 0–35 ms |
+| Revolver / shotgun 5 m, store members (carving) | 12–30 ms | 36–94 ms |
+| Man on the table (the drop) | 6 ms | 25 ms |
+
+- **A stick is a 0.2–0.65 s hitch on Sean's machine** (detonation and settle frames together, ×0.65):
+  `Blast.detonate` works ~1,024 colliders each through `face_impulse` (17 samples × 3 across, each a
+  Kinney-Graham impulse and pressure), then the breaks; in the saloon the floor's settle comes next.
+  The rest of the first second costs another 0.3–1 s in all (rubble landing, fire catching); by 1–3 s
+  it's 2–10 ms a frame here (1.3–6.5 at Sean's), the fire's share growing.
+- Against the 14 ms frame, the two blast frames are 15–45 frames' worth at Sean's.
+- One run (`chair_dynamite_3m`'s first) was ~3× slower in every system, the street's own frames
+  included (the workspace's, not the game's); its repeat is in the numbers above instead.
 - **Render CPU**: not measured headless (lavapipe draws only in the rendered run). Draw calls from
-  the rendered run, same camera, a shot before and after: in the street +250–550 for a blast
-  (1,100–1,275 → 1,360–1,650) and +20–40 for a shot; in the saloon a blast ends at ~23,000–24,900
-  against ~12,200–13,200 after a shot. The saloon's "before" (~2,650) isn't comparable: the lab stops
-  drawing between its shots, and the 14 lamps' shadows are redrawn when it starts again with
-  anything moved, so read the saloon as **a blast doubles the draws a shot leaves** (rubble moving
-  inside the lamps' shadow cubes). The wall scene's render CPU is already over budget (CLAUDE.md).
-- The street's own frame here was 1.0–1.5 ms between events, with **FireSystem's grid rebuild every
-  2 s: 5–32 ms (median 16) whether or not anything burns** (272 of them across the serial run).
+  the rendered run, same camera, a shot before and after: in the street +250–550 for a blast and
+  +20–40 for a shot; in the saloon a blast ends at ~23,000–24,900 against ~12,200–13,200 after a
+  shot. The saloon's "before" (~2,650) isn't comparable: the lab stops drawing between its shots, and
+  the 14 lamps' shadows are redrawn when it starts again with anything moved, so read the saloon as
+  **a blast doubles the draws a shot leaves** (rubble moving inside the lamps' shadow cubes). The
+  wall scene's render CPU is already over budget (CLAUDE.md).
+- The street's own frame was 1.0–1.5 ms between events, with **FireSystem's grid rebuild every
+  2 s: 5–38 ms (median 17) whether or not anything burns** (378 of them across the serial run).
+- In `baseline.json` (`frame_serial`), `event_frame_ms` is the bigger of those two blast frames
+  (the lab counted them together then); runs since report `event_frame_ms` and `next_frame_ms`
+  apart.
 
 ## The first fix I'd make (not made)
 
@@ -162,8 +203,8 @@ side.
 
 ## Also seen
 
-- **FireSystem rebuilds its grid every 2 s whether anything burns or not: 5–32 ms on this core,
-  median 16** (3–21 at Sean's), the street's biggest spike when nothing's happening. The lab takes these frames
+- **FireSystem rebuilds its grid every 2 s whether anything burns or not: 5–38 ms on this core,
+  median 17** (3–25 at Sean's), the street's biggest spike when nothing's happening. The lab takes these frames
   out of the event's numbers (`fire_grid_ms`).
 - The store's door stands open (swung in), so a shot from the street square to the front meets its
   edge; the lab's line is 45° from the front-right.
