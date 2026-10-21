@@ -235,6 +235,8 @@ func _dust(amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 	p.seed = seed_value
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	p.visibility_aabb = AABB(Vector3(-20, -4, -20), Vector3(40, 24, 40))
+	# The scorch decal (0.3 m up) painted a dark band across the cloud's foot.
+	p.layers = Layers.VIS_AIR
 	var pm := ParticleProcessMaterial.new()
 	pm.turbulence_enabled = true
 	pm.turbulence_noise_strength = 1.0
