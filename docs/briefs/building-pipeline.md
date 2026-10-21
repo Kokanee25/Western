@@ -87,11 +87,13 @@ everything below before anything is built.
 
 | Critique | What the spec does |
 | --- | --- |
-| The side elevation shows an outside staircase that neither floor plan has | Ask Sean: keep it (a second way up, good for missions) or drop it |
-| The front elevation has a balcony over the street that the second-floor plan doesn't clearly show | Ask Sean, then draw it on the plan with its posts and what carries it |
-| Too big for its lot: by the scale bar it's roughly twice the 10 m the saloon has in `town.json` | Shrink it to the lot, or ask Sean to widen the lot (which moves its neighbours) |
+| The side elevation shows an outside staircase that neither floor plan has | **Sean, 2026-10-21: keep it** (a second way up) |
+| The front elevation has a balcony over the street that the second-floor plan doesn't clearly show | **Sean: both balconies**, the one over the street and the gallery looking down into the saloon; draw both on the plan with their posts and what carries them |
+| Too big for its lot: by the scale bar it's roughly twice the 10 m the saloon has in `town.json` | **Sean, 2026-10-21: widen the lot**, as big as the saloon needs ("an important building"); the spec sets its width and `town.json` moves its neighbours along the street, in the same merge, with the town's tests and views |
 | No frame: nothing shows posts, joists, spans or what holds up the balcony and its open well | Frame it from period references, sized from the Wood Handbook, so it stands and falls for real |
-| Indoor men's and women's restrooms are unlikely in an 1882 saloon | An outhouse out back instead, unless Sean wants them |
+| Indoor men's and women's restrooms are unlikely in an 1882 saloon | **Sean: an outhouse out back** |
+| Upstairs | **Sean: several bedrooms upstairs** (the sheet shows five) |
+| A cellar | **Sean, 2026-10-21: yes, and big** (bigger than a real one would be is fine): kegs and spirits kept cool, reached by a trapdoor in a room behind the bar (a kitchen, as the sheet's back rooms already have); the floor over it on real joists, so a blast or fire can drop it in |
 | The views were each drawn separately by an image model, so sizes don't match between them | Take sizes from the spec, never measured off the pictures |
 
 ## Checks

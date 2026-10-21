@@ -40,6 +40,9 @@ the history in `docs/status/`.
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
+  - **The prop lab** (Sean, 2026-10-21; `docs/briefs/prop-lab.md`): makes each prop end to end,
+    so it may edit art's `src/props/` and `assets/props/` as well as the prop kit's structure code,
+    saying so in each commit. Changes to the members, fire or blast code go to gameplay.
   - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
     `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
     and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
@@ -57,6 +60,13 @@ the history in `docs/status/`.
 - **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
   references, what done looks like, how it's judged). Open briefs are in `docs/briefs/`; the
   current one for both sessions is `docs/briefs/review-tools.md`.
+- **Labs measure; parts live in the game** (Sean, 2026-10-21): a lab may build anything to test
+  with, but what it makes is only done once **promoted** into the game's shared code or assets,
+  where every lab, building and scene can use it (a lab's railing becomes a railing part in
+  `src/structures/`; an approved wood goes into the texture factory). **`docs/PARTS.md`** lists
+  every part: read it before building something new (use or extend what's there, never make a
+  second one), and update your rows in the merge that promotes one. The test saloon (the Systems
+  Playground) is built only from parts marked "in the game".
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
@@ -295,11 +305,12 @@ frozen until Sean names one.
   space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
   cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
-  stains read as light, not dirt. **Round 4** (free, `claude/art-round4`, set studio7: stains
-  multiply the board down, bleach on sky faces only, calmer trim and timber, less sheen): the critic
-  1 SAME / 7 CLOSE / 0 DIFFERENT, the first set with no wood DIFFERENT. **Next: round 5, free**
-  (the brief's "What's next": the low siding's pale boards showing between the mud), then Sean's
-  picks on `round4_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
+  **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
+  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
+  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
+  Sean's picks on `round5_sheets/`. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -363,9 +374,15 @@ frozen until Sean names one.
   collide, no push past physics, his hat off when it meets the ground, hip and spine cones centred
   anatomically, and a hit short of a fall shows as the wound's consequence (`_favour_step`). Lab
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
-  re-approved (art's, Sean's OK). Next: **the faint** (Sean: "maybe just the fainting needs
-  work"; his OK to try a stance with the weight ~3 deg forward at the ankles), then his stairs,
-  railings, tables, chairs and props.
+  re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
+  and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
+  squat as his tone lets go). **Round 4: stairs, railings, props** (`claude/gameplay-falls-props`, PR to main;
+  `results/2026-10-21_round4/`): the new men's baseline (critic 4.8/10); friction and the back arch
+  off tried, not kept; the saloon stair's ramp on `Layers.WALK` (falling men meet the treads);
+  `BodyImpacts` (a limp man thrown into timber breaks it and carries on through; groups Q and T,
+  the game's saloon in the lab). Next: the railing promoted to a part in `src/structures/`
+  (`docs/PARTS.md`), then the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him
+  at a stair's head; a trunk-first sweep started); loose props wait on Sean.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

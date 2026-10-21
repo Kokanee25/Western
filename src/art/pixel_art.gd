@@ -254,6 +254,7 @@ static func _weathering(m: ShaderMaterial, set: String) -> void:
 	m.set_shader_parameter(&"weather_tones", float(w.get("tones", 3.0)))
 	m.set_shader_parameter(&"weather_multiply", bool(w.get("multiply", false)))
 	m.set_shader_parameter(&"weather_bleach_walls", float(w.get("bleach_walls", 0.45)))
+	m.set_shader_parameter(&"weather_mud_cover", float(w.get("mud_cover", 1.0)))
 	if w.has("specular"):
 		# The woods' sheen (round 4: the steps read as varnished furniture).
 		m.set_shader_parameter(&"specular", float(w["specular"]))
