@@ -1098,7 +1098,7 @@ func _physics_step(delta: float) -> void:
 			_hat_meets_ground()
 		_step_tone(delta)
 		if _impacts:
-			_impacts.step(parts, delta)
+			_impacts.step(delta)
 		if not _apart.is_empty():
 			_rejoin_apart()
 		_update_pool()
@@ -2155,6 +2155,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	_impacts = BodyImpacts.new()
 	var conscious := physiology.is_conscious()
 	var joint_at := {}
 	for sid: StringName in pivots:
@@ -2183,17 +2184,15 @@ func go_limp(push := Vector3.ZERO) -> void:
 		pm.friction = 0.9
 		pm.bounce = 0.0
 		rb.physics_material_override = pm
-		# What he's thrown into (BodyImpacts): a railing breaks under him as under falling timber.
-		rb.contact_monitor = true
-		rb.max_contacts_reported = 4
 		add_child(rb)
+		# What he's thrown into (BodyImpacts): a railing breaks under him as under falling timber.
+		_impacts.watch(rb)
 		rb.global_transform = part.global_transform
 		for c in part.get_children():
 			c.reparent(rb, true)
 		bodies[sid] = rb
 		parts[sid] = rb
 	_scale_inertia(bodies)
-	_impacts = BodyImpacts.new()
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
