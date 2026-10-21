@@ -355,14 +355,14 @@ frozen until Sean names one.
   that drops him curls him round it (`_hunch`); on the move he stumbles a step first (`_knocked`),
   folding over the wound with no backward jerk (#146, build 1418). A ball that doesn't drop him
   gives no flinch or wince at all (Sean, 2026-10-18).
-- **The falls' third round** (2026-10-21, `claude/gameplay-falls-round3`, PR for Sean, not merged;
+- **The falls' third round** (2026-10-21, PR #170, Sean: "I like them"; results
   `experiments/physics_lab/results/2026-10-21_round3/`): light links' inertia, resting parts
   collide, no push past physics, his hat off when it meets the ground, hip and spine cones centred
   anatomically, and a hit short of a fall shows as the wound's consequence (`_favour_step`). Lab
-  69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens move
-  (art's, Sean's call). Waiting on Sean: the honest pushes (the beam, the blast in front: a judge
-  preferred main's) and a stance with the weight forward (the faint). Next: his stairs, railings,
-  tables, chairs and props.
+  69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
+  re-approved (art's, Sean's OK). Next: **the faint** (Sean: "maybe just the fainting needs
+  work"; his OK to try a stance with the weight ~3 deg forward at the ankles), then his stairs,
+  railings, tables, chairs and props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
