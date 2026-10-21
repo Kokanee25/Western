@@ -579,21 +579,24 @@ func _physics_process(delta: float) -> void:
 						# "kick" gives each the chair's own blow (KitProp.take_blow, "impulse" N*s in
 						# his frame, "height" above the floor, a ~8 kg leg's kick).
 						if man == _men[0] and _kit_chair:
+							var did := {}  # member -> what the kick did (KitProp.take_blow: broke, moved, held)
 							for id: String in cause.get("members", []):
 								var m := _kit_chair.get_member(StringName("%s/%s" % [_kit_chair.structure_id, id]))
 								if m == null or m.broken:
+									did[id] = "gone" if m else "none"
 									continue
 								if String(cause.get("how", "remove")) == "kick":
 									var j: Array = cause.get("impulse", [0, 0, -48])
 									var at := Vector3(m.global_position.x, float(cause.get("height", 0.12)), m.global_position.z)
-									_kit_chair.take_blow(m, at, _start_xf.basis * Vector3(j[0], j[1], j[2]), 8.0)
+									did[id] = String(_kit_chair.take_blow(m, at, _start_xf.basis * Vector3(j[0], j[1], j[2]), 8.0))
 								else:
 									# Shot out: broken and its pieces knocked clear (2.5 m/s out from the
 									# chair's middle), not left standing under the seat.
 									var out := m.global_position - _kit_chair.global_position
 									out.y = 0.0
 									_kit_chair.break_member(m, out.normalized() * 2.5)
-							_events.append({"tick": _tick, "kind": "chair_legs", "how": cause.get("how", "remove"), "members": cause.get("members", [])})
+							_events.append({"tick": _tick, "kind": "chair_legs", "how": cause.get("how", "remove"), "members": cause.get("members", []),
+									"did": did, "loose": _kit_chair.loose})
 					"sever":
 						man.sever_limb(StringName(cause.segment))
 					"blow":
