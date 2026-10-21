@@ -60,6 +60,15 @@ then.
 | Lab or pipeline | Starts | Lane | Brief |
 |---|---|---|---|
 | Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
+| Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
+| Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
+| Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
+| Combat decisions and morale | Inside the gunfight lab, after its baseline | gameplay | `labs.md` |
+| Weapon handling and feel | Inside 3.2 | gameplay | `labs.md` |
+| The Systems Playground (systems interaction) | Phase 3, once the gunfight lab's baseline is in; grows every phase | gameplay | `labs.md` |
+| Navigation and avoidance lab | Phase 3 before 3.6; again before 5.7 | gameplay | `labs.md` |
+| Law, witnesses and consequences lab | Phase 5, with 5.3 and 5.8 | gameplay | `labs.md` |
+| World persistence and recovery lab | Phase 5, with 5.5 and 5.9 | gameplay | `labs.md` |
 | Treatment lab part 1: field first aid (3.1c) | After the body lab's baseline (Phase 3) | gameplay | `labs.md` |
 | Treatment lab part 2: the doctor (with 5.4 and 5.6) | Phase 5 | gameplay, characters (his lines) | `labs.md` |
 | Sound | Inside the gunfight lab; its own lab only if that gap outgrows it | gameplay | `labs.md` |
