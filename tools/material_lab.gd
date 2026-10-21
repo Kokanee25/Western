@@ -65,20 +65,22 @@ const VIEWS := {
 	"stair_newel": [Vector3(-1.5, 1.45, -1.45), Vector3(-0.15, 0.85, 0.2), 45.0],
 	"stair_rail": [Vector3(-1.2, 2.3, 0.4), Vector3(0.1, 1.9, 2.4), 50.0],
 	"stair_treads": [Vector3(-0.9, 1.9, -1.2), Vector3(0.6, 0.9, 1.0), 50.0],
+	# Up at the walkway's railing from the lobby floor, the drifter behind it.
+	"stair_walk": [Vector3(-2.6, 1.5, 0.2), Vector3(-1.2, 2.6, 3.6), 55.0],
 }
 ## Which views judge which part (with the two whole views).
 const PART_VIEWS := {
 	&"siding": ["wall", "wall_end"], &"siding_low": ["wall"], &"studs": ["wall_end"], &"trim": ["wall"],
 	&"deck": ["deck_ends", "steps"], &"treads": ["steps"], &"joists": ["deck_ends"], &"rim": ["deck_ends"],
 	&"frame": ["post"], &"stringers": ["steps", "deck_ends"], &"props": ["props", "props_close"],
-	&"oak_treads": ["stair", "stair_treads"], &"oak_newels": ["stair_newel"], &"oak_balusters": ["stair_rail"],
+	&"oak_treads": ["stair", "stair_treads"], &"oak_newels": ["stair_newel"], &"oak_balusters": ["stair_rail", "stair_walk"],
 }
 ## Round the stair: the bold cowboy at the newel, the rancher in front of the flight, the drifter up
-## on the landing (OakStair's landing at 13 x 0.19 m).
+## on the walkway behind its railing (OakStair's landing and walkway at 13 x 0.19 m).
 const STAIR_MEN := [
 	[&"bold_cowboy_s0", Vector3(-0.95, 0.015, 0.55), Vector3(-2.0, 1.5, -4.0)],
 	[&"old_rancher_s1", Vector3(0.9, 0.015, -1.3), Vector3(-1.5, 1.5, -4.0)],
-	[&"young_drifter_s1", Vector3(0.55, 2.47, 3.9), Vector3(-2.5, 2.4, -1.0)],
+	[&"young_drifter_s1", Vector3(-1.5, 2.47, 4.0), Vector3(-1.5, 2.4, -2.0)],
 ]
 ## The lamplit saloon's light (SaloonDressing's): sconces' lamps, a lamp hung over the deck and one
 ## across the room behind the camera (the saloon's lamps are all round the room, so the men are lit
