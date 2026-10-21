@@ -24,6 +24,9 @@ extends Resource
 ## the pressure. Gauze packed into a pig's femoral wound and pressed three minutes stopped it in a
 ## third to seven in ten (Kheirabadi et al., J Trauma 2011; experiments/body_lab/README.md).
 @export var packing_holds := 0.5
+## A broken bone with a `fracture_bleed` in the anatomy (the femur) bleeds into the flesh round it
+## at this rate (ml/s) until that much is gone: a thigh swells over the first hour.
+@export var fracture_bleed_rate := 0.4
 ## A tight tourniquet stops arterial bleeding below it completely.
 @export var tourniquet_factor := 0.0
 

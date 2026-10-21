@@ -114,7 +114,7 @@ func test_packing_holds_an_artery_some_of_the_time() -> void:
 	var held := 0
 	for k in 40:
 		var p := Physiology.new()
-		p.rng.seed = hash(["test", k])
+		p.roll_rng.seed = hash(["test", k])
 		p.apply_trace({"segment": &"thigh_r", "track_cm": 0.0, "hits": [{"id": &"femoral_r", "kind": &"artery", "effect": &"cut"}]})
 		p.apply_pressure(&"thigh_r")
 		for i in 1800:  # packed and not held, a femoral kills in about 18 minutes
@@ -123,6 +123,19 @@ func test_packing_holds_an_artery_some_of_the_time() -> void:
 			held += 1
 			check(p.total_bleed_rate() < 0.1, "a held artery has stopped (%.2f ml/s)" % p.total_bleed_rate())
 	check(held >= 10 and held <= 30, "about half hold (%d of 40)" % held)
+
+
+## A broken thigh bone bleeds into the thigh, about 1.2 litres, and stops there.
+func test_a_broken_femur_bleeds_into_the_thigh() -> void:
+	var p := Physiology.new()
+	p.apply_trace({"segment": &"thigh_r", "track_cm": 0.0, "hits": [{"id": &"femur_r", "kind": &"bone", "effect": &"broken"}]})
+	check_eq(p.bleeds.size(), 1, "one bleed")
+	check_eq(p.bleeds[0].kind, &"internal", "inside the thigh")
+	for i in 7200:
+		p.step(1.0)
+	check(p.alive, "he lives through it")
+	check_near(5000.0 - p.blood_ml, 1200.0, 60.0, "about 1.2 L gone (%.0f ml)" % (5000.0 - p.blood_ml))
+	check_near(p.total_bleed_rate(), 0.0, 0.0001, "and it's stopped")
 
 
 func test_a_blow_to_the_belly_bleeds_inside() -> void:

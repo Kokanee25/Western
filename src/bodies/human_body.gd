@@ -251,7 +251,7 @@ func _ready() -> void:
 	_rng.seed = rng_seed
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
-	physiology.rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
+	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
 	_dress()
 	_build()
 	if has_gun:

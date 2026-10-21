@@ -9,7 +9,8 @@ in and thumbs forward. Units are metres. Run from the repo root:
 Segments are the parts that move as one (hitboxes; they come apart at the joints). Each has one or
 more capsules [a, b, radius]; the first is its main axis. Structures are what's inside:
 
-  bone    strength = joules to break it (less and the ball stops against it); shell = hollow
+  bone    strength = joules to break it (less and the ball stops against it); fracture_bleed = ml
+          lost into the flesh round it once broken (femur ~1.2 L: Lieurance et al. 1992); shell = hollow
           thickness (skull, ribcage), cage = chance a path through the cage meets a rib;
           spine = which part of the spine (the vertebrae; the cord inside is a nerve)
   artery  bleed = ml/s when cut, untreated; limb = a tourniquet above it can stop it;
@@ -151,7 +152,8 @@ for side, sx in (("r", 1), ("l", -1)):
 # --- Legs --------------------------------------------------------------------------------------
 for side, sx in (("r", 1), ("l", -1)):
     th, sh, ft = f"thigh_{side}", f"shin_{side}", f"foot_{side}"
-    cap(f"femur_{side}", "bone", th, m([0.095, 0.88, 0.0], sx), m([0.1, 0.5, 0.005], sx), 0.017, strength=240)
+    cap(f"femur_{side}", "bone", th, m([0.095, 0.88, 0.0], sx), m([0.1, 0.5, 0.005], sx), 0.017, strength=240,
+        fracture_bleed=1200)
     cap(f"quadriceps_{side}", "muscle", th, m([0.1, 0.84, -0.032], sx), m([0.1, 0.53, -0.03], sx), 0.042, group="leg")
     cap(f"hamstrings_{side}", "muscle", th, m([0.1, 0.84, 0.035], sx), m([0.1, 0.53, 0.032], sx), 0.038, group="leg")
     cap(f"femoral_{side}", "artery", th, m([0.07, 0.88, -0.035], sx), m([0.085, 0.56, -0.02], sx), 0.009, bleed=12.0, limb=True)

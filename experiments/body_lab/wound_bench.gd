@@ -265,7 +265,7 @@ static func treat(p: Physiology, what: String) -> bool:
 static func outcome(state: Dictionary, from_t: float, treatment: Dictionary, horizon: float, dt: float, seed := 1) -> Dictionary:
 	var p := Physiology.new()
 	p.from_dict(state)
-	p.rng.seed = hash(["physiology", seed])
+	p.roll_rng.seed = hash(["physiology", seed])
 	var t := from_t
 	var steps := []  # [time, treatment] still to do
 	match String(treatment.name):

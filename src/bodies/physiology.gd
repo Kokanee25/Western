@@ -16,7 +16,7 @@ var blood_ml := 5000.0
 var bleeds: Array[Dictionary] = []
 ## Whether packing holds a bleed too fast to clot on its own (PhysiologyTuning.packing_holds) is
 ## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed).
-var rng := RandomNumberGenerator.new()
+var roll_rng := RandomNumberGenerator.new()
 ## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
 const BALL_RADIUS := 0.0057
 
@@ -80,6 +80,7 @@ func apply_trace(tr: Dictionary) -> Array:
 				if h.effect == &"broken":
 					broken[h.id] = true
 					wound_pain += tuning.pain_bone
+					_fracture_bleed(h.id, seg)
 					if h.id == &"jaw":
 						jaw_broken = true
 				else:
@@ -218,17 +219,29 @@ func step(dt: float) -> void:
 		_die(&"gut_wound")
 
 
+## A broken bone that bleeds into the flesh round it (`fracture_bleed`, ml, in the anatomy: a femur
+## ~1.2 L, Lieurance et al. 1992): inside him, at `fracture_bleed_rate`, until that much is lost.
+func _fracture_bleed(bone: StringName, segment: StringName) -> void:
+	var ml := float(anatomy.structure(bone).get(&"fracture_bleed", 0.0))
+	if ml <= 0.0:
+		return
+	_add_bleed(bone, segment, tuning.fracture_bleed_rate, &"internal")
+	bleeds[-1].limit = ml
+
+
 ## A bleed too fast to clot on its own, pressed or packed: whether the packing holds it (rolled
 ## once, the first time it's pressed). If it does it clots under the pressure, as a cut does.
 func _packing_holds(b: Dictionary) -> bool:
 	if not b.has("holds"):
-		b.holds = rng.randf() < tuning.packing_holds
+		b.holds = roll_rng.randf() < tuning.packing_holds
 	return b.holds
 
 
 ## Current ml/s from one bleed, with clotting, falling blood pressure and treatment.
 func bleed_rate(b: Dictionary) -> float:
 	if not alive:
+		return 0.0
+	if b.has("limit") and float(b.lost) >= float(b.limit):
 		return 0.0
 	var r: float = b.rate * b.clot * lerpf(tuning.bleed_at_no_pressure, 1.0, pressure())
 	if b.tourniquet:
@@ -259,7 +272,8 @@ func apply_tourniquet(segment: StringName) -> int:
 	var below := anatomy.segments_below(segment)
 	var n := 0
 	for b in bleeds:
-		if below.has(b.segment) and b.get("kind", &"ooze") != &"internal":
+		# (A broken bone's bleed into the limb is inside him, but a belt above it cuts its blood off too.)
+		if below.has(b.segment) and (b.get("kind", &"ooze") != &"internal" or b.has("limit")):
 			b.tourniquet = true
 			n += 1
 	return n
@@ -282,6 +296,7 @@ func break_bone(id: StringName) -> void:
 		return
 	broken[id] = true
 	wound_pain += tuning.pain_bone
+	_fracture_bleed(id, anatomy.structure(id).get(&"segment", &""))
 	if id == &"jaw":
 		jaw_broken = true
 	if String(id).begins_with("ribs_"):
@@ -346,6 +361,7 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 			if bone != &"" and past.call(region):
 				broken[StringName(String(bone) + side)] = true
 				wound_pain += tuning.pain_bone
+				_fracture_bleed(StringName(String(bone) + side), segment)
 				out.append("%s broken" % region.replace("_", " "))
 	if out.is_empty():
 		out.append("bruised")
