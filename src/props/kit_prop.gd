@@ -31,8 +31,9 @@ const SETTLE_FRAMES := 4
 const FOOT_REACH := 0.03
 ## A foot's floor counts as gone once it's moved this far (m), as Fittings has it.
 const MOVED := 0.05
-## A loose prop slower than this after a blow isn't worth making loose (m/s).
-const LOOSE_FROM := 0.15
+## Slower than this after a blow or a blast it hardly moves (it'd slide under 2 cm on the floor,
+## sqrt(2 x FLOOR_FRICTION x g x 0.02)): it stays where it stands, a fixed thing (m/s).
+const LOOSE_FROM := 0.4
 ## Wood on a wooden floor (dry, sliding): what a seated man's chair slides against.
 const FLOOR_FRICTION := 0.4
 
@@ -314,10 +315,38 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
-			rb.set_meta(&"start_v", velocity + impulse / maxf(rb.mass, 0.1))
 		made.append(rb)
+	_drop_fittings(made)
 	_unseat()
 	return made
+
+
+static var _fittings: WeakRef
+
+
+## What stood on it alone (a lamp, a bottle: Fittings' items) comes down with it now, not at
+## Fittings' next look: left there a moment, it's a fixed thing the table rises into.
+func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
+	var f: Node = _fittings.get_ref() if _fittings else null
+	if f == null or not f.is_inside_tree():
+		var found := get_tree().root.find_children("*", "Fittings", true, false)
+		f = found[0] if not found.is_empty() else null
+		_fittings = weakref(f) if f else null
+	if f == null:
+		return
+	for item: Dictionary in f.get(&"items"):
+		if item.down or (item.members as Array).is_empty():
+			continue
+		var mine := (item.members as Array).all(func(e: Array) -> bool:
+				return is_instance_valid(e[0]) and members.has((e[0] as StructureMember).member_id))
+		if mine and (item.on as Array).all(func(o: Dictionary) -> bool: return o.down):
+			f.call(&"drop", item)
+			# A lamp's hitbox stays a fixed body inside its fallen lamp (Fittings): what's left of the
+			# prop mustn't meet it as an immovable box.
+			for b: Variant in item.get("bodies", []):
+				if b is StaticBody3D and is_instance_valid(b):
+					for rb in bodies:
+						rb.add_collision_exception_with(b)
 
 
 # --- Splitting -----------------------------------------------------------------------------------
@@ -377,34 +406,51 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 	return result
 
 
-## A blast that didn't break it pushes it as Blast pushes anything loose (Blast.detonate's rule for
-## a rigid body: the impulse at that distance on an area from its mass, through what shields it).
+## A blast that didn't break it throws what's left: each member pushed by the blast on the face it
+## turns to the charge (Blast.face_impulse: the reflected impulse over that face, as Blast breaks
+## members by), at that member, away from the charge, less what the prop's own members in between
+## take (Blast.shielding). A table's top catches it underneath and goes over; a chair goes flying.
 func _on_exploded(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
 	await get_tree().physics_frame  # after the blast's own breaking has settled
 	if loose or not is_inside_tree():
 		return
-	var left := get_members().filter(func(m: StructureMember) -> bool: return not m.broken)
-	if left.is_empty():
+	var left: Array[StructureMember] = []
+	for m in get_members():
+		if not m.broken:
+			left.append(m)
+	if left.is_empty() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:
 		return
-	var centre := global_transform * Vector3(centre_of_weight().x, centre_of_weight().y, centre_of_weight().z)
-	var r := maxf(centre.distance_to(at), 0.05)
-	if r > Blast.reach(kg):
-		return
-	var kgs := mass()
-	var own: Array[RID] = []
+	var pushes := {}  # member -> its push (N·s)
+	var total := Vector3.ZERO
 	for m in left:
-		own.append((m as StructureMember).get_rid())
-	var area := pow(maxf(kgs / 500.0, 1e-5), 2.0 / 3.0)
-	var dir := (centre - at).normalized()
-	var push := (dir + Vector3.UP * 0.3).normalized() * Blast.impulse(kg, r) * area * Blast.shielding(self, at, centre, own)
-	var v := push / maxf(kgs, 0.1)
-	if v.length() > Blast.t().max_throw:
-		v = v.normalized() * Blast.t().max_throw
-	if v.length() < LOOSE_FROM:
+		var j := Blast.face_impulse(m, at, kg)
+		if j <= 0.0:
+			continue
+		var push := (m.global_position - at).normalized() * j * Blast.shielding(self, at, m.global_position, [m.get_rid()])
+		pushes[m] = push
+		total += push
+	var kgs := mass()
+	if total.length() / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
-	go_loose(v)
+	# No faster than Blast throws anything.
+	var scale := minf(1.0, Blast.t().max_throw * kgs / total.length())
+	var at_m := {}
+	for m: StructureMember in pushes:
+		at_m[m.member_id] = m.global_position
+	var bodies := go_loose()
+	set_meta(&"blast_push", total * scale)
+	# Pushed once the new body is in the physics world (given in the frame it's made, half of it
+	# was lost).
+	await get_tree().physics_frame
+	for rb in bodies:
+		if not is_instance_valid(rb):
+			continue
+		for id: StringName in rb.get_meta(&"members", []):
+			var m := get_member(id)
+			if pushes.has(m):
+				rb.apply_impulse(pushes[m] * scale, at_m[id] - rb.global_position)
 
 
 # --- A seated man --------------------------------------------------------------------------------
@@ -462,3 +508,4 @@ func _unseat() -> void:
 	_clear_seat()
 	if man and is_instance_valid(man) and not man.get(&"limp") and man.has_method(&"go_limp"):
 		man.call(&"go_limp")
+

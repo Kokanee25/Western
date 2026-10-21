@@ -174,3 +174,26 @@ func test_a_blast_close_by_knocks_the_chair_over() -> void:
 	Events.exploded.emit(far.global_position + Vector3(-12, 0.1, 0), Blast.t().tnt_per_stick)
 	await physics_frames(3)
 	check(not far.loose, "12 m off it stays put")
+
+
+func test_a_stick_beside_the_table_throws_it_over_and_brings_its_lamp_down() -> void:
+	var fittings := Fittings.new()
+	world.add_child(fittings)
+	var table := PropKit.spawn(&"card_table")
+	table.position = Vector3(0, 0.3, 0)
+	world.add_child(table)
+	# The lamp on it, in a structure's props as the saloon's are (Fittings takes those).
+	var props := Node3D.new()
+	props.name = "Props"
+	floor_s.add_child(props)
+	var lamp := OilLamp.new()
+	props.add_child(lamp)
+	lamp.global_position = table.global_position + Vector3(0.12, 0.761, -0.1)
+	await physics_frames(Fittings.SETTLE_FRAMES + 4)
+	check(fittings.items.any(func(it: Dictionary) -> bool: return it.node == lamp), "the lamp stands on the table (a fitting)")
+	Blast.detonate(world, table.global_position + Vector3(-1.0, 0.02, 0), Blast.t().tnt_per_stick)
+	await physics_frames(40)
+	check(table.loose, "the table's thrown")
+	var top: Vector3 = table.get_meta(&"blast_push", Vector3.ZERO)
+	check(top.y > 0.0 and top.length() / 46.0 > 1.0, "the blast lifts it, faster than a metre a second (%s N·s)" % top)
+	check(fittings.items.any(func(it: Dictionary) -> bool: return it.node == lamp and it.down), "the lamp comes down with it")

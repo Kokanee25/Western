@@ -703,7 +703,10 @@ a few views renders them as the full run does.
   (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
   (an inelastic knock: the wood's share of the energy lost against its `toughness` x volume breaks
   it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
-  him); `Events.exploded` (pushed by Blast's rule for loose bodies when the blast didn't break it);
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
   chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
