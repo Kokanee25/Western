@@ -29,6 +29,10 @@ same sway, can we slow their reaction, not just immediate shooting".
   or a hit cut it short. The duel's draw is his own idea, so no pause there.
 - **Range judged once a shot**, not every tick (`_judge_range`), so his aim doesn't jitter.
 
+Measured on main at 8a92fec plus this change. Since merged: #169 (the barkeep wears `barkeep_s1`)
+changes saloon fights in their details (a check fight: same length and ending); street and ambush
+fights replay the same.
+
 Against a calm man standing in the open (the feel test, Sean's ranges) he's as good as before:
 5 m 88% (was 100%, range 60–100%), 15 m 30% (31%, 15–60%), 30 m 21% (13%, 3–30%). 404 tests pass.
 
