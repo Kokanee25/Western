@@ -25,3 +25,4 @@ __pycache__/
 # by paint_woods.py --set=NAME --cut
 /assets/textures/mlab_recut*/
 /assets/textures/mlab_fit*/
+/assets/textures/mlab_studio1_384/

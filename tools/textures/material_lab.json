@@ -218,6 +218,59 @@
    "prop_texels": 512,
    "budget": 0.8,
    "ask": ""
+  },
+  "studio1_384": {
+   "note": "No paint: studio1's paintings cut again at 384 texels a metre (at 512 their detail came out finer than the men's cloth, 3.3-4.2 mm against 6.4; 384 lands ~4.5-5.5 mm and takes 0.56 of the memory).",
+   "raw": "woods_studio1_%s.jpg",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 6
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   }
   }
  }
 }
