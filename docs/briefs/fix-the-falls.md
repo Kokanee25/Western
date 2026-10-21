@@ -32,6 +32,19 @@ passive ragdoll is kept (`HumanBody.go_limp()`); this isn't an active controller
 
 One variable family at a time, each measured against the last result.
 
+**After round 3 (2026-10-21, `experiments/physics_lab/results/2026-10-21_round3/`):** 1, 3 and 5
+done (the light links' inertia; resting parts collide; no push past physics; hip and spine cones
+centred anatomically); 4 run (groups M, N, R). Still open:
+- 2 and the knee fold: his weight stands right over his ankles, so a faint goes straight down
+  (a stance with the weight forward is Sean's call).
+- Pushed over backwards on planted feet he arches (the beam); the torso stands on its stumps after
+  a blast takes both shins; face first, a head-first jackknife.
+- The Studio's men: meshes past the shared capsules (into the floor lying down), shoulders skinned
+  to the neck (characters).
+- **Sean (2026-10-21): falls down stairs (a real flight), over railings (a porch rail, a
+  balcony) and into tables, chairs and props** (the game's own: tables, chairs, barrels, crates,
+  the bar), facing every way.
+
 ## Done looks like
 
 - The lab's flags down from 54 (after 10-12) with none in the joints-apart family; the
