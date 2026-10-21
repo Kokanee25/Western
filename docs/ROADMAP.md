@@ -206,8 +206,11 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
 - **Phase 1, beside them** (art): **1.4a** the **material lab** (Sean 2026-10-21). Progress: the lab
   built (stand, three lights, the Studio men, the measures, the critic's question;
   `docs/briefs/material-lab.md`); round 1 measured and painted (~$4.44): no wood passes yet, the
-  critic finds the repaints' fine grain photographic; Sean's A/B picks, then round 2 (broad paint,
-  384 a metre). The hotel's oak stair on the bench. Wear-down planned (after Gate A).
+  critic finds the repaints' fine grain photographic; round 2 (broad paint, 384 a metre): the store
+  boards SAME; round 3 (the weathering layer in texel_grid, the boards graded to one palette in the
+  cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
+  8 against round 2's none; the stains read as light, not dirt (round 4, free). Nothing in the
+  game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
 - Parked with Phase 1: 1.2, 1.3, 1.3b and 1.4 where they stand (1.3's proper garments were
