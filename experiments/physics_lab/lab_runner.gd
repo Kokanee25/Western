@@ -66,6 +66,7 @@ var _cams: Array = []
 var _viewports: Array = []
 var _start_xf := Transform3D.IDENTITY
 var _saloon: SaloonBuilding  ## the "saloon_game" fixture
+var _kit_chair: KitProp  ## the "kit_chair" fixture
 var _seen := {}  ## view -> [sum of shares, least share, samples, samples under half]
 var _speed_before := Vector3.ZERO
 var _com_v_now := Vector3.ZERO
@@ -309,6 +310,17 @@ func _build_fixture(kind: String) -> void:
 			hr.structure_id = &"lab_hitch"
 			_world.add_child(hr)
 			hr.global_position = Vector3(-1.2, 0, -0.8)
+		"kit_chair":
+			# The prop kit's chair (KitProp: members, its balance and footing; the prop lab's), turned
+			# to face the way he does (-z): he sits in it
+			# (pre "pose": "sit", then KitProp.sit) and loses it with it.
+			_kit_chair = PropLibrary.spawn(&"chair") as KitProp
+			_world.add_child(_kit_chair)
+			_kit_chair.global_transform = Transform3D(Basis(Vector3.UP, PI), Vector3.ZERO)
+			# Its seat point (KitProp.seat_position, where a man sits in the game) under his pelvis,
+			# which the sit pose puts over his own origin.
+			var sp := _kit_chair.seat_position()
+			_kit_chair.global_position -= Vector3(sp.x, 0.0, sp.z)
 		"saloon_game":
 			# The game's own saloon (SaloonBuilding: its stair of members up the front wall and its
 			# balcony's rail of trim, which a body thrown into it breaks), its floor at floor_top.
@@ -521,6 +533,9 @@ func _physics_process(delta: float) -> void:
 		_record(frame_ms)
 	if _tick < pre_ticks:
 		_before(pre, delta)
+		# In the kit chair: his weight on its seat once he's sat (KitProp.sit), before the cause.
+		if _kit_chair and _tick == pre_ticks - 10 and _kit_chair.sit(_men[0]):
+			_events.append({"tick": _tick, "kind": "sat", "source": "KitProp.sit"})
 	elif _limp_tick < 0:
 		# "knock": a ball that drops him, as HumanBody.take_bullet has it (HumanBody._knocked): on
 		# the move he may stumble on first. The lab's "limp" is when he actually goes limp.
@@ -559,6 +574,26 @@ func _physics_process(delta: float) -> void:
 						if man == _men[0]:
 							_events.append({"tick": _tick, "kind": "blast", "source": "HumanBody.take_blast", "at": _v(at),
 									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false)})
+					"chair_legs":
+						# The kit chair's legs: "remove" breaks each one and knocks it clear (shot out),
+						# "kick" gives each the chair's own blow (KitProp.take_blow, "impulse" N*s in
+						# his frame, "height" above the floor, a ~8 kg leg's kick).
+						if man == _men[0] and _kit_chair:
+							for id: String in cause.get("members", []):
+								var m := _kit_chair.get_member(StringName("%s/%s" % [_kit_chair.structure_id, id]))
+								if m == null or m.broken:
+									continue
+								if String(cause.get("how", "remove")) == "kick":
+									var j: Array = cause.get("impulse", [0, 0, -48])
+									var at := Vector3(m.global_position.x, float(cause.get("height", 0.12)), m.global_position.z)
+									_kit_chair.take_blow(m, at, _start_xf.basis * Vector3(j[0], j[1], j[2]), 8.0)
+								else:
+									# Shot out: broken and its pieces knocked clear (2.5 m/s out from the
+									# chair's middle), not left standing under the seat.
+									var out := m.global_position - _kit_chair.global_position
+									out.y = 0.0
+									_kit_chair.break_member(m, out.normalized() * 2.5)
+							_events.append({"tick": _tick, "kind": "chair_legs", "how": cause.get("how", "remove"), "members": cause.get("members", [])})
 					"sever":
 						man.sever_limb(StringName(cause.segment))
 					"blow":
