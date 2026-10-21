@@ -23,7 +23,7 @@ var _arrived := false
 const GANG := [
 	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_cowboy_s0",
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
-	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1",
+	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1", "model": &"hothead_lyle_s1",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
 	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"young_drifter_s1",
 			"shirt": Color(0.62, 0.62, 0.56), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.45, 0.38, 0.28)},
