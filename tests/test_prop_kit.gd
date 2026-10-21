@@ -151,7 +151,9 @@ func test_a_kick_slides_an_empty_chair_but_breaks_the_leg_under_a_man() -> void:
 	check_eq(chair2.take_blow(leg2, leg2.global_position, kick), &"broke", "pinned under him, the leg snaps")
 	check(leg2.has_meta(&"snapped") or leg2.broken, "the leg's broken")
 	await physics_frames(3)
-	check(man.limp, "and he goes down (his weight was over that corner by less than he sways)")
+	# Sat back, his weight's 5 cm inside the other three legs, and what's left of the kick pushes
+	# away from the corner that's gone: he stays on three legs (a back leg out tips him: above).
+	check(not man.limp and not chair2.loose, "a front leg kicked out from under a man sat back leaves him on three legs")
 
 
 func test_when_the_floor_under_it_goes_so_does_the_table() -> void:
@@ -222,3 +224,22 @@ func test_a_kick_at_a_back_leg_under_him_breaks_it() -> void:
 	var post := _m(chair, "post_back_l")
 	var at := Vector3(post.global_position.x, 0.42, post.global_position.z)
 	check_eq(chair.take_blow(post, at, Vector3(0, 0, 48.0)), &"broke", "the back post's stretch below the seat takes the kick and breaks")
+
+
+func test_a_hard_sweep_kick_takes_both_back_legs_and_a_soft_one_only_the_first() -> void:
+	for kick in [80.0, 48.0]:
+		var chair := await _place(&"chair", Vector3(0, 0.3, 0.0 if kick > 60.0 else 1.2))
+		var man := Sitter.new(80.0)
+		world.add_child(man)
+		chair.sit(man)
+		await physics_frames(1)
+		var near := _m(chair, "post_back_l")
+		var far := _m(chair, "post_back_r")
+		var at := Vector3(near.global_position.x - 0.02, 0.42, near.global_position.z)
+		chair.take_blow(near, at, Vector3(kick, 0, 0))
+		await physics_frames(2)
+		check(near.has_meta(&"snapped") or near.broken, "%d N·s: the near back leg goes" % kick)
+		if kick > 60.0:
+			check(far.has_meta(&"snapped"), "80 N·s: the boot carries on through the far one too")
+		else:
+			check(not far.has_meta(&"snapped"), "48 N·s: what's left of the boot doesn't break the far one")
