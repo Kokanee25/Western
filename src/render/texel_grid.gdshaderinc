@@ -64,6 +64,45 @@ varying float lab_face;
 // offset, so members sharing a strip don't show the same knot at the same place).
 uniform float end_texels = 0.0;
 varying float lab_u0;
+// The board's edge lines at least a screen pixel wide (material lab round 3, 2026-10-21): a
+// texel-wide line on a fine wood (384 a metre: 2.6 mm) is under a pixel past a metre or two and
+// broke into dashes as it fell on and off the pixels' centres (both blind critics' "black dashes
+// along the seams"). On: the line a pixel wide where a texel is smaller, as dark as the share of
+// that pixel the texel row covers (never under half: the painting draws every seam). The material
+// lab's sets only, until Sean picks a wood.
+uniform bool edge_aa = false;
+
+// Weathering as a layer of the building, not the board (material lab round 3, Sean 2026-10-21;
+// docs/briefs/material-lab.md): mud splashed up from the ground across several boards, rain
+// streaks hanging from a drip line (an eave, a deck's edge, a tread's nosing) and from nail heads,
+// grime gathered low and at the ends, the sun's bleach on what faces the sky. One fetch of a
+// painted stain sheet (`weather_tex`, masks not colour: R mud splash, G streaks, B grime, A bleach;
+// tools/textures/stain_sheet.py), laid in the structure's own space (the mesh's), the same shapes
+// running across neighbouring boards whatever their wood or strip; the colours are the set's (one
+// muddy palette for every wood). Only on members that ask: their meshes carry CUSTOM0 (ground y,
+// drip line y, amount, 0) and CUSTOM1 (nail pitch along, first nail, row pitch, first row y) in
+// mesh space (MaterialStand; production: docs/briefs/material-lab.md); amount 0 = none, no fetch.
+uniform sampler2D weather_tex : hint_default_black, filter_linear_mipmap, repeat_enable;
+uniform bool use_weather = false;
+// The sheet's size on the building, metres a side.
+uniform float weather_metres = 3.0;
+// The stains' colours: mud laid over (mix), streaks and grime multiplied, the bleach a tint about
+// the board's own grey.
+uniform vec3 weather_mud : source_color = vec3(0.36, 0.27, 0.19);
+uniform vec3 weather_streak : source_color = vec3(0.62, 0.56, 0.50);
+uniform vec3 weather_grime : source_color = vec3(0.58, 0.50, 0.43);
+uniform vec3 weather_bleach : source_color = vec3(0.80, 0.78, 0.74);
+// How strong each is (mud, streaks, grime, bleach), 0-1.
+uniform vec4 weather_amounts = vec4(0.8, 0.6, 0.6, 0.5);
+// How far each reaches, metres: mud up from the ground, streaks down from the drip line, grime up
+// from the ground, a nail's streak down from its head.
+uniform vec4 weather_reach = vec4(0.8, 1.2, 1.1, 0.25);
+// Each stain's cover stepped into this many tones (the men's paint: a few close tones with clean
+// edges between them); 0 = smooth.
+uniform float weather_tones = 3.0;
+varying vec4 weather_frame;
+varying vec4 weather_nails;
+varying vec3 weather_n;
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
@@ -86,6 +125,9 @@ void vertex() {
 	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
 	lab_face = use_end_tex && COLOR.g < 0.5 ? 1.0 - COLOR.r : 0.0;
 	lab_u0 = lab_face > 0.5 ? COLOR.b * 2.0 : 0.0;
+	weather_frame = use_weather ? CUSTOM0 : vec4(0.0);
+	weather_nails = use_weather ? CUSTOM1 : vec4(0.0);
+	weather_n = NORMAL;
 	// Triplanar textures are square: one scale for every axis.
 	float uv_scale = texels_per_meter / float(textureSize(albedo_tex, 0).x);
 	if (mapping == 2) {
@@ -109,6 +151,65 @@ vec4 grid_sample(vec2 uv) {
 vec4 square_sample(vec2 uv, vec2 size, float b) {
 	vec2 c = (floor(uv * size / b) + 0.5) * b / size;
 	return textureLod(albedo_tex, c, 0.0);
+}
+
+// How much of a stain shows where its painted mask is `m` and where it belongs `env` (0-1): the
+// place sets the mask's threshold, so far from the ground only the biggest splashes still reach
+// (shapes thin out, they don't fade), stepped into weather_tones tones.
+float weather_cover(float m, float env) {
+	float c = smoothstep(1.0 - env, 1.0 - env + 0.3, m) * step(0.001, env);
+	return weather_tones > 0.0 ? floor(c * weather_tones + 0.35) / weather_tones : c;
+}
+
+// The board's colour `c0` weathered where it is on its building (`p`, `n`: mesh space; `uv1`, `uv2`:
+// the face's UV and size, for its ends).
+vec3 weathered(vec3 c0, vec3 p, vec3 n, vec3 dpx, vec3 dpy, vec2 uv1, vec2 uv2) {
+	vec3 c = c0;
+	float h = p.y - weather_frame.x;
+	float d = weather_frame.y - p.y;
+	float side = 1.0 - abs(n.y);
+	float sky = clamp(n.y, 0.0, 1.0);
+	// Walls by height above their ground (the sheet's foot on the ground), along whichever way the
+	// face runs; decks and undersides flat in plan.
+	float along = abs(n.x) > abs(n.z) ? p.z : p.x;
+	bool planar = abs(n.y) > 0.5;
+	bool run_z = abs(n.x) > abs(n.z);
+	vec2 uv = planar ? p.xz : vec2(along, -h);
+	// Its screen derivatives from the position's, taken outside the branch this runs in.
+	vec2 gx = planar ? dpx.xz : vec2(run_z ? dpx.z : dpx.x, -dpx.y);
+	vec2 gy = planar ? dpy.xz : vec2(run_z ? dpy.z : dpy.x, -dpy.y);
+	vec4 m = textureGrad(weather_tex, uv / weather_metres, gx / weather_metres, gy / weather_metres);
+	// Sun-bleach on what faces the sky, and a little on walls away from their drip line's shade:
+	// greyer and a touch lighter, never white.
+	float bleach = weather_cover(m.a, max(sky, side * 0.45 * smoothstep(0.1, 0.8, d))) * weather_amounts.w;
+	float grey = dot(c, vec3(0.3, 0.55, 0.15));
+	c = mix(c, grey * weather_bleach / max(dot(weather_bleach, vec3(0.3, 0.55, 0.15)), 1e-3) * 1.06, bleach * 0.7);
+	// Grime gathered low and toward a face's ends (the corners boards meet in), a little everywhere.
+	float ends = uv2.x > 0.0 ? 1.0 - smoothstep(0.0, 0.3, min(uv1.x - lab_u0, uv2.x - (uv1.x - lab_u0))) : 0.0;
+	float low = 1.0 - smoothstep(0.0, weather_reach.z, h);
+	float grime = weather_cover(m.b, max(max(low * 0.85, ends * 0.45), 0.2)) * weather_amounts.z;
+	c *= mix(vec3(1.0), weather_grime, grime);
+	// Rain streaks hanging from the drip line above, on walls.
+	float streak = d >= 0.0 ? weather_cover(m.g, (1.0 - smoothstep(0.0, weather_reach.y, d)) * side) : 0.0;
+	// And from nail heads: a short soft drip under some of them, its strength the sheet's streaks'.
+	if (weather_nails.x > 0.0 && weather_nails.z > 0.0 && side > 0.5) {
+		float k = floor((along - weather_nails.y) / weather_nails.x + 0.5);
+		float j = ceil((p.y - weather_nails.w) / weather_nails.z);
+		for (int r = 0; r < 2; r++) {
+			float dn = weather_nails.w + (j + float(r)) * weather_nails.z - p.y;
+			// About one nail in four bleeds, each driven a little off the stud's line.
+			float rnd = fract(sin(dot(vec2(k, j + float(r)), vec2(12.9898, 78.233))) * 43758.5453);
+			float lucky = step(0.75, rnd);
+			float dx = abs(along - (weather_nails.y + k * weather_nails.x + (fract(rnd * 17.0) - 0.5) * 0.02));
+			float w = 0.01 + 0.02 * dn;
+			float drip = (1.0 - smoothstep(w * 0.4, w, dx)) * (1.0 - smoothstep(0.0, weather_reach.w, dn)) * lucky;
+			streak = max(streak, drip * (0.5 + 0.5 * m.g) * step(0.0, dn));
+		}
+	}
+	c *= mix(vec3(1.0), weather_streak, streak * weather_amounts.y);
+	// Mud splashed up from the ground, over everything, on walls (and a little on decks).
+	float mud = weather_cover(m.r, (1.0 - smoothstep(0.0, weather_reach.x, h)) * mix(0.3, 1.0, side)) * weather_amounts.x;
+	return mix(c0, mix(c, weather_mud, mud), clamp(weather_frame.z, 0.0, 1.0));
 }
 
 void fragment() {
@@ -182,6 +283,11 @@ void fragment() {
 			}
 		}
 	}
+	vec3 dpx = dFdx(local_pos);
+	vec3 dpy = dFdy(local_pos);
+	if (use_weather && weather_frame.z > 0.0) {
+		col.rgb = weathered(col.rgb, local_pos, normalize(weather_n), dpx, dpy, UV, UV2);
+	}
 	vec2 texel = grid_uv * size;
 	// Where the light is worked out: the tile's centre, or under soft edges the soft point, so the
 	// light too slides from one block's to the next across the edge.
@@ -189,6 +295,8 @@ void fragment() {
 	float lb = max(b, sq);
 	vec2 centre = soft ? tile_soft_point(texel) : (lb > 1.0 ? (floor(texel / lb) + 0.5) * lb : tile_centre(texel));
 	float edge = 1.0;
+	// Texels of the board a screen pixel covers, along and across (edge_aa), outside the branch.
+	vec2 at_px = max(fwidth((UV - vec2(lab_u0, 0.0)) * texels_per_meter), vec2(1e-4));
 	if (mapping == 0 && UV2.x > 0.0) {
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
 		// to it. Keep the point the light is worked out at on this face: a face thinner than a
@@ -208,12 +316,20 @@ void fragment() {
 		}
 		float line = b > 1.0 ? b * 0.5 : 1.0;
 		float shade = b > 1.0 ? mix(edge_shade, 1.0, 0.5) : edge_shade;
-		if (edge_lip > 0.0 && at.y < line) {
-			edge = mix(edge_lip, 1.0, b > 1.0 ? 0.5 : 0.0);
-		} else if (at.y < line || at.y > across.y - line) {
-			edge = shade;
-		} else if (at.x < line || at.x > across.x - line) {
-			edge = mix(shade, 1.0, 0.4);
+		float lip = mix(edge_lip, 1.0, b > 1.0 ? 0.5 : 0.0);
+		// edge_aa: at least a pixel wide (texels a pixel, at_px), as strong as its share of it.
+		vec2 lw = vec2(line);
+		vec2 strength = vec2(1.0);
+		if (edge_aa) {
+			lw = max(lw, at_px);
+			strength = clamp(vec2(line) / at_px, vec2(0.5), vec2(1.0));
+		}
+		if (edge_lip > 0.0 && at.y < lw.y) {
+			edge = mix(1.0, lip, strength.y);
+		} else if (at.y < lw.y || at.y > across.y - lw.y) {
+			edge = mix(1.0, shade, strength.y);
+		} else if (at.x < lw.x || at.x > across.x - lw.x) {
+			edge = mix(1.0, mix(shade, 1.0, 0.4), strength.x);
 		}
 		// The line between boards is a line, not a row of squares: the painting draws it a pixel
 		// or so wide and dark however far off the wall is, while its squares grow with distance

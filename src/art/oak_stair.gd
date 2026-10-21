@@ -34,6 +34,8 @@ const PARTS := [&"oak_treads", &"oak_risers", &"oak_strings", &"oak_newels", &"o
 
 
 func _init() -> void:
+	# Indoors: no weather (round 3's layer is the outside stand's).
+	weathered = false
 	for p in PARTS:
 		roles[p] = &"dark_oak"
 	roles[&"oak_landing"] = &"dark_oak"

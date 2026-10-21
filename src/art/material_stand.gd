@@ -67,11 +67,30 @@ const TREAD := Vector2(0.14, 0.045)
 const NOSING := 0.035
 const RISE := 0.14
 
+## Where each part weathers (round 3's weathering layer, texel_grid's `weathered`; Sean
+## 2026-10-21): [ground y (mud and grime rise from it), drip line y (rain streaks hang from it),
+## amount], in the stand's space, which is the structure's. The wall's ground is the deck it stands
+## on and its drip line its top; the post's the deck and the beam's underside; the frame under the
+## deck (rim, joists, stringers, risers) splashes from the real ground and streaks from the planks'
+## street edge; studs behind the siding are sheltered.
+const WEATHER := {
+	&"siding": [DECK_TOP, WALL_H, 1.0], &"siding_low": [DECK_TOP, WALL_H, 1.0], &"trim": [DECK_TOP, WALL_H, 1.0],
+	&"studs": [DECK_TOP, WALL_H, 0.3], &"deck": [0.0, DECK_TOP, 1.0], &"treads": [0.0, DECK_TOP, 1.0],
+	&"joists": [0.0, DECK_TOP - PLANK.y, 0.8], &"rim": [0.0, DECK_TOP - PLANK.y, 1.0],
+	&"stringers": [0.0, DECK_TOP - RISE, 1.0], &"frame": [DECK_TOP, FRAME_TOP - BEAM.y, 1.0],
+}
+## The siding's nails (one through each lap at each stud, 20 mm above the butt): [pitch along the
+## wall, the first, the rows' pitch, the first row's height]; rust streaks hang under some.
+const NAILS := [STUD_GAP, STUD.x * 0.5, SIDING_EXPOSE, DECK_TOP]
+
 ## The wood under test (one of PART_OF's keys), &"" for the game's stand as it is.
 var material: StringName = &""
 ## Each part's wood (ROLES, and a subclass's own parts).
 var roles := ROLES.duplicate()
 var seed_value := 1
+## Lay the weathering layer's frame on every board (CUSTOM0/1; drawn only where the set has a
+## stain sheet). Off: the boards carry none, as production's members don't yet.
+var weathered := true
 ## What was built: wood -> [{"name", "size", "part"}] (the lab's numbers: thickness, counts).
 var boards := {}
 ## The members' meshes by part (the lab hides and masks them by part).
@@ -82,6 +101,9 @@ var _rng := RandomNumberGenerator.new()
 var _last := {}
 ## wood -> {strip -> SurfaceTool}: boards sharing a strip share a mesh (one draw each).
 var _tools := {}
+## The board being laid's weathering frame and nails (CUSTOM0, CUSTOM1).
+var _frame_of := Color(0, 0, 0, 0)
+var _nails_of := Color(0, 0, 0, 0)
 
 
 func wood_for(part: StringName) -> StringName:
@@ -218,7 +240,17 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 	if not tools.has(pick):
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		if weathered:
+			st.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
+			st.set_custom_format(1, SurfaceTool.CUSTOM_RGBA_FLOAT)
 		tools[pick] = st
+	_frame_of = Color(0, 0, 0, 0)
+	_nails_of = Color(0, 0, 0, 0)
+	if weathered:
+		var w: Array = WEATHER.get(part, [0.0, 0.0, 0.0])
+		_frame_of = Color(w[0], w[1], w[2], 0.0)
+		if part == &"siding" or part == &"siding_low":
+			_nails_of = Color(NAILS[0], NAILS[1], NAILS[2], NAILS[3])
 	_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
 
 
@@ -250,6 +282,9 @@ func _quad(st: SurfaceTool, c: Vector3, a: Vector3, b: Vector3, n: Vector3, size
 		order = [0, 2, 1, 0, 3, 2]
 	for i in order:
 		st.set_color(col)
+		if weathered:
+			st.set_custom(0, _frame_of)
+			st.set_custom(1, _nails_of)
 		st.set_normal(n)
 		st.set_uv(uvs[i])
 		st.set_uv2(size)

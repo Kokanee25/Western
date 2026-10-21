@@ -399,6 +399,340 @@
     "splash": 1.0
    },
    "note": "Round 2 weathered (Sean, 2026-10-21: \"too clean? Can weathering and staining be added after\"): studio5's paintings cut again with no call, weathering laid on each board when it's cut, broad and soft (grime patches, dirt along the edges, sun-bleached streaks, mud splash on the low siding). The proper version is a weathering layer in the shader, painted in the men's hand and laid by where the board is (round 3, the brief)."
+  },
+  "studio6": {
+   "note": "Round 3 (Sean, 2026-10-21): studio5's paintings cut again with no call, each wood's boards graded toward one palette (unify), the bleached highs pulled down (highs), the grain calmed (calm; saloon red's swirls most), and the weathering layer: a stain sheet (mud splash, rain streaks, grime, sun-bleach) laid by texel_grid in the structure's own space where the stand's boards ask for it. Without a painted sheet (`weathering.painting`) the free procedural stand-in.",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "grade_all": {
+    "unify": 0.7,
+    "unify_L": 0.6,
+    "highs": [
+     80,
+     0.45
+    ],
+    "calm": [
+     2.0,
+     0.35
+    ],
+    "rows": 0.5
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "saloon_red_low": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775,
+     "unify": 0.85,
+     "unify_L": 0.75
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83,
+     "unify": 0.85,
+     "unify_L": 0.75,
+     "rows": 0.75
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "weathering": {
+    "metres": 3.0,
+    "tones": 3,
+    "mud": "#5e4a37",
+    "streak": "#a69b8e",
+    "grime": "#9a8977",
+    "bleach": "#c9c3b8",
+    "amounts": [
+     0.85,
+     0.6,
+     0.55,
+     0.45
+    ],
+    "reach": [
+     0.6,
+     1.1,
+     1.0,
+     0.16
+    ]
+   }
+  },
+  "studio6p": {
+   "note": "Round 3 with the painted stain sheet (Sean, 2026-10-21: two takes, $0.90): as studio6, its weathering from the four-panel painting take a (raw/stains_r3_a.jpg); textures = mlab:studio6p paints both takes, studio6q cuts take b with no call.",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "grade_all": {
+    "unify": 0.7,
+    "unify_L": 0.6,
+    "highs": [
+     80,
+     0.45
+    ],
+    "calm": [
+     2.0,
+     0.35
+    ],
+    "rows": 0.5
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "saloon_red_low": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775,
+     "unify": 0.85,
+     "unify_L": 0.75
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83,
+     "unify": 0.85,
+     "unify_L": 0.75,
+     "rows": 0.75
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "weathering": {
+    "metres": 3.0,
+    "tones": 3,
+    "mud": "#5e4a37",
+    "streak": "#a69b8e",
+    "grime": "#9a8977",
+    "bleach": "#c9c3b8",
+    "amounts": [
+     0.85,
+     0.6,
+     0.55,
+     0.45
+    ],
+    "reach": [
+     0.6,
+     1.1,
+     1.0,
+     0.16
+    ],
+    "painting": "stains_r3_%s.jpg",
+    "takes": [
+     "a",
+     "b"
+    ],
+    "pick": "a"
+   },
+   "budget": 0.9
+  },
+  "studio6q": {
+   "note": "Round 3 with the painted stain sheet (Sean, 2026-10-21: two takes, $0.90): as studio6, its weathering from the four-panel painting take b (raw/stains_r3_b.jpg); textures = mlab:studio6p paints both takes, studio6q cuts take b with no call.",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "grade_all": {
+    "unify": 0.7,
+    "unify_L": 0.6,
+    "highs": [
+     80,
+     0.45
+    ],
+    "calm": [
+     2.0,
+     0.35
+    ],
+    "rows": 0.5
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "saloon_red_low": {
+     "L": 0.89,
+     "calm": [
+      3.0,
+      0.6
+     ],
+     "rows": 0.75
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775,
+     "unify": 0.85,
+     "unify_L": 0.75
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83,
+     "unify": 0.85,
+     "unify_L": 0.75,
+     "rows": 0.75
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "weathering": {
+    "metres": 3.0,
+    "tones": 3,
+    "mud": "#5e4a37",
+    "streak": "#a69b8e",
+    "grime": "#9a8977",
+    "bleach": "#c9c3b8",
+    "amounts": [
+     0.85,
+     0.6,
+     0.55,
+     0.45
+    ],
+    "reach": [
+     0.6,
+     1.1,
+     1.0,
+     0.16
+    ],
+    "painting": "stains_r3_%s.jpg",
+    "takes": [
+     "a",
+     "b"
+    ],
+    "pick": "b"
+   }
   }
  }
 }
