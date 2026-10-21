@@ -2,7 +2,7 @@
 """The material lab's measures and sheets (roadmap 1.4a; tools/material_lab.gd renders what this reads).
 
     python3 tools/material_measure.py measure DIR [--masks=BASEDIR]  # DIR/<material>/ -> DIR/measure.json, .md
-    python3 tools/material_measure.py sheet --a=DIR [--b=DIR2] --out=SHEETS [--material=a,b] [--light=golden]
+    python3 tools/material_measure.py sheet --a=DIR [--b=DIR2[,DIR3...]] --out=SHEETS [--material=a,b] [--light=golden]
     python3 tools/material_measure.py crops DIR --out=CROPS  # the blind critic's crops, a man in front of each wood
 
 The style every material is held to is the Character Studio's three men (bold_cowboy_s0,
@@ -286,7 +286,10 @@ def sheet(a_dir, b_dir, out, materials, lights, width=480):
         nums = json.load(open(os.path.join(a_dir, name, "numbers.json")))
         views = nums["views"]
         h = width * 9 // 16
-        rows = [(tag, d, light) for light in lights for tag, d in (("A", a_dir), ("B", b_dir)) if d]
+        # B may be several candidates (comma-separated): B, C, D... under A.
+        cands = [("A", a_dir)] + [(chr(ord("B") + i), d) for i, d in enumerate((b_dir or "").split(",")) if d]
+        rows = [(tag, d, light) for light in lights for tag, d in cands
+                if os.path.exists(os.path.join(d, name))]
         im = Image.new("RGB", (width * len(views), h * len(rows)), (20, 20, 20))
         for r, (tag, d, light) in enumerate(rows):
             for c, v in enumerate(views):
