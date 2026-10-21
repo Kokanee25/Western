@@ -19,6 +19,7 @@ var barkeep: HumanBody
 var widow: HumanBody
 var sheriff: HumanBody
 var doctor: HumanBody
+var colter: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -71,6 +72,10 @@ func _spawn_townsfolk() -> void:
 	# His building is the node "Doctor": named so, he'd be renamed by the engine, differently each
 	# run, and a bug report's replay couldn't find him again.
 	doctor.name = "TheDoctor"
+	# The fourth Colter (the Studio's colter_rider_s1, the one who "knows" you, DESIGN.md §6) waiting
+	# in front of the livery. A civilian's mind for now, unarmed: riding with the gang is to come.
+	colter = _civilian(&"colter", &"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 1.4, -9.0)), 106,
+			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s1")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
