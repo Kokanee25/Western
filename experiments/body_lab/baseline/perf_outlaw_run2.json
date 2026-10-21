@@ -1,0 +1,71 @@
+{
+  "blood_ms_after": {
+    "max": 3.295,
+    "mean": 0.456131666666667,
+    "n": 600,
+    "p50": 0.319,
+    "p99": 1.27
+  },
+  "budget_ms": 4.0,
+  "clock_scale": 0.65,
+  "dead": 0,
+  "down": 2,
+  "frame_ms_after": {
+    "max": 48.488,
+    "mean": 3.149445,
+    "n": 600,
+    "p50": 2.733,
+    "p99": 6.679
+  },
+  "frame_ms_after_at_seans": 2.05,
+  "frame_ms_standing": {
+    "max": 19.772,
+    "mean": 3.48583636363636,
+    "n": 110,
+    "p50": 2.383,
+    "p99": 19.124
+  },
+  "men": 10,
+  "model": "outlaw",
+  "people_body_ms_after": {
+    "max": 8.308,
+    "mean": 1.437745,
+    "n": 600,
+    "p50": 1.225,
+    "p99": 3.127
+  },
+  "people_ms_after": {
+    "max": 9.297,
+    "mean": 2.07432333333333,
+    "n": 600,
+    "p50": 1.86,
+    "p99": 4.55
+  },
+  "people_ms_after_at_seans": 1.35,
+  "people_ms_standing": {
+    "max": 3.085,
+    "mean": 1.6163,
+    "n": 110,
+    "p50": 1.514,
+    "p99": 3.061
+  },
+  "people_skeleton_ms_after": {
+    "max": 0.464,
+    "mean": 0.180446666666666,
+    "n": 600,
+    "p50": 0.158,
+    "p99": 0.383
+  },
+  "wounds": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}

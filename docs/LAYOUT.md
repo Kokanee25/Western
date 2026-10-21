@@ -421,7 +421,8 @@ a few views renders them as the full run does.
   harder; a ball that drops him alive curls him round it, `_hunch`, and on the move he stumbles
   on a step first (`_knocked`, `stumbling`: brains stand back); his legs go
   on at his hips' speed, the stance leg turning about its planted foot (the gait's skate left
-  out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`),
+  out); Jolt at 20 velocity / 8 position steps in project.godot; the lab is `experiments/physics_lab/`;
+  wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
