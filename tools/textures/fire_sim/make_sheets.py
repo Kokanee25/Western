@@ -87,14 +87,16 @@ def warp(img, mv):
 
 
 def best_scale(r, mv):
-    """The scale on the simulation's velocity that best carries each frame onto the next."""
-    best = (1e9, 0.0)
-    for s in np.linspace(0.0, 2.0 * best_guess(r, mv), 21):
-        err = 0.0
-        for i in range(0, len(r) - 1, 4):
-            err += float(np.mean((warp(r[i], mv[i] * s) - r[i + 1]) ** 2))
-        best = min(best, (err, s))
-    return best[1]
+    """The scale on the simulation's velocity that best carries each frame onto the next: tried
+    from a hundredth to ten times a first guess (log steps), then refined round the best."""
+    def err(s):
+        return sum(float(np.mean((warp(r[i], mv[i] * s) - r[i + 1]) ** 2)) for i in range(0, len(r) - 1, 4))
+    guess = best_guess(r, mv)
+    tried = [(err(0.0), 0.0)] + [(err(s), s) for s in guess * np.logspace(-2, 1, 16)]
+    best = min(tried)[1]
+    if best > 0.0:
+        tried += [(err(s), s) for s in best * np.linspace(0.75, 1.3, 12)]
+    return min(tried)[1]
 
 
 def best_guess(r, mv):
@@ -103,7 +105,6 @@ def best_guess(r, mv):
     up = []
     for i in range(len(r) - 1):
         a, b = r[i], r[i + 1]
-        # The frame's upper half moves up; its centroid there is a stand-in for the rise.
         ca = (a * rows).sum() / (a.sum() + 1e-6)
         cb = (b * rows).sum() / (b.sum() + 1e-6)
         up.append(abs(cb - ca))
@@ -146,8 +147,11 @@ def sheet(kind, spec, cfg, sim):
     # core but not all of it solid: the core's bands then run from the roots out.
     kf = 1.4 / max(np.percentile(fl[fl > 1e-4], 90), 1e-6)
     ks = 1.2 / max(np.percentile(sm[sm > 1e-4], 99), 1e-6) if (sm > 1e-4).any() else 1.0
-    win = window(w, h)
-    r = cover(fl, kf) * win
+    win = window(w, h, top=0.25, side=0.28)
+    # The flame smoothed a square or so before it's banded: the painting's fire is a few big shapes,
+    # and banding the simulation's fine grain drew speckle.
+    smooth = np.stack([ndimage.gaussian_filter(f, spec.get("smooth", 1.2)) for f in fl])
+    r = cover(smooth, kf) * win
     # The smoke's thin haze everywhere in the domain left out (it drew the quad's edges).
     g = np.clip((cover(sm, ks) - 0.12) / 0.88, 0.0, 1.0) * win
     b = np.clip(ht / max(np.percentile(ht[ht > 1e-4], 98), 1e-6), 0.0, 1.0) * win
@@ -159,7 +163,8 @@ def sheet(kind, spec, cfg, sim):
         s = spread(sv[i], weight_s[i] + 1e-3, 1.5)
         t = np.clip(weight_f[i] * 4.0, 0.0, 1.0)[..., None]
         mv[i] = a * t + s * (1.0 - t)
-    scale = best_scale(r, mv)
+    # Fitted on the flame as simulated (the smoothing would hide how it moves).
+    scale = best_scale(cover(fl, kf) * win, mv)
     mv *= scale
     r, g, b = loop(r, n, k), loop(g, n, k), loop(b, n, k)
     mv = loop(mv, n, k)
