@@ -5,6 +5,17 @@ extends Node3D
 ## a vein pours dark and steady, anything else oozes and drips. Where it lands it leaves splats.
 ## Sits on the body segment at the wound with +Y out of the skin, so it moves with him.
 
+## An artery's jet: the pressure behind it over a beat (mmHg, a healthy man's: Physiology.pressure()
+## scales it down as he bleeds), systole the first share of the beat, blood's density (kg/m³) and
+## the share of the ideal speed it keeps through the torn vessel and the hole (an orifice's
+## discharge coefficient).
+const SYSTOLIC_MMHG := 120.0
+const DIASTOLIC_MMHG := 80.0
+const SYSTOLE := 0.35
+const PA_PER_MMHG := 133.32
+const BLOOD_DENSITY := 1060.0
+const DISCHARGE := 0.6
+
 var body: HumanBody
 var bleed_ids: Array = []
 ## Share of the bleeds that comes out here (an exit wound splits it with the entry).
@@ -19,32 +30,21 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_rng.seed = hash(get_path())
-	_particles = GPUParticles3D.new()
+	_particles = Blood.drop_particles(320, 0.9)
 	_particles.name = "Drops"
-	_particles.amount = 180
-	_particles.lifetime = 1.1
-	_particles.local_coords = false
 	_particles.emitting = false
-	_particles.visibility_aabb = AABB(Vector3(-3, -3, -3), Vector3(6, 6, 6))
-	_material = ParticleProcessMaterial.new()
+	_material = _particles.process_material as ParticleProcessMaterial
 	_material.direction = Vector3.UP
 	_material.spread = 7.0
-	_material.gravity = Vector3(0, -9.8, 0)
 	_material.initial_velocity_min = 0.0
 	_material.initial_velocity_max = 0.0
-	_material.scale_min = 0.7
-	_material.scale_max = 1.4
-	# Drops stretch along their flight, so a jet reads as a stream.
-	_material.particle_flag_align_y = true
-	_particles.process_material = _material
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.018, 0.05, 0.018)
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.roughness = 0.35
-	mesh.material = mat
-	_particles.draw_pass_1 = mesh
 	add_child(_particles)
+
+
+## How fast blood leaves an artery with `mmhg` behind it (m/s): Bernoulli's v = sqrt(2P/rho), less
+## what the torn vessel and the hole take (5.5 m/s ideal at 120 mmHg: experiments/body_lab/README.md).
+static func jet_speed(mmhg: float) -> float:
+	return DISCHARGE * sqrt(2.0 * maxf(mmhg, 0.0) * PA_PER_MMHG / BLOOD_DENSITY)
 
 
 ## ml/s by kind coming out of this wound now.
@@ -80,13 +80,16 @@ func _physics_step(delta: float) -> void:
 	var speed := 0.0
 	var colour := Blood.VENOUS
 	if r[&"artery"] > 0.3:
-		# Spurts on each beat: fast up-stroke, falling off before the next.
+		# Spurts on each beat: the pressure behind it climbs fast from diastolic to systolic in the
+		# first third of the beat and falls away; the jet leaves at the speed that pressure gives
+		# (Bernoulli, less what the torn vessel and the hole take), and both fall as he bleeds out.
 		_beat = fmod(_beat + delta * p.heart_rate() / 60.0, 1.0)
-		pulse = pow(maxf(sin(_beat * TAU), 0.0), 2.0)
-		speed = sqrt(r[&"artery"]) * 0.85 * sqrt(maxf(p.pressure(), 0.05)) * (0.3 + 0.7 * pulse)
+		pulse = sin(_beat / SYSTOLE * PI) if _beat < SYSTOLE else 0.0
+		var mmhg := lerpf(DIASTOLIC_MMHG, SYSTOLIC_MMHG, pulse) * p.pressure()
+		speed = jet_speed(mmhg)
 		colour = Blood.ARTERIAL
-		_material.spread = 6.0
-		_particles.amount_ratio = clampf(0.15 + 0.85 * pulse, 0.0, 1.0) * clampf(r[&"artery"] / 10.0, 0.3, 1.0)
+		_material.spread = 4.0
+		_particles.amount_ratio = clampf(0.35 + 0.65 * pulse, 0.0, 1.0) * clampf(r[&"artery"] / 10.0, 0.3, 1.0)
 	elif r[&"vein"] > 0.3:
 		speed = 0.25 + sqrt(r[&"vein"]) * 0.08
 		_material.spread = 25.0

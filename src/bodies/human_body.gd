@@ -1528,7 +1528,7 @@ func _cough(delta: float) -> void:
 	var head: Node3D = parts[&"head"]
 	var mouth := head.global_transform * (Vector3(0, 1.58, -0.1) - anatomy.segment_center(&"head"))
 	var fwd := -head.global_basis.z
-	ImpactEffects.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, Blood.ARTERIAL, 10, 1.6, 0.012)
+	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6)
 	Blood.throw(get_parent() as Node3D, mouth, fwd * 1.6, 3.0)
 	_flinch_from(&"chest", mouth, -fwd, 0.02)
 
@@ -2643,7 +2643,7 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	wounds.append(w)
 	_add_jet(visuals[parent], w, w.entry, 1.0)
 	if get_parent() is Node3D:
-		ImpactEffects.burst(get_parent(), at, push.normalized(), Blood.ARTERIAL, 16, 3.0, 0.02)
+		Blood.burst(get_parent(), at, push.normalized(), 16, 3.0)
 		Blood.spray(get_parent() as Node3D, at, push.normalized(), 60.0, 8, _rng)
 	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
 		if held_gun and String(segment).ends_with("_r"):

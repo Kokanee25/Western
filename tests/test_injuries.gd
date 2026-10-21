@@ -138,6 +138,15 @@ func test_a_broken_femur_bleeds_into_the_thigh() -> void:
 	check_near(p.total_bleed_rate(), 0.0, 0.0001, "and it's stopped")
 
 
+## An artery's jet leaves at the speed the pressure behind it gives (Bernoulli, less the hole's
+## losses): a few metres a second at a healthy man's pressure, weaker as he bleeds out.
+func test_an_arterial_jet_has_the_speed_of_its_pressure() -> void:
+	check_near(BloodJet.jet_speed(120.0) / BloodJet.DISCHARGE, 5.5, 0.1, "Bernoulli at 120 mmHg is ~5.5 m/s")
+	check(BloodJet.jet_speed(120.0) > BloodJet.jet_speed(80.0), "a beat's systole throws it further than diastole")
+	check(BloodJet.jet_speed(60.0) < BloodJet.jet_speed(120.0) * 0.75, "in shock it falls short")
+	check_eq(BloodJet.jet_speed(0.0), 0.0, "no pressure, no jet")
+
+
 func test_a_blow_to_the_belly_bleeds_inside() -> void:
 	var p := Physiology.new()
 	var harm := p.blow(&"abdomen", 600.0, rng)
