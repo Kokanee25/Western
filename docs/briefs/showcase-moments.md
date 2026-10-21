@@ -85,6 +85,16 @@ a script:
   boos, a thrown peanut, "Not that one again, Earl!". Opinions are per person, as everything else
   is: one old man loves the song the rest boo. The player can request a song (and tip him), pay him
   to stop, or pick the hated one on purpose to start trouble. Played often, a favourite wears thin.
+- **How he looks like he's playing:** the body from mocap (someone sitting and miming: the sway,
+  shoulders, leaning into a phrase, glancing at the room; iPhone capture is fine for this, not for
+  fingers); **the hands from the same note data as the music.** Each note maps to its real key on
+  a piano built at real size (standard key widths); the left hand takes the bass, the right the
+  melody; the hand moves to the key just before the note (IK), a finger presses on the beat, simple
+  fingering rules choose which; each key on the piano dips when played. Sound and hands come from
+  one source, so they can't drift apart, and when trouble starts his hands freeze on the chord the
+  music cut off on. **Fingers** need finger bones, which the Studio's men don't have yet (their
+  hands are in the skin): until then the hands and wrists reach and strike in time, which reads
+  right from across the room.
 - **Needs:** perception (what he notices), the escalation ladder, sound placed in the room, the
   piano as a prop, a seated man who can duck (the furniture work).
 
