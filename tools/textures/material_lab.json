@@ -179,19 +179,33 @@
    "prop_texels": 512
   },
   "studio3": {
-   "note": "The hotel's oak stair (Sean, 2026-10-21: \"a beautiful oak staircase that would maybe be in the hotel - dark wood, use the funds I've already allotted\"): dark_oak, a wood the game hasn't got, painted from the dark trim's boards in the Studio men's hand, 10 boards 3 m long at 512 a metre; the runner carpet; everything else as studio2. The lab's OakStair (tools/material_lab.gd --material=stair) draws with it. Second try (the first dark_oak, painted from the dark trim's boards, came back rustic barn boards with nail holes and a signature): dark_oak painted as a factory material from words alone, eight boards cut a strip each, 3 m at 512 a metre.",
+   "note": "The hotel's oak stair (Sean, 2026-10-21: \"a beautiful oak staircase that would maybe be in the hotel - dark wood, use the funds I've already allotted\"): dark_oak, a wood the game hasn't got, painted from the dark trim's boards in the Studio men's hand, 10 boards 3 m long at 512 a metre; the runner carpet; everything else as studio2. The lab's OakStair (tools/material_lab.gd --material=stair) draws with it. Second try (the first dark_oak, painted from the dark trim's boards, came back rustic barn boards with nail holes and a signature): dark_oak painted as a factory material from words alone, eight boards cut a strip each, 3 m at 512 a metre. Third way (2026-10-21, OpenRouter's monthly guardrail reached, $40.32 of $40, no call possible until it resets 2026-11-01 or is raised): dark_oak cut with no call from the walnut painting the gun stocks already use (raw/walnut.jpg, painted in the men's hand on 2026-10-17), darkened to a stained oak, eight 1.5 m boards.",
    "inherit": "studio2",
    "texels_per_metre": 512,
    "woods": [],
    "boards": {},
    "length": {},
    "props": [
-    "stair_runner",
-    "dark_oak"
+    "stair_runner"
    ],
    "prop_texels": 512,
    "budget": 0.8,
-   "ask": ""
+   "ask": "",
+   "from_painting": {
+    "dark_oak": {
+     "raw": "walnut.jpg",
+     "boards": 8,
+     "board_m": 0.1875,
+     "length_m": 1.5,
+     "end_from": "timber"
+    }
+   },
+   "grade": {
+    "dark_oak": {
+     "L": 0.62,
+     "C": 0.9
+    }
+   }
   }
  }
 }

@@ -228,6 +228,38 @@ def import_like_woods(out_dir):
                 fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]' + params)
 
 
+def bands(wood, cfg, out_dir, tpm):
+    """A set's wood cut from a kept painting of one surface (`from_painting`: no call): the
+    painting's height split into `boards` bands, each a board `board_m` high and `length_m` long,
+    graded, every other one turned end for end so neighbours differ."""
+    fp = cfg["from_painting"][wood]
+    im = grade(Image.open(os.path.join(pt.RAW, fp["raw"])).convert("RGB"), cfg.get("grade", {}).get(wood))
+    n = int(fp["boards"])
+    size = (round(float(fp["length_m"]) * tpm), round(float(fp["board_m"]) * tpm))
+    h = im.height // n
+    out = []
+    for k in range(n):
+        piece = im.crop((0, k * h, im.width, (k + 1) * h)).resize(size, Image.LANCZOS)
+        if k % 2:
+            piece = piece.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        piece = wrap(piece, max(4, size[0] // 32))
+        piece.save(os.path.join(out_dir, "%s_b%d.png" % (wood, k)))
+        out.append(piece)
+    for k in range(n, 16):
+        # Boards a earlier cut of this wood left past this one's last (WoodMaterials counts strips
+        # until one is missing).
+        for stale in ("%s_b%d.png" % (wood, k), "%s_b%d.png.import" % (wood, k)):
+            if os.path.exists(os.path.join(out_dir, stale)):
+                os.remove(os.path.join(out_dir, stale))
+    preview = Image.new("RGB", (size[0], size[1] * min(4, n)))
+    for k, p in enumerate(out[:4]):
+        preview.paste(p, (0, k * size[1]))
+    preview.save(os.path.join(out_dir, "%s.png" % wood))
+    print("cut: %s into %d boards from %s" % (wood, n, fp["raw"]))
+    return {"boards": n, "rows": size[1], "length": size[0], "texels_per_metre": tpm,
+            "end": "%s_end.png" % wood, "end_texels": 256}
+
+
 def candidate(name, only, cut_only, repaint, key, spec):
     """A material lab candidate set: painted from the game's strips, cut into mlab_<name>/."""
     sets = json.load(open(SETS))["sets"]
@@ -309,6 +341,14 @@ def candidate(name, only, cut_only, repaint, key, spec):
         entry["length"] = round(info["length"] * scale * float(entry.pop("length_scale", 1.0)))
         entry["rows"] = round(info["rows"] * scale)
         index["woods"][wood] = entry
+    json.dump(index, open(index_path, "w"), indent=1)
+    for wood in cfg.get("from_painting", {}):
+        if only and wood not in only:
+            continue
+        index["woods"][wood] = bands(wood, cfg, out_dir, tpm)
+        end = os.path.join(WOODS, "%s_end.png" % cfg["from_painting"][wood].get("end_from", "dark_trim"))
+        if os.path.exists(end):
+            Image.open(end).save(os.path.join(out_dir, "%s_end.png" % wood))
     json.dump(index, open(index_path, "w"), indent=1)
     # The set's props (materials.json ids: chairs, the card table, barrels), painted with the same
     # sheet inside the same budget and cut by reduce.py --set into this set.
