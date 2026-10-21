@@ -1,0 +1,91 @@
+{
+ "woods": {
+  "saloon_red": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "saloon_red_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "store_boards_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "floor": {
+   "boards": 7,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "floor_end.png",
+   "end_texels": 256
+  },
+  "weathered_pine": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "weathered_pine_end.png",
+   "end_texels": 256
+  },
+  "timber": {
+   "boards": 12,
+   "rows": 128,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "timber_end.png",
+   "end_texels": 256
+  },
+  "fascia": {
+   "boards": 8,
+   "rows": 104,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "fascia_end.png",
+   "end_texels": 256
+  },
+  "saloon_red_low": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "saloon_red_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards_low": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "store_boards_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "framing": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "framing_end.png",
+   "end_texels": 256
+  },
+  "dark_trim": {
+   "boards": 6,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "dark_trim_end.png",
+   "end_texels": 256,
+   "end_wear": 0.04
+  }
+ },
+ "set": "studio1",
+ "note": "The Studio men's hand (2026-10-21, Sean's $4): every wood repainted from the game's strips with the men's sheet (9_studio_men.png), cut at 512 texels a metre (the density the free re-cut showed matches their cloth's detail), graded into their lightness as fit512; dark trim and framing given more boards (60% and 22% of their neighbours on Main Street repeat a strip)."
+}

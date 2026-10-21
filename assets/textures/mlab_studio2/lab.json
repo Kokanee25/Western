@@ -1,0 +1,111 @@
+{
+ "woods": {
+  "saloon_red": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "saloon_red_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "store_boards_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "weathered_pine": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "weathered_pine_end.png",
+   "end_texels": 256
+  },
+  "fascia": {
+   "boards": 8,
+   "rows": 104,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "fascia_end.png",
+   "end_texels": 256
+  },
+  "saloon_red_low": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "saloon_red_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards_low": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "store_boards_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "framing": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "framing_end.png",
+   "end_texels": 256
+  },
+  "floor": {
+   "boards": 10,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "floor_end.png",
+   "end_texels": 256
+  },
+  "timber": {
+   "boards": 8,
+   "rows": 128,
+   "length": 1536,
+   "texels_per_metre": 512.0,
+   "end": "timber_end.png",
+   "end_texels": 256
+  },
+  "dark_trim": {
+   "boards": 7,
+   "rows": 96,
+   "length": 2048,
+   "texels_per_metre": 512.0,
+   "end": "dark_trim_end.png",
+   "end_texels": 256,
+   "end_wear": 0.04
+  },
+  "shot_table": {
+   "prop": true,
+   "texels_per_metre": 512.0
+  },
+  "prop_wood": {
+   "prop": true,
+   "texels_per_metre": 512.0
+  },
+  "prop_felt": {
+   "prop": true,
+   "texels_per_metre": 512.0
+  },
+  "prop_staves": {
+   "prop": true,
+   "texels_per_metre": 512.0
+  },
+  "prop_barrel_head": {
+   "prop": true,
+   "texels_per_metre": 512.0
+  }
+ },
+ "set": "studio2",
+ "note": "studio1 filled out (Sean, 2026-10-21: \"take $5 more\"): the floor 10 boards, timber 8 boards 3 m long (a post or beam no longer shows its strip twice), dark trim 7 boards 4 m long (the bar's top is dark trim, ~6 m); the rest as studio1. With the props judged beside the men: the chairs' and tables' wood, the card table's baize and top, a barrel's staves and head, painted with the same sheet."
+}

@@ -1,0 +1,91 @@
+{
+ "woods": {
+  "saloon_red": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "saloon_red_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "store_boards_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "floor": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "floor_end.png",
+   "end_texels": 256
+  },
+  "weathered_pine": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "weathered_pine_end.png",
+   "end_texels": 256
+  },
+  "timber": {
+   "boards": 8,
+   "rows": 96,
+   "length": 1152,
+   "texels_per_metre": 384.0,
+   "end": "timber_end.png",
+   "end_texels": 256
+  },
+  "fascia": {
+   "boards": 8,
+   "rows": 78,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "fascia_end.png",
+   "end_texels": 256
+  },
+  "saloon_red_low": {
+   "boards": 8,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "saloon_red_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.07
+  },
+  "store_boards_low": {
+   "boards": 8,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "store_boards_low_end.png",
+   "end_texels": 256,
+   "end_wear": 0.06
+  },
+  "framing": {
+   "boards": 8,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "framing_end.png",
+   "end_texels": 256
+  },
+  "dark_trim": {
+   "boards": 7,
+   "rows": 72,
+   "length": 1536,
+   "texels_per_metre": 384.0,
+   "end": "dark_trim_end.png",
+   "end_texels": 256,
+   "end_wear": 0.04
+  }
+ },
+ "set": "studio5",
+ "note": "Round 2 (Sean, 2026-10-21: \"paint some boards how you said for the next pass\"), after the blind critic found round 1's repaint photographic: every wood repainted broad (a few close tones a board, the grain only suggested, knots as soft shapes, no nail holes or speckle), darker and warmer like the men's cloth, from the game's boards sent blurred so there's no fine grain to copy; studio2's extra and longer boards; cut at 384 a metre and graded into the men's lightness."
+}
