@@ -93,3 +93,41 @@ joinery manual before production; Sean is not a framer)
 ## Cost
 
 Free (grading and geometry). A paid painting only with Sean's OK and its cost first.
+
+## Results
+
+### Round 1 (2026-10-21)
+
+Built: `Profiles`, `MaterialStand._profiled` / `_take`, `InteriorStand` (`--material=interior` and
+`interior_square`), the interior stain set `studio_int` (floor, timber and the wall boards from
+studio5's paintings, the dark oak from the stair's painting Sean picked, all graded to one umber
+target with `grade_all.target`; the floor darker). Free. Indoors the lab's lamps are drawn and cast
+shadows; the stand has a ceiling.
+
+Sheet `docs/screenshots/material_lab/2026-10-21/interior/sheet_abc.jpg`: A square in the game's
+woods, B profiled in the game's woods, C profiled in the interior stain, six views (the corner,
+the bar, a post and its brackets, the wainscot and window, along the gallery, up at the gallery),
+three lights.
+
+The blind critic (`interior/critic.md`, two questions a crop, Sean's picture's woodwork as the
+second reference): **C 1 SAME / 5 CLOSE / 0 DIFFERENT as the same painting as the men, 6 CLOSE /
+0 DIFFERENT as the picture's woodwork**; A and B (the game's woods, square or profiled) DIFFERENT on
+the second question every time. The stain is what carries it: the critic's first difference is
+the game's pale, striped woods. Its others: photographic grain (the game's knotty pine), the
+joinery not reading at the crops' distance under these lamps (the panels, chamfers and the bar's
+nosing are there but small), the balusters crowded, the floor pale (it faces the open night sky
+on the lab's bench; the room's own light is the saloon session's).
+
+Measures under the saloon's lamps: the stain's hue 45 and chroma ~12-16 sit on the picture's
+(hue ~45, chroma ~20); its lightness is lower (median ~6-9 against ~20), as the men's is (median
+~4.5) in the lab's dim lamps.
+
+### What's next
+
+1. **Sean's pick** on the sheet: the interior stain (C) or changes to it.
+2. Then, free: balusters spaced as the picture's (fewer, more light between), the bar's top and
+   panels bolder, chamfer stops on the posts, the back bar's columns turned; the floor checked under
+   a roof (it reads pale under the open sky).
+3. On his pick: the stain into the game's woods as interior woods (their own keys, so the exterior
+   woods don't change), `Profiles` and the pieces documented for the saloon session, a golden view
+   of the interior stand.
