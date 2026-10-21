@@ -123,6 +123,16 @@ func _start_point() -> Vector3:
 			return Vector3(0, _slope_y(0.0), 0)
 		"stairs":
 			return Vector3(0, STAIR_TOP, 0)
+		"flight", "balcony":
+			return Vector3(0, FLIGHT_TOP, 0)
+		"oak_stair":
+			# "start" (the stair's own space: the flight rising along +Z, its open side at x 0).
+			var st: Array = scenario.get("start", [0.575, 0.0, -0.6])
+			return Vector3(st[0], st[1], st[2])
+		"balcony_back":
+			return Vector3(0, FLIGHT_TOP, 2.6)
+		"porch", "porch_steps":
+			return Vector3(0, PORCH_TOP, 0)
 	return Vector3.ZERO
 
 
@@ -130,6 +140,17 @@ func _start_point() -> Vector3:
 
 const SLOPE_DEG := 20.0
 const STAIR_TOP := 0.72  ## four risers of 18 cm, treads 28 cm, going down ahead of him (-z)
+## The game's own (2026-10-21): the saloon's stair, 12 risers up to its balcony at 2.3 m, treads
+## 0.22, 0.9 wide (SaloonDressing), and the balcony's rail, 0.95 high, balusters every 0.15; a
+## boardwalk 0.38 up with no rail, its steps 0.19 x 0.3 (Boardwalk); the hitching rail
+## (HitchingRail, members); the saloon's props (PropLibrary: a card table, chairs, a barrel); the
+## bar, 1.08 high and 0.7 deep (SaloonBuilding); crates 0.6 (PropModels.crate's box).
+const FLIGHT_TOP := 2.3
+const FLIGHT_RISERS := 12
+const FLIGHT_TREAD := 0.22
+const FLIGHT_WIDTH := 0.9
+const RAIL_HEIGHT := 0.95
+const PORCH_TOP := 0.38
 
 
 func _slope_y(z: float) -> float:
@@ -193,12 +214,68 @@ func _build_fixture(kind: String) -> void:
 			_table(Vector3(-0.85, 0, 0))
 		"chair":
 			_chair(Vector3(0, 0, 0.5))
+		"flight":
+			# The landing he stands on, its edge 15 cm ahead of him; the flight going down ahead.
+			_box(Vector3(0, FLIGHT_TOP * 0.5, 1.4), Vector3(3, FLIGHT_TOP, 3.1))
+			var rise := FLIGHT_TOP / FLIGHT_RISERS
+			for i in FLIGHT_RISERS - 1:
+				var top := FLIGHT_TOP - rise * (i + 1)
+				_box(Vector3(0, top * 0.5, -0.15 - FLIGHT_TREAD * (i + 0.5)), Vector3(FLIGHT_WIDTH, top, FLIGHT_TREAD))
+		"balcony", "balcony_back":
+			# The balcony floor, the rail 0.45 ahead of where he stands, the street 2.3 below it.
+			_box(Vector3(0, FLIGHT_TOP - 0.05, 1.3), Vector3(4, 0.1, 3.5))
+			_rail(Vector3(-2.0, FLIGHT_TOP, -0.45), 4.0)
+		"porch", "porch_steps":
+			# A boardwalk 0.38 up, its edge 0.3 ahead of him, no rail; with steps down from it.
+			_box(Vector3(0, PORCH_TOP * 0.5, 1.35), Vector3(4, PORCH_TOP, 3.3))
+			if kind == "porch_steps":
+				# Two risers of 0.19: one step between the boardwalk and the street.
+				_box(Vector3(0, 0.095, -0.45), Vector3(1.8, 0.19, 0.3))
+		"oak_stair":
+			# The hotel's oak stair (art's OakStair, src/art/oak_stair.gd: 13 risers of 0.19 on a
+			# 0.27 going to a landing at 2.47, 1.15 wide, a 0.9 rail on the flight and 1.0 on the
+			# landing), as the art session builds it, collision and all (none of the lab's own).
+			var stand = load("res://src/art/oak_stair.gd").new()
+			_world.add_child(stand)
+			stand.build()
+			var hr := HitchingRail.new()
+			hr.structure_id = &"lab_hitch"
+			_world.add_child(hr)
+			hr.global_position = Vector3(-1.2, 0, -0.8)
+		"saloon":
+			_prop(&"card_table", Vector3(0, 0, -1.0))
+			_prop(&"chair", Vector3(-0.85, 0, -1.0), 90.0)
+			_prop(&"chair", Vector3(0.85, 0, -1.0), -90.0)
+			_prop(&"chair", Vector3(0.1, 0, 0.6), 180.0)
+			_prop(&"barrel", Vector3(0.9, 0, 0.3))
+		"bar_front":
+			_box(Vector3(0, 0.54, -0.8), Vector3(3.0, 1.08, 0.7), Color(0.38, 0.25, 0.15))
+		"bar_side":
+			_box(Vector3(0.75, 0.54, 0), Vector3(0.7, 1.08, 3.0), Color(0.38, 0.25, 0.15))
+		"crates":
+			for c: Vector3 in [Vector3(-0.3, 0.3, -0.75), Vector3(0.3, 0.3, -0.75), Vector3(0.0, 0.9, -0.75)]:
+				_box(c, Vector3(0.6, 0.6, 0.6), Color(0.55, 0.42, 0.28))
 		"seat", "seat_table":
 			# A fixed seat under him (production's chairs and benches are static props) and, for
 			# seat_table, a table before him: he sits (pre "pose": "sit") and goes down off it.
 			_box(Vector3(0, 0.22, 0.05), Vector3(0.45, 0.44, 0.45), Color(0.4, 0.27, 0.17))
 			if kind == "seat_table":
 				_table(Vector3(0, 0, -0.75))
+
+
+## The balcony's rail as the game builds it: balusters every 0.15 and a cap rail on top, along +x.
+func _rail(from: Vector3, length: float) -> void:
+	var n := int(length / 0.15)
+	for i in n + 1:
+		_box(from + Vector3(0.15 * i, (RAIL_HEIGHT - 0.05) * 0.5, 0), Vector3(0.035, RAIL_HEIGHT - 0.05, 0.035), Color(0.42, 0.3, 0.2))
+	_box(from + Vector3(length * 0.5, RAIL_HEIGHT - 0.025, 0), Vector3(length, 0.05, 0.08), Color(0.42, 0.3, 0.2))
+
+
+## One of the game's props (PropLibrary.spawn: its model and its box), at `at`, turned `yaw` degrees.
+func _prop(id: StringName, at: Vector3, yaw := 0.0) -> void:
+	var p := PropLibrary.spawn(id)
+	_world.add_child(p)
+	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 
 
 func _table(at: Vector3) -> void:
