@@ -1,6 +1,6 @@
 # The blood marks painted (Sean, 2026-10-21: "do the free part and paid part, take $3")
 
-**Spent $0.95 of the $3** on four People-workflow runs (`textures = blood`, `tools/textures/paint_blood.py`):
+**Spent $1.34 of the $3** ($0.95 on the marks, $0.39 on the gore test below) on four People-workflow runs (`textures = blood`, `tools/textures/paint_blood.py`):
 
 | Run | Sheet | Cost | What came back |
 |---|---|---|---|
@@ -42,3 +42,18 @@
   saloon's and the street's light, not the lab's grey.
 - Sean's call: the stains used to be big at once (the pre-paint look). Now they take a minute to
   spread, as blood does.
+
+## The gore test (run 104, $0.39)
+
+FLUX.2 refused blood, so Sean asked whether another service would paint gorier art. One sheet went to
+three services (`tools/textures/gore_test.py`): a stump's cut face, a close shotgun wound, a burst exit
+and a torn furrow. All three painted it. The sheet is `docs/screenshots/textures/gore_test/sheet.jpg`;
+the prompt and what each answered are in `log.json`.
+
+| Service | Model | Cost | What came back |
+|---|---|---|---|
+| Google, via OpenRouter | gemini-3-pro-image-preview | $0.14 | full gore, right anatomy (skin, fat, muscle round the bone, marrow); a clean illustrator's finish, not quite the man's hand |
+| OpenAI, via OpenRouter | gpt-5-image | $0.22 | closest to the man's painted hand, but toned down: bruised holes, little open flesh |
+| fal | FLUX.1 dev + the style LoRA | $0.04 | squares and wood-like rings, no anatomy: the LoRA wins over the subject |
+
+Gemini is the one to use for gore. Nothing is wired into the game until Sean picks.
