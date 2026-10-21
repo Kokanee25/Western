@@ -79,6 +79,25 @@ func test_a_window_shot_out_cuts_the_man_behind_it() -> void:
 	check(man.physiology.alive and man.physiology.is_conscious(), "he's fine, apart from that")
 
 
+## Going limp swaps his parts for rigid bodies the space doesn't hold until it next steps: a ball
+## flown that same tick (a blast's gravel, the rest of a charge) passed through him
+## (experiments/body_lab, same_tick).
+func test_a_ball_on_the_tick_he_goes_limp_still_hits_him() -> void:
+	var man := HumanBody.new()
+	man.has_gun = false
+	world.add_child(man)
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(10)
+	var part: Node3D = man.parts[&"thigh_r"]
+	var at := part.global_position
+	man.go_limp()
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(at + Vector3(0, 0, -3), Vector3.BACK, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	check_eq(man.wounds.size(), 1, "the ball finds him")
+
+
 func test_a_blow_to_the_belly_bleeds_inside() -> void:
 	var p := Physiology.new()
 	var harm := p.blow(&"abdomen", 600.0, rng)

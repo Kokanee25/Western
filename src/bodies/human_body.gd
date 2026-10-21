@@ -1588,8 +1588,10 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
 	if knocked:
 		_knocked(seg, pos, dir, given)
-	elif limp and collider is RigidBody3D:
-		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
+	elif limp and parts.get(seg) is RigidBody3D:
+		# (The part hit may be the standing one he left this tick: the push goes to his body.)
+		var rb := parts[seg] as RigidBody3D
+		rb.apply_impulse(dir * given, pos - rb.global_position)
 	elif stumbling > 0.0:
 		# Hit again as he stumbles: that's him down now.
 		_fall_now()
@@ -2007,6 +2009,11 @@ func go_limp(push := Vector3.ZERO) -> void:
 		add_child(rb)
 		rb.global_transform = part.global_transform
 		for c in part.get_children():
+			# The new body isn't in the space until the physics server next steps: a ball flown this
+			# tick (a blast's gravel, the rest of a charge) would pass through him. The standing part
+			# keeps a copy of its shapes until it's freed with the rig (experiments/body_lab, same_tick).
+			if c is CollisionShape3D:
+				part.add_child(c.duplicate())
 			c.reparent(rb, true)
 		bodies[sid] = rb
 		parts[sid] = rb
