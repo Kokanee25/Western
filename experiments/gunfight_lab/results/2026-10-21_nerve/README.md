@@ -48,7 +48,9 @@ his cover being come round and his looking for more.
 ## Measured (`compare.md`: the same 360 studio fights before and after)
 
 "Before" is this branch on today's main (ef65876) just before the change. Frame cost is the same:
-the three men 3.11 → 2.99 ms a frame here, the people's p95 14.6 → 13.7 ms.
+the three men 3.11 → 2.99 ms a frame here, the people's p95 14.6 → 13.7 ms. Since merged: main at
+36abcea (the falls' fourth round, the kit chairs, bandanas); the street's 120 run again keep the
+result: 16.8 s median (16.9), 32 rallies (33), the longest quiet 7.8 s (7.6), 6% in 45–90 s (10%).
 
 | | before | after |
 |---|---|---|
