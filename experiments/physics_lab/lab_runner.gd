@@ -234,8 +234,11 @@ func _build_fixture(kind: String) -> void:
 		"oak_stair":
 			# The hotel's oak stair (art's OakStair, src/art/oak_stair.gd: 13 risers of 0.19 on a
 			# 0.27 going to a landing at 2.47, 1.15 wide, a 0.9 rail on the flight and 1.0 on the
-			# landing), as the art session builds it, collision and all (none of the lab's own).
+			# landing, a walkway off it railed at 1.0), as the art session builds it, collision and all
+			# (none of the lab's own; #172), on its own without the lobby.
 			var stand = load("res://src/art/oak_stair.gd").new()
+			stand.solid = true
+			stand.room = false
 			_world.add_child(stand)
 			stand.build()
 			var hr := HitchingRail.new()
@@ -337,7 +340,8 @@ func _build_cameras() -> void:
 	var b := _start_xf.basis
 	var dd := cam_distance
 	var at := {"front": -b.z * dd, "side": b.x * dd, "three": (-b.z + b.x).normalized() * dd, "top": Vector3.UP * dd * 1.2 + b.z * 0.01}
-	for v: String in views:
+	# A scenario's own "views" when the usual ones would look through the fixture (the walkway).
+	for v: String in scenario.get("views", views):
 		var sv := SubViewport.new()
 		sv.size = view_size
 		sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS

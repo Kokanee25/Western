@@ -50,6 +50,12 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   `men` and `spacing`, `gun`, `pre` `"do": "pose"`, `"hit"` with `"ball": true` (a real ball through
   `take_bullet` that doesn't drop him); fixtures `seat` and `seat_table`. Groups M (the matrix),
   N (blasts and a blow) and R (hits short of a fall: `compare.py sheet --from=hit`).
+- Groups P and S (Sean, 2026-10-21: "falling down stairs and falling over railings and falling into
+  tables and chairs and props"): P the game's own stair and balcony rail, a porch edge and steps,
+  the hitching rail, the saloon's props (`PropLibrary`), the bar and crates; S art's oak stair
+  (`OakStair` with `solid` on, `room` off: #172), down its flight, at its foot, and over its
+  walkway's 1 m railing. `start` places him in the fixture's space, `focus_y` aims the cameras,
+  `views` picks a scenario's own cameras where the usual ones would look through the fixture.
 - Joints of a torn-off limb aren't measured; `lab.gd` quits if `lab_runner.gd` doesn't load.
 
 ## Files
