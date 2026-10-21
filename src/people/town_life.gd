@@ -21,11 +21,11 @@ var _t := 0.0
 var _arrived := false
 
 const GANG := [
-	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0",
+	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_cowboy_s0",
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
 	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
-	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"kid",
+	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"young_drifter_s1",
 			"shirt": Color(0.62, 0.62, 0.56), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.45, 0.38, 0.28)},
 ]
 
@@ -52,13 +52,15 @@ func _process_step(delta: float) -> void:
 
 func _spawn_townsfolk() -> void:
 	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
-			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32))
+			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s1")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13))
 
 
-func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color) -> HumanBody:
+func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
+		model := &"outlaw") -> HumanBody:
 	var man := HumanBody.new()
+	man.body_model = model
 	man.name = String(id).capitalize()
 	man.person_id = id
 	man.rng_seed = seed_value
