@@ -184,7 +184,7 @@ func _set_down(b: int) -> void:
 	var at := node.global_position
 	at.y = 0.0
 	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(
-			node.global_position + Vector3.UP * 0.2, node.global_position + Vector3.DOWN * 3.0, Layers.WORLD))
+			node.global_position + Vector3.UP * 0.2, node.global_position + Vector3.DOWN * 3.0, Layers.STAND))
 	if not hit.is_empty():
 		at = hit.position
 	node.global_transform = Transform3D(Basis(), at)
@@ -226,7 +226,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	for k in 8:
 		var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
 		var p := Vector3(fire_at.x, 0.0, fire_at.z) + dir * THROW_STAND
-		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, STAND_HIGHEST + 0.8, p.z), Vector3(p.x, -1.0, p.z), Layers.WORLD))
+		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, STAND_HIGHEST + 0.8, p.z), Vector3(p.x, -1.0, p.z), Layers.STAND))
 		if down.is_empty() or (down.normal as Vector3).y < 0.7:
 			continue
 		var stand: Vector3 = down.position

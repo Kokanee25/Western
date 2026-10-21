@@ -28,8 +28,8 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The saloon's stair and corner balcony, as members (posts, beam, ledger, joists) | `src/art/saloon_dressing.gd` (art builds it, as members) | tests | in the game |
 | Boardwalks with steps and walking ramps | `src/structures/boardwalk.gd` | tests | in the game |
 | Hitching rail, water trough, well, windpump, corral | `src/structures/` | tests | in the game |
-| A stair walked by a ramp but fallen down tread by tread (the ramp only stops walkers, `Layers.WALK`) | `src/bodies/layers.gd`, the saloon stair | ragdoll lab, round 4 (`tests/test_stair_ramp.gd`) | on a branch (`claude/gameplay-falls-props`) |
-| A falling man breaks the timber he hits (`BodyImpacts`; a freed upright held by its nails in proportion to its section) | `src/structures/body_impacts.gd` | ragdoll lab, round 4 (`tests/test_body_impacts.gd`) | on a branch (`claude/gameplay-falls-props`) |
+| A stair walked by a ramp but fallen down tread by tread (the ramp only stops walkers, `Layers.WALK`) | `src/bodies/layers.gd`, the saloon stair | ragdoll lab, round 4 (`tests/test_stair_ramp.gd`) | in the game |
+| A falling man breaks the timber he hits (`BodyImpacts`: his speed past what breaks it carries on; trim gives way at its nails; a freed upright held by its nails in proportion to its section) | `src/structures/body_impacts.gd` | ragdoll lab, round 4 (`tests/test_body_impacts.gd`, groups Q and T) | in the game |
 | Breakable railing (posts, rails, balusters that a body breaks through) | the ragdoll lab's 1 m fixture (group Q) | ragdoll lab, round 4 | waiting to be promoted: a railing part in `src/structures/` built from members, used by the saloon's balcony and stair, and any building's |
 
 ## Bodies and people (gameplay; characters for the men)

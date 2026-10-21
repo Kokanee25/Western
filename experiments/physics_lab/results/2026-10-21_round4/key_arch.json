@@ -1,0 +1,62 @@
+{
+ "K_stand_chest_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_001.png"
+ },
+ "L_walk_chest_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_002.png"
+ },
+ "P_balcony_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_003.png"
+ },
+ "P_bar_front_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_004.png"
+ },
+ "P_crates_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_005.png"
+ },
+ "P_flight_top_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_006.png"
+ },
+ "P_hitch_ball_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_007.png"
+ },
+ "P_porch_edge_ball_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_008.png"
+ },
+ "P_table_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_009.png"
+ },
+ "S_oak_mid_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_010.png"
+ },
+ "S_oak_top_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_011.png"
+ },
+ "S_oak_walk_rail_ball_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_012.png"
+ }
+}
