@@ -271,6 +271,69 @@
      "L": 0.938
     }
    }
+  },
+  "studio5": {
+   "note": "Round 2 (Sean, 2026-10-21: \"paint some boards how you said for the next pass\"), after the blind critic found round 1's repaint photographic: every wood repainted broad (a few close tones a board, the grain only suggested, knots as soft shapes, no nail holes or speckle), darker and warmer like the men's cloth, from the game's boards sent blurred so there's no fine grain to copy; studio2's extra and longer boards; cut at 384 a metre and graded into the men's lightness.",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "blur_source": 3.0,
+   "no_wear": true,
+   "hand": "Repaint it as an illustrator's painting in the same hand as the second image, the game's characters: their cloth is painted in broad, soft shapes of a few close tones, with clean bands of light and shade and almost no small texture. Paint each board the same way: three or four close tones laid in long broad strokes along its length, the grain only suggested by a few long soft streaks, a knot or two as soft dark ovals, worn edges as broad lighter bands, a little dust and grime as soft darker patches. No fine grain lines, no nail holes, no speckle, no scratches, no cracks drawn line by line, nothing photographic: it should look painted with a brush. A little darker and warmer than the first image, the weathered wood warm brown like the men's vests and trousers, the painted boards keeping their paint colour, muted.",
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "budget": 2.6,
+   "ask": ""
   }
  }
 }

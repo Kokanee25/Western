@@ -47,14 +47,15 @@ ASPECTS = {"1:1": 1.0, "4:3": 4 / 3, "3:4": 3 / 4, "3:2": 1.5, "2:3": 2 / 3, "16
 # Texels at each strip's ends crossfaded into each other so it tiles along its length.
 WRAP = 24
 
+HAND = ("Repaint it in the same painted hand as the second image, the game's characters: the painted "
+        "cloth of their vests, shirts, trousers and boots, a few close painted tones to each board with "
+        "soft changes of light and dark along it, fine grain strokes along its length at the size of "
+        "their cloth's weave and creases, knots and worn edges painted, not photographed; no "
+        "photographic noise.")
 ASK = (
     "The first image is a stack of {n} wooden boards seen flat and face on, each one a horizontal "
     "strip running the full width of the picture, one above another with no gaps: {what}.{bare} "
-    "Repaint it in the same painted hand as the second image, the game's characters: the painted "
-    "cloth of their vests, shirts, trousers and boots, a few close painted tones to each board with "
-    "soft changes of light and dark along it, fine grain strokes along its length at the size of "
-    "their cloth's weave and creases, knots and worn edges painted, not photographed; no "
-    "photographic noise.{wear} Keep every board exactly where it is, the same height "
+    "{hand}{wear} Keep every board exactly where it is, the same height "
     "and the same base colour as in the first image, every strip straight and horizontal "
     "across the full width. Flat, even light: no shadows, no highlights, no perspective. Only the "
     "boards: no text, no frame, no border."
@@ -139,12 +140,18 @@ def paint(wood, info, spec, key, raw=RAW, extra=""):
         y += i.height
     name, r = aspect_for(stack.width, stack.height)
     send = stack.resize((1024, int(round(1024 / r))), Image.LANCZOS)
+    if info.get("blur"):
+        # The set's `blur_source`: the boards sent soft, so the model has no fine grain to copy.
+        from PIL import ImageFilter
+        send = send.filter(ImageFilter.GaussianBlur(float(info["blur"])))
     man = Image.open(MAN).convert("RGB")
     man.thumbnail((768, 768))  # the style, not the detail: a smaller request (a 1024 one dropped mid-reply)
     bare = BARE if names[-1].endswith("_bare.png") else ""
     wear = (" " + info["wear"]) if "wear" in info else (" " + WEAR[wood]) if wood in WEAR else ""
+    if info.get("no_wear"):
+        wear = ""
     what = info.get("what") or what_of(spec, wood)
-    img = pt.ask(ASK.format(n=len(names), what=what, bare=bare, wear=wear) + extra, [send, man],
+    img = pt.ask(ASK.format(n=len(names), what=what, bare=bare, wear=wear, hand=info.get("hand", HAND)) + extra, [send, man],
                  {"aspect_ratio": name}, "woods_" + wood, key)
     img.convert("RGB").save(raw % wood, "JPEG", quality=94)
     print("painted: woods_%s %s (%s)" % (wood, img.size, name))
@@ -307,6 +314,9 @@ def candidate(name, only, cut_only, repaint, key, spec):
             info["paint_boards"] = int(cfg["boards"][wood])
         if wood in cfg.get("length", {}):
             info["length_scale"] = float(cfg["length"][wood]) / 2.0
+        for k, ck in (("hand", "hand"), ("blur", "blur_source"), ("no_wear", "no_wear")):
+            if ck in cfg:
+                info[k] = cfg[ck]
         if not cut_only and (repaint or not os.path.exists(raw % wood)):
             for attempt in range(2):
                 # The set's budget (Sean's approval): no call that could take the run past it.
@@ -330,6 +340,8 @@ def candidate(name, only, cut_only, repaint, key, spec):
         if os.path.exists(end):
             Image.open(end).save(os.path.join(out_dir, "%s_end.png" % wood))
         entry = dict(info)
+        for k in ("hand", "blur", "no_wear"):
+            entry.pop(k, None)
         entry["boards"] = int(entry.pop("paint_boards", entry["boards"]))
         if "from" in entry:
             # Its own wood: none of the other's paint wear (it has no bare strip).
