@@ -194,17 +194,20 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	sm.direction = Vector3.RIGHT
 	sm.spread = 180.0
 	sm.flatness = 1.0
+	# Born through the lowest metre, not in one plane (their tops lined up into a hard dark edge).
+	sm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	sm.emission_box_extents = Vector3(0.5, 0.35, 0.5) * size
 	sm.initial_velocity_min = 4.0 * size
 	sm.initial_velocity_max = 9.0 * size
 	sm.damping_min = 5.0
 	sm.damping_max = 8.0
 	sm.gravity = Vector3(0, 0.05, 0)
 	sm.scale_curve = _curve([Vector2(0.0, 0.4), Vector2(0.2, 1.0), Vector2(1.0, 2.4)])
-	var low := dust * 0.8
-	low.a = 0.8
+	var low := dust * 0.9
+	low.a = 0.6
 	sm.color_ramp = _ramp([[0.0, low], [0.3, mid], [1.0, pale]])
 	surge.draw_pass_1 = _quad(1.2 * size)
-	surge.position = Vector3.UP * 0.15
+	surge.position = Vector3.UP * 0.45 * size
 	if not GunSmoke.supports_fog_volumes():
 		return
 	_fog = FogVolume.new()
