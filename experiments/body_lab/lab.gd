@@ -60,6 +60,13 @@ func _run() -> void:
 		quit(1)
 		return
 	var models: Array = String(args.get("model", "outlaw")).split(",")
+	# A man whose model won't load would quietly be the default body (PeopleBodies falls back to
+	# BodyMesh): refuse instead. (After a fresh checkout, `godot --headless --import` first.)
+	for m: String in models:
+		if m != "mixed" and not ResourceLoader.exists("res://assets/people/%s.glb" % m):
+			push_error("lab: no model %s (assets/people/%s.glb not there or not imported)" % [m, m])
+			quit(1)
+			return
 	for s: Dictionary in picked:
 		for m: String in models:
 			var dir := out_root.path_join(m).path_join(s.name)

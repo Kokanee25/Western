@@ -743,12 +743,22 @@ func body_meshes(segment: StringName) -> Array[MeshInstance3D]:
 	return out
 
 
-## After an amputation nothing may stretch across a joint: every piece follows its own part only.
-func _stop_skinning_across_joints() -> void:
+## After an amputation nothing may stretch across the lost joint: the lost limb's pieces and the
+## stump's follow their own parts only. The rest of him goes on skinned across his joints (all of
+## him going rigid opened every seam as he lay: a flap of shoulder by his head, a gap at the neck;
+## experiments/body_lab, the check's stumps). With no segment, every piece.
+func _stop_skinning_across_joints(segment := &"") -> void:
 	_unmerge()
-	for mi: MeshInstance3D in _rigid_meshes:
-		if is_instance_valid(mi):
-			mi.mesh = _rigid_meshes[mi]
+	var which: Array[StringName] = []
+	if segment != &"":
+		which = anatomy.segments_below(segment)
+		which.append(anatomy.segments[segment].parent)
+	for sid: StringName in segment_pieces:
+		if segment != &"" and not which.has(sid):
+			continue
+		for mi: MeshInstance3D in segment_pieces[sid]:
+			if is_instance_valid(mi) and _rigid_meshes.has(mi):
+				mi.mesh = _rigid_meshes[mi]
 
 
 ## A generated garment's own baked pixel texture (UVs 0..1 over it, not metres).
@@ -2392,7 +2402,7 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	var at: Vector3 = joint.global_position if joint else (parts[segment] as Node3D).global_position
 	var first := physiology.bleeds.size()
 	physiology.sever(segment)
-	_stop_skinning_across_joints()
+	_stop_skinning_across_joints(segment)
 	if joint:
 		joint.queue_free()
 	for sid in anatomy.segments_below(segment):
