@@ -334,6 +334,71 @@
    },
    "budget": 2.6,
    "ask": ""
+  },
+  "studio5w": {
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "weather": {
+    "grime": 0.9,
+    "edges": 0.8,
+    "bleach": 0.6,
+    "splash": 1.0
+   },
+   "note": "Round 2 weathered (Sean, 2026-10-21: \"too clean? Can weathering and staining be added after\"): studio5's paintings cut again with no call, weathering laid on each board when it's cut, broad and soft (grime patches, dirt along the edges, sun-bleached streaks, mud splash on the low siding). The proper version is a weathering layer in the shader, painted in the men's hand and laid by where the board is (round 3, the brief)."
   }
  }
 }

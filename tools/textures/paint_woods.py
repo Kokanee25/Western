@@ -197,6 +197,54 @@ def grade(im, g):
     return Image.fromarray(reduce.lab_to_rgb(a))
 
 
+def weather(piece, wood, k, w):
+    """Weathering laid on a clean painted board when it's cut (a set's `weather`; no call), broad and
+    soft like the men's paint, never speckle: grime in soft dark patches, dirt settled along the
+    board's edges, sun-bleached streaks along the grain, and on a `_low` board mud splashed up from
+    below. `w`: {"grime", "edges", "bleach", "splash"}, each 0-1. Seeded by the wood and board."""
+    from PIL import ImageFilter
+    a = np.asarray(piece).astype(np.float32) / 255.0
+    h, wd = a.shape[:2]
+    rng = np.random.default_rng(sum(map(ord, wood)) * 31 + k)
+
+    def field(sx, sy):
+        # Smooth noise, patches about sx by sy texels: a coarse random grid enlarged bicubic and
+        # softened, 0-1 (patches longer along the grain than across it).
+        nx, ny = max(2, int(wd / sx) + 2), max(2, int(h / sy) + 2)
+        g = Image.fromarray((rng.random((ny, nx)) * 255).astype(np.uint8))
+        f = g.resize((wd, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(max(1.0, min(sx, sy) / 4.0)))
+        f = np.asarray(f).astype(np.float32) / 255.0
+        return (f - f.min()) / max(f.max() - f.min(), 1e-6)
+
+    def smooth(x, lo, hi):
+        t = np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+        return t * t * (3 - 2 * t)
+
+    lum = a.mean(axis=2, keepdims=True)
+    out = a.copy()
+    if w.get("bleach"):
+        # Long pale streaks along the grain: lighter and greyer.
+        b = smooth(field(wd * 0.35, h * 0.4), 0.55, 0.85)[..., None] * float(w["bleach"])
+        grey = lum * 0.35 + out * 0.65 + 0.12
+        out = out * (1 - b) + grey * b
+    if w.get("grime"):
+        # Soft dark patches, warm brown-black.
+        g = smooth(field(wd * 0.12, h * 0.8), 0.5, 0.8)[..., None] * float(w["grime"])
+        out = out * (1 - 0.45 * g) + np.array([0.12, 0.08, 0.05]) * 0.45 * g
+    if w.get("edges"):
+        # Dirt settled along both long edges, fading into the board.
+        y = np.linspace(0.0, 1.0, h)[:, None, None]
+        e = np.clip(1.0 - np.minimum(y, 1.0 - y) / 0.22, 0.0, 1.0) ** 2
+        e = e * (0.6 + 0.4 * field(wd * 0.1, h)[..., None]) * float(w["edges"])
+        out = out * (1 - 0.35 * e)
+    if w.get("splash") and wood.endswith("_low"):
+        # Mud up from below: heaviest at the board's lower edge, broken into soft patches.
+        y = np.linspace(0.0, 1.0, h)[:, None, None]
+        s_ = (y ** 1.5) * smooth(field(wd * 0.05, h * 0.5), 0.3, 0.7)[..., None] * float(w["splash"])
+        out = out * (1 - 0.5 * s_) + np.array([0.36, 0.27, 0.19]) * 0.5 * s_
+    return Image.fromarray(np.clip(out * 255.0 + 0.5, 0, 255).astype(np.uint8))
+
+
 def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
     names = strips(wood, info)
     sizes = [source(wood, n, info).size for n in names]
@@ -211,6 +259,9 @@ def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
         top = cuts[i] + (trim if i > 0 else 0)
         bottom = cuts[i + 1] - (trim if i < len(names) - 1 else 0)
         piece = painted.crop((0, top, painted.width, bottom)).resize((sw, sh), Image.LANCZOS)
+        if info.get("weather"):
+            # Before the ends are crossfaded, so the board still repeats seamlessly.
+            piece = weather(piece, wood, i, info["weather"])
         piece = wrap(piece, round(WRAP * scale))
         piece.save(os.path.join(out_dir, n))
         out.append(piece)
@@ -314,7 +365,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
             info["paint_boards"] = int(cfg["boards"][wood])
         if wood in cfg.get("length", {}):
             info["length_scale"] = float(cfg["length"][wood]) / 2.0
-        for k, ck in (("hand", "hand"), ("blur", "blur_source"), ("no_wear", "no_wear")):
+        for k, ck in (("hand", "hand"), ("blur", "blur_source"), ("no_wear", "no_wear"), ("weather", "weather")):
             if ck in cfg:
                 info[k] = cfg[ck]
         if not cut_only and (repaint or not os.path.exists(raw % wood)):
@@ -340,7 +391,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
         if os.path.exists(end):
             Image.open(end).save(os.path.join(out_dir, "%s_end.png" % wood))
         entry = dict(info)
-        for k in ("hand", "blur", "no_wear"):
+        for k in ("hand", "blur", "no_wear", "weather"):
             entry.pop(k, None)
         entry["boards"] = int(entry.pop("paint_boards", entry["boards"]))
         if "from" in entry:
