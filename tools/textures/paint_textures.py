@@ -127,12 +127,17 @@ def ask(prompt, images, config, what, key):
     return Image.open(io.BytesIO(base64.b64decode(url.split(",", 1)[1]))).convert("RGB")
 
 
-# --style=man (art, 2026-10-16, docs/briefs/match-the-man.md): painted in the layered cowboy's hand,
-# his model sheet sent as a second picture, instead of realistic and sharp.
-MAN = os.path.join(ROOT, "docs", "concept", "targets", "8_man_model.png")
-MAN_HAND = ("Painted in the same hand as the second image, the game's character: the soft, broad, "
-            "hand-painted mottling of his vest, trousers and boots, a few painted tones and gentle "
-            "strokes, worn edges and weathering painted, not photographed; no fine photographic noise.")
+# --style=man (art, 2026-10-16, docs/briefs/match-the-man.md): painted in the men's hand, their sheet
+# sent as a second picture, instead of realistic and sharp. Since 2026-10-21 (roadmap 1.4a, Sean: "the
+# Studio's men are the style reference for every material") the sheet is the Character Studio's three
+# men (docs/concept/targets/9_studio_men.png, tools/textures/men_reference.py: the men in the game's
+# noon light and their own painted cloth); target 8 (the layered cowboy's model sheet) before.
+MAN = os.path.join(ROOT, "docs", "concept", "targets", "9_studio_men.png")
+MAN_HAND = ("Painted in the same hand as the second image, the game's characters: the painted cloth of "
+            "their vests, shirts, trousers and boots, a few close painted tones to a surface with soft "
+            "folds of light and dark, fine dry-brushed grain and wear at the same size as their cloth's "
+            "weave and creases, worn edges and weathering painted, not photographed; no photographic "
+            "noise, no sharp photographic detail.")
 
 
 def in_mans_hand(prompt):

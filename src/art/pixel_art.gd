@@ -89,6 +89,10 @@ static var lab := false
 ## Which lab set: "lab" (paint_woods.py, the first, squares) or "lab2" (grain_woods.py, the timber
 ## pass: 128 texels a metre, mipmapped, never coarsened, end grain on LabGeometry's ends).
 static var lab_set := "lab"
+## The material lab's candidate sets (roadmap 1.4a, tools/material_lab.gd --set=): assets/textures/
+## mlab_<name>/ with their own lab.json, laid on the world's texel grid as the game's woods are, so
+## a candidate and the baseline compare at the same density rules.
+const MLAB_PREFIX := "mlab_"
 ## The game's woods (Sean chose the material lab's final candidate C, 2026-10-15; docs/briefs/
 ## material-lab-timber.md): tools/textures/grain_woods.py --set=woods -> assets/textures/woods/,
 ## the woods its lab.json lists drawn from it whatever the look (timber, floor, the red and pale
@@ -183,8 +187,8 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		m.set_meta(&"texels", lab_density(tex.resource_path.get_file().get_basename()))
 		m.set_shader_parameter(&"edge_shade", LAB_EDGE_SHADE)
 		m.set_shader_parameter(&"edge_lip", LAB_EDGE_LIP)
-	elif tex and (tex.resource_path.contains("/textures/lab2/") or tex.resource_path.contains("/textures/lab3/")
-			or tex.resource_path.contains("/textures/lab4/") or tex.resource_path.contains("/textures/%s/" % WOODS_SET)):
+	elif tex and (tex.resource_path.contains("/textures/%s/" % WOODS_SET)
+			or not _set_woods(tex.resource_path.get_base_dir().get_file()).is_empty()):
 		# The timber pass (lab2) and its finish (lab3): fine texels, mipmapped (far off they
 		# average, not shimmer), never coarsened into squares, the edges a soft line, end grain
 		# where LabGeometry flags an end; lab3's painted woods worn to bare wood near board ends.
@@ -192,7 +196,7 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 		var dir := tex.resource_path.get_base_dir()
 		var set := dir.get_file()
 		m.set_shader_parameter(&"fixed_squares", true)
-		if set == WOODS_SET:
+		if set == WOODS_SET or set.begins_with(MLAB_PREFIX):
 			# The game's woods keep to the world's texel grid at a fixed multiple of it (128 a
 			# metre at the default 32), so F7's texel size and the mipmap setting move them too.
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
@@ -342,7 +346,9 @@ static func factory(key: String) -> Texture2D:
 		# A wood the lab set paints is all the lab's: no falling back to production's strips past
 		# the lab's last board (WoodMaterials counts strips until one is missing).
 		return null
-	if woods and not lab and not smooth and _set_woods(WOODS_SET).has(_wood_of(key)):
+	# The woods a lab set doesn't paint stay the game's (the material lab's stand: one wood under
+	# test, the rest as the game draws them).
+	if woods and not smooth and _set_woods(WOODS_SET).has(_wood_of(key)):
 		# The game's woods: likewise all theirs.
 		var wp := LAB_PATH % [WOODS_SET, key]
 		return load(wp) as Texture2D if ResourceLoader.exists(wp) else null

@@ -1,0 +1,61 @@
+{
+ "about": "The material lab's candidate sets (roadmap 1.4a; tools/material_lab.gd, tools/material_measure.py). Each set: the woods paint_woods.py --set=NAME paints from the game's strips with the Studio men's sheet as the style reference (docs/concept/targets/9_studio_men.png) into assets/textures/mlab_NAME/, at texels_per_metre; `boards` paints more boards than the game's wood has; `grade` scales a wood's lightness, contrast and chroma in L*a*b* when it is cut (no paid call); `ask` is added to the prompt. Nothing here is the game's until Sean approves a wood and it is moved into assets/textures/woods/.",
+ "sets": {
+  "studio1": {
+   "note": "The first pass at the Studio men (2026-10-21): every wood at 256 texels a metre (the men's clothes' detail is ~6 mm, the woods' at 128 is 14-34 mm), dark trim and framing given more boards (60% and 22% of their neighbours on Main Street repeat a strip).",
+   "texels_per_metre": 256,
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 6
+   },
+   "grade": {},
+   "ask": ""
+  },
+  "recut256": {
+   "note": "No paint: the game's own paintings (raw/woods_<wood>.jpg, Oct 16) cut again at 256 texels a metre instead of 128, to see what density alone does beside the men.",
+   "texels_per_metre": 256,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ]
+  },
+  "recut512": {
+   "note": "No paint: the game's own paintings cut again at 512 texels a metre (half their painted resolution).",
+   "texels_per_metre": 512,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ]
+  }
+ }
+}
