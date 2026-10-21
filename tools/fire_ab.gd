@@ -36,7 +36,8 @@ func _run() -> void:
 	settings.autosave = false
 	settings.internal_resolution = Vector2i(1280, 720)
 	var ffx: Variant = load("res://src/fire/fire_fx.gd")
-	var all: Array = load("res://tools/screenshots.gd").VIEWS
+	var shots: Variant = load("res://tools/screenshots.gd")
+	var all: Array = shots.VIEWS
 	for name in views:
 		var view: Array = []
 		for s in all:
@@ -56,9 +57,13 @@ func _run() -> void:
 			town.gang_arrives = 1e9
 		clock.set_physics_process(false)
 		clock.set_time(view[1])
-		player.global_position = view[2]
+		# Where tools/screenshots.gd puts the view (its _view_move: the buildings have moved since
+		# some views were written).
+		var move: Transform3D = shots._view_move(name)
+		var yaw0: float = view[3] + rad_to_deg(move.basis.get_euler().y)
+		player.global_position = move * (view[2] as Vector3)
 		player.velocity = Vector3.ZERO
-		player.rotation = Vector3(0.0, deg_to_rad(view[3]), 0.0)
+		player.rotation = Vector3(0.0, deg_to_rad(yaw0), 0.0)
 		player.input_enabled = true
 		player.add_look(Vector2(0.0, view[4] - player.get_pitch_degrees()))
 		player.input_enabled = false
@@ -72,13 +77,13 @@ func _run() -> void:
 		fire.set_physics_process(false)
 		for mode in ["sheets", "flipbooks"]:
 			ffx.flipbooks = mode == "flipbooks"
-			player.rotation = Vector3(0.0, deg_to_rad(view[3] + pan * 0.5), 0.0)
+			player.rotation = Vector3(0.0, deg_to_rad(yaw0 + pan * 0.5), 0.0)
 			# FireFX swaps a share of the members' sheets a frame (FireSystem._refresh_fx).
 			for i in 30:
 				fire._refresh_fx(1)
 				await process_frame
 			for f in frames:
-				player.rotation = Vector3(0.0, deg_to_rad(view[3] + pan * (0.5 - float(f) / frames)), 0.0)
+				player.rotation = Vector3(0.0, deg_to_rad(yaw0 + pan * (0.5 - float(f) / frames)), 0.0)
 				await process_frame
 				viewport.get_texture().get_image().save_png(out.path_join("%s_%s_%03d.png" % [name, mode, f]))
 		print("fire_ab: %s, %d frames each way" % [name, frames])
@@ -102,17 +107,30 @@ func _stage(main: Node, setup: String, player: Node3D) -> void:
 			fire.step(0.5)
 	elif setup == "saloon_fire":
 		var saloon = main.find_child("Saloon", true, false)
-		var yaw := deg_to_rad(35.0)
-		var aim := Vector3(10.0, 1.0, -18.3) + Vector3(-sin(yaw), 0.0, -cos(yaw)) * 6.0
+		var eye := player.global_position
+		var ahead := -player.global_basis.z
 		var lit := 0
 		for m in saloon.get_members():
-			if lit < 24 and m.global_position.distance_to(aim) < 3.5 and m.global_position.y < 2.2 and m.wood != &"glass":
+			if lit < 24 and _in_view(m.global_position, eye, ahead) and m.global_position.y < 2.2 and m.size.y > 0.25 and m.wood != &"glass":
 				fire.ignite(m)
 				lit += 1
 		# The player lifted out of reach while it burns (it would scorch him), then back.
 		var here := player.global_position
 		player.global_position = here + Vector3.UP * 40.0
-		for i in 180:
+		for i in 60:
 			fire.step(0.5)
 		player.global_position = here
+		# Nor does the fire scorch him while he looks (it reaches what's by him in half a minute):
+		# this FireSystem's own copy of the tuning, config/fire.tres untouched.
+		fire.tuning = fire.tuning.duplicate()
+		fire.tuning.scorch_rate = 0.0
+		fire.tuning.scorch_reach = 0.0
+	# Which members show flames (FireSystem does it every half second), and their looks.
+	fire._update_fx()
 	fire._refresh_fx(1)
+
+
+## Within 30 degrees of `ahead` from `eye`, 4 to 10 m off (the saloon fire's staging).
+func _in_view(p: Vector3, eye: Vector3, ahead: Vector3) -> bool:
+	var d := Vector3(p.x - eye.x, 0.0, p.z - eye.z)
+	return d.length() > 4.0 and d.length() < 10.0 and d.normalized().dot(ahead) > cos(deg_to_rad(30.0))

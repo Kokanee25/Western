@@ -315,6 +315,12 @@ frozen until Sean names one.
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
   Wear-down planned in the brief (after Gate A).
+- **Fire flipbooks** (2026-10-21, branch `claude/art-fire-flipbooks`, `docs/briefs/fire-look.md` "The
+  next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
+  bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
+  `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`). Waiting on Sean's A/B
+  (`docs/screenshots/fire/flipbooks_ab.mp4`). Next: firelight's look (step 5), then the painted pass
+  after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

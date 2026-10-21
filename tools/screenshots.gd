@@ -113,7 +113,7 @@ const STORE_VIEWS := ["store_front_noon", "porch_dusk", "inside_store_afternoon"
 	"store_fire_later", "gun_at_wall", "gun_at_wall_aim", "dynamite_store_blast", "dynamite_store_after",
 	"texel_porch", "texel_store_golden", "town_holdup", "man_store_golden"]
 const SALOON_VIEWS := ["gun_smoke_saloon", "saloon_front_dusk", "saloon_night", "saloon_back_wall_night",
-	"saloon_toward_door_night", "shotgun_shot_saloon", "town_bar", "man_saloon_night"]
+	"saloon_toward_door_night", "shotgun_shot_saloon", "town_bar", "man_saloon_night", "saloon_fire_inside"]
 const RANGE_VIEWS := ["gun_hip_range", "gun_aim_range", "gun_loading", "smoke_drift_street", "outlaw_range", "outlaw_close",
 	"outlaw_fight", "outlaw_surrender", "outlaw_down", "outlaw_graze", "outlaw_open", "outlaw_open_close", "outlaw_open_reduced",
 	"outlaw_neck", "outlaw_xray", "outlaw_face", "outlaw_face_evening", "outlaw_side", "outlaw_back", "shotgun_hip_range",
@@ -466,23 +466,30 @@ func _run() -> void:
 			for i in 90:
 				await physics_frame
 		if setup == "saloon_fire":
-			# What's ahead of the camera (six metres along its heading) catches, low down.
+			# What's in front of the camera (within 30 degrees of its heading, 4 to 10 m off) catches,
+			# low down and standing (not the floor: it spreads under the player), and burns half a
+			# minute: grown, and the bar and tables not yet ash.
 			var saloon = main.find_child("Saloon", true, false)
 			var fire = main.find_child("FireSystem", true, false)
-			var yaw := deg_to_rad(35.0)
-			var aim := Vector3(10.0, 1.0, -18.3) + Vector3(-sin(yaw), 0.0, -cos(yaw)) * 6.0
+			var eye: Vector3 = player.global_position
+			var ahead: Vector3 = -player.global_basis.z
 			var lit := 0
 			for m in saloon.get_members():
-				if lit < 24 and m.global_position.distance_to(aim) < 3.5 and m.global_position.y < 2.2 and m.wood != &"glass":
+				if lit < 24 and _in_view(m.global_position, eye, ahead) and m.global_position.y < 2.2 and m.size.y > 0.25 and m.wood != &"glass":
 					fire.ignite(m)
 					lit += 1
 			# The player lifted out of reach while it burns (the fire would scorch him and he'd wake
 			# at the doctor's), then back.
 			var here: Vector3 = player.global_position
 			player.global_position = here + Vector3.UP * 40.0
-			for i in 180:
+			for i in 60:
 				fire.step(0.5)
 			player.global_position = here
+			# Nor does the fire scorch him while he looks (it reaches what's by him in half a minute):
+			# this FireSystem's own copy of the tuning, config/fire.tres untouched.
+			fire.tuning = fire.tuning.duplicate()
+			fire.tuning.scorch_rate = 0.0
+			fire.tuning.scorch_reach = 0.0
 			for i in 90:
 				await physics_frame
 		if setup == "porch_collapse":
@@ -1092,3 +1099,9 @@ func _calm(town_life, player) -> void:
 		w.physiology = load("res://src/bodies/physiology.gd").new(null, w.anatomy)
 		w.wounds.clear()
 		w.out_cold = 0.0
+
+
+## Within 30 degrees of `ahead` from `eye`, 4 to 10 m off (the saloon fire's staging).
+func _in_view(p: Vector3, eye: Vector3, ahead: Vector3) -> bool:
+	var d := Vector3(p.x - eye.x, 0.0, p.z - eye.z)
+	return d.length() > 4.0 and d.length() < 10.0 and d.normalized().dot(ahead) > cos(deg_to_rad(30.0))
