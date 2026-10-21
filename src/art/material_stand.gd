@@ -228,11 +228,26 @@ func _frame() -> void:
 ## ends, radius in the middle, how far the middle of its top is worn down] in metres; zero: square.
 func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, length: float, width: float, thickness: float,
 		across := Vector3.ZERO, wear := Vector3.ZERO) -> void:
-	var wood := wood_for(part)
 	along = along.normalized()
 	thick = thick.normalized()
 	if across == Vector3.ZERO:
 		across = thick.cross(along).normalized()
+	var took := _take(part, Vector3(length, width, thickness))
+	var tools: Dictionary = _tools[part]
+	var pick: int = took[0]
+	var u0: float = took[1]
+	if wear == Vector3.ZERO:
+		_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
+	else:
+		_worn_box(tools[pick], centre, along * length, across * width, thick * thickness, u0, wear)
+	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+
+
+## A board's strip and its place along it (neither of the last two boards in its part took that
+## strip), recorded for the lab's numbers, its part's SurfaceTool for that strip made ready, and its
+## weathering frame set: [strip, u0].
+func _take(part: StringName, size: Vector3) -> Array:
+	var wood := wood_for(part)
 	var strips := maxi(WoodMaterials.strip_count(wood), 1)
 	var prev: Array = _last.get(part, [])
 	var pick := _rng.randi_range(0, strips - 1)
@@ -248,7 +263,7 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 	var u0 := _rng.randf_range(0.0, 1.99)
 	if not boards.has(wood):
 		boards[wood] = []
-	boards[wood].append({"part": part, "size": Vector3(length, width, thickness), "strip": pick})
+	boards[wood].append({"part": part, "size": size, "strip": pick})
 	if not _tools.has(part):
 		_tools[part] = {}
 	var tools: Dictionary = _tools[part]
@@ -266,12 +281,63 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 		_frame_of = Color(w[0], w[1], w[2], 0.0)
 		if part == &"siding" or part == &"siding_low":
 			_nails_of = Color(NAILS[0], NAILS[1], NAILS[2], NAILS[3])
-	if wear == Vector3.ZERO:
-		_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
-	else:
-		_worn_box(tools[pick], centre, along * length, across * width, thick * thickness, u0, wear)
-	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+	return [pick, u0]
 
+
+## A board run to a profile (Profiles: its cross-section, x along `across`, y along `up`), `length`
+## along `along` and centred at `centre`: each run of the profile a long face (smooth within the
+## run, v round it), the two cut ends the profile's shape in end grain. Its collision a box round
+## the profile.
+func _profiled(part: StringName, centre: Vector3, along: Vector3, across: Vector3, up: Vector3, length: float, runs: Array) -> void:
+	along = along.normalized()
+	across = across.normalized()
+	up = up.normalized()
+	var sz := Profiles.size_of(runs)
+	var took := _take(part, Vector3(length, sz.x, sz.y))
+	var st: SurfaceTool = _tools[part][took[0]]
+	var u0: float = took[1]
+	var flag := Color(0.0, 0.0, u0 * 0.5, 1.0)
+	var endf := Color(1.0, 0.0, 0.0, 1.0)
+	var at := func(x: float, q: Vector2) -> Vector3: return centre + along * x + across * q.x + up * q.y
+	var n3 := func(q: Vector2) -> Vector3: return (across * q.x + up * q.y).normalized()
+	for run in runs:
+		var r: PackedVector2Array = run
+		var segs := PackedVector2Array()
+		for i in r.size() - 1:
+			var d := r[i + 1] - r[i]
+			segs.append(Vector2(d.y, -d.x).normalized())
+		var norms := []
+		for i in r.size():
+			var a := segs[maxi(i - 1, 0)]
+			var b := segs[mini(i, segs.size() - 1)]
+			norms.append(n3.call((a + b).normalized()))
+		var total := 0.0
+		for i in r.size() - 1:
+			total += r[i].distance_to(r[i + 1])
+		var v := 0.0
+		for i in r.size() - 1:
+			var v1 := v + r[i].distance_to(r[i + 1])
+			var x0 := -length * 0.5
+			var x1 := length * 0.5
+			var p00: Vector3 = at.call(x0, r[i])
+			var p10: Vector3 = at.call(x1, r[i])
+			var p01: Vector3 = at.call(x0, r[i + 1])
+			var p11: Vector3 = at.call(x1, r[i + 1])
+			var size := Vector2(length, total)
+			_tri(st, [p00, p10, p11], [norms[i], norms[i], norms[i + 1]], [Vector2(u0, v), Vector2(u0 + length, v), Vector2(u0 + length, v1)], size, flag)
+			_tri(st, [p00, p11, p01], [norms[i], norms[i + 1], norms[i + 1]], [Vector2(u0, v), Vector2(u0 + length, v1), Vector2(u0, v1)], size, flag)
+			v = v1
+	var ring := Profiles.outline(runs)
+	var idx := Geometry2D.triangulate_polygon(ring)
+	var half := sz * 0.5
+	for e in [[-length * 0.5, -along], [length * 0.5, along]]:
+		var ex: float = e[0]
+		var en: Vector3 = e[1]
+		for k in range(0, idx.size(), 3):
+			var q := [ring[idx[k]], ring[idx[k + 1]], ring[idx[k + 2]]]
+			_tri(st, [at.call(ex, q[0]), at.call(ex, q[1]), at.call(ex, q[2])], [en, en, en],
+					[q[0] + half, q[1] + half, q[2] + half], sz, endf)
+	_solid_box(part, centre, along, across, up, Vector3(length, sz.x, sz.y))
 
 ## A collision box for a board (when `solid` and its part is one of `solid_parts`): axes along,
 ## across and thick, sized length, width and thickness.

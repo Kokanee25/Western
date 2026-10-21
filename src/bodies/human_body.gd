@@ -150,6 +150,9 @@ const MASS_SHARE := {
 @export var hat_color := Color(0.18, 0.14, 0.11)
 ## Alpha 0 = no bandana.
 @export var bandana_color := Color(0.55, 0.12, 0.1)
+## His bandana pulled up over his nose and mouth (a Studio man's `cloth_bandana_mask`,
+## tools/faces/bandana.py), in place of the one at his neck.
+@export var masked := false
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
@@ -191,7 +194,7 @@ var gun_holstered := false
 const DRAW_TIME := 0.5
 ## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
 ## whose faces point inward).
-const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
@@ -576,7 +579,7 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0,
-			"hair": look.get("hair_long", false)}
+			"hair": look.get("hair_long", false), "mask": masked}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	if data.has("skin_tone"):
 		skin_tone = data.skin_tone

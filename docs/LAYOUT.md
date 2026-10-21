@@ -661,6 +661,16 @@ a few views renders them as the full run does.
   The cut's board grading (`grade`/`grade_all`: `unify`, `unify_L`, `rows`, `highs`, `calm`,
   `seams`; `paint_woods.board_grade`). The lab's sets draw seams a pixel wide (`edge_aa`, the lap's
   butt a dark line); the game's woods don't until Sean picks.
+  **The interior woodwork** (Sean's saloon picture, `docs/concept/targets/10_saloon_interior.png`;
+  brief `docs/briefs/interior-woodwork.md`): `Profiles` (`src/art/profiles.gd`: cross-sections as
+  data, runs of points smooth within a run: `rect`, `chamfered`, `rounded`, `bar_top`, `handrail`,
+  `ogee`, `beaded`), `MaterialStand._profiled` (a profile run along a board, end grain on its ends)
+  and `_take` (every board's strip pick); `InteriorStand` (`--material=interior`, or
+  `interior_square` with every piece a box): wainscot with raised panels (`_panel`), casings, the bar
+  and back bar, chamfered posts with brackets (`_cut`: a board cut to an outline), the gallery's
+  joists, deck and balustrade (the oak stair's newels and balusters, a moulded handrail); its own
+  views, men and lamps. The interior stain: set `studio_int` (`grade_all.target`: one L*a*b* for
+  every wood).
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
