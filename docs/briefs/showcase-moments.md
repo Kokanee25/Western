@@ -80,6 +80,11 @@ a script:
   songs, for instance), played from note data on a piano sound under a licence that allows
   redistribution and credited in `CREDITS.md`, cut into phrases so he can stop anywhere and pick
   up again. No commercial recordings.
+- **Favourites and hated songs (Sean):** each tune is known in town, and people have opinions:
+  the room's favourite gets them singing along and banging the table; the one they all hate gets
+  boos, a thrown peanut, "Not that one again, Earl!". Opinions are per person, as everything else
+  is: one old man loves the song the rest boo. The player can request a song (and tip him), pay him
+  to stop, or pick the hated one on purpose to start trouble. Played often, a favourite wears thin.
 - **Needs:** perception (what he notices), the escalation ladder, sound placed in the room, the
   piano as a prop, a seated man who can duck (the furniture work).
 
