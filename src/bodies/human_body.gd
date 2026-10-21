@@ -1797,7 +1797,7 @@ func _heal(game_dt: float) -> void:
 			continue
 		for hole: Variant in [w.entry, w.exit]:
 			if hole != null:
-				var line := w.kind == &"slash" or w.kind == &"cut" or w.kind == &"graze"
+				var line: bool = w.kind == &"slash" or w.kind == &"cut" or w.kind == &"graze"
 				var scar := _decal(vis, w.segment, hole, 0.035, PixelArt.blood("scar_line" if line else "scar", 87, false, 32))
 				scar.name = "Scar"
 				if line and w.get("stop") != null:
