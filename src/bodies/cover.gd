@@ -359,7 +359,7 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 
 ## The floor under a point, a step up to a porch's height above it or below it (null if none).
 static func _floor_under(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
-	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * LEVELS, p + Vector3.DOWN * LEVELS, Layers.WORLD)
+	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * LEVELS, p + Vector3.DOWN * LEVELS, Layers.STAND)
 	q.exclude = exclude
 	var hit := space.intersect_ray(q)
 	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:

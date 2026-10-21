@@ -64,7 +64,7 @@ Paid painting runs on Actions (openrouter.ai is blocked from the workspace): Peo
 `textures = mlab:NAME`; the set's `budget` stops it short. Renders stay out of git (`build/` or a
 scratch folder); sheets and the critic's crops go in `docs/screenshots/material_lab/<date>/`.
 The sets in git: studio1-5 (painted). Remade with no calls and ignored: recut256/512, fit512,
-studio1_384, studio5w, studio6, studio6p (`--cut`; their stain sheets in `assets/textures/weather/`).
+studio1_384, studio5w, studio6, studio6p, studio7, studio8 (`--cut`; their stain sheets in `assets/textures/weather/`).
 
 ## The tests and how each is judged
 
@@ -169,6 +169,32 @@ knots and cracks, a sandy speckle on the dark trim post). Measures (L* and C* in
 range, 24 wood-and-light cells): studio5 9, studio5w 10, studio6 12, studio6p 12; the detail
 measure as round 2. Stand cost unchanged (49 draws, 876 triangles); the sheet adds 1.4 MB a set.
 
+**Round 4** (2026-10-21, free; set studio7, round 3's studio6 changed; sheets `round4_sheets/`: A
+studio5, B studio6, C studio7): the stains darker than the board (`weathering.multiply`: mud
+multiplies the board down, grime stronger), bleach only on what faces the sky (`bleach_walls` 0),
+dark trim's speckle and timber's cracks calmed in the cut (`calm`), less sheen (`specular` 0.08).
+The blind critic (`critic_round4.md`, 24 crops): round 2 clean 0 SAME / 2 CLOSE / 6 DIFFERENT,
+round 3 1 / 6 / 1, **round 4 1 / 7 / 0: no wood DIFFERENT** (saloon red DIFFERENT -> CLOSE; the
+deck SAME). The colour measure: 13 of 24 cells (round 3 12, round 2 9). What's left: "pale cloud
+stains" on the low wall at golden hour, which are the low siding's own paler cream boards showing
+between the mud (figure and ground swapped: at noon the mud reads as dark dirt shapes); fine
+photographic grain and knots on posts and beams; dark stains on beam ends and step faces read as
+airbrushed blots; the wood brighter and more orange than the men at golden hour (the dark decks
+match).
+
+**Round 5** (2026-10-21, free; set studio8, round 4's changed; sheets `round5_sheets/`: A studio6,
+B studio7, C studio8): the low siding graded to its wall's palette (`match`: round 4's "pale clouds"
+were the low boards' paler cream between the mud), the mud capped short of covering the foot
+(`weathering.mud_cover` 0.7), timber and fascia's dark blots lifted (`lows`) and their grain calmed,
+every wood's chroma down 12%. The blind critic (`critic_round5.md`, 24 crops; a harsher pass than
+round 4's, so compare within it): round 3 0 SAME / 7 CLOSE / 1 DIFFERENT, round 4 0 / 6 / 2,
+**round 5 2 / 4 / 2** (timber and the deck SAME). Still DIFFERENT: weathered pine in every round
+("photographic knotty pine": crisp concentric knots) and the fascia steps in rounds 4 and 5
+(lacquered, a dark blotch like a scorch). Its new top finding: **the men's light falls in
+hard-edged painted bands, the wood's in smooth gradients** (a shading difference, not the
+texture); then photographic figure, pale bleach reading as glare, the steps' gloss. Colour measure
+13 of 24 (round 4 13).
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
@@ -202,11 +228,16 @@ end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 
 1. ~~Round 2's verdict~~ (done 2026-10-21, above): store boards round 2 SAME; the rest mixed.
 2. ~~Round 3, the weathering layer~~ (done 2026-10-21, above): the layer and the grading lift every
    stripy wood to CLOSE or SAME; the stains read as light, not dirt.
-3. **Round 4, free:** the stains darker than the wood they're on (mud and grime multiplied down, not
-   laid over in a dusty tan), the bleach on sky-facing faces only (on walls it's what reads as
-   dappled light), and the speckle on dark trim and the posts' cracks calmed (`calm` on those two).
-   No paint needed: the painted sheet's mud and the free one score alike; a better painted sheet
-   would need panels painted one at a time (the four-panel ask gave dots and spatter for two).
+3. ~~Round 4~~ (done 2026-10-21, above): no wood DIFFERENT.
+   ~~Round 5~~ (done 2026-10-21, above): timber and the deck SAME.
+   **Round 6** (proposed to Sean): the wood's light banded as the men's is (texel_grid's `BLOCKS`
+   light already bands per light: on the woods only, the bands matched to the men's), weathered
+   pine's knots calmed hard (or repainted alone, with Sean's OK), the fascia's blotch lifted and its
+   sheen down; and **the interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
+   stain for interior woodwork (the picture's timbers measure L* ~20 median, 5-10 in shadow, 35-60
+   lamplit, C* ~20-30, hue ~45, one family) and a profile builder (chamfers, beads, mouldings,
+   casings, raised panels, brackets, from `_worn_box`), judged under the saloon's lamps against
+   crops of his picture, for the saloon session to build with.
 4. **Sean's picks.** A wood he approves moves into `assets/textures/woods/` (its `lab.json`
    entry, 384 a metre) with a `material_<wood>` golden view in `tools/screenshots.gd`, the goldens
    re-approved in the same merge, the judge and the blind critic as for any art merge; the woods

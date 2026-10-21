@@ -65,7 +65,7 @@ def main():
     os.makedirs(out, exist_ok=True)
     render = arg("render") is not None
     extra = [a for a in sys.argv[1:] if a.split("=")[0] in
-             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds", "--follow", "--cam-dist", "--mocap", "--old-flinch")]
+             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds", "--follow", "--cam-dist", "--mocap", "--old-flinch", "--friction", "--friction-ends", "--surface-friction", "--jitter")]
     if arg("scenario") == "list":
         for s in scenarios():
             print("%-24s %s  %s" % (s["name"], s["group"], s["fixture"]))

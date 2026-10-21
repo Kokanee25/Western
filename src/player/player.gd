@@ -39,7 +39,7 @@ var _capsule: CapsuleShape3D
 
 func _ready() -> void:
 	add_to_group(&"player")
-	collision_mask |= Layers.PEOPLE
+	collision_mask |= Layers.PEOPLE | Layers.WALK
 	wounds = PlayerWounds.new()
 	wounds.name = "Wounds"
 	add_child(wounds)

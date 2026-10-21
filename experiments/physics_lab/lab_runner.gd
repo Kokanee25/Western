@@ -32,6 +32,15 @@ var mocap := false
 var old_flinch := false
 var _follow_cams: Array = []  ## [Camera3D, offset, up, where it looks]
 var model := &"outlaw"
+## --friction / --friction-ends: his parts' friction once he's limp (HumanBody gives 0.9); < 0 keeps it.
+var friction := -1.0
+var friction_ends := -1.0
+## --surface-friction: every fixture body's friction but the ground's (a stair's oak, a rail, the
+## props; the world has none, so 1.0). Jolt takes the lower of the two surfaces' frictions.
+var surface_friction := -1.0
+## --jitter=N: his start moved by up to 2 cm and turned by up to 3 deg, drawn from N (0: none), so a
+## chaotic fall can be run several times and its spread compared rather than one sample.
+var jitter := 0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -56,6 +65,8 @@ var _flags := {}
 var _cams: Array = []
 var _viewports: Array = []
 var _start_xf := Transform3D.IDENTITY
+var _saloon: SaloonBuilding  ## the "saloon_game" fixture
+var _seen := {}  ## view -> [sum of shares, least share, samples, samples under half]
 var _speed_before := Vector3.ZERO
 var _com_v_now := Vector3.ZERO
 var _peak := {"penetration": 0.0, "self_overlap": 0.0, "joint_gap": 0.0, "speed": 0.0, "up": 0.0}
@@ -84,13 +95,35 @@ func _ready() -> void:
 	process_physics_priority = -100
 	HumanBody.mocap_gait = mocap
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
+	# stop instead, so a run never claims a man it didn't use.
+	if model != &"outlaw" and not PeopleBodies.has_model(model):
+		push_error("lab: body model %s isn't imported (run godot --headless --import)" % model)
+		done = true
+		get_tree().quit(2)
+		return
 	_world = Node3D.new()
 	_world.name = "LabWorld"
 	add_child(_world)
 	_build_fixture(String(scenario.get("fixture", "ground")))
+	Events.member_broken.connect(func(id: StringName) -> void:
+		_events.append({"tick": _tick, "kind": "member_broken", "member": String(id), "source": "the structure (BodyImpacts, a blow, a fall)"}))
+	if surface_friction >= 0.0:
+		var pm := PhysicsMaterial.new()
+		pm.friction = surface_friction
+		var ground := _world.get_child(0)  # the ground, or the slope (dirt either way)
+		for n: Node in _world.find_children("*", "StaticBody3D", true, false):
+			if n != ground:
+				(n as StaticBody3D).physics_material_override = pm
 	_light()
 	var yaw := deg_to_rad(float(scenario.get("yaw", 0.0)))
-	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point())
+	var nudge := Vector3.ZERO
+	if jitter > 0:
+		var r := RandomNumberGenerator.new()
+		r.seed = jitter
+		nudge = Vector3(r.randf_range(-0.02, 0.02), 0.0, r.randf_range(-0.02, 0.02))
+		yaw += deg_to_rad(r.randf_range(-3.0, 3.0))
+	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point() + nudge)
 	count = maxi(count, int(scenario.get("men", 1)))
 	for i in count:
 		var man := HumanBody.new()
@@ -118,18 +151,66 @@ func _ready() -> void:
 
 
 func _start_point() -> Vector3:
+	# "spot": a named place in the game's saloon (SaloonDressing's stair and balcony).
+	if scenario.has("spot") and _saloon:
+		return _saloon_spot(String(scenario.spot))
+	# "start": where he stands, in the fixture's space (the oak stair, the railing's deck).
+	if scenario.has("start"):
+		var at: Array = scenario.start
+		return Vector3(at[0], at[1], at[2])
 	match String(scenario.get("fixture", "ground")):
 		"slope":
 			return Vector3(0, _slope_y(0.0), 0)
 		"stairs":
 			return Vector3(0, STAIR_TOP, 0)
+		"flight", "balcony":
+			return Vector3(0, FLIGHT_TOP, 0)
+		"oak_stair":
+			# "start" (the stair's own space: the flight rising along +Z, its open side at x 0).
+			var st: Array = scenario.get("start", [0.575, 0.0, -0.6])
+			return Vector3(st[0], st[1], st[2])
+		"balcony_back":
+			return Vector3(0, FLIGHT_TOP, 2.6)
+		"porch", "porch_steps":
+			return Vector3(0, PORCH_TOP, 0)
 	return Vector3.ZERO
 
 
 # --- Fixtures ------------------------------------------------------------------------------------
 
+## A place on the saloon's stair or balcony (SaloonDressing: 12 risers of 2.3/12 on 0.22 treads up
+## the front wall along +x to the balcony's edge at BALCONY_X; the balcony's room-side rail along
+## x at BALCONY_Z): "stair_top" (on the balcony at the stair's head), "stair_mid" (the sixth tread),
+## "balcony_rail" (0.45 back from the room-side rail, at its middle).
+func _saloon_spot(spot: String) -> Vector3:
+	var f := _saloon.floor_top
+	var rise := SaloonDressing.BALCONY_HEIGHT / SaloonDressing.RISERS
+	var x_bottom := SaloonDressing.BALCONY_X - (SaloonDressing.RISERS - 1) * SaloonDressing.TREAD
+	var z_mid := FalseFrontBuilding.STUD_D + SaloonDressing.STAIR_WIDTH * 0.5
+	match spot:
+		"stair_top":
+			return Vector3(SaloonDressing.BALCONY_X + 0.22, f + SaloonDressing.BALCONY_HEIGHT, z_mid)
+		"stair_mid":
+			return Vector3(x_bottom + 5.0 * SaloonDressing.TREAD, f + 6.0 * rise, z_mid)
+		"balcony_rail":
+			var x1 := _saloon.width - FalseFrontBuilding.STUD_D
+			return Vector3((SaloonDressing.BALCONY_X + x1) * 0.5, f + SaloonDressing.BALCONY_HEIGHT, SaloonDressing.BALCONY_Z - 0.03 - 0.45)
+	push_error("lab: no saloon spot %s" % spot)
+	return Vector3.ZERO
+
 const SLOPE_DEG := 20.0
 const STAIR_TOP := 0.72  ## four risers of 18 cm, treads 28 cm, going down ahead of him (-z)
+## The game's own (2026-10-21): the saloon's stair, 12 risers up to its balcony at 2.3 m, treads
+## 0.22, 0.9 wide (SaloonDressing), and the balcony's rail, 0.95 high, balusters every 0.15; a
+## boardwalk 0.38 up with no rail, its steps 0.19 x 0.3 (Boardwalk); the hitching rail
+## (HitchingRail, members); the saloon's props (PropLibrary: a card table, chairs, a barrel); the
+## bar, 1.08 high and 0.7 deep (SaloonBuilding); crates 0.6 (PropModels.crate's box).
+const FLIGHT_TOP := 2.3
+const FLIGHT_RISERS := 12
+const FLIGHT_TREAD := 0.22
+const FLIGHT_WIDTH := 0.9
+const RAIL_HEIGHT := 0.95
+const PORCH_TOP := 0.38
 
 
 func _slope_y(z: float) -> float:
@@ -193,12 +274,86 @@ func _build_fixture(kind: String) -> void:
 			_table(Vector3(-0.85, 0, 0))
 		"chair":
 			_chair(Vector3(0, 0, 0.5))
+		"flight":
+			# The landing he stands on, its edge 15 cm ahead of him; the flight going down ahead.
+			_box(Vector3(0, FLIGHT_TOP * 0.5, 1.4), Vector3(3, FLIGHT_TOP, 3.1))
+			var rise := FLIGHT_TOP / FLIGHT_RISERS
+			for i in FLIGHT_RISERS - 1:
+				var top := FLIGHT_TOP - rise * (i + 1)
+				_box(Vector3(0, top * 0.5, -0.15 - FLIGHT_TREAD * (i + 0.5)), Vector3(FLIGHT_WIDTH, top, FLIGHT_TREAD))
+		"balcony", "balcony_back":
+			# The balcony floor, the rail 0.45 ahead of where he stands, the street 2.3 below it.
+			_box(Vector3(0, FLIGHT_TOP - 0.05, 1.3), Vector3(4, 0.1, 3.5))
+			_rail(Vector3(-2.0, FLIGHT_TOP, -0.45), 4.0)
+		"porch", "porch_steps":
+			# A boardwalk 0.38 up, its edge 0.3 ahead of him, no rail; with steps down from it.
+			_box(Vector3(0, PORCH_TOP * 0.5, 1.35), Vector3(4, PORCH_TOP, 3.3))
+			if kind == "porch_steps":
+				# Two risers of 0.19: one step between the boardwalk and the street.
+				_box(Vector3(0, 0.095, -0.45), Vector3(1.8, 0.19, 0.3))
+		"oak_stair":
+			# The hotel's oak stair (art's OakStair, src/art/oak_stair.gd: 13 risers of 0.19 on a
+			# 0.27 going to a landing at 2.47, 1.15 wide, a 0.9 rail on the flight and 1.0 on the
+			# landing, a walkway off it railed at 1.0), as the art session builds it, collision and all
+			# (none of the lab's own; #172), on its own without the lobby.
+			var stand = load("res://src/art/oak_stair.gd").new()
+			stand.solid = true
+			stand.room = false
+			_world.add_child(stand)
+			stand.build()
+		"hitch":
+			# The game's hitching rail (HitchingRail: two posts, its rail's top at 1.14), 0.8 ahead
+			# of him and across his way. (Until 2026-10-21 it stood in "oak_stair" by mistake,
+			# behind the man at the stair's foot, and the hitch falls had none.)
+			var hr := HitchingRail.new()
+			hr.structure_id = &"lab_hitch"
+			_world.add_child(hr)
+			hr.global_position = Vector3(-1.2, 0, -0.8)
+		"saloon_game":
+			# The game's own saloon (SaloonBuilding: its stair of members up the front wall and its
+			# balcony's rail of trim, which a body thrown into it breaks), its floor at floor_top.
+			_saloon = SaloonBuilding.new()
+			_saloon.structure_id = &"saloon"
+			_world.add_child(_saloon)
+		"rail_break":
+			# A breakable 1 m railing over a 2.47 m drop, of the game's members (lab_railing.gd).
+			var rail = load(LAB_DIR + "lab_railing.gd").new()
+			rail.structure_id = &"lab_rail"
+			_world.add_child(rail)
+		"saloon":
+			_prop(&"card_table", Vector3(0, 0, -1.0))
+			_prop(&"chair", Vector3(-0.85, 0, -1.0), 90.0)
+			_prop(&"chair", Vector3(0.85, 0, -1.0), -90.0)
+			_prop(&"chair", Vector3(0.1, 0, 0.6), 180.0)
+			_prop(&"barrel", Vector3(0.9, 0, 0.3))
+		"bar_front":
+			_box(Vector3(0, 0.54, -0.8), Vector3(3.0, 1.08, 0.7), Color(0.38, 0.25, 0.15))
+		"bar_side":
+			_box(Vector3(0.75, 0.54, 0), Vector3(0.7, 1.08, 3.0), Color(0.38, 0.25, 0.15))
+		"crates":
+			for c: Vector3 in [Vector3(-0.3, 0.3, -0.75), Vector3(0.3, 0.3, -0.75), Vector3(0.0, 0.9, -0.75)]:
+				_box(c, Vector3(0.6, 0.6, 0.6), Color(0.55, 0.42, 0.28))
 		"seat", "seat_table":
 			# A fixed seat under him (production's chairs and benches are static props) and, for
 			# seat_table, a table before him: he sits (pre "pose": "sit") and goes down off it.
 			_box(Vector3(0, 0.22, 0.05), Vector3(0.45, 0.44, 0.45), Color(0.4, 0.27, 0.17))
 			if kind == "seat_table":
 				_table(Vector3(0, 0, -0.75))
+
+
+## The balcony's rail as the game builds it: balusters every 0.15 and a cap rail on top, along +x.
+func _rail(from: Vector3, length: float) -> void:
+	var n := int(length / 0.15)
+	for i in n + 1:
+		_box(from + Vector3(0.15 * i, (RAIL_HEIGHT - 0.05) * 0.5, 0), Vector3(0.035, RAIL_HEIGHT - 0.05, 0.035), Color(0.42, 0.3, 0.2))
+	_box(from + Vector3(length * 0.5, RAIL_HEIGHT - 0.025, 0), Vector3(length, 0.05, 0.08), Color(0.42, 0.3, 0.2))
+
+
+## One of the game's props (PropLibrary.spawn: its model and its box), at `at`, turned `yaw` degrees.
+func _prop(id: StringName, at: Vector3, yaw := 0.0) -> void:
+	var p := PropLibrary.spawn(id)
+	_world.add_child(p)
+	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 
 
 func _table(at: Vector3) -> void:
@@ -255,12 +410,31 @@ func _focus() -> Vector3:
 	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * float(scenario.get("focus_y", 0.5))
 
 
+## The lab's camera directions in his frame (x his right, z behind him): front, his right
+## ("side"), the three-quarter between them, and their mirrors; "top" looks straight down.
+const VIEW_DIRS := {
+	"front": Vector2(0, -1), "side": Vector2(1, 0), "three": Vector2(1, -1), "left": Vector2(-1, 0),
+	"three_left": Vector2(-1, -1), "back": Vector2(0, 1), "back_right": Vector2(1, 1), "back_left": Vector2(-1, 1),
+}
+
+
+## Where a view's camera sits from the point it looks at, and its up: "cam_up" (m above the
+## focus, default 0.3) and "cam_dist" (default --cam-dist) are a scenario's own, for a fixture
+## that would stand between the camera and him (a rail, the bar).
+func _view_offset(v: String, up := -1.0) -> Array:
+	var b := _start_xf.basis
+	var dd := float(scenario.get("cam_dist", cam_distance))
+	if v == "top":
+		return [Vector3.UP * dd * 1.2 + b.z * 0.01, -b.z]
+	var d: Vector2 = VIEW_DIRS.get(v, VIEW_DIRS.front)
+	var flat := (b.x * d.x + b.z * d.y).normalized() * dd
+	return [flat + Vector3.UP * (up if up >= 0.0 else float(scenario.get("cam_up", 0.3))), Vector3.UP]
+
+
 func _build_cameras() -> void:
 	var f := _focus()
-	var b := _start_xf.basis
-	var dd := cam_distance
-	var at := {"front": -b.z * dd, "side": b.x * dd, "three": (-b.z + b.x).normalized() * dd, "top": Vector3.UP * dd * 1.2 + b.z * 0.01}
-	for v: String in views:
+	# A scenario's own "views" when the usual ones would look through the fixture (the walkway).
+	for v: String in scenario.get("views", views):
 		var sv := SubViewport.new()
 		sv.size = view_size
 		sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -268,12 +442,54 @@ func _build_cameras() -> void:
 		var cam := Camera3D.new()
 		cam.fov = 50.0
 		sv.add_child(cam)
-		var off: Vector3 = at.get(v, at.front)
-		cam.look_at_from_position(f + off + Vector3.UP * (0.3 if v != "top" else 0.0), f, Vector3.UP if v != "top" else -b.z)
+		var ou: Array = _view_offset(v.get_slice("^", 0), float(v.get_slice("^", 1)) if "^" in v else -1.0)
+		cam.look_at_from_position(f + ou[0], f, ou[1])
 		cam.current = true
-		_follow_cams.append([cam, off + Vector3.UP * (0.3 if v != "top" else 0.0), Vector3.UP if v != "top" else -b.z, f])
+		_follow_cams.append([cam, ou[0], ou[1], f])
 		_viewports.append([v, sv])
 		DirAccess.make_dir_recursive_absolute(out_dir.path_join("frames").path_join(v))
+
+
+## How much of him each view sees (every view, rendered or not): a ray from the camera to each
+## part's centre, blocked if the world (a rail, the bar, a step) is hit first. Every 6 ticks from
+## the hit to the end; in the summary as "seen": a view's mean and least share of his parts in
+## sight, and the share of samples with under half of him seen. A part counts only inside the
+## camera's frame (50 deg high, 4:3). "front^1.5" is the view from 1.5 m above the focus, as a
+## scenario's "views" can name it.
+func _sample_seen() -> void:
+	var space := get_world_3d().direct_space_state
+	var f := _focus()
+	var man := _men[0]
+	var keys: Array = ["top"]
+	for v: String in VIEW_DIRS:
+		keys.append_array([v, v + "^1.5", v + "^3.0"])
+	for key: String in keys:
+		var v := key.get_slice("^", 0)
+		var up := float(key.get_slice("^", 1)) if "^" in key else -1.0
+		var ou: Array = _view_offset(v, up)
+		var eye: Vector3 = f + (ou[0] as Vector3)
+		var look := Transform3D.IDENTITY.looking_at(f - eye, ou[1])
+		var half_v := tan(deg_to_rad(25.0))
+		var half_h := half_v * 4.0 / 3.0
+		var seen := 0
+		var n := 0
+		for sid: StringName in man.parts:
+			var part := man.parts[sid] as Node3D
+			if not is_instance_valid(part):
+				continue
+			n += 1
+			var c := look.basis.inverse() * (part.global_position - eye)  # camera space: -z ahead
+			if c.z > -0.05 or absf(c.x / -c.z) > half_h or absf(c.y / -c.z) > half_v:
+				continue
+			var q := PhysicsRayQueryParameters3D.create(eye, part.global_position, Layers.WORLD)
+			var hit := space.intersect_ray(q)
+			if hit.is_empty() or eye.distance_to(hit.position) > eye.distance_to(part.global_position) - 0.08:
+				seen += 1
+		if n == 0:
+			continue
+		var share := float(seen) / n
+		var e: Array = _seen.get(key, [0.0, 1.0, 0, 0])
+		_seen[key] = [e[0] + share, minf(e[1], share), e[2] + 1, e[3] + (1 if share < 0.5 else 0)]
 
 
 func _save_frames() -> void:
@@ -362,6 +578,8 @@ func _physics_process(delta: float) -> void:
 				if c is RigidBody3D and (c as RigidBody3D).sleeping:
 					n += 1
 		_asleep_by_second.append(n)
+	if not light and (_hit_tick >= 0 or _limp_tick >= 0) and _tick % 6 == 0:
+		_sample_seen()
 	if render and _tick % every == 0:
 		_save_frames()
 	_tick += 1
@@ -456,6 +674,20 @@ func _go_limp() -> void:
 			man.physiology._die(&"brain")
 	for man in _men:
 		man.go_limp(push)
+	if friction >= 0.0 or friction_ends >= 0.0:
+		for man in _men:
+			for sid: StringName in man.parts:
+				var rb := man.parts[sid] as RigidBody3D
+				if rb == null:
+					continue
+				var ends := String(sid).begins_with("hand") or String(sid).begins_with("foot")
+				var f := friction_ends if ends and friction_ends >= 0.0 else friction
+				if f < 0.0:
+					continue
+				var pm := (rb.physics_material_override as PhysicsMaterial).duplicate() as PhysicsMaterial
+				pm.friction = f
+				rb.physics_material_override = pm
+		_events.append({"tick": _tick, "kind": "friction", "source": "the lab (--friction)", "parts": friction, "hands_feet": friction_ends})
 	# Read what go_limp left in the bodies before the solver has run: the push it gives every part,
 	# and the chest's extra (push * 4 plus a random level kick, HumanBody._rng).
 	var total_after := Vector3.ZERO
@@ -1006,10 +1238,20 @@ func _finish() -> void:
 		"asleep_by_second": _asleep_by_second,
 		"rest": _rest(_men[0]) if _limp_tick >= 0 else {},
 		"men_rest": _men_rest() if _men.size() > 1 else [],
+		"model": String(model),
+		"seen": _seen_summary(),
 	}
 	var f := FileAccess.open(out_dir.path_join("summary.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()
+
+
+func _seen_summary() -> Dictionary:
+	var out := {}
+	for v: String in _seen:
+		var e: Array = _seen[v]
+		out[v] = {"mean": snappedf(e[0] / e[2], 0.01), "least": snappedf(e[1], 0.01), "under_half": snappedf(float(e[3]) / e[2], 0.01)}
+	return out
 
 
 static func _stats(ms: Array[float]) -> Dictionary:
