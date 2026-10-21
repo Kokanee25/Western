@@ -72,6 +72,7 @@ const MEN := [
 ]
 ## The lamps (the lab's four): a sconce on the side wall, one under the gallery on the back wall,
 ## a lamp hung in the room, one across the room.
+## (Drawn as lamps, and casting shadows, on this stand: tools/material_lab.gd.)
 const LAMPS := [Vector3(0.18, 2.2, -2.0), Vector3(3.7, 2.3, -0.25), Vector3(2.4, 2.4, -6.0), Vector3(2.4, 3.1, -3.0)]
 
 
@@ -86,8 +87,22 @@ func build() -> void:
 	_back_bar()
 	_bar()
 	_gallery()
+	_ceiling()
 	_flush()
 	_flush_solid()
+
+
+## The ceiling over the corner (the upper floor's top), boards on joists, so nothing shows the sky.
+func _ceiling() -> void:
+	var y := FLOOR_H + UPPER_H
+	var x := 0.2
+	while x < W:
+		_board(&"int_beams", Vector3(x, y - 0.1, -DEPTH * 0.5), Vector3(0, 0, -1), Vector3.UP, DEPTH, 0.2, 0.05, Vector3(1, 0, 0))
+		x += 0.6
+	var z := -0.075
+	while z > -DEPTH:
+		_board(&"int_walls", Vector3(W * 0.5, y + 0.01, z), Vector3(1, 0, 0), Vector3.UP, W, 0.148, 0.02, Vector3(0, 0, 1))
+		z -= 0.15
 
 
 ## A piece run along `along`, its section `runs` (x along `across`, y along `up`), or as a box the
@@ -373,11 +388,11 @@ func _bar() -> void:
 				Profiles.chamfered(pil, 0.045, 0.01))
 		if b < bays:
 			_panel(&"int_panels", Vector3(x + bay * 0.5, (0.15 + h - 0.15) * 0.5, front + 0.015), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1),
-					bay - pil - 0.01, h - 0.32, 0.02, 0.06)
+					bay - pil - 0.01, h - 0.32, 0.03, 0.07)
 	# The ends: plain boards.
 	for x in [x0, x1]:
 		_board(&"int_bar", Vector3(x, h * 0.5, z), Vector3.UP, Vector3(1, 0, 0), h - 0.05, d, 0.03, Vector3(0, 0, 1))
-	_piece(&"int_bar_top", Vector3(mid, h - 0.025, z - 0.06), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, len + 0.1, Profiles.bar_top(d + 0.14, 0.05))
+	_piece(&"int_bar_top", Vector3(mid, h - 0.03, z - 0.09), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, len + 0.14, Profiles.bar_top(d + 0.2, 0.065))
 	# The foot rail: brass, 50 mm, on brackets 0.15 up.
 	var rail := PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(0.025, 0), Vector2(0.025, len), Vector2(0, len)]), 12, true)
 	var brass := PixelArt.material(PixelArt.factory("prop_brass"), Color.WHITE, PixelArt.Mapping.UV, Vector3.ZERO, 0.45, 0.6, 0.6)
@@ -402,16 +417,18 @@ func _gallery() -> void:
 	var beam_y := FLOOR_H - 0.03 - BEAM_WD.y * 0.5
 	for x in [0.35, W - 0.35]:
 		var ph := FLOOR_H - 0.03 - BEAM_WD.y
-		_piece(&"int_posts", Vector3(x, ph * 0.5, zb), Vector3.UP, Vector3(1, 0, 0), Vector3(0, 0, -1), ph, Profiles.chamfered(POST_W, POST_W, 0.022))
+		_piece(&"int_posts", Vector3(x, ph * 0.5, zb), Vector3.UP, Vector3(1, 0, 0), Vector3(0, 0, -1), ph, Profiles.chamfered(POST_W, POST_W, 0.035))
 		for side in [-1.0, 1.0]:
 			if (x < 1.0 and side < 0.0) or (x > W - 1.0 and side > 0.0):
 				continue
 			_cut(&"int_brackets", Vector3(x + side * POST_W * 0.5, beam_y - BEAM_WD.y * 0.5, zb), Vector3(side, 0, 0), Vector3.UP,
 					Vector3(0, 0, -1), _bracket(0.55, 0.035), 0.1)
-	_piece(&"int_beams", Vector3(W * 0.5, beam_y, zb), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, W, Profiles.chamfered(BEAM_WD.x, BEAM_WD.y, 0.02))
+	_piece(&"int_beams", Vector3(W * 0.5, beam_y, zb), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, W, Profiles.chamfered(BEAM_WD.x, BEAM_WD.y, 0.03))
 	var x := 0.2
+	var joist := GALLERY_D - POST_W - 0.005
 	while x < W:
-		_piece(&"int_beams", Vector3(x, FLOOR_H - 0.03 - 0.1, -GALLERY_D * 0.5), Vector3(0, 0, -1), Vector3(1, 0, 0), Vector3.UP, GALLERY_D,
+		# Back to the beam's back face (flush with its front they flickered through it as black ticks).
+		_piece(&"int_beams", Vector3(x, FLOOR_H - 0.03 - 0.1, -joist * 0.5), Vector3(0, 0, -1), Vector3(1, 0, 0), Vector3.UP, joist,
 				Profiles.chamfered(0.05, 0.2, 0.006))
 		x += 0.4
 	var z := -0.075
@@ -427,8 +444,21 @@ func _gallery() -> void:
 	_piece(&"int_rail", Vector3(W * 0.5, FLOOR_H + 0.05, zr), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, W - 0.4, Profiles.chamfered(0.07, 0.05, 0.006))
 	var bx := 0.38
 	while bx < W - 0.3:
-		_baluster(Vector3(bx, FLOOR_H + 0.075, zr), rail_y - 0.06 - FLOOR_H - 0.075)
-		bx += 0.11
+		_stout_baluster(Vector3(bx, FLOOR_H + 0.075, zr), rail_y - 0.06 - FLOOR_H - 0.075)
+		bx += 0.12
+
+
+## A stout turned baluster (the picture's gallery: square at its feet and neck, a full vase between),
+## 64 mm at its square, h tall.
+func _stout_baluster(at: Vector3, h: float) -> void:
+	var sq := 0.032
+	_board(&"oak_balusters", at + Vector3(0, 0.06, 0), Vector3.UP, Vector3(0, 0, 1), 0.12, sq * 2.0, sq * 2.0)
+	_board(&"oak_balusters", at + Vector3(0, h - 0.06, 0), Vector3.UP, Vector3(0, 0, 1), 0.12, sq * 2.0, sq * 2.0)
+	var t := h - 0.24
+	var p := PackedVector2Array([Vector2(0, 0), Vector2(0.026, 0), Vector2(0.03, 0.02), Vector2(0.02, 0.05), Vector2(0.03, t * 0.25),
+			Vector2(0.036, t * 0.42), Vector2(0.028, t * 0.6), Vector2(0.016, t * 0.78), Vector2(0.022, t * 0.88), Vector2(0.026, t * 0.95),
+			Vector2(0.024, t), Vector2(0, t)])
+	_turned(&"oak_balusters", PropModels.lathe(p, 12, true), Transform3D(Basis(), at + Vector3(0, 0.12, 0)), int(at.x * 53.0))
 
 
 ## A bracket's outline: `l` along the beam and down the post, its face a cove (the brace's curve)

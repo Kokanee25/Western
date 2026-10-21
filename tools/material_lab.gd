@@ -183,6 +183,13 @@ func _run() -> void:
 		var lamp_at: Array = stand.LAMPS if interior else SCONCES + [HANGING]
 		for i in lamps.size():
 			lamps[i].position = lamp_at[i]
+			# Indoors the lamps are seen and cast shadows (raised panels, chamfers and mouldings
+			# read by them); on the outdoor stand, as before.
+			# (OilLamp reads both when it's built: set what it built.)
+			lamps[i].casts_shadows = interior
+			lamps[i]._light.shadow_enabled = interior
+			(lamps[i].get_node(^"Model") as Node3D).visible = interior
+			lamps[i]._flame.visible = interior
 		var views_of: Dictionary = stand.VIEWS if interior else VIEWS
 		var name: String = mat if mat != "" else "stand"
 		var dir := "%s/%s" % [_out, name]
@@ -198,7 +205,8 @@ func _run() -> void:
 		var views: Array = ["stair"] if mat == "stair" else (stand.VIEWS.keys() if interior else ["stand", "gameplay"])
 		for part in focus:
 			for v in PART_VIEWS.get(part, []):
-				if not views.has(v):
+				# (The interior stand's turnings are the oak stair's parts but not its views.)
+				if not views.has(v) and views_of.has(v):
 					views.append(v)
 		if not only_views.is_empty():
 			views = only_views
