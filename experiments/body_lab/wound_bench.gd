@@ -32,6 +32,11 @@ static func scenarios() -> Array:
 	for spot: String in d.spots:
 		out.append({"name": "grab_%s" % spot, "group": "grab", "kind": "shot", "weapon": "revolver", "range": 15.0,
 				"spot": spot, "grab": true})
+	# The blood marks a minute on (the stains soak out over minutes): a ball from 5 m, then his
+	# bleeding run 20 times fast through the lab's seconds, the close-up again at the end.
+	for spot: String in d.spots:
+		out.append({"name": "soak_%s" % spot, "group": "soak", "kind": "shot", "weapon": "revolver", "range": 5.0,
+				"spot": spot, "soak": 20.0})
 	out.append({"name": "check", "group": "check", "kind": "check"})
 	out.append({"name": "same_tick", "group": "probe", "kind": "same_tick"})
 	return out

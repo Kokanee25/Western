@@ -191,11 +191,15 @@ func _live(since: int) -> void:
 		return
 	if scenario.get("grab", false):
 		_watch_grab(since)
+	if since == 1 and scenario.has("soak"):
+		man.time_scale = float(scenario.soak)
 	if render and since == 9 and not scenario.get("grab", false):
 		_snap("spot", _spot_cam.from, _spot_cam.at, 45.0)
 	if since == _live_ticks:
 		_finish_wound()
 		if render:
+			if scenario.has("soak"):
+				await _snap("soaked", _spot_cam.from, _spot_cam.at, 45.0)
 			var c := _com(man)
 			await _snap("full", c + Vector3(1.6, 1.4, -2.2), c, 50.0)
 		_write()
@@ -283,7 +287,9 @@ func _finish_wound() -> void:
 			"knocked_down": _infos.any(func(i: Dictionary) -> bool: return i.knocked_down),
 			"severed_parts": get_tree().get_nodes_in_group(&"severed_parts").size(),
 			"splats": get_tree().get_nodes_in_group(&"blood_splats").map(func(d: Node) -> Array:
-				return [snappedf((d as Decal).size.x, 0.001), snappedf((d as Decal).size.z, 0.001), snappedf(float(d.get_meta(&"ml", 0.0)), 0.1)])}
+				return [snappedf((d as Decal).size.x, 0.001), snappedf((d as Decal).size.z, 0.001), snappedf(float(d.get_meta(&"ml", 0.0)), 0.1)]),
+			"stains_m": man.wounds.filter(func(w: Dictionary) -> bool: return w.get("stain") != null and is_instance_valid(w.stain)).map(
+				func(w: Dictionary) -> float: return snappedf(float(w.get("stain_size", 0.0)), 0.001))}
 	summary["severed_where"] = man.wounds.filter(func(w: Dictionary) -> bool: return w.kind == &"severed").map(
 			func(w: Dictionary) -> Dictionary: return {"part": String(w.part), "at_joint_of": String(w.segment),
 				"stump_cm_from_joint": snappedf(((w.entry as Vector3) - (man._pivot_rest(w.part) - man.anatomy.segment_center(w.segment))).length() * 100.0, 0.1)})

@@ -64,6 +64,9 @@ python3 tools/bridge.py stop
   Edit it to add a spot, range or treatment; no code change is needed. The scenarios are:
   - `revolver_05m_thigh` … `shotgun_30m_hand` (2 guns × 3 ranges × 6 spots);
   - `dynamite_1m`, `dynamite_3m` and `dynamite_6m`;
+  - `grab_<spot>`, a ball from 15 m with his hand watched going to the wound;
+  - `soak_<spot>`, a ball from 5 m, then his bleeding run 20× fast so the blood marks stand as
+    they would a minute on (`--render` adds a `soaked` close-up);
   - `check`, the man's own body;
   - `same_tick`, a ball fired on the tick a man goes limp (the bug below);
   - `perf`.

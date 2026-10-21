@@ -80,6 +80,9 @@ func test_leg_shot_through_the_clothes() -> void:
 	await physics_frames(120)
 	man.time_scale = 1.0
 	check(stain.size.x > before * 1.5, "blood spreads through the trousers (%.2f -> %.2f m)" % [before, stain.size.x])
+	var hole: Vector3 = (stain.get_parent() as Node3D).to_global(man.wounds[0].stain_at)
+	if not man.limp and not man.prone:
+		check(stain.global_position.y < hole.y - 0.01, "and runs down from the hole (%.3f below)" % (hole.y - stain.global_position.y))
 
 
 func test_ball_goes_through_into_whatever_is_behind() -> void:

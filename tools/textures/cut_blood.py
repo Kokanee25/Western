@@ -25,7 +25,7 @@ MAP = os.path.join(HERE, "blood_map.json")
 LO, HI = 16.0, 56.0
 
 
-def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0):
+def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0):
     a = np.asarray(sheet.convert("RGB"), dtype=np.float32)
     h, w = a.shape[:2]
     qy, qx = divmod(quadrant, 2)
@@ -49,6 +49,15 @@ def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0):
     if len(ys) == 0:
         return None
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    if core:
+        # Cropped to where most of the mark is, not its furthest wisp (a stain's stray threads ran
+        # to the corners and left the patch a twentieth of its decal): `core` of the mass is let
+        # go off each side.
+        def span(mass):
+            c = np.cumsum(mass) / max(mass.sum(), 1e-6)
+            return int(np.searchsorted(c, core)), int(np.searchsorted(c, 1.0 - core)) + 1
+        y0, y1 = span(alpha.sum(axis=1))
+        x0, x1 = span(alpha.sum(axis=0))
     pad = max(2, (max(y1 - y0, x1 - x0)) // 24)
     y0, x0 = max(y0 - pad, 0), max(x0 - pad, 0)
     y1, x1 = min(y1 + pad, q.shape[0]), min(x1 + pad, q.shape[1])
@@ -68,7 +77,8 @@ def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0):
 
 def soak(mark, colour):
     """Under a painted stain's spikes and drip, the wet patch they spread from: its own shape
-    blurred wide, in `colour`, strongest in the middle (blood wicks out along the threads)."""
+    blurred wide, in `colour`, strongest in the middle round the hole (blood wicks out along the
+    threads)."""
     from PIL import ImageFilter
     a = np.asarray(mark, dtype=np.float32)
     side = mark.width
@@ -78,11 +88,24 @@ def soak(mark, colour):
     yy, xx = np.mgrid[0:side, 0:side]
     r = np.hypot(xx - side / 2, yy - side / 2) / (side / 2)
     wet = wet * np.clip(1.2 - r, 0.0, 1.0)
+    # Wettest round the hole it came from: the model painted the hole pale (the weave showing), and
+    # keyed by redness it cuts out as a gap. What the patch closes round (the outside flooded from
+    # the edge; whatever it can't reach) is filled wet, as is the middle.
+    from PIL import ImageDraw
+    solid = Image.fromarray(((a[..., 3] > 60) * 255).astype(np.uint8), "L").filter(ImageFilter.MaxFilter(3))
+    for e in range(side):
+        for xy in ((e, 0), (e, side - 1), (0, e), (side - 1, e)):
+            if solid.getpixel(xy) == 0:
+                ImageDraw.floodfill(solid, xy, 128)
+    shut = (np.asarray(solid) == 0).astype(np.uint8) * 255
+    shut = np.asarray(Image.fromarray(shut, "L").filter(ImageFilter.GaussianBlur(side / 40)), dtype=np.float32) / 255.0
+    core = np.maximum(np.clip(1.0 - r / 0.4, 0.0, 1.0) ** 0.7, np.clip(shut * 1.5, 0.0, 1.0))
+    wet = np.maximum(wet, core * 0.9)
     out = np.zeros_like(a)
     out[..., :3] = np.array(colour, dtype=np.float32)
     out[..., 3] = wet * 255.0
     # The painted stain over it.
-    k = a[..., 3:4] / 255.0
+    k = a[..., 3:4] / 255.0 * (1.0 - core[..., None])
     out[..., :3] = out[..., :3] * (1.0 - k) + a[..., :3] * k
     out[..., 3] = np.maximum(out[..., 3], a[..., 3])
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
@@ -117,7 +140,7 @@ def main():
             if not key:
                 continue
             mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)), spec.get("key", "white"),
-                       int(spec.get("open", 0)))
+                       int(spec.get("open", 0)), float(spec.get("core", 0.0)))
             if mark is None:
                 print("nothing in %s quadrant %d" % (sheet_name, quadrant))
                 continue

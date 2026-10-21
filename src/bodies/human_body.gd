@@ -2126,7 +2126,32 @@ func _update_stains(dt: float) -> void:
 		var s: float = w.get("stain_size", 0.04)
 		s += (target - s) * k
 		w.stain_size = s
+		if not w.has("stain_at"):
+			_stain_runs_down(w, stain)
+		# Drawn out and set lower as it grows: blood runs down the cloth from the hole, it doesn't
+		# climb (a neck wound's soaks the shirt front, not his jaw).
 		stain.size = Vector3(s, 0.08 + s * 0.3, s * 1.25)
+		stain.position = w.stain_at + stain.basis.z.normalized() * s * STAIN_RUN
+
+
+## How far a stain's middle sits below its hole, in stain widths.
+const STAIN_RUN := 0.4
+
+
+## Turns a new stain so its long side runs down him as he stands when it starts (it keeps that way
+## after: a soak doesn't move on the cloth when he falls).
+func _stain_runs_down(w: Dictionary, stain: Decal) -> void:
+	w.stain_at = stain.position
+	var parent := stain.get_parent() as Node3D
+	if parent == null or not parent.is_inside_tree():
+		return
+	var n := stain.basis.y.normalized()
+	var down := parent.global_basis.inverse() * Vector3.DOWN
+	var z := down - n * down.dot(n)
+	if z.length() < 0.2:
+		return  # the cloth lies flat: it spreads round the hole
+	z = z.normalized()
+	stain.basis = Basis(n.cross(z), n, z)
 
 
 ## A pool spreads on the ground under him while he lies bleeding.

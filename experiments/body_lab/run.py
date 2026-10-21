@@ -34,6 +34,8 @@ def scenarios():
         out.append(("dynamite_%dm" % r, "dynamite"))
     for spot in d["spots"]:
         out.append(("grab_%s" % spot, "grab"))
+    for spot in d["spots"]:
+        out.append(("soak_%s" % spot, "soak"))
     out.append(("check", "check"))
     out.append(("same_tick", "probe"))
     return out, d
