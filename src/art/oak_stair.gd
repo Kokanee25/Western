@@ -57,15 +57,25 @@ func landing_y() -> float:
 	return RISERS * STEP_RISE
 
 
+## The lobby round it (a wall and a floor); off, the stair stands alone on whatever ground it's
+## put on (the ragdoll lab).
+var room := true
+
+
 func build() -> void:
 	_rng.seed = seed_value
-	_room()
+	# Solid, the stair's own boards and turnings take a box each; the lobby a box for its wall and
+	# one for its floor; the runner and rods none.
+	solid_parts = [&"oak_treads", &"oak_risers", &"oak_strings", &"oak_newels", &"oak_balusters", &"oak_rail", &"oak_landing"]
+	if room:
+		_room()
 	_flight()
 	_landing()
 	_strings()
 	_flush()
 	_balustrade()
 	_runner()
+	_flush_solid()
 
 
 func _flight() -> void:
@@ -99,6 +109,9 @@ func _room() -> void:
 		_board(&"oak_wall", Vector3(wx + 0.011, h * 0.5, z + 0.075), Vector3(0, 1, 0), Vector3(1, 0, 0), h, 0.148, 0.022)
 		z += 0.15
 	_board(&"oak_skirt", Vector3(wx - 0.01, 0.11, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(1, 0, 0), z1 - z0, 0.2, 0.022, Vector3(0, 1, 0))
+	if solid:
+		_shapes.append([Transform3D(Basis(), Vector3(wx + 0.011, h * 0.5, (z0 + z1) * 0.5)), Vector3(0.022, h, z1 - z0)])
+		_shapes.append([Transform3D(Basis(), Vector3((wx - 5.5) * 0.5, -0.015, (z0 + z1) * 0.5)), Vector3(wx + 5.5, 0.03, z1 - z0)])
 	var x := wx
 	while x > -5.5:
 		_board(&"oak_floor", Vector3(x - 0.075, 0.0, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
@@ -215,6 +228,10 @@ func _string(x0: float, x1: float, z0: float, z1: float, over: float, depth: flo
 	if not boards.has(wood):
 		boards[wood] = []
 	boards[wood].append({"part": &"oak_strings", "size": Vector3(long, depth, x1 - x0), "strip": pick})
+	# Its collision: one box along the slope through the outline's middle, 300 deep.
+	var perp := dir.cross(Vector3(1, 0, 0)).normalized()
+	_solid_box(&"oak_strings", Vector3((x0 + x1) * 0.5, c.y, c.x), dir, perp, Vector3(1, 0, 0),
+			Vector3(long, depth / sqrt(1.0 + pow(STEP_RISE / GOING, 2.0)), x1 - x0))
 
 
 ## The newels, balusters and rail: turned oak.
@@ -343,6 +360,8 @@ func _turned(part: StringName, mesh: Mesh, xf: Transform3D, pick: int) -> void:
 	mi.material_override = WoodMaterials.get_material(wood, posmod(pick, strips))
 	_holder(part).add_child(mi)
 	mi.transform = xf
+	var bb := mesh.get_aabb()
+	_solid_box(part, xf * bb.get_center(), xf.basis.x, xf.basis.y, xf.basis.z, bb.size)
 	if not boards.has(wood):
 		boards[wood] = []
 	boards[wood].append({"part": part, "size": mesh.get_aabb().size, "strip": posmod(pick, strips)})

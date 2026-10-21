@@ -83,3 +83,28 @@ func test_the_oak_stairs_strings_clear_the_floor_and_the_first_step() -> void:
 	check(low >= 0.0, "no string under the floor (lowest %.3f)" % low)
 	check(on_step >= OakStair.STEP_RISE, "the open string sits on the first step (lowest there %.3f)" % on_step)
 	s.free()
+
+
+func test_the_solid_oak_stair_can_be_stood_and_fallen_on() -> void:
+	# Sean, 2026-10-21: the ragdoll session's stairs. A ray down onto each tread stops at its top;
+	# down onto the rail it stops at the rail; the runner and the lobby's boards add no shapes.
+	var s := OakStair.new()
+	s.solid = true
+	s.room = false
+	add_child(s)
+	s.build()
+	await physics_frames(2)
+	var space := s.get_world_3d().direct_space_state
+	for i in [0, 5, 11]:
+		var z: float = i * OakStair.GOING + OakStair.GOING * 0.5
+		var x := OakStair.WIDTH * 0.5
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(Vector3(x, 4.0, z)), s.to_global(Vector3(x, -1.0, z))))
+		check(not hit.is_empty(), "tread %d is solid" % i)
+		if not hit.is_empty():
+			check_near(s.to_local(hit.position).y, (i + 1) * OakStair.STEP_RISE, 0.01, "tread %d stops a fall at its top" % i)
+	var zr := 6.5 * OakStair.GOING
+	var rail := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(Vector3(0.0, 4.0, zr)), s.to_global(Vector3(0.0, 0.5, zr))))
+	check(not rail.is_empty() and s.to_local(rail.position).y > s.pitch_y(zr) + 0.6, "the rail catches a body over the open side")
+	var body := s.get_node(^"Collision") as StaticBody3D
+	check(body != null and body.collision_layer == Layers.WORLD, "on the world's layer")
+	s.queue_free()
