@@ -603,6 +603,24 @@ a few views renders them as the full run does.
 
 ## The texture factory (tools/textures)
 
+- **The material lab** (roadmap 1.4a, brief `docs/briefs/material-lab.md`): `tools/material_lab.gd`
+  puts `MaterialStand` (`src/art/material_stand.gd`: wall, post and beam, deck, steps, boards at
+  their real sizes, every cut end in end grain, no neighbour repeats) out west of town with the
+  Studio's three men in front, under noon, golden hour and the saloon's lamps; `--material=` one
+  wood on its parts, `--set=mlab_NAME` a candidate set, masks once a view, `numbers.json`;
+  `--repeats` counts Main Street's side-by-side boards sharing a strip. `tools/material_measure.py`
+  measures colour and detail against the men (`measure`), makes A/B sheets (`sheet`) and the blind
+  critic's crops (`crops`). Candidate sets: `tools/textures/material_lab.json` ->
+  `paint_woods.py --set=NAME` -> `assets/textures/mlab_NAME/` (`raw` re-cuts kept paintings with no
+  calls, `boards` paints more boards, `grade` fits a wood into the men's range when cut,
+  `inherit`, `length` (longer boards), `props` (materials.json materials cut by `reduce.py --set`,
+  as props or, painted as boards, as a wood of the set), `from_painting` (a wood cut from a kept
+  painting), `budget` (paint_textures adds up a run's cost and stops short of it); the People
+  workflow's `textures = mlab:NAME`); `OakStair` (`src/art/oak_stair.gd`, `--material=stair`) is
+  the hotel's oak stair on the same bench;
+  `PixelArt` lays an `mlab_` set as it lays the game's woods. The men's style sheet
+  `docs/concept/targets/9_studio_men.png` (`men_reference.py`) is what `paint_woods.py` and
+  `paint_textures.py --style=man` send since 2026-10-21 (target 8 before).
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams

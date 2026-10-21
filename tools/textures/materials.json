@@ -601,6 +601,47 @@
    "smooth": true,
    "texels_per_metre": 512,
    "about": "A prop seen close, painted in the man's hand (docs/briefs/match-the-man.md step 4, 2026-10-17): smooth, no palette, its own colours, finer the closer it's seen (a mug at the table: 512 a metre, 128 drew its texels as squares); PropModels/ShotMatch ask for it by this key."
+  },
+  "stair_runner": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.8,
+    0.8
+   ],
+   "colours": 16,
+   "what": "a worn wool stair runner carpet in an 1880s frontier hotel, seen straight on: deep oxblood red ground with a narrow black and dull gold border down both edges and a small repeating figured pattern in the middle, the pile worn flat and paler down the centre where boots tread, dust in the weave, a few dark stains",
+   "ref": [
+    "saloon",
+    1240,
+    680,
+    1400,
+    800
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The hotel's oak stair's runner (the material lab's OakStair, Sean 2026-10-21), painted in the Studio men's hand for the lab's candidate set; not used by the game yet."
+  },
+  "dark_oak": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    3.0,
+    1.5
+   ],
+   "colours": 16,
+   "boards": true,
+   "smooth": true,
+   "texels_per_metre": 512,
+   "what": "eight long boards of polished quarter-sawn white oak, each about eighteen centimetres wide, laid one above another horizontally with thin dark joints between them, the grain running left to right along each board: stained a deep dark walnut brown and waxed to a soft sheen, the oak's ray fleck showing as small silvery flakes and ribbons through the stain, tight even grain, a few small dark knots, the wax worn through to warmer golden oak along some board edges; a fine hotel's staircase, clean and cared for: no nails, no paint, no rot, no text, no signature",
+   "ref": [
+    "saloon",
+    1350,
+    380,
+    1640,
+    560
+   ],
+   "about": "The hotel's oak stair's wood (the material lab's OakStair, Sean 2026-10-21), painted as boards in the Studio men's hand and cut one strip a board; the lab's only, not used by the game yet."
   }
  }
 }
