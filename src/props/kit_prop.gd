@@ -72,11 +72,7 @@ func build() -> void:
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
 		var mi := m.get_child(0) as MeshInstance3D
-		var look: String = spec.get("look", definition.get("look", ""))
-		if look != "":
-			mi.material_override = PropKit.material(look, hash(m.member_id))
-		if spec.has("draw"):
-			mi.mesh = PropKit.draw_mesh(spec.draw, m)
+		PropKit.dress_member(m, spec.get("draw", {}), spec.get("look", definition.get("look", "")))
 		for d: Dictionary in spec.get("dress", []):
 			var layer := MeshInstance3D.new()
 			layer.name = "Dress"

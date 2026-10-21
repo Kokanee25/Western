@@ -131,3 +131,38 @@ Measures under the saloon's lamps: the stain's hue 45 and chroma ~12-16 sit on t
 3. On his pick: the stain into the game's woods as interior woods (their own keys, so the exterior
    woods don't change), `Profiles` and the pieces documented for the saloon session, a golden view
    of the interior stand.
+
+### Round 2: the bar and back bar as parts (2026-10-21)
+
+Sean picked C ("go with C for now") and asked for "any art you feel would be beneficial for our
+saloon". Promoted: the interior woods (`int_*`, PR #208). Made, free:
+
+- **Kit draw shapes for woodwork:** a kit member can be drawn as a `profile` (a moulding run along it),
+  a `panel` (raised) or a `cut` (a board cut to an outline), from `Profiles` (`PropKit.woodwork_mesh`;
+  `Profiles.extrude_tris`/`panel_tris`/`cut_tris`/`to_mesh`, which the stands use too).
+- **The bar top's wood** `int_bar_top` (`tools/textures/bar_top.py`): `int_oak` glued up across 0.84 m,
+  dark rings and pale blooms where men stand, the front edge worn by elbows, an oiled sheen.
+- **The bar** (`assets/props/kit/bar.json`, 3 m, 30 members): tall raised panels under a frieze of short
+  ones between chamfered pilasters, plinth, corbels, the top with its bullnose, a brass foot rail.
+- **The back bar** (`back_bar.json`, 2.5 m, 44 members): panelled base and counter, three heavy columns
+  with bases and capitals, two arched frames and mirrors (`prop:mirror`, a low warm glow: the room
+  it gives back), shelves on brackets, frieze, dentils, ogee cornice, cap.
+- Both are fixtures (`"fixture": true`, they replace no drawn prop), stand and batch within the kit's
+  rules (`tests/test_prop_kit.gd`), and the interior stand now uses them (views `back_bar`, `bar_top`).
+
+Blind critic against the picture (`docs/screenshots/material_lab/2026-10-21/bar/`; round 1 in
+`round1/`): **round 1** bar front DIFFERENT, top CLOSE, back bar DIFFERENT (cherry red, black mirrors,
+thin back bar with a crest the picture lacks, no frieze panels, lacquer gloss). Fixed: frieze panels,
+heavier columns and a stepped entablature with no crest, the top warmer and oiled, the mirrors lit.
+**Round 2**: the same verdicts; its first difference is now **value**: the woodwork in `int_oak` sits
+near black against the walls (`int_boards`), the picture's bar is the walls' honey-brown. Then: the
+mirrors flat ochre (want a painted reflection), the panels lost in the dark, fine grain where the
+picture has big squares, the back bar still reads slight. Layout right both rounds.
+
+### What's next (round 3)
+
+1. **Sean's call:** the fixtures in a lighter oak (the walls' value), or `int_oak` as picked.
+2. A painted reflection in the mirrors (lamps, the room's warm blur; free, procedural).
+3. Coarser squares on the fixtures' woods (the texel size) and the panels' edges catching light.
+4. For the saloon session: `PropKit.spawn(&"bar")` and `&"back_bar"` in place of `SaloonBuilding`'s
+   hand-built bar, turned to face the room; bars longer than 3 m are sections side by side.

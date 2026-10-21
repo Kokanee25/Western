@@ -70,7 +70,7 @@ then.
 | Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
 | Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
 | Combat decisions and morale | Inside the gunfight lab, after its baseline | gameplay | `labs.md` |
-| Weapon handling and feel | Inside 3.2 | gameplay | `labs.md` |
+| Gun lab: the guns' look in the player's and men's hands, draw, cock, reload, holster, drop, and the handling and feel measures | Now, with 3.2 (guns agreed) | gameplay (art for the look) | `labs.md` |
 | The Systems Playground (systems interaction) | Phase 3, once the gunfight lab's baseline is in; grows every phase | gameplay | `labs.md` |
 | Navigation and avoidance lab | Phase 3 before 3.6; again before 5.7 | gameplay | `labs.md` |
 | Law, witnesses and consequences lab | Phase 5, with 5.3 and 5.8 | gameplay | `labs.md` |
