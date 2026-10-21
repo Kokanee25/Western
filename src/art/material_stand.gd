@@ -7,7 +7,8 @@ extends Node3D
 ## Built here, not from the game's structure classes: the stand shows a material as production
 ## should draw it (end grain on every cut end, each board its own strip and its own place along it,
 ## no two neighbours alike), which today's MemberMesh doesn't yet (what production needs is listed
-## in the brief). Drawn only; no members, no collision, no load paths.
+## in the brief). Drawn only, unless `solid` (a box on Layers.WORLD for each board, so a body can
+## land on it: the ragdoll lab's stairs); no members, no load paths.
 ##
 ## The stand's space: the wall along +X in the plane z = 0, its face toward -Z; the deck in front of
 ## it (z from 0 to -DECK_DEPTH), the steps at the deck's front, the post and beam at its front edge,
@@ -66,12 +67,39 @@ const STEP_X := Vector2(1.0, 2.2)
 const TREAD := Vector2(0.14, 0.045)
 const NOSING := 0.035
 const RISE := 0.14
+## The treads' wear (MaterialStand._worn_box: radius at the ends, in the middle, the top worn down):
+## the back board's, the front's (the nosing every boot comes down on).
+const TREAD_WEAR := [Vector3(0.004, 0.01, 0.003), Vector3(0.01, 0.025, 0.005)]
+
+## Where each part weathers (round 3's weathering layer, texel_grid's `weathered`; Sean
+## 2026-10-21): [ground y (mud and grime rise from it), drip line y (rain streaks hang from it),
+## amount], in the stand's space, which is the structure's. The wall's ground is the deck it stands
+## on and its drip line its top; the post's the deck and the beam's underside; the frame under the
+## deck (rim, joists, stringers, risers) splashes from the real ground and streaks from the planks'
+## street edge; studs behind the siding are sheltered.
+const WEATHER := {
+	&"siding": [DECK_TOP, WALL_H, 1.0], &"siding_low": [DECK_TOP, WALL_H, 1.0], &"trim": [DECK_TOP, WALL_H, 1.0],
+	&"studs": [DECK_TOP, WALL_H, 0.3], &"deck": [0.0, DECK_TOP, 1.0], &"treads": [0.0, DECK_TOP, 1.0],
+	&"joists": [0.0, DECK_TOP - PLANK.y, 0.8], &"rim": [0.0, DECK_TOP - PLANK.y, 1.0],
+	&"stringers": [0.0, DECK_TOP - RISE, 1.0], &"frame": [DECK_TOP, FRAME_TOP - BEAM.y, 1.0],
+}
+## The siding's nails (one through each lap at each stud, 20 mm above the butt): [pitch along the
+## wall, the first, the rows' pitch, the first row's height]; rust streaks hang under some.
+const NAILS := [STUD_GAP, STUD.x * 0.5, SIDING_EXPOSE, DECK_TOP]
 
 ## The wood under test (one of PART_OF's keys), &"" for the game's stand as it is.
 var material: StringName = &""
 ## Each part's wood (ROLES, and a subclass's own parts).
 var roles := ROLES.duplicate()
 var seed_value := 1
+## Lay the weathering layer's frame on every board (CUSTOM0/1; drawn only where the set has a
+## stain sheet). Off: the boards carry none, as production's members don't yet.
+var weathered := true
+## Collision: a box for each board of the parts `solid_parts` names (all when empty), on one
+## StaticBody3D on Layers.WORLD. Off: drawn only (the lab).
+var solid := false
+var solid_parts: Array = []
+var _shapes: Array = []
 ## What was built: wood -> [{"name", "size", "part"}] (the lab's numbers: thickness, counts).
 var boards := {}
 ## The members' meshes by part (the lab hides and masks them by part).
@@ -82,6 +110,9 @@ var _rng := RandomNumberGenerator.new()
 var _last := {}
 ## wood -> {strip -> SurfaceTool}: boards sharing a strip share a mesh (one draw each).
 var _tools := {}
+## The board being laid's weathering frame and nails (CUSTOM0, CUSTOM1).
+var _frame_of := Color(0, 0, 0, 0)
+var _nails_of := Color(0, 0, 0, 0)
 
 
 func wood_for(part: StringName) -> StringName:
@@ -104,6 +135,7 @@ func build() -> void:
 	_steps()
 	_frame()
 	_flush()
+	_flush_solid()
 
 
 func _wall() -> void:
@@ -162,7 +194,10 @@ func _steps() -> void:
 		var back := front - (depth - NOSING) * s
 		for b in 2:
 			var z := back - TREAD.x * (b + 0.5) - 0.005 * b
-			_board(&"treads", Vector3(mid, top - TREAD.y * 0.5, z), Vector3(1, 0, 0), Vector3(0, 1, 0), w, TREAD.x, TREAD.y, Vector3(0, 0, 1))
+			# Worn by boots: the front board's nosing round, most in the middle, its top hollowed;
+			# the back board's edge only eased.
+			_board(&"treads", Vector3(mid, top - TREAD.y * 0.5, z), Vector3(1, 0, 0), Vector3(0, 1, 0), w, TREAD.x, TREAD.y, Vector3(0, 0, -1),
+					TREAD_WEAR[b])
 		var riser_top := top - TREAD.y
 		var riser_foot := maxf(top - RISE, 0.03)
 		_board(&"stringers", Vector3(mid, (riser_top + riser_foot) * 0.5, back - depth + NOSING + 0.011), Vector3(1, 0, 0), Vector3(0, 0, 1),
@@ -189,8 +224,10 @@ func _frame() -> void:
 ## A board: centre, length axis, thickness axis (`across`, if given, is the width axis; else
 ## length x thickness), its length, width and thickness. Picks a strip that its last neighbour
 ## in the part didn't take, and its own place along the strip.
+## `wear` (a tread's): its front top edge (+across, +thick) rounded by foot traffic, [radius at the
+## ends, radius in the middle, how far the middle of its top is worn down] in metres; zero: square.
 func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, length: float, width: float, thickness: float,
-		across := Vector3.ZERO) -> void:
+		across := Vector3.ZERO, wear := Vector3.ZERO) -> void:
 	var wood := wood_for(part)
 	along = along.normalized()
 	thick = thick.normalized()
@@ -218,8 +255,52 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 	if not tools.has(pick):
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		if weathered:
+			st.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
+			st.set_custom_format(1, SurfaceTool.CUSTOM_RGBA_FLOAT)
 		tools[pick] = st
-	_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
+	_frame_of = Color(0, 0, 0, 0)
+	_nails_of = Color(0, 0, 0, 0)
+	if weathered:
+		var w: Array = WEATHER.get(part, [0.0, 0.0, 0.0])
+		_frame_of = Color(w[0], w[1], w[2], 0.0)
+		if part == &"siding" or part == &"siding_low":
+			_nails_of = Color(NAILS[0], NAILS[1], NAILS[2], NAILS[3])
+	if wear == Vector3.ZERO:
+		_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
+	else:
+		_worn_box(tools[pick], centre, along * length, across * width, thick * thickness, u0, wear)
+	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+
+
+## A collision box for a board (when `solid` and its part is one of `solid_parts`): axes along,
+## across and thick, sized length, width and thickness.
+func _solid_box(part: StringName, centre: Vector3, along: Vector3, across: Vector3, thick: Vector3, size: Vector3) -> void:
+	if not solid or (not solid_parts.is_empty() and not solid_parts.has(part)):
+		return
+	var b := Basis(along.normalized(), across.normalized(), thick.normalized())
+	if b.determinant() < 0.0:
+		b.z = -b.z
+	_shapes.append([Transform3D(b.orthonormalized(), centre), size])
+
+
+## The collected boxes as one body (call after the meshes are built).
+func _flush_solid() -> void:
+	if _shapes.is_empty():
+		return
+	var body := StaticBody3D.new()
+	body.name = "Collision"
+	body.collision_layer = Layers.WORLD
+	body.collision_mask = 0
+	add_child(body)
+	for sh in _shapes:
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = sh[1]
+		cs.shape = box
+		cs.transform = sh[0]
+		body.add_child(cs)
+	_shapes.clear()
 
 
 ## The six faces of a board: four long faces (u along the grain from u0, v across), two ends.
@@ -239,6 +320,113 @@ func _box(st: SurfaceTool, c: Vector3, l: Vector3, w: Vector3, t: Vector3, u0: f
 	_quad(st, c - l * 0.5, w, t, -l.normalized(), Vector2(wl, tl), 0.0, endf)
 
 
+## A tread worn by feet (Sean, 2026-10-21: "round down from foot traffic"): a board whose front top
+## edge (along `w`, up `t`) is rounded, most in the middle of its length where people tread and
+## least at its ends by the strings, and whose top is worn a little hollow in the middle. Its back
+## and bottom are flat long faces; its top, the round and its front one long face wrapping round
+## (no seam line drawn on the round); its ends in end grain, the worn profile's shape.
+func _worn_box(st: SurfaceTool, c: Vector3, l: Vector3, w: Vector3, t: Vector3, u0: float, wear: Vector3) -> void:
+	var ll := l.length()
+	var dl := w.length()
+	var tl := t.length()
+	var ax := l / ll
+	var aw := w / dl
+	var at := t / tl
+	var flag := Color(0.0, 0.0, u0 * 0.5, 1.0)
+	var endf := Color(1.0, 0.0, 0.0, 1.0)
+	var n := clampi(ceili(ll / 0.04), 8, 64)
+	var arc := 6
+	# Each section across the board: its profile (d across, h up) and normals, at s along it.
+	var sections := []
+	for i in n + 1:
+		var s := float(i) / n
+		var feet := pow(sin(PI * s), 2.0)
+		var r := minf(lerpf(wear.x, wear.y, feet), minf(dl, tl) * 0.9)
+		var top := tl * 0.5 - wear.z * feet
+		var pts := PackedVector2Array([Vector2(-dl * 0.5, top), Vector2(dl * 0.5 - r, top)])
+		var nrm := [at, at]
+		for k in range(1, arc + 1):
+			var a := PI * 0.5 * (1.0 - float(k) / arc)
+			pts.append(Vector2(dl * 0.5 - r + r * cos(a), top - r + r * sin(a)))
+			nrm.append((aw * cos(a) + at * sin(a)).normalized())
+		pts.append(Vector2(dl * 0.5, -tl * 0.5))
+		nrm.append(aw)
+		sections.append([(s - 0.5) * ll, pts, nrm])
+	var at_of := func(x: float, q: Vector2) -> Vector3: return c + ax * x + aw * q.x + at * q.y
+	# The wrap: top, round, front; v the length round the profile from the back of the top.
+	for i in n:
+		var a: Array = sections[i]
+		var b: Array = sections[i + 1]
+		var va := 0.0
+		var vb := 0.0
+		var pa: PackedVector2Array = a[1]
+		var pb: PackedVector2Array = b[1]
+		var wrap := 0.0
+		for k in pa.size() - 1:
+			wrap += pa[k].distance_to(pa[k + 1])
+		for k in pa.size() - 1:
+			var va1 := va + pa[k].distance_to(pa[k + 1])
+			var vb1 := vb + pb[k].distance_to(pb[k + 1])
+			var x0: float = a[0] + ll * 0.5
+			var x1: float = b[0] + ll * 0.5
+			_tri(st, [at_of.call(a[0], pa[k]), at_of.call(b[0], pb[k]), at_of.call(b[0], pb[k + 1])],
+					[a[2][k], b[2][k], b[2][k + 1]], [Vector2(u0 + x0, va), Vector2(u0 + x1, vb), Vector2(u0 + x1, vb1)], Vector2(ll, wrap), flag)
+			_tri(st, [at_of.call(a[0], pa[k]), at_of.call(b[0], pb[k + 1]), at_of.call(a[0], pa[k + 1])],
+					[a[2][k], b[2][k + 1], a[2][k + 1]], [Vector2(u0 + x0, va), Vector2(u0 + x1, vb1), Vector2(u0 + x0, va1)], Vector2(ll, wrap), flag)
+			va = va1
+			vb = vb1
+		# The back (from the bottom up to the top's back edge) and the bottom (front to back).
+		var bot := Vector2(-dl * 0.5, -tl * 0.5)
+		var fbot := Vector2(dl * 0.5, -tl * 0.5)
+		for face in [[bot, pa[0], pb[0], -aw], [fbot, bot, bot, -at]]:
+			var q0: Vector2 = face[0]
+			var qa: Vector2 = face[1]
+			var qb: Vector2 = face[2]
+			var fn: Vector3 = face[3]
+			var ha := q0.distance_to(qa)
+			var hb := q0.distance_to(qb)
+			var p00: Vector3 = at_of.call(a[0], q0)
+			var p10: Vector3 = at_of.call(b[0], q0)
+			var p01: Vector3 = at_of.call(a[0], qa)
+			var p11: Vector3 = at_of.call(b[0], qb)
+			var x0: float = a[0] + ll * 0.5
+			var x1: float = b[0] + ll * 0.5
+			var size := Vector2(ll, maxf(ha, hb))
+			_tri(st, [p00, p10, p11], [fn, fn, fn], [Vector2(u0 + x0, 0), Vector2(u0 + x1, 0), Vector2(u0 + x1, hb)], size, flag)
+			_tri(st, [p00, p11, p01], [fn, fn, fn], [Vector2(u0 + x0, 0), Vector2(u0 + x1, hb), Vector2(u0 + x0, ha)], size, flag)
+	# The ends: the worn profile, a fan from its middle, in end grain.
+	for e in [[sections[0], -ax], [sections[n], ax]]:
+		var sec: Array = e[0]
+		var en: Vector3 = e[1]
+		var ring := PackedVector2Array([Vector2(-dl * 0.5, -tl * 0.5)])
+		ring.append_array(sec[1])
+		var mid := Vector2.ZERO
+		for q in ring:
+			mid += q
+		mid /= ring.size()
+		for k in ring.size():
+			var q0 := ring[k]
+			var q1 := ring[(k + 1) % ring.size()]
+			var uvs := [mid, q0, q1].map(func(q: Vector2) -> Vector2: return q + Vector2(dl, tl) * 0.5)
+			_tri(st, [at_of.call(sec[0], mid), at_of.call(sec[0], q0), at_of.call(sec[0], q1)], [en, en, en], uvs, Vector2(dl, tl), endf)
+
+
+## One triangle, wound to face its normals, with the board's flags and (weathered) its frame.
+func _tri(st: SurfaceTool, p: Array, n: Array, uv: Array, size: Vector2, col: Color) -> void:
+	var order := [0, 1, 2]
+	if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(n[0] + n[1] + n[2]) > 0.0:
+		order = [0, 2, 1]
+	for i in order:
+		st.set_color(col)
+		if weathered:
+			st.set_custom(0, _frame_of)
+			st.set_custom(1, _nails_of)
+		st.set_normal(n[i])
+		st.set_uv(uv[i])
+		st.set_uv2(size)
+		st.add_vertex(p[i])
+
+
 ## One face centred at `c`, spanning `a` (u) and `b` (v), facing `n`. UV in metres (u from u0),
 ## UV2 the face's size.
 func _quad(st: SurfaceTool, c: Vector3, a: Vector3, b: Vector3, n: Vector3, size: Vector2, u0: float, col: Color) -> void:
@@ -250,6 +438,9 @@ func _quad(st: SurfaceTool, c: Vector3, a: Vector3, b: Vector3, n: Vector3, size
 		order = [0, 2, 1, 0, 3, 2]
 	for i in order:
 		st.set_color(col)
+		if weathered:
+			st.set_custom(0, _frame_of)
+			st.set_custom(1, _nails_of)
 		st.set_normal(n)
 		st.set_uv(uvs[i])
 		st.set_uv2(size)

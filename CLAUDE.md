@@ -290,10 +290,16 @@ frozen until Sean names one.
   `tools/material_measure.py`; the men's sheet `9_studio_men.png` is now `--style=man`'s reference;
   candidate sets `tools/textures/material_lab.json` -> `assets/textures/mlab_*`. Round 1: no wood
   passes; the critic finds the Studio repaint (512 a metre) photographic. Round 2 (studio5: broad,
-  darker, warmer, 384) painted; Sean: "too clean" -> studio5w (weathering per board, free). **Next:
-  the brief's "What's next"** (round 2's critic and A/B sheets, then round 3: the weathering layer in
-  texel_grid from a painted stain sheet). The hotel's oak stair (`OakStair`), two oaks for Sean.
-  Paint ~$6.58 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
+  darker, warmer, 384) painted; Sean: "too clean". **Round 3** (branch `claude/art-weathering`):
+  the weathering layer (texel_grid `weathered`: a stain sheet of four masks laid in the structure's
+  space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
+  cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
+  sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
+  stains read as light, not dirt. **Next: round 4, free** (the brief's "What's next": stains darker
+  than the wood, bleach on sky faces only), then Sean's picks on `round3_sheets/`. The hotel's oak
+  stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
+  textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
+  approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
   Wear-down planned in the brief (after Gate A).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);

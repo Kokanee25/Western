@@ -1819,6 +1819,18 @@
    "#401b13"
   ]
  },
+ "stair_runner": {
+  "kind": "tile",
+  "metres": [
+   0.8,
+   0.8
+  ],
+  "texels": [
+   410,
+   410
+  ],
+  "strips": 0
+ },
  "walnut": {
   "kind": "tile",
   "metres": [
