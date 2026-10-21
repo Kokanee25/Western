@@ -55,7 +55,7 @@ def main():
                     n += 1
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", "24", "-i", os.path.join(tmp, "f%05d.png"),
-                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "23", "-movflags", "+faststart", out], check=True)
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "28", "-movflags", "+faststart", out], check=True)
     shutil.rmtree(tmp)
     print("fire_ab: %d frames, %s views, %s (%.1f MB)" % (n, views, out, os.path.getsize(out) / 1e6))
 
