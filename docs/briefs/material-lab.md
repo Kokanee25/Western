@@ -119,6 +119,18 @@ metre (`round2_boards.jpg`). Sean: "nice, but too clean". studio5w lays weatheri
 board when it's cut (`weather`: grime patches, dirt along the edges, bleached streaks, mud on the
 low siding; no call; `round2_weathered_boards.jpg`).
 
+Round 2's blind critic (`critic_round2.md`): **store_boards repainted read as SAME** (clean and
+weathered; today's DIFFERENT), the first wood to pass; floor and dark trim CLOSE either way;
+weathering per board lifts weathered pine back to CLOSE (clean round 2 DIFFERENT, patchwork); round 2
+loses on timber (candy stripes), saloon red (loud swirling grain) and framing (today SAME). Today's
+framing SAME. What now gives the wood away, in order: fine drawn grain and crisp knots against the
+men's broad flat areas; lightness (bleached boards, blown highlights); **plank-to-plank colour jumps**
+(stripes, patchwork) where the men keep one muddy palette; dirt as specks rather than big soft
+stains; stair-stepped shadow edges and blocky pixels on the risers and fascia. Measures: round 2
+darker and warmer (timber passes every light, dark trim noon and golden), its detail measure now
+over the men's (10-12 mm): the measure can't tell broad paint from coarse cutting, so the critic
+decides. Sheets: `round2_sheets/` (A today, B round 2 clean, C weathered; three lights).
+
 **Round 3, weathering as a layer (proposed):** weathering belongs to the building, not the board:
 mud splashes up from the ground across several boards, rain streaks down from the eaves and from
 under nails, the sun bleaches what faces it. A painted stain sheet in the men's hand (splash,
@@ -144,14 +156,15 @@ painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.
 
 ## What's next, in order
 
-1. **Round 2's verdict.** The blind critic on today's woods, round 2 clean (studio5) and round 2
-   weathered per board (studio5w), unlabelled, Sean's question; the A/B sheets per wood (today /
-   studio1_384 / studio5 / studio5w). Results here under Round 1.
+1. ~~Round 2's verdict~~ (done 2026-10-21, above): store boards round 2 SAME; the rest mixed.
 2. **Round 3, the weathering layer** (Sean, 2026-10-21; see Round 2 above): a stain sheet painted in
    the men's hand (mud splash, rain streaks, grime, sun-bleach; one or two calls, ~$0.22-0.44 of the
    $2.42 left of Sean's $9) laid by texel_grid in the structure's space over round 2's clean boards;
-   judged on the stand against studio5 and studio5w, then the critic.
-3. **Edge flaws** the round 1 critic named: the black dashes along the walls' board seams (texel_grid's
+   judged on the stand against studio5 and studio5w, then the critic. From round 2's critic: the
+   stains big and soft (never specks or spatter), and with them, free in the cut: each wood's boards
+   graded toward one shared muddy palette (no candy stripes or patchwork), the bleached highs pulled
+   down, saloon red's swirling grain calmed (a repaint of that wood alone if grading can't).
+3. **Edge flaws** the critics named (round 2 adds the shadows' stair-stepped edges on the wood): the black dashes along the walls' board seams (texel_grid's
    `edge_shade` on boards) and the square blocks on the fascia and steps (mosaic on thin faces).
 4. **Sean's picks.** A wood he approves moves into `assets/textures/woods/` (its `lab.json`
    entry, 384 a metre) with a `material_<wood>` golden view in `tools/screenshots.gd`, the goldens
