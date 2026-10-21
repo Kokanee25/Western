@@ -363,6 +363,7 @@ jobs:
       - name: Paint and reduce the materials
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
           TEXTURE_MODEL: ${{ inputs.paint_model || vars.TEXTURE_MODEL }}
           PAINT_MODEL: ${{ vars.PAINT_MODEL }}
           WHICH: ${{ inputs.textures }}
@@ -403,6 +404,14 @@ jobs:
               # $0.38 on run 102 (the splats and pools), $0.19 on run 103 (the wounds again).
               python3 tools/textures/paint_blood.py $only --budget=2.05 $( [ "$REPAINT" = "true" ] && echo --repaint )
               python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
+              exit 0 ;;
+            # textures = gore_test (or gore_test:gemini,gpt,fal): one gore sheet asked of Google's and
+            # OpenAI's image models and of FLUX dev with the style LoRA on fal, to see which paints it
+            # (tools/textures/gore_test.py, gameplay, 2026-10-21: Sean's blood $3, capped at $0.75).
+            gore_test|gore_test:*)
+              only=""
+              case "$WHICH" in gore_test:*) only="--only=${WHICH#gore_test:}" ;; esac
+              python3 tools/textures/gore_test.py $only --budget=0.75
               exit 0 ;;
             # textures = reference (or reference:street,...): the judge's reference paintings in
             # the painted look (tools/textures/paint_reference.py, art, 2026-10-16).
