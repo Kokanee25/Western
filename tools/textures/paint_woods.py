@@ -364,6 +364,11 @@ def candidate(name, only, cut_only, repaint, key, spec):
         subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "reduce.py"),
                         "--set=" + name, "--only=" + ",".join(props)]
                        + (["--texels=%g" % cfg["prop_texels"]] if "prop_texels" in cfg else []), check=False)
+        # A prop painted as boards (reduce made it a wood of the set) takes the timber's end grain.
+        for mid in props:
+            end = os.path.join(out_dir, "%s_end.png" % mid)
+            if materials[mid].get("boards") and not os.path.exists(end):
+                Image.open(os.path.join(WOODS, "timber_end.png")).save(end)
     import_like_woods(out_dir)
     print("spent: $%.2f" % pt.SPENT)
     if failed:

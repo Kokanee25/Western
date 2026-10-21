@@ -206,6 +206,18 @@
      "C": 0.9
     }
    }
+  },
+  "studio4": {
+   "note": "The oak stair's wood painted from words (Sean raised OpenRouter's monthly limit, 2026-10-21): dark_oak as a factory material, eight boards of polished quarter-sawn oak stained dark, in the Studio men's hand, cut a strip a board at 512 a metre; everything else as studio3 (whose dark_oak is the walnut painting cut with no call), so the two stairs compare.",
+   "inherit": "studio3",
+   "texels_per_metre": 512,
+   "woods": [],
+   "props": [
+    "dark_oak"
+   ],
+   "prop_texels": 512,
+   "budget": 0.8,
+   "ask": ""
   }
  }
 }
