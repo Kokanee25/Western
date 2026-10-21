@@ -3,7 +3,7 @@ class_name PropLibrary
 ## assets/props/<id>.glb when that model exists (made in Meshy or anywhere else), scaled to the
 ## manifest's real-world size; else a model built in code (PropModels); else a coloured placeholder
 ## box of that size. Either way it gets a collision box, so the room plays the same before and after
-## the art arrives. A prop the prop kit has (assets/props/kit/, PropKit) comes as its KitProp
+## the art arrives. A prop the prop kit has put in the game (assets/props/kit/, PropKit; "in_game") comes as its KitProp
 ## instead: built of members, it breaks, burns and tips as the buildings' timber does
 ## (docs/briefs/prop-lab.md); PropModels' model of it stays as its target until Sean's passed it.
 
@@ -14,7 +14,8 @@ static var _manifest := {}
 ## Build props with PropModels' code models where there's no .glb (off: the coloured boxes, as
 ## before, for tests and comparisons).
 static var use_models := true
-## Props the prop kit has come as kit props (off: PropModels' solid ones, for comparing the two).
+## Props the prop kit has (and has put in the game: its file's "in_game") come as kit props (off:
+## PropModels' solid ones, for comparing the two).
 static var use_kit := true
 ## How many of each prop have been made: the next one's variant (bottles' glass and labels...).
 static var _made := {}
@@ -52,7 +53,7 @@ static func has_model(id: StringName) -> bool:
 static func spawn(id: StringName, model: Node3D = null) -> Node3D:
 	var def := definition(id)
 	assert(not def.is_empty(), "Unknown prop %s" % id)
-	if model == null and use_kit and use_models and PropKit.has(id):
+	if model == null and use_kit and use_models and PropKit.has(id) and PropKit.definition(id).get("in_game", false):
 		var kit := PropKit.spawn(id)
 		kit.set_meta(&"prop_id", id)
 		kit.set_meta(&"placeholder", false)

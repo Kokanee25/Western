@@ -106,3 +106,41 @@ func test_door_is_open_and_walkable() -> void:
 	var wall_from := store.to_global(Vector3(0.3, 1.5, -1.0))
 	var wall_to := store.to_global(Vector3(0.3, 1.5, 1.5))
 	check(not space.intersect_ray(PhysicsRayQueryParameters3D.create(wall_from, wall_to)).is_empty(), "the wall beside it is solid")
+
+
+## A charge's hole in a board (Structure.cut_member): the stretch torn out flies in short pieces,
+## the ends either side stay in the frame as members of their own, resting where the board rested,
+## and the record of it saves.
+func test_a_cut_board_keeps_its_ends_in_the_frame() -> void:
+	var board: StructureMember = null
+	for m in store.members_of_kind(&"floor_board"):
+		if m.length() > 3.0:
+			board = m
+			break
+	check(board != null, "a long floor board")
+	var length := board.length()
+	var rubble_before := store.rubble.size()
+	var left := store.cut_member(board, -0.3, 0.4, Vector3.UP * 3.0)
+	check(board.broken and board.has_meta(&"cut"), "the board itself is gone, its cut recorded")
+	check_eq(left.size(), 2, "two ends left")
+	var lengths := 0.0
+	for p in left:
+		check(not p.broken and store.get_member(p.member_id) == p, "%s stands, by its own id" % p.member_id)
+		check(not p.supported_by.is_empty(), "%s rests on something (%s)" % [p.member_id, p.supported_by])
+		lengths += p.length()
+	check_near(lengths, length - 0.7, 0.001, "the ends are the board less the stretch")
+	check(store.rubble.size() - rubble_before >= 2, "the stretch flies in pieces (%d)" % (store.rubble.size() - rubble_before))
+	var fell := store.settle()
+	for p in left:
+		check(not p.broken, "%s still stands after the building settles (%s)" % [p.member_id, fell.slice(0, 6)])
+	check(store.members_without_load_path().is_empty(), "nothing else lost its load path")
+	var saved: Dictionary = store.to_dict()
+	check(saved.cuts.has(String(board.member_id)), "the save has the cut")
+
+
+func test_a_short_end_goes_with_the_stretch() -> void:
+	var board: StructureMember = store.members_of_kind(&"floor_board")[5]
+	var half := board.length() * 0.5
+	var left := store.cut_member(board, -half + 0.05, 0.2)
+	check_eq(left.size(), 1, "the 5 cm end isn't left hanging: one piece stays")
+	check_near(left[0].length(), half - 0.2, 0.001, "the far end")

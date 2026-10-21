@@ -3,6 +3,7 @@
   "id": "chair",
   "kind": "members",
   "replaces": "chair",
+  "in_game": true,
   "wood": "oak",
   "look": "prop:mid_wood",
   "splits_below": 0.5,

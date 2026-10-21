@@ -2,7 +2,8 @@ class_name PropKit
 ## The prop kit (docs/briefs/prop-lab.md; docs/PARTS.md "Props"): every prop defined once, as data,
 ## one file per prop in assets/props/kit/<id>.json, built by one builder (KitProp). A kit file:
 ##
-##   {"id", "kind": "members", "replaces": the PropLibrary prop it stands in for,
+##   {"id", "kind": "members", "replaces": the PropLibrary prop it stands in for, "in_game": true
+##    once PropLibrary hands it out in that prop's place (its look passed),
 ##    "wood": the timber (TimberTuning), "look": the drawn material (below),
 ##    "splits_below": the share of a member's section left below which a holed member splits,
 ##    "blow_wood_share": how much of a blow's lost energy goes into the wood,

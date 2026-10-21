@@ -28,8 +28,8 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The saloon's stair and corner balcony, as members (posts, beam, ledger, joists) | `src/art/saloon_dressing.gd` (art builds it, as members) | tests | in the game |
 | Boardwalks with steps and walking ramps | `src/structures/boardwalk.gd` | tests | in the game |
 | Hitching rail, water trough, well, windpump, corral | `src/structures/` | tests | in the game |
-| A stair walked by a ramp but fallen down tread by tread (the ramp only stops walkers, `Layers.WALK`) | `src/bodies/layers.gd`, the saloon stair | ragdoll lab, round 4 (`tests/test_stair_ramp.gd`) | on a branch (`claude/gameplay-falls-props`) |
-| A falling man breaks the timber he hits (`BodyImpacts`; a freed upright held by its nails in proportion to its section) | `src/structures/body_impacts.gd` | ragdoll lab, round 4 (`tests/test_body_impacts.gd`) | on a branch (`claude/gameplay-falls-props`) |
+| A stair walked by a ramp but fallen down tread by tread (the ramp only stops walkers, `Layers.WALK`) | `src/bodies/layers.gd`, the saloon stair | ragdoll lab, round 4 (`tests/test_stair_ramp.gd`) | in the game |
+| A falling man breaks the timber he hits (`BodyImpacts`: his speed past what breaks it carries on; trim gives way at its nails; a freed upright held by its nails in proportion to its section) | `src/structures/body_impacts.gd` | ragdoll lab, round 4 (`tests/test_body_impacts.gd`, groups Q and T) | in the game |
 | Breakable railing (posts, rails, balusters that a body breaks through) | the ragdoll lab's 1 m fixture (group Q) | ragdoll lab, round 4 | waiting to be promoted: a railing part in `src/structures/` built from members, used by the saloon's balcony and stair, and any building's |
 
 ## Bodies and people (gameplay; characters for the men)
@@ -41,6 +41,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The faint | `src/bodies/human_body.gd` | ragdoll lab | on a branch (`claude/gameplay-faint`) |
 | Field first aid: pressure, tourniquet, bandage (the player's tend key; outlaws tend themselves) | `src/bodies/physiology.gd`, `src/player/player_wounds.gd`, `src/people/outlaw_brain.gd` | tests | in the game; the treatment lab widens it |
 | Senses, deeds, relations, the escalation ladder, the gang's crew | `src/people/` | tests | in the game |
+| A working face (mouth, lips, teeth, lids, jaw, 12-15 shapes, Live Link takes, `FaceGaze`) | `tools/faces/`, `bold_cowboy_talking` | face rig brief (`docs/briefs/face-rig.md`) | in the game on the old layered cowboy only; the face rig lab brings it to the Studio's men |
 | The Studio's men: `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `sean_s2` | `assets/people/` | `works_check.gd`, `test_bodies.gd` | in the game (cast as the gang, the storekeeper and the sheriff) |
 
 ## Materials and look (art)
@@ -60,6 +61,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | --- | --- | --- | --- |
 | The 12 drawn props (card table, chair, bar stool, piano, barrel, spittoon, oil lamp, whiskey bottle, tin cup, deer head, framed painting, wall sconce) | `assets/props/manifest.json`, `src/props/prop_library.gd`, `src/props/prop_models.gd` | the judge's shots, `tests/test_props.gd` | in the game, solid (one collision box, can't break or burn); targets for their kit versions. The chair and card table now spawn as kit props (below); PropModels' two stay as their targets until Sean passes the kit's look |
 | Buildings' hand-built furnishings (store, telegraph, doctor, bank; the saloon's bar and back bar) | `FalseFrontBuilding._furnish_*`, `SaloonBuilding._build_furniture` | `tests/test_town_buildings.gd` | in the game, as members; to be brought into the kit |
+| Water: buckets, the bucket line, dousing, wet members | `src/fire/`, `src/people/bucket_line.gd` | tests | in the game; the water lab adds liquid in containers, spills and the flood |
 | A smashed lamp spills burning oil | `src/world/oil_lamp.gd` (`smash`), `src/structures/fittings.gd`, `FireSystem.spill` | `tests/test_fittings.gd`, `tests/test_fire.gd` | in the game |
 | **The prop kit**: one data file per prop (`assets/props/kit/<id>.json`: members, their draw and dress, wood, look, seat), one builder | `src/props/prop_kit.gd` (`PropKit`: load, expand, draw shapes, spawn), `src/props/kit_prop.gd` (`KitProp`, a `Structure`) | `tests/test_prop_kit.gd`; the prop lab's bench (`experiments/prop_lab/`) | on a branch (`claude/prop-lab-inventory-kit-buch2n`): `PropLibrary.spawn` hands out the kit's version of any prop the kit has |
 | `KitProp`'s rules: stands on what's under its feet (falls when its floor goes); tips when its weight and a seated man's aren't over its feet (less his sway); a holed slender member splits (`splits_below`); a blow (kick) breaks the member it lands on or moves the prop (inelastic knock, the wood's `toughness`); a blast it survives throws it, each member pushed by `Blast.face_impulse` at that member (a stick 1 m off throws the table over and it comes apart where it lands); what stood only on it (Fittings' items: the lamp) comes down with it at once | `src/props/kit_prop.gd` | `tests/test_prop_kit.gd` (8) | on a branch (with the kit) |

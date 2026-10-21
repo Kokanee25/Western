@@ -306,11 +306,12 @@ frozen until Sean names one.
   space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
   cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
-  stains read as light, not dirt. **Round 4** (free, `claude/art-round4`, set studio7: stains
-  multiply the board down, bleach on sky faces only, calmer trim and timber, less sheen): the critic
-  1 SAME / 7 CLOSE / 0 DIFFERENT, the first set with no wood DIFFERENT. **Next: round 5, free**
-  (the brief's "What's next": the low siding's pale boards showing between the mud), then Sean's
-  picks on `round4_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
+  **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
+  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
+  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
+  Sean's picks on `round5_sheets/`. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -374,9 +375,15 @@ frozen until Sean names one.
   collide, no push past physics, his hat off when it meets the ground, hip and spine cones centred
   anatomically, and a hit short of a fall shows as the wound's consequence (`_favour_step`). Lab
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
-  re-approved (art's, Sean's OK). Next: **the faint** (Sean: "maybe just the fainting needs
-  work"; his OK to try a stance with the weight ~3 deg forward at the ankles), then his stairs,
-  railings, tables, chairs and props.
+  re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
+  and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
+  squat as his tone lets go). **Round 4: stairs, railings, props** (`claude/gameplay-falls-props`, PR to main;
+  `results/2026-10-21_round4/`): the new men's baseline (critic 4.8/10); friction and the back arch
+  off tried, not kept; the saloon stair's ramp on `Layers.WALK` (falling men meet the treads);
+  `BodyImpacts` (a limp man thrown into timber breaks it and carries on through; groups Q and T,
+  the game's saloon in the lab). Next: the railing promoted to a part in `src/structures/`
+  (`docs/PARTS.md`), then the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him
+  at a stair's head; a trunk-first sweep started); loose props wait on Sean.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -391,6 +398,19 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
+- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200): bench and baseline (`baseline/`): props never
+  break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
+  into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
+  `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
+  made: `Blast.gather` (the near field queried on its own; `results/2026-10-21_near_field/`): the
+  street breaks where the stick is, more far panes go. Step 2 made: boards cut over the stretch the
+  blast overcomes (`Blast.torn_stretch`, `Structure.cut_member`; `results/2026-10-21_board_cut/`):
+  holes, not missing boards; one stick a crawl hole in a wall, three a doorway (Sean's feel call);
+  glass-only buildings not re-settled. **The blast's look** (Sean: "try doing the art", art's
+  ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
+  dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
+  catches 1–4 s later; three blast goldens re-approved. Next: the dig-able ground and craters (its
+  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
