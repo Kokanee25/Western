@@ -19,6 +19,7 @@ func before_each() -> void:
 	bridge = DevBridge.new()
 	bridge.main = holder
 	bridge.port = TEST_PORT
+	bridge.labs_dir = "res://tests/labs"
 	holder.add_child(bridge)
 	await process_frames(2)
 
@@ -87,3 +88,30 @@ func test_a_look_value_set_and_read_back() -> void:
 	check(replies[2].ok and is_equal_approx(float((street.find_child("DayCycle", true, false) as DayCycle).config.exposure_night), 0.6),
 			"a day cycle value set")
 	check(not replies[3].ok, "a name that isn't there says so")
+
+
+func test_a_lab_adds_its_own_commands() -> void:
+	var replies := await _ask(["echo three gunmen", "later 0.5", "ping", "count", "help", "events 5"])
+	check_eq(String(replies[0].get("said", "")), "three gunmen", "echo_lab's command answered from its own folder")
+	check(float(replies[1].t) - float(replies[0].t) >= 0.49 and is_equal_approx(float(replies[1].waited), 0.5),
+			"a lab's command can take game time")
+	check(replies[2].ok, "a lab can't take the bridge's own ping")
+	check_eq(int(replies[3].get("count", 0)), 3, "a second lab's command")
+	check(replies[4].commands.any(func(l: String) -> bool: return l.begins_with("echo WORDS") and "(echo_lab)" in l),
+			"help lists a lab's commands and whose they are")
+	var labs: Dictionary = replies[4].labs
+	check_eq(labs.echo_lab.commands, ["echo", "later"], "echo_lab's ping refused")
+	check_eq(labs.greedy_lab.refused, ["echo", "ghost"], "greedy_lab's echo (taken) and ghost (no method) refused")
+	check(String(labs.not_a_lab).begins_with("not loaded"), "a bridge.gd that isn't a BridgeLab is skipped")
+	check(replies[5].events.any(func(e: Dictionary) -> bool: return e.kind == "echo"), "a lab writes to the event log")
+
+
+func test_the_real_labs_load() -> void:
+	# Every experiments/*/bridge.gd loads and keeps its commands (nothing refused).
+	var b := DevBridge.new()
+	b.main = holder
+	b.port = TEST_PORT + 1
+	holder.add_child(b)
+	await process_frames(2)
+	for lab: String in b._labs:
+		check(b._labs[lab] is Array, "%s's commands all added (%s)" % [lab, b._labs[lab]])
