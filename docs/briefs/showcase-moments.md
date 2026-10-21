@@ -23,6 +23,13 @@ and puts the gun in his mouth. You have seconds.
 - **What stays:** the cheater owes you his life, or the victim's friends want you, or a witness
   tells the deputy you shot a man defending his money. Some days the victim was cheated; some days
   he's lying.
+- **The punchline (Sean):** whatever happens, dead man on the floor or not, the barman's first
+  words are about his furniture: "Jesus, Cody, my chair!" Make it a rule, not a line for this
+  scene: **owners care about their own things first.** When something a person owns breaks, he
+  reacts to the damage and names whoever did it (the barman's chair, the storekeeper's window,
+  the doctor's lamp), at the right moment (once it's safe to talk), and remembers who owes him.
+  It's the same joke every time it's earned, and it comes from ownership (DESIGN.md §10), which
+  every prop and member can carry.
 - **Fits:** Phase 3's "saloon table" mission and the story's saloon-table prologue (DESIGN.md §5).
 - **Needs:** a chair that breaks or tips (prop lab), the fall (ragdoll lab), confrontation and
   escalation, the nod, perception and witnesses.
