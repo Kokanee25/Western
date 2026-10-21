@@ -811,3 +811,28 @@ func test_the_coat_skirt_hangs_from_his_hips_not_his_arms() -> void:
 	check(low > 20, "the coat has a skirt (%d vertices below the hips)" % low)
 	check_eq(bad, 0, "and none of it is tied to his arms")
 	coated.queue_free()
+
+
+func _drawn_finger_shown(m: HumanBody, fid: StringName) -> bool:
+	for mi in (m.fingers[fid] as Node3D).find_children("*", "MeshInstance3D", true, false):
+		if (mi as MeshInstance3D).visible:
+			return true
+	return false
+
+
+func test_a_whole_mans_own_hands_get_no_second_set_of_fingers() -> void:
+	# The Character Studio's men have Rodin's hands in their skin: the drawn fingers would be a
+	# second hand on his. Hidden; one shot off still flies as a drawn finger.
+	var studio := HumanBody.new()
+	studio.body_model = &"bold_cowboy_s0"
+	studio.position = Vector3(3, 0, 0)
+	world.add_child(studio)
+	await physics_frames(2)
+	check(not _drawn_finger_shown(studio, &"index_r"), "his drawn fingers hidden")
+	check(_drawn_finger_shown(man, &"index_r"), "the default man's still drawn")
+	var knuckle := studio.fingers[&"index_r"] as Node3D
+	studio.sever_finger(&"index_r", Vector3.RIGHT)
+	var shown := false
+	for mi in knuckle.find_children("*", "MeshInstance3D", true, false):
+		shown = shown or (mi as MeshInstance3D).visible
+	check(shown, "the finger shot off flies, drawn")

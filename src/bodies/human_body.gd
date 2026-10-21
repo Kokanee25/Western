@@ -638,8 +638,10 @@ func _build_skin() -> void:
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
 	_own_fingers(data)
-	if not _finger_rig.is_empty():
-		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off.
+	if not _finger_rig.is_empty() or (bool(data.get("whole", false)) and not data.has("fingers")):
+		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off. A whole
+		# man's own hands are in his skin (the Character Studio's men): the drawn fingers would be
+		# a second hand on his, so they're hidden too (until the Studio skins his fingers).
 		for fid: StringName in finger_bones:
 			for bone: Node3D in finger_bones[fid]:
 				for c in bone.get_children():
