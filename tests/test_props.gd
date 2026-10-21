@@ -46,6 +46,8 @@ func test_every_prop_has_a_code_model_its_real_size_on_the_texel_grid() -> void:
 		check(absf(b.size.x - want.x) / want.x < 0.35 and absf(b.size.z - want.z) / want.z < 0.6,
 				"%s: about its real width and depth (%s vs %s)" % [id, b.size, want])
 		for mi: MeshInstance3D in prop.find_children("*", "MeshInstance3D", true, false):
+			if mi.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
+				continue  # a kit prop's shadow mesh (Structure._build_shadow): never seen
 			var m := mi.material_override
 			check(m is ShaderMaterial and (m as ShaderMaterial).shader == PixelArt.GRID_SHADER or mi.name == &"Chimney",
 					"%s/%s on the texel grid" % [id, mi.name])

@@ -267,6 +267,7 @@ python3 tools/bridge.py stop
 - **src/art/street_match.gd** — the street painting's shot, the judge's scores.
 - **The texture factory (tools/textures)** — materials.json, paint, reduce, flames, backdrop.
 - **src/props/prop_models.gd** — props modelled in code, prop views.
+- **The prop kit (src/props/prop_kit.gd, kit_prop.gd)** — props as data, built of members; the bench.
 - **src/art/saloon_dressing.gd** — the saloon's walls, bar, dressing.
 - **src/art/sign_art.gd and the backdrop** — lettering, the painted backdrop, FacadeArt.
 - **Characters by image-to-3D (tools/characters)** — the People workflow, Tripo/Rodin, head
@@ -411,3 +412,10 @@ frozen until Sean names one.
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
   own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+
+**Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
+`assets/props/`):
+- The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
+  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
+  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
+  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.

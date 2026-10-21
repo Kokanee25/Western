@@ -1,0 +1,74 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 0.51,
+    "before_ms": 0.07,
+    "event_ms": 7.92,
+    "settle_ms": 3.19
+  },
+  "hits": [
+    {
+      "j_in": 234.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 246.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 240.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 235.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 241.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 224.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 237.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 247.0,
+      "through": false,
+      "what": "seat"
+    },
+    {
+      "j_in": 214.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 13,
+  "pieces": 0,
+  "prop": "chair",
+  "scenario": "chair_shotgun_5m",
+  "snapped": []
+}

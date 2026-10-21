@@ -23,6 +23,10 @@ extends Resource
 	# charge or a fall here could break (USDA Wood Handbook's figures for the woods; iron's from
 	# period engineering tables, rounded).
 	&"iron": {"density": 7600.0, "bending": 250e6, "compression": 250e6, "stiffness": 190e9},
+	# Clear white oak, dressed (the prop kit's chairs and tables): the Wood Handbook's clear-wood
+	# figures at 12% moisture, not cut down (furniture stock is picked clear); `toughness`, its work
+	# to maximum load in bending (J/m³), is what a blow must put into it to break it (KitProp).
+	&"oak": {"density": 750.0, "bending": 105e6, "compression": 51e6, "stiffness": 12.3e9, "toughness": 101e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 

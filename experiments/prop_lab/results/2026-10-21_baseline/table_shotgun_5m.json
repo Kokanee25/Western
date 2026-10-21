@@ -1,0 +1,78 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 0.79,
+    "before_ms": 0.03,
+    "event_ms": 23.06,
+    "settle_ms": 3.67
+  },
+  "hits": [
+    {
+      "j_in": 234.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 240.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 235.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 241.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 224.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 237.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 247.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 239.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 154.0,
+      "through": false,
+      "what": "Ground"
+    }
+  ],
+  "lamp": {
+    "smashed": false,
+    "spills": 0
+  },
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 20,
+  "pieces": 0,
+  "prop": "card_table",
+  "scenario": "table_shotgun_5m",
+  "snapped": []
+}
