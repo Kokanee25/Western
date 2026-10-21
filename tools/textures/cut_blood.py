@@ -30,6 +30,12 @@ def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0):
     h, w = a.shape[:2]
     qy, qx = divmod(quadrant, 2)
     q = a[qy * h // 2:(qy + 1) * h // 2, qx * w // 2:(qx + 1) * w // 2]
+    if key == "none":
+        # A swatch filling its quarter: the middle of it, all of it opaque.
+        inset = q.shape[0] // 12
+        sq = q[inset:q.shape[0] - inset, inset:q.shape[1] - inset]
+        out = np.concatenate([sq, np.full(sq.shape[:2] + (1,), 255.0, dtype=np.float32)], axis=2)
+        return Image.fromarray(out.astype(np.uint8), "RGBA")
     if key == "red":
         # Only the crimson: red well over green (the cloth it was painted on, beige, brown or grey,
         # drops out). `lo`/`hi` are the red-to-green ratio where it starts to show / is solid.

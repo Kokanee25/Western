@@ -68,10 +68,32 @@ SHEETS = {
             "outward in torn flaps round a dark bloody hole; a blast wound, skin torn open and peppered "
             "round it with small bleeding wounds from flying gravel; a long gash torn open to the red "
             "muscle, blood welling. Seen straight on, flat. " + WHITE,
+    # The gore lab's second round (docs/briefs/gore-lab.md). A near shot with black powder leaves
+    # soot and a tattoo of burnt grains round the hole (DiMaio); a burn goes red, blisters, chars.
+    "marks2": "Four separate marks for a gritty frontier Western game, frank and bloody: a small bullet "
+              "hole on weathered skin with a sooty black ring round it and a wide peppering of tiny dark "
+              "burnt powder grains tattooed into the skin around that; a bloody handprint, a whole palm "
+              "and fingers pressed flat in wet blood; a long smear of blood where a bleeding body was "
+              "dragged, streaked along its length; a burn on skin, an angry red patch with blisters and "
+              "charred black edges. Each seen straight on, flat. " + WHITE,
+    # The doctor's work and after: a flap amputation closed over the bone with stitches (the
+    # Medical and Surgical History), a healed bullet scar, a wound gone bad.
+    "aftercare": "Four separate studies for a gritty frontier Western game: the end of an amputated "
+                 "limb seen exactly end-on, a round stump closed with a flap of skin and a line of dark "
+                 "surgical stitches across it, bruised and a little bloody; a healed bullet scar on "
+                 "weathered skin, a pale pink puckered round scar; an infected bullet wound, red and "
+                 "swollen, yellow pus, dark dead edges; blood that has run from a man's ear in thin "
+                 "trickles down his skin. Each seen straight on, flat. " + WHITE,
+    "cloth": "Four square swatches of cloth for a frontier Western game, each filling its whole quarter "
+             "of the picture edge to edge, seen flat, the four in a two by two grid with a thin gap: "
+             "off-white linen bandage, a loose weave; the same bandage soaked through with dark blood "
+             "in the middle; faded red cotton kerchief cloth; cloth burnt black and brown, charred and "
+             "holed. " + factory.MAN_HAND + " No text, no border.",
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
-MODELS = {"stumps": "google/gemini-3-pro-image-preview", "gore": "google/gemini-3-pro-image-preview"}
+GEMINI = "google/gemini-3-pro-image-preview"
+MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI}
 
 
 def main():

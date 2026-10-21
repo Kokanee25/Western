@@ -1,5 +1,5 @@
 {
-  "_doc": "cut_blood.py: each painted sheet's four quadrants (top left, top right, bottom left, bottom right) and the PixelArt.blood key each becomes (an empty key skips it), and the texture's size in pixels. lo/hi (0..255): how far from white a pixel must be to start to show / to be solid; the wounds' are high, so the pale skin the model painted round them drops out and only the wound and its blood are laid on him. tint: [darkest, lightest] RGB for a mark painted in black ink (splats, pools), coloured from its darkness in the game's blood reds. key: \"white\" (the default: keyed out from the white ground) or \"red\" (only what's crimson: the stains, painted on swatches of cloth). soak: RGB of a wet patch laid under a painted stain, spread from its own shape. open: thin lines dropped from a mark (pixels, odd; the pools' painted outline). core: cropped to all but this share of the mark's mass off each side (the stains' stray threads). face: a limb's cut face painted at a slant, found by its colours and stretched back to a circle seen end-on (the stumps). mirror: a key made by turning another over (a mark that didn't cut clean: the stain painted on brown wool kept its square of cloth, the one on dark grey wool was too faint to key).",
+  "_doc": "cut_blood.py: each painted sheet's four quadrants (top left, top right, bottom left, bottom right) and the PixelArt.blood key each becomes (an empty key skips it), and the texture's size in pixels. lo/hi (0..255): how far from white a pixel must be to start to show / to be solid; the wounds' are high, so the pale skin the model painted round them drops out and only the wound and its blood are laid on him. tint: [darkest, lightest] RGB for a mark painted in black ink (splats, pools), coloured from its darkness in the game's blood reds. key: \"white\" (the default: keyed out from the white ground) or \"red\" (only what's crimson: the stains, painted on swatches of cloth) or \"none\" (the whole quarter, a swatch: the cloth). soak: RGB of a wet patch laid under a painted stain, spread from its own shape. open: thin lines dropped from a mark (pixels, odd; the pools' painted outline). core: cropped to all but this share of the mark's mass off each side (the stains' stray threads). face: a limb's cut face painted at a slant, found by its colours and stretched back to a circle seen end-on (the stumps). mirror: a key made by turning another over (a mark that didn't cut clean: the stain painted on brown wool kept its square of cloth, the one on dark grey wool was too faint to key).",
   "sheets": {
     "splats": {
       "keys": [
@@ -94,6 +94,34 @@
       "key": "red",
       "lo": 1.45,
       "hi": 2.1
+    },
+    "marks2": {
+      "keys": [
+        "powder",
+        "handprint",
+        "smear",
+        "burn"
+      ],
+      "size": 128
+    },
+    "aftercare": {
+      "keys": [
+        "stump_sewn",
+        "scar",
+        "infected",
+        "ear_run"
+      ],
+      "size": 128
+    },
+    "cloth": {
+      "keys": [
+        "bandage",
+        "bandage_soaked",
+        "sling",
+        "charred"
+      ],
+      "size": 128,
+      "key": "none"
     }
   },
   "mirror": {
