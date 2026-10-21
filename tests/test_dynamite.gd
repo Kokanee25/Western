@@ -276,8 +276,10 @@ func test_it_can_start_a_fire() -> void:
 	for k in 4:
 		Blast.detonate(world, _outside(store, siding, 0.3) + Vector3.UP * 0.4 * k, 0.15)
 		await physics_frames(1)
+	check_eq(fire.burning_members().size(), 0, "nothing alight in the flash itself")
+	fire.step(Blast.t().ignite_delay.y + 0.1)
 	lit = fire.burning_members().size()
-	check(lit >= 1, "dry wood caught (%d burning)" % lit)
+	check(lit >= 1, "dry wood caught a moment after (%d burning)" % lit)
 
 
 # --- People -------------------------------------------------------------------------------------------

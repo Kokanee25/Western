@@ -5,7 +5,7 @@ class_name Blast
 ## - timber breaks when the kick it's given (impulse² / 2m) passes what it can soak up bending,
 ##   and the pieces fly; splinters off it are flown as projectiles;
 ## - panes crack from a few kPa, much further out;
-## - dry wood in the fireball may catch;
+## - dry wood in the fireball may catch (a moment later: it smoulders first);
 ## - loose things are pushed; other sticks close by go off with it;
 ## - people take it through `take_blast(at, kg)` (ears, lungs, head, thrown down, torn open, limbs).
 ## Tuning in config/blast.tres (BlastTuning).
@@ -95,7 +95,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 					cut = torn_stretch(m, at, kg, s.tuning if s and s.tuning else load("res://config/timber.tres"))
 				by_structure.get_or_add(s, []).append([m, hitres.push, hitres.distance, cut])
 			elif fire and fire.flammable(m) and hitres.distance < fireball and _rng.randf() < tn.ignite_chance:
-				fire.ignite(m)
+				fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
 		elif c is DynamiteStick:
 			sticks.append(c as DynamiteStick)
 		elif c is RigidBody3D:
@@ -143,7 +143,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				var catching: Array = list[i].get_meta(&"cut_pieces", [list[i]])
 				for m: StructureMember in catching:
 					if is_instance_valid(m) and fire.flammable(m) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
-						fire.ignite(m)
+						fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
 	# Gravel and grit off the ground, if it went off on (or near) it.
 	if ballistics:
 		var down := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD)

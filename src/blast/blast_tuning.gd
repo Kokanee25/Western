@@ -66,6 +66,8 @@ extends Resource
 @export var fireball_per_cbrt_kg := 1.4
 ## The flash is over in a moment: only now and then does a board in it catch.
 @export var ignite_chance := 0.12
+## Wood it lights catches this many seconds after the flash (seeded within the range), out of the dust.
+@export var ignite_delay := Vector2(1.0, 4.0)
 @export var burn_in_fireball := 1.2
 
 @export_group("People")
