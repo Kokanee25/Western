@@ -38,6 +38,9 @@ var friction_ends := -1.0
 ## --surface-friction: every fixture body's friction but the ground's (a stair's oak, a rail, the
 ## props; the world has none, so 1.0). Jolt takes the lower of the two surfaces' frictions.
 var surface_friction := -1.0
+## --jitter=N: his start moved by up to 2 cm and turned by up to 3 deg, drawn from N (0: none), so a
+## chaotic fall can be run several times and its spread compared rather than one sample.
+var jitter := 0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -105,13 +108,19 @@ func _ready() -> void:
 	if surface_friction >= 0.0:
 		var pm := PhysicsMaterial.new()
 		pm.friction = surface_friction
-		var ground := _world.get_child(0) if String(scenario.get("fixture", "ground")) != "slope" else null
+		var ground := _world.get_child(0)  # the ground, or the slope (dirt either way)
 		for n: Node in _world.find_children("*", "StaticBody3D", true, false):
 			if n != ground:
 				(n as StaticBody3D).physics_material_override = pm
 	_light()
 	var yaw := deg_to_rad(float(scenario.get("yaw", 0.0)))
-	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point())
+	var nudge := Vector3.ZERO
+	if jitter > 0:
+		var r := RandomNumberGenerator.new()
+		r.seed = jitter
+		nudge = Vector3(r.randf_range(-0.02, 0.02), 0.0, r.randf_range(-0.02, 0.02))
+		yaw += deg_to_rad(r.randf_range(-3.0, 3.0))
+	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point() + nudge)
 	count = maxi(count, int(scenario.get("men", 1)))
 	for i in count:
 		var man := HumanBody.new()

@@ -145,6 +145,8 @@ func _run() -> void:
 				runner.model = StringName(args.model)
 			if args.has("friction"):
 				runner.friction = float(args.friction)
+			if args.has("jitter"):
+				runner.jitter = int(args.jitter)
 			if args.has("surface-friction"):
 				runner.surface_friction = float(args["surface-friction"])
 			if args.has("friction-ends"):
