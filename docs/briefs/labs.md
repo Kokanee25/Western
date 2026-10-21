@@ -1,0 +1,128 @@
+# Salt Creek: The Labs
+
+Oct 20, 2026 · @Sean
+
+Three labs to build now, each a test bench like the ragdoll lab: the gunfight lab first, then the body lab and the breakage lab. Each measures before it changes anything, and each serves a Phase 3 step already on the roadmap.
+
+## How every lab works
+
+Every lab copies the ragdoll lab (`experiments/physics_lab/`, Prompt 01), which took the falls from 90 flagged faults to 10.
+
+1. **Fixed scenarios.** The same setups every run, seeded, so two runs of the same build give the same numbers.
+2. **Run headless, many times.** Through the dev bridge, so hundreds of runs cost minutes, not Sean's evenings.
+3. **Numbers and contact sheets.** Each run logs what happened; a sheet of matched frames shows it.
+4. **Baseline first, changing nothing.** The first session only builds the bench and measures today's game.
+5. **Fixes measured against the baseline.** One change at a time, each with its before and after.
+6. **Then people play it.** The playtest agent blind, then Sean. Numbers catch what's broken; only play says what's fun.
+
+Each lab lives in its own folder under `experiments/`, with outputs under `build/` (never videos in git), and can merge once tested, since a lab changes nothing about how the game plays.
+
+## Gunfight lab
+
+The arena that step 3.0 (`docs/briefs/three-gunmen.md`) asks for, built as a lab: three gunmen on the existing street, fought hundreds of times, with numbers that tell a dead fight from a tense one. Today both playtests say the gang hits first and the player is down in a second or two. Your brief wants 45–90 seconds of cover, flanking, reloads and retreats, with one good shot still able to end it.
+
+**Scenarios**
+
+| Setup | What it tests |
+| --- | --- |
+| Street: you at the trough, three men round the saloon porch and crates | The brief's main arena |
+| Saloon inside, lamps lit | Close quarters, lamps and fire as hazards |
+| Ambush: they open fire first, from cover | Whether you get a chance to react |
+| Each of the above at golden hour and at night, with revolver and with shotgun | Light and weapon change the fight |
+
+The gang's three tempers (Brody cool, Lyle a hothead, the Kid timid) are in every fight. A scripted player runs each setup in three styles (holds one spot, moves cover to cover, pushes hard), so the numbers don't reflect one way of playing.
+
+**What's measured**
+
+| Measure | Why it matters | Target |
+| --- | --- | --- |
+| Fight length | Too short is a coin toss; too long is a chore | 45–90 s in most fights, a quick end still possible |
+| Who hits first, hits per side | Today it's the gang, almost at once | You set it after the baseline |
+| Time before you're first hit | Room to react | You set it |
+| Near misses a minute (cracks, whizzes, dust close by) | Danger you feel without damage | Baseline first |
+| Cover changes, flanks, suppressing fire per man | The fight moves | Baseline first |
+| Situation changes: cover shot away, a lamp hit, dust hiding a man, a surrender or flight | "Every bullet should change the situation" | Baseline first |
+| Longest quiet stretch | A tense lull versus dead time | Baseline first |
+| How fights end: dead, surrendered, fled, you down | A spread, not one ending | Baseline first |
+
+**What changes, after the baseline:** the brief's own gaps, one at a time, each measured. NPC aim from the same physical sway the player has, not a random spread; sounds you can hear (steps on boards versus dirt, a hammer cocked, a shout); dust that hides a man; small interactions like a chair leg shot out.
+
+**How excitement is judged:** the numbers only catch dead fights. After each change you play three fights and say which was best and why. That's the real measure, and the numbers explain it.
+
+## Body lab
+
+A bench for wounds: shots and blasts into a standing man at fixed spots, with what the anatomy does checked against real trauma medicine, not guesses. It builds on what's there: `Anatomy` (bones, arteries and organs from `tools/anatomy/build_anatomy.py`), `Physiology`, `sever_limb`, `BodyInterior` and the wound shader.
+
+**Scenarios:** revolver and shotgun at 5, 15 and 30 m into marked spots (thigh, neck, upper arm, chest, belly, hand); dynamite at 1, 3 and 6 m; then the same wounds treated (tourniquet, packing, the doctor).
+
+| Measure | Checked against |
+| --- | --- |
+| What the ball's path crosses: which artery, bone, organ | The aim point, and anatomy references |
+| Bleed-out time per artery, untreated and treated | Published trauma figures, cited in the lab's README |
+| Which bones break, and what that does (can't stand on a broken thigh, can't grip with a broken hand) | Medical references |
+| Limbs lost: from what, at what range, where the cut falls | The design's rule: dynamite at close range can take limbs |
+| How it looks: wound, stump, blood pool | The painted wound targets, once the wound atlas exists |
+| Frame time with ten wounded men | The people budget, 4 ms |
+
+**What changes, after the baseline:** amputations with cleaner cut points and finished stumps; more of the named arteries where the baseline shows gaps; bone breaks that change what a man can do. "Better skeletons" here means anatomical bones. The animation skeleton, the one mocap needs, is Prompt 08's job and a separate lab.
+
+Reduced gore stays a setting throughout.
+
+## Breakage lab
+
+The test bench for step 3.3 (furniture): what breaks, how, and what it costs a frame, with furniture, bottles and walls against each weapon at set distances. It builds on the members and support graph, voxel carving, `Blast` (timbers broken by blast energy against their strength, glass by pressure) and `Fittings`. New: bottles and small props that shatter, since today they're props, not members.
+
+**Scenarios:** a chair, a table, a door, a bottle on the bar, a lamp, a window and the store front wall, each against the revolver at 5 m, the shotgun at 5 m, and dynamite at 1, 3 and 6 m. Then a man thrown into a table, ready for step 3.4 (shoves).
+
+| Measure | Why |
+| --- | --- |
+| Breaks or holds, and where | Against timber strengths from the USDA Wood Handbook, as the frame already uses |
+| Pieces, largest piece, how far debris flies | A chair should come apart into pieces, not dust or one lump |
+| What catches fire | A smashed lamp should start one; a dropped bottle shouldn't |
+| Physics faults: pieces through the floor, jitter, flying off at speed | The ragdoll lab's kind of flag |
+| Same seed, same result | The repo's rule for every simulation |
+| Frame time per blast | The wall scene's render CPU is already over budget, so every new piece counts |
+
+**What changes, after the baseline:** Prompts 03 and 06 as one job (chairs and tables built as members that break by how they're built, a seated man dropped when his chair goes), bottles that shatter and spill, and furniture that dynamite throws and breaks.
+
+## Other labs
+
+Two already exist; three more come later, each when its phase needs it.
+
+| Lab | Status | When |
+| --- | --- | --- |
+| Ragdoll lab: how a man falls | Built, `experiments/physics_lab/` | In use for 3.1 now |
+| Performance bench: every system against its frame budget | Built, `tools/perf_bench.gd` | Every merge |
+| Fire lab: spread speed against fire-science figures, smoke filling, the look | New | Phase 4, after Gate C |
+| Movement lab: walking, running and mocap on the skeleton | Started, `experiments/mocap_walk/` | Step 4.6, when you record |
+| People lab: town life, memory, what people do the next morning | New; the memory store isn't built yet | Phase 5 |
+
+Sound stays inside the gunfight lab for now (steps, cocking, shouts you can place). It gets its own lab only if that gap outgrows it.
+
+## Order and cost
+
+1. **Gunfight lab first.** It's step 3.0, the first step of Phase 3, and whether the game is fun is decided in its fights.
+2. **Body lab beside 3.1,** reusing the ragdoll lab's harness, since falls and wounds meet there.
+3. **Breakage lab before 3.3,** so furniture is built against numbers from the start.
+
+All three are the gameplay lane's files, so they run one after another in that lane. Running them side by side would mean a separate lab lane, past the roadmap's two-lanes-at-a-time rule; only you can change that.
+
+No paid calls: it's all simulation run headless. The cost is sessions out of the shared weekly usage, about one per lab to build the bench and its baseline before any fixing starts.
+
+### Sources
+
+Salt Creek repo, main at PR #154: `docs/ROADMAP.md` (Phases 2–3), `docs/briefs/three-gunmen.md`, `experiments/physics_lab/README.md`, `docs/LAYOUT.md` (structures, bodies, blast), `docs/prompts/STATUS.md`, `CLAUDE.md`.
+
+## Since (Sean, 2026-10-21)
+
+- Phase 1 is parked (the look is good enough to test with; Gate A is signed off before Phase 4),
+  and ▶ Now is Phases 2 and 3 together, with **up to four sessions at once** in this phase, so
+  the labs no longer have to wait for each other: each is its own folder and branch.
+- In `docs/ROADMAP.md`: the gunfight lab is 3.0's arena, the body lab is 3.1b (beside 3.1) and
+  the breakage lab 3.3a (before 3.3). Folders: `experiments/gunfight_lab/`,
+  `experiments/body_lab/`, `experiments/breakage_lab/`.
+- **Each lab's bridge commands live in its own folder:** `experiments/<lab>/bridge.gd`, extending
+  `BridgeLab` (`src/debug/bridge_lab.gd`), names its commands in a `HELP` constant and answers them
+  in `_cmd_<name>` methods. The dev bridge loads every lab's file when it starts, lists them in
+  `help`, and refuses a name it or an earlier lab already has. A lab never edits
+  `src/debug/dev_bridge.gd`, so labs running side by side don't collide.

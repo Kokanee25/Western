@@ -17,7 +17,7 @@ the history in `docs/status/`.
 
 ## How we work
 
-- **Sessions follow `docs/ROADMAP.md`:** at most two at a time, each on its lane's current step; the phase says which lanes are active (the three lanes, since 2026-10-05):
+- **Sessions follow `docs/ROADMAP.md`:** at most two at a time (up to four in Phases 2 and 3, Sean 2026-10-21), each on its lane's current step; the phase says which lanes are active (the three lanes, since 2026-10-05):
   - **Art:** shaders, textures and how things are lit and drawn (people included: how skin and
     cloth take light); the world's look, dressing, props; the judge, the critic and the golden
     images. Its files: `src/render/`, `src/bodies/shaders/`, every `*.gdshader`/`*.gdshaderinc`,
@@ -366,3 +366,6 @@ frozen until Sean names one.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
+- The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
+  commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
+  Next: the gunfight lab's bench and baseline.
