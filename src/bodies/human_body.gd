@@ -14,8 +14,17 @@ signal died(cause: StringName)
 
 ## Joint rotations per pose (degrees). A hanging limb swings forward with +X; the trunk and head
 ## lean back with +X (forward with -X). The rig drops so the lower foot stays on the ground.
+## Degrees a man standing easy leans forward from the ankles (the stand pose, below).
+const STAND_LEAN := 3.0
 const POSES := {
-	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
+	# Standing easy he leans a little forward from the ankles, his weight over the balls of his
+	# feet: a standing man's centre of mass is ~4-5 cm ahead of his ankles (D. A. Winter, "Human
+	# balance and posture control during standing and walking", 1995), held by his calves. Square
+	# over them (it was 1.2 cm), a faint dropped him straight down onto his heels; leaning so, it
+	# tips him over (Sean, 2026-10-21: "maybe just the fainting needs work"). The whole of him
+	# turns forward about his hips, his feet back flat.
+	&"stand": {&"pelvis": Vector3(-STAND_LEAN, 0, 0), &"foot_r": Vector3(STAND_LEAN, 0, 0), &"foot_l": Vector3(STAND_LEAN, 0, 0),
+			&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
 	&"aim": {&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
@@ -2362,8 +2371,12 @@ func _overlap_depth(a: RigidBody3D, b: RigidBody3D) -> float:
 const TONE := {
 	&"abdomen": 130.0, &"chest": 110.0, &"neck": 60.0, &"head": 30.0,
 	&"upper_arm": 30.0, &"forearm": 15.0, &"hand": 3.0,
-	&"thigh": 160.0, &"shin": 100.0, &"foot": 60.0,
+	&"thigh": 160.0, &"shin": 350.0, &"foot": 60.0,
 }
+## (The knee: a standing knee is locked straight, held by its ligaments while his weight is ahead of
+## it, not by muscle, so it doesn't give first. At 100, with him leaning as a man stands, a faint
+## still folded his knees under him onto his heels; at 350 he goes over as a whole: 9 of 19 standing
+## falls folded under -> 3, experiments/physics_lab/results/2026-10-21_faint.)
 const TONE_START := 0.55
 const TONE_START_CONSCIOUS := 0.7
 const TONE_FADE := 0.35
