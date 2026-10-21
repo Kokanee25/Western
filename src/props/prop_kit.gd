@@ -9,7 +9,7 @@ class_name PropKit
 ##    "blow_wood_share": how much of a blow's lost energy goes into the wood,
 ##    "seat": {"member", "at" (where his weight comes down), "share" (of his weight), "hold" (m)},
 ##    "members": [{"id", "kind", "size", "at", "rot" (degrees, XYZ), "wood", "look",
-##                 "splits_below", "draw", "repeat"}]}
+##                 "splits_below", "blow_span" (the length of it a blow bends), "draw", "repeat"}]}
 ##
 ## Positions in the prop's own space: origin at the bottom centre, facing +Z (as PropLibrary's).
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}

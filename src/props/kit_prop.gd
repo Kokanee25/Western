@@ -110,6 +110,56 @@ func _physics_step(delta: float) -> void:
 			return
 
 
+# --- Joints: what each member is fixed to at either end -----------------------------------------
+
+var _ends := {}  # StructureMember -> [ids joined at its one end, ids at its other]
+
+
+func infer_supports() -> void:
+	super.infer_supports()
+	_ends.clear()
+	for m in get_members():
+		var a: Array[StringName] = []
+		var b: Array[StringName] = []
+		var half := m.length() * 0.5
+		for id in m.touching:
+			var o := get_member(id)
+			# Which end: where the other's middle lies along this one (a stretcher's legs, a rail's
+			# posts, a spindle's seat and crest).
+			var t := (o.transform.origin - m.transform.origin).dot(m.axis())
+			if t < -half * 0.5:
+				a.append(id)
+			elif t > half * 0.5:
+				b.append(id)
+		if not a.is_empty() and not b.is_empty():
+			_ends[m] = [a, b]
+
+
+## Members fixed at both ends that have lost what held one of them: they hang from the other.
+func _hanging() -> Array[StructureMember]:
+	var out: Array[StructureMember] = []
+	for m: StructureMember in _ends:
+		if m.broken or m.grounded:
+			continue
+		var gone := func(ids: Array) -> bool: return ids.all(func(id: StringName) -> bool: return get_member(id).broken)
+		var e: Array = _ends[m]
+		if gone.call(e[0]) != gone.call(e[1]):
+			out.append(m)
+	return out
+
+
+## Going over, the prop comes down on the free ends of what hangs (a stretcher whose leg's gone,
+## a skid under it): each is held only at its joint, which takes BodyImpacts.nailed_moment before it
+## tears out; the weight on its free end (half the prop's, and the seated man's) over its length is
+## far more for a chair's rails. Those tear out and fall on their own.
+func _tear_hanging() -> void:
+	var w := mass() * 9.81 + (_seat_member.extra_load if _seat_member and seated else 0.0)
+	for m in _hanging():
+		if 0.5 * w * m.length() > BodyImpacts.nailed_moment(tuning, m):
+			var one: Array[StringName] = [m.member_id]
+			_drop(one)
+
+
 # --- Drawing: its members' dress layers batched with them ----------------------------------------
 
 var _dress := {}  # Material -> MeshInstance3D drawing the dress layers of the batched members
@@ -299,6 +349,7 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	var made: Array[RigidBody3D] = []
 	if loose:
 		return made
+	_tear_hanging()
 	loose = true
 	var ids: Array[StringName] = []
 	for m in get_members():
@@ -365,9 +416,14 @@ func _check_split(m: StructureMember) -> void:
 
 # --- Blows ---------------------------------------------------------------------------------------
 
-## What the wood of `m` takes before it breaks under a blow (J).
+## What the wood of `m` takes before it breaks under a blow (J): its toughness over the stretch of
+## it that bends, its kit spec's `blow_span` (a leg's length below the seat: the back posts run up
+## past the seat, and the back above it doesn't take a kick at the foot), else all of it.
 func toughness_of(m: StructureMember) -> float:
-	return float(tuning.wood(m.wood).get("toughness", tuning.impact_toughness)) * m.volume()
+	var spec: Dictionary = m.get_meta(&"kit", {})
+	var span := minf(float(spec.get("blow_span", m.length())), m.length())
+	var cs := m.cross_section()
+	return float(tuning.wood(m.wood).get("toughness", tuning.impact_toughness)) * cs.x * cs.y * span
 
 
 ## A blow (a kick, a stamp, a shove) of `impulse` (N·s, the momentum it brings) at `at` (world) on

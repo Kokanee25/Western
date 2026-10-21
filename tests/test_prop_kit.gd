@@ -197,3 +197,28 @@ func test_a_stick_beside_the_table_throws_it_over_and_brings_its_lamp_down() -> 
 	var top: Vector3 = table.get_meta(&"blast_push", Vector3.ZERO)
 	check(top.y > 0.0 and top.length() / 46.0 > 1.0, "the blast lifts it, faster than a metre a second (%s N·s)" % top)
 	check(fittings.items.any(func(it: Dictionary) -> bool: return it.node == lamp and it.down), "the lamp comes down with it")
+
+
+func test_both_back_legs_out_from_under_him_the_stretchers_tear_out_and_it_goes_over() -> void:
+	var chair := await _place(&"chair")
+	var man := Sitter.new(80.0)
+	world.add_child(man)
+	chair.sit(man)
+	await physics_frames(2)
+	chair.break_members([_m(chair, "post_back_l"), _m(chair, "post_back_r")] as Array[StructureMember], [Vector3.ZERO, Vector3.ZERO] as Array[Vector3])
+	await physics_frames(3)
+	check(chair.loose and man.limp, "the chair goes over with him")
+	for side in ["l", "r"]:
+		var st := _m(chair, "stretcher_" + side)
+		check(chair.rubble.any(func(rb: Variant) -> bool: return is_instance_valid(rb) and (rb as Node).get_meta(&"members", []) == [st.member_id]),
+				"the %s stretcher, its back leg gone, tears out at the front leg (no skid under it)" % side)
+
+
+func test_a_kick_at_a_back_leg_under_him_breaks_it() -> void:
+	var chair := await _place(&"chair")
+	var man := Sitter.new(80.0)
+	world.add_child(man)
+	chair.sit(man)
+	var post := _m(chair, "post_back_l")
+	var at := Vector3(post.global_position.x, 0.42, post.global_position.z)
+	check_eq(chair.take_blow(post, at, Vector3(0, 0, 48.0)), &"broke", "the back post's stretch below the seat takes the kick and breaks")
