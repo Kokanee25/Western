@@ -112,11 +112,29 @@ the playtest agent, then Sean.
    a body or a piece lying in the crater rests a few inches above its floor), or (b) the ground made
    a height field round town so a crater is a real dip (everything that walks, falls or rolls on the
    ground changes; costs a frame budget check and a soak). Recommendation: (a), and (b) only if the
-   lab and the playtest show things floating.
+   lab and the playtest show things floating. **But the shovel** (below) needs (b): if digging is
+   coming, the crater can be the dig-able ground's first user instead of something built twice.
 3. **Where it sits on the roadmap**: a new gameplay step beside 3.3 (furniture), since both cut and
    break members the same way? (`docs/ROADMAP.md` is Sean's to change.)
 4. **How big a hole one stick makes** in a plank wall is a feel number once it's built: a range for
    `config/feel_ranges.json`, set by Sean after he's seen it.
+
+## Later: digging with a shovel (Sean, 2026-10-21)
+
+Already parked in DESIGN.md §11 (Sean, 2026-10-05: "a shovel that digs real dirt, and treasure to
+find": the ground carved as the voxel damage carves members, the dirt thrown in a pile, things
+buried, graves). It isn't part of this job, but it shares its hardest part: a crater and a dug hole
+are the same thing, ground taken out of one place and heaped in another. So, whichever way decision
+2 goes:
+
+- The crater is stored as what the ground lost (where, how much, the shape) and where its earth
+  went, not as a picture: the same record a dug hole will need, in the save the same way.
+- If the drawn crater (a) comes first, it's replaced by the dig-able ground when digging is built,
+  and its lab scenarios (`ground_dynamite_*`) carry over to judge that ground.
+- If digging is wanted soon, choose (b) now: build the dig-able ground once (a height field, or
+  ground voxels round town as DESIGN.md has it), with the blast as its first user and the shovel
+  its second. That's a bigger job (walking, falling, rolling, the ground's look and its frame
+  budget all change) and wants its own brief.
 
 ## Sources
 
