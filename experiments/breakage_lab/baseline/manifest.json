@@ -1,0 +1,218 @@
+{
+ "source_sha": "4db022436ea73930c5d377d9fb715d147384b213",
+ "command": "experiments/breakage_lab/run.py --repeat=2 --out=build/breakage_lab/base",
+ "seed": 1,
+ "bodies": [
+  "bold_cowboy_s0",
+  "old_rancher_s1",
+  "young_drifter_s1",
+  "outlaw"
+ ],
+ "jobs": 4,
+ "games": 204,
+ "failed": [],
+ "cpu": "\t: Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "threads": 4,
+ "same_seed_same_result": {
+  "bottle_dynamite_1m__bold_cowboy_s0": [],
+  "bottle_dynamite_1m__old_rancher_s1": [],
+  "bottle_dynamite_1m__outlaw": [],
+  "bottle_dynamite_1m__young_drifter_s1": [],
+  "bottle_dynamite_3m__bold_cowboy_s0": [
+   "broken: 45 vs 47",
+   "pieces: 171 vs 174"
+  ],
+  "bottle_dynamite_3m__old_rancher_s1": [
+   "broken: 48 vs 45",
+   "pieces: 176 vs 171"
+  ],
+  "bottle_dynamite_3m__outlaw": [],
+  "bottle_dynamite_3m__young_drifter_s1": [
+   "pieces end up to 0.450 m apart"
+  ],
+  "bottle_dynamite_6m__bold_cowboy_s0": [],
+  "bottle_dynamite_6m__old_rancher_s1": [],
+  "bottle_dynamite_6m__outlaw": [],
+  "bottle_dynamite_6m__young_drifter_s1": [
+   "pieces end up to 9.556 m apart"
+  ],
+  "bottle_revolver_5m": [],
+  "bottle_shotgun_5m": [],
+  "chair_dynamite_1m__bold_cowboy_s0": [],
+  "chair_dynamite_1m__old_rancher_s1": [],
+  "chair_dynamite_1m__outlaw": [],
+  "chair_dynamite_1m__young_drifter_s1": [],
+  "chair_dynamite_3m__bold_cowboy_s0": [],
+  "chair_dynamite_3m__old_rancher_s1": [
+   "broken: 38 vs 35",
+   "pieces: 141 vs 136"
+  ],
+  "chair_dynamite_3m__outlaw": [
+   "broken: 38 vs 35",
+   "pieces: 141 vs 136"
+  ],
+  "chair_dynamite_3m__young_drifter_s1": [],
+  "chair_dynamite_6m__bold_cowboy_s0": [],
+  "chair_dynamite_6m__old_rancher_s1": [],
+  "chair_dynamite_6m__outlaw": [],
+  "chair_dynamite_6m__young_drifter_s1": [],
+  "chair_revolver_5m": [],
+  "chair_shotgun_5m": [],
+  "door_dynamite_1m__bold_cowboy_s0": [],
+  "door_dynamite_1m__old_rancher_s1": [],
+  "door_dynamite_1m__outlaw": [],
+  "door_dynamite_1m__young_drifter_s1": [],
+  "door_dynamite_3m__bold_cowboy_s0": [],
+  "door_dynamite_3m__old_rancher_s1": [],
+  "door_dynamite_3m__outlaw": [],
+  "door_dynamite_3m__young_drifter_s1": [],
+  "door_dynamite_6m__bold_cowboy_s0": [],
+  "door_dynamite_6m__old_rancher_s1": [],
+  "door_dynamite_6m__outlaw": [],
+  "door_dynamite_6m__young_drifter_s1": [],
+  "door_revolver_5m": [],
+  "door_shotgun_5m": [],
+  "lamp_dynamite_1m__bold_cowboy_s0": [],
+  "lamp_dynamite_1m__old_rancher_s1": [],
+  "lamp_dynamite_1m__outlaw": [],
+  "lamp_dynamite_1m__young_drifter_s1": [],
+  "lamp_dynamite_3m__bold_cowboy_s0": [],
+  "lamp_dynamite_3m__old_rancher_s1": [
+   "broken: 40 vs 39",
+   "pieces: 144 vs 142",
+   "man's pelvis 0.25 m apart"
+  ],
+  "lamp_dynamite_3m__outlaw": [
+   "broken: 40 vs 39",
+   "pieces: 144 vs 142",
+   "man's pelvis 0.06 m apart"
+  ],
+  "lamp_dynamite_3m__young_drifter_s1": [
+   "pieces end up to 0.516 m apart",
+   "man's pelvis 0.39 m apart"
+  ],
+  "lamp_dynamite_6m__bold_cowboy_s0": [],
+  "lamp_dynamite_6m__old_rancher_s1": [
+   "broken: 37 vs 46",
+   "pieces: 118 vs 129",
+   "man's pelvis 0.09 m apart"
+  ],
+  "lamp_dynamite_6m__outlaw": [],
+  "lamp_dynamite_6m__young_drifter_s1": [],
+  "lamp_revolver_5m": [],
+  "lamp_shotgun_5m": [],
+  "man_on_table__bold_cowboy_s0": [],
+  "man_on_table__old_rancher_s1": [],
+  "man_on_table__outlaw": [],
+  "man_on_table__young_drifter_s1": [],
+  "table_dynamite_1m__bold_cowboy_s0": [],
+  "table_dynamite_1m__old_rancher_s1": [],
+  "table_dynamite_1m__outlaw": [],
+  "table_dynamite_1m__young_drifter_s1": [],
+  "table_dynamite_3m__bold_cowboy_s0": [],
+  "table_dynamite_3m__old_rancher_s1": [],
+  "table_dynamite_3m__outlaw": [],
+  "table_dynamite_3m__young_drifter_s1": [],
+  "table_dynamite_6m__bold_cowboy_s0": [],
+  "table_dynamite_6m__old_rancher_s1": [
+   "broken: 39 vs 37",
+   "pieces: 122 vs 118",
+   "man's pelvis 0.09 m apart"
+  ],
+  "table_dynamite_6m__outlaw": [
+   "broken: 39 vs 37",
+   "pieces: 122 vs 118",
+   "man's pelvis 0.06 m apart"
+  ],
+  "table_dynamite_6m__young_drifter_s1": [
+   "broken: 37 vs 39",
+   "pieces: 118 vs 122",
+   "man's pelvis 0.09 m apart"
+  ],
+  "table_revolver_5m": [],
+  "table_shotgun_5m": [],
+  "wall_dynamite_1m__bold_cowboy_s0": [],
+  "wall_dynamite_1m__old_rancher_s1": [],
+  "wall_dynamite_1m__outlaw": [],
+  "wall_dynamite_1m__young_drifter_s1": [],
+  "wall_dynamite_3m__bold_cowboy_s0": [],
+  "wall_dynamite_3m__old_rancher_s1": [],
+  "wall_dynamite_3m__outlaw": [],
+  "wall_dynamite_3m__young_drifter_s1": [],
+  "wall_dynamite_6m__bold_cowboy_s0": [],
+  "wall_dynamite_6m__old_rancher_s1": [],
+  "wall_dynamite_6m__outlaw": [],
+  "wall_dynamite_6m__young_drifter_s1": [],
+  "wall_revolver_5m": [],
+  "wall_shotgun_5m": [],
+  "window_dynamite_1m__bold_cowboy_s0": [],
+  "window_dynamite_1m__old_rancher_s1": [],
+  "window_dynamite_1m__outlaw": [],
+  "window_dynamite_1m__young_drifter_s1": [],
+  "window_dynamite_3m__bold_cowboy_s0": [],
+  "window_dynamite_3m__old_rancher_s1": [],
+  "window_dynamite_3m__outlaw": [],
+  "window_dynamite_3m__young_drifter_s1": [],
+  "window_dynamite_6m__bold_cowboy_s0": [],
+  "window_dynamite_6m__old_rancher_s1": [],
+  "window_dynamite_6m__outlaw": [],
+  "window_dynamite_6m__young_drifter_s1": [],
+  "window_revolver_5m": [],
+  "window_shotgun_5m": []
+ },
+ "serial_frames_run": {
+  "command": "experiments/breakage_lab/run.py --serial --repeat=2 --bodies=bold_cowboy_s0 --out=build/breakage_lab/serial",
+  "same_seed_same_result": {
+   "bottle_dynamite_1m__bold_cowboy_s0": [
+    "pieces end up to 11.637 m apart"
+   ],
+   "bottle_dynamite_3m__bold_cowboy_s0": [
+    "pieces end up to 0.072 m apart"
+   ],
+   "bottle_dynamite_6m__bold_cowboy_s0": [
+    "pieces end up to 8.852 m apart"
+   ],
+   "bottle_revolver_5m": [],
+   "bottle_shotgun_5m": [],
+   "chair_dynamite_1m__bold_cowboy_s0": [],
+   "chair_dynamite_3m__bold_cowboy_s0": [],
+   "chair_dynamite_6m__bold_cowboy_s0": [],
+   "chair_revolver_5m": [],
+   "chair_shotgun_5m": [],
+   "door_dynamite_1m__bold_cowboy_s0": [],
+   "door_dynamite_3m__bold_cowboy_s0": [],
+   "door_dynamite_6m__bold_cowboy_s0": [],
+   "door_revolver_5m": [],
+   "door_shotgun_5m": [],
+   "lamp_dynamite_1m__bold_cowboy_s0": [],
+   "lamp_dynamite_3m__bold_cowboy_s0": [],
+   "lamp_dynamite_6m__bold_cowboy_s0": [],
+   "lamp_revolver_5m": [],
+   "lamp_shotgun_5m": [],
+   "man_on_table__bold_cowboy_s0": [],
+   "table_dynamite_1m__bold_cowboy_s0": [],
+   "table_dynamite_3m__bold_cowboy_s0": [
+    "broken: 38 vs 37",
+    "pieces: 117 vs 115",
+    "man's pelvis 0.24 m apart"
+   ],
+   "table_dynamite_6m__bold_cowboy_s0": [
+    "broken: 42 vs 41",
+    "pieces: 128 vs 125",
+    "man's pelvis 0.05 m apart"
+   ],
+   "table_revolver_5m": [],
+   "table_shotgun_5m": [],
+   "wall_dynamite_1m__bold_cowboy_s0": [],
+   "wall_dynamite_3m__bold_cowboy_s0": [],
+   "wall_dynamite_6m__bold_cowboy_s0": [],
+   "wall_revolver_5m": [],
+   "wall_shotgun_5m": [],
+   "window_dynamite_1m__bold_cowboy_s0": [],
+   "window_dynamite_3m__bold_cowboy_s0": [],
+   "window_dynamite_6m__bold_cowboy_s0": [],
+   "window_revolver_5m": [],
+   "window_shotgun_5m": []
+  }
+ }
+}

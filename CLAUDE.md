@@ -369,3 +369,9 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
+- The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, branch
+  `claude/gameplay-breakage-lab-ksr17d`, not merged): bench and baseline built, nothing changed.
+  Found: Blast's query (capped at 1024 of ~2,000 colliders) misses what's near a stick by the store
+  front; props never break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths;
+  side panes shatter into 1 m slabs; a blast frame 0.15–0.34 s at Sean's. Next (Sean's OK): the
+  near-field query fix, measured against `baseline/`; then 3.3.

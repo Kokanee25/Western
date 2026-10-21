@@ -75,7 +75,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 `seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
-already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
 
 ## The playtest
 
