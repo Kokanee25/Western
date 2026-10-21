@@ -39,6 +39,9 @@ SPEC = os.path.join(pt.ROOT, "tools", "textures", "woods_grain.json")
 MAN = pt.MAN
 RAW = os.path.join(pt.RAW, "woods_%s.jpg")
 SETS = os.path.join(pt.ROOT, "tools", "textures", "material_lab.json")
+# The most one wood's call is expected to cost (FLUX.2 [max], ~$0.22 a call in runs 87-88), held back
+# from a set's budget before each call.
+NEXT_CALL = 0.35
 # The picture shapes the model paints (width / height).
 ASPECTS = {"1:1": 1.0, "4:3": 4 / 3, "3:4": 3 / 4, "3:2": 1.5, "2:3": 2 / 3, "16:9": 16 / 9, "9:16": 9 / 16}
 # Texels at each strip's ends crossfaded into each other so it tiles along its length.
@@ -242,6 +245,10 @@ def candidate(name, only, cut_only, repaint, key, spec):
             info["paint_boards"] = int(cfg["boards"][wood])
         if not cut_only and (repaint or not os.path.exists(raw % wood)):
             for attempt in range(2):
+                # The set's budget (Sean's approval): no call that could take the run past it.
+                if "budget" in cfg and pt.SPENT + NEXT_CALL > float(cfg["budget"]):
+                    print("budget: $%.2f spent of $%.2f; %s not painted" % (pt.SPENT, float(cfg["budget"]), wood))
+                    break
                 try:
                     paint(wood, info, spec, key, raw, cfg.get("ask", ""))
                     break
@@ -266,6 +273,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
         index["woods"][wood] = entry
     json.dump(index, open(index_path, "w"), indent=1)
     import_like_woods(out_dir)
+    print("spent: $%.2f" % pt.SPENT)
     if failed:
         print("not painted:", ", ".join(failed))
         sys.exit(1)

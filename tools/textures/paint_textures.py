@@ -81,6 +81,10 @@ def aspect_name(metres):
     return min(options, key=lambda k: abs(options[k] - want))
 
 
+SPENT = 0.0
+UNREPORTED = 0.4
+
+
 def ask(prompt, images, config, what, key):
     """One request; returns the image it painted (as paint_views.py does)."""
     body = {
@@ -115,6 +119,12 @@ def ask(prompt, images, config, what, key):
         raise RuntimeError("%s: no answer: %s" % (what, json.dumps(answer)[:400]))
     usage = answer.get("usage") or {}
     print("%s: cost $%s" % (what, usage.get("cost", "?")), flush=True)
+    global SPENT
+    # What this run has spent (a call whose cost isn't reported counted at UNREPORTED).
+    try:
+        SPENT += float(usage.get("cost"))
+    except (TypeError, ValueError):
+        SPENT += UNREPORTED
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
