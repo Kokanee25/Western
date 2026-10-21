@@ -190,5 +190,36 @@ def sheets(root, tile=(320, 240)):
         print("sheet %s" % path)
 
 
+def diff(base, cand):
+    """Every run whose result changed between two roots (their baseline.json), as a markdown table."""
+    def load(root):
+        b = json.load(open(os.path.join(root, "baseline.json")))
+        rows = {(r["model"], r["scenario"]): r for r in b["rows"]}
+        return rows, b.get("checks", {}), b.get("same_tick", {})
+    br, bc, bp = load(base)
+    cr, cc, cp = load(cand)
+    out = ["| run | what changed | before | after |", "|---|---|---|---|"]
+    fields = ["crossed", "broken", "severed", "fingers", "down", "abilities", "outcomes", "wounds", "pellets_hit", "harm"]
+    for k in sorted(set(br) | set(cr)):
+        a, b = br.get(k), cr.get(k)
+        if a is None or b is None:
+            out.append("| %s %s | only in %s | | |" % (k[0], k[1], "after" if a is None else "before"))
+            continue
+        for f in fields:
+            if a.get(f) != b.get(f):
+                out.append("| %s %s | %s | %s | %s |" % (k[1], k[0], f, a.get(f), b.get(f)))
+    for m in sorted(set(bp) | set(cp)):
+        if bp.get(m) != cp.get(m):
+            out.append("| same_tick %s | wounds | %s | %s |" % (m, [c["wounds"] for c in bp.get(m, [])], [c["wounds"] for c in cp.get(m, [])]))
+    for m in sorted(set(bc) | set(cc)):
+        for part in ("wound", "hat", "hat_in_blast", "stumps"):
+            if bc.get(m, {}).get(part) != cc.get(m, {}).get(part):
+                out.append("| check %s | %s | %s | %s |" % (m, part, json.dumps(bc.get(m, {}).get(part))[:200], json.dumps(cc.get(m, {}).get(part))[:200]))
+    print("\n".join(out))
+
+
 if __name__ == "__main__":
-    {"gather": gather, "sheets": sheets, "vessels": vessels}[sys.argv[1]](sys.argv[2])
+    if sys.argv[1] == "diff":
+        diff(sys.argv[2], sys.argv[3])
+    else:
+        {"gather": gather, "sheets": sheets, "vessels": vessels}[sys.argv[1]](sys.argv[2])
