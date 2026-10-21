@@ -25,8 +25,8 @@ MEN = ["bold_cowboy_s0", "old_rancher_s1", "young_drifter_s1"]
 # the drifter's pinstripe trousers and brown vest.
 CLOTH = {
     "bold_cowboy_s0": [(600, 60, 1060, 420), (700, 620, 1160, 1180)],
-    "old_rancher_s1": [(620, 830, 1120, 1250), (1360, 150, 1780, 450)],
-    "young_drifter_s1": [(260, 620, 640, 1080), (1000, 650, 1420, 1000)],
+    "old_rancher_s1": [(720, 900, 1120, 1250), (1460, 190, 1760, 420)],
+    "young_drifter_s1": [(260, 620, 640, 1080), (1090, 700, 1420, 1000)],
 }
 GROUND = (128, 122, 114)
 
