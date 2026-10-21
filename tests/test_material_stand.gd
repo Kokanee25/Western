@@ -232,7 +232,7 @@ func test_the_interior_stand_builds_profiled_and_square() -> void:
 					break
 			n += cols.size() / 3
 		tris[profiled] = n
-		for part in [&"int_wainscot", &"int_bar_top", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
+		for part in [&"int_wainscot", &"int_bar", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
 			check(s.part_nodes.has(part), "%s built (profiled %s)" % [part, profiled])
 		s.free()
 	check(tris[true] > tris[false] * 2, "profiles add shape (%d against %d triangles)" % [tris[true], tris[false]])
@@ -260,3 +260,50 @@ func test_the_interior_woods_are_in_the_game() -> void:
 		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
 	var outside := WoodMaterials.get_material(&"floor", 0) as ShaderMaterial
 	check(outside.get_shader_parameter(&"edge_aa") != true, "the outside's floor as it was")
+
+
+func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
+	# The saloon's bar (assets/props/kit/bar.json): members (so it breaks and burns), drawn with the
+	# woodwork shapes (profile, panel, cut), its top in the polished interior bar top.
+	check(PropKit.has(&"bar"), "the bar's kit file")
+	var def := PropKit.definition(&"bar")
+	var members := PropKit.expand(def)
+	check(members.size() >= 25, "its members laid out (%d)" % members.size())
+	var shapes := {}
+	for mspec in members:
+		if mspec.has("draw"):
+			shapes[mspec.draw.shape] = true
+	for s in ["profile", "panel", "cut"]:
+		check(shapes.has(s), "drawn with %s" % s)
+	var top: Dictionary = members.filter(func(x): return x.id == "top")[0]
+	check(String(top.look) == "wood:int_bar_top", "its top the polished bar top")
+	check(WoodMaterials.strip_count(&"int_bar_top") >= 3, "the bar top's wood in the game")
+	var m := StructureMember.new()
+	m.member_id = &"top"
+	m.size = PropKit.vec(top.size)
+	var mesh := PropKit.draw_mesh(top.draw, m)
+	var aabb := mesh.get_aabb()
+	check(aabb.size.distance_to(m.size) < 0.01, "the top's drawn shape fills its box (%s against %s)" % [aabb.size, m.size])
+	m.free()
+
+
+## A building's own members drawn as woodwork (PropKit.dress_member): the saloon's wainscot, casings
+## and chamfered posts are members (they break, burn, fall) and draw in one batch a look.
+class _Dressed extends Structure:
+	func build() -> void:
+		for i in 3:
+			var m := add_member("post%d" % i, &"post", &"oak", Vector3(0.2, 3.0, 0.2), Vector3(i * 1.0, 1.5, 0.0))
+			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "across": "x", "up": "z",
+					"args": [0.02]}, "wood:int_timber")
+
+
+func test_a_buildings_members_are_drawn_as_woodwork() -> void:
+	var s := _Dressed.new()
+	add_child(s)
+	await physics_frames(2)
+	var m: StructureMember = s.get_members()[0]
+	var mi := m.get_child(0) as MeshInstance3D
+	check(mi.mesh.get_faces().size() > 36, "the post drawn chamfered, not a box (%d)" % mi.mesh.get_faces().size())
+	check(mi.mesh.get_aabb().size.distance_to(m.size) < 0.01, "its drawn shape fills its box")
+	check(s.batch_count() == 1, "three posts in one wood draw in one batch (%d)" % s.batch_count())
+	s.free()

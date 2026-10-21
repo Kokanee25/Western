@@ -314,8 +314,11 @@ frozen until Sean names one.
   Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
-  woodwork, the game's woods all DIFFERENT. **Next: Sean's pick** (`interior/sheet_abc.jpg`), then
-  the stain into the game's woods for the saloon session. Worn treads on both stairs (#176). The hotel's oak
+  woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
+  (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
+  kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
+  DIFFERENT, too dark against the walls). **Next: Sean's call** on a lighter oak for the fixtures,
+  then painted mirror reflections; the saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).

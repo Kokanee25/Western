@@ -106,6 +106,9 @@ A building isn't done until it passes all of these, automatically, on every chan
 - **It's used:** each room's use points work for the people who'd be there (the barman behind the
   bar, a gambler at a table).
 - **It burns and breaks** like the rest of the town: fire spreads through it, shots carve it.
+- **Everything in it is destructible** (Sean, 2026-10-21): every object is a member, a kit prop or
+  a fitting that falls with what holds it; no drawn prop, scenery mesh or solid box. A test walks the
+  built building and fails on anything else, listing each allowed exception with its owner.
 - **It fits the budget:** draw calls and frame time inside the render budget, with its lamps lit.
 - **It matches the target:** renders from each of the sheet's views beside it, judged, with the
   blind critic's top three.

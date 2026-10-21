@@ -127,6 +127,17 @@
    "end": "int_oak_end.png",
    "end_texels": 256,
    "promoted_from": "mlab_studio_int/dark_oak"
+  },
+  "int_bar_top": {
+   "boards": 3,
+   "rows": 323,
+   "length": 1152,
+   "texels_per_metre": 384,
+   "end": "int_bar_top_end.png",
+   "end_texels": 256,
+   "roughness": 0.6,
+   "specular": 0.4,
+   "made_by": "tools/textures/bar_top.py (int_oak glued up, rings, worn front, polished)"
   }
  }
 }

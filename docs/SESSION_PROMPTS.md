@@ -293,6 +293,8 @@ Prop lab, branch claude/prop-lab. Read docs/briefs/prop-lab.md, the Props and St
 First, find every prop that already exists and write it into docs/PARTS.md's Props table: the 12 drawn props in assets/props/manifest.json (PropLibrary, PropModels), every hand-built furnishing (FalseFrontBuilding._furnish_*, saloon_dressing.gd's bar, the trough, rail, well), what Fittings and the smashed lamp already do, and what the breakage lab (claude/gameplay-breakage-lab-*, experiments/breakage_lab/) and the ragdoll lab's railing have built or measured. Note for each: how it's built, what it can and can't do (break, burn, shatter, carry weight), and which lane's files it lives in. Show me that inventory before building.
 
 Then design the prop kit: one data file per prop (members, shatter or fitting), read by one builder, with the look from the texture factory's approved materials matched to the Studio's men. Build the table and the chair first (roadmap 3.3): legs snap, tops split, they carry weight, burn piece by piece, a seated man drops when his chair goes. Each must look at least as good as PropModels' version in the same shot, pass the breakage lab's scenarios, and fit the frame budget batched. Use the shared systems as they are; anything they need changed goes to gameplay. Costs before any paid painting. Promote each finished prop into PARTS.md and tell the test saloon session.
+
+For the saloon (Sean, 2026-10-21: everything in it destructible), the drawn props it needs as kit props, in this order: whiskey bottles (glass members that shatter, for the shelves and the bottle wall), the oil lamp and wall sconce (the model breaking with the lamp), bar stools, barrels, spittoons, framed paintings, the deer head, the piano, tin cups. The bar and back bar are in the kit already (bar.json, back_bar.json).
 ```
 
 ## Face rig lab (after 2.1 and 2.3) [Salt Creek]
@@ -366,16 +368,29 @@ FUTURE LABS AND PIPELINES (start when the roadmap row says)
 Art lane, branch claude/art-wear-down. Gate A is passed; the woods are locked. Build the material lab's wear-down from its plan (docs/briefs/building-pipeline.md, Material lab): boards worn where people walk (the saloon door, the bar rail, the boardwalk steps), paint gone where hands touch, and every wood at new, a year old and ten years old. Judged with the Studio's men in front of it, on A/B sheets and by the blind critic. Costs before painting.
 ```
 
-## Building lab: spec trial on the saloon (after Gate A) [Salt Creek]
+## Building lab: the saloon (start now: Sean picked the interior woods, the railing is in the game) [Salt Creek]
 
 ```
-Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md and docs/concept/saloon-sheet.png. Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment only, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md, docs/concept/saloon-sheet.png, Sean's saloon picture docs/concept/targets/10_saloon_interior.png (the look inside), docs/briefs/interior-woodwork.md ("Results" and "What's next") and docs/PARTS.md (all of it: build only from parts marked "in the game" or "in the kit"). Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment first, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+
+Everything in the saloon must be destructible (Sean, 2026-10-21): every object is a member of a Structure (it breaks, burns, is carved by balls, is thrown by Blast, falls when its support goes) or a kit prop (assets/props/kit/), or a fitting that comes down with what holds it. No drawn PropLibrary prop, no scenery mesh, no solid box. Write a test that walks the built saloon and fails on any collision body that isn't a StructureMember, the ground or an OilLamp's hitbox, and on any visible mesh that isn't a member's or a fitting's; list every exception it allows, each with its owner.
+
+What you have to build with:
+- Woods: the interior woods Sean picked (int_floor, int_timber for posts, beams and brackets, int_boards for wall boards, int_oak for wainscot, casings, rails and balusters; int_bar_top for the bar top), dark_oak and stair_runner (the hotel stair), and the exterior woods for the outside. A member takes one as its wood or as a look "wood:<name>".
+- Woodwork as members: PropKit.dress_member(member, draw, look) draws any member of your Structure as a moulding run along it ("profile": chamfered, rounded, bar_top, handrail, ogee, beaded, rect), a raised panel ("panel") or a board cut to an outline ("cut"), still a breakable member, one batch a look. Use it for the wainscot, door and window casings, chamfered posts, brackets, beams and the cornice; the shapes and sizes are in src/art/interior_stand.gd, which draws them as plain meshes (a reference, not parts).
+- Kit props: PropKit.spawn(&"bar") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair (PropLibrary.spawn(&"chair") hands it out); the kit card table (in the kit, waiting on Sean's look).
+- Structure parts: Railing (balconies and the stair's rails, breakable, men go through them by BodyImpacts), the stair with its walking ramp, glass members for windows (they shatter), doors, the floor on joists, Fittings (what stands on a member falls when it goes; a lamp smashes and spills burning oil), OilLamp for every lamp.
+
+Not yet destructible, so not in the saloon until it is (say which you need first, and to whom):
+- The prop lab (kit versions): bar stools, the piano, barrels, spittoons, whiskey bottles (glass members that shatter; the shelves' bottles and the bottle wall, saloon_dressing.gd, are scenery today), tin cups, the deer head, framed paintings, wall sconces (an OilLamp's model stays whole when it smashes).
+- Gameplay: a prop knocked by a ball or a body doesn't move (Fittings moves it only when its support goes); what stands on a shelf adds no weight (extra_load unused); furniture_frame members are never load-checked.
+- Sean: the kit card table's look; whether the bar and back bar take a lighter oak (the critic: darker than the walls).
 ```
 
 ## Building lab for real: the saloon, then the block (Phase 4, after Gate C) [Salt Creek]
 
 ```
-Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
+Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Everything in a building is destructible: members, kit props or fittings only, with the saloon's destructibility test run on every building. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
 ```
 
 ## Breakage paint (4.4a) [Salt Creek]
