@@ -719,12 +719,16 @@ a few views renders them as the full run does.
   on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
-  hands out a kit prop for any id the kit has (`use_kit`), with the drawn prop's metas.
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
   KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
   every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
   man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
   (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
-  (an inelastic knock: the wood's share of the energy lost against its `toughness` x volume breaks
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
   it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
   him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
   itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
