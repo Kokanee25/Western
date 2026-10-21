@@ -619,7 +619,8 @@ a few views renders them as the full run does.
   workflow's `textures = mlab:NAME`); `OakStair` (`src/art/oak_stair.gd`, `--material=stair`) is
   the hotel's oak stair on the same bench; in a scene: `var s := OakStair.new(); s.solid = true;
   s.room = false; parent.add_child(s); s.build()` (a box a board on Layers.WORLD, the flight rising
-  along its +Z from its origin, open side at x 0, landing at 2.47 m), drawn in the game's
+  along its +Z from its origin, open side at x 0, landing at 2.47 m, a 3 m walkway off it toward -X
+  railed at 1 m: `_walk_z()`), drawn in the game's
   `dark_oak` (woods set) and `stair_runner` (factory) since 2026-10-21;
   `PixelArt` lays an `mlab_` set as it lays the game's woods. The men's style sheet
   `docs/concept/targets/9_studio_men.png` (`men_reference.py`) is what `paint_woods.py` and
