@@ -25,13 +25,26 @@ MAP = os.path.join(HERE, "blood_map.json")
 LO, HI = 16.0, 56.0
 
 
-def cut(sheet, quadrant, lo=LO, hi=HI):
+def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0):
     a = np.asarray(sheet.convert("RGB"), dtype=np.float32)
     h, w = a.shape[:2]
     qy, qx = divmod(quadrant, 2)
     q = a[qy * h // 2:(qy + 1) * h // 2, qx * w // 2:(qx + 1) * w // 2]
-    away = (255.0 - q).max(axis=2)
-    alpha = np.clip((away - lo) / (hi - lo), 0.0, 1.0)
+    if key == "red":
+        # Only the crimson: red well over green (the cloth it was painted on, beige, brown or grey,
+        # drops out). `lo`/`hi` are the red-to-green ratio where it starts to show / is solid.
+        ratio = q[..., 0] / (q[..., 1] + 8.0)
+        alpha = np.clip((ratio - lo) / (hi - lo), 0.0, 1.0)
+    else:
+        away = (255.0 - q).max(axis=2)
+        alpha = np.clip((away - lo) / (hi - lo), 0.0, 1.0)
+    if open_px:
+        # Thin lines drop out (an outline the model drew a gap outside a pool reads as a pale ring
+        # in the game); the mark and its drops stay: the mask eroded then dilated by `open_px`.
+        from PIL import ImageFilter
+        m = Image.fromarray((alpha * 255.0).astype(np.uint8), "L")
+        m = m.filter(ImageFilter.MinFilter(open_px)).filter(ImageFilter.MaxFilter(open_px))
+        alpha = np.minimum(alpha, np.asarray(m, dtype=np.float32) / 255.0)
     ys, xs = np.nonzero(alpha > 0.5)
     if len(ys) == 0:
         return None
@@ -41,15 +54,38 @@ def cut(sheet, quadrant, lo=LO, hi=HI):
     y1, x1 = min(y1 + pad, q.shape[0]), min(x1 + pad, q.shape[1])
     rgb = q[y0:y1, x0:x1]
     al = alpha[y0:y1, x0:x1]
-    # Un-mix the white the soft edge was painted against, so the rim isn't pale.
-    safe = np.maximum(al, 0.05)[..., None]
-    rgb = np.clip((rgb - 255.0 * (1.0 - safe)) / safe, 0, 255)
+    if key == "white":
+        # Un-mix the white the soft edge was painted against, so the rim isn't pale.
+        safe = np.maximum(al, 0.05)[..., None]
+        rgb = np.clip((rgb - 255.0 * (1.0 - safe)) / safe, 0, 255)
     side = max(rgb.shape[0], rgb.shape[1])
     square = np.zeros((side, side, 4), dtype=np.float32)
     oy, ox = (side - rgb.shape[0]) // 2, (side - rgb.shape[1]) // 2
     square[oy:oy + rgb.shape[0], ox:ox + rgb.shape[1], :3] = rgb
     square[oy:oy + rgb.shape[0], ox:ox + rgb.shape[1], 3] = al * 255.0
     return Image.fromarray(square.astype(np.uint8), "RGBA")
+
+
+def soak(mark, colour):
+    """Under a painted stain's spikes and drip, the wet patch they spread from: its own shape
+    blurred wide, in `colour`, strongest in the middle (blood wicks out along the threads)."""
+    from PIL import ImageFilter
+    a = np.asarray(mark, dtype=np.float32)
+    side = mark.width
+    m = Image.fromarray((a[..., 3]).astype(np.uint8), "L").filter(ImageFilter.GaussianBlur(side / 14))
+    wet = np.asarray(m, dtype=np.float32) / 255.0
+    wet = np.clip(wet / max(wet.max(), 1e-3) * 1.6, 0.0, 1.0) * 0.8
+    yy, xx = np.mgrid[0:side, 0:side]
+    r = np.hypot(xx - side / 2, yy - side / 2) / (side / 2)
+    wet = wet * np.clip(1.2 - r, 0.0, 1.0)
+    out = np.zeros_like(a)
+    out[..., :3] = np.array(colour, dtype=np.float32)
+    out[..., 3] = wet * 255.0
+    # The painted stain over it.
+    k = a[..., 3:4] / 255.0
+    out[..., :3] = out[..., :3] * (1.0 - k) + a[..., :3] * k
+    out[..., 3] = np.maximum(out[..., 3], a[..., 3])
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
 
 
 def tint(mark, shades):
@@ -80,17 +116,28 @@ def main():
         for quadrant, key in enumerate(spec["keys"]):
             if not key:
                 continue
-            mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)))
+            mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)), spec.get("key", "white"),
+                       int(spec.get("open", 0)))
             if mark is None:
                 print("nothing in %s quadrant %d" % (sheet_name, quadrant))
                 continue
             if "tint" in spec:
                 mark = tint(mark, spec["tint"])
+            if "soak" in spec:
+                mark = soak(mark, spec["soak"])
             size = int(spec.get("size", 64))
             mark = mark.resize((size, size), Image.LANCZOS)
             mark.save(os.path.join(OUT, key + ".png"))
             made.append((key, mark))
             print("cut:", key, "from", sheet_name, quadrant)
+    # A mark that didn't cut clean, replaced by another turned over (blood_map.json "mirror").
+    for key, src in plan.get("mirror", {}).items():
+        path = os.path.join(OUT, src + ".png")
+        if os.path.exists(path):
+            m = Image.open(path).transpose(Image.FLIP_LEFT_RIGHT)
+            m.save(os.path.join(OUT, key + ".png"))
+            made.append((key, m))
+            print("mirrored:", key, "from", src)
     for a in sys.argv[1:]:
         if a.startswith("--sheet=") and made:
             tile = 96

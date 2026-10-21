@@ -42,9 +42,12 @@ SHEETS = {
               "one on dark grey wool (where it shows as a darker wet patch). " + WHITE,
     "pool": "Four separate puddles of black ink, each a different size, irregular edges where it ran, "
             "darker in the middle and a thin rim at the edge. " + WHITE,
+    # An entry is a small round hole in a ring of scraped skin (the abrasion collar); an exit has no
+    # collar and is bigger and irregular, often split in a star with its edges turned out (DiMaio,
+    # Gunshot Wounds). Run 100 painted the exit as a slash like the furrow.
     "wounds": "Four separate small wounds on weathered skin, each with a little skin round it: a small "
               "round bullet hole with a dark centre and a reddened, scraped ring round it; a larger "
-              "ragged torn hole; a short torn furrow where a ball grazed the skin; a purple and yellow "
+              "exit hole, star-shaped and split open, ragged edges turned outward; a short torn furrow where a ball grazed the skin; a purple and yellow "
               "bruise. Painted, not gory. " + WHITE,
 }
 

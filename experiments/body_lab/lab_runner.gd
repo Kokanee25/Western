@@ -281,7 +281,9 @@ func _finish_wound() -> void:
 	summary["abilities"] = Bench.abilities(p)
 	summary["body"] = {"limp": man.limp, "prone": man.prone, "hat_off": man.hat_off, "openings": man.openings.size(),
 			"knocked_down": _infos.any(func(i: Dictionary) -> bool: return i.knocked_down),
-			"severed_parts": get_tree().get_nodes_in_group(&"severed_parts").size()}
+			"severed_parts": get_tree().get_nodes_in_group(&"severed_parts").size(),
+			"splats": get_tree().get_nodes_in_group(&"blood_splats").map(func(d: Node) -> Array:
+				return [snappedf((d as Decal).size.x, 0.001), snappedf((d as Decal).size.z, 0.001), snappedf(float(d.get_meta(&"ml", 0.0)), 0.1)])}
 	summary["severed_where"] = man.wounds.filter(func(w: Dictionary) -> bool: return w.kind == &"severed").map(
 			func(w: Dictionary) -> Dictionary: return {"part": String(w.part), "at_joint_of": String(w.segment),
 				"stump_cm_from_joint": snappedf(((w.entry as Vector3) - (man._pivot_rest(w.part) - man.anatomy.segment_center(w.segment))).length() * 100.0, 0.1)})
