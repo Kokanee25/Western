@@ -66,6 +66,12 @@ const POSES := {
 			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
 			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
 			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
+	# A kick: his right leg swung forward and low (a chair's legs, a man on the floor), the sole first,
+	# his left knee soft under him, leaning back off it, his arms out a little for his balance.
+	&"kick": {&"thigh_r": Vector3(55, 0, 0), &"shin_r": Vector3(-14, 0, 0), &"foot_r": Vector3(-22, 0, 0),
+			&"thigh_l": Vector3(8, 0, 0), &"shin_l": Vector3(-12, 0, 0), &"abdomen": Vector3(6, 0, 0),
+			&"chest": Vector3(4, 0, 0), &"upper_arm_r": Vector3(-10, 0, 24), &"upper_arm_l": Vector3(10, 0, -28),
+			&"forearm_r": Vector3(20, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
 	# Sat back in his chair: shoulders back against its back, head level, hands in his lap (Sean,
 	# 2026-10-21: his weight over the back of the seat, so when the chair's back legs go he goes
 	# over with it).
