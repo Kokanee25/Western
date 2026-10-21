@@ -32,6 +32,8 @@ WOODS = os.path.join(ROOT, "assets", "textures", "woods")
 # The detail measure's blur radii (pixels or texels).
 RADII = [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0, 16.0]
 DETAIL_FACTOR = 1.5
+# The props the lab puts on the deck draw with these (--material=props).
+PROPS = ["prop_wood", "prop_felt", "shot_table", "prop_staves", "prop_barrel_head"]
 
 
 def lab(rgb):
@@ -188,9 +190,22 @@ def measure(root):
             tpm = float(info.get("texels_per_metre") or 128.0)
             woods_mm[wood] = {"texels_per_metre": tpm, "texel_mm": round(1000.0 / tpm, 2),
                               "detail_mm": texture_detail_mm(wood_strips(wood, sd), tpm)}
+        focus_woods = [w for w in nums["woods"] if name == "stand" or w.startswith(name)]
+        if name == "props":
+            # The props' own textures: the set's where it has them, else the game's factory tiles.
+            index = json.load(open(os.path.join(ROOT, "assets", "textures", "textures.json")))
+            set_index = json.load(open(os.path.join(set_dir, "lab.json")))["woods"] if os.path.exists(os.path.join(set_dir, "lab.json")) else {}
+            woods_mm = {}
+            for pid in PROPS:
+                if pid in set_index:
+                    path, tpm = os.path.join(set_dir, pid + ".png"), float(set_index[pid]["texels_per_metre"])
+                else:
+                    e = index[pid]
+                    path, tpm = os.path.join(ROOT, "assets", "textures", pid + ".png"), e["texels"][0] / e["metres"][0]
+                woods_mm[pid] = {"texels_per_metre": tpm, "texel_mm": round(1000.0 / tpm, 2), "detail_mm": texture_detail_mm([path], tpm)}
+            focus_woods = PROPS
         entry["detail"] = {"men": men_mm, "woods": woods_mm}
         men_d = [v["detail_mm"] for v in men_mm.values() if v["detail_mm"]]
-        focus_woods = [w for w in nums["woods"] if name == "stand" or w.startswith(name)]
         if men_d:
             md = float(np.median(men_d))
             entry["detail_pass"] = {w: bool(woods_mm[w]["detail_mm"] and 1.0 / DETAIL_FACTOR <= woods_mm[w]["detail_mm"] / md <= DETAIL_FACTOR)

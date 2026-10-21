@@ -12,7 +12,8 @@ extends SceneTree
 ##   ... -s res://tools/material_lab.gd -- --out=DIR --repeats   # Main Street's neighbour repeats
 ##
 ## --material: the woods under test (MaterialStand.PART_OF's keys), each a run of its own: its parts
-## take it, the rest of the stand stays the game's. Without: the stand as the game draws it.
+## take it, the rest of the stand stays the game's; `props` puts a card table, chairs and a barrel on
+## the deck and judges their textures. Without: the stand as the game draws it.
 ## --set: the woods of a candidate set (assets/textures/<SET>/, its lab.json) for the woods it has;
 ## the game's (assets/textures/woods/) for the rest. Without: the game's woods (the baseline).
 ## Writes DIR/<material>/<light>_<view>.png, beside each the masks the measuring reads
@@ -53,12 +54,15 @@ const VIEWS := {
 	"steps": [Vector3(1.4, 1.65, -3.9), Vector3(1.7, 0.3, -1.9), 50.0],
 	# The three men close, for their reference sheet (tools/textures/men_reference.py; --views=men).
 	"men": [Vector3(1.0, 1.15, -6.4), Vector3(1.0, 0.95, -1.5), 27.0],
+	# The props on the deck (--material=props), the bold cowboy beside them.
+	"props": [Vector3(1.75, 1.5, -3.1), Vector3(1.05, 0.7, -0.8), 44.0],
+	"props_close": [Vector3(0.5, 1.3, -2.2), Vector3(1.3, 0.85, -0.8), 50.0],
 }
 ## Which views judge which part (with the two whole views).
 const PART_VIEWS := {
 	&"siding": ["wall", "wall_end"], &"siding_low": ["wall"], &"studs": ["wall_end"], &"trim": ["wall"],
 	&"deck": ["deck_ends", "steps"], &"treads": ["steps"], &"joists": ["deck_ends"], &"rim": ["deck_ends"],
-	&"frame": ["post"], &"stringers": ["steps", "deck_ends"],
+	&"frame": ["post"], &"stringers": ["steps", "deck_ends"], &"props": ["props", "props_close"],
 }
 ## The lamplit saloon's light (SaloonDressing's): sconces' lamps, a lamp hung over the deck and one
 ## across the room behind the camera (the saloon's lamps are all round the room, so the men are lit
@@ -89,7 +93,7 @@ func _run() -> void:
 			_out = arg.substr(6)
 		elif arg.begins_with("--material="):
 			var m := arg.substr(11)
-			materials = load("res://src/art/material_stand.gd").PART_OF.keys() if m == "all" else Array(m.split(","))
+			materials = load("res://src/art/material_stand.gd").PART_OF.keys() + ["props"] if m == "all" else Array(m.split(","))
 		elif arg.begins_with("--set="):
 			set = arg.substr(6)
 		elif arg.begins_with("--lights="):
@@ -148,17 +152,20 @@ func _run() -> void:
 	for mat in materials:
 		var stand = load("res://src/art/material_stand.gd").new()
 		stand.name = "Stand"
-		stand.material = StringName(mat)
+		stand.material = StringName(mat) if mat != "props" else &""
 		place.add_child(stand)
 		stand.build()
 		var name: String = mat if mat != "" else "stand"
 		var dir := "%s/%s" % [_out, name]
 		DirAccess.make_dir_recursive_absolute(dir)
-		var focus: Array = stand.focus_parts()
+		var focus: Array = stand.focus_parts() if mat != "props" else [&"props"]
 		for part in focus:
 			if stand.part_nodes.has(part):
 				for mi in (stand.part_nodes[part] as Node).find_children("*", "MeshInstance3D", true, false):
 					(mi as MeshInstance3D).layers |= MASK_WOOD
+		if mat == "props":
+			for mi in _props(stand).find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).layers |= MASK_WOOD
 		var views: Array = ["stand", "gameplay"]
 		for part in focus:
 			for v in PART_VIEWS.get(part, []):
@@ -388,3 +395,20 @@ func _repeats(street: Node3D) -> void:
 
 static func _long(size: Vector3) -> Vector3:
 	return Vector3.RIGHT if size.x >= size.y and size.x >= size.z else (Vector3.UP if size.y >= size.z else Vector3.BACK)
+
+
+## The props judged with the woods (--material=props): a card table and two chairs on the deck by
+## the bold cowboy, a barrel against the wall: the game's own (PropLibrary), so they draw with the
+## textures PixelArt hands out (the set's, under --set).
+func _props(stand: Node3D) -> Node3D:
+	var holder := Node3D.new()
+	holder.name = "Props"
+	stand.add_child(holder)
+	var top: float = stand.DECK_TOP
+	for p in [[&"card_table", Vector3(0.85, top, -0.85), 10.0], [&"chair", Vector3(0.35, top, -0.95), 80.0],
+			[&"chair", Vector3(1.3, top, -0.55), -110.0], [&"barrel", Vector3(2.85, top, -0.35), 0.0]]:
+		var prop = load("res://src/props/prop_library.gd").spawn(p[0])
+		holder.add_child(prop)
+		prop.position = p[1]
+		prop.rotation_degrees.y = p[2]
+	return holder
