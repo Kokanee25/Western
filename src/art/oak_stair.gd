@@ -20,6 +20,9 @@ const GOING := 0.27
 const NOSE := 0.03
 const TREAD_T := 0.035
 const RISER_T := 0.022
+## The treads' nosings (MaterialStand._worn_box): a half-round moulding (10 mm at the strings), worn
+## to 16 mm in the middle of the flight and its top 2 mm down there.
+const NOSING_WEAR := Vector3(0.01, 0.016, 0.002)
 const WIDTH := 1.15
 const RAIL_H := 0.9
 const LANDING_RAIL_H := 1.0
@@ -96,9 +99,10 @@ func _flight() -> void:
 		var x0 := -BULL if i == 0 else 0.0
 		var z0 := i * GOING - NOSE
 		var z1 := (i + 1) * GOING
-		# The tread, its nosing over the riser.
+		# The tread, its nosing over the riser: moulded round, rounder still where feet go (the
+		# runner's middle) and the top worn a touch hollow there.
 		_board(&"oak_treads", Vector3((x0 + WIDTH) * 0.5, top - TREAD_T * 0.5, (z0 + z1) * 0.5), Vector3(1, 0, 0), Vector3(0, 1, 0),
-				WIDTH - x0, z1 - z0, TREAD_T, Vector3(0, 0, 1))
+				WIDTH - x0, z1 - z0, TREAD_T, Vector3(0, 0, -1), NOSING_WEAR)
 		# The riser under its front.
 		var ry0 := i * STEP_RISE
 		var ry1 := top - TREAD_T
@@ -363,9 +367,19 @@ func _runner() -> void:
 		var top := (i + 1) * STEP_RISE + 0.004
 		var zf := i * GOING - NOSE - 0.004
 		var zb := (i + 1) * GOING
-		# Over the tread, down the nosing's face, down the riser.
-		_flat(st, Vector3(x0, top, zb), Vector3(x1, top, zf), i * 0.3)
-		_flat(st, Vector3(x0, top, zf), Vector3(x1, top - TREAD_T - 0.004, zf), i * 0.3 + 0.27)
+		# Over the tread, round the nosing (its worn round), down its face, down the riser.
+		var r := NOSING_WEAR.y + 0.004
+		var dip := NOSING_WEAR.z
+		_flat(st, Vector3(x0, top - dip, zb), Vector3(x1, top - dip, zf + r), i * 0.3)
+		var v := i * 0.3 + 0.27 - r
+		for k in 3:
+			var a0 := PI * 0.5 * (1.0 - k / 3.0)
+			var a1 := PI * 0.5 * (1.0 - (k + 1) / 3.0)
+			var p0 := Vector3(x0, top - dip - r + r * sin(a0), zf + r - r * cos(a0))
+			var p1 := Vector3(x1, top - dip - r + r * sin(a1), zf + r - r * cos(a1))
+			_flat(st, p0, p1, v)
+			v += r * PI / 6.0
+		_flat(st, Vector3(x0, top - dip - r, zf), Vector3(x1, top - TREAD_T - 0.004, zf), v)
 		_flat(st, Vector3(x0, top - TREAD_T - 0.004, i * GOING - 0.004), Vector3(x1, i * STEP_RISE, i * GOING - 0.004), i * 0.3 + 0.3)
 		var rod := PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(0.006, 0), Vector2(0.006, RUNNER_W + 0.08), Vector2(0, RUNNER_W + 0.08)]), 8, true)
 		var mi := MeshInstance3D.new()

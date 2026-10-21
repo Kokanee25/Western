@@ -189,6 +189,14 @@ the ragdoll session: `dark_oak` (studio4's four boards, 512 a metre) is in the g
 gives it collision (a box a board, the turnings by their bounds, on Layers.WORLD; `room = false`
 for the stair alone). Its golden view waits for the hotel.
 
+Worn treads (Sean, 2026-10-21: "round the edges of the stairs out ... they'd be round down from
+foot traffic"): `MaterialStand._worn_box` rounds a tread's front top edge, most in the middle of
+its length (where feet go) and least at its ends, and wears its top a few mm hollow there; one
+long face wraps top, round and front (no seam line on the round), the ends in the worn profile's
+end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 2 mm down
+(`NOSING_WEAR`; the runner wraps the round); the stand's outdoor steps' front boards 10 to 25 mm,
+5 mm down, their back boards eased (`TREAD_WEAR`). Collision stays a box a board.
+
 ## What's next, in order
 
 1. ~~Round 2's verdict~~ (done 2026-10-21, above): store boards round 2 SAME; the rest mixed.

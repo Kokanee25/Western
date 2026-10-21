@@ -12,23 +12,58 @@ func _stand(material: StringName) -> MaterialStand:
 
 
 func test_every_board_has_its_cut_ends_in_end_grain() -> void:
+	# By area (a worn tread is more than six faces): the end-grain faces cover every board's two
+	# cut ends, the flagged long faces its four sides, to within what the treads' rounding takes off.
 	var s := _stand(&"")
-	var boards := 0
+	var ends_want := 0.0
+	var long_want := 0.0
 	for wood in s.boards:
-		boards += (s.boards[wood] as Array).size()
-	var ends := 0
-	var long := 0
+		for b in s.boards[wood]:
+			var z: Vector3 = b.size
+			ends_want += 2.0 * z.y * z.z
+			long_want += 2.0 * z.x * (z.y + z.z)
+	var ends := 0.0
+	var long := 0.0
 	for mi in s.find_children("*", "MeshInstance3D", true, false):
 		var a: Array = (mi as MeshInstance3D).mesh.surface_get_arrays(0)
 		var cols: PackedColorArray = a[Mesh.ARRAY_COLOR]
-		# Six vertices a face (two triangles).
-		for i in range(0, cols.size(), 6):
-			if cols[i].g < 0.5 and cols[i].r > 0.5:
-				ends += 1
-			elif cols[i].g < 0.5:
-				long += 1
-	check_eq(ends, boards * 2, "two cut ends a board")
-	check_eq(long, boards * 4, "four long faces a board, each flagged with its strip offset")
+		var vs: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var idx: PackedInt32Array = a[Mesh.ARRAY_INDEX] if a[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		var count := idx.size() if idx.size() > 0 else vs.size()
+		for t in range(0, count, 3):
+			var k := [t, t + 1, t + 2] if idx.is_empty() else [idx[t], idx[t + 1], idx[t + 2]]
+			var area := ((vs[k[1]] - vs[k[0]]) as Vector3).cross(vs[k[2]] - vs[k[0]]).length() * 0.5
+			check(cols[k[0]].g < 0.5, "every face flagged")
+			if cols[k[0]].r > 0.5:
+				ends += area
+			else:
+				long += area
+	check_near(ends / ends_want, 1.0, 0.02, "two cut ends a board in end grain")
+	check_near(long / long_want, 1.0, 0.02, "four long faces a board, each flagged with its strip offset")
+	s.free()
+
+
+func test_the_treads_are_worn_round_most_in_the_middle() -> void:
+	# Sean, 2026-10-21: the stairs' edges round from foot traffic. On the second tread (no
+	# bullnose), the top is worn lower in the middle than at the strings, and at the wall string
+	# the flat top runs to within the small round's reach of the nosing.
+	var s := OakStair.new()
+	s.room = false
+	s.build()
+	var top := OakStair.STEP_RISE * 2.0
+	var nose := OakStair.GOING - OakStair.NOSE
+	var lowest_mid := INF
+	var top_at_string := false
+	for mi in (s.part_nodes[&"oak_treads"] as Node).find_children("*", "MeshInstance3D", true, false):
+		for v in (mi as MeshInstance3D).mesh.get_faces():
+			if absf(v.y - top) > 0.01 or v.z < nose - 0.001 or v.z > OakStair.GOING * 2.0 - OakStair.NOSE:
+				continue
+			if absf(v.x - OakStair.WIDTH * 0.5) < 0.05:
+				lowest_mid = minf(lowest_mid, v.y)
+			if v.x > OakStair.WIDTH - 0.001 and absf(v.y - top) < 0.0005 and v.z < nose + OakStair.NOSING_WEAR.x + 0.001:
+				top_at_string = true
+	check(lowest_mid < top - 0.001, "the middle of the tread worn down (top %.4f against %.4f)" % [lowest_mid, top])
+	check(top_at_string, "at the string the round is only the moulding's (%.0f mm)" % (OakStair.NOSING_WEAR.x * 1000.0))
 	s.free()
 
 
