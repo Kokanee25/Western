@@ -65,6 +65,7 @@ var _flags := {}
 var _cams: Array = []
 var _viewports: Array = []
 var _start_xf := Transform3D.IDENTITY
+var _saloon: SaloonBuilding  ## the "saloon_game" fixture
 var _seen := {}  ## view -> [sum of shares, least share, samples, samples under half]
 var _speed_before := Vector3.ZERO
 var _com_v_now := Vector3.ZERO
@@ -150,6 +151,9 @@ func _ready() -> void:
 
 
 func _start_point() -> Vector3:
+	# "spot": a named place in the game's saloon (SaloonDressing's stair and balcony).
+	if scenario.has("spot") and _saloon:
+		return _saloon_spot(String(scenario.spot))
 	# "start": where he stands, in the fixture's space (the oak stair, the railing's deck).
 	if scenario.has("start"):
 		var at: Array = scenario.start
@@ -173,6 +177,26 @@ func _start_point() -> Vector3:
 
 
 # --- Fixtures ------------------------------------------------------------------------------------
+
+## A place on the saloon's stair or balcony (SaloonDressing: 12 risers of 2.3/12 on 0.22 treads up
+## the front wall along +x to the balcony's edge at BALCONY_X; the balcony's room-side rail along
+## x at BALCONY_Z): "stair_top" (on the balcony at the stair's head), "stair_mid" (the sixth tread),
+## "balcony_rail" (0.45 back from the room-side rail, at its middle).
+func _saloon_spot(spot: String) -> Vector3:
+	var f := _saloon.floor_top
+	var rise := SaloonDressing.BALCONY_HEIGHT / SaloonDressing.RISERS
+	var x_bottom := SaloonDressing.BALCONY_X - (SaloonDressing.RISERS - 1) * SaloonDressing.TREAD
+	var z_mid := FalseFrontBuilding.STUD_D + SaloonDressing.STAIR_WIDTH * 0.5
+	match spot:
+		"stair_top":
+			return Vector3(SaloonDressing.BALCONY_X + 0.22, f + SaloonDressing.BALCONY_HEIGHT, z_mid)
+		"stair_mid":
+			return Vector3(x_bottom + 5.0 * SaloonDressing.TREAD, f + 6.0 * rise, z_mid)
+		"balcony_rail":
+			var x1 := _saloon.width - FalseFrontBuilding.STUD_D
+			return Vector3((SaloonDressing.BALCONY_X + x1) * 0.5, f + SaloonDressing.BALCONY_HEIGHT, SaloonDressing.BALCONY_Z - 0.03 - 0.45)
+	push_error("lab: no saloon spot %s" % spot)
+	return Vector3.ZERO
 
 const SLOPE_DEG := 20.0
 const STAIR_TOP := 0.72  ## four risers of 18 cm, treads 28 cm, going down ahead of him (-z)
@@ -285,6 +309,12 @@ func _build_fixture(kind: String) -> void:
 			hr.structure_id = &"lab_hitch"
 			_world.add_child(hr)
 			hr.global_position = Vector3(-1.2, 0, -0.8)
+		"saloon_game":
+			# The game's own saloon (SaloonBuilding: its stair of members up the front wall and its
+			# balcony's rail of trim, which a body thrown into it breaks), its floor at floor_top.
+			_saloon = SaloonBuilding.new()
+			_saloon.structure_id = &"saloon"
+			_world.add_child(_saloon)
 		"rail_break":
 			# A breakable 1 m railing over a 2.47 m drop, of the game's members (lab_railing.gd).
 			var rail = load(LAB_DIR + "lab_railing.gd").new()

@@ -30,8 +30,8 @@ func _railing() -> Structure:
 	var s := Structure.new()
 	s.structure_id = &"test_rail"
 	world.add_child(s)
-	var deck := s.add_member("deck", &"floor_board", &"floor", Vector3(4.0, 0.05, 2.0), Vector3(0, 0.025, 0.45))
-	deck.extra_load = 0.0
+	# A sill on the ground (tier 0: grounded), so the railing has its load path.
+	s.add_member("deck", &"sill", &"floor", Vector3(4.0, 0.05, 2.0), Vector3(0, 0.025, 0.45))
 	for x: float in [-1.2, 0.0, 1.2]:
 		s.add_member("newel_%d" % int(x * 10), &"furniture_frame", &"dark_trim", Vector3(0.09, 0.95, 0.09), Vector3(x, 0.525, -0.5))
 	for span in 2:
@@ -70,6 +70,21 @@ func test_a_man_thrown_into_a_railing_at_a_run_breaks_it() -> void:
 	var gone := _broken(s)
 	check(gone.has(&"test_rail/cap_1"), "the cap he hit broke (%s)" % [gone])
 	check(gone.size() >= 3, "and the balusters in his way with it (%d)" % gone.size())
+	check(not gone.has(&"test_rail/newel_-12"), "the far newel stands (only what he hit went)")
+
+
+func test_he_carries_on_through_the_railing_he_breaks() -> void:
+	# The rail takes only what breaks it; the rest of his speed goes on with him (BodyImpacts
+	# _give_back): through it, not stopped dead at it.
+	_railing()
+	var man := _man(Vector3(0.6, 0.05, 0.6))
+	await physics_frames(2)
+	man.go_limp()
+	for rb: Variant in man.parts.values():
+		(rb as RigidBody3D).linear_velocity = Vector3(0, 0, -3.5)
+	var chest := man.parts[&"chest"] as RigidBody3D
+	await physics_frames(24)
+	check(chest.linear_velocity.z < -1.0, "his chest still going on through at 0.4 s (%.2f m/s)" % chest.linear_velocity.z)
 
 
 func test_slumping_against_a_railing_breaks_nothing() -> void:

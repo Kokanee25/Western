@@ -1,8 +1,9 @@
 class_name BodyImpacts
 extends RefCounted
 ## A limp man thrown into timber breaks it as falling timber does (Structure._on_rubble_hit): when
-## the energy spent stopping him against a member passes what it can take (TimberTuning
-## impact_toughness, J per m³ of it). A shove into a railing, a body pitched into a balustrade at a
+## the energy spent stopping him against a member passes what it can take (`capacity`: its wood's,
+## TimberTuning impact_toughness J per m³; trim's nails first). What the engine took from him past
+## that goes back to him (`_give_back`): he carries on through. A shove into a railing, a body pitched into a balustrade at a
 ## run (Sean, 2026-10-21: "a hard push or shove into that 1 meter railing, make the railing break
 ## and the body fall").
 ##
@@ -131,9 +132,15 @@ func step(delta: float) -> Array[StructureMember]:
 				# bears on it levers it off its nails.
 				var push := j.length() / maxf(delta, 1e-4)
 				var up := st.get_contact_collider_position(i).y - m.world_aabb().position.y
-				if push * up > nailed_moment(s.tuning, m):
+				var holds := nailed_moment(s.tuning, m)
+				if push * up > holds:
 					broke.append(m)
 					_tally.erase(m)
+					# It pushed back only as hard as its nails held, this one tick: the rest of what
+					# the engine took from him goes back (as `_give_back`).
+					var could := holds / maxf(up, 0.05) * delta
+					var level := Vector3(j.x, 0.0, j.z)
+					rb.apply_central_impulse(-level * clampf(1.0 - could / maxf(j.length(), 1e-6), 0.0, 1.0))
 					var away := Vector3(-n.x, 0.0, -n.z)
 					s.break_member.call_deferred(m, away.normalized() * maxf(before.length(), 0.3) if away.length() > 0.01 else before)
 					continue
@@ -146,15 +153,32 @@ func step(delta: float) -> Array[StructureMember]:
 			# The level speed into it it took away this tick, at the mean of before and after.
 			var closing := (absf(before.dot(nl)) + absf(now.dot(nl))) * 0.5
 			var work := absf(j.dot(nl)) * closing
-			var e: Array = _tally.get(m, [0.0, 0.0])
+			var e: Array = _tally.get(m, [0.0, 0.0, {}])
 			e[0] += work
 			e[1] = 0.0
+			var given: Dictionary = e[2]
+			given[rb] = (given.get(rb, Vector3.ZERO) as Vector3) + nl * j.dot(nl)
 			_tally[m] = e
-			if e[0] > s.tuning.impact_toughness * m.volume():
+			var can_take := capacity(s, m)
+			if e[0] > can_take:
 				broke.append(m)
 				_tally.erase(m)
 				s.break_member.call_deferred(m, before * 0.3)
+				_give_back(given, e[0], can_take)
 	return broke
+
+
+## A member breaks having taken no more than it could (`can_take`), but the engine held it rigid
+## until it did, so it may have stopped him harder (`took`): for a stop, energy goes with the
+## impulse squared, so the share of the impulse it really took is sqrt(can_take / took); the rest
+## goes back to each part it pushed, the way it was going: he carries on through.
+static func _give_back(given: Dictionary, took: float, can_take: float) -> void:
+	var back := clampf(1.0 - sqrt(can_take / maxf(took, 1e-6)), 0.0, 1.0)
+	if back <= 0.0:
+		return
+	for rb: RigidBody3D in given:
+		if is_instance_valid(rb):
+			rb.apply_central_impulse(-(given[rb] as Vector3) * back)
 
 
 ## Nothing holds its top: every member it touches, but what it stands on, is broken (or there's
@@ -167,6 +191,27 @@ static func _top_free(s: Structure, m: StructureMember) -> bool:
 		if o != null and not o.broken:
 			return false
 	return true
+
+
+## What a member takes from a body thrown into it before it gives way (J): its wood's, as falling
+## timber's (`impact_toughness` x its volume); but trim (balustrades, hand rails: finish carpentry,
+## light nails) lets go at its nails first, each member it touches a nailed joint that gives way
+## after ~10 mm of slip at its nails, a turn of NAIL_TURN over its depth (load-slip of nailed
+## joints, USDA Wood Handbook ch. 8: an assumption to judge by eye), half its `nailed_moment` x that
+## turn. A 1.2 m oak cap on nine balusters and two newels ~51 J (its wood ~150), a baluster ~6.5.
+const NAIL_TURN := 0.15
+
+
+static func capacity(s: Structure, m: StructureMember) -> float:
+	var wood := s.tuning.impact_toughness * m.volume()
+	if m.kind != &"trim":
+		return wood
+	var joints := 0.0
+	for id: StringName in m.touching:
+		var o := s.get_member(id)
+		if o != null and not o.broken:
+			joints += 0.5 * minf(nailed_moment(s.tuning, m), nailed_moment(s.tuning, o)) * NAIL_TURN
+	return minf(wood, joints)
 
 
 ## What a member's nailed foot takes before it tears out (N·m): TimberTuning.joint_moment is a
