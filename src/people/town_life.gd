@@ -25,11 +25,11 @@ var _t := 0.0
 var _arrived := false
 
 const GANG := [
-	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_cowboy_s0",
+	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_cowboy_s3_talking",
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
-	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1", "model": &"hothead_lyle_s1",
+	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1", "model": &"hothead_lyle_s2_talking",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
-	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"young_drifter_s1",
+	{"id": &"kid", "temper": 0.45, "nerve": 0.3, "proud": false, "bar": &"bar_2", "model": &"young_drifter_s3_talking",
 			"shirt": Color(0.62, 0.62, 0.56), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.45, 0.38, 0.28)},
 ]
 
@@ -56,26 +56,26 @@ func _process_step(delta: float) -> void:
 
 func _spawn_townsfolk() -> void:
 	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
-			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s1")
+			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
-			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s1")
+			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
-			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s1")
+			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s2_talking")
 	# The sheriff (the Studio's sean_s2, Sean as him) in front of his jail, watching the street. A
 	# civilian's mind for now: no gun, no law yet.
 	sheriff = _civilian(&"sheriff", &"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 1.4, -9.0)), 104,
-			Color(0.85, 0.8, 0.7), Color(0.2, 0.2, 0.22), &"sean_s2")
+			Color(0.85, 0.8, 0.7), Color(0.2, 0.2, 0.22), &"sean_s3_talking")
 	# The doctor (the Studio's doctor_s1) in front of his office, watching the street. A civilian's
 	# mind for now: his doctoring is to come.
 	doctor = _civilian(&"doctor", &"doctor_front", TownLayout.point(&"Doctor", Vector3(3.0, 1.4, -9.0)), 105,
-			Color(0.85, 0.8, 0.7), Color(0.4, 0.15, 0.15), &"doctor_s1")
+			Color(0.85, 0.8, 0.7), Color(0.4, 0.15, 0.15), &"doctor_s2_talking")
 	# His building is the node "Doctor": named so, he'd be renamed by the engine, differently each
 	# run, and a bug report's replay couldn't find him again.
 	doctor.name = "TheDoctor"
 	# The fourth Colter (the Studio's colter_rider_s1, the one who "knows" you, DESIGN.md §6) waiting
 	# in front of the livery. A civilian's mind for now, unarmed: riding with the gang is to come.
 	colter = _civilian(&"colter", &"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 1.4, -9.0)), 106,
-			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s1")
+			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s2_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
