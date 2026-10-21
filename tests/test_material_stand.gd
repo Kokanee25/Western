@@ -67,3 +67,19 @@ func test_boards_are_their_real_sizes() -> void:
 	for b in s.boards[&"timber"]:
 		check(b.size.y >= 0.15 and b.size.z >= 0.15, "posts and beam 150 mm or more")
 	s.free()
+
+
+func test_the_oak_stairs_strings_clear_the_floor_and_the_first_step() -> void:
+	# Sean, 2026-10-21: the open string ran through the bullnose step to the floor.
+	var s := OakStair.new()
+	s.build()
+	var low := INF
+	var on_step := INF
+	for mi in (s.part_nodes[&"oak_strings"] as Node).find_children("*", "MeshInstance3D", true, false):
+		for v in (mi as MeshInstance3D).mesh.get_faces():
+			low = minf(low, v.y)
+			if v.x < -0.001 and v.z < OakStair.GOING:
+				on_step = minf(on_step, v.y)
+	check(low >= 0.0, "no string under the floor (lowest %.3f)" % low)
+	check(on_step >= OakStair.STEP_RISE, "the open string sits on the first step (lowest there %.3f)" % on_step)
+	s.free()

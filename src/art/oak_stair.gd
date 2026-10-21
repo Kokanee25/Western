@@ -27,7 +27,8 @@ const LANDING_DEPTH := 1.3
 const RUNNER_W := 0.8
 ## The bullnose: the first step runs past the open side round the newel.
 const BULL := 0.32
-const NEWEL := Vector2(-0.14, 0.13)
+## The newel on the bullnose, on the cut string's line (the string dies into it).
+const NEWEL := Vector2(-0.02, 0.13)
 
 const PARTS := [&"oak_treads", &"oak_risers", &"oak_strings", &"oak_newels", &"oak_balusters", &"oak_rail", &"oak_landing", &"oak_runner", &"oak_rods"]
 
@@ -127,17 +128,93 @@ func _landing() -> void:
 
 
 func _strings() -> void:
-	var len_z := (RISERS - 1) * GOING
-	var a := Vector3(0, 0, -NOSE)
-	var b := Vector3(0, landing_y() - STEP_RISE, len_z - NOSE)
+	var top_z := (RISERS - 1) * GOING - NOSE
+	var slope := STEP_RISE / GOING
+	# How far the strings stand below the nosing line, measured plumb (300 mm square to it).
+	var depth := 0.3 * sqrt(1.0 + slope * slope)
+	# The cut string on the open side: its top 50 mm over the nosings, dying into the newel at its
+	# foot (a level cut where it sits on the first step) and into the landing's newel at its head
+	# (a plumb cut). A straight box ran down through the bullnose to the floor (Sean, 2026-10-21).
+	_string(-0.04, 0.0, NEWEL.y + 0.08, top_z - 0.02, 0.05, depth, STEP_RISE + 0.004)
+	# The wall string, 330 deep against the wall, from the floor (level cut on it) to the landing.
+	_string(WIDTH, WIDTH + 0.036, -NOSE - 0.1, top_z + 0.1, 0.11, depth + 0.03, 0.016)
+	# The soffit under the flight, from where it clears the floor to the landing.
+	var a := Vector3(WIDTH * 0.5, pitch_y(0.45) - depth - 0.03, 0.45)
+	var b := Vector3(WIDTH * 0.5, pitch_y(top_z) - depth - 0.03, top_z)
 	var along := (b - a).normalized()
 	var up := along.cross(Vector3(1, 0, 0)).normalized()
-	var mid := (a + b) * 0.5
-	# The cut string under the open ends of the treads, the wall string against the wall, both
-	# 300 mm deep; the soffit board under the flight between them.
-	_board(&"oak_strings", mid + Vector3(-0.02, 0, 0) - up * 0.1, along, Vector3(1, 0, 0), a.distance_to(b), 0.3, 0.04, up)
-	_board(&"oak_strings", mid + Vector3(WIDTH + 0.018, 0.08, 0), along, Vector3(1, 0, 0), a.distance_to(b) + 0.25, 0.33, 0.036, up)
-	_board(&"oak_strings", mid + Vector3(WIDTH * 0.5, 0, 0) - up * 0.24, along, up, a.distance_to(b), WIDTH, 0.02, Vector3(1, 0, 0))
+	if up.y < 0.0:
+		up = -up
+	_board(&"oak_strings", (a + b) * 0.5, along, up, a.distance_to(b), WIDTH, 0.02, Vector3(1, 0, 0))
+
+
+## A string between x0 and x1: its top `over` above the nosing line from z0 to z1, `depth` deep
+## (plumb), its foot cut level at y_min where it would go lower. Long faces flagged with a place on
+## the strip, its plumb and level cuts drawn as end grain.
+func _string(x0: float, x1: float, z0: float, z1: float, over: float, depth: float, y_min: float) -> void:
+	var top := func(z: float) -> float: return pitch_y(z) + over
+	# The outline in (z, y), round the board: top edge up the slope, plumb cut at the head, bottom
+	# edge down, then a level cut and a plumb cut at the foot if the bottom would pass y_min.
+	var pts: Array[Vector2] = [Vector2(z0, top.call(z0)), Vector2(z1, top.call(z1)), Vector2(z1, top.call(z1) - depth)]
+	var zl: float = z0 + (y_min - (top.call(z0) - depth)) / (STEP_RISE / GOING)
+	if zl > z0 and zl < z1:
+		pts.append(Vector2(zl, y_min))
+		pts.append(Vector2(z0, y_min))
+	else:
+		pts.append(Vector2(z0, top.call(z0) - depth))
+	var wood := wood_for(&"oak_strings")
+	var strips := maxi(WoodMaterials.strip_count(wood), 1)
+	var pick := _rng.randi_range(0, strips - 1)
+	var u0 := _rng.randf_range(0.0, 1.9)
+	if not _tools.has(&"oak_strings"):
+		_tools[&"oak_strings"] = {}
+	if not _tools[&"oak_strings"].has(pick):
+		var st0 := SurfaceTool.new()
+		st0.begin(Mesh.PRIMITIVE_TRIANGLES)
+		_tools[&"oak_strings"][pick] = st0
+	var st: SurfaceTool = _tools[&"oak_strings"][pick]
+	var dir := Vector3(0, STEP_RISE, GOING).normalized()
+	var long := Vector3(0, top.call(z1) - top.call(z0), z1 - z0).length()
+	var flag := Color(0.0, 0.0, u0 * 0.5, 1.0)
+	# The two broad sides: fans over the (convex) outline, u along the slope, v down from the top.
+	for x in [x0, x1]:
+		var n := Vector3(-1, 0, 0) if x == x0 else Vector3(1, 0, 0)
+		var v3: Array[Vector3] = []
+		var uv: Array[Vector2] = []
+		for p in pts:
+			var q := Vector3(x, p.y, p.x)
+			v3.append(q)
+			var rel := q - Vector3(x, top.call(z0), z0)
+			uv.append(Vector2(u0 + rel.dot(dir), -rel.dot(dir.cross(Vector3(1, 0, 0)).normalized())))
+		for i in range(1, v3.size() - 1):
+			var tri := [0, i, i + 1]
+			if (v3[i] - v3[0]).cross(v3[i + 1] - v3[0]).dot(n) > 0.0:
+				tri = [0, i + 1, i]
+			for k in tri:
+				st.set_color(flag)
+				st.set_normal(n)
+				st.set_uv(uv[k])
+				st.set_uv2(Vector2(long, depth))
+				st.add_vertex(v3[k])
+	# Round the edge: the top and bottom along the grain, the cuts as end grain.
+	var c := Vector2(0.0, 0.0)
+	for p in pts:
+		c += p / pts.size()
+	for i in pts.size():
+		var a: Vector2 = pts[i]
+		var b: Vector2 = pts[(i + 1) % pts.size()]
+		var e := b - a
+		var along_grain := absf(e.normalized().dot(Vector2(GOING, STEP_RISE).normalized())) > 0.95
+		var n2 := Vector2(e.y, -e.x).normalized()
+		if n2.dot((a + b) * 0.5 - c) < 0.0:
+			n2 = -n2
+		var n := Vector3(0, n2.y, n2.x)
+		var size := Vector2(e.length(), x1 - x0)
+		_quad(st, Vector3((x0 + x1) * 0.5, (a.y + b.y) * 0.5, (a.x + b.x) * 0.5), Vector3(0, e.y, e.x), Vector3(x1 - x0, 0, 0), n,
+				size, u0 if along_grain else 0.0, flag if along_grain else Color(1.0, 0.0, 0.0, 1.0))
+	if not boards.has(wood):
+		boards[wood] = []
+	boards[wood].append({"part": &"oak_strings", "size": Vector3(long, depth, x1 - x0), "strip": pick})
 
 
 ## The newels, balusters and rail: turned oak.
