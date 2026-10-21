@@ -38,7 +38,7 @@ Characters, in the Character Studio. Read this repo's CLAUDE.md and README first
 ## Bring finished men into the game [Salt Creek]
 
 ```
-Characters lane, branch claude/characters-studio-<id>. Bring the Character Studio's approved, frozen man [id] into assets/people the way PRs #157–159 did (body, head, hat pieces, bones by name, textures with mipmaps, <id>.json). Check him in the game: geometry, tests/test_bodies.gd, tools/characters/works_check.gd. One PR per man, with a sheet of him in the street at golden hour and in the saloon at night.
+Characters lane, branch claude/characters-studio-<id>. Bring the Character Studio's approved, frozen man [id] into assets/people the way PRs #157–159 did (body, head, hat pieces, bones by name, textures with mipmaps, <id>.json). Run godot --headless --import and commit every .import file it writes (the .glb.import too), so no other session sees them as changes. Check him in the game: geometry, tests/test_bodies.gd, tools/characters/works_check.gd. One PR per man, with a sheet of him in the street at golden hour and in the saloon at night.
 ```
 
 ## 2.1 Stand-ins: outfit and hat swaps [Salt Creek]

@@ -932,3 +932,5 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
 
 - CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
   `docs/BUILD_NOTES.md` — update it each milestone) and the web build to GitHub Pages.
+  The test job fails if Godot's import writes any `.import` file that isn't committed as it
+  writes them ("Import files committed"): run `godot --headless --import` and commit them.
