@@ -80,6 +80,7 @@ func _run() -> void:
 			runner.out_dir = dir
 			runner.render = args.has("render")
 			runner.seed_value = int(manifest.seed)
+			runner.brains = args.has("brains")
 			if args.has("size"):
 				var wh: PackedStringArray = args.size.split("x")
 				runner.view_size = Vector2i(int(wh[0]), int(wh[1]))

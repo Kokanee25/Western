@@ -20,7 +20,9 @@ var _stand_ticks := 30
 var _live_ticks := 180
 var _phase := ""
 var _found := {}
-var _perf := {"standing": [], "after": [], "people_standing": [], "people_after": [], "body": [], "skeleton": [], "blood": []}
+var _perf := {"standing": [], "after": [], "people_standing": [], "people_after": [], "body": [], "skeleton": [], "blood": [], "brains": []}
+## --brains: each perf man has an OutlawBrain (senses, fear, tending his wounds), as the gang does.
+var brains := false
 var _perf_last := 0
 var _toward: Array = []  ## the blast's gravel and splinters that left toward him
 var _spot_cam := {}  ## where the close-up looks (a shot's spot), fixed at the hit
@@ -48,6 +50,10 @@ func _ready() -> void:
 			var p: Dictionary = d.perf
 			for i in int(p.men):
 				var m := _spawn(Vector3((i - (int(p.men) - 1) * 0.5) * float(p.spacing), 0, 0), i)
+				if brains:
+					var b := OutlawBrain.new()
+					b.name = "Brain"
+					m.add_child(b)
 				_men.append(m)
 		"same_tick":
 			for i in 3:
@@ -118,15 +124,18 @@ func _process(_delta: float) -> void:
 	var body: float = Prof.per_frame.get(&"people_body", 0.0)
 	var skel: float = Prof.per_frame.get(&"people_skeleton", 0.0)
 	var blood: float = Prof.per_frame.get(&"blood", 0.0)
+	# The people row's other timers (CLAUDE.md, frame budget): brains and senses.
+	var minds: float = Prof.per_frame.get(&"outlaw_brain", 0.0) + Prof.per_frame.get(&"senses", 0.0)
 	var key := "standing" if _fired_tick < 0 else "after"
 	if _tick < 10:
 		return  # warm-up
 	(_perf[key] as Array).append(ms)
-	(_perf["people_" + key] as Array).append(body + skel + blood)
+	(_perf["people_" + key] as Array).append(body + skel + blood + minds)
 	if key == "after":
 		(_perf.body as Array).append(body)
 		(_perf.skeleton as Array).append(skel)
 		(_perf.blood as Array).append(blood)
+		(_perf.brains as Array).append(minds)
 
 
 func _eye(range_m: float, at := Vector3.ZERO) -> Vector3:
@@ -456,7 +465,8 @@ func _run_perf() -> void:
 				"frame_ms_standing": _stats(_typed(_perf.standing)), "frame_ms_after": _stats(_typed(_perf.after)),
 				"people_ms_standing": _stats(_typed(_perf.people_standing)), "people_ms_after": _stats(_typed(_perf.people_after)),
 				"people_body_ms_after": _stats(_typed(_perf.body)), "people_skeleton_ms_after": _stats(_typed(_perf.skeleton)),
-				"blood_ms_after": _stats(_typed(_perf.blood)),
+				"blood_ms_after": _stats(_typed(_perf.blood)), "brains": brains,
+				"brains_and_senses_ms_after": _stats(_typed(_perf.brains)),
 				"down": _men.filter(func(m: HumanBody) -> bool: return m.limp or m.prone).size(),
 				"dead": _men.filter(func(m: HumanBody) -> bool: return not m.physiology.alive).size(),
 				"wounds": _men.map(func(m: HumanBody) -> int: return m.wounds.size())}
