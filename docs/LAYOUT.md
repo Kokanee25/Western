@@ -69,6 +69,14 @@ python3 tools/bridge.py "time 17.6" "goto street_east" "look saloon_porch" "scre
 python3 tools/bridge.py stop
 ```
 
+**A lab's own commands** (`src/debug/bridge_lab.gd`, `docs/briefs/labs.md`): a lab folder
+`experiments/<lab>/` may hold a `bridge.gd` extending `BridgeLab`, with its commands in a `HELP`
+constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for each (it may await
+`seconds(S)`; `player`, `street`, `person(ID)`, `log_event`, `vec`, `arr` come from the bridge).
+The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
+`labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
+already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`.
+
 ## The playtest
 
 **The playtest** (`tools/playtest.md`, its instructions; `tools/playtest.py start|shot NAME|stop`):
