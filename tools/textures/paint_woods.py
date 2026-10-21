@@ -197,7 +197,11 @@ def grade(im, g):
     return Image.fromarray(reduce.lab_to_rgb(a))
 
 
-def board_grade(pieces, names, g):
+# Each wood's median board (L*a*b*) as its boards are graded, for a later wood to `match`.
+MEDIANS = {}
+
+
+def board_grade(pieces, names, g, wood=None):
     """Round 3's grading of a wood's boards when they're cut (no call; Sean 2026-10-21, after round
     2's critic: plank-to-plank colour jumps read as candy stripes and patchwork, the bleached highs
     as overexposed, saloon red's swirling grain as loud). `g` (the wood's `grade`) may hold:
@@ -209,8 +213,11 @@ def board_grade(pieces, names, g):
     painting's dark seam line, where it wavers into a board's outer N rows (cut along its darkest
     row, not every texel of it), filled from the row inside (the blind critics' black dashes along
     the walls' seams: a board's edge row drawn in crisp dark segments). The bare strip
-    (under the paint) is left as it is."""
-    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams")
+    (under the paint) is left as it is. Round 5: "lows" [percentile, keep]: lightness under the
+    wood's percentile lifted to `keep` of its depth under it (dark blots); "match" a wood cut before
+    this one in the set (the low siding's `saloon_red`): its boards' median is the target, not this
+    wood's own, so the low boards take the wall's palette."""
+    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams", "lows", "match")
     if not g or not any(k in g for k in keys):
         return pieces
     import reduce  # noqa: E402 (its Lab conversions)
@@ -219,8 +226,12 @@ def board_grade(pieces, names, g):
     boards = [i for i, n in enumerate(names) if not n.endswith("_bare.png")]
     means = np.array([labs[i].reshape(-1, 3).mean(axis=0) for i in boards])
     target = np.median(means, axis=0)
+    if g.get("match") in MEDIANS:
+        target = MEDIANS[g["match"]]
     allL = np.concatenate([labs[i][..., 0].ravel() for i in boards])
     knee = np.percentile(allL, float(g["highs"][0])) if "highs" in g else None
+    if wood:
+        MEDIANS[wood] = target
     out = list(pieces)
     for j, i in enumerate(boards):
         a = labs[i]
@@ -244,6 +255,10 @@ def board_grade(pieces, names, g):
         shift = target - means[j]
         a[..., 0] += shift[0] * float(g.get("unify_L", 0.0))
         a[..., 1:] += shift[1:] * float(g.get("unify", 0.0))
+        if "lows" in g:
+            low_knee = np.percentile(allL, float(g["lows"][0]))
+            under = a[..., 0] < low_knee
+            a[..., 0] = np.where(under, low_knee - (low_knee - a[..., 0]) * float(g["lows"][1]), a[..., 0])
         if knee is not None:
             over = a[..., 0] > knee
             a[..., 0] = np.where(over, knee + (a[..., 0] - knee) * float(g["highs"][1]), a[..., 0])
@@ -314,7 +329,7 @@ def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
         top = cuts[i] + (trim if i > 0 else 0)
         bottom = cuts[i + 1] - (trim if i < len(names) - 1 else 0)
         pieces.append(painted.crop((0, top, painted.width, bottom)).resize((sw, sh), Image.LANCZOS))
-    pieces = board_grade(pieces, names, g)
+    pieces = board_grade(pieces, names, g, wood)
     for i, (n, piece) in enumerate(zip(names, pieces)):
         if info.get("weather"):
             # Before the ends are crossfaded, so the board still repeats seamlessly.

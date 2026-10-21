@@ -107,6 +107,10 @@ uniform float weather_tones = 3.0;
 // their drip line's shade; 0: only what faces the sky bleaches).
 uniform bool weather_multiply = false;
 uniform float weather_bleach_walls = 0.45;
+// Round 5: the most of a wall's foot the mud covers (its reach's envelope capped), so it stays dark
+// shapes on the wood rather than a coat with the bare wood showing as pale shapes in it (round 4's
+// "pale clouds"); 1 = as before.
+uniform float weather_mud_cover = 1.0;
 varying vec4 weather_frame;
 varying vec4 weather_nails;
 varying vec3 weather_n;
@@ -218,7 +222,7 @@ vec3 weathered(vec3 c0, vec3 p, vec3 n, vec3 dpx, vec3 dpy, vec2 uv1, vec2 uv2) 
 	}
 	c *= mix(vec3(1.0), weather_streak, streak * weather_amounts.y * board);
 	// Mud splashed up from the ground, over everything, on walls (and a little on decks).
-	float mud = weather_cover(m.r, (1.0 - smoothstep(0.0, weather_reach.x, h)) * mix(0.3, 1.0, side)) * weather_amounts.x * board;
+	float mud = weather_cover(m.r, min(1.0 - smoothstep(0.0, weather_reach.x, h), weather_mud_cover) * mix(0.3, 1.0, side)) * weather_amounts.x * board;
 	vec3 muddy = weather_multiply ? c * weather_mud : weather_mud;
 	return mix(c0, mix(c, muddy, mud), clamp(weather_frame.z, 0.0, 1.0));
 }
