@@ -1,0 +1,41 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.26,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 3041376150,
+  "frame": {
+    "added_ms_first_1s": 0.75,
+    "before_ms": 0.49,
+    "event_ms": 18.54,
+    "settle_ms": 1.06
+  },
+  "kick": "broke",
+  "loose": true,
+  "loose_t": 0.0,
+  "man": {
+    "limp": true,
+    "limp_t": 0.0,
+    "on_floor": true,
+    "pelvis_end": [
+      -0.6,
+      0.22,
+      0.3
+    ],
+    "seat_h": 0.521
+  },
+  "max_piece_speed": 5.85,
+  "members": 13,
+  "pieces": 3,
+  "prop": "chair",
+  "scenario": "seated_kick_front_leg",
+  "snapped": [
+    "leg_front_l"
+  ]
+}

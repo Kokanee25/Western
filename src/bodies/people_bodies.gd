@@ -57,6 +57,12 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	for k: String in generated:
 		if k == "fingers":
 			continue
+		# His bandanas (tools/faces/bandana.py): the one over his face when he's masked, else the one
+		# at his neck if he wears a bandana; never both.
+		if k == "bandana_mask" and not outfit.get("mask", false):
+			continue
+		if k == "bandana" and (outfit.get("mask", false) or not outfit.get("bandana", false)):
+			continue
 		# His own hat's brim and band go with his hat: a man not wearing one wears neither.
 		if k in ["hat_brim", "hat_band"] and not shapes.has("hat") and not whole:
 			continue

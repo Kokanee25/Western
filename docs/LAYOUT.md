@@ -33,6 +33,7 @@ means a section of this file.
 - [src/art/street_match.gd (the street painting's shot)](#srcartstreet_matchgd-the-street-paintings-shot)
 - [The texture factory (tools/textures)](#the-texture-factory-toolstextures)
 - [src/props/prop_models.gd](#srcpropsprop_modelsgd)
+- [The prop kit (src/props/prop_kit.gd, kit_prop.gd)](#the-prop-kit-srcpropsprop_kitgd-kit_propgd)
 - [src/art/saloon_dressing.gd](#srcartsaloon_dressinggd)
 - [src/art/sign_art.gd and the backdrop](#srcartsign_artgd-and-the-backdrop)
 - [Characters by image-to-3D (tools/characters)](#characters-by-image-to-3d-toolscharacters)
@@ -678,6 +679,16 @@ a few views renders them as the full run does.
   The cut's board grading (`grade`/`grade_all`: `unify`, `unify_L`, `rows`, `highs`, `calm`,
   `seams`; `paint_woods.board_grade`). The lab's sets draw seams a pixel wide (`edge_aa`, the lap's
   butt a dark line); the game's woods don't until Sean picks.
+  **The interior woodwork** (Sean's saloon picture, `docs/concept/targets/10_saloon_interior.png`;
+  brief `docs/briefs/interior-woodwork.md`): `Profiles` (`src/art/profiles.gd`: cross-sections as
+  data, runs of points smooth within a run: `rect`, `chamfered`, `rounded`, `bar_top`, `handrail`,
+  `ogee`, `beaded`), `MaterialStand._profiled` (a profile run along a board, end grain on its ends)
+  and `_take` (every board's strip pick); `InteriorStand` (`--material=interior`, or
+  `interior_square` with every piece a box): wainscot with raised panels (`_panel`), casings, the bar
+  and back bar, chamfered posts with brackets (`_cut`: a board cut to an outline), the gallery's
+  joists, deck and balustrade (the oak stair's newels and balusters, a moulded handrail); its own
+  views, men and lamps. The interior stain: set `studio_int` (`grade_all.target`: one L*a*b* for
+  every wood).
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
@@ -730,6 +741,34 @@ a few views renders them as the full run does.
   arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
   twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
   `--street` the street's code models (horse from three sides, hay, crate).
+
+## The prop kit (src/props/prop_kit.gd, kit_prop.gd)
+
+- The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
+  once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
+  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
+  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
+  shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
+  KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
+  every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
+  man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
+  (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
+  it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
+  `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
+  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
+  nothing). The bench: `experiments/prop_lab/` (README).
 
 ## src/art/saloon_dressing.gd
 

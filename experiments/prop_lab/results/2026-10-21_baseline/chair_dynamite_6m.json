@@ -1,0 +1,27 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 3.03,
+    "before_ms": 0.06,
+    "event_ms": 143.02,
+    "settle_ms": 1.28
+  },
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 13,
+  "pieces": 0,
+  "prop": "chair",
+  "scenario": "chair_dynamite_6m",
+  "snapped": []
+}

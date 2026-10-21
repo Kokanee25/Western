@@ -267,6 +267,7 @@ python3 tools/bridge.py stop
 - **src/art/street_match.gd** — the street painting's shot, the judge's scores.
 - **The texture factory (tools/textures)** — materials.json, paint, reduce, flames, backdrop.
 - **src/props/prop_models.gd** — props modelled in code, prop views.
+- **The prop kit (src/props/prop_kit.gd, kit_prop.gd)** — props as data, built of members; the bench.
 - **src/art/saloon_dressing.gd** — the saloon's walls, bar, dressing.
 - **src/art/sign_art.gd and the backdrop** — lettering, the painted backdrop, FacadeArt.
 - **Characters by image-to-3D (tools/characters)** — the People workflow, Tripo/Rodin, head
@@ -310,7 +311,11 @@ frozen until Sean names one.
   the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
   brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
   interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
-  Sean's picks on `round5_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
+  brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
+  interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
+  woodwork, the game's woods all DIFFERENT. **Next: Sean's pick** (`interior/sheet_abc.jpg`), then
+  the stain into the game's woods for the saloon session. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -417,3 +422,10 @@ frozen until Sean names one.
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
   own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+
+**Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
+`assets/props/`):
+- The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
+  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
+  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
+  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.

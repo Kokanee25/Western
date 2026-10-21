@@ -207,3 +207,44 @@ func test_the_stairs_walkway_has_a_railing_to_fall_over() -> void:
 	var drawn := (s.part_nodes[&"oak_rail"] as Node).find_children("*", "MeshInstance3D", true, false)
 	check(not drawn.is_empty(), "the rails are drawn, not only solid")
 	s.queue_free()
+
+
+func test_the_interior_stand_builds_profiled_and_square() -> void:
+	# The saloon's woodwork (docs/briefs/interior-woodwork.md): built both ways, every piece's every
+	# face flagged (long or end grain), and the profiled one has more to it than the square one.
+	var tris := {}
+	for profiled in [true, false]:
+		var s := InteriorStand.new()
+		s.profiled = profiled
+		s.build()
+		var n := 0
+		for mi in s.find_children("*", "MeshInstance3D", true, false):
+			var m := (mi as MeshInstance3D).mesh
+			if not (m is ArrayMesh) or (mi as MeshInstance3D).material_override is StandardMaterial3D:
+				continue
+			var a: Array = m.surface_get_arrays(0)
+			if a[Mesh.ARRAY_COLOR] == null:
+				continue  # the lathe's turnings and brass
+			var cols: PackedColorArray = a[Mesh.ARRAY_COLOR]
+			for c in cols:
+				if c.g > 0.5:
+					check(false, "an unflagged face (profiled %s)" % profiled)
+					break
+			n += cols.size() / 3
+		tris[profiled] = n
+		for part in [&"int_wainscot", &"int_bar_top", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
+			check(s.part_nodes.has(part), "%s built (profiled %s)" % [part, profiled])
+		s.free()
+	check(tris[true] > tris[false] * 2, "profiles add shape (%d against %d triangles)" % [tris[true], tris[false]])
+
+
+func test_every_profile_is_closed_and_counter_clockwise() -> void:
+	for runs in [Profiles.rect(0.1, 0.02), Profiles.chamfered(0.2, 0.2, 0.02), Profiles.rounded(0.18, 0.03, 0.008, [1]),
+			Profiles.bar_top(0.7, 0.05), Profiles.handrail(0.075, 0.06), Profiles.ogee(0.06, 0.045), Profiles.beaded(0.148, 0.02, 0.006)]:
+		for i in runs.size():
+			var a: PackedVector2Array = runs[i]
+			var b: PackedVector2Array = runs[(i + 1) % runs.size()]
+			check(a[a.size() - 1].distance_to(b[0]) < 1e-5, "each run starts where the last ended")
+		var ring := Profiles.outline(runs)
+		check(not Geometry2D.is_polygon_clockwise(ring), "counter-clockwise (outward normals)")
+		check(Geometry2D.triangulate_polygon(ring).size() >= 3, "fills (its ends in end grain)")
