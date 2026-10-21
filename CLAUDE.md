@@ -305,11 +305,12 @@ frozen until Sean names one.
   space where a mesh carries CUSTOM0/1; `stain_sheet.py`), the boards graded to one palette in the
   cut (`board_grade`), the seam dashes fixed (`seams`, `edge_aa`: lab sets only); sets studio6 (free
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
-  stains read as light, not dirt. **Round 4** (free, `claude/art-round4`, set studio7: stains
-  multiply the board down, bleach on sky faces only, calmer trim and timber, less sheen): the critic
-  1 SAME / 7 CLOSE / 0 DIFFERENT, the first set with no wood DIFFERENT. **Next: round 5, free**
-  (the brief's "What's next": the low siding's pale boards showing between the mud), then Sean's
-  picks on `round4_sheets/`. Worn treads on both stairs (#176). The hotel's oak
+  stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
+  **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
+  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
+  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
+  Sean's picks on `round5_sheets/`. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
