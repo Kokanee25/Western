@@ -242,10 +242,30 @@ Bench and baseline first, changing nothing about how the game plays: experiments
 Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
 ```
 
-## The Systems Playground (Phase 3, after the gunfight lab's baseline) [Salt Creek]
+## The test saloon: the Systems Playground (start now) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-playground. Build the Systems Playground (docs/briefs/labs.md, "The Systems Playground") in experiments/playground/, starting from the gunfight lab's street: a stretch of the street and the working saloon, three or four of the Studio's men, every approved system on. Add the systems-interaction scenarios one at a time: the shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door, is remembered), then the shoved drunk through a table. For each, record whether the whole chain runs with no special cases, which system fails first, and the combined frame time. Make it the playtest agent's standing setup every build. Report before fixing anything.
+Gameplay lane, branch claude/gameplay-playground. Start the Systems Playground, the permanent test saloon (docs/briefs/labs.md, "The Systems Playground"), in experiments/playground/. Read docs/PARTS.md first: build it only from parts marked "in the game", never from a lab's fixtures. Start from the game's own saloon (SaloonBuilding, its stair and corner balcony) and the stretch of street in front of it, with three or four of the Studio's men and every approved system on; don't build a new saloon.
+
+For each part on a branch or waiting to be promoted (the walking-ramp stair and BodyImpacts on claude/gameplay-falls-props, the breakable railing, the Studio woods), list what it needs and take it in once it's in the game. Don't promote another lab's part yourself: say which session should.
+
+Then the systems-interaction scenarios, one at a time, recording for each whether the whole chain runs with no special cases, which system fails first, and the combined frame time: a shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door); a man shoved through the balcony railing; a shoved drunk through a table. Make it the playtest agent's standing setup every build. Update docs/PARTS.md with what the playground uses. Report before fixing anything.
+```
+
+## Prop lab (now, with 3.3) [Salt Creek]
+
+```
+Prop lab, branch claude/prop-lab. Read docs/briefs/prop-lab.md, the Props and Structures sections of docs/PARTS.md, CLAUDE.md's lane note for the prop lab, and the docs/LAYOUT.md sections for src/structures, src/props, src/fire and src/blast.
+
+First, find every prop that already exists and write it into docs/PARTS.md's Props table: the 12 drawn props in assets/props/manifest.json (PropLibrary, PropModels), every hand-built furnishing (FalseFrontBuilding._furnish_*, saloon_dressing.gd's bar, the trough, rail, well), what Fittings and the smashed lamp already do, and what the breakage lab (claude/gameplay-breakage-lab-*, experiments/breakage_lab/) and the ragdoll lab's railing have built or measured. Note for each: how it's built, what it can and can't do (break, burn, shatter, carry weight), and which lane's files it lives in. Show me that inventory before building.
+
+Then design the prop kit: one data file per prop (members, shatter or fitting), read by one builder, with the look from the texture factory's approved materials matched to the Studio's men. Build the table and the chair first (roadmap 3.3): legs snap, tops split, they carry weight, burn piece by piece, a seated man drops when his chair goes. Each must look at least as good as PropModels' version in the same shot, pass the breakage lab's scenarios, and fit the frame budget batched. Use the shared systems as they are; anything they need changed goes to gameplay. Costs before any paid painting. Promote each finished prop into PARTS.md and tell the test saloon session.
+```
+
+## Promote a lab's part into the game [Salt Creek]
+
+```
+[Lane] lane, branch claude/<lane>-promote-<part>. Promote [part] from [lab] into the game, per CLAUDE.md "Labs measure; parts live in the game" and its row in docs/PARTS.md. Build it as a real game part in the shared code (for a structure: members, so it breaks, burns and carries load), keep the lab's results passing against the promoted part, add a test, and update its row in docs/PARTS.md to "in the game". Tell the playground session it's ready.
 ```
 
 ## Combat decisions and morale (inside the gunfight lab, after its baseline) [Salt Creek]
