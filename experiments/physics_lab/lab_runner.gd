@@ -56,6 +56,7 @@ var _flags := {}
 var _cams: Array = []
 var _viewports: Array = []
 var _start_xf := Transform3D.IDENTITY
+var _seen := {}  ## view -> [sum of shares, least share, samples, samples under half]
 var _speed_before := Vector3.ZERO
 var _com_v_now := Vector3.ZERO
 var _peak := {"penetration": 0.0, "self_overlap": 0.0, "joint_gap": 0.0, "speed": 0.0, "up": 0.0}
@@ -84,6 +85,13 @@ func _ready() -> void:
 	process_physics_priority = -100
 	HumanBody.mocap_gait = mocap
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
+	# stop instead, so a run never claims a man it didn't use.
+	if model != &"outlaw" and not PeopleBodies.has_model(model):
+		push_error("lab: body model %s isn't imported (run godot --headless --import)" % model)
+		done = true
+		get_tree().quit(2)
+		return
 	_world = Node3D.new()
 	_world.name = "LabWorld"
 	add_child(_world)
@@ -335,11 +343,29 @@ func _focus() -> Vector3:
 	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * float(scenario.get("focus_y", 0.5))
 
 
+## The lab's camera directions in his frame (x his right, z behind him): front, his right
+## ("side"), the three-quarter between them, and their mirrors; "top" looks straight down.
+const VIEW_DIRS := {
+	"front": Vector2(0, -1), "side": Vector2(1, 0), "three": Vector2(1, -1), "left": Vector2(-1, 0),
+	"three_left": Vector2(-1, -1), "back": Vector2(0, 1), "back_right": Vector2(1, 1), "back_left": Vector2(-1, 1),
+}
+
+
+## Where a view's camera sits from the point it looks at, and its up: "cam_up" (m above the
+## focus, default 0.3) and "cam_dist" (default --cam-dist) are a scenario's own, for a fixture
+## that would stand between the camera and him (a rail, the bar).
+func _view_offset(v: String, up := -1.0) -> Array:
+	var b := _start_xf.basis
+	var dd := float(scenario.get("cam_dist", cam_distance))
+	if v == "top":
+		return [Vector3.UP * dd * 1.2 + b.z * 0.01, -b.z]
+	var d: Vector2 = VIEW_DIRS.get(v, VIEW_DIRS.front)
+	var flat := (b.x * d.x + b.z * d.y).normalized() * dd
+	return [flat + Vector3.UP * (up if up >= 0.0 else float(scenario.get("cam_up", 0.3))), Vector3.UP]
+
+
 func _build_cameras() -> void:
 	var f := _focus()
-	var b := _start_xf.basis
-	var dd := cam_distance
-	var at := {"front": -b.z * dd, "side": b.x * dd, "three": (-b.z + b.x).normalized() * dd, "top": Vector3.UP * dd * 1.2 + b.z * 0.01}
 	# A scenario's own "views" when the usual ones would look through the fixture (the walkway).
 	for v: String in scenario.get("views", views):
 		var sv := SubViewport.new()
@@ -349,12 +375,46 @@ func _build_cameras() -> void:
 		var cam := Camera3D.new()
 		cam.fov = 50.0
 		sv.add_child(cam)
-		var off: Vector3 = at.get(v, at.front)
-		cam.look_at_from_position(f + off + Vector3.UP * (0.3 if v != "top" else 0.0), f, Vector3.UP if v != "top" else -b.z)
+		var ou: Array = _view_offset(v)
+		cam.look_at_from_position(f + ou[0], f, ou[1])
 		cam.current = true
-		_follow_cams.append([cam, off + Vector3.UP * (0.3 if v != "top" else 0.0), Vector3.UP if v != "top" else -b.z, f])
+		_follow_cams.append([cam, ou[0], ou[1], f])
 		_viewports.append([v, sv])
 		DirAccess.make_dir_recursive_absolute(out_dir.path_join("frames").path_join(v))
+
+
+## How much of him each view sees (every view, rendered or not): a ray from the camera to each
+## part's centre, blocked if the world (a rail, the bar, a step) is hit first. Every 6 ticks from
+## the hit to the end; in the summary as "seen": a view's mean and least share of his parts in
+## sight, and the share of samples with under half of him seen. "front^1.5" is the same view
+## from 1.5 m above the focus, for choosing a scenario's "cam_up".
+func _sample_seen() -> void:
+	var space := get_world_3d().direct_space_state
+	var f := _focus()
+	var man := _men[0]
+	var keys: Array = ["top"]
+	for v: String in VIEW_DIRS:
+		keys.append_array([v, v + "^1.5", v + "^3.0"])
+	for key: String in keys:
+		var v := key.get_slice("^", 0)
+		var up := float(key.get_slice("^", 1)) if "^" in key else -1.0
+		var eye: Vector3 = f + (_view_offset(v, up)[0] as Vector3)
+		var seen := 0
+		var n := 0
+		for sid: StringName in man.parts:
+			var part := man.parts[sid] as Node3D
+			if not is_instance_valid(part):
+				continue
+			n += 1
+			var q := PhysicsRayQueryParameters3D.create(eye, part.global_position, Layers.WORLD)
+			var hit := space.intersect_ray(q)
+			if hit.is_empty() or eye.distance_to(hit.position) > eye.distance_to(part.global_position) - 0.08:
+				seen += 1
+		if n == 0:
+			continue
+		var share := float(seen) / n
+		var e: Array = _seen.get(key, [0.0, 1.0, 0, 0])
+		_seen[key] = [e[0] + share, minf(e[1], share), e[2] + 1, e[3] + (1 if share < 0.5 else 0)]
 
 
 func _save_frames() -> void:
@@ -443,6 +503,8 @@ func _physics_process(delta: float) -> void:
 				if c is RigidBody3D and (c as RigidBody3D).sleeping:
 					n += 1
 		_asleep_by_second.append(n)
+	if not light and (_hit_tick >= 0 or _limp_tick >= 0) and _tick % 6 == 0:
+		_sample_seen()
 	if render and _tick % every == 0:
 		_save_frames()
 	_tick += 1
@@ -1087,10 +1149,20 @@ func _finish() -> void:
 		"asleep_by_second": _asleep_by_second,
 		"rest": _rest(_men[0]) if _limp_tick >= 0 else {},
 		"men_rest": _men_rest() if _men.size() > 1 else [],
+		"model": String(model),
+		"seen": _seen_summary(),
 	}
 	var f := FileAccess.open(out_dir.path_join("summary.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()
+
+
+func _seen_summary() -> Dictionary:
+	var out := {}
+	for v: String in _seen:
+		var e: Array = _seen[v]
+		out[v] = {"mean": snappedf(e[0] / e[2], 0.01), "least": snappedf(e[1], 0.01), "under_half": snappedf(float(e[3]) / e[2], 0.01)}
+	return out
 
 
 static func _stats(ms: Array[float]) -> Dictionary:
