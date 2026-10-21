@@ -1,0 +1,25 @@
+{
+ "eyes": {
+  "right": [
+   0.0349,
+   1.6551,
+   -0.0831
+  ],
+  "left": [
+   -0.0349,
+   1.6549,
+   -0.0828
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from his approved pictures",
+ "id": "old_rancher_s1",
+ "whole": true,
+ "triangles": {
+  "body_skin": 31253,
+  "body_head": 2369,
+  "cloth_hat": 4224,
+  "cloth_hat_band": 128,
+  "cloth_hat_brim": 1280
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)"
+}
