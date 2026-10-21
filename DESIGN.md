@@ -848,6 +848,25 @@ knock out one stud and the wall shrugs it off.
 - **Characters can walk away**, and remember why. Secrets stay secret until earned by trust or
   pressure; what they can do is the game's, never the AI's.
 
+### Answering with a nod (**proposed**, Sean 2026-10-21)
+
+Yes-or-no questions ("Will you help me?", "Put the gun away?") can be answered with your head:
+a nod for yes, a shake for no, read from the view's movement. No menu, no prompt on screen.
+
+- **Only when he's waiting:** a nod counts only after a real yes-or-no question, for a few
+  seconds, while he looks at you and goes quiet. The rest of the time the mouse is just your eyes.
+- **A gesture, not a direction:** a nod is a quick down-up-down (at least two reversals in about a
+  second, past a minimum size); a shake the same side to side. Looking down at the table, scanning
+  the room or recoil never answers.
+- **Silence is an answer too:** look away or do nothing and he reads hesitation ("Well?"), then
+  takes it as a no or pushes. A small, slow nod can read as a reluctant yes.
+- **He shows he understood:** the only feedback is your view bobbing and his face and words. An
+  unclear nod gets "Is that a yes?", as a person would ask.
+- **A fallback:** the talk keys (or yes and no keys) answer too, and the controller's right stick
+  nods the same way.
+- **Proved in the confrontation and escalation lab** (`docs/briefs/labs.md`): false answers while
+  looking around, missed nods, and how long players take to find it on their own.
+
 ### Action commands (say or type what you do)
 - Two inputs: **talk** (speech to a person) and **act** (commands to your own hands). "Tell him to hold
   still" is speech; "hold him still" is an action.

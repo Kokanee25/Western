@@ -40,6 +40,9 @@ the history in `docs/status/`.
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
+  - **The prop lab** (Sean, 2026-10-21; `docs/briefs/prop-lab.md`): makes each prop end to end,
+    so it may edit art's `src/props/` and `assets/props/` as well as the prop kit's structure code,
+    saying so in each commit. Changes to the members, fire or blast code go to gameplay.
   - Shared by all three: `CLAUDE.md`, `DESIGN.md`, `docs/BUILD_NOTES.md`, `project.godot`,
     `src/autoload/settings.gd`, `src/autoload/controls.gd`, `tools/screenshots.gd`. Shared by art
     and characters: `.github/workflows/people.yml` (art's jobs: textures, backdrop; characters':
@@ -57,6 +60,13 @@ the history in `docs/status/`.
 - **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
   references, what done looks like, how it's judged). Open briefs are in `docs/briefs/`; the
   current one for both sessions is `docs/briefs/review-tools.md`.
+- **Labs measure; parts live in the game** (Sean, 2026-10-21): a lab may build anything to test
+  with, but what it makes is only done once **promoted** into the game's shared code or assets,
+  where every lab, building and scene can use it (a lab's railing becomes a railing part in
+  `src/structures/`; an approved wood goes into the texture factory). **`docs/PARTS.md`** lists
+  every part: read it before building something new (use or extend what's there, never make a
+  second one), and update your rows in the merge that promotes one. The test saloon (the Systems
+  Playground) is built only from parts marked "in the game".
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence

@@ -148,8 +148,53 @@ sheriff, a prisoner, a wounded outlaw.
 - **Measured:** survival with and without him, time out of action, what each case leaves behind
   (a limp, a stump, a scar), cost, and frame time with the room full.
 
+**One body, one physiology (both parts):** the doctor has no healing system of his own. He works
+on the same `Physiology` and `Anatomy` as the shooting, the player and the field dressings, so a
+wound he treats is the same wound, and what he can't change, he can't change.
+
+**Getting him there:** a man shot in the leg is conscious but can't walk; a friend tries to help,
+or the player carries him to the doctor's. The lab measures whether a patient survives the
+journey (moving reopens bleeds), whether each treatment changes the outcome against leaving him,
+whether the doctor's choices are clinically sensible for 1882, and whether recovery and lasting
+harm (a limp, a stump, a weak arm) are believable.
+
 **Not in this lab:** what wounds look like (the painted wound atlas, roadmap 2.3) and stump
 meshes (the body lab).
+
+## People and systems labs (Sean, 2026-10-21)
+
+The labs above test physical simulation. These test the other half of an immersive sim: what
+people perceive and how they react, what the player can do with the world, and whether the
+systems work together **with no scripted outcomes**. That rule holds for every one of them: a
+result that needs a special case to come out right is a failure the lab reports, not a fix.
+
+Several build on what exists: `Senses` (sight, light, hearing through walls, last-known
+positions), deeds and the escalation ladder (`player_deeds.gd`, `deed_watch.gd`, `relations.gd`),
+the gang's brains and `Crew` (callouts, rescue), `Waypoints`, and the dev bridge and playtest
+agent.
+
+| Lab | What it tests | Measured | Where it fits |
+| --- | --- | --- | --- |
+| **Confrontation and escalation** (first) | Before a shot: a drunk's insult, ignoring, threatening, shoving, drawing, backing down, surrender, sudden violence; bystanders react by what they see and who they are; yes and no answered with a nod or a shake (DESIGN.md §9, "Answering with a nod") | How often it escalates; whether each choice is believable; how many different outcomes come without scripting; nods: false answers while looking around, missed nods, time for a blind player to find it | Phase 3, beside 3.4 (shoves), before 3.5 (acts) and the missions |
+| **Perception and information** (second) | Sight lines, light, smoke, cover, hearing and knowing a sound, last-known positions, passing news on (a shot inside the saloon: who hears, who knows it's a gun, who saw, how a deputy learns) | False detections; reaction delays; how news spreads; any NPC acting on what he couldn't know | Phase 3, now: the gunfight lab's fairness rests on it, and Phase 5's people build on it |
+| **Physical interaction** (third) | Pick up, carry, place, throw, push, pull, open, drag: a bottle thrown at a man, a chair knocked over, a wounded man dragged from a fire, a broken door shoved open | Response time; hand placement; collision faults; things settling stably; how it feels in first person | Phase 3, with 3.3 (furniture) and 3.4 (shoves); 4.7 (hands on the world) finishes it |
+| Combat decisions and morale | Why each gunman does what he does: courage, aggression, skill, loyalty, flanking, leaving a friend, breaking when a mate falls, adapting when cover is shot away | Tactical variety; surrender and flight rates; the same man deciding the same way; variety without repetition | Inside the gunfight lab, after its baseline |
+| Weapon handling and feel | The guns without the AI: cocking, finding the sights, recovering from recoil, loading one round at a time, handling a gun wounded or rushed | Draw to first shot; reload time; practical accuracy; sight recovery; input response; hard but not awkward | Inside 3.2 (guns agreed), on `tests/test_gun_feel.gd` and the feel ranges |
+| Navigation and avoidance | Routes through a world that changes: broken furniture, blocked doors, spreading fire, a body in a doorway; a fleeing drinker finding another way out, the doctor reaching a patient | Stuck people; failed routes; rerouting time; CPU with a full saloon | Phase 3 before 3.6 (missions), again before 5.7 (a day for everyone) |
+| Law, witnesses and consequences | Self-defence, intimidation, assault, theft and murder told apart by evidence and witnesses: a man who drew first, an unarmed man shot, a crime nobody saw | Witness accuracy; time to report; false accusations; how the law answers; the same day and the next | Phase 5, with 5.3 and 5.8 |
+| World persistence and recovery | What happens while the player is away: broken windows stay broken, a business shuts for repairs, the wounded recover, routines come back | States kept; recovery over days; save and load; repairs scheduled; consequences seen on return | Phase 5, with 5.5 and 5.9 |
+| Systems interaction | One event through every system: a shot lantern falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door, and is remembered | Whether the whole chain runs with no special cases; which system fails first; the combined frame time | The Systems Playground (below), from Phase 3 on, growing each phase |
+
+### The Systems Playground
+
+One permanent place: a stretch of the street and a working saloon, three or four people, and
+every approved system switched on. A feature proves itself in its own lab first, then has to
+show it makes the playground better without breaking anything else. It's where the
+systems-interaction scenarios run (the lantern chain; a shoved drunk through a table, his friend
+reaching for a gun, the barman ducking, a deputy outside hearing it), where the playtest agent
+plays a known setup every build, and the gate before a system goes into a mission.
+
+It starts from the gunfight lab's street once its baseline is in, in `experiments/playground/`.
 
 ## Other labs
 
