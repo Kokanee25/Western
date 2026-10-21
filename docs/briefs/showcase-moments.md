@@ -62,6 +62,27 @@ in the back wall and get out.
 - **Needs:** fire spread and smoke (in the game), dynamite and blast (in the game), the player's
   blast wounds, a sharpshooter's perception at night (muzzle flash gives him away), the time of day.
 
+### The piano player (Sean)
+
+A man plays the saloon's piano, and the music is the room's mood. When trouble breaks out, it stops
+dead: a sour chord, a hand slammed on the keys, and silence. Driven by what he sees and hears, not
+a script:
+
+- **The room's tension plays through him:** the escalation ladder rising (raised voices, a man
+  standing up too fast) and he plays quieter and slower, watching; a gun drawn or a shot and he
+  stops mid-note and ducks behind the piano. A plain fist fight and he might play on, faster.
+  When it's over and safe, he starts again, a little shaky.
+- **The music comes from the piano:** a sound placed at the instrument, louder near it, muffled
+  outside, so it stops exactly when he does, and the street hears the saloon go quiet.
+- **The piano is a prop** (the prop lab): a ball through it plinks and leaves a sour key, a broken
+  string twangs, a man thrown into it crashes a chord; he complains about it, as owners do.
+- **The music itself:** period tunes whose compositions are public domain (Stephen Foster's
+  songs, for instance), played from note data on a piano sound under a licence that allows
+  redistribution and credited in `CREDITS.md`, cut into phrases so he can stop anywhere and pick
+  up again. No commercial recordings.
+- **Needs:** perception (what he notices), the escalation ladder, sound placed in the room, the
+  piano as a prop, a seated man who can duck (the furniture work).
+
 ## More
 
 | Moment | What happens | Needs |
