@@ -70,5 +70,20 @@ in the back wall and get out.
 | The sign | You shoot the chains of a hanging sign; it drops on the man under it | Hung fittings (prop lab) |
 | The witness | You shoot an unarmed man in the alley and don't notice the boy at the end of it; next morning the deputy's waiting | Perception, law and witnesses, memory (Phase 5) |
 | The doctor's table | You carry the sheriff in; the doctor probes for the ball while you hold the lamp; the ball matches a gun you've seen | The doctor (treatment lab part 2), evidence (5.6) |
+| The water tower | Shoot out the tower's legs in a fight below; it comes down and floods the yard, or falls on the jail's back wall and frees whoever's inside | The water tower as members (to build), the support graph, water (to build) |
+| Burning the gang out | The gang holes up in the livery; you light the hay loft and wait at the doors: smoke and men come out | Fire and smoke (in the game), the livery's loft, the gang's brains fleeing fire; horses later |
+| The loft drop | You shoot the beam a man on the hay loft stands over; he and the hay come down together | Members and the support graph (in the game), falls |
+| The next morning | Yesterday's fight left the store's front shot through and the barber's burnt out; people walk round the rubble, the storekeeper boards up the holes | Persistent rubble, world persistence and recovery lab (Phase 5) |
+| Shot through the door | He hides behind a closed door; you fire through the panels, hear him fall, open it and find him alive, holding his leg | Ballistics through doors (in the game), wounds, his words following his blood loss |
+| The amputation | A crushed leg after a collapse; the doctor needs you to hold the man down | The doctor (treatment lab part 2) |
+| Bleeding out mid-fight | You're hit in the thigh: tie it off now, both hands busy and exposed, or finish the fight first | Field first aid (treatment lab part 1), the player's wounds |
+| The bluff | Three men, one bullet left; you cock the hammer loud anyway; whether they back down depends on their nerve and what they've seen you do | Confrontation and escalation, nerve, deeds |
+| Hide and search | You hide under the boardwalk after a robbery; men search with lanterns, light sweeping the gaps between the planks, one standing on the plank over your face | Perception with light and last-known positions, the boardwalk |
+| The rumour | You help the doctor's wife in the morning; by evening the barman has heard, and your drink is on the house (or the opposite) | Memory and news spreading (perception lab, Phase 5) |
+| Recognition | You robbed the stage in a bandana yesterday; today the driver is in the saloon, staring at your coat | Recognition and disguise (DESIGN.md §10) |
+| A round on me | You buy the room a drink; faces change, someone tells you what they wouldn't have, the man who hated you is outnumbered | "A round on me" (DESIGN.md §10), money (5.1) |
+| The spilled lamp | A drunk knocks a lamp off a table and the room scrambles to stamp it out before it takes | Fittings, fire, people reacting to fire (in the game) |
+| The bucket line | The livery's alight; the town forms a line from the trough on its own; you join it, lead it, or rob the empty store | Bucket line (in the game), town life, deeds |
+| Target practice | Tin cans behind the livery at dusk; the gun feels heavy, the cans jump, your skill grows by using it | The guns (3.2), skills by doing (DESIGN.md §6) |
 
 New ideas go here first; a session that builds the parts for one says so in its row.
