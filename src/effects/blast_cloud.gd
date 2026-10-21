@@ -11,7 +11,6 @@ extends Node3D
 ## How long the cloud hangs (s); a charge's dust stays longer than a shot's smoke.
 const LIFETIME := 16.0
 
-static var _hot_material: StandardMaterial3D
 static var _chunk_material: StandardMaterial3D
 static var _dust_material: StandardMaterial3D
 
@@ -28,7 +27,7 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> BlastCloud:
 	var vent := vent_of(world, at)
 	var dust := dust_of(world, at)
 	var seed_value := hash(Vector3i((at * 100.0).round())) & 0x7fffffff
-	_flash(world, at, vent, size, seed_value)
+	_flash(world, at, vent, size)
 	_chunks(world, at, vent, dust, size, seed_value)
 	var c := BlastCloud.new()
 	c.name = "BlastCloud"
@@ -70,9 +69,9 @@ static func dust_of(world: Node3D, at: Vector3) -> Color:
 	return Color(0.56, 0.45, 0.34)
 
 
-## The flash: a hot white light gone in a tenth of a second, and a small fierce core that's gone
-## before the dust is out (no rolling fireball: dynamite doesn't make one).
-static func _flash(world: Node3D, at: Vector3, vent: Vector3, size: float, seed_value: int) -> void:
+## The flash: a hot white light gone in a tenth of a second (no rolling fireball: dynamite doesn't
+## make one; a core of hot puffs drew a dark red blot in the sky when a frame ran long).
+static func _flash(world: Node3D, at: Vector3, vent: Vector3, size: float) -> void:
 	var light := OmniLight3D.new()
 	light.light_color = Color(1.0, 0.86, 0.66)
 	light.light_energy = 14.0 * size
@@ -83,26 +82,6 @@ static func _flash(world: Node3D, at: Vector3, vent: Vector3, size: float, seed_
 	var tw := light.create_tween()
 	tw.tween_property(light, "light_energy", 0.0, 0.12)
 	tw.tween_callback(light.queue_free)
-	var p := _particles(world, int(10 * size), 0.16, seed_value + 1)
-	var pm := ParticleProcessMaterial.new()
-	pm.direction = vent
-	pm.spread = 60.0
-	pm.initial_velocity_min = 2.0 * size
-	pm.initial_velocity_max = 6.0 * size
-	pm.damping_min = 20.0
-	pm.damping_max = 30.0
-	pm.gravity = Vector3.ZERO
-	pm.scale_min = 0.8
-	pm.scale_max = 1.4
-	pm.scale_curve = _curve([Vector2(0.0, 0.6), Vector2(0.3, 1.0), Vector2(1.0, 0.2)])
-	pm.color_ramp = _ramp([[0.0, Color(1.0, 0.96, 0.86, 1.0)], [0.5, Color(1.0, 0.72, 0.4, 0.8)], [1.0, Color(0.6, 0.4, 0.3, 0.0)]])
-	p.process_material = pm
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.7, 0.7) * size
-	quad.material = _hot()
-	p.draw_pass_1 = quad
-	p.global_position = at
-	p.emitting = true
 
 
 ## Dark lumps of what it blew apart (clods of dirt, splinters of board), flung out in arcs.
@@ -288,19 +267,6 @@ func _process(delta: float) -> void:
 	Prof.stop(&"smoke", t0)
 
 
-static func _hot() -> StandardMaterial3D:
-	if _hot_material == null:
-		var m := StandardMaterial3D.new()
-		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		m.albedo_texture = PixelArt.puff("flash", 103)
-		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-		m.vertex_color_use_as_albedo = true
-		_hot_material = m
-	return _hot_material
-
-
 static func _chunk() -> StandardMaterial3D:
 	if _chunk_material == null:
 		var m := StandardMaterial3D.new()
@@ -333,7 +299,7 @@ static func _ramp(stops: Array) -> GradientTexture1D:
 ## Draw it once, out of sight, so its materials are compiled at load rather than on the first blast.
 static func warm_up(parent: Node3D, at: Vector3) -> Array[Node]:
 	var out: Array[Node] = []
-	for mat: Material in [_hot(), _chunk(), _dust_mat()]:
+	for mat: Material in [_chunk(), _dust_mat()]:
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
 		box.size = Vector3.ONE * 0.001
