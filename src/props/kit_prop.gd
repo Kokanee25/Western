@@ -74,7 +74,9 @@ func build() -> void:
 		var mi := m.get_child(0) as MeshInstance3D
 		var look: String = spec.get("look", definition.get("look", ""))
 		if look != "":
-			mi.material_override = PropKit.material(look, hash(m.member_id))
+			# A wood's one strip for every member (its drawn woodwork starts each at its own place
+			# along it: PropKit.woodwork_mesh), so the prop draws in one batch a look.
+			mi.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
 		if spec.has("draw"):
 			mi.mesh = PropKit.draw_mesh(spec.draw, m)
 		for d: Dictionary in spec.get("dress", []):

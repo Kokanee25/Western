@@ -4,6 +4,7 @@ class_name PropKit
 ##
 ##   {"id", "kind": "members", "replaces": the PropLibrary prop it stands in for, "in_game": true
 ##    once PropLibrary hands it out in that prop's place (its look passed),
+##    "fixture": true for one new to the game (the bar) that replaces no drawn prop,
 ##    "wood": the timber (TimberTuning), "look": the drawn material (below),
 ##    "splits_below": the share of a member's section left below which a holed member splits,
 ##    "blow_wood_share": how much of a blow's lost energy goes into the wood,
@@ -14,13 +15,14 @@ class_name PropKit
 ## Positions in the prop's own space: origin at the bottom centre, facing +Z (as PropLibrary's).
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
-## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, brass, iron), or
+## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, brass, iron, mirror), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
 ##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments"}: part of one;
 ##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
-##   Y ("above": instead a layer that thick laid on its top: a table's baize).
+##   Y ("above": instead a layer that thick laid on its top: a table's baize);
+##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh).
 ## "dress": [{"look", "draw"}]: layers drawn on the member (glued, painted: not members of their
 ## own), going wherever the member goes; untouched, batched with it (KitProp).
 ## Profiles and radii are in the prop's space; the mesh is laid into the member's own.
@@ -145,6 +147,8 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.brass()
 		"iron":
 			return PropModels.iron()
+		"mirror":
+			return PropModels.mirror()
 	push_warning("PropKit: unknown look %s" % look)
 	return PropModels.mid_wood()
 
@@ -159,6 +163,9 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)))
 		"disc":
 			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
+		"profile", "panel", "cut":
+			# The woodwork's shapes (art's Profiles), made in the member's own space.
+			return woodwork_mesh(draw, m)
 		_:
 			return MemberMesh.box(m.size)
 	# Indexed, as MemberMesh's boxes are: a structure's batch (SurfaceTool.append_from) keeps the
@@ -167,6 +174,61 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	st.append_from(src, 0, Transform3D.IDENTITY if draw.get("shape") == "disc" else m.transform.affine_inverse())
 	st.index()
 	return st.commit()
+
+
+## The member's own axes by name ("x", "-z"...).
+static func _axis(name: String) -> Vector3:
+	var v := {"x": Vector3.RIGHT, "y": Vector3.UP, "z": Vector3.BACK}[name.trim_prefix("-")] as Vector3
+	return -v if name.begins_with("-") else v
+
+
+## The size of the member's box along an axis.
+static func _extent(m: StructureMember, name: String) -> float:
+	var a := _axis(name).abs()
+	return m.size.x * a.x + m.size.y * a.y + m.size.z * a.z
+
+
+## A member drawn as interior woodwork (docs/briefs/interior-woodwork.md; Profiles), in its own
+## space, its box filled:
+##   {"shape": "profile", "profile": "bar_top" | "chamfered" | "rounded" | "handrail" | "ogee" |
+##    "beaded" | "rect", "along": its length's axis, "up": the section's y, "across": its x (signed:
+##    "-z" turns the section's front to -Z), "args": the profile's numbers past its width and
+##    thickness (a chamfer, a radius, rounded corners)}: a moulding run along the member;
+##   {"shape": "panel", "out": the axis the field stands proud along, "bevel"}: a raised panel, its
+##    other two axes in the member's order (x then y, or x then z...);
+##   {"shape": "cut", "outline": [[a, b], ...], "plane": two axes ("zy": a along z, b along y)}: a
+##    board cut to the outline (brackets, a crest), as thick as the member across the plane.
+## Its strip's place from the member's id, so a batch of them doesn't repeat.
+static func woodwork_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
+	var u0 := float(posmod(hash(String(m.member_id)), 199)) / 100.0
+	match String(draw.shape):
+		"profile":
+			var along := String(draw.get("along", "x"))
+			var up := String(draw.get("up", "y"))
+			var across := String(draw.get("across", ""))
+			if across == "":
+				for n in ["x", "y", "z"]:
+					if n != along.trim_prefix("-") and n != up.trim_prefix("-"):
+						across = n
+			var args: Array = [_extent(m, across), _extent(m, up)]
+			args.append_array(draw.get("args", []))
+			var runs: Array = Profiles.by_name(String(draw.profile), args)
+			return Profiles.to_mesh(Profiles.extrude_tris(runs, _extent(m, along), u0),
+					Transform3D(Basis(_axis(along), _axis(across), _axis(up)), Vector3.ZERO))
+		"panel":
+			var out := String(draw.get("out", "z"))
+			var axes := ["x", "y", "z"].filter(func(n: String) -> bool: return n != out.trim_prefix("-"))
+			var t := _extent(m, out)
+			return Profiles.to_mesh(Profiles.panel_tris(_extent(m, axes[0]), _extent(m, axes[1]), t, float(draw.get("bevel", 0.05)), u0),
+					Transform3D(Basis(_axis(axes[0]), _axis(axes[1]), _axis(out)), -_axis(out) * t * 0.5))
+		"cut":
+			var plane := String(draw.get("plane", "xy"))
+			var a := String(plane[0])
+			var b := String(plane[1])
+			var n := ["x", "y", "z"].filter(func(k: String) -> bool: return k != a and k != b)[0] as String
+			var shape := _profile(draw.outline)
+			return Profiles.to_mesh(Profiles.cut_tris(shape, _extent(m, n), u0), Transform3D(Basis(_axis(a), _axis(b), _axis(n)), Vector3.ZERO))
+	return MemberMesh.box(m.size)
 
 
 static func _profile(points: Array) -> PackedVector2Array:

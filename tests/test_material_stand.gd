@@ -232,7 +232,7 @@ func test_the_interior_stand_builds_profiled_and_square() -> void:
 					break
 			n += cols.size() / 3
 		tris[profiled] = n
-		for part in [&"int_wainscot", &"int_bar_top", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
+		for part in [&"int_wainscot", &"int_bar", &"int_posts", &"int_brackets", &"int_rail", &"oak_balusters"]:
 			check(s.part_nodes.has(part), "%s built (profiled %s)" % [part, profiled])
 		s.free()
 	check(tris[true] > tris[false] * 2, "profiles add shape (%d against %d triangles)" % [tris[true], tris[false]])
@@ -260,3 +260,28 @@ func test_the_interior_woods_are_in_the_game() -> void:
 		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
 	var outside := WoodMaterials.get_material(&"floor", 0) as ShaderMaterial
 	check(outside.get_shader_parameter(&"edge_aa") != true, "the outside's floor as it was")
+
+
+func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
+	# The saloon's bar (assets/props/kit/bar.json): members (so it breaks and burns), drawn with the
+	# woodwork shapes (profile, panel, cut), its top in the polished interior bar top.
+	check(PropKit.has(&"bar"), "the bar's kit file")
+	var def := PropKit.definition(&"bar")
+	var members := PropKit.expand(def)
+	check(members.size() >= 25, "its members laid out (%d)" % members.size())
+	var shapes := {}
+	for mspec in members:
+		if mspec.has("draw"):
+			shapes[mspec.draw.shape] = true
+	for s in ["profile", "panel", "cut"]:
+		check(shapes.has(s), "drawn with %s" % s)
+	var top: Dictionary = members.filter(func(x): return x.id == "top")[0]
+	check(String(top.look) == "wood:int_bar_top", "its top the polished bar top")
+	check(WoodMaterials.strip_count(&"int_bar_top") >= 3, "the bar top's wood in the game")
+	var m := StructureMember.new()
+	m.member_id = &"top"
+	m.size = PropKit.vec(top.size)
+	var mesh := PropKit.draw_mesh(top.draw, m)
+	var aabb := mesh.get_aabb()
+	check(aabb.size.distance_to(m.size) < 0.01, "the top's drawn shape fills its box (%s against %s)" % [aabb.size, m.size])
+	m.free()
