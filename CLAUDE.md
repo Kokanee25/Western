@@ -292,7 +292,8 @@ frozen until Sean names one.
   passes; the critic finds the Studio repaint (512 a metre) photographic. Round 2 (studio5: broad,
   darker, warmer, 384) painted; Sean: "too clean" -> studio5w (weathering per board, free). **Next:
   the brief's "What's next"** (round 2's critic and A/B sheets, then round 3: the weathering layer in
-  texel_grid from a painted stain sheet). The hotel's oak stair (`OakStair`), two oaks for Sean.
+  texel_grid from a painted stain sheet). The hotel's oak stair (`OakStair`): Sean picked the
+  painted oak; `dark_oak` and `stair_runner` in the game's textures, `solid` for the ragdoll session.
   Paint ~$6.58 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
   Wear-down planned in the brief (after Gate A).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render

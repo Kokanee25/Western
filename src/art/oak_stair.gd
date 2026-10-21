@@ -30,6 +30,13 @@ const BULL := 0.32
 ## The newel on the bullnose, on the cut string's line (the string dies into it).
 const NEWEL := Vector2(-0.02, 0.13)
 
+## The walkway off the landing (Sean, 2026-10-21: "a small walk way at the top of the stairs with a
+## railing for a body to fall over"): a gallery WALK_LENGTH long running off the landing's open side
+## over the lobby, WALK_DEPTH deep at the landing's far end, railed on its three open sides at
+## LANDING_RAIL_H, on posts and beams.
+const WALK_LENGTH := 3.0
+const WALK_DEPTH := 1.0
+
 const PARTS := [&"oak_treads", &"oak_risers", &"oak_strings", &"oak_newels", &"oak_balusters", &"oak_rail", &"oak_landing", &"oak_runner", &"oak_rods"]
 
 
@@ -59,15 +66,28 @@ func landing_y() -> float:
 	return RISERS * STEP_RISE
 
 
+## The lobby round it (a wall and a floor); off, the stair stands alone on whatever ground it's
+## put on (the ragdoll lab).
+var room := true
+
+
 func build() -> void:
 	_rng.seed = seed_value
-	_room()
+	# Solid, the stair's own boards and turnings take a box each; the lobby a box for its wall and
+	# one for its floor; the runner and rods none.
+	solid_parts = [&"oak_treads", &"oak_risers", &"oak_strings", &"oak_newels", &"oak_balusters", &"oak_rail", &"oak_landing"]
+	if room:
+		_room()
 	_flight()
 	_landing()
+	_walkway()
 	_strings()
-	_flush()
 	_balustrade()
+	# After the balustrade: its newels' feet and caps and the rails are boards too (they were added
+	# after this and never drawn, 2026-10-21).
+	_flush()
 	_runner()
+	_flush_solid()
 
 
 func _flight() -> void:
@@ -101,6 +121,9 @@ func _room() -> void:
 		_board(&"oak_wall", Vector3(wx + 0.011, h * 0.5, z + 0.075), Vector3(0, 1, 0), Vector3(1, 0, 0), h, 0.148, 0.022)
 		z += 0.15
 	_board(&"oak_skirt", Vector3(wx - 0.01, 0.11, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(1, 0, 0), z1 - z0, 0.2, 0.022, Vector3(0, 1, 0))
+	if solid:
+		_shapes.append([Transform3D(Basis(), Vector3(wx + 0.011, h * 0.5, (z0 + z1) * 0.5)), Vector3(0.022, h, z1 - z0)])
+		_shapes.append([Transform3D(Basis(), Vector3((wx - 5.5) * 0.5, -0.015, (z0 + z1) * 0.5)), Vector3(wx + 5.5, 0.03, z1 - z0)])
 	var x := wx
 	while x > -5.5:
 		_board(&"oak_floor", Vector3(x - 0.075, 0.0, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
@@ -127,6 +150,30 @@ func _landing() -> void:
 	_board(&"oak_strings", Vector3(WIDTH * 0.5, y - 0.16, z1 + 0.02), Vector3(1, 0, 0), Vector3(0, 0, 1), WIDTH + 0.04, 0.28, 0.04)
 	for px in [-0.02, WIDTH]:
 		_board(&"oak_newels", Vector3(px, (y - 0.3) * 0.5, z1 - 0.06), Vector3(0, 1, 0), Vector3(0, 0, 1), y - 0.3, 0.12, 0.12)
+
+
+## The landing's far end in z, and the walkway's front edge (its rail toward the lobby).
+func _walk_z() -> Vector2:
+	var z1 := (RISERS - 1) * GOING - NOSE + LANDING_DEPTH
+	return Vector2(z1 - WALK_DEPTH, z1)
+
+
+func _walkway() -> void:
+	var y := landing_y()
+	var wz := _walk_z()
+	var x0 := -WALK_LENGTH
+	# Its boards along it (from the landing's open side out), on two beams on four posts.
+	var z := wz.x
+	while z < wz.y - 0.01:
+		var d := minf(0.14, wz.y - z)
+		_board(&"oak_landing", Vector3(x0 * 0.5 - 0.02, y - TREAD_T * 0.5, z + d * 0.5), Vector3(1, 0, 0), Vector3(0, 1, 0), WALK_LENGTH - 0.04,
+				d - 0.003, TREAD_T, Vector3(0, 0, 1))
+		z += d
+	var beam_y := y - TREAD_T - 0.1
+	for bz in [wz.x + 0.075, wz.y - 0.075]:
+		_board(&"oak_strings", Vector3(x0 * 0.5, beam_y, bz), Vector3(1, 0, 0), Vector3(0, 0, 1), WALK_LENGTH, 0.2, 0.15)
+		for px in [x0 + 0.075, x0 * 0.5]:
+			_board(&"oak_newels", Vector3(px, (beam_y - 0.1) * 0.5, bz), Vector3(0, 1, 0), Vector3(0, 0, 1), beam_y - 0.1, 0.15, 0.15)
 
 
 func _strings() -> void:
@@ -217,6 +264,10 @@ func _string(x0: float, x1: float, z0: float, z1: float, over: float, depth: flo
 	if not boards.has(wood):
 		boards[wood] = []
 	boards[wood].append({"part": &"oak_strings", "size": Vector3(long, depth, x1 - x0), "strip": pick})
+	# Its collision: one box along the slope through the outline's middle, 300 deep.
+	var perp := dir.cross(Vector3(1, 0, 0)).normalized()
+	_solid_box(&"oak_strings", Vector3((x0 + x1) * 0.5, c.y, c.x), dir, perp, Vector3(1, 0, 0),
+			Vector3(long, depth / sqrt(1.0 + pow(STEP_RISE / GOING, 2.0)), x1 - x0))
 
 
 ## The newels, balusters and rail: turned oak.
@@ -228,7 +279,9 @@ func _balustrade() -> void:
 	var top_z := (RISERS - 1) * GOING - NOSE + 0.04
 	var ly := landing_y()
 	_newel(Vector3(-0.02, ly - 0.35, top_z), LANDING_RAIL_H + 0.35 + 0.16)
-	var end_z := top_z + LANDING_DEPTH - 0.1
+	# The landing's open side is railed only to the walkway, which opens off it.
+	var wz := _walk_z()
+	var end_z := wz.x
 	_newel(Vector3(-0.02, ly - 0.35, end_z), LANDING_RAIL_H + 0.35 + 0.16)
 	# Two balusters a tread on the cut string's line, from the tread to under the rail.
 	for i in range(1, RISERS - 1):
@@ -243,6 +296,19 @@ func _balustrade() -> void:
 	# The rail: up the flight from newel to newel, then along the landing.
 	_rail(Vector3(NEWEL.x, rail_at_newel, nz), Vector3(0.0, pitch_y(top_z) + RAIL_H, top_z))
 	_rail(Vector3(-0.02, ly + LANDING_RAIL_H, top_z), Vector3(-0.02, ly + LANDING_RAIL_H, end_z))
+	# The walkway's railing on its three open sides: along its front toward the lobby (the one a
+	# body goes over), across its end, and back along its far side to the landing's.
+	var x0 := -WALK_LENGTH + 0.02
+	var corners := [Vector3(-0.02, 0, end_z), Vector3(x0, 0, end_z + 0.04), Vector3(x0, 0, wz.y - 0.04), Vector3(WIDTH, 0, wz.y - 0.04)]
+	for k in range(1, corners.size()):
+		var a: Vector3 = corners[k - 1]
+		var b: Vector3 = corners[k]
+		_newel(Vector3(b.x, ly - 0.35, b.z), LANDING_RAIL_H + 0.35 + 0.16)
+		_rail(Vector3(a.x, ly + LANDING_RAIL_H, a.z), Vector3(b.x, ly + LANDING_RAIL_H, b.z))
+		var n := int(a.distance_to(b) / 0.13)
+		for j in range(1, n):
+			var p := a.lerp(b, float(j) / n)
+			_baluster(Vector3(p.x, ly, p.z), LANDING_RAIL_H - 0.035)
 
 
 ## A newel: a square panelled foot, a turned shaft with rings, a square cap and a ball.
@@ -345,6 +411,8 @@ func _turned(part: StringName, mesh: Mesh, xf: Transform3D, pick: int) -> void:
 	mi.material_override = WoodMaterials.get_material(wood, posmod(pick, strips))
 	_holder(part).add_child(mi)
 	mi.transform = xf
+	var bb := mesh.get_aabb()
+	_solid_box(part, xf * bb.get_center(), xf.basis.x, xf.basis.y, xf.basis.z, bb.size)
 	if not boards.has(wood):
 		boards[wood] = []
 	boards[wood].append({"part": part, "size": mesh.get_aabb().size, "strip": posmod(pick, strips)})

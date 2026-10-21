@@ -183,7 +183,11 @@ first step: Sean saw the first version's run through the bottom step), the landi
 a runner on brass rods, in a lobby of painted boards over an oak skirting. Two oaks: studio3 cut
 with no call from the walnut painting the gun stocks use (warm, red-brown, eight boards), studio4
 painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.jpg`,
-`stair_walnut_*.jpg`.
+`stair_walnut_*.jpg`. **Sean picked B, the painted oak** (2026-10-21), and asked for the stair for
+the ragdoll session: `dark_oak` (studio4's four boards, 512 a metre) is in the game's woods set and
+`stair_runner` in the factory (nothing else uses them, so no golden moves), and `OakStair.solid`
+gives it collision (a box a board, the turnings by their bounds, on Layers.WORLD; `room = false`
+for the stair alone). Its golden view waits for the hotel.
 
 ## What's next, in order
 

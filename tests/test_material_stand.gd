@@ -123,3 +123,52 @@ func test_a_set_with_a_stain_sheet_weathers_its_woods() -> void:
 	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
 	check(g.get_shader_parameter(&"use_weather") != true, "the game's woods untouched")
 	check(g.get_shader_parameter(&"edge_aa") != true, "their seams as they were")
+
+
+func test_the_solid_oak_stair_can_be_stood_and_fallen_on() -> void:
+	# Sean, 2026-10-21: the ragdoll session's stairs. A ray down onto each tread stops at its top;
+	# down onto the rail it stops at the rail; the runner and the lobby's boards add no shapes.
+	var s := OakStair.new()
+	s.solid = true
+	s.room = false
+	add_child(s)
+	s.build()
+	await physics_frames(2)
+	var space := s.get_world_3d().direct_space_state
+	for i in [0, 5, 11]:
+		var z: float = i * OakStair.GOING + OakStair.GOING * 0.5
+		var x := OakStair.WIDTH * 0.5
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(Vector3(x, 4.0, z)), s.to_global(Vector3(x, -1.0, z))))
+		check(not hit.is_empty(), "tread %d is solid" % i)
+		if not hit.is_empty():
+			check_near(s.to_local(hit.position).y, (i + 1) * OakStair.STEP_RISE, 0.01, "tread %d stops a fall at its top" % i)
+	var zr := 6.5 * OakStair.GOING
+	var rail := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(Vector3(0.0, 4.0, zr)), s.to_global(Vector3(0.0, 0.5, zr))))
+	check(not rail.is_empty() and s.to_local(rail.position).y > s.pitch_y(zr) + 0.6, "the rail catches a body over the open side")
+	var body := s.get_node(^"Collision") as StaticBody3D
+	check(body != null and body.collision_layer == Layers.WORLD, "on the world's layer")
+	s.queue_free()
+
+
+func test_the_stairs_walkway_has_a_railing_to_fall_over() -> void:
+	# Sean, 2026-10-21: "a small walk way at the top of the stairs with a railing for a body to
+	# fall over". Its floor holds at the landing's height; its front railing stops a body at waist
+	# height, a metre over the floor, and below it is the lobby's floor 2.47 m down.
+	var s := OakStair.new()
+	s.solid = true
+	add_child(s)
+	s.build()
+	await physics_frames(2)
+	var space := s.get_world_3d().direct_space_state
+	var ly := s.landing_y()
+	var wz := s._walk_z()
+	var mid := Vector3(-OakStair.WALK_LENGTH * 0.5, 0.0, (wz.x + wz.y) * 0.5)
+	var floor_hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(mid + Vector3(0.07, 4.0, 0.0)), s.to_global(mid + Vector3(0.07, -1.0, 0.0))))
+	check(not floor_hit.is_empty() and absf(s.to_local(floor_hit.position).y - ly) < 0.01, "the walkway's floor at the landing's height")
+	var waist := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(mid + Vector3(0.0, ly + 0.95, 0.0)), s.to_global(mid + Vector3(0.0, ly + 0.95, -2.0))))
+	check(not waist.is_empty() and s.to_local(waist.position).z > wz.x - 0.1, "the front railing stops a body at the walkway's edge")
+	var over := space.intersect_ray(PhysicsRayQueryParameters3D.create(s.to_global(mid + Vector3(0.0, ly + 1.3, 0.0)), s.to_global(mid + Vector3(0.0, ly + 1.3, -2.0))))
+	check(over.is_empty(), "nothing above the railing: a body can go over it")
+	var drawn := (s.part_nodes[&"oak_rail"] as Node).find_children("*", "MeshInstance3D", true, false)
+	check(not drawn.is_empty(), "the rails are drawn, not only solid")
+	s.queue_free()

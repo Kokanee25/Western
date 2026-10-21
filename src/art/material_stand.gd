@@ -7,7 +7,8 @@ extends Node3D
 ## Built here, not from the game's structure classes: the stand shows a material as production
 ## should draw it (end grain on every cut end, each board its own strip and its own place along it,
 ## no two neighbours alike), which today's MemberMesh doesn't yet (what production needs is listed
-## in the brief). Drawn only; no members, no collision, no load paths.
+## in the brief). Drawn only, unless `solid` (a box on Layers.WORLD for each board, so a body can
+## land on it: the ragdoll lab's stairs); no members, no load paths.
 ##
 ## The stand's space: the wall along +X in the plane z = 0, its face toward -Z; the deck in front of
 ## it (z from 0 to -DECK_DEPTH), the steps at the deck's front, the post and beam at its front edge,
@@ -91,6 +92,11 @@ var seed_value := 1
 ## Lay the weathering layer's frame on every board (CUSTOM0/1; drawn only where the set has a
 ## stain sheet). Off: the boards carry none, as production's members don't yet.
 var weathered := true
+## Collision: a box for each board of the parts `solid_parts` names (all when empty), on one
+## StaticBody3D on Layers.WORLD. Off: drawn only (the lab).
+var solid := false
+var solid_parts: Array = []
+var _shapes: Array = []
 ## What was built: wood -> [{"name", "size", "part"}] (the lab's numbers: thickness, counts).
 var boards := {}
 ## The members' meshes by part (the lab hides and masks them by part).
@@ -126,6 +132,7 @@ func build() -> void:
 	_steps()
 	_frame()
 	_flush()
+	_flush_solid()
 
 
 func _wall() -> void:
@@ -252,6 +259,37 @@ func _board(part: StringName, centre: Vector3, along: Vector3, thick: Vector3, l
 		if part == &"siding" or part == &"siding_low":
 			_nails_of = Color(NAILS[0], NAILS[1], NAILS[2], NAILS[3])
 	_box(tools[pick], centre, along * length, across * width, thick * thickness, u0)
+	_solid_box(part, centre, along, across, thick, Vector3(length, width, thickness))
+
+
+## A collision box for a board (when `solid` and its part is one of `solid_parts`): axes along,
+## across and thick, sized length, width and thickness.
+func _solid_box(part: StringName, centre: Vector3, along: Vector3, across: Vector3, thick: Vector3, size: Vector3) -> void:
+	if not solid or (not solid_parts.is_empty() and not solid_parts.has(part)):
+		return
+	var b := Basis(along.normalized(), across.normalized(), thick.normalized())
+	if b.determinant() < 0.0:
+		b.z = -b.z
+	_shapes.append([Transform3D(b.orthonormalized(), centre), size])
+
+
+## The collected boxes as one body (call after the meshes are built).
+func _flush_solid() -> void:
+	if _shapes.is_empty():
+		return
+	var body := StaticBody3D.new()
+	body.name = "Collision"
+	body.collision_layer = Layers.WORLD
+	body.collision_mask = 0
+	add_child(body)
+	for sh in _shapes:
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = sh[1]
+		cs.shape = box
+		cs.transform = sh[0]
+		body.add_child(cs)
+	_shapes.clear()
 
 
 ## The six faces of a board: four long faces (u along the grain from u0, v across), two ends.
