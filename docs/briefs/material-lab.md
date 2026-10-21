@@ -93,6 +93,19 @@ critic says finer grain reads more photographic. **Next round:** paint broad (fe
 knots as soft shapes), darker and warmer, cut at 384; fix the seam dashes (texel_grid's
 edge_shade on boards) and the mosaic blocks on the fascia and steps.
 
+**Round 2** (studio5, $2.14): every wood repainted broad (a few close tones a board, the grain
+suggested, knots soft, no nail holes or speckle), darker and warmer, from blurred boards, at 384 a
+metre (`round2_boards.jpg`). Sean: "nice, but too clean". studio5w lays weathering on each clean
+board when it's cut (`weather`: grime patches, dirt along the edges, bleached streaks, mud on the
+low siding; no call; `round2_weathered_boards.jpg`).
+
+**Round 3, weathering as a layer (proposed):** weathering belongs to the building, not the board:
+mud splashes up from the ground across several boards, rain streaks down from the eaves and from
+under nails, the sun bleaches what faces it. A painted stain sheet in the men's hand (splash,
+streaks, grime, bleach; one or two calls) laid by texel_grid in the structure's own space (height
+above the ground, distance below an overhang, facing the sun), on top of clean painted boards; one
+more texture fetch on weathered members. The per-board `weather` is the quick stand-in.
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
