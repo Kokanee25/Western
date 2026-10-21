@@ -44,6 +44,15 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | A working face (mouth, lips, teeth, lids, jaw, 12-15 shapes, Live Link takes, `FaceGaze`) | `tools/faces/`, `bold_cowboy_talking` | face rig brief (`docs/briefs/face-rig.md`) | in the game on the old layered cowboy only; the face rig lab brings it to the Studio's men |
 | The Studio's men: `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `sean_s2` | `assets/people/` | `works_check.gd`, `test_bodies.gd` | in the game (cast as the gang, the storekeeper and the sheriff) |
 
+## Guns (the gun lab)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd` | in the game; the gun lab reworks the look and the moves |
+| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | — | in the game |
+| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests | in the game; the Studio's men can't close a hand round it yet (no finger bones) |
+| The kick | `src/weapons/gun_kick.gd` | `test_gun_feel.gd`, feel ranges | in the game |
+
 ## Materials and look (art)
 
 | Part | Where it lives | Proven by | Status |
