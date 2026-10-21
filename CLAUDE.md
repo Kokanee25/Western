@@ -289,11 +289,12 @@ frozen until Sean names one.
   lights, the Studio's three men in every view; `--repeats` for Main Street) and
   `tools/material_measure.py`; the men's sheet `9_studio_men.png` is now `--style=man`'s reference;
   candidate sets `tools/textures/material_lab.json` -> `assets/textures/mlab_*`. Round 1: no wood
-  passes; the critic finds the Studio repaint (512 a metre) photographic. Waiting on Sean's A/B picks
-  (`docs/screenshots/material_lab/2026-10-21/`); next round 2: broad paint, darker and warmer, at
-  384, the seam dashes and mosaic blocks fixed. The hotel's oak stair (`OakStair`) on the bench, two
-  oaks for Sean. Paint ~$4.44 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean
-  raised it). Wear-down planned in the brief (after Gate A).
+  passes; the critic finds the Studio repaint (512 a metre) photographic. Round 2 (studio5: broad,
+  darker, warmer, 384) painted; Sean: "too clean" -> studio5w (weathering per board, free). **Next:
+  the brief's "What's next"** (round 2's critic and A/B sheets, then round 3: the weathering layer in
+  texel_grid from a painted stain sheet). The hotel's oak stair (`OakStair`), two oaks for Sean.
+  Paint ~$6.58 of his $9; OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
+  Wear-down planned in the brief (after Gate A).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
