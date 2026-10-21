@@ -30,7 +30,7 @@ the video are not ours to redistribute and stay out of this repo;** what they sh
 `BlastEffects.spawn` makes one `BlastCloud` in place of the old orange light, three impact bursts and
 a gun-smoke puff:
 
-- a flash (a light and a few hot puffs, gone in ~0.15 s); wood it lights catches 1–4 s later;
+- a flash: a light alone, gone in ~0.12 s (hot puffs were tried and dropped); wood it lights catches 1–4 s later;
 - dark chunks flung in arcs (count and speed by the cube root of the charge);
 - a jet of dust out of the open side (`vent_of`: rays a metre out every way, away from the ground or
   the wall it lay against, leaning up), dark at the root;
