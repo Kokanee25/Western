@@ -55,6 +55,9 @@ var shots := false
 ## Holes drawn by the shader, no voxel carving (as without the native plugin; perf_bench's
 ## --no-voxels): for telling the carving's worker threads apart from the rest.
 var no_voxels := false
+## A look sequence (`frames=0,0.1,...`): shots this many game seconds after the event, every frame
+## drawn between (implies shots).
+var sequence: Array = []
 
 var _data := {}
 var _spec := {}
@@ -191,7 +194,16 @@ func run() -> Dictionary:
 	elif w.has("drop"):
 		_drop_man()
 		_event_at = _aim
-	if shots:
+	if not sequence.is_empty():
+		# Drawn every frame from the event on (the dust is GPU particles: they move only while
+		# frames are drawn), a shot at each moment asked for (game seconds after the event).
+		RenderingServer.render_loop_enabled = true
+		for t: float in sequence:
+			while Engine.get_physics_frames() - _event_tick < int(round(t * 60.0)):
+				await get_tree().physics_frame
+			await _shot("t%05.2f" % t, false)
+		await lab.seconds(maxf(seconds - float(sequence[-1]), 0.0))
+	elif shots:
 		await lab.seconds(MID_SHOT)
 		await _shot("mid")
 		await lab.seconds(maxf(seconds - MID_SHOT, 0.0))
@@ -811,7 +823,7 @@ func _flat(v: Vector3) -> float:
 
 # --- Pictures ------------------------------------------------------------------------------------
 
-func _shot(which: String) -> void:
+func _shot(which: String, pause_after := true) -> void:
 	RenderingServer.render_loop_enabled = true
 	var cam: Dictionary = _spec.camera
 	var at := _building.global_transform * _v(cam.at)
@@ -822,7 +834,7 @@ func _shot(which: String) -> void:
 	_shot_paths[which] = {"path": path, "ok": r.get("ok", false),
 			"s": snappedf((Engine.get_physics_frames() - _event_tick) / 60.0, 0.01) if which != "before" else -1.0}
 	_draws[which] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
-	if which != "after":
+	if which != "after" and pause_after:
 		RenderingServer.render_loop_enabled = false
 
 

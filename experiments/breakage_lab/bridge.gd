@@ -5,7 +5,7 @@ extends BridgeLab
 const Runner := preload("res://experiments/breakage_lab/runner.gd")
 
 const HELP := {
-	"breakage": "breakage SCENARIO [seed=N] [body=ID] [seconds=S] [out=DIR] [shots] [novoxels] -> one breakage scenario in this street (it clears the town first): what broke and where, pieces, how far, what caught, faults, frame time; all of it in DIR/summary.json",
+	"breakage": "breakage SCENARIO [seed=N] [body=ID] [seconds=S] [out=DIR] [shots] [frames=T,T...] [novoxels] -> one breakage scenario in this street (it clears the town first): what broke and where, pieces, how far, what caught, faults, frame time; all of it in DIR/summary.json",
 	"breakage_list": "breakage_list -> the breakage lab's scenarios and the bodies it uses",
 	"breakage_aim": "breakage_aim TARGET [DISTANCE] [near=X,Y,Z] -> for 16 headings round a target, what the shooter's line meets first (picking a clear line for scenarios.json; near= tries another point, building space)",
 }
@@ -31,6 +31,9 @@ func _cmd_breakage(a: Array) -> Dictionary:
 			"out": r.out_dir = kv[1]
 			"shots": r.shots = true
 			"novoxels": r.no_voxels = true
+			"frames":
+				r.sequence = Array(kv[1].split(",")).map(func(x: String) -> float: return float(x))
+				r.shots = true
 	if r.out_dir == "":
 		r.out_dir = "build/breakage_lab/bridge/%s_%s_s%d" % [r.scenario, r.body, r.seed_value]
 	if not r.out_dir.is_absolute_path():

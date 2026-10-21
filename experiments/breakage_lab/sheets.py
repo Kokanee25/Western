@@ -6,6 +6,7 @@ weapon (before / just after / at the end), or for a scenario with a man, a row a
     python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR --only=lamp,man_on_table
     python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR --bodies=chair_dynamite_1m
     python3 experiments/breakage_lab/sheets.py side BASE_ROOT CANDIDATE_ROOT OUT.jpg NAME,NAME   # before/after a change
+    python3 experiments/breakage_lab/sheets.py look ROOT OUT.jpg [ROOT2 ...]   # run.py --look: a row a run, a column a moment
 
 Rows come from RENDER_ROOT/<scenario>[__<body>]/{before,mid,after}.png; a missing frame is a grey
 tile. Each row is labelled with what the summary says happened.
@@ -113,7 +114,43 @@ def side(base, cand, out, names):
     print(out)
 
 
+def look(roots, out):
+    """The look over time (run.py --look): a row a run, its t*.png frames left to right. Several
+    roots (a base and a candidate) give their rows one after the other, each labelled with its root."""
+    f_title, f_row = font(18), font(13)
+    rows = []
+    for root in roots:
+        for x in sorted(os.listdir(root)):
+            p = os.path.join(root, x)
+            frames = sorted(f for f in os.listdir(p) if f.startswith("t") and f.endswith(".png")) if os.path.isdir(p) else []
+            if frames:
+                rows.append((os.path.basename(root), x, p, frames))
+    if not rows:
+        sys.exit("no t*.png frames under " + ", ".join(roots))
+    times = sorted({f for r in rows for f in r[3]})
+    tile = (240, 135)
+    w = LABEL_W + tile[0] * len(times)
+    img = Image.new("RGB", (w, 56 + tile[1] * len(rows)), (24, 22, 20))
+    d = ImageDraw.Draw(img)
+    d.text((8, 8), os.path.basename(out).rsplit(".", 1)[0], fill=(235, 225, 205), font=f_title)
+    for i, f in enumerate(times):
+        d.text((LABEL_W + i * tile[0] + 6, 36), f"{float(f[1:-4]):g} s", fill=(200, 190, 170), font=f_row)
+    for r, (root, name, path, frames) in enumerate(rows):
+        y = 56 + r * tile[1]
+        for i, f in enumerate(times):
+            if f in frames:
+                t = Image.open(os.path.join(path, f)).convert("RGB")
+                t.thumbnail(tile)
+                img.paste(t, (LABEL_W + i * tile[0], y))
+        for k, line in enumerate([name.split("__")[0], root]):
+            d.text((8, y + 6 + k * 17), line, fill=(230, 220, 200) if k == 0 else (190, 180, 165), font=f_row)
+    img.save(out, quality=85)
+    print(out)
+
+
 def main():
+    if len(sys.argv) >= 4 and sys.argv[1] == "look":
+        return look([os.path.abspath(a) for a in sys.argv[2:3] + sys.argv[4:]], sys.argv[3])
     if len(sys.argv) >= 2 and sys.argv[1] == "side":
         # sheets.py side BASE_ROOT CANDIDATE_ROOT OUT.jpg NAME[,NAME...] (the run folders' names)
         return side(os.path.abspath(sys.argv[2]), os.path.abspath(sys.argv[3]), sys.argv[4], sys.argv[5].split(","))

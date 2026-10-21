@@ -11,6 +11,7 @@ the dev bridge (`breakage SCENARIO ...`, this lab's bridge.gd), several at once.
     python3 experiments/breakage_lab/run.py --compare=ROOT           # that comparison again (no Godot)
     python3 experiments/breakage_lab/run.py --render --bodies=bold_cowboy_s0 --out=...  # frames for the sheets (xvfb, lavapipe)
     python3 experiments/breakage_lab/run.py --serial --out=...        # one game at a time, for frame times
+    python3 experiments/breakage_lab/run.py --look=0,0.1,0.25,0.5,1,2 --out=...  # the look: drawn, shots at those moments
     python3 experiments/breakage_lab/run.py --skip-done --out=ROOT    # again, leaving out what's already in ROOT
     python3 experiments/breakage_lab/run.py --table=ROOT [--frames=SERIAL_ROOT]  # the table again (no Godot), frame times from a serial run
     python3 experiments/breakage_lab/run.py --table=ROOT --frames=SERIAL --keep=experiments/breakage_lab/baseline   # commit it
@@ -92,6 +93,8 @@ def run_one(job):
         words.append("shots")
     if opt("novoxels"):
         words.append("novoxels")
+    if opt("look"):
+        words.append("frames=" + opt("look"))
     with open(cmds, "w") as f:
         f.write(" ".join(words) + "\nquit\n")
     godot = os.environ.get("GODOT", "godot")
@@ -302,7 +305,7 @@ def main():
     bodies = d["bodies"] if opt("bodies", "all") == "all" else opt("bodies").split(",")
     seed = int(opt("seed", d["seed"]))
     seconds = opt("seconds")
-    render = bool(opt("render"))
+    render = bool(opt("render")) or bool(opt("look"))
     repeat = int(opt("repeat", "1"))
     jobs_n = 1 if opt("serial") else int(opt("jobs", "4"))
     if opt("compare"):
