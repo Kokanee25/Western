@@ -389,4 +389,8 @@ frozen until Sean names one.
   street breaks where the stick is, more far panes go. Step 2 made: boards cut over the stretch the
   blast overcomes (`Blast.torn_stretch`, `Structure.cut_member`; `results/2026-10-21_board_cut/`):
   holes, not missing boards; one stick a crawl hole in a wall, three a doorway (Sean's feel call);
-  glass-only buildings not re-settled. Next: the dig-able ground and craters (its own brief); then 3.3.
+  glass-only buildings not re-settled. **The blast's look** (Sean: "try doing the art", art's
+  ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
+  dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
+  catches 1–4 s later; three blast goldens re-approved. Next: the dig-able ground and craters (its
+  own brief); then 3.3.
