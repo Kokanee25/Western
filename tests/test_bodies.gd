@@ -469,14 +469,16 @@ func test_his_neck_holds_landing_face_first() -> void:
 	man.go_limp(Vector3(0, 0, -1.2))
 	var neck := man.parts[&"neck"] as Node3D
 	var chest := man.parts[&"chest"] as Node3D
-	var rest := (chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized()).get_rotation_quaternion()
+	# Its swing: how far the neck's own axis leans from where it was on the chest (the cone; its
+	# twist about itself is another 25).
+	var rest := chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized().y
 	var worst := 0.0
 	for i in 150:
 		await physics_frames(1)
-		var now := (chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized()).get_rotation_quaternion()
+		var now := chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized().y
 		worst = maxf(worst, rad_to_deg(rest.angle_to(now)))
-	print("  the neck turned at most %.1f deg on the chest (its cone 30)" % worst)
-	check(worst < 38.0, "within its limit and a little (%.1f deg; 41 before)" % worst)
+	print("  the neck swung at most %.1f deg on the chest (its cone 30)" % worst)
+	check(worst < 36.0, "within its limit and a little (%.1f deg)" % worst)
 
 
 ## Sat at a table, his forearms before him, he goes down and they stay out of his chest (left out
