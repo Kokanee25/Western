@@ -355,9 +355,12 @@ frozen until Sean names one.
   collide, no push past physics, his hat off when it meets the ground, hip and spine cones centred
   anatomically, and a hit short of a fall shows as the wound's consequence (`_favour_step`). Lab
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
-  re-approved (art's, Sean's OK). Next: **the faint** (Sean: "maybe just the fainting needs
-  work"; his OK to try a stance with the weight ~3 deg forward at the ankles), then his stairs,
-  railings, tables, chairs and props.
+  re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
+  and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
+  squat as his tone lets go). **Stairs, railings and props** (branch `claude/gameplay-falls-props`,
+  not merged; groups P and S, art's solid OakStair from #172; `results/2026-10-21_props/`): the
+  baseline and a blind critic (mean ~5/10). Next: forward falls stick on stairs (his parts'
+  friction 0.9); Sean's call on loose props; render and judge on the Studio's men, not the outlaw.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
