@@ -56,6 +56,55 @@
     "framing",
     "dark_trim"
    ]
+  },
+  "fit512": {
+   "note": "No paint: the game's paintings cut at 512 texels a metre and their lightness scaled so each wood's 90th percentile L* sits at 62, inside the Studio men's paint (their textures: L* 9.7-65.8, median 27.5; the woods' 90th were 66-80).",
+   "texels_per_metre": 512,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ],
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   }
   }
  }
 }

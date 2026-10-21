@@ -24,3 +24,4 @@ __pycache__/
 # The material lab's free re-cuts (tools/textures/material_lab.json sets with `raw`): remade with no calls
 # by paint_woods.py --set=NAME --cut
 /assets/textures/mlab_recut*/
+/assets/textures/mlab_fit*/
