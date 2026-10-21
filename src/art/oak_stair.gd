@@ -89,7 +89,7 @@ func _flight() -> void:
 ## The lobby: a wall of upright boards behind the wall string (to the landing's ceiling height),
 ## and a floor of boards running out from it, so the stair reads as indoors.
 func _room() -> void:
-	var z0 := -2.5
+	var z0 := -5.5
 	var z1 := (RISERS - 1) * GOING + LANDING_DEPTH + 0.3
 	var wx := WIDTH + 0.06
 	var h := landing_y() + 2.4
@@ -99,7 +99,7 @@ func _room() -> void:
 		z += 0.15
 	_board(&"oak_skirt", Vector3(wx - 0.01, 0.11, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(1, 0, 0), z1 - z0, 0.2, 0.022, Vector3(0, 1, 0))
 	var x := wx
-	while x > -3.4:
+	while x > -5.5:
 		_board(&"oak_floor", Vector3(x - 0.075, 0.0, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
 				Vector3(1, 0, 0))
 		x -= 0.15
