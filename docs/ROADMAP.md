@@ -15,7 +15,9 @@ isn't the whole game; it's the proof of it, and the base the rest is built on.
   weekly usage, not the calendar.
 - **One step per lane, at most two lanes at once.** A lane is a session (art, characters,
   gameplay). Each phase below names its lanes; the others are parked, apart from fixing a red
-  main.
+  main. **In Phases 2 and 3, up to four sessions at once** (Sean, 2026-10-21): the gameplay lane
+  may run more than one session, each on its own step, its own branch and (for the labs) its own
+  `experiments/` folder.
 - **Finish before starting.** A session works only on its lane's current step. Anything else
   that comes up (an idea, a bug in another system, a better approach to a later step) goes in
   the step's notes or `docs/BACKLOG.md`, not into the work.
@@ -42,7 +44,7 @@ easy part; making it fun is the hard part, so it comes first.
 | Phase | What it proves | Lanes | Gate |
 |---|---|---|---|
 | 0. Clean slate | the build is trustworthy | gameplay | main green 3 nights |
-| 1. The look | it looks like the paintings | art, characters | A: Sean's yes on the shots |
+| 1. The look (parked 2026-10-21) | it looks like the paintings | art, characters | A: Sean's yes on the shots, before Phase 4 |
 | 2. Stand-ins | enough people to test with | characters | Sean's quick OK |
 | 3. Is it fun? | the fight and rough missions are fun to play | gameplay (+ characters for fixes) | C: Sean plays them again by choice |
 | 4. The place | a block of town worth standing in, built for the missions that worked | art, characters, gameplay | B: the block at four hours |
@@ -63,6 +65,9 @@ Lane: gameplay. Art and characters finish what they have open and stop.
 ## Phase 1: The look
 
 Lanes: art and characters. Gameplay parked. **Gate A: the look is locked.**
+
+**Parked (Sean, 2026-10-21): "the look is good enough to test with."** What's open here waits;
+Gate A (1.5) is signed off before Phase 4 starts, not before Phases 2 and 3.
 
 The approach is settled (the paintings' squares on the surfaces, smooth light, faces by
 `tools/characters/RECIPE.md`). This phase makes it right in the game's own light, not a new style.
@@ -94,9 +99,11 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 
 | # | Step | Done when | Who |
 |---|---|---|---|
-| 3.0 | **The three-gunman fight** (Sean 2026-10-17; brief `docs/briefs/three-gunmen.md`) | The player against three gunmen of different temper on the existing street, run again and again: fights that can end with one good shot but usually become a tense 45–90 seconds of cover, flanking, suppression, reloads and retreats; misses that come from the gun's sway, not dice, for NPCs as for the player; enemies you can hear (steps, cocking, shouts) but who never know where you are by magic. Measured over many runs (fight length, hits per side, who hits first), then played by Sean. | gameplay |
+| 3.0 | **The three-gunman fight** (Sean 2026-10-17; brief `docs/briefs/three-gunmen.md`) | The player against three gunmen of different temper on the existing street, run again and again: fights that can end with one good shot but usually become a tense 45–90 seconds of cover, flanking, suppression, reloads and retreats; misses that come from the gun's sway, not dice, for NPCs as for the player; enemies you can hear (steps, cocking, shouts) but who never know where you are by magic. Measured over many runs (fight length, hits per side, who hits first), then played by Sean. **Its arena is the gunfight lab** (`docs/briefs/labs.md`, `experiments/gunfight_lab/`): street, saloon and ambush setups at golden hour and night, revolver and shotgun, a scripted player in three styles; the baseline first, then the brief's gaps one at a time, each measured. | gameplay |
 | 3.1 | **Falls and hits** | Prompt 09: the ragdoll lab's faults fixed against its baseline (no folding straight down, no limbs through the body, joints in their limits), and hit reactions short of a fall. | gameplay |
+| 3.1b | **The body lab** (beside 3.1; `docs/briefs/labs.md`, `experiments/body_lab/`) | Shots at 5, 15 and 30 m and dynamite at 1, 3 and 6 m into a standing man at marked spots, then treated: what the ball crosses, bleed-out per artery, broken bones and what they stop, limbs lost, ten wounded men against the people budget, all checked against cited trauma figures. The bench and its baseline first; fixes (cut points and stumps, missing arteries, breaks that change what a man can do) measured against it. Reduced gore stays a setting. | gameplay |
 | 3.2 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
+| 3.3a | **The breakage lab** (before 3.3; `docs/briefs/labs.md`, `experiments/breakage_lab/`) | A chair, table, door, bottle, lamp, window and the store front against the revolver and shotgun at 5 m and dynamite at 1, 3 and 6 m, and a man thrown into a table: breaks or holds (against the Wood Handbook), pieces and how far they fly, what catches fire, physics faults, same seed same result, frame time per blast. Its baseline is what 3.3 is built against. | gameplay |
 | 3.3 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
 | 3.4 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
 | 3.5 | **Acts** | A way to write missions and little scenes as data: who goes where, says what, beat by beat, and what hands back to the systems when you interfere (DESIGN.md §5 "Story shape"). Lines are typed on screen for now. | gameplay |
@@ -106,7 +113,8 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 
 ## Phase 4: The place
 
-Lanes: art, characters, gameplay. **Gate B: the block at four hours.**
+Lanes: art, characters, gameplay. **Gate B: the block at four hours.** Starts after Gate C, with
+Gate A (1.5) signed off first.
 
 A small block finished to the look, shaped by what the missions in Phase 3 turned out to need:
 the saloon, the store, the telegraph, the jail and the livery, and the street between them.
@@ -160,20 +168,19 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
-- **Phase 0, step 0.1** (gameplay): green and quiet.
-- **3.1 Falls and hits, moved up by Sean** (2026-10-16: "Nah build the falls spend all night working
-  on it if needed"), running beside Phase 1 (gameplay; brief `docs/briefs/fix-the-falls.md`).
-- **Then Phase 1:** 1.1 ✅ (art, 2026-10-15: `docs/concept/targets/`). **1.2**: the painted cowboy
-  in the game (#124); the street's light fixed 2026-10-16 (the sun's own ceiling, face 0.61 -> 0.92,
-  the saloon 1.03 as before; `docs/screenshots/painted_light/in_game_sun_limit.jpg`); waits on
-  Sean's eye. **1.4** (art): the road to Sean's target (#130, build 1280), the woods smooth again
-  (painted illustration), the painted sky and a slight haze (`docs/screenshots/sky/`); waits on
-  Sean's word. The world painted in the man's hand (target 8, `docs/briefs/match-the-man.md`):
-  woods and materials repainted dirty and worn, grass in strokes, the road into his palette; the
-  close props (table, chairs, lamp, bottle) next. **1.3** (characters) beside it.
+Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate A before Phase 4);
+**Phases 2 and 3 run now, up to four sessions at once.**
 
-- **After Gate A:** Phase 2's stand-ins (characters), then Phase 3, the fun test (gameplay).
-  Phase 4's world-building waits until Gate C.
+- **Phase 2** (characters): **2.1** the generic bad guys, then 2.2 Sean's quick OK.
+- **Phase 3** (gameplay):
+  - **3.0** the three-gunman fight, in the **gunfight lab** first (bench and baseline, then fixes).
+  - **3.1** falls and hits (moved up 2026-10-16; brief `docs/briefs/fix-the-falls.md`), with
+    **3.1b** the **body lab** beside it.
+  - **3.2** guns: the kick merged (#153), the smoke next (`claude/gameplay-smoke`).
+  - **3.3a** the **breakage lab**, before 3.3.
+- Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
+- Parked with Phase 1: 1.2, 1.3, 1.3b and 1.4 where they stand (1.3's proper garments were
+  next; art had paused 2026-10-17 until the man was done). Gate A (1.5) before Phase 4.
 
 ## Decisions Sean can change
 

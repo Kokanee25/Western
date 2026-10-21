@@ -42,6 +42,8 @@ const HELP := {
 
 var port := PORT
 var script_path := ""
+## Where the labs' own commands are found: each <dir>/<lab>/bridge.gd (a BridgeLab).
+var labs_dir := "res://experiments"
 var main: Node
 var street: Node
 var player: Player
@@ -55,6 +57,8 @@ var _events: Array[Dictionary] = []
 var _free_camera: Camera3D
 var _held := {}  # action -> true
 var _was_awake := true
+var _lab_commands := {}  # command -> the BridgeLab that answers it
+var _labs := {}  # lab (its folder) -> its commands, or why it wasn't loaded
 
 
 ## Add a bridge to the game if this run asked for one (and it's a debug build).
@@ -86,6 +90,7 @@ func _ready() -> void:
 	Engine.max_physics_steps_per_frame = 40
 	_arm_player.call_deferred()
 	_listen_to_events()
+	_load_labs()
 	_server = TCPServer.new()
 	var err := _server.listen(port, "127.0.0.1")
 	print("[bridge] %s on 127.0.0.1:%d" % ["listening" if err == OK else "can't listen (%s)" % error_string(err), port])
@@ -152,15 +157,19 @@ func _run_next() -> void:
 		var line := String(job.line).strip_edges()
 		if line == "" or line.begins_with("#"):
 			continue
-		var reply: Dictionary
+		var reply = {}
 		var words := line.split(" ", false)
 		var cmd := words[0].to_lower()
-		if not HELP.has(cmd):
-			reply = {"ok": false, "error": "no such command: %s (try help)" % cmd}
-		else:
+		if HELP.has(cmd):
 			reply = await call("_cmd_" + cmd, Array(words.slice(1)))
-			if not reply.has("ok"):
-				reply["ok"] = true
+		elif _lab_commands.has(cmd):
+			reply = await (_lab_commands[cmd] as BridgeLab).call("_cmd_" + cmd, Array(words.slice(1)))
+		else:
+			reply = {"ok": false, "error": "no such command: %s (try help)" % cmd}
+		if not reply is Dictionary:
+			reply = {"ok": false, "error": "%s answered %s, not a Dictionary" % [cmd, type_string(typeof(reply))]}
+		if not reply.has("ok"):
+			reply["ok"] = true
 		reply["cmd"] = line
 		reply["t"] = snappedf(_game_seconds(), 0.01)
 		var text := JSON.stringify(reply)
@@ -200,7 +209,10 @@ func _cmd_ping(_a: Array) -> Dictionary:
 
 
 func _cmd_help(_a: Array) -> Dictionary:
-	return {"commands": HELP.values()}
+	var lines: Array = HELP.values()
+	for cmd: String in _lab_commands:
+		lines.append("%s (%s)" % [(_lab_commands[cmd] as BridgeLab).commands()[cmd], _lab_commands[cmd].name])
+	return {"commands": lines, "labs": _labs}
 
 
 func _cmd_quit(_a: Array) -> Dictionary:
@@ -616,6 +628,45 @@ func _cmd_read(a: Array) -> Dictionary:
 func _cmd_events(a: Array) -> Dictionary:
 	var n := int(a[0]) if a.size() > 0 else 20
 	return {"events": _events.slice(maxi(_events.size() - n, 0))}
+
+
+# -- The labs' own commands (docs/briefs/labs.md) ------------------------------------------------
+
+## Each lab folder's bridge.gd, if it has one: a BridgeLab child answering the commands it names.
+## A name the bridge or an earlier lab (by folder name) already answers is refused, and said so.
+func _load_labs() -> void:
+	if not DirAccess.dir_exists_absolute(labs_dir):
+		return
+	var folders := DirAccess.get_directories_at(labs_dir)
+	folders.sort()
+	for folder in folders:
+		var path := labs_dir.path_join(folder).path_join("bridge.gd")
+		if not ResourceLoader.exists(path):
+			continue
+		var script := load(path) as GDScript
+		var lab: Variant = script.new() if script and script.can_instantiate() else null
+		if not lab is BridgeLab:
+			_labs[folder] = "not loaded: %s isn't a BridgeLab" % path
+			push_warning("[bridge] " + _labs[folder])
+			if lab is Object and not lab is RefCounted:
+				(lab as Object).free()
+			continue
+		lab.name = folder
+		lab.bridge = self
+		var mine: Array = []
+		var refused: Array = []
+		for cmd: String in (lab as BridgeLab).commands():
+			if HELP.has(cmd) or _lab_commands.has(cmd) or not lab.has_method("_cmd_" + cmd):
+				refused.append(cmd)
+			else:
+				mine.append(cmd)
+		if not refused.is_empty():
+			push_warning("[bridge] %s: commands not added (taken, or no _cmd_ method): %s" % [folder, ", ".join(refused)])
+		for cmd: String in mine:
+			_lab_commands[cmd] = lab
+		_labs[folder] = mine if refused.is_empty() else {"commands": mine, "refused": refused}
+		add_child(lab)
+		print("[bridge] lab %s: %s" % [folder, ", ".join(mine)])
 
 
 # -- What's going on -----------------------------------------------------------------------------
