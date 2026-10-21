@@ -1,0 +1,22 @@
+{
+ "eyes": {
+  "right": [
+   0.0359,
+   1.6548,
+   -0.0825
+  ],
+  "left": [
+   -0.0359,
+   1.6552,
+   -0.0834
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from his approved pictures",
+ "id": "sean_s2",
+ "whole": true,
+ "triangles": {
+  "body_skin": 32140,
+  "body_head": 1285
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)"
+}

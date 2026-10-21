@@ -182,6 +182,104 @@ Re-run the lab on main first, on the Studio's men (--model) and on outlaw: that'
 You're the only session changing HumanBody; the other labs only measure. Any change to human_body.gd comes to me as a proposed patch with before-and-after sheets and real-speed footage before merging. Physics within budget with ten men going down (--perf). Videos in the PR, not git.
 ```
 
+## Treatment lab, part 1: field first aid (3.1c, after the body lab's baseline) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-treatment-lab. Roadmap 3.1c. Read the Treatment lab section of docs/briefs/labs.md, DESIGN.md §7 ("Treatment" and "Field first aid"), the body lab's README and baseline, and the src/bodies and src/player sections of docs/LAYOUT.md.
+
+Bench and baseline first: experiments/treatment_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded. Measure today's treatment (the player's tend key, outlaws tending themselves, the doctor's patch-up) on the body lab's wounds, against the untreated baseline, on the Studio's men.
+
+Then build part 1, one treatment at a time, each measured: the player treating someone else; pressure, tourniquets (tight and loose), packing, sealing a sucking chest wound (a hand at once, then something airtight, watched in case it traps air), splints, whiskey, moving a casualty; NPCs treating themselves and each other by their relationships. Each with its cost in hands, time and cloth.
+
+Write the rules as a short list in the README and ask me to check them against my first-aid training before they're final. Coordinate with whoever is changing HumanBody or Physiology. The playtest agent tries it blind before I do; tell me exactly what to try.
+```
+
+## Treatment lab, part 2: the doctor (Phase 5, with 5.4 and 5.6) [Salt Creek]
+
+```
+Gameplay lane (characters for his lines), branch claude/gameplay-doctor. Roadmap 5.4 and 5.6, through the Treatment lab's part 2 (docs/briefs/labs.md). Read the brief, DESIGN.md §7 and the doctor in §5, and the treatment lab's README and results.
+
+Build the doctor as a person with 1882's tools and limits, treating anyone brought in: probing for and removing a ball (and leaving one in when that's safer), cleaning (or not), chloroform, amputation, what he can and can't do for a gut or chest wound, and infection days later. It takes time and costs money; the ball he digs out is evidence. Measure each body-lab wound brought in at once, after an hour, and after a bad field dressing, against the field-only results. Cite period medical sources in the README (don't copy their text). Show me the plan before building.
+```
+
+## Perception and information lab (now) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-perception_lab. The perception and information lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/perception_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: sight lines by day and night, through smoke and cover; a shot inside the saloon heard outside; a man seen, then lost, then searched for; news passed from one person to another until a deputy knows. Measure false detections, reaction delays, how news spreads, and every time someone acts on what he couldn't know. Builds on Senses. No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
+## Confrontation and escalation lab (Phase 3, before 3.5) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-confrontation_lab. The confrontation and escalation lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/confrontation_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: a drunk insults me in the saloon; I ignore him, threaten him, shove him, or draw; the same with a hothead, a coward and a proud man; bystanders and the barman react by what they see. Measure how often it escalates, whether each choice is believable, and how many different outcomes come out. Builds on deeds, the escalation ladder and relations. Include answering yes or no with a nod or a shake (DESIGN.md §9, "Answering with a nod"): measure false answers while I look around, missed nods, and how long the blind playtest agent takes to discover it. No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
+## Physical interaction lab (Phase 3, with 3.3 and 3.4) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-interaction_lab. The physical interaction lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/interaction_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: pick up, carry, place and throw a bottle; push and pull a chair and a table; open and shove a door, whole and broken; drag a wounded man away from a fire. Measure response time, hand placement, collision faults, how things settle, and first-person feel, with mouse and controller. Coordinate with the furniture and shoves work. No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
+## Navigation and avoidance lab (Phase 3, before 3.6) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-navigation_lab. The navigation and avoidance lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/navigation_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: a full saloon emptying when a fire starts; a blocked door and a body in a doorway; a gunman stepping over rubble; the doctor reaching a patient across a wrecked room. Measure stuck people, failed routes, rerouting time and CPU cost. Builds on Waypoints. No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
+## The Systems Playground (Phase 3, after the gunfight lab's baseline) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-playground. Build the Systems Playground (docs/briefs/labs.md, "The Systems Playground") in experiments/playground/, starting from the gunfight lab's street: a stretch of the street and the working saloon, three or four of the Studio's men, every approved system on. Add the systems-interaction scenarios one at a time: the shot lantern (falls, breaks, lights the floor, smokes, hides men, drives people out, blocks a door, is remembered), then the shoved drunk through a table. For each, record whether the whole chain runs with no special cases, which system fails first, and the combined frame time. Make it the playtest agent's standing setup every build. Report before fixing anything.
+```
+
+## Combat decisions and morale (inside the gunfight lab, after its baseline) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-gunfight-decisions. Extend the gunfight lab (experiments/gunfight_lab/) with the combat decisions and morale measures in docs/briefs/labs.md: log why each gunman made each choice (courage, aggression, skill, loyalty), and measure tactical variety, surrender and flight rates, the same man deciding the same way in the same spot, and how they adapt when cover is shot away. Baseline first; then the gunfight lab's fixes are judged on these numbers too.
+```
+
+## Weapon handling and feel (inside 3.2) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-weapon-handling. Inside roadmap 3.2: measure the guns without the AI (docs/briefs/labs.md, weapon handling and feel), on tests/test_gun_feel.gd and config/feel_ranges.json: draw to first shot, cocking, reload time one round at a time, practical accuracy, sight recovery after recoil, input response, and all of it wounded and rushed. Report against the feel ranges, mark anything that feels awkward rather than hard, and give me builds to try with exactly what to look for.
+```
+
+## Law, witnesses and consequences lab (Phase 5) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-law_lab. The law, witnesses and consequences lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/law_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: I shoot a man who drew first; I shoot an unarmed man in front of a witness; a theft nobody sees; a fight the deputy hears but doesn't see. Measure witness accuracy, time to report, false accusations, what the law does, and whether it holds the next day. Builds on deeds, Senses and the memory store (5.3). No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
+## World persistence and recovery lab (Phase 5) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-persistence_lab. The world persistence and recovery lab (docs/briefs/labs.md, "People and systems labs"; its row in docs/ROADMAP.md's "When the labs start"). Read that section, experiments/physics_lab/README.md as the lab pattern, and the docs/LAYOUT.md sections for the systems it touches.
+
+Bench and baseline first, changing nothing about how the game plays: experiments/persistence_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded, on the Studio's men. Scenarios: shoot out the saloon's windows, wound the storekeeper, wreck a room, then leave for a day, sleep, save and load. Measure what stays, how recovery runs over days, repairs scheduled, save and load holding it all, and what I see when I come back. Builds on saving (5.5). No scripted outcomes: a result that needs a special case is reported as a failure, not fixed with one.
+
+Report: a baseline table, the five biggest problems ranked by what a player would notice, and the first fix you'd make (don't make it).
+```
+
 ## Lab fixes (after a lab's baseline) [Salt Creek]
 
 ```
