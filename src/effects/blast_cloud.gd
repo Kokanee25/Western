@@ -116,13 +116,13 @@ static func _chunks(world: Node3D, at: Vector3, vent: Vector3, dust: Color, size
 	pm.gravity = Vector3(0, -9.8, 0)
 	pm.damping_min = 0.2
 	pm.damping_max = 0.8
-	pm.scale_min = 0.4
-	pm.scale_max = 1.6
+	pm.scale_min = 0.3
+	pm.scale_max = 1.0
 	pm.angle_min = -180.0
 	pm.angle_max = 180.0
 	pm.angular_velocity_min = -540.0
 	pm.angular_velocity_max = 540.0
-	pm.color = Color(dust.r * 0.32, dust.g * 0.3, dust.b * 0.28)
+	pm.color = Color(dust.r * 0.5, dust.g * 0.47, dust.b * 0.44)
 	p.process_material = pm
 	var box := BoxMesh.new()
 	box.size = Vector3(0.05, 0.035, 0.07)
@@ -155,30 +155,30 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	GunSmoke._load_tuning()
 	var tn := GunSmoke.tuning
 	_drift = tn.wind * (tn.indoor_wind if indoors else 1.0) * 0.8 + Vector3.UP * 0.18
-	var root := dust * 0.42
-	root.a = 0.95
-	var mid := dust * 0.85
-	mid.a = 0.75
-	var pale := dust.lerp(Color(0.92, 0.9, 0.86), 0.45)
+	var root := dust * 0.62
+	root.a = 0.92
+	var mid := dust * 0.95
+	mid.a = 0.72
+	var pale := dust.lerp(Color(0.92, 0.9, 0.86), 0.5)
 	pale.a = 0.0
 	# The jet: dense and dark, fast out of the open side, stopping within a few metres.
-	var jet := _dust(int(26 * size), 7.0, seed_value + 3)
+	var jet := _dust(int(40 * size), 7.0, seed_value + 3)
 	var jm := jet.process_material as ParticleProcessMaterial
 	jm.direction = vent
-	jm.spread = 16.0
-	jm.initial_velocity_min = 7.0 * size
-	jm.initial_velocity_max = 15.0 * size
-	jm.damping_min = 16.0
-	jm.damping_max = 22.0
+	jm.spread = 24.0
+	jm.initial_velocity_min = 5.0 * size
+	jm.initial_velocity_max = 13.0 * size
+	jm.damping_min = 10.0
+	jm.damping_max = 15.0
 	jm.gravity = Vector3(0, 0.1, 0)
 	jm.scale_curve = _curve([Vector2(0.0, 0.35), Vector2(0.15, 1.2), Vector2(1.0, 2.6)])
 	jm.color_ramp = _ramp([[0.0, root], [0.35, mid], [1.0, pale]])
-	jet.draw_pass_1 = _quad(0.7 * size)
+	jet.draw_pass_1 = _quad(1.3 * size)
 	# The billow: slower, wider, climbing, darker at its root, paling as it rises and spreads.
-	var billow := _dust(int(34 * size), LIFETIME * 0.8, seed_value + 4)
+	var billow := _dust(int(44 * size), LIFETIME * 0.8, seed_value + 4)
 	var bm := billow.process_material as ParticleProcessMaterial
 	bm.direction = vent
-	bm.spread = 38.0
+	bm.spread = 50.0
 	bm.initial_velocity_min = 1.5 * size
 	bm.initial_velocity_max = 5.0 * size
 	bm.damping_min = 2.5
@@ -186,23 +186,23 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	bm.gravity = Vector3(0, 0.22, 0)
 	bm.scale_curve = _curve([Vector2(0.0, 0.4), Vector2(0.1, 1.0), Vector2(1.0, 3.2)])
 	bm.color_ramp = _ramp([[0.0, root], [0.2, mid], [1.0, pale]])
-	billow.draw_pass_1 = _quad(0.9 * size)
+	billow.draw_pass_1 = _quad(1.6 * size)
 	# The surge: dust thrown out low and rolling along the ground all round.
-	var surge := _dust(int(22 * size), LIFETIME * 0.6, seed_value + 5)
+	var surge := _dust(int(30 * size), LIFETIME * 0.6, seed_value + 5)
 	var sm := surge.process_material as ParticleProcessMaterial
 	sm.direction = Vector3.RIGHT
 	sm.spread = 180.0
 	sm.flatness = 1.0
-	sm.initial_velocity_min = 3.0 * size
-	sm.initial_velocity_max = 7.0 * size
+	sm.initial_velocity_min = 4.0 * size
+	sm.initial_velocity_max = 9.0 * size
 	sm.damping_min = 5.0
 	sm.damping_max = 8.0
 	sm.gravity = Vector3(0, 0.05, 0)
 	sm.scale_curve = _curve([Vector2(0.0, 0.4), Vector2(0.2, 1.0), Vector2(1.0, 2.4)])
-	var low := dust * 0.7
+	var low := dust * 0.8
 	low.a = 0.8
 	sm.color_ramp = _ramp([[0.0, low], [0.3, mid], [1.0, pale]])
-	surge.draw_pass_1 = _quad(0.75 * size)
+	surge.draw_pass_1 = _quad(1.2 * size)
 	surge.position = Vector3.UP * 0.15
 	if not GunSmoke.supports_fog_volumes():
 		return

@@ -499,7 +499,12 @@ a few views renders them as the full run does.
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
   the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
-  sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). Wood it lights
+  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
+  jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
+  `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's
+  `run.py --look=T,T...` and `sheets.py look`.
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 
 ## src/art/shot_match.gd (the saloon painting's shot)

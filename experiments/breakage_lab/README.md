@@ -25,6 +25,8 @@ python3 experiments/breakage_lab/run.py --repeat=2 --out=...          # same see
 python3 experiments/breakage_lab/run.py --serial --bodies=bold_cowboy_s0 --out=...   # frame times, one game at a time
 python3 experiments/breakage_lab/run.py --render --bodies=bold_cowboy_s0 --jobs=2 --out=...  # frames (xvfb, lavapipe; ~1.5 min a game)
 python3 experiments/breakage_lab/run.py --table=ROOT [--frames=SERIAL_ROOT]   # the table again, no Godot
+python3 experiments/breakage_lab/run.py --look=0,0.05,0.12,0.25,0.5,1,2,4,8 --bodies=bold_cowboy_s0 --scenario=ground_dynamite_0m --out=...  # how it looks over time: every frame drawn, a shot at each moment (t00.25.png ...)
+python3 experiments/breakage_lab/sheets.py look ROOT OUT.jpg [ROOT2 ...]   # those as a sheet: a row a run, a column a moment
 python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR [--only=lamp] [--bodies=man_on_table]
 # one scenario in a game you're driving (it clears the town first; one scenario a game)
 python3 tools/bridge.py start --headless
@@ -143,7 +145,7 @@ A scenario with a man runs once per body.
   draw calls before, just after and at the end (lavapipe, the scenario's camera).
 - Errors and warnings Godot logs during the scenario (a Logger) are in `errors`/`warnings`.
 
-Not measured: sound, how it looks beyond the sheets, the player's own wounds, anything after 8 s.
+Not measured: sound, how it looks beyond the sheets (the look runs are judged by eye, `docs/briefs/blast-look.md`), the player's own wounds, anything after 8 s.
 
 ## Thresholds
 
