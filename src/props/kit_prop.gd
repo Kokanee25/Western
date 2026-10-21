@@ -430,7 +430,8 @@ func toughness_of(m: StructureMember) -> float:
 ## `m`, from something of `blow_mass` kg moving at impulse/blow_mass (a kicking leg, ~8 kg). The
 ## two meet and move on together (an inelastic knock): the energy lost in it goes into the boot and
 ## the wood (`blow_wood_share` of it, the kit file's, to the wood); more than the member can take
-## and it breaks; else what it struck moves with what's left of the momentum. Returns &"broke",
+## and it breaks, and the boot goes on into the next member in its way with what's left; else what
+## it struck moves with what's left of the momentum. Returns &"broke",
 ## &"moved" or &"held".
 func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8.0) -> StringName:
 	if m == null or m.broken or impulse.length() < 1e-4:
@@ -449,6 +450,13 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 		result = &"broke"
 		if loose:
 			return result
+		# The boot goes on through with what breaking it didn't take (the wood's toughness, its share
+		# of the energy lost), into the next member in its way (a sweep along a chair's back legs).
+		var left_j := 0.5 * blow_mass * v_in * v_in - toughness_of(m) / maxf(float(definition.get("blow_wood_share", 0.5)), 0.05)
+		var next := _next_in_line(at, impulse.normalized(), m)
+		if left_j > 0.0 and next.size() == 2:
+			take_blow(next[0], next[1], impulse.normalized() * sqrt(2.0 * left_j / blow_mass) * blow_mass, blow_mass)
+			return result
 		big_m = mass() + load_kg
 	var v := impulse / (blow_mass + big_m)
 	if seated:
@@ -460,6 +468,30 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 		return result if result == &"broke" else &"held"
 	go_loose(Vector3.ZERO, v * mass(), at)
 	return result
+
+
+## The next of its standing members a blow going `dir` from `at` meets (within its size), and where:
+## [member, point], or [] (what it broke is rubble now, and left out).
+func _next_in_line(at: Vector3, dir: Vector3, after: StructureMember) -> Array:
+	var space := get_world_3d().direct_space_state
+	var reach := PropKit.bounds(definition).size.length()
+	var q := PhysicsRayQueryParameters3D.create(at, at + dir * reach, Layers.WORLD)
+	var skip: Array[RID] = [after.get_rid()]
+	for rb in rubble:
+		if is_instance_valid(rb):
+			skip.append((rb as RigidBody3D).get_rid())
+	for i in 4:
+		q.exclude = skip
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return []
+		var c: Object = hit.collider
+		if c is StructureMember and members.has((c as StructureMember).member_id) and not (c as StructureMember).broken:
+			return [c, hit.position]
+		if not (c is CollisionObject3D):
+			return []
+		skip.append((c as CollisionObject3D).get_rid())
+	return []
 
 
 ## A blast that didn't break it throws what's left: each member pushed by the blast on the face it
