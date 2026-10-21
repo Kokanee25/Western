@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://lsjdyntttimd"
+path="res://.godot/imported/prop_barrel_head.png-5f7f22d5aa71ce9beb47c58b0ed4370d.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/prop_barrel_head.png"
+dest_files=["res://.godot/imported/prop_barrel_head.png-5f7f22d5aa71ce9beb47c58b0ed4370d.ctex"]
 
 [params]
 

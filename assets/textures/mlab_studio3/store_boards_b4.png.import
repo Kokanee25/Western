@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://b0hoyujjjqas0"
+path="res://.godot/imported/store_boards_b4.png-de9ce2eda24ddcd70aafec63c695fa48.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/store_boards_b4.png"
+dest_files=["res://.godot/imported/store_boards_b4.png-de9ce2eda24ddcd70aafec63c695fa48.ctex"]
 
 [params]
 

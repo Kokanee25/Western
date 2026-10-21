@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dcxem6brllov3"
+path="res://.godot/imported/prop_wood.png-7d787dcb941f20f7011b86605c9d32f6.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/prop_wood.png"
+dest_files=["res://.godot/imported/prop_wood.png-7d787dcb941f20f7011b86605c9d32f6.ctex"]
 
 [params]
 

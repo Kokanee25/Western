@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://6r1u32lr00xm"
+path="res://.godot/imported/dark_oak_b8.png-12a81b604443388e3945fa678fd1388b.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/dark_oak_b8.png"
+dest_files=["res://.godot/imported/dark_oak_b8.png-12a81b604443388e3945fa678fd1388b.ctex"]
 
 [params]
 

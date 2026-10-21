@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://b7vqb27v07ong"
+path="res://.godot/imported/dark_trim_end.png-f74c09d7720cbf5dc459f6695de86487.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/dark_trim_end.png"
+dest_files=["res://.godot/imported/dark_trim_end.png-f74c09d7720cbf5dc459f6695de86487.ctex"]
 
 [params]
 

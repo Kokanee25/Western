@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cgxtrdqb8yxwr"
+path="res://.godot/imported/prop_felt.png-cbbbfb1f76457443820607b0f2c7421e.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio3/prop_felt.png"
+dest_files=["res://.godot/imported/prop_felt.png-cbbbfb1f76457443820607b0f2c7421e.ctex"]
 
 [params]
 
