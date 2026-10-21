@@ -68,6 +68,11 @@ var _com_min_y := INF
 ## Kneeling as he falls (2026-10-21): ticks with both shins down on the floor and his seat up off it.
 var _kneel_ticks := 0
 var _ref_facing := Vector3.FORWARD  ## the way he faced as he went limp
+## His mesh (2026-10-21, the Studio's men): every body shares the anatomy's capsules, so what can
+## differ between men is the skinned mesh. How deep any vertex of his body, and of his worn hat, goes
+## under the floor (ground fixtures), sampled ten times a second once he's down and at the end.
+var _mesh_peak := {"body": 0.0, "hat": 0.0, "body_part": "", "hat_t": -1.0}
+var _mesh_cache := {}  ## MeshInstance3D -> [verts, bones, weights, per-vertex count, is hat]
 ## Ground fixtures only (the floor at y 0): the stairs and the slope have no one floor height.
 const KNEEL_SHIN := 0.14  ## a shin's centre under this: it lies along the floor
 const KNEEL_SEAT := 0.28  ## the pelvis's centre over this: he's up on his knees, not lying
@@ -683,6 +688,14 @@ func _record(frame_ms: float) -> void:
 		_com_min_y = minf(_com_min_y, com.y)
 		if _flat_floor() and _kneeling(man):
 			_kneel_ticks += 1
+		if _flat_floor() and (_tick - _limp_tick) % 6 == 0:
+			var md := _mesh_depth(man)
+			if md.body > _mesh_peak.body:
+				_mesh_peak.body = md.body
+				_mesh_peak.body_part = md.body_part
+			if md.hat > _mesh_peak.hat:
+				_mesh_peak.hat = md.hat
+				_mesh_peak.hat_t = t - _limp_tick / 60.0
 		# Settling: every part slow and hardly turning for half a second.
 		var still := true
 		for sid: StringName in man.parts:
@@ -779,6 +792,58 @@ static func _v(v: Vector3) -> Array:
 	return [snappedf(v.x, 0.0001), snappedf(v.y, 0.0001), snappedf(v.z, 0.0001)]
 
 
+## The skinned mesh's deepest vertex under the floor (y 0), body and hat apart (m; 0 above it).
+func _mesh_depth(man: HumanBody) -> Dictionary:
+	var out := {"body": 0.0, "hat": 0.0, "body_part": ""}
+	var sk := man.skeleton
+	if sk == null:
+		return out
+	var by_skin := {}  ## Skin -> Array[Transform3D] per bind (its bone's pose times its bind pose)
+	for key: String in man.skin_meshes:
+		var mi := man.skin_meshes[key] as MeshInstance3D
+		if mi == null or not is_instance_valid(mi) or mi.mesh == null:
+			continue
+		if not _mesh_cache.has(mi):
+			var a := mi.mesh.surface_get_arrays(0)
+			var verts: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+			var bones = a[Mesh.ARRAY_BONES]
+			var weights = a[Mesh.ARRAY_WEIGHTS]
+			var per := 0 if bones == null or verts.is_empty() else int(bones.size() / verts.size())
+			_mesh_cache[mi] = [verts, bones, weights, per, key.get_slice("/", 0) in HumanBody.HAT_SHAPES]
+		var c: Array = _mesh_cache[mi]
+		if mi.skin != null and not by_skin.has(mi.skin):
+			var arr: Array[Transform3D] = []
+			for k in mi.skin.get_bind_count():
+				var bone := mi.skin.get_bind_bone(k)
+				if bone < 0:
+					bone = sk.find_bone(String(mi.skin.get_bind_name(k)))
+				arr.append(sk.global_transform * sk.get_bone_global_pose(maxi(bone, 0)) * mi.skin.get_bind_pose(k))
+			by_skin[mi.skin] = arr
+		var poses: Array = by_skin.get(mi.skin, [])
+		var verts: PackedVector3Array = c[0]
+		var per: int = c[3]
+		var hat: bool = c[4]
+		var step := 1 if verts.size() < 4000 else 3
+		for v in range(0, verts.size(), step):
+			var p := Vector3.ZERO
+			if per == 0:
+				p = mi.global_transform * verts[v]
+			else:
+				for k in per:
+					var w: float = c[2][v * per + k]
+					if w > 0.0:
+						var bi: int = c[1][v * per + k]
+						if bi < poses.size():
+							p += (poses[bi] * verts[v]) * w
+			if -p.y > (out.hat if hat else out.body):
+				if hat:
+					out.hat = -p.y
+				else:
+					out.body = -p.y
+					out.body_part = key
+	return out
+
+
 func _torn_off(man: HumanBody, sid: StringName) -> bool:
 	var s := sid
 	while s != &"":
@@ -824,7 +889,12 @@ func _rest(man: HumanBody) -> Dictionary:
 		var th := man.parts.get(StringName("thigh" + String(sid).right(2))) as Node3D
 		if n and th:
 			knees[String(sid)] = snappedf(rad_to_deg((-th.global_basis.y).angle_to(-n.global_basis.y)), 0.1)
-	return {"lying": lying, "chest_front_up": snappedf(up, 0.01),
+	var md := _mesh_depth(man) if _flat_floor() else {}
+	return {"mesh_below_floor_m": snappedf(md.get("body", 0.0), 0.001), "mesh_below_floor_where": md.get("body_part", ""),
+			"hat_below_floor_m": snappedf(md.get("hat", 0.0), 0.001), "hat_off": man.hat_off, "has_hat": man.hat_body != null or man.hat_off,
+			"mesh_peak_below_floor_m": snappedf(_mesh_peak.body, 0.001), "mesh_peak_where": _mesh_peak.body_part,
+			"hat_peak_below_floor_m": snappedf(_mesh_peak.hat, 0.001),
+			"lying": lying, "chest_front_up": snappedf(up, 0.01),
 			"seat_h": snappedf((man.parts[&"pelvis"] as Node3D).global_position.y, 0.001) if _flat_floor() else null,
 			"kneeling": _kneeling(man) if _flat_floor() else null, "knee_bend": knees, "hand_in_body": hands,
 			"kneel_s": snappedf(_kneel_ticks / 60.0, 0.01) if _flat_floor() else null}
