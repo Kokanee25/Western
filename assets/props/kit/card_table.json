@@ -1,0 +1,27 @@
+{
+  "_doc": "A round card table (PropModels._card_table's shape and look, built of members): four feet on the floor, a turned pedestal, two cleats under a top of five boards cut round, green baize, a rim in eight pieces. Oak. docs/briefs/prop-lab.md, src/props/prop_kit.gd.",
+  "id": "card_table",
+  "kind": "members",
+  "replaces": "card_table",
+  "wood": "oak",
+  "look": "prop:dark_wood",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {"id": "foot%d", "kind": "sill", "size": [0.06, 0.07, 0.5], "at": [0.0, 0.035, 0.0],
+     "repeat": {"count": 4, "radius": 0.22, "start": 45}},
+    {"id": "pedestal", "kind": "post", "size": [0.12, 0.66, 0.12], "at": [0.0, 0.40, 0.0],
+     "draw": {"shape": "lathe", "profile": [[0.12, 0.08], [0.07, 0.2], [0.09, 0.32], [0.06, 0.45], [0.06, 0.6], [0.1, 0.71]], "segments": 8, "grain_up": true}},
+    {"id": "cleat_x", "kind": "furniture_frame", "size": [0.9, 0.03, 0.05], "at": [0.0, 0.715, 0.0]},
+    {"id": "cleat_z", "kind": "furniture_frame", "size": [0.05, 0.03, 0.9], "at": [0.0, 0.715, 0.0]},
+    {"id": "top_c", "kind": "furniture_top", "size": [0.22, 0.027, 1.1], "at": [0.0, 0.7435, 0.0], "draw": {"shape": "disc", "radius": 0.55, "segments": 48}},
+    {"id": "top_l1", "kind": "furniture_top", "size": [0.22, 0.027, 1.078], "at": [-0.22, 0.7435, 0.0], "draw": {"shape": "disc", "radius": 0.55, "segments": 48}},
+    {"id": "top_r1", "kind": "furniture_top", "size": [0.22, 0.027, 1.078], "at": [0.22, 0.7435, 0.0], "draw": {"shape": "disc", "radius": 0.55, "segments": 48}},
+    {"id": "top_l2", "kind": "furniture_top", "size": [0.22, 0.027, 0.88], "at": [-0.44, 0.7435, 0.0], "draw": {"shape": "disc", "radius": 0.55, "segments": 48}},
+    {"id": "top_r2", "kind": "furniture_top", "size": [0.22, 0.027, 0.88], "at": [0.44, 0.7435, 0.0], "draw": {"shape": "disc", "radius": 0.55, "segments": 48}},
+    {"id": "baize", "kind": "trim", "wood": "felt", "look": "prop:felt", "size": [1.08, 0.004, 1.08], "at": [0.0, 0.759, 0.0], "draw": {"shape": "disc", "radius": 0.54, "segments": 48}},
+    {"id": "rim%d", "kind": "trim", "size": [0.46, 0.05, 0.06], "at": [0.0, 0.745, 0.0],
+     "repeat": {"count": 8, "radius": 0.555, "start": 22.5},
+     "draw": {"shape": "sweep", "profile": [[0.54, 0.76], [0.54, 0.772], [0.6, 0.766], [0.6, 0.72], [0.55, 0.71]], "from": 67.5, "to": 112.5, "segments": 6}}
+  ]
+}
