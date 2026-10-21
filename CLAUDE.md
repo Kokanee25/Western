@@ -370,11 +370,10 @@ frozen until Sean names one.
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, branch
-  `claude/gameplay-breakage-lab-ksr17d`, not merged): bench and baseline built, nothing changed.
-  Found: Blast's query (capped at 1024 of ~2,000 colliders) misses what's near a stick by the store
-  front; props never break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths;
-  side panes shatter into 1 m slabs; a blast 0.2–0.65 s of hitch at Sean's. Surfaces measured too
-  (no holes off the saloon floor, whole boards on it, no crater): draft brief
-  `docs/briefs/blast-surfaces.md` (Sean: the ground made ready for the shovel, so craters are real
-  dips in dig-able ground; three decisions left). Next: the near-field query
-  fix, then holes, then craters, each against `baseline/`; then 3.3.
+  `claude/gameplay-breakage-lab-ksr17d`, not merged): bench and baseline (`baseline/`): props never
+  break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
+  into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
+  `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
+  made: `Blast.gather` (the near field queried on its own; `results/2026-10-21_near_field/`): the
+  street breaks where the stick is, more far panes go, whole members still do. Next: boards cut, not
+  broken whole (step 2), then the dig-able ground and craters; then 3.3.

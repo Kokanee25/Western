@@ -34,6 +34,10 @@ func _cmd_breakage(a: Array) -> Dictionary:
 		r.out_dir = "build/breakage_lab/bridge/%s_%s_s%d" % [r.scenario, r.body, r.seed_value]
 	if not r.out_dir.is_absolute_path():
 		r.out_dir = ProjectSettings.globalize_path("res://").path_join(r.out_dir)
+	# Its CSVs and PNGs aren't the project's to import (they'd be taken for translations).
+	DirAccess.make_dir_recursive_absolute(r.out_dir.get_base_dir())
+	if not FileAccess.file_exists(r.out_dir.get_base_dir().path_join(".gdignore")):
+		FileAccess.open(r.out_dir.get_base_dir().path_join(".gdignore"), FileAccess.WRITE).close()
 	add_child(r)
 	var out: Dictionary = await r.run()
 	r.queue_free()

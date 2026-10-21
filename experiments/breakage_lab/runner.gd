@@ -414,9 +414,10 @@ func _snapshot_before() -> void:
 	_setup["aim"] = lab.arr(_aim)
 
 
-## What Blast.detonate's sphere query finds from here: it asks for at most 1024 colliders
-## (src/blast/blast.gd), in the physics engine's order, not by distance. Asked again without the
-## cap: how many are in reach, and how many near the charge the capped query left out.
+## What Blast.detonate looks at from here (`Blast.gather`), against everything in its reach (one
+## uncapped query): how many it takes, whether the target is among them, and how many members
+## within 1 m, 2 m and where timber can break it leaves out. (Before 2026-10-21's fix Blast took one
+## query capped at 1024 colliders, in the engine's order: the baseline has those numbers.)
 func _blast_query(at: Vector3, kg: float) -> Dictionary:
 	var space := _street.get_world_3d().direct_space_state
 	var shape := SphereShape3D.new()
@@ -425,24 +426,25 @@ func _blast_query(at: Vector3, kg: float) -> Dictionary:
 	q.shape = shape
 	q.transform = Transform3D(Basis.IDENTITY, at)
 	q.collision_mask = Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS
-	var capped := {}
-	for f in space.intersect_shape(q, 1024):
-		capped[f.collider_id] = true
+	var looked := {}
+	for c: Object in Blast.gather(_street, at, kg):
+		looked[c.get_instance_id()] = true
 	var all := space.intersect_shape(q, 1 << 20)
-	var missed := {1.0: 0, 2.0: 0, 5.0: 0}
-	var near := {1.0: 0, 2.0: 0, 5.0: 0}
+	var radii := [1.0, 2.0, Blast.break_reach(kg)]
+	var near := [0, 0, 0]
+	var missed := [0, 0, 0]
 	for f in all:
 		if not f.collider is StructureMember:
 			continue
 		var d := _nearest_on(f.collider as StructureMember, at).distance_to(at)
-		for r: float in near:
-			if d <= r:
-				near[r] += 1
-				if not capped.has(f.collider_id):
-					missed[r] += 1
-	return {"reach_m": snappedf(shape.radius, 0.1), "cap": 1024, "in_reach": all.size(), "found": capped.size(),
-			"target_found": _target is CollisionObject3D and capped.has((_target as Object).get_instance_id()),
-			"members_within_1_2_5m": [near[1.0], near[2.0], near[5.0]], "left_out_within_1_2_5m": [missed[1.0], missed[2.0], missed[5.0]]}
+		for i in radii.size():
+			if d <= radii[i]:
+				near[i] += 1
+				if not looked.has(f.collider_id):
+					missed[i] += 1
+	return {"reach_m": snappedf(shape.radius, 0.1), "break_reach_m": snappedf(radii[2], 0.01), "in_reach": all.size(),
+			"found": looked.size(), "target_found": _target is CollisionObject3D and looked.has((_target as Object).get_instance_id()),
+			"members_within_1_2_break_m": near, "left_out_within_1_2_break_m": missed}
 
 
 func _structures_near(at: Vector3, r: float) -> Array[Structure]:

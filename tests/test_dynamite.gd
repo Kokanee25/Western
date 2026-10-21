@@ -123,6 +123,49 @@ func test_a_stick_by_the_wall_blows_a_hole_in_the_siding() -> void:
 	check_eq(booms.size(), 1, "announced")
 
 
+## On a crowded street there are thousands of things in a stick's reach: what's beside it is still
+## looked at (it was left out once, the breakage lab, 2026-10-21) and the panes far off still are.
+func test_a_crowded_street_doesnt_hide_whats_beside_it() -> void:
+	var store := await _store()
+	for i in 4:
+		var other := FalseFrontBuilding.new()
+		other.structure_id = StringName("other%d" % i)
+		other.build_seed = 20 + i
+		world.add_child(other)
+		other.position = Vector3(-11.0 if i % 2 == 0 else 11.0, 0.0, -11.0 if i < 2 else 0.0)
+	await physics_frames(2)
+	var siding := _side_board(store)
+	var at := _outside(store, siding, 0.25)
+	var shape := SphereShape3D.new()
+	shape.radius = Blast.reach(0.15)
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.transform = Transform3D(Basis.IDENTITY, at)
+	q.collision_mask = Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS
+	var in_reach := world.get_world_3d().direct_space_state.intersect_shape(q, 1 << 16).size()
+	check(in_reach > 1024, "a crowded street: %d things in reach, more than the old query took" % in_reach)
+	var looked := Blast.gather(world, at, 0.15)
+	check(siding in looked, "the board beside it is looked at")
+	var near := 0
+	var missed := 0
+	for m in store.get_members():
+		if Blast._nearest_on(m, at).distance_to(at) <= 1.0:
+			near += 1
+			if not m in looked:
+				missed += 1
+	check_eq(missed, 0, "nothing within a metre left out (of %d)" % near)
+	var panes := 0
+	for s: Node in world.get_children():
+		if s is Structure:
+			for m in (s as Structure).panes():
+				if Blast._nearest_on(m, at).distance_to(at) <= Blast.reach(0.15):
+					panes += 1
+					check(m in looked, "a pane in reach is looked at (%s)" % m.member_id)
+	check(panes > 4, "panes across the street in reach (%d)" % panes)
+	var report := Blast.detonate(world, at, 0.15)
+	check(siding.broken, "and the board beside it goes (%d broken)" % report.broken.size())
+
+
 func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	var store := await _store()
 	# On the floor against the inside of the side wall, between two studs.

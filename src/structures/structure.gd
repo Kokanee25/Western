@@ -55,6 +55,8 @@ var _by_stack: Array[StructureMember] = []  # see by_stack()
 var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
 var _rebuild_queued := false
 var _rebuild_timed := false
+var _panes: Array[StructureMember] = []
+var _panes_of := -1  # _order.size() when _panes was made
 var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
@@ -73,6 +75,7 @@ func rebuild() -> void:
 		m.free()
 	members.clear()
 	_order.clear()
+	_panes_of = -1
 	_rng.seed = build_seed
 	build()
 	infer_supports()
@@ -98,6 +101,14 @@ func get_members() -> Array[StructureMember]:
 
 func members_of_kind(kind: StringName) -> Array[StructureMember]:
 	return _order.filter(func(m: StructureMember) -> bool: return m.kind == kind)
+
+
+## Its panes, kept (a blast looks at glass much further out than at timber: Blast.gather).
+func panes() -> Array[StructureMember]:
+	if _panes_of != _order.size():
+		_panes = members_of_kind(&"glass")
+		_panes_of = _order.size()
+	return _panes
 
 
 ## Add one member: an axis-aligned box of `size` centred at `center` (structure space),

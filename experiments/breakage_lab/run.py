@@ -166,7 +166,10 @@ def table(rows, frames=None):
             hit = "BLOCKED " + s["line"]["first_hit"]
         q = s["setup"].get("blast_query")
         if q:
-            hit = f"query {q['found']}/{q['in_reach']}" + ("" if q["target_found"] else ", target not found")
+            hit = f"looked at {q['found']}/{q['in_reach']}" + ("" if q["target_found"] else ", target not found")
+            missed = q.get("left_out_within_1_2_break_m") or q.get("left_out_within_1_2_5m")
+            if missed and missed[1]:
+                hit += f", {missed[1]} within 2 m left out"
         men = []
         for m in s["men"]:
             bits = []
@@ -303,6 +306,8 @@ def main():
     if opt("compare"):
         return compare(d, os.path.abspath(opt("compare")))
     os.makedirs(out, exist_ok=True)
+    # Thousands of CSVs and PNGs: keep Godot's import from taking them for translations and textures.
+    open(os.path.join(out, ".gdignore"), "a").close()
     jobs = []
     port = 8800
     for name in pick(d, want):

@@ -188,7 +188,7 @@ outside every Prof timer). "+1st s" is what the first second costs in all over t
   (the lab counted them together then); runs since report `event_frame_ms` and `next_frame_ms`
   apart.
 
-## The first fix I'd make (not made)
+## The first fix I'd make (made 2026-10-21: `results/2026-10-21_near_field/`)
 
 **Blast's query: the near field first.** Query the sphere where timber can break (for a stick,
 ~3 m: the board 1.3 m off is 1.5x, one at 3 m is 0.2x) on its own, with no cap that can drop it,

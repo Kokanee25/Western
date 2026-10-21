@@ -77,20 +77,12 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	var report := {"broken": [], "people": [], "splinters": 0}
 	var r_max := reach(kg)
 	var space := world.get_world_3d().direct_space_state
-	var shape := SphereShape3D.new()
-	shape.radius = r_max
-	var q := PhysicsShapeQueryParameters3D.new()
-	q.shape = shape
-	q.transform = Transform3D(Basis.IDENTITY, at)
-	q.collision_mask = Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS
-	var found := space.intersect_shape(q, 1024)
 	var by_structure := {}  # Structure -> [[member, push]]
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
 	var fireball := fireball_radius(kg)
-	for f: Dictionary in found:
-		var c: Object = f.collider
+	for c: Object in gather(world, at, kg):
 		if c is StructureMember:
 			var m := c as StructureMember
 			if m.broken or m.consumed:
@@ -185,6 +177,57 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	BlastEffects.spawn(world, at, kg)
 	Events.exploded.emit(at, kg)
 	return report
+
+
+## Everything a charge at `at` acts on, each once: every member and loose body where timber can
+## break (`break_reach`, its own query, so a crowded street can't crowd out what's beside the
+## charge), and out to `reach` the debris, ragdolls and sticks, every pane of glass, and the loose
+## rubble and fallen fittings. (One query of everything to `reach`, capped, came back in the
+## physics engine's order: on Main Street it left out every member within a metre of a stick by
+## the store; the breakage lab, 2026-10-21.)
+static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
+	var space := world.get_world_3d().direct_space_state
+	var r_max := reach(kg)
+	var out: Array[Object] = []
+	var seen := {}
+	var add := func(c: Object) -> void:
+		if c != null and not seen.has(c.get_instance_id()):
+			seen[c.get_instance_id()] = true
+			out.append(c)
+	for f: Dictionary in _sphere(space, at, break_reach(kg), Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS):
+		add.call(f.collider)
+	for f: Dictionary in _sphere(space, at, r_max, Layers.DEBRIS | Layers.BODY_PARTS):
+		add.call(f.collider)
+	for s: Node in world.get_tree().get_nodes_in_group(&"structures"):
+		for m: StructureMember in (s as Structure).panes():
+			if not m.broken and _nearest_on(m, at).distance_to(at) <= r_max:
+				add.call(m)
+	for g: StringName in [&"rubble", &"fallen"]:
+		for rb: Node in world.get_tree().get_nodes_in_group(g):
+			if rb is RigidBody3D and (rb as Node3D).global_position.distance_to(at) <= r_max:
+				add.call(rb)
+	return out
+
+
+## Where timber can break (m) round `kg` of TNT.
+static func break_reach(kg: float) -> float:
+	return t().break_reach_per_cbrt_kg * pow(kg, 1.0 / 3.0)
+
+
+## A sphere query that won't run out: asked again with room to spare if it came back full.
+static func _sphere(space: PhysicsDirectSpaceState3D, at: Vector3, radius: float, mask: int) -> Array[Dictionary]:
+	var shape := SphereShape3D.new()
+	shape.radius = radius
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.transform = Transform3D(Basis.IDENTITY, at)
+	q.collision_mask = mask
+	var cap := 2048
+	var found := space.intersect_shape(q, cap)
+	while found.size() >= cap:
+		cap *= 4
+		found = space.intersect_shape(q, cap)
+	return found
 
 
 ## How a member answers: {break, push, distance}. Glass by pressure; timber by the energy the

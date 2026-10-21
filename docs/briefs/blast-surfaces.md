@@ -46,7 +46,9 @@ Two faults stack:
 
 ## The work, in order (each step measured in the lab against the baseline)
 
-1. **Blast finds what's near it.** The near field (where timber can break: ~3 m for a stick) queried
+1. **Blast finds what's near it.** (Done 2026-10-21: `Blast.gather`; the lab's
+   `results/2026-10-21_near_field/`: the wall, door, window, roof and boardwalk now break at the
+   stick; more far panes shatter; whole members still go.) The near field (where timber can break: ~3 m for a stick) queried
    on its own with no cap, the 14.6 m sphere kept for glass, people and loose things. The lab's
    first fix (`baseline/baseline.md`); small, gameplay's own files.
 2. **Holes in boards.** For a board, plank or roof board the blast overcomes, the stretch it

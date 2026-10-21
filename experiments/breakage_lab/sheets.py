@@ -5,6 +5,7 @@ weapon (before / just after / at the end), or for a scenario with a man, a row a
     python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR             # every target
     python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR --only=lamp,man_on_table
     python3 experiments/breakage_lab/sheets.py RENDER_ROOT OUT_DIR --bodies=chair_dynamite_1m
+    python3 experiments/breakage_lab/sheets.py side BASE_ROOT CANDIDATE_ROOT OUT.jpg NAME,NAME   # before/after a change
 
 Rows come from RENDER_ROOT/<scenario>[__<body>]/{before,mid,after}.png; a missing frame is a grey
 tile. Each row is labelled with what the summary says happened.
@@ -45,7 +46,7 @@ def row_label(summary):
         lines.append(" ".join(bits))
     q = summary["setup"].get("blast_query")
     if q:
-        lines.append(f"blast found {q['found']}/{q['in_reach']}")
+        lines.append(f"blast looked at {q['found']}/{q['in_reach']}" + ("" if q["target_found"] else ", not the target"))
     return lines
 
 
@@ -81,7 +82,41 @@ def summary_of(path):
     return json.load(open(p)) if os.path.exists(p) else None
 
 
+def side(base, cand, out, names):
+    """Before and after a change: a row a scenario, the base run's just-after and end frames beside
+    the candidate's."""
+    f_title, f_row = font(18), font(13)
+    cols = [("before: just after", base, "mid"), ("before: at the end", base, "after"),
+            ("after the change: just after", cand, "mid"), ("after the change: at the end", cand, "after")]
+    w = LABEL_W + TILE[0] * len(cols)
+    img = Image.new("RGB", (w, 56 + TILE[1] * len(names)), (24, 22, 20))
+    d = ImageDraw.Draw(img)
+    d.text((8, 8), os.path.basename(out).rsplit(".", 1)[0], fill=(235, 225, 205), font=f_title)
+    for i, (label, _, _) in enumerate(cols):
+        d.text((LABEL_W + i * TILE[0] + 6, 36), label, fill=(200, 190, 170), font=f_row)
+    for r, n in enumerate(names):
+        y = 56 + r * TILE[1]
+        for i, (_, root, frame) in enumerate(cols):
+            p = os.path.join(root, n, frame + ".png")
+            if os.path.exists(p):
+                tile = Image.open(p).convert("RGB")
+                tile.thumbnail(TILE)
+                img.paste(tile, (LABEL_W + i * TILE[0], y))
+        sb, sc = summary_of(os.path.join(base, n)), summary_of(os.path.join(cand, n))
+        lines = [n.split("__")[0]]
+        for tag, sm in (("before", sb), ("after", sc)):
+            if sm:
+                lines.append(f"{tag}: {sm['target_result'].get('result')}, {sm['broken']['count']} broken")
+        for k, line in enumerate(lines):
+            d.text((8, y + 6 + k * 17), line, fill=(230, 220, 200) if k == 0 else (190, 180, 165), font=f_row)
+    img.save(out, quality=82)
+    print(out)
+
+
 def main():
+    if len(sys.argv) >= 2 and sys.argv[1] == "side":
+        # sheets.py side BASE_ROOT CANDIDATE_ROOT OUT.jpg NAME[,NAME...] (the run folders' names)
+        return side(os.path.abspath(sys.argv[2]), os.path.abspath(sys.argv[3]), sys.argv[4], sys.argv[5].split(","))
     if len(sys.argv) < 3:
         sys.exit(__doc__)
     root, out = os.path.abspath(sys.argv[1]), os.path.abspath(sys.argv[2])

@@ -107,10 +107,12 @@ A scenario with a man runs once per body.
   the same sums as `Blast._member_response`, without its side effects. For a prop: still there,
   moved, fell (Fittings), smashed (a lamp). Every member broken anywhere: by building, kind and
   wood, its distance from the event, its utilisation before.
-- **What the blast looked at** (`setup.blast_query`): `Blast.detonate` gathers what's in reach with
-  one sphere query capped at 1024 colliders. The lab asks the same query capped and uncapped from
-  the charge: how many are in reach, whether the target was among the 1024, how many members within
-  1, 2 and 5 m were left out.
+- **What the blast looked at** (`setup.blast_query`): `Blast.gather` from the charge (what
+  `Blast.detonate` acts on), against everything in its reach (one uncapped query): how many it took,
+  whether the target was among them, and how many members within 1 m, 2 m and where timber can
+  break (`break_reach_m`) it left out. Until 2026-10-21 Blast took one query capped at 1024
+  colliders in the physics engine's order; the baseline's numbers are from then (`cap`,
+  `left_out_within_1_2_5m`).
 - **The surface** (`surface`, for targets with `surface: true` and the ground): the target's plane
   scanned in 10 cm cells, 3 m either way, before and after. For boards, a cell is closed if a ray
   through the plane meets a standing member of the target's kind (rubble, a joist behind, looked
@@ -183,4 +185,5 @@ short:
   building settling.
 - **Same seed, same result** for every gun scenario, street blast and the drop; blasts on the
   saloon floor differ run to run (cause not traced).
-- First fix (not made): Blast's near field queried on its own, uncapped.
+- First fix: Blast's near field queried on its own, made 2026-10-21 (`results/2026-10-21_near_field/`):
+  the street now breaks where the stick is.
