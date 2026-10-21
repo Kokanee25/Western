@@ -72,17 +72,21 @@ func test_a_man_thrown_into_a_railing_at_a_run_breaks_it() -> void:
 
 
 func test_he_carries_on_through_the_railing_he_breaks() -> void:
-	# The rail takes only what breaks it; the rest of his speed goes on with him (BodyImpacts
-	# _give_back): through it, not stopped dead at it.
-	_railing()
-	var man := _man(Vector3(0.6, 0.05, 0.6))
-	await physics_frames(2)
-	man.go_limp()
-	for rb: Variant in man.parts.values():
-		(rb as RigidBody3D).linear_velocity = Vector3(0, 0, -3.5)
-	var chest := man.parts[&"chest"] as RigidBody3D
-	await physics_frames(24)
-	check(chest.linear_velocity.z < -1.0, "his chest still going on through at 0.4 s (%.2f m/s)" % chest.linear_velocity.z)
+	# The rail takes only what breaks it; the rest of what the engine took from him goes back
+	# (BodyImpacts._give_back): a member that took four times what it could hold gives back half
+	# the impulse (energy goes with its square), and one that held gives back nothing.
+	var part := RigidBody3D.new()
+	part.mass = 10.0
+	part.gravity_scale = 0.0
+	part.linear_damp = 0.0
+	world.add_child(part)
+	BodyImpacts._give_back({part: Vector3(0, 0, 20)}, 4.0, 1.0)
+	await physics_frames(1)
+	check_near(part.linear_velocity.z, -1.0, 0.02, "half the 20 N·s back on 10 kg: 1 m/s on through")
+	part.linear_velocity = Vector3.ZERO
+	BodyImpacts._give_back({part: Vector3(0, 0, 20)}, 1.0, 1.0)
+	await physics_frames(1)
+	check_near(part.linear_velocity.z, 0.0, 0.001, "a member that held gives nothing back")
 
 
 func test_slumping_against_a_railing_breaks_nothing() -> void:

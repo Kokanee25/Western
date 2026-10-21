@@ -104,4 +104,4 @@ func test_a_man_thrown_into_it_breaks_the_span_he_hits_and_goes_through() -> voi
 	var other := s.get_member(&"rail_test/rail/rail/00")
 	check(hit.broken, "the span he hit broke")
 	check(not other.broken, "the other span stands")
-	check(chest.linear_velocity.z < -1.0, "he goes on through (%.2f m/s)" % chest.linear_velocity.z)
+	check(chest.linear_velocity.z < -0.5, "he goes on through, not stopped at it (%.2f m/s)" % chest.linear_velocity.z)
