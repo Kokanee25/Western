@@ -101,6 +101,16 @@ const JOINT_LIMITS := {
 	&"upper_arm": [80, 40], &"forearm": [70, 10], &"hand": [55, 20],
 	&"thigh": [60, 20], &"shin": [70, 5], &"foot": [30, 5],
 }
+## Cones centred on the joint's anatomical middle rather than the pose he went limp in, [the middle
+## as the poses' x (degrees from standing: + is forward for the hip, back for the spine), span]: the
+## hip flexes to 120 and extends to 20, the low back bends 38 forward and 14 back, the chest 34 and
+## 18 (normal ranges: American Academy of Orthopaedic Surgeons). Centred on his standing pose, his
+## hip went 60 back and his spine 42 with it: pushed over backwards on planted feet he arched into
+## a bridge on his head and heels (experiments/physics_lab, N_blow_beam_chest, 2026-10-21).
+const CONE_CENTRE := {&"thigh": [50.0, 70.0], &"abdomen": [-12.0, 26.0], &"chest": [-8.0, 26.0]}
+## segment -> {"centre": the child's direction at the cone's middle, in the parent's frame, "span",
+## "turn": the child's turn in the parent there, "axis": its own axis in its frame} (for the lab)
+var cone_frames := {}
 const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 ## Each part's share of the body's mass, after the cadaver measurements in D. A. Winter,
 ## "Biomechanics and Motor Control of Human Movement" (table 4.1, from Dempster 1955); head and neck
@@ -188,6 +198,8 @@ var _flinch := {}  ## segment -> [offset degrees, velocity]
 var _stumble := {}  ## the ball that's taking him down: segment, where on it, direction, momentum
 var _stumble_lean := {}  ## segment -> degrees he's folded by as he stumbles (on top of the pose)
 var _legs_gone := false  ## the stumble ended because his legs gave: no column, his knees go first
+var _favour := {}  ## region ("leg_r", "arm_l", "body"...) -> [how much he favours it 0..1, its rate]
+var _favour_lean := {}  ## segment -> degrees the wounds' consequence bends him by (on top of the pose)
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
 var _was_alive := true
@@ -448,6 +460,28 @@ func take_hat_shot(at: Vector3, dir: Vector3, energy: float, shooter: Node, mass
 	if shooter:
 		Events.deed.emit(shooter, &"shoot_at", self, at)
 	return maxf(energy - HAT_RESISTANCE, 0.0)
+
+
+## Down and his hat meets the ground (or anything solid): it's pushed off his head and goes its own
+## way with what his head was doing. Kept on as part of his head, its brim went 7-11 cm into the
+## floor as he lay (experiments/physics_lab, the Studio's men, 2026-10-21).
+func _hat_meets_ground() -> void:
+	var head := parts.get(&"head") as RigidBody3D
+	if head == null or head.sleeping:
+		return
+	var space := get_world_3d().direct_space_state
+	for c in hat_body.get_children():
+		if not c is CollisionShape3D:
+			continue
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = (c as CollisionShape3D).shape
+		q.transform = (c as CollisionShape3D).global_transform
+		q.collision_mask = Layers.WORLD
+		if not space.intersect_shape(q, 1).is_empty():
+			var hat := knock_hat_off(head.linear_velocity)
+			if hat:
+				hat.angular_velocity = head.angular_velocity
+			return
 
 
 ## Take the hat off his head and let it fall (or fly) as a thing of its own, holed where `at` is.
@@ -1047,6 +1081,7 @@ func _physics_step(delta: float) -> void:
 	if stumbling > 0.0 and not limp:
 		_stumble_on(delta)
 	if not limp:
+		_favour_step(delta)
 		_apply_pose(delta)
 		if stumbling > 0.0:
 			pass  # he's going down already
@@ -1068,7 +1103,11 @@ func _physics_step(delta: float) -> void:
 	if held_gun != null and not gun_holstered and not physiology.can_hold("r"):
 		drop_gun()
 	if limp:
+		if hat_body != null:
+			_hat_meets_ground()
 		_step_tone(delta)
+		if not _apart.is_empty():
+			_rejoin_apart()
 		_update_pool()
 	_cough(delta)
 	var conscious := physiology.is_conscious()
@@ -1149,10 +1188,10 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 		return true
 	var p := physiology
 	var how := &"run" if speed > 2.4 else &"walk"
-	# Hurt legs slow him and make him limp.
+	# Hurt legs slow him and make him limp; a leg or a body he's favouring slows him as it comes on.
 	var legs := minf(p.muscle_strength("leg", "r"), p.muscle_strength("leg", "l"))
-	speed *= lerpf(0.4, 1.0, legs) * (1.0 - p.shock() * 0.5)
-	if legs < 0.75 and not prone:
+	speed *= lerpf(0.4, 1.0, legs) * (1.0 - p.shock() * 0.5) * favour_pace()
+	if (legs < 0.75 or maxf(favouring(&"leg_r"), favouring(&"leg_l")) > FAVOUR_LIMP) and not prone:
 		how = &"limp"
 		speed = minf(speed, 1.3)
 	if prone:
@@ -1345,7 +1384,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	var all_of_him := pose == &"stand"
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
-				+ _stumble_lean.get(sid, Vector3.ZERO)
+				+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
@@ -1365,7 +1404,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles) on top of it.
-			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
+			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
+					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
 	_grab_step(delta)
@@ -1447,16 +1487,19 @@ func _gait_overlay(delta: float) -> Dictionary:
 			var amp_t := 40.0 if run else 22.0
 			var amp_s := 75.0 if run else 38.0
 			var amp_a := 32.0 if run else 14.0
-			var bad_r := gait == &"limp" and physiology.muscle_strength("leg", "r") <= physiology.muscle_strength("leg", "l")
-			var k_r := 0.35 if gait == &"limp" and bad_r else 1.0
-			var k_l := 0.35 if gait == &"limp" and not bad_r else 1.0
+			var bad_r := gait == &"limp" and physiology.muscle_strength("leg", "r") - favouring(&"leg_r") \
+					<= physiology.muscle_strength("leg", "l") - favouring(&"leg_l")
+			# A leg he favours takes a shorter stride as it comes on; limping, the bad one a third.
+			var k_r := 0.35 if gait == &"limp" and bad_r else lerpf(1.0, 0.5, favouring(&"leg_r"))
+			var k_l := 0.35 if gait == &"limp" and not bad_r else lerpf(1.0, 0.5, favouring(&"leg_l"))
 			out[&"thigh_r"] = Vector3(s * amp_t * k_r, 0, 0)
 			out[&"thigh_l"] = Vector3(-s * amp_t * k_l, 0, 0)
 			out[&"shin_r"] = Vector3(-maxf(c, 0.0) * amp_s * k_r, 0, 0)
 			out[&"shin_l"] = Vector3(-maxf(-c, 0.0) * amp_s * k_l, 0, 0)
 			if not aiming and pose != &"hands_bound":
-				out[&"upper_arm_r"] = Vector3(-s * amp_a, 0, 0)
-				out[&"upper_arm_l"] = Vector3(s * amp_a, 0, 0)
+				# A hurt arm is held, not swung.
+				out[&"upper_arm_r"] = Vector3(-s * amp_a * (1.0 - favouring(&"arm_r")), 0, 0)
+				out[&"upper_arm_l"] = Vector3(s * amp_a * (1.0 - favouring(&"arm_l")), 0, 0)
 			if run:
 				out[&"chest"] = Vector3(-12.0, 0, 0)
 			if gait == &"limp":
@@ -1534,6 +1577,129 @@ func _cough(delta: float) -> void:
 
 
 ## Throw the hit segment and the ones above it back from the bullet.
+## Hit and still on his feet: no flinch or wince (Sean, 2026-10-18), but you see what the wound does
+## to him, coming on as a hurt would (Sean, 2026-10-21: "make it the wound's consequence, at a
+## believable speed"; a reaction "tooooo fast" before). How much he favours each part of him: the
+## muscle the ball tore there (at once) and that part's share of his pain (which arrives over
+## seconds: Physiology.pain_onset). A leg: he takes his weight off it and walks short on it; an
+## arm: his gun hand sags out of his aim, the other arm's held in; the body: he guards it, bent
+## a little round it, and goes slower. Degrees at full (the poses' axes: + x is forward for a limb
+## and back for the spine; + z moves a right limb out and bends the spine to his left).
+const FAVOUR_LEG := {&"thigh": Vector3(12, 0, 0), &"shin": Vector3(-26, 0, 0), &"foot": Vector3(10, 0, 0)}
+## ... and his trunk leans this far toward the good leg (z, sign by the side).
+const FAVOUR_LEG_LEAN := {&"abdomen": 5.0, &"chest": 4.0}
+const FAVOUR_GUN_ARM_SAG := Vector3(-20, 0, 0)  ## upper_arm_r when aiming
+const FAVOUR_ARM_HELD := {&"upper_arm": Vector3(10, 0, -5), &"forearm": Vector3(40, 0, 0)}
+const FAVOUR_BODY := {&"abdomen": Vector3(-7, 0, 4), &"chest": Vector3(-6, 0, 3), &"neck": Vector3(-3, 0, 0)}
+## How it comes on: a critically damped spring this many radians a second (90% in ~1.2 s, a gentle
+## start, no snap).
+const FAVOUR_RATE := 3.2
+## How much it slows him at full: a leg he favours, a body hit.
+const FAVOUR_PACE_LEG := 0.35
+const FAVOUR_PACE_BODY := 0.3
+## Favouring a leg this much, he limps.
+const FAVOUR_LIMP := 0.6
+## Per unit of a muscle torn there (Physiology.muscle_damage; a ball through one tears ~0.5).
+const FAVOUR_PER_TEAR := 1.4
+## A part's share of his pain at which he favours it fully (pain in Physiology's units: a ball
+## through a muscle is ~0.4, pain_disabling 0.9).
+const FAVOUR_FULL_PAIN := 0.6
+
+
+func favouring(region: StringName) -> float:
+	return float((_favour.get(region, [0.0, 0.0]) as Array)[0])
+
+
+## How fast he can go for what he's favouring (1 = as he was).
+func favour_pace() -> float:
+	return (1.0 - FAVOUR_PACE_LEG * maxf(favouring(&"leg_r"), favouring(&"leg_l"))) \
+			* (1.0 - FAVOUR_PACE_BODY * favouring(&"body"))
+
+
+func _favour_region(seg: StringName) -> StringName:
+	var s := String(seg)
+	for limb in ["thigh", "shin", "foot"]:
+		if s.begins_with(limb):
+			return StringName("leg" + s.right(2))
+	for limb in ["upper_arm", "forearm", "hand"]:
+		if s.begins_with(limb):
+			return StringName("arm" + s.right(2))
+	if seg in [&"chest", &"abdomen", &"pelvis"]:
+		return &"body"
+	return &""
+
+
+func _favour_step(delta: float) -> void:
+	if wounds.is_empty() and _favour.is_empty():
+		return
+	# Each region's share of his wounds (a graze or a pellet counts for less).
+	var share := {}
+	var total := 0.0
+	for w: Dictionary in wounds:
+		var r := _favour_region(w.get("segment", &""))
+		if r == &"":
+			continue
+		var k := 0.35 if w.get("kind", &"") in [&"graze", &"pellet"] else 1.0
+		share[r] = float(share.get(r, 0.0)) + k
+		total += k
+	var felt := physiology.felt_pain()
+	for r: StringName in [&"leg_r", &"leg_l", &"arm_r", &"arm_l", &"body"]:
+		var target := 0.0
+		var hurts := 0.0
+		if total > 0.0 and share.has(r):
+			hurts = felt * float(share[r]) / total / FAVOUR_FULL_PAIN
+		# The worst torn muscle there: a torn thigh won't take his weight from the first step.
+		var side := String(r).right(1)
+		var groups: Array = ["leg"] if String(r).begins_with("leg") else (["arm", "grip"] if String(r).begins_with("arm") else [])
+		for g: String in groups:
+			for id: StringName in physiology._muscles(g, side):
+				target = maxf(target, float(physiology.muscle_damage.get(id, 0.0)) * FAVOUR_PER_TEAR)
+		target = clampf(target + hurts, 0.0, 1.0)
+		var f: Array = _favour.get(r, [0.0, 0.0])
+		if target <= 0.0 and f[0] <= 0.001 and absf(f[1]) < 0.001:
+			_favour.erase(r)
+			continue
+		f[1] += (FAVOUR_RATE * FAVOUR_RATE * (target - f[0]) - 2.0 * FAVOUR_RATE * f[1]) * delta
+		f[0] = clampf(f[0] + f[1] * delta, 0.0, 1.0)
+		_favour[r] = f
+	_favour_lean.clear()
+	var aiming := pose == &"aim" or pose == &"crouch_aim"
+	var standing := gait == &"" or move_speed < 0.3
+	for side in ["r", "l"]:
+		var sign_z := 1.0 if side == "r" else -1.0
+		var leg := favouring(StringName("leg_" + side))
+		if leg > 0.0 and standing and not pose in [&"crouch", &"crouch_aim", &"sit", &"sit_lean", &"duck", &"tend", &"cower"]:
+			# Standing: the knee eases off and the weight goes on the other leg.
+			for key: StringName in FAVOUR_LEG:
+				_add_favour(StringName(String(key) + "_" + side), FAVOUR_LEG[key] * leg)
+			for key: StringName in FAVOUR_LEG_LEAN:
+				# + z bends him to his left: off a right leg is toward his left.
+				_add_favour(key, Vector3(0, 0, FAVOUR_LEG_LEAN[key] * sign_z * leg))
+		var arm := favouring(StringName("arm_" + side))
+		if arm > 0.0:
+			if side == "r" and aiming:
+				_add_favour(&"upper_arm_r", FAVOUR_GUN_ARM_SAG * arm)
+			elif pose in [&"stand", &"wary", &"aim", &"crouch", &"crouch_aim"]:
+				for key: StringName in FAVOUR_ARM_HELD:
+					var d: Vector3 = FAVOUR_ARM_HELD[key]
+					_add_favour(StringName(String(key) + "_" + side), Vector3(d.x, d.y, d.z * sign_z) * arm)
+	var body := favouring(&"body")
+	if body > 0.0:
+		# Bent toward the side the wounds are on (the poses' + z is his left).
+		var lean := 0.0
+		for w: Dictionary in wounds:
+			if _favour_region(w.get("segment", &"")) == &"body" and w.get("entry") is Vector3:
+				lean -= signf((w.entry as Vector3).x)
+		lean = clampf(lean, -1.0, 1.0)
+		for key: StringName in FAVOUR_BODY:
+			var d: Vector3 = FAVOUR_BODY[key]
+			_add_favour(key, Vector3(d.x, d.y, d.z * lean) * body)
+
+
+func _add_favour(sid: StringName, d: Vector3) -> void:
+	_favour_lean[sid] = (_favour_lean.get(sid, Vector3.ZERO) as Vector3) + d
+
+
 func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: float) -> void:
 	var sid := segment
 	var k := 900.0 * momentum
@@ -1975,14 +2141,21 @@ func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.D
 		var skin := axis_pt + (local - axis_pt).normalized() * float(s.radius) if (local - axis_pt).length() > 0.001 else axis_pt
 		var bruise := _decal(visuals[seg], seg, skin - c, clampf(joules / 1500.0, 0.05, 0.18), PixelArt.blood("bruise", 29, false, 16))
 		bruise.modulate = Color(0.35, 0.22, 0.4)
-	if not limp and joules > 160.0:
-		# Knocked down by what hit him: its momentum on the part it struck (no more than it had;
-		# unknown, as from a 20 kg piece with that energy).
+	# What the blow can give him: the momentum a piece of that weight leaves in a man of his when
+	# they meet and move on together (p * M / (m + M), m from its energy and momentum: m = p^2/2E),
+	# never more than it had. Unknown, as from a 20 kg piece with that energy.
+	var p := momentum if momentum >= 0.0 else sqrt(2.0 * 20.0 * joules)
+	var m := p * p / (2.0 * maxf(joules, 1e-3))
+	var body := _body_mass()
+	var given := p * body / (m + body)
+	# It puts him down if it shoves him faster than a man can catch with a step (as a blast does:
+	# BlastTuning.knockdown_speed); anything less, what it does to him (a knock on the head, a leg
+	# broken) decides, as his physiology would (Sean, 2026-10-21: a fall comes from the injury).
+	if not limp and given / body > Blast.t().knockdown_speed:
 		go_limp()
-		var p := momentum if momentum >= 0.0 else sqrt(2.0 * 20.0 * joules)
 		var rb := parts.get(seg) as RigidBody3D
 		if rb:
-			rb.apply_impulse(dir * p, point - rb.global_position)
+			rb.apply_impulse(dir * given, point - rb.global_position)
 	elif not limp:
 		_flinch_from(seg, point, dir, joules * 0.002)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
@@ -2282,6 +2455,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 			c.reparent(rb, true)
 		bodies[sid] = rb
 		parts[sid] = rb
+	_scale_inertia(bodies)
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -2293,15 +2467,34 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var j := ConeTwistJoint3D.new()
 		j.name = "Joint_%s" % sid
 		add_child(j)
-		var child_dir: Vector3 = (bodies[sid] as Node3D).global_position - joint_at[sid]
-		var basis := _along(child_dir)
-		j.global_transform = Transform3D(Basis(basis.y, basis.z, basis.x), joint_at[sid])
-		j.node_a = j.get_path_to(bodies[parent])
-		j.node_b = j.get_path_to(bodies[sid])
 		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
 		var lim: Array = JOINT_LIMITS.get(key, [30, 10])
-		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(lim[0]))
+		var child := bodies[sid] as RigidBody3D
+		var now := child.global_transform
+		var span := float(lim[0])
+		if CONE_CENTRE.has(key):
+			# Centred on the joint's anatomical middle, not the pose he went limp in: the child is
+			# set there about the pivot for the moment the joint is made (Godot takes both frames
+			# from where the bodies are), and put back. The span takes in his pose if it's outside.
+			var c: Array = CONE_CENTRE[key]
+			var pb := (bodies[parent] as Node3D).global_basis.orthonormalized()
+			var centre := pb * Basis(Vector3.RIGHT, deg_to_rad(float(c[0])))
+			var pivot: Vector3 = joint_at[sid]
+			var local: Vector3 = now.basis.orthonormalized().inverse() * (now.origin - pivot)
+			var dir_now: Vector3 = now.origin - pivot
+			var dir_centre: Vector3 = centre * local
+			span = maxf(float(c[1]), rad_to_deg(dir_now.angle_to(dir_centre)) + 3.0)
+			cone_frames[sid] = {"centre": pb.inverse() * dir_centre.normalized(), "span": span,
+					"turn": Quaternion(Vector3.RIGHT, deg_to_rad(float(c[0]))), "axis": local.normalized()}
+			child.global_transform = Transform3D(centre, pivot + dir_centre)
+		var child_dir: Vector3 = child.global_position - joint_at[sid]
+		var basis := _along(child_dir)
+		j.global_transform = Transform3D(Basis(basis.y, basis.z, basis.x), joint_at[sid])
+		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(span))
 		j.set_param(ConeTwistJoint3D.PARAM_TWIST_SPAN, deg_to_rad(lim[1]))
+		j.node_a = j.get_path_to(bodies[parent])
+		j.node_b = j.get_path_to(child)
+		child.global_transform = now
 	_keep_apart(bodies)
 	_start_tone(bodies, conscious, joint_at)
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
@@ -2345,10 +2538,37 @@ func go_limp(push := Vector3.ZERO) -> void:
 	Events.person_fell.emit(self, conscious)
 
 
+## The light links' inertia, scaled up this many times (their mass is left as it is): a third-of-a-
+## kilo hand, a 1 kg neck between a 17 kg chest and a 5.5 kg head and a 1.2 kg foot are too light for
+## Jolt to hold on their joints as the heavy parts land: the head and neck swung 15-19 deg past
+## their limits, the feet 17 (experiments/physics_lab, 2026-10-21). A common ragdoll practice
+## (raising small bodies' inertia for joint stability, as PhysX's articulation guidance has it); it
+## slows their own turning a little, not his fall.
+const INERTIA_SCALE := {&"neck": 4.0, &"hand": 3.0, &"foot": 3.0}
+
+
+func _scale_inertia(bodies: Dictionary) -> void:
+	for sid: StringName in bodies:
+		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
+		if not INERTIA_SCALE.has(key):
+			continue
+		var rb: RigidBody3D = bodies[sid]
+		var st := PhysicsServer3D.body_get_direct_state(rb.get_rid())
+		if st == null:
+			continue
+		var inv := st.inverse_inertia
+		rb.inertia = Vector3(1.0 / maxf(inv.x, 1e-9), 1.0 / maxf(inv.y, 1e-9), 1.0 / maxf(inv.z, 1e-9)) * float(INERTIA_SCALE[key])
+
+
 ## His own parts collide (Layers.RAGDOLL), but not a part and its parent, two parts on one
 ## joint, or any pair already touching as he goes limp (a crouch's chest on his thighs): Jolt
 ## would throw those apart.
+## A pair only resting on each other (a hand on his thigh, a forearm against his chest) collides as
+## any other: left out, sat at a table his forearm went on into his chest as he went down
+## (experiments/physics_lab, M_seated_ball, 2026-10-21). One sunk deeper into the other than Jolt
+## can ease apart (a crouch's chest on his thighs) is left out until they've come apart.
 func _keep_apart(bodies: Dictionary) -> void:
+	_apart.clear()
 	var ids: Array = bodies.keys()
 	for i in ids.size():
 		for k in range(i + 1, ids.size()):
@@ -2356,11 +2576,36 @@ func _keep_apart(bodies: Dictionary) -> void:
 			var b: StringName = ids[k]
 			var pa: StringName = anatomy.segments[a].parent
 			var pb: StringName = anatomy.segments[b].parent
-			if pa == b or pb == a or (pa != &"" and pa == pb) or _touching(bodies[a], bodies[b]):
+			if pa == b or pb == a or (pa != &"" and pa == pb):
 				(bodies[a] as RigidBody3D).add_collision_exception_with(bodies[b])
+			else:
+				var deep := _overlap_depth(bodies[a], bodies[b])
+				if deep > TOUCH_DEEP:
+					(bodies[a] as RigidBody3D).add_collision_exception_with(bodies[b])
+					_apart.append([bodies[a], bodies[b], deep])
 
 
-func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
+var _apart: Array = []  ## [RigidBody3D, RigidBody3D, depth as he went]: left out for now
+
+
+## A pair left out collides again once it's come apart, or as soon as it sinks further into itself
+## than it began (by TOUCH_SINK: Jolt eases that much back out gently).
+func _rejoin_apart() -> void:
+	for i in range(_apart.size() - 1, -1, -1):
+		var a := _apart[i][0] as RigidBody3D
+		var b := _apart[i][1] as RigidBody3D
+		if not is_instance_valid(a) or not is_instance_valid(b):
+			_apart.remove_at(i)
+			continue
+		var deep := _overlap_depth(a, b)
+		if deep < -TOUCH_SLACK or deep > float(_apart[i][2]) + TOUCH_SINK:
+			a.remove_collision_exception_with(b)
+			_apart.remove_at(i)
+
+
+## How deep two parts' capsules are in each other (m; negative: the gap between them).
+func _overlap_depth(a: RigidBody3D, b: RigidBody3D) -> float:
+	var best := -INF
 	for ca in a.get_children():
 		if not (ca is CollisionShape3D and (ca as CollisionShape3D).shape is CapsuleShape3D):
 			continue
@@ -2375,9 +2620,8 @@ func _touching(a: RigidBody3D, b: RigidBody3D) -> bool:
 			var hb := sb.height * 0.5 - sb.radius
 			var pts := Geometry3D.get_closest_points_between_segments(xa * Vector3(0, -ha, 0), xa * Vector3(0, ha, 0),
 					xb * Vector3(0, -hb, 0), xb * Vector3(0, hb, 0))
-			if pts[0].distance_to(pts[1]) < sa.radius + sb.radius + TOUCH_SLACK:
-				return true
-	return false
+			best = maxf(best, sa.radius + sb.radius - pts[0].distance_to(pts[1]))
+	return best
 
 
 ## Muscle tone as he goes: each joint is held toward the pose he went limp in, the hold fading
@@ -2411,6 +2655,10 @@ const TONE_UNTIL := 1.5
 ## Damping: seconds' worth of the stiffness, on the joint's relative spin.
 const TONE_DAMP := 0.06
 const TOUCH_SLACK := 0.01
+## Sunk this far into each other as he goes, a pair is left out (Jolt would throw them apart) ...
+const TOUCH_DEEP := 0.015
+## ... until it's sunk this much further.
+const TOUCH_SINK := 0.02
 ## The most of a part's inertia a step's tone may act on (explicit springs go unstable past ~1).
 const TONE_STEP_SHARE := 0.25
 
@@ -2596,7 +2844,9 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var dir := (chest - at).normalized()
 	var r := maxf(chest.distance_to(at), 0.05)
 	var speed := Blast.impulse(kg, r) * shield * 0.7 * bt.throw_factor / maxf(_body_mass(), 1.0)
-	var push := (dir + Vector3.UP * 0.35).normalized() * minf(speed, bt.max_throw)
+	# Along the blast's own way out from the charge: no lift added (near the ground the reflected
+	# wave runs along it, and a charge lower than his chest already pushes him up and away).
+	var push := dir * minf(speed, bt.max_throw)
 	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
 	if down:
 		harm.append("thrown off his feet")
@@ -2613,7 +2863,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	else:
 		_flinch_from(&"chest", chest, dir, speed * 2.0)
 	for sid in torn_off:
-		sever_limb(sid, push * 2.0 + dir * 3.0)
+		sever_limb(sid, _limb_throw(sid, at, kg, shield, bt) - push)
 		harm.append("%s torn off" % _place(sid))
 	var w := {"segment": &"chest", "entry": Vector3.ZERO, "exit": null, "lodged": false, "hits": [],
 			"bleeds": [], "garments": [], "stain": null, "kind": &"blast", "dir": dir, "harm": harm,
@@ -2625,6 +2875,30 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	hit.emit(info)
 	Events.body_hit.emit(info)
 	return info
+
+
+## A limb torn off by the blast: the push its own face takes for its weight (a forearm has far more
+## face to its weight than a man has), in place of the whole man's push. As take_blast's for him:
+## impulse per area x the face turned to it x throw_factor, over the limb's mass.
+func _limb_throw(segment: StringName, at: Vector3, kg: float, shield: float, bt: BlastTuning) -> Vector3:
+	var area := 0.0
+	var mass := 0.0
+	var centre := Vector3.ZERO
+	for sid: StringName in anatomy.segments_below(segment):
+		var part := parts.get(sid) as Node3D
+		if part == null:
+			continue
+		mass += float(part.get_meta(&"mass", 1.0))
+		centre += part.global_position * float(part.get_meta(&"mass", 1.0))
+		for c: Array in anatomy.segments[sid].capsules:
+			var r: float = c[2]
+			area += 2.0 * r * (((c[1] as Vector3) - (c[0] as Vector3)).length() + 2.0 * r)
+	if mass <= 0.0:
+		return Vector3.ZERO
+	centre /= mass
+	var r := maxf(centre.distance_to(at), 0.05)
+	var speed := Blast.impulse(kg, r) * shield * area * bt.throw_factor / mass
+	return (centre - at).normalized() * minf(speed, bt.max_throw)
 
 
 func _body_mass() -> float:
@@ -2648,12 +2922,13 @@ func _distance_to_part(sid: StringName, point: Vector3) -> float:
 
 
 ## Tear a limb off at the joint above `segment` (it and everything below it go): he goes down, the
-## joint lets go, the stump opens and bleeds hard, and the limb flies.
+## joint lets go, the stump opens and bleeds hard, and the limb goes on with `push` (m/s, over
+## what the rest of him has: what tore it off gives it).
 func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	if physiology.severed_segments.has(segment):
 		return
 	if not limp:
-		go_limp(push * 0.3)
+		go_limp()
 	var parent: StringName = anatomy.segments[segment].parent
 	var joint := get_node_or_null(NodePath("Joint_%s" % segment)) as Node3D
 	var at: Vector3 = joint.global_position if joint else (parts[segment] as Node3D).global_position
@@ -2665,8 +2940,8 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	for sid in anatomy.segments_below(segment):
 		var rb := parts.get(sid) as RigidBody3D
 		if rb:
+			# Its own push and no more: no spin thrown in (it turns as the joint lets go of it).
 			rb.linear_velocity += push
-			rb.angular_velocity += Vector3(_rng.randf_range(-8, 8), _rng.randf_range(-8, 8), _rng.randf_range(-8, 8))
 	# The stump and the torn end of the limb.
 	var parent_part := parts[parent] as Node3D
 	var limb_part := parts[segment] as Node3D

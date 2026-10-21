@@ -81,6 +81,10 @@ def aspect_name(metres):
     return min(options, key=lambda k: abs(options[k] - want))
 
 
+SPENT = 0.0
+UNREPORTED = 0.4
+
+
 def ask(prompt, images, config, what, key):
     """One request; returns the image it painted (as paint_views.py does)."""
     body = {
@@ -115,6 +119,12 @@ def ask(prompt, images, config, what, key):
         raise RuntimeError("%s: no answer: %s" % (what, json.dumps(answer)[:400]))
     usage = answer.get("usage") or {}
     print("%s: cost $%s" % (what, usage.get("cost", "?")), flush=True)
+    global SPENT
+    # What this run has spent (a call whose cost isn't reported counted at UNREPORTED).
+    try:
+        SPENT += float(usage.get("cost"))
+    except (TypeError, ValueError):
+        SPENT += UNREPORTED
     message = answer["choices"][0]["message"]
     images = message.get("images") or []
     if not images:
@@ -127,12 +137,17 @@ def ask(prompt, images, config, what, key):
     return Image.open(io.BytesIO(base64.b64decode(url.split(",", 1)[1]))).convert("RGB")
 
 
-# --style=man (art, 2026-10-16, docs/briefs/match-the-man.md): painted in the layered cowboy's hand,
-# his model sheet sent as a second picture, instead of realistic and sharp.
-MAN = os.path.join(ROOT, "docs", "concept", "targets", "8_man_model.png")
-MAN_HAND = ("Painted in the same hand as the second image, the game's character: the soft, broad, "
-            "hand-painted mottling of his vest, trousers and boots, a few painted tones and gentle "
-            "strokes, worn edges and weathering painted, not photographed; no fine photographic noise.")
+# --style=man (art, 2026-10-16, docs/briefs/match-the-man.md): painted in the men's hand, their sheet
+# sent as a second picture, instead of realistic and sharp. Since 2026-10-21 (roadmap 1.4a, Sean: "the
+# Studio's men are the style reference for every material") the sheet is the Character Studio's three
+# men (docs/concept/targets/9_studio_men.png, tools/textures/men_reference.py: the men in the game's
+# noon light and their own painted cloth); target 8 (the layered cowboy's model sheet) before.
+MAN = os.path.join(ROOT, "docs", "concept", "targets", "9_studio_men.png")
+MAN_HAND = ("Painted in the same hand as the second image, the game's characters: the painted cloth of "
+            "their vests, shirts, trousers and boots, a few close painted tones to a surface with soft "
+            "folds of light and dark, fine dry-brushed grain and wear at the same size as their cloth's "
+            "weave and creases, worn edges and weathering painted, not photographed; no photographic "
+            "noise, no sharp photographic detail.")
 
 
 def in_mans_hand(prompt):
@@ -147,6 +162,39 @@ def in_mans_hand(prompt):
 def reference(spec):
     painting, x0, y0, x1, y1 = spec["ref"]
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
+
+
+def paint_material(mid, spec, key, out, style_man, tries=3, budget=None):
+    """One material painted (in the men's hand with style_man) and kept at `out`; None if every
+    try failed or the budget (dollars for the run, SPENT so far) can't take another call."""
+    kind = spec["kind"]
+    prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
+        what=spec["what"], text=spec.get("text", ""))
+    refs = [reference(spec)]
+    if style_man:
+        prompt = in_mans_hand(prompt)
+        man = Image.open(MAN).convert("RGB")
+        man.thumbnail((768, 768))
+        refs.append(man)
+    img = None
+    for attempt in range(tries):
+        if budget is not None and SPENT + 0.35 > budget:
+            print("budget: $%.2f spent of $%.2f; %s not painted" % (SPENT, budget, mid))
+            return None
+        try:
+            img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
+            break
+        except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
+            print("failed (try %d):" % (attempt + 1), e)
+    if img is None:
+        return None
+    # Kept big enough to reduce well, small enough for git.
+    if max(img.size) > 1536:
+        s = 1536 / max(img.size)
+        img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
+    img.save(out, "JPEG", quality=92)
+    print("painted:", mid, img.size)
+    return img
 
 
 def main():
@@ -174,32 +222,11 @@ def main():
         if os.path.exists(out) and not repaint:
             print("already painted:", mid)
             continue
-        kind = spec["kind"]
-        prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
-            what=spec["what"], text=spec.get("text", ""))
-        refs = [reference(spec)]
-        if "--style=man" in sys.argv:
-            prompt = in_mans_hand(prompt)
-            man = Image.open(MAN).convert("RGB")
-            man.thumbnail((768, 768))
-            refs.append(man)
-        img = None
-        for attempt in range(3):
-            try:
-                img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
-                break
-            except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
-                print("failed (try %d):" % (attempt + 1), e)
+        img = paint_material(mid, spec, key, out, "--style=man" in sys.argv)
         if img is None:
             failed.append(mid)
             continue
-        # Kept big enough to reduce well, small enough for git.
-        if max(img.size) > 1536:
-            s = 1536 / max(img.size)
-            img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
-        img.save(out, "JPEG", quality=92)
         painted += 1
-        print("painted:", mid, img.size)
         if spec.get("height"):
             h = None
             for attempt in range(3):
