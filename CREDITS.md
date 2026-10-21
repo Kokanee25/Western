@@ -19,11 +19,11 @@ adds its own lines.
   customer with commercial use allowed (as understood; the terms pages couldn't be opened from the
   workspace, shipped on that basis with Sean's OK, 2026-10-21). The meshes and paint of
   `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`, `barkeep_s1`, `widow_s1` and
-  `sean_s2` (and the earlier Rodin men).
+  `sean_s2`, `doctor_s1`, `colter_rider_s1` (and the earlier Rodin men).
 - `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`: made by the Character Studio
   (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
   Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
-- `barkeep_s1`, `widow_s1`, `sean_s2`: made by the Character Studio the same way, their pictures by Sean
+- `barkeep_s1`, `widow_s1`, `sean_s2`, `doctor_s1`, `colter_rider_s1`: made by the Character Studio the same way, their pictures by Sean
   (ChatGPT) or OpenAI's GPT-5.4 Image 2 (through OpenRouter), `sean_s2` from Sean's own photo.
 
 ## Motion (the gameplay session)

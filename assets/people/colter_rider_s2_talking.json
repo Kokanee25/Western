@@ -1,0 +1,243 @@
+{
+ "eyes": {
+  "right": [
+   0.0303,
+   1.6546,
+   -0.0825
+  ],
+  "left": [
+   -0.0303,
+   1.6554,
+   -0.0836
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from his approved pictures",
+ "id": "colter_rider_s2_talking",
+ "whole": true,
+ "triangles": {
+  "body_skin": 31807,
+  "body_head": 3696,
+  "cloth_hat": 4224,
+  "cloth_hat_band": 128,
+  "cloth_hat_brim": 1280
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)",
+ "textures_from": "colter_rider_s2",
+ "facerig": {
+  "from": "colter_rider_s2",
+  "head": null,
+  "makehuman_units": 59,
+  "patch": {
+   "triangles": 5609,
+   "vertices": 2856,
+   "pulled": 2003,
+   "pull_mm_median": 0.48
+  },
+  "cut": {
+   "his_triangles_removed": 726,
+   "his_edge": 77,
+   "patch_edge": 65
+  },
+  "holes_capped": 1,
+  "teeth_back_mm": 7.0,
+  "teeth_down_mm": 0.0,
+  "eye_centres": {
+   "helper-l-eye": [
+    -0.0294,
+    1.656,
+    -0.0879
+   ],
+   "helper-r-eye": [
+    0.0299,
+    1.6538,
+    -0.0852
+   ]
+  },
+  "eye_centre": [
+   0.0003,
+   1.6549,
+   -0.0865
+  ],
+  "facerig": {
+   "vertices": 3474,
+   "triangles": 6567
+  },
+  "eye_white": {
+   "helper-l-eye": [
+    0.612,
+    0.414,
+    0.305
+   ],
+   "helper-r-eye": [
+    0.625,
+    0.418,
+    0.311
+   ]
+  },
+  "expressions": {
+   "jaw_open": {
+    "units": {
+     "JawDrop": 1.0
+    },
+    "max_mm": 34.3
+   },
+   "aa": {
+    "units": {
+     "JawDrop": 0.7,
+     "UpperLipUp": 0.35,
+     "lowerLipDown": 0.5
+    },
+    "max_mm": 29.6
+   },
+   "lips_apart": {
+    "units": {
+     "UpperLipUp": 0.6,
+     "lowerLipDown": 1.0
+    },
+    "max_mm": 12.8
+   },
+   "ee": {
+    "units": {
+     "MouthLeftPullSide": 1.1,
+     "MouthRightPullSide": 1.1,
+     "JawDrop": 0.2,
+     "UpperLipUp": 0.35,
+     "lowerLipDown": 0.45
+    },
+    "max_mm": 9.7
+   },
+   "oo": {
+    "units": {
+     "LipsKiss": 1.35,
+     "JawDrop": 0.25
+    },
+    "max_mm": 13.2
+   },
+   "fv": {
+    "units": {
+     "lowerLipUp": 1.0,
+     "lowerLipBackward": 1.7,
+     "UpperLipUp": 0.5,
+     "JawDrop": 0.12
+    },
+    "max_mm": 9.8
+   },
+   "mbp": {
+    "units": {
+     "lowerLipUp": 0.5,
+     "LipsKiss": 0.25
+    },
+    "max_mm": 3.3
+   },
+   "blink_l": {
+    "units": {
+     "LeftUpperLidClosed": 1.0,
+     "LeftLowerLidUp": 0.25
+    },
+    "max_mm": 6.4
+   },
+   "blink_r": {
+    "units": {
+     "RightUpperLidClosed": 1.0,
+     "RightLowerLidUp": 0.25
+    },
+    "max_mm": 4.4
+   },
+   "squint": {
+    "units": {
+     "LeftLowerLidUp": 0.8,
+     "RightLowerLidUp": 0.8,
+     "LeftCheekUp": 0.6,
+     "RightCheekUp": 0.6,
+     "LeftUpperLidClosed": 0.12,
+     "RightUpperLidClosed": 0.12
+    },
+    "max_mm": 10.1
+   },
+   "brows_up": {
+    "units": {
+     "LeftInnerBrowUp": 0.5,
+     "RightInnerBrowUp": 0.5,
+     "LeftOuterBrowUp": 0.35,
+     "RightOuterBrowUp": 0.35
+    },
+    "max_mm": 7.6
+   },
+   "brows_down": {
+    "units": {
+     "LeftBrowDown": 1.0,
+     "RightBrowDown": 1.0
+    },
+    "max_mm": 8.0
+   },
+   "scowl": {
+    "units": {
+     "LeftBrowDown": 1.0,
+     "RightBrowDown": 1.0,
+     "NoseWrinkler": 0.7,
+     "MouthLeftPullDown": 0.6,
+     "MouthRightPullDown": 0.6,
+     "lowerLipUp": 0.3,
+     "LeftLowerLidUp": 0.3,
+     "RightLowerLidUp": 0.3
+    },
+    "max_mm": 11.5
+   },
+   "smile": {
+    "units": {
+     "MouthLeftPullUp": 1.2,
+     "MouthRightPullUp": 1.2,
+     "LeftCheekUp": 0.8,
+     "RightCheekUp": 0.8,
+     "LeftLowerLidUp": 0.35,
+     "RightLowerLidUp": 0.35
+    },
+    "max_mm": 16.7
+   },
+   "smile_l": {
+    "units": {
+     "MouthLeftPullUp": 1.4,
+     "LeftCheekUp": 0.9,
+     "LeftLowerLidUp": 0.35
+    },
+    "max_mm": 18.7
+   },
+   "smile_r": {
+    "units": {
+     "MouthRightPullUp": 1.4,
+     "RightCheekUp": 0.9,
+     "RightLowerLidUp": 0.35
+    },
+    "max_mm": 18.3
+   },
+   "look_left": {
+    "units": {
+     "LeftEyeturnLeft": 1.0,
+     "RightEyeturnLeft": 1.0
+    },
+    "max_mm": 5.1
+   },
+   "look_right": {
+    "units": {
+     "LeftEyeturnRight": 1.0,
+     "RightEyeturnRight": 1.0
+    },
+    "max_mm": 5.1
+   },
+   "look_up": {
+    "units": {
+     "LeftEyeUp": 1.0,
+     "RightEyeUp": 1.0
+    },
+    "max_mm": 6.3
+   },
+   "look_down": {
+    "units": {
+     "LeftEyeDown": 1.0,
+     "RightEyeDown": 1.0
+    },
+    "max_mm": 6.0
+   }
+  }
+ }
+}

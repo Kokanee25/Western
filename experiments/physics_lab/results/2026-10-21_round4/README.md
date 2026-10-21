@@ -144,3 +144,34 @@ up, newels every 1.2 m, balusters every 0.12, a 70 x 60 cap at 1.0). Shoves go t
 | shot dead at the stair's head | 0.67 m (crouched at the top) | |
 
   The stair's head is the even knee-buckle: `docs/briefs/collapse.md`.
+
+## The railing promoted (2026-10-21, branch `claude/gameplay-railing`)
+
+Sean: labs measure; parts live in the game (`docs/PARTS.md`). The lab's breakable railing is now
+`Railing` (`src/structures/railing.gd`).
+- **What it builds:** balusters (kind `baluster`, tier 5) stand on whatever floor is under each,
+  or on given `posts` (a stair's treads). The rail sits on them in spans of up to 1.2 m, each its
+  own trim member, level or sloped.
+- **Where it's used:** the saloon's balcony rails and its stair rail (art's
+  `saloon_dressing.gd`, Sean's ask), and the lab's 1 m railing (`lab_railing.gd`, a bay between
+  each pair of newels).
+- **The lab's results against the part** (rancher, headless):
+
+| fall | breaks | ends |
+|---|---|---|
+| Q: faint against it | nothing | slumped on the deck |
+| Q: standing shove, either way; charge, either way | the span and 4-6 balusters | over, on the floor below |
+| Q: dead at a run | the span and 6 balusters | through, ~3 m out on the floor |
+| T: shot or fainting at the saloon's balcony rail | nothing, or a baluster | on the balcony |
+| T: shoved face-first into it | a span and a baluster | draped over the gap, on the balcony |
+| T: charged backwards into it | both spans and balusters | to the floor below |
+
+- **Tests:** `tests/test_railing.gd` (a level railing stands in spans on its balusters; a stair's
+  stands on its treads; the saloon's rails are the part's; a man thrown into it breaks the span
+  he hits, the other stands, and he goes on through). `tests/test_body_impacts.gd`'s railing is
+  the part too.
+- **Goldens:** the saloon's views pass but `shot_match_saloon`. Its stair and balcony rails take
+  new grain (each member's wood is hashed from its id, and the rail is now three spans), and the
+  stair's balusters now reach the hand rail (they stopped ~5 cm under it). That golden is
+  re-approved in this merge. `town_bar` fails without this change too: its men differ (art's
+  view).
