@@ -13,6 +13,9 @@ adds its own lines.
   `build/mediapipe/` at run time and used by the tools only (the portrait factory's fit,
   `tools/paint/align.py`); not in the repo or the game.
 - **Blender** (`bpy` 5.0.1): GPL, a tool run headless; nothing of it ships.
+- **Mantaflow** (Apache-2.0, inside Blender's `bpy` 4.5.3): the fire simulation the flame
+  flipbooks are baked from (`tools/textures/fire_sim/`); only its output, our sheets in
+  `assets/textures/fire/`, is in the game.
 - **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU): Python libraries the tools use.
 - The portrait factory's reference pictures (`docs/concept/style/factory/`): made by Sean in ChatGPT.
 - **Hyper3D Rodin** Gen-2.5 (Deemos), through **fal.ai**: paid API generations, output owned by the
