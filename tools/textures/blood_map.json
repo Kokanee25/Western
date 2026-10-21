@@ -72,6 +72,26 @@
       "size": 64,
       "lo": 70,
       "hi": 130
+    },
+    "stumps": {
+      "keys": [
+        "stump_arm",
+        "stump_leg",
+        "stump_pair",
+        "stump_torn"
+      ],
+      "size": 128
+    },
+    "gore": {
+      "keys": [
+        "gore_crater",
+        "gore_exit",
+        "gore_blast",
+        "gore_gash"
+      ],
+      "size": 128,
+      "lo": 70,
+      "hi": 130
     }
   },
   "mirror": {

@@ -49,7 +49,29 @@ SHEETS = {
               "round bullet hole with a dark centre and a reddened, scraped ring round it; a larger "
               "exit hole, star-shaped and split open, ragged edges turned outward; a short torn furrow where a ball grazed the skin; a purple and yellow "
               "bruise. Painted, not gory. " + WHITE,
+    # Gore, by Google's Gemini (gore_test.py, run 104: FLUX.2 refuses it, Gemini painted it with the
+    # anatomy right). A limb in section: skin, the yellow fat under it, the muscle bellies in their
+    # pale sheaths round the bone, the marrow in the bone (Gray's Anatomy, cross-sections of the
+    # limbs); a forearm and a shin each have two bones side by side.
+    "stumps": "Four separate cross-sections of a man's limbs where they were torn off by a gunshot or a "
+              "blast, for a gritty frontier Western game, frank and bloody. Each seen exactly end-on, the "
+              "cut face filling a round shape, none of the limb's length showing: an upper arm, one white "
+              "bone with dark red marrow in the middle, red muscle bellies in thin pale sheaths round it, "
+              "a yellow layer of fat and a rim of weathered skin, ragged and bleeding at the edge; a thigh, "
+              "bigger, a thick bone and more muscle; a forearm, two bones side by side; a limb torn by a "
+              "blast, the bone splintered and sticking out, the muscle shredded, the skin torn in ragged "
+              "flaps. Wet, glistening, blood pooling on the faces. " + WHITE,
+    "gore": "Four separate large gunshot and blast wounds on weathered skin, for a gritty frontier Western "
+            "game, frank and bloody, each only the wound and a hand's width of skin round it, the skin "
+            "fading out to white at the edge: a shotgun wound from a few feet, one ragged crater torn "
+            "through the skin, raw red flesh inside, blood running from it; an exit wound, the skin burst "
+            "outward in torn flaps round a dark bloody hole; a blast wound, skin torn open and peppered "
+            "round it with small bleeding wounds from flying gravel; a long gash torn open to the red "
+            "muscle, blood welling. Seen straight on, flat. " + WHITE,
 }
+
+# The model each sheet is painted with, where it isn't the texture factory's.
+MODELS = {"stumps": "google/gemini-3-pro-image-preview", "gore": "google/gemini-3-pro-image-preview"}
 
 
 def main():
@@ -69,6 +91,7 @@ def main():
     man = Image.open(factory.MAN).convert("RGB")
     man.thumbnail((768, 768))
     spent, dearest, failed = 0.0, 0.25, []
+    default_model = factory.MODEL
     for name, prompt in SHEETS.items():
         if only and name not in only:
             continue
@@ -82,6 +105,7 @@ def main():
                 print("stopping: $%.2f spent of $%.2f" % (spent, budget))
                 break
             try:
+                factory.MODEL = MODELS.get(name, default_model)
                 img, cost = ask(prompt, [man], name, key)
                 spent += cost
                 dearest = max(dearest, cost)
