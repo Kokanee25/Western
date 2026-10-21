@@ -1635,7 +1635,8 @@ var _injury_w := {}  ## segment -> how far its injury's hold has come on (0..1)
 
 func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
 	var p := physiology
-	if limp:
+	# Nothing wrong with him (most men, most of the time): nothing to look up.
+	if limp or (p.cut.is_empty() and p.broken.is_empty() and p.torn.is_empty() and _injury_w.is_empty()):
 		return goal
 	var s := String(sid)
 	var side := s.right(1)
