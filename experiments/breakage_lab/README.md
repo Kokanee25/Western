@@ -136,7 +136,14 @@ In `scenarios.json` (`thresholds`), set from the first baseline. They flag; they
 ## Determinism
 
 One process a scenario (the ragdoll lab found a second run in the same process differs). The
-baseline's same-seed comparison is in `baseline/baseline.md`.
+baseline's same-seed comparison is in `baseline/baseline.md`: guns, street blasts and the drop
+repeat to the millimetre; blasts on the saloon floor don't.
+
+**A baseline holds for one street.** The lab clears the town, but what the street made before that
+(who TownLife spawned, which bodies) changes the physics engine's body order, and with it the
+falls: after main cast the Studio's men in town (#160), the man on the table came to rest in 3.1 s
+where the baseline has 2.8 (what broke at the wall didn't change). Compare a fix against a baseline
+run on the same main; re-run the baseline (`run.py --repeat=2`) when the street changes.
 
 ## Baseline (2026-10-21, main at #159)
 
