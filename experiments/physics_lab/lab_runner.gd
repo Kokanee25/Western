@@ -105,6 +105,8 @@ func _ready() -> void:
 	_world.name = "LabWorld"
 	add_child(_world)
 	_build_fixture(String(scenario.get("fixture", "ground")))
+	Events.member_broken.connect(func(id: StringName) -> void:
+		_events.append({"tick": _tick, "kind": "member_broken", "member": String(id), "source": "the structure (BodyImpacts, a blow, a fall)"}))
 	if surface_friction >= 0.0:
 		var pm := PhysicsMaterial.new()
 		pm.friction = surface_friction
@@ -279,6 +281,11 @@ func _build_fixture(kind: String) -> void:
 			hr.structure_id = &"lab_hitch"
 			_world.add_child(hr)
 			hr.global_position = Vector3(-1.2, 0, -0.8)
+		"rail_break":
+			# A breakable 1 m railing over a 2.47 m drop, of the game's members (lab_railing.gd).
+			var rail = load(LAB_DIR + "lab_railing.gd").new()
+			rail.structure_id = &"lab_rail"
+			_world.add_child(rail)
 		"saloon":
 			_prop(&"card_table", Vector3(0, 0, -1.0))
 			_prop(&"chair", Vector3(-0.85, 0, -1.0), 90.0)

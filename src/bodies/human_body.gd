@@ -161,6 +161,8 @@ var garments: Array[Dictionary] = []
 ## {segment, entry, exit (segment-local or null), lodged, hits, bleeds, garments, stain (Decal)}
 var wounds: Array[Dictionary] = []
 var limp := false
+## Limp: what he breaks being thrown into timber (a railing).
+var _impacts: BodyImpacts
 ## Seconds left on his feet after a ball that drops him caught him on the move (_knocked): his
 ## stride carries him on, slowing, as he folds round it, then he goes down. Brains leave him be.
 var stumbling := 0.0
@@ -1095,6 +1097,8 @@ func _physics_step(delta: float) -> void:
 		if hat_body != null:
 			_hat_meets_ground()
 		_step_tone(delta)
+		if _impacts:
+			_impacts.step(parts, delta)
 		if not _apart.is_empty():
 			_rejoin_apart()
 		_update_pool()
@@ -2179,6 +2183,9 @@ func go_limp(push := Vector3.ZERO) -> void:
 		pm.friction = 0.9
 		pm.bounce = 0.0
 		rb.physics_material_override = pm
+		# What he's thrown into (BodyImpacts): a railing breaks under him as under falling timber.
+		rb.contact_monitor = true
+		rb.max_contacts_reported = 4
 		add_child(rb)
 		rb.global_transform = part.global_transform
 		for c in part.get_children():
@@ -2186,6 +2193,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		bodies[sid] = rb
 		parts[sid] = rb
 	_scale_inertia(bodies)
+	_impacts = BodyImpacts.new()
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
