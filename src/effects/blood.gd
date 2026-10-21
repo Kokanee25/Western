@@ -84,7 +84,10 @@ static func burst(parent: Node, at: Vector3, dir: Vector3, count: int, speed: fl
 
 
 ## Put (or grow) a splat of `ml` of blood at a point on a surface. Returns the decal.
-static func splat(world: Node, at: Vector3, normal: Vector3, ml: float) -> Decal:
+## A drop coming in along `velocity` (if given) at a slant leaves a long stain pointing the way it
+## flew: width / length = sin(impact angle) (Balthazard 1939; James, Kish & Sutton, *Principles of
+## Bloodstain Pattern Analysis*, 2005), the area the same.
+static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity := Vector3.ZERO) -> Decal:
 	var alive: Array[Decal] = []
 	for d in _splats:
 		if is_instance_valid(d):
@@ -114,6 +117,15 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float) -> Decal
 	world.add_child(d)
 	d.global_position = at
 	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), randf() * TAU) if normal.length() > 0.01 else Basis()
+	if velocity.length() > 0.5 and normal.length() > 0.01:
+		var n := normal.normalized()
+		var along := velocity - n * velocity.dot(n)
+		if along.length() > 0.05:
+			# Lengthwise along its flight, over the ground.
+			var z := along.normalized()
+			d.global_basis = Basis(n.cross(z).normalized(), n, z)
+			var slant := absf(velocity.normalized().dot(n))
+			d.set_meta(&"long", clampf(1.0 / maxf(slant, 0.2), 1.0, 5.0))
 	_grow(d, ml)
 	_splats.append(d)
 	return d
@@ -124,7 +136,8 @@ static func _grow(d: Decal, ml: float) -> void:
 	d.set_meta(&"ml", total)
 	# A thin film: ~2 mm deep on dirt, so area grows with volume.
 	var r := clampf(sqrt(total * 1e-6 / 0.002 / PI), 0.012, 0.6)
-	d.size = Vector3(r * 2.0, 0.12, r * 2.0)
+	var long: float = d.get_meta(&"long", 1.0)
+	d.size = Vector3(r * 2.0 / sqrt(long), 0.12, r * 2.0 * sqrt(long))
 
 
 ## Throw blood from a point with a velocity and see where it comes down (world geometry only).
@@ -141,7 +154,7 @@ static func throw(world: Node3D, from: Vector3, velocity: Vector3, ml: float, ex
 		q.exclude = exclude
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
-			splat(world, hit.position, hit.normal, ml)
+			splat(world, hit.position, hit.normal, ml, v)
 			return hit.position
 		p = next
 	return null

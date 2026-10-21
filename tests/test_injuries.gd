@@ -147,6 +147,27 @@ func test_an_arterial_jet_has_the_speed_of_its_pressure() -> void:
 	check_eq(BloodJet.jet_speed(0.0), 0.0, "no pressure, no jet")
 
 
+## A drop that lands at a slant draws out along its flight; one straight down lands round
+## (width / length = sin of the angle it came in at).
+func test_a_drop_at_a_slant_lands_long() -> void:
+	Blood.clear()
+	var slant: Variant = Blood.throw(world, Vector3(0, 0.4, 0), Vector3(5, 0, 0), 2.0)
+	var down: Variant = Blood.throw(world, Vector3(4, 0.4, 3), Vector3(0, -3, 0), 2.0)
+	check(slant != null and down != null, "both came down")
+	var long: Decal = null
+	var round: Decal = null
+	for d: Node in get_tree().get_nodes_in_group(&"blood_splats"):
+		var dec := d as Decal
+		if dec.global_position.distance_to(slant) < 0.01:
+			long = dec
+		elif dec.global_position.distance_to(down) < 0.01:
+			round = dec
+	check(long != null and long.size.z > long.size.x * 1.8, "the slanting drop's stain is long (%s)" % (long.size if long else null))
+	check(long != null and absf(long.global_basis.z.normalized().x) > 0.9, "and points the way it flew")
+	check(round != null and absf(round.size.z - round.size.x) < 0.001, "the one straight down is round")
+	Blood.clear()
+
+
 func test_a_blow_to_the_belly_bleeds_inside() -> void:
 	var p := Physiology.new()
 	var harm := p.blow(&"abdomen", 600.0, rng)

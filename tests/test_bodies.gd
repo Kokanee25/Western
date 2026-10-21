@@ -75,7 +75,10 @@ func test_leg_shot_through_the_clothes() -> void:
 	var stain: Decal = man.wounds[0].stain
 	var before := stain.size.x
 	man.physiology.step(30.0)
-	await physics_frames(2)
+	# It soaks out through the cloth over the next minute or two (HumanBody.STAIN_WICK).
+	man.time_scale = 30.0
+	await physics_frames(120)
+	man.time_scale = 1.0
 	check(stain.size.x > before * 1.5, "blood spreads through the trousers (%.2f -> %.2f m)" % [before, stain.size.x])
 
 

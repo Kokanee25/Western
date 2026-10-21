@@ -1043,7 +1043,7 @@ func _physics_step(delta: float) -> void:
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
 	physiology.step(delta * scale_now)
-	_update_stains()
+	_update_stains(delta * scale_now)
 	if stumbling > 0.0 and not limp:
 		_stumble_on(delta)
 	if not limp:
@@ -2109,13 +2109,23 @@ func _decal(parent: Node3D, seg: StringName, local: Vector3, size: float, tex: T
 
 
 ## Blood soaks outward from each wound as it bleeds.
-func _update_stains() -> void:
+## Blood soaks out through cloth along the threads for minutes after it gets there (blood on cotton
+## spread for 2-5 minutes, NIJ grant report 248671): the patch creeps out to what's bled, this many
+## seconds to get most of the way.
+const STAIN_WICK := 40.0
+
+
+func _update_stains(dt: float) -> void:
+	var k := 1.0 - exp(-dt / STAIN_WICK)
 	for w in wounds:
 		var stain: Decal = w.stain
 		if stain == null or not is_instance_valid(stain):
 			continue
 		var ml := physiology.blood_lost_from(w.bleeds)
-		var s := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
+		var target := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
+		var s: float = w.get("stain_size", 0.04)
+		s += (target - s) * k
+		w.stain_size = s
 		stain.size = Vector3(s, 0.08 + s * 0.3, s * 1.25)
 
 
