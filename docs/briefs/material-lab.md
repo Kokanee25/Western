@@ -46,6 +46,26 @@ in the layered cowboy's hand on 2026-10-16), A on every sheet.
   men in the lab's noon light and patches of their own painted cloth), sent by `paint_woods.py` and
   `paint_textures.py --style=man` in place of target 8.
 
+### Running it
+
+```sh
+godot --headless --import                                   # after a set is painted or cut
+python3 tools/textures/paint_woods.py --set=NAME --cut      # a set with `raw` / `weather`: no calls
+xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- \
+    --out=OUT/base --material=all                           # the baseline, with masks (~1 min a view)
+xvfb-run ... -- --out=OUT/NAME --set=mlab_NAME --material=all --no-masks   # a candidate
+xvfb-run ... -- --out=OUT/stair --set=mlab_studio4 --material=stair        # the oak stair
+python3 tools/material_measure.py measure OUT/NAME --masks=OUT/base
+python3 tools/material_measure.py sheet --a=OUT/base --b=OUT/NAME --out=SHEETS [--light=golden]
+python3 tools/material_measure.py crops OUT/NAME --out=CROPS --masks=OUT/base   # for the critic
+```
+
+Paid painting runs on Actions (openrouter.ai is blocked from the workspace): People workflow,
+`textures = mlab:NAME`; the set's `budget` stops it short. Renders stay out of git (`build/` or a
+scratch folder); sheets and the critic's crops go in `docs/screenshots/material_lab/<date>/`.
+The sets in git: studio1-5 (painted). Remade with no calls and ignored: recut256/512, fit512,
+studio1_384, studio5w.
+
 ## The tests and how each is judged
 
 | Test | Measured | Passes when |
@@ -121,6 +141,28 @@ a runner on brass rods, in a lobby of painted boards over an oak skirting. Two o
 with no call from the walnut painting the gun stocks use (warm, red-brown, eight boards), studio4
 painted from words (darker, browner, four wide boards). Sheets `stair_ab_golden.jpg`,
 `stair_walnut_*.jpg`.
+
+## What's next, in order
+
+1. **Round 2's verdict.** The blind critic on today's woods, round 2 clean (studio5) and round 2
+   weathered per board (studio5w), unlabelled, Sean's question; the A/B sheets per wood (today /
+   studio1_384 / studio5 / studio5w). Results here under Round 1.
+2. **Round 3, the weathering layer** (Sean, 2026-10-21; see Round 2 above): a stain sheet painted in
+   the men's hand (mud splash, rain streaks, grime, sun-bleach; one or two calls, ~$0.22-0.44 of the
+   $2.42 left of Sean's $9) laid by texel_grid in the structure's space over round 2's clean boards;
+   judged on the stand against studio5 and studio5w, then the critic.
+3. **Edge flaws** the round 1 critic named: the black dashes along the walls' board seams (texel_grid's
+   `edge_shade` on boards) and the square blocks on the fascia and steps (mosaic on thin faces).
+4. **Sean's picks.** A wood he approves moves into `assets/textures/woods/` (its `lab.json`
+   entry, 384 a metre) with a `material_<wood>` golden view in `tools/screenshots.gd`, the goldens
+   re-approved in the same merge, the judge and the blind critic as for any art merge; the woods
+   import VRAM-compressed first (memory, below).
+5. **The props and the stair.** The chair, table and barrel textures (studio2) and the oak stair's two
+   oaks (studio3 walnut cut, studio4 painted) wait on Sean's pick; the stair goes into the hotel
+   when the building lab builds its interior.
+6. **Gameplay's half** (below): end grain and strip offsets in MemberMesh, a neighbour-aware strip
+   pick, the `_low` siding, the walk as built. Listed for the gameplay lane; nothing done here.
+7. **Wear-down** after Gate A (the plan at the end).
 
 ## What production needs (none of it done; the structure code is gameplay's)
 
