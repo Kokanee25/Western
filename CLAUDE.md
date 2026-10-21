@@ -376,13 +376,13 @@ frozen until Sean names one.
   69 falls 90 -> 17 flags; the Studio's men fall as the outlaw (shared capsules); 8 goldens
   re-approved (art's, Sean's OK). The faint's stance (3 deg forward, a stiff knee) tried three ways
   and not kept (blind judges 8/8, 2/4/2, 3/5; `results/2026-10-21_faint/`: the fault is the even
-  squat as his tone lets go). **Round 4: stairs, railings, props** (`claude/gameplay-falls-props`, PR to main;
-  `results/2026-10-21_round4/`): the new men's baseline (critic 4.8/10); friction and the back arch
-  off tried, not kept; the saloon stair's ramp on `Layers.WALK` (falling men meet the treads);
-  `BodyImpacts` (a limp man thrown into timber breaks it and carries on through; groups Q and T,
-  the game's saloon in the lab). Next: the railing promoted to a part in `src/structures/`
-  (`docs/PARTS.md`), then the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him
-  at a stair's head; a trunk-first sweep started); loose props wait on Sean.
+  squat as his tone lets go). **Round 4: stairs, railings, props** (#184, build 1792;
+  `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
+  treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
+  game saloon (group T). Then **`Railing`** (`claude/gameplay-railing`): the railing part, the
+  saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
+  (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
+  (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

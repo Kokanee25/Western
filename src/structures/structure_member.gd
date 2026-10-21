@@ -24,6 +24,8 @@ const TIERS := {
 	&"ridge": 5,
 	&"furniture_top": 5,
 	&"trim": 6,
+	## A railing's balusters (Railing): they stand on the floor or the treads, the rail on them.
+	&"baluster": 5,
 	&"glass": 6,
 	&"door": 6,
 }
