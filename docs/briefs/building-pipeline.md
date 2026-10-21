@@ -93,7 +93,7 @@ everything below before anything is built.
 | No frame: nothing shows posts, joists, spans or what holds up the balcony and its open well | Frame it from period references, sized from the Wood Handbook, so it stands and falls for real |
 | Indoor men's and women's restrooms are unlikely in an 1882 saloon | **Sean: an outhouse out back** |
 | Upstairs | **Sean: several bedrooms upstairs** (the sheet shows five) |
-| A cellar under the bar? Many saloons kept beer kegs and spirits cool in a dug cellar, through a trapdoor behind the bar | Proposed; waiting on Sean's yes |
+| A cellar | **Sean, 2026-10-21: yes, and big** (bigger than a real one would be is fine): kegs and spirits kept cool, reached by a trapdoor in a room behind the bar (a kitchen, as the sheet's back rooms already have); the floor over it on real joists, so a blast or fire can drop it in |
 | The views were each drawn separately by an image model, so sizes don't match between them | Take sizes from the spec, never measured off the pictures |
 
 ## Checks
