@@ -1738,7 +1738,8 @@ static var hand_to_wound := true
 ## A new wound: if it's bleeding worse than the one he's holding (or he holds none), it's the one
 ## his hand goes to, by the side it's on, or the hand that's free.
 func _reach_for(w: Dictionary) -> void:
-	if not hand_to_wound or limp or prone or w.kind in [&"blast", &"severed"]:
+	# Not for a graze: it stings, he doesn't hold it (Sean, 2026-10-21: "no grab on a graze").
+	if not hand_to_wound or limp or prone or w.kind in [&"blast", &"severed", &"graze"]:
 		return
 	if not _grab.is_empty() and _wound_bleed(_grab.wound) >= _wound_bleed(w):
 		return

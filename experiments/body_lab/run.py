@@ -3,7 +3,7 @@
 ragdoll lab does: experiments/physics_lab/README.md, "Determinism"), then gather the table.
 
   python3 experiments/body_lab/run.py --out=build/body_lab/base [--scenario=all|group:revolver|NAME,NAME]
-      [--model=bold_cowboy_s0,old_rancher_s1,young_drifter_s1,outlaw] [--seed=N] [--jobs=N]
+      [--model=bold_cowboy_s0,old_rancher_s1,young_drifter_s1,hothead_lyle_s1] [--seed=N] [--jobs=N]
   python3 experiments/body_lab/run.py --render --out=build/body_lab/render     (the wound sheets' scenarios, pictures)
   python3 experiments/body_lab/run.py --vessels --out=build/body_lab/base      (every vessel cut alone)
   python3 experiments/body_lab/run.py --perf --model=mixed --out=build/body_lab/perf   (ten wounded men)

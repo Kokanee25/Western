@@ -11,7 +11,7 @@ Outputs go under `build/body_lab/` (git-ignored). The committed baseline is in `
 ## Commands
 
 ```sh
-# every scenario on every man (the three studio men and the outlaw), one Godot process each (~3 min on 4 cores)
+# every scenario on every man (the four studio men), one Godot process each (~3 min on 4 cores)
 python3 experiments/body_lab/run.py --out=build/body_lab/base
 python3 experiments/body_lab/run.py --scenario=group:revolver,dynamite_1m --model=old_rancher_s1 --out=...
 python3 experiments/body_lab/run.py --scenario=list
@@ -32,8 +32,9 @@ godot --headless --fixed-fps 60 -s res://experiments/body_lab/lab.gd -- --scenar
 `lab.gd` also takes `--seed=N`, `--render` and `--size=WxH`. **The man is the lab's choice:**
 `--model=ID` is any `assets/people/<id>.glb`, comma-separated for several. It is never the game's
 default. `run.py` runs the four in `scenarios.json` (`models`): `bold_cowboy_s0`,
-`old_rancher_s1`, `young_drifter_s1` and `outlaw`. The outlaw is there so that earlier results
-(the ragdoll lab's) still compare.
+`old_rancher_s1`, `young_drifter_s1` and `hothead_lyle_s1`: the Studio's men only (Sean,
+2026-10-21: "stop using the old body"). The baseline in `baseline/` was taken with the old outlaw
+as the fourth.
 
 **Dev bridge** (`bridge.gd`, loaded by the bridge from this folder, `src/debug/bridge_lab.gd`):
 - `body_spawn MODEL X Y Z [YAW]` puts a man of that model in the street, with no brain.

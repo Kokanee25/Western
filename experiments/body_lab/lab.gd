@@ -59,7 +59,7 @@ func _run() -> void:
 		push_error("lab: no scenario %s (--scenario=list)" % args.get("scenario", ""))
 		quit(1)
 		return
-	var models: Array = String(args.get("model", "outlaw")).split(",")
+	var models: Array = String(args.get("model", "hothead_lyle_s1")).split(",")
 	# A man whose model won't load would quietly be the default body (PeopleBodies falls back to
 	# BodyMesh): refuse instead. (After a fresh checkout, `godot --headless --import` first.)
 	for m: String in models:

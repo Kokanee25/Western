@@ -101,11 +101,11 @@ def gather(root):
     by_sc = {}
     for r in rows:
         by_sc.setdefault(r["scenario"], []).append(r)
-    ref_model = "outlaw" if any(r["model"] == "outlaw" for r in rows) else rows[0]["model"] if rows else ""
+    ref_model = rows[0]["model"] if rows else ""
     md += ["## Shots", "",
            "Aim: share of 200 aimed shots (the game's aimed wobble, and buckshot's pattern) that reach the marked part / cross "
            "what the spot aims for; POI: where a perfect aim lands against the mark (cm, + high). The rest is the one shot "
-           "fired with a perfect aim on the outlaw (`same` says whether every man came out the same).", "",
+           "fired with a perfect aim on the first man (`same` says whether every man came out the same).", "",
            "| scenario | J | POI | aim part / target | crossed (this shot) | broke | down | can't | untreated | tourniquet 30 s | packed 30 s | packed + doctor 10 min | same |",
            "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for sc in sorted(by_sc, key=lambda s: (s.split("_")[0], s.split("_")[1], s)):

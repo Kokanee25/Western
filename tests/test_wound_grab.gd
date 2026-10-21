@@ -91,6 +91,15 @@ func test_out_of_reach_he_leaves_it() -> void:
 	check(man._grab.is_empty(), "standing, his hand can't reach his shin")
 
 
+## A graze stings; he doesn't hold it (Sean, 2026-10-21).
+func test_a_graze_isnt_held() -> void:
+	var man := await _man()
+	await _shoot(man, &"thigh_r", Vector3(0.166, 0.7, 0.0))
+	check(not man.wounds.is_empty() and man.wounds[0].kind == &"graze", "a graze along his thigh")
+	await physics_frames(60)
+	check(man._grab.is_empty(), "no hand goes to it")
+
+
 ## His palm on a spurting artery holds it back; lifted, it spurts again.
 func test_his_hand_holds_the_bleeding_back_while_its_there() -> void:
 	var man := await _man()

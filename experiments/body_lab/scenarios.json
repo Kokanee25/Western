@@ -1,6 +1,6 @@
 {
   "_doc": "The body lab's scenarios (README.md). The lab expands these axes into scenarios: every weapon at every range into every spot (revolver_05m_thigh ... shotgun_30m_hand), and dynamite at every distance (dynamite_1m ...); `check` (each man's wounds, severing, stumps and hat) and `perf` (ten wounded men) are their own. A spot is a point inside the man in the anatomy's rest pose (config/anatomy.json: metres, +x his right, -z the way he faces), on the segment named; the shooter stands `range` metres in front of him with his eye at `eye_height`, sighted on the spot's world position with the gun's sights regulated as in the game (WeaponViewmodel.zeroed, the muzzle at the eye). `aims_for` is what a ball through that spot should cross. Treatments are applied to a copy of his physiology after the live seconds, at `at` seconds after the hit. Edit this file to add spots, ranges or treatments; no code change needed.",
-  "models": ["bold_cowboy_s0", "old_rancher_s1", "young_drifter_s1", "outlaw"],
+  "models": ["bold_cowboy_s0", "old_rancher_s1", "young_drifter_s1", "hothead_lyle_s1"],
   "seed": 1,
   "stand_seconds": 0.5,
   "live_seconds": 3.0,
