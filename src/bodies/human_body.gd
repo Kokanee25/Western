@@ -101,6 +101,16 @@ const JOINT_LIMITS := {
 	&"upper_arm": [80, 40], &"forearm": [70, 10], &"hand": [55, 20],
 	&"thigh": [60, 20], &"shin": [70, 5], &"foot": [30, 5],
 }
+## Cones centred on the joint's anatomical middle rather than the pose he went limp in, [the middle
+## as the poses' x (degrees from standing: + is forward for the hip, back for the spine), span]: the
+## hip flexes to 120 and extends to 20, the low back bends 38 forward and 14 back, the chest 34 and
+## 18 (normal ranges: American Academy of Orthopaedic Surgeons). Centred on his standing pose, his
+## hip went 60 back and his spine 42 with it: pushed over backwards on planted feet he arched into
+## a bridge on his head and heels (experiments/physics_lab, N_blow_beam_chest, 2026-10-21).
+const CONE_CENTRE := {&"thigh": [50.0, 70.0], &"abdomen": [-12.0, 26.0], &"chest": [-8.0, 26.0]}
+## segment -> {"centre": the child's direction at the cone's middle, in the parent's frame, "span",
+## "turn": the child's turn in the parent there, "axis": its own axis in its frame} (for the lab)
+var cone_frames := {}
 const FINGERS := ["thumb", "index", "middle", "ring", "little"]
 ## Each part's share of the body's mass, after the cadaver measurements in D. A. Winter,
 ## "Biomechanics and Motor Control of Human Movement" (table 4.1, from Dempster 1955); head and neck
@@ -2185,15 +2195,34 @@ func go_limp(push := Vector3.ZERO) -> void:
 		var j := ConeTwistJoint3D.new()
 		j.name = "Joint_%s" % sid
 		add_child(j)
-		var child_dir: Vector3 = (bodies[sid] as Node3D).global_position - joint_at[sid]
-		var basis := _along(child_dir)
-		j.global_transform = Transform3D(Basis(basis.y, basis.z, basis.x), joint_at[sid])
-		j.node_a = j.get_path_to(bodies[parent])
-		j.node_b = j.get_path_to(bodies[sid])
 		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
 		var lim: Array = JOINT_LIMITS.get(key, [30, 10])
-		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(lim[0]))
+		var child := bodies[sid] as RigidBody3D
+		var now := child.global_transform
+		var span := float(lim[0])
+		if CONE_CENTRE.has(key):
+			# Centred on the joint's anatomical middle, not the pose he went limp in: the child is
+			# set there about the pivot for the moment the joint is made (Godot takes both frames
+			# from where the bodies are), and put back. The span takes in his pose if it's outside.
+			var c: Array = CONE_CENTRE[key]
+			var pb := (bodies[parent] as Node3D).global_basis.orthonormalized()
+			var centre := pb * Basis(Vector3.RIGHT, deg_to_rad(float(c[0])))
+			var pivot: Vector3 = joint_at[sid]
+			var local: Vector3 = now.basis.orthonormalized().inverse() * (now.origin - pivot)
+			var dir_now: Vector3 = now.origin - pivot
+			var dir_centre: Vector3 = centre * local
+			span = maxf(float(c[1]), rad_to_deg(dir_now.angle_to(dir_centre)) + 3.0)
+			cone_frames[sid] = {"centre": pb.inverse() * dir_centre.normalized(), "span": span,
+					"turn": Quaternion(Vector3.RIGHT, deg_to_rad(float(c[0]))), "axis": local.normalized()}
+			child.global_transform = Transform3D(centre, pivot + dir_centre)
+		var child_dir: Vector3 = child.global_position - joint_at[sid]
+		var basis := _along(child_dir)
+		j.global_transform = Transform3D(Basis(basis.y, basis.z, basis.x), joint_at[sid])
+		j.set_param(ConeTwistJoint3D.PARAM_SWING_SPAN, deg_to_rad(span))
 		j.set_param(ConeTwistJoint3D.PARAM_TWIST_SPAN, deg_to_rad(lim[1]))
+		j.node_a = j.get_path_to(bodies[parent])
+		j.node_b = j.get_path_to(child)
+		child.global_transform = now
 	_keep_apart(bodies)
 	_start_tone(bodies, conscious, joint_at)
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's

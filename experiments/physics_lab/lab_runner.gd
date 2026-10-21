@@ -660,6 +660,23 @@ func _record(frame_ms: float) -> void:
 					twist -= 360.0
 				var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
 				lim = HumanBody.JOINT_LIMITS.get(key, [30, 10])
+				var cf: Dictionary = man.get(&"cone_frames") if man.get(&"cone_frames") != null else {}
+				if cf.has(sid):
+					# A cone centred on the joint's anatomical middle (HumanBody.CONE_CENTRE): the
+					# swing from there, against its span.
+					var jw: Vector3 = pb.global_transform * (r.joint_in_parent as Vector3)
+					var dir_p: Vector3 = pb.global_basis.orthonormalized().inverse() * (n.global_position - jw)
+					swing = rad_to_deg(dir_p.angle_to(cf[sid].centre))
+					lim = [cf[sid].span, lim[1]]
+					# Twist as the joint reads it: from the cone's middle, about the limb.
+					var rel_c := (pb.global_basis.orthonormalized().inverse() * n.global_basis.orthonormalized()).get_rotation_quaternion()
+					var dc: Quaternion = (cf[sid].turn as Quaternion).inverse() * rel_c
+					var ax: Vector3 = cf[sid].axis
+					var al := ax * Vector3(dc.x, dc.y, dc.z).dot(ax)
+					var twq := Quaternion(al.x, al.y, al.z, dc.w).normalized()
+					twist = rad_to_deg(2.0 * atan2(Vector3(twq.x, twq.y, twq.z).dot(ax), twq.w))
+					if twist > 180.0:
+						twist -= 360.0
 				var jp: Vector3 = pb.global_transform * (r.joint_in_parent as Vector3)
 				var jc: Vector3 = n.global_transform * (r.joint_in_child as Vector3)
 				gap = jp.distance_to(jc)
