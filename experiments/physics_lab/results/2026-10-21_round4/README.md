@@ -107,3 +107,40 @@ up, newels every 1.2 m, balusters every 0.12, a 70 x 60 cap at 1.0). Shoves go t
   balcony's, the saloon stair's hand rail and balusters, the hitching rail; the porches have
   none); the oak walkway's in the hotel is art's drawn boards and won't break until it's built of
   members.
+
+## After Sean's "keep going" (2026-10-21, later)
+
+- **He carries on through.** The engine holds a member rigid until it breaks, so it stopped him
+  harder than a real rail could. Now what it took past what breaks it goes back to him
+  (`_give_back`, and its like on the nail rule). Trim (balustrades, hand rails) gives way at its
+  nails before its wood: each member it touches is a joint worth ½ × `nailed_moment` × 0.15 rad
+  (~10 mm of slip at its nails, after the USDA Wood Handbook's load-slip of nailed joints; to be
+  judged by eye). A 1.2 m oak cap goes at ~51 J (its wood ~150), a baluster at ~6.5 J.
+
+| group Q, rancher | before | now |
+|---|---|---|
+| dead at a run: speed through the rail | 0.6 m/s, landing 3.1 m out | 1.5 m/s, landing 4.5 m out |
+| charge face-first | 0.5 m/s, 1.0 m out | 1.2-1.5 m/s, 2.0 m out |
+| shove backwards | holds | goes through (it's a full-weight shove) |
+| faint | holds | holds |
+
+  `tests/test_body_impacts.gd` guards it: his chest still at 0.87 m/s through the rail without the
+  give-back, more than 1 with it. The test railing's deck is now a sill (grounded): before, the
+  first break dropped the whole test railing, so the "it breaks" test passed for the wrong reason.
+
+- **The game's own saloon in the lab** (group T, fixture `saloon_game`: `SaloonBuilding`, its stair
+  of members up the front wall, its balcony's rail of trim; places by name, `spot`):
+
+| fall (rancher) | his centre of mass fell | broke |
+|---|---|---|
+| shot from behind at the balcony rail | 0.83 m (on the balcony) | 1 baluster |
+| faint at the balcony rail | 0.83 m (on the balcony) | nothing |
+| shot dead at the balcony rail | 0.84 m (on the balcony) | nothing |
+| shoved face-first into the balcony rail | 0.63 m (draped over it) | nothing |
+| charged backwards into the balcony rail | 3.13 m (to the floor below) | the cap and 4 balusters |
+| shot from behind on the stair, mid-flight | 1.42 m (a few steps down) | |
+| shot in front at the stair's head, facing up it | 1.39 m (slides about 1 m down) | |
+| shot from behind at the stair's head | 0.94 m (stuck at the top) | |
+| shot dead at the stair's head | 0.67 m (crouched at the top) | |
+
+  The stair's head is the even knee-buckle: `docs/briefs/collapse.md`.
