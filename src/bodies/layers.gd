@@ -41,3 +41,6 @@ const VIS_HELD := 8
 ## shadow meshes out (`ALL_BUT_WALLS`): theirs is cast by the batches, as before.
 const VIS_WALLS := 16
 const ALL_BUT_WALLS := 0xFFFFFFFF & ~VIS_WALLS
+## Render: dust and smoke in the air, off the world's layer so the ground's decals (a blast's scorch)
+## don't paint it; cameras and lights see it as any other.
+const VIS_AIR := 32

@@ -5,7 +5,7 @@ class_name Blast
 ## - timber breaks when the kick it's given (impulse² / 2m) passes what it can soak up bending,
 ##   and the pieces fly; splinters off it are flown as projectiles;
 ## - panes crack from a few kPa, much further out;
-## - dry wood in the fireball may catch;
+## - dry wood in the fireball may catch (a moment later: it smoulders first);
 ## - loose things are pushed; other sticks close by go off with it;
 ## - people take it through `take_blast(at, kg)` (ears, lungs, head, thrown down, torn open, limbs).
 ## Tuning in config/blast.tres (BlastTuning).
@@ -77,20 +77,12 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	var report := {"broken": [], "people": [], "splinters": 0}
 	var r_max := reach(kg)
 	var space := world.get_world_3d().direct_space_state
-	var shape := SphereShape3D.new()
-	shape.radius = r_max
-	var q := PhysicsShapeQueryParameters3D.new()
-	q.shape = shape
-	q.transform = Transform3D(Basis.IDENTITY, at)
-	q.collision_mask = Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS
-	var found := space.intersect_shape(q, 1024)
 	var by_structure := {}  # Structure -> [[member, push]]
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
 	var fireball := fireball_radius(kg)
-	for f: Dictionary in found:
-		var c: Object = f.collider
+	for c: Object in gather(world, at, kg):
 		if c is StructureMember:
 			var m := c as StructureMember
 			if m.broken or m.consumed:
@@ -98,9 +90,12 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 			var s := m.get_parent() as Structure
 			var hitres := _member_response(m, at, kg, s)
 			if hitres.break and not _bedded(m):
-				by_structure.get_or_add(s, []).append([m, hitres.push, hitres.distance])
+				var cut: Variant = null
+				if m.kind in CUT_KINDS:
+					cut = torn_stretch(m, at, kg, s.tuning if s and s.tuning else load("res://config/timber.tres"))
+				by_structure.get_or_add(s, []).append([m, hitres.push, hitres.distance, cut])
 			elif fire and fire.flammable(m) and hitres.distance < fireball and _rng.randf() < tn.ignite_chance:
-				fire.ignite(m)
+				fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
 		elif c is DynamiteStick:
 			sticks.append(c as DynamiteStick)
 		elif c is RigidBody3D:
@@ -117,10 +112,12 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 		var list: Array[StructureMember] = []
 		var ps: Array[Vector3] = []
 		var near: Array[float] = []
+		var cuts := []
 		for pair: Array in by_structure[s]:
 			list.append(pair[0])
 			ps.append(pair[1])
 			near.append(pair[2])
+			cuts.append(pair[3])
 		# Splinters fly off the boards it breaks (before they're rubble).
 		for i in list.size():
 			var m := list[i]
@@ -138,13 +135,15 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				b.blast = 0.0
 				b.passed = passed
 				splinters += 1
-		report.broken.append_array(s.break_members(list, ps))
+		report.broken.append_array(s.break_members(list, ps, cuts))
 		if fire:
 			# By how near the fireball came to it, as for what it didn't break (a tall board's middle
-			# can be well outside it while its foot is in it).
+			# can be well outside it while its foot is in it). A board it holed: the ends left.
 			for i in list.size():
-				if fire.flammable(list[i]) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
-					fire.ignite(list[i])
+				var catching: Array = list[i].get_meta(&"cut_pieces", [list[i]])
+				for m: StructureMember in catching:
+					if is_instance_valid(m) and fire.flammable(m) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
+						fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
 	# Gravel and grit off the ground, if it went off on (or near) it.
 	if ballistics:
 		var down := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD)
@@ -187,6 +186,57 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	return report
 
 
+## Everything a charge at `at` acts on, each once: every member and loose body where timber can
+## break (`break_reach`, its own query, so a crowded street can't crowd out what's beside the
+## charge), and out to `reach` the debris, ragdolls and sticks, every pane of glass, and the loose
+## rubble and fallen fittings. (One query of everything to `reach`, capped, came back in the
+## physics engine's order: on Main Street it left out every member within a metre of a stick by
+## the store; the breakage lab, 2026-10-21.)
+static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
+	var space := world.get_world_3d().direct_space_state
+	var r_max := reach(kg)
+	var out: Array[Object] = []
+	var seen := {}
+	var add := func(c: Object) -> void:
+		if c != null and not seen.has(c.get_instance_id()):
+			seen[c.get_instance_id()] = true
+			out.append(c)
+	for f: Dictionary in _sphere(space, at, break_reach(kg), Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS):
+		add.call(f.collider)
+	for f: Dictionary in _sphere(space, at, r_max, Layers.DEBRIS | Layers.BODY_PARTS):
+		add.call(f.collider)
+	for s: Node in world.get_tree().get_nodes_in_group(&"structures"):
+		for m: StructureMember in (s as Structure).panes():
+			if not m.broken and _nearest_on(m, at).distance_to(at) <= r_max:
+				add.call(m)
+	for g: StringName in [&"rubble", &"fallen"]:
+		for rb: Node in world.get_tree().get_nodes_in_group(g):
+			if rb is RigidBody3D and (rb as Node3D).global_position.distance_to(at) <= r_max:
+				add.call(rb)
+	return out
+
+
+## Where timber can break (m) round `kg` of TNT.
+static func break_reach(kg: float) -> float:
+	return t().break_reach_per_cbrt_kg * pow(kg, 1.0 / 3.0)
+
+
+## A sphere query that won't run out: asked again with room to spare if it came back full.
+static func _sphere(space: PhysicsDirectSpaceState3D, at: Vector3, radius: float, mask: int) -> Array[Dictionary]:
+	var shape := SphereShape3D.new()
+	shape.radius = radius
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.transform = Transform3D(Basis.IDENTITY, at)
+	q.collision_mask = mask
+	var cap := 2048
+	var found := space.intersect_shape(q, cap)
+	while found.size() >= cap:
+		cap *= 4
+		found = space.intersect_shape(q, cap)
+	return found
+
+
 ## How a member answers: {break, push, distance}. Glass by pressure; timber by the energy the
 ## blast puts into it against what it can absorb bending.
 static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Structure) -> Dictionary:
@@ -225,13 +275,15 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 ## The blast's push on a member (N·s): reflected impulse per area summed over the face turned to it. The
 ## samples bunch up round the point nearest the charge, where nearly all of it lands (a stick lying
 ## on a floorboard hits the bit under it far harder than the rest of the board).
-static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := INF) -> float:
+static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := INF, center := NAN) -> float:
 	var length := m.length()
 	var cs := m.cross_section()
 	var width := maxf(cs.x, cs.y)
 	var axis := m.axis()
 	var half := length * 0.5
 	var t0 := clampf((at - m.global_position).dot(axis), -half, half)
+	# The window is about the point nearest the charge, or about `center` (along it, from its middle).
+	var tc := t0 if is_nan(center) else clampf(center, -half, half)
 	# How far the charge is off the face at its nearest, and how far out from the face it sees (the
 	# side of the cross-section it's furthest beyond): a shock striking a face square on is
 	# reflected in full, one running along it hardly at all.
@@ -246,14 +298,19 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 		var t := clampf(t0 + o, -half, half)
 		if not ts.has(t):
 			ts.append(t)
+	if tc != t0 and window < INF:
+		for o: float in [0.0, -0.4, -0.15, 0.15, 0.4]:
+			var t := clampf(tc + o * window, -half, half)
+			if not ts.has(t):
+				ts.append(t)
 	ts.sort()
 	var total := 0.0
 	for i in ts.size():
 		var lo := -half if i == 0 else (ts[i - 1] + ts[i]) * 0.5
 		var hi := half if i == ts.size() - 1 else (ts[i] + ts[i + 1]) * 0.5
 		if window < INF:
-			lo = maxf(lo, t0 - window * 0.5)
-			hi = minf(hi, t0 + window * 0.5)
+			lo = maxf(lo, tc - window * 0.5)
+			hi = minf(hi, tc + window * 0.5)
 		var seg := hi - lo
 		if seg <= 0.0:
 			continue
@@ -268,6 +325,56 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 			mean += impulse(kg, rk) * (1.0 + (reflection(overpressure_kpa(kg, rk)) - 1.0) * square_on)
 		total += mean / 3.0 * seg * width
 	return total
+
+
+## Boards, floor boards and roof boards: what a charge overcomes is torn out of them, not the whole
+## length (a floor board is the room's width). Framing still snaps where it's hit.
+const CUT_KINDS: Array[StringName] = [&"board", &"floor_board", &"roof_board"]
+## How finely the torn stretch's ends are found along a board (m).
+const CUT_STEP := 0.05
+
+
+## The stretch of a board a charge tears out (Vector2(t0, t1), along it from its middle): where the
+## kick over a hand-span (`local_span`) about each point beats what that span soaks up bending, as
+## `_member_response` tests at the point nearest the charge, walked out from there both ways. A
+## board broken by the whole-length test alone loses one span about that point.
+static func torn_stretch(m: StructureMember, at: Vector3, kg: float, timber: TimberTuning) -> Vector2:
+	var tn := t()
+	var length := m.length()
+	var half := length * 0.5
+	var span := minf(tn.local_span, length)
+	var share := span / maxf(length, 1e-4)
+	var mass := maxf(m.weight(timber) / 9.81, 0.05)
+	var cs := m.cross_section()
+	var wood: Dictionary = timber.woods.get(m.wood, timber.default_wood)
+	var fb: float = wood.bending
+	var capacity := fb * fb / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor * share
+	var near := clampf((at - m.global_position).dot(m.axis()), -half, half)
+	var over := func(tc: float) -> bool:
+		var j := face_impulse(m, at, kg, span, tc)
+		return j * j / (2.0 * mass * share) > capacity
+	var lo := near
+	var hi := near
+	if over.call(near):
+		# The kick falls off away from the charge: each end is found by halving (to CUT_STEP), not
+		# by stepping along (a long board's walk was ~70 windows; this is ~12).
+		var reach := break_reach(kg)
+		lo = _last_over(over, near, maxf(near - reach, -half))
+		hi = _last_over(over, near, minf(near + reach, half))
+	return Vector2(clampf(lo - span * 0.5, -half, half), clampf(hi + span * 0.5, -half, half))
+
+
+## From `inside` (where `over` holds) toward `outside`: the furthest point it still holds, to CUT_STEP.
+static func _last_over(over: Callable, inside: float, outside: float) -> float:
+	if over.call(outside):
+		return outside
+	while absf(outside - inside) > CUT_STEP:
+		var mid := (inside + outside) * 0.5
+		if over.call(mid):
+			inside = mid
+		else:
+			outside = mid
+	return inside
 
 
 ## A timber lying on the ground (a sill on its footing): a charge on it cuts it, but both halves

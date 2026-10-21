@@ -35,6 +35,28 @@ var _frames := 0
 var _ready_to_watch := false
 
 
+func _enter_tree() -> void:
+	if not Events.member_cut.is_connected(_on_member_cut):
+		Events.member_cut.connect(_on_member_cut)
+
+
+func _exit_tree() -> void:
+	if Events.member_cut.is_connected(_on_member_cut):
+		Events.member_cut.disconnect(_on_member_cut)
+
+
+## A board something stood on was cut (a charge holed it): what stood on a piece left of it is still
+## held by that piece; what stood on the stretch torn out has lost it.
+func _on_member_cut(old: Node, pieces: Array) -> void:
+	for item in items:
+		if item.down or not (item.members as Array).any(func(e: Array) -> bool: return e[0] == old):
+			continue
+		var box: AABB = (item.box as AABB).grow(TOUCH)
+		for p: StructureMember in pieces:
+			if is_instance_valid(p) and p.world_aabb().intersects(box):
+				item.members.append([p, p.global_position])
+
+
 func _physics_process(delta: float) -> void:
 	if not _ready_to_watch:
 		_frames += 1

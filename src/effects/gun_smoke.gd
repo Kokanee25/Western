@@ -181,7 +181,7 @@ static func warm_up(parent: Node3D, camera: Camera3D) -> void:
 	parent.add_child(hole)
 	hole.global_position = at
 	var tree := parent.get_tree()
-	for n in [s, flash, hole]:
+	for n in [s, flash, hole] + BlastCloud.warm_up(parent, at):
 		tree.create_timer(0.3).timeout.connect(n.queue_free)
 
 

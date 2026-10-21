@@ -16,6 +16,8 @@ extends Node3D
 var active := {}
 ## Burning spilt lamp oil: {position, radius, left, fx}.
 var spills: Array[Dictionary] = []
+## Wood a blast scorched, catching when its seconds are up: member -> seconds left.
+var smouldering := {}
 
 var _near := {}  # member -> [[other, weight], ...]
 var _near_age := {}
@@ -87,6 +89,14 @@ func ignite(m: StructureMember) -> void:
 	if flammable(m) and not m.burning:
 		m.burning = true
 		m.burn_time = 0.0
+
+
+## Set a member alight `seconds` from now: a blast's flash scorches dry wood and it catches a moment
+## later, out of the dust, not in the flash (dynamite makes no fireball).
+func ignite_after(m: StructureMember, seconds: float) -> void:
+	if m == null or m.consumed or m.burning:
+		return
+	smouldering[m] = minf(smouldering.get(m, INF), seconds)
 
 
 ## A lamp smashes: burning oil splashes round `at` and heats whatever's there for a while.
@@ -218,6 +228,13 @@ func step(dt: float) -> void:
 ## A tick's start: the grid kept up to date, spilt oil.
 func _begin(dt: float) -> void:
 	_grid_age += dt
+	for m: StructureMember in smouldering.keys():
+		smouldering[m] -= dt
+		if not is_instance_valid(m):
+			smouldering.erase(m)
+		elif smouldering[m] <= 0.0:
+			smouldering.erase(m)
+			ignite(m)
 	if _grid_age > 2.0:
 		_rebuild_grid()
 	# Spilt oil heats what's round it.
