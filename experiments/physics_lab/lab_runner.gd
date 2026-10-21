@@ -271,6 +271,10 @@ func _build_fixture(kind: String) -> void:
 			stand.room = false
 			_world.add_child(stand)
 			stand.build()
+		"hitch":
+			# The game's hitching rail (HitchingRail: two posts, its rail's top at 1.14), 0.8 ahead
+			# of him and across his way. (Until 2026-10-21 it stood in "oak_stair" by mistake,
+			# behind the man at the stair's foot, and the hitch falls had none.)
 			var hr := HitchingRail.new()
 			hr.structure_id = &"lab_hitch"
 			_world.add_child(hr)
