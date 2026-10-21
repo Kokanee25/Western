@@ -378,7 +378,9 @@ EXPRESSIONS = {
     "blink_r": {"RightUpperLidClosed": 1.0, "RightLowerLidUp": 0.25},
     "squint": {"LeftLowerLidUp": 0.8, "RightLowerLidUp": 0.8, "LeftCheekUp": 0.6, "RightCheekUp": 0.6,
                "LeftUpperLidClosed": 0.12, "RightUpperLidClosed": 0.12},
-    "brows_up": {"LeftInnerBrowUp": 1.0, "RightInnerBrowUp": 1.0, "LeftOuterBrowUp": 1.0, "RightOuterBrowUp": 1.0},
+    # a real brow lifts ~10-12 mm, its inner end most (Sean, 2026-10-21: at full units, ~24 mm and
+    # arched high, it read comical)
+    "brows_up": {"LeftInnerBrowUp": 0.5, "RightInnerBrowUp": 0.5, "LeftOuterBrowUp": 0.35, "RightOuterBrowUp": 0.35},
     "brows_down": {"LeftBrowDown": 1.0, "RightBrowDown": 1.0},
     "scowl": {"LeftBrowDown": 1.0, "RightBrowDown": 1.0, "NoseWrinkler": 0.7, "MouthLeftPullDown": 0.6,
               "MouthRightPullDown": 0.6, "lowerLipUp": 0.3, "LeftLowerLidUp": 0.3, "RightLowerLidUp": 0.3},
