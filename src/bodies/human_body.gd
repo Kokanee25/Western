@@ -1259,7 +1259,7 @@ func _slide(motion: Vector3) -> Vector3:
 		q.shape = shape
 		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75))
 		q.motion = left
-		q.collision_mask = Layers.WORLD | Layers.PEOPLE
+		q.collision_mask = Layers.STAND | Layers.PEOPLE
 		q.exclude = exclude
 		var frac := space.cast_motion(q)
 		if frac[0] <= 0.0 and frac[1] <= 0.0:
@@ -1302,7 +1302,7 @@ func _slide(motion: Vector3) -> Vector3:
 			q.shape = shape
 			q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3.UP * (0.35 if prone else 0.75))
 			q.motion = turned
-			q.collision_mask = Layers.WORLD | Layers.PEOPLE
+			q.collision_mask = Layers.STAND | Layers.PEOPLE
 			q.exclude = exclude
 			var got: Vector3 = turned * space.cast_motion(q)[0]
 			if got.length() > best.length():
@@ -1321,7 +1321,7 @@ func _snap_to_ground() -> void:
 	var best := -INF
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
 		var at := global_position + off
-		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.WORLD)
+		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.STAND)
 		if _blocker and is_instance_valid(_blocker):
 			q.exclude = [_blocker.get_rid()]
 		var hit := space.intersect_ray(q)
@@ -2699,7 +2699,7 @@ const PLANTED_WITHIN := 0.12
 
 func _on_ground(space: PhysicsDirectSpaceState3D, rb: RigidBody3D) -> bool:
 	var at := rb.global_position
-	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.WORLD))
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.STAND))
 	return not hit.is_empty()
 
 
