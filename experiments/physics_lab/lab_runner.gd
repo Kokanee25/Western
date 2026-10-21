@@ -251,7 +251,8 @@ func _focus() -> Vector3:
 		travel = float(pre.get("speed", 0.0)) * float(pre.get("seconds", 0.0))
 	var push: Array = scenario.get("push", [0, 0, 0])
 	var lean := Vector3(push[0], 0, push[2]).normalized() * 0.6 if Vector3(push[0], 0, push[2]).length() > 0.01 else Vector3.ZERO
-	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * 0.5
+	# "focus_y": the height the cameras look at (a man on his feet: ~0.9).
+	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * float(scenario.get("focus_y", 0.5))
 
 
 func _build_cameras() -> void:

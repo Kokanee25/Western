@@ -1571,9 +1571,9 @@ func _cough(delta: float) -> void:
 ## arm: his gun hand sags out of his aim, the other arm's held in; the body: he guards it, bent
 ## a little round it, and goes slower. Degrees at full (the poses' axes: + x is forward for a limb
 ## and back for the spine; + z moves a right limb out and bends the spine to his left).
-const FAVOUR_LEG := {&"thigh": Vector3(8, 0, 0), &"shin": Vector3(-16, 0, 0), &"foot": Vector3(6, 0, 0)}
+const FAVOUR_LEG := {&"thigh": Vector3(12, 0, 0), &"shin": Vector3(-26, 0, 0), &"foot": Vector3(10, 0, 0)}
 ## ... and his trunk leans this far toward the good leg (z, sign by the side).
-const FAVOUR_LEG_LEAN := {&"abdomen": 4.0, &"chest": 3.0}
+const FAVOUR_LEG_LEAN := {&"abdomen": 5.0, &"chest": 4.0}
 const FAVOUR_GUN_ARM_SAG := Vector3(-20, 0, 0)  ## upper_arm_r when aiming
 const FAVOUR_ARM_HELD := {&"upper_arm": Vector3(10, 0, -5), &"forearm": Vector3(40, 0, 0)}
 const FAVOUR_BODY := {&"abdomen": Vector3(-7, 0, 4), &"chest": Vector3(-6, 0, 3), &"neck": Vector3(-3, 0, 0)}
