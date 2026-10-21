@@ -150,6 +150,10 @@ func _ready() -> void:
 
 
 func _start_point() -> Vector3:
+	# "start": where he stands, in the fixture's space (the oak stair, the railing's deck).
+	if scenario.has("start"):
+		var at: Array = scenario.start
+		return Vector3(at[0], at[1], at[2])
 	match String(scenario.get("fixture", "ground")):
 		"slope":
 			return Vector3(0, _slope_y(0.0), 0)

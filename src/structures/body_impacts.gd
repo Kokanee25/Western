@@ -11,10 +11,15 @@ extends RefCounted
 ## level part counts: a railing gives way to a body thrown into it from the side, where a floor or
 ## a tread, struck from above, bears on its joists and posts (a man dropped onto boards doesn't go
 ## through them).
+##
+## And an upright member whose top nothing holds any more (a baluster whose cap rail he broke) is
+## held at its foot only by its nails (TimberTuning.joint_moment; a post set in the ground isn't):
+## it tears out when his push on it, times how high up it he bears, passes that, whichever way he
+## bears on it. His weight leaning or lying on a freed balustrade is enough.
 
 ## A member's tally is forgotten this long after his last touch on it (s).
 const FORGET_AFTER := 0.3
-## Parts slower than this (m/s) can't break anything: no contacts read (most ticks of a fall).
+## Parts slower than this (m/s) break nothing by impact (only a freed member's nails, by his push).
 const QUIET_SPEED := 0.6
 
 var _tally := {}  ## StructureMember -> [joules, seconds since a touch]
@@ -36,8 +41,9 @@ func step(parts: Dictionary, delta: float) -> Array[StructureMember]:
 		var before: Vector3 = _last_v.get(rb, rb.linear_velocity)
 		var now := rb.linear_velocity
 		_last_v[rb] = now
-		if rb.sleeping or Vector2(before.x, before.z).length() < QUIET_SPEED:
+		if rb.sleeping:
 			continue
+		var moving := Vector2(before.x, before.z).length() >= QUIET_SPEED
 		var st := PhysicsServer3D.body_get_direct_state(rb.get_rid())
 		if st == null:
 			continue
@@ -47,10 +53,26 @@ func step(parts: Dictionary, delta: float) -> Array[StructureMember]:
 				continue
 			var j := st.get_contact_impulse(i)
 			var n := st.get_contact_local_normal(i)
+			var s := m.get_parent() as Structure
+			if s == null or s.tuning == null:
+				continue
+			if m.is_upright() and not m.grounded and _top_free(s, m):
+				# Free at the top it holds nothing up: leaning on it or lying across it, any way he
+				# bears on it levers it off its nails.
+				var push := j.length() / maxf(delta, 1e-4)
+				var up := st.get_contact_collider_position(i).y - m.world_aabb().position.y
+				if push * up > s.tuning.joint_moment:
+					broke.append(m)
+					_tally.erase(m)
+					var away := Vector3(-n.x, 0.0, -n.z)
+					s.break_member.call_deferred(m, away.normalized() * maxf(before.length(), 0.3) if away.length() > 0.01 else before)
+					continue
 			var nl := Vector3(n.x, 0.0, n.z)
 			if nl.length() < 0.2:
 				continue  # struck from above or below: it bears on its supports
 			nl = nl.normalized()
+			if not moving:
+				continue
 			# The level speed into it it took away this tick, at the mean of before and after.
 			var closing := (absf(before.dot(nl)) + absf(now.dot(nl))) * 0.5
 			var work := absf(j.dot(nl)) * closing
@@ -58,9 +80,20 @@ func step(parts: Dictionary, delta: float) -> Array[StructureMember]:
 			e[0] += work
 			e[1] = 0.0
 			_tally[m] = e
-			var s := m.get_parent() as Structure
-			if s and s.tuning and e[0] > s.tuning.impact_toughness * m.volume():
+			if e[0] > s.tuning.impact_toughness * m.volume():
 				broke.append(m)
 				_tally.erase(m)
 				s.break_member.call_deferred(m, before * 0.3)
 	return broke
+
+
+## Nothing holds its top: every member it touches, but what it stands on, is broken (or there's
+## none).
+static func _top_free(s: Structure, m: StructureMember) -> bool:
+	for id: StringName in m.touching:
+		if id in m.supported_by:
+			continue
+		var o := s.get_member(id)
+		if o != null and not o.broken:
+			return false
+	return true
