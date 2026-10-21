@@ -7,7 +7,8 @@ extends SceneTree
 ##
 ## --scenario=NAME[,NAME...] | all | group:A[,F] | list. --seconds=S (override each one's length).
 ## --friction=F, --friction-ends=F: his parts' friction (hands and feet: ends) from the tick he goes
-## limp, in place of HumanBody's 0.9 (an experiment; logged in the events).
+## limp, in place of HumanBody's 0.9 (an experiment; logged in the events). --surface-friction=F:
+## the fixture's (all but the ground).
 ## --seed=N (HumanBody.rng_seed). --model=ID (the body: outlaw, the MakeHuman man, by default).
 ## --repeat=K (each scenario K times in this one process, compared tick by tick with the first).
 ## --perf (1, 5 and 10 men going limp on the same tick; frame times).
@@ -144,6 +145,8 @@ func _run() -> void:
 				runner.model = StringName(args.model)
 			if args.has("friction"):
 				runner.friction = float(args.friction)
+			if args.has("surface-friction"):
+				runner.surface_friction = float(args["surface-friction"])
 			if args.has("friction-ends"):
 				runner.friction_ends = float(args["friction-ends"])
 			root.add_child(runner)

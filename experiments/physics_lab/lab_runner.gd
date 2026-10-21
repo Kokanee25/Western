@@ -35,6 +35,9 @@ var model := &"outlaw"
 ## --friction / --friction-ends: his parts' friction once he's limp (HumanBody gives 0.9); < 0 keeps it.
 var friction := -1.0
 var friction_ends := -1.0
+## --surface-friction: every fixture body's friction but the ground's (a stair's oak, a rail, the
+## props; the world has none, so 1.0). Jolt takes the lower of the two surfaces' frictions.
+var surface_friction := -1.0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -99,6 +102,13 @@ func _ready() -> void:
 	_world.name = "LabWorld"
 	add_child(_world)
 	_build_fixture(String(scenario.get("fixture", "ground")))
+	if surface_friction >= 0.0:
+		var pm := PhysicsMaterial.new()
+		pm.friction = surface_friction
+		var ground := _world.get_child(0) if String(scenario.get("fixture", "ground")) != "slope" else null
+		for n: Node in _world.find_children("*", "StaticBody3D", true, false):
+			if n != ground:
+				(n as StaticBody3D).physics_material_override = pm
 	_light()
 	var yaw := deg_to_rad(float(scenario.get("yaw", 0.0)))
 	_start_xf = Transform3D(Basis(Vector3.UP, yaw), _start_point())
