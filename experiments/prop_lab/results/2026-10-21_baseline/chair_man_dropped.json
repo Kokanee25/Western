@@ -1,0 +1,38 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 796890258,
+  "frame": {
+    "added_ms_first_1s": 0.15,
+    "before_ms": 0.5,
+    "event_ms": 3.96,
+    "settle_ms": 0.46
+  },
+  "loose": false,
+  "loose_t": null,
+  "man": {
+    "limp": true,
+    "limp_t": 0.0,
+    "on_floor": true,
+    "pelvis_end": [
+      -0.13,
+      0.22,
+      -0.49
+    ],
+    "seat_h": 1.925
+  },
+  "max_piece_speed": 0.0,
+  "members": 13,
+  "pieces": 0,
+  "prop": "chair",
+  "scenario": "chair_man_dropped",
+  "snapped": []
+}
