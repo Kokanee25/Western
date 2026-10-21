@@ -85,6 +85,46 @@ func test_the_oak_stairs_strings_clear_the_floor_and_the_first_step() -> void:
 	s.free()
 
 
+func test_every_board_carries_where_it_weathers() -> void:
+	# Round 3's weathering layer (texel_grid `weathered`): each board's ground, drip line and
+	# amount in CUSTOM0, the siding's nails in CUSTOM1; the wall weathers from the deck it stands on.
+	var s := _stand(&"")
+	for part in [&"siding", &"deck", &"frame"]:
+		var mi := (s.part_nodes[part] as Node).find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
+		var a: Array = mi.mesh.surface_get_arrays(0)
+		var c0: PackedFloat32Array = a[Mesh.ARRAY_CUSTOM0]
+		var c1: PackedFloat32Array = a[Mesh.ARRAY_CUSTOM1]
+		var w: Array = MaterialStand.WEATHER[part]
+		check_near(c0[0], w[0], 0.0001, "%s: its ground" % part)
+		check_near(c0[1], w[1], 0.0001, "%s: its drip line" % part)
+		check_near(c0[2], w[2], 0.0001, "%s: how much" % part)
+		check_eq(c1[0] > 0.0, part == &"siding", "%s: nails on the siding only" % part)
+	check_near((MaterialStand.WEATHER[&"siding"] as Array)[0], MaterialStand.DECK_TOP, 0.0001, "the wall splashes from the deck")
+	s.free()
+
+
+func test_the_oak_stair_indoors_has_no_weather() -> void:
+	var s := OakStair.new()
+	s.build()
+	var mi := (s.part_nodes[&"oak_treads"] as Node).find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
+	check(mi.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM0] == null, "no weathering frame indoors")
+	s.free()
+
+
+func test_a_set_with_a_stain_sheet_weathers_its_woods() -> void:
+	# The studio6 set's lab.json names its sheet (paint_woods.py --set=studio6 --cut); its woods'
+	# materials take it, with the seams a pixel wide; the game's woods don't.
+	if not FileAccess.file_exists("res://assets/textures/mlab_studio6/lab.json"):
+		return  # a cut set, not in git
+	var m := PixelArt.material(load("res://assets/textures/mlab_studio6/floor_b0.png"))
+	check(m.get_shader_parameter(&"use_weather") == true, "the set's woods weather")
+	check(m.get_shader_parameter(&"weather_tex") is Texture2D, "with its stain sheet")
+	check(m.get_shader_parameter(&"edge_aa") == true, "seams a pixel wide")
+	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
+	check(g.get_shader_parameter(&"use_weather") != true, "the game's woods untouched")
+	check(g.get_shader_parameter(&"edge_aa") != true, "their seams as they were")
+
+
 func test_the_solid_oak_stair_can_be_stood_and_fallen_on() -> void:
 	# Sean, 2026-10-21: the ragdoll session's stairs. A ray down onto each tread stops at its top;
 	# down onto the rail it stops at the rail; the runner and the lobby's boards add no shapes.
