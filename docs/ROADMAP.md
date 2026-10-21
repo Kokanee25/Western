@@ -209,7 +209,8 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   critic finds the repaints' fine grain photographic; round 2 (broad paint, 384 a metre): the store
   boards SAME; round 3 (the weathering layer in texel_grid, the boards graded to one palette in the
   cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
-  8 against round 2's none; the stains read as light, not dirt (round 4, free). Nothing in the
+  8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
+  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 next (free). Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
