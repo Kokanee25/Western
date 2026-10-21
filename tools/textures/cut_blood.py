@@ -52,6 +52,19 @@ def cut(sheet, quadrant, lo=LO, hi=HI):
     return Image.fromarray(square.astype(np.uint8), "RGBA")
 
 
+def tint(mark, shades):
+    """A mark painted in black ink, coloured from its darkness: darkest (thickest) to the first
+    shade, lightest to the last (the game's blood reds)."""
+    a = np.asarray(mark, dtype=np.float32)
+    lum = a[..., :3].mean(axis=2) / 255.0
+    k = np.clip(lum / max(float(np.percentile(lum[a[..., 3] > 128], 95)) if (a[..., 3] > 128).any() else 1.0, 1e-3), 0.0, 1.0)
+    dark = np.array(shades[0], dtype=np.float32)
+    light = np.array(shades[1], dtype=np.float32)
+    rgb = dark[None, None, :] * (1.0 - k[..., None]) + light[None, None, :] * k[..., None]
+    out = np.concatenate([rgb, a[..., 3:4]], axis=2)
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
+
+
 def main():
     plan = json.load(open(MAP))
     os.makedirs(OUT, exist_ok=True)
@@ -71,6 +84,8 @@ def main():
             if mark is None:
                 print("nothing in %s quadrant %d" % (sheet_name, quadrant))
                 continue
+            if "tint" in spec:
+                mark = tint(mark, spec["tint"])
             size = int(spec.get("size", 64))
             mark = mark.resize((size, size), Image.LANCZOS)
             mark.save(os.path.join(OUT, key + ".png"))
