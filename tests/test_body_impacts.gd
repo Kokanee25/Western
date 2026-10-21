@@ -1,0 +1,114 @@
+extends TestCase
+## A limp man thrown into timber breaks it (BodyImpacts): through a 1 m railing at a run, not by
+## slumping against it, and never through boards he lands on from above (Sean, 2026-10-21).
+
+var world: Node3D
+var rail: Structure
+
+
+func before_each() -> void:
+	world = Node3D.new()
+	add_child(world)
+	var ground := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(40, 1, 40)
+	shape.shape = box
+	ground.add_child(shape)
+	ground.position.y = -0.5
+	world.add_child(ground)
+
+
+func after_each() -> void:
+	world.queue_free()
+	await physics_frames(1)
+
+
+## A railing on the ground along x at z = -0.5 (the game's railing part): newels at its ends and
+## middle, and between them a bay of balusters every 0.12 under a 70 x 60 oak cap at 1.0.
+func _railing() -> Structure:
+	var s := Structure.new()
+	s.structure_id = &"test_rail"
+	world.add_child(s)
+	# A sill on the ground (tier 0: grounded), so the railing has its load path.
+	s.add_member("deck", &"sill", &"floor", Vector3(4.0, 0.05, 2.0), Vector3(0, 0.025, 0.45))
+	for x: float in [-1.2, 0.0, 1.2]:
+		s.add_member("newel_%d" % int(x * 10), &"furniture_frame", &"dark_trim", Vector3(0.09, 0.95, 0.09), Vector3(x, 0.525, -0.5))
+	for span in 2:
+		var a := -1.2 + 1.2 * span
+		Railing.build(s, "bay_%d" % span, Vector3(a + 0.045, 0.05, -0.5), Vector3(a + 1.155, 0.05, -0.5),
+				{"height": 0.95, "spacing": 0.12, "rail": Vector2(0.07, 0.06), "overhang": 0.0})
+	s.infer_supports()
+	return s
+
+
+func _man(at: Vector3, yaw := 0.0) -> HumanBody:
+	var man := HumanBody.new()
+	world.add_child(man)
+	man.global_transform = Transform3D(Basis(Vector3.UP, yaw), at)
+	return man
+
+
+func _broken(s: Structure) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for m in s.get_members():
+		if m.broken:
+			out.append(m.member_id)
+	return out
+
+
+func test_a_man_thrown_into_a_railing_at_a_run_breaks_it() -> void:
+	var s := _railing()
+	var man := _man(Vector3(0.6, 0.05, 0.6))
+	await physics_frames(2)
+	man.go_limp()
+	for rb: Variant in man.parts.values():
+		(rb as RigidBody3D).linear_velocity = Vector3(0, 0, -3.5)
+	await physics_frames(120)
+	var gone := _broken(s)
+	check(gone.has(&"test_rail/bay_1/rail/00"), "the cap he hit broke (%s)" % [gone])
+	check(gone.size() >= 3, "and the balusters in his way with it (%d)" % gone.size())
+	check(not gone.has(&"test_rail/newel_-12"), "the far newel stands (only what he hit went)")
+
+
+func test_he_carries_on_through_the_railing_he_breaks() -> void:
+	# The rail takes only what breaks it; the rest of what the engine took from him goes back
+	# (BodyImpacts._give_back): a member that took four times what it could hold gives back half
+	# the impulse (energy goes with its square), and one that held gives back nothing.
+	var part := RigidBody3D.new()
+	part.mass = 10.0
+	part.gravity_scale = 0.0
+	part.linear_damp = 0.0
+	world.add_child(part)
+	BodyImpacts._give_back({part: Vector3(0, 0, 20)}, 4.0, 1.0)
+	await physics_frames(1)
+	check_near(part.linear_velocity.z, -1.0, 0.02, "half the 20 N·s back on 10 kg: 1 m/s on through")
+	part.linear_velocity = Vector3.ZERO
+	BodyImpacts._give_back({part: Vector3(0, 0, 20)}, 1.0, 1.0)
+	await physics_frames(1)
+	check_near(part.linear_velocity.z, 0.0, 0.001, "a member that held gives nothing back")
+
+
+func test_slumping_against_a_railing_breaks_nothing() -> void:
+	var s := _railing()
+	var man := _man(Vector3(0.6, 0.05, -0.2), PI)
+	await physics_frames(2)
+	man.go_limp()
+	await physics_frames(240)
+	check_eq(_broken(s).size(), 0, "a faint against it leaves it whole")
+
+
+func test_a_man_dropped_onto_boards_breaks_none() -> void:
+	var s := Structure.new()
+	s.structure_id = &"test_floor"
+	world.add_child(s)
+	for i in 8:
+		s.add_member("board_%d" % i, &"floor_board", &"floor", Vector3(3.0, 0.025, 0.14), Vector3(0, 0.0125, -0.6 + 0.15 * i))
+	s.infer_supports()
+	var man := _man(Vector3(0, 1.6, 0))
+	await physics_frames(2)
+	man.go_limp()
+	for rb: Variant in man.parts.values():
+		(rb as RigidBody3D).linear_velocity = Vector3(0.5, -2.0, 0.0)
+	await physics_frames(180)
+	check_eq(_broken(s).size(), 0, "boards bear a man landing on them")

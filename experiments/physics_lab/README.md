@@ -50,7 +50,28 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   `men` and `spacing`, `gun`, `pre` `"do": "pose"`, `"hit"` with `"ball": true` (a real ball through
   `take_bullet` that doesn't drop him); fixtures `seat` and `seat_table`. Groups M (the matrix),
   N (blasts and a blow) and R (hits short of a fall: `compare.py sheet --from=hit`).
+- Groups P and S (Sean, 2026-10-21: "falling down stairs and falling over railings and falling into
+  tables and chairs and props"): P the game's own stair and balcony rail, a porch edge and steps,
+  the hitching rail, the saloon's props (`PropLibrary`), the bar and crates; S art's oak stair
+  (`OakStair` with `solid` on, `room` off: #172), down its flight, at its foot, and over its
+  walkway's 1 m railing. `start` places him in the fixture's space, `focus_y` aims the cameras,
+  `views` picks a scenario's own cameras where the usual ones would look through the fixture.
 - Joints of a torn-off limb aren't measured; `lab.gd` quits if `lab_runner.gd` doesn't load.
+
+**Since 2026-10-21, round 4** (`results/2026-10-21_round4/`):
+- `--model=ID` stops with an error if that body isn't imported (it used to draw the outlaw without
+  a word). Every body shares the outlaw's physics shapes, so the numbers match man for man.
+- `seen` in each summary: how much of him each camera direction sees (a ray to each part's centre,
+  blocked by the world, and inside the frame), sampled from the hit to the end, for every direction
+  (`front`, `side`, `three`, `left`, `three_left`, `back`, `back_right`, `back_left`, `top`) and from
+  1.5 and 3 m above (`front^1.5`). A scenario's `views` can name any of them; `cam_up` and
+  `cam_dist` are its own camera height and distance. Groups P and S chose theirs by it.
+- `--friction=F` and `--friction-ends=F` (his parts' friction once limp; HumanBody's is 0.9),
+  `--surface-friction=F` (the fixture's but the ground's; Jolt takes the lower of the two) and
+  `--jitter=N` (his start moved up to 2 cm and turned up to 3 deg) for experiments.
+- `spread.py BASE COND,...`: a fall's spread over `--jitter` runs (`j_<COND>_<N>` roots).
+  `blind.py A B OUT SEED`: pairs of sheets in random order for a blind judge, the key beside OUT.
+- The hitching rail is its own fixture (`hitch`); it had stood in `oak_stair` by mistake.
 
 ## Files
 

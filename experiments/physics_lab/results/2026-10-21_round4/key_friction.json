@@ -1,0 +1,62 @@
+{
+ "A_stand_shot_front": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_001.png"
+ },
+ "F_chair_behind": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_002.png"
+ },
+ "F_slope_downhill": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_003.png"
+ },
+ "F_stairs_down": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_004.png"
+ },
+ "F_wall_behind": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_005.png"
+ },
+ "P_flight_backwards_ball": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_006.png"
+ },
+ "P_flight_top_ball_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_007.png"
+ },
+ "P_flight_top_dead_head": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_008.png"
+ },
+ "S_oak_mid_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_009.png"
+ },
+ "S_oak_mid_facing_up_ball": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_010.png"
+ },
+ "S_oak_top_blackout": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_011.png"
+ },
+ "S_oak_top_dead_head": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_012.png"
+ }
+}
