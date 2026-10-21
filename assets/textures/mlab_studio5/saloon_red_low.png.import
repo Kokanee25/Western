@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://87rdky3pqeom"
+path="res://.godot/imported/saloon_red_low.png-6df2c4a1b039713d26e96d91e52f83c2.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio5/saloon_red_low.png"
+dest_files=["res://.godot/imported/saloon_red_low.png-6df2c4a1b039713d26e96d91e52f83c2.ctex"]
 
 [params]
 

@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cckoqkwr1esi5"
+path="res://.godot/imported/fascia_b2.png-5345f48cf802cb00358fc5a9b5678953.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio5/fascia_b2.png"
+dest_files=["res://.godot/imported/fascia_b2.png-5345f48cf802cb00358fc5a9b5678953.ctex"]
 
 [params]
 

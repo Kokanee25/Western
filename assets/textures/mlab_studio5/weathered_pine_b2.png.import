@@ -2,6 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://c4xqxl6eciy8m"
+path="res://.godot/imported/weathered_pine_b2.png-4c3530bd3869a109042151d49e3c9ac0.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_studio5/weathered_pine_b2.png"
+dest_files=["res://.godot/imported/weathered_pine_b2.png-4c3530bd3869a109042151d49e3c9ac0.ctex"]
 
 [params]
 
