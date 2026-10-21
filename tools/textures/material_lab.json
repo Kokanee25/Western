@@ -509,7 +509,7 @@
    }
   },
   "studio6p": {
-   "note": "Round 3 with a painted stain sheet (Sean, 2026-10-21: two takes, cap $0.90). Takes a and b (run 106, $0.38) edited the men's sheet instead of painting panels: unusable; take c (raw/stains_r3_c.jpg) paints onto four blank grey panels with the men's cloth swatches as the style, inside what's left ($0.52). textures = mlab:studio6p.",
+   "note": "Round 3 with a painted stain sheet (Sean, 2026-10-21: two takes, cap $0.90). Takes a and b (run 106, $0.38) edited the men's sheet instead of painting panels: unusable. Take c (run 107, raw/stains_r3_c.jpg) painted onto four blank grey panels with the men's cloth swatches as the style: its mud and bleach are big soft painted shapes and are used (channels ra); its streaks came as dots and its grime as spatter, so those two are the free stand-in's.",
    "texels_per_metre": 384,
    "woods": [
     "saloon_red",
@@ -620,124 +620,10 @@
      "b",
      "c"
     ],
-    "pick": "c"
+    "pick": "c",
+    "channels": "ra"
    },
    "budget": 0.52
-  },
-  "studio6q": {
-   "note": "As studio6p, another take's sheet (pick), cut with no call.",
-   "texels_per_metre": 384,
-   "woods": [
-    "saloon_red",
-    "store_boards",
-    "floor",
-    "weathered_pine",
-    "timber",
-    "fascia",
-    "saloon_red_low",
-    "store_boards_low",
-    "framing",
-    "dark_trim"
-   ],
-   "boards": {
-    "framing": 8,
-    "dark_trim": 7,
-    "floor": 10,
-    "timber": 8
-   },
-   "length": {
-    "timber": 3.0,
-    "dark_trim": 4.0
-   },
-   "raw": "woods_studio5_%s.jpg",
-   "grade_all": {
-    "unify": 0.7,
-    "unify_L": 0.6,
-    "highs": [
-     80,
-     0.45
-    ],
-    "calm": [
-     2.0,
-     0.35
-    ],
-    "rows": 0.5,
-    "seams": 3
-   },
-   "grade": {
-    "saloon_red": {
-     "L": 0.89,
-     "calm": [
-      3.0,
-      0.6
-     ],
-     "rows": 0.75
-    },
-    "saloon_red_low": {
-     "L": 0.89,
-     "calm": [
-      3.0,
-      0.6
-     ],
-     "rows": 0.75
-    },
-    "store_boards": {
-     "L": 0.81
-    },
-    "store_boards_low": {
-     "L": 0.81
-    },
-    "weathered_pine": {
-     "L": 0.775,
-     "unify": 0.85,
-     "unify_L": 0.75
-    },
-    "floor": {
-     "L": 0.872
-    },
-    "timber": {
-     "L": 0.83,
-     "unify": 0.85,
-     "unify_L": 0.75,
-     "rows": 0.75
-    },
-    "fascia": {
-     "L": 0.809
-    },
-    "framing": {
-     "L": 0.937
-    },
-    "dark_trim": {
-     "L": 0.938
-    }
-   },
-   "weathering": {
-    "metres": 3.0,
-    "tones": 3,
-    "mud": "#5e4a37",
-    "streak": "#a69b8e",
-    "grime": "#9a8977",
-    "bleach": "#c9c3b8",
-    "amounts": [
-     0.85,
-     0.6,
-     0.55,
-     0.45
-    ],
-    "reach": [
-     0.6,
-     1.1,
-     1.0,
-     0.16
-    ],
-    "painting": "stains_r3_%s.jpg",
-    "takes": [
-     "a",
-     "b",
-     "c"
-    ],
-    "pick": "b"
-   }
   }
  }
 }

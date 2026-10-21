@@ -385,6 +385,7 @@ def stains(name, cfg, cut_only, repaint, key):
     w = dict(cfg.get("weathering", {}))
     if not w:
         return {}
+    w.pop("channels_note", None)
     import stain_sheet
     out = os.path.join(pt.ROOT, "assets", "textures", "weather", "stains_%s.png" % name)
     pattern = w.pop("painting", "")
@@ -404,7 +405,7 @@ def stains(name, cfg, cut_only, repaint, key):
         except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
             print("stains %s failed:" % take, e)
     if painting and os.path.exists(painting):
-        masks = stain_sheet.from_painting(painting)
+        masks = stain_sheet.from_painting(painting, channels=w.pop("channels", "rgba"), seed=seed)
         print("stains: from %s" % os.path.basename(painting))
     else:
         masks = stain_sheet.procedural(seed)

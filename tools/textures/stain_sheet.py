@@ -99,7 +99,7 @@ def procedural(seed=7, size=SIZE):
     return np.stack([even(soft_round(m, 1.5)) for m in (mud, streaks, grime, bleach)], axis=-1)
 
 
-def from_painting(path, size=SIZE):
+def from_painting(path, size=SIZE, channels="rgba", seed=7):
     """The four masks from a painted 2 x 2 sheet (STAIN_ASK): each panel's stain = its distance from
     the panel's ground colour in L*a*b*, the panel's border trimmed, made seamless, evened."""
     import reduce  # noqa: E402 (its Lab conversions)
@@ -123,19 +123,34 @@ def from_painting(path, size=SIZE):
         d = soft_round(d, 1.5)
         d = np.maximum(d - (np.percentile(d, 50) + 3.0), 0.0)
         a = np.asarray(Image.fromarray(d.astype(np.float32), mode="F").resize((size, size), Image.BILINEAR))
-        a = np.round(soft_round(seamless(a), 1.0), 3)
+        # Softened again at the sheet's size, the bleach most (the painting's paper grain read as
+        # speckle in it), so what's left is the big shapes.
+        a = np.round(soft_round(seamless(a), (2.0, 1.5, 2.0, 4.0)[i]), 3)
         out.append(even(a))
-    return np.stack(out, axis=-1)
+    masks = np.stack(out, axis=-1)
+    if channels != "rgba":
+        # The panels the painting got wrong (dots for streaks, spatter for grime: take c) from the
+        # free stand-in instead.
+        free = procedural(seed, size)
+        for i, ch in enumerate("rgba"):
+            if ch not in channels:
+                masks[..., i] = free[..., i]
+    return masks
 
 
-def seamless(a):
+def seamless(a, seed=3):
     """A panel made to tile: blended with itself rolled half a tile (whose edges are the panel's own
-    middle, so they wrap), the panel kept in the middle, the rolled copy at the edges."""
+    middle, so they wrap), the panel kept in the middle, the rolled copy at the edges. The line
+    between them wanders (smooth noise), so where a stain is cut by it the cut is a ragged painted
+    edge, not the straight side of a rectangle."""
     n, m = a.shape
     b = np.roll(a, (n // 2, m // 2), axis=(0, 1))
     wy = np.sin(np.linspace(0.0, np.pi, n))[:, None]
     wx = np.sin(np.linspace(0.0, np.pi, m))[None, :]
-    w = np.clip(np.minimum(wy, wx) * 1.6, 0.0, 1.0)
+    base = np.minimum(wy, wx)
+    wob = periodic_noise(np.random.default_rng(seed), n, 30, 30)
+    wob = np.clip(wob / max(np.abs(wob).max(), 1e-9), -1.0, 1.0)
+    w = np.clip((base - 0.35 + 0.3 * wob) * 4.0, 0.0, 1.0) * (base > 0.02)
     return a * w + b * (1.0 - w)
 
 
@@ -181,7 +196,7 @@ def main():
     if "procedural" in args:
         masks = procedural(int(args.get("seed", "7") or 7))
     elif "from" in args:
-        masks = from_painting(args["from"])
+        masks = from_painting(args["from"], channels=args.get("channels", "rgba") or "rgba")
     else:
         print(__doc__)
         sys.exit(1)
