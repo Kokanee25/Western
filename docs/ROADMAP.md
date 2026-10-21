@@ -51,6 +51,27 @@ easy part; making it fun is the hard part, so it comes first.
 | 5. Consequence and story | what you do changes how people treat you; the opening of the real game | gameplay, characters | D: the slice, played blind |
 | 6. The demo | a stranger can play it | all, in turn | F: the demo ships |
 
+### When the labs start (Sean, 2026-10-21)
+
+Labs measure a system in fixed scenarios before anything is fixed (`docs/briefs/labs.md`); the
+pipelines make a kind of asset the same way every time. Each starts when its row says, and only
+then.
+
+| Lab or pipeline | Starts | Lane | Brief |
+|---|---|---|---|
+| Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
+| Sound | Inside the gunfight lab; its own lab only if that gap outgrows it | gameplay | `labs.md` |
+| Material lab: colour, grain, thickness, end grain, dirt, paint wear (1.4a) | Now, beside Phases 2 and 3 | art | `building-pipeline.md`, `material-lab-timber.md` |
+| Wound paint (2.3) | After the stand-ins (2.1) | characters (+ a line of gameplay) | `damage-pipelines.md` |
+| Material lab: wear-down (worn paths, paint gone where hands touch, new / a year / ten years) | After Gate A | art | `building-pipeline.md` |
+| Building lab: the spec format, tried on the saloon (`docs/concept/saloon-sheet.png`), changing nothing in the game | After Gate A | gameplay (structures), art (look) | `building-pipeline.md` |
+| Building lab for real: the saloon (4.3), then the block (4.4) | Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
+| Breakage paint (4.4a) | Phase 4, once the woods are locked | art | `damage-pipelines.md` |
+| Fire lab, and finishing `fire-look.md` (4.4b) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
+| Movement lab: walking, running, mocap | 4.6, when Sean records | gameplay | `MOCAP.md` |
+| People lab: town life, memory, the next morning | Phase 5, once the memory store exists | gameplay | to write |
+| The town, through the building lab | After Gate B, past the demo | all | `building-pipeline.md` |
+
 ---
 
 ## Phase 0: Clean slate
@@ -79,6 +100,7 @@ The approach is settled (the paintings' squares on the surfaces, smooth light, f
 | 1.3 | **The man complete** | The bold cowboy whole: the portrait's hat (brown, dented crown, studded band) as its own piece that can be shot off, his hair edges, coat, vest, shirt, tie and hands as separate pieces, through the pose check (stand, sit, hands up, crouch, back) with no tears. | characters |
 | 1.3b | **Faces that move** (Sean 2026-10-16) | A test on the bold cowboy, before more men are made: his head gets a mouth that opens (lips, teeth, tongue dark), eyelids that close and a jaw, and 10–15 expressions that read at the game's square size (jaw, the main speech shapes, blink, squint, brows up and down, scowl, half smile), carried from MakeHuman's free expression shapes onto his Rodin head by script. Then one short line of Sean's iPhone performance (Live Link Face's recording, his voice through ElevenLabs' voice changer) played on him in Godot. Done when he speaks and pulls faces without losing his look, and the recipe (`RECIPE.md`) says how every man after him gets the same rig. | characters |
 | 1.4 | **Surfaces to the man** | Wood, end grain, posts, planks and the road at the same square size and finish as his face and coat: they look like one picture, close and far. | art |
+| 1.4a | **The material lab** (Sean 2026-10-21; runs now, beside Phases 2 and 3) | `tools/material_lab.gd` made permanent and wider (`docs/briefs/building-pipeline.md`): one material at a time on a test stand (wall, post, deck, steps) under the three lights with the Studio's men for scale; colour, grain and knots, thickness and end grain, dirt and splash, sun-greying, paint wear. Each approved material goes into the texture factory with its numbers and a golden view. Wear-down waits for Gate A. | art |
 | 1.5 | **Gate A** | Two fixed shots, the man at the saloon table and the street at golden hour, side by side with their targets. Sean says yes. Then: goldens re-approved, the look's settings frozen, and later changes only to close a gap Sean names. | Sean |
 
 ## Phase 2: Stand-ins
@@ -89,6 +111,7 @@ Lane: characters. Small and quick.
 |---|---|---|---|
 | 2.1 | **Generic bad guys** | Two or three rough men made by the recipe (`RECIPE.md`, `LAYERED.md`), each with a couple of outfit and hat swaps, so a street of them isn't one man repeated. They stand in for everyone (the gang, the townsfolk, the storekeeper) while missions are tested; the real cast comes in Phase 4. Each passes the pose check. | characters |
 | 2.2 | **Sean's quick OK** | A line-up sheet; Sean says they'll do for testing. Not a look gate. | Sean |
+| 2.3 | **Wound paint** (after 2.1) | The painted wound atlas in the man's hand (`docs/briefs/damage-pipelines.md`): entry, exit, graze, soak in stages, pools; read by `wounds.gdshaderinc` in place of noise, the soak growing with the blood lost. Judged on two fixed views beside painted targets. Reduced gore stays. ~$3 proposed. | characters, gameplay (one line) |
 
 ## Phase 3: Is it fun?
 
@@ -123,8 +146,10 @@ the saloon, the store, the telegraph, the jail and the livery, and the street be
 |---|---|---|---|
 | 4.1 | **The cast by recipe** | Brody, Lyle and the storekeeper made by `RECIPE.md`, each within ~2 h of session and ~$2, each passing the pose check and the art session's look. The recipe's real test: a fresh session makes the third man from the recipe alone. | characters |
 | 4.2 | **Townsfolk** | Eight background people, cheaper than principals (shared bodies and wardrobe, their own faces), different enough that the street isn't brothers. | characters |
-| 4.3 | **The saloon finished** | Outside and in, to its set-direction card (`docs/briefs/set-direction.md`): lit, dressed, the critic's top three closed. | art |
+| 4.3 | **The saloon finished** (through the building lab, `docs/briefs/building-pipeline.md`) | Outside and in, to its set-direction card (`docs/briefs/set-direction.md`): lit, dressed, the critic's top three closed. | art |
 | 4.4 | **The block finished** | The store, telegraph, jail and livery to their cards: fronts, signs, what's seen through the doors, the street's dressing. | art |
+| 4.4a | **Breakage paint** | Per-wood insides, torn, split and charred-break faces for the voxel carving and chips, in one material (no new draw calls) (`docs/briefs/damage-pipelines.md`). Judged on the wall scene beside a painted target. ~$3 proposed. | art |
+| 4.4b | **Fire, finished** | The fire lab (spread against fire-science figures, smoke filling, the look) and the rest of `docs/briefs/fire-look.md`: firelight on the street, the smoke column, the flames redrawn in the locked look. | gameplay, art |
 | 4.5 | **Light across the day** | Dawn, noon, golden hour, night, and inside, each a fixed view with a golden image. None of them breaks the look. | art |
 | 4.6 | **Motion** | Sean records the shot list in `docs/MOCAP.md` (walk, run, turn, idle, sit, stand up, draw); it's retargeted and the people move by it, with procedural breathing, aim and flinches on top. *Needs Sean's recording time: book it at the start of the phase.* | Sean, gameplay |
 | 4.7 | **Hands on the world** | Pick up, carry, drop, throw, open, close: doors, bottles, chairs, a hat off the floor. It feels natural with mouse and controller. | gameplay |
@@ -178,6 +203,8 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
     **3.1b** the **body lab** beside it.
   - **3.2** guns: the kick merged (#153), the smoke next (`claude/gameplay-smoke`).
   - **3.3a** the **breakage lab**, before 3.3.
+- **Phase 1, beside them** (art): **1.4a** the **material lab** (Sean 2026-10-21).
+- When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
 - Parked with Phase 1: 1.2, 1.3, 1.3b and 1.4 where they stand (1.3's proper garments were
   next; art had paused 2026-10-17 until the man was done). Gate A (1.5) before Phase 4.
