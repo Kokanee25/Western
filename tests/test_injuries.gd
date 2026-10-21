@@ -168,6 +168,49 @@ func test_a_drop_at_a_slant_lands_long() -> void:
 	Blood.clear()
 
 
+## Soft lead on bone (the gore lab): a ball through the thigh bone flattens and goes on wider; it
+## sometimes splits on so strong a bone, two tracks and two holes out.
+func test_a_ball_through_the_femur_flattens_or_splits() -> void:
+	var a := Anatomy.shared()
+	var flat := 0
+	var split := 0
+	for k in 60:
+		var r := RandomNumberGenerator.new()
+		r.seed = hash(["femur", k])
+		var y := 0.58 + k * 0.004  # up the bone, each a different spot on it
+		var tr := a.trace(&"thigh_r", Vector3(0.0975, y, -0.4), Vector3.BACK, 475.0, 0.0057, r)
+		var broke: bool = tr.hits.any(func(h: Dictionary) -> bool: return h.id == &"femur_r" and h.effect == &"broken")
+		if not broke:
+			continue
+		check(tr.flattened, "a ball that broke the femur flattened (seed %d)" % k)
+		if tr.split:
+			split += 1
+			check((tr.exits as Array).size() >= 1, "a split ball has its ways out (%d)" % tr.exits.size())
+		else:
+			flat += 1
+			check(float(tr.radius) > 0.0057 * 1.4, "and went on wider (%.1f mm)" % (float(tr.radius) * 1000.0))
+	check(flat > 0 and split > 0, "some flatten, some split (%d / %d)" % [flat, split])
+	check(split < flat, "splitting is the rarer (%d of %d)" % [split, flat + split])
+
+
+## A ball that meets a bone nearly side-on skips off it: the bone's chipped, not broken, and the
+## ball leaves on a bent line.
+func test_a_ball_side_on_to_a_bone_skips_off_it() -> void:
+	var a := Anatomy.shared()
+	var skipped := 0
+	for k in 40:
+		var r := RandomNumberGenerator.new()
+		r.seed = hash(["skip", k])
+		var y := 0.6 + k * 0.005
+		var tr := a.trace(&"thigh_r", Vector3(0.0973 + 0.0222 + (0.7 - y) * 0.013, y, -0.4), Vector3.BACK, 475.0, 0.0057, r)
+		var femur: Array = tr.hits.filter(func(h: Dictionary) -> bool: return h.id == &"femur_r")
+		if tr.skipped:
+			skipped += 1
+			check(not femur.is_empty() and femur[0].effect == &"chipped", "the bone's chipped (%s)" % [femur])
+			check((tr.out_dir as Vector3).angle_to(Vector3.BACK) > 0.1, "and it goes on bent (%.0f deg)" % rad_to_deg((tr.out_dir as Vector3).angle_to(Vector3.BACK)))
+	check(skipped > 10 and skipped < 35, "it skips most times, not every time (%d of 40)" % skipped)
+
+
 func test_a_blow_to_the_belly_bleeds_inside() -> void:
 	var p := Physiology.new()
 	var harm := p.blow(&"abdomen", 600.0, rng)
@@ -215,3 +258,27 @@ func test_a_falling_beam_hurts_the_man_under_it() -> void:
 	check(hurt, "the beam comes down on him")
 	var blows := man.wounds.size()
 	check(man.physiology.wound_pain > 0.1, "and it hurts (%s)" % man.physiology.describe())
+
+
+## A ball through his clothes carries a plug of them into him more often than not when it stays in
+## him, less when it goes through; it's said in what the wound is.
+func test_a_ball_carries_his_clothes_in() -> void:
+	var man := HumanBody.new()
+	man.has_gun = false
+	world.add_child(man)
+	await physics_frames(2)
+	var part: Node3D = man.parts[&"abdomen"]
+	var carried := 0
+	var shots := 0
+	for i in 24:
+		var at := part.global_transform * (Vector3(-0.08 + i * 0.007, 0.0, 0.0))
+		var res := man.take_bullet(part, at + Vector3(0, 0, -0.3), Vector3.BACK, 300.0, 0.0057)
+		var w: Dictionary = res.wound
+		if w.kind == &"graze":
+			continue
+		shots += 1
+		if w.get("cloth", &"") != &"":
+			carried += 1
+			check(", ".join(man._hit_words(w)).contains("carried in"), "said: %s" % ", ".join(man._hit_words(w)))
+	check(shots > 10, "shots into him (%d)" % shots)
+	check(carried > shots / 5 and carried < shots, "some carry cloth in, not all (%d of %d)" % [carried, shots])

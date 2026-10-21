@@ -1953,7 +1953,13 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
 			"stop": (tr.stop - center) if tr.stop != null else null,
 			"bleeds": bleeds, "garments": holed, "stain": null,
-			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d}
+			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d,
+			"exits": (tr.exits as Array).map(func(e: Vector3) -> Vector3: return e - center),
+			"flattened": tr.flattened, "split": tr.split, "skipped": tr.skipped}
+	# A ball through his clothes carries a plug of them in with it (the Medical and Surgical History:
+	# cloth was the commonest thing taken out of a wound); one that stays in him keeps it.
+	if not holed.is_empty() and not tr.graze and _chance(tr.entry, 7) < (CLOTH_IN_LODGED if wound.lodged else CLOTH_IN_THROUGH):
+		wound.cloth = holed[0]
 	wounds.append(wound)
 	_paint_wound(wound)
 	for h: Dictionary in tr.hits:
@@ -1969,7 +1975,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	if not tr.graze:
 		open_wound(seg, tr.entry - center, at_entry, dir)
 		if tr.exit != null:
-			open_wound(seg, tr.exit - center, deposited * 0.75, dir, &"gore_exit")
+			open_wound(seg, tr.exit - center, deposited * 0.75 * (1.6 if tr.flattened else 1.0), dir, &"gore_exit")
+		for i in range(1, (tr.exits as Array).size()):
+			open_wound(seg, (tr.exits[i] as Vector3) - center, deposited * 0.4, dir, &"gore_exit")
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -2005,7 +2013,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	Events.body_hit.emit(info)
 	if xray:
 		set_xray(true)
-	return {"segment": seg, "exit": exit_world, "energy_out": tr.energy_out, "hits": tr.hits, "wound": wound}
+	# A ball that skipped off a bone or split leaves on its own line.
+	var dir_out: Variant = (xf.basis * (tr.out_dir as Vector3)).normalized() if tr.has("out_dir") else null
+	return {"segment": seg, "exit": exit_world, "energy_out": tr.energy_out, "hits": tr.hits, "wound": wound, "dir_out": dir_out}
 
 
 ## Does the hit itself put him down? A heavy ball dumping its energy in the trunk often does.
@@ -2227,7 +2237,12 @@ func _paint_wound(w: Dictionary) -> void:
 	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 	if w.exit != null:
-		_decal(vis, w.segment, w.exit, 0.035 if pellet else 0.06, PixelArt.blood("wound_exit", 9, true, 16))
+		# A ball that flattened on bone tears a bigger hole out.
+		var out_size := (0.035 if pellet else 0.06) * (Anatomy.BONE_FLATTEN if w.get("flattened", false) else 1.0)
+		_decal(vis, w.segment, w.exit, out_size, PixelArt.blood("wound_exit", 9, true, 16))
+	# A split ball's other way out.
+	for i in range(1, (w.get("exits", []) as Array).size()):
+		_decal(vis, w.segment, w.exits[i], 0.045, PixelArt.blood("wound_exit", 9, true, 16))
 	var through: bool = w.exit != null
 	_add_jet(vis, w, w.entry, 0.5 if through else 1.0)
 	if through:
@@ -3140,6 +3155,18 @@ func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 	d.size = Vector3(side, 0.08, side)
 
 
+## How often a ball carries cloth into him: staying in him, and going through (the way out takes
+## some of it with it).
+const CLOTH_IN_LODGED := 0.7
+const CLOTH_IN_THROUGH := 0.35
+
+
+## A roll (0..1) from where a wound is and what it's for (`salt`): the same wound, the same roll,
+## and not from his dice (a wound's look and what it carried mustn't change how a fight goes).
+func _chance(p: Vector3, salt: int) -> float:
+	return float(posmod(hash([p.snapped(Vector3.ONE * 0.0005), salt, rng_seed]), 10007)) / 10007.0
+
+
 ## An angle (0..TAU) from a point, for turning a painted mark: the same point, the same turn.
 static func _spin(p: Vector3) -> float:
 	return float(posmod(hash(p.snapped(Vector3.ONE * 0.001)), 10007)) / 10007.0 * TAU
@@ -3425,6 +3452,8 @@ func _hit_words(w: Dictionary) -> PackedStringArray:
 				what.append("%s torn" % String(h.id).get_slice("_", 0))
 			&"severed":
 				what.append("%s finger off" % String(h.id).get_slice("_", 0))
+	if w.get("cloth", &"") != &"":
+		what.append("a plug of his %s carried in" % String(w.cloth))
 	return what
 
 
@@ -3434,7 +3463,8 @@ func to_dict() -> Dictionary:
 		ws.append({"segment": w.segment, "entry": w.entry, "exit": w.exit, "lodged": w.lodged,
 				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments,
 				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false),
-				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray())})
+				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray()),
+				"cloth": w.get("cloth", &""), "flattened": w.get("flattened", false)})
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)
