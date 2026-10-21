@@ -13,7 +13,8 @@ extends SceneTree
 ##
 ## --material: the woods under test (MaterialStand.PART_OF's keys), each a run of its own: its parts
 ## take it, the rest of the stand stays the game's; `props` puts a card table, chairs and a barrel on
-## the deck and judges their textures. Without: the stand as the game draws it.
+## the deck and judges their textures; `stair` builds the hotel's dark oak stair (OakStair) in the
+## stand's place, the men round it. Without: the stand as the game draws it.
 ## --set: the woods of a candidate set (assets/textures/<SET>/, its lab.json) for the woods it has;
 ## the game's (assets/textures/woods/) for the rest. Without: the game's woods (the baseline).
 ## Writes DIR/<material>/<light>_<view>.png, beside each the masks the measuring reads
@@ -57,13 +58,28 @@ const VIEWS := {
 	# The props on the deck (--material=props), the bold cowboy beside them.
 	"props": [Vector3(1.75, 1.5, -3.1), Vector3(1.05, 0.7, -0.8), 44.0],
 	"props_close": [Vector3(0.5, 1.3, -2.2), Vector3(1.3, 0.85, -0.8), 50.0],
+	# The oak stair (--material=stair, OakStair: the flight rising along +Z from z 0, its open side at
+	# x 0): three-quarter from the foot, the newel and the bullnose, along the balusters, the treads
+	# and runner.
+	"stair": [Vector3(-2.9, 1.75, -3.0), Vector3(0.3, 1.35, 1.6), 55.0],
+	"stair_newel": [Vector3(-1.5, 1.45, -1.45), Vector3(-0.15, 0.85, 0.2), 45.0],
+	"stair_rail": [Vector3(-1.2, 2.3, 0.4), Vector3(0.1, 1.9, 2.4), 50.0],
+	"stair_treads": [Vector3(-0.9, 1.9, -1.2), Vector3(0.6, 0.9, 1.0), 50.0],
 }
 ## Which views judge which part (with the two whole views).
 const PART_VIEWS := {
 	&"siding": ["wall", "wall_end"], &"siding_low": ["wall"], &"studs": ["wall_end"], &"trim": ["wall"],
 	&"deck": ["deck_ends", "steps"], &"treads": ["steps"], &"joists": ["deck_ends"], &"rim": ["deck_ends"],
 	&"frame": ["post"], &"stringers": ["steps", "deck_ends"], &"props": ["props", "props_close"],
+	&"oak_treads": ["stair", "stair_treads"], &"oak_newels": ["stair_newel"], &"oak_balusters": ["stair_rail"],
 }
+## Round the stair: the bold cowboy at the newel, the rancher in front of the flight, the drifter up
+## on the landing (OakStair's landing at 13 x 0.19 m).
+const STAIR_MEN := [
+	[&"bold_cowboy_s0", Vector3(-0.6, 0.0, -0.45), Vector3(-2.0, 1.5, -4.0)],
+	[&"old_rancher_s1", Vector3(1.2, 0.0, -1.1), Vector3(-1.5, 1.5, -4.0)],
+	[&"young_drifter_s1", Vector3(0.55, 2.47, 3.9), Vector3(-2.5, 2.4, -1.0)],
+]
 ## The lamplit saloon's light (SaloonDressing's): sconces' lamps, a lamp hung over the deck and one
 ## across the room behind the camera (the saloon's lamps are all round the room, so the men are lit
 ## from the front too), each made brighter and reaching further as the room's are. The sconces
@@ -150,11 +166,12 @@ func _run() -> void:
 		await physics_frame
 	var men_density := _men_density(men)
 	for mat in materials:
-		var stand = load("res://src/art/material_stand.gd").new()
+		var stand = load("res://src/art/oak_stair.gd" if mat == "stair" else "res://src/art/material_stand.gd").new()
 		stand.name = "Stand"
 		stand.material = StringName(mat) if mat != "props" else &""
 		place.add_child(stand)
 		stand.build()
+		_stand_men(place, men, STAIR_MEN if mat == "stair" else MEN)
 		var name: String = mat if mat != "" else "stand"
 		var dir := "%s/%s" % [_out, name]
 		DirAccess.make_dir_recursive_absolute(dir)
@@ -166,7 +183,7 @@ func _run() -> void:
 		if mat == "props":
 			for mi in _props(stand).find_children("*", "MeshInstance3D", true, false):
 				(mi as MeshInstance3D).layers |= MASK_WOOD
-		var views: Array = ["stand", "gameplay"]
+		var views: Array = ["stair"] if mat == "stair" else ["stand", "gameplay"]
 		for part in focus:
 			for v in PART_VIEWS.get(part, []):
 				if not views.has(v):
@@ -412,3 +429,10 @@ func _props(stand: Node3D) -> Node3D:
 		prop.position = p[1]
 		prop.rotation_degrees.y = p[2]
 	return holder
+
+
+## The men to their places for this run (the stand's or the stair's).
+func _stand_men(place: Node3D, men: Array, where: Array) -> void:
+	for i in men.size():
+		men[i].global_position = place.global_transform * (where[i][1] as Vector3)
+		men[i].face(place.global_transform * (where[i][2] as Vector3))

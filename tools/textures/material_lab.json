@@ -177,6 +177,31 @@
    "budget": 2.5,
    "ask": "",
    "prop_texels": 512
+  },
+  "studio3": {
+   "note": "The hotel's oak stair (Sean, 2026-10-21: \"a beautiful oak staircase that would maybe be in the hotel - dark wood, use the funds I've already allotted\"): dark_oak, a wood the game hasn't got, painted from the dark trim's boards in the Studio men's hand, 10 boards 3 m long at 512 a metre; the runner carpet; everything else as studio2. The lab's OakStair (tools/material_lab.gd --material=stair) draws with it.",
+   "inherit": "studio2",
+   "texels_per_metre": 512,
+   "woods": [],
+   "new_woods": {
+    "dark_oak": {
+     "from": "dark_trim",
+     "what": "boards of quarter-sawn white oak stained a deep dark walnut brown and waxed, the oak's silvery ray fleck and open grain showing through the stain, from a fine hotel staircase",
+     "wear": "Well kept but old: the wax worn through to paler golden oak along the edges and down the middle of each board where boots and hands pass, fine scratches, dust dark in the open grain; no paint, no rot."
+    }
+   },
+   "boards": {
+    "dark_oak": 10
+   },
+   "length": {
+    "dark_oak": 3.0
+   },
+   "props": [
+    "stair_runner"
+   ],
+   "prop_texels": 512,
+   "budget": 1.5,
+   "ask": ""
   }
  }
 }

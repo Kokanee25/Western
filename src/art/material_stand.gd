@@ -69,6 +69,8 @@ const RISE := 0.14
 
 ## The wood under test (one of PART_OF's keys), &"" for the game's stand as it is.
 var material: StringName = &""
+## Each part's wood (ROLES, and a subclass's own parts).
+var roles := ROLES.duplicate()
 var seed_value := 1
 ## What was built: wood -> [{"name", "size", "part"}] (the lab's numbers: thickness, counts).
 var boards := {}
@@ -87,7 +89,7 @@ func wood_for(part: StringName) -> StringName:
 		if part == &"siding_low":
 			return StringName(String(material) + "_low") if WoodMaterials.strip_count(StringName(String(material) + "_low")) > 0 else material
 		return material
-	return ROLES[part]
+	return roles[part]
 
 
 ## The parts the material under test is on (all of them for the plain stand).
@@ -254,13 +256,20 @@ func _quad(st: SurfaceTool, c: Vector3, a: Vector3, b: Vector3, n: Vector3, size
 		st.add_vertex(corners[i])
 
 
-## One mesh per part and strip, drawn in that strip's material.
-func _flush() -> void:
-	for part in _tools:
+## A part's node (made the first time).
+func _holder(part: StringName) -> Node3D:
+	if not part_nodes.has(part):
 		var holder := Node3D.new()
 		holder.name = String(part)
 		add_child(holder)
 		part_nodes[part] = holder
+	return part_nodes[part]
+
+
+## One mesh per part and strip, drawn in that strip's material.
+func _flush() -> void:
+	for part in _tools:
+		var holder := _holder(part)
 		var wood := wood_for(part)
 		for pick in _tools[part]:
 			var mi := MeshInstance3D.new()

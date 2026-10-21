@@ -101,12 +101,13 @@ def source(wood, name, info):
     game's boards turned end for end and rolled a metre. A set may want longer boards
     (info["length_scale"]: a 2 m strip made 3 m by running on into its own mirror) so a long
     member (a post, the bar's top) doesn't show its strip twice."""
-    path = os.path.join(WOODS, name)
+    src = info.get("from", wood)
+    path = os.path.join(WOODS, name.replace(wood, src, 1))
     if os.path.exists(path):
         im = Image.open(path).convert("RGB")
     else:
         k = int(name[len(wood) + 2:-4])
-        im = Image.open(os.path.join(WOODS, "%s_b%d.png" % (wood, k % int(info["boards"])))).convert("RGB")
+        im = Image.open(os.path.join(WOODS, "%s_b%d.png" % (src, k % int(info["boards"])))).convert("RGB")
         im = Image.fromarray(np.ascontiguousarray(np.roll(np.asarray(im)[:, ::-1], im.width // 2, axis=1)))
     scale = float(info.get("length_scale", 1.0))
     if scale > 1.0:
@@ -141,8 +142,9 @@ def paint(wood, info, spec, key, raw=RAW, extra=""):
     man = Image.open(MAN).convert("RGB")
     man.thumbnail((768, 768))  # the style, not the detail: a smaller request (a 1024 one dropped mid-reply)
     bare = BARE if names[-1].endswith("_bare.png") else ""
-    wear = (" " + WEAR[wood]) if wood in WEAR else ""
-    img = pt.ask(ASK.format(n=len(names), what=what_of(spec, wood), bare=bare, wear=wear) + extra, [send, man],
+    wear = (" " + info["wear"]) if "wear" in info else (" " + WEAR[wood]) if wood in WEAR else ""
+    what = info.get("what") or what_of(spec, wood)
+    img = pt.ask(ASK.format(n=len(names), what=what, bare=bare, wear=wear) + extra, [send, man],
                  {"aspect_ratio": name}, "woods_" + wood, key)
     img.convert("RGB").save(raw % wood, "JPEG", quality=94)
     print("painted: woods_%s %s (%s)" % (wood, img.size, name))
@@ -258,10 +260,17 @@ def candidate(name, only, cut_only, repaint, key, spec):
                         not any(f.startswith(w + "_") for w in base_index if w != wood and w.startswith(wood + "_")):
                     Image.open(os.path.join(base, f)).save(os.path.join(out_dir, f))
             index["woods"][wood] = entry
-    for wood in cfg["woods"]:
+    new_woods = cfg.get("new_woods", {})
+    for wood in list(cfg["woods"]) + list(new_woods):
         if only and wood not in only:
             continue
-        info = dict(lab[wood])
+        if wood in new_woods:
+            # A wood the game hasn't got: painted from another's boards (`from`), as `what` says.
+            nw = new_woods[wood]
+            info = dict(lab[nw["from"]])
+            info.update({k: v for k, v in nw.items() if k in ("from", "what", "wear")})
+        else:
+            info = dict(lab[wood])
         if wood in cfg.get("boards", {}):
             info["paint_boards"] = int(cfg["boards"][wood])
         if wood in cfg.get("length", {}):
@@ -285,11 +294,17 @@ def candidate(name, only, cut_only, repaint, key, spec):
         scale = tpm / float(info.get("texels_per_metre", 128))
         cut(wood, info, raw, out_dir, scale, cfg.get("grade", {}).get(wood))
         # End grain as the game's (its own density): copied.
-        end = os.path.join(WOODS, "%s_end.png" % wood)
+        end = os.path.join(WOODS, "%s_end.png" % info.get("from", wood))
         if os.path.exists(end):
             Image.open(end).save(os.path.join(out_dir, "%s_end.png" % wood))
         entry = dict(info)
         entry["boards"] = int(entry.pop("paint_boards", entry["boards"]))
+        if "from" in entry:
+            # Its own wood: none of the other's paint wear (it has no bare strip).
+            entry.pop("end_wear", None)
+        for k in ("from", "what", "wear"):
+            entry.pop(k, None)
+        entry["end"] = "%s_end.png" % wood
         entry["texels_per_metre"] = tpm
         entry["length"] = round(info["length"] * scale * float(entry.pop("length_scale", 1.0)))
         entry["rows"] = round(info["rows"] * scale)
