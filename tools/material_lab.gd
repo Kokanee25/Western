@@ -61,7 +61,7 @@ const VIEWS := {
 	# The oak stair (--material=stair, OakStair: the flight rising along +Z from z 0, its open side at
 	# x 0): three-quarter from the foot, the newel and the bullnose, along the balusters, the treads
 	# and runner.
-	"stair": [Vector3(-2.9, 1.75, -3.0), Vector3(0.3, 1.35, 1.6), 55.0],
+	"stair": [Vector3(-2.3, 2.0, -3.4), Vector3(0.5, 1.25, 1.4), 55.0],
 	"stair_newel": [Vector3(-1.5, 1.45, -1.45), Vector3(-0.15, 0.85, 0.2), 45.0],
 	"stair_rail": [Vector3(-1.2, 2.3, 0.4), Vector3(0.1, 1.9, 2.4), 50.0],
 	"stair_treads": [Vector3(-0.9, 1.9, -1.2), Vector3(0.6, 0.9, 1.0), 50.0],

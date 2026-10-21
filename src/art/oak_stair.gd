@@ -36,6 +36,9 @@ func _init() -> void:
 	for p in PARTS:
 		roles[p] = &"dark_oak"
 	roles[&"oak_landing"] = &"dark_oak"
+	# The lobby round it: the saloon's dark-stained pine boards on the wall, the game's floor.
+	roles[&"oak_wall"] = &"saloon_wall"
+	roles[&"oak_floor"] = &"floor"
 
 
 func focus_parts() -> Array:
@@ -53,6 +56,7 @@ func landing_y() -> float:
 
 func build() -> void:
 	_rng.seed = seed_value
+	_room()
 	_flight()
 	_landing()
 	_strings()
@@ -78,6 +82,24 @@ func _flight() -> void:
 	# The bullnose's round end: a turned drum under the first tread's open end.
 	var drum := PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(GOING * 0.5, 0), Vector2(GOING * 0.5, STEP_RISE), Vector2(0, STEP_RISE)]), 24, true)
 	_turned(&"oak_risers", drum, Transform3D(Basis(), Vector3(-BULL, 0.0, GOING * 0.5 - NOSE * 0.5)), 3)
+
+
+## The lobby: a wall of upright boards behind the wall string (to the landing's ceiling height),
+## and a floor of boards running out from it, so the stair reads as indoors.
+func _room() -> void:
+	var z0 := -2.5
+	var z1 := (RISERS - 1) * GOING + LANDING_DEPTH + 0.3
+	var wx := WIDTH + 0.06
+	var h := landing_y() + 2.4
+	var z := z0
+	while z < z1:
+		_board(&"oak_wall", Vector3(wx + 0.011, h * 0.5, z + 0.075), Vector3(0, 1, 0), Vector3(1, 0, 0), h, 0.148, 0.022)
+		z += 0.15
+	var x := wx
+	while x > -3.4:
+		_board(&"oak_floor", Vector3(x - 0.075, -0.016, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
+				Vector3(1, 0, 0))
+		x -= 0.15
 
 
 func _landing() -> void:
