@@ -217,10 +217,12 @@ static func _stair(s: FalseFrontBuilding, f: float) -> void:
 	var rl := Vector2(rb.x - ra.x, rb.y - ra.y).length()
 	s.add_member("stair/hand_rail", &"trim", &"dark_trim", Vector3(rl, 0.05, 0.06), (ra + rb) * 0.5,
 			Basis(Vector3.BACK, atan2(rb.y - ra.y, rb.x - ra.x)))
-	# Something to walk up: a ramp under the treads (the player's controller doesn't climb steps).
+	# Something to walk up: a ramp under the treads (the player's controller doesn't climb steps),
+	# for walkers only (Layers.WALK): a man falling down the stair meets the treads, not a slide
+	# through their nosings (it stood half a riser above each tread's back; Sean's OK, 2026-10-21).
 	var ramp := StaticBody3D.new()
 	ramp.name = "StairRamp"
-	ramp.collision_layer = Layers.WORLD
+	ramp.collision_layer = Layers.WALK
 	ramp.collision_mask = 0
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()

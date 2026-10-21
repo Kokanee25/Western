@@ -383,6 +383,13 @@ a few views renders them as the full run does.
   fresh wood, collision a ConcavePolygonShape3D); `section_left`/`weakest_t`/`weight` read the
   voxels (holes within the member's depth along the grain count together). No plugin (web) or
   `enabled` off: holes drawn by `member_holes.gdshader` as before.
+  **A body thrown into timber** (`BodyImpacts`, one per limp man, since 2026-10-21): near any
+  member (a 1.6 m probe round his pelvis every 10 ticks) his parts' contacts are reported; a
+  member breaks (`break_member`) when the level work of stopping him on it passes
+  `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
+  (its cap broken) tears off its nails when his bearing on it, times the height, passes
+  `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
+  post set in the ground isn't nailed. The lab's breakable railing: group Q, `lab_railing.gd`.
 
 ## src/fire
 
@@ -431,7 +438,9 @@ a few views renders them as the full run does.
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
-  `Layers` (physics/render layer bits),
+  `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
+  ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
+  debris, balls and sight WORLD alone),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
   per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
