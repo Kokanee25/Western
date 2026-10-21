@@ -441,7 +441,13 @@ def main():
             # at its own texels a metre.
             lp = os.path.join(out_dir(), "lab.json")
             lj = json.load(open(lp)) if os.path.exists(lp) else {"woods": {}}
-            lj.setdefault("woods", {})[mid] = {"prop": True, "texels_per_metre": m.get("texels_per_metre", tpm)}
+            t = m.get("texels_per_metre", tpm)
+            if m.get("boards") and index[mid]["strips"]:
+                # Painted as boards: a wood of the set (its strips <id>_b<k>, laid as the woods are).
+                lj.setdefault("woods", {})[mid] = {"boards": index[mid]["strips"], "texels_per_metre": t,
+                                                   "length": index[mid]["texels"][0], "end": mid + "_end.png", "end_texels": 256}
+            else:
+                lj.setdefault("woods", {})[mid] = {"prop": True, "texels_per_metre": t}
             json.dump(lj, open(lp, "w"), indent=1)
     with open(index_path, "w") as f:
         json.dump(dict(sorted(index.items())), f, indent=1)

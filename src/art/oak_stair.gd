@@ -36,8 +36,10 @@ func _init() -> void:
 	for p in PARTS:
 		roles[p] = &"dark_oak"
 	roles[&"oak_landing"] = &"dark_oak"
-	# The lobby round it: the saloon's dark-stained pine boards on the wall, the game's floor.
-	roles[&"oak_wall"] = &"saloon_wall"
+	# The lobby round it: a painted board wall (the store's pale boards) over an oak skirting, the
+	# game's floor (an all-dark wall swallowed the stair in the first render).
+	roles[&"oak_wall"] = &"store_boards"
+	roles[&"oak_skirt"] = &"dark_oak"
 	roles[&"oak_floor"] = &"floor"
 
 
@@ -95,9 +97,10 @@ func _room() -> void:
 	while z < z1:
 		_board(&"oak_wall", Vector3(wx + 0.011, h * 0.5, z + 0.075), Vector3(0, 1, 0), Vector3(1, 0, 0), h, 0.148, 0.022)
 		z += 0.15
+	_board(&"oak_skirt", Vector3(wx - 0.01, 0.11, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(1, 0, 0), z1 - z0, 0.2, 0.022, Vector3(0, 1, 0))
 	var x := wx
 	while x > -3.4:
-		_board(&"oak_floor", Vector3(x - 0.075, -0.016, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
+		_board(&"oak_floor", Vector3(x - 0.075, 0.0, (z0 + z1) * 0.5), Vector3(0, 0, 1), Vector3(0, 1, 0), z1 - z0, 0.146, 0.03,
 				Vector3(1, 0, 0))
 		x -= 0.15
 
@@ -186,16 +189,19 @@ func _baluster(at: Vector3, h: float) -> void:
 	_turned(&"oak_balusters", PropModels.lathe(p, 10, true), Transform3D(Basis(), at), int(at.z * 37.0))
 
 
-## The handrail between two points: a round rail (a mopstick on a flat cap underneath).
+## The handrail between two points (its top line): a 70 x 60 rail on a narrower 45 x 25 sub-rail
+## the balusters meet, each a board with end grain at its cut ends. (A turned round rail wrapped its
+## strip round and read as rope, the first render.)
 func _rail(a: Vector3, b: Vector3) -> void:
+	var along := (b - a).normalized()
+	var side := Vector3(1, 0, 0) if absf(along.x) < 0.9 else Vector3(0, 0, 1)
+	side = (side - along * side.dot(along)).normalized()
+	var up := side.cross(along).normalized()
+	if up.y < 0.0:
+		up = -up
 	var l := a.distance_to(b)
-	# The lathe turns about its own y: y along the rail, x and z any two square to it.
-	var y := (b - a).normalized()
-	var x := Vector3(1, 0, 0) if absf(y.x) < 0.9 else Vector3(0, 0, 1)
-	x = (x - y * x.dot(y)).normalized()
-	var basis := Basis(x, y, x.cross(y).normalized())
-	var rod := PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(0.035, 0), Vector2(0.035, l), Vector2(0, l)]), 16, true)
-	_turned(&"oak_rail", rod, Transform3D(basis, a), 4)
+	_board(&"oak_rail", (a + b) * 0.5 - up * 0.03, along, up, l, 0.07, 0.06, side)
+	_board(&"oak_rail", (a + b) * 0.5 - up * 0.072, along, up, l, 0.045, 0.025, side)
 
 
 ## The runner up the middle of the flight (over each tread and down each riser), a brass rod at the

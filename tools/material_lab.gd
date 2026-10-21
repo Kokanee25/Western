@@ -76,8 +76,8 @@ const PART_VIEWS := {
 ## Round the stair: the bold cowboy at the newel, the rancher in front of the flight, the drifter up
 ## on the landing (OakStair's landing at 13 x 0.19 m).
 const STAIR_MEN := [
-	[&"bold_cowboy_s0", Vector3(-0.6, 0.0, -0.45), Vector3(-2.0, 1.5, -4.0)],
-	[&"old_rancher_s1", Vector3(1.2, 0.0, -1.1), Vector3(-1.5, 1.5, -4.0)],
+	[&"bold_cowboy_s0", Vector3(-0.95, 0.015, 0.55), Vector3(-2.0, 1.5, -4.0)],
+	[&"old_rancher_s1", Vector3(0.9, 0.015, -1.3), Vector3(-1.5, 1.5, -4.0)],
 	[&"young_drifter_s1", Vector3(0.55, 2.47, 3.9), Vector3(-2.5, 2.4, -1.0)],
 ]
 ## The lamplit saloon's light (SaloonDressing's): sconces' lamps, a lamp hung over the deck and one
