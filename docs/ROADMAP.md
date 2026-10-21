@@ -81,8 +81,8 @@ then.
 | Material lab: colour, grain, thickness, end grain, dirt, paint wear (1.4a) | Now, beside Phases 2 and 3 | art | `building-pipeline.md`, `material-lab-timber.md` |
 | Wound paint (2.3) | After the stand-ins (2.1) | characters (+ a line of gameplay) | `damage-pipelines.md` |
 | Material lab: wear-down (worn paths, paint gone where hands touch, new / a year / ten years) | After Gate A | art | `building-pipeline.md` |
-| Building lab: the spec format, tried on the saloon (`docs/concept/saloon-sheet.png`), changing nothing in the game | After Gate A | gameplay (structures), art (look) | `building-pipeline.md` |
-| Building lab for real: the saloon (4.3), then the block (4.4) | Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
+| Building lab: the saloon's spec and structure (frame, floors, walls, both stairs, both balconies, the bar, bedrooms; `docs/concept/saloon-sheet.png`), as an experiment first | When Sean has picked the interior woods (the material lab) and the breakable railing is promoted (Sean 2026-10-21; was "after Gate A") | gameplay (structures), art (look) | `building-pipeline.md` |
+| Building lab for real: the saloon (4.3), furnished with the prop lab's pieces as each is promoted, then the block (4.4) | The saloon once its structure passes the checks; the block in Phase 4, after Gate C | art, gameplay | `building-pipeline.md` |
 | Breakage paint (4.4a) | Phase 4, once the woods are locked | art | `damage-pipelines.md` |
 | Fire lab, and finishing `fire-look.md` (4.4b; the flipbooks start now, above) | Phase 4, before 4.5 | gameplay (spread), art (look) | `damage-pipelines.md`, `fire-look.md` |
 | Movement lab: walking, running, mocap | 4.6, when Sean records | gameplay | `MOCAP.md` |
