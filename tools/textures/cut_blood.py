@@ -75,6 +75,51 @@ def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0):
     return Image.fromarray(square.astype(np.uint8), "RGBA")
 
 
+def face(sheet, quadrant, size):
+    """A limb's cut face, painted at a slant with its side showing, as seen end-on: the face (red
+    muscle, yellow fat, white bone: the skin of the side is pale and drops out) found, the ellipse
+    it makes fitted from its moments and stretched back to a circle."""
+    from PIL import ImageDraw, ImageFilter
+    a = np.asarray(sheet.convert("RGB"), dtype=np.float32)
+    h, w = a.shape[:2]
+    qy, qx = divmod(quadrant, 2)
+    q = a[qy * h // 2:(qy + 1) * h // 2, qx * w // 2:(qx + 1) * w // 2]
+    r, g, b = q[..., 0], q[..., 1], q[..., 2]
+    muscle = (r - g > 60) & (r > 90)
+    fat = (r > 150) & (g > 110) & (b < g * 0.62)
+    m = Image.fromarray(((muscle | fat) * 255).astype(np.uint8), "L")
+    m = m.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))
+    # The bone and marrow inside it: whatever it closes round (the outside flooded from the edges).
+    for e in range(0, m.width, 2):
+        for xy in ((e, 0), (e, m.height - 1)):
+            if m.getpixel(xy) == 0:
+                ImageDraw.floodfill(m, xy, 128)
+    for e in range(0, m.height, 2):
+        for xy in ((0, e), (m.width - 1, e)):
+            if m.getpixel(xy) == 0:
+                ImageDraw.floodfill(m, xy, 128)
+    mask = (np.asarray(m) != 128).astype(np.float32)
+    ys, xs = np.nonzero(mask > 0.5)
+    if len(ys) < 100:
+        return None
+    cy, cx = ys.mean(), xs.mean()
+    vals, vecs = np.linalg.eigh(np.cov(np.stack([xs - cx, ys - cy])))
+    semi = 2.0 * np.sqrt(np.maximum(vals, 1.0))  # a filled ellipse's semi-axes from its variance
+    # Output pixel (i, j) -> the sheet: centre + (u * a1 * e1 + v * a2 * e2), u, v in -reach..reach.
+    reach = 1.08
+    k = 2.0 * reach / size
+    e1, e2 = vecs[:, 1] * semi[1], vecs[:, 0] * semi[0]
+    ox = cx - reach * (e1[0] + e2[0])
+    oy = cy - reach * (e1[1] + e2[1])
+    coeffs = (e1[0] * k, e2[0] * k, ox, e1[1] * k, e2[1] * k, oy)
+    rgb = Image.fromarray(q.astype(np.uint8), "RGB").transform((size, size), Image.AFFINE, coeffs, Image.BICUBIC)
+    al = Image.fromarray((mask * 255).astype(np.uint8), "L").filter(ImageFilter.GaussianBlur(2)).transform(
+        (size, size), Image.AFFINE, coeffs, Image.BILINEAR)
+    out = rgb.convert("RGBA")
+    out.putalpha(al)
+    return out
+
+
 def soak(mark, colour):
     """Under a painted stain's spikes and drip, the wet patch they spread from: its own shape
     blurred wide, in `colour`, strongest in the middle round the hole (blood wicks out along the
@@ -138,6 +183,15 @@ def main():
         sheet = Image.open(path)
         for quadrant, key in enumerate(spec["keys"]):
             if not key:
+                continue
+            if spec.get("face"):
+                mark = face(sheet, quadrant, int(spec.get("size", 128)))
+                if mark is None:
+                    print("no face in %s quadrant %d" % (sheet_name, quadrant))
+                    continue
+                mark.save(os.path.join(OUT, key + ".png"))
+                made.append((key, mark))
+                print("cut:", key, "from", sheet_name, quadrant, "(end-on)")
                 continue
             mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)), spec.get("key", "white"),
                        int(spec.get("open", 0)), float(spec.get("core", 0.0)))

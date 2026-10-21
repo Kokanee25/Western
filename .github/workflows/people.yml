@@ -402,8 +402,8 @@ jobs:
               case "$WHICH" in blood:*) only="--only=${WHICH#blood:}" ;; esac
               # Sean's $3 in all: $0.19 on run 100 (the wounds), $0.19 on run 101 (the stains),
               # $0.38 on run 102 (the splats and pools), $0.19 on run 103 (the wounds again),
-              # $0.39 on run 104 (gore_test).
-              python3 tools/textures/paint_blood.py $only --budget=1.66 $( [ "$REPAINT" = "true" ] && echo --repaint )
+              # $0.39 on run 104 (gore_test), $0.28 on run 105 (Gemini: the stumps and gore).
+              python3 tools/textures/paint_blood.py $only --budget=1.38 $( [ "$REPAINT" = "true" ] && echo --repaint )
               python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
               exit 0 ;;
             # textures = gore_test (or gore_test:gemini,gpt,fal): one gore sheet asked of Google's and

@@ -1802,7 +1802,7 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	if not tr.graze:
 		open_wound(seg, tr.entry - center, at_entry, dir)
 		if tr.exit != null:
-			open_wound(seg, tr.exit - center, deposited * 0.75, dir)
+			open_wound(seg, tr.exit - center, deposited * 0.75, dir, &"gore_exit")
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -2581,7 +2581,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 			var local := part.global_transform.affine_inverse() * at
 			var toward := local.normalized() if local.length() > 0.001 else Vector3.FORWARD
 			var skin := toward * float(anatomy.segments[sid].radius)
-			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized())
+			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized(), &"gore_blast")
 	# Limbs: the most of each arm and leg the blast can take.
 	var torn_off: Array[StringName] = []
 	for side in ["r", "l"]:
@@ -2669,9 +2669,13 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 			rb.angular_velocity += Vector3(_rng.randf_range(-8, 8), _rng.randf_range(-8, 8), _rng.randf_range(-8, 8))
 	# The stump and the torn end of the limb.
 	var parent_part := parts[parent] as Node3D
-	open_wound(parent, parent_part.global_transform.affine_inverse() * at, 2200.0)
 	var limb_part := parts[segment] as Node3D
-	open_wound(segment, limb_part.global_transform.affine_inverse() * at, 2200.0)
+	var stump := open_wound(parent, parent_part.global_transform.affine_inverse() * at, 2200.0, Vector3.ZERO, &"")
+	var end := open_wound(segment, limb_part.global_transform.affine_inverse() * at, 2200.0, Vector3.ZERO, &"")
+	# The cut faces, across the stump and the torn end of the limb.
+	var down := limb_part.global_position - at
+	_stump_face(parent, at, down, stump.radius, _stump_look(parent, segment))
+	_stump_face(segment, at, -down, end.radius, &"stump_torn" if _spin(Vector3(0.3, 0.0, 0.0) + at) < PI else _stump_look(segment, segment))
 	var w := {"segment": parent, "part": segment, "entry": parent_part.global_transform.affine_inverse() * at,
 			"exit": null, "lodged": false, "hits": [], "bleeds": range(first, physiology.bleeds.size()),
 			"garments": [], "stain": null, "kind": &"severed", "dir": push.normalized()}
@@ -2768,7 +2772,8 @@ func _on_settings_changed() -> void:
 ## Tear the body open at a point (segment-centred rest space) with `energy` joules of damage:
 ## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up; past
 ## DESTROY_ENERGY the region is destroyed and the bone in it flies out along `dir` (world).
-func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO) -> Dictionary:
+## `look` is the painted torn edge laid round it once it opens (`_gore_edge`), none for a stump's.
+func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO, look := &"gore_crater") -> Dictionary:
 	var list: Array = openings.get_or_add(segment, [])
 	var o: Dictionary = {}
 	for existing: Dictionary in list:
@@ -2787,6 +2792,7 @@ func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.
 	o.radius = minf(OPEN_PER_SQRT_JOULE * sqrt(total), cap)
 	if o.radius >= OPEN_MIN_RADIUS:
 		_apply_openings(segment)
+		_gore_edge(segment, o, look)
 	if total >= DESTROY_ENERGY:
 		o.destroyed = true
 		_smash_bone(segment, o.at, o.radius, old_at, old_radius, dir)
@@ -2834,6 +2840,102 @@ func open_wound_at(collider: Node3D, point: Vector3, energy: float) -> Dictionar
 		seg = segment_at(point)
 	var part: Node3D = parts[seg]
 	return open_wound(seg, part.global_transform.affine_inverse() * point, energy)
+
+
+## The painted torn edge round an opening (tools/textures/paint_blood.py "gore", by Gemini): a
+## shotgun's crater, a burst exit, a blast's peppering. Laid on the skin and clothes round the hole
+## (the insides show in the hole itself) and grown with it. None with reduced gore.
+func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
+	if look == &"" or Settings.reduced_gore:
+		return
+	var vis: Node3D = visuals.get(segment)
+	if vis == null:
+		return
+	var d: Decal = o.get("gore")
+	if d == null or not is_instance_valid(d):
+		d = _decal(vis, segment, o.at, 0.05, PixelArt.blood(String(look), 61, true, 32))
+		d.name = "Gore"
+		o.gore = d
+		# Turned about the hole by where it is, so two of the same look don't match (not from his
+		# dice: a look mustn't change how a fight goes).
+		d.basis = d.basis * Basis(Vector3.UP, _spin(o.at))
+	d.position = o.at
+	var side: float = o.radius * GORE_EDGE
+	d.size = Vector3(side, 0.08, side)
+
+
+## An angle (0..TAU) from a point, for turning a painted mark: the same point, the same turn.
+static func _spin(p: Vector3) -> float:
+	return float(posmod(hash(p.snapped(Vector3.ONE * 0.001)), 10007)) / 10007.0 * TAU
+
+
+## How wide a wound's painted edge is, in opening radii (the painted wound's own hole is about a
+## third of its picture: it falls in the opening, where there's no skin to take it).
+const GORE_EDGE := 3.0
+
+
+## Which painted section a limb shows where it's cut through (the bones in it: Gray's Anatomy).
+static func _stump_look(sid: StringName, severed: StringName) -> StringName:
+	var s := String(sid)
+	if s.begins_with("forearm") or s.begins_with("shin") or s.begins_with("hand") or s.begins_with("foot"):
+		return &"stump_pair"
+	if s.begins_with("thigh"):
+		return &"stump_leg"
+	if s.begins_with("upper_arm"):
+		return &"stump_arm"
+	# The trunk's side of a whole arm or leg off: the limb's top in section.
+	return &"stump_leg" if String(severed).begins_with("thigh") else &"stump_arm"
+
+
+## A painted cut face across a limb where it was torn through (tools/textures/paint_blood.py
+## "stumps", by Gemini): a disc at the plane where the opening leaves the skin, as wide as the limb
+## there, facing out along `out` (world). The bone and muscle that stand proud of it are the insides
+## (BodyInterior). With reduced gore, the plain opening.
+func _stump_face(segment: StringName, at: Vector3, out: Vector3, opening: float, look: StringName) -> void:
+	if Settings.reduced_gore or out.length() < 0.001:
+		return
+	var vis: Node3D = visuals.get(segment)
+	var part := parts.get(segment) as Node3D
+	if vis == null or part == null:
+		return
+	var local := part.global_transform.affine_inverse() * at
+	var axis := (part.global_basis.inverse() * out).normalized()
+	# The limb's radius at the cut: the nearest of its capsules.
+	var r := 0.04
+	var best := INF
+	var p := local + anatomy.segment_center(segment)
+	for c: Array in anatomy.segments[segment].capsules:
+		var a: Vector3 = c[0]
+		var ab: Vector3 = (c[1] as Vector3) - a
+		var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+		var off := p.distance_to(a + ab * t) - float(c[2])
+		if off < best:
+			best = off
+			r = float(c[2])
+	var mi := MeshInstance3D.new()
+	mi.name = "StumpFace"
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * r * 2.0 * STUMP_FACE_FILL
+	mi.mesh = quad
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = PixelArt.blood(String(look), 67, true, 32)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.roughness = 0.3  # wet
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The quad faces its +Z: along the limb, out of the cut; turned at random about it.
+	var b := _along(axis)
+	mi.basis = Basis(b.z, b.x, b.y) * Basis(Vector3.BACK, _spin(local))
+	var back := sqrt(maxf(opening * opening - r * r, 0.0))
+	mi.position = local - axis * back
+	vis.add_child(mi)
+
+
+## How much of its square a painted section fills (its picture is cropped with a little margin).
+const STUMP_FACE_FILL := 1.0
 
 
 func is_open(segment: StringName) -> bool:

@@ -319,6 +319,14 @@ func _run_check() -> void:
 		if render:
 			var c := _com(_men[2])
 			_snap("stumps", c + Vector3(1.0, 0.9, -1.2), c, 50.0)
+			# Each stump close, looking into it from past its end (the painted cut face).
+			for i in _stumps.size():
+				var st: Array = _stumps[i]
+				var sm: HumanBody = st[0]
+				var parent_part := sm.parts[sm.anatomy.segments[st[1]].parent] as Node3D
+				var end: Vector3 = parent_part.global_transform * (st[2] as Vector3)
+				var out := (end - parent_part.global_position).normalized()
+				_snap("stump_close%d" % i, end + out * 0.45 + Vector3(0, 0.25, 0), end, 40.0)
 			var h: Node3D = null
 			for n in get_tree().get_nodes_in_group(&"hats"):
 				if n.get_meta(&"hat_of", null) == _men[1]:
