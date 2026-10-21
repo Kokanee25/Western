@@ -1,0 +1,25 @@
+{
+ "eyes": {
+  "right": [
+   0.0303,
+   1.6546,
+   -0.0825
+  ],
+  "left": [
+   -0.0303,
+   1.6554,
+   -0.0836
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from his approved pictures",
+ "id": "colter_rider_s1",
+ "whole": true,
+ "triangles": {
+  "body_skin": 32024,
+  "body_head": 3479,
+  "cloth_hat": 4224,
+  "cloth_hat_band": 128,
+  "cloth_hat_brim": 1280
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)"
+}

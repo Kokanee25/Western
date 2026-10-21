@@ -836,3 +836,17 @@ func test_a_whole_mans_own_hands_get_no_second_set_of_fingers() -> void:
 	for mi in knuckle.find_children("*", "MeshInstance3D", true, false):
 		shown = shown or (mi as MeshInstance3D).visible
 	check(shown, "the finger shot off flies, drawn")
+
+
+func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
+	# tools/faces/bandana.py gives a Studio man two: at his neck, and over his nose and mouth.
+	# He wears the one over his face when masked, else the neck one if he wears a bandana; never both.
+	var a := Anatomy.new()
+	var outfit := {"bandana": true, "mask": false}
+	var down: Dictionary = PeopleBodies.build(a, outfit, &"hothead_lyle_s2_talking").shapes
+	check(down.has("bandana") and not down.has("bandana_mask"), "a bandana, down: at his neck")
+	outfit.mask = true
+	var up: Dictionary = PeopleBodies.build(a, outfit, &"hothead_lyle_s2_talking").shapes
+	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
+	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
+	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")

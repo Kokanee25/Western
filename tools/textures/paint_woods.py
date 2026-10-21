@@ -216,8 +216,9 @@ def board_grade(pieces, names, g, wood=None):
     (under the paint) is left as it is. Round 5: "lows" [percentile, keep]: lightness under the
     wood's percentile lifted to `keep` of its depth under it (dark blots); "match" a wood cut before
     this one in the set (the low siding's `saloon_red`): its boards' median is the target, not this
-    wood's own, so the low boards take the wall's palette."""
-    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams", "lows", "match")
+    wood's own, so the low boards take the wall's palette; "target" [L*, a*, b*] the same for one
+    colour family across woods (the interior stain)."""
+    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams", "lows", "match", "target")
     if not g or not any(k in g for k in keys):
         return pieces
     import reduce  # noqa: E402 (its Lab conversions)
@@ -228,6 +229,9 @@ def board_grade(pieces, names, g, wood=None):
     target = np.median(means, axis=0)
     if g.get("match") in MEDIANS:
         target = MEDIANS[g["match"]]
+    if "target" in g:
+        # One family for a whole set (the interior stain): every wood's boards pulled to this L*a*b*.
+        target = np.array(g["target"], dtype=np.float64)
     allL = np.concatenate([labs[i][..., 0].ravel() for i in boards])
     knee = np.percentile(allL, float(g["highs"][0])) if "highs" in g else None
     if wood:
@@ -368,8 +372,12 @@ def bands(wood, cfg, out_dir, tpm):
     size = (round(float(fp["length_m"]) * tpm), round(float(fp["board_m"]) * tpm))
     h = im.height // n
     out = []
+    pieces = [im.crop((0, k * h, im.width, (k + 1) * h)).resize(size, Image.LANCZOS) for k in range(n)]
+    g = dict(cfg.get("grade_all", {}))
+    g.update(cfg.get("grade", {}).get(wood, {}))
+    pieces = board_grade(pieces, ["%s_b%d.png" % (wood, k) for k in range(n)], g, wood)
     for k in range(n):
-        piece = im.crop((0, k * h, im.width, (k + 1) * h)).resize(size, Image.LANCZOS)
+        piece = pieces[k]
         if k % 2:
             piece = piece.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         piece = wrap(piece, max(4, size[0] // 32))

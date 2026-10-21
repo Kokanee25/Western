@@ -33,6 +33,7 @@ means a section of this file.
 - [src/art/street_match.gd (the street painting's shot)](#srcartstreet_matchgd-the-street-paintings-shot)
 - [The texture factory (tools/textures)](#the-texture-factory-toolstextures)
 - [src/props/prop_models.gd](#srcpropsprop_modelsgd)
+- [The prop kit (src/props/prop_kit.gd, kit_prop.gd)](#the-prop-kit-srcpropsprop_kitgd-kit_propgd)
 - [src/art/saloon_dressing.gd](#srcartsaloon_dressinggd)
 - [src/art/sign_art.gd and the backdrop](#srcartsign_artgd-and-the-backdrop)
 - [Characters by image-to-3D (tools/characters)](#characters-by-image-to-3d-toolscharacters)
@@ -397,7 +398,10 @@ a few views renders them as the full run does.
   `impact_toughness` × its volume (as rubble's), and an upright one whose top nothing holds
   (its cap broken) tears off its nails when his bearing on it, times the height, passes
   `nailed_moment` (`joint_moment` scaled by its section). Floors struck from above don't count; a
-  post set in the ground isn't nailed. The lab's breakable railing: group Q, `lab_railing.gd`.
+  post set in the ground isn't nailed. **Railings** (`Railing.build(s, id, from, to, spec)`):
+  balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
+  treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
+  and stair rails and the lab's 1 m railing (group Q) are built of it.
 
 ## src/fire
 
@@ -424,6 +428,24 @@ a few views renders them as the full run does.
   volumetric fog lights it (the art session's to judge). `FireSystem.smoke_at(p)`, `smoked(m)`;
   members in a field have no particle smoke (`FireFX.refresh(..., smoke)`). No plugin (web) or
   the Compatibility renderer: the old particles.
+- **The fire flipbooks** (art's; docs/briefs/fire-look.md "The next approach"; behind
+  `Settings.fire_flipbooks`, look panel N or `--fire-flipbooks`, off by default): FireFX's fire
+  sheets drawn with `FireFlipbook.material()` instead of `fire_sheet.gdshader` (`FireFX.flipbooks`;
+  same quads and instance uniforms, so spawning is unchanged). Three passes chained by
+  `next_pass`: `flame_haze` (priority -1: the scene behind shifted by the heat), `flame_core` (0:
+  where the flame is thick, the painting's tones in flat bands from `fire_ramp.png`, hotter toward
+  the roots), `flame_tips` (1: thin flame and its smoke, alpha-blended), all sharing
+  `flipbook.gdshaderinc` (the sheet picks a lick, tongue or column by its height, frames blended
+  along their motion vectors, squares fixed in the world at `squares_per_m`, soft where the
+  depth buffer meets it). Sheets: `assets/textures/fire/fire_<type>.png` (R flame, G smoke, B
+  heat; 8 x 8 frames) and `_mv.png`, sizes in `fire_sheets.json`; made by
+  `tools/textures/fire_sim/`: `bake_flames.py` (Mantaflow in the pip bpy, which needs
+  `manta_relink.py`: its classes lost their bases; ~10 min for all three on 4 cores; projections to
+  `build/fire_sim/`), then `make_sheets.py` (loop, crop, motion scale, painting's ramp; seconds).
+  Re-import after (`godot --headless --import`). Looking: `tools/flame_views.gd` (a stage, drawn
+  sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
+  `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
+  `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
 
 ## src/bodies
 
@@ -669,6 +691,16 @@ a few views renders them as the full run does.
   The cut's board grading (`grade`/`grade_all`: `unify`, `unify_L`, `rows`, `highs`, `calm`,
   `seams`; `paint_woods.board_grade`). The lab's sets draw seams a pixel wide (`edge_aa`, the lap's
   butt a dark line); the game's woods don't until Sean picks.
+  **The interior woodwork** (Sean's saloon picture, `docs/concept/targets/10_saloon_interior.png`;
+  brief `docs/briefs/interior-woodwork.md`): `Profiles` (`src/art/profiles.gd`: cross-sections as
+  data, runs of points smooth within a run: `rect`, `chamfered`, `rounded`, `bar_top`, `handrail`,
+  `ogee`, `beaded`), `MaterialStand._profiled` (a profile run along a board, end grain on its ends)
+  and `_take` (every board's strip pick); `InteriorStand` (`--material=interior`, or
+  `interior_square` with every piece a box): wainscot with raised panels (`_panel`), casings, the bar
+  and back bar, chamfered posts with brackets (`_cut`: a board cut to an outline), the gallery's
+  joists, deck and balustrade (the oak stair's newels and balusters, a moulded handrail); its own
+  views, men and lamps. The interior stain: set `studio_int` (`grade_all.target`: one L*a*b* for
+  every wood).
 - **In the man's hand** (2026-10-16, `docs/briefs/match-the-man.md`; target 8, the layered cowboy's
   model sheet): `paint_woods.py` repaints each wood's strips (stacked, with his sheet as the style
   reference and each wood's `WEAR`: dirt, stains, splits) and cuts them back along the painted seams
@@ -721,6 +753,34 @@ a few views renders them as the full run does.
   arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
   twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
   `--street` the street's code models (horse from three sides, hay, crate).
+
+## The prop kit (src/props/prop_kit.gd, kit_prop.gd)
+
+- The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
+  once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
+  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
+  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
+  shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
+  hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
+  metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
+  one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
+  over its length passes `BodyImpacts.nailed_moment`.
+  KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
+  every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
+  man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
+  (a holed member below that share of its section breaks); `take_blow(m, at, impulse, blow_mass)`
+  (an inelastic knock: the wood's share of the energy lost against its `toughness` x section x
+  `blow_span` (the stretch that bends: a leg below the seat) breaks
+  it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
+  him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
+  dropped lamp's hitbox (a fixed body inside the fallen lamp);
+  `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
+  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
+  nothing). The bench: `experiments/prop_lab/` (README).
 
 ## src/art/saloon_dressing.gd
 

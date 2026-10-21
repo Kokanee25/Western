@@ -1,0 +1,419 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 4.49,
+    "before_ms": 0.03,
+    "event_ms": 219.75,
+    "settle_ms": 4.83
+  },
+  "hits": [
+    {
+      "j_in": 28.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 54.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 21.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 34.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 28.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 47.0,
+      "through": true,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 69.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 23.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 16.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 68.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 55.0,
+      "through": false,
+      "what": "bench_floor/board14"
+    },
+    {
+      "j_in": 39.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 21.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 65.0,
+      "through": false,
+      "what": "bench_floor/board5"
+    },
+    {
+      "j_in": 26.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 54.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 34.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 27.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 27.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 30.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 16.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 32.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 13.0,
+      "through": false,
+      "what": "bench_floor/board5"
+    },
+    {
+      "j_in": 57.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 54.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 56.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 62.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 67.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 18.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 33.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 45.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 36.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 51.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 48.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 45.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 57.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 55.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 15.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 64.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 37.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 18.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 54.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 37.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 72.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 39.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 69.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 33.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 71.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 41.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 50.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 56.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 60.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 24.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 30.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 69.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 48.0,
+      "through": true,
+      "what": "bench_floor/board5"
+    },
+    {
+      "j_in": 18.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 30.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 37.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "bench_floor/joist-18"
+    },
+    {
+      "j_in": 39.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 49.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 36.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 13.0,
+      "through": false,
+      "what": "bench_floor/board9"
+    },
+    {
+      "j_in": 23.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 17.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 61.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 26.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 54.0,
+      "through": false,
+      "what": "bench_floor/board6"
+    },
+    {
+      "j_in": 65.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 33.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 63.0,
+      "through": false,
+      "what": "bench_floor/joist-6"
+    },
+    {
+      "j_in": 25.0,
+      "through": false,
+      "what": "bench_floor/board4"
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 0,
+  "pieces": 0,
+  "prop": "",
+  "scenario": "floor_dynamite_1m",
+  "snapped": []
+}

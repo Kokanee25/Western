@@ -891,6 +891,71 @@
     "specular": 0.08,
     "mud_cover": 0.7
    }
+  },
+  "studio_int": {
+   "note": "The interior stain (Sean, 2026-10-21, his saloon picture; docs/briefs/interior-woodwork.md): the woods the saloon's woodwork uses (floor, timber, the wall boards' dark trim, the stair's dark oak) cut from kept paintings with no call and graded to one warm umber family (`target`), calmed and evened; on the interior stand (--material=interior).",
+   "texels_per_metre": 384,
+   "woods": [
+    "floor",
+    "timber",
+    "dark_trim"
+   ],
+   "boards": {
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "from_painting": {
+    "dark_oak": {
+     "raw": "studio4_dark_oak.jpg",
+     "boards": 8,
+     "board_m": 0.18,
+     "length_m": 3.0,
+     "end_from": "timber"
+    }
+   },
+   "grade_all": {
+    "seams": 3,
+    "calm": [
+     2.5,
+     0.45
+    ],
+    "rows": 0.5,
+    "highs": [
+     80,
+     0.45
+    ],
+    "lows": [
+     10,
+     0.6
+    ],
+    "unify": 0.85,
+    "unify_L": 0.8,
+    "target": [
+     36,
+     15,
+     19
+    ]
+   },
+   "grade": {
+    "floor": {
+     "target": [
+      19,
+      9,
+      12
+     ],
+     "unify_L": 0.95,
+     "highs": [
+      85,
+      0.35
+     ]
+    }
+   }
   }
  }
 }

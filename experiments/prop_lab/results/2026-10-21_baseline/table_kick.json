@@ -1,0 +1,32 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.24,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 4139690520,
+  "frame": {
+    "added_ms_first_1s": 0.28,
+    "before_ms": 0.03,
+    "event_ms": 2.28,
+    "settle_ms": 0.28
+  },
+  "kick": "moved",
+  "lamp": {
+    "smashed": false,
+    "spills": 0
+  },
+  "loose": true,
+  "loose_t": 0.0,
+  "max_piece_speed": 0.68,
+  "members": 20,
+  "pieces": 1,
+  "prop": "card_table",
+  "scenario": "table_kick",
+  "snapped": []
+}

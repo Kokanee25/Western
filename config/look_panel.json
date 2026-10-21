@@ -88,6 +88,7 @@
     ]},
     {"name": "Squares", "items": [
       {"key": "settings.mosaic", "label": "Screen mosaic (O)", "kind": "bool", "what": "The screen mosaic."},
+      {"key": "settings.fire_flipbooks", "label": "Fire flipbooks (trial)", "kind": "bool", "what": "Fire drawn from the simulated flipbooks (FireFlipbook) instead of the drawn fire sheets."},
       {"key": "settings.quantise_once", "label": "Quantise once (I)", "kind": "bool", "what": "Every pre-blocking step off, the mosaic refined (reloads the scene)."},
       {"key": "settings.probe_mosaic", "label": "Probe mosaic (V, trial)", "kind": "bool", "what": "Blocks fixed to the world by direction from a grid-snapped point (texel splatting's idea); brings quantise once with it."},
       {"key": "settings.probe_texels", "label": "Probe texels a face", "min": 128, "max": 768, "step": 32, "what": "Cube texels a face: 384 gives 3.3 px blocks at the saloon shot's lens at 720p; fewer = bigger blocks."},
