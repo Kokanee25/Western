@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The ragdoll lab's pictures and comparisons (README.md).
 
-  sheet RUN_DIR [--times=0,0.25,0.5,1,2,3] [--out=PNG]
-      one scenario's views (rows) at times after he goes limp (columns)
+  sheet RUN_DIR [--times=0,0.25,0.5,1,2,3] [--out=PNG] [--from=hit]
+      one scenario's views (rows) at times after he goes limp (or the ball hits him) (columns)
   side BASE_DIR CANDIDATE_DIR [--times=...] [--out=PNG]
       two runs of one scenario, matched by time after going limp: base above, candidate below,
       with the per-time numbers (centre of mass height, peak speed) and the metric differences
@@ -59,7 +59,8 @@ def label(img, text, colour=(255, 255, 255)):
 
 def strip(run, times, title):
     sm = summary(run)
-    limp = int(round(sm["limp_t"] * 60))
+    # --from=hit: times after the ball hit him (a hit that doesn't drop him), not after he went limp.
+    limp = int(round(sm["hit_t" if opt("from") == "hit" else "limp_t"] * 60))
     tk = ticks(run)
     vs = views(run)
     tiles = []

@@ -285,6 +285,29 @@ func test_at_his_feet_it_takes_a_leg() -> void:
 	check(" ".join(man.describe_wounds()).contains("torn off"), "described: %s" % "; ".join(man.describe_wounds()))
 
 
+## The blast throws him along its own way out from the charge, with nothing added (it had a lift
+## of a third again upward on top: experiments/physics_lab, 2026-10-21).
+func test_the_blast_pushes_him_along_its_line() -> void:
+	var man := await _man(Vector3.ZERO)
+	var chest := (man.parts[&"chest"] as Node3D).global_position
+	# Level with his chest, a metre and a bit in front: the wind is level.
+	man.take_blast(chest + Vector3(0, 0, -1.1), 0.15)
+	check(man.limp, "thrown down")
+	var v := (man.parts[&"chest"] as RigidBody3D).linear_velocity
+	print("  chest thrown at (%.2f, %.2f, %.2f) m/s" % [v.x, v.y, v.z])
+	check(v.z > 0.5, "away from the charge (%.2f m/s)" % v.z)
+	check(absf(v.y) < v.z * 0.15, "and not lifted (%.2f up, %.2f away)" % [v.y, v.z])
+
+
+## A limb torn off goes with what tore it off, and no spin is thrown in.
+func test_a_torn_off_limb_isnt_spun() -> void:
+	var man := await _man(Vector3.ZERO)
+	man.sever_limb(&"forearm_r")
+	var w := (man.parts[&"forearm_r"] as RigidBody3D).angular_velocity.length()
+	check(w < 1.0, "no spin thrown in (%.2f rad/s)" % w)
+	check(man.limp, "he's down")
+
+
 func test_a_wall_between_shields_him() -> void:
 	var man := await _man(Vector3.ZERO)
 	var wall := StaticBody3D.new()

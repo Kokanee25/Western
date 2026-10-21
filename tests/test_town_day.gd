@@ -467,3 +467,10 @@ func _shout() -> void:
 ## The saloon's floor (config/town.json raises it above the street's other walks).
 func _saloon_floor() -> float:
 	return float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38))
+
+
+func test_the_studios_people_are_cast_in_town() -> void:
+	check_eq(town.barkeep.body_model, &"barkeep_s1", "the barkeep is the Studio's")
+	check(town.widow != null and town.widow.held_gun == null, "the widow is in town, unarmed")
+	check_eq(town.widow.body_model, &"widow_s1", "the widow is the Studio's first woman")
+	check(town.widow.global_position.distance_to(town.places.at(&"store_aisle")) < 0.6, "browsing in the store")

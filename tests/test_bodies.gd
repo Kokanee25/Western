@@ -47,6 +47,14 @@ func _shoot(from: Vector3, to: Vector3) -> Ballistics.Bullet:
 	return b
 
 
+## A .45 ball from the revolver arriving at `at` on `seg` going `dir`, this tick (the clock of what
+## follows starts at the hit; _shoot waits for the ball to be spent).
+func _ball(seg: StringName, at: Vector3, dir: Vector3) -> void:
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	man.take_bullet(man.parts[seg], at - dir * 0.15, dir, 0.5 * t.bullet_mass * t.muzzle_velocity * t.muzzle_velocity,
+			t.bullet_diameter * 0.5, t.bullet_mass, 5.0)
+
+
 ## Where a rest-pose point on a segment is now, in the world (he's posed, arms not hanging straight).
 func _world(seg: StringName, rest: Vector3) -> Vector3:
 	var part: Node3D = man.parts[seg]
@@ -336,17 +344,196 @@ func test_a_ball_that_doesnt_drop_him_doesnt_jerk_him() -> void:
 	var arm_was := arm.global_basis.y
 	var chest_was := chest.global_basis.y
 	var fwd := -man.global_basis.z
-	await _shoot(arm.global_position + fwd * 5.0, arm.global_position)
+	_ball(&"upper_arm_r", arm.global_position, -fwd)
 	check(not man.limp and not man.prone, "still on his feet")
 	check(body_hits.size() > 0 and body_hits[0].segment == &"upper_arm_r", "the ball went through his arm")
+	# What the wound does to him comes on as a hurt would (_favour_step), not as a kick: in the
+	# tenth of a second after the ball nothing moves past his breath, and nothing ever turns fast.
 	var moved := 0.0
+	var fastest := 0.0
+	var arm_last := arm_was
 	for i in 30:
 		await physics_frames(1)
-		moved = maxf(moved, rad_to_deg(arm.global_basis.y.angle_to(arm_was)))
-		moved = maxf(moved, rad_to_deg(chest.global_basis.y.angle_to(chest_was)))
-	print("  arm and chest moved at most %.1f deg in the half second after the hit" % moved)
+		var a := rad_to_deg(arm.global_basis.y.angle_to(arm_was))
+		if i < 6:
+			moved = maxf(moved, a)
+			moved = maxf(moved, rad_to_deg(chest.global_basis.y.angle_to(chest_was)))
+		fastest = maxf(fastest, rad_to_deg(arm.global_basis.y.angle_to(arm_last)) * 60.0)
+		arm_last = arm.global_basis.y
+	print("  arm and chest moved at most %.1f deg in the tenth of a second after the hit; the arm turned at most %.0f deg/s" % [moved, fastest])
 	# (Within his breath: a degree or so.)
-	check(moved < 3.0, "no flinch or wince from the ball (%.1f deg)" % moved)
+	check(moved < 2.0, "no flinch or wince from the ball (%.1f deg)" % moved)
+	check(fastest < 40.0, "nothing jerks (%.0f deg/s)" % fastest)
+
+
+## Shot and still up, you see what the wound does to him as it comes on (Sean, 2026-10-21): a leg
+## and he takes his weight off it, his gun arm and it sags out of his aim, his body and he guards it
+## and goes slower; not at once (in a tenth of a second, under 2 deg) and not fast.
+func _hit_and_watch(seg: StringName, rest_point: Vector3, from_dir: Vector3, watch: Callable) -> Array:
+	man.physiology.tuning = man.physiology.tuning.duplicate()
+	man.physiology.tuning.knockdown_max = 0.0
+	await physics_frames(10)
+	var before: float = watch.call()
+	_ball(seg, _world(seg, rest_point), -from_dir)
+	check(body_hits.size() > 0 and body_hits[0].segment == seg, "the ball hit his %s (%s)" % [seg, body_hits[0].segment if body_hits.size() > 0 else "nothing"])
+	var early := 0.0
+	var late := 0.0
+	for i in 90:
+		await physics_frames(1)
+		var d: float = watch.call() - before
+		if i < 6:
+			early = maxf(early, absf(d))
+		late = d
+	check(not man.limp and not man.prone, "still on his feet")
+	return [early, late]
+
+
+func test_a_leg_hit_he_favours_it() -> void:
+	# Through the front of his right thigh, to the outside of the bone: the muscle.
+	var knee := func() -> float: return -_joint_bend(man, &"thigh_r", &"shin_r")
+	var r: Array = await _hit_and_watch(&"thigh_r", man.anatomy.segment_center(&"thigh_r") + Vector3(0.04, 0.0, 0.0),
+			-man.global_basis.z, knee)
+	print("  right knee eased %.1f deg in a tenth of a second, %.1f deg by 1.5 s" % [r[0], r[1]])
+	check(r[0] < 2.0, "not at once (%.1f deg)" % r[0])
+	check(r[1] > 5.0, "his weight's off that leg: the knee eased %.1f deg" % r[1])
+	# And he walks shorter and slower on it.
+	var from := man.global_position
+	for i in 60:
+		man.walk_to(from + Vector3(0, 0, -10), 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+	var pace := man.global_position.distance_to(from)
+	print("  walked %.2f m in a second (asked 1.4 m/s)" % pace)
+	check(pace < 1.2, "slower on the hurt leg (%.2f m/s)" % pace)
+
+
+func test_an_arm_hit_lets_his_gun_hand_sag() -> void:
+	man.draw_gun()
+	await physics_frames(40)
+	man.set_pose(&"aim")
+	await physics_frames(30)
+	# Through the outside of his right upper arm, not the bone.
+	# How far his upper arm is raised from hanging (its length runs down -y).
+	var pitch := func() -> float: return rad_to_deg((-(man.parts[&"upper_arm_r"] as Node3D).global_basis.y).angle_to(Vector3.DOWN))
+	var r: Array = await _hit_and_watch(&"upper_arm_r", man.anatomy.segment_center(&"upper_arm_r") + Vector3(0.05, 0.0, 0.0),
+			-man.global_basis.z, pitch)
+	print("  gun arm moved %.1f deg in a tenth of a second, %.1f deg by 1.5 s" % [r[0], r[1]])
+	check(man.held_gun != null, "he's still got the gun")
+	check(man.physiology.can_hold("r"), "and can hold it")
+	check(r[0] < 2.0, "not at once (%.1f deg)" % r[0])
+	check(r[1] < -6.0, "his gun hand sags (%.1f deg)" % r[1])
+
+
+func test_a_body_hit_slows_him() -> void:
+	var from := man.global_position
+	for i in 60:
+		man.walk_to(from + Vector3(0, 0, -10), 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+	var pace_before := man.global_position.distance_to(from)
+	var lean := func() -> float: return rad_to_deg((man.parts[&"chest"] as Node3D).global_basis.y.angle_to(Vector3.UP))
+	# Low in his belly, from in front, off to his left.
+	var r: Array = await _hit_and_watch(&"abdomen", man.anatomy.segment_center(&"abdomen") + Vector3(-0.08, 0.0, 0.0),
+			-man.global_basis.z, lean)
+	print("  chest bent %.1f deg in a tenth of a second, %.1f deg by 1.5 s" % [r[0], r[1]])
+	check(r[0] < 2.0, "not at once (%.1f deg)" % r[0])
+	check(r[1] > 4.0, "he guards it (%.1f deg)" % r[1])
+	from = man.global_position
+	for i in 60:
+		man.walk_to(from + Vector3(0, 0, -10), 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+	var pace := man.global_position.distance_to(from)
+	print("  walked %.2f m in a second before, %.2f after" % [pace_before, pace])
+	check(pace < pace_before * 0.85, "slower for it (%.2f against %.2f)" % [pace, pace_before])
+
+
+## Timber coming down on him: it knocks him over only if its push would (as a blast's does), and
+## gives him no more than a piece that heavy can: a 2 kg board at 160 J doesn't, a 50 kg beam does.
+func test_a_blow_knocks_him_down_only_as_hard_as_it_pushes() -> void:
+	var chest := man.parts[&"chest"] as Node3D
+	man.take_blow(chest, 160.0, chest.global_position, Vector3.BACK, sqrt(2.0 * 2.0 * 160.0))
+	await physics_frames(2)
+	check(not man.limp, "a light board doesn't shove him over")
+	man.take_blow(chest, 400.0, chest.global_position, Vector3.BACK, sqrt(2.0 * 50.0 * 400.0))
+	check(man.limp, "a beam does")
+	await physics_frames(1)
+	var p := 0.0
+	for sid: StringName in man.parts:
+		p += (man.parts[sid] as RigidBody3D).linear_velocity.z * (man.parts[sid] as RigidBody3D).mass
+	# 200 N*s of beam on an 80 kg man: they go on together, 200 * 80 / 130 = 123 N*s to him.
+	print("  the beam gave him %.0f N*s (it had 200)" % p)
+	check(p < 140.0 and p > 100.0, "what a 50 kg beam can give: %.0f N*s" % p)
+
+
+## The light links hold on their joints as he lands face first (the neck swung 19 deg past its
+## limit landing that way: experiments/physics_lab E_chest_from_back, 2026-10-21).
+func test_his_neck_holds_landing_face_first() -> void:
+	man.go_limp(Vector3(0, 0, -1.2))
+	var neck := man.parts[&"neck"] as Node3D
+	var chest := man.parts[&"chest"] as Node3D
+	# Its swing: how far the neck's own axis leans from where it was on the chest (the cone; its
+	# twist about itself is another 25).
+	var rest := chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized().y
+	var worst := 0.0
+	for i in 150:
+		await physics_frames(1)
+		var now := chest.global_basis.orthonormalized().inverse() * neck.global_basis.orthonormalized().y
+		worst = maxf(worst, rad_to_deg(rest.angle_to(now)))
+	print("  the neck swung at most %.1f deg on the chest (its cone 30)" % worst)
+	check(worst < 36.0, "within its limit and a little (%.1f deg)" % worst)
+
+
+## Sat at a table, his forearms before him, he goes down and they stay out of his chest (left out
+## of colliding as they touched, his forearm went 5 cm into it: M_seated_ball).
+func test_sat_at_a_table_his_arms_stay_out_of_him() -> void:
+	var seat := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bx := BoxShape3D.new()
+	bx.size = Vector3(0.45, 0.44, 0.45)
+	cs.shape = bx
+	seat.add_child(cs)
+	world.add_child(seat)
+	seat.global_position = Vector3(0, 0.22, 0.05)
+	var top := StaticBody3D.new()
+	var cs2 := CollisionShape3D.new()
+	var bx2 := BoxShape3D.new()
+	bx2.size = Vector3(1.2, 0.05, 0.8)
+	cs2.shape = bx2
+	top.add_child(cs2)
+	world.add_child(top)
+	top.global_position = Vector3(0, 0.74, -0.75)
+	man.set_pose(&"sit")
+	await physics_frames(60)
+	man.go_limp()
+	var began := {}
+	for arm in [&"forearm_l", &"forearm_r", &"hand_l", &"hand_r"]:
+		for trunk in [&"chest", &"abdomen"]:
+			began[[arm, trunk]] = maxf(_depth(man.parts[arm], man.parts[trunk]), 0.0)
+	var deepest := 0.0
+	for i in 180:
+		await physics_frames(1)
+		for pair: Array in began:
+			deepest = maxf(deepest, _depth(man.parts[pair[0]], man.parts[pair[1]]) - float(began[pair]))
+	print("  a forearm or hand at most %.3f m further into his trunk than it began" % deepest)
+	check(deepest < 0.03, "his arms stay out of him (%.3f m)" % deepest)
+
+
+## How deep two parts' capsules lie in each other (m).
+func _depth(a: Node3D, b: Node3D) -> float:
+	var best := -INF
+	for ca in a.get_children():
+		for cb in b.get_children():
+			if not (ca is CollisionShape3D and cb is CollisionShape3D and (ca as CollisionShape3D).shape is CapsuleShape3D \
+					and (cb as CollisionShape3D).shape is CapsuleShape3D):
+				continue
+			var sa := (ca as CollisionShape3D).shape as CapsuleShape3D
+			var sb := (cb as CollisionShape3D).shape as CapsuleShape3D
+			var xa := a.global_transform * (ca as CollisionShape3D).transform
+			var xb := b.global_transform * (cb as CollisionShape3D).transform
+			var ha := sa.height * 0.5 - sa.radius
+			var hb := sb.height * 0.5 - sb.radius
+			var pts := Geometry3D.get_closest_points_between_segments(xa * Vector3(0, -ha, 0), xa * Vector3(0, ha, 0),
+					xb * Vector3(0, -hb, 0), xb * Vector3(0, hb, 0))
+			best = maxf(best, sa.radius + sb.radius - pts[0].distance_to(pts[1]))
+	return best
 
 
 func test_knees_only_bend_the_right_way() -> void:

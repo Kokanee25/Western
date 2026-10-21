@@ -110,7 +110,14 @@ func _run() -> void:
 		var first_dir := ""
 		for k in repeat:
 			var dir := out_root.path_join(s.name) if k == 0 else out_root.path_join("%s_repeat%d" % [s.name, k])
-			var runner = load("res://experiments/physics_lab/lab_runner.gd").new()
+			var runner_script: GDScript = load("res://experiments/physics_lab/lab_runner.gd")
+			var body_script: GDScript = load("res://src/bodies/human_body.gd")
+			if runner_script == null or not runner_script.can_instantiate() or body_script == null or not body_script.can_instantiate():
+				# A script that doesn't parse would leave Godot waiting for ever (run.py waits 2 h).
+				push_error("lab: lab_runner.gd or human_body.gd doesn't load")
+				quit(1)
+				return
+			var runner = runner_script.new()
 			runner.scenario = s
 			runner.out_dir = dir
 			runner.count = int(s.get("men", 1))
