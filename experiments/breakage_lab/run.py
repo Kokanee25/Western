@@ -90,6 +90,8 @@ def run_one(job):
         words.append(f"seconds={seconds}")
     if render:
         words.append("shots")
+    if opt("novoxels"):
+        words.append("novoxels")
     with open(cmds, "w") as f:
         f.write(" ".join(words) + "\nquit\n")
     godot = os.environ.get("GODOT", "godot")

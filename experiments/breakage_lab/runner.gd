@@ -52,6 +52,9 @@ var seconds := 8.0
 var out_dir := ""
 ## Rendered: before / just after / at the end frames from the target's camera (needs a renderer).
 var shots := false
+## Holes drawn by the shader, no voxel carving (as without the native plugin; perf_bench's
+## --no-voxels): for telling the carving's worker threads apart from the rest.
+var no_voxels := false
 
 var _data := {}
 var _spec := {}
@@ -230,13 +233,15 @@ func _quiet_town() -> void:
 		clock.set_time_scale(0.0)
 	Prof.on = true
 	Prof._sum.clear()
+	if no_voxels:
+		StructureMember.voxel_damage_tuning().enabled = false
 	# Seeded: the ricochets' draws (Ballistics), and the men (rng_seed); the shotgun's pattern is
 	# drawn from this seed too (_fire). Blast seeds itself from where it goes off.
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	if ballistics:
 		ballistics._rng.seed = 1873 + seed_value
 	_setup = {"people_removed": gone, "player_at": lab.arr(PLAYER_AWAY), "hour": _spec.get("hour", 21), "clock": "stopped",
-			"voxels": StructureMember.voxels_available(), "seed": seed_value}
+			"voxels": StructureMember.voxels_available() and not no_voxels, "seed": seed_value}
 
 
 func _v(a: Array) -> Vector3:
@@ -913,6 +918,10 @@ func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 	if charge != Vector3.INF:
 		r["blast"] = blast_demand(m, charge, Blast.t().tnt_per_stick, timber)
 	r["result"] = ("shattered" if m.kind == &"glass" else "broken") if m.broken else ("holed" if r.holes > 0 or r.carved else "holds")
+	if m.has_meta(&"cut"):
+		var c: Vector2 = m.get_meta(&"cut")
+		r["cut_m"] = snappedf(c.y - c.x, 0.01)
+		r["result"] = "cut (%.1f m torn out)" % (c.y - c.x)
 	return r
 
 
@@ -959,6 +968,7 @@ func _broken(timber: TimberTuning) -> Dictionary:
 	var by_kind := {}
 	var list := []
 	var holed := 0
+	var cut_n := 0
 	var structures := {}
 	for key in _before:
 		if not is_instance_valid(key):
@@ -971,6 +981,8 @@ func _broken(timber: TimberTuning) -> Dictionary:
 			holed += 1
 		if not newly_broken:
 			continue
+		if m.has_meta(&"cut"):
+			cut_n += 1
 		var s := m.get_parent() as Structure
 		var kind_wood := "%s/%s" % [m.kind, m.wood]
 		by_kind[kind_wood] = int(by_kind.get(kind_wood, 0)) + 1
@@ -981,7 +993,7 @@ func _broken(timber: TimberTuning) -> Dictionary:
 				"utilisation_before": snappedf(float(a0.utilisation.get(m.member_id, 0.0)), 0.01) if a0 else null,
 				"snapped": m.has_meta(&"snapped")})
 	list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.m_from_event < b.m_from_event)
-	return {"count": list.size(), "holed_not_broken": holed, "by_kind": by_kind, "by_building": structures,
+	return {"count": list.size(), "cut": cut_n, "holed_not_broken": holed, "by_kind": by_kind, "by_building": structures,
 			"nearest": list.slice(0, 25), "furthest_m": list[-1].m_from_event if not list.is_empty() else 0.0}
 
 

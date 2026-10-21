@@ -383,5 +383,7 @@ frozen until Sean names one.
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
   `docs/briefs/blast-surfaces.md` (Sean: his order; the ground made ready for the shovel). Step 1
   made: `Blast.gather` (the near field queried on its own; `results/2026-10-21_near_field/`): the
-  street breaks where the stick is, more far panes go, whole members still do. Next: boards cut, not
-  broken whole (step 2), then the dig-able ground and craters; then 3.3.
+  street breaks where the stick is, more far panes go. Step 2 made: boards cut over the stretch the
+  blast overcomes (`Blast.torn_stretch`, `Structure.cut_member`; `results/2026-10-21_board_cut/`):
+  holes, not missing boards; one stick a crawl hole in a wall, three a doorway (Sean's feel call);
+  glass-only buildings not re-settled. Next: the dig-able ground and craters (its own brief); then 3.3.

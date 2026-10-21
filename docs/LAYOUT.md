@@ -372,6 +372,11 @@ a few views renders them as the full run does.
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
+  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
+  stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
+  `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -490,7 +495,10 @@ a few views renders them as the full run does.
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
-  on people), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  on people; what it acts on comes from `gather()`: every member where timber can break,
+  `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
+  every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (flash, fireball, cloud, scorch, sound).
   `src/player/player_wounds.gd` is the player's own anatomy + wound effects.
 

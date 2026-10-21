@@ -51,7 +51,9 @@ Two faults stack:
    stick; more far panes shatter; whole members still go.) The near field (where timber can break: ~3 m for a stick) queried
    on its own with no cap, the 14.6 m sphere kept for glass, people and loose things. The lab's
    first fix (`baseline/baseline.md`); small, gameplay's own files.
-2. **Holes in boards.** For a board, plank or roof board the blast overcomes, the stretch it
+2. **Holes in boards.** (Done 2026-10-21: `Blast.torn_stretch`, `Structure.cut_member`; the lab's
+   `results/2026-10-21_board_cut/`: the floor under a stick opens 6.9 m² where it opened 21, the
+   roof 9.3 where 19; one stick at a wall's foot a crawl hole, three a doorway.) For a board, plank or roof board the blast overcomes, the stretch it
    overcomes (Blast's own windowed rule along the member: the same USDA strengths and Kinney-Graham
    impulse, worked over hand-spans either side of the nearest point) is cut out. The member becomes
    up to two shorter members (new ids `<id>/a`, `<id>/b`, still in the support graph, still
