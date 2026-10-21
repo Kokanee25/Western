@@ -40,3 +40,14 @@ in `../2026-10-21_blood_paint/`). With the blood marks and the test, $1.62 of Se
 - From most angles a stump's face is end-on to the camera only when he lies right. The muscle
   and bone of the insides stand proud of it, which reads well up close.
 - `gore_gash` isn't used yet: no wound in the game tears a long gash. A knife would.
+
+## The goldens (Sean's call)
+The 23 outlaw views were rendered with this branch (`golden_check.py --render --only=outlaw_`).
+21 pass. Two fail, and both changes come from this PR (`goldens.jpg`: golden, new, the diff):
+- `outlaw_graze`: the grazed man's hand goes to the graze (the grab) instead of hanging.
+- `outlaw_blast`: the blast's dead man shows the painted stump faces, and the blood lies a little
+  differently.
+
+They need re-approving in the same merge (`golden_check.py --approve --from=<renders>
+--only=outlaw_graze,outlaw_blast`), or the nightly visual check goes red. That's waiting on
+Sean's OK.
