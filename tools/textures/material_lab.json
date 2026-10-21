@@ -1,0 +1,404 @@
+{
+ "about": "The material lab's candidate sets (roadmap 1.4a; tools/material_lab.gd, tools/material_measure.py). Each set: the woods paint_woods.py --set=NAME paints from the game's strips with the Studio men's sheet as the style reference (docs/concept/targets/9_studio_men.png) into assets/textures/mlab_NAME/, at texels_per_metre; `boards` paints more boards than the game's wood has; `grade` scales a wood's lightness, contrast and chroma in L*a*b* when it is cut (no paid call); `ask` is added to the prompt; `inherit` takes the woods it doesn't paint from another set; `length` paints a wood's boards longer (metres); `props` paints materials.json materials with the same sheet and cuts them by reduce.py --set (at `prop_texels`); `budget` is the most a run spends. Nothing here is the game's until Sean approves a wood and it is moved into assets/textures/woods/.",
+ "sets": {
+  "recut256": {
+   "note": "No paint: the game's own paintings (raw/woods_<wood>.jpg, Oct 16) cut again at 256 texels a metre instead of 128, to see what density alone does beside the men.",
+   "texels_per_metre": 256,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ]
+  },
+  "recut512": {
+   "note": "No paint: the game's own paintings cut again at 512 texels a metre (half their painted resolution).",
+   "texels_per_metre": 512,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ]
+  },
+  "fit512": {
+   "note": "No paint: the game's paintings cut at 512 texels a metre and their lightness scaled so each wood's 90th percentile L* sits at 62, inside the Studio men's paint (their textures: L* 9.7-65.8, median 27.5; the woods' 90th were 66-80).",
+   "texels_per_metre": 512,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ],
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   }
+  },
+  "studio1": {
+   "note": "The Studio men's hand (2026-10-21, Sean's $4): every wood repainted from the game's strips with the men's sheet (9_studio_men.png), cut at 512 texels a metre (the density the free re-cut showed matches their cloth's detail), graded into their lightness as fit512; dark trim and framing given more boards (60% and 22% of their neighbours on Main Street repeat a strip).",
+   "texels_per_metre": 512,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 6
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "ask": "",
+   "budget": 3.6
+  },
+  "studio2": {
+   "note": "studio1 filled out (Sean, 2026-10-21: \"take $5 more\"): the floor 10 boards, timber 8 boards 3 m long (a post or beam no longer shows its strip twice), dark trim 7 boards 4 m long (the bar's top is dark trim, ~6 m); the rest as studio1. With the props judged beside the men: the chairs' and tables' wood, the card table's baize and top, a barrel's staves and head, painted with the same sheet.",
+   "inherit": "studio1",
+   "texels_per_metre": 512,
+   "woods": [
+    "floor",
+    "timber",
+    "dark_trim"
+   ],
+   "boards": {
+    "floor": 10,
+    "timber": 8,
+    "dark_trim": 7
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "grade": {
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "props": [
+    "prop_wood",
+    "prop_felt",
+    "shot_table",
+    "prop_staves",
+    "prop_barrel_head"
+   ],
+   "budget": 2.5,
+   "ask": "",
+   "prop_texels": 512
+  },
+  "studio3": {
+   "note": "The hotel's oak stair (Sean, 2026-10-21: \"a beautiful oak staircase that would maybe be in the hotel - dark wood, use the funds I've already allotted\"): dark_oak, a wood the game hasn't got, painted from the dark trim's boards in the Studio men's hand, 10 boards 3 m long at 512 a metre; the runner carpet; everything else as studio2. The lab's OakStair (tools/material_lab.gd --material=stair) draws with it. Second try (the first dark_oak, painted from the dark trim's boards, came back rustic barn boards with nail holes and a signature): dark_oak painted as a factory material from words alone, eight boards cut a strip each, 3 m at 512 a metre. Third way (2026-10-21, OpenRouter's monthly guardrail reached, $40.32 of $40, no call possible until it resets 2026-11-01 or is raised): dark_oak cut with no call from the walnut painting the gun stocks already use (raw/walnut.jpg, painted in the men's hand on 2026-10-17), darkened to a stained oak, eight 1.5 m boards.",
+   "inherit": "studio2",
+   "texels_per_metre": 512,
+   "woods": [],
+   "boards": {},
+   "length": {},
+   "props": [
+    "stair_runner"
+   ],
+   "prop_texels": 512,
+   "budget": 0.8,
+   "ask": "",
+   "from_painting": {
+    "dark_oak": {
+     "raw": "walnut.jpg",
+     "boards": 8,
+     "board_m": 0.1875,
+     "length_m": 1.5,
+     "end_from": "timber"
+    }
+   },
+   "grade": {
+    "dark_oak": {
+     "L": 0.62,
+     "C": 0.9
+    }
+   }
+  },
+  "studio4": {
+   "note": "The oak stair's wood painted from words (Sean raised OpenRouter's monthly limit, 2026-10-21): dark_oak as a factory material, eight boards of polished quarter-sawn oak stained dark, in the Studio men's hand, cut a strip a board at 512 a metre; everything else as studio3 (whose dark_oak is the walnut painting cut with no call), so the two stairs compare.",
+   "inherit": "studio3",
+   "texels_per_metre": 512,
+   "woods": [],
+   "props": [
+    "dark_oak"
+   ],
+   "prop_texels": 512,
+   "budget": 0.8,
+   "ask": ""
+  },
+  "studio1_384": {
+   "note": "No paint: studio1's paintings cut again at 384 texels a metre (at 512 their detail came out finer than the men's cloth, 3.3-4.2 mm against 6.4; 384 lands ~4.5-5.5 mm and takes 0.56 of the memory).",
+   "raw": "woods_studio1_%s.jpg",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 6
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   }
+  },
+  "studio5": {
+   "note": "Round 2 (Sean, 2026-10-21: \"paint some boards how you said for the next pass\"), after the blind critic found round 1's repaint photographic: every wood repainted broad (a few close tones a board, the grain only suggested, knots as soft shapes, no nail holes or speckle), darker and warmer like the men's cloth, from the game's boards sent blurred so there's no fine grain to copy; studio2's extra and longer boards; cut at 384 a metre and graded into the men's lightness.",
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "blur_source": 3.0,
+   "no_wear": true,
+   "hand": "Repaint it as an illustrator's painting in the same hand as the second image, the game's characters: their cloth is painted in broad, soft shapes of a few close tones, with clean bands of light and shade and almost no small texture. Paint each board the same way: three or four close tones laid in long broad strokes along its length, the grain only suggested by a few long soft streaks, a knot or two as soft dark ovals, worn edges as broad lighter bands, a little dust and grime as soft darker patches. No fine grain lines, no nail holes, no speckle, no scratches, no cracks drawn line by line, nothing photographic: it should look painted with a brush. A little darker and warmer than the first image, the weathered wood warm brown like the men's vests and trousers, the painted boards keeping their paint colour, muted.",
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "budget": 2.6,
+   "ask": ""
+  },
+  "studio5w": {
+   "texels_per_metre": 384,
+   "woods": [
+    "saloon_red",
+    "store_boards",
+    "floor",
+    "weathered_pine",
+    "timber",
+    "fascia",
+    "saloon_red_low",
+    "store_boards_low",
+    "framing",
+    "dark_trim"
+   ],
+   "boards": {
+    "framing": 8,
+    "dark_trim": 7,
+    "floor": 10,
+    "timber": 8
+   },
+   "length": {
+    "timber": 3.0,
+    "dark_trim": 4.0
+   },
+   "grade": {
+    "saloon_red": {
+     "L": 0.89
+    },
+    "saloon_red_low": {
+     "L": 0.89
+    },
+    "store_boards": {
+     "L": 0.81
+    },
+    "store_boards_low": {
+     "L": 0.81
+    },
+    "weathered_pine": {
+     "L": 0.775
+    },
+    "floor": {
+     "L": 0.872
+    },
+    "timber": {
+     "L": 0.83
+    },
+    "fascia": {
+     "L": 0.809
+    },
+    "framing": {
+     "L": 0.937
+    },
+    "dark_trim": {
+     "L": 0.938
+    }
+   },
+   "raw": "woods_studio5_%s.jpg",
+   "weather": {
+    "grime": 0.9,
+    "edges": 0.8,
+    "bleach": 0.6,
+    "splash": 1.0
+   },
+   "note": "Round 2 weathered (Sean, 2026-10-21: \"too clean? Can weathering and staining be added after\"): studio5's paintings cut again with no call, weathering laid on each board when it's cut, broad and soft (grime patches, dirt along the edges, sun-bleached streaks, mud splash on the low siding). The proper version is a weathering layer in the shader, painted in the men's hand and laid by where the board is (round 3, the brief)."
+  }
+ }
+}

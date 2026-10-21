@@ -1,0 +1,22 @@
+{
+ "eyes": {
+  "right": [
+   0.031,
+   1.6545,
+   -0.0828
+  ],
+  "left": [
+   -0.031,
+   1.6555,
+   -0.0832
+  ]
+ },
+ "source": "the style's 3D model (styles/painted.yaml three_d) from her approved pictures",
+ "id": "widow_s1",
+ "whole": true,
+ "triangles": {
+  "body_skin": 27510,
+  "body_head": 6989
+ },
+ "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)"
+}

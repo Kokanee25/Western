@@ -16,6 +16,7 @@ extends Node3D
 var places := Waypoints.test_street()
 var storekeeper: HumanBody
 var barkeep: HumanBody
+var widow: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -54,7 +55,9 @@ func _spawn_townsfolk() -> void:
 	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
 			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s1")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
-			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13))
+			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s1")
+	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
+			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s1")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,

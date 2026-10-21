@@ -393,6 +393,16 @@ jobs:
               case "$WHICH" in woods:*) only="--only=${WHICH#woods:}" ;; esac
               python3 tools/textures/paint_woods.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
               exit 0 ;;
+            # textures = mlab:NAME (or mlab:NAME:floor,...): a material lab candidate set
+            # (tools/textures/material_lab.json, paint_woods.py --set; art, roadmap 1.4a), painted
+            # into assets/textures/mlab_NAME/ inside the set's budget; the game's woods untouched.
+            mlab:*)
+              rest="${WHICH#mlab:}"
+              name="${rest%%:*}"
+              only=""
+              case "$rest" in *:*) only="--only=${rest#*:}" ;; esac
+              python3 tools/textures/paint_woods.py --set=$name $only $( [ "$REPAINT" = "true" ] && echo --repaint )
+              exit 0 ;;
             # textures = reference (or reference:street,...): the judge's reference paintings in
             # the painted look (tools/textures/paint_reference.py, art, 2026-10-16).
             reference|reference:*)
