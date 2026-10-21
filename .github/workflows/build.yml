@@ -46,6 +46,19 @@ jobs:
       - name: Import project
         run: ~/godot/godot --headless --import || true
 
+      - name: Import files committed
+        # Every asset's .import file must be committed as Godot writes it (a new character, texture
+        # or prop included), or every session's import shows it as a change it didn't make.
+        # Fix: run `godot --headless --import` and commit the .import files it lists here.
+        run: |
+          changed=$(git status --porcelain -- '*.import')
+          if [ -n "$changed" ]; then
+            echo "::error::Godot's import wrote .import files that aren't committed as it writes them:"
+            echo "$changed"
+            echo "Run godot --headless --import and commit these files."
+            exit 1
+          fi
+
       - name: Run tests
         run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
 
