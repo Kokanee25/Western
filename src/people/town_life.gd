@@ -17,6 +17,7 @@ var places := Waypoints.test_street()
 var storekeeper: HumanBody
 var barkeep: HumanBody
 var widow: HumanBody
+var sheriff: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -58,6 +59,10 @@ func _spawn_townsfolk() -> void:
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s1")
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
 			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s1")
+	# The sheriff (the Studio's sean_s1, Sean as him) in front of his jail, watching the street. A
+	# civilian's mind for now: no gun, no law yet.
+	sheriff = _civilian(&"sheriff", &"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 1.4, -9.0)), 104,
+			Color(0.85, 0.8, 0.7), Color(0.2, 0.2, 0.22), &"sean_s1")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
