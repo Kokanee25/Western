@@ -13,7 +13,7 @@ extends RefCounted
 ## through them).
 ##
 ## And an upright member whose top nothing holds any more (a baluster whose cap rail he broke) is
-## held at its foot only by its nails (TimberTuning.joint_moment; a post set in the ground isn't):
+## held at its foot only by its nails (`nailed_moment`; a post set in the ground isn't):
 ## it tears out when his push on it, times how high up it he bears, passes that, whichever way he
 ## bears on it. His weight leaning or lying on a freed balustrade is enough.
 
@@ -131,7 +131,7 @@ func step(delta: float) -> Array[StructureMember]:
 				# bears on it levers it off its nails.
 				var push := j.length() / maxf(delta, 1e-4)
 				var up := st.get_contact_collider_position(i).y - m.world_aabb().position.y
-				if push * up > s.tuning.joint_moment:
+				if push * up > nailed_moment(s.tuning, m):
 					broke.append(m)
 					_tally.erase(m)
 					var away := Vector3(-n.x, 0.0, -n.z)
@@ -167,6 +167,17 @@ static func _top_free(s: Structure, m: StructureMember) -> bool:
 		if o != null and not o.broken:
 			return false
 	return true
+
+
+## What a member's nailed foot takes before it tears out (N·m): TimberTuning.joint_moment is a
+## framing member's (38 x 89, several nails); a smaller section takes fewer nails nearer together,
+## so holds less, in proportion (a 35 mm baluster, toe-nailed with one or two: ~43).
+const FRAMING_SECTION := 0.038 * 0.089
+
+
+static func nailed_moment(tuning: TimberTuning, m: StructureMember) -> float:
+	var cs := m.cross_section()
+	return tuning.joint_moment * clampf(cs.x * cs.y / FRAMING_SECTION, 0.1, 3.0)
 
 
 ## Any member within NEAR_RADIUS of his pelvis.
