@@ -81,6 +81,7 @@ func _run() -> void:
 			runner.render = args.has("render")
 			runner.seed_value = int(manifest.seed)
 			runner.brains = args.has("brains")
+			runner.grab_on = not args.has("no-grab")
 			if args.has("size"):
 				var wh: PackedStringArray = args.size.split("x")
 				runner.view_size = Vector2i(int(wh[0]), int(wh[1]))
@@ -103,6 +104,10 @@ func _run() -> void:
 
 
 func _line(sm: Dictionary) -> String:
+	if sm.has("grab"):
+		var g: Dictionary = sm.grab
+		return "hand %s, there in %s s, palm %s cm from the hole at 1 s, %s at the end%s" % [g.hand, g.reached_s, g.palm_to_hole_cm_at_1s,
+				g.palm_to_hole_cm_end, " (down)" if g.down else ""]
 	if sm.has("same_tick"):
 		return ", ".join(sm.same_tick.map(func(c): return "%s: %d wound(s)" % [c.case, c.wounds]))
 	if sm.has("check"):

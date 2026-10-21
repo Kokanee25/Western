@@ -23,6 +23,8 @@ var _found := {}
 var _perf := {"standing": [], "after": [], "people_standing": [], "people_after": [], "body": [], "skeleton": [], "blood": [], "brains": []}
 ## --brains: each perf man has an OutlawBrain (senses, fear, tending his wounds), as the gang does.
 var brains := false
+## --no-grab: no hand goes to a wound (HumanBody.hand_to_wound), for an A/B.
+var grab_on := true
 var _perf_last := 0
 var _toward: Array = []  ## the blast's gravel and splinters that left toward him
 var _spot_cam := {}  ## where the close-up looks (a shot's spot), fixed at the hit
@@ -31,6 +33,7 @@ var _spot_cam := {}  ## where the close-up looks (a shot's spot), fixed at the h
 func _ready() -> void:
 	process_physics_priority = -100
 	process_priority = 1000
+	HumanBody.hand_to_wound = grab_on
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	_rng.seed = seed_value
 	var d := Bench.data()
@@ -186,7 +189,9 @@ func _run_blast() -> void:
 func _live(since: int) -> void:
 	if since < 0:
 		return
-	if render and since == 9:
+	if scenario.get("grab", false):
+		_watch_grab(since)
+	if render and since == 9 and not scenario.get("grab", false):
 		_snap("spot", _spot_cam.from, _spot_cam.at, 45.0)
 	if since == _live_ticks:
 		_finish_wound()
@@ -196,8 +201,45 @@ func _live(since: int) -> void:
 		_write()
 
 
+var _grab_log := []  ## [t, side, weight, palm to the hole (cm)] each tick
+
+
+## The hand to the wound: which hand, how far along, and how far the middle of his palm is from the
+## hole (less the hand's own thickness off the skin). Footage every 3 ticks with --render.
+func _watch_grab(since: int) -> void:
+	var g: Dictionary = man._grab
+	var row := [snappedf(since / 60.0, 0.01), "", 0.0, null, man.limp]
+	if not g.is_empty():
+		var part := man.parts[g.seg] as Node3D
+		var hole: Vector3 = part.global_transform * (g.at as Vector3)
+		var palm := (man.parts[StringName("hand_" + g.side)] as Node3D).global_position
+		row = [snappedf(since / 60.0, 0.01), g.side, snappedf(g.w, 0.01),
+				snappedf(maxf(palm.distance_to(hole) - HumanBody.GRAB_OFF_SKIN, 0.0) * 100.0, 0.1), man.limp]
+		if since == 1:
+			_spot_cam = {"at": hole, "from": hole + man.global_basis * Vector3(0.5, 0.2, -1.3)}
+	_grab_log.append(row)
+	if render and since % 3 == 0 and since <= 120 and not _spot_cam.is_empty():
+		_snap("grab_%03d" % since, _spot_cam.from, _spot_cam.at, 50.0)
+
+
+func _grab_summary() -> Dictionary:
+	var reached := -1.0
+	for r: Array in _grab_log:
+		if r[3] != null and float(r[3]) <= 5.0 and float(r[2]) >= 0.99:
+			reached = r[0]
+			break
+	var last: Array = _grab_log[-1] if not _grab_log.is_empty() else []
+	var at_1s: Array = _grab_log[mini(59, _grab_log.size() - 1)] if not _grab_log.is_empty() else []
+	return {"hand": last[1] if not last.is_empty() else "", "reached_s": reached if reached >= 0.0 else null,
+			"palm_to_hole_cm_at_1s": at_1s[3] if not at_1s.is_empty() else null,
+			"palm_to_hole_cm_end": last[3] if not last.is_empty() else null, "weight_end": last[2] if not last.is_empty() else 0.0,
+			"down": man.limp or man.prone, "log": _grab_log.filter(func(r: Array) -> bool: return int(round(r[0] * 60.0)) % 6 == 0)}
+
+
 func _finish_wound() -> void:
 	var p := man.physiology
+	if scenario.get("grab", false):
+		summary["grab"] = _grab_summary()
 	if not _toward.is_empty():
 		summary.charge["toward_him_paths"] = _toward.map(func(b: Ballistics.Bullet) -> Array:
 			return [b.alive, b.hits.size(), Array(b.path).slice(0, 4).map(func(q: Vector3) -> Variant: return Bench.arr(q))])

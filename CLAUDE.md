@@ -371,5 +371,5 @@ frozen until Sean names one.
   Next: the gunfight lab's bench and baseline.
 - The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
   and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
-  in a blast, the femur's bleed; `results/`). Waiting on Sean: dynamite up close (the options in
-  `results/2026-10-21_dynamite_options/`), the gut's time.
+  in a blast, the femur's bleed; `results/`) and a hand to the wound (`HumanBody._grab`). Waiting on
+  Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.

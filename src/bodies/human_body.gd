@@ -1366,6 +1366,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
+	_grab_step(delta)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 
@@ -1545,6 +1546,197 @@ func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: floa
 		sid = anatomy.segments[sid].parent
 
 
+# --- A hand to the wound -----------------------------------------------------------------------
+
+## Hit and still on his feet, he puts a free hand over the hole: the throat, a side, his belly, a
+## thigh, the other arm. Not a flinch (Sean, 2026-10-18: no flinch or wince for a ball that doesn't
+## drop him) but after a beat, as a man does who has just found he's hit, and held while it bleeds or
+## hurts. Procedural, by two-bone IK on the arm after the pose: the hole is wherever the ball went,
+## which no clip can know (Sean, 2026-10-21). Measured in experiments/body_lab (`grab`).
+const GRAB_DELAY := 0.3  ## s before he reaches: he's only just found it
+const GRAB_REACH := 0.55  ## s to get his hand there
+const GRAB_LET_GO := 1.2  ## s to let it fall away
+const GRAB_HOLD_BLEED := 0.15  ## ml/s still coming from it: he holds on
+const GRAB_HOLD_PAIN := 0.3  ## felt pain: he holds on
+const GRAB_PALM := 0.075  ## m from the wrist to the middle of the palm, laid over the hole
+const GRAB_OFF_SKIN := 0.03  ## m the palm's middle stands off the skin (the hand's own thickness)
+## Poses in which a hand can go to a wound (not his hands up or bound, not lying, not dragging).
+const GRAB_POSES := [&"stand", &"aim", &"wary", &"crouch", &"crouch_aim", &"duck", &"clutch", &"tend", &"shove"]
+var _grab := {}  ## {wound, seg, at (part-local), side, t, w}
+## Off: no hand goes to a wound (the body lab's A/B, `--no-grab`).
+static var hand_to_wound := true
+
+
+## A new wound: if it's bleeding worse than the one he's holding (or he holds none), it's the one
+## his hand goes to, by the side it's on, or the hand that's free.
+func _reach_for(w: Dictionary) -> void:
+	if not hand_to_wound or limp or prone or w.kind in [&"blast", &"severed"]:
+		return
+	if not _grab.is_empty() and _wound_bleed(_grab.wound) >= _wound_bleed(w):
+		return
+	var seg: StringName = w.segment
+	var at: Vector3 = w.entry
+	# The way out, if that's the hole on his front (a ball from behind).
+	if w.exit != null and _skin_normal(seg, w.exit).z < _skin_normal(seg, at).z:
+		at = w.exit
+	var side := _grab_hand(seg, at)
+	if side == "":
+		return
+	var keep: float = _grab.get("w", 0.0) if _grab.get("side", "") == side else 0.0
+	_grab = {"wound": w, "seg": seg, "at": at, "side": side, "t": 0.0, "w": keep}
+
+
+## Which hand ("r"/"l", or "" if neither): not the arm that's hit, not the gun hand, not a broken
+## or lost one; the one on the wound's side first.
+func _grab_hand(seg: StringName, at: Vector3) -> String:
+	var s := String(seg)
+	var on_arm := s.begins_with("upper_arm") or s.begins_with("forearm") or s.begins_with("hand")
+	var first := "r" if (anatomy.segment_center(seg) + at).x > 0.0 else "l"
+	if on_arm:
+		first = "l" if s.ends_with("_r") else "r"
+	for side in [first, "l" if first == "r" else "r"]:
+		if on_arm and s.ends_with("_" + side):
+			continue
+		if _hand_free(side):
+			return side
+	return ""
+
+
+func _hand_free(side: String) -> bool:
+	var p := physiology
+	if p.arms_paralysed():
+		return false
+	if side == "r" and held_gun != null and not gun_holstered:
+		return false
+	for part in [&"upper_arm_", &"forearm_", &"hand_"]:
+		if p.severed_segments.has(StringName(part + side)):
+			return false
+	for bone in [&"humerus_", &"radius_", &"ulna_", &"clavicle_"]:
+		if p.broken.has(StringName(bone + side)):
+			return false
+	return true
+
+
+## How much a hand is pressed over this point (world): 0 none, 1 his palm right on it (the
+## blood wells out between his fingers rather than spurting: BloodJet).
+func hand_over(point: Vector3) -> float:
+	if _grab.is_empty() or limp:
+		return 0.0
+	var palm := (parts[StringName("hand_" + _grab.side)] as Node3D).global_position
+	return float(_grab.w) * clampf(1.0 - (palm.distance_to(point) - 0.05) / 0.05, 0.0, 1.0)
+
+
+func _wound_bleed(w: Dictionary) -> float:
+	var r := 0.0
+	for i: int in w.get("bleeds", []):
+		if i < physiology.bleeds.size():
+			r += physiology.bleed_rate(physiology.bleeds[i])
+	return r
+
+
+func _grab_step(delta: float) -> void:
+	if _grab.is_empty():
+		return
+	var g := _grab
+	g.t += delta
+	var side: String = g.side
+	var holding: bool = physiology.is_conscious() and pose in GRAB_POSES and stumbling <= 0.0 and _hand_free(side) \
+			and parts.has(g.seg) and (_wound_bleed(g.wound) > GRAB_HOLD_BLEED or physiology.felt_pain() > GRAB_HOLD_PAIN)
+	var goal := 1.0 if holding and g.t >= GRAB_DELAY else 0.0
+	g.w = move_toward(g.w, goal, delta / (GRAB_REACH if goal > g.w else GRAB_LET_GO))
+	if g.w <= 0.0 and goal == 0.0 and g.t >= GRAB_DELAY:
+		_grab.clear()
+		return
+	var k := smoothstep(0.0, 1.0, g.w)
+	# A shot hand or forearm: he brings it in to the front of his belly and holds it with the other.
+	var hurt := ""
+	if String(g.seg).begins_with("hand") or String(g.seg).begins_with("forearm"):
+		hurt = String(g.seg).right(1)
+		var hx := 1.0 if hurt == "r" else -1.0
+		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k)
+	var part := parts[g.seg] as Node3D
+	var at: Vector3 = part.global_transform * (g.at as Vector3)
+	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
+	if not _arm_to(side, at, n, k) and hurt == "":
+		_grab.clear()  # out of his reach (a shin, standing): he leaves it
+		return
+	if side == "r" and held_gun != null and not gun_holstered:
+		return
+	var curl := lerpf(0.15, 0.4, k)
+	if absf(curl - float(g.get("curl", -1.0))) > 0.02:
+		g.curl = curl
+		curl_hand(side, curl)
+
+
+## Lay the hand on `side` over the point `at` (world, skin normal `n`), by `k` of the way from the
+## pose: two-bone IK on the shoulder and elbow, the elbow out and down, then the hand turned to lie
+## across the hole palm in. False if it's out of his reach.
+func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
+	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
+	var fa := pivots.get(StringName("forearm_" + side)) as Node3D
+	var hd := pivots.get(StringName("hand_" + side)) as Node3D
+	if up == null or fa == null or hd == null:
+		return false
+	var hand_sid := StringName("hand_" + side)
+	var l1 := (_pivot_rest(StringName("forearm_" + side)) - _pivot_rest(StringName("upper_arm_" + side))).length()
+	var l2 := (_pivot_rest(hand_sid) - _pivot_rest(StringName("forearm_" + side))).length()
+	var sh := up.global_position
+	# The hand lies across the hole the way the arm comes to it, along the skin; on his neck and
+	# trunk more level than that (fingers round the side of the neck, not up over his chin).
+	var along := at - sh
+	var high: bool = _grab.get("seg", &"") in [&"neck", &"head"]
+	if high:
+		# Up from in front, his fingers round the side of his neck toward the back, elbow down.
+		along = global_basis * Vector3(0, 0.3, 1)
+	elif _grab.get("seg", &"") in [&"chest", &"abdomen", &"pelvis"]:
+		along = global_basis.inverse() * along
+		along.y *= 0.25
+		along = global_basis * along
+	along = (along - n * along.dot(n))
+	along = along.normalized() if along.length() > 1e-4 else Vector3.DOWN
+	var wrist := at + n * GRAB_OFF_SKIN - along * GRAB_PALM
+	var to := wrist - sh
+	if to.length() > l1 + l2 + 0.1:
+		return false
+	var d := clampf(to.length(), absf(l1 - l2) + 0.01, l1 + l2 - 0.005)
+	var dir := to.normalized()
+	var sx := 1.0 if side == "r" else -1.0
+	var pole := global_basis.x * sx * 0.6 + Vector3.DOWN * 0.4 + global_basis.z * 0.3
+	if high:
+		pole = -global_basis.z * 0.5 + Vector3.DOWN * 0.6 + global_basis.x * sx * 0.2
+	pole = (pole - dir * pole.dot(dir)).normalized()
+	var a := (l1 * l1 + d * d - l2 * l2) / (2.0 * d)
+	var elbow := sh + dir * a + pole * sqrt(maxf(l1 * l1 - a * a, 0.0))
+	var wrist_at := sh + dir * d
+	# Worked out on the joints' world frames, then each set once (setting them as it goes made the
+	# engine work out every part under them each time).
+	var b_up := up.global_basis
+	var b_fa := fa.global_basis
+	var b_hd := hd.global_basis
+	var e0 := fa.global_position
+	var w0 := hd.global_position
+	var q1 := Quaternion((e0 - sh).normalized(), (elbow - sh).normalized())
+	var e1 := sh + q1 * (e0 - sh)
+	var w1 := e1 + q1 * (w0 - e0)
+	var q2 := Quaternion((w1 - e1).normalized(), (wrist_at - e1).normalized())
+	var up_ik := Basis(q1) * b_up
+	var fa_ik := Basis(q2 * q1) * b_fa
+	var hd_ik := Basis(q2 * q1) * b_hd
+	var seg: Dictionary = anatomy.segments[hand_sid]
+	var axis := ((seg.b as Vector3) - (seg.a as Vector3)).normalized()
+	hd_ik = Basis(Quaternion((hd_ik * axis).normalized(), along)) * hd_ik
+	# Palm in, onto him (at rest the palms face in: -x on the right hand, +x on the left).
+	var palm := hd_ik * Vector3(-sx, 0, 0)
+	var want := -n - along * (-n).dot(along)
+	var have := palm - along * palm.dot(along)
+	if want.length() > 1e-4 and have.length() > 1e-4:
+		hd_ik = Basis(along, have.normalized().signed_angle_to(want.normalized(), along)) * hd_ik
+	up.global_basis = Basis(b_up.get_rotation_quaternion().slerp(up_ik.get_rotation_quaternion(), k))
+	fa.global_basis = Basis(b_fa.get_rotation_quaternion().slerp(fa_ik.get_rotation_quaternion(), k))
+	hd.global_basis = Basis(b_hd.get_rotation_quaternion().slerp(hd_ik.get_rotation_quaternion(), k))
+	return true
+
+
 # --- Being shot --------------------------------------------------------------------------------
 
 ## A bullet reached a body part's hitbox. Traces it through the anatomy under the clothes; returns
@@ -1597,6 +1789,8 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	# (a .45 ball stopped in him is 4.5 N*s: a man's speed changes by 6 cm/s, it doesn't throw him).
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
+	if not knocked:
+		_reach_for(wound)
 	if knocked:
 		_knocked(seg, pos, dir, given)
 	elif limp and parts.get(seg) is RigidBody3D:

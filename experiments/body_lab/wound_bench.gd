@@ -28,6 +28,10 @@ static func scenarios() -> Array:
 						"weapon": w, "range": float(r), "spot": spot})
 	for r in d.dynamite.distances:
 		out.append({"name": "dynamite_%dm" % int(r), "group": "dynamite", "kind": "blast", "range": float(r)})
+	# The hand to the wound (HumanBody._grab): a ball from 15 m into each spot, his hand watched.
+	for spot: String in d.spots:
+		out.append({"name": "grab_%s" % spot, "group": "grab", "kind": "shot", "weapon": "revolver", "range": 15.0,
+				"spot": spot, "grab": true})
 	out.append({"name": "check", "group": "check", "kind": "check"})
 	out.append({"name": "same_tick", "group": "probe", "kind": "same_tick"})
 	return out

@@ -95,6 +95,11 @@ func _physics_step(delta: float) -> void:
 		speed = 0.04
 		_material.spread = 40.0
 		_particles.amount_ratio = clampf(total / 3.0, 0.05, 0.3)
+	# A hand pressed over the hole: it wells out between his fingers and runs down, not spurts.
+	var covered := body.hand_over(global_position)
+	if covered > 0.0:
+		speed = lerpf(speed, 0.05, covered)
+		_material.spread = lerpf(_material.spread, 50.0, covered)
 	_material.initial_velocity_min = speed * 0.85
 	_material.initial_velocity_max = speed * 1.1
 	_material.color = colour

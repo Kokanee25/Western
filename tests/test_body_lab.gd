@@ -29,8 +29,8 @@ func after_each() -> void:
 func test_the_lab_names_every_scenario() -> void:
 	var names: Array = Bench.scenarios().map(func(s: Dictionary) -> String: return s.name)
 	var d := Bench.data()
-	check_eq(names.size(), d.weapons.size() * d.ranges.size() * d.spots.size() + d.dynamite.distances.size() + 2,
-			"every weapon at every range into every spot, the dynamite, the check, the probe")
+	check_eq(names.size(), d.weapons.size() * d.ranges.size() * d.spots.size() + d.dynamite.distances.size() + d.spots.size() + 2,
+			"every weapon at every range into every spot, the dynamite, the grabs, the check, the probe")
 	check(names.has("revolver_05m_thigh") and names.has("shotgun_30m_hand") and names.has("dynamite_1m"), "named as the README says")
 
 
