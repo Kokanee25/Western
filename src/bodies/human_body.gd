@@ -1585,6 +1585,8 @@ func _reach_for(w: Dictionary) -> void:
 	if side == "":
 		return
 	var keep: float = _grab.get("w", 0.0) if _grab.get("side", "") == side else 0.0
+	if not _grab.is_empty():
+		_hand_press(_grab.wound, false)
 	_grab = {"wound": w, "seg": seg, "at": at, "side": side, "t": 0.0, "w": keep}
 
 
@@ -1628,12 +1630,28 @@ func hand_over(point: Vector3) -> float:
 	return float(_grab.w) * clampf(1.0 - (palm.distance_to(point) - 0.05) / 0.05, 0.0, 1.0)
 
 
+## What a wound bleeds now, as if no hand were on it (so holding it doesn't make him let go).
 func _wound_bleed(w: Dictionary) -> float:
 	var r := 0.0
 	for i: int in w.get("bleeds", []):
 		if i < physiology.bleeds.size():
-			r += physiology.bleed_rate(physiology.bleeds[i])
+			var b: Dictionary = physiology.bleeds[i]
+			var rate := physiology.bleed_rate(b)
+			if b.get("hand", false) and not b.pressure and not b.tourniquet:
+				rate /= physiology.tuning.pressure_factor
+			r += rate
 	return r
+
+
+## His palm clamped over a wound holds its bleeding back (the outside ones: not what bleeds inside
+## him) while it's there; lifted, it spurts again.
+const GRAB_PRESSES := 0.9  ## the hand's this far there (its weight) before it presses
+
+
+func _hand_press(w: Dictionary, on: bool) -> void:
+	for i: int in w.get("bleeds", []):
+		if i < physiology.bleeds.size() and physiology.bleeds[i].kind != &"internal":
+			physiology.bleeds[i].hand = on
 
 
 func _grab_step(delta: float) -> void:
@@ -1646,6 +1664,7 @@ func _grab_step(delta: float) -> void:
 			and parts.has(g.seg) and (_wound_bleed(g.wound) > GRAB_HOLD_BLEED or physiology.felt_pain() > GRAB_HOLD_PAIN)
 	var goal := 1.0 if holding and g.t >= GRAB_DELAY else 0.0
 	g.w = move_toward(g.w, goal, delta / (GRAB_REACH if goal > g.w else GRAB_LET_GO))
+	_hand_press(g.wound, g.w >= GRAB_PRESSES)
 	if g.w <= 0.0 and goal == 0.0 and g.t >= GRAB_DELAY:
 		_grab.clear()
 		return
@@ -1660,6 +1679,7 @@ func _grab_step(delta: float) -> void:
 	var at: Vector3 = part.global_transform * (g.at as Vector3)
 	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
 	if not _arm_to(side, at, n, k) and hurt == "":
+		_hand_press(g.wound, false)
 		_grab.clear()  # out of his reach (a shin, standing): he leaves it
 		return
 	if side == "r" and held_gun != null and not gun_holstered:
@@ -2185,6 +2205,9 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	if not _grab.is_empty():
+		_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
+		_grab.clear()
 	var conscious := physiology.is_conscious()
 	var joint_at := {}
 	for sid: StringName in pivots:

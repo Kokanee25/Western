@@ -270,6 +270,8 @@ static func outcome(state: Dictionary, from_t: float, treatment: Dictionary, hor
 	var p := Physiology.new()
 	p.from_dict(state)
 	p.roll_rng.seed = hash(["physiology", seed])
+	for b: Dictionary in p.bleeds:
+		b.erase("hand")  # the treatments here have no hand on it (HumanBody._grab is the body's)
 	var t := from_t
 	var steps := []  # [time, treatment] still to do
 	match String(treatment.name):

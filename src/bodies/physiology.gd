@@ -246,7 +246,9 @@ func bleed_rate(b: Dictionary) -> float:
 	var r: float = b.rate * b.clot * lerpf(tuning.bleed_at_no_pressure, 1.0, pressure())
 	if b.tourniquet:
 		r *= tuning.tourniquet_factor
-	elif b.pressure:
+	elif b.pressure or b.get("hand", false):
+		# Pressed or packed; or a hand clamped over it (HumanBody._grab): held back only while it's
+		# there, and a hand alone never seals it (`_packing_holds` is packing's).
 		r *= tuning.pressure_factor
 	return r
 

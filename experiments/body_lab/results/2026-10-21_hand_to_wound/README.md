@@ -26,8 +26,21 @@ poses put both hands in the same place, whatever the wound.
   - Out of reach (a shin, standing), he leaves it.
 - **The blood.** A hand pressed over a spurting artery turns the jet into blood welling out between
   his fingers (`HumanBody.hand_over`, `BloodJet`).
-- It only shows. It doesn't press on the bleed: pressure is still his tending's (the brain's
-  `_tend`).
+- **His hand holds it back** (Sean: "his hand covers the blood flow, and if he moves his hand it
+  spurts again").
+  - Once his palm is on it (`GRAB_PRESSES`, 0.9 of the way), that wound's outside bleeds run at
+    the game's pressure share, a quarter (`Physiology.bleed_rate`, a bleed's `hand`).
+  - The jet becomes a welling between his fingers.
+  - Lifted (he lets go, faints, goes down, puts his hands up, a worse wound takes the hand), it's
+    the full rate and the spurt again.
+  - A hand only holds it back while it's there: it never seals it (packing's roll is packing's).
+  - What bleeds inside him it can't touch.
+  - The lab's `grab_<spot>` makes him put his hands up at 1.5 s to show it. The neck goes
+    28 → 7 ml/s with the hand on, and back to 28 the moment it lifts. The brachial goes 7.3 → 1.8 → 7.3.
+  - `press.jpg`, the drifter's neck at 0.25 / 0.6 / 1.0 / 1.4 s (spurting, the hand coming, held),
+    then 1.7 / 2.0 / 2.5 / 2.95 s (hands up: it spurts again).
+  - In the lab's runs it shifts the outcomes by a second or two and a few tens of ml: the lab watches
+    3 s live, and its treatments model no hand.
 
 **Measured** (the lab's `grab_<spot>`: a revolver ball from 15 m, his hand watched 3 s; all four
 men the same):

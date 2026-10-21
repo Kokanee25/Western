@@ -202,12 +202,30 @@ func _live(since: int) -> void:
 
 
 var _grab_log := []  ## [t, side, weight, palm to the hole (cm)] each tick
+## He's made to let go (hands up) this many ticks after the hit, to see the bleeding come back.
+const GRAB_LET_GO_AT := 90
+var _grab_wound := {}
+var _grab_bleed := []  ## [t, what the wound bleeds with no hand on it, what comes out now] (ml/s)
+
+
+func _out_now(w: Dictionary) -> float:
+	var r := 0.0
+	for i: int in w.get("bleeds", []):
+		if i < man.physiology.bleeds.size():
+			r += man.physiology.bleed_rate(man.physiology.bleeds[i])
+	return r
 
 
 ## The hand to the wound: which hand, how far along, and how far the middle of his palm is from the
 ## hole (less the hand's own thickness off the skin). Footage every 3 ticks with --render.
 func _watch_grab(since: int) -> void:
+	if since == GRAB_LET_GO_AT:
+		man.set_pose(&"hands_up")  # he has to let go: does it spurt again?
 	var g: Dictionary = man._grab
+	if not g.is_empty():
+		_grab_wound = g.wound
+	_grab_bleed.append([snappedf(since / 60.0, 0.01), snappedf(man._wound_bleed(_grab_wound) if not _grab_wound.is_empty() else 0.0, 0.01),
+			snappedf(_out_now(_grab_wound), 0.01)])
 	var row := [snappedf(since / 60.0, 0.01), "", 0.0, null, man.limp]
 	if not g.is_empty():
 		var part := man.parts[g.seg] as Node3D
@@ -218,7 +236,7 @@ func _watch_grab(since: int) -> void:
 		if since == 1:
 			_spot_cam = {"at": hole, "from": hole + man.global_basis * Vector3(0.5, 0.2, -1.3)}
 	_grab_log.append(row)
-	if render and since % 3 == 0 and since <= 120 and not _spot_cam.is_empty():
+	if render and since % 3 == 0 and since <= 180 and not _spot_cam.is_empty():
 		_snap("grab_%03d" % since, _spot_cam.from, _spot_cam.at, 50.0)
 
 
@@ -233,7 +251,8 @@ func _grab_summary() -> Dictionary:
 	return {"hand": last[1] if not last.is_empty() else "", "reached_s": reached if reached >= 0.0 else null,
 			"palm_to_hole_cm_at_1s": at_1s[3] if not at_1s.is_empty() else null,
 			"palm_to_hole_cm_end": last[3] if not last.is_empty() else null, "weight_end": last[2] if not last.is_empty() else 0.0,
-			"down": man.limp or man.prone, "log": _grab_log.filter(func(r: Array) -> bool: return int(round(r[0] * 60.0)) % 6 == 0)}
+			"down": man.limp or man.prone, "log": _grab_log.filter(func(r: Array) -> bool: return int(round(r[0] * 60.0)) % 6 == 0),
+			"bleeding": _grab_bleed.filter(func(r: Array) -> bool: return int(round(r[0] * 60.0)) % 15 == 0)}
 
 
 func _finish_wound() -> void:

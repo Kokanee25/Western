@@ -89,3 +89,23 @@ func test_out_of_reach_he_leaves_it() -> void:
 	await _shoot(man, &"shin_r", Vector3(0.1, 0.3, -0.02))
 	await physics_frames(60)
 	check(man._grab.is_empty(), "standing, his hand can't reach his shin")
+
+
+## His palm on a spurting artery holds it back; lifted, it spurts again.
+func test_his_hand_holds_the_bleeding_back_while_its_there() -> void:
+	var man := await _man()
+	await _shoot(man, &"upper_arm_r", Vector3(0.2025, 1.235, -0.0175))
+	var w: Dictionary = man._grab.wound
+	var full := man._wound_bleed(w)
+	check(full > 5.0, "the brachial's cut (%.1f ml/s)" % full)
+	await physics_frames(60)
+	var held := 0.0
+	for i: int in w.bleeds:
+		held += man.physiology.bleed_rate(man.physiology.bleeds[i])
+	check_near(held, full * man.physiology.tuning.pressure_factor, full * 0.05, "his hand on it holds it back (%.1f ml/s)" % held)
+	man.set_pose(&"hands_up")
+	await physics_frames(10)
+	var again := 0.0
+	for i: int in w.bleeds:
+		again += man.physiology.bleed_rate(man.physiology.bleeds[i])
+	check(again > full * 0.9, "he lets go and it pumps again (%.1f ml/s)" % again)
