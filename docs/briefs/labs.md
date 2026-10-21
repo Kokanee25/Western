@@ -196,6 +196,9 @@ plays a known setup every build, and the gate before a system goes into a missio
 
 It starts from the gunfight lab's street once its baseline is in, in `experiments/playground/`.
 
+Its standing scenarios grow from `docs/briefs/showcase-moments.md` (the card cheat, the balcony
+blown out, the night-meeting trap and the rest), each added once the parts it needs are in the game.
+
 ## Other labs
 
 Two already exist; three more come later, each when its phase needs it.

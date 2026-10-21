@@ -60,6 +60,7 @@ then.
 | Lab or pipeline | Starts | Lane | Brief |
 |---|---|---|---|
 | Gunfight lab (3.0), body lab (3.1b), breakage lab (3.3a), ragdoll lab round 3 (3.1) | Now (Phase 3) | gameplay | `labs.md`, `fix-the-falls.md` |
+| Prop lab: every prop end to end (look, members, breaking, burning, shattering), tables and chairs first | Now, with 3.3 (furniture) | gameplay and art (its own lane exception) | `prop-lab.md` |
 | Perception and information lab | Now (Phase 3), beside the gunfight lab | gameplay | `labs.md` |
 | Confrontation and escalation lab | Phase 3, beside 3.4, before 3.5 | gameplay | `labs.md` |
 | Physical interaction lab | Phase 3, with 3.3 and 3.4; 4.7 finishes it | gameplay | `labs.md` |
@@ -139,10 +140,10 @@ they are. The question is only whether it's fun; anything that doesn't serve tha
 | 3.1c | **Field first aid** (Sean 2026-10-21; after 3.1b's baseline; `docs/briefs/labs.md`, Treatment lab part 1, `experiments/treatment_lab/`) | The player treats himself and others, and NPCs treat themselves and each other by who they are: pressure, tourniquets, packing, sealing a sucking chest wound, splints, whiskey, moving a casualty, each with its cost. Measured against the untreated baseline: time to stop each bleed, who lives, how often an NPC treats instead of fighting. Rules checked against Sean's first-aid training. | gameplay |
 | 3.2 | **Guns agreed** | Revolver and shotgun against the feel ranges, every range `proposed` agreed or changed by Sean after he plays. | gameplay, Sean |
 | 3.3a | **The breakage lab** (before 3.3; `docs/briefs/labs.md`, `experiments/breakage_lab/`) | A chair, table, door, bottle, lamp, window and the store front against the revolver and shotgun at 5 m and dynamite at 1, 3 and 6 m, and a man thrown into a table: breaks or holds (against the Wood Handbook), pieces and how far they fly, what catches fire, physics faults, same seed same result, frame time per blast. Its baseline is what 3.3 is built against. | gameplay |
-| 3.3 | **Furniture** | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
+| 3.3 | **Furniture** (through the prop lab, `docs/briefs/prop-lab.md`) | Tables tip, chairs break, doors give way, by how they're built, and men use them as cover. | gameplay |
 | 3.4 | **Shoves** (Sean 2026-10-15) | You can shove a man (a key, a short reach), and people shove each other with the same physics. He staggers, catches himself, or goes down by how hard, how braced and how hurt he is, and into whatever's there: through a chair, onto a table that breaks, down the stairs, off the boardwalk into the street, leaving his print in the dust where he lands (the dust decal is art's). It's a deed, as now: the room sees it and it moves the escalation ladder. Needs 3.2 (falls) and 3.5 (furniture). | gameplay, art (the print) |
 | 3.5 | **Acts** | A way to write missions and little scenes as data: who goes where, says what, beat by beat, and what hands back to the systems when you interfere (DESIGN.md §5 "Story shape"). Lines are typed on screen for now. | gameplay |
-| 3.6 | **Three rough missions** | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
+| 3.6 | **Three rough missions** (ideas: `docs/briefs/showcase-moments.md`; the card cheat for the saloon table) | Built in acts with the stand-ins, 10–20 minutes each: **the saloon table** (the stranger talks, a shooting at the bar), **the store robbery** (the gang leans on the storekeeper; pay, talk, threaten, fight, arrest), and **a bounty** (a wanted man camped outside town; alive pays more). Each has more than one way through. | gameplay |
 | 3.7 | **Play, note, fix** | Sean plays a build for 15 minutes a few times a week and says what felt wrong; the playtest agent plays each mission blind. What they find is fixed here, in this phase, before moving on. | Sean, gameplay |
 | 3.8 | **Gate C** | Sean plays all three missions and wants to play at least two of them again a different way. If not, this phase goes on: the missions or the feel change until he does. | Sean |
 
@@ -222,7 +223,8 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   boards SAME; round 3 (the weathering layer in texel_grid, the boards graded to one palette in the
   cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
   8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
-  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 next (free). Nothing in the
+  no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 (free): timber and the deck SAME;
+  round 6 next (banded light on the wood, the interior stand for Sean's saloon). Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.
 - Still open from Phase 0: **0.1** green and quiet (nightlies green three nights).
