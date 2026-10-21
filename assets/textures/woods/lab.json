@@ -84,6 +84,13 @@
    "end": "dark_trim_end.png",
    "end_texels": 256,
    "end_wear": 0.04
+  },
+  "dark_oak": {
+   "boards": 4,
+   "texels_per_metre": 512,
+   "length": 1536,
+   "end": "dark_oak_end.png",
+   "end_texels": 256
   }
  }
 }
