@@ -1,9 +1,43 @@
 {
-  "_doc": "cut_blood.py: each painted sheet's four quadrants (top left, top right, bottom left, bottom right) and the PixelArt.blood key each becomes (an empty key skips it), and the texture's size in pixels.",
+  "_doc": "cut_blood.py: each painted sheet's four quadrants (top left, top right, bottom left, bottom right) and the PixelArt.blood key each becomes (an empty key skips it), and the texture's size in pixels. lo/hi (0..255): how far from white a pixel must be to start to show / to be solid; the wounds' are high, so the pale skin the model painted round them drops out and only the wound and its blood are laid on him.",
   "sheets": {
-    "splats": {"keys": ["splat0", "splat1", "splat2", "splat3"], "size": 64},
-    "stains": {"keys": ["stain0", "stain1", "stain2", "stain3"], "size": 64},
-    "pool": {"keys": ["pool", "pool1", "pool2", "pool3"], "size": 96},
-    "wounds": {"keys": ["wound_entry", "wound_exit", "furrow", "bruise"], "size": 64}
+    "splats": {
+      "keys": [
+        "splat0",
+        "splat1",
+        "splat2",
+        "splat3"
+      ],
+      "size": 64
+    },
+    "stains": {
+      "keys": [
+        "stain0",
+        "stain1",
+        "stain2",
+        "stain3"
+      ],
+      "size": 64
+    },
+    "pool": {
+      "keys": [
+        "pool",
+        "pool1",
+        "pool2",
+        "pool3"
+      ],
+      "size": 96
+    },
+    "wounds": {
+      "keys": [
+        "wound_entry",
+        "wound_exit",
+        "furrow",
+        "bruise"
+      ],
+      "size": 64,
+      "lo": 70,
+      "hi": 130
+    }
   }
 }

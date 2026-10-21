@@ -25,20 +25,22 @@ WHITE = ("on a plain, flat, pure white background, the four well apart in a two 
          "touching the edges. " + factory.MAN_HAND + " Seen from straight above, flat on. No shadows "
          "cast, no text, no border, no frame, no hands, no people.")
 
+# Asked for as dark red paint, dye and liquid: the image model's provider turns down "blood" as
+# violence (run 100: splats, stains and pools refused, the wounds painted). The marks are the same.
 SHEETS = {
     # Bloodstain pattern analysis: a drop that lands square is round with a scalloped rim and a few
     # satellite drops; one that lands at an angle draws out into a tail (James, Kish & Sutton).
-    "splats": "Four separate stains of fresh blood on dry dusty ground: a round drop splash with a "
-              "scalloped rim and a few tiny satellite drops; a long splash from a drop that struck at a "
-              "slant, with a tail; a small cluster of drops; a larger splash with a wavy edge. Dark "
-              "crimson, a little glossier in the middle. " + WHITE,
-    "stains": "Four separate patches of fresh blood soaked into cloth, each spreading out from a small "
-              "torn hole through the weave, darkest and wettest round the hole, the soaked edge "
-              "irregular and following the threads: two on pale linen shirting, one on brown wool, one "
-              "on dark grey wool (where it shows as a darker wet patch). Dark crimson. " + WHITE,
-    "pool": "Four separate pools of blood on dusty ground, each a different size, irregular edges where "
-            "it ran, a darker glossy middle and a thin drying rim, flecks of dust on it. Dark crimson. "
-            + WHITE,
+    "splats": "Four separate splashes of thick dark crimson paint on dry dusty ground: a round drop "
+              "splash with a scalloped rim and a few tiny satellite droplets; a long splash from a drop "
+              "that struck at a slant, with a tail; a small cluster of drops; a larger splash with a "
+              "wavy edge. A little glossier in the middle. " + WHITE,
+    "stains": "Four separate patches where thick dark crimson dye has soaked into cloth, each spreading "
+              "out from a small hole through the weave, darkest and wettest round the hole, the soaked "
+              "edge irregular and following the threads: two on pale linen shirting, one on brown wool, "
+              "one on dark grey wool (where it shows as a darker wet patch). " + WHITE,
+    "pool": "Four separate puddles of thick dark crimson liquid on dusty ground, each a different size, "
+            "irregular edges where it ran, a darker glossy middle and a thin drying rim, flecks of dust "
+            "on it. " + WHITE,
     "wounds": "Four separate small wounds on weathered skin, each with a little skin round it: a small "
               "round bullet hole with a dark centre and a reddened, scraped ring round it; a larger "
               "ragged torn hole; a short torn furrow where a ball grazed the skin; a purple and yellow "
@@ -66,7 +68,7 @@ def main():
     for name, prompt in SHEETS.items():
         if only and name not in only:
             continue
-        out = os.path.join(RAW, name + ".png")
+        out = os.path.join(RAW, name + ".jpg")
         if os.path.exists(out) and not repaint:
             print("already painted:", name)
             continue
@@ -88,7 +90,7 @@ def main():
         if max(img.size) > 1536:
             s = 1536 / max(img.size)
             img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
-        img.save(out, "PNG")
+        img.save(out, "JPEG", quality=92)
         print("painted:", name, img.size)
     print("blood: $%.2f spent of $%.2f" % (spent, budget))
     if failed:

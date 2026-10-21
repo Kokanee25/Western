@@ -25,13 +25,13 @@ MAP = os.path.join(HERE, "blood_map.json")
 LO, HI = 16.0, 56.0
 
 
-def cut(sheet, quadrant):
+def cut(sheet, quadrant, lo=LO, hi=HI):
     a = np.asarray(sheet.convert("RGB"), dtype=np.float32)
     h, w = a.shape[:2]
     qy, qx = divmod(quadrant, 2)
     q = a[qy * h // 2:(qy + 1) * h // 2, qx * w // 2:(qx + 1) * w // 2]
     away = (255.0 - q).max(axis=2)
-    alpha = np.clip((away - LO) / (HI - LO), 0.0, 1.0)
+    alpha = np.clip((away - lo) / (hi - lo), 0.0, 1.0)
     ys, xs = np.nonzero(alpha > 0.5)
     if len(ys) == 0:
         return None
@@ -57,7 +57,9 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     made = []
     for sheet_name, spec in plan["sheets"].items():
-        path = os.path.join(RAW, sheet_name + ".png")
+        path = os.path.join(RAW, sheet_name + ".jpg")
+        if not os.path.exists(path):
+            path = os.path.join(RAW, sheet_name + ".png")
         if not os.path.exists(path):
             print("not painted yet:", sheet_name)
             continue
@@ -65,7 +67,7 @@ def main():
         for quadrant, key in enumerate(spec["keys"]):
             if not key:
                 continue
-            mark = cut(sheet, quadrant)
+            mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)))
             if mark is None:
                 print("nothing in %s quadrant %d" % (sheet_name, quadrant))
                 continue
