@@ -393,6 +393,15 @@ jobs:
               case "$WHICH" in woods:*) only="--only=${WHICH#woods:}" ;; esac
               python3 tools/textures/paint_woods.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
               exit 0 ;;
+            # textures = blood (or blood:splats,...): the blood marks in the painted hand
+            # (tools/textures/paint_blood.py, gameplay, 2026-10-21: Sean's $3, capped), cut into
+            # assets/textures/blood/ by cut_blood.py.
+            blood|blood:*)
+              only=""
+              case "$WHICH" in blood:*) only="--only=${WHICH#blood:}" ;; esac
+              python3 tools/textures/paint_blood.py $only --budget=3 $( [ "$REPAINT" = "true" ] && echo --repaint )
+              python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
+              exit 0 ;;
             # textures = reference (or reference:street,...): the judge's reference paintings in
             # the painted look (tools/textures/paint_reference.py, art, 2026-10-16).
             reference|reference:*)
