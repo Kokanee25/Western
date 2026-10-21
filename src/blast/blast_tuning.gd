@@ -54,6 +54,11 @@ extends Resource
 ## How far the blast is reckoned (m): nothing beyond this notices (panes a bit further than this
 ## still crack at 3.5 kPa with more than one stick).
 @export var reach_per_cbrt_kg := 25.0
+## How far timber can break (m per cube root of kg): the members inside this are each worked
+## through the breaking rule, found by a query of their own so none near the charge is ever left
+## out; beyond it only glass, people and loose things are looked at. A stick's rule breaks nothing
+## past ~2 m anywhere on Main Street (the breakage lab, 2026-10-21); this is 3.5 m for one stick.
+@export var break_reach_per_cbrt_kg := 6.0
 
 @export_group("Fire")
 ## The fireball: this radius per cube root of kg TNT; dry wood inside it may catch, people in it
@@ -61,6 +66,8 @@ extends Resource
 @export var fireball_per_cbrt_kg := 1.4
 ## The flash is over in a moment: only now and then does a board in it catch.
 @export var ignite_chance := 0.12
+## Wood it lights catches this many seconds after the flash (seeded within the range), out of the dust.
+@export var ignite_delay := Vector2(1.0, 4.0)
 @export var burn_in_fireball := 1.2
 
 @export_group("People")

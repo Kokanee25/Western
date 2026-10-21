@@ -23,6 +23,13 @@ and puts the gun in his mouth. You have seconds.
 - **What stays:** the cheater owes you his life, or the victim's friends want you, or a witness
   tells the deputy you shot a man defending his money. Some days the victim was cheated; some days
   he's lying.
+- **The punchline (Sean):** whatever happens, dead man on the floor or not, the barman's first
+  words are about his furniture: "Jesus, Cody, my chair!" Make it a rule, not a line for this
+  scene: **owners care about their own things first.** When something a person owns breaks, he
+  reacts to the damage and names whoever did it (the barman's chair, the storekeeper's window,
+  the doctor's lamp), at the right moment (once it's safe to talk), and remembers who owes him.
+  It's the same joke every time it's earned, and it comes from ownership (DESIGN.md §10), which
+  every prop and member can carry.
 - **Fits:** Phase 3's "saloon table" mission and the story's saloon-table prologue (DESIGN.md §5).
 - **Needs:** a chair that breaks or tips (prop lab), the fall (ragdoll lab), confrontation and
   escalation, the nod, perception and witnesses.
@@ -54,6 +61,42 @@ in the back wall and get out.
 - **Fits:** a mission once time windows and messages exist (Phase 5).
 - **Needs:** fire spread and smoke (in the game), dynamite and blast (in the game), the player's
   blast wounds, a sharpshooter's perception at night (muzzle flash gives him away), the time of day.
+
+### The piano player (Sean)
+
+A man plays the saloon's piano, and the music is the room's mood. When trouble breaks out, it stops
+dead: a sour chord, a hand slammed on the keys, and silence. Driven by what he sees and hears, not
+a script:
+
+- **The room's tension plays through him:** the escalation ladder rising (raised voices, a man
+  standing up too fast) and he plays quieter and slower, watching; a gun drawn or a shot and he
+  stops mid-note and ducks behind the piano. A plain fist fight and he might play on, faster.
+  When it's over and safe, he starts again, a little shaky.
+- **The music comes from the piano:** a sound placed at the instrument, louder near it, muffled
+  outside, so it stops exactly when he does, and the street hears the saloon go quiet.
+- **The piano is a prop** (the prop lab): a ball through it plinks and leaves a sour key, a broken
+  string twangs, a man thrown into it crashes a chord; he complains about it, as owners do.
+- **The music itself:** period tunes whose compositions are public domain (Stephen Foster's
+  songs, for instance), played from note data on a piano sound under a licence that allows
+  redistribution and credited in `CREDITS.md`, cut into phrases so he can stop anywhere and pick
+  up again. No commercial recordings.
+- **Favourites and hated songs (Sean):** each tune is known in town, and people have opinions:
+  the room's favourite gets them singing along and banging the table; the one they all hate gets
+  boos, a thrown peanut, "Not that one again, Earl!". Opinions are per person, as everything else
+  is: one old man loves the song the rest boo. The player can request a song (and tip him), pay him
+  to stop, or pick the hated one on purpose to start trouble. Played often, a favourite wears thin.
+- **How he looks like he's playing:** the body from mocap (someone sitting and miming: the sway,
+  shoulders, leaning into a phrase, glancing at the room; iPhone capture is fine for this, not for
+  fingers); **the hands from the same note data as the music.** Each note maps to its real key on
+  a piano built at real size (standard key widths); the left hand takes the bass, the right the
+  melody; the hand moves to the key just before the note (IK), a finger presses on the beat, simple
+  fingering rules choose which; each key on the piano dips when played. Sound and hands come from
+  one source, so they can't drift apart, and when trouble starts his hands freeze on the chord the
+  music cut off on. **Fingers** need finger bones, which the Studio's men don't have yet (their
+  hands are in the skin): until then the hands and wrists reach and strike in time, which reads
+  right from across the room.
+- **Needs:** perception (what he notices), the escalation ladder, sound placed in the room, the
+  piano as a prop, a seated man who can duck (the furniture work).
 
 ## More
 

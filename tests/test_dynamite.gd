@@ -123,11 +123,54 @@ func test_a_stick_by_the_wall_blows_a_hole_in_the_siding() -> void:
 	check_eq(booms.size(), 1, "announced")
 
 
+## On a crowded street there are thousands of things in a stick's reach: what's beside it is still
+## looked at (it was left out once, the breakage lab, 2026-10-21) and the panes far off still are.
+func test_a_crowded_street_doesnt_hide_whats_beside_it() -> void:
+	var store := await _store()
+	for i in 4:
+		var other := FalseFrontBuilding.new()
+		other.structure_id = StringName("other%d" % i)
+		other.build_seed = 20 + i
+		world.add_child(other)
+		other.position = Vector3(-11.0 if i % 2 == 0 else 11.0, 0.0, -11.0 if i < 2 else 0.0)
+	await physics_frames(2)
+	var siding := _side_board(store)
+	var at := _outside(store, siding, 0.25)
+	var shape := SphereShape3D.new()
+	shape.radius = Blast.reach(0.15)
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.transform = Transform3D(Basis.IDENTITY, at)
+	q.collision_mask = Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS
+	var in_reach := world.get_world_3d().direct_space_state.intersect_shape(q, 1 << 16).size()
+	check(in_reach > 1024, "a crowded street: %d things in reach, more than the old query took" % in_reach)
+	var looked := Blast.gather(world, at, 0.15)
+	check(siding in looked, "the board beside it is looked at")
+	var near := 0
+	var missed := 0
+	for m in store.get_members():
+		if Blast._nearest_on(m, at).distance_to(at) <= 1.0:
+			near += 1
+			if not m in looked:
+				missed += 1
+	check_eq(missed, 0, "nothing within a metre left out (of %d)" % near)
+	var panes := 0
+	for s: Node in world.get_children():
+		if s is Structure:
+			for m in (s as Structure).panes():
+				if Blast._nearest_on(m, at).distance_to(at) <= Blast.reach(0.15):
+					panes += 1
+					check(m in looked, "a pane in reach is looked at (%s)" % m.member_id)
+	check(panes > 4, "panes across the street in reach (%d)" % panes)
+	var report := Blast.detonate(world, at, 0.15)
+	check(siding.broken, "and the board beside it goes (%d broken)" % report.broken.size())
+
+
+## One stick on the floor against the inside of a plank wall holes it where it's overcome (boards
+## cut, not whole boards gone): a hole to crawl through. Three in a bundle: a way to walk out.
 func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	var store := await _store()
-	# On the floor against the inside of the side wall, between two studs.
-	var siding := _side_board(store)
-	var at := Vector3(0.02, store.floor_top + DynamiteStick.RADIUS, siding.global_position.z)
+	var at := _inside_wall_foot(store)
 	var report := Blast.detonate(world, at, Blast.t().tnt_per_stick)
 	var kinds := {}
 	for id: StringName in report.broken:
@@ -138,23 +181,53 @@ func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	check(kinds.get(&"stud", 0) >= 2, "the studs either side of it are broken (%d)" % kinds.get(&"stud", 0))
 	for k: StringName in [&"sill", &"plate", &"rafter", &"ridge", &"post"]:
 		check_eq(kinds.get(k, 0), 0, "no %s broken: the building stands round the hole" % k)
+	var cut := 0
+	var whole := 0
+	for m in store.get_members():
+		if m.broken and m.kind == &"board" and String(m.member_id).contains("left/siding"):
+			if m.has_meta(&"cut"):
+				cut += 1
+			else:
+				whole += 1
+	check(cut >= 3 and whole == 0, "the boards are holed, not gone whole (%d cut, %d whole)" % [cut, whole])
 	await physics_frames(120)
-	# A man's way through: half a metre wide, from a step over the sill to his head, clear of
-	# anything standing (loose rubble is pushed aside).
+	check(_way_through(store, at, 0.6), "a hole in the wall a man can crawl through")
+	check(not _way_through(store, at, 1.3), "not one he can walk through upright, from one stick")
+
+
+func test_a_bundle_inside_against_the_wall_blows_a_door() -> void:
+	var store := await _store()
+	var at := _inside_wall_foot(store)
+	Blast.detonate(world, at, Blast.t().tnt_per_stick * 3.0)
+	await physics_frames(120)
+	check(_way_through(store, at, 1.3), "three sticks: a hole a man can walk through")
+	# (Three sticks in a room this size take some of the rafters over it too.)
+	for m in store.get_members():
+		if m.kind in [&"sill", &"plate"]:
+			check(not m.broken, "the walls stand round it (%s)" % m.member_id)
+
+
+## On the floor against the inside of the side wall, between two studs.
+func _inside_wall_foot(store: FalseFrontBuilding) -> Vector3:
+	var siding := _side_board(store)
+	return Vector3(0.02, store.floor_top + DynamiteStick.RADIUS, siding.global_position.z)
+
+
+## A way through the wall by the charge: half a metre wide and `tall` from just over the floor,
+## clear of anything standing (loose rubble is pushed aside).
+func _way_through(store: FalseFrontBuilding, at: Vector3, tall: float) -> bool:
 	var q := PhysicsShapeQueryParameters3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(0.4, 1.3, 0.5)
+	box.size = Vector3(0.4, tall, 0.5)
 	q.shape = box
 	q.collision_mask = Layers.WORLD
-	var way := false
 	for k in range(-10, 11):
-		q.transform = Transform3D(Basis.IDENTITY, Vector3(0.0, 0.45 + box.size.y * 0.5, at.z + k * 0.05))
+		q.transform = Transform3D(Basis.IDENTITY, Vector3(0.0, store.floor_top + 0.07 + tall * 0.5, at.z + k * 0.05))
 		var standing := world.get_world_3d().direct_space_state.intersect_shape(q, 8).filter(
 				func(h: Dictionary) -> bool: return not h.collider is RigidBody3D)
 		if standing.is_empty():
-			way = true
-			break
-	check(way, "a hole in the wall a man can walk through")
+			return true
+	return false
 
 
 func test_on_its_sill_it_leaves_the_wall_standing() -> void:
@@ -203,8 +276,10 @@ func test_it_can_start_a_fire() -> void:
 	for k in 4:
 		Blast.detonate(world, _outside(store, siding, 0.3) + Vector3.UP * 0.4 * k, 0.15)
 		await physics_frames(1)
+	check_eq(fire.burning_members().size(), 0, "nothing alight in the flash itself")
+	fire.step(Blast.t().ignite_delay.y + 0.1)
 	lit = fire.burning_members().size()
-	check(lit >= 1, "dry wood caught (%d burning)" % lit)
+	check(lit >= 1, "dry wood caught a moment after (%d burning)" % lit)
 
 
 # --- People -------------------------------------------------------------------------------------------
