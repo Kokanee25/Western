@@ -72,13 +72,7 @@ func build() -> void:
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
 		var mi := m.get_child(0) as MeshInstance3D
-		var look: String = spec.get("look", definition.get("look", ""))
-		if look != "":
-			# A wood's one strip for every member (its drawn woodwork starts each at its own place
-			# along it: PropKit.woodwork_mesh), so the prop draws in one batch a look.
-			mi.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
-		if spec.has("draw"):
-			mi.mesh = PropKit.draw_mesh(spec.draw, m)
+		PropKit.dress_member(m, spec.get("draw", {}), spec.get("look", definition.get("look", "")))
 		for d: Dictionary in spec.get("dress", []):
 			var layer := MeshInstance3D.new()
 			layer.name = "Dress"

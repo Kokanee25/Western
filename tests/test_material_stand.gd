@@ -285,3 +285,25 @@ func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
 	var aabb := mesh.get_aabb()
 	check(aabb.size.distance_to(m.size) < 0.01, "the top's drawn shape fills its box (%s against %s)" % [aabb.size, m.size])
 	m.free()
+
+
+## A building's own members drawn as woodwork (PropKit.dress_member): the saloon's wainscot, casings
+## and chamfered posts are members (they break, burn, fall) and draw in one batch a look.
+class _Dressed extends Structure:
+	func build() -> void:
+		for i in 3:
+			var m := add_member("post%d" % i, &"post", &"oak", Vector3(0.2, 3.0, 0.2), Vector3(i * 1.0, 1.5, 0.0))
+			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "across": "x", "up": "z",
+					"args": [0.02]}, "wood:int_timber")
+
+
+func test_a_buildings_members_are_drawn_as_woodwork() -> void:
+	var s := _Dressed.new()
+	add_child(s)
+	await physics_frames(2)
+	var m: StructureMember = s.get_members()[0]
+	var mi := m.get_child(0) as MeshInstance3D
+	check(mi.mesh.get_faces().size() > 36, "the post drawn chamfered, not a box (%d)" % mi.mesh.get_faces().size())
+	check(mi.mesh.get_aabb().size.distance_to(m.size) < 0.01, "its drawn shape fills its box")
+	check(s.batch_count() == 1, "three posts in one wood draw in one batch (%d)" % s.batch_count())
+	s.free()

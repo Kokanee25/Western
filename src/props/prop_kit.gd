@@ -153,6 +153,19 @@ static func material(look: String, variant: int) -> Material:
 	return PropModels.mid_wood()
 
 
+## Draws a member as the kit draws its own, in a look ("wood:<name>", "prop:<name>"): for any
+## Structure's members, so a building's wainscot, casings, chamfered posts and cornices are members
+## (they break, burn, are carved and fall) drawn as woodwork. Call it as the member is added, before
+## the structure batches its meshes. A "wood:" look draws its first strip for every member (its
+## drawn woodwork starts each at its own place along it), so a structure keeps one batch a look.
+static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> void:
+	var mi := m.get_child(0) as MeshInstance3D
+	if look != "":
+		mi.material_override = material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
+	if not draw.is_empty():
+		mi.mesh = draw_mesh(draw, m)
+
+
 ## A member's drawn mesh from its "draw" (in the prop's space), laid into the member's own space.
 static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	var src: Mesh
