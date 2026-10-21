@@ -25,7 +25,7 @@ MAP = os.path.join(HERE, "blood_map.json")
 LO, HI = 16.0, 56.0
 
 
-def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0):
+def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0, fade=0.95):
     a = np.asarray(sheet.convert("RGB"), dtype=np.float32)
     h, w = a.shape[:2]
     qy, qx = divmod(quadrant, 2)
@@ -36,7 +36,18 @@ def cut(sheet, quadrant, lo=LO, hi=HI, key="white", open_px=0, core=0.0):
         sq = q[inset:q.shape[0] - inset, inset:q.shape[1] - inset]
         out = np.concatenate([sq, np.full(sq.shape[:2] + (1,), 255.0, dtype=np.float32)], axis=2)
         return Image.fromarray(out.astype(np.uint8), "RGBA")
-    if key == "red":
+    if key == "skin":
+        # A mark painted on a square of skin: how far each pixel is from that skin (the median of
+        # the quarter's border), faded out toward the edge so the skin's own shading doesn't show.
+        # (The skin: the median of what isn't the white ground; the square of skin is most of it.)
+        whiteish = q.min(axis=2) > 225
+        skin = np.median(q[~whiteish], axis=0) if (~whiteish).any() else np.array([200.0, 160, 130])
+        far = np.sqrt(((q - skin) ** 2).sum(axis=2))
+        alpha = np.clip((far - lo) / (hi - lo), 0.0, 1.0) * (~whiteish)
+        yy, xx = np.mgrid[0:q.shape[0], 0:q.shape[1]]
+        r = np.hypot(xx - q.shape[1] / 2, yy - q.shape[0] / 2) / (min(q.shape[:2]) / 2)
+        alpha = alpha * np.clip((fade - r) / 0.25, 0.0, 1.0)
+    elif key == "red":
         # Only the crimson: red well over green (the cloth it was painted on, beige, brown or grey,
         # drops out). `lo`/`hi` are the red-to-green ratio where it starts to show / is solid.
         ratio = q[..., 0] / (q[..., 1] + 8.0)
@@ -199,8 +210,9 @@ def main():
                 made.append((key, mark))
                 print("cut:", key, "from", sheet_name, quadrant, "(end-on)")
                 continue
-            mark = cut(sheet, quadrant, float(spec.get("lo", LO)), float(spec.get("hi", HI)), spec.get("key", "white"),
-                       int(spec.get("open", 0)), float(spec.get("core", 0.0)))
+            one = dict(spec, **spec.get("per", {}).get(key, {}))  # a key's own way of cutting
+            mark = cut(sheet, quadrant, float(one.get("lo", LO)), float(one.get("hi", HI)), one.get("key", "white"),
+                       int(one.get("open", 0)), float(one.get("core", 0.0)), float(one.get("fade", 0.95)))
             if mark is None:
                 print("nothing in %s quadrant %d" % (sheet_name, quadrant))
                 continue

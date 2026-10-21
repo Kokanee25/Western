@@ -102,9 +102,12 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 		if dist < best:
 			best = dist
 			nearest = d
-	if nearest != null and (best < MERGE_DISTANCE or _splats.size() >= MAX_SPLATS):
+	if nearest != null and best < MERGE_DISTANCE:
 		_grow(nearest, ml)
 		return nearest
+	if _splats.size() >= MAX_SPLATS:
+		# Full: the oldest goes (a long drip trail mustn't grow a splat across the street).
+		_splats.pop_front().queue_free()
 	var d := Decal.new()
 	d.name = "BloodSplat"
 	d.texture_albedo = PixelArt.blood("splat%d" % (_splats.size() % 4), 40 + _splats.size() % 4, false, 16)
@@ -114,6 +117,7 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 	d.lower_fade = 0.0
 	d.set_meta(&"ml", 0.0)
 	d.add_to_group(&"blood_splats")
+	d.add_to_group(&"blood_drying")
 	world.add_child(d)
 	d.global_position = at
 	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), randf() * TAU) if normal.length() > 0.01 else Basis()
@@ -166,6 +170,40 @@ static func spray(world: Node3D, from: Vector3, direction: Vector3, ml: float, d
 	for i in drops:
 		var dir := (direction + Vector3(rng.randf_range(-0.35, 0.35), rng.randf_range(-0.2, 0.3), rng.randf_range(-0.35, 0.35))).normalized()
 		throw(world, from, dir * rng.randf_range(3.0, 7.0), ml / drops)
+
+
+## Blood drying: bright and wet, then dark red, then brown over hours to days (Bremmer RH et al.,
+## PLoS ONE 6(7):e21845, 2011). Every mark in "blood_drying" (splats, prints, smears, the stains on
+## men, the pools) is aged by the clock's game hours; this far toward DRIED it's gone after
+## DRY_HOURS (an e-fold).
+const DRIED := Color(0.52, 0.38, 0.33)
+const DRY_HOURS := 14.0
+const DRY_EVERY := 0.2  ## game hours between passes (a pass walks the group)
+static var _dry_owed := 0.0
+
+
+static func dry(hours: float) -> void:
+	_dry_owed += hours
+	if _dry_owed < DRY_EVERY:
+		return
+	var step := _dry_owed
+	_dry_owed = 0.0
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	for n: Node in tree.get_nodes_in_group(&"blood_drying"):
+		var d := n as Decal
+		if d == null:
+			continue
+		if not d.has_meta(&"fresh"):
+			d.set_meta(&"fresh", d.modulate)
+		var age: float = d.get_meta(&"age_h", 0.0) + step
+		d.set_meta(&"age_h", age)
+		var fresh: Color = d.get_meta(&"fresh")
+		var k := 1.0 - exp(-age / DRY_HOURS)
+		var c := fresh * Color(lerpf(1.0, DRIED.r, k), lerpf(1.0, DRIED.g, k), lerpf(1.0, DRIED.b, k), 1.0)
+		c.a = fresh.a
+		d.modulate = c
 
 
 static func clear() -> void:

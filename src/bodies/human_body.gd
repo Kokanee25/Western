@@ -202,6 +202,11 @@ var _favour := {}  ## region ("leg_r", "arm_l", "body"...) -> [how much he favou
 var _favour_lean := {}  ## segment -> degrees the wounds' consequence bends him by (on top of the pose)
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
+## What his wounds show round him as time goes (blood from his ears, mouth, nose, drips, prints).
+var signs: WoundSigns
+var _velocity_now := Vector3.ZERO
+var _chest_was := Vector3.INF
+var _rids: Array[RID] = []
 var _was_alive := true
 ## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
 ## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
@@ -1078,6 +1083,15 @@ func _physics_step(delta: float) -> void:
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
 	physiology.step(delta * scale_now)
 	_update_stains(delta * scale_now)
+	if signs == null:
+		signs = WoundSigns.new()
+		signs.name = "WoundSigns"
+		signs.body = self
+		add_child(signs)
+	signs.step(delta * scale_now)
+	var chest_now := (parts[&"chest"] as Node3D).global_position if parts.has(&"chest") else global_position
+	_velocity_now = (chest_now - _chest_was) / maxf(delta, 1e-4) if _chest_was != Vector3.INF else Vector3.ZERO
+	_chest_was = chest_now
 	if stumbling > 0.0 and not limp:
 		_stumble_on(delta)
 	if not limp:
@@ -1374,7 +1388,7 @@ func face(point: Vector3) -> void:
 
 
 func _apply_pose(delta: float, snap := false) -> void:
-	_breath += delta
+	_breath += delta * breath_rate()
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var clip := _mocap_now(delta)
@@ -1385,6 +1399,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
 				+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
+		goal = _injured(sid, goal, delta)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
@@ -1398,7 +1413,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			_flinch[sid] = f
 		var rot: Vector3 = now + f[0]
 		if sid == &"chest":
-			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
+			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
 		pv.rotation_degrees = rot
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
@@ -1559,6 +1574,72 @@ func _set_blocker(lying: bool) -> void:
 		bs.rotation_degrees = Vector3.ZERO
 
 
+## How fast he breathes against a man at rest (about 15 a minute): faster short of breath (a lung
+## holed or collapsing) and in shock (ATLS: 20-30 a minute in class II, over 35 in class IV).
+func breath_rate() -> float:
+	var p := physiology
+	if not p.alive:
+		return 0.0
+	return 1.0 + (1.0 - p.breath_capacity()) * 1.2 + p.shock() * 1.0
+
+
+## Seconds a breath takes now.
+func breath_period() -> float:
+	return TAU / 1.6 / maxf(breath_rate(), 0.1)
+
+
+## How fast he's going (his chest's speed, m/s, world).
+func velocity_now() -> Vector3:
+	return _velocity_now
+
+
+## His own parts' bodies (for rays that mustn't stop on him).
+func _own_rids() -> Array[RID]:
+	if _rids.size() != parts.size():
+		_rids.clear()
+		for sid: StringName in parts:
+			_rids.append((parts[sid] as CollisionObject3D).get_rid())
+	return _rids
+
+
+## What a wound does to how he holds himself, on top of the pose (the gore lab, Gray's Anatomy):
+## the radial nerve cut, the wrist drops (he can't lift his hand); a broken forearm bone, the
+## forearm and the arm hang; a broken kneecap, the knee won't bend (he walks stiff-legged on
+## it); the gut torn, he walks hunched over it (on top of the falls' favouring).
+const WRIST_DROP := 55.0
+const GUT_HUNCH := {&"abdomen": Vector3(-12, 0, 0), &"chest": Vector3(-6, 0, 0), &"neck": Vector3(-4, 0, 0)}
+
+
+## Each comes on as the hurt does, over a second or two (the falls' FAVOUR_RATE), not as a jerk.
+const INJURY_ONSET := 1.5
+var _injury_w := {}  ## segment -> how far its injury's hold has come on (0..1)
+
+
+func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
+	var p := physiology
+	if limp:
+		return goal
+	var s := String(sid)
+	var side := s.right(1)
+	var want := goal
+	if s.begins_with("hand_") and p.cut.has(StringName("radial_nerve_" + side)):
+		want = goal + Vector3(0, 0, -WRIST_DROP if side == "r" else WRIST_DROP)
+	elif (s.begins_with("forearm_") or s.begins_with("upper_arm_")) and \
+			(p.broken.has(StringName("radius_" + side)) or p.broken.has(StringName("ulna_" + side)) or p.broken.has(StringName("humerus_" + side))):
+		if _grab.is_empty() or _grab.side != side:
+			want = Vector3.ZERO  # it hangs at his side
+	elif s.begins_with("shin_") and p.broken.has(StringName("patella_" + side)):
+		want = Vector3.ZERO  # the knee won't bend
+	if GUT_HUNCH.has(sid) and (p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")):
+		want += GUT_HUNCH[sid]
+	if want == goal:
+		_injury_w.erase(sid)
+		return goal
+	var w: float = minf(float(_injury_w.get(sid, 0.0)) + delta / INJURY_ONSET, 1.0)
+	_injury_w[sid] = w
+	return goal.lerp(want, smoothstep(0.0, 1.0, w))
+
+
 ## Blood in the windpipe or a holed lung: he coughs it up, now and then.
 func _cough(delta: float) -> void:
 	var p := physiology
@@ -1571,7 +1652,8 @@ func _cough(delta: float) -> void:
 	var head: Node3D = parts[&"head"]
 	var mouth := head.global_transform * (Vector3(0, 1.58, -0.1) - anatomy.segment_center(&"head"))
 	var fwd := -head.global_basis.z
-	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6)
+	# From a holed lung it comes up frothy and bright, pink with air (ATLS).
+	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6, WoundSigns.FROTH if not p.lung_damage.is_empty() else Blood.ARTERIAL)
 	Blood.throw(get_parent() as Node3D, mouth, fwd * 1.6, 3.0)
 	_flinch_from(&"chest", mouth, -fwd, 0.02)
 
@@ -1962,6 +2044,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		wound.cloth = holed[0]
 	wounds.append(wound)
 	_paint_wound(wound)
+	# A scalp wound above the eyes bleeds freely and runs into the eye on that side.
+	if seg == &"head" and tr.graze and (tr.entry as Vector3).y > 1.65:
+		physiology.blood_in_eye[&"r" if (tr.entry as Vector3).x > 0.0 else &"l"] = Physiology.SCALP_BLIND_SECONDS
 	for h: Dictionary in tr.hits:
 		if h.effect == &"severed":
 			sever_finger(h.id, dir)
@@ -2236,6 +2321,7 @@ func _paint_wound(w: Dictionary) -> void:
 	var pellet := _small_wound(w.kind)
 	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+	(w.stain as Node).add_to_group(&"blood_drying")
 	if w.exit != null:
 		# A ball that flattened on bone tears a bigger hole out.
 		var out_size := (0.035 if pellet else 0.06) * (Anatomy.BONE_FLATTEN if w.get("flattened", false) else 1.0)
@@ -2359,6 +2445,7 @@ func _update_pool() -> void:
 		_pool.cull_mask = Layers.WORLD
 		_pool.modulate = Color(0.75, 0.7, 0.7)
 		_pool.top_level = true
+		_pool.add_to_group(&"blood_drying")
 		add_child(_pool)
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
 	_pool.global_position = Vector3(chest.global_position.x, chest.global_position.y, chest.global_position.z)

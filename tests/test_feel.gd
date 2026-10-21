@@ -60,8 +60,13 @@ func _hit_rate(d: float, trials: int, per_man: int) -> float:
 		target.global_position = Vector3(0, 0, -d)
 		target.rotation.y = PI
 		outlaw.look_at(target.global_position, Vector3.UP, true)
+		# A shot that hits him: one ball counted once, though it may wound him twice (through his
+		# arm into his chest, or turned off a bone into him again); all of one ball's hits land in
+		# the same physics tick.
+		var last_tick := [-1]
 		var on_hit := func(info: Dictionary) -> void:
-			if info.get("person") == target and info.get("kind") != &"blow":
+			if info.get("person") == target and info.get("kind") != &"blow" and Engine.get_physics_frames() != last_tick[0]:
+				last_tick[0] = Engine.get_physics_frames()
 				hits[0] += 1
 		Events.body_hit.connect(on_hit)
 		await physics_frames(3)

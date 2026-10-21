@@ -25,6 +25,10 @@ var torn := {}  ## organ id -> true
 var cut := {}  ## artery, vein or nerve id -> true
 var muscle_damage := {}  ## muscle id -> 0..1 torn
 var blind := {}  ## eye id -> true
+## The gore lab: a nosebleed after a blow to the face (seconds left), and a scalp wound's blood
+## run into an eye ("r"/"l" -> seconds left; he can't see well out of it until it's wiped or dries).
+var nose_bleed := 0.0
+var blood_in_eye := {}
 var airway_blood := false  ## windpipe holed: blood in the breath, can't talk
 var jaw_broken := false
 var lost_fingers := {}  ## finger id -> true
@@ -180,6 +184,11 @@ func _add_bleed(source: StringName, segment: StringName, rate: float, kind := &"
 func step(dt: float) -> void:
 	if not alive:
 		return
+	nose_bleed = maxf(nose_bleed - dt, 0.0)
+	for side: StringName in blood_in_eye.keys():
+		blood_in_eye[side] = float(blood_in_eye[side]) - dt
+		if float(blood_in_eye[side]) <= 0.0:
+			blood_in_eye.erase(side)
 	# Bleeding.
 	var loss := 0.0
 	for b in bleeds:
@@ -307,6 +316,12 @@ func break_bone(id: StringName) -> void:
 			lung_damage[lung] = 0.0
 
 
+const NOSE_BLOW_J := 25.0
+const NOSE_BLEED_SECONDS := 150.0
+## How long a scalp wound's blood keeps an eye shut (until it's wiped and the cut crusts).
+const SCALP_BLIND_SECONDS := 180.0
+
+
 func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
 	var out: PackedStringArray = []
 	if not alive or joules <= 0.0:
@@ -323,6 +338,10 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 		return joules > limit and rng.randf() < clampf((joules - limit) / limit + 0.4, 0.0, 1.0)
 	match region:
 		"head":
+			# A blow to the face bleeds from the nose (a minute or two; Kucik & Clenney, Am Fam
+			# Physician 2005: most anterior nosebleeds stop within minutes).
+			if joules > NOSE_BLOW_J:
+				nose_bleed = maxf(nose_bleed, NOSE_BLEED_SECONDS)
 			if joules > float(b.concussion):
 				concussion = maxf(concussion, maxf(3.0, (joules - float(b.concussion)) / 10.0 * tuning.concussion_seconds_per_10j))
 				out.append("concussion")
@@ -438,7 +457,12 @@ func leg_strength() -> float:
 
 ## How steady an arm holds a gun (1 = steady).
 func arm_steadiness(side: String) -> float:
-	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5
+	# Each finger gone loosens his grip on the gun (the trigger finger most).
+	var fingers := 1.0
+	for f in ["thumb_", "index_", "middle_", "ring_", "little_"]:
+		if lost_fingers.has(StringName(f + side)):
+			fingers -= 0.25 if f == "index_" else 0.1
+	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5 * maxf(fingers, 0.2)
 
 
 func can_speak() -> bool:
@@ -584,7 +608,7 @@ func to_dict() -> Dictionary:
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
-			"concussion": concussion}
+			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -602,6 +626,10 @@ func from_dict(d: Dictionary) -> void:
 	jaw_broken = d.get("jaw_broken", false)
 	severed_segments = _set_of(d.severed)
 	eardrums_burst = _set_of(d.get("eardrums", []))
+	nose_bleed = d.get("nose_bleed", 0.0)
+	blood_in_eye = {}
+	for k in d.get("blood_in_eye", {}):
+		blood_in_eye[StringName(k)] = d.blood_in_eye[k]
 	wound_pain = d.wound_pain
 	pain = d.pain
 	adrenaline = d.adrenaline
