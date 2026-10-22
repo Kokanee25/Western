@@ -189,7 +189,8 @@ a few views renders them as the full run does.
   **P** cycles square / ragged / off, default square). Users: `texel_grid.gdshader(inc)`, the one
   material for everything in the world on the texel grid (`PixelArt.material()`: pixel texture at
   `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
-  is the same with bullet holes), `src/world/ground.gdshader`, and the people's
+  is the same with bullet holes; a `WEAR` hook at the end of its fragment, inert unless defined, is
+  the building lab's lived-in marks, `experiments/building_lab/wear.gdshaderinc`), `src/world/ground.gdshader`, and the people's
   `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
   faces. **A minimum square on screen** (shader global `min_square_px`, 2 render pixels since §10.4,
   was 4: the painting's far men are still 2–3 px blocks, but distance softens, never chunks; 0 = off;
@@ -1111,6 +1112,20 @@ goldens' faces at rest; `--face-life` on). `face_lab.gd --mode=life`: `LIFE_BEAT
 brain, real Senses. `neck_seam.py` (run by `talking_face.py`): the face's stitch bound alike on both
 sides (the face's copy took head 1.0, his head's some neck: the jaw tore as his head turned), and a
 talking head drawn double-sided (slivers in the stitch turn edge-on).
+Talking (2026-10-22, brief `docs/briefs/talking.md`): `src/bodies/face_speech.gd` (`FaceSpeech`,
+HumanBody adds one beside FaceLife) says his `Events.spoke` lines with the mouth shapes (jaw_open,
+aa, lips_apart, ee, oo, fv, mbp; FaceLife and FaceGaze own the rest): `plan()` letters → sounds
+(`_letters`/`_vowel` rules, `WORDS` for the worst-spelled, no-vowel groans and chokes) → classes
+(`VISEMES`: weights, pull, reach, length) timed at ~155 wpm with stress, pauses at punctuation,
+"!" bigger, "..." smaller; `_blend` the dominance blend (Cohen and Massaro); a nod on each phrase's
+last stressed word through `FaceGaze.nod`. A recording: `say(text, {"audio": wav})` / `"loudness"`
+(`loudness()`, `fit()`: the plan warped onto the voiced stretches, the mouth opened by loudness) or
+`{"phonemes": [[s, e, "AH1"]]}` (`plan_phonemes`, ARPAbet). `subtitle_seconds()` is how long
+PlayerWounds shows a line. Numbers: `config/speech.tres` (`SpeechTuning`). Prof timer `faces`
+(People). `mask_jaw.py` (run by `bandana.py`): the mask gets the seven shapes (the skin's motion
+where it lies on him, settled between, and a puff of breath over his mouth). Tools: `speech_dump.gd`
++ `speech_check.py` (the rules against espeak-ng), `speech_bench.gd` (cost), `talk_audio.py` (an
+espeak-ng stand-in recording and its phonemes), `face_lab.gd --mode=talk` + `talk_video.sh` (the film).
 
 A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
 fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his

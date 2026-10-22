@@ -387,11 +387,16 @@ frozen until Sean names one.
   `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): every Studio man has
   MakeHuman's face grafted on (20 expressions as blend shapes), bandanas (`bandana.py`) and skinned
-  hands (`hands.py`, 30 finger bones; not the rancher). **Alive** (2026-10-22): `FaceLife` on every
-  talking man (looks round at whom his Senses see, blinks, starts at shots, a pain grimace, wide eyes
-  afraid, lids part shut dead; `config/face_life.tres`; film `docs/style_test/faces_alive.mp4`);
-  `neck_seam.py` closed the jaw's tear as his head turns. Next: Sean's three takes
-  (`docs/FACE_TAKES.md`) to tune the lip sync; issue #247 (gameplay: a test-order dependency).
+  hands (`hands.py`; not the rancher). `FaceLife` alive (2026-10-22: looks, blinks, starts, grimace,
+  lids dead; `config/face_life.tres`). **Talking** (2026-10-22, brief `docs/briefs/talking.md`,
+  branch `claude/talking-mouth-shapes-3yhmv2`): `FaceSpeech` says every `Events.spoke` line with
+  his mouth shapes (letter rules → mouth classes, a dominance blend, a nod; 95% agreement with
+  espeak-ng; ~10 µs a man), takes a recording's loudness or phoneme track when lines are recorded;
+  the subtitle stays as long as he talks; the masks carry the mouth (`mask_jaw.py`: a puff, it
+  hangs clear of the chin). Films `docs/style_test/talking/`. Next: Sean's look at the films; on
+  four men (widow, bold_cowboy_s3, young_drifter, doctor) the jaw goes back more than down
+  (`talking_face.py`'s spline extrapolation: carry the units by the warp's derivative, rebuild
+  them); Sean's three takes (`docs/FACE_TAKES.md`) to tune it; issue #247.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -424,6 +429,13 @@ frozen until Sean names one.
   timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
+- **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
+  format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
+  experiment (#262). Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
+  `past` marked on members, drawn in the lab (a `WEAR` hook in texel_grid, inert in the game); for
+  art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
+  the desert. Next: the README's "What the format needs"
+  (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
   leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
   kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
