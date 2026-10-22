@@ -794,6 +794,15 @@ a few views renders them as the full run does.
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
 
+- **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
+  `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over
+  a frozen `Body` (DEBRIS, `ballistic_thickness` = two walls: a ball passes and `Events.bullet_hit`
+  breaks it); its footing as KitProp's (and `KitProp.went_loose`); `breaks_at` (closing speed),
+  `shatters_kpa` (Blast.overpressure_kpa through shielding; less, Blast's push wakes it), `heat_seconds`
+  (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
+  GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
+  the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
