@@ -33,6 +33,12 @@ python3 tools/bridge.py start --size=960x540 --fps=60
 python3 tools/bridge.py "gun_fp revolver out=build/gun_lab/x" "gun_men bold_cowboy_s0 out=build/gun_lab/x"
 python3 tools/bridge.py "gun_grip old_rancher_s1"          # the grip's and holster's gaps, no frames
 python3 tools/bridge.py "gun_handling out=build/gun_lab/x"
+python3 tools/bridge.py "gun_framing shotgun"              # each hand's share on screen, its parts' pixels
+# quick views for working on a pose or a hand: the player alone on a plain floor, seconds a frame
+# (not the baseline's frames); detail_* look at the gun from its left, right, below and print
+# where the grip and every finger bone sit in the gun's space (cm) to the log
+xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 \
+    -s res://experiments/gun_lab/views.gd -- --out=build/gun_lab/v --gun=revolver [--only=rest,detail_right]
 ```
 
 `--hour=H` (default 16, the sun behind you), `--jobs=N` (2), `--skip-done`. Rendering needs xvfb and
@@ -46,6 +52,7 @@ lavapipe (`apt-get install mesa-vulkan-drivers xvfb`) and the native plugin buil
 - `bench.gd`: the jobs. Each clears the town first (TownLife and the outlaw spawner stopped,
   everyone freed, the clock set and stopped) and stands the player, or a man of the lab's own, in
   the middle of Main Street at (-6, 0, -8.4).
+- `views.gd` (a launcher) and `views_impl.gd`: the quick views.
 - `run.py`: the runs (a fresh game a job, through `--bridge-script`), the sheets, the table, the
   comparison.
 - `baseline/`: `baseline.md` (the table and the list of what's wrong), `handling.json`,
@@ -57,7 +64,8 @@ lavapipe (`apt-get install mesa-vulkan-drivers xvfb`) and the native plugin buil
 (a second settled), walking, running, a tenth of a second into cocking, cocked, every step of the
 reload a moment into it (all six chambers spent: the revolver's gate, each case ejected, each round
 loaded, each turn, the gate closed; the coach gun broken open, each shell pulled, each loaded,
-closed), the aimed shot at the top of its kick, and put away looking down at the hip.
+closed), the aimed shot at the top of its kick, and put away looking down at the hip; with each
+frame, `framing`: the share of each hand's parts on screen (a gun with no hand in view floats).
 
 **A man's gun** (`men_<body>.json`, `sheets/men_<body>.jpg`): each Studio man (`bold_cowboy_s0`,
 `old_rancher_s1`, `young_drifter_s1`, `sean_s2`) holstered, 0.15 s into the draw, aiming at a man

@@ -101,7 +101,11 @@ pose), but nothing closes round it.
     case colours, no bluing worn to bright at the edges; the brass is code metal
     (`PixelArt.metal`); only the walnut is the texture factory's painting (`walnut`). Against the men's painted clothes the gun
     reads as a flat dark silhouette at 5 and 10 m.
-18. The muzzle flash at a man's gun fills most of a 1 m view with a white disc (the flash's size
+18. **The revolver's grip rakes the wrong way**: `RevolverModel`'s grip is turned +22 degrees about
+    X, which swings its butt forward (3 cm ahead of the frame at the bottom); a Single Action
+    Army's grip sweeps down and back. Found placing the new hand (`views.gd`'s detail views print
+    the grip's corners: top front at z 0.1 cm, bottom front at z -3.1 cm). Every man's gun too.
+19. The muzzle flash at a man's gun fills most of a 1 m view with a white disc (the flash's size
     isn't the gun's lab's, noted for the effects).
 
 **For the sound lab** (its own lab; the README's list): a man's gun has only its shot: no draw, no

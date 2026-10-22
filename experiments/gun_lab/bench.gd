@@ -117,7 +117,8 @@ func fp(which: String) -> Dictionary:
 	var take := func(name: String, note: String) -> void:
 		var path := dir.path_join("%02d_%s.png" % [frames.size(), name])
 		await _shot(path)
-		frames.append({"name": name, "file": path.get_file(), "note": note, "weapon": lab.bridge._weapon_line()})
+		frames.append({"name": name, "file": path.get_file(), "note": note, "weapon": lab.bridge._weapon_line(),
+				"framing": framing(w)})
 
 	await lab.seconds(1.0)
 	await take.call("rest", "standing still, from the hip")
@@ -206,6 +207,36 @@ func fp(which: String) -> Dictionary:
 	lab.bridge._set_view(deg_to_rad(-PLAYER_YAW), 0.0)
 	var out := {"gun": which, "frames": frames, "hour": hour}
 	_write(out_dir.path_join("fp_%s.json" % which), out)
+	return out
+
+
+## How much of each hand is on screen: the share of its parts (each mesh's middle) inside the view,
+## in front of the camera. A gun held with no hand in view floats.
+func framing(w: WeaponViewmodel) -> Dictionary:
+	var cam: Camera3D = lab.player.camera
+	var size := cam.get_viewport().get_visible_rect().size
+	var out := {}
+	var hands := {"right": [], "left": []}
+	for mi in w.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if not m.is_visible_in_tree():
+			continue
+		var path := String(w.get_path_to(m))
+		var side := "left" if path.contains("Left") else "right" if (path.contains("Hand") or path.contains("Palm") or path.contains("Wrist")) else ""
+		if side == "" or path.contains("Sleeve") or path.contains("Cuff"):
+			continue
+		(hands[side] as Array).append(m)
+	for side: String in hands:
+		var parts: Array = hands[side]
+		if parts.is_empty():
+			continue
+		var on := 0
+		for m: MeshInstance3D in parts:
+			var gp := m.global_position
+			var sp := cam.unproject_position(gp)
+			if not cam.is_position_behind(gp) and Rect2(Vector2.ZERO, size).has_point(sp):
+				on += 1
+		out["%s_hand_on_screen" % side] = snappedf(float(on) / parts.size(), 0.01)
 	return out
 
 

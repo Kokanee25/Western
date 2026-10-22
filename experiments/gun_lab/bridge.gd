@@ -8,6 +8,7 @@ const HELP := {
 	"gun_fp": "gun_fp revolver|shotgun [out=DIR] [hour=H] -> the gun in first person, a frame a state (rest, aim, walk, run, cocking, the shot, every reload step, put away): DIR/fp_<gun>/*.png and DIR/fp_<gun>.json (needs drawing: xvfb)",
 	"gun_men": "gun_men BODY [out=DIR] [hour=H] -> one man's gun holstered, drawing, aiming, firing, reloading, dropped, from 1, 5 and 10 m, with the grip's gap to his hand: DIR/men_<body>/*.png, DIR/men_<body>.json (needs drawing)",
 	"gun_grip": "gun_grip BODY -> the grip's and holster's gaps for one man, no frames (headless is fine)",
+	"gun_framing": "gun_framing revolver|shotgun [aim] -> the share of each hand on screen, and where each hand part lands in the view (pixels), the gun held at rest (or aimed)",
 	"gun_handling": "gun_handling [out=DIR] -> draw to first shot, cocking, rhythm, reloads, sight recovery, accuracy (steady, rushed, hip, walking, wounded) for both guns, and the outlaw's figures: DIR/handling.json",
 }
 
@@ -77,6 +78,32 @@ func _cmd_gun_grip(a: Array) -> Dictionary:
 	man.queue_free()
 	b.queue_free()
 	return {"holstered": holstered, "aiming": aimed}
+
+
+func _cmd_gun_framing(a: Array) -> Dictionary:
+	if a.is_empty() or not a[0] in ["revolver", "shotgun"]:
+		return {"ok": false, "error": "gun_framing revolver|shotgun [aim]"}
+	var b := _bench([])
+	await b.quiet_town()
+	await b._place_player()
+	var w: WeaponViewmodel = await b._gun(String(a[0]))
+	if a.has("aim"):
+		bridge._act(true, &"aim")
+	await seconds(1.0)
+	var out: Dictionary = b.framing(w)
+	var cam: Camera3D = player.camera
+	var parts := {}
+	for mi in w.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		var path := String(w.get_path_to(m))
+		if path.contains("Hand") or path.contains("Forearm"):
+			parts[path] = [cam.unproject_position(m.global_position).round(), cam.is_position_behind(m.global_position)]
+	out["parts"] = parts
+	out["view"] = cam.get_viewport().get_visible_rect().size
+	out["fov"] = cam.fov
+	bridge._act(false, &"aim")
+	b.queue_free()
+	return out
 
 
 func _cmd_gun_handling(a: Array) -> Dictionary:
