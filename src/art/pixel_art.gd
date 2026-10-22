@@ -229,10 +229,10 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 				# layer (laid only where a mesh asks: MaterialStand's weathered parts).
 				m.set_shader_parameter(&"edge_aa", true)
 				_weathering(m, set)
-			var wb := float(_set_bands.get(set, 0.0))
+			var wb := float(info.get("light_bands", _set_bands.get(set, 0.0)))
 			if wb > 0.0:
 				# Round 6: the wood's light in steps, as the men's paint is (the blocks light, its
-				# own count, on the woods only).
+				# own count, on the woods only): a set's, or a promoted wood's own (its entry).
 				m.shader = GRID_SHADER_BLOCKS
 				m.set_shader_parameter(&"wood_bands", wb)
 		else:

@@ -33,14 +33,17 @@ def promote(set_name, mapping, extra):
             print("promote: %s has no wood %s" % (set_name, old))
             sys.exit(1)
         if new in index["woods"]:
-            # Replacing a game wood under its own name: its old strips go first (a set may cut fewer
-            # boards, or none bare), so no stale strip is left beside the new ones.
+            # Replacing a game wood under its own name: its old strips move aside first (a set may cut
+            # fewer boards, or none bare), so no stale strip is left beside the new ones; they're
+            # kept in build/promote_backup/<wood>/ (and in git) until the merge.
+            backup = os.path.join(ROOT, "build", "promote_backup", new)
+            os.makedirs(backup, exist_ok=True)
             for f in os.listdir(WOODS):
                 stem = f.split(".png")[0]
                 if f.endswith((".png", ".png.import")) and (stem == new or stem.startswith(new + "_") and
                                                              (stem[len(new) + 1:] in ("end", "bare") or
                                                               stem[len(new) + 1:].lstrip("b").isdigit())):
-                    os.remove(os.path.join(WOODS, f))
+                    shutil.move(os.path.join(WOODS, f), os.path.join(backup, f))
         n = 0
         for f in sorted(os.listdir(src)):
             if not f.endswith(".png"):
