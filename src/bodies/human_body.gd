@@ -3299,7 +3299,11 @@ func _tone_inertia(a: RigidBody3D, b: RigidBody3D, axis: Vector3, joint: Vector3
 		inv += 1.0 / (i_com + arm.length_squared() / st.inverse_mass)
 	return 1.0 / inv if inv > 0.0 else 0.0
 
-var _tone: Array = []  ## [child, parent, rest rotation (child in parent), stiffness, joint (in child)]
+var _tone: Array = []  ## [child, parent, rest rotation (child in parent), stiffness, joint (in child)[, its own fade]]
+## Each joint's share of the fade (how soon its hold goes against the rest of him), by joint kind
+## (abdomen, chest, neck, thigh, ...; or one side's, shin_r): the collapse brief's experiments (docs/briefs/collapse.md; the
+## ragdoll lab's --fade-share). Empty, all alike.
+static var tone_fade_share := {}
 var _tone_t := 0.0
 var _tone_start := 0.0
 var _tone_fade := 1.0
@@ -3337,7 +3341,10 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 			k *= TONE_STANCE
 		elif _legs_gone and key == &"shin":
 			k *= LEGS_GONE
-		_tone.append([child, up, rest, k, child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
+		var entry := [child, up, rest, k, child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)]
+		if tone_fade_share.has(sid) or tone_fade_share.has(key):
+			entry.append(_tone_fade * float(tone_fade_share.get(sid, tone_fade_share.get(key))))
+		_tone.append(entry)
 
 
 ## Hit and going down alive: his muscles pull him round the wound for the moment they still hold
@@ -3387,6 +3394,7 @@ func _step_tone(delta: float) -> void:
 		return
 	var share := _tone_start * exp(-_tone_t / _tone_fade)
 	for j: Array in _tone:
+		var held := share if j.size() < 6 else _tone_start * exp(-_tone_t / float(j[5]))
 		var child := j[0] as RigidBody3D
 		var up := j[1] as RigidBody3D
 		if not is_instance_valid(child) or not is_instance_valid(up) 				or physiology.severed_segments.has(child.get_meta(&"segment", &"")):
@@ -3402,7 +3410,7 @@ func _step_tone(delta: float) -> void:
 		# parts (a hand's or the neck's inertia is tiny: uncapped, they spun 45 degrees a tick).
 		var rel_w := child.angular_velocity - up.angular_velocity
 		var at: Vector3 = child.global_transform * (j[4] as Vector3)
-		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
+		var k := minf(j[3] * held, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
 		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized(), at) / delta)
 		if is_nan(k) or is_nan(c):
 			continue

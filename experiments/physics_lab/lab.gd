@@ -149,6 +149,16 @@ func _run() -> void:
 				runner.jitter = int(args.jitter)
 			if args.has("surface-friction"):
 				runner.surface_friction = float(args["surface-friction"])
+			if args.has("fade-share"):
+				# --fade-share=abdomen:0.45,chest:0.45: each joint kind's share of the tone's fade
+				# (HumanBody.tone_fade_share; docs/briefs/collapse.md).
+				var fs := {}
+				for kv: String in String(args["fade-share"]).split(","):
+					if ":" in kv:
+						fs[StringName(kv.get_slice(":", 0))] = float(kv.get_slice(":", 1))
+				# Through the loaded script: named here, HumanBody would compile with lab.gd, before the
+				# autoloads it uses (Settings) exist.
+				(load("res://src/bodies/human_body.gd") as GDScript).set(&"tone_fade_share", fs)
 			if args.has("friction-ends"):
 				runner.friction_ends = float(args["friction-ends"])
 			root.add_child(runner)
