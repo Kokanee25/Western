@@ -45,6 +45,11 @@ signal spoke(speaker: Node, text: String)
 signal scorched(person: Node, amount: float)
 ## A charge went off: where, and how big (kg TNT).
 signal exploded(at: Vector3, kg: float)
+## The ground over `area` (world xz) was dug or laid on (Ground.take/put): what stands or rests
+## there looks again at what's under it.
+signal ground_changed(area: Rect2)
+## Digging reached something buried there (Ground.bury).
+signal ground_uncovered(id: StringName, at: Vector3)
 ## A sound people might hear: where, how far it carries (m), what it was, and who made it.
 signal noise(at: Vector3, loudness: float, kind: StringName, source: Node)
 ## Something someone did that others judge them by (Relations.WEIGHTS): drew, holstered, aimed at,
@@ -59,6 +64,10 @@ signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
 signal hours_passed(hours: float, why: StringName)
 ## Water thrown on a fire: where, how much (litres), and how many burning members it put out.
 signal doused(at: Vector3, litres: float, put_out: int)
+## A container broken (the prop kit's bottles and lamps, GlassProp): what it held let go on the floor
+## at `at` (whiskey, lamp_oil, water), how much (litres) and what held it. The spills (the water lab's)
+## take it up.
+signal liquid_spilled(at: Vector3, liquid: StringName, litres: float, source: Node)
 
 
 func _ready() -> void:

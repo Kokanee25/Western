@@ -5,14 +5,15 @@ extends RefCounted
 
 const SETUPS := ["point_blank", "contact", "knife_throat", "knife_belly", "glass", "splinter",
 		"burns", "blast_ears", "nosebleed", "jaw", "bandaged", "sling", "amputated", "scar",
-		"gangrene", "wrist_drop", "dead", "handprint", "trail", "flattened"]
+		"gangrene", "wrist_drop", "dead", "handprint", "trail", "flattened", "ear_off", "nose_off", "jaw_away"]
 
 ## Where the close-up looks, by setup.
 const LOOK := {"point_blank": &"chest", "contact": &"chest", "knife_throat": &"neck", "knife_belly": &"abdomen",
 		"glass": &"forearm_r", "splinter": &"thigh_l", "burns": &"chest", "blast_ears": &"head",
 		"nosebleed": &"head", "jaw": &"head", "bandaged": &"thigh_r", "sling": &"chest", "amputated": &"upper_arm_r",
 		"scar": &"forearm_r", "gangrene": &"forearm_l", "wrist_drop": &"hand_r", "dead": &"chest",
-		"handprint": &"hand_r", "trail": &"pelvis", "flattened": &"thigh_r"}
+		"handprint": &"hand_r", "trail": &"pelvis", "flattened": &"thigh_r", "ear_off": &"head", "nose_off": &"head",
+		"jaw_away": &"head"}
 
 
 static func _at(man: HumanBody, seg: StringName, rest: Vector3) -> Vector3:
@@ -106,9 +107,24 @@ static func apply(setup: String, man: HumanBody, world: Node3D) -> void:
 			_shoot(man, &"thigh_r", Vector3(0.13, 0.7, -0.03))
 		"flattened":
 			_shoot(man, &"thigh_r", Vector3(0.0975, 0.66, 0.0), 5.0, 475.0)
+		"ear_off":
+			var head := man.parts[&"head"] as Node3D
+			var at := _at(man, &"head", Vector3(0.087, 1.635, 0.0))
+			man.take_bullet(head, at - man.global_basis.z * 0.3, man.global_basis.z, 475.0, 0.0057)
+		"nose_off":
+			var head := man.parts[&"head"] as Node3D
+			var at := _at(man, &"head", Vector3(0.0, 1.625, -0.09))
+			man.take_bullet(head, at - man.global_basis.z * 0.3, man.global_basis.z, 120.0, 0.0057)
+		"jaw_away":
+			var head := man.parts[&"head"] as Node3D
+			var at := _at(man, &"head", Vector3(0.0, 1.551, -0.06))
+			man.take_bullet(head, at - man.global_basis.z * 0.3, man.global_basis.z, 900.0, 0.0057)
 
 
 ## Each tick after: a man in the trail walks on.
 static func tick(setup: String, man: HumanBody, dt: float) -> void:
+	# (His hand would go straight over his ear or his face: kept off it for the picture.)
+	if setup in ["ear_off", "nose_off", "jaw_away"]:
+		man._grab.clear()
 	if setup == "trail" and not man.limp:
 		man.walk_to(man.global_position + man.global_basis.x * 5.0, 1.0, dt, false)

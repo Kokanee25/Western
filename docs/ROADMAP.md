@@ -77,7 +77,7 @@ then.
 | World persistence and recovery lab | Phase 5, with 5.5 and 5.9 | gameplay | `labs.md` |
 | Treatment lab part 1: field first aid (3.1c) | After the body lab's baseline (Phase 3) | gameplay | `labs.md` |
 | Treatment lab part 2: the doctor (with 5.4 and 5.6) | Phase 5 | gameplay, characters (his lines) | `labs.md` |
-| Sound | Inside the gunfight lab; its own lab only if that gap outgrows it | gameplay | `labs.md` |
+| Sound lab: gunshots, ricochets, explosions, impacts, breaking, fire, steps; where they sit in space (distance, indoors, echo off the hills) | Now (Sean 2026-10-21: its own lab, moved up) | gameplay | `labs.md` |
 | Material lab: colour, grain, thickness, end grain, dirt, paint wear (1.4a) | Now, beside Phases 2 and 3 | art | `building-pipeline.md`, `material-lab-timber.md` |
 | Wound paint (2.3) | After the stand-ins (2.1) | characters (+ a line of gameplay) | `damage-pipelines.md` |
 | Material lab: wear-down (worn paths, paint gone where hands touch, new / a year / ten years) | After Gate A | art | `building-pipeline.md` |
@@ -229,7 +229,9 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   cut, the seam dashes fixed): saloon red and timber up to CLOSE, weathered pine SAME, 2-3 SAME of
   8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
   no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 (free): timber and the deck SAME;
-  round 6 next (banded light on the wood); the interior woodwork (Sean's saloon picture: profiles,
+  round 6 (free: banded light on the woods, pine's knots soft, flat tone steps): knots gone, the
+  critic otherwise unmoved (the wood's light still rolls; its source next); Sean's pick on round 5's
+  exterior woods waits on him (`2026-10-22/pick_exterior.jpg`); the interior woodwork (Sean's saloon picture: profiles,
   the interior stand, one umber stain, `interior-woodwork.md`) waits on his pick. Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.

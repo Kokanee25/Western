@@ -54,7 +54,7 @@ static func spawn(id: StringName, model: Node3D = null) -> Node3D:
 	var def := definition(id)
 	assert(not def.is_empty(), "Unknown prop %s" % id)
 	if model == null and use_kit and use_models and PropKit.has(id) and PropKit.definition(id).get("in_game", false):
-		var kit := PropKit.spawn(id)
+		var kit := PropKit.make(id)
 		kit.set_meta(&"prop_id", id)
 		kit.set_meta(&"placeholder", false)
 		kit.set_meta(&"bounds", PropKit.bounds(PropKit.definition(id)))
