@@ -32,6 +32,12 @@ extends Resource
 ## earlier rule, from modern rounds).
 @export var subsonic_snaps := false
 
+@export_group("How many at once")
+## Placed sounds at once (playing or on their way); past it the quietest at the ears gives way.
+@export var max_voices := 32
+## Of one breaking sound (a member's crack, rubble's crash, a pane) at once.
+@export var breaking_limit := 4
+
 @export_group("Air, walls and rooms")
 ## The air's loss of highs: the high shelf's corner at 20 kHz / (1 + distance / this).
 @export var air_metres := 25.0

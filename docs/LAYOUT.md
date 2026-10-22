@@ -564,7 +564,10 @@ a few views renders them as the full run does.
   under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
   `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
   fronts. `GameAudio.gunshot` (the report, the roll, the slaps); `GameAudio.blast` (the blast, its roll, the
-  slaps, debris landing round it after; `BlastEffects`). `ImpactEffects` plays a pass
+  slaps, debris landing round it after; `BlastEffects`). Breaking (`Structure`, `StructureMember`,
+  `OilLamp`) goes through it too. At most `max_voices` placed sounds at once and `limit` of one
+  (`_room_for`: the quietest at the ears gives way); a delayed one waits on a timer wired straight
+  to its `play()`. `ImpactEffects` plays a pass
   (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
