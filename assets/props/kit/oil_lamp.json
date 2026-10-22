@@ -1,0 +1,19 @@
+{
+  "_doc": "A kerosene table lamp (PropModels.lamp: a brass foot and font, the burner's collar and prongs, a thin glass chimney), a prop that shatters (GlassProp). The chimney's glass is ~1.5 mm: it breaks at a walk's pace (1.5 m/s, as Fittings' lamps did) and at ~15 kPa; the brass foot comes through whole. Its light is an OilLamp (PropLibrary's callers add it as \"Light\"): shattered, it smashes, and a lit lamp's oil burns where it lands (OilLamp.smash); an unlit one's ~0.25 l of lamp oil goes out on the bus, and catches if it lands in flames.",
+  "id": "oil_lamp",
+  "kind": "shatters",
+  "replaces": "oil_lamp",
+  "model": "lamp",
+  "size": [0.14, 0.38, 0.14],
+  "mass": 0.9,
+  "wall": 0.0015,
+  "glass": ["Chimney"],
+  "whole": [["Foot", "Collar", "Prong"]],
+  "piece_mass": 0.6,
+  "shards": 10,
+  "breaks_at": 1.5,
+  "shatters_kpa": 15,
+  "heat_seconds": 30,
+  "cut_area": 0.04,
+  "contents": {"liquid": "lamp_oil", "litres": 0.25, "flammable": true, "colour": [0.85, 0.75, 0.45]}
+}

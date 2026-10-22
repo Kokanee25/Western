@@ -59,6 +59,10 @@ signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
 signal hours_passed(hours: float, why: StringName)
 ## Water thrown on a fire: where, how much (litres), and how many burning members it put out.
 signal doused(at: Vector3, litres: float, put_out: int)
+## A container broken (the prop kit's bottles and lamps, GlassProp): what it held let go on the floor
+## at `at` (whiskey, lamp_oil, water), how much (litres) and what held it. The spills (the water lab's)
+## take it up.
+signal liquid_spilled(at: Vector3, liquid: StringName, litres: float, source: Node)
 
 
 func _ready() -> void:
