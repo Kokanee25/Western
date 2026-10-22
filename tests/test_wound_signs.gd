@@ -44,7 +44,7 @@ func test_burst_eardrums_bleed_from_the_ears() -> void:
 	var before := _head_decals()
 	man.physiology.eardrums_burst[&"r"] = true
 	man.physiology.eardrums_burst[&"l"] = true
-	await physics_frames(2)
+	await physics_frames(WoundSigns.EVERY + 2)
 	check_eq(_head_decals() - before, 2, "blood run from each ear")
 
 
@@ -226,5 +226,5 @@ func test_flies_come_to_the_dead() -> void:
 	man.physiology._die(&"blood_loss")
 	man.go_limp()
 	man.signs._dead_for = WoundSigns.FLIES_AFTER_HOURS * man.physiology.tuning.game_hour_seconds
-	await physics_frames(3)
+	await physics_frames(WoundSigns.EVERY + 2)
 	check(man.signs._flies != null, "flies over him")

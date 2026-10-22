@@ -53,9 +53,24 @@ var _flies: GPUParticles3D
 const FLIES_AFTER_HOURS := 2.0
 
 
+## They're only looks, so each man's are worked out every few ticks with the time between added
+## up, the men spread over the ticks (ten wounded men's signs were 0.38 ms a tick, every tick).
+const EVERY := 4
+var _ticks := -1
+var _dt_sum := 0.0
+
+
 func step(dt: float) -> void:
 	if body == null or not body.is_inside_tree():
 		return
+	if _ticks < 0:
+		_ticks = body.get_instance_id() % EVERY
+	_ticks += 1
+	_dt_sum += dt
+	if _ticks % EVERY != 0:
+		return
+	dt = _dt_sum
+	_dt_sum = 0.0
 	var p := body.physiology
 	var world := body.get_parent() as Node3D
 	if world == null:

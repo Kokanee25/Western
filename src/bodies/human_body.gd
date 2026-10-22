@@ -1407,10 +1407,17 @@ func _apply_pose(delta: float, snap := false) -> void:
 	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
 	# up or bound, clutching a wound, the pose has his arms and back).
 	var all_of_him := pose == &"stand"
+	_injury_targets()
+	# (Asked of every joint every tick: only the lists with something in them.)
+	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
+	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
-				+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
-		goal = _injured(sid, goal, delta)
+		var goal: Vector3 = target.get(sid, Vector3.ZERO)
+		if leans:
+			goal += overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
+					+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
+		if injured:
+			goal = _injured(sid, goal, delta)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
@@ -1424,8 +1431,9 @@ func _apply_pose(delta: float, snap := false) -> void:
 			_flinch[sid] = f
 		var rot: Vector3 = now + f[0]
 		if sid == &"chest":
-			var gasp := 2.5 if physiology.shock() > AGONAL_SHOCK else 1.0
-			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + physiology.shock() * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
+			var shock := physiology.shock()
+			var gasp := 2.5 if shock > AGONAL_SHOCK else 1.0
+			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
 		pv.rotation_degrees = rot
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
@@ -1641,29 +1649,45 @@ var _injury_w := {}  ## segment -> how far its injury's hold has come on (0..1)
 
 
 func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
-	var p := physiology
-	# Nothing wrong with him (most men, most of the time): nothing to look up.
-	if limp or (p.cut.is_empty() and p.broken.is_empty() and p.torn.is_empty() and _injury_w.is_empty()):
+	var t: Variant = _injury_now.get(sid)
+	if t == null:
+		if not _injury_w.is_empty():
+			_injury_w.erase(sid)
 		return goal
-	var s := String(sid)
-	var side := s.right(1)
-	var want := goal
-	if s.begins_with("hand_") and p.cut.has(StringName("radial_nerve_" + side)):
-		want = goal + Vector3(0, 0, -WRIST_DROP if side == "r" else WRIST_DROP)
-	elif (s.begins_with("forearm_") or s.begins_with("upper_arm_")) and \
-			(p.broken.has(StringName("radius_" + side)) or p.broken.has(StringName("ulna_" + side)) or p.broken.has(StringName("humerus_" + side))):
-		if (_grab.is_empty() or _grab.side != side) and not slung.has(side):
-			want = Vector3.ZERO  # it hangs at his side
-	elif s.begins_with("shin_") and p.broken.has(StringName("patella_" + side)):
-		want = Vector3.ZERO  # the knee won't bend
-	if GUT_HUNCH.has(sid) and (p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")):
-		want += GUT_HUNCH[sid]
+	var want: Vector3 = (Vector3.ZERO if t[0] else goal) + (t[1] as Vector3)
 	if want == goal:
 		_injury_w.erase(sid)
 		return goal
 	var w: float = minf(float(_injury_w.get(sid, 0.0)) + delta / INJURY_ONSET, 1.0)
 	_injury_w[sid] = w
 	return goal.lerp(want, smoothstep(0.0, 1.0, w))
+
+
+## What his injuries do to each joint this tick, worked out once for all of them (_injured is
+## asked for every joint every tick): segment -> [the pose replaced (it hangs, it won't bend),
+## what's added to it]. Empty for a man with nothing wrong (most men, most of the time).
+var _injury_now := {}
+
+
+func _injury_targets() -> void:
+	_injury_now.clear()
+	var p := physiology
+	if limp or (p.cut.is_empty() and p.broken.is_empty() and p.torn.is_empty()):
+		return
+	for side: String in ["r", "l"]:
+		if p.cut.has(StringName("radial_nerve_" + side)):
+			_injury_now[StringName("hand_" + side)] = [false, Vector3(0, 0, -WRIST_DROP if side == "r" else WRIST_DROP)]
+		if (p.broken.has(StringName("radius_" + side)) or p.broken.has(StringName("ulna_" + side)) \
+				or p.broken.has(StringName("humerus_" + side))) and (_grab.is_empty() or _grab.side != side) and not slung.has(side):
+			# It hangs at his side.
+			_injury_now[StringName("forearm_" + side)] = [true, Vector3.ZERO]
+			_injury_now[StringName("upper_arm_" + side)] = [true, Vector3.ZERO]
+		if p.broken.has(StringName("patella_" + side)):
+			_injury_now[StringName("shin_" + side)] = [true, Vector3.ZERO]  # the knee won't bend
+	if p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine"):
+		for sid: StringName in GUT_HUNCH:
+			var t: Array = _injury_now.get(sid, [false, Vector3.ZERO])
+			_injury_now[sid] = [t[0], (t[1] as Vector3) + (GUT_HUNCH[sid] as Vector3)]
 
 
 ## Near the end, in deep shock, his breathing turns to slow gasps (agonal breathing).
@@ -2260,7 +2284,9 @@ func _grab_step(delta: float) -> void:
 		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k)
 	var part := parts[g.seg] as Node3D
 	var at: Vector3 = part.global_transform * (g.at as Vector3)
-	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
+	if not g.has("n"):
+		g.n = _skin_normal(g.seg, g.at)  # (the same each tick: worked out once)
+	var n := (part.global_basis * (g.n as Vector3)).normalized()
 	if not _arm_to(side, at, n, k) and hurt == "":
 		_hand_press(g.wound, false)
 		_grab.clear()  # out of his reach (a shin, standing): he leaves it
