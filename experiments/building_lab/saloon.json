@@ -375,8 +375,8 @@
 		{"id": "room_1", "level": "upper", "rect": [10.16, 12.24, 15.14, 16.97], "use": "a bedroom"},
 		{"id": "room_2", "level": "upper", "rect": [5.08, 12.24, 10.16, 16.97], "use": "a bedroom"},
 		{"id": "room_3", "level": "upper", "rect": [0.1, 12.24, 5.08, 16.97], "use": "a bedroom"},
-		{"id": "room_4", "level": "upper", "rect": [0.1, 1.93, 3.61, 6.25], "use": "a bedroom"},
-		{"id": "room_5", "level": "upper", "rect": [0.1, 6.25, 3.61, 12.19], "use": "a bedroom"}
+		{"id": "room_4", "level": "upper", "rect": [0.1, 1.93, 3.61, 6.25], "use": "a bedroom, no window: a cheap room lit by its lamp (Sean, 2026-10-22, issue #242)"},
+		{"id": "room_5", "level": "upper", "rect": [0.1, 6.25, 3.61, 12.19], "use": "a bedroom, no window: a cheap room lit by its lamp (Sean, 2026-10-22, issue #242)"}
 	],
 	"fixtures": [
 		{

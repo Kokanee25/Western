@@ -7,7 +7,6 @@ extends SceneTree
 ##   ... -- --out=DIR --wear   # the wear map: every member tinted by its marks (docs/briefs/lived-in.md)
 ##   ... -- --out=DIR --worn   # the marks drawn (wear_paint.gd: the batches in the worn wood), the views and the close ones
 
-const ORIGIN := Vector3(-72.0, 0.0, 26.0)
 const HOURS := {"golden": 17.6, "night": 22.5}
 ## name -> [camera, look at, fov, light], in the building's space.
 const VIEWS := {
@@ -79,17 +78,7 @@ func _run() -> void:
 	var grass := street.find_child("DryGrass", true, false)
 	if grass:
 		grass.visible = false
-	var building = load("res://experiments/building_lab/spec_building.gd").new()
-	building.name = "SpecSaloon"
-	building.position = ORIGIN
-	street.add_child(building)
-	var walk = load("res://src/structures/boardwalk.gd").new()
-	walk.structure_id = &"spec_walk"
-	walk.length = 16.44
-	walk.top = 0.78
-	walk.steps = [Vector2(7.62, 1.83)]
-	walk.position = ORIGIN
-	street.add_child(walk)
+	var building = load("res://experiments/building_lab/play.gd").build(street)
 	var cam := Camera3D.new()
 	cam.name = "LabCamera"
 	street.add_child(cam)

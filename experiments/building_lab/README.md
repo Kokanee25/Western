@@ -2,8 +2,15 @@
 
 Gameplay (structures) with art for the look; branch `claude/gameplay-building-spec`; brief
 `docs/briefs/building-pipeline.md` (steps 2 to 5). The spec format is `FORMAT.md`; the saloon's
-spec is `saloon.json`. **Nothing in the game changes**: the builder, the stair part and the checks
-live here, and the game's saloon (`SaloonBuilding`) stands as it was.
+spec is `saloon.json`. **The game's saloon is unchanged**: the builder, the stair part and the
+checks live here, and the town's saloon (`SaloonBuilding`) stands as it was. The one way into the
+game is F5's last stop (below), to walk it in a build.
+
+**Walk it in a build:** press F5 (D-pad up) until you're past the outlaw: the eighth stop builds the
+spec saloon out in the desert west of town (`play.gd`, `DebugSpawns/SpecSaloon`; a hitch of about
+3 s the first time) and puts you in front of its door. Everything in it breaks, burns and takes a
+shot as the town does. Its cellar is closed (the town's ground is one plane, item 7 below), and
+nobody in town uses it.
 
 | File | What |
 | --- | --- |
@@ -15,6 +22,7 @@ live here, and the game's saloon (`SaloonBuilding`) stands as it was.
 | `checks.gd` | the brief's checks, shared by the test and the runner |
 | `run.gd`, `runner.gd` | every headless check on fresh builds -> `results/<date>/results.json` |
 | `render.gd` | the sheet's views in the game's own street, for the blind critic |
+| `play.gd` | the saloon and its boardwalk set down in the street (F5's last stop, and the renders) |
 | `tests/test_building_lab.gd` | the walk (destructible), it stands (crowd too), posts knocked out, people fit, rooms used |
 
 ```sh
@@ -160,9 +168,9 @@ In the order the saloon needs them:
 
 ## Open for Sean
 
-- **Rooms 4 and 5 have no windows** (issue #242) since the mirror: they're over the bar on the west wall, which
-  stands against the store (its roof is about at their sills). A skylight each, windows high over
-  the store's roof, or leave them dark (cheap rooms)?
+(Settled: rooms 4 and 5, over the bar against the store, stay **without windows**, the cheap rooms
+lit by a lamp; Sean, 2026-10-22, issue #242.)
+
 - A lighter oak for the bar and back bar (art's call), as above.
 
 ## What the format needs before it's used for real
@@ -209,7 +217,10 @@ The spec built the saloon and it passes every check that runs headless; before i
     closing and barring them is gameplay's.
 14. **The views for the judge:** the sheet's plans and its cutaway need section renders (members
     hidden past a plane); the elevations and interiors render now.
-15. **A recipe**: what went wrong here (the list under "It stands") goes into the recipe once the
+15. **Its size:** 5,183 members, 5,800 bodies; with the town 13,313, past Jolt's default 10,240
+    (`project.godot`'s `max_bodies` raised to 32,768 for it). Built at runtime it takes ~4.3 s here
+    (~3 s at Sean's); in the town it would be built at load, with the broadphase (item 2).
+16. **A recipe**: what went wrong here (the list under "It stands") goes into the recipe once the
     second building is built from the format, so the tenth is easier than the first.
 
 ## What I read
