@@ -58,7 +58,7 @@ def film(src, to):
                 f.write("file '%s'\nduration %f\n" % (p, 1.0 / 30.0))
         part = os.path.join(ROOT, src, name + ".mp4")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-vf", "fps=30,format=yuv420p",
-                        "-c:v", "libx264", "-crf", "27", "-preset", "slow", part], check=True)
+                        "-c:v", "libx264", "-crf", "32", "-preset", "slow", part], check=True)
         parts.append(part)
     lst = os.path.join(ROOT, src, "parts.txt")
     with open(lst, "w") as f:

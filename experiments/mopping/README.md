@@ -32,4 +32,15 @@ xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://exp
 
 ## Results
 
-See `results/` (the film, `table.md`, `perf.md`).
+- `results/2026-10-22/`: `mopping.mp4` (the film, 4 min, sped up as its caption says: spill x3,
+  blood x3, muddy x4, trouble x3, change_water x6), `table.md` (every scenario, headless),
+  `perf.md` (the cost). Every scenario but `change_water` ends with the floor mopped and the mop
+  and bucket back in their corner: a litre of spilt drink to ~2 ml, 96 ml of blood to ~1.5 ml,
+  the tracked mud mostly up (what's left is spread thin). `change_water` (420 g of mud) changes
+  the water five or six times and stops at its 240 s with ~245 g still down. Faults: nothing below
+  the boards in any run; four flung ticks in one rendered `change_water` (none headless).
+- The cost while he mops, at Sean's (median of three runs each way, one core): People +0.11 ms
+  (the mop's script 0.04 of it), the floor's marks +0.23 ms (Structures; 0.01 with only the
+  walkers' boots), the whole tick +0.17 ms (the mop head's soft body, Physics).
+- The wet patches darken the boards (~0.55 of their light) but barely shine: the woods' shader
+  (art's) takes the decal's roughness with the material's own small `specular`.
