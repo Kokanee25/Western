@@ -135,6 +135,16 @@ LABS RUNNING NOW (Phase 3)
 Bodies paragraph for every lab: the Studio's men are in assets/people
 (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), already cast as the gang (#160).
 
+## The card cheat, playable (after #204 merges) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-card-cheat. Make the card cheat playable in the game's saloon: docs/briefs/showcase-moments.md, "The card cheat" (with the punchline rule). Read it, docs/PARTS.md, and the open "waiting on Sean" issues first.
+
+Use only parts in the game: the kit chair and card table, the seated falls and kick (PR #204), the falls, wounds and gore, the hand to the wound, deeds and the escalation ladder. A man at the card table; the victim walks in angry, kicks the chair's back legs out, the cheater goes over backwards, the victim stands over him, draws, shouts and puts the gun in his mouth; the player has a few seconds. Every way out works by the systems, not a script: shoot him (the ball can carry on into the man on the floor), shout or draw so he turns on you, shove him, throw a bottle if one exists, shoot his gun hand, or do nothing. Afterwards the room reacts by what each person saw, and the barman's first words are about his chair, named at whoever broke it (the owners rule). Set it up as data (who, where, why), triggerable from the dev bridge and placed in the saloon at a time of day.
+
+The playtest agent plays it blind ten times first and reports what happened each time. Then give me a build with exactly how to start it and what to try. Open a "waiting on Sean" issue for anything only I can decide.
+```
+
 ## Gunfight lab (3.0) [Salt Creek]
 
 ```
