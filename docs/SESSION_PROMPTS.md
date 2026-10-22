@@ -5,6 +5,7 @@ Keep this file current: a session that changes a step, a brief or a lab updates 
 How to use: one prompt per new session. Start it in the repo named in brackets.
 Up to four sessions at once in Phases 2 and 3 (roadmap rule). Every session ends
 with its status entry and Current state lines, as CLAUDE.md says.
+Decisions for Sean go in GitHub Issues labelled "waiting on Sean" (CLAUDE.md).
 Repos: Salt Creek = Kokanee25/western. Character Studio = Kokanee25/saltcreek-characters.
 
 
