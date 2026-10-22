@@ -192,6 +192,9 @@ const MASS_SHARE := {
 ## His bandana pulled up over his nose and mouth (a Studio man's `cloth_bandana_mask`,
 ## tools/faces/bandana.py), in place of the one at his neck.
 @export var masked := false
+## A talking face (his model's report has a "facerig") comes alive: FaceLife, his look and his
+## expressions. Off where something else drives his face (the face lab's sheets and takes).
+@export var face_life := true
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
@@ -218,6 +221,15 @@ var garments: Array[Dictionary] = []
 ## {segment, entry, exit (segment-local or null), lodged, hits, bleeds, garments, stain (Decal)}
 var wounds: Array[Dictionary] = []
 var limp := false
+## A drop under his feet further than this (m) and he falls rather than steps down: further than
+## the snap to the ground ever followed.
+const DROP_FALLS := 1.0
+## Ground steeper than this (the up of its face: ~50 degrees) he can't walk down, and going on down
+## it more than STEEP_DROP (m) below where he last stood level he falls.
+const STEEP_UP := 0.64
+const STEEP_DROP := 0.5
+var _stood := false  # the last snap found ground under him
+var _level_y := 0.0  # where he last stood on ground he could walk
 ## Limp: what he breaks being thrown into timber (a railing).
 var _impacts: BodyImpacts
 ## Seconds left on his feet after a ball that drops him caught him on the move (_knocked): his
@@ -327,6 +339,7 @@ var _bone_parts: Array[StringName] = []
 
 func _ready() -> void:
 	add_to_group(&"people")
+	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
@@ -334,6 +347,10 @@ func _ready() -> void:
 	physiology.treated.connect(_bind_wound)
 	_dress()
 	_build()
+	if face_life and PeopleBodies.report(body_model).has("facerig"):
+		var life := FaceLife.new()
+		life.name = "FaceLife"
+		add_child(life)
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
@@ -687,6 +704,7 @@ func _build_skin() -> void:
 	}
 	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
 	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
+	var talking := PeopleBodies.report(body_model).has("facerig")
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
@@ -700,7 +718,9 @@ func _build_skin() -> void:
 			mi.name = "%s_%s" % [shape.to_pascal_case(), sid]
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
-			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
+			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
@@ -1638,16 +1658,50 @@ func _slide(motion: Vector3) -> Vector3:
 func _snap_to_ground() -> void:
 	var space := get_world_3d().direct_space_state
 	var best := -INF
+	var best_up := 1.0
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
-		var at := global_position + off
-		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.STAND)
-		if _blocker and is_instance_valid(_blocker):
-			q.exclude = [_blocker.get_rid()]
-		var hit := space.intersect_ray(q)
+		var hit := _ground_ray(space, global_position + off, 1.0)
+		if not hit.is_empty() and (hit.position as Vector3).y > best:
+			best = (hit.position as Vector3).y
+			best_up = (hit.normal as Vector3).y
+	if best == -INF and _stood:
+		# Nothing within a metre: standing on something a moment ago, he looks further down, for a
+		# hole dug under him or an edge he's walked off (the dig-able ground,
+		# docs/briefs/dig-ground.md). Not yet stood (just placed, up in the air to drop onto his
+		# spot), he waits as he always has.
+		var hit := _ground_ray(space, global_position, DROP_FALLS + 2.5)
 		if not hit.is_empty():
-			best = maxf(best, (hit.position as Vector3).y)
-	if best > -INF:
-		global_position.y = best
+			best = (hit.position as Vector3).y
+			best_up = (hit.normal as Vector3).y
+	if best == -INF:
+		return
+	# The ground's gone from under him further than a step down, or he's walked on down a slope too
+	# steep to walk, deeper than a step below where he last stood level (into a dug hole, not a
+	# stick's shallow crater): he goes in.
+	if _stood and (global_position.y - best > DROP_FALLS or (best_up < STEEP_UP and best < _level_y - STEEP_DROP)):
+		_stood = false
+		go_limp.call_deferred(Vector3.ZERO)
+		return
+	global_position.y = best
+	if not _stood or best_up >= STEEP_UP:
+		_level_y = best
+	_stood = true
+
+
+func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
+	if _blocker and is_instance_valid(_blocker):
+		q.exclude = [_blocker.get_rid()]
+	return space.intersect_ray(q)
+
+
+## The ground near him was dug or laid on (Ground): a man standing there finds it again, and goes
+## in if it's gone from under him.
+func _on_ground_changed(area: Rect2) -> void:
+	if limp or not _stood or not is_inside_tree():
+		return
+	if area.grow(0.3).has_point(Vector2(global_position.x, global_position.z)):
+		_snap_to_ground()
 
 
 ## Into the scene where he's to stand (`at`, world space), facing `yaw`: placed before he's
@@ -1723,6 +1777,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
+	_reach_step()
 	_grab_step(delta)
 	_sling_step(delta)
 	if held_gun != null and not gun_holstered:
@@ -2062,7 +2117,7 @@ func _sling_step(delta: float) -> void:
 		var w: float = minf(float(_injury_w.get(key, 0.0)) + delta / INJURY_ONSET, 1.0)
 		_injury_w[key] = w
 		var sx := 1.0 if side == "r" else -1.0
-		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w))
+		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w), _grab.get("seg", &""))
 
 
 ## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
@@ -2459,11 +2514,11 @@ func _grab_step(delta: float) -> void:
 	if String(g.seg).begins_with("hand") or String(g.seg).begins_with("forearm"):
 		hurt = String(g.seg).right(1)
 		var hx := 1.0 if hurt == "r" else -1.0
-		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k)
+		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k, g.seg)
 	var part := parts[g.seg] as Node3D
 	var at: Vector3 = part.global_transform * (g.at as Vector3)
 	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
-	if not _arm_to(side, at, n, k) and hurt == "":
+	if not _arm_to(side, at, n, k, g.seg) and hurt == "":
 		_hand_press(g.wound, false)
 		_grab.clear()  # out of his reach (a shin, standing): he leaves it
 		return
@@ -2475,10 +2530,84 @@ func _grab_step(delta: float) -> void:
 		curl_hand(side, curl)
 
 
+## Where a deed has put his hands this tick (WipeBar: on the bar top, at his shoulder, round a
+## glass): side -> {at, n, k, frame}. Laid by the same IK as a hand to a wound (`_arm_to`), after
+## the pose and before the wound's (a hand going to a wound wins, from wherever this put it); a
+## reach nobody renewed since the last tick lets the arm go back to the pose.
+var _reach := {}
+
+
+## Put his hand on `side` at `at` (world: the middle of the palm), palm toward `-n` (a bar top's
+## normal: palm down on it), `k` of the way from the pose (0..1; ease it). Call it every tick he's
+## to keep it there. False if it's out of his reach (the arm goes as far as it can).
+func reach_to(side: String, at: Vector3, n := Vector3.UP, k := 1.0) -> bool:
+	_reach[side] = {"at": at, "n": n.normalized(), "k": clampf(k, 0.0, 1.0), "frame": Engine.get_physics_frames()}
+	return can_reach(side, at)
+
+
+## Whether the middle of his palm on `side` could be put at `at` from where he stands.
+func can_reach(side: String, at: Vector3) -> bool:
+	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
+	if up == null or limp:
+		return false
+	return up.global_position.distance_to(at) <= _arm_length(side) + GRAB_PALM
+
+
+## Shoulder to wrist (m).
+func _arm_length(side: String) -> float:
+	return (_pivot_rest(StringName("forearm_" + side)) - _pivot_rest(StringName("upper_arm_" + side))).length() \
+			+ (_pivot_rest(StringName("hand_" + side)) - _pivot_rest(StringName("forearm_" + side))).length()
+
+
+## The middle of his palm on `side` (world), where he holds things.
+func palm(side: String) -> Vector3:
+	var hand := parts.get(StringName("hand_" + side)) as Node3D
+	return hand.global_position if hand else global_position
+
+
+## The hand on `side` is pressed on a wound (his own): the blood coming out under it now (ml/s,
+## held back as it is by the press), by how far the hand is there. 0 if it's on none.
+func wound_under_hand(side: String) -> float:
+	if _grab.is_empty() or _grab.side != side or limp:
+		return 0.0
+	var r := 0.0
+	for i: int in _grab.wound.get("bleeds", []):
+		if i < physiology.bleeds.size() and physiology.bleeds[i].kind != &"internal":
+			r += physiology.bleed_rate(physiology.bleeds[i])
+	return r * float(_grab.w)
+
+
+## The hand going to (or holding) a wound, "r"/"l", or "" if neither.
+func grab_side() -> String:
+	return "" if _grab.is_empty() else String(_grab.side)
+
+
+func _reach_step() -> void:
+	if _reach.is_empty():
+		return
+	var now := Engine.get_physics_frames()
+	for side: String in _reach.keys():
+		var r: Dictionary = _reach[side]
+		if now - int(r.frame) > 1 or prone or not _hand_free(side):
+			_reach.erase(side)
+			continue
+		# (A hand going to a wound of his takes it on from here: _grab_step blends from where this
+		# leaves the arm, so it doesn't drop to the pose first.)
+		var at: Vector3 = r.at
+		# Out of reach, as far toward it as the arm goes (not the pose for a tick, then back).
+		var sh := (pivots[StringName("upper_arm_" + side)] as Node3D).global_position
+		var most := _arm_length(side) + GRAB_PALM - 0.02
+		if sh.distance_to(at) > most:
+			at = sh + (at - sh).normalized() * most
+		# `at` is the palm's middle; _arm_to lays the palm's middle GRAB_OFF_SKIN off the point.
+		_arm_to(side, at - (r.n as Vector3) * GRAB_OFF_SKIN, r.n, r.k)
+
+
 ## Lay the hand on `side` over the point `at` (world, skin normal `n`), by `k` of the way from the
 ## pose: two-bone IK on the shoulder and elbow, the elbow out and down, then the hand turned to lie
-## across the hole palm in. False if it's out of his reach.
-func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
+## across the hole palm in. False if it's out of his reach. `on_seg`: the part of him it's on, if any
+## (his neck and trunk take the hand more level).
+func _arm_to(side: String, at: Vector3, n: Vector3, k: float, on_seg := &"") -> bool:
 	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
 	var fa := pivots.get(StringName("forearm_" + side)) as Node3D
 	var hd := pivots.get(StringName("hand_" + side)) as Node3D
@@ -2491,11 +2620,11 @@ func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
 	# The hand lies across the hole the way the arm comes to it, along the skin; on his neck and
 	# trunk more level than that (fingers round the side of the neck, not up over his chin).
 	var along := at - sh
-	var high: bool = _grab.get("seg", &"") in [&"neck", &"head"]
+	var high: bool = on_seg in [&"neck", &"head"]
 	if high:
 		# Up from in front, his fingers round the side of his neck toward the back, elbow down.
 		along = global_basis * Vector3(0, 0.3, 1)
-	elif _grab.get("seg", &"") in [&"chest", &"abdomen", &"pelvis"]:
+	elif on_seg in [&"chest", &"abdomen", &"pelvis"]:
 		along = global_basis.inverse() * along
 		along.y *= 0.25
 		along = global_basis * along

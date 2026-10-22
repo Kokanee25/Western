@@ -41,6 +41,8 @@ var kit_id: StringName
 var definition: Dictionary
 ## Gone loose (tipped, knocked, its floor gone): what's left of it is rubble, moving on its own.
 var loose := false
+## It's gone loose (tipped, knocked, its floor gone): what stands on it goes with it (GlassProp).
+signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
 
@@ -245,6 +247,16 @@ func _find_footing() -> void:
 		go_loose()
 
 
+## The ground near it was dug (Ground): its feet look again for what's under them (a foot left over
+## a hole has lost its footing, and it goes loose). Its own rule in place of a building's.
+func _on_ground_changed(area: Rect2) -> void:
+	if loose or not _footed or not is_inside_tree():
+		return
+	if area.grow(0.5).has_point(Vector2(global_position.x, global_position.z)):
+		_footed = false
+		_frames = SETTLE_FRAMES - 1
+
+
 func _has_footing(m: StructureMember) -> bool:
 	var under: Array = _feet.get(m, [])
 	if under.is_empty():
@@ -363,6 +375,7 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
 		made.append(rb)
+	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()
 	return made

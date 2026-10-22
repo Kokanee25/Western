@@ -36,7 +36,9 @@ the history in `docs/status/`.
     `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
     each man before Tripo is paid. **New men are made by `tools/characters/RECIPE.md`** (the
     Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
-    with Sean's OK. The art session judges each new man in the shots and says what's off; the
+    with Sean's OK. Since 2026-10-20 men are made in the Character Studio (`Kokanee25/saltcreek-characters`,
+    attach it); its paid calls run on GitHub, not with keys in the session: a request file in its
+    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). The art session judges each new man in the shots and says what's off; the
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
@@ -274,6 +276,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
 - **src/art/shot_match.gd** — the saloon painting's shot and its fits.
@@ -321,17 +324,22 @@ frozen until Sean names one.
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
   stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
   **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
-  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
-  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
-  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
-  Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Round 6** (2026-10-22,
+  free; studio9/10): banded light on the woods (`light_bands`), pine's knots soft (`knots`), flat
+  tone steps (`poster`): knots gone, otherwise the critic unmoved. **Sean picked 6b** (#217): the
+  game's exterior woods since 2026-10-22 (studio10 by `promote_woods.py`; seams a pixel wide, sheen
+  0.08, light in 4 steps; floor/framing/dark trim keep 7/3/2 strips; 25.7 MB of texture), with
+  round 6b's stain sheet waiting on gameplay's frame (`docs/SESSION_PROMPTS.md`). **Round 7**: the
+  flat-colour probe says the paint rolls, not the light; next studio11 (broader flat shapes), then
+  the memory test (`build/run_mem.sh BASE`: 384 lossless vs 384/256/192 BC7) for Sean's pick. **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
   (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
   kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
-  DIFFERENT, too dark against the walls). **Next: Sean's call** on a lighter oak for the fixtures,
-  then painted mirror reflections; the saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
+  DIFFERENT, too dark against the walls). The mirrors painted (`mirror.gdshader`, 2026-10-22: the
+  critic DIFFERENT -> CLOSE). The fixtures in a lighter oak, `int_oak_light` (Sean, #218); the
+  saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -339,8 +347,8 @@ frozen until Sean names one.
 - **Fire flipbooks** (2026-10-21, branch `claude/art-fire-flipbooks`, `docs/briefs/fire-look.md` "The
   next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
   bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
-  `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`). Waiting on Sean's A/B
-  (`docs/screenshots/fire/flipbooks_ab.mp4`). Next: firelight's look (step 5), then the painted pass
+  `Settings.fire_flipbooks`: the default since 2026-10-22 (Sean: "keep flames for now", #216; look
+  panel N turns them off; saved as `flipbook_fire`). Next: firelight's look (step 5), then the painted pass
   after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
@@ -377,11 +385,13 @@ frozen until Sean names one.
   Judge every change against Sean's pictures and his words (he turned down a flat collar band
   twice). Trap: after a build, `godot --headless --import` first; lab renders via
   `tools/characters/lab_run.sh`.
-- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
-  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
-  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
-  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
-  sync; then RECIPE.md's step for every man (with Sean's OK).
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): every Studio man has
+  MakeHuman's face grafted on (20 expressions as blend shapes), bandanas (`bandana.py`) and skinned
+  hands (`hands.py`, 30 finger bones; not the rancher). **Alive** (2026-10-22): `FaceLife` on every
+  talking man (looks round at whom his Senses see, blinks, starts at shots, a pain grimace, wide eyes
+  afraid, lids part shut dead; `config/face_life.tres`; film `docs/style_test/faces_alive.mp4`);
+  `neck_seam.py` closed the jaw's tear as his head turns. Next: Sean's three takes
+  (`docs/FACE_TAKES.md`) to tune the lip sync; issue #247 (gameplay: a test-order dependency).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -407,12 +417,20 @@ frozen until Sean names one.
   `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
   treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
   game saloon (group T). Then **`Railing`** (#198, build 1851): the railing part, the saloon's
-  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (`claude/gameplay-seated-falls`,
+  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (#204,
   `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
   `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
-  pose, both in `human_body.gd` for Sean's OK; Sean's scene (`scenes/chair_kick_shot.gd`). Next:
+  pose (Sean OK'd both); Sean's scene (`scenes/chair_kick_shot.gd`); eight contacts a part near
+  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
+- **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
+  leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
+  kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar` (a chore in `CivilianBrain.chore`, dials `config/wipe.tres`),
+  `HumanBody.reach_to`, `FireSystem.small_fire`; the saloon's barkeep wipes his bar when it's quiet.
+  `FaceLife.attend_to` (a deed sets what he watches). Waiting on Sean: the film in the PR, and
+  the paint's cost (#258).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -424,9 +442,20 @@ frozen until Sean names one.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
+- The perception lab (2026-10-22, `experiments/perception_lab/`, branch `claude/gameplay-perception-lab`):
+  bench and baseline (117 judged; top five in its `baseline/baseline.md`); fix 1 merged (#263, #240: a
+  heard sound doesn't name its maker; 74 -> 88 as expected, false 23 -> 9; `results/`). Next: fix 2,
+  lamplight at night (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-  Next: the gunfight lab's bench and baseline.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
+  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
+  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
+  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
+  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
+  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
+  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
+  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
@@ -445,13 +474,16 @@ frozen until Sean names one.
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
-  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
-  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
-  (the chair) as members. Then 3.3.
+  step 3; brief `docs/briefs/dig-ground.md`, Sean's decisions in): `Ground` (flat slabs, 5 cm height
+  field tiles where dug, `take`/`put`, loose earth slides, saves the heights; #235, #237), the
+  crater (`Blast.crater`, 0.8 x cbrt(kg), clods lie down as earth; #245, build 2020), what stands
+  and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
+  a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
+  (the brief's "What art needs"). Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
-  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
-  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`/`GlassProp`): the chair and the card table in the game (build 1919); the
+  bottle and the oil lamp (`GlassProp`, "shatters") on the branch, in_game, waiting to merge; the
+  ragdoll lab tests men in the kit chair (how he falls is theirs). Next: stools, barrels, crates.

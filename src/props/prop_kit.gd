@@ -73,6 +73,32 @@ static func spawn(id: StringName, structure_id := &"") -> KitProp:
 	return p
 
 
+## A prop of any kind from its kit file, not yet in the tree: a KitProp ("members"), a GlassProp
+## ("shatters"; its variant, the bottle's glass and label, counted per prop) or a ClothProp
+## ("cloth": the bar rag).
+static func make(id: StringName) -> Node3D:
+	var def := definition(id)
+	if String(def.get("kind", "members")) == "shatters":
+		var g := GlassProp.new()
+		g.kit_id = id
+		g.definition = def
+		var n: int = _made.get(id, 0)
+		_made[id] = n + 1
+		g.variant = n
+		g.name = "%s%d" % [String(id).to_pascal_case(), n]
+		return g
+	if String(def.get("kind", "members")) == "cloth":
+		var c := ClothProp.new()
+		c.kit_id = id
+		c.definition = def
+		var n: int = _made.get(id, 0)
+		_made[id] = n + 1
+		c.rng_seed = hash([id, n])
+		c.name = "%s%d" % [String(id).to_pascal_case(), n]
+		return c
+	return spawn(id)
+
+
 ## The member specs with every "repeat" laid out.
 static func expand(def: Dictionary) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
@@ -104,6 +130,10 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 
 ## Its members' boxes together, in its own space.
 static func bounds(def: Dictionary) -> AABB:
+	if not def.has("members"):
+		# A glass prop: its size, standing on its bottom centre.
+		var size := vec(def.get("size", [0.1, 0.3, 0.1]))
+		return AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
 	var box := AABB()
 	var first := true
 	for spec in expand(def):

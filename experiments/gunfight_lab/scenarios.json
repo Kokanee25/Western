@@ -1,0 +1,45 @@
+{
+	"note": "The gunfight lab's arenas (README.md). Positions are world metres on the test street (config/town.json: the saloon's front on z 0 from x 5 to 15, its porch to z -2.2 at 0.78 m; the trough from x 2.6 to 4.6 at z -4.2). Facing: degrees from north (-Z), east +X; 'gang' faces the gang's middle. A man's 'cover': true puts him in the nearest spot within 1.5 m that hides him from where you start (Cover.evaluate, the gang's own test), crouched and waiting his moment. 'start': standoff (everyone's in plain sight and the gang turns at once), ambush (you walk on, gun away, and they open fire from cover). 'lamps': lit lights every lamp in the building named, whatever the hour. gang_models: studio is the Character Studio's three men (the lab's choice), outlaw the gang's bodies before the Studio's (the MakeHuman outlaw and the Kid's), game whatever TownLife.GANG wears now.",
+	"hours": {"golden": 17.4, "night": 22.0},
+	"gang_models": {
+		"studio": {"brody": "bold_cowboy_s0", "lyle": "old_rancher_s1", "kid": "young_drifter_s1"},
+		"outlaw": {"brody": "outlaw", "lyle": "outlaw", "kid": "kid"},
+		"game": {}
+	},
+	"scenarios": {
+		"street": {
+			"what": "You at the trough, the three round the saloon porch and its crates (the brief's main arena).",
+			"start": "standoff",
+			"player": {"at": [3.6, 0.0, -5.2], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [10.0, 0.78, -1.5]},
+				"lyle": {"at": [12.8, 0.78, -1.3]},
+				"kid": {"at": [12.4, 0.0, -3.7]}
+			},
+			"camera": {"at": [2.0, 5.0, -11.5], "look": [10.0, 0.6, -2.5]}
+		},
+		"saloon": {
+			"what": "Inside the saloon with every lamp lit: you just in at the door, Brody at the bar, Lyle at the card table, the Kid at the back.",
+			"start": "standoff",
+			"lamps": {"lit": "Saloon"},
+			"player": {"at": [10.0, 0.78, 1.5], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [11.2, 0.78, 5.75]},
+				"lyle": {"at": [7.0, 0.78, 4.9]},
+				"kid": {"at": [8.4, 0.78, 9.6]}
+			},
+			"camera": {"at": [13.6, 3.2, 10.8], "look": [9.0, 0.8, 3.5]}
+		},
+		"ambush": {
+			"what": "You walk east down the street, gun away; they are down in cover behind the trough, the porch rail and the tied horse, and open fire first.",
+			"start": "ambush",
+			"player": {"at": [-2.0, 0.0, -7.8], "facing": 90, "walk": [1.0, 0.0, 0.0]},
+			"gang": {
+				"brody": {"at": [8.6, 0.0, -3.2], "cover": true},
+				"lyle": {"at": [6.6, 0.78, -1.5], "cover": true},
+				"kid": {"at": [3.6, 0.0, -3.5], "cover": true}
+			},
+			"camera": {"at": [-1.0, 5.5, -13.0], "look": [7.0, 0.5, -4.0]}
+		}
+	}
+}

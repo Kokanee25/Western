@@ -1,89 +1,127 @@
 {
  "woods": {
   "timber": {
-   "boards": 12,
-   "rows": 32,
-   "length": 256,
-   "texels_per_metre": 128,
+   "boards": 8,
+   "rows": 96,
+   "length": 1152,
+   "texels_per_metre": 384.0,
    "end": "timber_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/timber",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "floor": {
    "boards": 7,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "floor_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/floor",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0,
+   "capped": "first 7 of round 6b's 10 strips: the game's batches (a strip a batch) stay as they were"
   },
   "saloon_red": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "saloon_red_end.png",
    "end_texels": 256,
-   "end_wear": 0.07
+   "promoted_from": "mlab_studio10/saloon_red",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "saloon_red_low": {
    "boards": 8,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "saloon_red_low_end.png",
    "end_texels": 256,
-   "end_wear": 0.07
+   "promoted_from": "mlab_studio10/saloon_red_low",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "store_boards": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "store_boards_end.png",
    "end_texels": 256,
-   "end_wear": 0.06
+   "promoted_from": "mlab_studio10/store_boards",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "store_boards_low": {
    "boards": 8,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "store_boards_low_end.png",
    "end_texels": 256,
-   "end_wear": 0.06
+   "promoted_from": "mlab_studio10/store_boards_low",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "weathered_pine": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "weathered_pine_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/weathered_pine",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "fascia": {
    "boards": 8,
-   "rows": 26,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 78,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "fascia_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/fascia",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "framing": {
    "boards": 3,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "framing_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/framing",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0,
+   "capped": "first 3 of round 6b's 8 strips: the game's batches (a strip a batch) stay as they were"
   },
   "dark_trim": {
    "boards": 2,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 1536,
+   "texels_per_metre": 384.0,
    "end": "dark_trim_end.png",
    "end_texels": 256,
-   "end_wear": 0.04
+   "promoted_from": "mlab_studio10/dark_trim",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0,
+   "capped": "first 2 of round 6b's 7 strips: the game's batches (a strip a batch) stay as they were"
   },
   "dark_oak": {
    "boards": 4,
@@ -138,6 +176,41 @@
    "roughness": 0.6,
    "specular": 0.4,
    "made_by": "tools/textures/bar_top.py (int_oak glued up, rings, worn front, polished)"
+  },
+  "int_oak_light": {
+   "boards": 8,
+   "rows": 69,
+   "length": 1152,
+   "texels_per_metre": 384.0,
+   "end": "int_oak_light_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/dark_oak",
+   "regraded_from": "int_oak, median L* 24.2 -> 33.0"
   }
+ },
+ "weathering": {
+  "metres": 3.0,
+  "tones": 0,
+  "mud": "#8a7560",
+  "streak": "#a69b8e",
+  "grime": "#8a7866",
+  "bleach": "#c9c3b8",
+  "amounts": [
+   0.85,
+   0.6,
+   0.55,
+   0.45
+  ],
+  "reach": [
+   0.6,
+   1.1,
+   1.0,
+   0.16
+  ],
+  "multiply": true,
+  "bleach_walls": 0.0,
+  "mud_cover": 0.7,
+  "sheet": "res://assets/textures/weather/stains_studio8.png",
+  "note": "Round 6b's stains (Sean picked 6b, 2026-10-22): drawn only on members whose mesh carries the frame (CUSTOM0/1, gameplay's: docs/SESSION_PROMPTS.md 'Stains on the town's buildings'); the sheet is studio8's, the same procedural sheet studio10 cuts"
  }
 }

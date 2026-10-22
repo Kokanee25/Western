@@ -1,0 +1,20 @@
+{
+  "_doc": "A whiskey bottle (PropModels.bottle: dark glass, cork, paper label; three glass colours by variant), a prop that shatters (GlassProp). Bottle glass ~4 mm; ~0.6 l of whiskey in it (1.2 kg full). Thick glass: a fall onto a wooden floor breaks it at about 4.5 m/s (a metre's drop); blast overpressure past ~60 kPa breaks it where it stands. The neck with its cork often comes through whole. docs/briefs/prop-lab.md, src/props/glass_prop.gd.",
+  "id": "whiskey_bottle",
+  "kind": "shatters",
+  "replaces": "whiskey_bottle",
+  "in_game": true,
+  "model": "bottle",
+  "size": [0.09, 0.3, 0.09],
+  "mass": 1.2,
+  "wall": 0.004,
+  "glass": ["Glass", "Base"],
+  "whole": [["Cork"]],
+  "piece_mass": 0.05,
+  "shards": 14,
+  "breaks_at": 4.5,
+  "shatters_kpa": 60,
+  "heat_seconds": 25,
+  "cut_area": 0.06,
+  "contents": {"liquid": "whiskey", "litres": 0.6, "colour": [0.55, 0.32, 0.1]}
+}

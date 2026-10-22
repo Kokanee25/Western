@@ -26,6 +26,11 @@ func _ready() -> void:
 	add_child(recorder)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
+	var play := "res://experiments/gunfight_lab/play.gd"  # Y/X/Z: the three gunmen, played (if the lab's here)
+	if ResourceLoader.exists(play):
+		var node: Node = (load(play) as GDScript).new()
+		node.name = "GunfightPlay"
+		add_child(node)
 	var panel := LookPanel.new()  # N: the live look panel
 	panel.name = "LookPanel"
 	add_child(panel)

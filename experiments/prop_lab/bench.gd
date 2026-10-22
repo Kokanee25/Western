@@ -29,6 +29,9 @@ var world: Node3D
 var prop: Node3D  # KitProp
 var man: Node3D  # HumanBody
 var lamp: Node3D
+## The glass props put on it (scenario "glass": [{"id", "at", "lit"}]), and what they let go.
+var glass: Array = []
+var spilled: Array = []
 var fire: Node
 var ballistics: Node
 var cam: Camera3D
@@ -177,16 +180,38 @@ func _place_prop() -> void:
 	if sc.get("lamp", false):
 		# In a structure's Props, as the saloon's lamps are, so Fittings takes it (it brings things
 		# down when what they stand on goes).
-		var props := Node3D.new()
-		props.name = "Props"
-		world.get_node("bench_floor").add_child(props)
 		lamp = load("res://src/world/oil_lamp.gd").new()
 		lamp.name = "TableLamp"
-		props.add_child(lamp)
+		_props_node().add_child(lamp)
 		lamp.global_position = prop.global_position + Vector3(0.12, 0.761, -0.1)
 		lamp.set_lit(true)
+	for e: Dictionary in sc.get("glass", []):
+		var g = load("res://src/props/prop_kit.gd").make(StringName(e.id))
+		_props_node().add_child(g)
+		g.global_position = Vector3(0, FLOOR_TOP, 0) + _v(e.at)
+		if e.get("lit", false):
+			var light = load("res://src/world/oil_lamp.gd").new()
+			light.name = "Light"
+			light.show_mesh = false
+			g.add_child(light)
+			light.position.y = 0.04
+			light.set_lit(true)
+		glass.append(g)
+	root.get_node("Events").liquid_spilled.connect(func(at: Vector3, liquid: StringName, litres: float, _src: Node) -> void:
+		spilled.append({"liquid": String(liquid), "litres": litres, "t": snappedf((tick - event_tick) / 60.0, 0.01)}))
 	for i in 6:
 		await physics_frame
+
+
+## A "Props" node in the floor's structure, as a building's: Fittings looks there.
+func _props_node() -> Node3D:
+	var fl := world.get_node("bench_floor")
+	var props := fl.get_node_or_null("Props") as Node3D
+	if props == null:
+		props = Node3D.new()
+		props.name = "Props"
+		fl.add_child(props)
+	return props
 
 
 func _member(id: String) -> Node:
@@ -231,6 +256,10 @@ func _step(ms: float) -> void:
 	else:
 		rec.get_or_add("before_ms", []).append(ms)
 	_faults()
+	rec.fire_spills_max = maxi(int(rec.get("fire_spills_max", 0)), (fire.get(&"spills") as Array).size())
+	for i in glass.size():
+		if glass[i].broken and not rec.get_or_add("glass_broken_t", {}).has(i):
+			rec.glass_broken_t[i] = snappedf((tick - event_tick) / 60.0, 0.01) if event_tick >= 0 else -1.0
 	for m in prop.get_members():
 		if m.burning and not rec.caught.has(String(m.member_id)):
 			rec.caught.append(String(m.member_id))
@@ -269,9 +298,11 @@ func _event() -> void:
 	var e: Dictionary = sc.event
 	match String(e.do):
 		"shoot":
-			var target: Node3D = _member(e.at_member)
+			var target: Node3D = glass[int(e.at_glass)].body if e.has("at_glass") else _member(e.at_member)
 			var aim := target.global_position
-			if e.has("height"):
+			if e.has("at_glass"):
+				aim += Vector3.UP * float(e.get("height", 0.12))
+			elif e.has("height"):
 				aim.y = FLOOR_TOP + float(e.height)
 			var from: Vector3 = prop.global_transform * _v(e.from)
 			var dir := (aim - from).normalized()
@@ -361,6 +392,15 @@ func _write_summary() -> void:
 	}
 	if rec.has("hits"):
 		out.hits = rec.hits
+	if not glass.is_empty():
+		var gl := []
+		for i in glass.size():
+			gl.append({"id": String(glass[i].kit_id), "broken": glass[i].broken, "loose": glass[i].loose,
+					"broken_t": rec.get("glass_broken_t", {}).get(i)})
+		out.glass = gl
+		out.spilled = spilled
+		out.shards = get_nodes_in_group(&"glass_shards").size()
+		out.fire_spills = int(rec.get("fire_spills_max", 0))
 	if rec.has("flung_first"):
 		out.flung_first = rec.flung_first
 	if rec.has("kick"):
@@ -519,10 +559,20 @@ func _perf(which: String) -> void:
 			var chair: Node3D = kit.spawn(&"chair") if which == "kit" else lib.spawn(&"chair")
 			chair.transform = Transform3D(Basis(Vector3.UP, a + PI), t + Vector3(sin(a), 0.0, cos(a)) * 0.85)
 			room.add_child(chair)
-	if which == "lib":
-		var batch = load("res://src/world/static_batch.gd").new()
-		batch.target = NodePath("..")
-		room.add_child(batch)
+	# A back bar's worth of bottles and a lamp on each table: the kit's glass props, or the drawn ones.
+	for i in 24:
+		var at := Vector3(-1.8 + 0.15 * i, FLOOR_TOP, -1.6)
+		var b: Node3D = kit.make(&"whiskey_bottle") if which == "kit" else lib.spawn(&"whiskey_bottle")
+		b.position = at
+		room.add_child(b)
+	for t: Vector3 in [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]:
+		var l: Node3D = kit.make(&"oil_lamp") if which == "kit" else lib.spawn(&"oil_lamp")
+		l.position = t + Vector3(0.1, 0.761, -0.1)
+		room.add_child(l)
+	# StaticBatch for both: the drawn props, and the kit's glass standing.
+	var batch = load("res://src/world/static_batch.gd").new()
+	batch.target = NodePath("..")
+	room.add_child(batch)
 	cam.position = Vector3(-3.2, 2.2, 3.4)
 	cam.look_at(Vector3(0, FLOOR_TOP + 0.4, 0))
 	for i in 30:

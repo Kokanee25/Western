@@ -71,6 +71,36 @@ func _ready() -> void:
 	add_to_group(&"structures")
 	tuning = StructuralAnalysis.load_tuning()
 	rebuild()
+	Events.ground_changed.connect(_on_ground_changed)
+
+
+## The ground was dug (Ground, docs/briefs/dig-ground.md): a member standing on it (a post, a sill)
+## whose bottom has lost the earth at all its corners and its middle is held up by the ground no
+## more, and what stands on it settles.
+func _on_ground_changed(area: Rect2) -> void:
+	if not is_inside_tree():
+		return
+	var g := Ground.of(get_tree())
+	if g == null:
+		return
+	var lost := false
+	for m: StructureMember in get_members():
+		if not m.grounded or m.broken:
+			continue
+		var box := m.world_aabb()
+		var foot := Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+		if not area.intersects(foot, true):
+			continue
+		var held := false
+		for p: Vector2 in [foot.position, Vector2(foot.end.x, foot.position.y), foot.end, Vector2(foot.position.x, foot.end.y), foot.get_center()]:
+			if g.height_at(p.x, p.y) > box.position.y - g.tuning.undercut:
+				held = true
+				break
+		if not held:
+			m.grounded = false
+			lost = true
+	if lost:
+		settle_soon()
 
 
 func rebuild() -> void:
@@ -807,6 +837,9 @@ func _play(id: StringName, at: Vector3) -> void:
 	if not is_inside_tree():
 		return
 	Events.noise.emit(at, 60.0, &"timber", null)
+	if GameAudio.enabled():
+		GameAudio.play(self, id, at, {"unit_size": 10.0, "limit": GameAudio.t().breaking_limit})
+		return
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(id)
 	p.unit_size = 10.0

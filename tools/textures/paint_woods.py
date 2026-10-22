@@ -217,8 +217,14 @@ def board_grade(pieces, names, g, wood=None):
     wood's percentile lifted to `keep` of its depth under it (dark blots); "match" a wood cut before
     this one in the set (the low siding's `saloon_red`): its boards' median is the target, not this
     wood's own, so the low boards take the wall's palette; "target" [L*, a*, b*] the same for one
-    colour family across woods (the interior stain)."""
-    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams", "lows", "match", "target")
+    colour family across woods (the interior stain). Round 6: "knots" [depth, texels, share]: a knot
+    (a round dark blot `depth` L* under the board round it, its pale halo with it) blurred to a soft
+    shape `texels` wide and lifted `share` of the way to the board round it (round 5's critic: crisp
+    concentric knots read as a scanned board); "poster" [texels, step]: the board's tone laid in flat
+    steps of `step` L* (after a blur of that many texels, so the steps are broad shapes), its colour
+    one per step: round 6's critic read the wood's own painted gradients as smooth light beside the
+    men's hard-edged tone bands."""
+    keys = ("unify", "unify_L", "highs", "calm", "rows", "seams", "lows", "match", "target", "knots", "poster")
     if not g or not any(k in g for k in keys):
         return pieces
     import reduce  # noqa: E402 (its Lab conversions)
@@ -246,6 +252,17 @@ def board_grade(pieces, names, g, wood=None):
                 for r in rows:
                     dark = a[r, :, 0] < ref[:, 0] - 12.0
                     a[r, dark] = ref[dark]
+        if "knots" in g:
+            depth, px, share = (float(x) for x in g["knots"])
+            L = a[..., 0]
+            round_ = gaussian_filter(L, px * 1.5, mode=("reflect", "wrap"))
+            dark = (round_ - L > depth).astype(np.float64)
+            # A knot is a round blot; a grain line is long and thin, so blurred round it thins out.
+            blot = gaussian_filter(dark, px * 0.35, mode=("reflect", "wrap")) > 0.3
+            mask = np.clip(gaussian_filter(blot.astype(np.float64), px * 0.6, mode=("reflect", "wrap")) * 2.5, 0.0, 1.0)
+            soft = np.stack([gaussian_filter(a[..., c], (px * 0.5, px), mode=("reflect", "wrap")) for c in range(3)], axis=-1)
+            soft[..., 0] += (round_ - soft[..., 0]) * share
+            a = a + (soft - a) * mask[..., None]
         if "calm" in g:
             px, share = float(g["calm"][0]), float(g["calm"][1])
             # Along the grain (x) blurred further than across, so a board's long tone bands stay.
@@ -266,6 +283,17 @@ def board_grade(pieces, names, g, wood=None):
         if knee is not None:
             over = a[..., 0] > knee
             a[..., 0] = np.where(over, knee + (a[..., 0] - knee) * float(g["highs"][1]), a[..., 0])
+        if "poster" in g:
+            px, step = float(g["poster"][0]), float(g["poster"][1])
+            soft = np.stack([gaussian_filter(a[..., c], (px, px * 2.0), mode=("reflect", "wrap")) for c in range(3)], axis=-1)
+            level = np.round(soft[..., 0] / step)
+            a = soft.copy()
+            a[..., 0] = level * step
+            # Each step one colour (its mean a*b*), as a painter mixes one tone a shape.
+            for lv in np.unique(level):
+                at = level == lv
+                a[at, 1] = soft[at, 1].mean()
+                a[at, 2] = soft[at, 2].mean()
         out[i] = Image.fromarray(reduce.lab_to_rgb(np.clip(a, [0, -128, -128], [100, 127, 127])))
     return out
 
@@ -352,12 +380,17 @@ def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
     print("cut: %s into %d strips" % (wood, len(names)))
 
 
-def import_like_woods(out_dir):
+def import_like_woods(out_dir, vram=False):
     """Each new png in a candidate set imported as the game's woods are (lossless, mipmapped): an
-    .import stub with their [params]; `godot --headless --import` fills in the rest."""
+    .import stub with their [params]; `godot --headless --import` fills in the rest. `vram` (a set's
+    "vram": true): VRAM-compressed at high quality instead (BC7 on desktop, a quarter the memory;
+    the memory test, 2026-10-22), every stub rewritten so a re-cut set changes with it."""
     params = open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1]
+    if vram:
+        params = params.replace("compress/mode=0", "compress/mode=2").replace(
+            "compress/high_quality=false", "compress/high_quality=true")
     for f in sorted(os.listdir(out_dir)):
-        if f.endswith(".png") and not os.path.exists(os.path.join(out_dir, f + ".import")):
+        if f.endswith(".png") and (vram or not os.path.exists(os.path.join(out_dir, f + ".import"))):
             with open(os.path.join(out_dir, f + ".import"), "w") as fh:
                 fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]' + params)
 
@@ -468,6 +501,9 @@ def candidate(name, only, cut_only, repaint, key, spec):
     index["note"] = cfg.get("note", "")
     if weathering:
         index["weathering"] = weathering
+    if "light_bands" in cfg:
+        # Round 6: the woods' light in steps, as the men's paint (PixelArt: the blocks light on them).
+        index["light_bands"] = cfg["light_bands"]
     failed = []
     if "inherit" in cfg:
         # The woods this set doesn't paint, as the set it builds on has them.
@@ -565,7 +601,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
             end = os.path.join(out_dir, "%s_end.png" % mid)
             if materials[mid].get("boards") and not os.path.exists(end):
                 Image.open(os.path.join(WOODS, "timber_end.png")).save(end)
-    import_like_woods(out_dir)
+    import_like_woods(out_dir, bool(cfg.get("vram", False)))
     print("spent: $%.2f" % pt.SPENT)
     if failed:
         print("not painted:", ", ".join(failed))

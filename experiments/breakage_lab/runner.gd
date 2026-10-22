@@ -23,6 +23,8 @@ const MID_SHOT := 0.15
 ## A FireSystem frame at least this long with nothing hot is its periodic grid rebuild.
 const GRID_MS := 5.0
 ## The surface scan's cells (m).
+## The surface scan's cell (m); a target's `scan_step` takes its place (the ground's: a stick's crater
+## is under half a metre across).
 const SCAN_STEP := 0.1
 
 
@@ -83,6 +85,8 @@ var _before := {}  # member -> {broken, holes, carved}
 var _analysis_before := {}  # structure -> StructuralAnalysis
 var _lamps: Array[OilLamp] = []
 var _stick: DynamiteStick
+## Things the scenario puts in or round the crater (`extras_round`): [{what, node, peak_speed, min_above}].
+var _extras: Array[Dictionary] = []
 var _catcher: ErrorCatcher
 var _measuring := false
 var _shot_paths := {}
@@ -168,6 +172,7 @@ func run() -> Dictionary:
 			_setup["by_rule"] = _by_rule(charge, Blast.t().tnt_per_stick)
 		_setup["blast_query"] = _blast_query(charge, Blast.t().tnt_per_stick)
 		_man("bystander", _floor_point(_building.global_transform * _v(_spec.bystander), 1.0), charge, false)
+		_extras_before(charge)
 	if w.has("drop"):
 		_man("dropped", Vector3.ZERO, Vector3.ZERO, true)
 	await lab.seconds(1.0)  # the men stood (or lying) still, Fittings has looked
@@ -191,6 +196,9 @@ func run() -> Dictionary:
 		_stick.light()
 		_event_at = charge
 		_stick.went_off.connect(func() -> void: _event_tick = Engine.get_physics_frames())
+		if int(w.get("sticks", 1)) > 1:
+			_more_sticks(int(w.sticks) - 1, float(w.get("every", 2.0)), charge)
+		_extras_after(charge)
 	elif w.has("drop"):
 		_drop_man()
 		_event_at = _aim
@@ -395,6 +403,96 @@ func _man(role: String, feet: Vector3, faces: Vector3, drop: bool) -> void:
 			"harm": [], "knocked_down": false, "min_y": INF})
 
 
+## Another stick on the same spot every `every` s once the last has gone (a crater dug deeper): on
+## whatever the ground is there now.
+func _more_sticks(n: int, every: float, at: Vector3) -> void:
+	for k in n:
+		await lab.seconds(every)
+		var g := Ground.of(get_tree())
+		var p := Vector3(at.x, (g.height_at(at.x, at.z) if g else at.y) + DynamiteStick.RADIUS + 0.004, at.z)
+		var st := DynamiteStick.make(_street, p, Vector3.ZERO, 0.0)
+		st.fuse_left = 0.02
+		st.light()
+
+
+## What lies by the charge before it goes (`extras_round` entries with no `after`): a dead man.
+func _extras_before(charge: Vector3) -> void:
+	for e: Dictionary in _spec.get("extras_round", []):
+		if e.has("after"):
+			continue
+		var at := charge + _building.global_basis * _v(e.at)
+		if String(e.what) == "dead_man":
+			_man("dead", Vector3(at.x, _floor_point(at, 0.5).y, at.z), at + _building.global_basis * Vector3(1, 0, 0), false)
+			(_men[-1].node as HumanBody).go_limp(Vector3.ZERO)
+
+
+## What's dropped into the crater once it's there (`after` s): a strongbox (a 25 kg iron box), an
+## unlit stick. Each followed to rest: where it ends, against the ground under it.
+func _extras_after(charge: Vector3) -> void:
+	var list: Array = _spec.get("extras_round", []).filter(func(e: Dictionary) -> bool: return e.has("after"))
+	list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.after) < float(b.after))
+	var waited := 0.0
+	for e: Dictionary in list:
+		await lab.seconds(float(e.after) - waited)
+		waited = float(e.after)
+		var at := charge + _building.global_basis * _v(e.at)
+		var g := Ground.of(get_tree())
+		var drop_from := (g.height_at(at.x, at.z) if g else 0.0) + float(e.get("height", 0.4))
+		var node: RigidBody3D
+		match String(e.what):
+			"strongbox":
+				node = RigidBody3D.new()
+				node.name = "Strongbox"
+				var cs := CollisionShape3D.new()
+				var box := BoxShape3D.new()
+				box.size = Vector3(0.4, 0.25, 0.3)
+				cs.shape = box
+				node.add_child(cs)
+				var mi := MeshInstance3D.new()
+				var bm := BoxMesh.new()
+				bm.size = box.size
+				mi.mesh = bm
+				node.add_child(mi)
+				node.mass = 25.0
+				node.collision_layer = Layers.WORLD
+				node.collision_mask = Layers.WORLD | Layers.DEBRIS
+				node.continuous_cd = true
+				_street.add_child(node)
+				node.global_position = Vector3(at.x, drop_from, at.z)
+				node.rotation = Vector3(0.3, 0.7, 0.2)
+			"stick":
+				node = DynamiteStick.make(_street, Vector3(at.x, drop_from, at.z), Vector3(0.4, 0, 0), 99.0)
+		if node:
+			_extras.append({"what": e.what, "node": node, "peak_speed": 0.0, "min_above": INF})
+
+
+func _watch_extras() -> void:
+	var g := Ground.of(get_tree())
+	for x in _extras:
+		var n: RigidBody3D = x.node if is_instance_valid(x.node) else null
+		if n == null:
+			continue
+		x.peak_speed = maxf(x.peak_speed, n.linear_velocity.length())
+		x.min_above = minf(x.min_above, n.global_position.y - (g.height_at(n.global_position.x, n.global_position.z) if g else 0.0))
+
+
+func _extras_summary() -> Array:
+	var g := Ground.of(get_tree())
+	var out := []
+	for x in _extras:
+		var n: RigidBody3D = x.node if is_instance_valid(x.node) else null
+		if n == null:
+			out.append({"what": x.what, "gone": true})
+			continue
+		var p := n.global_position
+		var under := g.height_at(p.x, p.z) if g else 0.0
+		out.append({"what": x.what, "end": lab.arr(p), "ground_under": snappedf(under, 0.001),
+				"above_ground_m": snappedf(p.y - under, 0.001), "lowest_above_m": snappedf(x.min_above, 0.001),
+				"asleep": n.sleeping, "speed_end": snappedf(n.linear_velocity.length(), 0.01),
+				"peak_speed": snappedf(x.peak_speed, 0.01), "in_crater": under < -0.02})
+	return out
+
+
 func _drop_man() -> void:
 	(_men[0].node as HumanBody).go_limp(Vector3.ZERO)
 
@@ -489,14 +587,14 @@ func _box_of_structure(s: Structure) -> AABB:
 
 # --- The surface ---------------------------------------------------------------------------------
 
-## The surface round the target, cell by cell (SCAN_STEP apart, `scan_m` either way): for a wall,
+## The surface round the target, cell by cell (`_step()` apart, `scan_m` either way): for a wall,
 ## floor, roof or boardwalk, which cells of its plane are closed by a standing member of the
 ## target's own kind (a ray through the plane; anything else it meets, rubble, a joist behind,
 ## is looked past); for the ground, how high the ground is (a ray down; only the ground counts).
 func _scan() -> Dictionary:
 	var space := _street.get_world_3d().direct_space_state
 	var half := float(_spec.get("scan_m", 3.0))
-	var n := int(round(half / SCAN_STEP))
+	var n := int(round(half / _step()))
 	var out := {}
 	var u: Vector3
 	var v: Vector3
@@ -517,11 +615,11 @@ func _scan() -> Dictionary:
 	var kind: StringName = (_target as StructureMember).kind if _target is StructureMember else &""
 	for i in range(-n, n + 1):
 		for j in range(-n, n + 1):
-			var p := _aim + u * (i * SCAN_STEP) + v * (j * SCAN_STEP)
+			var p := _aim + u * (i * _step()) + v * (j * _step())
 			if _target_kind == "ground":
 				p.y = 0.0
 				var h: Variant = _ray_to(space, p + Vector3.UP * 1.5, p + Vector3.DOWN * 1.5, func(c: Object) -> int:
-						return 1 if c == _target else (0 if c is StaticBody3D and not c is StructureMember else -1))
+						return 1 if Ground.is_ground(c) else (0 if c is StaticBody3D and not c is StructureMember else -1))
 				if h != null:
 					out[Vector2i(i, j)] = (h as Vector3).y
 			else:
@@ -529,6 +627,10 @@ func _scan() -> Dictionary:
 						return 1 if c is StructureMember and (c as StructureMember).kind == kind and not (c as StructureMember).broken else -1)
 				out[Vector2i(i, j)] = h != null
 	return out
+
+
+func _step() -> float:
+	return float(_spec.get("scan_step", SCAN_STEP))
 
 
 ## The first hit `judge` takes (1: this one; 0: stop, nothing; -1: look past it), or null.
@@ -580,27 +682,34 @@ func _surface_summary() -> Dictionary:
 	if _scan_before.is_empty():
 		return {}
 	var after := _scan()
-	var cell := SCAN_STEP * SCAN_STEP
+	var cell := _step() * _step()
 	if _target_kind == "ground":
 		var deepest := 0.0
 		var lowered := 0
 		var raised := 0.0
 		var reach := 0.0
+		var from_charge := 0.0
+		var lip_at := 0.0
 		for k: Vector2i in _scan_before:
 			if not after.has(k):
 				continue
 			var dh: float = float(after[k]) - float(_scan_before[k])
 			if dh < -0.02:
 				lowered += 1
-				reach = maxf(reach, Vector2(k).length() * SCAN_STEP)
+				reach = maxf(reach, Vector2(k).length() * _step())
+				from_charge = maxf(from_charge, _flat(_aim + Vector3(k.x, 0, k.y) * _step() - _event_at))
 			deepest = minf(deepest, dh)
-			raised = maxf(raised, dh)
+			if dh > raised:
+				raised = dh
+				lip_at = _flat(_aim + Vector3(k.x, 0, k.y) * _step() - _event_at)
 		var scorch := []
 		for d in get_tree().get_nodes_in_group(&"scorch_marks"):
 			if d is Decal and _flat((d as Node3D).global_position - _event_at) < 3.0:
 				scorch.append(snappedf((d as Decal).size.x, 0.01))
 		return {"kind": "ground", "crater_depth_m": snappedf(-deepest, 0.001), "lowered_m2": snappedf(lowered * cell, 0.01),
 				"crater_radius_m": snappedf(reach, 0.01), "rim_m": snappedf(raised, 0.001), "scorch_m": scorch,
+				"crater_radius_from_charge_m": snappedf(from_charge, 0.01), "rim_from_charge_m": snappedf(lip_at, 0.01),
+				"scan_step_m": _step(),
 				"scan_m": _spec.get("scan_m", 3.0)}
 	var closed := 0
 	var opened := 0
@@ -612,7 +721,7 @@ func _surface_summary() -> Dictionary:
 		closed += 1
 		if not after.get(k, true):
 			opened += 1
-			var r := Vector2(k).length() * SCAN_STEP
+			var r := Vector2(k).length() * _step()
 			far = maxf(far, r)
 			if r <= 1.0:
 				near += 1
@@ -664,11 +773,11 @@ func _on_node_added(n: Node) -> void:
 		return
 	var rb := n as RigidBody3D
 	var kind := "other"
-	for g: String in ["rubble", "wood_chips", "glass_shards", "fallen"]:
+	for g: String in ["rubble", "wood_chips", "glass_shards", "fallen", "clods"]:
 		if rb.is_in_group(StringName(g)):
-			kind = {"rubble": "rubble", "wood_chips": "chip", "glass_shards": "glass", "fallen": "fitting"}[g]
+			kind = {"rubble": "rubble", "wood_chips": "chip", "glass_shards": "glass", "fallen": "fitting", "clods": "clod"}[g]
 	_pieces.append({"node": rb, "kind": kind, "name": String(rb.name), "tick": Engine.get_physics_frames(),
-			"start": Vector3.INF, "peak_speed": 0.0, "max_dist": 0.0, "from_event": 0.0, "min_y": INF, "sunk_max": 0.0, "sunk_run": 0,
+			"start": Vector3.INF, "peak_speed": 0.0, "max_dist": 0.0, "from_event": 0.0, "min_y": INF, "under_ground": -INF, "sunk_max": 0.0, "sunk_run": 0,
 			"sunk_flag": false, "flips": 0, "last_sleep": false, "end": Vector3.INF, "end_speed": 0.0, "asleep": false,
 			"freed_tick": -1, "mass": 0.0, "longest": 0.0, "volume": 0.0, "members": []})
 
@@ -698,6 +807,7 @@ func _physics_process(_delta: float) -> void:
 		_watch_piece(p, space, tick, after)
 	for m in _men:
 		_watch_man(m, space, tick)
+	_watch_extras()
 	if after >= 0 and after % 30 == 0:
 		_watch_fire(after)
 	_lab_us += Time.get_ticks_usec() - t0
@@ -723,6 +833,9 @@ func _watch_piece(p: Dictionary, space: PhysicsDirectSpaceState3D, tick: int, af
 	p.peak_speed = maxf(p.peak_speed, v)
 	p.max_dist = maxf(p.max_dist, _flat(at - p.start))
 	p.min_y = minf(p.min_y, at.y)
+	# Below the ground where it is (a crater's floor is below y 0).
+	var g := Ground.of(get_tree())
+	p.under_ground = maxf(p.under_ground, (g.height_at(at.x, at.z) if g else 0.0) - at.y)
 	if rb.sleeping != p.last_sleep:
 		p.flips += 1
 		p.last_sleep = rb.sleeping
@@ -875,6 +988,8 @@ func _summarise(line: Dictionary, charge: Vector3) -> Dictionary:
 	out["pieces"] = _piece_summary()
 	out["fire"] = _fire_summary()
 	out["men"] = _men_summary()
+	if not _extras.is_empty():
+		out["extras"] = _extras_summary()
 	out["frame"] = _frame_summary()
 	if shots:
 		out["shots"] = _shot_paths
@@ -898,7 +1013,7 @@ func _nearest_point_of_target(p: Vector3) -> Vector3:
 func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 	var r := {"what": _describe(_target) if is_instance_valid(_target) else _setup.target}
 	if _target_kind == "ground":
-		r["kind"] = "the street's ground (a flat WorldBoundaryShape3D under a plane mesh)"
+		r["kind"] = "the street's ground (Ground: flat slabs, a height field where dug)"
 		var sf: Dictionary = _surface_summary_cache
 		r["result"] = "crater %.2f m deep" % sf.crater_depth_m if float(sf.get("crater_depth_m", 0.0)) > 0.02 else "no crater"
 		return r
@@ -1242,8 +1357,8 @@ func _flags(out: Dictionary) -> Array:
 		var label := "%s %s (%.2f kg)" % [p.kind, p.name, p.mass]
 		if p.sunk_flag:
 			flags.append("sunk: %s %.3f m into the world" % [label, p.sunk_max])
-		if p.min_y < float(_thr.get("below_ground_m", -0.05)):
-			flags.append("below_ground: %s down to y %.2f" % [label, p.min_y])
+		if -p.under_ground < float(_thr.get("below_ground_m", -0.05)):
+			flags.append("below_ground: %s %.2f m under the ground (y %.2f)" % [label, p.under_ground, p.min_y])
 		if p.peak_speed > float(_thr.get("flung_mps", 20.0)) and p.mass >= float(_thr.get("flung_min_kg", 0.5)):
 			flags.append("flung: %s at %.1f m/s" % [label, p.peak_speed])
 		if p.max_dist > float(_thr.get("far_m", 12.0)):
