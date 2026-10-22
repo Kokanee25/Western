@@ -111,12 +111,35 @@ SHEETS = {
             "blast carried away the jaw, a raw red ruin below the upper lip, broken teeth in the upper "
             "gum, torn flesh, blood pouring down; a man's ear torn off, lying flat on its side, its "
             "torn edge ragged and bloody. Each seen straight on, flat. " + WHITE,
+    # Gunshot wounds as forensic pathology describes them (DiMaio, Gunshot Wounds; Saukko & Knight,
+    # Knight's Forensic Pathology): from a distance a ball's way in is a neat round hole the
+    # ball's width or a little less (the skin stretches and closes back), its edge turned in and
+    # ringed by a thin band of scraped skin a millimetre or two wide, the abrasion collar, and it
+    # bleeds little outside; its way out has no collar, its edges turned out, a slit, a star or a
+    # ragged round little bigger than the way in for a slow ball, bigger and torn for one that
+    # flattened on bone, a tag of fat showing; pressed to him over bone the gas splits the skin
+    # in a star round a sooty hole. The hole is asked at a fixed share of each patch so the game
+    # can draw it at the ball's own width (sizes in HumanBody._paint_wound_marks).
+    "wounds3": "Four separate close-up studies of gunshot wounds on a man's weathered skin, for a "
+               "gritty frontier Western game, true to forensic pathology, each a small patch of "
+               "skin with the wound in its centre, the wound's hole one fifth of the patch's width, "
+               "the skin round it fading out to white at the edge of the patch: an entrance wound "
+               "from a lead ball fired from across a room, a small neat round dark hole with its "
+               "edge turned inward and a thin even reddish-brown ring of scraped skin round it, a "
+               "very little blood; an exit wound of the same ball, a short ragged slit split into a "
+               "small star, its edges turned outward, no ring, a little blood running from it; an "
+               "exit wound of a ball that flattened on bone, a bigger ragged torn hole with edges "
+               "turned outward, a little yellow fat and red flesh showing, blood running; a contact "
+               "wound with the muzzle pressed against the skin over bone, the skin split in a star "
+               "of short tears round a hole, black soot in and round it. Each seen straight on, "
+               "flat. " + WHITE,
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
 GEMINI = "google/gemini-3-pro-image-preview"
 MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI,
-          "aftercare2": GEMINI, "face": GEMINI}
+          "aftercare2": GEMINI, "face": GEMINI,
+          "wounds3": GEMINI}
 
 
 def main():

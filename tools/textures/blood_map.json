@@ -214,6 +214,41 @@
           "key": "white"
         }
       }
+    },
+    "wounds3": {
+      "keys": [
+        "wound_entry",
+        "wound_exit",
+        "wound_exit_torn",
+        "wound_contact"
+      ],
+      "size": 64,
+      "per": {
+        "wound_entry": {
+          "key": "skin",
+          "lo": 28,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "wound_exit": {
+          "key": "skin",
+          "lo": 28,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "wound_exit_torn": {
+          "key": "skin",
+          "lo": 28,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "wound_contact": {
+          "key": "skin",
+          "lo": 28,
+          "hi": 70,
+          "fade": 0.8
+        }
+      }
     }
   },
   "mirror": {
