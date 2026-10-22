@@ -120,3 +120,38 @@ Numbers a man may need changed: `EYE_FADE`, `PULL_OUT` (a man with a beard or bi
 `TEETH_BEHIND`. A clean-shaven man will show the lip shapes far better than the bold cowboy.
 Not yet in the game: something that drives the shapes (blinks, speech) on people in town; that's
 gameplay's call (a FacePlayer on HumanBody, its dials in a resource).
+
+## Hooks from the gore lab (gameplay, 2026-10-21; added here at Sean's word)
+
+What the body already knows and the face should show once the rig is on the men in town. Gameplay
+drives the weights (a `FaceHurt` on HumanBody, reading `Physiology` each tick, its dials in a
+resource); the characters lane makes the rig give it what it needs.
+
+**What the rig needs to expose (characters):**
+- **Separate pieces:** the teeth and the tongue, the lower jaw with its lower teeth apart from the
+  upper teeth (or a "jaw gone" shape), named in the man's report.
+- **The wound shader on the grafted face:** `BodyInterior.skin_material`, the same as his skin, so
+  openings cut it (an ear or the nose shot off, the jaw shot away: `HumanBody.shoot_off`,
+  `jaw_away`). It must take decals on `Layers.VIS_BODY` (blood from the ears, nose and mouth) and
+  carry `pallor` and the eye positions (`_wet_eyes`).
+- **One-sided shapes:** blink L/R and squint L/R, and the half smiles, for a face that isn't level.
+
+**What drives which shape (gameplay; the states are `Physiology`'s):**
+
+| His state | The face |
+| --- | --- |
+| Pain (`felt_pain`), and a fresh wound or one pressed (the grab, a dressing) | scowl, squint, brows down, by how much it hurts; a wince's peak when it's new or pressed |
+| Shock (`shock()`) | slack: jaw a little open, brows level, lids heavy (blink ~0.4) |
+| Out cold (`is_conscious` false) | eyes shut, jaw fallen a little |
+| Dead | eyes open and fixed (no blinks, gaze still), jaw slack |
+| The last gasps (`HumanBody.breath_rate`, `AGONAL_SHOCK`) | jaw open with each breath |
+| Coughing blood (`_cough`) | jaw open in a burst, squint |
+| Short of breath (`breath_capacity`) | mouth open, breathing through it |
+| Broken jaw (`jaw_broken`) | jaw hangs open and askew (the half smiles uneven); no speech shapes |
+| Jaw shot away (`jaw_gone`) | lower jaw, lower teeth and tongue hidden; the upper teeth show |
+| Nose or an ear off (`lost_parts`) | the openings cut the face too; he blinks and squints more |
+| A blind eye (`blind`) | that lid half shut |
+| A scalp wound's blood in an eye (`blood_in_eye`) | that eye squinted, blinking often |
+| Fever (`fever()`) | heavy lids, slack, a sheen (art's) |
+
+Speech yields to it: no lip sync when `can_speak()` is false, and pain takes over from a smile.

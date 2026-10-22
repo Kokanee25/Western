@@ -414,6 +414,12 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
+- The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
+  and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
+  in a blast, the femur's bleed; `results/`), a hand to the wound (`HumanBody._grab`), arterial
+  jets, the blood marks painted and gore by Gemini (stump faces, torn edges), and the gore lab's
+  first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`; $2.18 of Sean's $3). Waiting
+  on Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
@@ -432,6 +438,6 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
-  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
-  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
+  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
+  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.

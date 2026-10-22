@@ -1,0 +1,2329 @@
+{
+  "command": "-s res://experiments/body_lab/lab.gd",
+  "godot": {
+    "build": "official",
+    "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "hex": 263938,
+    "major": 4,
+    "minor": 7,
+    "patch": 2,
+    "status": "stable",
+    "string": "4.7.2-stable (official)",
+    "timestamp": 0
+  },
+  "hardware": {
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "os": "Linux",
+    "threads": 4
+  },
+  "physics_engine": "Jolt Physics",
+  "physics_ticks_per_second": 60,
+  "seed": 1,
+  "source_sha": "4db022436ea73930c5d377d9fb715d147384b213",
+  "user_args": [
+    "--vessels",
+    "--out=build/body_lab/base"
+  ],
+  "vessels": [
+    {
+      "clots": true,
+      "id": "brain",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.5,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "brain",
+          "dead_s": 0.0,
+          "lost_ml": 0.0,
+          "reached": false,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": 0.0
+        },
+        "none": {
+          "applicable": true,
+          "cause": "brain",
+          "dead_s": 0.0,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 0.0
+        },
+        "packing": {
+          "applicable": false,
+          "cause": "brain",
+          "dead_s": 0.0,
+          "lost_ml": 0.0,
+          "reached": false,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 0.0
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "brain",
+          "dead_s": 0.0,
+          "lost_ml": 0.0,
+          "reached": false,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 0.0
+        }
+      },
+      "segment": "head"
+    },
+    {
+      "clots": true,
+      "id": "eye_r",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.2,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 4.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 4.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "head"
+    },
+    {
+      "clots": true,
+      "id": "eye_l",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.2,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 4.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 4.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "head"
+    },
+    {
+      "clots": true,
+      "id": "trachea",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.5,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 2.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 49.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 3.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 49.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": true,
+      "id": "esophagus",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.3,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 3375.1
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 6.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 3375.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 3375.1
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": false,
+      "id": "carotid_r",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 18.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 2287.0,
+          "reached": true,
+          "shock_s": 158.0,
+          "treatment": "doctor",
+          "unconscious_s": 477.6
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 192.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 62.0,
+          "treatment": "none",
+          "unconscious_s": 141.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 680.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 158.0,
+          "treatment": "packing",
+          "unconscious_s": 477.6
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 192.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 62.0,
+          "treatment": "tourniquet",
+          "unconscious_s": 141.9
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": false,
+      "id": "jugular_r",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 10.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1433.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "none",
+          "unconscious_s": 255.4
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1296.3,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "packing",
+          "unconscious_s": 931.7
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "tourniquet",
+          "unconscious_s": 255.4
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": false,
+      "id": "carotid_l",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 18.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 2287.0,
+          "reached": true,
+          "shock_s": 158.0,
+          "treatment": "doctor",
+          "unconscious_s": 477.6
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 192.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 62.0,
+          "treatment": "none",
+          "unconscious_s": 141.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 680.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 158.0,
+          "treatment": "packing",
+          "unconscious_s": 477.6
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 192.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 62.0,
+          "treatment": "tourniquet",
+          "unconscious_s": 141.9
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": false,
+      "id": "jugular_l",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 10.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1433.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "none",
+          "unconscious_s": 255.4
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1296.3,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "packing",
+          "unconscious_s": 931.7
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "tourniquet",
+          "unconscious_s": 255.4
+        }
+      },
+      "segment": "neck"
+    },
+    {
+      "clots": false,
+      "id": "aorta",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 90.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 64.0,
+          "lost_ml": 2501.0,
+          "reached": false,
+          "shock_s": 12.4,
+          "treatment": "doctor",
+          "unconscious_s": 28.4
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 38.5,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 12.4,
+          "treatment": "none",
+          "unconscious_s": 28.4
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 64.0,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 12.4,
+          "treatment": "packing",
+          "unconscious_s": 28.4
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 38.5,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 12.4,
+          "treatment": "tourniquet",
+          "unconscious_s": 28.4
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "vena_cava",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 40.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 256.6,
+          "lost_ml": 2500.0,
+          "reached": false,
+          "shock_s": 27.9,
+          "treatment": "doctor",
+          "unconscious_s": 165.4
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 86.7,
+          "lost_ml": 2502.0,
+          "reached": true,
+          "shock_s": 27.9,
+          "treatment": "none",
+          "unconscious_s": 63.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 256.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 27.9,
+          "treatment": "packing",
+          "unconscious_s": 165.4
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 86.7,
+          "lost_ml": 2502.0,
+          "reached": true,
+          "shock_s": 27.9,
+          "treatment": "tourniquet",
+          "unconscious_s": 63.9
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "heart",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 110.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 35.9,
+          "lost_ml": 2500.0,
+          "reached": false,
+          "shock_s": 10.2,
+          "treatment": "doctor",
+          "unconscious_s": 23.2
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 31.5,
+          "lost_ml": 2502.0,
+          "reached": true,
+          "shock_s": 10.2,
+          "treatment": "none",
+          "unconscious_s": 23.2
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 35.9,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 10.2,
+          "treatment": "packing",
+          "unconscious_s": 23.2
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 31.5,
+          "lost_ml": 2502.0,
+          "reached": true,
+          "shock_s": 10.2,
+          "treatment": "tourniquet",
+          "unconscious_s": 23.2
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": true,
+      "id": "lung_r",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 2.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 87.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 267.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 89.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 267.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "subclavian_r",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 14.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1889.0,
+          "reached": true,
+          "shock_s": 228.8,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 247.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 79.7,
+          "treatment": "none",
+          "unconscious_s": 182.5
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 900.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 228.8,
+          "treatment": "packing",
+          "unconscious_s": 639.8
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 247.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 79.7,
+          "treatment": "tourniquet",
+          "unconscious_s": 182.5
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "subclavian_vein_r",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 8.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1180.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "none",
+          "unconscious_s": 319.3
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1642.9,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "packing",
+          "unconscious_s": 1187.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "tourniquet",
+          "unconscious_s": 319.3
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": true,
+      "id": "lung_l",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 2.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 87.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 267.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 89.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 267.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "subclavian_l",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 14.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1889.0,
+          "reached": true,
+          "shock_s": 228.8,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 247.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 79.7,
+          "treatment": "none",
+          "unconscious_s": 182.5
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 900.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 228.8,
+          "treatment": "packing",
+          "unconscious_s": 639.8
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 247.6,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 79.7,
+          "treatment": "tourniquet",
+          "unconscious_s": 182.5
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "subclavian_vein_l",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 8.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1180.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "none",
+          "unconscious_s": 319.3
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1642.9,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "packing",
+          "unconscious_s": 1187.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "tourniquet",
+          "unconscious_s": 319.3
+        }
+      },
+      "segment": "chest"
+    },
+    {
+      "clots": false,
+      "id": "abdominal_aorta",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 80.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 83.2,
+          "lost_ml": 2500.0,
+          "reached": false,
+          "shock_s": 14.0,
+          "treatment": "doctor",
+          "unconscious_s": 37.7
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 43.3,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 14.0,
+          "treatment": "none",
+          "unconscious_s": 32.0
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 83.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 14.0,
+          "treatment": "packing",
+          "unconscious_s": 37.7
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 43.3,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 14.0,
+          "treatment": "tourniquet",
+          "unconscious_s": 32.0
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": false,
+      "id": "abdominal_vena_cava",
+      "kind": "vein",
+      "limb": false,
+      "ml_s": 35.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 306.1,
+          "lost_ml": 2500.0,
+          "reached": false,
+          "shock_s": 37.5,
+          "treatment": "doctor",
+          "unconscious_s": 201.9
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 99.0,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 31.9,
+          "treatment": "none",
+          "unconscious_s": 73.0
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 306.1,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 37.5,
+          "treatment": "packing",
+          "unconscious_s": 201.9
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 99.0,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 31.9,
+          "treatment": "tourniquet",
+          "unconscious_s": 73.0
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": false,
+      "id": "liver",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 8.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1180.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "none",
+          "unconscious_s": 319.3
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1642.9,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 467.9,
+          "treatment": "packing",
+          "unconscious_s": 1187.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 433.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 139.5,
+          "treatment": "tourniquet",
+          "unconscious_s": 319.3
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": false,
+      "id": "spleen",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 5.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 766.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 693.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 223.2,
+          "treatment": "none",
+          "unconscious_s": 510.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 2682.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 802.6,
+          "treatment": "packing",
+          "unconscious_s": 1953.3
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 693.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 223.2,
+          "treatment": "tourniquet",
+          "unconscious_s": 510.9
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "stomach",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.3,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 3375.1
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 6.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 3375.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 3375.1
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "small_intestine",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.2,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 20.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 3375.1
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 3375.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 20.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 3375.1
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "large_intestine",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.2,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 20.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 3375.1
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 3375.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 20.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 3375.1
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "kidney_r",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 4.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 197.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 542.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 202.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 542.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "kidney_l",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 4.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 197.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 542.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 202.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 542.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "abdomen"
+    },
+    {
+      "clots": true,
+      "id": "bladder",
+      "kind": "organ",
+      "limb": false,
+      "ml_s": 0.3,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 0.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": 3375.1
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 6.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": 3375.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "gut_wound",
+          "dead_s": 3375.1,
+          "lost_ml": 35.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": 3375.1
+        }
+      },
+      "segment": "pelvis"
+    },
+    {
+      "clots": false,
+      "id": "iliac_r",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 15.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1994.0,
+          "reached": true,
+          "shock_s": 207.6,
+          "treatment": "doctor",
+          "unconscious_s": 591.1
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 231.1,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 74.4,
+          "treatment": "none",
+          "unconscious_s": 170.3
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 834.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 207.6,
+          "treatment": "packing",
+          "unconscious_s": 591.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 231.1,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 74.4,
+          "treatment": "tourniquet",
+          "unconscious_s": 170.3
+        }
+      },
+      "segment": "pelvis"
+    },
+    {
+      "clots": false,
+      "id": "iliac_l",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 15.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1994.0,
+          "reached": true,
+          "shock_s": 207.6,
+          "treatment": "doctor",
+          "unconscious_s": 591.1
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 231.1,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 74.4,
+          "treatment": "none",
+          "unconscious_s": 170.3
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 834.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 207.6,
+          "treatment": "packing",
+          "unconscious_s": 591.1
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "blood_loss",
+          "dead_s": 231.1,
+          "lost_ml": 2501.0,
+          "reached": true,
+          "shock_s": 74.4,
+          "treatment": "tourniquet",
+          "unconscious_s": 170.3
+        }
+      },
+      "segment": "pelvis"
+    },
+    {
+      "clots": false,
+      "id": "axillary_r",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 10.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1433.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "none",
+          "unconscious_s": 255.4
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1296.3,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "packing",
+          "unconscious_s": 931.7
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 263.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "upper_arm_r"
+    },
+    {
+      "clots": false,
+      "id": "brachial_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 7.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1046.0,
+          "reached": true,
+          "shock_s": 547.6,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 495.1,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 159.4,
+          "treatment": "none",
+          "unconscious_s": 364.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1890.4,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 547.6,
+          "treatment": "packing",
+          "unconscious_s": 1369.5
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 177.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "upper_arm_r"
+    },
+    {
+      "clots": true,
+      "id": "radial_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 3.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 142.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 146.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "forearm_r"
+    },
+    {
+      "clots": true,
+      "id": "ulnar_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 2.5,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 115.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 337.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 118.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 337.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "forearm_r"
+    },
+    {
+      "clots": false,
+      "id": "axillary_l",
+      "kind": "artery",
+      "limb": false,
+      "ml_s": 10.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1433.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 346.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 111.6,
+          "treatment": "none",
+          "unconscious_s": 255.4
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1296.3,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 356.3,
+          "treatment": "packing",
+          "unconscious_s": 931.7
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 263.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "upper_arm_l"
+    },
+    {
+      "clots": false,
+      "id": "brachial_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 7.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1046.0,
+          "reached": true,
+          "shock_s": 547.6,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 495.1,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 159.4,
+          "treatment": "none",
+          "unconscious_s": 364.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1890.4,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 547.6,
+          "treatment": "packing",
+          "unconscious_s": 1369.5
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 177.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "upper_arm_l"
+    },
+    {
+      "clots": true,
+      "id": "radial_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 3.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 142.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 146.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "forearm_l"
+    },
+    {
+      "clots": true,
+      "id": "ulnar_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 2.5,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 115.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 337.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 118.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 337.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "forearm_l"
+    },
+    {
+      "clots": false,
+      "id": "femoral_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 12.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1669.0,
+          "reached": true,
+          "shock_s": 281.9,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 288.8,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 93.0,
+          "treatment": "none",
+          "unconscious_s": 212.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1065.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 281.9,
+          "treatment": "packing",
+          "unconscious_s": 761.4
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 319.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "thigh_r"
+    },
+    {
+      "clots": false,
+      "id": "femoral_vein_r",
+      "kind": "vein",
+      "limb": true,
+      "ml_s": 6.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 909.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 577.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 186.0,
+          "treatment": "none",
+          "unconscious_s": 425.7
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 2220.5,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 653.8,
+          "treatment": "packing",
+          "unconscious_s": 1612.8
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 148.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "thigh_r"
+    },
+    {
+      "clots": false,
+      "id": "popliteal_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 6.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 909.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 577.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 186.0,
+          "treatment": "none",
+          "unconscious_s": 425.7
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 2220.5,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 653.8,
+          "treatment": "packing",
+          "unconscious_s": 1612.8
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 148.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "shin_r"
+    },
+    {
+      "clots": true,
+      "id": "tibial_artery_r",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 3.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 142.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 146.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "shin_r"
+    },
+    {
+      "clots": false,
+      "id": "femoral_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 12.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 1669.0,
+          "reached": true,
+          "shock_s": 281.9,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 288.8,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 93.0,
+          "treatment": "none",
+          "unconscious_s": 212.9
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 1065.2,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 281.9,
+          "treatment": "packing",
+          "unconscious_s": 761.4
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 319.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "thigh_l"
+    },
+    {
+      "clots": false,
+      "id": "femoral_vein_l",
+      "kind": "vein",
+      "limb": true,
+      "ml_s": 6.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 909.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 577.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 186.0,
+          "treatment": "none",
+          "unconscious_s": 425.7
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 2220.5,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 653.8,
+          "treatment": "packing",
+          "unconscious_s": 1612.8
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 148.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "thigh_l"
+    },
+    {
+      "clots": false,
+      "id": "popliteal_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 6.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 909.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 577.6,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 186.0,
+          "treatment": "none",
+          "unconscious_s": 425.7
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "blood_loss",
+          "dead_s": 2220.5,
+          "lost_ml": 2500.0,
+          "reached": true,
+          "shock_s": 653.8,
+          "treatment": "packing",
+          "unconscious_s": 1612.8
+        },
+        "tourniquet": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 148.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "shin_l"
+    },
+    {
+      "clots": true,
+      "id": "tibial_artery_l",
+      "kind": "artery",
+      "limb": true,
+      "ml_s": 3.0,
+      "outcomes": {
+        "doctor": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 142.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "doctor",
+          "unconscious_s": null
+        },
+        "none": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "none",
+          "unconscious_s": null
+        },
+        "packing": {
+          "applicable": true,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 146.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "packing",
+          "unconscious_s": null
+        },
+        "tourniquet": {
+          "applicable": false,
+          "cause": "",
+          "dead_s": null,
+          "lost_ml": 406.0,
+          "reached": true,
+          "shock_s": null,
+          "treatment": "tourniquet",
+          "unconscious_s": null
+        }
+      },
+      "segment": "shin_l"
+    }
+  ]
+}

@@ -9,10 +9,13 @@ in and thumbs forward. Units are metres. Run from the repo root:
 Segments are the parts that move as one (hitboxes; they come apart at the joints). Each has one or
 more capsules [a, b, radius]; the first is its main axis. Structures are what's inside:
 
-  bone    strength = joules to break it (less and the ball stops against it); shell = hollow
+  bone    strength = joules to break it (less and the ball stops against it); fracture_bleed = ml
+          lost into the flesh round it once broken (femur ~1.2 L: Lieurance et al. 1992); shell = hollow
           thickness (skull, ribcage), cage = chance a path through the cage meets a rib;
           spine = which part of the spine (the vertebrae; the cord inside is a nerve)
-  artery  bleed = ml/s when cut, untreated; limb = a tourniquet above it can stop it
+  artery  bleed = ml/s when cut, untreated; limb = a tourniquet above it can stop it;
+          inside = it bleeds into the chest or belly, where no pressure from outside reaches
+          (heart, great vessels, liver, spleen: experiments/body_lab/README.md)
   vein    as artery, dark steady flow instead of a pulsing jet
   organ   organ = what it is (brain, heart, lung, liver, gut, kidney, airway, eye, ...)
   muscle  what the limb can do: group = leg / arm / grip; a ball tears about half of one
@@ -86,9 +89,9 @@ for side, sx in (("r", 1), ("l", -1)):
 cap("thoracic_spine", "bone", "chest", [0, 1.18, 0.1], [0, 1.43, 0.08], 0.022, strength=110, spine="thoracic")
 cap("cord_thoracic", "nerve", "chest", [0, 1.18, 0.1], [0, 1.43, 0.08], 0.007, cord="thoracic")
 cap("sternum", "bone", "chest", [0, 1.24, -0.113], [0, 1.40, -0.11], 0.012, strength=60)
-cap("aorta", "artery", "chest", [-0.01, 1.18, 0.05], [-0.01, 1.36, 0.03], 0.012, bleed=90.0)
-cap("vena_cava", "vein", "chest", [0.02, 1.18, 0.03], [0.02, 1.33, 0.0], 0.012, bleed=40.0)
-sph("heart", "organ", "chest", [-0.03, 1.29, -0.035], 0.055, bleed=110.0, organ="heart")
+cap("aorta", "artery", "chest", [-0.01, 1.18, 0.05], [-0.01, 1.36, 0.03], 0.012, bleed=90.0, inside=True)
+cap("vena_cava", "vein", "chest", [0.02, 1.18, 0.03], [0.02, 1.33, 0.0], 0.012, bleed=40.0, inside=True)
+sph("heart", "organ", "chest", [-0.03, 1.29, -0.035], 0.055, bleed=110.0, organ="heart", inside=True)
 for side, sx in (("r", 1), ("l", -1)):
     cap(f"ribs_{side}", "bone", "chest", m([0.065, 1.17, 0.0], sx), m([0.065, 1.42, 0.0], sx), 0.12,
         strength=45, shell=0.012, cage=0.32)
@@ -99,12 +102,12 @@ for side, sx in (("r", 1), ("l", -1)):
     cap(f"subclavian_vein_{side}", "vein", "chest", m([0.05, 1.41, -0.045], sx), m([0.17, 1.39, -0.025], sx), 0.009, bleed=8.0)
 
 # --- Abdomen and pelvis --------------------------------------------------------------------------
-cap("abdominal_aorta", "artery", "abdomen", [-0.01, 0.98, 0.055], [-0.01, 1.17, 0.05], 0.011, bleed=80.0)
-cap("abdominal_vena_cava", "vein", "abdomen", [0.02, 1.0, 0.045], [0.02, 1.17, 0.03], 0.012, bleed=35.0)
+cap("abdominal_aorta", "artery", "abdomen", [-0.01, 0.98, 0.055], [-0.01, 1.17, 0.05], 0.011, bleed=80.0, inside=True)
+cap("abdominal_vena_cava", "vein", "abdomen", [0.02, 1.0, 0.045], [0.02, 1.17, 0.03], 0.012, bleed=35.0, inside=True)
 cap("lumbar_spine", "bone", "abdomen", [0, 0.95, 0.085], [0, 1.18, 0.1], 0.024, strength=130, spine="lumbar")
 cap("cord_lumbar", "nerve", "abdomen", [0, 1.05, 0.09], [0, 1.18, 0.1], 0.007, cord="lumbar")
-sph("liver", "organ", "abdomen", [0.065, 1.12, -0.02], 0.07, bleed=8.0, organ="liver")
-sph("spleen", "organ", "abdomen", [-0.08, 1.12, 0.04], 0.035, bleed=5.0, organ="spleen")
+sph("liver", "organ", "abdomen", [0.065, 1.12, -0.02], 0.07, bleed=8.0, organ="liver", inside=True)
+sph("spleen", "organ", "abdomen", [-0.08, 1.12, 0.04], 0.035, bleed=5.0, organ="spleen", inside=True)
 sph("stomach", "organ", "abdomen", [-0.055, 1.12, -0.04], 0.05, bleed=0.3, organ="gut")
 cap("small_intestine", "organ", "abdomen", [0, 0.98, -0.03], [0, 1.06, -0.03], 0.085, bleed=0.2, organ="gut")
 cap("large_intestine", "organ", "abdomen", [-0.1, 0.99, 0.0], [0.1, 0.99, 0.0], 0.035, bleed=0.2, organ="gut")
@@ -114,7 +117,7 @@ cap("pelvis_bone", "bone", "pelvis", [-0.12, 0.93, 0.02], [0.12, 0.93, 0.02], 0.
 sph("sacrum", "bone", "pelvis", [0, 0.9, 0.085], 0.035, strength=150)
 sph("bladder", "organ", "pelvis", [0, 0.85, -0.05], 0.04, bleed=0.3, organ="gut")
 for side, sx in (("r", 1), ("l", -1)):
-    cap(f"iliac_{side}", "artery", "pelvis", m([0.03, 0.99, 0.03], sx), m([0.07, 0.86, -0.03], sx), 0.008, bleed=15.0)
+    cap(f"iliac_{side}", "artery", "pelvis", m([0.03, 0.99, 0.03], sx), m([0.07, 0.86, -0.03], sx), 0.008, bleed=15.0, inside=True)
     sph(f"gluteus_{side}", "muscle", "pelvis", m([0.08, 0.85, 0.08], sx), 0.07, group="leg")
 
 # --- Arms --------------------------------------------------------------------------------------
@@ -149,7 +152,8 @@ for side, sx in (("r", 1), ("l", -1)):
 # --- Legs --------------------------------------------------------------------------------------
 for side, sx in (("r", 1), ("l", -1)):
     th, sh, ft = f"thigh_{side}", f"shin_{side}", f"foot_{side}"
-    cap(f"femur_{side}", "bone", th, m([0.095, 0.88, 0.0], sx), m([0.1, 0.5, 0.005], sx), 0.017, strength=240)
+    cap(f"femur_{side}", "bone", th, m([0.095, 0.88, 0.0], sx), m([0.1, 0.5, 0.005], sx), 0.017, strength=240,
+        fracture_bleed=1200)
     cap(f"quadriceps_{side}", "muscle", th, m([0.1, 0.84, -0.032], sx), m([0.1, 0.53, -0.03], sx), 0.042, group="leg")
     cap(f"hamstrings_{side}", "muscle", th, m([0.1, 0.84, 0.035], sx), m([0.1, 0.53, 0.032], sx), 0.038, group="leg")
     cap(f"femoral_{side}", "artery", th, m([0.07, 0.88, -0.035], sx), m([0.085, 0.56, -0.02], sx), 0.009, bleed=12.0, limb=True)
