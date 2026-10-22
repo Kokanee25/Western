@@ -307,3 +307,23 @@ func test_a_buildings_members_are_drawn_as_woodwork() -> void:
 	check(mi.mesh.get_aabb().size.distance_to(m.size) < 0.01, "its drawn shape fills its box")
 	check(s.batch_count() == 1, "three posts in one wood draw in one batch (%d)" % s.batch_count())
 	s.free()
+
+
+func test_a_set_with_light_bands_steps_its_woods_light() -> void:
+	# Round 6 (2026-10-22): a set's lab.json "light_bands" draws its woods with the blocks light at
+	# that many steps (the men's painted bands), on the woods only; the game's woods keep theirs.
+	if not FileAccess.file_exists("res://assets/textures/mlab_studio9/lab.json"):
+		return  # a cut set, not in git
+	var m := PixelArt.material(load("res://assets/textures/mlab_studio9/floor_b0.png"))
+	check(m.shader == PixelArt.GRID_SHADER_BLOCKS, "the set's woods take the banded light")
+	check(float(m.get_shader_parameter(&"wood_bands")) == 4.0, "at the set's steps")
+	check(PixelArt.hole_material(m).shader == PixelArt.HOLE_SHADER_BLOCKS, "and keep it when shot")
+	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
+	check(g.shader == PixelArt.grid_shader(), "the game's woods as the world's")
+
+
+func test_the_back_bar_mirrors_paint_the_room() -> void:
+	# The back bar's mirrors (prop:mirror) paint the lamplit room they give back (mirror.gdshader).
+	var m := PropKit.material("prop:mirror", 0) as ShaderMaterial
+	check(m != null and m.shader != null and m.shader.resource_path.ends_with("mirror.gdshader"), "the painted reflection")
+	check(m.shader.get_code().contains("room_depth"), "a room in front of the glass")
