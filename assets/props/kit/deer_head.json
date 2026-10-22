@@ -4,6 +4,7 @@
   "kind": "members",
   "replaces": "deer_head",
   "in_game": true,
+  "drawn_bounds": true,
   "wood": "weathered_pine",
   "look": "prop:hide",
   "splits_below": 0.4,

@@ -78,6 +78,68 @@ static func spawn(id: StringName, structure_id := &"") -> KitProp:
 	return p
 
 
+## A fixture fitted to the box it's to fill (`size`: a counter as long as the room, shelves as
+## high as the wall), not yet in the tree; `changes` by member id: a spec's keys to replace (a
+## counter's top in another wood), or null to leave it out (a counter's end against the wall);
+## `extra`: more member specs, in the fitted prop's space (a telegraph desk's key, a cage on a
+## counter).
+static func spawn_fitted(id: StringName, structure_id: StringName, size: Vector3, changes := {}, extra: Array = []) -> KitProp:
+	var p := spawn(id, structure_id)
+	var def := fit(definition(id), size)
+	var specs: Array = []
+	for spec: Dictionary in def.members:
+		if changes.has(spec.id):
+			if changes[spec.id] == null:
+				continue
+			spec.merge(changes[spec.id], true)
+		specs.append(spec)
+	specs.append_array(extra)
+	def.members = specs
+	p.definition = def
+	return p
+
+
+## The kit file's members laid out to fill `size` (the box its members fill, in its own space),
+## nine-slice: along each axis, a member spanning most of the box (80%: a counter's front, a
+## shelf, a table's legs up its height) stretches with it, keeping its ends' insets; one at an
+## edge (within 15%: an end, a leg, an upright, a counter's front behind its top's overhang) keeps
+## its inset from that edge; one between
+## keeps its share of the way across (a middle shelf). The box keeps the origin where it had it
+## (a kit prop's bottom centre; a trough's end). Members are axis-aligned; `repeat`s are laid out.
+static func fit(def: Dictionary, size: Vector3) -> Dictionary:
+	var out := def.duplicate(true)
+	var box := bounds(def)
+	var specs: Array = []
+	for spec: Dictionary in expand(def):
+		var at := vec(spec.at)
+		var sz := vec(spec.size)
+		for a in 3:
+			var lo := box.position[a]
+			var n := maxf(box.size[a], 0.0001)
+			var hi := lo + n
+			var new_lo := lo / n * size[a]  # the origin keeps its share of the box
+			var new_hi := new_lo + size[a]
+			var m_lo := at[a] - sz[a] * 0.5
+			var m_hi := at[a] + sz[a] * 0.5
+			if m_hi - m_lo >= 0.8 * n:
+				m_lo = new_lo + (m_lo - lo)
+				m_hi = new_hi - (hi - m_hi)
+				sz[a] = m_hi - m_lo
+				at[a] = (m_lo + m_hi) * 0.5
+			elif m_lo - lo <= 0.15 * n:
+				at[a] += new_lo - lo
+			elif hi - m_hi <= 0.15 * n:
+				at[a] += new_hi - hi
+			else:
+				at[a] = new_lo + (at[a] - lo) / n * size[a]
+		var s := spec.duplicate(true)
+		s.at = _arr(at)
+		s.size = _arr(sz)
+		specs.append(s)
+	out.members = specs
+	return out
+
+
 ## A prop of either kind from its kit file, not yet in the tree: a KitProp ("members") or a
 ## GlassProp ("shatters"; its variant, the bottle's glass and label, counted per prop).
 static func make(id: StringName) -> Node3D:
@@ -129,6 +191,12 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 
 ## Its members' boxes together, in its own space.
 static func bounds(def: Dictionary) -> AABB:
+	if def.get("drawn_bounds", false):
+		# Laid out as the drawn prop is (a deer head's antlers are drawn, not members): its box.
+		var size := PropLibrary.size_of(StringName(def.get("replaces", def.get("id", ""))))
+		if PropLibrary.definition(StringName(def.get("replaces", ""))).get("anchor", "floor") == "wall":
+			return AABB(Vector3(-size.x * 0.5, -size.y * 0.5, 0.0), size)
+		return AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
 	if not def.has("members"):
 		# A glass prop: its size, standing on its bottom centre.
 		var size := vec(def.get("size", [0.1, 0.3, 0.1]))

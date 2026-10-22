@@ -75,8 +75,11 @@ func test_every_kit_file_builds_and_stands() -> void:
 		var def := PropKit.definition(id)
 		if String(def.get("kind", "members")) != "members" or def.has("hangs"):
 			continue  # props that shatter: tests/test_glass_props.gd; hung ones: test_wall_props.gd
-		var p := await _place(id)
-		check(p.member_count() >= 8, "%s is built of members (%d)" % [id, p.member_count()])
+		# Its box's middle over the floor's (a trough's origin is at its end).
+		var mid := PropKit.bounds(def).get_center()
+		var p := await _place(id, Vector3(-mid.x, 0.3, -mid.z))
+		# A fixture (a counter, shelves) may be few: its long boards.
+		check(p.member_count() >= (3 if def.get("fixture", false) else 8), "%s is built of members (%d)" % [id, p.member_count()])
 		check(p.settle().is_empty(), "%s stands: nothing breaks or falls" % id)
 		check(not p.loose, "%s stands on its feet" % id)
 		check(p.batch_count() <= 3, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])

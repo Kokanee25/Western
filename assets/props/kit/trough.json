@@ -1,0 +1,208 @@
+{
+  "_doc": "A plank water trough on two skids (WaterTrough's, as a fixture: WaterTrough builds from this file fitted to its length, width and height, and adds its water). Runs along +X from its origin. Weathered pine sides and ends on corner cleats, a floor-board bottom.",
+  "id": "trough",
+  "kind": "members",
+  "fixture": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "skid0",
+      "kind": "sill",
+      "wood": "framing",
+      "size": [
+        0.1,
+        0.1,
+        0.75
+      ],
+      "at": [
+        0.2,
+        0.05,
+        0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "skid1",
+      "kind": "sill",
+      "wood": "framing",
+      "size": [
+        0.1,
+        0.1,
+        0.75
+      ],
+      "at": [
+        1.8,
+        0.05,
+        0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "bottom",
+      "kind": "floor_board",
+      "wood": "floor",
+      "size": [
+        2.0,
+        0.04,
+        0.65
+      ],
+      "at": [
+        1.0,
+        0.12,
+        0
+      ],
+      "look": "wood:floor"
+    },
+    {
+      "id": "cleat0",
+      "kind": "furniture_frame",
+      "wood": "framing",
+      "size": [
+        0.04,
+        0.46,
+        0.04
+      ],
+      "at": [
+        0.06,
+        0.37,
+        0.265
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "cleat1",
+      "kind": "furniture_frame",
+      "wood": "framing",
+      "size": [
+        0.04,
+        0.46,
+        0.04
+      ],
+      "at": [
+        1.94,
+        0.37,
+        0.265
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "cleat2",
+      "kind": "furniture_frame",
+      "wood": "framing",
+      "size": [
+        0.04,
+        0.46,
+        0.04
+      ],
+      "at": [
+        0.06,
+        0.37,
+        -0.265
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "cleat3",
+      "kind": "furniture_frame",
+      "wood": "framing",
+      "size": [
+        0.04,
+        0.46,
+        0.04
+      ],
+      "at": [
+        1.94,
+        0.37,
+        -0.265
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "side0_0",
+      "kind": "board",
+      "size": [
+        2.0,
+        0.226,
+        0.04
+      ],
+      "at": [
+        1.0,
+        0.255,
+        0.305
+      ]
+    },
+    {
+      "id": "side0_1",
+      "kind": "board",
+      "size": [
+        2.0,
+        0.226,
+        0.04
+      ],
+      "at": [
+        1.0,
+        0.485,
+        0.305
+      ]
+    },
+    {
+      "id": "side1_0",
+      "kind": "board",
+      "size": [
+        2.0,
+        0.226,
+        0.04
+      ],
+      "at": [
+        1.0,
+        0.255,
+        -0.305
+      ]
+    },
+    {
+      "id": "side1_1",
+      "kind": "board",
+      "size": [
+        2.0,
+        0.226,
+        0.04
+      ],
+      "at": [
+        1.0,
+        0.485,
+        -0.305
+      ]
+    },
+    {
+      "id": "end0",
+      "kind": "board",
+      "size": [
+        0.04,
+        0.46,
+        0.57
+      ],
+      "at": [
+        0.02,
+        0.37,
+        0
+      ]
+    },
+    {
+      "id": "end1",
+      "kind": "board",
+      "size": [
+        0.04,
+        0.46,
+        0.57
+      ],
+      "at": [
+        1.98,
+        0.37,
+        0
+      ]
+    }
+  ],
+  "look": "wood:weathered_pine"
+}
