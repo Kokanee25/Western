@@ -85,4 +85,4 @@ voice.
 - `run.py`: the runs, the table, the clips. `measure.py`: the measures.
 - `baseline/`: `baseline.md` (inventory, table, the ten worst), `measures.json`, `clips/` (a few mp3s).
 - `results/<date>_<change>/`: each change against the baseline: what changed, the numbers before
-  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`.
+  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`, `dynamite`, `breaking`.

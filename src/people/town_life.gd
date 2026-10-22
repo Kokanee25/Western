@@ -1,7 +1,7 @@
 class_name TownLife
 extends Node3D
 ## The people of the test street and their day. The storekeeper minds his counter and the barkeep
-## his bar from the start; a while later three riders come in from the west (Brody, a cool hand
+## his bar from the start (wiping it down when it's quiet); a while later three riders come in from the west (Brody, a cool hand
 ## who leads; Lyle, a hothead; and the Kid, green and jumpy), drink, and two of them go and lean on
 ## the storekeeper. Nobody's an enemy: what happens is up to you. U brings them in now.
 
@@ -59,6 +59,7 @@ func _spawn_townsfolk() -> void:
 			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
+	_give_cloth.call_deferred(barkeep)
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
 			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s2_talking")
 	# The sheriff (the Studio's sean_s2, Sean as him) in front of his jail, watching the street. A
@@ -98,6 +99,23 @@ func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, 
 	man.enter(get_parent(), places.at(at), HumanBody.yaw_toward(places.at(at), faces))
 	man.face(faces)
 	return man
+
+
+## The barkeep's bar cloth over his shoulder, and the chore of wiping his bar with it when it's
+## quiet (WipeBar; docs/briefs/barkeep-rag.md).
+func _give_cloth(man: HumanBody) -> void:
+	if not is_instance_valid(man) or not man.is_inside_tree():
+		return
+	var cloth := PropKit.make(&"bar_cloth") as ClothProp
+	get_parent().add_child(cloth)
+	await get_tree().physics_frame
+	if not is_instance_valid(man) or not is_instance_valid(cloth):
+		return
+	cloth.hang_on(man, "l")
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+	if brain:
+		brain.chore = WipeBar.new(man, cloth, brain.post, brain.faces)
+		brain.chore.places = places
 
 
 ## Three riders in from the west, a few paces apart, with a day planned (`only`: just these).

@@ -5,6 +5,19 @@ description: Make a new man (character, cowboy, townsperson, NPC face) for Salt 
 
 # A new man in the approved look
 
+**Since 2026-10-20 new men are made in the Character Studio** (repo `Kokanee25/saltcreek-characters`:
+its `CLAUDE.md` and `docs/BRIEF.md`); attach it if the session has only the game. Every Studio
+man so far (the sheriff, the doctor, the Colter, the barkeep, the widow...) was made there and sent
+to the game's `assets/people/`.
+
+**Paid calls need no keys in the session.** The keys are the Studio repo's GitHub Actions secrets:
+write a request file in its `requests/` (fields in `tools/run_requests.py`; examples
+`requests/*.done.yaml`), push it to a branch named `claude/studio-<something>` (the paid workflow
+fires only there), and pull the results the workflow commits back. Say the cost first; Rodin runs
+need Sean's OK. Don't ask Sean for keys.
+
+The older game-side route, kept for reference:
+
 Sean approved one way of making people on 2026-10-14 ("I love where we're at"): **the Rodin
 portrait route**. The whole recipe is in `tools/characters/RECIPE.md`. Read it first and follow
 it step by step.

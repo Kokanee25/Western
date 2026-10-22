@@ -4,12 +4,14 @@ extends Node
 ## eyes that look where he's facing (sharp ahead, dim at the edges, nothing behind), need a clear
 ## line and enough light, and pick a man out faster when he's close, moving and standing tall;
 ## ears that hear gunfire across town, footsteps close by and speech, muffled through walls and
-## only roughly where. What he's seen stays as where and when he last saw you.
+## only roughly where. What he's seen stays as where and when he last saw you. A sound tells him
+## who made it only if he can see him make it; otherwise it's a sound from over there (`sounds`).
 ## Child of a HumanBody. Ticks a few times a second.
 ##
 ## Other systems ask: `sees(node)`, `knows(node)`, `last_known(node)`, `aware_of(node)` (0..1).
 
 signal spotted(who: Node3D)
+## A sound heard: roughly where, what it was, and who made it if he saw (null if he didn't).
 signal heard(at: Vector3, kind: StringName, who: Node)
 signal lost(who: Node3D)
 
@@ -26,6 +28,11 @@ const NOTICE_RATE := 3.0
 ## Knowledge per person: {seen (bool now), awareness 0..1, last_pos, last_time (s, game clock),
 ## heard_pos, heard_time}.
 var known := {}
+## Sounds he heard and couldn't put to anyone, newest last: {at (his guess), kind, time}. A shot in
+## the next building doesn't come with a name (the perception lab's baseline, 2026-10-22: every
+## listener knew who had fired).
+var sounds: Array[Dictionary] = []
+const SOUNDS_KEPT := 8
 var body: HumanBody
 ## How much light there is to see by (0 dark .. 1 day). Set by the day cycle, or tests.
 var light := -1.0
@@ -109,6 +116,18 @@ func last_known(who: Node) -> Vector3:
 	if k.last_time >= k.heard_time:
 		return k.last_pos
 	return k.heard_pos
+
+
+## The newest sound he couldn't put to anyone, of one of `kinds` (any if empty), heard within the
+## last `within` seconds: {at, kind, time}, or {} if none.
+func last_sound(kinds: Array = [], within := INF) -> Dictionary:
+	for i in range(sounds.size() - 1, -1, -1):
+		var s: Dictionary = sounds[i]
+		if _clock - float(s.time) > within:
+			break
+		if kinds.is_empty() or kinds.has(s.kind):
+			return s
+	return {}
 
 
 ## Roughly where someone is without seeing him (a shot came from over there): noted as heard.
@@ -287,8 +306,23 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 		return
 	var err := d * 0.12
 	var guess := at + Vector3(_rng.randf_range(-err, err), 0.0, _rng.randf_range(-err, err))
-	if source is Node3D and (source is Player or source is HumanBody):
-		var k := _entry(source)
+	# Who made it he knows only if he can see him as he makes it.
+	var maker: Node = source if source is Node3D and (source is Player or source is HumanBody) else null
+	if maker != null and (sees(maker) or _in_view(maker as Node3D, from)):
+		var k := _entry(maker)
 		k.heard_pos = guess
 		k.heard_time = _clock
-	heard.emit(guess, kind, source)
+	else:
+		maker = null
+		sounds.append({"at": guess, "kind": kind, "time": _clock})
+		if sounds.size() > SOUNDS_KEPT:
+			sounds.pop_front()
+	heard.emit(guess, kind, maker)
+
+
+## Is he in sight this moment (in his eye's reach, a clear line, light enough), noticed or not?
+func _in_view(who: Node3D, from: Vector3) -> bool:
+	if body == null or not body.is_inside_tree():
+		return false
+	var rng_m := lerpf(SIGHT_NIGHT, SIGHT_DAY, _light())
+	return _visibility(who, from, facing(), rng_m, body.get_world_3d().direct_space_state) > 0.0

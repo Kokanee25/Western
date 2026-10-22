@@ -12,6 +12,9 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> void:
 	var size := pow(kg / 0.15, 1.0 / 3.0)
 	BlastCloud.spawn(world, at, kg)
 	_scorch(world, at, size)
+	if GameAudio.enabled():
+		GameAudio.blast(world, at, kg)
+		return
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(&"dynamite")
 	p.unit_size = 40.0
