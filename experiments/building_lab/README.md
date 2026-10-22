@@ -160,7 +160,7 @@ In the order the saloon needs them:
 
 ## Open for Sean
 
-- **Rooms 4 and 5 have no windows** since the mirror: they're over the bar on the west wall, which
+- **Rooms 4 and 5 have no windows** (issue #242) since the mirror: they're over the bar on the west wall, which
   stands against the store (its roof is about at their sills). A skylight each, windows high over
   the store's roof, or leave them dark (cheap rooms)?
 - A lighter oak for the bar and back bar (art's call), as above.
