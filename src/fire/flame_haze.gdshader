@@ -26,9 +26,8 @@ void vertex() {
 }
 
 void fragment() {
-	vec2 uv = fb_uv(UV, INV_VIEW_MATRIX);
-	uv.y = min(uv.y, 0.995);
-	vec4 s = fb_sample(uv, TIME);
+	vec2 uv;
+	vec4 s = fb_fire(UV, INV_VIEW_MATRIX, TIME, uv);
 	float heat_here = s.b * fb_foot() * (1.0 - smoothstep(0.1, 0.4, s.r));
 	if (heat_here < 0.03) {
 		discard;

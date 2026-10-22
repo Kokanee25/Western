@@ -357,8 +357,9 @@ frozen until Sean names one.
   next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
   bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
   `Settings.fire_flipbooks`: the default since 2026-10-22 (Sean: "keep flames for now", #216; look
-  panel N turns them off; saved as `flipbook_fire`). Next: firelight's look (step 5), then the painted pass
-  after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+  panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
+  fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
+  (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

@@ -647,9 +647,19 @@ static func _gap(a: AABB, b: AABB) -> float:
 
 # --- Drawing it -----------------------------------------------------------------------------------
 
+## Metres nearer a member over an opening or in a roof counts, choosing which show flames.
+const FLAME_FIRST := 6.0
+const ROOF_KINDS := [&"rafter", &"roof_board", &"ridge"]
+
+
+static func _flames_first(m: StructureMember) -> bool:
+	var id := String(m.member_id)
+	return m.kind in ROOF_KINDS or id.ends_with("/head") or id.ends_with("/header")
+
+
 ## Every half second: which burning members show flames (those that had them keep them while
 ## they burn, so flames don't hop about a burning town; free ones go to the burning members nearest
-## you), and where the fire's lights go. The members' looks are then brought up to date a slice a
+## you, the roof's and the openings' first), and where the fire's lights go. The members' looks are then brought up to date a slice a
 ## frame over the half second (`_refresh_fx`), not all on one frame.
 func _update_fx() -> void:
 	var burning := _longest_burning()
@@ -665,6 +675,9 @@ func _update_fx() -> void:
 		for i in burning.size():
 			if not _flaming.has(burning[i]):
 				var d := burning[i].global_position.distance_to(eye) if cam else float(i)
+				# The roof and what's over a door or window first: fire through the roof and out of
+				# the openings, not one more board up a wall (the art session, with Sean's OK).
+				d -= FLAME_FIRST if _flames_first(burning[i]) else 0.0
 				by_distance.append(Vector2(d, i))
 		by_distance.sort()
 		for v in by_distance:
