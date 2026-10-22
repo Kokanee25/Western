@@ -79,7 +79,12 @@ The bridge loads every lab's file at start (folders in name order), lists them i
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
 `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
 `sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
-game time).
+game time); the gunfight lab
+(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
+its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
+matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
+(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -485,8 +490,19 @@ a few views renders them as the full run does.
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
   still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
-  surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
+  surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
+  cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
+  it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
+  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  why, for F3 and the lab), `GunHand` (where his
+  barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
+  you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
+  his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
+  the town's ways (in at a door, down the steps), and something wide a few metres off counts:
+  a doorway, a building's corner),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
@@ -529,7 +545,8 @@ a few views renders them as the full run does.
 
 ## src/weapons
 
-- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
+- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
+  its wander is `Sway`, shared with the gang's `GunHand`),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,

@@ -1,0 +1,158 @@
+{
+ "bodies": {
+  "bold_cowboy_s0": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "head": {
+     "over_3cm": 156,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 417,
+     "over_8cm": 0
+    }
+   },
+   "furthest_outside_m": 0.08,
+   "gun": true,
+   "hat_hitbox": false,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.78,
+   "outside_hitboxes_over_3cm_pct": 20.2,
+   "outside_hitboxes_over_8cm_pct": 0.0,
+   "vertices": 2832,
+   "whole": true
+  },
+  "hothead_lyle_s1": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "head": {
+     "over_3cm": 2,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 504,
+     "over_8cm": 0
+    }
+   },
+   "furthest_outside_m": 0.07,
+   "gun": true,
+   "hat_hitbox": true,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.78,
+   "outside_hitboxes_over_3cm_pct": 17.7,
+   "outside_hitboxes_over_8cm_pct": 0.0,
+   "vertices": 2860,
+   "whole": true
+  },
+  "kid": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "head": {
+     "over_3cm": 77,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 162,
+     "over_8cm": 9
+    }
+   },
+   "furthest_outside_m": 0.09,
+   "gun": true,
+   "hat_hitbox": true,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.81,
+   "outside_hitboxes_over_3cm_pct": 26.4,
+   "outside_hitboxes_over_8cm_pct": 1.0,
+   "vertices": 906,
+   "whole": true
+  },
+  "old_rancher_s1": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "head": {
+     "over_3cm": 4,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 995,
+     "over_8cm": 101
+    }
+   },
+   "furthest_outside_m": 0.11,
+   "gun": true,
+   "hat_hitbox": true,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.78,
+   "outside_hitboxes_over_3cm_pct": 35.4,
+   "outside_hitboxes_over_8cm_pct": 3.6,
+   "vertices": 2826,
+   "whole": true
+  },
+  "outlaw": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "cravat": {
+     "over_3cm": 1,
+     "over_8cm": 0
+    },
+    "head": {
+     "over_3cm": 1,
+     "over_8cm": 0
+    },
+    "shirt": {
+     "over_3cm": 8,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 4,
+     "over_8cm": 0
+    },
+    "trousers": {
+     "over_3cm": 4,
+     "over_8cm": 0
+    },
+    "vest": {
+     "over_3cm": 13,
+     "over_8cm": 0
+    }
+   },
+   "furthest_outside_m": 0.06,
+   "gun": true,
+   "hat_hitbox": true,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.79,
+   "outside_hitboxes_over_3cm_pct": 2.6,
+   "outside_hitboxes_over_8cm_pct": 0.0,
+   "vertices": 1173,
+   "whole": false
+  },
+  "young_drifter_s1": {
+   "anatomy_height_m": 1.78,
+   "by_shape": {
+    "head": {
+     "over_3cm": 26,
+     "over_8cm": 0
+    },
+    "skin": {
+     "over_3cm": 366,
+     "over_8cm": 0
+    }
+   },
+   "furthest_outside_m": 0.06,
+   "gun": true,
+   "hat_hitbox": true,
+   "holstered": true,
+   "loaded": true,
+   "mesh_top_m": 1.79,
+   "outside_hitboxes_over_3cm_pct": 13.9,
+   "outside_hitboxes_over_8cm_pct": 0.0,
+   "vertices": 2826,
+   "whole": true
+  }
+ }
+}
