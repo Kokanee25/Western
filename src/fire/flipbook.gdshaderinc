@@ -41,7 +41,7 @@ uniform float fps = 24.0;
 // How tall the flame stands against the sheet's height (a share, at full heat) and how wide
 // against its own frame's shape (under 1, narrower than the simulation's).
 uniform float stand = 0.75;
-uniform float width_scale = 0.55;
+uniform float width_scale = 0.9;
 // Sheets at least this tall (metres) take a column; under `tongue_under`, a lick (some sheets
 // take the next size down, by `smaller`).
 uniform float column_over = 3.2;
@@ -52,9 +52,11 @@ uniform float smaller = 0.35;
 uniform float squares_per_m = 16.0;
 uniform float toward_camera = 0.25;
 // How far under its foot it fades in (metres).
-uniform float foot_fade = 0.3;
+uniform float foot_fade = 0.6;
 // Where it meets a wall or the floor, it fades out over this depth (metres): soft edges.
 uniform float soft = 0.12;
+// The most flames side by side on one wide sheet.
+uniform float max_tiles = 4.0;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest, repeat_disable;
 
 varying vec3 world;
@@ -62,7 +64,8 @@ varying float rel; // metres over the sheet's foot
 varying vec3 view_at;
 varying flat float seed;
 varying flat float kind; // 0 lick, 1 tongue, 2 column
-varying flat vec2 flame; // the flame's size here (metres across, up)
+varying flat vec2 flame; // one flame's size here (metres across, up)
+varying flat float tiles; // flames side by side across the sheet
 
 float fb_hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -80,10 +83,11 @@ struct FbVert {
 	float seed;
 	float kind;
 	vec2 flame;
+	float tiles;
 };
 
 // Each pass's vertex() is FB_VERTEX: a shader function may not set varyings, so it hands them back.
-#define FB_VERTEX FbVert o = fb_vertex(VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD, VIEW_MATRIX, PROJECTION_MATRIX); POSITION = o.position; world = o.world; rel = o.rel; view_at = o.view_at; seed = o.seed; kind = o.kind; flame = o.flame;
+#define FB_VERTEX FbVert o = fb_vertex(VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD, VIEW_MATRIX, PROJECTION_MATRIX); POSITION = o.position; world = o.world; rel = o.rel; view_at = o.view_at; seed = o.seed; kind = o.kind; flame = o.flame; tiles = o.tiles;
 
 FbVert fb_vertex(vec3 vertex, vec3 node, vec3 camera, mat4 view, mat4 proj) {
 	FbVert o;
@@ -96,6 +100,10 @@ FbVert fb_vertex(vec3 vertex, vec3 node, vec3 camera, mat4 view, mat4 proj) {
 	vec2 m = kind_metres(k);
 	float h = size.y * stand * clamp(heat, 0.05, 1.0);
 	o.flame = vec2(h * m.x / m.y * width_scale, h);
+	// A sheet much wider than one flame (a rafter, a long board on its side) holds a row of them,
+	// half a flame apart so they overlap into one fire, each at its own frame (a row of separate
+	// flames along a roof read as candles).
+	o.tiles = clamp(floor(size.x / max(o.flame.x * 0.5, 0.01)) - 1.0, 1.0, max_tiles);
 	vec3 up = vec3(0.0, 1.0, 0.0);
 	vec3 to_cam = camera - node;
 	vec3 right = normalize(cross(up, to_cam));
@@ -105,7 +113,7 @@ FbVert fb_vertex(vec3 vertex, vec3 node, vec3 camera, mat4 view, mat4 proj) {
 	centre -= back * depth * behind;
 	// A 1 x 1 quad: from `foot_fade` under the foot to the flame's top, the flame's width across.
 	o.rel = -foot_fade + (vertex.y + 0.5) * (o.flame.y + foot_fade);
-	o.world = centre + right * vertex.x * o.flame.x + up * o.rel;
+	o.world = centre + right * vertex.x * o.flame.x * (o.tiles + 1.0) * 0.5 + up * o.rel;
 	vec4 v = view * vec4(o.world, 1.0);
 	v.xyz += normalize(-v.xyz) * toward_camera * (1.0 - behind);
 	o.view_at = v.xyz;
@@ -133,11 +141,11 @@ vec2 fb_cell(float k, float f, vec2 uv) {
 
 // The flame here, now: R flame, G smoke, B heat, blended between its two frames along their
 // motion. `uv` is the frame's (0..1, y down); outside it, nothing.
-vec4 fb_sample(vec2 uv, float time) {
+vec4 fb_sample(vec2 uv, float time, float sd) {
 	if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
 		return vec4(0.0);
 	}
-	float t = time * fps + seed * 64.0;
+	float t = time * fps + sd * 64.0;
 	float f0 = mod(floor(t), 64.0);
 	float f1 = mod(f0 + 1.0, 64.0);
 	float a = fract(t);
@@ -148,11 +156,14 @@ vec4 fb_sample(vec2 uv, float time) {
 	return mix(c0, c1, a);
 }
 
-// This fragment's place in its flame's frame (0..1 across, 0 at the top), snapped to the middle
-// of its square of the world's grid (across along the camera's right, up the height, as the fire
-// sheet's squares are); some flames mirrored.
-vec2 fb_uv(vec2 quad_uv, mat4 inv_view) {
-	float u = quad_uv.x;
+// The fire here, now (R flame, G smoke, B heat) and `uv`, this fragment's place in its flame's
+// frame (y 0 at the top). Snapped to the middle of its square of the world's grid (across along the
+// camera's right, up the height, as the fire sheet's squares are). On a sheet of several flames
+// (`tiles`, half a flame apart) a point is in two of them, each at its own frame and some mirrored;
+// the hotter is drawn.
+vec4 fb_fire(vec2 quad_uv, mat4 inv_view, float time, out vec2 uv) {
+	float width = (tiles + 1.0) * 0.5; // the sheet, in flames
+	float u = quad_uv.x * width;
 	float r = rel;
 	if (squares_per_m > 0.0) {
 		vec3 right = normalize(vec3(inv_view[0].x, 0.0, inv_view[0].z));
@@ -160,10 +171,28 @@ vec2 fb_uv(vec2 quad_uv, mat4 inv_view) {
 		u += ((floor(across * squares_per_m) + 0.5) / squares_per_m - across) / max(flame.x, 0.01);
 		r += (floor(world.y * squares_per_m) + 0.5) / squares_per_m - world.y;
 	}
-	if (fb_hash(vec2(seed, 9.1)) < 0.5) {
-		u = 1.0 - u;
+	float v = min(1.0 - r / max(flame.y, 0.01), 0.995);
+	vec4 best = vec4(0.0);
+	uv = vec2(0.5, v);
+	float last = floor(u * 2.0);
+	for (float i = last - 1.0; i <= last; i += 1.0) {
+		if (i < 0.0 || i > tiles - 1.0) {
+			continue;
+		}
+		float x = u - i * 0.5;
+		float sd = i < 0.5 ? seed : fb_hash(vec2(seed * 7.3, i + 0.37));
+		if (fb_hash(vec2(sd, 9.1)) < 0.5) {
+			x = 1.0 - x;
+		}
+		vec4 c = fb_sample(vec2(x, v), time, sd);
+		if (c.r >= best.r) {
+			best = max(best, c);
+			uv = vec2(x, v);
+		} else {
+			best.gb = max(best.gb, c.gb);
+		}
 	}
-	return vec2(u, 1.0 - r / max(flame.y, 0.01));
+	return best;
 }
 
 // Fading in under the foot (1 over it).

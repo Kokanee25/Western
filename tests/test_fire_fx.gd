@@ -1,7 +1,8 @@
 extends TestCase
 ## How a burning member's flames are drawn (the art session's ask, docs/briefs/fire-look.md): one
 ## sheet of fire to each of its meshes that fills more of itself as it burns, reaching over its top
-## (behind a frame member, in front of a board),
+## (behind a frame member, in front of a board), from partway up a wall's face and along a sloped
+## rafter's middle, the roof's and the openings' shown first,
 ## and a sheet in an opening under a burning head. The flipbook tongues (FireFX.sheets off, kept for
 ## comparing): a few big tongues off its top that grow, and tongues out of the top of an opening.
 
@@ -109,6 +110,49 @@ func test_a_frame_members_fire_is_drawn_behind_it_and_a_boards_in_front() -> voi
 			check(back == 1.0, "%s's fire behind it: the timber stands dark against its flames" % m.member_id)
 			var half: Vector3 = sheets[0].get_instance_shader_parameter(&"half_box")
 			check(half.x <= 0.301 and half.z <= 0.301, "pushed back by its cross section, not its length (%s)" % half)
+
+
+func test_a_sloped_rafters_fire_rises_from_its_middle_and_a_walls_from_partway_up() -> void:
+	# A rafter pitched 30 degrees, from 2.6 m up to 4.6 m: its box is two metres tall, but it isn't
+	# standing, so its fire rises from along its middle (up through the roof), not up from its foot.
+	var rafter := building.add_member("roof/rafter/00", &"rafter", &"framing", Vector3(4.0, 0.15, 0.05), Vector3(0, 3.6, 0), Basis(Vector3.BACK, deg_to_rad(30.0)))
+	var board := building.add_member("wall/board", &"board", &"weathered_pine", Vector3(0.24, 3.0, 0.025), Vector3(3, 1.5, 0))
+	building.infer_supports()
+	for m in [rafter, board]:
+		fire.ignite(m)
+		var fx := FireFX.new()
+		fx.member = m
+		fire.add_child(fx)
+		fx.refresh(true, fire.tuning, true)
+		var sheets := _sheets(fx)
+		check(not sheets.is_empty(), "%s has a sheet" % m.member_id)
+		if sheets.is_empty():
+			continue
+		var foot: float = sheets[0].global_position.y
+		if m == rafter:
+			check(absf(foot - 3.6) < 0.2, "the rafter's fire from its middle (%.2f m, its middle 3.6)" % foot)
+		else:
+			check(absf(foot - 3.0 * FireFX.WALL_FOOT) < 0.05, "the board's from partway up its face (%.2f m)" % foot)
+
+
+func test_the_roof_and_the_openings_show_flames_before_a_nearer_wall() -> void:
+	# More burning boards near the camera than there are flames to show, and a rafter further off:
+	# the rafter shows flames all the same (fire through the roof, not one more board).
+	var cam := Camera3D.new()
+	world.add_child(cam)
+	cam.global_position = Vector3(0, 1.6, 6)
+	cam.make_current()
+	var boards: Array[StructureMember] = []
+	for i in fire.tuning.max_flames + 5:
+		boards.append(building.add_member("wall/b%d" % i, &"board", &"weathered_pine", Vector3(0.24, 2.4, 0.025), Vector3(-6.0 + i * 0.25, 1.2, 0)))
+	var rafter := building.add_member("roof/rafter/00", &"rafter", &"framing", Vector3(4.0, 0.15, 0.05), Vector3(0, 3.6, -3.0), Basis(Vector3.BACK, deg_to_rad(30.0)))
+	building.infer_supports()
+	for m in boards:
+		fire.ignite(m)
+	fire.ignite(rafter)
+	fire._update_fx()
+	check(fire._flaming.has(rafter), "the rafter shows flames though %d boards are nearer" % boards.size())
+	check(fire._flaming.size() <= fire.tuning.max_flames, "still no more than %d" % fire.tuning.max_flames)
 
 
 func test_the_tongues_grow_as_it_burns_and_stay_few() -> void:
