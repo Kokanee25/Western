@@ -472,11 +472,12 @@ frozen until Sean names one.
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
   now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
   `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
-  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
-  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
-  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
-  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
-  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
+  in the saloon (`play.gd`, `PLAYTEST.md`; issue #257 for Sean), each man's decision and why on F3.
+  The bot's A/B/C (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant. With the
+  perception lab's fix 1 (`results/2026-10-22_perception/`): no leak, but cover dropped on arrival
+  doubles. Next: cover against the same guess he chose it by, and cover in the saloon. Traps: wounds
+  bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match their own command line; a
+  `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
