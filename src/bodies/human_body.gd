@@ -153,6 +153,9 @@ const MASS_SHARE := {
 ## His bandana pulled up over his nose and mouth (a Studio man's `cloth_bandana_mask`,
 ## tools/faces/bandana.py), in place of the one at his neck.
 @export var masked := false
+## A talking face (his model's report has a "facerig") comes alive: FaceLife, his look and his
+## expressions. Off where something else drives his face (the face lab's sheets and takes).
+@export var face_life := true
 ## Face and hair: see PeopleArt.face (tone comes from skin_tone).
 @export var look := {"hair": Color(0.22, 0.15, 0.09), "moustache": &"walrus", "beard": &"stubble", "age": 0.4, "brows": 0.7}
 @export var has_gun := true
@@ -295,6 +298,10 @@ func _ready() -> void:
 	physiology.treated.connect(_bind_wound)
 	_dress()
 	_build()
+	if face_life and PeopleBodies.report(body_model).has("facerig"):
+		var life := FaceLife.new()
+		life.name = "FaceLife"
+		add_child(life)
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
@@ -637,6 +644,7 @@ func _build_skin() -> void:
 	}
 	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
 	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
+	var talking := PeopleBodies.report(body_model).has("facerig")
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
@@ -650,7 +658,9 @@ func _build_skin() -> void:
 			mi.name = "%s_%s" % [shape.to_pascal_case(), sid]
 			mi.mesh = pieces[b][0]
 			_rigid_meshes[mi] = pieces[b][1]
-			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape))
+			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
+			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
