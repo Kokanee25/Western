@@ -254,6 +254,13 @@ finger bones yet, so their hands can't close round it.
 | **The handling, step by step** | Draw and holster; cocking the hammer; the revolver's reload as it was (half-cock, open the gate, turn the cylinder, punch each spent case out with the ejector rod, load one round at a time, close the gate); the coach gun broken open, shells out, two in, snapped shut; reloading while hurt or rushed | Every step readable; draw to first shot, reload time and accuracy against the feel ranges (`test_gun_feel.gd`) |
 | **In a man's hands** | His grip (once the men have finger bones; until then the hand placed round the grip), the gun moving with his aim and his recoil, his own draw, cock and reload played the same way, holstered, dropped, shot out of his hand, picked up | Sheets of each Studio man drawing, aiming, firing and reloading; no gun floating off his hand |
 
+**Real guns, made-up names (Sean, 2026-10-21):** keep the real guns' shapes and mechanics exactly
+(1870s designs; their patents are long gone), but nothing the player sees carries a real maker's
+name, logo or stamping (no "Colt", "Winchester", "Peacemaker", rampant colt medallion or barrel
+rollmark): invent period-sounding makers and model names and stamp those instead, as most games
+do. Code comments can say what the gun really is. Before a paid Steam release, a short IP-lawyer
+check is worth it.
+
 Lane: gameplay (`src/weapons/`), art judging the look and painting the materials. Promoted guns,
 hands and moves go in `docs/PARTS.md`.
 
