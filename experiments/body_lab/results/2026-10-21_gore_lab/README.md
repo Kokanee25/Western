@@ -79,3 +79,27 @@ him as he stands and drawn four seconds on (`python3 experiments/body_lab/run.py
   has no knife, no doctor and no saw yet.
 - **The golden pictures:** they need rendering again after this, and re-approving (Sean's OK of
   2026-10-21 covers what this PR changes).
+
+## After (2026-10-22, Sean: "keep going")
+- **An ear or the nose shot off, the jaw shot away** (#215, build 1980): painted by Gemini in run 110
+  ($0.14): `ear_torn`, `nose_gone`, `jaw_gone` round the hole, laid upright, and the flying ear wears
+  `ear_piece`.
+- **On the Studio men's faces:** the runs are wider, the ear runs longer (they show down his neck),
+  the nosebleed comes out under the moustache, and the mouth runs from both corners.
+- **The handprint:** it's taken from where his hand is drawn (`HumanBody.drawn_hand`), so it lands
+  on the wall by the hand you see.
+- **The sling:** a cradle round the forearm, and a strap up over his front to the other side of
+  his neck.
+- **Singed hair:** at the temple toward the fire, for a strong burn.
+- **`--setups=a,b`** renders only those gore setups.
+- **Ten wounded men** (`--perf --brains`), timed alternately against 8245696 on this machine: 4.4 ms
+  here, 2.9 at Sean's, against 2.5 / 1.65. That's still under the 4 ms budget on average, but the
+  worst frames go over it.
+  - The body's tick doubled. What grew: favouring the wound 0.43 ms for ten men (the falls' third
+    round), the hand to the wound 0.32, the wound signs 0.38 (now 0.17, every fourth tick), the
+    stains 0.09, and the pose loop +0.35.
+  - The pose loop is likely the marks and dressings hung on his joints, moved with every turn.
+    Not changed yet.
+- **Not right yet: the skull shows at a Studio man's temples once his head is opened.** The
+  interior's skull shell is the anatomy's size, wider than his drawn head. It was like that before
+  this round. It wants fitting to each man's head mesh (art and characters).
