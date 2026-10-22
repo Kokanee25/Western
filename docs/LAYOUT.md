@@ -77,15 +77,15 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
-`sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
-game time); `gun_lab` (`gun_fp`, `gun_men`, `gun_grip`, `gun_framing`,
-`gun_handling`; its README); the gunfight lab
-(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
-its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
-matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
-(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
-`user://gunfight_runs/` (`PLAYTEST.md`).
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+(`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
+now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
+`sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
+`gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
+scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
+`run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
+sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
+A/B/C, runs to `user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
