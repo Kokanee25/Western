@@ -68,8 +68,10 @@ the history in `docs/status/`.
   second one), and update your rows in the merge that promotes one. The test saloon (the Systems
   Playground) is built only from parts marked "in the game".
 - **Sean's checklist is GitHub Issues** (Sean, 2026-10-21): when you need a decision only Sean
-  can make, open an issue labelled **`waiting on Sean`** (what to look at, with the sheet, video
-  or PR linked; the exact choice; which session asked) instead of only writing it in a status
+  can make, open an issue labelled **`waiting on Sean`** whose first line is **"Answer in:"** and your
+  session's link (`https://claude.ai/code/session_…`, as in your commit trailer) and branch, so he
+  knows where to reply; then what to look at, with the sheet, video or PR linked, and the exact
+  choice instead of only writing it in a status
   entry. When he answers (a comment or closing it), act on it and close it with a line saying what
   you did. His own notes for later are issues labelled **`idea`**. Before asking him something,
   check the open issues so it isn't asked twice.
