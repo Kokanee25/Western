@@ -172,6 +172,8 @@ func _run() -> void:
 	var view_at: Array = []
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
+	# The talking men's faces at rest in the fixed views, as their goldens (FaceLife; --face-life: alive).
+	FaceLife.enabled = OS.get_cmdline_user_args().has("--face-life")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
