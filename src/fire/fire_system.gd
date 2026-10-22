@@ -112,6 +112,14 @@ func spill(at: Vector3) -> void:
 ## and counts in fire_near like a spill.
 func small_fire(at: Vector3, radius: float, seconds: float, heating := 1.0) -> Dictionary:
 	var fx := FireFX.spill_flames(self, at, radius)
+	# Flames its own size: a rag's are a hand or two high, not a spill's.
+	var k := clampf(radius / tuning.spill_radius * 1.5, 0.15, 1.0)
+	var pm := fx.process_material as ParticleProcessMaterial
+	pm.initial_velocity_min *= k
+	pm.initial_velocity_max *= k
+	pm.gravity *= k
+	fx.amount = maxi(8, int(fx.amount * k * 2.0))
+	((fx.draw_pass_1 as QuadMesh)).size *= lerpf(0.5, 1.0, k)
 	var entry := {"position": at, "radius": radius, "left": seconds, "fx": fx, "heating": heating, "small": true}
 	spills.append(entry)
 	_grid_age = INF

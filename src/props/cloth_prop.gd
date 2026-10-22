@@ -73,6 +73,7 @@ var _burn_t := 0.0
 var _caught_at := Vector2.ZERO
 var _flame: Dictionary = {}
 var _solid_again: Variant
+var _wick: FastNoiseLite
 var _solid_in := 0.0
 var _rng := RandomNumberGenerator.new()
 
@@ -552,9 +553,14 @@ func soak(ml: float, at: Vector3) -> void:
 	var x1 := mini(int(c.x + r) + 1, w - 1)
 	var y0 := maxi(int(c.y - r) - 1, 0)
 	var y1 := mini(int(c.y + r) + 1, h - 1)
+	if _wick == null:
+		_wick = FastNoiseLite.new()
+		_wick.seed = rng_seed + 3
+		_wick.frequency = 0.22
 	for y in range(y0, y1 + 1):
 		for x in range(x0, x1 + 1):
-			var d := Vector2(x, y).distance_to(c) / r
+			# Blood wicks out along the threads unevenly: the stain's edge wanders.
+			var d := Vector2(x, y).distance_to(c) / (r * (0.5 + 0.9 * (_wick.get_noise_2d(x, y) * 0.5 + 0.5)))
 			if d < 1.0:
 				var a := clampf((1.0 - d) * 1.6, 0.0, 0.9)
 				_image.set_pixel(x, y, _image.get_pixel(x, y).lerp(BLOOD, a))

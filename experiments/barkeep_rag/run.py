@@ -20,7 +20,7 @@ FILM = [
     ("trouble", 10.0, 34.0, 2),
     ("dropped", 10.0, 20.0, 2),
     ("blast", 2.0, 30.0, 2),
-    ("burn", 10.0, 56.0, 4),
+    ("burn", 10.0, 52.0, 4),
     ("blood", 10.0, 34.0, 2),
 ]
 SCENARIOS = [f[0] for f in FILM]

@@ -26,8 +26,8 @@ const SCENARIOS := {
 	"blast": {"seconds": 30.0, "event": "blast", "at": 4.0,
 			"note": "A stick goes off across the room: the cloth's blown off his shoulder"},
 	"burn": {"seconds": 58.0, "event": "fire", "at": 12.0, "when": "wipe",
-			"note": "Burning oil spilt on the bar: he runs, the cloth catches and burns away"},
-	"blood": {"seconds": 34.0, "event": "wound", "at": 12.0, "when": "wipe",
+			"note": "A flame held to the cloth as he wipes: it catches, he drops it and gets clear; it burns away"},
+	"blood": {"seconds": 34.0, "event": "wound", "at": 12.0, "when": "wipe", "cam": "right",
 			"note": "A stray ball in his side as he wipes: the hand with the cloth goes to the wound, the cloth bloodies"},
 	"perf_on": {"seconds": 62.0, "glass": 1.0, "perf": true},
 	"perf_off": {"seconds": 62.0, "perf": true, "no_cloth": true},
@@ -62,11 +62,13 @@ var _top_box := AABB()
 var _cups: Array = []
 var _prev_pts := PackedVector3Array()
 var _shots: Array = []
+var _match := {}
 ## Where the camera stands (--cam=): across the bar to his left, in front, close on his hands.
 const CAMS := {"side": [Vector3(1.55, 1.7, 1.25), Vector3(-0.05, 1.18, -0.45), 46.0],
 		"front": [Vector3(-0.3, 1.75, 2.0), Vector3(0.0, 1.2, -0.5), 40.0],
 		"close": [Vector3(0.9, 1.55, 0.6), Vector3(-0.1, 1.25, -0.55), 38.0],
-		"behind": [Vector3(1.7, 1.6, -2.3), Vector3(-0.1, 0.75, -0.55), 52.0]}
+		"behind": [Vector3(1.7, 1.6, -2.3), Vector3(-0.1, 0.75, -0.55), 52.0],
+		"right": [Vector3(-1.15, 1.35, -0.45), Vector3(0.0, 1.02, -0.72), 44.0]}
 
 
 func _initialize() -> void:
@@ -197,7 +199,7 @@ func _build_world() -> void:
 	cam = Camera3D.new()
 	world.add_child(cam)
 	var c: Array = CAMS.get(String(opts.get("cam", sc.get("cam", "side"))), CAMS.side)
-	if c == CAMS.behind:
+	if c == CAMS.behind or c == CAMS.right:
 		var fill := OmniLight3D.new()  # his side of the bar, lit for the camera behind him
 		fill.position = Vector3(1.2, 2.3, -1.9)
 		fill.light_color = Color(1.0, 0.8, 0.55)
@@ -284,6 +286,10 @@ func _step(ms: float) -> void:
 		var cup = chore.get(&"_cup")
 		print("glass t=%.2f phase %d palm_l %s cup %s cup_at %s parent %s" % [t, chore.get(&"_phase"), man.palm("l"),
 				cup.global_position if cup else null, chore.get(&"_cup_at"), cup.get_parent().name if cup else ""])
+	if opts.has("debug") and tick % 300 == 0 and fire != null:
+		print("fire t=%.0f burning members %d spills %d smoke fields %d" % [t, fire.burning_members().size(), fire.spills.size(), (fire.get(&"_smoke") as Array).size()])
+	if not _match.is_empty() and fire.spills.has(_match):
+		fire.move_small_fire(_match, cloth.centre())  # held to it, wherever it goes
 	if customer != null:
 		_walk_customer()
 	if cloth != null:
@@ -314,7 +320,8 @@ func _event() -> void:
 		"blast":
 			load("res://src/blast/blast.gd").detonate(world, Vector3(2.6, 0.3, 3.6), float(opts.get("kg", "0.03")))
 		"fire":
-			fire.spill(cloth.centre() + Vector3(0.45, 0.0, 0.0))
+			# A small flame held to it for a few seconds (a lamp's, a match's): nothing else alight.
+			_match = fire.small_fire(cloth.centre(), 0.04, 3.0, 0.0)
 		"wound":
 			var part: Node3D = man.parts[&"abdomen"]
 			var side: Vector3 = man.global_basis.x
@@ -395,6 +402,10 @@ func _write_summary() -> void:
 		s.chore = {"cycles": chore.cycles, "stretches": chore.wiped, "cups": chore.cups, "stopped": String(chore.stopped),
 				"step": String(chore.Step.keys()[int(chore.step)]).to_lower()}
 	if cloth != null:
+		# Its texture as it ends (the blood's on the side against him, the char spread from where it caught).
+		var img: Image = (cloth.get(&"_image") as Image).duplicate()
+		img.resize(img.get_width() * 4, img.get_height() * 4, Image.INTERPOLATE_NEAREST)
+		img.save_png(out_dir.path_join("cloth_texture.png"))
 		s.cloth = {"held": ["free", "hand", "shoulder"][int(cloth.held)], "burning": cloth.burning, "burnt": cloth.burnt,
 				"blood_ml": snappedf(cloth.blood_ml, 0.1), "bloodiness": snappedf(cloth.bloodiness(), 0.001),
 				"centre": str(cloth.centre()) if not cloth.burnt else ""}

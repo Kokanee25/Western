@@ -47,5 +47,10 @@ godot --headless --fixed-fps 60 -s res://experiments/barkeep_rag/softbody_probe.
 
 ## Results
 
-- `results/2026-10-22/`: `table.md` (every scenario), `perf.md` (the cost), the film's stills.
-  The film itself (`barkeep_rag.mp4`, ~3 min) is linked from the PR.
+- `results/2026-10-22/`: `barkeep_rag.mp4` (the film, 3 min: cycle, customer, trouble, dropped,
+  blast, burn at twice speed, blood), `table.md` (every scenario), `perf.md` (the cost), the
+  cloth's texture at the end of `cycle`, `blood` and `burn`. Same seed, same result: 7 of 7.
+  Faults: nothing below the floor, inside the bar or lost in any run; one or two ticks a run with
+  points faster than 20 m/s (a point snagged on the bar's edge springing off as his hand pulls the
+  cloth away; a blast). The cost while he works, at Sean's: People +0.12 ms (his chore 0.044, his
+  arms' IK 0.069, the cloth's script 0.007), the soft body ~+0.08 ms of Physics.
