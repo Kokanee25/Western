@@ -17,7 +17,7 @@ extends Resource
 ## part -> Prof systems (timer names) summed into it; anything not listed is "else".
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
-			&"player", &"town_life", &"blood", &"faces"],
+			&"player", &"town_life", &"blood", &"cloth", &"faces"],
 	&"structures": [&"structures", &"voxels", &"ballistics"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite"],
 }

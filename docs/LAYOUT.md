@@ -500,7 +500,9 @@ a few views renders them as the full run does.
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
   steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run;
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
-  still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`),
+  still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`;
+  a deed puts a hand anywhere by the same IK, `reach_to(side, at, normal, weight)` renewed each tick,
+  clamped to his reach, before the wound's grab, `can_reach`, `palm`, `wound_under_hand`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
@@ -554,6 +556,19 @@ a few views renders them as the full run does.
   seen). The shout key in arm's reach (3 m) of a man who's given up arrests him
   (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
   follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
+  **Chores** (`CivilianBrain.chore`, asked every tick with whether he's free: calm, fear < 0.05, no
+  one to thank; not free, or a hand on a wound of his, it stops): the barkeep's `WipeBar`
+  (`src/people/wipe_bar.gd`, dials `WipeTuning` in `config/wipe.tres`; docs/briefs/barkeep-rag.md).
+  Steps IDLE → TAKE (hand to `ClothProp.shoulder_top`) → LAY (over the stretch, down, let go, palm on
+  it) → WIPE (circles drifting across, then strokes along; the hand's height from a ray down onto
+  WORLD, skipping props) → MOVE (along his side, `span` each way, the next clear stretch: no bottle
+  or lamp on it) → GLASS (a cup on his free hand's side in reach: taken into his palm, held up, the
+  cloth turned in it, put back where it was) → PUT_BACK (`hang_on`); FETCH a lost cloth (along the
+  bar and across it, leaning; or round by the places and crouched for the floor). A customer
+  (someone within `customer_near`, past his front) stops it; trouble tosses the cloth down.
+  `watching`: his FaceLife watches it (`FaceLife.attend_to(point)`, renewed each tick: his eyes on
+  his work, a start or a fight still take them; a man with no talking face turns his head and neck
+  instead, `pose_offsets`). TownLife gives the barkeep his cloth and chore.
 
 ## src/audio
 
@@ -563,7 +578,11 @@ a few views renders them as the full run does.
   distance / 343 m/s late (a physics-time timer), the air's high shelf by distance, the `Room` bus
   under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
   `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
-  fronts. `GameAudio.gunshot` (the report, the roll, the slaps). `ImpactEffects` plays a pass
+  fronts. `GameAudio.gunshot` (the report, the roll, the slaps); `GameAudio.blast` (the blast, its roll, the
+  slaps, debris landing round it after; `BlastEffects`). Breaking (`Structure`, `StructureMember`,
+  `OilLamp`) goes through it too. At most `max_voices` placed sounds at once and `limit` of one
+  (`_room_for`: the quietest at the ears gives way); a delayed one waits on a timer wired straight
+  to its `play()`. `ImpactEffects` plays a pass
   (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
@@ -850,6 +869,18 @@ a few views renders them as the full run does.
   (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
   GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
   the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+- **Props that are cloth** (`ClothProp`, `src/props/cloth_prop.gd`; kit `"kind": "cloth"`, made by
+  `PropKit.make`; the bar rag `bar_cloth.json`): a `SoftBody3D` grid (`points`, UVs in metres, layer
+  0, mask WORLD | BODY_PARTS | DEBRIS); `hold(man, side)` pins the points within `grip_radius` of
+  his palm to his hand part, `hang_on(man, side)` its middle 2 x 2 on top of his shoulder
+  (`shoulder_top`) to his chest part, `let_go`/`knock`; Jolt doesn't hold pinned points, so each
+  tick it moves them (`soft_body_move_point`); the holder's hands and forearms are collision
+  exceptions (and 0.6 s after he lets go). `Events.bullet_hit` (a ball within 16 cm of its middle),
+  `exploded` (Blast.impulse on 0.12 m²), `doused`, a `shove` deed at its wearer knock it; FireSystem
+  `small_fire` once `fire_near` its middle for `catch_seconds`; `soak(ml, at)` from
+  `HumanBody.wound_under_hand`. Its texture is an Image painted in code (`paint`), updated as it
+  bloodies and chars; `PixelArt.factory("bar_cloth")` replaces it when painted. Prof `cloth`
+  (People). The lab: `experiments/barkeep_rag/`.
 
 ## src/art/saloon_dressing.gd
 
