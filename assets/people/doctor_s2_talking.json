@@ -235,6 +235,13 @@
     },
     "max_mm": 5.7
    }
+  },
+  "stitch": {
+   "stitch_points": 175,
+   "faded": 411,
+   "fade_m": 0.02,
+   "worst_before": 0.45,
+   "worst_after": 0.0
   }
  },
  "bandana": {
