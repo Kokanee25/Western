@@ -1,9 +1,13 @@
 class_name SynthSounds
 ## Sounds made in code until there are recorded ones: a black-powder gunshot with its echo off the
 ## hills, the hammer's two clicks, a dry-fire click, the cylinder's ratchet, the gate, brass.
-## Mono 16-bit PCM, generated once and cached.
+## Mono 16-bit PCM, generated once and cached. The sound lab's (docs/briefs/sound-lab.md: the
+## reports and their roll) are made at HI_RATE, so their tops survive.
 
 const RATE := 22050
+const HI_RATE := 44100
+## Made at HI_RATE.
+const HI := [&"report", &"report_big", &"rolling", &"rolling_big"]
 
 static var _cache := {}
 
@@ -39,8 +43,13 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"splash": samples = _splash(rng)
 			&"fill": samples = _fill(rng)
 			&"steam": samples = _steam(rng)
+			&"report": samples = _report(rng, false)
+			&"report_big": samples = _report(rng, true)
+			&"rolling": samples = _rolling(rng, false)
+			&"rolling_big": samples = _rolling(rng, true)
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
-		var wav := _to_wav(_no_sub_bass(samples))
+		var rate := HI_RATE if id in HI else RATE
+		var wav := _to_wav(_no_sub_bass(samples, rate), rate)
 		if id == &"fire" or id == &"fuse" or id == &"ringing":
 			wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 			wav.loop_end = samples.size()
@@ -79,6 +88,74 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 			lp3 += (out[i - d] - lp3) * 0.08
 			out[i] += lp3 * echo[1]
 	return _normalise(out, 0.95)
+
+
+## A black-powder report as it leaves the muzzle, heard close (the sound lab, docs/briefs/sound-lab.md):
+## the cap's click, the blast's shock (a Friedlander pulse: a sharp rise, a fall through to a long,
+## shallow suck back; black powder's is longer and lower than smokeless powder's), the rough rush of
+## the gas, and the deep push of a lot of slow-burning powder: more boom than crack. No echo here:
+## the room, the fronts and the hills are where it's heard (GameAudio). `big` for the coach gun: a
+## bigger bore and three times the powder, so a longer, deeper push. 44.1 kHz.
+static func _report(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Array:
+	var n := int(HI_RATE * (0.9 if big else 0.7))
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var t_pos := 0.0016 if big else 0.0011  # the shock's positive phase
+	var boom_hz := 64.0 if big else 86.0
+	var boom_tau := 0.10 if big else 0.07
+	var gas_tau := 0.028 if big else 0.018
+	var body_tau := 0.15 if big else 0.10
+	var lp := 0.0
+	var slow := 0.0
+	var deep := 0.0
+	var phase := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		var cap := white * exp(-t / 0.0005) * 0.3 if t < 0.004 else 0.0
+		var s := cap
+		var tt := t - 0.0025  # the charge goes a moment after the cap
+		lp += (white - lp) * 0.35
+		slow += (lp - slow) * 0.05
+		deep += (white - deep) * 0.04  # ~300 Hz
+		if tt >= 0.0:
+			var shock := (1.0 - tt / t_pos) * exp(-1.6 * tt / t_pos)
+			var gas := (lp - slow) * exp(-tt / gas_tau) * 1.1
+			var body := deep * exp(-tt / body_tau) * minf(tt / 0.004, 1.0) * 3.2
+			phase += TAU * lerpf(boom_hz, boom_hz * 0.62, minf(tt / 0.12, 1.0)) / HI_RATE
+			var boom := sin(phase) * exp(-tt / boom_tau) * minf(tt / 0.002, 1.0) * 0.75
+			s += shock * 0.9 + gas + body + boom
+		out[i] = s
+	return _normalise(out, 0.95)
+
+
+## The report as it carries: a low, rolling boom that swells a moment and dies slow, and the hills
+## sending it back, softer and duller each time and smeared (a slope of rock and scrub, not a
+## mirror). Heard a little up close and most of all far off, where the report's blast has gone.
+static func _rolling(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Array:
+	var n := int(HI_RATE * 3.4)
+	var base := PackedFloat32Array()
+	base.resize(n)
+	var k := 0.032 if big else 0.045  # ~230 / 320 Hz
+	var tau := 0.6 if big else 0.45
+	var a := 0.0
+	var b := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		a += (rng.randf_range(-1.0, 1.0) - a) * k
+		b += (a - b) * k * 2.0
+		base[i] = b * minf(t / 0.03, 1.0) * exp(-t / tau)
+	var out := base.duplicate()
+	for echo: Array in [[0.45, 0.42], [1.0, 0.28], [1.6, 0.17], [2.3, 0.09]]:
+		var d := int(float(echo[0]) * HI_RATE)
+		var lp := 0.0
+		for tap in 3:  # smeared over ~50 ms
+			var dd := d + int(tap * 0.025 * HI_RATE)
+			var g: float = float(echo[1]) * [0.6, 0.3, 0.15][tap]
+			for i in range(dd, n):
+				lp += (base[i - dd] - lp) * 0.3
+				out[i] += lp * g
+	return _normalise(out, 0.9)
 
 
 ## Dynamite: a hard crack, a heavy thump and a long roll back off the hills.
@@ -387,12 +464,12 @@ const LOW_CUT_HZ := 45.0
 
 ## A fourth-order Butterworth high-pass at LOW_CUT_HZ (two biquads, Q 0.5412 and 1.3066; RBJ's
 ## cookbook), run forward, the peak put back where the sound had it.
-static func _no_sub_bass(s: PackedFloat32Array) -> PackedFloat32Array:
+static func _no_sub_bass(s: PackedFloat32Array, rate := RATE) -> PackedFloat32Array:
 	var peak := 0.0
 	for v in s:
 		peak = maxf(peak, absf(v))
 	for q: float in [0.5412, 1.3066]:
-		var w := TAU * LOW_CUT_HZ / RATE
+		var w := TAU * LOW_CUT_HZ / rate
 		var alpha := sin(w) / (2.0 * q)
 		var c := cos(w)
 		var a0 := 1.0 + alpha
@@ -430,14 +507,14 @@ static func _normalise(s: PackedFloat32Array, peak: float) -> PackedFloat32Array
 	return s
 
 
-static func _to_wav(s: PackedFloat32Array) -> AudioStreamWAV:
+static func _to_wav(s: PackedFloat32Array, rate := RATE) -> AudioStreamWAV:
 	var bytes := PackedByteArray()
 	bytes.resize(s.size() * 2)
 	for i in s.size():
 		bytes.encode_s16(i * 2, int(clampf(s[i], -1.0, 1.0) * 32767.0))
 	var wav := AudioStreamWAV.new()
 	wav.format = AudioStreamWAV.FORMAT_16_BITS
-	wav.mix_rate = RATE
+	wav.mix_rate = rate
 	wav.stereo = false
 	wav.data = bytes
 	return wav

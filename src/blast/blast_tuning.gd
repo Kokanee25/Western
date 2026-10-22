@@ -60,6 +60,31 @@ extends Resource
 ## past ~2 m anywhere on Main Street (the breakage lab, 2026-10-21); this is 3.5 m for one stick.
 @export var break_reach_per_cbrt_kg := 6.0
 
+@export_group("Craters")
+## A charge on the dirt digs a crater D = crater_k x cbrt(kg) across (m; kg TNT): Kinney and
+## Graham's regression over ~200 surface explosions ("Explosive Shocks in Air", 1985; spread about
+## +-30%), as Ambrosini, Luccioni, Danesi, Riera and Rocha (Shock Waves 12, 2002) checked it for
+## charges at ground level (quoted, the papers not read: docs/briefs/dig-ground.md). A stick: 0.47 m.
+@export var crater_k := 0.8
+## Its depth, of its diameter (0.25-0.30 for small surface charges, as later papers quote it).
+@export var crater_depth_ratio := 0.27
+## Gone off above the dirt it digs less (charges above the ground make smaller craters: Ambrosini
+## et al.), none from this high (m per cbrt kg: 18 cm for a stick). A stand-in, straight down to none.
+@export var crater_height := 0.3
+## Of the earth it takes, the share packed into the crater's floor and walls rather than thrown.
+@export var crater_packed := 0.3
+## The lip: loose earth in a ring from the crater's edge, highest at lip_peak x its radius, out to
+## lip_out x it (the published crater profiles' shape, scaled).
+@export var lip_peak := 1.25
+@export var lip_out := 2.0
+## Of the earth thrown, the share that flies as clods (the rest lies in the lip), in this many, at
+## these speeds (m/s); each turns back into loose earth where it comes to rest on the dirt.
+@export var clod_share := 0.25
+@export var clods := 16
+@export var clod_speed := Vector2(3.0, 8.0)
+## Dry earth as dug (kg/m³, packed): a clod's weight.
+@export var earth_density := 1600.0
+
 @export_group("Fire")
 ## The fireball: this radius per cube root of kg TNT; dry wood inside it may catch, people in it
 ## are burnt.

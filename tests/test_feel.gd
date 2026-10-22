@@ -91,6 +91,16 @@ func test_outlaw_hit_rates() -> void:
 	Feel.within(self, "outlaw_hit_rate_30m", await _hit_rate(30.0, 4, 6))
 
 
+## The gunfight lab's variant B (his hand on the gun, `GunHand`) held to the same ranges.
+func test_outlaw_hit_rates_by_his_hand() -> void:
+	OutlawBrain.default_variant = OutlawBrain.Variant.B
+	var rates := [await _hit_rate(5.0, 4, 4), await _hit_rate(15.0, 4, 5), await _hit_rate(30.0, 4, 6)]
+	OutlawBrain.default_variant = OutlawBrain.Variant.A
+	Feel.within(self, "outlaw_hit_rate_5m", rates[0])
+	Feel.within(self, "outlaw_hit_rate_15m", rates[1])
+	Feel.within(self, "outlaw_hit_rate_30m", rates[2])
+
+
 # -- On the street: the duel and backing down ------------------------------------------------------
 
 var street: Node3D

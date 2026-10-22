@@ -1,0 +1,9 @@
+{
+ "source": "4db0224",
+ "godot": "4.7.2.stable.official.ed1daf0bf",
+ "cpu": 4,
+ "jobs": 4,
+ "max_s": 180.0,
+ "command": "run.py --out=build/gunfight_lab/base --bodies=outlaw --seeds=1-5 --jobs=4",
+ "fights": 180
+}

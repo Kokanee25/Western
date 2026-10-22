@@ -274,6 +274,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
 - **src/art/shot_match.gd** — the saloon painting's shot and its fits.
@@ -380,11 +381,13 @@ frozen until Sean names one.
   Judge every change against Sean's pictures and his words (he turned down a flat collar band
   twice). Trap: after a build, `godot --headless --import` first; lab renders via
   `tools/characters/lab_run.sh`.
-- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
-  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
-  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
-  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
-  sync; then RECIPE.md's step for every man (with Sean's OK).
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): every Studio man has
+  MakeHuman's face grafted on (20 expressions as blend shapes), bandanas (`bandana.py`) and skinned
+  hands (`hands.py`, 30 finger bones; not the rancher). **Alive** (2026-10-22): `FaceLife` on every
+  talking man (looks round at whom his Senses see, blinks, starts at shots, a pain grimace, wide eyes
+  afraid, lids part shut dead; `config/face_life.tres`; film `docs/style_test/faces_alive.mp4`);
+  `neck_seam.py` closed the jaw's tear as his head turns. Next: Sean's three takes
+  (`docs/FACE_TAKES.md`) to tune the lip sync; issue #247 (gameplay: a test-order dependency).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -410,10 +413,11 @@ frozen until Sean names one.
   `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
   treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
   game saloon (group T). Then **`Railing`** (#198, build 1851): the railing part, the saloon's
-  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (`claude/gameplay-seated-falls`,
+  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (#204,
   `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
   `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
-  pose, both in `human_body.gd` for Sean's OK; Sean's scene (`scenes/chair_kick_shot.gd`). Next:
+  pose (Sean OK'd both); Sean's scene (`scenes/chair_kick_shot.gd`); eight contacts a part near
+  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
 - **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
@@ -435,7 +439,14 @@ frozen until Sean names one.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-  Next: the gunfight lab's bench and baseline.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
+  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
+  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
+  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
+  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
+  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
+  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
+  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
@@ -454,13 +465,16 @@ frozen until Sean names one.
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
-  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
-  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
-  (the chair) as members. Then 3.3.
+  step 3; brief `docs/briefs/dig-ground.md`, Sean's decisions in): `Ground` (flat slabs, 5 cm height
+  field tiles where dug, `take`/`put`, loose earth slides, saves the heights; #235, #237), the
+  crater (`Blast.crater`, 0.8 x cbrt(kg), clods lie down as earth; #245, build 2020), what stands
+  and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
+  a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
+  (the brief's "What art needs"). Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
-  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
-  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`/`GlassProp`): the chair and the card table in the game (build 1919); the
+  bottle and the oil lamp (`GlassProp`, "shatters") on the branch, in_game, waiting to merge; the
+  ragdoll lab tests men in the kit chair (how he falls is theirs). Next: stools, barrels, crates.
