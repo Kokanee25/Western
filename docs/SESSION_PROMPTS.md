@@ -5,6 +5,7 @@ Keep this file current: a session that changes a step, a brief or a lab updates 
 How to use: one prompt per new session. Start it in the repo named in brackets.
 Up to four sessions at once in Phases 2 and 3 (roadmap rule). Every session ends
 with its status entry and Current state lines, as CLAUDE.md says.
+Decisions for Sean go in GitHub Issues labelled "waiting on Sean" (CLAUDE.md).
 Repos: Salt Creek = Kokanee25/western. Character Studio = Kokanee25/saltcreek-characters.
 
 
@@ -133,6 +134,16 @@ LABS RUNNING NOW (Phase 3)
 ------------------------------------------------------------
 Bodies paragraph for every lab: the Studio's men are in assets/people
 (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), already cast as the gang (#160).
+
+## The card cheat, playable (after #204 merges) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-card-cheat. Make the card cheat playable in the game's saloon: docs/briefs/showcase-moments.md, "The card cheat" (with the punchline rule). Read it, docs/PARTS.md, and the open "waiting on Sean" issues first.
+
+Use only parts in the game: the kit chair and card table, the seated falls and kick (PR #204), the falls, wounds and gore, the hand to the wound, deeds and the escalation ladder. A man at the card table; the victim walks in angry, kicks the chair's back legs out, the cheater goes over backwards, the victim stands over him, draws, shouts and puts the gun in his mouth; the player has a few seconds. Every way out works by the systems, not a script: shoot him (the ball can carry on into the man on the floor), shout or draw so he turns on you, shove him, throw a bottle if one exists, shoot his gun hand, or do nothing. Afterwards the room reacts by what each person saw, and the barman's first words are about his chair, named at whoever broke it (the owners rule). Set it up as data (who, where, why), triggerable from the dev bridge and placed in the saloon at a time of day.
+
+The playtest agent plays it blind ten times first and reports what happened each time. Then give me a build with exactly how to start it and what to try. Open a "waiting on Sean" issue for anything only I can decide.
+```
 
 ## Gunfight lab (3.0) [Salt Creek]
 
@@ -321,6 +332,16 @@ Gameplay lane (art judges the look), branch claude/gameplay-gun-lab. The gun lab
 Bench and baseline first in experiments/gun_lab/ (README, its own bridge.gd, outputs in build/): sheets of the revolver and coach gun in first person (at rest, aiming, walking, running, every reload step) and in each Studio man's hands (drawing, aiming, firing, reloading, holstered, dropped), at 1, 5 and 10 m; the handling numbers (draw to first shot, cocking, reload time one round at a time, sight recovery, accuracy rushed and wounded) against the feel ranges. List everything that looks wrong or floats.
 
 Then, one at a time and measured: the look in the painted style matched to the men (materials through the texture factory, costs first); both hands on the coach gun and hands matching the player's body; the revolver's period reload step by step (half-cock, gate, ejector rod per spent case, one round at a time) and the coach gun's; a man's grip, aim, recoil, draw and reload played the same way; holster, drop, shot out of the hand, picked up. The men's hands need finger bones (characters lane): ask, and place the hand round the grip until then. Give me builds to try with exactly what to look for. Promote what's done into docs/PARTS.md.
+```
+
+## Sound lab (now; Sean 2026-10-21) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-sound-lab. The sound lab (docs/briefs/labs.md, "Sound lab"). Read it, src/audio/synth_sounds.gd, and the src/weapons and src/blast sections of docs/LAYOUT.md.
+
+Bench and baseline first in experiments/sound_lab/ (README, its own bridge.gd, outputs in build/, seeded): every sound the game plays, what triggers it and how it's placed in 3D; recordings (bridge.py --movie, with sound) of a revolver and coach gun shot at 2, 20 and 80 m, outside and inside the saloon, a ricochet off stone and iron, a ball into wood, flesh, glass and dirt, a stick of dynamite at 5, 30 and 100 m, timber breaking, a building on fire, steps on boards and dirt; how many voices play in a full gunfight and what audio costs a frame. List what sounds fake, flat, too quiet or wrong for 1882.
+
+Then, one at a time and measured: gunshots with weight (the crack, the boom, the echo off the hills and the street's fronts, muffled through a wall), ricochets and zips that tell you how close the ball came, dynamite that thumps the chest up close and rolls in the distance, impacts by material, indoor against outdoor. Better synthesis first; any recorded or generated sound only with a licence that allows redistribution from this public repo, credited in CREDITS.md, and ask me before paying for anything. Videos with sound in the PR, and tell me exactly what to listen for.
 ```
 
 ## Law, witnesses and consequences lab (Phase 5) [Salt Creek]

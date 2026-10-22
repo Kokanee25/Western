@@ -226,7 +226,7 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 					_add_hit(result, st, &"stopped", at)
 					done = true
 					break
-			&"finger":
+			&"finger", &"appendage":
 				e = maxf(e - float(st.get(&"strength", 8.0)), 0.0)
 				_add_hit(result, st, &"severed", at)
 				if e <= 0.0:
