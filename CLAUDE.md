@@ -424,7 +424,8 @@ frozen until Sean names one.
   format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
   experiment; nothing in the game changed. Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
   `past` marked on members, drawn in the lab (a `WEAR` hook in texel_grid, inert in the game); for
-  art: marks along each member's grain. Next: the README's "What the format needs"
+  art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
+  the desert. Next: the README's "What the format needs"
   (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
