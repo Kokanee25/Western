@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bp42xyivei41g"
-path="res://.godot/imported/timber_b8.png-c23e4b23821bb736cee20985729018e7.ctex"
+uid="uid://bc68k8prd1mth"
+path="res://.godot/imported/dark_trim_b4.png-9c50fa058809410ff51c0baed18941ad.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/woods/timber_b8.png"
-dest_files=["res://.godot/imported/timber_b8.png-c23e4b23821bb736cee20985729018e7.ctex"]
+source_file="res://assets/textures/woods/dark_trim_b4.png"
+dest_files=["res://.godot/imported/dark_trim_b4.png-9c50fa058809410ff51c0baed18941ad.ctex"]
 
 [params]
 

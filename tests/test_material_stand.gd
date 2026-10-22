@@ -156,8 +156,7 @@ func test_a_set_with_a_stain_sheet_weathers_its_woods() -> void:
 	check(m.get_shader_parameter(&"weather_tex") is Texture2D, "with its stain sheet")
 	check(m.get_shader_parameter(&"edge_aa") == true, "seams a pixel wide")
 	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
-	check(g.get_shader_parameter(&"use_weather") != true, "the game's woods untouched")
-	check(g.get_shader_parameter(&"edge_aa") != true, "their seams as they were")
+	check(g.get_shader_parameter(&"use_weather") != true, "the game's woods carry no stains (no frame on their members yet)")
 
 
 func test_the_solid_oak_stair_can_be_stood_and_fallen_on() -> void:
@@ -259,7 +258,7 @@ func test_the_interior_woods_are_in_the_game() -> void:
 		check(m != null and m.get_shader_parameter(&"edge_aa") == true, "%s drawn with seams a pixel wide" % wood)
 		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
 	var outside := WoodMaterials.get_material(&"floor", 0) as ShaderMaterial
-	check(outside.get_shader_parameter(&"edge_aa") != true, "the outside's floor as it was")
+	check(outside.get_shader_parameter(&"edge_aa") == true, "the outside's floor too, since round 6b went in")
 
 
 func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
@@ -318,8 +317,8 @@ func test_a_set_with_light_bands_steps_its_woods_light() -> void:
 	check(m.shader == PixelArt.GRID_SHADER_BLOCKS, "the set's woods take the banded light")
 	check(float(m.get_shader_parameter(&"wood_bands")) == 4.0, "at the set's steps")
 	check(PixelArt.hole_material(m).shader == PixelArt.HOLE_SHADER_BLOCKS, "and keep it when shot")
-	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
-	check(g.shader == PixelArt.grid_shader(), "the game's woods as the world's")
+	var g := PixelArt.material(load("res://assets/textures/woods/int_floor_b0.png"))
+	check(g.shader == PixelArt.grid_shader(), "a wood without its own steps as the world's (the interior floor)")
 
 
 func test_the_back_bar_mirrors_paint_the_room() -> void:
@@ -327,3 +326,15 @@ func test_the_back_bar_mirrors_paint_the_room() -> void:
 	var m := PropKit.material("prop:mirror", 0) as ShaderMaterial
 	check(m != null and m.shader != null and m.shader.resource_path.ends_with("mirror.gdshader"), "the painted reflection")
 	check(m.shader.get_code().contains("room_depth"), "a room in front of the glass")
+
+
+func test_round_6b_is_the_game_exterior_woods() -> void:
+	# Sean picked round 6b (2026-10-22): the exterior woods promoted from mlab_studio10 under the
+	# game's names, with the lab's finish (seams a pixel wide, the low sheen, the light in 4 steps).
+	for wood in [&"saloon_red", &"store_boards", &"weathered_pine", &"floor", &"timber", &"fascia", &"framing", &"dark_trim"]:
+		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
+		check(m != null and m.get_shader_parameter(&"edge_aa") == true, "%s with seams a pixel wide" % wood)
+		check(m.shader == PixelArt.GRID_SHADER_BLOCKS and float(m.get_shader_parameter(&"wood_bands")) == 4.0, "%s lit in 4 steps" % wood)
+		check(is_equal_approx(float(m.get_shader_parameter(&"specular")), 0.08), "%s with the low sheen" % wood)
+		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
+	check(WoodMaterials.strip_count(&"timber") == 8, "timber's 8 boards, the old 12's extras gone")

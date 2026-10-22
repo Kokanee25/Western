@@ -1,89 +1,124 @@
 {
  "woods": {
   "timber": {
-   "boards": 12,
-   "rows": 32,
-   "length": 256,
-   "texels_per_metre": 128,
+   "boards": 8,
+   "rows": 96,
+   "length": 1152,
+   "texels_per_metre": 384.0,
    "end": "timber_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/timber",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "floor": {
-   "boards": 7,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "floor_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/floor",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "saloon_red": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "saloon_red_end.png",
    "end_texels": 256,
-   "end_wear": 0.07
+   "promoted_from": "mlab_studio10/saloon_red",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "saloon_red_low": {
    "boards": 8,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "saloon_red_low_end.png",
    "end_texels": 256,
-   "end_wear": 0.07
+   "promoted_from": "mlab_studio10/saloon_red_low",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "store_boards": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "store_boards_end.png",
    "end_texels": 256,
-   "end_wear": 0.06
+   "promoted_from": "mlab_studio10/store_boards",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "store_boards_low": {
    "boards": 8,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "store_boards_low_end.png",
    "end_texels": 256,
-   "end_wear": 0.06
+   "promoted_from": "mlab_studio10/store_boards_low",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "weathered_pine": {
    "boards": 10,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "weathered_pine_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/weathered_pine",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "fascia": {
    "boards": 8,
-   "rows": 26,
-   "length": 256,
-   "texels_per_metre": 128,
+   "rows": 78,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "fascia_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/fascia",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "framing": {
-   "boards": 3,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "boards": 8,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
    "end": "framing_end.png",
-   "end_texels": 256
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10/framing",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "dark_trim": {
-   "boards": 2,
-   "rows": 24,
-   "length": 256,
-   "texels_per_metre": 128,
+   "boards": 7,
+   "rows": 72,
+   "length": 1536,
+   "texels_per_metre": 384.0,
    "end": "dark_trim_end.png",
    "end_texels": 256,
-   "end_wear": 0.04
+   "promoted_from": "mlab_studio10/dark_trim",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   },
   "dark_oak": {
    "boards": 4,
