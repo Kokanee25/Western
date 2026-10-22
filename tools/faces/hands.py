@@ -87,6 +87,37 @@ def add_finger_joints(g, rests):
     return names
 
 
+def his_skin(m, colour):
+    """His skin's colour and grain from his own (Rodin's) hands, before they're cut: where his
+    forearm by the wrist is a sleeve (a white shirt, a black jacket), the new hands would take its
+    colour. Then that band of his texture, in a copy fit_tripo reads (m.colour), is his skin's,
+    so the hands are painted from it; his own texture is untouched."""
+    tex = np.asarray(colour, np.float64)
+    hh, ww = tex.shape[:2]
+    at = lambda uv: tex[np.clip((uv[:, 1] * hh).astype(int), 0, hh - 1), np.clip((uv[:, 0] * ww).astype(int), 0, ww - 1)]
+    o = m.our_joints()
+    hands = np.isin(m.region, ["hand_r", "hand_l"])
+    own = at(m.uv[hands])
+    rgb = np.median(own, 0)
+    grain = float(np.std(own.mean(1) - np.median(own.mean(1))))
+    band = []
+    for side in "rl":
+        wr, el = o[side + "-hand"], o[side + "-elbow"]
+        ax = (wr - el) / np.linalg.norm(wr - el)
+        up = (m.v - wr) @ ax
+        band.append(np.nonzero((m.region == "forearm_" + side) & (up > -0.10) & (up < 0.0))[0])
+    band = np.concatenate(band)
+    arm = np.median(at(m.uv[band]), 0)
+    sleeved = bool(np.linalg.norm(arm - rgb) > 45)
+    if sleeved:
+        t = tex.copy()
+        uv = m.uv[band]
+        t[np.clip((uv[:, 1] * hh).astype(int), 0, hh - 1), np.clip((uv[:, 0] * ww).astype(int), 0, ww - 1)] = rgb
+        m.colour = Image.fromarray(t.astype(np.uint8))
+    print("hands: his own hands' skin", rgb.round(), "his forearm by the wrist", arm.round(), "sleeved" if sleeved else "bare")
+    return {"rgb": rgb, "grain": grain, "sleeved": sleeved}
+
+
 def vertex_normals(V, T):
     N = np.zeros_like(V)
     fn = np.cross(V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]])
@@ -122,6 +153,7 @@ def build(man):
     m.region = np.array(names, dtype="<U16")[W17.argmax(1)]
     m.head = np.zeros(len(V), bool)
     m.our_joints = types.MethodType(mp.Person.our_joints, m)
+    skin = his_skin(m, colour)
     for f in ("_stitch", "_free_squares"):
         setattr(m, f, types.MethodType(getattr(FT.TripoPerson, f), m))
     FT.TripoPerson.skinned_hands(m)
@@ -166,6 +198,8 @@ def build(man):
     px_arm = tex[np.clip((uv[:, 1] * hh).astype(int), 0, hh - 1), np.clip((uv[:, 0] * ww).astype(int), 0, ww - 1)]
     arm_med = np.median(px_arm, 0)
     grain = float(np.std(px_arm.mean(1) - np.median(px_arm.mean(1))))
+    if skin["sleeved"]:
+        arm_med, grain = skin["rgb"], skin["grain"]
     rng = np.random.default_rng(5)
     hand_rows = np.concatenate([np.arange(n0, n0 + len(fw)) for n0, fw, _sd in m.hand_fw])
     for paint, (u0, v0, side) in m.hand_paint:
@@ -185,7 +219,8 @@ def build(man):
         tile = Image.fromarray(np.clip(tile, 0, 255).astype(np.uint8))
         colour = colour.copy()
         colour.paste(tile, (int(round(u0 * colour.width)), int(round(v0 * colour.height))))
-    m.report["own_fingers"]["matched_to_arm"] = {"arm_rgb": [round(float(x)) for x in arm_med], "grain": round(grain, 1)}
+    m.report["own_fingers"]["matched_to_arm"] = {"arm_rgb": [round(float(x)) for x in arm_med], "grain": round(grain, 1),
+                                                  "from": "his own hand (his forearm is a sleeve)" if skin["sleeved"] else "his forearm"}
     colour.save(os.path.join(PEOPLE, man + "_skin.png"))
     info["finger_bones"] = m.report["finger_bones"]
     info["own_fingers"] = m.report["own_fingers"]
