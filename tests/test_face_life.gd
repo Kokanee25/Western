@@ -180,3 +180,18 @@ func test_far_from_the_camera_his_face_rests() -> void:
 	cam.queue_free()
 	other.queue_free()
 	him.queue_free()
+
+
+func test_a_man_he_saw_who_is_gone_doesnt_trouble_him() -> void:
+	# (test_dynamite: a man freed while still in his Senses' knowledge.)
+	var r: Array = await _alive(&"life_gone")
+	var him: HumanBody = r[0]
+	var life: FaceLife = r[1]
+	var other := _man(&"life_gone_other", Vector3(-2.0, 0, -2.5), &"outlaw")
+	await physics_frames(2)
+	_sees((r[2] as FakeBrain).senses, other)
+	_steps(life, 1.0)
+	other.free()
+	_steps(life, 5.0)
+	check(life.looking_at() == null or is_instance_valid(life.looking_at()), "he looks at nobody who's gone")
+	him.queue_free()

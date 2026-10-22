@@ -119,18 +119,17 @@ func step(delta: float) -> void:
 	_hold -= delta
 	_startled -= delta
 	_startle = maxf(_startle - delta / maxf(tuning.startle_fade, 0.01), 0.0)
-	if _who != null and is_instance_valid(_who):
+	if is_instance_valid(_who):
 		_looked[_who] = float(_looked.get(_who, 0.0)) + delta
 	for w: Variant in _looked.keys():
-		if w != _who:
+		if is_instance_valid(w) and w != _who:
 			_looked[w] = maxf(float(_looked[w]) - delta * 0.5, 0.0)
 	_pick_in -= delta
 	if _pick_in <= 0.0:
 		_pick_in = tuning.pick_every
 		_pick(fear)
-	if _who != null and not is_instance_valid(_who):
-		_who = null
-		_hold = 0.0
+	if not is_instance_valid(_who):
+		_who = null   # (gone: he looks at the point he had till his next pick)
 	gaze.target = _who
 	gaze.target_point = _point
 	var aiming := body.pose == &"aim" or body.pose == &"crouch_aim" or body.pose == &"prone_aim"
@@ -188,17 +187,21 @@ func _hook_senses() -> void:
 func _pick(fear: float) -> void:
 	# Fighting: on his man (the brain's target), whatever else.
 	var foe: Variant = _brain.get("target") if _brain != null and "target" in _brain else null
-	if foe is Node3D and is_instance_valid(foe) and _fighting():
+	if is_instance_valid(foe) and foe is Node3D and _fighting():
 		_who = _face_of(foe)
 		_hold = 0.5
 		return
 	if _startled > 0.0 or _hold > 0.0:
 		return
+	for d: Dictionary in [_looked, _first]:
+		for w: Variant in d.keys():
+			if not is_instance_valid(w):
+				d.erase(w)
 	var best: Node3D = null
 	var best_score := -INF
 	if _senses != null:
 		for who: Variant in _senses.known.keys():
-			if not (who is Node3D) or not is_instance_valid(who) or who == body or not _senses.sees(who):
+			if not is_instance_valid(who) or not (who is Node3D) or who == body or not _senses.sees(who):
 				continue
 			var n := who as Node3D
 			if n is HumanBody and not (n as HumanBody).physiology.alive:
@@ -276,7 +279,7 @@ func _ahead(deg: Vector2) -> Vector3:
 func _start(at: Vector3, who: Node) -> void:
 	_startle = 1.0
 	gaze.blink()
-	if who is Node3D and who != body and is_instance_valid(who):
+	if is_instance_valid(who) and who is Node3D and who != body:
 		_who = _face_of(who)
 	else:
 		_who = null
@@ -296,7 +299,7 @@ func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:
 		_start(at, who)
 	elif _hold <= 0.0 and _startled <= 0.0:
 		# A quieter sound: a look that way, no start.
-		if who is Node3D and who != body and is_instance_valid(who):
+		if is_instance_valid(who) and who is Node3D and who != body:
 			_who = _face_of(who)
 		else:
 			_who = null
