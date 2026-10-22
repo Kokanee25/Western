@@ -77,14 +77,15 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
-`sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
-game time); the gunfight lab
-(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
-its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
-matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
-(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
-`user://gunfight_runs/` (`PLAYTEST.md`).
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+(`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
+now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
+`sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); the
+gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
+scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
+`run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
+sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
+A/B/C, runs to `user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -577,7 +578,11 @@ a few views renders them as the full run does.
   distance / 343 m/s late (a physics-time timer), the air's high shelf by distance, the `Room` bus
   under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
   `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
-  fronts. `GameAudio.gunshot` (the report, the roll, the slaps). `ImpactEffects` plays a pass
+  fronts. `GameAudio.gunshot` (the report, the roll, the slaps); `GameAudio.blast` (the blast, its roll, the
+  slaps, debris landing round it after; `BlastEffects`). Breaking (`Structure`, `StructureMember`,
+  `OilLamp`) goes through it too. At most `max_voices` placed sounds at once and `limit` of one
+  (`_room_for`: the quietest at the ears gives way); a delayed one waits on a timer wired straight
+  to its `play()`. `ImpactEffects` plays a pass
   (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
