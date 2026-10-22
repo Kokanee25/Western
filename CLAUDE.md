@@ -487,6 +487,10 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
+- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
+  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
+  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
+  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
