@@ -440,8 +440,10 @@ frozen until Sean names one.
   ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
-  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
-  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+  roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
+  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
+  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
+  (the chair) as members. Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
