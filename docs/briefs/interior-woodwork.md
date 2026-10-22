@@ -166,3 +166,20 @@ picture has big squares, the back bar still reads slight. Layout right both roun
 3. Coarser squares on the fixtures' woods (the texel size) and the panels' edges catching light.
 4. For the saloon session: `PropKit.spawn(&"bar")` and `&"back_bar"` in place of `SaloonBuilding`'s
    hand-built bar, turned to face the room; bars longer than 3 m are sections side by side.
+
+### Round 3: the mirrors (2026-10-22)
+
+`prop:mirror` is painted, not flat ochre: `src/props/mirror.gdshader` reflects the view ray off the
+glass into a box of a room in front of it (its far wall `room_depth` away, its ceiling) and paints
+that room in squares: a warm smoky haze, sconce lamps (a chimney and a soft glow), posts, the
+gallery's rail and balusters, the ceiling's beams, dark shapes of tables and men low down; the
+room's light in steps, the lamps' soft. It slides across the glass as you move. Free (two plane
+intersections a pixel; no probe, no second camera). Only the kit's back bar uses it (the interior
+stand); the old saloon's mirrors (`SaloonDressing.mirror_material`) are left for the saloon session.
+
+Blind critic (`docs/screenshots/material_lab/2026-10-22/mirror/critic.md`, against the picture's
+back bar): round 2's glow DIFFERENT (backlit panels); the first pass DIFFERENT (a dark window, flat
+discs); **the second CLOSE** (holds a room; the two views one room, the lamps shifting as parallax).
+What's left: bottles on the shelves before the glass (the saloon's dressing), lamps as chimneys
+rather than squares, smoother haze round them, and a gilt edge or bevel on the glass (a kit member
+round the arch, not the shader).
