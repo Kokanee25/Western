@@ -481,5 +481,5 @@ frozen until Sean names one.
   build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
   (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
   counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
-  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: Sean's
-  pick (the bar and back bar into the saloon, contents for barrels, the spittoon).
+  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
+  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).
