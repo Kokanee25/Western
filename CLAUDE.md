@@ -418,7 +418,8 @@ frozen until Sean names one.
   six proposed ranges), then a hit man's behaviour. Feel ranges marked proposed wait on Sean's play.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
-- Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
+- The sun's cascades (#223, Sean: "Do 2 cascades"; branch `claude/gameplay-voxel-2-k4w9`, not
+  merged): sun and moon at 2, split at 0.2. Next: goldens and PR (issue "next session: cascades").
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.

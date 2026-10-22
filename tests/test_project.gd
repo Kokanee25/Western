@@ -92,11 +92,15 @@ func test_modern_lighting_enabled() -> void:
 
 
 ## The sun's and the moon's shadows in two cascades, not four (Sean, #223: "Do 2 cascades"): each
-## cascade draws every shadow caster again, and two for four saved ~0.2 ms a frame at his.
+## cascade draws every shadow caster again; two (split at a fifth) save ~0.4 ms by day at his.
 func test_the_sun_and_moon_shadow_in_two_cascades() -> void:
 	for which: String in ["Sun", "Moon"]:
 		var light: DirectionalLight3D = main.get_node(NodePath("GameViewport/TestStreet/" + which))
 		check_eq(light.directional_shadow_mode, DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS, "%s: two cascades" % which)
+		# The near cascade a fifth of the way out, not Godot's tenth: at a tenth the cornices' bracket
+		# shadows 10-25 m off went (blind judges, build/cascades on the branch's PR), at a fifth they
+		# stay, and it's the cheaper of the two.
+		check(is_equal_approx(light.directional_shadow_split_1, 0.2), "%s: split at a fifth" % which)
 
 
 func test_build_label() -> void:
