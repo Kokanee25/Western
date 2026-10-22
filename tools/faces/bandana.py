@@ -9,7 +9,8 @@ bandana, the mask when he's masked).
         [--colour=R,G,B] [--neck=no]
 
 → assets/people/<man>.glb with the two pieces added (or replaced), <man>_bandana.png and
-<man>_bandana_mask.png (the cloth), <man>.json `bandana` (what this did).
+<man>_bandana_mask.png (the cloth), <man>.json `bandana` (what this did); then mask_jaw.py gives
+the mask his mouth's shapes.
 
 How each is fitted: his head and body are sampled as points and seen from his head's axis, a
 cylinder's (angle, height) grid holding the outermost surface in each cell. Cloth hangs: going
@@ -330,6 +331,9 @@ def build(man, landmarks, colour, neck=True):
     info["bandana"] = rep
     json.dump(info, open(info_p, "w"), indent=1)
     print("bandana:", man, json.dumps(rep))
+    # The new mask takes his mouth's shapes (FaceSpeech moves it as he talks).
+    from mask_jaw import follow
+    follow(man)
 
 
 if __name__ == "__main__":
