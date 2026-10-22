@@ -77,7 +77,9 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
+`sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
+game time).
 
 ## The playtest
 
