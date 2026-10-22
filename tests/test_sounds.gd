@@ -9,7 +9,8 @@ const SOUNDS := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringi
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
 	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report", &"report_big",
 	&"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone",
-	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast", &"blast_roll"]
+	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast", &"blast_roll",
+	&"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_3", &"step_dirt_0", &"step_dirt_3"]
 ## Share of a sound's energy allowed below 40 Hz.
 const SUB_BASS_SHARE := 0.03
 ## Samples at full scale (or within a hair of it) allowed: none.

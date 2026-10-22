@@ -104,14 +104,7 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	p.panning_strength = float(o.get("panning", 1.0))
 	p.attenuation_filter_cutoff_hz = air_cutoff(d)
 	if bool(o.get("walls", true)) and ears:
-		var inside := inside(holder, at)
-		# A sound made on a surface (a ball striking it) is judged from a hand's breadth off it, or
-		# the surface itself would be the wall.
-		var heard_from: Vector3 = at + (o.get("normal", Vector3.ZERO) as Vector3) * 0.25
-		var blocked := walled(holder, ears.global_position, heard_from)
-		p.set_meta(&"inside", inside)
-		p.set_meta(&"walled", blocked)
-		p.bus = (&"RoomMuffled" if blocked else &"Room") if inside else (&"Muffled" if blocked else &"Master")
+		place(p, holder, at, ears.global_position, o.get("normal", Vector3.ZERO))
 	holder.add_child(p)
 	p.global_position = at
 	p.finished.connect(p.queue_free)
@@ -123,6 +116,28 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 		# connection with it.
 		holder.get_tree().create_timer(delay, false, true).timeout.connect(p.play)
 	return p
+
+
+## Put `p` on the bus for where it is and where the ears are: Room inside, Muffled with a wall
+## between (RoomMuffled both). A sound made on a surface (a ball striking it) is judged from a hand's
+## breadth off it along `normal`, or the surface itself would be the wall.
+static func place(p: AudioStreamPlayer3D, holder: Node3D, at: Vector3, ears: Vector3, normal := Vector3.ZERO) -> void:
+	_make_buses()
+	var is_inside := inside(holder, at)
+	var blocked := walled(holder, ears, at + normal * 0.25)
+	p.set_meta(&"inside", is_inside)
+	p.set_meta(&"walled", blocked)
+	p.bus = (&"RoomMuffled" if blocked else &"Room") if is_inside else (&"Muffled" if blocked else &"Master")
+
+
+## A looping sound that stays (a fire): placed again as it or the ears move (no delay; it goes on).
+static func replace_loop(p: AudioStreamPlayer3D) -> void:
+	if not GameAudio.enabled() or not p.is_inside_tree():
+		return
+	var ears := ears_of(p)
+	if ears:
+		place(p, p, p.global_position, ears.global_position)
+		p.attenuation_filter_cutoff_hz = air_cutoff(ears.global_position.distance_to(p.global_position))
 
 
 ## Room for one more (the sound lab: a wall coming down was 108 sounds at once, the same two over

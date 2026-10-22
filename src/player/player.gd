@@ -60,6 +60,9 @@ func _ready() -> void:
 	_arm()
 
 
+var _step_n := 0
+
+
 ## Footfalls people can hear: running carries, walking a little, creeping crouched hardly at all.
 func _footsteps(delta: float) -> void:
 	var speed := get_horizontal_speed()
@@ -71,6 +74,16 @@ func _footsteps(delta: float) -> void:
 	_step_left = 0.75
 	var loud := 2.0 if is_crouching else (13.0 if is_running else 6.0)
 	Events.noise.emit(global_position, loud, &"footsteps", self)
+	if GameAudio.enabled():
+		# The sound lab: on boards (any timber underfoot) a hollow knock, on the street's dirt a crunch.
+		var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.2, global_position + Vector3.DOWN * 0.4, Layers.STAND)
+		q.exclude = [get_rid()]
+		var under := get_world_3d().direct_space_state.intersect_ray(q)
+		var boards: bool = not under.is_empty() and (under.collider is StructureMember or under.collider is KitProp)
+		_step_n += 1
+		var id := StringName("step_%s_%d" % ["boards" if boards else "dirt", _step_n % 4])
+		GameAudio.play(self, id, global_position, {"unit_size": 1.5, "max_db": 0.0, "walls": false, "delay": false,
+				"volume_db": -14.0 if is_crouching else (-4.0 if is_running else -9.0)})
 
 
 ## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite and a water
