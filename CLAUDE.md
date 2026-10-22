@@ -200,6 +200,15 @@ paid on every turn of every session.
 
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and Current state, not through a long-running session.
+- **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
+  when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
+  open). Then, and never later: write the status entry and your Current state lines; open an
+  issue labelled **`next session`**, titled with the lane and the next step, whose body is the
+  ready-to-paste prompt for it (the branch, what's done, what to read, what to do next; written
+  for a fresh session that knows nothing of this one); then tell Sean, as your last message,
+  **"Step done: <what>. Start a fresh session with issue #N."** and do no more work. Don't
+  start the next step in the same session, even if it looks small. A session that picks up a
+  `next session` issue closes it at the start, with a line saying so.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
   `history.md`, `docs/BUILD_NOTES.md` or a brief's history unless asked. Grep for the heading,
