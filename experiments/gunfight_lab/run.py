@@ -10,7 +10,7 @@
 Each fight is `gf_fight ...` as the game's --bridge-script (so it starts on the same frame every
 time: a seed gives the same fight), its record in OUT/fights/<name>.json, its log in OUT/logs/.
 A fight already recorded is skipped, so a run can be resumed. --jobs=N games at once (default: the
-cores). --max=S caps a fight (180 s). --variant=A|B|C the gang's (OutlawBrain.Variant; C, all three
+cores). --max=S caps a fight (180 s). --opening=draw: your gun starts away and they turn after 3 s (as you play it); --variant=A|B|C the gang's (OutlawBrain.Variant; C, all three
 fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 --sheet=NAME draws that one fight (xvfb and lavapipe; --every=S between pairs of frames, --size=WxH)
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
@@ -60,6 +60,7 @@ def matrix(args):
         "bodies": opt(args, "bodies", "studio").split(","),
         "seed": seeds(opt(args, "seeds", "1-6")),
         "variant": [opt(args, "variant", "C")],
+        "opening": [opt(args, "opening", "")],
     }
     return [dict(zip(keys, combo)) for combo in itertools.product(*keys.values())]
 
@@ -71,7 +72,7 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} max={max} out={out}\nquit\n".format(
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} max={max} out={out}\nquit\n".format(
             max=max_s, out=os.path.abspath(rec), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]

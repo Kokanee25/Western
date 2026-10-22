@@ -132,7 +132,8 @@ func setup() -> String:
 	player.rotation.y = yaw
 	var gun: WeaponViewmodel = player.revolver() if opts.weapon == "revolver" else player.shotgun()
 	human = opts.style == "human"
-	if scen.start != "ambush" and not human:
+	var draw_open: bool = human or opts.get("opening", "") == "draw"
+	if scen.start != "ambush" and not draw_open:
 		player.select_weapon(gun)
 		var until := Engine.get_physics_frames() + 240
 		while Engine.get_physics_frames() < until and not (player.weapon == gun and gun.drawn):
@@ -219,9 +220,9 @@ func setup() -> String:
 	for man: HumanBody in _live():
 		_prev[_mid(man)] = {"tactic": -1, "mood": -1, "suppressed": 0.0}
 	record["hour_at_start"] = snappedf(clock.time_of_day, 0.01)
-	if human:
+	if draw_open:
 		# Yours to start: your gun away; they go for theirs when you go for yours, or when the
-		# count's out.
+		# count's out (the bot, opening=draw, waits for the count and takes it in from there).
 		var until := Engine.get_physics_frames() + 240
 		player.select_weapon(gun)
 		while Engine.get_physics_frames() < until and player.weapon != gun:
@@ -229,7 +230,9 @@ func setup() -> String:
 		gun.put_away()
 		_count = float(opts.get("count", 3.0))
 		_you_at = player.global_position
-		_note("start", "you're in (%s, %s, variant %s, seed %d): draw when you're ready" % [opts.scenario, opts.hour, opts.get("variant", "C"), int(opts.seed)])
+		if bot:
+			bot.contact_at = INF
+		_note("start", "you're in (%s, %s, %s, variant %s, seed %d): draw when you're ready" % [opts.scenario, opts.hour, opts.style, opts.get("variant", "C"), int(opts.seed)])
 		_prof_last = Prof._sum.duplicate()
 		_last_us = Time.get_ticks_usec()
 		started = true
@@ -332,10 +335,9 @@ func _physics_process(delta: float) -> void:
 		_prof_fight[k] = float(_prof_fight.get(k, 0.0)) + float(d[k])
 	_fight_frames += 1
 	t += delta
+	_watch_you(delta)
 	if bot:
 		bot.tick(delta, t)
-	else:
-		_watch_you(delta)
 	_watch_men(delta)
 	_watch_world(delta)
 	_track_t -= delta
@@ -358,6 +360,11 @@ func _watch_you(delta: float) -> void:
 			_note("turn", "they go for their guns (%s)" % ("you drew" if gun != null and gun.drawn else "the count's out"))
 			_count = -1.0
 			_turn()
+			if bot:
+				bot.know_all()
+				bot.contact_at = t
+	if not human:
+		return
 	var moved := player.global_position.distance_to(_you_at) if _you_at != Vector3.INF else 0.0
 	if moved > 2.0:
 		_you.relocations = int(_you.get("relocations", 0)) + 1
