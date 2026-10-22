@@ -285,8 +285,8 @@ gunshots (revolver and coach gun, near and far, inside the saloon), ricochets an
 dynamite near and far, impacts on wood, flesh, glass and dirt, breaking timber, fire, and steps on
 boards against dirt. Sources: better synthesis first; recorded or generated sounds only with a
 licence that allows redistribution from this public repo, credited in `CREDITS.md`, costs asked
-before paying. The gunfight lab still owns what men *hear* (the perception lab's hearing); this lab
-owns how it *sounds* to the player.
+before paying. The perception lab owns what men *hear* (who hears a sound, what they take it for and
+where); this lab owns how it *sounds* to the player.
 
 ## Order and cost
 
