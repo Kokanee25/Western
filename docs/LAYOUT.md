@@ -345,6 +345,17 @@ a few views renders them as the full run does.
   `Events.ground_changed(rect)`. `to_dict`/`from_dict`: the heights and loose depths in mm
   (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
   b depth below the authored ground.
+  Under a dug tile the earth is solid: boxes a column of 8 cells (`GroundTile.COLUMN`), each topped
+  1 cm under the lowest surface over it, down through the hardpan (a height field has no
+  thickness: a 2 cm bone fragment at 6 m/s went through it). What stands and walks there (step 4),
+  on `Events.ground_changed`: a `Structure`'s grounded member whose bottom has lost the earth by
+  `undercut` (5 cm) at its corners and middle is grounded no more and the structure settles;
+  a `KitProp` looks for its feet again (its own `_on_ground_changed`); `Fittings` drops a prop
+  standing in the street (`on_ground`, under 2 m) whose middle has lost the ground; a `HumanBody`
+  that has stood (`_stood`) snaps again, and goes limp when the ground under him drops more than
+  `DROP_FALLS` (1 m) or he walks on down ground steeper than ~50 deg (`STEEP_UP`) more than 0.5 m
+  below where he last stood level (a stick's crater doesn't trip him; a dug hole does). Not yet:
+  a man who has never walked (placed) floats over a hole dug under him; feet on slopes (one floats).
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
