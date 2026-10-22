@@ -226,26 +226,26 @@
       "per": {
         "wound_entry": {
           "key": "skin",
-          "lo": 28,
-          "hi": 70,
+          "lo": 42,
+          "hi": 85,
           "fade": 0.8
         },
         "wound_exit": {
           "key": "skin",
-          "lo": 28,
-          "hi": 70,
+          "lo": 42,
+          "hi": 85,
           "fade": 0.8
         },
         "wound_exit_torn": {
           "key": "skin",
-          "lo": 28,
-          "hi": 70,
+          "lo": 42,
+          "hi": 85,
           "fade": 0.8
         },
         "wound_contact": {
           "key": "skin",
-          "lo": 28,
-          "hi": 70,
+          "lo": 42,
+          "hi": 85,
           "fade": 0.8
         }
       }
