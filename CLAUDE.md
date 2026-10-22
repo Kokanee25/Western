@@ -380,11 +380,13 @@ frozen until Sean names one.
   Judge every change against Sean's pictures and his words (he turned down a flat collar band
   twice). Trap: after a build, `godot --headless --import` first; lab renders via
   `tools/characters/lab_run.sh`.
-- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): `bold_cowboy_talking`, the
-  layered cowboy with MakeHuman's face grafted on (mouth, teeth, lids; 20 expressions as blend
-  shapes), Live Link Face takes played on him (`arkit_take.py`), `FaceGaze` (eyes lead, head follows)
-  for gameplay to put on people. Next: Sean's three takes (`docs/FACE_TAKES.md`) to tune the lip
-  sync; then RECIPE.md's step for every man (with Sean's OK).
+- **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): every Studio man has
+  MakeHuman's face grafted on (20 expressions as blend shapes), bandanas (`bandana.py`) and skinned
+  hands (`hands.py`, 30 finger bones; not the rancher). **Alive** (2026-10-22): `FaceLife` on every
+  talking man (looks round at whom his Senses see, blinks, starts at shots, a pain grimace, wide eyes
+  afraid, lids part shut dead; `config/face_life.tres`; film `docs/style_test/faces_alive.mp4`);
+  `neck_seam.py` closed the jaw's tear as his head turns. Next: Sean's three takes
+  (`docs/FACE_TAKES.md`) to tune the lip sync; issue #247 (gameplay: a test-order dependency).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
