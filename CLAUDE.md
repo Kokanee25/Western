@@ -456,7 +456,9 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): the chair, the card table, the bottle and the oil lamp in the
-  game (#232, build 2011); the barrel, the crate and the bar stool on the branch, in_game, waiting
-  on Sean and the goldens; the ragdoll lab tests men in the kit chair (how he falls is theirs).
-  Next: Sean's pick (spittoon, piano, the bar into the saloon, contents for barrels).
+  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
+  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
+  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
+  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
+  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: Sean's
+  pick (the bar and back bar into the saloon, contents for barrels, the spittoon).
