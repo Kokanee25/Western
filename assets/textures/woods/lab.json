@@ -176,6 +176,16 @@
    "roughness": 0.6,
    "specular": 0.4,
    "made_by": "tools/textures/bar_top.py (int_oak glued up, rings, worn front, polished)"
+  },
+  "int_oak_light": {
+   "boards": 8,
+   "rows": 69,
+   "length": 1152,
+   "texels_per_metre": 384.0,
+   "end": "int_oak_light_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio_int/dark_oak",
+   "regraded_from": "int_oak, median L* 24.2 -> 33.0"
   }
  }
 }
