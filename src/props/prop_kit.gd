@@ -16,11 +16,12 @@ class_name PropKit
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
-## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), brass, iron,
-## mirror), or
+## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), burl, ivory,
+## ebony, brass, iron, mirror), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
-##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
+##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at"}: turned about the
+##    prop's Y (or a vertical axis through "at");
 ##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments", "grain_up",
 ##    "caps"}: part of one ("caps": its cut ends closed, the profile a closed outline: a stave);
 ##   {"shape": "boxes", "boxes": [{"size", "at", "rot"} | {"from", "to", "thick"}]}: boxes and sticks;
@@ -252,6 +253,12 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.gilt()
 		"picture":
 			return PropModels.picture(variant)
+		"burl":
+			return PropModels.burl()
+		"ivory":
+			return PropModels.ivory()
+		"ebony":
+			return PropModels.ebony()
 		"weathered":
 			return PropModels.weathered()
 		"brass":
@@ -302,6 +309,11 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	match String(draw.get("shape", "box")):
 		"lathe":
 			src = PropModels.lathe(_profile(draw.profile), int(draw.get("segments", 12)), bool(draw.get("grain_up", false)))
+			if draw.has("at"):
+				# Turned about its own axis there (a candle holder beside a piano's music desk).
+				var moved := SurfaceTool.new()
+				moved.append_from(src, 0, Transform3D(Basis.IDENTITY, vec(draw.at)))
+				src = moved.commit()
 		"sweep":
 			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)),
 					bool(draw.get("grain_up", false)), bool(draw.get("caps", false)))

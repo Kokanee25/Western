@@ -398,10 +398,10 @@ static func _piano(root: Node3D) -> void:
 	_box(root, "Top", Vector3(1.54, 0.04, 0.44), Vector3(0, 1.24, -0.1), w)
 	_box(root, "KeyBed", Vector3(1.4, 0.08, 0.22), Vector3(0, 0.72, 0.2), w)
 	_box(root, "Fallboard", Vector3(1.4, 0.16, 0.04), Vector3(0, 0.84, 0.13), w)
-	_box(root, "Panel", Vector3(1.2, 0.36, 0.02), Vector3(0, 1.0, 0.105), _mat("piano_panel", PixelArt.wood("prop_burl", Color(0.33, 0.18, 0.1), 223, 3, 1, 0.6)))
+	_box(root, "Panel", Vector3(1.2, 0.36, 0.02), Vector3(0, 1.0, 0.105), burl())
 	# Keys: an ivory strip with black keys in twos and threes.
-	_box(root, "Keys", Vector3(1.3, 0.025, 0.15), Vector3(0, 0.77, 0.23), _mat("ivory", PixelArt.painted("prop_ivory", Color(0.86, 0.82, 0.7), Color(0.5, 0.45, 0.4), 225, 0.0), Color.WHITE, 0.5))
-	var black := _mat("ebony", PixelArt.metal("prop_ebony", Color(0.07, 0.06, 0.05), 227), Color.WHITE, 0.4)
+	_box(root, "Keys", Vector3(1.3, 0.025, 0.15), Vector3(0, 0.77, 0.23), ivory())
+	var black := ebony()
 	var x := -0.62
 	var pattern := [1, 1, 0, 1, 1, 1, 0]
 	var i := 0
@@ -416,6 +416,19 @@ static func _piano(root: Node3D) -> void:
 		# Brass candle sconces either side of the music desk.
 		_add(root, "Candle", lathe(_profile([[0.02, 0.0], [0.02, 0.012], [0.008, 0.02], [0.008, 0.07]]), 6), brass(),
 				Transform3D(Basis.IDENTITY, Vector3(side * 0.55, 1.05, 0.14)))
+
+
+## A piano's burl walnut panel, its keys' ivory and ebony.
+static func burl() -> ShaderMaterial:
+	return _mat("piano_panel", PixelArt.wood("prop_burl", Color(0.33, 0.18, 0.1), 223, 3, 1, 0.6))
+
+
+static func ivory() -> ShaderMaterial:
+	return _mat("ivory", PixelArt.painted("prop_ivory", Color(0.86, 0.82, 0.7), Color(0.5, 0.45, 0.4), 225, 0.0), Color.WHITE, 0.5)
+
+
+static func ebony() -> ShaderMaterial:
+	return _mat("ebony", PixelArt.metal("prop_ebony", Color(0.07, 0.06, 0.05), 227), Color.WHITE, 0.4)
 
 
 ## An oak barrel: bulged staves, the grain running up, four iron hoops.
