@@ -486,10 +486,14 @@ func _physics_step(delta: float) -> void:
 		_set_mood(Mood.DEAD)
 		return
 	if body.limp:
+		_chair = null  # the chair's gone from under him, or he's down off it (KitProp clears the seat)
 		if mood != Mood.SURRENDERED:
 			_set_mood(Mood.DOWN)
 			_down_but_awake(delta)
 		return
+	if _chair != null and mood != Mood.CALM:
+		# Trouble: he's up out of it.
+		_get_up_from_chair()
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	_now += delta
@@ -733,7 +737,7 @@ func _go_about(delta: float) -> void:
 			done = _step_time >= float(step.get("seconds", 5.0))
 			_ease_off(delta)
 		&"drink":
-			done = _drink(step)
+			done = _drink(step, delta)
 			_ease_off(delta)
 		&"harass":
 			done = _harass(delta, step)
@@ -757,6 +761,17 @@ func _go_about(delta: float) -> void:
 func _next_step() -> void:
 	agenda.pop_front()
 	_step_started = false
+	_get_up_from_chair()
+
+
+## The kit chair he's taken for a drink (Seating), or null.
+var _chair: KitProp
+
+
+func _get_up_from_chair() -> void:
+	if _chair != null:
+		Seating.stand_up(body, _chair)
+		_chair = null
 
 
 ## Starting on a step: work out the way there.
@@ -792,10 +807,17 @@ func _walk_route(delta: float, speed: float) -> bool:
 	return _route.is_empty()
 
 
-## At the bar: leaning on it, a word to the barkeep now and then.
-func _drink(step: Dictionary) -> bool:
-	body.set_pose(&"stand")
-	if step.has("face"):
+## At the bar: leaning on it, a word to the barkeep now and then. Or (`sit`) sat back in a kit chair
+## near it, at a card table (Seating; Sean, 2026-10-22: men sitting in the chairs in town).
+func _drink(step: Dictionary, delta: float) -> bool:
+	if step.get("sit", false):
+		if _chair == null or not is_instance_valid(_chair) or _chair.loose or (_chair.seated != null and _chair.seated != body):
+			_chair = Seating.free_chair_near(body.get_tree(), body.global_position)
+		if _chair != null:
+			Seating.sit_step(body, _chair, delta)
+	else:
+		body.set_pose(&"stand")
+	if _chair == null and step.has("face"):
 		body.face(step.face)
 	if _say_again <= 0.0:
 		say(&"drink")
