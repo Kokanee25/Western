@@ -1362,7 +1362,8 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var origin := gun.muzzle.global_position
 	var p := body.physiology
 	var spread := spread_degrees + p.felt_pain() * 3.0 + p.shock() * 6.0 + fear * 2.0 \
-			+ (1.0 - p.arm_steadiness("r")) * 6.0 + (2.5 if p.blind.has(&"eye_r") else 0.0)
+			+ (1.0 - p.arm_steadiness("r")) * 6.0 + (2.5 if p.blind.has(&"eye_r") else 0.0) \
+			+ (1.5 if p.blood_in_eye.has(&"r") else 0.0)
 	if t is CharacterBody3D:
 		spread += Vector2((t as CharacterBody3D).velocity.x, (t as CharacterBody3D).velocity.z).length() * 0.7
 	if body.physiology.trigger_finger("r") != &"index_r":

@@ -28,3 +28,22 @@ float wound_reach(vec3 local_pos) {
 	}
 	return nearest;
 }
+
+// How near the line of sight from the eye (`eye`, the mesh's own space) to `p` passes to the
+// nearest opening, in its radii: under ~1 it's seen through the hole. What's inside a part is
+// only ever seen through a hole; drawn wherever it is, it showed through outside a man slimmer
+// than the anatomy (a glossy red bulge on a studio man's shoulder: experiments/body_lab).
+float sight_through(vec3 eye, vec3 p) {
+	float nearest = 99.0;
+	vec3 d = p - eye;
+	float dd = max(dot(d, d), 1e-8);
+	for (int i = 0; i < 8; i++) {
+		if (i >= wound_count) {
+			break;
+		}
+		vec3 c = wounds[i].xyz;
+		float t = clamp(dot(c - eye, d) / dd, 0.0, 1.0);
+		nearest = min(nearest, distance(eye + d * t, c) / max(wounds[i].w, 0.0001));
+	}
+	return nearest;
+}

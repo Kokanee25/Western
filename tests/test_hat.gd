@@ -95,6 +95,22 @@ func test_a_man_whose_hat_is_shot_off_is_frightened_and_says_so() -> void:
 	check(said.any(func(t: String) -> bool: return t in OutlawBrain.LINES[&"hat"]), "and he says so (%s)" % [said])
 
 
+func test_a_blast_that_throws_him_takes_his_hat() -> void:
+	var man: HumanBody = await _man(false)
+	var at := man.global_position + Vector3(0, 0.05, 1.0)
+	var info := man.take_blast(at, 0.2)
+	check(info.knocked_down, "a stick a metre off throws him down")
+	check(man.hat_off, "and his hat goes")
+	var hats := get_tree().get_nodes_in_group(&"hats")
+	check(hats.size() == 1 and ((hats[0] as RigidBody3D).global_position - at).length() > 0.0 and
+			(hats[0] as RigidBody3D).linear_velocity.dot(man.global_position - at) > 0.0, "flying away from the blast")
+	var far: HumanBody = await _man(false)
+	far.global_position = Vector3(8, 0, 8)
+	await physics_frames(2)
+	far.take_blast(far.global_position + Vector3(0, 0.05, 6.0), 0.2)
+	check(not far.hat_off, "six metres off, it stays on")
+
+
 func test_a_man_with_no_hat_has_nothing_to_shoot_off() -> void:
 	var man := HumanBody.new()
 	man.has_gun = false

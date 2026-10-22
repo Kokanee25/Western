@@ -153,17 +153,9 @@ Report: a baseline table, a contact sheet of a typical fight, the five biggest r
 ## Body lab (3.1b) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-body-lab. Build the body lab, roadmap 3.1b. Read the body section of docs/briefs/labs.md, the src/bodies section of docs/LAYOUT.md, and experiments/physics_lab/README.md (reuse its harness where you can).
+Gameplay lane, branch claude/gameplay-body-lab-<n>. The body lab's bench and baseline are in, with its first fixes (a ball on the tick a man goes limp, inside bleeding and packing that can hold, one limb off cracking every joint, the hat in a blast, the femur's bleed): read experiments/body_lab/README.md ("Since the baseline", "Where the game is furthest from the medicine") and results/.
 
-Bench and baseline only: change nothing about how the game plays. Don't edit HumanBody, Anatomy or Physiology: the falls session owns HumanBody. Lab in experiments/body_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded.
-
-Scenarios: revolver and shotgun at 5, 15 and 30 m into marked spots (thigh, neck, upper arm, chest, belly, hand); dynamite at 1, 3 and 6 m; then the same wounds treated (tourniquet, packing, the doctor).
-
-Bodies: every scenario on the Studio's men (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), plus one set on outlaw. Check wounds, severing and stumps, and the hat on the rancher and the drifter.
-
-Measure: what each ball's path crosses (artery, bone, organ) against the aim; bleed-out time per artery, untreated and treated; which bones break and what that stops a man doing; limbs lost, from what and where the cut falls; frame time with ten wounded men against the 4 ms people budget. Check against published trauma figures, cited in the README (don't copy their text).
-
-Report: a baseline table, a sheet of the wounds on each man, where the game is furthest from the medicine, anything that doesn't work on the new men, and the first fix you'd make (don't make it).
+Next, one at a time, each measured with run.py against baseline/ and report.py diff, before and after in the PR: [my call on dynamite up close: results/2026-10-21_dynamite_options/ | the gut's time | the blast's cut through the bone's shaft, with the people pipeline]. Check no other session is changing HumanBody first; a change to human_body.gd comes to me with before-and-after sheets. After a fresh checkout, godot --headless --import before the lab (it refuses a man it can't load).
 ```
 
 ## Breakage lab (3.3a) [Salt Creek]
@@ -378,13 +370,12 @@ Everything in the saloon must be destructible (Sean, 2026-10-21): every object i
 What you have to build with:
 - Woods: the interior woods Sean picked (int_floor, int_timber for posts, beams and brackets, int_boards for wall boards, int_oak for wainscot, casings, rails and balusters; int_bar_top for the bar top), dark_oak and stair_runner (the hotel stair), and the exterior woods for the outside. A member takes one as its wood or as a look "wood:<name>".
 - Woodwork as members: PropKit.dress_member(member, draw, look) draws any member of your Structure as a moulding run along it ("profile": chamfered, rounded, bar_top, handrail, ogee, beaded, rect), a raised panel ("panel") or a board cut to an outline ("cut"), still a breakable member, one batch a look. Use it for the wainscot, door and window casings, chamfered posts, brackets, beams and the cornice; the shapes and sizes are in src/art/interior_stand.gd, which draws them as plain meshes (a reference, not parts).
-- Kit props: PropKit.spawn(&"bar") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair (PropLibrary.spawn(&"chair") hands it out); the kit card table (in the kit, waiting on Sean's look).
+- Kit props: PropKit.spawn(&"bar") (in int_oak as it is: Sean, 2026-10-21, "everything looks great") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair and card table (PropLibrary.spawn(&"chair") and (&"card_table") hand them out; Sean passed both, 2026-10-21).
 - Structure parts: Railing (balconies and the stair's rails, breakable, men go through them by BodyImpacts), the stair with its walking ramp, glass members for windows (they shatter), doors, the floor on joists, Fittings (what stands on a member falls when it goes; a lamp smashes and spills burning oil), OilLamp for every lamp.
 
 Not yet destructible, so not in the saloon until it is (say which you need first, and to whom):
 - The prop lab (kit versions): bar stools, the piano, barrels, spittoons, whiskey bottles (glass members that shatter; the shelves' bottles and the bottle wall, saloon_dressing.gd, are scenery today), tin cups, the deer head, framed paintings, wall sconces (an OilLamp's model stays whole when it smashes).
 - Gameplay: a prop knocked by a ball or a body doesn't move (Fittings moves it only when its support goes); what stands on a shelf adds no weight (extra_load unused); furniture_frame members are never load-checked.
-- Sean: the kit card table's look; whether the bar and back bar take a lighter oak (the critic: darker than the walls).
 ```
 
 ## Building lab for real: the saloon, then the block (Phase 4, after Gate C) [Salt Creek]

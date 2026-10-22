@@ -108,8 +108,8 @@ In the order the saloon needs them:
    framed paintings, the deer head, tin cups, a kitchen stove.
 3. **Prop lab: the sconce's model breaking with its lamp.** Here a sconce is a bracket member with
    an OilLamp on it (it falls with its bracket and smashes); the drawn sconce isn't used.
-4. **Sean: the kit card table's look** (it's in the kit, used here: "build only from parts in the
-   game or in the kit"); the bar and back bar in a lighter oak (the critic: darker than the walls).
+4. **Sean: the bar and back bar in a lighter oak** (the critic: darker than the walls). (The kit card
+   table went into the game on main, 2026-10-21.)
 5. **Gameplay:** a prop knocked by a ball or a body doesn't move; what stands on a shelf adds no
    weight (`extra_load` unused); `furniture_frame` members are never load-checked.
 
@@ -118,7 +118,7 @@ In the order the saloon needs them:
 - **Rooms 4 and 5 have no windows** since the mirror: they're over the bar on the west wall, which
   stands against the store (its roof is about at their sills). A skylight each, windows high over
   the store's roof, or leave them dark (cheap rooms)?
-- The kit card table's look and a lighter oak for the bar (from the prop lab and art), as above.
+- A lighter oak for the bar and back bar (art's call), as above.
 
 ## What the format needs before it's used for real
 

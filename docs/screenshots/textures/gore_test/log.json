@@ -1,0 +1,43 @@
+{
+ "prompt": "Four separate close-up studies of gunshot and battlefield wounds for a gritty frontier Western game, as a painter's medical illustration sheet, frank and bloody: the cut face of an arm severed above the elbow, seen end on, with the ring of skin, yellow fat, red muscle round the white bone and dark marrow, ragged and bleeding at the edge; a shotgun wound to a man's side from a few feet, one ragged hole torn through the skin with raw flesh inside and blood running from it; a large exit wound on a man's back, the skin burst outward in torn flaps, bloody; a deep gash torn by a ball across a thigh, open to the red muscle, blood welling. Each study on a plain, flat, pure white background, the four well apart in a two by two grid, nothing touching the edges. No text, no labels, no border, no frame.",
+ "spent": 0.39303,
+ "results": [
+  {
+   "service": "gemini",
+   "model": "google/gemini-3-pro-image-preview",
+   "listed_price": {
+    "prompt": "0.000002",
+    "completion": "0.000012",
+    "image": "0.000002",
+    "image_output": "0.00012",
+    "audio": "0.000002",
+    "input_audio_cache": "0.0000002",
+    "web_search": "0.014",
+    "internal_reasoning": "0.000012",
+    "input_cache_read": "0.0000002",
+    "input_cache_write": "0.000000375"
+   },
+   "cost": 0.13869,
+   "said": "painted"
+  },
+  {
+   "service": "gpt",
+   "model": "openai/gpt-5-image",
+   "listed_price": {
+    "prompt": "0.00001",
+    "completion": "0.00001",
+    "image_output": "0.00004",
+    "web_search": "0.01",
+    "input_cache_read": "0.00000125"
+   },
+   "cost": 0.21734,
+   "said": "painted"
+  },
+  {
+   "service": "fal",
+   "model": "fal-ai/flux-lora + SLTCRK style LoRA",
+   "cost": 0.037,
+   "said": "painted"
+  }
+ ]
+}

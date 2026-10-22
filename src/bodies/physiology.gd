@@ -1,5 +1,9 @@
 class_name Physiology
 extends RefCounted
+
+## A wound dressed (`how`: &"pressure" packed and bound, &"tourniquet" a belt above it) on
+## `segment`, for the body to draw the bandage.
+signal treated(how: StringName, segment: StringName)
 ## One person's body state, not hit points: blood, bleeds, broken bones, torn organs, lost fingers,
 ## breathing, pain, shock and adrenaline. Wounds come in from `Anatomy.trace()` results; `step()`
 ## runs it forward on a fixed timestep (real seconds at normal game speed). Pure rules, no nodes,
@@ -14,6 +18,9 @@ var blood_ml := 5000.0
 ## `kind` is &"artery" (a pulsing jet), &"vein" (a dark steady flow), &"ooze" (the rest), or
 ## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
+## Whether packing holds a bleed too fast to clot on its own (PhysiologyTuning.packing_holds) is
+## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed).
+var roll_rng := RandomNumberGenerator.new()
 ## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
 const BALL_RADIUS := 0.0057
 
@@ -22,6 +29,10 @@ var torn := {}  ## organ id -> true
 var cut := {}  ## artery, vein or nerve id -> true
 var muscle_damage := {}  ## muscle id -> 0..1 torn
 var blind := {}  ## eye id -> true
+## The gore lab: a nosebleed after a blow to the face (seconds left), and a scalp wound's blood
+## run into an eye ("r"/"l" -> seconds left; he can't see well out of it until it's wiped or dries).
+var nose_bleed := 0.0
+var blood_in_eye := {}
 var airway_blood := false  ## windpipe holed: blood in the breath, can't talk
 var jaw_broken := false
 var lost_fingers := {}  ## finger id -> true
@@ -77,13 +88,14 @@ func apply_trace(tr: Dictionary) -> Array:
 				if h.effect == &"broken":
 					broken[h.id] = true
 					wound_pain += tuning.pain_bone
+					_fracture_bleed(h.id, seg)
 					if h.id == &"jaw":
 						jaw_broken = true
 				else:
 					wound_pain += tuning.pain_bone * 0.4
 			&"artery", &"vein":
 				cut[h.id] = true
-				_add_bleed(h.id, seg, float(st.get(&"bleed", 5.0)), h.kind)
+				_add_bleed(h.id, seg, float(st.get(&"bleed", 5.0)), &"internal" if st.get(&"inside", false) else h.kind)
 			&"nerve":
 				cut[h.id] = true
 				wound_pain += tuning.pain_nerve
@@ -95,7 +107,9 @@ func apply_trace(tr: Dictionary) -> Array:
 			&"organ":
 				torn[h.id] = true
 				wound_pain += tuning.pain_organ
-				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.5)))
+				# The heart, liver and spleen bleed into him (`inside` in the anatomy): no pressure
+				# from outside reaches it.
+				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.5)), &"internal" if st.get(&"inside", false) else &"ooze")
 				match StringName(st.get(&"organ", "")):
 					&"brain":
 						brain_dead = true
@@ -174,13 +188,21 @@ func _add_bleed(source: StringName, segment: StringName, rate: float, kind := &"
 func step(dt: float) -> void:
 	if not alive:
 		return
+	_fester(dt)
+	if not alive:
+		return
+	nose_bleed = maxf(nose_bleed - dt, 0.0)
+	for side: StringName in blood_in_eye.keys():
+		blood_in_eye[side] = float(blood_in_eye[side]) - dt
+		if float(blood_in_eye[side]) <= 0.0:
+			blood_in_eye.erase(side)
 	# Bleeding.
 	var loss := 0.0
 	for b in bleeds:
 		var ml := bleed_rate(b) * dt
 		b.lost += ml
 		loss += ml
-		if b.clots:
+		if b.clots or (b.pressure and _packing_holds(b)):
 			b.clot *= exp(-dt / tuning.clot_time)
 	var bleeding := loss > 0.0001
 	blood_ml = maxf(blood_ml - loss, 0.0)
@@ -213,14 +235,36 @@ func step(dt: float) -> void:
 		_die(&"gut_wound")
 
 
+## A broken bone that bleeds into the flesh round it (`fracture_bleed`, ml, in the anatomy: a femur
+## ~1.2 L, Lieurance et al. 1992): inside him, at `fracture_bleed_rate`, until that much is lost.
+func _fracture_bleed(bone: StringName, segment: StringName) -> void:
+	var ml := float(anatomy.structure(bone).get(&"fracture_bleed", 0.0))
+	if ml <= 0.0:
+		return
+	_add_bleed(bone, segment, tuning.fracture_bleed_rate, &"internal")
+	bleeds[-1].limit = ml
+
+
+## A bleed too fast to clot on its own, pressed or packed: whether the packing holds it (rolled
+## once, the first time it's pressed). If it does it clots under the pressure, as a cut does.
+func _packing_holds(b: Dictionary) -> bool:
+	if not b.has("holds"):
+		b.holds = roll_rng.randf() < tuning.packing_holds
+	return b.holds
+
+
 ## Current ml/s from one bleed, with clotting, falling blood pressure and treatment.
 func bleed_rate(b: Dictionary) -> float:
 	if not alive:
 		return 0.0
+	if b.has("limit") and float(b.lost) >= float(b.limit):
+		return 0.0
 	var r: float = b.rate * b.clot * lerpf(tuning.bleed_at_no_pressure, 1.0, pressure())
 	if b.tourniquet:
 		r *= tuning.tourniquet_factor
-	elif b.pressure:
+	elif b.pressure or b.get("hand", false):
+		# Pressed or packed; or a hand clamped over it (HumanBody._grab): held back only while it's
+		# there, and a hand alone never seals it (`_packing_holds` is packing's).
 		r *= tuning.pressure_factor
 	return r
 
@@ -246,9 +290,11 @@ func apply_tourniquet(segment: StringName) -> int:
 	var below := anatomy.segments_below(segment)
 	var n := 0
 	for b in bleeds:
-		if below.has(b.segment) and b.get("kind", &"ooze") != &"internal":
+		# (A broken bone's bleed into the limb is inside him, but a belt above it cuts its blood off too.)
+		if below.has(b.segment) and (b.get("kind", &"ooze") != &"internal" or b.has("limit")):
 			b.tourniquet = true
 			n += 1
+	treated.emit(&"tourniquet", segment)
 	return n
 
 
@@ -257,6 +303,64 @@ func apply_pressure(segment: StringName, on := true) -> void:
 	for b in bleeds:
 		if b.segment == segment and b.get("kind", &"ooze") != &"internal":
 			b.pressure = on
+	if on:
+		treated.emit(&"pressure", segment)
+
+
+# --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
+## A wound with cloth carried in festers on its own; a clean one only sometimes, later. It shows
+## (red, swollen, pus) from about the third day, fever with it; a limb's goes to gangrene, and
+## gangrene kills in a few days more unless the limb comes off. The doctor cleaning it (the cloth
+## out, the wound washed) stops it starting. Game hours (tuning.game_hour_seconds).
+const FESTER_DIRTY_HOURS := 60.0
+const FESTER_CLEAN_HOURS := 96.0
+const FESTER_RAMP_HOURS := 48.0
+const GANGRENE_DEATH_HOURS := 96.0
+var infections := {}  ## segment -> {"hours": since the wound, "dirty": cloth in it}
+var gangrene_hours := 0.0
+
+
+func contaminate(segment: StringName, dirty: bool) -> void:
+	var inf: Dictionary = infections.get_or_add(segment, {"hours": 0.0, "dirty": false})
+	inf.dirty = inf.dirty or dirty
+
+
+func clean(segment: StringName) -> void:
+	infections.erase(segment)
+
+
+## How far a segment's wound has gone bad, 0..1.
+func infection(segment: StringName) -> float:
+	var inf: Dictionary = infections.get(segment, {})
+	if inf.is_empty():
+		return 0.0
+	var onset := FESTER_DIRTY_HOURS if inf.dirty else FESTER_CLEAN_HOURS
+	return clampf((float(inf.hours) - onset) / FESTER_RAMP_HOURS, 0.0, 1.0)
+
+
+## Fever, 0..1: the worst wound's.
+func fever() -> float:
+	var f := 0.0
+	for seg: StringName in infections:
+		if not severed_segments.has(seg):
+			f = maxf(f, infection(seg))
+	return f
+
+
+func _fester(dt: float) -> void:
+	if infections.is_empty():
+		return
+	var hours := dt / maxf(tuning.game_hour_seconds, 1e-3)
+	var gone_bad := false
+	for seg: StringName in infections:
+		infections[seg].hours = float(infections[seg].hours) + hours
+		var s := String(seg)
+		if infection(seg) >= 1.0 and not severed_segments.has(seg) and not (s in ["chest", "abdomen", "pelvis", "head", "neck"]):
+			gone_bad = true
+	if gone_bad:
+		gangrene_hours += hours
+		if gangrene_hours >= GANGRENE_DEATH_HOURS:
+			_die(&"gangrene")
 
 
 ## A blunt blow of `joules` on a segment (falling timber, a fall, a kick): bruising always, and
@@ -269,12 +373,19 @@ func break_bone(id: StringName) -> void:
 		return
 	broken[id] = true
 	wound_pain += tuning.pain_bone
+	_fracture_bleed(id, anatomy.structure(id).get(&"segment", &""))
 	if id == &"jaw":
 		jaw_broken = true
 	if String(id).begins_with("ribs_"):
 		var lung := StringName("lung_" + String(id).get_slice("_", 1))
 		if not lung_damage.has(lung):
 			lung_damage[lung] = 0.0
+
+
+const NOSE_BLOW_J := 25.0
+const NOSE_BLEED_SECONDS := 150.0
+## How long a scalp wound's blood keeps an eye shut (until it's wiped and the cut crusts).
+const SCALP_BLIND_SECONDS := 180.0
 
 
 func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
@@ -293,6 +404,10 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 		return joules > limit and rng.randf() < clampf((joules - limit) / limit + 0.4, 0.0, 1.0)
 	match region:
 		"head":
+			# A blow to the face bleeds from the nose (a minute or two; Kucik & Clenney, Am Fam
+			# Physician 2005: most anterior nosebleeds stop within minutes).
+			if joules > NOSE_BLOW_J:
+				nose_bleed = maxf(nose_bleed, NOSE_BLEED_SECONDS)
 			if joules > float(b.concussion):
 				concussion = maxf(concussion, maxf(3.0, (joules - float(b.concussion)) / 10.0 * tuning.concussion_seconds_per_10j))
 				out.append("concussion")
@@ -333,6 +448,7 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 			if bone != &"" and past.call(region):
 				broken[StringName(String(bone) + side)] = true
 				wound_pain += tuning.pain_bone
+				_fracture_bleed(StringName(String(bone) + side), segment)
 				out.append("%s broken" % region.replace("_", " "))
 	if out.is_empty():
 		out.append("bruised")
@@ -407,7 +523,12 @@ func leg_strength() -> float:
 
 ## How steady an arm holds a gun (1 = steady).
 func arm_steadiness(side: String) -> float:
-	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5
+	# Each finger gone loosens his grip on the gun (the trigger finger most).
+	var fingers := 1.0
+	for f in ["thumb_", "index_", "middle_", "ring_", "little_"]:
+		if lost_fingers.has(StringName(f + side)):
+			fingers -= 0.25 if f == "index_" else 0.1
+	return (muscle_strength("arm", side) + muscle_strength("grip", side)) * 0.5 * maxf(fingers, 0.2) * (1.0 - fever() * 0.4)
 
 
 func can_speak() -> bool:
@@ -420,7 +541,7 @@ func shock() -> float:
 
 
 func felt_pain() -> float:
-	return pain * (1.0 - adrenaline * tuning.adrenaline_masks)
+	return pain * (1.0 - adrenaline * tuning.adrenaline_masks) + fever() * 0.3
 
 
 func breath_capacity() -> float:
@@ -458,7 +579,7 @@ func leg_ok(side: String) -> bool:
 
 func can_stand() -> bool:
 	return is_conscious() and not legs_paralysed() and not broken.has(&"pelvis_bone") \
-			and leg_ok("r") and leg_ok("l") and shock() < 0.85
+			and leg_ok("r") and leg_ok("l") and shock() < 0.85 and fever() < 0.9
 
 
 func can_run() -> bool:
@@ -532,6 +653,8 @@ func describe() -> String:
 		parts.append("an eye gone")
 	if gut_seconds >= 0.0:
 		parts.append("gut-shot")
+	if fever() > 0.2:
+		parts.append("a wound gone bad, feverish" if gangrene_hours <= 0.0 else "gangrene setting in, burning with fever")
 	if burns > 0.5:
 		parts.append("badly burnt" if burns > 2.0 else "burnt")
 	if not broken.is_empty():
@@ -553,7 +676,8 @@ func to_dict() -> Dictionary:
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
-			"concussion": concussion}
+			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
+			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -571,6 +695,14 @@ func from_dict(d: Dictionary) -> void:
 	jaw_broken = d.get("jaw_broken", false)
 	severed_segments = _set_of(d.severed)
 	eardrums_burst = _set_of(d.get("eardrums", []))
+	nose_bleed = d.get("nose_bleed", 0.0)
+	infections = {}
+	for k in d.get("infections", {}):
+		infections[StringName(k)] = (d.infections[k] as Dictionary).duplicate()
+	gangrene_hours = d.get("gangrene_hours", 0.0)
+	blood_in_eye = {}
+	for k in d.get("blood_in_eye", {}):
+		blood_in_eye[StringName(k)] = d.blood_in_eye[k]
 	wound_pain = d.wound_pain
 	pain = d.pain
 	adrenaline = d.adrenaline

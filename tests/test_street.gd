@@ -51,6 +51,8 @@ func test_outlaw_waits_at_the_range() -> void:
 	var man := spawner.outlaw
 	check(man != null and man.is_inside_tree(), "an outlaw stands at the range")
 	check(man.global_position.distance_to(spawner.global_position) < 0.01, "where the spawn is")
+	check(man.body_model == spawner.model and PeopleBodies.has_model(man.body_model) and man.skeleton != null,
+			"one of the Studio's men, not the old built body (%s)" % man.body_model)
 	check_eq(spawner.brain().mood, OutlawBrain.Mood.CALM, "minding his own business")
 	man.physiology.blood_ml = 2000.0
 	await physics_frames(3)
