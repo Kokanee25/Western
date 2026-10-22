@@ -1,0 +1,3843 @@
+{
+ "counts": {
+  "cases": 76,
+  "judged": 117,
+  "as_expected": 74,
+  "missed": 12,
+  "false": 23,
+  "slow": 8,
+  "leaks": 5
+ },
+ "groups": [
+  {
+   "want": "hearing",
+   "seed": 1,
+   "results": [
+    {
+     "source": "gunshot",
+     "at": [
+      11.2,
+      0.78,
+      4.0
+     ],
+     "listeners": [
+      {
+       "listener": "saloon_room",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "",
+       "distance_m": 5.1,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 0.62,
+       "bearing_error_deg": 3.2,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_front",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Saloon/facade_door_jamb1 (trim)",
+       "distance_m": 13.1,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 1.45,
+       "bearing_error_deg": 6.2,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "store_inside",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Saloon/left_siding_c21_0 (board)",
+       "distance_m": 10.9,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 1.67,
+       "bearing_error_deg": 8.1,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "jail_inside",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "StreetDressing/Jail/front_siding_r10_1 (board)",
+       "distance_m": 25.8,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 3.12,
+       "bearing_error_deg": 5.5,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_west_end",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Telegraph/facade_corner1 (post)",
+       "distance_m": 52.8,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 6.09,
+       "bearing_error_deg": 1.9,
+       "knows_who": true,
+       "saw_maker": false
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "saloon_room hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "saloon_room knows who made it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "saloon_room can tell where (within 30 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "street_front hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_front knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "street_front can tell where (within 45 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "store_inside hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "store_inside knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "store_inside can tell where (within 60 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "jail_inside hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "jail_inside knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "street_west_end hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_west_end knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "street_west_end can tell where (within 45 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "why": "A revolver fired inside the saloon at the bar. Everyone in town hears a shot; the man in the room has the shooter 45 deg off his facing, 5 m away, so he sees who (corrected 2026-10-22: the baseline expected he wouldn't); nobody who didn't see it knows who fired; those outside can tell roughly where (the saloon), the man in the next building less well.",
+     "noise_reach_m": 350.0,
+     "group": "hearing",
+     "case": "shot_in_saloon",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "gunshot",
+     "at": [
+      5.0,
+      0.0,
+      -9.0
+     ],
+     "listeners": [
+      {
+       "listener": "saloon_room",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Saloon/front_glass_55_145 (glass)",
+       "distance_m": 16.7,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 1.1,
+       "bearing_error_deg": 3.7,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "store_inside",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Store/front_siding_r08_2 (board)",
+       "distance_m": 16.0,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 1.57,
+       "bearing_error_deg": 2.4,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_near",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "",
+       "distance_m": 10.0,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 0.5,
+       "bearing_error_deg": 2.5,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_west_end",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "",
+       "distance_m": 45.0,
+       "first_s": 0.0,
+       "took_it_for": "gunshot",
+       "guess_error_m": 5.44,
+       "bearing_error_deg": 5.9,
+       "knows_who": true,
+       "saw_maker": false
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "saloon_room hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "saloon_room knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "saloon_room can tell where (within 45 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "store_inside hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "store_inside knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "store_inside can tell where (within 45 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "street_near hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_near knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "street_near can tell where (within 20 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "street_west_end hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_west_end knows who made it",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "street_west_end can tell where (within 20 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "why": "A shot out in the street in front of the store, the listeners facing away. Indoors they hear it and know it was outside, out front; nobody knows who without seeing him.",
+     "noise_reach_m": 350.0,
+     "group": "hearing",
+     "case": "shot_in_street",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "shout",
+     "at": [
+      5.0,
+      0.0,
+      -9.0
+     ],
+     "listeners": [
+      {
+       "listener": "street_20m",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "",
+       "distance_m": 20.0,
+       "first_s": 0.0,
+       "took_it_for": "shout",
+       "guess_error_m": 1.31,
+       "bearing_error_deg": 1.7,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_45m",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "",
+       "distance_m": 45.0,
+       "first_s": 0.0,
+       "took_it_for": "shout",
+       "guess_error_m": 4.43,
+       "bearing_error_deg": 4.7,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "street_60m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 60.0
+      },
+      {
+       "listener": "store_inside",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Store/front_siding_r09_2 (board)",
+       "distance_m": 16.0,
+       "first_s": 0.0,
+       "took_it_for": "shout",
+       "guess_error_m": 1.93,
+       "bearing_error_deg": 1.0,
+       "knows_who": true,
+       "saw_maker": false
+      },
+      {
+       "listener": "saloon_back",
+       "body": "old_rancher_s1",
+       "heard": 1,
+       "wall": "Saloon/Props/@StaticBody3D@3923",
+       "distance_m": 20.2,
+       "first_s": 0.0,
+       "took_it_for": "shout",
+       "guess_error_m": 2.32,
+       "bearing_error_deg": 4.4,
+       "knows_who": true,
+       "saw_maker": false
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "street_20m hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_20m can tell where (within 20 deg)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "street_45m hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "street_60m hears it",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "store_inside hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.0
+      },
+      {
+       "what": "saloon_back hears it",
+       "expect": "either",
+       "got": true,
+       "verdict": "either",
+       "delay_s": 0.0
+      }
+     ],
+     "why": "A man shouting in the street. Down an empty street at night a shout carries 60 m and more; in the store 15 m off through its front, yes; at the back of the saloon, maybe.",
+     "noise_reach_m": 45.0,
+     "group": "hearing",
+     "case": "shout_in_street",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "steps",
+     "at": [
+      6.0,
+      0.78,
+      -1.4
+     ],
+     "listeners": [
+      {
+       "listener": "beside_2m",
+       "body": "old_rancher_s1",
+       "heard": 6,
+       "wall": "",
+       "distance_m": 4.4,
+       "first_s": 0.88,
+       "took_it_for": "footsteps",
+       "guess_error_m": 0.19,
+       "bearing_error_deg": 1.7,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 6,
+       "nearest_heard_m": 2.3,
+       "farthest_heard_m": 3.8
+      },
+      {
+       "listener": "street_5m",
+       "body": "old_rancher_s1",
+       "heard": 7,
+       "wall": "",
+       "distance_m": 6.3,
+       "first_s": 0.88,
+       "took_it_for": "footsteps",
+       "guess_error_m": 0.53,
+       "bearing_error_deg": 1.8,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 7,
+       "nearest_heard_m": 5.1,
+       "farthest_heard_m": 5.9
+      },
+      {
+       "listener": "street_9m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 9.8
+      },
+      {
+       "listener": "street_16m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 16.0
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "beside_2m hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.88
+      },
+      {
+       "what": "street_5m hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.88
+      },
+      {
+       "what": "street_9m hears it",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "street_16m hears it",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "why": "The player walking the saloon's porch boardwalk, listeners facing away in the street. Boots on hollow boards carry: plain at 2 and 5 m, heard at 9 m on a quiet night, not at 16.",
+     "noise_reach_m": 6.0,
+     "group": "hearing",
+     "case": "steps_on_boards",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "steps",
+     "at": [
+      6.0,
+      0.0,
+      -9.0
+     ],
+     "listeners": [
+      {
+       "listener": "beside_2m",
+       "body": "old_rancher_s1",
+       "heard": 7,
+       "wall": "",
+       "distance_m": 4.7,
+       "first_s": 0.05,
+       "took_it_for": "footsteps",
+       "guess_error_m": 0.32,
+       "bearing_error_deg": 0.3,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 7,
+       "nearest_heard_m": 2.8,
+       "farthest_heard_m": 4.8
+      },
+      {
+       "listener": "street_5m",
+       "body": "old_rancher_s1",
+       "heard": 7,
+       "wall": "",
+       "distance_m": 6.5,
+       "first_s": 0.62,
+       "took_it_for": "footsteps",
+       "guess_error_m": 0.57,
+       "bearing_error_deg": 1.2,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 7,
+       "nearest_heard_m": 5.3,
+       "farthest_heard_m": 5.8
+      },
+      {
+       "listener": "street_9m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 10.0
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "beside_2m hears it",
+       "expect": "either",
+       "got": true,
+       "verdict": "either",
+       "delay_s": 0.05
+      },
+      {
+       "what": "street_5m hears it",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 0.62
+      },
+      {
+       "what": "street_9m hears it",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "why": "The same walk on the street's packed dirt: a man might catch it at 2 m, not at 5 or 9.",
+     "noise_reach_m": 6.0,
+     "group": "hearing",
+     "case": "steps_on_dirt",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "cock",
+     "at": [
+      8.5,
+      0.78,
+      6.0
+     ],
+     "listeners": [
+      {
+       "listener": "behind_1_5m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 1.5
+      },
+      {
+       "listener": "room_4m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 4.2
+      },
+      {
+       "listener": "room_9m",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 6.0
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "behind_1_5m hears it",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "room_4m hears it",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "room_9m hears it",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "why": "The player thumbs back his hammer in the saloon, the listeners facing away. The click is the sound every Western is built on: plain at arm's length and across a quiet table.",
+     "noise_reach_m": 0.0,
+     "group": "hearing",
+     "case": "hammer_cocked",
+     "light": "night",
+     "daylight": 0.0
+    },
+    {
+     "source": "steps",
+     "at": [
+      4.0,
+      0.0,
+      -9.0
+     ],
+     "listeners": [
+      {
+       "listener": "street_5m",
+       "body": "old_rancher_s1",
+       "heard": 15,
+       "wall": "",
+       "distance_m": 8.3,
+       "first_s": 0.12,
+       "took_it_for": "footsteps",
+       "guess_error_m": 0.51,
+       "bearing_error_deg": 1.0,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 15,
+       "nearest_heard_m": 5.3,
+       "farthest_heard_m": 7.8
+      },
+      {
+       "listener": "street_12m",
+       "body": "old_rancher_s1",
+       "heard": 7,
+       "wall": "",
+       "distance_m": 13.8,
+       "first_s": 0.93,
+       "took_it_for": "footsteps",
+       "guess_error_m": 1.2,
+       "bearing_error_deg": 3.0,
+       "knows_who": true,
+       "saw_maker": false,
+       "steps_heard": 7,
+       "nearest_heard_m": 12.2,
+       "farthest_heard_m": 12.8
+      },
+      {
+       "listener": "jail_inside",
+       "body": "old_rancher_s1",
+       "heard": 0,
+       "wall": "",
+       "distance_m": 18.4
+      }
+     ],
+     "verdicts": [
+      {
+       "what": "street_5m hears it",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.12
+      },
+      {
+       "what": "street_12m hears it",
+       "expect": "either",
+       "got": true,
+       "verdict": "either",
+       "delay_s": 0.93
+      },
+      {
+       "what": "jail_inside hears it",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "why": "The player running down the street: heard 5 m off, maybe 12; not inside the jail across the way.",
+     "noise_reach_m": 13.0,
+     "group": "hearing",
+     "case": "running_on_dirt",
+     "light": "night",
+     "daylight": 0.0
+    }
+   ],
+   "errors": [],
+   "counts": {
+    "cases": 7,
+    "false": 9,
+    "missed": 4,
+    "slow": 0,
+    "leaks": 0,
+    "as_expected": 28
+   }
+  },
+  {
+   "want": "leaks",
+   "seed": 1,
+   "results": [
+    {
+     "setup": "an outlaw 50 m away at the west end of the street, facing away, who has never seen the player; the player shoots a man inside the saloon",
+     "why": "He hears two shots from the east end. He can't know who fired, that a man was hit, or that it has anything to do with him.",
+     "stance_to_player": "WARNING",
+     "pressure": 0.4,
+     "grudge": 0.4,
+     "knows_who": true,
+     "saw_player": false,
+     "mood": "CALM",
+     "callouts": [],
+     "leaks": [],
+     "verdicts": [
+      {
+       "what": "knows who",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "stance to player",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "pressure",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      }
+     ],
+     "group": "leaks",
+     "case": "far_outlaw_hears_a_hit",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "two of a gang: one in the street, one at the back of the store 13.5 m off through its front wall; the one inside faints (go_limp), silently",
+     "why": "His friend drops inside a building behind him: no shot, no shout, nothing in sight. He can't know.",
+     "line": "Store/facade_porch_post2 (post)",
+     "distance_m": 13.5,
+     "knows_mate_down": true,
+     "saw_mate": false,
+     "fear_change": 0.23,
+     "mood": "CALM",
+     "callouts": [],
+     "leaks": [],
+     "verdicts": [
+      {
+       "what": "knows mate down",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "fear change",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      }
+     ],
+     "group": "leaks",
+     "case": "mate_falls_behind_wall",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "an outlaw given a call_out step for the player, who has never seen or heard him; the player is at the back of the store",
+     "why": "He's to call the player out, but has no idea where he is: he should go where a man would look (the saloon, the street's middle), not to a spot laid off from the player's true place.",
+     "spot": [
+      -10.0,
+      0.0,
+      -8.09
+     ],
+     "player_at": [
+      2.0,
+      0.38,
+      9.0
+     ],
+     "knew_player_before": false,
+     "saw_player": false,
+     "spot_dx_from_player_m": 12.0,
+     "knows_who": false,
+     "callouts": [],
+     "leaks": [],
+     "verdicts": [
+      {
+       "what": "spot dx from player m",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      }
+     ],
+     "group": "leaks",
+     "case": "call_out_unseen",
+     "light": "day",
+     "daylight": 1.0
+    }
+   ],
+   "errors": [],
+   "counts": {
+    "cases": 3,
+    "false": 6,
+    "missed": 0,
+    "slow": 0,
+    "leaks": 0,
+    "as_expected": 0
+   }
+  },
+  {
+   "want": "news",
+   "seed": 1,
+   "results": [
+    {
+     "setup": "the player draws and shoots the victim twice across the saloon (bridge: weapon, look, shoot); everyone is a CivilianBrain",
+     "shots": [
+      {
+       "t": 0.93,
+       "at": [
+        10.49,
+        2.26,
+        3.31
+       ],
+       "by": "player",
+       "seen_by": [
+        "witness",
+        "victim"
+       ]
+      },
+      {
+       "t": 1.78,
+       "at": [
+        10.49,
+        2.27,
+        3.31
+       ],
+       "by": "player",
+       "seen_by": [
+        "witness",
+        "victim"
+       ]
+      }
+     ],
+     "falls": [],
+     "speech": [
+      {
+       "t": 0.4,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 0.93,
+       "who": "witness",
+       "text": "Lord almighty!"
+      },
+      {
+       "t": 0.93,
+       "who": "victim",
+       "text": "Get down! Everybody down!"
+      },
+      {
+       "t": 0.93,
+       "who": "storekeeper",
+       "text": "Get down! Everybody down!"
+      },
+      {
+       "t": 0.93,
+       "who": "deputy",
+       "text": "Get down! Everybody down!"
+      },
+      {
+       "t": 5.4,
+       "who": "victim",
+       "text": "Take it! Take whatever you want!"
+      },
+      {
+       "t": 8.8,
+       "who": "witness",
+       "text": "...They gone?"
+      },
+      {
+       "t": 8.8,
+       "who": "storekeeper",
+       "text": "Lord. Lord, lord."
+      },
+      {
+       "t": 8.8,
+       "who": "deputy",
+       "text": "...They gone?"
+      },
+      {
+       "t": 12.98,
+       "who": "victim",
+       "text": "Take it! Take whatever you want!"
+      },
+      {
+       "t": 20.33,
+       "who": "victim",
+       "text": "Don't shoot! I got a family!"
+      },
+      {
+       "t": 28.2,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 33.67,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 41.1,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 46.22,
+       "who": "victim",
+       "text": "Don't shoot! I got a family!"
+      },
+      {
+       "t": 52.62,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 57.65,
+       "who": "victim",
+       "text": "Don't shoot! I got a family!"
+      },
+      {
+       "t": 64.2,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 71.22,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 78.98,
+       "who": "victim",
+       "text": "Please, mister..."
+      },
+      {
+       "t": 84.3,
+       "who": "victim",
+       "text": "Take it! Take whatever you want!"
+      },
+      {
+       "t": 89.92,
+       "who": "victim",
+       "text": "Take it! Take whatever you want!"
+      }
+     ],
+     "snapshots": {
+      "1.0": {
+       "witness": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.5,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "victim": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "HANDS_UP",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "storekeeper": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 0.6,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "deputy": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 2.2,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "passerby": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 4.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       }
+      },
+      "5.0": {
+       "witness": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.5,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "victim": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "HANDS_UP",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "storekeeper": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 0.6,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "deputy": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "COWERING",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 2.2,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "passerby": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 4.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       }
+      },
+      "30.0": {
+       "witness": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "SHAKEN",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.5,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "victim": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "HANDS_UP",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "storekeeper": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "SHAKEN",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 0.6,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "deputy": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "SHAKEN",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 2.2,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "passerby": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 4.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       }
+      },
+      "90.0": {
+       "witness": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.5,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "victim": {
+        "heard_shot": true,
+        "saw_shooter": true,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at",
+         "shoot_at",
+         "hit"
+        ],
+        "knows_victim_hurt": true,
+        "mood": "HANDS_UP",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": true,
+        "knows_holdup": true,
+        "heard_error_m": 0.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": false
+       },
+       "storekeeper": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 0.6,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "deputy": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 2.2,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       },
+       "passerby": {
+        "heard_shot": true,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "heard_error_m": 4.3,
+        "heard_at_s": 0.93,
+        "who_by_sound_only": true
+       }
+      }
+     },
+     "verdicts": [
+      {
+       "what": "witness heard shot (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "witness saw shooter (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "witness knows shooting (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "storekeeper heard shot (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "storekeeper who by sound only (by 90s)",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "deputy heard shot (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "deputy knows shooting (by 90s)",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "deputy who by sound only (by 90s)",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      },
+      {
+       "what": "passerby heard shot (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "passerby who by sound only (by 90s)",
+       "expect": false,
+       "got": true,
+       "verdict": "false"
+      }
+     ],
+     "leaks": [],
+     "why": "The barkeep sees it all; the storekeeper next door and the deputy at the jail hear two shots; a passer-by down the street too. Within a minute and a half someone runs to the deputy (the barkeep, or the storekeeper who went to look) and he knows a man's been shot in the saloon and by whom. Nobody knows who fired from the sound alone.",
+     "track_rows": 1820,
+     "group": "news",
+     "case": "saloon_shooting",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "the player draws on the storekeeper over the counter for 6 s, puts it away and walks out west down the street; no shot",
+     "shots": [],
+     "falls": [],
+     "speech": [
+      {
+       "t": 0.37,
+       "who": "storekeeper",
+       "text": "Don't shoot! I got a family!"
+      },
+      {
+       "t": 5.37,
+       "who": "storekeeper",
+       "text": "Take it! Take whatever you want!"
+      },
+      {
+       "t": 7.28,
+       "who": "storekeeper",
+       "text": "...They gone?"
+      }
+     ],
+     "snapshots": {
+      "1.0": {
+       "storekeeper": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at"
+        ],
+        "knows_victim_hurt": false,
+        "mood": "SHAKEN",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": true,
+        "who_by_sound_only": false
+       },
+       "deputy": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": false,
+        "senses_knows": false,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "who_by_sound_only": false
+       }
+      },
+      "30.0": {
+       "storekeeper": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at"
+        ],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": true,
+        "who_by_sound_only": false
+       },
+       "deputy": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": false,
+        "senses_knows": false,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "who_by_sound_only": false
+       }
+      },
+      "90.0": {
+       "storekeeper": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": true,
+        "knows_who": true,
+        "senses_knows": true,
+        "saw_fall": false,
+        "deeds_seen": [
+         "draw",
+         "aim_at"
+        ],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": true,
+        "who_by_sound_only": false
+       },
+       "deputy": {
+        "heard_shot": false,
+        "saw_shooter": false,
+        "who_by_sight": false,
+        "knows_who": false,
+        "senses_knows": false,
+        "saw_fall": false,
+        "deeds_seen": [],
+        "knows_victim_hurt": false,
+        "mood": "CALM",
+        "troubled_by": [],
+        "helped_by": "",
+        "knows_shooting": false,
+        "knows_holdup": false,
+        "who_by_sound_only": false
+       }
+      }
+     },
+     "verdicts": [
+      {
+       "what": "storekeeper knows who (by 90s)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "deputy knows holdup (by 90s)",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      }
+     ],
+     "leaks": [],
+     "why": "A quiet crime: a hold-up nobody hears, the deputy at his desk in the jail across the street. The storekeeper saw it; within a minute and a half he's at the jail and the deputy knows who did it.",
+     "track_rows": 826,
+     "group": "news",
+     "case": "store_holdup",
+     "light": "day",
+     "daylight": 1.0
+    }
+   ],
+   "errors": [],
+   "counts": {
+    "cases": 2,
+    "false": 3,
+    "missed": 2,
+    "slow": 0,
+    "leaks": 0,
+    "as_expected": 7
+   }
+  },
+  {
+   "want": "search",
+   "seed": 1,
+   "results": [
+    {
+     "setup": "the lab starts the fight (OutlawBrain._provoked by the player) and holds his fire (_next_shot)",
+     "hunter": "bold_cowboy_s0",
+     "hide_from_s": 2.5,
+     "hidden_at_s": 9.03,
+     "spot": [
+      16.49,
+      0.0,
+      2.24
+     ],
+     "lost_truth_s": 6.75,
+     "lost_senses_s": 6.68,
+     "lost_delay_s": -0.07,
+     "lk_error_at_loss_m": 0.4,
+     "nearest_to_last_known_m": 2.2,
+     "nearest_to_true_spot_m": 5.6,
+     "gave_up_s": -1.0,
+     "found_again_s": 12.59,
+     "remembered_s": -1.0,
+     "events": [
+      {
+       "t": 0.0,
+       "event": "spotted (before the fight)"
+      },
+      {
+       "t": 0.0,
+       "event": "says \"That's how it is? Fine!\""
+      },
+      {
+       "t": 0.0,
+       "event": "mood FIGHTING"
+      },
+      {
+       "t": 0.28,
+       "event": "lost",
+       "true_at": [
+        10.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        10.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 1.75,
+       "event": "spotted"
+      },
+      {
+       "t": 1.88,
+       "event": "lost",
+       "true_at": [
+        10.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        10.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 5.88,
+       "event": "spotted"
+      },
+      {
+       "t": 6.68,
+       "event": "lost",
+       "true_at": [
+        16.33,
+        0.0,
+        -4.02
+       ],
+       "last_known": [
+        16.32,
+        0.0,
+        -4.4
+       ]
+      },
+      {
+       "t": 12.4,
+       "event": "says \"I know you're there.\""
+      },
+      {
+       "t": 21.62,
+       "event": "spotted"
+      },
+      {
+       "t": 22.28,
+       "event": "lost",
+       "true_at": [
+        16.49,
+        0.0,
+        2.24
+       ],
+       "last_known": [
+        16.49,
+        0.0,
+        2.24
+       ]
+      },
+      {
+       "t": 23.88,
+       "event": "spotted"
+      }
+     ],
+     "leaks": [
+      {
+       "t": 0.98,
+       "who": "hunter",
+       "kind": "knows_without_sensing",
+       "told_by": "(no event: a brain's own note)",
+       "error_m": 0.5,
+       "could_see": false,
+       "wall": ""
+      }
+     ],
+     "why": "In a fight 6 m apart in the street, the player walks off east and round the saloon's corner, then stands still and quiet. A man would go to where he last saw him (the corner), look round, and keep at it a while; he can't know where the player stopped.",
+     "verdicts": [
+      {
+       "what": "goes to where he last knew him (within 2 m)",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "knows he's lost him within 1.5 s",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "search",
+     "case": "lost_round_corner_still",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "the lab starts the fight (OutlawBrain._provoked by the player) and holds his fire (_next_shot)",
+     "hunter": "bold_cowboy_s0",
+     "hide_from_s": 2.5,
+     "hidden_at_s": 9.03,
+     "spot": [
+      16.49,
+      0.0,
+      2.24
+     ],
+     "lost_truth_s": 6.75,
+     "lost_senses_s": 6.68,
+     "lost_delay_s": -0.07,
+     "lk_error_at_loss_m": 0.4,
+     "nearest_to_last_known_m": 1.5,
+     "nearest_to_true_spot_m": 7.4,
+     "gave_up_s": -1.0,
+     "found_again_s": 12.99,
+     "remembered_s": -1.0,
+     "events": [
+      {
+       "t": 0.0,
+       "event": "spotted (before the fight)"
+      },
+      {
+       "t": 0.0,
+       "event": "says \"That's how it is? Fine!\""
+      },
+      {
+       "t": 0.0,
+       "event": "mood FIGHTING"
+      },
+      {
+       "t": 0.28,
+       "event": "lost",
+       "true_at": [
+        10.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        10.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 1.75,
+       "event": "spotted"
+      },
+      {
+       "t": 1.88,
+       "event": "lost",
+       "true_at": [
+        10.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        10.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 5.88,
+       "event": "spotted"
+      },
+      {
+       "t": 6.68,
+       "event": "lost",
+       "true_at": [
+        16.33,
+        0.0,
+        -4.02
+       ],
+       "last_known": [
+        16.32,
+        0.0,
+        -4.4
+       ]
+      },
+      {
+       "t": 12.4,
+       "event": "says \"I know you're there.\""
+      },
+      {
+       "t": 22.02,
+       "event": "spotted"
+      }
+     ],
+     "leaks": [
+      {
+       "t": 0.98,
+       "who": "hunter",
+       "kind": "knows_without_sensing",
+       "told_by": "(no event: a brain's own note)",
+       "error_m": 0.5,
+       "could_see": false,
+       "wall": ""
+      }
+     ],
+     "why": "The same, but behind the corner the player paces up and down beside the saloon's side wall: footsteps on dirt, a few metres off when the hunter comes near.",
+     "verdicts": [
+      {
+       "what": "goes to where he last knew him (within 2 m)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "knows he's lost him within 1.5 s",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "search",
+     "case": "lost_round_corner_moving",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "the lab starts the fight (OutlawBrain._provoked by the player) and holds his fire (_next_shot)",
+     "hunter": "bold_cowboy_s0",
+     "hide_from_s": 2.5,
+     "hidden_at_s": 10.48,
+     "spot": [
+      2.91,
+      0.38,
+      7.24
+     ],
+     "lost_truth_s": 7.5,
+     "lost_senses_s": 7.48,
+     "lost_delay_s": -0.02,
+     "lk_error_at_loss_m": 0.4,
+     "nearest_to_last_known_m": 3.7,
+     "nearest_to_true_spot_m": 10.4,
+     "gave_up_s": 37.38,
+     "found_again_s": -1.0,
+     "remembered_s": 26.9,
+     "events": [
+      {
+       "t": 0.0,
+       "event": "spotted (before the fight)"
+      },
+      {
+       "t": 0.0,
+       "event": "says \"That's how it is? Fine!\""
+      },
+      {
+       "t": 0.0,
+       "event": "mood FIGHTING"
+      },
+      {
+       "t": 0.28,
+       "event": "lost",
+       "true_at": [
+        -3.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        -3.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 1.62,
+       "event": "spotted"
+      },
+      {
+       "t": 2.28,
+       "event": "lost",
+       "true_at": [
+        -3.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        -3.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 3.48,
+       "event": "spotted"
+      },
+      {
+       "t": 4.68,
+       "event": "lost",
+       "true_at": [
+        -3.1,
+        0.0,
+        -3.42
+       ],
+       "last_known": [
+        -3.09,
+        0.0,
+        -3.68
+       ]
+      },
+      {
+       "t": 4.95,
+       "event": "spotted"
+      },
+      {
+       "t": 5.08,
+       "event": "lost",
+       "true_at": [
+        -3.1,
+        0.37,
+        -2.53
+       ],
+       "last_known": [
+        -3.1,
+        0.2,
+        -2.8
+       ]
+      },
+      {
+       "t": 5.35,
+       "event": "spotted"
+      },
+      {
+       "t": 7.48,
+       "event": "lost",
+       "true_at": [
+        0.39,
+        0.38,
+        0.01
+       ],
+       "last_known": [
+        0.35,
+        0.38,
+        -0.36
+       ]
+      },
+      {
+       "t": 12.85,
+       "event": "says \"I know you're there.\""
+      },
+      {
+       "t": 37.38,
+       "event": "says \"Damn it. Lost him.\""
+      },
+      {
+       "t": 37.38,
+       "event": "mood CALM"
+      }
+     ],
+     "leaks": [
+      {
+       "t": 0.98,
+       "who": "hunter",
+       "kind": "knows_without_sensing",
+       "told_by": "(no event: a brain's own note)",
+       "error_m": 0.5,
+       "could_see": false,
+       "wall": ""
+      },
+      {
+       "t": 13.02,
+       "who": "hunter",
+       "kind": "faces_unseen",
+       "face_true_deg": 6.8,
+       "face_lk_deg": 30.9,
+       "wall": "Telegraph/facade_door_jamb0 (trim)"
+      }
+     ],
+     "why": "The player ducks into the store and back behind the counter. A man would follow to the door he went in by; whether he then finds him inside is fair either way.",
+     "verdicts": [
+      {
+       "what": "finds him (within 2 m of his true spot)",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      },
+      {
+       "what": "goes to where he last knew him (within 2 m)",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      },
+      {
+       "what": "knows he's lost him within 1.5 s",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "search",
+     "case": "lost_into_store",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "setup": "the lab starts the fight (OutlawBrain._provoked by the player) and holds his fire (_next_shot)",
+     "hunter": "bold_cowboy_s0",
+     "hide_from_s": 2.5,
+     "hidden_at_s": 10.18,
+     "spot": [
+      1.22,
+      0.0,
+      -12.37
+     ],
+     "lost_truth_s": 2.5,
+     "lost_senses_s": -1.0,
+     "lost_delay_s": -1.0,
+     "lk_error_at_loss_m": -1.0,
+     "nearest_to_last_known_m": 1.4,
+     "nearest_to_true_spot_m": 1.2,
+     "gave_up_s": 30.9,
+     "found_again_s": -1.0,
+     "remembered_s": 20.72,
+     "events": [
+      {
+       "t": 0.0,
+       "event": "says \"That's how it is? Fine!\""
+      },
+      {
+       "t": 0.0,
+       "event": "mood FIGHTING"
+      },
+      {
+       "t": 0.28,
+       "event": "spotted"
+      },
+      {
+       "t": 0.42,
+       "event": "lost",
+       "true_at": [
+        10.0,
+        0.0,
+        -9.0
+       ],
+       "last_known": [
+        10.0,
+        0.0,
+        -9.0
+       ]
+      },
+      {
+       "t": 5.9,
+       "event": "says \"I know you're there.\""
+      },
+      {
+       "t": 6.63,
+       "event": "heard footsteps (player)",
+       "at": [
+        2.27,
+        0.0,
+        -12.68
+       ],
+       "true": [
+        2.18,
+        0.0,
+        -12.36
+       ]
+      },
+      {
+       "t": 6.92,
+       "event": "heard footsteps (player)",
+       "at": [
+        1.37,
+        0.0,
+        -12.34
+       ],
+       "true": [
+        1.38,
+        0.0,
+        -12.37
+       ]
+      },
+      {
+       "t": 30.9,
+       "event": "says \"Damn it. Lost him.\""
+      },
+      {
+       "t": 30.9,
+       "event": "mood CALM"
+      }
+     ],
+     "leaks": [
+      {
+       "t": 0.0,
+       "who": "hunter",
+       "kind": "knows_without_sensing",
+       "told_by": "(no event: a brain's own note)",
+       "error_m": 0.5,
+       "could_see": true,
+       "wall": ""
+      }
+     ],
+     "why": "At night: the player walks out of the porch light into the dark middle of the street and away west, 10 m off and more. Lost in the dark, not behind anything; he should lose him and go to where he last saw him.",
+     "verdicts": [
+      {
+       "what": "goes to where he last knew him (within 2 m)",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      },
+      {
+       "what": "sees him at all before he hides",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "search",
+     "case": "lost_at_night",
+     "light": "night_lit",
+     "daylight": 0.0
+    }
+   ],
+   "errors": [],
+   "counts": {
+    "cases": 4,
+    "false": 0,
+    "missed": 2,
+    "slow": 0,
+    "leaks": 5,
+    "as_expected": 6
+   }
+  },
+  {
+   "want": "sight",
+   "seed": 1,
+   "results": [
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 10.0,
+     "angle_deg": 3.1,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.47,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man walking 10 m ahead in the open street. Even by starlight a moving figure that near is plain.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.47
+      }
+     ],
+     "group": "sight",
+     "case": "street_10m",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 10.0,
+     "angle_deg": 3.1,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.47,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man walking 10 m ahead in the open street. Even by starlight a moving figure that near is plain.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.47
+      }
+     ],
+     "group": "sight",
+     "case": "street_10m",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 10.0,
+     "angle_deg": 3.1,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 5.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man walking 10 m ahead in the open street. Even by starlight a moving figure that near is plain.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 5.53
+      }
+     ],
+     "group": "sight",
+     "case": "street_10m",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 10.0,
+     "angle_deg": 3.1,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 5.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man walking 10 m ahead in the open street. Even by starlight a moving figure that near is plain.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 5.53
+      }
+     ],
+     "group": "sight",
+     "case": "street_10m",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 25.0,
+     "angle_deg": 1.6,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "25 m ahead, walking. By day plain; at night a dark shape 9 m from the saloon's porch lights, which a man may or may not make out.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "street_25m",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 25.0,
+     "angle_deg": 1.6,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "25 m ahead, walking. By day plain; at night a dark shape 9 m from the saloon's porch lights, which a man may or may not make out.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "street_25m",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 25.0,
+     "angle_deg": 1.6,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "25 m ahead, walking. By day plain; at night a dark shape 9 m from the saloon's porch lights, which a man may or may not make out.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "street_25m",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 25.0,
+     "angle_deg": 1.6,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "25 m ahead, walking. By day plain; at night a dark shape 9 m from the saloon's porch lights, which a man may or may not make out.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "street_25m",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 45.0,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.85,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "45 m down the street. By day anyone sees a man walking; with every lamp out at night, no one does.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      }
+     ],
+     "group": "sight",
+     "case": "street_45m",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 45.0,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.65,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "45 m down the street. By day anyone sees a man walking; with every lamp out at night, no one does.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      }
+     ],
+     "group": "sight",
+     "case": "street_45m",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 45.0,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "45 m down the street. By day anyone sees a man walking; with every lamp out at night, no one does.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "street_45m",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 45.0,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "45 m down the street. By day anyone sees a man walking; with every lamp out at night, no one does.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "street_45m",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 18.8,
+     "angle_deg": 3.3,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man standing still on the saloon's porch, between its two lit lanterns, seen from 19 m off across the dark street: lit, he's the brightest thing there. Lanterns out, he's a shadow on a shadow.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 1.0
+      }
+     ],
+     "group": "sight",
+     "case": "under_lamp_20m",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 18.8,
+     "angle_deg": 3.3,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man standing still on the saloon's porch, between its two lit lanterns, seen from 19 m off across the dark street: lit, he's the brightest thing there. Lanterns out, he's a shadow on a shadow.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 1.0
+      }
+     ],
+     "group": "sight",
+     "case": "under_lamp_20m",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 18.8,
+     "angle_deg": 3.3,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man standing still on the saloon's porch, between its two lit lanterns, seen from 19 m off across the dark street: lit, he's the brightest thing there. Lanterns out, he's a shadow on a shadow.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      }
+     ],
+     "group": "sight",
+     "case": "under_lamp_20m",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 18.8,
+     "angle_deg": 3.3,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man standing still on the saloon's porch, between its two lit lanterns, seen from 19 m off across the dark street: lit, he's the brightest thing there. Lanterns out, he's a shadow on a shadow.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "under_lamp_20m",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.1,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 1.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man crouched still in the middle of the street at night, 7 m from the nearest lamp, 15 m off: missed. By day he's in plain sight.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 1.53
+      }
+     ],
+     "group": "sight",
+     "case": "crouched_dark_15m",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.1,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 1.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "A man crouched still in the middle of the street at night, 7 m from the nearest lamp, 15 m off: missed. By day he's in plain sight.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 1.53
+      }
+     ],
+     "group": "sight",
+     "case": "crouched_dark_15m",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.1,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man crouched still in the middle of the street at night, 7 m from the nearest lamp, 15 m off: missed. By day he's in plain sight.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "crouched_dark_15m",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.1,
+     "angle_deg": 1.2,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man crouched still in the middle of the street at night, 7 m from the nearest lamp, 15 m off: missed. By day he's in plain sight.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "crouched_dark_15m",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 5.0,
+     "angle_deg": 178.5,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Standing still 5 m behind him. Nobody sees behind his own back.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_back",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 5.0,
+     "angle_deg": 178.5,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Standing still 5 m behind him. Nobody sees behind his own back.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_back",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 5.0,
+     "angle_deg": 178.5,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Standing still 5 m behind him. Nobody sees behind his own back.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_back",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 5.0,
+     "angle_deg": 178.5,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Standing still 5 m behind him. Nobody sees behind his own back.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_back",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 7.1,
+     "angle_deg": 82.4,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 3.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Walking across 7 m off, square to his left: movement at the edge of the eye is what it's best at, by day.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 3.53
+      }
+     ],
+     "group": "sight",
+     "case": "side_walker",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 7.1,
+     "angle_deg": 82.4,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 3.53,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Walking across 7 m off, square to his left: movement at the edge of the eye is what it's best at, by day.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 3.53
+      }
+     ],
+     "group": "sight",
+     "case": "side_walker",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 7.1,
+     "angle_deg": 82.4,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.35,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Walking across 7 m off, square to his left: movement at the edge of the eye is what it's best at, by day.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "side_walker",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 7.1,
+     "angle_deg": 82.4,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.35,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Walking across 7 m off, square to his left: movement at the edge of the eye is what it's best at, by day.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "side_walker",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 13.5,
+     "angle_deg": 2.5,
+     "line": "Store/front_siding_r09_1 (board)",
+     "senses_light": 1.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Inside the store behind its front wall (between the left window and the door), walking: nobody sees through planks.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_wall",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 13.5,
+     "angle_deg": 2.5,
+     "line": "Store/front_siding_r09_1 (board)",
+     "senses_light": 0.947,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Inside the store behind its front wall (between the left window and the door), walking: nobody sees through planks.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_wall",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 13.5,
+     "angle_deg": 2.5,
+     "line": "Store/front_siding_r09_1 (board)",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Inside the store behind its front wall (between the left window and the door), walking: nobody sees through planks.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_wall",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 13.5,
+     "angle_deg": 2.5,
+     "line": "Store/front_siding_r09_1 (board)",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Inside the store behind its front wall (between the left window and the door), walking: nobody sees through planks.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "behind_wall",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.3,
+     "angle_deg": 0.9,
+     "line": "StreetDressing/Barrel",
+     "senses_light": 1.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Round the saloon's east corner, 5 m along its side wall: the corner is between them.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "round_the_corner",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.3,
+     "angle_deg": 0.9,
+     "line": "StreetDressing/Barrel",
+     "senses_light": 0.947,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Round the saloon's east corner, 5 m along its side wall: the corner is between them.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "round_the_corner",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.3,
+     "angle_deg": 0.9,
+     "line": "StreetDressing/Barrel",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Round the saloon's east corner, 5 m along its side wall: the corner is between them.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "round_the_corner",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 15.3,
+     "angle_deg": 0.9,
+     "line": "StreetDressing/Barrel",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "Round the saloon's east corner, 5 m along its side wall: the corner is between them.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "round_the_corner",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.5,
+     "angle_deg": 5.4,
+     "line": "Saloon/front_glass_55_145 (glass)",
+     "senses_light": 1.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man inside the saloon a step behind its west front window, seen from 9.5 m out in the street. At night the lit room shows him like a stage; by day the glass gives back the bright street, so it's a toss-up; lamps out, the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "through_window",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.5,
+     "angle_deg": 5.4,
+     "line": "Saloon/front_glass_55_145 (glass)",
+     "senses_light": 0.947,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man inside the saloon a step behind its west front window, seen from 9.5 m out in the street. At night the lit room shows him like a stage; by day the glass gives back the bright street, so it's a toss-up; lamps out, the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "through_window",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.5,
+     "angle_deg": 5.4,
+     "line": "Saloon/front_glass_55_145 (glass)",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man inside the saloon a step behind its west front window, seen from 9.5 m out in the street. At night the lit room shows him like a stage; by day the glass gives back the bright street, so it's a toss-up; lamps out, the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": false,
+       "verdict": "missed"
+      }
+     ],
+     "group": "sight",
+     "case": "through_window",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.5,
+     "angle_deg": 5.4,
+     "line": "Saloon/front_glass_55_145 (glass)",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.0,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "A man inside the saloon a step behind its west front window, seen from 9.5 m out in the street. At night the lit room shows him like a stage; by day the glass gives back the bright street, so it's a toss-up; lamps out, the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "through_window",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 14.0,
+     "angle_deg": 2.4,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.6,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "In line with the store's open door, 13 m away. By day you see a man through an open doorway; at night the store's own lamp decides it (either); every lamp out, no.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.6
+      }
+     ],
+     "group": "sight",
+     "case": "through_doorway",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 14.0,
+     "angle_deg": 2.4,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.6,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "In line with the store's open door, 13 m away. By day you see a man through an open doorway; at night the store's own lamp decides it (either); every lamp out, no.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.6
+      }
+     ],
+     "group": "sight",
+     "case": "through_doorway",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 14.0,
+     "angle_deg": 2.4,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.01,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "In line with the store's open door, 13 m away. By day you see a man through an open doorway; at night the store's own lamp decides it (either); every lamp out, no.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": false,
+       "verdict": "either"
+      }
+     ],
+     "group": "sight",
+     "case": "through_doorway",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 14.0,
+     "angle_deg": 2.4,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.01,
+     "seen_at_end": false,
+     "window_s": 6.0,
+     "why": "In line with the store's open door, 13 m away. By day you see a man through an open doorway; at night the store's own lamp decides it (either); every lamp out, no.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "through_doorway",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.0,
+     "angle_deg": 6.0,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.6,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Just inside the saloon's batwing doors, 9 m from the street: his head shows over them and his legs under, and the room behind him is lit at night.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.6
+      }
+     ],
+     "group": "sight",
+     "case": "through_batwings",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.0,
+     "angle_deg": 6.0,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.6,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Just inside the saloon's batwing doors, 9 m from the street: his head shows over them and his legs under, and the room behind him is lit at night.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.6
+      }
+     ],
+     "group": "sight",
+     "case": "through_batwings",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.0,
+     "angle_deg": 6.0,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 4.33,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Just inside the saloon's batwing doors, 9 m from the street: his head shows over them and his legs under, and the room behind him is lit at night.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 4.33
+      }
+     ],
+     "group": "sight",
+     "case": "through_batwings",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 9.0,
+     "angle_deg": 6.0,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 4.33,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Just inside the saloon's batwing doors, 9 m from the street: his head shows over them and his legs under, and the room behind him is lit at night.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": "either",
+       "got": true,
+       "verdict": "either",
+       "delay_s": 4.33
+      }
+     ],
+     "group": "sight",
+     "case": "through_batwings",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.6,
+     "angle_deg": 0.8,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Across the saloon, 8.6 m, standing still. Lamps lit (day or night), plain; at night with every lamp out the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "inside_dark_room",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.6,
+     "angle_deg": 0.8,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Across the saloon, 8.6 m, standing still. Lamps lit (day or night), plain; at night with every lamp out the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "as_expected",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "inside_dark_room",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.6,
+     "angle_deg": 0.8,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 4.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Across the saloon, 8.6 m, standing still. Lamps lit (day or night), plain; at night with every lamp out the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": true,
+       "got": true,
+       "verdict": "slow",
+       "delay_s": 4.73
+      }
+     ],
+     "group": "sight",
+     "case": "inside_dark_room",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.6,
+     "angle_deg": 0.8,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": 4.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 6.0,
+     "why": "Across the saloon, 8.6 m, standing still. Lamps lit (day or night), plain; at night with every lamp out the room is black.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 4.73
+      }
+     ],
+     "group": "sight",
+     "case": "inside_dark_room",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.0,
+     "angle_deg": 0.7,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 2.0,
+     "why": "Four shots' worth of black-powder smoke hanging between them, 8 m apart, in its first two seconds: a white wall (period accounts: a volley hid the other side).",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "gun_smoke",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.0,
+     "angle_deg": 0.7,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 2.0,
+     "why": "Four shots' worth of black-powder smoke hanging between them, 8 m apart, in its first two seconds: a white wall (period accounts: a volley hid the other side).",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "gun_smoke",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.0,
+     "angle_deg": 0.7,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.53,
+     "seen_at_end": false,
+     "window_s": 2.0,
+     "why": "Four shots' worth of black-powder smoke hanging between them, 8 m apart, in its first two seconds: a white wall (period accounts: a volley hid the other side).",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "gun_smoke",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 8.0,
+     "angle_deg": 0.7,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.53,
+     "seen_at_end": false,
+     "window_s": 2.0,
+     "why": "Four shots' worth of black-powder smoke hanging between them, 8 m apart, in its first two seconds: a white wall (period accounts: a volley hid the other side).",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "gun_smoke",
+     "light": "night_out",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 12.0,
+     "angle_deg": 1.0,
+     "line": "",
+     "senses_light": 1.0,
+     "spotted_s": 0.73,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 2.5,
+     "why": "A stick's dust cloud thrown up between them, 12 m apart, in its first two and a half seconds.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 0.73
+      }
+     ],
+     "group": "sight",
+     "case": "blast_dust",
+     "light": "day",
+     "daylight": 1.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 12.0,
+     "angle_deg": 1.0,
+     "line": "",
+     "senses_light": 0.947,
+     "spotted_s": 0.87,
+     "lost_s": -1.0,
+     "awareness_peak": 1.0,
+     "seen_at_end": true,
+     "window_s": 2.5,
+     "why": "A stick's dust cloud thrown up between them, 12 m apart, in its first two and a half seconds.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": true,
+       "verdict": "false",
+       "delay_s": 0.87
+      }
+     ],
+     "group": "sight",
+     "case": "blast_dust",
+     "light": "golden",
+     "daylight": 0.947
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 12.0,
+     "angle_deg": 1.0,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.07,
+     "seen_at_end": false,
+     "window_s": 2.5,
+     "why": "A stick's dust cloud thrown up between them, 12 m apart, in its first two and a half seconds.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "blast_dust",
+     "light": "night_lit",
+     "daylight": 0.0
+    },
+    {
+     "watcher": "bold_cowboy_s0",
+     "target": "young_drifter_s1",
+     "distance_m": 12.0,
+     "angle_deg": 1.0,
+     "line": "",
+     "senses_light": 0.0,
+     "spotted_s": -1.0,
+     "lost_s": -1.0,
+     "awareness_peak": 0.07,
+     "seen_at_end": false,
+     "window_s": 2.5,
+     "why": "A stick's dust cloud thrown up between them, 12 m apart, in its first two and a half seconds.",
+     "verdicts": [
+      {
+       "what": "sees the target",
+       "expect": false,
+       "got": false,
+       "verdict": "as_expected"
+      }
+     ],
+     "group": "sight",
+     "case": "blast_dust",
+     "light": "night_out",
+     "daylight": 0.0
+    }
+   ],
+   "errors": [],
+   "counts": {
+    "cases": 60,
+    "false": 5,
+    "missed": 4,
+    "slow": 8,
+    "leaks": 0,
+    "as_expected": 33
+   }
+  }
+ ]
+}
