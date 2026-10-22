@@ -681,7 +681,7 @@ func _on_node_added(n: Node) -> void:
 		if rb.is_in_group(StringName(g)):
 			kind = {"rubble": "rubble", "wood_chips": "chip", "glass_shards": "glass", "fallen": "fitting", "clods": "clod"}[g]
 	_pieces.append({"node": rb, "kind": kind, "name": String(rb.name), "tick": Engine.get_physics_frames(),
-			"start": Vector3.INF, "peak_speed": 0.0, "max_dist": 0.0, "from_event": 0.0, "min_y": INF, "sunk_max": 0.0, "sunk_run": 0,
+			"start": Vector3.INF, "peak_speed": 0.0, "max_dist": 0.0, "from_event": 0.0, "min_y": INF, "under_ground": -INF, "sunk_max": 0.0, "sunk_run": 0,
 			"sunk_flag": false, "flips": 0, "last_sleep": false, "end": Vector3.INF, "end_speed": 0.0, "asleep": false,
 			"freed_tick": -1, "mass": 0.0, "longest": 0.0, "volume": 0.0, "members": []})
 
@@ -736,6 +736,9 @@ func _watch_piece(p: Dictionary, space: PhysicsDirectSpaceState3D, tick: int, af
 	p.peak_speed = maxf(p.peak_speed, v)
 	p.max_dist = maxf(p.max_dist, _flat(at - p.start))
 	p.min_y = minf(p.min_y, at.y)
+	# Below the ground where it is (a crater's floor is below y 0).
+	var g := Ground.of(get_tree())
+	p.under_ground = maxf(p.under_ground, (g.height_at(at.x, at.z) if g else 0.0) - at.y)
 	if rb.sleeping != p.last_sleep:
 		p.flips += 1
 		p.last_sleep = rb.sleeping
@@ -1255,8 +1258,8 @@ func _flags(out: Dictionary) -> Array:
 		var label := "%s %s (%.2f kg)" % [p.kind, p.name, p.mass]
 		if p.sunk_flag:
 			flags.append("sunk: %s %.3f m into the world" % [label, p.sunk_max])
-		if p.min_y < float(_thr.get("below_ground_m", -0.05)):
-			flags.append("below_ground: %s down to y %.2f" % [label, p.min_y])
+		if -p.under_ground < float(_thr.get("below_ground_m", -0.05)):
+			flags.append("below_ground: %s %.2f m under the ground (y %.2f)" % [label, p.under_ground, p.min_y])
 		if p.peak_speed > float(_thr.get("flung_mps", 20.0)) and p.mass >= float(_thr.get("flung_min_kg", 0.5)):
 			flags.append("flung: %s at %.1f m/s" % [label, p.peak_speed])
 		if p.max_dist > float(_thr.get("far_m", 12.0)):

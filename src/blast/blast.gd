@@ -216,7 +216,9 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 		var az := _rng.randf() * TAU
 		var el := deg_to_rad(_rng.randf_range(25.0, 65.0))
 		var dir := Vector3(cos(az) * cos(el), sin(el), sin(az) * cos(el))
-		var start := floor_at + Vector3(cos(az), 0.0, sin(az)) * r * _rng.randf_range(0.2, 0.8) + Vector3.UP * 0.05
+		var start := floor_at + Vector3(cos(az), 0.0, sin(az)) * r * _rng.randf_range(0.2, 0.8)
+		# On the crater's wall, not in it (Jolt would throw it out of the earth).
+		start.y = ground.height_at(start.x, start.z) + pow(flying / tn.clods, 1.0 / 3.0) + 0.02
 		Clod.throw(world, ground, start, dir * _rng.randf_range(tn.clod_speed.x, tn.clod_speed.y), flying / tn.clods, tn.earth_density)
 	return {"diameter_m": size.x, "depth_m": size.y, "taken_m3": bank, "thrown_m3": thrown}
 
