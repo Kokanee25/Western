@@ -9,8 +9,10 @@ extends Node
 ## whatever rested on it follows. A lamp that lands hard breaks, and a lit one spills its burning
 ## oil where it lands (OilLamp.smash): a burning building's lamps spread its fire.
 ##
-## Things standing on the ground (horses, wagons, poles, the water tower) touch no member and are
-## left alone. Dressing drawn by StaticBatch is handed back before it falls.
+## Things standing on the ground touch no member; the big ones (horses, wagons, poles, the water
+## tower) are left alone, and a prop standing in the street (a barrel, a crate) falls when the
+## ground under its middle is dug away (Events.ground_changed: a crater, a hole). Dressing drawn by
+## StaticBatch is handed back before it falls.
 
 ## How often the supports are looked at (seconds), and how many fittings a frame at most.
 const CHECK_EVERY := 0.25
@@ -25,8 +27,12 @@ const BREAKS_AT := 1.5
 const GROUND := 0.08
 ## Physics frames after load before looking (the buildings, the dressing and the batch settled).
 const SETTLE_FRAMES := 4
+## A prop on the ground this big or bigger (m, its biggest side) is left standing whatever's dug.
+const GROUND_PROP_MAX := 2.0
 
 var items: Array[Dictionary] = []
+## Props standing on the ground: they fall when the ground under them goes.
+var on_ground: Array[Dictionary] = []
 var fallen: Array[RigidBody3D] = []
 var _by_body := {}
 var _next := 0
@@ -38,11 +44,27 @@ var _ready_to_watch := false
 func _enter_tree() -> void:
 	if not Events.member_cut.is_connected(_on_member_cut):
 		Events.member_cut.connect(_on_member_cut)
+		Events.ground_changed.connect(_on_ground_changed)
 
 
 func _exit_tree() -> void:
 	if Events.member_cut.is_connected(_on_member_cut):
 		Events.member_cut.disconnect(_on_member_cut)
+		Events.ground_changed.disconnect(_on_ground_changed)
+
+
+## The ground over `area` was dug: a prop standing there whose middle has lost the ground falls.
+func _on_ground_changed(area: Rect2) -> void:
+	var g := Ground.of(get_tree())
+	if g == null:
+		return
+	for item in on_ground:
+		var box: AABB = item.box
+		var mid := box.get_center()
+		if item.down or not area.has_point(Vector2(mid.x, mid.z)):
+			continue
+		if g.height_at(mid.x, mid.z) < box.position.y - g.tuning.undercut:
+			drop(item)
 
 
 ## A board something stood on was cut (a charge holed it): what stood on a piece left of it is still
@@ -81,6 +103,7 @@ func _physics_process(delta: float) -> void:
 ## Finds the fittings and what holds each (also callable again, from a test, once things change).
 func collect() -> void:
 	items.clear()
+	on_ground.clear()
 	_by_body.clear()
 	var street := get_parent()
 	var nodes: Array[Node3D] = []
@@ -95,8 +118,13 @@ func collect() -> void:
 		return
 	for node in nodes:
 		var box := _box_of(node)
-		if box.size == Vector3.ZERO or box.position.y < GROUND:
-			continue  # nothing drawn, or it stands on the ground
+		if box.size == Vector3.ZERO:
+			continue
+		if box.position.y < GROUND:
+			# It stands on the ground: a prop not too big falls if that's dug from under it.
+			if node is StaticBody3D and node.has_meta(&"prop_id") and maxf(box.size.x, maxf(box.size.y, box.size.z)) < GROUND_PROP_MAX:
+				on_ground.append({"node": node, "box": box, "members": [], "on": [], "down": false, "bodies": _bodies_in(node)})
+			continue
 		var item := {"node": node, "box": box, "members": [], "on": [], "down": false, "bodies": _bodies_in(node)}
 		items.append(item)
 		for b in item.bodies:

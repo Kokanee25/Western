@@ -112,3 +112,43 @@ func test_a_man_dropped_onto_boards_breaks_none() -> void:
 		(rb as RigidBody3D).linear_velocity = Vector3(0.5, -2.0, 0.0)
 	await physics_frames(180)
 	check_eq(_broken(s).size(), 0, "boards bear a man landing on them")
+
+
+## The prop kit's chair, standing at `at` facing +z (its seat toward him).
+func _kit_chair(at: Vector3) -> KitProp:
+	var chair := PropLibrary.spawn(&"chair") as KitProp
+	world.add_child(chair)
+	chair.global_position = at
+	return chair
+
+
+func test_a_man_thrown_into_a_kit_chair_knocks_it_over() -> void:
+	# A kit prop takes him as a blow on its own terms (KitProp.take_blow), not by the timber rule.
+	var chair := _kit_chair(Vector3(0, 0, -0.6))
+	await physics_frames(5)
+	var man := _man(Vector3(0, 0.05, 0.4))
+	await physics_frames(2)
+	man.go_limp()
+	for rb: Variant in man.parts.values():
+		(rb as RigidBody3D).linear_velocity = Vector3(0, 0, -3.0)
+	await physics_frames(90)
+	check(chair.loose, "the chair goes over or skids away under him")
+
+
+func test_a_slow_touch_leaves_a_kit_chair_standing() -> void:
+	# A part drifting into it under BodyImpacts.QUIET_SPEED (a man lying against it, settling) is
+	# no blow; at a run it is. (A man fainting back onto a chair does knock it: ~2 m/s into 5 kg.)
+	var chair := _kit_chair(Vector3(0, 0, -0.6))
+	await physics_frames(5)
+	var leg := chair.get_member(StringName("%s/post_back_l" % chair.structure_id))
+	var part := RigidBody3D.new()
+	part.mass = 5.0
+	world.add_child(part)
+	var impacts := BodyImpacts.new()
+	var kit := {}
+	impacts._kit_contact(kit, chair, leg, part, Vector3(0, 0, 1), Vector3(0, 0, -0.4), leg.global_position)
+	check(kit.is_empty(), "0.4 m/s into it brings it nothing")
+	impacts._kit_contact(kit, chair, leg, part, Vector3(0, 0, 1), Vector3(0, 0, -3.0), leg.global_position)
+	check_near(float((kit[chair] as Array)[1]), 5.0, 0.01, "3 m/s into it: a blow from the part's 5 kg")
+	impacts._kit_blows(kit, [] as Array[StructureMember])
+	check(chair.loose or leg.broken, "and the chair goes over or its leg breaks")

@@ -161,7 +161,10 @@ func _on_fired() -> void:
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir)
 	ImpactEffects.muzzle_flash(world, origin)
-	_play(&"gunshot")
+	if GameAudio.enabled():
+		GameAudio.gunshot(self, origin)
+	else:
+		_play(&"gunshot")
 	Events.shot_fired.emit(origin, dir, _player)
 	_kick_shot(tuning)
 	_unsettle()

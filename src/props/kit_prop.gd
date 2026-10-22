@@ -138,6 +138,7 @@ func _physics_step(delta: float) -> void:
 # --- Joints: what each member is fixed to at either end -----------------------------------------
 
 var _ends := {}  # StructureMember -> [ids joined at its one end, ids at its other]
+var _put_down := false  # settled onto its floor (_set_down), once
 var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a hung prop's
 
 
@@ -256,8 +257,12 @@ func _find_footing() -> void:
 	if hung():
 		_find_nails(space, own)
 		return
-	if not _set_down(space, own):
-		return  # what it stands on is a kit prop still settling itself: next frame
+	# Settled onto its floor once, as it was put down (looking again after the ground's dug, it
+	# doesn't sink into the hole: a foot over it has lost its footing).
+	if not _put_down:
+		if not _set_down(space, own):
+			return  # what it stands on is a kit prop still settling itself: next frame
+		_put_down = true
 	_footed = true
 	_feet.clear()
 	for m in get_members():
@@ -344,6 +349,16 @@ func _set_down(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> bool:
 	if drop != INF and absf(drop) > 0.002:
 		global_position.y -= drop
 	return true
+
+
+## The ground near it was dug (Ground): its feet look again for what's under them (a foot left over
+## a hole has lost its footing, and it goes loose). Its own rule in place of a building's.
+func _on_ground_changed(area: Rect2) -> void:
+	if loose or not _footed or not is_inside_tree():
+		return
+	if area.grow(0.5).has_point(Vector2(global_position.x, global_position.z)):
+		_footed = false
+		_frames = SETTLE_FRAMES - 1
 
 
 func _has_footing(m: StructureMember) -> bool:
