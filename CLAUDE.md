@@ -429,6 +429,13 @@ frozen until Sean names one.
   timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
+- **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
+  format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
+  experiment (#262). Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
+  `past` marked on members, drawn in the lab (a `WEAR` hook in texel_grid, inert in the game); for
+  art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
+  the desert. Next: the README's "What the format needs"
+  (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
   leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
   kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
