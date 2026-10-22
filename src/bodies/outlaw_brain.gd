@@ -203,6 +203,11 @@ var _search_bias := Vector3.INF
 var suppressed := 0.0
 ## How long he's been shaken (gone to ground past his nerve), or -1 when he isn't.
 var _shaken := -1.0
+## What he last decided in a fight and why, from what's happened to him ("to cover: in the open",
+## "look for him: lost sight 4 s"): shown on F3, logged by the gunfight lab. Never read by him.
+var decision := ""
+var decision_at := 0.0
+var _search_why := ""
 ## Seconds since the one he's fighting last fired.
 var _quiet := 99.0
 var _flee_to := Vector3.INF
@@ -588,6 +593,7 @@ func _physics_step(delta: float) -> void:
 		if _pending_in <= 0.0 or fear > nerve:
 			var how := _pending_break
 			_pending_break = &""
+			_decide("give up" if how == &"surrender" else "run", "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back"))
 			if how == &"surrender":
 				_surrender()
 				return
@@ -601,6 +607,7 @@ func _physics_step(delta: float) -> void:
 		_shaken = -1.0
 		if mood in [Mood.FIGHTING, Mood.RELOADING]:
 			say(&"rally")
+			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [fear, nerve])
 	relations.tick(delta)
 	_pick_fight(delta)
 	match mood:
@@ -1130,6 +1137,7 @@ func _combat(delta: float) -> void:
 		_search_time = 0.0
 		_look_round = 0.0
 		say(&"search")
+		_decide("look for you", "lost sight of you %.0f s ago, going to where you were" % senses.since_known(t))
 	if tactic == Tactic.SEARCHING:
 		_hunt(delta, t)
 		return
@@ -1148,7 +1156,7 @@ func _combat(delta: float) -> void:
 		Tactic.OPEN:
 			if _cover_search <= 0.0 and not _stand_and_fight:
 				_cover_search = 1.5
-				_seek_cover(eye, Vector3.INF)
+				_seek_cover(eye, Vector3.INF, 11.0, 3.0, "in the open")
 			if tactic == Tactic.OPEN:
 				if mood == Mood.RELOADING:
 					body.face(eye)
@@ -1165,12 +1173,14 @@ func _combat(delta: float) -> void:
 				arrived = false
 			_watch_stuck(delta)
 			if arrived:
+				_decide("behind cover", "got there")
 				tactic = Tactic.HIDDEN
 				_tactic_time = _think.randf_range(0.6, 1.6)
 				_in_cover = 0.0
 				_peeks = 0
 				_flank_after = _think.randf_range(10.0, 18.0)
 			elif _move_time > 7.0 or _stuck > 1.2:
+				_decide("give that cover up", "stuck on the way" if _stuck > 1.2 else "too long getting there")
 				tactic = Tactic.OPEN
 				_cover_search = 0.0
 		Tactic.HIDDEN:
@@ -1197,12 +1207,14 @@ func _eye_of(t: Node3D) -> Vector3:
 func _hunt(delta: float, t: Node3D) -> void:
 	_search_time += delta
 	if senses.sees(t):
+		_decide("fight", "sees you again")
 		tactic = Tactic.OPEN
 		_cover_search = 0.0
 		return
 	var spot := senses.last_known(t)
 	if _search_time > 25.0 or spot == Vector3.INF or senses.since_known(t) > HUNT_GIVE_UP:
 		say(&"lost")
+		_decide("stand down", "lost you for good")
 		relations.stand_down(t)
 		target = null
 		_set_mood(Mood.CALM)
@@ -1231,9 +1243,10 @@ func _exclude(t: Node3D = null) -> Array[RID]:
 
 ## Start looking for somewhere to fight from (spread over a few ticks); `bias_from` a spot he's
 ## leaving, for a new angle on you.
-func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle := 3.0) -> void:
+func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle := 3.0, why := "") -> void:
 	if _search != null:
 		return
+	_search_why = why
 	_search = Cover.search(body.get_parent() as Node3D, body.global_position, eye, _exclude(_find_target()), _think, bias_from,
 			max_travel, new_angle, _town())
 	_search_bias = bias_from
@@ -1246,18 +1259,22 @@ func _step_search() -> void:
 	var spot := _search.result
 	_search = null
 	if spot.is_empty():
+		if tactic == Tactic.OPEN:
+			_decide("fight from where he is", "no cover he can reach (%s)" % _search_why)
 		return
 	if _search_bias != Vector3.INF and (spot.at as Vector3).distance_to(_search_bias) < 1.5:
 		return
 	if tactic == Tactic.PEEKING or tactic == Tactic.RESCUING:
 		_flanking = false
 		return  # he'll go next time he's down
+	var going_round := _flanking
 	if _flanking:
 		_flanking = false
 		if crew.someone_flanking(_now):
 			return
 		callout(&"flank", _find_target(), spot.at)
 	cover = spot
+	_decide("go round on you" if going_round else "run for cover", "%s, %.0f m" % [_search_why, (spot.at as Vector3).distance_to(body.global_position)])
 	tactic = Tactic.MOVING
 	_move_time = 0.0
 	_stuck = 0.0
@@ -1290,6 +1307,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
 		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target()), _town() != null):
 			# He's come round it: this cover's no good now.
+			_decide("leave his cover", "you can see him there now")
 			tactic = Tactic.OPEN
 			_cover_search = 0.0
 			return
@@ -1299,6 +1317,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 	if _shaken >= 0.0:
 		return  # head down till it passes
 	if _in_cover > _flank_after or _peeks >= 4:
+		var stale := "%d peeks from here" % _peeks if _peeks >= 4 else "%.0f s in this cover" % _in_cover
 		_in_cover = 0.0
 		_peeks = 0
 		_flank_after = _think.randf_range(10.0, 18.0)
@@ -1307,7 +1326,8 @@ func _hide(delta: float, eye: Vector3) -> void:
 		else:
 			# With friends there to keep the man's head down, he goes right round on him.
 			_flanking = crew.any_in_earshot(_now) and mood == Mood.FIGHTING
-			_seek_cover(eye, cover.at, FLANK_TRAVEL if _flanking else 11.0, FLANK_ANGLE if _flanking else 3.0)
+			_seek_cover(eye, cover.at, FLANK_TRAVEL if _flanking else 11.0, FLANK_ANGLE if _flanking else 3.0,
+					stale + (", friends to keep your head down" if _flanking else ""))
 	if covering > 0.0 and suppressed <= 0.0:
 		_tactic_time = minf(_tactic_time, 0.25)
 	if _tactic_time <= 0.0 and mood == Mood.FIGHTING and body.held_gun != null and body.physiology.can_hold("r"):
@@ -1783,6 +1803,7 @@ func _start_rescue(m: HumanBody) -> void:
 	_search = null
 	_flanking = false
 	tactic = Tactic.RESCUING
+	_decide("drag %s to cover" % Crew.name_of(m), "he's down in the open")
 	crew.helper[m] = body
 	_stuck = 0.0
 	_last_pos = body.global_position
@@ -1938,6 +1959,7 @@ func _mate_out(m: Node, how: StringName, saw: bool) -> void:
 		rage = 8.0
 		fear = maxf(fear - 0.2, 0.0)
 		say(&"rage")
+		_decide("go for you", "%s %s (a hothead's rage)" % [Crew.name_of(m), how])
 	elif how == &"quit" and proud and fighting:
 		say(&"scorn", Crew.name_of(m))
 	if not crew.thinned and crew.out_share() >= 0.5:
@@ -1998,6 +2020,7 @@ func _shaken_holds(delta: float) -> bool:
 	if _shaken < 0.0:
 		_shaken = 0.0
 		say(&"shaken")
+		_decide("go to ground", "past his nerve (fear %.2f / %.2f), behind cover" % [fear, nerve])
 	_shaken += delta
 	_flanking = false
 	if tactic == Tactic.PEEKING:
@@ -2005,8 +2028,17 @@ func _shaken_holds(delta: float) -> bool:
 	return _shaken < shaken_seconds
 
 
+## What he's decided and why (F3, the gunfight lab's log).
+func _decide(what: String, why: String) -> void:
+	var line := what + (": " + why if why != "" else "")
+	if line != decision:
+		decision = line
+		decision_at = _now
+
+
 ## Nerve's gone: run for it if he can, else give up.
 func _break() -> void:
+	var shaken_for := _shaken
 	_shaken = -1.0
 	var t: Node3D = _find_target()
 	if t == null:
@@ -2020,9 +2052,13 @@ func _break() -> void:
 		# Not a fight yet: he backs down (told to drop it with a gun on him, he gives up instead).
 		_back_down(t)
 		return
+	var why := ("past his nerve (fear %.2f / %.2f)" % [fear, nerve]) if shaken_for < 0.0 \
+			else ("still shaken after %.0f s" % shaken_for if fear <= nerve + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [fear, nerve])
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
+		_decide("run", why)
 		_start_fleeing()
 	else:
+		_decide("give up", why + (", covered close" if caught else ", can't run" if not body.physiology.can_run() or body.prone else ""))
 		_surrender()
 
 
@@ -2095,6 +2131,7 @@ func _worst_bleed() -> Dictionary:
 
 func _start_tending(after: Mood) -> void:
 	_stop_rescue()
+	_decide("tend his wound", "bleeding %.1f ml/s, %.0f s since your last shot" % [body.physiology.total_bleed_rate(), minf(_quiet, 99.0)])
 	_after_tend = after
 	_set_mood(Mood.TENDING)
 	_tend_time = 0.0
@@ -2228,5 +2265,6 @@ func describe() -> String:
 		if who:
 			how += " (%s of %s)" % [String(Relations.Stance.keys()[relations.stance(who)]).to_lower(),
 					"you" if who is Player else String((who as HumanBody).person_id) if who is HumanBody else str(who.name)]
-	return "%s: %s, fear %.2f / nerve %.2f, %d rounds. %s" % [String(body.person_id).capitalize(),
-			how, fear, nerve, rounds, body.physiology.describe()]
+	return "%s: %s, fear %.2f / nerve %.2f, %d rounds%s. %s" % [String(body.person_id).capitalize(),
+			how, fear, nerve, rounds, (" [%s] %s (%.0f s ago)" % [String(Variant.keys()[variant]), decision, _now - decision_at]) if decision != "" else "",
+			body.physiology.describe()]

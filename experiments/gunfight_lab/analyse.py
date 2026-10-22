@@ -186,6 +186,16 @@ def headline(fs):
         ("you down", f"{fmt(s['you_down_pct'], 0)}%"),
         ("quits on 0 / 1 / 2+ hits (a man a fight)", " / ".join(fmt(sum(1 for f in fs for m in f["men"].values()
             if m.get("outcome") in ("surrendered", "fled") and (min(m["hits_taken"], 2) == h)) / len(fs), 2) for h in (0, 1, 2))),
+        ("decisions a man a fight (changes of mind)", fmt(sum(len(m.get("decisions", [])) for f in fs for m in f["men"].values()) / max(sum(len(f["men"]) for f in fs), 1), 1)),
+        ("flanks made / failed (all)", "%d / %d" % (sum(m.get("flanks_made", 0) for f in fs for m in f["men"].values()),
+            sum(m.get("flanks_failed", 0) for f in fs for m in f["men"].values()))),
+        ("looking for you: found / gave up (all)", "%d / %d" % (sum(m.get("searches_found", 0) for f in fs for m in f["men"].values()),
+            sum(m.get("searches_failed", 0) for f in fs for m in f["men"].values()))),
+        ("stuck on the way to cover, s a fight", fmt(sum(m.get("stuck_s", 0.0) for f in fs for m in f["men"].values()) / len(fs), 2)),
+        ("cover given up the moment he got there (all)", str(sum(1 for f in fs for m in f["men"].values()
+            for a, b in zip(m.get("decisions", []), m.get("decisions", [])[1:])
+            if a[1].startswith("behind cover") and b[1].startswith("leave his cover") and b[0] - a[0] < 0.5))),
+        ("unfair: knew where you were with no line (all)", str(sum(len(f.get("unfair", [])) for f in fs))),
         ("shaken, rallied (a fight)", f"{fmt(s['situations_per_fight'].get('shaken', 0), 2)}, {fmt(s['situations_per_fight'].get('rallied', 0), 2)}"),
         ("how it ended (top 3)", ", ".join(f"{k} {round(100 * v / len(fs))}%" for k, v in top)),
     ]

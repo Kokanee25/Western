@@ -1,7 +1,8 @@
 extends Node
 ## One fight in the gunfight lab (README.md): sets the arena up, turns the gang on you, plays you
-## with the scripted player (player_bot.gd), watches everything that happens through the game's
-## own events and the men's brains (read, never changed), and writes it down when it's over.
+## with the scripted player (player_bot.gd) or lets you play it (style "human", play.gd), watches
+## everything that happens through the game's own events and the men's brains (read, never
+## changed), and writes it down when it's over.
 ## Changes nothing about how the game plays: the men are the game's (TownLife.GANG's tempers),
 ## only where they stand, what they wear and the hour are the lab's.
 
@@ -19,8 +20,11 @@ const DUST_NEAR := 1.2
 const COVER_NEAR := 2.5
 ## Frames drawn before a capture is taken (the haze and the light settle after drawing was off).
 const DRAW_SETTLE := 4
+## A man with no clear line to you for longer than this (s) who fires at you or calls he's spotted
+## you knows where you are by something other than his eyes (Senses looks a few times a second).
+const NO_LINE := 0.5
 
-var lab: BridgeLab  # bridge.gd
+var lab  # bridge.gd (a BridgeLab) or play.gd: street, player, seconds(), physics_frames()
 var street: Node3D
 var player: Player
 var opts := {}
@@ -61,13 +65,21 @@ var _shoot_dir := ""
 var _shot_every := 0.0
 var _next_shot_t := 0.0
 var _overview: Camera3D
+## You playing (style "human"): no bot; they turn on you when you go for your gun, or when the
+## count runs out.
+var human := false
+var _count := -1.0
+var _you_at := Vector3.INF  # where you last stood still
+var _you_still := 0.0
+var _turned := false  # they've turned on you, and when
+var _turned_at := 0.0
 const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shout"]
 var _fear_why := {}  # id -> [what just frightened him, the frame]
 ## Captures still being taken (the bridge waits for them before it answers).
 var capturing := 0
 
 
-func _init(owner_lab: BridgeLab, options: Dictionary) -> void:
+func _init(owner_lab: Node, options: Dictionary) -> void:
 	lab = owner_lab
 	opts = options
 	name = "GunfightFight"
@@ -119,7 +131,8 @@ func setup() -> String:
 	var yaw := HumanBody.yaw_toward(at, gang_mid) if facing is String else deg_to_rad(-float(facing))
 	player.rotation.y = yaw
 	var gun: WeaponViewmodel = player.revolver() if opts.weapon == "revolver" else player.shotgun()
-	if scen.start != "ambush":
+	human = opts.style == "human"
+	if scen.start != "ambush" and not human:
 		player.select_weapon(gun)
 		var until := Engine.get_physics_frames() + 240
 		while Engine.get_physics_frames() < until and not (player.weapon == gun and gun.drawn):
@@ -156,6 +169,7 @@ func setup() -> String:
 				friends.append(StringName(other))
 		brain.friends = friends
 		brain.places = town.places
+		brain.variant = OutlawBrain.Variant.get(String(opts.get("variant", "C")), OutlawBrain.Variant.C)
 		man.add_child(brain)
 		var pos := _v(s.at)
 		var cover := {}
@@ -194,18 +208,33 @@ func setup() -> String:
 				_members[m.member_id] = []
 			_members[m.member_id].append(m)
 	# The scripted player.
-	bot = Bot.new()
-	bot.setup(player, gang, opts.style, int(opts.seed), opts.weapon, float(opts.get("aim", 1.0)))
-	if scen.start == "ambush":
+	if not human:
+		bot = Bot.new()
+		bot.setup(player, gang, opts.style, int(opts.seed), opts.weapon, float(opts.get("aim", 1.0)))
+	if scen.start == "ambush" and not human:
 		bot.walking = true
 		bot.walk_dir = _v(p.get("walk", [1, 0, 0])).normalized()
 	_hook_events()
 	await lab.seconds(1.0)  # they look about them (and see you) before it starts
-	# It starts: they turn on you, as if you'd shot at them (the bridge's `fight`).
 	for man: HumanBody in _live():
-		(brains[_mid(man)] as OutlawBrain).relations.provoke(player)
-		if scen.start == "ambush":
-			(brains[_mid(man)] as OutlawBrain).senses.note(player, player.global_position, 0.5)
+		_prev[_mid(man)] = {"tactic": -1, "mood": -1, "suppressed": 0.0}
+	record["hour_at_start"] = snappedf(clock.time_of_day, 0.01)
+	if human:
+		# Yours to start: your gun away; they go for theirs when you go for yours, or when the
+		# count's out.
+		var until := Engine.get_physics_frames() + 240
+		player.select_weapon(gun)
+		while Engine.get_physics_frames() < until and player.weapon != gun:
+			await get_tree().physics_frame
+		gun.put_away()
+		_count = float(opts.get("count", 3.0))
+		_you_at = player.global_position
+		_note("start", "you're in (%s, %s, variant %s, seed %d): draw when you're ready" % [opts.scenario, opts.hour, opts.get("variant", "C"), int(opts.seed)])
+		_prof_last = Prof._sum.duplicate()
+		_last_us = Time.get_ticks_usec()
+		started = true
+		return ""
+	_turn()
 	if scen.start != "ambush":
 		bot.know_all()
 	await lab.physics_frames(2)
@@ -221,10 +250,7 @@ func setup() -> String:
 				b._tactic_time = b._think.randf_range(0.2, 1.2)
 				b._in_cover = 0.0
 				b._peeks = 0
-	for man: HumanBody in _live():
-		_prev[_mid(man)] = {"tactic": -1, "mood": -1, "suppressed": 0.0}
-	_note("start", "the gang turns on you (%s, %s, %s, %s, seed %d)" % [opts.scenario, opts.hour, opts.weapon, opts.style, int(opts.seed)])
-	record["hour_at_start"] = snappedf(clock.time_of_day, 0.01)
+	_note("start", "the gang turns on you (%s, %s, %s, %s, variant %s, seed %d)" % [opts.scenario, opts.hour, opts.weapon, opts.style, opts.get("variant", "C"), int(opts.seed)])
 	_prof_last = Prof._sum.duplicate()
 	_last_us = Time.get_ticks_usec()
 	_shoot_dir = String(opts.get("shots", ""))
@@ -235,6 +261,16 @@ func setup() -> String:
 		RenderingServer.render_loop_enabled = false
 	started = true
 	return ""
+
+
+## It starts: they turn on you, as if you'd shot at them (the bridge's `fight`).
+func _turn() -> void:
+	_turned = true
+	_turned_at = t
+	for man: HumanBody in _live():
+		(brains[_mid(man)] as OutlawBrain).relations.provoke(player)
+		if scen.start == "ambush":
+			(brains[_mid(man)] as OutlawBrain).senses.note(player, player.global_position, 0.5)
 
 
 ## The nearest spot (within 1.5 m of `p`) that hides a man from `eye`, by the gang's own test.
@@ -296,7 +332,10 @@ func _physics_process(delta: float) -> void:
 		_prof_fight[k] = float(_prof_fight.get(k, 0.0)) + float(d[k])
 	_fight_frames += 1
 	t += delta
-	bot.tick(delta, t)
+	if bot:
+		bot.tick(delta, t)
+	else:
+		_watch_you(delta)
 	_watch_men(delta)
 	_watch_world(delta)
 	_track_t -= delta
@@ -307,6 +346,31 @@ func _physics_process(delta: float) -> void:
 		_next_shot_t += _shot_every
 		_capture.call_deferred("t%05.1f" % t)
 	_check_end()
+
+
+## You playing: they turn when your gun comes out (or the count's done); and each time you move
+## somewhere new (2 m from where you'd stood still a second or more), a relocation.
+func _watch_you(delta: float) -> void:
+	if _count >= 0.0:
+		var gun := player.weapon
+		_count -= delta
+		if (gun != null and gun.drawn) or _count < 0.0:
+			_note("turn", "they go for their guns (%s)" % ("you drew" if gun != null and gun.drawn else "the count's out"))
+			_count = -1.0
+			_turn()
+	var moved := player.global_position.distance_to(_you_at) if _you_at != Vector3.INF else 0.0
+	if moved > 2.0:
+		_you.relocations = int(_you.get("relocations", 0)) + 1
+		_note("you", "you move (%.0f m)" % moved)
+		_you_at = Vector3.INF
+	if player.velocity.length() < 0.3:
+		_you_still += delta
+		if _you_still > 1.0 and _you_at == Vector3.INF:
+			_you_at = player.global_position
+	else:
+		_you_still = 0.0
+	if player.is_crouching:
+		_you.crouched_s = float(_you.get("crouched_s", 0.0)) + delta
 
 
 func _watch_men(_delta: float) -> void:
@@ -349,6 +413,26 @@ func _watch_men(_delta: float) -> void:
 			m.rallied = int(m.get("rallied", 0)) + 1
 			_sit_add("rallied", "%s gets his nerve back" % m.id)
 		pv.shaken = shaken
+		# His decisions and why (OutlawBrain.decision): the timeline, and how his flanks and his
+		# looking for you came out.
+		var dec: String = b.get("decision") if b.get("decision") != null else ""
+		var was_dec: String = pv.get("decision", "")
+		if dec != was_dec:
+			var decs: Array = m.get_or_add("decisions", [])
+			decs.append([snappedf(t, 0.01), dec])
+			_note("decision", "%s: %s" % [m.id, dec])
+			if was_dec.begins_with("go round on you"):
+				var ok := dec.begins_with("behind cover")
+				m[("flanks_made" if ok else "flanks_failed")] = int(m.get("flanks_made" if ok else "flanks_failed", 0)) + 1
+			if was_dec.begins_with("look for you"):
+				var found := dec.begins_with("fight: sees you")
+				m[("searches_found" if found else "searches_failed")] = int(m.get("searches_found" if found else "searches_failed", 0)) + 1
+			pv.decision = dec
+		# His line to you, ten times a second (for the unfair check).
+		if Engine.get_physics_frames() % 6 == gang_ids.find(m.id) and _in_sight(b, player):
+			m._line_t = t
+		if b.tactic == OutlawBrain.Tactic.MOVING and b._stuck > 0.3:
+			m.stuck_s = snappedf(float(m.get("stuck_s", 0.0)) + _delta, 0.001)
 		# Where his fear came from: each rise put down to what happened to him this tick or the
 		# last (a ball into him, one past him, a friend out of it, a friend's shout), else his
 		# pain, shock and bleeding (his fear's floor) and the like.
@@ -382,7 +466,7 @@ func _watch_men(_delta: float) -> void:
 				_out(man, "surrendered", "gave up")
 			elif b.mood == OutlawBrain.Mood.FLEEING and (man.global_position.distance_to(player.global_position) > 25.0 or _since_mood(m) > 4.0):
 				_out(man, "fled", "fled")
-			elif b.mood == OutlawBrain.Mood.CALM and _since_mood(m) > 3.0:
+			elif b.mood == OutlawBrain.Mood.CALM and _since_mood(m) > 3.0 and _turned and t - _turned_at > 3.0:
 				_out(man, "broke_off", "lost you and gave it up")
 		elif m.outcome in ["down", "fled", "broke_off"]:
 			# Down but he came round, or back after running: still a man to watch, so it's not over.
@@ -504,6 +588,9 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		var b := brains[_mid(shooter)] as OutlawBrain
 		if b.covering > 0.0 or not b.senses.sees(player):
 			m.suppressing_shots += 1
+		elif t - float(m.get("_line_t", 0.0)) > NO_LINE:
+			# He "sees" you, and fires, with no clear line from his eyes to any of you: unfair.
+			_unfair(m, "%s fired at you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 		# How far off his barrel was from where he meant it (degrees), at what range, at your head
 		# or your chest: why he hit or missed.
 		if b.hand != null and b._find_target() != null:
@@ -583,6 +670,26 @@ func _on_near_miss(person: Node, shooter: Node, dist: float, _at: Vector3, _spee
 		_fright(person, "near miss")
 
 
+## A clear line from his eyes to your head, chest or hips (the scenery only, nobody's body).
+func _in_sight(b: OutlawBrain, who: Player) -> bool:
+	var space := who.get_world_3d().direct_space_state
+	var eye: Vector3 = b.senses.eye()
+	for to in [who.camera.global_position, who.global_position + Vector3.UP * 1.2, who.global_position + Vector3.UP * 0.6]:
+		var q := PhysicsRayQueryParameters3D.create(eye, to, Layers.WORLD)
+		q.exclude = [who.get_rid()]
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.2:
+			return true
+	return false
+
+
+func _unfair(m: Dictionary, text: String) -> void:
+	var list: Array = record.get_or_add("unfair", [])
+	list.append([snappedf(t, 0.01), text])
+	m.unfair = int(m.get("unfair", 0)) + 1
+	_note("unfair", text)
+
+
 ## Something that frightens him (for the fear ledger). Several in one tick: the strongest is
 ## named (a ball into him over one past him over a friend out of it over a friend's shout).
 func _fright(man: Node, why: String) -> void:
@@ -603,6 +710,10 @@ func _friend_out(p: Node) -> void:
 				_fright(other, "a friend down or quit")
 
 
+func _about_you(n: Node) -> bool:
+	return n == player
+
+
 func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) -> void:
 	if not started or done or not speaker in gang:
 		return
@@ -612,6 +723,8 @@ func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) ->
 				_fright(other, "a friend's shout (%s)" % kind)
 	var m: Dictionary = _men[_mid(speaker)]
 	m.callouts[String(kind)] = int(m.callouts.get(String(kind), 0)) + 1
+	if kind == &"spotted" and _about_you(_about) and t - float(m.get("_line_t", 0.0)) > NO_LINE:
+		_unfair(m, "%s called he'd spotted you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 	if kind == &"flank":
 		m.flanks += 1
 	_note("callout", "%s called %s" % [m.id, kind])
@@ -673,7 +786,8 @@ func _who(n: Variant) -> String:
 
 func _finish(why: String) -> void:
 	done = true
-	bot.teardown()
+	if bot:
+		bot.teardown()
 	_unhook()
 	var ph := player.wounds.physiology
 	var clock := street.find_child("DayCycle", true, false) as DayCycle
@@ -682,6 +796,7 @@ func _finish(why: String) -> void:
 	for id in gang_ids:
 		var m: Dictionary = _men[id]
 		m.erase("_cover")
+		m.erase("_line_t")
 		outcomes[m.outcome] = int(outcomes.get(m.outcome, 0)) + 1
 	var ending := why
 	if why == "gang_out":
@@ -708,7 +823,10 @@ func _finish(why: String) -> void:
 		"shots": int(_you.get("shots", 0)), "hits": int(_you.get("hits", 0)), "pellet_hits": int(_you.get("pellet_hits", 0)),
 		"hits_taken": int(_you.get("hits_taken", 0)), "first_hit_at": _you.get("first_hit_at", -1.0),
 		"near_misses": int(_you.get("near_misses", 0)), "near_misses_per_min": snappedf(float(_you.get("near_misses", 0)) / minutes, 0.1)}
-	you.merge(bot.stats)
+	if bot:
+		you.merge(bot.stats)
+	else:
+		you.merge({"relocations": int(_you.get("relocations", 0)), "crouched_s": snappedf(float(_you.get("crouched_s", 0.0)), 0.1)})
 	var sit := {}
 	for k: String in ["cover_shot_away", "lamps_hit", "fires_started", "dust_on_line", "dust_by_man", "surrenders", "flights", "hats_shot", "townsfolk_hit", "shaken", "rallied"]:
 		sit[k] = (_sit.get(k, []) as Array).size()
@@ -723,7 +841,7 @@ func _finish(why: String) -> void:
 	for id in gang_ids:
 		men[id] = _men[id]
 	record.merge({
-		"scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
+		"variant": String(opts.get("variant", "C")), "scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
 		"seed": int(opts.seed), "aim_sd": float(opts.get("aim", 1.0)), "length_s": snappedf(t, 0.01), "end": why, "ending": ending, "outcomes": outcomes,
 		"first_shot_by": _first.get("shot_by", "none"), "first_shot_at": _first.get("shot_at", -1.0),
 		"first_hit_by": _first.get("hit_by", "none"), "first_hit_at": _first.get("hit_at", -1.0),
@@ -733,8 +851,9 @@ func _finish(why: String) -> void:
 	Prof.on = false
 	if _shoot_dir != "":
 		_capture.call_deferred("t%05.1f" % t)
-	for man: HumanBody in _live():
-		(brains[_mid(man)] as OutlawBrain).set_physics_process(false)
+	if not human:  # (you playing: they carry on as they were)
+		for man: HumanBody in _live():
+			(brains[_mid(man)] as OutlawBrain).set_physics_process(false)
 
 
 func _prof_delta() -> Dictionary:

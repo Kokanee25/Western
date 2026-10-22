@@ -8,6 +8,12 @@ improvement:** the men are the game's (`TownLife.GANG`'s tempers, nerve and prid
 `Senses`, `Cover`, untouched), the guns are yours as the keys work them. Only where everyone
 stands, which bodies the three wear, the hour and the lamps are the lab's.
 
+Since 2026-10-22 its three fixes are **variants of the gang** (`OutlawBrain.Variant`): A as the
+game plays (the default everywhere), B (fixes 1 and 2: aim by the hand, a moment to react, the
+town's cover), C (B and fix 3, shaken first). The lab runs C unless told (`variant=`,
+`run.py --variant=`). **You can play them** in the game: Y, X, Z (`play.gd`, the sheet and the
+protocol in `PLAYTEST.md`).
+
 Everything is in this folder. Outputs go under `build/gunfight_lab/` (git-ignored). The baseline's
 numbers and its contact sheet are in `baseline/`.
 
@@ -29,9 +35,11 @@ python3 experiments/gunfight_lab/sheet.py /abs/f.json /abs/shots --out=sheet.png
 
 The bridge commands (`bridge.gd`, `python3 tools/bridge.py help` lists them with the game running):
 
-- `gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push]
-  [bodies=studio|outlaw] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`: one fight to its
-  end; answers the headline, writes the whole record to `out`.
+- `gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push|human]
+  [variant=A|B|C] [bodies=studio|outlaw|game] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`:
+  one fight to its end; answers the headline, writes the whole record to `out`. `style=human`
+  has no bot: you (or nobody) play it, your gun starts away, and they turn when you draw or after
+  `count=S` (3).
 - `gf_cover X Y Z [EYE_X EYE_Y EYE_Z]`: is there cover within 1.5 m of a spot from that eye, by
   the gang's own test (`Cover.evaluate`). How the ambushers' spots were placed.
 - `gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] [levels]`: the gang's cover search from a spot:
@@ -44,6 +52,15 @@ recorded is kept, so a run resumes. The 540-fight baseline took ~45 minutes on t
 cores. A drawn fight (lavapipe) is drawn only round each capture
 (`RenderingServer.render_loop_enabled` off between), ~8 minutes for a 7.5 s fight with a pair of
 frames a second; `run.py --sheet=NAME` does it and makes the sheet.
+
+## Playing it (`play.gd`, `PLAYTEST.md`)
+
+`main.gd` adds `GunfightPlay` when this folder is in the build. Y starts the next of nine blind
+runs in the saloon (each variant once on each of three seeds, a Latin square), X runs the last
+one again, Z is free play (the next variant, shown). Each run reloads the scene, so the town is
+whole again; `fight.gd` (style `human`) records it to `user://gunfight_runs/` (a JSON a run and
+`runs.csv`). F3 shows each man's last decision and why (`OutlawBrain.decision`). The sheet and the
+protocol for Sean (and anyone else who plays) are in `PLAYTEST.md`.
 
 ## The arenas (`scenarios.json`)
 
@@ -116,7 +133,11 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
   reloads, every mood change, and how he ended; and since fix 1, each shot's error
   (`shot_errors`: time, how far his barrel was off where he meant in degrees, range, at your
   head, his fear); and since fix 2, why he was in the open (`open_searching`, `open_waiting`,
-  `searches_empty`); and since fix 3, where his fear came from (`fear_from`), what he'd been through
+  `searches_empty`); since 2026-10-22 his decisions and why (`decisions`: time and
+  `OutlawBrain.decision`), how his flanks and his looking for you came out (`flanks_made`,
+  `flanks_failed`, `searches_found`, `searches_failed`), seconds stuck on the way to cover
+  (`stuck_s`), and in the record `unfair`: a man firing at you, or calling he's spotted you, with
+  no clear line from his eyes to you for over half a second; and since fix 3, where his fear came from (`fear_from`), what he'd been through
   when he quit (`quit`), and times shaken and rallied (also situations `shaken`, `rallied`).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,

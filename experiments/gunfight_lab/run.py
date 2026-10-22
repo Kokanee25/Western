@@ -10,7 +10,8 @@
 Each fight is `gf_fight ...` as the game's --bridge-script (so it starts on the same frame every
 time: a seed gives the same fight), its record in OUT/fights/<name>.json, its log in OUT/logs/.
 A fight already recorded is skipped, so a run can be resumed. --jobs=N games at once (default: the
-cores). --max=S caps a fight (180 s). Then analyse.py OUT writes OUT/baseline.md and .json.
+cores). --max=S caps a fight (180 s). --variant=A|B|C the gang's (OutlawBrain.Variant; C, all three
+fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 --sheet=NAME draws that one fight (xvfb and lavapipe; --every=S between pairs of frames, --size=WxH)
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
 """
@@ -58,6 +59,7 @@ def matrix(args):
         "style": opt(args, "styles", "hold,cover,push").split(","),
         "bodies": opt(args, "bodies", "studio").split(","),
         "seed": seeds(opt(args, "seeds", "1-6")),
+        "variant": [opt(args, "variant", "C")],
     }
     return [dict(zip(keys, combo)) for combo in itertools.product(*keys.values())]
 
@@ -69,7 +71,7 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} max={max} out={out}\nquit\n".format(
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} max={max} out={out}\nquit\n".format(
             max=max_s, out=os.path.abspath(rec), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
@@ -86,15 +88,15 @@ def run_one(f, out, ports, max_s, godot):
     return name, "done" if os.path.exists(rec) else "FAILED (see logs/%s.log)" % name, time.time() - t0
 
 
-def sheet(name, out, every, size):
+def sheet(name, out, every, size, variant="C"):
     """One fight drawn (xvfb, lavapipe: drawn only round each capture), then its contact sheet."""
     parts = name.split("_")
-    f = dict(zip(["scenario", "hour", "weapon", "style", "bodies"], parts[:5]), seed=int(parts[5][1:]))
+    f = dict(zip(["scenario", "hour", "weapon", "style", "bodies"], parts[:5]), seed=int(parts[5][1:]), variant=variant)
     d = os.path.abspath(os.path.join(out, "sheets", name))
     os.makedirs(d, exist_ok=True)
     script = os.path.join(d, "fight.txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} out={d}/fight.json "
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} out={d}/fight.json "
                  "shots={d}/shots every={every}\nquit\n".format(d=d, every=every, **f))
     godot = os.environ.get("GODOT", "godot")
     cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--rendering-driver", "vulkan", "--resolution", size,
@@ -112,7 +114,7 @@ def main(argv):
         return 0
     out = opt(argv, "out", os.path.join(ROOT, "build", "gunfight_lab", "base"))
     if opt(argv, "sheet"):
-        return sheet(opt(argv, "sheet"), out, float(opt(argv, "every", 1.5)), opt(argv, "size", "960x540"))
+        return sheet(opt(argv, "sheet"), out, float(opt(argv, "every", 1.5)), opt(argv, "size", "960x540"), opt(argv, "variant", "C"))
     fights = matrix(argv)
     if opt(argv, "list"):
         for f in fights:

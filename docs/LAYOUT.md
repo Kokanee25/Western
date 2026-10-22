@@ -80,7 +80,9 @@ already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs
 `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README); the gunfight lab
 (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
 its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
-matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet.
+matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
+(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -470,7 +472,10 @@ a few views renders them as the full run does.
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
-  it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there), `GunHand` (where his
+  it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
+  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"

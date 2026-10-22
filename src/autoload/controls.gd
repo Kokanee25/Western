@@ -61,6 +61,10 @@ func _ready() -> void:
 	_bind(&"debug_reset_outlaw", [KEY_F9], [JOY_BUTTON_DPAD_RIGHT])
 	# Bring the gang into town now (they otherwise ride in after a while).
 	_bind(&"debug_gang", [KEY_U], [])
+	# The gunfight lab's three gunmen, played (experiments/gunfight_lab/play.gd).
+	_bind(&"gunfight_next", [KEY_Y], [])
+	_bind(&"gunfight_again", [KEY_X], [])
+	_bind(&"gunfight_free", [KEY_Z], [])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:
