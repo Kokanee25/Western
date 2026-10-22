@@ -1763,8 +1763,20 @@ var slung := {}
 const SLING_HAND := Vector3(0.07, 1.13, -0.2)
 
 
+## Where his palm is as drawn: a Studio man's skinned hand (its skeleton's `hand_r`/`hand_l`
+## bone, a few centimetres on toward the fingers) sits apart from the physics hand while he stands.
+func drawn_hand(side: String) -> Vector3:
+	if skeleton != null and is_instance_valid(skeleton):
+		var i := skeleton.find_bone("hand_" + side)
+		if i >= 0:
+			var t := skeleton.global_transform * skeleton.get_bone_global_pose(i)
+			return t.origin + t.basis.y.normalized() * 0.04
+	return (parts[StringName("hand_" + side)] as Node3D).global_position
+
+
 func _sling_step(delta: float) -> void:
 	for side: String in slung:
+		_sling_cloth(side)
 		if limp or (not _grab.is_empty() and _grab.side == side):
 			continue
 		var key := StringName("sling_" + side)
@@ -1772,6 +1784,83 @@ func _sling_step(delta: float) -> void:
 		_injury_w[key] = w
 		var sx := 1.0 if side == "r" else -1.0
 		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w))
+
+
+## The sling itself (a folded kerchief, the Medical and Surgical History's "triangular bandage"):
+## a cradle round the forearm and a strap from it up over the other side of his neck, drawn where
+## the arm is each tick.
+var _sling_parts := {}  ## side -> {"cradle", "strap"}
+const SLING_STRAP_W := 0.07
+
+
+func _sling_cloth(side: String) -> void:
+	var fa_sid := StringName("forearm_" + side)
+	var fa_vis: Node3D = visuals.get(fa_sid)
+	var chest_vis: Node3D = visuals.get(&"chest")
+	var parts_now: Dictionary = _sling_parts.get(side, {})
+	if fa_vis == null or chest_vis == null or physiology.severed_segments.has(fa_sid):
+		var gone: Variant = parts_now.get("strap")
+		if gone != null and is_instance_valid(gone):
+			(gone as Node3D).visible = false
+		return
+	if parts_now.is_empty():
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = PixelArt.blood("sling", 83, false, 32)
+		m.roughness = 0.95
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		var cap: Array = anatomy.segments[fa_sid].capsules[0] if not anatomy.segments[fa_sid].capsules.is_empty() else []
+		var c := anatomy.segment_center(fa_sid)
+		var a: Vector3 = (cap[0] as Vector3) - c if cap.size() > 0 else Vector3.ZERO
+		var b: Vector3 = (cap[1] as Vector3) - c if cap.size() > 0 else Vector3.DOWN * 0.25
+		var cradle := MeshInstance3D.new()
+		cradle.name = "Sling"
+		var cyl := CylinderMesh.new()
+		var r := _limb_radius(fa_sid, b - a, float(cap[2]) if cap.size() > 2 else 0.04)
+		cyl.top_radius = r * 1.15
+		cyl.bottom_radius = r * 1.25
+		cyl.height = (b - a).length() * 0.7
+		cyl.radial_segments = 12
+		cyl.rings = 1
+		cradle.mesh = cyl
+		cradle.material_override = m
+		cradle.layers = Layers.VIS_BODY
+		cradle.basis = _along(b - a)
+		cradle.position = (a + b) * 0.5
+		fa_vis.add_child(cradle)
+		var strap := MeshInstance3D.new()
+		strap.name = "SlingStrap"
+		var box := BoxMesh.new()
+		box.size = Vector3(SLING_STRAP_W, 1.0, 0.006)
+		strap.mesh = box
+		strap.material_override = m
+		strap.layers = Layers.VIS_BODY
+		chest_vis.add_child(strap)
+		parts_now = {"cradle": cradle, "strap": strap}
+		_sling_parts[side] = parts_now
+	var cradle_mi := parts_now.cradle as MeshInstance3D
+	var strap_mi := parts_now.strap as MeshInstance3D
+	if not is_instance_valid(cradle_mi) or not is_instance_valid(strap_mi):
+		return
+	# From the cradle's top edge (his side of it, toward the elbow's far end) up to the other side
+	# of his neck, at the root of it, where a sling's knot sits.
+	var sx := 1.0 if side == "r" else -1.0
+	# (On his front at the root of the neck: forward is -z in the anatomy's rest space.)
+	var neck_rest := anatomy.segment_center(&"neck") + Vector3(-sx * 0.06, -0.05, -0.08)
+	var top := chest_vis.global_transform * (neck_rest - anatomy.segment_center(&"chest"))
+	var low := cradle_mi.global_position
+	var span := top - low
+	if span.length() < 0.05:
+		return
+	var y := span.normalized()
+	# Flat against his front: the strap's face toward where he faces.
+	var fwd := -chest_vis.global_basis.z
+	var x := y.cross(fwd)
+	if x.length() < 0.1:
+		x = chest_vis.global_basis.x
+	x = x.normalized()
+	var z := x.cross(y).normalized()
+	# (Out in front of his chest by the cloth's thickness, so it lies over his shirt.)
+	strap_mi.global_transform = Transform3D(Basis(x, y * span.length(), z), (top + low) * 0.5 + z * 0.06)
 
 
 ## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
@@ -2595,6 +2684,25 @@ func burn_marks(amount: float, from := Vector3.INF) -> void:
 		d.name = "Burn"
 		d.basis = d.basis * Basis(Vector3.UP, _spin(local + part.global_position))
 	_burn_marks += n
+	# Hair singes before skin burns (a flash scorches the hair, brows and lashes on the side toward
+	# it: the burns literature's "singed nasal hair and eyebrows"): his hair at the temple facing it.
+	if amount >= SINGE_AT and not _singed:
+		var head := parts.get(&"head") as Node3D
+		var vis: Node3D = visuals.get(&"head")
+		if head and vis:
+			_singed = true
+			var toward := Vector3.FORWARD
+			if from != Vector3.INF:
+				toward = head.global_basis.inverse() * (from - head.global_position)
+			toward.y = 0.0
+			toward = toward.normalized() if toward.length() > 0.01 else Vector3.FORWARD
+			var r := float(anatomy.segments[&"head"].radius)
+			var d := _decal(vis, &"head", toward * r * 0.9 + Vector3(0, r * 0.45, 0), 0.11, PixelArt.blood("charred", 81, false, 32))
+			d.name = "Singed"
+			d.modulate = Color(0.55, 0.45, 0.4)
+
+const SINGE_AT := 0.5
+var _singed := false
 
 
 ## Hit by something heavy (falling timber, a fall): bruises, broken bones, a burst spleen or a

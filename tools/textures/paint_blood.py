@@ -98,12 +98,25 @@ SHEETS = {
                   "it; a long thin pale healed knife scar on weathered skin; a wound gone to gangrene, "
                   "black and green dead flesh, wet, the skin round it dusky purple. Each seen straight "
                   "on, flat. " + WHITE,
+    # An ear or the nose shot off and the jaw shot away (HumanBody.shoot_off, jaw_away): the
+    # Medical and Surgical History's face wounds, the soft parts torn away, the bone and the dark
+    # of the passages showing. Each with a little skin round it for the cut's skin key.
+    "face": "Four separate studies of gunshot wounds to a man's face for a gritty frontier Western "
+            "game, frank and bloody, each only the wound and a hand's width of weathered skin round "
+            "it, the skin fading out to white at the edge, no eyes in any of them: the side of a head "
+            "where the ear was shot off, a ragged red stump of torn ear at the ear hole, raw flesh, "
+            "blood running down from it, a little dark hair above; the middle of a face where the "
+            "nose was torn away, a raw red wound between the cheeks with the two dark openings of the "
+            "nose in it, ragged edges, blood running down over the upper lip; the lower face where a "
+            "blast carried away the jaw, a raw red ruin below the upper lip, broken teeth in the upper "
+            "gum, torn flesh, blood pouring down; a man's ear torn off, lying flat on its side, its "
+            "torn edge ragged and bloody. Each seen straight on, flat. " + WHITE,
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
 GEMINI = "google/gemini-3-pro-image-preview"
 MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI,
-          "aftercare2": GEMINI}
+          "aftercare2": GEMINI, "face": GEMINI}
 
 
 def main():

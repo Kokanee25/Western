@@ -23,6 +23,8 @@ var _found := {}
 var _perf := {"standing": [], "after": [], "people_standing": [], "people_after": [], "body": [], "skeleton": [], "blood": [], "brains": []}
 ## --brains: each perf man has an OutlawBrain (senses, fear, tending his wounds), as the gang does.
 var brains := false
+## The gore sheet's setups to do (--setups=a,b; all of them by default).
+var gore_setups: Array = GoreSheet.SETUPS
 ## --no-grab: no hand goes to a wound (HumanBody.hand_to_wound), for an A/B.
 var grab_on := true
 var _perf_last := 0
@@ -63,7 +65,7 @@ func _ready() -> void:
 				_men.append(_spawn(Vector3(i * 3.0, 0, 0), i))
 		"gore":
 			# The gore lab's sheet: a row of men, an injury each (gore_sheet.gd).
-			for i in GoreSheet.SETUPS.size():
+			for i in gore_setups.size():
 				_men.append(_spawn(Vector3(i * 2.5, 0, 0), i))
 		"check":
 			# Four men far enough apart that the blast (at the last) reaches only its own.
@@ -319,15 +321,15 @@ const GORE_SNAP_AT := 240  ## ticks after the injuries (4 s: the hand to a wound
 func _run_gore() -> void:
 	if _tick == _stand_ticks:
 		for i in _men.size():
-			GoreSheet.apply(GoreSheet.SETUPS[i], _men[i], _world)
+			GoreSheet.apply(gore_setups[i], _men[i], _world)
 	elif _tick > _stand_ticks and _tick < _stand_ticks + GORE_SNAP_AT:
 		for i in _men.size():
-			GoreSheet.tick(GoreSheet.SETUPS[i], _men[i], 1.0 / 60.0)
+			GoreSheet.tick(gore_setups[i], _men[i], 1.0 / 60.0)
 	elif _tick == _stand_ticks + GORE_SNAP_AT:
 		var rows := {}
 		for i in _men.size():
 			var m: HumanBody = _men[i]
-			var setup: String = GoreSheet.SETUPS[i]
+			var setup: String = gore_setups[i]
 			rows[setup] = {"describe": ", ".join(m.describe_wounds()) + " | " + m.physiology.describe(), "wounds": m.wounds.size(),
 					"alive": m.physiology.alive,
 					"pivots": {} if m.limp else {"forearm_l": Bench.arr((m.pivots[&"forearm_l"] as Node3D).rotation_degrees),
@@ -348,7 +350,8 @@ func _run_gore() -> void:
 				if setup == "handprint":
 					# Across at the wall by his hand, from in front of him on his other side.
 					from = at + (-m.global_basis.z) * 0.6 - m.global_basis.x * 0.3 + Vector3.UP * 0.1
-					at = at + m.global_basis.x * 0.04
+					at = m.drawn_hand("r") + m.global_basis.x * 0.04
+					from = at + (-m.global_basis.z) * 0.6 - m.global_basis.x * 0.3 + Vector3.UP * 0.1
 				_snap("gore_%02d_%s" % [i, setup], from, at, 40.0)
 		summary["gore"] = rows
 	elif _tick == _stand_ticks + GORE_SNAP_AT + 10:
