@@ -30,8 +30,8 @@ const FRAME_KINDS := [&"sill", &"post", &"joist", &"stud", &"plate", &"beam", &"
 ## Fire as sheets (true) or as the flipbook tongues (false, for comparing; --flame-sprites).
 static var sheets := true
 ## The sheets drawn from the simulated flipbooks (FireFlipbook, the art session's) instead of the
-## drawn field (Settings.fire_flipbooks).
-static var flipbooks := false
+## drawn field (Settings.fire_flipbooks; on since Sean kept them, 2026-10-22).
+static var flipbooks := true
 static var _sheet_mat: ShaderMaterial
 static var _sheet_quad: QuadMesh
 
