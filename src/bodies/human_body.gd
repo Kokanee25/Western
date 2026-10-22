@@ -182,6 +182,15 @@ var garments: Array[Dictionary] = []
 ## {segment, entry, exit (segment-local or null), lodged, hits, bleeds, garments, stain (Decal)}
 var wounds: Array[Dictionary] = []
 var limp := false
+## A drop under his feet further than this (m) and he falls rather than steps down: further than
+## the snap to the ground ever followed.
+const DROP_FALLS := 1.0
+## Ground steeper than this (the up of its face: ~50 degrees) he can't walk down, and going on down
+## it more than STEEP_DROP (m) below where he last stood level he falls.
+const STEEP_UP := 0.64
+const STEEP_DROP := 0.5
+var _stood := false  # the last snap found ground under him
+var _level_y := 0.0  # where he last stood on ground he could walk
 ## Limp: what he breaks being thrown into timber (a railing).
 var _impacts: BodyImpacts
 ## Seconds left on his feet after a ball that drops him caught him on the move (_knocked): his
@@ -291,6 +300,7 @@ var _bone_parts: Array[StringName] = []
 
 func _ready() -> void:
 	add_to_group(&"people")
+	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
@@ -1380,16 +1390,50 @@ func _slide(motion: Vector3) -> Vector3:
 func _snap_to_ground() -> void:
 	var space := get_world_3d().direct_space_state
 	var best := -INF
+	var best_up := 1.0
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
-		var at := global_position + off
-		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 1.0, Layers.STAND)
-		if _blocker and is_instance_valid(_blocker):
-			q.exclude = [_blocker.get_rid()]
-		var hit := space.intersect_ray(q)
+		var hit := _ground_ray(space, global_position + off, 1.0)
+		if not hit.is_empty() and (hit.position as Vector3).y > best:
+			best = (hit.position as Vector3).y
+			best_up = (hit.normal as Vector3).y
+	if best == -INF and _stood:
+		# Nothing within a metre: standing on something a moment ago, he looks further down, for a
+		# hole dug under him or an edge he's walked off (the dig-able ground,
+		# docs/briefs/dig-ground.md). Not yet stood (just placed, up in the air to drop onto his
+		# spot), he waits as he always has.
+		var hit := _ground_ray(space, global_position, DROP_FALLS + 2.5)
 		if not hit.is_empty():
-			best = maxf(best, (hit.position as Vector3).y)
-	if best > -INF:
-		global_position.y = best
+			best = (hit.position as Vector3).y
+			best_up = (hit.normal as Vector3).y
+	if best == -INF:
+		return
+	# The ground's gone from under him further than a step down, or he's walked on down a slope too
+	# steep to walk, deeper than a step below where he last stood level (into a dug hole, not a
+	# stick's shallow crater): he goes in.
+	if _stood and (global_position.y - best > DROP_FALLS or (best_up < STEEP_UP and best < _level_y - STEEP_DROP)):
+		_stood = false
+		go_limp.call_deferred(Vector3.ZERO)
+		return
+	global_position.y = best
+	if not _stood or best_up >= STEEP_UP:
+		_level_y = best
+	_stood = true
+
+
+func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
+	if _blocker and is_instance_valid(_blocker):
+		q.exclude = [_blocker.get_rid()]
+	return space.intersect_ray(q)
+
+
+## The ground near him was dug or laid on (Ground): a man standing there finds it again, and goes
+## in if it's gone from under him.
+func _on_ground_changed(area: Rect2) -> void:
+	if limp or not _stood or not is_inside_tree():
+		return
+	if area.grow(0.3).has_point(Vector2(global_position.x, global_position.z)):
+		_snap_to_ground()
 
 
 ## Into the scene where he's to stand (`at`, world space), facing `yaw`: placed before he's

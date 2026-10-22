@@ -286,3 +286,123 @@ func test_no_crater_under_boards_or_well_above_the_dirt() -> void:
 	var high := Blast.detonate(world, Vector3(-8.0, 1.2, -8.0), 0.2)
 	check(not high.has("crater"), "a metre up: no crater")
 	check(ground.tiles.is_empty(), "the ground's undug")
+
+
+# --- Step 4: what stands, walks and lies round a hole --------------------------------------------
+
+func test_a_post_whose_foot_is_dug_out_loses_the_ground() -> void:
+	var s := Structure.new()
+	s.structure_id = &"shed"
+	world.add_child(s)
+	s.add_member("post", &"post", &"framing", Vector3(0.15, 2.0, 0.15), Vector3(6.0, 1.0, 6.0))
+	s.add_member("near", &"post", &"framing", Vector3(0.15, 2.0, 0.15), Vector3(9.0, 1.0, 6.0))
+	s.infer_supports()
+	await physics_frames(2)
+	var post := s.get_member(&"shed/post")
+	var near := s.get_member(&"shed/near")
+	ground.take(Vector3(9.0, 0, 6.6), 0.4, 0.3)  # a hole beside the other post: its foot's still on earth
+	await physics_frames(2)
+	check(near.grounded and not near.broken, "a hole beside a post leaves it standing")
+	ground.take(Vector3(6.0, 0, 6.0), 0.6, 0.5)
+	await physics_frames(4)
+	check(not post.grounded, "dug out from under, the post is held by the ground no more")
+	check(post.broken, "and it falls")
+
+
+func test_a_chair_over_a_hole_goes_loose() -> void:
+	var chair := PropLibrary.spawn(&"chair")
+	if not chair is KitProp:
+		check(true, "(the chair isn't a kit prop here)")
+		chair.free()
+		return
+	world.add_child(chair)
+	chair.global_position = Vector3(-6.0, 0.0, -6.0)
+	await physics_frames(12)
+	check(not (chair as KitProp).loose, "it stands on the street")
+	ground.take(Vector3(-6.0, 0, -6.0), 0.7, 0.4)
+	await physics_frames(20)
+	check((chair as KitProp).loose, "dug out from under it, it goes loose and falls in")
+
+
+func test_a_barrel_in_the_street_falls_into_a_hole_dug_under_it() -> void:
+	var dressing := Node3D.new()
+	dressing.name = "StreetDressing"
+	world.add_child(dressing)
+	var barrel := PropLibrary.spawn(&"barrel")
+	dressing.add_child(barrel)
+	barrel.global_position = Vector3(12.0, 0.0, 3.0)
+	var other := PropLibrary.spawn(&"barrel")
+	dressing.add_child(other)
+	other.global_position = Vector3(14.0, 0.0, 3.0)
+	var f := Fittings.new()
+	world.add_child(f)
+	await physics_frames(8)
+	f.collect()
+	check(f.on_ground.size() == 2, "both barrels stand on the ground (%d)" % f.on_ground.size())
+	ground.take(Vector3(12.0, 0, 3.0), 0.6, 0.5)
+	await physics_frames(2)
+	check(f.on_ground[0].down, "the one over the hole falls in")
+	check(not f.on_ground[1].down, "the other stands")
+
+
+func test_a_man_walking_into_a_deep_hole_goes_in_but_steps_through_a_crater() -> void:
+	var walker := HumanBody.new()
+	walker.has_gun = false
+	world.add_child(walker)
+	walker.global_position = Vector3(20.0, 0.0, 10.0)
+	await physics_frames(2)
+	# A stick's crater on his way: he walks down into it and out.
+	ground.take(Vector3(20.0, 0, 8.0), 0.25, 0.12)
+	var target := walker.global_position + Vector3(0, 0, -6)
+	var lowest := INF
+	for i in 200:
+		walker.walk_to(target, 1.4, 1.0 / 60.0)
+		lowest = minf(lowest, walker.global_position.y)
+		await physics_frames(1)
+	check(not walker.limp, "a crater doesn't trip him")
+	check(lowest < -0.05, "he steps down into it on the way (%.2f)" % lowest)
+	# A grave dug across his path: he goes in.
+	ground.take(walker.global_position + Vector3(0, 0, -1.0), 0.8, 1.6)
+	target = walker.global_position + Vector3(0, 0, -6)
+	for i in 120:
+		walker.walk_to(target, 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+		if walker.limp:
+			break
+	check(walker.limp, "walking on into a hole deeper than a man, he goes in")
+
+
+func test_a_man_standing_where_a_hole_is_dug_goes_in() -> void:
+	var man := HumanBody.new()
+	man.has_gun = false
+	world.add_child(man)
+	man.global_position = Vector3(-15.0, 0.0, 12.0)
+	await physics_frames(2)
+	man.walk_to(man.global_position + Vector3(1, 0, 0), 1.4, 1.0 / 60.0)  # a step: he's stood on it
+	await physics_frames(2)
+	ground.take(man.global_position, 0.9, 1.8)
+	await physics_frames(3)
+	check(man.limp, "the ground dug from under him, he falls in")
+
+
+func test_a_small_fast_thing_doesn_t_go_through_a_dug_tile() -> void:
+	# A bone fragment or a chip thrown down at a crater (a height field has no thickness).
+	ground.take(Vector3(1.0, 0, 1.0), 0.4, 0.2)
+	var bits: Array[RigidBody3D] = []
+	for k in 6:
+		var rb := RigidBody3D.new()
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(0.02, 0.02, 0.02)
+		cs.shape = box
+		rb.add_child(cs)
+		rb.mass = 0.006
+		rb.position = Vector3(0.7 + k * 0.12, 0.3, 1.0)
+		rb.linear_velocity = Vector3(0.5, -9.0, 0.3)
+		world.add_child(rb)
+		bits.append(rb)
+	await physics_frames(90)
+	var worst := 0.0
+	for rb in bits:
+		worst = maxf(worst, ground.height_at(rb.global_position.x, rb.global_position.z) - rb.global_position.y)
+	check(worst < 0.12, "none ends deeper than a crater's own depth under the surface (worst %.3f m)" % worst)
