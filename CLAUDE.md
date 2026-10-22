@@ -435,6 +435,6 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
-  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
-  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
+  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
+  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.
