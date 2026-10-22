@@ -29,10 +29,15 @@ extends Resource
 @export var stain_full := 2.0
 @export var dust := Color(0.42, 0.34, 0.25)
 @export var mud := Color(0.22, 0.16, 0.1)
-## Wet boards: darker by this much at a full film (wet pine reads a third to half darker), in this
-## colour.
-@export var wet_dark := 0.85
-@export var wet := Color(0.05, 0.035, 0.025)
+## Wet boards: this colour laid over them this strongly at a full film (wet pine reads a third to half
+## darker and richer: a deep warm brown, not black).
+@export var wet_dark := 0.82
+@export var wet := Color(0.11, 0.055, 0.02)
+## How rough a full wet film is and dust and stains (dull). The woods' shader (art's texel_grid)
+## takes the decal's roughness but its highlight is the material's own small `specular`, so a wet
+## film barely shines yet: art's to give a wet board its sheen.
+@export var wet_rough := 0.12
+@export var dry_rough := 0.95
 ## Dirt at its fullest covers this much of the board under it.
 @export var dirt_cover := 0.95
 @export var stain := {&"whiskey": Color(0.32, 0.19, 0.09), &"beer": Color(0.36, 0.26, 0.13),

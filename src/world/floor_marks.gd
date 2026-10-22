@@ -348,6 +348,9 @@ func _draw_some() -> void:
 
 func _draw_chunk(ck: Vector3i) -> void:
 	var img := Image.create(CHUNK, CHUNK, false, Image.FORMAT_RGBA8)
+	# Its ORM (occlusion, roughness, metal; mixed by the albedo's alpha): a wet film shines, dust is dull.
+	var orm := Image.create(CHUNK, CHUNK, false, Image.FORMAT_RGB8)
+	orm.fill(Color(1.0, tuning.dry_rough, 0.0))
 	var any := false
 	var y := INF
 	var per_mm := CELL * CELL * 1000.0
@@ -380,8 +383,10 @@ func _draw_chunk(ck: Vector3i) -> void:
 				wet += float(c.liq[kind])
 			if wet > 0.05:
 				var film := clampf(wet / (per_mm * tuning.film_mm), 0.0, 1.0)
-				var dark := Color(tuning.wet.r, tuning.wet.g, tuning.wet.b, tuning.wet_dark * (0.4 + 0.6 * film))
+				# A film's edge is sharp (a puddle's line), not a fade: most of its dark from the thinnest film.
+				var dark := Color(tuning.wet.r, tuning.wet.g, tuning.wet.b, tuning.wet_dark * (0.75 + 0.25 * film) * smoothstep(0.02, 0.12, film))
 				col = dark if col.a <= 0.0 else Color(col.r * 0.55, col.g * 0.55, col.b * 0.55, maxf(col.a, dark.a))
+				orm.set_pixel(x, z, Color(1.0, lerpf(tuning.dry_rough, tuning.wet_rough, film), 0.0))
 			if col.a > 0.01:
 				any = true
 				img.set_pixel(x, z, col)
@@ -406,6 +411,8 @@ func _draw_chunk(ck: Vector3i) -> void:
 	# a cell's square; still the world's squares when drawn (decals filter nearest).
 	img.resize(CHUNK * SMOOTH, CHUNK * SMOOTH, Image.INTERPOLATE_BILINEAR)
 	d.texture_albedo = ImageTexture.create_from_image(img)
+	orm.resize(CHUNK * SMOOTH, CHUNK * SMOOTH, Image.INTERPOLATE_BILINEAR)
+	d.texture_orm = ImageTexture.create_from_image(orm)
 	d.size = Vector3(CHUNK * CELL, 0.12, CHUNK * CELL)
 	d.global_position = Vector3((ck.x + 0.5) * CHUNK * CELL, y, (ck.z + 0.5) * CHUNK * CELL)
 	d.global_basis = Basis.IDENTITY

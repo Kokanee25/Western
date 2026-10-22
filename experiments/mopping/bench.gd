@@ -13,13 +13,13 @@ extends SceneTree
 ##   ... -- --scenario=list
 
 const SCENARIOS := {
-	"muddy": {"seconds": 170.0, "walkers": 3, "wet": 0.5,
+	"muddy": {"seconds": 220.0, "walkers": 3, "wet": 0.5,
 			"note": "Three men in off a muddy street to the bar and out: then he mops"},
 	"spill": {"seconds": 120.0, "cam": "close", "spills": [[0.8, -0.6, "whiskey", 0.6], [-1.0, -1.5, "beer", 0.4]],
 			"note": "A bottle of whiskey and a jug of beer on the floor: he mops them up"},
 	"blood": {"seconds": 150.0, "cam": "close", "blood": [0.4, -1.0, 90.0],
 			"note": "Blood on the floor after a fight: he mops it"},
-	"trouble": {"seconds": 150.0, "walkers": 3, "wet": 0.5, "event": "shot", "after_mop": 6.0,
+	"trouble": {"seconds": 210.0, "walkers": 3, "wet": 0.5, "event": "shot", "after_mop": 6.0,
 			"note": "A shot as he mops: the mop dropped, the bucket down; calm again, he finishes"},
 	"change_water": {"seconds": 300.0, "mud": 420.0,
 			"note": "A filthy floor: his bucket's water goes black, he empties it outside and fills it at the trough"},
@@ -377,7 +377,8 @@ func _mop_faults() -> void:
 
 
 func _caption() -> void:
-	var lines := [String(sc.get("note", name_)) + "   %.1f s" % (tick / 60.0)]
+	var speed := int(opts.get("every", "2")) / 2
+	var lines := [String(sc.get("note", name_)) + "   %.1f s" % (tick / 60.0) + ("   (x%d)" % speed if speed > 1 else "")]
 	if chore != null:
 		lines.append("chore: %s   mop: %.0f ml water, %.1f g dirt, %.1f ml blood   bucket: %.1f l, murk %.2f" % [
 				String(chore.Step.keys()[int(chore.step)]).to_lower(), mop.water_ml, mop.dirt, mop.blood,
