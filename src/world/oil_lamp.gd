@@ -259,11 +259,14 @@ func smash(direction := Vector3.DOWN) -> void:
 		if c is MeshInstance3D or c.name == &"Model":
 			(c as Node3D).visible = false
 	var hitbox := get_node_or_null(^"Hitbox") as StaticBody3D
-	var snd := AudioStreamPlayer3D.new()
-	snd.stream = SynthSounds.get_sound(&"glass")
-	snd.unit_size = 5.0
-	add_child(snd)
-	snd.play()
+	if GameAudio.enabled():
+		GameAudio.play(self, &"glass", global_position, {"unit_size": 5.0, "limit": GameAudio.t().breaking_limit})
+	else:
+		var snd := AudioStreamPlayer3D.new()
+		snd.stream = SynthSounds.get_sound(&"glass")
+		snd.unit_size = 5.0
+		add_child(snd)
+		snd.play()
 	ImpactEffects.burst(get_parent(), global_position + Vector3.UP * 0.12, -direction, Color(0.8, 0.85, 0.8), 10, 1.5, 0.02)
 	if not was_lit:
 		return
