@@ -65,7 +65,7 @@ var _thr := {}
 var _street: Node3D
 var _building: Node3D
 var _target: Node3D
-var _target_kind := ""  # prop, member
+var _target_kind := ""  # prop (one box), kit (a KitProp: members), member, ground
 var _aim := Vector3.ZERO
 var _heading := Vector3.FORWARD
 var _event_at := Vector3.ZERO
@@ -153,7 +153,7 @@ func run() -> Dictionary:
 	_target = _find_target(_building, _spec.find)
 	if _target == null:
 		return _fail("no target %s in %s" % [JSON.stringify(_spec.find), _spec.building])
-	_target_kind = "member" if _target is StructureMember else ("ground" if _spec.find.has("ground") else "prop")
+	_target_kind = "member" if _target is StructureMember else ("ground" if _spec.find.has("ground") else ("kit" if _target is KitProp else "prop"))
 	_aim = _target_point()
 	_heading = _level(_building.global_basis * _v(_spec.get("from", [0, 0, -1])))
 	_snapshot_before()
@@ -265,8 +265,9 @@ func _level(v: Vector3) -> Vector3:
 	return v.normalized() if v.length() > 1e-4 else Vector3.FORWARD
 
 
-## The thing the scenario names, as the game built it: a prop by its id nearest a point, or a
-## member by id or by kind nearest a point (building space).
+## The thing the scenario names, as the game built it: a prop by its id nearest a point (a drawn
+## prop's one box, or a kit prop: PropLibrary hands out a KitProp, a Structure of members, for a
+## kit file marked in_game), or a member by id or by kind nearest a point (building space).
 func _find_target(building: Node3D, find: Dictionary) -> Node3D:
 	if building == null:
 		return null
@@ -278,8 +279,8 @@ func _find_target(building: Node3D, find: Dictionary) -> Node3D:
 	var best: Node3D = null
 	var best_d := INF
 	if find.has("prop"):
-		for n in building.find_children("*", "StaticBody3D", true, false):
-			if n.get_meta(&"prop_id", &"") == StringName(find.prop):
+		for n in building.find_children("*", "Node3D", true, false):
+			if (n is StaticBody3D or n is KitProp) and n.get_meta(&"prop_id", &"") == StringName(find.prop):
 				var d := (n as Node3D).global_position.distance_to(near)
 				if d < best_d:
 					best_d = d
@@ -343,7 +344,7 @@ func _line_check(shooter_xz: Vector3) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(shooter, _aim + (_aim - shooter).normalized() * 0.05, Layers.BULLETS)
 	var hit := space.intersect_ray(q)
 	var first := _describe(hit.collider) if not hit.is_empty() else "nothing"
-	var clear: bool = not hit.is_empty() and (hit.collider == _target or (_target_kind == "prop" and (_target as Node).is_ancestor_of(hit.collider as Node)))
+	var clear: bool = not hit.is_empty() and (hit.collider == _target or (_target_kind in ["prop", "kit"] and (_target as Node).is_ancestor_of(hit.collider as Node)))
 	return {"shooter": lab.arr(shooter), "first_hit": first, "clear": clear,
 			"first_hit_at": lab.arr(hit.position) if not hit.is_empty() else null}
 
@@ -375,8 +376,10 @@ func _man(role: String, feet: Vector3, faces: Vector3, drop: bool) -> void:
 	_street.add_child(man)
 	var xf := Transform3D.IDENTITY
 	if drop:
-		# On his back, head toward the room's middle, his middle `drop` m over the table's top.
-		var top := (_target as Node3D).global_position.y + PropLibrary.size_of(&"card_table").y
+		# On his back, head toward the room's middle, his middle `drop` m over the table's top (a
+		# kit table's top from its members' bounds, as a drawn one's from its box).
+		var box := PropLibrary.bounds_of(_target as Node3D)
+		var top := (_target as Node3D).global_position.y + (box.end.y if box.size != Vector3.ZERO else PropLibrary.size_of(&"card_table").y)
 		# His head along the building's x, his face up (his -z), his back down.
 		var along := _level(_building.global_basis * Vector3(1, 0, 0))
 		var lying := Basis(along.cross(Vector3.DOWN), along, Vector3.DOWN)
@@ -446,6 +449,9 @@ func _blast_query(at: Vector3, kg: float) -> Dictionary:
 	var looked := {}
 	for c: Object in Blast.gather(_street, at, kg):
 		looked[c.get_instance_id()] = true
+	var target_found := _target is CollisionObject3D and looked.has((_target as Object).get_instance_id())
+	if _target is KitProp:
+		target_found = (_target as KitProp).get_members().any(func(m: StructureMember) -> bool: return looked.has(m.get_instance_id()))
 	var all := space.intersect_shape(q, 1 << 20)
 	var radii := [1.0, 2.0, Blast.break_reach(kg)]
 	var near := [0, 0, 0]
@@ -460,7 +466,7 @@ func _blast_query(at: Vector3, kg: float) -> Dictionary:
 				if not looked.has(f.collider_id):
 					missed[i] += 1
 	return {"reach_m": snappedf(shape.radius, 0.1), "break_reach_m": snappedf(radii[2], 0.01), "in_reach": all.size(),
-			"found": looked.size(), "target_found": _target is CollisionObject3D and looked.has((_target as Object).get_instance_id()),
+			"found": looked.size(), "target_found": target_found,
 			"members_within_1_2_break_m": near, "left_out_within_1_2_break_m": missed}
 
 
@@ -515,7 +521,7 @@ func _scan() -> Dictionary:
 			if _target_kind == "ground":
 				p.y = 0.0
 				var h: Variant = _ray_to(space, p + Vector3.UP * 1.5, p + Vector3.DOWN * 1.5, func(c: Object) -> int:
-						return 1 if c == _target else (0 if c is StaticBody3D and not c is StructureMember else -1))
+						return 1 if Ground.is_ground(c) else (0 if c is StaticBody3D and not c is StructureMember else -1))
 				if h != null:
 					out[Vector2i(i, j)] = (h as Vector3).y
 			else:
@@ -618,6 +624,7 @@ func _surface_summary() -> Dictionary:
 # --- During the run ------------------------------------------------------------------------------
 
 var _hooks: Array = []
+var _kit_broken := {}  # a kit target's member id -> true: broken while it stood
 
 
 func _hook() -> void:
@@ -634,6 +641,15 @@ func _hook() -> void:
 	var on_blast := func(at: Vector3, kg: float) -> void: _blasts.append({"at": lab.arr(at), "kg": kg, "tick": Engine.get_physics_frames()})
 	Events.exploded.connect(on_blast)
 	_hooks.append([Events.exploded, on_blast])
+	if _target is KitProp:
+		# Going loose drops every member it has left (broken, as rubble): only what breaks while it
+		# still stands is broken by the blow (KitProp.go_loose sets `loose` before it drops them).
+		var kit := _target as KitProp
+		var on_broken := func(id: StringName) -> void:
+			if is_instance_valid(kit) and not kit.loose and kit.members.has(id):
+				_kit_broken[id] = true
+		Events.member_broken.connect(on_broken)
+		_hooks.append([Events.member_broken, on_broken])
 
 
 func _unhook() -> void:
@@ -688,10 +704,11 @@ func _physics_process(_delta: float) -> void:
 
 
 func _watch_piece(p: Dictionary, space: PhysicsDirectSpaceState3D, tick: int, after: int) -> void:
-	var rb: RigidBody3D = p.node
 	if p.freed_tick >= 0:
 		return
-	if not is_instance_valid(rb) or not rb.is_inside_tree():
+	# Checked before it's typed: assigning a freed piece to a typed variable is a script error.
+	var rb: RigidBody3D = p.node if is_instance_valid(p.node) else null
+	if rb == null or not rb.is_inside_tree():
 		p.freed_tick = tick
 		return
 	var at := rb.global_position
@@ -881,10 +898,12 @@ func _nearest_point_of_target(p: Vector3) -> Vector3:
 func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 	var r := {"what": _describe(_target) if is_instance_valid(_target) else _setup.target}
 	if _target_kind == "ground":
-		r["kind"] = "the street's ground (a flat WorldBoundaryShape3D under a plane mesh)"
+		r["kind"] = "the street's ground (Ground: flat slabs, a height field where dug)"
 		var sf: Dictionary = _surface_summary_cache
 		r["result"] = "crater %.2f m deep" % sf.crater_depth_m if float(sf.get("crater_depth_m", 0.0)) > 0.02 else "no crater"
 		return r
+	if _target_kind == "kit":
+		return _kit_result(r, timber, charge)
 	if _target_kind == "prop":
 		var still := is_instance_valid(_target) and _target.is_inside_tree()
 		r["kind"] = "static prop (one box, PropLibrary)"
@@ -934,6 +953,47 @@ func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 		var c: Vector2 = m.get_meta(&"cut")
 		r["cut_m"] = snappedf(c.y - c.x, 0.01)
 		r["result"] = "cut (%.1f m torn out)" % (c.y - c.x)
+	return r
+
+
+## A kit prop (KitProp: its legs, top and rails are members): which of its members broke, were cut,
+## holed or carved, whether it went loose (tipped, knocked, its floor gone, thrown by the blast) and
+## how far what's left of it went; for a blast, the member Blast's own rule works hardest.
+func _kit_result(r: Dictionary, timber: TimberTuning, charge: Vector3) -> Dictionary:
+	var kit := _target as KitProp
+	r["kind"] = "kit prop %s (%d members)" % [kit.kit_id, kit.get_members().size()]
+	var broken := []
+	var holed := []
+	var worst := {}
+	for m: StructureMember in kit.get_members():
+		var b: Dictionary = _before.get(m, {"broken": false, "holes": 0, "carved": false})
+		var tag := String(m.member_id).trim_prefix(String(kit.structure_id) + "/")
+		if _kit_broken.has(m.member_id):
+			broken.append(tag)
+		elif m.holes.size() > int(b.holes) or (m.voxels != null and not b.carved):
+			holed.append(tag)
+		if charge != Vector3.INF and not b.broken:
+			var d := blast_demand(m, charge, Blast.t().tnt_per_stick, timber)
+			if worst.is_empty() or float(d.ratio) > float(worst.ratio):
+				d["member"] = tag
+				worst = d
+	r["members_broken"] = broken
+	r["members_holed"] = holed
+	r["loose"] = kit.loose
+	if not worst.is_empty():
+		r["blast"] = worst
+	var start := _v(_setup.target_at)
+	var moved := 0.0
+	for rb in kit.rubble:
+		if is_instance_valid(rb):
+			moved = maxf(moved, _flat(rb.global_position - start))
+	r["moved_m"] = snappedf(moved if kit.loose else kit.global_position.distance_to(start), 0.001)
+	if not broken.is_empty():
+		r["result"] = "broken (%d of %d members%s)" % [broken.size(), kit.get_members().size(), ", the rest loose" if kit.loose else ""]
+	elif kit.loose:
+		r["result"] = "thrown %.1f m" % moved if moved > 0.3 else "went loose"
+	else:
+		r["result"] = "holed" if not holed.is_empty() else "holds"
 	return r
 
 

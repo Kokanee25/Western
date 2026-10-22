@@ -428,11 +428,23 @@ void fragment() {
 // The surface-blocks look's light (texel_grid_blocks.gdshader, member_holes_blocks.gdshader):
 // Lambert cut into light_bands per light (the bands' sum is banded too, so the whole direct light
 // steps), the lower bands leaning toward the material's shade_tint; a small banded highlight.
+// wood_bands > 0: the material's own steps (round 6 of the material lab: the woods' light banded as
+// the men's paint is, on the woods only), the world's light_bands otherwise.
+uniform float wood_bands = 0.0;
+
+float wood_band(float k) {
+	if (wood_bands <= 0.0) {
+		return tile_band(k);
+	}
+	float g = pow(clamp(k, 0.0, 1.0), 1.0 / 2.2);
+	return pow(floor(g * wood_bands + 0.5) / wood_bands, 2.2);
+}
+
 void light() {
-	float k = tile_band(clamp(dot(NORMAL, LIGHT), 0.0, 1.0) * ATTENUATION);
+	float k = wood_band(clamp(dot(NORMAL, LIGHT), 0.0, 1.0) * ATTENUATION);
 	DIFFUSE_LIGHT += k * LIGHT_COLOR * mix(shade_tint, vec3(1.0), k) / PI;
 	vec3 h = normalize(VIEW + LIGHT);
 	float s = pow(clamp(dot(NORMAL, h), 0.0, 1.0), mix(64.0, 8.0, ROUGHNESS)) * specular * 0.5;
-	SPECULAR_LIGHT += tile_band(s * ATTENUATION) * LIGHT_COLOR / PI;
+	SPECULAR_LIGHT += wood_band(s * ATTENUATION) * LIGHT_COLOR / PI;
 }
 #endif

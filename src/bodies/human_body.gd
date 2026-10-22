@@ -66,6 +66,21 @@ const POSES := {
 			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
 			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
 			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
+	# A kick: his right leg swung forward and low (a chair's legs, a man on the floor), the sole first,
+	# his left knee soft under him, leaning back off it, his arms out a little for his balance.
+	&"kick": {&"thigh_r": Vector3(55, 0, 0), &"shin_r": Vector3(-14, 0, 0), &"foot_r": Vector3(-22, 0, 0),
+			&"thigh_l": Vector3(8, 0, 0), &"shin_l": Vector3(-12, 0, 0), &"abdomen": Vector3(6, 0, 0),
+			&"chest": Vector3(4, 0, 0), &"upper_arm_r": Vector3(-10, 0, 24), &"upper_arm_l": Vector3(10, 0, -28),
+			&"forearm_r": Vector3(20, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
+	# Sat back in his chair: shoulders back against its back, head level, hands in his lap (Sean,
+	# 2026-10-21: his weight over the back of the seat, so when the chair's back legs go he goes
+	# over with it).
+	&"sit_back": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(6, 0, 0), &"chest": Vector3(12, 0, 0), &"neck": Vector3(-6, 0, 0),
+			&"head": Vector3(-8, 0, 0),
+			&"upper_arm_r": Vector3(24, 0, -6), &"forearm_r": Vector3(62, 0, 0),
+			&"upper_arm_l": Vector3(24, 0, 6), &"forearm_l": Vector3(62, 0, 0)},
 	# Leaning in over the table on his forearms, shoulders hunched, head up to look at you (the
 	# painting's man).
 	&"sit_lean": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
@@ -1995,7 +2010,7 @@ func _favour_step(delta: float) -> void:
 	for side in ["r", "l"]:
 		var sign_z := 1.0 if side == "r" else -1.0
 		var leg := favouring(StringName("leg_" + side))
-		if leg > 0.0 and standing and not pose in [&"crouch", &"crouch_aim", &"sit", &"sit_lean", &"duck", &"tend", &"cower"]:
+		if leg > 0.0 and standing and not pose in [&"crouch", &"crouch_aim", &"sit", &"sit_back", &"sit_lean", &"duck", &"tend", &"cower"]:
 			# Standing: the knee eases off and the weight goes on the other leg.
 			for key: StringName in FAVOUR_LEG:
 				_add_favour(StringName(String(key) + "_" + side), FAVOUR_LEG[key] * leg)
@@ -2300,8 +2315,15 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		physiology.blood_in_eye[&"r" if (tr.entry as Vector3).x > 0.0 else &"l"] = Physiology.SCALP_BLIND_SECONDS
 	for h: Dictionary in tr.hits:
 		if h.effect == &"severed":
-			sever_finger(h.id, dir)
+			if h.kind == &"appendage":
+				shoot_off(h.id, dir)
+			else:
+				sever_finger(h.id, dir)
 	var deposited := maxf(energy - tr.energy_out, 0.0)
+	# A heavy ball or close buckshot that breaks the lower jaw can carry it away.
+	if seg == &"head" and not physiology.jaw_gone and tr.hits.any(func(h: Dictionary) -> bool: return h.id == &"jaw" and h.effect == &"broken") \
+			and (deposited + maxf(blast, 0.0)) >= JAW_AWAY_J:
+		jaw_away(dir)
 	# Where it tore: a little at the way in (a lot more with the muzzle's blast right on him), most
 	# at the way out.
 	var at_entry := deposited * (0.25 if tr.exit != null else 0.6)
@@ -2895,6 +2917,81 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	# The stump bleeds.
 	_decal(visuals[&"hand_" + String(fid).right(1)], StringName("hand_" + String(fid).right(1)),
 			knuckle.position, 0.03, PixelArt.blood("wound_entry", 5, true, 16))
+
+
+## An ear or the nose shot off (the gore lab): the skin cut away where it was (the wound shader's
+## opening, raw underneath), and the piece thrown off along the ball's way.
+const PART_HOLE := {&"ear_r": 0.024, &"ear_l": 0.024, &"nose": 0.021}
+
+
+func shoot_off(id: StringName, dir: Vector3) -> void:
+	var st := anatomy.structure(id)
+	if st.is_empty() or (_shot_off as Dictionary).has(id):
+		return
+	_shot_off[id] = true
+	var center := anatomy.segment_center(&"head")
+	var at: Vector3 = ((st.a as Vector3) + (st.b as Vector3)) * 0.5 - center
+	# A hole of the part's size (open_wound's radius goes with the square root of its energy).
+	var r: float = PART_HOLE.get(id, 0.02)
+	open_wound(&"head", at, pow(r / OPEN_PER_SQRT_JOULE, 2.0) + 1.0, dir, &"")
+	var head := parts[&"head"] as Node3D
+	var world := get_parent() as Node3D
+	if world == null:
+		return
+	var rb := RigidBody3D.new()
+	rb.name = "Ear" if String(id).begins_with("ear") else "Nose"
+	rb.mass = 0.02
+	rb.collision_layer = 0
+	rb.collision_mask = Layers.WORLD
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.012, 0.06, 0.035) if rb.name == "Ear" else Vector3(0.03, 0.04, 0.025)
+	var shape := CollisionShape3D.new()
+	shape.shape = box
+	rb.add_child(shape)
+	var mi := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = box.size
+	mi.mesh = mesh
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.72, 0.5, 0.42)
+	m.albedo_texture = PixelArt.blood("wound_exit", 9, true, 16)
+	mi.material_override = m
+	rb.add_child(mi)
+	rb.add_to_group(&"severed_parts")
+	world.add_child(rb)
+	rb.global_position = head.global_transform * at
+	rb.linear_velocity = dir.normalized() * 3.0 + Vector3.UP * 0.8
+	rb.angular_velocity = Vector3(randf_range(-9, 9), randf_range(-9, 9), randf_range(-9, 9))
+	Blood.burst(world, rb.global_position, dir, 10, 2.0)
+	Blood.throw(world, rb.global_position, dir * 2.0, 0.6, _own_rids())
+
+var _shot_off := {}
+
+
+## The lower jaw carried away (a heavy ball or buckshot close: what deposits this much in it). The
+## Medical and Surgical History's "shot away" jaws: the chin and the jaw torn off, the bone thrown,
+## no speech, blood running back into his throat, the face's arteries open.
+const JAW_AWAY_J := 300.0
+
+
+func jaw_away(dir: Vector3) -> void:
+	if physiology.jaw_gone:
+		return
+	physiology.jaw_gone = true
+	physiology.jaw_broken = true
+	physiology.broken[&"jaw"] = true
+	physiology.airway_blood = true
+	physiology._add_bleed(&"facial_artery", &"head", 4.0, &"artery")
+	var st := anatomy.structure(&"jaw")
+	var center := anatomy.segment_center(&"head")
+	var chin: Vector3 = ((st.a as Vector3) + (st.b as Vector3)) * 0.5 - center + Vector3(0, -0.012, -0.02)
+	# Past DESTROY_ENERGY: the region torn away and the bone in it thrown out (_smash_bone).
+	var o := open_wound(&"head", chin, DESTROY_ENERGY + 400.0, dir, &"gore_crater")
+	# The torn edge on what's left of his chin and cheeks, not up over his eyes.
+	var edge: Variant = o.get("gore")
+	if edge != null and is_instance_valid(edge):
+		(edge as Decal).size *= 0.6
+		(edge as Decal).position += Vector3(0, -0.02, 0)
 
 
 func drop_gun() -> void:
@@ -3972,7 +4069,8 @@ func _hit_words(w: Dictionary) -> PackedStringArray:
 			&"torn":
 				what.append("%s torn" % String(h.id).get_slice("_", 0))
 			&"severed":
-				what.append("%s finger off" % String(h.id).get_slice("_", 0))
+				var part := String(h.id).get_slice("_", 0)
+				what.append(("%s off" if part in ["ear", "nose"] else "%s finger off") % part)
 	if w.get("cloth", &"") != &"":
 		what.append("a plug of his %s carried in" % String(w.cloth))
 	return what

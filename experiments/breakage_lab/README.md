@@ -107,7 +107,10 @@ A scenario with a man runs once per body.
   `bending_MPa` in the summary). For a blast, also **Blast's own rule** worked for that member
   (`blast`: the kick, impulse² / 2m, against fb² / 2E × volume × `absorb_factor`; over 1 breaks),
   the same sums as `Blast._member_response`, without its side effects. For a prop: still there,
-  moved, fell (Fittings), smashed (a lamp). Every member broken anywhere: by building, kind and
+  moved, fell (Fittings), smashed (a lamp). A kit prop (`KitProp`, the chair since #202: its legs,
+  seat and rails are members) is read as members: which broke while it stood, were cut or holed,
+  whether it went loose and how far what's left of it was thrown, and the member Blast's rule works
+  hardest (`target_result.members_broken`, `loose`, `moved_m`, `blast`). Every member broken anywhere: by building, kind and
   wood, its distance from the event, its utilisation before.
 - **What the blast looked at** (`setup.blast_query`): `Blast.gather` from the charge (what
   `Blast.detonate` acts on), against everything in its reach (one uncapped query): how many it took,
