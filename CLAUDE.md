@@ -431,7 +431,7 @@ frozen until Sean names one.
   man losing his seat catches himself (the prop lab's ask); loose props.
 - **The barkeep's rag and mopping** (2026-10-22, with the prop lab's leave; briefs
   `docs/briefs/barkeep-rag.md`, `mopping.md`; labs `experiments/barkeep_rag/`, `mopping/`): the rag
-  merged (#260): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  merged (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
   them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`. Mopping
   (`claude/gameplay-mopping`): `FloorMarks` (tracked mud, wet patches, stains), `MopProp`,
   `MopBucket`, `MopFloor` (chores: `CivilianBrain.chores`). Waiting on Sean: both films (in the
