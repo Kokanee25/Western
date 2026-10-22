@@ -53,10 +53,37 @@ static func gunshot(host: Node, at: Vector3, big := false) -> void:
 					"max_db": k.report_db + k.slap_db, "walls": false})
 
 
+## A charge of `kg` going off at `at`: the blast (full within a few metres, more for a bigger
+## charge), its roll off the hills, outdoors the slap off the fronts, and what it threw coming down
+## round it over the next seconds (clods and splinters, each placed and late by its own distance).
+static func blast(host: Node, at: Vector3, kg: float) -> void:
+	var k := t()
+	var size := pow(maxf(kg, 0.01) / 0.2, 1.0 / 3.0)
+	var heard := play(host, &"blast", at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0, "max_db": 6.0})
+	play(host, &"blast_roll", at, {"unit_size": k.blast_roll_unit_size * size, "volume_db": k.blast_roll_db,
+			"max_db": k.blast_roll_max_db, "panning": 0.4})
+	if heard and not heard.get_meta(&"inside", false):
+		for s: Dictionary in slaps(host, at):
+			play(host, &"blast", s.at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0 + k.slap_db,
+					"max_db": 6.0 + k.slap_db, "walls": false})
+	var holder := _holder(host)
+	if holder == null:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector3i(at.round()))
+	for i in int(round(k.debris_count * size)):
+		var a := rng.randf() * TAU
+		var r := rng.randf_range(1.5, 9.0) * size
+		var where := at + Vector3(cos(a) * r, 0.0, sin(a) * r)
+		var id := &"impact_wood" if i % 3 == 2 else &"impact_dirt"
+		var db := rng.randf_range(-16.0, -6.0)
+		play(holder, id, where, {"volume_db": db, "normal": Vector3.UP, "after": rng.randf_range(0.5, 2.8)})
+
+
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
 ## panning (1), delay (true: distance / the speed of sound; an image source is already the reflected
-## path's length away), walls (true: the room and the walls by where it is), normal (the face a sound
-## made on a surface came off).
+## path's length away), after (seconds more before it starts), walls (true: the room and the walls by
+## where it is), normal (the face a sound made on a surface came off).
 static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStreamPlayer3D:
 	if host == null or not host.is_inside_tree():
 		return null
@@ -71,6 +98,9 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	p.unit_size = float(o.get("unit_size", 6.0))
 	p.volume_db = float(o.get("volume_db", 0.0))
 	p.max_db = float(o.get("max_db", 3.0))
+	if ears and not _room_for(holder, p, at, ears.global_position, int(o.get("limit", 0))):
+		p.free()
+		return null
 	p.panning_strength = float(o.get("panning", 1.0))
 	p.attenuation_filter_cutoff_hz = air_cutoff(d)
 	if bool(o.get("walls", true)) and ears:
@@ -85,14 +115,54 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	holder.add_child(p)
 	p.global_position = at
 	p.finished.connect(p.queue_free)
-	var delay := d / SPEED_OF_SOUND if bool(o.get("delay", true)) else 0.0
+	var delay := (d / SPEED_OF_SOUND if bool(o.get("delay", true)) else 0.0) + float(o.get("after", 0.0))
 	if delay < 0.5 / Engine.physics_ticks_per_second:
 		p.play()
 	else:
-		holder.get_tree().create_timer(delay, false, true).timeout.connect(func() -> void:
-				if is_instance_valid(p) and p.is_inside_tree():
-					p.play())
+		# Straight to its own play(): a sound freed before its time (the voice limit) takes the
+		# connection with it.
+		holder.get_tree().create_timer(delay, false, true).timeout.connect(p.play)
 	return p
+
+
+## Room for one more (the sound lab: a wall coming down was 108 sounds at once, the same two over
+## and over, and ~1.8 ms of mixing at Sean's): at most `max_voices` placed sounds at once (playing or
+## on their way), and at most `limit` of this one. When full, the quietest at the ears gives way,
+## or the new one isn't played if it's the quietest.
+static func _room_for(holder: Node, p: AudioStreamPlayer3D, at: Vector3, ears: Vector3, limit: int) -> bool:
+	var mine := _level(p.unit_size, p.volume_db, p.max_db, at.distance_to(ears))
+	var all := holder.get_children().filter(func(c: Node) -> bool:
+			return c is AudioStreamPlayer3D and not c.is_queued_for_deletion())
+	if limit > 0:
+		var same := all.filter(func(c: Node) -> bool: return (c as AudioStreamPlayer3D).stream == p.stream)
+		if not _make_room(same, limit, mine, ears):
+			return false
+		all = all.filter(func(c: Node) -> bool: return not c.is_queued_for_deletion())
+	return _make_room(all, t().max_voices, mine, ears)
+
+
+## Under `cap` in `crowd`, or the quietest at the ears stopped for a louder newcomer.
+static func _make_room(crowd: Array, cap: int, mine: float, ears: Vector3) -> bool:
+	if crowd.size() < cap:
+		return true
+	var quietest: AudioStreamPlayer3D = null
+	var low := INF
+	for c: Node in crowd:
+		var q := c as AudioStreamPlayer3D
+		var l := _level(q.unit_size, q.volume_db, q.max_db, q.global_position.distance_to(ears))
+		if l < low:
+			low = l
+			quietest = q
+	if quietest == null or mine <= low:
+		return false
+	quietest.stop()
+	quietest.queue_free()
+	return true
+
+
+## Godot's inverse-distance level of a placed sound at the ears (dB).
+static func _level(unit_size: float, volume_db: float, max_db: float, d: float) -> float:
+	return minf(linear_to_db(unit_size / maxf(d, 0.01)) + volume_db, max_db)
 
 
 ## The ears: the current AudioListener3D of the host's viewport, else its camera.

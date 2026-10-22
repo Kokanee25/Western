@@ -1,0 +1,628 @@
+{
+	"_doc": "The saloon's building spec (format: experiments/building_lab/FORMAT.md). Made from docs/concept/saloon-sheet.png (the look and the layout's ideas), Sean's saloon picture docs/concept/targets/10_saloon_interior.png (the look inside) and Sean's answers (docs/briefs/building-pipeline.md's critiques; 2026-10-21/22). Sizes come from this file, never off the pictures. Metres in the building's own space: x along the front from its west corner (0) to its east corner (15.24), z back from the front wall's outer stud face, y up from the ground; the front faces -Z (the street), as FalseFrontBuilding's. Feet in the notes because the town was laid out and framed in them.",
+	"format": 1,
+	"id": "saloon",
+	"identity": {
+		"owner": "Joe Doyle, who came out with the railroad's grading crews and stayed when they moved on",
+		"trade": "saloon, card room and lodging house (five rooms let by the night or the week)",
+		"means": "the richest man on Main Street after the bank; built it new on a double lot four years ago, the first two-storey frame in town",
+		"age_and_repair": "4 years: the paint on the front still red, the sides never painted and already grey; the floor worn pale from the door to the bar; one gallery baluster replaced in raw pine",
+		"clues": ["a brass foot rail polished bright where boots rest, dull at the ends nobody stands", "a faro layout chalked on the middle table, a cuspidor at every post", "a sign over the back bar: NO CREDIT, NO GUNS ABOVE STAIRS", "a spare key board behind the bar for the five rooms upstairs", "a path worn through the yard grass to the outhouse"],
+		"built": 1878,
+		"now": 1882
+	},
+	"lot": {
+		"_doc": "Sean, 2026-10-21/22: widen the lot (an important building: a double lot of 50 ft) and take the room from Freight Street, which moves east; nothing on the south side moves. town.json changes when this is used for real (FORMAT.md 'What using it for real needs'): Saloon stays at x 5, its SouthBoardwalk lengthens to 16.4, Freight Street's line moves from x 23 to 28.5 (its west edge from 17 to 22.5), RangeCover from x 30 to 35.5; the outside stair and the side balcony take x 20.24..21.66 in town.",
+		"town_node": "Saloon",
+		"side": "south",
+		"at": [5, 0, 0],
+		"facing": 0,
+		"width": 15.24,
+		"depth": 17.07,
+		"yard": [0, 17.07, 15.24, 28.0],
+		"footprint_with_stair": [0, -2.44, 16.42, 17.07]
+	},
+	"levels": {
+		"_doc": "The sheet's cutaway: 12 ft (3.66 m) floor to floor downstairs, 10 ft (3.05 m) up (the brief's 'usable starting number'). The ground floor is four steps up from the street, as today's saloon (town.json floor_top 0.78).",
+		"cellar": {"floor": -2.4},
+		"ground": {"top": 0.78},
+		"upper": {"top": 4.44},
+		"plate": 7.49,
+		"false_front": 10.4,
+		"roof_pitch": 14.04
+	},
+	"frame": {
+		"_doc": "A balloon frame (Bell 1858; Woodward 1865): 2x4 studs at 16 in running sill to plate through both storeys, the upper joists on a 1x6 ribbon let into them. Sections are dressed sizes, metres [width, depth]. Every span is checked by checks.gd's sizing (the Wood Handbook's figures for the game's woods, a crowd's 40 lb/ft2 on the floors and 60 on the balcony, L/360).",
+		"foundation": {"wood": "stone", "thick": 0.45, "bottom": -0.3, "top": 0.305, "piece": 1.5},
+		"sill": {"section": [0.2, 0.2], "wood": "framing"},
+		"pier": {"size": 0.45, "wood": "stone"},
+		"girder": {"section": [0.15, 0.2], "wood": "framing", "pier_every": 1.9},
+		"joist": {"section": [0.05, 0.25], "spacing": 0.406, "wood": "framing"},
+		"floor_board": {"width": 0.15, "thick": 0.025, "wood": "floor"},
+		"stud": {
+			"section": [0.05, 0.1],
+			"spacing": 0.406,
+			"wood": "framing",
+			"tall": {
+				"_doc": "The balloon studs run 7-10 m sill to plate, carrying the roof's trusses, the upper floor and the balcony: 3x4 (a 2x4 that long buckles under a crowd upstairs; checks.gd).",
+				"section": [0.075, 0.1],
+				"walls": ["front", "back", "west", "east"]
+			}
+		},
+		"plate": {"height": 0.1},
+		"ribbon": {"section": [0.025, 0.15]},
+		"header": {"height": 0.15},
+		"post": {"section": [0.2, 0.2], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.035},
+		"beam": {"section": [0.2, 0.25], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.03},
+		"bracket": {"reach": 0.55, "thick": 0.1, "look": "wood:int_timber"},
+		"wall_post": {"section": [0.15, 0.1]},
+		"truss": {
+			"_doc": "Queen-post trusses (Tredgold: the queen post for 30-45 ft spans; here 50 ft between the walls' outer faces, the tie in two lengths scarfed over the rooms' wall) at 10 ft, carrying purlins, common rafters and boards.",
+			"tie": [0.15, 0.25],
+			"principal": [0.15, 0.2],
+			"queen": [0.15, 0.15],
+			"purlin": [0.1, 0.15],
+			"rafter": [0.05, 0.15],
+			"rafter_spacing": 0.61,
+			"at": [0.25, 3.05, 6.1, 9.14, 12.19, 15.24, 16.87],
+			"purlins": [0.3, 2.8, 5.3, 7.7]
+		}
+	},
+	"girders": {
+		"_doc": "Lines under the ground floor's joists (the joists span 10 ft or less between them), each on stone piers; inside the cellar on its posts.",
+		"z": [3.05, 6.1, 9.14, 12.19, 14.63]
+	},
+	"cellar": {
+		"_doc": "Sean, 2026-10-21: yes, and big. Kegs and spirits kept cool under the bar and the kitchen (the west half); rubble-stone walls, stone flags, six posts under the girders, reached by a trap and a stair in the kitchen. The floor over it is on real joists, so a blast or a fire can drop it in. The trap runs girder to girder (no joist is cut short), its two leaves folded back on the floor; the stair under it steep, as a cellar's (8.3 in risers on 7.9 in treads), with 2.1 m of head room under the floor's edge.",
+		"rect": [0.0, 9.14, 7.62, 17.07],
+		"posts": [[5.74, 12.19], [3.81, 12.19], [1.88, 12.19], [5.74, 14.63], [3.81, 14.63], [1.88, 14.63]],
+		"flag": 1.2,
+		"trap": {"rect": [2.24, 12.29, 3.24, 14.53]},
+		"stair": {"head": [2.29, 12.29], "dir": "-z", "width": 0.9, "risers": 15, "going": 0.2}
+	},
+	"posts": {
+		"_doc": "The gallery's posts (8x8, chamfered: Sean's picture), floor to the beams, each on a pier. 'wall' posts stand in a wall's stud line under a beam's end.",
+		"free": [
+			[14.02, 1.83],
+			[11.18, 1.83],
+			[8.33, 1.83],
+			[5.49, 1.83],
+			[3.66, 1.83],
+			[5.49, 4.78],
+			[3.66, 4.78],
+			[5.49, 7.72],
+			[3.66, 7.72],
+			[14.02, 10.67],
+			[11.18, 10.67],
+			[8.33, 10.67],
+			[5.49, 10.67],
+			[3.66, 10.67]
+		],
+		"wall": [[0.075, 1.83], [0.075, 10.67], [15.165, 1.83], [15.165, 10.67]]
+	},
+	"beams": [
+		{"id": "front", "from": [0.1, 1.83], "to": [15.14, 1.83]},
+		{"id": "back", "from": [0.1, 10.67], "to": [15.14, 10.67]},
+		{"id": "well_west", "from": [5.49, 10.57], "to": [5.49, 1.93]},
+		{"id": "rooms_west", "from": [3.66, 10.57], "to": [3.66, 1.93]}
+	],
+	"floors": [
+		{
+			"id": "ground",
+			"level": "ground",
+			"rect": [0.1, 0.1, 15.14, 16.97],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"rough": [[0.1, 12.19, 15.14, 16.97]],
+			"openings": [
+				{"id": "trap", "rect": [2.24, 12.29, 3.24, 14.53], "hatch": 2}
+			]
+		},
+		{"id": "front_gallery", "level": "upper", "rect": [0.1, 0.1, 15.14, 1.93], "joists": "z", "look": "wood:int_floor"},
+		{"id": "west_gallery", "level": "upper", "rect": [0.1, 1.93, 5.59, 10.57], "joists": "x", "look": "wood:int_floor"},
+		{"id": "back", "level": "upper", "rect": [0.1, 10.57, 15.14, 16.97], "joists": "z", "look": "wood:int_floor"}
+	],
+	"walls": [
+		{
+			"_doc": "The front: lap siding in the saloon's red to the false front's top; the tall door (6 by 9 ft) with batwings, four windows; upstairs two doors to the street balcony, three windows; the sign on the false front over the balcony.",
+			"id": "front",
+			"line": [[0, 0], [15.24, 0]],
+			"out": "-z",
+			"top": 10.4,
+			"outside": {"siding": "lap", "wood": "saloon_red"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 15.14, "finish": "wainscot"},
+				{"level": "upper", "from": 0.1, "to": 15.14, "finish": "boards"}
+			],
+			"openings": [
+				{"type": "batwings", "level": "ground", "at": 7.62, "width": 1.83, "height": 2.74},
+				{"type": "window", "level": "ground", "at": 1.98, "width": 1.22, "height": 1.98, "sill": 0.92},
+				{"type": "window", "level": "ground", "at": 4.88, "width": 1.22, "height": 1.98, "sill": 0.92},
+				{"type": "window", "level": "ground", "at": 10.36, "width": 1.22, "height": 1.98, "sill": 0.92},
+				{"type": "window", "level": "ground", "at": 13.26, "width": 1.22, "height": 1.98, "sill": 0.92},
+				{"type": "door", "level": "upper", "at": 4.88, "width": 0.91, "height": 2.13},
+				{"type": "door", "level": "upper", "at": 10.36, "width": 0.91, "height": 2.13},
+				{"type": "window", "level": "upper", "at": 1.98, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 7.62, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 13.26, "width": 0.91, "height": 1.52, "sill": 0.76}
+			]
+		},
+		{
+			"id": "back",
+			"line": [[0, 17.07], [15.24, 17.07]],
+			"out": "+z",
+			"top": "gable",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 15.14, "finish": "rough"},
+				{"level": "upper", "from": 0.1, "to": 15.14, "finish": "boards"}
+			],
+			"openings": [
+				{"type": "door", "level": "ground", "at": 4.24, "width": 0.91, "height": 2.13, "leaf": "outward"},
+				{"type": "window", "level": "ground", "at": 2.2, "width": 0.91, "height": 1.22, "sill": 0.9},
+				{"type": "window", "level": "ground", "at": 8.8, "width": 0.91, "height": 1.22, "sill": 0.9},
+				{"type": "window", "level": "upper", "at": 2.54, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 7.62, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 12.7, "width": 0.91, "height": 1.52, "sill": 0.76}
+			]
+		},
+		{
+			"_doc": "The west wall stands against the store: no windows. The bar's back wall.",
+			"id": "west",
+			"line": [[0, 0], [0, 17.07]],
+			"out": "-x",
+			"top": "plate",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 12.19, "finish": "wainscot"},
+				{"level": "ground", "from": 12.19, "to": 16.97, "finish": "rough"},
+				{"level": "upper", "from": 0.1, "to": 16.97, "finish": "boards"}
+			],
+			"openings": []
+		},
+		{
+			"_doc": "The east wall, to Freight Street: the stair inside runs up it; windows to the stores, the stairwell and the back bedroom; a door from the side balcony into the front gallery.",
+			"id": "east",
+			"line": [[15.24, 0], [15.24, 17.07]],
+			"out": "+x",
+			"top": "plate",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 12.19, "finish": "wainscot"},
+				{"level": "ground", "from": 12.19, "to": 16.97, "finish": "rough"},
+				{"level": "upper", "from": 0.1, "to": 16.97, "finish": "boards"}
+			],
+			"openings": [
+				{"type": "window", "level": "ground", "at": 15.4, "width": 0.91, "height": 1.22, "sill": 0.9},
+				{"type": "door", "level": "upper", "at": 0.95, "width": 0.91, "height": 2.13},
+				{"type": "window", "level": "upper", "at": 4.0, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 9.2, "width": 0.91, "height": 1.52, "sill": 0.76},
+				{"type": "window", "level": "upper", "at": 14.6, "width": 0.91, "height": 1.52, "sill": 0.76}
+			]
+		},
+		{
+			"_doc": "The hall's back wall: it carries the back rooms' joists over it. A door to the back room, one behind the bar to the kitchen.",
+			"id": "hall_back",
+			"line": [[0.1, 12.19], [15.14, 12.19]],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{"side": "-", "finish": "wainscot"},
+				{"side": "+", "finish": "rough"}
+			],
+			"openings": [
+				{"type": "door", "at": 11.24, "width": 0.91, "height": 2.13},
+				{"type": "door", "at": 0.83, "width": 0.91, "height": 2.13}
+			]
+		},
+		{
+			"id": "kitchen",
+			"line": [[7.62, 12.24], [7.62, 16.97]],
+			"partition": true,
+			"level": "ground",
+			"inside": [
+				{"side": "-", "finish": "rough"},
+				{"side": "+", "finish": "rough"}
+			],
+			"openings": [
+				{"type": "door", "at": 2.4, "width": 0.91, "height": 2.13}
+			]
+		},
+		{
+			"id": "rooms_back",
+			"line": [[0.1, 12.19], [15.14, 12.19]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": [
+				{"type": "door", "at": 12.6, "width": 0.81, "height": 2.03},
+				{"type": "door", "at": 7.52, "width": 0.81, "height": 2.03},
+				{"type": "door", "at": 4.24, "width": 0.81, "height": 2.03}
+			]
+		},
+		{
+			"id": "room_1_2",
+			"line": [[10.16, 12.24], [10.16, 16.97]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": []
+		},
+		{
+			"id": "room_2_3",
+			"line": [[5.08, 12.24], [5.08, 16.97]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": []
+		},
+		{
+			"_doc": "Rooms 4 and 5 over the bar, on the beam at x 3.66: their doors open on the west gallery. No windows (the west wall stands against the store).",
+			"id": "rooms_west",
+			"line": [[3.66, 1.93], [3.66, 12.14]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": [
+				{"type": "door", "at": 2.3, "width": 0.81, "height": 2.03},
+				{"type": "door", "at": 6.0, "width": 0.81, "height": 2.03}
+			]
+		},
+		{
+			"id": "room_4_5",
+			"line": [[0.1, 6.25], [3.61, 6.25]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": []
+		}
+	],
+	"stairs": [
+		{
+			"_doc": "Up the east wall from the hall to the back gallery (the sheet's plan and its view from the entrance): 19 risers of 7.6 in, 18 treads of 10 in (two risers and a tread 25 in, Blondel's rule as the period stairbuilders give it), 3 ft 4 in wide, its open side railed.",
+			"id": "hall",
+			"dir": "+z",
+			"width": 1.02,
+			"from": "ground",
+			"to": "upper",
+			"risers": 19,
+			"going": 0.254,
+			"rail": "-x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber",
+			"posts": [[14.06, 8.2]],
+			"head": [14.06, 10.57]
+		},
+		{
+			"_doc": "Sean, 2026-10-21: keep the sheet's outside stair (a second way up). Up the east wall from the yard to the side balcony (Freight Street side), rising toward the street.",
+			"id": "outside",
+			"dir": "-z",
+			"width": 1.02,
+			"from": 0.0,
+			"to": "upper",
+			"risers": 23,
+			"going": 0.254,
+			"rail": "+x",
+			"wood": "weathered_pine",
+			"posts": [[16.29, 4.8], [15.27, 4.8]],
+			"head": [15.27, 2.0]
+		},
+		{
+			"_doc": "Four steps from the yard to the kitchen's back door.",
+			"id": "back",
+			"head": [3.74, 17.095],
+			"dir": "-z",
+			"width": 1.0,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 4,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"posts": [[3.74, 17.9], [4.74, 17.9]]
+		}
+	],
+	"balconies": [
+		{
+			"_doc": "Sean: both balconies. Over the street, 8 ft deep over the boardwalk, on 6x6 posts at 10 ft along its edge, its joists on a ledger through the siding into the front wall's studs, wrapping round the east corner to the outside stair's head. Its corner beyond the east wall and the side landing on a beam along x 16.34.",
+			"id": "street",
+			"wood": "weathered_pine",
+			"post": [0.15, 0.15],
+			"beam": [0.15, 0.25],
+			"posts": [[0.08, -2.36], [3.1, -2.36], [6.12, -2.36], [9.14, -2.36], [12.16, -2.36], [15.18, -2.36], [16.34, -2.36], [16.34, 0.0], [16.34, 1.95], [15.3, 0.0]],
+			"beams": [[[0.0, -2.36], [16.42, -2.36]], [[15.24, 0.0], [16.265, 0.0]], [[16.34, -2.285], [16.34, 2.03]]],
+			"ledgers": [
+				{"wall": "front", "from": 0.0, "to": 15.24},
+				{"wall": "east", "from": 0.0, "to": 2.0}
+			],
+			"decks": [
+				{"rect": [0.0, -2.44, 16.42, -0.05], "joists": "z"},
+				{"rect": [15.29, -0.05, 16.415, 2.0], "joists": "x"}
+			],
+			"rails": [[[0.05, -2.4], [16.38, -2.4]], [[16.38, -2.4], [16.38, 1.98]], [[0.05, -2.4], [0.05, -0.05]]]
+		}
+	],
+	"galleries": {
+		"_doc": "Sean: the gallery looking down into the saloon (the sheet's 'open to bar below'). Rails at 1 m on the well's edges, oak (the picture's balustrade).",
+		"well": [5.49, 1.93, 14.02, 10.57],
+		"rails": [[[15.14, 1.9], [5.52, 1.9]], [[5.52, 1.9], [5.52, 10.6]], [[14.02, 10.6], [5.52, 10.6]]],
+		"look": "wood:int_oak"
+	},
+	"front": {"sign": "SALOON", "sign_from": 7.7, "cornice": "dark_trim"},
+	"rooms": [
+		{"id": "hall", "level": "ground", "rect": [0.1, 0.1, 15.14, 12.19], "use": "drinking, cards, the piano, the bar", "open_to": "upper"},
+		{"id": "back_room", "level": "ground", "rect": [7.62, 12.24, 15.14, 16.97], "use": "the owner's stores and his desk"},
+		{"id": "kitchen", "level": "ground", "rect": [0.1, 12.24, 7.62, 16.97], "use": "the cook; the trap to the cellar; the back door to the yard"},
+		{"id": "cellar", "level": "cellar", "rect": [0.45, 9.59, 7.17, 16.62], "use": "kegs and spirits kept cool"},
+		{"id": "front_gallery", "level": "upper", "rect": [0.1, 0.1, 15.14, 1.93], "use": "the doors to the street balcony; a lookout over the hall"},
+		{"id": "west_gallery", "level": "upper", "rect": [3.66, 1.93, 5.49, 10.57], "use": "rooms 4 and 5's doors"},
+		{"id": "back_gallery", "level": "upper", "rect": [3.66, 10.57, 15.14, 12.19], "use": "the stair's head; rooms 1 to 3's doors"},
+		{"id": "room_1", "level": "upper", "rect": [10.16, 12.24, 15.14, 16.97], "use": "a bedroom"},
+		{"id": "room_2", "level": "upper", "rect": [5.08, 12.24, 10.16, 16.97], "use": "a bedroom"},
+		{"id": "room_3", "level": "upper", "rect": [0.1, 12.24, 5.08, 16.97], "use": "a bedroom"},
+		{"id": "room_4", "level": "upper", "rect": [0.1, 1.93, 3.61, 6.25], "use": "a bedroom, no window: a cheap room lit by its lamp (Sean, 2026-10-22, issue #242)"},
+		{"id": "room_5", "level": "upper", "rect": [0.1, 6.25, 3.61, 12.19], "use": "a bedroom, no window: a cheap room lit by its lamp (Sean, 2026-10-22, issue #242)"}
+	],
+	"fixtures": [
+		{
+			"_doc": "The bar along the west wall under rooms 4 and 5, on your right as you walk in (Sean, 2026-10-22: as his picture and the sheet's view from the entrance), three 3 m sections, the customers to the east; the back bar against the wall behind, three 2.5 m sections. Kit parts, turned to face the room.",
+			"kit": "bar",
+			"at": [1.75, 3.9],
+			"facing": 90,
+			"repeat": {"count": 3, "step": [0, 3.0]}
+		},
+		{
+			"kit": "back_bar",
+			"at": [0.38, 4.4],
+			"facing": 90,
+			"repeat": {"count": 3, "step": [0, 2.5]}
+		}
+	],
+	"furniture": [
+		{"kit": "card_table", "at": [11.64, 4.2], "chairs": 4},
+		{"kit": "card_table", "at": [8.34, 6.9], "chairs": 4},
+		{"kit": "card_table", "at": [11.24, 8.9], "chairs": 4},
+		{"kit": "chair", "at": [6.64, 3.0], "facing": -200},
+		{"kit": "chair", "at": [4.84, 11.2], "facing": -160},
+		{"members": "table", "id": "kitchen_table", "rect": [4.44, 15.4, 6.04, 16.3], "height": 0.78, "level": "ground"},
+		{"members": "shelves", "id": "kitchen_shelves", "rect": [0.14, 12.4, 0.64, 14.4], "boards": 4, "level": "ground"},
+		{"members": "shelves", "id": "stores_shelves", "rect": [14.64, 12.6, 15.09, 16.6], "boards": 5, "level": "ground"},
+		{"members": "table", "id": "desk", "rect": [8.34, 15.6, 9.84, 16.5], "height": 0.76, "level": "ground"},
+		{"members": "shelves", "id": "cellar_rack_a", "rect": [6.64, 10.0, 7.14, 13.0], "boards": 3, "level": "cellar"},
+		{"members": "shelves", "id": "cellar_rack_b", "rect": [0.54, 9.8, 1.04, 12.6], "boards": 3, "level": "cellar"}
+	],
+	"lamps": {
+		"_doc": "Every lamp an OilLamp (a fitting: it falls with what holds it, smashes, spills burning oil). Sconces stand on a bracket member nailed to the wall's boards; table lamps on the card tables (they fall with the table, KitProp); the chandelier is a wheel of members hung from the truss on iron rods. A partition's sconces are on its - side unless `side` says +.",
+		"sconces": [
+			{"wall": "front", "level": "ground", "at": [11.81, 3.43], "height": 1.9},
+			{"wall": "east", "level": "ground", "at": [3.0, 5.0, 11.5], "height": 1.9},
+			{"wall": "west", "level": "ground", "at": [1.6, 10.9], "height": 1.9},
+			{"wall": "hall_back", "level": "ground", "at": [13.14, 9.04, 5.04], "height": 1.9},
+			{"wall": "east", "level": "upper", "at": [11.3], "height": 1.8},
+			{"wall": "front", "level": "upper", "at": [12.24, 6.34, 2.94], "height": 1.8},
+			{"wall": "rooms_back", "level": "upper", "at": [9.94, 5.84], "height": 1.8},
+			{"wall": "rooms_west", "level": "upper", "at": [4.2, 8.2], "height": 1.8, "side": "+"}
+		],
+		"on_tables": true,
+		"on_bar": [[2.04, 3.5], [2.04, 9.5]],
+		"chandelier": {"at": [9.76, 6.1], "y": 5.1, "radius": 0.75, "lamps": 8, "truss": 6.1}
+	},
+	"outbuildings": [
+		{
+			"_doc": "Sean: an outhouse out back (no restrooms indoors in 1882). A two-holer, 5 by 4 ft, on sills, board and batten, a shed roof, its door to the house; 8 m from the back door.",
+			"id": "outhouse",
+			"kind": "outhouse",
+			"at": [2.2, 25.0],
+			"size": [1.52, 1.22],
+			"height": 2.3,
+			"facing": 180,
+			"wood": "weathered_pine"
+		}
+	],
+	"use_points": [
+		{"id": "barman_a", "use": "serve", "who": "barman", "at": [0.99, 0.78, 4.0], "facing": 90},
+		{"id": "barman_b", "use": "serve", "who": "barman", "at": [0.99, 0.78, 8.5], "facing": 90},
+		{"id": "drinker_1", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 3.4], "facing": -90},
+		{"id": "drinker_2", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 5.2], "facing": -90},
+		{"id": "drinker_3", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 6.6], "facing": -90},
+		{"id": "drinker_4", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 8.8], "facing": -90},
+		{"id": "drinker_5", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 10.2], "facing": -90},
+		{"id": "gambler_tables", "use": "gamble", "who": "gambler", "seats": "card_table"},
+		{"id": "cook", "use": "cook", "who": "cook", "at": [5.24, 0.78, 14.9], "facing": -180},
+		{"id": "owner_desk", "use": "work", "who": "owner", "at": [9.09, 0.78, 15.1], "facing": 0},
+		{"id": "lookout_gallery", "use": "watch", "who": "guard", "at": [9.74, 4.44, 1.2], "facing": 0},
+		{"id": "lookout_balcony", "use": "watch", "who": "anyone", "at": [7.64, 4.44, -1.4], "facing": -180},
+		{"id": "cover_bar", "use": "cover", "who": "anyone", "at": [1.04, 0.78, 6.0], "facing": 90},
+		{"id": "cover_rail", "use": "cover", "who": "anyone", "at": [6.04, 4.44, 1.35], "facing": 0},
+		{"id": "guest_1", "use": "sleep", "who": "guest", "at": [12.64, 4.44, 15.0], "facing": 0},
+		{"id": "guest_2", "use": "sleep", "who": "guest", "at": [7.64, 4.44, 15.0], "facing": 0},
+		{"id": "guest_3", "use": "sleep", "who": "guest", "at": [2.54, 4.44, 15.0], "facing": 0},
+		{"id": "guest_4", "use": "sleep", "who": "guest", "at": [1.84, 4.44, 4.1], "facing": 0},
+		{"id": "guest_5", "use": "sleep", "who": "guest", "at": [1.84, 4.44, 9.2], "facing": 0},
+		{"id": "rail_east", "use": "lean", "who": "anyone", "at": [4.69, 4.44, 6.0], "facing": 90},
+		{"id": "rail_back", "use": "lean", "who": "anyone", "at": [9.24, 4.44, 11.35], "facing": -180},
+		{"id": "cellarman", "use": "fetch", "who": "barman", "at": [6.24, -2.32, 15.0], "facing": 0}
+	],
+	"use": {
+		"_doc": "How the saloon is used, day in day out (docs/briefs/lived-in.md): the builder wears what each use touches, most where it's heaviest (the centre of a path, the middle of a tread, the rail where people stand), nothing where nobody goes. Daily counts are passings, climbs or uses a day; the marks grow with them and the years. A spot is where people stand (`feet`) at a rail (`at`). `edges`: the grime along the walls' feet and in the corners.",
+		"years": 4,
+		"paths": [
+			{"id": "door_to_bar", "who": "everyone", "level": "ground", "daily": 400, "width": 1.2, "points": [[7.62, 0.1], [6.6, 1.8], [3.4, 4.2], [3.3, 10.3]]},
+			{
+				"id": "door_to_tables",
+				"who": "gamblers",
+				"level": "ground",
+				"daily": 150,
+				"width": 1.0,
+				"points": [[7.62, 0.1], [9.4, 2.8], [10.6, 5.2], [9.6, 7.9]]
+			},
+			{
+				"id": "door_to_stair",
+				"who": "guests, girls, the owner",
+				"level": "ground",
+				"daily": 60,
+				"width": 0.9,
+				"points": [[7.62, 0.1], [12.4, 3.4], [14.57, 5.7]]
+			},
+			{"id": "behind_bar", "who": "the barmen", "level": "ground", "daily": 600, "width": 0.7, "points": [[1.0, 2.9], [1.0, 10.9], [0.93, 12.15]]},
+			{"id": "kitchen", "who": "the cook, the barmen", "level": "ground", "daily": 120, "width": 0.8, "points": [[0.93, 12.3], [2.0, 14.6], [4.24, 16.9]]},
+			{"id": "to_the_trap", "who": "the barmen", "level": "ground", "daily": 30, "width": 0.6, "points": [[0.93, 12.3], [2.0, 12.6], [2.74, 13.0]]},
+			{"id": "back_room", "who": "the owner", "level": "ground", "daily": 20, "width": 0.7, "points": [[11.34, 12.3], [11.6, 14.2], [13.0, 15.5]]},
+			{
+				"id": "gallery_to_rooms",
+				"who": "guests",
+				"level": "upper",
+				"daily": 40,
+				"width": 0.8,
+				"points": [[14.57, 10.9], [12.7, 11.4], [7.62, 11.4], [4.6, 11.0], [4.6, 4.2]]
+			},
+			{"id": "to_the_balcony", "who": "anyone", "level": "upper", "daily": 15, "width": 0.7, "points": [[4.6, 4.2], [4.8, 2.2], [4.88, 0.4]]},
+			{
+				"id": "side_door",
+				"who": "guests by the outside stair",
+				"level": "upper",
+				"daily": 10,
+				"width": 0.7,
+				"points": [[15.1, 0.95], [12.0, 1.2], [10.4, 0.6]]
+			},
+			{
+				"id": "along_the_rail",
+				"who": "watchers, girls",
+				"level": "upper",
+				"daily": 60,
+				"width": 0.7,
+				"points": [[14.9, 1.5], [9.0, 1.5], [5.6, 1.6], [5.1, 2.6], [5.1, 10.3]]
+			}
+		],
+		"stairs": {"hall": 60, "outside": 10, "back": 120, "cellar": 30},
+		"spots": [
+			{"id": "watching_the_tables_a", "what": "lean", "level": "upper", "at": [9.2, 1.9], "daily": 30, "feet": [9.2, 1.45]},
+			{"id": "watching_the_tables_b", "what": "lean", "level": "upper", "at": [11.6, 1.9], "daily": 20, "feet": [11.6, 1.45]},
+			{"id": "watching_the_bar", "what": "lean", "level": "upper", "at": [5.52, 5.6], "daily": 25, "feet": [5.1, 5.6]},
+			{"id": "stair_head", "what": "stand", "level": "upper", "at": [14.57, 10.85], "daily": 60, "feet": [14.57, 11.0]}
+		],
+		"doors": {"daily": 40},
+		"spills": [
+			{"id": "behind_the_bar", "level": "ground", "rect": [0.62, 3.1, 1.44, 10.7], "s": 0.7},
+			{"id": "at_the_bar", "level": "ground", "rect": [2.2, 3.0, 3.0, 10.6], "s": 0.4}
+		],
+		"furniture": {
+			"_doc": "The kit's tables take rings, elbows and knife cuts on their tops and scuffed boards round their chairs; the bar's foot rail is bright where the drinkers stand (their use points).",
+			"tables": true,
+			"chairs": true,
+			"foot_rail": "drink"
+		},
+		"lamps": {"soot": 0.5},
+		"weather": {
+			"_doc": "The front faces north on the street: mud splashed up its foot and the east side's (Freight Street's wagons); the back faces south and takes the sun: bleached, as the roof; water runs off each window's sill.",
+			"splash": {"walls": ["front", "east"], "height": 0.45},
+			"bleach": {"walls": ["back"], "roof": true},
+			"streaks": "under_sills"
+		},
+		"edges": 0.55
+	},
+	"past": [
+		{
+			"id": "the_harlan_brawl",
+			"when": "1880",
+			"what": "A fight over a pot at the middle table went up the stair and along the gallery: a man went into the rail and took a baluster with him; a ball fired at him is still in the post by the bar.",
+			"marks": [
+				{"kind": "new", "at": [9.0, 4.94, 1.9], "r": 0.03, "kinds": ["baluster"]},
+				{"kind": "bullet", "at": [5.49, 2.1, 4.78], "r": 0.15, "kinds": ["post"], "pried": true, "filled": true}
+			]
+		},
+		{
+			"id": "the_stag_moved",
+			"when": "1881",
+			"what": "The stag hung over the back door for two years, then went to the back room: a pale patch and its nail holes.",
+			"marks": [
+				{"kind": "pale", "at": [7.0, 2.68, 12.12], "r": 0.45, "kinds": ["board"]},
+				{"kind": "holes", "at": [7.0, 3.0, 12.12], "r": 0.12, "kinds": ["board"]}
+			]
+		},
+		{
+			"id": "by_table_two",
+			"when": "1881",
+			"what": "A man bled out on the floor by the middle table; the patch was scrubbed, cleaner than the boards round it.",
+			"marks": [
+				{"kind": "scrubbed", "at": [8.9, 0.78, 7.7], "r": 0.5, "kinds": ["floor_board"]}
+			]
+		},
+		{
+			"id": "the_thrown_bottle",
+			"when": "1882",
+			"what": "A bottle through the front window: one pane clearer than the rest.",
+			"marks": [
+				{"kind": "new", "at": [10.36, 2.7, 0.057], "r": 0.3, "kinds": ["glass"]}
+			]
+		},
+		{
+			"id": "initials",
+			"when": "1880",
+			"what": "M.K. cut into room 2's window frame, nearly painted over.",
+			"marks": [
+				{"kind": "carved", "at": [7.11, 5.9, 16.93], "r": 0.12, "kinds": ["trim"]}
+			]
+		},
+		{
+			"id": "the_loose_tread",
+			"when": "1881",
+			"what": "The eighth tread of the hall stair worked loose and was nailed down with a newer nail.",
+			"marks": [
+				{"kind": "holes", "at": [14.57, 2.32, 7.9], "r": 0.06, "kinds": ["furniture_top"]}
+			]
+		},
+		{
+			"id": "the_flood",
+			"when": "1879",
+			"what": "The spring flood took the back steps; they were rebuilt in new pine.",
+			"marks": [
+				{"kind": "new", "at": [4.24, 0.4, 17.6], "r": 0.8, "kinds": ["furniture_top", "rafter", "board", "sill", "post"]}
+			]
+		},
+		{
+			"id": "the_kitchen_door",
+			"when": "",
+			"what": "Kicked open with full hands so often its lower edge is chipped and the boards under its swing scuffed.",
+			"marks": [
+				{"kind": "scuff", "at": [0.93, 1.2, 12.0], "r": 0.7, "kinds": ["door"]}
+			]
+		},
+		{
+			"id": "the_bottom_tread",
+			"when": "1882",
+			"what": "The outside stair's bottom tread split and was replaced.",
+			"marks": [
+				{"kind": "new", "at": [15.78, 0.19, 7.45], "r": 0.06, "kinds": ["furniture_top"]}
+			]
+		}
+	],
+	"materials": {
+		"_doc": "Only woods the material lab approved (docs/PARTS.md 'Materials and look'): the interior woods Sean picked (C, 2026-10-21) inside the hall, the gallery and the rooms; the game's exterior woods outside; framing left as framing in the back rooms and the cellar.",
+		"hall_floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_oak",
+		"timber": "wood:int_timber",
+		"exterior_front": "saloon_red",
+		"exterior_sides": "weathered_pine",
+		"trim_outside": "dark_trim",
+		"roof": "weathered_pine",
+		"rough": "framing"
+	},
+	"sources": ["USDA Forest Products Laboratory, Wood Handbook: Wood as an Engineering Material (FPL-GTR-282, 2021), ch. 5 (clear-wood strengths and stiffness) and ch. 7 (grades): the game's timber figures (config/timber.tres) and checks.gd's sizing.", "William E. Bell, Carpentry Made Easy (Philadelphia, 1858; in print to 1904): the balloon frame, studs at 16 in sill to plate, the ribbon carrying the upper joists, girders on piers.", "George E. Woodward, Woodward's Country Homes (1865): the balloon frame's practice in the West.", "Thomas Tredgold, Elementary Principles of Carpentry (7th ed., rev. E. Wyndham Tarn, 1886): trusses, posts and beams, scarfed ties, its tables of scantlings. The queen post for spans of ~30-45 ft is the usual 19th-century rule; to check against the 1886 tables before production.", "Fred T. Hodgson, The Carpenters' Steel Square and its Uses (1883): rafters, purlins and braces laid out. Stairs by the old rule (Blondel, Cours d'architecture, 1675-83) that two risers and a tread make about 25 in, as the period stairbuilders give it; a period stairbuilding manual to check before production.", "Hand-built frontier saloons of the 1880s (the brief's reference set): the false front over a two-storey frame, the gallery round an open hall, rooms let upstairs, the outhouse in the yard."]
+}

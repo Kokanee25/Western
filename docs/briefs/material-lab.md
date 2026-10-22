@@ -233,6 +233,19 @@ fine streaky grain; the steps and posts as untextured CG; hot stripes and dapple
 measure at golden hour: round 5 6 of 8 woods, rounds 6 and 6b 5 (saloon red out). Stand cost as
 round 5 (49 draws; 11.4 MB of texture).
 
+**Sean picked 6b** (2026-10-22, issue #217): studio10's woods promoted under the game's names
+(`promote_woods.py`; seams a pixel wide, sheen 0.08, light in 4 steps from each wood's own
+`light_bands`); floor, framing and dark trim keep their old strip counts (7, 3, 2: the game draws a
+batch a strip, and 10 and 8 put the store at 43 meshes against its 32). Texture memory for the
+exterior woods 4.2 -> 25.7 MB (RGBA8 with mipmaps; VRAM compression later, with a look check).
+
+**Round 7** (2026-10-22, the probe): `mlab_flat`, studio10 with every board one flat colour (its
+median) and no stains. Under golden hour every face renders flat and the light only steps between
+faces (lit treads, shaded risers, the laps alternating): the game's light does not roll on a
+board. What the critic reads as smoothly rolling light is the paint: the boards' soft tones and
+the stains' soft blobs (the stains aren't in town; the paint is). Next: studio11, the boards'
+tone in broader, fewer flat shapes (`poster` [3, 10]), judged by the critic against 6b.
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
@@ -269,9 +282,9 @@ end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 
 3. ~~Round 4~~ (done 2026-10-21, above): no wood DIFFERENT.
    ~~Round 5~~ (done 2026-10-21, above): timber and the deck SAME.
    ~~Round 6~~ (done 2026-10-22, above): pine's knots gone; banded light and flat tone steps don't
-   move the critic. **Round 7**: find what rolls the light on the wood (the stand in flat grey under
-   golden hour: light, ambient or AO, or the paint), then fix that; the steps' and posts' CG look
-   (bevels, sheen); the siding's darks. **The interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
+   move the critic; Sean picked 6b, promoted. **Round 7**: the probe says the paint, not the light
+   (above); studio11's broader flat shapes next, then the steps' and posts' CG look (bevels,
+   sheen) and the siding's darks. **The interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
    stain for interior woodwork (the picture's timbers measure L* ~20 median, 5-10 in shadow, 35-60
    lamplit, C* ~20-30, hue ~45, one family) and a profile builder (chamfers, beads, mouldings,
    casings, raised panels, brackets, from `_worn_box`), judged under the saloon's lamps against

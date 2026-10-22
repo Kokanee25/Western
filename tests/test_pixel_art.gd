@@ -42,17 +42,20 @@ func test_member_uvs_follow_the_grain() -> void:
 	check(MemberMesh.box(size) == mesh, "meshes are shared per size")
 
 
-## The game's woods (PixelArt.WOODS_SET, 2026-10-15) keep to the world's grid at four times its
-## density (128 a metre at 32); every other material at the world's own.
+## The game's woods (PixelArt.WOODS_SET) keep to the world's grid at a fixed multiple of its density,
+## their own texels a metre (lab.json: 384 at 32 since round 6b, 2026-10-22); every other material at
+## the world's own.
 func _grain(wood: StringName) -> float:
 	var t := PixelArt.factory("%s_b0" % wood)
-	return 4.0 if t and t.resource_path.contains("/%s/" % PixelArt.WOODS_SET) else 1.0
+	if t and t.resource_path.contains("/%s/" % PixelArt.WOODS_SET):
+		return PixelArt.lab_density("%s_b0" % wood, PixelArt.WOODS_SET) / PixelArt.DRAWN_TEXELS
+	return 1.0
 
 
 func test_texel_density_is_the_same_everywhere() -> void:
 	for wood in [&"weathered_pine", &"framing", &"painted_ochre", &"floor"]:
 		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
-		check(m != null and m.shader == PixelArt.GRID_SHADER, "%s: on the texel grid" % wood)
+		check(m != null and PixelArt.is_grid_shader(m.shader), "%s: on the texel grid" % wood)
 		check_near(m.get_shader_parameter(&"texels_per_meter"), PixelArt.texels_per_meter * _grain(wood), 0.001, "%s: %d texels per metre (x%d)" % [wood, PixelArt.texels_per_meter, _grain(wood)])
 		check_eq(m.get_shader_parameter(&"use_mipmaps"), PixelArt.use_mipmaps, "%s: smoothing follows the setting" % wood)
 
@@ -69,7 +72,7 @@ func test_texel_size_changes_live() -> void:
 func test_holed_members_stay_on_the_grid() -> void:
 	var base := WoodMaterials.get_material(&"floor", 2) as ShaderMaterial
 	var holed := PixelArt.hole_material(base)
-	check(holed.shader == PixelArt.HOLE_SHADER, "the hole shader")
+	check(PixelArt.is_hole_shader(holed.shader), "the hole shader")
 	check(holed.get_shader_parameter(&"albedo_tex") == base.get_shader_parameter(&"albedo_tex"), "same texture")
 	check_eq(holed.get_shader_parameter(&"uv_offset"), base.get_shader_parameter(&"uv_offset"), "same offset, so the board doesn't jump")
 	PixelArt.set_density(24.0, false)
