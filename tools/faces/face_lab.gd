@@ -11,6 +11,10 @@ extends SceneTree
 ## played frame by frame, each saved as DIR/f_00000.png (the audio is put on by ffmpeg after).
 ## gaze: a marker moved round him (GAZE_PATH), his eyes and head on it (FaceGaze), a fixed step a
 ## frame, each saved as DIR/f_00000.png; --check prints which way his head turned.
+## talk: lines said to him through Events.spoke, as the brains say them (TALK_LINES, or --lines=FILE.json
+## [[mood, text, {"audio": wav, "phonemes": json}], ...]): his FaceSpeech says each, his FaceLife looks
+## at the camera; the subtitle (--subtitle) up as long as the game shows it. Each frame DIR/f_00000.png
+## at 30 a second; DIR/beats.txt each line's first frame and its audio (talk_video.sh lays it there).
 ## life: FaceLife on him as in the game (his Senses real, his brain a stand-in): a man walks past, a
 ## shot to his right, then he's afraid, then hurt, then dead (LIFE_BEATS), each frame saved as
 ## DIR/f_00000.png at 30 a second and the beats to DIR/beats.txt (run with --fixed-fps 30).
@@ -26,6 +30,13 @@ const GAZE_PATH := [
 ## --mode=life's beats: [seconds, what happens].
 const LIFE_BEATS := [[0.0, "alone"], [1.5, "a man walks past"], [7.5, "a shot to his right"],
 	[11.0, "afraid"], [14.5, "hurt"], [18.0, "dead"], [21.0, "end"]]
+
+
+## --mode=talk's lines: [mood, text] (the brains' own: calm, angry, hurt, dying). A mood sets what
+## FaceLife shows with it (hurt: his pain; dying: his pain and blood in his windpipe).
+const TALK_LINES := [["calm", "Keep that iron where it is."], ["calm", "Whiskey. Leave the bottle."],
+	["angry", "I'm calling you out, mister! Out here!"], ["angry", "Put it down, or I put you down."],
+	["hurt", "My leg... damn you..."], ["hurt", "Oh God, not the belly..."], ["dying", "Hhhk— hhk—"]]
 
 
 ## A brain's few fields FaceLife reads, for --mode=life (no behaviour of its own).
@@ -115,7 +126,7 @@ func _run() -> void:
 	if bandana == "none":
 		m.bandana_color = Color(0, 0, 0, 0)
 	m.masked = bandana == "mask"
-	m.face_life = mode == "life"   # his face is set by hand in the other modes
+	m.face_life = mode in ["life", "talk"]   # his face is set by hand in the other modes
 	w.add_child(m)
 	m.global_position = Vector3.ZERO
 	cam.position = Vector3(aim.x, aim.y + 0.02, -dist)
@@ -133,6 +144,14 @@ func _run() -> void:
 		await _gaze(m, out)
 	elif mode == "life":
 		await _life(m, out)
+	elif mode == "talk":
+		var lines: Array = TALK_LINES
+		var subtitle := "--subtitle" in OS.get_cmdline_user_args()
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--lines="):
+				lines = JSON.parse_string(FileAccess.get_file_as_string(a.substr(8)))
+		_turn(m, turns[0])
+		await _talk(m, out, lines, cam, vp if subtitle else null)
 	elif mode == "take":
 		var take: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(take_path))
 		var tnames: Array = take.names
@@ -315,6 +334,95 @@ func _life(m: Node, out: String) -> void:
 		t += dt
 	beats.close()
 	print("face_lab: %d frames of life" % n)
+
+
+## Each line said to him in turn (Events.spoke, or his FaceSpeech with a recording's timing), his
+## face stepped a 30th of a second a frame; the subtitle as the game shows it.
+func _talk(m: Node, out: String, lines: Array, cam: Camera3D, vp: SubViewport) -> void:
+	var dt := 1.0 / 30.0
+	var brain := LabBrain.new()
+	brain.name = "Brain"
+	var senses = load("res://src/people/senses.gd").new()
+	senses.name = "Senses"
+	senses.body = m
+	senses.process_mode = Node.PROCESS_MODE_DISABLED   # he knows the listener: set by hand
+	brain.senses = senses
+	m.add_child(brain)
+	m.add_child(senses)
+	var listener := Node3D.new()
+	(m.get_parent() as Node3D).add_child(listener)
+	listener.global_position = cam.global_position
+	senses.known[listener] = {"seen": true, "awareness": 1.0, "last_pos": listener.global_position, "last_time": 0.0,
+			"heard_pos": Vector3.INF, "heard_time": -INF}
+	for f in 6:
+		await physics_frame
+	var life = m.get_node(^"FaceLife")
+	var speech = m.get_node(^"FaceSpeech")
+	life.auto = false
+	speech.auto = false
+	speech.camera = cam
+	life.camera = cam
+	var sub: Label = null
+	if vp != null:
+		var layer := CanvasLayer.new()
+		vp.add_child(layer)
+		sub = Label.new()
+		sub.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		sub.offset_top = -64
+		sub.offset_bottom = -24
+		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub.add_theme_font_size_override(&"font_size", 26)
+		sub.add_theme_color_override(&"font_color", Color(0.95, 0.9, 0.8))
+		sub.add_theme_color_override(&"font_outline_color", Color.BLACK)
+		sub.add_theme_constant_override(&"outline_size", 6)
+		layer.add_child(sub)
+	var events := root.get_node(^"Events")
+	var fs = load("res://src/bodies/face_speech.gd")
+	var beats := FileAccess.open(out + "/beats.txt", FileAccess.WRITE)
+	var n := 0
+	var p = m.physiology
+	for k in lines.size() + 1:
+		var line: Array = lines[k] if k < lines.size() else ["end", ""]
+		var mood: String = line[0]
+		var text: String = line[1]
+		var extra: Dictionary = line[2] if line.size() > 2 else {}
+		p.pain = 1.2 if mood in ["hurt", "dying"] else 0.0
+		p.wound_pain = p.pain
+		p.adrenaline = 0.0
+		p.airway_blood = mood == "dying"
+		var lead := 0.9 if k > 0 else 0.6   # quiet between lines (his face settling)
+		var secs := 0.0
+		var show := 0.0
+		var said := false
+		var t := 0.0
+		while true:
+			if not said and t >= lead and text != "":
+				said = true
+				beats.store_line("%d\t%s\t%s\t%s" % [n, mood, text, extra.get("audio", "")])
+				print("face_lab: %.1f s \"%s\"" % [n * dt, text])
+				if extra.has("audio"):
+					var track := {"audio": AudioStreamWAV.load_from_file(extra.audio)}
+					if extra.has("phonemes"):
+						track = {"phonemes": JSON.parse_string(FileAccess.get_file_as_string(extra.phonemes))}
+					secs = speech.say(text, track)
+				else:
+					events.spoke.emit(m, text)
+					secs = speech._end
+				show = fs.subtitle_seconds(text) if not extra.has("audio") else secs + 0.7
+			if said and t >= lead + maxf(secs, show) + 0.1:
+				break
+			if text == "" and t >= lead:
+				break
+			if sub != null:
+				sub.text = ("%s: \"%s\"" % [mood.capitalize(), text]) if said and t - lead < show else ""
+			life.step(dt)
+			speech.step(dt)
+			await RenderingServer.frame_post_draw
+			vp_save(m, "%s/f_%05d.png" % [out, n])
+			n += 1
+			t += dt
+	beats.close()
+	print("face_lab: %d frames of talk" % n)
 
 
 func vp_save(m: Node, path: String) -> void:
