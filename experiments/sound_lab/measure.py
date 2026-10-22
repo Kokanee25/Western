@@ -105,6 +105,11 @@ def measure_window(x, rate, t0, t1, floor_db):
     early = float((seg[s0: s0 + int(0.05 * rate)] ** 2).sum())
     late = float((seg[s0 + int(0.05 * rate):] ** 2).sum())
     out["c50_db"] = round(db(early) - db(late), 1) if late > 0 else None
+    # The tail: the share of the first second's energy that comes 150 ms to 1 s after the onset
+    # (a room's ring, the roll; the report itself is over by then).
+    first = float((seg[s0: s0 + rate] ** 2).sum())
+    tail = float((seg[s0 + int(0.15 * rate): s0 + rate] ** 2).sum())
+    out["tail_db"] = round(db(tail) - db(first), 1) if first > 0 else None
     # The spectrum of its first half second.
     w = seg[s0: s0 + int(0.5 * rate)].mean(axis=1)
     if len(w) > 256:
@@ -208,8 +213,8 @@ def table(root, compare=None):
     base = None
     if compare:
         base = json.load(open(os.path.join(compare, "measures.json")))["scenarios"]
-    lines = ["| scenario | dist m | peak dBFS | LUFS max | onset s | length s | decay20 s | C50 dB | centroid Hz | sounds |",
-             "|---|---|---|---|---|---|---|---|---|---|"]
+    lines = ["| scenario | dist m | peak dBFS | LUFS max | onset s | length s | decay20 s | C50 dB | tail dB | centroid Hz | sounds |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]
     for name, r in rows.items():
         for label, m in r.get("events", {}).items():
             lab = name if label == "event" else f"{name} / {label}"
@@ -221,7 +226,7 @@ def table(root, compare=None):
                         return f"{val} ({val - b:+.1f})" if isinstance(val, float) else f"{val} ({val - b:+d})"
                 return "–" if val is None else str(val)
             lines.append(f"| {lab} | {v('distance_m')} | {v('peak_dbfs')} | {v('lufs_max')} | {v('onset_s')} | {v('length_s')} | "
-                         f"{v('decay20_s')} | {v('c50_db')} | {v('centroid_hz')} | {', '.join(r.get('sounds', [])) or 'none'} |")
+                         f"{v('decay20_s')} | {v('c50_db')} | {v('tail_db')} | {v('centroid_hz')} | {', '.join(r.get('sounds', [])) or 'none'} |")
     lines += ["", "```", json.dumps(derived, indent=1), "```"]
     open(os.path.join(root, "table.md"), "w").write("\n".join(lines) + "\n")
     print("\n".join(lines[:2 + sum(len(r.get('events', {})) for r in rows.values())]))
@@ -250,7 +255,7 @@ def derive(rows):
                 out[f"{w}_{place}_delay"] = delays
         a, b = ev(f"{w}_street_2"), ev(f"{w}_saloon_2")
         if a and b:
-            out[f"{w}_inside_vs_out_at_2m"] = {k: [a.get(k), b.get(k)] for k in ("lufs_max", "decay20_s", "c50_db", "length_s", "centroid_hz")}
+            out[f"{w}_inside_vs_out_at_2m"] = {k: [a.get(k), b.get(k)] for k in ("lufs_max", "decay20_s", "c50_db", "tail_db", "length_s", "centroid_hz")}
         s7, d7, w7 = ev(f"{w}_street_7"), ev(f"{w}_saloon_door7"), ev(f"{w}_saloon_wall7")
         if s7 and d7 and w7:
             out[f"{w}_open_door_wall_at_7m"] = {k: [s7.get(k), d7.get(k), w7.get(k)] for k in ("distance_m", "lufs_max", "centroid_hz")}

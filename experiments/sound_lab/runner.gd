@@ -528,7 +528,9 @@ func _describe_start(p: Node) -> Dictionary:
 	var stream: AudioStream = p.stream
 	var d := {"t": snappedf(_now(), 0.001), "sound": _sound_id(stream), "node": String(_street.get_path_to(p)) if _street.is_ancestor_of(p) else String(p.get_path()),
 			"owner": _owner_script(p), "bus": String(p.bus), "volume_db": p.volume_db,
-			"length_s": snappedf(stream.get_length(), 0.01) if stream else 0.0}
+			"length_s": snappedf(stream.get_length(), 0.01) if stream else 0.0,
+			"inside": p.get_meta(&"inside") if p.has_meta(&"inside") else null,
+			"walled": p.get_meta(&"walled") if p.has_meta(&"walled") else null}
 	if p is AudioStreamPlayer3D:
 		var p3 := p as AudioStreamPlayer3D
 		var dist := p3.global_position.distance_to(_listener_node.global_position) if _listener_node else -1.0
