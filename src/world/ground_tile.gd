@@ -8,9 +8,13 @@ extends StaticBody3D
 var key: Vector2i
 ## (tile_cells + 1)² heights, row by row along x, rows along z (m, above the authored ground).
 var heights := PackedFloat32Array()
+## How deep the loose earth (thrown, shovelled) lies on the packed at each point (m); part of the
+## height above.
+var loose := PackedFloat32Array()
 
 var _n := 0  # points a side
 var _cell := 0.05
+var _depth := 2.0
 var _shape: HeightMapShape3D
 var _mesh: MeshInstance3D
 
@@ -23,6 +27,8 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 	t._cell = tn.cell
 	t._n = tn.tile_cells + 1
 	t.heights.resize(t._n * t._n)
+	t.loose.resize(t._n * t._n)
+	t._depth = tn.earth_depth
 	t.collision_layer = ground.collision_layer
 	t.collision_mask = ground.collision_mask
 	for m in [&"ground", &"surface"]:
@@ -71,40 +77,70 @@ func rebuild(material: Material) -> void:
 
 
 ## The tile as a grid of quads, each split corner to corner as its height field is, normals from
-## the heights round each point (central differences).
+## the heights round each point (central differences). COLOR is for the ground's look (art's):
+## r the loose earth's depth (full at 20 cm), g kept for how freshly it was turned, b how far below
+## the authored ground (full at the hardpan). What every tile of a size shares (the grid's x and z,
+## its triangles, the tangents) is made once.
 func _grid_mesh(material: Material) -> ArrayMesh:
-	var half := (_n - 1) * 0.5
-	var verts := PackedVector3Array()
+	var shared := _shared(_n, _cell)
+	var verts: PackedVector3Array = (shared.grid as PackedVector3Array).duplicate()
 	var normals := PackedVector3Array()
-	var tangents := PackedFloat32Array()
-	verts.resize(_n * _n)
+	var colors := PackedColorArray()
 	normals.resize(_n * _n)
-	for j in _n:
-		for i in _n:
-			var h := heights[index(i, j)]
-			verts[index(i, j)] = Vector3((i - half) * _cell, h, (j - half) * _cell)
-			var dx := heights[index(mini(i + 1, _n - 1), j)] - heights[index(maxi(i - 1, 0), j)]
-			var dz := heights[index(i, mini(j + 1, _n - 1))] - heights[index(i, maxi(j - 1, 0))]
-			var sx := float(mini(i + 1, _n - 1) - maxi(i - 1, 0)) * _cell
-			var sz := float(mini(j + 1, _n - 1) - maxi(j - 1, 0)) * _cell
-			normals[index(i, j)] = Vector3(-dx / sx, 1.0, -dz / sz).normalized()
-			tangents.append_array([1.0, 0.0, 0.0, 1.0])
-	var idx := PackedInt32Array()
-	for j in _n - 1:
-		for i in _n - 1:
-			var a := index(i, j)
-			var b := index(i + 1, j)
-			var c := index(i + 1, j + 1)
-			var d := index(i, j + 1)
-			idx.append_array([a, b, c, a, c, d])
+	colors.resize(_n * _n)
+	var n := _n
+	var last := n - 1
+	var inv2 := 0.5 / _cell
+	var inv1 := 1.0 / _cell
+	var inv_loose := 1.0 / 0.2
+	var inv_depth := 1.0 / _depth
+	var k := 0
+	for j in n:
+		var up := -n if j > 0 else 0
+		var dn := n if j < last else 0
+		var sz := inv2 if (j > 0 and j < last) else inv1
+		for i in n:
+			var h := heights[k]
+			verts[k].y = h
+			var l := -1 if i > 0 else 0
+			var r := 1 if i < last else 0
+			var sx := inv2 if (i > 0 and i < last) else inv1
+			normals[k] = Vector3((heights[k + l] - heights[k + r]) * sx, 1.0, (heights[k + up] - heights[k + dn]) * sz).normalized()
+			colors[k] = Color(minf(loose[k] * inv_loose, 1.0), 0.0, clampf(-h * inv_depth, 0.0, 1.0))
+			k += 1
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_TANGENT] = tangents
-	arrays[Mesh.ARRAY_INDEX] = idx
+	arrays[Mesh.ARRAY_TANGENT] = shared.tangents
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = shared.index
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	if material:
 		mesh.surface_set_material(0, material)
 	return mesh
+
+
+static var _shared_cache := {}
+
+
+## The grid's points at height 0 (centred), its triangles and tangents, for `n` points a side.
+static func _shared(n: int, cell: float) -> Dictionary:
+	var key := Vector2(n, cell)
+	if _shared_cache.has(key):
+		return _shared_cache[key]
+	var half := (n - 1) * 0.5
+	var grid := PackedVector3Array()
+	var tangents := PackedFloat32Array()
+	for j in n:
+		for i in n:
+			grid.append(Vector3((i - half) * cell, 0.0, (j - half) * cell))
+			tangents.append_array([1.0, 0.0, 0.0, 1.0])
+	var idx := PackedInt32Array()
+	for j in n - 1:
+		for i in n - 1:
+			var a := j * n + i
+			idx.append_array([a, a + 1, a + n + 1, a, a + n + 1, a + n])
+	_shared_cache[key] = {"grid": grid, "tangents": tangents, "index": idx}
+	return _shared_cache[key]

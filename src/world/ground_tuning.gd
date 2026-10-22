@@ -19,6 +19,17 @@ extends Resource
 ## fast goes through.
 @export var slab_depth := 10.0
 
+@export_group("Earth")
+## Loose earth takes this much more room than the packed earth it was dug from (earthmoving's
+## swell: about a quarter for common earth).
+@export var swell := 1.25
+## Loose earth's angle of repose (degrees): steeper than this it slides. Dry loose earth ~35;
+## packed earth stands as it's cut (a grave's walls).
+@export var repose_degrees := 35.0
+## At most this many passes of sliding after an edit, and over this much ground round it (m).
+@export var slump_passes := 400
+@export var slump_margin := 0.3
+
 
 func tile_size() -> float:
 	return cell * tile_cells
