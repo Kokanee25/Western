@@ -32,9 +32,14 @@ var blind := {}  ## eye id -> true
 ## The gore lab: a nosebleed after a blow to the face (seconds left), and a scalp wound's blood
 ## run into an eye ("r"/"l" -> seconds left; he can't see well out of it until it's wiped or dries).
 var nose_bleed := 0.0
+## An ear or the nose shot off (id -> true).
+var lost_parts := {}
 var blood_in_eye := {}
 var airway_blood := false  ## windpipe holed: blood in the breath, can't talk
 var jaw_broken := false
+## The lower jaw blown away (a heavy ball or buckshot close: the Medical and Surgical History's
+## "shot away" jaws): no speech, blood running into his throat.
+var jaw_gone := false
 var lost_fingers := {}  ## finger id -> true
 var severed_segments := {}  ## segment id -> true (the whole part is gone)
 var eardrums_burst := {}  ## &"r"/&"l" -> true
@@ -127,6 +132,10 @@ func apply_trace(tr: Dictionary) -> Array:
 				lost_fingers[h.id] = true
 				wound_pain += tuning.pain_finger
 				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.4)))
+			&"appendage":
+				lost_parts[h.id] = true
+				wound_pain += tuning.pain_finger * 1.5
+				_add_bleed(h.id, seg, float(st.get(&"bleed", 0.8)))
 	if brain_dead:
 		_die(&"brain")
 	return range(first, bleeds.size())
@@ -648,7 +657,9 @@ func describe() -> String:
 	if legs_paralysed():
 		parts.append("can't feel his legs")
 	if jaw_broken:
-		parts.append("jaw smashed")
+		parts.append("jaw shot away" if jaw_gone else "jaw smashed")
+	for id: StringName in lost_parts:
+		parts.append("his nose shot off" if id == &"nose" else "an ear shot off")
 	if not blind.is_empty():
 		parts.append("an eye gone")
 	if gut_seconds >= 0.0:
@@ -671,13 +682,13 @@ func to_dict() -> Dictionary:
 	return {"blood_ml": blood_ml, "bleeds": bleeds.duplicate(true), "broken": broken.keys(),
 			"torn": torn.keys(), "cut": cut.keys(), "lost_fingers": lost_fingers.keys(),
 			"muscle_damage": muscle_damage.duplicate(), "blind": blind.keys(),
-			"airway_blood": airway_blood, "jaw_broken": jaw_broken,
+			"airway_blood": airway_blood, "jaw_broken": jaw_broken, "jaw_gone": jaw_gone,
 			"severed": severed_segments.keys(), "eardrums": eardrums_burst.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
-			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours}
+			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -693,6 +704,7 @@ func from_dict(d: Dictionary) -> void:
 	blind = _set_of(d.get("blind", []))
 	airway_blood = d.get("airway_blood", false)
 	jaw_broken = d.get("jaw_broken", false)
+	jaw_gone = d.get("jaw_gone", false)
 	severed_segments = _set_of(d.severed)
 	eardrums_burst = _set_of(d.get("eardrums", []))
 	nose_bleed = d.get("nose_bleed", 0.0)
@@ -700,6 +712,7 @@ func from_dict(d: Dictionary) -> void:
 	for k in d.get("infections", {}):
 		infections[StringName(k)] = (d.infections[k] as Dictionary).duplicate()
 	gangrene_hours = d.get("gangrene_hours", 0.0)
+	lost_parts = _set_of(d.get("lost_parts", []))
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]
