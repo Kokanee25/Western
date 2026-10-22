@@ -210,6 +210,14 @@ breaks; a prop knocked by a ball or a body doesn't fall (only losing its support
   barrel on the stand's deck with the Studio's three men, judging their textures: the stand to
   judge the kit's versions on.
 
+## Sound (the sound lab, `docs/briefs/sound-lab.md`)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| Placed sound: a sound heard from where it happened (late by distance / 343 m/s, the air's loss of highs, the Room bus inside, Muffled through a wall, the slap off the fronts outdoors) | `src/audio/game_audio.gd` (`GameAudio.play`), `config/sound.tres` (`SoundTuning`) | the sound lab (`experiments/sound_lab/`, `results/2026-10-22_gunshots/`), `tests/test_game_audio.gd` | on a branch (gunshots use it; impacts, blasts, breaking, fire next) |
+| Gunshot: the black-powder report and its roll, by gun | `GameAudio.gunshot`, `SynthSounds` `report`, `report_big`, `rolling`, `rolling_big` | the sound lab | on a branch, waiting on Sean's ears |
+| Sounds made in code | `src/audio/synth_sounds.gd` | `tests/test_sounds.gd` (heard, never clips, nothing under 40 Hz) | in the game |
+
 ## The Systems Playground
 
 The test saloon (`docs/briefs/labs.md`, "The Systems Playground"): the game's own saloon and a

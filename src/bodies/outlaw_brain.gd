@@ -1385,7 +1385,10 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir)
 	ImpactEffects.muzzle_flash(world, origin)
-	_gun_sound.play()
+	if GameAudio.enabled():
+		GameAudio.gunshot(body, origin)
+	else:
+		_gun_sound.play()
 	Events.shot_fired.emit(origin, dir, body)
 
 
