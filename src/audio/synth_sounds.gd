@@ -8,7 +8,8 @@ const RATE := 22050
 const HI_RATE := 44100
 ## Made at HI_RATE.
 const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
-	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
+	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast",
+	&"blast_roll"]
 
 static var _cache := {}
 
@@ -49,6 +50,8 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"rolling": samples = _rolling(rng, false)
 			&"rolling_big": samples = _rolling(rng, true)
 			&"whirr": samples = _whirr(rng)
+			&"blast": samples = _blast_near(rng)
+			&"blast_roll": samples = _blast_roll(rng)
 			&"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone":
 				samples = _impact(rng, StringName(String(id).trim_prefix("impact_")))
 			&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone":
@@ -258,6 +261,60 @@ static func _glance(rng: RandomNumberGenerator, surface: StringName) -> PackedFl
 		if i < hit.size():
 			out[i] += hit[i] * (0.6 if surface == &"dirt" else 0.8)
 	return _normalise(out, 0.85)
+
+
+## A charge going off, close (the sound lab): the shock (a Friedlander pulse, its positive phase
+## several times a gunshot's), a thump you feel (held above the speakers' 45 Hz floor), the tearing
+## of what it throws, and a heavy low roar dying over a second and more. No echo: the roll and the
+## slaps are where it's heard (GameAudio.blast).
+static func _blast_near(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(HI_RATE * 2.2)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var t_pos := 0.004
+	var deep := 0.0
+	var lp := 0.0
+	var slow := 0.0
+	var phase := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		deep += (white - deep) * 0.02  # ~140 Hz
+		lp += (white - lp) * 0.3
+		slow += (lp - slow) * 0.04
+		var shock := (1.0 - t / t_pos) * exp(-1.4 * t / t_pos)
+		var body := deep * minf(t / 0.005, 1.0) * exp(-t / 0.35) * 5.0
+		phase += TAU * lerpf(62.0, 46.0, minf(t / 0.5, 1.0)) / HI_RATE
+		var boom := sin(phase) * minf(t / 0.004, 1.0) * exp(-t / 0.42) * 0.9
+		var tear := (lp - slow) * exp(-t / 0.08) * 0.8
+		out[i] = shock * 1.1 + body + boom + tear
+	return _normalise(out, 0.95)
+
+
+## A charge as it carries: thunder rolling off the hills, longer and deeper than a gun's, five
+## times back, each duller and more smeared.
+static func _blast_roll(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(HI_RATE * 6.0)
+	var base := PackedFloat32Array()
+	base.resize(n)
+	var a := 0.0
+	var b := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		a += (rng.randf_range(-1.0, 1.0) - a) * 0.025
+		b += (a - b) * 0.05
+		base[i] = b * minf(t / 0.05, 1.0) * exp(-t / 1.1)
+	var out := base.duplicate()
+	for echo: Array in [[0.6, 0.5], [1.3, 0.35], [2.1, 0.22], [3.0, 0.14], [4.0, 0.08]]:
+		var d := int(float(echo[0]) * HI_RATE)
+		for tap in 3:
+			var lp := 0.0
+			var dd := d + int(tap * 0.04 * HI_RATE)
+			var g: float = float(echo[1]) * [0.6, 0.3, 0.15][tap]
+			for i in range(dd, n):
+				lp += (base[i - dd] - lp) * 0.25
+				out[i] += lp * g
+	return _normalise(out, 0.9)
 
 
 ## Dynamite: a hard crack, a heavy thump and a long roll back off the hills.

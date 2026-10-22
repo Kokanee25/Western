@@ -562,7 +562,8 @@ a few views renders them as the full run does.
   distance / 343 m/s late (a physics-time timer), the air's high shelf by distance, the `Room` bus
   under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
   `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
-  fronts. `GameAudio.gunshot` (the report, the roll, the slaps). `ImpactEffects` plays a pass
+  fronts. `GameAudio.gunshot` (the report, the roll, the slaps); `GameAudio.blast` (the blast, its roll, the
+  slaps, debris landing round it after; `BlastEffects`). `ImpactEffects` plays a pass
   (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as

@@ -98,3 +98,22 @@ func test_it_slaps_back_off_a_front() -> void:
 	_box(Vector3(0, 0.5, 5.0), Vector3(0.2, 1.0, 0.2))
 	await physics_frames(2)
 	check(GameAudio.slaps(world, Vector3(0, 0.6, 0)).is_empty(), "a post a metre high throws nothing back")
+
+
+func test_a_charge_thumps_rolls_and_rains_down() -> void:
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[StringName] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			var st := (n as AudioStreamPlayer3D).stream
+			for id: StringName in [&"blast", &"blast_roll", &"impact_dirt", &"impact_wood"]:
+				if st == SynthSounds.get_sound(id):
+					made.append(id)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	check(made.has(&"blast") and made.has(&"blast_roll"), "the blast and its roll at once (%s)" % str(made))
+	check(not made.has(&"impact_dirt"), "nothing has come down yet")
+	await physics_frames(int(3.0 * Engine.physics_ticks_per_second))
+	get_tree().node_added.disconnect(note)
+	var fell := made.filter(func(id: StringName) -> bool: return id == &"impact_dirt" or id == &"impact_wood").size()
+	check_eq(fell, GameAudio.t().debris_count, "a stick's worth of clods and splinters came down within 3 s")

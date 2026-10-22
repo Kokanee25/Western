@@ -53,6 +53,35 @@ static func gunshot(host: Node, at: Vector3, big := false) -> void:
 					"max_db": k.report_db + k.slap_db, "walls": false})
 
 
+## A charge of `kg` going off at `at`: the blast (full within a few metres, more for a bigger
+## charge), its roll off the hills, outdoors the slap off the fronts, and what it threw coming down
+## round it over the next seconds (clods and splinters, each placed and late by its own distance).
+static func blast(host: Node, at: Vector3, kg: float) -> void:
+	var k := t()
+	var size := pow(maxf(kg, 0.01) / 0.2, 1.0 / 3.0)
+	var heard := play(host, &"blast", at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0, "max_db": 6.0})
+	play(host, &"blast_roll", at, {"unit_size": k.blast_roll_unit_size * size, "volume_db": k.blast_roll_db,
+			"max_db": k.blast_roll_max_db, "panning": 0.4})
+	if heard and not heard.get_meta(&"inside", false):
+		for s: Dictionary in slaps(host, at):
+			play(host, &"blast", s.at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0 + k.slap_db,
+					"max_db": 6.0 + k.slap_db, "walls": false})
+	var holder := _holder(host)
+	if holder == null:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector3i(at.round()))
+	for i in int(round(k.debris_count * size)):
+		var a := rng.randf() * TAU
+		var r := rng.randf_range(1.5, 9.0) * size
+		var where := at + Vector3(cos(a) * r, 0.0, sin(a) * r)
+		var id := &"impact_wood" if i % 3 == 2 else &"impact_dirt"
+		var db := rng.randf_range(-16.0, -6.0)
+		holder.get_tree().create_timer(rng.randf_range(0.5, 2.8), false, true).timeout.connect(func() -> void:
+				if is_instance_valid(holder) and holder.is_inside_tree():
+					play(holder, id, where, {"volume_db": db, "normal": Vector3.UP}))
+
+
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
 ## panning (1), delay (true: distance / the speed of sound; an image source is already the reflected
 ## path's length away), walls (true: the room and the walls by where it is), normal (the face a sound

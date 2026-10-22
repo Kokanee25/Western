@@ -16,6 +16,16 @@ extends Resource
 ## Each slap off a front: the share of the report a timber wall throws back.
 @export var slap_db := -8.0
 
+@export_group("Dynamite")
+## The blast: full within this many metres for one stick (more for a bigger charge, by the cube
+## root of the weight), then −6 dB a doubling; the roll falls slowly, so a far blast is its thunder.
+@export var blast_unit_size := 8.0
+@export var blast_roll_unit_size := 150.0
+@export var blast_roll_db := -14.0
+@export var blast_roll_max_db := -4.0
+## Clods and splinters landing round it after (one stick's worth; more by the cube root).
+@export var debris_count := 10
+
 @export_group("Passes and strikes")
 ## A ball going by snaps only if it's faster than sound (buckshot near the muzzle; a black-powder
 ## .45's ball, ~270 m/s, doesn't: it whirrs). True: every true pass snaps, as before the lab (Sean's
