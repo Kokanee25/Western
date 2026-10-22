@@ -11,6 +11,9 @@ extends SceneTree
 ## played frame by frame, each saved as DIR/f_00000.png (the audio is put on by ffmpeg after).
 ## gaze: a marker moved round him (GAZE_PATH), his eyes and head on it (FaceGaze), a fixed step a
 ## frame, each saved as DIR/f_00000.png; --check prints which way his head turned.
+## life: FaceLife on him as in the game (his Senses real, his brain a stand-in): a man walks past, a
+## shot to his right, then he's afraid, then hurt, then dead (LIFE_BEATS), each frame saved as
+## DIR/f_00000.png at 30 a second and the beats to DIR/beats.txt (run with --fixed-fps 30).
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
 
 const EYE := 1.76
@@ -20,6 +23,16 @@ const GAZE_PATH := [
 	[0.0, "cam"], [1.2, 35.0, 0.0, 0.55], [2.6, "~", -35.0, 5.0, 0.55], [4.4, 20.0, 22.0, 0.55],
 	[5.6, -25.0, -28.0, 0.55], [6.8, "cam"], [8.2, "~", 8.0, 6.0, 0.55], [9.0, "~", -8.0, -4.0, 0.55],
 	[9.8, "cam"], [11.0, "end"]]
+## --mode=life's beats: [seconds, what happens].
+const LIFE_BEATS := [[0.0, "alone"], [1.5, "a man walks past"], [7.5, "a shot to his right"],
+	[11.0, "afraid"], [14.5, "hurt"], [18.0, "dead"], [21.0, "end"]]
+
+
+## A brain's few fields FaceLife reads, for --mode=life (no behaviour of its own).
+class LabBrain extends Node:
+	var fear := 0.0
+	var senses: Node
+	var target: Node3D
 
 
 func _init() -> void:
@@ -102,6 +115,7 @@ func _run() -> void:
 	if bandana == "none":
 		m.bandana_color = Color(0, 0, 0, 0)
 	m.masked = bandana == "mask"
+	m.face_life = mode == "life"   # his face is set by hand in the other modes
 	w.add_child(m)
 	m.global_position = Vector3.ZERO
 	cam.position = Vector3(aim.x, aim.y + 0.02, -dist)
@@ -117,6 +131,8 @@ func _run() -> void:
 	print("face_lab: %d head pieces with %d expressions: %s" % [faces.size(), names.size(), ", ".join(names)])
 	if mode == "gaze":
 		await _gaze(m, out)
+	elif mode == "life":
+		await _life(m, out)
 	elif mode == "take":
 		var take: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(take_path))
 		var tnames: Array = take.names
@@ -235,6 +251,70 @@ func _gaze(m: Node, out: String) -> void:
 		n += 1
 		t += dt
 	print("face_lab: %d frames of gaze" % n)
+
+
+func _life(m: Node, out: String) -> void:
+	var w := m.get_parent() as Node3D
+	var brain := LabBrain.new()
+	brain.name = "Brain"
+	var senses = load("res://src/people/senses.gd").new()
+	senses.name = "Senses"
+	senses.body = m
+	senses.light = 1.0
+	brain.senses = senses
+	m.add_child(brain)
+	m.add_child(senses)
+	var passer = load("res://src/bodies/human_body.gd").new()
+	passer.person_id = &"facelab_passer"
+	passer.rng_seed = 11
+	w.add_child(passer)
+	passer.global_position = Vector3(4.0, 0, -3.5)
+	_turn(m, 0.0)
+	var life = m.get_node(^"FaceLife")
+	var events := root.get_node(^"Events")
+	var beats := FileAccess.open(out + "/beats.txt", FileAccess.WRITE)
+	var dt := 1.0 / 30.0
+	var t := 0.0
+	var n := 0
+	var beat := 0
+	while t < float(LIFE_BEATS[-1][0]):
+		while beat < LIFE_BEATS.size() - 1 and t >= float(LIFE_BEATS[beat][0]):
+			var what: String = LIFE_BEATS[beat][1]
+			beats.store_line("%d %s" % [n, what])
+			print("face_lab: %.1f s %s" % [t, what])
+			if what == "a shot to his right":
+				events.noise.emit(m.global_position + Vector3(7.0, 1.0, -1.0), 600.0, &"gunshot", null)
+			elif what == "afraid":
+				brain.fear = 0.9
+			elif what == "hurt":
+				brain.fear = 0.0
+				m.physiology.adrenaline = 0.0
+				m.physiology.pain = 1.4
+				m.physiology.wound_pain = 1.4
+			elif what == "dead":
+				m.physiology.pain = 0.0
+				m.physiology.alive = false
+				# Held where he stands (no fall: the film's on his face); his face goes on.
+				m.process_mode = Node.PROCESS_MODE_DISABLED
+				life.process_mode = Node.PROCESS_MODE_ALWAYS
+			beat += 1
+		# The passer walks from his right to his left, 3.5 m out, from 1.5 s to 6.5 s.
+		var u := clampf((t - 1.5) / 5.0, 0.0, 1.0)
+		passer.global_position = Vector3(lerpf(4.0, -4.0, u), 0, -3.5)
+		passer.face(passer.global_position + Vector3(-1, 0, 0))
+		if t >= 1.5 and t < 6.5:
+			passer.set_pose(&"walk")
+		elif passer.pose == &"walk":
+			passer.set_pose(&"stand")
+		if m.physiology.alive:
+			m.physiology.adrenaline = 0.0
+		await physics_frame
+		await RenderingServer.frame_post_draw
+		vp_save(m, "%s/f_%05d.png" % [out, n])
+		n += 1
+		t += dt
+	beats.close()
+	print("face_lab: %d frames of life" % n)
 
 
 func vp_save(m: Node, path: String) -> void:

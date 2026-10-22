@@ -275,6 +275,7 @@ Two already exist; three more come later, each when its phase needs it.
 | Fire lab: spread speed against fire-science figures, smoke filling, the look | New | Phase 4, after Gate C |
 | Movement lab: walking, running and mocap on the skeleton | Started, `experiments/mocap_walk/` | Step 4.6, when you record |
 | People lab: town life, memory, what people do the next morning | New; the memory store isn't built yet | Phase 5 |
+| Sound lab: how the game sounds to the player | Built, `experiments/sound_lab/` (baseline 2026-10-22); brief `docs/briefs/sound-lab.md` | Now |
 
 **Sound lab** (Sean, 2026-10-21: its own lab, now). Every sound today is made in code
 (`src/audio/synth_sounds.gd`: mono, 22 kHz, placeholders until there are recorded ones). The lab

@@ -461,7 +461,8 @@
       "hour": 16,
       "weapons": [
         "dynamite_0m",
-        "dynamite_1m"
+        "dynamite_1m",
+        "dynamite_0m_x3"
       ],
       "scan_m": 2.0,
       "scan_step": 0.025,
@@ -483,6 +484,80 @@
         ],
         "fov": 60
       }
+    },
+    "ground_things": {
+      "building": "Store",
+      "find": {
+        "ground": [
+          6.5,
+          0.0,
+          -6.5
+        ]
+      },
+      "aim": [
+        0,
+        0,
+        0
+      ],
+      "from": [
+        0,
+        0,
+        -1
+      ],
+      "hour": 16,
+      "weapons": [
+        "dynamite_0m"
+      ],
+      "scan_m": 2.0,
+      "scan_step": 0.025,
+      "bystander": [
+        3.0,
+        0.0,
+        -8.5
+      ],
+      "camera": {
+        "at": [
+          9.0,
+          2.0,
+          -9.0
+        ],
+        "look": [
+          6.5,
+          0.0,
+          -6.5
+        ],
+        "fov": 60
+      },
+      "extras_round": [
+        {
+          "what": "dead_man",
+          "at": [
+            0.0,
+            0.0,
+            -0.55
+          ]
+        },
+        {
+          "what": "strongbox",
+          "at": [
+            0.05,
+            0.0,
+            0.0
+          ],
+          "after": 2.0,
+          "height": 0.35
+        },
+        {
+          "what": "stick",
+          "at": [
+            -0.05,
+            0.0,
+            0.05
+          ],
+          "after": 3.0,
+          "height": 0.5
+        }
+      ]
     }
   },
   "weapons": {
@@ -505,6 +580,12 @@
     },
     "dynamite_0m": {
       "dynamite": 0.0,
+      "only_listed": true
+    },
+    "dynamite_0m_x3": {
+      "dynamite": 0.0,
+      "sticks": 3,
+      "every": 2.5,
       "only_listed": true
     }
   },

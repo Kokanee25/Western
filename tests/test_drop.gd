@@ -171,11 +171,13 @@ func test_an_outlaw_holds_over_at_long_range() -> void:
 	var naive: float = await arrive.call((aim - origin).normalized())
 	check(naive < 1.3 - 0.15, "aimed straight at you, it'd fall short of where he aimed (%.2f m)" % naive)
 	brain.range_judgement = 0.0
+	brain._judge_range()
 	var held: float = await arrive.call(brain._held_over(ballistics, origin, aim))
 	check_near(held, 1.3, 0.02, "judging the range right, he puts it where he aimed")
 	brain.range_judgement = 0.12
 	var worst := 0.0
 	for k in 12:
+		brain._judge_range()  # judged again for each shot
 		var y: float = await arrive.call(brain._held_over(ballistics, origin, aim))
 		worst = maxf(worst, absf(y - 1.3))
 	check(worst > 0.005 and worst < 0.15, "judging it by eye he's off a little, not a lot (worst %.0f cm)" % (worst * 100.0))
