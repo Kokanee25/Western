@@ -471,6 +471,14 @@ frozen until Sean names one.
   since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
   fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
   their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
+- The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
+  bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
+  against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
+  Room bus, muffled through walls, slaps off the fronts; `config/sound.tres`); black-powder gunshots
+  (#256, build 2058); passes by speed and strikes by surface (#261, build 2067); dynamite near and far,
+  breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
+  Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
+  `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
