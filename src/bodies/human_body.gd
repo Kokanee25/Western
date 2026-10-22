@@ -1143,6 +1143,7 @@ func _physics_step(delta: float) -> void:
 	if limp:
 		if hat_body != null:
 			_hat_meets_ground()
+		_step_brace(delta)
 		_step_tone(delta)
 		if _impacts:
 			_impacts.step(delta)
@@ -2644,6 +2645,8 @@ func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.D
 		var rb := parts.get(seg) as RigidBody3D
 		if rb:
 			rb.apply_impulse(dir * given, point - rb.global_position)
+		# Knocked off his feet, not hurt past knowing it: he throws out his arms (`brace`).
+		brace()
 	elif not limp:
 		_flinch_from(seg, point, dir, joules * 0.002)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
@@ -3378,6 +3381,81 @@ func _hunch(seg: StringName, at: Vector3, dir: Vector3) -> void:
 		j[2] = bend.get_rotation_quaternion() * (j[2] as Quaternion)
 
 
+## Awake and going over with nothing hurting him (his chair gone from under him, a shove): his arms
+## go out and his chin tucks in, for the moment his muscles still answer him (Sean, 2026-10-22; the
+## chair's blind critic: "a man taken by surprise would flail, grab the seat, tuck his chin"). The
+## protective reactions of a fall: thrown backwards, the arms fling forward and out (the
+## counterbalance) and the chin tucks to spare the back of the head; pitched forward, the arms reach
+## ahead to take the ground and the head comes up. Tone targets, as `_hunch`: the pose his joints
+## are pulled toward, held BRACE_TONE times harder and fading over BRACE_FADE, not a push. Degrees
+## as the poses' (forward is -x for the trunk and neck, +x for an arm; + z takes his right arm out).
+const BRACE_BACK := {&"upper_arm": Vector3(55, 0, 60), &"forearm": Vector3(25, 0, 0),
+		&"neck": Vector3(-25, 0, 0), &"head": Vector3(-15, 0, 0)}
+const BRACE_FRONT := {&"upper_arm": Vector3(80, 0, 18), &"forearm": Vector3(15, 0, 0),
+		&"neck": Vector3(15, 0, 0), &"head": Vector3(10, 0, 0)}
+## ... and his trunk curls a little toward his knees as he goes back (degrees added to its pose).
+const BRACE_CURL := {&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-8, 0, 0)}
+const BRACE_TONE := 2.5
+const BRACE_FADE := 0.9
+## He reads which way he's going this soon after he loses his footing (s), or as soon after that
+## as his chest is moving this fast (m/s), giving up after BRACE_WAIT.
+const BRACE_AFTER := 0.05
+const BRACE_SPEED := 0.15
+const BRACE_WAIT := 0.4
+var _brace_t := -1.0
+
+
+## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
+## nothing).
+func brace() -> void:
+	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
+		return
+	_brace_t = 0.0
+
+
+func _step_brace(delta: float) -> void:
+	if _brace_t < 0.0:
+		return
+	_brace_t += delta
+	var chest := parts.get(&"chest") as RigidBody3D
+	if chest == null or not is_instance_valid(chest) or _tone.is_empty():
+		_brace_t = -1.0
+		return
+	var v := chest.linear_velocity
+	v.y = 0.0
+	if _brace_t < BRACE_AFTER or (v.length() < BRACE_SPEED and _brace_t < BRACE_WAIT):
+		return
+	_brace_t = -1.0
+	# Which way he's going, against the way his chest faces (its front is -z).
+	var front := -chest.global_basis.z
+	front.y = 0.0
+	var back := v.length() < BRACE_SPEED or v.dot(front) <= 0.0
+	var shape: Dictionary = BRACE_BACK if back else BRACE_FRONT
+	for j: Array in _tone:
+		var sid := String((j[0] as Node).get_meta(&"segment", &""))
+		var key := StringName(sid.trim_suffix("_r").trim_suffix("_l"))
+		var d: Vector3
+		if shape.has(key):
+			d = shape[key]
+			if sid.ends_with("_l"):
+				d.z = -d.z
+			var q := Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion()
+			if key == &"upper_arm":
+				# The arm swung to where those angles point it, by the shortest turn from hanging
+				# down: two Euler angles together also twist it about its own length (51 degrees on
+				# the left, past its 40: the lab's twist_past_limit).
+				q = Quaternion(Vector3.DOWN, q * Vector3.DOWN)
+			j[2] = q
+		elif back and BRACE_CURL.has(key):
+			d = BRACE_CURL[key]
+			j[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (j[2] as Quaternion)
+		else:
+			continue
+		j[3] = float(j[3]) * BRACE_TONE
+		if j.size() < 6:
+			j.append(BRACE_FADE)
+
+
 func _step_tone(delta: float) -> void:
 	if _tone.is_empty():
 		return
@@ -3387,6 +3465,8 @@ func _step_tone(delta: float) -> void:
 		return
 	var share := _tone_start * exp(-_tone_t / _tone_fade)
 	for j: Array in _tone:
+		# A braced joint (`brace`) holds on longer than the rest of him.
+		var held := share if j.size() < 6 else _tone_start * exp(-_tone_t / float(j[5]))
 		var child := j[0] as RigidBody3D
 		var up := j[1] as RigidBody3D
 		if not is_instance_valid(child) or not is_instance_valid(up) 				or physiology.severed_segments.has(child.get_meta(&"segment", &"")):
@@ -3402,7 +3482,7 @@ func _step_tone(delta: float) -> void:
 		# parts (a hand's or the neck's inertia is tiny: uncapped, they spun 45 degrees a tick).
 		var rel_w := child.angular_velocity - up.angular_velocity
 		var at: Vector3 = child.global_transform * (j[4] as Vector3)
-		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
+		var k := minf(j[3] * held, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
 		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized(), at) / delta)
 		if is_nan(k) or is_nan(c):
 			continue
