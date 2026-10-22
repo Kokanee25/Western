@@ -49,7 +49,7 @@ func test_every_prop_has_a_code_model_its_real_size_on_the_texel_grid() -> void:
 			if mi.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
 				continue  # a kit prop's shadow mesh (Structure._build_shadow): never seen
 			var m := mi.material_override
-			check(m is ShaderMaterial and (m as ShaderMaterial).shader == PixelArt.GRID_SHADER or mi.name == &"Chimney",
+			check(m is ShaderMaterial and PixelArt.is_grid_shader((m as ShaderMaterial).shader) or mi.name == &"Chimney",
 					"%s/%s on the texel grid" % [id, mi.name])
 		prop.queue_free()
 
