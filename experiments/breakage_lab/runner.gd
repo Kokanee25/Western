@@ -521,7 +521,7 @@ func _scan() -> Dictionary:
 			if _target_kind == "ground":
 				p.y = 0.0
 				var h: Variant = _ray_to(space, p + Vector3.UP * 1.5, p + Vector3.DOWN * 1.5, func(c: Object) -> int:
-						return 1 if c == _target else (0 if c is StaticBody3D and not c is StructureMember else -1))
+						return 1 if Ground.is_ground(c) else (0 if c is StaticBody3D and not c is StructureMember else -1))
 				if h != null:
 					out[Vector2i(i, j)] = (h as Vector3).y
 			else:
@@ -898,7 +898,7 @@ func _nearest_point_of_target(p: Vector3) -> Vector3:
 func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 	var r := {"what": _describe(_target) if is_instance_valid(_target) else _setup.target}
 	if _target_kind == "ground":
-		r["kind"] = "the street's ground (a flat WorldBoundaryShape3D under a plane mesh)"
+		r["kind"] = "the street's ground (Ground: flat slabs, a height field where dug)"
 		var sf: Dictionary = _surface_summary_cache
 		r["result"] = "crater %.2f m deep" % sf.crater_depth_m if float(sf.get("crater_depth_m", 0.0)) > 0.02 else "no crater"
 		return r
