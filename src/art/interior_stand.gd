@@ -32,17 +32,32 @@ const IPARTS := [&"int_floor", &"int_walls", &"int_wainscot", &"int_panels", &"i
 
 ## Profiles on (the kit, Profiles) or every piece a plain box.
 var profiled := true
+## The game's exterior woods instead of the interior ones (set before build: the A/B sheets).
+static var game_woods := false
 
 
 func _init() -> void:
 	super()
-	roles[&"int_floor"] = &"floor"
-	roles[&"int_gallery"] = &"floor"
-	roles[&"int_walls"] = &"dark_trim"
-	for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail"]:
-		roles[p] = &"dark_oak"
+	# The interior stain (Sean picked C, 2026-10-21): the game's interior woods
+	# (tools/textures/promote_woods.py from the lab's studio_int).
+	roles[&"int_floor"] = &"int_floor"
+	roles[&"int_gallery"] = &"int_floor"
+	roles[&"int_walls"] = &"int_boards"
+	for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail",
+			&"oak_newels", &"oak_balusters"]:
+		roles[p] = &"int_oak"
 	for p in [&"int_posts", &"int_beams", &"int_brackets"]:
-		roles[p] = &"timber"
+		roles[p] = &"int_timber"
+	# `game_woods`: the woods the game drew interiors in before (the A/B sheet's A and B).
+	if game_woods:
+		roles[&"int_floor"] = &"floor"
+		roles[&"int_gallery"] = &"floor"
+		roles[&"int_walls"] = &"dark_trim"
+		for p in [&"int_wainscot", &"int_panels", &"int_caps", &"int_casings", &"int_bar", &"int_bar_top", &"int_back_bar", &"int_rail",
+				&"oak_newels", &"oak_balusters"]:
+			roles[p] = &"dark_oak"
+		for p in [&"int_posts", &"int_beams", &"int_brackets"]:
+			roles[p] = &"timber"
 
 
 func focus_parts() -> Array:
@@ -63,6 +78,10 @@ const VIEWS := {
 	"gallery": [Vector3(0.7, 5.3, -0.55), Vector3(3.6, 4.5, -1.45), 55.0],
 	# Up at the gallery from the floor, as the saloon picture sees it.
 	"gallery_below": [Vector3(3.6, 1.6, -5.2), Vector3(2.0, 4.1, -1.4), 48.0],
+	# The back bar whole (its mirrors, columns, cornice and crest) over the cowboy's shoulder.
+	"back_bar": [Vector3(2.9, 1.8, -3.9), Vector3(2.15, 1.9, 0.0), 52.0],
+	# Low along the bar top's front: its worn edge and the rings.
+	"bar_top": [Vector3(1.2, 1.5, -2.3), Vector3(1.9, 1.05, -1.45), 44.0],
 }
 ## The men: the cowboy at the bar, the rancher by the side wall, the drifter on the gallery.
 const MEN := [
@@ -190,33 +209,7 @@ func _panel(part: StringName, c: Vector3, right: Vector3, up: Vector3, out: Vect
 		_board(part, c + out * (t * 0.5), up, out, h, w, t, right)
 		return
 	var took := _take(part, Vector3(h, w, t))
-	var st: SurfaceTool = _tools[part][took[0]]
-	var u0: float = took[1]
-	var flag := Color(0.0, 0.0, u0 * 0.5, 1.0)
-	var e := t * 0.35
-	var hw := w * 0.5
-	var hh := h * 0.5
-	var iw := hw - bevel
-	var ih := hh - bevel
-	var p := func(x: float, y: float, d: float) -> Vector3: return c + right * x + up * y + out * d
-	var uv := func(x: float, y: float) -> Vector2: return Vector2(u0 + y + hh, x + hw)
-	var size := Vector2(h, w)
-	# The field.
-	var fn := out
-	var f := [p.call(-iw, -ih, t), p.call(iw, -ih, t), p.call(iw, ih, t), p.call(-iw, ih, t)]
-	_tri(st, [f[0], f[1], f[2]], [fn, fn, fn], [uv.call(-iw, -ih), uv.call(iw, -ih), uv.call(iw, ih)], size, flag)
-	_tri(st, [f[0], f[2], f[3]], [fn, fn, fn], [uv.call(-iw, -ih), uv.call(iw, ih), uv.call(-iw, ih)], size, flag)
-	# The four bevels, from the field's edge down to the panel's.
-	var o := [p.call(-hw, -hh, e), p.call(hw, -hh, e), p.call(hw, hh, e), p.call(-hw, hh, e)]
-	var oxy := [Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)]
-	var ixy := [Vector2(-iw, -ih), Vector2(iw, -ih), Vector2(iw, ih), Vector2(-iw, ih)]
-	for k in 4:
-		var k1 := (k + 1) % 4
-		var n: Vector3 = ((o[k] - f[k]) as Vector3).cross(o[k1] - f[k]).normalized()
-		if n.dot(out) < 0.0:
-			n = -n
-		_tri(st, [o[k], o[k1], f[k1]], [n, n, n], [uv.call(oxy[k].x, oxy[k].y), uv.call(oxy[k1].x, oxy[k1].y), uv.call(ixy[k1].x, ixy[k1].y)], size, flag)
-		_tri(st, [o[k], f[k1], f[k]], [n, n, n], [uv.call(oxy[k].x, oxy[k].y), uv.call(ixy[k1].x, ixy[k1].y), uv.call(ixy[k].x, ixy[k].y)], size, flag)
+	_emit(_tools[part][took[0]], Profiles.panel_tris(w, h, t, bevel, took[1]), Transform3D(Basis(right, up, out), c))
 
 
 ## A board cut to an outline (a bracket, the back bar's crest): `outline` in its plane (x along
@@ -233,35 +226,7 @@ func _cut(part: StringName, origin: Vector3, ax: Vector3, ay: Vector3, n: Vector
 		_board(part, origin + ax * mid.x + ay * mid.y, ax, n, hi.x - lo.x, hi.y - lo.y, t, ay)
 		return
 	var took := _take(part, Vector3(hi.x - lo.x, hi.y - lo.y, t))
-	var st: SurfaceTool = _tools[part][took[0]]
-	var u0: float = took[1]
-	var flag := Color(0.0, 0.0, u0 * 0.5, 1.0)
-	var size := hi - lo
-	var at := func(q: Vector2, d: float) -> Vector3: return origin + ax * q.x + ay * q.y + n * d
-	var uv := func(q: Vector2) -> Vector2: return Vector2(u0 + q.x - lo.x, q.y - lo.y)
-	var idx := Geometry2D.triangulate_polygon(outline)
-	for side in [[t * 0.5, n], [-t * 0.5, -n]]:
-		for k in range(0, idx.size(), 3):
-			var q := [outline[idx[k]], outline[idx[k + 1]], outline[idx[k + 2]]]
-			_tri(st, [at.call(q[0], side[0]), at.call(q[1], side[0]), at.call(q[2], side[0])], [side[1], side[1], side[1]],
-					[uv.call(q[0]), uv.call(q[1]), uv.call(q[2])], size, flag)
-	var total := 0.0
-	for i in outline.size():
-		total += outline[i].distance_to(outline[(i + 1) % outline.size()])
-	var v := 0.0
-	var ccw := Geometry2D.is_polygon_clockwise(outline) == false
-	for i in outline.size():
-		var a := outline[i]
-		var b := outline[(i + 1) % outline.size()]
-		var d := b - a
-		var e2 := Vector2(d.y, -d.x).normalized() * (1.0 if ccw else -1.0)
-		var en: Vector3 = (ax * e2.x + ay * e2.y).normalized()
-		var v1 := v + d.length()
-		_tri(st, [at.call(a, -t * 0.5), at.call(b, -t * 0.5), at.call(b, t * 0.5)], [en, en, en],
-				[Vector2(u0 + v, 0), Vector2(u0 + v1, 0), Vector2(u0 + v1, t)], Vector2(total, t), flag)
-		_tri(st, [at.call(a, -t * 0.5), at.call(b, t * 0.5), at.call(a, t * 0.5)], [en, en, en],
-				[Vector2(u0 + v, 0), Vector2(u0 + v1, t), Vector2(u0 + v, t)], Vector2(total, t), flag)
-		v = v1
+	_emit(_tools[part][took[0]], Profiles.cut_tris(outline, t, took[1]), Transform3D(Basis(ax, ay, n), origin))
 
 
 ## The back wall's door: beaded casings up each side, a head casing with a small cornice over it,
@@ -308,105 +273,20 @@ func _window() -> void:
 	pane.transform = Transform3D(Basis(Vector3.UP, PI * 0.5), Vector3(0.005, (y0 + y1) * 0.5, (z0 + z1) * 0.5))
 
 
-## The back bar against the back wall: a panelled base, its counter, shelves on brackets, a
-## framed mirror between two columns, a cornice and a crest across the top.
+## The back bar: the game's own (assets/props/kit/back_bar.json: a panelled base and counter, columns,
+## arched mirrors, shelves, the cornice and crest), its back to the wall, turned to face the room.
 func _back_bar() -> void:
-	var x0: float = BACK_BAR.x0
-	var x1: float = BACK_BAR.x1
-	var d: float = BACK_BAR.deep
-	var h: float = BACK_BAR.h
-	var len := x1 - x0
-	var mid := (x0 + x1) * 0.5
-	var front := -d
-	# The base's front: rails, stiles, raised panels (as the wainscot, deeper and taller).
-	_piece(&"int_back_bar", Vector3(mid, 0.06, front + 0.011), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1), len, Profiles.rounded(0.12, 0.03, 0.008, [1]))
-	_piece(&"int_back_bar", Vector3(mid, h - 0.12, front + 0.011), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1), len, Profiles.chamfered(0.09, 0.022, 0.004))
-	var bays := 4
-	var stile := 0.09
-	var bay := (len - stile) / bays
-	for b in bays + 1:
-		var x := x0 + stile * 0.5 + b * bay
-		_piece(&"int_back_bar", Vector3(x, (0.12 + h - 0.165) * 0.5, front + 0.011), Vector3.UP, Vector3(1, 0, 0), Vector3(0, 0, -1), h - 0.285,
-				Profiles.chamfered(stile, 0.022, 0.004))
-		if b < bays:
-			_panel(&"int_panels", Vector3(x + bay * 0.5, (0.12 + h - 0.165) * 0.5, front + 0.013), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1),
-					bay - stile - 0.01, h - 0.3, 0.018, 0.05)
-	# The counter, its front edge rounded.
-	_piece(&"int_back_bar", Vector3(mid, h + 0.02, -d * 0.5 - 0.02), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, len + 0.06,
-			Profiles.bar_top(d + 0.06, 0.04))
-	# Columns at each end and the middle, up to the cornice.
-	var top: float = BACK_BAR.top
-	for x in [x0 + 0.06, mid, x1 - 0.06]:
-		_piece(&"int_back_bar", Vector3(x, (h + 0.04 + top) * 0.5, -0.06), Vector3.UP, Vector3(1, 0, 0), Vector3(0, 0, -1), top - h - 0.04,
-				Profiles.chamfered(0.1, 0.1, 0.012))
-	# Two shelves each side of the middle column on brackets, and the mirror behind them.
-	for side in [[x0 + 0.11, mid - 0.05], [mid + 0.05, x1 - 0.11]]:
-		var a: float = side[0]
-		var b: float = side[1]
-		for y in [1.45, 1.95]:
-			_piece(&"int_back_bar", Vector3((a + b) * 0.5, y, -0.12), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, b - a,
-					Profiles.rounded(0.22, 0.025, 0.006, [0, 1]))
-			for x in [a + 0.08, b - 0.08]:
-				_cut(&"int_back_bar", Vector3(x - 0.01, y - 0.0125, 0.0), Vector3(0, 0, -1), Vector3.UP, Vector3(1, 0, 0),
-						_bracket(0.18, 0.012), 0.02)
-		var glass := MeshInstance3D.new()
-		var q := QuadMesh.new()
-		q.size = Vector2(b - a, top - h - 0.35)
-		glass.mesh = q
-		glass.material_override = _mirror()
-		_holder(&"int_back_bar").add_child(glass)
-		glass.transform = Transform3D(Basis(Vector3.UP, PI), Vector3((a + b) * 0.5, (h + top - 0.25) * 0.5 + 0.05, -0.012))
-	# The cornice across the top and the crest over its middle.
-	_piece(&"int_caps", Vector3(mid, top + 0.03, -0.09), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, len + 0.12, Profiles.ogee(0.16, 0.08))
-	var crest := PackedVector2Array([Vector2(-len * 0.5, 0.0), Vector2(len * 0.5, 0.0), Vector2(len * 0.5, 0.09)])
-	for i in range(1, 16):
-		var s := float(i) / 16.0
-		crest.append(Vector2(len * 0.5 - len * s, 0.09 + 0.17 * sin(PI * s)))
-	crest.append(Vector2(-len * 0.5, 0.09))
-	_cut(&"int_back_bar", Vector3(mid, top + 0.07, -0.05), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1), crest, 0.03)
+	var back := PropKit.spawn(&"back_bar", &"stand_back_bar")
+	_holder(&"int_back_bar").add_child(back)
+	back.transform = Transform3D(Basis(Vector3.UP, PI), Vector3((BACK_BAR.x0 + BACK_BAR.x1) * 0.5, 0.0, -BACK_BAR.deep * 0.5))
 
 
-## The bar: a raised-panel front between pilasters on a plinth, the top with its front edge a full
-## bullnose (where arms rest), a brass foot rail on brackets.
+## The bar: the game's own (assets/props/kit/bar.json, a kit prop of members drawn as woodwork, its
+## top the polished bar top), turned to face the room (-Z), its front where BAR's is.
 func _bar() -> void:
-	var x0: float = BAR.x0
-	var x1: float = BAR.x1
-	var z: float = BAR.z
-	var d: float = BAR.deep
-	var h: float = BAR.h
-	var len := x1 - x0
-	var mid := (x0 + x1) * 0.5
-	var front := z - d * 0.5
-	_piece(&"int_bar", Vector3(mid, 0.075, front + 0.015), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1), len, Profiles.rounded(0.15, 0.03, 0.01, [1]))
-	_piece(&"int_bar", Vector3(mid, h - 0.1, front + 0.011), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1), len, Profiles.chamfered(0.1, 0.022, 0.004))
-	var bays := 4
-	var pil := 0.12
-	var bay := (len - pil) / bays
-	for b in bays + 1:
-		var x := x0 + pil * 0.5 + b * bay
-		_piece(&"int_bar", Vector3(x, (0.15 + h - 0.15) * 0.5, front + 0.0), Vector3.UP, Vector3(1, 0, 0), Vector3(0, 0, -1), h - 0.3,
-				Profiles.chamfered(pil, 0.045, 0.01))
-		if b < bays:
-			_panel(&"int_panels", Vector3(x + bay * 0.5, (0.15 + h - 0.15) * 0.5, front + 0.015), Vector3(1, 0, 0), Vector3.UP, Vector3(0, 0, -1),
-					bay - pil - 0.01, h - 0.32, 0.03, 0.07)
-	# The ends: plain boards.
-	for x in [x0, x1]:
-		_board(&"int_bar", Vector3(x, h * 0.5, z), Vector3.UP, Vector3(1, 0, 0), h - 0.05, d, 0.03, Vector3(0, 0, 1))
-	_piece(&"int_bar_top", Vector3(mid, h - 0.03, z - 0.09), Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3.UP, len + 0.14, Profiles.bar_top(d + 0.2, 0.065))
-	# The foot rail: brass, 50 mm, on brackets 0.15 up.
-	var rail := PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(0.025, 0), Vector2(0.025, len), Vector2(0, len)]), 12, true)
-	var brass := PixelArt.material(PixelArt.factory("prop_brass"), Color.WHITE, PixelArt.Mapping.UV, Vector3.ZERO, 0.45, 0.6, 0.6)
-	var mi := MeshInstance3D.new()
-	mi.mesh = rail
-	mi.material_override = brass
-	_holder(&"int_bar").add_child(mi)
-	mi.transform = Transform3D(Basis(Vector3(0, 0, 1), -PI * 0.5), Vector3(x0, 0.15, front - 0.16))
-	for x in [x0 + 0.2, mid, x1 - 0.2]:
-		var arm := MeshInstance3D.new()
-		arm.mesh = PropModels.lathe(PackedVector2Array([Vector2(0, 0), Vector2(0.012, 0), Vector2(0.012, 0.17), Vector2(0, 0.17)]), 8, true)
-		arm.material_override = brass
-		_holder(&"int_bar").add_child(arm)
-		arm.transform = Transform3D(Basis(Vector3(1, 0, 0), PI * 0.5), Vector3(x, 0.15, front))
+	var bar: Node3D = PropKit.spawn(&"bar", &"stand_bar")
+	_holder(&"int_bar").add_child(bar)
+	bar.transform = Transform3D(Basis(Vector3.UP, PI), Vector3((BAR.x0 + BAR.x1) * 0.5, 0.0, BAR.z))
 
 
 ## The gallery: two chamfered posts to the floor in front of the bar, a beam along its edge, a
@@ -474,14 +354,3 @@ func _bracket(l: float, lip: float) -> PackedVector2Array:
 	return out
 
 
-static var _mirror_mat: StandardMaterial3D
-
-
-## The back bar's mirror: dark, glossy, faintly warm.
-static func _mirror() -> StandardMaterial3D:
-	if _mirror_mat == null:
-		_mirror_mat = StandardMaterial3D.new()
-		_mirror_mat.albedo_color = Color(0.16, 0.15, 0.13)
-		_mirror_mat.metallic = 0.85
-		_mirror_mat.roughness = 0.12
-	return _mirror_mat

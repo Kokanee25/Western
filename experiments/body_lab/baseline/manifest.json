@@ -1,0 +1,37 @@
+{
+  "command": "-s res://experiments/body_lab/lab.gd",
+  "godot": {
+    "build": "official",
+    "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "hex": 263938,
+    "major": 4,
+    "minor": 7,
+    "patch": 2,
+    "status": "stable",
+    "string": "4.7.2-stable (official)",
+    "timestamp": 0
+  },
+  "hardware": {
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "os": "Linux",
+    "threads": 4
+  },
+  "model": "outlaw",
+  "physics_engine": "Jolt Physics",
+  "physics_ticks_per_second": 60,
+  "scenario": {
+    "group": "revolver",
+    "kind": "shot",
+    "name": "revolver_05m_thigh",
+    "range": 5.0,
+    "spot": "thigh",
+    "weapon": "revolver"
+  },
+  "seed": 1,
+  "source_sha": "4db022436ea73930c5d377d9fb715d147384b213",
+  "user_args": [
+    "--scenario=revolver_05m_thigh",
+    "--model=outlaw",
+    "--out=/home/user/Western/build/body_lab/base"
+  ]
+}

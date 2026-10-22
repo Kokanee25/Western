@@ -60,8 +60,13 @@ func _hit_rate(d: float, trials: int, per_man: int) -> float:
 		target.global_position = Vector3(0, 0, -d)
 		target.rotation.y = PI
 		outlaw.look_at(target.global_position, Vector3.UP, true)
+		# A shot that hits him: one ball counted once, though it may wound him twice (through his
+		# arm into his chest, or turned off a bone into him again); all of one ball's hits land in
+		# the same physics tick.
+		var last_tick := [-1]
 		var on_hit := func(info: Dictionary) -> void:
-			if info.get("person") == target and info.get("kind") != &"blow":
+			if info.get("person") == target and info.get("kind") != &"blow" and Engine.get_physics_frames() != last_tick[0]:
+				last_tick[0] = Engine.get_physics_frames()
 				hits[0] += 1
 		Events.body_hit.connect(on_hit)
 		await physics_frames(3)
@@ -84,6 +89,16 @@ func test_outlaw_hit_rates() -> void:
 	Feel.within(self, "outlaw_hit_rate_5m", await _hit_rate(5.0, 4, 4))
 	Feel.within(self, "outlaw_hit_rate_15m", await _hit_rate(15.0, 4, 5))
 	Feel.within(self, "outlaw_hit_rate_30m", await _hit_rate(30.0, 4, 6))
+
+
+## The gunfight lab's variant B (his hand on the gun, `GunHand`) held to the same ranges.
+func test_outlaw_hit_rates_by_his_hand() -> void:
+	OutlawBrain.default_variant = OutlawBrain.Variant.B
+	var rates := [await _hit_rate(5.0, 4, 4), await _hit_rate(15.0, 4, 5), await _hit_rate(30.0, 4, 6)]
+	OutlawBrain.default_variant = OutlawBrain.Variant.A
+	Feel.within(self, "outlaw_hit_rate_5m", rates[0])
+	Feel.within(self, "outlaw_hit_rate_15m", rates[1])
+	Feel.within(self, "outlaw_hit_rate_30m", rates[2])
 
 
 # -- On the street: the duel and backing down ------------------------------------------------------

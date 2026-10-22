@@ -3,6 +3,7 @@
   "id": "card_table",
   "kind": "members",
   "replaces": "card_table",
+  "in_game": true,
   "wood": "oak",
   "look": "prop:dark_wood",
   "splits_below": 0.5,

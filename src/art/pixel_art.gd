@@ -93,6 +93,9 @@ static var lab_set := "lab"
 ## mlab_<name>/ with their own lab.json, laid on the world's texel grid as the game's woods are, so
 ## a candidate and the baseline compare at the same density rules.
 const MLAB_PREFIX := "mlab_"
+## The saloon's interior woods in the game's woods set (Sean picked the interior stain, C,
+## 2026-10-21; tools/textures/promote_woods.py): drawn as the lab's sets are (seams a pixel wide).
+const INTERIOR_PREFIX := "int_"
 ## The game's woods (Sean chose the material lab's final candidate C, 2026-10-15; docs/briefs/
 ## material-lab-timber.md): tools/textures/grain_woods.py --set=woods -> assets/textures/woods/,
 ## the woods its lab.json lists drawn from it whatever the look (timber, floor, the red and pale
@@ -207,7 +210,12 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 			m.set_meta(&"texels_scale", lab_density(key, set) / DRAWN_TEXELS)
 			m.set_shader_parameter(&"square_texels", WOODS_SQUARE)
 			m.set_shader_parameter(&"end_square_texels", WOODS_END_SQUARE)
-			if set.begins_with(MLAB_PREFIX):
+			var info := _wood_info(set, key)
+			if info.has("roughness"):
+				# A wood's own finish (the bar top's polish: docs/briefs/interior-woodwork.md).
+				m.set_shader_parameter(&"roughness", float(info["roughness"]))
+				m.set_shader_parameter(&"specular", float(info.get("specular", 0.5)))
+			if set.begins_with(MLAB_PREFIX) or _wood_of(key).begins_with(INTERIOR_PREFIX):
 				# Round 3 (2026-10-21): the seams a pixel wide at least, and the set's weathering
 				# layer (laid only where a mesh asks: MaterialStand's weathered parts).
 				m.set_shader_parameter(&"edge_aa", true)
@@ -585,10 +593,17 @@ static func skin(key: String, base: Color, seed: int) -> ImageTexture:
 	return tex
 
 
+## The painted blood marks (splats, stains, the pool, wounds), by PixelArt.blood's key.
+const BLOOD_PATH := "res://assets/textures/blood/%s.png"
+
 ## Blood: an irregular blob in three reds, soaked darker in the middle. `hole` adds the dark
 ## punched hole of a bullet wound at the centre. Alpha is hard-edged (use alpha scissor).
-static func blood(key: String, seed: int, hole := false, n := 32) -> ImageTexture:
+static func blood(key: String, seed: int, hole := false, n := 32) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	# Painted in the game's hand where there's one (tools/textures/paint_blood.py, cut_blood.py).
+	if use_factory and ResourceLoader.exists(BLOOD_PATH % key):
+		_cache[key] = load(BLOOD_PATH % key)
 		return _cache[key]
 	var shades: Array[Color] = [Color(0.2, 0.02, 0.02), Color(0.33, 0.04, 0.03), Color(0.46, 0.07, 0.05)]
 	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)

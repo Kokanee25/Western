@@ -5,6 +5,7 @@ Keep this file current: a session that changes a step, a brief or a lab updates 
 How to use: one prompt per new session. Start it in the repo named in brackets.
 Up to four sessions at once in Phases 2 and 3 (roadmap rule). Every session ends
 with its status entry and Current state lines, as CLAUDE.md says.
+Decisions for Sean go in GitHub Issues labelled "waiting on Sean" (CLAUDE.md).
 Repos: Salt Creek = Kokanee25/western. Character Studio = Kokanee25/saltcreek-characters.
 
 
@@ -134,6 +135,16 @@ LABS RUNNING NOW (Phase 3)
 Bodies paragraph for every lab: the Studio's men are in assets/people
 (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), already cast as the gang (#160).
 
+## The card cheat, playable (after #204 merges) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-card-cheat. Make the card cheat playable in the game's saloon: docs/briefs/showcase-moments.md, "The card cheat" (with the punchline rule). Read it, docs/PARTS.md, and the open "waiting on Sean" issues first.
+
+Use only parts in the game: the kit chair and card table, the seated falls and kick (PR #204), the falls, wounds and gore, the hand to the wound, deeds and the escalation ladder. A man at the card table; the victim walks in angry, kicks the chair's back legs out, the cheater goes over backwards, the victim stands over him, draws, shouts and puts the gun in his mouth; the player has a few seconds. Every way out works by the systems, not a script: shoot him (the ball can carry on into the man on the floor), shout or draw so he turns on you, shove him, throw a bottle if one exists, shoot his gun hand, or do nothing. Afterwards the room reacts by what each person saw, and the barman's first words are about his chair, named at whoever broke it (the owners rule). Set it up as data (who, where, why), triggerable from the dev bridge and placed in the saloon at a time of day.
+
+The playtest agent plays it blind ten times first and reports what happened each time. Then give me a build with exactly how to start it and what to try. Open a "waiting on Sean" issue for anything only I can decide.
+```
+
 ## Gunfight lab (3.0) [Salt Creek]
 
 ```
@@ -153,17 +164,9 @@ Report: a baseline table, a contact sheet of a typical fight, the five biggest r
 ## Body lab (3.1b) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-body-lab. Build the body lab, roadmap 3.1b. Read the body section of docs/briefs/labs.md, the src/bodies section of docs/LAYOUT.md, and experiments/physics_lab/README.md (reuse its harness where you can).
+Gameplay lane, branch claude/gameplay-body-lab-<n>. The body lab's bench and baseline are in, with its first fixes (a ball on the tick a man goes limp, inside bleeding and packing that can hold, one limb off cracking every joint, the hat in a blast, the femur's bleed): read experiments/body_lab/README.md ("Since the baseline", "Where the game is furthest from the medicine") and results/.
 
-Bench and baseline only: change nothing about how the game plays. Don't edit HumanBody, Anatomy or Physiology: the falls session owns HumanBody. Lab in experiments/body_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded.
-
-Scenarios: revolver and shotgun at 5, 15 and 30 m into marked spots (thigh, neck, upper arm, chest, belly, hand); dynamite at 1, 3 and 6 m; then the same wounds treated (tourniquet, packing, the doctor).
-
-Bodies: every scenario on the Studio's men (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), plus one set on outlaw. Check wounds, severing and stumps, and the hat on the rancher and the drifter.
-
-Measure: what each ball's path crosses (artery, bone, organ) against the aim; bleed-out time per artery, untreated and treated; which bones break and what that stops a man doing; limbs lost, from what and where the cut falls; frame time with ten wounded men against the 4 ms people budget. Check against published trauma figures, cited in the README (don't copy their text).
-
-Report: a baseline table, a sheet of the wounds on each man, where the game is furthest from the medicine, anything that doesn't work on the new men, and the first fix you'd make (don't make it).
+Next, one at a time, each measured with run.py against baseline/ and report.py diff, before and after in the PR: [my call on dynamite up close: results/2026-10-21_dynamite_options/ | the gut's time | the blast's cut through the bone's shaft, with the people pipeline]. Check no other session is changing HumanBody first; a change to human_body.gd comes to me with before-and-after sheets. After a fresh checkout, godot --headless --import before the lab (it refuses a man it can't load).
 ```
 
 ## Breakage lab (3.3a) [Salt Creek]
@@ -293,6 +296,8 @@ Prop lab, branch claude/prop-lab. Read docs/briefs/prop-lab.md, the Props and St
 First, find every prop that already exists and write it into docs/PARTS.md's Props table: the 12 drawn props in assets/props/manifest.json (PropLibrary, PropModels), every hand-built furnishing (FalseFrontBuilding._furnish_*, saloon_dressing.gd's bar, the trough, rail, well), what Fittings and the smashed lamp already do, and what the breakage lab (claude/gameplay-breakage-lab-*, experiments/breakage_lab/) and the ragdoll lab's railing have built or measured. Note for each: how it's built, what it can and can't do (break, burn, shatter, carry weight), and which lane's files it lives in. Show me that inventory before building.
 
 Then design the prop kit: one data file per prop (members, shatter or fitting), read by one builder, with the look from the texture factory's approved materials matched to the Studio's men. Build the table and the chair first (roadmap 3.3): legs snap, tops split, they carry weight, burn piece by piece, a seated man drops when his chair goes. Each must look at least as good as PropModels' version in the same shot, pass the breakage lab's scenarios, and fit the frame budget batched. Use the shared systems as they are; anything they need changed goes to gameplay. Costs before any paid painting. Promote each finished prop into PARTS.md and tell the test saloon session.
+
+For the saloon (Sean, 2026-10-21: everything in it destructible), the drawn props it needs as kit props, in this order: whiskey bottles (glass members that shatter, for the shelves and the bottle wall), the oil lamp and wall sconce (the model breaking with the lamp), bar stools, barrels, spittoons, framed paintings, the deer head, the piano, tin cups. The bar and back bar are in the kit already (bar.json, back_bar.json).
 ```
 
 ## Face rig lab (after 2.1 and 2.3) [Salt Creek]
@@ -319,10 +324,14 @@ Gameplay lane, branch claude/gameplay-water-lab. The water lab (docs/briefs/labs
 Gameplay lane, branch claude/gameplay-gunfight-decisions. Extend the gunfight lab (experiments/gunfight_lab/) with the combat decisions and morale measures in docs/briefs/labs.md: log why each gunman made each choice (courage, aggression, skill, loyalty), and measure tactical variety, surrender and flight rates, the same man deciding the same way in the same spot, and how they adapt when cover is shot away. Baseline first; then the gunfight lab's fixes are judged on these numbers too.
 ```
 
-## Weapon handling and feel (inside 3.2) [Salt Creek]
+## Gun lab (now, with 3.2) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-weapon-handling. Inside roadmap 3.2: measure the guns without the AI (docs/briefs/labs.md, weapon handling and feel), on tests/test_gun_feel.gd and config/feel_ranges.json: draw to first shot, cocking, reload time one round at a time, practical accuracy, sight recovery after recoil, input response, and all of it wounded and rushed. Report against the feel ranges, mark anything that feels awkward rather than hard, and give me builds to try with exactly what to look for.
+Gameplay lane (art judges the look), branch claude/gameplay-gun-lab. The gun lab (docs/briefs/labs.md, "Gun lab"). Read it, the src/weapons section of docs/LAYOUT.md, the Guns section of docs/PARTS.md, tests/test_gun_feel.gd and config/feel_ranges.json.
+
+Bench and baseline first in experiments/gun_lab/ (README, its own bridge.gd, outputs in build/): sheets of the revolver and coach gun in first person (at rest, aiming, walking, running, every reload step) and in each Studio man's hands (drawing, aiming, firing, reloading, holstered, dropped), at 1, 5 and 10 m; the handling numbers (draw to first shot, cocking, reload time one round at a time, sight recovery, accuracy rushed and wounded) against the feel ranges. List everything that looks wrong or floats.
+
+Then, one at a time and measured: the look in the painted style matched to the men (materials through the texture factory, costs first); both hands on the coach gun and hands matching the player's body; the revolver's period reload step by step (half-cock, gate, ejector rod per spent case, one round at a time) and the coach gun's; a man's grip, aim, recoil, draw and reload played the same way; holster, drop, shot out of the hand, picked up. The men's hands need finger bones (characters lane): ask, and place the hand round the grip until then. Give me builds to try with exactly what to look for. Promote what's done into docs/PARTS.md.
 ```
 
 ## Law, witnesses and consequences lab (Phase 5) [Salt Creek]
@@ -362,16 +371,28 @@ FUTURE LABS AND PIPELINES (start when the roadmap row says)
 Art lane, branch claude/art-wear-down. Gate A is passed; the woods are locked. Build the material lab's wear-down from its plan (docs/briefs/building-pipeline.md, Material lab): boards worn where people walk (the saloon door, the bar rail, the boardwalk steps), paint gone where hands touch, and every wood at new, a year old and ten years old. Judged with the Studio's men in front of it, on A/B sheets and by the blind critic. Costs before painting.
 ```
 
-## Building lab: spec trial on the saloon (after Gate A) [Salt Creek]
+## Building lab: the saloon (start now: Sean picked the interior woods, the railing is in the game) [Salt Creek]
 
 ```
-Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md and docs/concept/saloon-sheet.png. Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment only, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+Gameplay lane (structures) with art for the look, branch claude/gameplay-building-spec. Read docs/briefs/building-pipeline.md, docs/concept/saloon-sheet.png, Sean's saloon picture docs/concept/targets/10_saloon_interior.png (the look inside), docs/briefs/interior-woodwork.md ("Results" and "What's next") and docs/PARTS.md (all of it: build only from parts marked "in the game" or "in the kit"). Write the building spec format, then the saloon's spec from the sheet, settling every critique in the brief's table: ask me each conflict (outside stairs, the street balcony, the lot size, the restrooms). Frame it from period references sized by the Wood Handbook. Build it from the spec in an experiment first, changing nothing in the game, and run the brief's checks. Report what the format needs before it's used for real.
+
+Everything in the saloon must be destructible (Sean, 2026-10-21): every object is a member of a Structure (it breaks, burns, is carved by balls, is thrown by Blast, falls when its support goes) or a kit prop (assets/props/kit/), or a fitting that comes down with what holds it. No drawn PropLibrary prop, no scenery mesh, no solid box. Write a test that walks the built saloon and fails on any collision body that isn't a StructureMember, the ground or an OilLamp's hitbox, and on any visible mesh that isn't a member's or a fitting's; list every exception it allows, each with its owner.
+
+What you have to build with:
+- Woods: the interior woods Sean picked (int_floor, int_timber for posts, beams and brackets, int_boards for wall boards, int_oak for wainscot, casings, rails and balusters; int_bar_top for the bar top), dark_oak and stair_runner (the hotel stair), and the exterior woods for the outside. A member takes one as its wood or as a look "wood:<name>".
+- Woodwork as members: PropKit.dress_member(member, draw, look) draws any member of your Structure as a moulding run along it ("profile": chamfered, rounded, bar_top, handrail, ogee, beaded, rect), a raised panel ("panel") or a board cut to an outline ("cut"), still a breakable member, one batch a look. Use it for the wainscot, door and window casings, chamfered posts, brackets, beams and the cornice; the shapes and sizes are in src/art/interior_stand.gd, which draws them as plain meshes (a reference, not parts).
+- Kit props: PropKit.spawn(&"bar") (in int_oak as it is: Sean, 2026-10-21, "everything looks great") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair and card table (PropLibrary.spawn(&"chair") and (&"card_table") hand them out; Sean passed both, 2026-10-21).
+- Structure parts: Railing (balconies and the stair's rails, breakable, men go through them by BodyImpacts), the stair with its walking ramp, glass members for windows (they shatter), doors, the floor on joists, Fittings (what stands on a member falls when it goes; a lamp smashes and spills burning oil), OilLamp for every lamp.
+
+Not yet destructible, so not in the saloon until it is (say which you need first, and to whom):
+- The prop lab (kit versions): bar stools, the piano, barrels, spittoons, whiskey bottles (glass members that shatter; the shelves' bottles and the bottle wall, saloon_dressing.gd, are scenery today), tin cups, the deer head, framed paintings, wall sconces (an OilLamp's model stays whole when it smashes).
+- Gameplay: a prop knocked by a ball or a body doesn't move (Fittings moves it only when its support goes); what stands on a shelf adds no weight (extra_load unused); furniture_frame members are never load-checked.
 ```
 
 ## Building lab for real: the saloon, then the block (Phase 4, after Gate C) [Salt Creek]
 
 ```
-Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
+Roadmap [4.3 the saloon | 4.4 the block], through the building lab (docs/briefs/building-pipeline.md), using only materials the material lab has approved. Everything in a building is destructible: members, kit props or fittings only, with the saloon's destructibility test run on every building. Start with the material-lab-timber.md "What production needs" list (rim joists, open steps as members, chamfers into the voxel carving). Build from the spec, pass every check in the brief, judge renders from the sheet's views beside it, and write what went wrong into the recipe.
 ```
 
 ## Breakage paint (4.4a) [Salt Creek]

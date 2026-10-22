@@ -113,8 +113,26 @@ func segments_below(segment: StringName) -> Array[StringName]:
 ## hits: [{id, kind, effect, position}]}.
 ## effect: "cut" (artery, vein, nerve), "torn" (organ, muscle), "broken" / "stopped" (bone),
 ## "severed" (finger).
+## Soft lead on bone (the gore lab, docs/briefs/gore-lab.md, after DiMaio's Gunshot Wounds and the
+## Medical and Surgical History of the War of the Rebellion): a ball that breaks a bone flattens and
+## goes on wider (BONE_FLATTEN of its radius), tearing more and a bigger hole out; one that breaks a
+## strong bone (SPLIT_STRENGTH joules and up) with SPLIT_ENERGY left can split in two (SPLIT_CHANCE),
+## each half on its own track; one that meets a bone nearly side-on (SKIP_COS of the bone's normal,
+## about 17 degrees off its surface) skips off it (SKIP_CHANCE) and goes on bent, chipping it.
+const BONE_FLATTEN := 1.5
+const SPLIT_STRENGTH := 150.0
+const SPLIT_ENERGY := 120.0
+const SPLIT_CHANCE := 0.35
+const SPLIT_SPREAD := 0.2  ## radians each half turns off the line
+const SKIP_COS := 0.3
+const SKIP_CHANCE := 0.6
+const SKIP_KEEP := 0.8  ## of its energy a skipping ball keeps
+
+
+## The result also has `flattened`, `split`, `skipped` (what happened to the ball), `out_dir` (the
+## way it leaves, when that isn't `dir`) and `exits` (every hole out, a split ball's two).
 func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bullet_radius: float,
-		rng: RandomNumberGenerator) -> Dictionary:
+		rng: RandomNumberGenerator, _depth := 0, _met: Array = []) -> Dictionary:
 	dir = dir.normalized()
 	var skin := skin_span(segment, origin, dir)
 	var t_in := 0.0
@@ -123,10 +141,13 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 		t_in = maxf(skin.x, 0.0)
 		t_out = skin.y
 	var result := {"segment": segment, "entry": origin + dir * t_in, "exit": null, "stop": null,
-			"energy_in": energy, "energy_out": 0.0, "track_cm": 0.0, "hits": [], "radius": bullet_radius}
+			"energy_in": energy, "energy_out": 0.0, "track_cm": 0.0, "hits": [], "radius": bullet_radius,
+			"exits": [], "flattened": false, "split": false, "skipped": false}
 	# Everything the path crosses, in order.
 	var events: Array[Dictionary] = []
 	for st: Dictionary in by_segment.get(segment, []):
+		if st.kind == &"bone" and _met.has(st.id):
+			continue  # the bone it's coming off (a sub-trace from it)
 		var shell: float = st.get(&"shell", 0.0)
 		var cage: float = st.get(&"cage", 0.0)
 		var reach: float = st.radius + (bullet_radius if shell == 0.0 else 0.0)
@@ -165,10 +186,41 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 				if ev.roll > 0.0 and rng.randf() >= ev.roll:
 					continue  # slipped between the ribs
 				var strength: float = st.get(&"strength", 100.0)
+				if _depth < 2 and ev.roll == 0.0:
+					# Side-on to the bone: it skips off.
+					var n := _off_axis(at, st.a, st.b)
+					if n != Vector3.ZERO and absf(dir.dot(n)) < SKIP_COS and _roll(at, 1) < SKIP_CHANCE:
+						_add_hit(result, st, &"chipped", at)
+						var bent := (dir - 2.0 * dir.dot(n) * n).normalized().lerp(dir, 0.5).normalized()
+						result.skipped = true
+						_go_on(result, segment, at + bent * 0.003, bent, e * SKIP_KEEP, bullet_radius, rng, _depth, t - t_in, _met + [st.id])
+						return result
 				if e > strength:
 					# Broken through; what's inside the bone (the spinal cord) is next.
 					e -= strength
 					_add_hit(result, st, &"broken", at)
+					if _depth < 2 and ev.roll == 0.0:
+						# Soft lead flattens on it, and a strong bone can split it.
+						# On from where it broke in (what's inside the bone, the spinal cord, is next),
+						# the bone itself left behind.
+						var past: Vector3 = at + dir * 0.001
+						result.flattened = true
+						if strength >= SPLIT_STRENGTH and e > SPLIT_ENERGY and _roll(at, 2) < SPLIT_CHANCE:
+							result.split = true
+							var side := dir.cross(Vector3.UP if absf(dir.y) < 0.9 else Vector3.RIGHT).normalized()
+							var turn := _roll(at, 3) * TAU
+							var off := side.rotated(dir, turn)
+							var d1 := dir.rotated(off, SPLIT_SPREAD)
+							var d2 := dir.rotated(off, -SPLIT_SPREAD)
+							_go_on(result, segment, past, d1, e * 0.5, bullet_radius * 0.8, rng, _depth, t - t_in, _met + [st.id])
+							var second := trace(segment, past, d2, e * 0.5, bullet_radius * 0.8, rng, _depth + 1, _met + [st.id])
+							for h: Dictionary in second.hits:
+								_add_hit(result, structure(h.id), h.effect, h.position)
+							result.exits.append_array(second.exits)
+							result.second = second
+						else:
+							_go_on(result, segment, past, dir, e, bullet_radius * BONE_FLATTEN, rng, _depth, t - t_in, _met + [st.id])
+						return result
 				else:
 					e = 0.0
 					_add_hit(result, st, &"stopped", at)
@@ -195,11 +247,48 @@ func trace(segment: StringName, origin: Vector3, dir: Vector3, energy: float, bu
 			e = 0.0
 	if result.exit == null:
 		result.stop = origin + dir * t
+	else:
+		result.exits.append(result.exit)
 	result.energy_out = e
 	result.track_cm = (t - t_in) * 100.0
 	result.depth = deepest(segment, origin + dir * t_in, origin + dir * t)
 	result.graze = result.exit != null and result.depth < GRAZE_DEPTH
 	return result
+
+
+## The rest of a ball's way from a bone on (after it flattened, skipped or split), folded into
+## `result`: its hits, where it ends, what it keeps. `so_far` is the track before (m).
+func _go_on(result: Dictionary, segment: StringName, from: Vector3, dir: Vector3, e: float, radius: float,
+		rng: RandomNumberGenerator, depth: int, so_far: float, met: Array) -> void:
+	var rest := trace(segment, from, dir, e, radius, rng, depth + 1, met)
+	for h: Dictionary in rest.hits:
+		_add_hit(result, structure(h.id), h.effect, h.position)
+	result.exit = rest.exit
+	result.stop = rest.stop
+	result.exits.append_array(rest.exits)
+	result.energy_out = rest.energy_out
+	result.track_cm = so_far * 100.0 + rest.track_cm
+	result.radius = maxf(float(result.radius), radius)
+	result.depth = maxf(deepest(segment, result.entry, from), rest.depth)
+	result.graze = false
+	for k in ["flattened", "split", "skipped"]:
+		if rest.get(k, false):
+			result[k] = true
+	result.out_dir = rest.get("out_dir", dir)
+
+
+## A roll (0..1) from where on the bone it happens: the same shot, the same outcome, and not drawn
+## from the man's dice (what a ball does to a bone mustn't shift the rest of a fight's rolls).
+static func _roll(p: Vector3, salt: int) -> float:
+	return float(posmod(hash([p.snapped(Vector3.ONE * 0.0002), salt]), 10007)) / 10007.0
+
+
+## The way out from a capsule's axis to a point (zero on the axis).
+static func _off_axis(p: Vector3, a: Vector3, b: Vector3) -> Vector3:
+	var ab := b - a
+	var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+	var off := p - (a + ab * t)
+	return off.normalized() if off.length() > 1e-5 else Vector3.ZERO
 
 
 ## Follow a bullet through the whole body (for a body that's one collider, like the player's):

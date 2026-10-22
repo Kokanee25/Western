@@ -196,12 +196,13 @@ func test_rounds_cracking_past_keep_his_head_down() -> void:
 	check_eq(outlaw.pose, &"duck", "head right down")
 
 
-# --- Shaken, not broken ------------------------------------------------------------------------------------
+# --- Shaken, not broken (variant C) --------------------------------------------------------------------------
 
 ## Past his nerve behind cover he goes to ground rather than give up: head right down, not
 ## shooting. Let be, it passes and he's back in it.
 func test_shaken_behind_cover_he_gets_his_nerve_back() -> void:
 	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.C  # the gunfight lab's C: shaken first
 	_crates()
 	brain.nerve = 99.0
 	await physics_frames(2)
@@ -222,6 +223,7 @@ func test_shaken_behind_cover_he_gets_his_nerve_back() -> void:
 ## breaks at once, cover or no.
 func test_shaken_and_kept_at_it_he_breaks() -> void:
 	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.C  # the gunfight lab's C: shaken first
 	_crates()
 	brain.nerve = 99.0
 	brain.flee_chance = 0.0
@@ -242,6 +244,7 @@ func test_shaken_and_kept_at_it_he_breaks() -> void:
 
 func test_far_past_his_nerve_cover_doesnt_hold_him() -> void:
 	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.C  # the gunfight lab's C: shaken first
 	_crates()
 	brain.nerve = 99.0
 	brain.flee_chance = 0.0

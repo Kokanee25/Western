@@ -67,6 +67,17 @@ the history in `docs/status/`.
   every part: read it before building something new (use or extend what's there, never make a
   second one), and update your rows in the merge that promotes one. The test saloon (the Systems
   Playground) is built only from parts marked "in the game".
+- **Sean's checklist is GitHub Issues** (Sean, 2026-10-21): when you need a decision only Sean
+  can make, open an issue labelled **`waiting on Sean`** whose first line is **"Answer in:"** and your
+  session's link (`https://claude.ai/code/session_…`, as in your commit trailer) and branch, so he
+  knows where to reply; then what to look at, with the sheet, video or PR linked, and the exact
+  choice instead of only writing it in a status
+  entry. When he answers (a comment or closing it), act on it and close it with a line saying what
+  you did. His own notes for later are issues labelled **`idea`**. **At the start of every session
+  and before each new step, read the open `waiting on Sean` issues and their comments:** Sean
+  answers there, often from his phone, and any session in the lane acts on an answer to its
+  lane's issue even if another session asked. Before asking him something, check the open issues
+  so it isn't asked twice.
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
@@ -314,8 +325,11 @@ frozen until Sean names one.
   Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
-  woodwork, the game's woods all DIFFERENT. **Next: Sean's pick** (`interior/sheet_abc.jpg`), then
-  the stain into the game's woods for the saloon session. Worn treads on both stairs (#176). The hotel's oak
+  woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
+  (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
+  kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
+  DIFFERENT, too dark against the walls). **Next: Sean's call** on a lighter oak for the fixtures,
+  then painted mirror reflections; the saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -418,6 +432,12 @@ frozen until Sean names one.
   fights 7.2 → 10.1 s (street 16.9, 10% in 45–90). Next: Sean's pick (a fair standoff, the
   leader's surrender, the dials). Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill
   loops match their own command line.
+- The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
+  and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
+  in a blast, the femur's bleed; `results/`), a hand to the wound (`HumanBody._grab`), arterial
+  jets, the blood marks painted and gore by Gemini (stump faces, torn edges), and the gore lab's
+  first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`; $2.18 of Sean's $3). Waiting
+  on Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
@@ -430,12 +450,14 @@ frozen until Sean names one.
   ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
-  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
-  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+  roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
+  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
+  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
+  (the chair) as members. Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair is in the game (`in_game`, handed out by `PropLibrary.spawn`), the
-  card table waits on Sean's look (sheets in `experiments/prop_lab/results/2026-10-21_baseline/`);
-  the ragdoll lab tests men in the kit chair (its group U). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
+  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
+  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.

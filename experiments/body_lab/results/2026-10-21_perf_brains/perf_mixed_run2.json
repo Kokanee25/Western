@@ -1,0 +1,79 @@
+{
+  "blood_ms_after": {
+    "max": 1.413,
+    "mean": 0.343083333333334,
+    "n": 600,
+    "p50": 0.282,
+    "p99": 1.062
+  },
+  "brains": true,
+  "brains_and_senses_ms_after": {
+    "max": 6.065,
+    "mean": 0.402796666666667,
+    "n": 600,
+    "p50": 0.299,
+    "p99": 1.537
+  },
+  "budget_ms": 4.0,
+  "clock_scale": 0.65,
+  "dead": 0,
+  "down": 2,
+  "frame_ms_after": {
+    "max": 42.984,
+    "mean": 3.97958,
+    "n": 600,
+    "p50": 3.593,
+    "p99": 9.879
+  },
+  "frame_ms_after_at_seans": 2.59,
+  "frame_ms_standing": {
+    "max": 23.981,
+    "mean": 4.30560909090909,
+    "n": 110,
+    "p50": 3.039,
+    "p99": 22.905
+  },
+  "men": 10,
+  "model": "bold_cowboy_s0",
+  "people_body_ms_after": {
+    "max": 7.914,
+    "mean": 1.71914333333333,
+    "n": 600,
+    "p50": 1.533,
+    "p99": 4.147
+  },
+  "people_ms_after": {
+    "max": 14.099,
+    "mean": 2.69012666666667,
+    "n": 600,
+    "p50": 2.475,
+    "p99": 6.513
+  },
+  "people_ms_after_at_seans": 1.75,
+  "people_ms_standing": {
+    "max": 4.507,
+    "mean": 2.25889090909091,
+    "n": 110,
+    "p50": 2.055,
+    "p99": 4.474
+  },
+  "people_skeleton_ms_after": {
+    "max": 5.984,
+    "mean": 0.225103333333333,
+    "n": 600,
+    "p50": 0.191,
+    "p99": 0.468
+  },
+  "wounds": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}

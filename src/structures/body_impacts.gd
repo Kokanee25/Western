@@ -59,7 +59,10 @@ func _listen(on: bool) -> void:
 			continue
 		if on:
 			rb.contact_monitor = true
-			rb.max_contacts_reported = maxi(rb.max_contacts_reported, 4)
+			# Eight: a part pressed into a railing touches the floor, two or three balusters and the
+			# rail at once; with four the rail's contact went unreported often enough that a man thrown
+			# into it at 3.5 m/s left it standing 5 times in 24 (its work undercounted).
+			rb.max_contacts_reported = maxi(rb.max_contacts_reported, 8)
 			rb.body_entered.connect(_entered.bind(rb))
 			rb.body_exited.connect(_exited.bind(rb))
 			# Already against a member (he went down leaning on it): counted from now.

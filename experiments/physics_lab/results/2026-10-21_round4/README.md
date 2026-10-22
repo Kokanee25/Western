@@ -175,3 +175,14 @@ Sean: labs measure; parts live in the game (`docs/PARTS.md`). The lab's breakabl
   stair's balusters now reach the hand rail (they stopped ~5 cm under it). That golden is
   re-approved in this merge. `town_bar` fails without this change too: its men differ (art's
   view).
+
+## Eight contacts a part (2026-10-21, late)
+
+`test_body_impacts`'s throw into the railing failed now and then (1 in 5 runs of the `test_b`
+files). Thrown 24 times at 3.5 m/s with a few mm of jitter, the cap held 5 times. It had taken
+32-35 J against 42-45 J, and every one of his parts was at its four reported contacts most ticks
+(the floor, the balusters), so the rail's contact was often not among them. With eight a part, the
+cap broke in all 24 throws and he carries further through. Groups Q and T (rancher) are as the
+table above: a faint or a shot at the balcony rail breaks nothing or a baluster; shoves and charges
+go through to the floor below; dead at a run, he lands ~4 m out (was ~3). Contacts are only read
+near timber, so men falling in the open cost the same.

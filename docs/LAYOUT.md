@@ -464,7 +464,9 @@ a few views renders them as the full run does.
   its push (`take_blow`, `knockdown_speed`), a blast throws along its line, a torn limb takes its
   own push (`_limb_throw`); hit and still up, he favours the wound as it comes on (`_favour_step`:
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
-  steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run),
+  steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run;
+  wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
+  still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
