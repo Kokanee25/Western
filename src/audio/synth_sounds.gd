@@ -7,7 +7,8 @@ class_name SynthSounds
 const RATE := 22050
 const HI_RATE := 44100
 ## Made at HI_RATE.
-const HI := [&"report", &"report_big", &"rolling", &"rolling_big"]
+const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
+	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
 
 static var _cache := {}
 
@@ -47,6 +48,11 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 			&"report_big": samples = _report(rng, true)
 			&"rolling": samples = _rolling(rng, false)
 			&"rolling_big": samples = _rolling(rng, true)
+			&"whirr": samples = _whirr(rng)
+			&"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone":
+				samples = _impact(rng, StringName(String(id).trim_prefix("impact_")))
+			&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone":
+				samples = _glance(rng, StringName(String(id).trim_prefix("glance_")))
 			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 		var rate := HI_RATE if id in HI else RATE
 		var wav := _to_wav(_no_sub_bass(samples, rate), rate)
@@ -156,6 +162,102 @@ static func _rolling(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Arra
 				lp += (base[i - dd] - lp) * 0.3
 				out[i] += lp * g
 	return _normalise(out, 0.9)
+
+
+## A ball slower than sound going by (a .45 Colt's 270-ish m/s): no snap, a short tearing whirr, the
+## air it drags rising fast as it comes and falling in pitch as it goes (Doppler: a source at
+## 0.8 of the speed of sound comes in at ~5x its pitch and leaves at ~0.55x).
+static func _whirr(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(HI_RATE * 0.22)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var level_at := 0.05
+	var lp := 0.0
+	var bp := 0.0
+	var phase := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		var f := 3600.0 if t < level_at else lerpf(3600.0, 550.0, minf((t - level_at) / 0.08, 1.0))
+		var k := clampf(TAU * f / HI_RATE, 0.01, 0.9)
+		lp += (white - lp) * k
+		bp += (lp - bp) * k * 0.5
+		var band := lp - bp
+		phase += TAU * f * 0.5 / HI_RATE
+		var env := pow(t / level_at, 3.0) if t < level_at else exp(-(t - level_at) / 0.045)
+		out[i] = (band * 1.4 + sin(phase) * 0.25) * env
+	return _normalise(out, 0.85)
+
+
+## What a ball does to what it strikes, by the surface (the sound lab): `wood` a dull thock (the
+## board's few low modes) and the tick of splinters, `dirt` a soft thump and the hiss and patter of
+## the dirt it throws, `metal` a clank and a ringing ping (a bar's modes: 1, 2.76, 5.40, 8.93 x
+## the first), `stone` a hard click and chips.
+static func _impact(rng: RandomNumberGenerator, surface: StringName) -> PackedFloat32Array:
+	var n := int(HI_RATE * {&"metal": 0.7, &"dirt": 0.5}.get(surface, 0.3))
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var mid := 0.0
+	var prev := 0.0
+	for i in n:
+		var t := float(i) / HI_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		lp += (white - lp) * 0.06
+		mid += (white - mid) * 0.25
+		var hp := white - prev
+		prev = white
+		var spray := mid - lp  # ~0.4–2 kHz: dirt thrown, not a hiss
+		var s := 0.0
+		match surface:
+			&"wood":
+				s = white * exp(-t / 0.0015) * 0.6
+				for m: Array in [[190.0, 0.035, 0.7], [430.0, 0.025, 0.5], [780.0, 0.015, 0.35]]:
+					s += sin(TAU * float(m[0]) * t) * exp(-t / float(m[1])) * float(m[2])
+			&"dirt":
+				s = lp * exp(-t / 0.02) * 3.0 + sin(TAU * 105.0 * t) * exp(-t / 0.03) * 0.6
+				s += spray * exp(-maxf(t - 0.01, 0.0) / 0.12) * 0.5 * minf(t / 0.01, 1.0)
+			&"metal":
+				s = white * exp(-t / 0.001) * 0.7
+				var f := 1150.0
+				for m: Array in [[1.0, 0.35, 0.6], [2.76, 0.2, 0.4], [5.40, 0.12, 0.25], [8.93, 0.07, 0.15]]:
+					s += sin(TAU * f * float(m[0]) * t) * exp(-t / float(m[1])) * float(m[2])
+			_:  # stone
+				s = hp * exp(-t / 0.002) * 0.9 + sin(TAU * 2300.0 * t) * exp(-t / 0.012) * 0.3
+		out[i] = s
+	# Bits thrown off: splinters, clods, chips, landing over the next moments.
+	var bits: int = {&"wood": 5, &"dirt": 9, &"stone": 7}.get(surface, 0)
+	for k in bits:
+		var start := int(rng.randf_range(0.01, 0.6 if surface == &"dirt" else 0.25) * n)
+		var level := rng.randf_range(0.05, 0.25)
+		var soft := 0.0
+		var dull := 0.15 if surface == &"dirt" else 0.8  # a clod is a dull tap, a chip a tick
+		for i in range(start, mini(n, start + int(HI_RATE * 0.006))):
+			soft += (rng.randf_range(-1.0, 1.0) - soft) * dull
+			out[i] += soft * level * exp(-float(i - start) / (HI_RATE * 0.0015)) * (2.5 if surface == &"dirt" else 1.0)
+	return _normalise(out, 0.85)
+
+
+## A ball glancing off a surface: that surface's strike, then the whine of the ball tumbling away,
+## falling in pitch and warbling as it turns over (lower and shorter off dirt, which takes more of it).
+static func _glance(rng: RandomNumberGenerator, surface: StringName) -> PackedFloat32Array:
+	var hit := _impact(rng, surface)
+	var n := int(HI_RATE * 0.6)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var top := 2400.0 if surface == &"dirt" else (3800.0 if surface == &"metal" else 3300.0)
+	var low := 800.0 if surface == &"dirt" else 1300.0
+	var tau := 0.12 if surface == &"dirt" else 0.2
+	var phase := 0.0
+	var warble_hz := rng.randf_range(28.0, 46.0)
+	for i in n:
+		var t := float(i) / HI_RATE
+		phase += TAU * lerpf(top, low, pow(minf(t / 0.5, 1.0), 0.7)) / HI_RATE
+		var warble := 0.6 + 0.4 * sin(TAU * warble_hz * t)
+		out[i] = sin(phase) * warble * minf(t / 0.012, 1.0) * exp(-t / tau) * 0.55
+		if i < hit.size():
+			out[i] += hit[i] * (0.6 if surface == &"dirt" else 0.8)
+	return _normalise(out, 0.85)
 
 
 ## Dynamite: a hard crack, a heavy thump and a long roll back off the hills.
