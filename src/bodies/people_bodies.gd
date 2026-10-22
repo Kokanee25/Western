@@ -142,17 +142,20 @@ static func report(model: StringName) -> Dictionary:
 	return info if info is Dictionary else {}
 
 
-## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model.
+## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model and bone
+## order (an anatomy not loaded, `Anatomy.new()`, has none: its pieces all land on bone 0, and
+## cached by model alone they were every later man's: his head skinned to his pelvis).
 static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
-	if _cache.has(model):
-		return _cache[model]
+	var order := anatomy.segment_order()
+	var key := "%s|%d" % [model, hash(order)]
+	if _cache.has(key):
+		return _cache[key]
 	var scene := load(PATH % model) as PackedScene
 	var out := {}
 	if scene == null:
-		_cache[model] = out
+		_cache[key] = out
 		return out
 	var root := scene.instantiate()
-	var order := anatomy.segment_order()
 	var index := {}
 	for i in order.size():
 		index[order[i]] = i
@@ -232,7 +235,7 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 		if shape == "head":
 			_hat_fits[model] = hat_fit(verts)
 	root.free()
-	_cache[model] = out
+	_cache[key] = out
 	return out
 
 

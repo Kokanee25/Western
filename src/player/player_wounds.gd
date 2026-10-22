@@ -89,7 +89,8 @@ func _on_spoke(speaker: Node, text: String) -> void:
 		return  # what you're being told matters more than what's said round you
 	if speaker is Node3D and (speaker as Node3D).global_position.distance_to(player.global_position) < 45.0:
 		var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody else "Someone"
-		say("%s: \"%s\"" % [who, text], 3.0)
+		# Up as long as he takes to say it (his mouth, FaceSpeech), and a moment more.
+		say("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
 
 
 ## Show a line; `hold` keeps people's talk from writing over it while it shows.
