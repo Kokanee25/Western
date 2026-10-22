@@ -232,3 +232,57 @@ func test_an_edit_is_cheap() -> void:
 	var ms := (Time.get_ticks_usec() - t0) / 1000.0
 	print("    a stick's crater and lip over four tiles: %.1f ms" % ms)
 	check(ms < 200.0, "a crater's edit takes %.1f ms" % ms)
+
+
+# --- Step 3: the crater ---------------------------------------------------------------------------
+
+func test_a_stick_s_crater_is_the_fit_s_size() -> void:
+	var s := Blast.crater_size(0.2, 0.0)
+	check_near(s.x, 0.8 * pow(0.2, 1.0 / 3.0), 1e-4, "0.8 x cbrt(0.2 kg) across (%.2f m)" % s.x)
+	check_near(s.y, s.x * 0.27, 1e-4, "and 0.27 of that deep (%.2f m)" % s.y)
+	check(Blast.crater_size(0.2, 0.09).x < s.x * 0.6, "gone off higher, smaller")
+	check_eq(Blast.crater_size(0.2, 0.5).x, 0.0, "and half a metre up, none")
+
+
+func test_a_stick_on_the_dirt_digs_its_crater_and_throws_the_lip() -> void:
+	var at := Vector3(2.3, DynamiteStick.RADIUS + 0.004, -1.1)
+	var report := Blast.detonate(world, at, 0.2)
+	var size := Blast.crater_size(0.2, at.y)
+	check(report.has("crater"), "it made a crater")
+	var r := size.x * 0.5
+	check_near(ground.height_at(at.x, at.z), -size.y, 0.03, "its middle is about the fit's depth down (%.3f)" % ground.height_at(at.x, at.z))
+	var lip := ground.height_at(at.x + r * 1.25, at.z)
+	check(lip > 0.005, "a lip of loose earth round it (%.3f m)" % lip)
+	check(ground.height_at(at.x + r * 2.5, at.z) < 0.002, "and beyond the lip, the street as it was")
+	# The clods come down and lie as earth.
+	await wait_until(func() -> bool: return get_tree().get_nodes_in_group(&"clods").is_empty(), 900)
+	check(get_tree().get_nodes_in_group(&"clods").is_empty(), "every clod has come down and lain as earth")
+	var packed := float(report.crater.taken_m3) * Blast.t().crater_packed
+	check_near(ground.earth_moved(), -packed, packed * 0.1, "the earth counted: short only what was packed down")
+
+
+func test_the_same_blast_digs_the_same_crater() -> void:
+	# The bowl and the lip, as the blast leaves them (where the clods land is the physics': the
+	# breakage lab's --repeat=2 checks that, a fresh game each run).
+	var at := Vector3(-4.0, DynamiteStick.RADIUS + 0.004, 7.0)
+	Blast.detonate(world, at, 0.2)
+	var first := JSON.stringify(ground.to_dict())
+	for c in get_tree().get_nodes_in_group(&"clods"):
+		c.free()
+	ground.from_dict({})
+	Blast.detonate(world, at, 0.2)
+	check(JSON.stringify(ground.to_dict()) == first, "the same ground to the millimetre")
+
+
+func test_no_crater_under_boards_or_well_above_the_dirt() -> void:
+	var s := Structure.new()
+	s.structure_id = &"walk"
+	world.add_child(s)
+	s.add_member("plank", &"plank", &"pine", Vector3(1.0, 0.05, 0.3), Vector3(6.0, 0.4, 6.0))
+	s.infer_supports()
+	await physics_frames(2)
+	var on_board := Blast.detonate(world, Vector3(6.0, 0.425 + DynamiteStick.RADIUS, 6.0), 0.2)
+	check(not on_board.has("crater"), "on a plank: the plank takes it, the dirt under it doesn't crater")
+	var high := Blast.detonate(world, Vector3(-8.0, 1.2, -8.0), 0.2)
+	check(not high.has("crater"), "a metre up: no crater")
+	check(ground.tiles.is_empty(), "the ground's undug")
