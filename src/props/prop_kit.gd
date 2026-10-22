@@ -71,6 +71,7 @@ static func spawn(id: StringName, structure_id := &"") -> KitProp:
 	p.definition = definition(id)
 	var n: int = _made.get(id, 0)
 	_made[id] = n + 1
+	p.variant = n
 	p.structure_id = structure_id if structure_id != &"" else StringName("%s_%d" % [id, n])
 	p.name = String(p.structure_id).to_pascal_case()
 	p.build_seed = hash(p.structure_id)

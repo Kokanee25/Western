@@ -44,6 +44,8 @@ const LOOSE_FROM := 0.4
 const FLOOR_FRICTION := 0.4
 
 var kit_id: StringName
+## Which of its kind it is (PropKit.spawn's count): picks a painting's picture, as the drawn ones.
+var variant := 0
 var definition: Dictionary
 ## Gone loose (tipped, knocked, its floor gone): what's left of it is rubble, moving on its own.
 var loose := false
@@ -80,7 +82,10 @@ func build() -> void:
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
 		var mi := m.get_child(0) as MeshInstance3D
-		PropKit.dress_member(m, spec.get("draw", {}), spec.get("look", definition.get("look", "")))
+		var own_look: String = spec.get("look", definition.get("look", ""))
+		PropKit.dress_member(m, spec.get("draw", {}), own_look)
+		if own_look == "prop:picture":
+			mi.material_override = PropModels.picture(variant)
 		# Its dress, one layer a look (a barrel stave's four hoops are one mesh), each its own name
 		# (two "Dress" children: Godot renames the second, unreadably).
 		var looks := {}
