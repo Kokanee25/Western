@@ -106,6 +106,31 @@ func spill(at: Vector3) -> void:
 	_grid_age = INF
 
 
+## Something small and loose alight (a rag): a burning patch like spilt oil's, `heating` times as
+## hot, that whoever owns it moves with it (set the entry's "position"; its "fx" follows) and ends
+## (`end_small_fire`) when it's burnt away or put out. It heats what's round it, scorches people
+## and counts in fire_near like a spill.
+func small_fire(at: Vector3, radius: float, seconds: float, heating := 1.0) -> Dictionary:
+	var fx := FireFX.spill_flames(self, at, radius)
+	var entry := {"position": at, "radius": radius, "left": seconds, "fx": fx, "heating": heating, "small": true}
+	spills.append(entry)
+	_grid_age = INF
+	return entry
+
+
+## Moves a small fire's flames to where it is now.
+func move_small_fire(entry: Dictionary, at: Vector3) -> void:
+	entry.position = at
+	if is_instance_valid(entry.get("fx")):
+		(entry.fx as Node3D).global_position = at
+
+
+func end_small_fire(entry: Dictionary) -> void:
+	if is_instance_valid(entry.get("fx")):
+		(entry.fx as Node).queue_free()
+	spills.erase(entry)
+
+
 func burning_members() -> Array[StructureMember]:
 	var out: Array[StructureMember] = []
 	for m: StructureMember in active:
@@ -250,7 +275,7 @@ func _begin(dt: float) -> void:
 		for m in _query(AABB(at - Vector3.ONE * r, Vector3.ONE * r * 2.0)):
 			var gap := _gap(AABB(at - Vector3(r, 0.05, r), Vector3(r * 2.0, 0.6, r * 2.0)), m.world_aabb())
 			if gap <= 0.05:
-				_heat(m, tuning.spill_heating * dt)
+				_heat(m, tuning.spill_heating * float(sp.get("heating", 1.0)) * dt)
 
 
 ## Members `keys[from..to)` heat, burn, cool; what's done with goes on `gone`.
