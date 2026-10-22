@@ -426,11 +426,18 @@ frozen until Sean names one.
   man losing his seat catches himself (the prop lab's ask); loose props.
 - **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
   format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
-  experiment; nothing in the game changed. Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
+  experiment (#262). Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
   `past` marked on members, drawn in the lab (a `WEAR` hook in texel_grid, inert in the game); for
   art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
   the desert. Next: the README's "What the format needs"
   (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
+- **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
+  leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
+  kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar` (a chore in `CivilianBrain.chore`, dials `config/wipe.tres`),
+  `HumanBody.reach_to`, `FireSystem.small_fire`; the saloon's barkeep wipes his bar when it's quiet.
+  `FaceLife.attend_to` (a deed sets what he watches). Waiting on Sean: the film in the PR, and
+  the paint's cost (#258).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

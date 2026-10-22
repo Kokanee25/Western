@@ -1,0 +1,22 @@
+{
+  "_doc": "The barkeep's bar rag (docs/briefs/barkeep-rag.md), a prop that's cloth (ClothProp): a soft body of points that drapes over a shoulder, hangs from a hand and slumps on a bar top. Off-white linen, stained. Linen ~180 g/m2: 40 x 30 cm is ~22 g dry, ~35 g damp as a bar rag is. Caught by flames in about two seconds, burnt through in well under a minute (cotton and linen catch at ~250-400 C). Burning, it heats what's under it at 0.12 of spilt lamp oil's rate an area (flame_heating: burning cotton cloth ~100-200 kW/m2 at its peak in the cone calorimeter against ~1.5 MW/m2 for a kerosene pool, SFPE Handbook). Pressed on a wound, it takes up blood as a pad does (soaks: ml a ml of what bleeds under it).",
+  "id": "bar_cloth",
+  "kind": "cloth",
+  "fixture": true,
+  "size": [0.4, 0.3],
+  "points": [8, 6],
+  "mass": 0.035,
+  "stiffness": 1.0,
+  "damping": 0.04,
+  "precision": 10,
+  "texels": 240,
+  "colour": [0.76, 0.72, 0.63],
+  "stains": [0.5, 0.42, 0.31],
+  "grip_radius": 0.055,
+  "catch_seconds": 2.0,
+  "burn_seconds": 35.0,
+  "flame_radius": 0.14,
+  "flame_heating": 0.12,
+  "soaks": 0.8,
+  "holds_ml": 120.0
+}
