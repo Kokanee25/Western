@@ -4,6 +4,10 @@ extends Node3D
 ## F9 (D-pad right) clears him away, with his dropped gun, any fingers and the blood, and brings a
 ## fresh one.
 
+## Which of the Studio's men he is (assets/people/<id>.glb), not the old built body (Sean,
+## 2026-10-21: "stop using the old body - use the new characters").
+@export var model := &"hothead_lyle_s1"
+
 var outlaw: HumanBody
 var _count := 0
 
@@ -29,6 +33,7 @@ func spawn() -> HumanBody:
 	outlaw.name = "Outlaw%d" % _count
 	outlaw.person_id = &"outlaw"
 	outlaw.rng_seed = _count
+	outlaw.body_model = model
 	var brain := OutlawBrain.new()
 	brain.name = "Brain"
 	outlaw.add_child(brain)

@@ -186,6 +186,10 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 			var exit_point: Vector3 = res.exit
 			var through: float = (hit.position as Vector3).distance_to(exit_point)
 			_set_energy(b, res.energy_out)
+			if res.get("dir_out") != null:
+				# It skipped off a bone or split in him: it comes out on its own line.
+				dir = res.dir_out
+				b.velocity = dir * b.velocity.length()
 			b.position = exit_point + dir * 0.002
 			b.path.append(b.position)
 			info.penetrated = true

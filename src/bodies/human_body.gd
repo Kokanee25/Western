@@ -207,6 +207,14 @@ var _favour := {}  ## region ("leg_r", "arm_l", "body"...) -> [how much he favou
 var _favour_lean := {}  ## segment -> degrees the wounds' consequence bends him by (on top of the pose)
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
 var _breath := 0.0
+## What his wounds show round him as time goes (blood from his ears, mouth, nose, drips, prints).
+var signs: WoundSigns
+var _velocity_now := Vector3.ZERO
+var _chest_was := Vector3.INF
+var _rids: Array[RID] = []
+var _face_mats: Array[ShaderMaterial] = []
+var _pallor_in := 0.0
+var _bands: Array[Dictionary] = []  ## the dressings on him: {mi, segment}
 var _was_alive := true
 ## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
 ## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
@@ -268,6 +276,8 @@ func _ready() -> void:
 	_rng.seed = rng_seed
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
+	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
+	physiology.treated.connect(_bind_wound)
 	_dress()
 	_build()
 	if has_gun:
@@ -276,7 +286,10 @@ func _ready() -> void:
 	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
-	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == self: physiology.burn(amount))
+	Events.scorched.connect(func(who: Node, amount: float) -> void:
+		if who == self:
+			physiology.burn(amount)
+			burn_marks(amount))
 	if xray_all:
 		set_xray(true)
 
@@ -748,6 +761,7 @@ func _piece_material(base: StandardMaterial3D, double_sided: bool) -> ShaderMate
 
 ## Glossy eyeballs on the head piece (the shader's rest positions are head-centred).
 func _wet_eyes(m: ShaderMaterial) -> void:
+	_face_mats.append(m)
 	var centre := anatomy.segment_center(&"head")
 	var r := anatomy.structure(&"eye_r")
 	var l := anatomy.structure(&"eye_l")
@@ -783,12 +797,22 @@ func body_meshes(segment: StringName) -> Array[MeshInstance3D]:
 	return out
 
 
-## After an amputation nothing may stretch across a joint: every piece follows its own part only.
-func _stop_skinning_across_joints() -> void:
+## After an amputation nothing may stretch across the lost joint: the lost limb's pieces and the
+## stump's follow their own parts only. The rest of him goes on skinned across his joints (all of
+## him going rigid opened every seam as he lay: a flap of shoulder by his head, a gap at the neck;
+## experiments/body_lab, the check's stumps). With no segment, every piece.
+func _stop_skinning_across_joints(segment := &"") -> void:
 	_unmerge()
-	for mi: MeshInstance3D in _rigid_meshes:
-		if is_instance_valid(mi):
-			mi.mesh = _rigid_meshes[mi]
+	var which: Array[StringName] = []
+	if segment != &"":
+		which = anatomy.segments_below(segment)
+		which.append(anatomy.segments[segment].parent)
+	for sid: StringName in segment_pieces:
+		if segment != &"" and not which.has(sid):
+			continue
+		for mi: MeshInstance3D in segment_pieces[sid]:
+			if is_instance_valid(mi) and _rigid_meshes.has(mi):
+				mi.mesh = _rigid_meshes[mi]
 
 
 ## A generated garment's own baked pixel texture (UVs 0..1 over it, not metres).
@@ -1071,7 +1095,12 @@ func _physics_step(delta: float) -> void:
 		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
 	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
 	physiology.step(delta * scale_now)
-	_update_stains()
+	_update_stains(delta * scale_now)
+	signs_now().step(delta * scale_now)
+	_after_step(delta, delta * scale_now)
+	var chest_now := (parts[&"chest"] as Node3D).global_position if parts.has(&"chest") else global_position
+	_velocity_now = (chest_now - _chest_was) / maxf(delta, 1e-4) if _chest_was != Vector3.INF else Vector3.ZERO
+	_chest_was = chest_now
 	if stumbling > 0.0 and not limp:
 		_stumble_on(delta)
 	if not limp:
@@ -1370,7 +1399,7 @@ func face(point: Vector3) -> void:
 
 
 func _apply_pose(delta: float, snap := false) -> void:
-	_breath += delta
+	_breath += delta * breath_rate()
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	var clip := _mocap_now(delta)
@@ -1381,6 +1410,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO) + overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
 				+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
+		goal = _injured(sid, goal, delta)
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
@@ -1394,7 +1424,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 			_flinch[sid] = f
 		var rot: Vector3 = now + f[0]
 		if sid == &"chest":
-			rot.x += sin(_breath * 1.6) * 1.2 * (1.0 + physiology.shock() * 2.0)
+			var gasp := 2.5 if physiology.shock() > AGONAL_SHOCK else 1.0
+			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + physiology.shock() * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
 		pv.rotation_degrees = rot
 		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
@@ -1404,6 +1435,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
+	_grab_step(delta)
+	_sling_step(delta)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 
@@ -1554,6 +1587,304 @@ func _set_blocker(lying: bool) -> void:
 		bs.rotation_degrees = Vector3.ZERO
 
 
+## How fast he breathes against a man at rest (about 15 a minute): faster short of breath (a lung
+## holed or collapsing) and in shock (ATLS: 20-30 a minute in class II, over 35 in class IV).
+func breath_rate() -> float:
+	var p := physiology
+	if not p.alive:
+		return 0.0
+	if p.shock() > AGONAL_SHOCK:
+		return 0.35  # the last of it: slow, deep gasps
+	return 1.0 + (1.0 - p.breath_capacity()) * 1.2 + p.shock() * 1.0
+
+
+## Seconds a breath takes now.
+func breath_period() -> float:
+	return TAU / 1.6 / maxf(breath_rate(), 0.1)
+
+
+## His WoundSigns, made the first time it's wanted.
+func signs_now() -> WoundSigns:
+	if signs == null:
+		signs = WoundSigns.new()
+		signs.name = "WoundSigns"
+		signs.body = self
+		add_child(signs)
+	return signs
+
+
+## How fast he's going (his chest's speed, m/s, world).
+func velocity_now() -> Vector3:
+	return _velocity_now
+
+
+## His own parts' bodies (for rays that mustn't stop on him).
+func _own_rids() -> Array[RID]:
+	if _rids.size() != parts.size():
+		_rids.clear()
+		for sid: StringName in parts:
+			_rids.append((parts[sid] as CollisionObject3D).get_rid())
+	return _rids
+
+
+## What a wound does to how he holds himself, on top of the pose (the gore lab, Gray's Anatomy):
+## the radial nerve cut, the wrist drops (he can't lift his hand); a broken forearm bone, the
+## forearm and the arm hang; a broken kneecap, the knee won't bend (he walks stiff-legged on
+## it); the gut torn, he walks hunched over it (on top of the falls' favouring).
+const WRIST_DROP := 55.0
+const GUT_HUNCH := {&"abdomen": Vector3(-12, 0, 0), &"chest": Vector3(-6, 0, 0), &"neck": Vector3(-4, 0, 0)}
+
+
+## Each comes on as the hurt does, over a second or two (the falls' FAVOUR_RATE), not as a jerk.
+const INJURY_ONSET := 1.5
+var _injury_w := {}  ## segment -> how far its injury's hold has come on (0..1)
+
+
+func _injured(sid: StringName, goal: Vector3, delta: float) -> Vector3:
+	var p := physiology
+	# Nothing wrong with him (most men, most of the time): nothing to look up.
+	if limp or (p.cut.is_empty() and p.broken.is_empty() and p.torn.is_empty() and _injury_w.is_empty()):
+		return goal
+	var s := String(sid)
+	var side := s.right(1)
+	var want := goal
+	if s.begins_with("hand_") and p.cut.has(StringName("radial_nerve_" + side)):
+		want = goal + Vector3(0, 0, -WRIST_DROP if side == "r" else WRIST_DROP)
+	elif (s.begins_with("forearm_") or s.begins_with("upper_arm_")) and \
+			(p.broken.has(StringName("radius_" + side)) or p.broken.has(StringName("ulna_" + side)) or p.broken.has(StringName("humerus_" + side))):
+		if (_grab.is_empty() or _grab.side != side) and not slung.has(side):
+			want = Vector3.ZERO  # it hangs at his side
+	elif s.begins_with("shin_") and p.broken.has(StringName("patella_" + side)):
+		want = Vector3.ZERO  # the knee won't bend
+	if GUT_HUNCH.has(sid) and (p.torn.has(&"stomach") or p.torn.has(&"small_intestine") or p.torn.has(&"large_intestine")):
+		want += GUT_HUNCH[sid]
+	if want == goal:
+		_injury_w.erase(sid)
+		return goal
+	var w: float = minf(float(_injury_w.get(sid, 0.0)) + delta / INJURY_ONSET, 1.0)
+	_injury_w[sid] = w
+	return goal.lerp(want, smoothstep(0.0, 1.0, w))
+
+
+## Near the end, in deep shock, his breathing turns to slow gasps (agonal breathing).
+const AGONAL_SHOCK := 0.92
+
+
+# --- After the wound: dressings, the limb off, healing (the gore lab, part E) -----------------
+
+## A wound bound up (Physiology.treated): a bandage round the limb or the body at the wound, red
+## through where it still bleeds; a belt above for a tourniquet; a broken arm in a sling across
+## him; a broken leg splinted with two sticks.
+func _bind_wound(how: StringName, seg: StringName) -> void:
+	var vis: Node3D = visuals.get(seg)
+	if vis == null or anatomy.segments[seg].capsules.is_empty():
+		return
+	var cap: Array = anatomy.segments[seg].capsules[0]
+	var center := anatomy.segment_center(seg)
+	var a: Vector3 = (cap[0] as Vector3) - center
+	var b: Vector3 = (cap[1] as Vector3) - center
+	var r := _limb_radius(seg, b - a, float(cap[2]))
+	var at := (a + b) * 0.5
+	if how == &"pressure":
+		for w: Dictionary in wounds:
+			if w.segment == seg and w.entry != null:
+				var t := clampf(((w.entry as Vector3) - a).dot(b - a) / maxf((b - a).length_squared(), 1e-6), 0.0, 1.0)
+				at = a.lerp(b, t)
+	else:
+		at = a.lerp(b, 0.2)  # high up the limb, toward the body
+	var mi := MeshInstance3D.new()
+	mi.name = "Bandage" if how == &"pressure" else "Tourniquet"
+	var band := CylinderMesh.new()
+	band.top_radius = r * 1.06
+	band.bottom_radius = r * 1.06
+	band.height = 0.08 if how == &"pressure" else 0.035
+	band.radial_segments = 12
+	band.rings = 1
+	mi.mesh = band
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = PixelArt.blood("bandage" if how == &"pressure" else "sling", 83, false, 32)
+	m.roughness = 0.95
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.basis = _along(b - a)
+	mi.position = at
+	vis.add_child(mi)
+	_bands.append({"mi": mi, "segment": seg})
+	var s := String(seg)
+	var side := s.right(1)
+	if (s.begins_with("forearm") or s.begins_with("upper_arm")) and (physiology.broken.has(StringName("humerus_" + side)) \
+			or physiology.broken.has(StringName("radius_" + side)) or physiology.broken.has(StringName("ulna_" + side))):
+		slung[side] = true
+	if (s.begins_with("thigh") or s.begins_with("shin")) and (physiology.broken.has(StringName("femur_" + side)) \
+			or physiology.broken.has(StringName("tibia_" + side))):
+		for k in 2:
+			var stick := MeshInstance3D.new()
+			stick.name = "Splint"
+			var box := BoxMesh.new()
+			box.size = Vector3(0.025, (b - a).length() * 1.1, 0.012)
+			stick.mesh = box
+			var wood := StandardMaterial3D.new()
+			wood.albedo_color = Color(0.5, 0.38, 0.25)
+			stick.material_override = wood
+			stick.layers = Layers.VIS_BODY
+			var basis := _along(b - a)
+			stick.basis = basis
+			stick.position = (a + b) * 0.5 + basis.x * (r * 1.2) * (1.0 if k == 0 else -1.0)
+			vis.add_child(stick)
+
+
+## How thick a limb is round its middle: his own clothed mesh's (a Studio man's thigh in his
+## trousers is wider than the anatomy's), else the anatomy's capsule.
+func _limb_radius(seg: StringName, axis: Vector3, fallback: float) -> float:
+	var best := 0.0
+	for mi: MeshInstance3D in segment_pieces.get(seg, []):
+		var m: Mesh = _rigid_meshes.get(mi, null)
+		if m == null:
+			continue
+		var box := m.get_aabb()
+		var ax := axis.normalized()
+		# Half its width across the limb (the box's extent off the axis, averaged).
+		var w := 0.0
+		var n := 0
+		for k in 3:
+			var e := Vector3.ZERO
+			e[k] = 1.0
+			if absf(e.dot(ax)) < 0.7:
+				w += box.size[k] * 0.5
+				n += 1
+		if n > 0:
+			best = maxf(best, w / n)
+	return best if best > fallback * 0.8 and best < fallback * 3.0 else fallback
+
+
+## Which arms ("r"/"l") are in a sling: held across him, not hanging.
+var slung := {}
+## Where a slung hand rests: across the front of him, under the other breast (his own space).
+const SLING_HAND := Vector3(0.07, 1.13, -0.2)
+
+
+func _sling_step(delta: float) -> void:
+	for side: String in slung:
+		if limp or (not _grab.is_empty() and _grab.side == side):
+			continue
+		var key := StringName("sling_" + side)
+		var w: float = minf(float(_injury_w.get(key, 0.0)) + delta / INJURY_ONSET, 1.0)
+		_injury_w[key] = w
+		var sx := 1.0 if side == "r" else -1.0
+		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w))
+
+
+## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
+## bone with stitches (the Medical and Surgical History's flap operation), the vessels tied, the
+## limb gone with what festered in it.
+func amputate(segment: StringName) -> void:
+	if physiology.severed_segments.has(segment):
+		return
+	var parent: StringName = anatomy.segments[segment].parent
+	var joint := get_node_or_null(NodePath("Joint_%s" % segment)) as Node3D
+	# (Standing, he has no joint bodies: the joint's rest place in his parent part.)
+	var at: Vector3 = joint.global_position if joint else \
+			(parts[parent] as Node3D).global_transform * (_pivot_rest(segment) - anatomy.segment_center(parent))
+	var limb := parts[segment] as Node3D
+	var down := limb.global_position - at
+	var first := physiology.bleeds.size()
+	physiology.sever(segment)
+	# Tied off: the stump oozes, no more.
+	for i in range(first, physiology.bleeds.size()):
+		physiology.bleeds[i].rate = 0.05
+		physiology.bleeds[i].kind = &"ooze"
+	for sid in anatomy.segments_below(segment) + [segment]:
+		physiology.infections.erase(sid)
+	if physiology.fever() <= 0.0:
+		physiology.gangrene_hours = 0.0
+	_stop_skinning_across_joints(segment)
+	if joint:
+		joint.queue_free()
+	for sid in anatomy.segments_below(segment):
+		var rb := parts.get(sid) as Node3D
+		if rb:
+			rb.visible = false
+			if rb is CollisionObject3D:
+				(rb as CollisionObject3D).collision_layer = 0
+				(rb as CollisionObject3D).collision_mask = 0
+			for mi in segment_pieces.get(sid, []):
+				(mi as MeshInstance3D).visible = false
+	_stump_face(parent, at, down, float(anatomy.segments[segment].radius) * 1.2, &"stump_sewn")
+	wounds.append({"segment": parent, "part": segment, "entry": parts[parent].global_transform.affine_inverse() * at,
+			"exit": null, "lodged": false, "hits": [], "bleeds": range(first, physiology.bleeds.size()),
+			"garments": [], "stain": null, "kind": &"amputated", "dir": down.normalized()})
+	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
+		if held_gun and String(segment).ends_with("_r"):
+			drop_gun()
+
+
+## A wound heals over days when it hasn't gone bad: it stops bleeding and closes to a scar, which
+## he keeps (Wound.healed, in to_dict). What it did to him under the skin (a muscle torn, a bone
+## that set crooked) stays: he favours an old leg wound for good.
+const HEAL_GAME_DAYS := 12.0
+
+
+func _heal(game_dt: float) -> void:
+	var day := 24.0 * physiology.tuning.game_hour_seconds
+	for w: Dictionary in wounds:
+		if w.get("healed", false) or w.kind in [&"blast", &"severed", &"amputated"]:
+			continue
+		w.age = float(w.get("age", 0.0)) + game_dt
+		if float(w.age) < HEAL_GAME_DAYS * day or physiology.infection(w.segment) > 0.0:
+			continue
+		w.healed = true
+		for i: int in w.get("bleeds", []):
+			if i < physiology.bleeds.size():
+				physiology.bleeds[i].rate = 0.0
+		for d: Variant in w.get("marks", []):
+			if is_instance_valid(d):
+				(d as Node).queue_free()
+		w.marks = []
+		w.stain = null
+		var vis: Node3D = visuals.get(w.segment)
+		if vis == null:
+			continue
+		for hole: Variant in [w.entry, w.exit]:
+			if hole != null:
+				var line: bool = w.kind == &"slash" or w.kind == &"cut" or w.kind == &"graze"
+				var scar := _decal(vis, w.segment, hole, 0.035, PixelArt.blood("scar_line" if line else "scar", 87, false, 32))
+				scar.name = "Scar"
+				if line and w.get("stop") != null:
+					var a: Vector3 = hole
+					var b: Vector3 = w.stop
+					var n := scar.basis.y
+					var z := (b - a) - n * (b - a).dot(n)
+					if z.length() > 0.005:
+						z = z.normalized()
+						scar.basis = Basis(n.cross(z), n, z)
+						scar.position = (a + b) * 0.5
+						scar.size = Vector3(0.02, 0.06, maxf(a.distance_to(b), 0.04) * 1.1)
+
+
+func _after_step(real_dt: float, game_dt: float) -> void:
+	if not physiology.alive and _face_mats.is_empty():
+		return
+	_heal(game_dt)
+	_pallor_in -= real_dt
+	if _pallor_in <= 0.0:
+		_pallor_in = 0.5
+		# Grey and waxy in shock, and the more so dead (ATLS: pale, cool, clammy skin).
+		var p := physiology
+		var pallor := clampf(p.shock() * 0.8 + (0.0 if p.alive else 0.5), 0.0, 1.0)
+		for m in _face_mats:
+			m.set_shader_parameter(&"pallor", pallor)
+		# A bandage that's still bleeding through shows it.
+		for band: Dictionary in _bands:
+			var mi := band.mi as MeshInstance3D
+			if not is_instance_valid(mi) or mi.name != "Bandage":
+				continue
+			var wet := false
+			for b: Dictionary in p.bleeds:
+				if b.segment == band.segment and p.bleed_rate(b) > 0.15:
+					wet = true
+			(mi.material_override as StandardMaterial3D).albedo_texture = PixelArt.blood("bandage_soaked" if wet else "bandage", 83, false, 32)
+
+
 ## Blood in the windpipe or a holed lung: he coughs it up, now and then.
 func _cough(delta: float) -> void:
 	var p := physiology
@@ -1566,7 +1897,8 @@ func _cough(delta: float) -> void:
 	var head: Node3D = parts[&"head"]
 	var mouth := head.global_transform * (Vector3(0, 1.58, -0.1) - anatomy.segment_center(&"head"))
 	var fwd := -head.global_basis.z
-	ImpactEffects.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, Blood.ARTERIAL, 10, 1.6, 0.012)
+	# From a holed lung it comes up frothy and bright, pink with air (ATLS).
+	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6, WoundSigns.FROTH if not p.lung_damage.is_empty() else Blood.ARTERIAL)
 	Blood.throw(get_parent() as Node3D, mouth, fwd * 1.6, 3.0)
 	_flinch_from(&"chest", mouth, -fwd, 0.02)
 
@@ -1709,6 +2041,218 @@ func _flinch_from(segment: StringName, at: Vector3, dir: Vector3, momentum: floa
 		sid = anatomy.segments[sid].parent
 
 
+# --- A hand to the wound -----------------------------------------------------------------------
+
+## Hit and still on his feet, he puts a free hand over the hole: the throat, a side, his belly, a
+## thigh, the other arm. Not a flinch (Sean, 2026-10-18: no flinch or wince for a ball that doesn't
+## drop him) but after a beat, as a man does who has just found he's hit, and held while it bleeds or
+## hurts. Procedural, by two-bone IK on the arm after the pose: the hole is wherever the ball went,
+## which no clip can know (Sean, 2026-10-21). Measured in experiments/body_lab (`grab`).
+const GRAB_DELAY := 0.3  ## s before he reaches: he's only just found it
+const GRAB_REACH := 0.55  ## s to get his hand there
+const GRAB_LET_GO := 1.2  ## s to let it fall away
+const GRAB_HOLD_BLEED := 0.15  ## ml/s still coming from it: he holds on
+const GRAB_HOLD_PAIN := 0.3  ## felt pain: he holds on
+const GRAB_PALM := 0.075  ## m from the wrist to the middle of the palm, laid over the hole
+const GRAB_OFF_SKIN := 0.03  ## m the palm's middle stands off the skin (the hand's own thickness)
+## Poses in which a hand can go to a wound (not his hands up or bound, not lying, not dragging).
+const GRAB_POSES := [&"stand", &"aim", &"wary", &"crouch", &"crouch_aim", &"duck", &"clutch", &"tend", &"shove"]
+var _grab := {}  ## {wound, seg, at (part-local), side, t, w}
+## Off: no hand goes to a wound (the body lab's A/B, `--no-grab`).
+static var hand_to_wound := true
+
+
+## A new wound: if it's bleeding worse than the one he's holding (or he holds none), it's the one
+## his hand goes to, by the side it's on, or the hand that's free.
+func _reach_for(w: Dictionary) -> void:
+	# Not for a graze: it stings, he doesn't hold it (Sean, 2026-10-21: "no grab on a graze").
+	if not hand_to_wound or limp or prone or w.kind in [&"blast", &"severed", &"graze"]:
+		return
+	if not _grab.is_empty() and _wound_bleed(_grab.wound) >= _wound_bleed(w):
+		return
+	var seg: StringName = w.segment
+	var at: Vector3 = w.entry
+	# The way out, if that's the hole on his front (a ball from behind).
+	if w.exit != null and _skin_normal(seg, w.exit).z < _skin_normal(seg, at).z:
+		at = w.exit
+	var side := _grab_hand(seg, at)
+	if side == "":
+		return
+	var keep: float = _grab.get("w", 0.0) if _grab.get("side", "") == side else 0.0
+	if not _grab.is_empty():
+		_hand_press(_grab.wound, false)
+	_grab = {"wound": w, "seg": seg, "at": at, "side": side, "t": 0.0, "w": keep}
+
+
+## Which hand ("r"/"l", or "" if neither): not the arm that's hit, not the gun hand, not a broken
+## or lost one; the one on the wound's side first.
+func _grab_hand(seg: StringName, at: Vector3) -> String:
+	var s := String(seg)
+	var on_arm := s.begins_with("upper_arm") or s.begins_with("forearm") or s.begins_with("hand")
+	var first := "r" if (anatomy.segment_center(seg) + at).x > 0.0 else "l"
+	if on_arm:
+		first = "l" if s.ends_with("_r") else "r"
+	for side in [first, "l" if first == "r" else "r"]:
+		if on_arm and s.ends_with("_" + side):
+			continue
+		if _hand_free(side):
+			return side
+	return ""
+
+
+func _hand_free(side: String) -> bool:
+	var p := physiology
+	if p.arms_paralysed():
+		return false
+	if side == "r" and held_gun != null and not gun_holstered:
+		return false
+	for part in [&"upper_arm_", &"forearm_", &"hand_"]:
+		if p.severed_segments.has(StringName(part + side)):
+			return false
+	for bone in [&"humerus_", &"radius_", &"ulna_", &"clavicle_"]:
+		if p.broken.has(StringName(bone + side)):
+			return false
+	return true
+
+
+## How much a hand is pressed over this point (world): 0 none, 1 his palm right on it (the
+## blood wells out between his fingers rather than spurting: BloodJet).
+func hand_over(point: Vector3) -> float:
+	if _grab.is_empty() or limp:
+		return 0.0
+	var palm := (parts[StringName("hand_" + _grab.side)] as Node3D).global_position
+	return float(_grab.w) * clampf(1.0 - (palm.distance_to(point) - 0.05) / 0.05, 0.0, 1.0)
+
+
+## What a wound bleeds now, as if no hand were on it (so holding it doesn't make him let go).
+func _wound_bleed(w: Dictionary) -> float:
+	var r := 0.0
+	for i: int in w.get("bleeds", []):
+		if i < physiology.bleeds.size():
+			var b: Dictionary = physiology.bleeds[i]
+			var rate := physiology.bleed_rate(b)
+			if b.get("hand", false) and not b.pressure and not b.tourniquet:
+				rate /= physiology.tuning.pressure_factor
+			r += rate
+	return r
+
+
+## His palm clamped over a wound holds its bleeding back (the outside ones: not what bleeds inside
+## him) while it's there; lifted, it spurts again.
+const GRAB_PRESSES := 0.9  ## the hand's this far there (its weight) before it presses
+
+
+func _hand_press(w: Dictionary, on: bool) -> void:
+	for i: int in w.get("bleeds", []):
+		if i < physiology.bleeds.size() and physiology.bleeds[i].kind != &"internal":
+			physiology.bleeds[i].hand = on
+
+
+func _grab_step(delta: float) -> void:
+	if _grab.is_empty():
+		return
+	var g := _grab
+	g.t += delta
+	var side: String = g.side
+	var holding: bool = physiology.is_conscious() and pose in GRAB_POSES and stumbling <= 0.0 and _hand_free(side) \
+			and parts.has(g.seg) and (_wound_bleed(g.wound) > GRAB_HOLD_BLEED or physiology.felt_pain() > GRAB_HOLD_PAIN)
+	var goal := 1.0 if holding and g.t >= GRAB_DELAY else 0.0
+	g.w = move_toward(g.w, goal, delta / (GRAB_REACH if goal > g.w else GRAB_LET_GO))
+	_hand_press(g.wound, g.w >= GRAB_PRESSES)
+	if g.w <= 0.0 and goal == 0.0 and g.t >= GRAB_DELAY:
+		_grab.clear()
+		return
+	var k := smoothstep(0.0, 1.0, g.w)
+	# A shot hand or forearm: he brings it in to the front of his belly and holds it with the other.
+	var hurt := ""
+	if String(g.seg).begins_with("hand") or String(g.seg).begins_with("forearm"):
+		hurt = String(g.seg).right(1)
+		var hx := 1.0 if hurt == "r" else -1.0
+		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k)
+	var part := parts[g.seg] as Node3D
+	var at: Vector3 = part.global_transform * (g.at as Vector3)
+	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
+	if not _arm_to(side, at, n, k) and hurt == "":
+		_hand_press(g.wound, false)
+		_grab.clear()  # out of his reach (a shin, standing): he leaves it
+		return
+	if side == "r" and held_gun != null and not gun_holstered:
+		return
+	var curl := lerpf(0.15, 0.4, k)
+	if absf(curl - float(g.get("curl", -1.0))) > 0.02:
+		g.curl = curl
+		curl_hand(side, curl)
+
+
+## Lay the hand on `side` over the point `at` (world, skin normal `n`), by `k` of the way from the
+## pose: two-bone IK on the shoulder and elbow, the elbow out and down, then the hand turned to lie
+## across the hole palm in. False if it's out of his reach.
+func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
+	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
+	var fa := pivots.get(StringName("forearm_" + side)) as Node3D
+	var hd := pivots.get(StringName("hand_" + side)) as Node3D
+	if up == null or fa == null or hd == null:
+		return false
+	var hand_sid := StringName("hand_" + side)
+	var l1 := (_pivot_rest(StringName("forearm_" + side)) - _pivot_rest(StringName("upper_arm_" + side))).length()
+	var l2 := (_pivot_rest(hand_sid) - _pivot_rest(StringName("forearm_" + side))).length()
+	var sh := up.global_position
+	# The hand lies across the hole the way the arm comes to it, along the skin; on his neck and
+	# trunk more level than that (fingers round the side of the neck, not up over his chin).
+	var along := at - sh
+	var high: bool = _grab.get("seg", &"") in [&"neck", &"head"]
+	if high:
+		# Up from in front, his fingers round the side of his neck toward the back, elbow down.
+		along = global_basis * Vector3(0, 0.3, 1)
+	elif _grab.get("seg", &"") in [&"chest", &"abdomen", &"pelvis"]:
+		along = global_basis.inverse() * along
+		along.y *= 0.25
+		along = global_basis * along
+	along = (along - n * along.dot(n))
+	along = along.normalized() if along.length() > 1e-4 else Vector3.DOWN
+	var wrist := at + n * GRAB_OFF_SKIN - along * GRAB_PALM
+	var to := wrist - sh
+	if to.length() > l1 + l2 + 0.1:
+		return false
+	var d := clampf(to.length(), absf(l1 - l2) + 0.01, l1 + l2 - 0.005)
+	var dir := to.normalized()
+	var sx := 1.0 if side == "r" else -1.0
+	var pole := global_basis.x * sx * 0.6 + Vector3.DOWN * 0.4 + global_basis.z * 0.3
+	if high:
+		pole = -global_basis.z * 0.5 + Vector3.DOWN * 0.6 + global_basis.x * sx * 0.2
+	pole = (pole - dir * pole.dot(dir)).normalized()
+	var a := (l1 * l1 + d * d - l2 * l2) / (2.0 * d)
+	var elbow := sh + dir * a + pole * sqrt(maxf(l1 * l1 - a * a, 0.0))
+	var wrist_at := sh + dir * d
+	# Worked out on the joints' world frames, then each set once (setting them as it goes made the
+	# engine work out every part under them each time).
+	var b_up := up.global_basis
+	var b_fa := fa.global_basis
+	var b_hd := hd.global_basis
+	var e0 := fa.global_position
+	var w0 := hd.global_position
+	var q1 := Quaternion((e0 - sh).normalized(), (elbow - sh).normalized())
+	var e1 := sh + q1 * (e0 - sh)
+	var w1 := e1 + q1 * (w0 - e0)
+	var q2 := Quaternion((w1 - e1).normalized(), (wrist_at - e1).normalized())
+	var up_ik := Basis(q1) * b_up
+	var fa_ik := Basis(q2 * q1) * b_fa
+	var hd_ik := Basis(q2 * q1) * b_hd
+	var seg: Dictionary = anatomy.segments[hand_sid]
+	var axis := ((seg.b as Vector3) - (seg.a as Vector3)).normalized()
+	hd_ik = Basis(Quaternion((hd_ik * axis).normalized(), along)) * hd_ik
+	# Palm in, onto him (at rest the palms face in: -x on the right hand, +x on the left).
+	var palm := hd_ik * Vector3(-sx, 0, 0)
+	var want := -n - along * (-n).dot(along)
+	var have := palm - along * palm.dot(along)
+	if want.length() > 1e-4 and have.length() > 1e-4:
+		hd_ik = Basis(along, have.normalized().signed_angle_to(want.normalized(), along)) * hd_ik
+	up.global_basis = Basis(b_up.get_rotation_quaternion().slerp(up_ik.get_rotation_quaternion(), k))
+	fa.global_basis = Basis(b_fa.get_rotation_quaternion().slerp(fa_ik.get_rotation_quaternion(), k))
+	hd.global_basis = Basis(b_hd.get_rotation_quaternion().slerp(hd_ik.get_rotation_quaternion(), k))
+	return true
+
+
 # --- Being shot --------------------------------------------------------------------------------
 
 ## A bullet reached a body part's hitbox. Traces it through the anatomy under the clothes; returns
@@ -1736,9 +2280,24 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
 			"stop": (tr.stop - center) if tr.stop != null else null,
 			"bleeds": bleeds, "garments": holed, "stain": null,
-			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d}
+			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d,
+			"exits": (tr.exits as Array).map(func(e: Vector3) -> Vector3: return e - center),
+			"flattened": tr.flattened, "split": tr.split, "skipped": tr.skipped}
+	# A ball through his clothes carries a plug of them in with it (the Medical and Surgical History:
+	# cloth was the commonest thing taken out of a wound); one that stays in him keeps it.
+	if not holed.is_empty() and not tr.graze and _chance(tr.entry, 7) < (CLOTH_IN_LODGED if wound.lodged else CLOTH_IN_THROUGH):
+		wound.cloth = holed[0]
+	# A wound with cloth in it festers; a clean one sometimes does (Physiology.contaminate).
+	if not tr.graze and (wound.has("cloth") or _chance(tr.entry, 17) < FESTER_CLEAN_CHANCE):
+		physiology.contaminate(seg, wound.has("cloth"))
+	# Fired within about a metre: burnt powder and soot round the hole (`powder`, how far off).
+	if travelled < POWDER_RANGE and mass >= PELLET_MASS and not tr.graze:
+		wound.powder = maxf(travelled, 0.001)
 	wounds.append(wound)
 	_paint_wound(wound)
+	# A scalp wound above the eyes bleeds freely and runs into the eye on that side.
+	if seg == &"head" and tr.graze and (tr.entry as Vector3).y > 1.65:
+		physiology.blood_in_eye[&"r" if (tr.entry as Vector3).x > 0.0 else &"l"] = Physiology.SCALP_BLIND_SECONDS
 	for h: Dictionary in tr.hits:
 		if h.effect == &"severed":
 			sever_finger(h.id, dir)
@@ -1750,9 +2309,11 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 		blast = 300.0 if travelled < 0.3 else 120.0 * maxf(1.5 - travelled, 0.0)
 	at_entry += blast
 	if not tr.graze:
-		open_wound(seg, tr.entry - center, at_entry, dir)
+		open_wound(seg, tr.entry - center, at_entry, dir, &"gore_exit" if travelled < CONTACT_RANGE else &"gore_crater")
 		if tr.exit != null:
-			open_wound(seg, tr.exit - center, deposited * 0.75, dir)
+			open_wound(seg, tr.exit - center, deposited * 0.75 * (1.6 if tr.flattened else 1.0), dir, &"gore_exit")
+		for i in range(1, (tr.exits as Array).size()):
+			open_wound(seg, (tr.exits[i] as Vector3) - center, deposited * 0.4, dir, &"gore_exit")
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -1761,10 +2322,14 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	# (a .45 ball stopped in him is 4.5 N*s: a man's speed changes by 6 cm/s, it doesn't throw him).
 	var given := maxf(mass, 0.001) * (sqrt(2.0 * energy / maxf(mass, 0.001)) - sqrt(2.0 * tr.energy_out / maxf(mass, 0.001)))
 	var knocked := not limp and _knocked_down(seg, deposited, severe, _small_wound(wound.kind))
+	if not knocked:
+		_reach_for(wound)
 	if knocked:
 		_knocked(seg, pos, dir, given)
-	elif limp and collider is RigidBody3D:
-		(collider as RigidBody3D).apply_impulse(dir * given, pos - collider.global_position)
+	elif limp and parts.get(seg) is RigidBody3D:
+		# (The part hit may be the standing one he left this tick: the push goes to his body.)
+		var rb := parts[seg] as RigidBody3D
+		rb.apply_impulse(dir * given, pos - rb.global_position)
 	elif stumbling > 0.0:
 		# Hit again as he stumbles: that's him down now.
 		_fall_now()
@@ -1784,7 +2349,9 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	Events.body_hit.emit(info)
 	if xray:
 		set_xray(true)
-	return {"segment": seg, "exit": exit_world, "energy_out": tr.energy_out, "hits": tr.hits, "wound": wound}
+	# A ball that skipped off a bone or split leaves on its own line.
+	var dir_out: Variant = (xf.basis * (tr.out_dir as Vector3)).normalized() if tr.has("out_dir") else null
+	return {"segment": seg, "exit": exit_world, "energy_out": tr.energy_out, "hits": tr.hits, "wound": wound, "dir_out": dir_out}
 
 
 ## Does the hit itself put him down? A heavy ball dumping its energy in the trunk often does.
@@ -1904,6 +2471,125 @@ func take_cut(collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedd
 	return wound
 
 
+## A knife (the gore lab; DiMaio's sharp-force wounds): a stab goes in narrow and deep along `dir`
+## (`depth` metres of blade), cutting what it reaches but stopped by bone; a slash is drawn across
+## him from `pos` along `along` for `length` metres, `depth` deep, and gapes, the skin and muscle
+## pulled apart across its line. Returns the wound.
+func take_knife(collider: Node3D, pos: Vector3, dir: Vector3, stab := true, depth := 0.1, along := Vector3.ZERO, length := 0.12) -> Dictionary:
+	var seg: StringName = collider.get_meta(&"segment", &"")
+	if seg == &"":
+		seg = segment_at(pos)
+		collider = parts[seg]
+	var xf := collider.global_transform
+	var center := anatomy.segment_center(seg)
+	var inv := xf.affine_inverse()
+	var d := (inv.basis * dir).normalized()
+	var per_m := 100.0 * anatomy.flesh_resistance
+	var tr: Dictionary
+	if stab:
+		tr = anatomy.trace(seg, inv * pos + center - d * 0.02, d, depth * per_m, 0.004, _rng)
+	else:
+		# Down the line of the cut, a few blade-depths in from the skin.
+		var a := (inv.basis * along).normalized()
+		var start := inv * pos + center
+		tr = {}
+		for i in 5:
+			var at: Vector3 = start + a * length * (float(i) / 4.0)
+			var one := anatomy.trace(seg, at - d * 0.02, d, depth * per_m, 0.002, _rng)
+			if tr.is_empty():
+				tr = one
+			else:
+				for h: Dictionary in one.hits:
+					if not tr.hits.any(func(x: Dictionary) -> bool: return x.id == h.id):
+						tr.hits.append(h)
+				tr.stop = one.entry
+		tr.cut = true
+		tr.track_cm = length * 100.0
+	var bleeds := physiology.apply_trace(tr)
+	var wound := {"segment": seg, "entry": tr.entry - center, "exit": null, "lodged": false,
+			"stop": (tr.stop - center) if tr.stop != null else tr.entry - center,
+			"hits": tr.hits.map(func(h: Dictionary) -> Dictionary: return {"id": h.id, "effect": h.effect}),
+			"bleeds": bleeds, "garments": [], "stain": null, "kind": &"stab" if stab else &"slash", "dir": d}
+	wounds.append(wound)
+	_paint_wound(wound)
+	if stab:
+		open_wound(seg, tr.entry - center, 150.0, dir, &"")
+	if not _knocked_down(seg, 0.0, false, false):
+		_reach_for(wound)
+	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": wound.hits,
+			"position": pos, "direction": dir, "exit": null, "lodged": false, "kind": wound.kind}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return wound
+
+
+## Something left standing in a wound: a shard of window glass, a splinter of wood off a blast,
+## sticking out of him along the way it went in.
+func _stuck_in(w: Dictionary, glass: bool) -> void:
+	var vis: Node3D = visuals.get(w.segment)
+	if vis == null:
+		return
+	var mi := MeshInstance3D.new()
+	mi.name = "Shard" if glass else "Splinter"
+	var box := BoxMesh.new()
+	var length := 0.03 + _chance(w.entry, 11) * 0.04
+	box.size = Vector3(0.03, 0.004, length * 1.3) if glass else Vector3(0.006, 0.006, length * 1.6)
+	mi.mesh = box
+	var m := StandardMaterial3D.new()
+	if glass:
+		# Window glass seen edge-on is green; it catches the light.
+		m.albedo_color = Color(0.72, 0.86, 0.8, 0.75)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.roughness = 0.05
+		m.metallic_specular = 1.0
+		m.rim_enabled = true
+		m.rim = 0.6
+	else:
+		m.albedo_color = Color(0.55, 0.4, 0.26)
+		m.roughness = 0.9
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Half in him, half out, back along the way it came.
+	var out := -(w.dir as Vector3).normalized()
+	var b := _along(out)
+	mi.basis = Basis(b.x, b.z, b.y) * Basis(Vector3.BACK, _spin(w.entry))
+	mi.position = (w.entry as Vector3) + out * box.size.z * 0.3
+	vis.add_child(mi)
+
+
+## Burns on him (fire, a blast's flash): the bare skin facing it reddens, blisters and chars, and
+## his clothes there scorch and burn onto him. `amount` as Physiology.burn takes it; `from` is
+## where the heat came from (Vector3.INF: all round, a fire he's in).
+const BURN_MARKS_MAX := 10
+var _burn_marks := 0
+
+
+func burn_marks(amount: float, from := Vector3.INF) -> void:
+	if amount <= 0.0 or _burn_marks >= BURN_MARKS_MAX:
+		return
+	var n := clampi(int(ceil(amount * 3.0)), 1, BURN_MARKS_MAX - _burn_marks)
+	var bare := [&"hand_r", &"hand_l", &"head", &"forearm_r", &"forearm_l", &"neck"]
+	var clothed := [&"chest", &"abdomen", &"upper_arm_r", &"upper_arm_l", &"thigh_r", &"thigh_l"]
+	for i in n:
+		var pool: Array = bare if i % 2 == 0 else clothed
+		var sid: StringName = pool[(_burn_marks + i * 3) % pool.size()]
+		var part := parts.get(sid) as Node3D
+		var vis: Node3D = visuals.get(sid)
+		if part == null or vis == null:
+			continue
+		var toward := Vector3.FORWARD
+		if from != Vector3.INF:
+			toward = (part.global_basis.inverse() * (from - part.global_position)).normalized()
+		var r := float(anatomy.segments[sid].radius)
+		var local := toward * r + Vector3(0, (_chance(Vector3(i, 0, 0) + part.global_position, 13) - 0.5) * r, 0)
+		var key := "burn" if pool == bare else "charred"
+		var d := _decal(vis, sid, local, 0.07 if key == "burn" else 0.1, PixelArt.blood(key, 81, false, 32))
+		d.name = "Burn"
+		d.basis = d.basis * Basis(Vector3.UP, _spin(local + part.global_position))
+	_burn_marks += n
+
+
 ## Hit by something heavy (falling timber, a fall): bruises, broken bones, a burst spleen or a
 ## cracked skull by the energy of it. A standing man hit hard enough goes down.
 func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.DOWN, momentum := -1.0) -> PackedStringArray:
@@ -1985,6 +2671,17 @@ func _skin_normal(seg: StringName, local: Vector3) -> Vector3:
 
 func _paint_wound(w: Dictionary) -> void:
 	var vis: Node3D = visuals[w.segment]
+	var had := vis.get_child_count()
+	_paint_wound_marks(w, vis)
+	# What was laid on him for it, so it can go when it heals.
+	var marks := []
+	for i in range(had, vis.get_child_count()):
+		if vis.get_child(i) is Decal:
+			marks.append(vis.get_child(i))
+	w.marks = marks
+
+
+func _paint_wound_marks(w: Dictionary, vis: Node3D) -> void:
 	var seed := wounds.size() * 13 + rng_seed
 	if w.kind == &"graze" or w.kind == &"cut":
 		# A furrow or a slice: a bloody line along the way it went, no hole.
@@ -2001,12 +2698,50 @@ func _paint_wound(w: Dictionary) -> void:
 		line.size = Vector3(0.022 if w.kind == &"graze" else 0.009, 0.06, length)
 		w.stain = _decal(vis, w.segment, mid, 0.03, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
 		_add_jet(vis, w, mid, 1.0)
+		if w.get("embedded", false):
+			_stuck_in(w, true)
+		return
+	if w.kind == &"slash":
+		# The knife's cut gapes along its line (the painted gash, laid lengthwise).
+		var a: Vector3 = w.entry
+		var b: Vector3 = w.stop
+		var gash := _decal(vis, w.segment, (a + b) * 0.5, 0.03, PixelArt.blood("gore_gash" if not Settings.reduced_gore else "furrow", 19, true, 16))
+		var n := gash.basis.y
+		var z := (b - a) - n * (b - a).dot(n)
+		if z.length() > 0.005:
+			z = z.normalized()
+			gash.basis = Basis(n.cross(z), n, z)
+		gash.size = Vector3(0.035, 0.06, maxf(a.distance_to(b), 0.04) * 1.15)
+		w.stain = _decal(vis, w.segment, (a + b) * 0.5, 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+		(w.stain as Node).add_to_group(&"blood_drying")
+		_add_jet(vis, w, (a + b) * 0.5, 1.0)
 		return
 	var pellet := _small_wound(w.kind)
-	_decal(vis, w.segment, w.entry, 0.022 if pellet else 0.035, PixelArt.blood("wound_entry", 5, true, 16))
+	_decal(vis, w.segment, w.entry, 0.014 if w.kind == &"stab" else (0.022 if pellet else 0.035),
+			PixelArt.blood("furrow" if w.kind == &"stab" else "wound_entry", 5, true, 16))
+	if w.kind == &"splinter" and w.lodged:
+		_stuck_in(w, false)
+	elif pellet and w.lodged:
+		# A pellet from further off lodges just under the skin: a dark lump round its hole.
+		_decal(vis, w.segment, w.entry, 0.03, PixelArt.blood("bruise", 23, false, 16))
+	if w.get("powder", 0.0) > 0.0:
+		# Fired close: soot and burnt powder tattooed round the hole, wider and fainter the further
+		# off (black powder's reaches about a metre: DiMaio).
+		var spread: float = 0.04 + float(w.powder) * 0.16
+		var soot := _decal(vis, w.segment, w.entry, spread, PixelArt.blood("powder", 29, false, 32))
+		soot.modulate.a = clampf(1.0 - float(w.powder) / POWDER_RANGE * 0.7, 0.3, 1.0)
+		if float(w.powder) < SCORCH_RANGE and not (w.get("garments", []) as Array).is_empty():
+			# Closer still, the flash scorches the cloth round the hole.
+			_decal(vis, w.segment, w.entry, 0.05, PixelArt.blood("scorched", 31, false, 32))
 	w.stain = _decal(vis, w.segment, w.entry, 0.03 if pellet else 0.04, PixelArt.blood("stain%d" % (seed % 4), seed % 4, false, 32))
+	(w.stain as Node).add_to_group(&"blood_drying")
 	if w.exit != null:
-		_decal(vis, w.segment, w.exit, 0.035 if pellet else 0.06, PixelArt.blood("wound_exit", 9, true, 16))
+		# A ball that flattened on bone tears a bigger hole out.
+		var out_size := (0.035 if pellet else 0.06) * (Anatomy.BONE_FLATTEN if w.get("flattened", false) else 1.0)
+		_decal(vis, w.segment, w.exit, out_size, PixelArt.blood("wound_exit", 9, true, 16))
+	# A split ball's other way out.
+	for i in range(1, (w.get("exits", []) as Array).size()):
+		_decal(vis, w.segment, w.exits[i], 0.045, PixelArt.blood("wound_exit", 9, true, 16))
 	var through: bool = w.exit != null
 	_add_jet(vis, w, w.entry, 0.5 if through else 1.0)
 	if through:
@@ -2062,14 +2797,50 @@ func _decal(parent: Node3D, seg: StringName, local: Vector3, size: float, tex: T
 
 
 ## Blood soaks outward from each wound as it bleeds.
-func _update_stains() -> void:
+## Blood soaks out through cloth along the threads for minutes after it gets there (blood on cotton
+## spread for 2-5 minutes, NIJ grant report 248671): the patch creeps out to what's bled, this many
+## seconds to get most of the way.
+const STAIN_WICK := 40.0
+
+
+func _update_stains(dt: float) -> void:
+	var k := 1.0 - exp(-dt / STAIN_WICK)
 	for w in wounds:
-		var stain: Decal = w.stain
-		if stain == null or not is_instance_valid(stain):
+		var was: Variant = w.stain
+		if was == null or not is_instance_valid(was):
 			continue
+		var stain := was as Decal
 		var ml := physiology.blood_lost_from(w.bleeds)
-		var s := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
+		var target := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
+		var s: float = w.get("stain_size", 0.04)
+		s += (target - s) * k
+		w.stain_size = s
+		if not w.has("stain_at"):
+			_stain_runs_down(w, stain)
+		# Drawn out and set lower as it grows: blood runs down the cloth from the hole, it doesn't
+		# climb (a neck wound's soaks the shirt front, not his jaw).
 		stain.size = Vector3(s, 0.08 + s * 0.3, s * 1.25)
+		stain.position = w.stain_at + stain.basis.z.normalized() * s * STAIN_RUN
+
+
+## How far a stain's middle sits below its hole, in stain widths.
+const STAIN_RUN := 0.4
+
+
+## Turns a new stain so its long side runs down him as he stands when it starts (it keeps that way
+## after: a soak doesn't move on the cloth when he falls).
+func _stain_runs_down(w: Dictionary, stain: Decal) -> void:
+	w.stain_at = stain.position
+	var parent := stain.get_parent() as Node3D
+	if parent == null or not parent.is_inside_tree():
+		return
+	var n := stain.basis.y.normalized()
+	var down := parent.global_basis.inverse() * Vector3.DOWN
+	var z := down - n * down.dot(n)
+	if z.length() < 0.2:
+		return  # the cloth lies flat: it spreads round the hole
+	z = z.normalized()
+	stain.basis = Basis(n.cross(z), n, z)
 
 
 ## A pool spreads on the ground under him while he lies bleeding.
@@ -2088,6 +2859,7 @@ func _update_pool() -> void:
 		_pool.cull_mask = Layers.WORLD
 		_pool.modulate = Color(0.75, 0.7, 0.7)
 		_pool.top_level = true
+		_pool.add_to_group(&"blood_drying")
 		add_child(_pool)
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
 	_pool.global_position = Vector3(chest.global_position.x, chest.global_position.y, chest.global_position.z)
@@ -2158,6 +2930,9 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	if not _grab.is_empty():
+		_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
+		_grab.clear()
 	_impacts = BodyImpacts.new()
 	var conscious := physiology.is_conscious()
 	var joint_at := {}
@@ -2192,6 +2967,11 @@ func go_limp(push := Vector3.ZERO) -> void:
 		_impacts.watch(rb)
 		rb.global_transform = part.global_transform
 		for c in part.get_children():
+			# The new body isn't in the space until the physics server next steps: a ball flown this
+			# tick (a blast's gravel, the rest of a charge) would pass through him. The standing part
+			# keeps a copy of its shapes until it's freed with the rig (experiments/body_lab, same_tick).
+			if c is CollisionShape3D:
+				part.add_child(c.duplicate())
 			c.reparent(rb, true)
 		bodies[sid] = rb
 		parts[sid] = rb
@@ -2560,6 +3340,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var harm := physiology.blast_injury(kpa.get(&"head", 0.0), kpa.get(&"chest", 0.0), kpa.get(&"head", 0.0), bt, _rng)
 	if chest.distance_to(at) < Blast.fireball_radius(kg):
 		physiology.burn(bt.burn_in_fireball)
+		burn_marks(bt.burn_in_fireball, at)
 		harm.append("burnt")
 	# Torn open where the pressure was worst.
 	for sid: StringName in kpa:
@@ -2569,7 +3350,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 			var local := part.global_transform.affine_inverse() * at
 			var toward := local.normalized() if local.length() > 0.001 else Vector3.FORWARD
 			var skin := toward * float(anatomy.segments[sid].radius)
-			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized())
+			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized(), &"gore_blast")
 	# Limbs: the most of each arm and leg the blast can take.
 	var torn_off: Array[StringName] = []
 	for side in ["r", "l"]:
@@ -2590,6 +3371,9 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
 	if down:
 		harm.append("thrown off his feet")
+		# The blast that throws a man takes his hat: a light thing with a wide brim, it goes faster
+		# than he does (experiments/body_lab: it stayed on every man thrown down).
+		knock_hat_off(push * 1.5 + Vector3.UP * 1.5)
 	if down and not limp:
 		go_limp(push)
 	elif limp:
@@ -2671,7 +3455,7 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 	var at: Vector3 = joint.global_position if joint else (parts[segment] as Node3D).global_position
 	var first := physiology.bleeds.size()
 	physiology.sever(segment)
-	_stop_skinning_across_joints()
+	_stop_skinning_across_joints(segment)
 	if joint:
 		joint.queue_free()
 	for sid in anatomy.segments_below(segment):
@@ -2681,16 +3465,20 @@ func sever_limb(segment: StringName, push := Vector3.ZERO) -> void:
 			rb.linear_velocity += push
 	# The stump and the torn end of the limb.
 	var parent_part := parts[parent] as Node3D
-	open_wound(parent, parent_part.global_transform.affine_inverse() * at, 2200.0)
 	var limb_part := parts[segment] as Node3D
-	open_wound(segment, limb_part.global_transform.affine_inverse() * at, 2200.0)
+	var stump := open_wound(parent, parent_part.global_transform.affine_inverse() * at, 2200.0, Vector3.ZERO, &"")
+	var end := open_wound(segment, limb_part.global_transform.affine_inverse() * at, 2200.0, Vector3.ZERO, &"")
+	# The cut faces, across the stump and the torn end of the limb.
+	var down := limb_part.global_position - at
+	_stump_face(parent, at, down, stump.radius, _stump_look(parent, segment))
+	_stump_face(segment, at, -down, end.radius, &"stump_torn" if _spin(Vector3(0.3, 0.0, 0.0) + at) < PI else _stump_look(segment, segment))
 	var w := {"segment": parent, "part": segment, "entry": parent_part.global_transform.affine_inverse() * at,
 			"exit": null, "lodged": false, "hits": [], "bleeds": range(first, physiology.bleeds.size()),
 			"garments": [], "stain": null, "kind": &"severed", "dir": push.normalized()}
 	wounds.append(w)
 	_add_jet(visuals[parent], w, w.entry, 1.0)
 	if get_parent() is Node3D:
-		ImpactEffects.burst(get_parent(), at, push.normalized(), Blood.ARTERIAL, 16, 3.0, 0.02)
+		Blood.burst(get_parent(), at, push.normalized(), 16, 3.0)
 		Blood.spray(get_parent() as Node3D, at, push.normalized(), 60.0, 8, _rng)
 	if segment.begins_with("hand") or segment.begins_with("forearm") or segment.begins_with("upper_arm"):
 		if held_gun and String(segment).ends_with("_r"):
@@ -2780,7 +3568,8 @@ func _on_settings_changed() -> void:
 ## Tear the body open at a point (segment-centred rest space) with `energy` joules of damage:
 ## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up; past
 ## DESTROY_ENERGY the region is destroyed and the bone in it flies out along `dir` (world).
-func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO) -> Dictionary:
+## `look` is the painted torn edge laid round it once it opens (`_gore_edge`), none for a stump's.
+func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO, look := &"gore_crater") -> Dictionary:
 	var list: Array = openings.get_or_add(segment, [])
 	var o: Dictionary = {}
 	for existing: Dictionary in list:
@@ -2799,6 +3588,7 @@ func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.
 	o.radius = minf(OPEN_PER_SQRT_JOULE * sqrt(total), cap)
 	if o.radius >= OPEN_MIN_RADIUS:
 		_apply_openings(segment)
+		_gore_edge(segment, o, look)
 	if total >= DESTROY_ENERGY:
 		o.destroyed = true
 		_smash_bone(segment, o.at, o.radius, old_at, old_radius, dir)
@@ -2846,6 +3636,120 @@ func open_wound_at(collider: Node3D, point: Vector3, energy: float) -> Dictionar
 		seg = segment_at(point)
 	var part: Node3D = parts[seg]
 	return open_wound(seg, part.global_transform.affine_inverse() * point, energy)
+
+
+## The painted torn edge round an opening (tools/textures/paint_blood.py "gore", by Gemini): a
+## shotgun's crater, a burst exit, a blast's peppering. Laid on the skin and clothes round the hole
+## (the insides show in the hole itself) and grown with it. None with reduced gore.
+func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
+	if look == &"" or Settings.reduced_gore:
+		return
+	var vis: Node3D = visuals.get(segment)
+	if vis == null:
+		return
+	var d: Decal = o.get("gore")
+	if d == null or not is_instance_valid(d):
+		d = _decal(vis, segment, o.at, 0.05, PixelArt.blood(String(look), 61, true, 32))
+		d.name = "Gore"
+		o.gore = d
+		# Turned about the hole by where it is, so two of the same look don't match (not from his
+		# dice: a look mustn't change how a fight goes).
+		d.basis = d.basis * Basis(Vector3.UP, _spin(o.at))
+	d.position = o.at
+	var side: float = o.radius * GORE_EDGE
+	d.size = Vector3(side, 0.08, side)
+
+
+## How often a ball carries cloth into him: staying in him, and going through (the way out takes
+## some of it with it).
+## How close a shot leaves burnt powder round its hole (m), and how close is a contact shot whose
+## gas tears the hole open in a star (DiMaio).
+const POWDER_RANGE := 0.9
+const CONTACT_RANGE := 0.05
+const SCORCH_RANGE := 0.3
+const FESTER_CLEAN_CHANCE := 0.3
+const CLOTH_IN_LODGED := 0.7
+const CLOTH_IN_THROUGH := 0.35
+
+
+## A roll (0..1) from where a wound is and what it's for (`salt`): the same wound, the same roll,
+## and not from his dice (a wound's look and what it carried mustn't change how a fight goes).
+func _chance(p: Vector3, salt: int) -> float:
+	return float(posmod(hash([p.snapped(Vector3.ONE * 0.0005), salt, rng_seed]), 10007)) / 10007.0
+
+
+## An angle (0..TAU) from a point, for turning a painted mark: the same point, the same turn.
+static func _spin(p: Vector3) -> float:
+	return float(posmod(hash(p.snapped(Vector3.ONE * 0.001)), 10007)) / 10007.0 * TAU
+
+
+## How wide a wound's painted edge is, in opening radii (the painted wound's own hole is about a
+## third of its picture: it falls in the opening, where there's no skin to take it).
+const GORE_EDGE := 3.0
+
+
+## Which painted section a limb shows where it's cut through (the bones in it: Gray's Anatomy).
+static func _stump_look(sid: StringName, severed: StringName) -> StringName:
+	var s := String(sid)
+	if s.begins_with("forearm") or s.begins_with("shin") or s.begins_with("hand") or s.begins_with("foot"):
+		return &"stump_pair"
+	if s.begins_with("thigh"):
+		return &"stump_leg"
+	if s.begins_with("upper_arm"):
+		return &"stump_arm"
+	# The trunk's side of a whole arm or leg off: the limb's top in section.
+	return &"stump_leg" if String(severed).begins_with("thigh") else &"stump_arm"
+
+
+## A painted cut face across a limb where it was torn through (tools/textures/paint_blood.py
+## "stumps", by Gemini): a disc at the plane where the opening leaves the skin, as wide as the limb
+## there, facing out along `out` (world). The bone and muscle that stand proud of it are the insides
+## (BodyInterior). With reduced gore, the plain opening.
+func _stump_face(segment: StringName, at: Vector3, out: Vector3, opening: float, look: StringName) -> void:
+	if Settings.reduced_gore or out.length() < 0.001:
+		return
+	var vis: Node3D = visuals.get(segment)
+	var part := parts.get(segment) as Node3D
+	if vis == null or part == null:
+		return
+	var local := part.global_transform.affine_inverse() * at
+	var axis := (part.global_basis.inverse() * out).normalized()
+	# The limb's radius at the cut: the nearest of its capsules.
+	var r := 0.04
+	var best := INF
+	var p := local + anatomy.segment_center(segment)
+	for c: Array in anatomy.segments[segment].capsules:
+		var a: Vector3 = c[0]
+		var ab: Vector3 = (c[1] as Vector3) - a
+		var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 1e-9), 0.0, 1.0)
+		var off := p.distance_to(a + ab * t) - float(c[2])
+		if off < best:
+			best = off
+			r = float(c[2])
+	var mi := MeshInstance3D.new()
+	mi.name = "StumpFace"
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * r * 2.0 * STUMP_FACE_FILL
+	mi.mesh = quad
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = PixelArt.blood(String(look), 67, true, 32)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.roughness = 0.3  # wet
+	mi.material_override = m
+	mi.layers = Layers.VIS_BODY
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The quad faces its +Z: along the limb, out of the cut; turned at random about it.
+	var b := _along(axis)
+	mi.basis = Basis(b.z, b.x, b.y) * Basis(Vector3.BACK, _spin(local))
+	var back := sqrt(maxf(opening * opening - r * r, 0.0))
+	mi.position = local - axis * back
+	vis.add_child(mi)
+
+
+## How much of its square a painted section fills (its picture is cropped with a little margin).
+const STUMP_FACE_FILL := 1.0
 
 
 func is_open(segment: StringName) -> bool:
@@ -3042,6 +3946,16 @@ func _describe_one(w: Dictionary) -> String:
 			how = "a graze, a bloody furrow"
 		&"cut":
 			how = "glass cut" + (", a shard still in it" if w.get("embedded", false) else "")
+		&"stab":
+			how = "a stab wound, narrow and deep"
+		&"slash":
+			how = "a knife cut, gaping"
+		&"splinter":
+			how = "a splinter" + (", still in him" if w.lodged else "")
+		&"amputated":
+			how = "the %s taken off by the doctor, the stump sewn" % _place(w.get("part", w.segment))
+	if w.get("powder", false):
+		how += ", powder-burnt (fired close)"
 	return "%s%s" % [how, (" — " + ", ".join(what)) if not what.is_empty() else ""]
 
 
@@ -3059,6 +3973,8 @@ func _hit_words(w: Dictionary) -> PackedStringArray:
 				what.append("%s torn" % String(h.id).get_slice("_", 0))
 			&"severed":
 				what.append("%s finger off" % String(h.id).get_slice("_", 0))
+	if w.get("cloth", &"") != &"":
+		what.append("a plug of his %s carried in" % String(w.cloth))
 	return what
 
 
@@ -3068,7 +3984,9 @@ func to_dict() -> Dictionary:
 		ws.append({"segment": w.segment, "entry": w.entry, "exit": w.exit, "lodged": w.lodged,
 				"hits": w.hits, "bleeds": w.bleeds, "garments": w.garments,
 				"kind": w.get("kind", &"bullet"), "embedded": w.get("embedded", false),
-				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray())})
+				"part": w.get("part", &""), "harm": w.get("harm", PackedStringArray()),
+				"cloth": w.get("cloth", &""), "flattened": w.get("flattened", false),
+				"healed": w.get("healed", false), "age": w.get("age", 0.0)})
 	var gs := {}
 	for g in garments:
 		gs[g.id] = g.holes.duplicate(true)

@@ -363,6 +363,7 @@ jobs:
       - name: Paint and reduce the materials
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
           TEXTURE_MODEL: ${{ inputs.paint_model || vars.TEXTURE_MODEL }}
           PAINT_MODEL: ${{ vars.PAINT_MODEL }}
           WHICH: ${{ inputs.textures }}
@@ -392,6 +393,27 @@ jobs:
               only=""
               case "$WHICH" in woods:*) only="--only=${WHICH#woods:}" ;; esac
               python3 tools/textures/paint_woods.py $only $( [ "$REPAINT" = "true" ] && echo --repaint )
+              exit 0 ;;
+            # textures = blood (or blood:splats,...): the blood marks in the painted hand
+            # (tools/textures/paint_blood.py, gameplay, 2026-10-21: Sean's $3, capped), cut into
+            # assets/textures/blood/ by cut_blood.py.
+            blood|blood:*)
+              only=""
+              case "$WHICH" in blood:*) only="--only=${WHICH#blood:}" ;; esac
+              # Sean's $3 in all: $0.19 on run 100 (the wounds), $0.19 on run 101 (the stains),
+              # $0.38 on run 102 (the splats and pools), $0.19 on run 103 (the wounds again),
+              # $0.39 on run 104 (gore_test), $0.28 on run 105 (Gemini: the stumps and gore),
+              # $0.42 on run 108 (the gore lab's marks, aftercare, cloth).
+              python3 tools/textures/paint_blood.py $only --budget=0.96 $( [ "$REPAINT" = "true" ] && echo --repaint )
+              python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
+              exit 0 ;;
+            # textures = gore_test (or gore_test:gemini,gpt,fal): one gore sheet asked of Google's and
+            # OpenAI's image models and of FLUX dev with the style LoRA on fal, to see which paints it
+            # (tools/textures/gore_test.py, gameplay, 2026-10-21: Sean's blood $3, capped at $0.75).
+            gore_test|gore_test:*)
+              only=""
+              case "$WHICH" in gore_test:*) only="--only=${WHICH#gore_test:}" ;; esac
+              python3 tools/textures/gore_test.py $only --budget=0.75
               exit 0 ;;
             # textures = mlab:NAME (or mlab:NAME:floor,...): a material lab candidate set
             # (tools/textures/material_lab.json, paint_woods.py --set; art, roadmap 1.4a), painted

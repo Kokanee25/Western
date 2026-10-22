@@ -593,10 +593,17 @@ static func skin(key: String, base: Color, seed: int) -> ImageTexture:
 	return tex
 
 
+## The painted blood marks (splats, stains, the pool, wounds), by PixelArt.blood's key.
+const BLOOD_PATH := "res://assets/textures/blood/%s.png"
+
 ## Blood: an irregular blob in three reds, soaked darker in the middle. `hole` adds the dark
 ## punched hole of a bullet wound at the centre. Alpha is hard-edged (use alpha scissor).
-static func blood(key: String, seed: int, hole := false, n := 32) -> ImageTexture:
+static func blood(key: String, seed: int, hole := false, n := 32) -> Texture2D:
 	if _cache.has(key):
+		return _cache[key]
+	# Painted in the game's hand where there's one (tools/textures/paint_blood.py, cut_blood.py).
+	if use_factory and ResourceLoader.exists(BLOOD_PATH % key):
+		_cache[key] = load(BLOOD_PATH % key)
 		return _cache[key]
 	var shades: Array[Color] = [Color(0.2, 0.02, 0.02), Color(0.33, 0.04, 0.03), Color(0.46, 0.07, 0.05)]
 	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)

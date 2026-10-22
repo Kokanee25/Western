@@ -153,17 +153,9 @@ Report: a baseline table, a contact sheet of a typical fight, the five biggest r
 ## Body lab (3.1b) [Salt Creek]
 
 ```
-Gameplay lane, branch claude/gameplay-body-lab. Build the body lab, roadmap 3.1b. Read the body section of docs/briefs/labs.md, the src/bodies section of docs/LAYOUT.md, and experiments/physics_lab/README.md (reuse its harness where you can).
+Gameplay lane, branch claude/gameplay-body-lab-<n>. The body lab's bench and baseline are in, with its first fixes (a ball on the tick a man goes limp, inside bleeding and packing that can hold, one limb off cracking every joint, the hat in a blast, the femur's bleed): read experiments/body_lab/README.md ("Since the baseline", "Where the game is furthest from the medicine") and results/.
 
-Bench and baseline only: change nothing about how the game plays. Don't edit HumanBody, Anatomy or Physiology: the falls session owns HumanBody. Lab in experiments/body_lab/ with a README, its bridge commands in its own bridge.gd, outputs in build/, seeded.
-
-Scenarios: revolver and shotgun at 5, 15 and 30 m into marked spots (thigh, neck, upper arm, chest, belly, hand); dynamite at 1, 3 and 6 m; then the same wounds treated (tourniquet, packing, the doctor).
-
-Bodies: every scenario on the Studio's men (bold_cowboy_s0, old_rancher_s1, young_drifter_s1), plus one set on outlaw. Check wounds, severing and stumps, and the hat on the rancher and the drifter.
-
-Measure: what each ball's path crosses (artery, bone, organ) against the aim; bleed-out time per artery, untreated and treated; which bones break and what that stops a man doing; limbs lost, from what and where the cut falls; frame time with ten wounded men against the 4 ms people budget. Check against published trauma figures, cited in the README (don't copy their text).
-
-Report: a baseline table, a sheet of the wounds on each man, where the game is furthest from the medicine, anything that doesn't work on the new men, and the first fix you'd make (don't make it).
+Next, one at a time, each measured with run.py against baseline/ and report.py diff, before and after in the PR: [my call on dynamite up close: results/2026-10-21_dynamite_options/ | the gut's time | the blast's cut through the bone's shaft, with the people pipeline]. Check no other session is changing HumanBody first; a change to human_body.gd comes to me with before-and-after sheets. After a fresh checkout, godot --headless --import before the lab (it refuses a man it can't load).
 ```
 
 ## Breakage lab (3.3a) [Salt Creek]

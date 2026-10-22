@@ -83,8 +83,14 @@ func test_leg_shot_through_the_clothes() -> void:
 	var stain: Decal = man.wounds[0].stain
 	var before := stain.size.x
 	man.physiology.step(30.0)
-	await physics_frames(2)
+	# It soaks out through the cloth over the next minute or two (HumanBody.STAIN_WICK).
+	man.time_scale = 30.0
+	await physics_frames(120)
+	man.time_scale = 1.0
 	check(stain.size.x > before * 1.5, "blood spreads through the trousers (%.2f -> %.2f m)" % [before, stain.size.x])
+	var hole: Vector3 = (stain.get_parent() as Node3D).to_global(man.wounds[0].stain_at)
+	if not man.limp and not man.prone:
+		check(stain.global_position.y < hole.y - 0.01, "and runs down from the hole (%.3f below)" % (hole.y - stain.global_position.y))
 
 
 func test_ball_goes_through_into_whatever_is_behind() -> void:
@@ -836,6 +842,46 @@ func test_a_whole_mans_own_hands_get_no_second_set_of_fingers() -> void:
 	for mi in knuckle.find_children("*", "MeshInstance3D", true, false):
 		shown = shown or (mi as MeshInstance3D).visible
 	check(shown, "the finger shot off flies, drawn")
+
+
+## A limb torn off shows its painted cut face across the stump and the limb's torn end, as wide as
+## the limb there; with reduced gore, neither.
+func test_a_stump_shows_its_cut_face() -> void:
+	man.sever_limb(&"shin_l", Vector3(1.0, 0.5, 0.0))
+	await physics_frames(2)
+	var faces := (man.visuals[&"thigh_l"] as Node3D).find_children("StumpFace", "MeshInstance3D", false, false)
+	check_eq(faces.size(), 1, "one face across the thigh's stump")
+	var limb_faces := (man.visuals[&"shin_l"] as Node3D).find_children("StumpFace", "MeshInstance3D", false, false)
+	check_eq(limb_faces.size(), 1, "and one on the shin's torn end")
+	if faces.size() == 1:
+		var face := faces[0] as MeshInstance3D
+		var side: float = (face.mesh as QuadMesh).size.x
+		check(side > 0.06 and side < 0.2, "as wide as a thigh (%.2f m)" % side)
+		var tex := (face.material_override as StandardMaterial3D).albedo_texture
+		check(tex != null and tex.resource_path.ends_with("stump_leg.png"), "painted, a thigh in section (%s)" % (tex.resource_path if tex else "none"))
+
+
+func test_reduced_gore_shows_no_cut_face_or_torn_edge() -> void:
+	Settings.reduced_gore = true
+	man.sever_limb(&"forearm_r", Vector3(1.0, 0.5, 0.0))
+	man.open_wound(&"chest", Vector3(0, 0, -0.12), 2000.0)
+	await physics_frames(2)
+	Settings.reduced_gore = false
+	check(man.find_children("StumpFace", "MeshInstance3D", true, false).is_empty(), "no faces")
+	check(man.find_children("Gore", "Decal", true, false).is_empty(), "no torn edges")
+
+
+## A big opening (a shotgun up close) has its painted torn edge round it, and it grows with the hole.
+func test_a_big_opening_has_a_torn_edge() -> void:
+	var o := man.open_wound(&"chest", Vector3(0, 0, -0.12), 600.0)
+	var d: Decal = o.get("gore")
+	check(d != null, "a torn edge round it")
+	if d == null:
+		return
+	var before := d.size.x
+	man.open_wound(&"chest", Vector3(0, 0, -0.12), 1400.0)
+	check(d.size.x > before, "it grows with the hole (%.3f -> %.3f m)" % [before, d.size.x])
+	check(d.texture_albedo.resource_path.ends_with("gore_crater.png"), "painted")
 
 
 func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:

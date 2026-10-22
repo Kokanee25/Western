@@ -40,6 +40,15 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | The ragdoll falls (rounds 1 to 3) | `src/bodies/human_body.gd` | ragdoll lab (`experiments/physics_lab/`) | in the game |
 | The faint | `src/bodies/human_body.gd` | ragdoll lab | on a branch (`claude/gameplay-faint`) |
 | Field first aid: pressure, tourniquet, bandage (the player's tend key; outlaws tend themselves) | `src/bodies/physiology.gd`, `src/player/player_wounds.gd`, `src/people/outlaw_brain.gd` | tests | in the game; the treatment lab widens it |
+| What a ball does on bone: it flattens, splits or skips off; cloth carried in; powder burns close up | `src/bodies/anatomy.gd` (`trace`), `human_body.gd` (`take_bullet`) | the body lab, `tests/test_injuries.gd` | on a branch (PR #167) |
+| What wounds show over time: blood from the ears, nose and mouth, teeth, a sucking chest, drip trails, handprints, smears, festering, flies | `src/bodies/wound_signs.gd` (`WoundSigns`) | the body lab's `gore` sheet, `tests/test_wound_signs.gd` | on a branch (PR #167) |
+| Blood drying brown over game hours | `src/effects/blood.gd` (`Blood.dry`, from the day cycle) | `tests/test_wound_signs.gd` | on a branch (PR #167) |
+| The knife: a stab and a slash | `HumanBody.take_knife` | `tests/test_injuries.gd` | on a branch (PR #167); no knife in the game yet |
+| Glass and splinters left standing in a wound, buckshot lumps, burns and scorched cloth | `HumanBody._stuck_in`, `burn_marks` | `tests/test_injuries.gd` | on a branch (PR #167) |
+| Dressings drawn: a bandage red through, a tourniquet, a sling, a splint | `HumanBody._bind_wound` (on `Physiology.treated`) | `tests/test_wound_signs.gd` | on a branch (PR #167); the treatment lab decides who applies them |
+| Infection to gangrene over game days, amputation with a sewn stump, healing to scars | `Physiology` (`contaminate`, `infection`, `fever`), `HumanBody.amputate`, `_heal` | `tests/test_wound_signs.gd` | on a branch (PR #167); the treatment lab's doctor (part 2) calls them |
+| Pallor in shock and death, a dying man's gasps, wrist drop, a stiff knee, the gut hunch, breathing rate | `human_body.gd`, the skin shader's `pallor` (art's) | `tests/test_wound_signs.gd`, `test_bodies.gd` | on a branch (PR #167) |
+| The painted blood and gore (wounds, splats, stains, pools, stump sections, torn edges, prints, burns, dressings' cloth) | `assets/textures/blood/`, `tools/textures/paint_blood.py`, `cut_blood.py` | the body lab's sheets | on a branch (PR #167) |
 | Senses, deeds, relations, the escalation ladder, the gang's crew | `src/people/` | tests | in the game |
 | A working face (mouth, lips, teeth, lids, jaw, 12-15 shapes, Live Link takes, `FaceGaze`) | `tools/faces/`, `bold_cowboy_talking` | face rig brief (`docs/briefs/face-rig.md`) | in the game on the old layered cowboy only; the face rig lab brings it to the Studio's men |
 | The Studio's men: `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `sean_s2` | `assets/people/` | `works_check.gd`, `test_bodies.gd` | in the game (cast as the gang, the storekeeper and the sheriff) |
