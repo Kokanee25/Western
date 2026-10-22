@@ -33,6 +33,7 @@ import fit_tripo as FT  # noqa: E402
 import make_people as mp  # noqa: E402
 
 PEOPLE = os.path.join(ROOT, "assets", "people")
+PAINT_LIGHT = 0.45   # how much of MakeHuman's painted light the hands keep (1 all, 0 flat his colour)
 
 
 def quat_mat(q):
@@ -154,6 +155,19 @@ def build(man):
     m.head = np.zeros(len(V), bool)
     m.our_joints = types.MethodType(mp.Person.our_joints, m)
     skin = his_skin(m, colour)
+    # Where his Rodin hand grew into his trousers (Rodin fused them), triangles part hand and part
+    # thigh: the cut takes only the arm's own, so these stayed, and stretched when his wrist was
+    # shaped to the new hand (a web from his forearm to the hand). Gone, with the old hand.
+    o = m.our_joints()
+    drop = np.zeros(len(m.tris), bool)
+    for side in "rl":
+        wr, el = o[side + "-hand"], o[side + "-elbow"]
+        ax = (wr - el) / np.linalg.norm(wr - el)
+        beyond = np.isin(m.region, ["forearm_" + side, "hand_" + side]) & ((m.v - wr) @ ax > -FT.WRIST_CUT)
+        armish = np.isin(m.region, ["forearm_" + side, "hand_" + side])
+        drop |= beyond[m.tris].any(1) & ~armish[m.tris].all(1)
+    m.tris = m.tris[~drop]
+    m.report["mixed_hand_triangles_dropped"] = int(drop.sum())
     for f in ("_stitch", "_free_squares"):
         setattr(m, f, types.MethodType(getattr(FT.TripoPerson, f), m))
     FT.TripoPerson.skinned_hands(m)
@@ -210,8 +224,10 @@ def build(man):
         inside = (hu[:, 0] >= u0) & (hu[:, 0] < u0 + side) & (hu[:, 1] >= v0) & (hu[:, 1] < v0 + side)
         tx = np.clip(((hu[inside, 0] - u0) / side * px).astype(int), 0, px - 1)
         ty = np.clip(((hu[inside, 1] - v0) / side * px).astype(int), 0, px - 1)
-        gain = np.clip(arm_med / np.maximum(np.median(tile[ty, tx], 0), 1.0), 0.6, 1.4)
-        tile = tile * gain
+        # His colour, and MakeHuman's painted light and shade toned down (its highlights near
+        # white, its shadows near black: the game lights him itself), its hue kept.
+        med = np.maximum(np.median(tile[ty, tx], 0), 1.0)
+        tile = arm_med * (np.maximum(tile, 1.0) / med) ** PAINT_LIGHT
         # A fine grain as his arm's paint has (a little blurred: blotches, not noise).
         n = rng.normal(0, 1, (px // 3 + 1, px // 3 + 1))
         n = np.asarray(Image.fromarray(((n * 0.5 + 0.5).clip(0, 1) * 255).astype(np.uint8)).resize((px, px), Image.BICUBIC), np.float64) / 255 - 0.5
@@ -225,6 +241,7 @@ def build(man):
     info["finger_bones"] = m.report["finger_bones"]
     info["own_fingers"] = m.report["own_fingers"]
     info["own_fingers"]["from"] = "makehuman, skinned (tools/faces/hands.py)"
+    info["own_fingers"]["mixed_hand_triangles_dropped"] = m.report.get("mixed_hand_triangles_dropped", 0)
     json.dump(info, open(info_p, "w"), indent=1)
     print("hands:", man, json.dumps({k: v for k, v in m.report["own_fingers"].items() if k != "from"}))
 
