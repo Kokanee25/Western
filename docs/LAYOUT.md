@@ -327,6 +327,13 @@ a few views renders them as the full run does.
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
+- `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
+  ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
+  one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
+  (`flat_rects`). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
+  `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
+  &"ground" (`Ballistics.surface_of`).
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
