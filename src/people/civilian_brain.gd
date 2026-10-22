@@ -438,6 +438,9 @@ func _physics_step(delta: float) -> void:
 	if body.limp:
 		mood = Mood.DOWN
 		return
+	if mood == Mood.DOWN:
+		# Back on his feet (HumanBody.get_up): shaken by it.
+		mood = Mood.SHAKEN
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
