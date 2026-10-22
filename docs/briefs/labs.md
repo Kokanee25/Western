@@ -276,7 +276,17 @@ Two already exist; three more come later, each when its phase needs it.
 | Movement lab: walking, running and mocap on the skeleton | Started, `experiments/mocap_walk/` | Step 4.6, when you record |
 | People lab: town life, memory, what people do the next morning | New; the memory store isn't built yet | Phase 5 |
 
-Sound stays inside the gunfight lab for now (steps, cocking, shouts you can place). It gets its own lab only if that gap outgrows it.
+**Sound lab** (Sean, 2026-10-21: its own lab, now). Every sound today is made in code
+(`src/audio/synth_sounds.gd`: mono, 22 kHz, placeholders until there are recorded ones). The lab
+lists every sound the game plays and what triggers it, then measures how each one sits in the world:
+distance and falloff, indoors against out, the echo off the hills, walls and doors between, how many
+play at once in a gunfight, and what they cost a frame. Then, one at a time and measured: good
+gunshots (revolver and coach gun, near and far, inside the saloon), ricochets and bullet zips,
+dynamite near and far, impacts on wood, flesh, glass and dirt, breaking timber, fire, and steps on
+boards against dirt. Sources: better synthesis first; recorded or generated sounds only with a
+licence that allows redistribution from this public repo, credited in `CREDITS.md`, costs asked
+before paying. The gunfight lab still owns what men *hear* (the perception lab's hearing); this lab
+owns how it *sounds* to the player.
 
 ## Order and cost
 

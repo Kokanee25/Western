@@ -4,6 +4,7 @@
     python3 tools/material_measure.py measure DIR [--masks=BASEDIR]  # DIR/<material>/ -> DIR/measure.json, .md
     python3 tools/material_measure.py sheet --a=DIR [--b=DIR2[,DIR3...]] --out=SHEETS [--material=a,b] [--light=golden]
     python3 tools/material_measure.py crops DIR --out=CROPS  # the blind critic's crops, a man in front of each wood
+    python3 tools/material_measure.py pick --cands=A:DIR,B:DIR2 --out=FILE.jpg  # Sean's pick: a row a wood
 
 The style every material is held to is the Character Studio's three men (bold_cowboy_s0,
 old_rancher_s1, young_drifter_s1), measured in the same frames under the same light:
@@ -23,7 +24,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEN = ["bold_cowboy_s0", "old_rancher_s1", "young_drifter_s1"]
@@ -334,6 +335,59 @@ def crops(root, out, light="golden", size=(560, 420)):
     print("\n".join(made))
 
 
+# The view each wood is picked on (its part's own, a man in it).
+PICK_VIEW = {"saloon_red": "wall", "store_boards": "wall", "weathered_pine": "wall", "floor": "steps",
+             "timber": "post", "fascia": "deck_ends", "framing": "wall_end", "dark_trim": "wall"}
+
+
+def pick(cands, out, light="golden", width=540):
+    """One sheet for Sean's pick, short enough for a phone: a row a wood (its part view at `light`,
+    cropped round the man nearest the wood, the same crop in every column), the candidates across
+    (`cands`: [(tag, dir)], the first the game's today, whose masks place the crop: mostly the wood)."""
+    rows = []
+    font = ImageFont.load_default(size=26) if hasattr(ImageFont, "load_default") else None
+    for name, view in PICK_VIEW.items():
+        base = os.path.join(cands[0][1], name, "%s_%s" % (light, view))
+        if not os.path.exists(base + ".png"):
+            continue
+        img0 = Image.open(base + ".png")
+        mk = masks(base)
+        cw, ch = 960, 640
+        if mk is not None:
+            _, men, wood = mk
+            big = max(men, key=lambda m: m.sum())
+            ys, xs = np.nonzero(big)
+            wy, wx = np.nonzero(wood)
+            # Mostly the wood: the man at its edge for scale.
+            cx = int(np.median(xs) * 0.3 + np.median(wx) * 0.7) if len(wx) else int(np.median(xs))
+            cy = int(np.median(ys) * 0.3 + np.median(wy) * 0.7) if len(wy) else int(np.median(ys))
+        else:
+            cx, cy = img0.width // 2, img0.height // 2
+        x0 = int(np.clip(cx - cw // 2, 0, img0.width - cw))
+        y0 = int(np.clip(cy - ch // 2, 0, img0.height - ch))
+        h = width * ch // cw
+        row = Image.new("RGB", (width * len(cands), h + 36), (24, 22, 20))
+        d = ImageDraw.Draw(row)
+        d.text((8, 2), name.replace("_", " "), fill=(240, 230, 210), font=font)
+        for c, (tag, dirp) in enumerate(cands):
+            p = os.path.join(dirp, name, "%s_%s.png" % (light, view))
+            if os.path.exists(p):
+                im = Image.open(p).convert("RGB").crop((x0, y0, x0 + cw, y0 + ch)).resize((width, h), Image.LANCZOS)
+                row.paste(im, (c * width, 36))
+                dd = ImageDraw.Draw(row)
+                dd.rectangle((c * width, 36, c * width + 14 + 15 * len(tag), 70), fill=(0, 0, 0))
+                dd.text((c * width + 6, 38), tag, fill=(255, 255, 255), font=font)
+        rows.append(row)
+    sheet_im = Image.new("RGB", (rows[0].width, sum(r.height for r in rows)))
+    y = 0
+    for r in rows:
+        sheet_im.paste(r, (0, y))
+        y += r.height
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    sheet_im.save(out, quality=84)
+    print("pick:", out, sheet_im.size)
+
+
 def main():
     args = sys.argv[1:]
     opt = {a.split("=", 1)[0][2:]: a.split("=", 1)[1] for a in args if a.startswith("--") and "=" in a}
@@ -348,6 +402,9 @@ def main():
     elif pos[0] == "sheet":
         sheet(opt["a"], opt.get("b"), opt["out"], opt["material"].split(",") if "material" in opt else None,
               opt.get("light", ",".join(LIGHTS)).split(","))
+    elif pos[0] == "pick":
+        pick([tuple(c.split(":", 1)) for c in opt["cands"].split(",")], opt["out"], opt.get("light", "golden"),
+             int(opt.get("width", 540)))
     elif pos[0] == "crops":
         crops(pos[1], opt["out"], opt.get("light", "golden"))
 

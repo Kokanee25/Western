@@ -144,10 +144,13 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				for m: StructureMember in catching:
 					if is_instance_valid(m) and fire.flammable(m) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
 						fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
+	# A crater, if it went off on (or just over) the dirt.
+	var under := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD))
+	if not under.is_empty() and Ground.is_ground(under.collider):
+		report["crater"] = crater(world, at, kg, at.y - (under.position as Vector3).y)
 	# Gravel and grit off the ground, if it went off on (or near) it.
 	if ballistics:
-		var down := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD)
-		if not space.intersect_ray(down).is_empty():
+		if not under.is_empty():
 			var ground_at := at + Vector3.UP * 0.05
 			for k in tn.ejecta_count:
 				var az := _rng.randf() * TAU
@@ -184,6 +187,40 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	BlastEffects.spawn(world, at, kg)
 	Events.exploded.emit(at, kg)
 	return report
+
+
+## A crater's diameter and depth (m) for `kg` of TNT gone off `height` m over the dirt.
+static func crater_size(kg: float, height: float) -> Vector2:
+	var tn := t()
+	var c := pow(maxf(kg, 0.0), 1.0 / 3.0)
+	var d := tn.crater_k * c * clampf(1.0 - maxf(height, 0.0) / maxf(tn.crater_height * c, 1e-4), 0.0, 1.0)
+	return Vector2(d, d * tn.crater_depth_ratio)
+
+
+## The dirt under a charge: the bowl taken out (Ground.take), a share packed down, the rest laid as
+## the lip and thrown as clods (Clod) that lie down as loose earth where they land. Seeded by the
+## blast. Its diameter, depth, and the earth (bank m³) taken and thrown.
+static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dictionary:
+	var ground := Ground.of(world.get_tree())
+	var size := crater_size(kg, height)
+	if ground == null or size.x < ground.tuning.cell * 3.0:
+		return {}
+	var tn := t()
+	var r := size.x * 0.5
+	var floor_at := Vector3(at.x, at.y - height, at.z)
+	var bank := ground.take(floor_at, r, size.y)
+	var thrown := bank * (1.0 - tn.crater_packed)
+	var flying := thrown * tn.clod_share if tn.clods > 0 else 0.0
+	ground.put(floor_at, thrown - flying, r * tn.lip_out, r, r * tn.lip_peak)
+	for k in (tn.clods if flying > 0.0 else 0):
+		var az := _rng.randf() * TAU
+		var el := deg_to_rad(_rng.randf_range(25.0, 65.0))
+		var dir := Vector3(cos(az) * cos(el), sin(el), sin(az) * cos(el))
+		var start := floor_at + Vector3(cos(az), 0.0, sin(az)) * r * _rng.randf_range(0.2, 0.8)
+		# On the crater's wall, not in it (Jolt would throw it out of the earth).
+		start.y = ground.height_at(start.x, start.z) + pow(flying / tn.clods, 1.0 / 3.0) + 0.02
+		Clod.throw(world, ground, start, dir * _rng.randf_range(tn.clod_speed.x, tn.clod_speed.y), flying / tn.clods, tn.earth_density)
+	return {"diameter_m": size.x, "depth_m": size.y, "taken_m3": bank, "thrown_m3": thrown}
 
 
 ## Everything a charge at `at` acts on, each once: every member and loose body where timber can
