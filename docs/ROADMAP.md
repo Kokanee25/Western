@@ -211,6 +211,12 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+**Sean, 2026-10-22: the labs are parked** (each where it stands, with how to pick it up:
+`docs/briefs/parked-labs-2026-10-22.md`). **Focus: the card cheat playable in the saloon, and
+whether the shooting is fun** (Sean plays the gunfight lab's nine runs, #257). One gameplay session
+at a time until those are answered; then 3.5 (Acts). What follows below is where things stood when
+the labs ran.
+
 Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate A before Phase 4);
 **Phases 2 and 3 run now, up to four sessions at once.**
 

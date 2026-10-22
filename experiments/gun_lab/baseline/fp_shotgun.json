@@ -1,0 +1,90 @@
+{
+  "frames": [
+    {
+      "file": "00_rest.png",
+      "name": "rest",
+      "note": "standing still, from the hip",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked"
+    },
+    {
+      "file": "01_aim.png",
+      "name": "aim",
+      "note": "aiming, settled a second",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked"
+    },
+    {
+      "file": "02_walk.png",
+      "name": "walk",
+      "note": "walking a second",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked"
+    },
+    {
+      "file": "03_run.png",
+      "name": "run",
+      "note": "running",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked"
+    },
+    {
+      "file": "04_cocking.png",
+      "name": "cocking",
+      "note": "a tenth of a second into cocking",
+      "weapon": "shotgun in hand, 2 loaded, 1 cocked"
+    },
+    {
+      "file": "05_cocked.png",
+      "name": "cocked",
+      "note": "cocked, ready",
+      "weapon": "shotgun in hand, 2 loaded, 1 cocked"
+    },
+    {
+      "file": "06_reload_00.png",
+      "name": "reload_00",
+      "note": "break open",
+      "weapon": "shotgun in hand, 0 loaded, 0 cocked, open"
+    },
+    {
+      "file": "07_reload_01.png",
+      "name": "reload_01",
+      "note": "pull shell 0",
+      "weapon": "shotgun in hand, 0 loaded, 0 cocked, open"
+    },
+    {
+      "file": "08_reload_02.png",
+      "name": "reload_02",
+      "note": "pull shell 1",
+      "weapon": "shotgun in hand, 0 loaded, 0 cocked, open"
+    },
+    {
+      "file": "09_reload_03.png",
+      "name": "reload_03",
+      "note": "load shell 0",
+      "weapon": "shotgun in hand, 1 loaded, 0 cocked, open"
+    },
+    {
+      "file": "10_reload_04.png",
+      "name": "reload_04",
+      "note": "load shell 1",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked, open"
+    },
+    {
+      "file": "11_reload_05.png",
+      "name": "reload_05",
+      "note": "close",
+      "weapon": "shotgun in hand, 2 loaded, 0 cocked"
+    },
+    {
+      "file": "12_shot.png",
+      "name": "shot",
+      "note": "aimed shot, 80 ms after (the kick's top)",
+      "weapon": "shotgun in hand, 1 loaded, 0 cocked"
+    },
+    {
+      "file": "13_put_away.png",
+      "name": "put_away",
+      "note": "put away, looking down at the hip",
+      "weapon": "shotgun put away, 1 loaded, 0 cocked"
+    }
+  ],
+  "gun": "shotgun",
+  "hour": 16.0
+}

@@ -66,9 +66,9 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 
 | Part | Where it lives | Proven by | Status |
 | --- | --- | --- | --- |
-| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd` | in the game; the gun lab reworks the look and the moves |
-| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | — | in the game |
-| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests | in the game; the Studio's men can't close a hand round it yet (no finger bones) |
+| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd`, the gun lab's baseline | in the game; the gun lab reworks the look and the moves |
+| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | the gun lab's sheets | in the game |
+| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests, the gun lab's grip gaps | in the game; the Studio's men can't close a hand round it yet (no finger bones) and wear no holster |
 | The kick | `src/weapons/gun_kick.gd` | `test_gun_feel.gd`, feel ranges | in the game |
 
 ## Materials and look (art)
@@ -91,6 +91,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | Part | Where it lives | Proven by | Status |
 | --- | --- | --- | --- |
 | The drawn fire sheet (one noise field of tongues a burning member, in the painting's bands) | `src/fire/fire_sheet.gdshader`, placed by `FireFX._sheet_on` | the judge's fire view (`livery_fire_dusk`) | in the game (the default) |
+| Where flames stand: walls from 30% up, rafters from their middle, the roof and openings first | `FireFX._sheet_on` (`WALL_FOOT`), `FireSystem._update_fx` (`FLAME_FIRST`) | `tests/test_fire_fx.gd`, the fire goldens (re-approved 2026-10-22) | in the game |
 | The fire flipbooks: a lick, a tongue and a big column, each 64 looping frames baked from a Mantaflow fire, with motion vectors (R flame, G smoke, B heat) | `assets/textures/fire/`, made by `tools/textures/fire_sim/` (`bake_flames.py`, `make_sheets.py`, `flames.json`) | `tests/test_fire_flipbooks.gd` (whole, loop seam like a step), `tools/flame_views.gd` | in the game, the default fire since 2026-10-22 (Sean: "keep flames for now", issue #216; the look panel N turns them off); the final painted pass after Gate A |
 | The flipbook flame shader: motion-vector frame blending, a core in the painting's bands that keeps its hue, alpha-blended tips and smoke, soft edges at walls and floors, heat haze | `src/fire/fire_flipbook.gd` (`FireFlipbook`), `flipbook.gdshaderinc`, `flame_core`/`flame_tips`/`flame_haze.gdshader` | `tools/fire_cost.gd` (a building fully alight), `tools/fire_ab.gd` (the A/B film) | as above; uses FireFX's sheets as they are (same quad, same instance uniforms) |
 | The fire painting's colours (its fire's tones, edge to root; its smoke dark and lit) | `assets/textures/fire/fire_ramp.png`, `fire_sheets.json` (from `docs/concept/livery-fire-painted.png`) | `make_sheets.py` | in the game with the flipbooks |
