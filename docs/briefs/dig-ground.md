@@ -4,8 +4,8 @@ Step 3 of `docs/briefs/blast-surfaces.md`: the street's flat ground becomes grou
 earth in one place and gain it in another, with a blast's crater as the first thing that does it.
 Sean's words on it (decision 2 there): **"not worried about when the shovel comes, just that the
 ground is ready for it."** Gameplay lane (the ground's data, collision, mesh, the rules, saving, the
-lab); the ground's look is the art lane's (below, "What art needs"). **Draft for Sean: nothing is
-built yet, and the decisions at the end are his.**
+lab); the ground's look is the art lane's (below, "What art needs"). **Sean's decisions are in
+(2026-10-22, at the end); built in the order below.**
 
 Read for it: `blast-surfaces.md` (step 3, its decisions, "Later: digging with a shovel"), DESIGN.md
 §8 (persistent rubble), §11 (the ground remembers; the parked shovel), `docs/LAYOUT.md` (src/world,
@@ -30,21 +30,21 @@ touches the ground (in the PR).
 - **The breakage lab** (`ground_dynamite_0m` and `_1m`): no crater (depth 0), a 1.3 m scorch decal,
   gravel thrown, 4–5 panes broken in the store front.
 
-## The choice: a height field (proposed) or ground voxels
+## The choice: a height field (chosen) or ground voxels
 
-| | Height field (proposed) | Ground voxels |
+| | Height field (chosen) | Ground voxels |
 | --- | --- | --- |
-| What it is | The ground's height at every cell (5 cm), in 4 m tiles; only tiles that have been dug hold data | The members' carving (the native plugin's `VoxelMember`) laid on the ground in chunks |
+| What it is | The ground's height at every cell (5 cm), in 3.2 m tiles; only tiles that have been dug hold data | The members' carving (the native plugin's `VoxelMember`) laid on the ground in chunks |
 | Does | Craters, holes, graves, trenches, piles, a hole filled back in | All that, plus overhangs and tunnels |
 | Can't | Overhangs, tunnels: the mine is its own thing when it comes | – |
 | Collision | Jolt's height field (`HeightMapShape3D`): made for terrain, cheap contacts, no seams between triangles for a ragdoll or a rolling stick to catch on; one per dug tile | A triangle mesh per chunk (`ConcavePolygonShape3D`, as a carved member's): dearer contacts, and the seams catch rolling things |
-| Drawing | One mesh a dug tile, a grid of 81×81 points; the undug ground drawn as now (below) | Meshed on the plugin's workers (as `VoxelWorks` does); the shader must texture walls and overhangs from any side (triplanar) |
-| An edit | Write the cells, rebuild one tile's shape and mesh: expected under 1 ms (measured in step 2) | Carve, re-mesh a chunk on a worker, swap it in a frame or more later |
-| Memory | 81×81 floats a dug tile, ~26 KB; the whole town dug would be tens of MB, and it never will be | Cells in three dimensions: a 2 m deep layer at 5 cm is 160 cells a column; large even sparse |
+| Drawing | One mesh a dug tile, a grid of 65×65 points; the undug ground drawn as now (below) | Meshed on the plugin's workers (as `VoxelWorks` does); the shader must texture walls and overhangs from any side (triplanar) |
+| An edit | Write the cells, rebuild one tile's shape and mesh: the shape measured 0.42 ms here (0.27 at Sean's) for a 65×65 tile, the mesh in step 2 | Carve, re-mesh a chunk on a worker, swap it in a frame or more later |
+| Memory | 65×65 floats a dug tile, ~17 KB; the whole town dug would be tens of MB, and it never will be | Cells in three dimensions: a 2 m deep layer at 5 cm is 160 cells a column; large even sparse |
 | Save | The height each changed cell differs from the authored ground (below) | The changed voxels; larger |
 | Standing ground | No dearer than the plane (below) | The same, if undug chunks stay unmade |
 
-**Proposed: the height field**, as `blast-surfaces.md` had it. It does everything the shovel needs
+**Chosen: the height field** (Sean: "whatever works best"), as `blast-surfaces.md` had it. It does everything the shovel needs
 (Sean's list: a scoop and its pile, many times over the same spot, things resting in and buried
 under it, walked and fallen into, saved as differences, local edits). The voxels' only gain is
 tunnels, and the mine's tunnels will be timbered, so they're better built as members (shoring,
@@ -52,23 +52,27 @@ lagging) round a dug space anyway, when the mine comes.
 
 ### How it's laid out
 
-- **The dig-able area** is a rectangle in `config/ground.tres` (proposed: the town and the range,
-  x −150..150, z −150..150; Sean's call). Outside it the ground stays flat, as now.
-- **Tiles of 4 m, cells of 5 cm** (81×81 heights a tile, the edges shared with the neighbours so
-  there's no crack). Why 5 cm: one stick's crater is about 0.3–0.5 m across (below), 7–9 cells; at
+- **Dig anywhere** (Sean): the whole 600 m ground the street's plane covers. A tile is made where
+  it's first dug, wherever that is.
+- **Tiles of 3.2 m, cells of 5 cm** (65×65 heights a tile, the edges shared with the neighbours so
+  there's no crack; Jolt rebuilds a tile's height field in 0.42 ms here, 2026-10-22, against 0.6 for
+  81×81 and 2.0 for 161×161: smaller tiles keep a crater's edit, which touches up to four, cheap).
+  Why 5 cm: one stick's crater is about 0.3–0.5 m across (below), 7–9 cells; at
   10 cm it'd be a pit of three to five squares. A shovel's blade is 5 cells. The ground's texels are
   2.5 cm (40 a metre), so a cell is two texels.
 - **Undug ground costs what the plane costs now.** A tile holds data only once it's dug. The flat
-  rest is drawn as one mesh (the dig-able area less its dug tiles, as few big rectangles, rebuilt
-  only when a tile is first dug) plus the ring beyond it, and collides as a handful of big flat boxes
-  (the same rectangles) and the flat ground outside. Each dug tile adds one height field and one mesh
+  rest is drawn as one mesh (the ground less its dug tiles, as few big rectangles, rebuilt only when
+  a tile is first dug) and collides as a handful of big flat boxes (the same rectangles, deep, the
+  outer ones running on past the mesh's edge as the plane does now), or as one coarse flat height
+  field with holes where tiles are dug (Jolt takes NaN heights as holes): step 1 measures both and
+  keeps the cheaper. Under every dug tile the hardpan is a box too, so nothing falls out of the world. Each dug tile adds one height field and one mesh
   (one draw call; neighbouring dug tiles are merged into one mesh if the draws add up).
 - **Two layers a cell**: the height of the packed, undisturbed earth, and the depth of loose earth
   lying on it (what was thrown or shovelled there). Packed earth stands steep (a grave's walls stand
   for a while); loose earth slumps to its angle of repose (~35° for dry loose earth) after every
   edit, cell by cell, over the edited patch only. The look can tell the two apart (fresh earth).
-- **A floor**: the earth goes down `earth_depth` (proposed 2 m, then hardpan that a shovel won't
-  take and a blast barely marks; Sean's call).
+- **A floor**: the earth goes down `earth_depth`, 2 m (Sean: "enough to dig up a coffin"), then
+  hardpan that a shovel won't take and a blast barely marks.
 - **The authored ground** is flat at y 0 today. The height field could later carry authored shape
   (the ruts as real collision, a wash, a rise at the town's end): not part of this job, but the
   save's differences are taken from whatever the authored ground is, so it can come later.
@@ -258,25 +262,25 @@ crater.
 Judged by the numbers, then the lab's sheets and the look run by eye, then the playtest agent, then
 Sean.
 
-## Decisions for Sean
+## Decisions (Sean, 2026-10-22)
 
-1. **Height field (proposed) or ground voxels?** The height field does craters, holes, graves and
-   piles and is far cheaper; voxels add overhangs and tunnels, which only the mine needs (proposed:
-   the mine's tunnels built as timbered members when it comes).
-2. **Cells of 5 cm in 4 m tiles** (proposed), or 10 cm (cheaper, a stick's crater a few squares)?
-3. **Where the ground can be dug**: the town and the range (proposed x −150..150, z −150..150), or
-   only the streets and lots?
-4. **How deep the earth goes** before hardpan (proposed 2 m: a grave's six feet).
-5. **The crater's numbers**: the 0.8 fit (a stick's crater about half a metre across and five inches
-   deep) and 30% of the earth packed rather than thrown, until the papers are read and you've seen it;
-   then a feel range. And will you allow the papers' hosts (cimec.org.ar, famaf.unc.edu.ar,
-   link.springer.com) in the environment's network settings so the numbers can be checked against the
-   text?
-6. **A hole deeper than a step**: the player can't climb today. Leave him to find a sloped end (a
-   crater has one; a grave doesn't), or a climb out (a ledge pull-up) as part of step 4?
-7. **Men's feet on slopes**: accept a floating foot in a crater for now (foot placement its own job
-   later), or make it part of this?
-8. **The save keeps the heights**, not the history of edits (proposed)?
+1. **Height field or voxels**: "whatever works best or experiment with both?" The height field: it
+   does all the shovel needs and is far cheaper. The one experiment that would change it is in step
+   2: the same crater as a height field and as a triangle mesh (what voxels collide as), a stick, a
+   strongbox and a dead man dropped in each, rest and cost compared. The mine's tunnels, when they
+   come, as timbered members round a dug space.
+2. **Cell size**: 5 cm (each cell is two of the ground's paint squares; a stick's crater is about
+   nine cells across, a coarser 10 cm would make it a pit of four or five).
+3. **Where**: anywhere (Sean): the whole ground.
+4. **Depth**: 2 m of earth, then hardpan (Sean: "enough to dig up a coffin").
+5. **The crater**: the 0.8 fit and 30% packed, for now (Sean: "sure"); a feel range once he's seen
+   it. The papers' hosts are still blocked (2026-10-22); the numbers stay as quoted until a session
+   can read them.
+6. **A hole deeper than a step**: nothing for now (Sean: "dig out or climb later"): the shovel digs
+   a way out, or a climb comes later.
+7. **A floating foot in a crater**: accepted for now (Sean).
+8. **The save keeps the heights** (Sean: "do what's best"): the ground as it is now, not the list of
+   every scoop that made it, so it stays small and still loads after the rules change.
 
 ## Sources
 
