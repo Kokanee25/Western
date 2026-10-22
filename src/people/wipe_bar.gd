@@ -18,6 +18,9 @@ extends RefCounted
 
 enum Step { IDLE, TAKE, LAY, WIPE, MOVE, GLASS, PUT_BACK, FETCH }
 
+## Calm this long (s) with his rag lying about, he goes and gets it.
+const FETCH_AFTER := 1.5
+
 ## Cups he'll pick up and wipe (PropLibrary's ids).
 const CUPS := [&"tin_cup"]
 
@@ -172,7 +175,9 @@ func _idle_step(delta: float) -> bool:
 	_lean_to(delta)
 	_rest -= delta
 	if cloth.held == ClothProp.Held.FREE:
-		if _rest <= 0.0 and cloth.centre().distance_to(post) <= tuning.fetch_reach:
+		# His rag lying about: he gets it once he's been calm a moment, rest or no rest.
+		_idle += delta
+		if _idle >= FETCH_AFTER and cloth.centre().distance_to(post) <= tuning.fetch_reach:
 			_go(Step.FETCH)
 			_route.clear()
 			return true
@@ -483,7 +488,10 @@ func _fetch_step(delta: float) -> void:
 	to.y = 0.0
 	var stand_at := where - to.normalized() * 0.45
 	if _route.is_empty():
-		_route = FireFlight.route(places, body, stand_at) if places != null else [stand_at]
+		if places != null:
+			_route = FireFlight.route(places, body, stand_at)
+		else:
+			_route = [stand_at]
 		if _route.is_empty():
 			_route = [stand_at]
 	watching = where
