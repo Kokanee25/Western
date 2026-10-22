@@ -443,7 +443,10 @@ func _from_foot() -> Vector3:
 ## Walking somewhere by the town's places (straight if there are none); true there.
 func _walk(to: Vector3, delta: float) -> bool:
 	if _route.is_empty():
-		_route = FireFlight.route(places, body, to) if places != null else [to]
+		if places != null:
+			_route = FireFlight.route(places, body, to)
+		else:
+			_route = [to]
 		_walk_t = 0.0
 	_walk_t += delta
 	body.set_pose(&"stand")
