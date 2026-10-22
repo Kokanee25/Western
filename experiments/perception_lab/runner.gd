@@ -407,7 +407,9 @@ func _sight(c: Dictionary, light: String) -> Dictionary:
 	var r := {"watcher": String(watcher.body_model), "target": String(target.body_model),
 			"distance_m": snappedf(s.eye().distance_to(_eye(target)), 0.1),
 			"angle_deg": snappedf(rad_to_deg(s.facing().angle_to(_eye(target) - s.eye())), 0.1),
-			"line": line, "senses_light": snappedf(light_used, 0.001), "spotted_s": snappedf(spotted[0], 0.01),
+			"line": line, "senses_light": snappedf(light_used, 0.001),
+			"lux_on_target": snappedf(s.light_on(target), 0.0001) if s.has_method(&"light_on") else -1.0,
+			"spotted_s": snappedf(spotted[0], 0.01),
 			"lost_s": snappedf(lost[0], 0.01), "awareness_peak": snappedf(peak[0], 0.01),
 			"seen_at_end": s.sees(target), "window_s": window, "why": c.get("why", "")}
 	r["verdicts"] = [_verdict("sees the target", expect, seen_in_window, spotted[0],

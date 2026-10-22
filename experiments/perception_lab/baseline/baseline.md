@@ -64,7 +64,7 @@ isn't, and they shoot him through it. This is the gunfight lab's fairness, and i
 ask how thick the smoke is along a line (the unmerged `claude/gameplay-smoke` has
 `GunSmoke.transmittance()`).
 
-**3. At night the only light is the sky's; lamps light nobody.** Senses takes its light from
+**3. At night the only light is the sky's; lamps light nobody.** *(Fixed 2026-10-22: `../results/2026-10-22_lamplight/`.)* Senses takes its light from
 `DayCycle.get_daylight()` alone (sight 60 m by day, 14 m at night) and no lamp counts. A man
 walking 10 m ahead at night takes 5.5 s to be noticed (0.47 s by day); a man standing between the
 saloon's two lit porch lanterns isn't seen from 19 m in 6 s (missed); across the lamp-lit saloon at

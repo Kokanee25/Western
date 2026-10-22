@@ -67,6 +67,7 @@ var _time := 0.0
 
 func _ready() -> void:
 	_build()
+	add_to_group(&"oil_lamps")  # SightLight: the light people are seen by
 	Events.hour_changed.connect(_on_hour_changed)
 	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
 	set_lit(true if clock == null else should_be_lit(clock.get_hour()))
@@ -85,6 +86,22 @@ func set_lit(on: bool) -> void:
 		_chimney.set_instance_shader_parameter(&"glow", 1.0 if on else 0.0)
 	_flame_material.emission_enabled = on
 	_flame_material.albedo_color = Color(1.0, 0.75, 0.4, 0.8) if on else Color(0.5, 0.55, 0.55, 0.4)
+
+
+## Giving light (lit and in one piece).
+func shines() -> bool:
+	return lit and not broken and is_inside_tree()
+
+
+## Where its light comes from, in the world.
+func light_position() -> Vector3:
+	return _light.global_position
+
+
+## Its own hitbox, which a line from its flame starts inside (none once smashed).
+func hitbox_rid() -> RID:
+	var hitbox := get_node_or_null(^"Hitbox") as StaticBody3D
+	return hitbox.get_rid() if hitbox and not hitbox.is_queued_for_deletion() else RID()
 
 
 func _process(delta: float) -> void:
