@@ -37,6 +37,8 @@ separately and don't agree). The pictures are the look to match.
 | `lamps` | sconces by wall, level, places along it, height; lamps on the tables and the bar; a chandelier | 31 OilLamps |
 | `outbuildings` | each by kind, place, size | the outhouse |
 | `use_points` | where people stand, sit, serve, work, sleep, watch and take cover; `seats` points at a kit prop's | 22, plus the tables' seats |
+| `use` | how it's used day in day out (docs/briefs/lived-in.md): years in use; walking paths by level, who, passings a day and width; climbs a day on each stair; spots where people stand at a rail (`at`, `feet`); doors; spills; the kit's furniture; lamps' soot; weather (splash, bleach, streaks) | ten paths, four stairs, four spots, two spills |
+| `past` | what happened, to what: each event's marks (`new`, `bullet` (`pried`, `filled`), `pale`, `holes`, `scrubbed`, `carved`, `scuff`...) at a point, within a reach, on members of given kinds | the 1880 brawl, the stag moved, the scrubbed floor, a thrown bottle, initials, a loose tread, the flood, the kicked kitchen door, a split tread |
 | `materials` | which approved wood each surface takes | the interior woods inside, the exterior woods out |
 | `sources` | the references the frame and sizes came from | Wood Handbook, Bell, Woodward, Tredgold, Hodgson |
 
@@ -73,6 +75,14 @@ on a floor board all need the band. The builder sets each assembly's band by wha
 - Every lamp an OilLamp standing on a member (a sconce's bracket, a table, the bar, the
   chandelier's rim); every stair's walking ramp goes when its stringers do.
 
+## The marks (`marks.gd`)
+
+After the build, the lived-in pass turns `use` and `past` into marks on the members they reach
+(each member's meta `marks`: `{kind, s, cause}` and where on it: `along` a stretch of its length,
+or `at` a point within `r`; nothing marks a member without a cause). Nothing is drawn yet: the
+woods' shader draws them after Gate A (docs/briefs/lived-in.md). `render.gd --wear` draws the
+wear map (members tinted by their marks) for judging the placement.
+
 ## The checks (`checks.gd`, `tests/test_building_lab.gd`, `run.gd`)
 
 | Brief's check | How |
@@ -86,6 +96,7 @@ on a floor board all need the band. The builder sets each assembly's band by wha
 | It fits the budget | draw calls counted (batches, own meshes, lamps); physics and process time standing with every lamp lit; the render CPU needs a render run |
 | It matches the target | `render.gd` draws the sheet's views and Sean's picture's in the game's street, for the blind critic |
 | It's of its time | the sources; the conflicts settled by Sean |
+| Lived in (docs/briefs/lived-in.md) | every use and past event marks members, every mark of a known kind, the door's path worn and the quiet corner not, every tread of the stair worn, one replaced baluster |
 
 ## What using it for real needs (before it replaces `SaloonBuilding`)
 

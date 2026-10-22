@@ -7,7 +7,9 @@
 		"trade": "saloon, card room and lodging house (five rooms let by the night or the week)",
 		"means": "the richest man on Main Street after the bank; built it new on a double lot four years ago, the first two-storey frame in town",
 		"age_and_repair": "4 years: the paint on the front still red, the sides never painted and already grey; the floor worn pale from the door to the bar; one gallery baluster replaced in raw pine",
-		"clues": ["a brass foot rail polished bright where boots rest, dull at the ends nobody stands", "a faro layout chalked on the middle table, a cuspidor at every post", "a sign over the back bar: NO CREDIT, NO GUNS ABOVE STAIRS", "a spare key board behind the bar for the five rooms upstairs", "a path worn through the yard grass to the outhouse"]
+		"clues": ["a brass foot rail polished bright where boots rest, dull at the ends nobody stands", "a faro layout chalked on the middle table, a cuspidor at every post", "a sign over the back bar: NO CREDIT, NO GUNS ABOVE STAIRS", "a spare key board behind the bar for the five rooms upstairs", "a path worn through the yard grass to the outhouse"],
+		"built": 1878,
+		"now": 1882
 	},
 	"lot": {
 		"_doc": "Sean, 2026-10-21/22: widen the lot (an important building: a double lot of 50 ft) and take the room from Freight Street, which moves east; nothing on the south side moves. town.json changes when this is used for real (FORMAT.md 'What using it for real needs'): Saloon stays at x 5, its SouthBoardwalk lengthens to 16.4, Freight Street's line moves from x 23 to 28.5 (its west edge from 17 to 22.5), RangeCover from x 30 to 35.5; the outside stair and the side balcony take x 20.24..21.66 in town.",
@@ -455,6 +457,151 @@
 		{"id": "rail_east", "use": "lean", "who": "anyone", "at": [4.69, 4.44, 6.0], "facing": 90},
 		{"id": "rail_back", "use": "lean", "who": "anyone", "at": [9.24, 4.44, 11.35], "facing": -180},
 		{"id": "cellarman", "use": "fetch", "who": "barman", "at": [6.24, -2.32, 15.0], "facing": 0}
+	],
+	"use": {
+		"_doc": "How the saloon is used, day in day out (docs/briefs/lived-in.md): the builder wears what each use touches, most where it's heaviest (the centre of a path, the middle of a tread, the rail where people stand), nothing where nobody goes. Daily counts are passings, climbs or uses a day; the marks grow with them and the years. A spot is where people stand (`feet`) at a rail (`at`).",
+		"years": 4,
+		"paths": [
+			{"id": "door_to_bar", "who": "everyone", "level": "ground", "daily": 400, "width": 1.2, "points": [[7.62, 0.1], [6.6, 1.8], [3.4, 4.2], [3.3, 10.3]]},
+			{
+				"id": "door_to_tables",
+				"who": "gamblers",
+				"level": "ground",
+				"daily": 150,
+				"width": 1.0,
+				"points": [[7.62, 0.1], [9.4, 2.8], [10.6, 5.2], [9.6, 7.9]]
+			},
+			{
+				"id": "door_to_stair",
+				"who": "guests, girls, the owner",
+				"level": "ground",
+				"daily": 60,
+				"width": 0.9,
+				"points": [[7.62, 0.1], [12.4, 3.4], [14.57, 5.7]]
+			},
+			{"id": "behind_bar", "who": "the barmen", "level": "ground", "daily": 600, "width": 0.7, "points": [[1.0, 2.9], [1.0, 10.9], [0.93, 12.15]]},
+			{"id": "kitchen", "who": "the cook, the barmen", "level": "ground", "daily": 120, "width": 0.8, "points": [[0.93, 12.3], [2.0, 14.6], [4.24, 16.9]]},
+			{"id": "to_the_trap", "who": "the barmen", "level": "ground", "daily": 30, "width": 0.6, "points": [[0.93, 12.3], [2.0, 12.6], [2.74, 13.0]]},
+			{"id": "back_room", "who": "the owner", "level": "ground", "daily": 20, "width": 0.7, "points": [[11.34, 12.3], [11.6, 14.2], [13.0, 15.5]]},
+			{
+				"id": "gallery_to_rooms",
+				"who": "guests",
+				"level": "upper",
+				"daily": 40,
+				"width": 0.8,
+				"points": [[14.57, 10.9], [12.7, 11.4], [7.62, 11.4], [4.6, 11.0], [4.6, 4.2]]
+			},
+			{"id": "to_the_balcony", "who": "anyone", "level": "upper", "daily": 15, "width": 0.7, "points": [[4.6, 4.2], [4.8, 2.2], [4.88, 0.4]]},
+			{
+				"id": "side_door",
+				"who": "guests by the outside stair",
+				"level": "upper",
+				"daily": 10,
+				"width": 0.7,
+				"points": [[15.1, 0.95], [12.0, 1.2], [10.4, 0.6]]
+			}
+		],
+		"stairs": {"hall": 60, "outside": 10, "back": 120, "cellar": 30},
+		"spots": [
+			{"id": "watching_the_tables_a", "what": "lean", "level": "upper", "at": [9.2, 1.9], "daily": 30, "feet": [9.2, 1.45]},
+			{"id": "watching_the_tables_b", "what": "lean", "level": "upper", "at": [11.6, 1.9], "daily": 20, "feet": [11.6, 1.45]},
+			{"id": "watching_the_bar", "what": "lean", "level": "upper", "at": [5.52, 5.6], "daily": 25, "feet": [5.1, 5.6]},
+			{"id": "stair_head", "what": "stand", "level": "upper", "at": [14.57, 10.85], "daily": 60, "feet": [14.57, 11.0]}
+		],
+		"doors": {"daily": 40},
+		"spills": [
+			{"id": "behind_the_bar", "level": "ground", "rect": [0.62, 3.1, 1.44, 10.7], "s": 0.7},
+			{"id": "at_the_bar", "level": "ground", "rect": [2.2, 3.0, 3.0, 10.6], "s": 0.4}
+		],
+		"furniture": {
+			"_doc": "The kit's tables take rings, elbows and knife cuts on their tops and scuffed boards round their chairs; the bar's foot rail is bright where the drinkers stand (their use points).",
+			"tables": true,
+			"chairs": true,
+			"foot_rail": "drink"
+		},
+		"lamps": {"soot": 0.6},
+		"weather": {
+			"_doc": "The front faces north on the street: mud splashed up its foot and the east side's (Freight Street's wagons); the back faces south and takes the sun: bleached, as the roof; water runs off each window's sill.",
+			"splash": {"walls": ["front", "east"], "height": 0.45},
+			"bleach": {"walls": ["back"], "roof": true},
+			"streaks": "under_sills"
+		}
+	},
+	"past": [
+		{
+			"id": "the_harlan_brawl",
+			"when": "1880",
+			"what": "A fight over a pot at the middle table went up the stair and along the gallery: a man went into the rail and took a baluster with him; a ball fired at him is still in the post by the bar.",
+			"marks": [
+				{"kind": "new", "at": [9.0, 4.94, 1.9], "r": 0.03, "kinds": ["baluster"]},
+				{"kind": "bullet", "at": [5.49, 2.1, 4.78], "r": 0.15, "kinds": ["post"], "pried": true, "filled": true}
+			]
+		},
+		{
+			"id": "the_stag_moved",
+			"when": "1881",
+			"what": "The stag hung over the back door for two years, then went to the back room: a pale patch and its nail holes.",
+			"marks": [
+				{"kind": "pale", "at": [7.0, 2.68, 12.12], "r": 0.45, "kinds": ["board"]},
+				{"kind": "holes", "at": [7.0, 3.0, 12.12], "r": 0.12, "kinds": ["board"]}
+			]
+		},
+		{
+			"id": "by_table_two",
+			"when": "1881",
+			"what": "A man bled out on the floor by the middle table; the patch was scrubbed, cleaner than the boards round it.",
+			"marks": [
+				{"kind": "scrubbed", "at": [8.9, 0.78, 7.7], "r": 0.5, "kinds": ["floor_board"]}
+			]
+		},
+		{
+			"id": "the_thrown_bottle",
+			"when": "1882",
+			"what": "A bottle through the front window: one pane clearer than the rest.",
+			"marks": [
+				{"kind": "new", "at": [10.36, 2.7, 0.057], "r": 0.3, "kinds": ["glass"]}
+			]
+		},
+		{
+			"id": "initials",
+			"when": "1880",
+			"what": "M.K. cut into room 2's window frame, nearly painted over.",
+			"marks": [
+				{"kind": "carved", "at": [7.11, 5.9, 16.93], "r": 0.12, "kinds": ["trim"]}
+			]
+		},
+		{
+			"id": "the_loose_tread",
+			"when": "1881",
+			"what": "The eighth tread of the hall stair worked loose and was nailed down with a newer nail.",
+			"marks": [
+				{"kind": "holes", "at": [14.57, 2.32, 7.9], "r": 0.06, "kinds": ["furniture_top"]}
+			]
+		},
+		{
+			"id": "the_flood",
+			"when": "1879",
+			"what": "The spring flood took the back steps; they were rebuilt in new pine.",
+			"marks": [
+				{"kind": "new", "at": [4.24, 0.4, 17.6], "r": 0.8, "kinds": ["furniture_top", "rafter", "board", "sill", "post"]}
+			]
+		},
+		{
+			"id": "the_kitchen_door",
+			"when": "",
+			"what": "Kicked open with full hands so often its lower edge is chipped and the boards under its swing scuffed.",
+			"marks": [
+				{"kind": "scuff", "at": [0.93, 1.2, 12.0], "r": 0.7, "kinds": ["door"]}
+			]
+		},
+		{
+			"id": "the_bottom_tread",
+			"when": "1882",
+			"what": "The outside stair's bottom tread split and was replaced.",
+			"marks": [
+				{"kind": "new", "at": [15.78, 0.19, 7.45], "r": 0.06, "kinds": ["furniture_top"]}
+			]
+		}
 	],
 	"materials": {
 		"_doc": "Only woods the material lab approved (docs/PARTS.md 'Materials and look'): the interior woods Sean picked (C, 2026-10-21) inside the hall, the gallery and the rooms; the game's exterior woods outside; framing left as framing in the back rooms and the cellar.",

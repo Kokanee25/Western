@@ -65,3 +65,68 @@ func test_people_fit_and_its_rooms_are_used() -> void:
 	var used := Checks.used(b, lab.spec)
 	check(used.ok, "every room has its people's places: %s" % [used.failures])
 	check(int(used.seats) >= 14, "seats at the tables (%d)" % used.seats)
+
+
+## The lived-in pass (docs/briefs/lived-in.md): every use and past event in the spec marks members,
+## every mark is on a member and of a kind the shader knows, and the wear is where its cause is.
+func test_every_mark_has_a_cause_and_lands_where_it_should() -> void:
+	const Marks := preload("res://experiments/building_lab/marks.gd")
+	var b: Structure = lab.building
+	var spec: Dictionary = lab.spec
+	var m: Dictionary = b.marks
+	check((m.unresolved as Array).is_empty(), "every past mark finds its member: %s" % [m.unresolved])
+	var causes: Array = []
+	for p: Dictionary in spec.use.paths:
+		causes.append(p.id)
+	for s: String in spec.use.stairs:
+		causes.append("stair_" + s)
+	for sp: Dictionary in spec.use.spots + spec.use.spills:
+		causes.append(sp.id)
+	for ev: Dictionary in spec.past:
+		causes.append(ev.id)
+	for c: String in causes:
+		check(int(m.by_cause.get(c, 0)) > 0, "%s marks something" % c)
+	for k: String in m.by_kind:
+		check(Marks.KINDS.has(StringName(k)), "%s is a mark the shader knows" % k)
+	# Worn where the door's traffic goes, nearly untouched in the quiet corner by the front wall.
+	var busy := _wear_at(b, &"foot", Vector3(6.6, 0.77, 1.8))
+	var quiet := _wear_at(b, &"foot", Vector3(13.8, 0.77, 0.9))
+	check(busy > 0.5 and quiet < 0.1, "the path from the door worn (%.2f), the corner not (%.2f)" % [busy, quiet])
+	# The stair: every tread worn in its middle, the rail polished.
+	var treads := 0
+	var rails := 0
+	for mem in b.get_members():
+		var id := String(mem.member_id)
+		if id.begins_with("saloon_spec/stair/hall/tread/") and _has(mem, &"foot"):
+			treads += 1
+		if id.begins_with("saloon_spec/stair/hall/rail/rail/") and _has(mem, &"hand"):
+			rails += 1
+	check(treads == int(spec.stairs[0].risers) - 1, "every tread of the hall stair worn (%d)" % treads)
+	check(rails > 0, "its hand rail polished (%d spans)" % rails)
+	# The brawl's new baluster is one baluster, not its neighbours.
+	var new_balusters := b.get_members().filter(func(x: StructureMember) -> bool: return x.kind == &"baluster" and _has(x, &"new"))
+	check(new_balusters.size() == 1, "one replaced baluster (%d)" % new_balusters.size())
+
+
+static func _has(m: StructureMember, kind: StringName) -> bool:
+	for mk: Dictionary in m.get_meta(&"marks", []):
+		if StringName(mk.kind) == kind:
+			return true
+	return false
+
+
+## The deepest mark of `kind` at a point (structure space): on the members whose box holds it, over
+## the stretch a mark covers.
+static func _wear_at(b: Structure, kind: StringName, p: Vector3) -> float:
+	var best := 0.0
+	for m in b.get_members():
+		if not m.structure_aabb().grow(0.01).has_point(p):
+			continue
+		var t := (p - m.transform.origin).dot(m.axis())
+		for mk: Dictionary in m.get_meta(&"marks", []):
+			if StringName(mk.kind) != kind:
+				continue
+			if mk.has("along") and (t < float(mk.along[0]) - 0.05 or t > float(mk.along[1]) + 0.05):
+				continue
+			best = maxf(best, float(mk.s))
+	return best

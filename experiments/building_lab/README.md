@@ -86,6 +86,21 @@ xvfb-run -a godot --path . --rendering-driver vulkan -s res://experiments/buildi
   wall behind them). The rest is art's: turned balusters and newel caps as kit draws, the back
   bar's bottles, the lit windows' look, the outside stair's wood.
 
+## Lived in, step 1 (2026-10-22; brief `docs/briefs/lived-in.md`)
+
+The saloon's spec now says how it's used (`use`: four years of ten walking paths, the four stairs,
+people at the gallery's rail, the doors, two spills, the furniture, the lamps' soot, the weather)
+and what happened in it (`past`: nine events, from the 1880 brawl's replaced baluster and the ball
+still in the post by the bar to a scrubbed patch by the middle table). The lived-in pass
+(`marks.gd`) turns them into ~1,600 marks on 1,093 members (518 `foot`, 216 `scuff`, 339 `bleach`,
+109 `soot`...), every one with its cause and none unresolved; the test checks they land where their
+causes are. Nothing is drawn yet (the shader is art's, after Gate A). **The wear map** for Sean,
+`results/2026-10-22/wear/` (`render.gd --wear`: members tinted by their strongest mark, a mark's
+stretch drawn over just that part): the ground and upper plans (the street at the bottom), the
+view from the door, the front, the back. Colours: orange foot, yellow heel, red scuff, cyan
+hand/boot, blue rings/elbow/streak, purple spill, grey soot, brown splash, white bleach, green new,
+magenta the past's marks, red the ball.
+
 ## The exceptions the walk allows (`Checks.EXCEPTIONS`)
 
 | Exception | Owner |

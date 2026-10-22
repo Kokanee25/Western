@@ -19,6 +19,7 @@ extends FalseFrontBuilding
 ## - **Ramps that go with their stair** (a stair's walking ramp is freed once its stringers break).
 
 const Stair := preload("res://experiments/building_lab/stair.gd")
+const Marks := preload("res://experiments/building_lab/marks.gd")
 const CELL := 2.0
 const SPEC := "res://experiments/building_lab/saloon.json"
 
@@ -30,6 +31,8 @@ var band := 0
 var ramps: Array = []
 var lamps: Array[OilLamp] = []
 var kit_props: Array[KitProp] = []
+## What the lived-in pass marked (Marks.place: by cause, by kind, what it couldn't place).
+var marks := {}
 ## Where things are: the walls (id -> {wall dict, finish faces}), the levels' heights.
 var walls := {}
 var _lv := {}
@@ -193,6 +196,7 @@ func build() -> void:
 	_kit()
 	_use_points()
 	_add_interior_ambient()
+	marks = Marks.place(self, spec)
 
 
 # --- foundation, cellar, posts and beams (band 0) -------------------------------------------------
