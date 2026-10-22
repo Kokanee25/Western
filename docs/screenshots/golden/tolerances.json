@@ -16,12 +16,12 @@
   "share": 0.01
  },
  "dynamite_store_after": {
-  "mean": 3.208,
+  "mean": 6.195,
   "noise": {
-   "mean": 1.069,
-   "share": 0.0158
+   "mean": 2.065,
+   "share": 0.0246
   },
-  "share": 0.0475
+  "share": 0.0739
  },
  "dynamite_store_blast": {
   "mean": 4.06,
@@ -128,12 +128,12 @@
   "share": 0.01
  },
  "livery_fire_dusk": {
-  "mean": 8.642,
+  "mean": 10.074,
   "noise": {
-   "mean": 2.881,
-   "share": 0.0563
+   "mean": 3.358,
+   "share": 0.0588
   },
-  "share": 0.1688
+  "share": 0.1763
  },
  "look_down_body": {
   "mean": 1.5,
@@ -456,28 +456,28 @@
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 53.124,
+  "mean": 30.359,
   "noise": {
-   "mean": 17.708,
-   "share": 0.2983
+   "mean": 10.12,
+   "share": 0.1851
   },
-  "share": 0.8948
+  "share": 0.5552
  },
  "store_fire_later": {
-  "mean": 23.037,
+  "mean": 27.273,
   "noise": {
-   "mean": 7.679,
-   "share": 0.1302
+   "mean": 9.091,
+   "share": 0.146
   },
-  "share": 0.3905
+  "share": 0.4381
  },
  "store_fire_night": {
-  "mean": 21.569,
+  "mean": 19.226,
   "noise": {
-   "mean": 7.19,
-   "share": 0.1131
+   "mean": 6.409,
+   "share": 0.1178
   },
-  "share": 0.3393
+  "share": 0.3535
  },
  "store_front_noon": {
   "mean": 1.5,
