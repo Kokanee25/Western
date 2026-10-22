@@ -1,0 +1,43 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 1.07,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 847030880,
+  "frame": {
+    "added_ms_first_1s": 0.51,
+    "before_ms": 0.02,
+    "event_ms": 0.66,
+    "settle_ms": 15.06
+  },
+  "hits": [
+    {
+      "j_in": 606.0,
+      "through": true,
+      "what": "leg2"
+    },
+    {
+      "j_in": 286.0,
+      "through": false,
+      "what": "leg1"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.033,
+  "max_piece_speed": 2.42,
+  "members": 9,
+  "pieces": 6,
+  "prop": "bar_stool",
+  "scenario": "stool_revolver_5m",
+  "snapped": [
+    "leg1",
+    "leg2"
+  ],
+  "upright": false
+}

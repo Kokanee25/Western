@@ -770,8 +770,9 @@ a few views renders them as the full run does.
 
 - The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
   once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
-  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
-  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  lathe, sweep (`grain_up`, `caps`: a stave) or disc-cut shapes in the prop's space laid into the
+  member's, `dress` layers glued on (a barrel's hoops: each named `Dress<k>`), `repeat` along a line
+  or round Y (a sweep, its dress's too, turned with it); a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
   hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's

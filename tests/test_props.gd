@@ -100,7 +100,8 @@ func test_saloon_stands_and_is_furnished() -> void:
 	for p in props:
 		kinds[p.get_meta(&"prop_id")] = true
 	for id in PropLibrary.ids():
-		check(kinds.has(StringName(id)), "the room uses %s" % id)
+		if PropLibrary.definition(id).get("where", "saloon") == "saloon":
+			check(kinds.has(StringName(id)), "the room uses %s" % id)
 	var lights := saloon.find_children("Light", "OilLamp", true, false)
 	check(lights.size() >= 7, "lamps and sconces give light (%d)" % lights.size())
 	saloon.queue_free()

@@ -37,6 +37,7 @@ static func build(id: StringName, variant := 0) -> Node3D:
 		&"bar_stool": _bar_stool(root)
 		&"upright_piano": _piano(root)
 		&"barrel": _barrel(root)
+		&"crate": crate(root)
 		&"spittoon": _spittoon(root)
 		&"oil_lamp": lamp(root)
 		&"whiskey_bottle": bottle(root, variant)
@@ -51,7 +52,7 @@ static func build(id: StringName, variant := 0) -> Node3D:
 
 
 static func has_model(id: StringName) -> bool:
-	return id in [&"card_table", &"chair", &"bar_stool", &"upright_piano", &"barrel", &"spittoon",
+	return id in [&"card_table", &"chair", &"bar_stool", &"upright_piano", &"barrel", &"crate", &"spittoon",
 			&"oil_lamp", &"whiskey_bottle", &"tin_cup", &"deer_head", &"framed_painting", &"wall_sconce"]
 
 
@@ -80,6 +81,11 @@ static func mid_wood() -> ShaderMaterial:
 
 static func staves() -> ShaderMaterial:
 	return _mat("staves", PixelArt.wood("prop_staves", Color(0.42, 0.28, 0.16), 213, 1, 3, 1.1))
+
+
+## A barrel's head: its boards' end grain darker than the staves.
+static func barrel_head() -> ShaderMaterial:
+	return _mat("barrel_head", PixelArt.wood("prop_barrel_head", Color(0.38, 0.25, 0.14), 229, 1, 2))
 
 
 static func brass() -> ShaderMaterial:
@@ -419,7 +425,7 @@ static func _barrel(root: Node3D) -> void:
 		var t := float(k) / 8.0
 		pts.append([0.25 + 0.05 * sin(t * PI), 0.9 * t])
 	_add(root, "Staves", lathe(_profile(pts), 14, true), staves())
-	_add(root, "Head", disc(0.25, 14, 0.885), _mat("barrel_head", PixelArt.wood("prop_barrel_head", Color(0.38, 0.25, 0.14), 229, 1, 2)))
+	_add(root, "Head", disc(0.25, 14, 0.885), barrel_head())
 	for y in [0.06, 0.24, 0.66, 0.84]:
 		var t: float = y / 0.9
 		var r := 0.25 + 0.05 * sin(t * PI) + 0.004

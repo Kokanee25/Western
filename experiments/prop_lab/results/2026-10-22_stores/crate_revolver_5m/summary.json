@@ -1,0 +1,45 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 0.29,
+    "before_ms": 0.02,
+    "event_ms": 0.36,
+    "settle_ms": 3.8
+  },
+  "hits": [
+    {
+      "j_in": 606.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 541.0,
+      "through": true,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 476.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 30,
+  "pieces": 0,
+  "prop": "crate",
+  "scenario": "crate_revolver_5m",
+  "snapped": [],
+  "upright": true
+}

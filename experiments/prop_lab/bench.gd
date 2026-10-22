@@ -31,6 +31,7 @@ var man: Node3D  # HumanBody
 var lamp: Node3D
 ## The glass props put on it (scenario "glass": [{"id", "at", "lit"}]), and what they let go.
 var glass: Array = []
+var stack: Array = []  # more kit props, stood on the prop or beside it (crates, barrels)
 var spilled: Array = []
 var fire: Node
 var ballistics: Node
@@ -185,6 +186,11 @@ func _place_prop() -> void:
 		_props_node().add_child(lamp)
 		lamp.global_position = prop.global_position + Vector3(0.12, 0.761, -0.1)
 		lamp.set_lit(true)
+	for e: Dictionary in sc.get("stack", []):
+		var k = load("res://src/props/prop_kit.gd").spawn(StringName(e.id), StringName("bench_stack%d" % stack.size()))
+		k.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), Vector3(0, FLOOR_TOP, 0) + _v(e.at))
+		world.add_child(k)
+		stack.append(k)
 	for e: Dictionary in sc.get("glass", []):
 		var g = load("res://src/props/prop_kit.gd").make(StringName(e.id))
 		_props_node().add_child(g)
@@ -401,6 +407,9 @@ func _write_summary() -> void:
 		out.spilled = spilled
 		out.shards = get_nodes_in_group(&"glass_shards").size()
 		out.fire_spills = int(rec.get("fire_spills_max", 0))
+	if not stack.is_empty():
+		out.stack = stack.map(func(k: Node) -> Dictionary: return {"id": String(k.kit_id), "loose": k.loose,
+				"snapped": k.get_members().filter(func(m: Node) -> bool: return m.has_meta(&"snapped") or m.broken).size()})
 	if rec.has("flung_first"):
 		out.flung_first = rec.flung_first
 	if rec.has("kick"):
@@ -472,8 +481,17 @@ func _look() -> void:
 	world.add_child(ground)
 	var lib = load("res://src/props/prop_library.gd")
 	var kit = load("res://src/props/prop_kit.gd")
+	var props := String(opts.get("props", "")).split(",", false)
 	for side in [-1.0, 1.0]:
 		var base := Vector3(side * 1.25, 0, 0)
+		if not props.is_empty():
+			# `--props=a,b,c`: those in a row each side instead of the table and chairs.
+			for i in props.size():
+				var id := StringName(props[i])
+				var p: Node3D = lib.spawn(id) if side < 0 else kit.spawn(id)
+				p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0 * i)), base + Vector3((i - (props.size() - 1) * 0.5) * 0.75, 0, -0.4 + 0.2 * (i % 2)))
+				world.add_child(p)
+			continue
 		var table: Node3D = lib.spawn(&"card_table") if side < 0 else kit.spawn(&"card_table")
 		if side > 0 and opts.has("nobatch"):
 			table.batch_meshes = false
@@ -550,7 +568,22 @@ func _perf(which: String) -> void:
 	var room := Node3D.new()
 	room.name = "Props"
 	world.add_child(room)
-	for t: Vector3 in [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]:
+	if opts.get("set", "") == "stores":
+		# The town's barrels, crates and bar stools (14, 12 with four stacked, 7) on a 4 x 4 m floor.
+		var n := 0
+		for id: StringName in [&"barrel", &"crate", &"bar_stool"]:
+			var count: int = {&"barrel": 14, &"crate": 8, &"bar_stool": 7}[id]
+			for i in count:
+				var at := Vector3(-1.6 + 0.65 * (n % 6), FLOOR_TOP, -1.6 + 0.65 * (n / 6))
+				n += 1
+				var p: Node3D = kit.spawn(id) if which == "kit" else lib.spawn(id)
+				p.position = at
+				room.add_child(p)
+				if id == &"crate" and i < 4:
+					var up: Node3D = kit.spawn(id) if which == "kit" else lib.spawn(id)
+					up.position = at + Vector3(0, 0.6, 0)
+					room.add_child(up)
+	for t: Vector3 in ([] if opts.get("set", "") == "stores" else [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]):
 		var table: Node3D = kit.spawn(&"card_table") if which == "kit" else lib.spawn(&"card_table")
 		table.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0)), t)
 		room.add_child(table)
@@ -560,12 +593,12 @@ func _perf(which: String) -> void:
 			chair.transform = Transform3D(Basis(Vector3.UP, a + PI), t + Vector3(sin(a), 0.0, cos(a)) * 0.85)
 			room.add_child(chair)
 	# A back bar's worth of bottles and a lamp on each table: the kit's glass props, or the drawn ones.
-	for i in 24:
+	for i in (0 if opts.get("set", "") == "stores" else 24):
 		var at := Vector3(-1.8 + 0.15 * i, FLOOR_TOP, -1.6)
 		var b: Node3D = kit.make(&"whiskey_bottle") if which == "kit" else lib.spawn(&"whiskey_bottle")
 		b.position = at
 		room.add_child(b)
-	for t: Vector3 in [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]:
+	for t: Vector3 in ([] if opts.get("set", "") == "stores" else [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]):
 		var l: Node3D = kit.make(&"oil_lamp") if which == "kit" else lib.spawn(&"oil_lamp")
 		l.position = t + Vector3(0.1, 0.761, -0.1)
 		room.add_child(l)
@@ -592,6 +625,6 @@ func _perf(which: String) -> void:
 	var bodies := room.find_children("*", "StaticBody3D", true, false).size()
 	var out := {"which": which, "frame_ms": snappedf(_mean(frames), 0.001), "worst_ms": snappedf(_max(frames), 0.01),
 			"static_bodies": bodies, "draws": draws}
-	var f := FileAccess.open(out_dir.path_join("perf_%s.json" % which), FileAccess.WRITE)
+	var f := FileAccess.open(out_dir.path_join("perf_%s%s.json" % [which, "_" + String(opts.get("set")) if opts.has("set") else ""]), FileAccess.WRITE)
 	f.store_string(JSON.stringify(out, "  "))
 	print(JSON.stringify(out))

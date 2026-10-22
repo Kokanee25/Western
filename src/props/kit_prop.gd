@@ -29,6 +29,9 @@ const CHECK_EVERY := 0.25
 const SETTLE_FRAMES := 4
 ## Below the bottom of a foot, how far down it looks for what it stands on (m).
 const FOOT_REACH := 0.03
+## Put down, it settles onto what's under it up to SET_DOWN below its feet (or SET_LIFT into it).
+const SET_DOWN := 0.2
+const SET_LIFT := 0.08
 ## A foot's floor counts as gone once it's moved this far (m), as Fittings has it.
 const MOVED := 0.05
 ## Slower than this after a blow or a blast it hardly moves (it'd slide under 2 cm on the floor,
@@ -75,11 +78,19 @@ func build() -> void:
 		m.set_meta(&"kit", spec)
 		var mi := m.get_child(0) as MeshInstance3D
 		PropKit.dress_member(m, spec.get("draw", {}), spec.get("look", definition.get("look", "")))
+		# Its dress, one layer a look (a barrel stave's four hoops are one mesh), each its own name
+		# (two "Dress" children: Godot renames the second, unreadably).
+		var looks := {}
 		for d: Dictionary in spec.get("dress", []):
+			looks.get_or_add(String(d.get("look", "")), []).append(PropKit.draw_mesh(d.draw, m))
+		for look: String in looks:
 			var layer := MeshInstance3D.new()
-			layer.name = "Dress"
-			layer.mesh = PropKit.draw_mesh(d.draw, m)
-			layer.material_override = PropKit.material(String(d.get("look", "")), hash(m.member_id))
+			layer.name = "Dress%d" % mi.get_child_count()
+			var st := SurfaceTool.new()
+			for mesh: Mesh in looks[look]:
+				st.append_from(mesh, 0, Transform3D.IDENTITY)
+			layer.mesh = st.commit()
+			layer.material_override = PropKit.material(look, hash(m.member_id))
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 	var seat: Dictionary = definition.get("seat", {})
@@ -102,9 +113,11 @@ func _physics_step(delta: float) -> void:
 	_check_t = CHECK_EVERY
 	if seated and (not is_instance_valid(seated) or seated.get(&"limp")):
 		_clear_seat()
+	# A foot with nothing under it (its board gone, or over a boardwalk's edge or a gap between its
+	# boards as it was put down) isn't a foot: it stands if its weight's over the feet that are left.
 	for m: StructureMember in _feet:
 		if not m.broken and not _has_footing(m):
-			go_loose()
+			_check_balance()
 			return
 
 
@@ -212,12 +225,14 @@ func batch_count() -> int:
 
 ## Each foot's floor: what's in a thin box just under it (the room's members, the ground).
 func _find_footing() -> void:
-	_footed = true
-	_feet.clear()
 	var space := get_world_3d().direct_space_state
 	var own: Array[RID] = []
 	for m in get_members():
 		own.append(m.get_rid())
+	if not _set_down(space, own):
+		return  # what it stands on is a kit prop still settling itself: next frame
+	_footed = true
+	_feet.clear()
 	for m in get_members():
 		if not m.grounded or m.broken:
 			continue
@@ -245,6 +260,32 @@ func _find_footing() -> void:
 	# Nothing at all under any foot: it was put down in the air.
 	if not _feet.is_empty() and _feet.values().all(func(u: Array) -> bool: return u.is_empty()):
 		go_loose()
+
+
+## Down onto what's under its feet, or up out of it, as it would settle (a placement is a few
+## centimetres out: a boardwalk's top, a crate stacked on another), up to SET_DOWN. False while
+## what it would stand on is another kit prop that hasn't settled yet (a stack settles bottom up).
+func _set_down(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> bool:
+	var drop := INF
+	for m in get_members():
+		if not m.grounded or m.broken:
+			continue
+		var c := Vector3.ZERO
+		for p in _bottom_corners(m):
+			c += p * 0.25
+		var from := global_transform * (c + Vector3(0, SET_LIFT, 0))
+		var q := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -SET_LIFT - SET_DOWN, 0), Layers.WORLD, own)
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or hit.collider.has_meta(&"oil_lamp"):
+			continue
+		if hit.collider is StructureMember:
+			var under := (hit.collider as Node).get_parent()
+			if under is KitProp and under != self and not (under as KitProp)._footed and not (under as KitProp).loose:
+				return false
+		drop = minf(drop, from.y - SET_LIFT - (hit.position as Vector3).y)
+	if drop != INF and absf(drop) > 0.002:
+		global_position.y -= drop
+	return true
 
 
 func _has_footing(m: StructureMember) -> bool:

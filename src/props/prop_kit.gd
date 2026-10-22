@@ -15,11 +15,13 @@ class_name PropKit
 ## Positions in the prop's own space: origin at the bottom centre, facing +Z (as PropLibrary's).
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
-## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, brass, iron, mirror), or
+## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
+## weathered, brass, iron, mirror), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
-##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments"}: part of one;
+##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments", "grain_up",
+##    "caps"}: part of one ("caps": its cut ends closed, the profile a closed outline: a stave);
 ##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
 ##   Y ("above": instead a layer that thick laid on its top: a table's baize);
 ##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh).
@@ -108,10 +110,14 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 				s.at = _arr(b * (at + Vector3(0, 0, float(rep.radius))))
 				var rot := vec(spec.get("rot", [0, 0, 0]))
 				s.rot = [rot.x, rot.y + rad_to_deg(a), rot.z]
-				if s.has("draw") and s.draw.get("shape") == "sweep":
-					# A sweep's angles run from +X toward +Z; turning about Y by `a` runs the other way.
-					s.draw.from = float(s.draw.from) - rad_to_deg(a)
-					s.draw.to = float(s.draw.to) - rad_to_deg(a)
+				# A sweep's angles run from +X toward +Z; turning about Y by `a` runs the other way.
+				var draws: Array = [s.get("draw", {})]
+				for d: Dictionary in s.get("dress", []):
+					draws.append(d.get("draw", {}))
+				for d: Dictionary in draws:
+					if d.get("shape") == "sweep":
+						d.from = float(d.from) - rad_to_deg(a)
+						d.to = float(d.to) - rad_to_deg(a)
 			else:
 				s.at = _arr(at + vec(rep.get("step", [0, 0, 0])) * i)
 			out.append(s)
@@ -163,6 +169,10 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.felt()
 		"staves":
 			return PropModels.staves()
+		"barrel_head":
+			return PropModels.barrel_head()
+		"weathered":
+			return PropModels.weathered()
 		"brass":
 			return PropModels.brass()
 		"iron":
@@ -193,7 +203,8 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 		"lathe":
 			src = PropModels.lathe(_profile(draw.profile), int(draw.get("segments", 12)), bool(draw.get("grain_up", false)))
 		"sweep":
-			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)))
+			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)),
+					bool(draw.get("grain_up", false)), bool(draw.get("caps", false)))
 		"disc":
 			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
 		"profile", "panel", "cut":
@@ -273,8 +284,10 @@ static func _profile(points: Array) -> PackedVector2Array:
 
 ## Part of a turned shape: the profile ([r, y]) swept about Y from angle `a0` to `a1` (radians,
 ## from +X toward +Z, as PropModels.lathe), smooth round it, UVs in metres (u round, v down the
-## profile), its cut ends left open (the rim's neighbours meet them).
-static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: int) -> ArrayMesh:
+## profile; `grain_up`: the other way, so a stave's grain runs up it), its cut ends left open (the
+## rim's neighbours meet them) or, with `caps`, closed with the profile (a stave, seen when its
+## neighbour's been shot out).
+static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: int, grain_up := false, caps := false) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var along := [0.0]
@@ -306,8 +319,29 @@ static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: i
 				var p: Vector2 = c[1]
 				verts.append(Vector3(cos(t) * p.x, p.y, sin(t) * p.x))
 				norms.append(Vector3(cos(t) * n2.x, n2.y, sin(t) * n2.x).normalized())
-				uvs.append(Vector2(t * r_mean, float(c[2])))
+				uvs.append(Vector2(float(c[2]), t * r_mean) if grain_up else Vector2(t * r_mean, float(c[2])))
 			_quad(st, verts, norms, uvs)
+	if caps:
+		var outline := profile.duplicate()
+		if outline.size() > 3 and outline[0].is_equal_approx(outline[outline.size() - 1]):
+			outline.remove_at(outline.size() - 1)
+		var tris := Geometry2D.triangulate_polygon(outline)
+		for end in [[a0, -1.0], [a1, 1.0]]:
+			var t: float = end[0]
+			# The cut face looks round the circle, back at a0 and on at a1.
+			var n := Vector3(-sin(t), 0.0, cos(t)) * float(end[1])
+			for i in range(0, tris.size(), 3):
+				var v: Array[Vector3] = []
+				for k in 3:
+					var p := outline[tris[i + k]]
+					v.append(Vector3(cos(t) * p.x, p.y, sin(t) * p.x))
+				if (v[1] - v[0]).cross(v[2] - v[0]).dot(n) > 0.0:
+					v = [v[0], v[2], v[1]]
+				for q in v:
+					st.set_normal(n)
+					var p2 := Vector2(Vector2(q.x, q.z).length(), q.y)
+					st.set_uv(Vector2(p2.y, p2.x) if grain_up else p2)
+					st.add_vertex(q)
 	return st.commit()
 
 

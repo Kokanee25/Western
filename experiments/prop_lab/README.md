@@ -32,10 +32,15 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
   first second's added mean; this workspace's 2.1 GHz core: x0.65 for Sean's), a fingerprint.
 - **`--look`**: the kit's chair and card table (right) beside PropModels' (left), a Studio man
   between, lamplight and daylight, wide and close: the sheet the kit's look is judged on.
+  `--props=barrel,crate,bar_stool` puts those in a row each side instead.
 - **`--perf`**: the saloon's set (two tables, four chairs at each, as `SaloonBuilding` places
-  them) untouched, as kit props or as PropLibrary's props through `StaticBatch`.
+  them) untouched, as kit props or as PropLibrary's props through `StaticBatch`; `--set=stores`
+  the town's barrels, crates and bar stools instead (14, 12 with 4 stacked, 7).
 
 ## Results
 
 - `results/2026-10-21_baseline/`: the chair and the card table, every scenario (`table.md`), the
   budget (`perf_*.json`). Same seed, same result: 22 of 22.
+- `results/2026-10-22_stores/`: the barrel, the crate and the bar stool: 19 scenarios (`table.md`),
+  the look sheets (`look_*.png`), the budget for the town's set (`perf_*_stores.json`: +0.05 ms
+  physics and +127 draws at Sean's for all 45).
