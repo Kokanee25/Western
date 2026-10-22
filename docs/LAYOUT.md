@@ -443,6 +443,12 @@ a few views renders them as the full run does.
   sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
   `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
   `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
+- **Where the flames stand** (FireFX `_sheet_on`, art with Sean's OK 2026-10-22): a standing
+  member's sheet from `WALL_FOOT` (0.3) up its face; a sloped one (long axis 0.2-0.7 off level:
+  rafters) from along its middle; flat ones on top; a door or window head's in the opening under
+  it. FireSystem's `max_flames` (40) go to the nearest burning members, the roof's and the heads'
+  `FLAME_FIRST` (6 m) nearer than they are. A wide sheet holds up to `max_tiles` flipbook flames,
+  half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
 ## src/bodies
 
