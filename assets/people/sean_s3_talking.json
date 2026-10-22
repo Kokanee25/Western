@@ -1006,7 +1006,9 @@
     109,
     88
    ],
-   "grain": 3.0
-  }
+   "grain": 3.0,
+   "from": "his forearm"
+  },
+  "mixed_hand_triangles_dropped": 0
  }
 }
