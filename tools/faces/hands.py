@@ -151,11 +151,41 @@ def build(man):
         N[keep] = N_old[k[keep]]
     g.set_mesh("body_skin", m.v, N, m.uv, top, wt, m.tris)
     g.save(path)
+    # His forearm's colour and grain by the wrist (the texels its points sit on): the hands'
+    # paint, MakeHuman's lit pink, came out pinker, lighter and smoother than his arm.
+    tex = np.asarray(colour, np.float64)
+    hh, ww = tex.shape[:2]
+    arm_rows = []
+    o = m.our_joints()
+    for side in "rl":
+        wr, el = o[side + "-hand"], o[side + "-elbow"]
+        ax = (wr - el) / np.linalg.norm(wr - el)
+        up = (m.v - wr) @ ax
+        arm_rows.append(np.nonzero((m.region == "forearm_" + side) & (up > -0.10) & (up < -0.02))[0])
+    uv = m.uv[np.concatenate(arm_rows)]
+    px_arm = tex[np.clip((uv[:, 1] * hh).astype(int), 0, hh - 1), np.clip((uv[:, 0] * ww).astype(int), 0, ww - 1)]
+    arm_med = np.median(px_arm, 0)
+    grain = float(np.std(px_arm.mean(1) - np.median(px_arm.mean(1))))
+    rng = np.random.default_rng(5)
+    hand_rows = np.concatenate([np.arange(n0, n0 + len(fw)) for n0, fw, _sd in m.hand_fw])
     for paint, (u0, v0, side) in m.hand_paint:
         px = max(1, int(round(side * colour.width)))
-        tile = Image.fromarray((np.clip(paint, 0, 1) * 255).astype(np.uint8)).resize((px, px), Image.LANCZOS)
+        tile = np.asarray(Image.fromarray((np.clip(paint, 0, 1) * 255).astype(np.uint8)).resize((px, px), Image.LANCZOS), np.float64)
+        # Its texels the hand's points sit on, for its own colour.
+        hu = m.uv[hand_rows]
+        inside = (hu[:, 0] >= u0) & (hu[:, 0] < u0 + side) & (hu[:, 1] >= v0) & (hu[:, 1] < v0 + side)
+        tx = np.clip(((hu[inside, 0] - u0) / side * px).astype(int), 0, px - 1)
+        ty = np.clip(((hu[inside, 1] - v0) / side * px).astype(int), 0, px - 1)
+        gain = np.clip(arm_med / np.maximum(np.median(tile[ty, tx], 0), 1.0), 0.6, 1.4)
+        tile = tile * gain
+        # A fine grain as his arm's paint has (a little blurred: blotches, not noise).
+        n = rng.normal(0, 1, (px // 3 + 1, px // 3 + 1))
+        n = np.asarray(Image.fromarray(((n * 0.5 + 0.5).clip(0, 1) * 255).astype(np.uint8)).resize((px, px), Image.BICUBIC), np.float64) / 255 - 0.5
+        tile = tile * (1 + n[..., None] * 2 * grain / max(arm_med.mean(), 1.0))
+        tile = Image.fromarray(np.clip(tile, 0, 255).astype(np.uint8))
         colour = colour.copy()
         colour.paste(tile, (int(round(u0 * colour.width)), int(round(v0 * colour.height))))
+    m.report["own_fingers"]["matched_to_arm"] = {"arm_rgb": [round(float(x)) for x in arm_med], "grain": round(grain, 1)}
     colour.save(os.path.join(PEOPLE, man + "_skin.png"))
     info["finger_bones"] = m.report["finger_bones"]
     info["own_fingers"] = m.report["own_fingers"]
