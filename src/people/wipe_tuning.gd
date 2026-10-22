@@ -7,7 +7,7 @@ extends Resource
 ## Calm, free and nobody at the bar this long before he takes the cloth off his shoulder.
 @export var idle_before := 5.0
 ## Having put it back, this long (a range) before he starts again.
-@export var rest_between := Vector2(25.0, 70.0)
+@export var rest_between := Vector2(15.0, 45.0)
 ## Stretches of bar wiped in a go (a range).
 @export var stretches := Vector2i(2, 4)
 ## A cup within reach after a stretch: the chance he picks it up and wipes it.
