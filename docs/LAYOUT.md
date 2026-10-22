@@ -1042,8 +1042,18 @@ Gaze: `src/bodies/face_gaze.gd` (`FaceGaze`, a child of his HumanBody: a target 
 his look shapes carry the first `eye_range` degrees measured in his head's frame as it is, so the
 eyes lead and hold while `pose_offsets[&"head"]` (x up, y to his left) catches up; blinks, small
 flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_lab.gd --mode=gaze`
-(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
-in the game: who a man looks at is gameplay's.
+(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`.
+Alive (2026-10-22): `src/bodies/face_life.gd` (`FaceLife`; HumanBody adds one to a man whose report
+has `facerig`, `face_life` off for the face lab's sheets) owns his FaceGaze and picks its target:
+his brain's man when fighting, a sound he started at, else whom his Senses see (near, the player,
+moving, new; boredom, glances off), else a wander ahead; and sets brows_up (a start, fear),
+brows_down/squint/scowl (`felt_pain`, no wince on the hit), a squint aiming, lids out cold and part
+shut dead (FaceGaze's `lids`, `blink_rate`, `head`, `blink()`). Numbers in `config/face_life.tres`
+(`FaceLifeTuning`); rests past `near_camera`; `FaceLife.enabled` off in `screenshots.gd` (the
+goldens' faces at rest; `--face-life` on). `face_lab.gd --mode=life`: `LIFE_BEATS`, a stand-in
+brain, real Senses. `neck_seam.py` (run by `talking_face.py`): the face's stitch bound alike on both
+sides (the face's copy took head 1.0, his head's some neck: the jaw tore as his head turned), and a
+talking head drawn double-sided (slivers in the stitch turn edge-on).
 
 A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
 fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his
