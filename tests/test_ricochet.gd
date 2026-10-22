@@ -173,11 +173,12 @@ func test_you_hear_it_whine_off_and_whiz_past() -> void:
 	check(not _ricochets().is_empty(), "it glanced off the street in front of you")
 	check(passes.size() == 1 and passes[0], "and went past you tumbling (%s)" % str(passes))
 	var sounds := {}
-	for n in fx.get_children():
+	var holder := fx.get_viewport().get_node_or_null(^"GameAudio")
+	for n in (holder.get_children() if holder else []):
 		if n is AudioStreamPlayer3D:
-			for id in [&"ricochet", &"zip", &"crack"]:
+			for id in [&"glance_dirt", &"zip", &"crack", &"whirr"]:
 				if (n as AudioStreamPlayer3D).stream == SynthSounds.get_sound(id):
 					sounds[id] = true
-	check(sounds.has(&"ricochet"), "the whine where it struck")
+	check(sounds.has(&"glance_dirt"), "the whine where it struck the dirt")
 	check(sounds.has(&"zip"), "a whiz going by, not a snap (%s)" % str(sounds.keys()))
 	check(not sounds.has(&"crack"), "no snap")
