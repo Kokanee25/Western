@@ -12,62 +12,112 @@ const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"i
 	&"blast_roll", &"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3"]
 
 static var _cache := {}
+static var _lock := Mutex.new()
+static var _warm_task := -1
+
+## Every sound the game plays, made ahead by `warm_all` (Sean, 2026-10-22: the first shot froze the
+## game while its sounds were made: ~1.7 s for all of them on the workspace, the roll alone ~174 ms).
+const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing", &"break_open", &"close",
+	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
+	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report",
+	&"report_big", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
+	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
+	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
+	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
+
+
+## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
+## is made on the spot as before (same seed, same sound). Call `finish_warm` before quitting.
+static func warm_all() -> void:
+	if _warm_task >= 0:
+		return
+	_warm_task = WorkerThreadPool.add_task(func() -> void:
+		for id: StringName in ALL:
+			_lock.lock()
+			var have := _cache.has(id)
+			_lock.unlock()
+			if not have:
+				var wav := _make(id)
+				_lock.lock()
+				if not _cache.has(id):
+					_cache[id] = wav
+				_lock.unlock(), false, "SynthSounds.warm_all")
+
+
+## Wait for `warm_all`'s thread (at quit, or in a test that needs every sound made).
+static func finish_warm() -> void:
+	if _warm_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_warm_task)
+		_warm_task = -2
 
 
 static func get_sound(id: StringName) -> AudioStreamWAV:
-	if not _cache.has(id):
-		var rng := RandomNumberGenerator.new()
-		rng.seed = hash(id)
-		var samples: PackedFloat32Array
-		match id:
-			&"gunshot": samples = _gunshot(rng)
-			&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
-			&"dynamite": samples = _blast(rng)
-			&"fuse": samples = _fuse(rng)
-			&"match": samples = _match(rng)
-			&"ringing": samples = _ringing()
-			&"break_open": samples = _clicks(rng, [0.0, 0.06], 900.0, 0.55)
-			&"close": samples = _clicks(rng, [0.0], 1100.0, 0.7)
-			&"cock": samples = _clicks(rng, [0.0, 0.085], 3100.0, 0.5)
-			&"dry_fire": samples = _clicks(rng, [0.0], 2400.0, 0.6)
-			&"ratchet": samples = _clicks(rng, [0.0, 0.02, 0.04], 4200.0, 0.25)
-			&"gate": samples = _clicks(rng, [0.0], 1800.0, 0.35)
-			&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
-			&"eject": samples = _tink(rng)
-			&"glass": samples = _glass(rng)
-			&"flesh": samples = _flesh(rng)
-			&"zip": samples = _zip(rng)
-			&"crack": samples = _crack(rng)
-			&"ricochet": samples = _ricochet(rng)
-			&"timber_crack": samples = _timber_crack(rng)
-			&"timber_crash": samples = _timber_crash(rng)
-			&"fire": samples = _fire(rng)
-			&"splash": samples = _splash(rng)
-			&"fill": samples = _fill(rng)
-			&"steam": samples = _steam(rng)
-			&"report": samples = _report(rng, false)
-			&"report_big": samples = _report(rng, true)
-			&"rolling": samples = _rolling(rng, false)
-			&"rolling_big": samples = _rolling(rng, true)
-			&"whirr": samples = _whirr(rng)
-			&"blast": samples = _blast_near(rng)
-			&"blast_roll": samples = _blast_roll(rng)
-			&"fire_crackle": samples = _fire_crackle(rng)
-			&"fire_roar": samples = _fire_roar(rng)
-			&"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3": samples = _step(rng, true)
-			&"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3": samples = _step(rng, false)
-			&"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone":
-				samples = _impact(rng, StringName(String(id).trim_prefix("impact_")))
-			&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone":
-				samples = _glance(rng, StringName(String(id).trim_prefix("glance_")))
-			_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
-		var rate := HI_RATE if id in HI else RATE
-		var wav := _to_wav(_no_sub_bass(samples, rate), rate)
-		if id in [&"fire", &"fuse", &"ringing", &"fire_crackle", &"fire_roar"]:
-			wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
-			wav.loop_end = samples.size()
-		_cache[id] = wav
-	return _cache[id]
+	_lock.lock()
+	var wav: AudioStreamWAV = _cache.get(id)
+	_lock.unlock()
+	if wav == null:
+		wav = _make(id)
+		_lock.lock()
+		if _cache.has(id):
+			wav = _cache[id]
+		else:
+			_cache[id] = wav
+		_lock.unlock()
+	return wav
+
+
+static func _make(id: StringName) -> AudioStreamWAV:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(id)
+	var samples: PackedFloat32Array
+	match id:
+		&"gunshot": samples = _gunshot(rng)
+		&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
+		&"dynamite": samples = _blast(rng)
+		&"fuse": samples = _fuse(rng)
+		&"match": samples = _match(rng)
+		&"ringing": samples = _ringing()
+		&"break_open": samples = _clicks(rng, [0.0, 0.06], 900.0, 0.55)
+		&"close": samples = _clicks(rng, [0.0], 1100.0, 0.7)
+		&"cock": samples = _clicks(rng, [0.0, 0.085], 3100.0, 0.5)
+		&"dry_fire": samples = _clicks(rng, [0.0], 2400.0, 0.6)
+		&"ratchet": samples = _clicks(rng, [0.0, 0.02, 0.04], 4200.0, 0.25)
+		&"gate": samples = _clicks(rng, [0.0], 1800.0, 0.35)
+		&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
+		&"eject": samples = _tink(rng)
+		&"glass": samples = _glass(rng)
+		&"flesh": samples = _flesh(rng)
+		&"zip": samples = _zip(rng)
+		&"crack": samples = _crack(rng)
+		&"ricochet": samples = _ricochet(rng)
+		&"timber_crack": samples = _timber_crack(rng)
+		&"timber_crash": samples = _timber_crash(rng)
+		&"fire": samples = _fire(rng)
+		&"splash": samples = _splash(rng)
+		&"fill": samples = _fill(rng)
+		&"steam": samples = _steam(rng)
+		&"report": samples = _report(rng, false)
+		&"report_big": samples = _report(rng, true)
+		&"rolling": samples = _rolling(rng, false)
+		&"rolling_big": samples = _rolling(rng, true)
+		&"whirr": samples = _whirr(rng)
+		&"blast": samples = _blast_near(rng)
+		&"blast_roll": samples = _blast_roll(rng)
+		&"fire_crackle": samples = _fire_crackle(rng)
+		&"fire_roar": samples = _fire_roar(rng)
+		&"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3": samples = _step(rng, true)
+		&"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3": samples = _step(rng, false)
+		&"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone":
+			samples = _impact(rng, StringName(String(id).trim_prefix("impact_")))
+		&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone":
+			samples = _glance(rng, StringName(String(id).trim_prefix("glance_")))
+		_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
+	var rate := HI_RATE if id in HI else RATE
+	var wav := _to_wav(_no_sub_bass(samples, rate), rate)
+	if id in [&"fire", &"fuse", &"ringing", &"fire_crackle", &"fire_roar"]:
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_end = samples.size()
+	return wav
 
 
 ## A black-powder shot: `boom_hz` the low thump (a shotgun's is deeper), `boom_decay` and

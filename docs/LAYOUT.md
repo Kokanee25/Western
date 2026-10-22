@@ -80,8 +80,8 @@ already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs
 `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
-`sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); the
-gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
+`sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
+`gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
 scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
 `run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
 sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
@@ -481,6 +481,12 @@ a few views renders them as the full run does.
   sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
   `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
   `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
+- **Where the flames stand** (FireFX `_sheet_on`, art with Sean's OK 2026-10-22): a standing
+  member's sheet from `WALL_FOOT` (0.3) up its face; a sloped one (long axis 0.2-0.7 off level:
+  rafters) from along its middle; flat ones on top; a door or window head's in the opening under
+  it. FireSystem's `max_flames` (40) go to the nearest burning members, the roof's and the heads'
+  `FLAME_FIRST` (6 m) nearer than they are. A wide sheet holds up to `max_tiles` flipbook flames,
+  half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
 ## src/bodies
 
@@ -596,6 +602,8 @@ a few views renders them as the full run does.
   its wander is `Sway`, shared with the gang's `GunHand`),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
+  The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
+  Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`

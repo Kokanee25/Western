@@ -117,3 +117,14 @@ func test_the_master_bus_cuts_the_bass_and_limits() -> void:
 			limit = true
 	check(cut, "the master bus cuts below 40 Hz")
 	check(limit, "and limits under full scale, so a pile of sounds at once can't clip")
+
+
+## SynthSounds.warm_all makes every sound ahead (the first shot's freeze, 2026-10-22): ALL holds
+## every sound listed here, and a warmed sound is the same sound made on the spot.
+func test_warm_all_covers_every_sound() -> void:
+	for id: StringName in SOUNDS:
+		check(id in SynthSounds.ALL, "%s is in SynthSounds.ALL (so warm_all makes it)" % id)
+	var direct := SynthSounds._make(&"report").data
+	SynthSounds.warm_all()
+	SynthSounds.finish_warm()
+	check(SynthSounds.get_sound(&"report").data == direct, "a warmed sound matches one made on the spot")

@@ -200,6 +200,15 @@ paid on every turn of every session.
 
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and Current state, not through a long-running session.
+- **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
+  when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
+  open). Then, and never later: write the status entry and your Current state lines; open an
+  issue labelled **`next session`**, titled with the lane and the next step, whose body is the
+  ready-to-paste prompt for it (the branch, what's done, what to read, what to do next; written
+  for a fresh session that knows nothing of this one); then tell Sean, as your last message,
+  **"Step done: <what>. Start a fresh session with issue #N."** and do no more work. Don't
+  start the next step in the same session, even if it looks small. A session that picks up a
+  `next session` issue closes it at the start, with a line saying so.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
   `history.md`, `docs/BUILD_NOTES.md` or a brief's history unless asked. Grep for the heading,
@@ -348,8 +357,9 @@ frozen until Sean names one.
   next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
   bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
   `Settings.fire_flipbooks`: the default since 2026-10-22 (Sean: "keep flames for now", #216; look
-  panel N turns them off; saved as `flipbook_fire`). Next: firelight's look (step 5), then the painted pass
-  after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+  panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
+  fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
+  (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -466,11 +476,12 @@ frozen until Sean names one.
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
   now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
   `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
-  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
-  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
-  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
-  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
-  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
+  in the saloon (`play.gd`, `PLAYTEST.md`; issue #257 for Sean), each man's decision and why on F3.
+  The bot's A/B/C (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant. With the
+  perception lab's fix 1 (`results/2026-10-22_perception/`): no leak, but cover dropped on arrival
+  doubles. Next: cover against the same guess he chose it by, and cover in the saloon. Traps: wounds
+  bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match their own command line; a
+  `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
   bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
   against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
@@ -479,6 +490,10 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
+- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
+  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
+  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
+  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
