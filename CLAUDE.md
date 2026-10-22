@@ -441,6 +441,10 @@ frozen until Sean names one.
   since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
   fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
   their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
+- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
+  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
+  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
+  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
