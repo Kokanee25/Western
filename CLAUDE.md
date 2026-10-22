@@ -417,9 +417,12 @@ frozen until Sean names one.
   `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
   `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
   pose (Sean OK'd both); Sean's scene (`scenes/chair_kick_shot.gd`); eight contacts a part near
-  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
-  the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
-  man losing his seat catches himself (the prop lab's ask); loose props.
+  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). The night of
+  2026-10-22 (Sean's five): a body into the kit's furniture (#243, merged: KitProp.take_blow
+  decides); waiting on Sean: the brace (#238, issue #239), getting up (#250, on #238, issue #251),
+  men sitting in the kit chairs (#270: Seating, Brody at a card table); the collapse's tone
+  experiments (branch `claude/gameplay-collapse`, `results/2026-10-22_collapse/`: trunk-first
+  helps the oak stair, nothing gets him down the saloon's). Next: the `next session` issue.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
