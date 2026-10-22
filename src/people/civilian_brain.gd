@@ -118,13 +118,15 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 		return
 	var to_me := target == body
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
-	# The men who troubled him being run off, taken or shot: whoever did it did him a turn.
-	if troubled_by.has(actor) and kind in [&"back_down", &"surrender"] and (target is Player or kind == &"surrender"):
+	# The men who troubled him being run off, taken or shot: whoever did it did him a turn, if he
+	# saw it.
+	if troubled_by.has(actor) and kind in [&"back_down", &"surrender"] and (target is Player or kind == &"surrender") \
+			and senses.sees(actor):
 		if target is Player:
 			helped_by = target
 		elif _against_player(actor):
 			helped_by = _player()
-	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"]:
+	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"] and senses.sees(actor):
 		helped_by = actor
 	if not to_me:
 		if loud and actor is Node3D and (actor as Node3D).global_position.distance_to(body.global_position) < 25.0:

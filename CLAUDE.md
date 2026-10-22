@@ -433,6 +433,10 @@ frozen until Sean names one.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
+- The perception lab (2026-10-22, `experiments/perception_lab/`, branch `claude/gameplay-perception-lab`):
+  bench and baseline (117 judged; top five in its `baseline/baseline.md`); fix 1 merged (#263, #240: a
+  heard sound doesn't name its maker; 74 -> 88 as expected, false 23 -> 9; `results/`). Next: fix 2,
+  lamplight at night (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
