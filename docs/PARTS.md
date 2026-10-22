@@ -57,9 +57,9 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 
 | Part | Where it lives | Proven by | Status |
 | --- | --- | --- | --- |
-| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd` | in the game; the gun lab reworks the look and the moves |
-| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | — | in the game |
-| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests | in the game; the Studio's men can't close a hand round it yet (no finger bones) |
+| The revolver (Colt Single Action Army, moving parts) and the coach gun | `src/weapons/revolver_model.gd`, `shotgun_model.gd` | `test_gun_feel.gd`, `tools/gun_views.gd`, the gun lab's baseline | in the game; the gun lab reworks the look and the moves |
+| The player's hand on the revolver, finger by finger | `src/weapons/hand_model.gd` | the gun lab's sheets | in the game |
+| A man's gun at his hand and in his holster | `HumanBody` (fixed offset at the right hand, the right hip) | tests, the gun lab's grip gaps | in the game; the Studio's men can't close a hand round it yet (no finger bones) and wear no holster |
 | The kick | `src/weapons/gun_kick.gd` | `test_gun_feel.gd`, feel ranges | in the game |
 
 ## Materials and look (art)

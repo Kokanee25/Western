@@ -77,7 +77,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README).
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `gun_lab` (`gun_fp`,
+`gun_men`, `gun_grip`, `gun_handling`; its README).
 
 ## The playtest
 
@@ -512,6 +513,8 @@ a few views renders them as the full run does.
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
+  The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
+  Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
