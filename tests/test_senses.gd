@@ -101,10 +101,28 @@ func test_hears_a_shot_behind_him_roughly_where() -> void:
 	player.global_position = Vector3(0, 0, 20)  # 30 m behind him
 	await physics_frames(2)
 	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
-	check(senses.knows(player), "heard it")
+	var shot := senses.last_sound([&"gunshot"])
+	check(not shot.is_empty(), "heard it")
 	check(not senses.sees(player), "without seeing you")
-	var guess := senses.last_known(player)
-	check(guess.distance_to(player.global_position) < 5.0, "and roughly where (%.1f m off)" % guess.distance_to(player.global_position))
+	check(not shot.is_empty() and (shot.at as Vector3).distance_to(player.global_position) < 5.0, "and roughly where")
+	check(not senses.knows(player), "but not who fired: he didn't see you")
+
+
+## A shot from a man he can see: he knows who fired. The perception lab's baseline (2026-10-22)
+## found every listener knew, seen or not.
+func test_knows_who_fired_only_if_he_sees_him() -> void:
+	var who := [null]
+	senses.heard.connect(func(_at: Vector3, _k: StringName, w: Node) -> void: who[0] = w)
+	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
+	check(who[0] == player, "you, 10 m in front of him: he knows it was you")
+	check(senses.knows(player), "and where you are")
+	_box(Vector3(0, 1.5, -5), Vector3(6, 3, 0.3))  # a wall between
+	await physics_frames(2)
+	senses.known.clear()
+	who[0] = null
+	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
+	check(who[0] == null and not senses.knows(player), "the same shot behind a wall: a shot, not you")
+	check(not senses.last_sound([&"gunshot"], 0.5).is_empty(), "heard all the same")
 
 
 func test_footsteps() -> void:
@@ -112,10 +130,11 @@ func test_footsteps() -> void:
 	player.global_position = Vector3(0, 0, -2)  # 8 m behind him
 	await physics_frames(2)
 	Events.noise.emit(player.global_position, 13.0, &"footsteps", player)
-	check(senses.knows(player), "hears you running at 8 m")
-	senses.known.clear()
+	check(not senses.last_sound([&"footsteps"]).is_empty(), "hears you running at 8 m")
+	check(not senses.knows(player), "steps behind him: somebody's, not yours")
+	senses.sounds.clear()
 	Events.noise.emit(player.global_position, 2.0, &"footsteps", player)
-	check(not senses.knows(player), "not creeping crouched")
+	check(senses.last_sound([&"footsteps"]).is_empty(), "not creeping crouched")
 
 
 ## People come and go (the gang rides out, is freed, rides in again, often where the last ones

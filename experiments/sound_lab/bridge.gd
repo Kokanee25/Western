@@ -8,6 +8,7 @@ const HELP := {
 	"sound": "sound SCENARIO [seed=N] [out=DIR] [picture] -> one sound lab scenario (it clears the town first): what the player hears as DIR/heard.wav (the end of the Master bus), every sound that began and how it was placed, voices and frame time; run under --write-movie for a game-time mix",
 	"sound_list": "sound_list -> the sound lab's scenarios",
 	"sound_find": "sound_find WOOD|KIND [X Y Z] -> the members of that wood (stone, iron...) or kind (glass...) nearest a point: where, how big (for placing scenarios)",
+	"sound_ray": "sound_ray X Y Z X Y Z -> what stands between two points for GameAudio (its wall test): the collider, where, how far short of the second point",
 	"sound_inventory": "sound_inventory -> every AudioStreamPlayer in the tree now: its sound, owner, bus and how it's placed; the buses and their effects",
 }
 
@@ -64,6 +65,19 @@ func _cmd_sound_find(a: Array) -> Dictionary:
 					"d": snappedf(box.get_center().distance_to(near), 0.01)})
 	found.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return x.d < y.d)
 	return {"found": found.slice(0, 8), "count": found.size()}
+
+
+func _cmd_sound_ray(a: Array) -> Dictionary:
+	if a.size() < 6:
+		return {"ok": false, "error": "sound_ray X Y Z X Y Z"}
+	var from := vec(a, 0)
+	var to := vec(a, 3)
+	var hit := GameAudio._ray(street.get_world_3d().direct_space_state, from, to)
+	if hit.is_empty():
+		return {"clear": true}
+	var c := hit.collider as Node
+	return {"clear": false, "hit": String(c.get_path()) if c else "", "class": c.get_class() if c else "", "at": arr(hit.position),
+			"short_m": snappedf((hit.position as Vector3).distance_to(to), 0.01), "walled": GameAudio.walled(street as Node3D, from, to)}
 
 
 func _cmd_sound_list(_a: Array) -> Dictionary:

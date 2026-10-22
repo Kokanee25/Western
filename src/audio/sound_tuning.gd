@@ -16,6 +16,12 @@ extends Resource
 ## Each slap off a front: the share of the report a timber wall throws back.
 @export var slap_db := -8.0
 
+@export_group("Passes and strikes")
+## A ball going by snaps only if it's faster than sound (buckshot near the muzzle; a black-powder
+## .45's ball, ~270 m/s, doesn't: it whirrs). True: every true pass snaps, as before the lab (Sean's
+## earlier rule, from modern rounds).
+@export var subsonic_snaps := false
+
 @export_group("Air, walls and rooms")
 ## The air's loss of highs: the high shelf's corner at 20 kHz / (1 + distance / this).
 @export var air_metres := 25.0
