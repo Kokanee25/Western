@@ -72,6 +72,7 @@ var _count := -1.0
 var _you_at := Vector3.INF  # where you last stood still
 var _you_still := 0.0
 var _told_t := -99.0  # a friend last shouted where you are
+var _doubtful: Array = []  # knowing to be flagged unless explained in the next 0.2 s
 var _turned := false  # they've turned on you, and when
 var _turned_at := 0.0
 const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shout"]
@@ -347,6 +348,7 @@ func _physics_process(delta: float) -> void:
 	if bot:
 		bot.tick(delta, t)
 	_watch_men(delta)
+	_settle_doubts()
 	_watch_world(delta)
 	_track_t -= delta
 	if _track_t <= 0.0:
@@ -720,6 +722,21 @@ func _in_sight(b: OutlawBrain, who: Player) -> bool:
 ## Unseen, his idea of where you are jumps further than you could have walked since he last knew
 ## (3 m and 2 m a second, the perception lab's reckoning), with no friend shouting it and no ball
 ## of yours past him: he put a name to a sound he couldn't place (the perception lab's leak).
+## Doubtful knowing, flagged once 0.2 s have passed with no friend's shout and no ball to explain it.
+func _settle_doubts() -> void:
+	for d: Dictionary in _doubtful.duplicate():
+		if t - float(d.t) < 0.2:
+			continue
+		_doubtful.erase(d)
+		var m: Dictionary = d.m
+		if absf(_told_t - float(d.t)) < 1.0 or absf(float(m.get("_ball_t", -99.0)) - float(d.t)) < 1.0:
+			continue
+		var list: Array = record.get_or_add("unfair", [])
+		list.append([snappedf(float(d.t), 0.01), d.text, d.lines])
+		m.unfair = int(m.get("unfair", 0)) + 1
+		_note("unfair", d.text)
+
+
 func _watch_knowing(m: Dictionary, b: OutlawBrain, pv: Dictionary) -> void:
 	if b.senses.sees(player):
 		pv.known_at = player.global_position
@@ -740,7 +757,9 @@ func _watch_knowing(m: Dictionary, b: OutlawBrain, pv: Dictionary) -> void:
 	if was != Vector3.INF:
 		m.worst_overshoot_m = snappedf(maxf(float(m.get("worst_overshoot_m", -99.0)), jump - reach), 0.1)
 	if jump > reach and not told and t - float(m.get("_line_t", 0.0)) > NO_LINE and not _in_sight(b, player):
-		_unfair(m, "%s placed you %.0f m from where he last knew you (more than you could walk), unseen and untold" % [m.id, jump])
+		# Held a moment: a friend's shout or a ball in the same tick may land after this check.
+		_doubtful.append({"m": m, "t": t, "text": "%s placed you %.0f m from where he last knew you (more than you could walk), unseen and untold" % [m.id, jump],
+			"lines": _line_report(b)})
 	pv.known_at = at
 	pv.known_t = t
 
@@ -804,7 +823,7 @@ func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) ->
 				_fright(other, "a friend's shout (%s)" % kind)
 	var m: Dictionary = _men[_mid(speaker)]
 	m.callouts[String(kind)] = int(m.callouts.get(String(kind), 0)) + 1
-	if _about_you(_about) and kind in [&"spotted", &"flank", &"hit", &"covering"]:
+	if _about_you(_about):  # any shout naming you (spotted, flank, hit, covering, help...) tells his friends where
 		_told_t = t  # where you are, shouted for his friends to hear
 	if kind == &"spotted" and _about_you(_about) and t - float(m.get("_line_t", 0.0)) > NO_LINE \
 			and not _in_sight(brains[_mid(speaker)], player):
