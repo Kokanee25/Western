@@ -334,6 +334,17 @@ a few views renders them as the full run does.
   (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
   `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
   &"ground" (`Ballistics.surface_of`).
+  Digging (step 2): `take(at, radius, depth)` lowers a bowl (loose earth first, never past the
+  hardpan) and returns the packed m³; `put(at, m3, radius[, ring_from, ring_peak])` lays it loose
+  (×`swell`) as a heap or a ring; loose earth then slides to `repose_degrees` (`_slump`, only points
+  still moving), packed earth stands as cut. Each tile keeps `heights` (the surface) and `loose`
+  (its loose depth); an edit reads a `Patch` of points, works on it, writes it back into the tiles
+  it touches (made where the ground changes), rebuilds each once, wakes what slept there
+  (`_wake`, the ground left out of the query: a height field answers once a triangle), hands back
+  what's `bury`'d and now uncovered (`Events.ground_uncovered`) and emits
+  `Events.ground_changed(rect)`. `to_dict`/`from_dict`: the heights and loose depths in mm
+  (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
+  b depth below the authored ground.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 

@@ -45,6 +45,11 @@ signal spoke(speaker: Node, text: String)
 signal scorched(person: Node, amount: float)
 ## A charge went off: where, and how big (kg TNT).
 signal exploded(at: Vector3, kg: float)
+## The ground over `area` (world xz) was dug or laid on (Ground.take/put): what stands or rests
+## there looks again at what's under it.
+signal ground_changed(area: Rect2)
+## Digging reached something buried there (Ground.bury).
+signal ground_uncovered(id: StringName, at: Vector3)
 ## A sound people might hear: where, how far it carries (m), what it was, and who made it.
 signal noise(at: Vector3, loudness: float, kind: StringName, source: Node)
 ## Something someone did that others judge them by (Relations.WEIGHTS): drew, holstered, aimed at,
