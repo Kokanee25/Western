@@ -86,18 +86,13 @@ static func brass() -> ShaderMaterial:
 	return _mat("brass", PixelArt.metal("prop_brass", BRASS, 215), Color.WHITE, 0.45, 0.5, 0.6)
 
 
-## A looking glass (the back bar's): dark and sharp, it gives back the room's lamps.
-static func mirror() -> StandardMaterial3D:
+## A looking glass (the back bar's): the lamplit room it gives back, painted (mirror.gdshader: a
+## smoky warm haze, the lamps glowing in it, the posts dark, sliding as you move), as the picture's
+## mirrors (target 10). Round 2's flat ochre glow read as a painted board.
+static func mirror() -> ShaderMaterial:
 	if not _materials.has("mirror"):
-		var m := StandardMaterial3D.new()
-		m.albedo_color = Color(0.3, 0.26, 0.2)
-		m.metallic = 0.75
-		m.roughness = 0.12
-		# The lamplit room it gives back (the lab and the saloon have no sky to reflect): a low
-		# warm glow, as the picture's mirrors (target 10).
-		m.emission_enabled = true
-		m.emission = Color(0.42, 0.26, 0.12)
-		m.emission_energy_multiplier = 0.38
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://src/props/mirror.gdshader")
 		_materials["mirror"] = m
 	return _materials["mirror"]
 
