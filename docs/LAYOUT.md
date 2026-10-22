@@ -79,7 +79,12 @@ The bridge loads every lab's file at start (folders in name order), lists them i
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
 `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
 `sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
-game time).
+game time); the gunfight lab
+(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
+its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
+matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
+(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -347,6 +352,17 @@ a few views renders them as the full run does.
   `Events.ground_changed(rect)`. `to_dict`/`from_dict`: the heights and loose depths in mm
   (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
   b depth below the authored ground.
+  Under a dug tile the earth is solid: boxes a column of 8 cells (`GroundTile.COLUMN`), each topped
+  1 cm under the lowest surface over it, down through the hardpan (a height field has no
+  thickness: a 2 cm bone fragment at 6 m/s went through it). What stands and walks there (step 4),
+  on `Events.ground_changed`: a `Structure`'s grounded member whose bottom has lost the earth by
+  `undercut` (5 cm) at its corners and middle is grounded no more and the structure settles;
+  a `KitProp` looks for its feet again (its own `_on_ground_changed`); `Fittings` drops a prop
+  standing in the street (`on_ground`, under 2 m) whose middle has lost the ground; a `HumanBody`
+  that has stood (`_stood`) snaps again, and goes limp when the ground under him drops more than
+  `DROP_FALLS` (1 m) or he walks on down ground steeper than ~50 deg (`STEEP_UP`) more than 0.5 m
+  below where he last stood level (a stick's crater doesn't trip him; a dug hole does). Not yet:
+  a man who has never walked (placed) floats over a hole dug under him; feet on slopes (one floats).
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
@@ -485,8 +501,19 @@ a few views renders them as the full run does.
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
   still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
-  surrenders), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks),
+  surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
+  cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
+  it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
+  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  why, for F3 and the lab), `GunHand` (where his
+  barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
+  you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
+  his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
+  the town's ways (in at a door, down the steps), and something wide a few metres off counts:
+  a doorway, a building's corner),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
@@ -527,9 +554,24 @@ a few views renders them as the full run does.
   (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
   follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
 
+## src/audio
+
+- `src/audio/synth_sounds.gd` — `SynthSounds`: every sound made in code, cached (22 kHz; the sound
+  lab's at 44.1 kHz, `HI`). `src/audio/game_audio.gd` — `GameAudio.play(host, id, at, opts)`: a
+  sound heard from where it happened (the sound lab, `docs/briefs/sound-lab.md`): started
+  distance / 343 m/s late (a physics-time timer), the air's high shelf by distance, the `Room` bus
+  under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
+  `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
+  fronts. `GameAudio.gunshot` (the report, the roll, the slaps). `ImpactEffects` plays a pass
+  (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
+  a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
+  (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
+  before the lab (its "before" from one build). Measured by `experiments/sound_lab/`.
+
 ## src/weapons
 
-- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera),
+- `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
+  its wander is `Sway`, shared with the gang's `GunHand`),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
@@ -1025,8 +1067,18 @@ Gaze: `src/bodies/face_gaze.gd` (`FaceGaze`, a child of his HumanBody: a target 
 his look shapes carry the first `eye_range` degrees measured in his head's frame as it is, so the
 eyes lead and hold while `pose_offsets[&"head"]` (x up, y to his left) catches up; blinks, small
 flicks) with its numbers in `config/gaze.tres` (`GazeTuning`). Proved by `face_lab.gd --mode=gaze`
-(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`. Not yet on anyone
-in the game: who a man looks at is gameplay's.
+(a marker on `GAZE_PATH`; `--check` prints the head's turn) and `gaze_video.sh`.
+Alive (2026-10-22): `src/bodies/face_life.gd` (`FaceLife`; HumanBody adds one to a man whose report
+has `facerig`, `face_life` off for the face lab's sheets) owns his FaceGaze and picks its target:
+his brain's man when fighting, a sound he started at, else whom his Senses see (near, the player,
+moving, new; boredom, glances off), else a wander ahead; and sets brows_up (a start, fear),
+brows_down/squint/scowl (`felt_pain`, no wince on the hit), a squint aiming, lids out cold and part
+shut dead (FaceGaze's `lids`, `blink_rate`, `head`, `blink()`). Numbers in `config/face_life.tres`
+(`FaceLifeTuning`); rests past `near_camera`; `FaceLife.enabled` off in `screenshots.gd` (the
+goldens' faces at rest; `--face-life` on). `face_lab.gd --mode=life`: `LIFE_BEATS`, a stand-in
+brain, real Senses. `neck_seam.py` (run by `talking_face.py`): the face's stitch bound alike on both
+sides (the face's copy took head 1.0, his head's some neck: the jaw tore as his head turned), and a
+talking head drawn double-sided (slivers in the stitch turn edge-on).
 
 A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
 fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his

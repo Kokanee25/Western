@@ -19,11 +19,13 @@ python3 experiments/sound_lab/run.py "--scenario=revolver_*,dynamite_out_30" --o
 python3 experiments/sound_lab/run.py --table=ROOT          # measure again, no Godot
 python3 experiments/sound_lab/measure.py ROOT --compare=BASE   # the table with each change against BASE
 python3 experiments/sound_lab/run.py --clips=ROOT          # ROOT/clips/<scenario>.mp3
+python3 experiments/sound_lab/run.py --old-sound --out=...  # the "before" from this build (GameAudio off)
 # one scenario in a game you drive (under Movie Maker so the mix runs on game time)
 python3 tools/bridge.py start --movie=build/sound_lab/m.avi
 python3 tools/bridge.py "sound revolver_street_20 out=build/sound_lab/one" "quit"
 python3 tools/bridge.py "sound_inventory"                  # every player, bus and effect now
 python3 tools/bridge.py "sound_find stone -2.5 0.6 -28.5"  # members of a wood or kind near a point
+python3 tools/bridge.py "sound_ray 1.5 2 -24 1.5 0.5 -30"   # what GameAudio counts as a wall between two points
 ```
 
 `run.py` takes `--seed=N` (default scenarios.json's), `--jobs=N` (3), `--picture` (draw every frame
@@ -40,7 +42,8 @@ and scipy.
    stopped at 15:00, Ballistics' ricochet draws seeded.
 3. The ears placed: the player himself, or for the guns an `AudioListener3D` of the lab's at the
    listener's spot (the gun aims down the current camera, so his camera stays current). One frame
-   is drawn from there (`view.png`).
+   is drawn from there (`view.png`), then two seconds pass (a bottle in the saloon falls as the town is
+cleared).
 4. An `AudioEffectCapture` goes on the end of the Master bus (after the ear filter, the high-pass
    and the limiter): what comes out of the speakers. Half a second of quiet, then the event made
    through the game's own code:
@@ -67,7 +70,8 @@ and scipy.
 Round each event's mark: sample peak (dBFS), loudness (ITU-R BS.1770, K-weighted: the loudest
 400 ms `lufs_max`, and over the window), onset after the mark (the arrival delay), length (until 40 dB
 under its peak), `decay20` (peak to −20 dB), C50 (the first 50 ms against the rest: high is dry,
-low is a tail), the spectral centroid and band shares of its first half second, left/right
+low is a tail), `tail_db` (the share of the first second from 150 ms on: a room's ring, the roll),
+the spectral centroid and band shares of its first half second, left/right
 balance. A fire or steps: loudness and centroid over the stretch. Derived: falloff in dB a doubling
 of distance, the arrival delay against distance / 343 m/s, inside against outside at 2 m, the
 street against the saloon's open door and its wall at 7 m, voices at once in the fight, cost a
@@ -80,3 +84,5 @@ voice.
   from its `guns` block: `WEAPON_PLACE_LISTENER`).
 - `run.py`: the runs, the table, the clips. `measure.py`: the measures.
 - `baseline/`: `baseline.md` (inventory, table, the ten worst), `measures.json`, `clips/` (a few mp3s).
+- `results/<date>_<change>/`: each change against the baseline: what changed, the numbers before
+  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`.

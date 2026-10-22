@@ -95,6 +95,7 @@ func run() -> Dictionary:
 		return ok
 	await lab.seconds(1.0)
 	await _view_shot()
+	await lab.seconds(2.0)  # whatever the quietening set off (a bottle in the saloon falls) is over
 	_hook()
 	_start_recording()
 	await lab.seconds(0.5)  # the noise floor
@@ -311,7 +312,10 @@ func _event_pass() -> void:
 	var side := (head - _lab_shooter.global_position).cross(Vector3.UP).normalized()
 	var aim := head + side * float(_spec.miss)
 	if bool(_spec.get("report", false)):
-		(_lab_shooter.get_child(0) as AudioStreamPlayer3D).play()
+		if GameAudio.enabled():
+			GameAudio.gunshot(_lab_shooter, _lab_shooter.global_position)
+		else:
+			(_lab_shooter.get_child(0) as AudioStreamPlayer3D).play()
 	_mark("fired", _lab_shooter.global_position)
 	var b := _fire_ball(_lab_shooter.global_position, aim - _lab_shooter.global_position)
 	b.tumbling = bool(_spec.get("tumbling", false))
@@ -528,7 +532,9 @@ func _describe_start(p: Node) -> Dictionary:
 	var stream: AudioStream = p.stream
 	var d := {"t": snappedf(_now(), 0.001), "sound": _sound_id(stream), "node": String(_street.get_path_to(p)) if _street.is_ancestor_of(p) else String(p.get_path()),
 			"owner": _owner_script(p), "bus": String(p.bus), "volume_db": p.volume_db,
-			"length_s": snappedf(stream.get_length(), 0.01) if stream else 0.0}
+			"length_s": snappedf(stream.get_length(), 0.01) if stream else 0.0,
+			"inside": p.get_meta(&"inside") if p.has_meta(&"inside") else null,
+			"walled": p.get_meta(&"walled") if p.has_meta(&"walled") else null}
 	if p is AudioStreamPlayer3D:
 		var p3 := p as AudioStreamPlayer3D
 		var dist := p3.global_position.distance_to(_listener_node.global_position) if _listener_node else -1.0
@@ -628,9 +634,9 @@ func _fire_ball(from: Vector3, dir: Vector3) -> Ballistics.Bullet:
 	return b
 
 
-## A gun going off where no one stands: an AudioStreamPlayer3D set as OutlawBrain sets his
-## (src/bodies/outlaw_brain.gd: the gunshot, unit_size 25, max_db 6), so a lab ball comes with the
-## report an outlaw's would.
+## A gun going off where no one stands, as an outlaw's would (src/bodies/outlaw_brain.gd `_fire_at`):
+## GameAudio.gunshot, or with `--old-sound` an AudioStreamPlayer3D set as his was (the gunshot,
+## unit_size 25, max_db 6).
 func _make_lab_shooter(at: Vector3) -> Node3D:
 	var n := Node3D.new()
 	n.name = "LabShooter"

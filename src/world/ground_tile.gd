@@ -2,8 +2,14 @@ class_name GroundTile
 extends StaticBody3D
 ## One dug tile of the ground (Ground, docs/briefs/dig-ground.md): `tile_cells` cells a side, its
 ## heights (above the authored ground, at the cells' corners: one more a side than cells, the edges
-## shared with the next tile's) as a Jolt height field and a mesh in the ground's material, with the
-## hardpan under it as a box. Its own body, so an edit rebuilds only this tile's shape.
+## shared with the next tile's) as a Jolt height field and a mesh in the ground's material. A height
+## field has no thickness, and a small thing moving fast (a bone fragment, a chip: 10 cm a tick)
+## goes through it, so under it the earth is solid: a box a column of COLUMN cells, its top just
+## under the lowest of the surface over it, down through the hardpan. Its own body, so an edit
+## rebuilds only this tile's shapes.
+
+## Cells a side of the solid earth's columns under the surface (8: 40 cm at 5 cm cells).
+const COLUMN := 8
 
 var key: Vector2i
 ## (tile_cells + 1)² heights, row by row along x, rows along z (m, above the authored ground).
@@ -15,6 +21,8 @@ var loose := PackedFloat32Array()
 var _n := 0  # points a side
 var _cell := 0.05
 var _depth := 2.0
+var _slab := 10.0
+var _columns: Array[CollisionShape3D] = []
 var _shape: HeightMapShape3D
 var _mesh: MeshInstance3D
 
@@ -45,13 +53,14 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 	cs.shape = t._shape
 	cs.scale = Vector3(tn.cell, 1.0, tn.cell)
 	t.add_child(cs)
-	var pan := CollisionShape3D.new()
-	pan.name = "Hardpan"
-	var box := BoxShape3D.new()
-	box.size = Vector3(size, tn.slab_depth, size)
-	pan.shape = box
-	pan.position = Vector3(0.0, -tn.earth_depth - tn.slab_depth * 0.5, 0.0)
-	t.add_child(pan)
+	t._slab = tn.slab_depth
+	var cols := ceili(float(tn.tile_cells) / COLUMN)
+	for k in cols * cols:
+		var col := CollisionShape3D.new()
+		col.name = "Earth%d" % k
+		col.shape = BoxShape3D.new()
+		t.add_child(col)
+		t._columns.append(col)
 	t._mesh = MeshInstance3D.new()
 	t._mesh.name = "Mesh"
 	t.add_child(t._mesh)
@@ -74,6 +83,29 @@ func point(i: int, j: int) -> Vector3:
 func rebuild(material: Material) -> void:
 	_shape.map_data = heights
 	_mesh.mesh = _grid_mesh(material)
+	_rebuild_columns()
+
+
+## The solid earth under the surface: each column's box from the hardpan's foot up to 1 cm under
+## the lowest point of the surface over it.
+func _rebuild_columns() -> void:
+	var half := (_n - 1) * 0.5
+	var cols := ceili(float(_n - 1) / COLUMN)
+	var bottom := -_depth - _slab
+	for cj in cols:
+		for ci in cols:
+			var i0 := ci * COLUMN
+			var j0 := cj * COLUMN
+			var i1 := mini(i0 + COLUMN, _n - 1)
+			var j1 := mini(j0 + COLUMN, _n - 1)
+			var low := INF
+			for j in range(j0, j1 + 1):
+				for i in range(i0, i1 + 1):
+					low = minf(low, heights[index(i, j)])
+			var top := low - 0.01
+			var col := _columns[cj * cols + ci]
+			(col.shape as BoxShape3D).size = Vector3((i1 - i0) * _cell, top - bottom, (j1 - j0) * _cell)
+			col.position = Vector3(((i0 + i1) * 0.5 - half) * _cell, (top + bottom) * 0.5, ((j0 + j1) * 0.5 - half) * _cell)
 
 
 ## The tile as a grid of quads, each split corner to corner as its height field is, normals from
