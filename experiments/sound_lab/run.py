@@ -8,7 +8,8 @@ nothing drawn but the view's one frame), the heard WAVs measured by measure.py, 
     python3 experiments/sound_lab/run.py --scenario=revolver_* --out=...     # a prefix
     python3 experiments/sound_lab/run.py --table=ROOT                        # the table again, no Godot
     python3 experiments/sound_lab/run.py --clips=ROOT                        # mp3 clips of every scenario
-    --jobs=N (3), --seed=N, --picture (draw every frame: slow, the movie kept as ROOT/<s>/movie.avi)
+    --jobs=N (3), --seed=N, --picture (draw every frame: slow, the movie kept as ROOT/<s>/movie.avi),
+    --old-sound (the game's sounds as before the lab's changes, GameAudio: the "before" from this build)
 """
 import fnmatch
 import json
@@ -45,7 +46,7 @@ def names():
 
 
 def run_one(job):
-    name, out_dir, port, seed, picture = job
+    name, out_dir, port, seed, picture, extra = job
     os.makedirs(out_dir, exist_ok=True)
     cmds = os.path.join(out_dir, "cmds.txt")
     with open(cmds, "w") as f:
@@ -57,6 +58,7 @@ def run_one(job):
            "--", "--dev-bridge", f"--bridge-port={port}", f"--bridge-script={cmds}"]
     if not picture:
         cmd.append("--sound-lab-dark")
+    cmd += extra
     t = time.time()
     with open(os.path.join(out_dir, "godot.log"), "w") as log:
         try:
@@ -90,7 +92,8 @@ def main():
     # Godot's import mustn't take the WAVs and PNGs for the project's.
     open(os.path.join(out, ".gdignore"), "w").close()
     seed = int(_opt("seed", 1))
-    jobs = [(n, os.path.join(out, n), 8820 + i, seed, bool(_opt("picture"))) for i, n in enumerate(todo)]
+    extra = ["--old-sound"] if _opt("old-sound") else []
+    jobs = [(n, os.path.join(out, n), 8820 + i, seed, bool(_opt("picture")), extra) for i, n in enumerate(todo)]
     with ThreadPoolExecutor(int(_opt("jobs", 3))) as ex:
         results = list(ex.map(run_one, jobs))
     failed = [n for n, ok in results if not ok]
