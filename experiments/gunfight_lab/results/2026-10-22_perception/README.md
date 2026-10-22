@@ -1,6 +1,6 @@
 # The perception lab's fix 1 in the gunfight (2026-10-22)
 
-The perception lab (branch `claude/gameplay-perception-lab`, issue #240, not merged when this ran)
+The perception lab (issue #240; on its branch when this ran, since merged as #263, build 2103)
 asked for the gunfight lab to be run again with its fix 1: a heard sound tells a man where, not
 who; a man hunting you takes a sound where you could have got to for yours. Here: today's main
 against main with that branch merged in locally (a scratch branch, never pushed). The same 240
