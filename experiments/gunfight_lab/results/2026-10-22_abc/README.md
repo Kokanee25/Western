@@ -97,3 +97,27 @@ the room has to offer the choices the work order asks for:
 
 The street (the lab's main arena) has cover. There C's street fights were a third longer than B's,
 with longer lulls (fix 3's results), but it isn't the playable encounter yet.
+
+## The playtest agent (`docs/playtests/2026-10-22.md`)
+
+An automated tester (no code read) played six runs through the dev bridge at about a frame a
+second, about 5 s of game time to draw and fire. Its scores aren't a human's. It never hit a man.
+- **Same as the bot:** in every variant, staying in the saloon, all three fired within a second of
+  its draw.
+- **Its best moment (C):** Brody held the doorway ("I know you're there") and dropped it when it
+  stepped into line.
+- **Its liveliest run (A):** Brody came out after it, called "Reloading! Cover me!", the others
+  answered, and he gave up past his nerve.
+- **Faults in what this round built, fixed in the same merge:**
+  - the first "next run" after being knocked out often lost;
+  - the range's lone outlaw joining in;
+  - F3 naming the variant and listing the town before the gang;
+  - an empty first few seconds;
+  - the count starting a fight over a duel it had called.
+- **Faults it found in the game, not fixed here:**
+  - after being knocked out, men stood still for 30 s "searching" and gave up;
+  - with a broken arm the revolver kept going back into the holster, with nothing saying why;
+  - a stuck step at the saloon's porch;
+  - lines that don't fit ("Easy, friend" from the man who just shot you; "Hey! That was me!" from
+    the man who fired);
+  - ten townsfolk shouting the same words at once.
