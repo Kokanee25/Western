@@ -421,17 +421,14 @@ frozen until Sean names one.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`, branch
-  `claude/gunfight-lab-arena-measures-ifll1r`, not merged): bench and baseline built, 780 fights;
-  median 5.1 s, 2% in 45–90 s. Fix 1 on the same branch (`results/2026-10-21_gun_hand/`): the
-  gang aims by the player's sway (`GunHand`, `Sway`, `config/gun_hand.tres`) and reacts before
-  drawing; their first shot 0.85 → 2.1 s, fights 5.1 → 6.5 s. Fix 2 (`results/2026-10-21_cover/`):
-  `Cover` with the town's places finds doorways, corners, the bar and spots a step up or down;
-  time in the open 42% → 22%, fights 6.5 → 8.5 s (street 12.7). Fix 3 (`results/2026-10-21_nerve/`):
-  past his nerve behind cover a man is shaken first (`_shaken_holds`) and gets his breath back;
-  fights 7.2 → 10.1 s (street 16.9, 10% in 45–90). Next: Sean's pick (a fair standoff, the
-  leader's surrender, the dials). Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill
-  loops match their own command line.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
+  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
+  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
+  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
+  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
+  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
+  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
+  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
   and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
   in a blast, the femur's bleed; `results/`), a hand to the wound (`HumanBody._grab`), arterial
