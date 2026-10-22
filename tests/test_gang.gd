@@ -442,3 +442,42 @@ func test_a_friend_freed_drops_out_of_his_mates() -> void:
 	check(left.all(func(m: Variant) -> bool: return is_instance_valid(m)), "no freed man among his mates")
 	check_eq(left.size(), 0, "and a's gone from them")
 	check_eq(crew.standing(100.3).size(), 0, "nor standing")
+
+
+# --- What a shot tells a man who didn't see it (the perception lab, 2026-10-22) -----------------------
+
+## A shot down the street and a man hit there: a man at the far end facing away hears it, but it
+## doesn't set him against a shooter he never saw (the lab's baseline had him at WARNING).
+func test_a_shot_he_didnt_see_isnt_held_against_the_shooter() -> void:
+	var far := _man(&"a", Vector3(0, 0, -45.0), {"gang": [&"a"], "yaw": 0.0})  # his back to you
+	var victim := _man(&"v", Vector3(3.0, 0, -4.0), {"gang": [&"v"]})
+	await physics_frames(10)
+	var from := player.camera.global_position
+	Events.shot_fired.emit(from, (victim.global_position + Vector3.UP * 1.2 - from).normalized(), player)
+	Events.deed.emit(player, &"hit", victim, victim.global_position + Vector3.UP * 1.2)
+	await physics_frames(10)
+	var b := _brain(&"a")
+	check(not b.senses.last_sound([&"gunshot"]).is_empty(), "he heard the shot")
+	check(not b.senses.knows(player), "but not who fired")
+	check_eq(b.relations.stance(player), Relations.Stance.IGNORE, "and holds nothing against you")
+	check(far.global_position.distance_to(player.global_position) > 40.0, "(he's at the far end)")
+
+
+## Hunting you with you out of sight: footsteps where you could have got to he takes for yours; a
+## sound far beyond where you could be, he doesn't.
+func test_a_hunter_takes_steps_where_you_could_be_for_yours() -> void:
+	_man(&"a", Vector3(0, 0, -12.0), {"gang": [&"a"]})
+	_box(Vector3(0, 1.5, -6.0), Vector3(8, 3, 0.4))  # a wall between you
+	await physics_frames(5)
+	var b := _brain(&"a")
+	b.set_physics_process(false)  # stands there (his senses still work)
+	b.target = player
+	b.senses.note(player, Vector3(0, 0, -2.0), 0.0)  # where he last knew you
+	player.global_position = Vector3(2.0, 0, -3.0)
+	await physics_frames(5)
+	check(not b.senses.sees(player), "he can't see you")
+	Events.noise.emit(player.global_position, 13.0, &"footsteps", player)
+	check(b.senses.last_known(player).distance_to(player.global_position) < 2.5, "your steps, where you could be: he takes them for yours")
+	var before := b.senses.last_known(player)
+	Events.noise.emit(Vector3(0, 0, -40.0), 13.0, &"footsteps", null)
+	check(b.senses.last_known(player).distance_to(before) < 0.01, "steps far off where you couldn't be: not yours")

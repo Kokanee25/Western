@@ -522,6 +522,8 @@ func numbers() -> Dictionary:
 	var mem := 0
 	for path in texs:
 		var t: Texture2D = texs[path]
-		# RGBA8 in memory (the import's lossless/VRAM choice aside), a third more with mipmaps.
-		mem += int(t.get_width() * t.get_height() * 4 * 4.0 / 3.0)
+		# What the import stores and the GPU holds: its own format (RGBA8 lossless or BC7 when
+		# VRAM-compressed) and its mipmaps, as the image reports them.
+		var img := t.get_image()
+		mem += img.get_data_size() if img else int(t.get_width() * t.get_height() * 4 * 4.0 / 3.0)
 	return {"meshes": meshes, "triangles": tris, "materials": mats.size(), "textures": texs.size(), "texture_bytes": mem}

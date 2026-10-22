@@ -4,7 +4,7 @@
  "kind": "members",
  "fixture": true,
  "wood": "oak",
- "look": "wood:int_oak",
+ "look": "wood:int_oak_light",
  "splits_below": 0.5,
  "blow_wood_share": 0.5,
  "members": [
