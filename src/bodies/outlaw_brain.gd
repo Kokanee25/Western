@@ -490,6 +490,9 @@ func _physics_step(delta: float) -> void:
 			_set_mood(Mood.DOWN)
 			_down_but_awake(delta)
 		return
+	if mood == Mood.DOWN:
+		# Back on his feet (HumanBody.get_up: knocked down, not hurt): back to it.
+		_set_mood(Mood.FIGHTING if target != null else Mood.CALM)
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	_now += delta
