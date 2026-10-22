@@ -247,6 +247,16 @@ func _find_footing() -> void:
 		go_loose()
 
 
+## The ground near it was dug (Ground): its feet look again for what's under them (a foot left over
+## a hole has lost its footing, and it goes loose). Its own rule in place of a building's.
+func _on_ground_changed(area: Rect2) -> void:
+	if loose or not _footed or not is_inside_tree():
+		return
+	if area.grow(0.5).has_point(Vector2(global_position.x, global_position.z)):
+		_footed = false
+		_frames = SETTLE_FRAMES - 1
+
+
 func _has_footing(m: StructureMember) -> bool:
 	var under: Array = _feet.get(m, [])
 	if under.is_empty():

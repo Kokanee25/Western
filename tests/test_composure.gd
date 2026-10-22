@@ -70,8 +70,8 @@ func _box(center: Vector3, size: Vector3) -> StaticBody3D:
 ## The furthest the barrel wanders off your line of sight over a few seconds (degrees).
 func _wander(seconds: float) -> float:
 	# The same stretch of its wandering each time, so windows compare.
-	gun._sway_time = 0.0
-	gun._breath_phase = 0.0
+	gun.sway_model.time = 0.0
+	gun.sway_model.breath_phase = 0.0
 	var most := 0.0
 	for i in int(seconds * 60.0):
 		await process_frames(1)

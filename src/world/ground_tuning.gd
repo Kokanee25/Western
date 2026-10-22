@@ -29,6 +29,9 @@ extends Resource
 ## At most this many passes of sliding after an edit, and over this much ground round it (m).
 @export var slump_passes := 400
 @export var slump_margin := 0.3
+## A thing standing on the ground (a post, a sill, a prop's foot, a barrel) has lost it once the
+## earth under it is this far below its bottom (m).
+@export var undercut := 0.05
 
 
 func tile_size() -> float:

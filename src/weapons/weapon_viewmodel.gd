@@ -43,10 +43,8 @@ var steady := 0.0
 var sway_factor := 1.0
 ## Tests: hold it dead still (no sway at all).
 var steady_hands := false
-var _sway_time := 0.0
-var _breath_phase := 0.0
-var _jerk := Vector2.ZERO
-var _sway_phase: Array[float] = []
+## The wander itself (Sway: the same model the gang's guns use, GunHand).
+var sway_model := Sway.new(9001)
 
 var _player: Player
 var _rng := RandomNumberGenerator.new()
@@ -271,11 +269,6 @@ func _load() -> Dictionary:
 
 ## Wander the barrel this frame (call from the gun's _process).
 func _update_sway(delta: float) -> void:
-	if _sway_phase.is_empty():
-		var r := RandomNumberGenerator.new()
-		r.seed = 9001
-		for i in 6:
-			_sway_phase.append(r.randf() * TAU)
 	var t: PlayerTuning = _player.tuning if _player and _player.tuning else PlayerTuning.new()
 	var moving := _player.get_horizontal_speed() if _player else 0.0
 	if aiming and moving < 0.5:
@@ -288,26 +281,19 @@ func _update_sway(delta: float) -> void:
 	if _player and _player.is_crouching:
 		amp *= t.crouch_sway
 	amp = (amp + moving * t.move_sway) * scale * sway_factor
-	_sway_time += delta
-	var w := _sway_time
-	var p := _sway_phase
-	# A slow drift: two unrelated slow waves on each axis, so it never quite repeats.
-	var drift := Vector2(sin(w * 0.71 + p[0]) * 0.6 + sin(w * 1.37 + p[1]) * 0.4,
-			sin(w * 0.53 + p[2]) * 0.6 + sin(w * 1.13 + p[3]) * 0.4) * amp
-	# Breathing: up and down, deeper and faster when winded.
-	_breath_phase += delta * TAU * t.breath_rate * (1.0 + winded * 1.5)
-	var breath := sin(_breath_phase) * t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
-	# A fine shake: a hurt arm (extra_spread) and being rattled make it worse.
-	var shake := Vector2(sin(w * 23.1 + p[4]), sin(w * 29.7 + p[5])) * (t.tremor + extra_spread * 0.12) * scale
-	_jerk *= exp(-delta * 7.0)
-	sway = Vector2.ZERO if steady_hands else drift + Vector2(0.0, breath) + shake + _jerk
+	# Breathing deeper and faster when winded; a fine shake that a hurt arm (extra_spread) and being
+	# rattled make worse.
+	var breath := t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
+	var shake := (t.tremor + extra_spread * 0.12) * scale
+	var s := sway_model.step(delta, amp, breath, t.breath_rate, 1.0 + winded * 1.5, shake)
+	sway = Vector2.ZERO if steady_hands else s
 
 
 ## A flinch: the gun jerks off line (degrees), then comes back.
 func jerk(degrees: float, rng: RandomNumberGenerator) -> void:
 	if steady_hands:
 		return
-	_jerk += Vector2(rng.randf_range(-1.0, 1.0), rng.randf_range(-0.5, 1.0)).normalized() * degrees
+	sway_model.add_jerk(degrees, rng)
 	steady = 0.0
 
 

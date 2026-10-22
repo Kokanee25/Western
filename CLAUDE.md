@@ -433,7 +433,14 @@ frozen until Sean names one.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-  Next: the gunfight lab's bench and baseline.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
+  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
+  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
+  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
+  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
+  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
+  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
+  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
@@ -452,9 +459,12 @@ frozen until Sean names one.
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
-  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
-  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
-  (the chair) as members. Then 3.3.
+  step 3; brief `docs/briefs/dig-ground.md`, Sean's decisions in): `Ground` (flat slabs, 5 cm height
+  field tiles where dug, `take`/`put`, loose earth slides, saves the heights; #235, #237), the
+  crater (`Blast.crater`, 0.8 x cbrt(kg), clods lie down as earth; #245, build 2020), what stands
+  and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
+  a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
+  (the brief's "What art needs"). Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
