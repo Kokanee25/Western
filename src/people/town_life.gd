@@ -192,7 +192,9 @@ func _plan(g: Dictionary, i: int) -> Array[Dictionary]:
 		{"do": &"drink", "seconds": drink_seconds + i * 2.0, "face": face},
 	]
 	if g.id == &"brody":
-		plan.append({"do": &"drink", "seconds": harass_seconds + 25.0, "face": face, "first": false})
+		# While the other two are at the store he takes his whiskey to a card table and sits back with
+		# it (Seating: the saloon's kit chairs; Sean, 2026-10-22).
+		plan.append({"do": &"drink", "seconds": harass_seconds + 25.0, "face": face, "first": false, "sit": true})
 	else:
 		var spot := &"store_counter" if g.id == &"lyle" else &"store_aisle"
 		plan.append({"do": &"go", "to": spot})
