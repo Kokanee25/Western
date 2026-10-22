@@ -2266,5 +2266,5 @@ func describe() -> String:
 			how += " (%s of %s)" % [String(Relations.Stance.keys()[relations.stance(who)]).to_lower(),
 					"you" if who is Player else String((who as HumanBody).person_id) if who is HumanBody else str(who.name)]
 	return "%s: %s, fear %.2f / nerve %.2f, %d rounds%s. %s" % [String(body.person_id).capitalize(),
-			how, fear, nerve, rounds, (" [%s] %s (%.0f s ago)" % [String(Variant.keys()[variant]), decision, _now - decision_at]) if decision != "" else "",
+			how, fear, nerve, rounds, (". %s (%.0f s ago)" % [decision, _now - decision_at]) if decision != "" else "",
 			body.physiology.describe()]

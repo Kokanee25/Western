@@ -33,7 +33,9 @@ var player: Player
 var _fight: Node
 var _run := {}
 var _hud: Label
+var _panel: PanelContainer
 var _over := ""
+var _queued := false  # a reload's on its way
 
 
 static func _state() -> Dictionary:
@@ -43,46 +45,64 @@ static func _state() -> Dictionary:
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	var main := get_parent()
 	street = main.find_child("TestStreet", true, false)
 	player = main.find_child("Player", true, false) as Player
 	var layer := CanvasLayer.new()
-	layer.layer = 40
+	layer.layer = 120  # over F3's readout
 	add_child(layer)
+	# Bottom left on a dark panel, readable over the readout and the scene.
+	_panel = PanelContainer.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(0.05, 0.04, 0.03, 0.82)
+	box.set_content_margin_all(8.0)
+	_panel.add_theme_stylebox_override(&"panel", box)
+	_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_panel.offset_left = 12.0
+	_panel.offset_bottom = -10.0
+	_panel.visible = false
+	layer.add_child(_panel)
 	_hud = Label.new()
-	_hud.position = Vector2(16, 12)
 	_hud.add_theme_font_size_override(&"font_size", 15)
 	_hud.add_theme_color_override(&"font_color", Color(1.0, 0.93, 0.78))
 	_hud.add_theme_color_override(&"font_outline_color", Color(0, 0, 0))
 	_hud.add_theme_constant_override(&"outline_size", 5)
-	_hud.visible = false
-	layer.add_child(_hud)
+	_panel.add_child(_hud)
 	var st := _state()
 	if not (st.pending as Dictionary).is_empty():
 		_run = st.pending
 		st.pending = {}
+		_panel.visible = true
 		_start.call_deferred()
 
 
 func _process(_delta: float) -> void:
-	if street == null or player == null:
+	_update_hud()
+
+
+## The keys as events (a key pressed and let go inside one slow frame is still seen), whether or
+## not the game's paused or you're out cold.
+func _input(event: InputEvent) -> void:
+	if street == null or player == null or _queued or event.is_echo() or not event.is_pressed():
 		return
 	var st := _state()
 	var last: Dictionary = st.last
-	if Input.is_action_just_pressed(&"gunfight_next"):
+	if event.is_action_pressed(&"gunfight_next"):
 		var i := int(st.next) % SCHEDULE.size()
 		_queue({"variant": SCHEDULE[i][0], "seed": SCHEDULE[i][1], "run": i + 1, "blind": true})
 		st.next = i + 1
-	elif Input.is_action_just_pressed(&"gunfight_again") and not last.is_empty():
+	elif event.is_action_pressed(&"gunfight_again") and not last.is_empty():
 		_queue(last)
-	elif Input.is_action_just_pressed(&"gunfight_free"):
+	elif event.is_action_pressed(&"gunfight_free"):
 		var v: String = VARIANTS[(VARIANTS.find(String(last.get("variant", "C"))) + 1) % VARIANTS.size()] if not last.is_empty() else "A"
 		_queue({"variant": v, "seed": int(last.get("seed", 1)), "run": 0, "blind": false})
-	_update_hud()
 
 
 ## Start a run from a fresh town: the scene reloads and the new GunfightPlay picks it up.
 func _queue(run: Dictionary) -> void:
+	_queued = true
 	_state().pending = run.duplicate()
 	_state().last = run.duplicate()
 	get_tree().reload_current_scene.call_deferred()
@@ -99,14 +119,14 @@ func _start() -> void:
 	if err != "":
 		_over = "Couldn't set the fight up: %s" % err
 		return
-	_hud.visible = true
+	_panel.visible = true
 	while is_instance_valid(_fight) and not _fight.done:
 		await get_tree().physics_frame
 	_save(_fight.record)
 
 
 func _update_hud() -> void:
-	if not _hud.visible:
+	if not _panel.visible:
 		return
 	var label := "Run %d of %d" % [_run.run, SCHEDULE.size()] if int(_run.run) > 0 else "Free play"
 	var v := "?" if _run.blind and _over == "" else String(_run.variant)
@@ -114,6 +134,8 @@ func _update_hud() -> void:
 	var line := ""
 	if _over != "":
 		line = _over
+	elif not is_instance_valid(_fight) or not _fight.started:
+		line = "The men are coming in..."
 	elif is_instance_valid(_fight) and _fight.started:
 		if _fight._count >= 0.0:
 			line = "Draw when you're ready (they go for theirs in %.0f s)" % ceilf(_fight._count)
@@ -152,10 +174,10 @@ func _save(rec: Dictionary) -> void:
 	var outcomes := []
 	for k: String in (rec.get("outcomes", {}) as Dictionary):
 		outcomes.append("%s %d" % [k.replace("_", " "), int(rec.outcomes[k])])
-	_over = "Over in %.1f s: %s (%s). It was variant %s.%s\nScore it now (PLAYTEST.md). Saved to %s" % [float(rec.get("length_s", 0.0)),
+	_over = "Over in %.1f s: %s (%s). It was variant %s.%s\nScore it now (PLAYTEST.md). Saved as gunfight_runs/%s in the game's user folder" % [float(rec.get("length_s", 0.0)),
 		String(rec.get("ending", "")).replace("_", " "), ", ".join(outcomes), _run.variant,
 		"" if int(_run.run) == 0 or int(_run.run) < SCHEDULE.size() else " That's all nine.",
-		ProjectSettings.globalize_path(path)]
+		path.get_file()]
 
 
 # What fight.gd needs from whoever runs it (as BridgeLab gives the bridge's fights).

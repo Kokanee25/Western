@@ -138,7 +138,13 @@ func setup() -> String:
 		var until := Engine.get_physics_frames() + 240
 		while Engine.get_physics_frames() < until and not (player.weapon == gun and gun.drawn):
 			await get_tree().physics_frame
-	await lab.seconds(1.0)  # a second of the street as it is, for the frame's calm share
+	if not human:
+		await lab.seconds(1.0)  # a second of the street as it is, for the frame's calm share
+	else:
+		# The range's lone outlaw (OutlawSpawner) is the street's, not this fight's: he'd join in.
+		var spawn := street.get_node_or_null(^"OutlawSpawn")
+		if spawn != null and spawn.get("outlaw") != null and is_instance_valid(spawn.get("outlaw")):
+			(spawn.get("outlaw") as Node).queue_free()
 	_prof_calm = _prof_delta()
 	_calm_frames = 60
 	# The three, the game's own men in the lab's bodies.
@@ -216,7 +222,8 @@ func setup() -> String:
 		bot.walking = true
 		bot.walk_dir = _v(p.get("walk", [1, 0, 0])).normalized()
 	_hook_events()
-	await lab.seconds(1.0)  # they look about them (and see you) before it starts
+	if not human:
+		await lab.seconds(1.0)  # they look about them (and see you) before it starts (yours: the count)
 	for man: HumanBody in _live():
 		_prev[_mid(man)] = {"tactic": -1, "mood": -1, "suppressed": 0.0}
 	record["hour_at_start"] = snappedf(clock.time_of_day, 0.01)
@@ -350,6 +357,14 @@ func _physics_process(delta: float) -> void:
 	_check_end()
 
 
+func _duel_called() -> bool:
+	for man: HumanBody in _live():
+		var ag: Array = (brains[_mid(man)] as OutlawBrain).agenda
+		if not ag.is_empty() and ag[0].get("do") == &"duel":
+			return true
+	return false
+
+
 ## You playing: they turn when your gun comes out (or the count's done); and each time you move
 ## somewhere new (2 m from where you'd stood still a second or more), a relocation.
 func _watch_you(delta: float) -> void:
@@ -357,8 +372,15 @@ func _watch_you(delta: float) -> void:
 		var gun := player.weapon
 		_count -= delta
 		if (gun != null and gun.drawn) or _count < 0.0:
-			_note("turn", "they go for their guns (%s)" % ("you drew" if gun != null and gun.drawn else "the count's out"))
+			var drew := gun != null and gun.drawn
 			_count = -1.0
+			if not drew and _duel_called():
+				# You've called a man out and he's taken it: it's his duel now, not the count's.
+				_note("turn", "the count's off: a duel's been called")
+				_turned = true
+				_turned_at = t
+				return
+			_note("turn", "they go for their guns (%s)" % ("you drew" if drew else "the count's out"))
 			_turn()
 			if bot:
 				bot.know_all()

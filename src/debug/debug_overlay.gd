@@ -122,7 +122,11 @@ func _readout_text() -> String:
 			lines.append(player.wounds.describe())
 		if player.composure and player.weapon:
 			lines.append("Hands: %s; gun %.2f° off line" % [player.composure.describe(), player.weapon.sway.length()])
-	for n in get_tree().get_nodes_in_group(&"people"):
+	# Gunmen first (their state and last decision), then the townsfolk.
+	var people := get_tree().get_nodes_in_group(&"people")
+	var gunman := func(n: Node) -> bool: return n.get_node_or_null(^"Brain") is OutlawBrain
+	people = people.filter(gunman) + people.filter(func(n: Node) -> bool: return not gunman.call(n))
+	for n in people:
 		var brain := n.get_node_or_null(^"Brain")
 		if brain and brain.has_method(&"describe"):
 			lines.append(brain.describe())
