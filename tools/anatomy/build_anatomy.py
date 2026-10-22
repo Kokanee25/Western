@@ -21,6 +21,7 @@ more capsules [a, b, radius]; the first is its main axis. Structures are what's 
   muscle  what the limb can do: group = leg / arm / grip; a ball tears about half of one
   nerve   cord = spinal cord section (paralysis below it); otherwise what stops working
   finger  three bones each; hit one and it comes off
+  appendage  an ear, the nose: hit it and it comes off
 """
 
 import json
@@ -77,6 +78,13 @@ sph("brain", "organ", "head", [0, 1.645, -0.01], 0.075, bleed=0.5, organ="brain"
 for side, sx in (("r", 1), ("l", -1)):
     sph(f"eye_{side}", "organ", "head", m([0.033, 1.655, -0.083], sx), 0.013, bleed=0.2, organ="eye")
 cap("jaw", "bone", "head", [-0.042, 1.565, -0.055], [0.042, 1.565, -0.055], 0.018, strength=70)
+# The ears and the nose (the gore lab): gristle and skin standing off the head, shot off whole by a
+# ball through them (the auricle and the nose bleed freely: the superficial temporal and facial
+# arteries' branches). `appendage`: like a finger, it comes off where it's hit.
+for side, sx in (("r", 1), ("l", -1)):
+    cap(f"ear_{side}", "appendage", "head", m([0.083, 1.605, 0.008], sx), m([0.087, 1.665, 0.0], sx), 0.013,
+        strength=15, bleed=0.8)
+cap("nose", "appendage", "head", [0, 1.605, -0.092], [0, 1.645, -0.098], 0.012, strength=15, bleed=1.5)
 cap("cervical_spine", "bone", "neck", [0, 1.46, 0.035], [0, 1.57, 0.03], 0.018, strength=90, spine="cervical")
 cap("cord_cervical", "nerve", "neck", [0, 1.46, 0.035], [0, 1.57, 0.03], 0.007, cord="cervical")
 cap("trachea", "organ", "neck", [0, 1.46, -0.035], [0, 1.57, -0.03], 0.012, bleed=0.5, organ="airway")

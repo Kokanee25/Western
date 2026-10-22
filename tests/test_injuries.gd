@@ -330,3 +330,38 @@ func test_close_shots_powder_burn_and_fire_burns_him() -> void:
 	check(man._describe_one(res.wound).contains("powder"), "said: %s" % man._describe_one(res.wound))
 	Events.scorched.emit(man, 0.6)
 	check(man.find_children("Burn", "Decal", true, false).size() >= 1, "and the fire's burns are on him")
+
+
+func _head_shot(man: HumanBody, rest: Vector3, energy := 475.0, dir := Vector3.BACK) -> Dictionary:
+	var head := man.parts[&"head"] as Node3D
+	var at := head.global_transform * (rest - man.anatomy.segment_center(&"head"))
+	return man.take_bullet(head, at - dir * 0.3, dir, energy, 0.0057)
+
+
+## A ball along the side of his head takes his ear off; one into his face, his nose; the ear or
+## the nose flies off, and the hole's where it was.
+func test_an_ear_and_a_nose_shot_off() -> void:
+	var man := await _man()
+	_head_shot(man, Vector3(0.087, 1.635, 0.0))
+	check(man.physiology.lost_parts.has(&"ear_r"), "his right ear's off")
+	check(get_tree().get_nodes_in_group(&"severed_parts").any(func(n: Node) -> bool: return n.name.begins_with("Ear")), "and it flew")
+	check(man.is_open(&"head"), "a raw hole where it was")
+	var man2 := await _man()
+	man2.global_position = Vector3(3, 0, 0)
+	_head_shot(man2, Vector3(0.0, 1.625, -0.09), 120.0)
+	check(man2.physiology.lost_parts.has(&"nose"), "his nose shot off")
+	check(man2.physiology.describe().contains("nose"), "said: %s" % man2.physiology.describe())
+
+
+## A heavy ball (or buckshot close) through the lower jaw carries it away: no speech, blood in his
+## throat, the bone thrown.
+func test_a_heavy_ball_shoots_the_jaw_away() -> void:
+	var man := await _man()
+	_head_shot(man, Vector3(0.0, 1.565, -0.06), 900.0)
+	check(man.physiology.jaw_gone, "his jaw's shot away")
+	check(not man.physiology.can_speak(), "he can't speak")
+	check(man.physiology.airway_blood, "blood running into his throat")
+	var light := await _man()
+	light.global_position = Vector3(3, 0, 0)
+	_head_shot(light, Vector3(0.0, 1.565, -0.06), 200.0)
+	check(not light.physiology.jaw_gone, "a lighter ball only breaks it")
