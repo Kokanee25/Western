@@ -13,7 +13,7 @@
    "light_bands": 4.0
   },
   "floor": {
-   "boards": 10,
+   "boards": 7,
    "rows": 72,
    "length": 768,
    "texels_per_metre": 384.0,
@@ -22,7 +22,8 @@
    "promoted_from": "mlab_studio10/floor",
    "edge_aa": 1.0,
    "specular": 0.08,
-   "light_bands": 4.0
+   "light_bands": 4.0,
+   "capped": "first 7 of round 6b's 10 strips: the game's batches (a strip a batch) stay as they were"
   },
   "saloon_red": {
    "boards": 10,
@@ -97,7 +98,7 @@
    "light_bands": 4.0
   },
   "framing": {
-   "boards": 8,
+   "boards": 3,
    "rows": 72,
    "length": 768,
    "texels_per_metre": 384.0,
@@ -106,10 +107,11 @@
    "promoted_from": "mlab_studio10/framing",
    "edge_aa": 1.0,
    "specular": 0.08,
-   "light_bands": 4.0
+   "light_bands": 4.0,
+   "capped": "first 3 of round 6b's 8 strips: the game's batches (a strip a batch) stay as they were"
   },
   "dark_trim": {
-   "boards": 7,
+   "boards": 2,
    "rows": 72,
    "length": 1536,
    "texels_per_metre": 384.0,
@@ -118,7 +120,8 @@
    "promoted_from": "mlab_studio10/dark_trim",
    "edge_aa": 1.0,
    "specular": 0.08,
-   "light_bands": 4.0
+   "light_bands": 4.0,
+   "capped": "first 2 of round 6b's 7 strips: the game's batches (a strip a batch) stay as they were"
   },
   "dark_oak": {
    "boards": 4,

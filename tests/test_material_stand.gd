@@ -338,3 +338,6 @@ func test_round_6b_is_the_game_exterior_woods() -> void:
 		check(is_equal_approx(float(m.get_shader_parameter(&"specular")), 0.08), "%s with the low sheen" % wood)
 		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
 	check(WoodMaterials.strip_count(&"timber") == 8, "timber's 8 boards, the old 12's extras gone")
+	# The game draws a batch a strip, so the woods round 6b cut more boards for keep their old counts.
+	for capped in [[&"floor", 7], [&"framing", 3], [&"dark_trim", 2]]:
+		check_eq(WoodMaterials.strip_count(capped[0]), capped[1], "%s keeps its %d strips (draw calls as before)" % capped)
