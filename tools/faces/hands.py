@@ -152,6 +152,7 @@ def build(man):
     m.env = json.load(open(os.path.join(ROOT, mp.ENVELOPE)))
     m.v, m.v_tripo, m.uv, m.tris = V.copy(), V.copy(), UV.copy(), T.copy()
     m.region = np.array(names, dtype="<U16")[W17.argmax(1)]
+    m.region_old = m.region.copy()   # each old point's part (m.region follows the cut)
     m.head = np.zeros(len(V), bool)
     m.our_joints = types.MethodType(mp.Person.our_joints, m)
     skin = his_skin(m, colour)
@@ -172,10 +173,18 @@ def build(man):
         setattr(m, f, types.MethodType(getattr(FT.TripoPerson, f), m))
     FT.TripoPerson.skinned_hands(m)
 
-    # His weights for every point after the cut: each its nearest old point's (the arm, tapered
-    # a little), the new hands their hand's bone (finger_weights then eases the wrist and adds
-    # the fingers').
-    W = W17[cKDTree(V).query(m.v)[1]]
+    # His weights for every point after the cut: a point still where it was keeps its own; a new
+    # or moved one (the wrist shaped to the new hand) takes its nearest old point's on that side's
+    # own arm, never his body's (the barkeep's hands hang on his apron: his wrist took his hip's
+    # weights, and raising his arm dragged it from his hip in long smears, 2026-10-22). The new
+    # hands their hand's bone (finger_weights then eases the wrist and adds the fingers').
+    d_old, k_old = cKDTree(V).query(m.v)
+    W = W17[k_old]
+    for side, sign in (("r", 1.0), ("l", -1.0)):
+        own = np.nonzero(np.isin(m.region_old, ["upper_arm_" + side, "forearm_" + side, "hand_" + side]))[0]
+        moved = np.nonzero((d_old > 1e-6) & (m.v[:, 0] * sign > 0))[0]
+        if len(own) and len(moved):
+            W[moved] = W17[own[cKDTree(V[own]).query(m.v[moved])[1]]]
     for n0, fw, side in m.hand_fw:
         W[n0:n0 + len(fw)] = 0
         W[n0:n0 + len(fw), names.index("hand_" + side)] = 1
