@@ -149,8 +149,11 @@ func _idle_step(delta: float) -> bool:
 	return true
 
 
+## Plain water left on the boards isn't mess: it's his mop's own film and dries (dirty water counts by
+## the dirt in it).
 func _score(m: Dictionary) -> float:
-	return float(m.dirt) * tuning.per_dirt + float(m.liquid) * tuning.per_liquid + float(m.blood) * tuning.per_blood
+	var spilt := float(m.liquid) - float(m.get("water", 0.0))
+	return float(m.dirt) * tuning.per_dirt + spilt * tuning.per_liquid + float(m.blood) * tuning.per_blood
 
 
 func _anyone_near(r: float) -> bool:

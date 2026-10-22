@@ -299,9 +299,10 @@ func take(at: Vector3, radius: float, share: float, stain_share := 0.0) -> Dicti
 	return out
 
 
-## How much is within `radius` of `at`: {dirt (g), liquid (ml), stain (ml), blood (ml)}.
+## How much is within `radius` of `at`: {dirt (g), liquid (ml, all kinds), water (ml, of that plain
+## water: a mop's film, it dries), stain (ml), blood (ml)}.
 func mess(at: Vector3, radius: float) -> Dictionary:
-	var out := {"dirt": 0.0, "liquid": 0.0, "stain": 0.0, "blood": Blood.amount_near(at, radius)}
+	var out := {"dirt": 0.0, "liquid": 0.0, "water": 0.0, "stain": 0.0, "blood": Blood.amount_near(at, radius)}
 	for k: Vector3i in cells:
 		var p := centre(k)
 		if absf(p.y - at.y) > 0.6 or Vector2(p.x - at.x, p.z - at.z).length() > radius:
@@ -310,6 +311,8 @@ func mess(at: Vector3, radius: float) -> Dictionary:
 		out.dirt += float(c.dirt) * CELL * CELL
 		for kind: StringName in c.liq:
 			out.liquid += float(c.liq[kind])
+			if kind == &"water":
+				out.water += float(c.liq[kind])
 		for kind: StringName in c.stain:
 			out.stain += float(c.stain[kind])
 	return out
