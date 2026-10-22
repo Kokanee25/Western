@@ -249,12 +249,14 @@ func test_you_hear_it_go_by_from_where_it_went() -> void:
 		return
 	var at: Vector3 = passes[0][0]
 	check(at.x > player.global_position.x + 0.3, "on your right, where it went by (%s)" % str(at))
+	# A black-powder .45's ball is slower than sound: it whirrs past, no snap (the sound lab).
 	var sound: AudioStreamPlayer3D = null
-	for n in fx.get_children():
-		if n is AudioStreamPlayer3D and (n as AudioStreamPlayer3D).stream == SynthSounds.get_sound(&"crack"):
+	var holder := fx.get_viewport().get_node_or_null(^"GameAudio")
+	for n in (holder.get_children() if holder else []):
+		if n is AudioStreamPlayer3D and (n as AudioStreamPlayer3D).stream == SynthSounds.get_sound(&"whirr"):
 			sound = n
-	check(sound != null, "it snaps past")
+	check(sound != null, "it whirrs past")
 	if sound:
 		check((sound.global_position as Vector3).distance_to(at) < 0.01, "from where it passed")
-	for id in [&"crack", &"zip"]:
+	for id in [&"crack", &"zip", &"whirr"]:
 		check((SynthSounds.get_sound(id) as AudioStreamWAV).data.size() > 1000, "%s is a real sound" % id)

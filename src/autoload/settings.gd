@@ -83,9 +83,9 @@ var finish := false
 ## O still turns it on to compare.
 var mosaic := false
 ## The fire drawn from the simulated flipbooks (FireFlipbook, docs/briefs/fire-look.md "The next
-## approach") in place of the drawn fire sheets: off by default while Sean compares the two (the
-## look panel, N).
-var fire_flipbooks := false
+## approach") in place of the drawn fire sheets: on by default since Sean kept them (2026-10-22,
+## issue #216: "keep flames for now"); the look panel (N) still turns them off.
+var fire_flipbooks := true
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
 var surface_blocks := false
@@ -225,8 +225,8 @@ func load_from_disk() -> void:
 		internal_resolution = NATIVE
 	finish = cfg.get_value("video", "finish", finish)
 	mosaic = cfg.get_value("video", "mosaic", mosaic)
-	if cfg.get_value("video", "fire_flipbooks", false):
-		set_fire_flipbooks(true, false)
+	# A new key: the old "fire_flipbooks" was saved off with every setting while off was the default.
+	set_fire_flipbooks(bool(cfg.get_value("video", "flipbook_fire", fire_flipbooks)), false)
 	# 5: the screen mosaic, and the finish's softening (the default till then) off under it.
 	if look_version < 5:
 		finish = false
@@ -259,7 +259,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "integer_scaling", integer_scaling)
 	cfg.set_value("video", "finish", finish)
 	cfg.set_value("video", "mosaic", mosaic)
-	cfg.set_value("video", "fire_flipbooks", fire_flipbooks)
+	cfg.set_value("video", "flipbook_fire", fire_flipbooks)
 	cfg.set_value("video", "pixel_shading", pixel_shading)
 	cfg.set_value("video", "texels_per_meter", texels_per_meter)
 	cfg.set_value("video", "tile_look", String(tile_look))

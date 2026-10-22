@@ -25,6 +25,7 @@ python3 tools/bridge.py start --movie=build/sound_lab/m.avi
 python3 tools/bridge.py "sound revolver_street_20 out=build/sound_lab/one" "quit"
 python3 tools/bridge.py "sound_inventory"                  # every player, bus and effect now
 python3 tools/bridge.py "sound_find stone -2.5 0.6 -28.5"  # members of a wood or kind near a point
+python3 tools/bridge.py "sound_ray 1.5 2 -24 1.5 0.5 -30"   # what GameAudio counts as a wall between two points
 ```
 
 `run.py` takes `--seed=N` (default scenarios.json's), `--jobs=N` (3), `--picture` (draw every frame
@@ -41,7 +42,8 @@ and scipy.
    stopped at 15:00, Ballistics' ricochet draws seeded.
 3. The ears placed: the player himself, or for the guns an `AudioListener3D` of the lab's at the
    listener's spot (the gun aims down the current camera, so his camera stays current). One frame
-   is drawn from there (`view.png`).
+   is drawn from there (`view.png`), then two seconds pass (a bottle in the saloon falls as the town is
+cleared).
 4. An `AudioEffectCapture` goes on the end of the Master bus (after the ear filter, the high-pass
    and the limiter): what comes out of the speakers. Half a second of quiet, then the event made
    through the game's own code:
@@ -83,4 +85,4 @@ voice.
 - `run.py`: the runs, the table, the clips. `measure.py`: the measures.
 - `baseline/`: `baseline.md` (inventory, table, the ten worst), `measures.json`, `clips/` (a few mp3s).
 - `results/<date>_<change>/`: each change against the baseline: what changed, the numbers before
-  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`.
+  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`.

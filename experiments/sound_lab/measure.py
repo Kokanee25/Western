@@ -163,7 +163,7 @@ def measure_scenario(d):
     s = json.load(open(os.path.join(d, "summary.json")))
     rate, x = load(os.path.join(d, "heard.wav"))
     fl, _ = envelope(x[: int(0.4 * rate)], rate)
-    floor_db = float(fl.max()) if len(fl) else -120.0
+    floor_db = float(np.median(fl)) if len(fl) else -120.0
     r = {"scenario": s["scenario"], "kind": s["spec"]["kind"], "floor_dbfs": round(max(floor_db, -120.0), 1),
          "sounds": sorted({b["sound"] for b in s["started"]}), "voices_max": s.get("voices_max", 0), "events": {}}
     for label, t0, t1, dist in events_of(s):
