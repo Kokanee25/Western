@@ -229,6 +229,11 @@ func test_idle_he_takes_it_off_and_wipes_the_bar() -> void:
 	var bone := man.finger_bones[&"index_r"][0] as Node3D
 	check(absf(bone.rotation_degrees.z) > 5.0, "his fingers are round it")
 	check(chore.watching != Vector3.INF and chore.watching.distance_to(man.palm("r")) < 0.15, "he watches his hand")
+	var life := man.get_node_or_null(^"FaceLife") as FaceLife
+	check(life != null and life.attending(), "his FaceLife has his eyes on his work")
+	if life != null:
+		check(life.looking_at() == null and life.looking_at_point().distance_to(man.palm("r")) < 0.2,
+				"his eyes are on the cloth under his hand (%.2f off)" % life.looking_at_point().distance_to(man.palm("r")))
 
 
 func test_a_go_ends_with_it_back_over_his_shoulder() -> void:

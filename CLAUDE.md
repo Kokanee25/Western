@@ -424,8 +424,8 @@ frozen until Sean names one.
   kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
   them), `WipeBar` (a chore in `CivilianBrain.chore`, dials `config/wipe.tres`),
   `HumanBody.reach_to`, `FireSystem.small_fire`; the saloon's barkeep wipes his bar when it's quiet.
-  Waiting on Sean: the film in the PR, and the paint's cost (#258). Eyes: FaceLife (#252) should
-  read `WipeBar.watching`.
+  `FaceLife.attend_to` (a deed sets what he watches). Waiting on Sean: the film in the PR, and
+  the paint's cost (#258).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

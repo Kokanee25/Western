@@ -565,8 +565,9 @@ a few views renders them as the full run does.
   cloth turned in it, put back where it was) → PUT_BACK (`hang_on`); FETCH a lost cloth (along the
   bar and across it, leaning; or round by the places and crouched for the floor). A customer
   (someone within `customer_near`, past his front) stops it; trouble tosses the cloth down.
-  `watching`: a FaceGaze's target if he has one (else his head and neck turn, `pose_offsets`);
-  FaceLife (PR #252) should read it. TownLife gives the barkeep his cloth and chore.
+  `watching`: his FaceLife watches it (`FaceLife.attend_to(point)`, renewed each tick: his eyes on
+  his work, a start or a fight still take them; a man with no talking face turns his head and neck
+  instead, `pose_offsets`). TownLife gives the barkeep his cloth and chore.
 
 ## src/weapons
 

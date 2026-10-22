@@ -12,9 +12,9 @@ extends RefCounted
 ## His arms are put where the deed wants them by HumanBody.reach_to (the IK his hand to a wound
 ## uses), every size and speed a dial in WipeTuning (config/wipe.tres); his fingers close round the
 ## cloth (curl_hand), the cloth pinned under his palm (ClothProp.hold).
-## His eyes: `watching` is what he's looking at (the cloth under his hand, the cup). With a
-## FaceGaze on him (the talking men), it's that's target while he works; without one his head turns
-## to it. FaceLife (PR #252, not merged when this was written) should take `watching` as his gaze.
+## His eyes: `watching` is what he's looking at (the cloth under his hand, the cup): his FaceLife
+## watches it while he works (`FaceLife.attend_to`: eyes first, his head after); a man without a
+## talking face turns his head to it.
 
 enum Step { IDLE, TAKE, LAY, WIPE, MOVE, GLASS, PUT_BACK, FETCH }
 
@@ -73,9 +73,8 @@ var _head := Vector2.ZERO
 var _offsets := false
 var _customer_t := 0.0
 var _customer_seen := false
-var _gaze: Node
+var _life: FaceLife
 var _gaze_looked := false
-var _gaze_was: Node3D
 var _fetch_t := 0.0
 var _reached := -1
 var _across := false
@@ -506,8 +505,6 @@ func _end(why: StringName) -> void:
 		_rest = 0.0
 	elif why == &"dropped":
 		_rest = 0.6
-	if _gaze != null and is_instance_valid(_gaze):
-		_gaze.set(&"target", _gaze_was)
 
 
 func _holding() -> bool:
@@ -576,10 +573,11 @@ func _reach_l(at: Vector3, n: Vector3, k: float) -> void:
 
 ## His head to what he's watching (a FaceGaze does it with his eyes leading, if he has one).
 func _look(at: Vector3, delta: float) -> void:
-	if _gaze != null and is_instance_valid(_gaze):
+	if _life != null and is_instance_valid(_life) and _life.has_face():
 		if at != Vector3.INF:
-			_gaze.set(&"target", null)
-			_gaze.set(&"target_point", at)
+			_life.attend_to(at)
+		_head = Vector2.ZERO
+		_set_offsets()
 		return
 	var goal := Vector2.ZERO
 	if at != Vector3.INF:
@@ -615,24 +613,23 @@ func _set_offsets() -> void:
 	if not on and not _offsets:
 		return
 	_offsets = on
+	# His head's his FaceLife's (its gaze turns it) if he has one; only his trunk is ours then.
+	var own_head := _life == null or not is_instance_valid(_life) or not _life.has_face()
 	if not on:
-		for k in [&"head", &"neck", &"abdomen", &"chest"]:
+		for k in ([&"head", &"neck", &"abdomen", &"chest"] if own_head else [&"abdomen", &"chest"]):
 			body.pose_offsets.erase(k)
 		return
 	var stoop := step == Step.FETCH
 	body.pose_offsets[&"abdomen"] = Vector3(_lean * 0.5 if not stoop else tuning.stoop.x * absf(_lean / tuning.stoop.x), 0, 0)
 	body.pose_offsets[&"chest"] = Vector3(_lean * 0.5 if not stoop else tuning.stoop.y * absf(_lean / tuning.stoop.x), 0, 0)
-	body.pose_offsets[&"neck"] = Vector3(_head.x * 0.4, _head.y * 0.4, 0)
-	body.pose_offsets[&"head"] = Vector3(_head.x * 0.6, _head.y * 0.6, 0)
+	if own_head:
+		body.pose_offsets[&"neck"] = Vector3(_head.x * 0.4, _head.y * 0.4, 0)
+		body.pose_offsets[&"head"] = Vector3(_head.x * 0.6, _head.y * 0.6, 0)
 
 
 func _find_gaze() -> void:
 	_gaze_looked = true
-	for c in body.get_children():
-		if c is FaceGaze:
-			_gaze = c
-			_gaze_was = (c as FaceGaze).target
-			return
+	_life = body.get_node_or_null(^"FaceLife") as FaceLife
 
 
 # --- The world --------------------------------------------------------------------------------------

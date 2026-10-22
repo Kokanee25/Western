@@ -37,8 +37,10 @@ his shoulder (a customer) or is tossed on the bar (trouble).
 - **Fingers:** his real finger bones (30, skinned, #236): `curl_hand` closes the hand round the
   wad of cloth (a loose grip wiping, firmer lifting it off his shoulder), the cloth pinned to that
   hand at the palm.
-- **Eyes:** FaceLife (PR #252) isn't merged. The deed keeps `watching` (the point he looks at);
-  when FaceLife lands, it should read that as his gaze target. Noted in the code and the PR.
+- **Eyes:** FaceLife (PR #252) merged while this was being built: `FaceLife.attend_to(point)`,
+  renewed each tick, puts his eyes (then his head) on the deed's `watching` point, the cloth under
+  his hand or the cup; a start or a fight still takes them. A man with no talking face turns his
+  head to it instead.
 
 ## References
 

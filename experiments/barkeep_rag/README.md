@@ -3,7 +3,7 @@
 The barkeep's bar cloth (`docs/briefs/barkeep-rag.md`): the cloth (`ClothProp`, kit kind `cloth`,
 `assets/props/kit/bar_cloth.json`) and his chore of wiping the bar with it (`WipeBar`, in
 `CivilianBrain.chore`). This bench puts the barkeep (`barkeep_s2_talking`, his brain and chore as
-in the game, a FaceGaze for his eyes) behind the kit's bar with his cloth over his shoulder and two
+in the game, his FaceLife watching his work) behind the kit's bar with his cloth over his shoulder and two
 tin cups, runs one scenario seeded, and measures every tick.
 
 ```sh

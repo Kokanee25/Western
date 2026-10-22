@@ -2,7 +2,7 @@ extends SceneTree
 ## (Untyped where it names the game's classes: -s scripts compile before the autoloads exist.)
 ## The barkeep's rag's lab (docs/briefs/barkeep-rag.md, experiments/barkeep_rag/README.md): the
 ## barkeep (barkeep_s2_talking) behind the kit's bar with his cloth over his shoulder and two cups,
-## his brain and its chore (WipeBar) running as in the game; one scenario, seeded, measured every
+## his brain and its chore (WipeBar) and his face (FaceLife) running as in the game; one scenario, seeded, measured every
 ## tick; a summary, and with --render the frames for the video (every other tick, 30 a second).
 ##
 ##   godot --headless --fixed-fps 60 -s res://experiments/barkeep_rag/bench.gd -- --scenario=NAME --out=DIR
@@ -241,12 +241,6 @@ func _spawn() -> void:
 	world.add_child(man)
 	man.global_position = POST
 	man.face(FACES)
-	if not opts.has("no_gaze"):
-		var gaze = load("res://src/bodies/face_gaze.gd").new()
-		gaze.name = "Gaze"
-		gaze.body = man
-		gaze.target_point = FACES
-		man.add_child(gaze)
 	if sc.get("no_cloth", false):
 		return
 	cloth = load("res://src/props/prop_kit.gd").make(&"bar_cloth")
