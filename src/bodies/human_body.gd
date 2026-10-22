@@ -2466,7 +2466,8 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 			"bleeds": bleeds, "garments": holed, "stain": null,
 			"kind": &"graze" if tr.graze else (projectile if projectile != &"" else (&"pellet" if mass < PELLET_MASS else &"bullet")), "dir": d,
 			"exits": (tr.exits as Array).map(func(e: Vector3) -> Vector3: return e - center),
-			"flattened": tr.flattened, "split": tr.split, "skipped": tr.skipped}
+			"flattened": tr.flattened, "split": tr.split, "skipped": tr.skipped,
+			"radius": bullet_radius, "contact": travelled < CONTACT_RANGE}
 	# A ball through his clothes carries a plug of them in with it (the Medical and Surgical History:
 	# cloth was the commonest thing taken out of a wound); one that stays in him keeps it.
 	if not holed.is_empty() and not tr.graze and _chance(tr.entry, 7) < (CLOTH_IN_LODGED if wound.lodged else CLOTH_IN_THROUGH):
@@ -2493,18 +2494,21 @@ func take_bullet(collider: Node3D, pos: Vector3, dir: Vector3, energy: float, bu
 	if seg == &"head" and not physiology.jaw_gone and tr.hits.any(func(h: Dictionary) -> bool: return h.id == &"jaw" and h.effect == &"broken") \
 			and (deposited + maxf(blast, 0.0)) >= JAW_AWAY_J:
 		jaw_away(dir)
-	# Where it tore: a little at the way in (a lot more with the muzzle's blast right on him), most
-	# at the way out.
-	var at_entry := deposited * (0.25 if tr.exit != null else 0.6)
+	# Where it tore the skin open. A single ball doesn't: its way in is a neat hole its own width,
+	# its way out a slit or star little bigger (DiMaio, Gunshot Wounds; the marks show them, sized by
+	# the ball in _paint_wound_marks). Buckshot does, its pellets' holes running into one ragged
+	# hole within a metre or two, and so does a blast (Blast's own openings).
+	var pellet := mass < PELLET_MASS
+	var at_entry := deposited * (0.25 if tr.exit != null else 0.6) if pellet else 0.0
 	if blast < 0.0:
 		blast = 300.0 if travelled < 0.3 else 120.0 * maxf(1.5 - travelled, 0.0)
-	at_entry += blast
-	if not tr.graze:
+	# (A pistol's gas on him shows as the contact wound's star and soot, not a torn crater.)
+	at_entry += blast if pellet else 0.0
+	if not tr.graze and at_entry > 0.0:
 		open_wound(seg, tr.entry - center, at_entry, dir, &"gore_exit" if travelled < CONTACT_RANGE else &"gore_crater")
-		if tr.exit != null:
+	if not tr.graze:
+		if tr.exit != null and pellet:
 			open_wound(seg, tr.exit - center, deposited * 0.75 * (1.6 if tr.flattened else 1.0), dir, &"gore_exit")
-		for i in range(1, (tr.exits as Array).size()):
-			open_wound(seg, (tr.exits[i] as Vector3) - center, deposited * 0.4, dir, &"gore_exit")
 	var severe := false
 	for h: Dictionary in tr.hits:
 		if h.effect == &"broken" or (h.kind == &"organ") or (h.kind == &"artery"):
@@ -2927,8 +2931,10 @@ func _paint_wound_marks(w: Dictionary, vis: Node3D) -> void:
 		_add_jet(vis, w, (a + b) * 0.5, 1.0)
 		return
 	var pellet := _small_wound(w.kind)
-	_decal(vis, w.segment, w.entry, 0.014 if w.kind == &"stab" else (0.022 if pellet else 0.035),
-			PixelArt.blood("furrow" if w.kind == &"stab" else "wound_entry", 5, true, 16))
+	if w.kind == &"stab":
+		_decal(vis, w.segment, w.entry, 0.014, PixelArt.blood("furrow", 5, true, 16))
+	else:
+		_hole_mark(w, vis, w.entry, "wound_contact" if w.get("contact", false) else "wound_entry")
 	if w.kind == &"splinter" and w.lodged:
 		_stuck_in(w, false)
 	elif pellet and w.lodged:
@@ -2947,11 +2953,10 @@ func _paint_wound_marks(w: Dictionary, vis: Node3D) -> void:
 	(w.stain as Node).add_to_group(&"blood_drying")
 	if w.exit != null:
 		# A ball that flattened on bone tears a bigger hole out.
-		var out_size := (0.035 if pellet else 0.06) * (Anatomy.BONE_FLATTEN if w.get("flattened", false) else 1.0)
-		_decal(vis, w.segment, w.exit, out_size, PixelArt.blood("wound_exit", 9, true, 16))
-	# A split ball's other way out.
+		_hole_mark(w, vis, w.exit, "wound_exit_torn" if w.get("flattened", false) else "wound_exit")
+	# A split ball's other way out: half of it, a smaller hole.
 	for i in range(1, (w.get("exits", []) as Array).size()):
-		_decal(vis, w.segment, w.exits[i], 0.045, PixelArt.blood("wound_exit", 9, true, 16))
+		_hole_mark(w, vis, w.exits[i], "wound_exit", 0.7)
 	var through: bool = w.exit != null
 	_add_jet(vis, w, w.entry, 0.5 if through else 1.0)
 	if through:
@@ -2990,6 +2995,29 @@ func _add_jet(vis: Node3D, w: Dictionary, local: Vector3, share: float) -> void:
 	jet.basis = _along(_skin_normal(w.segment, local))
 	vis.add_child(jet)
 	w.get_or_add("jets", []).append(jet)
+
+
+## A bullet hole's painted mark (paint_blood.py "wounds3"), drawn so its hole is as wide as the
+## forensic texts give it against the ball's own width (DiMaio, Gunshot Wounds; Knight's Forensic
+## Pathology): an entry from a distance a little under it (the skin stretches and closes back,
+## its thin scraped collar round that), a slow ball's exit a little over, one that flattened on
+## bone about twice, a contact shot's star of tears two and a half times.
+const HOLE_TO_BALL := {"wound_entry": 0.9, "wound_exit": 1.3, "wound_exit_torn": 2.2, "wound_contact": 2.5}
+## How wide the hole is in each painted patch (its share of the patch, measured on run 112's cut
+## textures: the dark hole of an entry or a contact wound, the torn region of an exit).
+const HOLE_SHARE := {"wound_entry": 0.32, "wound_exit": 0.58, "wound_exit_torn": 0.69, "wound_contact": 0.45}
+## A ball's radius when a wound doesn't say (the .45's, 11.4 mm across).
+const BALL_RADIUS := 0.0057
+
+
+func _hole_mark(w: Dictionary, vis: Node3D, at: Vector3, key: String, k := 1.0) -> Decal:
+	var ball: float = 2.0 * float(w.get("radius", BALL_RADIUS))
+	var size: float = ball * float(HOLE_TO_BALL[key]) * k / float(HOLE_SHARE[key])
+	var d := _decal(vis, w.segment, at, size, PixelArt.blood(key, 9, true, 16))
+	if key != "wound_entry" and key != "wound_contact":
+		# (Exits aren't round: turned about the hole by where it is, never from his dice.)
+		d.basis = d.basis * Basis(Vector3.UP, _spin(at))
+	return d
 
 
 func _decal(parent: Node3D, seg: StringName, local: Vector3, size: float, tex: Texture2D) -> Decal:

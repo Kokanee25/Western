@@ -70,6 +70,8 @@ static func warm_up(tree: SceneTree) -> void:
 	_warm_queue.append(PixelArt.blood.bind("furrow", 17, true, 16))
 	_warm_queue.append(PixelArt.blood.bind("wound_entry", 5, true, 16))
 	_warm_queue.append(PixelArt.blood.bind("wound_exit", 9, true, 16))
+	_warm_queue.append(PixelArt.blood.bind("wound_exit_torn", 9, true, 16))
+	_warm_queue.append(PixelArt.blood.bind("wound_contact", 9, true, 16))
 	for i in 4:
 		_warm_queue.append(PixelArt.blood.bind("stain%d" % i, i, false, 32))
 	_warm_call = _warm_step.bind(tree)
