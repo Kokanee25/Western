@@ -52,7 +52,9 @@ the history in `docs/status/`.
   never on `main`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
-  of work per merge, not a day's worth.
+  of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
+  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
+  status logs merge by union (`.gitattributes`), so two sessions' entries both land.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your
@@ -404,10 +406,13 @@ frozen until Sean names one.
   squat as his tone lets go). **Round 4: stairs, railings, props** (#184, build 1792;
   `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
   treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
-  game saloon (group T). Then **`Railing`** (`claude/gameplay-railing`): the railing part, the
-  saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
-  (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
-  (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
+  game saloon (group T). Then **`Railing`** (#198, build 1851): the railing part, the saloon's
+  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (`claude/gameplay-seated-falls`,
+  `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
+  `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
+  pose, both in `human_body.gd` for Sean's OK; Sean's scene (`scenes/chair_kick_shot.gd`). Next:
+  the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
+  man losing his seat catches himself (the prop lab's ask); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -422,12 +427,11 @@ frozen until Sean names one.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
   Next: the gunfight lab's bench and baseline.
-- The body lab (3.1b, `experiments/body_lab/`, 2026-10-21, PR for Sean's review): bench, baseline
-  and its first fixes (the same-tick ball, inside bleeding and packing, the cracked joints, the hat
-  in a blast, the femur's bleed; `results/`), a hand to the wound (`HumanBody._grab`), arterial
-  jets, the blood marks painted and gore by Gemini (stump faces, torn edges), and the gore lab's
-  first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`; $2.18 of Sean's $3). Waiting
-  on Sean: dynamite up close (the options in `results/2026-10-21_dynamite_options/`), the gut's time.
+- The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
+  and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
+  and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
+  the branch: an ear, the nose or the jaw shot off (`shoot_off`, `jaw_away`). Paint $4.82 left of
+  Sean's $7. Waiting on Sean: dynamite up close (`results/2026-10-21_dynamite_options/`), the gut's time.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
