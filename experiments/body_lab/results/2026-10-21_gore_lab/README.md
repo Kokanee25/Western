@@ -103,3 +103,15 @@ him as he stands and drawn four seconds on (`python3 experiments/body_lab/run.py
 - **Not right yet: the skull shows at a Studio man's temples once his head is opened.** The
   interior's skull shell is the anatomy's size, wider than his drawn head. It was like that before
   this round. It wants fitting to each man's head mesh (art and characters).
+- **Bullet holes as real ones are** (Sean, 2026-10-22: "way too big"; research entry and exit
+  wounds). From DiMaio's *Gunshot Wounds* and *Knight's Forensic Pathology*:
+  - An entry from a distance is a neat hole a little under the ball's width, with a 1–2 mm scraped
+    collar at its edge.
+  - An exit has no collar and its edges turn out: a slit or star a little over the ball's width.
+  - A ball flattened on bone tears out about twice its width.
+  - A contact shot over bone splits in a star round a sooty hole.
+  - The marks were repainted to that (runs 111 and 112, $0.28; the first run's collar was a
+    separate ring and its contact hole white). They're drawn at the ball's width: a .45's entry is
+    about 10 mm, where it was a 35 mm patch, and its exit about 15 mm, where it was 60 mm.
+  - A single ball no longer tears the skin open. It used to open a 4 cm hole with a 6 cm painted
+    crater at a lodged ball's entry and at every exit. Buckshot and blasts still do.
