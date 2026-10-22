@@ -52,7 +52,9 @@ the history in `docs/status/`.
   never on `main`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
-  of work per merge, not a day's worth.
+  of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
+  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
+  status logs merge by union (`.gitattributes`), so two sessions' entries both land.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your

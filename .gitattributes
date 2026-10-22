@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.png binary
 *.jpg binary
+# Every session appends to the status log; keep both sides' entries instead of conflicting.
+docs/status/*.md merge=union

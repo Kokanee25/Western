@@ -334,6 +334,16 @@ Bench and baseline first in experiments/gun_lab/ (README, its own bridge.gd, out
 Then, one at a time and measured: the look in the painted style matched to the men (materials through the texture factory, costs first); both hands on the coach gun and hands matching the player's body; the revolver's period reload step by step (half-cock, gate, ejector rod per spent case, one round at a time) and the coach gun's; a man's grip, aim, recoil, draw and reload played the same way; holster, drop, shot out of the hand, picked up. The men's hands need finger bones (characters lane): ask, and place the hand round the grip until then. Give me builds to try with exactly what to look for. Promote what's done into docs/PARTS.md.
 ```
 
+## Sound lab (now; Sean 2026-10-21) [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-sound-lab. The sound lab (docs/briefs/labs.md, "Sound lab"). Read it, src/audio/synth_sounds.gd, and the src/weapons and src/blast sections of docs/LAYOUT.md.
+
+Bench and baseline first in experiments/sound_lab/ (README, its own bridge.gd, outputs in build/, seeded): every sound the game plays, what triggers it and how it's placed in 3D; recordings (bridge.py --movie, with sound) of a revolver and coach gun shot at 2, 20 and 80 m, outside and inside the saloon, a ricochet off stone and iron, a ball into wood, flesh, glass and dirt, a stick of dynamite at 5, 30 and 100 m, timber breaking, a building on fire, steps on boards and dirt; how many voices play in a full gunfight and what audio costs a frame. List what sounds fake, flat, too quiet or wrong for 1882.
+
+Then, one at a time and measured: gunshots with weight (the crack, the boom, the echo off the hills and the street's fronts, muffled through a wall), ricochets and zips that tell you how close the ball came, dynamite that thumps the chest up close and rolls in the distance, impacts by material, indoor against outdoor. Better synthesis first; any recorded or generated sound only with a licence that allows redistribution from this public repo, credited in CREDITS.md, and ask me before paying for anything. Videos with sound in the PR, and tell me exactly what to listen for.
+```
+
 ## Law, witnesses and consequences lab (Phase 5) [Salt Creek]
 
 ```
