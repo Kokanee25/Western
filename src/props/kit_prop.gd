@@ -41,6 +41,8 @@ var kit_id: StringName
 var definition: Dictionary
 ## Gone loose (tipped, knocked, its floor gone): what's left of it is rubble, moving on its own.
 var loose := false
+## It's gone loose (tipped, knocked, its floor gone): what stands on it goes with it (GlassProp).
+signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
 
@@ -373,6 +375,7 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
 		made.append(rb)
+	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()
 	return made

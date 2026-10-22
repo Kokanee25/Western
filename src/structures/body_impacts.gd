@@ -112,6 +112,7 @@ func step(delta: float) -> Array[StructureMember]:
 		var rb := _rbs[k]
 		if is_instance_valid(rb) and not rb.sleeping:
 			_last_v[k] = rb.linear_velocity
+	var kit := {}  ## a kit prop he's hitting this tick -> what he brings it (`_kit_contact`)
 	for rb: RigidBody3D in _touching.keys():
 		if not is_instance_valid(rb) or rb.sleeping or not rb.is_inside_tree():
 			continue
@@ -129,6 +130,9 @@ func step(delta: float) -> Array[StructureMember]:
 			var n := st.get_contact_local_normal(i)
 			var s := m.get_parent() as Structure
 			if s == null or s.tuning == null:
+				continue
+			if s.has_method(&"take_blow"):
+				_kit_contact(kit, s, m, rb, n, before, st.get_contact_collider_position(i))
 				continue
 			if m.is_upright() and not m.grounded and _top_free(s, m):
 				# Free at the top it holds nothing up: leaning on it or lying across it, any way he
@@ -168,7 +172,58 @@ func step(delta: float) -> Array[StructureMember]:
 				_tally.erase(m)
 				s.break_member.call_deferred(m, before * 0.3)
 				_give_back(given, e[0], can_take)
+	_kit_blows(kit, broke)
 	return broke
+
+
+## A kit prop (KitProp: a chair, a table; the prop lab's) takes him as a blow on its own terms
+## (`take_blow`: it breaks, slides or goes over by its wood, its weight and what's on it), not by the
+## timber rule above. Each of his parts moving into it brings its momentum; together, once a tick,
+## they're one blow from the weight of them (Sean, 2026-10-22: bodies breaking furniture). A prop
+## he's just struck takes no more from him for KIT_AGAIN (he's on it, not hitting it).
+const KIT_AGAIN := 0.25
+var _kit_last := {}  ## KitProp -> seconds since he last struck it
+
+
+func _kit_contact(kit: Dictionary, s: Structure, m: StructureMember, rb: RigidBody3D, n: Vector3, before: Vector3,
+		at: Vector3) -> void:
+	if s.get(&"loose") or float(_kit_last.get(s, INF)) < KIT_AGAIN:
+		return
+	# The contact's normal points out of the prop at him: his speed into it, from the tick before.
+	var into := -before.dot(n)
+	if into < QUIET_SPEED:
+		return
+	var e: Array = kit.get(s, [Vector3.ZERO, 0.0, {}, null, 0.0, Vector3.ZERO])
+	var by: Dictionary = e[2]
+	if by.has(rb):
+		return
+	by[rb] = true
+	var p := -n * into * rb.mass
+	e[0] += p
+	e[1] += rb.mass
+	if p.length() > float(e[4]):
+		e[3] = m
+		e[4] = p.length()
+		e[5] = at
+	kit[s] = e
+
+
+func _kit_blows(kit: Dictionary, broke: Array[StructureMember]) -> void:
+	var dt := 1.0 / float(Engine.physics_ticks_per_second)
+	for s: Variant in _kit_last.keys():
+		_kit_last[s] = float(_kit_last[s]) + dt
+		if not is_instance_valid(s) or float(_kit_last[s]) > 2.0 * KIT_AGAIN:
+			_kit_last.erase(s)
+	for s: Variant in kit:
+		if not is_instance_valid(s):
+			continue
+		var e: Array = kit[s]
+		var m := e[3] as StructureMember
+		if m == null or not is_instance_valid(m) or m.broken:
+			continue
+		_kit_last[s] = 0.0
+		if s.call(&"take_blow", m, e[5], e[0], e[1]) == &"broke":
+			broke.append(m)
 
 
 ## A member breaks having taken no more than it could (`can_take`), but the engine held it rigid

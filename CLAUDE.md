@@ -410,10 +410,11 @@ frozen until Sean names one.
   `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
   treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
   game saloon (group T). Then **`Railing`** (#198, build 1851): the railing part, the saloon's
-  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (`claude/gameplay-seated-falls`,
+  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (#204,
   `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
   `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
-  pose, both in `human_body.gd` for Sean's OK; Sean's scene (`scenes/chair_kick_shot.gd`). Next:
+  pose (Sean OK'd both); Sean's scene (`scenes/chair_kick_shot.gd`); eight contacts a part near
+  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
@@ -455,6 +456,6 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`): the chair and the card table are in the game (`in_game`, handed out by
-  `PropLibrary.spawn`; main green at build 1879 with the chair); the ragdoll lab tests men in the
-  kit chair (its group U; how he falls is theirs). Next: bottles and the oil lamp.
+  `PropKit`/`KitProp`/`GlassProp`): the chair and the card table in the game (build 1919); the
+  bottle and the oil lamp (`GlassProp`, "shatters") on the branch, in_game, waiting to merge; the
+  ragdoll lab tests men in the kit chair (how he falls is theirs). Next: stools, barrels, crates.
