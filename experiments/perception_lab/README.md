@@ -91,6 +91,9 @@ place, unseen and unheard, while facing away from where he thinks he is (`faces_
   the same-seed comparison and `--keep` for the baseline.
 - `baseline/`: `baseline.md` (the table, the five biggest problems, the first fix), `tables.md`
   (every case), `baseline.json` (every summary without the tracks).
+- `results/<date>_<fix>/`: each fix measured against the baseline (`results.md`, the before and
+  after tables). `2026-10-22_heard_not_named`: a sound doesn't name its maker (88 of 117 as
+  expected, from 74).
 
 ## Shared with the gunfight lab
 

@@ -5,16 +5,22 @@ Main at `fd7fe08` (#233). 5 groups, 76 runs, 117 judged expectations, on the Stu
 seed: every verdict and delay the same. Every case and its numbers: `tables.md`; every summary:
 `baseline.json`. How it's measured and judged: `../README.md`. **Nothing in the game was changed.**
 
+**Re-measured the same day** on main at `2a93f77` (#246) with the lab's own corrections (its leak
+monitor excuses a man facing a sound he heard, "knows he's lost him" is judged only if he was
+watching as the player went, and the saloon-room listener, who has the shooter in his eye, is
+expected to know who fired): the tables and `baseline.json` are that run; the first run's counts
+were 73 / 12 / 24 / 8. The first fix measured against it: `../results/2026-10-22_heard_not_named/`.
+
 ## The table
 
 | group | runs | judged | as expected | missed | false | slow (> 1 s to notice) | leaks sampled |
 |---|---|---|---|---|---|---|---|
 | sight (15 cases × 4 lights) | 60 | 50 | 33 | 4 | 5 | 8 | – |
-| hearing (7 sounds, 27 listeners) | 7 | 41 | 27 | 4 | 10 | 0 | – |
+| hearing (7 sounds, 27 listeners) | 7 | 41 | 28 | 4 | 9 | 0 | – |
 | search (4) | 4 | 8 | 6 | 2 | 0 | 0 | 5 |
 | news (2) | 2 | 12 | 7 | 2 | 3 | 0 | 0 |
 | leaks (3) | 3 | 6 | 0 | 0 | 6 | 0 | – |
-| **all** | **76** | **117** | **73** | **12** | **24** | **8** | **5** |
+| **all** | **76** | **117** | **74** | **12** | **23** | **8** | **5** |
 
 The headline numbers:
 
@@ -27,11 +33,11 @@ The headline numbers:
 | ... through four shots' gun smoke / a stick's dust, by day | 0.73 s / 0.73–0.87 s (should be never) |
 | ... through a window (a lit saloon at night) | never: the glass stops his eye |
 | Who hears a shot | everyone, town-wide (reach 350 m, halved through any number of walls) |
-| ... and knows who made it, unseen | **every one**: 9 of 9 who heard a shot, 4 of 4 a shout, 6 of 6 footsteps |
+| ... and knows who made it, unseen | **every one**: 8 of 8 who heard a shot and couldn't see the shooter, 4 of 4 a shout, 6 of 6 footsteps |
 | Where he thinks it came from | 0.3–6.1 m off (≤ 6°), through walls as well as in the open |
 | Footsteps heard | to 6 m walking, 13 m running, 2 m crouched: the same on boards and on dirt |
 | A hammer cocked | heard by nobody (no noise) |
-| Losing a man round a corner | knows at once (0.0–0.2 s), last-known 0.4 m off, goes there, finds him 15 s later |
+| Losing a man round a corner | knows at once (within 0.1 s), last-known 0.4 m off, goes to 1.5–2.2 m of it, finds him 13 s later |
 | Losing him into the store | goes to 3.7 m of the door, doesn't go in, gives up after 27 s |
 | News: the deputy learns of a shooting in the saloon / a hold-up in the store | **never** (90 s; there is no way for news to pass) |
 | Acting on what he couldn't know | 5 sampled leaks + 6 failed leak cases (below) |
@@ -40,7 +46,7 @@ The headline numbers:
 
 **1. A shot names its shooter to everyone who hears it.** `Senses._on_noise` files every noise
 under the person who made it (`known[source].heard_pos`), so a man who hears a shot now *knows*
-the shooter, by name and to within a few metres, without ever having seen him: 9 of 9 listeners,
+the shooter, by name and to within a few metres, without ever having seen him: 8 of 8 listeners who couldn't see him,
 from the room the shot was in to 53 m down the street through the telegraph's corner. On top of
 that `OutlawBrain._on_deed` takes the loud deeds (`shoot_at`, `hit`, `kill`) as perceived by every
 man in town at any distance, and judges them against the actor: an outlaw 50 m off at the west end,
@@ -116,7 +122,7 @@ Case notes: `round_the_corner`'s line meets a street barrel before the saloon's 
 between them). The search's hunter is told to hold his fire (`_next_shot`) and his fight is started
 by the lab (`_provoked`); everything else he does is his own.
 
-## The first fix I'd make (not made: waiting on Sean)
+## The first fix I'd make (made 2026-10-22 on Sean's OK, #240: `../results/2026-10-22_heard_not_named/`)
 
 **Hearing a sound is not knowing who made it** (problem 1). One change, in three places:
 
@@ -129,7 +135,7 @@ by the lab (`_provoked`); everything else he does is his own.
   from (`_on_near_miss`, as now).
 - `CivilianBrain._on_deed`: `helped_by` only for a deed he saw.
 
-Measured against this baseline: hearing's 9 "knows who" falses to 0, the far outlaw's 3 to 0,
+Measured against this baseline: hearing's 8 "knows who" falses to 0, the far outlaw's 3 to 0,
 news' 3 "who from the sound only" to 0, sight and search unchanged; then the gunfight lab's
 baseline run again, because its gang has been leaning on the shooter's name: a man shooting from
 hiding should now be searched for where the shot was heard, not found.

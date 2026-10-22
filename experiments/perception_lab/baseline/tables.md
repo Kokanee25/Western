@@ -7,11 +7,11 @@
 | group | runs | judged | as expected | missed | false | slow | leaks (sampled) |
 |---|---|---|---|---|---|---|---|
 | sight | 60 | 50 | 33 | 4 | 5 | 8 | 0 |
-| hearing | 7 | 41 | 27 | 4 | 10 | 0 | 0 |
+| hearing | 7 | 41 | 28 | 4 | 9 | 0 | 0 |
 | search | 4 | 8 | 6 | 2 | 0 | 0 | 5 |
 | news | 2 | 12 | 7 | 2 | 3 | 0 | 0 |
 | leaks | 3 | 6 | 0 | 0 | 6 | 0 | 0 |
-| **all** | 76 | 117 | 73 | 12 | 24 | 8 | 5 |
+| **all** | 76 | 117 | 74 | 12 | 23 | 8 | 5 |
 
 ## Sight
 
@@ -82,9 +82,9 @@
 
 | case (game reach m) | listener | m | wall | heard | took it for | where (err m / deg) | knows who | verdicts |
 |---|---|---|---|---|---|---|---|---|
-| shot_in_saloon (350) | saloon_room | 5.1 |  | yes | gunshot | 0.3 / 1 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 30 deg): ok |
-| shot_in_saloon (350) | street_front | 13.1 | Saloon/facade_door_jamb1 (trim) | yes | gunshot | 1.3 / 4 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 45 deg): ok |
-| shot_in_saloon (350) | store_inside | 10.9 | Saloon/left_siding_c21_0 (board) | yes | gunshot | 0.6 / 3 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 60 deg): ok |
+| shot_in_saloon (350) | saloon_room | 5.1 |  | yes | gunshot | 0.6 / 3 | yes | hears it: ok, knows who made it: ok, can tell where (within 30 deg): ok |
+| shot_in_saloon (350) | street_front | 13.1 | Saloon/facade_door_jamb1 (trim) | yes | gunshot | 1.4 / 6 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 45 deg): ok |
+| shot_in_saloon (350) | store_inside | 10.9 | Saloon/left_siding_c21_0 (board) | yes | gunshot | 1.7 / 8 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 60 deg): ok |
 | shot_in_saloon (350) | jail_inside | 25.8 | StreetDressing/Jail/front_siding_r10_1 (board) | yes | gunshot | 3.1 / 6 | yes | hears it: ok, knows who made it: FALSE |
 | shot_in_saloon (350) | street_west_end | 52.8 | Telegraph/facade_corner1 (post) | yes | gunshot | 6.1 / 2 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 45 deg): ok |
 | shot_in_street (350) | saloon_room | 16.7 | Saloon/front_glass_55_145 (glass) | yes | gunshot | 1.1 / 4 | yes | hears it: ok, knows who made it: FALSE, can tell where (within 45 deg): ok |
@@ -95,7 +95,7 @@
 | shout_in_street (45) | street_45m | 45.0 |  | yes | shout | 4.4 / 5 | yes | hears it: ok |
 | shout_in_street (45) | street_60m | 60.0 |  | no |  |  |  | hears it: MISSED |
 | shout_in_street (45) | store_inside | 16.0 | Store/front_siding_r09_2 (board) | yes | shout | 1.9 / 1 | yes | hears it: ok |
-| shout_in_street (45) | saloon_back | 20.2 | Saloon/Props/@StaticBody3D@3969 | yes | shout | 2.3 / 4 | yes |  |
+| shout_in_street (45) | saloon_back | 20.2 | Saloon/Props/@StaticBody3D@3923 | yes | shout | 2.3 / 4 | yes |  |
 | steps_on_boards (6) | beside_2m | 4.4 |  | 6 steps | footsteps | 0.2 / 2 | yes | hears it: ok |
 | steps_on_boards (6) | street_5m | 6.3 |  | 7 steps | footsteps | 0.5 / 2 | yes | hears it: ok |
 | steps_on_boards (6) | street_9m | 9.8 |  | no |  |  |  | hears it: MISSED |
@@ -114,10 +114,10 @@
 
 | case | lost (truth) s | lost (Senses) s | delay s | last-known error at loss m | nearest to last-known m | nearest to his spot m | found again s after | gave up s after | leaks | verdicts |
 |---|---|---|---|---|---|---|---|---|---|---|
-| lost_round_corner_still | 8.50 | 8.28 | -0.22 | 0.4 | 1.6 | 3.3 | 15 | didn't | 1 | goes to where he last knew him (within 2 m): ok, knows he's lost him within 1.5 s: ok |
-| lost_round_corner_moving | 8.50 | 8.28 | -0.22 | 0.4 | 1.5 | 3.2 | 15 | didn't | 1 | goes to where he last knew him (within 2 m): ok, knows he's lost him within 1.5 s: ok |
+| lost_round_corner_still | 6.75 | 6.68 | -0.07 | 0.4 | 2.2 | 5.6 | 13 | didn't | 1 | goes to where he last knew him (within 2 m): MISSED, knows he's lost him within 1.5 s: ok |
+| lost_round_corner_moving | 6.75 | 6.68 | -0.07 | 0.4 | 1.5 | 7.4 | 13 | didn't | 1 | goes to where he last knew him (within 2 m): ok, knows he's lost him within 1.5 s: ok |
 | lost_into_store | 7.50 | 7.48 | -0.02 | 0.4 | 3.7 | 10.4 | no | 27 | 2 | goes to where he last knew him (within 2 m): MISSED, knows he's lost him within 1.5 s: ok |
-| lost_at_night | 2.50 | -1.00 | -1.00 | -1.0 | 1.3 | 1.2 | no | 21 | 1 | goes to where he last knew him (within 2 m): ok, sees him at all before he hides: MISSED |
+| lost_at_night | 2.50 | -1.00 | -1.00 | -1.0 | 1.4 | 1.2 | no | 21 | 1 | goes to where he last knew him (within 2 m): ok, sees him at all before he hides: ok |
 
 ## News
 

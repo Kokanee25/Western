@@ -448,7 +448,9 @@ func _hearing(c: Dictionary) -> Dictionary:
 		s.known.clear()
 		heard[man] = []
 		s.heard.connect(func(at: Vector3, k: StringName, who: Node) -> void:
-			var truth := (who as Node3D).global_position if who is Node3D else Vector3.INF
+			# Where the sound really was: the lab knows who made it (the listener may not: `who` is
+			# whoever Senses named, null if he didn't see).
+			var truth := maker.global_position
 			(heard[man] as Array).append({"t": _now() - t0, "at": at, "kind": String(k), "who": _id(who) if who else "",
 					"truth": truth}))
 	var origin := Vector3.INF
@@ -534,9 +536,13 @@ func _watch(man: HumanBody, who: Node3D, log: Array, leaks: Array, tag: String) 
 	var was := [s.last_known(who) if s.known.has(who) else Vector3.INF]
 	var next := [0.0]
 	var t0 := _now()
-	s.heard.connect(func(_at: Vector3, _k: StringName, src: Node) -> void:
-		if src == who:
-			heard_at[0] = _now())
+	# A sound he heard: his (named), or anyone's he couldn't name (a brain may take it for his). The
+	# last one's place, to excuse his turning to face it.
+	var sound_at := [Vector3.INF]
+	s.heard.connect(func(at: Vector3, _k: StringName, src: Node) -> void:
+		if src == who or src == null:
+			heard_at[0] = _now()
+		sound_at[0] = at)
 	# Things that may tell him where the man is without his seeing or hearing him: noted, so a leak
 	# can say where it came from.
 	var told := [""]
@@ -596,8 +602,11 @@ func _watch(man: HumanBody, who: Node3D, log: Array, leaks: Array, tag: String) 
 		log.append(row)
 		# Facing the man's true place though he can't see him, hasn't heard him lately, and isn't
 		# facing where he thinks he is: he's acting on what he couldn't know.
+		var to_sound: Vector3 = (sound_at[0] - man.global_position) if sound_at[0] != Vector3.INF else Vector3.ZERO
+		var a_sound := rad_to_deg(Vector2(fwd.x, fwd.z).angle_to(Vector2(to_sound.x, to_sound.z))) if sound_at[0] != Vector3.INF else 180.0
+		row["face_sound_deg"] = snappedf(absf(a_sound), 0.1)
 		if not could_see and not s.sees(who) and now - heard_at[0] > 1.0 and absf(a_true) < 12.0 and absf(a_lk) > 30.0 \
-				and man.global_position.distance_to(who.global_position) > 3.0:
+				and absf(a_sound) > 15.0 and man.global_position.distance_to(who.global_position) > 3.0:
 			leaks.append({"t": row.t, "who": tag, "kind": "faces_unseen", "face_true_deg": row.face_true_deg,
 					"face_lk_deg": row.face_lk_deg, "wall": _line(s.eye(), _eye(who), [man, who])}))
 
@@ -657,6 +666,9 @@ func _search(c: Dictionary) -> Dictionary:
 	s.spotted.connect(func(who: Node3D) -> void:
 		if who == p:
 			events.append({"t": snappedf(_now() - t0, 0.01), "event": "spotted"}))
+	s.heard.connect(func(at: Vector3, k: StringName, who: Node) -> void:
+		events.append({"t": snappedf(_now() - t0, 0.01), "event": "heard %s (%s)" % [k, _id(who) if who else "couldn't tell whose"],
+				"at": lab.arr(at), "true": lab.arr(p.global_position)}))
 	brain.mood_changed.connect(func(m: int) -> void:
 		events.append({"t": snappedf(_now() - t0, 0.01), "event": "mood " + String(OutlawBrain.Mood.keys()[m])}))
 	var said := func(who: Node, text: String) -> void:
@@ -728,7 +740,9 @@ func _search(c: Dictionary) -> Dictionary:
 	var saw_first := events.any(func(e: Dictionary) -> bool: return String(e.event).begins_with("spotted") and e.t < hidden_at)
 	if ex.has("saw_him_before_he_hid"):
 		verdicts.append(_verdict("sees him at all before he hides", ex.saw_him_before_he_hid, saw_first))
-	if ex.has("knows_lost_within_s") and saw_first:
+	# He was watching him as he went (not already lost before the player moved off).
+	var watching := log.any(func(row: Dictionary) -> bool: return row.t >= hide_from and row.t < lost_truth and row.sees)
+	if ex.has("knows_lost_within_s") and saw_first and watching:
 		verdicts.append(_verdict("knows he's lost him within %.1f s" % float(ex.knows_lost_within_s), true,
 				not lost_ev.is_empty(), float(r.lost_delay_s), float(ex.knows_lost_within_s)))
 	r["verdicts"] = verdicts

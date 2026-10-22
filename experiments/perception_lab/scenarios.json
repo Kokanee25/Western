@@ -89,12 +89,12 @@
     "cases": [
       {"name": "shot_in_saloon", "source": {"kind": "gunshot", "at": [11.2, 0.78, 4.0], "faces": [8, 1.5, 6], "dir": [-0.3, -1, 0.3]},
        "listeners": [
-         {"name": "saloon_room", "at": [7.5, 0.78, 7.5], "faces": [8, 1.5, 4], "expect": {"hear": true, "who": false, "bearing_deg": 30}},
+         {"name": "saloon_room", "at": [7.5, 0.78, 7.5], "faces": [8, 1.5, 4], "expect": {"hear": true, "who": true, "bearing_deg": 30}},
          {"name": "street_front", "at": [10, 0, -9], "faces": [0, 1.5, -9], "expect": {"hear": true, "who": false, "bearing_deg": 45}},
          {"name": "store_inside", "at": [0.5, 0.38, 6.3], "faces": [0.5, 1.5, 0], "expect": {"hear": true, "who": false, "bearing_deg": 60}},
          {"name": "jail_inside", "at": [1.8, 0.4, -20], "faces": [1.8, 1.5, -15], "expect": {"hear": true, "who": false}},
          {"name": "street_west_end", "at": [-40, 0, -9], "faces": [-50, 1.5, -9], "expect": {"hear": true, "who": false, "bearing_deg": 45}}],
-       "why": "A revolver fired inside the saloon at the bar. Everyone in town hears a shot; nobody who didn't see it knows who fired; those outside can tell roughly where (the saloon), the man in the next building less well."},
+       "why": "A revolver fired inside the saloon at the bar. Everyone in town hears a shot; the man in the room has the shooter 45 deg off his facing, 5 m away, so he sees who (corrected 2026-10-22: the baseline expected he wouldn't); nobody who didn't see it knows who fired; those outside can tell roughly where (the saloon), the man in the next building less well."},
       {"name": "shot_in_street", "source": {"kind": "gunshot", "at": [5, 0, -9], "faces": [5, 1.5, -20], "dir": [0, -1, -0.2]},
        "listeners": [
          {"name": "saloon_room", "at": [7.5, 0.78, 7.5], "faces": [8, 1.5, 4], "expect": {"hear": true, "who": false, "bearing_deg": 45}},

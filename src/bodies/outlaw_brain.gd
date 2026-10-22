@@ -223,6 +223,9 @@ var arrested_by: Node3D = null
 var follow := true
 ## Down on the ground with his legs gone, how soon he looks again for a gun coming at him.
 var _give_up_look := 0.0
+## An unplaced shot: where he heard it, and how much longer he looks that way (s).
+var _startled_at := Vector3.INF
+var _startled := 0.0
 
 
 func _ready() -> void:
@@ -242,6 +245,7 @@ func _ready() -> void:
 	Events.person_died.connect(func(who: Node, _c: StringName) -> void: _saw_mate_out(who, &"dead"))
 	Events.person_surrendered.connect(func(who: Node) -> void: _saw_mate_out(who, &"quit"))
 	senses.spotted.connect(_on_spotted)
+	senses.heard.connect(_on_heard)
 	Events.deed.connect(_on_deed)
 	body.hit.connect(_on_hit)
 	body.fell.connect(_on_fell)
@@ -300,6 +304,44 @@ func _on_spotted(who: Node3D) -> void:
 
 ## Near enough that a drawn gun is his business.
 const NEAR := 12.0
+## A shot's deed (shoot_at, hit, kill) goes with a shot he heard this recently (s).
+const SHOT_HEARD_WITHIN := 1.5
+## The sounds a man makes, that a man hunting him takes for his.
+const MAN_SOUNDS := [&"footsteps", &"gunshot", &"shout", &"speech"]
+## How far he reckons a man he's lost can have got (m a second, from where he last knew him, on
+## top of a few metres' slack): a brisk walk. A man who runs gets further, and away.
+const MAN_SPEED := 2.0
+## An unplaced shot when all's calm: how much it unsettles him, and how long he looks its way (s).
+const STARTLE_FEAR := 0.04
+const STARTLE_LOOK := 2.5
+
+
+## Could that man be where a sound came from: near where he last knew him, or as far off as a man
+## walks in the time since?
+func _could_be(who: Node, at: Vector3) -> bool:
+	var lk := senses.last_known(who)
+	if lk == Vector3.INF:
+		return false
+	var reach := 3.0 + MAN_SPEED * minf(senses.since_known(who), 15.0)
+	return Vector2(at.x - lk.x, at.z - lk.z).length() <= reach
+
+
+## A sound he couldn't put a face to. Hunting a man he can't see, a man's sound (steps, a shot, a
+## voice) where that man could have got to he takes for him, unless one of his friends is right
+## there (he knows where his own are): so he can be fooled. Otherwise a shot is a shot over there:
+## it unsettles him and turns his head.
+func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:
+	if who != null or not body.physiology.is_conscious() or mood in [Mood.DEAD, Mood.SURRENDERED]:
+		return
+	var t := _find_target()
+	if t != null and not senses.sees(t) and kind in MAN_SOUNDS and _could_be(t, at) \
+			and not crew.standing(_now).any(func(m: HumanBody) -> bool: return m.global_position.distance_to(at) < 3.0):
+		senses.note(t, at, 0.0)
+		return
+	if kind == &"gunshot" and mood == Mood.CALM:
+		fear += STARTLE_FEAR
+		_startled_at = at
+		_startled = STARTLE_LOOK
 
 
 static func _armed(who: Node) -> bool:
@@ -325,12 +367,16 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 		return
 	if shouted and not senses.sees(actor) and actor is Node3D:
 		senses.note(actor, (actor as Node3D).global_position, 1.5)
-	if loud and not to_me and not senses.sees(actor) and not senses.knows(actor):
-		# A shot somewhere: he knows someone's shooting, not who, unless he's seen them.
-		if kind != &"hit":
+	if loud and not to_me and not senses.sees(actor):
+		# A shot somewhere he didn't see: he knows someone's shooting, not who, unless it came from
+		# where he knew that man to be (Senses.sounds; the perception lab, 2026-10-22: a shot in the
+		# saloon set a man at the far end of the street against the shooter he'd never seen).
+		var shot := senses.last_sound([&"gunshot"], SHOT_HEARD_WITHIN)
+		if shot.is_empty() or not _could_be(actor, shot.at):
 			return
-	if loud and actor is Node3D and not senses.sees(actor):
-		# He knows which way it came from, roughly.
+		senses.note(actor, shot.at, 0.0)
+	elif loud and actor is Node3D and not senses.sees(actor):
+		# At him: the ball tells him which way it came from, roughly.
 		senses.note(actor, (actor as Node3D).global_position, 0.1 * body.global_position.distance_to((actor as Node3D).global_position))
 	var dt := PlayerDeeds.EVERY if kind in [&"aim_at", &"crowd", &"stare"] else 1.0
 	if kind in [&"draw", &"holster"] and deed_target == null and actor is Node3D \
@@ -503,6 +549,7 @@ func _physics_step(delta: float) -> void:
 	_update_aimed_at(delta)
 	_quiet += delta
 	_drop_it_heard += delta
+	_startled = maxf(_startled - delta, 0.0)
 	suppressed = maxf(suppressed - delta, 0.0)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
@@ -609,6 +656,8 @@ func _social(delta: float) -> void:
 	match st:
 		Relations.Stance.IGNORE:
 			body.set_pose(&"stand")
+			if _startled > 0.0:
+				body.face(_startled_at + Vector3.UP * 1.4)
 			_ease_off(delta)
 		Relations.Stance.NOTICE:
 			if point != Vector3.INF:
