@@ -31,6 +31,8 @@ const LINES := {
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"gut": ["Oh God, not the belly..."],
 	&"surrender": ["Alright! Alright! I'm done!", "Don't shoot! I quit, I quit!", "Enough! It's yours!"],
+	&"shaken": ["Hell. Hell, hell, hell...", "Stay down... stay down...", "Lord, get me out of this one."],
+	&"rally": ["Alright. Alright, you son of a—", "Still here, mister!", "That all you got?"],
 	&"down": ["My leg... damn you...", "Can't... get up..."],
 	&"shot_while_surrendered": ["I give up, you bastard!", "I'm unarmed!"],
 	&"reloading": ["Hold still..."],
@@ -76,8 +78,6 @@ const LINES := {
 
 ## How much fear he can carry before he breaks. A hired gun; a family man would be lower.
 @export var nerve := 0.75
-## Spread of his shots in degrees when calm and unhurt.
-@export var spread_degrees := 2.4
 @export var rounds_per_load := 5
 @export var reload_seconds := 12.0
 @export var seconds_between_shots := 1.4
@@ -89,6 +89,13 @@ const LINES := {
 @export var fear_hat_shot := 0.3
 ## When his nerve goes and he can run, the chance he runs rather than gives up.
 @export var flee_chance := 0.55
+## Past his nerve behind cover he goes to ground rather than quit on the spot (shaken): this long
+## at most (s) for it to pass; and it doesn't hold him once he's this far past his nerve.
+@export var shaken_seconds := 6.0
+@export var shaken_margin := 0.5
+## Behind cover with nothing cracking past him, his fear settles this fast (a second; it settles
+## 0.01 a second anywhere else). A gun kept on his spot frightens him 0.045 a second (`aim_at`).
+@export var fear_settle_in_cover := 0.08
 ## How little it takes to rile him (0 a cool professional .. 1 a hothead): the small things,
 ## a stare, crowding him, a drawn gun near him.
 @export var temper := 0.5
@@ -110,6 +117,15 @@ const LINES := {
 ## He runs the gang: his "Fall back!" and his giving up carry the others with him.
 @export var leads := false
 
+## How he fights, the gunfight lab's three (`experiments/gunfight_lab/`, Sean's A/B/C to play):
+## A as before the lab (shots in a random cone round his aim, cover found within a step of his
+## own height); B aims by his hand (`GunHand`), takes a moment to react and finds the town's cover
+## (doorways, round the bar, up or down a step); C is B and shaken before he breaks. The game
+## plays `default_variant` (A) until Sean picks one.
+enum Variant { A, B, C }
+static var default_variant := Variant.A
+var variant: Variant = default_variant
+
 ## Where he can go in this town (set by whoever brought him in: TownLife), and his place at the bar.
 var places: Waypoints
 var bar_spot := &""
@@ -129,6 +145,26 @@ var _rng := RandomNumberGenerator.new()
 var _think := RandomNumberGenerator.new()
 ## His judgement of range (separate again, so it doesn't shift his aim's sequence).
 var _range_rng := RandomNumberGenerator.new()
+## Spread of his shots in degrees when calm and unhurt (variant A's cone).
+@export var spread_degrees := 2.4
+## How far off he judges the range this shot (a share; drawn again after each).
+var _range_err := 1.0
+## Where his barrel really points (GunHand: the player's sway with his own sizes), and its dials.
+var hand: GunHand
+static var _hand_tuning: GunHandTuning
+## The moment before he moves, when it comes to a fight he didn't start.
+var _react := 0.0
+## Seconds he's held on his man waiting for his sights, the frame he last did, and the squeeze
+## (trigger lag left; < 0 not squeezing).
+var _on_sights := 0.0
+var _sights_frame := -1
+var _squeeze := -1.0
+## Whether he's aiming at your head (all he can see of you over cover), worked out once a tick.
+var _aim_head := false
+var _aim_frame := -1
+## The poses he aims in, and the low ones (steadier).
+const AIM_POSES := [&"aim", &"crouch_aim"]
+const LOW_POSES := [&"crouch_aim", &"crouch", &"duck", &"lie", &"prone"]
 var _next_shot := 1.0
 var _reload_left := 0.0
 var _aimed_at := 0.0
@@ -165,6 +201,13 @@ var _search: Cover.Search
 var _search_bias := Vector3.INF
 ## Keeping his head down: seconds left (rounds cracking past).
 var suppressed := 0.0
+## How long he's been shaken (gone to ground past his nerve), or -1 when he isn't.
+var _shaken := -1.0
+## What he last decided in a fight and why, from what's happened to him ("to cover: in the open",
+## "look for him: lost sight 4 s"): shown on F3, logged by the gunfight lab. Never read by him.
+var decision := ""
+var decision_at := 0.0
+var _search_why := ""
 ## Seconds since the one he's fighting last fired.
 var _quiet := 99.0
 var _flee_to := Vector3.INF
@@ -230,6 +273,7 @@ func _ready() -> void:
 	_rng.seed = body.rng_seed * 31 + 7
 	_think.seed = body.rng_seed * 17 + 3
 	_range_rng.seed = body.rng_seed * 23 + 11
+	hand = GunHand.new(hand_tuning(), body.rng_seed * 41 + 13)
 	rounds = rounds_per_load
 	senses = Senses.new()
 	senses.name = "Senses"
@@ -357,7 +401,8 @@ func _provoked(by: Node) -> void:
 	_start_fight(by)
 
 
-func _start_fight(with_who: Node) -> void:
+## `his_idea`: he started it (the duel's draw), so there's no moment of taking it in.
+func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
 	if mood == Mood.CALM:
@@ -366,12 +411,28 @@ func _start_fight(with_who: Node) -> void:
 		_next_shot = _rng.randf_range(0.6, 1.1)
 		tactic = Tactic.OPEN
 		_cover_search = 0.0
+		if not his_idea and variant != Variant.A:
+			_react = _reaction()
 	target = with_who as Node3D
 	if not senses.knows(with_who):
 		# It's come to a fight with him: he knows which way he is, at least.
 		senses.note(with_who, (with_who as Node3D).global_position, 1.0)
-	if body.gun_holstered:
+	if body.gun_holstered and _react <= 0.0:
 		body.draw_gun()
+
+
+## The moment it takes him to take in that it's come to shooting and move: a hothead's quicker
+## than a cool man, a man of no nerve slower.
+func _reaction() -> float:
+	var t := hand_tuning()
+	return lerpf(t.react_cool, t.react_hot, clampf(temper, 0.0, 1.0)) + (1.0 - clampf(nerve, 0.0, 1.0)) * t.react_timid \
+			+ _think.randf() * t.react_spread
+
+
+static func hand_tuning() -> GunHandTuning:
+	if _hand_tuning == null:
+		_hand_tuning = load("res://config/gun_hand.tres")
+	return _hand_tuning
 
 
 ## His hat shot off his head: a fright like no other near miss, heads down, and he says so.
@@ -391,6 +452,8 @@ func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _
 	if person != body:
 		return
 	fear += 0.06 * clampf(2.5 - distance, 0.5, 2.5)
+	hand.jerk(hand_tuning().near_miss_jerk * clampf(2.5 - distance, 0.3, 2.5) / 2.5)
+	_react = minf(_react, 0.15)  # rounds cracking past get a man moving
 	if shooter is Node3D and senses and not senses.sees(shooter):
 		senses.note(shooter, (shooter as Node3D).global_position, 0.1 * body.global_position.distance_to((shooter as Node3D).global_position))
 	# Heads down.
@@ -422,6 +485,8 @@ func _on_hit(info: Dictionary) -> void:
 	fear += (fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
 			+ float(info.get("deposited", 0.0)) / 2000.0) * share
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
+	hand.jerk(hand_tuning().hit_jerk * share)
+	_react = minf(_react, 0.15)
 	if mood == Mood.SURRENDERED:
 		say(&"shot_while_surrendered")
 		return
@@ -505,13 +570,16 @@ func _physics_step(delta: float) -> void:
 			return
 		body.dragged_by = null
 	_update_aimed_at(delta)
+	if variant != Variant.A:
+		_step_hand(delta)
 	_quiet += delta
 	_drop_it_heard += delta
 	suppressed = maxf(suppressed - delta, 0.0)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
-	fear = maxf(move_toward(fear, floor_fear, 0.01 * delta), floor_fear * 0.9)
+	var settle := fear_settle_in_cover if variant == Variant.C and tactic == Tactic.HIDDEN and suppressed <= 0.0 else 0.01
+	fear = maxf(move_toward(fear, floor_fear, settle * delta), floor_fear * 0.9)
 	if mood == Mood.SURRENDERED:
 		if arrested_by != null:
 			_go_along(delta)
@@ -529,15 +597,21 @@ func _physics_step(delta: float) -> void:
 		if _pending_in <= 0.0 or fear > nerve:
 			var how := _pending_break
 			_pending_break = &""
+			_decide("give up" if how == &"surrender" else "run", "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back"))
 			if how == &"surrender":
 				_surrender()
 				return
 			if body.physiology.can_run() and not body.prone:
 				_start_fleeing()
 				return
-	if fear > nerve:
+	if fear > nerve and not (variant == Variant.C and _shaken_holds(delta)):
 		_break()
 		return
+	if _shaken >= 0.0 and fear <= nerve:
+		_shaken = -1.0
+		if mood in [Mood.FIGHTING, Mood.RELOADING]:
+			say(&"rally")
+			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [fear, nerve])
 	relations.tick(delta)
 	_pick_fight(delta)
 	match mood:
@@ -938,7 +1012,7 @@ func _duel(step: Dictionary) -> bool:
 	if _armed(who) or _step_time >= float(step.draw_at):
 		_stand_and_fight = true
 		relations.provoke(who)
-		_start_fight(who)
+		_start_fight(who, true)
 		return true
 	if body.global_position.distance_to(who.global_position) > 45.0 or senses.since_known(who) > 10.0:
 		say(&"coward")
@@ -1055,6 +1129,13 @@ func _combat(delta: float) -> void:
 	var t := _find_target()
 	if t == null:
 		return
+	if _react > 0.0:
+		# Taking it in: he looks at the man, his hand not yet moving.
+		_react -= delta
+		body.face(_eye_of(t))
+		if _react <= 0.0 and body.gun_holstered:
+			body.draw_gun()
+		return
 	if mood == Mood.RELOADING:
 		_reload_left -= delta
 		if _reload_left <= 0.0:
@@ -1072,11 +1153,13 @@ func _combat(delta: float) -> void:
 		return
 	var eye := _eye_of(t)
 	# Lost sight of him for a while: go and look where he was.
-	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone:
+	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone \
+			and _shaken < 0.0:
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
 		say(&"search")
+		_decide("look for you", "lost sight of you %.0f s ago, going to where you were" % senses.since_known(t))
 	if tactic == Tactic.SEARCHING:
 		_hunt(delta, t)
 		return
@@ -1095,7 +1178,7 @@ func _combat(delta: float) -> void:
 		Tactic.OPEN:
 			if _cover_search <= 0.0 and not _stand_and_fight:
 				_cover_search = 1.5
-				_seek_cover(eye, Vector3.INF)
+				_seek_cover(eye, Vector3.INF, 11.0, 3.0, "in the open")
 			if tactic == Tactic.OPEN:
 				if mood == Mood.RELOADING:
 					body.face(eye)
@@ -1112,12 +1195,14 @@ func _combat(delta: float) -> void:
 				arrived = false
 			_watch_stuck(delta)
 			if arrived:
+				_decide("behind cover", "got there")
 				tactic = Tactic.HIDDEN
 				_tactic_time = _think.randf_range(0.6, 1.6)
 				_in_cover = 0.0
 				_peeks = 0
 				_flank_after = _think.randf_range(10.0, 18.0)
 			elif _move_time > 7.0 or _stuck > 1.2:
+				_decide("give that cover up", "stuck on the way" if _stuck > 1.2 else "too long getting there")
 				tactic = Tactic.OPEN
 				_cover_search = 0.0
 		Tactic.HIDDEN:
@@ -1144,12 +1229,14 @@ func _eye_of(t: Node3D) -> Vector3:
 func _hunt(delta: float, t: Node3D) -> void:
 	_search_time += delta
 	if senses.sees(t):
+		_decide("fight", "sees you again")
 		tactic = Tactic.OPEN
 		_cover_search = 0.0
 		return
 	var spot := senses.last_known(t)
 	if _search_time > 25.0 or spot == Vector3.INF or senses.since_known(t) > HUNT_GIVE_UP:
 		say(&"lost")
+		_decide("stand down", "lost you for good")
 		relations.stand_down(t)
 		target = null
 		_set_mood(Mood.CALM)
@@ -1178,11 +1265,12 @@ func _exclude(t: Node3D = null) -> Array[RID]:
 
 ## Start looking for somewhere to fight from (spread over a few ticks); `bias_from` a spot he's
 ## leaving, for a new angle on you.
-func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle := 3.0) -> void:
+func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle := 3.0, why := "") -> void:
 	if _search != null:
 		return
+	_search_why = why
 	_search = Cover.search(body.get_parent() as Node3D, body.global_position, eye, _exclude(_find_target()), _think, bias_from,
-			max_travel, new_angle)
+			max_travel, new_angle, _town())
 	_search_bias = bias_from
 
 
@@ -1193,18 +1281,22 @@ func _step_search() -> void:
 	var spot := _search.result
 	_search = null
 	if spot.is_empty():
+		if tactic == Tactic.OPEN:
+			_decide("fight from where he is", "no cover he can reach (%s)" % _search_why)
 		return
 	if _search_bias != Vector3.INF and (spot.at as Vector3).distance_to(_search_bias) < 1.5:
 		return
 	if tactic == Tactic.PEEKING or tactic == Tactic.RESCUING:
 		_flanking = false
 		return  # he'll go next time he's down
+	var going_round := _flanking
 	if _flanking:
 		_flanking = false
 		if crew.someone_flanking(_now):
 			return
 		callout(&"flank", _find_target(), spot.at)
 	cover = spot
+	_decide("go round on you" if going_round else "run for cover", "%s, %.0f m" % [_search_why, (spot.at as Vector3).distance_to(body.global_position)])
 	tactic = Tactic.MOVING
 	_move_time = 0.0
 	_stuck = 0.0
@@ -1222,7 +1314,7 @@ func _watch_stuck(delta: float) -> void:
 ## Behind it: head down (lower still while rounds crack past), reloading, waiting his moment.
 func _hide(delta: float, eye: Vector3) -> void:
 	body.face(eye)
-	var down_low: bool = cover.low and (suppressed > 0.0 or not cover.get("crouch_ok", false))
+	var down_low: bool = cover.low and (suppressed > 0.0 or _shaken >= 0.0 or not cover.get("crouch_ok", false))
 	if cover.get("lie", false):
 		body.set_pose(&"lie")
 	else:
@@ -1235,15 +1327,19 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_check = 0.5
 		var space := body.get_world_3d().direct_space_state
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
-		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target())):
+		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target()), _town() != null):
 			# He's come round it: this cover's no good now.
+			_decide("leave his cover", "you can see him there now")
 			tactic = Tactic.OPEN
 			_cover_search = 0.0
 			return
 	if _wants_to_tend():
 		_start_tending(Mood.FIGHTING)
 		return
+	if _shaken >= 0.0:
+		return  # head down till it passes
 	if _in_cover > _flank_after or _peeks >= 4:
+		var stale := "%d peeks from here" % _peeks if _peeks >= 4 else "%.0f s in this cover" % _in_cover
 		_in_cover = 0.0
 		_peeks = 0
 		_flank_after = _think.randf_range(10.0, 18.0)
@@ -1252,7 +1348,8 @@ func _hide(delta: float, eye: Vector3) -> void:
 		else:
 			# With friends there to keep the man's head down, he goes right round on him.
 			_flanking = crew.any_in_earshot(_now) and mood == Mood.FIGHTING
-			_seek_cover(eye, cover.at, FLANK_TRAVEL if _flanking else 11.0, FLANK_ANGLE if _flanking else 3.0)
+			_seek_cover(eye, cover.at, FLANK_TRAVEL if _flanking else 11.0, FLANK_ANGLE if _flanking else 3.0,
+					stale + (", friends to keep your head down" if _flanking else ""))
 	if covering > 0.0 and suppressed <= 0.0:
 		_tactic_time = minf(_tactic_time, 0.25)
 	if _tactic_time <= 0.0 and mood == Mood.FIGHTING and body.held_gun != null and body.physiology.can_hold("r"):
@@ -1285,6 +1382,8 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 			return
 		if not _can_shoot_at(t):
 			_next_shot = 0.2
+			return
+		if variant != Variant.A and not _sights_on(delta, t):
 			return
 		_fire_at(aim_point, t)
 		_peek_shots += 1
@@ -1337,6 +1436,8 @@ func _fight(delta: float) -> void:
 	if not _can_shoot_at(t):
 		_next_shot = 0.2
 		return
+	if variant != Variant.A and not _sights_on(delta, t):
+		return
 	_fire_at(aim_point, t)
 	var p := body.physiology
 	_next_shot = seconds_between_shots * _rng.randf_range(0.75, 1.3) + p.shock() * 1.5 + p.felt_pain() * 0.5
@@ -1352,7 +1453,25 @@ func _aim_point(t: Node3D) -> Vector3:
 	if t is Player and (t as Player).is_crouching:
 		chest = 0.75
 	var base := t.global_position if senses.sees(t) or senses.last_known(t) == Vector3.INF else senses.last_known(t)
+	if t is Player and senses.sees(t) and variant != Variant.A:
+		# A man shoots at what he can see: only your head over the trough, he aims at your head.
+		var frame := Engine.get_physics_frames()
+		if _aim_frame != frame:
+			_aim_frame = frame
+			var eye := senses.eye()
+			var head := (t as Player).camera.global_position + Vector3.DOWN * 0.08
+			_aim_head = not _clear(eye, base + Vector3.UP * chest, t) and _clear(eye, head, t)
+		if _aim_head:
+			return (t as Player).camera.global_position + Vector3.DOWN * 0.08
 	return base + Vector3.UP * chest
+
+
+## Nothing solid between `from` and `to` (the man there aside).
+func _clear(from: Vector3, to: Vector3, t: Node3D) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+	q.exclude = _exclude(t)
+	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
 
 
 ## Gun out and ready, and he can see the man (or only just lost him); covering a friend, he'll
@@ -1382,6 +1501,38 @@ func _friend_in_the_way(point: Vector3) -> bool:
 func _fire_at(point: Vector3, t: Node3D) -> void:
 	var gun := body.held_gun as RevolverModel
 	var origin := gun.muzzle.global_position
+	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	if ballistics == null:
+		return
+	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	# Along the barrel, where his hand has it: the wander, the lag onto a moving man, the kick of
+	# his last shot, a jolt. No dice (GunHand). Variant A: in a cone round his aim.
+	var dir := hand.barrel() if variant != Variant.A else _cone_shot(ballistics, origin, point, t)
+	var exclude: Array[RID] = []
+	for sid: StringName in body.parts:
+		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
+	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
+	bullet.form = t_rev.form_factor
+	bullet.shooter = body
+	rounds -= 1
+	if variant != Variant.A:
+		hand.fired(t_rev)
+		_on_sights = 0.0
+		_squeeze = -1.0
+		_judge_range()
+	var world := ballistics.get_parent()
+	GunSmoke.spawn(world, origin, dir)
+	ImpactEffects.muzzle_flash(world, origin)
+	if GameAudio.enabled():
+		GameAudio.gunshot(body, origin)
+	else:
+		_gun_sound.play()
+	Events.shot_fired.emit(origin, dir, body)
+
+
+## Variant A's shot: held over for the range he judges, then anywhere in a cone that widens with
+## pain, shock, fear, a shaky arm, a bad eye, a moving target, the wrong finger and not seeing him.
+func _cone_shot(ballistics: Ballistics, origin: Vector3, point: Vector3, t: Node3D) -> Vector3:
 	var p := body.physiology
 	var spread := spread_degrees + p.felt_pain() * 3.0 + p.shock() * 6.0 + fear * 2.0 \
 			+ (1.0 - p.arm_steadiness("r")) * 6.0 + (2.5 if p.blind.has(&"eye_r") else 0.0) \
@@ -1392,36 +1543,8 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 		spread += 2.0
 	if not senses.sees(t):
 		spread += 3.0  # at where he was, not at him
-	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
-	if ballistics == null:
-		return
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
-	var dir := _cone(_held_over(ballistics, origin, point), deg_to_rad(spread))
-	var exclude: Array[RID] = []
-	for sid: StringName in body.parts:
-		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
-	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
-	bullet.form = t_rev.form_factor
-	bullet.shooter = body
-	rounds -= 1
-	var world := ballistics.get_parent()
-	GunSmoke.spawn(world, origin, dir)
-	ImpactEffects.muzzle_flash(world, origin)
-	_gun_sound.play()
-	Events.shot_fired.emit(origin, dir, body)
-
-
-## He knows his gun: aimed from `origin` at `point`, held over for the drop at the range he judges
-## it to be (off by `range_judgement`).
-func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vector3:
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
-	var judged := origin.distance_to(point) * maxf(1.0 + _range_rng.randfn(0.0, range_judgement), 0.3)
-	var base := (point - origin).normalized()
-	var axis := base.cross(Vector3.UP)
-	if axis.length() < 1e-4:
-		return base
-	return base.rotated(axis.normalized(), ballistics.holdover(judged, t_rev.muzzle_velocity, t_rev.bullet_mass,
-			t_rev.bullet_diameter, t_rev.form_factor))
+	_judge_range()
+	return _cone(_held_over(ballistics, origin, point), deg_to_rad(spread))
 
 
 func _cone(dir: Vector3, radians: float) -> Vector3:
@@ -1433,6 +1556,91 @@ func _cone(dir: Vector3, radians: float) -> Vector3:
 	var r := sqrt(_rng.randf()) * tan(radians)
 	var a := _rng.randf() * TAU
 	return (dir + side * cos(a) * r + up * sin(a) * r).normalized()
+
+
+## The town's places for his cover search (B and C), else none (A: cover within a step of him).
+func _town() -> Waypoints:
+	return places if variant != Variant.A else null
+
+
+## The range by eye, for the next shot: off by `range_judgement` (a share, one standard deviation).
+func _judge_range() -> void:
+	_range_err = maxf(1.0 + _range_rng.randfn(0.0, range_judgement), 0.3)
+
+
+## He knows his gun: aimed from `origin` at `point`, held over for the drop at the range he judges
+## it to be (off by `range_judgement`, judged again each shot).
+func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vector3:
+	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var judged := origin.distance_to(point) * _range_err
+	var base := (point - origin).normalized()
+	var axis := base.cross(Vector3.UP)
+	if axis.length() < 1e-4:
+		return base
+	return base.rotated(axis.normalized(), ballistics.holdover(judged, t_rev.muzzle_velocity, t_rev.bullet_mass,
+			t_rev.bullet_diameter, t_rev.form_factor))
+
+
+## Where he wants his barrel: on his man, held over (up in an aim pose with his man in mind), or
+## held low before him.
+func _want_dir(origin: Vector3, t: Node3D) -> Vector3:
+	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	if t != null and ballistics != null:
+		return _held_over(ballistics, origin, _aim_point(t))
+	var fwd := -body.global_basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
+	return fwd.rotated(fwd.cross(Vector3.UP).normalized(), deg_to_rad(-35.0))
+
+
+## His hand this tick: up on his man in an aim pose, else low; shaken by fear, pain, shock, rounds
+## cracking past and a hurt arm.
+func _step_hand(delta: float) -> void:
+	var gun := body.held_gun as RevolverModel
+	if gun == null or gun.muzzle == null:
+		return
+	var t := _find_target()
+	var aimed := t != null and body.gun_ready() and body.pose in AIM_POSES
+	var p := body.physiology
+	var tune := hand_tuning()
+	var stress := 1.0 + fear * tune.fear_sway + p.felt_pain() * tune.pain_sway + p.shock() * tune.shock_sway \
+			+ (tune.rattled_sway if suppressed > 0.0 else 0.0)
+	hand.step(delta, _want_dir(gun.muzzle.global_position, t if aimed else null), aimed, body.pose in LOW_POSES, body.move_speed,
+			stress, (1.0 - p.arm_steadiness("r")) * tune.arm_tremor, tune.wrong_eye if p.blind.has(&"eye_r") \
+			else (lerpf(1.0, tune.wrong_eye, 0.6) if p.blood_in_eye.has(&"r") else 1.0))
+
+
+## Holding on his man till his sights settle on him (or he can't hold any longer), then the
+## squeeze: true when the shot breaks. A hothead's sooner and less sure, a cool man waits for it;
+## fear rushes him; shooting at where a man was, or keeping his head down for a friend, he doesn't
+## wait for a sight.
+func _sights_on(delta: float, t: Node3D) -> bool:
+	var frame := Engine.get_physics_frames()
+	if _sights_frame != frame - 1:
+		_on_sights = 0.0
+		_squeeze = -1.0
+	_sights_frame = frame
+	var tune := hand_tuning()
+	if _squeeze >= 0.0:
+		_squeeze -= delta
+		return _squeeze < 0.0
+	_on_sights += delta
+	var origin := (body.held_gun as RevolverModel).muzzle.global_position
+	var want := _want_dir(origin, t)
+	var half := tune.head_half_width if _aim_head else tune.target_half_width
+	var window := rad_to_deg(atan2(half, maxf(origin.distance_to(_aim_point(t)), 0.5)))
+	var hot := clampf(temper, 0.0, 1.0)
+	var patience := lerpf(tune.patience_cool, tune.patience_hot, hot) * (1.0 + fear)
+	var hold := lerpf(tune.hold_cool, tune.hold_hot, hot)
+	if covering > 0.0 or not senses.sees(t):
+		patience *= 3.0
+		hold = minf(hold, 0.4)
+	if hand.error_to(want) <= window * patience or _on_sights >= hold:
+		_squeeze = tune.trigger_lag
+		hand.jerk(tune.squeeze_jerk * (1.0 + hot + fear))
+		if body.physiology.trigger_finger("r") != &"index_r":
+			hand.jerk(tune.wrong_finger_jerk)  # the wrong finger snatches it
+	return false
 
 
 # --- With his friends ----------------------------------------------------------------------------
@@ -1620,6 +1828,7 @@ func _start_rescue(m: HumanBody) -> void:
 	_search = null
 	_flanking = false
 	tactic = Tactic.RESCUING
+	_decide("drag %s to cover" % Crew.name_of(m), "he's down in the open")
 	crew.helper[m] = body
 	_stuck = 0.0
 	_last_pos = body.global_position
@@ -1775,6 +1984,7 @@ func _mate_out(m: Node, how: StringName, saw: bool) -> void:
 		rage = 8.0
 		fear = maxf(fear - 0.2, 0.0)
 		say(&"rage")
+		_decide("go for you", "%s %s (a hothead's rage)" % [Crew.name_of(m), how])
 	elif how == &"quit" and proud and fighting:
 		say(&"scorn", Crew.name_of(m))
 	if not crew.thinned and crew.out_share() >= 0.5:
@@ -1821,8 +2031,40 @@ func _heard_give_up(mate: Node) -> void:
 
 # --- Breaking, running, tending --------------------------------------------------------------------
 
+## Past his nerve, behind cover or on his way to it (or looking for new cover, his own come round
+## on) with his gun in his hand, he goes to ground (head down, not shooting, not going looking for
+## you) rather than quit on the spot, and gets his breath back there if he's let be. He breaks if
+## it hasn't passed in a few seconds, or once he's well past his nerve; in the open, down, or with
+## no gun, at once.
+func _shaken_holds(delta: float) -> bool:
+	var behind := tactic in [Tactic.HIDDEN, Tactic.PEEKING, Tactic.MOVING] \
+			or (tactic == Tactic.OPEN and (_search != null or _cover_search <= 0.0) and not _stand_and_fight)
+	if not mood in [Mood.FIGHTING, Mood.RELOADING] or body.prone or body.held_gun == null or cover.is_empty() \
+			or not behind or fear > nerve + shaken_margin:
+		return false
+	if _shaken < 0.0:
+		_shaken = 0.0
+		say(&"shaken")
+		_decide("go to ground", "past his nerve (fear %.2f / %.2f), behind cover" % [fear, nerve])
+	_shaken += delta
+	_flanking = false
+	if tactic == Tactic.PEEKING:
+		_duck_back()
+	return _shaken < shaken_seconds
+
+
+## What he's decided and why (F3, the gunfight lab's log).
+func _decide(what: String, why: String) -> void:
+	var line := what + (": " + why if why != "" else "")
+	if line != decision:
+		decision = line
+		decision_at = _now
+
+
 ## Nerve's gone: run for it if he can, else give up.
 func _break() -> void:
+	var shaken_for := _shaken
+	_shaken = -1.0
 	var t: Node3D = _find_target()
 	if t == null:
 		t = relations.focus() as Node3D
@@ -1835,9 +2077,13 @@ func _break() -> void:
 		# Not a fight yet: he backs down (told to drop it with a gun on him, he gives up instead).
 		_back_down(t)
 		return
+	var why := ("past his nerve (fear %.2f / %.2f)" % [fear, nerve]) if shaken_for < 0.0 \
+			else ("still shaken after %.0f s" % shaken_for if fear <= nerve + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [fear, nerve])
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
+		_decide("run", why)
 		_start_fleeing()
 	else:
+		_decide("give up", why + (", covered close" if caught else ", can't run" if not body.physiology.can_run() or body.prone else ""))
 		_surrender()
 
 
@@ -1910,6 +2156,7 @@ func _worst_bleed() -> Dictionary:
 
 func _start_tending(after: Mood) -> void:
 	_stop_rescue()
+	_decide("tend his wound", "bleeding %.1f ml/s, %.0f s since your last shot" % [body.physiology.total_bleed_rate(), minf(_quiet, 99.0)])
 	_after_tend = after
 	_set_mood(Mood.TENDING)
 	_tend_time = 0.0
@@ -2035,12 +2282,14 @@ func _go_along(delta: float) -> void:
 func describe() -> String:
 	var how: String = String(Mood.keys()[mood]).to_lower()
 	if mood == Mood.FIGHTING or mood == Mood.RELOADING:
-		how += " (%s%s%s%s)" % [String(Tactic.keys()[tactic]).to_lower(), ", pinned down" if suppressed > 0.0 else "",
+		how += " (%s%s%s%s%s)" % [String(Tactic.keys()[tactic]).to_lower(), ", pinned down" if suppressed > 0.0 else "",
+				", shaken" if _shaken >= 0.0 else "",
 				", covering" if covering > 0.0 else "", ", in a rage" if rage > 0.0 else ""]
 	elif mood == Mood.CALM and relations:
 		var who := relations.focus()
 		if who:
 			how += " (%s of %s)" % [String(Relations.Stance.keys()[relations.stance(who)]).to_lower(),
 					"you" if who is Player else String((who as HumanBody).person_id) if who is HumanBody else str(who.name)]
-	return "%s: %s, fear %.2f / nerve %.2f, %d rounds. %s" % [String(body.person_id).capitalize(),
-			how, fear, nerve, rounds, body.physiology.describe()]
+	return "%s: %s, fear %.2f / nerve %.2f, %d rounds%s. %s" % [String(body.person_id).capitalize(),
+			how, fear, nerve, rounds, (". %s (%.0f s ago)" % [decision, _now - decision_at]) if decision != "" else "",
+			body.physiology.describe()]

@@ -41,6 +41,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools", "characters"))
 from glb_io import Glb  # noqa: E402
 from mh_units import MH, load_obj  # noqa: E402
+from neck_seam import bind as bind_stitch  # noqa: E402
 
 PEOPLE = os.path.join(ROOT, "assets", "people")
 WORK = os.path.join(ROOT, "build", "faces")
@@ -834,6 +835,8 @@ def build(man, out, head, report_only=False, landmarks=None):
     info["textures_from"] = man               # his skin and clothes: the man he was copied from
     info["facerig"] = rep
     json.dump(info, open(os.path.join(PEOPLE, out + ".json"), "w"), indent=1)
+    # The stitch bound alike on both sides (neck_seam.py: his head turns without tearing it).
+    bind_stitch(out)
     np.savez_compressed(os.path.join(WORK, out + "_facerig.npz"), V=V_all, T=T_all, UV=UV_all,
                         kind=np.r_[np.full(len(VH), -1), kind], **{"s_" + k: v for k, v in shapes_all.items()})
     print("talking_face: wrote", out)
