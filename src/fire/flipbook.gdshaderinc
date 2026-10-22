@@ -41,7 +41,7 @@ uniform float fps = 24.0;
 // How tall the flame stands against the sheet's height (a share, at full heat) and how wide
 // against its own frame's shape (under 1, narrower than the simulation's).
 uniform float stand = 0.75;
-uniform float width_scale = 0.9;
+uniform float width_scale = 0.65;
 // Sheets at least this tall (metres) take a column; under `tongue_under`, a lick (some sheets
 // take the next size down, by `smaller`).
 uniform float column_over = 3.2;
@@ -49,12 +49,14 @@ uniform float tongue_under = 1.4;
 uniform float smaller = 0.35;
 // The fire drawn in squares fixed in the world (as the walls' are), this many a metre (0: as
 // smooth as the sheet).
-uniform float squares_per_m = 16.0;
+uniform float squares_per_m = 24.0;
 uniform float toward_camera = 0.25;
 // How far under its foot it fades in (metres).
 uniform float foot_fade = 0.6;
 // Where it meets a wall or the floor, it fades out over this depth (metres): soft edges.
 uniform float soft = 0.12;
+// The shortest a flame stands against its sheet's height (each its own, up to the whole).
+uniform float ragged = 0.65;
 // The most flames side by side on one wide sheet.
 uniform float max_tiles = 4.0;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest, repeat_disable;
@@ -184,7 +186,9 @@ vec4 fb_fire(vec2 quad_uv, mat4 inv_view, float time, out vec2 uv) {
 		if (fb_hash(vec2(sd, 9.1)) < 0.5) {
 			x = 1.0 - x;
 		}
-		vec4 c = fb_sample(vec2(x, v), time, sd);
+		// Each flame its own height, so the fire's top edge is ragged, not a row of equal tongues.
+		float tall = mix(ragged, 1.0, fb_hash(vec2(sd, 2.9)));
+		vec4 c = fb_sample(vec2(x, 1.0 - (1.0 - v) / tall), time, sd);
 		if (c.r >= best.r) {
 			best = max(best, c);
 			uv = vec2(x, v);

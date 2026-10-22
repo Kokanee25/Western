@@ -18,7 +18,7 @@ uniform float bands = 5.0;
 uniform vec2 core_ramp = vec2(0.3, 1.0);
 // How much hotter its roots are drawn than its body: the band goes by the flame times this much
 // more toward the frame's foot (the painting's near-white is low, its reds at the tips).
-uniform float root_heat = 0.9;
+uniform float root_heat = 0.7;
 // How far over white the hottest band is drawn, so the glow pass gives it its halo.
 uniform float bloom = 0.6;
 
