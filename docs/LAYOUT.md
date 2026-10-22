@@ -328,6 +328,24 @@ a few views renders them as the full run does.
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery.
+- `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
+  ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
+  one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
+  (`flat_rects`). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
+  `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
+  &"ground" (`Ballistics.surface_of`).
+  Digging (step 2): `take(at, radius, depth)` lowers a bowl (loose earth first, never past the
+  hardpan) and returns the packed m³; `put(at, m3, radius[, ring_from, ring_peak])` lays it loose
+  (×`swell`) as a heap or a ring; loose earth then slides to `repose_degrees` (`_slump`, only points
+  still moving), packed earth stands as cut. Each tile keeps `heights` (the surface) and `loose`
+  (its loose depth); an edit reads a `Patch` of points, works on it, writes it back into the tiles
+  it touches (made where the ground changes), rebuilds each once, wakes what slept there
+  (`_wake`, the ground left out of the query: a height field answers once a triangle), hands back
+  what's `bury`'d and now uncovered (`Events.ground_uncovered`) and emits
+  `Events.ground_changed(rect)`. `to_dict`/`from_dict`: the heights and loose depths in mm
+  (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
+  b depth below the authored ground.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
@@ -535,7 +553,10 @@ a few views renders them as the full run does.
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
   the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
-  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). Wood it lights
+  sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
+  (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
+  taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie
+  down as loose earth where they land on the dirt; BlastTuning's Craters group). Wood it lights
   smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
   (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
   jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
@@ -659,8 +680,10 @@ a few views renders them as the full run does.
   Studio's three men in front, under noon, golden hour and the saloon's lamps; `--material=` one
   wood on its parts, `--set=mlab_NAME` a candidate set, masks once a view, `numbers.json`;
   `--repeats` counts Main Street's side-by-side boards sharing a strip. `tools/material_measure.py`
-  measures colour and detail against the men (`measure`), makes A/B sheets (`sheet`) and the blind
-  critic's crops (`crops`). Candidate sets: `tools/textures/material_lab.json` ->
+  measures colour and detail against the men (`measure`), makes A/B sheets (`sheet`), the blind
+  critic's crops (`crops`) and Sean's one-page pick (`pick`: a row a wood, the candidates across).
+  A set's `light_bands` draws its woods in the blocks light at that many steps (`wood_bands`);
+  the cut's `knots` and `poster` grades (round 6). Candidate sets: `tools/textures/material_lab.json` ->
   `paint_woods.py --set=NAME` -> `assets/textures/mlab_NAME/` (`raw` re-cuts kept paintings with no
   calls, `boards` paints more boards, `grade` fits a wood into the men's range when cut,
   `inherit`, `length` (longer boards), `props` (materials.json materials cut by `reduce.py --set`,
@@ -746,6 +769,8 @@ a few views renders them as the full run does.
   arcs over the barrel, a headstall; ~900 faces) and the **hay bale** (a bulging rounded block,
   twine bands, loose straws). `tools/prop_views.gd out.png [--close]` shows the manifest props;
   `--street` the street's code models (horse from three sides, hay, crate).
+- `PropModels.mirror()` (`prop:mirror`, the back bar's glass): `src/props/mirror.gdshader`, the room in
+  front of the glass painted from the reflected view ray (haze, lamps, posts, gallery, beams), no probe.
 
 ## The prop kit (src/props/prop_kit.gd, kit_prop.gd)
 
@@ -774,6 +799,15 @@ a few views renders them as the full run does.
   chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
+
+- **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
+  `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over
+  a frozen `Body` (DEBRIS, `ballistic_thickness` = two walls: a ball passes and `Events.bullet_hit`
+  breaks it); its footing as KitProp's (and `KitProp.went_loose`); `breaks_at` (closing speed),
+  `shatters_kpa` (Blast.overpressure_kpa through shielding; less, Blast's push wakes it), `heat_seconds`
+  (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
+  GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
+  the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
 
 ## src/art/saloon_dressing.gd
 
