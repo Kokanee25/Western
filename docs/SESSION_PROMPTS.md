@@ -175,6 +175,16 @@ Built 2026-10-21 (`claude/gameplay-breakage-lab-ksr17d`, merged): the bench, its
 baseline (`experiments/breakage_lab/baseline/baseline.md`); blast-surfaces steps 1 and 2 and the
 blast's look made in the same branch (below).
 
+## Stains on the town's buildings: the weathering frame (Sean 2026-10-22: "let's get them in") [Salt Creek]
+
+```
+Gameplay lane, branch claude/gameplay-weathering-frame. The material lab's stains (mud splashed up from the ground, rain streaks from the eaves, grime low and toward the ends, nails' rust, sun-bleach on what faces the sky) are drawn by texel_grid's `weathered` pass, but only where a mesh carries the stain frame, and no member in the game does yet, so the town's woods (round 6b, merged with Sean's pick) show no stains. Read docs/briefs/material-lab.md "What production needs", the item "The weathering layer (round 3)", and src/art/material_stand.gd's `_frame` / CUSTOM0 and CUSTOM1 writes for how the lab does it; the src/structures section of docs/LAYOUT.md.
+
+Write the frame onto members from what each building's spec already holds: CUSTOM0 = (the ground's height under the wall: the street or the walk it stands on, the drip line above it: the eave or the porch roof's edge, how much: 0 none to 1, and a per-structure offset into the stain sheet from its ID so two fronts don't wear the same stains), CUSTOM1 = nails (pitch along, the first, the rows' pitch, the first row) where the siding is nailed to studs. In the structure's own space, in MemberMesh and the structure's batch; a member's own mesh (when it leaves its batch) keeps the same space; the voxel mesher carries it too, or a shot board's stains pop. The walk's frame splashes from the street and streaks from the planks' edge. Interiors carry none.
+
+Art's half is done: the game's woods set has the stain sheet and its palette (assets/textures/woods/lab.json "weathering"), so a member that carries the frame is stained with no other change. Judge it in the material lab's town views and the goldens (every street view moves: re-approve them in the same merge, art's files, with art's blind critic on the street views). Cost: two vec4s a vertex on weathered members and one more fetch where the frame says so; measure the calm street's render CPU with tools/perf_bench.gd against the frame budget.
+```
+
 ## Ground that can be dug, and craters (blast-surfaces step 3) [Salt Creek]
 
 ```

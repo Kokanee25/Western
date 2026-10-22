@@ -6,7 +6,7 @@
 	"guns": {
 		"weapons": ["revolver", "shotgun"],
 		"places": {
-			"street": {"shooter": [10, 0, -9], "aim": [25, 0, -9],
+			"street": {"shooter": [10, 0, -9], "aim": [13, 0, -9],
 				"listeners": {"0": "self", "2": [8, 1.6, -9], "7": [3, 1.6, -9], "20": [-10, 1.6, -9], "80": [-70, 1.6, -9]}},
 			"saloon": {"shooter": [11, 0.78, 3.5], "aim": [11, 0.78, 9.0],
 				"listeners": {"0": "self", "2": [9, 2.38, 3.5], "door7": [10.5, 2.38, -3.5], "wall7": [18, 1.6, 3.5],
@@ -25,7 +25,7 @@
 		"impact_flesh": {"kind": "impact", "material": "flesh", "man": [0, 0, -9], "from": [0, 1.35, -12], "player": [5, 0, -9], "window": 1.5},
 		"ricochet_ground": {"kind": "ricochet", "surface": "ground", "strike": [0, 0, -9], "graze": 5.0, "come_from": [-1, 0, 0], "player": [0, 0, -15], "window": 1.5},
 		"ricochet_stone": {"kind": "ricochet", "surface": "stone", "probe_from": [-3.72, 0.63, -24.69], "probe_to": [-2.5, 0.63, -28.5], "graze": 8.0, "run": 3.0, "player_off": 6.0, "window": 1.5},
-		"ricochet_iron": {"kind": "ricochet", "surface": "iron", "probe_from": [1.5, 0.45, -27.0], "probe_to": [1.5, 0.45, -30.0], "along": [1, 0, 0], "graze": 10.0, "run": 3.0, "player_off": 6.0, "window": 1.5},
+		"ricochet_iron": {"kind": "ricochet", "surface": "iron", "probe_from": [1.5, 0.45, -27.0], "probe_to": [1.5, 0.45, -30.0], "along": [1, 0, 0], "graze": 10.0, "run": 3.0, "player": [-2.0, 0, -33.5], "window": 1.5},
 		"dynamite_out_5": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [35, 0, -11], "tail": 6.0},
 		"dynamite_out_30": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [10, 0, -11], "tail": 6.0},
 		"dynamite_out_100": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [-60, 0, -11], "tail": 6.0},
