@@ -330,8 +330,10 @@ frozen until Sean names one.
   game's exterior woods since 2026-10-22 (studio10 by `promote_woods.py`; seams a pixel wide, sheen
   0.08, light in 4 steps; floor/framing/dark trim keep 7/3/2 strips; 25.7 MB of texture), with
   round 6b's stain sheet waiting on gameplay's frame (`docs/SESSION_PROMPTS.md`). **Round 7**: the
-  flat-colour probe says the paint rolls, not the light; next studio11 (broader flat shapes), then
-  the memory test (`build/run_mem.sh BASE`: 384 lossless vs 384/256/192 BC7) for Sean's pick. **The interior woodwork** (Sean's saloon picture, target 10;
+  flat-colour probe says the paint rolls, not the light; **7a** studio11 (broader flat shapes) doesn't
+  move the critic (0/6/2 vs 0/5/3), studio10 stays. **The memory test**: 384 BC7 looks the same as
+  lossless (25.7 -> 6.4 MB), 256 softens, 192 loses detail; waiting on Sean's pick (sheet
+  `2026-10-22/memory_test_pick.jpg`). Labs parked 2026-10-22 (`docs/briefs/parked-labs-2026-10-22.md`). **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game

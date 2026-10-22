@@ -65,7 +65,7 @@ Paid painting runs on Actions (openrouter.ai is blocked from the workspace): Peo
 scratch folder); sheets and the critic's crops go in `docs/screenshots/material_lab/<date>/`.
 The sets in git: studio1-5 (painted). Remade with no calls and ignored: recut256/512, fit512,
 studio1_384, studio5w, studio6, studio6p, studio7, studio8, studio8t (round 5 with no stains: copy studio8
-and drop its `weathering`), studio9, studio10 (`--cut`; their stain sheets in `assets/textures/weather/`, 9 on
+and drop its `weathering`), studio9, studio10, studio11 and the memory test's studio10_384, _384c, _256c, _192c (`--cut`; their stain sheets in `assets/textures/weather/`, 9 on
 re-made by the cut and ignored). Sean's pick sheet: `material_measure.py pick --cands=A:DIR,B:DIR2 --out=F.jpg`.
 
 ## The tests and how each is judged
@@ -246,6 +246,27 @@ board. What the critic reads as smoothly rolling light is the paint: the boards'
 the stains' soft blobs (the stains aren't in town; the paint is). Next: studio11, the boards'
 tone in broader, fewer flat shapes (`poster` [3, 10]), judged by the critic against 6b.
 
+**Round 7a** (2026-10-22, free; studio11 against studio10, both with the stains, golden hour, each
+wood on its part's view; sheet `2026-10-22/round7a_sheet.jpg`, critic `critic_round7a.md`): the
+critic 6b 0 SAME / 5 CLOSE / 3 DIFFERENT, 7a 0 / 6 / 2 (pine and dark trim up, saloon red down to
+DIFFERENT as "saturated salmon, rubber-stamp blotches"): one wood net, inside a pass's spread, so
+**it didn't move** and studio10 stays. In both, the rolling light is no longer its first
+difference (only the steps' smooth bevels, round 7c's); first now: grain and stains read as
+stamped decals, then the wood redder than the men at golden hour, crisp even seams and bevels,
+hard aliased dapples and shadow edges, steps and posts as CG or blank cream. Colour at golden
+hour (part views only): studio10 3 of 8 woods in the men's range, studio11 4 (saloon red in);
+detail 15.9-17.7 mm -> 17.0-18.2 mm (the men 5.5-7.1).
+
+**The memory test** (2026-10-22, free; studio10 with its stains at nought, as the game draws it,
+at 384 lossless (`studio10_384`) and VRAM-compressed `studio10_384c`, `_256c`, `_192c`; saloon red,
+floor, timber and fascia at golden hour; Sean's sheet `2026-10-22/memory_test_pick.jpg`, the blind
+check `critic_memory.md`): **384 BC7 can't be told from lossless** in any wood (a pixel diff of at
+most 4/255) at a quarter the memory (the town's exterior woods 25.7 -> 6.4 MB; the stand 10.76 ->
+3.62 MB measured); 256 BC7 (2.9 MB) first softens fine streaks and knots; 192 BC7 (1.6 MB) merges
+the grain into fewer patches and leaves small dark blocks in two stains. No colour shift or
+banding in any. Waiting on Sean's pick; the game's woods unchanged until then (his pick becomes
+`promote_woods.py`'s import with `compress/mode=2`, high quality, and the goldens re-approved).
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
@@ -282,9 +303,11 @@ end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 
 3. ~~Round 4~~ (done 2026-10-21, above): no wood DIFFERENT.
    ~~Round 5~~ (done 2026-10-21, above): timber and the deck SAME.
    ~~Round 6~~ (done 2026-10-22, above): pine's knots gone; banded light and flat tone steps don't
-   move the critic; Sean picked 6b, promoted. **Round 7**: the probe says the paint, not the light
-   (above); studio11's broader flat shapes next, then the steps' and posts' CG look (bevels,
-   sheen) and the siding's darks. **The interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
+   move the critic; Sean picked 6b, promoted. ~~Round 7~~ and ~~7a~~ (done 2026-10-22, above): the probe says
+   the paint, not the light; studio11's broader shapes don't move the critic. The memory test
+   made (384 BC7 looks the same at a quarter the memory), waiting on Sean. Next: 7b harder-edged
+   stains (once gameplay's frame is in), 7c the steps' and posts' CG look (bevels, sheen), 7d the
+   siding's darks; a palette-indexed wood (R8 index + palette) if memory matters more. **The interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
    stain for interior woodwork (the picture's timbers measure L* ~20 median, 5-10 in shadow, 35-60
    lamplit, C* ~20-30, hue ~45, one family) and a profile builder (chamfers, beads, mouldings,
    casings, raised panels, brackets, from `_worn_box`), judged under the saloon's lamps against
