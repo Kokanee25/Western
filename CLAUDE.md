@@ -67,6 +67,17 @@ the history in `docs/status/`.
   every part: read it before building something new (use or extend what's there, never make a
   second one), and update your rows in the merge that promotes one. The test saloon (the Systems
   Playground) is built only from parts marked "in the game".
+- **Sean's checklist is GitHub Issues** (Sean, 2026-10-21): when you need a decision only Sean
+  can make, open an issue labelled **`waiting on Sean`** whose first line is **"Answer in:"** and your
+  session's link (`https://claude.ai/code/session_…`, as in your commit trailer) and branch, so he
+  knows where to reply; then what to look at, with the sheet, video or PR linked, and the exact
+  choice instead of only writing it in a status
+  entry. When he answers (a comment or closing it), act on it and close it with a line saying what
+  you did. His own notes for later are issues labelled **`idea`**. **At the start of every session
+  and before each new step, read the open `waiting on Sean` issues and their comments:** Sean
+  answers there, often from his phone, and any session in the lane acts on an answer to its
+  lane's issue even if another session asked. Before asking him something, check the open issues
+  so it isn't asked twice.
 - **No copied code:** never copy code from other engines, games or repos into this one. Ideas from
   papers, talks and docs are fine; say where they came from in a comment. Anything used under a
   licence (code, sounds, fonts, models) is credited in `CREDITS.md`, and nothing whose licence
@@ -429,8 +440,10 @@ frozen until Sean names one.
   ground; brief `docs/briefs/blast-look.md`, `BlastCloud`, the lab's `--look` runs): no fireball, a
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
-  roof yet (`SmokeColumn`, the blot in the blast views). Next: the dig-able ground and craters (its
-  own brief; prompt in `docs/SESSION_PROMPTS.md`); then 3.3.
+  roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
+  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
+  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
+  (the chair) as members. Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
