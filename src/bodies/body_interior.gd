@@ -121,8 +121,8 @@ static func build(segment: StringName, vis: Node3D, anatomy: Anatomy) -> Node3D:
 		_capsule(root, "Wall", c[0], c[1], r, center, _openable(&"flesh", 91, true))
 	for st: Dictionary in anatomy.by_segment.get(segment, []):
 		var kind: StringName = st.kind
-		if kind == &"finger":
-			continue
+		if kind == &"finger" or kind == &"appendage":
+			continue  # (on the outside of him: an ear or the nose isn't drawn as an organ)
 		var shell: float = st.get(&"shell", 0.0)
 		if kind == &"bone" and shell > 0.0:
 			if st.get(&"cage", 0.0) > 0.0:

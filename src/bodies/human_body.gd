@@ -3052,13 +3052,15 @@ func shoot_off(id: StringName, dir: Vector3) -> void:
 	var at: Vector3 = ((st.a as Vector3) + (st.b as Vector3)) * 0.5 - center
 	# A hole of the part's size (open_wound's radius goes with the square root of its energy).
 	var r: float = PART_HOLE.get(id, 0.02)
-	open_wound(&"head", at, pow(r / OPEN_PER_SQRT_JOULE, 2.0) + 1.0, dir, &"")
+	# The torn root it leaves (tools/textures/paint_blood.py "face", by Gemini).
+	var ear := String(id).begins_with("ear")
+	open_wound(&"head", at, pow(r / OPEN_PER_SQRT_JOULE, 2.0) + 1.0, dir, &"ear_torn" if ear else &"nose_gone")
 	var head := parts[&"head"] as Node3D
 	var world := get_parent() as Node3D
 	if world == null:
 		return
 	var rb := RigidBody3D.new()
-	rb.name = "Ear" if String(id).begins_with("ear") else "Nose"
+	rb.name = "Ear" if ear else "Nose"
 	rb.mass = 0.02
 	rb.collision_layer = 0
 	rb.collision_mask = Layers.WORLD
@@ -3073,7 +3075,9 @@ func shoot_off(id: StringName, dir: Vector3) -> void:
 	mi.mesh = mesh
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(0.72, 0.5, 0.42)
-	m.albedo_texture = PixelArt.blood("wound_exit", 9, true, 16)
+	m.albedo_texture = PixelArt.blood("ear_piece" if ear else "wound_exit", 9, true, 16)
+	if ear:
+		m.albedo_color = Color.WHITE
 	mi.material_override = m
 	rb.add_child(mi)
 	rb.add_to_group(&"severed_parts")
@@ -3105,7 +3109,7 @@ func jaw_away(dir: Vector3) -> void:
 	var center := anatomy.segment_center(&"head")
 	var chin: Vector3 = ((st.a as Vector3) + (st.b as Vector3)) * 0.5 - center + Vector3(0, -0.012, -0.02)
 	# Past DESTROY_ENERGY: the region torn away and the bone in it thrown out (_smash_bone).
-	var o := open_wound(&"head", chin, DESTROY_ENERGY + 400.0, dir, &"gore_crater")
+	var o := open_wound(&"head", chin, DESTROY_ENERGY + 400.0, dir, &"jaw_gone")
 	# The torn edge on what's left of his chin and cheeks, not up over his eyes.
 	var edge: Variant = o.get("gore")
 	if edge != null and is_instance_valid(edge):
@@ -3857,6 +3861,9 @@ func open_wound_at(collider: Node3D, point: Vector3, energy: float) -> Dictionar
 ## The painted torn edge round an opening (tools/textures/paint_blood.py "gore", by Gemini): a
 ## shotgun's crater, a burst exit, a blast's peppering. Laid on the skin and clothes round the hole
 ## (the insides show in the hole itself) and grown with it. None with reduced gore.
+const UPRIGHT_LOOKS := [&"ear_torn", &"nose_gone", &"jaw_gone"]
+
+
 func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 	if look == &"" or Settings.reduced_gore:
 		return
@@ -3868,9 +3875,17 @@ func _gore_edge(segment: StringName, o: Dictionary, look: StringName) -> void:
 		d = _decal(vis, segment, o.at, 0.05, PixelArt.blood(String(look), 61, true, 32))
 		d.name = "Gore"
 		o.gore = d
-		# Turned about the hole by where it is, so two of the same look don't match (not from his
-		# dice: a look mustn't change how a fight goes).
-		d.basis = d.basis * Basis(Vector3.UP, _spin(o.at))
+		if UPRIGHT_LOOKS.has(look):
+			# A face's wound painted the right way up: its top toward the top of his head.
+			var n := d.basis.y.normalized()
+			var z := Vector3.DOWN - n * Vector3.DOWN.dot(n)
+			if z.length() > 0.2:
+				z = z.normalized()
+				d.basis = Basis(n.cross(z), n, z)
+		else:
+			# Turned about the hole by where it is, so two of the same look don't match (not from
+			# his dice: a look mustn't change how a fight goes).
+			d.basis = d.basis * Basis(Vector3.UP, _spin(o.at))
 	d.position = o.at
 	var side: float = o.radius * GORE_EDGE
 	d.size = Vector3(side, 0.08, side)
