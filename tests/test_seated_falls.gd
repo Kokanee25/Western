@@ -57,7 +57,9 @@ func test_back_legs_kicked_out_he_goes_over_backwards_onto_his_back() -> void:
 	# His front in his ragdoll chest's own frame, as he goes over (he faced -z).
 	var chest := man.parts[&"chest"] as Node3D
 	var front_local := chest.global_basis.orthonormalized().inverse() * Vector3.FORWARD
-	await physics_frames(240)
+	# Where he lies once he's down (before he gets up again: HumanBody.get_up).
+	await physics_frames(95)
+	check(man.limp, "still down")
 	var up := (chest.global_basis.orthonormalized() * front_local).normalized().dot(Vector3.UP)
 	check(up > 0.5, "he ends on his back (his chest's front %.2f up)" % up)
 	check(chest.global_position.z > start.z + 0.2, "behind where he sat (%.2f m)" % (chest.global_position.z - start.z))
