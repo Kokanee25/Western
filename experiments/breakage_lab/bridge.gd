@@ -8,7 +8,25 @@ const HELP := {
 	"breakage": "breakage SCENARIO [seed=N] [body=ID] [seconds=S] [out=DIR] [shots] [frames=T,T...] [novoxels] -> one breakage scenario in this street (it clears the town first): what broke and where, pieces, how far, what caught, faults, frame time; all of it in DIR/summary.json",
 	"breakage_list": "breakage_list -> the breakage lab's scenarios and the bodies it uses",
 	"breakage_aim": "breakage_aim TARGET [DISTANCE] [near=X,Y,Z] -> for 16 headings round a target, what the shooter's line meets first (picking a clear line for scenarios.json; near= tries another point, building space)",
+	"dig": "dig X Z RADIUS DEPTH -> take a bowl out of the ground there (Ground.take): the earth taken (m³) and the ground's height at the middle",
+	"ground": "ground X Z -> the ground's height there (Ground.height_at)",
 }
+
+
+func _cmd_dig(a: Array) -> Dictionary:
+	var g := Ground.of(get_tree())
+	if g == null or a.size() < 4:
+		return {"ok": false, "error": "dig X Z RADIUS DEPTH (and a Ground in the street)"}
+	var at := Vector3(float(a[0]), 0.0, float(a[1]))
+	var m3 := g.take(at, float(a[2]), float(a[3]))
+	return {"taken_m3": snappedf(m3, 0.0001), "height": snappedf(g.height_at(at.x, at.z), 0.001)}
+
+
+func _cmd_ground(a: Array) -> Dictionary:
+	var g := Ground.of(get_tree())
+	if g == null or a.size() < 2:
+		return {"ok": false, "error": "ground X Z"}
+	return {"height": snappedf(g.height_at(float(a[0]), float(a[1])), 0.001)}
 
 
 func _cmd_breakage(a: Array) -> Dictionary:

@@ -7,7 +7,9 @@ extends TestCase
 ## Every sound SynthSounds makes.
 const SOUNDS := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing", &"break_open", &"close",
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
-	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam"]
+	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report", &"report_big",
+	&"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone",
+	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
 ## Share of a sound's energy allowed below 40 Hz.
 const SUB_BASS_SHARE := 0.03
 ## Samples at full scale (or within a hair of it) allowed: none.
@@ -60,13 +62,14 @@ static func energy_below(s: PackedFloat32Array, rate: float, hz: float) -> float
 func test_every_sound_is_heard_and_never_clips() -> void:
 	for id: StringName in SOUNDS:
 		var s := _samples(id)
-		check(s.size() > SynthSounds.RATE * 0.01, "%s has samples (%d)" % [id, s.size()])
+		var rate := SynthSounds.get_sound(id).mix_rate
+		check(s.size() > rate * 0.01, "%s has samples (%d)" % [id, s.size()])
 		var clipped := 0
 		for v in s:
 			if absf(v) * 32767.0 >= CLIP:
 				clipped += 1
 		check_eq(clipped, 0, "%s never reaches full scale" % id)
-		var win := int(SynthSounds.RATE * 0.05)
+		var win := int(rate * 0.05)
 		var loudest := 0.0
 		var i := 0
 		while i + win <= s.size():
@@ -82,7 +85,7 @@ func test_nothing_under_forty_hertz() -> void:
 	var worst := ""
 	var worst_share := 0.0
 	for id: StringName in SOUNDS:
-		var share := energy_below(_samples(id), SynthSounds.RATE, 40.0)
+		var share := energy_below(_samples(id), SynthSounds.get_sound(id).mix_rate, 40.0)
 		if share > worst_share:
 			worst_share = share
 			worst = id
