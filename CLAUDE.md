@@ -449,9 +449,12 @@ frozen until Sean names one.
   dust jet out of the open side, a tan cloud dark at the root, a ground surge, chunks; wood it lights
   catches 1–4 s later; three blast goldens re-approved; a young fire has no smoke column over the
   roof yet (`SmokeColumn`, the blot in the blast views). **The dig-able ground** (blast-surfaces
-  step 3, branch `claude/gameplay-dig-ground`): brief `docs/briefs/dig-ground.md` written (a height
-  field proposed; eight decisions), waiting on Sean before step 1; the breakage lab reads kit props
-  (the chair) as members. Then 3.3.
+  step 3; brief `docs/briefs/dig-ground.md`, Sean's decisions in): `Ground` (flat slabs, 5 cm height
+  field tiles where dug, `take`/`put`, loose earth slides, saves the heights; #235, #237), the
+  crater (`Blast.crater`, 0.8 x cbrt(kg), clods lie down as earth; #245, build 2020), what stands
+  and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
+  a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
+  (the brief's "What art needs"). Then 3.3.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
