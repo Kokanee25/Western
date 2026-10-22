@@ -370,13 +370,12 @@ Everything in the saloon must be destructible (Sean, 2026-10-21): every object i
 What you have to build with:
 - Woods: the interior woods Sean picked (int_floor, int_timber for posts, beams and brackets, int_boards for wall boards, int_oak for wainscot, casings, rails and balusters; int_bar_top for the bar top), dark_oak and stair_runner (the hotel stair), and the exterior woods for the outside. A member takes one as its wood or as a look "wood:<name>".
 - Woodwork as members: PropKit.dress_member(member, draw, look) draws any member of your Structure as a moulding run along it ("profile": chamfered, rounded, bar_top, handrail, ogee, beaded, rect), a raised panel ("panel") or a board cut to an outline ("cut"), still a breakable member, one batch a look. Use it for the wainscot, door and window casings, chamfered posts, brackets, beams and the cornice; the shapes and sizes are in src/art/interior_stand.gd, which draws them as plain meshes (a reference, not parts).
-- Kit props: PropKit.spawn(&"bar") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair (PropLibrary.spawn(&"chair") hands it out); the kit card table (in the kit, waiting on Sean's look).
+- Kit props: PropKit.spawn(&"bar") (in int_oak as it is: Sean, 2026-10-21, "everything looks great") (a 3 m section; line sections up for a longer bar) and PropKit.spawn(&"back_bar") (2.5 m, mirrors of glass that shatter), each turned to face the room, in place of SaloonBuilding's hand-built bar and back bar; the kit chair and card table (PropLibrary.spawn(&"chair") and (&"card_table") hand them out; Sean passed both, 2026-10-21).
 - Structure parts: Railing (balconies and the stair's rails, breakable, men go through them by BodyImpacts), the stair with its walking ramp, glass members for windows (they shatter), doors, the floor on joists, Fittings (what stands on a member falls when it goes; a lamp smashes and spills burning oil), OilLamp for every lamp.
 
 Not yet destructible, so not in the saloon until it is (say which you need first, and to whom):
 - The prop lab (kit versions): bar stools, the piano, barrels, spittoons, whiskey bottles (glass members that shatter; the shelves' bottles and the bottle wall, saloon_dressing.gd, are scenery today), tin cups, the deer head, framed paintings, wall sconces (an OilLamp's model stays whole when it smashes).
 - Gameplay: a prop knocked by a ball or a body doesn't move (Fittings moves it only when its support goes); what stands on a shelf adds no weight (extra_load unused); furniture_frame members are never load-checked.
-- Sean: the kit card table's look; whether the bar and back bar take a lighter oak (the critic: darker than the walls).
 ```
 
 ## Building lab for real: the saloon, then the block (Phase 4, after Gate C) [Salt Creek]
