@@ -837,6 +837,9 @@ func _play(id: StringName, at: Vector3) -> void:
 	if not is_inside_tree():
 		return
 	Events.noise.emit(at, 60.0, &"timber", null)
+	if GameAudio.enabled():
+		GameAudio.play(self, id, at, {"unit_size": 10.0, "limit": GameAudio.t().breaking_limit})
+		return
 	var p := AudioStreamPlayer3D.new()
 	p.stream = SynthSounds.get_sound(id)
 	p.unit_size = 10.0

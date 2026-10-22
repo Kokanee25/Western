@@ -36,7 +36,9 @@ the history in `docs/status/`.
     `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
     each man before Tripo is paid. **New men are made by `tools/characters/RECIPE.md`** (the
     Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
-    with Sean's OK. The art session judges each new man in the shots and says what's off; the
+    with Sean's OK. Since 2026-10-20 men are made in the Character Studio (`Kokanee25/saltcreek-characters`,
+    attach it); its paid calls run on GitHub, not with keys in the session: a request file in its
+    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). The art session judges each new man in the shots and says what's off; the
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
@@ -324,18 +326,20 @@ frozen until Sean names one.
   **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
   the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Round 6** (2026-10-22,
   free; studio9/10): banded light on the woods (`light_bands`), pine's knots soft (`knots`), flat
-  tone steps (`poster`): knots gone, otherwise the critic unmoved (its first: the wood's light rolls
-  smoothly; next, find where from). **Waiting on Sean:** A/B per wood on
-  `docs/screenshots/material_lab/2026-10-22/pick_exterior.jpg` (round 5 as the town draws it); then
-  `promote_woods.py --set=studio8 --as=w:w,... --extra=w:edge_aa=1,w:specular=0.08` and the goldens. **The interior woodwork** (Sean's saloon picture, target 10;
+  tone steps (`poster`): knots gone, otherwise the critic unmoved. **Sean picked 6b** (#217): the
+  game's exterior woods since 2026-10-22 (studio10 by `promote_woods.py`; seams a pixel wide, sheen
+  0.08, light in 4 steps; floor/framing/dark trim keep 7/3/2 strips; 25.7 MB of texture), with
+  round 6b's stain sheet waiting on gameplay's frame (`docs/SESSION_PROMPTS.md`). **Round 7**: the
+  flat-colour probe says the paint rolls, not the light; next studio11 (broader flat shapes), then
+  the memory test (`build/run_mem.sh BASE`: 384 lossless vs 384/256/192 BC7) for Sean's pick. **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
   (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
   kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
   DIFFERENT, too dark against the walls). The mirrors painted (`mirror.gdshader`, 2026-10-22: the
-  critic DIFFERENT -> CLOSE). **Next: Sean's call** on a lighter oak for the fixtures; the saloon
-  session spawns them. Worn treads on both stairs (#176). The hotel's oak
+  critic DIFFERENT -> CLOSE). The fixtures in a lighter oak, `int_oak_light` (Sean, #218); the
+  saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -343,8 +347,8 @@ frozen until Sean names one.
 - **Fire flipbooks** (2026-10-21, branch `claude/art-fire-flipbooks`, `docs/briefs/fire-look.md` "The
   next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
   bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
-  `Settings.fire_flipbooks` (off; look panel N, `--fire-flipbooks`). Waiting on Sean's A/B
-  (`docs/screenshots/fire/flipbooks_ab.mp4`). Next: firelight's look (step 5), then the painted pass
+  `Settings.fire_flipbooks`: the default since 2026-10-22 (Sean: "keep flames for now", #216; look
+  panel N turns them off; saved as `flipbook_fire`). Next: firelight's look (step 5), then the painted pass
   after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
@@ -431,6 +435,10 @@ frozen until Sean names one.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
+- The perception lab (2026-10-22, `experiments/perception_lab/`, branch `claude/gameplay-perception-lab`):
+  bench and baseline (117 judged; top five in its `baseline/baseline.md`); fix 1 merged (#263, #240: a
+  heard sound doesn't name its maker; 74 -> 88 as expected, false 23 -> 9; `results/`). Next: fix 2,
+  lamplight at night (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,

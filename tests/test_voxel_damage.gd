@@ -188,4 +188,4 @@ func test_without_voxel_damage_holes_are_drawn_as_before() -> void:
 	check(board.voxels == null, "not voxelised")
 	check(board.holes.size() == 1 and board.holes[0].through, "a drawn hole, through")
 	var mat := (board.get_child(0) as MeshInstance3D).material_override as ShaderMaterial
-	check(mat != null and mat.shader == StructureMember.HOLE_SHADER, "drawn by the hole shader")
+	check(mat != null and PixelArt.is_hole_shader(mat.shader), "drawn by the hole shader")
