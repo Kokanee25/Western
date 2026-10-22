@@ -71,6 +71,7 @@ var human := false
 var _count := -1.0
 var _you_at := Vector3.INF  # where you last stood still
 var _you_still := 0.0
+var _told_t := -99.0  # a friend last shouted where you are
 var _turned := false  # they've turned on you, and when
 var _turned_at := 0.0
 const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shout"]
@@ -460,6 +461,7 @@ func _watch_men(_delta: float) -> void:
 		# His line to you, ten times a second (for the unfair check).
 		if Engine.get_physics_frames() % 6 == gang_ids.find(m.id) and _in_sight(b, player):
 			m._line_t = t
+		_watch_knowing(m, b, pv)
 		if b.tactic == OutlawBrain.Tactic.MOVING and b._stuck > 0.3:
 			m.stuck_s = snappedf(float(m.get("stuck_s", 0.0)) + _delta, 0.001)
 		# Where his fear came from: each rise put down to what happened to him this tick or the
@@ -654,6 +656,7 @@ func _on_bullet_hit(info: Dictionary) -> void:
 			_note("hit", "you hit in the %s by %s" % [info.get("segment", "?"), _who(shooter)])
 		elif victim in gang:
 			_men[_mid(victim)].hits_taken += 1
+			_men[_mid(victim)]._ball_t = t
 			_fright(victim, "hit")
 			if shooter == player:
 				_you.pellet_hits = int(_you.get("pellet_hits", 0)) + 1
@@ -697,6 +700,8 @@ func _on_near_miss(person: Node, shooter: Node, dist: float, _at: Vector3, _spee
 	elif person in gang:
 		_men[_mid(person)].near_misses_on_him += 1
 		_fright(person, "near miss")
+		if shooter == player:
+			_men[_mid(person)]._ball_t = t  # the ball tells him which way
 
 
 ## A clear line from his eyes to your head, chest or hips (the scenery only, nobody's body).
@@ -710,6 +715,34 @@ func _in_sight(b: OutlawBrain, who: Player) -> bool:
 		if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.2:
 			return true
 	return false
+
+
+## Unseen, his idea of where you are jumps further than you could have walked since he last knew
+## (3 m and 2 m a second, the perception lab's reckoning), with no friend shouting it and no ball
+## of yours past him: he put a name to a sound he couldn't place (the perception lab's leak).
+func _watch_knowing(m: Dictionary, b: OutlawBrain, pv: Dictionary) -> void:
+	if b.senses.sees(player):
+		pv.known_at = player.global_position
+		pv.known_t = t
+		pv.heard_time = float((b.senses.known.get(player, {}) as Dictionary).get("heard_time", -INF))
+		return
+	var k: Dictionary = b.senses.known.get(player, {})
+	var ht := float(k.get("heard_time", -INF))
+	if ht <= float(pv.get("heard_time", -INF)) + 0.0001:
+		return
+	pv.heard_time = ht
+	var at: Vector3 = k.get("heard_pos", Vector3.INF)
+	var was: Vector3 = pv.get("known_at", Vector3.INF)
+	var reach := 3.0 + 2.0 * (t - float(pv.get("known_t", t)))
+	var jump := Vector2(at.x - was.x, at.z - was.z).length() if was != Vector3.INF else 0.0
+	var told := t - _told_t < 1.0 or t - float(m.get("_ball_t", -99.0)) < 1.0
+	m.placed_unseen = int(m.get("placed_unseen", 0)) + 1
+	if was != Vector3.INF:
+		m.worst_overshoot_m = snappedf(maxf(float(m.get("worst_overshoot_m", -99.0)), jump - reach), 0.1)
+	if jump > reach and not told and t - float(m.get("_line_t", 0.0)) > NO_LINE:
+		_unfair(m, "%s placed you %.0f m from where he last knew you (more than you could walk), unseen and untold" % [m.id, jump])
+	pv.known_at = at
+	pv.known_t = t
 
 
 func _unfair(m: Dictionary, text: String) -> void:
@@ -752,6 +785,8 @@ func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) ->
 				_fright(other, "a friend's shout (%s)" % kind)
 	var m: Dictionary = _men[_mid(speaker)]
 	m.callouts[String(kind)] = int(m.callouts.get(String(kind), 0)) + 1
+	if _about_you(_about) and kind in [&"spotted", &"flank", &"hit", &"covering"]:
+		_told_t = t  # where you are, shouted for his friends to hear
 	if kind == &"spotted" and _about_you(_about) and t - float(m.get("_line_t", 0.0)) > NO_LINE:
 		_unfair(m, "%s called he'd spotted you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 	if kind == &"flank":
@@ -826,6 +861,7 @@ func _finish(why: String) -> void:
 		var m: Dictionary = _men[id]
 		m.erase("_cover")
 		m.erase("_line_t")
+		m.erase("_ball_t")
 		outcomes[m.outcome] = int(outcomes.get(m.outcome, 0)) + 1
 	var ending := why
 	if why == "gang_out":
