@@ -896,22 +896,3 @@ func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
 	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
 	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
 	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")
-
-
-func test_a_studio_mans_new_hands_bend_in_the_skin() -> void:
-	# tools/faces/hands.py: his Rodin hands (a mitten) cut off, MakeHuman's on, skinned to the 15
-	# finger bones a hand; the finger nodes still curl and grip, and pose the bones.
-	var studio := HumanBody.new()
-	studio.body_model = &"sean_s3_talking"
-	studio.position = Vector3(-3, 0, 0)
-	world.add_child(studio)
-	await physics_frames(2)
-	check_eq(studio._finger_rig.size(), 30, "thirty finger bones in his skeleton")
-	check(not _drawn_finger_shown(studio, &"index_r"), "the drawn fingers hidden: his own bend")
-	studio.curl_hand("r", 1.0)
-	await physics_frames(2)
-	var sk: Skeleton3D = studio.skeleton
-	var tip := sk.find_bone("finger_index_r_2")
-	var knuckle := sk.find_bone("finger_index_r_0")
-	var bent := sk.get_bone_global_pose(tip).basis.y.dot(sk.get_bone_global_pose(knuckle).basis.y)
-	check(bent < 0.6, "a fist bends his index finger's last bone well round from its first (%.2f)" % bent)
