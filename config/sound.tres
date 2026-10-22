@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SoundTuning" format=3]
+
+[ext_resource type="Script" path="res://src/audio/sound_tuning.gd" id="1_tuning"]
+
+[resource]
+script = ExtResource("1_tuning")
+room_size = 0.6
+room_damping = 0.45
+room_wet = 0.5
