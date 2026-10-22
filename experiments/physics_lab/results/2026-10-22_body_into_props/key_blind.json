@@ -1,0 +1,52 @@
+{
+ "P_barrel_ball_left": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_001.png"
+ },
+ "P_chairs_ball_front": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_002.png"
+ },
+ "P_table_ball_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_003.png"
+ },
+ "P_table_blackout": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_004.png"
+ },
+ "Y_chair_blackout_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_005.png"
+ },
+ "Y_chair_shove_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_006.png"
+ },
+ "Y_table_charge_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_007.png"
+ },
+ "Y_table_dead_onto": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_008.png"
+ },
+ "Y_table_run_dead": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_009.png"
+ },
+ "Y_table_shove_front": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_010.png"
+ }
+}
