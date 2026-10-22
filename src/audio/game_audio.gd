@@ -55,7 +55,8 @@ static func gunshot(host: Node, at: Vector3, big := false) -> void:
 
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
 ## panning (1), delay (true: distance / the speed of sound; an image source is already the reflected
-## path's length away), walls (true: the room and the walls by where it is).
+## path's length away), walls (true: the room and the walls by where it is), normal (the face a sound
+## made on a surface came off).
 static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStreamPlayer3D:
 	if host == null or not host.is_inside_tree():
 		return null
@@ -74,7 +75,10 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	p.attenuation_filter_cutoff_hz = air_cutoff(d)
 	if bool(o.get("walls", true)) and ears:
 		var inside := inside(holder, at)
-		var blocked := walled(holder, ears.global_position, at)
+		# A sound made on a surface (a ball striking it) is judged from a hand's breadth off it, or
+		# the surface itself would be the wall.
+		var heard_from: Vector3 = at + (o.get("normal", Vector3.ZERO) as Vector3) * 0.25
+		var blocked := walled(holder, ears.global_position, heard_from)
 		p.set_meta(&"inside", inside)
 		p.set_meta(&"walled", blocked)
 		p.bus = (&"RoomMuffled" if blocked else &"Room") if inside else (&"Muffled" if blocked else &"Master")

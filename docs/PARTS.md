@@ -218,8 +218,9 @@ breaks; a prop knocked by a ball or a body doesn't fall (only losing its support
 
 | Part | Where it lives | Proven by | Status |
 | --- | --- | --- | --- |
-| Placed sound: a sound heard from where it happened (late by distance / 343 m/s, the air's loss of highs, the Room bus inside, Muffled through a wall, the slap off the fronts outdoors) | `src/audio/game_audio.gd` (`GameAudio.play`), `config/sound.tres` (`SoundTuning`) | the sound lab (`experiments/sound_lab/`, `results/2026-10-22_gunshots/`), `tests/test_game_audio.gd` | on a branch (gunshots use it; impacts, blasts, breaking, fire next) |
-| Gunshot: the black-powder report and its roll, by gun | `GameAudio.gunshot`, `SynthSounds` `report`, `report_big`, `rolling`, `rolling_big` | the sound lab | on a branch, waiting on Sean's ears |
+| Placed sound: a sound heard from where it happened (late by distance / 343 m/s, the air's loss of highs, the Room bus inside, Muffled through a wall, the slap off the fronts outdoors) | `src/audio/game_audio.gd` (`GameAudio.play`), `config/sound.tres` (`SoundTuning`) | the sound lab (`experiments/sound_lab/`, `results/2026-10-22_gunshots/`), `tests/test_game_audio.gd` | in the game (guns, passes, strikes, ricochets use it; blasts, breaking, fire next) |
+| Gunshot: the black-powder report and its roll, by gun | `GameAudio.gunshot`, `SynthSounds` `report`, `report_big`, `rolling`, `rolling_big` | the sound lab (`results/2026-10-22_gunshots/`) | in the game, waiting on Sean's ears |
+| A ball going by (snaps only faster than sound, else `whirr`; louder the closer), striking (`impact_wood/dirt/metal/stone`) and glancing off (`glance_*`) by surface; one per charge | `ImpactEffects`, `SynthSounds`, `SoundTuning.subsonic_snaps` | the sound lab (`results/2026-10-22_strikes/`), `test_ricochet.gd`, `test_composure.gd` | on a branch, waiting on Sean's ears |
 | Sounds made in code | `src/audio/synth_sounds.gd` | `tests/test_sounds.gd` (heard, never clips, nothing under 40 Hz) | in the game |
 
 ## The Systems Playground

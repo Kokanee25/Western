@@ -8,7 +8,8 @@ extends TestCase
 const SOUNDS := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing", &"break_open", &"close",
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
 	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report", &"report_big",
-	&"rolling", &"rolling_big"]
+	&"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone",
+	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
 ## Share of a sound's energy allowed below 40 Hz.
 const SUB_BASS_SHARE := 0.03
 ## Samples at full scale (or within a hair of it) allowed: none.
