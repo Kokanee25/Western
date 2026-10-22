@@ -156,7 +156,9 @@ func test_a_set_with_a_stain_sheet_weathers_its_woods() -> void:
 	check(m.get_shader_parameter(&"weather_tex") is Texture2D, "with its stain sheet")
 	check(m.get_shader_parameter(&"edge_aa") == true, "seams a pixel wide")
 	var g := PixelArt.material(load("res://assets/textures/woods/floor_b0.png"))
-	check(g.get_shader_parameter(&"use_weather") != true, "the game's woods carry no stains (no frame on their members yet)")
+	# Since round 6b (2026-10-22) the game's woods carry the stain sheet too; a member is stained only
+	# where its mesh carries the frame (gameplay's, not yet), so the town draws as before.
+	check(g.get_shader_parameter(&"use_weather") == true and g.get_shader_parameter(&"weather_tex") is Texture2D, "the game's woods have round 6b's stain sheet")
 
 
 func test_the_solid_oak_stair_can_be_stood_and_fallen_on() -> void:

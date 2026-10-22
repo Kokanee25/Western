@@ -187,5 +187,30 @@
    "promoted_from": "mlab_studio_int/dark_oak",
    "regraded_from": "int_oak, median L* 24.2 -> 33.0"
   }
+ },
+ "weathering": {
+  "metres": 3.0,
+  "tones": 0,
+  "mud": "#8a7560",
+  "streak": "#a69b8e",
+  "grime": "#8a7866",
+  "bleach": "#c9c3b8",
+  "amounts": [
+   0.85,
+   0.6,
+   0.55,
+   0.45
+  ],
+  "reach": [
+   0.6,
+   1.1,
+   1.0,
+   0.16
+  ],
+  "multiply": true,
+  "bleach_walls": 0.0,
+  "mud_cover": 0.7,
+  "sheet": "res://assets/textures/weather/stains_studio8.png",
+  "note": "Round 6b's stains (Sean picked 6b, 2026-10-22): drawn only on members whose mesh carries the frame (CUSTOM0/1, gameplay's: docs/SESSION_PROMPTS.md 'Stains on the town's buildings'); the sheet is studio8's, the same procedural sheet studio10 cuts"
  }
 }
