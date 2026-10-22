@@ -10,6 +10,8 @@ extends Node
 ## the well), he joins the bucket line for that water (BucketLine: a man at the water filling,
 ## buckets handed up to a man at the fire who throws them, the empties handed back) till it's out,
 ## unless it's grown past saving.
+## All quiet, he may have a chore to see to (`chore`: the barkeep wipes his bar, WipeBar): it has
+## him while he's free, and stops the moment he isn't.
 ## Child of a HumanBody (with no gun).
 
 enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
@@ -33,6 +35,8 @@ var post := Vector3.INF
 var faces := Vector3.INF
 ## How he takes his ease at his post when all's calm (`sit` on a porch bench, or `stand`).
 var rest_pose := &"stand"
+## What he does with himself when all's quiet (WipeBar), or null.
+var chore: WipeBar
 var mood := Mood.CALM
 var fear := 0.0
 var senses: Senses
@@ -118,13 +122,15 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 		return
 	var to_me := target == body
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
-	# The men who troubled him being run off, taken or shot: whoever did it did him a turn.
-	if troubled_by.has(actor) and kind in [&"back_down", &"surrender"] and (target is Player or kind == &"surrender"):
+	# The men who troubled him being run off, taken or shot: whoever did it did him a turn, if he
+	# saw it.
+	if troubled_by.has(actor) and kind in [&"back_down", &"surrender"] and (target is Player or kind == &"surrender") \
+			and senses.sees(actor):
 		if target is Player:
 			helped_by = target
 		elif _against_player(actor):
 			helped_by = _player()
-	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"]:
+	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"] and senses.sees(actor):
 		helped_by = actor
 	if not to_me:
 		if loud and actor is Node3D and (actor as Node3D).global_position.distance_to(body.global_position) < 25.0:
@@ -435,6 +441,7 @@ func _physics_step(delta: float) -> void:
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
+		_chore(delta, false)
 		return
 	_aimed -= delta
 	_cower -= delta
@@ -445,6 +452,7 @@ func _physics_step(delta: float) -> void:
 		if not is_instance_valid(who):
 			troubled_by.erase(who)
 	if _aimed > 0.0 and _aimed_by and is_instance_valid(_aimed_by):
+		_chore(delta, false)
 		mood = Mood.HANDS_UP
 		_calm_for = 0.0
 		body.face(_aimed_by.global_position + Vector3.UP * 1.5)
@@ -454,11 +462,13 @@ func _physics_step(delta: float) -> void:
 			_say_again = _rng.randf_range(5.0, 8.0)
 		return
 	if _cower > 0.0:
+		_chore(delta, false)
 		mood = Mood.COWERING
 		_calm_for = 0.0
 		body.set_pose(&"cower")
 		return
 	if _flinch > 0.0:
+		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
 	if mood in [Mood.HANDS_UP, Mood.COWERING]:
@@ -468,6 +478,8 @@ func _physics_step(delta: float) -> void:
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM
+	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked)):
+		return
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
 		body.set_pose(&"stand")
 		body.walk_to(post, 1.2, delta)
@@ -476,6 +488,11 @@ func _physics_step(delta: float) -> void:
 	_thank(delta)
 	if faces != Vector3.INF and not (helped_by and not thanked):
 		body.face(faces)
+
+
+## His chore, if he has one: true while it has him this tick. Not `free`, it stops.
+func _chore(delta: float, free: bool) -> bool:
+	return chore != null and chore.step_chore(delta, free)
 
 
 ## Once it's quiet and the man who ran them off is near enough to hear it.
