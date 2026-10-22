@@ -2,19 +2,22 @@ name: Test and build
 
 # Every push runs the headless tests. Pushes to main also export Windows, macOS, Linux and Web
 # builds, attach the desktop builds to a GitHub Release, and publish the web build to GitHub Pages.
+# No pull_request trigger: every PR branch is ours and its push run already shows on the PR, so a
+# second run per push only doubled the queue (Sean, 2026-10-21).
 
 on:
   push:
     branches: ["**"]
-  pull_request:
   workflow_dispatch:
 
 env:
   GODOT_VERSION: "4.7.2"
 
+# A newer push to a branch cancels its older run, except on main: every merge's build finishes,
+# so each merge gets its build number and green check.
 concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+  group: build-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'branch' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
