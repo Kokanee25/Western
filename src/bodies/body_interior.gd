@@ -10,6 +10,7 @@ class_name BodyInterior
 const SKIN_SHADER := preload("res://src/bodies/shaders/body_skin.gdshader")
 const SKIN_DOUBLE_SHADER := preload("res://src/bodies/shaders/body_skin_double.gdshader")
 const INSIDE_SHADER := preload("res://src/bodies/shaders/body_inside.gdshader")
+const ORGAN_SHADER := preload("res://src/bodies/shaders/body_organ.gdshader")
 const MAX_OPENINGS := 8
 
 const COLOURS := {
@@ -82,6 +83,18 @@ static func _warm_step(tree: SceneTree) -> void:
 	_warm_queue.pop_front().call()
 
 
+## A tissue under the skin, drawn only where it's seen through an opening (body_organ.gdshader).
+static func _organ(key: StringName, seed: int) -> ShaderMaterial:
+	var base := _tex_material(key, seed)
+	var m := ShaderMaterial.new()
+	m.shader = ORGAN_SHADER
+	m.set_shader_parameter(&"albedo_tex", base.albedo_texture)
+	m.set_shader_parameter(&"uv_scale", Vector2(base.uv1_scale.x, base.uv1_scale.y))
+	m.set_shader_parameter(&"roughness_v", base.roughness)
+	m.set_shader_parameter(&"reduced_gore", Settings.reduced_gore)
+	return m
+
+
 ## A shell that can be opened: the flesh wall (seen from inside) or a hollow bone (from outside).
 static func _openable(key: StringName, seed: int, inside: bool) -> ShaderMaterial:
 	var base := _tex_material(key, seed)
@@ -125,7 +138,7 @@ static func build(segment: StringName, vis: Node3D, anatomy: Anatomy) -> Node3D:
 				key = &"heart"
 			elif st.id == &"liver" or st.id == &"spleen":
 				key = st.id
-		var mat := _tex_material(key, 95 + COLOURS.keys().find(key))
+		var mat := _organ(key, 95 + COLOURS.keys().find(key))
 		# The skin is low-poly: its flat faces sit up to a centimetre inside the true curve, so
 		# anything close under it is drawn a little deeper, or it would show through.
 		var pa := _pull_in(anatomy, segment, st.a, st.radius)
@@ -266,7 +279,7 @@ static func _capsule(root: Node3D, n: String, a: Vector3, b: Vector3, r: float, 
 static func apply(vis: Node3D, openings: Array[Vector4], reduced_gore: bool) -> void:
 	for mi: MeshInstance3D in vis.find_children("*", "MeshInstance3D", true, false):
 		var m := mi.material_override as ShaderMaterial
-		if m == null or not (m.shader == SKIN_SHADER or m.shader == INSIDE_SHADER):
+		if m == null or not (m.shader == SKIN_SHADER or m.shader == INSIDE_SHADER or m.shader == ORGAN_SHADER):
 			continue
 		var to_mesh := (vis.global_transform.affine_inverse() * mi.global_transform).affine_inverse()
 		var arr := PackedVector4Array()
