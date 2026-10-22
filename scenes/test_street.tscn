@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
+[ext_resource type="Script" path="res://src/world/ground.gd" id="4_ground_script"]
 [ext_resource type="Script" path="res://src/structures/false_front_building.gd" id="5_store"]
 [ext_resource type="Script" path="res://src/structures/boardwalk.gd" id="6_boardwalk"]
 [ext_resource type="Script" path="res://src/structures/hitching_rail.gd" id="7_rail"]
@@ -80,8 +81,6 @@ size = Vector2(600, 600)
 subdivide_width = 8
 subdivide_depth = 8
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
-
 [node name="TestStreet" type="Node3D"]
 
 [node name="TownLayout" type="Node" parent="."]
@@ -118,12 +117,10 @@ moon = NodePath("../Moon")
 world_environment = NodePath("../WorldEnvironment")
 
 [node name="Ground" type="StaticBody3D" parent="."]
+script = ExtResource("4_ground_script")
 
 [node name="Mesh" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("PlaneMesh_ground")
-
-[node name="Collision" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("WorldBoundaryShape3D_ground")
 
 [node name="Store" type="Node3D" parent="."]
 script = ExtResource("5_store")
