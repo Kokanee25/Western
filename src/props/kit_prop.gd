@@ -29,6 +29,9 @@ const CHECK_EVERY := 0.25
 const SETTLE_FRAMES := 4
 ## Below the bottom of a foot, how far down it looks for what it stands on (m).
 const FOOT_REACH := 0.03
+## A nail's reach into the wall behind a hung prop (m): through the panelling into a stud, or
+## where the panels leave a gap (the saloon's, either side of its door), the siding behind.
+const WALL_REACH := 0.15
 ## Put down, it settles onto what's under it up to SET_DOWN below its feet (or SET_LIFT into it).
 const SET_DOWN := 0.2
 const SET_LIFT := 0.08
@@ -113,6 +116,12 @@ func _physics_step(delta: float) -> void:
 	_check_t = CHECK_EVERY
 	if seated and (not is_instance_valid(seated) or seated.get(&"limp")):
 		_clear_seat()
+	# Hung: it holds while any nail's still in something (its board burnt through, shot out or
+	# carried off with the wall, the last nail lets go).
+	if hung():
+		if not _feet.keys().any(func(m: StructureMember) -> bool: return not m.broken and _has_footing(m)):
+			go_loose()
+		return
 	# A foot with nothing under it (its board gone, or over a boardwalk's edge or a gap between its
 	# boards as it was put down) isn't a foot: it stands if its weight's over the feet that are left.
 	for m: StructureMember in _feet:
@@ -124,10 +133,20 @@ func _physics_step(delta: float) -> void:
 # --- Joints: what each member is fixed to at either end -----------------------------------------
 
 var _ends := {}  # StructureMember -> [ids joined at its one end, ids at its other]
+var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a hung prop's
 
 
 func infer_supports() -> void:
 	super.infer_supports()
+	# Hung on nails (a picture, a mount): what the nails go through is held as if it stood on the
+	# ground, and everything else hangs from it.
+	_nailed.clear()
+	for nail: Variant in definition.get("hangs", {}).get("nails", []):
+		var p := PropKit.vec(nail)
+		for m in get_members():
+			if m.structure_aabb().grow(0.01).has_point(p):
+				m.grounded = true
+				_nailed.get_or_add(m, []).append(p)
 	_ends.clear()
 	for m in get_members():
 		var a: Array[StringName] = []
@@ -229,6 +248,9 @@ func _find_footing() -> void:
 	var own: Array[RID] = []
 	for m in get_members():
 		own.append(m.get_rid())
+	if hung():
+		_find_nails(space, own)
+		return
 	if not _set_down(space, own):
 		return  # what it stands on is a kit prop still settling itself: next frame
 	_footed = true
@@ -259,6 +281,37 @@ func _find_footing() -> void:
 		_feet[m] = under
 	# Nothing at all under any foot: it was put down in the air.
 	if not _feet.is_empty() and _feet.values().all(func(u: Array) -> bool: return u.is_empty()):
+		go_loose()
+
+
+## Hung on nails (its file's "hangs"), not stood on feet.
+func hung() -> bool:
+	return definition.has("hangs")
+
+
+## What each nail goes into behind it (the wall's boards and studs, up to WALL_REACH back): its
+## "feet". Nothing behind any nail: it was hung on air, and falls.
+func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
+	_footed = true
+	_feet.clear()
+	for m: StructureMember in _nailed:
+		var into := []
+		for p: Vector3 in _nailed[m]:
+			var q := PhysicsShapeQueryParameters3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(0.03, 0.03, WALL_REACH)
+			q.shape = box
+			q.transform = Transform3D(global_basis, global_transform * Vector3(p.x, p.y, -WALL_REACH * 0.5 + 0.005))
+			q.collision_mask = Layers.WORLD
+			q.exclude = own
+			for hit in space.intersect_shape(q, 8):
+				var c: Object = hit.collider
+				if c is StructureMember:
+					into.append([c, (c as StructureMember).global_position])
+				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
+					into.append([null, Vector3.ZERO])
+		_feet[m] = into
+	if _feet.values().all(func(u: Array) -> bool: return u.is_empty()):
 		go_loose()
 
 
@@ -371,6 +424,8 @@ func _check_balance() -> void:
 		loose = true
 		_unseat()
 		return
+	if hung():
+		return  # it hangs from its nails (whatever's left on them: _physics_step)
 	var hull := footprint()
 	var c := centre_of_weight()
 	# A seated man sways (a few centimetres: breathing, reaching, flinching at the shot): a balance
@@ -557,6 +612,8 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 		if j <= 0.0:
 			continue
 		var push := (m.global_position - at).normalized() * j * Blast.shielding(self, at, m.global_position, [m.get_rid()])
+		if hung():
+			push = _off_the_wall(push)
 		pushes[m] = push
 		total += push
 	var kgs := mass()
@@ -579,6 +636,15 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 			var m := get_member(id)
 			if pushes.has(m):
 				rb.apply_impulse(pushes[m] * scale, at_m[id] - rb.global_position)
+
+
+## What of a push can take a hung prop off its nails: out from the wall and up (the wall takes
+## what drives it in, the nails what drives it down).
+func _off_the_wall(push: Vector3) -> Vector3:
+	var local := global_basis.inverse() * push
+	local.z = maxf(local.z, 0.0)
+	local.y = maxf(local.y, 0.0)
+	return global_basis * local
 
 
 # --- A seated man --------------------------------------------------------------------------------

@@ -476,8 +476,8 @@ static func cup(root: Node3D) -> void:
 static func _deer_head(root: Node3D) -> void:
 	var plaque := dark_wood()
 	_box(root, "Plaque", Vector3(0.34, 0.44, 0.03), Vector3(0, 0, 0.015), plaque)
-	var hide := _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
-	var dark := _mat("hide_dark", PixelArt.dirt("prop_hide_dark", Color(0.18, 0.12, 0.08), 239))
+	var hide := hide()
+	var dark := hide_dark()
 	_box(root, "Neck", Vector3(0.2, 0.26, 0.2), Vector3(0, -0.04, 0.12), hide, Basis(Vector3.RIGHT, -0.35))
 	_box(root, "Head", Vector3(0.15, 0.15, 0.2), Vector3(0, 0.07, 0.28), hide, Basis(Vector3.RIGHT, 0.25))
 	_box(root, "Muzzle", Vector3(0.09, 0.08, 0.14), Vector3(0, 0.01, 0.41), hide, Basis(Vector3.RIGHT, 0.45))
@@ -489,7 +489,7 @@ static func _deer_head(root: Node3D) -> void:
 
 
 static func _antler(root: Node3D, base: Vector3, side: float) -> void:
-	var bone := _mat("antler", PixelArt.painted("prop_antler", Color(0.78, 0.7, 0.55), Color(0.45, 0.36, 0.25), 241, 0.3))
+	var bone := antler()
 	# Main beam: up, out and back, curving forward at the top, with tines off its front.
 	var pts := [base, base + Vector3(side * 0.1, 0.12, -0.04), base + Vector3(side * 0.2, 0.24, -0.05),
 			base + Vector3(side * 0.26, 0.36, 0.0), base + Vector3(side * 0.25, 0.46, 0.06)]
@@ -508,7 +508,7 @@ static func _stick(root: Node3D, a: Vector3, b: Vector3, thick: float, mat: Mate
 
 ## An oil landscape in a gilded frame (variant picks the picture).
 static func _painting(root: Node3D, variant := 0) -> void:
-	var gilt := _mat("gilt", PixelArt.metal("prop_gilt", Color(0.66, 0.5, 0.24), 243, 0.3), Color.WHITE, 0.5, 0.4, 0.5)
+	var gilt := gilt()
 	var w := 1.0
 	var h := 0.7
 	var f := 0.08
@@ -518,15 +518,40 @@ static func _painting(root: Node3D, variant := 0) -> void:
 	_box(root, "FrameRight", Vector3(f, h - 2 * f, 0.05), Vector3(w * 0.5 - f * 0.5, 0, 0.025), gilt)
 	# The canvas: a thin board with UVs in metres (u across, v up), the picture laid on it once.
 	var canvas_size := Vector2(w - 2 * f, h - 2 * f)
-	var m := ShaderMaterial.new()
-	m.shader = PixelArt.GRID_SHADER
-	m.set_shader_parameter(&"albedo_tex", landscape_texture(posmod(variant, 2)))
-	m.set_shader_parameter(&"tint", Color.WHITE)
-	m.set_shader_parameter(&"roughness", 0.8)
-	# The picture covers the canvas once (not tiled), one texel a tile all the same.
-	m.set_shader_parameter(&"texels_per_meter", float(landscape_texture(0).get_width()) / canvas_size.x)
-	m.set_shader_parameter(&"use_mipmaps", false)
-	_box(root, "Canvas", Vector3(canvas_size.x, canvas_size.y, 0.01), Vector3(0, 0, 0.02), m)
+	_box(root, "Canvas", Vector3(canvas_size.x, canvas_size.y, 0.01), Vector3(0, 0, 0.02), picture(variant, canvas_size.x))
+
+
+## A landscape on canvas `width` wide: the picture covers it once (not tiled), one texel a tile all
+## the same; `variant` picks the picture.
+static func picture(variant: int, width := 0.84) -> ShaderMaterial:
+	var key := "picture_%d_%.3f" % [posmod(variant, 2), width]
+	if not _materials.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = PixelArt.GRID_SHADER
+		m.set_shader_parameter(&"albedo_tex", landscape_texture(posmod(variant, 2)))
+		m.set_shader_parameter(&"tint", Color.WHITE)
+		m.set_shader_parameter(&"roughness", 0.8)
+		m.set_shader_parameter(&"texels_per_meter", float(landscape_texture(0).get_width()) / width)
+		m.set_shader_parameter(&"use_mipmaps", false)
+		_materials[key] = m
+	return _materials[key]
+
+
+## A mount's hide, its dark (nose, eyes), its antlers' bone; a frame's gilt.
+static func hide() -> ShaderMaterial:
+	return _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
+
+
+static func hide_dark() -> ShaderMaterial:
+	return _mat("hide_dark", PixelArt.dirt("prop_hide_dark", Color(0.18, 0.12, 0.08), 239))
+
+
+static func antler() -> ShaderMaterial:
+	return _mat("antler", PixelArt.painted("prop_antler", Color(0.78, 0.7, 0.55), Color(0.45, 0.36, 0.25), 241, 0.3))
+
+
+static func gilt() -> ShaderMaterial:
+	return _mat("gilt", PixelArt.metal("prop_gilt", Color(0.66, 0.5, 0.24), 243, 0.3), Color.WHITE, 0.5, 0.4, 0.5)
 
 
 ## An oil lamp in a wall bracket: a brass back plate and arm holding a lamp with its chimney.

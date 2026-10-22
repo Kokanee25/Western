@@ -73,8 +73,8 @@ func test_every_kit_file_builds_and_stands() -> void:
 	check(PropKit.ids().size() >= 2, "the chair and the card table are in the kit")
 	for id in PropKit.ids():
 		var def := PropKit.definition(id)
-		if String(def.get("kind", "members")) != "members":
-			continue  # props that shatter: tests/test_glass_props.gd
+		if String(def.get("kind", "members")) != "members" or def.has("hangs"):
+			continue  # props that shatter: tests/test_glass_props.gd; hung ones: test_wall_props.gd
 		var p := await _place(id)
 		check(p.member_count() >= 8, "%s is built of members (%d)" % [id, p.member_count()])
 		check(p.settle().is_empty(), "%s stands: nothing breaks or falls" % id)

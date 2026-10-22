@@ -482,14 +482,33 @@ func _look() -> void:
 	var lib = load("res://src/props/prop_library.gd")
 	var kit = load("res://src/props/prop_kit.gd")
 	var props := String(opts.get("props", "")).split(",", false)
+	if Array(props).any(func(id: String) -> bool: return lib.definition(StringName(id)).get("anchor", "floor") == "wall"):
+		# A boarded wall to hang them on, its face at z = -0.8.
+		var wall := StaticBody3D.new()
+		var wcs := CollisionShape3D.new()
+		var wbox := BoxShape3D.new()
+		wbox.size = Vector3(12, 4, 0.1)
+		wcs.shape = wbox
+		wall.add_child(wcs)
+		var wmi := MeshInstance3D.new()
+		wmi.mesh = MemberMesh.box(Vector3(12, 4, 0.1))
+		wmi.material_override = load("res://src/structures/wood_materials.gd").get_material(&"int_boards", 0)
+		wall.add_child(wmi)
+		wall.position = Vector3(0, 2.0, -0.85)
+		world.add_child(wall)
 	for side in [-1.0, 1.0]:
 		var base := Vector3(side * 1.25, 0, 0)
 		if not props.is_empty():
 			# `--props=a,b,c`: those in a row each side instead of the table and chairs.
 			for i in props.size():
 				var id := StringName(props[i])
-				var p: Node3D = lib.spawn(id) if side < 0 else kit.spawn(id)
-				p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0 * i)), base + Vector3((i - (props.size() - 1) * 0.5) * 0.75, 0, -0.4 + 0.2 * (i % 2)))
+				var p: Node3D = lib.spawn(id) if side < 0 else kit.make(id)
+				var x := (i - (props.size() - 1) * 0.5) * 0.75
+				if lib.definition(id).get("anchor", "floor") == "wall":
+					# Hung on the wall behind, at eye height.
+					p.transform = Transform3D(Basis.IDENTITY, base + Vector3(x, 1.55 + 0.25 * (i % 2), -0.8))
+				else:
+					p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0 * i)), base + Vector3(x, 0, -0.4 + 0.2 * (i % 2)))
 				world.add_child(p)
 			continue
 		var table: Node3D = lib.spawn(&"card_table") if side < 0 else kit.spawn(&"card_table")

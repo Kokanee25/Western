@@ -16,12 +16,14 @@ class_name PropKit
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
-## weathered, brass, iron, mirror), or
+## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), brass, iron,
+## mirror), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
 ##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments", "grain_up",
 ##    "caps"}: part of one ("caps": its cut ends closed, the profile a closed outline: a stave);
+##   {"shape": "boxes", "boxes": [{"size", "at", "rot"} | {"from", "to", "thick"}]}: boxes and sticks;
 ##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
 ##   Y ("above": instead a layer that thick laid on its top: a table's baize);
 ##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh).
@@ -171,6 +173,16 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.staves()
 		"barrel_head":
 			return PropModels.barrel_head()
+		"hide":
+			return PropModels.hide()
+		"hide_dark":
+			return PropModels.hide_dark()
+		"antler":
+			return PropModels.antler()
+		"gilt":
+			return PropModels.gilt()
+		"picture":
+			return PropModels.picture(variant)
 		"weathered":
 			return PropModels.weathered()
 		"brass":
@@ -196,6 +208,25 @@ static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> vo
 		mi.mesh = draw_mesh(draw, m)
 
 
+## Boxes in the prop's space, one mesh: each {"size", "at", "rot"}, or a stick {"from", "to",
+## "thick"} (an antler's tines), as PropModels draws them.
+static func boxes(list: Array) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	for b: Dictionary in list:
+		var xf: Transform3D
+		var size: Vector3
+		if b.has("from"):
+			var a := vec(b.from)
+			var d := vec(b.to) - a
+			size = Vector3(float(b.thick), float(b.thick), d.length())
+			xf = Transform3D(Basis.looking_at(d, Vector3.UP if absf(d.normalized().y) < 0.99 else Vector3.FORWARD), a + d * 0.5)
+		else:
+			size = vec(b.size)
+			xf = Transform3D(basis_of(b), vec(b.at))
+		st.append_from(MemberMesh.box(size), 0, xf)
+	return st.commit()
+
+
 ## A member's drawn mesh from its "draw" (in the prop's space), laid into the member's own space.
 static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	var src: Mesh
@@ -207,6 +238,8 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 					bool(draw.get("grain_up", false)), bool(draw.get("caps", false)))
 		"disc":
 			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
+		"boxes":
+			src = boxes(draw.boxes)
 		"profile", "panel", "cut":
 			# The woodwork's shapes (art's Profiles), made in the member's own space.
 			return woodwork_mesh(draw, m)
