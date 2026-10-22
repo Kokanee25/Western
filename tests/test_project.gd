@@ -91,6 +91,14 @@ func test_modern_lighting_enabled() -> void:
 	check(sun.shadow_enabled, "sun shadows")
 
 
+## The sun's and the moon's shadows in two cascades, not four (Sean, #223: "Do 2 cascades"): each
+## cascade draws every shadow caster again, and two for four saved ~0.2 ms a frame at his.
+func test_the_sun_and_moon_shadow_in_two_cascades() -> void:
+	for which: String in ["Sun", "Moon"]:
+		var light: DirectionalLight3D = main.get_node(NodePath("GameViewport/TestStreet/" + which))
+		check_eq(light.directional_shadow_mode, DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS, "%s: two cascades" % which)
+
+
 func test_build_label() -> void:
 	var overlay := load("res://src/debug/debug_overlay.gd")
 	check_eq(overlay.build_label(), "dev build", "no stamp: dev build")
