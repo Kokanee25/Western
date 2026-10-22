@@ -39,6 +39,7 @@ var _mat: StandardMaterial3D
 var _t := 0.0
 var _last_foot := Vector3.INF
 var _marks: FloorMarks
+var _through := {}  # buckets its head passes into
 var _floor_y := -INF  # the boards under its head at the last pass (-INF: none)
 
 
@@ -180,13 +181,15 @@ func up() -> Vector3:
 func stand_at(at: Vector3, lean := Vector3.UP) -> void:
 	if holder != null and is_instance_valid(holder):
 		_hands_through(holder, false)
+	var was := state
 	holder = null
 	state = State.STANDING
 	handle.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 	handle.freeze = true
 	handle.collision_layer = Layers.DEBRIS
 	_place(at, lean)
-	_lay_head()
+	if was != State.HELD:
+		_lay_head()  # (put there: laid straight; set down from a hand, it's already hanging right)
 
 
 ## In `by`'s hands: from now on `hold_at` places it each tick.
@@ -300,9 +303,12 @@ func _exchange(dt: float) -> void:
 	var f := foot()
 	var moved := 0.0 if _last_foot == Vector3.INF else Vector2(f.x - _last_foot.x, f.z - _last_foot.z).length() / dt
 	_last_foot = f
-	# In a bucket's water: it rinses.
+	# In a bucket's water: it rinses. (Its strands go in past the bucket's sides, not into them.)
 	for b: Node in get_tree().get_nodes_in_group(&"mop_buckets"):
 		var bucket := b as MopBucket
+		if bucket != null and not _through.has(bucket):
+			_through[bucket] = true
+			head.add_collision_exception_with(bucket.body)
 		if bucket != null and bucket.holds(_head_middle()):
 			_rinse(bucket, dt)
 			return

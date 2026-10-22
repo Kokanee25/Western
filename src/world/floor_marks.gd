@@ -30,6 +30,7 @@ const FOOT_APART := 0.11  ## m each boot is off the line he walks
 ## Game hours a real second with no town clock (a lab): the game's default day, 24 h in 45 min.
 const HOURS_PER_SECOND := 24.0 / 2700.0
 const DRAW_PER_STEP := 4
+const SMOOTH := 4
 
 var tuning: FloorMarksTuning
 ## Vector3i(x, band, z) -> {"y", "dirt" (g/m²), "mud" (share of that dirt that's mud), "liq": {kind: ml}, "stain": {kind: ml}}
@@ -87,9 +88,8 @@ func surface_at(at: Vector3, reach := 0.3) -> Dictionary:
 	for off: Vector3 in [Vector3.ZERO, Vector3(0.006, 0, 0.006), Vector3(-0.006, 0, -0.006)]:
 		var q := PhysicsRayQueryParameters3D.create(at + off + Vector3.UP * reach, at + off - Vector3.UP * reach, Layers.WORLD)
 		var hit := space.intersect_ray(q)
-		if hit.is_empty() or not hit.collider is StructureMember:
-			return {}
-		if (hit.normal as Vector3).y < 0.8:
+		# (Through the gap between two boards a ray reaches what's under them: a few mm off, a board.)
+		if hit.is_empty() or not hit.collider is StructureMember or (hit.normal as Vector3).y < 0.8:
 			continue
 		var m := hit.collider as StructureMember
 		return {"at": hit.position, "member": m, "floor": m.kind in FLOOR_KINDS}
@@ -362,7 +362,7 @@ func _draw_chunk(ck: Vector3i) -> void:
 			var dirt := 1.0 - exp(-float(c.dirt) / tuning.dirt_full)
 			if dirt > 0.02:
 				col = tuning.dust.lerp(tuning.mud, float(c.mud))
-				col.a = dirt * 0.85
+				col.a = dirt * tuning.dirt_cover
 			# The strongest stain soaked in, over or under the dirt.
 			var stained := 0.0
 			var sc := Color(0, 0, 0, 0)
@@ -380,7 +380,7 @@ func _draw_chunk(ck: Vector3i) -> void:
 				wet += float(c.liq[kind])
 			if wet > 0.05:
 				var film := clampf(wet / (per_mm * tuning.film_mm), 0.0, 1.0)
-				var dark := Color(0.06, 0.045, 0.035, tuning.wet_dark * (0.4 + 0.6 * film))
+				var dark := Color(tuning.wet.r, tuning.wet.g, tuning.wet.b, tuning.wet_dark * (0.4 + 0.6 * film))
 				col = dark if col.a <= 0.0 else Color(col.r * 0.55, col.g * 0.55, col.b * 0.55, maxf(col.a, dark.a))
 			if col.a > 0.01:
 				any = true
@@ -402,6 +402,9 @@ func _draw_chunk(ck: Vector3i) -> void:
 		d.distance_fade_length = 10.0
 		add_child(d)
 		_chunks[ck] = d
+	# A texel a cell, smoothed up four times (in the engine: cheap) so a patch has a soft edge, not
+	# a cell's square; still the world's squares when drawn (decals filter nearest).
+	img.resize(CHUNK * SMOOTH, CHUNK * SMOOTH, Image.INTERPOLATE_BILINEAR)
 	d.texture_albedo = ImageTexture.create_from_image(img)
 	d.size = Vector3(CHUNK * CELL, 0.12, CHUNK * CELL)
 	d.global_position = Vector3((ck.x + 0.5) * CHUNK * CELL, y, (ck.z + 0.5) * CHUNK * CELL)
