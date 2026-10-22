@@ -52,7 +52,9 @@ the history in `docs/status/`.
   never on `main`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
-  of work per merge, not a day's worth.
+  of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
+  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
+  status logs merge by union (`.gitattributes`), so two sessions' entries both land.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your
@@ -319,17 +321,20 @@ frozen until Sean names one.
   sheet) and studio6p (painted mud and bleach); the critic: 2 and 1 SAME of 8 (round 2: none), the
   stains read as light, not dirt. **Round 4** (studio7: stains multiply the board down, bleach on sky faces only) and
   **round 5** (studio8: the low siding matched to its wall, mud capped, darks lifted, chroma down;
-  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Next: round 6** (the
-  brief's "What's next": the wood's light banded as the men's, weathered pine's knots, and the
-  interior stand for Sean's saloon picture: one dark umber stain and a profile builder), then
-  Sean's picks on `round5_sheets/`. **The interior woodwork** (Sean's saloon picture, target 10;
+  the critic 2 SAME / 4 CLOSE / 2 DIFFERENT, timber and the deck SAME). **Round 6** (2026-10-22,
+  free; studio9/10): banded light on the woods (`light_bands`), pine's knots soft (`knots`), flat
+  tone steps (`poster`): knots gone, otherwise the critic unmoved (its first: the wood's light rolls
+  smoothly; next, find where from). **Waiting on Sean:** A/B per wood on
+  `docs/screenshots/material_lab/2026-10-22/pick_exterior.jpg` (round 5 as the town draws it); then
+  `promote_woods.py --set=studio8 --as=w:w,... --extra=w:edge_aa=1,w:specular=0.08` and the goldens. **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
   (#208). **The bar and back bar as kit parts** (`assets/props/kit/bar.json`, `back_bar.json`, the
   kit's woodwork draw shapes, `int_bar_top` with rings; the critic: top CLOSE, front and back bar
-  DIFFERENT, too dark against the walls). **Next: Sean's call** on a lighter oak for the fixtures,
-  then painted mirror reflections; the saloon session spawns them. Worn treads on both stairs (#176). The hotel's oak
+  DIFFERENT, too dark against the walls). The mirrors painted (`mirror.gdshader`, 2026-10-22: the
+  critic DIFFERENT -> CLOSE). **Next: Sean's call** on a lighter oak for the fixtures; the saloon
+  session spawns them. Worn treads on both stairs (#176). The hotel's oak
   stair (`OakStair`): Sean picked the painted oak; `dark_oak` and `stair_runner` in the game's
   textures, `solid` for the ragdoll session. Paint ~$7.18 of his $9 (round 3 $0.60 of the $0.90 he
   approved); OpenRouter's monthly guardrail ($40) was hit once (Sean raised it).
@@ -404,10 +409,13 @@ frozen until Sean names one.
   squat as his tone lets go). **Round 4: stairs, railings, props** (#184, build 1792;
   `results/2026-10-21_round4/`): the saloon stair's ramp on `Layers.WALK` (falling men meet the
   treads); `BodyImpacts` (a man thrown into timber breaks it and carries on through); the lab's
-  game saloon (group T). Then **`Railing`** (`claude/gameplay-railing`): the railing part, the
-  saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
-  (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
-  (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
+  game saloon (group T). Then **`Railing`** (#198, build 1851): the railing part, the saloon's
+  balcony and stair rails built of it (`docs/PARTS.md`). **The chair** (`claude/gameplay-seated-falls`,
+  `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
+  `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
+  pose, both in `human_body.gd` for Sean's OK; Sean's scene (`scenes/chair_kick_shot.gd`). Next:
+  the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
+  man losing his seat catches himself (the prop lab's ask); loose props.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

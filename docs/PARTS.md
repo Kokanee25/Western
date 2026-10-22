@@ -31,6 +31,7 @@ Status words: **in the game** (on main, used by the game) · **on a branch** (bu
 | A stair walked by a ramp but fallen down tread by tread (the ramp only stops walkers, `Layers.WALK`) | `src/bodies/layers.gd`, the saloon stair | ragdoll lab, round 4 (`tests/test_stair_ramp.gd`) | in the game |
 | A falling man breaks the timber he hits (`BodyImpacts`: his speed past what breaks it carries on; trim gives way at its nails; a freed upright held by its nails in proportion to its section) | `src/structures/body_impacts.gd` | ragdoll lab, round 4 (`tests/test_body_impacts.gd`, groups Q and T) | in the game |
 | Breakable railing: balusters on whatever floor is under them (a balcony, a stair's treads), the rail on them in spans of up to 1.2 m, each its own member; a body breaks the span it hits and carries on through | `src/structures/railing.gd` (`Railing.build`), used by the saloon's balcony and stair rails (`src/art/saloon_dressing.gd`) and the ragdoll lab's 1 m railing | ragdoll lab groups Q and T against it (round 4), `tests/test_railing.gd` | in the game |
+| The ground, made ready to be dug: flat slabs and one mesh where it's never been dug, a 5 cm height field in 3.2 m tiles where it has (`docs/briefs/dig-ground.md`) | `src/world/ground.gd` (`Ground`), `ground_tile.gd`, `config/ground.tres` | `tests/test_ground.gd`, the breakage lab's ground scenarios | in the game (flat; digging comes in step 2) |
 
 ## Bodies and people (gameplay; characters for the men)
 

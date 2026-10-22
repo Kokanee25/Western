@@ -64,7 +64,9 @@ Paid painting runs on Actions (openrouter.ai is blocked from the workspace): Peo
 `textures = mlab:NAME`; the set's `budget` stops it short. Renders stay out of git (`build/` or a
 scratch folder); sheets and the critic's crops go in `docs/screenshots/material_lab/<date>/`.
 The sets in git: studio1-5 (painted). Remade with no calls and ignored: recut256/512, fit512,
-studio1_384, studio5w, studio6, studio6p, studio7, studio8 (`--cut`; their stain sheets in `assets/textures/weather/`).
+studio1_384, studio5w, studio6, studio6p, studio7, studio8, studio8t (round 5 with no stains: copy studio8
+and drop its `weathering`), studio9, studio10 (`--cut`; their stain sheets in `assets/textures/weather/`, 9 on
+re-made by the cut and ignored). Sean's pick sheet: `material_measure.py pick --cands=A:DIR,B:DIR2 --out=F.jpg`.
 
 ## The tests and how each is judged
 
@@ -195,6 +197,42 @@ hard-edged painted bands, the wood's in smooth gradients** (a shading difference
 texture); then photographic figure, pale bleach reading as glare, the steps' gloss. Colour measure
 13 of 24 (round 4 13).
 
+**Sean's pick on round 5** (2026-10-22): one sheet, `2026-10-22/pick_exterior.jpg` (a row a wood at
+golden hour, A the game's today, B round 5 as the town would draw it: the boards, no stains, since
+the game's members don't carry the stain frame yet). The colour measure at golden hour: today 1 of
+8 woods inside the men's range, round 5 6 of 8. What he picks is promoted with
+`promote_woods.py --set=studio8 --as=wood:wood,... --extra=wood:edge_aa=1,wood:specular=0.08`
+(the game's names; the old strips cleared first; PixelArt gives a wood with `edge_aa` in its
+lab.json entry the lab's seams, and its `specular` the lab's sheen), the goldens re-approved in
+the same merge.
+
+**Round 6** (2026-10-22, free; sets studio9 and studio10, round 5's changed; sheet
+`2026-10-22/round6_sheet.jpg`: round 5, 6 and 6b with the stains, golden hour):
+- **Banded light on the woods** (studio9): a set's `light_bands` draws its woods with the blocks
+  light at its own count (`wood_bands` in texel_grid's blocks `light()`, 4 steps; the hole material
+  keeps it), on the woods only. It barely moves a flat sunlit wall (one light, one angle): it bands
+  lamp falloff and shadow edges, not what the critic reads.
+- **Weathered pine's knots** (`knots` in the cut: a round dark blot and its halo blurred to a soft
+  shape and lifted), its grain calmed: the critic no longer names knots on it; it read
+  washed-out grey once (6b warms it).
+- **The fascia** (contrast and chroma down, the dark blot lifted, `knots` on it too): still
+  DIFFERENT, and what the critic names is now the geometry's (crisp bevels, hairline seams, an
+  even sheen on the steps and the rim), not the paint.
+- **6b** (studio10): every board's tone laid in flat steps (`poster`: broad shapes, one colour a
+  step), as the men's cloth is painted.
+
+The blind critic (`critic_round6.md`, 16 crops; `critic_round6b/`, 16 more): round 5 0 SAME / 4
+CLOSE / 4 DIFFERENT, round 6 0 / 5 / 3 (the floor DIFFERENT -> CLOSE), round 6b 0 / 4 / 4 against
+round 6's 0 / 4 / 4 in the same pass (the same verdict wood by wood: the flat steps changed
+nothing it sees). Both passes harsher than round 5's own (2 / 4 / 2). Its first difference both
+times: **the light rolls smoothly on the wood and steps on the men** (posts and steps worst). Not
+the boards' edges (a hard line already) and not the bands on the light; the next step finds where
+it comes from (the stand with its woods flat grey: if the roll stays it is the light, the sky's
+ambient or the AO; if it goes, the paint). Then: pale washed-out siding without the men's darks;
+fine streaky grain; the steps and posts as untextured CG; hot stripes and dappled stains. Colour
+measure at golden hour: round 5 6 of 8 woods, rounds 6 and 6b 5 (saloon red out). Stand cost as
+round 5 (49 draws; 11.4 MB of texture).
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
@@ -230,10 +268,10 @@ end grain. The oak stair's nosings 10 mm at the strings to 16 mm in the middle, 
    stripy wood to CLOSE or SAME; the stains read as light, not dirt.
 3. ~~Round 4~~ (done 2026-10-21, above): no wood DIFFERENT.
    ~~Round 5~~ (done 2026-10-21, above): timber and the deck SAME.
-   **Round 6** (proposed to Sean): the wood's light banded as the men's is (texel_grid's `BLOCKS`
-   light already bands per light: on the woods only, the bands matched to the men's), weathered
-   pine's knots calmed hard (or repainted alone, with Sean's OK), the fascia's blotch lifted and its
-   sheen down; and **the interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
+   ~~Round 6~~ (done 2026-10-22, above): pine's knots gone; banded light and flat tone steps don't
+   move the critic. **Round 7**: find what rolls the light on the wood (the stand in flat grey under
+   golden hour: light, ambient or AO, or the paint), then fix that; the steps' and posts' CG look
+   (bevels, sheen); the siding's darks. **The interior stand** (Sean, 2026-10-21, his saloon picture): one dark umber
    stain for interior woodwork (the picture's timbers measure L* ~20 median, 5-10 in shadow, 35-60
    lamplit, C* ~20-30, hue ~45, one family) and a profile builder (chamfers, beads, mouldings,
    casings, raised panels, brackets, from `_worn_box`), judged under the saloon's lamps against
