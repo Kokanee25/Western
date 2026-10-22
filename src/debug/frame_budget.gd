@@ -18,7 +18,7 @@ extends Resource
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
 			&"player", &"town_life", &"blood", &"cloth"],
-	&"structures": [&"structures", &"voxels", &"ballistics"],
+	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite"],
 }
 ## This workspace's core against Sean's (2.1 / 3.25 GHz): the bench scales its wall-clock numbers
