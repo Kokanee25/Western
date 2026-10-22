@@ -50,6 +50,7 @@ var _heat_t := 0.0
 var _under := []  # [[StructureMember or null for fixed ground, its position]]
 var _footed := false
 var _v_before := Vector3.ZERO
+var _lamp_list: Array[Node] = []
 
 
 func _ready() -> void:
@@ -61,11 +62,13 @@ func _ready() -> void:
 	Events.exploded.connect(_on_exploded)
 	# A lamp's light (OilLamp) brings its own hitbox for balls; this prop is its hitbox now (a shot
 	# breaks it, and it smashes the lamp), and a fixed box inside a falling lamp stops what it meets.
-	for lamp in _lamps():
+	_lamp_list = find_children("*", "OilLamp", true, false)
+	for lamp in _lamp_list:
 		_take_hitbox(lamp)
 	# (The town's callers add a lamp's light after it's built: PropLibrary's "light_height".)
 	child_entered_tree.connect(func(n: Node) -> void:
 		if n is OilLamp:
+			_lamp_list.append(n)
 			_take_hitbox.call_deferred(n))
 
 
@@ -113,17 +116,12 @@ func _build() -> void:
 
 
 func _lamps() -> Array[Node]:
-	return find_children("*", "OilLamp", true, false)
+	return _lamp_list.filter(func(n: Node) -> bool: return is_instance_valid(n))
 
 
 func _physics_process(delta: float) -> void:
 	if broken:
 		return
-	# Its light smashed some other way (a lamp's own rule): the glass is gone with it.
-	for lamp in _lamps():
-		if bool(lamp.get(&"broken")):
-			shatter(body.global_position + Vector3.UP * 0.25, Vector3.DOWN)
-			return
 	if loose:
 		_v_before = body.linear_velocity
 		return
@@ -131,14 +129,21 @@ func _physics_process(delta: float) -> void:
 		_frames += 1
 		if _frames >= SETTLE_FRAMES:
 			_find_footing()
+			_check_t = randf() * CHECK_EVERY  # spread over the quarter second
 		return
 	_check_t -= delta
-	if _check_t <= 0.0:
-		_check_t = CHECK_EVERY
-		if not _has_footing():
-			wake()
+	if _check_t > 0.0:
+		return
+	_check_t = CHECK_EVERY
+	# Its light smashed some other way (a lamp's own rule): the glass is gone with it.
+	for lamp in _lamp_list:
+		if is_instance_valid(lamp) and bool(lamp.get(&"broken")):
+			shatter(body.global_position + Vector3.UP * 0.25, Vector3.DOWN)
 			return
-		_heat(CHECK_EVERY)
+	if not _has_footing():
+		wake()
+		return
+	_heat(CHECK_EVERY)
 
 
 # --- What it stands on ---------------------------------------------------------------------------

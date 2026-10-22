@@ -3,6 +3,7 @@
   "id": "oil_lamp",
   "kind": "shatters",
   "replaces": "oil_lamp",
+  "in_game": true,
   "model": "lamp",
   "size": [0.14, 0.38, 0.14],
   "mass": 0.9,

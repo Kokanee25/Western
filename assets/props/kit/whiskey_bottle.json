@@ -3,6 +3,7 @@
   "id": "whiskey_bottle",
   "kind": "shatters",
   "replaces": "whiskey_bottle",
+  "in_game": true,
   "model": "bottle",
   "size": [0.09, 0.3, 0.09],
   "mass": 1.2,
