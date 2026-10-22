@@ -101,6 +101,36 @@ view from the door, the front, the back. Colours: orange foot, yellow heel, red 
 hand/boot, blue rings/elbow/streak, purple spill, grey soot, brown splash, white bleach, green new,
 magenta the past's marks, red the ball.
 
+## Lived in, step 2: drawn in the lab (2026-10-22; Sean: "go ahead", ahead of Gate A, lab only)
+
+The marks drawn on the saloon's wood, in the lab only: `wear_paint.gd` bakes them into a wear
+volume in the saloon's own space (6 cells a metre; R worn, G polished, B dirt, A fresh) and a map
+a floor level (20 a metre, softened), and draws its batches in `wear_wood.gdshader`: the game's
+wood (`texel_grid.gdshaderinc`) with `wear.gdshaderinc` laid on through a `WEAR` hook (three lines
+in art's include, inert unless a shader defines `WEAR`: the game's look is untouched). Each change
+is relative to the wood it's on (boots wear any wood paler, dirt darkens any, hands polish warmer
+and glossier). Worn nosings are geometry: each tread's front edge rounded deeper the busier the
+stair (`marks.gd`). The outside weather (splash, streaks, bleach) stays the weathering layer's:
+through a wall thinner than a cell it darkened the wall's inside. (A see-through overlay was tried
+first: the depth mosaic redraws the frame from a copy taken before see-through passes, so it never
+showed; hence the opaque hook.) `render.gd --worn` draws it; the A/B pairs are in
+`results/2026-10-22/worn_round3/` (`key.json` says which is which).
+
+Three blind rounds (each pair shuffled; the critic told one has the marks, not which): **round 1**
+found them only by measuring, too faint, and two marks read as bugs (soot over whole boards);
+**round 2** the stair treads right ("sure"), speckle and a glowing pale patch; **round 3** all five
+found by eye (three sure), strength about right in three of five; most convincing: the scuffs
+under the chairs, the dark foot of the bar with a stain in front of it, the trodden floor round the
+tables toward the door. What's left is the lab method's: marks on a world grid coarser than the
+boards (stepped edges that don't run along the grain), the polish barely showing, the soot lost in
+the lamps' glow, the stair weakest where use should show most. Its verdict: "a bit scuffed", not
+"long drunk in" yet.
+
+**For the real thing (art, in the woods' shader):** draw each mark in its member's own space along
+its grain (the marks already say where on the member: `along` a stretch, `at` a point), not on a
+world grid; the polish as gloss the lamps pick out; soot as a plume above the glow; and push the
+wear harder for the wide shots. The marks and their causes are ready for it.
+
 ## The exceptions the walk allows (`Checks.EXCEPTIONS`)
 
 | Exception | Owner |

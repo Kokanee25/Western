@@ -181,7 +181,8 @@ a few views renders them as the full run does.
   **P** cycles square / ragged / off, default square). Users: `texel_grid.gdshader(inc)`, the one
   material for everything in the world on the texel grid (`PixelArt.material()`: pixel texture at
   `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
-  is the same with bullet holes), `src/world/ground.gdshader`, and the people's
+  is the same with bullet holes; a `WEAR` hook at the end of its fragment, inert unless defined, is
+  the building lab's lived-in marks, `experiments/building_lab/wear.gdshaderinc`), `src/world/ground.gdshader`, and the people's
   `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
   faces. **A minimum square on screen** (shader global `min_square_px`, 2 render pixels since §10.4,
   was 4: the painting's far men are still 2–3 px blocks, but distance softens, never chunks; 0 = off;

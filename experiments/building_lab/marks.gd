@@ -58,9 +58,17 @@ static func place(b: Structure, spec: Dictionary) -> Dictionary:
 		var s := _grow(float(use.stairs[id]), years)
 		var prefix := "%s/stair/%s/" % [b.structure_id, id]
 		var treads := own.filter(func(m: StructureMember) -> bool: return String(m.member_id).begins_with(prefix + "tread/"))
+		var front := _front_of(spec, id)
 		for i in treads.size():
 			var turn := 1.3 if i == 0 or i == treads.size() - 1 else 1.0
-			_mark(out, treads[i], {"kind": &"foot", "s": snappedf(minf(1.0, s * turn), 0.01), "cause": "stair_" + id, "where": "centre"})
+			var sw := minf(1.0, s * turn)
+			_mark(out, treads[i], {"kind": &"foot", "s": snappedf(sw, 0.01), "cause": "stair_" + id, "where": "centre"})
+			# Its nosing worn round by the boots that come down over it, the deeper the busier (geometry:
+			# it changes the tread's outline). (`front` is the way down the stair.)
+			if front != "":
+				var along := "z" if front.trim_prefix("-") == "x" else "x"
+				PropKit.dress_member(treads[i], {"shape": "profile", "profile": "rounded", "along": along, "up": "y", "across": front,
+						"args": [0.004 + 0.014 * sw, [1]]})
 		for m: StructureMember in own:
 			var mid := String(m.member_id)
 			if mid.begins_with(prefix + "rail/rail/") or mid == prefix + "newel":
@@ -98,10 +106,13 @@ static func place(b: Structure, spec: Dictionary) -> Dictionary:
 		var s := float(use.lamps.soot)
 		for lamp: Node3D in b.lamps:
 			var at := b.to_local(lamp.global_position)
-			var box := AABB(at + Vector3(-0.2, 0.3, -0.2), Vector3(0.4, 0.9, 0.4))
+			# Over the chimney, spreading as it rises and under what's above (a ledge, a beam):
+			# never below the lamp, never the whole board.
+			var box := AABB(at + Vector3(-0.3, 0.35, -0.3), Vector3(0.6, 1.1, 0.6))
+			var plume := at + Vector3(0, 0.85, 0)
 			for m: StructureMember in own:
 				if m.kind in [&"board", &"trim", &"beam", &"joist", &"floor_board", &"plate", &"ledger"] and m.structure_aabb().intersects(box):
-					_mark(out, m, {"kind": &"soot", "s": s, "cause": "lamps"})
+					_mark(out, m, {"kind": &"soot", "s": s, "cause": "lamps", "at": _local(m, plume), "r": 0.45})
 	# Spills.
 	for sp: Dictionary in use.get("spills", []):
 		var r: Array = sp.rect
@@ -113,6 +124,45 @@ static func place(b: Structure, spec: Dictionary) -> Dictionary:
 				var t0 := (ov.position - m.transform.origin).dot(m.axis())
 				var t1 := (ov.end - m.transform.origin).dot(m.axis())
 				_mark(out, m, {"kind": &"spill", "s": float(sp.s), "cause": sp.id, "along": [snappedf(minf(t0, t1), 0.01), snappedf(maxf(t0, t1), 0.01)]})
+	# Grime along the walls' feet and in the corners, where no boot or broom reaches: the ends of the
+	# boards that run into a wall, and the boards that run along one.
+	if use.get("edges", 0.0) > 0.0:
+		var g := float(use.edges)
+		var faces: Array = []  # [axis 0 x / 2 z, the face's coordinate, level]
+		for w: Dictionary in spec.walls:
+			var a := Vector2(w.line[0][0], w.line[0][1])
+			var e := Vector2(w.line[1][0], w.line[1][1])
+			var along_x := absf(a.y - e.y) < 0.01
+			var lvls: Array = [w.level] if w.get("partition", false) else ["ground", "upper"]
+			for lvl in lvls:
+				if w.get("partition", false):
+					for side in [-0.05, 0.05]:
+						faces.append([2 if along_x else 0, (a.y if along_x else a.x) + side, lvl, min(a.x, e.x) if along_x else min(a.y, e.y), max(a.x, e.x) if along_x else max(a.y, e.y)])
+				else:
+					var inner := 0.1 if (a.y < 0.01 and along_x) or (a.x < 0.01 and not along_x) else -0.1
+					faces.append([2 if along_x else 0, (a.y if along_x else a.x) + inner, lvl, -INF, INF])
+		for lvl in boards:
+			for m: StructureMember in boards[lvl]:
+				var mb := m.structure_aabb()
+				var ax := m.axis()
+				for f: Array in faces:
+					if f[2] != lvl:
+						continue
+					var k: int = f[0]
+					var other := 2 - k
+					if mb.get_center()[other] < float(f[3]) - 0.1 or mb.get_center()[other] > float(f[4]) + 0.1:
+						continue
+					var gap := minf(absf(mb.position[k] - float(f[1])), absf(mb.end[k] - float(f[1])))
+					if gap > 0.06:
+						continue
+					if absf(ax[k]) > 0.5:
+						# Running into the wall: grime on the end that meets it.
+						var t_end := (Vector3(f[1], 0, f[1]) - m.transform.origin)[k] * signf(ax[k])
+						var t0 := clampf(t_end - 0.3, -m.length() * 0.5, m.length() * 0.5)
+						var t1 := clampf(t_end + 0.3, -m.length() * 0.5, m.length() * 0.5)
+						_mark(out, m, {"kind": &"grime", "s": g, "cause": "edges", "along": [snappedf(minf(t0, t1), 0.01), snappedf(maxf(t0, t1), 0.01)]})
+					else:
+						_mark(out, m, {"kind": &"grime", "s": g * 0.8, "cause": "edges"})
 	# The kit's furniture: the tables' tops, the floor round the chairs, the bar's foot rail.
 	var furn: Dictionary = use.get("furniture", {})
 	var drinkers: Array = spec.use_points.filter(func(u: Dictionary) -> bool: return u.get("use", "") == furn.get("foot_rail", "-"))
@@ -120,14 +170,27 @@ static func place(b: Structure, spec: Dictionary) -> Dictionary:
 		var kp := k as KitProp
 		var at := b.to_local(kp.global_position)
 		if kp.kit_id == &"card_table" and furn.get("tables", false):
+			# Rings where glasses stood (in front of each seat), a knife's cut, the rim polished by
+			# elbows and the shuffling of cards.
+			var s_cards := snappedf(_grow(150.0, years), 0.01)
 			for m in kp.get_members():
-				if String(m.member_id).contains("/top_"):
-					for kind in [&"rings", &"elbow", &"cut"]:
-						_mark(out, m, {"kind": kind, "s": snappedf(_grow(150.0, years), 0.01), "cause": "cards"})
+				var mid := String(m.member_id)
+				var mb := m.structure_aabb()
+				if mid.contains("/top_"):
+					var h := float(posmod(hash(mid), 1000)) / 1000.0
+					for ri in 2:
+						var a := TAU * (h + ri * 0.37)
+						var p := Vector3(cos(a) * 0.38, mb.end.y, sin(a) * 0.38)
+						if mb.grow(0.01).has_point(Vector3(p.x, mb.get_center().y, p.z)):
+							_mark(out, m, {"kind": &"rings", "s": s_cards, "cause": "cards", "at": _arr(m.transform.affine_inverse() * p), "r": 0.06})
+					if h < 0.3:
+						_mark(out, m, {"kind": &"cut", "s": 0.6, "cause": "cards", "at": _arr(m.transform.affine_inverse() * Vector3(mb.get_center().x, mb.end.y, mb.get_center().z)), "r": 0.05})
+				elif mid.contains("/rim"):
+					_mark(out, m, {"kind": &"elbow", "s": s_cards, "cause": "cards"})
 		elif kp.kit_id == &"chair" and furn.get("chairs", false):
 			for f: StructureMember in boards.ground:
 				if _xz_distance(f.structure_aabb(), Vector2(at.x, at.z)) < 0.45:
-					_mark(out, f, {"kind": &"scuff", "s": 0.5, "cause": "chairs", "at": _local(f, Vector3(at.x, f.structure_aabb().end.y, at.z)), "r": 0.45})
+					_mark(out, f, {"kind": &"scuff", "s": 0.3, "cause": "chairs", "at": _local(f, Vector3(at.x, f.structure_aabb().end.y, at.z)), "r": 0.5})
 		elif kp.kit_id == &"bar":
 			for m in kp.get_members():
 				if not String(m.member_id).ends_with("/foot_rail"):
@@ -209,6 +272,20 @@ static func place(b: Structure, spec: Dictionary) -> Dictionary:
 				(out.unresolved as Array).append("%s: %s at %s (nearest %s %.2f m off)" % [ev.id, pm.kind, pm.at,
 						String(best.member_id) if best else "none", best_d])
 	return out
+
+
+## The way down a stair (its front, as an axis name: "-z" for a stair climbing +z), from its spec.
+static func _front_of(spec: Dictionary, id: String) -> String:
+	var dir := ""
+	for st: Dictionary in spec.get("stairs", []):
+		if st.id == id:
+			dir = String(st.get("dir", "+z"))
+	if id == "cellar" and spec.has("cellar"):
+		dir = String(spec.cellar.stair.get("dir", "+z"))
+	if dir == "":
+		return ""
+	var axis := dir.trim_prefix("-").trim_prefix("+")
+	return axis if dir.begins_with("-") else "-" + axis
 
 
 ## How deep a use's wear has gone: it grows with uses and years, toward 1.

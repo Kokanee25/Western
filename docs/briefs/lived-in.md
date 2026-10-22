@@ -76,6 +76,12 @@ to it over its life, who uses it, and where that use shows; write it into `use` 
    tinted by their marks) for Sean to see the placement. (Gameplay, the building lab.)
 2. **After Gate A (the look locked), as the wear-down plan has it:** the shader draws the marks, the
    woods' ages, the geometry. (Art; judged on the material lab's stand, then the saloon's views.)
+   **Begun early in the lab, at Sean's word (2026-10-22):** the building lab's `wear_wood.gdshader`
+   draws the saloon's marks through a `WEAR` hook in `texel_grid.gdshaderinc` (inert in the game);
+   three blind rounds, the last finding the marks by eye in all five views, the chair scuffs and the
+   bar's foot convincing, the world grid's stepped edges and the faint polish what's left
+   (`experiments/building_lab/README.md`, "Lived in, step 2"). For the real thing: marks in each
+   member's own space along its grain.
 3. **Later:** wear that accumulates, repairs, and the lived-in pass for every building in the town.
 
 ## Done, and how it's judged

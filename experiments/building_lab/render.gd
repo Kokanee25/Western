@@ -5,6 +5,7 @@ extends SceneTree
 ## sheet's views (docs/concept/saloon-sheet.png) and Sean's saloon picture's, for the blind critic.
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://experiments/building_lab/render.gd -- --out=DIR [--views=a,b]
 ##   ... -- --out=DIR --wear   # the wear map: every member tinted by its marks (docs/briefs/lived-in.md)
+##   ... -- --out=DIR --worn   # the marks drawn (wear_paint.gd: the batches in the worn wood), the views and the close ones
 
 const ORIGIN := Vector3(-72.0, 0.0, 26.0)
 const HOURS := {"golden": 17.6, "night": 22.5}
@@ -16,6 +17,10 @@ const VIEWS := {
 	"entrance": [Vector3(7.62, 2.35, 0.7), Vector3(8.24, 3.0, 12.0), 72.0, "night"],
 	"from_balcony": [Vector3(13.84, 6.0, 1.3), Vector3(6.74, 0.8, 8.8), 72.0, "night"],
 	"picture": [Vector3(10.64, 1.95, 9.7), Vector3(2.44, 1.7, 6.2), 62.0, "night"],
+	# Close, for the wear: the stair's treads and rail, the floor in front of the bar, the gallery's rail.
+	"stair_close": [Vector3(12.9, 1.75, 5.2), Vector3(14.6, 1.7, 8.0), 60.0, "night"],
+	"bar_floor": [Vector3(5.6, 2.1, 4.6), Vector3(2.2, 0.8, 6.8), 60.0, "night"],
+	"gallery_close": [Vector3(7.6, 5.9, 0.7), Vector3(10.4, 4.9, 1.9), 60.0, "night"],
 }
 
 ## The wear map's views: [camera, look at, fov (or the plan's width, orthographic), cut height
@@ -46,9 +51,12 @@ func _initialize() -> void:
 func _run() -> void:
 	var only: Array = []
 	var wear := false
+	var worn := false
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--wear":
 			wear = true
+		elif arg == "--worn":
+			worn = true
 		if arg.begins_with("--out="):
 			_out = arg.substr(6)
 		elif arg.begins_with("--views="):
@@ -94,6 +102,10 @@ func _run() -> void:
 		await _wear_map(building, cam, viewport, clock, only)
 		quit()
 		return
+	if worn:
+		var made: Dictionary = load("res://experiments/building_lab/wear_paint.gd").apply(building, [0.78, 4.44] as Array[float])
+		print("worn: %d marks drawn, volume %s, floor maps %s, %d batches in %d worn materials" % [made.marks_drawn, made.volume, made.floor_map, made.batches, made.materials])
+		await process_frame
 	for v: String in VIEWS:
 		if not only.is_empty() and not only.has(v):
 			continue
