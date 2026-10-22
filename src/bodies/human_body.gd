@@ -66,6 +66,21 @@ const POSES := {
 			&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(6, 0, 0),
 			&"upper_arm_r": Vector3(40, 0, -4), &"forearm_r": Vector3(80, 0, 0),
 			&"upper_arm_l": Vector3(34, -20, 16), &"forearm_l": Vector3(88, 0, 0)},
+	# A kick: his right leg swung forward and low (a chair's legs, a man on the floor), the sole first,
+	# his left knee soft under him, leaning back off it, his arms out a little for his balance.
+	&"kick": {&"thigh_r": Vector3(55, 0, 0), &"shin_r": Vector3(-14, 0, 0), &"foot_r": Vector3(-22, 0, 0),
+			&"thigh_l": Vector3(8, 0, 0), &"shin_l": Vector3(-12, 0, 0), &"abdomen": Vector3(6, 0, 0),
+			&"chest": Vector3(4, 0, 0), &"upper_arm_r": Vector3(-10, 0, 24), &"upper_arm_l": Vector3(10, 0, -28),
+			&"forearm_r": Vector3(20, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
+	# Sat back in his chair: shoulders back against its back, head level, hands in his lap (Sean,
+	# 2026-10-21: his weight over the back of the seat, so when the chair's back legs go he goes
+	# over with it).
+	&"sit_back": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
+			&"shin_l": Vector3(-92, 0, 0), &"foot_r": Vector3(-4, 0, 0), &"foot_l": Vector3(2, 0, 0),
+			&"abdomen": Vector3(6, 0, 0), &"chest": Vector3(12, 0, 0), &"neck": Vector3(-6, 0, 0),
+			&"head": Vector3(-8, 0, 0),
+			&"upper_arm_r": Vector3(24, 0, -6), &"forearm_r": Vector3(62, 0, 0),
+			&"upper_arm_l": Vector3(24, 0, 6), &"forearm_l": Vector3(62, 0, 0)},
 	# Leaning in over the table on his forearms, shoulders hunched, head up to look at you (the
 	# painting's man).
 	&"sit_lean": {&"thigh_r": Vector3(88, 0, 6), &"thigh_l": Vector3(84, 0, -8), &"shin_r": Vector3(-82, 0, 0),
@@ -1995,7 +2010,7 @@ func _favour_step(delta: float) -> void:
 	for side in ["r", "l"]:
 		var sign_z := 1.0 if side == "r" else -1.0
 		var leg := favouring(StringName("leg_" + side))
-		if leg > 0.0 and standing and not pose in [&"crouch", &"crouch_aim", &"sit", &"sit_lean", &"duck", &"tend", &"cower"]:
+		if leg > 0.0 and standing and not pose in [&"crouch", &"crouch_aim", &"sit", &"sit_back", &"sit_lean", &"duck", &"tend", &"cower"]:
 			# Standing: the knee eases off and the weight goes on the other leg.
 			for key: StringName in FAVOUR_LEG:
 				_add_favour(StringName(String(key) + "_" + side), FAVOUR_LEG[key] * leg)
