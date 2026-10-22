@@ -36,7 +36,9 @@ the history in `docs/status/`.
     `src/bodies/people_bodies.gd`. It asks Sean before any training run and gives the cost of
     each man before Tripo is paid. **New men are made by `tools/characters/RECIPE.md`** (the
     Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
-    with Sean's OK. The art session judges each new man in the shots and says what's off; the
+    with Sean's OK. Since 2026-10-20 men are made in the Character Studio (`Kokanee25/saltcreek-characters`,
+    attach it); its paid calls run on GitHub, not with keys in the session: a request file in its
+    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). The art session judges each new man in the shots and says what's off; the
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
@@ -422,6 +424,13 @@ frozen until Sean names one.
   timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
   the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
   man losing his seat catches himself (the prop lab's ask); loose props.
+- **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
+  leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
+  kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar` (a chore in `CivilianBrain.chore`, dials `config/wipe.tres`),
+  `HumanBody.reach_to`, `FireSystem.small_fire`; the saloon's barkeep wipes his bar when it's quiet.
+  `FaceLife.attend_to` (a deed sets what he watches). Waiting on Sean: the film in the PR, and
+  the paint's cost (#258).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
