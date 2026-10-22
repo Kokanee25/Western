@@ -257,7 +257,27 @@
   "mask": {
    "top_y": 1.629,
    "point_y": 1.429,
-   "triangles": 3044
+   "triangles": 3044,
+   "follows": {
+    "shapes": [
+     "jaw_open",
+     "aa",
+     "lips_apart",
+     "ee",
+     "oo",
+     "fv",
+     "mbp"
+    ],
+    "most_mm": {
+     "jaw_open": 9.1,
+     "aa": 8.5,
+     "lips_apart": 4.3,
+     "ee": 6.7,
+     "oo": 8.8,
+     "fv": 6.1,
+     "mbp": 1.7
+    }
+   }
   },
   "neck_piece": {
    "top_y": 1.499,

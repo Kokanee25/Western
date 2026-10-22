@@ -312,6 +312,10 @@ func _ready() -> void:
 		var life := FaceLife.new()
 		life.name = "FaceLife"
 		add_child(life)
+	if PeopleBodies.report(body_model).has("facerig"):
+		var speech := FaceSpeech.new()   # his mouth saying his lines (Events.spoke)
+		speech.name = "FaceSpeech"
+		add_child(speech)
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
