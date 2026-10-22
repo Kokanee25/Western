@@ -419,6 +419,9 @@ void fragment() {
 	ROUGHNESS = roughness;
 	METALLIC = metallic;
 	SPECULAR = specular;
+#ifdef WEAR
+	WEAR_FRAGMENT  // the building lab's lived-in marks (experiments/building_lab/wear.gdshaderinc)
+#endif
 }
 
 #ifdef BLOCKS
