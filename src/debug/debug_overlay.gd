@@ -10,7 +10,7 @@ Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
 Jump: Space / A     Time speed: T     Debug readout: F3 / View
 Pixel size: F2 (last = native)     Pixel shading: F6     Texel size: F7     Tiles off/square/ragged: P     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
-Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L     Save a bug report: F12 / Back + Y     Tear a wound open: J     Reduced gore: F4     Look panel (sliders for the light and squares): N / Back + Start
+Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Three gunmen in the saloon (A/B/C playtest): Y next run, X this run again, Z free play     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L     Save a bug report: F12 / Back + Y     Tear a wound open: J     Reduced gore: F4     Look panel (sliders for the light and squares): N / Back + Start
 Release mouse: Esc     This help: F1"""
 
 var _help: Label
@@ -122,7 +122,11 @@ func _readout_text() -> String:
 			lines.append(player.wounds.describe())
 		if player.composure and player.weapon:
 			lines.append("Hands: %s; gun %.2f° off line" % [player.composure.describe(), player.weapon.sway.length()])
-	for n in get_tree().get_nodes_in_group(&"people"):
+	# Gunmen first (their state and last decision), then the townsfolk.
+	var people := get_tree().get_nodes_in_group(&"people")
+	var gunman := func(n: Node) -> bool: return n.get_node_or_null(^"Brain") is OutlawBrain
+	people = people.filter(gunman) + people.filter(func(n: Node) -> bool: return not gunman.call(n))
+	for n in people:
 		var brain := n.get_node_or_null(^"Brain")
 		if brain and brain.has_method(&"describe"):
 			lines.append(brain.describe())

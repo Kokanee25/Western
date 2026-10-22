@@ -148,6 +148,10 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	var under := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD))
 	if not under.is_empty() and Ground.is_ground(under.collider):
 		report["crater"] = crater(world, at, kg, at.y - (under.position as Vector3).y)
+	# The clods and the gravel are thrown together, not at each other.
+	var clods: Array[RID] = []
+	for c: RID in report.get("crater", {}).get("clods", []):
+		clods.append(c)
 	# Gravel and grit off the ground, if it went off on (or near) it.
 	if ballistics:
 		if not under.is_empty():
@@ -156,7 +160,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				var az := _rng.randf() * TAU
 				var el := deg_to_rad(_rng.randf_range(2.0, tn.ejecta_elevation))
 				var dir := Vector3(cos(az) * cos(el), sin(el), sin(az) * cos(el))
-				var b := ballistics.fire(ground_at + dir * 0.1, dir, _rng.randf_range(tn.ejecta_speed.x, tn.ejecta_speed.y), tn.ejecta_mass, tn.ejecta_diameter)
+				var b := ballistics.fire(ground_at + dir * 0.1, dir, _rng.randf_range(tn.ejecta_speed.x, tn.ejecta_speed.y), tn.ejecta_mass, tn.ejecta_diameter, clods.duplicate())
 				b.kind = &"gravel"
 				b.blast = 0.0
 				b.passed = passed
@@ -212,6 +216,7 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 	var thrown := bank * (1.0 - tn.crater_packed)
 	var flying := thrown * tn.clod_share if tn.clods > 0 else 0.0
 	ground.put(floor_at, thrown - flying, r * tn.lip_out, r, r * tn.lip_peak)
+	var thrown_rids: Array[RID] = []
 	for k in (tn.clods if flying > 0.0 else 0):
 		var az := _rng.randf() * TAU
 		var el := deg_to_rad(_rng.randf_range(25.0, 65.0))
@@ -219,8 +224,9 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 		var start := floor_at + Vector3(cos(az), 0.0, sin(az)) * r * _rng.randf_range(0.2, 0.8)
 		# On the crater's wall, not in it (Jolt would throw it out of the earth).
 		start.y = ground.height_at(start.x, start.z) + pow(flying / tn.clods, 1.0 / 3.0) + 0.02
-		Clod.throw(world, ground, start, dir * _rng.randf_range(tn.clod_speed.x, tn.clod_speed.y), flying / tn.clods, tn.earth_density)
-	return {"diameter_m": size.x, "depth_m": size.y, "taken_m3": bank, "thrown_m3": thrown}
+		var c := Clod.throw(world, ground, start, dir * _rng.randf_range(tn.clod_speed.x, tn.clod_speed.y), flying / tn.clods, tn.earth_density)
+		thrown_rids.append(c.get_rid())
+	return {"diameter_m": size.x, "depth_m": size.y, "taken_m3": bank, "thrown_m3": thrown, "clods": thrown_rids}
 
 
 ## Everything a charge at `at` acts on, each once: every member and loose body where timber can

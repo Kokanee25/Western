@@ -14,9 +14,19 @@ func _ready() -> void:
 ## A ball going past your ear snaps, heard from where it went by (only the listener's own near
 ## misses are worth playing); one tumbling off a ricochet whizzes. (Sean, who's been near it: a
 ## near miss is a snap; a whiz is usually a ricochet.)
-func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, _speed: float, tumbling: bool) -> void:
-	if person.is_in_group(&"player") and person is Node3D:
+##
+## With GameAudio (the sound lab): only a ball faster than sound snaps (buckshot near the muzzle; a
+## black-powder .45's ball, at ~270 m/s, doesn't): a slower one whirrs past; and how close it came is
+## how loud it is, a hand's breadth at full and two metres faint.
+func _on_near_miss(person: Node, _shooter: Node, distance: float, at: Vector3, speed: float, tumbling: bool) -> void:
+	if not (person.is_in_group(&"player") and person is Node3D):
+		return
+	if not GameAudio.enabled():
 		_play_at(&"zip" if tumbling else &"crack", at, 2.0 - distance * 4.0, 2.0)
+		return
+	var snaps := speed > GameAudio.SPEED_OF_SOUND or GameAudio.t().subsonic_snaps
+	var id := &"zip" if tumbling else (&"crack" if snaps else &"whirr")
+	GameAudio.play(self, id, at, {"unit_size": 0.25, "volume_db": 3.0, "max_db": 6.0, "walls": false})
 
 
 func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
@@ -33,13 +43,20 @@ func _play_at(id: StringName, at: Vector3, db := 0.0, unit_size := 6.0) -> void:
 func _on_hit(info: Dictionary) -> void:
 	var pos: Vector3 = info.position
 	var normal: Vector3 = info.normal
+	var placed := GameAudio.enabled()
 	if info.get("ricochet", false):
 		# The spang and whine of it glancing off, heard by anyone near; sparks off stone and iron.
-		_play_at(&"ricochet", pos, 0.0, 8.0)
+		if not placed:
+			_play_at(&"ricochet", pos, 0.0, 8.0)
+		elif _first_of_a_charge(pos):
+			GameAudio.play(self, StringName("glance_" + _surface(info)), pos, {"unit_size": 8.0, "normal": normal})
 		if info.get("surface", &"") in [&"stone", &"metal"]:
 			burst(self, pos, normal, Color(1.0, 0.82, 0.45), 6, 3.5, 0.015)
 	if info.has("person"):
-		_play_at(&"flesh", pos, -2.0)
+		if placed:
+			GameAudio.play(self, &"flesh", pos, {"volume_db": -2.0})
+		else:
+			_play_at(&"flesh", pos, -2.0)
 		# A spray of blood: a little back out of the entry, more out of an exit.
 		burst(self, pos, -(info.direction as Vector3), Color(0.42, 0.04, 0.03), 5, 1.2, 0.02)
 		if info.penetrated:
@@ -48,6 +65,8 @@ func _on_hit(info: Dictionary) -> void:
 		return
 	if info.collider is StructureMember and (info.collider as StructureMember).kind == &"glass":
 		return  # the pane's own shards are the debris
+	if placed and not info.get("ricochet", false) and _first_of_a_charge(pos):
+		GameAudio.play(self, StringName("impact_" + _surface(info)), pos, {"volume_db": -2.0, "normal": normal})
 	if info.collider is StructureMember:
 		burst(self, pos, normal, Color(0.62, 0.5, 0.36), 10, 2.5, 0.045)
 		if info.penetrated:
@@ -57,6 +76,34 @@ func _on_hit(info: Dictionary) -> void:
 		burst(self, pos, normal, Color(0.75, 0.72, 0.65), 4, 2.0, 0.025)
 	else:
 		burst(self, pos, normal, Color(0.62, 0.5, 0.37), 14, 1.8, 0.07)
+
+
+## What a ball struck, for its sound: the ground's dirt, a member's wood, stone or iron, anything
+## loose (a prop, a can) as wood.
+static func _surface(info: Dictionary) -> String:
+	var surface: StringName = info.get("surface", &"")
+	if surface == &"":
+		surface = Ballistics.surface_of(info.collider, info.normal)
+	match surface:
+		&"ground": return "dirt"
+		&"stone": return "stone"
+		&"metal": return "metal"
+	return "wood"
+
+
+## A charge's pellets strike together: the first one in a few metres and a tenth of a second is
+## heard, not all nine.
+var _recent: Array = []
+
+
+func _first_of_a_charge(at: Vector3) -> bool:
+	var now := int(Engine.get_physics_frames() * 1000.0 / Engine.physics_ticks_per_second)
+	_recent = _recent.filter(func(r: Array) -> bool: return now - int(r[0]) < 100)
+	for r: Array in _recent:
+		if (r[1] as Vector3).distance_to(at) < 3.0:
+			return false
+	_recent.append([now, at])
+	return true
 
 
 ## A one-shot burst of chunky bits flying off `normal`, falling under gravity.
