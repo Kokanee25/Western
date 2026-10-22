@@ -21,7 +21,7 @@ const SCENARIOS := {
 			"note": "A man comes to the bar mid-wipe: back over his shoulder; he goes, wiping again"},
 	"trouble": {"seconds": 40.0, "event": "shot", "at": 12.0, "when": "wipe",
 			"note": "A shot hits the bar by his hand: the cloth drops, he cowers; calm again, he fetches it"},
-	"dropped": {"seconds": 38.0, "event": "drop", "at": 12.0, "when": "wipe",
+	"dropped": {"seconds": 38.0, "event": "drop", "at": 12.0, "when": "wipe", "cam": "behind",
 			"note": "The cloth knocked out of his hand onto the floor: he bends for it"},
 	"blast": {"seconds": 30.0, "event": "blast", "at": 4.0,
 			"note": "A stick goes off across the room: the cloth's blown off his shoulder"},
@@ -65,7 +65,8 @@ var _shots: Array = []
 ## Where the camera stands (--cam=): across the bar to his left, in front, close on his hands.
 const CAMS := {"side": [Vector3(1.55, 1.7, 1.25), Vector3(-0.05, 1.18, -0.45), 46.0],
 		"front": [Vector3(-0.3, 1.75, 2.0), Vector3(0.0, 1.2, -0.5), 40.0],
-		"close": [Vector3(0.9, 1.55, 0.6), Vector3(-0.1, 1.25, -0.55), 38.0]}
+		"close": [Vector3(0.9, 1.55, 0.6), Vector3(-0.1, 1.25, -0.55), 38.0],
+		"behind": [Vector3(1.7, 1.6, -2.3), Vector3(-0.1, 0.75, -0.55), 52.0]}
 
 
 func _initialize() -> void:
@@ -195,7 +196,14 @@ func _build_world() -> void:
 		_cups.append(cup)
 	cam = Camera3D.new()
 	world.add_child(cam)
-	var c: Array = CAMS.get(String(opts.get("cam", "side")), CAMS.side)
+	var c: Array = CAMS.get(String(opts.get("cam", sc.get("cam", "side"))), CAMS.side)
+	if c == CAMS.behind:
+		var fill := OmniLight3D.new()  # his side of the bar, lit for the camera behind him
+		fill.position = Vector3(1.2, 2.3, -1.9)
+		fill.light_color = Color(1.0, 0.8, 0.55)
+		fill.light_energy = 1.2
+		fill.omni_range = 5.0
+		world.add_child(fill)
 	cam.position = c[0]
 	cam.look_at(c[1])
 	cam.fov = c[2]
@@ -317,7 +325,7 @@ func _event() -> void:
 
 func _walk_customer() -> void:
 	var t := (tick - event_tick) / 60.0
-	var to := Vector3(0.25, 0.0, 0.95) if t < float(sc.leave) else Vector3(3.6, 0.0, 3.0)
+	var to := Vector3(-0.45, 0.0, 0.8) if t < float(sc.leave) else Vector3(3.6, 0.0, 3.0)
 	if customer.global_position.distance_to(to) > 0.15:
 		customer.walk_to(to, 1.2, 1.0 / 60.0)
 	else:

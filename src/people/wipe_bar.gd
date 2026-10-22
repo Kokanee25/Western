@@ -107,6 +107,8 @@ func step_chore(delta: float, free: bool) -> bool:
 		if step != Step.IDLE:
 			trouble()
 		_ease_out(delta)
+		_look(Vector3.INF, delta)  # his lean and his head's turn let go too, under whatever he's doing now
+		_lean_to(delta)
 		return false
 	_t += delta
 	_customer_t -= delta

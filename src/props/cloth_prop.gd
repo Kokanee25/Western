@@ -72,7 +72,7 @@ var _heat_t := 0.0
 var _burn_t := 0.0
 var _caught_at := Vector2.ZERO
 var _flame: Dictionary = {}
-var _solid_again: HumanBody
+var _solid_again: Variant
 var _solid_in := 0.0
 var _rng := RandomNumberGenerator.new()
 
@@ -337,17 +337,17 @@ static func shoulder_xf(by: HumanBody, shoulder_side: String) -> Transform3D:
 ## Let go: nothing holds it, it falls (with `velocity`, m/s).
 func let_go(velocity := Vector3.ZERO) -> void:
 	_release_all()
-	var was := holder
+	var was: Variant = holder
 	var was_side := side
 	var was_held := held
 	# His hands pass through it a moment longer: let go under his palm, the palm would trap it.
-	_solid_again = holder
+	_solid_again = holder if is_instance_valid(holder) else null
 	_solid_in = HANDS_CLEAR
 	holder = null
 	side = ""
 	held = Held.FREE
-	if was != null and is_instance_valid(was) and was_held == Held.HAND:
-		was.curl_hand(was_side, 0.15)
+	if is_instance_valid(was) and was_held == Held.HAND:
+		(was as HumanBody).curl_hand(was_side, 0.15)
 	if velocity != Vector3.ZERO:
 		soft.apply_central_impulse(velocity * soft.total_mass)
 
@@ -372,13 +372,14 @@ func _take_holder(by: HumanBody) -> void:
 
 ## His hands and forearms pass through the cloth he has (pressing it on the bar, they'd squeeze
 ## its free points out through the top: a point flung a metre in a tick and back).
-func _hands_through(who: HumanBody, through: bool) -> void:
-	if who == null or not is_instance_valid(who):
+func _hands_through(who: Variant, through: bool) -> void:
+	if not is_instance_valid(who) or not who is HumanBody:
 		return
 	for sid in [&"hand_r", &"hand_l", &"forearm_r", &"forearm_l"]:
-		var part := who.parts.get(sid) as PhysicsBody3D
-		if part == null or not is_instance_valid(part):
+		var got: Variant = who.parts.get(sid)
+		if not is_instance_valid(got):
 			continue
+		var part := got as PhysicsBody3D
 		if through:
 			soft.add_collision_exception_with(part)
 		else:
@@ -403,9 +404,8 @@ func _release_all() -> void:
 func _carry_pins() -> void:
 	var rid := soft.get_physics_rid()
 	for p: Array in _pins:
-		var n := p[1] as Node3D
-		if is_instance_valid(n):
-			PhysicsServer3D.soft_body_move_point(rid, int(p[0]), n.global_transform * (p[2] as Vector3))
+		if is_instance_valid(p[1]):
+			PhysicsServer3D.soft_body_move_point(rid, int(p[0]), (p[1] as Node3D).global_transform * (p[2] as Vector3))
 
 
 func _nearest(at: Vector3, n: int) -> Array[int]:
@@ -439,12 +439,12 @@ func _physics_step(delta: float) -> void:
 	if burnt:
 		return
 	if holder != null and (not is_instance_valid(holder) or holder.limp or holder.prone):
-		let_go()  # he's gone down: it comes off him
+		let_go()  # he's gone down (or gone): it comes off him
 	if not _pins.is_empty():
 		_carry_pins()
 	if _solid_in > 0.0:
 		_solid_in -= delta
-		if _solid_in <= 0.0 and _solid_again != holder:
+		if _solid_in <= 0.0 and (not is_instance_valid(_solid_again) or _solid_again != holder):
 			_hands_through(_solid_again, false)
 			_solid_again = null
 	_check_t -= delta
