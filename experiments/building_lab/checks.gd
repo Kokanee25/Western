@@ -253,10 +253,20 @@ static func used(b: Structure, spec: Dictionary) -> Dictionary:
 				n += 1
 		if n == 0 and not (r.id == "hall" and seats > 0):
 			failures.append("%s (%s): no use point" % [r.id, r.use])
+	# Between the bar and the back bar (across them: their sections face the same way).
+	var bar_at := Vector2.ZERO
+	var back_at := Vector2.ZERO
+	for f: Dictionary in spec.fixtures:
+		if f.kit == "bar":
+			bar_at = Vector2(f.at[0], f.at[1])
+		elif f.kit == "back_bar":
+			back_at = Vector2(f.at[0], f.at[1])
+	var lo := minf(bar_at.x, back_at.x)
+	var hi := maxf(bar_at.x, back_at.x)
 	for m in markers:
 		if m.get_meta(&"who") == "barman" and m.get_meta(&"use") == "serve":
 			var p := (m as Marker3D).position
-			if p.x < 13.8 or p.x > 14.65:
+			if p.x < lo or p.x > hi:
 				failures.append("%s: not between the bar and the back bar" % m.name)
 	return {"ok": failures.is_empty(), "failures": failures, "seats": seats, "use_points": markers.size()}
 

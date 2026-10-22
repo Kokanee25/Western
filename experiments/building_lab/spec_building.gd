@@ -153,8 +153,10 @@ func build() -> void:
 	lamps.clear()
 	kit_props.clear()
 	walls.clear()
-	if _furnish:
-		_furnish.free()
+	# What the last build made that isn't a member (Structure.rebuild frees only those).
+	for c in get_children():
+		if c == _furnish or String(c.name).begins_with("Ramp_") or c.name in [&"InteriorAmbient", &"RoomHaze"]:
+			c.free()
 	_furnish = Node3D.new()
 	_furnish.name = "Furnishings"
 	add_child(_furnish)
@@ -209,9 +211,22 @@ func _foundation() -> void:
 			["west", Vector2(0, t), Vector2(0, d - t)], ["east", Vector2(w - t, t), Vector2(w - t, d - t)]]
 	for r in runs:
 		_stone_run("foundation/" + r[0], r[1], r[2], t, top, cel, floor)
-	# The cellar's own walls inside the house.
-	_stone_run("cellar/wall_west", Vector2(cel[0] - t * 0.5, cel[1] + t * 0.5), Vector2(cel[0] - t * 0.5, cel[3] - t), t, top, [], floor)
-	_stone_run("cellar/wall_front", Vector2(cel[0] - t * 0.5, cel[1] - t * 0.5), Vector2(cel[2] - t, cel[1] - t * 0.5), t, top, [], floor)
+	# The cellar's own walls inside the house: on each side of its rect that isn't the outer wall.
+	var c0 := Vector2(cel[0], cel[1])
+	var c1 := Vector2(cel[2], cel[3])
+	# Along x from inside the outer wall (or past the corner), along z the same.
+	var xa := t if c0.x < 0.01 else c0.x - t * 0.5
+	var xb := w - t if c1.x > w - 0.01 else c1.x + t * 0.5
+	var za := (t if c0.y < 0.01 else c0.y + t * 0.5)
+	var zb := (d - t if c1.y > d - 0.01 else c1.y - t * 0.5)
+	if c0.y > 0.01:
+		_stone_run("cellar/wall_z0", Vector2(xa, c0.y - t * 0.5), Vector2(xb, c0.y - t * 0.5), t, top, [], floor)
+	if c1.y < d - 0.01:
+		_stone_run("cellar/wall_z1", Vector2(xa, c1.y - t * 0.5), Vector2(xb, c1.y - t * 0.5), t, top, [], floor)
+	if c0.x > 0.01:
+		_stone_run("cellar/wall_x0", Vector2(c0.x - t * 0.5, za), Vector2(c0.x - t * 0.5, zb), t, top, [], floor)
+	if c1.x < w - 0.01:
+		_stone_run("cellar/wall_x1", Vector2(c1.x - t * 0.5, za), Vector2(c1.x - t * 0.5, zb), t, top, [], floor)
 	# Wood sills on the wall's top, under the studs.
 	var sill: Array = _fr.sill.section
 	var sy := top + float(sill[1]) * 0.5
@@ -250,13 +265,18 @@ func _cellar() -> void:
 	var floor: float = _lv.cellar
 	# Stone flags on the cellar's floor.
 	var flag := float(c.flag)
-	var x := float(r[0]) + t * 0.5
+	# Inside its walls: the outer wall's full thickness, the cellar's own walls' half.
+	var x_lo := float(r[0]) + (t if float(r[0]) < 0.01 else t * 0.5)
+	var x_hi := float(r[2]) - (t if float(r[2]) > width - 0.01 else t * 0.5)
+	var z_lo := float(r[1]) + (t if float(r[1]) < 0.01 else t * 0.5)
+	var z_hi := float(r[3]) - (t if float(r[3]) > depth - 0.01 else t * 0.5)
+	var x := x_lo
 	var i := 0
-	while x < float(r[2]) - t - 0.05:
-		var x1 := minf(x + flag, float(r[2]) - t)
-		var z := float(r[1]) + t * 0.5
-		while z < float(r[3]) - t - 0.05:
-			var z1 := minf(z + flag, float(r[3]) - t)
+	while x < x_hi - 0.05:
+		var x1 := minf(x + flag, x_hi)
+		var z := z_lo
+		while z < z_hi - 0.05:
+			var z1 := minf(z + flag, z_hi)
 			add_member("cellar/flag/%02d" % i, &"sill", &"stone", Vector3(x1 - x - 0.01, 0.08, z1 - z - 0.01), Vector3((x + x1) * 0.5, floor + 0.04, (z + z1) * 0.5))
 			i += 1
 			z = z1
@@ -378,7 +398,7 @@ func _ground_floor() -> void:
 		var x := every
 		var k := 0
 		while x < width - 0.4:
-			var in_cellar := x > float(cel[0]) - 0.2 and z > float(cel[1]) - 0.2
+			var in_cellar := x > float(cel[0]) - 0.2 and x < float(cel[2]) + 0.2 and z > float(cel[1]) - 0.2 and z < float(cel[3]) + 0.2
 			if not in_cellar:
 				band = 0
 				add_member("pier/g%d_%02d" % [int(z * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(x, (top - 0.3) * 0.5, z))
@@ -593,7 +613,10 @@ func _outer_walls() -> void:
 		match top_kind:
 			"plate":
 				top_at = func(_x: float) -> float: return wall_height - PLATE_H
-				board_top = func(_x: float) -> float: return wall_height
+				# The boards on up to the roof's underside, closing the eave over the plate (the
+				# roof stands on trusses and purlins above it).
+				var under := _roof_under()
+				board_top = func(_x: float) -> float: return under
 			"gable":
 				# Up the end of the roof, to the common rafters' underside, then the boards to their top.
 				var under := _roof_under()
@@ -637,7 +660,9 @@ func _outer_walls() -> void:
 		for fin: Dictionary in w.inside:
 			var lvl: String = fin.level
 			var y0 := _lv[lvl] as float
-			var y1 := (_lv.upper_joist_bottom as float) if lvl == "ground" else (wall_height - PLATE_H)
+			# The ground floor's finish on up to the upper floor (where no floor meets the wall, the
+			# hall's open well, the joist band would show).
+			var y1 := (_lv.upper as float) if lvl == "ground" else (wall_height - PLATE_H)
 			if lvl == "upper" and top_kind == "gable":
 				y1 = wall_height - PLATE_H
 			var face := _face(wall, -STUD_D, -1.0)
@@ -953,7 +978,7 @@ func _stair(st: Dictionary, lower: float, upper: float) -> void:
 		var q := Vector3(p[0], 0, p[1]) - Vector3(foot.x, 0, foot.z)
 		posts.append([q.dot(up), q.dot(across)])
 	var made := Stair.build(self, "stair/" + String(st.id), head, up, across, float(st.width), risers, rise, float(st.going),
-			{"rail": 1, "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
+			{"rail": 1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1, "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
 			"stringer_look": st.get("stringer_look", st.get("look", ""))})
 	ramps.append([made.ramp, made.stringers])
 
@@ -1281,9 +1306,10 @@ func _lamps() -> void:
 		var wl: Dictionary = walls[sc.wall]
 		var wall: Dictionary = wl.dict
 		var partition: bool = wl.spec.get("partition", false)
-		# On an outer wall's inside; on a partition's - side (the hall's, the galleries').
-		var face_d := -STUD_D - 0.02 if not partition else -STUD_D * 0.5 - 0.02
-		var into := -(wall.out as Vector3)
+		# On an outer wall's inside; on a partition's - side or its + side (`side`).
+		var plus: bool = partition and sc.get("side", "-") == "+"
+		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else -STUD_D - 0.02
+		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
 		band = 1 if not partition else (2 if sc.level == "ground" else 4)
 		for s: float in sc.at:
 			var y := (_lv[sc.level] as float) + float(sc.height)

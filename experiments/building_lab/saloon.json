@@ -71,38 +71,38 @@
 		"z": [3.05, 6.1, 9.14, 12.19, 14.63]
 	},
 	"cellar": {
-		"_doc": "Sean, 2026-10-21: yes, and big. Kegs and spirits kept cool under the bar and the kitchen; rubble-stone walls, stone flags, six posts under the girders, reached by a trap and a stair in the kitchen. The floor over it is on real joists, so a blast or a fire can drop it in. The trap runs girder to girder (no joist is cut short), its two leaves folded back on the floor; the stair under it steep, as a cellar's (8.3 in risers on 7.9 in treads), with 2.1 m of head room under the floor's edge.",
-		"rect": [7.62, 9.14, 15.24, 17.07],
-		"posts": [[9.5, 12.19], [11.43, 12.19], [13.36, 12.19], [9.5, 14.63], [11.43, 14.63], [13.36, 14.63]],
+		"_doc": "Sean, 2026-10-21: yes, and big. Kegs and spirits kept cool under the bar and the kitchen (the west half); rubble-stone walls, stone flags, six posts under the girders, reached by a trap and a stair in the kitchen. The floor over it is on real joists, so a blast or a fire can drop it in. The trap runs girder to girder (no joist is cut short), its two leaves folded back on the floor; the stair under it steep, as a cellar's (8.3 in risers on 7.9 in treads), with 2.1 m of head room under the floor's edge.",
+		"rect": [0.0, 9.14, 7.62, 17.07],
+		"posts": [[5.74, 12.19], [3.81, 12.19], [1.88, 12.19], [5.74, 14.63], [3.81, 14.63], [1.88, 14.63]],
 		"flag": 1.2,
-		"trap": {"rect": [12.0, 12.29, 13.0, 14.53]},
-		"stair": {"head": [12.05, 12.29], "dir": "-z", "width": 0.9, "risers": 15, "going": 0.2}
+		"trap": {"rect": [2.24, 12.29, 3.24, 14.53]},
+		"stair": {"head": [2.29, 12.29], "dir": "-z", "width": 0.9, "risers": 15, "going": 0.2}
 	},
 	"posts": {
 		"_doc": "The gallery's posts (8x8, chamfered: Sean's picture), floor to the beams, each on a pier. 'wall' posts stand in a wall's stud line under a beam's end.",
 		"free": [
-			[1.22, 1.83],
-			[4.06, 1.83],
-			[6.91, 1.83],
-			[9.75, 1.83],
-			[11.58, 1.83],
-			[9.75, 4.78],
-			[11.58, 4.78],
-			[9.75, 7.72],
-			[11.58, 7.72],
-			[1.22, 10.67],
-			[4.06, 10.67],
-			[6.91, 10.67],
-			[9.75, 10.67],
-			[11.58, 10.67]
+			[14.02, 1.83],
+			[11.18, 1.83],
+			[8.33, 1.83],
+			[5.49, 1.83],
+			[3.66, 1.83],
+			[5.49, 4.78],
+			[3.66, 4.78],
+			[5.49, 7.72],
+			[3.66, 7.72],
+			[14.02, 10.67],
+			[11.18, 10.67],
+			[8.33, 10.67],
+			[5.49, 10.67],
+			[3.66, 10.67]
 		],
-		"wall": [[15.165, 1.83], [15.165, 10.67], [0.075, 1.83], [0.075, 10.67]]
+		"wall": [[0.075, 1.83], [0.075, 10.67], [15.165, 1.83], [15.165, 10.67]]
 	},
 	"beams": [
 		{"id": "front", "from": [0.1, 1.83], "to": [15.14, 1.83]},
 		{"id": "back", "from": [0.1, 10.67], "to": [15.14, 10.67]},
-		{"id": "well_east", "from": [9.75, 1.93], "to": [9.75, 10.57]},
-		{"id": "rooms_east", "from": [11.58, 1.93], "to": [11.58, 10.57]}
+		{"id": "well_west", "from": [5.49, 10.57], "to": [5.49, 1.93]},
+		{"id": "rooms_west", "from": [3.66, 10.57], "to": [3.66, 1.93]}
 	],
 	"floors": [
 		{
@@ -113,11 +113,11 @@
 			"look": "wood:int_floor",
 			"rough": [[0.1, 12.19, 15.14, 16.97]],
 			"openings": [
-				{"id": "trap", "rect": [12.0, 12.29, 13.0, 14.53], "hatch": 2}
+				{"id": "trap", "rect": [2.24, 12.29, 3.24, 14.53], "hatch": 2}
 			]
 		},
 		{"id": "front_gallery", "level": "upper", "rect": [0.1, 0.1, 15.14, 1.93], "joists": "z", "look": "wood:int_floor"},
-		{"id": "east_gallery", "level": "upper", "rect": [9.65, 1.93, 15.14, 10.57], "joists": "x", "look": "wood:int_floor"},
+		{"id": "west_gallery", "level": "upper", "rect": [0.1, 1.93, 5.59, 10.57], "joists": "x", "look": "wood:int_floor"},
 		{"id": "back", "level": "upper", "rect": [0.1, 10.57, 15.14, 16.97], "joists": "z", "look": "wood:int_floor"}
 	],
 	"walls": [
@@ -156,8 +156,8 @@
 				{"level": "upper", "from": 0.1, "to": 15.14, "finish": "boards"}
 			],
 			"openings": [
-				{"type": "door", "level": "ground", "at": 11.0, "width": 0.91, "height": 2.13, "leaf": "outward"},
-				{"type": "window", "level": "ground", "at": 3.8, "width": 0.91, "height": 1.22, "sill": 0.9},
+				{"type": "door", "level": "ground", "at": 4.24, "width": 0.91, "height": 2.13, "leaf": "outward"},
+				{"type": "window", "level": "ground", "at": 2.2, "width": 0.91, "height": 1.22, "sill": 0.9},
 				{"type": "window", "level": "ground", "at": 8.8, "width": 0.91, "height": 1.22, "sill": 0.9},
 				{"type": "window", "level": "upper", "at": 2.54, "width": 0.91, "height": 1.52, "sill": 0.76},
 				{"type": "window", "level": "upper", "at": 7.62, "width": 0.91, "height": 1.52, "sill": 0.76},
@@ -165,7 +165,7 @@
 			]
 		},
 		{
-			"_doc": "The west wall stands against the store: no windows.",
+			"_doc": "The west wall stands against the store: no windows. The bar's back wall.",
 			"id": "west",
 			"line": [[0, 0], [0, 17.07]],
 			"out": "-x",
@@ -179,7 +179,7 @@
 			"openings": []
 		},
 		{
-			"_doc": "The east wall, to Freight Street: no windows behind the back bar; the kitchen's; the bedrooms'; a door from the side balcony into the front gallery.",
+			"_doc": "The east wall, to Freight Street: the stair inside runs up it; windows to the stores, the stairwell and the back bedroom; a door from the side balcony into the front gallery.",
 			"id": "east",
 			"line": [[15.24, 0], [15.24, 17.07]],
 			"out": "+x",
@@ -210,8 +210,8 @@
 				{"side": "+", "finish": "rough"}
 			],
 			"openings": [
-				{"type": "door", "at": 3.8, "width": 0.91, "height": 2.13},
-				{"type": "door", "at": 14.21, "width": 0.91, "height": 2.13}
+				{"type": "door", "at": 11.24, "width": 0.91, "height": 2.13},
+				{"type": "door", "at": 0.83, "width": 0.91, "height": 2.13}
 			]
 		},
 		{
@@ -237,24 +237,13 @@
 				{"side": "+", "finish": "boards"}
 			],
 			"openings": [
-				{"type": "door", "at": 2.44, "width": 0.81, "height": 2.03},
+				{"type": "door", "at": 12.6, "width": 0.81, "height": 2.03},
 				{"type": "door", "at": 7.52, "width": 0.81, "height": 2.03},
-				{"type": "door", "at": 10.8, "width": 0.81, "height": 2.03}
+				{"type": "door", "at": 4.24, "width": 0.81, "height": 2.03}
 			]
 		},
 		{
 			"id": "room_1_2",
-			"line": [[5.08, 12.24], [5.08, 16.97]],
-			"partition": true,
-			"level": "upper",
-			"inside": [
-				{"side": "-", "finish": "boards"},
-				{"side": "+", "finish": "boards"}
-			],
-			"openings": []
-		},
-		{
-			"id": "room_2_3",
 			"line": [[10.16, 12.24], [10.16, 16.97]],
 			"partition": true,
 			"level": "upper",
@@ -265,9 +254,20 @@
 			"openings": []
 		},
 		{
-			"_doc": "Rooms 4 and 5 over the bar, on the beam at x 11.58: their doors open on the east gallery.",
-			"id": "rooms_east",
-			"line": [[11.58, 1.93], [11.58, 12.14]],
+			"id": "room_2_3",
+			"line": [[5.08, 12.24], [5.08, 16.97]],
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": []
+		},
+		{
+			"_doc": "Rooms 4 and 5 over the bar, on the beam at x 3.66: their doors open on the west gallery. No windows (the west wall stands against the store).",
+			"id": "rooms_west",
+			"line": [[3.66, 1.93], [3.66, 12.14]],
 			"partition": true,
 			"level": "upper",
 			"inside": [
@@ -281,7 +281,7 @@
 		},
 		{
 			"id": "room_4_5",
-			"line": [[11.63, 6.25], [15.14, 6.25]],
+			"line": [[0.1, 6.25], [3.61, 6.25]],
 			"partition": true,
 			"level": "upper",
 			"inside": [
@@ -293,7 +293,7 @@
 	],
 	"stairs": [
 		{
-			"_doc": "Up the west wall from the hall to the back gallery (the sheet's plan and its view from the entrance): 19 risers of 7.6 in, 18 treads of 10 in (two risers and a tread 25 in, Blondel's rule as the period stairbuilders give it), 3 ft 4 in wide, its open side railed.",
+			"_doc": "Up the east wall from the hall to the back gallery (the sheet's plan and its view from the entrance): 19 risers of 7.6 in, 18 treads of 10 in (two risers and a tread 25 in, Blondel's rule as the period stairbuilders give it), 3 ft 4 in wide, its open side railed.",
 			"id": "hall",
 			"dir": "+z",
 			"width": 1.02,
@@ -301,11 +301,11 @@
 			"to": "upper",
 			"risers": 19,
 			"going": 0.254,
-			"rail": "+x",
+			"rail": "-x",
 			"look": "wood:int_oak",
 			"stringer_look": "wood:int_timber",
-			"posts": [[1.18, 8.2]],
-			"head": [0.16, 10.57]
+			"posts": [[14.06, 8.2]],
+			"head": [14.06, 10.57]
 		},
 		{
 			"_doc": "Sean, 2026-10-21: keep the sheet's outside stair (a second way up). Up the east wall from the yard to the side balcony (Freight Street side), rising toward the street.",
@@ -324,7 +324,7 @@
 		{
 			"_doc": "Four steps from the yard to the kitchen's back door.",
 			"id": "back",
-			"head": [10.5, 17.095],
+			"head": [3.74, 17.095],
 			"dir": "-z",
 			"width": 1.0,
 			"from": 0.0,
@@ -332,7 +332,7 @@
 			"risers": 4,
 			"going": 0.28,
 			"wood": "weathered_pine",
-			"posts": [[10.5, 17.9], [11.5, 17.9]]
+			"posts": [[3.74, 17.9], [4.74, 17.9]]
 		}
 	],
 	"balconies": [
@@ -357,68 +357,68 @@
 	],
 	"galleries": {
 		"_doc": "Sean: the gallery looking down into the saloon (the sheet's 'open to bar below'). Rails at 1 m on the well's edges, oak (the picture's balustrade).",
-		"well": [1.22, 1.93, 9.75, 10.57],
-		"rails": [[[0.1, 1.9], [9.72, 1.9]], [[9.72, 1.9], [9.72, 10.6]], [[1.22, 10.6], [9.72, 10.6]]],
+		"well": [5.49, 1.93, 14.02, 10.57],
+		"rails": [[[15.14, 1.9], [5.52, 1.9]], [[5.52, 1.9], [5.52, 10.6]], [[14.02, 10.6], [5.52, 10.6]]],
 		"look": "wood:int_oak"
 	},
 	"front": {"sign": "SALOON", "sign_from": 7.7, "cornice": "dark_trim"},
 	"rooms": [
 		{"id": "hall", "level": "ground", "rect": [0.1, 0.1, 15.14, 12.19], "use": "drinking, cards, the piano, the bar", "open_to": "upper"},
-		{"id": "back_room", "level": "ground", "rect": [0.1, 12.24, 7.62, 16.97], "use": "the owner's stores and his desk"},
-		{"id": "kitchen", "level": "ground", "rect": [7.62, 12.24, 15.14, 16.97], "use": "the cook; the trap to the cellar; the back door to the yard"},
-		{"id": "cellar", "level": "cellar", "rect": [8.07, 9.59, 14.79, 16.62], "use": "kegs and spirits kept cool"},
+		{"id": "back_room", "level": "ground", "rect": [7.62, 12.24, 15.14, 16.97], "use": "the owner's stores and his desk"},
+		{"id": "kitchen", "level": "ground", "rect": [0.1, 12.24, 7.62, 16.97], "use": "the cook; the trap to the cellar; the back door to the yard"},
+		{"id": "cellar", "level": "cellar", "rect": [0.45, 9.59, 7.17, 16.62], "use": "kegs and spirits kept cool"},
 		{"id": "front_gallery", "level": "upper", "rect": [0.1, 0.1, 15.14, 1.93], "use": "the doors to the street balcony; a lookout over the hall"},
-		{"id": "east_gallery", "level": "upper", "rect": [9.75, 1.93, 11.58, 10.57], "use": "rooms 4 and 5's doors"},
-		{"id": "back_gallery", "level": "upper", "rect": [0.1, 10.57, 11.58, 12.19], "use": "the stair's head; rooms 1 to 3's doors"},
-		{"id": "room_1", "level": "upper", "rect": [0.1, 12.24, 5.08, 16.97], "use": "a bedroom"},
+		{"id": "west_gallery", "level": "upper", "rect": [3.66, 1.93, 5.49, 10.57], "use": "rooms 4 and 5's doors"},
+		{"id": "back_gallery", "level": "upper", "rect": [3.66, 10.57, 15.14, 12.19], "use": "the stair's head; rooms 1 to 3's doors"},
+		{"id": "room_1", "level": "upper", "rect": [10.16, 12.24, 15.14, 16.97], "use": "a bedroom"},
 		{"id": "room_2", "level": "upper", "rect": [5.08, 12.24, 10.16, 16.97], "use": "a bedroom"},
-		{"id": "room_3", "level": "upper", "rect": [10.16, 12.24, 15.14, 16.97], "use": "a bedroom"},
-		{"id": "room_4", "level": "upper", "rect": [11.63, 1.93, 15.14, 6.25], "use": "a bedroom"},
-		{"id": "room_5", "level": "upper", "rect": [11.63, 6.25, 15.14, 12.19], "use": "a bedroom"}
+		{"id": "room_3", "level": "upper", "rect": [0.1, 12.24, 5.08, 16.97], "use": "a bedroom"},
+		{"id": "room_4", "level": "upper", "rect": [0.1, 1.93, 3.61, 6.25], "use": "a bedroom"},
+		{"id": "room_5", "level": "upper", "rect": [0.1, 6.25, 3.61, 12.19], "use": "a bedroom"}
 	],
 	"fixtures": [
 		{
-			"_doc": "The bar along the east wall under rooms 4 and 5 (Sean: as his picture and today's game), three 3 m sections, the customers to the west; the back bar against the wall behind, three 2.5 m sections. Kit parts, turned to face the room.",
+			"_doc": "The bar along the west wall under rooms 4 and 5, on your right as you walk in (Sean, 2026-10-22: as his picture and the sheet's view from the entrance), three 3 m sections, the customers to the east; the back bar against the wall behind, three 2.5 m sections. Kit parts, turned to face the room.",
 			"kit": "bar",
-			"at": [13.49, 3.9],
-			"facing": -90,
+			"at": [1.75, 3.9],
+			"facing": 90,
 			"repeat": {"count": 3, "step": [0, 3.0]}
 		},
 		{
 			"kit": "back_bar",
-			"at": [14.86, 4.4],
-			"facing": -90,
+			"at": [0.38, 4.4],
+			"facing": 90,
 			"repeat": {"count": 3, "step": [0, 2.5]}
 		}
 	],
 	"furniture": [
-		{"kit": "card_table", "at": [3.6, 4.2], "chairs": 4},
-		{"kit": "card_table", "at": [6.9, 6.9], "chairs": 4},
-		{"kit": "card_table", "at": [4.0, 8.9], "chairs": 4},
-		{"kit": "chair", "at": [8.6, 3.0], "facing": 200},
-		{"kit": "chair", "at": [10.4, 11.2], "facing": 160},
-		{"members": "table", "id": "kitchen_table", "rect": [9.2, 15.4, 10.8, 16.3], "height": 0.78, "level": "ground"},
-		{"members": "shelves", "id": "kitchen_shelves", "rect": [14.6, 12.4, 15.1, 14.4], "boards": 4, "level": "ground"},
-		{"members": "shelves", "id": "stores_shelves", "rect": [0.15, 12.6, 0.6, 16.6], "boards": 5, "level": "ground"},
-		{"members": "table", "id": "desk", "rect": [5.4, 15.6, 6.9, 16.5], "height": 0.76, "level": "ground"},
-		{"members": "shelves", "id": "cellar_rack_a", "rect": [8.1, 10.0, 8.6, 13.0], "boards": 3, "level": "cellar"},
-		{"members": "shelves", "id": "cellar_rack_b", "rect": [14.2, 9.8, 14.7, 12.6], "boards": 3, "level": "cellar"}
+		{"kit": "card_table", "at": [11.64, 4.2], "chairs": 4},
+		{"kit": "card_table", "at": [8.34, 6.9], "chairs": 4},
+		{"kit": "card_table", "at": [11.24, 8.9], "chairs": 4},
+		{"kit": "chair", "at": [6.64, 3.0], "facing": -200},
+		{"kit": "chair", "at": [4.84, 11.2], "facing": -160},
+		{"members": "table", "id": "kitchen_table", "rect": [4.44, 15.4, 6.04, 16.3], "height": 0.78, "level": "ground"},
+		{"members": "shelves", "id": "kitchen_shelves", "rect": [0.14, 12.4, 0.64, 14.4], "boards": 4, "level": "ground"},
+		{"members": "shelves", "id": "stores_shelves", "rect": [14.64, 12.6, 15.09, 16.6], "boards": 5, "level": "ground"},
+		{"members": "table", "id": "desk", "rect": [8.34, 15.6, 9.84, 16.5], "height": 0.76, "level": "ground"},
+		{"members": "shelves", "id": "cellar_rack_a", "rect": [6.64, 10.0, 7.14, 13.0], "boards": 3, "level": "cellar"},
+		{"members": "shelves", "id": "cellar_rack_b", "rect": [0.54, 9.8, 1.04, 12.6], "boards": 3, "level": "cellar"}
 	],
 	"lamps": {
-		"_doc": "Every lamp an OilLamp (a fitting: it falls with what holds it, smashes, spills burning oil). Sconces stand on a bracket member nailed to the wall's boards; table lamps on the card tables (they fall with the table, KitProp); the chandelier is a wheel of members hung from the truss on iron rods.",
+		"_doc": "Every lamp an OilLamp (a fitting: it falls with what holds it, smashes, spills burning oil). Sconces stand on a bracket member nailed to the wall's boards; table lamps on the card tables (they fall with the table, KitProp); the chandelier is a wheel of members hung from the truss on iron rods. A partition's sconces are on its - side unless `side` says +.",
 		"sconces": [
-			{"wall": "front", "level": "ground", "at": [3.43, 11.81], "height": 1.9},
-			{"wall": "west", "level": "ground", "at": [3.0, 9.0, 11.5], "height": 1.9},
-			{"wall": "east", "level": "ground", "at": [1.6, 10.9], "height": 1.9},
-			{"wall": "hall_back", "level": "ground", "at": [1.9, 6.0, 10.0], "height": 1.9},
-			{"wall": "west", "level": "upper", "at": [11.3], "height": 1.8},
-			{"wall": "front", "level": "upper", "at": [3.0, 8.9, 12.3], "height": 1.8},
-			{"wall": "rooms_back", "level": "upper", "at": [5.1, 9.2], "height": 1.8},
-			{"wall": "rooms_east", "level": "upper", "at": [4.2, 8.2], "height": 1.8}
+			{"wall": "front", "level": "ground", "at": [11.81, 3.43], "height": 1.9},
+			{"wall": "east", "level": "ground", "at": [3.0, 5.0, 11.5], "height": 1.9},
+			{"wall": "west", "level": "ground", "at": [1.6, 10.9], "height": 1.9},
+			{"wall": "hall_back", "level": "ground", "at": [13.14, 9.04, 5.04], "height": 1.9},
+			{"wall": "east", "level": "upper", "at": [11.3], "height": 1.8},
+			{"wall": "front", "level": "upper", "at": [12.24, 6.34, 2.94], "height": 1.8},
+			{"wall": "rooms_back", "level": "upper", "at": [9.94, 5.84], "height": 1.8},
+			{"wall": "rooms_west", "level": "upper", "at": [4.2, 8.2], "height": 1.8, "side": "+"}
 		],
 		"on_tables": true,
-		"on_bar": [[13.2, 3.5], [13.2, 9.5]],
-		"chandelier": {"at": [5.48, 6.1], "y": 5.1, "radius": 0.75, "lamps": 8, "truss": 6.1}
+		"on_bar": [[2.04, 3.5], [2.04, 9.5]],
+		"chandelier": {"at": [9.76, 6.1], "y": 5.1, "radius": 0.75, "lamps": 8, "truss": 6.1}
 	},
 	"outbuildings": [
 		{
@@ -433,28 +433,28 @@
 		}
 	],
 	"use_points": [
-		{"id": "barman_a", "use": "serve", "who": "barman", "at": [14.25, 0.78, 4.0], "facing": -90},
-		{"id": "barman_b", "use": "serve", "who": "barman", "at": [14.25, 0.78, 8.5], "facing": -90},
-		{"id": "drinker_1", "use": "drink", "who": "anyone", "at": [12.55, 0.78, 3.4], "facing": 90},
-		{"id": "drinker_2", "use": "drink", "who": "anyone", "at": [12.55, 0.78, 5.2], "facing": 90},
-		{"id": "drinker_3", "use": "drink", "who": "anyone", "at": [12.55, 0.78, 6.6], "facing": 90},
-		{"id": "drinker_4", "use": "drink", "who": "anyone", "at": [12.55, 0.78, 8.8], "facing": 90},
-		{"id": "drinker_5", "use": "drink", "who": "anyone", "at": [12.55, 0.78, 10.2], "facing": 90},
+		{"id": "barman_a", "use": "serve", "who": "barman", "at": [0.99, 0.78, 4.0], "facing": 90},
+		{"id": "barman_b", "use": "serve", "who": "barman", "at": [0.99, 0.78, 8.5], "facing": 90},
+		{"id": "drinker_1", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 3.4], "facing": -90},
+		{"id": "drinker_2", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 5.2], "facing": -90},
+		{"id": "drinker_3", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 6.6], "facing": -90},
+		{"id": "drinker_4", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 8.8], "facing": -90},
+		{"id": "drinker_5", "use": "drink", "who": "anyone", "at": [2.69, 0.78, 10.2], "facing": -90},
 		{"id": "gambler_tables", "use": "gamble", "who": "gambler", "seats": "card_table"},
-		{"id": "cook", "use": "cook", "who": "cook", "at": [10.0, 0.78, 14.9], "facing": 180},
-		{"id": "owner_desk", "use": "work", "who": "owner", "at": [6.15, 0.78, 15.1], "facing": 0},
-		{"id": "lookout_gallery", "use": "watch", "who": "guard", "at": [5.5, 4.44, 1.2], "facing": 0},
-		{"id": "lookout_balcony", "use": "watch", "who": "anyone", "at": [7.6, 4.44, -1.4], "facing": 180},
-		{"id": "cover_bar", "use": "cover", "who": "anyone", "at": [14.2, 0.78, 6.0], "facing": -90},
-		{"id": "cover_rail", "use": "cover", "who": "anyone", "at": [9.2, 4.44, 1.35], "facing": 0},
-		{"id": "guest_1", "use": "sleep", "who": "guest", "at": [2.6, 4.44, 15.0], "facing": 0},
-		{"id": "guest_2", "use": "sleep", "who": "guest", "at": [7.6, 4.44, 15.0], "facing": 0},
-		{"id": "guest_3", "use": "sleep", "who": "guest", "at": [12.7, 4.44, 15.0], "facing": 0},
-		{"id": "guest_4", "use": "sleep", "who": "guest", "at": [13.4, 4.44, 4.1], "facing": 0},
-		{"id": "guest_5", "use": "sleep", "who": "guest", "at": [13.4, 4.44, 9.2], "facing": 0},
-		{"id": "rail_east", "use": "lean", "who": "anyone", "at": [10.55, 4.44, 6.0], "facing": -90},
-		{"id": "rail_back", "use": "lean", "who": "anyone", "at": [6.0, 4.44, 11.35], "facing": 180},
-		{"id": "cellarman", "use": "fetch", "who": "barman", "at": [9.0, -2.32, 15.0], "facing": 0}
+		{"id": "cook", "use": "cook", "who": "cook", "at": [5.24, 0.78, 14.9], "facing": -180},
+		{"id": "owner_desk", "use": "work", "who": "owner", "at": [9.09, 0.78, 15.1], "facing": 0},
+		{"id": "lookout_gallery", "use": "watch", "who": "guard", "at": [9.74, 4.44, 1.2], "facing": 0},
+		{"id": "lookout_balcony", "use": "watch", "who": "anyone", "at": [7.64, 4.44, -1.4], "facing": -180},
+		{"id": "cover_bar", "use": "cover", "who": "anyone", "at": [1.04, 0.78, 6.0], "facing": 90},
+		{"id": "cover_rail", "use": "cover", "who": "anyone", "at": [6.04, 4.44, 1.35], "facing": 0},
+		{"id": "guest_1", "use": "sleep", "who": "guest", "at": [12.64, 4.44, 15.0], "facing": 0},
+		{"id": "guest_2", "use": "sleep", "who": "guest", "at": [7.64, 4.44, 15.0], "facing": 0},
+		{"id": "guest_3", "use": "sleep", "who": "guest", "at": [2.54, 4.44, 15.0], "facing": 0},
+		{"id": "guest_4", "use": "sleep", "who": "guest", "at": [1.84, 4.44, 4.1], "facing": 0},
+		{"id": "guest_5", "use": "sleep", "who": "guest", "at": [1.84, 4.44, 9.2], "facing": 0},
+		{"id": "rail_east", "use": "lean", "who": "anyone", "at": [4.69, 4.44, 6.0], "facing": 90},
+		{"id": "rail_back", "use": "lean", "who": "anyone", "at": [9.24, 4.44, 11.35], "facing": -180},
+		{"id": "cellarman", "use": "fetch", "who": "barman", "at": [6.24, -2.32, 15.0], "facing": 0}
 	],
 	"materials": {
 		"_doc": "Only woods the material lab approved (docs/PARTS.md 'Materials and look'): the interior woods Sean picked (C, 2026-10-21) inside the hall, the gallery and the rooms; the game's exterior woods outside; framing left as framing in the back rooms and the cellar.",

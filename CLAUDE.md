@@ -397,6 +397,10 @@ frozen until Sean names one.
   saloon's balcony and stair rails built of it (`docs/PARTS.md`). Next: the collapse
   (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); Sean's chairs
   (bodies in the prop lab's member chairs, one to three legs kicked or shot out); loose props.
+- **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
+  format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
+  experiment; nothing in the game changed. Next: the README's "What the format needs" (bands and a
+  broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
