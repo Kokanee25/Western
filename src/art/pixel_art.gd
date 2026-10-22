@@ -120,6 +120,8 @@ const DRAWN_SQUARES := {}
 static var _sets := {}
 ## Each set's lab.json "weathering" (round 3's stain sheet and palette), read with its woods.
 static var _set_weather := {}
+## A set's woods' light steps (its lab.json "light_bands"; 0: as the world's).
+static var _set_bands := {}
 const FACTORY_INDEX := "res://assets/textures/textures.json"
 static var _factory_index: Variant = null
 
@@ -130,13 +132,16 @@ static func _set_woods(set: String) -> Dictionary:
 		var jp := "res://assets/textures/%s/lab.json" % set
 		var woods_of := {}
 		var weather := {}
+		var bands := 0.0
 		if FileAccess.file_exists(jp):
 			var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(jp))
 			if info is Dictionary:
 				woods_of = (info as Dictionary).get("woods", {})
 				weather = (info as Dictionary).get("weathering", {})
+				bands = float((info as Dictionary).get("light_bands", 0.0))
 		_sets[set] = woods_of
 		_set_weather[set] = weather
+		_set_bands[set] = bands
 	return _sets[set]
 
 
@@ -215,11 +220,21 @@ static func material(tex: Texture2D, tint := Color.WHITE, mapping := Mapping.UV,
 				# A wood's own finish (the bar top's polish: docs/briefs/interior-woodwork.md).
 				m.set_shader_parameter(&"roughness", float(info["roughness"]))
 				m.set_shader_parameter(&"specular", float(info.get("specular", 0.5)))
-			if set.begins_with(MLAB_PREFIX) or _wood_of(key).begins_with(INTERIOR_PREFIX):
+			elif info.has("specular"):
+				# A promoted wood's sheen (round 4's 0.08 on the exterior woods).
+				m.set_shader_parameter(&"specular", float(info["specular"]))
+			if set.begins_with(MLAB_PREFIX) or _wood_of(key).begins_with(INTERIOR_PREFIX) \
+					or bool(info.get("edge_aa", false)):
 				# Round 3 (2026-10-21): the seams a pixel wide at least, and the set's weathering
 				# layer (laid only where a mesh asks: MaterialStand's weathered parts).
 				m.set_shader_parameter(&"edge_aa", true)
 				_weathering(m, set)
+			var wb := float(_set_bands.get(set, 0.0))
+			if wb > 0.0:
+				# Round 6: the wood's light in steps, as the men's paint is (the blocks light, its
+				# own count, on the woods only).
+				m.shader = GRID_SHADER_BLOCKS
+				m.set_shader_parameter(&"wood_bands", wb)
 		else:
 			m.set_meta(&"texels", lab_density(key, set))
 			m.set_meta(&"mipmaps", true)
@@ -284,7 +299,7 @@ static func _lab_prop(tex: Texture2D) -> bool:
 ## The same material with bullet holes (the hole uniforms are set by the member).
 static func hole_material(base: ShaderMaterial) -> ShaderMaterial:
 	var m := base.duplicate() as ShaderMaterial
-	m.shader = hole_shader()
+	m.shader = HOLE_SHADER_BLOCKS if base.shader == GRID_SHADER_BLOCKS else hole_shader()
 	for k in [&"texels", &"texels_scale", &"end_scale", &"mipmaps"]:
 		if base.has_meta(k):
 			m.set_meta(k, base.get_meta(k))
