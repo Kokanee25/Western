@@ -59,6 +59,7 @@ func test_his_eyes_lead_and_his_head_follows() -> void:
 	var him := HumanBody.new()
 	him.body_model = MAN
 	him.person_id = &"gaze_test"
+	him.face_life = false   # this test drives his FaceGaze itself
 	add_child(him)
 	await physics_frames(2)
 	var g := FaceGaze.new()

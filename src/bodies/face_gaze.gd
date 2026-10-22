@@ -23,6 +23,12 @@ var blinks := true
 var auto := true
 ## Off: his eyes ahead, his head his pose's (the shapes and pose_offsets let go).
 var active := true
+## Off: only his eyes look (his head stays his pose's: aiming, the gun's).
+var head := true
+## His blinks come this many times as often (0: none start).
+var blink_rate := 1.0
+## His lids held at least this far shut (0 open .. 1 shut: out cold, dead).
+var lids := 0.0
 var rng_seed := 0
 
 var _faces: Array[MeshInstance3D] = []
@@ -104,6 +110,8 @@ func step(delta: float) -> void:
 		var k := smoothstep(tuning.eye_comfort * 0.5, tuning.eye_comfort, big)
 		goal_head = Vector2(clampf(goal_head.x * tuning.head_share * k, -tuning.head_yaw_max, tuning.head_yaw_max),
 				clampf(goal_head.y * tuning.head_share * k, -tuning.head_pitch_max, tuning.head_pitch_max))
+		if not head:
+			goal_head = Vector2.ZERO
 		# ... and in his head's frame as it is now, for his eyes (they cover what it hasn't yet).
 		goal_eye = _angles(head.global_transform.basis.inverse() * (at - eye))
 		if blinks and (goal_eye - _last_goal).length() > tuning.blink_on_shift and _blink_t < 0.0 \
@@ -122,7 +130,7 @@ func step(delta: float) -> void:
 		body.pose_offsets[&"head"] = Vector3(_head.y, _head.x, 0.0)
 	var blink := 0.0
 	if blinks:
-		_blink_in -= delta
+		_blink_in -= delta * blink_rate
 		if _blink_in <= 0.0 and _blink_t < 0.0:
 			_blink_t = 0.0
 		if _blink_t >= 0.0:
@@ -132,6 +140,7 @@ func step(delta: float) -> void:
 			if u >= 1.0:
 				_blink_t = -1.0
 				_blink_in = _rng.randf_range(tuning.blink_every.x, tuning.blink_every.y)
+		blink = maxf(blink, lids)
 	var e := _eye / tuning.eye_range
 	var w := [maxf(e.x, 0.0), maxf(-e.x, 0.0), maxf(e.y, 0.0), maxf(-e.y, 0.0), blink, blink]
 	for f in _faces.size():
@@ -139,6 +148,12 @@ func step(delta: float) -> void:
 		for k in SHAPES.size():
 			if ids[k] >= 0 and (k < 4 or blinks):
 				_faces[f].set_blend_shape_value(ids[k], clampf(w[k], 0.0, 1.0))
+
+
+## A blink now (a start, a fright), unless one is under way.
+func blink() -> void:
+	if _blink_t < 0.0:
+		_blink_t = 0.0
 
 
 ## Degrees (left +, up +) of a direction in a frame where he faces -Z and his left is -X.
