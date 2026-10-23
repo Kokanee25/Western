@@ -451,11 +451,11 @@ func _follow() -> void:
 	if not is_instance_valid(m):
 		_watch = {}
 		return
-	var chest := m.global_position + Vector3.UP * 1.1
+	var chest := (m.parts[&"chest"] as Node3D).global_position if m.parts.has(&"chest") else m.global_position + Vector3.UP * 1.1
 	var away := m.global_position - player.global_position
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.1 else -m.global_basis.z
-	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - 1.1)
+	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - (chest.y - m.global_position.y))
 	var space := m.get_world_3d().direct_space_state
 	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
 	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
