@@ -25,6 +25,10 @@ func run() -> void:
 	if not out.is_absolute_path():
 		out = ProjectSettings.globalize_path("res://").path_join(out)
 	DirAccess.make_dir_recursive_absolute(out)
+	if _arg("side") != "":
+		await _side(_arg("side"), out)
+		get_tree().quit()
+		return
 	var world := Node3D.new()
 	add_child(world)
 	var env := WorldEnvironment.new()
@@ -233,7 +237,7 @@ func _print_gaps(gun: Node3D, hand: Node3D) -> void:
 	var boxes: Array[MeshInstance3D] = []
 	for n in ["Grip/Panels", "Grip/Backstrap", "Stock/PistolGrip/Grip", "Stock/Wrist", "Barrels/Forend", "Trigger/Blade", "Trigger0/Blade", "Hammer/Spur", "Hammer0/Spur"]:
 		var mi := gun.get_node_or_null(n) as MeshInstance3D
-		if mi and mi.mesh is BoxMesh:
+		if mi and mi.mesh:
 			boxes.append(mi)
 	var side := "r" if bool(hand.get(&"right")) else "l"
 	var fingers: Dictionary = hand.get(&"fingers")
@@ -244,11 +248,9 @@ func _print_gaps(gun: Node3D, hand: Node3D) -> void:
 			var best := INF
 			var what := ""
 			for mi in boxes:
-				var half := (mi.mesh as BoxMesh).size * 0.5
 				var to_box := mi.global_transform.affine_inverse()
 				for p in pts:
-					var q := (to_box * p).abs() - half
-					var d := q.max(Vector3.ZERO).length() + minf(maxf(q.x, maxf(q.y, q.z)), 0.0)
+					var d := _solid_distance(mi, to_box * p)
 					if d < best:
 						best = d
 						what = mi.name
@@ -308,7 +310,7 @@ func _fit(w: WeaponViewmodel) -> void:
 			for n in ["Frame", "RecoilShield", "Grip/Panels", "Grip/Backstrap", "Hammer/Body", "Hammer/Spur",
 					"Stock/Wrist", "Stock/PistolGrip/Grip", "Tang", "Breech", "LockplateR", "LockplateL", "Hammer0/Body", "Hammer0/Spur", "Hammer1/Body", "Hammer1/Spur"]:
 				var mi := gun.get_node_or_null(n) as MeshInstance3D
-				if mi and mi.mesh is BoxMesh:
+				if mi and mi.mesh:
 					solid.append(mi)
 			_fit_thumb(hand, gun, solid, "rest", THUMB_REST_TIP if revolver else SHOTGUN_THUMB_REST_TIP)
 			_fit_thumb(hand, gun, solid, "cock", THUMB_COCK_TIP if revolver else SHOTGUN_THUMB_COCK_TIP)
@@ -336,7 +338,14 @@ func _solid_distance(mi: MeshInstance3D, p: Vector3) -> float:
 		var c := mi.mesh as CylinderMesh
 		var d := Vector2(Vector2(p.x, p.z).length() - c.top_radius, absf(p.y) - c.height * 0.5)
 		return d.max(Vector2.ZERO).length() + minf(maxf(d.x, d.y), 0.0)
-	var q := p.abs() - (mi.mesh as BoxMesh).size * 0.5
+	if mi.has_meta(&"outline"):
+		return GunParts.profile_distance(mi, p)
+	if mi.mesh is BoxMesh:
+		var qb := p.abs() - (mi.mesh as BoxMesh).size * 0.5
+		return qb.max(Vector3.ZERO).length() + minf(maxf(qb.x, maxf(qb.y, qb.z)), 0.0)
+	# Any other shape (an extruded profile): its bounding box, near enough for a hand's fit.
+	var bb := mi.mesh.get_aabb()
+	var q := (p - bb.get_center()).abs() - bb.size * 0.5
 	return q.max(Vector3.ZERO).length() + minf(maxf(q.x, maxf(q.y, q.z)), 0.0)
 
 
@@ -373,11 +382,9 @@ func _fit_thumb(hand: Node3D, gun: Node3D, solid: Array[MeshInstance3D], what: S
 		for k in 3:
 			var pts: PackedVector3Array = hand.call(&"surface_points", "finger_%s_%s_%d" % [finger, side, k])
 			for mi in solid:
-				var half := (mi.mesh as BoxMesh).size * 0.5
 				var to_box := mi.global_transform.affine_inverse()
 				for i in range(0, pts.size(), 3):
-					var q := (to_box * pts[i]).abs() - half
-					gap = minf(gap, q.max(Vector3.ZERO).length() + minf(maxf(q.x, maxf(q.y, q.z)), 0.0))
+					gap = minf(gap, _solid_distance(mi, to_box * pts[i]))
 		if gap >= -0.003:
 			print("FIT %s %s %s: %s, %d, %d (tip %.0f mm off, skin %+.0f mm)" % [hand.name, finger, what, t[1], t[2], t[3], t[0] * 1000.0, gap * 1000.0])
 			return
@@ -391,7 +398,9 @@ func _fit_reach(hand: Node3D, gun: Node3D) -> void:
 	var blade := gun.get_node("Trigger0/Blade") as MeshInstance3D
 	var solid: Array[MeshInstance3D] = []
 	for n in ["GuardBottom", "GuardBack", "GuardFront", "Stock/Wrist", "Stock/PistolGrip/Grip", "Trigger1/Blade"]:
-		solid.append(gun.get_node(n) as MeshInstance3D)
+		var mi := gun.get_node_or_null(n) as MeshInstance3D
+		if mi:
+			solid.append(mi)
 	var side := "r" if bool(hand.get(&"right")) else "l"
 	var best := [INF, 0.0, 0.0]
 	for spread in range(-30, 31, 5):
@@ -408,3 +417,69 @@ func _fit_reach(hand: Node3D, gun: Node3D) -> void:
 			best = [near, float(spread), float(amount)]
 	hand.call(&"grasp", "index", best[2], best[1])
 	print("FIT %s index: spread %.0f, grasp %.0f (pad %.0f mm off the trigger)" % [hand.name, best[1], best[2], best[0] * 1000.0])
+
+
+## --side=revolver|shotgun: the gun alone from its right, orthographic, each part lit plain in its
+## material's colour on a grey ground, on a 21:9 canvas round it: the base the texture factory
+## repaints in the men's hand (docs/briefs/gun-remake.md). Writes OUT/<gun>_base.png and
+## OUT/<gun>.json (the canvas in the gun's space: GunParts.paint_gun's rect).
+const SIDE_COLOURS := {&"blued": Color(0.17, 0.19, 0.24), &"case": Color(0.5, 0.47, 0.42), &"walnut": Color(0.4, 0.22, 0.1),
+		&"brass": Color(0.72, 0.55, 0.26)}
+const SIDE_WIDTH := 2048
+
+
+func _side(gun: String, out: String) -> void:
+	var world := Node3D.new()
+	add_child(world)
+	var env := WorldEnvironment.new()
+	env.environment = Environment.new()
+	env.environment.background_mode = Environment.BG_COLOR
+	env.environment.background_color = Color(0.56, 0.56, 0.55)
+	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.environment.ambient_light_color = Color(1, 1, 1)
+	env.environment.ambient_light_energy = 0.55
+	world.add_child(env)
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-50, 70, 0)  # from above and the front right, as a painter's light
+	sun.light_energy = 0.9
+	world.add_child(sun)
+	var model: Node3D = RevolverModel.new() if gun == "revolver" else ShotgunModel.new()
+	world.add_child(model)
+	await _frames(2)
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		var k := GunParts.kind_of(mi.material_override)
+		var m := StandardMaterial3D.new()
+		m.albedo_color = SIDE_COLOURS.get(k, Color(0.05, 0.05, 0.05)) if not mi.has_meta(&"own_paint") or k != &"brass" else SIDE_COLOURS[&"brass"]
+		m.roughness = 0.8
+		mi.material_override = m
+		var b := mi.global_transform * mi.get_aabb()
+		lo = lo.min(b.position)
+		hi = hi.max(b.end)
+	# The canvas: the gun with a margin, widened to 21:9 about its middle.
+	var z0 := lo.z - 0.01
+	var z1 := hi.z + 0.01
+	var h := (z1 - z0) * 9.0 / 21.0
+	var yc := (lo.y + hi.y) * 0.5
+	var rect := Rect2(z0, yc - h * 0.5, z1 - z0, h)
+	var vp := SubViewport.new()
+	vp.size = Vector2i(SIDE_WIDTH, int(round(SIDE_WIDTH * 9.0 / 21.0)))
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	vp.own_world_3d = false
+	add_child(vp)
+	var cam := Camera3D.new()
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	cam.size = h
+	cam.near = 0.01
+	cam.far = 2.0
+	vp.add_child(cam)
+	cam.global_transform = Transform3D(Basis.looking_at(Vector3.LEFT, Vector3.UP), Vector3(0.5, yc, (z0 + z1) * 0.5))
+	cam.make_current()
+	await _frames(4)
+	await RenderingServer.frame_post_draw
+	vp.get_texture().get_image().save_png(out.path_join("%s_base.png" % gun))
+	var f := FileAccess.open(out.path_join("%s.json" % gun), FileAccess.WRITE)
+	f.store_string(JSON.stringify({"rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y],
+			"about": "The %s's side painting's canvas in the gun's space (z_min, y_min, width, height), seen from its right: GunParts.paint_gun. From the gun lab's views.gd --side." % gun}, "  ") + "\n")
+	print("SIDE %s rect %s" % [gun, rect])

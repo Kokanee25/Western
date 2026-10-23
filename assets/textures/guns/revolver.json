@@ -1,0 +1,9 @@
+{
+  "about": "The revolver's side painting's canvas in the gun's space (z_min, y_min, width, height), seen from its right: GunParts.paint_gun. From the gun lab's views.gd --side.",
+  "rect": [
+    -0.26649996638298,
+    -0.0841187089681625,
+    0.342357128858566,
+    0.146724477410316
+  ]
+}

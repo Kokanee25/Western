@@ -1,0 +1,9 @@
+{
+  "about": "The shotgun's side painting's canvas in the gun's space (z_min, y_min, width, height), seen from its right: GunParts.paint_gun. From the gun lab's views.gd --side.",
+  "rect": [
+    -0.563499987125397,
+    -0.250705271959305,
+    0.93149995803833,
+    0.399214267730713
+  ]
+}
