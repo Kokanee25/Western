@@ -26,9 +26,9 @@ static func material(key: String, tex: Texture2D, metallic := 0.0, roughness := 
 
 ## The same on the texel grid like the world (lit tile by tile), mapped by position in the part's
 ## own space at what's in your hands' density (HELD_TEXELS_PER_METER; not tracked: F7 doesn't
-## change them). The guns' metals and wood, and your hand and sleeve, use it; people's bodies make
-## their own (`material`).
-static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8) -> ShaderMaterial:
+## change them), or a texture factory painting's own (`density`: PixelArt.factory_density). The
+## guns' metals and wood use it; people's bodies make their own (`material`).
+static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8, density := 0.0) -> ShaderMaterial:
 	key = "grid:" + key
 	if not _mats.has(key):
 		var m := ShaderMaterial.new()
@@ -36,7 +36,7 @@ static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8)
 		m.set_shader_parameter(&"albedo_tex", tex)
 		m.set_shader_parameter(&"tint", Color.WHITE)
 		m.set_shader_parameter(&"mapping", PixelArt.Mapping.TRIPLANAR)
-		m.set_shader_parameter(&"texels_per_meter", HELD_TEXELS_PER_METER)
+		m.set_shader_parameter(&"texels_per_meter", density if density > 0.0 else HELD_TEXELS_PER_METER)
 		m.set_shader_parameter(&"use_mipmaps", true)
 		m.set_shader_parameter(&"metallic", metallic)
 		m.set_shader_parameter(&"roughness", roughness)
@@ -45,31 +45,42 @@ static func grid(key: String, tex: Texture2D, metallic := 0.0, roughness := 0.8)
 	return _mats[key]
 
 
-## Worn blued steel: grey with a blue cast, bright where the light catches an edge (as the street
-## painting's revolver; darker and fully metallic it read black in the evening light).
+## Worn blued steel, case-hardened colours, brass and walnut: the texture factory's paintings in
+## the men's hand (`gun_blued`, `gun_case`, `prop_brass`, `walnut`: issue #274, Sean's #249) at
+## their own density; without them, code squares as before.
 static func blued() -> ShaderMaterial:
-	return grid("blued", PixelArt.squares("held_blued", Color(0.34, 0.36, 0.4), 71, 0.4), 0.55, 0.32)
+	return _painted("blued", "gun_blued", PixelArt.squares("held_blued", Color(0.34, 0.36, 0.4), 71, 0.4), 0.55, 0.32)
 
 
 static func case_hardened() -> ShaderMaterial:
-	return grid("case", PixelArt.squares("held_case", Color(0.46, 0.44, 0.42), 73, 0.45), 0.55, 0.38)
+	return _painted("case", "gun_case", PixelArt.squares("held_case", Color(0.46, 0.44, 0.42), 73, 0.45), 0.55, 0.38)
 
 
 static func brass() -> ShaderMaterial:
-	return grid("brass", PixelArt.metal("brass", Color(0.72, 0.56, 0.27), 75), 0.85, 0.35)
+	return _painted("brass", "prop_brass", PixelArt.metal("brass", Color(0.72, 0.56, 0.27), 75), 0.85, 0.35)
 
 
 static func walnut() -> ShaderMaterial:
-	return grid("walnut", PixelArt.wood("walnut", Color(0.3, 0.17, 0.09), 77, 1, 0, 1.3), 0.0, 0.55)
+	return _painted("walnut", "walnut", PixelArt.wood("walnut", Color(0.3, 0.17, 0.09), 77, 1, 0, 1.3), 0.0, 0.55)
+
+
+## A factory painting (`factory_key`) where there is one, at its own texels a metre; `fallback`
+## (code-painted, at what's in your hands' density) where there isn't.
+static func _painted(key: String, factory_key: String, fallback: Texture2D, metallic: float, roughness: float) -> ShaderMaterial:
+	var tex := PixelArt.factory(factory_key)
+	if tex == null:
+		return grid(key, fallback, metallic, roughness)
+	return grid(key, tex, metallic, roughness, PixelArt.factory_density(factory_key))
 
 
 static func lead() -> ShaderMaterial:
 	return grid("lead", PixelArt.metal("lead", Color(0.45, 0.45, 0.47), 79), 0.4, 0.6)
 
 
-## Your hand's skin, sun-browned and warm, on the grid.
+## Your hand's skin, on the grid: your body's (PlayerBody.SKIN), its squares quieter than a
+## board's (skin seen close is smooth; the men's is painted smooth).
 static func skin() -> ShaderMaterial:
-	return grid("skin", PixelArt.squares("held_skin", Color(0.8, 0.56, 0.4), 81, 0.28), 0.0, 0.7)
+	return grid("skin", PixelArt.squares("held_skin", PlayerBody.SKIN.lightened(0.08), 81, 0.12), 0.0, 0.7)
 
 
 ## Cloth for people's bodies (HumanBody reads these: StandardMaterial3D).

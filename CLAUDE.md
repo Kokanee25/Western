@@ -512,10 +512,13 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
-- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
-  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
-  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
-  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
+- The gun lab (`experiments/gun_lab/`; bench and baseline #248). **The hands** (2026-10-23, #322,
+  `results/2026-10-23_hands/`): `HeldHand` is Sean's Studio man's skinned, painted arm (cut from his
+  model, 15 finger bones), on the revolver and as the coach gun's two hands, fitted by `views.gd
+  --fit` (each bone's gap to the wood, mm); the coach gun from the hip with both hands in view; the
+  metals painted (`gun_blued`, `gun_case`, $0.88, #249 closed); your body in his colours; 47 goldens
+  re-approved (7 left failing for their owners, in the status entry). Blind judge: hands and metals
+  CLOSE (old DIFFERENT). Next: the `next session` issue (the period reload with a left hand).
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

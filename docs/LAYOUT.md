@@ -670,6 +670,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
+  The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
+  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
+  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`). The metals are factory paintings (`GunParts._painted`).
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`

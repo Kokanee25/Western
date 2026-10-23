@@ -38,8 +38,14 @@ python3 tools/bridge.py "gun_framing shotgun"              # each hand's share o
 # (not the baseline's frames); detail_* look at the gun from its left, right, below and print
 # where the grip and every finger bone sit in the gun's space (cm) to the log
 xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 \
-    -s res://experiments/gun_lab/views.gd -- --out=build/gun_lab/v --gun=revolver [--only=rest,detail_right]
+    -s res://experiments/gun_lab/views.gd -- --out=build/gun_lab/v --gun=revolver [--only=rest,detail_right] [--fit=1]
 ```
+
+The detail views also print `GAP`: each finger bone's skin against the wood or trigger it holds (mm,
+negative = into it). `--fit=1` closes every finger on the grip (each joint turned until the finger
+past it comes within 1.5 mm), swings the coach gun's index onto its front trigger and searches the
+thumbs' poses (resting, and on the spur to cock), and prints the angles (`FIT`) to bake into
+`HandModel` and `ShotgunViewmodel`.
 
 `--hour=H` (default 16, the sun behind you), `--jobs=N` (2), `--skip-done`. Rendering needs xvfb and
 lavapipe (`apt-get install mesa-vulkan-drivers xvfb`) and the native plugin built
