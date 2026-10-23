@@ -31,33 +31,33 @@
   "patch": {
    "triangles": 5609,
    "vertices": 2856,
-   "pulled": 1962,
-   "pull_mm_median": 0.5
+   "pulled": 1964,
+   "pull_mm_median": 0.48
   },
   "cut": {
-   "his_triangles_removed": 630,
-   "his_edge": 58,
+   "his_triangles_removed": 629,
+   "his_edge": 41,
    "patch_edge": 65
   },
   "holes_capped": 1,
-  "teeth_back_mm": 6.5,
+  "teeth_back_mm": 6.1,
   "teeth_down_mm": 0.0,
   "eye_centres": {
    "helper-l-eye": [
-    -0.0348,
-    1.6654,
-    -0.087
+    -0.0343,
+    1.6659,
+    -0.0875
    ],
    "helper-r-eye": [
-    0.0373,
-    1.6648,
-    -0.0871
+    0.037,
+    1.6649,
+    -0.0873
    ]
   },
   "eye_centre": [
-   0.0013,
-   1.6651,
-   -0.0871
+   0.0014,
+   1.6654,
+   -0.0874
   ],
   "facerig": {
    "vertices": 3474,
@@ -65,14 +65,14 @@
   },
   "eye_white": {
    "helper-l-eye": [
-    0.994,
-    0.99,
-    0.988
+    0.98,
+    0.965,
+    0.965
    ],
    "helper-r-eye": [
-    0.883,
-    0.814,
-    0.787
+    0.88,
+    0.807,
+    0.779
    ]
   },
   "expressions": {
@@ -80,7 +80,7 @@
     "units": {
      "JawDrop": 1.0
     },
-    "max_mm": 42.6
+    "max_mm": 43.1
    },
    "aa": {
     "units": {
@@ -88,14 +88,14 @@
      "UpperLipUp": 0.35,
      "lowerLipDown": 0.5
     },
-    "max_mm": 36.3
+    "max_mm": 36.8
    },
    "lips_apart": {
     "units": {
      "UpperLipUp": 0.6,
      "lowerLipDown": 1.0
     },
-    "max_mm": 15.2
+    "max_mm": 15.5
    },
    "ee": {
     "units": {
@@ -105,14 +105,14 @@
      "UpperLipUp": 0.35,
      "lowerLipDown": 0.45
     },
-    "max_mm": 13.5
+    "max_mm": 13.4
    },
    "oo": {
     "units": {
      "LipsKiss": 1.35,
      "JawDrop": 0.25
     },
-    "max_mm": 14.7
+    "max_mm": 15.0
    },
    "fv": {
     "units": {
@@ -128,21 +128,21 @@
      "lowerLipUp": 0.5,
      "LipsKiss": 0.25
     },
-    "max_mm": 4.1
+    "max_mm": 4.2
    },
    "blink_l": {
     "units": {
      "LeftUpperLidClosed": 1.0,
      "LeftLowerLidUp": 0.25
     },
-    "max_mm": 7.0
+    "max_mm": 9.1
    },
    "blink_r": {
     "units": {
      "RightUpperLidClosed": 1.0,
      "RightLowerLidUp": 0.25
     },
-    "max_mm": 8.2
+    "max_mm": 8.4
    },
    "squint": {
     "units": {
@@ -153,7 +153,7 @@
      "LeftUpperLidClosed": 0.12,
      "RightUpperLidClosed": 0.12
     },
-    "max_mm": 10.3
+    "max_mm": 10.6
    },
    "brows_up": {
     "units": {
@@ -162,14 +162,14 @@
      "LeftOuterBrowUp": 0.35,
      "RightOuterBrowUp": 0.35
     },
-    "max_mm": 9.1
+    "max_mm": 9.2
    },
    "brows_down": {
     "units": {
      "LeftBrowDown": 1.0,
      "RightBrowDown": 1.0
     },
-    "max_mm": 10.3
+    "max_mm": 10.2
    },
    "scowl": {
     "units": {
@@ -182,7 +182,7 @@
      "LeftLowerLidUp": 0.3,
      "RightLowerLidUp": 0.3
     },
-    "max_mm": 12.6
+    "max_mm": 12.9
    },
    "smile": {
     "units": {
@@ -193,7 +193,7 @@
      "LeftLowerLidUp": 0.35,
      "RightLowerLidUp": 0.35
     },
-    "max_mm": 22.1
+    "max_mm": 21.9
    },
    "smile_l": {
     "units": {
@@ -201,7 +201,7 @@
      "LeftCheekUp": 0.9,
      "LeftLowerLidUp": 0.35
     },
-    "max_mm": 24.4
+    "max_mm": 24.3
    },
    "smile_r": {
     "units": {
@@ -209,7 +209,7 @@
      "RightCheekUp": 0.9,
      "RightLowerLidUp": 0.35
     },
-    "max_mm": 24.7
+    "max_mm": 24.5
    },
    "look_left": {
     "units": {
@@ -241,11 +241,7 @@
    }
   },
   "stitch": {
-   "stitch_points": 13,
-   "faded": 14,
-   "fade_m": 0.02,
-   "worst_before": 0.04,
-   "worst_after": 0.0
+   "stitch_points": 0
   }
  },
  "finger_bones": {
