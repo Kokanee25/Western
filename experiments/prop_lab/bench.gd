@@ -612,6 +612,8 @@ func _perf(which: String) -> void:
 	_build_world()
 	var lib = load("res://src/props/prop_library.gd")
 	var kit = load("res://src/props/prop_kit.gd")
+	# The drawn ones for `lib` (PropLibrary hands out the kit's for any prop it's put in the game).
+	lib.use_kit = which == "kit"
 	var room := Node3D.new()
 	room.name = "Props"
 	world.add_child(room)
