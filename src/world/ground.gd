@@ -1,9 +1,10 @@
 class_name Ground
 extends StaticBody3D
 ## The street's ground, made ready to be dug (docs/briefs/dig-ground.md). Where it's never been
-## dug it's flat at the authored height (y 0): a few big flat slabs to stand on and one mesh, the
-## ground less its dug tiles cut into rectangles, so standing ground costs what the endless plane
-## did. Where it has been dug it's a GroundTile: a height field of `tile_cells` cells a side, its own
+## dug it's the authored ground (TownLayout.ground_height): through town flat at y 0, a few big
+## flat slabs to stand on and one mesh, the ground less its dug tiles cut into rectangles, so
+## standing ground costs what the endless plane did; where it climbs west out of town (the town's
+## ground.rise), height fields a chunk of CHUNK_TILES tiles a side, drawn as one more mesh. Where it has been dug it's a GroundTile: a height field of `tile_cells` cells a side, its own
 ## body (an edit rebuilds only that tile) and mesh. Every collider of it carries the `ground` meta
 ## (Ground.is_ground) and `surface` &"ground", so a ball glances off a crater's wall as dirt
 ## (Ballistics.surface_of), not as a board.
@@ -15,6 +16,13 @@ var material: Material
 var tiles := {}
 
 var _mesh: MeshInstance3D
+var _rise_mesh: MeshInstance3D
+## Vector2i (a chunk of the rise, in chunks) -> {dug: its dug tiles' keys, sorted; shapes: its
+## CollisionShape3Ds; verts, normals, index: its part of the rise's mesh}.
+var _chunks := {}
+
+## Tiles a side of a chunk of the rise; its height field has a point every half tile.
+const CHUNK_TILES := 8
 
 
 func _ready() -> void:
@@ -30,12 +38,30 @@ func _ready() -> void:
 		add_child(_mesh)
 	if material == null:
 		material = _mesh.material_override if _mesh.material_override else (_mesh.mesh.surface_get_material(0) if _mesh.mesh else null)
+	_road_line()
 	# The scene's own collision (the old endless plane) gives way to the slabs.
 	for c in get_children():
 		if c is CollisionShape3D:
 			remove_child(c)
 			c.free()
 	_rebuild_flat()
+
+
+## The ground's material told where the street's middle runs (TownLayout.street_z), sampled as
+## the shader takes it.
+func _road_line() -> void:
+	var sm := material as ShaderMaterial
+	if sm == null:
+		return
+	var x0 := -200.0
+	var step := 4.0
+	var line := PackedFloat32Array()
+	for i in 64:
+		line.append(TownLayout.street_z(x0 + i * step))
+	sm.set_shader_parameter(&"road_line", line)
+	sm.set_shader_parameter(&"road_line_x0", x0)
+	sm.set_shader_parameter(&"road_line_step", step)
+	sm.set_shader_parameter(&"use_road_line", true)
 
 
 ## The ground in `tree` (the first in group `ground`), or null.
@@ -60,7 +86,7 @@ func key_at(x: float, z: float) -> Vector2i:
 func height_at(x: float, z: float) -> float:
 	var t: GroundTile = tiles.get(key_at(x, z))
 	if t == null:
-		return global_position.y
+		return global_position.y + TownLayout.ground_height(x, z)
 	var local := t.global_transform.affine_inverse() * Vector3(x, 0.0, z)
 	var half := tuning.tile_cells * 0.5
 	var u := clampf(local.x / tuning.cell + half, 0.0, tuning.tile_cells)
@@ -69,13 +95,15 @@ func height_at(x: float, z: float) -> float:
 	var j := mini(floori(v), tuning.tile_cells - 1)
 	var fu := u - i
 	var fv := v - j
-	var h00 := t.heights[t.index(i, j)]
-	var h11 := t.heights[t.index(i + 1, j + 1)]
+	var h00 := t.surface(t.index(i, j))
+	var h11 := t.surface(t.index(i + 1, j + 1))
+	var h10 := t.surface(t.index(i + 1, j))
+	var h01 := t.surface(t.index(i, j + 1))
 	var h := 0.0
 	if fu >= fv:
-		h = h00 + (t.heights[t.index(i + 1, j)] - h00) * fu + (h11 - t.heights[t.index(i + 1, j)]) * fv
+		h = h00 + (h10 - h00) * fu + (h11 - h10) * fv
 	else:
-		h = h00 + (t.heights[t.index(i, j + 1)] - h00) * fv + (h11 - t.heights[t.index(i, j + 1)]) * fu
+		h = h00 + (h01 - h00) * fv + (h11 - h01) * fu
 	return t.global_position.y + h
 
 
@@ -123,38 +151,86 @@ static func _minus(r: Rect2, hole: Rect2) -> Array[Rect2]:
 	return out
 
 
-## The flat ground's slabs (deep boxes, their tops at the authored height) and its one mesh.
+## The ground's slabs (deep boxes, their tops at the authored height) and its mesh, outside the
+## dug tiles; and the rise's chunks that have gained or lost a dug tile.
 func _rebuild_flat() -> void:
 	for c in get_children():
-		if c is CollisionShape3D:
+		if c is CollisionShape3D and not c.has_meta(&"rise"):
 			remove_child(c)
 			c.free()
+	var area := _rise_area()
 	var i := 0
-	for r in flat_rects(tuning.reach_half):
+	for piece in _levelled(flat_rects(tuning.reach_half), area):
+		var r: Rect2 = piece[0]
 		var cs := CollisionShape3D.new()
 		cs.name = "Slab%d" % i
 		var box := BoxShape3D.new()
 		box.size = Vector3(r.size.x, tuning.slab_depth, r.size.y)
 		cs.shape = box
-		cs.position = Vector3(r.get_center().x, -tuning.slab_depth * 0.5, r.get_center().y)
+		cs.position = Vector3(r.get_center().x, float(piece[1]) - tuning.slab_depth * 0.5, r.get_center().y)
 		add_child(cs)
 		i += 1
-	_mesh.mesh = _flat_mesh(flat_rects(tuning.drawn_half))
+	_mesh.mesh = _flat_mesh(_levelled(flat_rects(tuning.drawn_half), area))
+	_rebuild_rise(area)
 
 
-## Quads at the authored height, facing up, in the ground's material (the shader works from the
-## world position alone, so how the flat ground is cut into triangles doesn't show).
-func _flat_mesh(rects: Array[Rect2]) -> ArrayMesh:
+## Where the authored ground climbs (the rise, chunk-aligned: out to the drawn edge westward and
+## northward, to where it's gone southward and eastward), or an empty Rect2 if it's flat.
+func _rise_area() -> Rect2:
+	var r := TownLayout.rise()
+	if r.is_empty():
+		return Rect2()
+	var c := tuning.tile_size() * CHUNK_TILES
+	var x0 := floorf(-tuning.drawn_half / c) * c
+	var z0 := floorf(-tuning.drawn_half / c) * c
+	var x1 := ceilf(float(r.from) / c) * c
+	var z1 := ceilf(float(r.none_south_of) / c) * c
+	return Rect2(x0, z0, x1 - x0, z1 - z0)
+
+
+## `rects` less the rise's area, each with the level its slab or quad stands at: 0, or past the
+## rise's drawn edge the height there (taken flat over a band, so far out it never shows).
+func _levelled(rects: Array[Rect2], area: Rect2) -> Array:
+	var out := []
+	var rise := TownLayout.rise()
+	for r in rects:
+		if area.size == Vector2.ZERO:
+			out.append([r, 0.0])
+			continue
+		for p in _minus(r, area):
+			# East of the rise or south of it, the flat.
+			if p.position.x >= area.end.x - 0.01 or p.position.y >= area.end.y - 0.01:
+				out.append([p, 0.0])
+				continue
+			# West or north of it: in bands across (all risen, half, none), each at its middle's height.
+			var north := float(rise.full_north_of)
+			var south := float(rise.none_south_of)
+			var cuts := [p.position.y, clampf(north, p.position.y, p.end.y), clampf(south, p.position.y, p.end.y), p.end.y]
+			for k in 3:
+				if cuts[k + 1] - cuts[k] <= 0.0:
+					continue
+				var band := Rect2(p.position.x, cuts[k], p.size.x, cuts[k + 1] - cuts[k])
+				var along := clampf(band.get_center().x, area.position.x, area.end.x)
+				var across := (north + south) * 0.5 if k == 1 else band.get_center().y
+				out.append([band, TownLayout.ground_height(along, across)])
+	return out
+
+
+## Quads at their levels, facing up, in the ground's material (the shader works from the world
+## position alone, so how the flat ground is cut into triangles doesn't show).
+func _flat_mesh(rects: Array) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var tangents := PackedFloat32Array()
 	var uvs := PackedVector2Array()
 	var idx := PackedInt32Array()
 	var span := tuning.drawn_half * 2.0
-	for r in rects:
+	for piece in rects:
+		var r: Rect2 = piece[0]
+		var y := float(piece[1])
 		var base := verts.size()
 		for p: Vector2 in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
-			verts.append(Vector3(p.x, 0.0, p.y))
+			verts.append(Vector3(p.x, y, p.y))
 			normals.append(Vector3.UP)
 			tangents.append_array([1.0, 0.0, 0.0, 1.0])
 			uvs.append(p / span + Vector2(0.5, 0.5))
@@ -171,6 +247,135 @@ func _flat_mesh(rects: Array[Rect2]) -> ArrayMesh:
 	if material:
 		mesh.surface_set_material(0, material)
 	return mesh
+
+
+## The rise's chunks: each a height field (a point every half tile) and its part of the rise's
+## mesh; a chunk with dug tiles in it is one small field a tile it hasn't, round them. Only the
+## chunks whose dug tiles have changed are made again.
+func _rebuild_rise(area: Rect2) -> void:
+	if area.size == Vector2.ZERO:
+		return
+	var size := tuning.tile_size()
+	var c := size * CHUNK_TILES
+	var dug := {}
+	for key: Vector2i in tiles:
+		var ck := Vector2i(floori(float(key.x) / CHUNK_TILES), floori(float(key.y) / CHUNK_TILES))
+		if not dug.has(ck):
+			dug[ck] = []
+		(dug[ck] as Array).append(key)
+	var changed := false
+	var c0 := Vector2i(roundi(area.position.x / c), roundi(area.position.y / c))
+	var c1 := Vector2i(roundi(area.end.x / c), roundi(area.end.y / c))
+	for cz in range(c0.y, c1.y):
+		for cx in range(c0.x, c1.x):
+			var ck := Vector2i(cx, cz)
+			var keys: Array = dug.get(ck, [])
+			keys.sort()
+			var known: Dictionary = _chunks.get(ck, {})
+			if not known.is_empty() and known.dug == keys:
+				continue
+			for cs: CollisionShape3D in known.get("shapes", []):
+				remove_child(cs)
+				cs.free()
+			_chunks[ck] = _make_chunk(ck, keys)
+			changed = true
+	if changed or _rise_mesh == null:
+		_rise_mesh_rebuild()
+
+
+func _make_chunk(ck: Vector2i, dug: Array) -> Dictionary:
+	var size := tuning.tile_size()
+	var pieces: Array[Rect2] = []
+	if dug.is_empty():
+		pieces.append(Rect2(ck.x * size * CHUNK_TILES, ck.y * size * CHUNK_TILES, size * CHUNK_TILES, size * CHUNK_TILES))
+	else:
+		for tz in CHUNK_TILES:
+			for tx in CHUNK_TILES:
+				var key := ck * CHUNK_TILES + Vector2i(tx, tz)
+				if not dug.has(key):
+					pieces.append(Rect2(key.x * size, key.y * size, size, size))
+	var shapes: Array[CollisionShape3D] = []
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var step := size * 0.5
+	for r in pieces:
+		var n := roundi(r.size.x / step) + 1
+		var along := PackedFloat32Array()
+		var across := PackedFloat32Array()
+		for i in n:
+			along.append(TownLayout.rise_along(r.position.x + i * step))
+			across.append(TownLayout.rise_across(r.position.y + i * step))
+		var height := float(TownLayout.rise().height)
+		var map := PackedFloat32Array()
+		map.resize(n * n)
+		var base := verts.size()
+		for j in n:
+			for i in n:
+				var h := height * along[i] * across[j]
+				map[j * n + i] = h
+				var x := r.position.x + i * step
+				var z := r.position.y + j * step
+				verts.append(Vector3(x, h, z))
+				var dx := TownLayout.ground_height(x + 0.1, z) - TownLayout.ground_height(x - 0.1, z)
+				var dz := TownLayout.ground_height(x, z + 0.1) - TownLayout.ground_height(x, z - 0.1)
+				normals.append(Vector3(-dx / 0.2, 1.0, -dz / 0.2).normalized())
+		for j in n - 1:
+			for i in n - 1:
+				var a := base + j * n + i
+				idx.append_array([a, a + 1, a + n + 1, a, a + n + 1, a + n])
+		var shape := HeightMapShape3D.new()
+		shape.map_width = n
+		shape.map_depth = n
+		shape.map_data = map
+		var cs := CollisionShape3D.new()
+		cs.name = "Rise_%d_%d" % [roundi(r.position.x / step), roundi(r.position.y / step)]
+		cs.set_meta(&"rise", true)
+		cs.shape = shape
+		cs.scale = Vector3(step, 1.0, step)
+		cs.position = Vector3(r.get_center().x, 0.0, r.get_center().y)
+		add_child(cs)
+		shapes.append(cs)
+	return {"dug": dug, "shapes": shapes, "verts": verts, "normals": normals, "index": idx}
+
+
+## The rise's one mesh, from its chunks' parts.
+func _rise_mesh_rebuild() -> void:
+	if _rise_mesh == null:
+		_rise_mesh = MeshInstance3D.new()
+		_rise_mesh.name = "RiseMesh"
+		add_child(_rise_mesh)
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var keys := _chunks.keys()
+	keys.sort()
+	for ck: Vector2i in keys:
+		var part: Dictionary = _chunks[ck]
+		var base := verts.size()
+		verts.append_array(part.verts)
+		normals.append_array(part.normals)
+		for k: int in part.index:
+			idx.append(base + k)
+	if verts.is_empty():
+		_rise_mesh.mesh = null
+		return
+	var tangents := PackedFloat32Array()
+	tangents.resize(verts.size() * 4)
+	for k in verts.size():
+		tangents[k * 4] = 1.0
+		tangents[k * 4 + 3] = 1.0
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TANGENT] = tangents
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	if material:
+		mesh.surface_set_material(0, material)
+	_rise_mesh.mesh = mesh
 
 
 # --- Digging: earth out at one point, down at another ---------------------------------------------
@@ -384,7 +589,8 @@ func _wake(area: Rect2) -> void:
 	box.size = Vector3(area.size.x + 0.2, tuning.earth_depth + 4.0, area.size.y + 0.2)
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = box
-	q.transform = Transform3D(Basis.IDENTITY, Vector3(area.get_center().x, 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
+	q.transform = Transform3D(Basis.IDENTITY, Vector3(area.get_center().x,
+			TownLayout.ground_height(area.get_center().x, area.get_center().y) + 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
 	q.collision_mask = 0xFFFFFFFF
 	# Not the ground itself: a height field answers once a triangle.
 	var ex: Array[RID] = [get_rid()]

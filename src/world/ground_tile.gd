@@ -14,6 +14,9 @@ const COLUMN := 8
 var key: Vector2i
 ## (tile_cells + 1)² heights, row by row along x, rows along z (m, above the authored ground).
 var heights := PackedFloat32Array()
+## The authored ground's height at each point (TownLayout.ground_height; empty where it's flat):
+## the surface is it plus `heights`, so digging works in heights above it, wherever it stands.
+var base := PackedFloat32Array()
 ## How deep the loose earth (thrown, shovelled) lies on the packed at each point (m); part of the
 ## height above.
 var loose := PackedFloat32Array()
@@ -43,6 +46,11 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 		t.set_meta(m, ground.get_meta(m))
 	var size := tn.tile_size()
 	t.position = Vector3((at.x + 0.5) * size, 0.0, (at.y + 0.5) * size)
+	if TownLayout.ground_height(at.x * size, (at.y + 1) * size) != 0.0 or TownLayout.ground_height(at.x * size, at.y * size) != 0.0:
+		t.base.resize(t._n * t._n)
+		for j in t._n:
+			for i in t._n:
+				t.base[j * t._n + i] = TownLayout.ground_height(at.x * size + i * tn.cell, at.y * size + j * tn.cell)
 	# The height field: Godot centres it on its shape's origin with points 1 apart, so scaled to the
 	# cell (Jolt takes a scaled height field on a static body).
 	t._shape = HeightMapShape3D.new()
@@ -76,12 +84,27 @@ func index(i: int, j: int) -> int:
 ## A point's place in the world (its height included).
 func point(i: int, j: int) -> Vector3:
 	var half := (_n - 1) * 0.5
-	return global_transform * Vector3((i - half) * _cell, heights[index(i, j)], (j - half) * _cell)
+	return global_transform * Vector3((i - half) * _cell, surface(index(i, j)), (j - half) * _cell)
+
+
+## The surface's height at point `k` (the authored ground's and what's above it).
+func surface(k: int) -> float:
+	return heights[k] + base[k] if not base.is_empty() else heights[k]
+
+
+## Every point's surface.
+func _surface() -> PackedFloat32Array:
+	if base.is_empty():
+		return heights
+	var out := heights.duplicate()
+	for k in out.size():
+		out[k] += base[k]
+	return out
 
 
 ## Shape and mesh from `heights`, after an edit.
 func rebuild(material: Material) -> void:
-	_shape.map_data = heights
+	_shape.map_data = _surface()
 	_mesh.mesh = _grid_mesh(material)
 	_rebuild_columns()
 
@@ -92,6 +115,7 @@ func _rebuild_columns() -> void:
 	var half := (_n - 1) * 0.5
 	var cols := ceili(float(_n - 1) / COLUMN)
 	var bottom := -_depth - _slab
+	var surf := _surface()
 	for cj in cols:
 		for ci in cols:
 			var i0 := ci * COLUMN
@@ -101,7 +125,7 @@ func _rebuild_columns() -> void:
 			var low := INF
 			for j in range(j0, j1 + 1):
 				for i in range(i0, i1 + 1):
-					low = minf(low, heights[index(i, j)])
+					low = minf(low, surf[index(i, j)])
 			var top := low - 0.01
 			var col := _columns[cj * cols + ci]
 			(col.shape as BoxShape3D).size = Vector3((i1 - i0) * _cell, top - bottom, (j1 - j0) * _cell)
@@ -126,6 +150,7 @@ func _grid_mesh(material: Material) -> ArrayMesh:
 	var inv1 := 1.0 / _cell
 	var inv_loose := 1.0 / 0.2
 	var inv_depth := 1.0 / _depth
+	var surf := _surface()
 	var k := 0
 	for j in n:
 		var up := -n if j > 0 else 0
@@ -133,11 +158,11 @@ func _grid_mesh(material: Material) -> ArrayMesh:
 		var sz := inv2 if (j > 0 and j < last) else inv1
 		for i in n:
 			var h := heights[k]
-			verts[k].y = h
+			verts[k].y = surf[k]
 			var l := -1 if i > 0 else 0
 			var r := 1 if i < last else 0
 			var sx := inv2 if (i > 0 and i < last) else inv1
-			normals[k] = Vector3((heights[k + l] - heights[k + r]) * sx, 1.0, (heights[k + up] - heights[k + dn]) * sz).normalized()
+			normals[k] = Vector3((surf[k + l] - surf[k + r]) * sx, 1.0, (surf[k + up] - surf[k + dn]) * sz).normalized()
 			colors[k] = Color(minf(loose[k] * inv_loose, 1.0), 0.0, clampf(-h * inv_depth, 0.0, 1.0))
 			k += 1
 	var arrays := []

@@ -405,3 +405,45 @@ func test_a_small_fast_thing_doesn_t_go_through_a_dug_tile() -> void:
 	for rb in bits:
 		worst = maxf(worst, ground.height_at(rb.global_position.x, rb.global_position.z) - rb.global_position.y)
 	check(worst < 0.12, "none ends deeper than a crater's own depth under the surface (worst %.3f m)" % worst)
+
+
+func test_west_of_town_it_climbs_as_the_layout_says_with_no_seam() -> void:
+	# The town's ground.rise (config/town.json): height fields, the flat slabs round them.
+	var worst := 0.0
+	var missed := 0
+	for p: Vector2 in [Vector2(-52, -8), Vector2(-60, -18), Vector2(-80.3, -20.6), Vector2(-120, -30), Vector2(-152, -4),
+			Vector2(-140, 10), Vector2(-100, 21.9), Vector2(-160, -40), Vector2(-299, -299), Vector2(-51.0, 0.0)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not Ground.is_ground(hit.collider):
+			missed += 1
+			continue
+		worst = maxf(worst, absf((hit.position as Vector3).y - TownLayout.ground_height(p.x, p.y)))
+		check_near(ground.height_at(p.x, p.y), TownLayout.ground_height(p.x, p.y), 0.001, "height_at says so at %s" % p)
+	check_eq(missed, 0, "a ray finds the ground everywhere on the rise")
+	check(worst < 0.02, "at the layout's height (worst %.3f m off)" % worst)
+	check(TownLayout.ground_height(-120, -30) > 1.0, "and it's risen there")
+
+
+func test_a_tile_dug_on_the_rise_starts_as_the_ground_was() -> void:
+	var at := Vector3(-100.0, 0.0, -24.0)
+	var before := ground.height_at(at.x, at.z)
+	check(before > 1.0, "risen ground (%.2f m)" % before)
+	var bank := ground.take(Vector3(at.x, before, at.z), 0.5, 0.3)
+	await physics_frames(2)
+	check(bank > 0.0, "earth came out")
+	check_near(ground.height_at(at.x, at.z), before - 0.3, 0.02, "the hole's 30 cm under the ground there")
+	var off := at + Vector3(1.0, 0.0, 0.0)
+	check_near(ground.height_at(off.x, off.z), TownLayout.ground_height(off.x, off.z), 0.005, "beside it, the ground as it was")
+	var hit := _down(off.x, off.z)
+	check(not hit.is_empty() and absf((hit.position as Vector3).y - TownLayout.ground_height(off.x, off.z)) < 0.02,
+			"and a ray meets it there (%s)" % [hit.get("position")])
+	# Across the dug tile's edge to the chunk's small fields round it: no seam.
+	var size := ground.tuning.tile_size()
+	var key := ground.key_at(at.x, at.z)
+	var missed := 0
+	for i in 40:
+		var x := key.x * size - 0.5 + i * 0.11
+		var h := _down(x, at.z + 1.3)
+		if h.is_empty():
+			missed += 1
+	check_eq(missed, 0, "a ray finds the ground across the tile's edge")

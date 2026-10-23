@@ -191,12 +191,14 @@ const WIDTH := 0.3
 ## counter, and behind it), their doors and porches, the street itself and the road out west.
 static func test_street() -> Waypoints:
 	var w := Waypoints.new()
-	# Main Street, east to west down the middle (config/town.json: Freight Street at the east end,
-	# Market Street at the west, the road out west beyond it).
-	w.add(&"west_edge", Vector3(-50, 0, -9))
-	w.add(&"street_west", Vector3(-20, 0, -9), [&"west_edge"])
-	w.add(&"street_mid", Vector3(0, 0, -9), [&"street_west"])
-	w.add(&"street_east", Vector3(20, 0, -9), [&"street_mid"])
+	# Main Street, east to west just north of its middle (config/town.json: Freight Street at the east
+	# end, Market Street at the west where the street jogs north, the road out west beyond it).
+	var street := func(x: float) -> Vector3: return TownLayout.street_point(x, -0.6)
+	w.add(&"west_edge", street.call(-50.0))
+	w.add(&"street_market", street.call(-32.0), [&"west_edge"])
+	w.add(&"street_west", street.call(-20.0), [&"street_market"])
+	w.add(&"street_mid", street.call(0.0), [&"street_west"])
+	w.add(&"street_east", street.call(20.0), [&"street_mid"])
 	# The street in front of the jail, off everyone's way (the sheriff stands here).
 	w.add(&"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 0, -4.0)), [&"street_mid"])
 	# The street in front of the doctor's, off everyone's way (the doctor stands here).

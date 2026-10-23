@@ -133,8 +133,9 @@ static func _view_move(view: String) -> Transform3D:
 			move = Transform3D(Basis(), Vector3.UP * lift) * move
 		return move
 	if view in STORE_VIEWS:
+		# The old store's door (x 3) to the store's door (the middle of its front), turned with it.
 		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
-		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))
+		return town.transform_of(&"Store") * Transform3D(Basis(), Vector3(w * 0.5 - 3.0, 0, 0))
 	if view in RANGE_VIEWS:
 		return town.transform_of(&"RangeCover")
 	return Transform3D()

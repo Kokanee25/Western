@@ -7,8 +7,7 @@ extends Node3D
 ## from the seed. Nothing grows where there's a floor, a boardwalk or a roof overhead, nor down the
 ## middle of the road; the grass has no collision.
 
-## The road (StreetScenery's): centre line z and half width.
-const ROAD_Z := -8.4
+## The road's half width (its middle: TownLayout.street_z).
 const ROAD_HALF := 6.0
 ## How many tufts to try placing, and the area they're scattered over (x0, z0, x1, z1).
 const TRIES := 32000
@@ -48,6 +47,7 @@ func _grow() -> void:
 	var colours: Array[Color] = []
 	for i in TRIES:
 		var p := Vector3(rng.randf_range(AREA.position.x, AREA.end.x), 0.0, rng.randf_range(AREA.position.y, AREA.end.y))
+		p.y = TownLayout.ground_height(p.x, p.z)
 		var keep := _density(p, noise)
 		if rng.randf() > keep:
 			continue
@@ -81,7 +81,7 @@ func _grow() -> void:
 ## How likely a tuft is at `p` (0..1): thick along the road's edges and in clumps, none down the
 ## middle where the wheels go, sparser on the open ground.
 func _density(p: Vector3, noise: FastNoiseLite) -> float:
-	var dz := absf(p.z - ROAD_Z)
+	var dz := absf(p.z - TownLayout.street_z(p.x))
 	var clump := clampf(noise.get_noise_2d(p.x, p.z) * 0.9 + 0.5, 0.0, 1.0)
 	if dz < ROAD_HALF - 1.6:
 		return 0.0

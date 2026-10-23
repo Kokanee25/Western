@@ -160,7 +160,7 @@ func test_dry_grass_keeps_off_the_wheel_tracks_and_out_from_under_floors() -> vo
 	var edge := 0
 	for t in g.tufts:
 		var p := t.origin
-		var dz := absf(p.z - DryGrass.ROAD_Z)
+		var dz := absf(p.z - TownLayout.street_z(p.x))
 		if not check(dz >= DryGrass.ROAD_HALF - 1.6, "none down the road's middle (%s)" % p):
 			break
 		if not check(not (p.x > 0.0 and p.x < 6.0 and p.z > 0.0 and p.z < 9.0), "none under the floor (%s)" % p):

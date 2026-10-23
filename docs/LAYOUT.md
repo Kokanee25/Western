@@ -371,7 +371,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
-  (`flat_rects`). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (`flat_rects`); west of town it climbs (the town's `ground.rise`, `TownLayout.ground_height`: height
+  fields by the chunk, the town layout's section). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
   (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
   `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
   &"ground" (`Ballistics.surface_of`).
@@ -432,6 +433,22 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   out whatever would stand on steps and moves people out of doorways
   (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
   and range views the same way (`_view_move`).
+- **The street's shape** (2026-10-23, issue #325; Sean: "just too perfect"): `streets.main.line` is
+  Main Street's middle, a smooth curve (`TownLayout.street_z(x)`, cubic Hermite in x; `street_point(x,
+  across)`, `street_dir(x)`; `tools/textures/draw_street.py` draws the ruts along the same curve):
+  straight past the saloon and store, a jog north across Market Street (a survey's correction line),
+  then bending gently west, so the far end is out of line with the near. The fronts are set back or
+  forward and turned a degree or two off it (the saloon and store stay as they were); a
+  `StreetDressing/*` entry's `set` overrides the dressing's own settings (each front its height);
+  `StreetDressing/VacantLot` is the empty lot's junk and its board. What follows the street: the
+  waypoints' spine (`street_market` new), the outlaw's `_street_spot`, the ground shader's road
+  (`road_line`, set by `Ground`), stones, grass, sagebrush, prints, the poles and the far wagon, and
+  a point `carry()` finds no lot for (moved across with the street). `ground.rise`: the authored
+  ground climbs 3 m west out of town (x -51.2 to -153.6), none south of z 22 (the building lab's
+  saloon stands on the flat): `TownLayout.ground_height(x, z)`; `Ground` makes it height fields a
+  chunk of 8 tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`), a dug tile's `base` holds it
+  (its `heights` stay above the authored ground). `tools/tour.gd`'s store and saloon stops move
+  with them (`laid_out`).
 
 ## src/structures
 

@@ -57,7 +57,7 @@ func _process_step(delta: float) -> void:
 
 
 func _spawn_townsfolk() -> void:
-	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
+	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + TownLayout.facing_toward(&"Store", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 101,
 			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
