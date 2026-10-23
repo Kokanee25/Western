@@ -662,13 +662,14 @@ func _start_wince(info: Dictionary, scared: float) -> void:
 
 ## Wincing: no shooting; behind his cover, down low (or hunched over it standing behind a wall); in
 ## the open, low where he is till he's somewhere to go. His eyes on the wound. Running for cover he
-## goes on running (false: the rest of `_combat` has him). Then he's seen it: `_seen_wound`.
+## goes on running (false: the rest of `_combat` has him), and the time he takes over it starts once
+## he's there. Then he's seen it: `_seen_wound`.
 func _wince_step(delta: float, t: Node3D) -> bool:
+	if tactic == Tactic.MOVING:
+		return false  # (his look at it starts once he's there)
 	_wince -= delta
 	if _wince <= 0.0:
 		_seen_wound()
-		return false
-	if tactic == Tactic.MOVING:
 		return false
 	var seg_node := body.parts.get(_wince_seg) as Node3D
 	if seg_node != null:
