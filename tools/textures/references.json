@@ -154,6 +154,30 @@
    "aspect": "21:9",
    "out": "assets/textures/guns/%s_painted.jpg",
    "about": "The coach gun's side painting (the gun lab's remake, docs/briefs/gun-remake.md; Sean's $3): its base is views.gd --side's render, its canvas assets/textures/guns/shotgun.json."
+  },
+  "gun_revolver_top": {
+   "base": "docs/concept/guns/revolver_top_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_revolver_painted.jpg"
+   ],
+   "look": "paint this old single-action cavalry revolver seen from directly above (its muzzle to the right, its left side at the top of the picture) in exactly the same hand, colours and wear as the third image, the same gun painted from its side, and as the second image's painted men: the same blued steel, case colours, walnut and brass, lit softly from above.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no table, no hands. Keep the gun's outline and every part's outline exactly where they are in the first image, at the same size, nothing added or left out; the gun seen exactly from directly above, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no maker's marks or logos, no frame, no border.",
+   "aspect": "21:9",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "The revolver's top painting for the Blender rebuild's bake (the gun lab, docs/briefs/gun-remake.md; Sean's $3)."
+  },
+  "gun_shotgun_top": {
+   "base": "docs/concept/guns/shotgun_top_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_shotgun_painted.jpg"
+   ],
+   "look": "paint this old side-by-side hammer coach gun with a pistol-grip stock seen from directly above (its muzzle to the right, its left side at the top of the picture) in exactly the same hand, colours and wear as the third image, the same gun painted from its side, and as the second image's painted men: the same blued steel, case colours, walnut and brass, lit softly from above.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no table, no hands. Keep the gun's outline and every part's outline exactly where they are in the first image, at the same size, nothing added or left out; the gun seen exactly from directly above, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no maker's marks or logos, no frame, no border.",
+   "aspect": "21:9",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "The shotgun's top painting for the Blender rebuild's bake (the gun lab, docs/briefs/gun-remake.md; Sean's $3)."
   }
  }
 }

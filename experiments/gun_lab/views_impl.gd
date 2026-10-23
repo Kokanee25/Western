@@ -426,6 +426,7 @@ func _fit_reach(hand: Node3D, gun: Node3D) -> void:
 const SIDE_COLOURS := {&"blued": Color(0.17, 0.19, 0.24), &"case": Color(0.5, 0.47, 0.42), &"walnut": Color(0.4, 0.22, 0.1),
 		&"brass": Color(0.72, 0.55, 0.26)}
 const SIDE_WIDTH := 2048
+var _orig_mat := {}
 
 
 func _side(gun: String, out: String) -> void:
@@ -443,6 +444,7 @@ func _side(gun: String, out: String) -> void:
 	sun.rotation_degrees = Vector3(-50, 70, 0)  # from above and the front right, as a painter's light
 	sun.light_energy = 0.9
 	world.add_child(sun)
+	GunParts.paint_guns = false
 	var model: Node3D = RevolverModel.new() if gun == "revolver" else ShotgunModel.new()
 	world.add_child(model)
 	await _frames(2)
@@ -450,6 +452,7 @@ func _side(gun: String, out: String) -> void:
 	var hi := -Vector3.INF
 	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 		var k := GunParts.kind_of(mi.material_override)
+		_orig_mat[mi] = mi.material_override
 		var m := StandardMaterial3D.new()
 		m.albedo_color = SIDE_COLOURS.get(k, Color(0.05, 0.05, 0.05)) if not mi.has_meta(&"own_paint") or k != &"brass" else SIDE_COLOURS[&"brass"]
 		m.roughness = 0.8
@@ -479,7 +482,29 @@ func _side(gun: String, out: String) -> void:
 	await _frames(4)
 	await RenderingServer.frame_post_draw
 	vp.get_texture().get_image().save_png(out.path_join("%s_base.png" % gun))
+	# And from above (the top of the image the gun's left, its muzzle to the right), on a canvas as
+	# wide: what the side painting can't show.
+	var xc := (lo.x + hi.x) * 0.5
+	var top := Rect2(z0, xc - h * 0.5, z1 - z0, h)
+	cam.global_transform = Transform3D(Basis.looking_at(Vector3.DOWN, Vector3.LEFT), Vector3(xc, 0.5, (z0 + z1) * 0.5))
+	await _frames(4)
+	await RenderingServer.frame_post_draw
+	vp.get_texture().get_image().save_png(out.path_join("%s_top_base.png" % gun))
 	var f := FileAccess.open(out.path_join("%s.json" % gun), FileAccess.WRITE)
 	f.store_string(JSON.stringify({"rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y],
-			"about": "The %s's side painting's canvas in the gun's space (z_min, y_min, width, height), seen from its right: GunParts.paint_gun. From the gun lab's views.gd --side." % gun}, "  ") + "\n")
-	print("SIDE %s rect %s" % [gun, rect])
+			"top_rect": [top.position.x, top.position.y, top.size.x, top.size.y],
+			"about": "The %s's paintings' canvases in the gun's space, from the gun lab's views.gd --side: rect the side's, seen from its right (z_min, y_min, width, height; GunParts.paint_gun); top_rect the top's, seen from above (z_min, x_min, width, height: the image's top its left side)." % gun}, "  ") + "\n")
+	# Every part's shape and rest place in the gun, for Blender's rebuild (tools/weapons/guns_blender.py).
+	var parts := []
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		if not mi.has_meta(&"shape"):
+			continue
+		var xf := model.global_transform.affine_inverse() * mi.global_transform
+		var b := xf.basis
+		parts.append({"path": String(model.get_path_to(mi)), "kind": String(GunParts.kind_of(_orig_mat.get(mi))),
+				"own_paint": mi.has_meta(&"own_paint"), "shape": mi.get_meta(&"shape"),
+				"basis": [[b.x.x, b.x.y, b.x.z], [b.y.x, b.y.y, b.y.z], [b.z.x, b.z.y, b.z.z]],
+				"origin": [xf.origin.x, xf.origin.y, xf.origin.z]})
+	var pf := FileAccess.open(out.path_join("%s_parts.json" % gun), FileAccess.WRITE)
+	pf.store_string(JSON.stringify({"gun": gun, "parts": parts}, " ") + "\n")
+	print("SIDE %s rect %s top %s parts %d" % [gun, rect, top, parts.size()])

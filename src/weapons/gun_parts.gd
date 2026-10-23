@@ -105,7 +105,9 @@ static func held_cloth(key: String, color: Color) -> ShaderMaterial:
 static func box(parent: Node3D, n: String, size: Vector3, pos: Vector3, mat: Material, rot_deg := Vector3.ZERO) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = size
-	return _add(parent, n, mesh, pos, rot_deg, mat)
+	var mi := _add(parent, n, mesh, pos, rot_deg, mat)
+	mi.set_meta(&"shape", {"type": "box", "size": [size.x, size.y, size.z]})
+	return mi
 
 
 ## A cylinder along the part's local Z axis (barrels, the cylinder, cartridges).
@@ -116,7 +118,9 @@ static func tube(parent: Node3D, n: String, radius: float, length: float, pos: V
 	mesh.height = length
 	mesh.radial_segments = sides
 	mesh.rings = 1
-	return _add(parent, n, mesh, pos, rot_deg, mat)
+	var mi := _add(parent, n, mesh, pos, rot_deg, mat)
+	mi.set_meta(&"shape", {"type": "tube", "radius": radius, "length": length, "sides": sides})
+	return mi
 
 
 static func pivot(parent: Node3D, n: String, pos: Vector3) -> Node3D:
@@ -145,9 +149,13 @@ static func _add(parent: Node3D, n: String, mesh: Mesh, pos: Vector3, rot_deg: V
 static func profile(parent: Node3D, n: String, outline: PackedVector2Array, half_width: float, mat: Material,
 		pos := Vector3.ZERO, rot_deg := Vector3.ZERO, bevel := 0.0012) -> MeshInstance3D:
 	var mi := _add(parent, n, extrude(outline, half_width, bevel), pos, rot_deg, mat)
-	# Its shape, for measuring how close a hand comes to it (the gun lab).
+	# Its shape, for measuring how close a hand comes to it (the gun lab) and for Blender's rebuild.
 	mi.set_meta(&"outline", outline)
 	mi.set_meta(&"half_width", half_width)
+	var pts := []
+	for p in outline:
+		pts.append([p.x, p.y])
+	mi.set_meta(&"shape", {"type": "profile", "outline": pts, "half_width": half_width, "bevel": bevel})
 	return mi
 
 
@@ -211,7 +219,12 @@ static func turned(parent: Node3D, n: String, prof: PackedVector2Array, mat: Mat
 			var n1 := Vector3(c1.x * nr.x, c1.y * nr.x, nr.y)
 			_tri(st, [p00, p10, p11], [n0, n0, n1])
 			_tri(st, [p00, p11, p01], [n0, n1, n1])
-	return _add(parent, n, st.commit(), pos, rot_deg, mat)
+	var mi := _add(parent, n, st.commit(), pos, rot_deg, mat)
+	var pts := []
+	for p in prof:
+		pts.append([p.x, p.y])
+	mi.set_meta(&"shape", {"type": "turned", "profile": pts, "sides": sides})
+	return mi
 
 
 ## The extruded mesh `profile` uses (cached by its outline).
@@ -330,9 +343,15 @@ static func project_side(root: Node3D, tex: Texture2D, rect: Rect2, metallic := 
 		mi.material_override = m
 
 
+## Off, a gun is built bare (its factory materials), as the gun lab's side render and export want.
+static var paint_guns := true
+
+
 ## A gun's side painting and its rect (assets/textures/guns/<gun>.png and .json, from the gun lab's
 ## side render and the texture factory), laid on `root`; false where there's none yet.
 static func paint_gun(root: Node3D, gun: String) -> bool:
+	if not paint_guns:
+		return false
 	var png := "res://assets/textures/guns/%s.png" % gun
 	var info := "res://assets/textures/guns/%s.json" % gun
 	if not ResourceLoader.exists(png) or not FileAccess.file_exists(info):

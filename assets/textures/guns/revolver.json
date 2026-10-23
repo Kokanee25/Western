@@ -1,8 +1,14 @@
 {
-  "about": "The revolver's side painting's canvas in the gun's space (z_min, y_min, width, height), seen from its right: GunParts.paint_gun. From the gun lab's views.gd --side.",
+  "about": "The revolver's paintings' canvases in the gun's space, from the gun lab's views.gd --side: rect the side's, seen from its right (z_min, y_min, width, height; GunParts.paint_gun); top_rect the top's, seen from above (z_min, x_min, width, height: the image's top its left side).",
   "rect": [
     -0.26649996638298,
     -0.0841187089681625,
+    0.342357128858566,
+    0.146724477410316
+  ],
+  "top_rect": [
+    -0.26649996638298,
+    -0.0733622387051582,
     0.342357128858566,
     0.146724477410316
   ]
