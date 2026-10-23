@@ -40,7 +40,9 @@ var _eye_height := 0.0
 var _pitch := 0.0
 ## The lean's pitch now on the head (degrees), on top of your own.
 var _tilt := 0.0
-var _capsule: CapsuleShape3D
+## The body's collision (a capsule; bullets that reach you hit it too, so its shape is your
+## profile: a stair's nosings are taken by _step_up, not by squaring it off).
+var _body_shape: CapsuleShape3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -59,9 +61,9 @@ func _ready() -> void:
 	composure = PlayerComposure.new()
 	composure.name = "Composure"
 	add_child(composure)
-	_capsule = CapsuleShape3D.new()
-	_capsule.radius = tuning.radius
-	collision.shape = _capsule
+	_body_shape = CapsuleShape3D.new()
+	_body_shape.radius = tuning.radius
+	collision.shape = _body_shape
 	_set_collision_height(tuning.stand_height)
 	_eye_height = tuning.stand_eye_height
 	motion.reset(_eye_height)
@@ -289,9 +291,53 @@ func _physics_step(delta: float) -> void:
 	else:
 		velocity.y -= tuning.gravity * delta
 	var falling := -velocity.y
-	move_and_slide()
+	if on_floor and _step_up(delta):
+		# Up onto the step and this frame's way along it; the slide only settles him there.
+		var keep := velocity
+		velocity = Vector3.ZERO
+		move_and_slide()
+		velocity = keep
+	else:
+		move_and_slide()
 	_update_head(delta, falling)
 	_footsteps()
+
+
+## Steps and stairs: blocked low down (a riser, a tread's nosing, a porch step), try the same move
+## lifted by up to `step_height`; if it lands on floor you can stand on, go up onto it. The eyes
+## ease over the lift (PlayerMotion.stepped) so a stair is a climb, not a jolt. True if he stepped.
+func _step_up(delta: float) -> bool:
+	var move := Vector3(velocity.x, 0.0, velocity.z) * delta
+	if move.length() < 0.0005:
+		return false
+	var hit := KinematicCollision3D.new()
+	if not test_move(global_transform, move, hit):
+		return false
+	# Anything low in the way (a riser, a nosing, a stair's ramp under its treads' edges): try the
+	# move lifted, and come down where it lands if that's ground to stand on. Up a slope that's
+	# the same climb the slide would make, without the treads' edges catching underfoot.
+	if hit.get_position().y - global_position.y > tuning.step_height:
+		return false
+	# Up onto the tread a little way on (at least a quarter of the body's width), so a rounded heel
+	# doesn't come down on its very edge and teeter there.
+	var reach := move.normalized() * maxf(move.length(), tuning.radius * 0.25)
+	var lifted := global_transform
+	var rise := Vector3.UP * tuning.step_height
+	if test_move(lifted, rise):
+		return false  # no headroom
+	lifted.origin += rise
+	if test_move(lifted, reach):
+		return false  # still blocked up there: a wall, not a step
+	lifted.origin += reach
+	var down := KinematicCollision3D.new()
+	if not test_move(lifted, -rise, down) or down.get_normal().y < cos(floor_max_angle):
+		return false
+	var gained := lifted.origin.y + down.get_travel().y - global_position.y
+	if gained < 0.01 or gained > tuning.step_height:
+		return false
+	global_position += Vector3(0.0, gained, 0.0) + reach
+	motion.stepped(gained)
+	return true
 
 
 ## Speed on the ground with weight: along the way you want to go it builds (quick to a walk,
@@ -349,7 +395,7 @@ func can_stand() -> bool:
 
 
 func _set_collision_height(height: float) -> void:
-	_capsule.height = height
+	_body_shape.height = height
 	collision.position = Vector3(0.0, height * 0.5, 0.0)
 
 

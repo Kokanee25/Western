@@ -37,6 +37,8 @@ var _look := Vector2.ZERO
 var _was_on_floor := true
 var _last_velocity := Vector3.ZERO
 var _breath := 0.0
+## The eyes still below where a step up put them (m, negative), easing back.
+var _step_lag := 0.0
 
 
 ## A damped spring (natural frequency in Hz, damping ratio 1 = no overshoot) for one number.
@@ -52,6 +54,11 @@ class Spring:
 
 	func kick(dv: float) -> void:
 		v += dv
+
+
+## The body was lifted onto a step this frame: the eyes follow it up over a moment.
+func stepped(gained: float) -> void:
+	_step_lag = maxf(_step_lag - gained, -0.3)
 
 
 func reset(eye: float) -> void:
@@ -113,7 +120,8 @@ func step(t: PlayerTuning, delta: float, local_velocity: Vector3, on_floor: bool
 	# Winded: his breath heaves him, deeper and faster the more winded.
 	_breath += delta * t.breath_rate * (1.0 + winded * 1.5)
 	var heave := sin(_breath * TAU) * t.breath_heave * winded
-	head_pos = Vector3(side, bob + dip + heave, 0.0)
+	_step_lag *= exp(-delta * t.step_ease)
+	head_pos = Vector3(side, bob + dip + heave + _step_lag, 0.0)
 	# Lean: roll into a strafe and into a turn (turning right at speed, he leans right); pitch into
 	# a push off and back against a stop.
 	var accel := (local_velocity - _last_velocity) / maxf(delta, 0.001)
