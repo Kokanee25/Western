@@ -1,9 +1,9 @@
 # How they quit (50 fights; build/gf/base_A)
 
-| variant | opening | fights | length s (med) | 45-90 s | < 15 s | anyone quits | first quit s (med) | quits a fight | quit on 0 / 1 / 2+ hits | first to quit B/L/K | men who fired | shots a man | hits on you | you down |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| A | - | 25 | 5.3 | 4% | 88% | 60% | 1.6 | 1.48 | 11 / 18 / 8 | 11 / 3 / 1 | 77% | 1.8 | 1.8 | 48% |
-| A | shoot | 25 | 6.1 | 12% | 76% | 96% | 1.4 | 2.16 | 12 / 34 / 8 | 9 / 10 / 5 | 37% | 0.9 | 1.1 | 20% |
+| variant | opening | fights | length s (med) | 45-90 s | < 15 s | shooting s (med) | shooting 20 s+ | shooting 45-90 s | anyone quits | first quit s (med) | quits a fight | quit on 0 / 1 / 2+ hits | first to quit B/L/K | men who fired | shots a man | hits on you | you down |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| A | - | 25 | 5.3 | 4% | 88% | 4.9 | 8% | 0% | 60% | 1.6 | 1.48 | 11 / 18 / 8 | 11 / 3 / 1 | 77% | 1.8 | 1.8 | 48% |
+| A | shoot | 25 | 6.1 | 12% | 76% | 3.8 | 12% | 4% | 96% | 1.4 | 2.16 | 12 / 34 / 8 | 9 / 10 / 5 | 37% | 0.9 | 1.1 | 20% |
 
 Per man (quit rate, median quit time s, shots a fight), endings, and where the quitters' fear came from (share of a quitter's fear, averaged):
 
