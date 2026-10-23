@@ -663,7 +663,8 @@
    "smooth": true,
    "texels_per_metre": 256,
    "about": "The barkeep's bar rag (ClothProp, assets/props/kit/bar_cloth.json; gameplay with the prop lab's leave, Sean's OK on #258, up to $0.30): its cloth painted in the Studio men's hand; ClothProp lays it over the whole rag and draws its hem, fraying, blood and burns on it in code.",
-   "lightness": 0.85
+   "lightness": 0.72,
+   "chroma": 0.8
   }
  }
 }
