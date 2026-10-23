@@ -472,6 +472,10 @@ frozen until Sean names one.
   (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
   `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
   street saloon's stair).
+- **The street's shape** (2026-10-23, street 1 of 4, issue #325, branch `claude/gameplay-street-shape`,
+  PR waiting on light pass round 2's goldens): the street's middle a curve with a jog at Market Street
+  (`TownLayout.street_z`), fronts off the ruler, an empty lot, the ground climbing west (`ground.rise`);
+  LAYOUT.md "The street's shape"; `experiments/street_shape/`. Next: its `next session` issue.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
