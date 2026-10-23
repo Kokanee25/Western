@@ -315,6 +315,8 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 	var reach := loudness
 	# Walls in between muffle it.
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
+	if source is CollisionObject3D:
+		q.exclude = [(source as CollisionObject3D).get_rid()]  # his own body doesn't muffle him
 	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.3:
 		reach *= 0.5

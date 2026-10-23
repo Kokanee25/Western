@@ -40,9 +40,9 @@ var _eye_height := 0.0
 var _pitch := 0.0
 ## The lean's pitch now on the head (degrees), on top of your own.
 var _tilt := 0.0
-## The body's collision: a cylinder, flat underfoot, so a tread's nosing is a step to go up, not
-## an edge for a rounded heel to ride up on and teeter.
-var _body_shape: CylinderShape3D
+## The body's collision (a capsule; bullets that reach you hit it too, so its shape is your
+## profile: a stair's nosings are taken by _step_up, not by squaring it off).
+var _body_shape: CapsuleShape3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -61,7 +61,7 @@ func _ready() -> void:
 	composure = PlayerComposure.new()
 	composure.name = "Composure"
 	add_child(composure)
-	_body_shape = CylinderShape3D.new()
+	_body_shape = CapsuleShape3D.new()
 	_body_shape.radius = tuning.radius
 	collision.shape = _body_shape
 	_set_collision_height(tuning.stand_height)
