@@ -110,8 +110,8 @@ func _build() -> void:
 	# negative turn about X takes its butt towards +Z), with a steel cap.
 	grip = GunParts.pivot(stock, "PistolGrip", Vector3(0, -0.026, 0.022))
 	grip.rotation_degrees = Vector3(-30, 0, 0)
-	GunParts.box(grip, "Grip", Vector3(0.03, 0.08, 0.036), Vector3(0, -0.04, 0.004), wood)
-	GunParts.box(grip, "Cap", Vector3(0.031, 0.005, 0.038), Vector3(0, -0.081, 0.004), steel)
+	GunParts.box(grip, "Grip", Vector3(0.03, 0.09, 0.036), Vector3(0, -0.045, 0.004), wood)
+	GunParts.box(grip, "Cap", Vector3(0.031, 0.005, 0.038), Vector3(0, -0.091, 0.004), steel)
 	butt = GunParts.pivot(stock, "ButtStock", Vector3.ZERO)
 	GunParts.box(butt, "Butt", Vector3(0.04, 0.1, 0.24), Vector3(0, -0.078, 0.23), wood, Vector3(6, 0, 0))
 	GunParts.box(butt, "Comb", Vector3(0.034, 0.02, 0.2), Vector3(0, -0.032, 0.21), wood, Vector3(6, 0, 0))

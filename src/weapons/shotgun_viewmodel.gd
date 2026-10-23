@@ -39,23 +39,23 @@ const R_HAND_POS := Vector3(0.027, -0.016, -0.013)
 const R_HAND_TILT := 0.0
 const R_HAND_ROLL := 0.0
 const R_FOREARM := Vector3(0.45, -0.35, 0.82)
-const R_GRIP := {"middle": 69.0, "ring": 62.0, "little": 50.0}
+const R_GRIP := {"middle": 69.0, "ring": 62.0, "little": 55.0}
 ## The index on the front trigger, at rest and squeezed (HeldHand.grasp; `views.gd --fit`).
 const R_INDEX_SPREAD := 30.0
 const R_INDEX_REST := 8.0
 const R_INDEX_PULL := 20.0
 const R_THUMB_REST := [Vector3(-24.0, -36.0, 24.0), 45.0, 40.0]
 const R_THUMB_COCK := [Vector3(48.0, 36.0, 60.0), 45.0, 40.0]
-## The left, in the barrels' space: the forend cradled in its palm, the four fingers together
-## curling up its right side to the barrels and the thumb up the left, kept low off the sight line
-## (a blind judge's pick over the fingers fanned diagonally), the forearm back, down and out to the
-## left.
-const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
-const L_HAND_TILT := -90.0
-const L_HAND_ROLL := 90.0
-const L_FOREARM := Vector3(-0.3, -0.55, 0.78)
-const L_GRIP := {"index": 45.0, "middle": 45.0, "ring": 45.0, "little": 45.0}
-const L_THUMB := [Vector3(60.0, 60.0, -60.0), 20.0, 10.0]
+## The left, in the barrels' space, as a hand lies under a forend: the forend across the palm
+## diagonally, the palm up and in, the fingers up its right side and the thumb up the left, kept
+## low off the sight line; the hand's long axis (knuckles to wrist) back, down and out to the left,
+## and the forearm straight on from it, so the wrist doesn't bend.
+const L_HAND_POS := Vector3(0.0, -0.012, -0.08)
+const L_WRIST_DIR := Vector3(-0.7, -0.35, 0.6)
+const L_PALM_DIR := Vector3(0.3, 1.0, 0.0)
+const L_FOREARM := Vector3(-0.7, -0.5, 0.6)
+const L_GRIP := {"index": 10.0, "middle": 51.0, "ring": 55.0, "little": 65.0}
+const L_THUMB := [Vector3(-36.0, 60.0, 48.0), 45.0, 40.0]
 
 @export var tuning: ShotgunTuning
 
@@ -105,7 +105,7 @@ func _build_hands() -> void:
 	hand = _held(true, model.grip, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, R_GRIP[f])
-	left_hand = _held(false, model.barrels, L_HAND_POS, L_HAND_TILT, L_HAND_ROLL, L_FOREARM)
+	left_hand = _held_along(false, model.barrels, L_HAND_POS, L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
 	for f: String in L_GRIP:
 		left_hand.grasp(f, L_GRIP[f])
 	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
@@ -119,6 +119,22 @@ func _held(is_right: bool, parent: Node3D, pos: Vector3, tilt: float, roll: floa
 	h.name = "Hand" if is_right else "LeftHand"
 	h.position = pos
 	h.basis = Basis(Vector3.BACK, deg_to_rad(roll)) * Basis(Vector3.RIGHT, deg_to_rad(tilt))
+	parent.add_child(h)
+	h.build()
+	h.aim_forearm(parent.transform.basis.inverse() * forearm)
+	return h
+
+
+## A hand at `pos` in `parent`'s space laid along `wrist_dir` (from its knuckles back towards its
+## wrist) with its palm towards `palm_dir`, its forearm aimed `forearm` (all in the gun's space).
+func _held_along(is_right: bool, parent: Node3D, pos: Vector3, wrist_dir: Vector3, palm_dir: Vector3, forearm: Vector3) -> HeldHand:
+	var h := HeldHand.new(is_right)
+	h.name = "Hand" if is_right else "LeftHand"
+	h.position = pos
+	var z := wrist_dir.normalized()
+	# A right hand's palm is its -X, a left hand's its +X (HeldHand: the left is the mirror).
+	var x := (palm_dir - z * palm_dir.dot(z)).normalized() * (-1.0 if is_right else 1.0)
+	h.basis = Basis(x, z.cross(x), z)
 	parent.add_child(h)
 	h.build()
 	h.aim_forearm(parent.transform.basis.inverse() * forearm)
