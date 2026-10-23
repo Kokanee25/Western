@@ -115,6 +115,7 @@ func _buildings() -> void:
 		building.name = b[0]
 		building.structure_id = StringName((b[0] as String).to_snake_case())
 		building.build_seed = 40 + i
+		building.age_years = float(placed.get("age", 0.0))  # how worn (BuildingAge)
 		building.width = float(placed.get("width", (b[2] as float) - (b[1] as float)))
 		# Down the street, nobody's inside yet: no counter or lamp, and the store's lantern stays
 		# the only one hung under a porch (carriage lanterns by the doors instead).
@@ -131,6 +132,7 @@ func _buildings() -> void:
 			walk.name = "%sWalk" % b[0]
 			walk.structure_id = StringName("%s_walk" % (b[0] as String).to_snake_case())
 			walk.length = building.width
+			walk.age_years = building.age_years
 			walk.steps = TownLayout.value("steps", placed["steps"])
 			walk.transform = building.transform
 			add_child(walk)
