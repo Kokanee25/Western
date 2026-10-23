@@ -541,10 +541,15 @@ func _watch_men(_delta: float) -> void:
 		pv["searching"] = b._search != null
 		if b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING]:
 			m["fought"] = true
+		if man.limp and not m.has("_limp_t"):
+			m["_limp_t"] = t
+		elif not man.limp:
+			m.erase("_limp_t")
 		if m.out_at < 0.0:
 			if not man.physiology.alive:
 				_out(man, "dead", "dead")
-			elif man.limp:
+			elif man.limp and (not &"floor_fight" in OutlawBrain.d_fixes or not man.physiology.is_conscious() \
+					or float(m.get("_limp_t", t)) < t - DOWN_GRACE):
 				_out(man, "down", "down")
 			elif b.mood == OutlawBrain.Mood.SURRENDERED:
 				_out(man, "surrendered", "gave up")
@@ -562,6 +567,11 @@ func _watch_men(_delta: float) -> void:
 				m.outcome = "dead"
 			elif m.outcome == "down" and b.mood == OutlawBrain.Mood.SURRENDERED:
 				m.outcome = "surrendered"
+
+
+## With variant D's `floor_fight`, a man down and still with it isn't out of it till he's lain this
+## long (s): he may come to and fight from the floor (HumanBody.come_to_ground takes ~2.5 s).
+const DOWN_GRACE := 6.0
 
 
 func _since_mood(m: Dictionary) -> float:
@@ -951,6 +961,7 @@ func _finish(why: String) -> void:
 	for id in gang_ids:
 		var m: Dictionary = _men[id]
 		m.erase("_cover")
+		m.erase("_limp_t")
 		var b = brains.get(id)
 		if is_instance_valid(b):
 			m["fear_named"] = _named((b as OutlawBrain).fear_from)
