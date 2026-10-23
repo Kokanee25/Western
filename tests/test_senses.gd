@@ -73,6 +73,43 @@ func test_night_shortens_his_sight() -> void:
 	check(spotted, "but does close up")
 
 
+## Seen by the light on him: at night, standing 20 m off under a lit lamp, he's picked out; the same
+## lamp put out, he isn't; lit, but with a wall between it and him, he isn't either. The perception
+## lab's baseline (2026-10-22): lamps lit nobody.
+func test_a_lamp_lights_you_at_night() -> void:
+	senses.light = 0.0
+	player.global_position = Vector3(0, 0, 10)  # 20 m off: past his reach under the night sky
+	var lamp := OilLamp.new()
+	world.add_child(lamp)
+	lamp.global_position = Vector3(1.2, 1.6, 10.5)
+	await physics_frames(2)
+	check(lamp.shines(), "(the lamp is lit)")
+	var spotted := await wait_until(func() -> bool: return senses.sees(player), 480)
+	check(spotted, "under a lit lamp at 20 m he picks you out (%.2f lux on you)" % senses.light_on(player))
+	lamp.set_lit(false)
+	senses.known.clear()
+	await physics_frames(360)
+	check(not senses.sees(player), "the lamp out, you're dark again (%.3f lux)" % senses.light_on(player))
+	lamp.set_lit(true)
+	_box(Vector3(0.6, 1.5, 10.25), Vector3(0.1, 3, 3))  # a wall between the lamp and you
+	senses.known.clear()
+	await physics_frames(360)
+	check(not senses.sees(player), "a wall keeps its light off you (%.3f lux)" % senses.light_on(player))
+
+
+## A shut room at night with no lamp is black, though the sky's the same outside it.
+func test_a_dark_room_at_night() -> void:
+	senses.light = 0.0
+	player.global_position = Vector3(0, 0, -4)  # 6 m: seen under the open night sky
+	var open_sky := senses.range_to(player)
+	_box(Vector3(0, 3.1, -4), Vector3(4, 0.2, 4))  # a roof over you
+	for side: Vector3 in [Vector3(2, 0, 0), Vector3(-2, 0, 0), Vector3(0, 0, 2), Vector3(0, 0, -2)]:
+		_box(Vector3(0, 1.5, -4) + side, Vector3(0.1 if side.x != 0.0 else 4, 3, 0.1 if side.z != 0.0 else 4))
+	await physics_frames(SightLight.tune().lines_frames + 5)  # its sky is looked for again
+	check(open_sky > 6.0, "under the open sky he'd see you at 6 m (%.1f m)" % open_sky)
+	check(senses.range_to(player) < 3.0, "in a shut room his eye reaches %.1f m of you" % senses.range_to(player))
+
+
 func test_crouched_and_still_is_harder_to_spot() -> void:
 	senses.light = 0.3
 	player.global_position = Vector3(0, 0, 4)  # 14 m
@@ -101,10 +138,28 @@ func test_hears_a_shot_behind_him_roughly_where() -> void:
 	player.global_position = Vector3(0, 0, 20)  # 30 m behind him
 	await physics_frames(2)
 	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
-	check(senses.knows(player), "heard it")
+	var shot := senses.last_sound([&"gunshot"])
+	check(not shot.is_empty(), "heard it")
 	check(not senses.sees(player), "without seeing you")
-	var guess := senses.last_known(player)
-	check(guess.distance_to(player.global_position) < 5.0, "and roughly where (%.1f m off)" % guess.distance_to(player.global_position))
+	check(not shot.is_empty() and (shot.at as Vector3).distance_to(player.global_position) < 5.0, "and roughly where")
+	check(not senses.knows(player), "but not who fired: he didn't see you")
+
+
+## A shot from a man he can see: he knows who fired. The perception lab's baseline (2026-10-22)
+## found every listener knew, seen or not.
+func test_knows_who_fired_only_if_he_sees_him() -> void:
+	var who := [null]
+	senses.heard.connect(func(_at: Vector3, _k: StringName, w: Node) -> void: who[0] = w)
+	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
+	check(who[0] == player, "you, 10 m in front of him: he knows it was you")
+	check(senses.knows(player), "and where you are")
+	_box(Vector3(0, 1.5, -5), Vector3(6, 3, 0.3))  # a wall between
+	await physics_frames(2)
+	senses.known.clear()
+	who[0] = null
+	Events.noise.emit(player.global_position + Vector3.UP * 1.5, DeedWatch.GUNSHOT, &"gunshot", player)
+	check(who[0] == null and not senses.knows(player), "the same shot behind a wall: a shot, not you")
+	check(not senses.last_sound([&"gunshot"], 0.5).is_empty(), "heard all the same")
 
 
 func test_footsteps() -> void:
@@ -112,10 +167,11 @@ func test_footsteps() -> void:
 	player.global_position = Vector3(0, 0, -2)  # 8 m behind him
 	await physics_frames(2)
 	Events.noise.emit(player.global_position, 13.0, &"footsteps", player)
-	check(senses.knows(player), "hears you running at 8 m")
-	senses.known.clear()
+	check(not senses.last_sound([&"footsteps"]).is_empty(), "hears you running at 8 m")
+	check(not senses.knows(player), "steps behind him: somebody's, not yours")
+	senses.sounds.clear()
 	Events.noise.emit(player.global_position, 2.0, &"footsteps", player)
-	check(not senses.knows(player), "not creeping crouched")
+	check(senses.last_sound([&"footsteps"]).is_empty(), "not creeping crouched")
 
 
 ## People come and go (the gang rides out, is freed, rides in again, often where the last ones

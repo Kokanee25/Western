@@ -731,7 +731,8 @@ func _frame() -> Dictionary:
 func _player_state() -> Dictionary:
 	var w := player.wounds
 	var out := {"at": _arr(player.global_position), "facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1),
-		"crouching": player.is_crouching, "weapon": _weapon_line()}
+		"crouching": player.is_crouching, "weapon": _weapon_line(), "movement": String(player.movement),
+		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive
@@ -864,6 +865,8 @@ func _act(down: bool, action: StringName) -> void:
 
 
 func _set_view(yaw: float, pitch_degrees: float) -> void:
+	# The body feels the turn as if you'd made it (the gun lags it, you lean into it at speed).
+	player.motion.looked(Vector2(rad_to_deg(angle_difference(yaw, player.rotation.y)), 0.0))
 	player.rotation.y = yaw
 	var delta := pitch_degrees - player.get_pitch_degrees()
 	var was := player.input_enabled

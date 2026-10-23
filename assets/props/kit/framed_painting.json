@@ -1,0 +1,93 @@
+{
+  "_doc": "An oil landscape in a gilded frame (PropModels._painting's shape and look, built of members): four frame pieces and the canvas (one of two pictures), hung by its wire from one nail over the frame's top. It falls when the nail's board goes (or the frame's top is shot through), and burns: the canvas first.",
+  "id": "framed_painting",
+  "kind": "members",
+  "replaces": "framed_painting",
+  "in_game": true,
+  "wood": "sign",
+  "look": "prop:gilt",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.31,
+        0.01
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "frame_top",
+      "kind": "post",
+      "size": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0,
+        0.31,
+        0.025
+      ]
+    },
+    {
+      "id": "frame_left",
+      "kind": "furniture_frame",
+      "size": [
+        0.08,
+        0.54,
+        0.05
+      ],
+      "at": [
+        -0.46,
+        0,
+        0.025
+      ]
+    },
+    {
+      "id": "frame_right",
+      "kind": "furniture_frame",
+      "size": [
+        0.08,
+        0.54,
+        0.05
+      ],
+      "at": [
+        0.46,
+        0,
+        0.025
+      ]
+    },
+    {
+      "id": "frame_bottom",
+      "kind": "furniture_top",
+      "size": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0,
+        -0.31,
+        0.025
+      ]
+    },
+    {
+      "id": "canvas",
+      "kind": "trim",
+      "look": "prop:picture",
+      "size": [
+        0.84,
+        0.54,
+        0.01
+      ],
+      "at": [
+        0,
+        0,
+        0.02
+      ]
+    }
+  ]
+}

@@ -642,6 +642,29 @@
     560
    ],
    "about": "The hotel's oak stair's wood (the material lab's OakStair, Sean 2026-10-21), painted as boards in the Studio men's hand and cut one strip a board; the lab's only, not used by the game yet."
+  },
+  "bar_cloth": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.4,
+    0.3
+   ],
+   "colours": 16,
+   "what": "a barkeep's cotton bar rag laid flat, seen from above: off-white unbleached cotton in a coarse plain weave, soft creases and folds, the grey-brown blotches of old beer and grease soaked into it, a few darker spots, a little grime worked into the weave, worn thin in places",
+   "ref": [
+    "saloon",
+    1450,
+    290,
+    1560,
+    370
+   ],
+   "whole": true,
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The barkeep's bar rag (ClothProp, assets/props/kit/bar_cloth.json; gameplay with the prop lab's leave, Sean's OK on #258, up to $0.30): its cloth painted in the Studio men's hand; ClothProp lays it over the whole rag and draws its hem, fraying, blood and burns on it in code.",
+   "lightness": 0.72,
+   "chroma": 0.8
   }
  }
 }

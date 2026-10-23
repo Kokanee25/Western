@@ -9,17 +9,26 @@ class_name PropKit
 ##    "splits_below": the share of a member's section left below which a holed member splits,
 ##    "blow_wood_share": how much of a blow's lost energy goes into the wood,
 ##    "seat": {"member", "at" (where his weight comes down), "share" (of his weight), "hold" (m)},
+##    "holds": its inside, {"from", "to" (heights), "radius": [at the ends, at the middle]};
+##    "contents": what's in it, {"liquid", "litres" | "full": true, "flammable", "colour"}
+##    (PropContents: its weight, level, leaks),
+##    "like": another kit file's id, its keys taken and these laid over them,
 ##    "members": [{"id", "kind", "size", "at", "rot" (degrees, XYZ), "wood", "look",
 ##                 "splits_below", "blow_span" (the length of it a blow bends), "draw", "repeat"}]}
 ##
 ## Positions in the prop's own space: origin at the bottom centre, facing +Z (as PropLibrary's).
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
-## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, brass, iron, mirror), or
+## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
+## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), burl, ivory,
+## ebony, brass, iron, mirror), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
-##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up"}: turned about the prop's Y;
-##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments"}: part of one;
+##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at"}: turned about the
+##    prop's Y (or a vertical axis through "at");
+##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments", "grain_up",
+##    "caps"}: part of one ("caps": its cut ends closed, the profile a closed outline: a stave);
+##   {"shape": "boxes", "boxes": [{"size", "at", "rot"} | {"from", "to", "thick"}]}: boxes and sticks;
 ##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
 ##   Y ("above": instead a layer that thick laid on its top: a table's baize);
 ##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh).
@@ -46,7 +55,15 @@ static func definition(id: StringName) -> Dictionary:
 		var f := FileAccess.open(path_of(id), FileAccess.READ)
 		assert(f != null, "No kit file for %s" % id)
 		var parsed: Variant = JSON.parse_string(f.get_as_text()) if f else null
-		_defs[id] = parsed if parsed is Dictionary else {}
+		var def: Dictionary = parsed if parsed is Dictionary else {}
+		# "like": another kit file's prop with these keys over it (a barrel of whiskey is the barrel
+		# with its contents).
+		if def.has("like"):
+			var base := definition(StringName(def.like)).duplicate(true)
+			base.merge(def, true)
+			base.erase("like")
+			def = base
+		_defs[id] = def
 	return _defs[id]
 
 
@@ -67,18 +84,83 @@ static func spawn(id: StringName, structure_id := &"") -> KitProp:
 	p.definition = definition(id)
 	var n: int = _made.get(id, 0)
 	_made[id] = n + 1
+	p.variant = n
 	p.structure_id = structure_id if structure_id != &"" else StringName("%s_%d" % [id, n])
 	p.name = String(p.structure_id).to_pascal_case()
 	p.build_seed = hash(p.structure_id)
 	return p
 
 
-## A prop of either kind from its kit file, not yet in the tree: a KitProp ("members") or a
-## GlassProp ("shatters"; its variant, the bottle's glass and label, counted per prop).
+## A fixture fitted to the box it's to fill (`size`: a counter as long as the room, shelves as
+## high as the wall), not yet in the tree; `changes` by member id: a spec's keys to replace (a
+## counter's top in another wood), or null to leave it out (a counter's end against the wall);
+## `extra`: more member specs, in the fitted prop's space (a telegraph desk's key, a cage on a
+## counter).
+static func spawn_fitted(id: StringName, structure_id: StringName, size: Vector3, changes := {}, extra: Array = []) -> KitProp:
+	var p := spawn(id, structure_id)
+	var def := fit(definition(id), size)
+	var specs: Array = []
+	for spec: Dictionary in def.members:
+		if changes.has(spec.id):
+			if changes[spec.id] == null:
+				continue
+			spec.merge(changes[spec.id], true)
+		specs.append(spec)
+	specs.append_array(extra)
+	def.members = specs
+	p.definition = def
+	return p
+
+
+## The kit file's members laid out to fill `size` (the box its members fill, in its own space),
+## nine-slice: along each axis, a member spanning most of the box (80%: a counter's front, a
+## shelf, a table's legs up its height) stretches with it, keeping its ends' insets; one at an
+## edge (within 15%: an end, a leg, an upright, a counter's front behind its top's overhang) keeps
+## its inset from that edge; one between
+## keeps its share of the way across (a middle shelf). The box keeps the origin where it had it
+## (a kit prop's bottom centre; a trough's end). Members are axis-aligned; `repeat`s are laid out.
+static func fit(def: Dictionary, size: Vector3) -> Dictionary:
+	var out := def.duplicate(true)
+	var box := bounds(def)
+	var specs: Array = []
+	for spec: Dictionary in expand(def):
+		var at := vec(spec.at)
+		var sz := vec(spec.size)
+		for a in 3:
+			var lo := box.position[a]
+			var n := maxf(box.size[a], 0.0001)
+			var hi := lo + n
+			var new_lo := lo / n * size[a]  # the origin keeps its share of the box
+			var new_hi := new_lo + size[a]
+			var m_lo := at[a] - sz[a] * 0.5
+			var m_hi := at[a] + sz[a] * 0.5
+			if m_hi - m_lo >= 0.8 * n:
+				m_lo = new_lo + (m_lo - lo)
+				m_hi = new_hi - (hi - m_hi)
+				sz[a] = m_hi - m_lo
+				at[a] = (m_lo + m_hi) * 0.5
+			elif m_lo - lo <= 0.15 * n:
+				at[a] += new_lo - lo
+			elif hi - m_hi <= 0.15 * n:
+				at[a] += new_hi - hi
+			else:
+				at[a] = new_lo + (at[a] - lo) / n * size[a]
+		var s := spec.duplicate(true)
+		s.at = _arr(at)
+		s.size = _arr(sz)
+		specs.append(s)
+	out.members = specs
+	return out
+
+
+## A prop of any kind from its kit file, not yet in the tree: a KitProp ("members"), a GlassProp
+## ("shatters"; its variant, the bottle's glass and label, counted per prop), a LooseProp ("loose":
+## the spittoon, the tin cup), a ClothProp ("cloth":
+## the bar rag), a MopProp ("mop") or a MopBucket ("bucket").
 static func make(id: StringName) -> Node3D:
 	var def := definition(id)
-	if String(def.get("kind", "members")) == "shatters":
-		var g := GlassProp.new()
+	if String(def.get("kind", "members")) in ["shatters", "loose"]:
+		var g: GlassProp = LooseProp.new() if def.kind == "loose" else GlassProp.new()
 		g.kit_id = id
 		g.definition = def
 		var n: int = _made.get(id, 0)
@@ -86,6 +168,27 @@ static func make(id: StringName) -> Node3D:
 		g.variant = n
 		g.name = "%s%d" % [String(id).to_pascal_case(), n]
 		return g
+	if String(def.get("kind", "members")) == "mop":
+		var mop := MopProp.new()
+		mop.kit_id = id
+		mop.definition = def
+		mop.name = String(id).to_pascal_case()
+		return mop
+	if String(def.get("kind", "members")) == "bucket":
+		var bucket := MopBucket.new()
+		bucket.kit_id = id
+		bucket.definition = def
+		bucket.name = String(id).to_pascal_case()
+		return bucket
+	if String(def.get("kind", "members")) == "cloth":
+		var c := ClothProp.new()
+		c.kit_id = id
+		c.definition = def
+		var n: int = _made.get(id, 0)
+		_made[id] = n + 1
+		c.rng_seed = hash([id, n])
+		c.name = "%s%d" % [String(id).to_pascal_case(), n]
+		return c
 	return spawn(id)
 
 
@@ -108,10 +211,14 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 				s.at = _arr(b * (at + Vector3(0, 0, float(rep.radius))))
 				var rot := vec(spec.get("rot", [0, 0, 0]))
 				s.rot = [rot.x, rot.y + rad_to_deg(a), rot.z]
-				if s.has("draw") and s.draw.get("shape") == "sweep":
-					# A sweep's angles run from +X toward +Z; turning about Y by `a` runs the other way.
-					s.draw.from = float(s.draw.from) - rad_to_deg(a)
-					s.draw.to = float(s.draw.to) - rad_to_deg(a)
+				# A sweep's angles run from +X toward +Z; turning about Y by `a` runs the other way.
+				var draws: Array = [s.get("draw", {})]
+				for d: Dictionary in s.get("dress", []):
+					draws.append(d.get("draw", {}))
+				for d: Dictionary in draws:
+					if d.get("shape") == "sweep":
+						d.from = float(d.from) - rad_to_deg(a)
+						d.to = float(d.to) - rad_to_deg(a)
 			else:
 				s.at = _arr(at + vec(rep.get("step", [0, 0, 0])) * i)
 			out.append(s)
@@ -120,6 +227,12 @@ static func expand(def: Dictionary) -> Array[Dictionary]:
 
 ## Its members' boxes together, in its own space.
 static func bounds(def: Dictionary) -> AABB:
+	if def.get("drawn_bounds", false):
+		# Laid out as the drawn prop is (a deer head's antlers are drawn, not members): its box.
+		var size := PropLibrary.size_of(StringName(def.get("replaces", def.get("id", ""))))
+		if PropLibrary.definition(StringName(def.get("replaces", ""))).get("anchor", "floor") == "wall":
+			return AABB(Vector3(-size.x * 0.5, -size.y * 0.5, 0.0), size)
+		return AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
 	if not def.has("members"):
 		# A glass prop: its size, standing on its bottom centre.
 		var size := vec(def.get("size", [0.1, 0.3, 0.1]))
@@ -163,6 +276,26 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.felt()
 		"staves":
 			return PropModels.staves()
+		"barrel_head":
+			return PropModels.barrel_head()
+		"hide":
+			return PropModels.hide()
+		"hide_dark":
+			return PropModels.hide_dark()
+		"antler":
+			return PropModels.antler()
+		"gilt":
+			return PropModels.gilt()
+		"picture":
+			return PropModels.picture(variant)
+		"burl":
+			return PropModels.burl()
+		"ivory":
+			return PropModels.ivory()
+		"ebony":
+			return PropModels.ebony()
+		"weathered":
+			return PropModels.weathered()
 		"brass":
 			return PropModels.brass()
 		"iron":
@@ -186,16 +319,43 @@ static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> vo
 		mi.mesh = draw_mesh(draw, m)
 
 
+## Boxes in the prop's space, one mesh: each {"size", "at", "rot"}, or a stick {"from", "to",
+## "thick"} (an antler's tines), as PropModels draws them.
+static func boxes(list: Array) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	for b: Dictionary in list:
+		var xf: Transform3D
+		var size: Vector3
+		if b.has("from"):
+			var a := vec(b.from)
+			var d := vec(b.to) - a
+			size = Vector3(float(b.thick), float(b.thick), d.length())
+			xf = Transform3D(Basis.looking_at(d, Vector3.UP if absf(d.normalized().y) < 0.99 else Vector3.FORWARD), a + d * 0.5)
+		else:
+			size = vec(b.size)
+			xf = Transform3D(basis_of(b), vec(b.at))
+		st.append_from(MemberMesh.box(size), 0, xf)
+	return st.commit()
+
+
 ## A member's drawn mesh from its "draw" (in the prop's space), laid into the member's own space.
 static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	var src: Mesh
 	match String(draw.get("shape", "box")):
 		"lathe":
 			src = PropModels.lathe(_profile(draw.profile), int(draw.get("segments", 12)), bool(draw.get("grain_up", false)))
+			if draw.has("at"):
+				# Turned about its own axis there (a candle holder beside a piano's music desk).
+				var moved := SurfaceTool.new()
+				moved.append_from(src, 0, Transform3D(Basis.IDENTITY, vec(draw.at)))
+				src = moved.commit()
 		"sweep":
-			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)))
+			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)),
+					bool(draw.get("grain_up", false)), bool(draw.get("caps", false)))
 		"disc":
 			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
+		"boxes":
+			src = boxes(draw.boxes)
 		"profile", "panel", "cut":
 			# The woodwork's shapes (art's Profiles), made in the member's own space.
 			return woodwork_mesh(draw, m)
@@ -273,8 +433,10 @@ static func _profile(points: Array) -> PackedVector2Array:
 
 ## Part of a turned shape: the profile ([r, y]) swept about Y from angle `a0` to `a1` (radians,
 ## from +X toward +Z, as PropModels.lathe), smooth round it, UVs in metres (u round, v down the
-## profile), its cut ends left open (the rim's neighbours meet them).
-static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: int) -> ArrayMesh:
+## profile; `grain_up`: the other way, so a stave's grain runs up it), its cut ends left open (the
+## rim's neighbours meet them) or, with `caps`, closed with the profile (a stave, seen when its
+## neighbour's been shot out).
+static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: int, grain_up := false, caps := false) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var along := [0.0]
@@ -306,8 +468,29 @@ static func sweep(profile: PackedVector2Array, a0: float, a1: float, segments: i
 				var p: Vector2 = c[1]
 				verts.append(Vector3(cos(t) * p.x, p.y, sin(t) * p.x))
 				norms.append(Vector3(cos(t) * n2.x, n2.y, sin(t) * n2.x).normalized())
-				uvs.append(Vector2(t * r_mean, float(c[2])))
+				uvs.append(Vector2(float(c[2]), t * r_mean) if grain_up else Vector2(t * r_mean, float(c[2])))
 			_quad(st, verts, norms, uvs)
+	if caps:
+		var outline := profile.duplicate()
+		if outline.size() > 3 and outline[0].is_equal_approx(outline[outline.size() - 1]):
+			outline.remove_at(outline.size() - 1)
+		var tris := Geometry2D.triangulate_polygon(outline)
+		for end in [[a0, -1.0], [a1, 1.0]]:
+			var t: float = end[0]
+			# The cut face looks round the circle, back at a0 and on at a1.
+			var n := Vector3(-sin(t), 0.0, cos(t)) * float(end[1])
+			for i in range(0, tris.size(), 3):
+				var v: Array[Vector3] = []
+				for k in 3:
+					var p := outline[tris[i + k]]
+					v.append(Vector3(cos(t) * p.x, p.y, sin(t) * p.x))
+				if (v[1] - v[0]).cross(v[2] - v[0]).dot(n) > 0.0:
+					v = [v[0], v[2], v[1]]
+				for q in v:
+					st.set_normal(n)
+					var p2 := Vector2(Vector2(q.x, q.z).length(), q.y)
+					st.set_uv(Vector2(p2.y, p2.x) if grain_up else p2)
+					st.add_vertex(q)
 	return st.commit()
 
 

@@ -31,6 +31,7 @@ var man: Node3D  # HumanBody
 var lamp: Node3D
 ## The glass props put on it (scenario "glass": [{"id", "at", "lit"}]), and what they let go.
 var glass: Array = []
+var stack: Array = []  # more kit props, stood on the prop or beside it (crates, barrels)
 var spilled: Array = []
 var fire: Node
 var ballistics: Node
@@ -185,6 +186,11 @@ func _place_prop() -> void:
 		_props_node().add_child(lamp)
 		lamp.global_position = prop.global_position + Vector3(0.12, 0.761, -0.1)
 		lamp.set_lit(true)
+	for e: Dictionary in sc.get("stack", []):
+		var k = load("res://src/props/prop_kit.gd").spawn(StringName(e.id), StringName("bench_stack%d" % stack.size()))
+		k.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), Vector3(0, FLOOR_TOP, 0) + _v(e.at))
+		world.add_child(k)
+		stack.append(k)
 	for e: Dictionary in sc.get("glass", []):
 		var g = load("res://src/props/prop_kit.gd").make(StringName(e.id))
 		_props_node().add_child(g)
@@ -197,6 +203,7 @@ func _place_prop() -> void:
 			light.position.y = 0.04
 			light.set_lit(true)
 		glass.append(g)
+		rec.get_or_add("glass_start", []).append(Vector3.ZERO)
 	root.get_node("Events").liquid_spilled.connect(func(at: Vector3, liquid: StringName, litres: float, _src: Node) -> void:
 		spilled.append({"liquid": String(liquid), "litres": litres, "t": snappedf((tick - event_tick) / 60.0, 0.01)}))
 	for i in 6:
@@ -243,6 +250,8 @@ func _step(ms: float) -> void:
 			prop.sit(man)
 			rec.seat_h = snappedf((man.parts[&"pelvis"] as Node3D).global_position.y - FLOOR_TOP, 0.001)
 	if tick == int(LEAD * 60.0):
+		for i in glass.size():
+			rec.glass_start[i] = glass[i].body.global_position
 		event_tick = tick
 		rec.kg = prop.mass()
 		_event()
@@ -253,6 +262,8 @@ func _step(ms: float) -> void:
 			rec.loose_t = snappedf(since, 0.001)
 		if man and rec.limp_t == null and man.limp:
 			rec.limp_t = snappedf(since, 0.001)
+		if prop.get(&"contents") != null and tick - event_tick == 60:
+			rec.first_rate = snappedf(prop.contents.capacity - prop.contents.litres, 0.001)
 	else:
 		rec.get_or_add("before_ms", []).append(ms)
 	_faults()
@@ -321,6 +332,12 @@ func _event() -> void:
 			rec.kick = prop.take_blow(m, at, prop.global_basis * _v(e.impulse))
 		"drop_man":
 			man.go_limp()
+		"kick_glass":
+			# A boot at a loose prop (the spittoon): `height` up it, from the side the impulse comes.
+			var g = glass[int(e.at_glass)]
+			var imp: Vector3 = prop.global_basis * _v(e.impulse)
+			var at: Vector3 = g.body.global_position + Vector3.UP * float(e.get("height", 0.1)) - imp.normalized() * 0.12
+			rec.kick = g.take_blow(at, imp)
 		"burn":
 			fire.set_physics_process(true)
 			for id: String in e.ignite:
@@ -395,12 +412,29 @@ func _write_summary() -> void:
 	if not glass.is_empty():
 		var gl := []
 		for i in glass.size():
-			gl.append({"id": String(glass[i].kit_id), "broken": glass[i].broken, "loose": glass[i].loose,
-					"broken_t": rec.get("glass_broken_t", {}).get(i)})
+			var g = glass[i]
+			var e := {"id": String(g.kit_id), "broken": g.broken, "loose": g.loose, "broken_t": rec.get("glass_broken_t", {}).get(i)}
+			if g.get(&"dents") != null:
+				# A loose prop (the spittoon, the cup): knocked, holed, dented, spilt, how far it went.
+				e.erase("broken_t")
+				e.merge({"holes": g.holes, "dents": g.dents, "spilt": g.spilt, "upright": g.body.global_basis.y.y > 0.8,
+						"moved_m": snappedf(g.body.global_position.distance_to(rec.glass_start[i]), 0.01)})
+			gl.append(e)
 		out.glass = gl
 		out.spilled = spilled
 		out.shards = get_nodes_in_group(&"glass_shards").size()
 		out.fire_spills = int(rec.get("fire_spills_max", 0))
+	if not stack.is_empty():
+		out.stack = stack.map(func(k: Node) -> Dictionary: return {"id": String(k.kit_id), "loose": k.loose,
+				"snapped": k.get_members().filter(func(m: Node) -> bool: return m.has_meta(&"snapped") or m.broken).size()})
+	if prop.get(&"contents") != null:
+		# What it held (PropContents): left, run out (on the bus: the floor's), its leaks, and how
+		# fast the first ran in the first second.
+		var c = prop.contents
+		out.contents = {"liquid": String(c.liquid), "capacity_l": snappedf(c.capacity, 0.1), "left_l": snappedf(c.litres, 0.01),
+				"out_l": snappedf(c.spilled, 0.01), "on_bus_l": snappedf(spilled.reduce(func(a: float, e: Dictionary) -> float: return a + float(e.litres), 0.0), 0.01),
+				"leaks": c.leaks.size(), "slots": c.leaks.filter(func(l: Dictionary) -> bool: return l.has("slot") or l.has("slot_area")).size(),
+				"released": c.released, "first_l_per_s": rec.get("first_rate"), "fire_spills": int(rec.get("fire_spills_max", 0))}
 	if rec.has("flung_first"):
 		out.flung_first = rec.flung_first
 	if rec.has("kick"):
@@ -472,8 +506,39 @@ func _look() -> void:
 	world.add_child(ground)
 	var lib = load("res://src/props/prop_library.gd")
 	var kit = load("res://src/props/prop_kit.gd")
+	var props := String(opts.get("props", "")).split(",", false)
+	if Array(props).any(func(id: String) -> bool: return lib.definition(StringName(id)).get("anchor", "floor") == "wall"):
+		# A boarded wall to hang them on, its face at z = -0.8.
+		var wall := StaticBody3D.new()
+		var wcs := CollisionShape3D.new()
+		var wbox := BoxShape3D.new()
+		wbox.size = Vector3(12, 4, 0.1)
+		wcs.shape = wbox
+		wall.add_child(wcs)
+		var wmi := MeshInstance3D.new()
+		wmi.mesh = MemberMesh.box(Vector3(12, 4, 0.1))
+		wmi.material_override = load("res://src/structures/wood_materials.gd").get_material(&"int_boards", 0)
+		wall.add_child(wmi)
+		wall.position = Vector3(0, 2.0, -0.85)
+		world.add_child(wall)
 	for side in [-1.0, 1.0]:
 		var base := Vector3(side * 1.25, 0, 0)
+		if not props.is_empty():
+			# `--props=a,b,c`: those in a row each side instead of the table and chairs.
+			for i in props.size():
+				var id := StringName(props[i])
+				# Left PropModels' drawn one (the kit's off while it's made), right the kit's.
+				lib.use_kit = side > 0
+				var p: Node3D = lib.spawn(id) if side < 0 else kit.make(id)
+				lib.use_kit = true
+				var x := (i - (props.size() - 1) * 0.5) * 0.75
+				if lib.definition(id).get("anchor", "floor") == "wall":
+					# Hung on the wall behind, at eye height.
+					p.transform = Transform3D(Basis.IDENTITY, base + Vector3(x, 1.55 + 0.25 * (i % 2), -0.8))
+				else:
+					p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0 * i)), base + Vector3(x, 0, -0.4 + 0.2 * (i % 2)))
+				world.add_child(p)
+			continue
 		var table: Node3D = lib.spawn(&"card_table") if side < 0 else kit.spawn(&"card_table")
 		if side > 0 and opts.has("nobatch"):
 			table.batch_meshes = false
@@ -547,10 +612,29 @@ func _perf(which: String) -> void:
 	_build_world()
 	var lib = load("res://src/props/prop_library.gd")
 	var kit = load("res://src/props/prop_kit.gd")
+	# The drawn ones for `lib` (PropLibrary hands out the kit's for any prop it's put in the game).
+	lib.use_kit = which == "kit"
 	var room := Node3D.new()
 	room.name = "Props"
 	world.add_child(room)
-	for t: Vector3 in [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]:
+	if opts.get("set", "") == "stores":
+		# The town's barrels, crates and bar stools (14, 12 with four stacked, 7) on a 4 x 4 m floor.
+		var n := 0
+		for id: StringName in [&"barrel", &"crate", &"bar_stool"]:
+			var count: int = {&"barrel": 14, &"crate": 8, &"bar_stool": 7}[id]
+			for i in count:
+				var at := Vector3(-1.6 + 0.65 * (n % 6), FLOOR_TOP, -1.6 + 0.65 * (n / 6))
+				n += 1
+				# The town's: half its barrels full (whiskey, water: PropContents).
+				var kid: StringName = ([&"whiskey_barrel", &"water_barrel"][i % 2] if i < 8 else id) if id == &"barrel" else id
+				var p: Node3D = kit.spawn(kid) if which == "kit" else lib.spawn(id)
+				p.position = at
+				room.add_child(p)
+				if id == &"crate" and i < 4:
+					var up: Node3D = kit.spawn(id) if which == "kit" else lib.spawn(id)
+					up.position = at + Vector3(0, 0.6, 0)
+					room.add_child(up)
+	for t: Vector3 in ([] if opts.get("set", "") == "stores" else [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]):
 		var table: Node3D = kit.spawn(&"card_table") if which == "kit" else lib.spawn(&"card_table")
 		table.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(15.0)), t)
 		room.add_child(table)
@@ -560,15 +644,23 @@ func _perf(which: String) -> void:
 			chair.transform = Transform3D(Basis(Vector3.UP, a + PI), t + Vector3(sin(a), 0.0, cos(a)) * 0.85)
 			room.add_child(chair)
 	# A back bar's worth of bottles and a lamp on each table: the kit's glass props, or the drawn ones.
-	for i in 24:
+	for i in (0 if opts.get("set", "") == "stores" else 24):
 		var at := Vector3(-1.8 + 0.15 * i, FLOOR_TOP, -1.6)
 		var b: Node3D = kit.make(&"whiskey_bottle") if which == "kit" else lib.spawn(&"whiskey_bottle")
 		b.position = at
 		room.add_child(b)
-	for t: Vector3 in [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]:
+	for t: Vector3 in ([] if opts.get("set", "") == "stores" else [Vector3(-0.9, FLOOR_TOP, -0.6), Vector3(0.9, FLOOR_TOP, 0.8)]):
 		var l: Node3D = kit.make(&"oil_lamp") if which == "kit" else lib.spawn(&"oil_lamp")
 		l.position = t + Vector3(0.1, 0.761, -0.1)
 		room.add_child(l)
+		# The saloon's tin cups on the tables (5) and its two spittoons.
+		for k in (3 if t.x < 0.0 else 2):
+			var c: Node3D = kit.make(&"tin_cup") if which == "kit" else lib.spawn(&"tin_cup")
+			c.position = t + Vector3(-0.25 + 0.2 * k, 0.761, 0.2)
+			room.add_child(c)
+		var sp: Node3D = kit.make(&"spittoon") if which == "kit" else lib.spawn(&"spittoon")
+		sp.position = t + Vector3(0.9, 0.0, -0.3)
+		room.add_child(sp)
 	# StaticBatch for both: the drawn props, and the kit's glass standing.
 	var batch = load("res://src/world/static_batch.gd").new()
 	batch.target = NodePath("..")
@@ -592,6 +684,6 @@ func _perf(which: String) -> void:
 	var bodies := room.find_children("*", "StaticBody3D", true, false).size()
 	var out := {"which": which, "frame_ms": snappedf(_mean(frames), 0.001), "worst_ms": snappedf(_max(frames), 0.01),
 			"static_bodies": bodies, "draws": draws}
-	var f := FileAccess.open(out_dir.path_join("perf_%s.json" % which), FileAccess.WRITE)
+	var f := FileAccess.open(out_dir.path_join("perf_%s%s.json" % [which, "_" + String(opts.get("set")) if opts.has("set") else ""]), FileAccess.WRITE)
 	f.store_string(JSON.stringify(out, "  "))
 	print(JSON.stringify(out))

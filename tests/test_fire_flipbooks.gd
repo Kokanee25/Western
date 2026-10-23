@@ -22,7 +22,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	Settings.set_fire_flipbooks(false, false)
+	Settings.set_fire_flipbooks(true, false)  # the default since Sean kept them (2026-10-22)
 	world.queue_free()
 	await physics_frames(2)
 

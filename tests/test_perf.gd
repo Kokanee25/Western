@@ -11,7 +11,9 @@ const FIRE_WORST_MS := 250.0
 const VISIBLE_MESHES := 1800  # was 3,686 before the performance pass
 ## Body ~11, fingers 30, and an armed man's revolver 45 parts (was ~140 with the body in pieces).
 const MESHES_A_PERSON := 95
-const NODES := 30000
+## The kit's barrels, crates and bar stools (2026-10-22, the prop lab) are built of members, three
+## nodes each (body, mesh, collision): ~1,500 more than the drawn ones (was 30,000).
+const NODES := 32000
 
 var street: Node3D
 

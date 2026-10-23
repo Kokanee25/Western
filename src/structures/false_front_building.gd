@@ -554,11 +554,8 @@ func _furnish_store() -> void:
 	var cx1 := w - 0.75
 	var cz0 := 2.2
 	var cz1 := 5.2
-	add_member("counter/front", &"furniture_frame", &"floor", Vector3(0.03, 0.95, cz1 - cz0), Vector3(cx0 + 0.015, f + 0.475, (cz0 + cz1) * 0.5))
-	add_member("counter/end0", &"furniture_frame", &"floor", Vector3(cx1 - cx0, 0.95, 0.03), Vector3((cx0 + cx1) * 0.5, f + 0.475, cz0 + 0.015))
-	add_member("counter/end1", &"furniture_frame", &"floor", Vector3(cx1 - cx0, 0.95, 0.03), Vector3((cx0 + cx1) * 0.5, f + 0.475, cz1 - 0.015))
-	add_member("counter/top", &"furniture_top", &"dark_trim", Vector3(cx1 - cx0 + 0.08, 0.04, cz1 - cz0 + 0.06),
-			Vector3((cx0 + cx1) * 0.5 - 0.02, f + 0.97, (cz0 + cz1) * 0.5))
+	# The kit's counter turned to face the room (its front, the customers' side, toward -X), both ends.
+	_fixture(&"counter", "counter", Vector2((cx0 + cx1) * 0.5 - 0.02, (cz0 + cz1) * 0.5), Vector3(cz1 - cz0 + 0.06, 0.99, cx1 - cx0 + 0.08), 90.0)
 	var lamp := OilLamp.new()
 	lamp.name = "CounterLamp"
 	lamp.position = Vector3((cx0 + cx1) * 0.5, f + 0.99, cz0 + 0.8)
@@ -567,42 +564,61 @@ func _furnish_store() -> void:
 	# Shelves along the left-hand wall.
 	var sx0 := STUD_D
 	var sx1 := STUD_D + 0.38
-	for i in 3:
-		var z := 3.0 + i * 2.0
-		add_member("shelves/upright%d" % i, &"furniture_frame", &"framing", Vector3(sx1 - sx0, 2.1, 0.03), Vector3((sx0 + sx1) * 0.5, f + 1.05, z))
-	for i in 4:
-		var y := f + 0.35 + i * 0.55
-		add_member("shelves/shelf%d" % i, &"furniture_top", &"floor", Vector3(sx1 - sx0, 0.025, 4.06), Vector3((sx0 + sx1) * 0.5, y, 5.0))
+	_shelves("shelves", sx0, sx1, 2.97, 7.03, 4, 2.1, [{"id": "upright_m", "kind": "post", "wood": "framing", "look": "wood:framing",
+			"size": [sx1 - sx0, 2.1, 0.03], "at": [0.0, 1.05, 0.0]}])
 
 
-## A table of members: its top `h` over the floor across x0..x1, z0..z1, a leg at each corner.
-func _table(id: String, x0: float, x1: float, z0: float, z1: float, h: float, top_wood: StringName = &"dark_trim") -> void:
-	var f := floor_top
-	const LEG := 0.05
-	add_member("%s/top" % id, &"furniture_top", top_wood, Vector3(x1 - x0, 0.035, z1 - z0), Vector3((x0 + x1) * 0.5, f + h - 0.0175, (z0 + z1) * 0.5))
-	for i in 4:
-		var x := x0 + LEG * 0.5 + 0.03 if i % 2 == 0 else x1 - LEG * 0.5 - 0.03
-		var z := z0 + LEG * 0.5 + 0.03 if i < 2 else z1 - LEG * 0.5 - 0.03
-		add_member("%s/leg%d" % [id, i], &"furniture_frame", &"framing", Vector3(LEG, h - 0.035, LEG), Vector3(x, f + (h - 0.035) * 0.5, z))
+## A fixture from the prop kit (assets/props/kit/<kit_id>.json, a KitProp: it breaks, burns and
+## falls on its own, and takes what's on it down with it) fitted to the box it fills: its bottom
+## centre at `at` (x, z) on the floor, `size` in its own axes, turned `yaw` degrees; `changes` and
+## `extra` (in its own space) as PropKit.spawn_fitted. In Props, named for its id.
+func _fixture(kit_id: StringName, id: String, at: Vector2, size: Vector3, yaw := 0.0, changes := {}, extra: Array = []) -> KitProp:
+	var p := PropKit.spawn_fitted(kit_id, StringName("%s/%s" % [structure_id, id]), size, changes, extra)
+	p.name = id.to_pascal_case()
+	p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), Vector3(at.x, floor_top, at.y))
+	_props_node().add_child(p)
+	return p
 
 
-## A counter across the room from the left wall to `x1` at depth z0..z1: a front, its ends and a top.
-func _counter(id: String, x0: float, x1: float, z0: float, z1: float, top_wood: StringName = &"dark_trim") -> void:
-	var f := floor_top
-	add_member("%s/front" % id, &"furniture_frame", &"floor", Vector3(x1 - x0, 0.95, 0.03), Vector3((x0 + x1) * 0.5, f + 0.475, z0 + 0.015))
-	add_member("%s/end" % id, &"furniture_frame", &"floor", Vector3(0.03, 0.95, z1 - z0 - 0.03), Vector3(x1 - 0.015, f + 0.475, (z0 + z1) * 0.5 + 0.015))
-	add_member("%s/top" % id, &"furniture_top", top_wood, Vector3(x1 - x0, 0.04, z1 - z0 + 0.06), Vector3((x0 + x1) * 0.5, f + 0.97, (z0 + z1) * 0.5 - 0.03))
+## The fixture `id` (a counter, a desk, shelves), or null.
+func fixture(id: String) -> KitProp:
+	return get_node_or_null(NodePath("Props/%s" % id.to_pascal_case())) as KitProp
 
 
-## Shelves on an upright pair against a wall at x0..x1 (deep across x), z0..z1, `n` boards.
-func _shelves(id: String, x0: float, x1: float, z0: float, z1: float, n: int, height := 1.9) -> void:
-	var f := floor_top
-	for i in 2:
-		var z := z0 + 0.015 if i == 0 else z1 - 0.015
-		add_member("%s/upright%d" % [id, i], &"furniture_frame", &"framing", Vector3(x1 - x0, height, 0.03), Vector3((x0 + x1) * 0.5, f + height * 0.5, z))
-	for i in n:
-		var y := f + 0.3 + i * (height - 0.4) / maxf(n - 1, 1)
-		add_member("%s/shelf%d" % [id, i], &"furniture_top", &"floor", Vector3(x1 - x0, 0.025, z1 - z0), Vector3((x0 + x1) * 0.5, y, (z0 + z1) * 0.5))
+## A point in the building as a fixture's own (its bottom centre at `at`, unturned): for its extras.
+func _local(at: Vector2, p: Vector3) -> Array:
+	return [p.x - at.x, p.y - floor_top, p.z - at.y]
+
+
+## A table (the kit's, PropKit "table"): its top `h` over the floor across x0..x1, z0..z1, a leg at
+## each corner.
+func _table(id: String, x0: float, x1: float, z0: float, z1: float, h: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
+	return _fixture(&"table", id, Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5), Vector3(x1 - x0, h, z1 - z0), 0.0,
+			{"top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+
+
+## A counter (the kit's) across the room from the left wall to `x1` at depth z0..z1: a front, its
+## end and a top (overhanging the front by 6 cm).
+func _counter(id: String, x0: float, x1: float, z0: float, z1: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
+	return _fixture(&"counter", id, Vector2((x0 + x1) * 0.5, (z0 - 0.06 + z1) * 0.5), Vector3(x1 - x0, 0.99, z1 - z0 + 0.06), 0.0,
+			{"end_l": null, "top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+
+
+## Shelves (the kit's, four boards) on an upright pair against a wall at x0..x1 (deep across x),
+## z0..z1.
+func _shelves(id: String, x0: float, x1: float, z0: float, z1: float, n: int, height := 1.9, extra: Array = []) -> KitProp:
+	if n != 4:
+		push_warning("FalseFrontBuilding: the kit's shelves have four boards (%d asked)" % n)
+	return _fixture(&"shelves", id, Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5), Vector3(x1 - x0, height, z1 - z0), 0.0, {}, extra)
+
+
+func _props_node() -> Node3D:
+	var props := get_node_or_null(^"Props") as Node3D
+	if props == null:
+		props = Node3D.new()
+		props.name = "Props"
+		add_child(props)
+	return props
 
 
 func _lamp_on(lamp_name: String, at: Vector3) -> OilLamp:
@@ -617,11 +633,7 @@ func _lamp_on(lamp_name: String, at: Vector3) -> OilLamp:
 
 
 func _prop(id: StringName, at: Vector3, yaw_degrees := 0.0) -> Node3D:
-	var props := get_node_or_null(^"Props") as Node3D
-	if props == null:
-		props = Node3D.new()
-		props.name = "Props"
-		add_child(props)
+	var props := _props_node()
 	var prop := PropLibrary.spawn(id)
 	prop.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw_degrees)), at)
 	props.add_child(prop)
@@ -638,15 +650,19 @@ func _furnish_telegraph() -> void:
 	_lamp_on("CounterLamp", Vector3(1.2, f + 0.99, 2.9))
 	var dz0 := 4.2
 	var dz1 := 5.8
-	_table("desk", STUD_D, STUD_D + 0.7, dz0, dz1, 0.76)
-	add_member("desk/key", &"furniture_top", &"iron", Vector3(0.1, 0.03, 0.16), Vector3(STUD_D + 0.45, f + 0.775, dz0 + 0.55))
-	add_member("desk/sounder", &"furniture_top", &"dark_trim", Vector3(0.16, 0.1, 0.14), Vector3(STUD_D + 0.35, f + 0.81, dz0 + 1.05))
+	var desk_at := Vector2(STUD_D + 0.35, (dz0 + dz1) * 0.5)
+	_table("desk", STUD_D, STUD_D + 0.7, dz0, dz1, 0.76, &"dark_trim", [
+			{"id": "key", "kind": "trim", "wood": "iron", "size": [0.1, 0.03, 0.16], "at": _local(desk_at, Vector3(STUD_D + 0.45, f + 0.775, dz0 + 0.55))},
+			{"id": "sounder", "kind": "trim", "wood": "dark_trim", "look": "wood:dark_trim", "size": [0.16, 0.1, 0.14], "at": _local(desk_at, Vector3(STUD_D + 0.35, f + 0.81, dz0 + 1.05))}])
 	_lamp_on("DeskLamp", Vector3(STUD_D + 0.3, f + 0.78, dz1 - 0.2))
 	_prop(&"bar_stool", Vector3(STUD_D + 1.05, f, dz0 + 0.6))
 	var back := depth - STUD_D
-	_table("batteries", 1.6, 3.4, back - 0.45, back - 0.05, 0.8, &"floor")
+	var jars: Array = []
+	var bench_at := Vector2(2.5, back - 0.25)
 	for i in 7:
-		add_member("batteries/jar%d" % i, &"glass", &"glass", Vector3(0.12, 0.18, 0.12), Vector3(1.8 + i * 0.24, f + 0.8 + 0.09, back - 0.25))
+		jars.append({"id": "jar%d" % i, "kind": "glass", "wood": "glass", "size": [0.12, 0.18, 0.12],
+				"at": _local(bench_at, Vector3(1.8 + i * 0.24, f + 0.8 + 0.09, back - 0.25))})
+	_table("batteries", 1.6, 3.4, back - 0.45, back - 0.05, 0.8, &"floor", jars)
 
 
 ## The doctor's: his desk and chair in the front room, and behind, the operating table under its
@@ -663,8 +679,9 @@ func _furnish_doctor() -> void:
 	_lamp_on("SurgeryLamp", Vector3(w * 0.5 + 0.22, f + 0.84, tz1 - 0.2))
 	_table("cot", STUD_D + 0.05, STUD_D + 0.85, tz0 - 0.2, tz0 + 1.75, 0.45, &"weathered_pine")
 	var cx0 := w - STUD_D - 0.42
-	_shelves("cabinet", cx0, w - STUD_D - 0.02, tz0 - 0.1, tz0 + 1.1, 4, 1.8)
-	add_member("cabinet/back", &"furniture_frame", &"dark_trim", Vector3(0.02, 1.8, 1.2), Vector3(w - STUD_D - 0.03, f + 0.9, tz0 + 0.5))
+	var cab_at := Vector2((cx0 + w - STUD_D - 0.02) * 0.5, tz0 + 0.5)
+	_shelves("cabinet", cx0, w - STUD_D - 0.02, tz0 - 0.1, tz0 + 1.1, 4, 1.8, [
+			{"id": "back", "kind": "furniture_frame", "wood": "dark_trim", "look": "wood:dark_trim", "size": [0.02, 1.8, 1.2], "at": _local(cab_at, Vector3(w - STUD_D - 0.03, f + 0.9, tz0 + 0.5))}])
 	for i in 5:
 		_prop(&"whiskey_bottle", Vector3(cx0 + 0.2, f + 0.3 + 0.0125 + (1.4 / 3.0), tz0 + 0.1 + i * 0.2))
 
@@ -678,20 +695,23 @@ func _furnish_bank() -> void:
 	var cz0 := 3.4
 	var cz1 := 4.0
 	var cx1 := w - 1.2
-	_counter("counter", STUD_D, cx1, cz0, cz1, &"floor")
-	_lamp_on("CounterLamp", Vector3(cx1 - 0.6, f + 0.99, cz0 + 0.35))
-	# The cage: bars up from the counter's top, a rail across them, a gap in them the teller's window.
+	# The cage on the counter: bars up from its top, a rail across them, a gap in them the teller's
+	# window (the counter's own members: they come down with it).
 	var top := f + 0.99
 	var cage_h := 1.25
 	var rail_y := top + cage_h
 	var window := Vector2(w * 0.5 - 0.45, w * 0.5 + 0.15)
 	var n := int((cx1 - STUD_D) / 0.14)
+	var counter_at := Vector2((STUD_D + cx1) * 0.5, (cz0 - 0.06 + cz1) * 0.5)
+	var cage: Array = []
 	for i in n:
 		var x := STUD_D + 0.07 + i * 0.14
 		if x > window.x and x < window.y:
 			continue
-		add_member("cage/bar%d" % i, &"trim", &"iron", Vector3(0.016, cage_h, 0.016), Vector3(x, top + cage_h * 0.5, cz0 + 0.1))
-	add_member("cage/rail", &"trim", &"dark_trim", Vector3(cx1 - STUD_D, 0.05, 0.06), Vector3((STUD_D + cx1) * 0.5, rail_y + 0.025, cz0 + 0.1))
+		cage.append({"id": "bar%d" % i, "kind": "trim", "wood": "iron", "size": [0.016, cage_h, 0.016], "at": _local(counter_at, Vector3(x, top + cage_h * 0.5, cz0 + 0.1))})
+	cage.append({"id": "rail", "kind": "trim", "wood": "dark_trim", "look": "wood:dark_trim", "size": [cx1 - STUD_D, 0.05, 0.06], "at": _local(counter_at, Vector3((STUD_D + cx1) * 0.5, rail_y + 0.025, cz0 + 0.1))})
+	_counter("counter", STUD_D, cx1, cz0, cz1, &"floor", cage)
+	_lamp_on("CounterLamp", Vector3(cx1 - 0.6, f + 0.99, cz0 + 0.35))
 	# The safe: iron plate round an empty box, on the floor by the back wall.
 	var sx := w * 0.5
 	var sz := depth - STUD_D - 0.5

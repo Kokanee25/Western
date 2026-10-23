@@ -346,13 +346,16 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	# The shards cut whoever's close.
 	var excl: Array[RID] = [get_rid()]
 	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
-	var snd := AudioStreamPlayer3D.new()
-	snd.stream = SynthSounds.get_sound(&"glass")
-	snd.unit_size = 6.0
-	host.add_child(snd)
-	snd.global_position = at
-	snd.play()
-	snd.finished.connect(snd.queue_free)
+	if GameAudio.enabled():
+		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
+	else:
+		var snd := AudioStreamPlayer3D.new()
+		snd.stream = SynthSounds.get_sound(&"glass")
+		snd.unit_size = 6.0
+		host.add_child(snd)
+		snd.global_position = at
+		snd.play()
+		snd.finished.connect(snd.queue_free)
 	Events.member_broken.emit(member_id)
 
 
@@ -535,6 +538,9 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.collision_layer = Layers.DEBRIS
 		chip.collision_mask = Layers.DEBRIS_MASK
 		chip.mass = maxf(dims.x * dims.y * dims.z * density, 0.002)
+		# It starts inside this member's box (the hole it came out of): free of it, or the physics
+		# shoves it out of the solid it's in, now and then at hundreds of m/s, off the map.
+		chip.add_collision_exception_with(self)
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = dims

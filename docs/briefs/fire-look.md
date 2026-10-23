@@ -106,3 +106,8 @@ are pushed toward the painting (its own tones, k-medians, as the ramp; the core 
 the roots); the final painted pass waits for Gate A. Not yet: step 5's firelight reaching the
 street (gameplay places the lights; the look of their flicker is art's, next). Sizes come from
 FireFX's sheets as they are; a per-type size by heat would be gameplay's (asked, not done).
+
+2026-10-22 (art, Sean: "fix the firefx"; `claude/art-firefx-placement`): FireFX's placing changed,
+both looks: walls burn from 30% up their face, rafters from their middle, the roof's and the
+openings' members show flames first; the flipbooks tile overlapping flames on wide sheets with
+ragged tops. Five fire goldens re-approved.

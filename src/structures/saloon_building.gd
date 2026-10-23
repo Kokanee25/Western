@@ -94,10 +94,11 @@ func _build_furniture() -> void:
 		_place(props, &"tin_cup", top + Vector3(0.35, 0.0, 0.25), 0.0)
 		_place(props, &"tin_cup", top + Vector3(-0.2, 0.0, -0.35), 0.0)
 
-	# Piano against the left wall, facing into the room; barrels in the back corner.
+	# Piano against the left wall, facing into the room; barrels in the back corner: two of whiskey
+	# (the prop kit's, full), an empty one up on them.
 	_place(props, &"upright_piano", Vector3(STUD_D + 0.33, f, 10.4), 90.0)
-	_place(props, &"barrel", Vector3(width - 0.9, f, depth - 0.9), 0.0)
-	_place(props, &"barrel", Vector3(width - 1.6, f, depth - 0.8), 20.0)
+	_place(props, &"whiskey_barrel", Vector3(width - 0.9, f, depth - 0.9), 0.0)
+	_place(props, &"whiskey_barrel", Vector3(width - 1.6, f, depth - 0.8), 20.0)
 	_place(props, &"barrel", Vector3(width - 0.95, f + 0.9, depth - 0.9), 45.0)
 
 	# On the walls: the stag over the back wall, a painting, and lamps in sconces.

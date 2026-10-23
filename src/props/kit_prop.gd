@@ -29,6 +29,12 @@ const CHECK_EVERY := 0.25
 const SETTLE_FRAMES := 4
 ## Below the bottom of a foot, how far down it looks for what it stands on (m).
 const FOOT_REACH := 0.03
+## A nail's reach into the wall behind a hung prop (m): through the panelling into a stud, or
+## where the panels leave a gap (the saloon's, either side of its door), the siding behind.
+const WALL_REACH := 0.15
+## Put down, it settles onto what's under it up to SET_DOWN below its feet (or SET_LIFT into it).
+const SET_DOWN := 0.2
+const SET_LIFT := 0.08
 ## A foot's floor counts as gone once it's moved this far (m), as Fittings has it.
 const MOVED := 0.05
 ## Slower than this after a blow or a blast it hardly moves (it'd slide under 2 cm on the floor,
@@ -38,6 +44,8 @@ const LOOSE_FROM := 0.4
 const FLOOR_FRICTION := 0.4
 
 var kit_id: StringName
+## Which of its kind it is (PropKit.spawn's count): picks a painting's picture, as the drawn ones.
+var variant := 0
 var definition: Dictionary
 ## Gone loose (tipped, knocked, its floor gone): what's left of it is rubble, moving on its own.
 var loose := false
@@ -45,6 +53,8 @@ var loose := false
 signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
+## What it holds (its kit file's "holds" and "contents": a barrel's whiskey), or null.
+var contents: PropContents
 
 var _feet := {}  # grounded StructureMember -> [[floor member or null for solid ground, its position]]
 var _footed := false
@@ -60,6 +70,10 @@ func _ready() -> void:
 	if definition.is_empty() and kit_id != &"":
 		definition = PropKit.definition(kit_id)
 	super._ready()
+	if contents == null:
+		contents = PropContents.make(self)
+		if contents:
+			add_child(contents)
 	if not Events.member_broken.is_connected(_on_member_broken):
 		Events.member_broken.connect(_on_member_broken)
 		Events.exploded.connect(_on_exploded)
@@ -74,12 +88,23 @@ func build() -> void:
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
 		var mi := m.get_child(0) as MeshInstance3D
-		PropKit.dress_member(m, spec.get("draw", {}), spec.get("look", definition.get("look", "")))
+		var own_look: String = spec.get("look", definition.get("look", ""))
+		PropKit.dress_member(m, spec.get("draw", {}), own_look)
+		if own_look == "prop:picture":
+			mi.material_override = PropModels.picture(variant)
+		# Its dress, one layer a look (a barrel stave's four hoops are one mesh), each its own name
+		# (two "Dress" children: Godot renames the second, unreadably).
+		var looks := {}
 		for d: Dictionary in spec.get("dress", []):
+			looks.get_or_add(String(d.get("look", "")), []).append(PropKit.draw_mesh(d.draw, m))
+		for look: String in looks:
 			var layer := MeshInstance3D.new()
-			layer.name = "Dress"
-			layer.mesh = PropKit.draw_mesh(d.draw, m)
-			layer.material_override = PropKit.material(String(d.get("look", "")), hash(m.member_id))
+			layer.name = "Dress%d" % mi.get_child_count()
+			var st := SurfaceTool.new()
+			for mesh: Mesh in looks[look]:
+				st.append_from(mesh, 0, Transform3D.IDENTITY)
+			layer.mesh = st.commit()
+			layer.material_override = PropKit.material(look, hash(m.member_id))
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 	var seat: Dictionary = definition.get("seat", {})
@@ -102,19 +127,38 @@ func _physics_step(delta: float) -> void:
 	_check_t = CHECK_EVERY
 	if seated and (not is_instance_valid(seated) or seated.get(&"limp")):
 		_clear_seat()
+	# Hung: it holds while any nail's still in something (its board burnt through, shot out or
+	# carried off with the wall, the last nail lets go).
+	if hung():
+		if not _feet.keys().any(func(m: StructureMember) -> bool: return not m.broken and _has_footing(m)):
+			go_loose()
+		return
+	# A foot with nothing under it (its board gone, or over a boardwalk's edge or a gap between its
+	# boards as it was put down) isn't a foot: it stands if its weight's over the feet that are left.
 	for m: StructureMember in _feet:
 		if not m.broken and not _has_footing(m):
-			go_loose()
+			_check_balance()
 			return
 
 
 # --- Joints: what each member is fixed to at either end -----------------------------------------
 
 var _ends := {}  # StructureMember -> [ids joined at its one end, ids at its other]
+var _put_down := false  # settled onto its floor (_set_down), once
+var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a hung prop's
 
 
 func infer_supports() -> void:
 	super.infer_supports()
+	# Hung on nails (a picture, a mount): what the nails go through is held as if it stood on the
+	# ground, and everything else hangs from it.
+	_nailed.clear()
+	for nail: Variant in definition.get("hangs", {}).get("nails", []):
+		var p := PropKit.vec(nail)
+		for m in get_members():
+			if m.structure_aabb().grow(0.01).has_point(p):
+				m.grounded = true
+				_nailed.get_or_add(m, []).append(p)
 	_ends.clear()
 	for m in get_members():
 		var a: Array[StringName] = []
@@ -212,12 +256,21 @@ func batch_count() -> int:
 
 ## Each foot's floor: what's in a thin box just under it (the room's members, the ground).
 func _find_footing() -> void:
-	_footed = true
-	_feet.clear()
 	var space := get_world_3d().direct_space_state
 	var own: Array[RID] = []
 	for m in get_members():
 		own.append(m.get_rid())
+	if hung():
+		_find_nails(space, own)
+		return
+	# Settled onto its floor once, as it was put down (looking again after the ground's dug, it
+	# doesn't sink into the hole: a foot over it has lost its footing).
+	if not _put_down:
+		if not _set_down(space, own):
+			return  # what it stands on is a kit prop still settling itself: next frame
+		_put_down = true
+	_footed = true
+	_feet.clear()
 	for m in get_members():
 		if not m.grounded or m.broken:
 			continue
@@ -245,6 +298,63 @@ func _find_footing() -> void:
 	# Nothing at all under any foot: it was put down in the air.
 	if not _feet.is_empty() and _feet.values().all(func(u: Array) -> bool: return u.is_empty()):
 		go_loose()
+
+
+## Hung on nails (its file's "hangs"), not stood on feet.
+func hung() -> bool:
+	return definition.has("hangs")
+
+
+## What each nail goes into behind it (the wall's boards and studs, up to WALL_REACH back): its
+## "feet". Nothing behind any nail: it was hung on air, and falls.
+func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
+	_footed = true
+	_feet.clear()
+	for m: StructureMember in _nailed:
+		var into := []
+		for p: Vector3 in _nailed[m]:
+			var q := PhysicsShapeQueryParameters3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(0.03, 0.03, WALL_REACH)
+			q.shape = box
+			q.transform = Transform3D(global_basis, global_transform * Vector3(p.x, p.y, -WALL_REACH * 0.5 + 0.005))
+			q.collision_mask = Layers.WORLD
+			q.exclude = own
+			for hit in space.intersect_shape(q, 8):
+				var c: Object = hit.collider
+				if c is StructureMember:
+					into.append([c, (c as StructureMember).global_position])
+				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
+					into.append([null, Vector3.ZERO])
+		_feet[m] = into
+	if _feet.values().all(func(u: Array) -> bool: return u.is_empty()):
+		go_loose()
+
+
+## Down onto what's under its feet, or up out of it, as it would settle (a placement is a few
+## centimetres out: a boardwalk's top, a crate stacked on another), up to SET_DOWN. False while
+## what it would stand on is another kit prop that hasn't settled yet (a stack settles bottom up).
+func _set_down(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> bool:
+	var drop := INF
+	for m in get_members():
+		if not m.grounded or m.broken:
+			continue
+		var c := Vector3.ZERO
+		for p in _bottom_corners(m):
+			c += p * 0.25
+		var from := global_transform * (c + Vector3(0, SET_LIFT, 0))
+		var q := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -SET_LIFT - SET_DOWN, 0), Layers.WORLD, own)
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or hit.collider.has_meta(&"oil_lamp"):
+			continue
+		if hit.collider is StructureMember:
+			var under := (hit.collider as Node).get_parent()
+			if under is KitProp and under != self and not (under as KitProp)._footed and not (under as KitProp).loose:
+				return false
+		drop = minf(drop, from.y - SET_LIFT - (hit.position as Vector3).y)
+	if drop != INF and absf(drop) > 0.002:
+		global_position.y -= drop
+	return true
 
 
 ## The ground near it was dug (Ground): its feet look again for what's under them (a foot left over
@@ -295,9 +405,9 @@ func _on_member_broken(id: StringName) -> void:
 		_check_balance.call_deferred()
 
 
-## Mass of what's left standing (kg).
+## Mass of what's left standing and what's in it (kg).
 func mass() -> float:
-	var kg := 0.0
+	var kg := contents.kg() if contents else 0.0
 	for m in get_members():
 		if not m.broken:
 			kg += m.weight(tuning) / 9.81
@@ -317,6 +427,9 @@ func centre_of_weight() -> Vector4:
 	if seated and _seat_member and not _seat_member.broken:
 		sum += _seat_point * _seat_member.extra_load
 		w += _seat_member.extra_load
+	if contents and not contents.released:
+		sum += contents.centre() * contents.kg() * 9.81
+		w += contents.kg() * 9.81
 	return Vector4(sum.x / maxf(w, 1e-6), sum.y / maxf(w, 1e-6), sum.z / maxf(w, 1e-6), w)
 
 
@@ -339,7 +452,11 @@ func _check_balance() -> void:
 	if left.is_empty():
 		loose = true
 		_unseat()
+		if contents:
+			contents.release()
 		return
+	if hung():
+		return  # it hangs from its nails (whatever's left on them: _physics_step)
 	var hull := footprint()
 	var c := centre_of_weight()
 	# A seated man sways (a few centimetres: breathing, reaching, flinching at the shot): a balance
@@ -367,18 +484,32 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	if not ids.is_empty():
 		_drop(ids)
 	for i in range(before, rubble.size()):
-		var rb := rubble[i]
-		if not is_instance_valid(rb):
-			continue
+		if is_instance_valid(rubble[i]):
+			made.append(rubble[i])
+	# What it holds goes into its body first (its weight with it), so a blow moves the two of them;
+	# let go instead (a side out), the blow, reckoned with it in, moves only what's left.
+	if contents:
+		var with_it := mass()
+		contents.on_loose(made)
+		if contents.released and impulse != Vector3.ZERO:
+			impulse *= _mass_of(made) / maxf(with_it, 0.1)
+	for rb in made:
 		rb.linear_velocity = velocity
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
-		made.append(rb)
 	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()
 	return made
+
+
+static func _mass_of(bodies: Array[RigidBody3D]) -> float:
+	var kg := 0.0
+	for rb in bodies:
+		if is_instance_valid(rb):
+			kg += rb.mass
+	return kg
 
 
 static var _fittings: WeakRef
@@ -404,9 +535,11 @@ func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
 			# A lamp's hitbox stays a fixed body inside its fallen lamp (Fittings): what's left of the
 			# prop mustn't meet it as an immovable box.
 			for b: Variant in item.get("bodies", []):
-				if b is StaticBody3D and is_instance_valid(b):
+				# (Valid first: `is` on a freed body is an error, and a smashed lamp's may be gone.)
+				if is_instance_valid(b) and b is StaticBody3D:
 					for rb in bodies:
-						rb.add_collision_exception_with(b)
+						if is_instance_valid(rb):
+							rb.add_collision_exception_with(b)
 
 
 # --- Splitting -----------------------------------------------------------------------------------
@@ -526,6 +659,8 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 		if j <= 0.0:
 			continue
 		var push := (m.global_position - at).normalized() * j * Blast.shielding(self, at, m.global_position, [m.get_rid()])
+		if hung():
+			push = _off_the_wall(push)
 		pushes[m] = push
 		total += push
 	var kgs := mass()
@@ -537,6 +672,9 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	# What actually moves: what it held may have run out as it went (a full barrel blown open).
+	if contents and contents.released:
+		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())
 	set_meta(&"blast_push", total * scale)
 	# Pushed once the new body is in the physics world (given in the frame it's made, half of it
 	# was lost).
@@ -548,6 +686,15 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 			var m := get_member(id)
 			if pushes.has(m):
 				rb.apply_impulse(pushes[m] * scale, at_m[id] - rb.global_position)
+
+
+## What of a push can take a hung prop off its nails: out from the wall and up (the wall takes
+## what drives it in, the nails what drives it down).
+func _off_the_wall(push: Vector3) -> Vector3:
+	var local := global_basis.inverse() * push
+	local.z = maxf(local.z, 0.0)
+	local.y = maxf(local.y, 0.0)
+	return global_basis * local
 
 
 # --- A seated man --------------------------------------------------------------------------------
@@ -605,4 +752,7 @@ func _unseat() -> void:
 	_clear_seat()
 	if man and is_instance_valid(man) and not man.get(&"limp") and man.has_method(&"go_limp"):
 		man.call(&"go_limp")
+		# Awake, he throws out his arms as he goes (HumanBody.brace; gameplay's).
+		if man.has_method(&"brace"):
+			man.call(&"brace")
 

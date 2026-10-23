@@ -68,7 +68,11 @@ func test_hits_close_together_add_up() -> void:
 	check(b.radius > r1, "and bigger (%.1f -> %.1f cm)" % [r1 * 100.0, b.radius * 100.0])
 
 
-func test_point_blank_tears_more_than_across_the_street() -> void:
+## A single ball doesn't tear him open, near or far (DiMaio, Gunshot Wounds): across the street
+## its way in is a neat hole its own width; with the muzzle on him, a contact wound, a star of tears
+## round a sooty hole, bigger but still not torn open. Buckshot and blasts open him (below, and
+## test_shotgun).
+func test_a_single_ball_leaves_a_hole_not_a_crater() -> void:
 	var ballistics := Ballistics.new()
 	world.add_child(ballistics)
 	await physics_frames(1)
@@ -76,10 +80,23 @@ func test_point_blank_tears_more_than_across_the_street() -> void:
 	var at := (man.parts[&"abdomen"] as Node3D).global_position + Vector3(0.04, 0.0, 0.0)
 	var b := ballistics.fire(at + Vector3(0, 0, -0.25), Vector3.BACK, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
 	await wait_until(func() -> bool: return not b.alive, 30)
-	var close := 0.0
-	for o: Dictionary in man.openings.get(&"abdomen", []):
-		close = maxf(close, o.radius)
-	check(close >= HumanBody.OPEN_MIN_RADIUS, "a shot with the muzzle on him opens him up (%.1f cm)" % (close * 100.0))
+	check(not man.is_open(&"abdomen"), "from 25 cm: not torn open")
+	check(not man.wounds.is_empty(), "but wounded")
+	if man.wounds.is_empty():
+		return
+	var w: Dictionary = man.wounds[0]
+	var vis := man.visuals[&"abdomen"] as Node3D
+	var hole: Decal = null
+	for d: Decal in vis.find_children("*", "Decal", false, false):
+		if d.texture_albedo != null and d.texture_albedo == PixelArt.blood("wound_entry", 9, true, 16):
+			hole = d
+	check(hole != null, "the entry's mark")
+	if hole != null:
+		var drawn := hole.size.x * float(HumanBody.HOLE_SHARE["wound_entry"])
+		check(absf(drawn - t.bullet_diameter * 0.9) < 0.003, "its hole about the ball's width (%.1f mm for a %.1f mm ball)" % [drawn * 1000.0, t.bullet_diameter * 1000.0])
+	man.take_bullet(man.parts[&"chest"], (man.parts[&"chest"] as Node3D).global_position + Vector3(0.05, 0, -0.3), Vector3.BACK, 450.0, 0.0057, 0.0165, 0.01)
+	check(man.wounds[-1].get("contact", false), "the muzzle on him: a contact wound")
+	check(not man.is_open(&"chest"), "and still not torn open")
 
 
 func test_reduced_gore_keeps_it_closed() -> void:

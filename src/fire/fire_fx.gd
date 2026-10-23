@@ -19,6 +19,10 @@ const SHEET := preload("res://src/fire/fire_sheet.gdshader")
 ## How much taller than FireTuning's tongue a sheet's fire stands: the fire painting's flames are a
 ## storey tall (the art session, judged on the view livery_fire_dusk).
 const SHEET_GROW := 1.8
+## How far up a standing member's face its fire starts (a share of its height): the flames climb
+## its upper part and over its top; below, the boards glow and char (the art session, with Sean's
+## OK to place the fire, 2026-10-22).
+const WALL_FOOT := 0.3
 ## Timber of a building's frame: its fire is drawn behind it, so it stands dark against its flames.
 const FRAME_KINDS := [&"sill", &"post", &"joist", &"stud", &"plate", &"beam", &"header", &"ledger",
 		&"rafter", &"cripple", &"ridge"]
@@ -26,8 +30,8 @@ const FRAME_KINDS := [&"sill", &"post", &"joist", &"stud", &"plate", &"beam", &"
 ## Fire as sheets (true) or as the flipbook tongues (false, for comparing; --flame-sprites).
 static var sheets := true
 ## The sheets drawn from the simulated flipbooks (FireFlipbook, the art session's) instead of the
-## drawn field (Settings.fire_flipbooks).
-static var flipbooks := false
+## drawn field (Settings.fire_flipbooks; on since Sean kept them, 2026-10-22).
+static var flipbooks := true
 static var _sheet_mat: ShaderMaterial
 static var _sheet_quad: QuadMesh
 
@@ -116,8 +120,8 @@ static func sheet_heat(m: StructureMember, tuning: FireTuning) -> float:
 	return lerpf(tuning.flame_size_catching.y / tuning.flame_size_alight.y, 1.0, grown)
 
 
-## The member's fire as one sheet: stood at the foot of a standing member (the boards of a
-## wall burn up their whole face) and reaching a grown tongue's height over its top, or on top of
+## The member's fire as one sheet: stood partway up a standing member (`WALL_FOOT`) and
+## reaching a grown tongue's height over its top, along the middle of a sloped one, or on top of
 ## one lying flat (its thinnest side up); over a door or window head (`opening`), standing in the opening under it, so the
 ## fire inside pours out of its top. As wide as the member plus half a tongue, so the sheets of a
 ## wall's boards overlap and draw one fire.
@@ -127,13 +131,24 @@ func _sheet_on(mi: MeshInstance3D, tuning: FireTuning, opening: bool) -> MeshIns
 	var width := maxf(box.size.x, box.size.z) + tuning.flame_size_alight.x * 0.6
 	var foot := box.get_center()
 	var height := flame
+	# Which way the member runs: its longest side, in the world (a sloped rafter's box is tall, but
+	# it isn't standing).
+	var s := member.size
+	var axis := 0 if s.x >= s.y and s.x >= s.z else (1 if s.y >= s.z else 2)
+	var runs := (member.global_basis[axis] as Vector3).normalized()
 	if opening:
 		foot.y = box.position.y - 0.9
 		width = maxf(box.size.x, box.size.z)
-	elif box.size.y > minf(box.size.x, box.size.z):
-		# Standing (a post, a wall's board: its thin side faces sideways), not lying flat.
-		foot.y = box.position.y
-		height = box.size.y + flame
+	elif absf(runs.y) > 0.2 and absf(runs.y) <= 0.7:
+		# Sloped (a rafter): from along its middle, up through the roof.
+		foot.y = box.get_center().y
+		height = box.size.y * 0.5 + flame
+	elif absf(runs.y) > 0.7 or box.size.y > minf(box.size.x, box.size.z):
+		# Standing (a post, a wall's board or panel): its fire from partway up its face, climbing
+		# it and pouring off its top; the face under it is the char's, glowing (a fire from the
+		# ground up every board drew a wall-wide curtain: the blind critic, 2026-10-21).
+		foot.y = box.position.y + box.size.y * WALL_FOOT
+		height = box.size.y * (1.0 - WALL_FOOT) + flame
 	else:
 		foot.y = box.end.y - 0.05
 	var sheet := MeshInstance3D.new()

@@ -98,3 +98,49 @@ func test_it_slaps_back_off_a_front() -> void:
 	_box(Vector3(0, 0.5, 5.0), Vector3(0.2, 1.0, 0.2))
 	await physics_frames(2)
 	check(GameAudio.slaps(world, Vector3(0, 0.6, 0)).is_empty(), "a post a metre high throws nothing back")
+
+
+func test_a_charge_thumps_rolls_and_rains_down() -> void:
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			made.append(n)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	get_tree().node_added.disconnect(note)
+	var of := func(id: StringName) -> Array:
+		return made.filter(func(p: AudioStreamPlayer3D) -> bool: return p.stream == SynthSounds.get_sound(id))
+	check(of.call(&"blast").size() >= 1 and of.call(&"blast_roll").size() == 1, "the blast and its roll")
+	var debris: Array = of.call(&"impact_dirt") + of.call(&"impact_wood")
+	check_eq(debris.size(), GameAudio.t().debris_count, "a stick's worth of clods and splinters")
+	check(debris.all(func(p: AudioStreamPlayer3D) -> bool: return not p.playing), "none of it down yet")
+	await physics_frames(int(3.0 * Engine.physics_ticks_per_second))
+	check(debris.all(func(p: AudioStreamPlayer3D) -> bool: return not is_instance_valid(p) or p.playing),
+			"all of it down within 3 s (landed and done, or landing)")
+
+
+## A wall coming down was 108 sounds at once: of one breaking sound only `limit` play, the
+## nearest; past `max_voices` the quietest gives way to a louder one.
+func test_a_crowd_keeps_its_loudest() -> void:
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	for i in 8:
+		var p := GameAudio.play(world, &"glass", Vector3(4.0 + i * 3.0, 1.6, 0), {"limit": 4})
+		if p:
+			made.append(p)
+	var live := made.filter(func(p: AudioStreamPlayer3D) -> bool: return is_instance_valid(p) and not p.is_queued_for_deletion())
+	check_eq(live.size(), 4, "four panes at once, not eight")
+	# Nearer ones coming after push out the furthest.
+	var near := GameAudio.play(world, &"glass", Vector3(2.0, 1.6, 0), {"limit": 4})
+	check(near != null, "a nearer pane is heard")
+	var far := GameAudio.play(world, &"glass", Vector3(60.0, 1.6, 0), {"limit": 4})
+	check(far == null, "a further one isn't")
+	var holder := get_viewport().get_node(^"GameAudio")
+	var panes := holder.get_children().filter(func(c: Node) -> bool:
+			return c is AudioStreamPlayer3D and not c.is_queued_for_deletion() and (c as AudioStreamPlayer3D).stream == SynthSounds.get_sound(&"glass"))
+	check_eq(panes.size(), 4, "still four")
+	var furthest := 0.0
+	for p: AudioStreamPlayer3D in panes:
+		furthest = maxf(furthest, p.global_position.x)
+	check(furthest < 14.0, "the four nearest (furthest at %.0f m)" % furthest)

@@ -8,7 +8,7 @@ extends Node
 ## What he looks at: whoever his brain is fighting; else a sound he's just started at; else the
 ## people his Senses see, weighed by how near, the player, moving, just seen, and less the longer
 ## he's looked (he holds a look a while, then may glance off at nothing); with nobody about, his
-## eyes wander ahead. His face: a start at a shot (brows up, a blink), his pain as a grimace as it
+## eyes wander ahead; a deed can have him watch his work (`attend_to`). His face: a start at a shot (brows up, a blink), his pain as a grimace as it
 ## arrives, wide eyes and quick blinks when afraid, his eyes narrowed aiming; out cold his lids
 ## close, dead they settle part shut and his eyes go still. Numbers in config/face_life.tres.
 ##
@@ -45,6 +45,10 @@ var _first := {}                  # who -> his clock when first seen
 var _clock := 0.0
 var _lids := 0.0
 var _rng := RandomNumberGenerator.new()
+## A point a deed has him watching (his work: the bar under the cloth he's wiping), renewed every
+## tick it's wanted (`attend_to`); a start and a fight still take his eyes off it.
+var _attend := Vector3.INF
+var _attend_frame := -10
 
 
 func _ready() -> void:
@@ -130,6 +134,9 @@ func step(delta: float) -> void:
 		_pick(fear)
 	if not is_instance_valid(_who):
 		_who = null   # (gone: he looks at the point he had till his next pick)
+	if attending() and _startled <= 0.0 and not _fighting():
+		_who = null   # at his work: his eyes on it
+		_point = _attend
 	gaze.target = _who
 	gaze.target_point = _point
 	var aiming := body.pose == &"aim" or body.pose == &"crouch_aim" or body.pose == &"prone_aim"
@@ -158,6 +165,17 @@ func expression() -> Dictionary:
 	for i in EXPRESSIONS.size():
 		out[EXPRESSIONS[i]] = _w[i]
 	return out
+
+
+## His eyes on `point` this tick, for whatever he's doing (WipeBar: the cloth under his hand). Call
+## it every tick he's to keep watching it; stop, and his eyes are his own again.
+func attend_to(point: Vector3) -> void:
+	_attend = point
+	_attend_frame = Engine.get_physics_frames()
+
+
+func attending() -> bool:
+	return Engine.get_physics_frames() - _attend_frame <= 2
 
 
 ## Whom he's looking at (null: a point, `looking_at_point()`).

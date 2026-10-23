@@ -9,7 +9,8 @@ const SOUNDS := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringi
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
 	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report", &"report_big",
 	&"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt", &"impact_metal", &"impact_stone",
-	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
+	&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast", &"blast_roll",
+	&"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_3", &"step_dirt_0", &"step_dirt_3"]
 ## Share of a sound's energy allowed below 40 Hz.
 const SUB_BASS_SHARE := 0.03
 ## Samples at full scale (or within a hair of it) allowed: none.
@@ -116,3 +117,14 @@ func test_the_master_bus_cuts_the_bass_and_limits() -> void:
 			limit = true
 	check(cut, "the master bus cuts below 40 Hz")
 	check(limit, "and limits under full scale, so a pile of sounds at once can't clip")
+
+
+## SynthSounds.warm_all makes every sound ahead (the first shot's freeze, 2026-10-22): ALL holds
+## every sound listed here, and a warmed sound is the same sound made on the spot.
+func test_warm_all_covers_every_sound() -> void:
+	for id: StringName in SOUNDS:
+		check(id in SynthSounds.ALL, "%s is in SynthSounds.ALL (so warm_all makes it)" % id)
+	var direct := SynthSounds._make(&"report").data
+	SynthSounds.warm_all()
+	SynthSounds.finish_warm()
+	check(SynthSounds.get_sound(&"report").data == direct, "a warmed sound matches one made on the spot")

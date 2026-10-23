@@ -9,6 +9,7 @@ extends SceneTree
 ##   godot --headless --fixed-fps 60 -s res://tools/perf_bench.gd -- [--seconds=30] [--out=file.json]
 ##   xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 -s res://tools/perf_bench.gd -- --render
 ## --quick: shorter runs and no ablation (for the CI guard). --no-ablate: full length, no ablation.
+## --hour=H: the street starts at that hour (23: night, every lamp lit).
 ## --scene=calm|fire: just one; --scene=blaze: the fire left 45 s first, till the whole town
 ## burns; --scene=wall: a shotgun charge into the store's front from 3 m every half second while it
 ## measures (voxel damage, docs/DESTRUCTION_BRIEF.md step 2); --no-voxels: drawn holes instead.
@@ -57,6 +58,9 @@ func _initialize() -> void:
 			render_time = false
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
+		elif a.begins_with("--hour="):
+			# The hour the street starts at (the day cycle's 17:00 otherwise): 23 for the lamps lit.
+			(load("res://config/day_cycle.tres") as DayCycleConfig).start_hour = float(a.substr(7))
 		elif a == "--no-smoke":
 			# Fire's smoke as the old particles, no SmokeField (the cost of the smoke).
 			(load("res://config/fire.tres") as FireTuning).smoke_fields = 0

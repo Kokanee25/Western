@@ -73,13 +73,22 @@ func test_every_kit_file_builds_and_stands() -> void:
 	check(PropKit.ids().size() >= 2, "the chair and the card table are in the kit")
 	for id in PropKit.ids():
 		var def := PropKit.definition(id)
-		if String(def.get("kind", "members")) != "members":
-			continue  # props that shatter: tests/test_glass_props.gd
-		var p := await _place(id)
-		check(p.member_count() >= 8, "%s is built of members (%d)" % [id, p.member_count()])
+		if String(def.get("kind", "members")) != "members" or def.has("hangs"):
+			continue  # props that shatter: tests/test_glass_props.gd; hung ones: test_wall_props.gd
+		# Its box's middle over the floor's (a trough's origin is at its end).
+		var mid := PropKit.bounds(def).get_center()
+		var p := await _place(id, Vector3(-mid.x, 0.3, -mid.z))
+		# A fixture (a counter, shelves) may be few: its long boards.
+		check(p.member_count() >= (3 if def.get("fixture", false) else 8), "%s is built of members (%d)" % [id, p.member_count()])
 		check(p.settle().is_empty(), "%s stands: nothing breaks or falls" % id)
 		check(not p.loose, "%s stands on its feet" % id)
-		check(p.batch_count() <= 3, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		# A batch a look (wood, felt, a piano's burl, ivory and ebony), three at the least.
+		var looks := {}
+		for spec: Dictionary in PropKit.expand(def):
+			looks[spec.get("look", def.get("look", spec.get("wood", "")))] = true
+			for d: Dictionary in spec.get("dress", []):
+				looks[d.get("look", "")] = true
+		check(p.batch_count() <= maxi(3, looks.size()), "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
 		# A fixture (the bar) is new to the game: it replaces no drawn prop.
 		check(not def.get("replaces", "").is_empty() or def.get("fixture", false), "%s names the drawn prop it replaces" % id)
 		if def.has("replaces"):
@@ -247,3 +256,99 @@ func test_a_hard_sweep_kick_takes_both_back_legs_and_a_soft_one_only_the_first()
 			check(far.has_meta(&"snapped"), "80 N·s: the boot carries on through the far one too")
 		else:
 			check(not far.has_meta(&"snapped"), "48 N·s: what's left of the boot doesn't break the far one")
+
+
+func test_a_ball_through_a_barrel_holes_its_staves_and_it_stands() -> void:
+	var barrel := await _place(&"barrel")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var stave := _m(barrel, "stave10")
+	var from := stave.global_position + Vector3(-5, 0, 0)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (stave.global_position - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not stave.broken, "a .45 hole in a 12 cm oak stave leaves it whole (section left %.2f)" % stave.section_left(barrel.tuning))
+	check(not barrel.loose, "the barrel stands")
+
+
+func test_a_kicked_barrel_moves_whole_and_a_stick_close_by_throws_it() -> void:
+	var barrel := await _place(&"barrel")
+	var stave := _m(barrel, "stave10")
+	check_eq(barrel.take_blow(stave, stave.global_position, Vector3(48.0, 0, 0)), &"moved", "oak staves don't break to a kick: it moves")
+	check(barrel.rubble.any(func(rb: RigidBody3D) -> bool: return is_instance_valid(rb) and (rb.get_meta(&"members", []) as Array).size() == barrel.member_count()),
+			"hooped, it goes as one piece")
+	var other := await _place(&"barrel", Vector3(0, 0.3, 1.5))
+	Events.exploded.emit(other.global_position + Vector3(-1.5, 0.1, 0), Blast.t().tnt_per_stick)
+	await physics_frames(3)
+	check(other.loose, "a stick 1.5 m off throws it")
+
+
+func test_a_crate_stacked_on_another_comes_down_when_the_one_under_it_goes() -> void:
+	var under := await _place(&"crate")
+	var top := await _place(&"crate", Vector3(0, 0.9, 0))
+	check(not top.loose, "a crate stands on the crate below")
+	under.go_loose(Vector3(3.0, 0, 0))
+	await physics_frames(60)
+	check(top.loose, "the one under it knocked away, it comes down")
+
+
+func test_a_stool_leg_out_from_under_him_tips_him_but_an_empty_one_balances() -> void:
+	var stool := await _place(&"bar_stool")
+	var man := Sitter.new(80.0)
+	world.add_child(man)
+	check(stool.sit(man), "he sits")
+	await physics_frames(3)
+	check(stool.settle().is_empty() and not stool.loose, "an oak stool carries him")
+	stool.break_member(_m(stool, "leg1"))
+	await physics_frames(3)
+	check(stool.loose and man.limp, "a leg out, the stool goes over and he goes down")
+	var empty := await _place(&"bar_stool", Vector3(0, 0.3, 1.2))
+	empty.break_member(_m(empty, "leg1"))
+	await physics_frames(3)
+	# The feet beside the gap are splayed blocks 32 mm square, and the leg's own weight has gone:
+	# its weight's 3 cm inside the line between them, less than a seated man sways.
+	check(not empty.loose, "empty, a leg gone, it balances on three")
+
+
+func test_a_kick_slides_an_empty_stool_but_breaks_a_leg_under_a_man() -> void:
+	var stool := await _place(&"bar_stool")
+	var leg := _m(stool, "leg2")
+	var at := Vector3(leg.global_position.x, 0.42, leg.global_position.z)
+	check_eq(stool.take_blow(leg, at, Vector3(48.0, 0, 0)), &"moved", "empty and light, it goes skidding")
+	var stool2 := await _place(&"bar_stool", Vector3(0, 0.3, 1.2))
+	var man := Sitter.new(80.0)
+	world.add_child(man)
+	stool2.sit(man)
+	var leg2 := _m(stool2, "leg2")
+	at = Vector3(leg2.global_position.x, 0.42, leg2.global_position.z)
+	check_eq(stool2.take_blow(leg2, at, Vector3(48.0, 0, 0)), &"broke", "pinned under him, a leg snaps")
+	await physics_frames(3)
+	check(stool2.loose and man.limp, "and the stool goes over with him")
+
+
+func test_the_piano_is_too_heavy_to_kick_about_and_its_plate_is_most_of_it() -> void:
+	var piano := await _place(&"upright_piano")
+	check(piano.mass() > 180.0 and piano.mass() < 320.0, "an upright's weight (%.0f kg)" % piano.mass())
+	var plate := _m(piano, "plate")
+	var plate_kg := plate.weight(piano.tuning) / 9.81
+	check(plate_kg > piano.mass() * 0.4, "the iron plate most of it (%.0f kg)" % plate_kg)
+	var cheek := _m(piano, "cheek_l")
+	check_eq(piano.take_blow(cheek, cheek.global_position, Vector3(0, 0, -48.0)), &"held", "a kick doesn't shift it")
+	check(not piano.loose, "it stays where it stands")
+
+
+func test_a_ball_through_the_pianos_front_holes_it_and_it_stands() -> void:
+	var piano := await _place(&"upright_piano")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var front := _m(piano, "front_lower")
+	var from := front.global_position + Vector3(0, 0.6, 5)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (front.global_position - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not front.broken, "a .45 hole in its kneeboard leaves it")
+	check(not piano.loose and piano.settle().is_empty(), "the piano stands")

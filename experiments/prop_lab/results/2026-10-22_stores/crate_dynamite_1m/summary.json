@@ -1,0 +1,162 @@
+{
+  "caught": [
+    "bench_prop/batten_low_b"
+  ],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 24.98,
+  "faults": {
+    "below_ground": 97,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 743132127,
+  "frame": {
+    "added_ms_first_1s": 6.18,
+    "before_ms": 0.03,
+    "event_ms": 242.91,
+    "settle_ms": 9.36
+  },
+  "hits": [
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 17.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 15.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 16.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 7.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 19.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 3.0,
+      "through": false,
+      "what": "bench_floor/board5"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board3"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board4"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board4"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board4"
+    },
+    {
+      "j_in": 22.0,
+      "through": false,
+      "what": "side_l2"
+    },
+    {
+      "j_in": 34.0,
+      "through": false,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 50.0,
+      "through": false,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 15.0,
+      "through": false,
+      "what": "side_l0"
+    },
+    {
+      "j_in": 70.0,
+      "through": true,
+      "what": "side_f2"
+    },
+    {
+      "j_in": 40.0,
+      "through": false,
+      "what": "batten_high_l"
+    },
+    {
+      "j_in": 25.0,
+      "through": false,
+      "what": "side_l2"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "Ground"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.017,
+  "max_piece_speed": 28.7,
+  "members": 30,
+  "pieces": 42,
+  "prop": "crate",
+  "scenario": "crate_dynamite_1m",
+  "snapped": [
+    "batten_low_l",
+    "batten_low_r",
+    "batten_high_l",
+    "batten_high_r"
+  ],
+  "upright": true
+}

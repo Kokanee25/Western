@@ -4,13 +4,18 @@ extends BridgeLab
 ## starts on the same frame every time (a seed gives the same fight).
 
 const Fight := preload("res://experiments/gunfight_lab/fight.gd")
+const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C] [opening=draw] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
+	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C|D] [fixes=all|none|a+b|-a] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
 	"gf_lineup": "gf_lineup PATH [holstered] [studio|outlaw|MODEL...] -> the men side by side, guns up (or holstered), facing a camera: a picture (drawn runs)",
 	"gf_cover": "gf_cover X Y Z [FROM_X FROM_Y FROM_Z] -> is there cover within 1.5 m of X Y Z from that eye (default: the street's trough), as the gang judges it",
 	"gf_bodies": "gf_bodies [studio|outlaw|MODEL...] -> each man stood up alone: his hat's hitbox, his gun, and how much of what you see of him no hitbox covers",
 	"gf_coverwhy": "gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] -> the gang's cover search from X Y Z against that eye: how many spots, and why each was turned down",
+	"gf_ways": "gf_ways [PREFIX] -> the spec saloon built and its places added; a man walked along every link between places named PREFIX* (spec_ by default): which he gets along and which he doesn't",
+	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
+	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
+	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -291,3 +296,114 @@ func _cmd_gf_map(a: Array) -> Dictionary:
 		if Vector2(p.x - c.x, p.z - c.z).length() <= r:
 			out.places[String(k)] = arr(p)
 	return out
+
+
+## Every link between the spec saloon's places walked by a man (built and joined in first): along
+## each link from one end, at a run, until he's there, stuck (0.8 s without moving 5 cm) or 12 s.
+func _cmd_gf_ways(a: Array) -> Dictionary:
+	var prefix := String(a[0]) if a.size() > 0 else "spec_"
+	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	SpecSaloon.ensure(street, places)
+	await physics_frames(10)
+	var done := {}
+	var ok := []
+	var bad := []
+	var man := HumanBody.new()
+	man.name = "Walker"
+	man.person_id = &"walker"
+	for n: StringName in places.points:
+		if not String(n).begins_with(prefix):
+			continue
+		for nb: StringName in places.links.get(n, []):
+			var key := [String(n), String(nb)]
+			key.sort()
+			if done.has(str(key)):
+				continue
+			done[str(key)] = true
+			var from: Vector3 = places.points[n]
+			var to: Vector3 = places.points[nb]
+			if not man.is_inside_tree():
+				man.enter(street, from + Vector3.UP * 0.05, HumanBody.yaw_toward(from, to))
+				await physics_frames(20)
+			else:
+				man.global_position = from + Vector3.UP * 0.05
+				await physics_frames(3)
+			var t := 0.0
+			var still := 0.0
+			var last := man.global_position
+			var arrived := false
+			while t < 12.0:
+				await get_tree().physics_frame
+				var dt := 1.0 / Engine.physics_ticks_per_second
+				t += dt
+				if man.walk_to(to, 3.8, dt):
+					arrived = true
+					break
+				if man.global_position.distance_to(last) < 0.05:
+					still += dt
+					if still > 0.8:
+						break
+				else:
+					still = 0.0
+					last = man.global_position
+			var end := man.global_position
+			var line := {"from": String(n), "to": String(nb), "s": snappedf(t, 0.1), "at": arr(end - SpecSaloon.Play.ORIGIN),
+				"dy": snappedf(end.y - to.y, 0.01), "left_m": snappedf(Vector2(end.x - to.x, end.z - to.z).length(), 0.01)}
+			if arrived and absf(end.y - to.y) < 0.3:
+				ok.append(line)
+			else:
+				bad.append(line)
+	man.queue_free()
+	return {"walked": ok.size(), "blocked": bad.size(), "bad": bad, "ok": ok.map(func(l: Dictionary) -> String: return "%s -> %s %.1f s" % [l.from, l.to, l.s])}
+
+
+func _cmd_gf_what(a: Array) -> Dictionary:
+	SpecSaloon.ensure(street, (street.get_node_or_null(^"TownLife") as TownLife).places)
+	await physics_frames(3)
+	var shape := SphereShape3D.new()
+	shape.radius = float(a[3]) if a.size() > 3 else 0.3
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.collision_mask = Layers.STAND | Layers.PEOPLE
+	q.transform = Transform3D(Basis.IDENTITY, SpecSaloon.at(vec(a, 0)))
+	var out := []
+	for h: Dictionary in player.get_world_3d().direct_space_state.intersect_shape(q, 16):
+		var c := h.collider as Node
+		out.append(String(c.get("member_id")) if c is StructureMember else String(c.get_path()))
+	return {"touches": out}
+
+
+var _played: Node
+
+
+func _cmd_gf_play(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": HELP.gf_play}
+	if _played != null:
+		# Your wounds, blood and rounds are this game's: a fresh fight needs a fresh game (as the Y key
+		# reloads the scene, which the bridge can't follow).
+		return {"ok": false, "error": "one fight a game: your wounds and rounds carry over. Restart the game (bridge.py stop, then start) for the next"}
+	var opts := {"scenario": a[0], "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game", "seed": 1,
+		"variant": String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant]), "max": 300.0, "count": 6.0, "draw_turns": "false"}
+	for w: String in a.slice(1):
+		var kv := w.split("=", true, 1)
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	_played = Fight.new(self, opts)
+	add_child(_played)
+	var err: String = await _played.setup()
+	if err != "":
+		_played.queue_free()
+		return {"ok": false, "error": err}
+	return {"setup": a[0], "count_s": float(opts.count), "say": "your gun's away; they go for theirs when you shoot or in %d s" % int(float(opts.count))}
+
+
+func _cmd_gf_result(_a: Array) -> Dictionary:
+	if not is_instance_valid(_played):
+		return {"ok": false, "error": "no played fight (gf_play)"}
+	var men := {}
+	for id: String in _played.gang_ids:
+		var m: Dictionary = _played._men[id]
+		men[id] = m.outcome
+	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
+		"men": men}

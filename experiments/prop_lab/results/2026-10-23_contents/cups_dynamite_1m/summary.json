@@ -1,0 +1,217 @@
+{
+  "blast_push": [
+    107.9,
+    72.7,
+    0.0
+  ],
+  "blast_v": 2.82,
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 3.06,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 3114629536,
+  "fire_spills": 0,
+  "frame": {
+    "added_ms_first_1s": 13.08,
+    "before_ms": 0.02,
+    "event_ms": 603.68,
+    "settle_ms": 9.69
+  },
+  "glass": [
+    {
+      "broken": false,
+      "dents": 0,
+      "holes": 0,
+      "id": "spittoon",
+      "loose": true,
+      "moved_m": 0.03,
+      "spilt": false,
+      "upright": true
+    },
+    {
+      "broken": false,
+      "dents": 1,
+      "holes": 0,
+      "id": "tin_cup",
+      "loose": true,
+      "moved_m": 2.32,
+      "spilt": true,
+      "upright": false
+    },
+    {
+      "broken": false,
+      "dents": 0,
+      "holes": 0,
+      "id": "tin_cup",
+      "loose": true,
+      "moved_m": 2.92,
+      "spilt": true,
+      "upright": false
+    }
+  ],
+  "hits": [
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 22.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 12.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 22.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 9.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 21.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 16.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 10.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 0.0,
+      "through": false,
+      "what": "bench_floor/board3"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board3"
+    },
+    {
+      "j_in": 70.0,
+      "through": false,
+      "what": "cleat_z"
+    },
+    {
+      "j_in": 65.0,
+      "through": false,
+      "what": "cleat_z"
+    },
+    {
+      "j_in": 44.0,
+      "through": false,
+      "what": "pedestal"
+    },
+    {
+      "j_in": 12.0,
+      "through": false,
+      "what": "top_l1"
+    },
+    {
+      "j_in": 32.0,
+      "through": false,
+      "what": "top_r1"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "cleat_z"
+    },
+    {
+      "j_in": 58.0,
+      "through": false,
+      "what": "top_c"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "cleat_z"
+    },
+    {
+      "j_in": 40.0,
+      "through": false,
+      "what": "top_c"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 3.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "Ground"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.017,
+  "max_piece_speed": 5.34,
+  "members": 20,
+  "pieces": 20,
+  "prop": "card_table",
+  "scenario": "cups_dynamite_1m",
+  "shards": 0,
+  "snapped": [],
+  "spilled": [
+    {
+      "liquid": "whiskey",
+      "litres": 0.05,
+      "t": 0.15
+    },
+    {
+      "liquid": "whiskey",
+      "litres": 0.05,
+      "t": 0.18
+    }
+  ],
+  "upright": false
+}

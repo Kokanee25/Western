@@ -1,0 +1,70 @@
+{
+  "_doc": "A shop counter (FalseFrontBuilding._counter's, as a fixture): a boarded front on the customers' side (-Z), an end at each side, a top overhanging the front by 6 cm. Fitted to its room (PropKit.spawn_fitted: as long and deep as the building wants; an end against a wall left out). Its members break, burn and fall as any kit prop's; what's on it (the lamp) comes down with it.",
+  "id": "counter",
+  "kind": "members",
+  "fixture": true,
+  "wood": "floor",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "front",
+      "kind": "post",
+      "size": [
+        2.0,
+        0.95,
+        0.03
+      ],
+      "at": [
+        0,
+        0.475,
+        -0.225
+      ]
+    },
+    {
+      "id": "end_l",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.95,
+        0.51
+      ],
+      "at": [
+        -0.985,
+        0.475,
+        0.045
+      ]
+    },
+    {
+      "id": "end_r",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.95,
+        0.51
+      ],
+      "at": [
+        0.985,
+        0.475,
+        0.045
+      ]
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "wood": "dark_trim",
+      "size": [
+        2.0,
+        0.04,
+        0.6
+      ],
+      "at": [
+        0,
+        0.97,
+        0
+      ],
+      "look": "wood:dark_trim"
+    }
+  ],
+  "look": "wood:floor"
+}

@@ -1,0 +1,38 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.4,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 268710550,
+  "frame": {
+    "added_ms_first_1s": 1.39,
+    "before_ms": 0.05,
+    "event_ms": 27.08,
+    "settle_ms": 6.43
+  },
+  "kick": "broke",
+  "loose": true,
+  "loose_t": 0.0,
+  "max_piece_speed": 5.85,
+  "members": 30,
+  "pieces": 3,
+  "prop": "crate",
+  "scenario": "crates_stacked_kick",
+  "snapped": [
+    "side_l0"
+  ],
+  "stack": [
+    {
+      "id": "crate",
+      "loose": true,
+      "snapped": 30
+    }
+  ],
+  "upright": true
+}

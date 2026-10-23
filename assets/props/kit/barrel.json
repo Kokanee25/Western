@@ -1,0 +1,333 @@
+{
+  "_doc": "An oak barrel (PropModels._barrel's shape and look, built of members): fourteen staves bulged as a real cask's, each a member standing on the floor, its four iron hoops drawn on it (they go where it goes); two heads of three boards set in the croze. Empty as it is; what it holds is its \"holds\", filled by a kit file \"like\" it (whiskey_barrel, water_barrel, oil_barrel: PropContents). A stave's blow_span is its length: oak staves don't break to a kick, the barrel moves.",
+  "id": "barrel",
+  "kind": "members",
+  "replaces": "barrel",
+  "in_game": true,
+  "wood": "oak",
+  "look": "prop:staves",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "holds": {"_doc": "Its inside (PropContents): from the bottom head's top to the top head's underside, the staves' inner radius at the heads and at the bulge (the sweep's inner line): ~169 l, a forty-five gallon cask's.", "from": 0.05, "to": 0.85, "radius": [0.2325, 0.272]},
+  "members": [
+    {
+      "id": "stave%d",
+      "kind": "post",
+      "size": [
+        0.1224,
+        0.9,
+        0.028
+      ],
+      "at": [
+        0.0,
+        0.45,
+        0.0
+      ],
+      "repeat": {
+        "count": 14,
+        "radius": 0.262,
+        "start": 0
+      },
+      "draw": {
+        "shape": "sweep",
+        "profile": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.2691,
+            0.1125
+          ],
+          [
+            0.2854,
+            0.225
+          ],
+          [
+            0.2962,
+            0.3375
+          ],
+          [
+            0.3,
+            0.45
+          ],
+          [
+            0.2962,
+            0.5625
+          ],
+          [
+            0.2854,
+            0.675
+          ],
+          [
+            0.2691,
+            0.7875
+          ],
+          [
+            0.25,
+            0.9
+          ],
+          [
+            0.222,
+            0.9
+          ],
+          [
+            0.2411,
+            0.7875
+          ],
+          [
+            0.2574,
+            0.675
+          ],
+          [
+            0.2682,
+            0.5625
+          ],
+          [
+            0.272,
+            0.45
+          ],
+          [
+            0.2682,
+            0.3375
+          ],
+          [
+            0.2574,
+            0.225
+          ],
+          [
+            0.2411,
+            0.1125
+          ],
+          [
+            0.222,
+            0.0
+          ],
+          [
+            0.25,
+            0.0
+          ]
+        ],
+        "from": 77.1429,
+        "to": 102.8571,
+        "segments": 3,
+        "grain_up": true,
+        "caps": true
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2624,
+                0.035
+              ],
+              [
+                0.2674,
+                0.06
+              ],
+              [
+                0.2624,
+                0.085
+              ]
+            ],
+            "from": 77.1429,
+            "to": 102.8571,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2892,
+                0.215
+              ],
+              [
+                0.2942,
+                0.24
+              ],
+              [
+                0.2892,
+                0.265
+              ]
+            ],
+            "from": 77.1429,
+            "to": 102.8571,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2892,
+                0.635
+              ],
+              [
+                0.2942,
+                0.66
+              ],
+              [
+                0.2892,
+                0.685
+              ]
+            ],
+            "from": 77.1429,
+            "to": 102.8571,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2624,
+                0.815
+              ],
+              [
+                0.2674,
+                0.84
+              ],
+              [
+                0.2624,
+                0.865
+              ]
+            ],
+            "from": 77.1429,
+            "to": 102.8571,
+            "segments": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "head_top0",
+      "kind": "furniture_top",
+      "size": [
+        0.135,
+        0.03,
+        0.39
+      ],
+      "at": [
+        -0.1475,
+        0.865,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    },
+    {
+      "id": "head_top1",
+      "kind": "furniture_top",
+      "size": [
+        0.16,
+        0.03,
+        0.47
+      ],
+      "at": [
+        0.0,
+        0.865,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    },
+    {
+      "id": "head_top2",
+      "kind": "furniture_top",
+      "size": [
+        0.135,
+        0.03,
+        0.39
+      ],
+      "at": [
+        0.1475,
+        0.865,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    },
+    {
+      "id": "head_bottom0",
+      "kind": "floor_board",
+      "size": [
+        0.135,
+        0.03,
+        0.39
+      ],
+      "at": [
+        -0.1475,
+        0.035,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    },
+    {
+      "id": "head_bottom1",
+      "kind": "floor_board",
+      "size": [
+        0.16,
+        0.03,
+        0.47
+      ],
+      "at": [
+        0.0,
+        0.035,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    },
+    {
+      "id": "head_bottom2",
+      "kind": "floor_board",
+      "size": [
+        0.135,
+        0.03,
+        0.39
+      ],
+      "at": [
+        0.1475,
+        0.035,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.235,
+        "segments": 28
+      }
+    }
+  ]
+}

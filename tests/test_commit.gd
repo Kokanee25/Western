@@ -1,0 +1,165 @@
+extends TestCase
+## Fights that commit (OutlawBrain's variant D; Sean's first play, issue #257: "the bad guys just
+## kept quitting"): noise pins a man but doesn't break him; a hothead holds his first half minute;
+## the man who leads them holds the rest while he's in it and calls a shaken one back; the Kid
+## running barely shakes the others; a steady man takes the thump of a ball better than a green one.
+
+var world: Node3D
+var ballistics: Ballistics
+var player: Player
+var men := {}  ## id -> HumanBody
+var calls: Array[Dictionary] = []
+
+
+func before_each() -> void:
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+	world = Node3D.new()
+	add_child(world)
+	var ground := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(90, 1, 90)
+	cs.shape = bs
+	ground.add_child(cs)
+	ground.position = Vector3(0, -0.5, 0)
+	world.add_child(ground)
+	ballistics = Ballistics.new()
+	world.add_child(ballistics)
+	player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	player.global_position = Vector3.ZERO
+	player.rotation = Vector3.ZERO
+	player.remove_meta(&"human_body")  # their rounds stop on you without wounding
+	men.clear()
+	calls.clear()
+	Events.callout.connect(_on_callout)
+	await physics_frames(2)
+
+
+func after_each() -> void:
+	Events.callout.disconnect(_on_callout)
+	world.queue_free()
+	await physics_frames(2)
+
+
+func _on_callout(speaker: Node, kind: StringName, about: Node, _at: Vector3) -> void:
+	calls.append({"who": (speaker as HumanBody).person_id, "kind": kind, "about": about})
+
+
+func _man(id: StringName, at: Vector3, nerve: float, temper: float, leads := false, variant := OutlawBrain.Variant.D) -> HumanBody:
+	var m := HumanBody.new()
+	m.name = String(id).capitalize()
+	m.person_id = id
+	m.rng_seed = 400 + men.size() * 7
+	var b := OutlawBrain.new()
+	b.name = "Brain"
+	b.nerve = nerve
+	b.temper = temper
+	b.leads = leads
+	b.variant = variant
+	var friends: Array[StringName] = []
+	for other: StringName in [&"brody", &"lyle", &"kid"]:
+		if other != id:
+			friends.append(other)
+	b.friends = friends
+	m.add_child(b)
+	world.add_child(m)
+	m.global_position = at
+	m.rotation_degrees.y = 180.0
+	men[id] = m
+	return m
+
+
+func _brain(id: StringName) -> OutlawBrain:
+	return (men[id] as HumanBody).get_node(^"Brain") as OutlawBrain
+
+
+## The three of them 12 m off, in a fight with you (as in the game: Brody leads).
+func _gang(variant := OutlawBrain.Variant.D) -> void:
+	_man(&"brody", Vector3(-3.0, 0, -12.0), 0.95, 0.2, true, variant)
+	_man(&"lyle", Vector3(0.0, 0, -12.0), 0.7, 0.9, false, variant)
+	_man(&"kid", Vector3(3.0, 0, -12.0), 0.3, 0.45, false, variant)
+	await physics_frames(5)
+	for id: StringName in men:
+		_brain(id)._start_fight(player)
+		_brain(id).fear = 0.0
+	await physics_frames(45)  # each man's taken in who's with him (the leader looked for twice a second)
+
+
+func _in_it(id: StringName) -> bool:
+	return _brain(id).mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING]
+
+
+func test_near_misses_pin_him_but_dont_break_him() -> void:
+	await _gang()
+	var kid := _brain(&"kid")
+	for i in 12:
+		kid._on_near_miss(men[&"kid"], player, 0.3, Vector3.ZERO, 300.0, false)
+	check(kid.fright > 1.0, "a dozen balls cracking past frighten him (fright %.2f)" % kid.fright)
+	check(kid.suppressed > 0.0, "and put his head down (%.1f s)" % kid.suppressed)
+	check(kid.dread() <= kid.fear + OutlawBrain.FRIGHT_SHARE * kid.nerve + 0.001, "but count for at most a share of his nerve (%.2f)" % kid.dread())
+	await physics_frames(10)
+	check(_in_it(&"kid"), "the Kid's still in it (%s)" % kid.describe().substr(0, 60))
+
+
+func test_near_misses_break_a_green_man_as_he_was() -> void:
+	await _gang(OutlawBrain.Variant.C)
+	var kid := _brain(&"kid")
+	for i in 12:
+		kid._on_near_miss(men[&"kid"], player, 0.3, Vector3.ZERO, 300.0, false)
+	var broke := await wait_until(func() -> bool: return not _in_it(&"kid"), 30)
+	check(broke, "in C the noise alone breaks the Kid (%s)" % kid.describe().substr(0, 60))
+
+
+func test_the_hothead_holds_his_first_half_minute() -> void:
+	await _gang()
+	var lyle := _brain(&"lyle")
+	lyle.fear = lyle.nerve + 0.3
+	await physics_frames(20)
+	check(_in_it(&"lyle"), "past his nerve early on, Lyle fights on (%.2f / %.2f)" % [lyle.dread(), lyle.nerve_now()])
+	lyle._fight_from = lyle._now - OutlawBrain.HOT_EARLY - 1.0
+	var broke := await wait_until(func() -> bool: return not _in_it(&"lyle"), 60)
+	check(broke, "half a minute in, the same fear breaks him (%s)" % lyle.describe().substr(0, 60))
+
+
+func test_the_leader_holds_the_rest_while_hes_in_it() -> void:
+	await _gang()
+	var kid := _brain(&"kid")
+	kid.nerve = 0.5
+	kid.fear = 0.6  # past his own nerve, inside it with Brody's
+	await physics_frames(60)
+	check(_in_it(&"kid"), "with Brody up and in it the Kid holds (%.2f / %.2f)" % [kid.dread(), kid.nerve_now()])
+	(men[&"brody"] as HumanBody).go_limp()
+	kid.fear = 0.6
+	var broke := await wait_until(func() -> bool: return not _in_it(&"kid"), 90)
+	check(broke, "Brody down, he breaks (%s)" % kid.describe().substr(0, 60))
+
+
+func test_the_leader_calls_a_shaken_man_back() -> void:
+	await _gang()
+	var lyle := _brain(&"lyle")
+	lyle._shaken = 0.5
+	lyle.fear = 0.8
+	Events.callout.emit(men[&"lyle"], &"shaken", player, Vector3.INF)
+	await physics_frames(3)
+	check(calls.any(func(c: Dictionary) -> bool: return c.who == &"brody" and c.kind == &"hold" and c.about == men[&"lyle"]),
+			"Brody tells him to stay in it: %s" % str(calls.slice(-3)))
+	check_near(lyle.fear, 0.8 - OutlawBrain.LEADER_HOLD, 0.05, "and it steadies him")
+
+
+func test_the_kid_running_barely_shakes_the_others() -> void:
+	await _gang()
+	var brody := _brain(&"brody")
+	var before := brody.fear
+	brody._mate_out(men[&"kid"], &"fled", true)
+	var kid_cost := brody.fear - before
+	before = brody.fear
+	brody._mate_out(men[&"lyle"], &"fled", true)
+	var lyle_cost := brody.fear - before
+	check(kid_cost < lyle_cost * 0.6, "the Kid running frightens Brody less than Lyle running (%.3f against %.3f)" % [kid_cost, lyle_cost])
+
+
+func test_a_steady_man_takes_a_ball_better_than_a_green_one() -> void:
+	await _gang()
+	check(_brain(&"brody")._thump() < 0.55, "Brody feels half the thump (%.2f)" % _brain(&"brody")._thump())
+	check(_brain(&"kid")._thump() > 0.8, "the Kid nearly all of it (%.2f)" % _brain(&"kid")._thump())

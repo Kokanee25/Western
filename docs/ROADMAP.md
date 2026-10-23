@@ -211,6 +211,12 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+**Sean, 2026-10-22: the labs are parked** (each where it stands, with how to pick it up:
+`docs/briefs/parked-labs-2026-10-22.md`). **Focus: the card cheat playable in the saloon, and
+whether the shooting is fun** (Sean plays the gunfight lab's nine runs, #257). One gameplay session
+at a time until those are answered; then 3.5 (Acts). What follows below is where things stood when
+the labs ran.
+
 Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate A before Phase 4);
 **Phases 2 and 3 run now, up to four sessions at once.**
 
@@ -230,8 +236,9 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
   8 against round 2's none; round 4 (free: stains darker than the wood, bleach on sky faces only):
   no wood DIFFERENT for the first time (1 SAME, 7 CLOSE); round 5 (free): timber and the deck SAME;
   round 6 (free: banded light on the woods, pine's knots soft, flat tone steps): knots gone, the
-  critic otherwise unmoved (the wood's light still rolls; its source next); Sean's pick on round 5's
-  exterior woods waits on him (`2026-10-22/pick_exterior.jpg`); the interior woodwork (Sean's saloon picture: profiles,
+  critic otherwise unmoved; Sean picked 6b: the game's exterior woods since 2026-10-22, with the
+  flipbook fire and the bar's lighter oak; round 7 (the paint, not the light, rolls) and a texture
+  memory test next; the interior woodwork (Sean's saloon picture: profiles,
   the interior stand, one umber stain, `interior-woodwork.md`) waits on his pick. Nothing in the
   game's woods until Sean picks. The hotel's oak stair on the bench. Wear-down planned (after Gate A).
 - When the other labs start: "When the labs start", under the phases table.

@@ -380,12 +380,17 @@ def cut(wood, info, raw=RAW, out_dir=WOODS, scale=1.0, g=None):
     print("cut: %s into %d strips" % (wood, len(names)))
 
 
-def import_like_woods(out_dir):
+def import_like_woods(out_dir, vram=False):
     """Each new png in a candidate set imported as the game's woods are (lossless, mipmapped): an
-    .import stub with their [params]; `godot --headless --import` fills in the rest."""
+    .import stub with their [params]; `godot --headless --import` fills in the rest. `vram` (a set's
+    "vram": true): VRAM-compressed at high quality instead (BC7 on desktop, a quarter the memory;
+    the memory test, 2026-10-22), every stub rewritten so a re-cut set changes with it."""
     params = open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1]
+    if vram:
+        params = params.replace("compress/mode=0", "compress/mode=2").replace(
+            "compress/high_quality=false", "compress/high_quality=true")
     for f in sorted(os.listdir(out_dir)):
-        if f.endswith(".png") and not os.path.exists(os.path.join(out_dir, f + ".import")):
+        if f.endswith(".png") and (vram or not os.path.exists(os.path.join(out_dir, f + ".import"))):
             with open(os.path.join(out_dir, f + ".import"), "w") as fh:
                 fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]' + params)
 
@@ -596,7 +601,7 @@ def candidate(name, only, cut_only, repaint, key, spec):
             end = os.path.join(out_dir, "%s_end.png" % mid)
             if materials[mid].get("boards") and not os.path.exists(end):
                 Image.open(os.path.join(WOODS, "timber_end.png")).save(end)
-    import_like_woods(out_dir)
+    import_like_woods(out_dir, bool(cfg.get("vram", False)))
     print("spent: $%.2f" % pt.SPENT)
     if failed:
         print("not painted:", ", ".join(failed))

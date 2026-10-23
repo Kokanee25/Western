@@ -77,14 +77,18 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `sound_lab` (`sound`,
-`sound_list`, `sound_find`, `sound_inventory`; its README: run under `--write-movie`, so the mix runs on
-game time); `gun_lab` (`gun_fp`, `gun_men`, `gun_grip`, `gun_framing`,
-`gun_handling`; its README); the gunfight lab
-(`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight, scripted player,
-its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`; `run.py` runs the
-matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact sheet; `play.gd`
-(added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon, A/B/C, runs to
+`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+(`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
+now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
+`sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
+`gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
+scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
+`gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
+sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
+its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
+play it: Y the next setup in the new saloon, X again, Z the next variant, runs to
 `user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
@@ -189,7 +193,8 @@ a few views renders them as the full run does.
   **P** cycles square / ragged / off, default square). Users: `texel_grid.gdshader(inc)`, the one
   material for everything in the world on the texel grid (`PixelArt.material()`: pixel texture at
   `texels_per_meter`, UV or triplanar mapping; members, blockouts, props; `member_holes.gdshader`
-  is the same with bullet holes), `src/world/ground.gdshader`, and the people's
+  is the same with bullet holes; a `WEAR` hook at the end of its fragment, inert unless defined, is
+  the building lab's lived-in marks, `experiments/building_lab/wear.gdshaderinc`), `src/world/ground.gdshader`, and the people's
   `body_skin.gdshaderinc`. `MemberMesh` puts each face's size in UV2 so the point stays on thin
   faces. **A minimum square on screen** (shader global `min_square_px`, 2 render pixels since §10.4,
   was 4: the painting's far men are still 2–3 px blocks, but distance softens, never chunks; 0 = off;
@@ -330,6 +335,15 @@ a few views renders them as the full run does.
 
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`),
   `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
+- `PlayerMotion` (`player_motion.gd`): how the body carries the eyes and the gun, stepped by the
+  Player each physics frame: steps (a footfall each: the footstep sound and noise, the head's low
+  and thud, the legs), lean into strafes, turns and pushes off, a landing's dip, the crouch's
+  spring, a winded heave; the gun's lag and step ride (`hand_turn` joins the sway, `hand_pos` the
+  pose: `WeaponViewmodel._body_pos()`). Momentum is `Player._momentum` (along the way: accel,
+  `run_build`, decel, `reverse_decel`; across it `turn_grip`). Presets `config/movement/light|middle|
+  heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
+  (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
+  `experiments/movement_feel/` (measure, films).
 
 ## src/world
 
@@ -364,6 +378,17 @@ a few views renders them as the full run does.
   `DROP_FALLS` (1 m) or he walks on down ground steeper than ~50 deg (`STEEP_UP`) more than 0.5 m
   below where he last stood level (a stick's crater doesn't trip him; a dug hole does). Not yet:
   a man who has never walked (placed) floats over a hole dug under him; feet on slopes (one floats).
+- `FloorMarks` (`src/world/floor_marks.gd`, dials `FloorMarksTuning` in `config/floor_marks.tres`; brief
+  `docs/briefs/mopping.md`): what's on the boards. Made by TownLife (deferred) or `ensure`; group
+  `floor_marks`. A sparse grid of 0.125 m cells keyed `Vector3i(x, band, z)` (band: 5 cm of height) over
+  wooden surfaces facing up, found by a ray onto a structure member (`surface_at`, retried a few mm
+  off on a seam or gap); a cell holds `dirt` (g), `liquid` (ml by kind) and `stain` (ml soaked in, by
+  kind). Walkers' boots (`HumanBody`s and the player, each tick) pick dirt up on the street and shed
+  it on the boards; `Events.liquid_spilled` lays a film; `age(hours)` (from `DayCycle.pass_hours`, or
+  real time in a lab) dries it and soaks part in. `add_dirt`, `add_liquid`, `take(at, radius, share)`
+  (what a mop lifts, with Blood's marks: `Blood.take`), `mess(at, radius)`, `dirty_cells`. Drawn as a
+  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change. Prof
+  `floor_marks` (Structures). The water lab's spills will move its liquid cell to cell.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
@@ -480,6 +505,12 @@ a few views renders them as the full run does.
   sheets left, flipbooks right), `tools/fire_ab.gd` + `fire_ab.py` (the A/B film),
   `tools/fire_cost.gd` (the livery fully alight, both ways and flames hidden). View
   `saloon_fire_inside` (screenshots.gd) is a burning saloon from inside.
+- **Where the flames stand** (FireFX `_sheet_on`, art with Sean's OK 2026-10-22): a standing
+  member's sheet from `WALL_FOOT` (0.3) up its face; a sloped one (long axis 0.2-0.7 off level:
+  rafters) from along its middle; flat ones on top; a door or window head's in the opening under
+  it. FireSystem's `max_flames` (40) go to the nearest burning members, the roof's and the heads'
+  `FLAME_FIRST` (6 m) nearer than they are. A wide sheet holds up to `max_tiles` flipbook flames,
+  half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
 ## src/bodies
 
@@ -500,13 +531,19 @@ a few views renders them as the full run does.
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
   steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run;
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
-  still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`),
+  still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`;
+  a deed puts a hand anywhere by the same IK, `reach_to(side, at, normal, weight)` renewed each tick,
+  clamped to his reach, before the wound's grab, `can_reach`, `palm`, `wound_under_hand`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
   it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
-  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
-  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  `variant`, the gunfight lab's A/B/C/D: A the old default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too, D fights that commit (`D_FIXES`:
+  noise is `fright`, fading, at most a share of his nerve; aimed at frightens only before a fight;
+  a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
+  a green man's quitting barely counts; the long way round to cover; `_thump`); `fear_from`, his
+  fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
@@ -529,7 +566,12 @@ a few views renders them as the full run does.
 ## src/people
 
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
-  hearing via `Events.noise`; `known[who]` last seen/heard), `Relations` (per person towards each
+  hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
+  by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
+  at least a shut room's 3 %; plus every lit `OilLamp` (group `oil_lamps`) with a clear line to his
+  chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
+  0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
+  passed; `config/sight.tres`, `SightTuning`), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
@@ -554,6 +596,30 @@ a few views renders them as the full run does.
   seen). The shout key in arm's reach (3 m) of a man who's given up arrests him
   (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
   follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
+  **Chores** (`CivilianBrain.chores`, one at a time: the busy one, `chore`, asked every tick with
+  whether he's free: calm, fear < 0.05, no one to thank; not free, or a hand on a wound of his, it
+  stops; idle, each asked in turn; far from his post he walks home by the places): the barkeep's `WipeBar`
+  (`src/people/wipe_bar.gd`, dials `WipeTuning` in `config/wipe.tres`; docs/briefs/barkeep-rag.md).
+  Steps IDLE → TAKE (hand to `ClothProp.shoulder_top`) → LAY (over the stretch, down, let go, palm on
+  it) → WIPE (circles drifting across, then strokes along; the hand's height from a ray down onto
+  WORLD, skipping props) → MOVE (along his side, `span` each way, the next clear stretch: no bottle
+  or lamp on it) → GLASS (a cup on his free hand's side in reach: taken into his palm, held up, the
+  cloth turned in it, put back where it was) → PUT_BACK (`hang_on`); FETCH a lost cloth (along the
+  bar and across it, leaning; or round by the places and crouched for the floor). A customer
+  (someone within `customer_near`, past his front) stops it; trouble tosses the cloth down.
+  `watching`: his FaceLife watches it (`FaceLife.attend_to(point)`, renewed each tick: his eyes on
+  his work, a start or a fight still take them; a man with no talking face turns his head and neck
+  instead, `pose_offsets`). TownLife gives the barkeep his cloth and chore.
+  The barkeep's `MopFloor` (`src/people/mop_floor.gd`, dials `MopTuning` in `config/mop.tres`;
+  docs/briefs/mopping.md): every `look_every` s, free at his post and nobody within `quiet`, he scores
+  the floor round him (`FloorMarks.mess`, blood first); past `mess_to_start`: FETCH (mop and bucket
+  from their corner, `MOP_CORNER` in TownLife) → CARRY (to the dirtiest stretch, bucket set down by
+  it) → DIP/PRESS (in the bucket, wrung) → MOP (side to side, `stroke_width` x `stretch_depth`, worked
+  back toward him, both hands on the handle by `reach_to`, the mop's foot moved at most 2 m/s) →
+  dry or dirty, DIP again; out of reach, MOVE_BUCKET; murky past `change_water`, CHANGE_WATER (out the
+  door, emptied in the street, filled at the trough) → PUT_BACK. Trouble: the mop let go, the
+  bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
+  him both chores (`[mopping, wipe]`).
 
 ## src/audio
 
@@ -563,7 +629,12 @@ a few views renders them as the full run does.
   distance / 343 m/s late (a physics-time timer), the air's high shelf by distance, the `Room` bus
   under a roof walled every way, `Muffled` (`RoomMuffled`) with a wall between the ears (the current
   `AudioListener3D`, else the camera) and it, and outdoors `slaps()`: image sources off the nearest
-  fronts. `GameAudio.gunshot` (the report, the roll, the slaps). `ImpactEffects` plays a pass
+  fronts. `GameAudio.gunshot` (the report, the roll, the slaps); `GameAudio.blast` (the blast, its roll, the
+  slaps, debris landing round it after; `BlastEffects`). Breaking (`Structure`, `StructureMember`,
+  `OilLamp`) goes through it too. At most `max_voices` placed sounds at once and `limit` of one
+  (`_room_for`: the quietest at the ears gives way); a delayed one waits on a timer wired straight
+  to its `play()`. A fire's loops (`FireSystem`: crackle, and a roar by size) are re-placed as it or
+  the ears move (`replace_loop`); the player's steps knock on timber and crunch on dirt. `ImpactEffects` plays a pass
   (`crack` only faster than sound, else `whirr`; `zip` tumbling), a strike (`impact_<surface>`) and
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
@@ -820,14 +891,20 @@ a few views renders them as the full run does.
 
 - The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
   once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
-  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
-  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  lathe, sweep (`grain_up`, `caps`: a stave) or disc-cut shapes in the prop's space laid into the
+  member's, `dress` layers glued on (a barrel's hoops: each named `Dress<k>`), `repeat` along a line
+  or round Y (a sweep, its dress's too, turned with it); a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
   hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
   metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
   one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
-  over its length passes `BodyImpacts.nailed_moment`.
+  over its length passes `BodyImpacts.nailed_moment`. A prop put down settles onto what's under it
+  (up to 0.2 m, a stack bottom up); a foot over nothing drops out of its footprint. Hung props
+  (`"hangs": {"nails"}`: the deer head, the painting; a GlassProp sconce) hold on what's behind
+  their nails (`WALL_REACH`). Fixtures (`"fixture": true`: counter, shelves, table, trough, the bar)
+  are fitted to their place by `PropKit.fit`/`spawn_fitted` (nine-slice);
+  `FalseFrontBuilding._fixture` puts them in a building's Props, and `WaterTrough` is a KitProp.
   KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
   every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
   man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
@@ -852,6 +929,45 @@ a few views renders them as the full run does.
   (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
   GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
   the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+- **What a prop holds** (`PropContents`, `src/props/prop_contents.gd`; a KitProp whose file has `holds`
+  and `contents`, made in `KitProp._ready`): litres, the level from the inside's shape (a table of
+  litres by height), `kg()` in `KitProp.mass`; `leaks` from members' `damaged` (a through-hole's outer
+  end: an orifice, `flow` by Torricelli) and `Events.member_broken` (a side gone: a slot); each tick
+  while one runs, the level falls, the jets (`Jets`, an ImmediateMesh of crossed strips along each
+  parabola) are redrawn every 3 frames, and every 0.5 s each leak's litres go on the bus where it
+  lands (`landing`); `on_loose` (from `KitProp.go_loose`): one body, sides whole, it rides in it (its
+  mass added; `_burst` when that body breaks up), else `release` (the lot, round where it stood).
+  Idle (no physics process) till it leaks. Kit files `like` another (`PropKit.definition` lays theirs
+  over it): `whiskey_barrel`, `water_barrel`, `oil_barrel` are the barrel full.
+- **Loose rigid props** (`LooseProp`, `src/props/loose_prop.gd`, extends GlassProp; kit `"kind": "loose"`:
+  the spittoon, the tin cup): GlassProp's standing, footing, waking and blast throw; `shatter` means
+  struck hard (a dent), `_on_bullet_hit` holes (`Mark` quads, both sides via `_far_side`) and knocks
+  it by the momentum the ball lost (`bullet_hit`'s `mass`, energy before and after), `take_blow(at,
+  impulse, blow_mass)`, `dent` (copies the model's meshes, vertices pushed in a smooth dish),
+  `_spill` (tipped past `spills_below`, or holed under its contents' `level`); no `_heat`. A
+  `"shape": "cylinder"` fit body (GlassProp) so it rolls; `roll_damp` its angular damping.
+- **Props that are cloth** (`ClothProp`, `src/props/cloth_prop.gd`; kit `"kind": "cloth"`, made by
+  `PropKit.make`; the bar rag `bar_cloth.json`): a `SoftBody3D` grid (`points`, UVs in metres, layer
+  0, mask WORLD | BODY_PARTS | DEBRIS); `hold(man, side)` pins the points within `grip_radius` of
+  his palm to his hand part, `hang_on(man, side)` its middle 2 x 2 on top of his shoulder
+  (`shoulder_top`) to his chest part, `let_go`/`knock`; Jolt doesn't hold pinned points, so each
+  tick it moves them (`soft_body_move_point`); the holder's hands and forearms are collision
+  exceptions (and 0.6 s after he lets go). `Events.bullet_hit` (a ball within 16 cm of its middle),
+  `exploded` (Blast.impulse on 0.12 m²), `doused`, a `shove` deed at its wearer knock it; FireSystem
+  `small_fire` once `fire_near` its middle for `catch_seconds`; `soak(ml, at)` from
+  `HumanBody.wound_under_hand`. Its texture is an Image painted in code (`paint`), updated as it
+  bloodies and chars; the factory's painted cloth (`PixelArt.factory("bar_cloth")`, painted whole: reduce.py `whole` cuts it as painted, not rolled to tile) replaces the code's, its hem drawn on it (`hem`). Prof `cloth`
+  (People). The lab: `experiments/barkeep_rag/`.
+- **The mop and its bucket** (`MopProp`, `src/props/mop_prop.gd`, kit `"kind": "mop"`, `mop.json`;
+  `MopBucket`, `src/props/mop_bucket.gd`, kit `"kind": "bucket"`, `mop_bucket.json`): the mop's handle
+  a rigid body when free, fixed when STANDING (`stand_at`) or HELD (`take`, `hold_at(foot, lean)`,
+  `let_go`); its head one SoftBody3D of `strands` (ClothProp's way: the tops on the ring moved each
+  tick, `_keep_on_floor` keeps points above the boards, the bucket's body excepted). The head holds
+  `water_ml`, `dirt`, `blood`, `other`; dragged wet it lifts `take_rate` x speed of what's under it
+  (`FloorMarks.take`) and leaves a film of its own; in the bucket `_exchange` rinses it, `press`
+  wrings it. The bucket (BucketLine's model, `bucket_model()`) holds water and what's rinsed in it,
+  darkening (`murk`); `carry`/`set_down`, `empty_out` (on boards a spill, outside it soaks away),
+  `fill`, `give`/`receive`. Prof `mop` (People). The lab: `experiments/mopping/`.
 
 ## src/art/saloon_dressing.gd
 
@@ -1082,6 +1198,20 @@ goldens' faces at rest; `--face-life` on). `face_lab.gd --mode=life`: `LIFE_BEAT
 brain, real Senses. `neck_seam.py` (run by `talking_face.py`): the face's stitch bound alike on both
 sides (the face's copy took head 1.0, his head's some neck: the jaw tore as his head turned), and a
 talking head drawn double-sided (slivers in the stitch turn edge-on).
+Talking (2026-10-22, brief `docs/briefs/talking.md`): `src/bodies/face_speech.gd` (`FaceSpeech`,
+HumanBody adds one beside FaceLife) says his `Events.spoke` lines with the mouth shapes (jaw_open,
+aa, lips_apart, ee, oo, fv, mbp; FaceLife and FaceGaze own the rest): `plan()` letters → sounds
+(`_letters`/`_vowel` rules, `WORDS` for the worst-spelled, no-vowel groans and chokes) → classes
+(`VISEMES`: weights, pull, reach, length) timed at ~155 wpm with stress, pauses at punctuation,
+"!" bigger, "..." smaller; `_blend` the dominance blend (Cohen and Massaro); a nod on each phrase's
+last stressed word through `FaceGaze.nod`. A recording: `say(text, {"audio": wav})` / `"loudness"`
+(`loudness()`, `fit()`: the plan warped onto the voiced stretches, the mouth opened by loudness) or
+`{"phonemes": [[s, e, "AH1"]]}` (`plan_phonemes`, ARPAbet). `subtitle_seconds()` is how long
+PlayerWounds shows a line. Numbers: `config/speech.tres` (`SpeechTuning`). Prof timer `faces`
+(People). `mask_jaw.py` (run by `bandana.py`): the mask gets the seven shapes (the skin's motion
+where it lies on him, settled between, and a puff of breath over his mouth). Tools: `speech_dump.gd`
++ `speech_check.py` (the rules against espeak-ng), `speech_bench.gd` (cost), `talk_audio.py` (an
+espeak-ng stand-in recording and its phonemes), `face_lab.gd --mode=talk` + `talk_video.sh` (the film).
 
 A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
 fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his

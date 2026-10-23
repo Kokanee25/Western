@@ -28,6 +28,10 @@ var weapon_kind := "revolver"
 var walking := false
 var walk_dir := Vector3.RIGHT
 var contact_at := -1.0  # fight time he knew he was in a fight
+## He opens it (opening=shoot): his gun away, he draws on men going about their drink and fires
+## the first shot (as Sean did), before any of them has turned on him.
+var opens := false
+var _opened := false  # his first shot's gone off
 var reaction := 0.3
 
 var know := {}  # man -> {aw, seen, last_pos, last_time, heard_pos, heard_time}
@@ -177,7 +181,7 @@ func _look(dt: float) -> void:
 	var cam := player.camera
 	var from := cam.global_position
 	var fwd := -cam.global_basis.z
-	var range_m := lerpf(Senses.SIGHT_NIGHT, Senses.SIGHT_DAY, _daylight())
+	var range_m := SightLight.sight_range(SightLight.sky_lux(_daylight()))  # the open sky's reach (the men's own now goes by the light on whom they look at)
 	var space := player.get_world_3d().direct_space_state
 	for man: HumanBody in _live():
 		if not is_instance_valid(man):
@@ -234,6 +238,8 @@ func clear(from: Vector3, to: Vector3, space: PhysicsDirectSpaceState3D = null) 
 
 
 func _on_shot(origin: Vector3, _dir: Vector3, shooter: Node) -> void:
+	if shooter == player:
+		_opened = true
 	if not shooter in gang:
 		return
 	var k := _k(shooter)
@@ -275,6 +281,8 @@ func _alive_in_fight(man: HumanBody) -> bool:
 	if not is_instance_valid(man) or not man.physiology.alive or man.limp:
 		return false
 	var brain := man.get_node_or_null(^"Brain") as OutlawBrain
+	if opens and not _opened and brain != null and brain.mood == OutlawBrain.Mood.CALM:
+		return true  # he shoots first (opening=shoot): at men who aren't in it yet
 	return brain != null and brain.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING, OutlawBrain.Mood.TENDING]
 
 
@@ -282,8 +290,9 @@ func _alive_in_fight(man: HumanBody) -> bool:
 func _pick_target() -> void:
 	var best: HumanBody = null
 	var best_d := INF
+	var opening: bool = opens and not _opened  # drawing on men in plain sight: he knows where each is
 	for man: HumanBody in _live():
-		if not _alive_in_fight(man) or not _k(man).seen:
+		if not _alive_in_fight(man) or not (_k(man).seen or (opening and clear(player.camera.global_position, (man.parts[&"chest"] as Node3D).global_position))):
 			continue
 		var d := man.global_position.distance_to(player.global_position)
 		if man == target:
@@ -472,6 +481,9 @@ func _hold(delta: float) -> void:
 
 
 func _crouch_or_stand() -> void:
+	if opens and not _opened:
+		_hold_action(&"crouch", false)  # standing as he draws on them
+		return
 	if _reloading or target == null:
 		var known := _threat()
 		var down := _reloading or ((known != Vector3.INF or now - _hit_recent < 2.0) and _look_out <= 0.0)

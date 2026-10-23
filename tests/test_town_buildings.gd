@@ -48,14 +48,14 @@ func test_each_stands_as_built() -> void:
 
 func test_each_is_furnished_for_its_trade() -> void:
 	var telegraph := _building(&"telegraph", 6.0, 8.0)
-	check(telegraph.get_member(&"telegraph/desk/key") != null, "the telegraph's key on the operator's desk")
-	check(telegraph.get_member(&"telegraph/batteries/jar0") != null, "and its battery jars")
+	check(telegraph.fixture("desk").get_member(&"telegraph/desk/key") != null, "the telegraph's key on the operator's desk")
+	check(telegraph.fixture("batteries").get_member(&"telegraph/batteries/jar0") != null, "and its battery jars")
 	var doctor := _building(&"doctor", 7.0, 10.0)
-	check(doctor.get_member(&"doctor/table/top") != null, "the doctor's operating table")
-	check(doctor.get_member(&"doctor/cot/top") != null, "and a cot")
+	check(doctor.fixture("table").get_member(&"doctor/table/top") != null, "the doctor's operating table")
+	check(doctor.fixture("cot").get_member(&"doctor/cot/top") != null, "and a cot")
 	var bank := _building(&"bank", 8.0, 10.0)
 	check(bank.get_member(&"bank/safe/door") != null, "the bank's safe")
-	check(bank.get_member(&"bank/cage/rail") != null, "and the teller's cage")
+	check(bank.fixture("counter").get_member(&"bank/counter/rail") != null, "and the teller's cage")
 	for b: FalseFrontBuilding in [telegraph, doctor, bank]:
 		check(b.find_children("*", "OilLamp", true, false).size() >= 2, "%s has its lamps" % b.structure_id)
 

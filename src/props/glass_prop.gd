@@ -14,13 +14,15 @@ extends Node3D
 ## - **by a blast:** overpressure past `shatters_kpa` breaks it where it stands; short of that it's
 ##   thrown (Blast's push for anything loose) and breaks if it lands hard;
 ## - **in a fire:** flames on it for `heat_seconds` crack it (thermal shock).
-## Losing what it stands on (its table going over, the shelf burning) it falls with it.
+## Losing what it stands on (its table going over, the shelf burning) it falls with it; hung on
+## a nail (a sconce: "hangs"), losing what the nail's in (the wall's board shot out or burnt).
 ##
 ## Breaking: shards of its glass fly (on with what broke it, the rest outward and down), the
 ## parts that come through whole fall as their own piece, the glass sound, people hear it, the
 ## shards cut whoever's close (GlassCuts). What it held is let go: a lit lamp's oil burns
 ## (OilLamp.smash, as before); anything else goes out on the bus (`Events.liquid_spilled`) for the
 ## spills (the water lab's) to take up; lamp oil let go into flames catches (FireSystem.spill).
+## (LooseProp, the kit's "loose" kind, stands the same way but is knocked and dented instead.)
 
 signal shattered(at: Vector3, direction: Vector3)
 
@@ -90,8 +92,24 @@ func _build() -> void:
 		"lamp":
 			PropModels.lamp(model)
 		var other:
-			push_warning("GlassProp: no model %s" % other)
+			var built := PropModels.build(StringName(other), variant)
+			if built:
+				model.add_child(built)
+			else:
+				push_warning("GlassProp: no model %s" % other)
 	add_child(model)
+	var shape_box := AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
+	if definition.get("fit", false):
+		# As PropLibrary fits a drawn prop: scaled to the manifest's height, its anchor (a wall
+		# prop's back centre, else its bottom centre) at the origin.
+		var raw := PropLibrary._model_bounds(model)
+		var k := PropLibrary.size_of(kit_id).y / maxf(raw.size.y, 0.0001)
+		var anchor := Vector3(raw.get_center().x, raw.position.y, raw.get_center().z)
+		if PropLibrary.definition(kit_id).get("anchor", "floor") == "wall":
+			anchor = Vector3(raw.get_center().x, raw.get_center().y, raw.position.z)
+		model.scale = Vector3.ONE * k
+		model.position = -anchor * k
+		shape_box = AABB((raw.position - anchor) * k, raw.size * k)
 	body = RigidBody3D.new()
 	body.name = "Body"
 	body.collision_layer = Layers.DEBRIS
@@ -105,11 +123,24 @@ func _build() -> void:
 	body.set_meta(&"ballistic_thickness", float(definition.get("wall", 0.004)) * 2.0)
 	body.set_meta(&"glass_prop", self)
 	var cs := CollisionShape3D.new()
-	var cyl := CylinderShape3D.new()
-	cyl.radius = maxf(size.x, size.z) * 0.5
-	cyl.height = size.y
-	cs.shape = cyl
-	cs.position.y = size.y * 0.5
+	if definition.get("fit", false) and definition.get("shape", "box") == "cylinder":
+		# Round (it rolls): a cylinder the model's height, as wide as its narrower side.
+		var cyl := CylinderShape3D.new()
+		cyl.radius = minf(shape_box.size.x, shape_box.size.z) * 0.5
+		cyl.height = shape_box.size.y
+		cs.shape = cyl
+		cs.position = shape_box.get_center()
+	elif definition.get("fit", false):
+		var bs := BoxShape3D.new()
+		bs.size = shape_box.size
+		cs.shape = bs
+		cs.position = shape_box.get_center()
+	else:
+		var cyl := CylinderShape3D.new()
+		cyl.radius = maxf(size.x, size.z) * 0.5
+		cyl.height = size.y
+		cs.shape = cyl
+		cs.position.y = size.y * 0.5
 	body.add_child(cs)
 	add_child(body)
 	body.body_entered.connect(_on_body_entered)
@@ -157,6 +188,12 @@ func _find_footing() -> void:
 	box.size = Vector3(size.x * 0.8, FOOT_REACH, size.z * 0.8)
 	q.shape = box
 	q.transform = Transform3D(global_basis, global_position + global_basis.y * (0.002 - FOOT_REACH * 0.5))
+	var nails: Array = definition.get("hangs", {}).get("nails", [])
+	if not nails.is_empty():
+		# Hung on a nail (a sconce's back plate): what's behind it, up to KitProp.WALL_REACH back.
+		var p := PropKit.vec(nails[0])
+		box.size = Vector3(0.03, 0.03, KitProp.WALL_REACH)
+		q.transform = Transform3D(global_basis, global_transform * Vector3(p.x, p.y, -KitProp.WALL_REACH * 0.5 + 0.005))
 	q.collision_mask = Layers.WORLD
 	q.exclude = [body.get_rid()]
 	for hit in get_world_3d().direct_space_state.intersect_shape(q, 8):
@@ -229,6 +266,8 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if broken or not is_inside_tree():
 		return
 	var centre := body.global_position + Vector3.UP * PropKit.vec(definition.get("size", [0.1, 0.3, 0.1])).y * 0.5
+	if definition.get("fit", false):
+		centre = (body.get_child(0) as CollisionShape3D).global_position
 	var r := maxf(centre.distance_to(at), 0.05)
 	if r > Blast.reach(kg) + 2.0:
 		return
@@ -243,6 +282,12 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	var v := (away + Vector3.UP * 0.3).normalized() * Blast.impulse(kg, r) * area * shield / maxf(kgs, 0.05)
 	if v.length() > Blast.t().max_throw:
 		v = v.normalized() * Blast.t().max_throw
+	if not loose and definition.has("hangs"):
+		# Hung: the wall takes what drives it in, the nail what drives it down.
+		var local := global_basis.inverse() * v
+		local.z = maxf(local.z, 0.0)
+		local.y = maxf(local.y, 0.0)
+		v = global_basis * local
 	if v.length() >= LOOSE_FROM:
 		if loose:
 			body.linear_velocity += v
@@ -326,11 +371,20 @@ func _shards_from(host: Node, rng: RandomNumberGenerator, at: Vector3, dir: Vect
 		mi.material_override = mat if mat else WoodMaterials.glass()
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		shard.add_child(mi)
-		host.add_child(shard)
 		var a := rng.randf() * TAU
 		var out := Vector3(cos(a), 0.0, sin(a))
 		var p := centre + out * r + Vector3.UP * rng.randf_range(-0.4, 0.4) * size.y
-		shard.global_transform = Transform3D(Basis(out.cross(Vector3.UP).normalized(), rng.randf() * TAU) * Basis.looking_at(out, Vector3.UP), p)
+		var b := Basis(out.cross(Vector3.UP).normalized(), rng.randf() * TAU) * Basis.looking_at(out, Vector3.UP)
+		# Not inside the wall it hung on or the shelf beside it: a 2 g shard pushed out of timber
+		# goes off at any speed (and its NaN spreads to what it meets). Inside where the glass was,
+		# else none.
+		if _in_world(Transform3D(b, p), dims):
+			p = centre + out * r * 0.3 + Vector3.UP * (p.y - centre.y) * 0.3
+			if _in_world(Transform3D(b, p), dims):
+				shard.free()
+				continue
+		host.add_child(shard)
+		shard.global_transform = Transform3D(b, p)
 		var with_it := rng.randf() < 0.55
 		var v := (dir * rng.randf_range(1.5, 5.0) if with_it else out * rng.randf_range(0.4, 2.0)) \
 				+ Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.2, 1.2), rng.randf_range(-0.5, 0.5))
@@ -345,6 +399,18 @@ func _shards_from(host: Node, rng: RandomNumberGenerator, at: Vector3, dir: Vect
 		var old: Variant = _shards.pop_front()
 		if is_instance_valid(old):
 			(old as Node).queue_free()
+
+
+## Whether a box of `size` at `xf` (world) overlaps the fixed world (members, the ground).
+func _in_world(xf: Transform3D, size: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	q.shape = box
+	q.transform = xf
+	q.collision_mask = Layers.WORLD
+	q.exclude = [body.get_rid()]
+	return not get_world_3d().direct_space_state.intersect_shape(q, 1).is_empty()
 
 
 static func _settle_shard(shard: Variant) -> void:
@@ -385,6 +451,12 @@ func _whole_pieces(host: Node, dir: Vector3) -> void:
 		var bs := BoxShape3D.new()
 		bs.size = box.size.max(Vector3.ONE * 0.01)
 		cs.shape = bs
+		# Out of the wall it hung on (a sconce's plate is flush with the boards) or what it stood on.
+		var away := global_basis.z if definition.has("hangs") else Vector3.UP
+		for k in 8:
+			if not _in_world(Transform3D(Basis.IDENTITY, piece.global_position), bs.size):
+				break
+			piece.global_position += away * 0.01
 		piece.add_child(cs)
 		piece.mass = maxf(float(definition.get("piece_mass", 0.15)), 0.02)
 		piece.linear_velocity = dir * 1.2 + Vector3.UP * 0.5 + (body.linear_velocity if loose else Vector3.ZERO)

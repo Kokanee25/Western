@@ -49,7 +49,7 @@ func test_every_prop_has_a_code_model_its_real_size_on_the_texel_grid() -> void:
 			if mi.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
 				continue  # a kit prop's shadow mesh (Structure._build_shadow): never seen
 			var m := mi.material_override
-			check(m is ShaderMaterial and (m as ShaderMaterial).shader == PixelArt.GRID_SHADER or mi.name == &"Chimney",
+			check(m is ShaderMaterial and PixelArt.is_grid_shader((m as ShaderMaterial).shader) or mi.name == &"Chimney",
 					"%s/%s on the texel grid" % [id, mi.name])
 		prop.queue_free()
 
@@ -100,7 +100,8 @@ func test_saloon_stands_and_is_furnished() -> void:
 	for p in props:
 		kinds[p.get_meta(&"prop_id")] = true
 	for id in PropLibrary.ids():
-		check(kinds.has(StringName(id)), "the room uses %s" % id)
+		if PropLibrary.definition(id).get("where", "saloon") == "saloon":
+			check(kinds.has(StringName(id)), "the room uses %s" % id)
 	var lights := saloon.find_children("Light", "OilLamp", true, false)
 	check(lights.size() >= 7, "lamps and sconces give light (%d)" % lights.size())
 	saloon.queue_free()
