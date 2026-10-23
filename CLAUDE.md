@@ -38,7 +38,7 @@ the history in `docs/status/`.
     Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
     with Sean's OK. Since 2026-10-20 men are made in the Character Studio (`Kokanee25/saltcreek-characters`,
     attach it); its paid calls run on GitHub, not with keys in the session: a request file in its
-    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). The art session judges each new man in the shots and says what's off; the
+    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). **Read the Studio's `docs/PLAYBOOK.md` before any character work** (the chain into the game, `tools/to_game.sh`, and every fault met). The art session judges each new man in the shots and says what's off; the
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
