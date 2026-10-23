@@ -212,8 +212,8 @@
 				{"side": "+", "finish": "rough"}
 			],
 			"openings": [
-				{"type": "door", "at": 11.24, "width": 0.91, "height": 2.13},
-				{"type": "door", "at": 0.83, "width": 0.91, "height": 2.13}
+				{"type": "door", "at": 11.24, "width": 0.91, "height": 2.13, "leaf": "outward"},
+				{"type": "door", "at": 0.83, "width": 0.91, "height": 2.13, "leaf": "outward"}
 			]
 		},
 		{
@@ -239,9 +239,9 @@
 				{"side": "+", "finish": "boards"}
 			],
 			"openings": [
-				{"type": "door", "at": 12.6, "width": 0.81, "height": 2.03},
-				{"type": "door", "at": 7.52, "width": 0.81, "height": 2.03},
-				{"type": "door", "at": 4.24, "width": 0.81, "height": 2.03}
+				{"type": "door", "at": 12.6, "width": 0.81, "height": 2.03, "leaf": "outward"},
+				{"type": "door", "at": 7.52, "width": 0.81, "height": 2.03, "leaf": "outward"},
+				{"type": "door", "at": 4.24, "width": 0.81, "height": 2.03, "leaf": "outward"}
 			]
 		},
 		{

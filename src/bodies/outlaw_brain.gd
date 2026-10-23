@@ -150,7 +150,8 @@ var variant: Variant = default_variant
 ## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
-## fights from the floor).
+## fights from the floor); way_cost (Experiment B: cover scored by the way he'd run to it, not the
+## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press"]
 static var d_fixes: Array = D_FIXES.duplicate()
@@ -1523,6 +1524,8 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 			max_travel, new_angle, _town())
 	if _has(&"cover_way"):
 		_search._ctx["way_extra"] = Cover.WAY_EXTRA_FAR
+	if _has(&"way_cost"):
+		_search._ctx["by_way"] = true
 	_search_bias = bias_from
 
 
