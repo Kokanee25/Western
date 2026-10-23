@@ -73,6 +73,43 @@ func test_night_shortens_his_sight() -> void:
 	check(spotted, "but does close up")
 
 
+## Seen by the light on him: at night, standing 20 m off under a lit lamp, he's picked out; the same
+## lamp put out, he isn't; lit, but with a wall between it and him, he isn't either. The perception
+## lab's baseline (2026-10-22): lamps lit nobody.
+func test_a_lamp_lights_you_at_night() -> void:
+	senses.light = 0.0
+	player.global_position = Vector3(0, 0, 10)  # 20 m off: past his reach under the night sky
+	var lamp := OilLamp.new()
+	world.add_child(lamp)
+	lamp.global_position = Vector3(1.2, 1.6, 10.5)
+	await physics_frames(2)
+	check(lamp.shines(), "(the lamp is lit)")
+	var spotted := await wait_until(func() -> bool: return senses.sees(player), 480)
+	check(spotted, "under a lit lamp at 20 m he picks you out (%.2f lux on you)" % senses.light_on(player))
+	lamp.set_lit(false)
+	senses.known.clear()
+	await physics_frames(360)
+	check(not senses.sees(player), "the lamp out, you're dark again (%.3f lux)" % senses.light_on(player))
+	lamp.set_lit(true)
+	_box(Vector3(0.6, 1.5, 10.25), Vector3(0.1, 3, 3))  # a wall between the lamp and you
+	senses.known.clear()
+	await physics_frames(360)
+	check(not senses.sees(player), "a wall keeps its light off you (%.3f lux)" % senses.light_on(player))
+
+
+## A shut room at night with no lamp is black, though the sky's the same outside it.
+func test_a_dark_room_at_night() -> void:
+	senses.light = 0.0
+	player.global_position = Vector3(0, 0, -4)  # 6 m: seen under the open night sky
+	var open_sky := senses.range_to(player)
+	_box(Vector3(0, 3.1, -4), Vector3(4, 0.2, 4))  # a roof over you
+	for side: Vector3 in [Vector3(2, 0, 0), Vector3(-2, 0, 0), Vector3(0, 0, 2), Vector3(0, 0, -2)]:
+		_box(Vector3(0, 1.5, -4) + side, Vector3(0.1 if side.x != 0.0 else 4, 3, 0.1 if side.z != 0.0 else 4))
+	await physics_frames(SightLight.tune().lines_frames + 5)  # its sky is looked for again
+	check(open_sky > 6.0, "under the open sky he'd see you at 6 m (%.1f m)" % open_sky)
+	check(senses.range_to(player) < 3.0, "in a shut room his eye reaches %.1f m of you" % senses.range_to(player))
+
+
 func test_crouched_and_still_is_harder_to_spot() -> void:
 	senses.light = 0.3
 	player.global_position = Vector3(0, 0, 4)  # 14 m

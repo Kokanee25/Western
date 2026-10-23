@@ -549,7 +549,12 @@ a few views renders them as the full run does.
 ## src/people
 
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
-  hearing via `Events.noise`; `known[who]` last seen/heard), `Relations` (per person towards each
+  hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
+  by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
+  at least a shut room's 3 %; plus every lit `OilLamp` (group `oil_lamps`) with a clear line to his
+  chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
+  0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
+  passed; `config/sight.tres`, `SightTuning`), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named

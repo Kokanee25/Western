@@ -96,14 +96,16 @@ def yn(b):
 
 
 def sight_table(rows):
-    lines = ["| case | light | distance m | line (Senses' ray meets) | Senses light | spotted s | expected | verdict |",
-             "|---|---|---|---|---|---|---|---|"]
+    lines = ["| case | light | distance m | line (Senses' ray meets) | sky (Senses) | on him, lux | spotted s | expected | verdict |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         v = r["verdicts"][0]
         sp = f"{r['spotted_s']:.2f}" if r["spotted_s"] >= 0 else "never"
         exp = {True: "sees", False: "doesn't", "either": "either"}[v["expect"]]
+        lux = r.get("lux_on_target", -1.0)
+        on = f"{lux:.3g}" if lux >= 0 else "-"
         lines.append(f"| {r['case']} | {r['light']} | {r['distance_m']:.1f} | {r['line'] or 'clear'} | {r['senses_light']:.2f} | "
-                     f"{sp} | {exp} | {mark(v)} |")
+                     f"{on} | {sp} | {exp} | {mark(v)} |")
     return "\n".join(lines)
 
 
