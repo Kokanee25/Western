@@ -403,8 +403,10 @@ jobs:
               # Sean's $3, and $4 more on 2026-10-21 ($7 in all): $0.19 on run 100 (the wounds), $0.19 on run 101 (the stains),
               # $0.38 on run 102 (the splats and pools), $0.19 on run 103 (the wounds again),
               # $0.39 on run 104 (gore_test), $0.28 on run 105 (Gemini: the stumps and gore),
-              # $0.42 on run 108 (the gore lab's marks, aftercare, cloth), $0.14 on run 109; $4.82 left.
-              python3 tools/textures/paint_blood.py $only --budget=4.82 $( [ "$REPAINT" = "true" ] && echo --repaint )
+              # $0.42 on run 108 (the gore lab's marks, aftercare, cloth), $0.14 on run 109,
+              # $0.14 on run 110 (the face: torn ear, nose, jaw), $0.28 on runs 111-112 (real bullet
+              # holes); $4.40 left.
+              python3 tools/textures/paint_blood.py $only --budget=4.40 $( [ "$REPAINT" = "true" ] && echo --repaint )
               python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
               exit 0 ;;
             # textures = gore_test (or gore_test:gemini,gpt,fal): one gore sheet asked of Google's and

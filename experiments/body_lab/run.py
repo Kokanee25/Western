@@ -82,7 +82,7 @@ def main():
     out = out if os.path.isabs(out) else os.path.join(ROOT, out)
     os.makedirs(out, exist_ok=True)
     render = arg("render") is not None
-    extra = [a for a in sys.argv[1:] if a.split("=")[0] in ("--render", "--seed", "--size", "--brains")]
+    extra = [a for a in sys.argv[1:] if a.split("=")[0] in ("--render", "--seed", "--size", "--brains", "--setups")]
     if arg("scenario") == "list":
         for n, g in all_:
             print("%-26s %s" % (n, g))
