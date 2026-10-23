@@ -70,6 +70,7 @@ const LINES := {
 	&"call_dead": ["{name}'s dead!", "Oh God, {name}..."],
 	&"call_quit": ["{name}'s quit on us!", "{name}'s giving up!"],
 	&"call_fall_back": ["Get out! Fall back!", "That's it, we're done here! Run!"],
+	&"call_press": ["He's empty! Get him!", "He's hit! Go, go!", "Now! Rush him!"],
 	&"call_shaken": ["He's got me pinned!", "I can't get my head up!"],
 	&"call_hold": ["Hold, damn it! Stay in it!", "{name}! Stay in it, you hear?", "Nobody runs! Hold!"],
 	&"call_give_up": ["That's it, boys. Throw 'em down.", "Enough! We're done. Drop 'em."],
@@ -139,8 +140,13 @@ var variant: Variant = default_variant
 ## quitting barely shakes the rest), cover_way (a longer way round to real cover: the bar's end),
 ## steady (the thump of a ball frightens a steady man less: `_thump`), floored (knocked off his
 ## feet but not beaten, he gets up rather than give up to the man standing over him), hunt_way
-## (looking for you, he goes by the town's ways, out of the door and round the bar, not into a wall).
-const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way"]
+## (looking for you, he goes by the town's ways, out of the door and round the bar, not into a wall),
+## rescue_way (a friend down he goes for only if he can get to him by the town's ways, and goes by
+## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
+## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
+## him, and calls the others on).
+const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
+		&"rescue_way", &"stay_in", &"go_low", &"press"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -178,6 +184,8 @@ var _leader_near := false
 var _hunt_way: Array[Vector3] = []  # variant D's hunt_way: his way to where he last knew you
 var _hunt_to := Vector3.INF
 var _hunt_t := 0.0
+var _press := 0.0  # variant D's press: seconds left coming at him
+var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
 var target: Node3D
 
@@ -341,6 +349,12 @@ func _ready() -> void:
 	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, who: Node) -> void: if who == _find_target(): _quiet = 0.0)
 	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: _scare(amount * 0.6, &"fire"))
 	Events.hours_passed.connect(_on_hours_passed)
+	Events.bullet_hit.connect(func(info: Dictionary) -> void:
+		var who: Variant = info.get("person")
+		if who is PlayerWounds:
+			who = (who as PlayerWounds).player
+		if who != null and who == _find_target() and senses and senses.sees(who as Node):
+			_you_hit_at = _now)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
 	_gun_sound.unit_size = 25.0
@@ -1251,6 +1265,10 @@ func _combat(delta: float) -> void:
 	if rage > 0.0 and not body.prone:
 		_rage_fight(delta, t)
 		return
+	_press = maxf(_press - delta, 0.0)
+	if _press > 0.0 and not body.prone:
+		_press_fight(delta, t)
+		return
 	var eye := _eye_of(t)
 	# Lost sight of him for a while: go and look where he was.
 	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone \
@@ -1334,6 +1352,15 @@ func _hunt(delta: float, t: Node3D) -> void:
 		_cover_search = 0.0
 		return
 	var spot := senses.last_known(t)
+	if _has(&"stay_in") and (_search_time > 25.0 or spot == Vector3.INF or senses.since_known(t) > HUNT_GIVE_UP):
+		# A friend in earshot still in it with the man, and knowing where he is: his word keeps
+		# this one in it too (he takes the man to be where his friend last had him).
+		var mate := _mate_on(t)
+		if mate != null:
+			senses.note(t, mate.senses.last_known(t), 2.0)
+			spot = senses.last_known(t)
+			_search_time = 0.0
+			_decide("keep looking", "%s's still on you" % Crew.name_of(mate.body))
 	if _search_time > 25.0 or spot == Vector3.INF or senses.since_known(t) > HUNT_GIVE_UP:
 		say(&"lost")
 		_decide("stand down", "lost you for good")
@@ -1536,7 +1563,9 @@ func _fight(delta: float) -> void:
 		body.set_pose(&"stand")
 		_next_shot = maxf(_next_shot, 0.3)
 		return
-	body.set_pose(&"aim")
+	# In the open with the man shooting at him (variant D's `go_low`): down on a knee, a smaller mark.
+	var low := _has(&"go_low") and tactic == Tactic.OPEN and not body.prone and _quiet < GO_LOW_QUIET
+	body.set_pose(&"crouch_aim" if low else &"aim")
 	if body.held_gun == null or not body.physiology.can_hold("r"):
 		return
 	_next_shot -= delta
@@ -1763,6 +1792,23 @@ const FLANK_TRAVEL := 16.0
 ## How much a flanker wants a new angle on the man (Cover.search `new_angle`; 3 moving on his own).
 const FLANK_ANGLE := 9.0
 const RESCUE_REACH := 18.0
+## Variant D's `rescue_way`: this long at most (s) getting to him before he gives it up.
+const RESCUE_RUN := 8.0
+## Variant D's `go_low`: in the open, the man he's fighting has fired within this long (s): he
+## fights from a knee.
+const GO_LOW_QUIET := 3.0
+## Variant D's `press`: with fight in him (under this share of his nerve) and the man he's fighting
+## reloading within earshot of the gate (m) or just seen hit (s ago), he comes at him for this long
+## (s), shooting, to this near (m); not from further than PRESS_REACH.
+const PRESS_DREAD := 0.5
+const PRESS_HEARS_RELOAD := 15.0
+const PRESS_AFTER_HIT := 2.0
+const PRESS_SECONDS := 3.5
+const PRESS_NEAR := 4.0
+const PRESS_REACH := 16.0
+## Whether being seen hit sets a man on too, and whether his friends go with him (or cover him).
+const PRESS_ON_HIT := false
+const PRESS_TOGETHER := false
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
@@ -1776,7 +1822,7 @@ const GIVE_UP_HEARD := 4.0
 ## Walking backwards with a man by the collar (m/s).
 const DRAG_SPEED := 1.1
 ## The least time between two shouts of one kind (s); the rest every time.
-const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0, &"shaken": 6.0, &"hold": 5.0}
+const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0, &"shaken": 6.0, &"hold": 5.0, &"press": 6.0}
 ## Fear at seeing a friend go down, killed, give up, run (more if it's the man who leads them).
 const FEAR_MATE_OUT := {&"down": 0.12, &"dead": 0.15, &"quit": 0.1, &"fled": 0.08}
 
@@ -1840,6 +1886,14 @@ func _on_callout(speaker: Node, kind: StringName, about: Node, at: Vector3) -> v
 			_heard_fall_back(speaker)
 		&"give_up":
 			_heard_give_up(speaker)
+		&"press":
+			# A friend's going at him: so does he, if he's the fight in him (else he covers him).
+			_join(about, speaker)
+			if PRESS_TOGETHER and _press_why_mate() != "":
+				_press = PRESS_SECONDS
+				_decide("come at you", "%s's going at you" % Crew.name_of(speaker))
+			else:
+				_cover_mate(PRESS_SECONDS)
 		&"shaken":
 			# One of them's gone to ground: the man who leads them calls him back into it.
 			if leads and _has(&"leader") and mood in [Mood.FIGHTING, Mood.RELOADING] and _shaken < 0.0:
@@ -1895,6 +1949,13 @@ func _gang(delta: float, t: Node3D) -> void:
 	if _gang_check > 0.0:
 		return
 	_gang_check = 0.5
+	var why := _press_why(t)
+	if why != "":
+		_press = PRESS_SECONDS
+		_decide("come at you", why)
+		if crew.any_in_earshot(_now):
+			callout(&"press", t)
+		return
 	if tactic != Tactic.RESCUING and mood == Mood.FIGHTING and rage <= 0.0:
 		var w := _wounded_mate(t)
 		if w != null:
@@ -1935,6 +1996,12 @@ func _wounded_mate(t: Node3D) -> HumanBody:
 		if Cover.hidden_at(space, at, eye, Cover.LIE_HEAD, _exclude(t)):
 			continue  # out of the line of fire already
 		var d := at.distance_to(body.global_position)
+		if _has(&"rescue_way") and _town() != null and d < best_d:
+			# Only a friend he can get to (down the stair, round the bar), and not too far round.
+			var way := _town().route_to_point(space, body.global_position, Vector3(at.x, m.global_position.y, at.z), _exclude(t))
+			d = _way_length(way)
+			if way.is_empty() or absf((way[-1] as Vector3).y - m.global_position.y) > 0.6:
+				continue
 		if d < best_d:
 			best = m
 			best_d = d
@@ -1974,7 +2041,10 @@ func _rescue(delta: float, t: Node3D) -> void:
 		to.y = 0.0
 		body.set_pose(&"stand")
 		if _route.is_empty() or (_route[-1] as Vector3).distance_to(head) > 0.8:
-			_route = Cover.route(body.get_world_3d().direct_space_state, body.global_position, head, _exclude(t))
+			if _has(&"rescue_way") and _town() != null:
+				_route = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, head, _exclude(t))
+			else:
+				_route = Cover.route(body.get_world_3d().direct_space_state, body.global_position, head, _exclude(t))
 			if _route.is_empty():
 				_route = [head]
 		if body.walk_to(_route[0], run_speed, delta) and _route.size() > 1:
@@ -1988,8 +2058,8 @@ func _rescue(delta: float, t: Node3D) -> void:
 			_rescue_goal = Vector3.INF
 			_last_pos = body.global_position
 			_stuck = 0.0
-		elif _stuck > 2.0:
-			_stop_rescue()
+		elif _stuck > 2.0 or (_has(&"rescue_way") and _rescue_time > RESCUE_RUN):
+			_stop_rescue()  # can't get to him (or it's taking too long under the gun)
 		return
 	# Dragging: walking backwards, facing him, him sliding along behind by the collar.
 	var space := body.get_world_3d().direct_space_state
@@ -2116,6 +2186,66 @@ func _mate_out(m: Node, how: StringName, saw: bool) -> void:
 		_scare(0.15, &"half of them out")
 
 
+## Pressing on a friend's word: the same as pressing on his own, but the reason's his friend's.
+func _press_why_mate() -> String:
+	var t := _find_target()
+	if t == null or not _has(&"press") or rage > 0.0 or _press > 0.0 or _shaken >= 0.0 or body.prone or rounds < 2 \
+			or mood != Mood.FIGHTING or tactic == Tactic.RESCUING or not _armed_still() or dread() > nerve_now() * PRESS_DREAD:
+		return ""
+	return "a friend's going at you" if t.global_position.distance_to(body.global_position) < PRESS_REACH else ""
+
+
+## Variant D's `press`: why he'd come at the man now ("" if not): he's reloading and near enough
+## to hear it, or just seen hit; and this one's got the fight in him and rounds to do it with.
+func _press_why(t: Node3D) -> String:
+	if not _has(&"press") or rage > 0.0 or _press > 0.0 or _shaken >= 0.0 or body.prone or rounds < 2 \
+			or mood != Mood.FIGHTING or tactic == Tactic.RESCUING or tactic == Tactic.SEARCHING or not _armed_still() \
+			or dread() > nerve_now() * PRESS_DREAD or not senses.knows(t) or senses.since_known(t) > 3.0:
+		return ""
+	var d := t.global_position.distance_to(body.global_position)
+	if d > PRESS_REACH or d < PRESS_NEAR + 1.0:
+		return ""
+	if crew.since(&"press", _now) < PRESS_SECONDS + 1.0:
+		return ""  # one goes at him at a time; the rest keep his head down
+	if t is Player and _reloading(t as Player) and d < PRESS_HEARS_RELOAD:
+		return "you're reloading"
+	if PRESS_ON_HIT and _now - _you_hit_at < PRESS_AFTER_HIT:
+		return "you're hit"
+	return ""
+
+
+static func _reloading(p: Player) -> bool:
+	var w := p.weapon
+	if w is RevolverViewmodel:
+		return (w as RevolverViewmodel).state.gate_open
+	if w is ShotgunViewmodel:
+		return (w as ShotgunViewmodel).state.open
+	return false
+
+
+## Coming at him: out from behind his cover, walking at him, shooting, to a few metres off.
+func _press_fight(delta: float, t: Node3D) -> void:
+	if tactic != Tactic.OPEN:
+		tactic = Tactic.OPEN
+		_search = null
+		cover = {}
+	if mood == Mood.RELOADING:
+		_press = 0.0
+		return
+	var to := t.global_position - body.global_position
+	to.y = 0.0
+	if to.length() > PRESS_NEAR and _town() != null:
+		if _hunt_way.is_empty() or _hunt_t <= 0.0:
+			_hunt_t = 1.0
+			_hunt_way = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, t.global_position, _exclude(t))
+		_hunt_t -= delta
+		if not _hunt_way.is_empty() and body.walk_to(_hunt_way[0], walk_speed * 1.4, delta, false) and _hunt_way.size() > 1:
+			_hunt_way.pop_front()
+	_fight(delta)
+	if _press <= delta:
+		_cover_search = 0.0  # done: cover from here
+
+
 ## Fury: out from behind whatever he was behind, at the man, shooting.
 func _rage_fight(delta: float, t: Node3D) -> void:
 	if tactic != Tactic.OPEN:
@@ -2214,6 +2344,26 @@ const STEADY_THUMP := 0.45
 ## Variant D's `floored`: knocked down with his gun in his hand, he gives himself up to a man near
 ## him only once he's this much of the way to breaking; short of it he gets back up.
 const FLOORED_HOLDS := 0.6
+
+
+## A friend within earshot still fighting that man and knowing (within a few seconds) where he is.
+func _mate_on(t: Node3D) -> OutlawBrain:
+	for m in crew.standing(_now):
+		var b := Crew.brain_of(m)
+		if b != null and b.mood in [Mood.FIGHTING, Mood.RELOADING] and b._find_target() == t \
+				and b.senses.knows(t) and b.senses.since_known(t) < 3.0 and _hears(m):
+			return b
+	return null
+
+
+## How far it is along a way of points from where he stands (m, on the flat).
+func _way_length(way: Array) -> float:
+	var length := 0.0
+	var at := body.global_position
+	for w: Vector3 in way:
+		length += Vector2(w.x - at.x, w.z - at.z).length()
+		at = w
+	return length
 
 
 ## One of variant D's fixes is on for him.
