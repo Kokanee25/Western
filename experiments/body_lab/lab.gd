@@ -81,6 +81,8 @@ func _run() -> void:
 			runner.render = args.has("render")
 			runner.seed_value = int(manifest.seed)
 			runner.brains = args.has("brains")
+			if args.has("setups"):
+				runner.gore_setups = Array(String(args.get("setups", "")).split(","))
 			runner.grab_on = not args.has("no-grab")
 			if args.has("size"):
 				var wh: PackedStringArray = args.size.split("x")

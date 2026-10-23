@@ -98,12 +98,50 @@ SHEETS = {
                   "it; a long thin pale healed knife scar on weathered skin; a wound gone to gangrene, "
                   "black and green dead flesh, wet, the skin round it dusky purple. Each seen straight "
                   "on, flat. " + WHITE,
+    # An ear or the nose shot off and the jaw shot away (HumanBody.shoot_off, jaw_away): the
+    # Medical and Surgical History's face wounds, the soft parts torn away, the bone and the dark
+    # of the passages showing. Each with a little skin round it for the cut's skin key.
+    "face": "Four separate studies of gunshot wounds to a man's face for a gritty frontier Western "
+            "game, frank and bloody, each only the wound and a hand's width of weathered skin round "
+            "it, the skin fading out to white at the edge, no eyes in any of them: the side of a head "
+            "where the ear was shot off, a ragged red stump of torn ear at the ear hole, raw flesh, "
+            "blood running down from it, a little dark hair above; the middle of a face where the "
+            "nose was torn away, a raw red wound between the cheeks with the two dark openings of the "
+            "nose in it, ragged edges, blood running down over the upper lip; the lower face where a "
+            "blast carried away the jaw, a raw red ruin below the upper lip, broken teeth in the upper "
+            "gum, torn flesh, blood pouring down; a man's ear torn off, lying flat on its side, its "
+            "torn edge ragged and bloody. Each seen straight on, flat. " + WHITE,
+    # Gunshot wounds as forensic pathology describes them (DiMaio, Gunshot Wounds; Saukko & Knight,
+    # Knight's Forensic Pathology): from a distance a ball's way in is a neat round hole the
+    # ball's width or a little less (the skin stretches and closes back), its edge turned in and
+    # ringed by a thin band of scraped skin a millimetre or two wide, the abrasion collar, and it
+    # bleeds little outside; its way out has no collar, its edges turned out, a slit, a star or a
+    # ragged round little bigger than the way in for a slow ball, bigger and torn for one that
+    # flattened on bone, a tag of fat showing; pressed to him over bone the gas splits the skin
+    # in a star round a sooty hole. The hole is asked at a fixed share of each patch so the game
+    # can draw it at the ball's own width (sizes in HumanBody._paint_wound_marks).
+    "wounds3": "Four separate close-up studies of gunshot wounds on a man's weathered skin, for a "
+               "gritty frontier Western game, true to forensic pathology, each a small patch of "
+               "skin with the wound in its centre, each wound small, its hole one fifth of the "
+               "patch's width, the skin round it fading out to white at the edge of the patch: an "
+               "entrance wound from a lead ball fired from across a room, a small neat round hole, "
+               "dark red-black inside, its edge turned inward and rimmed right at the edge by a "
+               "narrow reddish-brown band of scraped skin touching the hole all the way round, no "
+               "gap, no separate ring, a very little blood; an exit wound of the same ball, a "
+               "short ragged slit split into a small star, its edges turned outward, no rim, a "
+               "little blood running from it; an exit wound of a ball that flattened on bone, a "
+               "ragged round torn hole about twice the size of the other exit, not a long gash, "
+               "edges turned outward, a little yellow fat and red flesh showing in it, blood "
+               "running; a contact wound with the muzzle pressed against the skin over bone, a "
+               "dark red-black hole with the skin split round it in a small star of short tears, "
+               "black soot in and round it. Each seen straight on, flat. " + WHITE,
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
 GEMINI = "google/gemini-3-pro-image-preview"
 MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI,
-          "aftercare2": GEMINI}
+          "aftercare2": GEMINI, "face": GEMINI,
+          "wounds3": GEMINI}
 
 
 def main():

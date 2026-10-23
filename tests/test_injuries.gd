@@ -330,6 +330,7 @@ func test_close_shots_powder_burn_and_fire_burns_him() -> void:
 	check(man._describe_one(res.wound).contains("powder"), "said: %s" % man._describe_one(res.wound))
 	Events.scorched.emit(man, 0.6)
 	check(man.find_children("Burn", "Decal", true, false).size() >= 1, "and the fire's burns are on him")
+	check(man.find_children("Singed", "Decal", true, false).size() == 1, "and his hair singed")
 
 
 func _head_shot(man: HumanBody, rest: Vector3, energy := 475.0, dir := Vector3.BACK) -> Dictionary:

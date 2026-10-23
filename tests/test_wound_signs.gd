@@ -44,7 +44,7 @@ func test_burst_eardrums_bleed_from_the_ears() -> void:
 	var before := _head_decals()
 	man.physiology.eardrums_burst[&"r"] = true
 	man.physiology.eardrums_burst[&"l"] = true
-	await physics_frames(2)
+	await physics_frames(WoundSigns.EVERY + 2)
 	check_eq(_head_decals() - before, 2, "blood run from each ear")
 
 
@@ -180,6 +180,11 @@ func test_dressings_show() -> void:
 	man.physiology.broken[&"humerus_l"] = true
 	man.physiology.apply_pressure(&"upper_arm_l")
 	check(man.slung.has("l"), "a broken arm in a sling")
+	await physics_frames(2)
+	var fa := man.visuals[&"forearm_l"] as Node3D
+	check_eq(fa.find_children("Sling", "MeshInstance3D", false, false).size(), 1, "the sling's cloth round his forearm")
+	var strap := (man.visuals[&"chest"] as Node3D).find_child("SlingStrap", false, false) as Node3D
+	check(strap != null and strap.global_position.y > fa.global_position.y, "and its strap up toward his neck")
 
 
 ## A wound with his shirt in it festers over the next days; untouched, a leg goes to gangrene and
@@ -221,5 +226,5 @@ func test_flies_come_to_the_dead() -> void:
 	man.physiology._die(&"blood_loss")
 	man.go_limp()
 	man.signs._dead_for = WoundSigns.FLIES_AFTER_HOURS * man.physiology.tuning.game_hour_seconds
-	await physics_frames(3)
+	await physics_frames(WoundSigns.EVERY + 2)
 	check(man.signs._flies != null, "flies over him")
