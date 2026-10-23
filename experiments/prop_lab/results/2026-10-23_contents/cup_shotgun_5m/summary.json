@@ -12,10 +12,10 @@
   "fingerprint": 5863005,
   "fire_spills": 0,
   "frame": {
-    "added_ms_first_1s": 0.48,
+    "added_ms_first_1s": 0.66,
     "before_ms": 0.02,
-    "event_ms": 15.61,
-    "settle_ms": 2.74
+    "event_ms": 17.46,
+    "settle_ms": 3.04
   },
   "glass": [
     {

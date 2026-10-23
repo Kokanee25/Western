@@ -23,10 +23,10 @@
   },
   "fingerprint": 5863005,
   "frame": {
-    "added_ms_first_1s": 0.28,
+    "added_ms_first_1s": 0.33,
     "before_ms": 0.02,
-    "event_ms": 0.36,
-    "settle_ms": 5.26
+    "event_ms": 0.35,
+    "settle_ms": 5.48
   },
   "hits": [
     {

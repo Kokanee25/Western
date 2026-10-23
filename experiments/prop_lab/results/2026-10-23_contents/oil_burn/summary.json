@@ -86,10 +86,10 @@
   },
   "fingerprint": 5863005,
   "frame": {
-    "added_ms_first_1s": 8.19,
+    "added_ms_first_1s": 9.38,
     "before_ms": 0.02,
     "event_ms": 0.09,
-    "settle_ms": 0.28
+    "settle_ms": 0.24
   },
   "loose": true,
   "loose_t": 341.7,

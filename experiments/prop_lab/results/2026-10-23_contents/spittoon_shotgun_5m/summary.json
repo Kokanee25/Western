@@ -12,10 +12,10 @@
   "fingerprint": 5863005,
   "fire_spills": 0,
   "frame": {
-    "added_ms_first_1s": 0.67,
-    "before_ms": 0.04,
-    "event_ms": 18.25,
-    "settle_ms": 1.4
+    "added_ms_first_1s": 0.68,
+    "before_ms": 0.02,
+    "event_ms": 12.68,
+    "settle_ms": 2.98
   },
   "glass": [
     {
@@ -24,7 +24,7 @@
       "holes": 18,
       "id": "spittoon",
       "loose": true,
-      "moved_m": 0.36,
+      "moved_m": 0.35,
       "spilt": true,
       "upright": true
     },

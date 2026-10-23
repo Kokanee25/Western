@@ -8,20 +8,20 @@
   "caught": [],
   "consumed": [],
   "consumed_t": [],
-  "farthest_m": 2.95,
+  "farthest_m": 3.06,
   "faults": {
     "below_ground": 0,
     "flung": 0,
     "part_fast": 0,
     "sunk": 0
   },
-  "fingerprint": 1062739610,
+  "fingerprint": 3114629536,
   "fire_spills": 0,
   "frame": {
-    "added_ms_first_1s": 11.99,
+    "added_ms_first_1s": 13.08,
     "before_ms": 0.02,
-    "event_ms": 589.1,
-    "settle_ms": 8.87
+    "event_ms": 603.68,
+    "settle_ms": 9.69
   },
   "glass": [
     {
@@ -30,17 +30,17 @@
       "holes": 0,
       "id": "spittoon",
       "loose": true,
-      "moved_m": 0.02,
+      "moved_m": 0.03,
       "spilt": false,
       "upright": true
     },
     {
       "broken": false,
-      "dents": 0,
+      "dents": 1,
       "holes": 0,
       "id": "tin_cup",
       "loose": true,
-      "moved_m": 2.82,
+      "moved_m": 2.32,
       "spilt": true,
       "upright": false
     },
@@ -50,7 +50,7 @@
       "holes": 0,
       "id": "tin_cup",
       "loose": true,
-      "moved_m": 3.67,
+      "moved_m": 2.92,
       "spilt": true,
       "upright": false
     }

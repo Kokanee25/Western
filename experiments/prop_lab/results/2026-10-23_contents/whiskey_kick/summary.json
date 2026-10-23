@@ -25,7 +25,7 @@
   "frame": {
     "added_ms_first_1s": 0.0,
     "before_ms": 0.02,
-    "event_ms": 0.13,
+    "event_ms": 0.12,
     "settle_ms": 0.04
   },
   "kick": "held",

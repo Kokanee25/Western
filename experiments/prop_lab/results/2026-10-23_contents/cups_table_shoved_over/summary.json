@@ -2,20 +2,20 @@
   "caught": [],
   "consumed": [],
   "consumed_t": [],
-  "farthest_m": 4.17,
+  "farthest_m": 5.85,
   "faults": {
     "below_ground": 0,
     "flung": 0,
     "part_fast": 0,
     "sunk": 0
   },
-  "fingerprint": 2412886019,
+  "fingerprint": 3932111769,
   "fire_spills": 0,
   "frame": {
-    "added_ms_first_1s": 1.16,
+    "added_ms_first_1s": 1.13,
     "before_ms": 0.02,
-    "event_ms": 14.73,
-    "settle_ms": 7.05
+    "event_ms": 15.33,
+    "settle_ms": 7.35
   },
   "glass": [
     {
@@ -30,21 +30,21 @@
     },
     {
       "broken": false,
-      "dents": 2,
+      "dents": 1,
       "holes": 0,
       "id": "tin_cup",
       "loose": true,
-      "moved_m": 3.53,
+      "moved_m": 2.96,
       "spilt": true,
       "upright": false
     },
     {
       "broken": false,
-      "dents": 4,
+      "dents": 2,
       "holes": 0,
       "id": "tin_cup",
       "loose": true,
-      "moved_m": 3.82,
+      "moved_m": 4.91,
       "spilt": true,
       "upright": false
     }
@@ -65,12 +65,12 @@
     {
       "liquid": "whiskey",
       "litres": 0.05,
-      "t": 0.12
+      "t": 0.15
     },
     {
       "liquid": "whiskey",
       "litres": 0.05,
-      "t": 0.88
+      "t": 0.98
     }
   ],
   "upright": false
