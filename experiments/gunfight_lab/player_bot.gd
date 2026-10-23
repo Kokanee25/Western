@@ -177,7 +177,7 @@ func _look(dt: float) -> void:
 	var cam := player.camera
 	var from := cam.global_position
 	var fwd := -cam.global_basis.z
-	var range_m := lerpf(Senses.SIGHT_NIGHT, Senses.SIGHT_DAY, _daylight())
+	var range_m := SightLight.sight_range(SightLight.sky_lux(_daylight()))  # the open sky's reach (the men's own now goes by the light on whom they look at)
 	var space := player.get_world_3d().direct_space_state
 	for man: HumanBody in _live():
 		if not is_instance_valid(man):

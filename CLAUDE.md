@@ -453,11 +453,11 @@ frozen until Sean names one.
   (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - **The barkeep's rag and mopping** (2026-10-22, with the prop lab's leave; briefs
   `docs/briefs/barkeep-rag.md`, `mopping.md`; labs `experiments/barkeep_rag/`, `mopping/`): the rag
-  merged (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
-  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`. Mopping
-  (`claude/gameplay-mopping`): `FloorMarks` (tracked mud, wet patches, stains), `MopProp`,
-  `MopBucket`, `MopFloor` (chores: `CivilianBrain.chores`). Waiting on Sean: both films (in the
-  PRs), the rag's paint cost (#258). Next: the water lab's spills on FloorMarks' grid.
+  (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`; its cloth
+  painted (#258; factory `bar_cloth`, reduce.py `whole`). Mopping (#282, build 2165): `FloorMarks`
+  (tracked mud, wet patches, stains), `MopProp`, `MopBucket`, `MopFloor` (`CivilianBrain.chores`).
+  Waiting on Sean: both films (in the PRs). Next: issue #293.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -469,10 +469,11 @@ frozen until Sean names one.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
-- The perception lab (2026-10-22, `experiments/perception_lab/`, branch `claude/gameplay-perception-lab`):
-  bench and baseline (117 judged; top five in its `baseline/baseline.md`); fix 1 merged (#263, #240: a
-  heard sound doesn't name its maker; 74 -> 88 as expected, false 23 -> 9; `results/`). Next: fix 2,
-  lamplight at night (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
+- The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
+  top five in its `baseline/baseline.md`); fix 1 (#263: a heard sound doesn't name its maker, 74 -> 88);
+  fix 2 (`claude/gameplay-perception-lamps`: a man is seen by the light on him, `SightLight`, lamps
+  and the sky where it reaches him, `config/sight.tres`; 88 -> 91, `results/2026-10-22_lamplight/`).
+  Next: fix 3, windows (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
@@ -496,11 +497,13 @@ frozen until Sean names one.
   19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
   `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
   (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
-- The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
-  and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
-  and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On
-  the branch: an ear, the nose or the jaw shot off (`shoot_off`, `jaw_away`). Paint $4.82 left of
-  Sean's $7. Waiting on Sean: dynamite up close (`results/2026-10-21_dynamite_options/`), the gut's time.
+- The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
+  ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
+  painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
+  fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
+  skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
+  Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
+  `results/2026-10-21_gore_lab/`.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
@@ -524,6 +527,9 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): the chair and the card table in the game (build 1919); the
-  bottle and the oil lamp (`GlassProp`, "shatters") on the branch, in_game, waiting to merge; the
-  ragdoll lab tests men in the kit chair (how he falls is theirs). Next: stools, barrels, crates.
+  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
+  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
+  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
+  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
+  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
+  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).

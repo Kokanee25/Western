@@ -170,7 +170,9 @@ func test_a_crowded_street_doesnt_hide_whats_beside_it() -> void:
 ## cut, not whole boards gone): a hole to crawl through. Three in a bundle: a way to walk out.
 func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	var store := await _store()
-	var at := _inside_wall_foot(store)
+	# 3 m toward the front (five stud bays): the bare wall, clear of the store's shelves (the prop
+	# kit's: a stick by them throws them into the hole and widens it).
+	var at := _inside_wall_foot(store, -3.0)
 	var report := Blast.detonate(world, at, Blast.t().tnt_per_stick)
 	var kinds := {}
 	for id: StringName in report.broken:
@@ -208,9 +210,9 @@ func test_a_bundle_inside_against_the_wall_blows_a_door() -> void:
 
 
 ## On the floor against the inside of the side wall, between two studs.
-func _inside_wall_foot(store: FalseFrontBuilding) -> Vector3:
+func _inside_wall_foot(store: FalseFrontBuilding, along := 0.0) -> Vector3:
 	var siding := _side_board(store)
-	return Vector3(0.02, store.floor_top + DynamiteStick.RADIUS, siding.global_position.z)
+	return Vector3(0.02, store.floor_top + DynamiteStick.RADIUS, siding.global_position.z + along)
 
 
 ## A way through the wall by the charge: half a metre wide and `tall` from just over the floor,

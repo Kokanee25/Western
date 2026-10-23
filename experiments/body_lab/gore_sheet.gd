@@ -101,7 +101,7 @@ static func apply(setup: String, man: HumanBody, world: Node3D) -> void:
 			mesh.mesh = bm
 			wall.add_child(mesh)
 			world.add_child(wall)
-			wall.global_position = (man.parts[&"hand_r"] as Node3D).global_position + man.global_basis.x * 0.07
+			wall.global_position = man.drawn_hand("r") + man.global_basis.x * 0.07
 			man.signs_now()._bloody["r"] = WoundSigns.PRINTS_PER_HAND
 		"trail":
 			_shoot(man, &"thigh_r", Vector3(0.13, 0.7, -0.03))

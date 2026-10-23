@@ -182,6 +182,73 @@
           "fade": 0.8
         }
       }
+    },
+    "face": {
+      "keys": [
+        "ear_torn",
+        "nose_gone",
+        "jaw_gone",
+        "ear_piece"
+      ],
+      "size": 128,
+      "per": {
+        "ear_torn": {
+          "key": "skin",
+          "lo": 30,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "nose_gone": {
+          "key": "skin",
+          "lo": 30,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "jaw_gone": {
+          "key": "skin",
+          "lo": 30,
+          "hi": 70,
+          "fade": 0.8
+        },
+        "ear_piece": {
+          "key": "white"
+        }
+      }
+    },
+    "wounds3": {
+      "keys": [
+        "wound_entry",
+        "wound_exit",
+        "wound_exit_torn",
+        "wound_contact"
+      ],
+      "size": 64,
+      "per": {
+        "wound_entry": {
+          "key": "skin",
+          "lo": 42,
+          "hi": 85,
+          "fade": 0.8
+        },
+        "wound_exit": {
+          "key": "skin",
+          "lo": 42,
+          "hi": 85,
+          "fade": 0.8
+        },
+        "wound_exit_torn": {
+          "key": "skin",
+          "lo": 42,
+          "hi": 85,
+          "fade": 0.8
+        },
+        "wound_contact": {
+          "key": "skin",
+          "lo": 42,
+          "hi": 85,
+          "fade": 0.8
+        }
+      }
     }
   },
   "mirror": {

@@ -1,0 +1,39 @@
+{
+  "caught": [
+    "bench_prop/leg2",
+    "bench_prop/seat"
+  ],
+  "consumed": [
+    "bench_prop/leg2",
+    "bench_prop/seat"
+  ],
+  "consumed_t": [
+    224.2,
+    248.2
+  ],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "frame": {
+    "added_ms_first_1s": 0.86,
+    "before_ms": 0.02,
+    "event_ms": 0.1,
+    "settle_ms": 0.18
+  },
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 2.45,
+  "members": 9,
+  "pieces": 0,
+  "prop": "bar_stool",
+  "scenario": "stool_burn",
+  "snapped": [
+    "leg2"
+  ],
+  "upright": true
+}

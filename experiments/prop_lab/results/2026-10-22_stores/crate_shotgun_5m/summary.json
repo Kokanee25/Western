@@ -1,0 +1,169 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.29,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 3435412652,
+  "frame": {
+    "added_ms_first_1s": 0.76,
+    "before_ms": 0.03,
+    "event_ms": 22.4,
+    "settle_ms": 3.81
+  },
+  "hits": [
+    {
+      "j_in": 234.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 170.0,
+      "through": true,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 246.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 182.0,
+      "through": true,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 240.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 177.0,
+      "through": true,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 235.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 171.0,
+      "through": true,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 241.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 177.0,
+      "through": true,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 224.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 177.0,
+      "through": true,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 237.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 173.0,
+      "through": true,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 247.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 247.0,
+      "through": true,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 239.0,
+      "through": true,
+      "what": "side_l1"
+    },
+    {
+      "j_in": 175.0,
+      "through": true,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 111.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 102.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 113.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 107.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 102.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 108.0,
+      "through": false,
+      "what": "bench_floor/board7"
+    },
+    {
+      "j_in": 108.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 104.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 168.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.2,
+  "members": 30,
+  "pieces": 6,
+  "prop": "crate",
+  "scenario": "crate_shotgun_5m",
+  "snapped": [
+    "side_l1",
+    "side_r0",
+    "side_r1"
+  ],
+  "upright": true
+}

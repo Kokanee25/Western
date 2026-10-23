@@ -1,0 +1,53 @@
+{
+  "blast_push": [
+    51.9,
+    7.6,
+    0.0
+  ],
+  "blast_v": 1.3,
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.82,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 3000437289,
+  "frame": {
+    "added_ms_first_1s": 3.29,
+    "before_ms": 0.02,
+    "event_ms": 134.21,
+    "settle_ms": 2.92
+  },
+  "hits": [
+    {
+      "j_in": 41.0,
+      "through": false,
+      "what": "stave11"
+    },
+    {
+      "j_in": 42.0,
+      "through": false,
+      "what": "stave10"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.017,
+  "max_piece_speed": 1.78,
+  "members": 20,
+  "pieces": 1,
+  "prop": "barrel",
+  "scenario": "barrels_stacked_dynamite_3m",
+  "snapped": [],
+  "stack": [
+    {
+      "id": "barrel",
+      "loose": true,
+      "snapped": 20
+    }
+  ],
+  "upright": false
+}

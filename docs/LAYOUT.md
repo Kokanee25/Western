@@ -549,7 +549,12 @@ a few views renders them as the full run does.
 ## src/people
 
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
-  hearing via `Events.noise`; `known[who]` last seen/heard), `Relations` (per person towards each
+  hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
+  by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
+  at least a shut room's 3 %; plus every lit `OilLamp` (group `oil_lamps`) with a clear line to his
+  chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
+  0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
+  passed; `config/sight.tres`, `SightTuning`), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
@@ -871,14 +876,20 @@ a few views renders them as the full run does.
 
 - The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
   once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
-  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
-  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  lathe, sweep (`grain_up`, `caps`: a stave) or disc-cut shapes in the prop's space laid into the
+  member's, `dress` layers glued on (a barrel's hoops: each named `Dress<k>`), `repeat` along a line
+  or round Y (a sweep, its dress's too, turned with it); a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
   hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
   metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
   one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
-  over its length passes `BodyImpacts.nailed_moment`.
+  over its length passes `BodyImpacts.nailed_moment`. A prop put down settles onto what's under it
+  (up to 0.2 m, a stack bottom up); a foot over nothing drops out of its footprint. Hung props
+  (`"hangs": {"nails"}`: the deer head, the painting; a GlassProp sconce) hold on what's behind
+  their nails (`WALL_REACH`). Fixtures (`"fixture": true`: counter, shelves, table, trough, the bar)
+  are fitted to their place by `PropKit.fit`/`spawn_fitted` (nine-slice);
+  `FalseFrontBuilding._fixture` puts them in a building's Props, and `WaterTrough` is a KitProp.
   KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
   every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
   man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`
@@ -913,7 +924,7 @@ a few views renders them as the full run does.
   `exploded` (Blast.impulse on 0.12 m²), `doused`, a `shove` deed at its wearer knock it; FireSystem
   `small_fire` once `fire_near` its middle for `catch_seconds`; `soak(ml, at)` from
   `HumanBody.wound_under_hand`. Its texture is an Image painted in code (`paint`), updated as it
-  bloodies and chars; `PixelArt.factory("bar_cloth")` replaces it when painted. Prof `cloth`
+  bloodies and chars; the factory's painted cloth (`PixelArt.factory("bar_cloth")`, painted whole: reduce.py `whole` cuts it as painted, not rolled to tile) replaces the code's, its hem drawn on it (`hem`). Prof `cloth`
   (People). The lab: `experiments/barkeep_rag/`.
 - **The mop and its bucket** (`MopProp`, `src/props/mop_prop.gd`, kit `"kind": "mop"`, `mop.json`;
   `MopBucket`, `src/props/mop_bucket.gd`, kit `"kind": "bucket"`, `mop_bucket.json`): the mop's handle

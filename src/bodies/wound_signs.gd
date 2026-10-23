@@ -53,9 +53,24 @@ var _flies: GPUParticles3D
 const FLIES_AFTER_HOURS := 2.0
 
 
+## They're only looks, so each man's are worked out every few ticks with the time between added
+## up, the men spread over the ticks (ten wounded men's signs were 0.38 ms a tick, every tick).
+const EVERY := 4
+var _ticks := -1
+var _dt_sum := 0.0
+
+
 func step(dt: float) -> void:
 	if body == null or not body.is_inside_tree():
 		return
+	if _ticks < 0:
+		_ticks = body.get_instance_id() % EVERY
+	_ticks += 1
+	_dt_sum += dt
+	if _ticks % EVERY != 0:
+		return
+	dt = _dt_sum
+	_dt_sum = 0.0
 	var p := body.physiology
 	var world := body.get_parent() as Node3D
 	if world == null:
@@ -96,7 +111,7 @@ func _run_down(rest: Vector3, size: float, key: String) -> Decal:
 		d.basis = Basis(n.cross(z), n, z)
 		d.position = local + z * size * 0.4
 	# (Deep: the anatomy's points sit a few centimetres off a Studio man's own face.)
-	d.size = Vector3(size * 0.6, 0.2, size)
+	d.size = Vector3(size * 0.8, 0.2, size)
 	return d
 
 
@@ -107,7 +122,7 @@ func _ears(p: Physiology) -> void:
 			continue
 		_ears_done[side] = true
 		var at := EAR * Vector3(1.0 if side == &"r" else -1.0, 1.0, 1.0)
-		_run_down(at, 0.18, "ear_run")
+		_run_down(at, 0.24, "ear_run")
 
 
 ## A blind eye (the ball through it) and a scalp wound's blood in an eye: blood down his cheek.
@@ -187,7 +202,8 @@ func _nose(p: Physiology, world: Node3D, dt: float) -> void:
 		return
 	if not _nose_marked:
 		_nose_marked = true
-		_run_down(NOSE + Vector3(0, -0.01, 0), 0.08, "ear_run")
+		# (Long enough to come out under his moustache, over his lip.)
+		_run_down(NOSE + Vector3(0, -0.015, 0), 0.13, "ear_run")
 	_drip_gap -= dt
 	if _drip_gap <= 0.0:
 		_drip_gap = 0.9
@@ -205,7 +221,8 @@ func _mouth(p: Physiology, world: Node3D, dt: float) -> void:
 	if not _mouth_marked:
 		_mouth_marked = true
 		# A run of it from the corner of his mouth down his chin.
-		_run_down(MOUTH + Vector3(0.022, -0.005, 0.005), 0.08, "ear_run")
+		_run_down(MOUTH + Vector3(0.022, -0.005, 0.005), 0.15, "ear_run")
+		_run_down(MOUTH + Vector3(-0.012, -0.008, 0.004), 0.11, "ear_run")
 	_mouth_in -= dt
 	if (body.limp or body.prone) and _mouth_in <= 0.0:
 		_mouth_in = randf_range(2.0, 4.0)
@@ -320,7 +337,7 @@ func _hands(_p: Physiology, world: Node3D, dt: float) -> void:
 		var hand := body.parts.get(StringName("hand_" + side)) as Node3D
 		if hand == null or (not g.is_empty() and g.side == side and float(g.get("w", 0.0)) > 0.3):
 			continue  # on the wound, not on the wall
-		var hit := _touching(world, hand.global_position, PRINT_REACH)
+		var hit := _touching(world, body.drawn_hand(side), PRINT_REACH)
 		if hit.is_empty():
 			continue
 		_print_gap[side] = PRINT_GAP

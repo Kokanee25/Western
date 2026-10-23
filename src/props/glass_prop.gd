@@ -14,7 +14,8 @@ extends Node3D
 ## - **by a blast:** overpressure past `shatters_kpa` breaks it where it stands; short of that it's
 ##   thrown (Blast's push for anything loose) and breaks if it lands hard;
 ## - **in a fire:** flames on it for `heat_seconds` crack it (thermal shock).
-## Losing what it stands on (its table going over, the shelf burning) it falls with it.
+## Losing what it stands on (its table going over, the shelf burning) it falls with it; hung on
+## a nail (a sconce: "hangs"), losing what the nail's in (the wall's board shot out or burnt).
 ##
 ## Breaking: shards of its glass fly (on with what broke it, the rest outward and down), the
 ## parts that come through whole fall as their own piece, the glass sound, people hear it, the
@@ -90,8 +91,24 @@ func _build() -> void:
 		"lamp":
 			PropModels.lamp(model)
 		var other:
-			push_warning("GlassProp: no model %s" % other)
+			var built := PropModels.build(StringName(other), variant)
+			if built:
+				model.add_child(built)
+			else:
+				push_warning("GlassProp: no model %s" % other)
 	add_child(model)
+	var shape_box := AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
+	if definition.get("fit", false):
+		# As PropLibrary fits a drawn prop: scaled to the manifest's height, its anchor (a wall
+		# prop's back centre, else its bottom centre) at the origin.
+		var raw := PropLibrary._model_bounds(model)
+		var k := PropLibrary.size_of(kit_id).y / maxf(raw.size.y, 0.0001)
+		var anchor := Vector3(raw.get_center().x, raw.position.y, raw.get_center().z)
+		if PropLibrary.definition(kit_id).get("anchor", "floor") == "wall":
+			anchor = Vector3(raw.get_center().x, raw.get_center().y, raw.position.z)
+		model.scale = Vector3.ONE * k
+		model.position = -anchor * k
+		shape_box = AABB((raw.position - anchor) * k, raw.size * k)
 	body = RigidBody3D.new()
 	body.name = "Body"
 	body.collision_layer = Layers.DEBRIS
@@ -105,11 +122,17 @@ func _build() -> void:
 	body.set_meta(&"ballistic_thickness", float(definition.get("wall", 0.004)) * 2.0)
 	body.set_meta(&"glass_prop", self)
 	var cs := CollisionShape3D.new()
-	var cyl := CylinderShape3D.new()
-	cyl.radius = maxf(size.x, size.z) * 0.5
-	cyl.height = size.y
-	cs.shape = cyl
-	cs.position.y = size.y * 0.5
+	if definition.get("fit", false):
+		var bs := BoxShape3D.new()
+		bs.size = shape_box.size
+		cs.shape = bs
+		cs.position = shape_box.get_center()
+	else:
+		var cyl := CylinderShape3D.new()
+		cyl.radius = maxf(size.x, size.z) * 0.5
+		cyl.height = size.y
+		cs.shape = cyl
+		cs.position.y = size.y * 0.5
 	body.add_child(cs)
 	add_child(body)
 	body.body_entered.connect(_on_body_entered)
@@ -157,6 +180,12 @@ func _find_footing() -> void:
 	box.size = Vector3(size.x * 0.8, FOOT_REACH, size.z * 0.8)
 	q.shape = box
 	q.transform = Transform3D(global_basis, global_position + global_basis.y * (0.002 - FOOT_REACH * 0.5))
+	var nails: Array = definition.get("hangs", {}).get("nails", [])
+	if not nails.is_empty():
+		# Hung on a nail (a sconce's back plate): what's behind it, up to KitProp.WALL_REACH back.
+		var p := PropKit.vec(nails[0])
+		box.size = Vector3(0.03, 0.03, KitProp.WALL_REACH)
+		q.transform = Transform3D(global_basis, global_transform * Vector3(p.x, p.y, -KitProp.WALL_REACH * 0.5 + 0.005))
 	q.collision_mask = Layers.WORLD
 	q.exclude = [body.get_rid()]
 	for hit in get_world_3d().direct_space_state.intersect_shape(q, 8):
@@ -229,6 +258,8 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if broken or not is_inside_tree():
 		return
 	var centre := body.global_position + Vector3.UP * PropKit.vec(definition.get("size", [0.1, 0.3, 0.1])).y * 0.5
+	if definition.get("fit", false):
+		centre = (body.get_child(0) as CollisionShape3D).global_position
 	var r := maxf(centre.distance_to(at), 0.05)
 	if r > Blast.reach(kg) + 2.0:
 		return
@@ -243,6 +274,12 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	var v := (away + Vector3.UP * 0.3).normalized() * Blast.impulse(kg, r) * area * shield / maxf(kgs, 0.05)
 	if v.length() > Blast.t().max_throw:
 		v = v.normalized() * Blast.t().max_throw
+	if not loose and definition.has("hangs"):
+		# Hung: the wall takes what drives it in, the nail what drives it down.
+		var local := global_basis.inverse() * v
+		local.z = maxf(local.z, 0.0)
+		local.y = maxf(local.y, 0.0)
+		v = global_basis * local
 	if v.length() >= LOOSE_FROM:
 		if loose:
 			body.linear_velocity += v
