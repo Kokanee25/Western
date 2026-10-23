@@ -558,6 +558,15 @@ def build(man, out, head, report_only=False, landmarks=None):
     fe = np.clip((de - EYE_FADE[0]) / (EYE_FADE[1] - EYE_FADE[0]), 0, 1)
     off[pv] *= (fe * fe * (3 - 2 * fe))[:, None]
     ok |= de < EYE_FADE[1]
+    # The patch's outer edge is pinned onto his skin: the stitch to his kept head must meet flush.
+    # Unpinned, the edge sat where MakeHuman's face put it, up to 27 mm into a receding chin and 4 mm
+    # off a bald forehead, and the strip stood as a step there (dark arcs, pale dashes; the
+    # storekeeper, 2026-10-23). The laplace fill blends the face between it and the pulled skin.
+    loops0 = boundary_loops(Tp)
+    edge0 = max(loops0, key=len)
+    rim = np.isin(pv, edge0)
+    off[pv[rim]] = (q - X[pv])[rim]
+    ok = ok | rim
     fixed = np.ones(len(X), bool)
     fixed[pv] = ok
     off = laplace_fill(off, fixed, Tp)
