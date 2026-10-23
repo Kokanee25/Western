@@ -55,7 +55,7 @@ func test_a_big_wound_opens_and_shows_inside() -> void:
 	check(inside != null, "the inside's built")
 	if inside:
 		check(inside.get_node_or_null(^"heart") != null and inside.get_node_or_null(^"lung_r") != null, "heart and lungs in there")
-		check(inside.get_node_or_null(^"Rib3") != null, "ribs as bars")
+		check(inside.get_node_or_null(^"Rib3") == null, "no ribs drawn (Sean, 2026-10-22)")
 	check(_count(&"chest") >= 1, "the skin knows where it's open")
 	check((man.visuals[&"abdomen"] as Node3D).get_node_or_null(^"Inside") == null, "only the opened part")
 
