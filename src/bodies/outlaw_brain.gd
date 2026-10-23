@@ -136,8 +136,9 @@ var variant: Variant = default_variant
 ## aim_fight (aimed at frightens before a fight, not in one), noise (near misses, a shot nearby and a
 ## hat shot are fright, not dread), hothead (a man of temper holds his first half minute), leader
 ## (the man who leads holds the rest, and calls a shaken one back), green (a man of little nerve
-## quitting barely shakes the rest), cover_way (a longer way round to real cover: the bar's end).
-const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way"]
+## quitting barely shakes the rest), cover_way (a longer way round to real cover: the bar's end),
+## steady (the thump of a ball frightens a steady man less: `_thump`).
+const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.

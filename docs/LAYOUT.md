@@ -82,10 +82,14 @@ already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
-scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
-`run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
-sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
-A/B/C, runs to `user://gunfight_runs/` (`PLAYTEST.md`).
+scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
+`gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
+sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
+its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
+play it: Y the next setup in the new saloon, X again, Z the next variant, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -525,8 +529,12 @@ a few views renders them as the full run does.
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
   it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
-  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
-  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  `variant`, the gunfight lab's A/B/C/D: A the old default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too, D fights that commit (`D_FIXES`:
+  noise is `fright`, fading, at most a share of his nerve; aimed at frightens only before a fight;
+  a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
+  a green man's quitting barely counts; the long way round to cover; `_thump`); `fear_from`, his
+  fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
