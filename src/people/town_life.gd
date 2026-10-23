@@ -20,6 +20,7 @@ var widow: HumanBody
 var sheriff: HumanBody
 var doctor: HumanBody
 var colter: HumanBody
+var miner: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -79,6 +80,10 @@ func _spawn_townsfolk() -> void:
 	# in front of the livery. A civilian's mind for now, unarmed: riding with the gang is to come.
 	colter = _civilian(&"colter", &"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 1.4, -9.0)), 106,
 			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s2_talking")
+	# A miner (the Studio's miner_s4, a background one-off; Sean, 2026-10-23) in front of the assay
+	# office, where the mine's ore is weighed. A civilian's mind, unarmed.
+	miner = _civilian(&"miner", &"assay_front", TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 1.4, -9.0)), 107,
+			Color(0.3, 0.42, 0.6), Color(0, 0, 0, 0), &"miner_s4_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,

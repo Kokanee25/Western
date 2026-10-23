@@ -203,6 +203,8 @@ static func test_street() -> Waypoints:
 	w.add(&"doctor_front", TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0)), [&"street_west"])
 	# The street in front of the livery, off everyone's way (the fourth Colter waits here).
 	w.add(&"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0)), [&"street_east"])
+	# The street in front of the assay office, off everyone's way (the miner stands here).
+	w.add(&"assay_front", TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 0, -4.0)), [&"street_mid"])
 	var floor_top := float(TownLayout.data().get("floor", 0.38))
 	# The store (its door in the middle of its front, the front to -Z), up the steps at its west end.
 	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
