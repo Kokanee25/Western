@@ -300,5 +300,5 @@ func _animate(delta: float) -> void:
 
 func _apply_pose(drawn_amount: float) -> void:
 	var t := smoothstep(0.0, 1.0, tuck)
-	position = PUT_AWAY_POS.lerp(_pose_pos.lerp(Vector3(0.18, -0.4, -0.2), t), drawn_amount)
-	rotation_degrees = _pose_rot
+	position = PUT_AWAY_POS.lerp(_pose_pos.lerp(Vector3(0.18, -0.4, -0.2), t), drawn_amount) + _body_pos() * drawn_amount
+	rotation_degrees = _pose_rot + _body_rotation() * drawn_amount

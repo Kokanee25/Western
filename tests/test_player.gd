@@ -59,7 +59,7 @@ func test_walks_forward() -> void:
 func test_runs_faster_than_walking() -> void:
 	Input.action_press(&"move_forward")
 	Input.action_press(&"run")
-	await physics_frames(60)
+	await physics_frames(100)  # it builds: to a walk, then on to a run (PlayerTuning.run_build)
 	check(player.is_running, "running")
 	check_near(player.get_horizontal_speed(), player.tuning.run_speed, 0.05, "run speed")
 
