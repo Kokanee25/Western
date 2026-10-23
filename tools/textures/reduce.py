@@ -315,7 +315,9 @@ def reduce(mid, spec, tpm):
         os.makedirs(out_dir(), exist_ok=True)
         Image.fromarray(hm).save(os.path.join(out_dir(), mid + "_height.png"))
         _import_file(os.path.join(out_dir(), mid + "_height.png.import"))
-    if kind != "sign":
+    if kind != "sign" and not spec.get("whole"):
+        # `whole`: a thing painted whole (the bar rag, edges and folds where they fall), cut as
+        # painted, not rolled half a turn to tile.
         a = seamless(a, rng)
     t = to_texels(a, size, spec.get("median", True))
     # The push square to square: the bold set's, or the material's own `mosaic` (2026-10-13, Sean:

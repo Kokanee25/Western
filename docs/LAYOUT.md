@@ -911,7 +911,7 @@ a few views renders them as the full run does.
   `exploded` (Blast.impulse on 0.12 m²), `doused`, a `shove` deed at its wearer knock it; FireSystem
   `small_fire` once `fire_near` its middle for `catch_seconds`; `soak(ml, at)` from
   `HumanBody.wound_under_hand`. Its texture is an Image painted in code (`paint`), updated as it
-  bloodies and chars; `PixelArt.factory("bar_cloth")` replaces it when painted. Prof `cloth`
+  bloodies and chars; the factory's painted cloth (`PixelArt.factory("bar_cloth")`, painted whole: reduce.py `whole` cuts it as painted, not rolled to tile) replaces the code's, its hem drawn on it (`hem`). Prof `cloth`
   (People). The lab: `experiments/barkeep_rag/`.
 - **The mop and its bucket** (`MopProp`, `src/props/mop_prop.gd`, kit `"kind": "mop"`, `mop.json`;
   `MopBucket`, `src/props/mop_bucket.gd`, kit `"kind": "bucket"`, `mop_bucket.json`): the mop's handle
