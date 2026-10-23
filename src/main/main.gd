@@ -10,6 +10,7 @@ extends Node
 
 
 func _ready() -> void:
+	SynthSounds.warm_all()  # every sound made ahead on a worker, so the first shot doesn't freeze
 	screen.texture = game_viewport.get_texture()
 	screen.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	screen.stretch_mode = TextureRect.STRETCH_SCALE
@@ -102,3 +103,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_surface_blocks(not Settings.surface_blocks)
 	elif event.is_action_pressed(&"debug_probe_mosaic"):
 		Settings.set_probe_mosaic(not Settings.probe_mosaic)
+
+
+func _exit_tree() -> void:
+	SynthSounds.finish_warm()

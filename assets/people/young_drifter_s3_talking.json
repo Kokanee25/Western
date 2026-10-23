@@ -257,7 +257,27 @@
   "mask": {
    "top_y": 1.63,
    "point_y": 1.436,
-   "triangles": 3044
+   "triangles": 3044,
+   "follows": {
+    "shapes": [
+     "jaw_open",
+     "aa",
+     "lips_apart",
+     "ee",
+     "oo",
+     "fv",
+     "mbp"
+    ],
+    "most_mm": {
+     "jaw_open": 14.9,
+     "aa": 13.7,
+     "lips_apart": 6.6,
+     "ee": 10.6,
+     "oo": 9.5,
+     "fv": 7.3,
+     "mbp": 2.2
+    }
+   }
   }
  },
  "finger_bones": {

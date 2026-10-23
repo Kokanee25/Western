@@ -1,0 +1,410 @@
+{
+ "aim": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/chest": [
+    0.21,
+    1.26,
+    -0.07
+   ],
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    0.23,
+    0.87,
+    0.02
+   ],
+   "skin/upper_arm_r": [
+    0.23,
+    1.2,
+    0.09
+   ]
+  },
+  "sheet_cm2": 2020.1,
+  "sheets": 274,
+  "sheets_in": {
+   "skin/chest": 18,
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 12,
+   "skin/hand_r": 62,
+   "skin/pelvis": 116,
+   "skin/upper_arm_r": 26
+  },
+  "worst_stretch": 158.35
+ },
+ "crouch": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ]
+  },
+  "sheet_cm2": 1820.3,
+  "sheets": 320,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 54,
+   "skin/hand_r": 62,
+   "skin/pelvis": 164
+  },
+  "worst_stretch": 114.75
+ },
+ "fails": [
+  "stand",
+  "walk",
+  "run",
+  "hands_up",
+  "aim",
+  "sit",
+  "crouch",
+  "ragdoll",
+  "hat"
+ ],
+ "hands_up": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/chest": [
+    0.22,
+    1.24,
+    -0.06
+   ],
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/upper_arm_l": [
+    -0.16,
+    1.17,
+    -0.01
+   ],
+   "skin/upper_arm_r": [
+    0.22,
+    1.21,
+    0.08
+   ]
+  },
+  "sheet_cm2": 5133.3,
+  "sheets": 605,
+  "sheets_in": {
+   "skin/chest": 105,
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 54,
+   "skin/hand_r": 62,
+   "skin/pelvis": 171,
+   "skin/upper_arm_l": 86,
+   "skin/upper_arm_r": 87
+  },
+  "worst_stretch": 298.88
+ },
+ "hat": {
+  "ball_energy_kept_j": 0.0,
+  "had_his_own_hat": false,
+  "hat_meshes_still_on_him": 0,
+  "hat_off": false,
+  "hats_fallen": 0,
+  "pass": false
+ },
+ "ragdoll": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ]
+  },
+  "sheet_cm2": 1503.2,
+  "sheets": 220,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 50,
+   "skin/hand_r": 60,
+   "skin/pelvis": 70
+  },
+  "worst_stretch": 70.18
+ },
+ "rest": {
+  "meshes": [
+   "head/head",
+   "skin/pelvis",
+   "skin/thigh_r",
+   "skin/abdomen",
+   "skin/chest",
+   "skin/thigh_l",
+   "skin/foot_l",
+   "skin/shin_l",
+   "skin/foot_r",
+   "skin/shin_r",
+   "skin/upper_arm_l",
+   "skin/forearm_l",
+   "skin/neck",
+   "skin/head",
+   "skin/upper_arm_r",
+   "skin/forearm_r",
+   "skin/hand_r",
+   "skin/hand_l",
+   "bandana/neck",
+   "bandana/chest"
+  ],
+  "triangles": 48032
+ },
+ "run": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ]
+  },
+  "sheet_cm2": 348.3,
+  "sheets": 118,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 12,
+   "skin/hand_r": 15,
+   "skin/pelvis": 51
+  },
+  "worst_stretch": 19.61
+ },
+ "sit": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/upper_arm_r": [
+    0.19,
+    1.19,
+    -0.02
+   ]
+  },
+  "sheet_cm2": 2298.5,
+  "sheets": 326,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 54,
+   "skin/hand_r": 62,
+   "skin/pelvis": 168,
+   "skin/upper_arm_r": 2
+  },
+  "worst_stretch": 139.82
+ },
+ "stand": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ]
+  },
+  "sheet_cm2": 425.7,
+  "sheets": 143,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 23,
+   "skin/hand_r": 26,
+   "skin/pelvis": 54
+  },
+  "worst_stretch": 25.47
+ },
+ "walk": {
+  "pass": false,
+  "sheet_at_rest": {
+   "skin/forearm_l": [
+    -0.24,
+    0.91,
+    0.03
+   ],
+   "skin/forearm_r": [
+    0.22,
+    0.89,
+    0.03
+   ],
+   "skin/hand_l": [
+    -0.23,
+    0.87,
+    -0.04
+   ],
+   "skin/hand_r": [
+    0.22,
+    0.87,
+    0.02
+   ],
+   "skin/pelvis": [
+    -0.23,
+    0.87,
+    -0.04
+   ]
+  },
+  "sheet_cm2": 559.2,
+  "sheets": 146,
+  "sheets_in": {
+   "skin/forearm_l": 20,
+   "skin/forearm_r": 20,
+   "skin/hand_l": 34,
+   "skin/hand_r": 15,
+   "skin/pelvis": 57
+  },
+  "worst_stretch": 43.9
+ },
+ "wounds": {
+  "openings": 2,
+  "pass": true,
+  "wounds": [
+   "upper arm (right): through and through — biceps torn, deltoid torn, humerus broken, brachial artery cut, triceps torn, radial artery cut, a plug of his shirt carried in",
+   "chest: through and through — sternum broken, heart torn, vena artery cut, aorta artery cut, thoracic broken, cord artery cut"
+  ]
+ }
+}

@@ -18,7 +18,7 @@ uniform float bands = 5.0;
 uniform vec2 core_ramp = vec2(0.3, 1.0);
 // How much hotter its roots are drawn than its body: the band goes by the flame times this much
 // more toward the frame's foot (the painting's near-white is low, its reds at the tips).
-uniform float root_heat = 0.9;
+uniform float root_heat = 0.7;
 // How far over white the hottest band is drawn, so the glow pass gives it its halo.
 uniform float bloom = 0.6;
 
@@ -27,9 +27,8 @@ void vertex() {
 }
 
 void fragment() {
-	vec2 uv = fb_uv(UV, INV_VIEW_MATRIX);
-	uv.y = min(uv.y, 0.995);
-	vec4 s = fb_sample(uv, TIME);
+	vec2 uv;
+	vec4 s = fb_fire(UV, INV_VIEW_MATRIX, TIME, uv);
 	float f = s.r * fb_foot();
 	if (f < core_from) {
 		discard;

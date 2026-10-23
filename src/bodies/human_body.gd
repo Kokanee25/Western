@@ -105,6 +105,45 @@ const POSES := {
 			&"shin_l": Vector3(-35, 0, 0)},
 	&"prone_aim": {&"upper_arm_r": Vector3(172, 0, 4), &"forearm_r": Vector3(0, 0, 0),
 			&"upper_arm_l": Vector3(140, 0, -25), &"forearm_l": Vector3(45, 0, 0), &"head": Vector3(60, 0, 0)},
+	# Getting up (`get_up`; the rig is turned as each stage has it). On his back, arms by his sides:
+	&"lie_back": {&"upper_arm_r": Vector3(0, 0, 14), &"upper_arm_l": Vector3(0, 0, -14),
+			&"forearm_r": Vector3(10, 0, 0), &"forearm_l": Vector3(10, 0, 0)},
+	# ... sat up on the ground, legs out and knees up a little, leaning on his hands behind him:
+	&"sit_ground": {&"thigh_r": Vector3(80, 0, 6), &"thigh_l": Vector3(80, 0, -6), &"shin_r": Vector3(-35, 0, 0),
+			&"shin_l": Vector3(-25, 0, 0), &"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-6, 0, 0),
+			&"upper_arm_r": Vector3(-42, 0, 14), &"upper_arm_l": Vector3(-42, 0, -14),
+			&"forearm_r": Vector3(0, 0, 0), &"forearm_l": Vector3(0, 0, 0)},
+	# ... or face down, pushed up onto his hands and knees (the rig face-down: the thighs and arms
+	# hang straight down from him, the shins lie back along the ground, his head comes up):
+	# ... still sitting, his left leg drawn in under him and the right knee up, a hand behind him:
+	&"sit_tuck": {&"thigh_r": Vector3(85, 0, 10), &"thigh_l": Vector3(70, 0, -25), &"shin_r": Vector3(-110, 0, 0),
+			&"shin_l": Vector3(-145, 0, 0), &"foot_r": Vector3(25, 0, 0), &"foot_l": Vector3(-30, 0, 0),
+			&"abdomen": Vector3(-14, 0, 0), &"chest": Vector3(-10, 0, 0),
+			&"upper_arm_r": Vector3(-30, 0, 20), &"upper_arm_l": Vector3(20, 0, -20),
+			&"forearm_r": Vector3(0, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
+	# ... up on his knees (thighs upright, shins back along the ground), a hand out on the ground:
+	&"kneel": {&"thigh_r": Vector3(5, 0, 12), &"thigh_l": Vector3(5, 0, -12), &"shin_r": Vector3(-95, 0, 0),
+			&"shin_l": Vector3(-95, 0, 0), &"foot_r": Vector3(-50, 0, 0), &"foot_l": Vector3(-50, 0, 0),
+			&"abdomen": Vector3(-15, 0, 0), &"chest": Vector3(-10, 0, 0), &"head": Vector3(10, 0, 0),
+			&"upper_arm_r": Vector3(40, 0, 12), &"upper_arm_l": Vector3(30, 0, -10),
+			&"forearm_r": Vector3(10, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
+	# ... his right foot brought up under him, the left knee still down, his hand on his knee:
+	&"kneel_up": {&"thigh_r": Vector3(80, 0, 8), &"thigh_l": Vector3(0, 0, -6), &"shin_r": Vector3(-85, 0, 0),
+			&"shin_l": Vector3(-95, 0, 0), &"foot_r": Vector3(5, 0, 0), &"foot_l": Vector3(-50, 0, 0),
+			&"abdomen": Vector3(-18, 0, 0), &"chest": Vector3(-12, 0, 0), &"head": Vector3(12, 0, 0),
+			&"upper_arm_r": Vector3(40, 0, 6), &"upper_arm_l": Vector3(20, 0, -10),
+			&"forearm_r": Vector3(30, 0, 0), &"forearm_l": Vector3(20, 0, 0)},
+	# ... then up off his heels, bent over with his hands on his knees, before he straightens:
+	&"hands_knees": {&"thigh_r": Vector3(50, 0, 6), &"thigh_l": Vector3(50, 0, -6), &"shin_r": Vector3(-55, 0, 0),
+			&"shin_l": Vector3(-55, 0, 0), &"foot_r": Vector3(8, 0, 0), &"foot_l": Vector3(8, 0, 0),
+			&"abdomen": Vector3(-25, 0, 0), &"chest": Vector3(-20, 0, 0), &"head": Vector3(25, 0, 0),
+			&"upper_arm_r": Vector3(45, 0, 10), &"upper_arm_l": Vector3(45, 0, -10),
+			&"forearm_r": Vector3(15, 0, 0), &"forearm_l": Vector3(15, 0, 0)},
+	&"all_fours": {&"thigh_r": Vector3(90, 0, 12), &"thigh_l": Vector3(90, 0, -12), &"shin_r": Vector3(-90, 0, 0),
+			&"shin_l": Vector3(-90, 0, 0), &"foot_r": Vector3(-40, 0, 0), &"foot_l": Vector3(-40, 0, 0),
+			&"upper_arm_r": Vector3(90, 0, 6), &"upper_arm_l": Vector3(90, 0, -6),
+			&"forearm_r": Vector3(5, 0, 0), &"forearm_l": Vector3(5, 0, 0), &"neck": Vector3(20, 0, 0),
+			&"head": Vector3(15, 0, 0)},
 }
 ## Poses lying down (the rig is turned face-down). "lie" is lying flat by choice (behind something
 ## low), and he can get up again; "prone" is down because his legs have gone.
@@ -312,6 +351,10 @@ func _ready() -> void:
 		var life := FaceLife.new()
 		life.name = "FaceLife"
 		add_child(life)
+	if PeopleBodies.report(body_model).has("facerig"):
+		var speech := FaceSpeech.new()   # his mouth saying his lines (Events.spoke)
+		speech.name = "FaceSpeech"
+		add_child(speech)
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
@@ -395,16 +438,7 @@ func _build() -> void:
 			(pivots[parent] as Node3D).add_child(pivot)
 			pivot.position = rest - _pivot_rest(parent)
 		pivots[sid] = pivot
-		var part := AnimatableBody3D.new()
-		part.name = "Part"
-		part.sync_to_physics = false
-		part.collision_layer = Layers.BODY_PARTS
-		part.collision_mask = 0
-		part.set_meta(&"human_body", self)
-		part.set_meta(&"segment", sid)
-		part.set_meta(&"mass", total_mass * shares[sid] / total)
-		pivot.add_child(part)
-		part.position = anatomy.segment_center(sid) - rest
+		var part := _new_part(sid, pivot, rest, total_mass * shares[sid] / total)
 		var center := anatomy.segment_center(sid)
 		for i in s.capsules.size():
 			var c: Array = s.capsules[i]
@@ -425,6 +459,26 @@ func _build() -> void:
 		_build_visual(sid, vis)
 	_build_skin()
 	_build_hat_box()
+	_new_blocker()
+
+
+## A standing part: the animated body carrying segment `sid` under its pivot.
+func _new_part(sid: StringName, pivot: Node3D, rest: Vector3, mass: float) -> AnimatableBody3D:
+	var part := AnimatableBody3D.new()
+	part.name = "Part"
+	part.sync_to_physics = false
+	part.collision_layer = Layers.BODY_PARTS
+	part.collision_mask = 0
+	part.set_meta(&"human_body", self)
+	part.set_meta(&"segment", sid)
+	part.set_meta(&"mass", mass)
+	pivot.add_child(part)
+	part.position = anatomy.segment_center(sid) - rest
+	return part
+
+
+## The capsule that keeps the player out of him (see _set_blocker).
+func _new_blocker() -> void:
 	_blocker = StaticBody3D.new()
 	_blocker.name = "Blocker"
 	_blocker.set_meta(&"human_body", self)
@@ -1163,6 +1217,8 @@ func _physics_step(delta: float) -> void:
 	if limp:
 		if hat_body != null:
 			_hat_meets_ground()
+		_step_brace(delta)
+		_rise_watch(delta)
 		_step_tone(delta)
 		if _impacts:
 			_impacts.step(delta)
@@ -1216,6 +1272,9 @@ func _track_carry(delta: float) -> void:
 func set_pose(p: StringName) -> void:
 	if not POSES.has(p):
 		return
+	if rising:
+		_pose_after = p
+		return
 	if prone and not p in PRONE_POSES:
 		p = &"prone_aim" if p == &"aim" or p == &"crouch_aim" else &"prone"
 	pose = p
@@ -1236,10 +1295,223 @@ func go_prone() -> void:
 	Events.person_fell.emit(self, true)
 
 
+# --- Getting up -------------------------------------------------------------------------------
+
+## Knocked off his feet and not hurt past it (a shove, his chair gone: `brace`), he lies a moment and
+## gets up again (Sean, 2026-10-22). The ragdoll becomes the standing rig where it lies (each joint
+## taking the angle it lies at, so nothing jumps), and he rises through the stages a man does: on his
+## back he sits up; face down he pushes up onto his hands and knees; then he gets his feet under him
+## and stands. Each stage blends his pose (as any pose change) and the rig's lie; his lowest point is
+## kept on the ground. Not after a wound: a man shot stays down (his brain and the falls decide).
+signal got_up
+## He lies this long at least (s) ...
+const RISE_AFTER := 1.6
+## ... and still this long (every part slower than RISE_STILL_SPEED, m/s) before he starts.
+const RISE_STILL := 0.6
+const RISE_STILL_SPEED := 0.3
+## The stages: pose, the rig's turn (degrees: +90 x on his back, -90 face down), seconds, and how
+## far ahead of where his hips lay he is by the stage's end (m: he gets his feet under him, so he
+## crouches over them, not where his hips were).
+const RISE_BACK := [[&"lie_back", Vector3(90, 0, 0), 0.5, 0.0], [&"sit_ground", Vector3.ZERO, 1.1, 0.0],
+		[&"sit_tuck", Vector3.ZERO, 0.8, 0.1], [&"kneel_up", Vector3.ZERO, 1.0, 0.45], [&"hands_knees", Vector3.ZERO, 0.7, 0.5],
+		[&"stand", Vector3.ZERO, 0.9, 0.5]]
+const RISE_FRONT := [[&"prone", Vector3(-90, 0, 0), 0.3, 0.0], [&"all_fours", Vector3(-90, 0, 0), 0.8, 0.0],
+		[&"kneel", Vector3.ZERO, 1.0, -0.35], [&"kneel_up", Vector3.ZERO, 0.8, -0.35], [&"hands_knees", Vector3.ZERO, 0.7, -0.3],
+		[&"stand", Vector3.ZERO, 0.9, -0.3]]
+## He may get up (set by `brace`: an unhurt fall); cleared as he goes limp.
+var rise_ok := false
+## Getting up now: the rig is the stages', not _place_rig's.
+var rising := false
+var _down_t := 0.0
+var _still_t := 0.0
+var _rise_stages: Array = []
+var _rise_i := 0
+var _rise_t := 0.0
+var _rise_from := Transform3D.IDENTITY  ## the rig (in him) as the stage began
+var _rise_pose_from := {}  ## his pose as the stage began: each stage's pose moves with its lie
+var _rise_k := 0.0  ## how far through the stage (0-1, eased)
+var _pose_after := &"stand"  ## what he was told to do while rising
+
+
+## Lying limp: is it time to get up?
+func _rise_watch(delta: float) -> void:
+	if not rise_ok or not physiology.alive:
+		return
+	_down_t += delta
+	var still := true
+	for rb: Variant in parts.values():
+		if rb is RigidBody3D and is_instance_valid(rb) and (rb as RigidBody3D).linear_velocity.length() > RISE_STILL_SPEED:
+			still = false
+			break
+	_still_t = _still_t + delta if still else 0.0
+	if _down_t >= RISE_AFTER and _still_t >= RISE_STILL and physiology.can_stand() and physiology.shock() < 0.3 \
+			and physiology.severed_segments.is_empty():
+		get_up()
+
+
+## Get up off the ground now (limp, alive, his legs his own).
+func get_up() -> void:
+	if not limp or rising or not physiology.can_stand() or not physiology.severed_segments.is_empty():
+		return
+	var pelvis := parts.get(&"pelvis") as RigidBody3D
+	var chest := parts.get(&"chest") as RigidBody3D
+	if pelvis == null or chest == null:
+		return
+	var on_back := (-chest.global_basis.z).y > 0.0
+	# On his back he'll sit up facing his feet; face down he comes up facing where his head is.
+	var to := (((parts[&"foot_l"] as Node3D).global_position + (parts[&"foot_r"] as Node3D).global_position) * 0.5
+			if on_back else (parts[&"head"] as Node3D).global_position) - pelvis.global_position
+	to.y = 0.0
+	if to.length() < 0.05:
+		to = Vector3(0, 0, -1)
+	# Each joint's angle as he lies (the poses' degrees: a ragdoll joint's rest is its pose).
+	var rel := {}
+	for sid: StringName in anatomy.segments:
+		var parent: StringName = anatomy.segments[sid].parent
+		if parent == &"" or not parts.has(parent):
+			continue
+		var pb := (parts[parent] as Node3D).global_basis.orthonormalized()
+		rel[sid] = (pb.inverse() * (parts[sid] as Node3D).global_basis.orthonormalized()).get_euler() * (180.0 / PI)
+	var lie := pelvis.global_transform.orthonormalized()
+	var ground := _ground_y(pelvis.global_position)
+	global_transform = Transform3D(Basis.looking_at(to.normalized(), Vector3.UP), Vector3(lie.origin.x, ground, lie.origin.z))
+	_rebuild_rig()
+	_spare_rubble(lie.origin)
+	_pose_now = rel
+	_pose_now[&"pelvis"] = Vector3.ZERO
+	# The rig set so his pelvis is where the ragdoll's lay (its part sits at the segment's centre).
+	_rig.global_transform = lie * Transform3D(Basis(), -anatomy.segment_center(&"pelvis"))
+	rising = true
+	_rise_stages = RISE_BACK if on_back else RISE_FRONT
+	_rise_i = -1
+	_next_stage()
+
+
+func _next_stage() -> void:
+	_rise_i += 1
+	_rise_t = 0.0
+	_rise_k = 0.0
+	_rise_from = _rig.transform
+	_rise_pose_from = _pose_now.duplicate()
+	if _rise_i >= _rise_stages.size():
+		rising = false
+		# Where he's got to is where he stands: the rig's offset handed to him.
+		var off := Vector3(_rig.position.x, 0.0, _rig.position.z)
+		global_position += global_basis * off
+		_rig.transform = Transform3D(Basis(), Vector3(0.0, _rig.position.y, 0.0))
+		pose = _pose_after
+		got_up.emit()
+		return
+	pose = _rise_stages[_rise_i][0]
+
+
+## While rising, after the pose is applied: the rig turns and slides toward the stage's lie, and his
+## lowest point is put on the ground.
+func _rise_step(delta: float) -> void:
+	var st: Array = _rise_stages[_rise_i]
+	var k := _rise_k
+	var goal := Basis.from_euler((st[1] as Vector3) * (PI / 180.0))
+	var b := Basis(_rise_from.basis.get_rotation_quaternion().slerp(goal.get_rotation_quaternion(), k))
+	var o := _rise_from.origin
+	# Ahead is his -z.
+	_rig.transform = Transform3D(b, Vector3(lerpf(o.x, 0.0, k), _rig.position.y, lerpf(o.z, -float(st[3]), k)))
+	_rig.position.y += global_position.y - _lowest_point()
+	_set_blocker(st[1] != Vector3.ZERO)
+	if _rise_t >= float(st[2]):
+		_next_stage()
+
+
+## Loose pieces lying about him (a chair's he went over with, timber) stop colliding with his rising
+## body: his animated parts are put where the ragdoll lay, among or in them, and the engine flung
+## them out at him (5 kJ: Structure._on_rubble_hit broke his shin as he got up).
+const SPARE_RADIUS := 2.5
+
+
+func _spare_rubble(at: Vector3) -> void:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = SPARE_RADIUS
+	q.shape = ball
+	q.transform = Transform3D(Basis(), at)
+	q.collision_mask = Layers.WORLD
+	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(q, 64):
+		var rb := hit.collider as RigidBody3D
+		if rb == null:
+			continue
+		for part: Variant in parts.values():
+			rb.add_collision_exception_with(part as Node)
+		rb.add_collision_exception_with(_blocker)
+
+
+## The lowest point of him (world y): each capsule's lower end.
+func _lowest_point() -> float:
+	var low := INF
+	for sid: StringName in parts:
+		for c in (parts[sid] as Node).get_children():
+			var cs := c as CollisionShape3D
+			if cs == null or not (cs.shape is CapsuleShape3D):
+				continue
+			var cap := cs.shape as CapsuleShape3D
+			var half := maxf(cap.height * 0.5 - cap.radius, 0.0)
+			var xf := cs.global_transform
+			var axis := xf.basis.y.normalized() * half
+			low = minf(low, minf((xf.origin + axis).y, (xf.origin - axis).y) - cap.radius)
+	return low if low < INF else global_position.y
+
+
+## The ground under a point (world y): what he stands on.
+func _ground_y(at: Vector3) -> float:
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 3.0, Layers.STAND)
+	q.exclude = _own_rids()
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	return (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
+
+
+## The limp body made the standing rig again where it lies (go_limp, backwards): pivots and animated
+## parts, each ragdoll body's shapes, meshes and decals moved back onto its part, the joints and
+## bodies freed.
+func _rebuild_rig() -> void:
+	var old := parts.duplicate()
+	_rig = Node3D.new()
+	_rig.name = "Rig"
+	add_child(_rig)
+	pivots.clear()
+	for sid: StringName in anatomy.segment_order():
+		var parent: StringName = anatomy.segments[sid].parent
+		var pivot := Node3D.new()
+		pivot.name = String(sid)
+		var rest := _pivot_rest(sid)
+		if parent == &"":
+			_rig.add_child(pivot)
+			pivot.position = rest
+		else:
+			(pivots[parent] as Node3D).add_child(pivot)
+			pivot.position = rest - _pivot_rest(parent)
+		pivots[sid] = pivot
+		var rb := old[sid] as Node3D
+		var part := _new_part(sid, pivot, rest, float(rb.get_meta(&"mass", 5.0)))
+		for c in rb.get_children():
+			c.reparent(part, false)
+		parts[sid] = part
+	for c in get_children():
+		if c is Joint3D:
+			c.queue_free()
+	for sid: StringName in old:
+		(old[sid] as Node).queue_free()
+	_impacts = null
+	_tone.clear()
+	_apart.clear()
+	cone_frames.clear()
+	_brace_t = -1.0
+	_new_blocker()
+	limp = false
+	rise_ok = false
+
+
 ## Walk (or run, or crawl) towards a point on the ground, this tick. Stops short of walls and
 ## people; slides along them; climbs a step up to a boardwalk. Returns true on arrival.
 func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> bool:
-	if limp or (stumbling > 0.0 and not _stumble.get("steering", false)):
+	if limp or rising or (stumbling > 0.0 and not _stumble.get("steering", false)):
 		return false
 	var to := target - global_position
 	to.y = 0.0
@@ -1456,6 +1728,8 @@ static func yaw_toward(from: Vector3, point: Vector3) -> float:
 
 ## Turn to face a point and, in the aim pose, raise the gun arm to it.
 func face(point: Vector3) -> void:
+	if rising:
+		return
 	if limp:
 		return
 	var to := point - global_position
@@ -1471,6 +1745,9 @@ func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta * breath_rate()
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
+	if rising:
+		_rise_t += delta
+		_rise_k = smoothstep(0.0, 1.0, clampf(_rise_t / float(_rise_stages[_rise_i][2]), 0.0, 1.0))
 	var clip := _mocap_now(delta)
 	var overlay := _gait_overlay(delta) if clip.is_empty() and _mocap_w <= 0.0 else {}
 	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
@@ -1483,7 +1760,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
-		now = now.lerp(goal, blend)
+		now = now.lerp(goal, blend) if not rising else (_rise_pose_from.get(sid, now) as Vector3).lerp(goal, _rise_k)
 		_pose_now[sid] = now
 		var f: Array = _flinch.get(sid, [Vector3.ZERO, Vector3.ZERO])
 		if delta > 0.0:
@@ -1504,6 +1781,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
 	_place_rig(delta, snap)
+	_reach_step()
 	_grab_step(delta)
 	_sling_step(delta)
 	if held_gun != null and not gun_holstered:
@@ -1606,6 +1884,9 @@ func _gait_overlay(delta: float) -> Dictionary:
 
 ## The rig's height and tilt: lowered so the lower foot is on the ground, or laid face-down.
 func _place_rig(delta: float, snap: bool) -> void:
+	if rising:
+		_rise_step(delta)
+		return
 	var k := 1.0 if snap else clampf(delta * 8.0, 0.0, 1.0)
 	if prone or pose == &"lie":
 		_rig.rotation.x = lerp_angle(_rig.rotation.x, deg_to_rad(-90.0), clampf(delta * 3.0, 0.0, 1.0) if not snap else 1.0)
@@ -1840,7 +2121,7 @@ func _sling_step(delta: float) -> void:
 		var w: float = minf(float(_injury_w.get(key, 0.0)) + delta / INJURY_ONSET, 1.0)
 		_injury_w[key] = w
 		var sx := 1.0 if side == "r" else -1.0
-		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w))
+		_arm_to(side, global_transform * Vector3(-sx * SLING_HAND.x, SLING_HAND.y, SLING_HAND.z), Vector3.UP, smoothstep(0.0, 1.0, w), _grab.get("seg", &""))
 
 
 ## The doctor takes a limb off above where it's gone bad (or smashed): a flap closed over the
@@ -2237,11 +2518,11 @@ func _grab_step(delta: float) -> void:
 	if String(g.seg).begins_with("hand") or String(g.seg).begins_with("forearm"):
 		hurt = String(g.seg).right(1)
 		var hx := 1.0 if hurt == "r" else -1.0
-		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k)
+		_arm_to(hurt, global_transform * Vector3(hx * 0.05, 1.02, -0.24), Vector3.UP, k, g.seg)
 	var part := parts[g.seg] as Node3D
 	var at: Vector3 = part.global_transform * (g.at as Vector3)
 	var n := (part.global_basis * _skin_normal(g.seg, g.at)).normalized()
-	if not _arm_to(side, at, n, k) and hurt == "":
+	if not _arm_to(side, at, n, k, g.seg) and hurt == "":
 		_hand_press(g.wound, false)
 		_grab.clear()  # out of his reach (a shin, standing): he leaves it
 		return
@@ -2253,10 +2534,84 @@ func _grab_step(delta: float) -> void:
 		curl_hand(side, curl)
 
 
+## Where a deed has put his hands this tick (WipeBar: on the bar top, at his shoulder, round a
+## glass): side -> {at, n, k, frame}. Laid by the same IK as a hand to a wound (`_arm_to`), after
+## the pose and before the wound's (a hand going to a wound wins, from wherever this put it); a
+## reach nobody renewed since the last tick lets the arm go back to the pose.
+var _reach := {}
+
+
+## Put his hand on `side` at `at` (world: the middle of the palm), palm toward `-n` (a bar top's
+## normal: palm down on it), `k` of the way from the pose (0..1; ease it). Call it every tick he's
+## to keep it there. False if it's out of his reach (the arm goes as far as it can).
+func reach_to(side: String, at: Vector3, n := Vector3.UP, k := 1.0) -> bool:
+	_reach[side] = {"at": at, "n": n.normalized(), "k": clampf(k, 0.0, 1.0), "frame": Engine.get_physics_frames()}
+	return can_reach(side, at)
+
+
+## Whether the middle of his palm on `side` could be put at `at` from where he stands.
+func can_reach(side: String, at: Vector3) -> bool:
+	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
+	if up == null or limp:
+		return false
+	return up.global_position.distance_to(at) <= _arm_length(side) + GRAB_PALM
+
+
+## Shoulder to wrist (m).
+func _arm_length(side: String) -> float:
+	return (_pivot_rest(StringName("forearm_" + side)) - _pivot_rest(StringName("upper_arm_" + side))).length() \
+			+ (_pivot_rest(StringName("hand_" + side)) - _pivot_rest(StringName("forearm_" + side))).length()
+
+
+## The middle of his palm on `side` (world), where he holds things.
+func palm(side: String) -> Vector3:
+	var hand := parts.get(StringName("hand_" + side)) as Node3D
+	return hand.global_position if hand else global_position
+
+
+## The hand on `side` is pressed on a wound (his own): the blood coming out under it now (ml/s,
+## held back as it is by the press), by how far the hand is there. 0 if it's on none.
+func wound_under_hand(side: String) -> float:
+	if _grab.is_empty() or _grab.side != side or limp:
+		return 0.0
+	var r := 0.0
+	for i: int in _grab.wound.get("bleeds", []):
+		if i < physiology.bleeds.size() and physiology.bleeds[i].kind != &"internal":
+			r += physiology.bleed_rate(physiology.bleeds[i])
+	return r * float(_grab.w)
+
+
+## The hand going to (or holding) a wound, "r"/"l", or "" if neither.
+func grab_side() -> String:
+	return "" if _grab.is_empty() else String(_grab.side)
+
+
+func _reach_step() -> void:
+	if _reach.is_empty():
+		return
+	var now := Engine.get_physics_frames()
+	for side: String in _reach.keys():
+		var r: Dictionary = _reach[side]
+		if now - int(r.frame) > 1 or prone or not _hand_free(side):
+			_reach.erase(side)
+			continue
+		# (A hand going to a wound of his takes it on from here: _grab_step blends from where this
+		# leaves the arm, so it doesn't drop to the pose first.)
+		var at: Vector3 = r.at
+		# Out of reach, as far toward it as the arm goes (not the pose for a tick, then back).
+		var sh := (pivots[StringName("upper_arm_" + side)] as Node3D).global_position
+		var most := _arm_length(side) + GRAB_PALM - 0.02
+		if sh.distance_to(at) > most:
+			at = sh + (at - sh).normalized() * most
+		# `at` is the palm's middle; _arm_to lays the palm's middle GRAB_OFF_SKIN off the point.
+		_arm_to(side, at - (r.n as Vector3) * GRAB_OFF_SKIN, r.n, r.k)
+
+
 ## Lay the hand on `side` over the point `at` (world, skin normal `n`), by `k` of the way from the
 ## pose: two-bone IK on the shoulder and elbow, the elbow out and down, then the hand turned to lie
-## across the hole palm in. False if it's out of his reach.
-func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
+## across the hole palm in. False if it's out of his reach. `on_seg`: the part of him it's on, if any
+## (his neck and trunk take the hand more level).
+func _arm_to(side: String, at: Vector3, n: Vector3, k: float, on_seg := &"") -> bool:
 	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
 	var fa := pivots.get(StringName("forearm_" + side)) as Node3D
 	var hd := pivots.get(StringName("hand_" + side)) as Node3D
@@ -2269,11 +2624,11 @@ func _arm_to(side: String, at: Vector3, n: Vector3, k: float) -> bool:
 	# The hand lies across the hole the way the arm comes to it, along the skin; on his neck and
 	# trunk more level than that (fingers round the side of the neck, not up over his chin).
 	var along := at - sh
-	var high: bool = _grab.get("seg", &"") in [&"neck", &"head"]
+	var high: bool = on_seg in [&"neck", &"head"]
 	if high:
 		# Up from in front, his fingers round the side of his neck toward the back, elbow down.
 		along = global_basis * Vector3(0, 0.3, 1)
-	elif _grab.get("seg", &"") in [&"chest", &"abdomen", &"pelvis"]:
+	elif on_seg in [&"chest", &"abdomen", &"pelvis"]:
 		along = global_basis.inverse() * along
 		along.y *= 0.25
 		along = global_basis * along
@@ -2698,6 +3053,8 @@ func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.D
 		var rb := parts.get(seg) as RigidBody3D
 		if rb:
 			rb.apply_impulse(dir * given, point - rb.global_position)
+		# Knocked off his feet, not hurt past knowing it: he throws out his arms (`brace`).
+		brace()
 	elif not limp:
 		_flinch_from(seg, point, dir, joules * 0.002)
 	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
@@ -2920,6 +3277,20 @@ func _stain_runs_down(w: Dictionary, stain: Decal) -> void:
 
 
 ## A pool spreads on the ground under him while he lies bleeding.
+## A mop over the pool under him: `share` of it taken up (it grows again while he bleeds).
+func mop_pool(share: float) -> void:
+	_pool_ml *= clampf(1.0 - share, 0.0, 1.0)
+	if _pool == null:
+		return
+	if _pool_ml < 1.0:
+		_pool.queue_free()
+		_pool = null
+		_pool_ml = 0.0
+		return
+	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
+	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+
+
 func _update_pool() -> void:
 	if not physiology.alive and physiology.total_bleed_rate() < 0.01:
 		return
@@ -3081,6 +3452,10 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	rising = false
+	rise_ok = false
+	_down_t = 0.0
+	_still_t = 0.0
 	if not _grab.is_empty():
 		_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
 		_grab.clear()
@@ -3432,6 +3807,83 @@ func _hunch(seg: StringName, at: Vector3, dir: Vector3) -> void:
 		j[2] = bend.get_rotation_quaternion() * (j[2] as Quaternion)
 
 
+## Awake and going over with nothing hurting him (his chair gone from under him, a shove): his arms
+## go out and his chin tucks in, for the moment his muscles still answer him (Sean, 2026-10-22; the
+## chair's blind critic: "a man taken by surprise would flail, grab the seat, tuck his chin"). The
+## protective reactions of a fall: thrown backwards, the arms fling forward and out (the
+## counterbalance) and the chin tucks to spare the back of the head; pitched forward, the arms reach
+## ahead to take the ground and the head comes up. Tone targets, as `_hunch`: the pose his joints
+## are pulled toward, held BRACE_TONE times harder and fading over BRACE_FADE, not a push. Degrees
+## as the poses' (forward is -x for the trunk and neck, +x for an arm; + z takes his right arm out).
+const BRACE_BACK := {&"upper_arm": Vector3(55, 0, 60), &"forearm": Vector3(25, 0, 0),
+		&"neck": Vector3(-25, 0, 0), &"head": Vector3(-15, 0, 0)}
+const BRACE_FRONT := {&"upper_arm": Vector3(80, 0, 18), &"forearm": Vector3(15, 0, 0),
+		&"neck": Vector3(15, 0, 0), &"head": Vector3(10, 0, 0)}
+## ... and his trunk curls a little toward his knees as he goes back (degrees added to its pose).
+const BRACE_CURL := {&"abdomen": Vector3(-8, 0, 0), &"chest": Vector3(-8, 0, 0)}
+const BRACE_TONE := 2.5
+const BRACE_FADE := 0.9
+## He reads which way he's going this soon after he loses his footing (s), or as soon after that
+## as his chest is moving this fast (m/s), giving up after BRACE_WAIT.
+const BRACE_AFTER := 0.05
+const BRACE_SPEED := 0.15
+const BRACE_WAIT := 0.4
+var _brace_t := -1.0
+
+
+## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
+## nothing).
+func brace() -> void:
+	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
+		return
+	_brace_t = 0.0
+	# Not hurt past knowing it: he'll get up again once he's still (`get_up`).
+	rise_ok = true
+
+
+func _step_brace(delta: float) -> void:
+	if _brace_t < 0.0:
+		return
+	_brace_t += delta
+	var chest := parts.get(&"chest") as RigidBody3D
+	if chest == null or not is_instance_valid(chest) or _tone.is_empty():
+		_brace_t = -1.0
+		return
+	var v := chest.linear_velocity
+	v.y = 0.0
+	if _brace_t < BRACE_AFTER or (v.length() < BRACE_SPEED and _brace_t < BRACE_WAIT):
+		return
+	_brace_t = -1.0
+	# Which way he's going, against the way his chest faces (its front is -z).
+	var front := -chest.global_basis.z
+	front.y = 0.0
+	var back := v.length() < BRACE_SPEED or v.dot(front) <= 0.0
+	var shape: Dictionary = BRACE_BACK if back else BRACE_FRONT
+	for j: Array in _tone:
+		var sid := String((j[0] as Node).get_meta(&"segment", &""))
+		var key := StringName(sid.trim_suffix("_r").trim_suffix("_l"))
+		var d: Vector3
+		if shape.has(key):
+			d = shape[key]
+			if sid.ends_with("_l"):
+				d.z = -d.z
+			var q := Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion()
+			if key == &"upper_arm":
+				# The arm swung to where those angles point it, by the shortest turn from hanging
+				# down: two Euler angles together also twist it about its own length (51 degrees on
+				# the left, past its 40: the lab's twist_past_limit).
+				q = Quaternion(Vector3.DOWN, q * Vector3.DOWN)
+			j[2] = q
+		elif back and BRACE_CURL.has(key):
+			d = BRACE_CURL[key]
+			j[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (j[2] as Quaternion)
+		else:
+			continue
+		j[3] = float(j[3]) * BRACE_TONE
+		if j.size() < 6:
+			j.append(BRACE_FADE)
+
+
 func _step_tone(delta: float) -> void:
 	if _tone.is_empty():
 		return
@@ -3441,6 +3893,8 @@ func _step_tone(delta: float) -> void:
 		return
 	var share := _tone_start * exp(-_tone_t / _tone_fade)
 	for j: Array in _tone:
+		# A braced joint (`brace`) holds on longer than the rest of him.
+		var held := share if j.size() < 6 else _tone_start * exp(-_tone_t / float(j[5]))
 		var child := j[0] as RigidBody3D
 		var up := j[1] as RigidBody3D
 		if not is_instance_valid(child) or not is_instance_valid(up) 				or physiology.severed_segments.has(child.get_meta(&"segment", &"")):
@@ -3456,7 +3910,7 @@ func _step_tone(delta: float) -> void:
 		# parts (a hand's or the neck's inertia is tiny: uncapped, they spun 45 degrees a tick).
 		var rel_w := child.angular_velocity - up.angular_velocity
 		var at: Vector3 = child.global_transform * (j[4] as Vector3)
-		var k := minf(j[3] * share, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
+		var k := minf(j[3] * held, TONE_STEP_SHARE * _tone_inertia(child, up, axis, at) / (delta * delta))
 		var c := minf(k * TONE_DAMP, TONE_STEP_SHARE * _tone_inertia(child, up, rel_w.normalized(), at) / delta)
 		if is_nan(k) or is_nan(c):
 			continue

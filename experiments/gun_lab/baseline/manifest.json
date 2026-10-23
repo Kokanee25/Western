@@ -1,0 +1,23 @@
+{
+ "commit": "fd7fe08a6329dc37f01253eb83418dcd211c4271",
+ "jobs": [
+  "handling",
+  "fp_revolver",
+  "fp_shotgun",
+  "men_bold_cowboy_s0",
+  "men_old_rancher_s1",
+  "men_young_drifter_s1",
+  "men_sean_s2"
+ ],
+ "ok": [
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true
+ ],
+ "when": "2026-10-22 05:15",
+ "note": "handling from the clock-running bench (build/gun_lab/h2); men from the x-ray runs (build/gun_lab/xr)"
+}
