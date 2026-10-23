@@ -11,10 +11,12 @@ const SHIN := 0.41
 ## The body sits a little behind the eyes; looking down pushes it further back so you see your boots.
 const BACK_OFFSET := 0.08
 const LOOK_DOWN_BACK_OFFSET := 0.26
-## What you wear, and your skin: the hands and sleeves holding your guns are the same (GunParts).
-const SHIRT := Color(0.74, 0.67, 0.54)
-const VEST := Color(0.24, 0.17, 0.12)
-const SKIN := Color(0.72, 0.53, 0.4)
+## What you wear, and your skin: the hands and sleeves holding your guns are a Studio man's own
+## (HeldHand.MODEL, the young drifter), so your body wears his colours: the median of his painted
+## texture over his upper arm (the shirt), his chest's sides (the vest) and his hand (the skin).
+const SHIRT := Color(0.62, 0.55, 0.47)
+const VEST := Color(0.31, 0.21, 0.12)
+const SKIN := Color(0.61, 0.38, 0.28)
 
 var _hips: Node3D
 var _torso: Node3D

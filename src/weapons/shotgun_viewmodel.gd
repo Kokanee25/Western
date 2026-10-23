@@ -13,7 +13,7 @@ extends WeaponViewmodel
 enum Pose { HIP, AIM, LOADING }
 
 const POSES := {
-	Pose.HIP: [Vector3(0.11, -0.2, -0.22), Vector3(3.0, 4.0, 0.0)],
+	Pose.HIP: [Vector3(0.1, -0.17, -0.33), Vector3(5.0, 6.0, 0.0)],
 	Pose.AIM: [Vector3(0.0, -0.056, -0.32), Vector3(0.6, 0.0, 0.0)],
 	Pose.LOADING: [Vector3(0.04, -0.12, -0.3), Vector3(-8.0, 14.0, 6.0)],
 }
@@ -25,16 +25,39 @@ const TUCK_ROT := Vector3(62.0, 12.0, -8.0)
 const OPEN_ANGLE := -32.0
 const HAMMER_BACK := 40.0
 
+## The hands (the gun lab's `views.gd --fit`: the fingers closed on the wood, every bone 0-3 mm
+## off it, the index's pad on the front trigger, the thumbs clear of the steel).
+## The right: its index knuckle on the right of the stock's wrist by the guard, the knuckles'
+## line run back along the wrist, the forearm back, down and out to the right.
+const R_HAND_POS := Vector3(0.026, -0.024, 0.016)
+const R_HAND_TILT := -45.0
+const R_HAND_ROLL := 0.0
+const R_FOREARM := Vector3(0.7, -0.45, 0.55)
+const R_GRIP := {"middle": [73.0, 59.0, 44.0], "ring": [107.0, 0.0, 75.0], "little": [115.0, 0.0, 0.0]}
+## The index swung forward from its knuckle onto the front trigger (a plain curl can't reach it),
+## and squeezed back.
+const R_INDEX_REST := [Vector3(24.0, 60.0, 36.0), 15.0, 10.0]
+const R_INDEX_PULL := [Vector3(24.0, 48.0, 24.0), 15.0, 10.0]
+const R_THUMB_REST := [Vector3(12.0, 24.0, 12.0), 45.0, 40.0]
+const R_THUMB_COCK := [Vector3(48.0, 12.0, 60.0), 45.0, 40.0]
+## The left, in the barrels' space: the forend across its palm, its fingers up the right side and
+## its thumb up the left, the forearm back, down and out to the left.
+const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
+const L_HAND_TILT := -90.0
+const L_HAND_ROLL := 90.0
+const L_FOREARM := Vector3(-0.3, -0.55, 0.78)
+const L_GRIP := {"index": [13.0, 79.0, 4.0], "middle": [50.0, 77.0, 52.0], "ring": [29.0, 79.0, 32.0], "little": [2.0, 80.0, 0.0]}
+const L_THUMB := [Vector3(60.0, 60.0, -60.0), 45.0, 40.0]
+
 @export var tuning: ShotgunTuning
 
 var state: ShotgunState
 var model: ShotgunModel
-## The right hand round the wrist of the stock (index finger on the triggers, thumb for the
-## hammers) and the left under the forend; finger by finger, like the revolver's hand.
-var hand: Node3D
-var left_hand: Node3D
-var _index: Node3D
-var _thumb_pivot: Node3D
+## The right hand round the wrist of the stock (index finger on the front trigger, thumb over the
+## top for the hammers) and the left under the forend, riding the barrels: HeldHands, the same
+## painted Studio hands as the revolver's.
+var hand: HeldHand
+var left_hand: HeldHand
 
 var _open := 0.0
 var _hammers := [0.0, 0.0]
@@ -71,37 +94,27 @@ func _ready() -> void:
 
 
 func _build_hands() -> void:
-	var skin := GunParts.skin()
-	var sleeve := GunParts.held_cloth("coat", Color(0.36, 0.25, 0.16))
-	var cuff := GunParts.held_cloth("cuff", Color(0.82, 0.76, 0.62))
-	# Right hand: the back of it on the right of the wrist, fingers curled under, forearm running
-	# back and down to the right, out of the sight line.
-	hand = GunParts.pivot(model, "Hand", Vector3(0.0, 0.0, 0.035))
-	GunParts.box(hand, "Back", Vector3(0.022, 0.045, 0.075), Vector3(0.024, -0.012, 0.0), skin)
-	for i in 3:
-		GunParts.box(hand, "Finger%d" % i, Vector3(0.05, 0.016, 0.017), Vector3(0.0, -0.028, -0.004 + i * 0.019), skin)
-	_index = GunParts.pivot(hand, "Index", Vector3(0.014, -0.02, -0.04))
-	GunParts.box(_index, "Bone", Vector3(0.016, 0.016, 0.03), Vector3(-0.008, 0.0, -0.013), skin, Vector3(0, 25, 0))
-	_thumb_pivot = GunParts.pivot(hand, "Thumb", Vector3(0.014, 0.02, -0.02))
-	GunParts.box(_thumb_pivot, "Bone", Vector3(0.016, 0.016, 0.04), Vector3(-0.006, 0.004, -0.018), skin, Vector3(0, 20, 0))
-	var arm := GunParts.pivot(hand, "Forearm", Vector3(0.03, -0.02, 0.035))
-	arm.rotation_degrees = Vector3(38.0, 24.0, 0.0)
-	GunParts.box(arm, "Wrist", Vector3(0.05, 0.05, 0.05), Vector3(0, 0, 0.02), skin)
-	GunParts.box(arm, "Cuff", Vector3(0.066, 0.064, 0.04), Vector3(0, 0, 0.065), cuff)
-	GunParts.box(arm, "Sleeve", Vector3(0.072, 0.07, 0.24), Vector3(0, 0, 0.2), sleeve)
-	# Left hand: the forend lies across the palm, fingers up the right side, thumb up the left;
-	# the forearm goes back and down to the left. It rides the barrels when the gun breaks open.
-	var y := ShotgunModel.BARREL_Y - 0.026
-	left_hand = GunParts.pivot(model.barrels, "LeftHand", Vector3(0.0, y, -0.07))
-	GunParts.box(left_hand, "Palm", Vector3(0.05, 0.02, 0.075), Vector3(-0.004, -0.021, 0.0), skin)
-	for i in 4:
-		GunParts.box(left_hand, "Finger%d" % i, Vector3(0.016, 0.032, 0.016), Vector3(0.026, -0.004, -0.028 + i * 0.018), skin, Vector3(0, 0, -8))
-	GunParts.box(left_hand, "Thumb", Vector3(0.015, 0.028, 0.04), Vector3(-0.026, -0.002, -0.01), skin, Vector3(0, 0, 10))
-	var larm := GunParts.pivot(left_hand, "Forearm", Vector3(-0.01, -0.03, 0.03))
-	larm.rotation_degrees = Vector3(40.0, -18.0, 0.0)
-	GunParts.box(larm, "Wrist", Vector3(0.05, 0.05, 0.05), Vector3(0, 0, 0.02), skin)
-	GunParts.box(larm, "Cuff", Vector3(0.066, 0.064, 0.04), Vector3(0, 0, 0.065), cuff)
-	GunParts.box(larm, "Sleeve", Vector3(0.072, 0.07, 0.3), Vector3(0, 0, 0.23), sleeve)
+	hand = _held(true, model, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
+	for f: String in R_GRIP:
+		hand.curl(f, R_GRIP[f])
+	left_hand = _held(false, model.barrels, L_HAND_POS, L_HAND_TILT, L_HAND_ROLL, L_FOREARM)
+	for f: String in L_GRIP:
+		left_hand.curl(f, L_GRIP[f])
+	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
+
+
+## A hand at `pos` in `parent`'s space: turned `tilt` about X (degrees; the knuckles' line from
+## pointing up to along the wood) then `roll` about the gun's length, its forearm aimed `forearm`
+## (a direction in the gun's space, back towards that shoulder).
+func _held(is_right: bool, parent: Node3D, pos: Vector3, tilt: float, roll: float, forearm: Vector3) -> HeldHand:
+	var h := HeldHand.new(is_right)
+	h.name = "Hand" if is_right else "LeftHand"
+	h.position = pos
+	h.basis = Basis(Vector3.BACK, deg_to_rad(roll)) * Basis(Vector3.RIGHT, deg_to_rad(tilt))
+	parent.add_child(h)
+	h.build()
+	h.aim_forearm(forearm)
+	return h
 
 
 func _process(delta: float) -> void:
@@ -241,9 +254,12 @@ func _animate(delta: float) -> void:
 		model.hammers[i].rotation_degrees.x = _hammers[i]
 		_triggers[i] = move_toward(_triggers[i], 0.0, delta * 5.0)
 		model.triggers[i].rotation_degrees.x = -18.0 * _triggers[i]
-	_index.rotation_degrees.x = -30.0 - 25.0 * maxf(_triggers[0], _triggers[1])
+	var pull := maxf(_triggers[0], _triggers[1])
+	hand.pose_finger("index", (R_INDEX_REST[0] as Vector3).lerp(R_INDEX_PULL[0], pull), lerpf(R_INDEX_REST[1], R_INDEX_PULL[1], pull),
+			lerpf(R_INDEX_REST[2], R_INDEX_PULL[2], pull))
 	_thumb = move_toward(_thumb, 0.0, delta * 3.0)
-	_thumb_pivot.rotation_degrees = Vector3(-10.0 + 35.0 * _thumb, 0.0, 0.0)
+	hand.thumb_pose((R_THUMB_REST[0] as Vector3).lerp(R_THUMB_COCK[0], _thumb), lerpf(R_THUMB_REST[1], R_THUMB_COCK[1], _thumb),
+			lerpf(R_THUMB_REST[2], R_THUMB_COCK[2], _thumb))
 	model.show_barrels(state.barrels)
 	model.butt.visible = not (selected and _pose_pos.distance_to(POSES[Pose.AIM][0]) < 0.06 and tuck < 0.3)
 	_animate_camera(delta, tuning.aim_fov)
