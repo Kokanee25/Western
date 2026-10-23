@@ -16,6 +16,10 @@ const HELP := {
 	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
 	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
 	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
+	"gf_aim": "gf_aim NAME SEGMENT -> turn to face that part of him (upper_arm_l, thigh_r, chest...): a shot there, for a film",
+	"gf_hit": "gf_hit NAME SEGMENT -> a revolver ball from your eye straight at that part of him (the lab's sure shot, for a film: no sway, no spread)",
+	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
+	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera DIST m (3) from him, DEG (40) round from his front, HEIGHT m (1.5) up, on his chest; `camera player` to come back",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -407,3 +411,63 @@ func _cmd_gf_result(_a: Array) -> Dictionary:
 		men[id] = m.outcome
 	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
 		"men": men}
+
+
+func _cmd_gf_aim(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_aim}
+	bridge._face((m.parts[StringName(a[1])] as Node3D).global_position)
+	await physics_frames(1)
+	return {"aimed": a[1]}
+
+
+func _cmd_gf_watch(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_watch}
+	var dist := float(a[1]) if a.size() > 1 else 3.0
+	var deg := float(a[2]) if a.size() > 2 else 40.0
+	var h := float(a[3]) if a.size() > 3 else 1.5
+	var front := (-m.global_basis.z).rotated(Vector3.UP, deg_to_rad(deg))
+	var chest := m.global_position + Vector3.UP * 1.2
+	var at := m.global_position + front * dist + Vector3.UP * h
+	var args := [at.x, at.y, at.z, chest.x, chest.y, chest.z]
+	if a.size() > 4:
+		args.append(a[4])
+	return await bridge._cmd_camera(args.map(func(v: Variant) -> String: return str(v)))
+
+
+func _cmd_gf_hit(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_hit}
+	var b := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	var rev := player.revolver() as RevolverViewmodel
+	if b == null or rev == null:
+		return {"ok": false, "error": "no ballistics or revolver"}
+	var eye := player.camera.global_position
+	var dir := ((m.parts[StringName(a[1])] as Node3D).global_position - eye).normalized()
+	var t := rev.tuning
+	var exclude: Array[RID] = [player.get_rid()]
+	var ball := b.fire(eye + dir * 0.3, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+	ball.form = t.form_factor
+	ball.shooter = player
+	GunSmoke.spawn(b.get_parent(), eye + dir * 0.6, dir)
+	if GameAudio.enabled():
+		GameAudio.gunshot(rev, eye)
+	Events.shot_fired.emit(eye, dir, player)
+	var wounds := m.wounds.size()
+	await physics_frames(3)
+	return {"hit": m.wounds.size() > wounds, "wounds": m.wounds.size()}
+
+
+func _cmd_gf_minds(_a: Array) -> Dictionary:
+	var out := {}
+	for id: String in ["brody", "lyle", "kid"]:
+		var m := person(id)
+		var b := m.get_node_or_null(^"Brain") as OutlawBrain if m else null
+		if b:
+			out[id] = {"decision": b.decision, "fear": snappedf(b.fear, 0.01), "nerve": snappedf(b.nerve_now(), 0.01),
+					"pain": snappedf(m.physiology.felt_pain(), 0.01), "bleed": snappedf(m.physiology.total_bleed_rate(), 0.01)}
+	return {"men": out}

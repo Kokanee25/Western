@@ -48,6 +48,10 @@ const POSES := {
 			&"abdomen": Vector3(-20, 0, 0), &"chest": Vector3(-30, 0, 0), &"head": Vector3(-5, 0, 0),
 			&"upper_arm_r": Vector3(35, 0, -10), &"forearm_r": Vector3(100, 0, 0),
 			&"upper_arm_l": Vector3(35, 0, 14), &"forearm_l": Vector3(105, 0, 0)},
+	# Hit and still up (OutlawBrain's wince): hunched over it, head down to it, the gun arm let down.
+	&"wince": {&"abdomen": Vector3(-10, 0, 0), &"chest": Vector3(-16, 0, 0), &"head": Vector3(-22, 0, 0),
+			&"upper_arm_r": Vector3(16, 0, -6), &"forearm_r": Vector3(45, 0, 0),
+			&"upper_arm_l": Vector3(12, 0, 10), &"forearm_l": Vector3(70, 0, 0)},
 	# Crouched, pressing on a wound.
 	&"tend": {&"thigh_r": Vector3(95, 0, 8), &"thigh_l": Vector3(95, 0, -8), &"shin_r": Vector3(-125, 0, 0),
 			&"shin_l": Vector3(-125, 0, 0), &"foot_r": Vector3(30, 0, 0), &"foot_l": Vector3(30, 0, 0),
@@ -2519,7 +2523,7 @@ const GRAB_HOLD_PAIN := 0.3  ## felt pain: he holds on
 const GRAB_PALM := 0.075  ## m from the wrist to the middle of the palm, laid over the hole
 const GRAB_OFF_SKIN := 0.03  ## m the palm's middle stands off the skin (the hand's own thickness)
 ## Poses in which a hand can go to a wound (not his hands up or bound, not lying, not dragging).
-const GRAB_POSES := [&"stand", &"aim", &"wary", &"crouch", &"crouch_aim", &"duck", &"clutch", &"tend", &"shove"]
+const GRAB_POSES := [&"stand", &"aim", &"wary", &"crouch", &"crouch_aim", &"duck", &"clutch", &"tend", &"shove", &"wince"]
 var _grab := {}  ## {wound, seg, at (part-local), side, t, w}
 ## Off: no hand goes to a wound (the body lab's A/B, `--no-grab`).
 static var hand_to_wound := true

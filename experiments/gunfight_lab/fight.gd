@@ -113,10 +113,15 @@ func setup() -> String:
 	if models.is_empty():
 		return "no bodies %s (%s)" % [opts.bodies, ", ".join((data.gang_models as Dictionary).keys())]
 	seed(int(opts.seed) * 104729 + 7)
-	# Variant D's fixes (OutlawBrain.D_FIXES): all (the default), none, or a list; "-x" all but x.
+	# Variant D's fixes (OutlawBrain.D_FIXES): all (the default), none, or a list; "-x" all but x;
+	# "all+x" all and x (one on trial, not yet in D_FIXES).
 	var fx := String(opts.get("fixes", "all"))
 	if fx == "all" or fx == "":
 		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+	elif fx.begins_with("all+"):
+		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+		for f: String in fx.substr(4).split("+"):
+			OutlawBrain.d_fixes.append(StringName(f))
 	elif fx == "none":
 		OutlawBrain.d_fixes = []
 	elif fx.begins_with("-"):

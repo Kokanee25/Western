@@ -203,3 +203,42 @@ func test_a_friend_still_on_you_keeps_him_in_it() -> void:
 		(men[id] as HumanBody).go_limp()
 	await physics_frames(5)
 	check(_brain(&"kid")._mate_on(player) == null, "with them down, nobody is")
+
+
+## Variant D's `wince` (on trial: `fixes=all+wince`; Sean, 2026-10-23): a ball in the arm and he
+## stops shooting, gets low out of your sight and looks at it; seen to be light, it frightens him
+## less and he's back in it.
+func _arm_hit(id: StringName) -> Dictionary:
+	var m := men[id] as HumanBody
+	var arm := m.parts[&"upper_arm_l"] as Node3D
+	return {"person": m, "kind": &"bullet", "segment": &"upper_arm_l", "position": arm.global_position, "direction": Vector3.FORWARD,
+			"severe": false, "deposited": 40.0, "hits": [], "shooter": player, "knocked_down": false}
+
+
+func test_hit_he_winces_and_gets_out_of_sight_to_look_at_it() -> void:
+	OutlawBrain.d_fixes.append(&"wince")
+	await _gang()
+	await physics_frames(30)
+	var brody := _brain(&"brody")
+	brody.tactic = OutlawBrain.Tactic.OPEN
+	var rounds := brody.rounds
+	var before := brody.fear
+	brody._on_hit(_arm_hit(&"brody"))
+	var scared := brody.fear - before
+	check(brody._wince > 1.0, "he takes a moment over it (%.1f s)" % brody._wince)
+	await physics_frames(20)
+	check_eq(brody.rounds, rounds, "and doesn't shoot meanwhile")
+	check((men[&"brody"] as HumanBody).pose in [&"duck", &"wince"] or brody.tactic == OutlawBrain.Tactic.MOVING,
+			"low, hunched over it, or off to cover (%s, %s)" % [(men[&"brody"] as HumanBody).pose, brody.decision])
+	var seen := await wait_until(func() -> bool: return brody._wince <= 0.0, 60 * 5)
+	check(seen, "he's looked at it")
+	check(brody.decision.begins_with("seen his wound: light"), "a light one (%s)" % brody.decision)
+	check(brody.fear < before + scared - 0.01, "and it frightens him less than it did (%.2f, %.2f when it hit)" % [brody.fear, before + scared])
+
+
+func test_without_wince_he_fights_on_through_it() -> void:
+	await _gang()
+	await physics_frames(30)
+	var brody := _brain(&"brody")
+	brody._on_hit(_arm_hit(&"brody"))
+	check_eq(brody._wince, 0.0, "no wince without the fix")

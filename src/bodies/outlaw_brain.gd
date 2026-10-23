@@ -30,6 +30,9 @@ const LINES := {
 	&"hat": ["My hat!", "That was a good hat, you son of a—", "Close. Real damn close."],
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"gut": ["Oh God, not the belly..."],
+	&"hit_light": ["Just a scratch.", "Ain't nothing. Ain't nothing.", "Hell. That all you got?"],
+	&"hit_bad": ["Oh God, it's bad...", "I'm bleeding bad!", "Lord, look at that..."],
+	&"hit_arm": ["My arm! Can't hold the damn thing!", "Can't hold it... can't hold it..."],
 	&"surrender": ["Alright! Alright! I'm done!", "Don't shoot! I quit, I quit!", "Enough! It's yours!"],
 	&"shaken": ["Hell. Hell, hell, hell...", "Stay down... stay down...", "Lord, get me out of this one."],
 	&"rally": ["Alright. Alright, you son of a—", "Still here, mister!", "That all you got?"],
@@ -144,7 +147,8 @@ var variant: Variant = default_variant
 ## rescue_way (a friend down he goes for only if he can get to him by the town's ways, and goes by
 ## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
 ## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
-## him, and calls the others on).
+## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## (hit and still up, he winces and gets out of sight a moment to see how bad it is).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press"]
 static var d_fixes: Array = D_FIXES.duplicate()
@@ -188,6 +192,13 @@ var _hunt_way: Array[Vector3] = []  # variant D's hunt_way: his way to where he 
 var _hunt_to := Vector3.INF
 var _hunt_t := 0.0
 var _press := 0.0  # variant D's press: seconds left coming at him
+## Variant D's wince: seconds left looking at his wound, where it is (segment, part-local), how bad
+## it was when it hit, and the fear it gave him.
+var _wince := 0.0
+var _wince_seg := &""
+var _wince_at := Vector3.ZERO
+var _wince_severe := false
+var _wince_fear := 0.0
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
 var target: Node3D
@@ -580,13 +591,16 @@ func _on_hit(info: Dictionary) -> void:
 			_scare(clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5), &"hit")
 			return
 		&"graze":
+			var before := fear
 			_scare(fear_per_hit * 0.5, &"hit")
 			if info.get("shooter") != null:
 				_provoked(info.shooter)
+			_start_wince(info, fear - before)
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	# Each buckshot pellet counts for a share: a charge lands several at once.
 	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter", &"gravel"] else 1.0
+	var fear_before := fear
 	_scare((fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
 			+ float(info.get("deposited", 0.0)) / 2000.0) * share * _thump(), &"hit")
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
@@ -607,6 +621,92 @@ func _on_hit(info: Dictionary) -> void:
 	for h: Dictionary in info.hits:
 		if h.effect == &"broken":
 			_scare(0.1 * _thump(), &"hit")
+	_start_wince(info, fear - fear_before)
+
+
+## Variant D's `wince`: hit and still on his feet and in it, he winces and gets out of sight to see
+## how bad it is (`_wince_step`). Not as he goes down, not dragging a friend, not in a rage.
+func _start_wince(info: Dictionary, scared: float) -> void:
+	if not _has(&"wince") or not mood in [Mood.FIGHTING, Mood.RELOADING] or body.prone or body.limp \
+			or body.stumbling > 0.0 or info.get("knocked_down", false) or rage > 0.0 or tactic == Tactic.RESCUING:
+		return
+	var seg: StringName = info.get("segment", &"")
+	if not body.parts.has(seg):
+		return
+	var t := WINCE_TIME * lerpf(WINCE_GREEN, 1.0, clampf(nerve, 0.0, 1.0)) * (1.0 - WINCE_HOT * clampf(temper, 0.0, 1.0))
+	var severe: bool = info.get("severe", false)
+	if severe:
+		t *= WINCE_SEVERE
+	if info.get("kind", &"bullet") == &"graze":
+		t *= WINCE_GRAZE
+	t *= _think.randf_range(0.8, 1.2)
+	_wince_severe = severe or (_wince > 0.0 and _wince_severe)
+	_wince_fear = scared + (_wince_fear if _wince > 0.0 else 0.0)
+	_wince = maxf(_wince, t)
+	_wince_seg = seg
+	_wince_at = (body.parts[seg] as Node3D).global_transform.affine_inverse() * (info.get("position", body.global_position) as Vector3)
+	_press = 0.0
+	_stand_and_fight = false
+	match tactic:
+		Tactic.PEEKING:
+			_duck_back()
+		Tactic.HIDDEN, Tactic.MOVING:
+			pass
+		_:
+			tactic = Tactic.OPEN
+			_search = null
+			_seek_cover(_eye_of(_find_target()) if _find_target() else body.global_position, Vector3.INF, WINCE_TRAVEL, 3.0,
+					"hit, getting out of your sight")
+	_decide("wince, get out of sight", "hit in the %s: seeing how bad (%.1f s)" % [seg, t])
+
+
+## Wincing: no shooting; behind his cover, down low (or hunched over it standing behind a wall); in
+## the open, low where he is till he's somewhere to go. His eyes on the wound. Running for cover he
+## goes on running (false: the rest of `_combat` has him). Then he's seen it: `_seen_wound`.
+func _wince_step(delta: float, t: Node3D) -> bool:
+	_wince -= delta
+	if _wince <= 0.0:
+		_seen_wound()
+		return false
+	if tactic == Tactic.MOVING:
+		return false
+	var seg_node := body.parts.get(_wince_seg) as Node3D
+	if seg_node != null:
+		var life := body.get_node_or_null(^"FaceLife") as FaceLife
+		if life != null:
+			life.attend_to(seg_node.global_transform * _wince_at, true)
+	if tactic == Tactic.HIDDEN and not cover.is_empty():
+		body.face(_eye_of(t))
+		body.set_pose(&"duck" if cover.low else &"wince")
+		return true
+	tactic = Tactic.OPEN
+	_step_search()
+	if tactic == Tactic.OPEN:
+		body.set_pose(&"duck")
+	return tactic != Tactic.MOVING
+
+
+## He's looked at it. A light one (it isn't bleeding past clotting, his gun hand holds; how much it
+## hurts is his body's: a ball through the arm hurts past disabling for a while whatever it is): it
+## frightens him less than it did, and he's back up soon. A bad one he says
+## so, and what he does about it is his fear's and his blood's (tending, breaking).
+func _seen_wound() -> void:
+	_wince = 0.0
+	var p := body.physiology
+	var arm := not p.can_hold("r")
+	var bad := _wince_severe or arm or p.total_bleed_rate() > p.tuning.clot_max_rate
+	if bad:
+		say(&"hit_arm" if arm else &"hit_bad")
+		_decide("seen his wound: bad", "bleeding %.1f ml/s, pain %.2f%s" % [p.total_bleed_rate(), p.felt_pain(), ", his gun arm" if arm else ""])
+	else:
+		var relief := minf(_wince_fear * WINCE_RELIEF, fear)
+		fear -= relief
+		fear_from[&"hit"] = maxf(float(fear_from.get(&"hit", 0.0)) - relief, 0.0)
+		say(&"hit_light")
+		_decide("seen his wound: light", "bleeding %.1f ml/s; %.2f less afraid" % [p.total_bleed_rate(), relief])
+		if tactic == Tactic.HIDDEN:
+			_tactic_time = _think.randf_range(0.3, 0.8)
+	_wince_fear = 0.0
 
 
 func _on_fell(conscious: bool) -> void:
@@ -1266,6 +1366,8 @@ func _combat(delta: float) -> void:
 	if tactic == Tactic.RESCUING:
 		_rescue(delta, t)
 		return
+	if _wince > 0.0 and not body.prone and _wince_step(delta, t):
+		return
 	if rage > 0.0 and not body.prone:
 		_rage_fight(delta, t)
 		return
@@ -1815,6 +1917,19 @@ const PRESS_REACH := 16.0
 ## Whether being seen hit sets a man on too, and whether his friends go with him (or cover him).
 const PRESS_ON_HIT := false
 const PRESS_TOGETHER := false
+## Variant D's `wince` (Sean, 2026-10-23: "If ai shot give them a wince and a temp hide to evaluate
+## their wound"): hit and still on his feet, he hunches over it, gets out of the man's sight and
+## looks at it for this long (s), times WINCE_GREEN for a green man (nerve 0; 1 for a steady one),
+## less WINCE_HOT of it for a hothead (temper 1), WINCE_SEVERE for a bad wound, WINCE_GRAZE for a
+## graze. In the open he looks for cover this near (m); with none, he goes down low where he is.
+## Seen to be a light one, it frightens him WINCE_RELIEF less than it did when it hit.
+const WINCE_TIME := 2.0
+const WINCE_GREEN := 1.6
+const WINCE_HOT := 0.45
+const WINCE_SEVERE := 1.5
+const WINCE_GRAZE := 0.5
+const WINCE_TRAVEL := 6.0
+const WINCE_RELIEF := 0.5
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
