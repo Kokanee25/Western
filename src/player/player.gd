@@ -313,10 +313,10 @@ func _step_up(delta: float) -> bool:
 	var hit := KinematicCollision3D.new()
 	if not test_move(global_transform, move, hit):
 		return false
-	# A step: something upright in the way, or an edge low on the body (a rounded heel would ride
-	# up onto a nosing and teeter on it), not the ground's own slope underfoot.
-	var low := hit.get_position().y - global_position.y
-	if hit.get_normal().y > 0.7 and (low < 0.03 or low > tuning.step_height):
+	# Anything low in the way (a riser, a nosing, a stair's ramp under its treads' edges): try the
+	# move lifted, and come down where it lands if that's ground to stand on. Up a slope that's
+	# the same climb the slide would make, without the treads' edges catching underfoot.
+	if hit.get_position().y - global_position.y > tuning.step_height:
 		return false
 	# Up onto the tread a little way on (at least a quarter of the body's width), so a rounded heel
 	# doesn't come down on its very edge and teeter there.

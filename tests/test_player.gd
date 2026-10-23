@@ -234,3 +234,30 @@ func test_doesnt_step_onto_a_crate() -> void:
 	await physics_frames(2)
 	await _hold(&"move_forward", 90)
 	check(player.global_position.y < 0.05, "a half-metre crate stops you (y %.2f)" % player.global_position.y)
+
+
+## The game's stairs have a walking ramp along the treads' nosings (Layers.WALK); the treads'
+## edges sit on its face, where a flat foot catches on them sliding up.
+func test_walks_up_a_ramped_stair() -> void:
+	var rise := 0.19
+	var going := 0.25
+	for i in 12:
+		_box_at(Vector3(1.0, 0.035, going + 0.02), Vector3(0.0, rise * (i + 1) - 0.0175, -1.0 - going * (i + 0.5)))
+	_box_at(Vector3(1.0, 2.28, 2.0), Vector3(0.0, 1.14, -1.0 - going * 12 - 1.0))
+	var length := Vector2(going * 12, rise * 12).length()
+	var ramp := StaticBody3D.new()
+	ramp.collision_layer = Layers.WALK
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.0, 0.05, length)
+	shape.shape = box
+	ramp.add_child(shape)
+	arena.add_child(ramp)
+	# Its top face through the nosings (each tread's front edge, top).
+	var angle := atan2(rise * 12, going * 12)
+	ramp.transform = Transform3D(Basis(Vector3.RIGHT, angle), Vector3(0.0, rise * 6 + rise * 0.5 - 0.025 * cos(angle), -1.0 - going * 6 + going * 0.5))
+	await physics_frames(2)
+	Input.action_press(&"move_forward")
+	var up := await wait_until(func() -> bool: return player.global_position.y > 2.2, 480)
+	Input.action_release(&"move_forward")
+	check(up, "up the ramped stair to the landing (got to %.2f m)" % player.global_position.y)

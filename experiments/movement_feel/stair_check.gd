@@ -49,6 +49,7 @@ func _run() -> void:
 			Input.action_release(&"move_forward")
 			Input.action_release(&"run")
 			print("%-6s %-4s climbed %.2f m (at %s)" % [preset, "run" if run else "walk", top - y0, player.global_position])
+			print("        in the way: %s" % _blocker(player, flat))
 	# The new saloon out in the desert (F5's eighth stop), and every stair in it.
 	load("res://experiments/building_lab/play.gd").build(scene)
 	for i in 30:
@@ -74,5 +75,17 @@ func _run() -> void:
 			await physics_frame
 			top = maxf(top, player.global_position.y)
 		Input.action_release(&"move_forward")
-		print("%s: climbed %.2f m of %.2f" % [rb.name, top - y0, (rb.global_position + u * h).y - f.y])
+		print("%s: climbed %.2f m of %.2f; in the way: %s" % [rb.name, top - y0, (rb.global_position + u * h).y - f.y, _blocker(player, fl)])
 	quit(0)
+
+
+## What stops him going on: what a short move ahead (along the slope and level) runs into.
+func _blocker(player: CharacterBody3D, ahead: Vector3) -> String:
+	var out: PackedStringArray = []
+	for dir in [ahead * 0.1, (ahead + Vector3.UP * 0.9).normalized() * 0.1, Vector3.UP * 0.1]:
+		var c := KinematicCollision3D.new()
+		if player.test_move(player.global_transform, dir, c):
+			out.append("%s (%s, normal %s)" % [c.get_collider().name, c.get_collider().get_parent().name if c.get_collider().get_parent() else "", c.get_normal().snapped(Vector3.ONE * 0.01)])
+		else:
+			out.append("-")
+	return " | ".join(out)
