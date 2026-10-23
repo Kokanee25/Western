@@ -475,6 +475,10 @@ frozen until Sean names one.
   (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
   `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
   street saloon's stair).
+- **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
+  its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
+  `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
+  #331, after light pass round 2 (#329).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

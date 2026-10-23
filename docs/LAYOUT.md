@@ -491,6 +491,18 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
   treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
   and stair rails and the lab's 1 m railing (group Q) are built of it.
+  **Old buildings** (`BuildingAge`, dials `config/building_age.tres`; issue #326): `age_years` on a
+  `FalseFrontBuilding` or `Boardwalk` (town.json's `set`, or `age` on a StreetDressing entry) wears it,
+  seeded by its id and build seed (nothing saved). `alter` (before `infer_supports`): rough boards
+  gone or rotted short (never one a trim hangs on, never left on nothing: `remove_built`), a stretch
+  of one wall in newer boards (`WoodMaterials.newer`), shutters on side and back windows (members
+  resting on the siding), porch boards gone, a plank replaced, a step cracked in two (`.../a`,
+  `/b`). `settle_in` (after): fields move members (`reshape`: whole onto the chord of where its
+  ends go, body and collision with it, drawn bent by `MemberMesh.warped` where it bends): the porch
+  sags span by span and racks, the ridge sways, the false front leans out above the roofline; then
+  `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
+  framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
+  untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
 
 ## src/fire
 
