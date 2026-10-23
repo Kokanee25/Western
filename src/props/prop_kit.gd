@@ -9,6 +9,10 @@ class_name PropKit
 ##    "splits_below": the share of a member's section left below which a holed member splits,
 ##    "blow_wood_share": how much of a blow's lost energy goes into the wood,
 ##    "seat": {"member", "at" (where his weight comes down), "share" (of his weight), "hold" (m)},
+##    "holds": its inside, {"from", "to" (heights), "radius": [at the ends, at the middle]};
+##    "contents": what's in it, {"liquid", "litres" | "full": true, "flammable", "colour"}
+##    (PropContents: its weight, level, leaks),
+##    "like": another kit file's id, its keys taken and these laid over them,
 ##    "members": [{"id", "kind", "size", "at", "rot" (degrees, XYZ), "wood", "look",
 ##                 "splits_below", "blow_span" (the length of it a blow bends), "draw", "repeat"}]}
 ##
@@ -51,7 +55,15 @@ static func definition(id: StringName) -> Dictionary:
 		var f := FileAccess.open(path_of(id), FileAccess.READ)
 		assert(f != null, "No kit file for %s" % id)
 		var parsed: Variant = JSON.parse_string(f.get_as_text()) if f else null
-		_defs[id] = parsed if parsed is Dictionary else {}
+		var def: Dictionary = parsed if parsed is Dictionary else {}
+		# "like": another kit file's prop with these keys over it (a barrel of whiskey is the barrel
+		# with its contents).
+		if def.has("like"):
+			var base := definition(StringName(def.like)).duplicate(true)
+			base.merge(def, true)
+			base.erase("like")
+			def = base
+		_defs[id] = def
 	return _defs[id]
 
 
@@ -142,12 +154,13 @@ static func fit(def: Dictionary, size: Vector3) -> Dictionary:
 
 
 ## A prop of any kind from its kit file, not yet in the tree: a KitProp ("members"), a GlassProp
-## ("shatters"; its variant, the bottle's glass and label, counted per prop), a ClothProp ("cloth":
+## ("shatters"; its variant, the bottle's glass and label, counted per prop), a LooseProp ("loose":
+## the spittoon, the tin cup), a ClothProp ("cloth":
 ## the bar rag), a MopProp ("mop") or a MopBucket ("bucket").
 static func make(id: StringName) -> Node3D:
 	var def := definition(id)
-	if String(def.get("kind", "members")) == "shatters":
-		var g := GlassProp.new()
+	if String(def.get("kind", "members")) in ["shatters", "loose"]:
+		var g: GlassProp = LooseProp.new() if def.kind == "loose" else GlassProp.new()
 		g.kit_id = id
 		g.definition = def
 		var n: int = _made.get(id, 0)

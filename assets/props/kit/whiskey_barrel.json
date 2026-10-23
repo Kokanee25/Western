@@ -1,0 +1,9 @@
+{
+  "_doc": "An oak barrel of whiskey, full (barrel.json, its contents PropContents): ~169 l at 0.95 kg a litre, 160 kg in a 40 kg cask. The saloon's back corner.",
+  "like": "barrel",
+  "id": "whiskey_barrel",
+  "contents": {
+    "liquid": "whiskey",
+    "full": true
+  }
+}

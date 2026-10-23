@@ -22,6 +22,7 @@ extends Node3D
 ## shards cut whoever's close (GlassCuts). What it held is let go: a lit lamp's oil burns
 ## (OilLamp.smash, as before); anything else goes out on the bus (`Events.liquid_spilled`) for the
 ## spills (the water lab's) to take up; lamp oil let go into flames catches (FireSystem.spill).
+## (LooseProp, the kit's "loose" kind, stands the same way but is knocked and dented instead.)
 
 signal shattered(at: Vector3, direction: Vector3)
 
@@ -122,7 +123,14 @@ func _build() -> void:
 	body.set_meta(&"ballistic_thickness", float(definition.get("wall", 0.004)) * 2.0)
 	body.set_meta(&"glass_prop", self)
 	var cs := CollisionShape3D.new()
-	if definition.get("fit", false):
+	if definition.get("fit", false) and definition.get("shape", "box") == "cylinder":
+		# Round (it rolls): a cylinder the model's height, as wide as its narrower side.
+		var cyl := CylinderShape3D.new()
+		cyl.radius = minf(shape_box.size.x, shape_box.size.z) * 0.5
+		cyl.height = shape_box.size.y
+		cs.shape = cyl
+		cs.position = shape_box.get_center()
+	elif definition.get("fit", false):
 		var bs := BoxShape3D.new()
 		bs.size = shape_box.size
 		cs.shape = bs
