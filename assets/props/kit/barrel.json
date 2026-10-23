@@ -1,5 +1,5 @@
 {
-  "_doc": "An oak barrel, empty (PropModels._barrel's shape and look, built of members): fourteen staves bulged as a real cask's, each a member standing on the floor, its four iron hoops drawn on it (they go where it goes); two heads of three boards set in the croze. Contents (whiskey, water) are for later: docs/briefs/prop-lab.md. A stave's blow_span is its length: oak staves don't break to a kick, the barrel moves.",
+  "_doc": "An oak barrel (PropModels._barrel's shape and look, built of members): fourteen staves bulged as a real cask's, each a member standing on the floor, its four iron hoops drawn on it (they go where it goes); two heads of three boards set in the croze. Empty as it is; what it holds is its \"holds\", filled by a kit file \"like\" it (whiskey_barrel, water_barrel, oil_barrel: PropContents). A stave's blow_span is its length: oak staves don't break to a kick, the barrel moves.",
   "id": "barrel",
   "kind": "members",
   "replaces": "barrel",
@@ -8,6 +8,7 @@
   "look": "prop:staves",
   "splits_below": 0.4,
   "blow_wood_share": 0.5,
+  "holds": {"_doc": "Its inside (PropContents): from the bottom head's top to the top head's underside, the staves' inner radius at the heads and at the bulge (the sweep's inner line): ~169 l, a forty-five gallon cask's.", "from": 0.05, "to": 0.85, "radius": [0.2325, 0.272]},
   "members": [
     {
       "id": "stave%d",
