@@ -89,6 +89,8 @@ func _ready() -> void:
 	cols = int(pts[0])
 	rows = int(pts[1])
 	_build()
+	# Held, its points are pinned to his hand: what falls passes through it (PinnedSoft).
+	PinnedSoft.keep_clear(soft, self)
 	Events.bullet_hit.connect(_on_bullet_hit)
 	Events.exploded.connect(_on_exploded)
 	Events.doused.connect(_on_doused)
