@@ -24,6 +24,9 @@ const CONTACT_EPSILON := 0.012
 ## of them). A member leaves the batch for good the moment anything happens to it (a hole, heat,
 ## breaking): its own mesh shows again and the batch is rebuilt without it.
 @export var batch_meshes := true
+## How long it has stood (years): 0 as built. Older, it shows it (BuildingAge: sagging, leaning,
+## boards gone and patched, worn steps), the same way every load.
+@export var age_years := 0.0
 
 ## StringName -> StructureMember
 var members := {}
@@ -112,7 +115,9 @@ func rebuild() -> void:
 	_panes_of = -1
 	_rng.seed = build_seed
 	build()
+	BuildingAge.alter(self)  # what the years broke and replaced: the graph is worked out with it
 	infer_supports()
+	BuildingAge.settle_in(self)  # how it has settled: a look, after the graph
 	_batch_all()
 
 
@@ -173,6 +178,14 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	members[id] = m
 	_order.append(m)
 	return m
+
+
+## Take a member out again before the support graph is worked out (BuildingAge: a board long gone).
+func remove_built(m: StructureMember) -> void:
+	members.erase(m.member_id)
+	_order.erase(m)
+	_panes_of = -1
+	m.free()
 
 
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
