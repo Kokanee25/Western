@@ -1,0 +1,7 @@
+| scenario | steps | why it stopped | floor's mess at the start -> end | bucket | faults (below floor / flung) | People ms |
+|---|---|---|---|---|---|---|
+| spill | idle@0 fetch@1 carry@3 dip@8 press@9 mop@11 dip@68 press@70 mop@72 dip@89 press@90 put_back@92 idle@95 | done | [0.0, 1000.0, 0.0, 0.0] -> [0.55, 1.6, 0.0, 42.99] | 8.69 l, murk 0.24, dirt 0.0 g, blood 0.0 ml, 0 changes | 0 / 0 | 0.638 |
+| blood | idle@0 fetch@1 carry@3 dip@7 press@9 mop@10 dip@69 press@71 mop@72 dip@111 press@113 put_back@114 idle@118 | done | [0.0, 0.0, 96.0, 0.0] -> [0.0, 0.1, 1.6, 0.01] | 8.66 l, murk 0.19, dirt 0.0 g, blood 61.7 ml, 0 changes | 0 / 0 | 0.616 |
+| muddy | idle@0 fetch@29 carry@31 dip@36 press@37 mop@39 dip@52 press@54 mop@56 dip@139 press@141 put_back@142 idle@147 | done | [0.0, 0.0, 0.0, 0.0] -> [2.43, 0.1, 0.0, 0.0] | 8.47 l, murk 0.42, dirt 11.4 g, blood 0.0 ml, 0 changes | 0 / 0 | 0.691 |
+| trouble | idle@0 fetch@29 carry@31 dip@36 press@37 mop@39 idle@45 fetch@60 carry@66 dip@66 press@67 mop@69 dip@86 press@88 mop@89 dip@162 press@163 put_back@165 idle@169 | done | [0.0, 0.0, 0.0, 0.0] -> [2.25, 0.1, 0.0, 0.0] | 8.49 l, murk 0.44, dirt 12.3 g, blood 0.0 ml, 0 changes | 0 / 0 | 0.753 |
+| change_water | idle@0 fetch@1 carry@3 dip@7 press@9 mop@10 dip@11 press@13 mop@14 dip@16 press@17 mop@19 dip@20 press@21 mop@23 dip@24 press@25 mop@27 dip@28 press@30 mop@31 d ... | time | [420.0, 0.0, 0.0, 0.0] -> [244.51, 0.1, 0.0, 0.0] | 8.58 l, murk 0.76, dirt 30.4 g, blood 0.0 ml, 5 changes | 0 / 0 | 0.604 |

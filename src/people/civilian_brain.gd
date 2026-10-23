@@ -10,6 +10,8 @@ extends Node
 ## the well), he joins the bucket line for that water (BucketLine: a man at the water filling,
 ## buckets handed up to a man at the fire who throws them, the empties handed back) till it's out,
 ## unless it's grown past saving.
+## All quiet, he may have a chore to see to (`chore`: the barkeep wipes his bar, WipeBar): it has
+## him while he's free, and stops the moment he isn't.
 ## Child of a HumanBody (with no gun).
 
 enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
@@ -33,6 +35,11 @@ var post := Vector3.INF
 var faces := Vector3.INF
 ## How he takes his ease at his post when all's calm (`sit` on a porch bench, or `stand`).
 var rest_pose := &"stand"
+## What he does with himself when all's quiet (MopFloor, WipeBar), most wanted first; one at a time:
+## the one at it keeps him till it's done.
+var chores: Array = []
+## The chore that has him (or had him last), or null. (Setting it alone gives him that one.)
+var chore: RefCounted
 var mood := Mood.CALM
 var fear := 0.0
 var senses: Senses
@@ -87,6 +94,7 @@ var _line: BucketLine = null
 var _trough: Node3D
 var _bucket_rest := 0.0
 var _said_lost := false
+var _home_route: Array[Vector3] = []
 
 
 func _ready() -> void:
@@ -434,9 +442,13 @@ func _physics_step(delta: float) -> void:
 	if body.limp:
 		mood = Mood.DOWN
 		return
+	if mood == Mood.DOWN:
+		# Back on his feet (HumanBody.get_up): shaken by it.
+		mood = Mood.SHAKEN
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
+		_chore(delta, false)
 		return
 	_aimed -= delta
 	_cower -= delta
@@ -447,6 +459,7 @@ func _physics_step(delta: float) -> void:
 		if not is_instance_valid(who):
 			troubled_by.erase(who)
 	if _aimed > 0.0 and _aimed_by and is_instance_valid(_aimed_by):
+		_chore(delta, false)
 		mood = Mood.HANDS_UP
 		_calm_for = 0.0
 		body.face(_aimed_by.global_position + Vector3.UP * 1.5)
@@ -456,11 +469,13 @@ func _physics_step(delta: float) -> void:
 			_say_again = _rng.randf_range(5.0, 8.0)
 		return
 	if _cower > 0.0:
+		_chore(delta, false)
 		mood = Mood.COWERING
 		_calm_for = 0.0
 		body.set_pose(&"cower")
 		return
 	if _flinch > 0.0:
+		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
 	if mood in [Mood.HANDS_UP, Mood.COWERING]:
@@ -470,14 +485,42 @@ func _physics_step(delta: float) -> void:
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM
+	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked)):
+		return
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
 		body.set_pose(&"stand")
-		body.walk_to(post, 1.2, delta)
+		# Far off (a chore, a fright took him across the room): back by the town's places, round
+		# whatever's between (a bar); near, straight there.
+		if body.global_position.distance_to(post) > 1.5 and _places() != null:
+			if _home_route.is_empty():
+				_home_route = FireFlight.route(_places(), body, post)
+			if body.walk_to(_home_route[0], 1.2, delta) and _home_route.size() > 1:
+				_home_route.pop_front()
+		else:
+			_home_route.clear()
+			body.walk_to(post, 1.2, delta)
 		return
+	_home_route.clear()
 	body.set_pose(rest_pose)
 	_thank(delta)
 	if faces != Vector3.INF and not (helped_by and not thanked):
 		body.face(faces)
+
+
+## His chores: the one at it has him while it's busy; else each in turn may start (the first that
+## does has him). Not `free`, every one stops. True while one has him this tick.
+func _chore(delta: float, free: bool) -> bool:
+	if chore != null and not chores.has(chore):
+		chores.append(chore)
+	for c: RefCounted in chores:
+		if c.call(&"busy"):
+			chore = c
+			return c.call(&"step_chore", delta, free)
+	for c: RefCounted in chores:
+		if c.call(&"step_chore", delta, free):
+			chore = c
+			return true
+	return false
 
 
 ## Once it's quiet and the man who ran them off is near enough to hear it.

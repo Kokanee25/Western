@@ -722,4 +722,7 @@ func _unseat() -> void:
 	_clear_seat()
 	if man and is_instance_valid(man) and not man.get(&"limp") and man.has_method(&"go_limp"):
 		man.call(&"go_limp")
+		# Awake, he throws out his arms as he goes (HumanBody.brace; gameplay's).
+		if man.has_method(&"brace"):
+			man.call(&"brace")
 

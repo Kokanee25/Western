@@ -200,6 +200,15 @@ paid on every turn of every session.
 
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and Current state, not through a long-running session.
+- **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
+  when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
+  open). Then, and never later: write the status entry and your Current state lines; open an
+  issue labelled **`next session`**, titled with the lane and the next step, whose body is the
+  ready-to-paste prompt for it (the branch, what's done, what to read, what to do next; written
+  for a fresh session that knows nothing of this one); then tell Sean, as your last message,
+  **"Step done: <what>. Start a fresh session with issue #N."** and do no more work. Don't
+  start the next step in the same session, even if it looks small. A session that picks up a
+  `next session` issue closes it at the start, with a line saying so.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
   `history.md`, `docs/BUILD_NOTES.md` or a brief's history unless asked. Grep for the heading,
@@ -348,8 +357,9 @@ frozen until Sean names one.
   next approach"): a lick, a tongue and a column baked in Mantaflow (`tools/textures/fire_sim/`; the pip
   bpy needs `manta_relink.py`), drawn by `FireFlipbook` (haze, core, tips) on FireFX's sheets behind
   `Settings.fire_flipbooks`: the default since 2026-10-22 (Sean: "keep flames for now", #216; look
-  panel N turns them off; saved as `flipbook_fire`). Next: firelight's look (step 5), then the painted pass
-  after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+  panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
+  fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
+  (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -387,11 +397,16 @@ frozen until Sean names one.
   `tools/characters/lab_run.sh`.
 - **The talking face** (brief `docs/briefs/face-rig.md`, `tools/faces/`): every Studio man has
   MakeHuman's face grafted on (20 expressions as blend shapes), bandanas (`bandana.py`) and skinned
-  hands (`hands.py`, 30 finger bones; not the rancher). **Alive** (2026-10-22): `FaceLife` on every
-  talking man (looks round at whom his Senses see, blinks, starts at shots, a pain grimace, wide eyes
-  afraid, lids part shut dead; `config/face_life.tres`; film `docs/style_test/faces_alive.mp4`);
-  `neck_seam.py` closed the jaw's tear as his head turns. Next: Sean's three takes
-  (`docs/FACE_TAKES.md`) to tune the lip sync; issue #247 (gameplay: a test-order dependency).
+  hands (`hands.py`; not the rancher). `FaceLife` alive (2026-10-22: looks, blinks, starts, grimace,
+  lids dead; `config/face_life.tres`). **Talking** (2026-10-22, brief `docs/briefs/talking.md`,
+  branch `claude/talking-mouth-shapes-3yhmv2`): `FaceSpeech` says every `Events.spoke` line with
+  his mouth shapes (letter rules → mouth classes, a dominance blend, a nod; 95% agreement with
+  espeak-ng; ~10 µs a man), takes a recording's loudness or phoneme track when lines are recorded;
+  the subtitle stays as long as he talks; the masks carry the mouth (`mask_jaw.py`: a puff, it
+  hangs clear of the chin). Films `docs/style_test/talking/`. Next: Sean's look at the films; on
+  four men (widow, bold_cowboy_s3, young_drifter, doctor) the jaw goes back more than down
+  (`talking_face.py`'s spline extrapolation: carry the units by the warp's derivative, rebuild
+  them); Sean's three takes (`docs/FACE_TAKES.md`) to tune it; issue #247.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -421,9 +436,26 @@ frozen until Sean names one.
   `results/2026-10-21_chair/`): a man in the kit chair, legs shot or kicked out (group U); the
   `sit_back` pose (Sean: back legs out, he goes over backwards and ends on his back) and a `kick`
   pose (Sean OK'd both); Sean's scene (`scenes/chair_kick_shot.gd`); eight contacts a part near
-  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). Next:
-  the collapse (`docs/briefs/collapse.md`: the knee-buckle that sticks him at a stair's head); a
-  man losing his seat catches himself (the prop lab's ask); loose props.
+  timber (#211, build 1903: the railing throw no longer holds 1 time in 5). The night of
+  2026-10-22 (Sean's five): a body into the kit's furniture (#243, merged: KitProp.take_blow
+  decides); the brace (#238) and getting up (#250), merged (Sean: "merge"); men sitting in the kit
+  chairs (#270: Seating, Brody at a card table), merging; the collapse's tone
+  experiments (branch `claude/gameplay-collapse`, `results/2026-10-22_collapse/`: trunk-first
+  helps the oak stair, nothing gets him down the saloon's). Next: the `next session` issue.
+- **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
+  format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
+  experiment (#262). Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
+  `past` marked on members, drawn in the lab (a `WEAR` hook in texel_grid, inert in the game); for
+  art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
+  the desert. Next: the README's "What the format needs"
+  (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
+- **The barkeep's rag and mopping** (2026-10-22, with the prop lab's leave; briefs
+  `docs/briefs/barkeep-rag.md`, `mopping.md`; labs `experiments/barkeep_rag/`, `mopping/`): the rag
+  merged (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`. Mopping
+  (`claude/gameplay-mopping`): `FloorMarks` (tracked mud, wet patches, stains), `MopProp`,
+  `MopBucket`, `MopFloor` (chores: `CivilianBrain.chores`). Waiting on Sean: both films (in the
+  PRs), the rag's paint cost (#258). Next: the water lab's spills on FloorMarks' grid.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -444,11 +476,24 @@ frozen until Sean names one.
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
   now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
   `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
-  in the saloon (`play.gd`, `PLAYTEST.md`), each man's decision and why on F3. The bot's A/B/C
-  (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant (no cover but the bar
-  since the kit table). Next: Sean's nine runs, then cover in the saloon and the cover-on-arrival
-  fault. Traps: wounds bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match
-  their own command line; a `.gd` copy under `build/` with a `class_name` shadows the real class.
+  in the saloon (`play.gd`, `PLAYTEST.md`; issue #257 for Sean), each man's decision and why on F3.
+  The bot's A/B/C (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant. With the
+  perception lab's fix 1 (`results/2026-10-22_perception/`): no leak, but cover dropped on arrival
+  doubles. Next: cover against the same guess he chose it by, and cover in the saloon. Traps: wounds
+  bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match their own command line; a
+  `.gd` copy under `build/` with a `class_name` shadows the real class.
+- The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
+  bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
+  against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
+  Room bus, muffled through walls, slaps off the fronts; `config/sound.tres`); black-powder gunshots
+  (#256, build 2058); passes by speed and strikes by surface (#261, build 2067); dynamite near and far,
+  breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
+  Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
+  `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
+- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
+  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
+  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
+  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
 - The body lab (3.1b, `experiments/body_lab/`; #167 merged 2026-10-22, build 1919): bench, baseline
   and fixes, a hand to the wound (`HumanBody._grab`), arterial jets, painted blood and Gemini gore,
   and the gore lab's first round (`docs/briefs/gore-lab.md`, `results/2026-10-21_gore_lab/`). On

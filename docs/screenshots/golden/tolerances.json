@@ -16,20 +16,20 @@
   "share": 0.01
  },
  "dynamite_store_after": {
-  "mean": 3.208,
+  "mean": 1.592,
   "noise": {
-   "mean": 1.069,
-   "share": 0.0158
+   "mean": 0.531,
+   "share": 0.0058
   },
-  "share": 0.0475
+  "share": 0.0175
  },
  "dynamite_store_blast": {
-  "mean": 4.06,
+  "mean": 3.731,
   "noise": {
-   "mean": 1.353,
-   "share": 0.0183
+   "mean": 1.244,
+   "share": 0.0223
   },
-  "share": 0.0548
+  "share": 0.067
  },
  "gun_aim_range": {
   "mean": 1.5,
@@ -128,12 +128,12 @@
   "share": 0.01
  },
  "livery_fire_dusk": {
-  "mean": 8.642,
+  "mean": 7.653,
   "noise": {
-   "mean": 2.881,
-   "share": 0.0563
+   "mean": 2.551,
+   "share": 0.0532
   },
-  "share": 0.1688
+  "share": 0.1596
  },
  "look_down_body": {
   "mean": 1.5,
@@ -360,12 +360,12 @@
   "share": 0.01
  },
  "saloon_fire_inside": {
-  "mean": 32.05,
+  "mean": 11.215,
   "noise": {
-   "mean": 10.683,
-   "share": 0.211
+   "mean": 3.738,
+   "share": 0.1049
   },
-  "share": 0.6329
+  "share": 0.3146
  },
  "saloon_front_dusk": {
   "mean": 1.5,
@@ -456,28 +456,28 @@
   "share": 0.01
  },
  "store_fire_close": {
-  "mean": 53.124,
+  "mean": 12.015,
   "noise": {
-   "mean": 17.708,
-   "share": 0.2983
+   "mean": 4.005,
+   "share": 0.098
   },
-  "share": 0.8948
+  "share": 0.2941
  },
  "store_fire_later": {
-  "mean": 23.037,
+  "mean": 16.246,
   "noise": {
-   "mean": 7.679,
-   "share": 0.1302
+   "mean": 5.415,
+   "share": 0.0936
   },
-  "share": 0.3905
+  "share": 0.2807
  },
  "store_fire_night": {
-  "mean": 21.569,
+  "mean": 5.809,
   "noise": {
-   "mean": 7.19,
-   "share": 0.1131
+   "mean": 1.936,
+   "share": 0.0389
   },
-  "share": 0.3393
+  "share": 0.1167
  },
  "store_front_noon": {
   "mean": 1.5,
