@@ -339,12 +339,11 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 			var up := Vector3(-sin(tilt), cos(tilt), 0.0)
 			var box := BoxShape3D.new()
 			box.size = Vector3(sqrt(step * step + (h1 - h0) * (h1 - h0)), tuning.slab_depth, r.size.y)
-			var cs := CollisionShape3D.new()
-			cs.name = "Column%d" % body.get_child_count()
-			cs.shape = box
 			var top := Vector3(x0 + step * 0.5, (h0 + h1) * 0.5, r.get_center().y)
-			cs.transform = Transform3D(Basis(Vector3.BACK, tilt), top - up * tuning.slab_depth * 0.5)
-			body.add_child(cs)
+			# Straight onto the body as a shape owner: a node each was ~2,300 more in the street.
+			var owner := body.create_shape_owner(body)
+			body.shape_owner_add_shape(owner, box)
+			body.shape_owner_set_transform(owner, Transform3D(Basis(Vector3.BACK, tilt), top - up * tuning.slab_depth * 0.5))
 	add_child(body)
 	# Padded to the slot (unused points, under the ground at the chunk's corner).
 	var pad := CHUNK_SLOT - verts.size()
