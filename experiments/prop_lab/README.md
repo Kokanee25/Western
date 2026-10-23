@@ -30,6 +30,10 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
   on the floor), the lamp (on the table: smashed, spills), physics faults (sunk, below ground,
   flung over 20 m/s, a man's part over 12 m/s), frame times (the event's frames, the settle's, the
   first second's added mean; this workspace's 2.1 GHz core: x0.65 for Sean's), a fingerprint.
+- **Full barrels and loose props:** a full barrel's summary has `contents` (left, run out, on the bus,
+  leaks and slots, released, litres in the first second); a loose prop put on with `glass` (the
+  spittoon, the cups) reports holes, dents, spilt, upright and how far it went; `kick_glass` kicks
+  one (`take_blow`).
 - **`--look`**: the kit's chair and card table (right) beside PropModels' (left), a Studio man
   between, lamplight and daylight, wide and close: the sheet the kit's look is judged on.
   `--props=barrel,crate,bar_stool` puts those in a row each side instead (wall props hung on a
@@ -45,3 +49,8 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
 - `results/2026-10-22_stores/`: the barrel, the crate and the bar stool: 19 scenarios (`table.md`),
   the look sheets (`look_*.png`), the budget for the town's set (`perf_*_stores.json`: +0.05 ms
   physics and +127 draws at Sean's for all 45).
+- `results/2026-10-23_contents/`: full barrels (`whiskey_*`, `water_*`, `oil_burn`) and the loose
+  props (`spittoon_*`, `cup_*`, `cups_*`): `table.md`, the summaries, the budget (`perf_*.json`:
+  the saloon's set with its 2 spittoons and 5 cups +0.018 ms physics at Sean's and 30 fewer draws
+  than the drawn props; the town's stores with 8 full barrels +0.054 ms and +127 draws, as when
+  they were empty), the look sheet's blind critic (`critic.md`).
