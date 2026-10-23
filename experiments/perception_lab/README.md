@@ -93,7 +93,8 @@ place, unseen and unheard, while facing away from where he thinks he is (`faces_
   (every case), `baseline.json` (every summary without the tracks).
 - `results/<date>_<fix>/`: each fix measured against the baseline (`results.md`, the before and
   after tables). `2026-10-22_heard_not_named`: a sound doesn't name its maker (88 of 117 as
-  expected, from 74).
+  expected, from 74). `2026-10-22_lamplight`: a man is seen by the light on him, lamps and sky
+  (`SightLight`; 91, from 88).
 
 ## Shared with the gunfight lab
 
