@@ -1,7 +1,7 @@
 extends SceneTree
-## Can the player climb the street saloon's stair? Puts him at its foot facing up it, holds
-## forward (and run) for four seconds, and prints how high he got, for each preset and for the old
-## movement's numbers.
+## Can the player climb the saloons' stairs? Puts him at a stair's foot facing up it, holds
+## forward (and run) for four seconds, and prints how high he got: the street saloon's for each
+## preset and the old movement's numbers, then every stair in the new saloon (middle).
 ##   godot --headless --fixed-fps 60 -s res://experiments/movement_feel/stair_check.gd
 
 
@@ -49,4 +49,30 @@ func _run() -> void:
 			Input.action_release(&"move_forward")
 			Input.action_release(&"run")
 			print("%-6s %-4s climbed %.2f m (at %s)" % [preset, "run" if run else "walk", top - y0, player.global_position])
+	# The new saloon out in the desert (F5's eighth stop), and every stair in it.
+	load("res://experiments/building_lab/play.gd").build(scene)
+	for i in 30:
+		await physics_frame
+	player.set_movement(&"middle")
+	for r in scene.find_children("Ramp_*", "StaticBody3D", true, false):
+		var rb := r as Node3D
+		var u := rb.global_basis.x.normalized()
+		if u.y < 0.0:
+			u = -u
+		var h := ((rb.get_child(0) as CollisionShape3D).shape as BoxShape3D).size.x * 0.5
+		var f := rb.global_position - u * h
+		var fl := Vector3(u.x, 0.0, u.z).normalized()
+		player.global_position = f - fl * 0.8 + Vector3.UP * 0.05
+		player.velocity = Vector3.ZERO
+		player.rotation.y = atan2(-fl.x, -fl.z)
+		for i in 30:
+			await physics_frame
+		var y0: float = player.global_position.y
+		Input.action_press(&"move_forward")
+		var top: float = y0
+		for i in 360:
+			await physics_frame
+			top = maxf(top, player.global_position.y)
+		Input.action_release(&"move_forward")
+		print("%s: climbed %.2f m of %.2f" % [rb.name, top - y0, (rb.global_position + u * h).y - f.y])
 	quit(0)
