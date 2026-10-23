@@ -230,3 +230,21 @@ func test_lamp_oil_running_into_flames_catches() -> void:
 	await physics_frames(70)
 	check(fire.spills.size() >= 1, "the oil catches where it runs into the fire")
 	check(spilled.any(func(s: Dictionary) -> bool: return s.liquid == &"lamp_oil"), "and it's on the floor as lamp oil")
+
+
+func test_blown_open_its_staves_go_no_faster_than_a_blast_throws_anything() -> void:
+	# Its throw is reckoned with the liquid in; the liquid's gone as it goes loose, and what's left
+	# mustn't take the full barrel's push (it went 150 m/s, off the map: test_chaos).
+	var fastest := 0.0
+	for at: float in [0.5, 0.6, 0.8, 1.0]:
+		var barrel := await _place(&"water_barrel", Vector3(0, 0.3, 0))
+		Blast.detonate(world, barrel.global_position + Vector3(-at, 0.02, 0), Blast.t().tnt_per_stick)
+		for i in 30:
+			await physics_frames(1)
+			for rb in barrel.rubble:
+				if is_instance_valid(rb):
+					fastest = maxf(fastest, rb.linear_velocity.length())
+		barrel.queue_free()
+		await physics_frames(2)
+	check(fastest <= Blast.t().max_throw * 1.05, "no stave faster than %.0f m/s (%.1f)" % [Blast.t().max_throw, fastest])
+

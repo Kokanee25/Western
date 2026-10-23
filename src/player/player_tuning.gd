@@ -35,6 +35,8 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var air_accel := 2.5
 @export var jump_velocity := 3.6
 @export var gravity := 9.8
+## The tallest step you walk up without jumping (m): a stair's riser, a porch step.
+@export var step_height := 0.3
 
 @export_group("Look")
 @export var max_pitch_degrees := 88.0
@@ -62,6 +64,8 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 ## The spring the footfalls and landings drop the head on: how quick (Hz), how bouncy (damping).
 @export var head_hz := 4.0
 @export var head_damping := 0.45
+## Up a step, the eyes catch up with the body at this rate (1/s: higher is quicker).
+@export var step_ease := 14.0
 ## A landing: metres of dip per m/s you were falling, and the most it dips.
 @export var land_dip := 0.035
 @export var land_dip_max := 0.14
