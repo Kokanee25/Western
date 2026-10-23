@@ -131,7 +131,8 @@ func _build() -> void:
 	GunParts.profile(grip, "Cap", _pts([[-0.014, -0.093], [0.022, -0.093], [0.022, -0.089], [-0.014, -0.089]]), 0.0155, steel, Vector3.ZERO, Vector3.ZERO, 0.001)
 	butt = GunParts.pivot(stock, "ButtStock", Vector3.ZERO)
 	GunParts.stroke(butt, "Buttplate", _pts([[0.351, -0.034], [0.355, -0.08], [0.351, -0.141]]), 0.006, 0.019, steel)
-	GunParts.paint_gun(self, "shotgun")
+	if not GunParts.blender_meshes(self, "shotgun"):
+		GunParts.paint_gun(self, "shotgun")
 
 
 static func _pts(a: Array) -> PackedVector2Array:

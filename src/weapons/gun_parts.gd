@@ -343,6 +343,32 @@ static func project_side(root: Node3D, tex: Texture2D, rect: Rect2, metallic := 
 		mi.material_override = m
 
 
+## A gun rebuilt in Blender (assets/weapons/<gun>.glb, the gun lab's blender/guns_blender.py: a
+## mesh a part, named by its path in the gun with "__" for "/", bevelled and smooth, with its
+## paintings baked on): each part the file has takes its mesh and material; pivots, moving parts
+## and everything it doesn't have stay the code's. False where there's no such file.
+static func blender_meshes(root: Node3D, gun: String) -> bool:
+	if not paint_guns:
+		return false
+	var path := "res://assets/weapons/%s.glb" % gun
+	if not ResourceLoader.exists(path):
+		return false
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var inst := scene.instantiate()
+	var n := 0
+	for src: MeshInstance3D in inst.find_children("*", "MeshInstance3D", true, false):
+		var target := root.get_node_or_null(NodePath(String(src.name).replace("__", "/"))) as MeshInstance3D
+		if target == null or src.mesh == null:
+			continue
+		target.mesh = src.mesh
+		target.material_override = null
+		n += 1
+	inst.free()
+	return n > 0
+
+
 ## Off, a gun is built bare (its factory materials), as the gun lab's side render and export want.
 static var paint_guns := true
 

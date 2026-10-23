@@ -116,7 +116,8 @@ func _build() -> void:
 	GunParts.stroke(grip, "Backstrap", _pts([[0.006, 0.034], [0.014, 0.026], [0.0195, 0.012], [0.0215, -0.004],
 			[0.022, -0.03], [0.0205, -0.06], [0.016, -0.084]]), 0.004, 0.0065, guard)
 	GunParts.stroke(grip, "Butt", _pts([[0.016, -0.084], [0.006, -0.0885], [-0.004, -0.087]]), 0.003, 0.0065, guard)
-	GunParts.paint_gun(self, "revolver")
+	if not GunParts.blender_meshes(self, "revolver"):
+		GunParts.paint_gun(self, "revolver")
 
 
 static func _pts(a: Array) -> PackedVector2Array:
