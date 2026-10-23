@@ -1,0 +1,128 @@
+{
+  "body": "bold_cowboy_s0",
+  "dropped": {
+    "asleep": true,
+    "at": [
+      -6.17,
+      0.25,
+      -8.73
+    ],
+    "lowest_above_ground_mm": -7.0,
+    "speed": 0.0
+  },
+  "has_model": true,
+  "states": [
+    {
+      "frames": {
+        "1": "holstered_1.png",
+        "10": "holstered_10.png",
+        "5": "holstered_5.png",
+        "close": "holstered_close.png",
+        "xray": "holstered_xray.png"
+      },
+      "gap": {
+        "buried_mm": -7.0,
+        "centre_to_grip_mm": 166.0,
+        "floating": false,
+        "hidden": false,
+        "inside": 0,
+        "inside_share": 0.0,
+        "nearest_mm": 6.0,
+        "points": 1895,
+        "where": "holster"
+      },
+      "note": "standing, gun in its holster",
+      "state": "holstered"
+    },
+    {
+      "frames": {
+        "1": "drawing_1.png",
+        "10": "drawing_10.png",
+        "5": "drawing_5.png",
+        "close": "drawing_close.png"
+      },
+      "gap": {
+        "centre_to_grip_mm": 33.0,
+        "floating": false,
+        "inside": 26,
+        "inside_share": 0.026,
+        "nearest_mm": 0.0,
+        "points": 996,
+        "where": "hand"
+      },
+      "note": "0.15 s into the draw (draw_gun + the aim pose)",
+      "state": "drawing"
+    },
+    {
+      "frames": {
+        "1": "aiming_1.png",
+        "10": "aiming_10.png",
+        "5": "aiming_5.png",
+        "close": "aiming_close.png"
+      },
+      "gap": {
+        "centre_to_grip_mm": 33.0,
+        "floating": false,
+        "inside": 26,
+        "inside_share": 0.026,
+        "nearest_mm": 0.0,
+        "points": 996,
+        "where": "hand"
+      },
+      "note": "aiming at a man 6 m off",
+      "state": "aiming"
+    },
+    {
+      "frames": {
+        "1": "firing_1.png",
+        "10": "firing_10.png",
+        "5": "firing_5.png",
+        "close": "firing_close.png"
+      },
+      "gap": {
+        "centre_to_grip_mm": 33.0,
+        "floating": false,
+        "inside": 26,
+        "inside_share": 0.026,
+        "nearest_mm": 0.0,
+        "points": 996,
+        "where": "hand"
+      },
+      "note": "a frame after the shot (smoke and flash as OutlawBrain fires)",
+      "state": "firing"
+    },
+    {
+      "frames": {
+        "1": "reloading_1.png",
+        "10": "reloading_10.png",
+        "5": "reloading_5.png",
+        "close": "reloading_close.png"
+      },
+      "gap": {
+        "centre_to_grip_mm": 33.0,
+        "floating": false,
+        "inside": 26,
+        "inside_share": 0.026,
+        "nearest_mm": 0.0,
+        "points": 996,
+        "where": "hand"
+      },
+      "note": "reloading as OutlawBrain does it: crouched, a 12 s timer",
+      "state": "reloading"
+    },
+    {
+      "frames": {
+        "1": "dropped_1.png",
+        "10": "dropped_10.png",
+        "5": "dropped_5.png",
+        "close": "dropped_close.png"
+      },
+      "gap": {
+        "gun": "none"
+      },
+      "note": "dropped (drop_gun), 2 s later",
+      "state": "dropped"
+    }
+  ],
+  "whole": true
+}

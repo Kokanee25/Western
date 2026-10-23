@@ -1,6 +1,7 @@
 extends Node3D
 ## F5 (or D-pad up) jumps the player between the Marker3D children: handy for reviewing places
-## without walking there. Debug only.
+## without walking there. Debug only. A marker with a `builds` meta (a script with a static
+## `build(street)`) has that built the first time it's reached: a lab's building to walk.
 
 var _index := 0
 
@@ -17,6 +18,9 @@ func jump_to_next() -> void:
 		return
 	_index = (_index + 1) % markers.size()
 	var m: Marker3D = markers[_index]
+	if m.has_meta(&"builds") and not m.has_meta(&"built"):
+		m.set_meta(&"built", true)
+		load(String(m.get_meta(&"builds"))).build(get_parent())
 	player.global_position = m.global_position
 	player.velocity = Vector3.ZERO
 	player.rotation = Vector3(0.0, m.global_rotation.y, 0.0)

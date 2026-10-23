@@ -71,6 +71,8 @@ var human := false
 var _count := -1.0
 var _you_at := Vector3.INF  # where you last stood still
 var _you_still := 0.0
+var _told_t := -99.0  # a friend last shouted where you are
+var _doubtful: Array = []  # knowing to be flagged unless explained in the next 0.2 s
 var _turned := false  # they've turned on you, and when
 var _turned_at := 0.0
 const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shout"]
@@ -346,6 +348,7 @@ func _physics_process(delta: float) -> void:
 	if bot:
 		bot.tick(delta, t)
 	_watch_men(delta)
+	_settle_doubts()
 	_watch_world(delta)
 	_track_t -= delta
 	if _track_t <= 0.0:
@@ -460,6 +463,7 @@ func _watch_men(_delta: float) -> void:
 		# His line to you, ten times a second (for the unfair check).
 		if Engine.get_physics_frames() % 6 == gang_ids.find(m.id) and _in_sight(b, player):
 			m._line_t = t
+		_watch_knowing(m, b, pv)
 		if b.tactic == OutlawBrain.Tactic.MOVING and b._stuck > 0.3:
 			m.stuck_s = snappedf(float(m.get("stuck_s", 0.0)) + _delta, 0.001)
 		# Where his fear came from: each rise put down to what happened to him this tick or the
@@ -617,7 +621,7 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		var b := brains[_mid(shooter)] as OutlawBrain
 		if b.covering > 0.0 or not b.senses.sees(player):
 			m.suppressing_shots += 1
-		elif t - float(m.get("_line_t", 0.0)) > NO_LINE:
+		elif t - float(m.get("_line_t", 0.0)) > NO_LINE and not _in_sight(b, player):
 			# He "sees" you, and fires, with no clear line from his eyes to any of you: unfair.
 			_unfair(m, "%s fired at you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 		# How far off his barrel was from where he meant it (degrees), at what range, at your head
@@ -654,6 +658,7 @@ func _on_bullet_hit(info: Dictionary) -> void:
 			_note("hit", "you hit in the %s by %s" % [info.get("segment", "?"), _who(shooter)])
 		elif victim in gang:
 			_men[_mid(victim)].hits_taken += 1
+			_men[_mid(victim)]._ball_t = t
 			_fright(victim, "hit")
 			if shooter == player:
 				_you.pellet_hits = int(_you.get("pellet_hits", 0)) + 1
@@ -697,6 +702,8 @@ func _on_near_miss(person: Node, shooter: Node, dist: float, _at: Vector3, _spee
 	elif person in gang:
 		_men[_mid(person)].near_misses_on_him += 1
 		_fright(person, "near miss")
+		if shooter == player:
+			_men[_mid(person)]._ball_t = t  # the ball tells him which way
 
 
 ## A clear line from his eyes to your head, chest or hips (the scenery only, nobody's body).
@@ -712,9 +719,73 @@ func _in_sight(b: OutlawBrain, who: Player) -> bool:
 	return false
 
 
+## Unseen, his idea of where you are jumps further than you could have walked since he last knew
+## (3 m and 2 m a second, the perception lab's reckoning), with no friend shouting it and no ball
+## of yours past him: he put a name to a sound he couldn't place (the perception lab's leak).
+## Doubtful knowing, flagged once 0.2 s have passed with no friend's shout and no ball to explain it.
+func _settle_doubts() -> void:
+	for d: Dictionary in _doubtful.duplicate():
+		if t - float(d.t) < 0.2:
+			continue
+		_doubtful.erase(d)
+		var m: Dictionary = d.m
+		if absf(_told_t - float(d.t)) < 1.0 or absf(float(m.get("_ball_t", -99.0)) - float(d.t)) < 1.0:
+			continue
+		var list: Array = record.get_or_add("unfair", [])
+		list.append([snappedf(float(d.t), 0.01), d.text, d.lines])
+		m.unfair = int(m.get("unfair", 0)) + 1
+		_note("unfair", d.text)
+
+
+func _watch_knowing(m: Dictionary, b: OutlawBrain, pv: Dictionary) -> void:
+	if b.senses.sees(player):
+		pv.known_at = player.global_position
+		pv.known_t = t
+		pv.heard_time = float((b.senses.known.get(player, {}) as Dictionary).get("heard_time", -INF))
+		return
+	var k: Dictionary = b.senses.known.get(player, {})
+	var ht := float(k.get("heard_time", -INF))
+	if ht <= float(pv.get("heard_time", -INF)) + 0.0001:
+		return
+	pv.heard_time = ht
+	var at: Vector3 = k.get("heard_pos", Vector3.INF)
+	var was: Vector3 = pv.get("known_at", Vector3.INF)
+	var reach := 3.0 + 2.0 * (t - float(pv.get("known_t", t)))
+	var jump := Vector2(at.x - was.x, at.z - was.z).length() if was != Vector3.INF else 0.0
+	var told := t - _told_t < 1.0 or t - float(m.get("_ball_t", -99.0)) < 1.0
+	m.placed_unseen = int(m.get("placed_unseen", 0)) + 1
+	if was != Vector3.INF:
+		m.worst_overshoot_m = snappedf(maxf(float(m.get("worst_overshoot_m", -99.0)), jump - reach), 0.1)
+	if jump > reach and not told and t - float(m.get("_line_t", 0.0)) > NO_LINE and not _in_sight(b, player):
+		# Held a moment: a friend's shout or a ball in the same tick may land after this check.
+		_doubtful.append({"m": m, "t": t, "text": "%s placed you %.0f m from where he last knew you (more than you could walk), unseen and untold" % [m.id, jump],
+			"lines": _line_report(b)})
+	pv.known_at = at
+	pv.known_t = t
+
+
+## Each ray from his eyes to you (Senses' points and this check's) and what stops it, for the record.
+func _line_report(b: OutlawBrain) -> Dictionary:
+	var space := player.get_world_3d().direct_space_state
+	var eye: Vector3 = b.senses.eye()
+	var out := {"eye": _arr(eye), "you": _arr(player.global_position), "crouched": player.is_crouching,
+		"senses_sees": b.senses.sees(player)}
+	var pts := {"head": player.camera.global_position, "chest": player.global_position + Vector3.UP * 1.2,
+		"low": player.global_position + Vector3.UP * (0.9 if player.is_crouching else 0.6)}
+	for key: String in pts:
+		var to: Vector3 = pts[key]
+		var q := PhysicsRayQueryParameters3D.create(eye, to, Layers.WORLD)
+		q.exclude = [player.get_rid()]
+		var hit := space.intersect_ray(q)
+		out[key] = "clear" if hit.is_empty() else "%s (%s) %.2f m short" % [String((hit.collider as Node).name),
+			String((hit.collider as Node).get_parent().name) if (hit.collider as Node).get_parent() else "",
+			(hit.position as Vector3).distance_to(to)]
+	return out
+
+
 func _unfair(m: Dictionary, text: String) -> void:
 	var list: Array = record.get_or_add("unfair", [])
-	list.append([snappedf(t, 0.01), text])
+	list.append([snappedf(t, 0.01), text, _line_report(brains[m.id])])
 	m.unfair = int(m.get("unfair", 0)) + 1
 	_note("unfair", text)
 
@@ -752,7 +823,10 @@ func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) ->
 				_fright(other, "a friend's shout (%s)" % kind)
 	var m: Dictionary = _men[_mid(speaker)]
 	m.callouts[String(kind)] = int(m.callouts.get(String(kind), 0)) + 1
-	if kind == &"spotted" and _about_you(_about) and t - float(m.get("_line_t", 0.0)) > NO_LINE:
+	if _about_you(_about):  # any shout naming you (spotted, flank, hit, covering, help...) tells his friends where
+		_told_t = t  # where you are, shouted for his friends to hear
+	if kind == &"spotted" and _about_you(_about) and t - float(m.get("_line_t", 0.0)) > NO_LINE \
+			and not _in_sight(brains[_mid(speaker)], player):
 		_unfair(m, "%s called he'd spotted you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 	if kind == &"flank":
 		m.flanks += 1
@@ -826,6 +900,7 @@ func _finish(why: String) -> void:
 		var m: Dictionary = _men[id]
 		m.erase("_cover")
 		m.erase("_line_t")
+		m.erase("_ball_t")
 		outcomes[m.outcome] = int(outcomes.get(m.outcome, 0)) + 1
 	var ending := why
 	if why == "gang_out":

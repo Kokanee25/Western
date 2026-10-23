@@ -1,0 +1,13 @@
+{
+  "_doc": "The mop's bucket (MopBucket): the bucket line's wooden bucket (BucketLine.bucket_model), about 9 l of water in it filled. What's rinsed out of the mop goes into its water (dirt, blood, spilt drink) and darkens it; dirty enough, it's emptied outside and filled again at the trough.",
+  "id": "mop_bucket",
+  "kind": "bucket",
+  "fixture": true,
+  "litres": 9.0,
+  "radius": 0.15,
+  "height": 0.3,
+  "mass": 1.4,
+  "clean": [0.32, 0.38, 0.4],
+  "muddy": [0.26, 0.19, 0.12],
+  "bloody": [0.32, 0.07, 0.05]
+}

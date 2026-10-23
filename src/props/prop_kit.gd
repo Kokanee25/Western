@@ -73,8 +73,9 @@ static func spawn(id: StringName, structure_id := &"") -> KitProp:
 	return p
 
 
-## A prop of either kind from its kit file, not yet in the tree: a KitProp ("members") or a
-## GlassProp ("shatters"; its variant, the bottle's glass and label, counted per prop).
+## A prop of any kind from its kit file, not yet in the tree: a KitProp ("members"), a GlassProp
+## ("shatters"; its variant, the bottle's glass and label, counted per prop), a ClothProp ("cloth":
+## the bar rag), a MopProp ("mop") or a MopBucket ("bucket").
 static func make(id: StringName) -> Node3D:
 	var def := definition(id)
 	if String(def.get("kind", "members")) == "shatters":
@@ -86,6 +87,27 @@ static func make(id: StringName) -> Node3D:
 		g.variant = n
 		g.name = "%s%d" % [String(id).to_pascal_case(), n]
 		return g
+	if String(def.get("kind", "members")) == "mop":
+		var mop := MopProp.new()
+		mop.kit_id = id
+		mop.definition = def
+		mop.name = String(id).to_pascal_case()
+		return mop
+	if String(def.get("kind", "members")) == "bucket":
+		var bucket := MopBucket.new()
+		bucket.kit_id = id
+		bucket.definition = def
+		bucket.name = String(id).to_pascal_case()
+		return bucket
+	if String(def.get("kind", "members")) == "cloth":
+		var c := ClothProp.new()
+		c.kit_id = id
+		c.definition = def
+		var n: int = _made.get(id, 0)
+		_made[id] = n + 1
+		c.rng_seed = hash([id, n])
+		c.name = "%s%d" % [String(id).to_pascal_case(), n]
+		return c
 	return spawn(id)
 
 

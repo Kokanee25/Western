@@ -1,7 +1,7 @@
 class_name TownLife
 extends Node3D
 ## The people of the test street and their day. The storekeeper minds his counter and the barkeep
-## his bar from the start; a while later three riders come in from the west (Brody, a cool hand
+## his bar from the start (wiping it down when it's quiet); a while later three riders come in from the west (Brody, a cool hand
 ## who leads; Lyle, a hothead; and the Kid, green and jumpy), drink, and two of them go and lean on
 ## the storekeeper. Nobody's an enemy: what happens is up to you. U brings them in now.
 
@@ -36,6 +36,8 @@ const GANG := [
 
 func _ready() -> void:
 	add_to_group(&"town_life")
+	# What boots, spills and blood leave on the boards (deferred: the town's still being put together).
+	(func() -> void: FloorMarks.ensure(get_parent())).call_deferred()
 	_spawn_townsfolk.call_deferred()
 
 
@@ -59,6 +61,7 @@ func _spawn_townsfolk() -> void:
 			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
+	_give_cloth.call_deferred(barkeep)
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
 			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s2_talking")
 	# The sheriff (the Studio's sean_s2, Sean as him) in front of his jail, watching the street. A
@@ -98,6 +101,47 @@ func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, 
 	man.enter(get_parent(), places.at(at), HumanBody.yaw_toward(places.at(at), faces))
 	man.face(faces)
 	return man
+
+
+## The barkeep's bar cloth over his shoulder and his mop and bucket in their corner, and his chores:
+## mopping the floor when it's dirty, wiping the bar when it's quiet (MopFloor, WipeBar;
+## docs/briefs/barkeep-rag.md, mopping.md).
+func _give_cloth(man: HumanBody) -> void:
+	if not is_instance_valid(man) or not man.is_inside_tree():
+		return
+	var cloth := PropKit.make(&"bar_cloth") as ClothProp
+	get_parent().add_child(cloth)
+	await get_tree().physics_frame
+	if not is_instance_valid(man) or not is_instance_valid(cloth):
+		return
+	cloth.hang_on(man, "l")
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+	if brain == null:
+		return
+	var wipe := WipeBar.new(man, cloth, brain.post, brain.faces)
+	wipe.places = places
+	# His mop and bucket in the corner behind the bar's near end; he mops the floor when it's dirty
+	# and quiet (MopFloor; docs/briefs/mopping.md), before he'd wipe the bar.
+	var home := TownLayout.point(&"Saloon", MOP_CORNER)
+	var bucket := PropKit.make(&"mop_bucket") as MopBucket
+	get_parent().add_child(bucket)
+	bucket.global_position = home
+	var mop := PropKit.make(&"mop") as MopProp
+	get_parent().add_child(mop)
+	await get_tree().physics_frame
+	if not is_instance_valid(man):
+		return
+	var lean := TownLayout.facing_toward(&"Saloon", Vector3(0.12, 1.0, 0.1))
+	mop.stand_at(home + TownLayout.facing_toward(&"Saloon", Vector3(0.18, 0.0, 0.2)) + Vector3.UP * 0.06, lean)
+	var mopping := MopFloor.new(man, mop, bucket, brain.post, home)
+	mopping.places = places
+	mopping.home_lean = lean
+	mopping.outside = TownLayout.point(&"Saloon", Vector3(5.0, 0.0, -4.5))
+	brain.chores = [mopping, wipe]
+
+
+## Where the barkeep's mop and bucket stand (the saloon's space: the corner behind the bar's near end).
+const MOP_CORNER := Vector3(9.25, 0.78, 1.3)
 
 
 ## Three riders in from the west, a few paces apart, with a day planned (`only`: just these).
@@ -148,7 +192,9 @@ func _plan(g: Dictionary, i: int) -> Array[Dictionary]:
 		{"do": &"drink", "seconds": drink_seconds + i * 2.0, "face": face},
 	]
 	if g.id == &"brody":
-		plan.append({"do": &"drink", "seconds": harass_seconds + 25.0, "face": face, "first": false})
+		# While the other two are at the store he takes his whiskey to a card table and sits back with
+		# it (Seating: the saloon's kit chairs; Sean, 2026-10-22).
+		plan.append({"do": &"drink", "seconds": harass_seconds + 25.0, "face": face, "first": false, "sit": true})
 	else:
 		var spot := &"store_counter" if g.id == &"lyle" else &"store_aisle"
 		plan.append({"do": &"go", "to": spot})

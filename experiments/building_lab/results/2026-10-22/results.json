@@ -1,0 +1,523 @@
+{
+	"blast": {
+		"at": [
+			5.2,
+			6.0
+		],
+		"broken": 301.0,
+		"detonate": [
+			"broken",
+			"people",
+			"splinters"
+		],
+		"kit_props_thrown_or_broken": 20.0,
+		"ok": true,
+		"rubble": 263.0
+	},
+	"build": {
+		"kit_members": 482.0,
+		"kit_props": 23.0,
+		"lamps": 31.0,
+		"members": 5183.0,
+		"ms": 1487.0
+	},
+	"burns": {
+		"lit": [
+			"saloon_spec/hall_back/m/board/060_0",
+			"saloon_spec/floor/ground/board/040_0"
+		],
+		"marks": {
+			"120 s": {
+				"burning": 1000.0,
+				"consumed": 0.0,
+				"kit_burning": 161.0
+			},
+			"240 s": {
+				"burning": 3987.0,
+				"consumed": 325.0,
+				"kit_burning": 316.0
+			},
+			"360 s": {
+				"burning": 2406.0,
+				"consumed": 2529.0,
+				"kit_burning": 291.0
+			},
+			"480 s": {
+				"burning": 1439.0,
+				"consumed": 3502.0,
+				"kit_burning": 145.0
+			},
+			"600 s": {
+				"burning": 716.0,
+				"consumed": 4226.0,
+				"kit_burning": 65.0
+			},
+			"720 s": {
+				"burning": 493.0,
+				"consumed": 4449.0,
+				"kit_burning": 36.0
+			}
+		},
+		"ms": 265628.0,
+		"ok": true
+	},
+	"destructible": {
+		"allowed": {
+			"batch": 118.0,
+			"lamp_hitbox": 31.0,
+			"stair_ramp": 4.0
+		},
+		"bad": [],
+		"glass": 16.0,
+		"iron": 3.0,
+		"kit_members": 482.0,
+		"kit_props": 23.0,
+		"lamps": 31.0,
+		"members": 5183.0,
+		"not_things": 53.0,
+		"ok": true,
+		"rigs": [],
+		"stone": 133.0
+	},
+	"draws": {
+		"batches": 118.0,
+		"lamp_meshes": 248.0,
+		"lights": 31.0,
+		"own_meshes": 23.0,
+		"total": 389.0
+	},
+	"falls": {
+		"at": [
+			5.49,
+			10.67
+		],
+		"broken_or_fallen": 223.0,
+		"floats": [],
+		"floats_count": 0.0,
+		"members": 5183.0,
+		"ok": true,
+		"post": "saloon_spec/post/12",
+		"rubble_bodies": 110.0
+	},
+	"frame": {
+		"frame_ms": 0.13,
+		"note": "headless wall time a frame on this workspace's core; x0.65 for Sean's (CLAUDE.md)"
+	},
+	"kinds": {
+		"baluster": 437.0,
+		"beam": 37.0,
+		"board": 1504.0,
+		"cripple": 274.0,
+		"door": 19.0,
+		"floor_board": 831.0,
+		"furniture_frame": 24.0,
+		"furniture_top": 77.0,
+		"glass": 16.0,
+		"header": 48.0,
+		"joist": 371.0,
+		"ledger": 18.0,
+		"plate": 23.0,
+		"post": 44.0,
+		"rafter": 84.0,
+		"ridge": 48.0,
+		"roof_board": 251.0,
+		"sill": 177.0,
+		"stud": 337.0,
+		"trim": 563.0
+	},
+	"knockouts": [
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/0"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/1"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/2"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/3"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/4"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/cellar/post/5"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/front/4",
+				"beam/front/5"
+			],
+			"post": "saloon_spec/post/00"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/front/3",
+				"beam/front/4"
+			],
+			"post": "saloon_spec/post/01"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/front/2",
+				"beam/front/3"
+			],
+			"post": "saloon_spec/post/02"
+		},
+		{
+			"falls": 0.0,
+			"over": 3.0,
+			"over_first": [
+				"beam/well_west/2",
+				"beam/front/2",
+				"beam/front/1"
+			],
+			"post": "saloon_spec/post/03"
+		},
+		{
+			"falls": 0.0,
+			"over": 3.0,
+			"over_first": [
+				"beam/rooms_west/2",
+				"beam/front/0",
+				"beam/front/1"
+			],
+			"post": "saloon_spec/post/04"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/well_west/1",
+				"beam/well_west/2"
+			],
+			"post": "saloon_spec/post/05"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/rooms_west/1",
+				"beam/rooms_west/2"
+			],
+			"post": "saloon_spec/post/06"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/well_west/1",
+				"beam/well_west/0"
+			],
+			"post": "saloon_spec/post/07"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/rooms_west/1",
+				"beam/rooms_west/0"
+			],
+			"post": "saloon_spec/post/08"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/back/4",
+				"beam/back/5"
+			],
+			"post": "saloon_spec/post/09"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/back/3",
+				"beam/back/4"
+			],
+			"post": "saloon_spec/post/10"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"beam/back/2",
+				"beam/back/3"
+			],
+			"post": "saloon_spec/post/11"
+		},
+		{
+			"falls": 0.0,
+			"over": 3.0,
+			"over_first": [
+				"beam/well_west/0",
+				"beam/back/2",
+				"beam/back/1"
+			],
+			"post": "saloon_spec/post/12"
+		},
+		{
+			"falls": 0.0,
+			"over": 3.0,
+			"over_first": [
+				"beam/rooms_west/0",
+				"beam/back/0",
+				"beam/back/1"
+			],
+			"post": "saloon_spec/post/13"
+		},
+		{
+			"falls": 0.0,
+			"over": 1.0,
+			"over_first": [
+				"street/beam/0"
+			],
+			"post": "saloon_spec/street/post/0"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/street/post/1"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/street/post/2"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/street/post/3"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/street/post/4"
+		},
+		{
+			"falls": 0.0,
+			"over": 0.0,
+			"over_first": [],
+			"post": "saloon_spec/street/post/5"
+		},
+		{
+			"falls": 0.0,
+			"over": 2.0,
+			"over_first": [
+				"street/beam/2",
+				"street/beam/0"
+			],
+			"post": "saloon_spec/street/post/6"
+		},
+		{
+			"falls": 0.0,
+			"over": 1.0,
+			"over_first": [
+				"street/beam/1"
+			],
+			"post": "saloon_spec/street/post/7"
+		},
+		{
+			"falls": 0.0,
+			"over": 1.0,
+			"over_first": [
+				"street/beam/2"
+			],
+			"post": "saloon_spec/street/post/8"
+		},
+		{
+			"falls": 0.0,
+			"over": 1.0,
+			"over_first": [
+				"street/beam/1"
+			],
+			"post": "saloon_spec/street/post/9"
+		}
+	],
+	"people_fit": {
+		"doors": 13.0,
+		"failures": [],
+		"ok": true,
+		"stairs": 4.0,
+		"use_points": 21.0
+	},
+	"shots": {
+		"bar_front": {
+			"first_hit": "saloon_spec_bar_1/panel2",
+			"holed": true,
+			"voxels": false
+		},
+		"chair": {
+			"first_hit": "saloon_spec_card_table_6/foot3",
+			"holed": true,
+			"voxels": false
+		},
+		"east_wall": {
+			"first_hit": "saloon_spec/east/in_ground/board/026_0",
+			"holed": true,
+			"voxels": false
+		},
+		"gallery_rail": {
+			"first_hit": "saloon_spec/floor/front_gallery/board/009_2",
+			"holed": true,
+			"voxels": false
+		},
+		"ok": true,
+		"post": {
+			"first_hit": "saloon_spec/post/05",
+			"holed": true,
+			"voxels": false
+		}
+	},
+	"stands": {
+		"crowd": {
+			"over": 0.0,
+			"worst": [
+				[
+					"floor/back/joist/005",
+					0.83,
+					"bending"
+				],
+				[
+					"floor/back/joist/033",
+					0.72,
+					"bending"
+				],
+				[
+					"floor/back/joist/024",
+					0.66,
+					"bending"
+				],
+				[
+					"floor/back/joist/023",
+					0.61,
+					"bending"
+				],
+				[
+					"floor/ground/board/080_0",
+					0.61,
+					"bending"
+				],
+				[
+					"floor/ground/board/080_3",
+					0.56,
+					"bending"
+				],
+				[
+					"floor/back/joist/014",
+					0.55,
+					"bending"
+				],
+				[
+					"floor/west_gallery/joist/006",
+					0.53,
+					"bending"
+				],
+				[
+					"front/stud/029",
+					0.52,
+					"buckling"
+				],
+				[
+					"back/stud/020",
+					0.51,
+					"buckling"
+				],
+				[
+					"street/ledger_east",
+					0.49,
+					"joint"
+				],
+				[
+					"floor/ground/board/080_1",
+					0.47,
+					"bending"
+				]
+			]
+		},
+		"dead": {
+			"falling": 0.0,
+			"over": 0.0,
+			"worst": [
+				[
+					"truss/2/tie",
+					0.35,
+					"bending"
+				],
+				[
+					"truss/3/tie",
+					0.35,
+					"bending"
+				],
+				[
+					"truss/4/tie",
+					0.34,
+					"bending"
+				],
+				[
+					"truss/1/tie",
+					0.33,
+					"bending"
+				],
+				[
+					"truss/5/tie",
+					0.3,
+					"bending"
+				],
+				[
+					"truss/0/tie",
+					0.24,
+					"bending"
+				],
+				[
+					"outhouse/floor/8",
+					0.21,
+					"bending"
+				],
+				[
+					"truss/6/tie",
+					0.2,
+					"bending"
+				]
+			]
+		},
+		"ok": true,
+		"ok_crowd": true
+	},
+	"used": {
+		"failures": [],
+		"ok": true,
+		"seats": 14.0,
+		"use_points": 21.0
+	}
+}

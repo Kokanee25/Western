@@ -299,6 +299,10 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   to 6 s and gets his breath back there; he breaks if it doesn't pass or he's well past it).
   Quits on no hit 0.53 → 0.34 a fight, a third of shaken men rally; the street 12.7 → 16.9 s
   (45–90 s: 3% → 10%), fights 7.2 → 10.1 s; the ambush unchanged.
+- `2026-10-22_abc/`: the fixes as variants A/B/C, played and measured in the saloon (a quick draw in
+  every variant); `2026-10-22_perception/`: the perception lab's fix 1 merged in locally, and the
+  fairness check widened to what a man knows. No leak before or after; the street's fights run
+  longer, but cover dropped on arrival doubles (47 → 95).
 
 ## Limitations
 
