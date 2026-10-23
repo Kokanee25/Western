@@ -52,20 +52,32 @@ press debug_teleport 0.1
 press debug_teleport 0.1
 press debug_teleport 0.1
 press debug_teleport 0.1
-wait 2
+wait 1
+goto -64.38 0.9 27.5 180
+wait 1
 hold move_forward
-wait 2.5
+wait 2
 release move_forward
 wait 1
-turn 20
-wait 0.15
-turn 20
-wait 0.15
-turn 20
+turn 30
+wait 0.1
+turn 30
+wait 0.1
+turn 30
+wait 0.5
+hold move_forward
+wait 2
+release move_forward
+wait 1
+turn 60
+wait 0.1
+turn 60
+wait 0.1
+turn 60
 wait 0.5
 hold move_forward
 hold run
-wait 1.5
+wait 1.2
 release run
 release move_forward
 wait 1.5
