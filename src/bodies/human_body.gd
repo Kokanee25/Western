@@ -3277,6 +3277,20 @@ func _stain_runs_down(w: Dictionary, stain: Decal) -> void:
 
 
 ## A pool spreads on the ground under him while he lies bleeding.
+## A mop over the pool under him: `share` of it taken up (it grows again while he bleeds).
+func mop_pool(share: float) -> void:
+	_pool_ml *= clampf(1.0 - share, 0.0, 1.0)
+	if _pool == null:
+		return
+	if _pool_ml < 1.0:
+		_pool.queue_free()
+		_pool = null
+		_pool_ml = 0.0
+		return
+	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
+	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+
+
 func _update_pool() -> void:
 	if not physiology.alive and physiology.total_bleed_rate() < 0.01:
 		return

@@ -365,6 +365,17 @@ a few views renders them as the full run does.
   `DROP_FALLS` (1 m) or he walks on down ground steeper than ~50 deg (`STEEP_UP`) more than 0.5 m
   below where he last stood level (a stick's crater doesn't trip him; a dug hole does). Not yet:
   a man who has never walked (placed) floats over a hole dug under him; feet on slopes (one floats).
+- `FloorMarks` (`src/world/floor_marks.gd`, dials `FloorMarksTuning` in `config/floor_marks.tres`; brief
+  `docs/briefs/mopping.md`): what's on the boards. Made by TownLife (deferred) or `ensure`; group
+  `floor_marks`. A sparse grid of 0.125 m cells keyed `Vector3i(x, band, z)` (band: 5 cm of height) over
+  wooden surfaces facing up, found by a ray onto a structure member (`surface_at`, retried a few mm
+  off on a seam or gap); a cell holds `dirt` (g), `liquid` (ml by kind) and `stain` (ml soaked in, by
+  kind). Walkers' boots (`HumanBody`s and the player, each tick) pick dirt up on the street and shed
+  it on the boards; `Events.liquid_spilled` lays a film; `age(hours)` (from `DayCycle.pass_hours`, or
+  real time in a lab) dries it and soaks part in. `add_dirt`, `add_liquid`, `take(at, radius, share)`
+  (what a mop lifts, with Blood's marks: `Blood.take`), `mess(at, radius)`, `dirty_cells`. Drawn as a
+  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change. Prof
+  `floor_marks` (Structures). The water lab's spills will move its liquid cell to cell.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
@@ -563,8 +574,9 @@ a few views renders them as the full run does.
   seen). The shout key in arm's reach (3 m) of a man who's given up arrests him
   (`PlayerWounds._arrest`, `OutlawBrain.arrest`, `Events.person_arrested`): `hands_bound`, he
   follows a few steps behind; shouted again, he waits (again, follows). No jail yet.
-  **Chores** (`CivilianBrain.chore`, asked every tick with whether he's free: calm, fear < 0.05, no
-  one to thank; not free, or a hand on a wound of his, it stops): the barkeep's `WipeBar`
+  **Chores** (`CivilianBrain.chores`, one at a time: the busy one, `chore`, asked every tick with
+  whether he's free: calm, fear < 0.05, no one to thank; not free, or a hand on a wound of his, it
+  stops; idle, each asked in turn; far from his post he walks home by the places): the barkeep's `WipeBar`
   (`src/people/wipe_bar.gd`, dials `WipeTuning` in `config/wipe.tres`; docs/briefs/barkeep-rag.md).
   Steps IDLE → TAKE (hand to `ClothProp.shoulder_top`) → LAY (over the stretch, down, let go, palm on
   it) → WIPE (circles drifting across, then strokes along; the hand's height from a ray down onto
@@ -576,6 +588,16 @@ a few views renders them as the full run does.
   `watching`: his FaceLife watches it (`FaceLife.attend_to(point)`, renewed each tick: his eyes on
   his work, a start or a fight still take them; a man with no talking face turns his head and neck
   instead, `pose_offsets`). TownLife gives the barkeep his cloth and chore.
+  The barkeep's `MopFloor` (`src/people/mop_floor.gd`, dials `MopTuning` in `config/mop.tres`;
+  docs/briefs/mopping.md): every `look_every` s, free at his post and nobody within `quiet`, he scores
+  the floor round him (`FloorMarks.mess`, blood first); past `mess_to_start`: FETCH (mop and bucket
+  from their corner, `MOP_CORNER` in TownLife) → CARRY (to the dirtiest stretch, bucket set down by
+  it) → DIP/PRESS (in the bucket, wrung) → MOP (side to side, `stroke_width` x `stretch_depth`, worked
+  back toward him, both hands on the handle by `reach_to`, the mop's foot moved at most 2 m/s) →
+  dry or dirty, DIP again; out of reach, MOVE_BUCKET; murky past `change_water`, CHANGE_WATER (out the
+  door, emptied in the street, filled at the trough) → PUT_BACK. Trouble: the mop let go, the
+  bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
+  him both chores (`[mopping, wipe]`).
 
 ## src/audio
 
@@ -891,6 +913,16 @@ a few views renders them as the full run does.
   `HumanBody.wound_under_hand`. Its texture is an Image painted in code (`paint`), updated as it
   bloodies and chars; `PixelArt.factory("bar_cloth")` replaces it when painted. Prof `cloth`
   (People). The lab: `experiments/barkeep_rag/`.
+- **The mop and its bucket** (`MopProp`, `src/props/mop_prop.gd`, kit `"kind": "mop"`, `mop.json`;
+  `MopBucket`, `src/props/mop_bucket.gd`, kit `"kind": "bucket"`, `mop_bucket.json`): the mop's handle
+  a rigid body when free, fixed when STANDING (`stand_at`) or HELD (`take`, `hold_at(foot, lean)`,
+  `let_go`); its head one SoftBody3D of `strands` (ClothProp's way: the tops on the ring moved each
+  tick, `_keep_on_floor` keeps points above the boards, the bucket's body excepted). The head holds
+  `water_ml`, `dirt`, `blood`, `other`; dragged wet it lifts `take_rate` x speed of what's under it
+  (`FloorMarks.take`) and leaves a film of its own; in the bucket `_exchange` rinses it, `press`
+  wrings it. The bucket (BucketLine's model, `bucket_model()`) holds water and what's rinsed in it,
+  darkening (`murk`); `carry`/`set_down`, `empty_out` (on boards a spill, outside it soaks away),
+  `fill`, `give`/`receive`. Prof `mop` (People). The lab: `experiments/mopping/`.
 
 ## src/art/saloon_dressing.gd
 

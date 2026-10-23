@@ -449,13 +449,13 @@ frozen until Sean names one.
   art: marks along each member's grain. On main to walk in a build: F5's eighth stop builds it in
   the desert. Next: the README's "What the format needs"
   (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
-- **The barkeep's rag** (2026-10-22, branch `claude/gameplay-barkeep-rag`, with the prop lab's
-  leave; brief `docs/briefs/barkeep-rag.md`, lab `experiments/barkeep_rag/`): `ClothProp` (kit
-  kind `cloth`, `bar_cloth.json`: a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
-  them), `WipeBar` (a chore in `CivilianBrain.chore`, dials `config/wipe.tres`),
-  `HumanBody.reach_to`, `FireSystem.small_fire`; the saloon's barkeep wipes his bar when it's quiet.
-  `FaceLife.attend_to` (a deed sets what he watches). Waiting on Sean: the film in the PR, and
-  the paint's cost (#258).
+- **The barkeep's rag and mopping** (2026-10-22, with the prop lab's leave; briefs
+  `docs/briefs/barkeep-rag.md`, `mopping.md`; labs `experiments/barkeep_rag/`, `mopping/`): the rag
+  merged (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`. Mopping
+  (`claude/gameplay-mopping`): `FloorMarks` (tracked mud, wet patches, stains), `MopProp`,
+  `MopBucket`, `MopFloor` (chores: `CivilianBrain.chores`). Waiting on Sean: both films (in the
+  PRs), the rag's paint cost (#258). Next: the water lab's spills on FloorMarks' grid.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
