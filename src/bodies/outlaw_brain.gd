@@ -119,26 +119,28 @@ const LINES := {
 ## He runs the gang: his "Fall back!" and his giving up carry the others with him.
 @export var leads := false
 
-## How he fights, the gunfight lab's three (`experiments/gunfight_lab/`, Sean's A/B/C to play):
+## How he fights, the gunfight lab's four (`experiments/gunfight_lab/`; Y/X/Z play them):
 ## A as before the lab (shots in a random cone round his aim, cover found within a step of his
 ## own height); B aims by his hand (`GunHand`), takes a moment to react and finds the town's cover
-## (doorways, round the bar, up or down a step); C is B and shaken before he breaks. The game
-## plays `default_variant` (A) until Sean picks one. D is C and fights that commit (Sean's first play,
+## (doorways, round the bar, up or down a step); C is B and shaken before he breaks. D is C and
+## fights that commit, the game's since 2026-10-23 (`default_variant`; it was A) (Sean's first play,
 ## issue #257: "the bad guys just kept quitting"): noise and near misses pin a man but don't break
 ## him (`fright`, fading in seconds, counts for at most a share of his nerve); a gun held on him in a
 ## fight is just the fight; a hothead never quits early; the man who leads them holds the rest while
 ## he's in it; and a green man's quitting barely shakes the others. `D_FIXES` names each, so the lab
 ## can try one at a time.
 enum Variant { A, B, C, D }
-static var default_variant := Variant.A
+static var default_variant := Variant.D
 var variant: Variant = default_variant
 ## D's fixes, each on unless the lab leaves it out (`experiments/gunfight_lab/`, `fixes=`):
 ## aim_fight (aimed at frightens before a fight, not in one), noise (near misses, a shot nearby and a
 ## hat shot are fright, not dread), hothead (a man of temper holds his first half minute), leader
 ## (the man who leads holds the rest, and calls a shaken one back), green (a man of little nerve
 ## quitting barely shakes the rest), cover_way (a longer way round to real cover: the bar's end),
-## steady (the thump of a ball frightens a steady man less: `_thump`).
-const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady"]
+## steady (the thump of a ball frightens a steady man less: `_thump`), floored (knocked off his
+## feet but not beaten, he gets up rather than give up to the man standing over him), hunt_way
+## (looking for you, he goes by the town's ways, out of the door and round the bar, not into a wall).
+const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -149,7 +151,8 @@ const FRIGHT_SHARE := 0.4
 const HOT_TEMPER := 0.7
 const HOT_EARLY := 30.0
 const HOT_NERVE := 0.5
-## The man who leads them, up and in it within earshot: this much more nerve for each of the rest;
+## The man who leads them, up and in it within earshot: this much more nerve for each of the rest
+## (times the man's own: Lyle +0.18, the Kid +0.08);
 ## and his "Hold!" takes this much off a shaken man's fear.
 const LEADER_NERVE := 0.25
 const LEADER_HOLD := 0.15
@@ -172,6 +175,9 @@ var fright := 0.0
 var _fight_from := -1.0  # when this fight started (his clock), -1 not in one
 var _leader_t := 0.0
 var _leader_near := false
+var _hunt_way: Array[Vector3] = []  # variant D's hunt_way: his way to where he last knew you
+var _hunt_to := Vector3.INF
+var _hunt_t := 0.0
 var rounds := 5
 var target: Node3D
 
@@ -662,7 +668,7 @@ func _physics_step(delta: float) -> void:
 	_startled = maxf(_startled - delta, 0.0)
 	suppressed = maxf(suppressed - delta, 0.0)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
-	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
+	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if not _armed_still() else 0.0) \
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
 	var settle := fear_settle_in_cover if variant >= Variant.C and tactic == Tactic.HIDDEN and suppressed <= 0.0 else 0.01
 	var was_fear := fear
@@ -679,7 +685,7 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.TENDING:
 		_tend(delta)
 		return
-	if body.held_gun == null and mood != Mood.CALM:
+	if not _armed_still() and mood != Mood.CALM:
 		_scare(0.3 * delta, &"no gun")
 	if _pending_break != &"":
 		_pending_in -= delta
@@ -1339,7 +1345,17 @@ func _hunt(delta: float, t: Node3D) -> void:
 		return
 	var flat := Vector3(spot.x, body.global_position.y, spot.z)
 	body.set_pose(&"aim")
-	if body.global_position.distance_to(flat) > 1.5:
+	if _has(&"hunt_way") and _town() != null and body.global_position.distance_to(flat) > 1.5:
+		# By the town's ways (out of the door and along the walk, round the bar), not into the wall
+		# between: the way's worked out again when the spot he's after moves, or every 2 s.
+		_hunt_t -= delta
+		if _hunt_t <= 0.0 or _hunt_to.distance_to(spot) > 1.0 or _hunt_way.is_empty():
+			_hunt_t = 2.0
+			_hunt_to = spot
+			_hunt_way = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, spot, _exclude(t))
+		if not _hunt_way.is_empty() and body.walk_to(_hunt_way[0], walk_speed * 1.3, delta) and _hunt_way.size() > 1:
+			_hunt_way.pop_front()
+	elif body.global_position.distance_to(flat) > 1.5:
 		body.walk_to(flat, walk_speed * 1.3, delta)
 	else:
 		# There: turn about, looking.
@@ -2181,6 +2197,12 @@ func _scare(amount: float, why: StringName) -> void:
 const NOISE := [&"near miss", &"a shot nearby", &"hat shot"]
 
 
+## He's a gun he can use: in his hand, and (variant D's `steady`, where a ball alone no longer
+## breaks a man whose gun arm it's broken) a hand that can hold it.
+func _armed_still() -> bool:
+	return body.held_gun != null and (not _has(&"steady") or body.physiology.can_hold("r"))
+
+
 ## How much the shock of being hit frightens him (variant D's `steady`): a steady man takes the
 ## thump of a ball far better than a green one (what the wound does to him, the pain, the shock,
 ## the bleeding, counts in full either way: `floor_fear`).
@@ -2189,6 +2211,9 @@ func _thump() -> float:
 
 
 const STEADY_THUMP := 0.45
+## Variant D's `floored`: knocked down with his gun in his hand, he gives himself up to a man near
+## him only once he's this much of the way to breaking; short of it he gets back up.
+const FLOORED_HOLDS := 0.6
 
 
 ## One of variant D's fixes is on for him.
@@ -2210,7 +2235,7 @@ func nerve_now() -> float:
 	if _has(&"hothead") and temper >= HOT_TEMPER and _now - _fight_from < HOT_EARLY:
 		n += HOT_NERVE * temper
 	if _has(&"leader") and not leads and _leader_near:
-		n += LEADER_NERVE
+		n += LEADER_NERVE * clampf(nerve, 0.0, 1.0)  # he steadies a steady man; a green one hardly
 	return n
 
 
@@ -2407,6 +2432,9 @@ func _down_but_awake(delta: float) -> void:
 	if _give_up_look > 0.0 or not body.physiology.is_conscious():
 		return
 	_give_up_look = 0.5
+	if _has(&"floored") and dread() < nerve_now() * FLOORED_HOLDS and body.held_gun != null and body.physiology.can_hold("r"):
+		_decide("get back up", "knocked down, not beat (fear %.2f / %.2f)" % [dread(), nerve_now()])
+		return  # knocked off his feet, not beaten: he's getting up (or fighting from the floor)
 	for who in relations.entries.keys():  # a copy (see _pick_fight)
 		if not is_instance_valid(who) or not who is Node3D or relations.stance(who) < Relations.Stance.WARY:
 			continue

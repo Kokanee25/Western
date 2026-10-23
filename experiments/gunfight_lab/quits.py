@@ -6,7 +6,8 @@
 Each ROOT is a run.py output (its fights/*.json). Rows are grouped by --by (any record field:
 variant, opening, scenario, style, weapon, hour; default variant,opening). For each row:
 
-- fights, median length, the share 45-90 s (the brief's target) and under 15 s;
+- fights, median length, the share 45-90 s (the brief's target) and under 15 s; and the same for
+  the shooting (to the last shot: a fight the lab ends on 45 s of quiet isn't 45 s of fight);
 - how they end; how often anyone quits (gives up or runs) and how soon (the first quit);
 - quits a fight, and on how many hits the quitter had taken (0, 1, 2+);
 - who quits first (Brody, Lyle, the Kid), each man's quit rate and median time;
@@ -60,9 +61,17 @@ def quits_of(r):
     return sorted(q)
 
 
+def last_shot(r):
+    """When the shooting stopped (s): the fight's length less any quiet it ended on (a lull, men
+    who lost you and gave it up): what was fought, not waited out."""
+    shots = [float(e[0]) for e in r.get("timeline", []) if e[1] == "shot"]
+    return max(shots) if shots else 0.0
+
+
 def row(rs):
     n = len(rs)
     lengths = [float(r["length_s"]) for r in rs]
+    fought = [last_shot(r) for r in rs]
     endings = {}
     for r in rs:
         endings[r["ending"]] = endings.get(r["ending"], 0) + 1
@@ -90,7 +99,8 @@ def row(rs):
     men = [m for r in rs for m in r["men"].values()]
     fired = sum(1 for m in men if int(m.get("shots", 0)) > 0)
     return {
-        "n": n, "len": med(lengths), "in_target": pct(sum(1 for x in lengths if 45 <= x <= 90), n),
+        "n": n, "len": med(lengths), "fought": med(fought), "fought_target": pct(sum(1 for x in fought if 45 <= x <= 90), n),
+        "fought_20": pct(sum(1 for x in fought if x >= 20), n), "in_target": pct(sum(1 for x in lengths if 45 <= x <= 90), n),
         "under15": pct(sum(1 for x in lengths if x < 15), n), "endings": endings,
         "any_quit": pct(len(with_quit), n), "first_quit": med(first),
         "quits_a_fight": len(all_q) / n if n else 0.0, "by_hits": by_hits, "firsts": firsts,
@@ -112,7 +122,7 @@ def main(argv):
         key = tuple(str(r.get(k, "")) or "-" for k in by)
         groups.setdefault(key, []).append(r)
     lines = ["# How they quit (%d fights; %s)" % (len(rs), ", ".join(roots)), ""]
-    head = by + ["fights", "length s (med)", "45-90 s", "< 15 s", "anyone quits", "first quit s (med)", "quits a fight",
+    head = by + ["fights", "length s (med)", "45-90 s", "< 15 s", "shooting s (med)", "shooting 20 s+", "shooting 45-90 s", "anyone quits", "first quit s (med)", "quits a fight",
                  "quit on 0 / 1 / 2+ hits", "first to quit B/L/K", "men who fired", "shots a man", "hits on you", "you down"]
     lines.append("| " + " | ".join(head) + " |")
     lines.append("|" + "---|" * len(head))
@@ -123,7 +133,7 @@ def main(argv):
         bh = x["by_hits"]
         f = x["firsts"]
         lines.append("| " + " | ".join(list(key) + [
-            str(x["n"]), "%.1f" % x["len"], x["in_target"], x["under15"], x["any_quit"], "%.1f" % x["first_quit"],
+            str(x["n"]), "%.1f" % x["len"], x["in_target"], x["under15"], "%.1f" % x["fought"], x["fought_20"], x["fought_target"], x["any_quit"], "%.1f" % x["first_quit"],
             "%.2f" % x["quits_a_fight"], "%d / %d / %d" % (bh["0"], bh["1"], bh["2+"]),
             "%d / %d / %d" % (f.get("brody", 0), f.get("lyle", 0), f.get("kid", 0)), x["fired"], "%.1f" % x["shots_a_man"],
             "%.1f" % x["hits_on_you"], x["you_down"]]) + " |")
