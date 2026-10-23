@@ -77,7 +77,16 @@ func take_blow(at: Vector3, impulse: Vector3, blow_mass := 8.0) -> StringName:
 		wake(v)
 	else:
 		body.linear_velocity += v
-	body.apply_torque_impulse((at - body.global_position).cross(v * body.mass) * 0.5)
+	# Struck above or below its middle it turns as well: the momentum it took, about its middle,
+	# over its inertia as a solid cylinder's across its axis, m(3r² + h²)/12. (Set, not an impulse:
+	# one given in the frame it's woken is lost.)
+	var cs := body.get_child(0) as CollisionShape3D
+	var mid := cs.global_position if cs else body.global_position
+	var cyl := cs.shape as CylinderShape3D if cs else null
+	var r := cyl.radius if cyl else 0.1
+	var h := cyl.height if cyl else 0.2
+	var inertia := body.mass * (3.0 * r * r + h * h) / 12.0
+	body.angular_velocity += (at - mid).cross(v * body.mass) / maxf(inertia, 1e-5)
 	var d: Dictionary = definition.get("dent", {})
 	dent(at, impulse.normalized(), float(d.get("radius", 0.04)), float(d.get("kick", 0.008)))
 	return &"moved"

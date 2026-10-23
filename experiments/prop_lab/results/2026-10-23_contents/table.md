@@ -12,10 +12,10 @@
 | oil_burn | nothing | at 341.70 s, on its feet | 0 (0.0 m) | caught 20, burnt 20 (192.2, 192.2, 237.9, 258.9 s) | - | - | lamp_oil: 168.7 of 169 l out, all at once, 21 leak(s) (21 slot) | none | 0.1 / 0.2 |
 | spittoon_revolver_5m | nothing | no | 0 (0.0 m) | - | - | - | spittoon: 2 holes, 1 dents, 0.00 m, spilt | none | 0.4 / 11.0 |
 | spittoon_shotgun_5m | nothing | no | 0 (0.0 m) | - | - | - | spittoon: 18 holes, 9 dents, 0.35 m, spilt | none | 12.7 / 3.0 |
-| spittoon_kick | nothing | no | 0 (0.0 m) | - | - | - | spittoon: 0 holes, 2 dents, 0.82 m, over, spilt | none | 0.8 / 6.8 |
+| spittoon_kick | nothing | no | 0 (0.0 m) | - | - | - | spittoon: 0 holes, 2 dents, 0.56 m, over, spilt | none | 1.1 / 6.8 |
 | cup_revolver_5m | nothing | no | 0 (0.0 m) | - | - | - | tin_cup: 2 holes, 1 dents, 0.01 m | none | 0.4 / 6.5 |
 | cup_shotgun_5m | nothing | no | 0 (0.0 m) | - | - | - | tin_cup: 6 holes, 5 dents, 6.36 m, over, spilt | none | 17.5 / 3.0 |
 | cups_dynamite_1m | nothing | at 0.02 s, knocked over | 20 (3.1 m) | - | - | - | spittoon: 0 holes, 0 dents, 0.03 m; tin_cup: 0 holes, 1 dents, 2.32 m, over, spilt; tin_cup: 0 holes, 0 dents, 2.92 m, over, spilt | none | 603.7 / 9.7 |
 | cups_dynamite_3m | nothing | at 0.02 s, on its feet | 1 (0.2 m) | - | - | - | tin_cup: 0 holes, 0 dents, 0.04 m; tin_cup: 0 holes, 0 dents, 0.04 m | none | 565.6 / 3.4 |
 | cups_dynamite_6m | nothing | no | 0 (0.0 m) | - | - | - | - | none | 518.6 / 0.9 |
-| cups_table_shoved_over | rim2 | at 0.00 s, knocked over | 21 (5.8 m) | - | - | - | tin_cup: 0 holes, 1 dents, 2.96 m, over, spilt; tin_cup: 0 holes, 2 dents, 4.91 m, over, spilt | none | 15.3 / 7.3 |
+| cups_table_shoved_over | rim2 | at 0.00 s, knocked over | 21 (5.8 m) | - | - | - | tin_cup: 0 holes, 1 dents, 2.96 m, over, spilt; tin_cup: 0 holes, 2 dents, 4.91 m, over, spilt | none | 16.3 / 7.7 |

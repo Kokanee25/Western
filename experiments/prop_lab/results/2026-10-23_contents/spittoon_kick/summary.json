@@ -12,10 +12,10 @@
   "fingerprint": 5863005,
   "fire_spills": 0,
   "frame": {
-    "added_ms_first_1s": 0.27,
+    "added_ms_first_1s": 0.38,
     "before_ms": 0.02,
-    "event_ms": 0.83,
-    "settle_ms": 6.84
+    "event_ms": 1.09,
+    "settle_ms": 6.75
   },
   "glass": [
     {
@@ -24,7 +24,7 @@
       "holes": 0,
       "id": "spittoon",
       "loose": true,
-      "moved_m": 0.82,
+      "moved_m": 0.56,
       "spilt": true,
       "upright": false
     },
@@ -63,7 +63,7 @@
     {
       "liquid": "spit",
       "litres": 0.3,
-      "t": 0.1
+      "t": 0.18
     }
   ],
   "upright": true

@@ -14,8 +14,8 @@
   "frame": {
     "added_ms_first_1s": 1.13,
     "before_ms": 0.02,
-    "event_ms": 15.33,
-    "settle_ms": 7.35
+    "event_ms": 16.27,
+    "settle_ms": 7.72
   },
   "glass": [
     {

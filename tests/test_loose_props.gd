@@ -1,7 +1,7 @@
 extends TestCase
 ## The prop kit's loose rigid props (LooseProp: the spittoon, the tin cup): they stand where
-## they're put and draw batched; a ball goes through them, holing both sides, and knocks them; a
-## boot sends one rolling, dented; tipped, a spittoon lets its spit go; its table going over or a
+## they're put; a ball goes through them, holing both sides, and hardly shifts them; a boot at its
+## rim sends one over, dented; tipped, a spittoon lets its spit go; its table going over or a
 ## blast close by takes a cup off; nothing breaks them and they don't burn.
 
 var world: Node3D
@@ -83,14 +83,16 @@ func test_a_ball_holes_the_spittoon_both_sides_and_knocks_it() -> void:
 	check(p.loose, "it's knocked loose")
 	check_eq(p.holes, 2, "a hole in and a hole out")
 	check(p.dents >= 1, "dented round them")
-	check(p.body.linear_velocity.x > 0.05 or p.body.global_position.x > 0.01, "and it's moving off along the shot")
+	# The ball goes through thin brass keeping most of its momentum: it hardly shifts it.
+	await physics_frames(60)
+	check(p.body.global_position.distance_to(aim - Vector3(0, 0.15, 0)) < 0.3, "it hardly shifts (%.2f m)" % p.body.global_position.distance_to(aim - Vector3(0, 0.15, 0)))
 	check(not p.broken, "brass doesn't break")
 
 
-func test_a_kick_sends_it_rolling_dented_and_it_spills() -> void:
+func test_a_kick_at_its_rim_sends_it_over_dented_and_it_spills() -> void:
 	var p := await _put(&"spittoon")
 	var before := _verts(p)
-	check_eq(p.take_blow(p.body.global_position + Vector3(-0.15, 0.12, 0), Vector3(48.0, 0, 0)), &"moved", "a boot moves it")
+	check_eq(p.take_blow(p.body.global_position + Vector3(-0.12, 0.22, 0), Vector3(48.0, 0, 0)), &"moved", "a boot moves it")
 	check(p.body.linear_velocity.length() > 3.0, "the boot and 2 kg go on together at %.1f m/s" % p.body.linear_velocity.length())
 	var after := _verts(p)
 	var moved := 0
